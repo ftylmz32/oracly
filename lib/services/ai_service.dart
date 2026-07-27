@@ -6,13 +6,20 @@ import 'package:http/http.dart' as http;
 import 'context_service.dart';
 
 
+
 class AiService {
 
-  final ContextService _contextService = ContextService();
+
+  final ContextService _contextService =
+      ContextService();
 
 
 
-  Future<String> sendMessage(String message) async {
+
+  Future<String> sendMessage(
+    String message,
+  ) async {
+
 
     final apiKey =
         dotenv.env['OPENAI_API_KEY'];
@@ -27,6 +34,8 @@ class AiService {
 
 
 
+
+
     // 👤 Kullanıcı bağlamını al
 
     final userContext =
@@ -35,60 +44,132 @@ class AiService {
 
 
 
+
+
+
     final response = await http.post(
+
+
 
       Uri.parse(
         'https://api.openai.com/v1/responses',
       ),
 
 
+
       headers: {
 
-        'Content-Type': 'application/json',
+
+        'Content-Type':
+            'application/json',
+
+
 
         'Authorization':
             'Bearer $apiKey',
 
+
       },
+
+
 
 
       body: jsonEncode({
 
-        "model": "gpt-5.5",
+
+
+        "model":
+            "gpt-5.5",
+
+
+
 
 
         "instructions": """
 
 Sen Oracly'sin.
 
-Kullanıcıyla sıcak, doğal ve samimi konuş.
-Türkçe cevap ver.
+Kullanıcının kişisel AI asistanısın.
 
-Kullanıcı hakkında sahip olduğun bağlam:
+
+Türkçe konuş.
+
+
+Kullanıcıyla:
+
+- sıcak,
+- doğal,
+- samimi,
+- yardımcı
+
+bir şekilde iletişim kur.
+
+
+
+Senin görevin sadece cevap vermek değil;
+
+kullanıcıyı zaman içinde tanımak,
+geçmiş bilgileri doğru şekilde kullanmak
+ve daha kişisel bir deneyim sunmaktır.
+
+
+
+Hafızanda bulunan bilgileri:
+
+- uygun olduğunda kullan,
+- cevaplarını kişiselleştir,
+- kullanıcının hedeflerini ve tercihlerini dikkate al.
+
+
+
+Kurallar:
+
+- Kullanıcı hakkında bilmediğin şeyleri uydurma.
+- Emin olmadığın bilgileri gerçekmiş gibi söyleme.
+- Hafızayı gereksiz şekilde kullanıcıya gösterme.
+- Robot gibi cevap verme.
+- Doğal bir sohbet arkadaşı gibi davran.
+
+
+
+Kullanıcı bağlamı:
 
 $userContext
 
 
-Bu bilgileri sadece cevaplarını kişiselleştirmek için kullan.
-
-Kullanıcı hakkında emin olmadığın şeyleri uydurma.
 
 """,
 
 
-        "input": message,
+
+
+
+        "input":
+            message,
+
+
 
       }),
+
 
     );
 
 
 
+
+
+
     if (response.statusCode != 200) {
 
-      return "API hatası: ${response.statusCode}";
+
+      return
+          "API hatası: ${response.statusCode}";
+
 
     }
+
+
+
 
 
 
@@ -97,7 +178,11 @@ Kullanıcı hakkında emin olmadığın şeyleri uydurma.
 
 
 
+
+
+
     if (data["output"] != null) {
+
 
       for (var item in data["output"]) {
 
@@ -110,22 +195,33 @@ Kullanıcı hakkında emin olmadığın şeyleri uydurma.
 
             if (content["text"] != null) {
 
+
               return content["text"];
+
 
             }
 
+
           }
+
 
         }
 
+
       }
+
 
     }
 
 
 
+
+
+
     return "Cevap alınamadı.";
 
+
   }
+
 
 }
