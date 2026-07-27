@@ -9,21 +9,26 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+
 class _ProfileScreenState extends State<ProfileScreen> {
+
   final ProfileService _profileService = ProfileService();
 
   Map<String, dynamic> _profile = {};
 
+
   @override
   void initState() {
     super.initState();
-
     _loadProfile();
   }
 
 
   Future<void> _loadProfile() async {
+
     final data = await _profileService.getProfile();
+
+    if (!mounted) return;
 
     setState(() {
       _profile = data;
@@ -31,147 +36,356 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
 
+
+  Future<void> _showInputDialog({
+    required String title,
+    required TextEditingController controller,
+    required Future<void> Function() onSave,
+  }) async {
+
+    await showDialog(
+
+      context: context,
+
+      builder: (_) {
+
+        return AlertDialog(
+
+          title: Text(title),
+
+          content: TextField(
+            controller: controller,
+          ),
+
+
+          actions: [
+
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+
+              child: const Text("İptal"),
+            ),
+
+
+            ElevatedButton(
+
+              onPressed: () async {
+
+                if (controller.text.trim().isNotEmpty) {
+
+                  await onSave();
+
+                  await _loadProfile();
+
+                }
+
+                if (mounted) {
+                  Navigator.pop(context);
+                }
+
+              },
+
+              child: const Text("Kaydet"),
+
+            ),
+
+          ],
+
+        );
+      },
+    );
+  }
+
+
+
+
+  Future<void> _editName() async {
+
+    final controller = TextEditingController(
+      text: _profile["name"] ?? "",
+    );
+
+
+    await _showInputDialog(
+
+      title: "İsim",
+
+      controller: controller,
+
+      onSave: () async {
+
+        await _profileService.saveName(
+          controller.text.trim(),
+        );
+
+      },
+
+    );
+
+  }
+
+
+
+  Future<void> _editJob() async {
+
+    final controller = TextEditingController(
+      text: _profile["job"] ?? "",
+    );
+
+
+    await _showInputDialog(
+
+      title: "Meslek",
+
+      controller: controller,
+
+      onSave: () async {
+
+        await _profileService.saveJob(
+          controller.text.trim(),
+        );
+
+      },
+
+    );
+
+  }
+
+
+
+
+  Future<void> _addInterest() async {
+
+    final controller = TextEditingController();
+
+
+    await _showInputDialog(
+
+      title: "İlgi Alanı",
+
+      controller: controller,
+
+      onSave: () async {
+
+        final list =
+            List<String>.from(
+              _profile["interests"] ?? [],
+            );
+
+
+        list.add(controller.text.trim());
+
+
+        await _profileService.saveInterests(
+          list,
+        );
+
+      },
+
+    );
+
+  }
+
+
+
+
+  Future<void> _addGoal() async {
+
+    final controller = TextEditingController();
+
+
+    await _showInputDialog(
+
+      title: "Hedef",
+
+      controller: controller,
+
+      onSave: () async {
+
+        final list =
+            List<String>.from(
+              _profile["goals"] ?? [],
+            );
+
+
+        list.add(controller.text.trim());
+
+
+        await _profileService.saveGoals(
+          list,
+        );
+
+      },
+
+    );
+
+  }
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
+
 
     final name = _profile["name"] ?? "";
     final job = _profile["job"] ?? "";
 
+
     final interests =
-        _profile["interests"] ?? [];
+        List<String>.from(
+          _profile["interests"] ?? [],
+        );
+
 
     final goals =
-        _profile["goals"] ?? [];
+        List<String>.from(
+          _profile["goals"] ?? [],
+        );
+
 
 
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text(
-          "Profil",
-        ),
+        title: const Text("Profil"),
         centerTitle: true,
       ),
 
 
-      body: Padding(
+
+      body: ListView(
+
         padding: const EdgeInsets.all(20),
 
-        child: ListView(
+        children: [
 
-          children: [
 
-            const CircleAvatar(
-              radius: 45,
-              child: Icon(
-                Icons.person,
-                size: 50,
+          const CircleAvatar(
+
+            radius: 45,
+
+            child: Icon(
+              Icons.person,
+              size: 50,
+            ),
+
+          ),
+
+
+
+          const SizedBox(height:20),
+
+
+
+          ListTile(
+
+            title: Text(
+              name.isEmpty
+                  ? "İsimsiz Kullanıcı"
+                  : name,
+
+              style: const TextStyle(
+                fontSize:22,
+                fontWeight:FontWeight.bold,
               ),
+
             ),
 
+            trailing: IconButton(
 
-            const SizedBox(height: 20),
+              icon: const Icon(Icons.edit),
 
+              onPressed: _editName,
 
-            Center(
-              child: Text(
-                name.isEmpty
-                    ? "İsimsiz Kullanıcı"
-                    : name,
-
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ),
 
-
-            const SizedBox(height: 30),
-
-
-
-            _buildCard(
-              "💼 Meslek",
-              job.isEmpty
-                  ? "Belirtilmemiş"
-                  : job,
-            ),
+          ),
 
 
 
-            _buildListCard(
-              "🎮 İlgi Alanları",
-              interests,
-            ),
+
+          _infoCard(
+            "💼 Meslek",
+            job.isEmpty
+                ? "Belirtilmemiş"
+                : job,
+            _editJob,
+          ),
 
 
 
-            _buildListCard(
-              "🎯 Hedefler",
-              goals,
-            ),
 
-          ],
-        ),
+          _listCard(
+            "🎮 İlgi Alanları",
+            interests,
+            _addInterest,
+          ),
+
+
+
+
+          _listCard(
+            "🎯 Hedefler",
+            goals,
+            _addGoal,
+          ),
+
+
+        ],
       ),
     );
   }
 
 
 
-  Widget _buildCard(
+
+
+  Widget _infoCard(
     String title,
     String value,
+    VoidCallback onEdit,
   ) {
 
     return Card(
 
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      child: ListTile(
 
-        child: Column(
+        title: Text(title),
 
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+        subtitle: Text(value),
 
-          children: [
+        trailing: IconButton(
 
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
+          icon: const Icon(Icons.edit),
 
+          onPressed: onEdit,
 
-            const SizedBox(height: 8),
-
-
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-
-          ],
         ),
+
       ),
+
     );
   }
 
 
 
-  Widget _buildListCard(
+
+
+  Widget _listCard(
     String title,
-    List items,
+    List<String> items,
+    VoidCallback onAdd,
   ) {
+
 
     return Card(
 
       child: Padding(
+
         padding: const EdgeInsets.all(16),
 
         child: Column(
@@ -179,33 +393,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment:
               CrossAxisAlignment.start,
 
+
           children: [
 
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+
+            Row(
+
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween,
+
+
+              children: [
+
+                Text(
+
+                  title,
+
+                  style: const TextStyle(
+
+                    fontSize:18,
+
+                    fontWeight:
+                        FontWeight.bold,
+
+                  ),
+
+                ),
+
+
+                IconButton(
+
+                  icon:
+                      const Icon(Icons.add),
+
+                  onPressed: onAdd,
+
+                ),
+
+              ],
+
             ),
 
 
-            const SizedBox(height: 8),
 
-
-            if (items.isEmpty)
+            if(items.isEmpty)
 
               const Text(
                 "Henüz bilgi yok",
               )
 
-
             else
 
               ...items.map(
-                (item) => Text(
-                  "• $item",
-                ),
+                (e)=>Text("• $e"),
               ),
 
           ],
