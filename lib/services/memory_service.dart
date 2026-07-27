@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/memory_item.dart';
-import '../../services/profile_service.dart';
-import '../../services/memory_service.dart';
 
 
 
@@ -17,6 +15,7 @@ class MemoryService {
 
   static const String _memoryKey =
       "user_memories";
+
 
 
 
@@ -41,6 +40,7 @@ class MemoryService {
 
 
 
+
   // Kullanıcı adını getir
 
   Future<String?> getUserName() async {
@@ -60,10 +60,66 @@ class MemoryService {
 
 
 
-  // Yeni gelişmiş hafıza ekleme
+  // Yeni hafıza ekleme
+  // Aynı bilgi varsa tekrar kaydetmez
 
   Future<void> addAdvancedMemory(
     MemoryItem item,
+  ) async {
+
+
+    final memories =
+        await getAdvancedMemories();
+
+
+
+    final exists =
+        memories.any(
+
+      (memory) =>
+
+          memory.content
+              .toLowerCase()
+              .trim() ==
+          item.content
+              .toLowerCase()
+              .trim(),
+
+    );
+
+
+
+    if (exists) {
+
+      return;
+
+    }
+
+
+
+
+
+    memories.add(item);
+
+
+
+    await _saveMemories(
+      memories,
+    );
+
+
+  }
+
+
+
+
+
+
+
+  // Hafızaları kaydet
+
+  Future<void> _saveMemories(
+    List<MemoryItem> memories,
   ) async {
 
 
@@ -72,33 +128,31 @@ class MemoryService {
 
 
 
-    final memories =
-        await getAdvancedMemories();
-
-
-
-    memories.add(item);
-
-
-
     final encoded =
         memories
             .map(
+
               (e) => jsonEncode(
                 e.toJson(),
               ),
+
             )
             .toList();
 
 
 
     await prefs.setStringList(
+
       _memoryKey,
+
       encoded,
+
     );
 
 
   }
+
+
 
 
 
@@ -123,15 +177,20 @@ class MemoryService {
 
 
 
+
     return data.map(
+
 
       (item) {
 
+
         try {
+
 
           return MemoryItem.fromJson(
             jsonDecode(item),
           );
+
 
 
         } catch(e) {
@@ -154,7 +213,6 @@ class MemoryService {
             createdAt:
                 DateTime.now(),
 
-
           );
 
 
@@ -163,10 +221,48 @@ class MemoryService {
 
       },
 
+
     ).toList();
 
 
   }
+
+
+
+
+
+
+
+
+  // Hafıza var mı kontrol
+
+  Future<bool> memoryExists(
+    String content,
+  ) async {
+
+
+    final memories =
+        await getAdvancedMemories();
+
+
+
+    return memories.any(
+
+      (memory) =>
+
+          memory.content
+              .toLowerCase()
+              .trim() ==
+
+          content
+              .toLowerCase()
+              .trim(),
+
+    );
+
+
+  }
+
 
 
 
@@ -185,13 +281,18 @@ class MemoryService {
 
 
     return memories
+
         .map(
+
           (e) => e.content,
+
         )
+
         .toList();
 
 
   }
+
 
 
 
@@ -208,30 +309,39 @@ class MemoryService {
 
     await addAdvancedMemory(
 
+
       MemoryItem(
+
 
         category:
             "general",
+
 
 
         content:
             memory,
 
 
+
         importance:
             "normal",
+
 
 
         createdAt:
             DateTime.now(),
 
 
+
       ),
+
 
     );
 
 
   }
+
+
 
 
 
@@ -254,35 +364,21 @@ class MemoryService {
     memories.removeWhere(
 
       (item) =>
+
           item.content == memory,
 
     );
 
 
 
-    final prefs =
-        await SharedPreferences.getInstance();
-
-
-
-    await prefs.setStringList(
-
-      _memoryKey,
-
-
-      memories
-          .map(
-            (e) => jsonEncode(
-              e.toJson(),
-            ),
-          )
-          .toList(),
-
-
+    await _saveMemories(
+      memories,
     );
 
 
   }
+
+
 
 
 
