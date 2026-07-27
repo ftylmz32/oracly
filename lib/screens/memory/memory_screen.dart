@@ -22,6 +22,7 @@ class MemoryScreen extends StatefulWidget {
 
 
 
+
 class _MemoryScreenState extends State<MemoryScreen> {
 
 
@@ -34,7 +35,6 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
 
-
   @override
   void initState() {
 
@@ -43,6 +43,8 @@ class _MemoryScreenState extends State<MemoryScreen> {
     _loadMemories();
 
   }
+
+
 
 
 
@@ -73,9 +75,74 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
 
+
+
   Future<void> _deleteMemory(
-    MemoryItem memory,
+      MemoryItem memory,
   ) async {
+
+
+    final confirm =
+        await showDialog<bool>(
+
+          context: context,
+
+          builder: (_) {
+
+            return AlertDialog(
+
+              title:
+                  const Text("Hafızayı sil"),
+
+              content:
+                  const Text(
+                    "Oracly bu bilgiyi unutacak. Emin misin?",
+                  ),
+
+              actions: [
+
+
+                TextButton(
+
+                  onPressed: () =>
+                      Navigator.pop(
+                        context,
+                        false,
+                      ),
+
+                  child:
+                      const Text("İptal"),
+
+                ),
+
+
+
+                ElevatedButton(
+
+                  onPressed: () =>
+                      Navigator.pop(
+                        context,
+                        true,
+                      ),
+
+                  child:
+                      const Text("Sil"),
+
+                ),
+
+
+              ],
+
+            );
+
+          },
+
+        );
+
+
+
+    if (confirm != true) return;
+
 
 
     await _memoryService.removeMemory(
@@ -83,10 +150,13 @@ class _MemoryScreenState extends State<MemoryScreen> {
     );
 
 
+
     _loadMemories();
 
 
   }
+
+
 
 
 
@@ -103,33 +173,77 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
       case "goal":
 
-        return Icons.flag;
+        return Icons.flag_rounded;
+
 
 
       case "interest":
 
-        return Icons.favorite;
+        return Icons.favorite_rounded;
+
 
 
       case "job":
 
-        return Icons.work;
+        return Icons.work_rounded;
+
 
 
       case "technology":
 
-        return Icons.computer;
+        return Icons.computer_rounded;
 
 
 
       default:
 
-        return Icons.psychology;
+        return Icons.psychology_rounded;
 
 
     }
 
+
   }
+
+
+
+
+
+
+
+
+  Color _importanceColor(
+    String importance,
+  ) {
+
+
+    switch(importance) {
+
+
+      case "high":
+
+        return Colors.redAccent;
+
+
+
+      case "medium":
+
+        return AppColors.gold;
+
+
+
+      default:
+
+        return AppColors.textSecondary;
+
+
+    }
+
+
+  }
+
+
+
 
 
 
@@ -141,6 +255,11 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
     return Scaffold(
+
+
+
+      backgroundColor:
+          AppColors.background,
 
 
 
@@ -163,6 +282,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
 
+
       body: Padding(
 
 
@@ -171,193 +291,320 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
 
-        child:
-
-
-            _memories.isEmpty
+        child: Column(
 
 
 
-            ? const Center(
-
-
-                child:
-                    Text(
-                      "Henüz kayıtlı bilgi yok.",
-                    ),
-
-
-              )
+          children: [
 
 
 
-
-            : ListView.builder(
-
+            Container(
 
 
-                itemCount:
-                    _memories.length,
+              width:
+                  double.infinity,
 
 
 
-                itemBuilder:
-                    (context,index) {
+              padding:
+                  const EdgeInsets.all(18),
 
 
 
-                  final memory =
-                      _memories[index];
+              decoration:
+                  BoxDecoration(
+
+                color:
+                    AppColors.surface,
+
+                borderRadius:
+                    BorderRadius.circular(20),
+
+              ),
 
 
 
 
-
-                  return Card(
-
-
-
-                    color:
-                        AppColors.surface,
+              child:
+                  Column(
 
 
-
-                    margin:
-                        const EdgeInsets.only(
-                          bottom:12,
-                        ),
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
 
 
 
-
-                    child:
-                        ListTile(
+                    children: [
 
 
 
-                      leading:
-                          CircleAvatar(
+                      const Text(
 
+                        "🧠 Oracly Hafızası",
 
-
-                            backgroundColor:
-                                AppColors.primary,
-
-
-
-                            child:
-                                Icon(
-
-                                  _categoryIcon(
-                                    memory.category,
-                                  ),
-
-
-                                  color:
-                                      AppColors.white,
-
-                                ),
-
-
-                          ),
-
-
-
-
-                      title:
-                          Text(
-
-
-                            memory.content,
-
-
-                            style:
-                                const TextStyle(
+                        style:
+                            TextStyle(
 
                               color:
-                                  AppColors.white,
+                                  Colors.white,
+
+                              fontSize:
+                                  20,
+
+                              fontWeight:
+                                  FontWeight.bold,
 
                             ),
 
-
-                          ),
-
+                      ),
 
 
 
-
-                      subtitle:
-                          Text(
-
-
-
-                            "${memory.category} • ${memory.importance}",
+                      const SizedBox(
+                        height:8,
+                      ),
 
 
 
-                            style:
-                                const TextStyle(
+                      Text(
+
+                        "${_memories.length} bilgi kayıtlı",
+
+                        style:
+                            const TextStyle(
 
                               color:
                                   AppColors.textSecondary,
 
                             ),
 
+                      ),
 
+
+                    ],
+
+
+                  ),
+
+
+            ),
+
+
+
+
+
+
+            const SizedBox(
+              height:20,
+            ),
+
+
+
+
+
+
+            Expanded(
+
+
+              child:
+
+
+                  _memories.isEmpty
+
+
+
+                  ? const Center(
+
+
+                      child:
+                          Text(
+
+                            "Oracly henüz seni tanımıyor.",
+
+                            style:
+                                TextStyle(
+
+                                  color:
+                                      Colors.white54,
+
+                                ),
 
                           ),
 
 
+                    )
 
 
 
 
-                      trailing:
-                          IconButton(
+                  : ListView.builder(
 
 
 
-                            icon:
-                                const Icon(
+                      itemCount:
+                          _memories.length,
 
-                                  Icons.delete,
 
-                                  color:
-                                      Colors.red,
+
+                      itemBuilder:
+                          (context,index) {
+
+
+
+                        final memory =
+                            _memories[index];
+
+
+
+
+                        return Card(
+
+
+
+                          color:
+                              AppColors.surface,
+
+
+
+                          margin:
+                              const EdgeInsets.only(
+                                bottom:12,
+                              ),
+
+
+
+
+                          child:
+                              ListTile(
+
+
+
+                            leading:
+                                CircleAvatar(
+
+
+                                  backgroundColor:
+                                      AppColors.primary,
+
+
+
+                                  child:
+                                      Icon(
+
+                                        _categoryIcon(
+                                          memory.category,
+                                        ),
+
+
+                                        color:
+                                            Colors.white,
+
+                                      ),
+
 
                                 ),
 
 
 
-                            onPressed: () {
 
 
-                              _deleteMemory(
-                                memory,
-                              );
+                            title:
+                                Text(
+
+                                  memory.content,
+
+                                  style:
+                                      const TextStyle(
+
+                                    color:
+                                        Colors.white,
+
+                                  ),
+
+                                ),
 
 
-                            },
+
+
+
+                            subtitle:
+                                Text(
+
+                                  "${memory.category} • ${memory.importance}",
+
+
+                                  style:
+                                      TextStyle(
+
+                                    color:
+                                        _importanceColor(
+                                          memory.importance,
+                                        ),
+
+                                  ),
+
+                                ),
+
+
+
+
+
+
+                            trailing:
+                                IconButton(
+
+                                  icon:
+                                      const Icon(
+
+                                        Icons.delete_outline,
+
+                                        color:
+                                            Colors.redAccent,
+
+                                      ),
+
+
+                                  onPressed: () {
+
+                                    _deleteMemory(
+                                      memory,
+                                    );
+
+
+                                  },
+
+
+                                ),
+
+
 
 
                           ),
 
 
+                        );
+
+
+                      },
 
 
                     ),
 
 
-                  );
+
+            ),
 
 
 
-                },
+          ],
 
-              ),
+
+        ),
 
 
       ),
+
 
 
     );
