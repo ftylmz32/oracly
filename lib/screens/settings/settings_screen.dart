@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../profile/profile_screen.dart';
 import '../memory/memory_screen.dart';
+import '../history/history_screen.dart';
 
 
 class SettingsScreen extends StatelessWidget {
@@ -105,7 +106,22 @@ class SettingsScreen extends StatelessWidget {
             subtitle:
                 "Eski konuşmalarını yönet",
 
-            onTap: () {},
+            onTap: () {
+
+              Navigator.push(
+
+                context,
+
+                MaterialPageRoute(
+
+                  builder: (_) =>
+                      const HistoryScreen(),
+
+                ),
+
+              );
+
+            },
 
           ),
 
@@ -132,6 +148,7 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+
 
 
 
