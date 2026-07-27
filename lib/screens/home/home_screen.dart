@@ -5,6 +5,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/feature_card.dart';
 import '../ai/chat_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               Text(
                 'ORACLY',
                 style: AppTextStyles.logo,
@@ -34,6 +36,7 @@ class HomeScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 32),
+
 
               const GlassCard(
                 child: Column(
@@ -53,7 +56,9 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
+
               const SizedBox(height: 20),
+
 
               const GlassCard(
                 child: Column(
@@ -80,7 +85,9 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
+
               const SizedBox(height: 24),
+
 
               FeatureCard(
                 icon: Icons.smart_toy_rounded,
@@ -96,12 +103,29 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
 
+
+              FeatureCard(
+                icon: Icons.person_rounded,
+                title: 'Profil',
+                subtitle: 'Bilgilerini ve hafızanı yönet.',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfileScreen(),
+                    ),
+                  );
+                },
+              ),
+
+
               FeatureCard(
                 icon: Icons.auto_awesome,
                 title: 'Astroloji',
                 subtitle: 'Günlük burç yorumlarını keşfet.',
                 onTap: () {},
               ),
+
 
               FeatureCard(
                 icon: Icons.nightlight_round,
@@ -110,12 +134,14 @@ class HomeScreen extends StatelessWidget {
                 onTap: () {},
               ),
 
+
               FeatureCard(
                 icon: Icons.style,
                 title: 'Tarot',
                 subtitle: 'Kartların sana ne söylediğini keşfet.',
                 onTap: () {},
               ),
+
             ],
           ),
         ),
