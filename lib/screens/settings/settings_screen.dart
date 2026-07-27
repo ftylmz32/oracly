@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../profile/profile_screen.dart';
 import '../memory/memory_screen.dart';
 import '../history/history_screen.dart';
+import '../privacy/privacy_screen.dart';
+
 
 
 class SettingsScreen extends StatelessWidget {
@@ -139,7 +141,22 @@ class SettingsScreen extends StatelessWidget {
             subtitle:
                 "Verilerini kontrol et",
 
-            onTap: () {},
+            onTap: () {
+
+              Navigator.push(
+
+                context,
+
+                MaterialPageRoute(
+
+                  builder: (_) =>
+                      const PrivacyScreen(),
+
+                ),
+
+              );
+
+            },
 
           ),
 
@@ -148,7 +165,6 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
-
 
 
 
