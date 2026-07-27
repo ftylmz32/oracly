@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/ai_service.dart';
+import '../../services/memory_extractor.dart';
 import '../../widgets/chat_input.dart';
 import '../../widgets/message_bubble.dart';
 
@@ -16,6 +17,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   final AiService _aiService = AiService();
+  final MemoryExtractor _memoryExtractor = MemoryExtractor();
 
   bool _isLoading = false;
 
@@ -26,10 +28,12 @@ class _ChatScreenState extends State<ChatScreen> {
     },
   ];
 
+
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
 
     if (text.isEmpty || _isLoading) return;
+
 
     setState(() {
       _messages.add({
@@ -40,12 +44,22 @@ class _ChatScreenState extends State<ChatScreen> {
       _isLoading = true;
     });
 
+
     _controller.clear();
+
     _scrollToBottom();
 
+
+    // 🧠 Mesajı hafıza açısından analiz et
+    await _memoryExtractor.analyzeMessage(text);
+
+
+    // 🤖 GPT cevabı
     final response = await _aiService.sendMessage(text);
 
+
     if (!mounted) return;
+
 
     setState(() {
       _messages.add({
@@ -56,8 +70,11 @@ class _ChatScreenState extends State<ChatScreen> {
       _isLoading = false;
     });
 
+
     _scrollToBottom();
   }
+
+
 
   void _scrollToBottom() {
     Future.delayed(
@@ -74,12 +91,16 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+
+
   @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
     super.dispose();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -89,38 +110,48 @@ class _ChatScreenState extends State<ChatScreen> {
         centerTitle: true,
       ),
 
+
       body: Column(
         children: [
+
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
               itemCount: _messages.length,
+
               itemBuilder: (context, index) {
+
                 final message = _messages[index];
 
                 return MessageBubble(
                   message: message["text"],
                   isUser: message["isUser"],
                 );
+
               },
             ),
           ),
+
+
 
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(8),
               child: Text(
-                "Oracly yazıyor...",
+                "Oracly düşünüyor...",
                 style: TextStyle(
                   color: Colors.grey,
                 ),
               ),
             ),
 
+
+
           ChatInput(
             controller: _controller,
             onSend: _sendMessage,
           ),
+
         ],
       ),
     );
