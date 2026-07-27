@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/ai_service.dart';
 import '../../services/memory_extractor.dart';
 import '../../services/storage_service.dart';
+
 import '../../widgets/chat_input.dart';
 import '../../widgets/message_bubble.dart';
 
@@ -10,7 +11,9 @@ import '../../widgets/message_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
 
-  const ChatScreen({super.key});
+  const ChatScreen({
+    super.key,
+  });
 
 
   @override
@@ -18,6 +21,7 @@ class ChatScreen extends StatefulWidget {
       _ChatScreenState();
 
 }
+
 
 
 
@@ -47,6 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
   bool _isLoading = false;
 
 
@@ -64,6 +69,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
+
   @override
   void initState() {
 
@@ -76,23 +83,40 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
+
+
   Future<void> _loadMessages() async {
+
 
     final savedMessages =
         await _storageService.loadMessages();
 
 
+
+    if (!mounted) return;
+
+
+
     if (savedMessages.isNotEmpty) {
+
 
       setState(() {
 
-        _messages = savedMessages;
+        _messages =
+            savedMessages;
 
       });
 
+
     }
 
+
   }
+
+
+
+
 
 
 
@@ -110,20 +134,34 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
+
     setState(() {
+
 
       _messages.add({
 
-        "text": text,
+        "text":
+            text,
 
-        "isUser": true,
+        "isUser":
+            true,
 
       });
 
 
-      _isLoading = true;
+
+      _isLoading =
+          true;
+
 
     });
+
+
+
+
+
+    _controller.clear();
 
 
 
@@ -133,10 +171,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
-    _controller.clear();
-
-
     _scrollToBottom();
+
+
 
 
 
@@ -148,6 +185,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
     final response =
         await _aiService.sendMessage(
           text,
@@ -155,7 +193,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
+
     if (!mounted) return;
+
+
 
 
 
@@ -164,18 +206,23 @@ class _ChatScreenState extends State<ChatScreen> {
 
       _messages.add({
 
-        "text": response,
+        "text":
+            response,
 
-        "isUser": false,
+        "isUser":
+            false,
 
       });
 
 
 
-      _isLoading = false;
+      _isLoading =
+          false;
+
 
 
     });
+
 
 
 
@@ -189,7 +236,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _scrollToBottom();
 
+
+
   }
+
+
+
+
 
 
 
@@ -201,7 +254,7 @@ class _ChatScreenState extends State<ChatScreen> {
     Future.delayed(
 
       const Duration(
-        milliseconds:100,
+        milliseconds:150,
       ),
 
 
@@ -215,9 +268,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
         _scrollController.animateTo(
 
+
           _scrollController
               .position
               .maxScrollExtent,
+
 
 
           duration:
@@ -226,16 +281,23 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
 
 
+
           curve:
               Curves.easeOut,
 
+
         );
+
 
       },
 
     );
 
+
   }
+
+
+
 
 
 
@@ -244,14 +306,20 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
 
+
     _controller.dispose();
+
 
     _scrollController.dispose();
 
 
     super.dispose();
 
+
   }
+
+
+
 
 
 
@@ -269,20 +337,25 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
 
 
-        centerTitle: false,
+        centerTitle:
+            false,
 
 
 
         title: Row(
 
+
           children: [
+
 
 
             Container(
 
-              width:40,
+              width:
+                  40,
 
-              height:40,
+              height:
+                  40,
 
 
               decoration:
@@ -298,6 +371,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
 
 
+
               child:
                   const Icon(
 
@@ -306,11 +380,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     color:
                         Colors.white,
 
-                    size:22,
+                    size:
+                        22,
 
                   ),
 
+
             ),
+
 
 
 
@@ -320,13 +397,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
+
             const Column(
+
 
               crossAxisAlignment:
                   CrossAxisAlignment.start,
 
 
+
               children: [
+
 
 
                 Text(
@@ -336,7 +418,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   style:
                       TextStyle(
 
-                    fontSize:18,
+                    fontSize:
+                        18,
 
                     fontWeight:
                         FontWeight.bold,
@@ -347,6 +430,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 
+
                 Text(
 
                   "● Online",
@@ -354,7 +438,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   style:
                       TextStyle(
 
-                    fontSize:12,
+                    fontSize:
+                        12,
 
                     color:
                         Colors.greenAccent,
@@ -364,17 +449,24 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
 
 
+
               ],
+
 
             ),
 
 
+
           ],
+
 
         ),
 
 
       ),
+
+
+
 
 
 
@@ -385,6 +477,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
 
 
+
           Expanded(
 
 
@@ -392,12 +485,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 ListView.builder(
 
 
+
               controller:
                   _scrollController,
 
 
+
               itemCount:
                   _messages.length,
+
 
 
               itemBuilder:
@@ -419,7 +515,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   isUser:
                       message["isUser"],
 
+
                 );
+
 
 
               },
@@ -428,7 +526,11 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
 
 
+
           ),
+
+
+
 
 
 
@@ -436,28 +538,77 @@ class _ChatScreenState extends State<ChatScreen> {
 
           if (_isLoading)
 
+
             const Padding(
 
+
               padding:
-                  EdgeInsets.all(8),
+                  EdgeInsets.all(12),
+
 
 
               child:
+                  Row(
+
+
+                mainAxisAlignment:
+                    MainAxisAlignment.center,
+
+
+
+                children: [
+
+
+
+                  SizedBox(
+
+                    width:
+                        14,
+
+                    height:
+                        14,
+
+
+                    child:
+                        CircularProgressIndicator(
+
+                          strokeWidth:
+                              2,
+
+                        ),
+
+                  ),
+
+
+
+
+                  SizedBox(
+                    width:10,
+                  ),
+
+
+
+
                   Text(
 
                     "Oracly düşünüyor...",
 
-                    style:
-                        TextStyle(
-
-                      color:
-                          Colors.grey,
-
-                    ),
-
                   ),
 
+
+
+                ],
+
+
+
+              ),
+
+
+
             ),
+
+
+
 
 
 
@@ -472,16 +623,23 @@ class _ChatScreenState extends State<ChatScreen> {
             onSend:
                 _sendMessage,
 
+
           ),
+
 
 
 
         ],
 
+
+
       ),
+
 
     );
 
+
   }
+
 
 }
