@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_colors.dart';
+
+
 
 class ChatInput extends StatelessWidget {
 
@@ -21,7 +24,9 @@ class ChatInput extends StatelessWidget {
 
     return SafeArea(
 
+
       child: Container(
+
 
         padding:
             const EdgeInsets.fromLTRB(
@@ -32,44 +37,59 @@ class ChatInput extends StatelessWidget {
             ),
 
 
+
         decoration: BoxDecoration(
 
+
           color:
-              const Color(0xff0b0b0b),
+              AppColors.background,
+
 
 
           border: Border(
 
+
             top: BorderSide(
 
+
               color:
-                  Colors.white.withOpacity(
-                    0.05,
-                  ),
+                  AppColors.border,
+
 
             ),
 
+
           ),
+
 
         ),
 
 
 
+
         child: Row(
+
 
           children: [
 
 
 
+
             Expanded(
 
+
+
               child: Container(
+
+
 
                 decoration:
                     BoxDecoration(
 
+
                   color:
-                      Colors.grey.shade900,
+                      AppColors.surface,
+
 
 
                   borderRadius:
@@ -77,25 +97,35 @@ class ChatInput extends StatelessWidget {
                         28,
                       ),
 
+
+
                 ),
 
 
+
                 child: TextField(
+
 
                   controller:
                       controller,
 
 
+
                   style:
                       const TextStyle(
 
+
                         color:
-                            Colors.white,
+                            AppColors.white,
+
 
                         fontSize:
                             15,
 
+
                       ),
+
+
 
 
 
@@ -103,30 +133,39 @@ class ChatInput extends StatelessWidget {
                       const InputDecoration(
 
 
+
                         hintText:
                             "Oracly'ye mesaj yaz...",
+
 
 
                         hintStyle:
                             TextStyle(
 
+
                               color:
-                                  Colors.white54,
+                                  AppColors.textSecondary,
+
 
                             ),
+
 
 
 
                         contentPadding:
                             EdgeInsets.symmetric(
 
+
                               horizontal:
                                   20,
+
 
                               vertical:
                                   14,
 
+
                             ),
+
 
 
 
@@ -134,13 +173,21 @@ class ChatInput extends StatelessWidget {
                             InputBorder.none,
 
 
+
                       ),
+
+
 
                 ),
 
+
+
               ),
 
+
+
             ),
+
 
 
 
@@ -152,38 +199,52 @@ class ChatInput extends StatelessWidget {
 
 
 
+
             Container(
+
 
               width:
                   48,
 
+
               height:
                   48,
+
 
 
               decoration:
                   BoxDecoration(
 
 
+
                     shape:
                         BoxShape.circle,
+
 
 
                     gradient:
                         const LinearGradient(
 
+
                       colors: [
 
-                        Colors.deepPurple,
 
-                        Colors.purpleAccent,
+                        AppColors.primary,
+
+
+                        AppColors.primaryLight,
+
 
                       ],
+
 
                     ),
 
 
+
                   ),
+
+
 
 
 
@@ -191,35 +252,53 @@ class ChatInput extends StatelessWidget {
                   IconButton(
 
 
+
                     onPressed:
                         onSend,
+
 
 
                     icon:
                         const Icon(
 
+
+
                           Icons.arrow_upward_rounded,
 
 
+
                           color:
-                              Colors.white,
+                              AppColors.white,
+
 
 
                         ),
 
+
+
                   ),
+
+
 
             ),
 
 
 
+
           ],
+
+
 
         ),
 
+
+
       ),
 
+
+
     );
+
 
   }
 

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_colors.dart';
+
+
 
 class MessageBubble extends StatelessWidget {
 
@@ -63,8 +66,9 @@ class MessageBubble extends StatelessWidget {
                 shape:
                     BoxShape.circle,
 
+
                 color:
-                    Colors.deepPurple.shade900,
+                    AppColors.primary,
 
               ),
 
@@ -74,13 +78,14 @@ class MessageBubble extends StatelessWidget {
                 Icons.auto_awesome,
 
                 color:
-                    Colors.white,
+                    AppColors.white,
 
                 size: 20,
 
               ),
 
             ),
+
 
 
 
@@ -114,9 +119,9 @@ class MessageBubble extends StatelessWidget {
 
               color: isUser
 
-                  ? Colors.deepPurple
+                  ? AppColors.primary
 
-                  : Colors.grey.shade900,
+                  : AppColors.surface,
 
 
 
@@ -146,6 +151,8 @@ class MessageBubble extends StatelessWidget {
                   ),
 
 
+
+
               boxShadow: [
 
                 BoxShadow(
@@ -165,6 +172,7 @@ class MessageBubble extends StatelessWidget {
 
               ],
 
+
             ),
 
 
@@ -179,7 +187,7 @@ class MessageBubble extends StatelessWidget {
                   const TextStyle(
 
                     color:
-                        Colors.white,
+                        AppColors.white,
 
                     fontSize:
                         15.5,
@@ -192,7 +200,6 @@ class MessageBubble extends StatelessWidget {
             ),
 
           ),
-
 
 
 

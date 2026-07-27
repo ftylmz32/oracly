@@ -10,139 +10,286 @@ import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 
 
+
 class HomeScreen extends StatelessWidget {
+
   const HomeScreen({super.key});
+
 
 
   @override
   Widget build(BuildContext context) {
 
+
     return Scaffold(
+
+
+      backgroundColor:
+          AppColors.background,
+
+
 
       body: SafeArea(
 
+
         child: SingleChildScrollView(
 
-          padding: const EdgeInsets.all(20),
+
+          padding:
+              const EdgeInsets.all(20),
+
+
 
           child: Column(
+
+
 
             crossAxisAlignment:
                 CrossAxisAlignment.start,
 
+
+
             children: [
 
 
+
               Text(
+
                 'ORACLY',
-                style: AppTextStyles.logo,
+
+                style:
+                    AppTextStyles.logo,
+
               ),
 
 
-              const SizedBox(height:6),
+
+
+              const SizedBox(
+                height:6,
+              ),
+
+
 
 
               const Text(
+
                 'AI Mystic Companion',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize:16,
-                ),
+
+                style:
+                    TextStyle(
+
+                      color:
+                          AppColors.textSecondary,
+
+
+                      fontSize:
+                          16,
+
+                    ),
+
               ),
 
 
 
-              const SizedBox(height:32),
+
+
+              const SizedBox(
+                height:32,
+              ),
+
+
 
 
 
               const GlassCard(
+
                 child: Column(
+
 
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
 
+
+
                   children: [
 
+
+
                     Text(
+
                       '👋 Günaydın',
-                      style: AppTextStyles.heading,
+
+                      style:
+                          AppTextStyles.heading,
+
                     ),
 
-                    SizedBox(height:10),
+
+
+                    SizedBox(
+                      height:10,
+                    ),
+
+
 
                     Text(
+
                       'Bugün sezgilerin oldukça güçlü görünüyor.\n'
                       'Kendine güven ve iç sesini dinle.',
-                      style: AppTextStyles.body,
+
+
+                      style:
+                          AppTextStyles.body,
+
                     ),
+
+
 
                   ],
 
+
                 ),
+
               ),
 
 
 
-              const SizedBox(height:20),
+
+
+              const SizedBox(
+                height:20,
+              ),
+
+
+
 
 
 
               const GlassCard(
 
+
                 child: Column(
+
 
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
 
+
+
                   children: [
 
+
+
                     Text(
+
                       '✨ Günün Enerjisi',
-                      style: AppTextStyles.heading,
+
+                      style:
+                          AppTextStyles.heading,
+
                     ),
 
-                    SizedBox(height:12),
+
+
+
+                    SizedBox(
+                      height:12,
+                    ),
+
+
+
 
                     LinearProgressIndicator(
-                      value:0.82,
-                      minHeight:10,
+
+                      value:
+                          0.82,
+
+
+                      minHeight:
+                          10,
+
+
                       borderRadius:
                           BorderRadius.all(
+
                             Radius.circular(20),
+
                           ),
+
+
+                      backgroundColor:
+                          AppColors.surface,
+
+
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(
+
+                            AppColors.gold,
+
+                          ),
+
                     ),
 
-                    SizedBox(height:12),
+
+
+
+                    SizedBox(
+                      height:12,
+                    ),
+
+
+
 
                     Text(
+
                       '%82 Ruhsal Enerji',
-                      style: AppTextStyles.caption,
+
+                      style:
+                          AppTextStyles.caption,
+
                     ),
+
+
 
                   ],
 
+
                 ),
+
 
               ),
 
 
 
-              const SizedBox(height:24),
+
+
+              const SizedBox(
+                height:24,
+              ),
+
+
+
 
 
 
               FeatureCard(
 
-                icon: Icons.smart_toy_rounded,
+                icon:
+                    Icons.smart_toy_rounded,
 
-                title:'AI Danışman',
+
+                title:
+                    'AI Danışman',
+
 
                 subtitle:
                     'Merak ettiklerini bana sor.',
 
 
+
                 onTap: () {
+
 
                   Navigator.push(
 
@@ -157,24 +304,34 @@ class HomeScreen extends StatelessWidget {
 
                   );
 
+
                 },
+
 
               ),
 
 
 
 
+
               FeatureCard(
 
-                icon: Icons.person_rounded,
+                icon:
+                    Icons.person_rounded,
 
-                title:'Profil',
+
+                title:
+                    'Profil',
+
+
 
                 subtitle:
                     'Bilgilerini ve hafızanı yönet.',
 
 
+
                 onTap: () {
+
 
                   Navigator.push(
 
@@ -189,24 +346,34 @@ class HomeScreen extends StatelessWidget {
 
                   );
 
+
                 },
+
 
               ),
 
 
 
 
+
+
               FeatureCard(
 
-                icon: Icons.settings_rounded,
+                icon:
+                    Icons.settings_rounded,
 
-                title:'Ayarlar',
+
+                title:
+                    'Ayarlar',
+
 
                 subtitle:
                     'Uygulama ve veri ayarlarını yönet.',
 
 
+
                 onTap: () {
+
 
                   Navigator.push(
 
@@ -221,68 +388,99 @@ class HomeScreen extends StatelessWidget {
 
                   );
 
+
                 },
+
 
               ),
 
 
 
 
+
+
               FeatureCard(
 
-                icon: Icons.auto_awesome,
+                icon:
+                    Icons.auto_awesome,
 
-                title:'Astroloji',
+
+                title:
+                    'Astroloji',
+
 
                 subtitle:
                     'Günlük burç yorumlarını keşfet.',
 
+
                 onTap:(){},
+
 
               ),
 
 
 
 
+
               FeatureCard(
 
-                icon: Icons.nightlight_round,
+                icon:
+                    Icons.nightlight_round,
 
-                title:'Rüya Analizi',
+
+                title:
+                    'Rüya Analizi',
+
 
                 subtitle:
                     'Rüyalarının anlamını öğren.',
 
+
                 onTap:(){},
 
+
               ),
+
 
 
 
 
               FeatureCard(
 
-                icon: Icons.style,
+                icon:
+                    Icons.style,
 
-                title:'Tarot',
+
+                title:
+                    'Tarot',
+
 
                 subtitle:
                     'Kartların sana ne söylediğini keşfet.',
 
+
                 onTap:(){},
+
 
               ),
 
 
+
             ],
+
 
           ),
 
+
         ),
+
 
       ),
 
+
     );
 
+
   }
+
 }

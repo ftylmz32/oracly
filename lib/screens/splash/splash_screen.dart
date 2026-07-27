@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../home/home_screen.dart';
 
 
@@ -20,6 +21,7 @@ class SplashScreen extends StatefulWidget {
 
 
 class _SplashScreenState extends State<SplashScreen> {
+
 
 
   @override
@@ -63,8 +65,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
     return Scaffold(
 
+
       backgroundColor:
-          Colors.black,
+          AppColors.background,
+
 
 
       body: Center(
@@ -72,8 +76,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
         child: Column(
 
+
           mainAxisAlignment:
               MainAxisAlignment.center,
+
 
 
           children: [
@@ -82,111 +88,155 @@ class _SplashScreenState extends State<SplashScreen> {
 
             Container(
 
+
               width:100,
 
               height:100,
 
 
+
               decoration: BoxDecoration(
+
 
                 shape:
                     BoxShape.circle,
+
+
 
                 border:
 
                     Border.all(
 
                       color:
-                          Colors.white24,
+                          AppColors.gold,
 
                       width:2,
 
                     ),
 
+
+
               ),
+
 
 
               child: const Center(
 
+
                 child: Icon(
+
 
                   Icons.auto_awesome,
 
+
                   size:50,
 
+
                   color:
-                      Colors.white,
+                      AppColors.primaryLight,
+
 
                 ),
 
+
               ),
+
+
 
             ),
 
 
 
 
-            const SizedBox(height:30),
+            const SizedBox(
+              height:30,
+            ),
+
 
 
 
 
             const Text(
 
+
               "ORACLY",
+
 
               style: TextStyle(
 
+
                 color:
-                    Colors.white,
+                    AppColors.white,
+
 
                 fontSize:40,
+
 
                 fontWeight:
                     FontWeight.bold,
 
-                letterSpacing:
-                    6,
+
+                letterSpacing:6,
+
 
               ),
+
 
             ),
 
 
 
 
-            const SizedBox(height:10),
+
+            const SizedBox(
+              height:10,
+            ),
+
 
 
 
 
             const Text(
 
+
               "AI Mystic Companion",
+
+
 
               style: TextStyle(
 
+
                 color:
-                    Colors.white54,
+                    AppColors.textSecondary,
+
 
                 fontSize:16,
 
+
                 letterSpacing:2,
+
 
               ),
 
+
+
             ),
+
 
 
 
 
           ],
 
+
         ),
+
 
       ),
 
+
     );
+
 
   }
 
