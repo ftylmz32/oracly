@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+
 import '../../widgets/glass_card.dart';
 import '../../widgets/feature_card.dart';
+
+import '../../services/greeting_service.dart';
+import '../../services/profile_service.dart';
 
 import '../ai/chat_screen.dart';
 import '../profile/profile_screen.dart';
@@ -11,9 +15,109 @@ import '../settings/settings_screen.dart';
 
 
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
 
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+  });
+
+
+  @override
+  State<HomeScreen> createState() =>
+      _HomeScreenState();
+
+}
+
+
+
+
+
+class _HomeScreenState extends State<HomeScreen> {
+
+
+  final GreetingService _greetingService =
+      GreetingService();
+
+
+  final ProfileService _profileService =
+      ProfileService();
+
+
+
+
+  String _greeting =
+      "👋 Merhaba";
+
+
+  String _message =
+      "Bugün seni neler bekliyor keşfetmeye hazır mısın?";
+
+
+
+
+
+
+  @override
+  void initState() {
+
+    super.initState();
+
+    _loadGreeting();
+
+  }
+
+
+
+
+
+
+
+  Future<void> _loadGreeting() async {
+
+
+    final profile =
+        await _profileService.getProfile();
+
+
+
+    final name =
+        profile["name"]?.toString().trim();
+
+
+
+    final userName =
+        (name == null || name.isEmpty)
+            ? "Oracly kullanıcısı"
+            : name;
+
+
+
+
+    if (!mounted) return;
+
+
+
+    setState(() {
+
+
+      _greeting =
+          _greetingService.getGreeting(
+            userName,
+          );
+
+
+      _message =
+          _greetingService.getMessage();
+
+
+    });
+
+
+  }
+
+
+
+
 
 
 
@@ -43,7 +147,6 @@ class HomeScreen extends StatelessWidget {
           child: Column(
 
 
-
             crossAxisAlignment:
                 CrossAxisAlignment.start,
 
@@ -55,7 +158,7 @@ class HomeScreen extends StatelessWidget {
 
               Text(
 
-                'ORACLY',
+                "ORACLY",
 
                 style:
                     AppTextStyles.logo,
@@ -66,7 +169,7 @@ class HomeScreen extends StatelessWidget {
 
 
               const SizedBox(
-                height:6,
+                height: 6,
               ),
 
 
@@ -74,80 +177,15 @@ class HomeScreen extends StatelessWidget {
 
               const Text(
 
-                'AI Mystic Companion',
+                "AI Mystic Companion",
 
-                style:
-                    TextStyle(
+                style: TextStyle(
 
-                      color:
-                          AppColors.textSecondary,
+                  color:
+                      AppColors.textSecondary,
 
-
-                      fontSize:
-                          16,
-
-                    ),
-
-              ),
-
-
-
-
-
-              const SizedBox(
-                height:32,
-              ),
-
-
-
-
-
-              const GlassCard(
-
-                child: Column(
-
-
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-
-
-
-                  children: [
-
-
-
-                    Text(
-
-                      '👋 Günaydın',
-
-                      style:
-                          AppTextStyles.heading,
-
-                    ),
-
-
-
-                    SizedBox(
-                      height:10,
-                    ),
-
-
-
-                    Text(
-
-                      'Bugün sezgilerin oldukça güçlü görünüyor.\n'
-                      'Kendine güven ve iç sesini dinle.',
-
-
-                      style:
-                          AppTextStyles.body,
-
-                    ),
-
-
-
-                  ],
-
+                  fontSize:
+                      16,
 
                 ),
 
@@ -158,7 +196,64 @@ class HomeScreen extends StatelessWidget {
 
 
               const SizedBox(
-                height:20,
+                height: 32,
+              ),
+
+
+
+
+
+              GlassCard(
+
+                child: Column(
+
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+
+                  children: [
+
+
+                    Text(
+
+                      _greeting,
+
+                      style:
+                          AppTextStyles.heading,
+
+                    ),
+
+
+
+                    const SizedBox(
+                      height: 10,
+                    ),
+
+
+
+                    Text(
+
+                      _message,
+
+                      style:
+                          AppTextStyles.body,
+
+                    ),
+
+
+                  ],
+
+                ),
+
+              ),
+
+
+
+
+
+
+              const SizedBox(
+                height: 20,
               ),
 
 
@@ -168,14 +263,10 @@ class HomeScreen extends StatelessWidget {
 
               const GlassCard(
 
-
                 child: Column(
-
 
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
-
-
 
                   children: [
 
@@ -183,7 +274,7 @@ class HomeScreen extends StatelessWidget {
 
                     Text(
 
-                      '✨ Günün Enerjisi',
+                      "✨ Günün Enerjisi",
 
                       style:
                           AppTextStyles.heading,
@@ -192,23 +283,17 @@ class HomeScreen extends StatelessWidget {
 
 
 
-
                     SizedBox(
-                      height:12,
+                      height: 12,
                     ),
-
 
 
 
                     LinearProgressIndicator(
 
-                      value:
-                          0.82,
+                      value: 0.82,
 
-
-                      minHeight:
-                          10,
-
+                      minHeight: 10,
 
                       borderRadius:
                           BorderRadius.all(
@@ -216,7 +301,6 @@ class HomeScreen extends StatelessWidget {
                             Radius.circular(20),
 
                           ),
-
 
                       backgroundColor:
                           AppColors.surface,
@@ -233,17 +317,15 @@ class HomeScreen extends StatelessWidget {
 
 
 
-
                     SizedBox(
-                      height:12,
+                      height: 12,
                     ),
-
 
 
 
                     Text(
 
-                      '%82 Ruhsal Enerji',
+                      "%82 Ruhsal Enerji",
 
                       style:
                           AppTextStyles.caption,
@@ -254,20 +336,18 @@ class HomeScreen extends StatelessWidget {
 
                   ],
 
-
                 ),
 
-
               ),
+
 
 
 
 
 
               const SizedBox(
-                height:24,
+                height: 24,
               ),
-
 
 
 
@@ -278,18 +358,14 @@ class HomeScreen extends StatelessWidget {
                 icon:
                     Icons.smart_toy_rounded,
 
-
                 title:
-                    'AI Danışman',
-
+                    "AI Danışman",
 
                 subtitle:
-                    'Merak ettiklerini bana sor.',
-
+                    "Merak ettiklerini bana sor.",
 
 
                 onTap: () {
-
 
                   Navigator.push(
 
@@ -304,11 +380,10 @@ class HomeScreen extends StatelessWidget {
 
                   );
 
-
                 },
 
-
               ),
+
 
 
 
@@ -319,19 +394,14 @@ class HomeScreen extends StatelessWidget {
                 icon:
                     Icons.person_rounded,
 
-
                 title:
-                    'Profil',
-
-
+                    "Profil",
 
                 subtitle:
-                    'Bilgilerini ve hafızanı yönet.',
-
+                    "Bilgilerini ve hafızanı yönet.",
 
 
                 onTap: () {
-
 
                   Navigator.push(
 
@@ -340,15 +410,13 @@ class HomeScreen extends StatelessWidget {
                     MaterialPageRoute(
 
                       builder: (_) =>
-                          const ProfileScreen(),
+                          ProfileScreen(),
 
                     ),
 
                   );
 
-
                 },
-
 
               ),
 
@@ -362,18 +430,14 @@ class HomeScreen extends StatelessWidget {
                 icon:
                     Icons.settings_rounded,
 
-
                 title:
-                    'Ayarlar',
-
+                    "Ayarlar",
 
                 subtitle:
-                    'Uygulama ve veri ayarlarını yönet.',
-
+                    "Uygulama ve veri ayarlarını yönet.",
 
 
                 onTap: () {
-
 
                   Navigator.push(
 
@@ -388,9 +452,7 @@ class HomeScreen extends StatelessWidget {
 
                   );
 
-
                 },
-
 
               ),
 
@@ -404,19 +466,16 @@ class HomeScreen extends StatelessWidget {
                 icon:
                     Icons.auto_awesome,
 
-
                 title:
-                    'Astroloji',
-
+                    "Astroloji",
 
                 subtitle:
-                    'Günlük burç yorumlarını keşfet.',
+                    "Günlük burç yorumlarını keşfet.",
 
-
-                onTap:(){},
-
+                onTap: () {},
 
               ),
+
 
 
 
@@ -427,19 +486,16 @@ class HomeScreen extends StatelessWidget {
                 icon:
                     Icons.nightlight_round,
 
-
                 title:
-                    'Rüya Analizi',
-
+                    "Rüya Analizi",
 
                 subtitle:
-                    'Rüyalarının anlamını öğren.',
+                    "Rüyalarının anlamını öğren.",
 
-
-                onTap:(){},
-
+                onTap: () {},
 
               ),
+
 
 
 
@@ -450,20 +506,15 @@ class HomeScreen extends StatelessWidget {
                 icon:
                     Icons.style,
 
-
                 title:
-                    'Tarot',
-
+                    "Tarot",
 
                 subtitle:
-                    'Kartların sana ne söylediğini keşfet.',
+                    "Kartların sana ne söylediğini keşfet.",
 
-
-                onTap:(){},
-
+                onTap: () {},
 
               ),
-
 
 
             ],
@@ -482,5 +533,6 @@ class HomeScreen extends StatelessWidget {
 
 
   }
+
 
 }

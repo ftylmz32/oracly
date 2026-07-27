@@ -51,7 +51,7 @@ class SettingsScreen extends StatelessWidget {
                 MaterialPageRoute(
 
                   builder: (_) =>
-                      const ProfileScreen(),
+                       ProfileScreen(),
 
                 ),
 
