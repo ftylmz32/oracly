@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/ai_service.dart';
 import '../../widgets/chat_input.dart';
 import '../../widgets/message_bubble.dart';
 
@@ -14,6 +15,10 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  final AiService _aiService = AiService();
+
+  bool _isLoading = false;
+
   final List<Map<String, dynamic>> _messages = [
     {
       "text": "👋 Merhaba Fatih!\nBen Oracly. Sana nasıl yardımcı olabilirim?",
@@ -21,47 +26,52 @@ class _ChatScreenState extends State<ChatScreen> {
     },
   ];
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = _controller.text.trim();
 
-    if (text.isEmpty) return;
+    if (text.isEmpty || _isLoading) return;
 
     setState(() {
       _messages.add({
         "text": text,
         "isUser": true,
       });
+
+      _isLoading = true;
     });
 
     _controller.clear();
-
     _scrollToBottom();
 
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
+    final response = await _aiService.sendMessage(text);
 
-      setState(() {
-        _messages.add({
-          "text":
-              "Bunu söylediğin için teşekkür ederim 😊\nŞimdilik örnek cevap veriyorum. Çok yakında GPT-5.5 ile gerçek cevaplar vereceğim.",
-          "isUser": false,
-        });
+    if (!mounted) return;
+
+    setState(() {
+      _messages.add({
+        "text": response,
+        "isUser": false,
       });
 
-      _scrollToBottom();
+      _isLoading = false;
     });
+
+    _scrollToBottom();
   }
 
   void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (!_scrollController.hasClients) return;
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () {
+        if (!_scrollController.hasClients) return;
 
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      },
+    );
   }
 
   @override
@@ -78,14 +88,12 @@ class _ChatScreenState extends State<ChatScreen> {
         title: const Text("Oracly AI"),
         centerTitle: true,
       ),
+
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(
-                vertical: 12,
-              ),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
@@ -97,6 +105,17 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                "Oracly yazıyor...",
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            ),
 
           ChatInput(
             controller: _controller,
