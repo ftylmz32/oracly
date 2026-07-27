@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
+import '../../models/memory_item.dart';
 import '../../services/memory_service.dart';
+
 
 
 class MemoryScreen extends StatefulWidget {
@@ -18,6 +21,7 @@ class MemoryScreen extends StatefulWidget {
 
 
 
+
 class _MemoryScreenState extends State<MemoryScreen> {
 
 
@@ -25,7 +29,9 @@ class _MemoryScreenState extends State<MemoryScreen> {
       MemoryService();
 
 
-  List<String> _memories = [];
+
+  List<MemoryItem> _memories = [];
+
 
 
 
@@ -41,13 +47,17 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
 
+
   Future<void> _loadMemories() async {
 
+
     final memories =
-        await _memoryService.getMemories();
+        await _memoryService.getAdvancedMemories();
+
 
 
     if (!mounted) return;
+
 
 
     setState(() {
@@ -56,6 +66,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
     });
 
+
   }
 
 
@@ -63,18 +74,63 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
   Future<void> _deleteMemory(
-      String memory,
+    MemoryItem memory,
   ) async {
 
 
     await _memoryService.removeMemory(
-      memory,
+      memory.content,
     );
 
 
     _loadMemories();
 
+
   }
+
+
+
+
+
+
+  IconData _categoryIcon(
+    String category,
+  ) {
+
+
+    switch(category) {
+
+
+      case "goal":
+
+        return Icons.flag;
+
+
+      case "interest":
+
+        return Icons.favorite;
+
+
+      case "job":
+
+        return Icons.work;
+
+
+      case "technology":
+
+        return Icons.computer;
+
+
+
+      default:
+
+        return Icons.psychology;
+
+
+    }
+
+  }
+
 
 
 
@@ -86,43 +142,68 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
     return Scaffold(
 
+
+
       appBar: AppBar(
 
-        title: const Text(
-          "Oracly Hafızası",
-        ),
 
-        centerTitle: true,
+        title:
+            const Text(
+              "Oracly Hafızası",
+            ),
+
+
+        centerTitle:
+            true,
+
 
       ),
 
 
 
+
+
       body: Padding(
 
-        padding: const EdgeInsets.all(20),
+
+        padding:
+            const EdgeInsets.all(20),
 
 
-        child: _memories.isEmpty
+
+        child:
+
+
+            _memories.isEmpty
+
 
 
             ? const Center(
 
-                child: Text(
-                  "Henüz kayıtlı bilgi yok.",
-                ),
+
+                child:
+                    Text(
+                      "Henüz kayıtlı bilgi yok.",
+                    ),
+
 
               )
 
 
+
+
             : ListView.builder(
+
+
 
                 itemCount:
                     _memories.length,
 
 
+
                 itemBuilder:
-                    (context, index) {
+                    (context,index) {
+
 
 
                   final memory =
@@ -130,52 +211,159 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
 
+
+
                   return Card(
 
-                    child: ListTile(
+
+
+                    color:
+                        AppColors.surface,
+
+
+
+                    margin:
+                        const EdgeInsets.only(
+                          bottom:12,
+                        ),
+
+
+
+
+                    child:
+                        ListTile(
+
+
 
                       leading:
-                          const Icon(
-                            Icons.psychology,
+                          CircleAvatar(
+
+
+
+                            backgroundColor:
+                                AppColors.primary,
+
+
+
+                            child:
+                                Icon(
+
+                                  _categoryIcon(
+                                    memory.category,
+                                  ),
+
+
+                                  color:
+                                      AppColors.white,
+
+                                ),
+
+
                           ),
 
 
+
+
                       title:
-                          Text(memory),
+                          Text(
+
+
+                            memory.content,
+
+
+                            style:
+                                const TextStyle(
+
+                              color:
+                                  AppColors.white,
+
+                            ),
+
+
+                          ),
+
+
+
+
+
+                      subtitle:
+                          Text(
+
+
+
+                            "${memory.category} • ${memory.importance}",
+
+
+
+                            style:
+                                const TextStyle(
+
+                              color:
+                                  AppColors.textSecondary,
+
+                            ),
+
+
+
+                          ),
+
+
+
+
 
 
                       trailing:
                           IconButton(
 
+
+
                             icon:
                                 const Icon(
+
                                   Icons.delete,
-                                  color: Colors.red,
+
+                                  color:
+                                      Colors.red,
+
                                 ),
 
 
+
                             onPressed: () {
+
 
                               _deleteMemory(
                                 memory,
                               );
 
+
                             },
+
 
                           ),
 
+
+
+
                     ),
 
+
                   );
+
+
 
                 },
 
               ),
 
+
       ),
+
 
     );
 
+
   }
+
 
 }
