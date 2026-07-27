@@ -19,17 +19,37 @@ class AiService {
       },
       body: jsonEncode({
         "model": "gpt-5.5",
+        "instructions": """
+Sen Oracly'sin.
+
+Kullanıcıyla sıcak, doğal ve samimi konuş.
+Türkçe cevap ver.
+Kullanıcının adı Fatih.
+Bir yapay zeka asistanı değil, kişisel bir yardımcı gibi davran.
+""",
         "input": message,
       }),
     );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      return data["output"][0]["content"][0]["text"] ??
-          "Cevap alınamadı.";
+    if (response.statusCode != 200) {
+      return "API hatası: ${response.statusCode}\n${response.body}";
     }
 
-    return "Hata oluştu: ${response.statusCode}";
+    final data = jsonDecode(response.body);
+
+    // Responses API metin çıktısını bulma
+    if (data["output"] != null) {
+      for (var item in data["output"]) {
+        if (item["content"] != null) {
+          for (var content in item["content"]) {
+            if (content["text"] != null) {
+              return content["text"];
+            }
+          }
+        }
+      }
+    }
+
+    return "Boş cevap geldi.";
   }
 }
