@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import 'context_service.dart';
+import 'storage_service.dart';
 
 
 
@@ -14,11 +15,17 @@ class AiService {
       ContextService();
 
 
+  final StorageService _storageService =
+      StorageService();
+
+
+
 
 
   Future<String> sendMessage(
     String message,
   ) async {
+
 
 
     final apiKey =
@@ -36,10 +43,20 @@ class AiService {
 
 
 
-    // 👤 Kullanıcı bağlamını al
+    // 👤 Kullanıcı bilgileri
 
     final userContext =
         await _contextService.getContext();
+
+
+
+
+
+    // 💬 Son konuşma bağlamı
+
+    final conversationContext =
+        await _storageService
+            .getConversationContext();
 
 
 
@@ -74,6 +91,7 @@ class AiService {
 
 
 
+
       body: jsonEncode({
 
 
@@ -92,7 +110,9 @@ Sen Oracly'sin.
 Kullanıcının kişisel AI asistanısın.
 
 
+
 Türkçe konuş.
+
 
 
 Kullanıcıyla:
@@ -106,35 +126,37 @@ bir şekilde iletişim kur.
 
 
 
-Senin görevin sadece cevap vermek değil;
+Görevin:
 
-kullanıcıyı zaman içinde tanımak,
-geçmiş bilgileri doğru şekilde kullanmak
-ve daha kişisel bir deneyim sunmaktır.
+Kullanıcıyı zaman içinde tanımak,
+önceki bilgileri kullanmak
+ve konuşmanın devamlılığını sağlamaktır.
 
 
 
-Hafızanda bulunan bilgileri:
+🧠 Kullanıcı hafızası:
 
-- uygun olduğunda kullan,
-- cevaplarını kişiselleştir,
-- kullanıcının hedeflerini ve tercihlerini dikkate al.
+$userContext
+
+
+
+💬 Son konuşma geçmişi:
+
+$conversationContext
+
+
 
 
 
 Kurallar:
 
+- Hafızadaki bilgileri uygun olduğunda kullan.
+- Önceki konuşmanın bağlamını koru.
 - Kullanıcı hakkında bilmediğin şeyleri uydurma.
-- Emin olmadığın bilgileri gerçekmiş gibi söyleme.
-- Hafızayı gereksiz şekilde kullanıcıya gösterme.
+- Emin olmadığın bilgileri gerçek gibi söyleme.
+- Hafızayı gereksiz yere açıklama.
 - Robot gibi cevap verme.
-- Doğal bir sohbet arkadaşı gibi davran.
-
-
-
-Kullanıcı bağlamı:
-
-$userContext
+- Doğal bir AI arkadaşı gibi davran.
 
 
 
@@ -153,6 +175,7 @@ $userContext
 
 
     );
+
 
 
 
@@ -184,13 +207,17 @@ $userContext
     if (data["output"] != null) {
 
 
+
       for (var item in data["output"]) {
+
 
 
         if (item["content"] != null) {
 
 
+
           for (var content in item["content"]) {
+
 
 
             if (content["text"] != null) {
