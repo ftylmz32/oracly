@@ -17,6 +17,8 @@ class MemoryExtractor {
 
 
 
+
+
   Future<void> analyzeMessage(
     String message,
   ) async {
@@ -37,7 +39,11 @@ class MemoryExtractor {
 
 
 
+
+
+
     final response = await http.post(
+
 
 
       Uri.parse(
@@ -46,22 +52,30 @@ class MemoryExtractor {
 
 
 
+
       headers: {
+
 
 
         'Content-Type':
             'application/json',
 
 
+
         'Authorization':
             'Bearer $apiKey',
+
 
 
       },
 
 
 
+
+
       body: jsonEncode({
+
+
 
 
         "model":
@@ -69,50 +83,92 @@ class MemoryExtractor {
 
 
 
+
+
         "instructions": """
 
-Sen Oracly hafıza analiz sistemisin.
+Sen Oracly'nin uzun vadeli hafıza analiz sistemisin.
 
-Kullanıcının mesajını analiz et.
+Görevin kullanıcının mesajını incelemek.
 
-Eğer uzun süre hatırlanması gereken bilgi varsa JSON döndür.
+SADECE kullanıcının gelecekteki deneyimini kişiselleştirmeye yarayacak bilgileri kaydet.
 
-Kategoriler:
+Kaydet:
 
-interest = ilgi alanı
+- Kalıcı hedefler
+- Meslek bilgileri
+- Uzun vadeli projeler
+- Hobiler
+- İlgi alanları
+- Teknoloji tercihleri
+- Kalıcı kişisel tercihler
+
+
+KAYDETME:
+
+- Günlük olaylar
+- Anlık ruh halleri
+- Bugün olan şeyler
+- Geçici planlar
+- Selamlaşmalar
+- Basit sohbetler
+- Tahminler
+
+
+Örnek:
+
+"Kendi oyunumu yapmak istiyorum"
+
+Kaydet.
+
+
+"Bugün çok yoruldum"
+
+Kaydetme.
+
+
+
+Kategori:
+
 goal = hedef
 job = meslek
+interest = ilgi alanı
+technology = teknoloji
 preference = tercih
-technology = kullandığı teknoloji
 general = diğer
 
 
-Önem seviyeleri:
 
-high
-normal
-low
+Önem:
+
+high = gelecekte çok önemli
+normal = faydalı bilgi
+low = az önemli
+
 
 
 Sadece JSON döndür.
 
-Format:
+
+Kaydedilecek bilgi varsa:
 
 {
  "remember": true,
  "category": "goal",
- "content": "bilgi",
+ "content": "Kullanıcı kendi oyununu yapmak istiyor",
  "importance": "high"
 }
 
 
-Eğer kaydedilecek bilgi yoksa:
+Kaydedilecek bilgi yoksa:
 
 {
  "remember": false
 }
 
 """,
+
+
 
 
 
@@ -124,7 +180,10 @@ Eğer kaydedilecek bilgi yoksa:
       }),
 
 
+
     );
+
+
 
 
 
@@ -141,12 +200,18 @@ Eğer kaydedilecek bilgi yoksa:
 
 
 
+
+
+
     final data =
         jsonDecode(response.body);
 
 
 
+
     String result = "";
+
+
 
 
 
@@ -187,6 +252,8 @@ Eğer kaydedilecek bilgi yoksa:
 
 
 
+
+
     if (result.isEmpty) {
 
       return;
@@ -197,11 +264,33 @@ Eğer kaydedilecek bilgi yoksa:
 
 
 
+
+
     try {
+
+
+      // Markdown JSON temizleme
+
+      result =
+          result
+              .replaceAll(
+                "```json",
+                "",
+              )
+              .replaceAll(
+                "```",
+                "",
+              )
+              .trim();
+
+
+
 
 
       final json =
           jsonDecode(result);
+
+
 
 
 
@@ -215,24 +304,50 @@ Eğer kaydedilecek bilgi yoksa:
 
 
 
+
+      final content =
+          json["content"]?.toString();
+
+
+
+      if (content == null ||
+          content.isEmpty) {
+
+        return;
+
+      }
+
+
+
+
+
+
+
       await _memoryService.addAdvancedMemory(
+
 
 
         MemoryItem(
 
 
+
           category:
-              json["category"] ?? "general",
+              json["category"] ??
+                  "general",
+
 
 
 
           content:
-              json["content"] ?? message,
+              content,
+
 
 
 
           importance:
-              json["importance"] ?? "normal",
+              json["importance"] ??
+                  "normal",
+
 
 
 
@@ -240,11 +355,13 @@ Eğer kaydedilecek bilgi yoksa:
               DateTime.now(),
 
 
+
         ),
 
 
 
       );
+
 
 
 
