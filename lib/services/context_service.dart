@@ -1,16 +1,27 @@
 import 'memory_service.dart';
 import 'profile_service.dart';
 
+
 class ContextService {
 
-  final MemoryService _memoryService = MemoryService();
-  final ProfileService _profileService = ProfileService();
+
+  final MemoryService _memoryService =
+      MemoryService();
+
+
+  final ProfileService _profileService =
+      ProfileService();
+
+
+
 
 
   Future<String> getContext() async {
 
+
     final profile =
         await _profileService.getProfile();
+
 
 
     final memories =
@@ -18,77 +29,144 @@ class ContextService {
 
 
 
-    String context = "";
 
 
-    // 👤 Profil bilgileri
+    StringBuffer context =
+        StringBuffer();
 
-    if (profile["name"] != null &&
-        profile["name"].toString().isNotEmpty) {
 
-      context +=
-          "Kullanıcı adı: ${profile["name"]}\n";
+
+
+
+    context.writeln(
+      "KULLANICI PROFİLİ:",
+    );
+
+
+
+
+
+    final name =
+        profile["name"]?.toString() ?? "";
+
+
+
+    if (name.isNotEmpty) {
+
+      context.writeln(
+        "- Kullanıcı adı: $name",
+      );
+
     }
 
 
-    if (profile["job"] != null &&
-        profile["job"].toString().isNotEmpty) {
 
-      context +=
-          "Meslek: ${profile["job"]}\n";
+
+
+
+    final job =
+        profile["job"]?.toString() ?? "";
+
+
+
+    if (job.isNotEmpty) {
+
+      context.writeln(
+        "- Meslek: $job",
+      );
+
     }
+
+
+
+
 
 
 
     final interests =
-        profile["interests"] ?? [];
+        List<String>.from(
+          profile["interests"] ?? [],
+        );
+
 
 
     if (interests.isNotEmpty) {
 
-      context +=
-          "İlgi alanları: ${interests.join(", ")}\n";
+      context.writeln(
+        "- İlgi alanları: ${interests.join(", ")}",
+      );
+
     }
+
+
+
+
 
 
 
     final goals =
-        profile["goals"] ?? [];
+        List<String>.from(
+          profile["goals"] ?? [],
+        );
+
 
 
     if (goals.isNotEmpty) {
 
-      context +=
-          "Hedefler: ${goals.join(", ")}\n";
+      context.writeln(
+        "- Hedefler: ${goals.join(", ")}",
+      );
+
     }
 
 
 
-    // 🧠 Hafıza bilgileri
+
+
+
+    context.writeln("");
+
+
+
+    context.writeln(
+      "ORACLY HAFIZASI:",
+    );
+
+
+
+
 
     if (memories.isNotEmpty) {
-
-      context += "\nKullanıcının hatırlanan bilgileri:\n";
 
 
       for (var memory in memories) {
 
-        context += "- $memory\n";
+        context.writeln(
+          "- $memory",
+        );
 
       }
 
+
+    } else {
+
+
+      context.writeln(
+        "- Kayıtlı hafıza yok.",
+      );
+
+
     }
 
 
 
-    if (context.isEmpty) {
-
-      context =
-          "Kullanıcı hakkında kayıtlı bilgi yok.";
-
-    }
 
 
-    return context;
+
+    return context.toString();
+
+
   }
+
+
 }
