@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../profile/profile_screen.dart';
+import '../memory/memory_screen.dart';
 
 
 class SettingsScreen extends StatelessWidget {
@@ -59,6 +60,7 @@ class SettingsScreen extends StatelessWidget {
 
 
 
+
           _settingsCard(
 
             context,
@@ -70,9 +72,25 @@ class SettingsScreen extends StatelessWidget {
             subtitle:
                 "Oracly'nin öğrendiği bilgileri görüntüle",
 
-            onTap: () {},
+            onTap: () {
+
+              Navigator.push(
+
+                context,
+
+                MaterialPageRoute(
+
+                  builder: (_) =>
+                      const MemoryScreen(),
+
+                ),
+
+              );
+
+            },
 
           ),
+
 
 
 
@@ -90,6 +108,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {},
 
           ),
+
 
 
 
@@ -118,6 +137,7 @@ class SettingsScreen extends StatelessWidget {
 
 
 
+
   Widget _settingsCard(
 
     BuildContext context, {
@@ -136,6 +156,7 @@ class SettingsScreen extends StatelessWidget {
     return Card(
 
       child: ListTile(
+
 
         leading: Icon(
           icon,
@@ -163,6 +184,7 @@ class SettingsScreen extends StatelessWidget {
 
 
         onTap: onTap,
+
 
       ),
 
