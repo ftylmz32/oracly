@@ -18,59 +18,137 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final card = ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(28),
+
       child: BackdropFilter(
+
         filter: ImageFilter.blur(
-          sigmaX: 12,
-          sigmaY: 12,
+          sigmaX: 18,
+          sigmaY: 18,
         ),
+
         child: Container(
+
           width: double.infinity,
+
           padding: padding,
+
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
+
+            borderRadius:
+                BorderRadius.circular(28),
+
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+
+              begin:
+                  Alignment.topLeft,
+
+              end:
+                  Alignment.bottomRight,
+
               colors: [
-                Colors.white.withValues(alpha: .10),
-                AppColors.surface.withValues(alpha: .82),
+
+                Colors.white.withValues(
+                  alpha: .14,
+                ),
+
+                AppColors.surface.withValues(
+                  alpha: .72,
+                ),
+
               ],
+
             ),
+
+
             border: Border.all(
-              color: AppColors.glassBorder,
-              width: 1.2,
+
+              color:
+                  AppColors.glassBorder,
+
+              width:
+                  1,
+
             ),
+
+
             boxShadow: [
+
               BoxShadow(
-                color: Colors.black.withValues(alpha: .35),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
+
+                color:
+                    Colors.black.withValues(
+                      alpha: .45,
+                    ),
+
+                blurRadius:
+                    35,
+
+                offset:
+                    const Offset(
+                      0,
+                      18,
+                    ),
+
               ),
+
+
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: .08),
-                blurRadius: 20,
-                spreadRadius: 1,
+
+                color:
+                    AppColors.primary.withValues(
+                      alpha: .12,
+                    ),
+
+                blurRadius:
+                    40,
+
+                spreadRadius:
+                    2,
+
               ),
+
             ],
+
           ),
+
           child: child,
+
         ),
+
       ),
+
     );
+
 
     if (onTap == null) {
+
       return card;
+
     }
 
+
     return Material(
-      color: Colors.transparent,
+
+      color:
+          Colors.transparent,
+
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: card,
+
+        borderRadius:
+            BorderRadius.circular(28),
+
+        onTap:
+            onTap,
+
+        child:
+            card,
+
       ),
+
     );
+
   }
 }

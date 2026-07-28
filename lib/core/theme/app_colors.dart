@@ -3,48 +3,74 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // 🌌 Ana arka plan
-  static const Color background = Color(0xFF080812);
+  // 🌌 Oracly Core Theme
 
-  // Kart / yüzey rengi
-  static const Color surface = Color(0xFF13131F);
+  static const Color background =
+      Color(0xFF05060D);
 
-  // Oracly ana rengi
-  static const Color primary = Color(0xFF8B5CF6);
+  static const Color surface =
+      Color(0xFF121624);
 
-  // Parlak vurgu
-  static const Color primaryLight = Color(0xFFC084FC);
+  static const Color primary =
+      Color(0xFF7C4DFF);
 
-  // Mistik altın
-  static const Color gold = Color(0xFFD4AF37);
+  static const Color primaryLight =
+      Color(0xFFB388FF);
 
-  static const Color goldLight = Color(0xFFF4D675);
 
-  // Yazılar
-  static const Color white = Colors.white;
+  // ✨ Premium Gold
 
-  static const Color textSecondary = Color(0xFFA1A1AA);
+  static const Color gold =
+      Color(0xFFD4AF37);
 
-  // Kenarlık
-  static const Color border = Color(0x338B5CF6);
+  static const Color goldLight =
+      Color(0xFFF4D675);
 
-  // =========================
-  // 🌌 Aurora
-  // =========================
 
-  static const Color backgroundTop = Color(0xFF20153F);
+  // 📝 Text
 
-  static const Color backgroundBottom = Color(0xFF05060A);
+  static const Color white =
+      Colors.white;
 
-  static const Color glass = Color(0x22FFFFFF);
+  static const Color textSecondary =
+      Color(0xFFA1A1AA);
 
-  static const Color glassBorder = Color(0x33FFFFFF);
 
-  static const Color orbCore = Color(0xFFC084FC);
+  // 🪟 Glass
 
-  static const Color orbGlow = Color(0xFF8B5CF6);
+  static const Color border =
+      Color(0x337C4DFF);
 
-  static const Color success = Color(0xFF5EE6A8);
+  static const Color glass =
+      Color(0x22FFFFFF);
 
-  static const Color danger = Color(0xFFFF6B81);
+  static const Color glassBorder =
+      Color(0x33FFFFFF);
+
+
+  // 🌌 Aurora Background
+
+  static const Color backgroundTop =
+      Color(0xFF1A1040);
+
+  static const Color backgroundBottom =
+      Color(0xFF03040A);
+
+
+  // 🔮 Hero Orb
+
+  static const Color orbCore =
+      Color(0xFFD8B4FE);
+
+  static const Color orbGlow =
+      Color(0xFF6D28D9);
+
+
+  // Status
+
+  static const Color success =
+      Color(0xFF5EE6A8);
+
+  static const Color danger =
+      Color(0xFFFF6B81);
 }

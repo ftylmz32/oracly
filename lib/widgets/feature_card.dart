@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_colors.dart';
+import '../core/theme/app_text_styles.dart';
+
+
 class FeatureCard extends StatelessWidget {
+
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
+
 
   const FeatureCard({
     super.key,
@@ -14,80 +20,242 @@ class FeatureCard extends StatelessWidget {
     this.onTap,
   });
 
+
   @override
   Widget build(BuildContext context) {
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+
+      padding:
+          const EdgeInsets.only(bottom: 16),
+
       child: Material(
-        color: Colors.transparent,
+
+        color:
+            Colors.transparent,
+
         child: InkWell(
-          borderRadius: BorderRadius.circular(22),
-          onTap: onTap,
+
+          borderRadius:
+              BorderRadius.circular(26),
+
+          onTap:
+              onTap,
+
+
           child: Ink(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Row(
-                children: [
-                  Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      icon,
-                      color: Colors.amber,
-                      size: 28,
-                    ),
+
+            decoration:
+                BoxDecoration(
+
+              borderRadius:
+                  BorderRadius.circular(26),
+
+
+              gradient:
+                  LinearGradient(
+
+                colors: [
+
+                  Colors.white.withValues(
+                    alpha: .10,
                   ),
 
-                  const SizedBox(width: 16),
+                  AppColors.surface.withValues(
+                    alpha: .75,
+                  ),
+
+                ],
+
+              ),
+
+
+              border:
+                  Border.all(
+
+                color:
+                    AppColors.glassBorder,
+
+              ),
+
+
+              boxShadow: [
+
+                BoxShadow(
+
+                  color:
+                      AppColors.primary.withValues(
+                        alpha: .10,
+                      ),
+
+                  blurRadius:
+                      25,
+
+                  spreadRadius:
+                      1,
+
+                ),
+
+              ],
+
+            ),
+
+
+            child: Padding(
+
+              padding:
+                  const EdgeInsets.all(18),
+
+
+              child: Row(
+
+                children: [
+
+
+                  Container(
+
+                    width:
+                        58,
+
+                    height:
+                        58,
+
+
+                    decoration:
+                        BoxDecoration(
+
+                      borderRadius:
+                          BorderRadius.circular(18),
+
+
+                      gradient:
+                          const LinearGradient(
+
+                        colors: [
+
+                          AppColors.primary,
+
+                          AppColors.primaryLight,
+
+                        ],
+
+                      ),
+
+                      boxShadow: [
+
+                        BoxShadow(
+
+                          color:
+                              AppColors.primary.withValues(
+                                alpha: .35,
+                              ),
+
+                          blurRadius:
+                              18,
+
+                        ),
+
+                      ],
+
+                    ),
+
+
+                    child:
+                        Icon(
+
+                      icon,
+
+                      color:
+                          AppColors.white,
+
+                      size:
+                          28,
+
+                    ),
+
+                  ),
+
+
+
+                  const SizedBox(
+                    width: 16,
+                  ),
+
+
 
                   Expanded(
+
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+
+
                       children: [
+
+
                         Text(
+
                           title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                          ),
+
+                          style:
+                              AppTextStyles.title,
+
                         ),
 
-                        const SizedBox(height: 6),
+
+
+                        const SizedBox(
+                          height: 5,
+                        ),
+
+
 
                         Text(
+
                           subtitle,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.70),
-                            fontSize: 14,
-                          ),
+
+                          style:
+                              AppTextStyles.subtitle,
+
                         ),
+
+
                       ],
+
                     ),
+
                   ),
+
+
 
                   Icon(
+
                     Icons.arrow_forward_ios_rounded,
-                    color: Colors.white.withValues(alpha: 0.50),
-                    size: 18,
+
+                    color:
+                        AppColors.textSecondary,
+
+                    size:
+                        18,
+
                   ),
+
+
                 ],
+
               ),
+
             ),
+
           ),
+
         ),
+
       ),
+
     );
+
   }
+
 }
