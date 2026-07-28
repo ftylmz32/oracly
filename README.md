@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # oracly_new
 
 A new Flutter project.
@@ -15,3 +16,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# oracly
+>>>>>>> e0927d0fb8d6586c7434cf0e11904c4e10bcabb0
