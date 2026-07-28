@@ -7,7 +7,10 @@ import '../../widgets/glass_card.dart';
 import '../../widgets/feature_card.dart';
 import '../../widgets/cosmic_background.dart';
 import '../../widgets/hero_orb.dart';
+import '../../widgets/memory_card.dart';
 
+import '../../services/memory_service.dart';
+import '../../models/memory_item.dart';
 import '../../services/greeting_service.dart';
 import '../../services/profile_service.dart';
 
@@ -35,6 +38,9 @@ class HomeScreen extends StatefulWidget {
 
 
 class _HomeScreenState extends State<HomeScreen> {
+  final MemoryService _memoryService = MemoryService();
+
+List<MemoryItem> _memories = [];
 
 
   final GreetingService _greetingService =
@@ -74,434 +80,464 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
-  Future<void> _loadGreeting() async {
+Future<void> _loadGreeting() async {
+
+  final profile =
+      await _profileService.getProfile();
 
 
-    final profile =
-        await _profileService.getProfile();
+  final name =
+      profile["name"]?.toString().trim();
 
 
-
-    final name =
-        profile["name"]?.toString().trim();
-
-
-
-    final userName =
-        (name == null || name.isEmpty)
-            ? "Oracly kullanıcısı"
-            : name;
+  final userName =
+      (name == null || name.isEmpty)
+          ? "Oracly kullanıcısı"
+          : name;
 
 
 
-
-    if (!mounted) return;
-
-
-
-    setState(() {
-
-
-      _greeting =
-          _greetingService.getGreeting(
-            userName,
-          );
-
-
-      _message =
-          _greetingService.getMessage();
-
-
-    });
-
-
-  }
+  if (!mounted) return;
 
 
 
+  setState(() {
+
+    _greeting =
+        _greetingService.getGreeting(
+          userName,
+        );
+
+
+    _message =
+        _greetingService.getMessage();
+
+
+  });
+
+
+}
+
+
+
+Future<void> _loadMemories() async {
+
+  final memories =
+      await _memoryService.getAdvancedMemories();
+
+
+
+  if (!mounted) return;
+
+
+
+  setState(() {
+
+    _memories = memories;
+
+  });
+
+}
 
 
 
 
-  @override
-  Widget build(BuildContext context) {
 
 
-    return Scaffold(
 
-  backgroundColor:
-      AppColors.background,
+ 
+    @override
+Widget build(BuildContext context) {
 
+  return Scaffold(
 
-  body: CosmicBackground(
-
-    child: SafeArea(
-
-      child: SingleChildScrollView(
-
-        padding:
-            const EdgeInsets.all(20),
+    backgroundColor:
+        AppColors.background,
 
 
-        child: Column(
+    body: CosmicBackground(
 
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+      child: SafeArea(
+
+        child: SingleChildScrollView(
+
+          padding:
+              const EdgeInsets.all(20),
 
 
-          children: [
+          child: Column(
+
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
 
 
-            const Center(
+            children: [
 
-              child: HeroOrb(
 
-                size: 190,
+              const Center(
+
+                child: HeroOrb(
+
+                  size: 190,
+
+                ),
 
               ),
 
-            ),
 
 
-            const SizedBox(
-              height: 25,
-            ),
-
-
-
-            Text(
-
-              "ORACLY",
-
-              style:
-                  AppTextStyles.logo,
-
-            ),
+              const SizedBox(
+                height: 25,
+              ),
 
 
 
-            const SizedBox(
-              height: 6,
-            ),
+              Text(
 
+                "ORACLY",
 
-
-            const Text(
-
-              "AI Mystic Companion",
-
-              style: TextStyle(
-
-                color:
-                    AppColors.textSecondary,
-
-                fontSize:
-                    16,
+                style:
+                    AppTextStyles.logo,
 
               ),
 
-            ),
+
+
+              const SizedBox(
+                height: 6,
+              ),
 
 
 
-            const SizedBox(
-              height: 32,
-            ),
+              const Text(
 
+                "AI Mystic Companion",
 
+                style: TextStyle(
 
-            GlassCard(
+                  color:
+                      AppColors.textSecondary,
 
-              child: Column(
+                  fontSize:
+                      16,
 
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
-
-                children: [
-
-
-                  Text(
-
-                    _greeting,
-
-                    style:
-                        AppTextStyles.heading,
-
-                  ),
-
-
-
-                  const SizedBox(
-                    height: 10,
-                  ),
-
-
-
-                  Text(
-
-                    _message,
-
-                    style:
-                        AppTextStyles.body,
-
-                  ),
-
-
-                ],
+                ),
 
               ),
 
-            ),
+
+
+              const SizedBox(
+                height: 32,
+              ),
 
 
 
-            const SizedBox(
-              height: 20,
-            ),
+              GlassCard(
+
+                child: Column(
+
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+
+                  children: [
+
+
+                    Text(
+
+                      _greeting,
+
+                      style:
+                          AppTextStyles.heading,
+
+                    ),
 
 
 
-            const GlassCard(
-
-              child: Column(
-
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
-
-                children: [
-
-
-                  Text(
-
-                    "✨ Günün Enerjisi",
-
-                    style:
-                        AppTextStyles.heading,
-
-                  ),
+                    const SizedBox(
+                      height: 10,
+                    ),
 
 
 
-                  SizedBox(
-                    height: 12,
-                  ),
+                    Text(
+
+                      _message,
+
+                      style:
+                          AppTextStyles.body,
+
+                    ),
 
 
+                  ],
 
-                  LinearProgressIndicator(
-
-                    value:
-                        0.82,
-
-                    minHeight:
-                        10,
-
-                    borderRadius:
-                        BorderRadius.all(
-
-                          Radius.circular(20),
-
-                        ),
-
-
-                    backgroundColor:
-                        AppColors.surface,
-
-
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(
-
-                          AppColors.gold,
-
-                        ),
-
-                  ),
-
-
-
-                  SizedBox(
-                    height: 12,
-                  ),
-
-
-
-                  Text(
-
-                    "%82 Ruhsal Enerji",
-
-                    style:
-                        AppTextStyles.caption,
-
-                  ),
-
-
-                ],
+                ),
 
               ),
 
-            ),
 
 
+              const SizedBox(
+                height: 20,
+              ),
+                            MemoryCard(
 
-            const SizedBox(
-              height: 24,
-            ),
+                memories:
+                    _memories,
 
+              ),
 
 
-            FeatureCard(
 
-              icon:
-                  Icons.smart_toy_rounded,
+              const SizedBox(
+                height: 20,
+              ),
 
-              title:
-                  "AI Danışman",
 
-              subtitle:
-                  "Merak ettiklerini bana sor.",
 
+              const GlassCard(
 
-              onTap: () {
+                child: Column(
 
-                Navigator.push(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
 
-                  context,
 
-                  MaterialPageRoute(
+                  children: [
 
-                    builder: (_) =>
-                        const ChatScreen(),
 
-                  ),
+                    Text(
 
-                );
+                      "✨ Günün Enerjisi",
 
-              },
+                      style:
+                          AppTextStyles.heading,
 
-            ),
+                    ),
 
 
 
-            FeatureCard(
+                    SizedBox(
+                      height: 12,
+                    ),
 
-              icon:
-                  Icons.person_rounded,
 
-              title:
-                  "Profil",
 
-              subtitle:
-                  "Bilgilerini ve hafızanı yönet.",
+                    LinearProgressIndicator(
 
+                      value:
+                          0.82,
 
-              onTap: () {
 
-                Navigator.push(
+                      minHeight:
+                          10,
 
-                  context,
 
-                  MaterialPageRoute(
+                      borderRadius:
+                          BorderRadius.all(
 
-                    builder: (_) =>
-                        ProfileScreen(),
+                            Radius.circular(20),
 
-                  ),
+                          ),
 
-                );
 
-              },
+                      backgroundColor:
+                          AppColors.surface,
 
-            ),
 
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(
 
+                            AppColors.gold,
 
-            FeatureCard(
+                          ),
 
-              icon:
-                  Icons.settings_rounded,
+                    ),
 
-              title:
-                  "Ayarlar",
 
-              subtitle:
-                  "Uygulama ve veri ayarlarını yönet.",
 
+                    SizedBox(
+                      height: 12,
+                    ),
 
-              onTap: () {
 
-                Navigator.push(
 
-                  context,
+                    Text(
 
-                  MaterialPageRoute(
+                      "%82 Ruhsal Enerji",
 
-                    builder: (_) =>
-                        const SettingsScreen(),
+                      style:
+                          AppTextStyles.caption,
 
-                  ),
+                    ),
 
-                );
 
-              },
+                  ],
 
-            ),
+                ),
 
+              ),
 
 
-            FeatureCard(
 
-              icon:
-                  Icons.auto_awesome,
+              const SizedBox(
+                height: 24,
+              ),
+                            FeatureCard(
 
-              title:
-                  "Astroloji",
+                icon:
+                    Icons.smart_toy_rounded,
 
-              subtitle:
-                  "Günlük burç yorumlarını keşfet.",
+                title:
+                    "AI Danışman",
 
-              onTap: () {},
+                subtitle:
+                    "Merak ettiklerini bana sor.",
 
-            ),
 
+                onTap: () {
 
+                  Navigator.push(
 
-            FeatureCard(
+                    context,
 
-              icon:
-                  Icons.nightlight_round,
+                    MaterialPageRoute(
 
-              title:
-                  "Rüya Analizi",
+                      builder: (_) =>
+                          const ChatScreen(),
 
-              subtitle:
-                  "Rüyalarının anlamını öğren.",
+                    ),
 
-              onTap: () {},
+                  );
 
-            ),
+                },
 
+              ),
 
 
-            FeatureCard(
 
-              icon:
-                  Icons.style,
+              FeatureCard(
 
-              title:
-                  "Tarot",
+                icon:
+                    Icons.person_rounded,
 
-              subtitle:
-                  "Kartların sana ne söylediğini keşfet.",
+                title:
+                    "Profil",
 
-              onTap: () {},
+                subtitle:
+                    "Bilgilerini ve hafızanı yönet.",
 
-            ),
 
+                onTap: () {
 
-          ],
+                  Navigator.push(
 
+                    context,
+
+                    MaterialPageRoute(
+
+                      builder: (_) =>
+                          ProfileScreen(),
+
+                    ),
+
+                  );
+
+                },
+
+              ),
+
+
+
+              FeatureCard(
+
+                icon:
+                    Icons.settings_rounded,
+
+                title:
+                    "Ayarlar",
+
+                subtitle:
+                    "Uygulama ve veri ayarlarını yönet.",
+
+
+                onTap: () {
+
+                  Navigator.push(
+
+                    context,
+
+                    MaterialPageRoute(
+
+                      builder: (_) =>
+                          const SettingsScreen(),
+
+                    ),
+
+                  );
+
+                },
+
+              ),
+
+
+
+              FeatureCard(
+
+                icon:
+                    Icons.auto_awesome,
+
+                title:
+                    "Astroloji",
+
+                subtitle:
+                    "Günlük burç yorumlarını keşfet.",
+
+                onTap: () {},
+
+              ),
+
+
+
+              FeatureCard(
+
+                icon:
+                    Icons.nightlight_round,
+
+                title:
+                    "Rüya Analizi",
+
+                subtitle:
+                    "Rüyalarının anlamını öğren.",
+
+                onTap: () {},
+
+              ),
+
+
+
+              FeatureCard(
+
+                icon:
+                    Icons.style,
+
+                title:
+                    "Tarot",
+
+                subtitle:
+                    "Kartların sana ne söylediğini keşfet.",
+
+                onTap: () {},
+
+              ),
+
+
+
+            ],
+
+          ),
 
         ),
 
@@ -509,8 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     ),
 
-  ),
+  );
 
-);
-  }
 }
+  }
