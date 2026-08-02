@@ -1,0 +1,59 @@
+---
+description: Oracly Flutter project standards — architecture, quality gate, and workflow
+globs: lib/**/*.dart
+alwaysApply: true
+---
+
+# Oracly Development Rules
+
+Follow `docs/ORACLY_MASTER_PLAN.md` for roadmap and folder layout.
+
+## Before Writing Code
+
+1. **Analyze first** — read existing files in the feature; grep for similar widgets/services before adding anything.
+2. **Explain planned changes** — list files to create, edit, or delete and why, before editing.
+3. **Reuse over recreate** — use existing widgets (`GlassCard`, `TarotResultCard`, `TarotResultCards`, `TarotReadingSection`, section widgets, etc.) before creating new ones.
+4. **Never duplicate widgets** — one canonical widget per UI pattern; extend or compose, do not copy-paste layouts.
+
+## File Size
+
+- **Maximum 150 lines per Dart file.**
+- If a file exceeds 150 lines, split into sections/widgets/services in the same feature.
+- **Exception:** static data catalogs only (`major_arcana.dart`, suit data files) — do not mix UI into data files.
+
+## Composition
+
+- Prefer **small composed widgets** over large `build()` methods or monolithic screens.
+- Screens orchestrate; sections layout; widgets render.
+- Extract when a screen grows beyond ~100 lines of UI code.
+
+## Placeholders
+
+- **Never leave empty placeholder files** (0-byte or export-only stubs).
+- AI scaffolds in `lib/features/tarot/` must be **implemented or deleted** in the same task — do not add new empty files.
+
+## Feature Boundaries
+
+- New work goes under `lib/features/<name>/`.
+- Shared code belongs in `lib/widgets/` or `lib/core/` only if used by **two or more features**.
+- Do not modify unrelated features in the same task.
+
+## Quality Gate
+
+- Run **`flutter analyze`** before marking a task complete.
+- **Zero analyzer issues** required — warnings included if they fail CI.
+- Do not commit with broken tarot/chat/home navigation paths.
+
+## Tarot-Specific
+
+- Result UI must use **`TarotResultCard` / `TarotResultCards` / `TarotReadingSection`** — no inline result layouts.
+- AI logic belongs in **`tarot_ai_service.dart`**, not in widgets.
+- State machine: prefer **`TarotController` + `TarotState` + `TarotPhase`** when wiring flows.
+
+## Definition of Done (summary)
+
+- [ ] `flutter analyze` passes
+- [ ] No duplicate widgets or empty files introduced
+- [ ] Files ≤ 150 lines (or split)
+- [ ] Existing code analyzed and reused
+- [ ] Only in-scope files changed
