@@ -72,6 +72,8 @@ List<MemoryItem> _memories = [];
 
     _loadGreeting();
 
+    _loadMemories();
+
   }
 
 

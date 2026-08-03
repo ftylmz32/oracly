@@ -158,8 +158,8 @@ class MessageBubble extends StatelessWidget {
                 BoxShadow(
 
                   color:
-                      Colors.black.withOpacity(
-                        0.25,
+                      Colors.black.withValues(
+                        alpha: 0.25,
                       ),
 
                   blurRadius:

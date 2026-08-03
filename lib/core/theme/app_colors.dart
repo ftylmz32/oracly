@@ -11,11 +11,32 @@ class AppColors {
   static const Color surface =
       Color(0xFF121624);
 
+  static const Color surfaceLight =
+      Color(0xFF202B46);
+
+  static const Color surfaceDark =
+      Color(0xFF101726);
+
   static const Color primary =
       Color(0xFF7C4DFF);
 
   static const Color primaryLight =
       Color(0xFFB388FF);
+
+  static const Color primaryDark =
+      Color(0xFF5E35B1);
+
+  static const Color accent =
+      Color(0xFF8B5CF6);
+
+  static const Color accentLight =
+      Color(0xFFA78BFA);
+
+  static const Color cyan =
+      Color(0xFF22D3EE);
+
+  static const Color info =
+      Color(0xFF60A5FA);
 
 
   // ✨ Premium Gold
@@ -26,14 +47,23 @@ class AppColors {
   static const Color goldLight =
       Color(0xFFF4D675);
 
+  static const Color goldGlow =
+      Color(0x33D4AF37);
+
 
   // 📝 Text
 
   static const Color white =
       Colors.white;
 
+  static const Color textPrimary =
+      Color(0xFFF4F4F5);
+
   static const Color textSecondary =
       Color(0xFFA1A1AA);
+
+  static const Color textHint =
+      Color(0xFF71717A);
 
 
   // 🪟 Glass

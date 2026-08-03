@@ -261,8 +261,9 @@ class _ChatScreenState extends State<ChatScreen> {
       () {
 
 
-        if (!_scrollController.hasClients)
+        if (!_scrollController.hasClients) {
           return;
+        }
 
 
 

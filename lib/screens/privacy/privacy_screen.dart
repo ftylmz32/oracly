@@ -66,6 +66,7 @@ class PrivacyScreen extends StatelessWidget {
 
               await memoryService.clearMemory();
 
+              if (!context.mounted) return;
 
               _showMessage(
                 context,
@@ -93,6 +94,7 @@ class PrivacyScreen extends StatelessWidget {
 
               await storageService.clearMessages();
 
+              if (!context.mounted) return;
 
               _showMessage(
                 context,
@@ -126,7 +128,7 @@ class PrivacyScreen extends StatelessWidget {
 
               await profileService.clearProfile();
 
-
+              if (!context.mounted) return;
 
               _showMessage(
                 context,
