@@ -1,0 +1,21 @@
+{
+  "$schema": "oracly-manifest-v1",
+  "description": "Template for per-card export manifest — copy and fill on delivery",
+  "card_id": "",
+  "card_name": "",
+  "filename": "",
+  "width": 512,
+  "height": 896,
+  "format": "webp",
+  "sha256": "",
+  "exported_at": "",
+  "validator_version": "1.0",
+  "qa_report_ref": "",
+  "pipeline": "OR-1310",
+  "art_direction": "OR-1300",
+  "optional_files": {
+    "retina": "",
+    "thumbnail": "",
+    "shimmer": null
+  }
+}

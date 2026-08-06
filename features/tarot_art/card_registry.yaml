@@ -1,0 +1,120 @@
+# ORACLY Tarot — 78-card production registry (metadata only, no assets)
+# Status: planned | brief_approved | in_progress | qa_review | approved | integrated
+
+deck:
+  id: oracly_tarot_v1
+  name: ORACLY Tarot
+  art_direction: OR-1300
+  pipeline: OR-1310
+  total_cards: 78
+  card_back_id: oracly_tarot_back
+
+status_values:
+  - planned
+  - brief_approved
+  - in_progress
+  - qa_review
+  - approved
+  - integrated
+
+card_back:
+  id: oracly_tarot_back
+  filename: oracly_tarot_back
+  status: planned
+  arcana: null
+  suit: null
+  element: universal
+
+major_arcana:
+  - { id: oracly_tarot_major_00, numeral: "0",  name: "The Fool",           status: brief_approved, element: air }
+  - { id: oracly_tarot_major_01, numeral: "I",    name: "The Magician",     status: brief_approved, element: fire }
+  - { id: oracly_tarot_major_02, numeral: "II",   name: "The High Priestess", status: brief_approved, element: water }
+  - { id: oracly_tarot_major_03, numeral: "III",  name: "The Empress",      status: planned, element: earth }
+  - { id: oracly_tarot_major_04, numeral: "IV",   name: "The Emperor",      status: planned, element: fire }
+  - { id: oracly_tarot_major_05, numeral: "V",    name: "The Hierophant",   status: planned, element: earth }
+  - { id: oracly_tarot_major_06, numeral: "VI",   name: "The Lovers",       status: planned, element: air }
+  - { id: oracly_tarot_major_07, numeral: "VII",  name: "The Chariot",      status: planned, element: water }
+  - { id: oracly_tarot_major_08, numeral: "VIII", name: "Strength",         status: planned, element: fire }
+  - { id: oracly_tarot_major_09, numeral: "IX",   name: "The Hermit",       status: planned, element: earth }
+  - { id: oracly_tarot_major_10, numeral: "X",    name: "Wheel of Fortune", status: planned, element: fire }
+  - { id: oracly_tarot_major_11, numeral: "XI",   name: "Justice",          status: planned, element: air }
+  - { id: oracly_tarot_major_12, numeral: "XII",  name: "The Hanged Man",   status: planned, element: water }
+  - { id: oracly_tarot_major_13, numeral: "XIII", name: "Death",            status: planned, element: water }
+  - { id: oracly_tarot_major_14, numeral: "XIV",  name: "Temperance",       status: planned, element: fire }
+  - { id: oracly_tarot_major_15, numeral: "XV",   name: "The Devil",        status: planned, element: earth }
+  - { id: oracly_tarot_major_16, numeral: "XVI",  name: "The Tower",        status: planned, element: fire }
+  - { id: oracly_tarot_major_17, numeral: "XVII", name: "The Star",         status: planned, element: air }
+  - { id: oracly_tarot_major_18, numeral: "XVIII", name: "The Moon",        status: planned, element: water }
+  - { id: oracly_tarot_major_19, numeral: "XIX",  name: "The Sun",          status: planned, element: fire }
+  - { id: oracly_tarot_major_20, numeral: "XX",   name: "Judgement",        status: planned, element: fire }
+  - { id: oracly_tarot_major_21, numeral: "XXI",  name: "The World",        status: planned, element: earth }
+
+minor_arcana:
+  cups:
+    element: water
+    cards:
+      - { id: oracly_tarot_cups_01, rank: ace,   name: "Ace of Cups",   status: planned }
+      - { id: oracly_tarot_cups_02, rank: "02",  name: "Two of Cups",   status: planned }
+      - { id: oracly_tarot_cups_03, rank: "03",  name: "Three of Cups", status: planned }
+      - { id: oracly_tarot_cups_04, rank: "04",  name: "Four of Cups",  status: planned }
+      - { id: oracly_tarot_cups_05, rank: "05",  name: "Five of Cups",  status: planned }
+      - { id: oracly_tarot_cups_06, rank: "06",  name: "Six of Cups",   status: planned }
+      - { id: oracly_tarot_cups_07, rank: "07",  name: "Seven of Cups", status: planned }
+      - { id: oracly_tarot_cups_08, rank: "08",  name: "Eight of Cups", status: planned }
+      - { id: oracly_tarot_cups_09, rank: "09",  name: "Nine of Cups",  status: planned }
+      - { id: oracly_tarot_cups_10, rank: "10",  name: "Ten of Cups",   status: planned }
+      - { id: oracly_tarot_cups_11, rank: page,  name: "Page of Cups",  status: planned }
+      - { id: oracly_tarot_cups_12, rank: knight, name: "Knight of Cups", status: planned }
+      - { id: oracly_tarot_cups_13, rank: queen, name: "Queen of Cups", status: planned }
+      - { id: oracly_tarot_cups_14, rank: king,  name: "King of Cups",  status: planned }
+  wands:
+    element: fire
+    cards: &wands_pattern
+      - { id: oracly_tarot_wands_01, rank: ace,   name: "Ace of Wands",   status: planned }
+      - { id: oracly_tarot_wands_02, rank: "02",  name: "Two of Wands",   status: planned }
+      - { id: oracly_tarot_wands_03, rank: "03",  name: "Three of Wands", status: planned }
+      - { id: oracly_tarot_wands_04, rank: "04",  name: "Four of Wands",  status: planned }
+      - { id: oracly_tarot_wands_05, rank: "05",  name: "Five of Wands",  status: planned }
+      - { id: oracly_tarot_wands_06, rank: "06",  name: "Six of Wands",   status: planned }
+      - { id: oracly_tarot_wands_07, rank: "07",  name: "Seven of Wands", status: planned }
+      - { id: oracly_tarot_wands_08, rank: "08",  name: "Eight of Wands", status: planned }
+      - { id: oracly_tarot_wands_09, rank: "09",  name: "Nine of Wands",  status: planned }
+      - { id: oracly_tarot_wands_10, rank: "10",  name: "Ten of Wands",   status: planned }
+      - { id: oracly_tarot_wands_11, rank: page,  name: "Page of Wands",  status: planned }
+      - { id: oracly_tarot_wands_12, rank: knight, name: "Knight of Wands", status: planned }
+      - { id: oracly_tarot_wands_13, rank: queen, name: "Queen of Wands", status: planned }
+      - { id: oracly_tarot_wands_14, rank: king,  name: "King of Wands",  status: planned }
+  swords:
+    element: air
+    cards:
+      - { id: oracly_tarot_swords_01, rank: ace,   name: "Ace of Swords",   status: planned }
+      - { id: oracly_tarot_swords_02, rank: "02",  name: "Two of Swords",   status: planned }
+      - { id: oracly_tarot_swords_03, rank: "03",  name: "Three of Swords", status: planned }
+      - { id: oracly_tarot_swords_04, rank: "04",  name: "Four of Swords",  status: planned }
+      - { id: oracly_tarot_swords_05, rank: "05",  name: "Five of Swords",  status: planned }
+      - { id: oracly_tarot_swords_06, rank: "06",  name: "Six of Swords",   status: planned }
+      - { id: oracly_tarot_swords_07, rank: "07",  name: "Seven of Swords", status: planned }
+      - { id: oracly_tarot_swords_08, rank: "08",  name: "Eight of Swords", status: planned }
+      - { id: oracly_tarot_swords_09, rank: "09",  name: "Nine of Swords",  status: planned }
+      - { id: oracly_tarot_swords_10, rank: "10",  name: "Ten of Swords",   status: planned }
+      - { id: oracly_tarot_swords_11, rank: page,  name: "Page of Swords",  status: planned }
+      - { id: oracly_tarot_swords_12, rank: knight, name: "Knight of Swords", status: planned }
+      - { id: oracly_tarot_swords_13, rank: queen, name: "Queen of Swords", status: planned }
+      - { id: oracly_tarot_swords_14, rank: king,  name: "King of Swords",  status: planned }
+  pentacles:
+    element: earth
+    cards:
+      - { id: oracly_tarot_pentacles_01, rank: ace,   name: "Ace of Pentacles",   status: planned }
+      - { id: oracly_tarot_pentacles_02, rank: "02",  name: "Two of Pentacles",   status: planned }
+      - { id: oracly_tarot_pentacles_03, rank: "03",  name: "Three of Pentacles", status: planned }
+      - { id: oracly_tarot_pentacles_04, rank: "04",  name: "Four of Pentacles",  status: planned }
+      - { id: oracly_tarot_pentacles_05, rank: "05",  name: "Five of Pentacles",  status: planned }
+      - { id: oracly_tarot_pentacles_06, rank: "06",  name: "Six of Pentacles",   status: planned }
+      - { id: oracly_tarot_pentacles_07, rank: "07",  name: "Seven of Pentacles", status: planned }
+      - { id: oracly_tarot_pentacles_08, rank: "08",  name: "Eight of Pentacles", status: planned }
+      - { id: oracly_tarot_pentacles_09, rank: "09",  name: "Nine of Pentacles",  status: planned }
+      - { id: oracly_tarot_pentacles_10, rank: "10",  name: "Ten of Pentacles",   status: planned }
+      - { id: oracly_tarot_pentacles_11, rank: page,  name: "Page of Pentacles",  status: planned }
+      - { id: oracly_tarot_pentacles_12, rank: knight, name: "Knight of Pentacles", status: planned }
+      - { id: oracly_tarot_pentacles_13, rank: queen, name: "Queen of Pentacles", status: planned }
+      - { id: oracly_tarot_pentacles_14, rank: king,  name: "King of Pentacles",  status: planned }

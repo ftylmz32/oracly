@@ -1,0 +1,30 @@
+---
+description: RC-010 Reflection Engine — observable patterns only, no UI
+alwaysApply: true
+---
+
+# RC-010 — Reflection Engine
+
+North star: **Accumulated understanding, never artificial intelligence alone.**
+
+## Before adding reflection logic ask
+
+- Does it detect only **observable** patterns from stored history?
+- Does it avoid prediction, inference, and fabricated meaning?
+- Is the engine independent from UI and AI services?
+- Does data flow through `IntelligenceLayerService` / `ReflectionSource` — not direct AI writes?
+- Are outputs structured models (`ReflectionSummary`, etc.) — not ad-hoc strings?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-010.md`
+
+## Out of scope
+
+Redesign · navigation changes · unfinished UI · fortune-telling tone
+
+## Success
+
+Nothing visible today. ORACLY grows wiser alongside users through genuine pattern recognition.

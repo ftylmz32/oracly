@@ -1,0 +1,62 @@
+# Major Arcana — Style Rules
+category: major_arcana
+element_default: universal
+style_rules_version: "1.0"
+
+visual_language: >
+  Archetypal mythic tableaux. Monumental figures and symbols at threshold moments
+  in the OR Realm. Cosmos and architecture merge. Each Major is visually unique —
+  no repeated silhouette or dominant prop across cards.
+
+dominant_colors:
+  ground: ["#030106", "#0B0615", "#12071F"]
+  magic: ["#9B6DFF", "#B794FF"]
+  gold: ["#D4AF37", "#F0D77A"]
+  accent: "one unique accent hue per card (max 2 total accents)"
+
+lighting:
+  key: "Upper-left 45°, warm gold rim — maximum intensity in deck"
+  fill: "Cool purple ambient 15% from lower-right"
+  effects: ["volumetric god-rays", "strong rim separation", "deep shadow purple undertone"]
+  fog: "Heavy mid-ground volumetric fog 15-20%"
+
+mood: ["Sacred", "Transformative", "Eternal", "Awestruck"]
+
+symbols:
+  required_one: ["OR Eye", "OR Prism", "celestial body", "sacred gateway"]
+  optional: ["original archetypal artifact", "hex geometry", "crystal throne"]
+  forbidden: ["Rider-Waite props", "Christian iconography copies"]
+
+particle_effects:
+  density: high
+  max_count: 20
+  types: ["gold_dust", "purple_ember", "card_accent_spark"]
+  distribution: "40% gold, 35% purple, 25% card accent"
+
+camera:
+  angle: "Monumental low hero 8-12°"
+  lens: "65-85mm — subject slightly larger than life"
+  dutch_tilt: false
+
+composition:
+  preferred: ["central_iconic", "circular_mandala", "triangular_ascension"]
+  negative_space_min_pct: 15
+  depth_planes_min: 4
+
+arcana_symbol: or_eye_prism_hex
+element_symbol: universal_prism_or_element_of_card
+numeral_style: roman
+
+rarity_tier: legendary
+
+prompt_block: |
+  MAJOR ARCANA — ORACLY premium tier. Monumental archetypal scene in the OR Realm.
+  Maximum cinematic drama: strong gold rim light, volumetric god-rays, deep purple void.
+  Figure or symbol feels larger than life. One unique accent color for this card only.
+  OR Eye or OR Prism crystal must appear. Heaviest particle density in deck (up to 20 motes).
+  Unique silhouette — must not resemble any other Major or published tarot card.
+
+validation_overrides:
+  min_particle_count: 8
+  rim_light_required: true
+  unique_silhouette_check: true

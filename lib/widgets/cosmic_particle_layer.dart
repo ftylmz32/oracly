@@ -8,8 +8,7 @@ class CosmicParticleLayer extends StatefulWidget {
   const CosmicParticleLayer({super.key});
 
   @override
-  State<CosmicParticleLayer> createState() =>
-      _CosmicParticleLayerState();
+  State<CosmicParticleLayer> createState() => _CosmicParticleLayerState();
 }
 
 class _CosmicParticleLayerState extends State<CosmicParticleLayer>
@@ -21,7 +20,7 @@ class _CosmicParticleLayerState extends State<CosmicParticleLayer>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 24),
+      duration: const Duration(seconds: 36),
     )..repeat();
   }
 
@@ -53,19 +52,17 @@ class _ParticlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (var i = 0; i < 28; i++) {
+    for (var i = 0; i < 32; i++) {
       final seed = i * 13.7;
-      final x = (seed * 47 % size.width + t * 18) % size.width;
-      final y = (seed * 29 % size.height + t * 10) % size.height;
-      final alpha = 0.08 + (_random.nextDouble() * 0.12);
+      final x = (seed * 47 % size.width + t * 12) % size.width;
+      final y = (seed * 29 % size.height + t * 7) % size.height;
+      final alpha = 0.04 + (_random.nextDouble() * 0.08);
 
       canvas.drawCircle(
         Offset(x, y),
-        1 + (i % 2),
+        0.8 + (i % 2) * 0.4,
         Paint()
-          ..color = (i.isEven
-                  ? AppColors.primaryLight
-                  : Colors.white)
+          ..color = (i.isEven ? AppColors.primaryLight : AppColors.goldLight)
               .withValues(alpha: alpha),
       );
     }

@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../widgets/glass_card.dart';
 import '../models/tarot_select_phase.dart';
+import 'tarot_buttons.dart';
+import 'tarot_section_heading.dart';
+import 'tarot_spread_tile.dart';
+import 'tarot_typography.dart';
 
-class TarotSetupPanel extends StatelessWidget {
+class _SpreadOption {
+  const _SpreadOption(this.count, this.title, this.subtitle, this.icon);
+  final int count;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+}
+
+const _spreads = [
+  _SpreadOption(1, 'Tek Kart', 'Tek bir mesaj', Icons.style_outlined),
+  _SpreadOption(3, 'Üç Kart Açılımı', 'Geçmiş · Şimdi · Gelecek', Icons.filter_3_outlined),
+  _SpreadOption(3, 'Aşk', 'Kalp & bağ', Icons.favorite_outline),
+  _SpreadOption(3, 'Haftalık', '7 günlük rehber', Icons.calendar_today_outlined),
+  _SpreadOption(3, 'Karma', 'Dersler & denge', Icons.all_inclusive),
+  _SpreadOption(10, 'Kelt Haçı', 'Derin ruhsal açılım', Icons.grid_view_rounded),
+];
+
+class TarotSetupPanel extends StatefulWidget {
   const TarotSetupPanel({
     super.key,
     required this.intentionController,
@@ -22,127 +41,114 @@ class TarotSetupPanel extends StatelessWidget {
   final VoidCallback onShuffle;
 
   @override
-  Widget build(BuildContext context) {
-    final enabled = phase.canEditSetup;
-    final busy = phase.isBusy;
+  State<TarotSetupPanel> createState() => _TarotSetupPanelState();
+}
 
-    return GlassCard(
-      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Niyetin',
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.gold.withValues(alpha: .72),
-              letterSpacing: 1.4,
-            ),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: intentionController,
-            enabled: enabled,
-            maxLines: 3,
-            style: AppTextStyles.body.copyWith(fontSize: 15),
-            decoration: InputDecoration(
-              hintText: 'Bugün neyi öğrenmek istiyorsun?',
-              hintStyle: AppTextStyles.subtitle.copyWith(
-                color: AppColors.textSecondary.withValues(alpha: .55),
-              ),
-              filled: true,
-              fillColor: AppColors.background.withValues(alpha: .55),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-            ),
-          ),
-          const SizedBox(height: 22),
-          Text(
-            'Açılım',
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.gold.withValues(alpha: .72),
-              letterSpacing: 1.4,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _spreadChip(1, '1 Kart', enabled),
-              const SizedBox(width: 10),
-              _spreadChip(3, '3 Kart', enabled),
-              const SizedBox(width: 10),
-              _spreadChip(10, '10 Kart', enabled),
-            ],
-          ),
-          const SizedBox(height: 22),
-          SizedBox(
-            height: 52,
-            child: ElevatedButton(
-              onPressed: enabled && !busy ? onShuffle : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: enabled && !busy
-                    ? AppColors.gold
-                    : AppColors.surface,
-                foregroundColor: enabled && !busy
-                    ? Colors.black
-                    : AppColors.textSecondary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Text(
-                busy ? 'Karıştırılıyor...' : 'Kartları Karıştır',
-                style: AppTextStyles.button.copyWith(
-                  color: enabled && !busy
-                      ? Colors.black
-                      : AppColors.textSecondary,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+class _TarotSetupPanelState extends State<TarotSetupPanel> {
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncIndex();
   }
 
-  Widget _spreadChip(int value, String label, bool enabled) {
-    final active = spread == value;
+  @override
+  void didUpdateWidget(covariant TarotSetupPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.spread != widget.spread) _syncIndex();
+  }
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: enabled ? () => onSpreadChanged(value) : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: active
-                ? AppColors.gold.withValues(alpha: .92)
-                : AppColors.background.withValues(alpha: .45),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: active
-                  ? AppColors.gold
-                  : AppColors.glassBorder,
-            ),
-          ),
-          child: Text(
-            label,
-            style: AppTextStyles.small.copyWith(
-              color: active ? Colors.black : AppColors.textSecondary,
-              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+  void _syncIndex() {
+    final idx = _spreads.indexWhere((s) => s.count == widget.spread);
+    if (idx >= 0) _selectedIndex = idx;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = widget.phase.canEditSetup;
+    final busy = widget.phase.isBusy;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const TarotSectionHeading(title: 'Açılım Türleri'),
+        const SizedBox(height: 16),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _spreads.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1.35,
+              ),
+              itemBuilder: (_, i) {
+                final s = _spreads[i];
+                return TarotSpreadTile(
+                  title: s.title,
+                  subtitle: s.subtitle,
+                  icon: s.icon,
+                  selected: _selectedIndex == i,
+                );
+              },
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 18),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                TextField(
+                  controller: widget.intentionController,
+                  enabled: enabled,
+                  maxLines: 1,
+                  style: TarotTypography.body(size: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Niyetini yaz (isteğe bağlı)',
+                    hintStyle: TarotTypography.captionMuted(),
+                    filled: true,
+                    fillColor: AppColors.card.withValues(alpha: 0.5),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.gold.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.gold.withValues(alpha: 0.15),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TarotGoldButton(
+                  label: 'Kartları Karıştır',
+                  busy: busy,
+                  onPressed: enabled && !busy ? widget.onShuffle : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+        ),
+      ],
     );
   }
 }

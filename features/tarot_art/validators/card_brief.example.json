@@ -1,0 +1,29 @@
+# Example card brief — DO NOT use as production art
+# Template reference only for illustrators and AD
+
+{
+  "card_id": "oracly_tarot_major_17",
+  "card_name": "The Star",
+  "arcana": "Major Arcana",
+  "numeral": "XVII",
+  "suit": null,
+  "rank": null,
+  "element": "air",
+  "category_style_rules": "style_rules/major_arcana.yaml",
+  "mood": "Hopeful, serene, cosmic renewal — quiet miracle after storm",
+  "lighting": "Strong gold rim from upper-left; soft god-ray from celestial source; purple ambient fill",
+  "dominant_colors": ["#0B0615", "#9B6DFF", "#D4AF37", "#4A9EFF accent"],
+  "character": "Ethereal oracle figure pouring OR energy from prism vessel into still pool",
+  "environment": "Open star field, floating stone arch, reflective water plane, distant nebula",
+  "symbols": ["OR Prism", "eight-point star", "ibis silhouette (original stylized)", "ripple rings"],
+  "magic_effects": "Dual stream of purple-gold OR energy into water; soft bloom on contact",
+  "camera": "Low hero angle 8°, 70mm intimate, subject centered",
+  "composition": "central_iconic",
+  "border_style": "ORACLY locked ceremonial gold filigree template v1",
+  "particle_style": "Gold dust + purple embers, 14 count, upward drift",
+  "narrative_meaning": "Renewal, hope, alignment with cosmic order after The Tower",
+  "reference_notes": "Avoid RW Star pool composition — original OR pool geometry with hex stones",
+  "approved_by": "Art Director Name",
+  "approved_at": "2026-08-05T10:00:00Z",
+  "status": "brief_approved"
+}

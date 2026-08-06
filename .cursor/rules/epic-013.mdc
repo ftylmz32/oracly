@@ -1,0 +1,36 @@
+---
+description: EPIC-013 Reflective Intelligence — thoughtful guide, not fortune teller
+alwaysApply: true
+---
+
+# EPIC-013 — Reflective Intelligence
+
+North star: **Trusted companion for personal reflection — not a fortune teller.**
+
+## Before changing AI copy or prompts ask
+
+- Does this avoid certainty and prediction?
+- Does it invite reflection rather than declare truth?
+- Is personalization based only on real user history?
+- Does it leave the user feeling more capable, not dependent?
+
+If any answer is no — rewrite.
+
+## Canonical doc
+
+`docs/EPIC-013.md`
+
+## Implementation anchors
+
+- Synthesis: `ReflectiveIntelligence` in `lib/features/insights/services/reflective_intelligence.dart`
+- Personalization: `JourneyPersonalizationBuilder` — observable patterns only
+- Local readings: `LocalInterpretationExecutor`
+- AI prompts: `SharedTemplateSections.basePersona`, `OutputFormatCatalogue.tarot`, `InterpretationPromptAdapter`
+
+## Never in AI communication
+
+Certainty · fear · manipulation · dramatic prophecy · fabricated journey patterns · dependency language
+
+## Success
+
+The AI sounds warm, calm, and observational — never like it knows the future.

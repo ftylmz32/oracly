@@ -1,0 +1,34 @@
+---
+description: ORACLY AI Agent Guide — daily decision layer for all agents
+alwaysApply: true
+---
+
+# ORACLY AI Agent Guide
+
+Full spec: `docs/AI_AGENT_GUIDE.md` · Stack: Master Directive → Development Charter → Manifesto → EPICs → OOS → PRINCIPLE-001 → Gold Standard
+
+ORACLY is a **premium digital sanctuary for reflection** — not a tarot app.
+
+## Before every change (all must be yes)
+
+Calmer? · More trust? · Clearer? · Respects intelligence? · Fits ORACLY identity?
+
+**Any no → do not implement.**
+
+## Never
+
+Unnecessary animations · Second design language · Duplicate components · Rewrite stable systems · Complexity for visual impact
+
+## Always
+
+Reuse systems · Maintainable code · Subtle motion · Consistency over novelty · Performance · Accessibility
+
+## Goals
+
+**Emotional:** calm, curious, respected, present — never manipulated  
+**Design:** interface disappears, experience remains  
+**Engineering:** future developers understand immediately
+
+## Final rule
+
+More **intentional** → continue. Only **different** → stop and rethink.

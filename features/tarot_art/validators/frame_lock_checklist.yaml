@@ -1,0 +1,106 @@
+# Frame Lock QA — Empty frame must be instantly ORACLY
+validator_version: "1.0"
+document: OR-1330
+applies_to: oracly_tarot_frame_locked_v1.1.png
+
+blocking: true
+
+recognition:
+  - id: FL-R01
+    rule: Empty frame identifiable as ORACLY within 2 seconds
+    method: blind_test_3_reviewers
+    pass: 3_of_3_oracly
+  - id: FL-R02
+    rule: No resemblance to published tarot deck frames
+    pass: 0_rider_waite_matches
+
+centerpiece:
+  - id: FL-C01
+    rule: Vesica Compass present at top center — NOT oval gem
+    pass: visual_match_ORACLY_VISUAL_DNA_section_3
+  - id: FL-C02
+    rule: Compass size ≤ 28px height @ 512 reference scale
+  - id: FL-C03
+    rule: No logo, letters, or wordmark in compass
+  - id: FL-C04
+    rule: Highly detailed at 200% zoom
+
+title_plate:
+  - id: FL-T01
+    rule: Obsidian crystal plaque — not flat color bar
+  - id: FL-T02
+    rule: Hand-polished gold engraved edge visible
+  - id: FL-T03
+    rule: Slim proportions — height ≤ 139px @ 512 scale (22% reduction)
+  - id: FL-T04
+    rule: Empty — no text in locked asset
+  - id: FL-T05
+    rule: Collector edition expensive appearance
+
+side_rails:
+  - id: FL-S01
+    rule: Ornament density reduced ~20% vs OR-1320 v1.0 reference
+    method: stroke_count_comparison
+  - id: FL-S02
+    rule: Illustration window remains visual hero
+    method: ad_peripheral_attention_test
+
+oracle_veil_ring:
+  - id: FL-V01
+    rule: Inner energy ring present inside illustration window
+  - id: FL-V02
+    rule: Opacity 4-7% — almost invisible at arm's length
+  - id: FL-V03
+    rule: Colors include deep purple, royal violet, warm gold
+  - id: FL-V04
+    rule: Does NOT read as second physical frame
+
+corner_unity:
+  - id: FL-U01
+    rule: Harmonic Meridian Grid connects all four corners
+  - id: FL-U02
+    rule: Identical Anchor Nodes at corner apexes
+  - id: FL-U03
+    rule: 20px blur test — one artifact silhouette
+
+visual_dna:
+  - id: FL-D01
+    rule: Minimum 3 OR Lattice primitive types visible without zoom
+  - id: FL-D02
+    rule: OR Lattice repetition map followed (see ORACLY_VISUAL_DNA.md §8)
+
+materials:
+  - id: FL-M01
+    rule: Obsidian depth — 3-stop radial, no plastic shine
+  - id: FL-M02
+    rule: Gold hand-polished specular streaks
+  - id: FL-M03
+    rule: Crystal cyan refraction on at least one facet
+  - id: FL-M04
+    rule: No plastic or game UI appearance
+
+micro_details:
+  - id: FL-X01
+    rule: Micro engraving layer visible at 150%+ zoom
+  - id: FL-X02
+    rule: Celestial symbols non-alphabetic
+  - id: FL-X03
+    rule: Macro density not increased vs v1.0
+
+export:
+  - id: FL-E01
+    rule: Transparent PNG
+  - id: FL-E02
+    rule: Resolution 8192 x 14336 (8K master)
+  - id: FL-E03
+    rule: Aspect ratio 512:896 exact
+  - id: FL-E04
+    rule: Perfect vertical symmetry — flip test pass
+  - id: FL-E05
+    rule: 16-bit sRGB recommended
+  - id: FL-E06
+    rule: Filename oracly_tarot_frame_locked_v1.1.png
+
+sign_off:
+  required: [art_director, creative_director]
+  on_pass: frame_status_locked

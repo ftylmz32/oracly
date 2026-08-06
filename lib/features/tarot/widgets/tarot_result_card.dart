@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_gradients.dart';
-import '../../../core/theme/app_radius.dart';
-import '../../../core/theme/app_shadows.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_text_styles.dart';
 import '../models/tarot_card.dart';
 import 'tarot_result_card_art.dart';
-import 'tarot_result_card_compact.dart';
+import 'tarot_tag_chip.dart';
+import 'tarot_typography.dart';
 
 class TarotResultCard extends StatelessWidget {
   const TarotResultCard({
@@ -25,119 +20,93 @@ class TarotResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (compact) {
-      return TarotResultCardCompact(
-        card: card,
-        positionLabel: positionLabel,
-      );
+      return _CompactRow(card: card, positionLabel: positionLabel);
     }
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 520),
+      duration: const Duration(milliseconds: 680),
       curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.scale(
-            scale: 0.985 + (0.015 * value),
-            child: child,
-          ),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(22, 24, 22, 26),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(26),
-          gradient: AppGradients.glass,
-          color: AppColors.glass.withValues(alpha: .55),
-          border: Border.all(
-            color: AppColors.glassBorder,
-          ),
-          boxShadow: AppShadows.soft,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: TarotCardArt(
-                image: card.image,
-              ),
-            ),
-            const SizedBox(height: 28),
-            if (positionLabel != null) ...[
-              Text(
-                positionLabel!,
-                style: AppTextStyles.small.copyWith(
-                  color: AppColors.textHint,
-                  letterSpacing: 1.6,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
-            Text(
-              card.name,
-              style: AppTextStyles.hero.copyWith(
-                color: AppColors.gold.withValues(alpha: .92),
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.6,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              card.summary,
-              style: AppTextStyles.subtitle.copyWith(
-                height: 1.65,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            if (card.keywords.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.lg),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: card.keywords
-                    .take(3)
-                    .map((k) => _KeywordChip(text: k))
-                    .toList(),
-              ),
-            ],
-          ],
-        ),
+      builder: (_, v, child) => Opacity(opacity: v, child: Transform.scale(scale: 0.97 + v * 0.03, child: child)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TarotCardArt(image: card.image, height: 200, width: 130),
+          const SizedBox(width: 16),
+          Expanded(child: _CardInfo(card: card, positionLabel: positionLabel)),
+        ],
       ),
     );
   }
 }
 
-class _KeywordChip extends StatelessWidget {
-  const _KeywordChip({required this.text});
-
-  final String text;
+class _CardInfo extends StatelessWidget {
+  const _CardInfo({required this.card, this.positionLabel});
+  final TarotCard card;
+  final String? positionLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 11,
-        vertical: 5,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .04),
-        borderRadius: AppRadius.round,
-        border: Border.all(
-          color: AppColors.gold.withValues(alpha: .14),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (positionLabel != null) ...[
+          Text(positionLabel!.toUpperCase(), style: TarotTypography.captionMuted(size: 10)),
+          const SizedBox(height: 6),
+        ],
+        Text(card.name, style: TarotTypography.cardTitleGold(size: 20)),
+        const SizedBox(height: 4),
+        Text(card.summary.split('.').first, style: TarotTypography.captionMuted(size: 12)),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (var i = 0; i < card.keywords.take(4).length; i++)
+              TarotTagChip(
+                label: card.keywords[i],
+                color: TarotTagChip.colorAt(i),
+                icon: Icons.circle,
+              ),
+          ],
         ),
-      ),
-      child: Text(
-        text,
-        style: AppTextStyles.small.copyWith(
-          color: AppColors.textSecondary,
-          letterSpacing: 0.2,
+        const SizedBox(height: 12),
+        Text(
+          '"${card.summary}"',
+          style: TarotTypography.quote(size: 12),
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
         ),
-      ),
+      ],
+    );
+  }
+}
+
+class _CompactRow extends StatelessWidget {
+  const _CompactRow({required this.card, this.positionLabel});
+  final TarotCard card;
+  final String? positionLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TarotCardArt(image: card.image, compact: true),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (positionLabel != null)
+                Text(positionLabel!, style: TarotTypography.captionMuted(size: 10)),
+              Text(card.name, style: TarotTypography.cardTitleGold(size: 16)),
+              const SizedBox(height: 4),
+              Text(card.summary, maxLines: 2, overflow: TextOverflow.ellipsis, style: TarotTypography.captionMuted()),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

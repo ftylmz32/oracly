@@ -1,133 +1,97 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
+import '../../../shared/widgets/oracly_pressable.dart';
+import '../animations/card_flip_animation.dart';
 import '../animations/deck_shuffle_animation.dart';
+import '../models/tarot_card.dart';
 import '../models/tarot_select_phase.dart';
+import 'tarot_card_shell.dart';
+import 'tarot_fanned_deck.dart';
+import 'tarot_typography.dart';
 
 class TarotDeckStage extends StatefulWidget {
   const TarotDeckStage({
     super.key,
     required this.phase,
     required this.spread,
+    required this.drawnCount,
+    this.activeCard,
     this.alignAnimation,
     this.onShuffleComplete,
+    this.onDeckTap,
+    this.onFlipComplete,
   });
 
   final TarotSelectPhase phase;
   final int spread;
+  final int drawnCount;
+  final TarotCard? activeCard;
   final Animation<double>? alignAnimation;
   final VoidCallback? onShuffleComplete;
+  final VoidCallback? onDeckTap;
+  final VoidCallback? onFlipComplete;
 
   @override
   State<TarotDeckStage> createState() => _TarotDeckStageState();
 }
 
-class _TarotDeckStageState extends State<TarotDeckStage>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _idle;
-  late final Animation<double> _float;
-  late final Animation<double> _glow;
-  bool _pressed = false;
+class _TarotDeckStageState extends State<TarotDeckStage> {
+  static const _cardW = 118.0;
+  static const _cardH = 198.0;
+  static const _radius = 28.0;
 
-  @override
-  void initState() {
-    super.initState();
-    _idle = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3600),
-    )..repeat(reverse: true);
-    _float = Tween<double>(begin: -2.5, end: 2.5).animate(
-      CurvedAnimation(parent: _idle, curve: Curves.easeInOut),
-    );
-    _glow = Tween<double>(begin: .12, end: .22).animate(
-      CurvedAnimation(parent: _idle, curve: Curves.easeInOut),
-    );
+  Widget _deckContent() {
+    final card = widget.activeCard;
+    if (widget.phase == TarotSelectPhase.drawing && card != null) {
+      return CardDrawAnimation(
+        card: card,
+        width: _cardW,
+        height: _cardH,
+        radius: _radius,
+        onFlipComplete: widget.onFlipComplete ?? () {},
+      );
+    }
+    if (widget.phase == TarotSelectPhase.holding && card != null) {
+      return TarotRevealedCard(card: card, width: _cardW, height: _cardH, radius: _radius);
+    }
+    if (widget.phase == TarotSelectPhase.shuffling) {
+      return DeckShuffleAnimation(
+        onComplete: widget.onShuffleComplete ?? () {},
+        cardBuilder: (_, i, c) => const TarotCardBackFace(width: _cardW, height: _cardH, radius: _radius),
+      );
+    }
+    return TarotFannedDeck(opacity: widget.phase.isBusy ? 0.45 : 1);
   }
 
-  @override
-  void dispose() {
-    _idle.dispose();
-    super.dispose();
+  Widget _caption() {
+    if (widget.phase.canTapDeck || widget.phase == TarotSelectPhase.idle) {
+      return Text(
+        'Kartlarına odaklan, enerjini hisset ve kartları seç.',
+        textAlign: TextAlign.center,
+        style: TarotTypography.captionMuted(size: 13),
+      );
+    }
+    final text = widget.phase.hintText(spread: widget.spread, drawnCount: widget.drawnCount);
+    final child = Text(text, key: ValueKey(text), textAlign: TextAlign.center, style: TarotTypography.captionMuted());
+    if (widget.phase == TarotSelectPhase.aligning && widget.alignAnimation != null) {
+      return FadeTransition(opacity: widget.alignAnimation!, child: child);
+    }
+    return child;
   }
-
-  Widget _back() => Container(
-        width: 88,
-        height: 152,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.gold.withValues(alpha: .5)),
-        ),
-        child: Icon(Icons.auto_awesome, color: AppColors.gold.withValues(alpha: .72), size: 28),
-      );
-
-  Widget _stack() => AnimatedBuilder(
-        animation: _idle,
-        builder: (_, _) => Transform.translate(
-          offset: Offset(0, _float.value),
-          child: DecoratedBox(
-            decoration: BoxDecoration(boxShadow: [
-              BoxShadow(color: AppColors.gold.withValues(alpha: _glow.value), blurRadius: 28),
-            ]),
-            child: Stack(
-              alignment: Alignment.center,
-              clipBehavior: Clip.none,
-              children: [
-                for (var i = 0; i < 7; i++)
-                  Transform.translate(offset: Offset(i * 3.0, -i * 2.0), child: _back()),
-              ],
-            ),
-          ),
-        ),
-      );
 
   @override
   Widget build(BuildContext context) {
     final canTap = widget.phase.canTapDeck;
-    final style = AppTextStyles.caption.copyWith(
-      color: AppColors.textSecondary.withValues(alpha: widget.phase.isBusy ? .95 : .78),
-      letterSpacing: 0.3,
-      height: 1.45,
-    );
-    Widget hint = Text(
-      widget.phase.hintText(spread: widget.spread),
-      textAlign: TextAlign.center,
-      style: style,
-    );
-    if (widget.phase == TarotSelectPhase.aligning && widget.alignAnimation != null) {
-      hint = FadeTransition(opacity: widget.alignAnimation!, child: hint);
-    }
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          height: 210,
-          child: Center(
-            child: RepaintBoundary(
-              child: GestureDetector(
-                onTapDown: canTap ? (_) => setState(() => _pressed = true) : null,
-                onTapUp: canTap ? (_) => setState(() => _pressed = false) : null,
-                onTapCancel: canTap ? () => setState(() => _pressed = false) : null,
-                onTap: canTap ? () {} : null,
-                child: AnimatedScale(
-                  scale: canTap ? (_pressed ? 0.97 : 1) : 0.98,
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
-                  child: widget.phase == TarotSelectPhase.shuffling
-                      ? DeckShuffleAnimation(onComplete: widget.onShuffleComplete ?? () {})
-                      : _stack(),
-                ),
-              ),
-            ),
-          ),
+        OraclyPressable(
+          onTap: canTap ? widget.onDeckTap : null,
+          enabled: canTap,
+          child: SizedBox(height: 210, child: Center(child: _deckContent())),
         ),
-        const SizedBox(height: 18),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 280),
-          child: KeyedSubtree(key: ValueKey(widget.phase), child: hint),
-        ),
+        const SizedBox(height: 14),
+        AnimatedSwitcher(duration: const Duration(milliseconds: 450), child: _caption()),
       ],
     );
   }

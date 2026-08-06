@@ -1,0 +1,36 @@
+---
+description: EPIC-012 Personal Journey — memory over statistics, companion not gamification
+alwaysApply: true
+---
+
+# EPIC-012 — Personal Journey
+
+North star: **"This app grows with me."**
+
+## Before adding journey features ask
+
+- Does this feel like a memory, not a statistic?
+- Does it use only the user's own history?
+- Is the language observational, never predictive?
+- Does it avoid streaks, levels, and FOMO?
+
+If any answer is no — do not implement.
+
+## Canonical doc
+
+`docs/EPIC-012.md`
+
+## Implementation anchors
+
+- Service: `PersonalJourneyService` in `lib/features/insights/services/personal_journey_service.dart`
+- Insights: `PersonalInsightEngine` — observable patterns only
+- UI: existing `ReadingHistoryScreen` — timeline archive, not a log
+- Persistence: `ReadingModel` + `RitualJournalMetadata` — no new keys
+
+## Never in personal journey
+
+Streak counters · spiritual level bars · fabricated patterns · predictive copy · leaderboard metrics
+
+## Success
+
+Users feel ORACLY remembers their path — quietly, honestly, over time.

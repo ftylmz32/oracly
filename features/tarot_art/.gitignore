@@ -1,0 +1,6 @@
+# Gitignore for artist working files (recommended)
+briefs/
+exports/delivery/
+*.psd
+*.tiff
+*.xcf

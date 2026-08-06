@@ -1,0 +1,31 @@
+---
+description: RC-002 AI Conversation — calm reflective companion, not chatbot
+alwaysApply: true
+---
+
+# RC-002 — AI Conversation Experience
+
+North star: **"That conversation helped me reflect."**
+
+## Before changing AI chat ask
+
+- Does the first message feel welcoming — not generic or robotic?
+- Are responses warm, concise, and sectioned — not walls of text?
+- Is memory used only when real — never invented?
+- Do questions invite thought — not test the user?
+- Do messages breathe with comfortable spacing and smooth animation?
+- Does leaving feel complete — no pressure to continue?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-002.md`
+
+## Out of scope
+
+Home redesign · navigation changes · new features
+
+## Success
+
+Quiet reflective companion — peaceful ending, smooth performance.

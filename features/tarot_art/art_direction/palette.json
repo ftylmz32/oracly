@@ -1,0 +1,73 @@
+{
+  "$schema": "oracly-tarot-palette-v1",
+  "version": "1.0",
+  "source": "OR-1300 + lib/core/theme/app_colors.dart",
+  "core": {
+    "void_black": "#030106",
+    "cosmic_plum": "#0B0615",
+    "ritual_purple": "#12071F",
+    "nebula_violet": "#1A0B2E",
+    "surface_amethyst": "#23153C",
+    "or_purple": "#9B6DFF",
+    "lilac_light": "#B794FF",
+    "deep_amethyst": "#6B4BC4",
+    "sacred_gold": "#D4AF37",
+    "celestial_gold": "#F0D77A",
+    "warm_gold_shadow": "#9A7420",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#B8B0C8"
+  },
+  "elements": {
+    "fire": {
+      "primary": "#FF8C42",
+      "secondary": "#FFB366",
+      "glow_core": "#FF6B20",
+      "shadow": "#3D1808"
+    },
+    "water": {
+      "primary": "#4A9EFF",
+      "secondary": "#6BB5FF",
+      "glow_core": "#2E7AD4",
+      "shadow": "#081828"
+    },
+    "air": {
+      "primary": "#E8ECF4",
+      "secondary": "#C8D0E0",
+      "glow_core": "#FFFFFF",
+      "shadow": "#181C28"
+    },
+    "earth": {
+      "primary": "#8FB84A",
+      "secondary": "#D4AF37",
+      "glow_core": "#6A9830",
+      "shadow": "#142010"
+    },
+    "universal": {
+      "primary": "#9B6DFF",
+      "secondary": "#D4AF37",
+      "glow_core": "#B794FF",
+      "shadow": "#12071F"
+    }
+  },
+  "gold_material": {
+    "highlight": "#F0D77A",
+    "mid": "#D4AF37",
+    "shadow": "#9A7420",
+    "specular_streak_opacity": 0.35,
+    "patina_in_grooves": 0.05
+  },
+  "color_distribution_rule": {
+    "dark_ground_pct": 60,
+    "illustration_midtones_pct": 25,
+    "magic_glow_pct": 10,
+    "gold_ornament_pct": 5
+  },
+  "lighting": {
+    "key_angle_degrees": 45,
+    "key_direction": "upper_left",
+    "key_temperature_k": 3200,
+    "fill_temperature_k": 8000,
+    "fill_direction": "lower_right",
+    "fill_intensity_pct": 15
+  }
+}

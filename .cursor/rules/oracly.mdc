@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Oracly Development Rules
 
-Follow `docs/ORACLY_MASTER_PLAN.md` for roadmap and folder layout.
+Product: `docs/AI_AGENT_GUIDE.md` → `docs/MASTER_DIRECTIVE.md` → `docs/DEVELOPMENT_CHARTER.md` → `docs/vision.md` → EPICs → `docs/OOS.md` → `docs/PRINCIPLE-001.md` → `docs/GOLD_STANDARD.md`. Architecture: `docs/architecture.md`.
 
 ## Before Writing Code
 
@@ -50,10 +50,13 @@ Follow `docs/ORACLY_MASTER_PLAN.md` for roadmap and folder layout.
 - AI logic belongs in **`tarot_ai_service.dart`**, not in widgets.
 - State machine: prefer **`TarotController` + `TarotState` + `TarotPhase`** when wiring flows.
 
-## Definition of Done (summary)
+## Definition of Done
+
+Must satisfy **`docs/GOLD_STANDARD.md`** (all 10 gates) plus:
 
 - [ ] `flutter analyze` passes
 - [ ] No duplicate widgets or empty files introduced
 - [ ] Files ≤ 150 lines (or split)
 - [ ] Existing code analyzed and reused
 - [ ] Only in-scope files changed
+- [ ] Proud to ship today

@@ -1,0 +1,47 @@
+---
+description: ORACLY Operating System — permanent team rules for every implementation
+alwaysApply: true
+---
+
+# ORACLY Operating System (OOS)
+
+Apex: `docs/MASTER_DIRECTIVE.md` · Charter: `docs/DEVELOPMENT_CHARTER.md` · Full doc: `docs/OOS.md`
+
+You preserve a feeling, not just complete tasks.
+
+## Soul (EPIC-004)
+
+Every chamber must feel like **the same sacred place**. Emotional recognizability through consistency — not logos.
+
+**Emotional check** — must increase at least one: peace · trust · reflection · silence · intelligence
+
+**Decision test:** Reject if exciting only once. Prioritize if more valuable after six months.
+
+**10-year rule:** Timeless craftsmanship only. Users should feel **"I returned"** — not *"I opened an app."*
+
+## Ten rules (automatic)
+
+1. **Feeling > feature** — user emotion beats capability count
+2. **Calmness wins ties** — when unsure, choose the calmer solution
+3. **One universe** — never a second visual/motion/background language
+4. **Reuse craftsmanship** — grep existing components before creating
+5. **Problem first** — no meaningful problem → no implementation
+6. **Simpler over time** — each release reduces confusion, not adds it
+7. **60 FPS minimum** — performance is luxury; one ambient loop per screen
+8. **Invisible motion** — users remember feeling, not animation
+9. **AI = reflection** — never certainty, never fortune-telling tone
+10. **Elegance > cleverness** — clarity beats smart code
+
+**Final rule:** Every release → more **timeless**, never trendier.
+
+## Before any code
+
+Ask: *What problem is this solving?* · *Does this improve feeling or only add noise?*
+
+## Automatic refusals
+
+Dead taps · fake stats · mock commerce · unwired settings · gamified spirituality · duplicate UI stacks · competitor-parity without purpose · motion for its own sake
+
+## Spine
+
+**Draw → Pause → Reflect → Return** — defer to `docs/vision.md` when scope is unclear.

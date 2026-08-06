@@ -1,0 +1,218 @@
+# ORACLY Master Card Blueprint — Machine-Readable DNA
+# Document: OR-1320 v1.0 + OR-1330 v1.1 frame lock amendments
+# All 78 cards inherit this specification exactly.
+
+blueprint_id: oracly_master_card_dna_v1
+version: "1.1"
+frame_version: "1.1"
+frame_lock_document: master_card/OR-1330_FRAME_LOCK_REVISION.md
+visual_dna: art_direction/ORACLY_VISUAL_DNA.md
+art_direction: OR-1300
+pipeline: OR-1310
+spec_document: master_card/OR-1320_MASTER_CARD_SPEC.md
+dimensions:
+  aspect_ratio: "512:896"
+  aspect_ratio_decimal: 0.5714285714
+  production:
+    width: 512
+    height: 896
+  master:
+    width: 1024
+    height: 1792
+  corner_radius_px:
+    production: 12
+    master: 24
+  frame_thickness_px:
+    production_per_side: 61
+    master_per_side: 122
+    visual_mass_production: 17
+  border_widths_px:
+    outer_bevel: 2
+    dark_gutter: 4
+    filigree_band: 8
+    velvet_inset: 3
+
+safe_areas:
+  illustration_production:
+    x: 31
+    y: 72
+    width: 450
+    height: 521
+  illustration_critical_padding_px: 12
+  title_max_width_pct: 80
+
+zones:
+  roman_numeral:
+    id: A
+    y_start: 0.0
+    y_end: 0.08
+    height_px_production: 72
+  top_transition:
+    id: B
+    y_start: 0.08
+    y_end: 0.10
+  side_rails:
+    id: C
+    x_width_pct: 0.06
+  illustration:
+    id: D
+    x_start: 0.061
+    x_end: 0.939
+    y_start: 0.10
+    y_end: 0.68
+  bottom_ornament:
+    id: E
+    y_start: 0.68
+    y_end: 0.72
+    height_px_production: 36
+  title:
+    id: F
+    y_start: 0.72
+    y_end: 0.875
+    height_px_production: 139
+    material: obsidian_crystal_plaque
+    empty_in_locked_asset: true
+  element_sigils:
+    id: G
+    y_start: 0.92
+    y_end: 1.0
+    height_px_production: 36
+
+frame:
+  locked_asset: oracly_tarot_frame_locked_v1.1.png
+  export_8k:
+    width: 8192
+    height: 14336
+    transparent: true
+  centerpiece:
+    id: vesica_compass_OL7
+    replaces: large_oval_crystal
+    size_px_production: [24, 28]
+  inner_energy_ring:
+    id: oracle_veil_ring
+    layer: L02b_oracle_veil_ring
+    opacity_pct: [4, 7]
+    colors: ["#4A2578", "#7B4BC4", "#9A7420"]
+  corner_connection:
+    id: harmonic_meridian_grid
+    layer: L16_meridian_grid
+  side_ornament_density_reduction_pct: 20
+  material_stack:
+    - outer_bevel_dark_metal
+    - micro_engraving_layer
+    - dark_gutter
+    - golden_ornament_band
+    - crystal_inlay_strip
+    - velvet_inset
+    - oracle_veil_ring
+  gold:
+    highlight: "#F0D77A"
+    mid: "#D4AF37"
+    shadow: "#9A7420"
+  dark_metal: "#0A0812"
+  gutter: "#060410"
+  velvet: "#12071F"
+  symmetry: vertical_mirror
+  sacred_geometry_max_opacity: 0.04
+
+background_rules:
+  never_flat: true
+  min_layers: 4
+  mandatory:
+    - deep_cosmic_gradient
+    - volumetric_fog
+    - celestial_stars_or_nebula
+  forbidden:
+    - pure_black_field_gt_2pct
+    - flat_single_color
+    - white_studio_backdrop
+
+lighting:
+  primary:
+    direction: upper_left_45
+    color: "#FFF4E0"
+    temperature_k: 3200
+  secondary:
+    direction: lower_right
+    color: "#6B4BC4"
+    temperature_k: 8000
+    intensity_pct: 15
+  rim:
+    color: "#F0D77A"
+    width_px_production: [1, 3]
+    required_figurative: true
+  magic_glow:
+    core: "#9B6DFF"
+    bloom_px: [8, 24]
+  shadow:
+    deepest: "#030106"
+    purple_undertone: "#12071F"
+
+character:
+  style: semi_realistic_premium_fantasy
+  proportions_heads: [8, 8.5]
+  forbidden: [anime, cartoon, hyper_realism, comic_ink]
+  figure_height_pct_of_illustration: [40, 55]
+
+magic_effects_library:
+  max_types_per_card: 4
+  max_area_pct: 30
+  types:
+    particles:
+      count: [8, 16]
+      size_px: [0.5, 2]
+    energy_lines:
+      max_count: 3
+      width_px: [1, 3]
+    floating_crystals:
+      count: [0, 5]
+    aura:
+      opacity_max: 0.12
+    glow:
+      max_radius_pct_width: 15
+    smoke_mist:
+      max_coverage_pct: 25
+
+typography:
+  title:
+    color: "#F0D77A"
+    weight: 600
+    case: title
+    tracking_em: 0.08
+    y_center_normalized: 0.82
+  numeral:
+    color: "#D4AF37"
+    cap_height_px_production: 28
+    cartouche: hexagon
+
+ornament_vocabulary:
+  system: OR_Lattice
+  document: art_direction/ORACLY_VISUAL_DNA.md
+  primitives: [anchor_node, triad_motif, crossing_line, shard_whisper, constellation_fragment, meridian_thread, vesica_compass]
+  top: [vesica_compass_OL7, hex_cartouche, micro_stars]
+  side: [vertical_filigree_reduced, arcana_markers_14px]
+  bottom: [symmetric_vine_band, meridian_connected_corners]
+  side_density_reduction_pct: 20
+  element_sigil_size_px: 20
+  element_sigil_zone_px: 24
+
+finish:
+  target_feel: luxury_collector_sacred_relic
+  obsidian_depth_stops: ["#030106", "#060410", "#0A0812"]
+  gold_hand_polished: true
+  crystal_cyan_refraction: "#A8E8FF"
+  frame_gold_gloss_boost_pct: 15
+  crystal_gloss_boost_pct: 25
+  illustration_surface: matte
+  edge_highlight_px: 0.5
+  micro_engraving_layer: true
+
+mandatory_components:
+  - roman_numeral
+  - card_title
+  - central_illustration
+  - element_symbol
+  - arcana_symbol
+  - luxury_border
+  - bottom_ornament
+  - card_finish_layer

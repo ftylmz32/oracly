@@ -1,0 +1,29 @@
+---
+description: RC-009 Intelligence Layer — modular journey foundation, no UI
+alwaysApply: true
+---
+
+# RC-009 — Intelligence Layer Foundation
+
+North star: **ORACLY grows with the user over months and years — invisibly today.**
+
+## Before adding intelligence features ask
+
+- Does data persist through canonical repositories — not through AI services directly?
+- Does new code read via `IntelligenceRepository` / `IntelligenceLayerService`?
+- Is the change internal only — no new UI or navigation in RC-009 scope?
+- Can future features plug in without refactoring storage?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-009.md`
+
+## Out of scope
+
+Redesign · navigation changes · user flow changes · unfinished UI
+
+## Success
+
+User notices nothing today. Foundation ready for Personal Insights, Timeline, Themes, Growth Journey.

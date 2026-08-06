@@ -1,0 +1,123 @@
+# ORACLY Tarot — Export Specification
+export_spec_version: "1.0"
+pipeline: OR-1310
+
+resolution:
+  master:
+    width: 1024
+    height: 1792
+    purpose: "Archive, recomposite, future 3× displays"
+  production:
+    width: 512
+    height: 896
+    purpose: "App runtime — primary delivery"
+  thumbnail:
+    width: 256
+    height: 448
+    purpose: "History list, grid previews"
+
+aspect_ratio:
+  ratio: "512:896"
+  decimal: 0.5714285714
+  tolerance: 0.001
+  matches_app: "TarotTokens.cardAspectRatio (~0.58 UI layout; art exact 512:896)"
+
+safe_margins:
+  description: "Critical content must remain inside these insets on production export"
+  illustration:
+    top_px: 72
+    bottom_px: 108
+    left_px: 31
+    right_px: 31
+  title:
+    bottom_inset_px: 24
+    horizontal_padding_pct: 10
+  numeral:
+    top_inset_px: 16
+
+transparency:
+  card_face: false
+  background: opaque
+  notes: "Full bleed to frame edge; no alpha hole punch except optional legendary shimmer channel as separate file"
+
+formats:
+  primary:
+    format: webp
+    quality: 88
+    quality_range: [85, 92]
+    method: 6
+  fallback:
+    format: png
+    compression: 9
+    when: "WebP decode failure targets, editor handoff"
+  master_archive:
+    format: psd_or_tiff
+    location: "External art drive — not app repo"
+
+compression_rules:
+  webp:
+    lossless: false
+    alpha_quality: 100
+    target_file_size_kb: [80, 180]
+  png:
+    max_file_size_kb: 400
+  reject_if:
+    - "Production file < 40 KB (likely over-compressed)"
+    - "Production file > 250 KB without AD approval"
+    - "Visible compression artifacts on gold filigree"
+
+color_profile:
+  space: sRGB
+  embed_icc: true
+  bit_depth: 8
+
+naming:
+  pattern: "{card_id}.webp"
+  card_id_source: card_registry.yaml
+  examples:
+    - oracly_tarot_major_00.webp
+    - oracly_tarot_cups_03.webp
+    - oracly_tarot_wands_king.webp
+    - oracly_tarot_back.webp
+  court_rank_in_id:
+    page: "11"
+    knight: "12"
+    queen: "13"
+    king: "14"
+  forbidden_characters: [" ", uppercase beyond extension]
+
+folder_convention:
+  app_integration_path: "lib/assets/images/cards/tarot/oracly/"
+  delivery_staging: "exports/delivery/"
+  structure:
+    - path: "exports/delivery/{card_id}/"
+      files:
+        - "{card_id}.webp"
+        - "{card_id}@2x.webp"
+        - "{card_id}_thumb.webp"
+        - "manifest.json"
+  batch_folder: "exports/delivery/batch_{YYYYMMDD}/"
+
+manifest:
+  required_fields:
+    - card_id
+    - card_name
+    - filename
+    - width
+    - height
+    - format
+    - sha256
+    - exported_at
+    - validator_version
+    - qa_report_ref
+
+legendary_channel:
+  optional: true
+  filename: "{card_id}_shimmer.webp"
+  purpose: "UI holographic gold pass — frame only, alpha"
+  when: "Major Arcana legendary tier only"
+
+integration_handoff:
+  update_registry: true
+  registry_field: "status → integrated"
+  pubspec_note: "Register under lib/assets/images/cards/tarot/oracly/ in pubspec.yaml assets block"

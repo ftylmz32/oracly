@@ -14,6 +14,8 @@ class TarotHelpers {
         return 'Tek kart';
       case 3:
         return 'Üç kart (Geçmiş · Şimdi · Gelecek)';
+      case 5:
+        return 'Beş kartlı derin açılım';
       case 10:
         return 'On kartlık derin açılım';
       default:

@@ -1,0 +1,60 @@
+# Wands (Fire) — Style Rules
+category: minor_arcana
+suit: wands
+element: fire
+style_rules_version: "1.0"
+
+visual_language: >
+  Ascending energy, creation, will. Vertical composition bias. Heat shimmer.
+  Dawn and ember environments. Crystal flame forms.
+
+dominant_colors:
+  ground: ["#3D1808", "#12071F"]
+  magic: ["#FF8C42", "#FFB366", "#FF6B20"]
+  gold: ["#D4AF37", "#F0D77A sparks"]
+  accent: ["#FF6B20 ember core"]
+
+lighting:
+  key: "Low-angle warm firelight from below-left or horizon"
+  fill: "Purple shadow fill 12%"
+  effects: ["ember backlight", "heat shimmer optional", "gold rim on subject"]
+  fog: "Warm haze 10-15%"
+
+mood: ["Passionate", "Driven", "Dawn-breaking", "Courageous"]
+
+symbols:
+  sigil: eternal_flame_spire
+  recurring: ["ember quartz", "hex base flame", "volcanic crystal", "solar horizon"]
+  forbidden: ["identical wand rows (RW pip clone)"]
+
+particle_effects:
+  density: medium-high
+  max_count: 18
+  types: ["rising_ember", "gold_spark", "orange_mote"]
+  motion: "upward arc, fast fade"
+
+camera:
+  angle: "Low hero 8-10° — power rising"
+  lens: "50-65mm"
+  dutch_tilt: false
+
+composition:
+  preferred: ["triangular_ascending", "vertical_pillar", "horizon_dawn"]
+  pip_logic: "Count as flames, light pillars, or growth scenes — unique each"
+
+arcana_symbol: eternal_flame_spire
+numeral_style: arabic_or_court
+
+rarity_tier:
+  pip: sacred
+  court: rare
+
+prompt_block: |
+  WANDS / FIRE suit — ORACLY Eternal Flame Spire sigil energy.
+  Low-angle warm lighting, ember particles rising, orange-gold magic (#FF8C42).
+  Vertical ascending composition. Heat shimmer and dawn horizon optional.
+  Passionate courageous mood. Gold sparks at frame-safe edges only.
+
+validation_overrides:
+  upward_motion_bias: true
+  warm_key_light_required: true

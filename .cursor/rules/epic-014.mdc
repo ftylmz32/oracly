@@ -1,0 +1,36 @@
+---
+description: EPIC-014 Trust Through Transparency — honesty earns trust quietly
+alwaysApply: true
+---
+
+# EPIC-014 — Trust Through Transparency
+
+North star: **"A beautiful app that respects me."**
+
+## Before adding copy or controls ask
+
+- Does this clarify that AI output is reflection, not fact?
+- Does the user feel ownership of their data?
+- Is privacy communicated subtly, not as a policy wall?
+- Does this avoid fear, certainty, and dependency?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/EPIC-014.md`
+
+## Implementation anchors
+
+- Copy: `TransparencyCopy` in `lib/core/copy/transparency_copy.dart`
+- Footnote: `TransparencyFootnote` widget
+- Privacy: `PrivacyScreen` — local data, clear controls
+- Delete: existing `HistoryService.remove()` wired in history detail
+
+## Never
+
+Implying absolute truth · hiding data use · blocking user deletion · fear-based retention
+
+## Success
+
+Every interaction quietly earns trust — without redesign or spectacle.

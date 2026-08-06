@@ -1,0 +1,60 @@
+# Pentacles (Earth) — Style Rules
+category: minor_arcana
+suit: pentacles
+element: earth
+style_rules_version: "1.0"
+
+visual_language: >
+  Material mastery, abundance, patience, craft. Textured stone, root, metal, leaf.
+  Grounded symmetry. Manifestation through OR seals and pentagonal crystals.
+
+dominant_colors:
+  ground: ["#142010", "#0B0615"]
+  magic: ["#8FB84A", "#6A9830"]
+  gold: ["#D4AF37 manifestation gold"]
+  accent: ["#8FB84A life green"]
+
+lighting:
+  key: "Stable neutral-warm, dappled forest or golden hour"
+  fill: "Soft green-gold 14%"
+  effects: ["texture-forward", "soft shadows", "leaf dapple optional"]
+  fog: "Low forest mist 8-12%"
+
+mood: ["Grounded", "Patient", "Abundant", "Crafted"]
+
+symbols:
+  sigil: seal_of_manifestation
+  recurring: ["pentagonal crystal", "OR mint coin (original)", "roots", "ancient stone"]
+  forbidden: ["identical coin rows (RW pip clone)"]
+
+particle_effects:
+  density: low-medium
+  max_count: 12
+  types: ["gold_green_dust", "leaf_light", "slow_fall"]
+  motion: "slow downward or static"
+
+camera:
+  angle: "Neutral stable horizon"
+  lens: "50-60mm"
+  dutch_tilt: false
+
+composition:
+  preferred: ["grounded_symmetry", "craft_tableau", "geometric_pentacle_growth"]
+  pip_logic: "Count as seal arrangements or narrative scenes — geometric growth"
+
+arcana_symbol: seal_of_manifestation
+numeral_style: arabic_or_court
+
+rarity_tier:
+  pip: sacred
+  court: rare
+
+prompt_block: |
+  PENTACLES / EARTH suit — ORACLY Seal of Manifestation sigil energy.
+  Grounded golden-green palette (#8FB84A, #D4AF37), textured stone and organic matter.
+  Stable warm lighting, soft shadows, patient abundant mood.
+  Slow gold-green particle dust. Pentagonal crystal geometry. Symmetrical balance preferred.
+
+validation_overrides:
+  texture_detail_required: true
+  warm_neutral_key_required: true

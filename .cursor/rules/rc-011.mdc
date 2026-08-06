@@ -1,0 +1,29 @@
+---
+description: RC-011 Experience Orchestrator — central decision layer, no UI
+alwaysApply: true
+---
+
+# RC-011 — Experience Orchestrator
+
+North star: **Screens request experience. The orchestrator decides. UI never contains business logic.**
+
+## Before adding experience logic ask
+
+- Does the decision live in a decider or `ExperienceOrchestrator` — not in a widget?
+- Does the screen consume `ExperienceContext` — not compute greeting/highlight logic inline?
+- Does data flow through `ReflectionEngineService` and intelligence layer — not direct AI/storage?
+- Can future modules extend via `ExperienceSignalProvider` without modifying existing deciders?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-011.md`
+
+## Out of scope
+
+Redesign · navigation changes · unfinished UI exposure
+
+## Success
+
+Nothing visible today. One central brain coordinates every future experience.

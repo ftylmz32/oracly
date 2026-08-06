@@ -1,0 +1,60 @@
+# Swords (Air) — Style Rules
+category: minor_arcana
+suit: swords
+element: air
+style_rules_version: "1.0"
+
+visual_language: >
+  Intellect, conflict, clarity, decision. Sharp geometry. Cold beauty.
+  Storm stratosphere. Faceted light splits. Minimal warmth except gold frame.
+
+dominant_colors:
+  ground: ["#181C28", "#0B0615"]
+  magic: ["#E8ECF4", "#C8D0E0", "#FFFFFF core"]
+  gold: ["#D4AF37 accent only"]
+  accent: ["#9BB0FF cold highlight"]
+
+lighting:
+  key: "Harder specular key, upper-left — blade flashes"
+  fill: "Cool silver fill 12%"
+  effects: ["storm backlight", "specular blade glint", "lightning implied static"]
+  fog: "Cold cloud strata 10-14%"
+
+mood: ["Tense", "Clear", "Just", "Severe"]
+
+symbols:
+  sigil: blade_of_clarity
+  recurring: ["obsidian shard", "wind geometry", "storm cloud blade", "split light ray"]
+  forbidden: ["identical sword rows (RW pip clone)"]
+
+particle_effects:
+  density: medium
+  max_count: 14
+  types: ["horizontal_streak", "cold_white_spark", "silver_mote"]
+  motion: "horizontal bias, brief flash"
+
+camera:
+  angle: "Neutral to slight low; Dutch tilt 2-5° ONLY on high-tension cards"
+  lens: "55-75mm"
+  dutch_tilt: conditional
+
+composition:
+  preferred: ["diagonal_tension", "crossroads", "blade_focal"]
+  pip_logic: "Count as blades, wind vectors, decision scenes — never generic rows"
+
+arcana_symbol: blade_of_clarity
+numeral_style: arabic_or_court
+
+rarity_tier:
+  pip: sacred
+  court: rare
+
+prompt_block: |
+  SWORDS / AIR suit — ORACLY Blade of Clarity sigil energy.
+  Cold silver-white magic (#E8ECF4), storm atmosphere, sharp geometry.
+  Harder specular lighting, minimal warm tones except gold accents.
+  Horizontal particle streaks. Tense clear mood. Obsidian crystal facets.
+
+validation_overrides:
+  cool_palette_required: true
+  geometric_sharpness: high

@@ -2,153 +2,78 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
+import '../core/theme/app_radius.dart';
+import '../core/theme/app_shadows.dart';
+import '../core/theme/app_spacing.dart';
+import '../core/theme/oracly_brand_signature.dart';
+import '../core/widgets/oracly_signature_motifs.dart';
+import '../shared/widgets/oracly_pressable.dart';
 
-class GlassCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-  final VoidCallback? onTap;
-
+/// Canonical ORACLY glass card — gold outline, purple glow, soft blur.
+class GlassCard extends StatefulWidget {
   const GlassCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(22),
+    this.padding = AppSpacing.card,
     this.onTap,
+    this.radius = AppRadius.glassValue,
   });
 
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final VoidCallback? onTap;
+  final double radius;
+
+  @override
+  State<GlassCard> createState() => _GlassCardState();
+}
+
+class _GlassCardState extends State<GlassCard> {
   @override
   Widget build(BuildContext context) {
-
-    final card = ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-
-      child: BackdropFilter(
-
-        filter: ImageFilter.blur(
-          sigmaX: 18,
-          sigmaY: 18,
-        ),
-
-        child: Container(
-
-          width: double.infinity,
-
-          padding: padding,
-
-          decoration: BoxDecoration(
-
-            borderRadius:
-                BorderRadius.circular(28),
-
-            gradient: LinearGradient(
-
-              begin:
-                  Alignment.topLeft,
-
-              end:
-                  Alignment.bottomRight,
-
-              colors: [
-
-                Colors.white.withValues(
-                  alpha: .14,
-                ),
-
-                AppColors.surface.withValues(
-                  alpha: .72,
-                ),
-
-              ],
-
+    final card = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(widget.radius),
+        boxShadow: AppShadows.card,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(widget.radius),
+        child: OraclySignatureMicroFrame(
+          borderRadius: BorderRadius.circular(widget.radius),
+          cornerInset: 14,
+          cornerSize: 13,
+          opacity: 0.82,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: OraclySignatureMaterials.blurChamber,
+              sigmaY: OraclySignatureMaterials.blurChamber,
             ),
-
-
-            border: Border.all(
-
-              color:
-                  AppColors.glassBorder,
-
-              width:
-                  1,
-
+            child: Container(
+              width: double.infinity,
+              padding: widget.padding,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(widget.radius),
+                gradient: OraclySignatureChamber.crystalBody(),
+                border: Border.all(
+                  color: OraclySignaturePalette.goldEngrave(
+                    OraclySignatureMaterials.goldBorder,
+                  ),
+                  width: AppBorderWidth.hairline + 0.35,
+                ),
+              ),
+              child: widget.child,
             ),
-
-
-            boxShadow: [
-
-              BoxShadow(
-
-                color:
-                    Colors.black.withValues(
-                      alpha: .45,
-                    ),
-
-                blurRadius:
-                    35,
-
-                offset:
-                    const Offset(
-                      0,
-                      18,
-                    ),
-
-              ),
-
-
-              BoxShadow(
-
-                color:
-                    AppColors.primary.withValues(
-                      alpha: .12,
-                    ),
-
-                blurRadius:
-                    40,
-
-                spreadRadius:
-                    2,
-
-              ),
-
-            ],
-
           ),
-
-          child: child,
-
         ),
-
       ),
-
     );
 
+    if (widget.onTap == null) return card;
 
-    if (onTap == null) {
-
-      return card;
-
-    }
-
-
-    return Material(
-
-      color:
-          Colors.transparent,
-
-      child: InkWell(
-
-        borderRadius:
-            BorderRadius.circular(28),
-
-        onTap:
-            onTap,
-
-        child:
-            card,
-
-      ),
-
+    return OraclyPressable(
+      onTap: widget.onTap,
+      behavior: HitTestBehavior.opaque,
+      child: card,
     );
-
   }
 }

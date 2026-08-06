@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/ui/oracly_snackbar.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../features/tarot/screens/tarot_select_screen.dart';
-import '../../../screens/ai/chat_screen.dart';
+import '../../../shared/navigation/oracly_navigation.dart';
 import '../../../screens/memory/memory_screen.dart';
-import '../../../screens/profile/profile_screen.dart';
 import '../../../screens/settings/settings_screen.dart';
 import 'quick_action_card.dart';
 
@@ -14,11 +13,9 @@ class QuickActionsGrid extends StatelessWidget {
   const QuickActionsGrid({super.key});
 
   void _comingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature yakında eklenecek 🚀'),
-        behavior: SnackBarBehavior.floating,
-      ),
+    OraclySnackBar.show(
+      context,
+      message: '$feature yakında burada olacak.',
     );
   }
 
@@ -51,14 +48,8 @@ class QuickActionsGrid extends StatelessWidget {
             QuickActionCard(
               icon: Icons.auto_awesome,
               title: 'Tarot',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const TarotSelectScreen(),
-                  ),
-                );
-              },
+              onTap: () =>
+                  OraclyNavigation.switchToTab(context, OraclyTab.tarot),
             ),
             QuickActionCard(
               icon: Icons.nightlight_round,
@@ -80,26 +71,14 @@ class QuickActionsGrid extends StatelessWidget {
             QuickActionCard(
               icon: Icons.smart_toy,
               title: 'AI Sohbet',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ChatScreen(),
-                  ),
-                );
-              },
+              onTap: () =>
+                  OraclyNavigation.switchToTab(context, OraclyTab.chat),
             ),
             QuickActionCard(
               icon: Icons.person,
               title: 'Profil',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ProfileScreen(),
-                  ),
-                );
-              },
+              onTap: () =>
+                  OraclyNavigation.switchToTab(context, OraclyTab.profile),
             ),
             QuickActionCard(
               icon: Icons.settings,

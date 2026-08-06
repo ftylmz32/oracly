@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_text_styles.dart';
+import 'tarot_typography.dart';
 
 class TarotOracleHeader extends StatelessWidget {
   const TarotOracleHeader({super.key});
@@ -10,20 +9,21 @@ class TarotOracleHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Oracly Oracle',
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.gold.withValues(alpha: .72),
-            letterSpacing: 2.2,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.md),
+        Text('Kartların Sana Verdiği Mesaj', style: TarotTypography.sectionGold(size: 16)),
+        const SizedBox(height: 10),
         Container(
-          width: 40,
-          height: 1,
-          color: AppColors.gold.withValues(alpha: .22),
+          height: 0.8,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.transparent,
+                AppColors.gold.withValues(alpha: 0.55),
+                Colors.transparent,
+              ],
+            ),
+          ),
         ),
       ],
     );

@@ -1,0 +1,59 @@
+# Master Frame Asset Export — OR-1330 Frame Lock
+frame_export_version: "1.1"
+document: OR-1330
+asset_id: oracly_tarot_frame_locked
+
+master_asset:
+  filename: oracly_tarot_frame_locked_v1.1.png
+  format: png
+  transparency: true
+  alpha: straight
+  width: 8192
+  height: 14336
+  aspect_ratio: "512:896"
+  bit_depth: 16
+  color_space: sRGB
+  symmetry: vertical_mirror_perfect
+  content:
+    illustration_window: empty_transparent
+    title_plaque: empty_obsidian
+    numeral_zone: empty_or_swappable_layer
+  includes:
+    - vesica_compass_OL7
+    - obsidian_name_plaque
+    - oracle_veil_ring
+    - harmonic_meridian_grid
+    - or_lattice_primitives
+    - micro_engraving_layer
+    - premium_material_pass
+
+derivatives:
+  composite_master:
+    width: 1024
+    height: 1792
+    format: png
+  production:
+    width: 512
+    height: 896
+    format: webp
+    quality: 90
+    notes: Frame baked into card composite — not separate at runtime unless overlay mode
+
+quality_target:
+  - luxury_collector_artifact
+  - sacred_relic
+  - museum_magical_object
+  - ultra_detailed
+  - handcrafted_feel
+  - no_plastic
+
+staging_path: exports/frame/
+vault_path: external_art_vault/oracly/tarot/frame/
+
+lock_procedure:
+  - deliver_8k_png
+  - run validators/frame_lock_checklist.yaml
+  - blind_recognition_3_of_3
+  - ad_sign_off
+  - set master_template.yaml frame_version: "1.1"
+  - status: FRAME_LOCKED

@@ -1,0 +1,30 @@
+---
+description: RC-008 Typography — calm reading rhythm, no redesign
+alwaysApply: true
+---
+
+# RC-008 — Typography & Reading Comfort
+
+North star: **Every paragraph invites calm attention.**
+
+## Before touching text ask
+
+- Does body copy use `ReadingTypography.body()` — not ad-hoc `copyWith(height: …)`?
+- Do reflections use `ReadingTypography.reflection()` or `closing()`?
+- Do section labels use `ReadingTypography.sectionLabel()`?
+- Is paragraph spacing `CraftsmanshipRhythm.paragraphGap` in long content?
+- Are secondary colors `textSecondary` / `textHint` / `textMuted` — not custom alpha hacks?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-008.md`
+
+## Out of scope
+
+Redesign · new features · walls of text
+
+## Success
+
+Reading feels peaceful. Scrolling encourages continued reading, not fatigue.

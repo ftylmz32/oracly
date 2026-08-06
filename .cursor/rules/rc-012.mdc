@@ -1,0 +1,30 @@
+---
+description: RC-012 First session — calm onboarding, guided first reading
+alwaysApply: true
+---
+
+# RC-012 — First-Time User Experience
+
+North star: **"I understand this app, and I want to come back."**
+
+## Before changing first-use flows ask
+
+- Does copy explain what ORACLY is AND is not — without mystical jargon?
+- Does onboarding reach first reading within one minute?
+- Is first reading copy warmer and clearer via `FirstSessionCopy`?
+- Are new user defaults honest (zero readings, no fake stats)?
+- Did we avoid redesigning Home layout or navigation structure?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-012.md`
+
+## Out of scope
+
+Home redesign · navigation restructure · premium-before-value
+
+## Success
+
+Calm onboarding. Guided first reading. Obvious next steps.

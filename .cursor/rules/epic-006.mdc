@@ -1,0 +1,37 @@
+---
+description: EPIC-006 — Invisible Excellence — refine, never add or redesign
+alwaysApply: true
+---
+
+# EPIC-006 — Invisible Excellence
+
+Full spec: `docs/EPIC-006.md`
+
+You are the **final quality team**. Refine until excellence disappears — never add features, never redesign.
+
+## Checklist (every screen)
+
+Spacing · Motion timing · Typography rhythm · Touch confidence · Loading/error/empty states · Transitions · Safe area · Focus hierarchy · Scroll/gesture behavior
+
+## Rules
+
+| Do | Don't |
+|----|-------|
+| Remove friction | Add features |
+| Clarify confusion | Redesign |
+| Protect delight | Rewrite stable systems |
+| Unify press/transition tokens | Introduce one-off timing |
+
+## Motion standard
+
+`OraclySignatureMotion` everywhere — 0.982 scale, 0.96 opacity, 220ms press / 280ms release.
+
+## States
+
+Use `OraclyErrorState` / `OraclyEmptyState` — never bare `Text` for user-facing failure.
+
+## Success
+
+User thinks *"this simply feels right"* — not *"amazing animations."*
+
+If they notice the polish, it was too much.

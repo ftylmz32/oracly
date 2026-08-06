@@ -1,0 +1,63 @@
+# Global Style Rules — Apply to ALL cards before category overrides
+# Illustration DNA: art_direction/MASTER_STYLE.md (official permanent art direction)
+global_style_rules_version: "1.1"
+applies_to: all
+
+illustration_master_style: art_direction/MASTER_STYLE.md
+
+identity:
+  deck: ORACLY Tarot
+  original_only: true
+  rider_waite_forbidden: true
+
+palette_enforcement:
+  void_ground_required: true
+  void_ground_hex: ["#030106", "#0B0615", "#12071F"]
+  pure_black_forbidden: true
+  gold_frame_hex: ["#D4AF37", "#F0D77A", "#9A7420"]
+  or_magic_hex: ["#9B6DFF", "#B794FF"]
+
+lighting_enforcement:
+  key_direction: upper_left_45
+  key_warm: true
+  fill_cool_purple: true
+  fill_max_pct: 18
+  rim_light_required: true
+  volumetric_fog_min_pct: 8
+  volumetric_fog_max_pct: 22
+
+ornament_language:
+  frame_source: locked_template_v1
+  gold_material: brushed_ceremonial
+  corner_motif: quarter_arc_filigree_diamond_node
+  bottom_ornament: symmetric_vine_crystal_band
+  illustration_frame_overlap: forbidden
+
+atmosphere:
+  min_depth_planes: 4
+  min_negative_space_pct: 15
+  stars_or_nebula: required_one
+  sacred_geometry_max_opacity: 0.04
+
+composition:
+  text_in_illustration: forbidden
+  frame_in_illustration: forbidden
+  watermark: forbidden
+  signature: forbidden
+
+particles:
+  global_max: 20
+  ui_overlay_max: 10
+  color_ratio: "40% gold, 35% purple/white, 25% element"
+
+camera_defaults:
+  lens_feel_mm: [50, 85]
+  hero_angle_deg: [5, 12]
+
+finish:
+  frame_gloss: true
+  illustration_matte: true
+
+one_artist_rule: >
+  Every card must appear painted by the same master artist in the same OR Realm.
+  Batch drift review every 5 cards. Frame never redrawn. Light vector never changed.

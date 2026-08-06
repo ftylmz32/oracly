@@ -1,0 +1,30 @@
+---
+description: RC-003 Resilient Experience — production readiness, never leave user confused
+alwaysApply: true
+---
+
+# RC-003 — Resilient Experience
+
+North star: **Reliable, calm, carefully crafted — even on poor network.**
+
+## Before shipping or changing user flows ask
+
+- Does every loading state feel intentional — no blank screens?
+- Do errors explain simply with a recovery action — no technical messages?
+- Do empty states gently guide — never feel unfinished?
+- Are controllers disposed and async gaps guarded with `mounted`?
+- Do critical actions have Semantics labels and adequate touch targets?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-003.md`
+
+## Out of scope
+
+UI redesign · new features
+
+## Success
+
+First-time and offline users both feel ORACLY is trustworthy.

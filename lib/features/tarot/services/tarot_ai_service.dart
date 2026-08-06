@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../core/copy/resilience_copy.dart';
 import '../../../services/context_service.dart';
 import '../models/tarot_card.dart';
 import '../utils/tarot_constants.dart';
@@ -21,7 +22,7 @@ class TarotAiService {
 
     final apiKey = dotenv.env['OPENAI_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
-      return 'API anahtarı bulunamadı.';
+      return ResilienceCopy.aiConfigMissing;
     }
 
     final userContext = await _contextService.getContext();
@@ -52,7 +53,7 @@ Lütfen bütünsel bir tarot yorumu yaz.
     );
 
     if (response.statusCode != 200) {
-      return 'API hatası: ${response.statusCode}';
+      return ResilienceCopy.aiUnavailable;
     }
 
     return _parseResponse(response.body);
@@ -62,12 +63,12 @@ Lütfen bütünsel bir tarot yorumu yaz.
     final data = jsonDecode(body);
 
     if (data is! Map<String, dynamic>) {
-      return 'Cevap alınamadı.';
+      return ResilienceCopy.aiResponseUnavailable;
     }
 
     final output = data['output'];
     if (output is! List) {
-      return 'Cevap alınamadı.';
+      return ResilienceCopy.aiResponseUnavailable;
     }
 
     for (final item in output) {

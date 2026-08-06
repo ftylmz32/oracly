@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
-import '../core/theme/app_duration.dart';
-import '../core/theme/app_radius.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
 import '../models/memory_item.dart';
 import 'glass_card.dart';
+import 'oracly_icon.dart';
 
 class MemoryCard extends StatelessWidget {
-  final List<MemoryItem> memories;
+  const MemoryCard({super.key, required this.memories});
 
-  const MemoryCard({
-    super.key,
-    required this.memories,
-  });
+  final List<MemoryItem> memories;
 
   @override
   Widget build(BuildContext context) {
@@ -22,60 +18,37 @@ class MemoryCard extends StatelessWidget {
     final countLabel = '${memories.length} hafıza';
 
     return GlassCard(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 16,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(9),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: .08),
-                  borderRadius: AppRadius.md,
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
                 ),
-                child: Icon(
-                  Icons.psychology_rounded,
-                  size: 20,
-                  color: AppColors.gold.withValues(alpha: .8),
-                ),
+                child: const OraclyIcon(Icons.psychology_rounded, size: 20),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: 14),
               Expanded(
-                child: Text(
-                  'Hafıza',
-                  style: AppTextStyles.title.copyWith(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: Text('Hafıza', style: AppTextStyles.title),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: .05),
-                  borderRadius: AppRadius.round,
-                  border: Border.all(
-                    color: AppColors.glassBorder,
-                  ),
+                  color: Colors.white.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: AppColors.glassBorder),
                 ),
-                child: Text(
-                  countLabel,
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.textHint,
-                    letterSpacing: 0.2,
-                  ),
-                ),
+                child: Text(countLabel, style: AppTextStyles.small),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 16),
           AnimatedSwitcher(
             duration: AppDuration.normal,
             child: hasMemory
@@ -85,18 +58,13 @@ class MemoryCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.subtitle.copyWith(
-                      color: AppColors.textPrimary.withValues(
-                        alpha: .9,
-                      ),
-                      height: 1.5,
+                      color: AppColors.textPrimary.withValues(alpha: 0.88),
                     ),
                   )
                 : Text(
                     'Seni tanımaya yeni başlıyorum.',
                     key: const ValueKey('empty'),
-                    style: AppTextStyles.caption.copyWith(
-                      height: 1.45,
-                    ),
+                    style: AppTextStyles.caption.copyWith(height: 1.55),
                   ),
           ),
         ],

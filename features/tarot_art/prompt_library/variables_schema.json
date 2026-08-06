@@ -1,0 +1,53 @@
+{
+  "$schema": "oracly-prompt-variables-v1",
+  "description": "Required and optional variables for master_prompt.template.md",
+  "required": [
+    "CARD_NAME",
+    "ARCANA",
+    "ELEMENT",
+    "NUMERAL",
+    "MOOD",
+    "LIGHTING",
+    "DOMINANT_COLORS",
+    "CHARACTER",
+    "ENVIRONMENT",
+    "SYMBOLS",
+    "MAGIC_EFFECTS",
+    "CAMERA",
+    "COMPOSITION",
+    "BORDER_STYLE",
+    "PARTICLE_STYLE",
+    "CATEGORY_STYLE_BLOCK"
+  ],
+  "fixed_anchors": {
+    "style": [
+      "dark fantasy",
+      "luxury",
+      "cinematic lighting",
+      "volumetric fog",
+      "crystal reflections",
+      "gold accents",
+      "deep purple palette",
+      "sacred geometry",
+      "ORACLY original"
+    ],
+    "forbidden": [
+      "Rider-Waite",
+      "third-party tarot art",
+      "frame in illustration",
+      "text in illustration"
+    ]
+  },
+  "defaults": {
+    "BORDER_STYLE": "ORACLY locked ceremonial gold filigree template v1 — composited post-paint",
+    "CAMERA": "Slightly low hero angle 5-12 degrees below eye level, 50-85mm lens feel",
+    "COMPOSITION": "Central iconic focal subject, 4 depth planes, 15% negative space"
+  },
+  "category_style_block_source": {
+    "major_arcana": "../style_rules/major_arcana.yaml",
+    "cups": "../style_rules/cups.yaml",
+    "wands": "../style_rules/wands.yaml",
+    "swords": "../style_rules/swords.yaml",
+    "pentacles": "../style_rules/pentacles.yaml"
+  }
+}

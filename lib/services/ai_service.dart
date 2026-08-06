@@ -1,124 +1,95 @@
+import 'dart:async';
+
 import 'dart:convert';
 
+import 'dart:io';
+
+
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:http/http.dart' as http;
 
+
+
+import '../core/copy/resilience_copy.dart';
+
+import 'ai_message_result.dart';
+
 import 'context_service.dart';
+
+import '../features/ai/services/conversation_response_guard.dart';
+
 import 'storage_service.dart';
 
 
 
 class AiService {
 
+  final ContextService _contextService = ContextService();
 
-  final ContextService _contextService =
-      ContextService();
-
-
-  final StorageService _storageService =
-      StorageService();
+  final StorageService _storageService = StorageService();
 
 
 
+  static const _requestTimeout = Duration(seconds: 45);
 
 
 
-  Future<String> sendMessage(
-    String message,
-  ) async {
+  Future<AiMessageResult> sendMessage(String message) async {
 
-
-
-    final apiKey =
-        dotenv.env['OPENAI_API_KEY'];
-
-
+    final apiKey = dotenv.env['OPENAI_API_KEY'];
 
     if (apiKey == null || apiKey.isEmpty) {
 
-      return "API anahtarı bulunamadı.";
+      return const AiMessageResult.failure(ResilienceCopy.aiConfigMissing);
 
     }
 
 
 
+    try {
+
+      final userContext = await _contextService.getContext();
+
+      final conversationContext =
+
+          await _storageService.getConversationContext();
 
 
 
+      final response = await http
 
-    final userContext =
-        await _contextService.getContext();
+          .post(
 
+            Uri.parse('https://api.openai.com/v1/responses'),
 
+            headers: {
 
+              'Content-Type': 'application/json',
 
+              'Authorization': 'Bearer $apiKey',
 
+            },
 
-    final conversationContext =
-        await _storageService
-            .getConversationContext();
+            body: jsonEncode({
 
+              'model': 'gpt-5.5',
 
+              'instructions': '''
 
+Sen OR'sun — Oracly'nin sakin yansıma arkadaşı.
 
-
-
-
-    final response = await http.post(
-
-
-
-      Uri.parse(
-        'https://api.openai.com/v1/responses',
-      ),
-
-
-
-
-      headers: {
-
-
-        'Content-Type':
-            'application/json',
-
-
-
-        'Authorization':
-            'Bearer $apiKey',
-
-
-      },
-
-
-
-
-
-      body: jsonEncode({
-
-
-
-        "model":
-            "gpt-5.5",
-
-
-
-
-
-
-        "instructions": """
-
-Sen Oracly'sin.
-
-Sen kullanıcının kişisel yapay zeka arkadaşısın.
 
 
 Temel karakterin:
 
-- sıcak,
-- doğal,
-- anlayışlı,
-- yardımcı,
-- samimi.
+- sıcak, ölçülü, düşünceli
+
+- sohbet botu değil; sessiz bir yansıma arkadaşı
+
+- samimi ama abartısız
+
 
 
 Türkçe konuş.
@@ -127,10 +98,13 @@ Türkçe konuş.
 
 Amaçların:
 
-- Kullanıcıyı zaman içinde tanımak.
-- Geçmiş bilgileri doğru zamanda kullanmak.
-- Daha kişisel ve anlamlı cevaplar vermek.
-- Sohbetin doğal devamlılığını sağlamak.
+- Kullanıcıya düşünmek için alan açmak
+
+- Geçmiş bilgileri doğal ve nazikçe kullanmak
+
+- Kısa, nefes alan paragraflarla yanıt vermek
+
+- Ara sıra düşündürücü sorular sormak
 
 
 
@@ -148,119 +122,89 @@ $conversationContext
 
 Davranış kuralları:
 
-- Kullanıcının adını uygun olduğunda kullan.
-- Bildiğin bilgileri cevaplarını kişiselleştirmek için kullan.
-- Hafızayı kullanıcıya liste halinde gösterme.
-- "Senin hakkında şunu biliyorum" şeklinde gereksiz açıklama yapma.
-- Bilmediğin bilgileri uydurma.
-- Emin olmadığın konularda açık ol.
-- Robot gibi resmi cevaplar verme.
-- Doğal bir sohbet arkadaşı gibi davran.
-- Kullanıcının hedeflerini ve tercihlerini dikkate al.
+- Sadece yukarıdaki gerçek bilgileri kullan; uydurma.
 
+- Hafızayı liste halinde gösterme veya "şunu biliyorum" deme.
 
+- Uzun duvar metinleri yazma; 2–4 kısa paragraf yeterli.
 
-Örnek yaklaşım:
+- Kesinlik, kader, korku dili kullanma.
 
-Kullanıcı bir hedefinden bahsediyorsa,
-önceki hedeflerini hatırla ve bağlantı kur.
+- Sohbeti sürdürmeye baskı yapma; huzurla ayrılmaya izin ver.
 
+- Robotik veya aşırı mistik ton kullanma.
 
-Kullanıcı zor bir gün geçiriyorsa,
-empati kur ve uygun öneriler ver.
+''',
 
+              'input': message,
 
-""",
+            }),
 
+          )
 
+          .timeout(_requestTimeout);
 
 
 
+      if (response.statusCode != 200) {
 
-        "input":
-            message,
-
-
-
-      }),
-
-
-
-    );
-
-
-
-
-
-
-
-
-    if (response.statusCode != 200) {
-
-
-      return
-          "API hatası: ${response.statusCode}";
-
-
-    }
-
-
-
-
-
-
-
-
-    final data =
-        jsonDecode(response.body);
-
-
-
-
-
-
-
-    if (data["output"] != null) {
-
-
-      for (var item in data["output"]) {
-
-
-        if (item["content"] != null) {
-
-
-          for (var content in item["content"]) {
-
-
-            if (content["text"] != null) {
-
-
-              return content["text"];
-
-
-            }
-
-
-          }
-
-
-        }
-
+        return const AiMessageResult.failure(ResilienceCopy.aiUnavailable);
 
       }
 
 
+
+      final data = jsonDecode(response.body);
+
+      if (data['output'] != null) {
+
+        for (final item in data['output']) {
+
+          if (item['content'] != null) {
+
+            for (final content in item['content']) {
+
+              if (content['text'] != null) {
+
+                return AiMessageResult.success(
+
+                  ConversationResponseGuard.polish(content['text'] as String),
+
+                );
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+
+
+      return const AiMessageResult.failure(ResilienceCopy.aiEmptyResponse);
+
+    } on TimeoutException {
+
+      return const AiMessageResult.failure(ResilienceCopy.slowResponse);
+
+    } on SocketException {
+
+      return const AiMessageResult.failure(ResilienceCopy.offline);
+
+    } on http.ClientException {
+
+      return const AiMessageResult.failure(ResilienceCopy.offline);
+
+    } catch (_) {
+
+      return const AiMessageResult.failure(ResilienceCopy.aiUnavailable);
+
     }
-
-
-
-
-
-
-    return "Cevap alınamadı.";
-
 
   }
 
-
 }
+

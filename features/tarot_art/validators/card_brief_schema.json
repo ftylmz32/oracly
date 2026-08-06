@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "oracly-card-brief-v1",
+  "title": "ORACLY Tarot Card Production Brief",
+  "description": "Required before illustration begins. Status must be brief_approved.",
+  "type": "object",
+  "required": [
+    "card_id",
+    "card_name",
+    "arcana",
+    "numeral",
+    "element",
+    "category_style_rules",
+    "mood",
+    "lighting",
+    "dominant_colors",
+    "character",
+    "environment",
+    "symbols",
+    "magic_effects",
+    "camera",
+    "composition",
+    "particle_style",
+    "approved_by",
+    "approved_at"
+  ],
+  "properties": {
+    "card_id": {
+      "type": "string",
+      "pattern": "^oracly_tarot_(major|back|cups|wands|swords|pentacles)_"
+    },
+    "card_name": { "type": "string", "minLength": 1 },
+    "arcana": {
+      "enum": ["Major Arcana", "Minor Arcana", "Card Back"]
+    },
+    "numeral": { "type": "string" },
+    "suit": {
+      "enum": ["none", "cups", "wands", "swords", "pentacles", null]
+    },
+    "rank": {
+      "enum": ["ace", "02", "03", "04", "05", "06", "07", "08", "09", "10", "page", "knight", "queen", "king", null]
+    },
+    "element": {
+      "enum": ["fire", "water", "air", "earth", "universal"]
+    },
+    "category_style_rules": {
+      "type": "string",
+      "description": "Path to style_rules yaml",
+      "enum": [
+        "style_rules/major_arcana.yaml",
+        "style_rules/cups.yaml",
+        "style_rules/wands.yaml",
+        "style_rules/swords.yaml",
+        "style_rules/pentacles.yaml"
+      ]
+    },
+    "mood": { "type": "string", "minLength": 10 },
+    "lighting": { "type": "string", "minLength": 10 },
+    "dominant_colors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3
+    },
+    "character": { "type": "string" },
+    "environment": { "type": "string", "minLength": 10 },
+    "symbols": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 2
+    },
+    "magic_effects": { "type": "string", "minLength": 5 },
+    "camera": { "type": "string" },
+    "composition": {
+      "enum": [
+        "central_iconic",
+        "triangular_ascending",
+        "circular_mandala",
+        "diagonal_tension",
+        "reflective_horizontal",
+        "grounded_symmetry"
+      ]
+    },
+    "border_style": {
+      "type": "string",
+      "default": "ORACLY locked ceremonial gold filigree template v1"
+    },
+    "particle_style": { "type": "string" },
+    "narrative_meaning": { "type": "string" },
+    "reference_notes": { "type": "string" },
+    "thumbnail_selected": { "type": "string" },
+    "approved_by": { "type": "string" },
+    "approved_at": { "type": "string", "format": "date-time" },
+    "status": {
+      "enum": ["draft", "brief_approved", "in_progress", "qa_review", "approved"]
+    }
+  },
+  "additionalProperties": false
+}

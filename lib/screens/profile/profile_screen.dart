@@ -1,825 +1,198 @@
+/// OR-1100 — Premium profile experience with Riverpod.
+library;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../services/profile_service.dart';
+import '../../app/providers/app_providers.dart';
+import '../../core/copy/resilience_copy.dart';
+import '../../core/domain/models/achievement.dart';
+import '../../core/domain/models/user_profile.dart';
+import '../../core/navigation/oracly_navigation_service.dart';
+import '../../core/navigation/universe/universe_map_sheet.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../shared/ui/oracly_dialog.dart';
+import '../../features/premium/models/achievement_models.dart' as ui;
+import '../../features/premium/models/personalization_models.dart';
+import '../../features/premium/presentation/widgets/achievement_badge.dart';
+import '../../features/premium/presentation/widgets/premium_background.dart';
+import '../../features/premium/presentation/widgets/profile_hero_section.dart';
+import '../../features/premium/presentation/widgets/settings_tiles.dart';
+import '../../shared/widgets/oracly_error_state.dart';
+import '../../shared/widgets/oracly_skeleton_loader.dart';
+import '../../core/widgets/oracly_signature_motifs.dart';
+import 'profile_menu_section.dart';
 
+final achievementsProvider = FutureProvider<List<AchievementModel>>((ref) {
+  return ref.watch(userRepositoryProvider).getAchievements();
+});
 
-
-class ProfileScreen extends StatefulWidget {
-
-  const ProfileScreen({
-    super.key,
-  });
-
+class ProfileScreen extends ConsumerStatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() =>
-      _ProfileScreenState();
-
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-
-
-
-
-class _ProfileScreenState extends State<ProfileScreen> {
-
-
-  final ProfileService _profileService =
-      ProfileService();
-
-
-
-  Map<String, dynamic> _profile = {};
-
-
-
+class _ProfileScreenState extends ConsumerState<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _entrance;
 
   @override
   void initState() {
-
     super.initState();
-
-    _loadProfile();
-
+    _entrance = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..forward();
   }
 
-
-
-
-
-
-  Future<void> _loadProfile() async {
-
-
-    final data =
-        await _profileService.getProfile();
-
-
-    if (!mounted) return;
-
-
-    setState(() {
-
-      _profile = data;
-
-    });
-
-
+  @override
+  void dispose() {
+    _entrance.dispose();
+    super.dispose();
   }
 
-
-
-
-
-
-
-  Future<void> _showInputDialog({
-
-    required String title,
-
-    required TextEditingController controller,
-
-    required Future<void> Function() onSave,
-
-  }) async {
-
-
-
-    await showDialog(
-
-      context: context,
-
-      builder: (_) {
-
-
-        return AlertDialog(
-
-
-          title:
-              Text(title),
-
-
-
-          content:
-              TextField(
-
-                controller:
-                    controller,
-
-              ),
-
-
-
-
-          actions: [
-
-
-            TextButton(
-
-              onPressed: () {
-
-                Navigator.pop(context);
-
-              },
-
-              child:
-                  const Text("İptal"),
-
-            ),
-
-
-
-
-            ElevatedButton(
-
-
-              onPressed: () async {
-
-
-                if (controller.text.trim().isNotEmpty) {
-
-
-                  await onSave();
-
-                  await _loadProfile();
-
-
-                }
-
-
-                if (mounted) {
-
-                  Navigator.pop(context);
-
-                }
-
-
-              },
-
-
-              child:
-                  const Text("Kaydet"),
-
-
-            ),
-
-
-
-          ],
-
-
-        );
-
-
-      },
-
-
+  Future<void> _editName(String current) async {
+    final name = await OraclyDialog.prompt(
+      context,
+      title: 'İsim',
+      hint: 'Adın',
+      initial: current,
+      confirmLabel: 'Kaydet',
     );
-
-
+    if (name != null && name.trim().isNotEmpty) {
+      await ref.read(userProfileProvider.notifier).saveName(name.trim());
+    }
   }
 
-
-
-
-
-
-
-  Future<void> _editName() async {
-
-
-    final controller =
-        TextEditingController(
-
-          text:
-              _profile["name"] ?? "",
-
-        );
-
-
-
-    await _showInputDialog(
-
-
-      title:
-          "İsim",
-
-
-
-      controller:
-          controller,
-
-
-
-      onSave: () async {
-
-
-        await _profileService.saveName(
-
-          controller.text.trim(),
-
-        );
-
-
-      },
-
-
+  PersonalizationSettings _toSettings(UserProfileModel profile) {
+    return PersonalizationSettings(
+      isPremium: profile.isPremium,
+      currentStreak: profile.currentStreak,
+      totalReadings: profile.totalReadings,
+      spiritualLevel: profile.spiritualLevel,
+      favoriteDeck: profile.favoriteDeckId,
     );
-
-
   }
 
-
-
-
-
-
-
-  Future<void> _editJob() async {
-
-
-    final controller =
-        TextEditingController(
-
-          text:
-              _profile["job"] ?? "",
-
-        );
-
-
-
-    await _showInputDialog(
-
-
-      title:
-          "Meslek",
-
-
-
-      controller:
-          controller,
-
-
-
-      onSave: () async {
-
-
-        await _profileService.saveJob(
-
-          controller.text.trim(),
-
-        );
-
-
-      },
-
-
+  ui.Achievement _toUiAchievement(AchievementModel model) {
+    final id = ui.AchievementId.values.firstWhere(
+      (e) => e.key == model.key,
+      orElse: () => ui.AchievementId.firstReading,
     );
-
-
-  }
-
-
-
-
-
-
-
-  Future<void> _addInterest() async {
-
-
-    final controller =
-        TextEditingController();
-
-
-
-    await _showInputDialog(
-
-
-      title:
-          "İlgi Alanı",
-
-
-
-      controller:
-          controller,
-
-
-
-      onSave: () async {
-
-
-        final list =
-            List<String>.from(
-
-              _profile["interests"] ?? [],
-
-            );
-
-
-
-        list.add(
-
-          controller.text.trim(),
-
-        );
-
-
-
-        await _profileService.saveInterests(
-
-          list,
-
-        );
-
-
-      },
-
-
+    return ui.Achievement(
+      id: id,
+      unlocked: model.unlocked,
+      icon: model.icon,
+      unlockedAt: model.unlockedAt,
     );
-
-
   }
-
-
-
-
-
-
-
-  Future<void> _addGoal() async {
-
-
-    final controller =
-        TextEditingController();
-
-
-
-    await _showInputDialog(
-
-
-      title:
-          "Hedef",
-
-
-
-      controller:
-          controller,
-
-
-
-      onSave: () async {
-
-
-        final list =
-            List<String>.from(
-
-              _profile["goals"] ?? [],
-
-            );
-
-
-
-        list.add(
-
-          controller.text.trim(),
-
-        );
-
-
-
-        await _profileService.saveGoals(
-
-          list,
-
-        );
-
-
-      },
-
-
-    );
-
-
-  }
-
-
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
-
-
-
-    final name =
-        _profile["name"] ?? "";
-
-
-
-    final job =
-        _profile["job"] ?? "";
-
-
-
-    final interests =
-        List<String>.from(
-
-          _profile["interests"] ?? [],
-
-        );
-
-
-
-    final goals =
-        List<String>.from(
-
-          _profile["goals"] ?? [],
-
-        );
-
-
-
-
+    final profileAsync = ref.watch(userProfileProvider);
+    final settingsAsync = ref.watch(settingsProvider);
+    final achievementsAsync = ref.watch(achievementsProvider);
+    final master = Curves.easeOutCubic.transform(_entrance.value);
 
     return Scaffold(
-
-
-
-      appBar:
-          AppBar(
-
-            title:
-                const Text("Profil"),
-
-            centerTitle:
-                true,
-
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const PremiumBackground(),
+          const OraclySignatureCornerOrnaments(
+            inset: 18,
+            size: 18,
           ),
-
-
-
-
-
-
-      body:
-          ListView(
-
-
-            padding:
-                const EdgeInsets.all(20),
-
-
-
-            children: [
-
-
-
-
-
-              const CircleAvatar(
-
-
-                radius:
-                    45,
-
-
-                child:
-                    Icon(
-
-                      Icons.person,
-
-                      size:
-                          50,
-
-                    ),
-
-
-              ),
-
-
-
-
-
-
-              const SizedBox(
-                height:20,
-              ),
-
-
-
-
-
-
-              ListTile(
-
-
-
-                title:
-                    Text(
-
-                      name.isEmpty
-                          ? "İsimsiz Kullanıcı"
-                          : name,
-
-
-                      style:
-                          const TextStyle(
-
-                            fontSize:22,
-
-                            fontWeight:
-                                FontWeight.bold,
-
-                          ),
-
-
-                    ),
-
-
-
-                trailing:
-                    IconButton(
-
-                      icon:
-                          const Icon(Icons.edit),
-
-
-                      onPressed:
-                          _editName,
-
-
-                    ),
-
-
-
-              ),
-
-
-
-
-
-
-              _infoCard(
-
-                "💼 Meslek",
-
-                job.isEmpty
-                    ? "Belirtilmemiş"
-                    : job,
-
-                _editJob,
-
-              ),
-
-
-
-
-
-
-              _listCard(
-
-                "🎮 İlgi Alanları",
-
-                interests,
-
-                _addInterest,
-
-              ),
-
-
-
-
-
-
-              _listCard(
-
-                "🎯 Hedefler",
-
-                goals,
-
-                _addGoal,
-
-              ),
-
-
-
-
-            ],
-
-
-          ),
-
-
-    );
-
-
-  }
-
-
-
-
-
-
-
-
-  Widget _infoCard(
-
-    String title,
-
-    String value,
-
-    VoidCallback onEdit,
-
-  ) {
-
-
-
-    return Card(
-
-
-
-      child:
-          ListTile(
-
-
-
-            title:
-                Text(title),
-
-
-
-            subtitle:
-                Text(value),
-
-
-
-            trailing:
-                IconButton(
-
-                  icon:
-                      const Icon(Icons.edit),
-
-
-                  onPressed:
-                      onEdit,
-
-
-                ),
-
-
-
-          ),
-
-
-
-    );
-
-
-
-  }
-
-
-
-
-
-
-
-
-  Widget _listCard(
-
-    String title,
-
-    List<String> items,
-
-    VoidCallback onAdd,
-
-  ) {
-
-
-
-    return Card(
-
-
-
-      child:
-          Padding(
-
-
-
-            padding:
-                const EdgeInsets.all(16),
-
-
-
-            child:
-                Column(
-
-
-
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-
-
-
-                  children: [
-
-
-
-
-                    Row(
-
-
-
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
-
-
-
-                      children: [
-
-
-
-                        Text(
-
-                          title,
-
-                          style:
-                              const TextStyle(
-
-                                fontSize:18,
-
-                                fontWeight:
-                                    FontWeight.bold,
-
-                              ),
-
-                        ),
-
-
-
-
-                        IconButton(
-
-                          icon:
-                              const Icon(Icons.add),
-
-
-                          onPressed:
-                              onAdd,
-
-
-                        ),
-
-
-
-                      ],
-
-
-
-                    ),
-
-
-
-
-
-                    if(items.isEmpty)
-
-                      const Text(
-                        "Henüz bilgi yok",
-                      )
-
-                    else
-
-                      ...items.map(
-
-                        (e) =>
-                            Text("• $e"),
-
+          profileAsync.when(
+            loading: () => const OraclySkeletonLoader(
+              message: ResilienceCopy.profileLoading,
+            ),
+            error: (e, _) => OraclyErrorState(
+              title: ResilienceCopy.errorTitle,
+              message: ResilienceCopy.profileLoadFailed,
+              onRetry: () => ref.invalidate(userProfileProvider),
+            ),
+            data: (UserProfileModel profile) {
+              final settings = settingsAsync.value ?? _toSettings(profile);
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverAppBar(
+                    pinned: true,
+                    backgroundColor: Colors.black.withValues(alpha: 0.45),
+                    title: Text(
+                      'Yolculuk',
+                      style: AppTextStyles.titleSmall.copyWith(
+                        color: AppColors.goldLight,
+                        fontWeight: FontWeight.w600,
                       ),
-
-
-
-
-                  ],
-
-
-
-                ),
-
-
-
+                    ),
+                    centerTitle: true,
+                    actions: [
+                      IconButton(
+                        onPressed: () => UniverseMapSheet.open(context),
+                        icon: Icon(
+                          Icons.map_outlined,
+                          color: AppColors.goldLight.withValues(alpha: 0.88),
+                        ),
+                        tooltip: 'Evren Haritası',
+                      ),
+                      IconButton(
+                        onPressed: () =>
+                            OraclyNavigationService.openSettings(context),
+                        icon: Icon(
+                          Icons.settings_outlined,
+                          color: AppColors.goldLight.withValues(alpha: 0.88),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(height: AppSpacing.sm),
+                        ProfileHeroSection(
+                          name: profile.name,
+                          settings: settings,
+                          entrance: master,
+                          onEditName: () => _editName(profile.name),
+                          onPremiumTap: () =>
+                              OraclyNavigationService.openPremium(context),
+                        ),
+                        const ProfileMenuSection(),
+                        const SettingsSectionHeader(title: 'Başarımlar'),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          child: achievementsAsync.when(
+                            loading: () => const OraclySkeletonLoader(
+                              lines: 2,
+                              message: ResilienceCopy.achievementsLoading,
+                            ),
+                            error: (_, _) => const SizedBox.shrink(),
+                            data: (achievements) => AchievementsGrid(
+                              achievements: achievements
+                                  .map(_toUiAchievement)
+                                  .toList(),
+                              compact: true,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: AppSpacing.xl),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-
-
-
+        ],
+      ),
     );
-
-
   }
-
-
 }

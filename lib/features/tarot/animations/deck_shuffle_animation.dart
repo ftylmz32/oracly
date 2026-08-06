@@ -14,8 +14,8 @@ class DeckShuffleAnimation extends StatefulWidget {
   const DeckShuffleAnimation({
     super.key,
     required this.onComplete,
-    this.duration = const Duration(milliseconds: 850),
-    this.cardCount = 7,
+    this.duration = const Duration(milliseconds: 1000),
+    this.cardCount = 8,
     this.cardBuilder,
   });
 
@@ -25,8 +25,7 @@ class DeckShuffleAnimation extends StatefulWidget {
   final DeckShuffleCardBuilder? cardBuilder;
 
   @override
-  State<DeckShuffleAnimation> createState() =>
-      _DeckShuffleAnimationState();
+  State<DeckShuffleAnimation> createState() => _DeckShuffleAnimationState();
 }
 
 class _DeckShuffleAnimationState extends State<DeckShuffleAnimation>
@@ -36,13 +35,9 @@ class _DeckShuffleAnimationState extends State<DeckShuffleAnimation>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          widget.onComplete();
-        }
+    _controller = AnimationController(vsync: this, duration: widget.duration)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) widget.onComplete();
       });
     _controller.forward();
   }
@@ -53,46 +48,20 @@ class _DeckShuffleAnimationState extends State<DeckShuffleAnimation>
     super.dispose();
   }
 
-  double _motionEnvelope(double t) => sin(t * pi);
+  double _envelope(double t) => sin(t * pi);
 
   Offset _offsetFor(int index, double t) {
-    final envelope = _motionEnvelope(t);
-    final waveX = sin((index + 1) * 1.4 + t * pi * 2);
-    final waveY = cos((index + 1) * 1.1 + t * pi * 2);
-    final stackX = index * 3.0 * (1 - t);
-    final stackY = -index * 2.0 * (1 - t);
-
+    final e = _envelope(t);
     return Offset(
-      waveX * 14 * envelope + stackX,
-      waveY * 10 * envelope + stackY,
+      sin((index + 1) * 1.4 + t * pi * 2) * 18 * e + index * 3.0 * (1 - t),
+      cos((index + 1) * 1.1 + t * pi * 2) * 12 * e - index * 2.5 * (1 - t),
     );
   }
 
   double _rotationFor(int index, double t) {
-    final envelope = _motionEnvelope(t);
-    final base = (index - (widget.cardCount - 1) / 2) * 0.035;
-    final wave = sin(t * pi * 2 + index * 0.9) * 0.07;
-    return (base + wave) * envelope;
-  }
-
-  Widget _defaultCard() {
-    return Container(
-      width: 88,
-      height: 152,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.gold.withValues(alpha: .55),
-          width: 1.2,
-        ),
-      ),
-      child: Icon(
-        Icons.auto_awesome,
-        color: AppColors.gold.withValues(alpha: .75),
-        size: 28,
-      ),
-    );
+    final e = _envelope(t);
+    final base = (index - (widget.cardCount - 1) / 2) * 0.04;
+    return (base + sin(t * pi * 2 + index * 0.9) * 0.08) * e;
   }
 
   @override
@@ -101,21 +70,24 @@ class _DeckShuffleAnimationState extends State<DeckShuffleAnimation>
       animation: _controller,
       builder: (context, _) {
         final t = Curves.easeInOutCubic.transform(_controller.value);
-        final glow = 0.14 + sin(t * pi * 3) * 0.08;
-
+        final glow = 0.12 + sin(t * pi * 3) * 0.06;
         return Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
             Container(
-              width: 110,
-              height: 176,
+              width: 140,
+              height: 220,
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.gold.withValues(alpha: glow),
-                    blurRadius: 34,
-                    spreadRadius: 2,
+                    color: AppColors.primaryLight.withValues(alpha: glow),
+                    blurRadius: 42,
+                    spreadRadius: 3,
+                  ),
+                  BoxShadow(
+                    color: AppColors.gold.withValues(alpha: glow * 0.6),
+                    blurRadius: 28,
                   ),
                 ],
               ),
@@ -125,12 +97,8 @@ class _DeckShuffleAnimationState extends State<DeckShuffleAnimation>
                 offset: _offsetFor(i, t),
                 child: Transform.rotate(
                   angle: _rotationFor(i, t),
-                  child: widget.cardBuilder?.call(
-                        context,
-                        i,
-                        _defaultCard(),
-                      ) ??
-                      _defaultCard(),
+                  child: widget.cardBuilder?.call(context, i, const SizedBox()) ??
+                      const SizedBox(),
                 ),
               ),
           ],

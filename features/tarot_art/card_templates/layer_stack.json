@@ -1,0 +1,150 @@
+{
+  "$schema": "oracly-card-layer-stack-v1.1",
+  "template_id": "oracly_card_master_v1",
+  "frame_version": "1.1",
+  "frame_lock": "OR-1330",
+  "locked_asset": "oracly_tarot_frame_locked_v1.1.png",
+  "description": "Z-order bottom to top. Locked layers must not be edited per card.",
+  "layers": [
+    {
+      "id": "L00_background_plate",
+      "name": "Background Plate",
+      "locked": false,
+      "optional": true,
+      "notes": "Deep void gradient; may be part of illustration"
+    },
+    {
+      "id": "L01_frame_outer",
+      "name": "Luxury Border — Outer Bevel (obsidian depth refined)",
+      "locked": true,
+      "source": "oracly_tarot_frame_locked_v1.1.png"
+    },
+    {
+      "id": "L01c_micro_engraving",
+      "name": "Micro Engraving — runes, celestial symbols",
+      "locked": true,
+      "source": "oracly_tarot_frame_locked_v1.1.png",
+      "notes": "Visible at 150%+ zoom only"
+    },
+    {
+      "id": "L02_frame_inner",
+      "name": "Luxury Border — Inner Filigree (−20% side density)",
+      "locked": true,
+      "source": "oracly_tarot_frame_locked_v1.1.png"
+    },
+    {
+      "id": "L02b_oracle_veil_ring",
+      "name": "Oracle Veil Ring — inner energy membrane",
+      "locked": true,
+      "opacity_pct": [4, 7],
+      "colors": ["#4A2578", "#7B4BC4", "#9A7420"],
+      "notes": "NOT a second frame — magical merge with illustration"
+    },
+    {
+      "id": "L03_illustration",
+      "name": "Central Illustration",
+      "locked": false,
+      "unique": true,
+      "clip_to": "illustration_safe_zone"
+    },
+    {
+      "id": "L04_fx_fog",
+      "name": "Volumetric Fog",
+      "locked": false,
+      "blend": "soft_light",
+      "opacity_range": [0.10, 0.20]
+    },
+    {
+      "id": "L05_fx_glow",
+      "name": "Magic Emission Glow",
+      "locked": false,
+      "blend": "screen",
+      "color_from": "element_palette"
+    },
+    {
+      "id": "L06_fx_particles",
+      "name": "Particle Field",
+      "locked": false,
+      "max_count": 20,
+      "notes": "See style_rules particle_density"
+    },
+    {
+      "id": "L07_vignette",
+      "name": "Edge Vignette",
+      "locked": true,
+      "recipe": "standard_vignette_v1"
+    },
+    {
+      "id": "L07_vesica_compass",
+      "name": "Vesica Compass — OR signature centerpiece (OL-7)",
+      "locked": true,
+      "replaces": "large_oval_top_crystal",
+      "size_px_production": [24, 28]
+    },
+    {
+      "id": "L08_side_rails",
+      "name": "Side Ornaments + Arcana Markers (density −20%)",
+      "locked": true,
+      "source": "oracly_tarot_frame_locked_v1.1.png"
+    },
+    {
+      "id": "L09_top_cartouche",
+      "name": "Numeral Hex Cartouche (below Vesica Compass)",
+      "locked": true,
+      "source": "numeral_cartouche.psd"
+    },
+    {
+      "id": "L10_numeral",
+      "name": "Roman / Arabic Numeral",
+      "locked": false,
+      "swappable": true
+    },
+    {
+      "id": "L11_title",
+      "name": "Card Title Text on Obsidian Plaque",
+      "locked": false,
+      "swappable": true,
+      "on": "L15_obsidian_plaque"
+    },
+    {
+      "id": "L12_element_sigil",
+      "name": "Element Symbol",
+      "locked": false,
+      "swappable": true,
+      "position_locked": true
+    },
+    {
+      "id": "L13_arcana_sigil",
+      "name": "Arcana Symbol",
+      "locked": false,
+      "swappable": true,
+      "position_locked": true
+    },
+    {
+      "id": "L14_bottom_ornament",
+      "name": "Bottom Ornament Band (meridian-connected)",
+      "locked": true,
+      "source": "oracly_tarot_frame_locked_v1.1.png"
+    },
+    {
+      "id": "L15_obsidian_plaque",
+      "name": "Obsidian Name Plaque — empty in locked asset",
+      "locked": true,
+      "height_px_production": 139,
+      "material": "obsidian_crystal_gold_engraved_edge"
+    },
+    {
+      "id": "L16_meridian_grid",
+      "name": "Harmonic Meridian Grid — corner connection",
+      "locked": true,
+      "source": "oracly_tarot_frame_locked_v1.1.png"
+    },
+    {
+      "id": "L20_finish",
+      "name": "Card Finish Layer — hand-polished gold, cyan crystal refraction",
+      "locked": true,
+      "source": "finish_pass.psd",
+      "notes": "Gloss on gold; matte on art; collector relic feel"
+    }
+  ]
+}

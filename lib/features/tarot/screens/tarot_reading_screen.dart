@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../widgets/cosmic_background.dart';
-import '../../../widgets/glass_card.dart';
 import '../models/tarot_card.dart';
 import '../services/tarot_ai_service.dart';
+import '../utils/tarot_reading_parser.dart';
+import '../widgets/tarot_card_hero.dart';
+import '../widgets/tarot_cards_revealed_row.dart';
+import '../widgets/tarot_cinematic_background.dart';
+import '../widgets/tarot_insight_chips.dart';
+import '../widgets/tarot_reading_actions.dart';
 import '../widgets/tarot_reading_section.dart';
-import '../widgets/tarot_result_cards.dart';
+import '../widgets/tarot_screen_header.dart';
+import '../widgets/tarot_secondary_cards_row.dart';
 
 class TarotReadingScreen extends StatefulWidget {
   final List<TarotCard> cards;
@@ -30,6 +32,9 @@ class _TarotReadingScreenState extends State<TarotReadingScreen> {
   bool _loading = true;
   String _reading = '';
 
+  static const _threeCardLabels = ['Geçmiş', 'Şimdi', 'Gelecek'];
+  static const _contentMaxWidth = 520.0;
+
   @override
   void initState() {
     super.initState();
@@ -41,94 +46,123 @@ class _TarotReadingScreenState extends State<TarotReadingScreen> {
       cards: widget.cards,
       intention: widget.intention,
     );
-
     if (!mounted) return;
-
     setState(() {
       _loading = false;
       _reading = reading;
     });
   }
 
-  String get _intentionLabel {
-    final text = widget.intention.trim();
-    return text.isEmpty ? 'Belirtilmedi' : text;
+  String get _shareText {
+    final cards = widget.cards.map((c) => c.name).join(', ');
+    return 'Tarot Yorumu\nKartlar: $cards\n\n$_reading';
+  }
+
+  String? _positionLabel(int index) {
+    if (widget.cards.length != 3 || index > 2) return null;
+    return _threeCardLabels[index];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Tarot Yorumu',
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.textSecondary,
-            letterSpacing: 1.6,
-            fontWeight: FontWeight.w500,
+    if (widget.cards.isEmpty) {
+      return TarotCinematicBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            child: Center(
+              child: Text(
+                'Kart bulunamadı',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
           ),
         ),
-      ),
-      body: CosmicBackground(
-        child: SafeArea(
+      );
+    }
+
+    final primary = widget.cards.first;
+    final secondary =
+        widget.cards.length > 1 ? widget.cards.sublist(1) : const <TarotCard>[];
+    final insights = TarotReadingParser.parseInsights(primary, _reading);
+
+    return TarotCinematicBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(22, 8, 22, 20),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                GlassCard(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  child: Text(
-                    'Niyetin · $_intentionLabel',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textHint,
-                      height: 1.6,
-                      letterSpacing: 0.2,
+                const TarotReadingHeader(),
+                const SizedBox(height: 18),
+                Center(
+                  child: ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(maxWidth: _contentMaxWidth),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: TarotCardsRevealedRow(
+                        cardCount: widget.cards.length,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                Text(
-                  'Açılan kart',
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.textHint,
-                    letterSpacing: 1.4,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: 16),
                 Expanded(
-                  flex: 5,
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: TarotResultCards(
-                      cards: widget.cards,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(maxWidth: _contentMaxWidth),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              TarotCardHero(
+                                card: primary,
+                                positionLabel: _positionLabel(0),
+                              ),
+                              const SizedBox(height: 20),
+                              TarotInsightChips(insights: insights),
+                              if (secondary.isNotEmpty) ...[
+                                const SizedBox(height: 22),
+                                TarotSecondaryCardsRow(
+                                  cards: secondary,
+                                  positionLabels: [
+                                    for (var i = 1; i < widget.cards.length; i++)
+                                      _positionLabel(i),
+                                  ],
+                                ),
+                              ],
+                              const SizedBox(height: 24),
+                              TarotReadingSection(
+                                loading: _loading,
+                                reading: _reading,
+                                primaryCard: primary,
+                              ),
+                              TarotIntentionRibbon(
+                                intention: widget.intention,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                Text(
-                  'Kehanet',
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.textHint,
-                    letterSpacing: 1.4,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Expanded(
-                  flex: 3,
-                  child: TarotReadingSection(
-                    loading: _loading,
-                    reading: _reading,
+                const SizedBox(height: 16),
+                Center(
+                  child: ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(maxWidth: _contentMaxWidth),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: TarotReadingActions(shareText: _shareText),
+                    ),
                   ),
                 ),
               ],

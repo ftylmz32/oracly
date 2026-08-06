@@ -1,0 +1,45 @@
+---
+description: EPIC-005 — The Living Universe — subtle environmental evolution
+alwaysApply: true
+---
+
+# EPIC-005 — The Living Universe
+
+Full spec: `docs/EPIC-005.md`
+
+You are creating a **living universe**, not screens. The observatory evolves with time while remaining the same sacred place.
+
+## Environmental channels (layout-neutral)
+
+Moon phase lighting · Seasonal palettes · Particle density · Crystal reflections · Atmospheric intensity · Ritual time (Morning / Afternoon / Evening / Night)
+
+All changes are **opacity and warmth multipliers** — never layout, never readable text impact.
+
+## Ritual time
+
+| Window | Atmosphere |
+|--------|------------|
+| Morning | Hopeful warmth |
+| Afternoon | Neutral clarity |
+| Evening | Soft gold-purple |
+| Night | Deeper calm |
+
+## Rare events (~14% of days, one max)
+
+Shooting star · Distant glow · Shifting constellation · Golden reflection
+
+Infrequent. Never announced. Never distracting.
+
+## Performance
+
+- Wall-clock state — no perpetual universe animation loop
+- One short controller only when a timed event plays
+- Lightweight painters, `RepaintBoundary` on event layer
+
+## Before adding environment effects
+
+Pass [Development Charter](./DEVELOPMENT_CHARTER.md) gates. User should feel *"this place never feels exactly the same"* — not *"the background changed."*
+
+## Code
+
+`lib/core/universe/` — integrate via `OraclyUniverseState`, `OraclyUniverseModulation`, `OraclyUniverseLayer`, `OraclyUniverseTicker`.

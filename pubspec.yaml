@@ -22,6 +22,9 @@ dependencies:
   # Oracly hafıza sistemi için
   shared_preferences: ^2.5.3
 
+  # State management — OR-1100
+  flutter_riverpod: ^2.6.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -33,3 +36,5 @@ flutter:
 
   assets:
     - .env
+    - lib/assets/images/
+    - lib/assets/icons/

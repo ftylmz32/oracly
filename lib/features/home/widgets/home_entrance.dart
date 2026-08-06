@@ -26,18 +26,18 @@ class _HomeEntranceState extends State<HomeEntrance>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 520),
+      duration: const Duration(milliseconds: 680),
     );
     _fade = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutCubic,
+      curve: Curves.easeOutQuart,
     );
     _slide = Tween<Offset>(
-      begin: const Offset(0, 0.04),
+      begin: const Offset(0, 0.022),
       end: Offset.zero,
     ).animate(_fade);
     _scale = Tween<double>(
-      begin: 0.985,
+      begin: 0.984,
       end: 1,
     ).animate(_fade);
 

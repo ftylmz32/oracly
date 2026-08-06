@@ -1,0 +1,30 @@
+---
+description: RC-007 Craftsmanship — invisible premium polish, one scale
+alwaysApply: true
+---
+
+# RC-007 — Craftsmanship Pass
+
+North star: **"This application is exceptionally well made."**
+
+## Before polishing ask
+
+- Does this use `CraftsmanshipRhythm` / `AppDuration` / `AppSpacing` — not magic numbers?
+- Does body text share one line-height (1.76) across reading and chat?
+- Do section labels use engraved tracking (2.2)?
+- Does motion use `OraclySignatureMotion` press/release?
+- Is the change almost invisible — felt, not seen?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/RC-007.md`
+
+## Out of scope
+
+New features · redesign · more visual effects
+
+## Success
+
+Premium feel users cannot explain — only feel.

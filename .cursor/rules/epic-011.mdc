@@ -1,0 +1,36 @@
+---
+description: EPIC-011 Daily Ritual — gentle return, never gamified
+alwaysApply: true
+---
+
+# EPIC-011 — The Daily Ritual
+
+North star: **ritual, not reward**.
+
+## Before adding daily features ask
+
+- Does this respect the user (no pressure)?
+- Is it optional (draw / read / write — any combination)?
+- Does it take 30–90 seconds?
+- Does it avoid streaks, FOMO, countdowns, fake stats?
+
+If any answer is no — do not implement.
+
+## Canonical doc
+
+`docs/EPIC-011.md`
+
+## Implementation anchors
+
+- Home: `DailyRitualCard` in `lib/features/daily_ritual/widgets/daily_ritual_card.dart`
+- Service: `DailyRitualService` — date-keyed, never scored
+- Tarot: `OraclyNavigationService.startDailyCardDraw()`
+- Copy: `DailyRitualReflections` — universe-aware, non-predictive
+
+## Never in daily ritual
+
+Streak counters · FOMO · countdowns · spirit percentages · achievement unlocks for daily use
+
+## Success
+
+User returns because they enjoy the ritual — not because they fear losing progress.

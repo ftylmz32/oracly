@@ -3,6 +3,8 @@ enum TarotSelectPhase {
   shuffling,
   aligning,
   ready,
+  drawing,
+  holding,
 }
 
 extension TarotSelectPhaseX on TarotSelectPhase {
@@ -14,9 +16,14 @@ extension TarotSelectPhaseX on TarotSelectPhase {
 
   bool get isBusy =>
       this == TarotSelectPhase.shuffling ||
-      this == TarotSelectPhase.aligning;
+      this == TarotSelectPhase.aligning ||
+      this == TarotSelectPhase.drawing ||
+      this == TarotSelectPhase.holding;
 
-  String hintText({required int spread}) {
+  String hintText({
+    required int spread,
+    required int drawnCount,
+  }) {
     switch (this) {
       case TarotSelectPhase.idle:
         return 'Niyetini belirle, açılımı seç ve desteyi karıştır.';
@@ -25,7 +32,14 @@ extension TarotSelectPhaseX on TarotSelectPhase {
       case TarotSelectPhase.aligning:
         return 'Kartlar enerjinle hizalanıyor...';
       case TarotSelectPhase.ready:
+        if (drawnCount > 0) {
+          return '${spread - drawnCount} kart daha seç.';
+        }
         return '$spread kartlık açılım için desteye dokun.';
+      case TarotSelectPhase.drawing:
+        return 'Kartın seçiliyor...';
+      case TarotSelectPhase.holding:
+        return 'Kartın açıldı...';
     }
   }
 }

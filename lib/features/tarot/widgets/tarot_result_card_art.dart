@@ -1,60 +1,70 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_shadows.dart';
 
 class TarotCardArt extends StatelessWidget {
   const TarotCardArt({
     super.key,
     required this.image,
-    this.height = 348,
+    this.height = 200,
+    this.width = 130,
     this.compact = false,
   });
 
   final String image;
   final double height;
+  final double width;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    final artHeight = compact ? 100.0 : height;
-    final artWidth = compact ? 68.0 : double.infinity;
+    final h = compact ? 108.0 : height;
+    final w = compact ? 72.0 : width;
+    final r = compact ? 12.0 : 10.0;
 
     return Transform(
       alignment: Alignment.center,
-      transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.0008)
-        ..rotateX(compact ? 0.0 : 0.018),
+      transform: Matrix4.identity()..setEntry(3, 2, 0.001),
       child: Container(
-        width: artWidth,
+        width: w,
         decoration: BoxDecoration(
-          borderRadius: AppRadius.lg,
+          borderRadius: BorderRadius.circular(r),
           boxShadow: [
-            ...AppShadows.soft,
             BoxShadow(
-              color: AppColors.gold.withValues(alpha: .07),
-              blurRadius: compact ? 12 : 22,
-              spreadRadius: 0,
-              offset: const Offset(0, 10),
+              color: AppColors.gold.withValues(alpha: compact ? 0.2 : 0.38),
+              blurRadius: compact ? 18 : 36,
+              spreadRadius: compact ? 0 : 3,
             ),
+            BoxShadow(
+              color: const Color(0xFFE8A045).withValues(alpha: compact ? 0.15 : 0.25),
+              blurRadius: compact ? 12 : 24,
+            ),
+            ...AppShadows.soft,
           ],
         ),
         child: Container(
-          padding: const EdgeInsets.all(2),
+          padding: const EdgeInsets.all(2.5),
           decoration: BoxDecoration(
-            borderRadius: AppRadius.lg,
-            border: Border.all(
-              color: AppColors.gold.withValues(alpha: .28),
+            borderRadius: BorderRadius.circular(r),
+            border: Border.all(color: AppColors.gold.withValues(alpha: 0.75), width: 2),
+            gradient: LinearGradient(
+              colors: [AppColors.gold.withValues(alpha: 0.15), AppColors.card],
             ),
           ),
           child: ClipRRect(
-            borderRadius: AppRadius.md,
+            borderRadius: BorderRadius.circular(r - 2),
             child: Image.asset(
               image,
-              height: artHeight,
-              width: artWidth,
+              height: h,
+              width: w,
               fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                height: h,
+                width: w,
+                color: AppColors.card,
+                child: Icon(Icons.auto_awesome, color: AppColors.gold.withValues(alpha: 0.6), size: 32),
+              ),
             ),
           ),
         ),

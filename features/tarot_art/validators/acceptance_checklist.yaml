@@ -1,0 +1,178 @@
+# ORACLY Tarot — Card Acceptance Checklist
+# Every blocking item must PASS before status → approved
+validator_version: "1.0"
+pipeline: OR-1310
+
+scoring:
+  blocking: must_pass_all
+  advisory: log_recommendations
+
+sections:
+
+  color_palette:
+    blocking: true
+    checks:
+      - id: CP-01
+        rule: "Void ground uses approved hex (#030106, #0B0615, or #12071F)"
+        pass_criteria: "Dominant ground color sampled in outer 10% matches palette.json core"
+      - id: CP-02
+        rule: "No pure #000000 larger than 2% canvas area"
+        pass_criteria: "Visual inspection + sample"
+      - id: CP-03
+        rule: "Element accent matches suit/major category palette"
+        pass_criteria: "Cross-ref style_rules/{category}.yaml dominant_colors"
+      - id: CP-04
+        rule: "Gold ornament uses sacred/celestial gold range only on frame"
+        pass_criteria: "Frame gold within palette.json gold_material"
+      - id: CP-05
+        rule: "Color distribution ~60/25/10/5 (ground/mid/glow/gold)"
+        pass_criteria: "AD visual estimate within ±8%"
+
+  lighting:
+    blocking: true
+    checks:
+      - id: LT-01
+        rule: "Key light from upper-left ~45°"
+        pass_criteria: "Highlight placement consistent with palette.json lighting"
+      - id: LT-02
+        rule: "Warm gold rim separates subject from background"
+        pass_criteria: "Visible rim on primary subject"
+      - id: LT-03
+        rule: "Cool purple fill in shadows (not pure black)"
+        pass_criteria: "Shadow areas show purple undertone"
+      - id: LT-04
+        rule: "Volumetric fog present 8-22% opacity mid-ground"
+        pass_criteria: "At least one fog layer visible"
+      - id: LT-05
+        rule: "Cinematic depth — minimum 4 planes"
+        pass_criteria: "Foreground, subject, mid-ground, background distinguishable"
+
+  ornament_language:
+    blocking: true
+    checks:
+      - id: OR-01
+        rule: "Frame matches locked template v1 exactly"
+        pass_criteria: "Pixel-align overlay test with frame_locked.psd"
+      - id: OR-02
+        rule: "Gold is brushed ceremonial — not flat yellow"
+        pass_criteria: "Specular + shadow in filigree grooves"
+      - id: OR-03
+        rule: "Corner filigree symmetric"
+        pass_criteria: "Mirror test pass"
+      - id: OR-04
+        rule: "Bottom ornament band present"
+        pass_criteria: "L14_bottom_ornament layer visible"
+      - id: OR-05
+        rule: "Sacred geometry ≤4% opacity if present"
+        pass_criteria: "Opacity sample"
+
+  border:
+    blocking: true
+    checks:
+      - id: BD-01
+        rule: "Luxury border complete — outer bevel, gutter, filigree, velvet inset"
+        pass_criteria: "Template layer stack L01-L02 present"
+      - id: BD-02
+        rule: "Corner radius 12px @ production scale"
+        pass_criteria: "Measurement on 512×896 export"
+      - id: BD-03
+        rule: "No illustration bleed over frame"
+        pass_criteria: "Clean mask at frame inner edge"
+      - id: BD-04
+        rule: "Side rail ornaments present"
+        pass_criteria: "L08_side_rails visible"
+
+  atmosphere:
+    blocking: true
+    checks:
+      - id: AT-01
+        rule: "Minimum 15% intentional negative space"
+        pass_criteria: "AD composition review"
+      - id: AT-02
+        rule: "Stars OR nebula in background"
+        pass_criteria: "At least one celestial depth cue"
+      - id: AT-03
+        rule: "Particle count within category limit"
+        pass_criteria: "Count ≤ style_rules particle max"
+      - id: AT-04
+        rule: "OR magic glow soft/volumetric — not hard neon outline"
+        pass_criteria: "AD review"
+
+  composition:
+    blocking: true
+    checks:
+      - id: CO-01
+        rule: "Focal subject occupies 40-55% illustration safe zone"
+        pass_criteria: "Bounding box measure"
+      - id: CO-02
+        rule: "No text/watermark/signature in illustration"
+        pass_criteria: "Visual + OCR scan"
+      - id: CO-03
+        rule: "Category composition type respected"
+        pass_criteria: "Matches brief composition field"
+      - id: CO-04
+        rule: "Camera angle within category rules"
+        pass_criteria: "Cross-ref style_rules camera block"
+
+  oracly_identity:
+    blocking: true
+    checks:
+      - id: ID-01
+        rule: "NOT Rider-Waite or published tarot clone"
+        pass_criteria: "AD comparative review"
+      - id: ID-02
+        rule: "Recognizable as ORACLY without reading title"
+        pass_criteria: "Blind brand test (2/3 reviewers agree)"
+      - id: ID-03
+        rule: "Original OR sigil or crystal present"
+        pass_criteria: "At least one OR Prism, OR Eye, or suit sigil"
+      - id: ID-04
+        rule: "Matches one-artist deck consistency"
+        pass_criteria: "Side-by-side with approved reference card"
+      - id: ID-05
+        rule: "All 8 mandatory template components present"
+        pass_criteria: "See card_templates/master_template.yaml mandatory_components"
+
+  template_components:
+    blocking: true
+    checks:
+      - id: TC-01
+        rule: "Roman Numeral present and correct"
+        pass_criteria: "Matches card_registry numeral"
+      - id: TC-02
+        rule: "Card Title present, legible at 512px width"
+        pass_criteria: "Readability test at 50% zoom"
+      - id: TC-03
+        rule: "Element Symbol correct for suit/major"
+        pass_criteria: "Sigil match OR-1300"
+      - id: TC-04
+        rule: "Arcana Symbol correct"
+        pass_criteria: "Major=OR Eye; Minor=suit sigil"
+      - id: TC-05
+        rule: "Card Finish Layer applied"
+        pass_criteria: "L20_finish gloss on gold only"
+
+  export_compliance:
+    blocking: true
+    checks:
+      - id: EX-01
+        rule: "Resolution 512×896 production"
+        pass_criteria: "Pixel dimension check"
+      - id: EX-02
+        rule: "Naming convention followed"
+        pass_criteria: "See exports/naming_convention.md"
+      - id: EX-03
+        rule: "WebP quality 85-92"
+        pass_criteria: "File spec check"
+      - id: EX-04
+        rule: "manifest.json complete"
+        pass_criteria: "Schema validation"
+
+advisory_recommendations:
+  - "Consider +2 gold dust particles if scene feels empty"
+  - "Verify reversed readability if illustration is asymmetric"
+  - "Legendary majors: confirm UI shimmer channel exported separately"
+
+sign_off:
+  required_roles: [art_director, qa_reviewer]
+  output_file: "briefs/{card_id}/qa_report.yaml"

@@ -1,0 +1,60 @@
+# Cups (Water) — Style Rules
+category: minor_arcana
+suit: cups
+element: water
+style_rules_version: "1.0"
+
+visual_language: >
+  Flow, reflection, emotion, intuition. Liquid surfaces mirror inner states.
+  Soft organic forms. Intimate compositions. Water as conductor of OR energy.
+
+dominant_colors:
+  ground: ["#081828", "#0B0615"]
+  magic: ["#4A9EFF", "#6BB5FF", "#2E7AD4"]
+  gold: ["#D4AF37"]
+  accent: ["#6BB5FF", "#9B6DFF ambient"]
+
+lighting:
+  key: "Diffused moonlight, soft specular on water/crystal"
+  fill: "Cool blue-purple 18%"
+  effects: ["reflections", "caustic hints", "minimal hard shadow"]
+  fog: "Mist layer 12-18%, horizontal density"
+
+mood: ["Intimate", "Flowing", "Receptive", "Melancholic-beautiful"]
+
+symbols:
+  sigil: chalice_of_tides
+  recurring: ["moon phases", "OR Prism in water", "stylized shells", "ripple circles"]
+  forbidden: ["identical chalice rows (RW pip clone)"]
+
+particle_effects:
+  density: medium
+  max_count: 16
+  types: ["blue_white_mote", "slow_rising_drift", "ripple_light"]
+  motion: "upward slow drift"
+
+camera:
+  angle: "Eye-level or slightly above (+3-5°)"
+  lens: "55-70mm intimate"
+  dutch_tilt: false
+
+composition:
+  preferred: ["reflective_horizontal", "circular_pool", "figure_with_water"]
+  pip_logic: "Count shown as streams, reflections, or emotional vignettes — not stacked cups"
+
+arcana_symbol: chalice_of_tides
+numeral_style: arabic_or_court
+
+rarity_tier:
+  pip: sacred
+  court: rare
+
+prompt_block: |
+  CUPS / WATER suit — ORACLY Chalice of Tides sigil energy.
+  Diffused moonlight, reflections, mist, blue magic glow (#4A9EFF).
+  Intimate flowing mood. Soft shadows. Water conducts OR purple undertone.
+  Particles drift upward slowly. Organic curves dominate geometry.
+
+validation_overrides:
+  water_motif_required: true
+  hard_shadow_max: low

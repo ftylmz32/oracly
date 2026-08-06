@@ -1,0 +1,41 @@
+---
+description: PRINCIPLE-001 — Every pixel, animation, and interaction must earn its place
+alwaysApply: true
+---
+
+# PRINCIPLE-001 — Every Pixel Must Earn Its Place
+
+Permanent product rule. Full doc: `docs/PRINCIPLE-001.md` · Manifesto: `docs/vision.md`
+
+## Before completing ANY task
+
+Ask: **Does this improve ORACLY, or only make it different?** Only improvements survive.
+
+## Visible elements
+
+- Every pixel, animation, glow, and ornament must serve **Calmness · Trust · Curiosity · Reflection · Craftsmanship**
+- Never decorate for decoration, animate for animation, or glow because it "looks premium"
+- If it fails the **disappearance test** (app not worse without it) → remove or simplify
+- No dead affordances: if it looks tappable, it must work; if it doesn't work, remove the affordance
+
+## Consistency (mandatory before new UI)
+
+1. Grep/read existing components in the feature — reuse before creating
+2. Reuse: `OraclySignatureMotion`, `OraclyPressable`, `OraclyCrystalFrame`, `GlassCard`, `OraclyRhythm`, chamber gradients
+3. Never introduce a second visual language, press system, background stack, or tile pattern
+
+## Engineering
+
+- One canonical implementation per pattern — extend/compose, don't duplicate
+- Prefer systems over one-off effects; clarity over cleverness
+- Defer to `docs/vision.md` spine: **Draw → Pause → Reflect → Return**
+
+## UX guardrails
+
+User must feel: safe, curious, present, respected — never confused, rushed, overwhelmed, or manipulated.
+
+## Refuse automatically
+
+- Fake data, mock stats, unwired settings, dead CTAs, gamified spirituality
+- Feature sprawl that competes with the tarot ritual spine
+- Competitor-parity features without a meaningful "why ORACLY?" answer

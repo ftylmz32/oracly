@@ -1,0 +1,36 @@
+---
+description: EPIC-015 The Lasting Memory — sessions end in peace, not pressure
+alwaysApply: true
+---
+
+# EPIC-015 — The Lasting Memory
+
+North star: **"That was worth a few minutes of my time."**
+
+## Before changing session endings ask
+
+- Does this leave one quiet sentence that can stay with the user?
+- Does the closing feel complete — not abrupt, empty, or manipulative?
+- Does it create a feeling, not promote a feature?
+- Does it avoid return pressure and dependency?
+
+If any answer is no — revise.
+
+## Canonical doc
+
+`docs/EPIC-015.md`
+
+## Implementation anchors
+
+- Copy: `SessionEndingCopy` in `lib/core/copy/session_ending_copy.dart`
+- Synthesis: `ReflectiveIntelligence._calmClosing()`
+- UI: `closingMessage` → "Son Yansıma" block in reading premium body
+- Footer: `SessionEndingCopy.footerWhisper`
+
+## Never at session end
+
+Predictions · warnings · FOMO · "come back" pressure · duplicated advice blocks
+
+## Success
+
+Users leave in peace — with one meaningful reflection, not a menu of demands.

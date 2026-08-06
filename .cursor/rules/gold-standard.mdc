@@ -1,0 +1,25 @@
+---
+description: ORACLY Gold Standard — definition of done for every implementation
+alwaysApply: true
+---
+
+# ORACLY Gold Standard
+
+Apex: `docs/MASTER_DIRECTIVE.md` · Charter: `docs/DEVELOPMENT_CHARTER.md` · Full checklist: `docs/GOLD_STANDARD.md`
+
+**No task is complete until all ten pass.**
+
+## Before marking done
+
+1. **PRODUCT** — Real user problem (not dev wish or trend)
+2. **EXPERIENCE** — User knows what to do without explanation
+3. **EMOTION** — Increases calmness, trust, curiosity, or reflection — or remove it
+4. **DESIGN** — Reuses ORACLY systems; one visual family (motion, glass, gold, type, spacing)
+5. **ENGINEERING** — Readable, maintainable, reusable; no unnecessary complexity
+6. **PERFORMANCE** — No extra rebuilds/animators/layers; 60 FPS minimum on changed surfaces
+7. **ACCESSIBILITY** — Readable contrast, ≥44px targets, semantics on critical actions
+8. **LONGEVITY** — Still correct in five years
+9. **QUALITY** — Proud to ship today; `flutter analyze` + tests pass; no dead taps or placeholder copy
+10. **ORACLY** — Users remember the feeling, not the feature
+
+**Final ask:** *Would I proudly ship this today?* If not — keep refining.

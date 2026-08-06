@@ -1,0 +1,31 @@
+---
+description: ORACLY Development Charter v1.0 — how the product evolves
+alwaysApply: true
+---
+
+# ORACLY Development Charter v1.0
+
+Full doc: `docs/DEVELOPMENT_CHARTER.md` · Apex: `docs/MASTER_DIRECTIVE.md`
+
+**Most loved, not biggest.** Build experiences · feelings · trust · reflection — not screens · effects · dependency · prediction.
+
+## Five feature gates (all must be yes)
+
+1. Improves user experience?
+2. Respects user intelligence?
+3. Strengthens ORACLY identity?
+4. Appreciated one year later?
+5. Justifies engineering complexity?
+
+Any **no** → rethink; do not implement.
+
+## Principles (automatic)
+
+- **Engineering:** readable, reusable systems, consistent architecture, predictable behavior
+- **Design:** one visual, motion, emotional language — same sanctuary
+- **Product:** build because ORACLY deserves it — never competitor parity
+- **Quality:** no rushed hacks, no visual/emotional inconsistency
+
+## Final question
+
+Proud of this **five years from now**? If not — keep refining.
