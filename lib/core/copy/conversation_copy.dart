@@ -4,8 +4,8 @@ library;
 abstract final class ConversationCopy {
   ConversationCopy._();
 
-  /// Tab chat companion subtitle — not "online" status.
-  static const companionSubtitle = 'Sakin bir yansıma alanı';
+  /// Tab chat companion subtitle — local reflection, not a live model.
+  static const companionSubtitle = 'Cihazında sakin bir yansıma alanı';
 
   static const inputHint = 'Düşünceni paylaş…';
 

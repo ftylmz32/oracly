@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/copy/reading_section_copy.dart';
 import '../../../../../core/copy/session_ending_copy.dart';
+import '../../../../../core/copy/transparency_copy.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 
@@ -375,7 +376,9 @@ class ReadingPremiumBody extends StatelessWidget {
 
                   const _ClosingBreath(),
 
-                  const TransparencyFootnote(),
+                  const TransparencyFootnote(
+                    text: TransparencyCopy.interpretationFootnote,
+                  ),
 
                 ],
 
