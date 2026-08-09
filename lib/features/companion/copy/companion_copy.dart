@@ -5,6 +5,12 @@ abstract final class CompanionCopy {
   CompanionCopy._();
 
   static const screenTitle = 'OR';
+
+  /// Live CompanionResponder is local/rule-based — never label as AI.
+  static const localGuidanceDisclaimer =
+      'Bu yanıtlar cihazında yerel olarak oluşturulur — canlı model yanıtı değildir. '
+      'Yansıtma amaçlıdır; kararlar senin.';
+
   static const memoryTransparency =
       'Yalnızca kaydettiğin anıları hatırlıyorum. Hafızanı istediğin zaman görüntüleyebilirsin.';
   static const viewMemories = 'Hafızamı gör';

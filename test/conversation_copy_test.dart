@@ -32,6 +32,18 @@ void main() {
       );
       expect(ConversationCopy.closingWhisper.toLowerCase(), contains('huzur'));
     });
+
+    test('companion subtitle frames local device reflection', () {
+      expect(ConversationCopy.companionSubtitle, contains('Cihazında'));
+      expect(
+        ConversationCopy.companionSubtitle.toLowerCase(),
+        isNot(contains('yapay')),
+      );
+      expect(
+        ConversationCopy.companionSubtitle.toLowerCase(),
+        isNot(contains('ai')),
+      );
+    });
   });
 
   group('ConversationResponseGuard', () {
