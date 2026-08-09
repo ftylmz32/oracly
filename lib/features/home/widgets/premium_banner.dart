@@ -26,10 +26,10 @@ class PremiumBanner extends StatefulWidget {
 
   final VoidCallback? onExploreTap;
 
-  static const String _title = "PREMIUM'A GEÇ";
+  static const String _title = "PREMIUM";
   static const String _description =
-      'Tüm özelliklerin kilidini aç, reklamsız deneyimin ve özel içeriklerin keyfini çıkar.';
-  static const String _ctaLabel = "Premium'u Keşfet";
+      'Premium yakında — şimdilik özellikleri inceleyebilirsin; satın alma mağazada henüz yok.';
+  static const String _ctaLabel = "Premium'u incele";
 
   @override
   State<PremiumBanner> createState() => _PremiumBannerState();

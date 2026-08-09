@@ -17,6 +17,12 @@ abstract final class PremiumCopy {
   static const activatedMessage =
       'Premium açıldı. Kendi ritminle devam edebilirsin.';
 
+  /// Live purchase path is unavailable — shown instead of buy CTAs.
+  static const purchaseUnavailableTitle =
+      'Premium satın alma yakında kullanılabilir.';
+  static const purchaseUnavailableBody =
+      'Satın alma şu an mağaza üzerinden yapılamaz.';
+
   static const planMonthlySubtitle = 'Esnek başlangıç';
   static const planYearlySubtitle = 'Yıllık plan · daha uygun fiyat';
   static const planLifetimeSubtitle = 'Tek seferlik ödeme · kalıcı erişim';

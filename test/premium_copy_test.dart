@@ -11,6 +11,19 @@ void main() {
       expect(PremiumCopy.heroSubtitle.toLowerCase(), contains('isteğe bağlı'));
     });
 
+    test('unavailable purchase copy is honest and non-purchasing', () {
+      expect(
+        PremiumCopy.purchaseUnavailableTitle,
+        'Premium satın alma yakında kullanılabilir.',
+      );
+      expect(
+        PremiumCopy.purchaseUnavailableBody,
+        'Satın alma şu an mağaza üzerinden yapılamaz.',
+      );
+      expect(PremiumCopy.purchaseUnavailableTitle.toLowerCase(), isNot(contains('açıldı')));
+      expect(PremiumCopy.purchaseUnavailableBody.toLowerCase(), isNot(contains('satın alındı')));
+    });
+
     test('catalogue benefits avoid pressure framing', () {
       for (final benefit in PremiumCatalogue.benefits) {
         expect(benefit.description.toLowerCase(), isNot(contains('mutlaka')));
