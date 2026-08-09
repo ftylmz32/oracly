@@ -35,6 +35,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - .env
+    # .env is intentionally not bundled — loaded optionally in main.dart when present.
     - lib/assets/images/
     - lib/assets/icons/
