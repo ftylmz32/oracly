@@ -5,21 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
-import '../../../../core/domain/models/premium_plan.dart';
+import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/copy/premium_copy.dart';
-import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../tarot/theme/tarot_tokens.dart';
-import '../../models/premium_models.dart';
 import '../widgets/premium_background.dart';
 import '../widgets/premium_benefits_grid.dart';
-import '../widgets/premium_comparison_table.dart';
 import '../widgets/premium_hero_section.dart';
-import '../widgets/premium_membership_cta.dart';
-import '../widgets/premium_plan_selector.dart';
+import '../widgets/premium_unavailable_notice.dart';
 
-/// Full luxury membership experience — not a paywall.
+/// Premium membership experience — purchase CTA disabled until real store IAP.
 class PremiumScreen extends ConsumerStatefulWidget {
   const PremiumScreen({super.key});
 
@@ -30,7 +25,6 @@ class PremiumScreen extends ConsumerStatefulWidget {
 class _PremiumScreenState extends ConsumerState<PremiumScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _entrance;
-  PremiumPlanType _selectedPlan = PremiumPlanType.yearly;
   bool _isPremium = false;
 
   @override
@@ -53,24 +47,6 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen>
   void dispose() {
     _entrance.dispose();
     super.dispose();
-  }
-
-  Future<void> _activatePremium() async {
-    final kind = switch (_selectedPlan) {
-      PremiumPlanType.monthly => PremiumPlanKind.monthly,
-      PremiumPlanType.yearly => PremiumPlanKind.yearly,
-      PremiumPlanType.lifetime => PremiumPlanKind.lifetime,
-    };
-    await ref.read(premiumServiceProvider).activate(kind);
-    ref.read(analyticsServiceProvider).logPremiumActivated(_selectedPlan.label);
-    ref.invalidate(premiumActiveProvider);
-    ref.invalidate(userProfileProvider);
-    if (!mounted) return;
-    setState(() => _isPremium = true);
-    OraclySnackBar.success(
-      context,
-      PremiumCopy.activatedMessage,
-    );
   }
 
   @override
@@ -121,22 +97,27 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen>
                           entrance: premiumSectionEntrance(1, master),
                         ),
                         SizedBox(height: AppSpacing.xl),
-                        PremiumPlanSelector(
-                          selected: _selectedPlan,
-                          onSelected: (p) =>
-                              setState(() => _selectedPlan = p),
-                          entrance: premiumSectionEntrance(2, master),
-                        ),
-                        SizedBox(height: AppSpacing.xl),
-                        PremiumComparisonTable(
-                          entrance: premiumSectionEntrance(3, master),
-                        ),
-                        SizedBox(height: AppSpacing.xl),
-                        PremiumMembershipCta(
-                          entrance: premiumSectionEntrance(4, master),
-                          isPremium: _isPremium,
-                          onActivate: _activatePremium,
-                        ),
+                        if (_isPremium)
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                            ),
+                            child: Text(
+                              PremiumCopy.ctaActive,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    color: AppColors.goldLight,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          )
+                        else
+                          PremiumUnavailableNotice(
+                            entrance: premiumSectionEntrance(2, master),
+                          ),
                         SizedBox(height: AppSpacing.xxl + AppSpacing.lg),
                       ],
                     ),

@@ -6,7 +6,13 @@ import 'app/oracly_app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  // LIVE product paths do not require secrets at startup. Missing .env must
+  // not block launch; optional keys are read later only by unwired AI helpers.
+  try {
+    await dotenv.load(fileName: '.env', isOptional: true);
+  } on EmptyEnvFileError {
+    dotenv.testLoad(fileInput: '');
+  }
 
   final container = await bootstrapProviders();
 

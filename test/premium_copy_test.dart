@@ -11,11 +11,31 @@ void main() {
       expect(PremiumCopy.heroSubtitle.toLowerCase(), contains('isteğe bağlı'));
     });
 
-    test('catalogue benefits avoid pressure framing', () {
+    test('unavailable purchase copy is honest and non-purchasing', () {
+      expect(
+        PremiumCopy.purchaseUnavailableTitle,
+        'Premium satın alma yakında kullanılabilir.',
+      );
+      expect(
+        PremiumCopy.purchaseUnavailableBody,
+        'Satın alma şu an mağaza üzerinden yapılamaz.',
+      );
+      expect(PremiumCopy.purchaseUnavailableTitle.toLowerCase(), isNot(contains('açıldı')));
+      expect(PremiumCopy.purchaseUnavailableBody.toLowerCase(), isNot(contains('satın alındı')));
+    });
+
+    test('catalogue benefits are planned-only, not current gated claims', () {
+      expect(PremiumCatalogue.benefitsSectionTitle, contains('Planlanan'));
       for (final benefit in PremiumCatalogue.benefits) {
+        expect(benefit.description, PremiumCopy.plannedBenefitLabel);
+        expect(benefit.title.toLowerCase(), isNot(contains('sınırsız')));
         expect(benefit.description.toLowerCase(), isNot(contains('mutlaka')));
         expect(benefit.description.toLowerCase(), isNot(contains('hemen')));
       }
+      expect(
+        PremiumCatalogue.benefits.any((b) => b.title.contains('Premium Desteler')),
+        isFalse,
+      );
     });
   });
 }

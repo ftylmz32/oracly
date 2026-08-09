@@ -6,9 +6,10 @@ abstract final class PremiumCopy {
 
   static const heroTitle = 'OR Premium';
   static const heroSubtitle =
-      'İsteğe bağlı — daha derin yansımalar ve sınırsız açılım.';
+      'İsteğe bağlı bir üyelik alanı — satın alma henüz mağazada yok.';
 
-  static const benefitsSectionTitle = 'Premium ile neler var';
+  static const benefitsSectionTitle = 'Planlanan Premium olanakları';
+  static const plannedBenefitLabel = 'Yakında — henüz etkin değil';
 
   static const ctaExplore = 'Premium\'u incele';
   static const ctaJoin = 'Premium\'a katıl';
@@ -16,6 +17,12 @@ abstract final class PremiumCopy {
 
   static const activatedMessage =
       'Premium açıldı. Kendi ritminle devam edebilirsin.';
+
+  /// Live purchase path is unavailable — shown instead of buy CTAs.
+  static const purchaseUnavailableTitle =
+      'Premium satın alma yakında kullanılabilir.';
+  static const purchaseUnavailableBody =
+      'Satın alma şu an mağaza üzerinden yapılamaz.';
 
   static const planMonthlySubtitle = 'Esnek başlangıç';
   static const planYearlySubtitle = 'Yıllık plan · daha uygun fiyat';
