@@ -5,18 +5,19 @@ library;
 abstract final class TransparencyCopy {
   TransparencyCopy._();
 
-  /// Shown beneath AI interpretations.
+  /// Shown beneath local tarot interpretations (device-side catalogue synthesis).
   static const interpretationFootnote =
-      'OR yorumları yapay zekâ ile oluşturulur — kehanet değil, '
+      'Bu yorum kart anlamlarından yerel olarak oluşturulur — kehanet değil, '
       'düşünmek için bir davet. Kendi deneyimin en güvenilir rehberindir.';
 
   /// Shorter variant for tight spaces.
   static const interpretationBrief =
       'Yansıtma amaçlıdır — kesin bir gerçek iddiası değildir.';
 
-  /// Oracle follow-up and general chat.
+  /// Post-reading OR'a Sor — local reflection, not a live model.
   static const conversationCaption =
-      'OR yanıtları rehberlik içindir; kararların senin.';
+      'Bu sohbet yerel bir yansıma rehberidir — canlı model yanıtı değildir. '
+      'Kartlar üzerine düşünmek içindir; kararlar senin.';
 
   /// Personal journal notes.
   static const journalPrivacy =

@@ -16,6 +16,25 @@ void main() {
         TransparencyCopy.interpretationFootnote.toLowerCase(),
         contains('kehanet değil'),
       );
+      expect(
+        TransparencyCopy.interpretationFootnote.toLowerCase(),
+        contains('yerel'),
+      );
+      expect(
+        TransparencyCopy.interpretationFootnote.toLowerCase(),
+        isNot(contains('yapay zek')),
+      );
+    });
+
+    test('conversation caption is honest about local guidance', () {
+      expect(
+        TransparencyCopy.conversationCaption.toLowerCase(),
+        contains('yerel'),
+      );
+      expect(
+        TransparencyCopy.conversationCaption,
+        contains('canlı model yanıtı değildir'),
+      );
     });
 
     test('privacy intro states local ownership and limits', () {

@@ -1,4 +1,4 @@
-/// SPRINT-003 — ORACLY permanent AI companion tab.
+/// SPRINT-003 — ORACLY permanent companion tab (local guidance).
 library;
 
 import 'package:flutter/material.dart';
@@ -146,6 +146,9 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen> {
                   ),
                   child: Column(
                     children: [
+                      TransparencyFootnote(
+                        text: CompanionCopy.localGuidanceDisclaimer,
+                      ),
                       TransparencyFootnote(
                         text: CompanionCopy.memoryTransparency,
                       ),
