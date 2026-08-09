@@ -38,67 +38,28 @@ abstract final class PremiumCatalogue {
   static const subtitle = PremiumCopy.heroSubtitle;
   static const benefitsSectionTitle = PremiumCopy.benefitsSectionTitle;
 
+  /// Planned-only catalogue — not presented as currently gated/available.
   static const benefits = [
     PremiumBenefit(
-      emoji: '∞',
-      title: 'Sınırsız Tarot Açılımı',
-      description: 'Günlük limit olmadan istediğin kadar açılım yapabilirsin.',
-      icon: Icons.all_inclusive_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '🤖',
-      title: 'Daha Derin OR Yorumları',
-      description: 'Kişisel bağlamına göre genişletilmiş yansımalar.',
+      emoji: '✦',
+      title: 'Daha derin OR yansımaları',
+      description: PremiumCopy.plannedBenefitLabel,
       icon: Icons.psychology_alt_rounded,
     ),
     PremiumBenefit(
-      emoji: '📅',
-      title: 'Geçmiş Açılımlar',
-      description: 'Tüm açılımlarını kişisel günlüğünde sakla.',
-      icon: Icons.auto_stories_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '🌙',
-      title: 'Günlük Kozmik Rehber',
-      description: 'Her sabah sakin bir enerji özeti.',
-      icon: Icons.nightlight_round,
-    ),
-    PremiumBenefit(
       emoji: '⭐',
-      title: 'Premium Desteler',
-      description: 'Ek sanat desteleri ve kart koleksiyonları.',
+      title: 'Ek sanat desteleri',
+      description: PremiumCopy.plannedBenefitLabel,
       icon: Icons.style_rounded,
     ),
     PremiumBenefit(
-      emoji: '🎴',
-      title: 'Akıcı Kart Animasyonları',
-      description: 'Açılım ve kart geçişlerinde daha akıcı hareket.',
-      icon: Icons.animation_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '🔮',
-      title: 'Kişisel Enerji Özeti',
-      description: 'Günlük enerji ve odak notları.',
-      icon: Icons.bubble_chart_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '📈',
-      title: 'Okuma Ritmi',
-      description: 'Açılımlarını zaman içinde gör — baskı yok.',
-      icon: Icons.trending_up_rounded,
+      emoji: '🌙',
+      title: 'Kişisel günlük enerji notları',
+      description: PremiumCopy.plannedBenefitLabel,
+      icon: Icons.nightlight_round,
     ),
   ];
 
-  static const comparisonRows = [
-    ('Sınırsız Tarot Açılımı', false, true),
-    ('Daha Derin OR Yorumları', false, true),
-    ('Geçmiş Açılımlar', false, true),
-    ('Günlük Kozmik Rehber', false, true),
-    ('Premium Desteler', false, true),
-    ('Akıcı Kart Animasyonları', false, true),
-    ('Enerji Özeti', false, true),
-    ('Okuma Ritmi', false, true),
-    ('Temel AI Yorumu', true, true),
-    ('Günlük 1 Açılım', true, false),
-  ];
+  /// Kept for legacy widgets; live PremiumScreen no longer shows this table.
+  static const comparisonRows = <(String, bool, bool)>[];
 }
