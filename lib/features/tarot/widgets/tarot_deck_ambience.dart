@@ -2,10 +2,9 @@
 library;
 
 import 'dart:math' show cos, pi, sin;
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/oracly_quiet_motion.dart';
 import '../../../core/theme/app_colors.dart';
 
 /// Volumetric fog, aura, dust, and slow energy — deck focal effects.
@@ -35,7 +34,13 @@ class _TarotDeckAmbienceState extends State<TarotDeckAmbience>
     _motion = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 18),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _motion, rest: 0);
   }
 
   @override
@@ -134,14 +139,18 @@ class _FogBlob extends StatelessWidget {
         child: Transform.translate(
           offset: offset,
           child: Center(
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 58, sigmaY: 58),
-              child: Container(
-                width: size,
-                height: size * 0.68,
+            child: SizedBox(
+              width: size,
+              height: size * 0.68,
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color,
+                  gradient: RadialGradient(
+                    colors: [
+                      color,
+                      color.withValues(alpha: 0),
+                    ],
+                  ),
                 ),
               ),
             ),

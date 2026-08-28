@@ -1,62 +1,101 @@
 /// OR-1050+ — Cinematic card reveal orchestrator.
 library;
 
-import 'dart:math' show pi;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../../../../../core/theme/oracly_reduced_motion.dart';
+import '../../../../../shared/widgets/oracly_pressable.dart';
 import 'card_reveal_spread.dart';
-import 'reveal_ambience_layer.dart';
-import 'reveal_background.dart';
-import 'reveal_flip_card.dart';
-import 'reveal_result_panel.dart';
+import 'card_reveal_stage.dart';
 import 'reveal_sound_callbacks.dart';
 import 'reveal_timeline.dart';
-import '../../theme/tarot_emotional_rhythm.dart';
 
 class CardRevealExperience extends StatefulWidget {
   const CardRevealExperience({
     super.key,
     required this.data,
     required this.onContinue,
+    this.startProgress = 0,
     this.soundCallbacks = RevealSoundCallbacks.silent,
+    this.completionHint,
   });
 
   final RevealCardData data;
   final VoidCallback onContinue;
+  final double startProgress;
   final RevealSoundCallbacks soundCallbacks;
+  final String? completionHint;
 
   @override
   State<CardRevealExperience> createState() => _CardRevealExperienceState();
 }
 
 class _CardRevealExperienceState extends State<CardRevealExperience>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _master;
   late final RevealSoundCallbackTracker _soundTracker;
   bool _hapticFlip = false;
+  bool _hapticReveal = false;
+  bool _reducedSettled = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _soundTracker = RevealSoundCallbackTracker(widget.soundCallbacks);
     _master = AnimationController(
       vsync: this,
       duration: RevealTimeline.totalDuration,
-    )..forward();
+      value: widget.startProgress.clamp(0.0, 1.0),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_reducedSettled) return;
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _master.stop();
+    } else if (state == AppLifecycleState.resumed &&
+        _master.value < 1 &&
+        !_reducedSettled &&
+        !OraclyReducedMotion.of(context)) {
+      _master.forward();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (OraclyReducedMotion.of(context)) {
+      _master.value = 1;
+      if (_reducedSettled) return;
+      _reducedSettled = true;
+      widget.soundCallbacks.onBloomPeak?.call();
+      OraclyTouchFeedback.reveal();
+      return;
+    }
+    if (_master.status == AnimationStatus.dismissed ||
+        (_master.value > 0 && _master.value < 1 && !_master.isAnimating)) {
+      _master.forward();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _master.dispose();
     super.dispose();
   }
 
-  void _maybeFlipHaptic(double t) {
-    if (!_hapticFlip && t >= RevealTimeline.flipStart + 0.06) {
+  void _maybeHaptics(double t) {
+    if (!_hapticFlip && t >= RevealTimeline.flipStart) {
       _hapticFlip = true;
-      HapticFeedback.lightImpact();
+      OraclyTouchFeedback.selection();
+    }
+    if (!_hapticReveal && t >= RevealTimeline.flipEnd + 0.08) {
+      _hapticReveal = true;
+      OraclyTouchFeedback.reveal();
     }
   }
 
@@ -72,121 +111,20 @@ class _CardRevealExperienceState extends State<CardRevealExperience>
       behavior: HitTestBehavior.translucent,
       onTap: _skipToContinue,
       child: AnimatedBuilder(
-      animation: _master,
-      builder: (context, _) {
-        final t = _master.value;
-        _soundTracker.tick(t);
-        _maybeFlipHaptic(t);
-
-        final zoom = RevealTimeline.cameraZoom(t);
-        final floatY =
-            RevealTimeline.floatUp(t) + RevealTimeline.floatIdle(t);
-        final fog = RevealTimeline.fogRichness(t);
-        final particleSpeed = RevealTimeline.particleSpeed(t);
-        final glow = RevealTimeline.glowBehind(t);
-        final stillness = RevealTimeline.anticipationStillness(t);
-        final focus = RevealTimeline.orbFocus(t);
-        final deepen = RevealTimeline.ambientDeepen(t);
-        final inheritedStillness = (stillness + 0.18 * (1 - t.clamp(0.0, 0.10) / 0.10))
-            .clamp(0.0, 1.0);
-        final flipPeak = TarotEmotionalRhythm.peakPulse(
-          t,
-          centre: RevealTimeline.flipEnd,
-          width: 0.09,
-        );
-
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned.fill(
-              child: RevealBackground(
-                darken: RevealTimeline.darken(t),
-                stillness: stillness,
-                ambientDeepen: deepen,
-              ),
-            ),
-            if (inheritedStillness > 0.04)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: ColoredBox(
-                    color: Colors.black.withValues(
-                      alpha: inheritedStillness * 0.20 + flipPeak * 0.04,
-                    ),
-                  ),
-                ),
-              ),
-            if (deepen > 0.02)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: ColoredBox(
-                    color: Colors.black.withValues(alpha: deepen * 0.10),
-                  ),
-                ),
-              ),
-            Center(
-              child: Transform.translate(
-                offset: Offset(0, floatY),
-                child: Transform.scale(
-                  scale: zoom,
-                  child: RepaintBoundary(
-                    child: SizedBox(
-                      width: 360,
-                      height: 360,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        clipBehavior: Clip.none,
-                        children: [
-                          Positioned.fill(
-                            child: RevealAmbienceLayer(
-                              progress: t,
-                              fogIntensity: fog,
-                              particleSpeed: particleSpeed,
-                              glowIntensity: glow,
-                              particlePhase: t * pi * 2 * RevealTimeline.particleDrift(t),
-                              stillness: inheritedStillness,
-                              orbFocus: focus,
-                            ),
-                          ),
-                          RevealFlipCard(
-                            data: widget.data,
-                            flipRotation: RevealTimeline.flipRotation(t),
-                            tilt3D: RevealTimeline.tilt3D(t),
-                            perspectiveTiltY:
-                                RevealTimeline.perspectiveTiltY(t),
-                            borderEnergy: RevealTimeline.borderEnergy(t),
-                            landScale: RevealTimeline.landScale(t),
-                            shadowDepth: RevealTimeline.shadowDepth(t),
-                            goldOpacity: RevealTimeline.frontGoldOpacity(t),
-                            artOpacity: RevealTimeline.frontArtOpacity(t),
-                            particlePhase: t * pi * 2 * RevealTimeline.particleDrift(t),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SafeArea(
-                minimum: const EdgeInsets.only(bottom: 16),
-                child: RevealResultPanel(
-                  data: widget.data,
-                  nameOpacity: RevealTimeline.nameOpacity(t),
-                  subtitleOpacity: RevealTimeline.subtitleOpacity(t),
-                  badgeOpacity: RevealTimeline.badgeOpacity(t),
-                  buttonOpacity: RevealTimeline.buttonOpacity(t),
-                  buttonSlide: RevealTimeline.buttonSlide(t),
-                  onContinue: widget.onContinue,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+        animation: _master,
+        builder: (context, _) {
+          final t = _master.value;
+          if (!_reducedSettled) {
+            _soundTracker.tick(t);
+            _maybeHaptics(t);
+          }
+          return CardRevealStage(
+            progress: t,
+            data: widget.data,
+            onContinue: widget.onContinue,
+            completionHint: widget.completionHint,
+          );
+        },
       ),
     );
   }

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme/oracly_brand_signature.dart';
+import '../../core/theme/oracly_reduced_motion.dart';
+import '../../core/audio/oracly_feedback_gate.dart';
 
 /// Quiet press acknowledgement — scale, opacity, depth, optional glow shift.
 ///
@@ -21,11 +23,14 @@ class OraclyPressable extends StatefulWidget {
     this.enabled = true,
     this.behavior = HitTestBehavior.deferToChild,
     this.haptic = true,
+    /// Soft ritual tap SFX — off by default (never spam every surface).
+    this.softSound = false,
     this.scale = true,
     this.opacity = true,
     this.depth = true,
     this.glowShift = false,
     this.borderRadius,
+    this.label,
   });
 
   final Widget child;
@@ -36,11 +41,14 @@ class OraclyPressable extends StatefulWidget {
   final bool enabled;
   final HitTestBehavior behavior;
   final bool haptic;
+  final bool softSound;
   final bool scale;
   final bool opacity;
   final bool depth;
   final bool glowShift;
   final BorderRadius? borderRadius;
+  /// Screen-reader / tooltip meaning when the child has no visible text.
+  final String? label;
 
   @override
   State<OraclyPressable> createState() => _OraclyPressableState();
@@ -57,6 +65,9 @@ class _OraclyPressableState extends State<OraclyPressable> {
 
   Curve get _curve =>
       _pressed ? OraclySignatureMotion.curve : OraclySignatureMotion.releaseCurve;
+
+  Duration _motionDuration(BuildContext context) =>
+      OraclyReducedMotion.duration(context, _duration);
 
   void _setPressed(bool value) {
     if (_pressed == value) return;
@@ -86,6 +97,9 @@ class _OraclyPressableState extends State<OraclyPressable> {
     if (widget.haptic) {
       OraclyTouchFeedback.acknowledge();
     }
+    if (widget.softSound) {
+      OraclyFeedbackGate.softTap();
+    }
     widget.onTap?.call();
   }
 
@@ -94,6 +108,7 @@ class _OraclyPressableState extends State<OraclyPressable> {
     if (!_interactive) return widget.child;
 
     final pressed = _pressed;
+    final motion = _motionDuration(context);
     final scaleValue =
         widget.scale && pressed ? OraclySignatureMotion.pressScale : 1.0;
     final opacityValue =
@@ -105,7 +120,7 @@ class _OraclyPressableState extends State<OraclyPressable> {
 
     if (widget.glowShift) {
       body = AnimatedContainer(
-        duration: _duration,
+        duration: motion,
         curve: _curve,
         decoration: BoxDecoration(
           borderRadius: widget.borderRadius,
@@ -123,33 +138,50 @@ class _OraclyPressableState extends State<OraclyPressable> {
 
     body = AnimatedOpacity(
       opacity: opacityValue,
-      duration: _duration,
+      duration: motion,
       curve: _curve,
       child: body,
     );
 
     body = AnimatedScale(
       scale: scaleValue,
-      duration: _duration,
+      duration: motion,
       curve: _curve,
       alignment: Alignment.center,
       child: body,
     );
 
     body = AnimatedContainer(
-      duration: _duration,
+      duration: motion,
       curve: _curve,
       transform: Matrix4.translationValues(0, depthValue, 0),
       child: body,
     );
 
-    return GestureDetector(
-      behavior: widget.behavior,
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      onTap: _handleTap,
-      child: body,
+    return FocusableActionDetector(
+      enabled: _interactive,
+      mouseCursor: SystemMouseCursors.click,
+      actions: <Type, Action<Intent>>{
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            _handleTap();
+            return null;
+          },
+        ),
+      },
+      child: Semantics(
+        button: true,
+        enabled: widget.enabled,
+        label: widget.label,
+        child: GestureDetector(
+          behavior: widget.behavior,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          onTap: _handleTap,
+          child: body,
+        ),
+      ),
     );
   }
 }
@@ -159,6 +191,18 @@ abstract final class OraclyTouchFeedback {
   OraclyTouchFeedback._();
 
   static void acknowledge() {
+    if (!OraclyFeedbackGate.hapticEnabled) return;
+    HapticFeedback.lightImpact();
+  }
+
+  static void selection() {
+    if (!OraclyFeedbackGate.hapticEnabled) return;
+    HapticFeedback.selectionClick();
+  }
+
+  /// Soft reveal — never medium or heavy.
+  static void reveal() {
+    if (!OraclyFeedbackGate.hapticEnabled) return;
     HapticFeedback.lightImpact();
   }
 }

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 896" fill="none" aria-label="ORACLY Tarot card back asset-safe">
+  <!-- Crop-safe: 10% quiet margin, no text, no edge stars, no 2% offset. -->
+  <defs>
+    <radialGradient id="sf" cx="50%" cy="42%" r="68%">
+      <stop offset="0" stop-color="#1A1630"/>
+      <stop offset=".4" stop-color="#0A0914"/>
+      <stop offset="1" stop-color="#030106"/>
+    </radialGradient>
+    <radialGradient id="sv" cx="50%" cy="46%" r="26%">
+      <stop offset="0" stop-color="#4A36B0" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#4A36B0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sg" x1="90" y1="70" x2="420" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5D98A"/>
+      <stop offset=".5" stop-color="#E7C56D"/>
+      <stop offset="1" stop-color="#C9A84E"/>
+    </linearGradient>
+    <!-- 10% safe: keep art inside 51,90 � 461,806 -->
+    <clipPath id="safe">
+      <rect x="51" y="90" width="410" height="716" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="896" rx="28" fill="url(#sf)"/>
+  <circle cx="256" cy="430" r="150" fill="url(#sv)"/>
+  <rect x="48" y="48" width="416" height="800" rx="18" stroke="url(#sg)" stroke-width="1.35" opacity=".48"/>
+  <rect x="60" y="60" width="392" height="776" rx="12" stroke="#E7C56D" stroke-width=".65" opacity=".2"/>
+
+  <g clip-path="url(#safe)">
+    <g transform="translate(256 430)" stroke="url(#sg)" stroke-linecap="round">
+      <circle r="108" stroke-width=".7" opacity=".22"/>
+      <circle r="80" stroke-width=".85" opacity=".3"/>
+      <path d="M0 -90 v-14M0 90 v14M-90 0 h-14M90 0 h14" stroke-width="1.1" opacity=".42"/>
+    </g>
+    <g transform="translate(256 430) scale(1.78) translate(-48 -48)">
+      <circle cx="48" cy="48" r="40.5" stroke="url(#sg)" stroke-width="1.25"/>
+      <circle cx="48" cy="48" r="35.2" stroke="#E7C56D" stroke-width=".5" opacity=".3"/>
+      <g stroke="url(#sg)" stroke-width="1.1" stroke-linecap="round">
+        <path d="M48 3.2v4.4M48 88.4v4.4M3.2 48h4.4M88.4 48h4.4"/>
+      </g>
+      <g stroke="url(#sg)" stroke-width="1" opacity=".94">
+        <circle cx="41" cy="48" r="14.2"/>
+        <circle cx="55" cy="48" r="14.2"/>
+      </g>
+      <path fill="#F5D98A"
+            d="M48 32.2 50.35 44.4 62.6 46.75 50.35 49.1 48 61.3 45.65 49.1 33.4 46.75 45.65 44.4Z"/>
+    </g>
+  </g>
+</svg>

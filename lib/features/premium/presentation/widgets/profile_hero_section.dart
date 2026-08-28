@@ -5,10 +5,13 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/design_system/hero_art/hero_art.dart';
+import '../../../../core/design_system/oracly_header_action.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/oracly_text_action.dart';
 import '../../models/personalization_models.dart';
 
 class ProfileHeroSection extends StatelessWidget {
@@ -62,35 +65,18 @@ class ProfileHeroSection extends StatelessWidget {
                     children: [
                       Stack(
                         alignment: Alignment.bottomRight,
+                        clipBehavior: Clip.none,
                         children: [
-                          Container(
-                            width: 88,
-                            height: 88,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  AppColors.purpleGlow.withValues(alpha: 0.5),
-                                  AppColors.purpleDark,
-                                ],
-                              ),
-                              border: Border.all(
-                                color: AppColors.gold.withValues(alpha: 0.55),
-                                width: AppBorderWidth.thin,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.goldGlow.withValues(
-                                    alpha: 0.28,
-                                  ),
-                                  blurRadius: 16,
+                          HeroProfile(size: 96),
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: Center(
+                                child: Icon(
+                                  Icons.person_rounded,
+                                  size: 40,
+                                  color: AppColors.goldLight.withValues(alpha: 0.85),
                                 ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.person_rounded,
-                              size: 44,
-                              color: AppColors.goldLight,
+                              ),
                             ),
                           ),
                           if (settings.isPremium)
@@ -141,26 +127,20 @@ class ProfileHeroSection extends StatelessWidget {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          IconButton(
-                            onPressed: onEditName,
-                            icon: Icon(
-                              Icons.edit_rounded,
-                              size: AppSpacing.md,
-                              color: AppColors.gold.withValues(alpha: 0.7),
-                            ),
+                          OraclyHeaderAction(
+                            icon: Icons.edit_rounded,
+                            label: 'Düzenle',
+                            size: 36,
+                            iconSize: 16,
+                            onTap: onEditName,
                           ),
                         ],
                       ),
                       if (!settings.isPremium) ...[
-                        TextButton(
+                        OraclyTextAction(
+                          label: 'Premium\'a Yükselt',
+                          emphasized: true,
                           onPressed: onPremiumTap,
-                          child: Text(
-                            'Premium\'a Yükselt',
-                            style: AppTextStyles.labelMedium.copyWith(
-                              color: AppColors.gold,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
                         ),
                       ],
                       SizedBox(height: AppSpacing.md),

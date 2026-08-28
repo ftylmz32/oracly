@@ -1,18 +1,18 @@
-/// OR-1030 — Core shuffle ritual animation layer.
+/// Cinematic shuffle ritual — stack, overhand, optional cut, rest.
 library;
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_spacing.dart';
-import '../../../../../core/theme/app_text_styles.dart';
-import '../../../../../core/copy/first_session_copy.dart';
-import '../../../../../core/first_session/first_session_scope.dart';
-import 'shuffle_ambience_layer.dart';
-import 'shuffle_cinematic_deck.dart';
+import '../../../../../core/theme/oracly_reduced_motion.dart';
+import 'shuffle_cut_motion.dart';
+import 'shuffle_ritual_cues.dart';
+import 'shuffle_ritual_stage.dart';
 import 'shuffle_timeline.dart';
 
-/// Cinematic shuffle sequence — darkens, zooms deck, shuffles, shows message.
+enum _RitualPhase { shuffling, offering, cutting, done }
+
 class ShuffleRitualExperience extends StatefulWidget {
   const ShuffleRitualExperience({
     super.key,
@@ -24,13 +24,18 @@ class ShuffleRitualExperience extends StatefulWidget {
   final bool includeBackgroundDim;
 
   @override
-  State<ShuffleRitualExperience> createState() => _ShuffleRitualExperienceState();
+  State<ShuffleRitualExperience> createState() =>
+      _ShuffleRitualExperienceState();
 }
 
 class _ShuffleRitualExperienceState extends State<ShuffleRitualExperience>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _master;
-  bool _completed = false;
+  late final AnimationController _cut;
+  _RitualPhase _phase = _RitualPhase.shuffling;
+  bool _midCue = false;
+  Timer? _offerTimer;
+  bool _reducedSettled = false;
 
   @override
   void initState() {
@@ -38,106 +43,114 @@ class _ShuffleRitualExperienceState extends State<ShuffleRitualExperience>
     _master = AnimationController(
       vsync: this,
       duration: ShuffleTimeline.totalDuration,
-    );
-    _master.addStatusListener(_onStatus);
-    _master.forward();
+    )..addStatusListener(_onShuffleStatus);
+    _cut = AnimationController(
+      vsync: this,
+      duration: ShuffleCutMotion.duration,
+    )..addStatusListener(_onCutStatus);
+    ShuffleRitualCues.begin();
+    WidgetsBinding.instance.addObserver(this);
   }
 
-  void _onStatus(AnimationStatus status) {
-    if (status != AnimationStatus.completed || _completed || !mounted) return;
-    _completed = true;
-    widget.onComplete();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_phase == _RitualPhase.done) return;
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _master.stop();
+      _cut.stop();
+    } else if (state == AppLifecycleState.resumed &&
+        _phase == _RitualPhase.shuffling &&
+        _master.value < 1 &&
+        !OraclyReducedMotion.of(context)) {
+      _master.forward();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (OraclyReducedMotion.of(context)) {
+      if (_reducedSettled) return;
+      _reducedSettled = true;
+      _midCue = true;
+      _master.removeStatusListener(_onShuffleStatus);
+      _master.value = 1;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _finishQuietly();
+      });
+      return;
+    }
+    if (_master.status == AnimationStatus.dismissed) {
+      _master.forward();
+    }
+  }
+
+  void _onShuffleStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed || !mounted) return;
+    if (_phase != _RitualPhase.shuffling) return;
+    setState(() => _phase = _RitualPhase.offering);
+    _offerTimer = Timer(const Duration(milliseconds: 880), _finishQuietly);
+  }
+
+  void _onCutStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed || !mounted) return;
+    _finishQuietly();
+  }
+
+  void _finishQuietly() {
+    _offerTimer?.cancel();
+    if (_phase == _RitualPhase.done) return;
+    _phase = _RitualPhase.done;
+    if (mounted) widget.onComplete();
+  }
+
+  void _cutDeck() {
+    if (_phase != _RitualPhase.offering) return;
+    _offerTimer?.cancel();
+    ShuffleRitualCues.cut();
+    setState(() => _phase = _RitualPhase.cutting);
+    _cut.forward();
+  }
+
+  void _maybeMidCue(double t) {
+    if (_midCue || t < 0.40) return;
+    _midCue = true;
+    ShuffleRitualCues.midShuffle();
   }
 
   @override
   void dispose() {
-    _master.removeStatusListener(_onStatus);
+    WidgetsBinding.instance.removeObserver(this);
+    _offerTimer?.cancel();
     _master.dispose();
+    _cut.dispose();
     super.dispose();
-  }
-
-  void _skipIfReady() {
-    if (_completed || !mounted) return;
-    if (_master.value >= 0.55) {
-      _completed = true;
-      widget.onComplete();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: _skipIfReady,
+      onTap: () {
+        if (_phase == _RitualPhase.shuffling && _master.value >= 0.55) {
+          _finishQuietly();
+        }
+      },
       child: AnimatedBuilder(
-        animation: _master,
+        animation: Listenable.merge([_master, _cut]),
         builder: (context, _) {
-          final t = Curves.easeInOutCubic.transform(_master.value);
-          final darken = ShuffleTimeline.darkenOverlay(t);
-          final message = ShuffleTimeline.messageOpacity(t);
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              if (widget.includeBackgroundDim)
-                ColoredBox(
-                  color: Colors.black.withValues(alpha: 0.42 * darken),
-                ),
-              Center(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final stage = Size(
-                      constraints.maxWidth.clamp(0, 360),
-                      280,
-                    );
-                    return SizedBox(
-                      width: stage.width,
-                      height: stage.height,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        clipBehavior: Clip.none,
-                        children: [
-                          ShuffleAmbienceLayer(progress: t, size: stage),
-                          ShuffleCinematicDeck(progress: t),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Positioned(
-                left: AppSpacing.lg,
-                right: AppSpacing.lg,
-                bottom: AppSpacing.xxl + AppSpacing.xl,
-                child: IgnorePointer(
-                  child: Opacity(
-                    opacity: message,
-                    child: Text(
-                      FirstSessionCopy.shuffleMessageFor(
-                        isFirstSession: FirstSessionScope.of(context),
-                      ),
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.titleSmall.copyWith(
-                        color: AppColors.goldLight,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.35,
-                        height: 1.5,
-                        shadows: [
-                          Shadow(
-                            color: AppColors.glowPurple.withValues(alpha: 0.55),
-                            blurRadius: 16,
-                          ),
-                          Shadow(
-                            color: AppColors.gold.withValues(alpha: 0.35),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          final t = Curves.easeInOutCubic.transform(
+            _master.value.clamp(0.0, 1.0),
+          );
+          _maybeMidCue(t);
+          return ShuffleRitualStage(
+            progress: t,
+            cutProgress: _cut.value,
+            dim: widget.includeBackgroundDim,
+            offering: _phase == _RitualPhase.offering,
+            onCut: _cutDeck,
+            onSkip: _finishQuietly,
           );
         },
       ),

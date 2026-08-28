@@ -1,0 +1,20 @@
+{
+  "yildizname": {
+    "tapped": false,
+    "after": "OR. Sakin bir sohbet — senin temposunda.. Sohbete başla || OR / Sakin bir sohbet — senin temposunda. / Sohbete başla || ORACLY || Sohbete başla || Bugünün İzi / Bugünün İzi / Gece / Geceye biraz yer bırak. || Kart çek || Keşifler || Kahve Falı || Kahve Falı / Fincanı oku || El Falı || El Falı / Avuç"
+  },
+  "ruh": {
+    "tapped": true,
+    "after": "Niyet || → || Kart Seçimi || → || Açılım || → || Yorum || ODAK IÇIN BIR KONU || İstersen bir konu seç — zorunlu değil. || Aşk hayatımda neye dikkat etmeliyim? || İş konusunda önümde ne var? || Bu dönemde neyi bırakmalıyım? || Atla || Atla || Devam Et || Önce bugünün ücretsiz kartıyla başla — Ruh Eşi"
+  },
+  "tarot": {
+    "tapped": true,
+    "after": "Geri || TAROT || Mücevherler, 20 / 20 || Bir soru tut. / Kartların hikâyeyi açsın. || OR || OR || OR || OR || OR || OR || İş değiştirmeli miyim? || Bu ilişkide neyi görmüyorum? || Önümdeki dönemde neye dikkat etmeliyim? || TEK KART. Bugünün ana işareti || TEK KART / Bugünün ana işareti || ÜÇ KART. G"
+  },
+  "premium": {
+    "tapped": true,
+    "after": "Geri || PREMİUM || Mücevherler, 20 / 20 || ÖZEL BİR ODA / ORACLY’nin daha derin, sessiz bir katmanı — isteğe bağlı bir oda. / Premium isteğe bağlıdır. Acele yok. / NEDİR BU KATMAN / Premium, Ruh Eşi odasını ve OR sohbetini açar. Keşif günlüğü, arşiv, kahve, el, gökyüzü ve günün mesajı ücretsiz kalır"
+  },
+  "bottom_blob": "OR. Sakin bir sohbet — senin temposunda.. Sohbete başla || OR / Sakin bir sohbet — senin temposunda. / Sohbete başla || ORACLY || Sohbete başla || Bugünün İzi / Bugünün İzi / Gece / Geceye biraz yer bırak. || Kart çek || Keşifler || Kahve Falı || Kahve Falı / Fincanı oku || El Falı || El Falı / Avuç izleri || Astroloji || Astroloji / Bugünün göğü || Yıldızname || Yıldızname / Yıldız arşivi || Ruh Eşi || Ruh Eşi / Sembolik portre || Tarot || Tarot / Bir kart, bir an || Premium'u keşfet. Mağaza sa",
+  "gems_at_bottom": false
+}

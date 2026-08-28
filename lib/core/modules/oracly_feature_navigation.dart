@@ -2,10 +2,16 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/providers/app_providers.dart';
+import '../../features/premium/services/premium_access.dart';
+import '../../features/premium/services/soul_mate_navigation.dart';
 import '../../screens/memory/memory_screen.dart';
-import '../../shared/navigation/oracly_navigation.dart';
+import '../copy/first_session_copy.dart';
 import '../navigation/oracly_navigation_service.dart';
+import '../navigation/oracly_page_transitions.dart';
+import '../../shared/ui/oracly_snackbar.dart';
 import 'oracly_feature_id.dart';
 import 'oracly_feature_module.dart';
 import 'oracly_feature_registry.dart';
@@ -25,15 +31,30 @@ abstract final class OraclyFeatureNavigation {
   }
 
   static void open(BuildContext context, OraclyFeatureId id) {
+    if (id == OraclyFeatureId.soulMate &&
+        _deferSoulMateForFirstSession(context)) {
+      return;
+    }
+    final gated = module(id);
+    if (gated != null &&
+        gated.requiresPremium &&
+        !PremiumAccess.ensure(context)) {
+      PremiumAccess.prompt(context);
+      return;
+    }
     switch (id) {
       case OraclyFeatureId.home:
-        OraclyNavigation.switchToTab(context, OraclyTab.home);
+        OraclyNavigationService.openHome(context);
       case OraclyFeatureId.tarot:
-        OraclyNavigation.switchToTab(context, OraclyTab.tarot);
+        OraclyNavigationService.startTarotFlow(context);
+      case OraclyFeatureId.coffee:
+        OraclyNavigationService.openCoffee(context);
+      case OraclyFeatureId.palm:
+        OraclyNavigationService.openPalm(context);
       case OraclyFeatureId.aiChat:
-        OraclyNavigation.switchToTab(context, OraclyTab.chat);
+        OraclyNavigationService.openChat(context);
       case OraclyFeatureId.profile:
-        OraclyNavigation.switchToTab(context, OraclyTab.profile);
+        OraclyNavigationService.openProfile(context);
       case OraclyFeatureId.dream:
         OraclyNavigationService.openDream(context);
       case OraclyFeatureId.astrology:
@@ -42,16 +63,22 @@ abstract final class OraclyFeatureNavigation {
         OraclyNavigationService.openStarMap(context);
       case OraclyFeatureId.readingHistory:
         OraclyNavigationService.openReadingHistory(context);
+      case OraclyFeatureId.discoveryJournal:
+        OraclyNavigationService.openDiscoveryJournal(context);
       case OraclyFeatureId.personalInsights:
         OraclyNavigationService.openPersonalInsights(context);
+      case OraclyFeatureId.dailyMessage:
+        OraclyNavigationService.openDailyMessage(context);
       case OraclyFeatureId.memory:
         _openMemory(context);
       case OraclyFeatureId.achievements:
-        OraclyNavigationService.openAchievements(context);
+        _openReserved(context, id);
       case OraclyFeatureId.premium:
         OraclyNavigationService.openPremium(context);
       case OraclyFeatureId.settings:
         OraclyNavigationService.openSettings(context);
+      case OraclyFeatureId.soulMate:
+        SoulMateNavigation.open(context);
       case OraclyFeatureId.dailyEnergy:
         OraclyNavigationService.openDailyEnergy(context);
       case OraclyFeatureId.numerology:
@@ -61,9 +88,27 @@ abstract final class OraclyFeatureNavigation {
     }
   }
 
+  /// First session: free card before Premium Soul Mate paywall.
+  static bool _deferSoulMateForFirstSession(BuildContext context) {
+    if (PremiumAccess.isActive(context)) return false;
+    try {
+      final container = ProviderScope.containerOf(context, listen: false);
+      final first = container.read(isFirstSessionProvider).valueOrNull ?? false;
+      if (!first) return false;
+      OraclySnackBar.show(
+        context,
+        message: FirstSessionCopy.soulMateLater,
+      );
+      OraclyNavigationService.startDailyCardDraw(context);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static void _openMemory(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const MemoryScreen()),
+      OraclyPageTransitions.enter<void>(page: const MemoryScreen()),
     );
   }
 

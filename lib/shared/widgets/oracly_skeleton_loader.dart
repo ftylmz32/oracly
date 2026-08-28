@@ -2,19 +2,19 @@
 library;
 
 import 'dart:math' show sin;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/copy/resilience_copy.dart';
-
-import 'oracly_error_state.dart';
-
+import '../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../core/security/ai_error_sanitizer.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/oracly_quiet_motion.dart';
+import 'oracly_error_state.dart';
 
 /// Glass shimmer skeleton — particles-friendly loading surface.
 class OraclySkeletonLoader extends StatefulWidget {
@@ -41,7 +41,13 @@ class _OraclySkeletonLoaderState extends State<OraclySkeletonLoader>
     _shimmer = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2400),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _shimmer, rest: 0.42);
   }
 
   @override
@@ -52,46 +58,41 @@ class _OraclySkeletonLoaderState extends State<OraclySkeletonLoader>
 
   @override
   Widget build(BuildContext context) {
+    final still = OraclyQuietMotion.still(context);
     return Center(
       child: Padding(
         padding: AppSpacing.screenHorizontal,
         child: AnimatedBuilder(
           animation: _shimmer,
           builder: (context, _) {
-            final phase = _shimmer.value;
+            final phase = still ? 0.42 : _shimmer.value;
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ClipRRect(
-                  borderRadius: AppRadius.lg,
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.surface.withValues(alpha: 0.72),
-                        borderRadius: AppRadius.lg,
-                        border: Border.all(
-                          color: AppColors.gold.withValues(alpha: 0.2),
-                          width: AppBorderWidth.hairline,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: AppSpacing.card,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _ShimmerBar(phase: phase, widthFactor: 0.55),
-                            SizedBox(height: AppSpacing.md),
-                            for (var i = 0; i < widget.lines; i++) ...[
-                              if (i > 0) SizedBox(height: AppSpacing.sm),
-                              _ShimmerBar(
-                                phase: phase + i * 0.15,
-                                widthFactor: i == widget.lines - 1 ? 0.65 : 1,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface.withValues(alpha: 0.78),
+                    borderRadius: AppRadius.lg,
+                    border: Border.all(
+                      color: AppColors.gold.withValues(alpha: 0.2),
+                      width: AppBorderWidth.hairline,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: AppSpacing.card,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _ShimmerBar(phase: phase, widthFactor: 0.55),
+                        SizedBox(height: AppSpacing.md),
+                        for (var i = 0; i < widget.lines; i++) ...[
+                          if (i > 0) SizedBox(height: AppSpacing.sm),
+                          _ShimmerBar(
+                            phase: phase + i * 0.15,
+                            widthFactor: i == widget.lines - 1 ? 0.65 : 1,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
@@ -149,12 +150,14 @@ class OraclyAsyncView<T> extends StatelessWidget {
     required this.builder,
     this.loadingMessage,
     this.onRetry,
+    this.kind = OraclyLoadingKind.chamber,
   });
 
   final AsyncValue<T> state;
   final Widget Function(T data) builder;
   final String? loadingMessage;
   final VoidCallback? onRetry;
+  final OraclyLoadingKind kind;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +166,8 @@ class OraclyAsyncView<T> extends StatelessWidget {
         message: loadingMessage ?? ResilienceCopy.genericLoading,
       ),
       error: (e, _) => OraclyErrorState(
-        message: ResilienceCopy.genericLoadFailed,
+        kind: kind,
+        message: AiErrorSanitizer.publicMessage(error: e),
         onRetry: onRetry,
       ),
       data: builder,

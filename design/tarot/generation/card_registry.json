@@ -1,0 +1,596 @@
+{
+  "version": "1.0",
+  "aspect": "9:16",
+  "runtime_size": [
+    512,
+    896
+  ],
+  "source_size": [
+    1024,
+    1792
+  ],
+  "majors": [
+    {
+      "id": "00_fool",
+      "numeral": "0",
+      "titleEn": "The Fool",
+      "titleTr": "Deli"
+    },
+    {
+      "id": "01_magician",
+      "numeral": "I",
+      "titleEn": "The Magician",
+      "titleTr": "Büyücü"
+    },
+    {
+      "id": "02_high_priestess",
+      "numeral": "II",
+      "titleEn": "The High Priestess",
+      "titleTr": "Başrahibe"
+    },
+    {
+      "id": "03_empress",
+      "numeral": "III",
+      "titleEn": "The Empress",
+      "titleTr": "İmparatoriçe"
+    },
+    {
+      "id": "04_emperor",
+      "numeral": "IV",
+      "titleEn": "The Emperor",
+      "titleTr": "İmparator"
+    },
+    {
+      "id": "05_hierophant",
+      "numeral": "V",
+      "titleEn": "The Hierophant",
+      "titleTr": "Aziz"
+    },
+    {
+      "id": "06_lovers",
+      "numeral": "VI",
+      "titleEn": "The Lovers",
+      "titleTr": "Aşıklar"
+    },
+    {
+      "id": "07_chariot",
+      "numeral": "VII",
+      "titleEn": "The Chariot",
+      "titleTr": "Savaş Arabası"
+    },
+    {
+      "id": "08_strength",
+      "numeral": "VIII",
+      "titleEn": "Strength",
+      "titleTr": "Güç"
+    },
+    {
+      "id": "09_hermit",
+      "numeral": "IX",
+      "titleEn": "The Hermit",
+      "titleTr": "Ermiş"
+    },
+    {
+      "id": "10_wheel",
+      "numeral": "X",
+      "titleEn": "Wheel of Fortune",
+      "titleTr": "Kader Çarkı"
+    },
+    {
+      "id": "11_justice",
+      "numeral": "XI",
+      "titleEn": "Justice",
+      "titleTr": "Adalet"
+    },
+    {
+      "id": "12_hanged_man",
+      "numeral": "XII",
+      "titleEn": "The Hanged Man",
+      "titleTr": "Asılan Adam"
+    },
+    {
+      "id": "13_death",
+      "numeral": "XIII",
+      "titleEn": "Death",
+      "titleTr": "Ölüm"
+    },
+    {
+      "id": "14_temperance",
+      "numeral": "XIV",
+      "titleEn": "Temperance",
+      "titleTr": "Denge"
+    },
+    {
+      "id": "15_devil",
+      "numeral": "XV",
+      "titleEn": "The Devil",
+      "titleTr": "Şeytan"
+    },
+    {
+      "id": "16_tower",
+      "numeral": "XVI",
+      "titleEn": "The Tower",
+      "titleTr": "Kule"
+    },
+    {
+      "id": "17_star",
+      "numeral": "XVII",
+      "titleEn": "The Star",
+      "titleTr": "Yıldız"
+    },
+    {
+      "id": "18_moon",
+      "numeral": "XVIII",
+      "titleEn": "The Moon",
+      "titleTr": "Ay"
+    },
+    {
+      "id": "19_sun",
+      "numeral": "XIX",
+      "titleEn": "The Sun",
+      "titleTr": "Güneş"
+    },
+    {
+      "id": "20_judgement",
+      "numeral": "XX",
+      "titleEn": "Judgement",
+      "titleTr": "Mahkeme"
+    },
+    {
+      "id": "21_world",
+      "numeral": "XXI",
+      "titleEn": "The World",
+      "titleTr": "Dünya"
+    }
+  ],
+  "minors": [
+    {
+      "id": "01_ace",
+      "suit": "wands",
+      "number": 1,
+      "numeral": "I",
+      "titleEn": "Ace of Wands",
+      "titleTr": "Değnek As"
+    },
+    {
+      "id": "02_two",
+      "suit": "wands",
+      "number": 2,
+      "numeral": "II",
+      "titleEn": "Two of Wands",
+      "titleTr": "Değnek İkili"
+    },
+    {
+      "id": "03_three",
+      "suit": "wands",
+      "number": 3,
+      "numeral": "III",
+      "titleEn": "Three of Wands",
+      "titleTr": "Değnek Üçlü"
+    },
+    {
+      "id": "04_four",
+      "suit": "wands",
+      "number": 4,
+      "numeral": "IV",
+      "titleEn": "Four of Wands",
+      "titleTr": "Değnek Dört"
+    },
+    {
+      "id": "05_five",
+      "suit": "wands",
+      "number": 5,
+      "numeral": "V",
+      "titleEn": "Five of Wands",
+      "titleTr": "Değnek Beş"
+    },
+    {
+      "id": "06_six",
+      "suit": "wands",
+      "number": 6,
+      "numeral": "VI",
+      "titleEn": "Six of Wands",
+      "titleTr": "Değnek Altı"
+    },
+    {
+      "id": "07_seven",
+      "suit": "wands",
+      "number": 7,
+      "numeral": "VII",
+      "titleEn": "Seven of Wands",
+      "titleTr": "Değnek Yedi"
+    },
+    {
+      "id": "08_eight",
+      "suit": "wands",
+      "number": 8,
+      "numeral": "VIII",
+      "titleEn": "Eight of Wands",
+      "titleTr": "Değnek Sekiz"
+    },
+    {
+      "id": "09_nine",
+      "suit": "wands",
+      "number": 9,
+      "numeral": "IX",
+      "titleEn": "Nine of Wands",
+      "titleTr": "Değnek Dokuz"
+    },
+    {
+      "id": "10_ten",
+      "suit": "wands",
+      "number": 10,
+      "numeral": "X",
+      "titleEn": "Ten of Wands",
+      "titleTr": "Değnek On"
+    },
+    {
+      "id": "11_page",
+      "suit": "wands",
+      "number": 11,
+      "numeral": "P",
+      "titleEn": "Page of Wands",
+      "titleTr": "Değnek Haberci"
+    },
+    {
+      "id": "12_knight",
+      "suit": "wands",
+      "number": 12,
+      "numeral": "Kn",
+      "titleEn": "Knight of Wands",
+      "titleTr": "Değnek Şövalye"
+    },
+    {
+      "id": "13_queen",
+      "suit": "wands",
+      "number": 13,
+      "numeral": "Q",
+      "titleEn": "Queen of Wands",
+      "titleTr": "Değnek Kraliçe"
+    },
+    {
+      "id": "14_king",
+      "suit": "wands",
+      "number": 14,
+      "numeral": "K",
+      "titleEn": "King of Wands",
+      "titleTr": "Değnek Kral"
+    },
+    {
+      "id": "01_ace",
+      "suit": "cups",
+      "number": 1,
+      "numeral": "I",
+      "titleEn": "Ace of Cups",
+      "titleTr": "Kupa As"
+    },
+    {
+      "id": "02_two",
+      "suit": "cups",
+      "number": 2,
+      "numeral": "II",
+      "titleEn": "Two of Cups",
+      "titleTr": "Kupa İkili"
+    },
+    {
+      "id": "03_three",
+      "suit": "cups",
+      "number": 3,
+      "numeral": "III",
+      "titleEn": "Three of Cups",
+      "titleTr": "Kupa Üçlü"
+    },
+    {
+      "id": "04_four",
+      "suit": "cups",
+      "number": 4,
+      "numeral": "IV",
+      "titleEn": "Four of Cups",
+      "titleTr": "Kupa Dört"
+    },
+    {
+      "id": "05_five",
+      "suit": "cups",
+      "number": 5,
+      "numeral": "V",
+      "titleEn": "Five of Cups",
+      "titleTr": "Kupa Beş"
+    },
+    {
+      "id": "06_six",
+      "suit": "cups",
+      "number": 6,
+      "numeral": "VI",
+      "titleEn": "Six of Cups",
+      "titleTr": "Kupa Altı"
+    },
+    {
+      "id": "07_seven",
+      "suit": "cups",
+      "number": 7,
+      "numeral": "VII",
+      "titleEn": "Seven of Cups",
+      "titleTr": "Kupa Yedi"
+    },
+    {
+      "id": "08_eight",
+      "suit": "cups",
+      "number": 8,
+      "numeral": "VIII",
+      "titleEn": "Eight of Cups",
+      "titleTr": "Kupa Sekiz"
+    },
+    {
+      "id": "09_nine",
+      "suit": "cups",
+      "number": 9,
+      "numeral": "IX",
+      "titleEn": "Nine of Cups",
+      "titleTr": "Kupa Dokuz"
+    },
+    {
+      "id": "10_ten",
+      "suit": "cups",
+      "number": 10,
+      "numeral": "X",
+      "titleEn": "Ten of Cups",
+      "titleTr": "Kupa On"
+    },
+    {
+      "id": "11_page",
+      "suit": "cups",
+      "number": 11,
+      "numeral": "P",
+      "titleEn": "Page of Cups",
+      "titleTr": "Kupa Haberci"
+    },
+    {
+      "id": "12_knight",
+      "suit": "cups",
+      "number": 12,
+      "numeral": "Kn",
+      "titleEn": "Knight of Cups",
+      "titleTr": "Kupa Şövalye"
+    },
+    {
+      "id": "13_queen",
+      "suit": "cups",
+      "number": 13,
+      "numeral": "Q",
+      "titleEn": "Queen of Cups",
+      "titleTr": "Kupa Kraliçe"
+    },
+    {
+      "id": "14_king",
+      "suit": "cups",
+      "number": 14,
+      "numeral": "K",
+      "titleEn": "King of Cups",
+      "titleTr": "Kupa Kral"
+    },
+    {
+      "id": "01_ace",
+      "suit": "swords",
+      "number": 1,
+      "numeral": "I",
+      "titleEn": "Ace of Swords",
+      "titleTr": "Kılıç As"
+    },
+    {
+      "id": "02_two",
+      "suit": "swords",
+      "number": 2,
+      "numeral": "II",
+      "titleEn": "Two of Swords",
+      "titleTr": "Kılıç İkili"
+    },
+    {
+      "id": "03_three",
+      "suit": "swords",
+      "number": 3,
+      "numeral": "III",
+      "titleEn": "Three of Swords",
+      "titleTr": "Kılıç Üçlü"
+    },
+    {
+      "id": "04_four",
+      "suit": "swords",
+      "number": 4,
+      "numeral": "IV",
+      "titleEn": "Four of Swords",
+      "titleTr": "Kılıç Dört"
+    },
+    {
+      "id": "05_five",
+      "suit": "swords",
+      "number": 5,
+      "numeral": "V",
+      "titleEn": "Five of Swords",
+      "titleTr": "Kılıç Beş"
+    },
+    {
+      "id": "06_six",
+      "suit": "swords",
+      "number": 6,
+      "numeral": "VI",
+      "titleEn": "Six of Swords",
+      "titleTr": "Kılıç Altı"
+    },
+    {
+      "id": "07_seven",
+      "suit": "swords",
+      "number": 7,
+      "numeral": "VII",
+      "titleEn": "Seven of Swords",
+      "titleTr": "Kılıç Yedi"
+    },
+    {
+      "id": "08_eight",
+      "suit": "swords",
+      "number": 8,
+      "numeral": "VIII",
+      "titleEn": "Eight of Swords",
+      "titleTr": "Kılıç Sekiz"
+    },
+    {
+      "id": "09_nine",
+      "suit": "swords",
+      "number": 9,
+      "numeral": "IX",
+      "titleEn": "Nine of Swords",
+      "titleTr": "Kılıç Dokuz"
+    },
+    {
+      "id": "10_ten",
+      "suit": "swords",
+      "number": 10,
+      "numeral": "X",
+      "titleEn": "Ten of Swords",
+      "titleTr": "Kılıç On"
+    },
+    {
+      "id": "11_page",
+      "suit": "swords",
+      "number": 11,
+      "numeral": "P",
+      "titleEn": "Page of Swords",
+      "titleTr": "Kılıç Haberci"
+    },
+    {
+      "id": "12_knight",
+      "suit": "swords",
+      "number": 12,
+      "numeral": "Kn",
+      "titleEn": "Knight of Swords",
+      "titleTr": "Kılıç Şövalye"
+    },
+    {
+      "id": "13_queen",
+      "suit": "swords",
+      "number": 13,
+      "numeral": "Q",
+      "titleEn": "Queen of Swords",
+      "titleTr": "Kılıç Kraliçe"
+    },
+    {
+      "id": "14_king",
+      "suit": "swords",
+      "number": 14,
+      "numeral": "K",
+      "titleEn": "King of Swords",
+      "titleTr": "Kılıç Kral"
+    },
+    {
+      "id": "01_ace",
+      "suit": "pentacles",
+      "number": 1,
+      "numeral": "I",
+      "titleEn": "Ace of Pentacles",
+      "titleTr": "Tılsım As"
+    },
+    {
+      "id": "02_two",
+      "suit": "pentacles",
+      "number": 2,
+      "numeral": "II",
+      "titleEn": "Two of Pentacles",
+      "titleTr": "Tılsım İkili"
+    },
+    {
+      "id": "03_three",
+      "suit": "pentacles",
+      "number": 3,
+      "numeral": "III",
+      "titleEn": "Three of Pentacles",
+      "titleTr": "Tılsım Üçlü"
+    },
+    {
+      "id": "04_four",
+      "suit": "pentacles",
+      "number": 4,
+      "numeral": "IV",
+      "titleEn": "Four of Pentacles",
+      "titleTr": "Tılsım Dört"
+    },
+    {
+      "id": "05_five",
+      "suit": "pentacles",
+      "number": 5,
+      "numeral": "V",
+      "titleEn": "Five of Pentacles",
+      "titleTr": "Tılsım Beş"
+    },
+    {
+      "id": "06_six",
+      "suit": "pentacles",
+      "number": 6,
+      "numeral": "VI",
+      "titleEn": "Six of Pentacles",
+      "titleTr": "Tılsım Altı"
+    },
+    {
+      "id": "07_seven",
+      "suit": "pentacles",
+      "number": 7,
+      "numeral": "VII",
+      "titleEn": "Seven of Pentacles",
+      "titleTr": "Tılsım Yedi"
+    },
+    {
+      "id": "08_eight",
+      "suit": "pentacles",
+      "number": 8,
+      "numeral": "VIII",
+      "titleEn": "Eight of Pentacles",
+      "titleTr": "Tılsım Sekiz"
+    },
+    {
+      "id": "09_nine",
+      "suit": "pentacles",
+      "number": 9,
+      "numeral": "IX",
+      "titleEn": "Nine of Pentacles",
+      "titleTr": "Tılsım Dokuz"
+    },
+    {
+      "id": "10_ten",
+      "suit": "pentacles",
+      "number": 10,
+      "numeral": "X",
+      "titleEn": "Ten of Pentacles",
+      "titleTr": "Tılsım On"
+    },
+    {
+      "id": "11_page",
+      "suit": "pentacles",
+      "number": 11,
+      "numeral": "P",
+      "titleEn": "Page of Pentacles",
+      "titleTr": "Tılsım Haberci"
+    },
+    {
+      "id": "12_knight",
+      "suit": "pentacles",
+      "number": 12,
+      "numeral": "Kn",
+      "titleEn": "Knight of Pentacles",
+      "titleTr": "Tılsım Şövalye"
+    },
+    {
+      "id": "13_queen",
+      "suit": "pentacles",
+      "number": 13,
+      "numeral": "Q",
+      "titleEn": "Queen of Pentacles",
+      "titleTr": "Tılsım Kraliçe"
+    },
+    {
+      "id": "14_king",
+      "suit": "pentacles",
+      "number": 14,
+      "numeral": "K",
+      "titleEn": "King of Pentacles",
+      "titleTr": "Tılsım Kral"
+    }
+  ]
+}

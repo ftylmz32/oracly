@@ -2,7 +2,9 @@
 library;
 
 export 'models/oracle_reading_context.dart';
+export 'models/oracle_reading_context_sources.dart';
 export 'navigation/oracle_conversation_route.dart';
 export 'providers/oracle_conversation_providers.dart';
 export 'repositories/oracle_conversation_repository.dart';
 export 'services/oracle_conversation_responder.dart';
+export 'widgets/or_ask_button.dart';

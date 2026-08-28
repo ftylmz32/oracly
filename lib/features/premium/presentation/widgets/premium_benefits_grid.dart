@@ -5,11 +5,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/design_system/micro_details/micro_details.dart';
+import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../models/premium_models.dart';
@@ -30,21 +31,21 @@ class PremiumBenefitsGrid extends StatelessWidget {
       child: Transform.translate(
         offset: Offset(0, slide),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                PremiumCatalogue.benefitsSectionTitle,
+              MicroLitTitle(
+                text: PremiumCatalogue.benefitsSectionTitle,
                 style: AppTextStyles.titleSmall.copyWith(
-                  color: AppColors.goldLight,
                   fontWeight: FontWeight.w700,
                 ),
+                bloomStrength: 0.85,
               ),
-              SizedBox(height: AppSpacing.md),
+              SizedBox(height: AppLayout.labelToContent),
               ...PremiumCatalogue.benefits.map(
                 (b) => Padding(
-                  padding: EdgeInsets.only(bottom: AppSpacing.sm),
+                  padding: EdgeInsets.only(bottom: AppLayout.gridGap),
                   child: _BenefitCard(benefit: b),
                 ),
               ),
@@ -104,9 +105,10 @@ class _BenefitCard extends StatelessWidget {
                     ),
                   ),
                   child: Center(
-                    child: Text(
-                      benefit.emoji,
-                      style: const TextStyle(fontSize: 20),
+                    child: Icon(
+                      benefit.icon,
+                      size: 20,
+                      color: AppColors.goldLight.withValues(alpha: 0.92),
                     ),
                   ),
                 ),

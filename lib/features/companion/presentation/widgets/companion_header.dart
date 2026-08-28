@@ -3,8 +3,9 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/theme/reading_typography.dart';
+import '../../../../shared/widgets/oracly_text_action.dart';
 import '../../copy/companion_copy.dart';
 
 class CompanionHeader extends StatelessWidget {
@@ -20,11 +21,12 @@ class CompanionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: AppSpacing.screenHorizontal.copyWith(
-        top: AppSpacing.sm,
-        bottom: AppSpacing.sm,
+      padding: AppLayout.screenPaddingHorizontal.copyWith(
+        top: AppLayout.screenTop,
+        bottom: AppLayout.labelToContent,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
@@ -34,16 +36,15 @@ class CompanionHeader extends StatelessWidget {
                   CompanionCopy.screenTitle,
                   style: ReadingTypography.cardTitle(),
                 ),
+                SizedBox(height: AppLayout.titleToSubtitle),
                 Text(subtitle, style: ReadingTypography.opening()),
               ],
             ),
           ),
-          TextButton(
+          OraclyTextAction(
+            label: CompanionCopy.viewMemories,
+            emphasized: true,
             onPressed: onMemoryTap,
-            child: Text(
-              CompanionCopy.viewMemories,
-              style: ReadingTypography.sectionLabel(fontSize: 11),
-            ),
           ),
         ],
       ),

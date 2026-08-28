@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/app_layout.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/oracly_brand_signature.dart';
 
@@ -10,7 +11,7 @@ import '../../../core/theme/oracly_brand_signature.dart';
 abstract final class TarotTokens {
   TarotTokens._();
 
-  static const double maxContentWidth = 430;
+  static const double maxContentWidth = AppLayout.maxContentWidth;
   static const double ritualOrbSize = 148;
   static const double homeOrbSize = 208;
   static const double deckSelectionOrbSize = 176;
@@ -40,9 +41,18 @@ abstract final class TarotTokens {
   static const Curve ritualCurve = Curves.easeInOutCubic;
   static const Curve revealCurve = Curves.easeOutCubic;
 
-  static EdgeInsets get screenPadding => AppSpacing.screenHorizontal.copyWith(
-        top: AppSpacing.sm,
-        bottom: AppSpacing.xl,
+  /// Canonical tarot screen edges — clears floating shell nav via [AppLayout].
+  static EdgeInsets screenPaddingOf(BuildContext context) =>
+      AppLayout.scrollContentPadding(
+        context,
+        top: AppLayout.screenTop,
+      );
+
+  /// Horizontal + top only (no bottom). Prefer [screenPaddingOf] for scroll bodies.
+  static EdgeInsets get screenPadding =>
+      AppLayout.screenPaddingHorizontal.copyWith(
+        top: AppLayout.screenTop,
+        bottom: 0,
       );
 }
 

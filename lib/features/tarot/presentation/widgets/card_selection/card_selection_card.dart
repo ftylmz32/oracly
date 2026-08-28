@@ -3,11 +3,14 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/audio/oracly_feedback_gate.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/oracly_brand_signature.dart';
 import '../../../../../shared/widgets/oracly_pressable.dart';
+import '../../../motion/tarot_cinematic_motion.dart';
 import '../../../theme/tarot_tokens.dart';
 import '../shuffle/shuffle_card_face.dart';
+import 'card_selection_shadows.dart';
 
 class CardSelectionCard extends StatefulWidget {
   const CardSelectionCard({
@@ -95,208 +98,175 @@ class _CardSelectionCardState extends State<CardSelectionCard>
   }
 
   void _handleTap() {
-    OraclyTouchFeedback.acknowledge();
+    OraclyTouchFeedback.selection();
+    OraclyFeedbackGate.cardMove();
     widget.onTap();
-  }
-
-  List<BoxShadow> _cardShadow({required double touch, required bool selected}) {
-    if (selected) {
-      return [
-        BoxShadow(
-          color: AppColors.goldGlow.withValues(alpha: 0.2),
-          blurRadius: 16,
-          spreadRadius: 0,
-          offset: const Offset(0, 6),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.28),
-          blurRadius: 20,
-          offset: const Offset(0, 10),
-          spreadRadius: -4,
-        ),
-      ];
-    }
-
-    final pressed = Curves.easeOutCubic.transform(touch);
-    return [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.34 - pressed * 0.08),
-        blurRadius: 8 - pressed * 2,
-        offset: Offset(0, 2 + pressed * 1.5),
-        spreadRadius: -2,
-      ),
-    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final lift = widget.selected ? -18.0 : 0.0;
-    final dimOpacity = widget.dimmed ? 0.72 : 1.0;
-    final emphasis = widget.nearbyEmphasis.clamp(0.9, 1.0);
+    // Fan slot owns the main rise; this is a quiet local acknowledgment.
+    final lift = widget.selected ? -8.0 : 0.0;
+    final dimOpacity = widget.dimmed ? 0.52 : 1.0;
+    final emphasis = widget.nearbyEmphasis.clamp(0.82, 1.0);
     final slideY = (1 - widget.entrance) * 72;
+    final selectedGrow = widget.selected ? 1.045 : 1.0;
 
     return AnimatedBuilder(
       animation: Listenable.merge([_press, _ripple]),
       builder: (context, _) {
-        final touch = Curves.easeOutCubic.transform(_press.value);
-        final rippleT = Curves.easeOutCubic.transform(_ripple.value);
+        final touch = TarotCinematicMotion.curve(
+          Curves.easeOutCubic,
+          _press.value,
+        );
+        final rippleT = TarotCinematicMotion.curve(
+          Curves.easeOutCubic,
+          _ripple.value,
+        );
 
         final cx = widget.cardWidth / 2;
         final cy = widget.cardHeight / 2;
         final nx = ((_contact.dx - cx) / cx).clamp(-1.0, 1.0);
         final ny = ((_contact.dy - cy) / cy).clamp(-1.0, 1.0);
-        final tiltX = ny * 0.016 * touch;
-        final tiltY = -nx * 0.012 * touch;
-        final compressY = 1.0 - touch * 0.016;
-        final spreadX = 1.0 + touch * 0.003;
-        final pressDown = touch * 1.8;
+        final tiltX = ny * 0.03 * touch;
+        final tiltY = -nx * 0.024 * touch;
+        // Touch lifts the card forward off the velvet.
+        final liftTouch = -touch * 12;
+        final grow = 1.0 + touch * 0.045;
 
         return Opacity(
-          opacity: dimOpacity * emphasis * widget.entrance.clamp(0.0, 1.0),
+          opacity: (dimOpacity * emphasis * widget.entrance.clamp(0.0, 1.0))
+              .clamp(0.0, 1.0),
           child: Transform.translate(
-            offset: Offset(0, slideY + widget.floatOffset + lift + pressDown),
+            offset: Offset(0, slideY + widget.floatOffset + lift + liftTouch),
             child: Transform.scale(
-              scale: emphasis,
+              scale: emphasis * grow * selectedGrow,
               child: Transform(
                 alignment: Alignment.center,
                 transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.0012)
+                  ..setEntry(3, 2, 0.0014)
                   ..rotateX(tiltX)
                   ..rotateY(tiltY),
-                child: Transform.scale(
-                  scaleX: spreadX,
-                  scaleY: compressY,
-                  child: GestureDetector(
-                    onTapDown: _handleTapDown,
-                    onTapUp: (_) => _releasePress(),
-                    onTapCancel: _releasePress,
-                    onTap: widget.dimmed || widget.selected ? null : _handleTap,
-                    child: AnimatedContainer(
-                      duration: widget.selected
-                          ? const Duration(milliseconds: 680)
-                          : OraclySignatureMaterials.pressDuration,
-                      curve: widget.selected
-                          ? Curves.easeInOutCubic
-                          : OraclySignatureMaterials.curve,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(TarotTokens.cardCornerRadius),
-                        boxShadow: _cardShadow(
-                          touch: _press.value,
-                          selected: widget.selected,
+                child: GestureDetector(
+                  onTapDown: _handleTapDown,
+                  onTapUp: (_) => _releasePress(),
+                  onTapCancel: _releasePress,
+                  onTap: widget.dimmed || widget.selected ? null : _handleTap,
+                  child: AnimatedContainer(
+                    duration: widget.selected
+                        ? TarotCinematicMotion.cardMove
+                        : OraclySignatureMaterials.pressDuration,
+                    curve: widget.selected
+                        ? TarotCinematicMotion.weight
+                        : OraclySignatureMaterials.curve,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(TarotTokens.cardCornerRadius),
+                      border: Border.all(
+                        color: AppColors.goldLight.withValues(
+                          alpha: widget.selected
+                              ? 0.28
+                              : 0.08 + touch * 0.28,
                         ),
+                        width: widget.selected ? 0.8 : 0.7,
                       ),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          ShuffleCardFace(
-                            width: widget.cardWidth,
-                            height: widget.cardHeight,
-                            elevation: widget.selected
-                                ? 0.85
-                                : 0.52 - _press.value * 0.12,
-                            lightBiasX:
-                                (widget.floatOffset / 24).clamp(-0.18, 0.18) +
-                                    (_contact.dx / widget.cardWidth - 0.5) *
-                                        _press.value *
-                                        0.08,
-                            lightBiasY:
-                                (widget.floatOffset / 32).clamp(-0.12, 0.12) +
-                                    (_contact.dy / widget.cardHeight - 0.5) *
-                                        _press.value *
-                                        0.06,
-                            touchDepth: _press.value,
+                      boxShadow: cardSelectionShadows(
+                        touch: _press.value,
+                        selected: widget.selected,
+                      ),
+                    ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ShuffleCardFace(
+                          width: widget.cardWidth,
+                          height: widget.cardHeight,
+                          elevation: widget.selected
+                              ? 0.82
+                              : 0.52 + touch * 0.38,
+                          lightBiasX:
+                              (widget.floatOffset / 24).clamp(-0.18, 0.18) +
+                                  (_contact.dx / widget.cardWidth - 0.5) *
+                                      touch *
+                                      0.1,
+                          lightBiasY:
+                              (widget.floatOffset / 32).clamp(-0.12, 0.12) +
+                                  (_contact.dy / widget.cardHeight - 0.5) *
+                                      touch *
+                                      0.08,
+                          touchDepth: touch,
+                        ),
+                        if (touch > 0.02)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    TarotTokens.cardCornerRadius,
+                                  ),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      OraclySignaturePalette.champagne
+                                          .withValues(alpha: touch * 0.14),
+                                      Colors.transparent,
+                                      OraclySignaturePalette.champagneDeep
+                                          .withValues(alpha: touch * 0.07),
+                                    ],
+                                    stops: const [0.0, 0.45, 1.0],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                          if (_press.value > 0.02)
-                            Positioned.fill(
-                              child: IgnorePointer(
-                                child: DecoratedBox(
+                        if (_ripple.value > 0 && _ripple.value < 1)
+                          Positioned(
+                            left: _contact.dx - 28 - rippleT * 18,
+                            top: _contact.dy - 28 - rippleT * 18,
+                            child: IgnorePointer(
+                              child: Opacity(
+                                opacity: (1 - rippleT) * 0.28,
+                                child: Container(
+                                  width: 56 + rippleT * 36,
+                                  height: 56 + rippleT * 36,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                      TarotTokens.cardCornerRadius,
-                                    ),
-                                    border: Border.all(
-                                      color: OraclySignaturePalette.champagne
-                                          .withValues(
-                                        alpha: 0.12 + _press.value * 0.18,
-                                      ),
-                                      width: 0.6,
-                                    ),
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                                    shape: BoxShape.circle,
+                                    gradient: RadialGradient(
                                       colors: [
                                         OraclySignaturePalette.champagne
-                                            .withValues(
-                                          alpha: _press.value * 0.1,
-                                        ),
+                                            .withValues(alpha: 0.16),
                                         Colors.transparent,
-                                        OraclySignaturePalette.champagneDeep
-                                            .withValues(
-                                          alpha: _press.value * 0.06,
-                                        ),
                                       ],
-                                      stops: const [0.0, 0.45, 1.0],
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          if (_ripple.value > 0 && _ripple.value < 1)
-                            Positioned(
-                              left: _contact.dx - 28 - rippleT * 18,
-                              top: _contact.dy - 28 - rippleT * 18,
-                              child: IgnorePointer(
-                                child: Opacity(
-                                  opacity: (1 - rippleT) * 0.32,
-                                  child: Container(
-                                    width: 56 + rippleT * 36,
-                                    height: 56 + rippleT * 36,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: RadialGradient(
-                                        colors: [
-                                          OraclySignaturePalette.purpleEnergy
-                                              .withValues(alpha: 0.14),
-                                          OraclySignaturePalette.champagne
-                                              .withValues(alpha: 0.07),
-                                          Colors.transparent,
-                                        ],
-                                        stops: const [0.0, 0.38, 1.0],
+                          ),
+                        if (widget.surfaceLight > 0.02)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    TarotTokens.cardCornerRadius,
+                                  ),
+                                  gradient: RadialGradient(
+                                    center: const Alignment(0, -0.35),
+                                    radius: 1.1,
+                                    colors: [
+                                      AppColors.goldLight.withValues(
+                                        alpha: widget.surfaceLight * 0.14,
                                       ),
-                                    ),
+                                      AppColors.transparent,
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
-                          if (widget.surfaceLight > 0.02)
-                            Positioned.fill(
-                              child: IgnorePointer(
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                      TarotTokens.cardCornerRadius,
-                                    ),
-                                    gradient: RadialGradient(
-                                      center: const Alignment(0, -0.35),
-                                      radius: 1.1,
-                                      colors: [
-                                        AppColors.goldLight.withValues(
-                                          alpha: widget.surfaceLight * 0.14,
-                                        ),
-                                        AppColors.purpleGlow.withValues(
-                                          alpha: widget.surfaceLight * 0.06,
-                                        ),
-                                        AppColors.transparent,
-                                      ],
-                                      stops: const [0.0, 0.42, 1.0],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
                 ),

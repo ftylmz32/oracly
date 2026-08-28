@@ -5,6 +5,7 @@ import '../domain/models/prompts/astrology_prompt.dart';
 import '../domain/models/prompts/daily_energy_prompt.dart';
 import '../domain/models/prompts/dream_prompt.dart';
 import '../domain/models/prompts/tarot_prompt.dart';
+import '../../../core/personality/or_core.dart';
 import 'prompt_sanitizer.dart';
 
 enum PromptTemplate { general, tarot, dream, astrology, dailyEnergy }
@@ -31,10 +32,10 @@ class BuiltPrompt {
 abstract final class PromptBuilder {
   PromptBuilder._();
 
-  static const _baseSystemTr =
+  static final _baseSystemTr =
       'Sen OR — Oracly\'nin sakin yansıma arkadaşısın. '
       'Türkçe, sıcak ve ölçülü yanıtlar ver. Kesinlik, korku ve dramadan kaçın; '
-      'gözlem, olasılık ve düşünmeye davet kullan. Geleceği bildiğini ima etme. '
+      'gözlem, olasılık ve düşünmeye davet kullan. ${OrCore.epistemic} '
       'Yanıtları kısa paragraflar halinde böl; uzun duvar metinlerinden kaçın. '
       'Ara sıra nazik bir soru sor — kullanıcıyı test etme, düşündür. '
       'Sadece verilen hafıza ve bağlamdaki gerçek bilgileri kullan; uydurma. '

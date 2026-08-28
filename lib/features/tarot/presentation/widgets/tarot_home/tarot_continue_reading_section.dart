@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../app/providers/app_providers.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../components/tarot_loading.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -21,8 +22,6 @@ class TarotContinueReadingSection extends ConsumerWidget {
     this.onViewAll,
   });
 
-  static const String _title = 'Okumaya Devam Et';
-
   final VoidCallback? onViewAll;
 
   @override
@@ -33,9 +32,12 @@ class TarotContinueReadingSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TarotHomeSectionHeading(
-          title: _title,
+          title: OraclyL10n.t('tarot.continue.title'),
           trailing: onViewAll != null
-              ? TarotHomeGhostButton(label: 'Tümü', onPressed: onViewAll)
+              ? TarotHomeGhostButton(
+                  label: OraclyL10n.t('tarot.continue.all'),
+                  onPressed: onViewAll,
+                )
               : null,
         ),
         SizedBox(height: OraclyRhythm.sectionContentGap),
@@ -44,7 +46,9 @@ class TarotContinueReadingSection extends ConsumerWidget {
             lightTier: OraclyLightTier.midChamber,
             child: SizedBox(
               height: 120,
-              child: TarotLoading(message: 'Son açılımlar dinleniyor...'),
+              child: TarotLoading(
+                message: OraclyL10n.t('tarot.continue.loading'),
+              ),
             ),
           ),
           error: (_, _) => TarotHomeSectionShell(
@@ -53,7 +57,7 @@ class TarotContinueReadingSection extends ConsumerWidget {
               height: 120,
               child: Center(
                 child: Text(
-                  'Son açılımlar şu an yüklenemedi.',
+                  OraclyL10n.t('tarot.continue.error'),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textMuted,

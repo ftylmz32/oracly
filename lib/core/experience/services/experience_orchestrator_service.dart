@@ -23,13 +23,15 @@ class ExperienceOrchestratorService {
     ExperienceOrchestrator orchestrator = const ExperienceOrchestrator(),
     List<ExperienceSignalProvider> signalProviders = const [],
     bool aiAvailable = true,
+    Map<String, bool> remoteFeatureFlags = const {},
   })  : _reflection = reflection,
         _dailyRitual = dailyRitual,
         _settings = settings,
         _premium = premium,
         _orchestrator = orchestrator,
         _signalProviders = signalProviders,
-        _aiAvailable = aiAvailable;
+        _aiAvailable = aiAvailable,
+        _remoteFeatureFlags = remoteFeatureFlags;
 
   final ReflectionEngineService _reflection;
   final DailyRitualService _dailyRitual;
@@ -38,6 +40,7 @@ class ExperienceOrchestratorService {
   final ExperienceOrchestrator _orchestrator;
   final List<ExperienceSignalProvider> _signalProviders;
   final bool _aiAvailable;
+  final Map<String, bool> _remoteFeatureFlags;
 
   Future<ExperienceContext> decide({
     DateTime? asOf,
@@ -80,7 +83,10 @@ class ExperienceOrchestratorService {
     var ritualToday = _dailyRitual.loadToday(asOf);
     var premiumActive = await _premium.isActive();
     var aiAvailable = _aiAvailable;
-    var flags = ExperienceFeatureFlags.defaults(aiAvailable: aiAvailable);
+    var flags = {
+      ...ExperienceFeatureFlags.defaults(aiAvailable: aiAvailable),
+      ..._remoteFeatureFlags,
+    };
     var resolvedSession = sessionDuration;
 
     for (final provider in _signalProviders) {

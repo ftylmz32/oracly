@@ -4,8 +4,13 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../../../features/insights/models/journey_personalization_hints.dart';
+import '../../copy/tarot_l10n.dart';
+import '../../deck/oracly_tarot_bridge.dart';
 import '../../domain/models/reading_session.dart';
+import '../../domain/models/spread_engine.dart';
 import '../../domain/models/tarot_spread.dart';
+import '../../reading/reading_question.dart';
+import '../../../../core/l10n/l10n.dart';
 
 @immutable
 class ReadingCardContext {
@@ -36,7 +41,8 @@ class ReadingCardContext {
   final String? imageAsset;
 
   String get effectiveMeaning => isReversed ? reversedMeaning : uprightMeaning;
-  String get orientationLabel => isReversed ? 'Ters' : 'Düz';
+  String get orientationLabel =>
+      TarotL10n.orientation(reversed: isReversed);
 }
 
 @immutable
@@ -86,43 +92,106 @@ class ReadingContext {
     );
   }
 
-  String get cacheKey =>
-      'interp_${sessionId}_${shuffleSeed ?? 0}_${cards.map((c) => "${c.cardId}:${c.isReversed}").join("-")}';
+  String get cacheKey {
+    final q = (userQuestion ?? '').trim().hashCode;
+    final h = journeyHints?.priorReadingCount ?? 0;
+    final cardsKey =
+        cards.map((c) => '${c.cardId}:${c.isReversed}').join('-');
+    return 'interp_${sessionId}_${shuffleSeed ?? 0}_${q}_${h}_$cardsKey';
+  }
 
   factory ReadingContext.fromSession(
     ReadingSession session, {
-    String language = 'tr',
+    String? language,
   }) {
+    final code = language ?? OraclyL10n.code;
     return ReadingContext(
       sessionId: session.id,
       spreadType: session.spread,
-      spreadLabel: session.spread.label,
+      spreadLabel: TarotL10n.spread(session.spread),
       deckId: session.deckId,
-      language: language,
+      language: code,
       readingDate: session.completedAt ?? session.startedAt,
       userId: session.userId,
-      userQuestion: session.intention.text.trim().isEmpty
-          ? null
-          : session.intention.text.trim(),
+      userQuestion: ReadingQuestion.real(session.intention.text),
       readingTheme: session.intention.topic,
       shuffleSeed: session.shuffleSeed,
-      cards: session.drawnCards
-          .map(
-            (d) => ReadingCardContext(
-              cardId: d.card.id,
-              cardName: d.card.name,
-              positionIndex: d.positionIndex,
-              positionLabel: d.positionLabel ?? 'Kart ${d.positionIndex + 1}',
-              positionKey: d.positionKey ?? 'pos_${d.positionIndex}',
-              isReversed: d.isReversed,
-              uprightMeaning: d.card.meaning,
-              reversedMeaning: d.card.reversedMeaning,
-              keywords: d.card.keywords,
-              element: d.card.element,
-              imageAsset: d.card.image,
+      cards: [
+        for (final d in SpreadEngine.interpretationCards(
+          spread: session.spread,
+          drawn: session.drawnCards,
+        ))
+          ReadingCardContext(
+            cardId: d.card.id,
+            cardName: TarotL10n.cardName(
+              d.card.id,
+              fallback: d.card.name,
+              language: code,
             ),
-          )
-          .toList(),
+            positionIndex: d.positionIndex,
+            positionLabel: _position(
+              d,
+              session.spread,
+              code,
+            ),
+            positionKey: d.positionKey ??
+                SpreadEngine.positionAt(session.spread, d.positionIndex)?.key ??
+                'pos_${d.positionIndex}',
+            isReversed: d.isReversed,
+            uprightMeaning: _meaning(
+              d.card.id,
+              reversed: false,
+              language: code,
+              fallback: d.card.meaning,
+            ),
+            reversedMeaning: _meaning(
+              d.card.id,
+              reversed: true,
+              language: code,
+              fallback: d.card.reversedMeaning,
+            ),
+            keywords: _keys(
+              d.card.id,
+              language: code,
+              fallback: d.card.keywords,
+            ),
+            element: d.card.element,
+            imageAsset: d.card.image,
+          ),
+      ],
     );
   }
+}
+
+String _meaning(
+  int id, {
+  required bool reversed,
+  required String language,
+  required String fallback,
+}) {
+  final value = OraclyTarotBridge.meaning(
+    id,
+    reversed: reversed,
+    language: language,
+  );
+  return value.trim().isEmpty ? fallback : value;
+}
+
+List<String> _keys(
+  int id, {
+  required String language,
+  required List<String> fallback,
+}) {
+  final value = OraclyTarotBridge.keywords(id, language: language);
+  return value.isEmpty ? fallback : value;
+}
+
+String _position(TarotDrawnCard drawn, TarotSpreadType spread, String code) {
+  final key = drawn.positionKey ??
+      SpreadEngine.positionAt(spread, drawn.positionIndex)?.key;
+  if (key == null) {
+    return OraclyL10n.t('tarot.card_field', languageCode: code);
+  }
+  final value = OraclyL10n.t('tarot.pos.$key', languageCode: code);
+  return value == 'tarot.pos.$key' ? drawn.localizedPosition : value;
 }

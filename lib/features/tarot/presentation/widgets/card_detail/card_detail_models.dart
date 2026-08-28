@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:oracly_new/core/l10n/l10n.dart';
+
 /// One symbolic element illustrated on the card art.
 class CardSymbolEntry {
   const CardSymbolEntry({
@@ -44,19 +46,19 @@ class CardMeaningSections {
   final String shadow;
   final String advice;
 
-  static const sectionTitles = <(String key, String title, IconData icon)>[
-    ('general', 'Genel Anlam', Icons.auto_stories_rounded),
-    ('upright', 'Düz Anlam', Icons.arrow_upward_rounded),
-    ('reversed', 'Ters Anlam', Icons.arrow_downward_rounded),
-    ('love', 'Aşk', Icons.favorite_rounded),
-    ('career', 'Kariyer', Icons.work_outline_rounded),
-    ('money', 'Para', Icons.payments_outlined),
-    ('spiritual', 'Ruhsal Anlam', Icons.self_improvement_rounded),
-    ('health', 'Sağlık', Icons.healing_rounded),
-    ('personality', 'Kişilik', Icons.person_outline_rounded),
-    ('shadow', 'Gölge Yön', Icons.dark_mode_outlined),
-    ('advice', 'Tavsiye', Icons.lightbulb_outline_rounded),
-  ];
+  static List<(String key, String title, IconData icon)> get sectionTitles => [
+        ('general', OraclyL10n.t('tarot.section.general'), Icons.auto_stories_rounded),
+        ('upright', OraclyL10n.t('tarot.section.upright'), Icons.arrow_upward_rounded),
+        ('reversed', OraclyL10n.t('tarot.section.reversed'), Icons.arrow_downward_rounded),
+        ('love', OraclyL10n.t('tarot.section.love'), Icons.favorite_rounded),
+        ('career', OraclyL10n.t('tarot.section.career'), Icons.work_outline_rounded),
+        ('money', OraclyL10n.t('tarot.section.money'), Icons.payments_outlined),
+        ('spiritual', OraclyL10n.t('tarot.section.spiritual'), Icons.self_improvement_rounded),
+        ('health', OraclyL10n.t('tarot.section.health'), Icons.healing_rounded),
+        ('personality', OraclyL10n.t('tarot.section.personality'), Icons.person_outline_rounded),
+        ('shadow', OraclyL10n.t('tarot.section.shadow'), Icons.dark_mode_outlined),
+        ('advice', OraclyL10n.t('tarot.section.advice'), Icons.lightbulb_outline_rounded),
+      ];
 
   String textForKey(String key) => switch (key) {
         'general' => general,
@@ -98,6 +100,7 @@ class CardDetailContent {
   final int id;
   final String name;
   final String displayNameTr;
+  String get displayName => OraclyL10n.t('tarot.card.$id');
   final String imageAsset;
   final String arcanaType;
   final String element;

@@ -25,12 +25,38 @@ class Logger {
       _log(LogLevel.warning, message, data);
 
   void error(String message, [Object? error, StackTrace? stack]) =>
-      _log(LogLevel.error, message, error, stack);
+      _log(LogLevel.error, message, error);
 
-  void _log(LogLevel level, String message, [Object? data, StackTrace? stack]) {
+  void _log(LogLevel level, String message, [Object? data]) {
+    if (!kDebugMode) return;
     if (!_enabled && level == LogLevel.debug) return;
-    final prefix = '[${level.name.toUpperCase()}][$tag]';
-    debugPrint('$prefix $message${data != null ? ' | $data' : ''}');
-    if (stack != null) debugPrint(stack.toString());
+    final body = data == null
+        ? _scrub(message)
+        : '${_scrub(message)} ${_scrub(data.toString())}';
+    debugPrint('[${level.name.toUpperCase()}][$tag] $body');
   }
+
+  /// Never echo provider keys / bearer tokens even in debug.
+  @visibleForTesting
+  static String scrub(String message) {
+    var out = message;
+    out = out.replaceAllMapped(
+      RegExp(r'(sk-[A-Za-z0-9_\-]{8,})'),
+      (_) => 'sk-[redacted]',
+    );
+    out = out.replaceAllMapped(
+      RegExp(r'(Bearer\s+)[A-Za-z0-9._\-]+', caseSensitive: false),
+      (m) => '${m[1]}[redacted]',
+    );
+    out = out.replaceAllMapped(
+      RegExp(
+        r'((?:api[_-]?key|openai_api_key|authorization)\s*[:=]\s*)\S+',
+        caseSensitive: false,
+      ),
+      (m) => '${m[1]}[redacted]',
+    );
+    return out;
+  }
+
+  static String _scrub(String message) => scrub(message);
 }

@@ -1,0 +1,105 @@
+{
+  "device": "TECNO KN8",
+  "visual": {
+    "exactly_one_ana_sayfa": true,
+    "logo_oracly": true,
+    "hero": true,
+    "or_flagship": true,
+    "bugunun_izi": true,
+    "discovery_grid": true,
+    "bottom_nav": true,
+    "premium": true,
+    "gems": false,
+    "premium_height_px": 134
+  },
+  "taps": {
+    "or_chat": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "OR / Sakin bir sohbet — senin temposunda. / Sohbete başla",
+      "after": "Geri || OR / OR / Dinliyorum. || Mücevherler, 20 / 20 || ORACLY / Nasılsın? / Sakin, dikkatli, yanındaymış gibi — geleceği iddia etmez. / OR’un sesi: sıcak, net, baskısız. || ÖRNEK BİR SOHBET / Bu bir örnektir — senin hikâyen değil. || Bugün içimde bir ağırlık var; adını koyamıyo",
+      "is_home_after": true
+    },
+    "coffee_tile": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "Kahve Falı / Fincanı oku",
+      "after": "Geri || KAHVE / KAHVE || Mücevherler, 20 / 20 || Fincanındaki izleri birlikte okuyalım. || KAHVE || Fincan yorumu için OR bağlantısı gerekir. || FOTOĞRAF ÇEK / FOTOĞRAF ÇEK || GALERİDEN SEÇ / GALERİDEN SEÇ || FİNCANIN SANA ANLATTIĞI || Ana Sayfa || Kahve || Astroloji || Yıldıznam",
+      "is_home_after": false
+    },
+    "palm": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "El Falı / Avuç izleri",
+      "after": "Geri || EL FALI || Mücevherler, 20 / 20 || Elindeki çizgilerin anlattığı hikâyeyi keşfet. || EL FALI || Mümkünse hangi eli çektiğini seç. || SOL EL || SOL EL || SAĞ EL || SAĞ EL || Avucunun tamamını kadraja al. || El yorumu için OR bağlantısı gerekir. || FOTOĞRAF ÇEK / FOTOĞRAF Ç",
+      "is_home_after": false
+    },
+    "astrology_tile": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "Astroloji / Bugünün göğü",
+      "after": "ASTROLOJİ / ASTROLOJİ || Geri || Bugün gökyüzü / sana ne öneriyor? || Mücevherler, 20 / 20 || KOÇ || 21 Mart – 19 Nisan || BUGÜN GÖKYÜZÜ NE ÖNERİYOR? || Bugünün gökyüzünde asıl duran yer: tempo yüksek. Cesaretin açık; acele büyük karar yerine tek görünür adım daha doğru. || İçeri",
+      "is_home_after": true
+    },
+    "yildizname_tile": {
+      "ok": false,
+      "crashed": false,
+      "tapped": "Yıldızname / Yıldız arşivi",
+      "after": "Menü / ORACLY / ORACLY || Hoş geldin, Yolcu. Bugün senin için neler keşfedelim? / Hoş geldin, Yolcu / Bugün senin için neler keşfedelim? || OR. Sakin bir sohbet — senin temposunda.. Sohbete başla || OR / Sakin bir sohbet — senin temposunda. / Sohbete başla || ORACLY || Sohbete ba",
+      "is_home_after": true
+    },
+    "soulmate": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "Ruh Eşi / Sembolik portre",
+      "after": "ASTROLOJİ / ASTROLOJİ || Geri || Bugün gökyüzü / sana ne öneriyor? || Mücevherler, 20 / 20 || KOÇ || 21 Mart – 19 Nisan || BUGÜN GÖKYÜZÜ NE ÖNERİYOR? || Bugünün gökyüzünde asıl duran yer: tempo yüksek. Cesaretin açık; acele büyük karar yerine tek görünür adım daha doğru. || İçeri",
+      "is_home_after": true
+    },
+    "tarot": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "Tarot / Bir kart, bir an",
+      "after": "Geri || ALANIN || Mücevherler, 20 / 20 || Fotoğraf || Y || Yolcu || Burası senin özel ORACLY odan. || Fotoğraf Ekle || BENİM HİKÂYEM / Keşiflerin biriktikçe sana özel bağlantılar daha görünür olacak. / Hikâyeyi oku || Favori Anlarım / Henüz sakladığın bir an yok. / Koleksiyonu aç",
+      "is_home_after": true
+    },
+    "premium": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "Premium'u keşfet / Mağaza satın alması henüz açılmadı.",
+      "after": "Geri || PREMİUM || Mücevherler, 20 / 20 || ÖZEL BİR ODA / ORACLY’nin daha derin, sessiz bir katmanı — isteğe bağlı bir oda. / Premium isteğe bağlıdır. Acele yok. / NEDİR BU KATMAN / Premium, Ruh Eşi odasını ve OR sohbetini açar. Keşif günlüğü, arşiv, kahve, el, gökyüzü ve günün m",
+      "is_home_after": true
+    },
+    "profile_tab": {
+      "ok": true,
+      "crashed": false,
+      "tapped": "Profil",
+      "after": "Geri || ALANIN || Mücevherler, 20 / 20 || Fotoğraf || Y || Yolcu || Burası senin özel ORACLY odan. || Fotoğraf Ekle || BENİM HİKÂYEM / Keşiflerin biriktikçe sana özel bağlantılar daha görünür olacak. / Hikâyeyi oku || Favori Anlarım / Henüz sakladığın bir an yok. / Koleksiyonu aç",
+      "is_home_after": true
+    }
+  },
+  "issues": [
+    "premium_clipped_height_7",
+    "gems_not_visible_on_home_scroll",
+    "gems_gate_failed"
+  ],
+  "final": {
+    "blob": "Menü / ORACLY / ORACLY || Hoş geldin, Yolcu. Bugün senin için neler keşfedelim? / Hoş geldin, Yolcu / Bugün senin için neler keşfedelim? || OR. Sakin bir sohbet — senin temposunda.. Sohbete başla || OR / Sakin bir sohbet — senin temposunda. / Sohbete başla || ORACLY || Sohbete başla || Bugünün İzi / Bugünün İzi / Gece / Geceye biraz yer bırak. || Kart çek || Keşifler || Kahve Falı || Kahve Falı / Fincanı oku || El Falı || El Falı / Avuç izleri || Astroloji || Astroloji / Bugünün göğü || Yıldızname || Yıldızname / Yıldız arşivi || Ruh Eşi || Ruh Eşi / Sembolik portre || Tarot || Tarot / Bir kart, bir an || Premium'u keşfet. Mağaza satın alması henüz açılmadı. || Premium'u keşfet / Mağaza satı",
+    "ana_sayfa_count": 1,
+    "debug_overlay": false
+  },
+  "crash_seen": false,
+  "fatal_snip": [],
+  "DEVICE_VERIFICATION": "FAIL",
+  "verdict_summary": {
+    "device": "TECNO KN8 available",
+    "pass": false,
+    "blockers": [
+      "discovery_bottom_row_overlaps_bottom_nav",
+      "premium_clipped_at_rest",
+      "gems_hidden_first_session"
+    ],
+    "no_crash": true,
+    "duplicate_home": false,
+    "debug_overlay": false
+  }
+}

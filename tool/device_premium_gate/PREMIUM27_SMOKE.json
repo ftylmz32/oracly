@@ -1,0 +1,19 @@
+{
+  "PREMIUM_MASTER_STATUS": "BLOCKED - EXTERNAL",
+  "REAL_STORE_PURCHASE": "NOT RUN",
+  "reason": "Play Billing products not configured / not loaded on device",
+  "device": "TECNO KN8 1700848656001190",
+  "evidence": {
+    "or_paywall_raw_xml": "tool/device_premium_gate/raw.xml shows Magaza satin almasi henuz acilmadi on OR chamber",
+    "home10_prior": "HOME10_REPORT opened Premium chamber with honest unavailable and no fake TL prices",
+    "this_smoke": "landed on Tarot intent; Premium CTA seek incomplete on APK",
+    "fake_price": false,
+    "fake_success": false,
+    "focused_tests": 111
+  },
+  "product_ids": [
+    "app.oracly.premium.monthly",
+    "app.oracly.premium.yearly",
+    "app.oracly.premium.lifetime"
+  ]
+}

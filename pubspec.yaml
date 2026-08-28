@@ -1,5 +1,5 @@
 name: oracly_new
-description: "A new Flutter project."
+description: "ORACLY — premium digital sanctuary for reflection."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -10,6 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Locale-aware dates, times, and number grouping
+  intl: ^0.20.2
 
   cupertino_icons: ^1.0.8
 
@@ -25,16 +30,220 @@ dependencies:
   # State management — OR-1100
   flutter_riverpod: ^2.6.1
 
+  # EPIC-015 — Subtle procedural ambience & SFX
+  audioplayers: ^6.1.0
+
+  # Kahve Falı — camera / gallery input
+  image_picker: ^1.1.2
+
+  # Tasteful discovery share sheet (caption + card image)
+  share_plus: ^11.0.0
+
+  # Dream Sesli Anlat — OS speech-to-text (not OpenAI)
+  speech_to_text: ^7.4.0
+  permission_handler: ^12.0.1
+  flutter_local_notifications: ^19.4.2
+  timezone: ^0.10.1
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  flutter_tts: ^4.2.5
+  path_provider: ^2.1.6
+  url_launcher: ^6.3.2
+  camera: ^0.12.0+2
+  in_app_purchase: ^3.3.0
+  flutter_image_compress: ^2.5.1
+  image: ^4.9.2
+  firebase_app_check: 0.4.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
 
   assets:
-    - .env
+    - .env.example
+    - assets/splash/
     - lib/assets/images/
+    - lib/assets/brand/
+    - lib/assets/images/home/
+    - lib/assets/images/astrology/
+    - lib/assets/images/astrology/zodiac/
+    - lib/assets/images/yildizname/
+    - lib/assets/images/premium/
+    - lib/assets/images/profile/
+    - lib/assets/images/thumbs/
+    # TAROT_RUNTIME_ASSETS_BEGIN
+    # Source PNG beside these files is not listed, so not bundled.
+    - lib/assets/images/tarot/major_arcana/00_deli.webp
+    - lib/assets/images/tarot/major_arcana/01_buyucu.webp
+    - lib/assets/images/tarot/major_arcana/02_basrahibe.webp
+    - lib/assets/images/tarot/major_arcana/03_imparatorice.webp
+    - lib/assets/images/tarot/major_arcana/04_imparator.webp
+    - lib/assets/images/tarot/major_arcana/05_aziz.webp
+    - lib/assets/images/tarot/major_arcana/06_asiklar.webp
+    - lib/assets/images/tarot/major_arcana/07_savas_arabasi.webp
+    - lib/assets/images/tarot/major_arcana/08_guc.webp
+    - lib/assets/images/tarot/major_arcana/09_ermis.webp
+    - lib/assets/images/tarot/major_arcana/10_kader_carki.webp
+    - lib/assets/images/tarot/major_arcana/11_adalet.webp
+    - lib/assets/images/tarot/major_arcana/12_asilan_adam.webp
+    - lib/assets/images/tarot/major_arcana/13_olum.webp
+    - lib/assets/images/tarot/major_arcana/14_denge.webp
+    - lib/assets/images/tarot/major_arcana/15_seytan.webp
+    - lib/assets/images/tarot/major_arcana/16_kule.webp
+    - lib/assets/images/tarot/major_arcana/17_yildiz.webp
+    - lib/assets/images/tarot/major_arcana/18_ay.webp
+    - lib/assets/images/tarot/major_arcana/19_gunes.webp
+    - lib/assets/images/tarot/major_arcana/20_yargi.webp
+    - lib/assets/images/tarot/major_arcana/21_dunya.webp
+    - lib/assets/images/tarot/minor_arcana/cups/01_ace_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/02_two_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/03_three_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/04_four_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/05_five_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/06_six_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/07_seven_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/08_eight_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/09_nine_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/10_ten_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/11_page_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/12_knight_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/13_king_cups.webp
+    - lib/assets/images/tarot/minor_arcana/cups/14_queen_cups.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/01_ace_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/02_two_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/03_three_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/04_four_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/05_five_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/06_six_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/07_seven_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/08_eight_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/09_nine_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/10_ten_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/11_page_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/12_knight_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/13_king_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/pentacles/14_queen_pentacles.webp
+    - lib/assets/images/tarot/minor_arcana/swords/01_ace_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/02_two_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/03_three_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/04_four_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/05_five_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/06_six_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/07_seven_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/08_eight_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/09_nine_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/10_ten_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/11_page_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/12_knight_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/13_king_swords.webp
+    - lib/assets/images/tarot/minor_arcana/swords/14_queen_swords.webp
+    - lib/assets/images/tarot/minor_arcana/wands/01_ace_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/02_two_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/03_three_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/04_four_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/05_five_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/06_six_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/07_seven_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/08_eight_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/09_nine_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/10_ten_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/11_page_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/12_knight_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/13_king_wands.webp
+    - lib/assets/images/tarot/minor_arcana/wands/14_queen_wands.webp
+    - lib/assets/images/tarot/tarot_card_back.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/00_deli.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/01_buyucu.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/02_basrahibe.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/03_imparatorice.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/04_imparator.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/05_aziz.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/06_asiklar.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/07_savas_arabasi.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/08_guc.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/09_ermis.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/10_kader_carki.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/11_adalet.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/12_asilan_adam.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/13_olum.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/14_denge.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/15_seytan.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/16_kule.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/17_yildiz.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/18_ay.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/19_gunes.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/20_yargi.webp
+    - lib/assets/images/tarot/thumbs/major_arcana/21_dunya.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/01_ace_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/02_two_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/03_three_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/04_four_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/05_five_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/06_six_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/07_seven_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/08_eight_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/09_nine_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/10_ten_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/11_page_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/12_knight_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/13_king_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/cups/14_queen_cups.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/01_ace_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/02_two_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/03_three_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/04_four_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/05_five_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/06_six_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/07_seven_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/08_eight_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/09_nine_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/10_ten_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/11_page_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/12_knight_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/13_king_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/pentacles/14_queen_pentacles.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/01_ace_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/02_two_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/03_three_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/04_four_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/05_five_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/06_six_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/07_seven_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/08_eight_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/09_nine_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/10_ten_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/11_page_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/12_knight_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/13_king_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/swords/14_queen_swords.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/01_ace_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/02_two_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/03_three_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/04_four_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/05_five_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/06_six_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/07_seven_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/08_eight_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/09_nine_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/10_ten_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/11_page_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/12_knight_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/13_king_wands.webp
+    - lib/assets/images/tarot/thumbs/minor_arcana/wands/14_queen_wands.webp
+    - lib/assets/images/tarot/thumbs/tarot_card_back.webp
+    # TAROT_RUNTIME_ASSETS_END
     - lib/assets/icons/
+    - assets/tarot/brand/
+    - assets/tarot/card_back/
+    - assets/tarot/logo/
+    - assets/tarot/cards/major/
+    - assets/tarot/cards/wands/
+    - assets/tarot/cards/cups/
+    - assets/tarot/cards/swords/
+    - assets/tarot/cards/pentacles/

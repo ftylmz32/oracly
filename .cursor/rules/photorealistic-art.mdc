@@ -1,0 +1,40 @@
+---
+description: Permanent photorealistic cinematic art standard + image asset pipeline
+alwaysApply: true
+---
+
+# ORACLY — Photorealistic Art + Asset Pipeline
+
+Canonical art governance: `docs/GLOBAL_VISUAL_QUALITY_SYSTEM.md`  
+Canonical art detail: `docs/PHOTOREALISTIC_ART_STANDARD.md`  
+Canonical pipeline: `docs/PHOTOREALISTIC_IMAGE_ASSET_PIPELINE.md`  
+Tooling: `tool/oracly_image_pipeline/`
+
+## Before any new major image asset
+
+Must be: **photorealistic · cinematic · editorial · physically believable** — real materials, light, depth.
+
+Shared DNA: near-black · midnight navy · deep violet · antique gold · warm ivory · realistic lighting · cinematic depth · natural DoF.
+
+Feature identity must match `docs/GLOBAL_VISUAL_QUALITY_SYSTEM.md` (Coffee = ritual cup; OR ≠ giant orb/mascot; etc.).
+
+**No text / logos / feature names / badges inside images** — Flutter owns all copy.
+
+## Pipeline (mandatory)
+
+1. QC against Global Visual Quality System + art standard (reject illustration look)
+2. Save master under `art_masters/<feature>/` (not shipped)
+3. `python tool/oracly_image_pipeline/optimize_asset.py --in … --out lib/assets/images/… --role <role> [--thumb …]`
+4. Register in `AppAssets` + `pubspec` folder
+5. Wire with stable `AspectRatio` / `BoxFit.cover`
+6. Optional: `python tool/oracly_image_pipeline/audit_runtime.py`
+
+Roles: `hero_wide` · `hero_tall` · `discovery_tile` · `plate_square` · `backdrop` · `banner` · `thumb`
+
+## Forbidden
+
+Illustration · vector · cartoon · anime · flat icon · generic 3D · game art · plastic humans · fake anatomy · neon magic overlays · baked UI text · shipping giant masters in the app bundle · giant OR mascot orb as primary hero
+
+## Quality bar
+
+Luxury cinematic photography → **PASS**. AI illustration mockup → **FAIL**.

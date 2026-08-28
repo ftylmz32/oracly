@@ -3,8 +3,13 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../auth/auth_runtime.dart';
 import '../auth/auth_service.dart';
-import '../auth/mock_auth_service.dart';
+import '../auth/auth_service_selection.dart';
+import '../auth/firebase/firebase_auth_bootstrap.dart';
+import '../auth/firebase/firebase_auth_gateway.dart';
+import '../auth/firebase/firebase_id_token_manager.dart';
+import '../auth/firebase/live_firebase_auth_gateway.dart';
 import '../auth/secure_token_manager.dart';
 import '../auth/session_manager.dart';
 import '../auth/token_manager.dart';
@@ -24,6 +29,10 @@ import '../logging/performance_logger.dart';
 import '../monitoring/crashlytics.dart';
 import '../monitoring/firebase_analytics.dart';
 import '../monitoring/performance_monitor.dart';
+import '../remote_config/remote_config_pending_store.dart';
+import '../remote_config/remote_config_port.dart';
+import '../remote_config/remote_config_service.dart';
+import '../experiments/experiment_service.dart';
 import '../network/api_client.dart';
 import '../network/auth_interceptor.dart';
 import '../network/retry_interceptor.dart';
@@ -65,8 +74,18 @@ final offlineCacheProvider = Provider<OfflineCache>((ref) {
 
 // ── Auth ─────────────────────────────────────────────────────────
 
+final firebaseAuthGatewayProvider = Provider<FirebaseAuthGateway?>((ref) {
+  if (!FirebaseAuthBootstrap.isReady) return null;
+  return LiveFirebaseAuthGateway();
+});
+
 final tokenManagerProvider = Provider<TokenManager>((ref) {
-  return SecureTokenManager(ref.watch(secureStorageProvider));
+  final stored = SecureTokenManager(ref.watch(secureStorageProvider));
+  final gateway = ref.watch(firebaseAuthGatewayProvider);
+  if (gateway != null && gateway.isInitialized) {
+    return FirebaseIdTokenManager(gateway, fallback: stored);
+  }
+  return stored;
 });
 
 final sessionManagerProvider = Provider<SessionManager>((ref) {
@@ -74,7 +93,14 @@ final sessionManagerProvider = Provider<SessionManager>((ref) {
 });
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return MockAuthService();
+  return AuthServiceSelection.create(
+    productionLike: AuthRuntime.isProductionLike,
+    firebaseReady: FirebaseAuthBootstrap.isReady,
+    gateway: ref.watch(firebaseAuthGatewayProvider),
+    tokens: ref.watch(tokenManagerProvider),
+    sessions: ref.watch(sessionManagerProvider),
+    storage: ref.watch(localStorageProvider),
+  );
 });
 
 // ── Network ──────────────────────────────────────────────────────
@@ -141,6 +167,25 @@ final firebaseAnalyticsProvider = Provider<FirebaseAnalyticsService>((ref) {
 
 final crashlyticsProvider = Provider<CrashlyticsService>((ref) {
   return NoOpCrashlyticsService(logger: ref.watch(crashLoggerProvider));
+});
+
+final remoteConfigPortProvider = Provider<RemoteConfigPort>((ref) {
+  return const LocalRemoteConfigPort();
+});
+
+final remoteConfigPendingStoreProvider = Provider<RemoteConfigPendingStore>((ref) {
+  return RemoteConfigPendingStore(ref.watch(localStorageProvider));
+});
+
+final remoteConfigServiceProvider = Provider<RemoteConfigService>((ref) {
+  return RemoteConfigService(
+    port: ref.watch(remoteConfigPortProvider),
+    pendingStore: ref.watch(remoteConfigPendingStoreProvider),
+  );
+});
+
+final experimentServiceProvider = Provider<ExperimentService>((ref) {
+  return ExperimentService(storage: ref.watch(localStorageProvider));
 });
 
 final performanceMonitorProvider = Provider<PerformanceMonitoringService>((ref) {

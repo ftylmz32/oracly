@@ -1,0 +1,12 @@
+{
+  "DEVICE_VERIFICATION": "PARTIAL",
+  "opened_profile": true,
+  "profile_has_personal_copy": true,
+  "opened_journal_attempt": false,
+  "journal_sample": "Geri || ALANIN || Mücevherler, 20 / 20 || Ruh Eşi / Henüz senin için bir portre oluşturmadık. || ODANDA || OR || OR || Günün Mesajı || Günün Mesajı || DIĞER || AYARLAR || AYARLAR || ÖZEL BİR ODA || ORACLY’nin daha derin, sessiz bir katmanı — isteğe bağlı bir oda. || KEŞFET || Ana",
+  "entry_opened_sample": "Geri || OR / OR / Dinliyorum. || Mücevherler, 20 / 20 || ORACLY / Nasılsın? / Sakin, dikkatli, yanındaymış gibi — geleceği iddia etmez. / OR’un sesi: sıcak, net, baskısız. || ÖRNEK BİR SOHBET / Bu bir",
+  "or_delete_verified": false,
+  "crash_or_overflow_log": false,
+  "redeployed": false,
+  "notes": "Installed APK may lag local source; delete not exercised."
+}

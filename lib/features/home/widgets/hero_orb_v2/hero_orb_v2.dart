@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/performance/oracly_decode_cache.dart';
 import '../../../../core/theme/app_spacing.dart';
 
 /// Hero orb rendered from the premium reference asset (no CustomPainter).
@@ -21,6 +22,10 @@ class HeroOrbV2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final renderSize = size * _renderScale;
 
+    final cacheW = oraclyDecodeCachePx(
+      renderSize,
+      MediaQuery.devicePixelRatioOf(context),
+    );
     return SizedBox(
       width: renderSize,
       height: renderSize,
@@ -32,6 +37,7 @@ class HeroOrbV2 extends StatelessWidget {
           fit: BoxFit.contain,
           filterQuality: FilterQuality.high,
           gaplessPlayback: true,
+          cacheWidth: cacheW,
         ),
       ),
     );

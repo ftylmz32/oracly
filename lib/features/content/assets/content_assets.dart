@@ -5,9 +5,10 @@ abstract final class ContentAssets {
   ContentAssets._();
 
   static const String tarotRoot = 'lib/assets/images/cards/tarot';
-  static const String tarotMajor = '$tarotRoot/major';
-  static const String tarotCups = '$tarotRoot/cups';
-  static const String tarotWands = '$tarotRoot/wands';
-  static const String tarotSwords = '$tarotRoot/swords';
-  static const String tarotPentacles = '$tarotRoot/pentacles';
+  static const String tarotMajor = 'lib/assets/images/tarot/major_arcana';
+  static const String tarotMinor = 'lib/assets/images/tarot/minor_arcana';
+  static const String tarotCups = '$tarotMinor/cups';
+  static const String tarotWands = '$tarotMinor/wands';
+  static const String tarotSwords = '$tarotMinor/swords';
+  static const String tarotPentacles = '$tarotMinor/pentacles';
 }

@@ -13,6 +13,7 @@ import '../models/interpretation_request.dart';
 import '../models/interpretation_result.dart';
 import '../models/interpretation_stream_event.dart';
 import '../models/reading_context.dart';
+import '../../../../features/premium/models/personalization_models.dart';
 import 'interpretation_prompt_adapter.dart';
 
 class InterpretationEngine {
@@ -22,6 +23,7 @@ class InterpretationEngine {
     InterpretationPromptAdapter? promptAdapter,
     InterpretationFormatter? formatter,
     InterpretationRetryPolicy? retryPolicy,
+    this.aiPersonality = AiPersonality.mystical,
   })  : _promptAdapter = promptAdapter ?? InterpretationPromptAdapter(),
         _formatter = formatter ?? const InterpretationFormatter(),
         _retryPolicy = retryPolicy ?? const InterpretationRetryPolicy();
@@ -31,6 +33,7 @@ class InterpretationEngine {
   final InterpretationPromptAdapter _promptAdapter;
   final InterpretationFormatter _formatter;
   final InterpretationRetryPolicy _retryPolicy;
+  final AiPersonality aiPersonality;
 
   Future<InterpretationResult> interpret({
     required ReadingContext context,
@@ -111,7 +114,7 @@ class InterpretationEngine {
             .execute(request)
             .timeout(
               request.timeout,
-              onTimeout: () => throw const InterpretationException(
+              onTimeout: () => throw InterpretationException(
                 type: InterpretationFailureType.timeout,
                 message: ResilienceCopy.interpretationTimeout,
               ),
@@ -122,14 +125,18 @@ class InterpretationEngine {
         return validated;
       } on InterpretationException catch (e) {
         lastError = e;
-        debugPrint('[InterpretationEngine] Attempt $attempt failed: $e');
+        assert(() {
+          debugPrint('[InterpretationEngine] Attempt $attempt failed');
+          return true;
+        }());
         if (!e.retryable || attempt >= _retryPolicy.maxAttempts) rethrow;
         await Future<void>.delayed(_retryPolicy.delayForAttempt(attempt));
-      } catch (e, stackTrace) {
+      } catch (e) {
         lastError = e;
-        debugPrint(
-          '[InterpretationEngine] Attempt $attempt unexpected error: $e\n$stackTrace',
-        );
+        assert(() {
+          debugPrint('[InterpretationEngine] Attempt $attempt unexpected error');
+          return true;
+        }());
         if (!executor.isOnline) {
           throw InterpretationException(
             type: InterpretationFailureType.offline,
@@ -157,9 +164,9 @@ class InterpretationEngine {
 
   InterpretationResult _validateResult(InterpretationResult result) {
     if (result.summary.trim().isEmpty) {
-      throw const InterpretationException(
+      throw InterpretationException(
         type: InterpretationFailureType.emptyResponse,
-        message: 'Yorum özeti boş.',
+        message: ResilienceCopy.aiEmptyResponse,
       );
     }
     if (!_formatter.validate(result)) {
@@ -185,7 +192,7 @@ class InterpretationEngine {
       mode: mode,
       forceRefresh: forceRefresh,
     );
-    return _promptAdapter.attachPrompt(base);
+    return _promptAdapter.attachPrompt(base, personality: aiPersonality);
   }
 }
 

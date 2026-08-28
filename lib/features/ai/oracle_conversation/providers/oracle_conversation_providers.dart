@@ -4,12 +4,19 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/copy/ai_source_copy.dart';
 import '../../../../core/copy/resilience_copy.dart';
+import '../../../../core/voice/oracly_tts_gate.dart';
+import '../../../personal_discovery/providers/personal_discovery_providers.dart';
+import '../../../personal_discovery/services/discovery_or_context.dart';
 import '../../domain/models/ai_conversation.dart';
 import '../../domain/models/ai_message.dart';
+import '../../production/ai_request_exception.dart';
+import '../../production/oracly_ai_providers.dart';
 import '../../services/conversation_memory.dart';
 import '../models/oracle_reading_context.dart';
 import '../repositories/oracle_conversation_repository.dart';
+import '../services/oracle_ai_message_source.dart';
 
 final oracleConversationMemoryProvider = Provider<ConversationMemory>((ref) {
   return ConversationMemory();
@@ -19,6 +26,13 @@ final oracleConversationRepositoryProvider =
     Provider<MockOracleConversationRepository>((ref) {
   return MockOracleConversationRepository(
     memory: ref.watch(oracleConversationMemoryProvider),
+    source: OracleAiMessageSource(
+      ai: ref.watch(oraclyAiServiceProvider),
+      observedThemes: () async {
+        final profile = await ref.read(personalDiscoveryProfileProvider.future);
+        return DiscoveryOrContext.themeLabels(profile);
+      },
+    ),
   );
 });
 
@@ -58,6 +72,7 @@ class OracleConversationState {
     this.streamBuffer = '',
     this.streamMessageId,
     this.error,
+    this.lastFailedText,
   });
 
   final AIConversation? conversation;
@@ -66,6 +81,7 @@ class OracleConversationState {
   final String streamBuffer;
   final String? streamMessageId;
   final String? error;
+  final String? lastFailedText;
 
   bool get hasMessages =>
       (conversation?.messages.isNotEmpty ?? false) || streamBuffer.isNotEmpty;
@@ -80,6 +96,7 @@ class OracleConversationState {
     String? streamBuffer,
     String? streamMessageId,
     String? error,
+    String? lastFailedText,
     bool clearStream = false,
     bool clearError = false,
   }) {
@@ -91,6 +108,7 @@ class OracleConversationState {
       streamMessageId:
           clearStream ? null : (streamMessageId ?? this.streamMessageId),
       error: clearError ? null : (error ?? this.error),
+      lastFailedText: lastFailedText ?? this.lastFailedText,
     );
   }
 }
@@ -118,6 +136,8 @@ class OracleConversationNotifier
     final conv = state.conversation;
     if (conv == null || state.isStreaming || state.isThinking) return;
 
+    await OraclyTtsGate.stop();
+
     final repo = ref.read(oracleConversationRepositoryProvider);
     final streamId = 'stream_${DateTime.now().millisecondsSinceEpoch}';
 
@@ -135,15 +155,23 @@ class OracleConversationNotifier
       streamMessageId: streamId,
     );
 
+    final priorUser = conv.messages
+        .where((m) => m.isUser)
+        .map((m) => m.content)
+        .toList();
     var buffer = '';
     try {
       await for (final chunk in repo.streamMessage(
         conversationId: conv.id,
         userMessage: trimmed,
         context: _context,
+        priorUser: priorUser,
       )) {
         buffer += chunk;
         state = state.copyWith(streamBuffer: buffer);
+      }
+      if (buffer.trim().isEmpty) {
+        throw StateError('empty-or-response');
       }
 
       final assistant = AIMessage(
@@ -153,6 +181,9 @@ class OracleConversationNotifier
         createdAt: DateTime.now(),
         status: AIMessageStatus.completed,
         tokenCount: buffer.length ~/ 4,
+        metadata: AiSourceCopy.tag(
+          fromAi: ref.read(oraclyAiServiceProvider).isConfigured,
+        ),
       );
       ref.read(oracleConversationMemoryProvider).appendMessage(
             conv.id,
@@ -165,14 +196,31 @@ class OracleConversationNotifier
         isStreaming: false,
         clearStream: true,
       );
-    } catch (e) {
+      await OraclyTtsGate.speakReply(buffer);
+    } on AiRequestException catch (e) {
+      state = state.copyWith(
+        isThinking: false,
+        isStreaming: false,
+        error: e.userMessage,
+        lastFailedText: trimmed,
+        clearStream: true,
+      );
+    } catch (_) {
       state = state.copyWith(
         isThinking: false,
         isStreaming: false,
         error: ResilienceCopy.oracleSendFailed,
+        lastFailedText: trimmed,
         clearStream: true,
       );
     }
+  }
+
+  Future<void> retryLast() async {
+    final failed = state.lastFailedText?.trim() ?? '';
+    if (failed.isEmpty) return;
+    state = state.copyWith(clearError: true, lastFailedText: null);
+    await send(failed);
   }
 
   void clearError() {
@@ -183,6 +231,7 @@ class OracleConversationNotifier
     final conv = state.conversation;
     if (conv == null || state.isStreaming) return;
 
+    await OraclyTtsGate.stop();
     state = state.copyWith(isThinking: true, error: null);
     try {
       final repo = ref.read(oracleConversationRepositoryProvider);
@@ -193,6 +242,19 @@ class OracleConversationNotifier
       );
       final updated = await repo.getConversation(conv.id);
       state = state.copyWith(conversation: updated, isThinking: false);
+      String? spoken;
+      for (final m in updated?.messages ?? const <AIMessage>[]) {
+        if (m.id == messageId) {
+          spoken = m.content;
+          break;
+        }
+      }
+      await OraclyTtsGate.speakReply(spoken);
+    } on AiRequestException catch (e) {
+      state = state.copyWith(
+        isThinking: false,
+        error: e.userMessage,
+      );
     } catch (_) {
       state = state.copyWith(
         isThinking: false,

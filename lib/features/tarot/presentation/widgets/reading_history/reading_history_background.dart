@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../../../core/theme/oracly_quiet_motion.dart';
 
 class ReadingHistoryBackground extends StatefulWidget {
   const ReadingHistoryBackground({super.key});
@@ -26,7 +27,13 @@ class _ReadingHistoryBackgroundState extends State<ReadingHistoryBackground>
     _drift = AnimationController(
       vsync: this,
       duration: OraclySignatureMaterials.ambientDuration,
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _drift, rest: 0.35);
   }
 
   @override
@@ -37,37 +44,42 @@ class _ReadingHistoryBackgroundState extends State<ReadingHistoryBackground>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _drift,
-      builder: (context, _) {
-        final t = _drift.value;
-        return Stack(
+    final still = OraclyQuietMotion.still(context);
+    Widget layer(double t) => Stack(
           fit: StackFit.expand,
           children: [
             const DecoratedBox(decoration: OraclySignatureChamber.selection),
-            CustomPaint(
-              painter: _JournalParticles(phase: t * pi * 2),
-              size: Size.infinite,
+            RepaintBoundary(
+              child: CustomPaint(
+                painter: _JournalParticles(phase: t * pi * 2),
+                size: Size.infinite,
+              ),
             ),
-            Positioned.fill(
+            const Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     center: Alignment.center,
                     radius: 1.15,
                     colors: [
-                      AppColors.transparent,
-                      Colors.black.withValues(alpha: 0.42),
+                      Color(0x140C0828),
+                      Color(0x00000000),
+                      Color(0x6B000000),
                     ],
-                    stops: const [0.55, 1.0],
+                    stops: [0.0, 0.52, 1.0],
                   ),
                 ),
               ),
             ),
           ],
         );
-      },
-    );
+
+    return still
+        ? layer(0.35)
+        : AnimatedBuilder(
+            animation: _drift,
+            builder: (context, _) => layer(_drift.value),
+          );
   }
 }
 

@@ -9,6 +9,7 @@ enum AIConversationKind {
   dream,
   astrology,
   dailyEnergy,
+  coffee,
 }
 
 /// A full conversation thread between user and OR Oracle.

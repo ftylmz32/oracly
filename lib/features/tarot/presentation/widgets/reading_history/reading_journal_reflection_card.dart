@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/reading_typography.dart';
+import '../../../../../shared/widgets/oracly_text_action.dart';
 
 class ReadingJournalReflectionCard extends StatelessWidget {
   const ReadingJournalReflectionCard({
@@ -60,15 +61,10 @@ class ReadingJournalReflectionCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                TextButton(
+                OraclyTextAction(
+                  label: hasNote ? 'Düzenle' : 'Ekle',
+                  emphasized: true,
                   onPressed: onEdit,
-                  child: Text(
-                    hasNote ? 'Düzenle' : 'Ekle',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.gold,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
                 ),
               ],
             ),

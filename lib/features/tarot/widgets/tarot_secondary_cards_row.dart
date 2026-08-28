@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../copy/tarot_l10n.dart';
 import '../models/tarot_card.dart';
 import 'tarot_result_card_art.dart';
 import 'tarot_typography.dart';
@@ -69,7 +70,7 @@ class _SecondaryCardTile extends StatelessWidget {
               style: TarotTypography.captionMuted(size: 9),
             ),
           Text(
-            card.name,
+            TarotL10n.cardNameOf(card),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,

@@ -10,10 +10,11 @@ import 'package:oracly_new/shared/navigation/oracly_navigation.dart';
 void main() {
   group('Universe navigation structure', () {
     test('tabs use universe space labels not generic app labels', () {
-      expect(OraclyTab.home.universeLabel, UniverseNavigationCopy.tabUniverse);
-      expect(OraclyTab.tarot.universeLabel, UniverseNavigationCopy.tabRitual);
-      expect(OraclyTab.chat.universeLabel, UniverseNavigationCopy.tabReflect);
-      expect(OraclyTab.profile.universeLabel, UniverseNavigationCopy.tabJourney);
+      expect(OraclyTab.home.universeLabel, UniverseNavigationCopy.tabHome);
+      expect(OraclyTab.coffee.universeLabel, 'OR');
+      expect(OraclyTab.astrology.universeLabel, 'Keşfet');
+      expect(OraclyTab.starMap.universeLabel, 'Günlük');
+      expect(OraclyTab.profile.universeLabel, UniverseNavigationCopy.tabProfile);
     });
 
     test('every live module belongs to a universe realm', () {
@@ -37,6 +38,17 @@ void main() {
       expect(
         OraclyFeatureNavigation.canOpen(OraclyFeatureId.personalInsights),
         isTrue,
+      );
+    });
+
+    test('explore realm daily ritual is live Günlük Ayin', () {
+      final explore = OraclyFeatureRegistry.forRealm(
+        OraclyUniverseRealm.explore,
+      );
+      expect(explore.map((m) => m.id), contains(OraclyFeatureId.dailyEnergy));
+      expect(
+        OraclyFeatureRegistry.byId(OraclyFeatureId.dailyEnergy)?.title,
+        'Bugünkü Ayin',
       );
     });
   });

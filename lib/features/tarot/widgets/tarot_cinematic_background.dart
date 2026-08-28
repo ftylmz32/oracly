@@ -2,12 +2,11 @@
 library;
 
 import 'dart:math';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/app_gradients.dart';
+import '../../../core/theme/oracly_quiet_motion.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_decorations.dart';
 
 class TarotCinematicBackground extends StatefulWidget {
   const TarotCinematicBackground({super.key, required this.child});
@@ -29,7 +28,13 @@ class _TarotCinematicBackgroundState extends State<TarotCinematicBackground>
     _motion = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 52),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _motion, rest: 0);
   }
 
   @override
@@ -40,10 +45,11 @@ class _TarotCinematicBackgroundState extends State<TarotCinematicBackground>
 
   @override
   Widget build(BuildContext context) {
+    final still = OraclyQuietMotion.still(context);
     return AnimatedBuilder(
       animation: _motion,
       builder: (_, child) {
-        final t = _motion.value;
+        final t = still ? 0.0 : _motion.value;
         final breath = 0.04 + sin(t * pi * 2) * 0.018;
         return Stack(
           children: [
@@ -75,14 +81,18 @@ class _TarotCinematicBackgroundState extends State<TarotCinematicBackground>
               right: 0,
               child: IgnorePointer(
                 child: Center(
-                  child: ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 90, sigmaY: 90),
-                    child: Container(
-                      width: 280,
-                      height: 280,
+                  child: SizedBox(
+                    width: 280,
+                    height: 280,
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.primaryLight.withValues(alpha: breath),
+                        gradient: RadialGradient(
+                          colors: [
+                            AppColors.primaryLight.withValues(alpha: breath),
+                            AppColors.primaryLight.withValues(alpha: 0),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -93,14 +103,18 @@ class _TarotCinematicBackgroundState extends State<TarotCinematicBackground>
               bottom: -60,
               right: -40,
               child: IgnorePointer(
-                child: ImageFiltered(
-                  imageFilter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                  child: Container(
-                    width: 240,
-                    height: 240,
+                child: SizedBox(
+                  width: 240,
+                  height: 240,
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.gold.withValues(alpha: breath * 0.5),
+                      gradient: RadialGradient(
+                        colors: [
+                          AppColors.gold.withValues(alpha: breath * 0.5),
+                          AppColors.gold.withValues(alpha: 0),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -199,12 +213,16 @@ class _NebulaWash extends StatelessWidget {
       left: left,
       right: right,
       child: IgnorePointer(
-        child: ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 78, sigmaY: 78),
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [color, color.withValues(alpha: 0)],
+              ),
+            ),
           ),
         ),
       ),

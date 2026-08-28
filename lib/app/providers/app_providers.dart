@@ -1,15 +1,20 @@
 /// OR-1100 — Riverpod provider definitions.
 library;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/l10n/l10n.dart';
+import '../../core/theme/app_appearance.dart';
 import '../../core/data/repositories/user_achievement_repository.dart';
 import '../../core/domain/repositories/achievement_repository.dart';
 import '../../core/intelligence/data/intelligence_index_store.dart';
 import '../../core/intelligence/data/local_intelligence_repository.dart';
+import '../../core/intelligence/data/personal_memory_store.dart';
 import '../../core/intelligence/data/ritual_history_reader.dart';
 import '../../core/intelligence/domain/repositories/intelligence_repository.dart';
 import '../../core/intelligence/services/intelligence_layer_service.dart';
+import '../../core/intelligence/services/personal_memory_service.dart';
 import '../../core/experience/engine/experience_orchestrator.dart';
 import '../../core/experience/services/experience_orchestrator_service.dart';
 import '../../core/reflection/data/sources/reading_reflection_source.dart';
@@ -36,12 +41,28 @@ import '../../core/domain/repositories/premium_repository.dart';
 import '../../core/domain/repositories/settings_repository.dart';
 import '../../core/domain/repositories/tarot_repository.dart';
 import '../../core/domain/repositories/user_repository.dart';
+import '../../core/analytics/product_analytics.dart';
 import '../../core/services/analytics_service.dart';
+import '../../features/quality_loop/providers/quality_loop_providers.dart';
+import '../../core/telemetry/crash_telemetry_service.dart';
 import '../../core/services/history_service.dart';
 import '../../core/services/premium_service.dart';
 import '../../core/services/reading_service.dart';
+import '../../features/premium/providers/premium_purchase_port_provider.dart';
+import '../../features/premium/providers/premium_entitlement_verifier_provider.dart';
 import '../../core/services/settings_service.dart';
 import '../../core/services/tarot_service.dart';
+import '../../core/audio/oracly_feedback_gate.dart';
+import '../../core/audio/oracly_sound_service.dart';
+import '../../core/voice/oracly_device_tts.dart';
+import '../../core/voice/oracly_proxy_speech.dart';
+import '../../core/voice/oracly_reply_tts.dart';
+import '../../core/voice/oracly_tts_gate.dart';
+import '../../core/voice/oracly_voice_id.dart';
+import '../../core/voice/oracly_tts_port.dart';
+import '../../features/ai/production/oracly_ai_providers.dart';
+import '../../core/experience/living_presence_tracker.dart';
+import '../../core/experience/domain/models/experience_context.dart';
 import '../../features/daily_ritual/services/daily_ritual_service.dart';
 import '../../features/insights/services/personal_journey_service.dart';
 import '../../core/services/first_session_service.dart';
@@ -84,7 +105,30 @@ final dailyEnergyRepositoryProvider = Provider<DailyEnergyRepository>((ref) {
 // ── Services ───────────────────────────────────────────────────────
 
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
-  return const AnalyticsService();
+  bool isAnalyticsEnabled() {
+    final settings = ref.read(settingsProvider).valueOrNull;
+    return settings?.analyticsEnabled ?? true;
+  }
+  return AnalyticsService(
+    analytics: ProductAnalytics(
+      sink: ref.watch(backend.firebaseAnalyticsProvider),
+      logger: ref.watch(backend.analyticsLoggerProvider),
+      isEnabled: isAnalyticsEnabled,
+    ),
+    quality: ref.watch(qualitySignalRecorderProvider),
+  );
+});
+
+final crashTelemetryProvider = Provider<CrashTelemetryService>((ref) {
+  bool isTelemetryEnabled() {
+    final settings = ref.read(settingsProvider).valueOrNull;
+    return settings?.analyticsEnabled ?? true;
+  }
+  return CrashTelemetryService(
+    sink: ref.watch(backend.crashlyticsProvider),
+    storage: ref.watch(localStorageProvider),
+    isEnabled: isTelemetryEnabled,
+  );
 });
 
 final tarotServiceProvider = Provider<TarotService>((ref) {
@@ -106,6 +150,8 @@ final premiumServiceProvider = Provider<PremiumService>((ref) {
   return PremiumService(
     ref.watch(premiumRepositoryProvider),
     ref.watch(userRepositoryProvider),
+    ref.watch(premiumPurchasePortProvider),
+    ref.watch(premiumEntitlementVerifierProvider),
   );
 });
 
@@ -132,6 +178,27 @@ final settingsProvider =
     AsyncNotifierProvider<SettingsNotifier, PersonalizationSettings>(
   SettingsNotifier.new,
 );
+
+/// Resolved UI locale from persisted settings (`tr` / `en`).
+/// Always follows [settingsProvider] — never a one-shot startup snapshot.
+final appLocaleProvider = Provider<Locale>((ref) {
+  final async = ref.watch(settingsProvider);
+  final language = async.maybeWhen(
+    data: (s) => s.language,
+    orElse: () => async.valueOrNull?.language,
+  );
+  return AppLocale.toLocale(language);
+});
+
+/// Material [ThemeMode] from persisted appearance (dark / light / system).
+final appThemeModeProvider = Provider<ThemeMode>((ref) {
+  final async = ref.watch(settingsProvider);
+  final mode = async.maybeWhen(
+    data: (s) => s.appearanceMode,
+    orElse: () => async.valueOrNull?.appearanceMode,
+  );
+  return (mode ?? AppAppearanceMode.dark).themeMode;
+});
 
 final readingHistoryProvider =
     AsyncNotifierProvider<ReadingHistoryNotifier, List<ReadingModel>>(
@@ -197,6 +264,14 @@ final intelligenceLayerServiceProvider = Provider<IntelligenceLayerService>((ref
   return IntelligenceLayerService(ref.watch(intelligenceRepositoryProvider));
 });
 
+final personalMemoryStoreProvider = Provider<PersonalMemoryStore>((ref) {
+  return PersonalMemoryStore(ref.watch(localStorageProvider));
+});
+
+final personalMemoryServiceProvider = Provider<PersonalMemoryService>((ref) {
+  return PersonalMemoryService(ref.watch(personalMemoryStoreProvider));
+});
+
 // ── Reflection engine (RC-010) ─────────────────────────────────────
 // Logical heart of long-term understanding — not wired to UI in RC-010.
 
@@ -230,13 +305,41 @@ final experienceOrchestratorProvider = Provider<ExperienceOrchestrator>((ref) {
 
 final experienceOrchestratorServiceProvider =
     Provider<ExperienceOrchestratorService>((ref) {
+  final remote = ref.watch(backend.remoteConfigServiceProvider);
   return ExperienceOrchestratorService(
     reflection: ref.watch(reflectionEngineServiceProvider),
     dailyRitual: ref.watch(dailyRitualServiceProvider),
     settings: ref.watch(settingsServiceProvider),
     premium: ref.watch(premiumServiceProvider),
     orchestrator: ref.watch(experienceOrchestratorProvider),
+    remoteFeatureFlags: remote.snapshot.featureFlags,
   );
+});
+
+final oraclySoundServiceProvider = Provider<OraclySoundService>((ref) {
+  final service = OraclySoundService();
+  ref.onDispose(service.dispose);
+  return service;
+});
+
+final oraclyTtsProvider = Provider<OraclyTtsPort>((ref) {
+  final tts = OraclyReplyTts(
+    proxy: OraclyProxySpeech(ref.watch(aiTransportProvider)),
+    device: OraclyDeviceTts(),
+  );
+  ref.onDispose(() {
+    tts.dispose();
+  });
+  return tts;
+});
+
+final livingExperienceProvider = FutureProvider<ExperienceContext>((ref) {
+  return ref.watch(experienceOrchestratorServiceProvider).decide();
+});
+
+final livingPresenceDaysProvider = FutureProvider<int?>((ref) async {
+  final storage = ref.watch(localStorageProvider);
+  return LivingPresenceTracker.daysAway(storage);
 });
 
 // ── First session (RC-012) ─────────────────────────────────────────
@@ -274,12 +377,66 @@ class UserProfileNotifier extends AsyncNotifier<UserProfileModel> {
 class SettingsNotifier extends AsyncNotifier<PersonalizationSettings> {
   @override
   Future<PersonalizationSettings> build() async {
-    return ref.watch(settingsServiceProvider).load();
+    final sound = ref.watch(oraclySoundServiceProvider);
+    final loaded = await ref.watch(settingsServiceProvider).load();
+    OraclyFeedbackGate.bind(
+      service: sound,
+      haptics: loaded.hapticEnabled,
+      sounds: loaded.soundEnabled,
+    );
+    try {
+      OraclyTtsGate.bind(
+        service: ref.read(oraclyTtsProvider),
+        enabled: loaded.voiceRepliesEnabled,
+        style: loaded.aiPersonality,
+        language: AppLocale.normalize(loaded.language),
+        identity: OraclyVoiceId.parse(loaded.orVoiceId),
+        speed: loaded.orSpeechSpeed,
+      );
+    } catch (_) {}
+    try {
+      await sound.setAtmosphere(loaded.atmosphereSign);
+      await sound.syncAmbientEnabled(loaded.ambientMusicEnabled);
+    } catch (_) {}
+    return loaded;
   }
 
   Future<void> saveSettings(PersonalizationSettings settings) async {
-    await ref.read(settingsServiceProvider).save(settings);
-    state = AsyncData(settings);
+    final prior = state.valueOrNull;
+    final normalized = settings.copyWith(
+      language: AppLocale.normalize(settings.language),
+    );
+    OraclyL10n.bind(normalized.language);
+    await ref.read(settingsServiceProvider).save(normalized);
+    state = AsyncData(normalized);
+    if (prior != null && prior.language != normalized.language) {
+      ref.read(analyticsServiceProvider).logLanguageChanged(normalized.language);
+    }
+    OraclyFeedbackGate.bind(
+      service: ref.read(oraclySoundServiceProvider),
+      haptics: normalized.hapticEnabled,
+      sounds: normalized.soundEnabled,
+    );
+    try {
+      OraclyTtsGate.bind(
+        service: ref.read(oraclyTtsProvider),
+        enabled: normalized.voiceRepliesEnabled,
+        style: normalized.aiPersonality,
+        language: AppLocale.normalize(normalized.language),
+        identity: OraclyVoiceId.parse(normalized.orVoiceId),
+        speed: normalized.orSpeechSpeed,
+      );
+      if (!normalized.voiceRepliesEnabled) {
+        // Never block Settings persistence on a slow/absent TTS engine.
+        // ignore: unawaited_futures
+        OraclyTtsGate.stop();
+      }
+    } catch (_) {}
+    final sound = ref.read(oraclySoundServiceProvider);
+    try {
+      await sound.setAtmosphere(normalized.atmosphereSign);
+      await sound.syncAmbientEnabled(normalized.ambientMusicEnabled);
+    } catch (_) {}
   }
 }
 

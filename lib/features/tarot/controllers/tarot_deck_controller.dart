@@ -27,6 +27,21 @@ class TarotDeckController extends TarotBaseController {
   bool get isShuffled => _isShuffled;
   int get remaining => _drawPile.length;
 
+  static const int fanLimit = 7;
+
+  int get visibleFanCount {
+    final n = _drawPile.length;
+    if (n <= 0) return 0;
+    return n < fanLimit ? n : fanLimit;
+  }
+
+  /// Face-down fan — the actual remaining cards at the top of the pile.
+  List<TarotCard> get fanCards {
+    final n = visibleFanCount;
+    if (n == 0) return const [];
+    return List.unmodifiable(_drawPile.sublist(_drawPile.length - n));
+  }
+
   Future<void> initializeDeck({
     required String deckId,
     int? seed,
@@ -77,10 +92,28 @@ class TarotDeckController extends TarotBaseController {
       throw StateError('Draw pile is empty');
     }
     final card = _drawPile.removeLast();
-    final rng = random ?? Random(_shuffleSeed! + _drawPile.length);
-    final isReversed = rng.nextBool();
+    final isReversed = random?.nextBool() ?? _orientationOf(card);
     notifyListeners();
     return (card: card, isReversed: isReversed);
+  }
+
+  /// Draw the face-down fan slot the user actually touched.
+  ({TarotCard card, bool isReversed}) drawFromFan(int fanIndex) {
+    final n = visibleFanCount;
+    if (fanIndex < 0 || fanIndex >= n) {
+      throw RangeError.index(fanIndex, List<int>.filled(n, 0));
+    }
+    final pileIndex = _drawPile.length - n + fanIndex;
+    final card = _drawPile.removeAt(pileIndex);
+    final isReversed = _orientationOf(card);
+    notifyListeners();
+    return (card: card, isReversed: isReversed);
+  }
+
+  /// Frozen at draw — never re-rolled after reveal.
+  bool _orientationOf(TarotCard card) {
+    final seed = _shuffleSeed ?? 0;
+    return Random(seed ^ card.id ^ (_drawPile.length * 17)).nextBool();
   }
 
   void resetPile() {

@@ -2,6 +2,8 @@
 
 Official production system for creating all 78 proprietary ORACLY Tarot cards.
 
+**Product visual DNA (canonical):** [`design/tarot/`](../../design/tarot/ORACLY_TAROT_MASTER_STYLE.md) — color, type, gold, light, motifs, card back, UI atmosphere. If this pipeline’s palette or lighting conflicts, **product DNA wins**.
+
 **Status:** Production Ready  
 **Parent Document:** OR-1300 Art Direction System (approved)  
 **Constraint:** No third-party tarot artwork. No Rider-Waite references. No placeholder images in repo.

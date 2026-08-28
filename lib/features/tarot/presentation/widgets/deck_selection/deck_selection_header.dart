@@ -12,7 +12,7 @@ import '../../../../../core/widgets/oracly_signature_motifs.dart';
 class DeckSelectionHeader extends StatelessWidget {
   const DeckSelectionHeader({super.key});
 
-  static const String _title = 'TAROT DESTELERİ';
+  static const String _title = 'TAROT DESTESİ';
   static const String _subtitle =
       'Kartlar seni seçmeden önce sen niyetini belirle.';
 

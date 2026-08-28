@@ -400,6 +400,10 @@ class MemoryService {
       _memoryKey,
     );
 
+    // Personal Memory Core — compact summary, not raw chat.
+    await prefs.remove('or_personal_memory_v1');
+    await prefs.remove('discovery_surface_memory_v1');
+
 
   }
 

@@ -8,6 +8,7 @@ import '../../../app/providers/app_providers.dart';
 import '../../../core/first_session/first_session_scope.dart';
 import '../../daily_ritual/widgets/daily_ritual_tarot_bridge.dart';
 import '../navigation/tarot_navigator.dart';
+import '../presentation/animations/tarot_transition.dart';
 import '../shared/constants/tarot_routes.dart';
 import '../shared/tarot_scope.dart';
 import '../presentation/screens/tarot_home_screen.dart';
@@ -24,6 +25,14 @@ class TarotModuleNavigator extends ConsumerStatefulWidget {
 class _TarotModuleNavigatorState extends ConsumerState<TarotModuleNavigator> {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
+  Future<void> _onSystemBack() async {
+    final inner = _navigatorKey.currentState;
+    if (inner != null && await inner.maybePop()) return;
+    if (!mounted) return;
+    final outer = Navigator.of(context);
+    if (outer.canPop()) await outer.maybePop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final storage = ref.watch(localStorageProvider);
@@ -35,18 +44,25 @@ class _TarotModuleNavigatorState extends ConsumerState<TarotModuleNavigator> {
       child: FirstSessionScope(
         isFirstSession: isFirstSession,
         child: DailyRitualTarotBridge(
-          child: Navigator(
-            key: _navigatorKey,
-            onGenerateRoute: TarotNavigator.onGenerateRoute,
-            initialRoute: TarotRoutes.home,
-            onGenerateInitialRoutes: (navigator, initialRoute) {
-              return [
-                MaterialPageRoute<void>(
-                  settings: const RouteSettings(name: TarotRoutes.home),
-                  builder: (_) => const TarotHomeScreen(),
-                ),
-              ];
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, _) {
+              if (didPop) return;
+              _onSystemBack();
             },
+            child: Navigator(
+              key: _navigatorKey,
+              onGenerateRoute: TarotNavigator.onGenerateRoute,
+              initialRoute: TarotRoutes.home,
+              onGenerateInitialRoutes: (navigator, initialRoute) {
+                return [
+                  tarotRitualRoute<void>(
+                    page: const TarotHomeScreen(),
+                    settings: const RouteSettings(name: TarotRoutes.home),
+                  ),
+                ];
+              },
+            ),
           ),
         ),
       ),

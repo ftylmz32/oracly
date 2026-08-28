@@ -1,15 +1,12 @@
-/// OR-1000 — Tarot error state component.
+/// Tarot recoverable error — cinematic Oracly surface, never Material red.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/copy/resilience_copy.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_text_styles.dart';
-import 'tarot_button.dart';
+import '../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../../core/security/ai_error_sanitizer.dart';
+import '../../../shared/widgets/oracly_error_state.dart';
 
-/// Recoverable error surface for tarot flows.
 class TarotErrorState extends StatelessWidget {
   const TarotErrorState({
     super.key,
@@ -22,41 +19,10 @@ class TarotErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.screenHorizontal,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline_rounded, size: AppSpacing.xxl, color: AppColors.error),
-            SizedBox(height: AppSpacing.md),
-            Text(
-              ResilienceCopy.errorTitle,
-              style: AppTextStyles.titleMedium.copyWith(color: AppColors.textPrimary),
-            ),
-            SizedBox(height: AppSpacing.sm),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
-            if (onRetry != null) ...[
-              SizedBox(height: AppSpacing.lg),
-              Semantics(
-                button: true,
-                label: ResilienceCopy.retryAction,
-                child: TarotSecondaryButton(
-                  label: ResilienceCopy.retryAction,
-                  onPressed: onRetry,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+    return OraclyErrorState(
+      kind: OraclyLoadingKind.tarot,
+      message: AiErrorSanitizer.guard(message),
+      onRetry: onRetry,
     );
   }
 }

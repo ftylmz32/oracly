@@ -18,7 +18,7 @@ void main() {
     });
 
     test('retry action is consistent', () {
-      expect(ResilienceCopy.retryAction, 'Tekrar Dene');
+      expect(ResilienceCopy.retryAction, 'TEKRAR DENE');
     });
   });
 
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('failure carries user message not technical detail', () {
-      const result = AiMessageResult.failure(ResilienceCopy.offline);
+      final result = AiMessageResult.failure(ResilienceCopy.offline);
       expect(result.isSuccess, isFalse);
       expect(result.errorMessage, ResilienceCopy.offline);
     });

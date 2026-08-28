@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="flutter.gem_starter_granted" value="true" />
+    <string name="flutter.or_local_data_owner_uid">2lusj7DMBch4uiFkHP4qMiXOMJj1</string>
+    <boolean name="flutter.splash_cinema_seen_v1" value="true" />
+    <long name="flutter.gem_balance" value="20" />
+    <string name="flutter.gem_transactions">VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu![&quot;{\&quot;id\&quot;:\&quot;gem_starter_v1\&quot;,\&quot;createdAt\&quot;:\&quot;2026-08-25T03:01:41.092674\&quot;,\&quot;amount\&quot;:20,\&quot;reason\&quot;:\&quot;İlk açılım\&quot;,\&quot;type\&quot;:\&quot;earned\&quot;}&quot;]</string>
+    <boolean name="flutter.onboarding_completed" value="true" />
+</map>

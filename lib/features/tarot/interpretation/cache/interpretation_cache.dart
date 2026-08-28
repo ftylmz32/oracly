@@ -32,10 +32,11 @@ class LocalInterpretationCache implements InterpretationCache {
         jsonDecode(raw) as Map<String, dynamic>,
       );
       return result.copyWith(fromCache: true, source: InterpretationSource.cache);
-    } catch (error, stackTrace) {
-      debugPrint(
-        '[InterpretationCache] Corrupt cache entry for $cacheKey: $error\n$stackTrace',
-      );
+    } catch (error) {
+      assert(() {
+        debugPrint('[InterpretationCache] Corrupt cache entry discarded');
+        return true;
+      }());
       await invalidate(cacheKey);
       return null;
     }

@@ -1,343 +1,143 @@
-/// OR-1120 — Premium first-launch onboarding flow.
-
+/// Calm first-launch: one screen, then optional profile — never permissions.
 library;
 
-
+import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
-
-import '../../../../app/providers/app_providers.dart';
-
-import '../../../../core/copy/onboarding_copy.dart';
-
 import '../../../../core/first_session/first_session_intent.dart';
-
+import '../../../../app/providers/app_providers.dart';
+import '../../../../core/copy/onboarding_copy.dart';
 import '../../../../core/navigation/oracly_page_transitions.dart';
-
-import '../../../../core/theme/app_colors.dart';
-
-import '../../../../core/theme/app_radius.dart';
-
 import '../../../../core/theme/app_spacing.dart';
-
-import '../../../../core/theme/app_text_styles.dart';
-
 import '../../../../shared/navigation/oracly_navigation.dart';
-
 import '../../../../shared/widgets/oracly_button.dart';
-
-import '../../../../widgets/cosmic_background.dart';
-
+import '../../../../shared/widgets/oracly_text_action.dart';
+import '../../../../core/design_system/oracly_cosmic_background.dart';
+import '../../../../shared/widgets/oracly_scaffold.dart';
+import '../../../gems/providers/gem_providers.dart';
+import '../../../premium/models/personalization_models.dart';
+import '../../services/onboarding_profile_saver.dart';
+import '../../data/onboarding_setup_draft.dart';
+import '../../data/onboarding_setup_draft_store.dart';
 import '../widgets/onboarding_page.dart';
-
-
+import '../widgets/onboarding_setup_form.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
-
   const OnboardingScreen({super.key});
 
-
-
   @override
-
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
-
 }
-
-
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  bool _setup = false;
+  late final OnboardingSetupDraftStore _draftStore;
+  OnboardingSetupDraft? _draft;
 
-  final PageController _pageController = PageController();
+  @override
+  void initState() {
+    super.initState();
+    _draftStore = OnboardingSetupDraftStore(ref.read(localStorageProvider));
+    _draft = _draftStore.load();
+    _setup = _draft != null;
+  }
 
-  int _index = 0;
-
-
-
-  static final _pages = OnboardingCopy.pages;
-
-
-
-  bool get _isLast => _index == _pages.length - 1;
-
-
+  void _persistDraft(OnboardingSetupDraft next) {
+    _draft = next;
+    unawaited(_draftStore.save(next));
+  }
 
   Future<void> _complete() async {
-
     await ref.read(onboardingRepositoryProvider).markCompleted();
-
-    FirstSessionIntent.requestFirstReading();
-
+    await FirstSessionIntent.requestFirstReading(ref.read(localStorageProvider));
+    await _draftStore.clear();
+    await ref.read(gemStarterGrantProvider).ensureOnce();
+    ref.read(gemWalletProvider).reload();
     if (!mounted) return;
-
     Navigator.of(context).pushReplacement(
-
       OraclyPageTransitions.fade(
-
-        page: const OraclyAppShell(initialTab: OraclyTab.tarot),
-
+        page: const OraclyAppShell(initialTab: OraclyTab.home),
       ),
-
     );
-
   }
 
-
-
-  void _next() {
-
-    if (_isLast) {
-
-      _complete();
-
-      return;
-
-    }
-
-    _pageController.nextPage(
-
-      duration: AppDuration.normal,
-
-      curve: Curves.easeOutCubic,
-
+  Future<void> _saveAndComplete({
+    required String name,
+    DateTime? birthDate,
+    String? birthPlace,
+    required String language,
+    required AiPersonality style,
+  }) async {
+    await OnboardingProfileSaver.apply(
+      ref,
+      name: name,
+      birthDate: birthDate,
+      birthPlace: birthPlace,
+      language: language,
+      style: style,
     );
-
+    await _complete();
   }
-
-
-
-  void _skip() => _complete();
-
-
 
   @override
-
-  void initState() {
-
-    super.initState();
-
-    _pageController.addListener(() {
-
-      if (mounted) setState(() {});
-
-    });
-
-  }
-
-
-
-  double _pageProgress(int index) {
-
-    if (!_pageController.hasClients) return index == _index ? 1.0 : 0.0;
-
-    final page = _pageController.page ?? _index.toDouble();
-
-    return (1 - (page - index).abs()).clamp(0.0, 1.0);
-
-  }
-
-
-
-  @override
-
-  void dispose() {
-
-    _pageController.dispose();
-
-    super.dispose();
-
-  }
-
-
-
-  @override
-
   Widget build(BuildContext context) {
-
-    return CosmicBackground(
-
-      showHeroGlow: true,
-
-      child: Scaffold(
-
-        backgroundColor: Colors.transparent,
-
-        body: SafeArea(
-
-          child: Column(
-
-            children: [
-
-              Padding(
-
-                padding: EdgeInsets.symmetric(
-
-                  horizontal: AppSpacing.md,
-
-                  vertical: AppSpacing.sm,
-
+    final settings = ref.watch(settingsProvider).value;
+    final activeLanguage = _draft?.language ?? settings?.language ?? 'tr';
+    final activeStyle =
+        _draft?.style ?? settings?.aiPersonality ?? AiPersonality.mystical;
+    return OraclyScaffold(
+      backgroundOverlay: const OraclyCosmicBackground(heroGlow: true),
+      child: _setup
+          ? OnboardingSetupForm(
+              language: activeLanguage,
+              style: activeStyle,
+              draft: _draft,
+              onDraftChanged: _persistDraft,
+              onSkip: _complete,
+              onContinue: _saveAndComplete,
+            )
+          : Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OraclyTextAction(
+                    label: OnboardingCopy.skip,
+                    onPressed: _complete,
+                  ),
                 ),
-
-                child: Row(
-
-                  children: [
-
-                    if (!_isLast)
-
-                      TextButton(
-
-                        onPressed: _skip,
-
-                        child: Text(
-
-                          OnboardingCopy.skip,
-
-                          style: AppTextStyles.labelMedium.copyWith(
-
-                            color: AppColors.textHint,
-
-                          ),
-
-                        ),
-
-                      )
-
-                    else
-
-                      const SizedBox(width: 64),
-
-                    Expanded(
-
-                      child: Row(
-
-                        mainAxisAlignment: MainAxisAlignment.center,
-
-                        children: List.generate(_pages.length, (i) {
-
-                          final active = i == _index;
-
-                          return AnimatedContainer(
-
-                            duration: Duration(
-
-                              milliseconds: AppDuration.fast.inMilliseconds +
-
-                                  (i % 3) * 17,
-
-                            ),
-
-                            margin: EdgeInsets.symmetric(
-
-                              horizontal: AppSpacing.xs / 2,
-
-                            ),
-
-                            width: active ? 22 + (i % 2) : 8,
-
-                            height: 8 + (i % 3) * 0.5,
-
-                            decoration: BoxDecoration(
-
-                              borderRadius: AppRadius.round,
-
-                              color: active
-
-                                  ? AppColors.gold
-
-                                  : AppColors.gold.withValues(alpha: 0.25),
-
-                            ),
-
+                const Expanded(child: OnboardingPage()),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                  ),
+                  child: OraclyButton(
+                    text: OnboardingCopy.meetLabel,
+                    isExpanded: true,
+                    icon: Icons.arrow_forward_rounded,
+                    onPressed: () {
+                      final now =
+                          DateTime.now().millisecondsSinceEpoch;
+                      final initial = _draft ??
+                          OnboardingSetupDraft(
+                            updatedAtMillis: now,
+                            name: null,
+                            birthDate: null,
+                            birthPlaceTr: null,
+                            language: activeLanguage,
+                            style: activeStyle,
                           );
-
-                        }),
-
-                      ),
-
-                    ),
-
-                    const SizedBox(width: 64),
-
-                  ],
-
+                      _persistDraft(initial);
+                      setState(() => _setup = true);
+                    },
+                  ),
                 ),
-
-              ),
-
-              Expanded(
-
-                child: PageView.builder(
-
-                  controller: _pageController,
-
-                  itemCount: _pages.length,
-
-                  onPageChanged: (i) => setState(() => _index = i),
-
-                  itemBuilder: (context, index) {
-
-                    return OnboardingPage(
-
-                      data: _pages[index],
-
-                      progress: _pageProgress(index),
-
-                    );
-
-                  },
-
-                ),
-
-              ),
-
-              Padding(
-
-                padding: EdgeInsets.fromLTRB(
-
-                  AppSpacing.lg,
-
-                  AppSpacing.sm,
-
-                  AppSpacing.lg,
-
-                  AppSpacing.lg,
-
-                ),
-
-                child: OraclyButton(
-
-                  text: _isLast
-
-                      ? OnboardingCopy.startFirstReading
-
-                      : OnboardingCopy.continueLabel,
-
-                  isExpanded: true,
-
-                  icon: _isLast ? Icons.arrow_forward_rounded : null,
-
-                  onPressed: _next,
-
-                ),
-
-              ),
-
-            ],
-
-          ),
-
-        ),
-
-      ),
-
+              ],
+            ),
     );
-
   }
-
 }
-
-

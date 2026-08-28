@@ -10,18 +10,9 @@ abstract final class OutputFormatCatalogue {
     id: 'standard',
     name: 'Standart Yorum',
     instructionTemplate: '''
-Yanıtını aşağıdaki yapıda ver:
-## Özet
-Kısa genel özet.
-
-## Detay
-Ana yorum metni.
-
-## Tavsiye
-Pratik rehberlik maddeleri.
-
-## Uyarı
-{{#if showWarnings}}Dikkat edilmesi gereken noktalar.{{/if}}
+Doğal bir okuma yaz. Zorunlu başlık iskeleti yok.
+Kısa da olabilir, gerektiğinde uzun da. Madde listesi zorlama.
+Kesinlik ve kehanet yok. Veri yoksa az yaz.
 ''',
     requiredBlocks: [
       OutputBlockType.summary,
@@ -35,23 +26,44 @@ Pratik rehberlik maddeleri.
     id: 'tarot',
     name: 'Tarot Yorumu',
     instructionTemplate: '''
-EPIC-013 — Yansıtıcı okuma yapısı. Kesinlik kullanma.
+Önce soruyu kartların ilişkisiyle yanıtla. Sözlük maddesi yazma.
+Kesinlik ve kehanet yok. Kullan: "işaret ediyor olabilir", "böyle okunabilir",
+"burada daha güçlü görünen taraf".
+Yasak: "kesin olacak", "mutlaka", "kesinlikle başına gelecek".
 
-## Öne Çıkanlar
-Kartlarda dikkat çeken gözlemler — ne belirdi, nasıl bir ton var.
+Soru → konum → kart kimliği → duruş (Düz/Ters) → sembolik anlam →
+kart ilişkisi → konum ilişkisi → kullanıcının meselesi → tek hikâye → yön.
 
-## Ne Temsil Edebilir
-Aşk, kariyer ve maddi alanlar için olası yorumlar ("olabilir", "hissediliyor olabilir").
+Kartı konumunun içinde oku. Sonraki kart öncekinin yönünü kaydırabilir.
+"Yön" sembolik eğilimdir, kesin gelecek değil.
+Kullanıcı bir soru yazdıysa o soruyu yanıtla; genel tarot nutkuyla değiştirme.
+Önceki tarot yorumlarının cümlelerini kopyalama; bu masanın kart ilişkisine yaz.
+Her okumayı aynı başlık sırasıyla ve aynı uzunlukta yazma.
+enerji / farkındalık / yolculuk / dönüşüm / evren dilini tekrarlama.
+"senin için" kalıbını her paragrafa yapıştırma.
 
-## Düşünmeye Değer Sorular
-Kullanıcıyı kendi deneyimine davet eden 2–4 nazik soru.
+İskelet (kısa okumada bazı bloklar birleşebilir):
 
-## Nazik Pratik Öneri
-Küçük, baskısız bir adım — bağımlılık yaratma.
+## Açılımın Teması
+2–3 cümle. Soruyu ve masadaki asıl gerilimi yaz.
 
-## Sakin Kapanış
-Tek cümle — kullanıcıyla kalan sessiz yansıma. Tahmin, uyarı veya geri dön baskısı yok.
-Kullanıcı huzurla ayrılabilsin; "bu birkaç dakikaya değerdi" hissi bırak.
+## Kartların Mesajı
+Her kart: ad, konum, Düz/Ters, bu konumda ne yaptığı, komşu karta etkisi.
+Pozisyon sırasını koru. Üç kart: Geçmiş, Şimdi, Olası Yön.
+
+## Açılımın Genel Yorumu
+Kartları birbirine bağla. Kehanet yok.
+
+## Aşk / Kariyer / Genel Bakış / Günlük Fal
+Sadece seçilen niyete göre TEK blok. Soruyu o alandan oku.
+
+## Bugün İçin Mesaj
+Kısa yön veya yansıma. Kalıp kapanış cümlesi zorunlu değil.
+Her zaman soru ile bitirme.
+
+## Kendine Sor
+Yalnızca gerçekten faydalıysa en fazla 1–2 yansıtıcı soru.
+Yorumun yerini almasın; yoksa bu bölümü atla.
 ''',
     requiredBlocks: [
       OutputBlockType.summary,
@@ -61,15 +73,45 @@ Kullanıcı huzurla ayrılabilsin; "bu birkaç dakikaya değerdi" hissi bırak.
     optionalBlocks: [OutputBlockType.highlight, OutputBlockType.warning],
   );
 
+  static const astrology = OutputFormatSchema(
+    id: 'astrology',
+    name: 'Astroloji Yorumu',
+    instructionTemplate: '''
+Net gözlem ver. Soruyla bitirme. Kullanıcıya işi bırakma.
+Kesinlik yok; ama tabloyu anlaşılır anlat. "olabilir" her cümlede tekrar etme.
+Uydurma gezegen / transit yazma. Otomatik burç şablonu yok.
+enerji / farkındalık / yolculuk / evren dilini tekrarlama.
+
+## Bugünün Yorumu
+Bugünün asıl meselesi — 2-3 cümle. İlk bakışta anlaşılsın.
+
+## Aşk
+Gerçek yorum. Sadece soru sorma.
+
+## Kariyer
+Gerçek yorum.
+
+## Maddi Durum
+Gerçek yorum.
+
+## Öneri
+Tek net, uygulanabilir çıkarım.
+''',
+    requiredBlocks: [
+      OutputBlockType.summary,
+      OutputBlockType.section,
+      OutputBlockType.advice,
+    ],
+    optionalBlocks: [OutputBlockType.highlight],
+  );
+
   static const dream = OutputFormatSchema(
     id: 'dream',
     name: 'Rüya Analizi',
     instructionTemplate: '''
-## Rüya Özeti
-## Semboller
-## Psikolojik Katman
-## Mesaj
-## Tavsiye
+Tek hikâye yaz. Zorunlu başlık yağmuru yok.
+Görünen imge → olası bağ → yumuşak yorum. Sözlük maddesi yok.
+Kesinlik yok. Her zaman soru ile bitirme.
 ''',
     requiredBlocks: [
       OutputBlockType.summary,
@@ -79,7 +121,7 @@ Kullanıcı huzurla ayrılabilsin; "bu birkaç dakikaya değerdi" hissi bırak.
     ],
   );
 
-  static const all = [standard, tarot, dream];
+  static const all = [standard, tarot, astrology, dream];
 
   static OutputFormatSchema? byId(String id) {
     for (final schema in all) {

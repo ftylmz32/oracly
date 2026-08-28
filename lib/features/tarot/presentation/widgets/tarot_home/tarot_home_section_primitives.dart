@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/design_system/app_layout.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -134,7 +135,10 @@ class _TarotHomeLuxuryButtonState extends State<TarotHomeLuxuryButton> {
       onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
       child: AnimatedContainer(
           duration: OraclyMotion.press,
-          height: AppSpacing.xxl + AppSpacing.md,
+          constraints: BoxConstraints(
+            minHeight: AppLayout.referencePrimaryButtonHeight,
+          ),
+          padding: AppLayout.referencePrimaryButtonPadding,
           decoration: BoxDecoration(
             borderRadius: AppRadius.round,
             gradient: LinearGradient(
@@ -232,7 +236,7 @@ class _TarotHomeLuxuryButtonState extends State<TarotHomeLuxuryButton> {
                     if (widget.icon != null) ...[
                       Icon(
                         widget.icon,
-                        size: AppSpacing.md + 2,
+                        size: AppLayout.referenceIconSize,
                         color: OraclySacredPalette.deepViolet,
                       ),
                       SizedBox(width: AppSpacing.sm),

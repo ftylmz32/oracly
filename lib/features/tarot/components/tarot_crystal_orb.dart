@@ -114,11 +114,14 @@ class _TarotCrystalOrbState extends State<TarotCrystalOrb>
 
         builder: (context, _) {
 
-          final floatT = Curves.easeInOut.transform(_float.value);
+          final floatT = Curves.easeInOut.transform(
+            _float.value.clamp(0.0, 1.0),
+          );
 
           final dy = (floatT * 2 - 1) * 3;
 
-          final scale = 0.988 + Curves.easeInOut.transform(_glow.value) * 0.024;
+          final scale = 0.988 +
+              Curves.easeInOut.transform(_glow.value.clamp(0.0, 1.0)) * 0.024;
 
 
 

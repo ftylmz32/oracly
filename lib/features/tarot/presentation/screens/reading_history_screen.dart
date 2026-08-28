@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/copy/resilience_copy.dart';
+import '../../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../components/tarot_loading.dart';
@@ -125,8 +129,9 @@ class _ReadingHistoryScreenState extends ConsumerState<ReadingHistoryScreen>
             child: historyAsync.when(
               loading: () => const TarotLoading(),
               error: (_, _) => OraclyErrorState(
-                title: 'Geçmiş yüklenemedi',
-                message: 'Açılım günlüğüne şu an ulaşılamıyor. Bir an sonra tekrar dene.',
+                kind: OraclyLoadingKind.tarot,
+                title: ResilienceCopy.historyLoadFailedTitle,
+                message: ResilienceCopy.historyLoadFailed,
                 onRetry: () => ref.invalidate(readingHistoryProvider),
               ),
               data: (readings) {
@@ -176,7 +181,7 @@ class _ReadingHistoryScreenState extends ConsumerState<ReadingHistoryScreen>
                             animation: _entrance,
                             builder: (context, _) {
                               final master = Curves.easeOutCubic.transform(
-                                _entrance.value,
+                                _entrance.value.clamp(0.0, 1.0),
                               );
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -197,17 +202,17 @@ class _ReadingHistoryScreenState extends ConsumerState<ReadingHistoryScreen>
                               );
                             },
                           ),
-                          SizedBox(height: AppSpacing.lg),
+                          SizedBox(height: AppSpacing.md),
                           ReadingHistoryFilters(
                             selected: _filter,
                             onSelected: (f) => setState(() => _filter = f),
                           ),
-                          SizedBox(height: AppSpacing.md),
+                          SizedBox(height: AppSpacing.sm),
                           ReadingHistorySearchBar(
                             controller: _search,
                             onChanged: (v) => setState(() => _query = v),
                           ),
-                          SizedBox(height: AppSpacing.lg),
+                          SizedBox(height: AppSpacing.md),
                         ],
                       ),
                     ),
@@ -215,9 +220,10 @@ class _ReadingHistoryScreenState extends ConsumerState<ReadingHistoryScreen>
                       SliverFillRemaining(
                         hasScrollBody: false,
                         child: OraclyEmptyState(
-                          icon: Icons.search_off_rounded,
-                          message: 'Bu filtrede açılım bulunamadı.',
-                          ctaLabel: 'Filtreyi temizle',
+                          kind: OraclyLoadingKind.tarot,
+                          imageAsset: AppAssets.tarotHero,
+                          message: OraclyL10n.t('tarot.history.filter_empty'),
+                          ctaLabel: OraclyL10n.t('tarot.history.clear_filter'),
                           onCta: () {
                             setState(() {
                               _filter = HistorySpreadFilter.all;
@@ -232,7 +238,7 @@ class _ReadingHistoryScreenState extends ConsumerState<ReadingHistoryScreen>
                         animation: _entrance,
                         builder: (context, _) {
                           final master = Curves.easeOutCubic.transform(
-                            _entrance.value,
+                            _entrance.value.clamp(0.0, 1.0),
                           );
                           var cardIndex = 0;
                           return SliverList(

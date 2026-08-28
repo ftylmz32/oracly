@@ -13,28 +13,28 @@ class MockTarotRepository implements TarotRepository {
 
   static const _deckKey = 'or_selected_deck';
   static const _spreadKey = 'or_selected_spread';
-  static const _root = 'lib/assets/images/cards/tarot/major';
+  static const _root = 'lib/assets/images/tarot/major_arcana';
 
   static const _decks = [
     DeckModel(
       id: 'rider-waite',
       name: 'Rider-Waite',
       description: 'Klasik sembolizm ve evrensel yorum.',
-      imageAsset: '$_root/00-TheFool.png',
+      imageAsset: '$_root/00_deli.png',
       isPremium: false,
     ),
     DeckModel(
       id: 'oracly-gold',
       name: 'OR Gold Edition',
       description: 'Altın detaylı premium deste.',
-      imageAsset: '$_root/17-TheStar.png',
+      imageAsset: '$_root/17_yildiz.png',
       isPremium: true,
     ),
     DeckModel(
       id: 'mystic-moon',
       name: 'Mystic Moon',
       description: 'Ay enerjisiyle dokunmuş özel deste.',
-      imageAsset: '$_root/18-TheMoon.png',
+      imageAsset: '$_root/18_ay.png',
       isPremium: true,
     ),
   ];
@@ -55,28 +55,28 @@ class MockTarotRepository implements TarotRepository {
   ];
 
   static const _majorMeta = [
-    (0, 'The Fool', 'Deli', '00-TheFool.png'),
-    (1, 'The Magician', 'Büyücü', '01-TheMagician.png'),
-    (2, 'The High Priestess', 'Başrahibe', '02-TheHighPriestess.png'),
-    (3, 'The Empress', 'İmparatoriçe', '03-TheEmpress.png'),
-    (4, 'The Emperor', 'İmparator', '04-TheEmperor.png'),
-    (5, 'The Hierophant', 'Aziz', '05-TheHierophant.png'),
-    (6, 'The Lovers', 'Aşıklar', '06-TheLovers.png'),
-    (7, 'The Chariot', 'Savaş Arabası', '07-TheChariot.png'),
-    (8, 'Strength', 'Güç', '08-Strength.png'),
-    (9, 'The Hermit', 'Ermiş', '09-TheHermit.png'),
-    (10, 'Wheel of Fortune', 'Kader Çarkı', '10-WheelOfFortune.png'),
-    (11, 'Justice', 'Adalet', '11-Justice.png'),
-    (12, 'The Hanged Man', 'Asılan Adam', '12-TheHangedMan.png'),
-    (13, 'Death', 'Ölüm', '13-Death.png'),
-    (14, 'Temperance', 'Denge', '14-Temperance.png'),
-    (15, 'The Devil', 'Şeytan', '15-TheDevil.png'),
-    (16, 'The Tower', 'Kule', '16-TheTower.png'),
-    (17, 'The Star', 'Yıldız', '17-TheStar.png'),
-    (18, 'The Moon', 'Ay', '18-TheMoon.png'),
-    (19, 'The Sun', 'Güneş', '19-TheSun.png'),
-    (20, 'Judgement', 'Mahkeme', '20-Judgement.png'),
-    (21, 'The World', 'Dünya', '21-TheWorld.png'),
+    (0, 'The Fool', 'Deli', '00_deli.png'),
+    (1, 'The Magician', 'Büyücü', '01_buyucu.png'),
+    (2, 'The High Priestess', 'Başrahibe', '02_basrahibe.png'),
+    (3, 'The Empress', 'İmparatoriçe', '03_imparatorice.png'),
+    (4, 'The Emperor', 'İmparator', '04_imparator.png'),
+    (5, 'The Hierophant', 'Aziz', '05_aziz.png'),
+    (6, 'The Lovers', 'Âşıklar', '06_asiklar.png'),
+    (7, 'The Chariot', 'Savaş Arabası', '07_savas_arabasi.png'),
+    (8, 'Strength', 'Güç', '08_guc.png'),
+    (9, 'The Hermit', 'Ermiş', '09_ermis.png'),
+    (10, 'Wheel of Fortune', 'Kader Çarkı', '10_kader_carki.png'),
+    (11, 'Justice', 'Adalet', '11_adalet.png'),
+    (12, 'The Hanged Man', 'Asılan Adam', '12_asilan_adam.png'),
+    (13, 'Death', 'Ölüm', '13_olum.png'),
+    (14, 'Temperance', 'Denge', '14_denge.png'),
+    (15, 'The Devil', 'Şeytan', '15_seytan.png'),
+    (16, 'The Tower', 'Kule', '16_kule.png'),
+    (17, 'The Star', 'Yıldız', '17_yildiz.png'),
+    (18, 'The Moon', 'Ay', '18_ay.png'),
+    (19, 'The Sun', 'Güneş', '19_gunes.png'),
+    (20, 'Judgement', 'Yargı', '20_yargi.png'),
+    (21, 'The World', 'Dünya', '21_dunya.png'),
   ];
 
   @override

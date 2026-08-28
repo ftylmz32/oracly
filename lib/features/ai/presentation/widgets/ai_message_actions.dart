@@ -2,11 +2,12 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import '../../../../shared/ui/oracly_snackbar.dart';
+import '../../../../core/insight_copy/insight_copy_action.dart';
+import '../../../../core/insight_copy/insight_copy_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/oracly_pressable.dart';
 import '../../domain/models/ai_message.dart';
 
 class AIMessageActions extends StatelessWidget {
@@ -32,11 +33,8 @@ class AIMessageActions extends StatelessWidget {
       children: [
         _ActionIcon(
           icon: Icons.copy_rounded,
-          tooltip: 'Kopyala',
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: message.content));
-            OraclySnackBar.show(context, message: 'Mesaj kopyalandı');
-          },
+          tooltip: InsightCopyStrings.action,
+          onTap: () => InsightCopyAction.copy(context, message.content),
         ),
         if (onRegenerate != null)
           _ActionIcon(
@@ -74,14 +72,21 @@ class _ActionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onTap,
-      icon: Icon(icon, size: AppSpacing.md),
-      color: AppColors.gold.withValues(alpha: 0.65),
-      tooltip: tooltip,
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.all(AppSpacing.xs),
-      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+    return Semantics(
+      button: true,
+      label: tooltip,
+      child: OraclyPressable(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.xs),
+          child: Icon(
+            icon,
+            size: AppSpacing.md,
+            color: AppColors.gold.withValues(alpha: 0.65),
+          ),
+        ),
+      ),
     );
   }
 }

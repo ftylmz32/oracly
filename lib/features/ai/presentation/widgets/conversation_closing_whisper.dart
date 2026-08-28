@@ -42,7 +42,7 @@ class ConversationClosingWhisper extends StatelessWidget {
 
       child: Text(
 
-        ConversationCopy.closingWhisper,
+        ConversationCopy.closingWhisper(),
 
         textAlign: TextAlign.center,
 

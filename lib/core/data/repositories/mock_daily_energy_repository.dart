@@ -14,7 +14,7 @@ class MockDailyEnergyRepository implements DailyEnergyRepository {
       moodLabel: 'Sezgisel',
       energyLevel: 0.78,
       date: DateTime.now(),
-      illustrationAsset: 'lib/assets/images/daily_energy_moon.png',
+      illustrationAsset: 'lib/assets/images/daily_moon_photoreal.webp',
     );
   }
 

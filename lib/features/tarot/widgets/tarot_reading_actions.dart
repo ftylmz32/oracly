@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import '../../../shared/ui/oracly_snackbar.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../features/discovery_share/services/discovery_share_builder.dart';
+import '../../../features/discovery_share/widgets/discovery_share_action.dart';
 import 'tarot_buttons.dart';
 
 class TarotReadingActions extends StatelessWidget {
-  const TarotReadingActions({super.key, required this.shareText});
+  const TarotReadingActions({
+    super.key,
+    required this.highlight,
+    this.cardName = '',
+    this.cardAsset,
+  });
 
-  final String shareText;
-
-  Future<void> _share(BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: shareText));
-    if (!context.mounted) return;
-    OraclySnackBar.success(context, 'Yorum panoya kopyalandı');
-  }
+  final String highlight;
+  final String cardName;
+  final String? cardAsset;
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +23,19 @@ class TarotReadingActions extends StatelessWidget {
       children: [
         Expanded(
           child: TarotGlassButton(
-            label: 'Yeniden Açılım',
+            label: OraclyL10n.t('tarot.action.again'),
             icon: Icons.refresh_rounded,
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: TarotGoldButton(
-            label: 'Paylaş',
-            icon: Icons.ios_share_rounded,
-            onPressed: () => _share(context),
+          child: DiscoveryShareAction(
+            discovery: DiscoveryShareBuilder.tarot(
+              theme: highlight,
+              cardName: cardName,
+              cardAsset: cardAsset,
+            ),
           ),
         ),
       ],

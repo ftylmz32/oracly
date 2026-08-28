@@ -5,31 +5,35 @@ import 'dart:convert';
 
 import '../../../../core/data/datasources/local_storage.dart';
 import '../../domain/models/reading_session.dart';
+import '../../domain/models/tarot_session_recovery.dart';
 
 class TarotLocalDataSource {
   TarotLocalDataSource(this._storage);
 
+  static const historyKey = 'or_tarot_reading_sessions';
+  static const activeKey = 'or_tarot_active_session';
+
   final LocalStorage _storage;
 
-  static const _historyKey = 'or_tarot_reading_sessions';
-  static const _activeKey = 'or_tarot_active_session';
+  static const _historyKey = historyKey;
+  static const _activeKey = activeKey;
 
   Future<List<ReadingSession>> fetchCompleted() async {
-    final raw = _storage.getStringList(_historyKey) ?? [];
-    return raw
-        .map((e) => ReadingSession.fromJson(jsonDecode(e) as Map<String, dynamic>))
-        .where((s) => s.status == ReadingSessionStatus.completed)
-        .toList()
+    final all = await fetchAll();
+    return all.where((s) => s.status == ReadingSessionStatus.completed).toList()
       ..sort((a, b) => (b.completedAt ?? b.startedAt)
           .compareTo(a.completedAt ?? a.startedAt));
   }
 
   Future<List<ReadingSession>> fetchAll() async {
     final raw = _storage.getStringList(_historyKey) ?? [];
-    return raw
-        .map((e) => ReadingSession.fromJson(jsonDecode(e) as Map<String, dynamic>))
-        .toList()
-      ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    final sessions = <ReadingSession>[];
+    for (final row in raw) {
+      final session = TarotSessionRecovery.decode(row);
+      if (session != null) sessions.add(session);
+    }
+    sessions.sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    return sessions;
   }
 
   Future<ReadingSession?> fetchById(String id) async {
@@ -41,9 +45,16 @@ class TarotLocalDataSource {
   }
 
   Future<ReadingSession?> fetchActive() async {
-    final raw = _storage.getString(_activeKey);
-    if (raw == null || raw.isEmpty) return null;
-    return ReadingSession.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    final recovered = TarotSessionRecovery.decode(
+      _storage.getString(_activeKey),
+      activeOnly: true,
+    );
+    if (recovered == null) {
+      final raw = _storage.getString(_activeKey);
+      if (raw != null && raw.isNotEmpty) await clearActive();
+      return null;
+    }
+    return recovered;
   }
 
   Future<void> saveActive(ReadingSession session) async {

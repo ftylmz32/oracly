@@ -1,31 +1,84 @@
-/// OR-438 — String key constants for future localization.
+/// OR-438 — String key constants for localization.
 library;
 
-/// Semantic string keys — migrate copy incrementally; new modules use these first.
 abstract final class L10nKeys {
   L10nKeys._();
 
-  // Navigation / shell
   static const home = 'nav.home';
   static const tarot = 'nav.tarot';
   static const chat = 'nav.chat';
   static const profile = 'nav.profile';
+  static const coffee = 'nav.coffee';
+  static const astrology = 'nav.astrology';
+  static const starMap = 'nav.star_map';
 
-  // Features
   static const tarotReading = 'feature.tarot.title';
   static const aiChat = 'feature.ai_chat.title';
   static const dream = 'feature.dream.title';
-  static const astrology = 'feature.astrology.title';
   static const numerology = 'feature.numerology.title';
   static const moonCalendar = 'feature.moon_calendar.title';
   static const manifestation = 'feature.manifestation.title';
 
-  // Settings
   static const settingsTitle = 'settings.title';
   static const language = 'settings.language';
-
-  // Common
+  static const languageSubtitle = 'settings.language_subtitle';
+  static const theme = 'settings.theme';
+  static const themeSubtitle = 'settings.theme_subtitle';
+  static const themeDark = 'settings.theme.dark';
+  static const themeLight = 'settings.theme.light';
+  static const themeSystem = 'settings.theme.system';
+  static const sectionAppearance = 'settings.section.appearance';
+  static const sectionNotifications = 'settings.section.notifications';
+  static const sectionLanguage = 'settings.section.language';
+  static const sectionPrivacy = 'settings.section.privacy';
+  static const sectionOrStyle = 'settings.section.or_style';
+  static const sectionSound = 'settings.section.sound';
+  static const sectionAnimation = 'settings.section.animation';
+  static const sectionAbout = 'settings.section.about';
+  static const privacy = 'settings.privacy';
+  static const privacySubtitle = 'settings.privacy_subtitle';
+  static const about = 'settings.about';
+  static const aboutSubtitle = 'settings.about_subtitle';
+  static const help = 'settings.help';
+  static const helpSubtitle = 'settings.help_subtitle';
+  static const back = 'common.back';
   static const save = 'common.save';
   static const cancel = 'common.cancel';
   static const comingSoon = 'common.coming_soon';
+  static const soundTitle = 'settings.sound';
+  static const soundSubtitle = 'settings.sound_subtitle';
+  static const ambientMusicTitle = 'settings.ambient_music';
+  static const ambientMusicSubtitle = 'settings.ambient_music_subtitle';
+  static const hapticTitle = 'settings.haptic';
+  static const hapticSubtitle = 'settings.haptic_subtitle';
+  static const voiceRepliesTitle = 'settings.voice_replies';
+  static const voiceRepliesSubtitle = 'settings.voice_replies_subtitle';
+  static const orStyleTitle = 'settings.or_style';
+  static const orStyleSubtitle = 'settings.or_style_subtitle';
+  static const orStyleSheetTitle = 'settings.or_style_sheet';
+  static const orDepthTitle = 'settings.or_depth';
+  static const orDepthSubtitle = 'settings.or_depth_subtitle';
+  static const notificationsTitle = 'settings.notifications';
+  static const notificationsSubtitle = 'settings.notifications_subtitle';
+  static const notificationsUnavailable = 'settings.notifications_unavailable';
+  static const musicUnavailable = 'settings.music_unavailable';
+  static const animationTitle = 'settings.animation';
+  static const animationSubtitle = 'settings.animation_subtitle';
+  static const animationUnavailable = 'settings.animation_unavailable';
+  static const atmosphereTitle = 'settings.atmosphere';
+  static const atmosphereSubtitle = 'settings.atmosphere_subtitle';
+  static const profilePremiumActive = 'settings.profile_premium';
+  static const profileManage = 'settings.profile_manage';
+  static const guestName = 'settings.guest_name';
+  static const membershipPremium = 'settings.membership_premium';
+  static const membershipStandard = 'settings.membership_standard';
+  static const premiumTitle = 'settings.premium';
+  static const premiumSubtitle = 'settings.premium_subtitle';
+  static const gemsTitle = 'settings.gems';
+  static const gemsSubtitle = 'settings.gems_subtitle';
+  static const dailyRewardsTitle = 'settings.daily_rewards';
+  static const dailyRewardsSubtitle = 'settings.daily_rewards_subtitle';
+  static const sectionOutput = 'settings.section.output';
+  static const outputTitle = 'settings.output';
+  static const outputSubtitle = 'settings.output_subtitle';
 }

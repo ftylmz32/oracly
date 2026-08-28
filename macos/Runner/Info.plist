@@ -28,5 +28,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Rüyanı sesli anlatmak için mikrofon gerekir.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Rüyanı yazıya dökmek için ses tanıma gerekir. Ses kaydı saklanmaz.</string>
 </dict>
 </plist>

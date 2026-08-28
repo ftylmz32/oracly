@@ -1,79 +1,44 @@
 /// OR-020.1 — Central tab navigation for the Oracly app shell.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/navigation/oracly_route_generator.dart';
+import '../../app/providers/app_providers.dart';
+import '../../core/audio/oracly_feedback_gate.dart';
+import '../../core/voice/oracly_tts_gate.dart';
 import '../../features/home/home_page.dart';
-import '../../features/tarot/navigation/tarot_module_navigator.dart';
-import '../../features/companion/presentation/screens/companion_screen.dart';
-import '../../screens/profile/profile_screen.dart';
+import '../../features/companion/presentation/reference/companion_reference_screen.dart';
+import '../../features/explore/presentation/explore_reference_screen.dart';
+import '../../features/discovery_journal/presentation/screens/discovery_journal_screen.dart';
+import '../../features/premium/models/personalization_models.dart';
+import '../../screens/profile/reference/profile_reference_screen.dart';
 import '../widgets/oracly_bottom_bar.dart';
+import '../widgets/oracly_pressable.dart';
+import 'oracly_navigation_scope.dart';
+import 'oracly_shell_bridge.dart';
+import 'oracly_shell_runtime.dart';
+import 'oracly_tab_pane.dart';
 
-/// Primary bottom navigation destinations.
-enum OraclyTab {
-  home,
-  tarot,
-  chat,
-  profile;
-
-  static OraclyTab fromIndex(int index) => OraclyTab.values[index];
-}
-
-/// Inherited tab controller — feature widgets switch tabs without duplicating routes.
-class OraclyNavigationScope extends InheritedWidget {
-  const OraclyNavigationScope({
-    super.key,
-    required this.currentIndex,
-    required this.switchToTab,
-    required super.child,
-  });
-
-  final int currentIndex;
-  final ValueChanged<int> switchToTab;
-
-  static OraclyNavigationScope of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<OraclyNavigationScope>();
-    assert(scope != null, 'OraclyNavigationScope not found in widget tree.');
-    return scope!;
-  }
-
-  static OraclyNavigationScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<OraclyNavigationScope>();
-  }
-
-  @override
-  bool updateShouldNotify(OraclyNavigationScope oldWidget) {
-    return currentIndex != oldWidget.currentIndex;
-  }
-}
-
-/// Convenience API for switching tabs from feature entry points.
-abstract final class OraclyNavigation {
-  OraclyNavigation._();
-
-  static void switchToTab(BuildContext context, OraclyTab tab) {
-    final scope = OraclyNavigationScope.maybeOf(context);
-    if (scope == null) return;
-    scope.switchToTab(tab.index);
-  }
-}
+export 'oracly_navigation_scope.dart';
 
 /// Root shell — preserves tab state and exposes one shared bottom bar.
-class OraclyAppShell extends StatefulWidget {
-  const OraclyAppShell({
-    super.key,
-    this.initialTab = OraclyTab.home,
-  });
+///
+/// Tab chrome (labels): Ana Sayfa · OR · Keşfet · Günlük · Profil
+/// Enum indices stay stable; presentation roots match the Home master reference.
+class OraclyAppShell extends ConsumerStatefulWidget {
+  const OraclyAppShell({super.key, this.initialTab = OraclyTab.home});
 
   final OraclyTab initialTab;
 
   @override
-  State<OraclyAppShell> createState() => _OraclyAppShellState();
+  ConsumerState<OraclyAppShell> createState() => _OraclyAppShellState();
 }
 
-class _OraclyAppShellState extends State<OraclyAppShell> {
+class _OraclyAppShellState extends ConsumerState<OraclyAppShell>
+    with WidgetsBindingObserver {
   late int _currentIndex = widget.initialTab.index;
 
   late final List<GlobalKey<NavigatorState>> _navigatorKeys =
@@ -81,30 +46,77 @@ class _OraclyAppShellState extends State<OraclyAppShell> {
 
   static const List<Widget> _roots = [
     HomePage(),
-    TarotModuleNavigator(),
-    CompanionScreen(),
-    ProfileScreen(),
+    CompanionReferenceScreen(),
+    ExploreReferenceScreen(),
+    DiscoveryJournalScreen(),
+    ProfileReferenceScreen(),
   ];
+
+  late final OraclyShellTabSwitcher _bridgeSwitch = _switchFromBridge;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    OraclyShellBridge.bind(_bridgeSwitch);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(OraclyShellRuntime.bootstrap(ref));
+    });
+  }
+
+  @override
+  void dispose() {
+    OraclyShellBridge.unbind(_bridgeSwitch);
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(OraclyTtsGate.stop());
+    super.dispose();
+  }
+
+  void _switchFromBridge(OraclyTab tab) {
+    if (!mounted) return;
+    _onDestinationSelected(tab.index);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    OraclyShellRuntime.handleLifecycle(
+      state,
+      ref.read(oraclySoundServiceProvider),
+      ref: ref,
+    );
+  }
 
   void _onDestinationSelected(int index) {
     if (_currentIndex == index) {
       _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
       return;
     }
+    OraclyTouchFeedback.selection();
+    OraclyFeedbackGate.selection();
+    unawaited(OraclyTtsGate.stop());
+    OraclyShellRuntime.cancelCompanionVoice(context);
     setState(() => _currentIndex = index);
   }
 
-  Future<bool> _onWillPop() async {
+  Future<void> _onWillPop() async {
     final navigator = _navigatorKeys[_currentIndex].currentState;
     if (navigator != null && navigator.canPop()) {
-      navigator.pop();
-      return false;
+      await navigator.maybePop();
+      return;
     }
-    return true;
+    if (_currentIndex != OraclyTab.home.index) {
+      setState(() => _currentIndex = OraclyTab.home.index);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<PersonalizationSettings>>(settingsProvider, (_, next) {
+      next.whenData((_) => OraclyShellRuntime.applyPersonalization(ref));
+    });
+    ref.watch(appLocaleProvider);
+
     return OraclyNavigationScope(
       currentIndex: _currentIndex,
       switchToTab: _onDestinationSelected,
@@ -112,25 +124,20 @@ class _OraclyAppShellState extends State<OraclyAppShell> {
         canPop: false,
         onPopInvokedWithResult: (didPop, _) {
           if (didPop) return;
-          _onWillPop();
+          unawaited(_onWillPop());
         },
         child: Scaffold(
           backgroundColor: Colors.transparent,
+          extendBody: true,
           body: Stack(
             fit: StackFit.expand,
             children: [
               for (var i = 0; i < _roots.length; i++)
-                IgnorePointer(
-                  ignoring: _currentIndex != i,
-                  child: AnimatedOpacity(
-                    opacity: _currentIndex == i ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 160),
-                    curve: Curves.easeOutCubic,
-                    child: _TabNavigator(
-                      navigatorKey: _navigatorKeys[i],
-                      root: _roots[i],
-                    ),
-                  ),
+                OraclyTabPane(
+                  active: _currentIndex == i,
+                  navigatorKey: _navigatorKeys[i],
+                  root: _roots[i],
+                  personality: OraclyTab.fromIndex(i).chamberPersonality,
                 ),
             ],
           ),
@@ -140,40 +147,6 @@ class _OraclyAppShellState extends State<OraclyAppShell> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _TabNavigator extends StatelessWidget {
-  const _TabNavigator({
-    required this.navigatorKey,
-    required this.root,
-  });
-
-  final GlobalKey<NavigatorState> navigatorKey;
-  final Widget root;
-
-  @override
-  Widget build(BuildContext context) {
-    return Navigator(
-      key: navigatorKey,
-      onGenerateRoute: (settings) {
-        final generated = OraclyRouteGenerator.onGenerateRoute(settings);
-        if (generated != null) return generated;
-
-        return MaterialPageRoute<void>(
-          settings: const RouteSettings(name: '/'),
-          builder: (_) => root,
-        );
-      },
-      onGenerateInitialRoutes: (navigator, initialRoute) {
-        return [
-          MaterialPageRoute<void>(
-            settings: const RouteSettings(name: '/'),
-            builder: (_) => root,
-          ),
-        ];
-      },
     );
   }
 }

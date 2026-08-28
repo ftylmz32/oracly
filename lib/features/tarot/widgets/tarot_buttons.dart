@@ -27,8 +27,10 @@ class TarotGoldButton extends StatelessWidget {
     final btn = OraclyPressable(
       enabled: enabled,
       onTap: onPressed,
+      label: label,
       behavior: HitTestBehavior.opaque,
       child: Container(
+        constraints: const BoxConstraints(minHeight: 48),
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
@@ -43,14 +45,20 @@ class TarotGoldButton extends StatelessWidget {
           mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 18, color: const Color(0xFF1A1020)),
+              ExcludeSemantics(
+                child: Icon(icon, size: 18, color: const Color(0xFF1A1020)),
+              ),
               const SizedBox(width: 8),
             ],
-            Text(
-              busy ? 'Karıştırılıyor...' : label,
-              style: TarotTypography.body(size: 14).copyWith(
-                color: const Color(0xFF1A1020),
-                fontWeight: FontWeight.w600,
+            Flexible(
+              child: Text(
+                busy ? 'Karıştırılıyor...' : label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TarotTypography.body(size: 14).copyWith(
+                  color: const Color(0xFF1A1020),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -79,8 +87,10 @@ class TarotGlassButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final btn = OraclyPressable(
       onTap: onPressed,
+      label: label,
       behavior: HitTestBehavior.opaque,
       child: Container(
+        constraints: const BoxConstraints(minHeight: 48),
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
@@ -93,10 +103,19 @@ class TarotGlassButton extends StatelessWidget {
           mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 18, color: AppColors.primaryLight),
+              ExcludeSemantics(
+                child: Icon(icon, size: 18, color: AppColors.primaryLight),
+              ),
               const SizedBox(width: 8),
             ],
-            Text(label, style: TarotTypography.body(size: 13)),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TarotTypography.body(size: 13),
+              ),
+            ),
           ],
         ),
       ),

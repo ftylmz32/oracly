@@ -10,25 +10,19 @@ import '../models/tarot_card.dart';
 class DeckService {
   const DeckService();
 
-  static const deckIdMap = {
-    'classic': 'rider-waite',
-    'golden': 'oracly-gold',
-    'moon_oracle': 'mystic-moon',
-    'mystic_dreams': 'mystic-dreams',
-    'ancient_wisdom': 'ancient-wisdom',
-    'future_visions': 'future-visions',
-  };
+  static const activeUiId = 'classic';
+  static const activeCanonicalId = 'rider-waite';
 
-  String resolveDeckId(String uiDeckId) =>
-      deckIdMap[uiDeckId] ?? uiDeckId;
+  /// Every requested id maps to the one real catalogue. No fake distinct decks.
+  String resolveDeckId(String uiDeckId) => activeCanonicalId;
 
-  List<TarotCard> createDeck({String deckId = 'rider-waite'}) {
+  List<TarotCard> createDeck({String deckId = activeCanonicalId}) {
     return TarotContentCatalogue.all.map(_fromContent).toList();
   }
 
   List<TarotCard> shuffledDeck({
     required int seed,
-    String deckId = 'rider-waite',
+    String deckId = activeCanonicalId,
   }) {
     final deck = createDeck(deckId: deckId);
     deck.shuffle(Random(seed));

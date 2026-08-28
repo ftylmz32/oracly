@@ -30,25 +30,55 @@ abstract final class PromptTemplateCatalogue {
 {{> output_format_block}}
 ''',
     userBody: '''
-Açılım: {{spreadType}}
-Niyet: {{intention}}
-Kartlar:
+{{@locale.spread_label}}: {{spreadType}}
+{{@locale.intention_label}}: {{intention}}
+{{@locale.cards_label}}:
 {{cardsSummary}}
 {{#if reversedSummary}}
-Ters kartlar: {{reversedSummary}}
+{{@locale.reversed_label}}: {{reversedSummary}}
 {{/if}}
 ''',
     sections: {
-      'base_persona': SharedTemplateSections.basePersona,
-      'personality_block': SharedTemplateSections.personalityBlock,
-      'output_format_block': SharedTemplateSections.outputFormatBlock,
+      'base_persona': '{{personaBody}}',
+      'personality_block': '''
+{{#if personality}}
+{{@locale.personality_label}}: {{personality}}
+{{/if}}
+''',
+      'output_format_block': '''
+{{#if outputFormatInstruction}}
+{{@locale.format_label}}:
+{{outputFormatInstruction}}
+{{/if}}
+''',
     },
     localizations: {
       'tr': {
-        'role': 'Tarot uzmanısın. Kart sembolizmini derinlemesine yorumla.',
+        'role': 'Karşında oturan okuyucusun. Kart sözlüğü okuma; soruyu ve kartların birbirine değdiği yeri yorumla.',
+        'spread_label': 'Açılım',
+        'intention_label': 'Niyet',
+        'cards_label': 'Kartlar',
+        'reversed_label': 'Ters kartlar',
+        'personality_label': 'Kişilik tonu',
+        'format_label': 'Yanıt formatı',
       },
       'en': {
-        'role': 'You are a tarot expert. Interpret card symbolism in depth.',
+        'role': 'You are a reader sitting across from someone. Do not recite a card dictionary; interpret the question and how the cards touch.',
+        'spread_label': 'Spread',
+        'intention_label': 'Intention',
+        'cards_label': 'Cards',
+        'reversed_label': 'Reversed cards',
+        'personality_label': 'Tone',
+        'format_label': 'Response format',
+      },
+      'ru': {
+        'role': 'Ты читатель напротив человека. Не читай словарь карт; толкуй вопрос и то, как карты соприкасаются.',
+        'spread_label': 'Расклад',
+        'intention_label': 'Намерение',
+        'cards_label': 'Карты',
+        'reversed_label': 'Перевернутые карты',
+        'personality_label': 'Тон',
+        'format_label': 'Формат ответа',
       },
     },
     variables: [
@@ -146,7 +176,10 @@ Soru: {{question}}
     },
     localizations: {
       'tr': {
-        'role': 'Astroloji rehberi olarak danışmanlık veriyorsun.',
+        'role':
+            'Astroloji rehberi olarak net gözlem ver. '
+            'Önce anlaşılır bir yorum yaz; soruyla bitirme. '
+            'Kullanıcıya işi bırakma, kehanet de etme.',
       },
     },
     variables: [
@@ -168,7 +201,7 @@ Soru: {{question}}
         required: false,
       ),
     ],
-    outputFormatId: 'standard',
+    outputFormatId: 'astrology',
   );
 
   static final dailyEnergyBrief = PromptTemplate(
@@ -195,7 +228,7 @@ Ruh hali: {{moodLabel}}
     },
     localizations: {
       'tr': {
-        'role': 'Günlük kozmik enerji rehberi olarak kısa rehberlik ver.',
+        'role': 'Günün temposunu sakin ve somut gözlemle kısa anlat.',
       },
     },
     variables: [
@@ -280,7 +313,7 @@ Yaşam yolu sayısı: {{lifePathNumber}}
     },
     localizations: {
       'tr': {
-        'role': 'Numeroloji rehberi olarak sayısal enerjileri yorumluyorsun.',
+        'role': 'Numerolojiyi sembolik bir ayna olarak sakin anlat; sayısal enerji nutku yok.',
       },
     },
     variables: [

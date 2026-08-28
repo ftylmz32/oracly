@@ -132,6 +132,40 @@ class SettingsNavTile extends StatelessWidget {
   }
 }
 
+/// Destructive privacy or account action — calm red accent, same press feel.
+class SettingsDestructiveTile extends StatelessWidget {
+  const SettingsDestructiveTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsGlassTile(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      iconColor: AppColors.danger.withValues(alpha: 0.88),
+      titleColor: AppColors.danger.withValues(alpha: 0.92),
+      borderColor: AppColors.danger.withValues(alpha: 0.22),
+      trailing: Icon(
+        Icons.warning_amber_rounded,
+        size: 18,
+        color: AppColors.danger.withValues(alpha: 0.65),
+      ),
+      onTap: onTap,
+    );
+  }
+}
+
 class _SettingsGlassTile extends StatelessWidget {
   const _SettingsGlassTile({
     required this.icon,
@@ -139,6 +173,9 @@ class _SettingsGlassTile extends StatelessWidget {
     required this.subtitle,
     this.trailing,
     this.onTap,
+    this.iconColor,
+    this.titleColor,
+    this.borderColor,
   });
 
   final IconData icon;
@@ -146,6 +183,9 @@ class _SettingsGlassTile extends StatelessWidget {
   final String subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final Color? iconColor;
+  final Color? titleColor;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +207,8 @@ class _SettingsGlassTile extends StatelessWidget {
                     borderRadius: AppRadius.lg,
                     color: AppColors.surface.withValues(alpha: 0.72),
                     border: Border.all(
-                      color: AppColors.gold.withValues(alpha: 0.2),
+                      color: borderColor ??
+                          AppColors.gold.withValues(alpha: 0.2),
                       width: AppBorderWidth.hairline,
                     ),
                   ),
@@ -175,7 +216,11 @@ class _SettingsGlassTile extends StatelessWidget {
                     padding: AppSpacing.card,
                     child: Row(
                       children: [
-                        Icon(icon, color: AppColors.gold, size: AppSpacing.lg),
+                        Icon(
+                          icon,
+                          color: iconColor ?? AppColors.gold,
+                          size: AppSpacing.lg,
+                        ),
                         SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: Column(
@@ -184,7 +229,7 @@ class _SettingsGlassTile extends StatelessWidget {
                               Text(
                                 title,
                                 style: AppTextStyles.labelLarge.copyWith(
-                                  color: AppColors.goldLight,
+                                  color: titleColor ?? AppColors.goldLight,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -259,21 +304,24 @@ Future<T?> showSettingsChoiceSheet<T>({
                   ),
                   ...options.map((opt) {
                     final selected = opt.$1 == current;
-                    return ListTile(
-                      title: Text(
-                        opt.$2,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: selected
-                              ? AppColors.goldLight
-                              : AppColors.textSecondary,
-                          fontWeight:
-                              selected ? FontWeight.w700 : FontWeight.w400,
+                    return Material(
+                      color: AppColors.transparent,
+                      child: ListTile(
+                        title: Text(
+                          opt.$2,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: selected
+                                ? AppColors.goldLight
+                                : AppColors.textSecondary,
+                            fontWeight:
+                                selected ? FontWeight.w700 : FontWeight.w400,
+                          ),
                         ),
+                        trailing: selected
+                            ? Icon(Icons.check_rounded, color: AppColors.gold)
+                            : null,
+                        onTap: () => Navigator.pop(context, opt.$1),
                       ),
-                      trailing: selected
-                          ? Icon(Icons.check_rounded, color: AppColors.gold)
-                          : null,
-                      onTap: () => Navigator.pop(context, opt.$1),
                     );
                   }),
                   SizedBox(height: AppSpacing.md),

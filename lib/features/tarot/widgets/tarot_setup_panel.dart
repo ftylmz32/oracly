@@ -17,7 +17,7 @@ class _SpreadOption {
 
 const _spreads = [
   _SpreadOption(1, 'Tek Kart', 'Tek bir mesaj', Icons.style_outlined),
-  _SpreadOption(3, 'Üç Kart Açılımı', 'Geçmiş · Şimdi · Gelecek', Icons.filter_3_outlined),
+  _SpreadOption(3, 'Üç Kart Açılımı', 'Geçmiş · Şimdi · Yakın Dönem', Icons.filter_3_outlined),
   _SpreadOption(3, 'Aşk', 'Kalp & bağ', Icons.favorite_outline),
   _SpreadOption(3, 'Haftalık', '7 günlük rehber', Icons.calendar_today_outlined),
   _SpreadOption(3, 'Karma', 'Dersler & denge', Icons.all_inclusive),

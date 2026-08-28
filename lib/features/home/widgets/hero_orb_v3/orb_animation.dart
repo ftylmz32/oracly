@@ -1,5 +1,7 @@
-/// OR-300 — Premium motion controllers for the hero orb.
+/// OR-300 / EPIC-013 — Premium motion controllers for the hero orb.
 library;
+
+import 'dart:math' show pi, sin;
 
 import 'package:flutter/material.dart';
 
@@ -49,6 +51,28 @@ class OrbAnimationBundle {
       duration: OrbConstants.particleDriftDuration,
     )..repeat();
     particleDrift.value = HomePresenceRhythm.particles(phase);
+
+    internalEnergy = AnimationController(
+      vsync: vsync,
+      duration: OrbConstants.internalEnergyDuration,
+    )..repeat();
+    internalEnergy.value = phase % 1.0;
+
+    orbit = AnimationController(
+      vsync: vsync,
+      duration: OrbConstants.orbitDuration,
+    )..repeat();
+    orbit.value = (phase * 0.37) % 1.0;
+
+    shimmerCycle = AnimationController(
+      vsync: vsync,
+      duration: OrbConstants.shimmerCycleDuration,
+    )..repeat();
+
+    tapPulse = AnimationController(
+      vsync: vsync,
+      duration: OrbConstants.tapPulseDuration,
+    );
   }
 
   late final AnimationController breathe;
@@ -57,6 +81,10 @@ class OrbAnimationBundle {
   late final AnimationController ringClockwise;
   late final AnimationController ringCounterClockwise;
   late final AnimationController particleDrift;
+  late final AnimationController internalEnergy;
+  late final AnimationController orbit;
+  late final AnimationController shimmerCycle;
+  late final AnimationController tapPulse;
 
   /// Breathing scale 0.985 → 1.015.
   double get breatheScale {
@@ -87,8 +115,39 @@ class OrbAnimationBundle {
   /// Slow particle drift phase [0, 1).
   double get particlePhase => particleDrift.value;
 
+  /// Internal caustic / energy rotation in radians.
+  double get internalEnergyAngle => internalEnergy.value * pi * 2;
+
+  /// External orbit phase [0, 1).
+  double get orbitPhase => orbit.value;
+
+  /// Shimmer sweep progress [0, 1] during active window, otherwise -1.
+  double get shimmerSweep {
+    final cycle = shimmerCycle.value;
+    if (cycle > OrbConstants.shimmerActiveFraction) return -1;
+    final t = cycle / OrbConstants.shimmerActiveFraction;
+    return OrbConstants.motionCurve.transform(t);
+  }
+
+  /// Gentle scale bump when the orb is tapped.
+  double get tapScaleBoost {
+    if (tapPulse.value <= 0) return 0;
+    return sin(tapPulse.value * pi) * OrbConstants.tapScaleBoostMax;
+  }
+
+  /// Brief glow lift on tap.
+  double get tapGlowBoost {
+    if (tapPulse.value <= 0) return 0;
+    return sin(tapPulse.value * pi) * OrbConstants.tapGlowBoostMax;
+  }
+
   /// Transform-only motions — isolated listenable for the scene shell.
-  Listenable get transformMotion => Listenable.merge([breathe, float]);
+  Listenable get transformMotion =>
+      Listenable.merge([breathe, float, tapPulse]);
+
+  void pulseTap() {
+    tapPulse.forward(from: 0);
+  }
 
   void dispose() {
     breathe.dispose();
@@ -97,6 +156,10 @@ class OrbAnimationBundle {
     ringClockwise.dispose();
     ringCounterClockwise.dispose();
     particleDrift.dispose();
+    internalEnergy.dispose();
+    orbit.dispose();
+    shimmerCycle.dispose();
+    tapPulse.dispose();
   }
 }
 

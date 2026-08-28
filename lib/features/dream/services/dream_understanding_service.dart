@@ -188,7 +188,7 @@ class DreamUnderstandingService {
     if (parts.isEmpty) {
       return 'Rüya metni kaydedildi; belirgin imgeler henüz ayrıştırılamadı.';
     }
-    return 'Rüyanda ${parts.join(', ')} öne çıkıyor.';
+    return 'Rüyanda ${parts.join(', ')} duruyor.';
   }
 
   DreamSymbolKind _mapKind(oracle.DreamSymbolCategory category) {

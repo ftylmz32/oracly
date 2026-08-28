@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/app_gradients.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_decorations.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../copy/tarot_l10n.dart';
 import '../models/tarot_card.dart';
 import 'tarot_result_card_art.dart';
 
@@ -22,7 +23,7 @@ class TarotResultCardCompact extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
         gradient: AppGradients.glass,
         border: Border.all(color: AppColors.gold.withValues(alpha: 0.22)),
         boxShadow: AppShadows.soft,
@@ -44,7 +45,7 @@ class TarotResultCardCompact extends StatelessWidget {
                     ),
                   ),
                 Text(
-                  card.name,
+                  TarotL10n.cardNameOf(card),
                   style: AppTextStyles.title.copyWith(
                     color: AppColors.goldLight,
                     fontSize: 16,

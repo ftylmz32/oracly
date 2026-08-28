@@ -4,15 +4,24 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/navigation/oracly_page_transitions.dart';
+
 import '../../../../app/providers/app_providers.dart';
+import '../../../personal_discovery/services/personal_discovery_refresh.dart';
 import '../../../../core/copy/transparency_copy.dart';
-import '../../../../core/copy/session_ending_copy.dart';
+import '../../../../core/l10n/l10n.dart';
+import '../../../../core/design_system/app_icons.dart';
+import '../../../../core/design_system/app_layout.dart';
+import '../../../../core/design_system/oracly_header_action.dart';
 import '../../../../core/domain/models/reading.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/ui/oracly_dialog.dart';
+import '../../art/tarot_major_card_art.dart';
 import '../../theme/tarot_tokens.dart';
+import '../utils/saved_reading_parser.dart';
 import '../widgets/ai_reading/ai_reading_content.dart';
 import '../widgets/ai_reading/reading_glass_panel.dart';
 import '../widgets/reading_history/reading_history_background.dart';
@@ -60,32 +69,7 @@ class _ReadingHistoryDetailScreenState
   }
 
   AiReadingContent _contentFromEntry(ReadingModel? model) {
-    final summary = model?.aiSummary ?? widget.entry.aiSummary;
-    final closing = _extractSection(summary, 'kapanış').trim();
-
-    return AiReadingContent(
-      cardName: widget.entry.cardName,
-      tagline: widget.entry.spreadType,
-      generalMeaning: summary,
-      love: _extractSection(summary, 'aşk'),
-      career: _extractSection(summary, 'kariyer'),
-      money: _extractSection(summary, 'para'),
-      spiritualGuidance: _extractSection(summary, 'ruhsal'),
-      luckyEnergy: widget.entry.spreadType,
-      dailyAdvice: _extractSection(summary, 'tavsiye'),
-      closingMessage:
-          closing.isNotEmpty ? closing : SessionEndingCopy.closingFallback,
-      imageAsset: widget.entry.cardImageAsset,
-      rarityColor: AppColors.purpleLight,
-      fullInterpretation: summary,
-    );
-  }
-
-  String _extractSection(String text, String key) {
-    final pattern = RegExp('##\\s+$key[\\s\\S]*?(?=##|\$)', caseSensitive: false);
-    final match = pattern.firstMatch(text);
-    if (match == null) return text.split('\n').first;
-    return match.group(0)!.replaceFirst(RegExp('##\\s+$key\\s*', caseSensitive: false), '').trim();
+    return SavedReadingParser.toContent(entry: widget.entry, model: model);
   }
 
   Future<void> _editReflection() async {
@@ -104,38 +88,37 @@ class _ReadingHistoryDetailScreenState
     setState(() => _personalNote = note.isEmpty ? null : note);
   }
 
+  bool _favoriteBusy = false;
+
   Future<void> _toggleFavorite() async {
-    await ref.read(readingServiceProvider).toggleFavorite(widget.entry.id);
-    ref.invalidate(readingHistoryProvider);
-    if (!mounted) return;
-    setState(() => _isFavorite = !_isFavorite);
+    if (_favoriteBusy) return;
+    _favoriteBusy = true;
+    final next = !_isFavorite;
+    setState(() => _isFavorite = next);
+    try {
+      await ref.read(readingServiceProvider).toggleFavorite(widget.entry.id);
+      ref.invalidate(readingHistoryProvider);
+    } catch (_) {
+      if (mounted) setState(() => _isFavorite = !next);
+    } finally {
+      _favoriteBusy = false;
+    }
   }
 
   Future<void> _deleteReading() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(TransparencyCopy.deleteReadingTitle),
-        content: const Text(TransparencyCopy.deleteReadingBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(TransparencyCopy.deleteReadingCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              TransparencyCopy.deleteReadingConfirm,
-              style: TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
+    final confirmed = await OraclyDialog.confirm(
+      context,
+      title: TransparencyCopy.deleteReadingTitle,
+      message: TransparencyCopy.deleteReadingBody,
+      confirmLabel: TransparencyCopy.deleteReadingConfirm,
+      cancelLabel: TransparencyCopy.deleteReadingCancel,
+      destructive: true,
     );
     if (confirmed != true || !mounted) return;
 
     await ref.read(historyServiceProvider).remove(widget.entry.id);
     ref.invalidate(readingHistoryProvider);
+    PersonalDiscoveryRefresh.invalidate(ref);
     if (!mounted) return;
     Navigator.of(context).pop();
   }
@@ -163,21 +146,20 @@ class _ReadingHistoryDetailScreenState
         children: [
           const ReadingHistoryBackground(),
           SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: TarotTokens.screenPadding.horizontal,
+                    horizontal: AppLayout.screenHorizontal,
                     vertical: AppSpacing.sm,
                   ),
                   child: Row(
                     children: [
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.goldLight,
-                        ),
+                      OraclyHeaderAction(
+                        icon: AppIcons.back,
+                        label: OraclyL10n.t(L10nKeys.back),
+                        onTap: () => Navigator.of(context).pop(),
                       ),
                       Expanded(
                         child: Column(
@@ -190,7 +172,7 @@ class _ReadingHistoryDetailScreenState
                               ),
                             ),
                             Text(
-                              '${widget.entry.dateLabel} · ${widget.entry.spreadType}',
+                              '${widget.entry.dateLabel} · ${widget.entry.typeLabel}',
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -198,27 +180,26 @@ class _ReadingHistoryDetailScreenState
                           ],
                         ),
                       ),
-                      IconButton(
-                        onPressed: _toggleFavorite,
-                        tooltip: _isFavorite ? 'Hatıradan çıkar' : 'Hatıra olarak işaretle',
-                        icon: Icon(
-                          _isFavorite
-                              ? Icons.bookmark_rounded
-                              : Icons.bookmark_outline_rounded,
-                          color: _isFavorite
-                              ? AppColors.goldLight
-                              : AppColors.textSecondary,
-                        ),
+                      OraclyHeaderAction(
+                        icon: _isFavorite
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_outline_rounded,
+                        label: _isFavorite
+                            ? OraclyL10n.t('tarot.memory.remove')
+                            : OraclyL10n.t('tarot.memory.add'),
+                        onTap: _toggleFavorite,
                       ),
                       Hero(
                         tag: widget.entry.heroTag,
                         child: ClipRRect(
                           borderRadius: AppRadius.xs,
-                          child: Image.asset(
-                            widget.entry.cardImageAsset,
+                          child: SizedBox(
                             width: 44,
                             height: 64,
-                            fit: BoxFit.cover,
+                            child: TarotMajorCardArt(
+                              imageAsset: widget.entry.cardImageAsset,
+                              showChrome: false,
+                            ),
                           ),
                         ),
                       ),
@@ -230,11 +211,12 @@ class _ReadingHistoryDetailScreenState
                     animation: _reveal,
                     builder: (context, _) {
                       final master = Curves.easeOutCubic.transform(
-                        _reveal.value,
+                        _reveal.value.clamp(0.0, 1.0),
                       );
                       return SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
-                        padding: TarotTokens.screenPadding.copyWith(top: 0),
+                        padding: TarotTokens.screenPaddingOf(context)
+                            .copyWith(top: 0),
                         child: Center(
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(
@@ -269,7 +251,7 @@ class _ReadingHistoryDetailScreenState
                                       color: AppColors.textHint,
                                     ),
                                     label: Text(
-                                      'Bu yansımayı sil',
+                                      OraclyL10n.t('tarot.history.delete_reflection'),
                                       style: AppTextStyles.labelMedium.copyWith(
                                         color: AppColors.textHint,
                                       ),
@@ -294,21 +276,13 @@ class _ReadingHistoryDetailScreenState
   }
 }
 
-PageRouteBuilder<T> historyDetailRoute<T>({
+Route<T> historyDetailRoute<T>({
   required ReadingHistoryEntry entry,
 }) {
-  return PageRouteBuilder<T>(
+  return OraclyPageTransitions.fade<T>(
+    page: ReadingHistoryDetailScreen(entry: entry),
     settings: RouteSettings(name: '/tarot/history/${entry.id}'),
-    transitionDuration: const Duration(milliseconds: 900),
-    reverseTransitionDuration: const Duration(milliseconds: 700),
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        ReadingHistoryDetailScreen(entry: entry),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final fade = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeInOutCubic,
-      );
-      return FadeTransition(opacity: fade, child: child);
-    },
+    duration: const Duration(milliseconds: 480),
+    reverseDuration: const Duration(milliseconds: 360),
   );
 }

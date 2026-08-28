@@ -5,7 +5,6 @@ import 'dart:math' show pi;
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/reading_typography.dart';
@@ -13,7 +12,6 @@ import '../../../../../core/widgets/oracly_signature_motifs.dart';
 import 'reading_card_ambience.dart';
 import 'reading_flow_text.dart';
 import 'reading_premium_animations.dart';
-import 'reading_premium_icon_container.dart';
 import 'reading_premium_utils.dart';
 import 'reading_sacred_rhythm.dart';
 import 'reading_section_theme.dart';
@@ -46,9 +44,15 @@ class ReadingPremiumSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = ReadingSectionTheme.forKind(kind);
-    final progress = readingPremiumSectionProgress(index, master);
-    final titleProgress = readingPremiumSectionTitleProgress(index, master);
-    final bodyProgress = readingPremiumSectionBodyProgress(index, master);
+    final progress = kind == ReadingSectionKind.spiritual
+        ? readingPremiumGuidanceProgress(master)
+        : readingPremiumSectionProgress(index, master);
+    final titleProgress = kind == ReadingSectionKind.spiritual
+        ? Curves.easeOutCubic.transform((progress / 0.55).clamp(0.0, 1.0))
+        : readingPremiumSectionTitleProgress(index, master);
+    final bodyProgress = kind == ReadingSectionKind.spiritual
+        ? Curves.easeOutCubic.transform(((progress - 0.32) / 0.68).clamp(0.0, 1.0))
+        : readingPremiumSectionBodyProgress(index, master);
     final slide = (1 - progress) * 24;
     final scatterX = (index.isEven ? -1 : 1) * exitProgress * 14;
     final scatterY = exitProgress * 18;
@@ -68,8 +72,10 @@ class ReadingPremiumSectionCard extends StatelessWidget {
                 borderRadius: AppRadius.lg,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.18),
-                    blurRadius: 12,
+                    color: Colors.black.withValues(
+                      alpha: emphasizeBody ? 0.22 : 0.16,
+                    ),
+                    blurRadius: emphasizeBody ? 16 : 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -97,9 +103,11 @@ class ReadingPremiumSectionCard extends StatelessWidget {
                           width: AppBorderWidth.hairline,
                         ),
                       ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
-                        vertical: AppSpacing.lg + AppSpacing.xs,
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        AppSpacing.lg,
+                        AppSpacing.lg,
+                        AppSpacing.lg + AppSpacing.xs,
                       ),
                       child: Stack(
                         children: [
@@ -110,27 +118,16 @@ class ReadingPremiumSectionCard extends StatelessWidget {
                                 opacity: titleProgress.clamp(0.0, 1.0),
                                 child: Transform.translate(
                                   offset: Offset(0, (1 - titleProgress) * 10),
-                                  child: Row(
-                                    children: [
-                                      ReadingPremiumIconContainer(
-                                        theme: theme,
-                                        size: 38,
-                                      ),
-                                      SizedBox(width: AppSpacing.md),
-                                      Expanded(
-                                        child: Text(
-                                          title,
-                                          style: ReadingTypography.sectionLabel(
-                                            color: theme.accentColor
-                                                .withValues(alpha: 0.88),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    title,
+                                    style: ReadingTypography.sectionLabel(
+                                      color: theme.accentColor
+                                          .withValues(alpha: 0.90),
+                                    ),
                                   ),
                                 ),
                               ),
-                              SizedBox(height: AppSpacing.lg - AppSpacing.xs),
+                              SizedBox(height: AppSpacing.md),
                               Opacity(
                                 opacity: bodyProgress.clamp(0.0, 1.0),
                                 child: Transform.translate(
@@ -143,24 +140,19 @@ class ReadingPremiumSectionCard extends StatelessWidget {
                                             maxChars: emphasizeBody ? 480 : 320,
                                           ),
                                     emphasizeFirst: emphasizeBody,
-                                    style: (emphasizeBody
-                                            ? ReadingTypography.bodyCore()
-                                            : ReadingTypography.body())
-                                        .copyWith(
-                                      color: AppColors.textSecondary,
-                                      fontWeight: emphasizeBody
-                                          ? FontWeight.w500
-                                          : FontWeight.w400,
-                                    ),
+                                    style: emphasizeBody
+                                        ? ReadingTypography.bodyCore()
+                                        : ReadingTypography.body(),
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const OraclySignatureCornerOrnaments(
-                            inset: 7,
-                            size: 10,
-                          ),
+                          if (!emphasizeBody)
+                            const OraclySignatureCornerOrnaments(
+                              inset: 7,
+                              size: 10,
+                            ),
                         ],
                       ),
                     ),

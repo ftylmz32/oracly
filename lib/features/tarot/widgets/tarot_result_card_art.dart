@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
+import '../art/tarot_major_card_art.dart';
 
 class TarotCardArt extends StatelessWidget {
   const TarotCardArt({
@@ -54,16 +55,20 @@ class TarotCardArt extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(r - 2),
-            child: Image.asset(
-              image,
+            child: SizedBox(
               height: h,
               width: w,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                height: h,
-                width: w,
-                color: AppColors.card,
-                child: Icon(Icons.auto_awesome, color: AppColors.gold.withValues(alpha: 0.6), size: 32),
+              child: TarotMajorCardArt(
+                imageAsset: image,
+                showChrome: false,
+                fallback: ColoredBox(
+                  color: AppColors.card,
+                  child: Icon(
+                    Icons.auto_awesome,
+                    color: AppColors.gold.withValues(alpha: 0.6),
+                    size: 32,
+                  ),
+                ),
               ),
             ),
           ),

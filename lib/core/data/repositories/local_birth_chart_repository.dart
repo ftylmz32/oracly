@@ -17,8 +17,14 @@ class LocalBirthChartRepository implements BirthChartRepository {
   @override
   Future<BirthChartRecord?> getLatest() async {
     final raw = _storage.getString(_key);
-    if (raw == null) return null;
-    return BirthChartRecord.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    if (raw == null || raw.trim().isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return BirthChartRecord.fromJson(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -30,7 +36,12 @@ class LocalBirthChartRepository implements BirthChartRepository {
   Future<void> delete(String id) async {
     final current = await getLatest();
     if (current?.id == id) {
-      await _storage.remove(_key);
+      await clearLatest();
     }
+  }
+
+  @override
+  Future<void> clearLatest() async {
+    await _storage.remove(_key);
   }
 }

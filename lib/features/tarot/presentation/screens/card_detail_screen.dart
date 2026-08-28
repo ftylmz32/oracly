@@ -2,11 +2,16 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../presentation/animations/tarot_transition.dart';
 
 import '../../../../shared/ui/oracly_snackbar.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../features/content/providers/content_providers.dart';
+import '../../../../features/discovery_share/services/discovery_share_builder.dart';
+import '../../../../features/discovery_share/widgets/discovery_share_action.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../navigation/tarot_navigator.dart';
 import '../../shared/constants/tarot_routes.dart';
@@ -23,7 +28,7 @@ import '../widgets/card_detail/card_detail_related_carousel.dart';
 import '../widgets/card_detail/card_detail_symbolism.dart';
 
 /// Wikipedia-style deep dive for a single tarot card.
-class CardDetailScreen extends StatefulWidget {
+class CardDetailScreen extends ConsumerStatefulWidget {
   const CardDetailScreen({
     super.key,
     this.cardId = 0,
@@ -34,10 +39,10 @@ class CardDetailScreen extends StatefulWidget {
   static const double heroExpandedHeight = 420;
 
   @override
-  State<CardDetailScreen> createState() => _CardDetailScreenState();
+  ConsumerState<CardDetailScreen> createState() => _CardDetailScreenState();
 }
 
-class _CardDetailScreenState extends State<CardDetailScreen>
+class _CardDetailScreenState extends ConsumerState<CardDetailScreen>
     with SingleTickerProviderStateMixin {
   late final ScrollController _scroll;
   late final AnimationController _entrance;
@@ -46,6 +51,9 @@ class _CardDetailScreenState extends State<CardDetailScreen>
   double _scrollOffset = 0;
   String? _expandedMeaning;
   bool _favorite = false;
+  bool _favoriteBusy = false;
+
+  String get _contentId => 'tarot_${widget.cardId}';
 
   @override
   void initState() {
@@ -56,6 +64,7 @@ class _CardDetailScreenState extends State<CardDetailScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     )..forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadFavorite());
   }
 
   @override
@@ -64,6 +73,7 @@ class _CardDetailScreenState extends State<CardDetailScreen>
     if (oldWidget.cardId != widget.cardId) {
       _content = CardDetailCatalogue.forId(widget.cardId);
       _expandedMeaning = null;
+      _loadFavorite();
     }
   }
 
@@ -85,21 +95,46 @@ class _CardDetailScreenState extends State<CardDetailScreen>
     });
   }
 
-  void _toggleFavorite() {
-    setState(() => _favorite = !_favorite);
-    OraclySnackBar.success(
-      context,
-      _favorite
-          ? '${_content.displayNameTr} favorilere eklendi.'
-          : '${_content.displayNameTr} favorilerden çıkarıldı.',
-    );
+  Future<void> _loadFavorite() async {
+    final stored = await ref
+        .read(contentFavoritesStoreProvider)
+        .isFavorite('tarot', _contentId);
+    if (!mounted) return;
+    setState(() => _favorite = stored);
   }
 
-  void _share() {
-    OraclySnackBar.show(
+  Future<void> _toggleFavorite() async {
+    if (_favoriteBusy) return;
+    _favoriteBusy = true;
+    try {
+      await ref
+          .read(contentFavoritesStoreProvider)
+          .toggleFavorite('tarot', _contentId);
+      final stored = await ref
+          .read(contentFavoritesStoreProvider)
+          .isFavorite('tarot', _contentId);
+      if (!mounted) return;
+      setState(() => _favorite = stored);
+      OraclySnackBar.success(
+        context,
+        stored
+            ? OraclyL10n.t('tarot.fav_added')
+                .replaceAll('{name}', _content.displayName)
+            : OraclyL10n.t('tarot.fav_removed')
+                .replaceAll('{name}', _content.displayName),
+      );
+    } finally {
+      _favoriteBusy = false;
+    }
+  }
+
+  Future<void> _share() async {
+    await invokeDiscoveryShare(
       context,
-      message:
-          '${_content.displayNameTr} — ${_content.name} kartı paylaşıma hazır.',
+      DiscoveryShareBuilder.tarot(
+        cardName: _content.displayName,
+        cardAsset: _content.imageAsset,
+      ),
     );
   }
 
@@ -115,7 +150,9 @@ class _CardDetailScreenState extends State<CardDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final master = Curves.easeOutCubic.transform(_entrance.value);
+    final master = Curves.easeOutCubic.transform(
+      _entrance.value.clamp(0.0, 1.0),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,

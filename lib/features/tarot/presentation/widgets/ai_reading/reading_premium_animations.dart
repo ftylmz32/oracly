@@ -5,26 +5,54 @@ import 'package:flutter/material.dart';
 
 import '../../theme/tarot_emotional_rhythm.dart';
 
-/// Interpretation sections — calm, unhurried (ordinary moments).
-const _interpretStagger = 0.0075;
-const _interpretSpan = 0.115;
+/// Interpretation sections — title, then narrative, then supporting.
+/// 3000ms master: 0.05 ≈ 150ms, 0.067 ≈ 200ms.
+const _interpretStagger = 0.067;
+const _interpretSpan = 0.16;
 
 /// Header peak — the card arrives with intention.
 const _headerSpan = 0.14;
 
-double readingPremiumSectionProgress(int index, double master) {
-  if (index <= 7) {
-    final start = 0.06 + index * _interpretStagger;
-    final end = start + _interpretSpan;
-    if (master <= start) return 0;
-    if (master >= end) return 1;
-    return Curves.easeOutCubic.transform((master - start) / (end - start));
-  }
-  final start = 0.58 + (index - 8) * 0.018;
-  final end = start + 0.12;
+double _window(double master, double start, double end) {
   if (master <= start) return 0;
   if (master >= end) return 1;
-  return Curves.easeOutCubic.transform((master - start) / (end - start));
+  return Curves.easeOutCubic.transform(
+    ((master - start) / (end - start)).clamp(0.0, 1.0),
+  );
+}
+
+double readingPremiumSectionProgress(int index, double master) {
+  if (index >= 20) return readingPremiumGuidanceProgress(master);
+  return _window(
+    master,
+    0.17 + index * _interpretStagger,
+    0.17 + index * _interpretStagger + _interpretSpan,
+  );
+}
+
+/// Story strip — card 1 has attention, later cards enter after it settles.
+double readingStoryArrive(int index, double master) {
+  return _window(master, 0.08 + index * 0.08, 0.24 + index * 0.08);
+}
+
+double readingStorySettle(int index, double master, int count) {
+  if (index >= count - 1) return 1;
+  final incoming = readingStoryArrive(index + 1, master);
+  return 1.014 - incoming * 0.014;
+}
+
+double readingCardTileArrive(int index, double master) {
+  return _window(master, 0.34 + index * 0.08, 0.50 + index * 0.08);
+}
+
+/// "Sana bıraktığı yön" — delayed conclusion, not a burst.
+double readingPremiumGuidanceProgress(double master) {
+  return _window(master, 0.70, 0.88);
+}
+
+double readingPremiumGuidanceDim(double master) {
+  return Curves.easeInOut.transform(((master - 0.62) / 0.14).clamp(0.0, 1.0)) *
+      0.18;
 }
 
 double readingPremiumHeaderProgress(double master) {
@@ -74,7 +102,9 @@ double readingPremiumReflectionProgress(int index, double master) {
   final end = start + 0.16;
   if (master <= start) return 0;
   if (master >= end) return 1;
-  final base = Curves.easeOutCubic.transform((master - start) / (end - start));
+  final base = Curves.easeOutCubic.transform(
+    ((master - start) / (end - start)).clamp(0.0, 1.0),
+  );
   final peak = TarotEmotionalRhythm.peakPulse(
     master,
     centre: TarotEmotionalRhythm.readingReflection,

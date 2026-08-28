@@ -1,0 +1,30 @@
+{
+  "name": "oracly-ai-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ORACLY production AI proxy — Flutter → this service → OpenAI",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke:prod": "node scripts/smoke-production.mjs"
+  },
+  "dependencies": {
+    "@fastify/helmet": "^13.0.1",
+    "fastify": "^5.4.0",
+    "jose": "^6.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

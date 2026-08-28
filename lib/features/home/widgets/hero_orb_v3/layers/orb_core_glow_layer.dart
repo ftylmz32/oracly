@@ -93,14 +93,15 @@ class OrbCoreGlowLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       child: AnimatedBuilder(
-        animation: motion.innerGlow,
+        animation: Listenable.merge([motion.innerGlow, motion.tapPulse]),
         builder: (context, _) {
           return CustomPaint(
             painter: OrbCoreGlowPainter(
               context: OrbRenderContext(
                 layoutSize: layoutSize,
                 canvasSize: canvasSize,
-                innerGlowOpacity: motion.innerGlowOpacity * rewardBoost,
+                innerGlowOpacity:
+                    motion.innerGlowOpacity * rewardBoost * (1 + motion.tapGlowBoost),
                 ringClockwiseAngle: 0,
                 ringCounterClockwiseAngle: 0,
                 particlePhase: 0,

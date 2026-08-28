@@ -1,0 +1,7 @@
+{
+  "APP_ENV": "production",
+  "ORACLY_AI_PROXY_URL": "https://REPLACE_WITH_PRODUCTION_HOST/v1/ai/complete",
+  "ORACLY_AI_MODEL": "gpt-4o",
+  "ORACLY_AI_VISION": "true",
+  "ORACLY_AI_TIMEOUT_SECONDS": "45"
+}

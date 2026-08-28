@@ -56,6 +56,7 @@ abstract final class CompanionRecordMapper {
       'content': message.content,
       'createdAt': message.createdAt.toIso8601String(),
       'status': message.status.name,
+      if (message.metadata.isNotEmpty) 'metadata': message.metadata,
     };
   }
 
@@ -68,6 +69,15 @@ abstract final class CompanionRecordMapper {
       status: AIMessageStatus.values.byName(
         json['status'] as String? ?? AIMessageStatus.completed.name,
       ),
+      metadata: _metadata(json['metadata']),
     );
+  }
+
+  static Map<String, String> _metadata(Object? raw) {
+    if (raw is! Map) return const {};
+    return {
+      for (final entry in raw.entries)
+        entry.key.toString(): entry.value.toString(),
+    };
   }
 }

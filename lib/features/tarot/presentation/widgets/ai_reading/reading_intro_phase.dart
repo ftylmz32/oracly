@@ -81,8 +81,13 @@ abstract final class ReadingIntroTimeline {
   }
 
   static double introOpacity(double t) {
-    if (t < 0.12) return Curves.easeOut.transform(t / 0.12);
-    if (t > 0.78) return Curves.easeIn.transform((1 - t) / 0.22);
+    final p = t.clamp(0.0, 1.0);
+    if (p < 0.12) {
+      return Curves.easeOut.transform((p / 0.12).clamp(0.0, 1.0));
+    }
+    if (p > 0.78) {
+      return Curves.easeIn.transform(((1 - p) / 0.22).clamp(0.0, 1.0));
+    }
     return 1;
   }
 

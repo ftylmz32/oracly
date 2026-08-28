@@ -1,9 +1,9 @@
-/// SPRINT-002 — Journey step progress indicator.
+/// Chart journey step progress — Oracly gold track, never Material bar.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/design_system/oracly_progress_bar.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../copy/birth_chart_copy.dart';
@@ -20,6 +20,7 @@ class ChartJourneyProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final value = total == 0 ? 0.0 : (current + 1) / total;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -28,15 +29,7 @@ class ChartJourneyProgress extends StatelessWidget {
           style: ReadingTypography.sectionLabel(),
         ),
         SizedBox(height: AppSpacing.sm),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: total == 0 ? 0 : (current + 1) / total,
-            minHeight: 3,
-            backgroundColor: AppColors.surface.withValues(alpha: 0.5),
-            color: AppColors.gold.withValues(alpha: 0.75),
-          ),
-        ),
+        OraclyProgressBar(value: value),
       ],
     );
   }

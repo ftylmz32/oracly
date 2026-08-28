@@ -1,0 +1,9 @@
+{
+  "YILDIZNAME_MASTER_STATUS": "NOT COMPLETE",
+  "DEVICE_VERIFICATION": "FAIL",
+  "focused_tests": 35,
+  "opened_chamber_confirmed": false,
+  "province_picker_verified_on_device": false,
+  "or_save_journal_verified": false,
+  "redeployed": false
+}

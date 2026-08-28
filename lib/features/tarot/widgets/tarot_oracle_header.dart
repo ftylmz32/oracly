@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import 'tarot_typography.dart';
 
@@ -11,7 +12,7 @@ class TarotOracleHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Kartların Sana Verdiği Mesaj', style: TarotTypography.sectionGold(size: 16)),
+        Text(OraclyL10n.t('tarot.oracle_header'), style: TarotTypography.sectionGold(size: 16)),
         const SizedBox(height: 10),
         Container(
           height: 0.8,

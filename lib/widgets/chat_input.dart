@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/copy/conversation_copy.dart';
+import '../core/design_system/app_layout.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_radius.dart';
 import '../core/theme/app_shadows.dart';
@@ -22,8 +23,15 @@ class ChatInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      top: false,
+      bottom: false,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          10,
+          16,
+          AppLayout.scrollBottomInset(context),
+        ),
         decoration: BoxDecoration(
           color: AppColors.background.withValues(alpha: 0.92),
           border: Border(
@@ -60,7 +68,7 @@ class ChatInput extends StatelessWidget {
             Semantics(
               button: true,
               enabled: enabled,
-              label: 'Mesaj gönder',
+              label: ConversationCopy.askOr,
               child: GestureDetector(
                 onTap: enabled ? onSend : null,
                 child: Container(

@@ -4,9 +4,13 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/accessibility/oracly_a11y.dart';
+import '../../../../core/insight_copy/insight_copy_action.dart';
+import '../../../../core/insight_copy/insight_copy_strings.dart';
+import '../../../../core/insight_copy/insight_copy_text.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/oracly_pressable.dart';
 import '../../domain/models/ai_message.dart';
 
 class OracleMessageActionsBar extends StatelessWidget {
@@ -34,15 +38,15 @@ class OracleMessageActionsBar extends StatelessWidget {
       children: [
         _ActionIcon(
           icon: Icons.copy_rounded,
-          tooltip: 'Kopyala',
-          onTap: () => _copy(context, message.content, 'Mesaj kopyalandı'),
+          tooltip: InsightCopyStrings.action,
+          onTap: () => InsightCopyAction.copy(context, message.content),
         ),
         _ActionIcon(
           icon: Icons.share_rounded,
           tooltip: 'Paylaş',
           onTap: () => _copy(
             context,
-            'OR Tarot Rehberliği\n\n${message.content}',
+            'OR Tarot Rehberliği\n\n${InsightCopyText.clean(message.content)}',
             'Paylaşım metni kopyalandı',
           ),
         ),
@@ -83,16 +87,19 @@ class _ActionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onTap,
-      icon: Icon(icon, size: AppSpacing.md),
-      color: active
-          ? AppColors.gold
-          : AppColors.gold.withValues(alpha: 0.65),
-      tooltip: tooltip,
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.all(AppSpacing.xs),
-      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+    return OraclyPressable(
+      onTap: onTap,
+      label: tooltip,
+      borderRadius: BorderRadius.circular(8),
+      child: OraclyA11y.ensureMinTouch(
+        child: Icon(
+          icon,
+          size: 20,
+          color: active
+              ? AppColors.gold
+              : AppColors.gold.withValues(alpha: OraclyA11y.iconGoldIdle),
+        ),
+      ),
     );
   }
 }

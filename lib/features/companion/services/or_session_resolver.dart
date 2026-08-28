@@ -1,0 +1,158 @@
+/// Resolves OR session presentation from commerce + link + failure + voice.
+library;
+
+import '../../ai/production/ai_failure.dart';
+import '../../premium/models/premium_entitlement_state.dart';
+import '../copy/companion_copy.dart';
+import '../models/companion_state.dart';
+import '../models/or_session_presentation.dart';
+import '../models/or_session_state.dart';
+
+abstract final class OrSessionResolver {
+  OrSessionResolver._();
+
+  static OrSessionPresentation resolve({
+    required PremiumEntitlementState entitlement,
+    required CompanionLinkStatus link,
+    AiFailureKind? lastFailure,
+    required bool voiceUnavailable,
+    bool bootstrapping = false,
+    bool chamberEmpty = true,
+    bool busy = false,
+    bool networkRetry = false,
+  }) {
+    if (entitlement == PremiumEntitlementState.pending ||
+        entitlement == PremiumEntitlementState.restoring) {
+      return OrSessionPresentation(
+        state: OrSessionState.purchasePending,
+        canCompose: false,
+        canUseMic: false,
+        showPreview: chamberEmpty,
+        showPaywallDock: !chamberEmpty,
+        statusLine: entitlement == PremiumEntitlementState.restoring
+            ? CompanionCopy.orEntitlementRestoring
+            : CompanionCopy.orEntitlementPending,
+      );
+    }
+
+    if (!entitlement.allowsPremiumFeatures) {
+      return OrSessionPresentation(
+        state: OrSessionState.free,
+        canCompose: false,
+        canUseMic: false,
+        showPreview: chamberEmpty,
+        showPaywallDock: !chamberEmpty,
+      );
+    }
+
+    // In-flight recovery — chamber stays open; no fake reply; no retry spam.
+    if (busy &&
+        (networkRetry ||
+            link == CompanionLinkStatus.reconnecting ||
+            lastFailure == AiFailureKind.network ||
+            lastFailure == AiFailureKind.providerError ||
+            lastFailure == AiFailureKind.timeout ||
+            lastFailure == AiFailureKind.noConfiguration ||
+            lastFailure == AiFailureKind.invalidResponse ||
+            lastFailure == AiFailureKind.rateLimit)) {
+      return OrSessionPresentation(
+        state: OrSessionState.retrying,
+        canCompose: true,
+        canUseMic: false,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.retrying,
+        canRetry: false,
+        connecting: true,
+      );
+    }
+
+    if (bootstrapping ||
+        link == CompanionLinkStatus.connecting ||
+        link == CompanionLinkStatus.reconnecting) {
+      return OrSessionPresentation(
+        state: OrSessionState.reconnecting,
+        canCompose: true,
+        canUseMic: !voiceUnavailable,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: link == CompanionLinkStatus.reconnecting
+            ? CompanionCopy.reconnecting
+            : CompanionCopy.connecting,
+        canRetry: false,
+        connecting: true,
+      );
+    }
+
+    if (lastFailure == AiFailureKind.unauthorized) {
+      return OrSessionPresentation(
+        state: OrSessionState.sessionExpired,
+        canCompose: true,
+        canUseMic: false,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.connectionError,
+        canRetry: true,
+      );
+    }
+
+    if (link == CompanionLinkStatus.offline ||
+        lastFailure == AiFailureKind.network) {
+      return OrSessionPresentation(
+        state: OrSessionState.offline,
+        canCompose: true,
+        canUseMic: false,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.offline,
+        canRetry: true,
+      );
+    }
+
+    if (lastFailure == AiFailureKind.rateLimit) {
+      return OrSessionPresentation(
+        state: OrSessionState.rateLimited,
+        canCompose: true,
+        canUseMic: !voiceUnavailable,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.connectionError,
+        canRetry: true,
+      );
+    }
+
+    if (lastFailure == AiFailureKind.providerError ||
+        lastFailure == AiFailureKind.noConfiguration ||
+        lastFailure == AiFailureKind.timeout ||
+        lastFailure == AiFailureKind.invalidResponse) {
+      return OrSessionPresentation(
+        state: OrSessionState.providerUnavailable,
+        canCompose: true,
+        canUseMic: !voiceUnavailable,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.providerUnavailable,
+        canRetry: true,
+      );
+    }
+
+    if (voiceUnavailable) {
+      return OrSessionPresentation(
+        state: OrSessionState.voiceUnavailable,
+        canCompose: true,
+        canUseMic: true,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.voiceOutputUnavailable,
+      );
+    }
+
+    return const OrSessionPresentation(
+      state: OrSessionState.success,
+      canCompose: true,
+      canUseMic: true,
+      showPreview: false,
+      showPaywallDock: false,
+    );
+  }
+}

@@ -194,5 +194,7 @@ double cardDetailSectionEntrance(int index, double master) {
   final end = start + 0.28;
   if (master <= start) return 0;
   if (master >= end) return 1;
-  return Curves.easeOutCubic.transform((master - start) / (end - start));
+  return Curves.easeOutCubic.transform(
+    ((master - start) / (end - start)).clamp(0.0, 1.0),
+  );
 }

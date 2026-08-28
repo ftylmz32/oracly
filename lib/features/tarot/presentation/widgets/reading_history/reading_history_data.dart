@@ -3,6 +3,10 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/l10n.dart';
+import '../../../../../core/l10n/oracly_format.dart';
+import '../../../copy/tarot_l10n.dart';
+
 /// Spread filter categories for the history journal.
 enum HistorySpreadFilter {
   all('Tümü'),
@@ -14,6 +18,8 @@ enum HistorySpreadFilter {
 
   const HistorySpreadFilter(this.label);
   final String label;
+
+  String get displayLabel => OraclyL10n.t('tarot.hist.filter.$name');
 }
 
 /// One saved tarot reading in the personal journal.
@@ -33,6 +39,7 @@ class ReadingHistoryEntry {
     this.personalNote,
     this.summaryExcerpt,
     this.isFavorite = false,
+    this.readingType,
   });
 
   final String id;
@@ -49,25 +56,23 @@ class ReadingHistoryEntry {
   final String? personalNote;
   final String? summaryExcerpt;
   final bool isFavorite;
+  final String? readingType;
 
   String get timelineSummary => summaryExcerpt ?? aiSummary;
 
   bool get hasPersonalNote =>
       personalNote != null && personalNote!.trim().isNotEmpty;
 
-  String get timeLabel {
-    final h = date.hour.toString().padLeft(2, '0');
-    final m = date.minute.toString().padLeft(2, '0');
-    return '$h:$m';
+  String get typeLabel {
+    final spread = TarotL10n.spreadFromStorage(spreadType);
+    final type = readingType?.trim();
+    if (type == null || type.isEmpty || type == spreadType) return spread;
+    return '$type · $spread';
   }
 
-  String get dateLabel {
-    const months = [
-      'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz',
-      'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara',
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
-  }
+  String get timeLabel => OraclyFormat.time(date);
+
+  String get dateLabel => OraclyFormat.dateCompact(date);
 }
 
 /// Memory-oriented archive summary — not gamified statistics.
@@ -92,7 +97,7 @@ class ReadingHistoryStats {
 abstract final class ReadingHistoryCatalogue {
   ReadingHistoryCatalogue._();
 
-  static const _root = 'lib/assets/images/cards/tarot/major';
+  static const _root = 'lib/assets/images/tarot/major_arcana';
 
   static const stats = ReadingHistoryStats(
     totalReadings: 12,
@@ -100,7 +105,7 @@ abstract final class ReadingHistoryCatalogue {
     notesWritten: 3,
     favoritedMemories: 2,
     recurringCards: 1,
-    journeyBeginLabel: 'Temmuz 2026',
+    journeyBeginLabel: null,
   );
 
   static final List<ReadingHistoryEntry> entries = [
@@ -110,7 +115,7 @@ abstract final class ReadingHistoryCatalogue {
       spreadType: 'Tek Kart',
       filter: HistorySpreadFilter.single,
       cardName: 'The Star',
-      cardImageAsset: '$_root/17-TheStar.png',
+      cardImageAsset: '$_root/17_yildiz.png',
       aiSummary:
           'Umut ve ilahi rehberlik seninle. Kalbine huzur taşıyan bir döneme giriyorsun.',
       moodIcon: Icons.auto_awesome_rounded,
@@ -128,7 +133,7 @@ abstract final class ReadingHistoryCatalogue {
       spreadType: 'Üç Kart Açılımı',
       filter: HistorySpreadFilter.three,
       cardName: 'The Moon',
-      cardImageAsset: '$_root/18-TheMoon.png',
+      cardImageAsset: '$_root/18_ay.png',
       aiSummary:
           'Sezgi güçleniyor. Bilinçaltının mesajlarına kulak ver; her şey göründüğü gibi değil.',
       moodIcon: Icons.nightlight_round,
@@ -145,9 +150,9 @@ abstract final class ReadingHistoryCatalogue {
       spreadType: 'Beş Kart',
       filter: HistorySpreadFilter.five,
       cardName: 'The Sun',
-      cardImageAsset: '$_root/19-TheSun.png',
+      cardImageAsset: '$_root/19_gunes.png',
       aiSummary:
-          'Aydınlanma ve neşe enerjisi hakim. Cesur adımlar destekleniyor.',
+          'Aydınlanma ve neşe daha seçilir. Cesur adımlar destekleniyor.',
       moodIcon: Icons.wb_sunny_rounded,
       cardIndex: 2,
       heroTag: 'history_card_h3',
@@ -158,9 +163,9 @@ abstract final class ReadingHistoryCatalogue {
       spreadType: 'Kelt Haçı',
       filter: HistorySpreadFilter.celtic,
       cardName: 'The Lovers',
-      cardImageAsset: '$_root/06-TheLovers.png',
+      cardImageAsset: '$_root/06_asiklar.png',
       aiSummary:
-          'Kalbin sesi netleşiyor. Önemli bir seçim veya derin bir bağ enerjisi.',
+          'Kalbin sesi netleşiyor. Önemli bir seçim veya derin bir bağ tonu.',
       moodIcon: Icons.favorite_rounded,
       cardIndex: 3,
       heroTag: 'history_card_h4',
@@ -171,7 +176,7 @@ abstract final class ReadingHistoryCatalogue {
       spreadType: 'Tek Kart',
       filter: HistorySpreadFilter.single,
       cardName: 'The Hermit',
-      cardImageAsset: '$_root/09-TheHermit.png',
+      cardImageAsset: '$_root/09_ermis.png',
       aiSummary:
           'İçsel bilgelik ön planda. Cevaplar dışarıda değil, içinde.',
       moodIcon: Icons.self_improvement_rounded,
@@ -184,7 +189,7 @@ abstract final class ReadingHistoryCatalogue {
       spreadType: 'Üç Kart Açılımı',
       filter: HistorySpreadFilter.three,
       cardName: 'Death',
-      cardImageAsset: '$_root/13-Death.png',
+      cardImageAsset: '$_root/13_olum.png',
       aiSummary:
           'Dönüşüm kapıda. Eski bir döngü kapanıyor; yenilenmeye hazır ol.',
       moodIcon: Icons.change_circle_outlined,
@@ -208,6 +213,7 @@ abstract final class ReadingHistoryCatalogue {
       if (q.isEmpty) return true;
       return e.cardName.toLowerCase().contains(q) ||
           e.spreadType.toLowerCase().contains(q) ||
+          (e.readingType?.toLowerCase().contains(q) ?? false) ||
           e.aiSummary.toLowerCase().contains(q) ||
           e.timelineSummary.toLowerCase().contains(q) ||
           (e.personalNote?.toLowerCase().contains(q) ?? false) ||

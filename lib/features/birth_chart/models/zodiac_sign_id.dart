@@ -1,6 +1,8 @@
 /// SPRINT-002 — Zodiac sign identifiers.
 library;
 
+import '../../../core/l10n/l10n.dart';
+
 enum ZodiacSignId {
   aries('Koç', '♈'),
   taurus('Boğa', '♉'),
@@ -20,6 +22,9 @@ enum ZodiacSignId {
   final String symbol;
 
   String get id => name;
+
+  String labeled(String languageCode) =>
+      OraclyL10n.t('zodiac.$name', languageCode: languageCode);
 
   static ZodiacSignId fromIndex(int index) {
     return values[index % values.length];
@@ -87,6 +92,9 @@ enum PlanetId {
 
   const PlanetId(this.labelTr);
   final String labelTr;
+
+  String labeled(String languageCode) =>
+      OraclyL10n.t('planet.$name', languageCode: languageCode);
 }
 
 enum AspectType {
@@ -100,4 +108,7 @@ enum AspectType {
   final String labelTr;
   final int angle;
   final int defaultOrb;
+
+  String labeled(String languageCode) =>
+      OraclyL10n.t('aspect.$name', languageCode: languageCode);
 }

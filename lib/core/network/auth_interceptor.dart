@@ -11,11 +11,11 @@ class AuthInterceptor implements ApiInterceptor {
 
   @override
   Future<Map<String, String>> onRequest(Map<String, String> headers) async {
-    final token = await _tokenManager.getAccessToken();
-    if (token != null && token.isNotEmpty) {
-      headers = Map<String, String>.from(headers)
-        ..['Authorization'] = 'Bearer $token';
-    }
+    final token = (await _tokenManager.getAccessToken())?.trim();
+    if (token == null || token.isEmpty) return headers;
+    if (token.startsWith('sk-')) return headers;
+    headers = Map<String, String>.from(headers)
+      ..['Authorization'] = 'Bearer $token';
     return headers;
   }
 

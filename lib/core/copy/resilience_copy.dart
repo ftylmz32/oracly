@@ -1,67 +1,50 @@
 /// RC-003 — User-facing resilience copy: errors, loading, empty states.
 library;
 
+import '../l10n/l10n.dart';
+
 abstract final class ResilienceCopy {
   ResilienceCopy._();
 
-  static const errorTitle = 'Bir anlık aksaklık';
+  static String _t(String key) => OraclyL10n.t(key);
 
-  static const retryAction = 'Tekrar Dene';
-
-  // Loading
-  static const chatLoading = 'Sohbet hazırlanıyor…';
-  static const memoryLoading = 'Hafıza yükleniyor…';
-  static const historyLoading = 'Geçmiş yükleniyor…';
-  static const splashLoading = 'ORACLY açılıyor…';
-  static const genericLoading = 'Yükleniyor…';
-  static const settingsLoading = 'Ayarlar yükleniyor…';
-  static const achievementsLoading = 'Başarımlar yükleniyor…';
-  static const profileLoading = 'Profil yükleniyor…';
-  static const genericLoadFailed =
-      'Yüklenemedi. Bir an sonra tekrar dene.';
-
-  // Network / AI
-  static const offline =
-      'Bağlantı kurulamadı. İnternetini kontrol edip tekrar dene.';
-  static const slowResponse =
-      'Yanıt beklenenden uzun sürüyor. Bir an bekle veya tekrar dene.';
-  static const aiUnavailable =
-      'OR şu an yanıt veremiyor. Biraz sonra tekrar dene.';
-  static const aiConfigMissing =
-      'OR henüz hazır değil. Lütfen daha sonra tekrar dene.';
-  static const aiEmptyResponse =
-      'OR boş bir yanıt döndü. Tekrar denemek ister misin?';
-  static const aiResponseUnavailable =
-      'Yanıt alınamadı. Biraz sonra tekrar deneyebilirsin.';
-
-  // Tarot flow
-  static const cardDrawFailed =
-      'Kart seçilemedi. Lütfen tekrar dene.';
-  static const sessionInitFailed =
-      'Açılım başlatılamadı. Geri dönüp tekrar dene.';
-  static const interpretationFailed =
-      'Yorum şu an hazırlanamadı. Biraz sonra tekrar dene.';
-  static const interpretationTimeout =
-      'Yorum beklenenden uzun sürdü. Tekrar deneyebilirsin.';
-
-  // Oracle
-  static const oracleSendFailed =
-      'OR yanıt veremedi. Tekrar dene.';
-  static const oracleRegenerateFailed =
-      'Yeniden oluşturulamadı. Tekrar dene.';
-
-  // Empty states
-  static const memoryEmptyTitle = 'Henüz bir hafıza yok';
-  static const memoryEmptyBody =
-      'OR, sohbetlerinden öğrendikçe burada nazikçe birikecek. '
-      'İstediğin zaman silebilirsin.';
-  static const chatHistoryEmptyTitle = 'Henüz sohbet geçmişi yok';
-  static const chatHistoryEmptyBody =
-      'OR ile konuşmaya başladığında geçmişin burada görünecek.';
-
-  // Splash
-  static const bootstrapFailed =
-      'Uygulama açılırken küçük bir aksaklık oldu. Tekrar dene.';
-  static const profileLoadFailed =
-      'Profil yüklenemedi. Bir an sonra tekrar dene.';
+  static String get errorTitle => _t('resilience.error_title');
+  static String get retryAction => _t('resilience.retry');
+  static String get chatLoading => _t('resilience.chat_loading');
+  static String get memoryLoading => _t('resilience.memory_loading');
+  static String get historyLoading => _t('resilience.history_loading');
+  static String get splashLoading => _t('resilience.splash_loading');
+  static String get genericLoading => _t('resilience.generic_loading');
+  static String get settingsLoading => _t('resilience.settings_loading');
+  static String get achievementsLoading => _t('resilience.achievements_loading');
+  static String get profileLoading => _t('resilience.profile_loading');
+  static String get genericLoadFailed => _t('resilience.generic_failed');
+  static String get offline => _t('resilience.offline');
+  static String get temporaryFailure => _t('resilience.temporary');
+  static String get invalidInput => _t('resilience.invalid_input');
+  static String get analysisUnavailable => _t('resilience.analysis_unavailable');
+  static String get historyLoadFailed => _t('resilience.history_failed');
+  static String get historyLoadFailedTitle => _t('resilience.history_failed_title');
+  static String get slowResponse => _t('resilience.slow');
+  static String get aiUnavailable => _t('resilience.ai_unavailable');
+  static String get aiConfigMissing => _t('resilience.ai_config');
+  static String get aiUnauthorized => _t('resilience.ai_unauthorized');
+  static String get aiEmptyResponse => _t('resilience.ai_empty');
+  static String get aiResponseUnavailable => _t('resilience.ai_response');
+  static String get aiRateLimited => _t('resilience.ai_rate');
+  static String get cardDrawFailed => _t('resilience.card_draw_failed');
+  static String get sessionInitFailed => _t('resilience.session_init');
+  static String get interpretationFailed =>
+      _t('resilience.interpretation_failed');
+  static String get interpretationTimeout =>
+      _t('resilience.interpretation_timeout');
+  static String get oracleSendFailed => _t('resilience.oracle_send');
+  static String get oracleRegenerateFailed => _t('resilience.oracle_regen');
+  static String get memoryEmptyTitle => _t('resilience.memory_empty_title');
+  static String get memoryEmptyBody => _t('resilience.memory_empty_body');
+  static String get chatHistoryEmptyTitle => _t('resilience.chat_empty_title');
+  static String get chatHistoryEmptyBody => _t('resilience.chat_empty_body');
+  static String get bootstrapFailed => _t('resilience.bootstrap_failed');
+  static String get profileLoadFailed => _t('resilience.profile_failed');
+  static String get settingsSaveFailed => _t('resilience.settings_save_failed');
 }

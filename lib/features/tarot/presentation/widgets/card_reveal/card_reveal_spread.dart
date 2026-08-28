@@ -3,8 +3,11 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../copy/tarot_l10n.dart';
+import '../../../copy/tarot_polish_copy.dart';
 import '../../../domain/models/reading_session.dart';
 import '../../../models/tarot_card.dart';
+import '../../../../../core/l10n/l10n.dart';
 
 /// Rich card metadata for the selection → reveal pipeline.
 class RevealCardData {
@@ -30,18 +33,24 @@ class RevealCardData {
 
   static RevealCardData fromDrawnCard(TarotDrawnCard drawn) {
     final card = drawn.card;
+    final orientation =
+        drawn.isReversed ? TarotPolishCopy.reversed : TarotPolishCopy.upright;
+    // Reveal hierarchy: name → position → orientation. Reading comes later.
     return RevealCardData(
       card: card,
-      displayName: card.name,
-      subtitle: drawn.isReversed
-          ? '${drawn.positionLabel ?? "Kart"} — ters yönde, içe dönük bir ton.'
-          : '${drawn.positionLabel ?? "Kart"} — seçimin belirdi.',
-      rarityLabel: card.isMajor ? 'Major Arkana' : 'Minör Arkana',
+      displayName: TarotL10n.cardNameOf(card),
+      subtitle: [
+        if ((drawn.localizedPosition).isNotEmpty) drawn.localizedPosition,
+        '${TarotPolishCopy.orientationLabel}: $orientation',
+      ].join('\n'),
+      rarityLabel: card.isMajor
+          ? OraclyL10n.t('tarot.arcana.major')
+          : OraclyL10n.t('tarot.arcana.minor'),
       rarityColor: card.isMajor
           ? const Color(0xFF9B6DFF)
           : const Color(0xFF7EC8E3),
       imageAsset: card.image,
-      positionLabel: drawn.positionLabel,
+      positionLabel: drawn.localizedPosition,
       isReversed: drawn.isReversed,
     );
   }
@@ -50,14 +59,14 @@ class RevealCardData {
 abstract final class CardRevealSpread {
   CardRevealSpread._();
 
-  static const _root = 'lib/assets/images/cards/tarot/major';
+  static const _root = 'lib/assets/images/tarot/major_arcana';
 
   static const List<RevealCardData> cards = [
     RevealCardData(
       card: TarotCard(
         id: 17,
         name: 'The Star',
-        image: '$_root/17-TheStar.png',
+        image: '$_root/17_yildiz.png',
         arcana: TarotArcana.major,
         suit: TarotSuit.none,
         number: 17,
@@ -71,13 +80,13 @@ abstract final class CardRevealSpread {
       subtitle: 'Umut ve ilahi rehberlik seninle.',
       rarityLabel: 'Major Arcana',
       rarityColor: Color(0xFF9B6DFF),
-      imageAsset: '$_root/17-TheStar.png',
+      imageAsset: '$_root/17_yildiz.png',
     ),
     RevealCardData(
       card: TarotCard(
         id: 18,
         name: 'The Moon',
-        image: '$_root/18-TheMoon.png',
+        image: '$_root/18_ay.png',
         arcana: TarotArcana.major,
         suit: TarotSuit.none,
         number: 18,
@@ -91,13 +100,13 @@ abstract final class CardRevealSpread {
       subtitle: 'Gecenin bilgeliği sana fısıldıyor.',
       rarityLabel: 'Major Arcana',
       rarityColor: Color(0xFFB794FF),
-      imageAsset: '$_root/18-TheMoon.png',
+      imageAsset: '$_root/18_ay.png',
     ),
     RevealCardData(
       card: TarotCard(
         id: 19,
         name: 'The Sun',
-        image: '$_root/19-TheSun.png',
+        image: '$_root/19_gunes.png',
         arcana: TarotArcana.major,
         suit: TarotSuit.none,
         number: 19,
@@ -111,13 +120,13 @@ abstract final class CardRevealSpread {
       subtitle: 'Işığın en parlak haliyle parlıyor.',
       rarityLabel: 'Major Arcana',
       rarityColor: Color(0xFFF0D77A),
-      imageAsset: '$_root/19-TheSun.png',
+      imageAsset: '$_root/19_gunes.png',
     ),
     RevealCardData(
       card: TarotCard(
         id: 6,
         name: 'The Lovers',
-        image: '$_root/06-TheLovers.png',
+        image: '$_root/06_asiklar.png',
         arcana: TarotArcana.major,
         suit: TarotSuit.none,
         number: 6,
@@ -131,13 +140,13 @@ abstract final class CardRevealSpread {
       subtitle: 'Kalbinin seçimi netleşiyor.',
       rarityLabel: 'Major Arcana',
       rarityColor: Color(0xFFFF6B9D),
-      imageAsset: '$_root/06-TheLovers.png',
+      imageAsset: '$_root/06_asiklar.png',
     ),
     RevealCardData(
       card: TarotCard(
         id: 9,
         name: 'The Hermit',
-        image: '$_root/09-TheHermit.png',
+        image: '$_root/09_ermis.png',
         arcana: TarotArcana.major,
         suit: TarotSuit.none,
         number: 9,
@@ -151,13 +160,13 @@ abstract final class CardRevealSpread {
       subtitle: 'İçindeki bilge sesi dinle.',
       rarityLabel: 'Major Arcana',
       rarityColor: Color(0xFFD4AF37),
-      imageAsset: '$_root/09-TheHermit.png',
+      imageAsset: '$_root/09_ermis.png',
     ),
     RevealCardData(
       card: TarotCard(
         id: 13,
         name: 'Death',
-        image: '$_root/13-Death.png',
+        image: '$_root/13_olum.png',
         arcana: TarotArcana.major,
         suit: TarotSuit.none,
         number: 13,
@@ -171,13 +180,13 @@ abstract final class CardRevealSpread {
       subtitle: 'Eski sona eriyor, yeni doğuyor.',
       rarityLabel: 'Major Arcana',
       rarityColor: Color(0xFF6B4BC4),
-      imageAsset: '$_root/13-Death.png',
+      imageAsset: '$_root/13_olum.png',
     ),
     RevealCardData(
       card: TarotCard(
         id: 1,
         name: 'The Magician',
-        image: '$_root/01-TheMagician.png',
+        image: '$_root/01_buyucu.png',
         arcana: TarotArcana.major,
         suit: TarotSuit.none,
         number: 1,
@@ -191,7 +200,7 @@ abstract final class CardRevealSpread {
       subtitle: 'Evren senin niyetini duyuyor.',
       rarityLabel: 'Major Arcana',
       rarityColor: Color(0xFF7EC8E3),
-      imageAsset: '$_root/01-TheMagician.png',
+      imageAsset: '$_root/01_buyucu.png',
     ),
   ];
 

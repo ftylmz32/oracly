@@ -1,29 +1,33 @@
-/// OR-404 — Premium intention ritual screen (visual experience).
+/// OR-404 / TAROT V2 — optional intention before cards are revealed.
 library;
 
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../shared/widgets/oracly_scaffold.dart';
+import '../../../../../shared/widgets/oracly_text_action.dart';
+import '../../../copy/tarot_polish_copy.dart';
 import '../../../domain/models/tarot_spread.dart';
+import '../../../reading/reading_question.dart';
 import '../../../shared/tarot_scope.dart';
 import '../../../theme/tarot_tokens.dart';
+import '../tarot_flow_progress.dart';
 import '../tarot_home/tarot_home_ornaments.dart';
-import '../tarot_home/tarot_home_section_bridge.dart';
+import 'intention_question_field.dart';
 import 'intention_selection_background.dart';
-import 'intention_selection_data.dart';
 import 'intention_selection_footer.dart';
 import 'intention_selection_header.dart';
-import 'intention_topic_tile.dart';
 
-/// Sacred intention selection — emotional prelude to the tarot ritual.
+/// Optional question — skip still continues the reading.
 class IntentionSelectionScreen extends StatefulWidget {
   const IntentionSelectionScreen({
     super.key,
     required this.onSealed,
+    this.initialText,
   });
 
   final VoidCallback onSealed;
+  final String? initialText;
 
   @override
   State<IntentionSelectionScreen> createState() =>
@@ -31,13 +35,41 @@ class IntentionSelectionScreen extends StatefulWidget {
 }
 
 class _IntentionSelectionScreenState extends State<IntentionSelectionScreen> {
-  String? _selectedId;
+  late final TextEditingController _controller;
+  String? _topic;
+  bool _sealed = false;
 
-  void _selectTopic(IntentionTopicOption option) {
-    setState(() => _selectedId = option.id);
-    TarotScope.of(context).flow.setIntention(
-          TarotIntention(text: option.title, topic: option.id),
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialText ?? '');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final intention = TarotScope.maybeOf(context)?.flow.intention;
+    _topic = intention?.topic;
+    if (intention != null &&
+        _controller.text.isEmpty &&
+        intention.text.isNotEmpty) {
+      _controller.text = intention.text;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _commit(String text) {
+    if (_sealed) return;
+    setState(() => _sealed = true);
+    TarotScope.maybeOf(context)?.flow.setIntention(
+          TarotIntention(text: ReadingQuestion.sanitize(text), topic: _topic),
         );
+    widget.onSealed();
   }
 
   @override
@@ -46,11 +78,12 @@ class _IntentionSelectionScreenState extends State<IntentionSelectionScreen> {
       backgroundOverlay: const IntentionSelectionBackground(),
       child: Column(
         children: [
+          const TarotFlowProgress(step: TarotRitualStep.intention),
           Expanded(
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
               padding: TarotTokens.screenPadding.copyWith(
-                top: AppSpacing.xl,
+                top: AppSpacing.md,
                 bottom: AppSpacing.lg,
               ),
               child: Center(
@@ -62,50 +95,25 @@ class _IntentionSelectionScreenState extends State<IntentionSelectionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const IntentionSelectionHeader(),
-                      SizedBox(height: AppSpacing.xl),
-                      const TarotHomeSectionBridge(
-                        kind: TarotHomeBridgeKind.purpleMist,
+                      SizedBox(height: AppSpacing.lg),
+                      IntentionQuestionField(
+                        controller: _controller,
+                        onChanged: (_) => setState(() {}),
+                        onExampleTap: (example) {
+                          _controller.text = example;
+                          _controller.selection = TextSelection.collapsed(
+                            offset: example.length,
+                          );
+                          setState(() {});
+                        },
                       ),
                       SizedBox(height: AppSpacing.lg),
-                      for (var row = 0; row < 2; row++) ...[
-                        if (row > 0) SizedBox(height: AppSpacing.lg),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (var col = 0; col < 2; col++) ...[
-                              if (col > 0) SizedBox(width: AppSpacing.lg),
-                              Expanded(
-                                child: IntentionTopicTile(
-                                  option: IntentionTopicCatalogue
-                                      .topics[row * 2 + col],
-                                  selected: _selectedId ==
-                                      IntentionTopicCatalogue
-                                          .topics[row * 2 + col].id,
-                                  onTap: () => _selectTopic(
-                                    IntentionTopicCatalogue
-                                        .topics[row * 2 + col],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                      SizedBox(height: AppSpacing.lg),
-                      Center(
-                        child: SizedBox(
-                          width: (TarotTokens.maxContentWidth - AppSpacing.lg) / 2,
-                          child: IntentionTopicTile(
-                            option: IntentionTopicCatalogue.topics[4],
-                            selected:
-                                _selectedId == IntentionTopicCatalogue.topics[4].id,
-                            onTap: () =>
-                                _selectTopic(IntentionTopicCatalogue.topics[4]),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.xl),
                       const TarotHomeGoldDivider(),
+                      SizedBox(height: AppSpacing.md),
+                      OraclyTextAction(
+                        label: TarotPolishCopy.skipIntention,
+                        onPressed: _sealed ? null : () => _commit(''),
+                      ),
                     ],
                   ),
                 ),
@@ -113,8 +121,8 @@ class _IntentionSelectionScreenState extends State<IntentionSelectionScreen> {
             ),
           ),
           IntentionSelectionFooter(
-            enabled: _selectedId != null,
-            onConfirm: widget.onSealed,
+            enabled: !_sealed,
+            onConfirm: _sealed ? null : () => _commit(_controller.text),
           ),
         ],
       ),

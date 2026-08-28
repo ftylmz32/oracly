@@ -4,15 +4,21 @@ library;
 import 'dart:math' show pi, sin;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../../../../../core/continuation/models/session_continuation.dart';
+import '../../../../../core/continuation/widgets/session_continuation_link.dart';
 import '../../../../../core/copy/session_ending_copy.dart';
+import '../../../../../core/l10n/l10n.dart';
+import '../../../../../features/discovery_share/models/shareable_discovery.dart';
+import '../../../../../features/discovery_share/widgets/discovery_share_action.dart';
+import '../../../copy/tarot_polish_copy.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/reading_typography.dart';
+import '../../../../../core/theme/oracly_quiet_motion.dart';
 import 'reading_premium_animations.dart';
 import 'reading_premium_tap_button.dart';
 import 'reading_sacred_rhythm.dart';
@@ -32,6 +38,7 @@ class ReadingFooterActions extends StatefulWidget {
     this.onSave,
     this.onAskOracle,
     this.onAddReflection,
+    this.shareDiscovery,
   });
 
   final double progress;
@@ -40,6 +47,7 @@ class ReadingFooterActions extends StatefulWidget {
   final Future<void> Function()? onSave;
   final VoidCallback? onAskOracle;
   final Future<void> Function()? onAddReflection;
+  final ShareableDiscovery? shareDiscovery;
 
   @override
   State<ReadingFooterActions> createState() => _ReadingFooterActionsState();
@@ -56,7 +64,13 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
     _pulse = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3200),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _pulse);
   }
 
   @override
@@ -68,7 +82,7 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
   Future<void> _handleSave() async {
     if (_saveBusy || widget.onSave == null) return;
     setState(() => _saveBusy = true);
-    HapticFeedback.lightImpact();
+    OraclyTouchFeedback.acknowledge();
     await widget.onSave!();
     if (mounted) setState(() => _saveBusy = false);
   }
@@ -92,13 +106,43 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
           if (widget.onAskOracle != null)
             Padding(
               padding: EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Column(
+                children: [
+                  _FooterStagger(
+                    progress: askReveal,
+                    exitProgress: widget.exitProgress,
+                    child: _PrimaryAskButton(
+                      pulse: _pulse,
+                      onPressed: widget.onAskOracle,
+                    ),
+                  ),
+                  _FooterStagger(
+                    progress: askReveal,
+                    exitProgress: widget.exitProgress,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: AppSpacing.sm),
+                      child: Text(
+                        TarotPolishCopy.askOracleHint,
+                        textAlign: TextAlign.center,
+                        style: ReadingTypography.footnote(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (widget.onAskOracle != null)
+            SessionContinuationLink(
+              source: SessionContinuationSource.tarot,
+              orAlreadyOffered: true,
+            ),
+          if (widget.shareDiscovery != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.sm),
               child: _FooterStagger(
                 progress: askReveal,
                 exitProgress: widget.exitProgress,
-                child: _PrimaryAskButton(
-                  pulse: _pulse,
-                  onPressed: widget.onAskOracle,
-                ),
+                child: DiscoveryShareAction(discovery: widget.shareDiscovery!),
               ),
             ),
           if (widget.onSave != null)
@@ -129,7 +173,7 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
                         ),
                         SizedBox(width: AppSpacing.sm),
                         Text(
-                          'Açılımı Kaydet',
+                          OraclyL10n.t('tarot.action.save'),
                           style: AppTextStyles.labelMedium.copyWith(
                             color: AppColors.goldLight,
                             fontWeight: FontWeight.w600,
@@ -154,7 +198,7 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
                     color: AppColors.gold.withValues(alpha: 0.78),
                   ),
                   label: Text(
-                    'Kişisel not ekle',
+                    OraclyL10n.t('tarot.action.note'),
                     style: AppTextStyles.labelMedium.copyWith(
                       color: AppColors.goldLight.withValues(alpha: 0.82),
                       fontWeight: FontWeight.w600,
@@ -188,7 +232,7 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
                     ),
                     SizedBox(width: AppSpacing.sm),
                     Text(
-                      'Yeni Açılım',
+                      OraclyL10n.t('tarot.action.new'),
                       style: AppTextStyles.labelMedium.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
@@ -207,9 +251,9 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
                 child: Text(
                   SessionEndingCopy.footerWhisper,
                   textAlign: TextAlign.center,
-                  style: ReadingTypography.body(
-                    color: AppColors.textHint.withValues(alpha: 0.82),
-                  ).copyWith(fontStyle: FontStyle.italic),
+                  style: ReadingTypography.footnote(
+                    color: AppColors.textHint.withValues(alpha: 0.78),
+                  ),
                 ),
               ),
             ),
@@ -290,7 +334,11 @@ class _PrimaryAskButtonState extends State<_PrimaryAskButton> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: AppSpacing.xxl + AppSpacing.sm,
+                    constraints: const BoxConstraints(minHeight: 44),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -319,12 +367,14 @@ class _PrimaryAskButtonState extends State<_PrimaryAskButton> {
                           color: AppColors.goldLight.withValues(alpha: 0.95),
                         ),
                         SizedBox(width: AppSpacing.sm),
-                        Text(
-                          "OR'a Sor",
-                          style: AppTextStyles.labelLarge.copyWith(
-                            color: AppColors.goldLight,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.5,
+                        Flexible(
+                          child: Text(
+                            TarotPolishCopy.orOpen,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            style: ReadingTypography.cta(
+                              color: AppColors.goldLight,
+                            ),
                           ),
                         ),
                       ],

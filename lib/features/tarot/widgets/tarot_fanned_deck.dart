@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
+import '../../../core/theme/oracly_quiet_motion.dart';
 import 'tarot_card_back_painter.dart';
 
 class TarotFannedDeck extends StatefulWidget {
@@ -40,11 +41,18 @@ class _TarotFannedDeckState extends State<TarotFannedDeck>
     _float = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 7200),
-    )..repeat(reverse: true);
+    );
     _breath = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 8400),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _float, reverse: true);
+    OraclyQuietMotion.ambient(context, _breath, reverse: true);
   }
 
   @override
@@ -148,19 +156,19 @@ class _DeckGlow extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: AppColors.purpleGlow.withValues(alpha: 0.22 * intensity),
-              blurRadius: 64,
-              spreadRadius: 10,
+              color: AppColors.purpleGlow.withValues(alpha: 0.28 * intensity),
+              blurRadius: 72,
+              spreadRadius: 12,
             ),
             BoxShadow(
-              color: AppColors.gold.withValues(alpha: 0.16 * intensity),
-              blurRadius: 44,
-              spreadRadius: 6,
+              color: AppColors.gold.withValues(alpha: 0.22 * intensity),
+              blurRadius: 52,
+              spreadRadius: 8,
             ),
             BoxShadow(
-              color: AppColors.goldGlow.withValues(alpha: 0.28 * intensity),
-              blurRadius: 24,
-              spreadRadius: 1,
+              color: AppColors.goldGlow.withValues(alpha: 0.36 * intensity),
+              blurRadius: 28,
+              spreadRadius: 2,
             ),
           ],
         ),
@@ -227,23 +235,27 @@ class _TarotCardFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final edge = 1.2 + elevation * 1.6;
+    final edge = 1.6 + elevation * 2.0;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(
+          color: AppColors.gold.withValues(alpha: 0.42 + elevation * 0.18),
+          width: compact ? 1.0 : 1.4,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5 + elevation * 0.18),
-            blurRadius: 10 + elevation * 12,
-            offset: Offset(0, 4 + elevation * 5),
+            color: Colors.black.withValues(alpha: 0.42 + elevation * 0.16),
+            blurRadius: 12 + elevation * 14,
+            offset: Offset(0, 5 + elevation * 6),
           ),
           if (!compact)
             BoxShadow(
-              color: AppColors.gold.withValues(alpha: 0.14 + elevation * 0.14),
-              blurRadius: 14,
-              spreadRadius: 0.5,
+              color: AppColors.goldGlow.withValues(alpha: 0.22 + elevation * 0.16),
+              blurRadius: 18,
+              spreadRadius: 1,
             ),
           ...AppShadows.soft,
         ],
@@ -251,9 +263,9 @@ class _TarotCardFace extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.gold.withValues(alpha: 0.22 + elevation * 0.12),
-            AppColors.gold.withValues(alpha: 0.38 + elevation * 0.1),
-            const Color(0xFF8B6914).withValues(alpha: 0.62),
+            AppColors.goldLight.withValues(alpha: 0.28 + elevation * 0.14),
+            AppColors.gold.withValues(alpha: 0.44 + elevation * 0.12),
+            AppColors.goldDeep.withValues(alpha: 0.72),
           ],
           stops: const [0.0, 0.45, 1.0],
         ),

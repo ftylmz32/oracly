@@ -22,7 +22,7 @@ class TransparencyFootnote extends StatelessWidget {
 
     super.key,
 
-    this.text = TransparencyCopy.interpretationFootnote,
+    this.text,
 
     this.alignment = TextAlign.center,
 
@@ -32,7 +32,7 @@ class TransparencyFootnote extends StatelessWidget {
 
 
 
-  final String text;
+  final String? text;
 
   final TextAlign alignment;
 
@@ -58,7 +58,7 @@ class TransparencyFootnote extends StatelessWidget {
 
       child: Text(
 
-        text,
+        text ?? TransparencyCopy.interpretationFootnote,
 
         textAlign: alignment,
 

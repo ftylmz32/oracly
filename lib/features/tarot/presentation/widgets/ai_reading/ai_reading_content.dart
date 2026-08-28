@@ -1,12 +1,13 @@
-/// OR-1060 — Turkish AI interpretation content per revealed card.
+/// OR-1060 — Turkish interpretation content per revealed card.
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../../interpretation/models/interpretation_result.dart';
 import '../card_reveal/card_reveal_spread.dart';
 import '../../../domain/models/reading_session.dart';
 
-/// Full AI reading sections for one tarot card.
+/// Full reading sections for one tarot card.
 class AiReadingContent {
   const AiReadingContent({
     required this.cardName,
@@ -24,6 +25,11 @@ class AiReadingContent {
     this.drawnCards = const [],
     this.spreadLabel,
     this.closingMessage = '',
+    this.cardReadings = '',
+    this.readingTheme,
+    this.promptQuestion = '',
+    this.userQuestion,
+    this.interpretationSource = InterpretationSource.local,
   });
 
   final String cardName;
@@ -41,6 +47,14 @@ class AiReadingContent {
   final List<TarotDrawnCard> drawnCards;
   final String? spreadLabel;
   final String closingMessage;
+  final String cardReadings;
+  final String? readingTheme;
+  final String promptQuestion;
+  final String? userQuestion;
+  final InterpretationSource interpretationSource;
+
+  bool get isAiInterpretation =>
+      interpretationSource == InterpretationSource.ai;
 }
 
 abstract final class AiReadingCatalogue {

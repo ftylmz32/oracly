@@ -1,0 +1,52 @@
+import { describe, expect, it } from 'vitest';
+import { testApp, testConfig } from './helpers.js';
+
+describe('health', () => {
+  it('returns ok without secrets and without auth', async () => {
+    const app = await testApp(testConfig());
+    const res = await app.inject({ method: 'GET', url: '/health' });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body).toEqual({ status: 'ok' });
+    expect(JSON.stringify(body).toLowerCase()).not.toContain('sk-');
+    expect(JSON.stringify(body)).not.toContain('OPENAI');
+    expect(JSON.stringify(body)).not.toContain('Authorization');
+    await app.close();
+  });
+
+  it('readiness stays unauthenticated and hides configuration', async () => {
+    const readyApp = await testApp(testConfig());
+    const ready = await readyApp.inject({ method: 'GET', url: '/ready' });
+    expect(ready.statusCode).toBe(200);
+    expect(ready.json()).toEqual({ status: 'ready' });
+    expect(JSON.stringify(ready.json())).not.toContain('openai');
+    await readyApp.close();
+
+    const notReady = await testApp(
+      testConfig({ APP_ENV: 'production', OPENAI_API_KEY: '' }),
+    );
+    const res = await notReady.inject({ method: 'GET', url: '/ready' });
+    expect(res.statusCode).toBe(503);
+    expect(res.json()).toEqual({ status: 'not_ready' });
+    expect(JSON.stringify(res.json())).not.toContain('JWT');
+    await notReady.close();
+
+    const noVerifier = await testApp(testConfig({ APP_ENV: 'production' }));
+    const blocked = await noVerifier.inject({ method: 'GET', url: '/ready' });
+    expect(blocked.statusCode).toBe(503);
+    expect(JSON.stringify(blocked.json())).not.toContain('openai');
+    await noVerifier.close();
+
+    const firebaseReady = await testApp(
+      testConfig({
+        APP_ENV: 'production',
+        FIREBASE_PROJECT_ID: 'oracly-7f613',
+      }),
+    );
+    const ok = await firebaseReady.inject({ method: 'GET', url: '/ready' });
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json()).toEqual({ status: 'ready' });
+    expect(JSON.stringify(ok.json()).toLowerCase()).not.toContain('sk-');
+    await firebaseReady.close();
+  });
+});

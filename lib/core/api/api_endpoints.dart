@@ -53,6 +53,7 @@ abstract final class ApiEndpoints {
   static String get premiumPlans => '$_prefix/premium/plans';
   static String get premiumSubscribe => '$_prefix/premium/subscribe';
   static String get premiumStatus => '$_prefix/premium/status';
+  static String get billingVerify => '$_prefix/billing/verify';
 
   // Settings
   static String get settings => '$_prefix/settings/me';

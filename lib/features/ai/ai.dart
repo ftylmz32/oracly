@@ -15,6 +15,7 @@ export 'data/repositories/mock_tarot_ai_repository.dart';
 
 // Services
 export 'services/services.dart';
+export 'production/production.dart';
 
 // Providers
 export 'providers/ai_providers.dart';
@@ -33,7 +34,7 @@ export 'presentation/widgets/thinking_animation.dart';
 export 'oracle_conversation/models/oracle_reading_context.dart';
 export 'oracle_conversation/navigation/oracle_conversation_route.dart';
 export 'oracle_conversation/providers/oracle_conversation_providers.dart';
-export 'presentation/screens/oracle_conversation_screen.dart';
+// OracleConversationScreen is quarantined — use openOracleConversation → /chat.
 export 'presentation/widgets/oracle_conversation_header.dart';
 export 'presentation/widgets/oracle_conversation_input.dart';
 export 'presentation/widgets/oracle_suggestion_chips.dart';

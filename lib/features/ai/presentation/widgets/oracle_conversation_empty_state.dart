@@ -11,17 +11,26 @@ import '../../../../core/theme/app_text_styles.dart';
 import 'oracle_avatar.dart';
 
 class OracleConversationEmptyState extends StatelessWidget {
-  const OracleConversationEmptyState({super.key});
+  const OracleConversationEmptyState({
+    super.key,
+    this.title,
+    this.body,
+  });
+
+  final String? title;
+  final String? body;
 
   @override
   Widget build(BuildContext context) {
+    final heading = title ?? ConversationCopy.oracleEmptyTitle;
+    final copy = body ?? ConversationCopy.oracleEmptyBody;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const OracleAvatar(size: 64, showGlow: true),
         SizedBox(height: AppSpacing.xl),
         Text(
-          ConversationCopy.oracleEmptyTitle,
+          heading,
           textAlign: TextAlign.center,
           style: AppTextStyles.titleMedium.copyWith(
             color: AppColors.goldLight,
@@ -33,7 +42,7 @@ class OracleConversationEmptyState extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
           child: Text(
-            ConversationCopy.oracleEmptyBody,
+            copy,
             textAlign: TextAlign.center,
             style: ReadingTypography.body(
               color: AppColors.textMuted,

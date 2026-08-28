@@ -1,6 +1,8 @@
 /// EPIC-005 — Living Universe ambient layer — rare events, zero layout impact.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'oracly_living_event.dart';
@@ -62,9 +64,6 @@ class _OraclyUniverseLayerState extends State<OraclyUniverseLayer>
     };
 
     _eventController = AnimationController(vsync: this, duration: duration)
-      ..addListener(() {
-        if (mounted) setState(() {});
-      })
       ..forward();
   }
 
@@ -85,19 +84,25 @@ class _OraclyUniverseLayerState extends State<OraclyUniverseLayer>
     final event = _event;
     if (event == null) return const SizedBox.shrink();
 
-    final progress = _eventController?.value ?? 0.0;
     final constellationPhase = widget.masterPhase ??
         ((DateTime.now().millisecondsSinceEpoch % 53000) / 53000.0);
+    final controller = _eventController;
 
-    return RepaintBoundary(
-      child: CustomPaint(
-        painter: OraclyLivingEventPainter(
-          event: event,
-          progress: progress,
-          constellationPhase: constellationPhase,
-        ),
-        child: const SizedBox.expand(),
-      ),
+    Widget paint(double progress) => RepaintBoundary(
+          child: CustomPaint(
+            painter: OraclyLivingEventPainter(
+              event: event,
+              progress: progress,
+              constellationPhase: constellationPhase,
+            ),
+            child: const SizedBox.expand(),
+          ),
+        );
+
+    if (controller == null) return paint(0);
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, _) => paint(controller.value),
     );
   }
 }
@@ -146,6 +151,7 @@ class OraclyUniverseTicker extends StatefulWidget {
 
 class _OraclyUniverseTickerState extends State<OraclyUniverseTicker> {
   OraclyUniverseState _state = OraclyUniverseState.current();
+  Timer? _refresh;
 
   @override
   void initState() {
@@ -158,11 +164,18 @@ class _OraclyUniverseTickerState extends State<OraclyUniverseTicker> {
     final nextHour = DateTime(now.year, now.month, now.day, now.hour + 1);
     final delay = nextHour.difference(now);
 
-    Future<void>.delayed(delay, () {
+    _refresh?.cancel();
+    _refresh = Timer(delay, () {
       if (!mounted) return;
       setState(() => _state = OraclyUniverseState.current());
       _scheduleRefresh();
     });
+  }
+
+  @override
+  void dispose() {
+    _refresh?.cancel();
+    super.dispose();
   }
 
   @override

@@ -1,23 +1,17 @@
-/// OR-411 — Home screen composition tokens.
-///
-/// Single-artwork rhythm: orb focal point, spread discovery, quiet support bands.
+/// OR-411 — Home screen composition tokens (EPIC-022 layout).
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/app_layout.dart';
+import '../../../core/design_system/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
 import 'home_atmosphere.dart';
 
-/// Visual weight bands for the home composition (~45% / ~25% / ~30%).
+/// Visual weight bands for the home composition.
 enum HomeVisualTier {
-  /// Hero spread — second focal point after the orb.
   featured,
-
-  /// Daily, premium, AI — intentional but subordinate.
   primary,
-
-  /// Cosmic discovery row — whispers at the edge of the composition.
   whisper,
 }
 
@@ -28,53 +22,89 @@ enum HomeCompositionBand {
   understand,
 }
 
-/// Spacing, depth, and weight tokens — one composition, not stacked widgets.
+/// Spacing, depth, and weight tokens — EPIC-022 six-section rhythm.
 abstract final class HomeComposition {
   HomeComposition._();
 
+  // ── EPIC-022 section chrome ──────────────────────────────────────────────
+
+  static const double statusHeaderHeight = AppLayout.statusHeaderHeight;
+
+  /// Hero card occupies ~38–42% of first viewport.
+  static const double heroViewportFraction = AppLayout.heroViewportFraction;
+
+  static const double quickActionCardHeight = AppLayout.quickActionCardHeight;
+
+  static const double exploreRowHeight = AppLayout.exploreRowHeight;
+
+  static const double exploreCardWidth = AppLayout.exploreCardWidth;
+
+  static const double exploreCardWidthWide = AppLayout.exploreCardWidthWide;
+
   // ── Focal scale ──────────────────────────────────────────────────────────
 
-  /// Hero orb canvas — dominates ~45% of attention.
-  static const double orbSize =
-      AppSpacing.xxl + AppSpacing.xxl + AppSpacing.xxl + AppSpacing.sm;
+  /// Hero orb canvas — +18% over EPIC-018 baseline (176 → ~208).
+  static const double _orbSizeBaseline =
+      AppSpacing.s48 + AppSpacing.s48 + AppSpacing.s48 + AppSpacing.s32 + AppSpacing.s24;
 
-  /// Soft pedestal glow diameter behind the orb.
-  static const double orbHaloScale = 1.42;
+  static const double orbSize = _orbSizeBaseline * 1.18;
 
-  // ── Vertical rhythm (eye travel) ─────────────────────────────────────────
+  static const double orbHaloScale = 1.52;
 
-  static const double screenTop = AppSpacing.xl + AppSpacing.md;
-  static const double screenBottom = AppSpacing.xxl + AppSpacing.xl;
+  static const double orbContainerOverlap = 18;
 
-  /// Header yields — orb owns the upper chamber.
-  static const double headerToOrb = AppSpacing.lg;
+  // ── Vertical rhythm ──────────────────────────────────────────────────────
 
-  /// Silence after the hero focal point.
-  static const double orbToSpread = AppSpacing.xxl + AppSpacing.lg;
+  static const double screenTop = AppLayout.screenTop;
 
-  /// Spread and daily are related but distinct purposes.
-  static const double spreadToDaily = AppSpacing.xl + AppSpacing.md;
+  static const double screenBottom = AppLayout.screenBottom;
 
-  static const double dailyToPremium = AppSpacing.xl;
+  static const double headerToGreeting = AppSpacing.s8;
 
-  /// Premium closes the primary narrative; discovery follows after breath.
-  static const double premiumToDiscovery = AppSpacing.xxl + AppSpacing.sm;
+  static const double greetingToHero = AppLayout.sectionGapMedium;
 
-  static const double aiToCosmic = AppSpacing.lg + AppSpacing.sm;
+  static const double heroToQuickActions = AppLayout.sectionGap;
 
-  /// Section label to first element.
-  static const double labelToContent = AppSpacing.lg;
+  static const double quickActionsToPremium = AppLayout.sectionGap;
 
-  /// In-grid tile separation.
-  static const double tileGap = AppSpacing.lg;
+  static const double premiumToReflection = AppLayout.sectionGap;
 
-  // ── Depth (background → architecture → glass → interactive → orb) ─────
+  static const double reflectionToDiscover = AppLayout.sectionGapMedium;
+
+  static const double discoverToDaily = AppLayout.sectionGap;
+
+  // Legacy aliases
+  static const double quickActionsToDaily = quickActionsToPremium;
+  static const double dailyToPremium = premiumToReflection;
+  static const double premiumToExplore = premiumToReflection;
+  static const double exploreBandGap = reflectionToDiscover;
+
+  // Legacy aliases
+  static const double headerToOrb = greetingToHero;
+  static const double orbToSpread = heroToQuickActions;
+  static const double whisperToSpread = heroToQuickActions;
+  static const double spreadToDaily = discoverToDaily;
+  static const double premiumToDiscovery = premiumToReflection;
+  static const double aiToCosmic = reflectionToDiscover;
+
+  static const double labelToContent = AppLayout.labelToContent;
+
+  static const double tileGap = AppLayout.gridGap;
+
+  // ── Depth ────────────────────────────────────────────────────────────────
 
   static const double depthGlass = 0;
   static const double depthInteractive = -1.5;
   static const double depthFeatured = -2.5;
 
   static Offset depthOffset(double tier) => Offset(0, tier);
+
+  static double heroCardHeight(BuildContext context) {
+    final viewport = MediaQuery.sizeOf(context).height;
+    final safeTop = MediaQuery.paddingOf(context).top;
+    final firstFold = viewport - safeTop - statusHeaderHeight;
+    return (firstFold * heroViewportFraction).clamp(280.0, 420.0);
+  }
 
   // ── Visual weight ────────────────────────────────────────────────────────
 
@@ -102,15 +132,13 @@ abstract final class HomeComposition {
         HomeVisualTier.whisper => 0.985,
       };
 
-  // ── Background focal shaft (orb chamber) ─────────────────────────────────
-
   static RadialGradient orbChamberGlow(double phase) =>
       HomeAtmosphere.orbHopeLight(phase);
 
   static RadialGradient get orbPedestalGlow => RadialGradient(
         colors: [
-          HomeAtmosphere.mysteryViolet.withValues(alpha: 0.12),
-          HomeAtmosphere.wisdomGold.withValues(alpha: 0.045),
+          HomeAtmosphere.mysteryViolet.withValues(alpha: 0.16),
+          HomeAtmosphere.wisdomGold.withValues(alpha: 0.06),
           AppColors.transparent,
         ],
         stops: const [0.0, 0.55, 1.0],

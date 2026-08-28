@@ -5,27 +5,29 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/design_system/app_layout.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../gems/copy/gems_copy.dart';
+import '../../../copy/tarot_l10n.dart';
 import '../../../components/tarot_button.dart';
 
 class DeckSelectionFooter extends StatelessWidget {
   const DeckSelectionFooter({
     super.key,
     required this.enabled,
+    this.cost,
     this.onConfirm,
   });
 
   final bool enabled;
+  final int? cost;
   final VoidCallback? onConfirm;
-
-  static const String _label = 'Bu Desteyi Seç';
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.paddingOf(context).bottom;
-
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
@@ -52,12 +54,30 @@ class DeckSelectionFooter extends StatelessWidget {
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
-              AppSpacing.md + bottom,
+              AppLayout.scrollBottomInset(context),
             ),
-            child: TarotSecondaryButton(
-              label: _label,
-              icon: Icons.auto_awesome,
-              onPressed: enabled ? onConfirm : null,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (cost != null && cost! > 0) ...[
+                  Text(
+                    GemsCopy.costLabel(cost!),
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.goldLight.withValues(alpha: 0.82),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.35,
+                      height: 1.1,
+                    ),
+                  ),
+                  SizedBox(height: AppSpacing.sm),
+                ],
+                TarotSecondaryButton(
+                  label: TarotL10n.chooseDeck,
+                  icon: Icons.auto_awesome,
+                  onPressed: enabled ? onConfirm : null,
+                ),
+              ],
             ),
           ),
         ),

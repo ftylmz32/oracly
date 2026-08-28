@@ -1,57 +1,85 @@
-/// SPRINT-002 — Birth Chart user-facing copy.
+/// Birth Chart user-facing copy.
 library;
+
+import '../../../core/l10n/l10n.dart';
+import '../../../core/personality/or_living_voice.dart';
 
 abstract final class BirthChartCopy {
   BirthChartCopy._();
 
-  static const screenTitle = 'Doğum Haritası';
-  static const onboardingHeadline = 'Doğum anın';
-  static const onboardingDescription =
-      'Gökyüzünün o andaki düzenini anlamak için birkaç bilgi yeterli.';
-  static const birthDateLabel = 'Doğum tarihi';
-  static const birthTimeLabel = 'Doğum saati';
-  static const birthTimeUnknown = 'Saati bilmiyorum';
-  static const birthTimeUnknownNote =
-      'Saat bilinmediğinde Yükselen burcun ve ev yerleşimlerin '
-      'daha az kesin olabilir. Yine de anlamlı bir yolculuk sunuyoruz.';
-  static const birthPlaceLabel = 'Doğum yeri';
-  static const birthPlaceHint = 'Örn. İstanbul, Ankara…';
-  static const birthDateRequired = 'Doğum tarihini seç.';
-  static const birthPlaceRequired = 'Doğum yerini yaz.';
-  static const generateChart = 'Haritamı oluştur';
-  static const continueJourney = 'Devam et';
-  static const finishJourney = 'Tamamla';
-  static const stepOf = 'Adım';
+  static String _t(String key) => OraclyL10n.t(key);
 
-  static const generating = 'Haritan hesaplanıyor…';
-  static const translating = 'Anlamlandırılıyor…';
-
-  static const bigThreeTitle = 'Büyük Üçlü';
-  static const bigThreeSubtitle =
-      'Güneş, Ay ve Yükselen — haritanın üç temel rengi.';
-  static const sunLabel = 'Güneş';
-  static const sunGlossary =
-      'Güneş burcu, özünü ve vitrini temsil eder — dışarıya '
-      'nasıl parladığını anlatır.';
-  static const moonLabel = 'Ay';
-  static const moonGlossary =
-      'Ay burcu, duygusal dünyanı ve içsel ihtiyaçlarını yansıtır.';
-  static const risingLabel = 'Yükselen';
-  static const risingGlossary =
-      'Yükselen, tanışıldığında görünen yüzün — ilk izlenim '
-      've yaşam yaklaşımınla ilişkilidir.';
-  static const risingUnavailable =
-      'Saat bilinmediği için Yükselen hesaplanamadı.';
-
-  static const corePersonalityTitle = 'Temel kişilik';
-  static const strengthsTitle = 'Güçlü yönler';
-  static const growthTitle = 'Gelişim alanları';
-  static const relationshipsTitle = 'İlişkiler';
-  static const careerTitle = 'Kariyer ve amaç';
-  static const emotionalTitle = 'Duygusal kalıplar';
-  static const lifeThemesTitle = 'Yaşam temaları';
-
-  static const closingNote =
-      'Bu harita bir etiket değil; kendini tanımak için bir ayna. '
-      'En doğru yorumu zamanla sen yazarsın.';
+  static String get screenTitle => _t('birth.screen_title');
+  static String get previewBadge => _t('birth.preview_badge');
+  static String get capabilityNote => _t('birth.capability');
+  static String get onboardingHeadline => _t('birth.onboarding_headline');
+  static String get personalizeEmpty => _t('birth.personalize_empty');
+  static String get enterBirthInfo => _t('birth.enter_info');
+  static String get onboardingDescription => _t('birth.onboarding_body');
+  static String get timeImportance => _t('birth.time_note');
+  static String get placeImportance => _t('birth.place_note');
+  static String get birthDateLabel => _t('birth.date_label');
+  static String get birthTimeLabel => _t('birth.time_label');
+  static String get birthPlaceLabel => _t('birth.place_label');
+  static String get birthPlaceHint => _t('birth.place_hint');
+  static String get searchCity => _t('birth.search_city');
+  static String get selectValue => _t('birth.select');
+  static String get birthDateRequired => _t('birth.date_required');
+  static String get birthTimeRequired => _t('birth.time_required');
+  static String get birthPlaceRequired => _t('birth.place_required');
+  static String get timeKnownLabel => _t('birth.time_known');
+  static String get timeUnknownLabel => _t('birth.time_unknown');
+  static String get timeUnknownValue => _t('birth.time_unknown_value');
+  static String get timeUnknownNote => _t('birth.time_unknown_note');
+  static String get timeChoicePrompt => _t('birth.time_choice_prompt');
+  static String get timeChoiceRequired => _t('birth.time_choice_required');
+  static String get trustNote => _t('birth.trust_note');
+  static String get reviewTitle => _t('birth.review_title');
+  static String get reviewDateLabel => _t('birth.review_date');
+  static String get reviewTimeLabel => _t('birth.review_time');
+  static String get reviewPlaceLabel => _t('birth.review_place');
+  static String get generateChart => _t('birth.generate');
+  static String get updateChart => _t('birth.update');
+  static String get updateBirthInfo => _t('birth.update_info');
+  static String get cancelEdit => _t('birth.cancel');
+  static String get generating => OrLivingVoice.fromStem('birth.generating');
+  static String get preparingJourney => _t('birth.preparing');
+  static String get generateFailed => _t('birth.generate_failed');
+  static String get recoverFailed => _t('birth.recover_failed');
+  static String get incompleteJourneyTitle => _t('birth.incomplete_title');
+  static String get incompleteJourneyMessage => _t('birth.incomplete_body');
+  static String get recoverJourney => _t('birth.recover');
+  static String get startOver => _t('birth.start_over');
+  static String get newChart => _t('birth.new_chart');
+  static String get clearSavedChart => _t('birth.clear');
+  static String get savedDataCleared => _t('birth.cleared');
+  static String get corruptDataCleared => _t('birth.corrupt');
+  static String get errorTitle => _t('birth.error');
+  static String get retry => _t('birth.retry');
+  static String get goBack => _t('birth.go_back');
+  static String get stepOf => _t('birth.step');
+  static String get sectionYourChart => _t('birth.section_sun');
+  static String get sectionPlacements => _t('birth.placements');
+  static String get summaryTitle => _t('birth.summary');
+  static String get strongThemesTitle => _t('birth.strong');
+  static String get notableThemesTitle => _t('birth.notable');
+  static String get resultInterpretation => _t('birth.result');
+  static String get planetsTitle => _t('birth.planets');
+  static String get housesTitle => _t('birth.houses');
+  static String get aspectsTitle => _t('birth.aspects');
+  static String get sectionTheme => _t('birth.theme');
+  static String get storedNotUsedNote => _t('birth.stored_note');
+  static String get ephemerisNote => _t('birth.ephemeris');
+  static String get sunLabel => _t('birth.sun');
+  static String get moonLabel => _t('birth.moon');
+  static String get risingLabel => _t('birth.rising');
+  static String get sunGlossary => _t('birth.sun_gloss');
+  static String get moonGlossary => _t('birth.moon_gloss');
+  static String get risingGlossary => _t('birth.rising_gloss');
+  static String get risingUnavailable => _t('birth.rising_na');
+  static String get interpretationTitle => _t('birth.interp_title');
+  static String get closingNote => _t('birth.closing');
+  static String get bigThreeTitle => _t('birth.big_three');
+  static String get corePersonalityTitle => _t('birth.core');
+  static String get lifeThemesTitle => _t('birth.life');
 }

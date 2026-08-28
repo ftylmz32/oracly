@@ -1,104 +1,143 @@
-/// OR-1090 — Premium membership plan models.
+/// Premium catalogue — only working features. No invented prices.
 library;
 
 import 'package:flutter/material.dart';
 
 import '../../../core/copy/premium_copy.dart';
+import '../../../core/domain/models/premium_plan.dart';
+import 'premium_showcase.dart';
 
 enum PremiumPlanType {
-  monthly('Aylık', '₺149,99/ay', PremiumCopy.planMonthlySubtitle),
-  yearly('Yıllık', '₺899,99/yıl', PremiumCopy.planYearlySubtitle),
-  lifetime('Ömür Boyu', '₺2.499,99', PremiumCopy.planLifetimeSubtitle);
+  monthly('Aylık'),
+  yearly('Yıllık'),
+  lifetime('Ömür Boyu');
 
-  const PremiumPlanType(this.label, this.price, this.subtitle);
+  const PremiumPlanType(this.label);
   final String label;
-  final String price;
-  final String subtitle;
+  String get subtitle => switch (this) {
+        monthly => PremiumCopy.planMonthlySubtitle,
+        yearly => PremiumCopy.planYearlySubtitle,
+        lifetime => PremiumCopy.planLifetimeSubtitle,
+      };
+  String get price => PremiumCopy.planPricePending;
 }
 
-/// One premium membership benefit.
+enum PremiumBenefitAction {
+  soulMate,
+  coffee,
+  palm,
+  discovery,
+  companion,
+  daily,
+  journey,
+  depth,
+  continuity,
+  personalization,
+  none,
+}
+
 class PremiumBenefit {
   const PremiumBenefit({
-    required this.emoji,
     required this.title,
     required this.description,
     required this.icon,
+    required this.action,
+    this.requiresPremium = false,
   });
 
-  final String emoji;
   final String title;
   final String description;
   final IconData icon;
+  final PremiumBenefitAction action;
+  final bool requiresPremium;
 }
 
 abstract final class PremiumCatalogue {
   PremiumCatalogue._();
 
-  static const title = PremiumCopy.heroTitle;
-  static const subtitle = PremiumCopy.heroSubtitle;
-  static const benefitsSectionTitle = PremiumCopy.benefitsSectionTitle;
+  static String get title => PremiumCopy.heroTitle;
+  static String get subtitle => PremiumCopy.heroSubtitle;
+  static String get benefitsSectionTitle => PremiumCopy.benefitsSectionTitle;
 
-  static const benefits = [
-    PremiumBenefit(
-      emoji: '∞',
-      title: 'Sınırsız Tarot Açılımı',
-      description: 'Günlük limit olmadan istediğin kadar açılım yapabilirsin.',
-      icon: Icons.all_inclusive_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '🤖',
-      title: 'Daha Derin OR Yorumları',
-      description: 'Kişisel bağlamına göre genişletilmiş yansımalar.',
-      icon: Icons.psychology_alt_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '📅',
-      title: 'Geçmiş Açılımlar',
-      description: 'Tüm açılımlarını kişisel günlüğünde sakla.',
-      icon: Icons.auto_stories_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '🌙',
-      title: 'Günlük Kozmik Rehber',
-      description: 'Her sabah sakin bir enerji özeti.',
-      icon: Icons.nightlight_round,
-    ),
-    PremiumBenefit(
-      emoji: '⭐',
-      title: 'Premium Desteler',
-      description: 'Ek sanat desteleri ve kart koleksiyonları.',
-      icon: Icons.style_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '🎴',
-      title: 'Akıcı Kart Animasyonları',
-      description: 'Açılım ve kart geçişlerinde daha akıcı hareket.',
-      icon: Icons.animation_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '🔮',
-      title: 'Kişisel Enerji Özeti',
-      description: 'Günlük enerji ve odak notları.',
-      icon: Icons.bubble_chart_rounded,
-    ),
-    PremiumBenefit(
-      emoji: '📈',
-      title: 'Okuma Ritmi',
-      description: 'Açılımlarını zaman içinde gör — baskı yok.',
-      icon: Icons.trending_up_rounded,
-    ),
-  ];
+  static List<PremiumBenefit> get premiumExperiences => [
+        for (final benefit in benefits)
+          if (benefit.requiresPremium) benefit,
+      ];
 
-  static const comparisonRows = [
-    ('Sınırsız Tarot Açılımı', false, true),
-    ('Daha Derin OR Yorumları', false, true),
-    ('Geçmiş Açılımlar', false, true),
-    ('Günlük Kozmik Rehber', false, true),
-    ('Premium Desteler', false, true),
-    ('Akıcı Kart Animasyonları', false, true),
-    ('Enerji Özeti', false, true),
-    ('Okuma Ritmi', false, true),
-    ('Temel AI Yorumu', true, true),
-    ('Günlük 1 Açılım', true, false),
-  ];
+  static List<PremiumBenefit> get concretePremiumExperiences => [
+        benefits.firstWhere((b) => b.action == PremiumBenefitAction.soulMate),
+        benefits.firstWhere((b) => b.action == PremiumBenefitAction.companion),
+        benefits.firstWhere((b) => b.action == PremiumBenefitAction.journey),
+      ];
+
+  static List<PremiumBenefit> get includedCapabilities => [
+        for (final benefit in benefits)
+          if (!benefit.requiresPremium) benefit,
+      ];
+
+  static List<PremiumBenefit> get benefits => [
+        PremiumBenefit(
+          title: PremiumCopy.benefitSoulmateTitle,
+          description: PremiumCopy.benefitSoulmateBody,
+          icon: Icons.favorite_border_rounded,
+          action: PremiumBenefitAction.soulMate,
+          requiresPremium: true,
+        ),
+        PremiumBenefit(
+          title: PremiumCopy.benefitCoffeeTitle,
+          description: PremiumCopy.benefitCoffeeBody,
+          icon: Icons.local_cafe_outlined,
+          action: PremiumBenefitAction.coffee,
+        ),
+        PremiumBenefit(
+          title: PremiumCopy.benefitPalmTitle,
+          description: PremiumCopy.benefitPalmBody,
+          icon: Icons.back_hand_outlined,
+          action: PremiumBenefitAction.palm,
+        ),
+        PremiumBenefit(
+          title: PremiumCopy.benefitDiscoveryTitle,
+          description: PremiumCopy.benefitDiscoveryBody,
+          icon: Icons.insights_outlined,
+          action: PremiumBenefitAction.discovery,
+        ),
+        PremiumBenefit(
+          title: PremiumCopy.benefitOrTitle,
+          description: PremiumCopy.benefitOrBody,
+          icon: Icons.forum_outlined,
+          action: PremiumBenefitAction.companion,
+          requiresPremium: true,
+        ),
+        PremiumBenefit(
+          title: PremiumCopy.benefitJourneyTitle,
+          description: PremiumCopy.benefitJourneyBody,
+          icon: Icons.auto_stories_outlined,
+          action: PremiumBenefitAction.journey,
+          requiresPremium: true,
+        ),
+        PremiumBenefit(
+          title: PremiumCopy.benefitAtmosphereTitle,
+          description: PremiumCopy.benefitAtmosphereBody,
+          icon: Icons.wb_twilight_outlined,
+          action: PremiumBenefitAction.daily,
+        ),
+      ];
+
+  static List<PremiumBenefit> get showcaseBenefits => concretePremiumExperiences;
+
+  static List<(String, bool, bool)> get comparisonRows => [
+        for (final benefit in benefits)
+          (benefit.title, !benefit.requiresPremium, true),
+      ];
+
+  static List<PremiumPlanModel> fallbackPlans() => [
+        for (final type in PremiumPlanType.values)
+          PremiumPlanModel(
+            kind: PremiumPlanKind.values[type.index],
+            label: type.label,
+            price: PremiumCopy.planPricePending,
+            subtitle: type.subtitle,
+            isActive: false,
+          ),
+      ];
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 
 import '../../core/copy/resilience_copy.dart';
+import '../../core/l10n/l10n.dart';
 import '../../core/copy/transparency_copy.dart';
 import '../../core/navigation/oracly_navigation_service.dart';
 import '../../core/theme/app_colors.dart';
@@ -14,15 +15,21 @@ import '../../models/memory_item.dart';
 
 import '../../services/memory_service.dart';
 
+import '../../core/constants/app_assets.dart';
+import '../../shared/ui/oracly_dialog.dart';
 import '../../shared/widgets/oracly_empty_state.dart';
+import '../../shared/widgets/oracly_gold_button.dart';
 
 import '../../shared/widgets/oracly_skeleton_loader.dart';
 
-import '../../widgets/glass_card.dart';
+import '../../core/design_system/oracly_glass_card.dart';
+import '../../core/design_system/oracly_header_action.dart';
 
 import '../../widgets/oracly_icon.dart';
 
-import '../../widgets/oracly_scaffold.dart';
+import '../../core/theme/craftsmanship_rhythm.dart';
+import '../../shared/widgets/oracly_entrance.dart';
+import '../../shared/widgets/oracly_scaffold.dart';
 
 
 
@@ -109,29 +116,13 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
   Future<void> _deleteMemory(MemoryItem memory) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: Text(TransparencyCopy.memoryDeleteTitle, style: AppTextStyles.title),
-        content: Text(
-          TransparencyCopy.memoryDeleteBody,
-          style: AppTextStyles.subtitle,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(TransparencyCopy.memoryDeleteCancel, style: AppTextStyles.button),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              TransparencyCopy.memoryDeleteConfirm,
-              style: AppTextStyles.button.copyWith(color: AppColors.danger),
-            ),
-          ),
-        ],
-      ),
+    final confirm = await OraclyDialog.confirm(
+      context,
+      title: TransparencyCopy.memoryDeleteTitle,
+      message: TransparencyCopy.memoryDeleteBody,
+      confirmLabel: TransparencyCopy.memoryDeleteConfirm,
+      cancelLabel: TransparencyCopy.memoryDeleteCancel,
+      destructive: true,
     );
     if (confirm != true) return;
     await _memoryService.removeMemory(memory.content);
@@ -139,34 +130,14 @@ class _MemoryScreenState extends State<MemoryScreen> {
   }
 
   Future<void> _editMemory(MemoryItem memory) async {
-    final controller = TextEditingController(text: memory.content);
-    final updated = await showDialog<String>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: Text('Notu düzenle', style: AppTextStyles.title),
-        content: TextField(
-          controller: controller,
-          maxLines: 3,
-          style: AppTextStyles.body,
-          decoration: InputDecoration(
-            hintText: 'Hafıza notu',
-            border: OutlineInputBorder(borderRadius: AppRadius.md),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Vazgeç', style: AppTextStyles.button),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text('Kaydet', style: AppTextStyles.button),
-          ),
-        ],
-      ),
+    final updated = await OraclyDialog.prompt(
+      context,
+      title: OraclyL10n.t('memory.edit_title'),
+      hint: OraclyL10n.t('memory.hint'),
+      initial: memory.content,
+      confirmLabel: OraclyL10n.t(L10nKeys.save),
+      cancelLabel: OraclyL10n.t('trust.delete_cancel'),
     );
-    controller.dispose();
     if (updated == null || updated.isEmpty || updated == memory.content) return;
     await _memoryService.removeMemory(memory.content);
     await _memoryService.addAdvancedMemory(
@@ -239,24 +210,18 @@ class _MemoryScreenState extends State<MemoryScreen> {
   Widget build(BuildContext context) {
 
     return OraclyScaffold(
-
       appBar: AppBar(
-
-        title: Text('OR Hafızası', style: AppTextStyles.title),
-
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(OraclyL10n.t('memory.title'), style: AppTextStyles.title),
         centerTitle: true,
-
       ),
-
-      body: Padding(
-
+      child: Padding(
         padding: EdgeInsets.all(AppSpacing.lg),
-
         child: Column(
-
           children: [
-
-            GlassCard(
+            OraclyEntrance(
+              child: OraclyGlassCard(
 
               padding: AppSpacing.card,
 
@@ -274,7 +239,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
                       SizedBox(width: AppSpacing.sm + AppSpacing.xs),
 
-                      Text('OR Hafızası', style: AppTextStyles.title),
+                      Text(OraclyL10n.t('memory.title'), style: AppTextStyles.title),
 
                     ],
 
@@ -286,9 +251,12 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
                     _isLoading
 
-                        ? 'Yükleniyor…'
+                        ? OraclyL10n.t('resilience.generic_loading')
 
-                        : '${_memories.length} bilgi kayıtlı',
+                        : OraclyL10n.t('memory.count').replaceAll(
+                            '{n}',
+                            '${_memories.length}',
+                          ),
 
                     style: AppTextStyles.subtitle.copyWith(fontSize: 14),
 
@@ -300,20 +268,14 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
             ),
 
-            const SizedBox(height: 20),
-
-            Expanded(
-
-              child: _buildBody(),
-
             ),
-
+            SizedBox(height: AppSpacing.md),
+            Expanded(
+              child: _buildBody(),
+            ),
           ],
-
         ),
-
       ),
-
     );
 
   }
@@ -350,14 +312,10 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
             ),
 
-            const SizedBox(height: 16),
-
-            TextButton(
-
+            SizedBox(height: AppSpacing.md),
+            OraclyGoldButton(
+              label: ResilienceCopy.retryAction,
               onPressed: _loadMemories,
-
-              child: Text(ResilienceCopy.retryAction),
-
             ),
 
           ],
@@ -373,14 +331,12 @@ class _MemoryScreenState extends State<MemoryScreen> {
     if (_memories.isEmpty) {
 
       return OraclyEmptyState(
-
-        icon: Icons.psychology_rounded,
-
+        imageAsset: AppAssets.heroOrbPremium,
         title: ResilienceCopy.memoryEmptyTitle,
 
         message: ResilienceCopy.memoryEmptyBody,
 
-        ctaLabel: 'OR ile konuş',
+        ctaLabel: OraclyL10n.t('memory.talk'),
 
         onCta: () => OraclyNavigationService.openChat(context),
 
@@ -391,27 +347,24 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
 
     return ListView.builder(
-
-      physics: const BouncingScrollPhysics(),
-
+      physics: CraftsmanshipRhythm.scrollPhysics,
       itemCount: _memories.length,
-
       itemBuilder: (context, index) {
-
         final memory = _memories[index];
-
-        return Padding(
+        return OraclyEntrance.staggered(
+          index: index,
+          child: Padding(
 
           padding: EdgeInsets.only(bottom: AppSpacing.sm + AppSpacing.xs),
 
-          child: GlassCard(
+          child: OraclyGlassCard(
 
             padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.sm,
               vertical: AppSpacing.xs,
             ),
 
-            radius: AppRadius.xlValue,
+            borderRadius: AppRadius.xl,
 
             child: ListTile(
 
@@ -433,7 +386,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
               subtitle: Text(
 
-                '${memory.category} • ${memory.importance}',
+                '${OraclyL10n.t('memory.cat.${memory.category}')} • ${OraclyL10n.t('memory.imp.${memory.importance}')}',
 
                 style: AppTextStyles.small.copyWith(
 
@@ -448,26 +401,24 @@ class _MemoryScreenState extends State<MemoryScreen> {
                 children: [
                   Semantics(
                     button: true,
-                    label: 'Hafızayı düzenle',
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.edit_outlined,
-                        color: AppColors.gold.withValues(alpha: 0.85),
-                        size: 20,
-                      ),
-                      onPressed: () => _editMemory(memory),
+                    label: OraclyL10n.t('memory.edit'),
+                    child: OraclyHeaderAction(
+                      icon: Icons.edit_outlined,
+                      label: OraclyL10n.t('memory.edit'),
+                      size: 36,
+                      iconSize: 18,
+                      onTap: () => _editMemory(memory),
                     ),
                   ),
                   Semantics(
                     button: true,
-                    label: 'Hafızayı sil',
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        color: AppColors.danger.withValues(alpha: 0.85),
-                        size: 20,
-                      ),
-                      onPressed: () => _deleteMemory(memory),
+                    label: OraclyL10n.t('memory.delete'),
+                    child: OraclyHeaderAction(
+                      icon: Icons.delete_outline,
+                      label: OraclyL10n.t('memory.delete'),
+                      size: 36,
+                      iconSize: 18,
+                      onTap: () => _deleteMemory(memory),
                     ),
                   ),
                 ],
@@ -476,11 +427,9 @@ class _MemoryScreenState extends State<MemoryScreen> {
             ),
 
           ),
-
+        ),
         );
-
       },
-
     );
 
   }

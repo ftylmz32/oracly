@@ -16,6 +16,9 @@ class MockDreamAIRepository implements DreamAIRepository {
   final OpenAIService _openAI;
 
   @override
+  bool get isAvailable => false;
+
+  @override
   Future<OracleResponse> analyze(DreamPrompt prompt) async {
     await _openAI.complete(PromptBuilder.dream(prompt));
     final excerpt = prompt.dreamText.length > 40

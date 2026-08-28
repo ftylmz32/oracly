@@ -1,68 +1,34 @@
 /// EPIC-014 — Trust through transparency: shared communication copy.
 library;
 
-/// Quiet, honest language — earns trust without policy walls.
+import '../l10n/l10n.dart';
+
 abstract final class TransparencyCopy {
   TransparencyCopy._();
 
-  /// Shown beneath AI interpretations.
-  static const interpretationFootnote =
-      'OR yorumları yapay zekâ ile oluşturulur — kehanet değil, '
-      'düşünmek için bir davet. Kendi deneyimin en güvenilir rehberindir.';
+  static String _t(String key) => OraclyL10n.t(key);
 
-  /// Shorter variant for tight spaces.
-  static const interpretationBrief =
-      'Yansıtma amaçlıdır — kesin bir gerçek iddiası değildir.';
-
-  /// Oracle follow-up and general chat.
-  static const conversationCaption =
-      'OR yanıtları rehberlik içindir; kararların senin.';
-
-  /// Personal journal notes.
-  static const journalPrivacy =
-      'Kişisel notların yalnızca senin cihazında kalır — sana aittir.';
-
-  /// Empty journal prompt.
-  static const journalEmptyPrompt =
-      'Bu okumaya kısa bir not ekleyebilirsin — sadece sana ait, '
-      'istediğin zaman düzenleyebilir veya silebilirsin.';
-
-  /// History archive header extension.
-  static const journeyOwnership =
-      'Sessiz bir arşiv — yalnızca senin cihazında, senin ritminle.';
-
-  /// Insight journal footnote (recurring themes).
-  static const insightFootnote =
-      'Bunlar kehanet değil — sadece kendi ritminin yansımaları.';
-
-  /// Privacy screen intro.
-  static const privacyIntro =
-      'ORACLY kişisel yansımalarını cihazında saklar. '
-      'Yapay zekâ yorumları rehberlik içindir; profesyonel tıbbi, '
-      'hukuki veya mali danışmanlık yerine geçmez. '
-      'Verilerin üzerinde tam kontrol sende.';
-
-  /// About screen boundary.
-  static const aboutBoundary =
-      'OR, yansıtma ve içgörü için tasarlandı — geleceği bildirmek için değil.';
-
-  /// Delete reading confirmation.
-  static const deleteReadingTitle = 'Bu yansımayı sil?';
-  static const deleteReadingBody =
-      'Okuma ve kişisel notun kalıcı olarak silinir. Geri alınamaz.';
-  static const deleteReadingConfirm = 'Sil';
-  static const deleteReadingCancel = 'Vazgeç';
-
-  /// Memory item delete confirmation.
-  static const memoryDeleteTitle = 'Bu hafızayı sil?';
-  static const memoryDeleteBody =
-      'OR bu bilgiyi unutur. Geri alınamaz.';
-  static const memoryDeleteConfirm = 'Sil';
-  static const memoryDeleteCancel = 'Vazgeç';
-
-  /// Privacy action confirmations (snackbar).
-  static const journalCleared = 'Tarot günlüğü temizlendi.';
-  static const memoryCleared = 'Hafıza temizlendi.';
-  static const chatHistoryCleared = 'Sohbet geçmişi temizlendi.';
-  static const allDataReset = 'Tüm veriler sıfırlandı.';
+  static String get interpretationFootnote => _t('trust.footnote');
+  static String get interpretationBrief => _t('trust.brief');
+  static String get conversationCaption => _t('trust.conversation');
+  static String get journalPrivacy => _t('trust.journal_privacy');
+  static String get journalEmptyPrompt => _t('trust.journal_empty');
+  static String get journeyOwnership => _t('trust.journey');
+  static String get insightFootnote => _t('trust.insight');
+  static String get privacyIntro => _t('trust.privacy_intro');
+  static String get aboutBoundary => _t('trust.about_boundary');
+  static String get deleteReadingTitle => _t('trust.delete_title');
+  static String get deleteReadingBody => _t('trust.delete_body');
+  static String get deleteReadingConfirm => _t('trust.delete_confirm');
+  static String get deleteReadingCancel => _t('trust.delete_cancel');
+  static String get memoryDeleteTitle => _t('trust.memory_title');
+  static String get memoryDeleteBody => _t('trust.memory_body');
+  static String get memoryDeleteConfirm => _t('trust.delete_confirm');
+  static String get memoryDeleteCancel => _t('trust.delete_cancel');
+  static String get journalCleared => _t('trust.journal_cleared');
+  static String get memoryCleared => _t('trust.memory_cleared');
+  static String get chatHistoryCleared => _t('trust.chat_cleared');
+  static String get allDataReset => _t('trust.all_reset');
+  static String get analyticsTitle => _t('trust.analytics_title');
+  static String get analyticsSubtitle => _t('trust.analytics_subtitle');
 }

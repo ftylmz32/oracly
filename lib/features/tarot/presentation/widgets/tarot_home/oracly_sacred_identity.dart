@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/design_system/app_layout.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -523,10 +524,10 @@ abstract final class OraclyRhythm {
   static const breathGapAfterBridge = AppSpacing.xl;
 
   /// Space below section headings before content.
-  static const sectionTitleGap = AppSpacing.xxl + AppSpacing.lg;
+  static const sectionTitleGap = AppLayout.labelToContent;
 
   /// Heading block to first content element.
-  static const sectionContentGap = AppSpacing.xl + AppSpacing.sm;
+  static const sectionContentGap = AppLayout.sectionGapMedium;
 
   /// Spread ritual grid — panels never touch visually.
   static const spreadGridGap = AppSpacing.xxl;
@@ -538,8 +539,8 @@ abstract final class OraclyRhythm {
   static const heroSubtitleInset = AppSpacing.xl + AppSpacing.lg;
 
   /// Screen edge calm.
-  static const screenTop = AppSpacing.xl + AppSpacing.md;
-  static const screenBottom = AppSpacing.xxl + AppSpacing.xl;
+  static const screenTop = AppLayout.screenTop;
+  static const screenBottom = AppLayout.screenBottom;
 
   /// Crystal panel interior gallery padding.
   static const panelInsetHorizontal = AppSpacing.xl + AppSpacing.sm;

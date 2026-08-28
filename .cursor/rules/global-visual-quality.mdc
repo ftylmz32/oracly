@@ -1,0 +1,44 @@
+---
+description: Global visual quality governance — one ORACLY DNA, distinct feature identities, photoreal majors only
+alwaysApply: true
+---
+
+# ORACLY — Global Visual Quality System
+
+Canonical: `docs/GLOBAL_VISUAL_QUALITY_SYSTEM.md`  
+Art detail: `docs/PHOTOREALISTIC_ART_STANDARD.md`  
+Pipeline: `docs/PHOTOREALISTIC_IMAGE_ASSET_PIPELINE.md`  
+Chrome: `OraclyArtDirection` · `OraclyChrome`
+
+## Shared DNA (never invent a second style)
+
+near-black · midnight navy · deep violet · antique gold · warm ivory · cinematic darkness · realistic lighting · real materials · controlled contrast · editorial typography
+
+~70% calm dark · ~20% violet/navy · ~10% antique gold.
+
+## Feature identity (subject changes — chrome does not)
+
+| Feature | Identity |
+|---------|----------|
+| Home | Cinematic entrance |
+| Coffee | Warm Turkish coffee ritual |
+| Palm | Real hand on dark velvet |
+| Astrology | Luxury observatory / instrument |
+| Yıldızname | Ancient celestial archive |
+| Tarot | Real premium deck on velvet |
+| SoulMate | Cinematic real portrait |
+| OR | Minimal living intelligence — not giant orb, not mascot |
+| Profile | Private cinematic journal |
+| Premium | Luxury chamber / premium artifact |
+
+## Major images
+
+Photorealistic only. Reject illustration, vector, cartoon, anime, flat fantasy, generic 3D, game art, plastic faces, fake hands.
+
+**No baked title/logo/CTA/body/feature name** — Flutter owns all text.
+
+## Before shipping art
+
+Pass photorealism · materials · lighting · composition · brand consistency · feature distinction · mobile readability.
+
+AI-illustration look → REJECT.

@@ -1,12 +1,16 @@
-/// SPRINT-003 — ORACLY permanent AI companion tab.
+/// LEGACY - not used by production navigation.
+///
+/// Canonical OR: CompanionReferenceScreen via OraclyRoutes.chat /
+/// OraclyNavigationService.openChat. Do not route users here.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/design_system/hero_art/hero_art.dart';
 import '../../../../core/copy/conversation_copy.dart';
 import '../../../../core/copy/resilience_copy.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/widgets/transparency_footnote.dart';
@@ -17,7 +21,10 @@ import '../../../ai/presentation/widgets/conversation_message_entrance.dart';
 import '../../../ai/presentation/widgets/oracle_conversation_input.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
-import '../../../../widgets/cosmic_background.dart';
+import '../../../../shared/widgets/oracly_cinematic_loading.dart';
+import '../../../../shared/widgets/oracly_scaffold.dart';
+import '../../../../shared/widgets/oracly_text_action.dart';
+import '../../../../core/theme/oracly_visual_rebirth.dart';
 import '../../controllers/companion_controller.dart';
 import '../../copy/companion_copy.dart';
 import '../../models/companion_state.dart';
@@ -74,10 +81,6 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen> {
     OraclyNavigationService.openMemory(context);
   }
 
-  void _onVoiceTap() {
-    OraclySnackBar.show(context, message: CompanionCopy.voiceComingSoon);
-  }
-
   Future<void> _saveLastUserMessage(CompanionController controller) async {
     final conversation = controller.state.conversation;
     if (conversation == null) return;
@@ -102,16 +105,24 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen> {
             .length ??
         0;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: CosmicBackground(
-        child: SafeArea(
-          child: Column(
+    return OraclyScaffold(
+      ambience: OraclyAmbience.companion,
+      child: Column(
             children: [
               CompanionHeader(
                 subtitle: ConversationCopy.companionSubtitle,
                 onMemoryTap: _openMemories,
               ),
+              if (assistantCount <= 1 && state.phase != CompanionPhase.error)
+                HeroArtViewport(
+                  fraction: HeroArtTokens.viewportFractionCompact,
+                  child: HeroAI(
+                    size: heroArtSizeForContext(
+                      context,
+                      fraction: HeroArtTokens.viewportFractionCompact,
+                    ),
+                  ),
+                ),
               Expanded(
                 child: switch (state.phase) {
                   CompanionPhase.error =>
@@ -138,11 +149,10 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen> {
                   controller: _inputController,
                   onSend: () => _send(),
                   enabled: !busy,
-                  onVoiceTap: _onVoiceTap,
                 ),
                 Padding(
-                  padding: AppSpacing.screenHorizontal.copyWith(
-                    bottom: AppSpacing.sm,
+                  padding: AppLayout.screenPaddingHorizontal.copyWith(
+                    bottom: AppLayout.labelToContent,
                   ),
                   child: Column(
                     children: [
@@ -157,8 +167,6 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen> {
               ],
             ],
           ),
-        ),
-      ),
     );
   }
 }
@@ -179,15 +187,19 @@ class _ConversationBody extends StatelessWidget {
     final messages = state.conversation?.messages ?? const [];
 
     if (messages.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const OraclyCinematicLoading(
+        message: 'Evren seni dinliyorâ€¦',
+        compact: true,
+        useHeroOrb: true,
+      );
     }
 
     return ListView.builder(
       controller: scrollController,
       physics: const BouncingScrollPhysics(),
-      padding: AppSpacing.screenHorizontal.copyWith(
-        top: AppSpacing.sm,
-        bottom: AppSpacing.md,
+      padding: AppLayout.screenPaddingHorizontal.copyWith(
+        top: AppLayout.labelToContent,
+        bottom: AppLayout.sectionGapMedium,
       ),
       cacheExtent: 600,
       itemCount: messages.length,
@@ -202,15 +214,10 @@ class _ConversationBody extends StatelessWidget {
             children: [
               AIMessageBubble(message: message),
               if (message.isUser && index == messages.length - 2)
-                TextButton(
+                OraclyTextAction(
+                  label: CompanionCopy.saveToMemory,
+                  emphasized: true,
                   onPressed: onSaveMemory,
-                  child: Text(
-                    CompanionCopy.saveToMemory,
-                    style: TextStyle(
-                      color: AppColors.gold.withValues(alpha: 0.75),
-                      fontSize: 12,
-                    ),
-                  ),
                 ),
             ],
           ),

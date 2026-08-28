@@ -1,0 +1,10 @@
+# Local Android upload signing — copy to key.properties and fill secrets.
+# NEVER commit key.properties or the real keystore.
+#
+# Path: android/key.properties  (same folder as this example)
+# storeFile may be an absolute path (recommended) or relative to android/app/
+
+storePassword=<SECRET>
+keyPassword=<SECRET>
+keyAlias=oracly
+storeFile=C:\\OraclyKeys\\oracly-upload-key.jks

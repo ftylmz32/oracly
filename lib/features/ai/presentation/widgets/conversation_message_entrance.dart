@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
+import '../../../../core/theme/oracly_reduced_motion.dart';
 
 class ConversationMessageEntrance extends StatefulWidget {
   const ConversationMessageEntrance({
@@ -26,6 +27,7 @@ class _ConversationMessageEntranceState extends State<ConversationMessageEntranc
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
@@ -34,17 +36,26 @@ class _ConversationMessageEntranceState extends State<ConversationMessageEntranc
       vsync: this,
       duration: CraftsmanshipRhythm.appear,
     );
-    _opacity = CurvedAnimation(
+    final curve = CurvedAnimation(
       parent: _controller,
       curve: CraftsmanshipRhythm.curve,
     );
+    _opacity = curve;
     _slide = Tween<Offset>(
-      begin: const Offset(0, 0.03),
+      begin: const Offset(0, 0.022),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: CraftsmanshipRhythm.curve),
-    );
+    ).animate(curve);
+    _scale = Tween<double>(begin: 0.988, end: 1).animate(curve);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) => _start());
+  }
+
+  void _start() {
+    if (!mounted) return;
+    if (OraclyReducedMotion.of(context)) {
+      _controller.value = 1;
+      return;
+    }
     Future<void>.delayed(widget.delay, () {
       if (mounted) _controller.forward();
     });
@@ -62,9 +73,13 @@ class _ConversationMessageEntranceState extends State<ConversationMessageEntranc
       opacity: _opacity,
       child: SlideTransition(
         position: _slide,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: AppSpacing.xs),
-          child: widget.child,
+        child: ScaleTransition(
+          scale: _scale,
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.xs),
+            child: widget.child,
+          ),
         ),
       ),
     );

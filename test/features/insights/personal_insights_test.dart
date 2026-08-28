@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/domain/models/reading.dart';
 import 'package:oracly_new/core/domain/models/personal_insight_report.dart';
-import 'package:oracly_new/core/intelligence/domain/models/reflection_entry.dart';
 import 'package:oracly_new/core/reflection/domain/models/growth_insight.dart';
 import 'package:oracly_new/core/reflection/domain/models/journey_milestone.dart';
-import 'package:oracly_new/core/reflection/domain/models/personal_trend.dart';
 import 'package:oracly_new/core/reflection/domain/models/recurring_theme.dart';
 import 'package:oracly_new/core/reflection/domain/models/reflection_evidence_kind.dart';
 import 'package:oracly_new/core/reflection/domain/models/reflection_input.dart';

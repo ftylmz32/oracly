@@ -56,9 +56,12 @@ class _TarotDeckSelectionOrbState extends State<TarotDeckSelectionOrb>
       child: AnimatedBuilder(
         animation: Listenable.merge([_glow, _float, _particles]),
         builder: (context, _) {
-          final floatT = Curves.easeInOut.transform(_float.value);
+          final floatT = Curves.easeInOut.transform(
+            _float.value.clamp(0.0, 1.0),
+          );
           final dy = (floatT * 2 - 1) * 5;
-          final scale = 0.965 + Curves.easeInOut.transform(_glow.value) * 0.045;
+          final scale = 0.965 +
+              Curves.easeInOut.transform(_glow.value.clamp(0.0, 1.0)) * 0.045;
 
           return Transform.translate(
             offset: Offset(0, dy),

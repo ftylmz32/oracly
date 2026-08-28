@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_flow_text.dart';
+import 'package:oracly_new/core/theme/reading_flow_text.dart';
 
 void main() {
   group('ReadingFlowText', () {

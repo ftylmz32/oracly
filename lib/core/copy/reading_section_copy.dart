@@ -2,42 +2,49 @@
 library;
 
 import '../../features/tarot/presentation/widgets/ai_reading/reading_section_theme.dart';
+import '../l10n/l10n.dart';
 
-/// Section titles that guide the eye: meaning → understanding → pause → peace.
 abstract final class ReadingSectionCopy {
   ReadingSectionCopy._();
 
-  /// Opening beat — card title area (header widget).
-  static const headingHint = 'Kartın';
+  static String _t(String key) => OraclyL10n.t(key);
 
-  /// First interpretation block — curiosity.
-  static const meaning = 'Anlam';
+  static String get headingHint => _t('read.heading_hint');
+  static String get meaning => _t('read.meaning');
+  static String get summary => _t('read.summary');
+  static String get cards => _t('read.cards');
+  static String get love => _t('read.love');
+  static String get career => _t('read.career');
+  static String get money => _t('read.money');
+  static String get spiritual => _t('read.spiritual');
+  static String get hidden => _t('read.hidden');
+  static String get suggestion => _t('read.suggestion');
+  static String get lucky => _t('read.lucky');
+  static String get energy => _t('read.energy');
 
-  /// Life-area readings — understanding deepens.
-  static const love = 'Aşk';
-  static const career = 'Kariyer';
-  static const money = 'Para';
+  static String loveTitle(String? theme) => theme == 'love'
+      ? _t('read.love_rel')
+      : theme == 'career'
+          ? _t('read.career_now')
+          : love;
 
-  /// Invites inward attention — question beat.
-  static const spiritual = 'Düşünmeye Alan';
+  static String careerTitle(String? theme) => theme == 'love'
+      ? _t('read.love_other')
+      : theme == 'career'
+          ? _t('tarot.near_term')
+          : career;
 
-  static const hidden = 'Derin Mesaj';
+  static String moneyTitle(String? theme) => theme == 'love'
+      ? _t('read.possible')
+      : theme == 'career'
+          ? _t('read.obstacle')
+          : money;
 
-  /// Gentle forward motion — suggestion beat.
-  static const suggestion = 'Bugün İçin';
-
-  static const lucky = 'Şanslı Enerji';
-
-  /// Affirmation beat before closing.
-  static const questionPrompt = 'Kendine Sor';
-
-  /// Final reflection block.
-  static const closing = 'Son Yansıma';
-
-  /// Whisper labels between major acts — visual connectors only.
-  static const bridgeToMeaning = 'Yorum açılıyor';
-  static const bridgeToReflection = 'Anlam derinleşiyor';
-  static const bridgeToClosing = 'Bir an dur';
+  static String get questionPrompt => _t('read.question');
+  static String get closing => _t('read.closing');
+  static String get bridgeToMeaning => _t('tarot.interpreting');
+  static String get bridgeToReflection => _t('first.prep_d');
+  static String get bridgeToClosing => _t('first.breath');
 
   static String titleFor(ReadingSectionKind kind) {
     return switch (kind) {

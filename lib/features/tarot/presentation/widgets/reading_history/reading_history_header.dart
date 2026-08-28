@@ -4,6 +4,9 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../../core/copy/transparency_copy.dart';
+import '../../../../../core/design_system/app_icons.dart';
+import '../../../../../core/design_system/oracly_header_action.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
@@ -12,8 +15,8 @@ import '../../../../../core/theme/reading_typography.dart';
 class ReadingHistoryHeader extends StatelessWidget {
   const ReadingHistoryHeader({super.key});
 
-  static const String title = 'Kişisel Yolculuk';
-  static const String subtitle = TransparencyCopy.journeyOwnership;
+  static String get title => OraclyL10n.t('history.journey');
+  static String get subtitle => TransparencyCopy.journeyOwnership;
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +25,18 @@ class ReadingHistoryHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         canPop ? AppSpacing.sm : AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.lg,
         AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xs,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (canPop) ...[
-            IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                color: AppColors.goldLight,
-              ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+            OraclyHeaderAction(
+              icon: AppIcons.back,
+              label: OraclyL10n.t(L10nKeys.back),
+              onTap: () => Navigator.of(context).pop(),
             ),
             SizedBox(width: AppSpacing.xs),
           ],

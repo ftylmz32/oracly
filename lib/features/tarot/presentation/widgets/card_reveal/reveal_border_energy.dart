@@ -42,16 +42,15 @@ class _BorderEnergyPainter extends CustomPainter {
 
     final path = Path()..addRRect(rect);
     final metrics = path.computeMetrics().first;
-    final length = metrics.length;
-    final sweep = length * progress * 0.85;
+    final sweep = metrics.length * progress * 0.72;
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
+      ..strokeWidth = 0.85
       ..shader = LinearGradient(
         colors: [
-          AppColors.goldLight.withValues(alpha: 0.62 * progress),
-          AppColors.gold.withValues(alpha: 0.38 * progress),
+          AppColors.goldLight.withValues(alpha: 0.28 * progress),
+          AppColors.gold.withValues(alpha: 0.16 * progress),
           AppColors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
@@ -60,13 +59,6 @@ class _BorderEnergyPainter extends CustomPainter {
       metrics.extractPath(0, sweep),
       paint,
     );
-
-    if (progress > 0.65) {
-      canvas.drawPath(
-        metrics.extractPath(length * 0.18, sweep * 0.55),
-        paint..color = AppColors.goldLight.withValues(alpha: 0.18 * progress),
-      );
-    }
   }
 
   @override

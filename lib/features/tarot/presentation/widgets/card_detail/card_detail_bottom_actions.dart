@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -68,7 +69,7 @@ class CardDetailBottomActions extends StatelessWidget {
                       Expanded(
                         flex: 2,
                         child: _GoldButton(
-                          label: 'Açılım Yap',
+                          label: OraclyL10n.t('tarot.action.do_spread'),
                           icon: Icons.auto_fix_high_rounded,
                           onPressed: onReading,
                         ),
@@ -78,14 +79,14 @@ class CardDetailBottomActions extends StatelessWidget {
                         icon: isFavorite
                             ? Icons.bookmark_rounded
                             : Icons.bookmark_border_rounded,
-                        label: 'Favori',
+                        label: OraclyL10n.t('tarot.action.favorite'),
                         active: isFavorite,
                         onTap: onFavorite,
                       ),
                       SizedBox(width: AppSpacing.sm),
                       _IconAction(
                         icon: Icons.ios_share_rounded,
-                        label: 'Paylaş',
+                        label: OraclyL10n.t('tarot.action.share'),
                         onTap: onShare,
                       ),
                     ],
@@ -174,41 +175,49 @@ class _IconAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.lg,
-        child: Ink(
-          width: 56,
-          height: AppSpacing.xxl,
-          decoration: BoxDecoration(
-            borderRadius: AppRadius.lg,
-            color: AppColors.surface.withValues(alpha: 0.72),
-            border: Border.all(
-              color: active
-                  ? AppColors.gold.withValues(alpha: 0.55)
-                  : AppColors.gold.withValues(alpha: 0.24),
-              width: AppBorderWidth.hairline,
+    return Semantics(
+      button: true,
+      label: label,
+      child: Material(
+        color: AppColors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: AppRadius.lg,
+          child: Ink(
+            width: 56,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: AppRadius.lg,
+              color: AppColors.surface.withValues(alpha: 0.72),
+              border: Border.all(
+                color: active
+                    ? AppColors.gold.withValues(alpha: 0.55)
+                    : AppColors.gold.withValues(alpha: 0.28),
+                width: AppBorderWidth.hairline,
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: AppSpacing.md,
-                color: active ? AppColors.gold : AppColors.goldLight,
-              ),
-              SizedBox(height: AppSpacing.xs),
-              Text(
-                label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textHint,
-                  fontSize: 10,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ExcludeSemantics(
+                  child: Icon(
+                    icon,
+                    size: AppSpacing.md,
+                    color: active ? AppColors.gold : AppColors.goldLight,
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(height: AppSpacing.xs),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.textHint,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

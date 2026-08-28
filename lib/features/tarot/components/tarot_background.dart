@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_decorations.dart';
+import '../../../core/design_system/app_gradients.dart';
 import '../widgets/tarot_cinematic_background.dart';
 import 'tarot_particle_layer.dart';
 

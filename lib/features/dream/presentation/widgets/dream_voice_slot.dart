@@ -34,7 +34,7 @@ class DreamVoiceSlot extends ConsumerWidget {
                 Text(
                   voice.isAvailable
                       ? 'Kayda başlamak için dokun'
-                      : DreamCopy.voiceComingSoon,
+                      : DreamCopy.voiceSpeechUnavailable,
                   style: ReadingTypography.footnote(),
                 ),
               ],

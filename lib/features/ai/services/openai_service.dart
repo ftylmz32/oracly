@@ -1,4 +1,4 @@
-/// OR-1110 — OpenAI service abstraction (disconnected — mock only).
+/// Local mock oracle replies — no network, no API keys.
 library;
 
 import 'dart:async';
@@ -7,33 +7,14 @@ import '../domain/models/oracle_response.dart';
 import 'prompt_builder.dart';
 import 'response_parser.dart';
 
-/// Configuration for future OpenAI integration.
-class OpenAIConfig {
-  const OpenAIConfig({
-    this.apiKey = '',
-    this.model = 'gpt-4o',
-    this.baseUrl = 'https://api.openai.com/v1',
-    this.maxTokens = 2048,
-    this.temperature = 0.7,
-  });
-
-  final String apiKey;
-  final String model;
-  final String baseUrl;
-  final int maxTokens;
-  final double temperature;
-
-  bool get isConfigured => apiKey.isNotEmpty;
-}
-
-/// Abstract contract — swap MockOpenAIService → LiveOpenAIService later.
+/// Abstract local mock contract — not a live OpenAI client.
 abstract class OpenAIService {
   Future<OracleResponse> complete(BuiltPrompt prompt);
   Stream<String> stream(BuiltPrompt prompt);
   Future<int> estimateTokens(String text);
 }
 
-/// Mock implementation — no network calls.
+/// In-memory mock — never reads secrets, never calls a provider.
 class MockOpenAIService implements OpenAIService {
   MockOpenAIService({this.simulatedLatencyMs = 800});
 
@@ -60,7 +41,8 @@ class MockOpenAIService implements OpenAIService {
   @override
   Future<OracleResponse> complete(BuiltPrompt prompt) async {
     await Future<void>.delayed(Duration(milliseconds: simulatedLatencyMs));
-    final raw = _mockReplies[prompt.template] ?? _mockReplies[PromptTemplate.general]!;
+    final raw =
+        _mockReplies[prompt.template] ?? _mockReplies[PromptTemplate.general]!;
     return ResponseParser.parse(
       rawText: raw,
       messageId: 'msg_${DateTime.now().millisecondsSinceEpoch}',
@@ -71,7 +53,8 @@ class MockOpenAIService implements OpenAIService {
 
   @override
   Stream<String> stream(BuiltPrompt prompt) async* {
-    final raw = _mockReplies[prompt.template] ?? _mockReplies[PromptTemplate.general]!;
+    final raw =
+        _mockReplies[prompt.template] ?? _mockReplies[PromptTemplate.general]!;
     final words = raw.split(RegExp(r'(?<=\s)'));
     for (final word in words) {
       await Future<void>.delayed(const Duration(milliseconds: 48));

@@ -13,8 +13,11 @@ import 'layers/orb_fog_layer.dart';
 import 'layers/orb_glass_layer.dart';
 import 'layers/orb_glow_layer.dart';
 import 'layers/orb_logo_layer.dart';
+import 'layers/orb_orbit_particles_layer.dart';
 import 'layers/orb_particles_layer.dart';
 import 'layers/orb_pedestal_layer.dart';
+import 'layers/orb_shimmer_layer.dart';
+import 'orb_performance.dart';
 
 /// Final approved stack — glow behind logo, glass and bloom on top.
 class OrbRenderer extends StatelessWidget {
@@ -23,6 +26,7 @@ class OrbRenderer extends StatelessWidget {
     required this.layoutSize,
     required this.canvasSize,
     required this.motion,
+    required this.performanceTier,
     this.overlayIntensity = 1.0,
     this.rewardBoost = 1.0,
   });
@@ -30,6 +34,7 @@ class OrbRenderer extends StatelessWidget {
   final double layoutSize;
   final double canvasSize;
   final OrbAnimationBundle motion;
+  final OrbPerformanceTier performanceTier;
   final double overlayIntensity;
   final double rewardBoost;
 
@@ -56,11 +61,23 @@ class OrbRenderer extends StatelessWidget {
           ),
           OrbLogoLayer(layoutSize: layoutSize, canvasSize: canvasSize),
           OrbGlassLayer(layoutSize: layoutSize, canvasSize: canvasSize),
-          OrbCausticsLayer(layoutSize: layoutSize, canvasSize: canvasSize),
+          OrbCausticsLayer(
+            motion: motion,
+            layoutSize: layoutSize,
+            canvasSize: canvasSize,
+          ),
           OrbParticlesLayer(
             motion: motion,
             layoutSize: layoutSize,
             canvasSize: canvasSize,
+            tier: performanceTier,
+            intensity: overlayIntensity,
+          ),
+          OrbOrbitParticlesLayer(
+            motion: motion,
+            layoutSize: layoutSize,
+            canvasSize: canvasSize,
+            tier: performanceTier,
             intensity: overlayIntensity,
           ),
           OrbEnergyLayer(
@@ -72,6 +89,13 @@ class OrbRenderer extends StatelessWidget {
           OrbPedestalLayer(layoutSize: layoutSize, canvasSize: canvasSize),
           OrbGlowLayer(layoutSize: layoutSize, canvasSize: canvasSize),
           OrbBloomLayer(layoutSize: layoutSize, canvasSize: canvasSize),
+          if (OrbPerformance.enableShimmer(performanceTier))
+            OrbShimmerLayer(
+              motion: motion,
+              layoutSize: layoutSize,
+              canvasSize: canvasSize,
+              intensity: overlayIntensity,
+            ),
         ],
       ),
     );

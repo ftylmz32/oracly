@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/micro_details/micro_details.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../theme/tarot_theme.dart';
 
@@ -24,11 +25,11 @@ class TarotSectionTitle extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              title.toUpperCase(),
+            child: MicroLitTitle(
+              text: title.toUpperCase(),
               style: TarotTheme.sectionTitle,
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              bloomStrength: 0.65,
             ),
           ),
           ?trailing,

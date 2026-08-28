@@ -2,10 +2,16 @@
 library;
 
 enum DreamInsightKind {
-  reflection,
-  possibility,
+  summary,
+  mainInterpretation,
+  symbols,
+  emotionalMeaning,
+  themes,
+  practicalTakeaway,
   personalConnection,
   closingQuestion,
+  reflection,
+  possibility,
   closingTakeaway,
 }
 

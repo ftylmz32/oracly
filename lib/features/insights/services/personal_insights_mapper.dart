@@ -291,7 +291,7 @@ abstract final class PersonalInsightsMapper {
           'nazikçe kalıyor olabileceğini fark edebilirsin.';
     }
     return 'Açılımlarında ${theme.label.toLowerCase()} teması '
-        'yankılanıyor — bu bir kehanet değil, gözlemlenebilir bir ritim.';
+        'tekrar ediyor — senin izinin gözlemlenebilir bir ritmi.';
   }
 
   static String _patternObservation(RecurringTheme theme) {
@@ -299,8 +299,8 @@ abstract final class PersonalInsightsMapper {
       return '${theme.label} kartı açılımlarında tekrar eden '
           'bir sembol olarak belirdi.';
     }
-    return '${theme.label} teması kayıtlarında tekrar eden '
-        'bir desen olarak görünüyor.';
+    return '${theme.label} teması keşiflerinde tekrar eden '
+        'bir iz olarak görünüyor.';
   }
 
   static String _cadenceBody(PersonalTrend trend) => switch (trend.direction) {

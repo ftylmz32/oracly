@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/micro_details/micro_details.dart';
+import '../../../core/modules/oracly_feature_l10n.dart';
 import '../../../core/modules/oracly_feature_module.dart';
 import '../../../core/modules/oracly_feature_navigation.dart';
 import '../../../core/modules/oracly_feature_registry.dart';
@@ -21,9 +23,11 @@ class MysticFeatureGrid extends StatelessWidget {
   const MysticFeatureGrid({
     super.key,
     this.band = HomeCompositionBand.understand,
+    this.entranceDelayMs = 0,
   });
 
   final HomeCompositionBand band;
+  final int entranceDelayMs;
 
   HomeFocusZone get _zone => HomeFocus.zoneForBand(band);
 
@@ -63,7 +67,7 @@ class MysticFeatureGrid extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: AppSpacing.xs),
+          padding: EdgeInsets.zero,
           child: AnimatedOpacity(
             opacity: isTertiaryLabel
                 ? (0.62 + labelGlow * 0.22).clamp(0.0, 1.0)
@@ -83,12 +87,13 @@ class MysticFeatureGrid extends StatelessWidget {
           ),
         ),
         const OraclySignatureDivider(compact: true),
-        SizedBox(height: HomeComposition.labelToContent - AppSpacing.sm),
+        SizedBox(height: HomeComposition.labelToContent - AppSpacing.xs),
         _ModuleRow(
           modules: modules,
           band: band,
           focusZone: _zone,
           defaultTier: _defaultTier,
+          entranceDelayMs: entranceDelayMs,
         ),
       ],
     );
@@ -101,12 +106,14 @@ class _ModuleRow extends StatelessWidget {
     required this.band,
     required this.focusZone,
     required this.defaultTier,
+    required this.entranceDelayMs,
   });
 
   final List<OraclyFeatureModule> modules;
   final HomeCompositionBand band;
   final HomeFocusZone focusZone;
   final HomeVisualTier defaultTier;
+  final int entranceDelayMs;
 
   @override
   Widget build(BuildContext context) {
@@ -117,21 +124,31 @@ class _ModuleRow extends StatelessWidget {
         children: [
           for (var i = 0; i < row.length; i++) ...[
             if (i > 0) SizedBox(width: HomeComposition.tileGap),
-            Expanded(child: _ModuleTile(module: row[i], focusZone: focusZone)),
+            Expanded(
+              child: MicroListReveal(
+                index: i,
+                baseDelay: Duration(milliseconds: entranceDelayMs),
+                child: _ModuleTile(module: row[i], focusZone: focusZone),
+              ),
+            ),
           ],
         ],
       );
     }
 
     final module = modules.first;
-    return MysticFeatureCard(
-      icon: module.icon ?? Icons.auto_awesome,
-      iconAsset: module.iconAsset,
-      title: module.title,
-      compact: false,
-      tier: defaultTier,
-      focusZone: focusZone,
-      onTap: () => OraclyFeatureNavigation.open(context, module.id),
+    return MicroListReveal(
+      index: 0,
+      baseDelay: Duration(milliseconds: entranceDelayMs),
+      child: MysticFeatureCard(
+        icon: module.icon ?? Icons.auto_awesome,
+        iconAsset: module.iconAsset,
+        title: module.labeled,
+        compact: false,
+        tier: defaultTier,
+        focusZone: focusZone,
+        onTap: () => OraclyFeatureNavigation.open(context, module.id),
+      ),
     );
   }
 }
@@ -150,7 +167,7 @@ class _ModuleTile extends StatelessWidget {
     return MysticFeatureCard(
       icon: module.icon ?? Icons.auto_awesome,
       iconAsset: module.iconAsset,
-      title: module.title,
+      title: module.labeled,
       tier: HomeVisualTier.whisper,
       focusZone: focusZone,
       onTap: () => OraclyFeatureNavigation.open(context, module.id),

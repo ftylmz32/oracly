@@ -1,0 +1,13 @@
+{
+  "DEVICE_VERIFICATION": "FAIL",
+  "opened_chamber": false,
+  "hub_sample": "Menü / ORACLY / ORACLY || Hoş geldin, Yolcu. Bugün senin için neler keşfedelim? / Hoş geldin, Yolcu / Bugün senin için neler keşfedelim? || OR. Sakin bir sohbet — senin temposunda.. Sohbete başla || OR / Sakin bir sohbet — senin temposunda. / Sohbete başla || ORACLY || Sohbete başla || Bugünün İzi / Bugünün İzi / Gece ",
+  "scrolled_sample": "OR. Sakin bir sohbet — senin temposunda.. Sohbete başla || OR / Sakin bir sohbet — senin temposunda. / Sohbete başla || ORACLY || Sohbete başla || Bugünün İzi / Bugünün İzi / Gece / Geceye biraz yer bırak. || Kart çek || Keşifler || Kahve Falı || Kahve Falı / Fincanı oku || El Falı || El Falı / Avuç izleri || Astroloji",
+  "opened_door": false,
+  "door_sample": "OR. Sakin bir sohbet — senin temposunda.. Sohbete başla || OR / Sakin bir sohbet — senin temposunda. / Sohbete başla || ORACLY || Sohbete başla || Bugünün İzi / Bugünün İzi / Gece / Geceye biraz yer bırak. || Kart çek || Keşifler || Kahve Falı || Kahve Falı / Fincanı oku || El Fa",
+  "crash_or_overflow_log": false,
+  "province_picker": "Birth Chart nested path — not exercised this smoke",
+  "or_save_journal": false,
+  "redeployed": false,
+  "note_correction": "Prior smoke false-positive: Home still visible; chamber not confirmed."
+}

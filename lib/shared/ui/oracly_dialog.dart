@@ -1,11 +1,16 @@
-/// OR-1120 — Consistent dialog presentation.
+/// OR-1120 / EPIC-025 — Consistent dialog presentation with luxury motion.
 library;
 
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_radius.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../widgets/oracly_gold_button.dart';
+import '../widgets/oracly_text_action.dart';
+import 'oracly_dialog_actions.dart';
+import 'oracly_dialog_alerts.dart';
+import 'oracly_dialog_surface.dart';
 
 abstract final class OraclyDialog {
   OraclyDialog._();
@@ -18,38 +23,13 @@ abstract final class OraclyDialog {
     String cancelLabel = 'İptal',
     bool destructive = false,
   }) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.lg,
-          side: BorderSide(color: AppColors.gold.withValues(alpha: 0.25)),
-        ),
-        title: Text(
-          title,
-          style: AppTextStyles.titleMedium.copyWith(color: AppColors.goldLight),
-        ),
-        content: Text(
-          message,
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(cancelLabel),
-          ),
-          ElevatedButton(
-            style: destructive
-                ? ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error.withValues(alpha: 0.85),
-                  )
-                : null,
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(confirmLabel),
-          ),
-        ],
-      ),
+    return showOraclyConfirmDialog(
+      context,
+      title: title,
+      message: message,
+      confirmLabel: confirmLabel,
+      cancelLabel: cancelLabel,
+      destructive: destructive,
     );
   }
 
@@ -62,41 +42,61 @@ abstract final class OraclyDialog {
     String cancelLabel = 'İptal',
   }) {
     final controller = TextEditingController(text: initial);
-    return showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.lg,
-          side: BorderSide(color: AppColors.gold.withValues(alpha: 0.25)),
-        ),
-        title: Text(
-          title,
-          style: AppTextStyles.titleMedium.copyWith(color: AppColors.goldLight),
-        ),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textHint,
-            ),
+    return showOraclyDialogSurface<String>(
+      context,
+      child: Builder(
+        builder: (dialogContext) => Padding(
+          padding: EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.goldLight,
+                ),
+              ),
+              SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+                decoration: InputDecoration(
+                  hintText: hint,
+                  hintStyle: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textHint,
+                  ),
+                ),
+              ),
+              SizedBox(height: AppSpacing.lg),
+              OraclyDialogActions(
+                children: [
+                  OraclyTextAction(
+                    label: cancelLabel,
+                    onPressed: () => Navigator.pop(dialogContext),
+                  ),
+                  OraclyGoldButton(
+                    label: confirmLabel,
+                    onPressed: () => Navigator.pop(
+                      dialogContext,
+                      controller.text.trim(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(cancelLabel),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(confirmLabel),
-          ),
-        ],
       ),
-    );
+    ).whenComplete(() {
+      // After the route is gone — never dispose mid-frame under TextField.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
+    });
   }
 
   static Future<void> info(
@@ -105,29 +105,11 @@ abstract final class OraclyDialog {
     required String message,
     String buttonLabel = 'Tamam',
   }) {
-    return showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.lg,
-          side: BorderSide(color: AppColors.gold.withValues(alpha: 0.25)),
-        ),
-        title: Text(
-          title,
-          style: AppTextStyles.titleMedium.copyWith(color: AppColors.goldLight),
-        ),
-        content: Text(
-          message,
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(buttonLabel),
-          ),
-        ],
-      ),
+    return showOraclyInfoDialog(
+      context,
+      title: title,
+      message: message,
+      buttonLabel: buttonLabel,
     );
   }
 }

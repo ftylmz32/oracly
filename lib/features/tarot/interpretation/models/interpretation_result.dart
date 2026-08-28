@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import 'interpretation_result_sections.dart';
+
 enum InterpretationSectionKey {
   summary,
   love,
@@ -84,63 +86,7 @@ class InterpretationResult {
   final String? rawText;
   final bool fromCache;
 
-  List<InterpretationSection> get sections => [
-        InterpretationSection(
-          key: InterpretationSectionKey.summary,
-          title: 'Özet',
-          content: summary,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.love,
-          title: 'Aşk',
-          content: love,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.career,
-          title: 'Kariyer',
-          content: career,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.money,
-          title: 'Para',
-          content: money,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.health,
-          title: 'Sağlık',
-          content: health,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.spiritualGuidance,
-          title: 'Ruhsal Rehberlik',
-          content: spiritualGuidance,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.advice,
-          title: 'Tavsiye',
-          content: advice,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.warnings,
-          title: 'Uyarılar',
-          content: warnings,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.luckyEnergy,
-          title: 'Şans Enerjisi',
-          content: luckyEnergy,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.dailyFocus,
-          title: 'Günlük Odak',
-          content: dailyFocus,
-        ),
-        InterpretationSection(
-          key: InterpretationSectionKey.closingMessage,
-          title: 'Kapanış',
-          content: closingMessage,
-        ),
-      ];
+  List<InterpretationSection> get sections => interpretationSectionsOf(this);
 
   String? sectionContent(InterpretationSectionKey key) {
     for (final section in sections) {

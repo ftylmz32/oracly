@@ -3,12 +3,19 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/brand/oracly_brand_mark.dart';
 import '../../core/copy/transparency_copy.dart';
+import '../../core/design_system/app_icons.dart';
+import '../../core/design_system/oracly_header_action.dart';
+import '../../core/l10n/l10n.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../features/premium/presentation/widgets/premium_background.dart';
 import '../../features/premium/presentation/widgets/settings_tiles.dart';
+import '../../core/theme/craftsmanship_rhythm.dart';
+import '../../shared/widgets/oracly_entrance.dart';
+import 'about_contact_email.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -25,15 +32,19 @@ class AboutScreen extends StatelessWidget {
         children: [
           const PremiumBackground(),
           CustomScrollView(
+            physics: CraftsmanshipRhythm.scrollPhysics,
             slivers: [
               SliverAppBar(
                 pinned: true,
                 backgroundColor: Colors.black.withValues(alpha: 0.45),
-                leading: IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.arrow_back_rounded),
+                leading: Align(
+                  child: OraclyHeaderAction(
+                    icon: AppIcons.back,
+                    label: 'Geri',
+                    onTap: () => Navigator.of(context).maybePop(),
+                  ),
                 ),
-                title: const Text('Hakkında'),
+                title: Text(OraclyL10n.t(L10nKeys.about)),
                 centerTitle: true,
               ),
               SliverToBoxAdapter(
@@ -41,45 +52,39 @@ class AboutScreen extends StatelessWidget {
                   padding: EdgeInsets.all(AppSpacing.lg),
                   child: Column(
                     children: [
-                      Container(
-                        width: 88,
-                        height: 88,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.gold.withValues(alpha: 0.45),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.goldGlow.withValues(alpha: 0.25),
-                              blurRadius: 24,
+                      OraclyEntrance(
+                        mode: OraclyEntranceMode.softScale,
+                        child: const OraclyBrandMark(size: 88, forLauncher: true),
+                      ),
+                      OraclyEntrance.staggered(
+                        index: 1,
+                        child: Column(
+                          children: [
+                            SizedBox(height: AppSpacing.md),
+                            Text(
+                              'ORACLY',
+                              style: AppTextStyles.logo,
+                            ),
+                            SizedBox(height: AppSpacing.xs),
+                            Text(
+                              OraclyL10n.t('about.version')
+                                  .replaceAll('{version}', _version)
+                                  .replaceAll('{build}', _build),
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textHint,
+                              ),
                             ),
                           ],
                         ),
-                        child: Icon(
-                          Icons.auto_awesome,
-                          size: 40,
-                          color: AppColors.goldLight,
-                        ),
-                      ),
-                      SizedBox(height: AppSpacing.md),
-                      Text(
-                        'ORACLY',
-                        style: AppTextStyles.logo,
-                      ),
-                      SizedBox(height: AppSpacing.xs),
-                      Text(
-                        'Sürüm $_version · $_build',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textHint,
-                        ),
                       ),
                       SizedBox(height: AppSpacing.lg),
-                      const SettingsSectionHeader(title: 'Misyon'),
+                      OraclyEntrance(
+                        child: SettingsSectionHeader(
+                          title: OraclyL10n.t('about.mission'),
+                        ),
+                      ),
                       Text(
-                        'ORACLY, tarot, rüya, astroloji ve günlük enerji '
-                        'rehberliğini tek bir sakin deneyimde birleştirir. '
-                        'OR AI ile kişisel yolculuğuna eşlik eder.',
+                        OraclyL10n.t('about.body'),
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.textSecondary,
@@ -97,13 +102,10 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: AppSpacing.lg),
-                      const SettingsSectionHeader(title: 'İletişim'),
-                      Text(
-                        'destek@oracly.app',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.gold,
-                        ),
+                      SettingsSectionHeader(
+                        title: OraclyL10n.t('about.contact'),
                       ),
+                      const AboutContactEmail(),
                       SizedBox(height: AppSpacing.xxl),
                     ],
                   ),

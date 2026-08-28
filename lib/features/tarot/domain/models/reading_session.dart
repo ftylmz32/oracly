@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/l10n/l10n.dart';
+import '../../copy/tarot_l10n.dart';
 import '../../models/tarot_card.dart';
 import 'tarot_spread.dart';
 
@@ -35,6 +37,17 @@ class TarotDrawnCard {
 
   String get effectiveMeaning =>
       isReversed ? card.reversedMeaning : card.meaning;
+
+  String get localizedName => TarotL10n.cardNameOf(card);
+
+  String get localizedPosition {
+    final key = positionKey;
+    if (key != null && key.isNotEmpty) {
+      final value = OraclyL10n.t('tarot.pos.$key');
+      if (value != 'tarot.pos.$key') return value;
+    }
+    return positionLabel ?? OraclyL10n.t('tarot.card_field');
+  }
 
   Map<String, dynamic> toJson() => {
         'card': _cardToJson(card),

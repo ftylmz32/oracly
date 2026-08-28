@@ -1,9 +1,12 @@
 /// OR-1170 — Provider scope for tarot controllers with persistence.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../art/tarot_image_budget.dart';
 import '../controllers/tarot_flow_controller.dart';
 import '../controllers/tarot_reading_controller.dart';
 import '../data/repositories/tarot_reading_repository_impl.dart';
@@ -55,18 +58,29 @@ class TarotModuleRoot extends StatefulWidget {
   State<TarotModuleRoot> createState() => _TarotModuleRootState();
 }
 
-class _TarotModuleRootState extends State<TarotModuleRoot> {
+class _TarotModuleRootState extends State<TarotModuleRoot>
+    with WidgetsBindingObserver {
   late final TarotFlowController _flow;
   late final TarotReadingController _reading;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    TarotImageBudget.enter();
     _flow = TarotFlowController();
     _reading = TarotReadingController(
       repository: TarotReadingRepositoryImpl.fromStorage(widget.storage),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) => _restoreSession());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      unawaited(_reading.flush());
+    }
   }
 
   Future<void> _restoreSession() async {
@@ -87,14 +101,16 @@ class _TarotModuleRootState extends State<TarotModuleRoot> {
   String _routeForStep(ReadingFlowStep step) => switch (step) {
         ReadingFlowStep.deckSelection => TarotRoutes.deckSelection,
         ReadingFlowStep.shuffle => TarotRoutes.shuffle,
-        ReadingFlowStep.cardSelection => TarotRoutes.cardSelection,
-        ReadingFlowStep.reveal => TarotRoutes.cardReveal,
+        ReadingFlowStep.cardSelection => TarotRoutes.shuffle,
+        ReadingFlowStep.reveal => TarotRoutes.shuffle,
         ReadingFlowStep.reading => TarotRoutes.reading,
         ReadingFlowStep.completed => TarotRoutes.home,
       };
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    TarotImageBudget.leave();
     _flow.dispose();
     _reading.dispose();
     super.dispose();

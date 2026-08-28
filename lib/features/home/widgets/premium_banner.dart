@@ -26,10 +26,9 @@ class PremiumBanner extends StatefulWidget {
 
   final VoidCallback? onExploreTap;
 
-  static const String _title = "PREMIUM'A GEÇ";
-  static const String _description =
-      'Tüm özelliklerin kilidini aç, reklamsız deneyimin ve özel içeriklerin keyfini çıkar.';
-  static const String _ctaLabel = "Premium'u Keşfet";
+  static const String _title = "Premium'u keşfet";
+  static const String _description = 'Daha sakin bir yansıma odası.';
+  static const String _ctaLabel = "Premium'u keşfet";
 
   @override
   State<PremiumBanner> createState() => _PremiumBannerState();
@@ -219,11 +218,11 @@ class _PremiumCrownIllustration extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: AppColors.glowPurple.withValues(alpha: 0.45),
-                  blurRadius: AppShadowMetrics.cardGlowBlur,
+                  blurRadius: 28,
                 ),
                 BoxShadow(
                   color: AppColors.goldGlow.withValues(alpha: 0.35),
-                  blurRadius: AppShadowMetrics.goldSecondaryBlur,
+                  blurRadius: 16,
                 ),
               ],
             ),
@@ -329,7 +328,7 @@ class _CrownSparkle extends StatelessWidget {
             : [
                 BoxShadow(
                   color: AppColors.goldLight.withValues(alpha: 0.55),
-                  blurRadius: AppShadowMetrics.iconBlur - 6,
+                  blurRadius: 6,
                 ),
               ],
       ),
@@ -375,7 +374,7 @@ class _CrystalGem extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: AppColors.glowPurple,
-              blurRadius: AppShadowMetrics.iconBlur,
+              blurRadius: 12,
             ),
           ],
         ),

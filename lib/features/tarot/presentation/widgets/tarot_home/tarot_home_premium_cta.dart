@@ -15,7 +15,7 @@ class TarotHomePremiumCta extends StatelessWidget {
     this.onTap,
   });
 
-  static const String _label = PremiumCopy.ctaExplore;
+  static String get _label => PremiumCopy.ctaExplore;
 
   final VoidCallback? onTap;
 

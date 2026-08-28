@@ -18,15 +18,18 @@ abstract final class SacredMoment {
   static double progress(double linear) {
     final t = linear.clamp(0.0, 1.0);
     if (t <= 0.32) {
-      return Curves.easeInOutCubic.transform(t / 0.32) * 0.62;
+      // 0.32/0.32 can be 1+ε in IEEE — Curve.transform requires [0,1].
+      return Curves.easeInOutCubic.transform((t / 0.32).clamp(0.0, 1.0)) * 0.62;
     }
     if (t <= 0.82) {
-      final hold = (t - 0.32) / 0.50;
+      final hold = ((t - 0.32) / 0.50).clamp(0.0, 1.0);
       final plateau = TarotEmotionalRhythm.holdPlateau(t, 0.38, 0.78);
       final pulse = sin(hold * pi) * 0.006 * (1 - plateau * 0.85);
-      return 0.62 + hold * 0.28 + pulse + plateau * 0.04;
+      return (0.62 + hold * 0.28 + pulse + plateau * 0.04).clamp(0.0, 1.0);
     }
-    return 0.94 + Curves.easeInOut.transform((t - 0.82) / 0.18) * 0.06;
+    // (1.0 - 0.82) / 0.18 → 1.0000000000000002 in IEEE float.
+    return 0.94 +
+        Curves.easeInOut.transform(((t - 0.82) / 0.18).clamp(0.0, 1.0)) * 0.06;
   }
 
   /// Brief breath plateau — interface almost holds still.
@@ -64,7 +67,8 @@ abstract final class SacredMoment {
 
   /// Handoff into reveal — destiny continuity, not a cut.
   static double revealHandoff(double linear) {
-    if (linear < 0.90) return 0;
-    return Curves.easeInOut.transform(((linear - 0.90) / 0.10).clamp(0.0, 1.0));
+    final t = linear.clamp(0.0, 1.0);
+    if (t < 0.90) return 0;
+    return Curves.easeInOut.transform(((t - 0.90) / 0.10).clamp(0.0, 1.0));
   }
 }

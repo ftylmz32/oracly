@@ -1,32 +1,42 @@
-/// SPRINT-003 — Builds journey context from intelligence + saved memory.
+/// Builds journey context from intelligence + saved memory. Never invents.
 library;
 
+import '../../../core/domain/repositories/user_repository.dart';
 import '../../../core/intelligence/services/intelligence_layer_service.dart';
+import '../../../core/intelligence/services/personal_memory_service.dart';
 import '../../../features/daily_ritual/models/daily_ritual_day.dart';
 import '../../../features/daily_ritual/services/daily_ritual_service.dart';
 import '../../../../services/memory_service.dart';
+import '../copy/companion_copy.dart';
 import '../models/reflection_context.dart';
 import 'companion_memory_service.dart';
 
 class CompanionContextBuilder {
   CompanionContextBuilder({
-    required IntelligenceLayerService intelligence,
+    required this.intelligence,
     CompanionMemoryService? memoryService,
-    DailyRitualService? dailyRitual,
-  })  : _intelligence = intelligence,
-        _memory = memoryService ??
-            CompanionMemoryService(MemoryService()),
-        _dailyRitual = dailyRitual;
+    this.personalMemory,
+    this.dailyRitual,
+    this.users,
+    this.observationLine,
+  }) : _memory = memoryService ?? CompanionMemoryService(MemoryService());
 
-  final IntelligenceLayerService _intelligence;
+  final IntelligenceLayerService intelligence;
+  final PersonalMemoryService? personalMemory;
+  final DailyRitualService? dailyRitual;
+  final UserRepository? users;
+  final Future<String?> Function()? observationLine;
   final CompanionMemoryService _memory;
-  final DailyRitualService? _dailyRitual;
+
+  static const _themeLimit = 3;
 
   Future<ReflectionContext> build() async {
-    final snapshot = await _intelligence.snapshot();
+    final snapshot = await intelligence.snapshot();
     final saved = await _memory.savedMemories();
-    final userName = await MemoryService().getUserName();
-    final ritualDay = _dailyRitual?.loadToday();
+    final userName = await _resolveName();
+    final ritualDay = dailyRitual?.loadToday();
+    final memoryLine = personalMemory?.observationalLine();
+    final observation = await observationLine?.call();
 
     final reflections = snapshot.reflections
         .map((r) => r.text)
@@ -34,25 +44,13 @@ class CompanionContextBuilder {
         .take(3)
         .toList();
 
-    final themes = <String>[];
-    if (snapshot.journey.recurringCards >= 2) {
-      themes.add('Tekrarlayan kartlar');
-    }
-    if (snapshot.counts.readings >= 2) {
-      themes.add('Düzenli açılımlar');
-    }
-    if (snapshot.counts.reflections >= 2) {
-      themes.add('Kişisel yansımalar');
-    }
+    final themes = snapshot.journey.insightReport.recurringThemes
+        .map((echo) => echo.theme.label.trim())
+        .where((label) => label.isNotEmpty)
+        .take(_themeLimit)
+        .toList();
 
     final journalHint = _unfinishedJournalHint(ritualDay);
-    final acknowledgment = _proactiveAcknowledgment(
-      reflections: reflections,
-      themes: themes,
-      readingCount: snapshot.counts.readings,
-      journalHint: journalHint,
-    );
-
     return ReflectionContext(
       userName: userName,
       savedMemories: saved,
@@ -63,7 +61,7 @@ class CompanionContextBuilder {
       hasBirthChart: false,
       ritualDaysCount: snapshot.ritualDays.length,
       unfinishedJournalHint: journalHint,
-      proactiveAcknowledgment: acknowledgment,
+      proactiveAcknowledgment: observation ?? memoryLine,
     );
   }
 
@@ -78,36 +76,15 @@ class CompanionContextBuilder {
     return null;
   }
 
-  String? _proactiveAcknowledgment({
-    required List<String> reflections,
-    required List<String> themes,
-    required int readingCount,
-    String? journalHint,
-  }) {
-    if (journalHint != null) return journalHint;
-    if (reflections.isNotEmpty && themes.isNotEmpty) {
-      return 'Son yansımalarında ${themes.first.toLowerCase()} teması '
-          'belirginleşmiş gibi görünüyor. İstersen oradan devam edebiliriz.';
-    }
-    if (readingCount >= 2 && reflections.isNotEmpty) {
-      return 'Son açılımından bir iz taşıyor olabilirsin. '
-          'Konuşmak istersen buradayım.';
-    }
-    return null;
+  Future<String?> _resolveName() async {
+    try {
+      final fromProfile = (await users?.getProfile())?.name.trim();
+      if (fromProfile != null && fromProfile.isNotEmpty) return fromProfile;
+    } catch (_) {}
+    return MemoryService().getUserName();
   }
 
   String welcomeMessage(ReflectionContext context) {
-    final base = context.userName != null && context.userName!.isNotEmpty
-        ? 'Merhaba, ${context.userName}.\n'
-        : 'Merhaba.\n';
-
-    final intro =
-        'Burada acele yok — önce dinlerim, sonra birlikte düşünürüz. '
-        'Bugün aklında ne var?';
-
-    if (context.shouldAcknowledgeProactively) {
-      return '$base${context.proactiveAcknowledgment}\n\n$intro';
-    }
-    return '$base$intro';
+    return CompanionCopy.welcome(name: context.userName);
   }
 }

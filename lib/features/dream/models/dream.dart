@@ -59,6 +59,7 @@ class Dream {
     this.understanding,
     this.insights = const [],
     this.voiceTranscriptPending = false,
+    this.fromAi = false,
   });
 
   final String id;
@@ -69,6 +70,7 @@ class Dream {
   final DreamUnderstanding? understanding;
   final List<DreamInsight> insights;
   final bool voiceTranscriptPending;
+  final bool fromAi;
 
   bool get isAnalyzed => understanding != null;
 
@@ -81,6 +83,7 @@ class Dream {
         if (understanding != null) 'understanding': understanding!.toJson(),
         'insights': insights.map((i) => i.toJson()).toList(),
         'voiceTranscriptPending': voiceTranscriptPending,
+        'fromAi': fromAi,
       };
 
   factory Dream.fromJson(Map<String, dynamic> json) {
@@ -103,12 +106,14 @@ class Dream {
               .toList() ??
           const [],
       voiceTranscriptPending: json['voiceTranscriptPending'] as bool? ?? false,
+      fromAi: json['fromAi'] as bool? ?? false,
     );
   }
 
   Dream copyWith({
     DreamUnderstanding? understanding,
     List<DreamInsight>? insights,
+    bool? fromAi,
   }) {
     return Dream(
       id: id,
@@ -119,6 +124,7 @@ class Dream {
       understanding: understanding ?? this.understanding,
       insights: insights ?? this.insights,
       voiceTranscriptPending: voiceTranscriptPending,
+      fromAi: fromAi ?? this.fromAi,
     );
   }
 }

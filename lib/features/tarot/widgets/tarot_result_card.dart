@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../copy/tarot_l10n.dart';
 import '../models/tarot_card.dart';
 import 'tarot_result_card_art.dart';
 import 'tarot_tag_chip.dart';
@@ -54,7 +55,7 @@ class _CardInfo extends StatelessWidget {
           Text(positionLabel!.toUpperCase(), style: TarotTypography.captionMuted(size: 10)),
           const SizedBox(height: 6),
         ],
-        Text(card.name, style: TarotTypography.cardTitleGold(size: 20)),
+        Text(TarotL10n.cardNameOf(card), style: TarotTypography.cardTitleGold(size: 20)),
         const SizedBox(height: 4),
         Text(card.summary.split('.').first, style: TarotTypography.captionMuted(size: 12)),
         const SizedBox(height: 12),
@@ -100,7 +101,7 @@ class _CompactRow extends StatelessWidget {
             children: [
               if (positionLabel != null)
                 Text(positionLabel!, style: TarotTypography.captionMuted(size: 10)),
-              Text(card.name, style: TarotTypography.cardTitleGold(size: 16)),
+              Text(TarotL10n.cardNameOf(card), style: TarotTypography.cardTitleGold(size: 16)),
               const SizedBox(height: 4),
               Text(card.summary, maxLines: 2, overflow: TextOverflow.ellipsis, style: TarotTypography.captionMuted()),
             ],

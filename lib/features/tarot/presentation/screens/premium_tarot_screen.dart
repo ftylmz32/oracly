@@ -1,14 +1,14 @@
-/// OR-1090 — Premium tarot route entry (delegates to PremiumScreen).
+/// OR-1090 — Premium tarot route entry (delegates to PremiumReferenceScreen).
 library;
 
-export '../../../premium/presentation/screens/premium_screen.dart';
+export '../../../premium/presentation/reference/premium_reference_screen.dart';
 
 import 'package:flutter/material.dart';
 
-import '../../../premium/presentation/screens/premium_screen.dart';
+import '../../../premium/presentation/reference/premium_reference_screen.dart';
 
 /// Backward-compatible alias for tarot navigator.
-typedef PremiumTarotScreen = PremiumScreen;
+typedef PremiumTarotScreen = PremiumReferenceScreen;
 
 /// Opens the luxury membership experience.
 void openPremiumScreen(BuildContext context) {

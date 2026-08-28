@@ -5,7 +5,6 @@ import 'dart:math' show cos, sin;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -81,7 +80,7 @@ class _TarotSpreadCardState extends State<TarotSpreadCard>
 
   void _onTapDown(TapDownDetails _) {
     if (widget.onTap == null) return;
-    HapticFeedback.lightImpact();
+    OraclyTouchFeedback.acknowledge();
     _press.forward();
   }
 
@@ -208,9 +207,9 @@ class _TarotSpreadCardState extends State<TarotSpreadCard>
                           child: Padding(
                             padding: EdgeInsets.fromLTRB(
                               OraclyRhythm.spreadCardInsetH,
-                              OraclyRhythm.spreadCardInsetTop - 2,
+                              OraclyRhythm.spreadCardInsetTop,
                               OraclyRhythm.spreadCardInsetH,
-                              OraclyRhythm.spreadCardInsetBottom - 4,
+                              OraclyRhythm.spreadCardInsetBottom,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -222,7 +221,7 @@ class _TarotSpreadCardState extends State<TarotSpreadCard>
                                   ambientPhase: ambientPhase,
                                 ),
                                 SizedBox(
-                                  height: OraclyRhythm.sectionContentGap + 4,
+                                  height: OraclyRhythm.sectionContentGap,
                                 ),
                                 Text(
                                   widget.option.title,

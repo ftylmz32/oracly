@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_spacing.dart';
+import '../copy/tarot_l10n.dart';
 import '../models/tarot_card.dart';
 import 'tarot_result_card.dart';
 
@@ -12,18 +13,15 @@ class TarotResultCards extends StatelessWidget {
 
   final List<TarotCard> cards;
 
-  static const _threeCardLabels = [
-    'Geçmiş',
-    'Şimdi',
-    'Gelecek',
-  ];
-
   String? _positionLabel(int index) {
     if (cards.length != 3 || index > 2) {
       return null;
     }
-
-    return _threeCardLabels[index];
+    return [
+      TarotL10n.position('past'),
+      TarotL10n.position('present'),
+      TarotL10n.position('direction'),
+    ][index];
   }
 
   @override

@@ -5,6 +5,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/design_system/app_icons.dart';
+import '../../../../core/design_system/oracly_header_action.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -50,14 +52,10 @@ class OracleConversationHeader extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    onPressed: onBack ?? () => Navigator.of(context).maybePop(),
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: AppSpacing.lg,
-                      color: AppColors.goldLight,
-                    ),
-                    tooltip: 'Geri',
+                  OraclyHeaderAction(
+                    icon: AppIcons.back,
+                    label: 'Geri',
+                    onTap: onBack ?? () => Navigator.of(context).maybePop(),
                   ),
                   const OracleAvatar(size: 44, showGlow: true),
                   SizedBox(width: AppSpacing.md),
@@ -66,7 +64,9 @@ class OracleConversationHeader extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Mevcut Açılım',
+                          reading.sourceLabel.isEmpty
+                              ? 'Mevcut Açılım'
+                              : reading.sourceLabel,
                           style: AppTextStyles.labelMedium.copyWith(
                             color: AppColors.textMuted,
                             letterSpacing: 0.6,

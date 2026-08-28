@@ -26,17 +26,27 @@ void main() {
         isFalse,
       );
       expect(result.summary.toLowerCase(), isNot(contains('evren seninle')));
-      expect(result.closingMessage.toLowerCase(), contains('yankı'));
+      expect(result.summary.toLowerCase(), isNot(contains('sana ne hatırlatıyor')));
+      expect(result.dailyFocus, isNotEmpty);
     });
 
-    test('spiritual guidance uses reflection questions', () {
+    test('optional question stays secondary to the answer', () {
       final result = ReflectiveIntelligence.synthesize(
         context: _sampleContext(),
         requestId: 'req_2',
       );
 
-      expect(result.spiritualGuidance, contains('•'));
-      expect(result.spiritualGuidance.toLowerCase(), contains('sor'));
+      expect(result.summary, contains('Fool'));
+      expect(result.summary, contains('Geçmiş'));
+      expect(result.luckyEnergy, contains('The Fool'));
+      expect(result.luckyEnergy.toLowerCase(), contains('eğilim'));
+      expect(result.luckyEnergy.toLowerCase(), isNot(contains('kesin gelecek')));
+      expect(result.health, contains('Geçmiş'));
+      expect(result.health, contains('Ters'));
+      expect(result.money, isNotEmpty);
+      expect(result.love, isEmpty);
+      expect(result.warnings, contains('?'));
+      expect(result.warnings.split('\n').length, lessThanOrEqualTo(2));
     });
 
     test('guard softens certainty language', () {

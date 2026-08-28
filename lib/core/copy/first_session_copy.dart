@@ -1,48 +1,34 @@
 /// RC-012 — Warm, human copy for the first session.
 library;
 
+import '../l10n/l10n.dart';
+
 abstract final class FirstSessionCopy {
   FirstSessionCopy._();
 
-  // Home greeting (same layout — different words)
-  static const homeGreeting = 'Hoş geldin,';
-  static const homeGuestName = 'Yolcu';
-  static const homeSubtitleNew =
-      'İlk adımın basit: bir kart, bir nefes, bir düşünce.';
-  static const homeSubtitleReturning =
-      'Kaldığın yerden devam edebilirsin.';
+  static String _t(String key) => OraclyL10n.t(key);
 
-  // Intention
-  static const intentionTitle = 'Bugün ne düşünüyorsun?';
-  static const intentionSubtitle =
-      'Bir konu seç — zorunlu değil, sadece odak için. '
-      'İstediğin zaman atlayabilirsin.';
+  static String get homeGreeting => _t('first.home_greeting');
+  static String get homeGuestName => _t('first.guest');
+  static String get homeSubtitleNew => _t('first.sub_new');
+  static String get homeSubtitleReturning => _t('first.sub_return');
+  static String get soulMateLater => _t('first.soulmate_later');
 
-  static const intentionTitleDefault = 'Odak için bir konu';
-  static const intentionSubtitleDefault =
-      'İstersen bir konu seç — zorunlu değil.';
-
-  // Shuffle
-  static const shuffleMessage = 'Kartlar karışıyor. Bir an nefes al.';
-  static const shuffleMessageDefault = 'Kartlar hazırlanıyor…';
-
-  // Card selection
-  static const cardSelectionTitle = 'İlk kartın.';
-  static const cardSelectionSubtitle =
-      'Sezgine güven — doğru ya da yanlış kart yok.';
-  static const cardSelectionTitleDefault = 'Seni çağıran kartı seç.';
-  static const cardSelectionSubtitleDefault = 'Sezgilerine güven.';
-
-  // Reveal → reading
-  static const revealContinue = 'Yorumuna geç';
-  static const revealContinueDefault = 'Yorumu Gör';
-
-  // Reading intro
-  static const introBreath = 'Bir an nefes al…';
-  static const introPreparingFirst =
-      'Bu bir kehanet değil — düşünmek için bir davet.';
-  static const introPreparingDefault =
-      'Yorumun sakin bir tempoda açılıyor.';
+  static String get intentionTitle => _t('first.intention_title');
+  static String get intentionSubtitle => _t('first.intention_sub');
+  static String get intentionTitleDefault => _t('first.intention_title_d');
+  static String get intentionSubtitleDefault => _t('first.intention_sub_d');
+  static String get shuffleMessage => _t('first.shuffle');
+  static String get shuffleMessageDefault => _t('first.shuffle_d');
+  static String get cardSelectionTitle => _t('first.card_title');
+  static String get cardSelectionSubtitle => _t('first.card_sub');
+  static String get cardSelectionTitleDefault => _t('first.card_title_d');
+  static String get cardSelectionSubtitleDefault => _t('first.card_sub_d');
+  static String get revealContinue => _t('first.reveal');
+  static String get revealContinueDefault => _t('first.reveal_d');
+  static String get introBreath => _t('first.breath');
+  static String get introPreparingFirst => _t('first.prep_first');
+  static String get introPreparingDefault => _t('first.prep_d');
 
   static String intentionTitleFor({required bool isFirstSession}) =>
       isFirstSession ? intentionTitle : intentionTitleDefault;

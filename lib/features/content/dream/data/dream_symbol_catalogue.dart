@@ -15,6 +15,17 @@ abstract final class DreamSymbolCatalogue {
     return null;
   }
 
+  static DreamSymbolContent? byToken(String token) {
+    final lower = token.toLowerCase();
+    for (final s in _symbols) {
+      if (s.token.toLowerCase() == lower ||
+          s.tokenTr.toLowerCase() == lower) {
+        return s;
+      }
+    }
+    return null;
+  }
+
   static List<DreamSymbolContent> byCategory(DreamSymbolCategory category) {
     return _symbols.where((s) => s.category == category).toList();
   }

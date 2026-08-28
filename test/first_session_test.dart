@@ -12,18 +12,31 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('OnboardingCopy', () {
-    test('uses three calm slides without premium pitch', () {
-      expect(OnboardingCopy.pages.length, 3);
+    test('uses one quiet intro without a premium pitch', () {
+      expect(OnboardingCopy.pages, hasLength(1));
+      expect(OnboardingCopy.title, 'ORACLY');
+      expect(
+        OnboardingCopy.tagline,
+        'Kendini farklı pencerelerden keşfet.',
+      );
       expect(
         OnboardingCopy.pages.any((p) => p.title.contains('Premium')),
         isFalse,
       );
-      expect(OnboardingCopy.startFirstReading, contains('kart'));
-    });
-
-    test('explains what ORACLY is not', () {
-      final last = OnboardingCopy.pages.last;
-      expect(last.subtitle.toLowerCase(), contains('kehanet değil'));
+      expect(
+        OnboardingCopy.startFirstReading.toLowerCase(),
+        isNot(contains('premium')),
+      );
+      expect(
+        OnboardingCopy.startFirstReading.toLowerCase(),
+        isNot(contains('kart')),
+      );
+      final intro =
+          '${OnboardingCopy.title} ${OnboardingCopy.tagline} '
+          '${OnboardingCopy.windows.join(' ')}';
+      expect(intro.toLowerCase(), isNot(contains('mücevher')));
+      expect(intro.toLowerCase(), isNot(contains('premium')));
+      expect(OnboardingCopy.meetLabel, isNot(OnboardingCopy.startFirstReading));
     });
   });
 
@@ -36,6 +49,10 @@ void main() {
       expect(
         FirstSessionCopy.introPreparingFor(isFirstSession: true),
         contains('kehanet değil'),
+      );
+      expect(
+        FirstSessionCopy.cardSelectionTitleFor(isFirstSession: true),
+        FirstSessionCopy.cardSelectionTitle,
       );
     });
 
@@ -57,10 +74,23 @@ void main() {
   });
 
   group('FirstSessionIntent', () {
-    test('consumes pending first reading once', () {
-      FirstSessionIntent.requestFirstReading();
-      expect(FirstSessionIntent.consumePendingFirstReading(), isTrue);
-      expect(FirstSessionIntent.consumePendingFirstReading(), isFalse);
+    test('persists pending first reading across restart', () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      await FirstSessionIntent.requestFirstReading(storage);
+      expect(FirstSessionIntent.isPending(storage), isTrue);
+
+      final restarted = LocalStorage(await SharedPreferences.getInstance());
+      expect(FirstSessionIntent.isPending(restarted), isTrue);
+      expect(
+        await FirstSessionIntent.consumePendingFirstReading(restarted),
+        isTrue,
+      );
+      expect(
+        await FirstSessionIntent.consumePendingFirstReading(restarted),
+        isFalse,
+      );
+      expect(FirstSessionIntent.isPending(restarted), isFalse);
     });
   });
 }

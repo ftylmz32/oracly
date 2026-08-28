@@ -2,12 +2,16 @@
 library;
 
 import 'dart:math' show cos, pi, sin;
-import 'dart:ui';
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../../../core/theme/oracly_soft_glow.dart';
+import '../../../motion/tarot_ambient_sync.dart';
+import '../../../motion/tarot_cinematic_motion.dart';
+import 'card_selection_candle.dart';
 import 'sacred_moment.dart';
 
 class CardSelectionAmbience extends StatefulWidget {
@@ -25,20 +29,33 @@ class CardSelectionAmbience extends StatefulWidget {
 }
 
 class _CardSelectionAmbienceState extends State<CardSelectionAmbience>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _motion;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _motion = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 14),
-    )..repeat();
+      duration: TarotCinematicMotion.ambient,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    tarotSyncAmbient(context, _motion);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    tarotSyncAmbient(context, _motion);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _motion.dispose();
     super.dispose();
   }
@@ -59,23 +76,24 @@ class _CardSelectionAmbienceState extends State<CardSelectionAmbience>
               alignment: Alignment.center,
               clipBehavior: Clip.none,
               children: [
+                CardSelectionCandle(
+                  phase: t * pi * 2,
+                  gather: gather,
+                  breathMotion: breathMotion,
+                ),
                 Transform.translate(
                   offset: Offset(
                     sin(t * pi * 2) * 8 * driftScale,
                     12 + cos(t * pi * 2) * 5 * driftScale,
                   ),
-                  child: ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 56, sigmaY: 56),
-                    child: Container(
-                      width: 260 + breathMotion * 14 - gather * 48,
-                      height: 160 + breathMotion * 10 - gather * 36,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: OraclySignaturePalette.purpleEnergySoft.withValues(
-                          alpha: (OraclySignatureMaterials.particleAlpha * 3 + breathMotion * 0.05) *
-                              (1 - gather * 0.55),
-                        ),
-                      ),
+                  child: OraclySoftGlow(
+                    width: 260 + breathMotion * 14 - gather * 48,
+                    height: 160 + breathMotion * 10 - gather * 36,
+                    sigma: 56,
+                    color: OraclySignaturePalette.purpleEnergySoft.withValues(
+                      alpha: (OraclySignatureMaterials.particleAlpha * 3 +
+                              breathMotion * 0.05) *
+                          (1 - gather * 0.55),
                     ),
                   ),
                 ),
@@ -181,7 +199,9 @@ class _BreathingGlowPainter extends CustomPainter {
           colors: [
             AppColors.purpleGlow.withValues(alpha: 0.20 * intensity + focus * 0.06),
             OraclySignaturePalette.champagne.withValues(
-              alpha: OraclySignatureMaterials.particleAlpha * intensity + focus * 0.03,
+              alpha: OraclySignatureMaterials.particleAlpha * intensity +
+                  focus * 0.03 +
+                  0.04 * intensity,
             ),
             AppColors.transparent,
           ],

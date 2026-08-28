@@ -26,10 +26,8 @@ class MockUserRepository implements UserRepository {
 
   static const _achievementDefs = [
     ('first_reading', 'İlk Açılım', 'İlk tarot açılımını tamamladın.', Icons.auto_fix_high_rounded),
-    ('streak_7', '7 Gün Seri', 'Ardışık 7 gün açılım yaptın.', Icons.local_fire_department_rounded),
     ('cards_100', '100 Kart', '100 kart keşfettin.', Icons.style_rounded),
     ('first_premium', 'İlk Premium', 'OR Premium ailesine katıldın.', Icons.workspace_premium_rounded),
-    ('tarot_master', 'Tarot Ustası', 'Tüm Major Arcana kartlarını inceledin.', Icons.auto_awesome_rounded),
   ];
 
   @override
@@ -52,6 +50,8 @@ class MockUserRepository implements UserRepository {
   @override
   Future<void> saveProfile(UserProfileModel profile) async {
     await _storage.setString(_nameKey, profile.name);
+    // Keep legacy MemoryService name key aligned — same device, one identity.
+    await _storage.setString('user_name', profile.name);
     await _storage.setString(_jobKey, profile.job);
     await _storage.setStringList(_interestsKey, profile.interests);
     await _storage.setStringList(_goalsKey, profile.goals);

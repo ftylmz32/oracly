@@ -69,7 +69,9 @@ class _DeckShuffleAnimationState extends State<DeckShuffleAnimation>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
-        final t = Curves.easeInOutCubic.transform(_controller.value);
+        final t = Curves.easeInOutCubic.transform(
+          _controller.value.clamp(0.0, 1.0),
+        );
         final glow = 0.12 + sin(t * pi * 3) * 0.06;
         return Stack(
           alignment: Alignment.center,

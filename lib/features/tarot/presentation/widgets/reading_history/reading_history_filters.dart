@@ -34,7 +34,7 @@ class ReadingHistoryFilters extends StatelessWidget {
           final filter = HistorySpreadFilter.values[index];
           final active = filter == selected;
           return _FilterChip(
-            label: filter.label,
+            label: filter.displayLabel,
             active: active,
             onTap: () => onSelected(filter),
           );

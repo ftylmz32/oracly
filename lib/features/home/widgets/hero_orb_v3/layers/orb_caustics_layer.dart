@@ -1,4 +1,4 @@
-/// OR-400 — Internal caustics + golden optical pools.
+/// OR-400 / EPIC-013 — Internal caustics + golden optical pools.
 library;
 
 import 'dart:ui' as ui;
@@ -6,14 +6,19 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../orb_animation.dart';
 import '../orb_constants.dart';
 import '../orb_render_context.dart';
 
 /// Caustic light pools reinforcing optical depth and golden illumination.
 class OrbCausticsPainter extends CustomPainter {
-  const OrbCausticsPainter({required this.context});
+  const OrbCausticsPainter({
+    required this.context,
+    this.rotationAngle = 0,
+  });
 
   final OrbRenderContext context;
+  final double rotationAngle;
 
   static const List<(double u, double v, double scale, double alpha)> _lobes = [
     (0.12, 0.18, 0.14, 0.12),
@@ -30,6 +35,9 @@ class OrbCausticsPainter extends CustomPainter {
 
     canvas.save();
     canvas.clipPath(context.sphereClip());
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotationAngle);
+    canvas.translate(-center.dx, -center.dy);
 
     for (final (u, v, scale, alpha) in _lobes) {
       final lobeCenter = center + Offset(u * radius, v * radius);
@@ -75,30 +83,40 @@ class OrbCausticsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant OrbCausticsPainter oldDelegate) => false;
+  bool shouldRepaint(covariant OrbCausticsPainter oldDelegate) {
+    return (oldDelegate.rotationAngle - rotationAngle).abs() > 0.001;
+  }
 }
 
 class OrbCausticsLayer extends StatelessWidget {
   const OrbCausticsLayer({
     super.key,
+    required this.motion,
     required this.layoutSize,
     required this.canvasSize,
   });
 
+  final OrbAnimationBundle motion;
   final double layoutSize;
   final double canvasSize;
 
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: CustomPaint(
-        painter: OrbCausticsPainter(
-          context: OrbRenderContext.static(
-            layoutSize: layoutSize,
-            canvasSize: canvasSize,
-          ),
-        ),
-        size: Size.square(canvasSize),
+      child: AnimatedBuilder(
+        animation: motion.internalEnergy,
+        builder: (context, _) {
+          return CustomPaint(
+            painter: OrbCausticsPainter(
+              context: OrbRenderContext.static(
+                layoutSize: layoutSize,
+                canvasSize: canvasSize,
+              ),
+              rotationAngle: motion.internalEnergyAngle,
+            ),
+            size: Size.square(canvasSize),
+          );
+        },
       ),
     );
   }

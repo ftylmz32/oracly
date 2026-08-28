@@ -2,6 +2,7 @@
 library;
 
 import '../../features/tarot/domain/models/reading_session.dart';
+import '../../features/tarot/history/tarot_history_privacy.dart';
 import '../../features/tarot/services/ritual_journal_enricher.dart';
 import '../domain/models/ritual_journal_metadata.dart';
 import '../domain/models/reading.dart';
@@ -24,6 +25,7 @@ class ReadingService {
     String deckId = 'rider-waite',
     List<ReadingCardSnapshot> cards = const [],
     String? intention,
+    String? readingType,
     int? shuffleSeed,
     int? durationMs,
     String? sessionId,
@@ -48,6 +50,7 @@ class ReadingService {
       deckId: deckId,
       cards: cards,
       intention: intention,
+      readingType: readingType ?? intention,
       shuffleSeed: shuffleSeed,
       durationMs: durationMs,
       sessionId: sessionId,
@@ -67,6 +70,7 @@ class ReadingService {
   }) async {
     if (session.drawnCards.isEmpty) return null;
     final primary = session.drawnCards.first;
+    final question = TarotHistoryPrivacy.questionSummary(session.intention.text);
     return saveReading(
       cardIndex: primary.positionIndex,
       cardId: primary.card.id,
@@ -79,14 +83,18 @@ class ReadingService {
       deckId: session.deckId,
       sessionId: session.id,
       userId: session.userId,
-      intention: session.intention.text,
+      intention: question,
+      readingType: TarotHistoryPrivacy.persistTopic(
+        session.intention.topic,
+        session.intention.text,
+      ),
       shuffleSeed: session.shuffleSeed,
       durationMs: session.durationMs,
       journal: RitualJournalEnricher.enrich(
         aiSummary: aiSummary,
         cardName: primary.card.name,
         existingNote: existingNote,
-        intention: session.intention.text,
+        intention: question,
       ),
       cards: session.drawnCards
           .map(

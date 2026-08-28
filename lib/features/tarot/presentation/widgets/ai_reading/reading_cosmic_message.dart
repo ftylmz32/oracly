@@ -5,7 +5,7 @@ import 'dart:math' show pi, sin;
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/copy/reading_section_copy.dart';
+import '../../../../../core/copy/session_ending_copy.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -105,7 +105,7 @@ class _ReadingCosmicMessageState extends State<ReadingCosmicMessage>
                     ),
                     SizedBox(height: AppSpacing.sm),
                     Text(
-                      ReadingSectionCopy.closing,
+                      SessionEndingCopy.lastingReflectionTitle,
                       style: ReadingTypography.sectionLabel(
                         color: AppColors.goldLight.withValues(alpha: 0.82),
                       ),

@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_shadows.dart';
@@ -50,12 +51,12 @@ class ReadingHistorySummary extends StatelessWidget {
               ),
             ),
             child: Padding(
-              padding: AppSpacing.card,
+              padding: EdgeInsets.all(AppSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Kişisel Arşiv',
+                    OraclyL10n.t('tarot.history.personal_archive'),
                     style: AppTextStyles.labelLarge.copyWith(
                       color: AppColors.goldLight.withValues(alpha: 0.82),
                       letterSpacing: 0.8,
@@ -64,41 +65,44 @@ class ReadingHistorySummary extends StatelessWidget {
                   if (stats.journeyBeginLabel != null) ...[
                     SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Yolculuğun ${stats.journeyBeginLabel}’den beri burada.',
+                      OraclyL10n.t('tarot.history.journey_since').replaceAll(
+                        '{date}',
+                        stats.journeyBeginLabel!,
+                      ),
                       style: ReadingTypography.bodySmall(),
                     ),
                   ],
-                  SizedBox(height: AppSpacing.md),
+                  SizedBox(height: AppSpacing.sm),
                   Row(
                     children: [
                       Expanded(
                         child: _MemoryTile(
-                          label: 'Kayıtlı An',
+                          label: OraclyL10n.t('tarot.history.recorded_moment'),
                           value: '${stats.totalReadings}',
                         ),
                       ),
                       SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: _MemoryTile(
-                          label: 'Bu Ay',
+                          label: OraclyL10n.t('tarot.history.this_month'),
                           value: '${stats.thisMonth}',
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: AppSpacing.md),
+                  SizedBox(height: AppSpacing.sm),
                   Row(
                     children: [
                       Expanded(
                         child: _MemoryTile(
-                          label: 'Yazılmış Düşünce',
+                          label: OraclyL10n.t('tarot.hist.notes'),
                           value: '${stats.notesWritten}',
                         ),
                       ),
                       SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: _MemoryTile(
-                          label: 'Hatıralar',
+                          label: OraclyL10n.t('tarot.hist.memories'),
                           value: '${stats.favoritedMemories}',
                         ),
                       ),
@@ -107,8 +111,8 @@ class ReadingHistorySummary extends StatelessWidget {
                   if (stats.recurringCards > 0) ...[
                     SizedBox(height: AppSpacing.lg),
                     Text(
-                      '${stats.recurringCards} kart yolculuğunda tekrar belirdi — '
-                      'kendi ritmin sessizce oluşuyor olabilir.',
+                      OraclyL10n.t('tarot.hist.recurring')
+                          .replaceAll('{n}', '${stats.recurringCards}'),
                       style: ReadingTypography.reflection(
                         color: AppColors.goldLight.withValues(alpha: 0.68),
                       ),
@@ -145,7 +149,7 @@ class _MemoryTile extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.all(AppSpacing.sm + 2),
+        padding: EdgeInsets.all(AppSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

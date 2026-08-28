@@ -11,6 +11,7 @@ import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/reading_typography.dart';
 import '../../../../../shared/widgets/oracly_pressable.dart';
+import '../../../art/tarot_major_card_art.dart';
 import 'reading_history_data.dart';
 import 'reading_journal_keyword_chips.dart';
 
@@ -77,20 +78,21 @@ class _ReadingHistoryListCardState extends State<ReadingHistoryListCard> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.surfaceElevated.withValues(alpha: 0.95),
-                          AppColors.surface.withValues(alpha: 0.88),
+                          const Color(0xFF120B1C).withValues(alpha: 0.96),
+                          AppColors.surface.withValues(alpha: 0.82),
+                          const Color(0xFF070510).withValues(alpha: 0.94),
                         ],
                       ),
                       borderRadius: AppRadius.lg,
                       border: Border.all(
                         color: AppColors.gold.withValues(
-                          alpha: active ? 0.48 : 0.26,
+                          alpha: active ? 0.42 : 0.18,
                         ),
                         width: AppBorderWidth.hairline,
                       ),
                     ),
                     child: Padding(
-                        padding: AppSpacing.card,
+                        padding: EdgeInsets.all(AppSpacing.md),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -143,7 +145,7 @@ class _ReadingHistoryListCardState extends State<ReadingHistoryListCard> {
                                   ),
                                   SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    widget.entry.spreadType,
+                                    widget.entry.typeLabel,
                                     style: AppTextStyles.labelMedium.copyWith(
                                       color: AppColors.purpleLight,
                                       fontWeight: FontWeight.w600,
@@ -210,8 +212,8 @@ class _Thumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 56,
-      height: 84,
+      width: 48,
+      height: 72,
       decoration: BoxDecoration(
         borderRadius: AppRadius.sm,
         border: Border.all(
@@ -227,10 +229,10 @@ class _Thumbnail extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: AppRadius.sm,
-        child: Image.asset(
-          imageAsset,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => ColoredBox(
+        child: TarotMajorCardArt(
+          imageAsset: imageAsset,
+          showChrome: false,
+          fallback: ColoredBox(
             color: AppColors.purpleDark,
             child: Icon(
               Icons.style_rounded,
@@ -249,5 +251,7 @@ double historyCardEntrance(int index, double master) {
   final end = start + 0.32;
   if (master <= start) return 0;
   if (master >= end) return 1;
-  return Curves.easeOutCubic.transform((master - start) / (end - start));
+  return Curves.easeOutCubic.transform(
+    ((master - start) / (end - start)).clamp(0.0, 1.0),
+  );
 }

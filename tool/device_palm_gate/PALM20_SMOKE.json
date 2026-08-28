@@ -1,0 +1,13 @@
+{
+  "reached_palm": true,
+  "capability_note": true,
+  "has_hand_choice": true,
+  "has_camera": true,
+  "has_gallery": true,
+  "entry_blob": "Geri || EL FALI || Mücevherler, 20 / 20 || Elindeki çizgilerin anlattığı hikâyeyi keşfet. || EL FALI || Mümkünse hangi eli çektiğini seç. || SOL EL || SOL EL || SAĞ EL || SAĞ EL || Avucunun tamamını kadraja al. || El yorumu için OR bağlantısı gerekir. || FOTOĞRAF ÇEK / FOTOĞRAF ÇEK || GALERİDEN SEÇ / GALERİDEN SEÇ || Ana Sayfa || Kahve || Astroloji || Yıldızname || Profil",
+  "after": "Geri || EL FALI || Mücevherler, 20 / 20 || El fotoğrafı seç || Mümkünse hangi eli çektiğini seç. || SOL EL || SOL EL || SAĞ EL || SAĞ EL || Avucunun tamamını kadraja al. || Tam el · Parmaklar açık · Avuç görünür · Yumuşak ışık || Kamera izni reddedildi. Şimdi değilse galeriden seçebilirsin. || FOTOĞRAF ÇEK / FOTOĞRAF ÇEK || GALERİDEN SEÇ / GALERİDEN SEÇ || Ana Sayfa || Kahve || Astroloji || Yıldız",
+  "fatal": false,
+  "overflow": false,
+  "DEVICE_VERIFICATION": "PARTIAL_ENTRY_ONLY",
+  "provider_stage": "BLOCKED"
+}

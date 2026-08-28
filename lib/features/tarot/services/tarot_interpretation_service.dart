@@ -1,9 +1,15 @@
 /// OR-1180 — Tarot interpretation facade (UI-compatible).
 library;
 
+import 'dart:ui' show Color;
+
 import 'package:flutter/foundation.dart';
 
 import '../../../core/copy/resilience_copy.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/reading/ai_output_quality_logger.dart';
+import '../../../core/reading/ai_output_quality_tarot.dart';
+import '../copy/tarot_l10n.dart';
 import '../domain/models/reading_session.dart';
 import '../../insights/models/journey_personalization_hints.dart';
 import '../interpretation/formatters/interpretation_formatter.dart';
@@ -16,6 +22,8 @@ import '../interpretation/services/interpretation_engine.dart';
 import '../interpretation/cache/interpretation_cache.dart';
 import '../interpretation/executors/local_interpretation_executor.dart';
 import '../../../core/copy/session_ending_copy.dart';
+import '../../../core/safety/sensitive_topic_gate.dart';
+import '../../content/tarot/data/tarot_card_gloss.dart';
 import '../../insights/services/reflective_intelligence.dart';
 import '../presentation/widgets/ai_reading/ai_reading_content.dart';
 import '../presentation/widgets/card_reveal/card_reveal_spread.dart';
@@ -37,24 +45,29 @@ class TarotInterpretationService {
 
   Future<AiReadingContent> generateContent(
     ReadingSession session, {
-    String language = 'tr',
+    String? language,
     bool forceRefresh = false,
     JourneyPersonalizationHints? journeyHints,
   }) async {
-    var context = ReadingContext.fromSession(session, language: language);
+    var context = ReadingContext.fromSession(
+      session,
+      language: language ?? OraclyL10n.code,
+    );
     if (journeyHints != null && !journeyHints.isEmpty) {
       context = context.withJourneyHints(journeyHints);
     }
 
     if (context.cards.isEmpty) {
-      debugPrint(
-        '[TarotInterpretation] Session ${session.id} has no drawn cards.',
+      throw InterpretationException(
+        type: InterpretationFailureType.emptyResponse,
+        message: TarotL10n.fallbackCards,
+        retryable: false,
       );
-      return emergencyFallback(
-        session,
-        reason:
-            'Kart verisi bulunamadı. Açılım kart anlamlarıyla gösteriliyor.',
-      );
+    }
+
+    final safety = SensitiveTopicGate.maybeRespond(session.intention.text);
+    if (safety != null) {
+      return emergencyFallback(session, reason: safety);
     }
 
     try {
@@ -62,17 +75,37 @@ class TarotInterpretationService {
         context: context,
         forceRefresh: forceRefresh,
       );
-      final guarded = ReflectiveIntelligence.guard(result);
+      var guarded = ReflectiveIntelligence.guard(result);
+      if (!AiOutputQualityTarot.passes(guarded) && !forceRefresh) {
+        final category = AiOutputQualityTarot.firstFailure(guarded);
+        if (category != null) {
+          AiOutputQualityLogger.logFailure(
+            operationId: 'tarot.interpret',
+            category: category,
+            attempt: 1,
+          );
+        }
+        final retry = await _engine.interpret(
+          context: context,
+          forceRefresh: true,
+        );
+        guarded = ReflectiveIntelligence.guard(retry);
+      }
+      if (!AiOutputQualityTarot.passes(guarded)) {
+        return _synthesizeLocalFallback(session, context, cause: 'quality');
+      }
       return _formatter.toUiContent(result: guarded, session: session);
-    } on InterpretationException catch (error, stackTrace) {
-      debugPrint(
-        '[TarotInterpretation] Primary interpret failed: $error\n$stackTrace',
-      );
+    } on InterpretationException catch (error) {
+      assert(() {
+        debugPrint('[TarotInterpretation] Primary interpret failed');
+        return true;
+      }());
       return _retryOrFallback(session, context, error);
-    } catch (error, stackTrace) {
-      debugPrint(
-        '[TarotInterpretation] Unexpected interpret error: $error\n$stackTrace',
-      );
+    } catch (error) {
+      assert(() {
+        debugPrint('[TarotInterpretation] Unexpected interpret error');
+        return true;
+      }());
       return _retryOrFallback(session, context, error);
     }
   }
@@ -91,10 +124,11 @@ class TarotInterpretationService {
         result: ReflectiveIntelligence.guard(result),
         session: session,
       );
-    } catch (retryError, retryStack) {
-      debugPrint(
-        '[TarotInterpretation] Force-refresh retry failed: $retryError\n$retryStack',
-      );
+    } catch (_) {
+      assert(() {
+        debugPrint('[TarotInterpretation] Force-refresh retry failed');
+        return true;
+      }());
       return _synthesizeLocalFallback(session, context, cause: error);
     }
   }
@@ -114,18 +148,20 @@ class TarotInterpretationService {
           forceRefresh: true,
         ),
       );
-      debugPrint(
-        '[TarotInterpretation] Using local synthesis fallback after: $cause',
-      );
+      assert(() {
+        debugPrint('[TarotInterpretation] Using local synthesis fallback');
+        return true;
+      }());
       return _formatter.toUiContent(result: result, session: session);
-    } catch (fallbackError, fallbackStack) {
-      debugPrint(
-        '[TarotInterpretation] Local synthesis fallback failed: '
-        '$fallbackError\n$fallbackStack',
-      );
-      return emergencyFallback(
-        session,
-        reason: ResilienceCopy.interpretationFailed,
+    } catch (_) {
+      assert(() {
+        debugPrint('[TarotInterpretation] Local synthesis fallback failed');
+        return true;
+      }());
+      throw InterpretationException(
+        type: InterpretationFailureType.retry,
+        message: ResilienceCopy.interpretationFailed,
+        cause: cause,
       );
     }
   }
@@ -137,7 +173,7 @@ class TarotInterpretationService {
   }) {
     if (session.drawnCards.isEmpty) {
       return AiReadingContent(
-        cardName: session.spread.label,
+        cardName: TarotL10n.spread(session.spread),
         tagline: reason,
         generalMeaning: reason,
         love: reason,
@@ -147,10 +183,10 @@ class TarotInterpretationService {
         luckyEnergy: reason,
         dailyAdvice: reason,
         closingMessage: SessionEndingCopy.closingFallback,
-        imageAsset: CardRevealSpread.forIndex(0).imageAsset,
-        rarityColor: CardRevealSpread.forIndex(0).rarityColor,
+        imageAsset: '',
+        rarityColor: const Color(0x00000000),
         fullInterpretation: reason,
-        spreadLabel: session.spread.label,
+        spreadLabel: TarotL10n.spread(session.spread),
       );
     }
 
@@ -158,35 +194,52 @@ class TarotInterpretationService {
     final reveal = RevealCardData.fromDrawnCard(drawn);
     final meaning = drawn.effectiveMeaning.trim();
     final body = meaning.isNotEmpty ? meaning : reason;
+    final cardReadings = session.drawnCards.map((d) {
+      final named = TarotCardGloss.named(d.localizedName, d.card.id);
+      final ori = TarotL10n.orientation(reversed: d.isReversed);
+      final pos = d.localizedPosition;
+      final text = d.effectiveMeaning.trim().isEmpty
+          ? reason
+          : d.effectiveMeaning.trim();
+      return '$pos · $named · $ori\n$text';
+    }).join('\n\n');
 
     return AiReadingContent(
       cardName: session.drawnCards.length == 1
-          ? drawn.card.name
-          : '${session.spread.label} Açılımı',
+          ? drawn.localizedName
+          : TarotL10n.spreadReadingTitle(session.spread),
       tagline: reveal.subtitle,
       generalMeaning: body,
       love: body,
       career: body,
       money: body,
       spiritualGuidance: body,
-      luckyEnergy: drawn.card.keywords.take(3).join(' · '),
+      luckyEnergy: drawn.localizedName,
       dailyAdvice: reason,
       closingMessage: SessionEndingCopy.closingFallback,
       imageAsset: reveal.imageAsset,
       rarityColor: reveal.rarityColor,
       fullInterpretation: body,
       drawnCards: session.drawnCards,
-      spreadLabel: session.spread.label,
+      spreadLabel: TarotL10n.spread(session.spread),
+      cardReadings: cardReadings,
+      readingTheme: session.intention.topic,
+      userQuestion: session.intention.text.trim().isEmpty
+          ? null
+          : session.intention.text.trim(),
     );
   }
 
   Future<InterpretationResult> generateResult(
     ReadingSession session, {
-    String language = 'tr',
+    String? language,
     bool forceRefresh = false,
     JourneyPersonalizationHints? journeyHints,
   }) {
-    var context = ReadingContext.fromSession(session, language: language);
+    var context = ReadingContext.fromSession(
+      session,
+      language: language ?? OraclyL10n.code,
+    );
     if (journeyHints != null && !journeyHints.isEmpty) {
       context = context.withJourneyHints(journeyHints);
     }
@@ -202,10 +255,13 @@ class TarotInterpretationService {
 
   Stream<InterpretationStreamEvent> generateStream(
     ReadingSession session, {
-    String language = 'tr',
+    String? language,
     bool forceRefresh = false,
   }) {
-    final context = ReadingContext.fromSession(session, language: language);
+    final context = ReadingContext.fromSession(
+      session,
+      language: language ?? OraclyL10n.code,
+    );
     return _engine.interpretStream(
       context: context,
       forceRefresh: forceRefresh,

@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/copy/resilience_copy.dart';
+import '../../../core/security/ai_error_sanitizer.dart';
 import '../models/reflection_summary.dart';
 import '../services/personal_insights_experience_service.dart';
 
@@ -54,7 +56,10 @@ class PersonalInsightsController extends ChangeNotifier {
     } catch (e) {
       _state = _state.copyWith(
         phase: PersonalInsightsPhase.error,
-        error: e.toString(),
+        error: AiErrorSanitizer.publicMessage(
+          error: e,
+          fallback: ResilienceCopy.genericLoadFailed,
+        ),
       );
     }
     notifyListeners();

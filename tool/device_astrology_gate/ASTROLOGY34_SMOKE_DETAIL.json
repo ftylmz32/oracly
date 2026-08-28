@@ -1,0 +1,11 @@
+{
+  "DEVICE_VERIFICATION": "PARTIAL",
+  "scrolled_hub_has_signs": true,
+  "browsed_sign": true,
+  "opened_detail": true,
+  "detail_sample": "Gökyüzünün bugünkü önerisi / GÖKYÜZÜNÜN BUGÜNKÜ ÖNERISI || Geri || Mücevherler, 20 / 20 || Bu bir yansıma, hüküm değil. Güneş burcunun bugünkü ritminden okunuyor. || Boğa || 20 Nisan – 20 Mayıs || GÜNÜN TEMASI || Boğa: bugünkü gökyüzü okuması ritmine bakıyor — acele bir hüküm yok. || SANA ÖZEL || Boğa gökyüzünde emek g",
+  "or_tapped": false,
+  "or_sample": "Gökyüzünün bugünkü önerisi / GÖKYÜZÜNÜN BUGÜNKÜ ÖNERISI || Geri || Mücevherler, 20 / 20 || Bu bir yansıma, hüküm değil. Güneş burcunun bugünkü ritminden okunuyor. || Boğa || 20 Nisan – 20 Mayıs || GÜNÜN TEMASI || Boğa: bugünkü gökyüzü okuması ritmine bakıyor — acele bir hüküm yok. || SANA ÖZEL || Boğa gökyüzünde emek g",
+  "crash_or_overflow_log": false,
+  "installed_apk_honesty_note": "Hub lead still shows legacy sky copy until redeploy."
+}

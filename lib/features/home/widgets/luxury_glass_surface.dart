@@ -1,15 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_decorations.dart';
-import '../../../core/theme/app_shadows.dart';
-import '../../../core/theme/oracly_brand_signature.dart';
-import '../../../shared/widgets/oracly_pressable.dart';
+import '../../../core/design_system/premium_cards/premium_card_tokens.dart';
+import '../../../core/design_system/premium_cards/premium_glass_card.dart';
 
-/// Premium glass surface — ORACLY Design System V1.
-class LuxuryGlassSurface extends StatefulWidget {
+/// Premium glass surface — delegates to [PremiumGlassCard].
+class LuxuryGlassSurface extends StatelessWidget {
   const LuxuryGlassSurface({
     super.key,
     required this.child,
@@ -21,48 +16,22 @@ class LuxuryGlassSurface extends StatefulWidget {
   });
 
   final Widget child;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsets padding;
   final double radius;
   final double? height;
   final bool elevated;
   final VoidCallback? onTap;
 
   @override
-  State<LuxuryGlassSurface> createState() => _LuxuryGlassSurfaceState();
-}
-
-class _LuxuryGlassSurfaceState extends State<LuxuryGlassSurface> {
-  @override
   Widget build(BuildContext context) {
-    final surface = Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(widget.radius),
-        boxShadow: widget.elevated ? AppShadows.card : AppShadows.soft,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(widget.radius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-          child: Container(
-            height: widget.height,
-            padding: widget.padding,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(widget.radius),
-              gradient: AppGradients.glass,
-              border: Border.all(color: AppColors.glassBorder, width: 0.8),
-            ),
-            child: widget.child,
-          ),
-        ),
-      ),
-    );
-
-    if (widget.onTap == null) return surface;
-
-    return OraclyPressable(
-      onTap: widget.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: surface,
+    return PremiumGlassCard(
+      padding: padding,
+      onTap: onTap,
+      height: height,
+      borderRadius: BorderRadius.circular(radius),
+      tier: elevated ? PremiumCardTier.featured : PremiumCardTier.standard,
+      glow: elevated ? PremiumCardGlow.large : PremiumCardGlow.medium,
+      child: child,
     );
   }
 }

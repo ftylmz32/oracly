@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/design_system/premium_button.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_decorations.dart';
 import '../../core/theme/app_radius.dart';
@@ -29,8 +30,8 @@ enum OraclyButtonSize {
 
 /// Material 3–aligned premium call-to-action button.
 ///
-/// Built with [Container] + [InkWell]; no Material button widgets.
-class OraclyButton extends StatefulWidget {
+/// Delegates standard variants to [PremiumButton]; keeps [danger] locally.
+class OraclyButton extends StatelessWidget {
   const OraclyButton({
     super.key,
     required this.text,
@@ -52,27 +53,90 @@ class OraclyButton extends StatefulWidget {
   final OraclyButtonType type;
   final OraclyButtonSize size;
 
+  PremiumButtonVariant? get _premiumVariant => switch (type) {
+        OraclyButtonType.primary => PremiumButtonVariant.primary,
+        OraclyButtonType.secondary => PremiumButtonVariant.secondary,
+        OraclyButtonType.ghost => PremiumButtonVariant.ghost,
+        OraclyButtonType.danger => null,
+      };
+
+  PremiumButtonSize get _premiumSize => switch (size) {
+        OraclyButtonSize.small => PremiumButtonSize.small,
+        OraclyButtonSize.medium => PremiumButtonSize.medium,
+        OraclyButtonSize.large => PremiumButtonSize.large,
+      };
+
   @override
-  State<OraclyButton> createState() => _OraclyButtonState();
+  Widget build(BuildContext context) {
+    final variant = _premiumVariant;
+    if (variant != null) {
+      return PremiumButton(
+        label: text,
+        onPressed: onPressed,
+        icon: icon,
+        isLoading: isLoading,
+        isExpanded: isExpanded,
+        enabled: enabled,
+        variant: variant,
+        size: _premiumSize,
+      );
+    }
+
+    return _DangerButton(
+      text: text,
+      onPressed: onPressed,
+      icon: icon,
+      isLoading: isLoading,
+      isExpanded: isExpanded,
+      enabled: enabled,
+      size: size,
+    );
+  }
 }
 
-class _OraclyButtonState extends State<OraclyButton> {
+class _DangerButton extends StatefulWidget {
+  const _DangerButton({
+    required this.text,
+    required this.onPressed,
+    required this.icon,
+    required this.isLoading,
+    required this.isExpanded,
+    required this.enabled,
+    required this.size,
+  });
+
+  final String text;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool isLoading;
+  final bool isExpanded;
+  final bool enabled;
+  final OraclyButtonSize size;
+
+  @override
+  State<_DangerButton> createState() => _DangerButtonState();
+}
+
+class _DangerButtonState extends State<_DangerButton> {
   bool get _isInteractive =>
       widget.enabled && !widget.isLoading && widget.onPressed != null;
 
   @override
   Widget build(BuildContext context) {
-    final metrics = _OraclyButtonState.forSize(widget.size);
-    final decoration = _OraclyButtonState._decorationFor(widget.type, _isInteractive);
-    final foreground = _OraclyButtonState._foregroundFor(widget.type, _isInteractive);
+    final metrics = _metricsFor(widget.size);
 
     final button = OraclyPressable(
       enabled: _isInteractive,
       onTap: widget.onPressed,
       behavior: HitTestBehavior.opaque,
+      borderRadius: AppRadius.lg,
       child: Container(
         width: widget.isExpanded ? double.infinity : null,
-        decoration: decoration,
+        decoration: BoxDecoration(
+          color: AppColors.error,
+          borderRadius: AppRadius.lg,
+          boxShadow: _isInteractive ? AppShadows.soft : null,
+        ),
         child: Padding(
           padding: metrics.padding,
           child: Center(
@@ -84,7 +148,9 @@ class _OraclyButtonState extends State<OraclyButton> {
                 : _ButtonContent(
                     text: widget.text,
                     icon: widget.icon,
-                    foreground: foreground,
+                    foreground: _isInteractive
+                        ? AppColors.textPrimary
+                        : AppColors.textHint,
                     iconSize: metrics.iconSize,
                   ),
           ),
@@ -93,52 +159,10 @@ class _OraclyButtonState extends State<OraclyButton> {
     );
 
     if (_isInteractive) return button;
-
-    return Opacity(opacity: _DisabledOpacity.surface, child: button);
+    return Opacity(opacity: 0.55, child: button);
   }
 
-  static BoxDecoration _decorationFor(
-    OraclyButtonType type,
-    bool isInteractive,
-  ) {
-    return switch (type) {
-      OraclyButtonType.primary => BoxDecoration(
-          gradient: AppGradients.goldBorder,
-          borderRadius: AppRadius.lg,
-          boxShadow: isInteractive ? AppShadows.goldGlow : null,
-        ),
-      OraclyButtonType.secondary => AppDecorations.mattePanel(
-          borderRadius: AppRadius.lg,
-        ),
-      OraclyButtonType.ghost => BoxDecoration(
-          color: AppColors.transparent,
-          borderRadius: AppRadius.lg,
-          border: Border.all(
-            color: AppColors.border,
-            width: AppBorderWidth.thin,
-          ),
-        ),
-      OraclyButtonType.danger => BoxDecoration(
-          color: AppColors.error,
-          borderRadius: AppRadius.lg,
-          boxShadow: isInteractive ? AppShadows.soft : null,
-        ),
-    };
-  }
-
-  static Color _foregroundFor(OraclyButtonType type, bool isInteractive) {
-    final color = switch (type) {
-      OraclyButtonType.primary => AppColors.background,
-      OraclyButtonType.secondary => AppColors.goldLight,
-      OraclyButtonType.ghost => AppColors.goldLight,
-      OraclyButtonType.danger => AppColors.textPrimary,
-    };
-
-    if (isInteractive) return color;
-    return AppColors.textHint;
-  }
-
-  static _OraclyButtonMetrics forSize(OraclyButtonSize size) {
+  static _OraclyButtonMetrics _metricsFor(OraclyButtonSize size) {
     return switch (size) {
       OraclyButtonSize.small => _OraclyButtonMetrics(
           padding: EdgeInsets.symmetric(
@@ -213,10 +237,4 @@ class _ButtonContent extends StatelessWidget {
       ],
     );
   }
-}
-
-abstract final class _DisabledOpacity {
-  _DisabledOpacity._();
-
-  static const double surface = 0.55;
 }

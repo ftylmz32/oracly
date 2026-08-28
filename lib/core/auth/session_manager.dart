@@ -47,15 +47,18 @@ class InMemorySessionManager implements SessionManager {
 
   @override
   Future<bool> restoreSession() async {
+    if (!await _tokenManager.hasValidAccessToken()) return false;
     final access = await _tokenManager.getAccessToken();
+    if (access == null || access.isEmpty || access.startsWith('mock_')) {
+      return false;
+    }
     final refresh = await _tokenManager.getRefreshToken();
-    if (access == null || refresh == null) return false;
 
     _session = AuthSession(
       userId: 'restored',
       provider: AuthProviderKind.guest,
       accessToken: access,
-      refreshToken: refresh,
+      refreshToken: refresh ?? '',
       expiresAt: DateTime.now().add(const Duration(hours: 1)),
       isGuest: true,
     );

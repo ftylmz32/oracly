@@ -54,6 +54,7 @@ class ReadingModel {
     this.deckId = 'rider-waite',
     this.cards = const [],
     this.intention,
+    this.readingType,
     this.shuffleSeed,
     this.durationMs,
     this.sessionId,
@@ -72,6 +73,7 @@ class ReadingModel {
   final String deckId;
   final List<ReadingCardSnapshot> cards;
   final String? intention;
+  final String? readingType;
   final int? shuffleSeed;
   final int? durationMs;
   final String? sessionId;
@@ -99,6 +101,7 @@ class ReadingModel {
       deckId: deckId,
       cards: cards,
       intention: intention,
+      readingType: readingType,
       shuffleSeed: shuffleSeed,
       durationMs: durationMs,
       sessionId: sessionId,
@@ -119,6 +122,7 @@ class ReadingModel {
         'deckId': deckId,
         'cards': cards.map((c) => c.toJson()).toList(),
         'intention': intention,
+        'readingType': readingType,
         'shuffleSeed': shuffleSeed,
         'durationMs': durationMs,
         'sessionId': sessionId,
@@ -142,6 +146,7 @@ class ReadingModel {
           .map((e) => ReadingCardSnapshot.fromJson(e as Map<String, dynamic>))
           .toList(),
       intention: json['intention'] as String?,
+      readingType: json['readingType'] as String? ?? json['intention'] as String?,
       shuffleSeed: json['shuffleSeed'] as int?,
       durationMs: json['durationMs'] as int?,
       sessionId: json['sessionId'] as String?,

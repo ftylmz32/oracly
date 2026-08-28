@@ -3,11 +3,11 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/design_system/hero_art/hero_art.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/reading_typography.dart';
-import '../../../tarot/components/tarot_crystal_orb.dart';
 import '../../models/premium_models.dart';
 
 class PremiumHeroSection extends StatelessWidget {
@@ -27,10 +27,13 @@ class PremiumHeroSection extends StatelessWidget {
         offset: Offset(0, slide),
         child: Column(
           children: [
-            SizedBox(
-              height: 200,
-              child: Center(
-                child: TarotCrystalOrb(size: AppSpacing.xxl * 3 + AppSpacing.lg),
+            HeroArtViewport(
+              fraction: HeroArtTokens.viewportFractionCompact,
+              child: HeroPremium(
+                size: heroArtSizeForContext(
+                  context,
+                  fraction: HeroArtTokens.viewportFractionCompact,
+                ),
               ),
             ),
             SizedBox(height: AppSpacing.lg),

@@ -3,9 +3,15 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/domain/models/reading.dart';
 import '../../../tarot/domain/models/reading_session.dart';
+import '../../../tarot/history/tarot_history_privacy.dart';
 import '../../../tarot/interpretation/models/interpretation_result.dart';
 import '../../../tarot/presentation/widgets/ai_reading/ai_reading_content.dart';
+import '../services/oracle_reading_context_text.dart';
+import 'oracle_reading_kind.dart';
+
+export 'oracle_reading_kind.dart';
 
 @immutable
 class OracleReadingContext {
@@ -20,6 +26,9 @@ class OracleReadingContext {
     this.userQuestion,
     this.fullInterpretation,
     this.cardNames = const [],
+    this.cardIds = const [],
+    this.kind = OracleReadingKind.tarot,
+    this.sourceLabel = '',
   });
 
   final String sessionId;
@@ -32,20 +41,19 @@ class OracleReadingContext {
   final String? userQuestion;
   final String? fullInterpretation;
   final List<String> cardNames;
+  final List<int> cardIds;
+  final OracleReadingKind kind;
+  final String sourceLabel;
 
   factory OracleReadingContext.fromSession({
     required ReadingSession session,
     required AiReadingContent content,
     String deckName = 'Rider-Waite',
   }) {
-    final cardsSummary = session.drawnCards
-        .map(
-          (d) =>
-              '${d.positionLabel ?? "Kart"}: ${d.card.name} '
-              '(${d.isReversed ? "Ters" : "Düz"})',
-        )
-        .join('\n');
-
+    final cardsSummary = OracleReadingContextText.cardsSummaryFor(session);
+    final question = session.intention.text.trim();
+    final summary = OracleReadingContextText.summaryFromContent(content);
+    final topic = session.intention.topic ?? content.readingTheme;
     return OracleReadingContext(
       sessionId: session.id,
       spreadLabel: session.spread.label,
@@ -53,12 +61,35 @@ class OracleReadingContext {
       deckName: deckName,
       readingTitle: content.cardName,
       cardsSummary: cardsSummary,
-      interpretationSummary: content.generalMeaning,
-      userQuestion: session.intention.text.trim().isEmpty
-          ? null
-          : session.intention.text.trim(),
-      fullInterpretation: content.fullInterpretation ?? content.generalMeaning,
-      cardNames: session.drawnCards.map((d) => d.card.name).toList(),
+      interpretationSummary: summary,
+      userQuestion: question.isEmpty ? null : question,
+      cardNames: session.drawnCards.map((d) => d.localizedName).toList(),
+      cardIds: OracleReadingContextText.cardIdsFor(session),
+      kind: OracleReadingKind.tarot,
+      sourceLabel: OracleReadingContextText.tarotSourceLabel(topic: topic),
+    );
+  }
+
+  factory OracleReadingContext.fromHistoryReading(ReadingModel reading) {
+    final names = reading.cards.isNotEmpty
+        ? [for (final card in reading.cards) card.cardName]
+        : [reading.cardName];
+    final ids = reading.cards.isNotEmpty
+        ? [for (final card in reading.cards) card.cardId]
+        : [reading.cardId];
+    return OracleReadingContext(
+      sessionId: reading.id,
+      spreadLabel: TarotHistoryPrivacy.spreadTitle(reading.spreadType),
+      deckId: reading.deckId,
+      deckName: 'Rider-Waite',
+      readingTitle: names.length == 1 ? names.first : reading.spreadType,
+      cardsSummary: names.join(', '),
+      interpretationSummary: TarotHistoryPrivacy.shortInsight(reading),
+      userQuestion: TarotHistoryPrivacy.questionSummary(reading.intention),
+      cardNames: names,
+      cardIds: ids,
+      kind: OracleReadingKind.tarot,
+      sourceLabel: OracleReadingContextText.tarotSourceLabel(),
     );
   }
 
@@ -67,29 +98,26 @@ class OracleReadingContext {
     required InterpretationResult result,
     String deckName = 'Rider-Waite',
   }) {
-    final cardsSummary = session.drawnCards
-        .map(
-          (d) =>
-              '${d.positionLabel ?? "Kart"}: ${d.card.name} '
-              '(${d.isReversed ? "Ters" : "Düz"})',
-        )
-        .join('\n');
-
+    final cardsSummary = OracleReadingContextText.cardsSummaryFor(session);
+    final question = session.intention.text.trim();
     return OracleReadingContext(
       sessionId: session.id,
       spreadLabel: session.spread.label,
       deckId: session.deckId,
       deckName: deckName,
       readingTitle: session.drawnCards.length == 1
-          ? session.drawnCards.first.card.name
+          ? session.drawnCards.first.localizedName
           : '${session.spread.label} Açılımı',
       cardsSummary: cardsSummary,
-      interpretationSummary: result.summary,
-      userQuestion: session.intention.text.trim().isEmpty
-          ? null
-          : session.intention.text.trim(),
-      fullInterpretation: result.rawText ?? result.summary,
-      cardNames: session.drawnCards.map((d) => d.card.name).toList(),
+      interpretationSummary:
+          OracleReadingContextText.shortSummary(result.summary),
+      userQuestion: question.isEmpty ? null : question,
+      cardNames: session.drawnCards.map((d) => d.localizedName).toList(),
+      cardIds: OracleReadingContextText.cardIdsFor(session),
+      kind: OracleReadingKind.tarot,
+      sourceLabel: OracleReadingContextText.tarotSourceLabel(
+        topic: session.intention.topic,
+      ),
     );
   }
 
@@ -104,6 +132,9 @@ class OracleReadingContext {
         'userQuestion': ?userQuestion,
         'fullInterpretation': ?fullInterpretation,
         'cardNames': cardNames.join('|'),
+        'cardIds': cardIds.join('|'),
+        'kind': kind.name,
+        'sourceLabel': sourceLabel,
       };
 
   factory OracleReadingContext.fromMetadata(Map<String, String> metadata) {
@@ -121,6 +152,20 @@ class OracleReadingContext {
           .split('|')
           .where((e) => e.isNotEmpty)
           .toList(),
+      cardIds: (metadata['cardIds'] ?? '')
+          .split('|')
+          .where((e) => e.isNotEmpty)
+          .map(int.parse)
+          .toList(),
+      kind: _kindFrom(metadata['kind']),
+      sourceLabel: metadata['sourceLabel'] ?? '',
     );
+  }
+
+  static OracleReadingKind _kindFrom(String? name) {
+    for (final kind in OracleReadingKind.values) {
+      if (kind.name == name) return kind;
+    }
+    return OracleReadingKind.tarot;
   }
 }

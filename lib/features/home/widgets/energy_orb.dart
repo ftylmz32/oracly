@@ -84,21 +84,12 @@ class _EnergyOrbState extends State<EnergyOrb>
             AnimatedBuilder(
               animation: _ringValue,
               builder: (context, _) {
-                return SizedBox(
-                  width: size,
-                  height: size,
-                  child: CircularProgressIndicator(
-                    value: _ringValue.value *
-                        (widget.energy / 100),
-                    strokeWidth: 5,
-                    strokeCap: StrokeCap.round,
-                    backgroundColor:
-                        AppColors.surfaceLight.withValues(
-                      alpha: .55,
-                    ),
-                    valueColor: AlwaysStoppedAnimation(
-                      AppColors.gold.withValues(alpha: .85),
-                    ),
+                return CustomPaint(
+                  size: const Size(size, size),
+                  painter: _EnergyRingPainter(
+                    progress: _ringValue.value * (widget.energy / 100),
+                    track: AppColors.surfaceLight.withValues(alpha: .55),
+                    fill: AppColors.gold.withValues(alpha: .85),
                   ),
                 );
               },
@@ -146,4 +137,46 @@ class _EnergyOrbState extends State<EnergyOrb>
       ),
     );
   }
+}
+
+class _EnergyRingPainter extends CustomPainter {
+  _EnergyRingPainter({
+    required this.progress,
+    required this.track,
+    required this.fill,
+  });
+
+  final double progress;
+  final Color track;
+  final Color fill;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.shortestSide / 2) - 2.5;
+    final trackPaint = Paint()
+      ..color = track
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    final fillPaint = Paint()
+      ..color = fill
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(center, radius, trackPaint);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -1.57079632679,
+      6.28318530718 * progress.clamp(0.0, 1.0),
+      false,
+      fillPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _EnergyRingPainter oldDelegate) =>
+      oldDelegate.progress != progress ||
+      oldDelegate.track != track ||
+      oldDelegate.fill != fill;
 }

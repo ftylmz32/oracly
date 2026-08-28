@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/navigation/oracly_navigation_service.dart';
+import '../../../core/navigation/oracly_page_transitions.dart';
 import '../../../screens/memory/memory_screen.dart';
 import '../../../shared/navigation/oracly_navigation.dart';
 import '../widgets/quick_action_tile.dart';
@@ -36,38 +38,38 @@ class QuickActionsSection extends StatelessWidget {
             children: [
               QuickActionTile(
                 phase: 0,
-                icon: Icons.style_rounded,
-                title: 'Tarot',
+                icon: Icons.local_cafe_rounded,
+                title: 'Kahve Falı',
                 onTap: () =>
-                    OraclyNavigation.switchToTab(context, OraclyTab.tarot),
+                    OraclyNavigation.switchToTab(context, OraclyTab.coffee),
               ),
               QuickActionTile(
                 phase: 1,
                 icon: Icons.nightlight_round,
                 title: 'Dream Analysis',
                 onTap: () =>
-                    OraclyNavigation.switchToTab(context, OraclyTab.chat),
+                    OraclyNavigationService.openChat(context),
               ),
               QuickActionTile(
                 phase: 2,
                 icon: Icons.auto_awesome,
                 title: 'Astrology',
                 onTap: () =>
-                    OraclyNavigation.switchToTab(context, OraclyTab.chat),
+                    OraclyNavigationService.openChat(context),
               ),
               QuickActionTile(
                 phase: 3,
                 icon: Icons.smart_toy_rounded,
                 title: 'AI Companion',
                 onTap: () =>
-                    OraclyNavigation.switchToTab(context, OraclyTab.chat),
+                    OraclyNavigationService.openChat(context),
               ),
               QuickActionTile(
                 phase: 4,
                 icon: Icons.menu_book_rounded,
                 title: 'Journal',
                 onTap: () =>
-                    OraclyNavigation.switchToTab(context, OraclyTab.chat),
+                    OraclyNavigationService.openChat(context),
               ),
               QuickActionTile(
                 phase: 5,
@@ -75,7 +77,9 @@ class QuickActionsSection extends StatelessWidget {
                 title: 'Memory',
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const MemoryScreen()),
+                  OraclyPageTransitions.enter(
+                    page: const MemoryScreen(),
+                  ),
                 ),
               ),
             ],

@@ -11,6 +11,7 @@ import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../shared/widgets/oracly_pressable.dart';
+import '../../../art/tarot_major_card_art.dart';
 import 'card_detail_catalogue.dart';
 import 'card_detail_models.dart';
 
@@ -115,10 +116,10 @@ class _RelatedCard extends StatelessWidget {
                     Expanded(
                       child: Hero(
                         tag: content.heroTag,
-                        child: Image.asset(
-                          content.imageAsset,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => ColoredBox(
+                        child: TarotMajorCardArt(
+                          imageAsset: content.imageAsset,
+                          showChrome: false,
+                          fallback: ColoredBox(
                             color: AppColors.purpleDark,
                             child: Icon(
                               Icons.style_rounded,
@@ -131,7 +132,7 @@ class _RelatedCard extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.all(AppSpacing.sm),
                       child: Text(
-                        content.displayNameTr,
+                        content.displayName,
                         style: AppTextStyles.labelMedium.copyWith(
                           color: AppColors.goldLight,
                           fontWeight: FontWeight.w600,

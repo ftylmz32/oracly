@@ -74,7 +74,7 @@ abstract final class TarotHomeSpreads {
 
       title: 'Üç Kart Açılımı',
 
-      description: 'Geçmiş, şimdi ve gelecek — üç kart birbirine bağlı.',
+      description: 'Geçmiş, şimdi ve yakın dönem — üç kart birbirine bağlı.',
 
       icon: Icons.filter_3_rounded,
 

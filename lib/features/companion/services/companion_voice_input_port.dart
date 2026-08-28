@@ -1,16 +1,32 @@
-/// SPRINT-003 — Future-ready voice input port.
+/// OR Rehberi voice input — real STT only, never a fabricated transcript.
 library;
 
+import 'package:flutter/foundation.dart';
+
 import '../models/insight_request.dart';
+import '../voice/companion_speech_result.dart';
+import '../voice/companion_voice_failure.dart';
+import '../voice/companion_voice_permission.dart';
 
 abstract class CompanionVoiceInputPort {
   const CompanionVoiceInputPort();
 
+  /// Implementation exists. Device support is probed in [isSpeechAvailable].
   bool get isAvailable;
 
-  Stream<String> listenAndTranscribe();
+  Future<bool> isSpeechAvailable();
 
-  Future<void> stop();
+  Future<CompanionVoicePermission> requestPermission();
+
+  Future<void> startListening({
+    required void Function(CompanionSpeechResult result) onResult,
+    required void Function(CompanionVoiceFailure failure) onError,
+    VoidCallback? onListeningEnded,
+  });
+
+  Future<void> stopListening();
+
+  Future<void> cancelListening();
 }
 
 class UnavailableCompanionVoiceInput extends CompanionVoiceInputPort {
@@ -20,10 +36,26 @@ class UnavailableCompanionVoiceInput extends CompanionVoiceInputPort {
   bool get isAvailable => false;
 
   @override
-  Stream<String> listenAndTranscribe() async* {}
+  Future<bool> isSpeechAvailable() async => false;
 
   @override
-  Future<void> stop() async {}
+  Future<CompanionVoicePermission> requestPermission() async =>
+      CompanionVoicePermission.unavailable;
+
+  @override
+  Future<void> startListening({
+    required void Function(CompanionSpeechResult result) onResult,
+    required void Function(CompanionVoiceFailure failure) onError,
+    VoidCallback? onListeningEnded,
+  }) async {
+    onError(CompanionVoiceFailure.speechUnavailable());
+  }
+
+  @override
+  Future<void> stopListening() async {}
+
+  @override
+  Future<void> cancelListening() async {}
 }
 
 /// Input channel independent from conversation logic.

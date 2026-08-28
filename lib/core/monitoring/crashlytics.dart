@@ -1,11 +1,18 @@
 /// OR-1130 — Crashlytics abstraction.
 library;
 
+import '../telemetry/crash_report.dart';
 import '../logging/crash_logger.dart';
 
 abstract class CrashlyticsService {
   Future<void> initialize();
   void recordError(Object error, StackTrace stack, {bool fatal = false});
+  void recordReport(
+    CrashReport report, {
+    Object? error,
+    StackTrace? stack,
+    bool fatal = false,
+  });
   void log(String message);
   void setUserIdentifier(String? userId);
 }
@@ -22,6 +29,19 @@ class NoOpCrashlyticsService implements CrashlyticsService {
   @override
   void recordError(Object error, StackTrace stack, {bool fatal = false}) {
     _logger.recordError(error, stack, fatal: fatal);
+  }
+
+  @override
+  void recordReport(
+    CrashReport report, {
+    Object? error,
+    StackTrace? stack,
+    bool fatal = false,
+  }) {
+    _logger.recordReport(report, fatal: fatal);
+    if (error != null && stack != null) {
+      _logger.recordError(error, stack, fatal: fatal);
+    }
   }
 
   @override

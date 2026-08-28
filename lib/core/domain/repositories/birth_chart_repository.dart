@@ -7,4 +7,7 @@ abstract class BirthChartRepository {
   Future<BirthChartRecord?> getLatest();
   Future<void> save(BirthChartRecord record);
   Future<void> delete(String id);
+
+  /// Removes the latest saved chart from local storage.
+  Future<void> clearLatest();
 }

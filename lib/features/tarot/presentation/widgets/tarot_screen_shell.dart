@@ -4,8 +4,9 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
-import '../../components/tarot_background.dart';
+import '../../../../core/theme/oracly_visual_rebirth.dart';
 import '../../components/tarot_glass_card.dart';
 import '../../theme/tarot_theme.dart';
 import '../../theme/tarot_tokens.dart';
@@ -28,7 +29,7 @@ class TarotScreenShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Padding(
-      padding: padding ?? TarotTokens.screenPadding,
+      padding: padding ?? TarotTokens.screenPaddingOf(context),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: TarotTokens.maxContentWidth),
@@ -38,13 +39,11 @@ class TarotScreenShell extends StatelessWidget {
     );
 
     return OraclyScaffold(
-      backgroundOverlay: TarotBackground(
-        showParticles: showParticles,
-        child: const SizedBox.shrink(),
-      ),
+      ambience: OraclyAmbience.tarot,
       child: scrollable
           ? SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
+              physics: CraftsmanshipRhythm.scrollPhysics,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: content,
             )
           : content,

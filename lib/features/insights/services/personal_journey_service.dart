@@ -2,6 +2,8 @@
 library;
 
 import '../../../core/domain/models/reading.dart';
+import '../../../core/history/history_scale_policy.dart';
+import '../../../core/l10n/oracly_format.dart';
 import '../../tarot/presentation/utils/reading_history_timeline.dart';
 import '../../tarot/presentation/widgets/reading_history/reading_history_data.dart';
 import '../models/personal_journey_snapshot.dart';
@@ -12,7 +14,14 @@ class PersonalJourneyService {
   const PersonalJourneyService();
 
   PersonalJourneySnapshot compose(List<ReadingModel> readings) {
-    final insightReport = PersonalInsightEngine.analyze(readings);
+    final window = HistoryScalePolicy.newestByDate(
+      readings,
+      (r) => r.createdAt,
+    );
+    final insightReport = PersonalInsightEngine.analyze(
+      window,
+      totalReadings: readings.length,
+    );
     final notesWritten = readings
         .where((r) => r.personalNote != null && r.personalNote!.trim().isNotEmpty)
         .length;
@@ -80,6 +89,7 @@ class PersonalJourneyService {
       if (q.isEmpty) return true;
       return e.cardName.toLowerCase().contains(q) ||
           e.spreadType.toLowerCase().contains(q) ||
+          (e.readingType?.toLowerCase().contains(q) ?? false) ||
           e.aiSummary.toLowerCase().contains(q) ||
           e.timelineSummary.toLowerCase().contains(q) ||
           (e.personalNote?.toLowerCase().contains(q) ?? false) ||
@@ -107,11 +117,5 @@ class PersonalJourneyService {
     return _formatMonthYear(oldest);
   }
 
-  static String _formatMonthYear(DateTime date) {
-    const months = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
-    ];
-    return '${months[date.month - 1]} ${date.year}';
-  }
+  static String _formatMonthYear(DateTime date) => OraclyFormat.monthYear(date);
 }

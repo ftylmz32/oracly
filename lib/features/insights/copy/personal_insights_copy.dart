@@ -1,44 +1,28 @@
 /// SPRINT-004 — Calm, letter-like copy for Personal Insights.
 library;
 
+import '../../../core/l10n/l10n.dart';
+
 abstract final class PersonalInsightsCopy {
   PersonalInsightsCopy._();
 
-  static const screenTitle = 'Kişisel Yansımalar';
+  static String _t(String key) => OraclyL10n.t(key);
 
-  static const salutation =
-      'Merhaba — kaydettiğin anlardan, yalnızca gözlemlenebilir '
-      'desenler çıkardık. Bunlar bir yargı değil; kendi yolculuğuna '
-      'nazikçe bakman için bir davet.';
-
-  static const closingNote =
-      'Bu yansımalar senin — istediğin zaman gizleyebilir, '
-      'yenileyebilir veya dışa aktarabilirsin.';
-
-  static const emptyTitle = 'Henüz bir yansıma birikmedi';
-
-  static const emptyBody =
-      'Tarot açılımları, rüya kayıtları veya kişisel notlar '
-      'ekledikçe burada nazik bir özet belirecek — acele yok.';
-
-  static const footnote =
-      'Bunlar kehanet değil — sadece kendi ritminin yansımaları.';
-
-  static const privacyTitle = 'Bu yansıma senin';
-
-  static const hideAction = 'Gizle';
-  static const deleteAction = 'Sil';
-  static const regenerateAction = 'Yeniden oluştur';
-  static const exportAction = 'Dışa aktar';
-
-  static const hiddenConfirmation = 'Yansıma gizlendi.';
-  static const deletedConfirmation = 'Yansıma silindi.';
-  static const regeneratedConfirmation = 'Yansımalar yenilendi.';
-  static const exportedConfirmation = 'Metin panoya kopyalandı.';
-
-  static const deletePrompt =
-      'Bu yansımayı kalıcı olarak kaldırmak istiyor musun? '
-      'Gelecekte yeniden oluşturulmayacak.';
-
-  static const exportHeader = 'ORACLY — Kişisel Yansımalar';
+  static String get screenTitle => _t('insights.title');
+  static String get salutation => _t('insights.salutation');
+  static String get closingNote => _t('insights.closing');
+  static String get emptyTitle => _t('insights.empty_title');
+  static String get emptyBody => _t('insights.empty_body');
+  static String get footnote => _t('trust.insight');
+  static String get privacyTitle => _t('insights.privacy');
+  static String get hideAction => _t('insights.hide');
+  static String get deleteAction => _t('insights.delete');
+  static String get regenerateAction => _t('insights.regen');
+  static String get exportAction => _t('insights.export');
+  static String get hiddenConfirmation => _t('insights.hidden');
+  static String get deletedConfirmation => _t('insights.deleted');
+  static String get regeneratedConfirmation => _t('insights.regen_ok');
+  static String get exportedConfirmation => _t('insights.exported');
+  static String get deletePrompt => _t('insights.delete_prompt');
+  static String get exportHeader => _t('insights.export_header');
 }

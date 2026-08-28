@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/navigation/oracly_page_transitions.dart';
+import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../../shared/ui/oracly_snackbar.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/navigation/oracly_navigation.dart';
 import '../../../screens/memory/memory_screen.dart';
-import '../../../screens/settings/settings_screen.dart';
+import '../../../screens/settings/reference/settings_reference_screen.dart';
 import 'quick_action_card.dart';
 
 class QuickActionsGrid extends StatelessWidget {
@@ -46,10 +48,10 @@ class QuickActionsGrid extends StatelessWidget {
           childAspectRatio: 1.02,
           children: [
             QuickActionCard(
-              icon: Icons.auto_awesome,
-              title: 'Tarot',
+              icon: Icons.local_cafe_rounded,
+              title: 'Kahve Falı',
               onTap: () =>
-                  OraclyNavigation.switchToTab(context, OraclyTab.tarot),
+                  OraclyNavigation.switchToTab(context, OraclyTab.coffee),
             ),
             QuickActionCard(
               icon: Icons.nightlight_round,
@@ -62,8 +64,8 @@ class QuickActionsGrid extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const MemoryScreen(),
+                  OraclyPageTransitions.enter(
+                    page: const MemoryScreen(),
                   ),
                 );
               },
@@ -72,7 +74,7 @@ class QuickActionsGrid extends StatelessWidget {
               icon: Icons.smart_toy,
               title: 'AI Sohbet',
               onTap: () =>
-                  OraclyNavigation.switchToTab(context, OraclyTab.chat),
+                  OraclyNavigationService.openChat(context),
             ),
             QuickActionCard(
               icon: Icons.person,
@@ -86,8 +88,8 @@ class QuickActionsGrid extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const SettingsScreen(),
+                  OraclyPageTransitions.slideUp(
+                    page: const SettingsReferenceScreen(),
                   ),
                 );
               },

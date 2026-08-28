@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../../core/copy/conversation_copy.dart';
+import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -19,26 +20,25 @@ class OracleConversationInput extends StatelessWidget {
     required this.controller,
     required this.onSend,
     this.enabled = true,
-    this.onVoiceTap,
   });
 
   final TextEditingController controller;
   final VoidCallback onSend;
   final bool enabled;
-  final VoidCallback? onVoiceTap;
 
-  static const placeholder = ConversationCopy.oracleInputHint;
+  static String get placeholder => ConversationCopy.oracleInputHint;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
+      bottom: false,
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           AppSpacing.md,
           AppSpacing.sm,
           AppSpacing.md,
-          AppSpacing.md,
+          AppLayout.scrollBottomInset(context),
         ),
         child: ClipRRect(
           borderRadius: AppRadius.xl,

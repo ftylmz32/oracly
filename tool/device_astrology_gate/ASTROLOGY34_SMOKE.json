@@ -1,0 +1,15 @@
+{
+  "DEVICE_VERIFICATION": "PARTIAL",
+  "opened_astrology": true,
+  "hub_has_title": true,
+  "hub_has_sign": false,
+  "browsed_sign": false,
+  "opened_detail": false,
+  "detail_has_report": true,
+  "has_or_affordance": true,
+  "has_save_affordance": false,
+  "or_tapped": false,
+  "or_context_hint": true,
+  "crash_or_overflow_log": false,
+  "notes": "Smoke on installed APK; may lag behind local source until redeploy."
+}

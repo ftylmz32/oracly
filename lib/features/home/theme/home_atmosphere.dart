@@ -89,8 +89,8 @@ abstract final class HomeAtmosphere {
       center: const Alignment(0, -0.28),
       radius: 0.68,
       colors: [
-        wisdomGold.withValues(alpha: 0.055 * breathe),
-        mysteryViolet.withValues(alpha: 0.08 * breathe),
+        wisdomGold.withValues(alpha: 0.068 * breathe),
+        mysteryViolet.withValues(alpha: 0.095 * breathe),
         AppColors.transparent,
       ],
       stops: const [0.0, 0.45, 1.0],

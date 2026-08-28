@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/oracly_quiet_motion.dart';
 import '../../features/home/theme/home_observatory.dart';
 
 /// A quiet pulsing orb — loading that feels like the chamber listening.
@@ -38,7 +39,13 @@ class _ChamberWaitingOrbState extends State<ChamberWaitingOrb>
         milliseconds: 18000 + (widget.seed % 5) * 2300,
       ),
       value: offset,
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _pulse, rest: 0.5);
   }
 
   @override

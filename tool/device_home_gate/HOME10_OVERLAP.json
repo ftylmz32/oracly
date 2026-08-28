@@ -1,0 +1,107 @@
+{
+  "issues": [
+    {
+      "tile": "Ruh Eşi",
+      "nav": "Kahve",
+      "overlap_px2": 3675,
+      "tile_bounds": [
+        259,
+        1332,
+        461,
+        1545
+      ],
+      "nav_bounds": [
+        161,
+        1430,
+        294,
+        1535
+      ]
+    },
+    {
+      "tile": "Ruh Eşi",
+      "nav": "Astroloji",
+      "overlap_px2": 13860,
+      "tile_bounds": [
+        259,
+        1332,
+        461,
+        1545
+      ],
+      "nav_bounds": [
+        294,
+        1430,
+        426,
+        1535
+      ]
+    },
+    {
+      "tile": "Ruh Eşi",
+      "nav": "Yıldızname",
+      "overlap_px2": 3675,
+      "tile_bounds": [
+        259,
+        1332,
+        461,
+        1545
+      ],
+      "nav_bounds": [
+        426,
+        1430,
+        559,
+        1535
+      ]
+    },
+    {
+      "tile": "Ruh Eşi",
+      "nav": "Kahve",
+      "overlap_px2": 3675,
+      "tile_bounds": [
+        259,
+        1332,
+        461,
+        1545
+      ],
+      "nav_bounds": [
+        161,
+        1430,
+        294,
+        1535
+      ]
+    },
+    {
+      "tile": "Ruh Eşi",
+      "nav": "Astroloji",
+      "overlap_px2": 13860,
+      "tile_bounds": [
+        259,
+        1332,
+        461,
+        1545
+      ],
+      "nav_bounds": [
+        294,
+        1430,
+        426,
+        1535
+      ]
+    },
+    {
+      "tile": "Ruh Eşi",
+      "nav": "Yıldızname",
+      "overlap_px2": 3675,
+      "tile_bounds": [
+        259,
+        1332,
+        461,
+        1545
+      ],
+      "nav_bounds": [
+        426,
+        1430,
+        559,
+        1535
+      ]
+    }
+  ],
+  "gem_like": []
+}

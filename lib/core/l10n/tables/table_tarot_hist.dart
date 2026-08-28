@@ -1,0 +1,66 @@
+/// Tarot history chrome and extra section titles.
+library;
+
+import '../l10n_triple.dart';
+
+const kL10nTarotHist = <String, L10nTriple>{
+  'tarot.hist.filter.all': L10nTriple('Tümü', 'All', 'Все'),
+  'tarot.hist.filter.favorites': L10nTriple('Hatıralar', 'Memories', 'Память'),
+  'tarot.hist.filter.single': L10nTriple('Tek Kart', 'One Card', 'Одна карта'),
+  'tarot.hist.filter.three': L10nTriple(
+    'Üç Kart Açılımı',
+    'Three-card spread',
+    'Расклад из трёх карт',
+  ),
+  'tarot.hist.filter.five': L10nTriple('Beş Kart', 'Five Cards', 'Пять карт'),
+  'tarot.hist.filter.celtic': L10nTriple(
+    'Kelt Haçı',
+    'Celtic Cross',
+    'Кельтский крест',
+  ),
+  'tarot.hist.notes': L10nTriple(
+    'Yazılmış Düşünce',
+    'Written thoughts',
+    'Записанные мысли',
+  ),
+  'tarot.hist.memories': L10nTriple('Hatıralar', 'Memories', 'Память'),
+  'tarot.hist.recurring': L10nTriple(
+    '{n} kart yolculuğunda tekrar belirdi — kendi ritmin sessizce oluşuyor olabilir.',
+    '{n} cards returned on your path — a quiet rhythm of your own may be forming.',
+    '{n} карт снова явились на пути — может складываться свой тихий ритм.',
+  ),
+  'tarot.overview': L10nTriple('Genel Bakış', 'Wider view', 'Общий взгляд'),
+  'tarot.daily_fal': L10nTriple('Günlük Fal', 'Daily reading', 'Дневное чтение'),
+  'tarot.closing': L10nTriple('Sonuç', 'Closing', 'Итог'),
+  'tarot.synthesis_full': L10nTriple(
+    'Açılımın Genel Yorumu',
+    'The spread as a whole',
+    'Общее толкование расклада',
+  ),
+  'tarot.keys.prefix': L10nTriple('Anahtarlar:', 'Keys:', 'Ключи:'),
+  'tarot.reversed.mark': L10nTriple('Ters', 'Reversed', 'Перевернутая'),
+  'tarot.month.s.1': L10nTriple('Oca', 'Jan', 'янв'),
+  'tarot.month.s.2': L10nTriple('Şub', 'Feb', 'фев'),
+  'tarot.month.s.3': L10nTriple('Mar', 'Mar', 'мар'),
+  'tarot.month.s.4': L10nTriple('Nis', 'Apr', 'апр'),
+  'tarot.month.s.5': L10nTriple('May', 'May', 'май'),
+  'tarot.month.s.6': L10nTriple('Haz', 'Jun', 'июн'),
+  'tarot.month.s.7': L10nTriple('Tem', 'Jul', 'июл'),
+  'tarot.month.s.8': L10nTriple('Ağu', 'Aug', 'авг'),
+  'tarot.month.s.9': L10nTriple('Eyl', 'Sep', 'сен'),
+  'tarot.month.s.10': L10nTriple('Eki', 'Oct', 'окт'),
+  'tarot.month.s.11': L10nTriple('Kas', 'Nov', 'ноя'),
+  'tarot.month.s.12': L10nTriple('Ara', 'Dec', 'дек'),
+  'tarot.month.l.1': L10nTriple('Ocak', 'January', 'январь'),
+  'tarot.month.l.2': L10nTriple('Şubat', 'February', 'февраль'),
+  'tarot.month.l.3': L10nTriple('Mart', 'March', 'март'),
+  'tarot.month.l.4': L10nTriple('Nisan', 'April', 'апрель'),
+  'tarot.month.l.5': L10nTriple('Mayıs', 'May', 'май'),
+  'tarot.month.l.6': L10nTriple('Haziran', 'June', 'июнь'),
+  'tarot.month.l.7': L10nTriple('Temmuz', 'July', 'июль'),
+  'tarot.month.l.8': L10nTriple('Ağustos', 'August', 'август'),
+  'tarot.month.l.9': L10nTriple('Eylül', 'September', 'сентябрь'),
+  'tarot.month.l.10': L10nTriple('Ekim', 'October', 'октябрь'),
+  'tarot.month.l.11': L10nTriple('Kasım', 'November', 'ноябрь'),
+  'tarot.month.l.12': L10nTriple('Aralık', 'December', 'декабрь'),
+};

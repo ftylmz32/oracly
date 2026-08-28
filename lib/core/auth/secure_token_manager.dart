@@ -14,7 +14,8 @@ class SecureTokenManager implements TokenManager {
   final SecureStorage _storage;
 
   @override
-  Future<String?> getAccessToken() => _storage.read(_accessKey);
+  Future<String?> getAccessToken({bool forceRefresh = false}) =>
+      _storage.read(_accessKey);
 
   @override
   Future<String?> getRefreshToken() => _storage.read(_refreshKey);

@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/oracly_format.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -61,7 +62,7 @@ class CardDetailInfoChips extends StatelessWidget {
                   ),
                   _MetaChip(
                     label: 'Numara',
-                    value: '${content.number}',
+                    value: OraclyFormat.cardNumber(content.number),
                     icon: Icons.tag_rounded,
                     accent: content.accentColor,
                   ),

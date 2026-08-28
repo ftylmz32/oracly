@@ -4,6 +4,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
+import '../../../../features/premium/models/personalization_models.dart';
 import '../cache/interpretation_cache.dart';
 import '../executors/local_interpretation_executor.dart';
 import '../formatters/interpretation_formatter.dart';
@@ -24,10 +25,13 @@ final interpretationPromptAdapterProvider =
 });
 
 final interpretationEngineProvider = Provider<InterpretationEngine>((ref) {
-  return InterpretationEngineFactory.create(
-    cache: ref.watch(interpretationCacheProvider),
+  final personality =
+      ref.watch(settingsProvider).value?.aiPersonality ?? AiPersonality.mystical;
+  return InterpretationEngine(
     executor: LocalInterpretationExecutor(
       formatter: ref.watch(interpretationFormatterProvider),
     ),
+    cache: ref.watch(interpretationCacheProvider),
+    aiPersonality: personality,
   );
 });

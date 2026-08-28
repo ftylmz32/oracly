@@ -43,4 +43,62 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# ORACLY Tarot high-res illustration sources (runtime lives in assets/tarot/cards/)
+design/tarot/source/
+# Photorealistic masters — optimize into lib/assets/images/ (see docs/PHOTOREALISTIC_IMAGE_ASSET_PIPELINE.md)
+art_masters/**
+!art_masters/README.md
+backend/node_modules/
+backend/dist/
+
+# Local secrets — never commit
 .env
+.env.*
+!.env.example
+!**/.env.example
+backend/.env
+
+# Android production signing — never commit
+android/key.properties
+*.jks
+*.keystore
+
+# Local tooling / extract dumps (may contain bundled assets)
+tmp/
+_inspect/
+.gradle-home/
+
+# Local production dart-defines (never commit real hosts/secrets)
+tool/dart_defines.production.json
+dart_defines.production.json
+
+# Firebase local config
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Local debug / temporary files
+_bad.py
+_errs.txt
+_failures.txt
+build_debug.txt
+
+# Local visual/art quality-control outputs
+_art_qc/
+
+# Local analysis/test output files
+analyze_*.txt
+test_batch1_full_out*.txt
+test_final.txt
+test_gate.txt
+test_out.txt
+test_touched.txt
+backend/_coords.txt
+tool/device_hardening_gate/ANALYZE_RELEASE.txt
+
+# One-off local scratch files
+_fix_labels.py
+_snippet.txt
+_w_probe.py
+_x.py
+tmp_rize.py
+

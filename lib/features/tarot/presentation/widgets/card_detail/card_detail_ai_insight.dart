@@ -1,4 +1,4 @@
-/// OR-1080 — OR AI insight glass container.
+/// OR-1080 — Catalogue insight glass — not live AI.
 library;
 
 import 'dart:ui';
@@ -10,6 +10,7 @@ import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../copy/tarot_polish_copy.dart';
 import '../ai_reading/reading_or_orb.dart';
 
 class CardDetailAiInsight extends StatelessWidget {
@@ -24,7 +25,7 @@ class CardDetailAiInsight extends StatelessWidget {
   final double entrance;
   final Color accent;
 
-  static const String title = 'OR AI Yorumu';
+  static String title = TarotPolishCopy.readingTitleLocal;
 
   @override
   Widget build(BuildContext context) {

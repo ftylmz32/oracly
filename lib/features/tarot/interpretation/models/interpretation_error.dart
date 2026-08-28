@@ -28,7 +28,7 @@ class InterpretationException implements Exception {
 
 class InterpretationRetryPolicy {
   const InterpretationRetryPolicy({
-    this.maxAttempts = 3,
+    this.maxAttempts = 2,
     this.initialDelay = const Duration(milliseconds: 400),
     this.backoffMultiplier = 2.0,
   });

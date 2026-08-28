@@ -1,199 +1,119 @@
-import 'package:flutter/material.dart';
+/// App entry — FinalOraclySplash first, destination underlay after first splash frame.
+library;
 
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
-
 import '../../app/providers/app_providers.dart';
-
-import '../../core/navigation/oracly_page_transitions.dart';
-
-import '../../core/theme/app_colors.dart';
-
-import '../../core/theme/app_text_styles.dart';
-
-import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
-
-import '../../shared/navigation/oracly_navigation.dart';
-
-import '../../widgets/cosmic_background.dart';
-
-
+import '../../core/data/repositories/local_onboarding_repository.dart';
+import '../../core/l10n/l10n.dart';
+import '../../core/navigation/oracly_navigator_key.dart';
+import '../../core/navigation/oracly_routes.dart';
+import '../../core/theme/oracly_reduced_motion.dart';
+import '../../features/share_reopen/services/share_link_opener.dart';
+import 'splash_boot.dart';
+import 'splash_brand_overlay.dart';
+import 'splash_cinema_prefs.dart';
+import 'splash_destination.dart';
+import 'splash_startup_log.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
-
   const SplashScreen({super.key});
 
-
+  static String get tagline => OraclyL10n.t('splash.tagline');
 
   @override
-
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
-
 }
 
-
-
-class _SplashScreenState extends ConsumerState<SplashScreen>
-
-    with SingleTickerProviderStateMixin {
-
-  late final AnimationController _fade;
-
-
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  late bool _onboardingCompleted;
+  bool _overlayVisible = true;
+  bool _navigated = false;
+  /// Heavy Home/Onboarding mounts only after splash art has painted.
+  bool _destinationMounted = false;
 
   @override
-
   void initState() {
-
     super.initState();
-
-    _fade = AnimationController(
-
-      vsync: this,
-
-      duration: const Duration(milliseconds: 1200),
-
-    )..forward();
-
-    _bootstrap();
-
+    SplashStartupLog.mark('ROOT_FIRST_BUILD');
+    final storage = ref.read(localStorageProvider);
+    _onboardingCompleted =
+        storage.getBool(LocalOnboardingRepository.completedKey) ?? false;
+    unawaited(_bootstrap());
   }
-
-
 
   Future<void> _bootstrap() async {
     try {
-      final results = await Future.wait<dynamic>([
-        ref.read(onboardingRepositoryProvider).isCompleted(),
-        Future<void>.delayed(const Duration(milliseconds: 820)),
-      ]);
+      unawaited(splashDeferredBoot(ref));
+      final completed = await splashFastOnboarding(ref);
       if (!mounted) return;
-
-      final completed = results[0] as bool;
-      final destination = completed
-          ? const OraclyAppShell()
-          : const OnboardingScreen();
-
-      Navigator.pushReplacement(
-        context,
-        OraclyPageTransitions.fade(page: destination),
-      );
+      if (completed != _onboardingCompleted) {
+        setState(() => _onboardingCompleted = completed);
+      }
+      splashScheduleWarmup(ref);
     } catch (_) {
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        OraclyPageTransitions.fade(page: const OraclyAppShell()),
-      );
+      unawaited(splashResilientBoot(ref));
+      splashScheduleWarmup(ref);
     }
   }
 
-
-
-  @override
-
-  void dispose() {
-
-    _fade.dispose();
-
-    super.dispose();
-
+  void _onSplashFirstFrame() {
+    if (!mounted || _destinationMounted) return;
+    SplashStartupLog.mark('DESTINATION_READY');
+    setState(() => _destinationMounted = true);
   }
 
-
+  void _onOverlayDone() {
+    if (!mounted || _navigated) return;
+    _navigated = true;
+    unawaited(SplashCinemaPrefs.markSeen(ref.read(localStorageProvider)));
+    setState(() => _overlayVisible = false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final dest = SplashDestination.build(
+        onboardingCompleted: _onboardingCompleted,
+        storage: ref.read(localStorageProvider),
+      );
+      SplashDestination.commitRoute(context, dest);
+      ShareLinkOpener.openPending();
+      final name = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
+      if (name == OraclyRoutes.chat) {
+        oraclyNavigatorKey.currentState?.pushNamed(OraclyRoutes.chat);
+      }
+    });
+  }
 
   @override
-
   Widget build(BuildContext context) {
-
-    return CosmicBackground(
-
-      showHeroGlow: true,
-
-      child: Scaffold(
-
-        backgroundColor: Colors.transparent,
-
-        body: Center(
-
-          child: FadeTransition(
-
-            opacity: CurvedAnimation(parent: _fade, curve: Curves.easeOut),
-
-            child: Column(
-
-              mainAxisAlignment: MainAxisAlignment.center,
-
-              children: [
-
-                Transform.translate(
-                  offset: const Offset(-1.5, 0.8),
-                  child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      center: const Alignment(-0.22, -0.28),
-                      colors: [
-                        AppColors.goldLight.withValues(alpha: 0.14),
-                        AppColors.transparent,
-                      ],
-                    ),
-                    border: Border.all(color: AppColors.gold, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.gold.withValues(alpha: 0.2),
-                        blurRadius: 32,
-                      ),
-                      BoxShadow(
-                        color: AppColors.primaryLight.withValues(alpha: 0.15),
-                        blurRadius: 48,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.auto_awesome,
-                    size: 42,
-                    color: AppColors.goldLight.withValues(alpha: 0.95),
-                  ),
-                ),
-                ),
-
-                const SizedBox(height: 32),
-
-                Text('ORACLY', style: AppTextStyles.logo),
-
-                const SizedBox(height: 12),
-
-                Text(
-
-                  'Bir an dur. Kendini dinle.',
-
-                  style: AppTextStyles.caption.copyWith(
-
-                    letterSpacing: 2.4,
-
-                    fontSize: 13,
-
-                  ),
-
-                ),
-
-              ],
-
-            ),
-
+    final storage = ref.read(localStorageProvider);
+    final reduced = OraclyReducedMotion.of(context);
+    return Scaffold(
+      backgroundColor: SplashDestination.midnight,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Lightweight base — never blank; do NOT build Home on first frame.
+          const ColoredBox(
+            color: SplashDestination.midnight,
+            child: SizedBox.expand(),
           ),
-
-        ),
-
+          if (_destinationMounted)
+            SplashDestination.build(
+              onboardingCompleted: _onboardingCompleted,
+              storage: storage,
+            ),
+          if (_overlayVisible)
+            FinalOraclySplash(
+              reduced: reduced,
+              onFirstFrame: _onSplashFirstFrame,
+              onDone: _onOverlayDone,
+            ),
+        ],
       ),
-
     );
-
   }
-
 }
-

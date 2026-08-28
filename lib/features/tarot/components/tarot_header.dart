@@ -3,9 +3,10 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/app_icons.dart';
+import '../../../core/design_system/oracly_header_action.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
-import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 
@@ -33,7 +34,9 @@ class TarotHeader extends StatelessWidget {
       child: Row(
         children: [
           leading ??
-              TarotHeaderBackButton(onPressed: onBack ?? () => Navigator.maybePop(context)),
+              TarotHeaderBackButton(
+                onPressed: onBack ?? () => Navigator.maybePop(context),
+              ),
           Expanded(
             child: Column(
               children: [
@@ -77,36 +80,10 @@ class TarotHeaderBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: 'Geri',
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: const CircleBorder(),
-          child: Ink(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.surface.withValues(alpha: 0.72),
-              border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.24),
-                width: AppBorderWidth.hairline,
-              ),
-              boxShadow: AppShadows.soft,
-            ),
-            child: SizedBox(
-              width: AppSpacing.xxl + AppSpacing.sm,
-              height: AppSpacing.xxl + AppSpacing.sm,
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: AppSpacing.md,
-                color: AppColors.goldLight,
-              ),
-            ),
-          ),
-        ),
-      ),
+    return OraclyHeaderAction(
+      icon: AppIcons.back,
+      label: OraclyL10n.t(L10nKeys.back),
+      onTap: onPressed ?? () => Navigator.maybePop(context),
     );
   }
 }

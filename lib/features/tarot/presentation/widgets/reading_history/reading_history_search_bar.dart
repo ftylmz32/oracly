@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -48,7 +49,7 @@ class ReadingHistorySearchBar extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
             decoration: InputDecoration(
-              hintText: 'Açılım veya kart ara...',
+              hintText: OraclyL10n.t('tarot.history.search_hint'),
               hintStyle: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textHint,
               ),

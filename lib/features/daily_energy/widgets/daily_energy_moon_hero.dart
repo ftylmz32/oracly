@@ -100,7 +100,7 @@ class _MoonArtwork extends StatelessWidget {
             },
             blendMode: BlendMode.dstIn,
             child: OraclyAssetImage(
-              assetPath: AppAssets.dailyEnergyMoon,
+              assetPath: AppAssets.dailyMoonPhotoreal,
               width: width,
               height: height,
               fit: BoxFit.contain,

@@ -1,12 +1,13 @@
-/// SPRINT-004 — Empty state when no observable patterns yet.
+/// Insights empty — calm atmosphere until real patterns appear.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/reading_typography.dart';
+import '../../../../shared/widgets/oracly_empty_atmosphere.dart';
 import '../../copy/personal_insights_copy.dart';
 
 class InsightsEmptyState extends StatelessWidget {
@@ -19,24 +20,25 @@ class InsightsEmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.auto_stories_outlined,
-            size: 48,
-            color: AppColors.goldLight.withValues(alpha: 0.5),
+          const OraclyEmptyAtmosphere(
+            assetPath: AppAssets.homeHeroMoon,
+            size: 108,
           ),
           SizedBox(height: AppSpacing.lg),
           Text(
             PersonalInsightsCopy.emptyTitle,
             textAlign: TextAlign.center,
-            style: AppTextStyles.titleMedium.copyWith(
-              color: AppColors.goldLight,
+            style: ReadingTypography.title(
+              color: OraclyChrome.goldLight.withValues(alpha: 0.92),
             ),
           ),
           SizedBox(height: AppSpacing.md),
           Text(
             PersonalInsightsCopy.emptyBody,
             textAlign: TextAlign.center,
-            style: ReadingTypography.body(),
+            style: ReadingTypography.body(
+              color: OraclyChrome.cream.withValues(alpha: 0.76),
+            ),
           ),
         ],
       ),

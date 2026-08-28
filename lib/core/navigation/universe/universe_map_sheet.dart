@@ -2,7 +2,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/providers/app_providers.dart';
+import '../../modules/oracly_feature_l10n.dart';
 import '../../modules/oracly_feature_navigation.dart';
 import '../../modules/oracly_feature_registry.dart';
 import '../../navigation/universe/oracly_universe_realm.dart';
@@ -11,6 +14,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/reading_typography.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/navigation/oracly_navigation.dart';
 import 'oracly_tab_labels.dart';
 
@@ -31,11 +35,14 @@ abstract final class UniverseMapSheet {
   }
 }
 
-class _UniverseMapBody extends StatelessWidget {
+class _UniverseMapBody extends ConsumerWidget {
   const _UniverseMapBody();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = AppLocale.normalize(
+      ref.watch(appLocaleProvider).languageCode,
+    );
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return SafeArea(
@@ -63,7 +70,10 @@ class _UniverseMapBody extends StatelessWidget {
               style: ReadingTypography.bodySmall(),
             ),
             SizedBox(height: AppSpacing.lg),
-            _TabSpacesSection(onNavigate: () => Navigator.pop(context)),
+            _TabSpacesSection(
+              languageCode: lang,
+              onNavigate: () => Navigator.pop(context),
+            ),
             SizedBox(height: AppSpacing.lg),
             Flexible(
               child: SingleChildScrollView(
@@ -95,9 +105,13 @@ const _mapRealms = [
 ];
 
 class _TabSpacesSection extends StatelessWidget {
-  const _TabSpacesSection({required this.onNavigate});
+  const _TabSpacesSection({
+    required this.onNavigate,
+    required this.languageCode,
+  });
 
   final VoidCallback onNavigate;
+  final String languageCode;
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +131,7 @@ class _TabSpacesSection extends StatelessWidget {
           children: [
             for (final tab in OraclyTab.values)
               ActionChip(
-                label: Text(tab.universeLabel),
+                label: Text(tab.labeled(languageCode)),
                 avatar: Icon(
                   _tabIcon(tab),
                   size: 16,
@@ -136,9 +150,10 @@ class _TabSpacesSection extends StatelessWidget {
 
   IconData _tabIcon(OraclyTab tab) => switch (tab) {
         OraclyTab.home => Icons.home_rounded,
-        OraclyTab.tarot => Icons.style,
-        OraclyTab.chat => Icons.smart_toy,
-        OraclyTab.profile => Icons.route_rounded,
+        OraclyTab.coffee => Icons.auto_awesome_rounded,
+        OraclyTab.astrology => Icons.explore_rounded,
+        OraclyTab.starMap => Icons.menu_book_rounded,
+        OraclyTab.profile => Icons.person_rounded,
       };
 }
 
@@ -180,8 +195,10 @@ class _RealmSection extends StatelessWidget {
                 module.icon ?? Icons.auto_awesome_outlined,
                 color: AppColors.textSecondary,
               ),
-              title: Text(module.title),
-              subtitle: module.subtitle != null ? Text(module.subtitle!) : null,
+              title: Text(module.labeled),
+              subtitle: module.labeledSubtitle != null
+                  ? Text(module.labeledSubtitle!)
+                  : null,
               onTap: () {
                 onNavigate();
                 OraclyFeatureNavigation.open(context, module.id);

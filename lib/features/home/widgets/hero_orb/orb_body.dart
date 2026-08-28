@@ -107,7 +107,7 @@ class OrbBody extends StatelessWidget {
                 ...AppShadows.soft,
                 BoxShadow(
                   color: AppColors.glowPurple.withValues(alpha: 0.40),
-                  blurRadius: AppShadowMetrics.cardGlowBlur,
+                  blurRadius: 28,
                   spreadRadius: 1,
                 ),
                 BoxShadow(
@@ -153,12 +153,12 @@ class OrbBody extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.purpleGlow.withValues(alpha: 0.50),
-                    blurRadius: AppShadowMetrics.iconBlur + AppSpacing.sm,
+                    blurRadius: 20,
                     spreadRadius: 1,
                   ),
                   BoxShadow(
                     color: AppColors.purpleLight.withValues(alpha: 0.28),
-                    blurRadius: AppShadowMetrics.goldSecondaryBlur,
+                    blurRadius: 16,
                   ),
                 ],
               ),

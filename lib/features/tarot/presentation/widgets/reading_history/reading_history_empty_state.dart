@@ -1,8 +1,11 @@
-/// OR-1070 — Empty journal state.
+/// Tarot archive empty — one human sentence + clear first draw.
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/constants/app_assets.dart';
+import '../../../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../shared/widgets/oracly_empty_state.dart';
 
 class ReadingHistoryEmptyState extends StatelessWidget {
@@ -13,15 +16,15 @@ class ReadingHistoryEmptyState extends StatelessWidget {
 
   final VoidCallback? onStartReading;
 
-  static const String message =
-      'Henüz kayıtlı bir açılım yok. İlk kartını çektiğinde burada birikecek.';
-
   @override
   Widget build(BuildContext context) {
     return OraclyEmptyState(
-      icon: Icons.auto_stories_rounded,
-      message: message,
-      ctaLabel: onStartReading != null ? 'İlk kartını çek' : null,
+      kind: OraclyLoadingKind.tarot,
+      imageAsset: AppAssets.tarotHero,
+      message: OraclyL10n.t('tarot.empty.history'),
+      ctaLabel: onStartReading != null
+          ? OraclyL10n.t('tarot.empty.history_cta')
+          : null,
       onCta: onStartReading,
     );
   }

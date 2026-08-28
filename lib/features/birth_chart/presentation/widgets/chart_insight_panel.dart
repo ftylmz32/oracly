@@ -1,4 +1,4 @@
-/// SPRINT-002 — Big Three celestial display.
+/// Placement orbs — only show bodies that were actually calculated.
 library;
 
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import '../../../../widgets/glass_card.dart';
 import '../../copy/birth_chart_copy.dart';
 import '../../models/birth_chart.dart';
 import '../../models/chart_insight.dart';
+import '../../services/chart_insight_locale.dart';
 
 class ChartInsightPanel extends StatelessWidget {
   const ChartInsightPanel({
@@ -23,13 +24,12 @@ class ChartInsightPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final showOrbs = insight.kind == ChartInsightKind.bigThree && chart != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (insight.kind == ChartInsightKind.bigThree && chart != null)
-          _BigThreeOrbs(chart: chart!),
-        if (insight.kind == ChartInsightKind.bigThree && chart != null)
-          SizedBox(height: AppSpacing.lg),
+        if (showOrbs) _PlacementOrbs(chart: chart!),
+        if (showOrbs) SizedBox(height: AppSpacing.lg),
         GlassCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,9 +38,7 @@ class ChartInsightPanel extends StatelessWidget {
               SizedBox(height: AppSpacing.md),
               Text(
                 insight.body,
-                style: ReadingTypography.body(
-                  color: AppColors.textSecondary,
-                ),
+                style: ReadingTypography.body(color: AppColors.textSecondary),
               ),
               if (insight.glossaryTerm != null &&
                   insight.glossaryExplanation != null) ...[
@@ -63,8 +61,8 @@ class ChartInsightPanel extends StatelessWidget {
   }
 }
 
-class _BigThreeOrbs extends StatelessWidget {
-  const _BigThreeOrbs({required this.chart});
+class _PlacementOrbs extends StatelessWidget {
+  const _PlacementOrbs({required this.chart});
 
   final BirthChart chart;
 
@@ -75,27 +73,30 @@ class _BigThreeOrbs extends StatelessWidget {
         Expanded(
           child: _Orb(
             label: BirthChartCopy.sunLabel,
-            sign: chart.sun.sign.labelTr,
+            sign: ChartInsightLocale.signName(chart.sun.sign),
             symbol: chart.sun.sign.symbol,
           ),
         ),
-        SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _Orb(
-            label: BirthChartCopy.moonLabel,
-            sign: chart.moon.sign.labelTr,
-            symbol: chart.moon.sign.symbol,
+        if (chart.hasFullNatal && chart.moon != null) ...[
+          SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: _Orb(
+              label: BirthChartCopy.moonLabel,
+              sign: ChartInsightLocale.signName(chart.moon!.sign),
+              symbol: chart.moon!.sign.symbol,
+            ),
           ),
-        ),
-        SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _Orb(
-            label: BirthChartCopy.risingLabel,
-            sign: chart.rising?.sign.labelTr ?? '—',
-            symbol: chart.rising?.sign.symbol ?? '↑',
-            muted: chart.rising == null,
+        ],
+        if (chart.hasFullNatal && chart.rising != null) ...[
+          SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: _Orb(
+              label: BirthChartCopy.risingLabel,
+              sign: ChartInsightLocale.signName(chart.rising!.sign),
+              symbol: chart.rising!.sign.symbol,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -106,13 +107,11 @@ class _Orb extends StatelessWidget {
     required this.label,
     required this.sign,
     required this.symbol,
-    this.muted = false,
   });
 
   final String label;
   final String sign;
   final String symbol;
-  final bool muted;
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +126,7 @@ class _Orb extends StatelessWidget {
             symbol,
             style: TextStyle(
               fontSize: 22,
-              color: muted
-                  ? AppColors.textHint
-                  : AppColors.goldLight.withValues(alpha: 0.9),
+              color: AppColors.goldLight.withValues(alpha: 0.9),
             ),
           ),
           SizedBox(height: AppSpacing.xs),
@@ -137,9 +134,7 @@ class _Orb extends StatelessWidget {
           SizedBox(height: 2),
           Text(
             sign,
-            style: ReadingTypography.bodySmall(
-              color: muted ? AppColors.textHint : AppColors.textPrimary,
-            ),
+            style: ReadingTypography.bodySmall(color: AppColors.textPrimary),
             textAlign: TextAlign.center,
           ),
         ],

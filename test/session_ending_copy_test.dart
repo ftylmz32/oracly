@@ -7,7 +7,7 @@ import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/ai_rea
 
 void main() {
   group('SessionEndingCopy', () {
-    test('lastingReflection prefers closing message', () {
+    test('lastingReflection prefers daily whisper', () {
       const content = AiReadingContent(
         cardName: 'The Star',
         tagline: 'Umut',
@@ -23,10 +23,7 @@ void main() {
         closingMessage: 'Bu cümle seninle kalsın.',
       );
 
-      expect(
-        SessionEndingCopy.lastingReflection(content),
-        'Bu cümle seninle kalsın.',
-      );
+      expect(SessionEndingCopy.lastingReflection(content), 'Öneri.');
     });
 
     test('affirmationBeat avoids duplicating dailyAdvice', () {
@@ -47,7 +44,8 @@ void main() {
 
       final beat = SessionEndingCopy.affirmationBeat(content);
       expect(beat, isNot(contains('Pratik öneri')));
-      expect(beat, 'Son yansıma cümlesi.');
+      expect(beat, isNot(contains('Son yansıma')));
+      expect(beat, 'Bugün ne hissediyorsun?');
     });
 
     test('closing fallback avoids forbidden tone', () {

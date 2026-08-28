@@ -12,7 +12,7 @@ abstract final class DailyEnergyContentCatalogue {
       id: 'energy_${date.toIso8601String().substring(0, 10)}',
       date: date,
       summary:
-          'Bugün sezgilerin güçleniyor. İç sesine güven ve adımlarını bilinçle at.',
+          'Bugün sezgin biraz daha net. Acele etmeden tek bir adıma bak.',
       vibrationScore: ((date.day + date.month) % 100) / 100.0,
       luckyColor: _colors[weekday % _colors.length],
       luckyNumber: LuckyNumber(
@@ -105,8 +105,8 @@ abstract final class DailyEnergyContentCatalogue {
     MoonInfluence(
       phase: 'waning',
       label: 'Azalan Ay',
-      influence: 'Bırakış ve arınma enerjisi güçlü.',
-      ritualHint: 'Ritüel banyosu veya dijital detoks dene.',
+      influence: 'Bırakış ve sadeleştirme daha doğal durur.',
+      ritualHint: 'Kısa bir banyo veya ekranı bir saat kapatmayı dene.',
     ),
   ];
 

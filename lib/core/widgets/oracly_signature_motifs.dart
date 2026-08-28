@@ -1,13 +1,15 @@
-/// OR-433 — ORACLY signature micro-details: recurring OL motifs app-wide.
+/// OR-433 / EPIC-027 — ORACLY signature micro-details: recurring OL motifs app-wide.
 library;
 
 import 'package:flutter/material.dart';
 
+import '../design_system/micro_details/micro_detail_painters.dart';
+import '../design_system/micro_details/micro_detail_tokens.dart';
 import '../theme/app_spacing.dart';
 import '../theme/oracly_brand_signature.dart';
 
-/// Vesica compass divider — OL-7 inspired centre accent.
-class OraclySignatureDivider extends StatelessWidget {
+/// Vesica compass divider — soft glow fade with transparent endings.
+class OraclySignatureDivider extends StatefulWidget {
   const OraclySignatureDivider({
     super.key,
     this.compact = false,
@@ -16,15 +18,53 @@ class OraclySignatureDivider extends StatelessWidget {
   final bool compact;
 
   @override
+  State<OraclySignatureDivider> createState() => _OraclySignatureDividerState();
+}
+
+class _OraclySignatureDividerState extends State<OraclySignatureDivider>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _phase;
+
+  @override
+  void initState() {
+    super.initState();
+    _phase = AnimationController(
+      vsync: this,
+      duration: MicroDetailTokens.breathCycle,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _phase.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: compact ? AppSpacing.sm : AppSpacing.md,
+        vertical: widget.compact ? AppSpacing.sm : AppSpacing.md,
       ),
       child: SizedBox(
-        height: compact ? 10 : 12,
+        height: widget.compact ? 10 : 12,
         width: double.infinity,
-        child: CustomPaint(painter: OraclySignatureDividerPainter()),
+        child: AnimatedBuilder(
+          animation: _phase,
+          builder: (context, _) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                CustomPaint(
+                  painter: MicroDividerGlowPainter(phase: _phase.value),
+                ),
+                CustomPaint(
+                  painter: OraclySignatureDividerPainter(),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -83,42 +123,48 @@ class OraclySignatureCornerOrnaments extends StatelessWidget {
     super.key,
     this.inset = 10,
     this.size = 16,
+    this.asPositionedFill = true,
   });
 
   final double inset;
   final double size;
 
+  /// When false, returns only the corner stack so callers can wrap with
+  /// [Positioned.fill] / [Opacity] without breaking Stack parent data rules.
+  final bool asPositionedFill;
+
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned(
-              top: inset,
-              left: inset,
-              child: _Corner(flipX: false, flipY: false, size: size),
-            ),
-            Positioned(
-              top: inset,
-              right: inset,
-              child: _Corner(flipX: true, flipY: false, size: size),
-            ),
-            Positioned(
-              bottom: inset,
-              left: inset,
-              child: _Corner(flipX: false, flipY: true, size: size),
-            ),
-            Positioned(
-              bottom: inset,
-              right: inset,
-              child: _Corner(flipX: true, flipY: true, size: size),
-            ),
-          ],
-        ),
+    final corners = IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: inset,
+            left: inset,
+            child: _Corner(flipX: false, flipY: false, size: size),
+          ),
+          Positioned(
+            top: inset,
+            right: inset,
+            child: _Corner(flipX: true, flipY: false, size: size),
+          ),
+          Positioned(
+            bottom: inset,
+            left: inset,
+            child: _Corner(flipX: false, flipY: true, size: size),
+          ),
+          Positioned(
+            bottom: inset,
+            right: inset,
+            child: _Corner(flipX: true, flipY: true, size: size),
+          ),
+        ],
       ),
     );
+
+    if (!asPositionedFill) return corners;
+    return Positioned.fill(child: corners);
   }
 }
 
@@ -303,11 +349,14 @@ class OraclySignatureMicroFrame extends StatelessWidget {
             borderRadius: borderRadius,
           ),
         if (showCorners)
-          Opacity(
-            opacity: opacity.clamp(0.0, 1.0),
-            child: OraclySignatureCornerOrnaments(
-              inset: cornerInset,
-              size: cornerSize,
+          Positioned.fill(
+            child: Opacity(
+              opacity: opacity.clamp(0.0, 1.0),
+              child: OraclySignatureCornerOrnaments(
+                inset: cornerInset,
+                size: cornerSize,
+                asPositionedFill: false,
+              ),
             ),
           ),
         if (showTopArc)

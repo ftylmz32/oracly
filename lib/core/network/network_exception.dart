@@ -1,6 +1,8 @@
 /// OR-1130 — Network layer exceptions.
 library;
 
+import '../copy/resilience_copy.dart';
+
 enum NetworkErrorKind {
   timeout,
   noConnection,
@@ -27,17 +29,17 @@ class NetworkException implements Exception {
   final Object? cause;
 
   factory NetworkException.timeout([String? message]) => NetworkException(
-        message: message ?? 'İstek zaman aşımına uğradı.',
+        message: message ?? ResilienceCopy.slowResponse,
         kind: NetworkErrorKind.timeout,
       );
 
   factory NetworkException.noConnection([String? message]) => NetworkException(
-        message: message ?? 'İnternet bağlantısı yok.',
+        message: message ?? ResilienceCopy.offline,
         kind: NetworkErrorKind.noConnection,
       );
 
   factory NetworkException.unauthorized([String? message]) => NetworkException(
-        message: message ?? 'Oturum süresi doldu.',
+        message: message ?? ResilienceCopy.aiConfigMissing,
         kind: NetworkErrorKind.unauthorized,
         statusCode: 401,
       );
@@ -50,8 +52,16 @@ class NetworkException implements Exception {
       >= 500 => NetworkErrorKind.server,
       _ => NetworkErrorKind.unknown,
     };
+    final fallback = switch (kind) {
+      NetworkErrorKind.unauthorized ||
+      NetworkErrorKind.forbidden =>
+        ResilienceCopy.aiConfigMissing,
+      NetworkErrorKind.server => ResilienceCopy.aiUnavailable,
+      NetworkErrorKind.notFound => ResilienceCopy.genericLoadFailed,
+      _ => ResilienceCopy.temporaryFailure,
+    };
     return NetworkException(
-      message: message ?? 'HTTP $code',
+      message: message ?? fallback,
       kind: kind,
       statusCode: code,
     );

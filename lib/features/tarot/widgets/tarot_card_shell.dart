@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_styles.dart';
-import 'tarot_card_back_painter.dart';
+import '../art/tarot_card_back_art.dart';
+import '../art/tarot_major_card_art.dart';
 
 class TarotCardShell extends StatelessWidget {
   const TarotCardShell({
@@ -84,10 +85,7 @@ class TarotCardBackFace extends StatelessWidget {
       width: width,
       height: height,
       radius: radius,
-      child: CustomPaint(
-        painter: TarotCardBackPainter(),
-        child: const SizedBox.expand(),
-      ),
+      child: const TarotCardBackArt(),
     );
   }
 }
@@ -119,10 +117,9 @@ class TarotCardFace extends StatelessWidget {
       child: image != null
           ? ClipRRect(
               borderRadius: BorderRadius.circular(radius - 2),
-              child: Image.asset(
-                image!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _labelFallback(),
+              child: TarotMajorCardArt(
+                imageAsset: image!,
+                fallback: _labelFallback(),
               ),
             )
           : _labelFallback(),

@@ -2,7 +2,7 @@
 library;
 
 abstract class TokenManager {
-  Future<String?> getAccessToken();
+  Future<String?> getAccessToken({bool forceRefresh = false});
   Future<String?> getRefreshToken();
   Future<void> saveTokens({
     required String accessToken,

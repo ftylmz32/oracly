@@ -1,63 +1,28 @@
-/// OR-001 — Theme Foundation: gradients and shared [BoxDecoration] presets.
+/// OR-001 — Theme Foundation: shared [BoxDecoration] presets.
 library;
 
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
-import 'app_radius.dart';
-import 'app_shadows.dart';
-import 'app_spacing.dart';
-import 'oracly_brand_signature.dart';
+import '../design_system/app_colors.dart';
+import '../design_system/app_gradients.dart';
+import '../design_system/app_radius.dart';
+import '../design_system/app_spacing.dart';
+import '../design_system/premium_cards/premium_card_shell.dart';
+import '../design_system/premium_cards/premium_card_tokens.dart';
 
-/// Matte gradients for premium surfaces.
-abstract final class AppGradients {
-  AppGradients._();
-
-  static const LinearGradient background = LinearGradient(
-    begin: Alignment(-0.2, -1),
-    end: Alignment(0.3, 1.1),
-    colors: [
-      AppColors.secondary,
-      AppColors.background,
-      AppColors.background,
-    ],
-    stops: [0, 0.45, 1],
-  );
-
-  static const LinearGradient matteCard = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [AppColors.surfaceElevated, AppColors.surface],
-  );
-
-  static const LinearGradient matteSurface = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [AppColors.surfaceElevated, AppColors.surface],
-  );
-
-  static const LinearGradient goldBorder = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [AppColors.goldLight, AppColors.gold, AppColors.gold],
-  );
-
-  static LinearGradient glass = OraclySignatureChamber.crystalBody();
-}
-
-/// Reusable premium [BoxDecoration] factories.
+/// Reusable premium [BoxDecoration] factories — delegates to card system.
 abstract final class AppDecorations {
   AppDecorations._();
 
   static BoxDecoration premiumCard({BorderRadius? borderRadius}) {
     return BoxDecoration(
-      gradient: AppGradients.matteCard,
-      borderRadius: borderRadius ?? AppRadius.lg,
+      borderRadius: borderRadius ?? AppRadius.s24,
+      gradient: AppGradients.primary,
       border: Border.all(
-        color: AppColors.matteBorder,
-        width: AppBorderWidth.thin,
+        color: AppColors.gold.withValues(alpha: 0.28),
+        width: AppBorderWidth.hairline,
       ),
-      boxShadow: AppShadows.card,
+      boxShadow: PremiumCardDecoration.shadowsFor(PremiumCardGlow.medium),
     );
   }
 
@@ -66,7 +31,7 @@ abstract final class AppDecorations {
     double width = AppBorderWidth.gold,
   }) {
     return BoxDecoration(
-      borderRadius: borderRadius ?? AppRadius.lg,
+      borderRadius: borderRadius ?? AppRadius.s24,
       border: Border.all(color: AppColors.gold, width: width),
     );
   }
@@ -77,7 +42,7 @@ abstract final class AppDecorations {
   }) {
     return BoxDecoration(
       color: color ?? AppColors.surface,
-      borderRadius: borderRadius ?? AppRadius.md,
+      borderRadius: borderRadius ?? AppRadius.s16,
       border: Border.all(
         color: AppColors.divider,
         width: AppBorderWidth.thin,
@@ -91,11 +56,43 @@ abstract final class AppDecorations {
   }) =>
       mattePanel(color: color, borderRadius: borderRadius);
 
+  static BoxDecoration luxuryGlass({
+    BorderRadius? borderRadius,
+    double glowStrength = 1.0,
+  }) {
+    final glow = glowStrength >= 0.9
+        ? PremiumCardGlow.large
+        : glowStrength >= 0.7
+            ? PremiumCardGlow.medium
+            : glowStrength > 0
+                ? PremiumCardGlow.small
+                : PremiumCardGlow.none;
+
+    return BoxDecoration(
+      borderRadius: borderRadius ?? AppRadius.s32,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          AppColors.surfaceElevated.withValues(alpha: 0.94),
+          AppColors.surface.withValues(alpha: 0.84),
+          AppColors.backgroundSecondary.withValues(alpha: 0.78),
+        ],
+        stops: const [0.0, 0.55, 1.0],
+      ),
+      border: Border.all(
+        color: AppColors.gold.withValues(alpha: 0.28),
+        width: AppBorderWidth.hairline,
+      ),
+      boxShadow: PremiumCardDecoration.shadowsFor(glow),
+    );
+  }
+
   static EdgeInsets contentPadding({EdgeInsets? padding}) {
     return padding ??
         AppSpacing.card.copyWith(
-          top: AppSpacing.sm + AppSpacing.xs,
-          bottom: AppSpacing.sm + AppSpacing.xs,
+          top: AppSpacing.s12,
+          bottom: AppSpacing.s12,
         );
   }
 }

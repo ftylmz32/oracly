@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../orb_animation.dart';
 import '../orb_constants.dart';
 import '../orb_paint.dart';
+import '../orb_performance.dart';
 import '../orb_render_context.dart';
 
 class OrbParticlesPainter extends CustomPainter {
@@ -16,11 +17,15 @@ class OrbParticlesPainter extends CustomPainter {
     required this.context,
     required this.motion,
     this.intensity = 1.0,
+    this.particleLimit = 21,
+    this.dustLimit = 11,
   });
 
   final OrbRenderContext context;
   final OrbAnimationBundle motion;
   final double intensity;
+  final int particleLimit;
+  final int dustLimit;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -32,11 +37,11 @@ class OrbParticlesPainter extends CustomPainter {
     canvas.save();
     canvas.clipPath(context.sphereClip());
 
-    for (final seed in OrbParticleField.seeds) {
+    for (final seed in OrbParticleField.seeds.take(particleLimit)) {
       _drawParticle(canvas, center, radius, phase, seed, 0.30);
     }
 
-    for (final seed in OrbParticleField.dustSeeds) {
+    for (final seed in OrbParticleField.dustSeeds.take(dustLimit)) {
       _drawParticle(canvas, center, radius, phase, seed, dust);
     }
 
@@ -74,7 +79,9 @@ class OrbParticlesPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant OrbParticlesPainter oldDelegate) {
     return oldDelegate.context.particlePhase != context.particlePhase ||
-        oldDelegate.intensity != intensity;
+        oldDelegate.intensity != intensity ||
+        oldDelegate.particleLimit != particleLimit ||
+        oldDelegate.dustLimit != dustLimit;
   }
 }
 
@@ -84,12 +91,14 @@ class OrbParticlesLayer extends StatelessWidget {
     required this.motion,
     required this.layoutSize,
     required this.canvasSize,
+    required this.tier,
     this.intensity = 1.0,
   });
 
   final OrbAnimationBundle motion;
   final double layoutSize;
   final double canvasSize;
+  final OrbPerformanceTier tier;
   final double intensity;
 
   @override
@@ -110,6 +119,8 @@ class OrbParticlesLayer extends StatelessWidget {
               ),
               motion: motion,
               intensity: intensity,
+              particleLimit: OrbPerformance.particleSeedCount(tier),
+              dustLimit: OrbPerformance.dustSeedCount(tier),
             ),
             size: Size.square(canvasSize),
           );

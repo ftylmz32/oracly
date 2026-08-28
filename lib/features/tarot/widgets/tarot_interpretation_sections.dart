@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n.dart';
+import '../components/tarot_loading.dart';
 import '../utils/tarot_reading_parser.dart';
 import 'tarot_glass_panel.dart';
 import 'tarot_oracle_header.dart';
-import 'tarot_typography.dart';
 
 class TarotInterpretationSections extends StatelessWidget {
   const TarotInterpretationSections({
@@ -21,28 +22,28 @@ class TarotInterpretationSections extends StatelessWidget {
         const TarotOracleHeader(),
         const SizedBox(height: 16),
         TarotGlassPanel(
-          title: 'Kart Mesajı',
+          title: OraclyL10n.t('tarot.panel.card_message'),
           body: sections.cardMessage,
           icon: Icons.mail_outline_rounded,
           delayMs: 0,
         ),
         const SizedBox(height: 12),
         TarotGlassPanel(
-          title: 'İç Anlam',
+          title: OraclyL10n.t('tarot.panel.inner_meaning'),
           body: sections.innerMeaning,
           icon: Icons.visibility_outlined,
           delayMs: 80,
         ),
         const SizedBox(height: 12),
         TarotGlassPanel(
-          title: 'Rehberlik',
+          title: OraclyL10n.t('tarot.panel.guidance'),
           body: sections.guidance,
           icon: Icons.navigation_outlined,
           delayMs: 160,
         ),
         const SizedBox(height: 12),
         TarotGlassPanel(
-          title: 'Günün Yansıması',
+          title: OraclyL10n.t('tarot.panel.daily_reflection'),
           body: sections.dailyReflection,
           icon: Icons.nightlight_round_outlined,
           delayMs: 240,
@@ -59,23 +60,10 @@ class TarotInterpretationLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 180,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 26,
-              height: 26,
-              child: CircularProgressIndicator(
-                strokeWidth: 1.2,
-                color: TarotTypography.sectionGold().color,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text('Oracle konuşuyor...', style: TarotTypography.captionMuted()),
-          ],
-        ),
+      height: 220,
+      child: TarotLoading(
+        message: OraclyL10n.t('tarot.oracle_speaking'),
+        compact: true,
       ),
     );
   }

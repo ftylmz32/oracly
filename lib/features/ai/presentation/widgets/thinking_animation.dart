@@ -5,6 +5,7 @@ import 'dart:math' show pi, sin;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/copy/conversation_copy.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
@@ -13,10 +14,10 @@ import '../../../../core/theme/app_text_styles.dart';
 class ThinkingAnimation extends StatefulWidget {
   const ThinkingAnimation({
     super.key,
-    this.label = 'OR düşünüyor...',
+    this.label,
   });
 
-  final String label;
+  final String? label;
 
   @override
   State<ThinkingAnimation> createState() => _ThinkingAnimationState();
@@ -66,7 +67,7 @@ class _ThinkingAnimationState extends State<ThinkingAnimation>
             ),
             SizedBox(width: AppSpacing.sm),
             Text(
-              widget.label,
+              widget.label ?? ConversationCopy.thinkingLabel,
               style: AppTextStyles.labelMedium.copyWith(
                 color: AppColors.textSecondary,
               ),

@@ -2,7 +2,11 @@
 library;
 
 import '../../../../core/copy/resilience_copy.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../domain/models/reading_session.dart';
+import '../domain/models/reading_session_draw.dart';
+import '../domain/models/tarot_session_recovery.dart';
+import '../models/tarot_card.dart';
 import '../../insights/models/journey_personalization_hints.dart';
 import '../domain/models/tarot_position.dart';
 import '../domain/models/tarot_spread.dart';
@@ -28,19 +32,32 @@ class TarotReadingController extends TarotBaseController {
   final TarotInterpretationService _interpretationService;
 
   ReadingSession? _session;
+  bool _drawLocked = false;
+  Future<AiReadingContent>? _interpretationInflight;
 
   ReadingSession? get session => _session;
   TarotDeckController get deckController => _deckController;
 
   Future<void> restoreActiveSession() async {
-    final active = await _repository.loadActiveSession();
-    if (active == null) return;
-    _session = active;
-    _deckController.restorePile(
-      deckId: active.deckId,
-      seed: active.shuffleSeed,
-      drawnCardIds: active.drawnCards.map((c) => c.card.id).toList(),
+    final raw = await _repository.loadActiveSession();
+    final recovered = TarotSessionRecovery.prepare(
+      raw,
+      activeOnly: true,
     );
+    if (recovered == null) {
+      await _repository.clearActiveSession();
+      return;
+    }
+    _session = recovered;
+    _deckController.restorePile(
+      deckId: recovered.deckId,
+      seed: recovered.shuffleSeed,
+      drawnCardIds: recovered.drawnCards.map((c) => c.card.id).toList(),
+    );
+    final changed = raw != null &&
+        (raw.flowStep != recovered.flowStep ||
+            raw.drawnCards.length != recovered.drawnCards.length);
+    if (changed) await _persist();
     notifyListeners();
   }
 
@@ -83,44 +100,75 @@ class TarotReadingController extends TarotBaseController {
     final current = _session;
     if (current == null) return;
     _deckController.shuffle(seed: current.shuffleSeed);
+    notifyListeners();
+  }
+
+  Future<void> finishShuffle() async {
     await _updateStep(ReadingFlowStep.cardSelection);
   }
 
-  Future<TarotDrawnCard> drawCard() async {
+  Future<TarotDrawnCard> drawCard({int? fanIndex}) async {
     final current = _session;
     if (current == null) {
       throw StateError('No active reading session');
     }
+    if (_drawLocked) {
+      throw StateError('Draw in progress');
+    }
     if (current.allCardsDrawn) {
       throw StateError('All cards already drawn');
     }
+    _drawLocked = true;
+    try {
+      final draw = fanIndex == null
+          ? _deckController.drawNext()
+          : _deckController.drawFromFan(fanIndex);
+      final drawn = _applyDraw(current, draw);
+      await _persist();
+      notifyListeners();
+      return drawn;
+    } finally {
+      _drawLocked = false;
+    }
+  }
 
-    final draw = _deckController.drawNext();
-    final position = SpreadService.positionAt(
-      current.spread,
-      current.drawnCards.length,
-    );
-    final drawn = TarotDrawnCard(
-      card: draw.card,
-      positionIndex: current.drawnCards.length,
-      isReversed: draw.isReversed,
-      positionLabel: position?.labelTr,
-      positionKey: position?.key,
-    );
-
-    _session = current.copyWith(
-      drawnCards: [...current.drawnCards, drawn],
-      flowStep: ReadingFlowStep.reveal,
-      currentPositionIndex: current.drawnCards.length,
-    );
-    await _persist();
-    notifyListeners();
-    return drawn;
+  /// OR AÇSIN — take the remaining spread cards from the shuffled pile.
+  Future<void> drawAllRemaining() async {
+    var current = _session;
+    if (current == null) {
+      throw StateError('No active reading session');
+    }
+    if (_drawLocked) return;
+    _drawLocked = true;
+    try {
+      while (!current!.allCardsDrawn) {
+        _applyDraw(current, _deckController.drawNext());
+        current = _session!;
+      }
+      _session = current.copyWith(
+        flowStep: ReadingFlowStep.reveal,
+        currentPositionIndex: 0,
+      );
+      await _persist();
+      notifyListeners();
+    } finally {
+      _drawLocked = false;
+    }
   }
 
   Future<void> advanceAfterReveal() async {
     final current = _session;
     if (current == null) return;
+
+    if (current.hasQueuedReveal) {
+      _session = current.copyWith(
+        flowStep: ReadingFlowStep.reveal,
+        currentPositionIndex: current.currentPositionIndex + 1,
+      );
+      await _persist();
+      notifyListeners();
+      return;
+    }
 
     if (current.allCardsDrawn) {
       await _updateStep(ReadingFlowStep.reading);
@@ -129,30 +177,67 @@ class TarotReadingController extends TarotBaseController {
     }
   }
 
+  TarotDrawnCard _applyDraw(
+    ReadingSession current,
+    ({TarotCard card, bool isReversed}) draw,
+  ) {
+    final position = SpreadService.positionAt(
+      current.spread,
+      current.drawnCards.length,
+    );
+    final drawn = TarotDrawnCard(
+      card: draw.card,
+      positionIndex: current.drawnCards.length,
+      isReversed: draw.isReversed,
+      positionLabel: position?.label,
+      positionKey: position?.key,
+    );
+
+    _session = current.copyWith(
+      drawnCards: [...current.drawnCards, drawn],
+      flowStep: ReadingFlowStep.reveal,
+      currentPositionIndex: current.drawnCards.length,
+    );
+    return drawn;
+  }
+
   Future<AiReadingContent> resolveInterpretationContent({
     JourneyPersonalizationHints? journeyHints,
+    bool forceRefresh = false,
   }) async {
     final current = _session;
     if (current == null) {
       throw StateError('No active reading session');
     }
+    final pending = _interpretationInflight;
+    if (pending != null) return pending;
     isLoading = true;
     notifyListeners();
-    try {
-      final content = await _interpretationService.generateContent(
-        current,
-        journeyHints: journeyHints,
-      );
-      _session = current.copyWith(
-        interpretation: content.fullInterpretation,
-        flowStep: ReadingFlowStep.reading,
-      );
-      await _persist();
-      return content;
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
+    final future = () async {
+      try {
+        final content = await _interpretationService.generateContent(
+          current,
+          language: OraclyL10n.code,
+          journeyHints: journeyHints,
+          forceRefresh: forceRefresh,
+        );
+        if (_session?.id != current.id) {
+          throw StateError('Reading session changed');
+        }
+        _session = current.copyWith(
+          interpretation: content.fullInterpretation,
+          flowStep: ReadingFlowStep.reading,
+        );
+        await _persist();
+        return content;
+      } finally {
+        isLoading = false;
+        _interpretationInflight = null;
+        notifyListeners();
+      }
+    }();
+    _interpretationInflight = future;
+    return future;
   }
 
   Future<String> generateInterpretation() async {
@@ -203,6 +288,8 @@ class TarotReadingController extends TarotBaseController {
     _deckController.resetPile();
     notifyListeners();
   }
+
+  Future<void> flush() => _persist();
 
   Future<void> _updateStep(ReadingFlowStep step) async {
     final current = _session;

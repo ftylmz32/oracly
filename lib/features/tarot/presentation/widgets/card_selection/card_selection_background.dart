@@ -2,12 +2,14 @@
 library;
 
 import 'dart:math' show pi, sin;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../../../core/theme/oracly_soft_glow.dart';
+import '../../../motion/tarot_ambient_sync.dart';
+import '../../../motion/tarot_cinematic_motion.dart';
 
 class CardSelectionBackground extends StatefulWidget {
   const CardSelectionBackground({super.key, this.sacred = 0});
@@ -19,20 +21,33 @@ class CardSelectionBackground extends StatefulWidget {
 }
 
 class _CardSelectionBackgroundState extends State<CardSelectionBackground>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _drift;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _drift = AnimationController(
       vsync: this,
-      duration: OraclySignatureMaterials.ambientDuration,
-    )..repeat();
+      duration: TarotCinematicMotion.ambient,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    tarotSyncAmbient(context, _drift);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    tarotSyncAmbient(context, _drift);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _drift.dispose();
     super.dispose();
   }
@@ -105,15 +120,11 @@ class _FogBlob extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 72, sigmaY: 72),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-        ),
-      ),
+    return OraclySoftGlow(
+      width: size,
+      height: size,
+      sigma: 72,
+      color: color,
     );
   }
 }

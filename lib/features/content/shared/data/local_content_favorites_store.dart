@@ -36,7 +36,8 @@ class LocalContentFavoritesStore implements ContentFavoritesStore {
   @override
   Future<void> addFavorite(String domain, String contentId) async {
     final set = await getFavorites(domain);
-    await _storage.setStringList(_key(domain), [...set, contentId].toList());
+    if (set.contains(contentId)) return;
+    await _storage.setStringList(_key(domain), [...set, contentId]);
   }
 
   @override

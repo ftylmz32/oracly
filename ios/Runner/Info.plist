@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Kahve fincanı fotoğrafı çekmek için kamera gerekir.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kahve fincanı fotoğrafı seçmek için galeri gerekir.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Rüyanı sesli anlatmak için mikrofon gerekir.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Rüyanı yazıya dökmek için ses tanıma gerekir. Ses kaydı saklanmaz.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -22,8 +30,25 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>app.oracly.share</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>oracly</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>mailto</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

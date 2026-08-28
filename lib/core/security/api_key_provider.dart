@@ -14,10 +14,24 @@ class EnvApiKeyProvider implements ApiKeyProvider {
 
   final Map<String, String>? _env;
 
-  Map<String, String> get _source => _env ?? dotenv.env;
+  Map<String, String> get _source {
+    final local = _env;
+    if (local != null) return local;
+    try {
+      return dotenv.env;
+    } catch (_) {
+      return const {};
+    }
+  }
 
   @override
-  String? get openAiKey => _source['OPENAI_API_KEY'];
+  String? get openAiKey {
+    // DEV only via dotenv. Never String.fromEnvironment — that would embed
+    // the secret in a production binary if passed as --dart-define.
+    final env = _source['OPENAI_API_KEY']?.trim();
+    if (env != null && env.isNotEmpty) return env;
+    return null;
+  }
 
   @override
   String? get firebaseApiKey => _source['FIREBASE_API_KEY'];

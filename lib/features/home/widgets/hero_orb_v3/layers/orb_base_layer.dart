@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/app_assets.dart';
+import '../../../../../core/performance/oracly_decode_cache.dart';
 
 /// Static reference reconstruction — crystal, pedestal, rings, logo, nebula.
 class OrbBaseLayer extends StatelessWidget {
@@ -11,12 +12,24 @@ class OrbBaseLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      AppAssets.heroOrbPremium,
-      fit: BoxFit.contain,
-      filterQuality: FilterQuality.high,
-      gaplessPlayback: true,
-      excludeFromSemantics: true,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final logical = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : 390.0;
+        final cacheW = oraclyDecodeCachePx(
+          logical,
+          MediaQuery.devicePixelRatioOf(context),
+        );
+        return Image.asset(
+          AppAssets.heroOrbPremium,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
+          gaplessPlayback: true,
+          excludeFromSemantics: true,
+          cacheWidth: cacheW,
+        );
+      },
     );
   }
 }

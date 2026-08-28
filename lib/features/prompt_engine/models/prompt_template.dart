@@ -31,7 +31,10 @@ class PromptTemplate {
   final int expectedOutputTokens;
 
   String? localization(String locale, String key) {
-    return localizations[locale]?[key] ?? localizations['tr']?[key];
+    final exact = localizations[locale]?[key];
+    if (exact != null) return exact;
+    if (localizations.containsKey(locale)) return null;
+    return localizations['tr']?[key];
   }
 
   PromptTemplate copyWith({

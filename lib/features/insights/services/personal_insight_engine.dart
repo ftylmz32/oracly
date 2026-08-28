@@ -4,6 +4,7 @@ library;
 import '../../../core/domain/models/personal_insight_report.dart';
 import '../../../core/domain/models/personal_insight_theme.dart';
 import '../../../core/domain/models/reading.dart';
+import '../../../core/l10n/oracly_format.dart';
 
 /// Derives thematic tags and monthly reflections from completed readings.
 abstract final class PersonalInsightEngine {
@@ -133,11 +134,17 @@ abstract final class PersonalInsightEngine {
   }
 
   /// Build insight report from saved history — purely local computation.
-  static PersonalInsightReport analyze(List<ReadingModel> readings) {
+  ///
+  /// [totalReadings] may exceed [readings] when callers pass a theme window.
+  static PersonalInsightReport analyze(
+    List<ReadingModel> readings, {
+    int? totalReadings,
+  }) {
+    final total = totalReadings ?? readings.length;
     if (readings.length < minReadingsForThemes) {
       return PersonalInsightReport(
         recurringThemes: const [],
-        totalReadings: readings.length,
+        totalReadings: total,
       );
     }
 
@@ -160,7 +167,7 @@ abstract final class PersonalInsightEngine {
     return PersonalInsightReport(
       recurringThemes: echoes.take(4).toList(),
       monthlyReflection: monthly,
-      totalReadings: readings.length,
+      totalReadings: total,
     );
   }
 
@@ -249,13 +256,7 @@ abstract final class PersonalInsightEngine {
         'temaları yankılandı — bir ritim hissediliyor olabilir.';
   }
 
-  static String _monthLabel(DateTime date) {
-    const months = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
-    ];
-    return '${months[date.month - 1]} ${date.year}';
-  }
+  static String _monthLabel(DateTime date) => OraclyFormat.monthYear(date);
 
   static PersonalInsightTheme? fromStorageTag(String tag) {
     if (!tag.startsWith('insight:')) return null;

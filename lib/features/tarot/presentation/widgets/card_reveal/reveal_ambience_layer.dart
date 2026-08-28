@@ -122,8 +122,8 @@ class _RevealBloomPainter extends CustomPainter {
       Paint()
         ..shader = RadialGradient(
           colors: [
-            AppColors.purpleGlow.withValues(alpha: 0.28 * intensity + focus * 0.08),
-            AppColors.goldLight.withValues(alpha: 0.08 * intensity + focus * 0.04),
+            AppColors.purpleGlow.withValues(alpha: 0.14 * intensity + focus * 0.05),
+            AppColors.goldLight.withValues(alpha: 0.10 * intensity + focus * 0.05),
             AppColors.transparent,
           ],
           stops: const [0.0, 0.48, 1.0],
@@ -147,21 +147,14 @@ class _RevealParticlesPainter extends CustomPainter {
   final double intensity;
 
   static const _pts = <(double x, double y, double r)>[
-    (-0.42, -0.12, 1.0),
-    (-0.36, -0.08, 1.2),
-    (-0.20, 0.12, 1.0),
-    (-0.04, -0.18, 1.1),
-    (0.12, 0.06, 0.9),
-    (0.26, -0.14, 1.0),
-    (0.38, 0.08, 0.85),
-    (-0.28, 0.22, 0.95),
-    (0.18, 0.24, 0.8),
-    (-0.12, -0.26, 1.05),
-    (0.32, -0.22, 0.9),
-    (-0.34, -0.16, 0.75),
-    (0.08, -0.30, 1.0),
-    (-0.22, 0.04, 0.7),
-    (0.42, -0.06, 0.85),
+    (-0.36, -0.10, 0.9),
+    (-0.18, 0.10, 0.85),
+    (0.08, -0.16, 0.95),
+    (0.28, 0.06, 0.8),
+    (-0.24, 0.18, 0.75),
+    (0.20, 0.20, 0.7),
+    (0.38, -0.12, 0.8),
+    (-0.08, -0.24, 0.85),
   ];
 
   @override
@@ -171,15 +164,19 @@ class _RevealParticlesPainter extends CustomPainter {
     for (var i = 0; i < _pts.length; i++) {
       final (nx, ny, r) = _pts[i];
       final orbit = phase + i * 0.52;
-      final drift = sin(orbit) * 6;
-      final lift = cos(orbit * 0.85) * 5;
-      final tw = 0.45 + sin(orbit * 1.4) * 0.35;
-      final isPurple = i.isEven;
+      final drift = sin(orbit) * 4;
+      final lift = cos(orbit * 0.85) * 3;
+      final tw = 0.45 + sin(orbit * 1.4) * 0.28;
       canvas.drawCircle(
-        Offset(cx + nx * size.width * 0.44 + drift, cy + ny * size.height * 0.36 + lift),
+        Offset(
+          cx + nx * size.width * 0.44 + drift,
+          cy + ny * size.height * 0.36 + lift,
+        ),
         r,
-        Paint()..color = (isPurple ? AppColors.purpleLight : AppColors.goldLight)
-            .withValues(alpha: 0.20 * intensity * tw),
+        Paint()
+          ..color = AppColors.goldLight.withValues(
+            alpha: 0.12 * intensity * tw,
+          ),
       );
     }
   }

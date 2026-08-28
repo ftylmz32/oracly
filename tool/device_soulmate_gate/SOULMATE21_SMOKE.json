@@ -1,0 +1,11 @@
+{
+  "DEVICE_VERIFICATION": "PARTIAL",
+  "opened_entry": true,
+  "looks_like_chamber": true,
+  "has_form_or_premium_gate": false,
+  "live_generation": "BLOCKED",
+  "live_generation_reason": "Requires Premium entitlement + deployed AI proxy; not exercised on this smoke.",
+  "crash_or_overflow_log": false,
+  "entry_sample": "Niyet || → || Kart Seçimi || → || Açılım || → || Yorum || ODAK IÇIN BIR KONU || İstersen bir konu seç — zorunlu değil. || Aşk hayatımda neye dikkat etmeliyim? || İş konusunda önümde ne var? || Bu dönemde neyi bırakmalıyım? || Atla || Atla || Devam Et || Önce bugünün ücretsiz kart",
+  "redeployed": false
+}

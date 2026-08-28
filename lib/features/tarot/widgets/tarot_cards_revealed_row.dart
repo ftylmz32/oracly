@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n.dart';
 import 'tarot_tag_chip.dart';
 import 'tarot_typography.dart';
 
@@ -13,7 +14,7 @@ class TarotCardsRevealedRow extends StatelessWidget {
     return Row(
       children: [
         Text('🔮 ', style: TarotTypography.body(size: 14)),
-        Text('Açılan Kartlar', style: TarotTypography.sectionGold(size: 15)),
+        Text(OraclyL10n.t('tarot.revealed_row'), style: TarotTypography.sectionGold(size: 15)),
         const Spacer(),
         TarotSpreadCountPill(count: cardCount),
       ],

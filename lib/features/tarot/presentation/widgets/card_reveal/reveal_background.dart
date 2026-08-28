@@ -2,12 +2,13 @@
 library;
 
 import 'dart:math' show cos, pi, sin;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../../../core/theme/oracly_quiet_motion.dart';
+import '../../../../../core/theme/oracly_soft_glow.dart';
 import '../../../theme/tarot_tokens.dart';
 
 class RevealBackground extends StatefulWidget {
@@ -36,7 +37,13 @@ class _RevealBackgroundState extends State<RevealBackground>
     _ambient = AnimationController(
       vsync: this,
       duration: TarotTokens.ambientLoop,
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _ambient);
   }
 
   @override
@@ -62,19 +69,14 @@ class _RevealBackgroundState extends State<RevealBackground>
               top: 100 + sin(phase * pi * 2) * 6 * driftScale,
               right: -60 + cos(phase * pi * 2 * 0.4) * 8 * driftScale,
               child: IgnorePointer(
-                child: ImageFiltered(
-                  imageFilter: ImageFilter.blur(sigmaX: 72, sigmaY: 72),
-                  child: Container(
-                    width: 240 + breath * 12,
-                    height: 240 + breath * 12,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.purpleDark.withValues(
-                        alpha: 0.16 * widget.darken * driftScale,
-                      ),
-                    ),
-                  ),
+                child: OraclySoftGlow(
+                width: 240 + breath * 12,
+                height: 240 + breath * 12,
+                sigma: 72,
+                color: AppColors.purpleDark.withValues(
+                  alpha: 0.16 * widget.darken * driftScale,
                 ),
+              ),
               ),
             ),
             Positioned.fill(

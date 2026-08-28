@@ -1,0 +1,681 @@
+/// OR companion chrome — TR / EN / RU.
+library;
+
+import '../l10n_triple.dart';
+
+const kL10nCompanion = <String, L10nTriple>{
+  'or.screen_title': L10nTriple('OR', 'OR', 'OR'),
+  'or.memory_transparency': L10nTriple(
+    'Yalnızca kaydettiğin anıları hatırlıyorum. Hafızanı istediğin zaman görüntüleyebilirsin.',
+    'I remember only the notes you saved. You can view your memory anytime.',
+    'Я помню только сохранённые тобой заметки. Память можно открыть в любой момент.',
+  ),
+  'or.view_memories': L10nTriple('Hafızamı gör', 'View my memory', 'Открыть память'),
+  'or.save_to_memory': L10nTriple('Hatırla', 'Remember', 'Запомнить'),
+  'or.memory_saved': L10nTriple('Bu not hafızana eklendi.', 'This note was added to your memory.', 'Эта заметка добавлена в память.'),
+  'or.voice_coming': L10nTriple(
+    'Sesli sohbet yakında — aynı yolculuk, farklı bir ritim.',
+    'Voice chat is coming — the same journey, a different rhythm.',
+    'Голосовой чат скоро — тот же путь, другой ритм.',
+  ),
+  'or.voice_label': L10nTriple('Sesli mesaj', 'Voice message', 'Голосовое сообщение'),
+  'or.voice_listening': L10nTriple(
+    'Konuş — bitince dokun',
+    'Speak — tap when done',
+    'Говори — коснись, чтобы закончить',
+  ),
+  'or.voice_cancel': L10nTriple(
+    'Vazgeç',
+    'Cancel',
+    'Отмена',
+  ),
+  'or.voice_cancel_hint': L10nTriple(
+    'Vazgeçmek için uzun bas',
+    'Long press to cancel',
+    'Удерживай, чтобы отменить',
+  ),
+  'or.voice_requesting': L10nTriple(
+    'Mikrofon hazırlanıyor',
+    'Preparing microphone',
+    'Подготовка микрофона',
+  ),
+  'or.mic_permission_title': L10nTriple('Mikrofon', 'Microphone', 'Микрофон'),
+  'or.mic_permission_message': L10nTriple(
+    'OR ile sesli mesaj için mikrofon gerekir. Sürekli dinleme yok — konuşman metne çevrilir; bitince mikrofon kapanır. Detaylar Gizlilik ekranında.',
+    'Microphone is needed for a voice message with OR. There is no continuous listening — speech becomes text, then the mic closes. Details in the Privacy screen.',
+    'Для голосового сообщения OR нужен микрофон. Нет постоянного прослушивания — речь станет текстом, затем микрофон закроется. Детали — в «Приватность».',
+  ),
+  'or.voice_denied': L10nTriple(
+    'Mikrofon izni gerekiyor. Ayarlardan açabilirsin; istersen yazılı devam edebilirsin.',
+    'Microphone permission is required. You can enable it in Settings; or continue in writing.',
+    'Нужен доступ к микрофону. Включи его в Настройках; или продолжай письмом.',
+  ),
+  'or.voice_permanent': L10nTriple(
+    'Mikrofon izni kapalı. Ayarlardan açabilirsin.',
+    'Microphone permission is off. You can turn it on in Settings.',
+    'Доступ к микрофону выключен. Можно включить в Настройках.',
+  ),
+  'or.voice_mic': L10nTriple(
+    'Mikrofon bu cihazda kullanılamıyor.',
+    'The microphone is not available on this device.',
+    'Микрофон на этом устройстве недоступен.',
+  ),
+  'or.voice_speech_unavailable': L10nTriple(
+    'Ses tanıma şu anda kullanılamıyor. Mesajını yazarak devam edebilirsin.',
+    'Speech recognition is not available right now. You can continue in writing.',
+    'Распознавание речи сейчас недоступно. Можно продолжить письмом.',
+  ),
+  'or.voice_output_unavailable': L10nTriple(
+    'Sesli yanıt bu cihazda yeterince net değil. Yazılı devam edebilirsin.',
+    'Spoken replies are not clear enough on this device. You can continue in writing.',
+    'Голосовой ответ на этом устройстве недостаточно ясен. Можно продолжить письмом.',
+  ),
+  'or.voice_speech_error': L10nTriple(
+    'Ses tanıma sırasında bir sorun oluştu. Tekrar dene.',
+    'Speech recognition had a problem. Try again, or continue in writing.',
+    'При распознавании речи произошла ошибка. Попробуй снова.',
+  ),
+  'or.voice_empty': L10nTriple(
+    'Seni duyamadım. Tekrar dene; istersen yazarak devam et.',
+    'I could not hear you. Try again, or continue in writing.',
+    'Я тебя не услышал. Попробуй снова или продолжай письмом.',
+  ),
+  'or.voice_review_hint': L10nTriple(
+    'Yazıyı kontrol et — düzenle veya yeniden dinle.',
+    'Check the text — edit or listen again.',
+    'Проверь текст — правь или слушай снова.',
+  ),
+  'or.voice_review_retry': L10nTriple(
+    'YENİDEN DİNLE',
+    'LISTEN AGAIN',
+    'СЛУШАТЬ СНОВА',
+  ),
+  'or.voice_review_send': L10nTriple(
+    'GÖNDER',
+    'SEND',
+    'ОТПРАВИТЬ',
+  ),
+  'or.voice_conversation_preview_title': L10nTriple(
+    'Sesli sohbet',
+    'Voice conversation',
+    'Голосовой диалог',
+  ),
+  'or.voice_conversation_preview_lead': L10nTriple(
+    'OR ile karşılıklı konuş — dinler, yansıtır; ritmi sen belirlersin.',
+    'Speak with OR — it listens and reflects; you set the rhythm.',
+    'Говори с OR — он слушает и отражает; ритм задаёшь ты.',
+  ),
+  'or.voice_conversation_preview_body': L10nTriple(
+    'Bu katman Premium’da. Mikrofon yalnızca sen dokunduğunda açılır; sürekli dinleme yok.',
+    'This layer lives in Premium. The mic opens only when you tap — never continuous listening.',
+    'Этот слой в Премиуме. Микрофон открывается только по касанию — без постоянного прослушивания.',
+  ),
+  'or.voice_conversation_preview_aside': L10nTriple(
+    'OR sohbetinin karşılıklı ses katmanı — Premium’da.',
+    'The turn-taking voice layer of OR conversation — in Premium.',
+    'Голосовой слой диалога OR — в Премиуме.',
+  ),
+  'or.voice_conversation_demoted': L10nTriple(
+    'Sesli sohbet Premium’da. Sesli yanıtlara geçildi.',
+    'Voice conversation is Premium. Switched to spoken replies.',
+    'Голосовой диалог в Премиуме. Переключено на голосовые ответы.',
+  ),
+  'or.voice_conversation_locked': L10nTriple(
+    'Sesli sohbet — Premium',
+    'Voice conversation — Premium',
+    'Голосовой диалог — Премиум',
+  ),
+  'or.premium_title': L10nTriple(
+    'OR ile sohbet',
+    'Conversation with OR',
+    'Разговор с OR',
+  ),
+  'or.premium_headline': L10nTriple(
+    'Baştan anlatmadan devam eden bir sohbet.',
+    'A conversation that continues without starting over.',
+    'Разговор, который продолжается без повторений.',
+  ),
+  'or.premium_lead': L10nTriple(
+    'OR, seçtiğin okumayı ve bu konuşmadaki ayrıntıları birlikte tutar; kesin cevap vaat etmez, düşünceni netleştirir.',
+    'OR holds your chosen reading and the details in this conversation together; it does not promise certainty, it clarifies your thinking.',
+    'OR держит выбранное чтение и детали этого разговора вместе; не обещает точных ответов, а проясняет мысль.',
+  ),
+  'or.premium_personality': L10nTriple(
+    'OR’un sesi: sıcak, net, baskısız.',
+    'OR’s voice: warm, clear, without pressure.',
+    'Голос OR: тёплый, ясный, без давления.',
+  ),
+  'or.premium_sample_label': L10nTriple(
+    'ÖRNEK BİR SOHBET',
+    'A SAMPLE CONVERSATION',
+    'ПРИМЕР РАЗГОВОРА',
+  ),
+  'or.premium_sample_note': L10nTriple(
+    'Bu bir örnektir — senin hikâyen değil.',
+    'This is a sample — not your story.',
+    'Это пример — не твоя история.',
+  ),
+  'or.premium_sample_user_0': L10nTriple(
+    'Bugün içimde bir ağırlık var; adını koyamıyorum.',
+    'There’s a heaviness in me today; I can’t name it.',
+    'Сегодня во мне тяжесть; не могу назвать её.',
+  ),
+  'or.premium_sample_or_0': L10nTriple(
+    'Adlandırmak zorunda değilsin. Bir yerde sıkışmış gibi mi, yoksa yorgun bir sessizlik mi?',
+    'You don’t have to name it. Does it feel stuck somewhere, or more like a tired silence?',
+    'Не обязательно называть. Это как застревание — или усталая тишина?',
+  ),
+  'or.premium_sample_user_1': L10nTriple(
+    'Daha çok… kendimi dinlemediğim bir his.',
+    'More like… a sense that I haven’t been listening to myself.',
+    'Скорее… ощущение, что я себя не слушаю.',
+  ),
+  'or.premium_sample_or_1': L10nTriple(
+    'O zaman burada durabiliriz. Bugün kendine ne söylemek isterdin — kısa bir cümle yeter.',
+    'Then we can stay here. What would you want to tell yourself today — one short sentence is enough.',
+    'Тогда можем остаться здесь. Что бы ты сказал себе сегодня — одной короткой фразы достаточно.',
+  ),
+  'or.premium_deeper_title': L10nTriple(
+    'DAHA DERİN SOHBETTE',
+    'IN A DEEPER CONVERSATION',
+    'В БОЛЕЕ ГЛУБОКОМ РАЗГОВОРЕ',
+  ),
+  'or.premium_deeper_0': L10nTriple(
+    'Düşüncelerini bölmeden sürdürebilirsin',
+    'You can continue without splitting your thoughts',
+    'Можно продолжать, не дробя мысли',
+  ),
+  'or.premium_deeper_1': L10nTriple(
+    'OR, yalnızca kaydettiğin bağlamı hatırlar',
+    'OR remembers only the context you choose to save',
+    'OR помнит только тот контекст, который ты сохраняешь',
+  ),
+  'or.premium_deeper_2': L10nTriple(
+    'Yanıtlar yansıma kalır — kehanet değil',
+    'Replies stay reflection — never prophecy',
+    'Ответы остаются отражением — не пророчеством',
+  ),
+  'or.premium_body': L10nTriple(
+    'Konuşmak istersen, kapı burada.',
+    'If you want to talk, the door is here.',
+    'Если хочешь поговорить — дверь здесь.',
+  ),
+  'or.premium_aside': L10nTriple(
+    'Kahve, el, gökyüzü ve keşif günlüğü açık kalır.',
+    'Coffee, palm, sky, and your discovery journal stay open.',
+    'Кофе, ладонь, небо и дневник открытий остаются открытыми.',
+  ),
+  'or.paywall_title': L10nTriple(
+    'OR ile daha derin bir sohbet',
+    'A deeper conversation with OR',
+    'Более глубокий разговор с OR',
+  ),
+  'or.paywall_lead': L10nTriple(
+    'Aynı sakin yer — daha uzun, daha bağlı, daha kişisel bir ritim.',
+    'The same calm place — a longer, more connected, more personal rhythm.',
+    'То же спокойное место — более длинный, связанный, личный ритм.',
+  ),
+  'or.paywall_pillar_depth_title': L10nTriple(
+    'Daha derin sohbet',
+    'Deeper conversation',
+    'Более глубокий разговор',
+  ),
+  'or.paywall_pillar_depth_body': L10nTriple(
+    'Bir düşünceyi bölmeden sürdürebilirsin.',
+    'You can continue a thought without cutting it short.',
+    'Можно продолжать мысль, не обрывая её.',
+  ),
+  'or.paywall_pillar_continuity_title': L10nTriple(
+    'Süreklilik',
+    'Continuity',
+    'Непрерывность',
+  ),
+  'or.paywall_pillar_continuity_body': L10nTriple(
+    'Konuşma bir sonraki açılışta kopmaz.',
+    'The conversation does not break the next time you open.',
+    'Разговор не обрывается при следующем открытии.',
+  ),
+  'or.paywall_pillar_voice_title': L10nTriple(
+    'Ses',
+    'Voice',
+    'Голос',
+  ),
+  'or.paywall_pillar_voice_body': L10nTriple(
+    'Yazılı, sesli yanıt veya karşılıklı sohbet — ritmi sen seçersin.',
+    'Written, spoken reply, or turn-taking talk — you choose the rhythm.',
+    'Письмо, голосовой ответ или диалог — ритм выбираешь ты.',
+  ),
+  'or.paywall_pillar_context_title': L10nTriple(
+    'Kişisel bağlam',
+    'Personal context',
+    'Личный контекст',
+  ),
+  'or.paywall_pillar_context_body': L10nTriple(
+    'Yalnızca kaydettiğin notlar hatırlanır — uydurma geçmiş yok.',
+    'Only notes you save are remembered — no invented history.',
+    'Помнятся только сохранённые тобой заметки — без выдуманной истории.',
+  ),
+  'or.paywall_pillar_sessions_title': L10nTriple(
+    'Daha uzun oturumlar',
+    'Longer sessions',
+    'Более длинные сессии',
+  ),
+  'or.paywall_pillar_sessions_body': L10nTriple(
+    'Acele etmeden kalabileceğin bir alan.',
+    'A place you can stay without being rushed.',
+    'Место, где можно остаться без спешки.',
+  ),
+  'or.paywall_pillar_discovery_title': L10nTriple(
+    'Daha zengin keşif',
+    'Richer discovery',
+    'Более богатое открытие',
+  ),
+  'or.paywall_pillar_discovery_body': L10nTriple(
+    'Okumalarından gelen izler sohbete nazikçe bağlanabilir.',
+    'Traces from your readings can gently join the conversation.',
+    'Следы твоих чтений могут мягко войти в разговор.',
+  ),
+  'or.paywall_honesty': L10nTriple(
+    'OR yansıtır — geleceği bilmez, yaşam sonucu vaat etmez.',
+    'OR reflects — it does not know the future, and never promises life outcomes.',
+    'OR отражает — не знает будущее и не обещает жизненных результатов.',
+  ),
+  'or.entitlement_pending': L10nTriple(
+    'Satın alma tamamlanıyor…',
+    'Purchase is completing…',
+    'Покупка завершается…',
+  ),
+  'or.entitlement_restoring': L10nTriple(
+    'Üyelik geri yükleniyor…',
+    'Restoring membership…',
+    'Восстановление подписки…',
+  ),
+  'or.entitlement_unavailable': L10nTriple(
+    'Mağaza şu anda kullanılamıyor.',
+    'The store is not available right now.',
+    'Магазин сейчас недоступен.',
+  ),
+  'or.entitlement_error': L10nTriple(
+    'Bir sorun oluştu. Biraz sonra yeniden dene.',
+    'Something went wrong. Try again in a moment.',
+    'Что-то пошло не так. Попробуй чуть позже.',
+  ),
+  'or.paywall_cta': L10nTriple(
+    'OR ile konuşmaya başla',
+    'Start talking with OR',
+    'Начать разговор с OR',
+  ),
+  'or.output_text': L10nTriple('YAZILI', 'WRITTEN', 'ТЕКСТ'),
+  'or.output_voice': L10nTriple('SESLİ', 'VOICE', 'ГОЛОС'),
+  'or.output_conversation': L10nTriple('SOHBET', 'TALK', 'ДИАЛОГ'),
+  'or.output_mode.text': L10nTriple(
+    'Yalnızca yazı',
+    'Text only',
+    'Только текст',
+  ),
+  'or.output_mode.voice': L10nTriple(
+    'Sesli yanıtlar',
+    'Voice replies',
+    'Голосовые ответы',
+  ),
+  'or.output_mode.conversation': L10nTriple(
+    'Sesli sohbet',
+    'Voice conversation',
+    'Голосовой диалог',
+  ),
+  'or.voice_turn_ready': L10nTriple(
+    'Hazırım — dokununca dinlerim.',
+    'Ready — tap when you want to speak.',
+    'Готов — коснись, когда хочешь говорить.',
+  ),
+  'or.voice_turn_listening': L10nTriple(
+    'Dinliyorum… bitince dokun.',
+    'Listening… tap when you are done.',
+    'Слушаю… коснись, когда закончишь.',
+  ),
+  'or.voice_turn_settling': L10nTriple(
+    'Bir an…',
+    'A moment…',
+    'Миг…',
+  ),
+  'or.voice_turn_thinking': L10nTriple(
+    'Düşünüyorum…',
+    'Thinking…',
+    'Думаю…',
+  ),
+  'or.voice_turn_speaking': L10nTriple(
+    'Yanıtlıyorum…',
+    'Answering…',
+    'Отвечаю…',
+  ),
+  'or.stop_speaking': L10nTriple('DURDUR', 'STOP', 'СТОП'),
+  'or.pause_speaking': L10nTriple('DURAKLAT', 'PAUSE', 'ПАУЗА'),
+  'or.resume_speaking': L10nTriple('DEVAM', 'RESUME', 'ДАЛЕЕ'),
+  'or.replay_speaking': L10nTriple('TEKRAR', 'REPLAY', 'ЕЩЁ'),
+  'or.speaking': L10nTriple('OR konuşuyor…', 'OR is speaking…', 'OR говорит…'),
+  'or.paused': L10nTriple('Duraklatıldı', 'Paused', 'Пауза'),
+  'or.idle': L10nTriple(
+    'Yer açık.',
+    'There is room.',
+    'Место есть.',
+  ),
+  'or.idle_title': L10nTriple(
+    'Aklında kalan yerden başlayalım.',
+    'Let us start where your mind left off.',
+    'Давай начнём с того места, где осталась мысль.',
+  ),
+  'or.idle_subtitle': L10nTriple(
+    'Kararlarını, duygularını ve okumalarındaki izleri birlikte netleştiren sakin bir düşünme alanı.',
+    'A calm space to clarify your decisions, feelings, and the threads in your readings.',
+    'Спокойное пространство, чтобы прояснить решения, чувства и нити в твоих чтениях.',
+  ),
+  'or.presence': L10nTriple('Dinliyorum.', "I'm listening.", 'Слушаю.'),
+  'or.idle_optional': L10nTriple(
+    'İstersen bir izden başla',
+    'Start from a thread, if you like',
+    'Можешь начать с нити',
+  ),
+  'or.plus': L10nTriple('İstersen', 'If you like', 'Если хочешь'),
+  'or.plus_a11y': L10nTriple(
+    'Sohbet başlangıçlarını aç',
+    'Open conversation starters',
+    'Открыть начала разговора',
+  ),
+  'or.msg_you': L10nTriple('Sen', 'You', 'Ты'),
+  'or.msg_or': L10nTriple('OR', 'OR', 'OR'),
+  'or.send': L10nTriple("OR'a sor", 'Ask OR', 'Спросить OR'),
+  'or.copy': L10nTriple('Kopyala', 'Copy', 'Копировать'),
+  'or.copied': L10nTriple('Kopyalandı.', 'Copied.', 'Скопировано.'),
+  'or.speak': L10nTriple('Sesli dinle', 'Listen', 'Слушать'),
+  'or.regenerate': L10nTriple('Yeniden sor', 'Ask again', 'Спросить снова'),
+  'or.welcome_title': L10nTriple('Selam.', 'Hey.', 'Привет.'),
+  'or.welcome_body': L10nTriple(
+    'Dinliyorum.',
+    "I'm listening.",
+    'Слушаю.',
+  ),
+  'or.welcome_named': L10nTriple(
+    'Selam {name}.',
+    'Hey {name}.',
+    'Привет, {name}.',
+  ),
+  'or.handoff.arrive.tarot': L10nTriple(
+    'Sorun ve açılımındaki kartlar burada.',
+    'Your question and spread cards are here.',
+    'Твой вопрос и карты расклада здесь.',
+  ),
+  'or.handoff.banner.tarot': L10nTriple(
+    "Tarot yorumun OR'a aktarıldı",
+    'Your tarot reading was passed to OR',
+    'Твоё таро-чтение передано OR',
+  ),
+  'or.handoff.banner.generic': L10nTriple(
+    "Okuman OR'a aktarıldı",
+    'Your reading was passed to OR',
+    'Твоё чтение передано OR',
+  ),
+  'or.handoff.banner.continuing': L10nTriple(
+    'Bağlam',
+    'Context',
+    'Контекст',
+  ),
+  'or.handoff.arrive.coffee': L10nTriple(
+    'Kahve yorumundaki işaretler ve ana tema burada.',
+    'The signs and main theme from your coffee reading are here.',
+    'Знаки и главная тема кофейного чтения здесь.',
+  ),
+  'or.handoff.arrive.astrology': L10nTriple(
+    'Astroloji yorumundaki kişisel tema burada.',
+    'The personal theme from your astrology reading is here.',
+    'Личная тема астрологического чтения здесь.',
+  ),
+  'or.handoff.arrive.star_map': L10nTriple(
+    'Yıldızname yorumundaki kişisel temalar burada.',
+    'The personal themes from your Yıldızname reading are here.',
+    'Личные темы чтения Йылдызнаме здесь.',
+  ),
+  'or.handoff.arrive.palm': L10nTriple(
+    'El yorumundaki ana temalar burada — baştan anlatmana gerek yok.',
+    'The main themes from your palm reading are here — no need to start over.',
+    'Главные темы чтения ладони здесь — не нужно начинать сначала.',
+  ),
+  'or.handoff.arrive.daily': L10nTriple(
+    'Günün mesajı yanımda — buradan devam edebiliriz.',
+    'Today’s message is with me — we can continue from here.',
+    'Сегодняшнее сообщение со мной — можем продолжить отсюда.',
+  ),
+  'or.handoff.arrive.soulmate': L10nTriple(
+    'Sembolik portre ve kişisel yorum burada.',
+    'The symbolic portrait and personal reading are here.',
+    'Символический портрет и личное чтение здесь.',
+  ),
+  'or.handoff.arrive.generic': L10nTriple(
+    'Keşfin yanımda — baştan anlatmana gerek yok.',
+    'Your discovery is with me — no need to start over.',
+    'Твоё открытие со мной — не нужно начинать сначала.',
+  ),
+
+  'or.open.0': L10nTriple('Yer açık.', 'There is room.', 'Место есть.'),
+  'or.open.1': L10nTriple('Selam.', 'Hey.', 'Привет.'),
+  'or.open.2': L10nTriple(
+    'Ne varsa, burada duruyoruz.',
+    'Whatever it is, we can sit with it.',
+    'Что бы ни было — можем просто побыть.',
+  ),
+  'or.open.3': L10nTriple(
+    'Sakin bir yer. İstersen konuşuruz.',
+    'A calm place. We can talk if you want.',
+    'Спокойное место. Поговорим, если хочешь.',
+  ),
+  'or.open.4': L10nTriple(
+    'Merhaba. Yer açık.',
+    'Hello. There is room.',
+    'Здравствуй. Место есть.',
+  ),
+  'or.open.5': L10nTriple(
+    'Nasılsın?',
+    'How are you?',
+    'Как ты?',
+  ),
+  'or.open.gentle.0': L10nTriple(
+    'Yavaşça dinliyorum.',
+    'Listening, unhurried.',
+    'Слушаю, без спешки.',
+  ),
+  'or.open.gentle.1': L10nTriple(
+    'Selam. Acele yok.',
+    'Hey. No rush.',
+    'Привет. Без спешки.',
+  ),
+  'or.open.mystical.0': L10nTriple(
+    'Buradasın. Yer hazır.',
+    'You are here. The place is ready.',
+    'Ты здесь. Место готово.',
+  ),
+  'or.open.mystical.1': L10nTriple(
+    'İz duruyor — istersen tutarız.',
+    'A thread is here — we can hold it if you want.',
+    'Нить здесь — можем взять, если хочешь.',
+  ),
+  'or.open.poetic.0': L10nTriple(
+    'Selam. Konuşmak istersen yer var.',
+    'Hey. There is room if you want to talk.',
+    'Привет. Если хочешь говорить — место есть.',
+  ),
+  'or.open.poetic.1': L10nTriple(
+    'Günaydın gibi bir şey — yer açık.',
+    'Something like a quiet hello — there is room.',
+    'Как тихое «привет» — место есть.',
+  ),
+  'or.open.direct.0': L10nTriple('Selam. Dinliyorum.', 'Hey. Listening.', 'Привет. Слушаю.'),
+  'or.open.direct.1': L10nTriple(
+    'Dinliyorum. Ne varsa söyle.',
+    'Listening. Say what is there.',
+    'Слушаю. Скажи, что есть.',
+  ),
+  'or.open.named.0': L10nTriple('Selam {name}.', 'Hey {name}.', 'Привет, {name}.'),
+  'or.open.named.1': L10nTriple(
+    'Selam {name}. Yer açık.',
+    'Hey {name}. There is room.',
+    'Привет, {name}. Место есть.',
+  ),
+  'or.open.named.2': L10nTriple(
+    '{name} — yer açık.',
+    '{name} — there is room.',
+    '{name} — место есть.',
+  ),
+  'or.open.named.3': L10nTriple(
+    'Selam {name}. İstersen konuşuruz.',
+    'Hey {name}. We can talk if you want.',
+    'Привет, {name}. Поговорим, если хочешь.',
+  ),
+  'or.suggestion.0': L10nTriple(
+    'Bugünkü enerjimi yorumla',
+    "Reflect on today's energy",
+    'Интерпретируй сегодняшнюю энергию',
+  ),
+  'or.suggestion.1': L10nTriple(
+    'Aklımdaki konuyu konuşalım',
+    "Let's talk about what's on my mind",
+    'Давай поговорим о том, что у меня на уме',
+  ),
+  'or.suggestion.2': L10nTriple(
+    'Bana yol göster',
+    'Help me find my way',
+    'Помоги мне найти путь',
+  ),
+  'or.suggestion.3': L10nTriple(
+    'Sadece yanında durmanı istiyorum',
+    'I just want you nearby for a minute',
+    'Просто побудь рядом немного',
+  ),
+  'or.suggestion.palm.0': L10nTriple(
+    'El falımdaki en güçlü tema ne?',
+    'What is the strongest theme in my palm reading?',
+    'Какая самая сильная тема в чтении ладони?',
+  ),
+  'or.suggestion.palm.1': L10nTriple(
+    'Aşk tarafını biraz daha aç',
+    'Open the love side a little more',
+    'Раскрой сторону любви чуть глубже',
+  ),
+  'or.suggestion.palm.2': L10nTriple(
+    'En önemli işareti detaylandır',
+    'Detail the clearest sign',
+    'Раскрой главный знак подробнее',
+  ),
+  'or.suggestion.tarot.0': L10nTriple(
+    'Bu açılımda en önemli kart hangisi?',
+    'Which card matters most in this spread?',
+    'Какая карта важнее всего в этом раскладе?',
+  ),
+  'or.suggestion.tarot.1': L10nTriple(
+    'Mesajı biraz daha aç',
+    'Open the message a little more',
+    'Раскрой послание чуть глубже',
+  ),
+  'or.suggestion.tarot.2': L10nTriple(
+    'Bu yansıma bana ne hatırlatıyor?',
+    'What does this reflection remind me of?',
+    'О чём мне напоминает это отражение?',
+  ),
+  'or.suggestion.coffee.0': L10nTriple(
+    'Fincandaki en güçlü iz ne?',
+    'What is the strongest mark in the cup?',
+    'Какой самый сильный след в чашке?',
+  ),
+  'or.suggestion.coffee.1': L10nTriple(
+    'Aşk tarafını biraz daha aç',
+    'Open the love side a little more',
+    'Раскрой сторону любви чуть глубже',
+  ),
+  'or.suggestion.coffee.2': L10nTriple(
+    'Yakın yönü sakin yorumla',
+    'Reflect calmly on the near path',
+    'Спокойно отрази ближайший путь',
+  ),
+  'or.followup.deepen': L10nTriple(
+    'Bunu biraz daha açalım.',
+    'Let us open this a little more.',
+    'Давай раскроем это чуть глубже.',
+  ),
+  'or.followup.decision': L10nTriple(
+    'İki seçeneği yan yana koyalım.',
+    'Let us put the two options side by side.',
+    'Давай поставим два варианта рядом.',
+  ),
+  'or.followup.emotion': L10nTriple(
+    'Bende neyi tetiklediğine bakalım.',
+    'Let us look at what this triggered in me.',
+    'Давай посмотрим, что это во мне задело.',
+  ),
+  'or.followup.reading': L10nTriple(
+    'Bu işareti hayatımdaki durumla bağlayalım.',
+    'Let us connect this sign with my situation.',
+    'Давай свяжем этот знак с моей ситуацией.',
+  ),
+  'or.followup.relationship': L10nTriple(
+    'İlişki tarafını biraz daha açalım.',
+    'Let us open the relationship side a little more.',
+    'Давай раскроем сторону отношений чуть глубже.',
+  ),
+  'or.conversation_subtitle':
+      L10nTriple('Sakin bir yansıma alanı', 'A calm space for reflection', 'Спокойное пространство для размышления'),
+  'or.input_hint': L10nTriple(
+    'Aklındaki durumu olduğu gibi yaz…',
+    'Write what is on your mind as it is…',
+    'Напиши, что у тебя на уме, как есть…',
+  ),
+  'or.ask': L10nTriple("OR'a Sor", 'Ask OR', 'Спросить OR'),
+  'or.oracle_hint': L10nTriple(
+    'Bu okuma hakkında sormak istediğin ne?',
+    'What would you like to ask about this reading?',
+    'Что хочешь спросить об этом чтении?',
+  ),
+  'or.thinking': L10nTriple(
+    'Söylediğin ayrıntıları bir araya getiriyorum…',
+    'I am bringing together the details you shared…',
+    'Собираю воедино детали, которые ты сказал…',
+  ),
+  'or.presence_thinking': L10nTriple(
+    'OR düşünüyor...',
+    'OR is thinking...',
+    'OR думает...',
+  ),
+  'or.new_reply': L10nTriple(
+    'Yeni yanıt',
+    'New reply',
+    'Новый ответ',
+  ),
+  'or.error': L10nTriple(
+    "OR'a ulaşamadım. Bir daha deneyelim.",
+    "I couldn't reach OR. Let's try again.",
+    'Не удалось связаться с OR. Давай попробуем ещё раз.',
+  ),
+  'or.retry': L10nTriple('Tekrar dene', 'Try again', 'Попробовать снова'),
+  'or.offline': L10nTriple(
+    'Bağlantı kurulamadı. Biraz sonra tekrar deneyebilirsin.',
+    'Connection could not be made. You can try again in a moment.',
+    'Связь не установилась. Можно попробовать через мгновение.',
+  ),
+  'or.connecting': L10nTriple(
+    'Bağlanıyorum...',
+    'Connecting...',
+    'Подключаюсь...',
+  ),
+  'or.reconnecting': L10nTriple(
+    'Yeniden bağlanıyorum...',
+    'Reconnecting...',
+    'Переподключаюсь...',
+  ),
+  'or.retrying': L10nTriple(
+    'Tekrar deniyorum...',
+    'Trying again...',
+    'Пробую снова...',
+  ),
+  'or.provider_unavailable': L10nTriple(
+    "OR'a şu an ulaşamıyorum. Tekrar deneyebilirsin.",
+    "I can't reach OR right now. You can try again.",
+    'Сейчас не могу связаться с OR. Можно попробовать снова.',
+  ),
+};

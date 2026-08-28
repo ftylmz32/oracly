@@ -1,0 +1,73 @@
+/// About, memory, history, ritual sheet, leftover tarot chrome.
+library;
+
+import '../l10n_triple.dart';
+
+const kL10nScreens = <String, L10nTriple>{
+  'about.mission': L10nTriple('Misyon', 'Mission', 'Миссия'),
+  'about.contact': L10nTriple('İletişim', 'Contact', 'Связь'),
+  'about.body': L10nTriple(
+    'ORACLY, tarot, rüya ve astroloji rehberliğini tek bir sakin deneyimde birleştirir. OR, yansıma yolculuğuna sakin bir eşlik eder.',
+    'ORACLY brings tarot, dream, and astrology guidance into one calm experience. OR walks the reflection journey quietly with you.',
+    'ORACLY соединяет таро, сон и астрологию в одном спокойном опыте. OR тихо сопровождает путь размышления.',
+  ),
+  'about.version': L10nTriple('Sürüm {version} · {build}', 'Version {version} · {build}', 'Версия {version} · {build}'),
+  'memory.title': L10nTriple('OR Hafızası', 'OR memory', 'Память OR'),
+  'memory.edit_title': L10nTriple('Notu düzenle', 'Edit the note', 'Править заметку'),
+  'memory.hint': L10nTriple('Hafıza notu', 'Memory note', 'Заметка памяти'),
+  'memory.talk': L10nTriple('OR ile konuş', 'Talk with OR', 'Поговорить с OR'),
+  'memory.edit': L10nTriple('Hafızayı düzenle', 'Edit memory', 'Править память'),
+  'memory.delete': L10nTriple('Hafızayı sil', 'Delete memory', 'Удалить память'),
+  'history.title': L10nTriple('Sohbet Geçmişi', 'Conversation history', 'История разговоров'),
+  'history.clear': L10nTriple('Geçmişi temizle', 'Clear history', 'Очистить историю'),
+  'history.you': L10nTriple('Sen', 'You', 'Ты'),
+  'history.journey': L10nTriple('Kişisel Yolculuk', 'Personal journey', 'Личный путь'),
+  'tarot.revealed_row': L10nTriple('Açılan Kartlar', 'Revealed cards', 'Открытые карты'),
+  'tarot.oracle_header': L10nTriple('Kartların Sana Verdiği Mesaj', 'The message the cards gave you', 'Послание, которое дали карты'),
+  'tarot.oracle_speaking': L10nTriple('Oracle konuşuyor...', 'The oracle is speaking...', 'Оракул говорит...'),
+  'ritual.save': L10nTriple('Kaydet', 'Save', 'Сохранить'),
+  'ai.source_live': L10nTriple('OR yanıtı.', 'OR reply.', 'Ответ OR.'),
+  'ai.source_local': L10nTriple(
+    'Yerel yansıma — canlı yapay zekâ değil.',
+    'Local reflection — not a live model.',
+    'Местное отражение — не живая модель.',
+  ),
+  'ai.surface_live': L10nTriple(
+    'OR yanıtları canlı modelden gelir; yansıma içindir.',
+    'OR replies come from a live model; they are for reflection.',
+    'Ответы OR приходят из живой модели; они для размышления.',
+  ),
+  'ai.surface_local': L10nTriple(
+    'Yerel rehber. Canlı yapay zekâ bağlı değil.',
+    'A local guide. A live model is not connected.',
+    'Местный проводник. Живая модель не подключена.',
+  ),
+  'ai.or_ask_live': L10nTriple(
+    'OR yanıtı. Yansıma içindir; kararların senin.',
+    'OR reply. For reflection; the choices are yours.',
+    'Ответ OR. Для размышления; решения твои.',
+  ),
+  'ai.or_ask_local': L10nTriple(
+    "OR'a Sor · yerel yansıma. Canlı yapay zekâ değil.",
+    'Ask OR · local reflection. Not a live model.',
+    'Спросить OR · местное отражение. Не живая модель.',
+  ),
+  'ai.thinking_local': L10nTriple(
+    'Yerel yansıma hazırlanıyor…',
+    'Preparing a local reflection…',
+    'Готовим местное отражение…',
+  ),
+  'share.soulmate_type': L10nTriple('Yaratıcı portre', 'Creative portrait', 'Творческий портрет'),
+  'journal.coffee_fb': L10nTriple('Kahve falı', 'Coffee fortune', 'Гадание на кофе'),
+  'journal.dream_fb': L10nTriple('Rüya', 'Dream', 'Сон'),
+  'journal.palm_fb': L10nTriple('El falı', 'Palm reading', 'Хиромантия'),
+  'memory.count': L10nTriple('{n} not', '{n} notes', '{n} заметок'),
+  'achievements.progress': L10nTriple('İlerleme', 'Progress', 'Прогресс'),
+  'memory.cat.goal': L10nTriple('Hedef', 'Goal', 'Цель'),
+  'memory.cat.interest': L10nTriple('İlgi', 'Interest', 'Интерес'),
+  'memory.cat.job': L10nTriple('İş', 'Work', 'Работа'),
+  'memory.cat.technology': L10nTriple('Teknoloji', 'Technology', 'Технология'),
+  'memory.imp.high': L10nTriple('Yüksek', 'High', 'Высокая'),
+  'memory.imp.medium': L10nTriple('Orta', 'Medium', 'Средняя'),
+  'memory.imp.low': L10nTriple('Düşük', 'Low', 'Низкая'),
+};

@@ -6,20 +6,28 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/copy/resilience_copy.dart';
+import '../../../../core/performance/oracly_decode_cache.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/oracly_reduced_motion.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
+import '../../art/tarot_card_asset.dart';
+import '../../controllers/tarot_deck_controller.dart';
 import '../../domain/models/tarot_position.dart';
+import '../../motion/tarot_cinematic_motion.dart';
 import '../../shared/constants/tarot_routes.dart';
 import '../../shared/tarot_scope.dart';
 import '../../theme/tarot_tokens.dart';
 import '../animations/tarot_transition.dart';
+import '../widgets/card_reveal/card_reveal_spread.dart';
 import '../widgets/card_selection/card_selection_background.dart';
 import '../widgets/card_selection/card_selection_deck.dart';
 import '../widgets/card_selection/card_selection_header.dart';
+import '../widgets/card_selection/card_selection_pick_flip.dart';
+import '../widgets/card_selection/card_selection_picks.dart';
 import '../widgets/card_selection/sacred_moment.dart';
 import 'card_reveal_screen.dart';
 
-/// Face-down card picker — continues seamlessly from the shuffle ritual.
+/// Face-down card picker — physical pick, extract, flip, then reveal.
 class CardSelectionScreen extends StatefulWidget {
   const CardSelectionScreen({super.key});
 
@@ -30,9 +38,11 @@ class CardSelectionScreen extends StatefulWidget {
 class _CardSelectionScreenState extends State<CardSelectionScreen>
     with TickerProviderStateMixin {
   int? _selectedIndex;
+  RevealCardData? _flipData;
   late final AnimationController _screenFade;
   late final Animation<double> _screenOpacity;
   late final AnimationController _sacred;
+  late final AnimationController _flip;
 
   @override
   void initState() {
@@ -48,47 +58,91 @@ class _CardSelectionScreenState extends State<CardSelectionScreen>
       parent: _screenFade,
       curve: TarotTokens.revealCurve,
     ));
-    _screenFade.forward();
     _sacred = AnimationController(
       vsync: this,
       duration: SacredMoment.ritualDuration,
     );
+    _flip = AnimationController(
+      vsync: this,
+      duration: TarotCinematicMotion.flip,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyReducedMotion.playOnce(context, _screenFade);
   }
 
   @override
   void dispose() {
     _screenFade.dispose();
     _sacred.dispose();
+    _flip.dispose();
     super.dispose();
   }
 
   Future<void> _selectCard(int index) async {
     if (_selectedIndex != null) return;
     setState(() => _selectedIndex = index);
-    final sacredFuture = _sacred.forward(from: 0);
+    final reduced = OraclyReducedMotion.of(context);
+    if (reduced) {
+      _sacred.value = 1;
+      _flip.value = 1;
+    }
+    final sacredFuture =
+        reduced ? Future<void>.value() : _sacred.forward(from: 0);
+    final extract = Future<void>.delayed(
+      TarotCinematicMotion.of(
+        context,
+        TarotCinematicMotion.cardMove + TarotCinematicMotion.preFlip,
+      ),
+    );
     final scope = TarotScope.of(context);
 
     try {
-      await scope.reading.drawCard();
+      await scope.reading.drawCard(fanIndex: index);
       final drawn = scope.reading.session?.currentCard;
       if (drawn != null && mounted) {
-        await precacheImage(AssetImage(drawn.card.image), context);
+        final cacheW = oraclyDecodeCachePx(
+          168,
+          MediaQuery.devicePixelRatioOf(context),
+          maxPx: TarotCardAsset.fullCapPx,
+        );
+        await precacheImage(
+          ResizeImage(
+            AssetImage(TarotCardAsset.full(drawn.card.image)),
+            width: cacheW,
+          ),
+          context,
+        );
+        if (!mounted) return;
+        setState(() => _flipData = RevealCardData.fromDrawnCard(drawn));
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _selectedIndex = null);
+        setState(() {
+          _selectedIndex = null;
+          _flipData = null;
+        });
         _sacred.reset();
+        _flip.reset();
         OraclySnackBar.error(context, ResilienceCopy.cardDrawFailed);
       }
       return;
     }
 
-    // Draw is the meaningful work — don't block navigation on the sacred pause.
+    // Extract to center + slight pause — then physical flip.
+    await extract;
+    if (!mounted || _selectedIndex != index) return;
+    if (_flipData != null && !reduced) {
+      await _flip.forward(from: 0);
+    }
     unawaited(sacredFuture);
     if (!mounted || _selectedIndex != index) return;
     Navigator.of(context).pushReplacement(
       cardRevealRitualRoute<void>(
-        page: const CardRevealScreen(),
+        page: const CardRevealScreen(fromManualPick: true),
         settings: const RouteSettings(name: TarotRoutes.cardReveal),
       ),
     );
@@ -97,15 +151,16 @@ class _CardSelectionScreenState extends State<CardSelectionScreen>
   @override
   Widget build(BuildContext context) {
     final session = TarotScope.of(context).reading.session;
+    final deck = TarotScope.of(context).reading.deckController;
+    final drawn = session?.drawnCards ?? const [];
+    final requiredCount = session?.requiredCardCount ?? 3;
+    final fanCount = deck.visibleFanCount.clamp(1, TarotDeckController.fanLimit);
     final position = session == null
         ? null
         : SpreadService.positionAt(
             session.spread,
             session.drawnCards.length,
           );
-    final progress = session == null
-        ? ''
-        : '${session.drawnCards.length + 1}/${session.requiredCardCount}';
 
     return PopScope(
       canPop: true,
@@ -161,12 +216,14 @@ class _CardSelectionScreenState extends State<CardSelectionScreen>
                                       0.88)
                               .clamp(0.0, 1.0),
                           child: CardSelectionHeader(
-                            positionLabel: position?.labelTr,
-                            progressLabel: progress,
+                            positionLabel: position?.label,
+                            drawnCount: drawn.length,
+                            requiredCount: requiredCount,
                           ),
                         );
                       },
                     ),
+                    CardSelectionPicks(cards: drawn),
                     const Spacer(flex: 1),
                     Center(
                       child: ConstrainedBox(
@@ -174,13 +231,34 @@ class _CardSelectionScreenState extends State<CardSelectionScreen>
                           maxWidth: TarotTokens.maxContentWidth,
                         ),
                         child: AnimatedBuilder(
-                          animation: _sacred,
+                          animation: Listenable.merge([_sacred, _flip]),
                           builder: (context, _) {
-                            return CardSelectionDeck(
-                              selectedIndex: _selectedIndex,
-                              sacred: SacredMoment.progress(_sacred.value),
-                              sacredLinear: _sacred.value,
-                              onSelect: _selectCard,
+                            final flipping = _flip.value > 0.02;
+                            return SizedBox(
+                              height: 280,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                clipBehavior: Clip.none,
+                                children: [
+                                  CardSelectionDeck(
+                                    selectedIndex: _selectedIndex,
+                                    sacred:
+                                        SacredMoment.progress(_sacred.value),
+                                    sacredLinear: _sacred.value,
+                                    onSelect: _selectCard,
+                                    cardCount: fanCount,
+                                    hideSelectedFace: flipping,
+                                  ),
+                                  if (_flipData != null && flipping)
+                                    Positioned(
+                                      bottom: 72,
+                                      child: CardSelectionPickFlip(
+                                        data: _flipData!,
+                                        progress: _flip.value,
+                                      ),
+                                    ),
+                                ],
+                              ),
                             );
                           },
                         ),
@@ -198,8 +276,7 @@ class _CardSelectionScreenState extends State<CardSelectionScreen>
   }
 }
 
-/// Smooth fade from the shuffle ritual into card selection.
-PageRouteBuilder<T> cardSelectionRitualRoute<T>({
+Route<T> cardSelectionRitualRoute<T>({
   required Widget page,
   RouteSettings? settings,
 }) {

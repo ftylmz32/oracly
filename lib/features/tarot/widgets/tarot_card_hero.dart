@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/oracly_quiet_motion.dart';
 import '../../../core/theme/app_colors.dart';
+import '../copy/tarot_l10n.dart';
 import '../models/tarot_card.dart';
 import 'tarot_result_card_art.dart';
 import 'tarot_typography.dart';
@@ -29,8 +31,18 @@ class _TarotCardHeroState extends State<TarotCardHero>
     super.initState();
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2600),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 4200),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(
+      context,
+      _pulseController,
+      reverse: true,
+    );
   }
 
   @override
@@ -102,7 +114,7 @@ class _TarotCardHeroState extends State<TarotCardHero>
           ),
           const SizedBox(height: 14),
           Text(
-            widget.card.name,
+            TarotL10n.cardNameOf(widget.card),
             textAlign: TextAlign.center,
             style: TarotTypography.cardTitleGold(size: 22),
           ),

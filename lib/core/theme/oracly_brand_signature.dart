@@ -3,32 +3,36 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../design_system/app_typography.dart';
 import 'app_colors.dart';
 import 'app_radius.dart';
+import 'craftsmanship_rhythm.dart';
 
-/// Canonical palette — one world, every screen.
+/// Canonical palette — one world, every screen (aliases [AppColors]).
 abstract final class OraclySignaturePalette {
   OraclySignaturePalette._();
 
-  static const obsidian = Color(0xFF050208);
-  static const deepViolet = Color(0xFF0E0618);
-  static const royalPurple = Color(0xFF150A24);
-  static const crystalVeil = Color(0xFF221538);
-  static const chamberMid = Color(0xFF0A0512);
+  static const obsidian = AppColors.nearBlack;
+  static const deepViolet = AppColors.chamberViolet;
+  static const royalPurple = AppColors.royalViolet;
+  static const crystalVeil = AppColors.crystalVeil;
+  static const chamberMid = AppColors.midnightNavy;
 
-  static const champagne = Color(0xFFE8CF82);
-  static const champagneDeep = Color(0xFFC9A961);
-  static const champagneShadow = Color(0xFF9A7848);
+  static const champagne = AppColors.gold;
+  static const champagneDeep = AppColors.goldDeep;
+  static const champagneShadow = AppColors.goldShadow;
 
-  static const purpleEnergy = Color(0xFF9B6DFF);
-  static const purpleEnergySoft = Color(0xFF6E4A9E);
-  static const purpleMist = Color(0xFF352058);
+  static const purpleEnergy = AppColors.violetLuminous;
+  static const purpleEnergySoft = AppColors.secondaryPurple;
+  static const purpleMist = AppColors.purpleDark;
 
   static const calmObsidian = obsidian;
   static const wisdomGold = champagneDeep;
-  static const hopefulWarm = Color(0xFF3D2A4A);
-  static const coolMist = Color(0xFF120E1C);
+  static const hopefulWarm = AppColors.royalViolet;
+  static const coolMist = AppColors.backgroundSecondary;
   static const pureGlass = crystalVeil;
+  static const ivory = AppColors.ivory;
+  static const amber = AppColors.amber;
 
   static Color goldEngrave([double alpha = OraclySignatureMaterials.goldEngrave]) =>
       champagne.withValues(alpha: alpha);
@@ -121,7 +125,7 @@ abstract final class OraclySignatureChamber {
       colors: [
         OraclySignaturePalette.chamberMid,
         OraclySignaturePalette.obsidian,
-        Color(0xFF020104),
+        AppColors.nearBlack,
       ],
       stops: [0.0, 0.55, 1.0],
     ),
@@ -158,30 +162,33 @@ abstract final class OraclySignatureChamber {
 abstract final class OraclySignatureTypography {
   OraclySignatureTypography._();
 
-  static TextStyle sectionLabel({double fontSize = 12}) => TextStyle(
-        color: OraclySignaturePalette.champagne.withValues(alpha: 0.78),
-        fontWeight: FontWeight.w500,
-        letterSpacing: 2.2,
-        fontSize: fontSize,
-        height: 1.35,
-      );
-
-  static TextStyle tileTitle({double fontSize = 14.5}) => TextStyle(
+  static TextStyle sectionLabel({double fontSize = 13}) => TextStyle(
+        fontFamily: AppTypography.displayFontFamily,
         color: OraclySignaturePalette.champagne.withValues(alpha: 0.90),
         fontWeight: FontWeight.w600,
-        letterSpacing: 0.4,
+        letterSpacing: CraftsmanshipRhythm.sectionLabelTracking,
         fontSize: fontSize,
-        height: 1.35,
+        height: CraftsmanshipRhythm.sectionLabelHeight,
+      );
+
+  static TextStyle tileTitle({double fontSize = 15}) => TextStyle(
+        fontFamily: AppTypography.displayFontFamily,
+        color: OraclySignaturePalette.champagne.withValues(alpha: 0.92),
+        fontWeight: FontWeight.w600,
+        letterSpacing: CraftsmanshipRhythm.pageTitleTracking,
+        fontSize: fontSize,
+        height: 1.32,
       );
 
   static TextStyle whisperBody({
-    double fontSize = 14,
-    double alpha = 0.68,
+    double fontSize = 15,
+    double alpha = CraftsmanshipRhythm.secondaryInk,
   }) =>
       TextStyle(
-        color: AppColors.textSecondary.withValues(alpha: alpha),
-        height: 1.75,
-        letterSpacing: 0.35,
+        fontFamily: AppTypography.bodyFontFamily,
+        color: AppColors.ivory.withValues(alpha: alpha),
+        height: CraftsmanshipRhythm.bodyLineHeight,
+        letterSpacing: CraftsmanshipRhythm.bodyLetterSpacing,
         fontSize: fontSize,
         fontWeight: FontWeight.w400,
       );
@@ -247,15 +254,15 @@ abstract final class OraclySignatureReading {
   OraclySignatureReading._();
 
   static const generalGradient = [
-    Color(0x66221538),
-    Color(0xCC0E0618),
-    Color(0x55150824),
+    Color(0x66261840),
+    Color(0xCC12081E),
+    Color(0x551A0E2C),
   ];
 
   static const spiritualGradient = [
-    Color(0x66281850),
-    Color(0xCC0C0818),
-    Color(0x55150824),
+    Color(0x66211B3A),
+    Color(0xCC0A1224),
+    Color(0x551A0E2C),
   ];
 
   static Color get generalBorder => OraclySignaturePalette.goldEngrave(0.33);

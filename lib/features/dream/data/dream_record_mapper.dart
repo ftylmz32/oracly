@@ -9,21 +9,32 @@ abstract final class DreamRecordMapper {
   DreamRecordMapper._();
 
   static DreamRecord toRecord(Dream dream) {
-    final closing = dream.insights
-        .where((i) => i.kind == DreamInsightKind.closingTakeaway)
-        .map((i) => i.body)
-        .firstOrNull;
+    final analysis = _firstBody(dream, DreamInsightKind.mainInterpretation) ??
+        _firstBody(dream, DreamInsightKind.summary) ??
+        _firstBody(dream, DreamInsightKind.practicalTakeaway) ??
+        _firstBody(dream, DreamInsightKind.closingTakeaway) ??
+        dream.understanding?.summary ??
+        '';
 
     return DreamRecord(
       id: dream.id,
       text: dream.narrative,
-      analysis: closing ?? dream.understanding?.summary ?? '',
+      analysis: analysis,
       createdAt: dream.recordedAt,
       updatedAt: DateTime.now(),
       emotions: dream.selectedEmotions.map((e) => e.label).toList(),
       tags: dream.tags,
       payload: dream.toJson(),
     );
+  }
+
+  static String? _firstBody(Dream dream, DreamInsightKind kind) {
+    for (final insight in dream.insights) {
+      if (insight.kind == kind && insight.body.trim().isNotEmpty) {
+        return insight.body;
+      }
+    }
+    return null;
   }
 
   static Dream fromRecord(DreamRecord record) {
@@ -37,13 +48,5 @@ abstract final class DreamRecordMapper {
       tags: record.tags,
       selectedEmotions: const [],
     );
-  }
-}
-
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final it = iterator;
-    if (!it.moveNext()) return null;
-    return it.current;
   }
 }

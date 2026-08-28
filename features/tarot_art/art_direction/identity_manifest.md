@@ -27,7 +27,7 @@ A card passes identity if an viewer unfamiliar with other tarot decks can answer
 |-----------|-------------|
 | **Vesica Compass** | Top center navigation sigil — replaces oval gem |
 | **Obsidian Name Plaque** | Slim engraved crystal title plate (empty in lock) |
-| **OR Lattice** | Seven proprietary primitives — see `ORACLY_VISUAL_DNA.md` |
+| **OR Lattice** | Seven proprietary primitives — see u`ORACLY_VISUAL_DNA.md` |
 | **Oracle Veil Ring** | 4–7% inner energy membrane |
 | **Harmonic Meridian Grid** | Corner-unifying golden threads |
 

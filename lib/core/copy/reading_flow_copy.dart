@@ -1,17 +1,20 @@
 /// RC-001 — Transitional copy for select → reveal → reading continuity.
 library;
 
+import '../l10n/l10n.dart';
+
 abstract final class ReadingFlowCopy {
   ReadingFlowCopy._();
 
+  static String _t(String key) => OraclyL10n.t(key);
+
   /// Brief breath between reveal handoff and interpretation scroll.
-  static const introBreath = 'Bir an nefes al…';
+  static String get introBreath => _t('reading.flow.breath');
 
-  static const introPreparing = 'Yorumun sakin bir tempoda açılıyor.';
+  static String get introPreparing => _t('reading.flow.preparing');
 
-  static const revealSessionMissing =
-      'Açılım oturumu bulunamadı. Lütfen yeniden başla.';
+  static String get revealSessionMissing => _t('reading.flow.reveal_missing');
 
-  static const readingSessionMissing =
-      'Yorum yüklenemedi. Açılım oturumu sona ermiş olabilir.';
+  static String get readingSessionMissing =>
+      _t('reading.flow.reading_missing');
 }

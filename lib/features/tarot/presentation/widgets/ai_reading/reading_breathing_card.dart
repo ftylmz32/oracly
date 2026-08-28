@@ -9,6 +9,8 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../../../core/theme/oracly_quiet_motion.dart';
+import 'reading_breathing_card_art.dart';
 import 'reading_element_theme.dart';
 import 'reading_header_ambience.dart';
 
@@ -43,17 +45,26 @@ class _ReadingBreathingCardState extends State<ReadingBreathingCard>
       vsync: this,
       duration: const Duration(milliseconds: 5200),
     );
-    if (widget.active) _life.repeat();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!widget.active) {
+      _life.stop();
+      return;
+    }
+    OraclyQuietMotion.ambient(context, _life, rest: 0.5);
   }
 
   @override
   void didUpdateWidget(covariant ReadingBreathingCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.active && !_life.isAnimating) {
-      _life.repeat();
-    } else if (!widget.active && _life.isAnimating) {
-      _life.stop();
+    if (!widget.active) {
+      if (_life.isAnimating) _life.stop();
+      return;
     }
+    OraclyQuietMotion.ambient(context, _life, rest: 0.5);
   }
 
   @override
@@ -65,9 +76,6 @@ class _ReadingBreathingCardState extends State<ReadingBreathingCard>
   @override
   Widget build(BuildContext context) {
     final height = widget.width * 1.55;
-    final dpr = MediaQuery.devicePixelRatioOf(context);
-    final cacheW = (widget.width * dpr).round();
-    final cacheH = (height * dpr).round();
 
     return RepaintBoundary(
       child: SizedBox(
@@ -75,14 +83,9 @@ class _ReadingBreathingCardState extends State<ReadingBreathingCard>
         height: height,
         child: AnimatedBuilder(
           animation: _life,
-          child: _CardArt(
+          child: ReadingBreathingCardArt(
             imageAsset: widget.imageAsset,
-            elementTheme: widget.elementTheme,
             rarityColor: widget.rarityColor,
-            width: widget.width,
-            height: height,
-            cacheWidth: cacheW,
-            cacheHeight: cacheH,
           ),
           builder: (context, child) {
             final t = widget.active ? _life.value : 0.0;
@@ -140,101 +143,6 @@ class _ReadingBreathingCardState extends State<ReadingBreathingCard>
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-class _CardArt extends StatelessWidget {
-  const _CardArt({
-    required this.imageAsset,
-    required this.elementTheme,
-    required this.rarityColor,
-    required this.width,
-    required this.height,
-    required this.cacheWidth,
-    required this.cacheHeight,
-  });
-
-  final String imageAsset;
-  final ReadingElementTheme elementTheme;
-  final Color rarityColor;
-  final double width;
-  final double height;
-  final int cacheWidth;
-  final int cacheHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Image.asset(
-          imageAsset,
-          fit: BoxFit.cover,
-          cacheWidth: cacheWidth,
-          cacheHeight: cacheHeight,
-          errorBuilder: (context, error, stackTrace) =>
-              _ArtFallback(color: rarityColor),
-        ),
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0x1FFFFFFF),
-                Colors.transparent,
-                Color(0x2E000000),
-              ],
-              stops: [0.0, 0.45, 1.0],
-            ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: FractionallySizedBox(
-            heightFactor: 0.22,
-            widthFactor: 1,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: OraclySignatureReflection.topSpecular(
-                  intensity: 0.85,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ArtFallback extends StatelessWidget {
-  const _ArtFallback({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.45),
-            AppColors.purpleDark,
-            AppColors.primary,
-          ],
-        ),
-      ),
-      child: const Center(
-        child: Icon(
-          Icons.auto_awesome_rounded,
-          color: AppColors.goldLight,
-          size: 36,
         ),
       ),
     );

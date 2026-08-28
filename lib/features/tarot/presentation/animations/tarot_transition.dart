@@ -1,8 +1,14 @@
-/// OR-1000 / OR-432 — Tarot screen transition animations.
+/// EPIC-025 — Tarot screen transition animations (delegates to immersive system).
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/feature_flags/feature_flag_rollback.dart';
+import '../../../../core/feature_flags/feature_flag_surface.dart';
+import '../../../../core/navigation/immersive/chamber_transition_personality.dart';
+import '../../../../core/navigation/immersive/immersive_transition.dart';
+import '../../../../core/navigation/oracly_page_transitions.dart';
+import '../../motion/tarot_cinematic_motion.dart';
 import '../../theme/tarot_tokens.dart';
 
 /// Premium ritual page transition — fade, slide, subtle scale.
@@ -10,32 +16,21 @@ class TarotRitualTransition extends StatelessWidget {
   const TarotRitualTransition({
     super.key,
     required this.animation,
+    required this.secondaryAnimation,
     required this.child,
   });
 
   final Animation<double> animation;
+  final Animation<double> secondaryAnimation;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final curved = CurvedAnimation(
-      parent: animation,
-      curve: TarotTokens.revealCurve,
-      reverseCurve: Curves.easeInCubic,
-    );
-    return FadeTransition(
-      opacity: curved,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.028),
-          end: Offset.zero,
-        ).animate(curved),
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.988, end: 1).animate(curved),
-          alignment: Alignment.topCenter,
-          child: child,
-        ),
-      ),
+    return ImmersivePageTransition(
+      animation: animation,
+      secondaryAnimation: secondaryAnimation,
+      mode: ImmersiveTransitionMode.enter,
+      child: child,
     );
   }
 }
@@ -45,66 +40,58 @@ class TarotRitualDepthHandoff extends StatelessWidget {
   const TarotRitualDepthHandoff({
     super.key,
     required this.animation,
+    required this.secondaryAnimation,
     required this.child,
     this.scaleBegin = TarotTokens.handoffScaleBegin,
   });
 
   final Animation<double> animation;
+  final Animation<double> secondaryAnimation;
   final Widget child;
   final double scaleBegin;
 
   @override
   Widget build(BuildContext context) {
-    final fade = CurvedAnimation(
-      parent: animation,
-      curve: TarotTokens.ritualCurve,
-    );
-    final scale = Tween<double>(begin: scaleBegin, end: 1.0).animate(fade);
-    return FadeTransition(
-      opacity: fade,
-      child: ScaleTransition(
-        scale: scale,
-        alignment: Alignment.center,
-        child: child,
-      ),
+    return ImmersivePageTransition(
+      animation: animation,
+      secondaryAnimation: secondaryAnimation,
+      mode: ImmersiveTransitionMode.depth,
+      scaleBegin: scaleBegin,
+      child: child,
     );
   }
 }
 
-/// Builds a [PageRouteBuilder] with the standard tarot transition.
-PageRouteBuilder<T> tarotRitualRoute<T>({
+/// Builds a route with the standard tarot transition.
+Route<T> tarotRitualRoute<T>({
   required Widget page,
   RouteSettings? settings,
 }) {
-  return PageRouteBuilder<T>(
+  if (!FeatureFlagRollback.useExperimental(FeatureFlagSurface.tarotAnimation)) {
+    return OraclyPageTransitions.fade<T>(page: page, settings: settings);
+  }
+  return OraclyPageTransitions.chamber<T>(
+    personality: ChamberTransitionPersonality.tarot,
+    page: page,
     settings: settings,
-    transitionDuration: TarotTokens.transitionSlow,
-    reverseTransitionDuration: TarotTokens.transitionNormal,
-    pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return TarotRitualTransition(animation: animation, child: child);
-    },
   );
 }
 
 /// Shared depth handoff for selection → reveal → reading continuity.
-PageRouteBuilder<T> tarotRitualDepthHandoffRoute<T>({
+Route<T> tarotRitualDepthHandoffRoute<T>({
   required Widget page,
   RouteSettings? settings,
   Duration? duration,
   double scaleBegin = TarotTokens.handoffScaleBegin,
 }) {
-  return PageRouteBuilder<T>(
+  if (!FeatureFlagRollback.useExperimental(FeatureFlagSurface.tarotAnimation)) {
+    return OraclyPageTransitions.fade<T>(page: page, settings: settings);
+  }
+  return OraclyPageTransitions.depth<T>(
+    page: page,
     settings: settings,
-    transitionDuration: duration ?? TarotTokens.ritualHandoff,
-    reverseTransitionDuration: TarotTokens.transitionNormal,
-    pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return TarotRitualDepthHandoff(
-        animation: animation,
-        scaleBegin: scaleBegin,
-        child: child,
-      );
-    },
+    scaleBegin: scaleBegin,
+    duration: duration ?? TarotTokens.ritualHandoff,
+    reverseDuration: TarotCinematicMotion.backNav,
   );
 }

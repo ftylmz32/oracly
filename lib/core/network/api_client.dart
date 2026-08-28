@@ -151,10 +151,7 @@ class ApiClient {
           return ApiSuccess(parsed as T);
         }
 
-        final error = NetworkException.fromStatusCode(
-          response.statusCode,
-          response.body.isNotEmpty ? response.body : null,
-        );
+        final error = NetworkException.fromStatusCode(response.statusCode);
 
         if (_retryInterceptor.shouldRetry(error) &&
             attempt < _retryInterceptor.maxAttempts - 1) {

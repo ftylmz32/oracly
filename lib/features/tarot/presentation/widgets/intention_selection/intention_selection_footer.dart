@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/design_system/app_layout.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/oracly_brand_signature.dart';
 import '../../../../../core/theme/app_radius.dart';
@@ -20,7 +21,7 @@ class IntentionSelectionFooter extends StatefulWidget {
   final bool enabled;
   final VoidCallback? onConfirm;
 
-  static const String _label = 'Niyetimi Mühürle';
+  static const String _label = 'Devam Et';
 
   @override
   State<IntentionSelectionFooter> createState() =>
@@ -35,7 +36,6 @@ class _IntentionSelectionFooterState extends State<IntentionSelectionFooter> {
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.paddingOf(context).bottom;
     final enabled = widget.enabled && widget.onConfirm != null;
 
     return ClipRect(
@@ -64,7 +64,7 @@ class _IntentionSelectionFooterState extends State<IntentionSelectionFooter> {
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
-              AppSpacing.md + bottom,
+              AppLayout.scrollBottomInset(context),
             ),
             child: GestureDetector(
               onTap: enabled ? widget.onConfirm : null,

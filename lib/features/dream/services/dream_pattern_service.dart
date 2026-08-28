@@ -1,8 +1,11 @@
-/// SPRINT-001 — Detect genuine patterns across stored dreams.
+/// Detect genuine patterns across stored dreams — never quote raw text.
 library;
 
+import '../../../core/l10n/oracly_format.dart';
 import '../models/dream.dart';
 import '../models/dream_insight.dart';
+import 'dream_analysis_beats.dart';
+import 'dream_analysis_facts.dart';
 
 class DreamPatternMatch {
   const DreamPatternMatch({
@@ -10,18 +13,18 @@ class DreamPatternMatch {
     required this.sharedTags,
     required this.previousDreamId,
     required this.previousDreamDate,
-    required this.narrativeExcerpt,
   });
 
   final List<String> sharedSymbols;
   final List<String> sharedTags;
   final String previousDreamId;
   final DateTime previousDreamDate;
-  final String narrativeExcerpt;
 }
 
 class DreamPatternService {
   const DreamPatternService();
+
+  static String formatDate(DateTime date) => OraclyFormat.dateNumeric(date);
 
   /// Returns null when no genuine overlap exists.
   DreamPatternMatch? findConnection({
@@ -58,15 +61,11 @@ class DreamPatternService {
 
       if (hasGenuinePattern && score > bestScore) {
         bestScore = score;
-        final excerpt = prior.narrative.length > 72
-            ? '${prior.narrative.substring(0, 72)}…'
-            : prior.narrative;
         best = DreamPatternMatch(
           sharedSymbols: sharedSymbols.map(_titleCase).toList(),
           sharedTags: sharedTags,
           previousDreamId: prior.id,
           previousDreamDate: prior.recordedAt,
-          narrativeExcerpt: excerpt,
         );
       }
     }
@@ -76,30 +75,26 @@ class DreamPatternService {
 
   DreamInsight? buildConnectionInsight(DreamPatternMatch? match) {
     if (match == null) return null;
-
-    final parts = <String>[];
-    if (match.sharedSymbols.isNotEmpty) {
-      parts.add('ortak semboller: ${match.sharedSymbols.join(', ')}');
-    }
-    if (match.sharedTags.isNotEmpty) {
-      parts.add('ortak etiketler: ${match.sharedTags.join(', ')}');
-    }
-
-    final dateLabel = _formatDate(match.previousDreamDate);
+    final facts = DreamAnalysisFacts.from(
+      narrative: '',
+      understanding: const DreamUnderstanding(
+        symbols: [],
+        emotions: [],
+        locations: [],
+        relationships: [],
+        recurringElements: [],
+        summary: '',
+      ),
+    );
     return DreamInsight(
       kind: DreamInsightKind.personalConnection,
       title: 'Önceki rüyalarla bağ',
-      body:
-          '$dateLabel tarihli rüyanda ${parts.join('; ')}. '
-          'Bu tekrarlar bilinçaltının aynı temaya döndüğünü düşündürebilir — '
-          'kesin bir anlam iddia etmiyoruz; sadece dikkat çekmek istedik.',
+      body: DreamAnalysisBeats.you(
+        facts: facts,
+        date: formatDate(match.previousDreamDate),
+        sharedSymbols: match.sharedSymbols,
+      ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final d = date.day.toString().padLeft(2, '0');
-    final m = date.month.toString().padLeft(2, '0');
-    return '$d.$m.${date.year}';
   }
 
   String _titleCase(String value) {

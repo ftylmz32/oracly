@@ -1,45 +1,33 @@
-/// OR-1000 — Tarot loading state component.
+/// Tarot loading — deck anticipation cinema, never a Material spinner.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../shared/widgets/chamber_waiting_orb.dart';
+import '../../../core/design_system/loading_cinema/oracly_loading_cinema.dart';
+import '../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../../core/personality/or_living_voice.dart';
 
-/// Premium loading indicator for async tarot operations.
 class TarotLoading extends StatelessWidget {
   const TarotLoading({
     super.key,
-    this.message = 'Evren dinleniyor...',
-    this.seed = 0,
+    this.message,
+    this.onRetry,
+    this.compact = false,
   });
 
-  final String message;
-  final int seed;
+  final String? message;
+  final VoidCallback? onRetry;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      liveRegion: true,
-      label: message,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ChamberWaitingOrb(size: AppSpacing.xxl, seed: seed),
-            SizedBox(height: AppSpacing.md),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
+    final label =
+        message ?? OrLivingVoice.thinking(surface: OrLivingSurface.tarot);
+    return OraclyLoadingCinema(
+      kind: OraclyLoadingKind.tarot,
+      message: label,
+      onRetry: onRetry,
+      compact: compact,
     );
   }
 }

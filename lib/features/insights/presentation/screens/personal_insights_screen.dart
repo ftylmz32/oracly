@@ -6,6 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/copy/resilience_copy.dart';
+import '../../../../core/design_system/app_icons.dart';
+import '../../../../core/design_system/oracly_header_action.dart';
+import '../../../../core/security/ai_error_sanitizer.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -13,7 +17,12 @@ import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../core/widgets/transparency_footnote.dart';
 import '../../../../features/home/widgets/home_cinematic_background.dart';
+import '../../../../shared/ui/oracly_bottom_sheet.dart';
+import '../../../../shared/ui/oracly_dialog.dart';
+import '../../../../shared/ui/oracly_sheet_action.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
+import '../../../../shared/widgets/oracly_cinematic_loading.dart';
+import '../../../../shared/widgets/oracly_gold_button.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../controllers/personal_insights_controller.dart';
 import '../../copy/personal_insights_copy.dart';
@@ -40,18 +49,24 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_rounded),
+        leading: Align(
+          child: OraclyHeaderAction(
+            icon: AppIcons.back,
+            label: 'Geri',
+            onTap: () => Navigator.of(context).maybePop(),
+          ),
         ),
         title: Text(PersonalInsightsCopy.screenTitle),
         centerTitle: true,
         actions: [
           if (state.phase == PersonalInsightsPhase.ready)
-            IconButton(
-              onPressed: () => _showActionsSheet(controller),
-              icon: const Icon(Icons.more_vert_rounded),
-              tooltip: PersonalInsightsCopy.privacyTitle,
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: OraclyHeaderAction(
+                icon: Icons.more_vert_rounded,
+                label: PersonalInsightsCopy.privacyTitle,
+                onTap: () => _showActionsSheet(controller),
+              ),
             ),
         ],
       ),
@@ -64,9 +79,9 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
 
   Widget _body(PersonalInsightsState state, PersonalInsightsController controller) {
     return switch (state.phase) {
-      PersonalInsightsPhase.loading => const Center(
+      PersonalInsightsPhase.loading => const OraclyCinematicLoading(
           key: ValueKey('loading'),
-          child: CircularProgressIndicator(color: AppColors.gold),
+          compact: true,
         ),
       PersonalInsightsPhase.empty => const InsightsEmptyState(
           key: ValueKey('empty'),
@@ -79,14 +94,17 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  ResilienceCopy.genericLoadFailed,
+                  AiErrorSanitizer.guard(
+                    state.error,
+                    fallback: ResilienceCopy.genericLoadFailed,
+                  ),
                   textAlign: TextAlign.center,
                   style: ReadingTypography.body(),
                 ),
                 SizedBox(height: AppSpacing.lg),
-                TextButton(
+                OraclyGoldButton(
+                  label: OraclyL10n.t('insights.retry'),
                   onPressed: controller.load,
-                  child: const Text('Tekrar dene'),
                 ),
               ],
             ),
@@ -130,7 +148,7 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
         if (summary.patterns.isNotEmpty) ...[
           SizedBox(height: AppSpacing.md),
           Text(
-            'Tekrar eden desenler',
+            OraclyL10n.t('insights.patterns'),
             style: AppTextStyles.labelMedium.copyWith(
               color: AppColors.textHint,
             ),
@@ -155,120 +173,96 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
           ),
         ],
         SizedBox(height: AppSpacing.lg),
-        const TransparencyFootnote(text: PersonalInsightsCopy.footnote),
+        TransparencyFootnote(text: PersonalInsightsCopy.footnote),
         SizedBox(height: AppSpacing.xxl),
       ],
     );
   }
 
   void _showActionsSheet(PersonalInsightsController controller) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.surfaceElevated,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.refresh_rounded),
-              title: Text(PersonalInsightsCopy.regenerateAction),
-              onTap: () async {
-                Navigator.pop(context);
-                await controller.regenerate();
-                if (!context.mounted) return;
-                OraclySnackBar.show(
-                  context,
-                  message: PersonalInsightsCopy.regeneratedConfirmation,
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.upload_outlined),
-              title: Text(PersonalInsightsCopy.exportAction),
-              onTap: () async {
-                Navigator.pop(context);
-                final text = controller.exportText();
-                await Clipboard.setData(ClipboardData(text: text));
-                if (!context.mounted) return;
-                OraclySnackBar.show(
-                  context,
-                  message: PersonalInsightsCopy.exportedConfirmation,
-                );
-              },
-            ),
-          ],
-        ),
+    OraclyBottomSheet.show<void>(
+      context,
+      title: PersonalInsightsCopy.privacyTitle,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OraclySheetAction(
+            icon: Icons.refresh_rounded,
+            label: PersonalInsightsCopy.regenerateAction,
+            onTap: () async {
+              Navigator.pop(context);
+              await controller.regenerate();
+              if (!context.mounted) return;
+              OraclySnackBar.show(
+                context,
+                message: PersonalInsightsCopy.regeneratedConfirmation,
+              );
+            },
+          ),
+          OraclySheetAction(
+            icon: Icons.upload_outlined,
+            label: PersonalInsightsCopy.exportAction,
+            onTap: () async {
+              Navigator.pop(context);
+              final text = controller.exportText();
+              await Clipboard.setData(ClipboardData(text: text));
+              if (!context.mounted) return;
+              OraclySnackBar.show(
+                context,
+                message: PersonalInsightsCopy.exportedConfirmation,
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
   void _showInsightActions(PersonalInsightsController controller, String id) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.surfaceElevated,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.visibility_off_outlined),
-              title: Text(PersonalInsightsCopy.hideAction),
-              onTap: () async {
-                Navigator.pop(context);
-                await controller.hideInsight(id);
+    OraclyBottomSheet.show<void>(
+      context,
+      title: PersonalInsightsCopy.privacyTitle,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OraclySheetAction(
+            icon: Icons.visibility_off_outlined,
+            label: PersonalInsightsCopy.hideAction,
+            onTap: () async {
+              Navigator.pop(context);
+              await controller.hideInsight(id);
+              if (!context.mounted) return;
+              OraclySnackBar.show(
+                context,
+                message: PersonalInsightsCopy.hiddenConfirmation,
+              );
+            },
+          ),
+          OraclySheetAction(
+            icon: Icons.delete_outline,
+            label: PersonalInsightsCopy.deleteAction,
+            destructive: true,
+            onTap: () async {
+              Navigator.pop(context);
+              final confirmed = await OraclyDialog.confirm(
+                context,
+                title: PersonalInsightsCopy.deleteAction,
+                message: PersonalInsightsCopy.deletePrompt,
+                confirmLabel: PersonalInsightsCopy.deleteAction,
+                cancelLabel: OraclyL10n.t('trust.delete_cancel'),
+                destructive: true,
+              );
+              if (confirmed == true) {
+                await controller.deleteInsight(id);
                 if (!context.mounted) return;
                 OraclySnackBar.show(
                   context,
-                  message: PersonalInsightsCopy.hiddenConfirmation,
+                  message: PersonalInsightsCopy.deletedConfirmation,
                 );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete_outline, color: AppColors.error),
-              title: Text(
-                PersonalInsightsCopy.deleteAction,
-                style: TextStyle(color: AppColors.error),
-              ),
-              onTap: () async {
-                Navigator.pop(context);
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text(PersonalInsightsCopy.deleteAction),
-                    content: Text(PersonalInsightsCopy.deletePrompt),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Vazgeç'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(
-                          PersonalInsightsCopy.deleteAction,
-                          style: TextStyle(color: AppColors.error),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirmed == true) {
-                  await controller.deleteInsight(id);
-                  if (!context.mounted) return;
-                  OraclySnackBar.show(
-                    context,
-                    message: PersonalInsightsCopy.deletedConfirmation,
-                  );
-                }
-              },
-            ),
-          ],
-        ),
+              }
+            },
+          ),
+        ],
       ),
     );
   }

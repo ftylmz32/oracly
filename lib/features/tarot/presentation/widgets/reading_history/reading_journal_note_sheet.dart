@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/copy/session_ending_copy.dart';
 import '../../../../../core/copy/transparency_copy.dart';
+import '../../../../../core/design_system/app_layout.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -60,10 +61,10 @@ class _ReadingJournalNoteSheetState extends State<_ReadingJournalNoteSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final inset = MediaQuery.viewInsetsOf(context).bottom;
-
     return Padding(
-      padding: EdgeInsets.only(bottom: inset),
+      padding: EdgeInsets.only(
+        bottom: AppLayout.sheetBottomInset(context),
+      ),
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -80,16 +81,14 @@ class _ReadingJournalNoteSheetState extends State<_ReadingJournalNoteSheet> {
             width: AppBorderWidth.hairline,
           ),
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.lg,
-            ),
-            child: Column(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            AppSpacing.lg,
+          ),
+          child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -191,7 +190,6 @@ class _ReadingJournalNoteSheetState extends State<_ReadingJournalNoteSheet> {
             ),
           ),
         ),
-      ),
     );
   }
 }

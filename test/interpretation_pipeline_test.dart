@@ -31,7 +31,7 @@ void main() {
           card: CardRevealSpread.forIndex(2).card,
           positionIndex: 2,
           isReversed: false,
-          positionLabel: 'Gelecek',
+          positionLabel: 'Olası yön',
         ),
       ],
     );
@@ -40,14 +40,29 @@ void main() {
     final content = await service.generateContent(session);
 
     expect(content.generalMeaning.trim().isNotEmpty, isTrue);
-    expect(content.love.trim().isNotEmpty, isTrue);
-    expect(content.career.trim().isNotEmpty, isTrue);
+    expect(content.money.trim().isNotEmpty, isTrue);
+    expect(content.love.trim().isEmpty, isTrue);
     expect(content.cardName, isNotEmpty);
     expect(
       content.generalMeaning.toLowerCase(),
       isNot(contains('evren seninle')),
     );
-    expect(content.spiritualGuidance, contains('•'));
-    expect(content.closingMessage.trim().isNotEmpty, isTrue);
+    expect(
+      content.generalMeaning.toLowerCase(),
+      isNot(contains('sana ne hatırlatıyor')),
+    );
+    expect(content.dailyAdvice.trim().isNotEmpty, isTrue);
+    expect(content.cardReadings, contains('Geçmiş'));
+    expect(content.cardReadings, contains('Ters'));
+    final lucky = content.luckyEnergy.toLowerCase();
+    expect(lucky.trim().isNotEmpty, isTrue);
+    expect(
+      lucky,
+      anyOf(contains('sembolik'), contains('eğilim'), contains('yön')),
+    );
+    expect(lucky, isNot(contains('kesinlikle')));
+    expect(lucky, isNot(contains('mutlaka olacak')));
+    expect(content.promptQuestion, contains('?'));
+    expect(content.isAiInterpretation, isFalse);
   });
 }

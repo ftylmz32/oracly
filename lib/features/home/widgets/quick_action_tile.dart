@@ -14,12 +14,14 @@ class QuickActionTile extends StatefulWidget {
     required this.title,
     required this.onTap,
     this.phase = 0,
+    this.height,
   });
 
   final IconData icon;
   final String title;
   final VoidCallback onTap;
   final double phase;
+  final double? height;
 
   @override
   State<QuickActionTile> createState() => _QuickActionTileState();
@@ -58,7 +60,7 @@ class _QuickActionTileState extends State<QuickActionTile>
       child: OraclyPressable(
         onTap: widget.onTap,
         child: LuxuryGlassSurface(
-          height: 132,
+          height: widget.height ?? 132,
           elevated: true,
           padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
           child: Column(

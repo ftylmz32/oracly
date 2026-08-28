@@ -4,12 +4,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'app_colors.dart';
+import '../navigation/immersive/immersive_transition.dart';
+import '../design_system/oracly_design_system.dart';
 import 'app_decorations.dart';
-import 'app_radius.dart';
-import 'app_shadows.dart';
-import 'app_spacing.dart';
-import 'app_text_styles.dart';
 
 /// Opacity tokens for interactive and overlay states.
 abstract final class _ThemeOpacity {
@@ -33,11 +30,11 @@ abstract final class _AppPageTransitions {
 
   static final PageTransitionsTheme theme = PageTransitionsTheme(
     builders: {
-      TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-      TargetPlatform.iOS: FadeUpwardsPageTransitionsBuilder(),
-      TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
-      TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
-      TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+      TargetPlatform.android: ImmersivePageTransitionsBuilder(),
+      TargetPlatform.iOS: ImmersivePageTransitionsBuilder(),
+      TargetPlatform.macOS: ImmersivePageTransitionsBuilder(),
+      TargetPlatform.windows: ImmersivePageTransitionsBuilder(),
+      TargetPlatform.linux: ImmersivePageTransitionsBuilder(),
     },
   );
 }
@@ -47,7 +44,7 @@ abstract final class AppThemeExtensions {
   AppThemeExtensions._();
 
   static List<ThemeExtension<dynamic>> forPalette(AppColorPalette palette) =>
-      const [];
+      const [OraclyDesignTokens.standard];
 }
 
 /// Production theme factory — dark default, light ready, brightness-switchable.
@@ -99,6 +96,10 @@ abstract final class AppTheme {
       hoverColor: palette.gold.withValues(alpha: _ThemeOpacity.hover),
       focusColor: palette.gold.withValues(alpha: _ThemeOpacity.focus),
       splashFactory: NoSplash.splashFactory,
+      // ORACLY owns click/haptic — never Material SystemSound.click.
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(enableFeedback: false),
+      ),
       pageTransitionsTheme: _AppPageTransitions.theme,
       appBarTheme: _appBarTheme(palette, brightness, iconSize),
       cardTheme: _cardTheme(palette),
@@ -157,10 +158,10 @@ abstract final class AppTheme {
       margin: EdgeInsets.zero,
       shadowColor: AppColors.black,
       shape: RoundedRectangleBorder(
-        borderRadius: AppRadius.lg,
+        borderRadius: OraclyComponentTokens.cardRadius,
         side: BorderSide(
-          color: AppColors.matteBorder,
-          width: AppBorderWidth.thin,
+          color: palette.gold.withValues(alpha: 0.24),
+          width: AppBorderWidth.hairline,
         ),
       ),
     );
@@ -181,6 +182,7 @@ abstract final class AppTheme {
         padding: padding,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.md),
         textStyle: AppTextStyles.labelLarge,
+        enableFeedback: false,
       ),
     );
   }
@@ -197,6 +199,7 @@ abstract final class AppTheme {
         padding: padding,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.md),
         textStyle: AppTextStyles.labelLarge,
+        enableFeedback: false,
       ),
     );
   }
@@ -211,6 +214,7 @@ abstract final class AppTheme {
         disabledForegroundColor: AppColors.textHint,
         padding: padding,
         textStyle: AppTextStyles.labelLarge,
+        enableFeedback: false,
       ),
     );
   }
@@ -241,6 +245,7 @@ abstract final class AppTheme {
       unselectedItemColor: AppColors.textHint,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
+      enableFeedback: false,
       selectedLabelStyle: AppTextStyles.labelSmall,
       unselectedLabelStyle: AppTextStyles.labelSmall,
     );
@@ -440,6 +445,7 @@ abstract final class AppTheme {
       tileColor: AppColors.transparent,
       iconColor: palette.icon,
       textColor: palette.textPrimary,
+      enableFeedback: false,
       contentPadding: AppSpacing.screenHorizontal,
       shape: RoundedRectangleBorder(borderRadius: AppRadius.md),
       titleTextStyle: AppTextStyles.titleMedium.copyWith(

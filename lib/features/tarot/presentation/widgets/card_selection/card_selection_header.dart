@@ -1,4 +1,4 @@
-/// OR-1170 — Card selection ritual header copy.
+/// OR-1170 / TAROT V2 — clear card-count instruction.
 library;
 
 import 'package:flutter/material.dart';
@@ -8,61 +8,73 @@ import '../../../../../core/first_session/first_session_scope.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../copy/tarot_polish_copy.dart';
+import '../tarot_flow_progress.dart';
 
 class CardSelectionHeader extends StatelessWidget {
   const CardSelectionHeader({
     super.key,
     this.positionLabel,
-    this.progressLabel,
+    this.drawnCount = 0,
+    this.requiredCount = 3,
   });
 
   final String? positionLabel;
-  final String? progressLabel;
+  final int drawnCount;
+  final int requiredCount;
 
   @override
   Widget build(BuildContext context) {
-    final isFirstSession = FirstSessionScope.of(context);
-    final defaultTitle = FirstSessionCopy.cardSelectionTitleFor(
-      isFirstSession: isFirstSession,
+    final first = FirstSessionScope.of(context);
+    final progress = TarotPolishCopy.cardProgress(
+      drawnCount + 1,
+      requiredCount,
     );
-    final title = positionLabel == null
-        ? defaultTitle
-        : '$positionLabel konumuna kart seç.';
-    final subtitle = progressLabel == null || progressLabel!.isEmpty
-        ? FirstSessionCopy.cardSelectionSubtitleFor(isFirstSession: isFirstSession)
-        : 'Kart $progressLabel · ${FirstSessionCopy.cardSelectionSubtitleFor(isFirstSession: isFirstSession)}';
+    final title = first
+        ? FirstSessionCopy.cardSelectionTitleFor(isFirstSession: true)
+        : TarotPolishCopy.selectCards(requiredCount);
+    final subtitle = first
+        ? FirstSessionCopy.cardSelectionSubtitleFor(isFirstSession: true)
+        : (positionLabel == null || positionLabel!.isEmpty
+            ? progress
+            : '$progress · $positionLabel');
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.lg,
-        AppSpacing.sm,
-      ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.titleMedium.copyWith(
-              color: AppColors.goldLight,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.4,
-              height: 1.35,
-            ),
+    return Column(
+      children: [
+        const TarotFlowProgress(step: TarotRitualStep.selection),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.sm,
           ),
-          SizedBox(height: AppSpacing.sm),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-              letterSpacing: 0.25,
-              height: 1.45,
-            ),
+          child: Column(
+            children: [
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: AppColors.goldLight,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.4,
+                  height: 1.35,
+                ),
+              ),
+              SizedBox(height: AppSpacing.sm),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.25,
+                  height: 1.45,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

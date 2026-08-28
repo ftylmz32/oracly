@@ -20,7 +20,8 @@ class LocalAstrologyRepository implements AstrologyRepository {
       id: 'daily_${sign}_${DateTime.now().toIso8601String().substring(0, 10)}',
       sign: sign,
       horoscope:
-          '$sign burcu için bugün enerji yükseliyor. Sezgilerine güven.',
+          '$sign burcunda bugün tablo net: acele etmek yerine tek görünür '
+          'adım daha doğru. Kesin gelecek yok; sembolik bir bakış.',
       date: DateTime.now(),
     );
   }

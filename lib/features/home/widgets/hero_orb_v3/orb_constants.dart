@@ -36,6 +36,17 @@ abstract final class OrbConstants {
   static const Duration particleDriftDuration = Duration(seconds: 72);
   static const Duration particleFadeDuration = Duration(seconds: 9);
 
+  // ── EPIC-013 Living crystal motion ───────────────────────────────
+  static const Duration internalEnergyDuration = Duration(seconds: 84);
+  static const Duration orbitDuration = Duration(seconds: 36);
+  static const Duration shimmerCycleDuration = Duration(seconds: 10);
+  static const double shimmerActiveFraction = 0.14;
+  static const Duration tapPulseDuration = Duration(milliseconds: 520);
+  static const double tapScaleBoostMax = 0.028;
+  static const double tapGlowBoostMax = 0.18;
+  static const double externalOrbitRadiusScale = 1.14;
+  static const double externalOrbitWobble = 0.018;
+
   /// Normalized reference regions (0–1 of canvas width/height).
   static const Offset sphereCenterNorm = Offset(0.5, 0.385);
   static const double sphereRadiusNorm = 0.285;

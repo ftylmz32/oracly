@@ -1,130 +1,83 @@
-/// OR-1100 — Premium empty state with CTA.
+/// Premium empty state — feature atmosphere plate, one sentence, clear CTA.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_radius.dart';
+import '../../core/design_system/async_state/oracly_async_atmosphere.dart';
+import '../../core/design_system/async_state/oracly_async_emblem.dart';
+import '../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../core/design_system/micro_details/micro_details.dart';
+import '../../core/design_system/oracly_chrome.dart';
+import '../../core/design_system/premium_button.dart';
 import '../../core/theme/app_spacing.dart';
-import '../../core/theme/app_text_styles.dart';
-import 'oracly_pressable.dart';
+import '../../core/theme/reading_typography.dart';
 
 class OraclyEmptyState extends StatelessWidget {
   const OraclyEmptyState({
     super.key,
     required this.message,
     this.title,
-    this.icon = Icons.auto_awesome_rounded,
+    this.kind = OraclyLoadingKind.chamber,
+    this.imageAsset,
+    this.warm,
+    @Deprecated('Prefer kind — cartoon icons are not used.')
+    this.icon = Icons.nights_stay_rounded,
     this.ctaLabel,
     this.onCta,
   });
 
   final String message;
   final String? title;
+  final OraclyLoadingKind kind;
+  final String? imageAsset;
+  final bool? warm;
   final IconData icon;
   final String? ctaLabel;
   final VoidCallback? onCta;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 108,
-              height: 108,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.purpleGlow.withValues(alpha: 0.32),
-                    AppColors.transparent,
-                  ],
-                ),
-                border: Border.all(
-                  color: AppColors.gold.withValues(alpha: 0.28),
-                  width: AppBorderWidth.hairline,
-                ),
+    return MicroEmptyAmbience(
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OraclyAsyncEmblem(
+                kind: kind,
+                size: 112,
+                assetPath: imageAsset ?? OraclyAsyncAtmosphere.plate(kind),
+                warm: warm,
               ),
-              child: Icon(
-                icon,
-                size: 48,
-                color: AppColors.goldLight.withValues(alpha: 0.85),
-              ),
-            ),
-            if (title != null) ...[
               SizedBox(height: AppSpacing.lg),
+              if (title != null) ...[
+                Text(
+                  title!,
+                  textAlign: TextAlign.center,
+                  style: ReadingTypography.title(
+                    color: OraclyChrome.goldLight.withValues(alpha: 0.92),
+                  ),
+                ),
+                SizedBox(height: AppSpacing.md),
+              ],
               Text(
-                title!,
+                message,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.titleSmall.copyWith(
-                  color: AppColors.goldLight,
-                  fontWeight: FontWeight.w700,
+                style: ReadingTypography.body(
+                  color: OraclyChrome.cream.withValues(alpha: 0.78),
                 ),
               ),
+              if (ctaLabel != null && onCta != null) ...[
+                SizedBox(height: AppSpacing.xl),
+                PremiumButton(
+                  label: ctaLabel!,
+                  onPressed: onCta,
+                  variant: PremiumButtonVariant.primary,
+                ),
+              ],
             ],
-            SizedBox(height: AppSpacing.md),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.55,
-              ),
-            ),
-            if (ctaLabel != null && onCta != null) ...[
-              SizedBox(height: AppSpacing.xl),
-              _PremiumCta(label: ctaLabel!, onPressed: onCta!),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PremiumCta extends StatelessWidget {
-  const _PremiumCta({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return OraclyPressable(
-      onTap: onPressed,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: AppRadius.lg,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.goldGlow.withValues(alpha: 0.32),
-              blurRadius: 18,
-            ),
-          ],
-        ),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFF0D77A), Color(0xFFD4AF37)],
-            ),
-            borderRadius: AppRadius.lg,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.xl,
-              vertical: AppSpacing.md,
-            ),
-            child: Text(
-              label,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
           ),
         ),
       ),

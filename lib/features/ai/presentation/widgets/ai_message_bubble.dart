@@ -4,13 +4,15 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/copy/resilience_copy.dart';
-
+import '../../../../core/security/ai_error_sanitizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../domain/models/ai_message.dart';
+import '../../../../core/reading_ux/reading_expand_section.dart';
+import '../../../../core/theme/reading_flow_text.dart';
 import 'ai_markdown_body.dart';
 import 'ai_message_actions.dart';
 import 'oracle_avatar.dart';
@@ -167,15 +169,27 @@ class _Body extends StatelessWidget {
 
     if (message.hasError) {
       return Text(
-        message.errorMessage ?? ResilienceCopy.aiUnavailable,
-        style: style.copyWith(color: AppColors.error),
+        AiErrorSanitizer.guard(
+          message.errorMessage,
+          fallback: ResilienceCopy.aiUnavailable,
+        ),
+        style: style.copyWith(
+          color: const Color(0xFFC9A46C).withValues(alpha: 0.92),
+        ),
       );
     }
 
     if (useMarkdown && !isUser) {
+      if (ReadingExpandSection.isLong(message.content)) {
+        return ReadingExpandSection(body: message.content);
+      }
       return AIMarkdownBody(markdown: message.content, textStyle: style);
     }
 
-    return Text(message.content, style: style);
+    if (!isUser && ReadingExpandSection.isLong(message.content)) {
+      return ReadingExpandSection(body: message.content);
+    }
+
+    return ReadingFlowText(text: message.content, style: style);
   }
 }

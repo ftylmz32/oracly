@@ -11,6 +11,8 @@ import '../templates/template_engine.dart';
 import '../templates/template_registry.dart';
 import '../validators/prompt_validation.dart';
 import '../validators/prompt_validator.dart';
+import '../../tarot/interpretation/services/tarot_prompt_locale.dart';
+import '../formatters/output_format_locale.dart';
 
 abstract class BasePromptBuilder<TInput> implements PromptBuilderContract<TInput> {
   BasePromptBuilder({
@@ -85,10 +87,17 @@ abstract class BasePromptBuilder<TInput> implements PromptBuilderContract<TInput
         : OutputFormatCatalogue.byId(template.outputFormatId!) ??
             OutputFormatCatalogue.standard;
 
+    final tarot = template.id == 'tarot.reading';
     return {
       ...context.toVariableMap(),
       ...inputVariables,
-      'outputFormatInstruction': outputSchema.instructionTemplate,
+      'outputFormatInstruction': tarot
+          ? TarotPromptLocale.format(context.locale)
+          : OutputFormatLocale.instruction(
+              outputSchema.id,
+              context.locale,
+            ),
+      if (tarot) 'personaBody': TarotPromptLocale.persona(context.locale),
     };
   }
 }

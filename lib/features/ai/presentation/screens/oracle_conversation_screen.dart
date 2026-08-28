@@ -1,20 +1,26 @@
-/// OR-1190 — Mystical oracle conversation after tarot reading.
+/// LEGACY - quarantined from production navigation.
+///
+/// Feature handoffs use openOracleConversation which opens
+/// CompanionReferenceScreen. Do not push this route from live CTAs.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/copy/ai_source_copy.dart';
 import '../../../../core/copy/conversation_copy.dart';
-import '../../../../core/copy/transparency_copy.dart';
+import '../../../../core/security/ai_error_sanitizer.dart';
+import '../../../../features/ai/presentation/widgets/ai_source_footnote.dart';
+import '../../production/oracly_ai_providers.dart';
+import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
-import '../../../../core/widgets/transparency_footnote.dart';
-import '../../../../widgets/cosmic_background.dart';
 import '../../domain/models/ai_message.dart';
 import '../../oracle_conversation/models/oracle_reading_context.dart';
 import '../../oracle_conversation/providers/oracle_conversation_providers.dart';
+import '../../oracle_conversation/services/oracle_conversation_responder.dart';
 import '../widgets/conversation_closing_whisper.dart';
 import '../widgets/conversation_message_entrance.dart';
 import '../widgets/ai_message_bubble.dart';
@@ -25,6 +31,7 @@ import '../widgets/oracle_conversation_input.dart';
 import '../widgets/oracle_message_actions_bar.dart';
 import '../widgets/oracle_message_timestamp.dart';
 import '../widgets/oracle_suggestion_chips.dart';
+import '../widgets/oracle_send_error_banner.dart';
 
 class OracleConversationScreen extends ConsumerStatefulWidget {
   const OracleConversationScreen({
@@ -43,6 +50,7 @@ class _OracleConversationScreenState
     extends ConsumerState<OracleConversationScreen> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _scrollQueued = false;
 
   @override
   void dispose() {
@@ -52,7 +60,10 @@ class _OracleConversationScreenState
   }
 
   void _scrollToBottom() {
+    if (_scrollQueued) return;
+    _scrollQueued = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollQueued = false;
       if (!mounted || !_scrollController.hasClients) return;
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -75,13 +86,6 @@ class _OracleConversationScreenState
     _scrollToBottom();
   }
 
-  void _onVoiceTap() {
-    OraclySnackBar.show(
-      context,
-      message: 'Sesli soru yakında OR ile buluşacak.',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(oracleConversationProvider(widget.readingContext));
@@ -90,21 +94,22 @@ class _OracleConversationScreenState
 
     ref.listen(oracleConversationProvider(widget.readingContext), (prev, next) {
       if (next.error != null && next.error != prev?.error) {
-        OraclySnackBar.error(context, next.error!);
-        ref
-            .read(oracleConversationProvider(widget.readingContext).notifier)
-            .clearError();
+        OraclySnackBar.error(
+          context,
+          AiErrorSanitizer.guard(
+            next.error,
+            fallback: ConversationCopy.oracleUnavailable,
+          ),
+        );
       }
       _scrollToBottom();
     });
 
     final messages = state.conversation?.messages ?? [];
+    final fromAi = ref.watch(oraclyAiServiceProvider).isConfigured;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: CosmicBackground(
-        showParticles: false,
-        child: Column(
+    return OraclyScaffold(
+      child: Column(
           children: [
             OracleConversationHeader(
               context: widget.readingContext,
@@ -113,7 +118,14 @@ class _OracleConversationScreenState
               child: _MessageList(
                 scrollController: _scrollController,
                 messages: messages,
+                fromAi: fromAi,
                 showEmpty: state.showSuggestions,
+                emptyTitle: OracleConversationSuggestions.emptyCopy(
+                  widget.readingContext.kind,
+                ).$1,
+                emptyBody: OracleConversationSuggestions.emptyCopy(
+                  widget.readingContext.kind,
+                ).$2,
                 isThinking: state.isThinking,
                 isStreaming: state.isStreaming,
                 streamBuffer: state.streamBuffer,
@@ -130,17 +142,31 @@ class _OracleConversationScreenState
                     ref.read(oracleMessageFavoritesProvider.notifier).toggle(id),
               ),
             ),
+            if (state.error != null)
+              OracleSendErrorBanner(
+                message: state.error!,
+                onRetry: () => ref
+                    .read(
+                      oracleConversationProvider(widget.readingContext)
+                          .notifier,
+                    )
+                    .retryLast(),
+              ),
             if (state.showSuggestions) ...[
               SizedBox(height: AppSpacing.sm),
               OracleSuggestionChipsRow(
                 enabled: !busy,
                 onSelected: _send,
+                chips: OracleConversationSuggestions.chipsFor(
+                  widget.readingContext.kind,
+                ),
               ),
               SizedBox(height: AppSpacing.sm),
             ],
-            const TransparencyFootnote(
-              text: TransparencyCopy.conversationCaption,
-              padding: EdgeInsets.fromLTRB(
+            AiSourceFootnote(
+              fromAi: fromAi,
+              orAsk: true,
+              padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 0,
                 AppSpacing.lg,
@@ -151,11 +177,9 @@ class _OracleConversationScreenState
               controller: _inputController,
               enabled: !busy,
               onSend: () => _send(),
-              onVoiceTap: _onVoiceTap,
             ),
           ],
         ),
-      ),
     );
   }
 }
@@ -165,6 +189,9 @@ class _MessageList extends StatelessWidget {
     required this.scrollController,
     required this.messages,
     required this.showEmpty,
+    this.fromAi = false,
+    this.emptyTitle,
+    this.emptyBody,
     required this.isThinking,
     required this.isStreaming,
     required this.streamBuffer,
@@ -178,6 +205,9 @@ class _MessageList extends StatelessWidget {
   final ScrollController scrollController;
   final List<AIMessage> messages;
   final bool showEmpty;
+  final bool fromAi;
+  final String? emptyTitle;
+  final String? emptyBody;
   final bool isThinking;
   final bool isStreaming;
   final String streamBuffer;
@@ -196,7 +226,12 @@ class _MessageList extends StatelessWidget {
         (showClosing ? 1 : 0);
 
     if (itemCount == 0) {
-      return const Center(child: OracleConversationEmptyState());
+      return Center(
+        child: OracleConversationEmptyState(
+          title: emptyTitle ?? ConversationCopy.oracleEmptyTitle,
+          body: emptyBody ?? ConversationCopy.oracleEmptyBody,
+        ),
+      );
     }
 
     return ListView.builder(
@@ -214,9 +249,12 @@ class _MessageList extends StatelessWidget {
       itemCount: itemCount,
       itemBuilder: (context, index) {
         if (showEmpty && index == 0) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
-            child: OracleConversationEmptyState(),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+            child: OracleConversationEmptyState(
+              title: emptyTitle ?? ConversationCopy.oracleEmptyTitle,
+              body: emptyBody ?? ConversationCopy.oracleEmptyBody,
+            ),
           );
         }
 
@@ -273,7 +311,7 @@ class _MessageList extends StatelessWidget {
                 const AITypingIndicator(),
                 SizedBox(height: AppSpacing.sm),
                 Text(
-                  ConversationCopy.oracleThinkingLabel,
+                  AiSourceCopy.thinking(fromAi: fromAi),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textMuted,
                       ),

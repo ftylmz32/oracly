@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/oracly_format.dart';
 import '../../../../core/domain/models/reading.dart';
 import '../widgets/reading_history/reading_history_data.dart';
 
@@ -25,7 +26,18 @@ abstract final class ReadingHistoryMapper {
       personalNote: model.personalNote,
       summaryExcerpt: model.summaryExcerpt,
       isFavorite: model.isFavorite,
+      readingType: _publicType(model),
     );
+  }
+
+  static String? _publicType(ReadingModel model) {
+    final type = model.readingType?.trim();
+    if (type == null || type.isEmpty) return null;
+    if (type == model.intention?.trim() &&
+        (type.contains('?') || type.length > 24)) {
+      return null;
+    }
+    return type;
   }
 
   static HistorySpreadFilter _filterForSpread(String spread) =>
@@ -33,6 +45,7 @@ abstract final class ReadingHistoryMapper {
         'Tek Kart' => HistorySpreadFilter.single,
         'Üç Kart' || 'Üç Kart Açılımı' => HistorySpreadFilter.three,
         'Beş Kart' => HistorySpreadFilter.five,
+        'Yedi Kart' || 'Seven card' => HistorySpreadFilter.all,
         'Celtic Cross' || 'Kelt Haçı' => HistorySpreadFilter.celtic,
         _ => HistorySpreadFilter.all,
       };
@@ -41,6 +54,7 @@ abstract final class ReadingHistoryMapper {
         'Tek Kart' => Icons.filter_1_rounded,
         'Üç Kart' || 'Üç Kart Açılımı' => Icons.filter_3_rounded,
         'Beş Kart' => Icons.filter_5_rounded,
+        'Yedi Kart' || 'Seven card' => Icons.filter_7_rounded,
         'Celtic Cross' || 'Kelt Haçı' => Icons.grid_view_rounded,
         _ => Icons.auto_awesome_rounded,
       };
@@ -62,6 +76,7 @@ abstract final class ReadingHistoryMapper {
       if (q.isEmpty) return true;
       return e.cardName.toLowerCase().contains(q) ||
           e.spreadType.toLowerCase().contains(q) ||
+          (e.readingType?.toLowerCase().contains(q) ?? false) ||
           e.aiSummary.toLowerCase().contains(q) ||
           e.timelineSummary.toLowerCase().contains(q) ||
           (e.personalNote?.toLowerCase().contains(q) ?? false) ||
@@ -99,10 +114,6 @@ abstract final class ReadingHistoryMapper {
     if (entries.isEmpty) return null;
     final oldest =
         entries.map((e) => e.date).reduce((a, b) => a.isBefore(b) ? a : b);
-    const months = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
-    ];
-    return '${months[oldest.month - 1]} ${oldest.year}';
+    return OraclyFormat.monthYear(oldest);
   }
 }

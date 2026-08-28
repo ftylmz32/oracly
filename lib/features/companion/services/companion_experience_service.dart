@@ -1,20 +1,31 @@
-/// SPRINT-003 — Companion journey orchestrator.
+/// Companion journey — live AI, fail-closed, never invented memory.
 library;
 
+import '../../../../services/memory_service.dart';
+import '../../../core/copy/ai_source_copy.dart';
 import '../../../core/domain/repositories/ai_conversation_repository.dart';
+import '../../../core/domain/repositories/user_repository.dart';
 import '../../../core/intelligence/services/intelligence_layer_service.dart';
+import '../../../core/intelligence/services/personal_memory_service.dart';
+import '../../../core/personality/or_response_depth.dart';
 import '../../../features/ai/domain/models/ai_message.dart';
+import '../../../features/ai/oracle_conversation/models/oracle_reading_context.dart';
+import '../../../features/ai/production/oracly_ai_service.dart';
 import '../../../features/daily_ritual/services/daily_ritual_service.dart';
-import '../models/memory.dart';
-import '../models/memory_permission.dart';
 import '../data/companion_record_mapper.dart';
+import '../debug/or_runtime_log.dart';
 import '../models/conversation.dart';
 import '../models/insight_request.dart';
+import '../models/memory.dart';
+import '../models/memory_permission.dart';
 import '../models/reflection_context.dart';
-import '../services/companion_context_builder.dart';
-import '../services/companion_memory_service.dart';
-import '../services/companion_responder.dart';
-import '../../../../services/memory_service.dart';
+import 'companion_ai_bridge.dart';
+import 'companion_context_builder.dart';
+import 'companion_live_reply.dart';
+import 'companion_memory_service.dart';
+import 'companion_responder.dart';
+import 'companion_session_bootstrap.dart';
+import 'or_response_finalize.dart';
 
 class CompanionExperienceService {
   CompanionExperienceService({
@@ -22,91 +33,97 @@ class CompanionExperienceService {
     required IntelligenceLayerService intelligence,
     DailyRitualService? dailyRitual,
     CompanionContextBuilder? contextBuilder,
+    UserRepository? users,
     CompanionResponder? responder,
     CompanionMemoryService? memoryService,
-  })  : _conversations = conversationRepository,
-        _contextBuilder = contextBuilder ??
-            CompanionContextBuilder(
-              intelligence: intelligence,
-              dailyRitual: dailyRitual,
-            ),
-        _responder = responder ?? const CompanionResponder(),
-        _memory = memoryService ??
-            CompanionMemoryService(MemoryService());
+    PersonalMemoryService? personalMemory,
+    OraclyAiService? ai,
+    Future<String?> Function(String userMessage)? styleHint,
+    Future<String?> Function()? personality,
+    Future<String?> Function()? observationLine,
+    Future<({OrResponseDepth depth, bool spoken})> Function()? lengthPrefs,
+  }) : _conversations = conversationRepository,
+       _contextBuilder =
+           contextBuilder ??
+           CompanionContextBuilder(
+             intelligence: intelligence,
+             dailyRitual: dailyRitual,
+             users: users,
+             personalMemory: personalMemory,
+             observationLine: observationLine,
+           ),
+       _live = CompanionLiveReply(
+         responder: responder ?? const CompanionResponder(),
+         bridge: ai == null ? null : CompanionAiBridge(ai),
+         styleHint: styleHint ?? ((_) async => null),
+         personality: personality ?? (() async => null),
+         lengthPrefs: lengthPrefs,
+       ),
+       _memory = memoryService ?? CompanionMemoryService(MemoryService());
 
   final AiConversationRepository _conversations;
   final CompanionContextBuilder _contextBuilder;
-  final CompanionResponder _responder;
+  final CompanionLiveReply _live;
   final CompanionMemoryService _memory;
 
-  static const _sessionId = 'companion_primary';
-
   Future<({Conversation conversation, ReflectionContext context})>
-      loadOrCreateSession() async {
-    final context = await _contextBuilder.build();
-    final existing = await _conversations.getById(_sessionId);
-
-    if (existing != null) {
-      return (
-        conversation: CompanionRecordMapper.fromRecord(existing),
-        context: context,
+  loadOrCreateSession() async {
+    try {
+      final loaded = await CompanionSessionBootstrap.loadOrCreate(
+        conversations: _conversations,
+        contextBuilder: _contextBuilder,
       );
+      logOrSession(completed: true, ready: true);
+      return loaded;
+    } catch (error) {
+      logOrSession(
+        completed: false,
+        ready: false,
+        errorType: error.runtimeType.toString(),
+      );
+      rethrow;
     }
-
-    final welcome = _contextBuilder.welcomeMessage(context);
-    final now = DateTime.now();
-    final conversation = Conversation(
-      id: _sessionId,
-      title: 'OR Companion',
-      topic: ConversationTopic.general,
-      messages: [
-        AIMessage(
-          id: 'welcome_${now.millisecondsSinceEpoch}',
-          role: AIMessageRole.assistant,
-          content: welcome,
-          createdAt: now,
-        ),
-      ],
-      createdAt: now,
-      updatedAt: now,
-    );
-
-    await _persist(conversation);
-    return (conversation: conversation, context: context);
   }
 
-  Future<({Conversation conversation, CompanionResponse response})> send({
+  Future<({Conversation conversation, CompanionResponse response, bool fromAi})>
+  send({
     required Conversation conversation,
     required ReflectionContext context,
     required InsightRequest request,
+    OracleReadingContext? readingContext,
   }) async {
-    final now = DateTime.now();
-    final userMsg = AIMessage(
-      id: 'msg_u_${now.millisecondsSinceEpoch}',
-      role: AIMessageRole.user,
-      content: request.text.trim(),
-      createdAt: now,
+    final result = await _live.complete(
+      request: request,
+      context: context,
+      prior: conversation.messages,
+      readingContext: readingContext,
     );
-
-    final response = _responder.respond(request: request, context: context);
-    final assistantMsg = AIMessage(
+    final now = DateTime.now();
+    final body = OrResponseFinalize.forMessage(result.response.body);
+    final assistant = AIMessage(
       id: 'msg_a_${now.millisecondsSinceEpoch}',
       role: AIMessageRole.assistant,
-      content: response.body,
-      createdAt: now.add(const Duration(milliseconds: 1)),
+      content: body,
+      createdAt: now,
       metadata: {
-        if (response.suggestions.isNotEmpty)
-          'suggestions': response.suggestions.join('|'),
+        ...AiSourceCopy.tag(fromAi: result.fromAi),
+        if (result.response.suggestions.isNotEmpty)
+          'suggestions': result.response.suggestions.join('|'),
       },
     );
-
-    final updated = conversation.copyWith(
-      messages: [...conversation.messages, userMsg, assistantMsg],
-      updatedAt: DateTime.now(),
+    final withReply = conversation.copyWith(
+      messages: [...conversation.messages, assistant],
+      updatedAt: now,
     );
-
-    await _persist(updated);
-    return (conversation: updated, response: response);
+    await _persist(withReply);
+    return (
+      conversation: withReply,
+      response: CompanionResponse(
+        body: body,
+        suggestions: result.response.suggestions,
+      ),
+      fromAi: result.fromAi,
+    );
   }
 
   Future<void> saveUserMemory({

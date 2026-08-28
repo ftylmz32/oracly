@@ -7,7 +7,8 @@ import 'package:flutter/foundation.dart';
 enum TarotSpreadType {
   single('Tek Kart', 1),
   threeCard('Üç Kart', 3),
-  fiveCard('Beş Kart', 5),
+  fiveCard('Derin Açılım', 5),
+  sevenCard('Yedi Kart', 7),
   celticCross('Kelt Haçı', 10);
 
   const TarotSpreadType(this.label, this.cardCount);
@@ -20,10 +21,30 @@ enum TarotSpreadType {
       if (spread.label == title) return spread;
     }
     return switch (title.toLowerCase()) {
-      'tek kart' => TarotSpreadType.single,
-      'üç kart' || 'üç kart açılımı' => TarotSpreadType.threeCard,
-      'beş kart' => TarotSpreadType.fiveCard,
-      'celtic cross' || 'kelt haçı' => TarotSpreadType.celticCross,
+      'tek kart' || 'one card' || 'одна карта' => TarotSpreadType.single,
+      'üç kart' ||
+      'üç kart açılımı' ||
+      'three cards' ||
+      'three-card spread' ||
+      'три карты' =>
+        TarotSpreadType.threeCard,
+      'beş kart' ||
+      'five cards' ||
+      'пять карт' ||
+      'derin açılım' ||
+      'deep spread' ||
+      'глубокий расклад' =>
+        TarotSpreadType.fiveCard,
+      'yedi kart' ||
+      'seven card' ||
+      'seven' ||
+      'seven cards' ||
+      'семь карт' =>
+        TarotSpreadType.sevenCard,
+      'celtic cross' ||
+      'kelt haçı' ||
+      'кельтский крест' =>
+        TarotSpreadType.celticCross,
       _ => null,
     };
   }
@@ -41,4 +62,10 @@ class TarotIntention {
   final String? topic;
 
   bool get isEmpty => text.trim().isEmpty;
+}
+
+/// How the next cards leave the shuffled pile.
+enum TarotDrawMode {
+  manual,
+  orDraw,
 }

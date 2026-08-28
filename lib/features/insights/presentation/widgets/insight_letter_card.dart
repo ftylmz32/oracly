@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/design_system/oracly_header_action.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -47,19 +48,12 @@ class InsightLetterCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: onMore,
-                    icon: Icon(
-                      Icons.more_horiz_rounded,
-                      size: 20,
-                      color: AppColors.textHint.withValues(alpha: 0.7),
-                    ),
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
+                  OraclyHeaderAction(
+                    icon: Icons.more_horiz_rounded,
+                    label: 'Daha fazla',
+                    size: 32,
+                    iconSize: 18,
+                    onTap: onMore,
                   ),
                 ],
               ),

@@ -37,12 +37,12 @@ class ShuffleAmbienceLayer extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               _FogBlob(
-                offset: Offset(sin(progress * pi * 2) * 12, 20),
+                offset: Offset(sin(progress * pi * 0.7) * 8, 20),
                 size: 260 + glow * 30,
                 color: AppColors.purpleDark.withValues(alpha: 0.28 * fog),
               ),
               _FogBlob(
-                offset: Offset(cos(progress * pi * 2 + 1) * 16, 40),
+                offset: Offset(cos(progress * pi * 0.55 + 1.1) * 11, 40),
                 size: 220 + glow * 24,
                 color: AppColors.purple.withValues(alpha: 0.22 * fog),
               ),

@@ -1,18 +1,17 @@
 /// OR-050 — Premium glass card for daily energy sections.
 library;
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import '../../../core/design_system/premium_cards/premium_card_tokens.dart';
+import '../../../core/design_system/premium_cards/premium_glass_card.dart';
+import '../../../core/design_system/premium_cards/premium_icon_container.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_decorations.dart';
 import '../../../core/theme/app_radius.dart';
-import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 
-/// Frosted glass surface matching the Home design language.
+/// Frosted glass surface — unified premium card system.
 class DailyEnergyGlassCard extends StatelessWidget {
   const DailyEnergyGlassCard({
     super.key,
@@ -31,71 +30,43 @@ class DailyEnergyGlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: margin ?? EdgeInsets.zero,
-      decoration: BoxDecoration(
-        borderRadius: AppRadius.lg,
-        boxShadow: AppShadows.soft,
-      ),
-      child: ClipRRect(
-        borderRadius: AppRadius.lg,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.surfaceElevated.withValues(alpha: 0.92),
-                  AppColors.surface.withValues(alpha: 0.88),
+    return PremiumGlassCard(
+      margin: margin,
+      padding: padding ?? AppSpacing.card,
+      tier: PremiumCardTier.standard,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (title != null) ...[
+            Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: AppSpacing.s16,
+                    color: AppColors.goldLight,
+                  ),
+                  SizedBox(width: AppSpacing.s8),
                 ],
-              ),
-              borderRadius: AppRadius.lg,
-              border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.22),
-                width: AppBorderWidth.hairline,
-              ),
-            ),
-            child: Padding(
-              padding: padding ?? AppSpacing.card,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (title != null) ...[
-                    Row(
-                      children: [
-                        if (icon != null) ...[
-                          Icon(
-                            icon,
-                            size: AppSpacing.md,
-                            color: AppColors.goldLight,
-                          ),
-                          SizedBox(width: AppSpacing.sm),
-                        ],
-                        Expanded(
-                          child: Text(
-                            title!,
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.goldLight,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.8,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                Expanded(
+                  child: Text(
+                    title!,
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: AppColors.goldLight,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.8,
                     ),
-                    SizedBox(height: AppSpacing.sm + AppSpacing.xs),
-                  ],
-                  child,
-                ],
-              ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ),
+            SizedBox(height: AppSpacing.s12),
+          ],
+          child,
+        ],
       ),
     );
   }
@@ -116,29 +87,19 @@ class DailyEnergyInsightTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DailyEnergyGlassCard(
+    return PremiumGlassCard(
       padding: EdgeInsets.all(AppSpacing.insetCard),
+      tier: PremiumCardTier.whisper,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: AppGradients.matteSurface,
-                  border: Border.all(
-                    color: AppColors.gold.withValues(alpha: 0.28),
-                    width: AppBorderWidth.hairline,
-                  ),
-                ),
-                child: SizedBox(
-                  width: AppSpacing.lg + AppSpacing.xs,
-                  height: AppSpacing.lg + AppSpacing.xs,
-                  child: Icon(icon, size: AppSpacing.md, color: AppColors.gold),
-                ),
+              PremiumIconContainer(
+                size: PremiumCardTokens.iconContainerSm,
+                child: Icon(icon, size: AppSpacing.s16, color: AppColors.gold),
               ),
-              SizedBox(width: AppSpacing.sm),
+              SizedBox(width: AppSpacing.s8),
               Expanded(
                 child: Text(
                   label,
@@ -153,7 +114,7 @@ class DailyEnergyInsightTile extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: AppSpacing.sm),
+          SizedBox(height: AppSpacing.s8),
           Text(
             body,
             style: AppTextStyles.bodySmall.copyWith(
@@ -185,11 +146,12 @@ class DailyEnergyLuckyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: DailyEnergyGlassCard(
+      child: PremiumGlassCard(
         padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm + AppSpacing.xs,
-          vertical: AppSpacing.md,
+          horizontal: AppSpacing.s12,
+          vertical: AppSpacing.s16,
         ),
+        tier: PremiumCardTier.whisper,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -202,7 +164,7 @@ class DailyEnergyLuckyChip extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: AppSpacing.sm),
+            SizedBox(height: AppSpacing.s8),
             if (swatch != null) ...[
               DecoratedBox(
                 decoration: BoxDecoration(
@@ -215,16 +177,16 @@ class DailyEnergyLuckyChip extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: swatch!.withValues(alpha: 0.45),
-                      blurRadius: AppSpacing.sm,
+                      blurRadius: AppSpacing.s8,
                     ),
                   ],
                 ),
                 child: SizedBox(
-                  width: AppSpacing.lg,
-                  height: AppSpacing.lg,
+                  width: AppSpacing.s24,
+                  height: AppSpacing.s24,
                 ),
               ),
-              SizedBox(height: AppSpacing.xs),
+              SizedBox(height: AppSpacing.s4),
             ],
             Text(
               value,

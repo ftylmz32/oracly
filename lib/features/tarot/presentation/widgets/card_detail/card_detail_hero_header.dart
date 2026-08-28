@@ -5,10 +5,13 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/design_system/app_icons.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../art/tarot_major_card_art.dart';
 import 'card_detail_models.dart';
 
 class CardDetailHeroHeader extends StatelessWidget {
@@ -44,11 +47,10 @@ class CardDetailHeroHeader extends StatelessWidget {
             alignment: Alignment.center,
             child: Hero(
               tag: content.heroTag,
-              child: Image.asset(
-                content.imageAsset,
-                fit: BoxFit.cover,
-                alignment: Alignment.topCenter,
-                errorBuilder: (_, _, _) => ColoredBox(
+              child: TarotMajorCardArt(
+                imageAsset: content.imageAsset,
+                preview: false,
+                fallback: ColoredBox(
                   color: AppColors.purpleDark,
                   child: Icon(
                     Icons.style_rounded,
@@ -89,8 +91,9 @@ class CardDetailHeroHeader extends StatelessWidget {
             child: Row(
               children: [
                 _GlassIconButton(
-                  icon: Icons.arrow_back_rounded,
+                  icon: AppIcons.back,
                   onTap: onBack,
+                  semanticsLabel: OraclyL10n.t(L10nKeys.back),
                 ),
                 const Spacer(),
                 _GlassIconButton(
@@ -99,11 +102,13 @@ class CardDetailHeroHeader extends StatelessWidget {
                       : Icons.favorite_border_rounded,
                   onTap: onFavorite,
                   active: isFavorite,
+                  semanticsLabel: OraclyL10n.t('tarot.action.favorite'),
                 ),
                 SizedBox(width: AppSpacing.sm),
                 _GlassIconButton(
                   icon: Icons.ios_share_rounded,
                   onTap: onShare,
+                  semanticsLabel: OraclyL10n.t('tarot.action.share'),
                 ),
               ],
             ),
@@ -117,7 +122,7 @@ class CardDetailHeroHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                content.displayNameTr,
+                content.displayName,
                 style: AppTextStyles.headlineSmall.copyWith(
                   color: AppColors.goldLight,
                   fontWeight: FontWeight.w800,
@@ -126,7 +131,7 @@ class CardDetailHeroHeader extends StatelessWidget {
               ),
               SizedBox(height: AppSpacing.xs),
               Text(
-                content.name,
+                OraclyL10n.t('tarot.arcana.major'),
                 style: AppTextStyles.labelLarge.copyWith(
                   color: AppColors.textSecondary,
                   letterSpacing: 0.6,
@@ -144,39 +149,45 @@ class _GlassIconButton extends StatelessWidget {
   const _GlassIconButton({
     required this.icon,
     required this.onTap,
+    required this.semanticsLabel,
     this.active = false,
   });
 
   final IconData icon;
   final VoidCallback onTap;
+  final String semanticsLabel;
   final bool active;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: AppRadius.round,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Material(
-          color: AppColors.surface.withValues(alpha: 0.55),
-          child: InkWell(
-            onTap: onTap,
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: active
-                      ? AppColors.gold.withValues(alpha: 0.65)
-                      : AppColors.gold.withValues(alpha: 0.28),
-                  width: AppBorderWidth.hairline,
+    return Semantics(
+      button: true,
+      label: semanticsLabel,
+      child: ClipRRect(
+        borderRadius: AppRadius.round,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Material(
+            color: AppColors.surface.withValues(alpha: 0.55),
+            child: InkWell(
+              onTap: onTap,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: active
+                        ? AppColors.gold.withValues(alpha: 0.65)
+                        : AppColors.gold.withValues(alpha: 0.28),
+                    width: AppBorderWidth.hairline,
+                  ),
                 ),
-              ),
-              child: Icon(
-                icon,
-                size: AppSpacing.lg,
-                color: active ? AppColors.gold : AppColors.goldLight,
+                child: Icon(
+                  icon,
+                  size: AppSpacing.lg,
+                  color: active ? AppColors.gold : AppColors.goldLight,
+                ),
               ),
             ),
           ),

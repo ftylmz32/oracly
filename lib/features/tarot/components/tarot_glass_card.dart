@@ -1,15 +1,13 @@
 /// OR-1000 — Premium glass card for tarot content.
 library;
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_radius.dart';
+import '../../../core/design_system/oracly_chrome.dart';
+import '../../../core/design_system/oracly_glass_card.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../theme/tarot_theme.dart';
 
-/// Frosted glass surface — matches Home glassmorphism language.
+/// Frosted glass surface — unified [OraclyGlassCard] system.
 class TarotGlassCard extends StatelessWidget {
   const TarotGlassCard({
     super.key,
@@ -26,30 +24,14 @@ class TarotGlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
-      margin: margin,
-      decoration: TarotTheme.glassCard(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.lgValue),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-          child: Padding(
-            padding: padding ?? AppSpacing.card,
-            child: child,
-          ),
-        ),
-      ),
+    final card = OraclyGlassCard(
+      padding: padding ?? AppSpacing.card,
+      onTap: onTap,
+      borderRadius: OraclyChrome.heroRadius,
+      elevated: true,
+      child: child,
     );
-
-    if (onTap == null) return card;
-
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.lgValue),
-        child: card,
-      ),
-    );
+    if (margin == null) return card;
+    return Padding(padding: margin!, child: card);
   }
 }

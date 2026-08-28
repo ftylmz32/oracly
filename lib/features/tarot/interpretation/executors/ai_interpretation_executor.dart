@@ -9,8 +9,7 @@ import '../models/interpretation_stream_event.dart';
 import 'interpretation_executor.dart';
 import 'local_interpretation_executor.dart';
 
-/// AI executor placeholder — validates prompt readiness and delegates to local
-/// synthesis until OpenAI transport is wired.
+/// AI executor stub — no network. Local synthesis is never labeled AI.
 class AiInterpretationExecutor implements InterpretationExecutor {
   AiInterpretationExecutor({
     InterpretationFormatter? formatter,
@@ -22,25 +21,13 @@ class AiInterpretationExecutor implements InterpretationExecutor {
   final LocalInterpretationExecutor _fallback;
 
   @override
-  bool get isOnline => false;
+  bool get isOnline => true;
 
   @override
-  Future<InterpretationResult> execute(InterpretationRequest request) async {
-    if (request.promptRequest == null) {
-      throw const InterpretationException(
-        type: InterpretationFailureType.invalidResponse,
-        message: 'PromptRequest eksik — PromptEngine entegrasyonu gerekli.',
-        retryable: false,
-      );
-    }
-
-    // Future: send request.promptRequest!.toMessages() to OpenAI transport.
-    // For OR-1180 we produce AI-ready structured output via content synthesis.
-    final local = await _fallback.execute(request);
-    return local.copyWith(
-      source: InterpretationSource.ai,
-      rawText: request.promptRequest!.toMessages().toString(),
-    );
+  Future<InterpretationResult> execute(InterpretationRequest request) {
+    // Future: send request.promptRequest to OpenAI transport.
+    // Until a real AI response exists, catalogue text stays local.
+    return _fallback.execute(request);
   }
 
   @override
@@ -57,6 +44,7 @@ class AiInterpretationExecutor implements InterpretationExecutor {
       rawText: rawText,
       requestId: request.requestId,
       sessionId: request.context.sessionId,
+      source: InterpretationSource.ai,
     );
     if (parsed == null) {
       throw const InterpretationException(
