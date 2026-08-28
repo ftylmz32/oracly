@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/oracly_reduced_motion.dart';
 import '../../../ai/oracle_conversation/navigation/oracle_conversation_route.dart';
 import '../../domain/models/tarot_spread.dart';
+import '../../first_session/tarot_first_reading.dart';
 import '../../presentation/screens/reading_screen.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
 import '../../shared/constants/tarot_routes.dart';
@@ -52,6 +53,10 @@ mixin TarotTableSceneActions on ConsumerState<TarotTableScene> {
     }
     await Future<void>.delayed(const Duration(milliseconds: 280));
     if (!mounted) return;
+    if (TarotFirstReading.shouldUseFirstSpread(context, ref)) {
+      await onSpread(TarotFirstReading.spread);
+      return;
+    }
     setState(() => phase = TarotTablePhase.spread);
   }
 

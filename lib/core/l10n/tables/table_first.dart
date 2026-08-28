@@ -14,7 +14,11 @@ const kL10nFirst = <String, L10nTriple>{
     'Choose a theme — optional, only for focus. You can skip anytime.',
     'Выбери тему — не обязательно, лишь для фокуса. Можно пропустить.',
   ),
-  'first.intention_title_d': L10nTriple('Odak için bir konu', 'A theme for focus', 'Тема для фокуса'),
+  'first.intention_title_d': L10nTriple(
+    'Odak için bir konu',
+    'A theme for focus',
+    'Тема для фокуса',
+  ),
   'first.intention_sub_d': L10nTriple(
     'İstersen bir konu seç — zorunlu değil.',
     'You may choose a theme — it is optional.',
@@ -25,17 +29,41 @@ const kL10nFirst = <String, L10nTriple>{
     'The cards are mixing. Take a breath.',
     'Карты перемешиваются. Вдохни.',
   ),
-  'first.shuffle_d': L10nTriple('Kartlar hazırlanıyor…', 'The cards are preparing…', 'Карты готовятся…'),
-  'first.card_title': L10nTriple('İlk kartın.', 'Your first card.', 'Твоя первая карта.'),
+  'first.shuffle_d': L10nTriple(
+    'Kartlar hazırlanıyor…',
+    'The cards are preparing…',
+    'Карты готовятся…',
+  ),
+  'first.card_title': L10nTriple(
+    'İlk kartın.',
+    'Your first card.',
+    'Твоя первая карта.',
+  ),
   'first.card_sub': L10nTriple(
     'Sezgine güven — doğru ya da yanlış kart yok.',
     'Trust your sense — there is no right or wrong card.',
     'Доверься чутью — нет верной или неверной карты.',
   ),
-  'first.card_title_d': L10nTriple('Seni çağıran kartı seç.', 'Choose the card that calls you.', 'Выбери карту, которая зовёт.'),
-  'first.card_sub_d': L10nTriple('Sezgilerine güven.', 'Trust your intuition.', 'Доверься интуиции.'),
-  'first.reveal': L10nTriple('Yorumuna geç', 'Continue to the reading', 'Перейти к толкованию'),
-  'first.reveal_d': L10nTriple('Yorumu Gör', 'See the reading', 'Смотреть толкование'),
+  'first.card_title_d': L10nTriple(
+    'Seni çağıran kartı seç.',
+    'Choose the card that calls you.',
+    'Выбери карту, которая зовёт.',
+  ),
+  'first.card_sub_d': L10nTriple(
+    'Sezgilerine güven.',
+    'Trust your intuition.',
+    'Доверься интуиции.',
+  ),
+  'first.reveal': L10nTriple(
+    'Yorumuna geç',
+    'Continue to the reading',
+    'Перейти к толкованию',
+  ),
+  'first.reveal_d': L10nTriple(
+    'Yorumu Gör',
+    'See the reading',
+    'Смотреть толкование',
+  ),
   'first.breath': L10nTriple('Bir an nefes al…', 'Take a breath…', 'Вдохни…'),
   'first.prep_first': L10nTriple(
     'Bu bir kehanet değil — düşünmek için bir davet.',
@@ -46,6 +74,11 @@ const kL10nFirst = <String, L10nTriple>{
     'Yorumun sakin bir tempoda açılıyor.',
     'Your reading opens at a calm pace.',
     'Толкование открывается спокойным темпом.',
+  ),
+  'first.home_cta': L10nTriple(
+    'İlk kartını çek',
+    'Draw your first card',
+    'Вытяни первую карту',
   ),
   'home.hello_named': L10nTriple(
     'Hoş geldin, {name} ✨',

@@ -51,7 +51,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _complete() async {
     await ref.read(onboardingRepositoryProvider).markCompleted();
-    await FirstSessionIntent.requestFirstReading(ref.read(localStorageProvider));
+    await FirstSessionIntent.requestFirstReading(
+      ref.read(localStorageProvider),
+    );
+    ref.read(firstReadingPendingProvider.notifier).state = true;
     await _draftStore.clear();
     await ref.read(gemStarterGrantProvider).ensureOnce();
     ref.read(gemWalletProvider).reload();
@@ -120,9 +123,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     isExpanded: true,
                     icon: Icons.arrow_forward_rounded,
                     onPressed: () {
-                      final now =
-                          DateTime.now().millisecondsSinceEpoch;
-                      final initial = _draft ??
+                      final now = DateTime.now().millisecondsSinceEpoch;
+                      final initial =
+                          _draft ??
                           OnboardingSetupDraft(
                             updatedAtMillis: now,
                             name: null,

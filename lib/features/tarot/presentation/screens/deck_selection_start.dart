@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
+import '../../../../core/first_session/first_session_intent.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../gems/copy/gems_copy.dart';
 import '../../../gems/services/gem_spend_guard.dart';
 import '../../domain/models/tarot_spread.dart';
 import '../../economy/tarot_economy.dart';
+import '../../first_session/tarot_first_reading.dart';
 import '../../shared/tarot_scope.dart';
 import '../widgets/deck_selection/deck_selection_data.dart';
 import '../widgets/deck_selection/deck_selection_premium_gate.dart';
@@ -23,8 +25,9 @@ abstract final class DeckSelectionStart {
     required String deckId,
     bool openShuffleRoute = true,
   }) async {
-    final chosen =
-        TarotDeckCatalogue.decks.where((d) => d.id == deckId).firstOrNull;
+    final chosen = TarotDeckCatalogue.decks
+        .where((d) => d.id == deckId)
+        .firstOrNull;
     if (chosen == null ||
         !TarotDeckCatalogue.isSelectable(deckId) ||
         !DeckSelectionPremiumGate.allow(context, chosen)) {
@@ -50,13 +53,11 @@ abstract final class DeckSelectionStart {
       return false;
     }
     if (!context.mounted) return false;
-    ref.read(analyticsServiceProvider).logTarotStarted(
-          spreadType: spreadType.name,
-        );
+    ref
+        .read(analyticsServiceProvider)
+        .logTarotStarted(spreadType: spreadType.name);
     if (cost != null && cost > 0) {
-      ref.read(analyticsServiceProvider).logGemPurchaseStarted(
-            reason: 'tarot',
-          );
+      ref.read(analyticsServiceProvider).logGemPurchaseStarted(reason: 'tarot');
     }
 
     ref.read(selectedDeckProvider.notifier).state = deckId;
@@ -70,6 +71,17 @@ abstract final class DeckSelectionStart {
     );
     await scope.reading.advanceToShuffle();
     if (!context.mounted) return false;
+
+    // Consume only after a successful single-card first-session init.
+    if (spreadType == TarotFirstReading.spread) {
+      final storage = ref.read(localStorageProvider);
+      if (FirstSessionIntent.isPending(storage)) {
+        await FirstSessionIntent.consumePendingFirstReading(storage);
+        ref.read(firstReadingPendingProvider.notifier).state = false;
+      }
+    }
+    if (!context.mounted) return false;
+
     if (openShuffleRoute) {
       OraclyNavigationService.openShuffle(context);
     }

@@ -1,22 +1,19 @@
-/// EPIC-011 / RC-012 — Executes pending ritual intents on the tarot tab.
+/// EPIC-011 — Executes pending daily-ritual draw intents on the tarot tab.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/providers/app_providers.dart';
-import '../../../core/first_session/first_session_intent.dart';
 import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../tarot/first_session/tarot_first_reading.dart';
 import '../../tarot/shared/tarot_scope.dart';
 import '../services/daily_ritual_intent.dart';
 
-/// Listens for cross-tab daily ritual and first-session intents inside [TarotScope].
+/// Listens for cross-tab daily ritual intents inside [TarotScope].
+///
+/// First-reading intent is never auto-started here — Home CTA must be tapped.
 class DailyRitualTarotBridge extends ConsumerStatefulWidget {
-  const DailyRitualTarotBridge({
-    super.key,
-    required this.child,
-  });
+  const DailyRitualTarotBridge({super.key, required this.child});
 
   final Widget child;
 
@@ -30,15 +27,14 @@ class _DailyRitualTarotBridgeState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeStartPendingFlow());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _maybeStartPendingFlow(),
+    );
   }
 
   Future<void> _maybeStartPendingFlow() async {
-    final storage = ref.read(localStorageProvider);
-    final firstSession =
-        await FirstSessionIntent.consumePendingFirstReading(storage);
     final dailyDraw = DailyRitualIntent.consumePendingDraw();
-    if (!firstSession && !dailyDraw) return;
+    if (!dailyDraw) return;
     if (!mounted) return;
 
     final scope = TarotScope.maybeOf(context);

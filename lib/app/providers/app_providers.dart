@@ -66,6 +66,7 @@ import '../../core/experience/domain/models/experience_context.dart';
 import '../../features/daily_ritual/services/daily_ritual_service.dart';
 import '../../features/insights/services/personal_journey_service.dart';
 import '../../core/services/first_session_service.dart';
+import '../../core/first_session/first_session_intent.dart';
 import '../../features/premium/models/personalization_models.dart';
 
 // ── Infrastructure ─────────────────────────────────────────────────
@@ -109,6 +110,7 @@ final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
     final settings = ref.read(settingsProvider).valueOrNull;
     return settings?.analyticsEnabled ?? true;
   }
+
   return AnalyticsService(
     analytics: ProductAnalytics(
       sink: ref.watch(backend.firebaseAnalyticsProvider),
@@ -124,6 +126,7 @@ final crashTelemetryProvider = Provider<CrashTelemetryService>((ref) {
     final settings = ref.read(settingsProvider).valueOrNull;
     return settings?.analyticsEnabled ?? true;
   }
+
   return CrashTelemetryService(
     sink: ref.watch(backend.crashlyticsProvider),
     storage: ref.watch(localStorageProvider),
@@ -171,13 +174,13 @@ final personalJourneyServiceProvider = Provider<PersonalJourneyService>((ref) {
 
 final userProfileProvider =
     AsyncNotifierProvider<UserProfileNotifier, UserProfileModel>(
-  UserProfileNotifier.new,
-);
+      UserProfileNotifier.new,
+    );
 
 final settingsProvider =
     AsyncNotifierProvider<SettingsNotifier, PersonalizationSettings>(
-  SettingsNotifier.new,
-);
+      SettingsNotifier.new,
+    );
 
 /// Resolved UI locale from persisted settings (`tr` / `en`).
 /// Always follows [settingsProvider] — never a one-shot startup snapshot.
@@ -202,13 +205,13 @@ final appThemeModeProvider = Provider<ThemeMode>((ref) {
 
 final readingHistoryProvider =
     AsyncNotifierProvider<ReadingHistoryNotifier, List<ReadingModel>>(
-  ReadingHistoryNotifier.new,
-);
+      ReadingHistoryNotifier.new,
+    );
 
 final dailyEnergyProvider =
     AsyncNotifierProvider<DailyEnergyNotifier, DailyEnergyModel>(
-  DailyEnergyNotifier.new,
-);
+      DailyEnergyNotifier.new,
+    );
 
 final achievementRepositoryProvider = Provider<AchievementRepository>((ref) {
   return UserAchievementRepository(ref.watch(userRepositoryProvider));
@@ -225,7 +228,8 @@ final backgroundSyncProvider = backend.backgroundSyncProvider;
 final dreamRepositoryProvider = backend.dreamRepositoryProvider;
 final birthChartRepositoryProvider = backend.birthChartRepositoryProvider;
 final astrologyRepositoryProvider = backend.astrologyRepositoryProvider;
-final aiConversationRepositoryProvider = backend.aiConversationRepositoryProvider;
+final aiConversationRepositoryProvider =
+    backend.aiConversationRepositoryProvider;
 final firebaseAnalyticsProvider = backend.firebaseAnalyticsProvider;
 final crashlyticsProvider = backend.crashlyticsProvider;
 final performanceMonitorProvider = backend.performanceMonitorProvider;
@@ -260,7 +264,9 @@ final intelligenceRepositoryProvider = Provider<IntelligenceRepository>((ref) {
   );
 });
 
-final intelligenceLayerServiceProvider = Provider<IntelligenceLayerService>((ref) {
+final intelligenceLayerServiceProvider = Provider<IntelligenceLayerService>((
+  ref,
+) {
   return IntelligenceLayerService(ref.watch(intelligenceRepositoryProvider));
 });
 
@@ -279,7 +285,9 @@ final reflectionEngineProvider = Provider<ReflectionEngine>((ref) {
   return const ReflectionEngine();
 });
 
-final reflectionEngineServiceProvider = Provider<ReflectionEngineService>((ref) {
+final reflectionEngineServiceProvider = Provider<ReflectionEngineService>((
+  ref,
+) {
   final intelligence = ref.watch(intelligenceLayerServiceProvider);
   final dreamRepo = ref.watch(dreamRepositoryProvider);
   final birthChartRepo = ref.watch(birthChartRepositoryProvider);
@@ -305,16 +313,16 @@ final experienceOrchestratorProvider = Provider<ExperienceOrchestrator>((ref) {
 
 final experienceOrchestratorServiceProvider =
     Provider<ExperienceOrchestratorService>((ref) {
-  final remote = ref.watch(backend.remoteConfigServiceProvider);
-  return ExperienceOrchestratorService(
-    reflection: ref.watch(reflectionEngineServiceProvider),
-    dailyRitual: ref.watch(dailyRitualServiceProvider),
-    settings: ref.watch(settingsServiceProvider),
-    premium: ref.watch(premiumServiceProvider),
-    orchestrator: ref.watch(experienceOrchestratorProvider),
-    remoteFeatureFlags: remote.snapshot.featureFlags,
-  );
-});
+      final remote = ref.watch(backend.remoteConfigServiceProvider);
+      return ExperienceOrchestratorService(
+        reflection: ref.watch(reflectionEngineServiceProvider),
+        dailyRitual: ref.watch(dailyRitualServiceProvider),
+        settings: ref.watch(settingsServiceProvider),
+        premium: ref.watch(premiumServiceProvider),
+        orchestrator: ref.watch(experienceOrchestratorProvider),
+        remoteFeatureFlags: remote.snapshot.featureFlags,
+      );
+    });
 
 final oraclySoundServiceProvider = Provider<OraclySoundService>((ref) {
   final service = OraclySoundService();
@@ -350,6 +358,11 @@ final firstSessionServiceProvider = Provider<FirstSessionService>((ref) {
 
 final isFirstSessionProvider = FutureProvider<bool>((ref) {
   return ref.watch(firstSessionServiceProvider).isFirstSession();
+});
+
+/// Live Home/Tarot bridge — mirrors [FirstSessionIntent] for reactive UI.
+final firstReadingPendingProvider = StateProvider<bool>((ref) {
+  return FirstSessionIntent.isPending(ref.watch(localStorageProvider));
 });
 
 // ── Notifiers ────────────────────────────────────────────────────
@@ -410,7 +423,9 @@ class SettingsNotifier extends AsyncNotifier<PersonalizationSettings> {
     await ref.read(settingsServiceProvider).save(normalized);
     state = AsyncData(normalized);
     if (prior != null && prior.language != normalized.language) {
-      ref.read(analyticsServiceProvider).logLanguageChanged(normalized.language);
+      ref
+          .read(analyticsServiceProvider)
+          .logLanguageChanged(normalized.language);
     }
     OraclyFeedbackGate.bind(
       service: ref.read(oraclySoundServiceProvider),

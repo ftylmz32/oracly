@@ -12,6 +12,7 @@ abstract final class FirstSessionCopy {
   static String get homeGuestName => _t('first.guest');
   static String get homeSubtitleNew => _t('first.sub_new');
   static String get homeSubtitleReturning => _t('first.sub_return');
+  static String get homeCta => _t('first.home_cta');
   static String get soulMateLater => _t('first.soulmate_later');
 
   static String get intentionTitle => _t('first.intention_title');
