@@ -32,6 +32,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   late bool _onboardingCompleted;
   bool _overlayVisible = true;
   bool _navigated = false;
+
   /// Heavy Home/Onboarding mounts only after splash art has painted.
   bool _destinationMounted = false;
 
@@ -47,12 +48,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   Future<void> _bootstrap() async {
     try {
-      unawaited(splashDeferredBoot(ref));
+      // Promote then read — never race an unawaited promote against routing.
       final completed = await splashFastOnboarding(ref);
       if (!mounted) return;
       if (completed != _onboardingCompleted) {
         setState(() => _onboardingCompleted = completed);
       }
+      // Gems/reconcile stay non-blocking for the route decision.
+      unawaited(splashDeferredBoot(ref));
       splashScheduleWarmup(ref);
     } catch (_) {
       if (!mounted) return;
@@ -72,19 +75,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _navigated = true;
     unawaited(SplashCinemaPrefs.markSeen(ref.read(localStorageProvider)));
     setState(() => _overlayVisible = false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final dest = SplashDestination.build(
-        onboardingCompleted: _onboardingCompleted,
-        storage: ref.read(localStorageProvider),
-      );
-      SplashDestination.commitRoute(context, dest);
-      ShareLinkOpener.openPending();
-      final name = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
-      if (name == OraclyRoutes.chat) {
-        oraclyNavigatorKey.currentState?.pushNamed(OraclyRoutes.chat);
-      }
-    });
+    unawaited(_commitDestination());
+  }
+
+  Future<void> _commitDestination() async {
+    // Cinema may finish before bootstrap; re-resolve on durable storage.
+    final completed = await splashFastOnboarding(ref);
+    if (!mounted) return;
+    if (completed != _onboardingCompleted) {
+      setState(() => _onboardingCompleted = completed);
+    }
+    final dest = SplashDestination.build(
+      onboardingCompleted: completed,
+      storage: ref.read(localStorageProvider),
+    );
+    SplashDestination.commitRoute(context, dest);
+    ShareLinkOpener.openPending();
+    final name = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
+    if (name == OraclyRoutes.chat) {
+      oraclyNavigatorKey.currentState?.pushNamed(OraclyRoutes.chat);
+    }
   }
 
   @override
