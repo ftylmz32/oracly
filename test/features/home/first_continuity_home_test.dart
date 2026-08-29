@@ -25,6 +25,11 @@ import 'package:oracly_new/features/companion/services/companion_experience_serv
 import 'package:oracly_new/features/companion/services/first_reading_or_deepen.dart';
 import 'package:oracly_new/features/home/master/home_master_hero.dart';
 import 'package:oracly_new/features/home/reference/home_reference_hero.dart';
+import 'package:oracly_new/core/experience/domain/models/experience_context.dart';
+import 'package:oracly_new/core/experience/domain/models/greeting_context.dart';
+import 'package:oracly_new/core/experience/domain/models/journey_context.dart';
+import 'package:oracly_new/core/experience/domain/models/recommendation_context.dart';
+import 'package:oracly_new/core/experience/domain/models/reflection_context.dart';
 import 'package:oracly_new/features/home/services/first_continuity_home.dart';
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -258,7 +263,39 @@ void main() {
       await tester.pumpWidget(
         buildProviderScopeHarness(
           storage: storage,
-          overrides: [firstReadingPendingProvider.overrideWith((ref) => false)],
+          overrides: [
+            firstReadingPendingProvider.overrideWith((ref) => false),
+            livingExperienceProvider.overrideWith(
+              (ref) async => ExperienceContext(
+                generatedAt: clock,
+                schemaVersion: ExperienceContext.currentSchemaVersion,
+                greeting: const GreetingContext(
+                  tone: GreetingTone.afternoon,
+                  styleKey: 'greeting_afternoon',
+                  personalizeWithJourney: true,
+                ),
+                reflection: const ReflectionContext(
+                  style: ReflectionStyle.gentle,
+                  surfacePersonalInsights: false,
+                  preferShortForm: false,
+                ),
+                journey: const JourneyContext(
+                  hasJourneyMemory: true,
+                  highlightTodaysRitual: false,
+                  ritualCompletedToday: true,
+                  totalReadings: 1,
+                  hasRecurringPatterns: false,
+                ),
+                recommendations: const RecommendationContext(
+                  primaryHighlight: ExperienceHighlight.none,
+                  secondaryHighlights: [],
+                  premium: PremiumRelevance(isRelevant: false),
+                  aiAvailable: true,
+                  featureFlags: {},
+                ),
+              ),
+            ),
+          ],
           child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
         ),
       );
