@@ -23,38 +23,51 @@ abstract final class OrContextSelectionEngine {
     ReflectionContext? reflection,
     String? discoveryHint,
     String? featureHandoff,
+    String? memoryPromptHint,
   }) {
     final current = currentMessage.trim();
     final recent = ConversationTurn.takeRecent(recentMessages);
     final digest = CompanionThreadDigest.fromOlder(
       fullHistory ?? recentMessages,
     );
-    final discovery =
-        OrContextSelectionSources.discovery(discoveryHint, current, recent);
-    final featureRaw =
-        featureHandoff ?? reflection?.proactiveAcknowledgment;
+    final discovery = OrContextSelectionSources.discovery(
+      discoveryHint,
+      current,
+      recent,
+    );
+    final featureRaw = featureHandoff ?? reflection?.proactiveAcknowledgment;
     final feature = OrContextSelectionSources.feature(featureRaw);
+    final discoveryTaken = discovery != null;
+    final featureTaken = feature != null;
     final memory = OrContextSelectionSources.memory(
       reflection: reflection,
       current: current,
-      discoveryTaken: discovery != null,
-      featureTaken: feature != null,
+      discoveryTaken: discoveryTaken,
+      featureTaken: featureTaken,
     );
     final facts = OrContextBucketHelpers.stableNameFact(
       reflection?.userName,
       current,
     );
-    final preference =
-        OrContextBucketHelpers.preferenceWhenAsked(current);
-    final omitRecap = recent.any((t) => t.isUser);
-    final thread = CompanionThreadMemory.read(recent, current).instructionFor(
-      current,
-      omitRecap: omitRecap,
+    final asked = OrContextBucketHelpers.preferenceWhenAsked(current);
+    final memPref = OrContextSelectionSources.memoryPreference(
+      promptHint: memoryPromptHint,
+      proactiveAcknowledgment: reflection?.proactiveAcknowledgment,
+      skipBecauseObservation:
+          OrContextSelectionSources.usedProactiveObservation(
+            reflection: reflection,
+            current: current,
+            discoveryTaken: discoveryTaken,
+            featureTaken: featureTaken,
+          ),
     );
-    final threadWithDigest = [
-      ?digest,
-      thread,
-    ].join(' ').trim();
+    final preference = asked ?? memPref;
+    final omitRecap = recent.any((t) => t.isUser);
+    final thread = CompanionThreadMemory.read(
+      recent,
+      current,
+    ).instructionFor(current, omitRecap: omitRecap);
+    final threadWithDigest = [?digest, thread].join(' ').trim();
     return OrSelectedContext(
       currentMessage: current,
       recentMessages: recent,
@@ -80,13 +93,14 @@ abstract final class OrContextSelectionEngine {
     ReflectionContext? reflection,
     String? discoveryHint,
     String? featureHandoff,
-  }) =>
-      select(
-        currentMessage: currentMessage,
-        recentMessages: recentMessages,
-        fullHistory: fullHistory,
-        reflection: reflection,
-        discoveryHint: discoveryHint,
-        featureHandoff: featureHandoff,
-      ).toStyleHint();
+    String? memoryPromptHint,
+  }) => select(
+    currentMessage: currentMessage,
+    recentMessages: recentMessages,
+    fullHistory: fullHistory,
+    reflection: reflection,
+    discoveryHint: discoveryHint,
+    featureHandoff: featureHandoff,
+    memoryPromptHint: memoryPromptHint,
+  ).toStyleHint();
 }

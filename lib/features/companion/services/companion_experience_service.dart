@@ -58,6 +58,7 @@ class CompanionExperienceService {
          styleHint: styleHint ?? ((_) async => null),
          personality: personality ?? (() async => null),
          lengthPrefs: lengthPrefs,
+         memoryPromptHint: () => personalMemory?.promptHint(),
        ),
        _memory = memoryService ?? CompanionMemoryService(MemoryService());
 

@@ -44,7 +44,8 @@ void main() {
     final hint = CompanionContextSelect.assemble(
       userMessage: 'Is konusunda sikisiyorum.',
       turns: const [],
-      discoveryHint: 'Son kesiflerinde tekrar eden bir iz: kariyer. Keep short.',
+      discoveryHint:
+          'Son kesiflerinde tekrar eden bir iz: kariyer. Keep short.',
       proactiveAcknowledgment:
           'Son donemde degisim konusu birkac farkli kesfinde yeniden '
           'karsina cikiyor.',
@@ -83,5 +84,31 @@ void main() {
     expect(mem.instruction, contains('uydurma'));
     expect(mem.instruction.toLowerCase(), contains('mekanik'));
     expect(mem.instruction.toLowerCase(), isNot(contains('retrieval')));
+  });
+
+  test('assemble empty memoryPromptHint matches prior assemble', () {
+    final base = CompanionContextSelect.assemble(
+      userMessage: 'Bugun hava nasil?',
+      turns: const [],
+    );
+    final empty = CompanionContextSelect.assemble(
+      userMessage: 'Bugun hava nasil?',
+      turns: const [],
+      memoryPromptHint: '',
+    );
+    expect(empty, base);
+  });
+
+  test('assemble can surface non-empty memoryPromptHint as PREFERENCE', () {
+    const prompt =
+        'Cite a recurring observation only when the user message clearly '
+        'touches it. Prefer silence over a memory dump.';
+    final hint = CompanionContextSelect.assemble(
+      userMessage: 'Bugun hava nasil?',
+      turns: const [],
+      memoryPromptHint: prompt,
+    );
+    expect(hint, contains('PREFERENCE'));
+    expect(hint, contains('silence'));
   });
 }

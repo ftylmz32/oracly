@@ -10,6 +10,7 @@ abstract final class OrContextBucketHelpers {
 
   static const memoryCap = 120;
   static const featureCap = 360;
+  static const preferenceCap = 220;
 
   static bool looksFeature(String body) {
     if (body.contains('\n')) return true;
@@ -36,7 +37,8 @@ abstract final class OrContextBucketHelpers {
   static String? relevantSaved(List<Memory> memories, String current) {
     if (memories.isEmpty) return null;
     final msg = current.toLowerCase();
-    final wantsRecall = msg.contains('hatırl') ||
+    final wantsRecall =
+        msg.contains('hatırl') ||
         msg.contains('hatirl') ||
         msg.contains('remember') ||
         msg.contains('daha önce') ||
@@ -72,10 +74,11 @@ abstract final class OrContextBucketHelpers {
 
   static int tokenScore(String msg, String note) {
     var score = 0;
-    for (final w in note
-        .split(RegExp(r'[^a-züğışöçâîû0-9]+'))
-        .where((w) => w.length >= 4)
-        .take(10)) {
+    for (final w
+        in note
+            .split(RegExp(r'[^a-züğışöçâîû0-9]+'))
+            .where((w) => w.length >= 4)
+            .take(10)) {
       if (msg.contains(w)) score += w.length >= 6 ? 2 : 1;
     }
     return score;
@@ -115,7 +118,8 @@ abstract final class OrContextBucketHelpers {
 
   static String? preferenceWhenAsked(String current) {
     final msg = current.toLowerCase();
-    final asks = msg.contains('nasıl konuş') ||
+    final asks =
+        msg.contains('nasıl konuş') ||
         msg.contains('üslub') ||
         msg.contains('tonun') ||
         msg.contains('how you speak') ||

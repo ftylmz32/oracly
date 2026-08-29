@@ -28,7 +28,15 @@ class CompanionLiveReply {
     required Future<String?> Function(String userMessage) styleHint,
     required Future<String?> Function() personality,
     Future<({OrResponseDepth depth, bool spoken})> Function()? lengthPrefs,
-  }) : this._(responder, bridge, styleHint, personality, lengthPrefs);
+    String? Function()? memoryPromptHint,
+  }) : this._(
+         responder,
+         bridge,
+         styleHint,
+         personality,
+         lengthPrefs,
+         memoryPromptHint,
+       );
 
   const CompanionLiveReply._(
     this._responder,
@@ -36,6 +44,7 @@ class CompanionLiveReply {
     this._styleHint,
     this._personality,
     this._lengthPrefs,
+    this._memoryPromptHint,
   );
 
   final CompanionResponder _responder;
@@ -43,6 +52,7 @@ class CompanionLiveReply {
   final Future<String?> Function(String userMessage) _styleHint;
   final Future<String?> Function() _personality;
   final Future<({OrResponseDepth depth, bool spoken})> Function()? _lengthPrefs;
+  final String? Function()? _memoryPromptHint;
 
   Future<({CompanionResponse response, bool fromAi})> complete({
     required InsightRequest request,
@@ -58,7 +68,8 @@ class CompanionLiveReply {
       return (response: CompanionResponse(body: safety), fromAi: false);
     }
     final personality = await _personality();
-    final prefs = await _lengthPrefs?.call() ??
+    final prefs =
+        await _lengthPrefs?.call() ??
         (depth: OrResponseDepth.fallback, spoken: false);
     final depth = OrResponseLengthIntelligence.select(
       userMessage: request.text,
@@ -78,6 +89,10 @@ class CompanionLiveReply {
       );
       return true;
     }());
+    String? memHint;
+    try {
+      memHint = _memoryPromptHint?.call();
+    } catch (_) {}
     final live = await bridge.tryLiveOrFailClosed(
       userMessage: request.text,
       priorUser: priorUser,
@@ -88,6 +103,7 @@ class CompanionLiveReply {
         fullHistory: history,
         reflection: context,
         discoveryHint: await _styleHint(request.text),
+        memoryPromptHint: memHint,
       ),
       personality: personality,
       depth: depth,
@@ -121,7 +137,9 @@ class CompanionLiveReply {
   ) {
     final history = CompanionTurnWindow.history(prior);
     final text = current.trim();
-    if (history.isNotEmpty && history.last.isUser && history.last.text == text) {
+    if (history.isNotEmpty &&
+        history.last.isUser &&
+        history.last.text == text) {
       return history.sublist(0, history.length - 1);
     }
     return history;

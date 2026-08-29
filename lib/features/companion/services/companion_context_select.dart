@@ -16,11 +16,11 @@ abstract final class CompanionContextSelect {
     String? discoveryHint,
     String? proactiveAcknowledgment,
     ReflectionContext? reflection,
+    String? memoryPromptHint,
   }) {
-    final ctx = reflection ??
-        ReflectionContext(
-          proactiveAcknowledgment: proactiveAcknowledgment,
-        );
+    final ctx =
+        reflection ??
+        ReflectionContext(proactiveAcknowledgment: proactiveAcknowledgment);
     return OrContextSelectionEngine.styleHint(
       currentMessage: userMessage,
       recentMessages: turns,
@@ -28,6 +28,7 @@ abstract final class CompanionContextSelect {
       reflection: ctx,
       discoveryHint: discoveryHint,
       featureHandoff: proactiveAcknowledgment,
+      memoryPromptHint: memoryPromptHint,
     );
   }
 }
