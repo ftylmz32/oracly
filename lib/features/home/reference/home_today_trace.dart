@@ -9,6 +9,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../core/theme/reading_typography.dart';
 import '../../daily_ritual/widgets/daily_ritual_card.dart';
+import '../widgets/home_daily_message_teaser.dart';
 import 'home_reference_scope.dart';
 
 /// Section wrapper around the real daily ritual card.
@@ -35,11 +36,7 @@ class HomeTodayTrace extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: EdgeInsets.only(
-              left: 2,
-              right: 2,
-              bottom: labelBottom,
-            ),
+            padding: EdgeInsets.only(left: 2, right: 2, bottom: labelBottom),
             child: OraclyA11y.chromeTextScale(
               child: Row(
                 children: [
@@ -54,13 +51,16 @@ class HomeTodayTrace extends StatelessWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: ReadingTypography.eyebrow(
-                        color: OraclyA11y.goldReadable(OraclyChrome.goldLight),
-                        fontSize: 12,
-                      ).copyWith(
-                        letterSpacing:
-                            CraftsmanshipRhythm.sectionLabelTracking + 0.2,
-                      ),
+                      style:
+                          ReadingTypography.eyebrow(
+                            color: OraclyA11y.goldReadable(
+                              OraclyChrome.goldLight,
+                            ),
+                            fontSize: 12,
+                          ).copyWith(
+                            letterSpacing:
+                                CraftsmanshipRhythm.sectionLabelTracking + 0.2,
+                          ),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -82,6 +82,7 @@ class HomeTodayTrace extends StatelessWidget {
             ),
           ),
           SizedBox(height: cardH, child: const DailyRitualCard()),
+          const HomeDailyMessageTeaser(),
         ],
       ),
     );
