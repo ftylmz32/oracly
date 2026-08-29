@@ -15,6 +15,11 @@ abstract final class FirstSessionCopy {
   static String get homeCta => _t('first.home_cta');
   static String get soulMateLater => _t('first.soulmate_later');
 
+  static String continuityInvite(String cardName) =>
+      _t('first.continuity_invite').replaceAll('{card}', cardName.trim());
+
+  static String get continuityCta => _t('first.continuity_cta');
+
   static String get intentionTitle => _t('first.intention_title');
   static String get intentionSubtitle => _t('first.intention_sub');
   static String get intentionTitleDefault => _t('first.intention_title_d');

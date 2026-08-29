@@ -153,26 +153,24 @@ const kL10nHome = <String, L10nTriple>{
     'Start with today’s free card — Soul Mate opens later.',
     'Начни с сегодняшней бесплатной карты — родственная душа позже.',
   ),
+  'first.continuity_invite': L10nTriple(
+    'İlk kartın, {card}, hâlâ burada. Sen ve OR birlikte bakmaya başlamıştınız.',
+    'Your first card, {card}, is still here. You and OR started exploring what it brought up.',
+    'Твоя первая карта, {card}, всё ещё здесь. Вы с OR начали разбирать, что она подняла.',
+  ),
+  'first.continuity_cta': L10nTriple(
+    'Sohbetine devam et',
+    'Continue your conversation',
+    'Продолжить разговор',
+  ),
   'home.reference_subtitle': L10nTriple(
     'Sakin bir yer. Düşünmek için buradasın.',
     'A calm place. You are here to think.',
     'Спокойное место. Ты здесь, чтобы думать.',
   ),
-  'home.today_moment': L10nTriple(
-    'Bugünün İzi',
-    "Today's Trace",
-    'След дня',
-  ),
-  'home.hero.hello': L10nTriple(
-    'Merhaba,',
-    'Hello,',
-    'Привет,',
-  ),
-  'home.header.premium': L10nTriple(
-    'Premium',
-    'Premium',
-    'Premium',
-  ),
+  'home.today_moment': L10nTriple('Bugünün İzi', "Today's Trace", 'След дня'),
+  'home.hero.hello': L10nTriple('Merhaba,', 'Hello,', 'Привет,'),
+  'home.header.premium': L10nTriple('Premium', 'Premium', 'Premium'),
   'home.hero.invite': L10nTriple(
     'Bugün senin için\nneler keşfedelim?',
     'What shall we discover for you today?',
@@ -198,11 +196,7 @@ const kL10nHome = <String, L10nTriple>{
     'Discover more',
     'Узнать дальше',
   ),
-  'home.discoveries_band': L10nTriple(
-    'Keşfet',
-    'Explore',
-    'Обзор',
-  ),
+  'home.discoveries_band': L10nTriple('Keşfet', 'Explore', 'Обзор'),
   'home.discoveries.see_all': L10nTriple(
     'Tümünü Gör',
     'See all',
@@ -298,7 +292,11 @@ const kL10nHome = <String, L10nTriple>{
     'Open today’s card',
     'Открыть карту дня',
   ),
-  'ritual.card_of_day.or': L10nTriple('OR ile aç', 'Open with OR', 'Открыть с OR'),
+  'ritual.card_of_day.or': L10nTriple(
+    'OR ile aç',
+    'Open with OR',
+    'Открыть с OR',
+  ),
   'ritual.card_of_day.guidance': L10nTriple(
     'Günün sembolik yönü',
     'Today’s symbolic guidance',
@@ -352,7 +350,11 @@ const kL10nHome = <String, L10nTriple>{
     'Palm reading',
     'Гадание по ладони',
   ),
-  'home.discovery.astrology.title': L10nTriple('Astroloji', 'Astrology', 'Астрология'),
+  'home.discovery.astrology.title': L10nTriple(
+    'Astroloji',
+    'Astrology',
+    'Астрология',
+  ),
   'home.discovery.astrology.caption': L10nTriple(
     'Bugünün göğü',
     "Today's sky",
@@ -363,7 +365,11 @@ const kL10nHome = <String, L10nTriple>{
     'Astrology',
     'Астрология',
   ),
-  'home.discovery.star_map.title': L10nTriple('Yıldızname', 'Yıldızname', 'Йылдызнаме'),
+  'home.discovery.star_map.title': L10nTriple(
+    'Yıldızname',
+    'Yıldızname',
+    'Йылдызнаме',
+  ),
   'home.discovery.star_map.caption': L10nTriple(
     'Kişisel hikâye arşivi',
     'Personal story archive',
@@ -374,7 +380,11 @@ const kL10nHome = <String, L10nTriple>{
     'Yıldızname',
     'Йылдызнаме',
   ),
-  'home.discovery.soulmate.title': L10nTriple('Ruh Eşi', 'Soulmate', 'Родственная душа'),
+  'home.discovery.soulmate.title': L10nTriple(
+    'Ruh Eşi',
+    'Soulmate',
+    'Родственная душа',
+  ),
   'home.discovery.soulmate.caption': L10nTriple(
     'Sembolik bir yakınlık hayali',
     'A symbolic imagining of closeness',
@@ -391,11 +401,7 @@ const kL10nHome = <String, L10nTriple>{
     'One card, one pause',
     'Одна карта — одна пауза',
   ),
-  'home.discovery.tarot.semantics': L10nTriple(
-    'Tarot',
-    'Tarot',
-    'Таро',
-  ),
+  'home.discovery.tarot.semantics': L10nTriple('Tarot', 'Tarot', 'Таро'),
   'home.discovery.dream.title': L10nTriple(
     'Rüya Analizi',
     'Dream Analysis',
