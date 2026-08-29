@@ -136,10 +136,12 @@ final companionExperienceServiceProvider = Provider<CompanionExperienceService>(
 
 final companionControllerProvider = ChangeNotifierProvider<CompanionController>(
   (ref) {
+    // read (not watch) for experience/output: a recreate after openChat.take()
+    // wipes readingContext and Premium-gates the free deepen turn.
     final controller = CompanionController(
-      ref.watch(companionExperienceServiceProvider),
+      ref.read(companionExperienceServiceProvider),
       ref.read(companionOutputControllerProvider),
-      storage: ref.watch(localStorageProvider),
+      storage: ref.read(localStorageProvider),
       analytics: ref.read(analyticsServiceProvider),
       crashTelemetry: ref.read(crashTelemetryProvider),
     );
