@@ -14,6 +14,7 @@ import '../../../quality_loop/widgets/quality_loop_gate.dart';
 import '../../models/companion_state.dart';
 import '../../providers/companion_providers.dart';
 import '../../services/companion_or_conversation_access.dart';
+import '../../services/first_reading_or_deepen.dart';
 import '../../services/or_chat_handoff.dart';
 import '../../services/or_context_bucket_helpers.dart';
 import '../../services/or_session_resolver.dart';
@@ -66,23 +67,29 @@ class _CompanionReferenceScreenState
   }
 
   Future<void> _onMic() => toggleCompanionMic(
-        context: context,
-        ref: ref,
-        composer: _inputController,
-      );
+    context: context,
+    ref: ref,
+    composer: _inputController,
+  );
 
   Future<void> _onMicCancel() => cancelCompanionMic(ref: ref);
 
   Future<void> _send([String? preset]) => sendCompanionComposer(
-        ref: ref,
-        context: context,
-        composer: _inputController,
-        preset: preset,
-        onScrolled: () => scrollCompanionThread(_scrollController),
-      );
+    ref: ref,
+    context: context,
+    composer: _inputController,
+    preset: preset,
+    onScrolled: () => scrollCompanionThread(_scrollController),
+  );
 
   void _onPlus() {
-    if (!CompanionOrConversationAccess.ensure(context)) return;
+    final reading = ref.read(companionControllerProvider).readingContext;
+    if (!CompanionOrConversationAccess.ensure(
+      context,
+      readingContext: reading,
+    )) {
+      return;
+    }
     showCompanionPromptSheet(context: context, onSelected: _send);
   }
 
@@ -101,8 +108,11 @@ class _CompanionReferenceScreenState
     final handoffHeld = OrContextBucketHelpers.looksFeature(
       state.context?.proactiveAcknowledgment ?? '',
     );
-    final start =
-        !busy && !messages.any((m) => m.isUser) && !handoffHeld;
+    final start = !busy && !messages.any((m) => m.isUser) && !handoffHeld;
+    final deepen = FirstReadingOrDeepen.allows(
+      ref.watch(localStorageProvider),
+      controller.readingContext,
+    );
     final session = OrSessionResolver.resolve(
       entitlement: entitlement,
       link: state.linkStatus,
@@ -112,6 +122,7 @@ class _CompanionReferenceScreenState
       chamberEmpty: start || messages.isEmpty,
       busy: busy,
       networkRetry: controller.isNetworkRetrying,
+      contextualDeepenAllowed: deepen,
     );
     final presence = CompanionOrPresenceResolve.from(
       phase: state.phase,

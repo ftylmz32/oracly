@@ -19,17 +19,16 @@ void main() {
     bool chamberEmpty = true,
     bool busy = false,
     bool networkRetry = false,
-  }) =>
-      OrSessionResolver.resolve(
-        entitlement: entitlement,
-        link: link,
-        lastFailure: lastFailure,
-        voiceUnavailable: voiceUnavailable,
-        bootstrapping: bootstrapping,
-        chamberEmpty: chamberEmpty,
-        busy: busy,
-        networkRetry: networkRetry,
-      ).state;
+  }) => OrSessionResolver.resolve(
+    entitlement: entitlement,
+    link: link,
+    lastFailure: lastFailure,
+    voiceUnavailable: voiceUnavailable,
+    bootstrapping: bootstrapping,
+    chamberEmpty: chamberEmpty,
+    busy: busy,
+    networkRetry: networkRetry,
+  ).state;
 
   test('free user stays gated with preview', () {
     final p = OrSessionResolver.resolve(
@@ -41,6 +40,21 @@ void main() {
     expect(p.canCompose, isFalse);
     expect(p.showPreview, isTrue);
     expect(p.isGated, isTrue);
+  });
+
+  test('free contextual deepen opens text compose only', () {
+    final p = OrSessionResolver.resolve(
+      entitlement: PremiumEntitlementState.inactive,
+      link: CompanionLinkStatus.online,
+      voiceUnavailable: false,
+      contextualDeepenAllowed: true,
+    );
+    expect(p.state, OrSessionState.free);
+    expect(p.canCompose, isTrue);
+    expect(p.canUseMic, isFalse);
+    expect(p.isGated, isFalse);
+    expect(p.showPreview, isFalse);
+    expect(p.showPaywallDock, isFalse);
   });
 
   test('unavailable store entitlement never opens composer', () {
@@ -137,10 +151,7 @@ void main() {
       resolve(lastFailure: AiFailureKind.providerError),
       OrSessionState.providerUnavailable,
     );
-    expect(
-      resolve(lastFailure: AiFailureKind.network),
-      OrSessionState.offline,
-    );
+    expect(resolve(lastFailure: AiFailureKind.network), OrSessionState.offline);
     final provider = OrSessionResolver.resolve(
       entitlement: PremiumEntitlementState.active,
       link: CompanionLinkStatus.online,

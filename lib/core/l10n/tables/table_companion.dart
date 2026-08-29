@@ -10,25 +10,33 @@ const kL10nCompanion = <String, L10nTriple>{
     'I remember only the notes you saved. You can view your memory anytime.',
     'Я помню только сохранённые тобой заметки. Память можно открыть в любой момент.',
   ),
-  'or.view_memories': L10nTriple('Hafızamı gör', 'View my memory', 'Открыть память'),
+  'or.view_memories': L10nTriple(
+    'Hafızamı gör',
+    'View my memory',
+    'Открыть память',
+  ),
   'or.save_to_memory': L10nTriple('Hatırla', 'Remember', 'Запомнить'),
-  'or.memory_saved': L10nTriple('Bu not hafızana eklendi.', 'This note was added to your memory.', 'Эта заметка добавлена в память.'),
+  'or.memory_saved': L10nTriple(
+    'Bu not hafızana eklendi.',
+    'This note was added to your memory.',
+    'Эта заметка добавлена в память.',
+  ),
   'or.voice_coming': L10nTriple(
     'Sesli sohbet yakında — aynı yolculuk, farklı bir ritim.',
     'Voice chat is coming — the same journey, a different rhythm.',
     'Голосовой чат скоро — тот же путь, другой ритм.',
   ),
-  'or.voice_label': L10nTriple('Sesli mesaj', 'Voice message', 'Голосовое сообщение'),
+  'or.voice_label': L10nTriple(
+    'Sesli mesaj',
+    'Voice message',
+    'Голосовое сообщение',
+  ),
   'or.voice_listening': L10nTriple(
     'Konuş — bitince dokun',
     'Speak — tap when done',
     'Говори — коснись, чтобы закончить',
   ),
-  'or.voice_cancel': L10nTriple(
-    'Vazgeç',
-    'Cancel',
-    'Отмена',
-  ),
+  'or.voice_cancel': L10nTriple('Vazgeç', 'Cancel', 'Отмена'),
   'or.voice_cancel_hint': L10nTriple(
     'Vazgeçmek için uzun bas',
     'Long press to cancel',
@@ -90,11 +98,7 @@ const kL10nCompanion = <String, L10nTriple>{
     'LISTEN AGAIN',
     'СЛУШАТЬ СНОВА',
   ),
-  'or.voice_review_send': L10nTriple(
-    'GÖNDER',
-    'SEND',
-    'ОТПРАВИТЬ',
-  ),
+  'or.voice_review_send': L10nTriple('GÖNDER', 'SEND', 'ОТПРАВИТЬ'),
   'or.voice_conversation_preview_title': L10nTriple(
     'Sesli sohbet',
     'Voice conversation',
@@ -235,11 +239,7 @@ const kL10nCompanion = <String, L10nTriple>{
     'The conversation does not break the next time you open.',
     'Разговор не обрывается при следующем открытии.',
   ),
-  'or.paywall_pillar_voice_title': L10nTriple(
-    'Ses',
-    'Voice',
-    'Голос',
-  ),
+  'or.paywall_pillar_voice_title': L10nTriple('Ses', 'Voice', 'Голос'),
   'or.paywall_pillar_voice_body': L10nTriple(
     'Yazılı, sesli yanıt veya karşılıklı sohbet — ritmi sen seçersin.',
     'Written, spoken reply, or turn-taking talk — you choose the rhythm.',
@@ -300,6 +300,11 @@ const kL10nCompanion = <String, L10nTriple>{
     'Something went wrong. Try again in a moment.',
     'Что-то пошло не так. Попробуй чуть позже.',
   ),
+  'or.first_reading_deepen': L10nTriple(
+    'Bu ilk okuma üzerine bir devam sorusu sorabilirsin.',
+    'You can ask one follow-up about this first reading.',
+    'Можешь задать один вопрос по этому первому раскладу.',
+  ),
   'or.paywall_cta': L10nTriple(
     'OR ile konuşmaya başla',
     'Start talking with OR',
@@ -333,16 +338,8 @@ const kL10nCompanion = <String, L10nTriple>{
     'Listening… tap when you are done.',
     'Слушаю… коснись, когда закончишь.',
   ),
-  'or.voice_turn_settling': L10nTriple(
-    'Bir an…',
-    'A moment…',
-    'Миг…',
-  ),
-  'or.voice_turn_thinking': L10nTriple(
-    'Düşünüyorum…',
-    'Thinking…',
-    'Думаю…',
-  ),
+  'or.voice_turn_settling': L10nTriple('Bir an…', 'A moment…', 'Миг…'),
+  'or.voice_turn_thinking': L10nTriple('Düşünüyorum…', 'Thinking…', 'Думаю…'),
   'or.voice_turn_speaking': L10nTriple(
     'Yanıtlıyorum…',
     'Answering…',
@@ -354,11 +351,7 @@ const kL10nCompanion = <String, L10nTriple>{
   'or.replay_speaking': L10nTriple('TEKRAR', 'REPLAY', 'ЕЩЁ'),
   'or.speaking': L10nTriple('OR konuşuyor…', 'OR is speaking…', 'OR говорит…'),
   'or.paused': L10nTriple('Duraklatıldı', 'Paused', 'Пауза'),
-  'or.idle': L10nTriple(
-    'Yer açık.',
-    'There is room.',
-    'Место есть.',
-  ),
+  'or.idle': L10nTriple('Yer açık.', 'There is room.', 'Место есть.'),
   'or.idle_title': L10nTriple(
     'Aklında kalan yerden başlayalım.',
     'Let us start where your mind left off.',
@@ -389,11 +382,7 @@ const kL10nCompanion = <String, L10nTriple>{
   'or.speak': L10nTriple('Sesli dinle', 'Listen', 'Слушать'),
   'or.regenerate': L10nTriple('Yeniden sor', 'Ask again', 'Спросить снова'),
   'or.welcome_title': L10nTriple('Selam.', 'Hey.', 'Привет.'),
-  'or.welcome_body': L10nTriple(
-    'Dinliyorum.',
-    "I'm listening.",
-    'Слушаю.',
-  ),
+  'or.welcome_body': L10nTriple('Dinliyorum.', "I'm listening.", 'Слушаю.'),
   'or.welcome_named': L10nTriple(
     'Selam {name}.',
     'Hey {name}.',
@@ -414,11 +403,7 @@ const kL10nCompanion = <String, L10nTriple>{
     'Your reading was passed to OR',
     'Твоё чтение передано OR',
   ),
-  'or.handoff.banner.continuing': L10nTriple(
-    'Bağlam',
-    'Context',
-    'Контекст',
-  ),
+  'or.handoff.banner.continuing': L10nTriple('Bağlam', 'Context', 'Контекст'),
   'or.handoff.arrive.coffee': L10nTriple(
     'Kahve yorumundaki işaretler ve ana tema burada.',
     'The signs and main theme from your coffee reading are here.',
@@ -472,11 +457,7 @@ const kL10nCompanion = <String, L10nTriple>{
     'Hello. There is room.',
     'Здравствуй. Место есть.',
   ),
-  'or.open.5': L10nTriple(
-    'Nasılsın?',
-    'How are you?',
-    'Как ты?',
-  ),
+  'or.open.5': L10nTriple('Nasılsın?', 'How are you?', 'Как ты?'),
   'or.open.gentle.0': L10nTriple(
     'Yavaşça dinliyorum.',
     'Listening, unhurried.',
@@ -507,13 +488,21 @@ const kL10nCompanion = <String, L10nTriple>{
     'Something like a quiet hello — there is room.',
     'Как тихое «привет» — место есть.',
   ),
-  'or.open.direct.0': L10nTriple('Selam. Dinliyorum.', 'Hey. Listening.', 'Привет. Слушаю.'),
+  'or.open.direct.0': L10nTriple(
+    'Selam. Dinliyorum.',
+    'Hey. Listening.',
+    'Привет. Слушаю.',
+  ),
   'or.open.direct.1': L10nTriple(
     'Dinliyorum. Ne varsa söyle.',
     'Listening. Say what is there.',
     'Слушаю. Скажи, что есть.',
   ),
-  'or.open.named.0': L10nTriple('Selam {name}.', 'Hey {name}.', 'Привет, {name}.'),
+  'or.open.named.0': L10nTriple(
+    'Selam {name}.',
+    'Hey {name}.',
+    'Привет, {name}.',
+  ),
   'or.open.named.1': L10nTriple(
     'Selam {name}. Yer açık.',
     'Hey {name}. There is room.',
@@ -619,8 +608,11 @@ const kL10nCompanion = <String, L10nTriple>{
     'Let us open the relationship side a little more.',
     'Давай раскроем сторону отношений чуть глубже.',
   ),
-  'or.conversation_subtitle':
-      L10nTriple('Sakin bir yansıma alanı', 'A calm space for reflection', 'Спокойное пространство для размышления'),
+  'or.conversation_subtitle': L10nTriple(
+    'Sakin bir yansıma alanı',
+    'A calm space for reflection',
+    'Спокойное пространство для размышления',
+  ),
   'or.input_hint': L10nTriple(
     'Aklındaki durumu olduğu gibi yaz…',
     'Write what is on your mind as it is…',
@@ -642,11 +634,7 @@ const kL10nCompanion = <String, L10nTriple>{
     'OR is thinking...',
     'OR думает...',
   ),
-  'or.new_reply': L10nTriple(
-    'Yeni yanıt',
-    'New reply',
-    'Новый ответ',
-  ),
+  'or.new_reply': L10nTriple('Yeni yanıt', 'New reply', 'Новый ответ'),
   'or.error': L10nTriple(
     "OR'a ulaşamadım. Bir daha deneyelim.",
     "I couldn't reach OR. Let's try again.",

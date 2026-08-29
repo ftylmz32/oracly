@@ -87,11 +87,11 @@ abstract final class CompanionCopy {
   static String get orPaywallHonesty => _t('or.paywall_honesty');
   static String get orPaywallCta => _t('or.paywall_cta');
   static String get orEntitlementPending => _t('or.entitlement_pending');
-  static String get orEntitlementRestoring =>
-      _t('or.entitlement_restoring');
+  static String get orEntitlementRestoring => _t('or.entitlement_restoring');
   static String get orEntitlementUnavailable =>
       _t('or.entitlement_unavailable');
   static String get orEntitlementError => _t('or.entitlement_error');
+  static String get firstReadingDeepenHint => _t('or.first_reading_deepen');
   static String get outputText => _t('or.output_text');
   static String get outputVoice => _t('or.output_voice');
   static String get outputConversation => _t('or.output_conversation');
@@ -101,11 +101,11 @@ abstract final class CompanionCopy {
   static String get voiceTurnThinking => _t('or.voice_turn_thinking');
   static String get voiceTurnSpeaking => _t('or.voice_turn_speaking');
   static String depthLabel(OrResponseDepth depth) => switch (depth) {
-        OrResponseDepth.veryShort => _t('or.depth.very_short'),
-        OrResponseDepth.short => _t('or.depth.short'),
-        OrResponseDepth.balanced => _t('or.depth.balanced'),
-        OrResponseDepth.deep => _t('or.depth.deep'),
-      };
+    OrResponseDepth.veryShort => _t('or.depth.very_short'),
+    OrResponseDepth.short => _t('or.depth.short'),
+    OrResponseDepth.balanced => _t('or.depth.balanced'),
+    OrResponseDepth.deep => _t('or.depth.deep'),
+  };
   static String get outputTextLabel => outputText;
   static String get outputVoiceLabel => outputVoice;
   static String get stopSpeaking => _t('or.stop_speaking');
@@ -120,15 +120,15 @@ abstract final class CompanionCopy {
     String personality = 'mystical',
     DateTime? moment,
     String? name,
-  }) =>
-      OrConversationOpening.line(
-        personality: personality,
-        moment: moment,
-        name: name,
-      );
+  }) => OrConversationOpening.line(
+    personality: personality,
+    moment: moment,
+    name: name,
+  );
 
   static String get idleTitle => _t('or.idle_title');
   static String get idleSubtitle => _t('or.idle_subtitle');
+
   /// Quiet cue that starters are optional — never a menu title.
   static String get idleOptional => _t('or.idle_optional');
   static String get presence => _t('or.presence');
@@ -149,8 +149,7 @@ abstract final class CompanionCopy {
   static String get connecting => _t('or.connecting');
   static String get reconnecting => _t('or.reconnecting');
   static String get retrying => _t('or.retrying');
-  static String get providerUnavailable =>
-      _t('or.provider_unavailable');
+  static String get providerUnavailable => _t('or.provider_unavailable');
   static String get welcomeTitle => _t('or.welcome_title');
   static String get welcomeBody => _t('or.welcome_body');
   static String get connectionError => _t('or.error');
@@ -159,25 +158,23 @@ abstract final class CompanionCopy {
     String? name,
     String personality = 'mystical',
     DateTime? moment,
-  }) =>
-      idleCaption(personality: personality, moment: moment, name: name);
+  }) => idleCaption(personality: personality, moment: moment, name: name);
 
   static String welcome({
     String? name,
     String personality = 'mystical',
     DateTime? moment,
-  }) =>
-      welcomeLine(name: name, personality: personality, moment: moment);
+  }) => welcomeLine(name: name, personality: personality, moment: moment);
 
   static List<String> get suggestions => [
-        _t('or.suggestion.love'),
-        _t('or.suggestion.career'),
-        _t('or.suggestion.undecided'),
-        _t('or.suggestion.dream'),
-        _t('or.suggestion.astrology'),
-        _t('or.suggestion.mood'),
-        _t('or.suggestion.soulmate'),
-      ];
+    _t('or.suggestion.love'),
+    _t('or.suggestion.career'),
+    _t('or.suggestion.undecided'),
+    _t('or.suggestion.dream'),
+    _t('or.suggestion.astrology'),
+    _t('or.suggestion.mood'),
+    _t('or.suggestion.soulmate'),
+  ];
 
   /// Contextual starters — real messages, never decorative labels.
   static List<String> suggestionsForKind(String? kindId) {
@@ -227,6 +224,4 @@ abstract final class CompanionCopy {
   static String get followUpRelationship => _t('or.followup.relationship');
 
   static String get orPremiumHeadline => _t('or.premium_headline');
-
 }
-

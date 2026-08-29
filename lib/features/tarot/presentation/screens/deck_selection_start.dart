@@ -12,6 +12,7 @@ import '../../../gems/services/gem_spend_guard.dart';
 import '../../domain/models/tarot_spread.dart';
 import '../../economy/tarot_economy.dart';
 import '../../first_session/tarot_first_reading.dart';
+import '../../../companion/services/first_reading_or_deepen.dart';
 import '../../shared/tarot_scope.dart';
 import '../widgets/deck_selection/deck_selection_data.dart';
 import '../widgets/deck_selection/deck_selection_premium_gate.dart';
@@ -72,10 +73,15 @@ abstract final class DeckSelectionStart {
     await scope.reading.advanceToShuffle();
     if (!context.mounted) return false;
 
-    // Consume only after a successful single-card first-session init.
+    // First-session single card: capture OR deepen eligibility, then consume
+    // the pending Home CTA intent (intent is gone by reading result time).
     if (spreadType == TarotFirstReading.spread) {
       final storage = ref.read(localStorageProvider);
       if (FirstSessionIntent.isPending(storage)) {
+        final sessionId = scope.reading.session?.id;
+        if (sessionId != null) {
+          await FirstReadingOrDeepen.markEligible(storage, sessionId);
+        }
         await FirstSessionIntent.consumePendingFirstReading(storage);
         ref.read(firstReadingPendingProvider.notifier).state = false;
       }

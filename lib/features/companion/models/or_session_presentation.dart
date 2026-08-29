@@ -42,7 +42,8 @@ class OrSessionPresentation {
       statusLine != null && statusLine!.trim().isNotEmpty;
 
   bool get isGated =>
-      state == OrSessionState.free || state == OrSessionState.purchasePending;
+      (state == OrSessionState.free && !canCompose) ||
+      state == OrSessionState.purchasePending;
 
   bool get softStatus =>
       state == OrSessionState.voiceUnavailable ||

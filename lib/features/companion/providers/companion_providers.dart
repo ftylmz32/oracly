@@ -50,11 +50,12 @@ final companionOutputControllerProvider =
     ChangeNotifierProvider<CompanionOutputController>((ref) {
       final controller = CompanionOutputController(
         persistMode: (mode) async {
-          final current = ref.read(settingsProvider).valueOrNull ??
+          final current =
+              ref.read(settingsProvider).valueOrNull ??
               const PersonalizationSettings();
-          await ref.read(settingsProvider.notifier).saveSettings(
-                current.copyWith(orOutputMode: mode.wire),
-              );
+          await ref
+              .read(settingsProvider.notifier)
+              .saveSettings(current.copyWith(orOutputMode: mode.wire));
         },
         readMode: () {
           final settings = ref.read(settingsProvider).valueOrNull;
@@ -64,7 +65,10 @@ final companionOutputControllerProvider =
             ref.read(settingsProvider).valueOrNull?.orResponseDepth ??
             OrResponseDepth.fallback,
       );
-      ref.listen<AsyncValue<PersonalizationSettings>>(settingsProvider, (_, next) {
+      ref.listen<AsyncValue<PersonalizationSettings>>(settingsProvider, (
+        _,
+        next,
+      ) {
         next.whenData((_) => controller.syncFromSettings());
       });
       return controller;
@@ -86,7 +90,9 @@ final companionExperienceServiceProvider = Provider<CompanionExperienceService>(
               .timeout(const Duration(seconds: 3));
           final observation = ref.read(oraclyObservationProvider('or'));
           if (observation == null) return null;
-          await ref.read(discoverySurfaceMemoryProvider).record(
+          await ref
+              .read(discoverySurfaceMemoryProvider)
+              .record(
                 SurfacedThemeRecord(
                   theme: observation.theme,
                   surface: 'or',
@@ -128,14 +134,16 @@ final companionExperienceServiceProvider = Provider<CompanionExperienceService>(
   },
 );
 
-final companionControllerProvider =
-    ChangeNotifierProvider<CompanionController>((ref) {
-      final controller = CompanionController(
-        ref.watch(companionExperienceServiceProvider),
-        ref.read(companionOutputControllerProvider),
-        analytics: ref.read(analyticsServiceProvider),
-        crashTelemetry: ref.read(crashTelemetryProvider),
-      );
-      controller.initialize();
-      return controller;
-    });
+final companionControllerProvider = ChangeNotifierProvider<CompanionController>(
+  (ref) {
+    final controller = CompanionController(
+      ref.watch(companionExperienceServiceProvider),
+      ref.read(companionOutputControllerProvider),
+      storage: ref.watch(localStorageProvider),
+      analytics: ref.read(analyticsServiceProvider),
+      crashTelemetry: ref.read(crashTelemetryProvider),
+    );
+    controller.initialize();
+    return controller;
+  },
+);

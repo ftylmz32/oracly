@@ -20,6 +20,7 @@ abstract final class OrSessionResolver {
     bool chamberEmpty = true,
     bool busy = false,
     bool networkRetry = false,
+    bool contextualDeepenAllowed = false,
   }) {
     if (entitlement == PremiumEntitlementState.pending ||
         entitlement == PremiumEntitlementState.restoring) {
@@ -36,6 +37,16 @@ abstract final class OrSessionResolver {
     }
 
     if (!entitlement.allowsPremiumFeatures) {
+      if (contextualDeepenAllowed) {
+        return OrSessionPresentation(
+          state: OrSessionState.free,
+          canCompose: true,
+          canUseMic: false,
+          showPreview: false,
+          showPaywallDock: false,
+          statusLine: CompanionCopy.firstReadingDeepenHint,
+        );
+      }
       return OrSessionPresentation(
         state: OrSessionState.free,
         canCompose: false,

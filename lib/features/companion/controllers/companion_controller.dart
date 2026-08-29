@@ -8,6 +8,7 @@ import '../../ai/production/ai_request_exception.dart';
 import '../../ai/domain/models/ai_message.dart';
 import '../../ai/oracle_conversation/models/oracle_reading_context.dart';
 import '../../../core/copy/resilience_copy.dart';
+import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/services/analytics_service.dart';
 import '../../../core/telemetry/crash_telemetry_service.dart';
 import '../copy/companion_copy.dart';
@@ -17,6 +18,7 @@ import '../models/reflection_context.dart';
 import '../services/companion_ephemeral_session.dart';
 import '../services/companion_experience_service.dart';
 import '../services/companion_insight_classify.dart';
+import '../services/first_reading_or_deepen.dart';
 import '../services/or_chat_handoff.dart';
 import 'companion_output_controller.dart';
 
@@ -24,13 +26,14 @@ class CompanionController extends ChangeNotifier {
   CompanionController(
     this._service,
     this._output, {
-    AnalyticsService? analytics,
-    CrashTelemetryService? crashTelemetry,
-  })  : _analytics = analytics,
-        _crashTelemetry = crashTelemetry;
+    this._storage,
+    this._analytics,
+    this._crashTelemetry,
+  });
 
   final CompanionExperienceService _service;
   final CompanionOutputController _output;
+  final LocalStorage? _storage;
   final AnalyticsService? _analytics;
   final CrashTelemetryService? _crashTelemetry;
 
@@ -124,8 +127,7 @@ class CompanionController extends ChangeNotifier {
     final prev = _state.context ?? const ReflectionContext();
     final arrival = OrChatHandoff.arrivalLine(context);
     var conversation = _state.conversation;
-    if (conversation != null &&
-        !conversation.messages.any((m) => m.isUser)) {
+    if (conversation != null && !conversation.messages.any((m) => m.isUser)) {
       conversation = conversation.copyWith(
         messages: [
           for (final m in conversation.messages)
@@ -239,15 +241,16 @@ class CompanionController extends ChangeNotifier {
 
     // Lock before any await so rapid taps cannot enqueue duplicate sends.
     final token = ++_sendGeneration;
-    final recovering = _networkRetry ||
+    final recovering =
+        _networkRetry ||
         _state.linkStatus == CompanionLinkStatus.offline ||
         _state.linkStatus == CompanionLinkStatus.reconnecting ||
         _state.lastFailureKind == AiFailureKind.network;
     final keepFailure = recovering ? _state.lastFailureKind : null;
     final keepFailedText = recovering
         ? (_state.lastFailedText?.trim().isNotEmpty == true
-            ? _state.lastFailedText
-            : trimmed)
+              ? _state.lastFailedText
+              : trimmed)
         : null;
 
     _state = _state.copyWith(phase: CompanionPhase.thinking);
@@ -256,7 +259,8 @@ class CompanionController extends ChangeNotifier {
     await _output.onUserSend();
     if (_disposed || token != _sendGeneration) return;
 
-    final already = conversation.messages.isNotEmpty &&
+    final already =
+        conversation.messages.isNotEmpty &&
         conversation.messages.last.isUser &&
         conversation.messages.last.content.trim() == trimmed;
     final withUser = already
@@ -308,6 +312,16 @@ class CompanionController extends ChangeNotifier {
         linkStatus: CompanionLinkStatus.online,
       );
       _safeNotify();
+      // One-shot deepen: only after a real usable assistant reply.
+      final storage = _storage;
+      final body = result.response.body.trim();
+      if (storage != null && result.fromAi && body.isNotEmpty) {
+        final consumed = await FirstReadingOrDeepen.consumeIfActive(
+          storage,
+          _readingContext,
+        );
+        if (consumed) _safeNotify();
+      }
       if (_disposed || token != _sendGeneration) return;
       try {
         await _output.speakIfVoice(result.response.body);
@@ -349,7 +363,9 @@ class CompanionController extends ChangeNotifier {
         errorCategory: 'unknown',
       );
       assert(() {
-        debugPrint('[OR] requestFailed kind=unknown errorType=${error.runtimeType}');
+        debugPrint(
+          '[OR] requestFailed kind=unknown errorType=${error.runtimeType}',
+        );
         return true;
       }());
       // Unknown ≠ offline. Keep chat usable; offer calm retry without a fake
@@ -411,7 +427,8 @@ class CompanionController extends ChangeNotifier {
 
   /// Soft reconnect with no user text — does not invent an assistant message.
   Future<void> _reconnectWithoutMessage() async {
-    final wasNetwork = _state.lastFailureKind == AiFailureKind.network ||
+    final wasNetwork =
+        _state.lastFailureKind == AiFailureKind.network ||
         _state.linkStatus == CompanionLinkStatus.offline;
     _networkRetry = true;
     _state = _state.copyWith(

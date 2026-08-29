@@ -1,5 +1,6 @@
 /// OR Rehberi composer actions — stop STT, then existing text send.
 library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
@@ -12,13 +13,15 @@ import '../../providers/companion_providers.dart';
 import '../../voice/or_voice_turn_phase.dart';
 import '../../../personal_discovery/services/personal_discovery_refresh.dart';
 import 'companion_reference_tokens.dart';
+
 /// Start a one-shot capture, or stop the active one. Never continuous listen.
 Future<void> toggleCompanionMic({
   required BuildContext context,
   required WidgetRef ref,
   required TextEditingController composer,
 }) async {
-  if (!CompanionOrConversationAccess.ensure(context)) return;
+  // Mic stays Premium-only — free deepen is text-only.
+  if (!CompanionOrConversationAccess.ensurePremium(context)) return;
   final turn = ref.read(companionVoiceTurnControllerProvider);
   if (turn.isActive) {
     if (turn.phase == OrVoiceTurnPhase.listening || turn.isReady) {
@@ -40,10 +43,9 @@ Future<void> toggleCompanionMic({
   if (allowed != true || !context.mounted) return;
   await voice.start(existingText: composer.text);
 }
+
 /// Discard the current capture and release the microphone.
-Future<void> cancelCompanionMic({
-  required WidgetRef ref,
-}) async {
+Future<void> cancelCompanionMic({required WidgetRef ref}) async {
   final turn = ref.read(companionVoiceTurnControllerProvider);
   if (turn.isActive) {
     await turn.cancel();
@@ -51,6 +53,7 @@ Future<void> cancelCompanionMic({
   }
   await ref.read(companionVoiceControllerProvider).cancel();
 }
+
 /// After a graceful failure — one fresh capture, not continuous listening.
 Future<void> retryCompanionMic({
   required BuildContext context,
@@ -71,12 +74,17 @@ Future<void> sendCompanionComposer({
   String? preset,
   required VoidCallback onScrolled,
 }) async {
-  if (!CompanionOrConversationAccess.ensure(context)) return;
+  final session = ref.read(companionControllerProvider);
+  if (!CompanionOrConversationAccess.ensure(
+    context,
+    readingContext: session.readingContext,
+  )) {
+    return;
+  }
   final voice = ref.read(companionVoiceControllerProvider);
   if (voice.isActive) await voice.stop();
   if (!context.mounted) return;
   final text = preset ?? composer.text;
-  final session = ref.read(companionControllerProvider);
   if (text.trim().isEmpty) {
     logOrSubmit(
       textLength: 0,
@@ -97,10 +105,7 @@ Future<void> sendCompanionComposer({
     );
     return;
   }
-  logOrSubmit(
-    textLength: text.trim().length,
-    sessionReady: true,
-  );
+  logOrSubmit(textLength: text.trim().length, sessionReady: true);
   composer.clear();
   voice.consumeTranscript();
   FocusScope.of(context).unfocus();
