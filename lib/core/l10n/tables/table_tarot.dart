@@ -171,6 +171,103 @@ const kL10nTarot = <String, L10nTriple>{
   ),
   'tarot.upright': L10nTriple('Düz', 'Upright', 'Прямая'),
   'tarot.reversed': L10nTriple('Ters', 'Reversed', 'Перевернутая'),
+  'tarot.ritual.deck_ready': L10nTriple(
+    'Desten hazır.',
+    'Your deck is ready.',
+    'Колода готова.',
+  ),
+  'tarot.ritual.deck_ready_sub': L10nTriple(
+    'Karıştır, kes, kartını çek.',
+    'Shuffle, cut, draw your card.',
+    'Перемешай, срежь, вытяни карту.',
+  ),
+  'tarot.ritual.deck_preparing': L10nTriple(
+    'Desten hazırlanıyor…',
+    'Preparing your deck…',
+    'Колода готовится…',
+  ),
+  'tarot.ritual.intention_title': L10nTriple(
+    'Niyetin',
+    'Your intention',
+    'Твоё намерение',
+  ),
+  'tarot.ritual.intention_sub': L10nTriple(
+    'Bir soru getir — ya da sessizce devam et.',
+    'Bring a question — or continue in silence.',
+    'Принеси вопрос — или продолжай молча.',
+  ),
+  'tarot.ritual.intention_skip': L10nTriple(
+    'Niyetsiz devam et',
+    'Continue without an intention',
+    'Продолжить без намерения',
+  ),
+  'tarot.ritual.pick_spread': L10nTriple(
+    'Açılımı Seç',
+    'Choose a spread',
+    'Выбрать расклад',
+  ),
+  'tarot.ritual.spread_sub': L10nTriple(
+    'Kartların düzenini seç.',
+    'Choose how the cards are laid.',
+    'Выбери расположение карт.',
+  ),
+  'tarot.ritual.draw_hint': L10nTriple(
+    'Kartı yukarı çek',
+    'Drag the card upward',
+    'Потяни карту вверх',
+  ),
+  'tarot.intent.chip.future': L10nTriple('Gelecek', 'Future', 'Будущее'),
+  'tarot.intent.chip.inner': L10nTriple('İç Dünyam', 'My inner world', 'Мой внутренний мир'),
+  'tarot.intent.chip.custom': L10nTriple(
+    'Kendi Sorumu Sor',
+    'Ask my own question',
+    'Задай свой вопрос',
+  ),
+  'tarot.ritual.stage.shuffle': L10nTriple(
+    'Desteyi kaydırarak karıştır.',
+    'Shuffle by sliding the deck.',
+    'Перемешай колоду, проводя по ней.',
+  ),
+  'tarot.ritual.stage.cut': L10nTriple(
+    'Üst paketi ayır, sonra birleştir.',
+    'Split the top stack, then reunite it.',
+    'Отдели верхнюю часть, затем снова соедини.',
+  ),
+  'tarot.ritual.stage.draw': L10nTriple(
+    'Üst kartı yukarı çek.',
+    'Draw the top card upward.',
+    'Вытяни верхнюю карту вверх.',
+  ),
+  'tarot.ritual.stage.reveal': L10nTriple(
+    'Kart açılıyor…',
+    'The card is opening…',
+    'Карта открывается…',
+  ),
+  'tarot.card.keywords': L10nTriple(
+    'Anahtar Kelimeler',
+    'Keywords',
+    'Ключевые слова',
+  ),
+  'tarot.card.related': L10nTriple(
+    'İlgili Kartlar',
+    'Related cards',
+    'Связанные карты',
+  ),
+  'tarot.card.symbolism': L10nTriple(
+    'Sembolizm',
+    'Symbolism',
+    'Символика',
+  ),
+  'tarot.card.meanings': L10nTriple(
+    'Anlamlar',
+    'Meanings',
+    'Значения',
+  ),
+  'tarot.card.meta.arcana': L10nTriple('Arkan', 'Arcana', 'Аркан'),
+  'tarot.card.meta.element': L10nTriple('Element', 'Element', 'Стихия'),
+  'tarot.card.meta.planet': L10nTriple('Gezegen', 'Planet', 'Планета'),
+  'tarot.card.meta.zodiac': L10nTriple('Burç', 'Zodiac', 'Знак'),
+  'tarot.card.meta.number': L10nTriple('Numara', 'Number', 'Номер'),
   'tarot.core_meaning': L10nTriple(
     'Temel Anlam',
     'Core meaning',

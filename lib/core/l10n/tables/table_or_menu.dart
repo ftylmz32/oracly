@@ -5,18 +5,18 @@ import '../l10n_triple.dart';
 
 const Map<String, L10nTriple> kL10nOrMenu = {
   'or.suggestion.love': L10nTriple(
-    'Bir kararın eşiğindeyim; seçenekleri birlikte ayıralım.',
-    "I'm at the edge of a decision; let's sort the options together.",
+    'Günlük enerji yorumum nasıl?',
+    "How does my daily energy read today?",
     'Я на пороге решения; давай разберём варианты вместе.',
   ),
   'or.suggestion.career': L10nTriple(
-    'İşimde kalmak mı, yön değiştirmek mi daha dürüst geliyor?',
-    'Does staying in my job or changing direction feel more honest?',
+    'Aşk hayatımda beni neler bekliyor?',
+    'What awaits me in my love life?',
     'Честнее ли остаться на работе или сменить направление?',
   ),
   'or.suggestion.undecided': L10nTriple(
-    'Bir ilişkide neyi görmezden geldiğimi anlamak istiyorum.',
-    'I want to understand what I have been overlooking in a relationship.',
+    'Tarot falıma bakabilir misin?',
+    'Can you look at my tarot reading?',
     'Хочу понять, что я игнорирую в отношениях.',
   ),
   'or.suggestion.dream': L10nTriple(

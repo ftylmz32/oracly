@@ -4,7 +4,6 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../core/data/datasources/local_storage.dart';
-import '../../features/onboarding/data/onboarding_setup_draft_store.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../shared/navigation/oracly_navigation.dart';
 
@@ -13,18 +12,19 @@ abstract final class SplashDestination {
 
   static const midnight = Color(0xFF07050D);
 
+  /// Completed -> Home shell. Incomplete -> Onboarding.
+  ///
+  /// A saved setup draft must never skip onboarding. [OnboardingScreen]
+  /// restores and resumes the draft itself.
   static Widget build({
     required bool onboardingCompleted,
+    // Ignored: callers pass storage for a stable splash API. Draft restore
+    // lives in OnboardingScreen — do not route Home from an incomplete draft.
     required LocalStorage storage,
   }) {
-    final Widget page;
-    if (onboardingCompleted) {
-      page = const OraclyAppShell();
-    } else if (OnboardingSetupDraftStore(storage).load() != null) {
-      page = const OraclyAppShell(initialTab: OraclyTab.home);
-    } else {
-      page = const OnboardingScreen();
-    }
+    final Widget page = onboardingCompleted
+        ? const OraclyAppShell()
+        : const OnboardingScreen();
     return ColoredBox(color: midnight, child: page);
   }
 

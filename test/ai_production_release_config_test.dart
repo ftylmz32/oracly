@@ -17,6 +17,7 @@ void main() {
     expect(proxy.contains('/v1/ai/complete'), isTrue);
     expect(proxy.toLowerCase(), isNot(contains('127.0.0.1')));
     expect(proxy.toLowerCase(), isNot(contains('localhost')));
+    expect(map.containsKey('ORACLY_BILLING_VERIFY_URL'), isTrue);
     for (final key in map.keys) {
       expect(key.toUpperCase(), isNot(contains('OPENAI')));
       expect(key.toUpperCase(), isNot(contains('SECRET')));

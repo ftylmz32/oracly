@@ -34,7 +34,8 @@ abstract final class OnboardingProfileSaver {
           .generate(
             BirthProfile(
               birthDate: birthDate,
-              birthPlace: birthPlace ?? OraclyL10n.t('onboard.birth_unspecified'),
+              birthPlace:
+                  birthPlace ?? OraclyL10n.t('onboard.birth_unspecified'),
             ),
           );
       ref.invalidate(birthInformationProvider);

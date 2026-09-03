@@ -42,7 +42,11 @@ class RevealSoundCallbackTracker {
     _once('start', t >= 0.02, callbacks.onRevealStart);
     _once('ambient', t >= 0.12, callbacks.onAmbientDeepen);
     _once('flipStart', t >= RevealTimeline.flipStart, callbacks.onFlipStart);
-    _once('flipMid', t >= RevealTimeline.flipStart + 0.12, callbacks.onFlipMidpoint);
+    _once(
+      'flipMid',
+      t >= RevealTimeline.flipStart + 0.12,
+      callbacks.onFlipMidpoint,
+    );
     _once('flipDone', t >= RevealTimeline.flipEnd, callbacks.onFlipComplete);
     _once('bloom', t >= RevealTimeline.flipEnd + 0.08, callbacks.onBloomPeak);
     _once('meta', t >= RevealTimeline.flipEnd + 0.14, callbacks.onMetaReveal);

@@ -39,31 +39,52 @@ abstract final class RevealTimeline {
     if (t >= flipStart) {
       return (1 - _seg(t, flipStart, flipStart + 0.04)).clamp(0.0, 1.0);
     }
-    final pause = TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, 0.02, pauseEnd));
+    final pause = TarotCinematicMotion.curve(
+      Curves.easeOutCubic,
+      _seg(t, 0.02, pauseEnd),
+    );
     final hold = TarotEmotionalRhythm.holdPlateau(t, pauseEnd, flipStart);
-    final focus = TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, pauseEnd, flipStart));
+    final focus = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, pauseEnd, flipStart),
+    );
     return (pause * 0.38 + hold * 0.34 + focus * 0.42).clamp(0.0, 1.0);
   }
 
   /// Ambient motion dampening — quieter as revelation approaches.
-  static double ambientCalm(double t) =>
-      TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, 0.04, flipStart));
+  static double ambientCalm(double t) => TarotCinematicMotion.curve(
+    Curves.easeInOutCubic,
+    _seg(t, 0.04, flipStart),
+  );
 
   /// Background deepens softly as the card turns — never flashes.
   static double ambientDeepen(double t) {
-    final hold = TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, pauseEnd, flipStart));
-    final turn =
-        TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, flipStart, flipEnd + 0.06));
+    final hold = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, pauseEnd, flipStart),
+    );
+    final turn = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, flipStart, flipEnd + 0.06),
+    );
     return (hold * 0.40 + turn * 0.55).clamp(0.0, 1.0);
   }
 
   /// Soft chamber light — focus before flip, warm after reveal, then settle.
   static double atmosphericLight(double t) {
-    final focus = TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, pauseEnd, flipStart));
+    final focus = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, pauseEnd, flipStart),
+    );
     final edge = sin(flipRotation(t)).abs();
-    final reveal =
-        TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd, flipEnd + 0.16));
-    final settle = TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, revealEnd, 0.94));
+    final reveal = TarotCinematicMotion.curve(
+      Curves.easeOutCubic,
+      _seg(t, flipEnd, flipEnd + 0.16),
+    );
+    final settle = TarotCinematicMotion.curve(
+      Curves.easeOutCubic,
+      _seg(t, revealEnd, 0.94),
+    );
     final pool = focus * 0.62 + reveal * 0.55;
     return (pool * (1 - edge * 0.28) * (1 - settle * 0.38)).clamp(0.0, 1.0);
   }
@@ -74,29 +95,48 @@ abstract final class RevealTimeline {
     if (t < flipStart) {
       return lerpDouble(0.85, 0.28, calm)!;
     }
-    final settle =
-        TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipStart, revealEnd));
+    final settle = TarotCinematicMotion.curve(
+      Curves.easeOutCubic,
+      _seg(t, flipStart, revealEnd),
+    );
     return lerpDouble(0.28, 0.48, settle)!;
   }
 
   /// Hero-orb focus — tightens light on the card during the focus beat.
   static double orbFocus(double t) {
     final hold = anticipationStillness(t);
-    final pre = TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, pauseEnd, flipStart));
-    final after = 1 - TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd, revealEnd));
+    final pre = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, pauseEnd, flipStart),
+    );
+    final after =
+        1 -
+        TarotCinematicMotion.curve(
+          Curves.easeOutCubic,
+          _seg(t, flipEnd, revealEnd),
+        );
     return (hold * 0.72 + pre * 0.28 + after * 0.08).clamp(0.0, 1.0);
   }
 
   /// Competing chrome fades before the card commands attention.
   static double competingFade(double t) =>
-      1 - TarotCinematicMotion.curve(Curves.easeInCubic, _seg(t, 0.04, flipStart));
+      1 -
+      TarotCinematicMotion.curve(Curves.easeInCubic, _seg(t, 0.04, flipStart));
 
   static double cameraZoom(double t) {
-    final pause = TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, 0.0, pauseEnd));
-    final focus = TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, pauseEnd, flipStart));
+    final pause = TarotCinematicMotion.curve(
+      Curves.easeOutCubic,
+      _seg(t, 0.0, pauseEnd),
+    );
+    final focus = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, pauseEnd, flipStart),
+    );
     final turn = _seg(t, flipStart, flipEnd);
-    final settle =
-        TarotCinematicMotion.curve(TarotCinematicMotion.settle, _seg(t, flipEnd + 0.04, 0.90));
+    final settle = TarotCinematicMotion.curve(
+      TarotCinematicMotion.settle,
+      _seg(t, flipEnd + 0.04, 0.90),
+    );
     if (t < pauseEnd) return lerpDouble(1.0, 1.012, pause)!;
     if (t < flipStart) return lerpDouble(1.012, 1.022, focus)!;
     if (t < flipEnd) return lerpDouble(1.022, 1.026, turn)!;
@@ -113,17 +153,24 @@ abstract final class RevealTimeline {
 
   /// Resting pile fades as the chosen card rises.
   static double originDeckOpacity(double t) =>
-      (1 - TarotCinematicMotion.curve(Curves.easeInCubic, _seg(t, 0.18, 0.55))).clamp(0.0, 1.0);
+      (1 - TarotCinematicMotion.curve(Curves.easeInCubic, _seg(t, 0.18, 0.55)))
+          .clamp(0.0, 1.0);
 
   static double floatIdle(double t) => 0;
 
   static double tilt3D(double t) {
-    final p = TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, flipStart - 0.06, flipStart + 0.20));
+    final p = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, flipStart - 0.06, flipStart + 0.20),
+    );
     return sin(p * pi) * 0.07;
   }
 
   static double perspectiveTiltY(double t) {
-    final p = TarotCinematicMotion.curve(Curves.easeInOut, _seg(t, flipStart - 0.03, flipStart + 0.24));
+    final p = TarotCinematicMotion.curve(
+      Curves.easeInOut,
+      _seg(t, flipStart - 0.03, flipStart + 0.24),
+    );
     return sin(p * pi) * 0.035;
   }
 
@@ -162,7 +209,10 @@ abstract final class RevealTimeline {
   static double flipBurst(double t) => 0;
 
   static double borderEnergy(double t) =>
-      TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd + 0.02, flipEnd + 0.20)) *
+      TarotCinematicMotion.curve(
+        Curves.easeOutCubic,
+        _seg(t, flipEnd + 0.02, flipEnd + 0.20),
+      ) *
       0.72;
 
   static double landScale(double t) {
@@ -171,31 +221,43 @@ abstract final class RevealTimeline {
       TarotCinematicMotion.settle,
       _seg(t, flipEnd, flipEnd + 0.08),
     );
-    final settle = TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd + 0.08, revealEnd));
-    return lerpDouble(1.008, 1.0, land)! * lerpDouble(1.0, 0.998, settle * 0.28)!;
+    final settle = TarotCinematicMotion.curve(
+      Curves.easeOutCubic,
+      _seg(t, flipEnd + 0.08, revealEnd),
+    );
+    return lerpDouble(1.008, 1.0, land)! *
+        lerpDouble(1.0, 0.998, settle * 0.28)!;
   }
 
   /// Gold frame emerges as the card completes its turn.
-  static double frontGoldOpacity(double t) =>
-      TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd - 0.02, flipEnd + 0.08));
+  static double frontGoldOpacity(double t) => TarotCinematicMotion.curve(
+    Curves.easeOutCubic,
+    _seg(t, flipEnd - 0.02, flipEnd + 0.08),
+  );
 
   /// Illustration follows the gold — the memorable beat.
   static double frontArtOpacity(double t) {
-    final base =
-        TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd + 0.02, flipEnd + 0.18));
+    final base = TarotCinematicMotion.curve(
+      Curves.easeOutCubic,
+      _seg(t, flipEnd + 0.02, flipEnd + 0.18),
+    );
     return base.clamp(0.0, 1.0);
   }
 
   /// Legacy bloom alias — maps to art emergence.
   static double frontBloom(double t) => frontArtOpacity(t);
 
-  static double shadowDepth(double t) =>
-      TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, pauseEnd, flipEnd));
+  static double shadowDepth(double t) => TarotCinematicMotion.curve(
+    Curves.easeOutCubic,
+    _seg(t, pauseEnd, flipEnd),
+  );
 
   static double fogRichness(double t) {
     final calm = ambientCalm(t);
-    final build =
-        TarotCinematicMotion.curve(Curves.easeInOutCubic, _seg(t, 0.02, pauseEnd));
+    final build = TarotCinematicMotion.curve(
+      Curves.easeInOutCubic,
+      _seg(t, 0.02, pauseEnd),
+    );
     final deepen = ambientDeepen(t) * 0.28;
     return (build * lerpDouble(0.42, 0.20, calm)! + deepen).clamp(0.0, 1.0);
   }
@@ -210,14 +272,20 @@ abstract final class RevealTimeline {
   }
 
   /// Title settles first — then continue appears.
-  static double nameOpacity(double t) =>
-      TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd + 0.12, revealEnd));
+  static double nameOpacity(double t) => TarotCinematicMotion.curve(
+    Curves.easeOutCubic,
+    _seg(t, flipEnd + 0.12, revealEnd),
+  );
 
-  static double badgeOpacity(double t) =>
-      TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd + 0.20, revealEnd + 0.06));
+  static double badgeOpacity(double t) => TarotCinematicMotion.curve(
+    Curves.easeOutCubic,
+    _seg(t, flipEnd + 0.20, revealEnd + 0.06),
+  );
 
-  static double subtitleOpacity(double t) =>
-      TarotCinematicMotion.curve(Curves.easeOutCubic, _seg(t, flipEnd + 0.16, revealEnd + 0.04));
+  static double subtitleOpacity(double t) => TarotCinematicMotion.curve(
+    Curves.easeOutCubic,
+    _seg(t, flipEnd + 0.16, revealEnd + 0.04),
+  );
 
   /// Continue after name and orientation have landed.
   static double buttonOpacity(double t) =>

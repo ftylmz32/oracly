@@ -12,6 +12,7 @@ import '../models/auth_session.dart';
 import '../session_manager.dart';
 import '../token_manager.dart';
 import '../user_local_data_isolation.dart';
+import 'firebase_account_deletion.dart';
 import 'firebase_auth_errors.dart';
 import 'firebase_auth_gateway.dart';
 import 'firebase_auth_user.dart';
@@ -101,6 +102,15 @@ class FirebaseAuthService implements AuthService {
     await _sessions?.clearSession();
     await _tokens?.clearTokens();
     return const ApiSuccess(true);
+  }
+
+  @override
+  Future<ApiResult<bool>> deleteAccount() {
+    return FirebaseAccountDeletion.run(
+      gateway: _gateway,
+      sessions: _sessions,
+      tokens: _tokens,
+    );
   }
 
   Future<ApiResult<AuthSession>> _sign(

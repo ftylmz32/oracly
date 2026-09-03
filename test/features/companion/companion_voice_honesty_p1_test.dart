@@ -72,7 +72,7 @@ void main() {
 
     controller.text = 'Merhaba OR';
     await tester.pump();
-    await tester.tap(find.byIcon(Icons.north_east_rounded));
+    await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
     await tester.pump();
     expect(sent, isTrue);
   });
@@ -135,3 +135,4 @@ void main() {
     }
   });
 }
+

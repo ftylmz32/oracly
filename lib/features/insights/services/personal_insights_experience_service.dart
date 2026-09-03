@@ -13,8 +13,8 @@ class PersonalInsightsExperienceService {
   PersonalInsightsExperienceService({
     required ReflectionEngineService reflectionEngine,
     required PersonalInsightsPreferencesRepository preferences,
-  })  : _reflectionEngine = reflectionEngine,
-        _preferences = preferences;
+  }) : _reflectionEngine = reflectionEngine,
+       _preferences = preferences;
 
   final ReflectionEngineService _reflectionEngine;
   final PersonalInsightsPreferencesRepository _preferences;
@@ -23,7 +23,10 @@ class PersonalInsightsExperienceService {
     final prefs = await _preferences.load();
     final input = await _reflectionEngine.buildInput(asOf: asOf);
     final reflection = _reflectionEngine.analyzeInput(input);
-    final tarotReport = PersonalInsightEngine.analyze(input.readings);
+    final tarotReport = PersonalInsightEngine.analyze(
+      input.readings,
+      asOf: input.asOf,
+    );
 
     return PersonalInsightsMapper.compose(
       reflection: reflection,

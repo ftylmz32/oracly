@@ -155,6 +155,11 @@ class _RecordingAuth implements AuthService {
   }
 
   @override
+  Future<ApiResult<bool>> deleteAccount() async {
+    throw UnsupportedError('delete is not part of this Profile test');
+  }
+
+  @override
   Future<ApiResult<AuthSession>> signInAnonymously() => _unused();
 
   @override

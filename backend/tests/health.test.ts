@@ -18,7 +18,15 @@ describe('health', () => {
     const readyApp = await testApp(testConfig());
     const ready = await readyApp.inject({ method: 'GET', url: '/ready' });
     expect(ready.statusCode).toBe(200);
-    expect(ready.json()).toEqual({ status: 'ready' });
+    expect(ready.json().status).toBe('ready');
+    expect(ready.json().capabilities).toMatchObject({
+      alive: true,
+      authenticationConfigured: true,
+      textProviderConfigured: true,
+      visionConfigured: true,
+      imageGenerationConfigured: true,
+    });
+    expect(JSON.stringify(ready.json()).toLowerCase()).not.toContain('sk-');
     expect(JSON.stringify(ready.json())).not.toContain('openai');
     await readyApp.close();
 
@@ -27,7 +35,8 @@ describe('health', () => {
     );
     const res = await notReady.inject({ method: 'GET', url: '/ready' });
     expect(res.statusCode).toBe(503);
-    expect(res.json()).toEqual({ status: 'not_ready' });
+    expect(res.json().status).toBe('not_ready');
+    expect(res.json().capabilities.textProviderConfigured).toBe(false);
     expect(JSON.stringify(res.json())).not.toContain('JWT');
     await notReady.close();
 
@@ -45,7 +54,8 @@ describe('health', () => {
     );
     const ok = await firebaseReady.inject({ method: 'GET', url: '/ready' });
     expect(ok.statusCode).toBe(200);
-    expect(ok.json()).toEqual({ status: 'ready' });
+    expect(ok.json().status).toBe('ready');
+    expect(ok.json().capabilities.authenticationConfigured).toBe(true);
     expect(JSON.stringify(ok.json()).toLowerCase()).not.toContain('sk-');
     await firebaseReady.close();
   });

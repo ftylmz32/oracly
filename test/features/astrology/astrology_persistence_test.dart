@@ -66,7 +66,8 @@ void main() {
   });
 
   test('kind note distinguishes burç from natal chart', () {
-    expect(AstrologyReferenceKindNote.label, 'Önizleme');
+    expect(AstrologyReferenceKindNote.label, isNot('Önizleme'));
+    expect(AstrologyReferenceKindNote.label.toLowerCase(), isNot(contains('önizleme')));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), contains('yansıma'));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), isNot(contains('doğum haritası')));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), isNot(contains('natal')));

@@ -10,10 +10,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../features/ai/oracle_conversation/models/oracle_reading_context_sources.dart';
 import '../../../../features/ai/oracle_conversation/widgets/or_ask_button.dart';
 import '../../../../shared/widgets/oracly_button.dart';
-import '../../../favorite_moments/presentation/widgets/save_favorite_moment_link.dart';
-import '../../../favorite_moments/services/favorite_moment_factory.dart';
-import '../../../reading_feedback/models/reading_feedback_category.dart';
-import '../../../reading_feedback/presentation/widgets/reading_quality_actions.dart';
 import '../../copy/dream_copy.dart';
 import '../../models/dream.dart';
 import '../../models/dream_insight.dart';
@@ -68,20 +64,6 @@ class DreamReferenceResultActions extends ConsumerWidget {
           sessionThemes: themes,
           orAlreadyOffered: current != null && analysis.trim().isNotEmpty,
         ),
-        if (current != null && analysis.trim().isNotEmpty)
-          SaveFavoriteMomentLink(
-            draft: FavoriteMomentFactory.dream(
-              id: current.id,
-              at: current.recordedAt,
-              narrative: current.narrative,
-              analysis: analysis,
-            ),
-          ),
-        if (current != null && analysis.trim().isNotEmpty)
-          ReadingQualityActions(
-            feature: QualityFeature.dream,
-            retry: onReinterpret,
-          ),
         OraclyButton(
           text: DreamCopy.saveAndClose,
           isExpanded: true,

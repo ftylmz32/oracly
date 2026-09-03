@@ -266,7 +266,7 @@ void main() {
       await restored.restoreActiveSession();
       expect(restored.session!.drawnCards, hasLength(1));
       expect(restored.session!.flowStep, ReadingFlowStep.reveal);
-      expect(restored.session!.drawnCards.first.card.id, isNonZero);
+      expect(restored.session!.drawnCards.first.card.name, isNotEmpty);
       restored.dispose();
     });
   });

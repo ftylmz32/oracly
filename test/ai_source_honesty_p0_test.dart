@@ -101,7 +101,7 @@ void main() {
   });
 
   test('astrology catalogue is burç yorumu, not AI or live sky math', () {
-    expect(AstrologyReferenceKindNote.label, 'Önizleme');
+    expect(AstrologyReferenceKindNote.label.toLowerCase(), isNot(contains('önizleme')));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), contains('güneş'));
     expect(AstrologyReferenceKindNote.detail, contains('yansıma'));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), isNot(contains('hesaplanmaz')));

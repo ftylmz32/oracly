@@ -4,9 +4,11 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../core/accessibility/oracly_a11y.dart';
+import '../../../core/copy/preview_capability_copy.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/modules/oracly_feature_id.dart';
 import '../../../core/modules/oracly_feature_navigation.dart';
+import '../../../core/modules/oracly_feature_registry.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../core/theme/reading_typography.dart';
@@ -40,6 +42,8 @@ class HomeReferenceModuleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = HomeDiscoveryCopy.title(spec.id);
     final icon = HomeDiscoveryModuleArt.iconFor(spec.visual);
+    final showPreview =
+        OraclyFeatureRegistry.byId(spec.id)?.isPreview ?? false;
 
     return Semantics(
       button: true,
@@ -74,7 +78,15 @@ class HomeReferenceModuleTile extends StatelessWidget {
               left: 7,
               child: HomeDiscoveryIdentityIcon(icon: icon),
             ),
-            if (spec.isNew)
+            if (showPreview)
+              Positioned(
+                top: 7,
+                right: 7,
+                child: HomeDiscoveryNewBadge(
+                  label: PreviewCapabilityCopy.badge,
+                ),
+              )
+            else if (spec.isNew)
               Positioned(
                 top: 7,
                 right: 7,

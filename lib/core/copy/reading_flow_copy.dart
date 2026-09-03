@@ -15,6 +15,9 @@ abstract final class ReadingFlowCopy {
 
   static String get revealSessionMissing => _t('reading.flow.reveal_missing');
 
-  static String get readingSessionMissing =>
-      _t('reading.flow.reading_missing');
+  static String get readingSessionMissing => _t('reading.flow.reading_missing');
+
+  /// Post-reveal Continue failed — cards unchanged; retry the same stage.
+  static String get revealAdvanceFailed =>
+      _t('reading.flow.reveal_advance_failed');
 }

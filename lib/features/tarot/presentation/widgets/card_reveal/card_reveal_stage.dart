@@ -18,12 +18,16 @@ class CardRevealStage extends StatelessWidget {
     required this.data,
     required this.onContinue,
     this.completionHint,
+    this.continueBusy = false,
+    this.continueError,
   });
 
   final double progress;
   final RevealCardData data;
   final VoidCallback onContinue;
   final String? completionHint;
+  final bool continueBusy;
+  final String? continueError;
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +36,14 @@ class CardRevealStage extends StatelessWidget {
     final deepen = RevealTimeline.ambientDeepen(t);
     final light = RevealTimeline.atmosphericLight(t);
     final focus = RevealTimeline.orbFocus(t);
-    final inherited = (stillness +
-            0.14 *
-                (1 - (t.clamp(0.0, RevealTimeline.pauseEnd) /
-                        RevealTimeline.pauseEnd)
-                    .clamp(0.0, 1.0)))
-        .clamp(0.0, 1.0);
+    final inherited =
+        (stillness +
+                0.14 *
+                    (1 -
+                        (t.clamp(0.0, RevealTimeline.pauseEnd) /
+                                RevealTimeline.pauseEnd)
+                            .clamp(0.0, 1.0)))
+            .clamp(0.0, 1.0);
     final bottomReserve = AppLayout.scrollBottomInset(context);
 
     return Stack(
@@ -102,6 +108,8 @@ class CardRevealStage extends StatelessWidget {
                 buttonSlide: RevealTimeline.buttonSlide(t),
                 onContinue: onContinue,
                 completionHint: completionHint,
+                continueBusy: continueBusy,
+                continueError: continueError,
               ),
             ),
           ),

@@ -1,4 +1,4 @@
-/// Voice interruption — no stuck listen/playback, no repeated replies.
+﻿/// Voice interruption — no stuck listen/playback, no repeated replies.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -199,3 +199,4 @@ void main() {
     expect(turn.phase, OrVoiceTurnPhase.ready);
   });
 }
+

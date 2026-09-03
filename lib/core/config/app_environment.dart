@@ -12,7 +12,7 @@ enum AppEnvironment {
 
   static AppEnvironment fromString(String? value) {
     return switch (value?.toLowerCase().trim()) {
-      'staging' || 'stage' => AppEnvironment.staging,
+      'internal' || 'staging' || 'stage' => AppEnvironment.staging,
       'production' || 'prod' => AppEnvironment.production,
       _ => AppEnvironment.development,
     };

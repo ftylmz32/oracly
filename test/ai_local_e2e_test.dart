@@ -50,8 +50,12 @@ void main() {
     );
     final result = await OpenAiOraclyAiService(
       config: config,
-      transport: ProxyAiTransport(config: config,
-      appCheckToken: testAppCheckToken, client: probe),
+      transport: ProxyAiTransport(
+        config: config,
+        appCheckToken: testAppCheckToken,
+        accessToken: testAccessToken,
+        client: probe,
+      ),
     ).chat(userMessage: 'Merhaba, bugun sakin bir nefes almak istiyorum.');
     assertProxyOnly(probe, forbidden: 'sk-SHOULD-NOT-BE-SENT');
     expect(jsonDecode(probe.lastBody!)['operation'], 'chat');

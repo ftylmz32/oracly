@@ -27,6 +27,9 @@ dependencies:
   # Oracly hafıza sistemi için
   shared_preferences: ^2.5.3
 
+  # Keystore / Keychain-backed credential storage
+  flutter_secure_storage: ^9.2.4
+
   # State management — OR-1100
   flutter_riverpod: ^2.6.1
 
@@ -68,9 +71,16 @@ flutter:
   assets:
     - .env.example
     - assets/splash/
-    - lib/assets/images/
+    # Directory include omitted — would ship unused tarot PNG masters (~167MB).
+    - lib/assets/images/coffee_ritual_hero.webp
+    - lib/assets/images/dream/dream_entry_hero.webp
+    - lib/assets/images/daily_moon_photoreal.webp
+    - lib/assets/images/or_presence_orb.webp
+    - lib/assets/images/palm_ritual_hero.webp
+    - lib/assets/images/tarot_hero.webp
     - lib/assets/brand/
     - lib/assets/images/home/
+    - lib/assets/images/companion/
     - lib/assets/images/astrology/
     - lib/assets/images/astrology/zodiac/
     - lib/assets/images/yildizname/

@@ -49,4 +49,14 @@ abstract final class PrivacyControlCopy {
   static String get successHistory => _t('privacy.control.success.history');
   static String get successFavorites => _t('privacy.control.success.favorites');
   static String get successMemory => _t('privacy.control.success.memory');
+
+  static String get deleteAccount => _t('privacy.control.delete.account');
+  static String get deleteAccountSub => _t('privacy.control.delete.account.sub');
+  static String get confirmDeleteTitle =>
+      _t('privacy.control.delete.confirm.title');
+  static String get confirmDeleteBody =>
+      _t('privacy.control.delete.confirm.body');
+  static String get confirmDeleteAction =>
+      _t('privacy.control.delete.confirm.action');
+  static String get successDelete => _t('privacy.control.delete.success');
 }

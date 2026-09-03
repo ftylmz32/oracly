@@ -3,24 +3,38 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 /// Supported spread types for the ritual flow.
 enum TarotSpreadType {
-  single('Tek Kart', 1),
-  threeCard('Üç Kart', 3),
-  fiveCard('Derin Açılım', 5),
-  sevenCard('Yedi Kart', 7),
-  celticCross('Kelt Haçı', 10);
+  single(1),
+  threeCard(3),
+  fiveCard(5),
+  sevenCard(7),
+  celticCross(10);
 
-  const TarotSpreadType(this.label, this.cardCount);
+  const TarotSpreadType(this.cardCount);
 
-  final String label;
   final int cardCount;
 
+  /// Locale-aware display title (also used when persisting spreadType).
+  String get label => OraclyL10n.t('tarot.spread.$name');
+
   static TarotSpreadType? fromTitle(String title) {
+    final raw = title.trim();
+    if (raw.isEmpty) return null;
     for (final spread in values) {
-      if (spread.label == title) return spread;
+      if (spread.name == raw) return spread;
+      if (OraclyL10n.t('tarot.spread.${spread.name}', languageCode: 'tr') ==
+              raw ||
+          OraclyL10n.t('tarot.spread.${spread.name}', languageCode: 'en') ==
+              raw ||
+          OraclyL10n.t('tarot.spread.${spread.name}', languageCode: 'ru') ==
+              raw) {
+        return spread;
+      }
     }
-    return switch (title.toLowerCase()) {
+    return switch (raw.toLowerCase()) {
       'tek kart' || 'one card' || 'одна карта' => TarotSpreadType.single,
       'üç kart' ||
       'üç kart açılımı' ||

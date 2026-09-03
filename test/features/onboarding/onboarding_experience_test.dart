@@ -19,7 +19,12 @@ import '../../test_helpers/provider_scope_harness.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() => OraclyL10n.bind('tr'));
+  setUp(() {
+    OraclyL10n.bind('tr');
+    AppLocale.debugDeviceLocale = () => const Locale('tr');
+  });
+
+  tearDown(() => AppLocale.debugDeviceLocale = null);
 
   test('intro names ORACLY, one line, six windows', () {
     expect(OnboardingCopy.title, 'ORACLY');
@@ -110,7 +115,7 @@ void main() {
           body: OnboardingSetupForm(
             language: 'tr',
             style: AiPersonality.mystical,
-            onSkip: () {},
+            onSkip: ({required language, required style}) {},
             onContinue: ({
               required name,
               birthDate,

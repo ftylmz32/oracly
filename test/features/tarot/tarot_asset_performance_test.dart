@@ -87,6 +87,8 @@ void main() {
 
   test('pubspec bundles tarot webp only', () {
     final yaml = File('pubspec.yaml').readAsStringSync();
+    expect(yaml.contains('- lib/assets/images/\n'), isFalse,
+        reason: 'directory include ships unused tarot PNG masters');
     final listed = RegExp(
       r'^\s+- lib/assets/images/tarot/.+$',
       multiLine: true,

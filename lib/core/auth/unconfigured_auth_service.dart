@@ -58,6 +58,11 @@ class UnconfiguredAuthService implements AuthService {
     return const ApiSuccess(true);
   }
 
+  @override
+  Future<ApiResult<bool>> deleteAccount() async => ApiFailure(
+        NetworkException.unauthorized(AuthCopy.notConfigured),
+      );
+
   ApiFailure<AuthSession> _fail() => ApiFailure(
         NetworkException.unauthorized(AuthCopy.notConfigured),
       );

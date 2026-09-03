@@ -70,15 +70,23 @@ abstract final class AppLayout {
 
   /// Fixed clearance for the floating shell bar (no keyboard branch).
   /// Use for [OraclyBottomBar.totalHeight] and layout math that must stay stable.
+  ///
+  /// Under [Scaffold.extendBody] + bottomNavigationBar, Flutter already injects
+  /// the bar height into [MediaQuery.padding].bottom for body descendants.
+  /// Do not add nav chrome again on top of that inflated padding.
   static double floatingNavClearance(BuildContext context) {
-    final safe = MediaQuery.paddingOf(context).bottom;
-    return navBarHeight + navBarMarginBottom + safe + contentBottomBreath;
+    final paddingBottom = MediaQuery.paddingOf(context).bottom;
+    const barChrome = navBarHeight + navBarMarginBottom;
+    final cleared = paddingBottom >= barChrome
+        ? paddingBottom
+        : barChrome + paddingBottom;
+    return cleared + contentBottomBreath;
   }
 
   /// ONE clearance for content under the shell floating bottom bar.
   ///
   /// Includes: nav bar height + bar margin + system home-indicator padding +
-  /// [contentBottomBreath].
+  /// [contentBottomBreath] — without double-counting under extendBody.
   ///
   /// Keyboard: when [MediaQuery] viewInsets are non-zero and the ambient
   /// [Scaffold] already resizes (`resizeToAvoidBottomInset: true`, the

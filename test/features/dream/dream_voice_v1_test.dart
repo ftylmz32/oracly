@@ -48,7 +48,7 @@ void main() {
     expect(DreamCopy.voiceStop, 'Durdur');
     expect(DreamCopy.voiceReviewTitle, 'Rüyanı kontrol et');
     expect(DreamCopy.voiceListenAgain, 'Tekrar Dinle');
-    expect(DreamCopy.beginAnalysis, 'Rüyayı aç');
+    expect(DreamCopy.beginAnalysis, 'RÜYAMI YORUMLA');
   });
 
   test('permission denied stays on error without fake text', () async {
@@ -172,7 +172,7 @@ class _LiveFake implements DreamVoiceInputPort {
     startCount += 1;
     _onResult = onResult;
     _onEnded = onListeningEnded;
-    onResult('kısmi', false);
+    if (finalWords.isNotEmpty) onResult('kısmi', false);
   }
 
   @override

@@ -26,7 +26,8 @@ class SettingsOrVoiceSection extends StatefulWidget {
   final PersonalizationSettings settings;
   final Future<void> Function(
     PersonalizationSettings Function(PersonalizationSettings),
-  ) onSave;
+  )
+  onSave;
 
   @override
   State<SettingsOrVoiceSection> createState() => _SettingsOrVoiceSectionState();

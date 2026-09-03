@@ -9,7 +9,7 @@ ReadingModel _reading({
   required String summary,
   required String card,
   List<String> tags = const [],
-  DateTime? createdAt,
+  required DateTime createdAt,
 }) {
   return ReadingModel(
     id: id,
@@ -18,8 +18,21 @@ ReadingModel _reading({
     cardImageAsset: 'asset.png',
     spreadType: 'Tek Kart',
     aiSummary: summary,
-    createdAt: createdAt ?? DateTime.now(),
+    createdAt: createdAt,
     journal: RitualJournalMetadata(tags: tags),
+  );
+}
+
+List<ReadingModel> _monthReadings(DateTime asOf, {required int count}) {
+  return List.generate(
+    count,
+    (i) => _reading(
+      id: '$i',
+      summary: 'Dönüşüm ve sabır bir arada.',
+      card: 'Death',
+      tags: ['insight:change', 'insight:patience'],
+      createdAt: DateTime(asOf.year, asOf.month, 1 + (i % 20), 12),
+    ),
   );
 }
 
@@ -34,51 +47,72 @@ void main() {
   });
 
   test('analyze finds recurring themes after enough readings', () {
+    final asOf = DateTime(2026, 8, 15);
     final readings = [
       _reading(
         id: '1',
         summary: 'Aşk yolculuğunda sabır.',
         card: 'The Lovers',
         tags: ['insight:love', 'insight:patience'],
+        createdAt: asOf.subtract(const Duration(days: 2)),
       ),
       _reading(
         id: '2',
         summary: 'İlişkilerde değişim.',
         card: 'Death',
         tags: ['insight:love', 'insight:change'],
+        createdAt: asOf.subtract(const Duration(days: 1)),
       ),
       _reading(
         id: '3',
         summary: 'Sabırla bekle.',
         card: 'Temperance',
         tags: ['insight:patience'],
+        createdAt: asOf,
       ),
     ];
 
-    final report = PersonalInsightEngine.analyze(readings);
+    final report = PersonalInsightEngine.analyze(readings, asOf: asOf);
     expect(report.hasThemePattern, isTrue);
-    expect(
-      report.recurringThemes.map((e) => e.theme.id),
-      contains('love'),
-    );
+    expect(report.recurringThemes.map((e) => e.theme.id), contains('love'));
   });
 
   test('monthly reflection uses uncertain observational language', () {
-    final now = DateTime.now();
-    final readings = List.generate(
-      4,
-      (i) => _reading(
-        id: '$i',
-        summary: 'Dönüşüm ve sabır bir arada.',
-        card: 'Death',
-        tags: ['insight:change', 'insight:patience'],
-        createdAt: now.subtract(Duration(days: i)),
-      ),
-    );
+    final asOf = DateTime(2026, 8, 20, 12);
+    final readings = _monthReadings(asOf, count: 4);
 
-    final report = PersonalInsightEngine.analyze(readings);
+    final report = PersonalInsightEngine.analyze(readings, asOf: asOf);
     expect(report.hasMonthlyReflection, isTrue);
     expect(report.monthlyReflection!.observation, contains('olabilir'));
     expect(report.monthlyReflection!.observation, isNot(contains('olacak')));
+  });
+
+  test('insufficient history in month yields no monthly reflection', () {
+    final asOf = DateTime(2026, 8, 20, 12);
+    final readings = _monthReadings(asOf, count: 3);
+
+    final report = PersonalInsightEngine.analyze(readings, asOf: asOf);
+    expect(report.hasThemePattern, isTrue);
+    expect(report.hasMonthlyReflection, isFalse);
+  });
+
+  test('month transition excludes prior-month readings', () {
+    final asOf = DateTime(2026, 9, 2, 12);
+    final readings = [
+      ..._monthReadings(DateTime(2026, 8, 28), count: 4),
+      ..._monthReadings(asOf, count: 2),
+    ];
+
+    final report = PersonalInsightEngine.analyze(readings, asOf: asOf);
+    expect(report.hasMonthlyReflection, isFalse);
+  });
+
+  test('asOf pins month window independent of wall clock', () {
+    final asOf = DateTime(2025, 1, 31, 23, 30);
+    final readings = _monthReadings(asOf, count: 4);
+
+    final report = PersonalInsightEngine.analyze(readings, asOf: asOf);
+    expect(report.hasMonthlyReflection, isTrue);
+    expect(report.monthlyReflection!.readingCount, 4);
   });
 }

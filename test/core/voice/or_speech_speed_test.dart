@@ -7,7 +7,6 @@ import 'package:oracly_new/core/data/repositories/local_settings_repository.dart
 import 'package:oracly_new/core/voice/or_speech_speed.dart';
 import 'package:oracly_new/features/ai/production/openai/openai_tts_request.dart';
 import 'package:oracly_new/features/ai/production/openai/openai_tts_voices.dart';
-import 'package:oracly_new/features/premium/models/personalization_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

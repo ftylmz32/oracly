@@ -70,19 +70,20 @@ class _RevealBackgroundState extends State<RevealBackground>
               right: -60 + cos(phase * pi * 2 * 0.4) * 8 * driftScale,
               child: IgnorePointer(
                 child: OraclySoftGlow(
-                width: 240 + breath * 12,
-                height: 240 + breath * 12,
-                sigma: 72,
-                color: AppColors.purpleDark.withValues(
-                  alpha: 0.16 * widget.darken * driftScale,
+                  width: 240 + breath * 12,
+                  height: 240 + breath * 12,
+                  sigma: 72,
+                  color: AppColors.purpleDark.withValues(
+                    alpha: 0.16 * widget.darken * driftScale,
+                  ),
                 ),
-              ),
               ),
             ),
             Positioned.fill(
               child: ColoredBox(
                 color: Colors.black.withValues(
-                  alpha: 0.38 * widget.darken +
+                  alpha:
+                      0.38 * widget.darken +
                       widget.stillness * 0.14 +
                       widget.ambientDeepen * 0.08,
                 ),
@@ -126,10 +127,7 @@ class _RevealBackgroundState extends State<RevealBackground>
 }
 
 class _RevealDriftMotes extends CustomPainter {
-  const _RevealDriftMotes({
-    required this.phase,
-    required this.intensity,
-  });
+  const _RevealDriftMotes({required this.phase, required this.intensity});
 
   final double phase;
   final double intensity;
@@ -154,8 +152,9 @@ class _RevealDriftMotes extends CustomPainter {
         Offset(size.width * x + drift, size.height * y + lift),
         0.9,
         Paint()
-          ..color = OraclySignaturePalette.champagne
-              .withValues(alpha: 0.14 * intensity * tw),
+          ..color = OraclySignaturePalette.champagne.withValues(
+            alpha: 0.14 * intensity * tw,
+          ),
       );
     }
   }

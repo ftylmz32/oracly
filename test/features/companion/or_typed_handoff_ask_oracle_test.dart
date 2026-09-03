@@ -26,6 +26,7 @@ import 'package:oracly_new/features/ai/production/models/palm_ai_analysis.dart';
 import 'package:oracly_new/features/ai/production/oracly_ai_service.dart';
 import 'package:oracly_new/features/companion/controllers/companion_controller.dart';
 import 'package:oracly_new/features/companion/controllers/companion_output_controller.dart';
+import 'package:oracly_new/features/companion/models/companion_send_result.dart';
 import 'package:oracly_new/features/companion/models/companion_state.dart';
 import 'package:oracly_new/features/companion/models/conversation.dart';
 import 'package:oracly_new/features/companion/models/insight_request.dart';
@@ -34,6 +35,7 @@ import 'package:oracly_new/features/companion/models/reflection_context.dart';
 import 'package:oracly_new/features/companion/services/companion_ai_bridge.dart';
 import 'package:oracly_new/features/companion/services/companion_experience_service.dart';
 import 'package:oracly_new/features/companion/services/companion_responder.dart';
+import 'package:oracly_new/features/companion/models/companion_response.dart';
 import 'package:oracly_new/features/companion/services/or_chat_handoff.dart';
 import 'package:oracly_new/features/palm/models/palm_hand.dart';
 import 'package:oracly_new/features/palm/models/palm_reading.dart';
@@ -118,9 +120,7 @@ void main() {
 
   test('no-context still uses chat', () async {
     final ai = _TrackingAi();
-    final text = await CompanionAiBridge(ai).tryLive(
-      userMessage: 'Merhaba',
-    );
+    final text = await CompanionAiBridge(ai).tryLive(userMessage: 'Merhaba');
     expect(text, isNotNull);
     expect(ai.chatCalls, 1);
     expect(ai.askOracleCalls, 0);
@@ -226,9 +226,7 @@ class _TrackingAi implements OraclyAiService {
     bool spoken = false,
   }) async {
     chatCalls++;
-    return AiOutcome.success(
-      const ChatAiReply(text: 'Sakin bir yanit.'),
-    );
+    return AiOutcome.success(const ChatAiReply(text: 'Sakin bir yanit.'));
   }
 
   @override
@@ -245,9 +243,7 @@ class _TrackingAi implements OraclyAiService {
   }) async {
     askOracleCalls++;
     lastOracleKind = context.kindId;
-    return AiOutcome.success(
-      const ChatAiReply(text: 'Okuma baglamli yanit.'),
-    );
+    return AiOutcome.success(const ChatAiReply(text: 'Okuma baglamli yanit.'));
   }
 
   @override
@@ -288,8 +284,7 @@ class _DeferredExperience extends CompanionExperienceService {
   }
 
   @override
-  Future<({Conversation conversation, CompanionResponse response, bool fromAi})>
-  send({
+  Future<CompanionSendResult> send({
     required Conversation conversation,
     required ReflectionContext context,
     required InsightRequest request,
@@ -305,7 +300,7 @@ class _DeferredExperience extends CompanionExperienceService {
       content: body,
       createdAt: now,
     );
-    return (
+    return CompanionSendResult(
       conversation: conversation.copyWith(
         messages: [...conversation.messages, assistant],
         updatedAt: now,

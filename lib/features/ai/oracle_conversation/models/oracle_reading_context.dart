@@ -4,6 +4,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/domain/models/reading.dart';
+import '../../../tarot/copy/tarot_l10n.dart';
 import '../../../tarot/domain/models/reading_session.dart';
 import '../../../tarot/history/tarot_history_privacy.dart';
 import '../../../tarot/interpretation/models/interpretation_result.dart';
@@ -107,7 +108,7 @@ class OracleReadingContext {
       deckName: deckName,
       readingTitle: session.drawnCards.length == 1
           ? session.drawnCards.first.localizedName
-          : '${session.spread.label} Açılımı',
+          : TarotL10n.spreadReadingTitle(session.spread),
       cardsSummary: cardsSummary,
       interpretationSummary:
           OracleReadingContextText.shortSummary(result.summary),

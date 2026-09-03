@@ -129,4 +129,13 @@ class _FakeGateway implements FirebaseAuthGateway {
     _user = null;
     _controller.add(null);
   }
+
+  @override
+  Future<void> deleteCurrentUser() async {
+    if (_user == null) {
+      throw AuthGatewayException('no-current-user', code: 'no-current-user');
+    }
+    _user = null;
+    _controller.add(null);
+  }
 }

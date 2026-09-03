@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/design_system/app_spacing.dart';
 import '../../../../core/security/ai_error_sanitizer.dart';
 import '../../../../shared/camera/oracly_capture_kind.dart';
 import '../../../../shared/camera/oracly_capture_preview_actions.dart';
@@ -11,8 +12,9 @@ import '../../../../shared/ui/oracly_permission_dialog.dart';
 import '../../../../shared/widgets/oracly_gold_button.dart';
 import '../../controllers/coffee_reading_controller.dart';
 import '../../copy/coffee_copy.dart';
+import 'coffee_capture_cup_guide.dart';
+import 'coffee_capture_guide_copy.dart';
 import 'coffee_capture_hint.dart';
-import 'coffee_cup_placement_guide.dart';
 import 'coffee_gold_preview.dart';
 import 'coffee_quiet_link.dart';
 import 'coffee_reference_tokens.dart';
@@ -51,60 +53,79 @@ class CoffeeCaptureView extends StatelessWidget {
         : controller.qualityHint;
     final attention = hint != null && controller.errorMessage == null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Padding(
+    if (image != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: CoffeeReferenceTokens.screenHorizontal,
+              ),
+              child: CoffeeGoldPreview(
+                path: image.path,
+                contain: true,
+                framed: true,
+                attention: attention,
+                hero: true,
+              ),
+            ),
+          ),
+          SizedBox(height: CoffeeReferenceTokens.gap),
+          if (hint != null) CoffeeCaptureHint(hint, attention: attention),
+          Padding(
             padding: EdgeInsets.symmetric(
               horizontal: CoffeeReferenceTokens.screenHorizontal,
             ),
-            child: image != null
-                ? CoffeeGoldPreview(
-                    path: image.path,
-                    contain: true,
-                    framed: true,
-                    attention: attention,
-                    hero: true,
-                  )
-                : const CoffeeCupPlacementGuide(),
+            child: OraclyCapturePreviewActions(
+              useLabel: CoffeeCopy.usePhotoLabel,
+              retakeLabel: CoffeeCopy.retakeLabel,
+              onUse: busy ? null : onAnalyze,
+              onRetake: () => _openChamber(context),
+              galleryLabel: CoffeeCopy.galleryLabel,
+              onGallery: controller.pickGallery,
+              hint: CoffeeCopy.previewCtaHint,
+            ),
           ),
-        ),
-        SizedBox(height: CoffeeReferenceTokens.gap),
-        if (hint != null) CoffeeCaptureHint(hint, attention: attention),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: CoffeeReferenceTokens.screenHorizontal,
+        ],
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(
+        horizontal: CoffeeReferenceTokens.screenHorizontal,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const CoffeeCaptureGuideHeader(),
+          const SizedBox(height: AppSpacing.s12),
+          const CoffeeCaptureCupGuide(),
+          const SizedBox(height: AppSpacing.s12),
+          const CoffeeCaptureGuideHelper(),
+          const SizedBox(height: AppSpacing.s8),
+          const CoffeeCaptureGuideTips(),
+          if (hint != null) ...[
+            SizedBox(height: CoffeeReferenceTokens.gap),
+            CoffeeCaptureHint(hint, attention: attention, edgeInset: false),
+          ],
+          const SizedBox(height: AppSpacing.s16),
+          OraclyGoldButton(
+            label: CoffeeCopy.photoCta,
+            icon: Icons.photo_camera_outlined,
+            expanded: true,
+            onPressed: controller.images.cameraAvailable
+                ? () => _openChamber(context)
+                : null,
           ),
-          child: image != null
-              ? OraclyCapturePreviewActions(
-                  useLabel: CoffeeCopy.usePhotoLabel,
-                  retakeLabel: CoffeeCopy.retakeLabel,
-                  onUse: busy ? null : onAnalyze,
-                  onRetake: () => _openChamber(context),
-                  galleryLabel: CoffeeCopy.galleryLabel,
-                  onGallery: controller.pickGallery,
-                  hint: CoffeeCopy.previewCtaHint,
-                )
-              : Column(
-                  children: [
-                    OraclyGoldButton(
-                      label: CoffeeCopy.photoCta,
-                      icon: Icons.photo_camera_outlined,
-                      expanded: true,
-                      onPressed: controller.images.cameraAvailable
-                          ? () => _openChamber(context)
-                          : null,
-                    ),
-                    SizedBox(height: CoffeeReferenceTokens.gap),
-                    CoffeeQuietLink(
-                      label: CoffeeCopy.galleryLabel,
-                      onTap: controller.pickGallery,
-                    ),
-                  ],
-                ),
-        ),
-      ],
+          SizedBox(height: CoffeeReferenceTokens.gap),
+          CoffeeQuietLink(
+            label: CoffeeCopy.galleryLabel,
+            onTap: controller.pickGallery,
+          ),
+          const SizedBox(height: AppSpacing.s8),
+        ],
+      ),
     );
   }
 }

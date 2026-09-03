@@ -2,28 +2,27 @@ import type { AppConfig } from '../config.js';
 import { resolveModel } from '../config.js';
 import { ErrorCode, fail } from '../errors.js';
 import type { OpenAiFetch } from '../types.js';
-import { coffeePayloadFromUnknown } from './image.js';
 import { OpenAiTransport } from './openai-transport.js';
-import { parsePalmData } from './parse-palm.js';
-import {
-  extractChatText,
-  parseCoffeeData,
-  parseDreamData,
-} from './parse-provider.js';
-import { palmMessages } from './palm-prompts.js';
+import { extractChatText, parseDreamData } from './parse-provider.js';
 import {
   chatMessages,
-  coffeeMessages,
   dreamMessages,
   oracleMessages,
 } from './prompts.js';
 import { buildSoulmateImagePrompt } from './soulmate-prompt.js';
 import { requestOpenAiSpeech } from './openai-speech.js';
 import type { ValidatedRequest } from './validate-request.js';
+import { ReadingPipeline } from './reading/pipeline.js';
+
+export type AiHandleContext = {
+  identity: string;
+  parentKey: string;
+};
 
 export class AiProxyService {
   private readonly transport: OpenAiTransport;
   private readonly fetchImpl: OpenAiFetch;
+  private readonly reading: ReadingPipeline;
 
   constructor(
     private readonly config: AppConfig,
@@ -31,11 +30,13 @@ export class AiProxyService {
   ) {
     this.fetchImpl = fetchImpl ?? fetch;
     this.transport = new OpenAiTransport(config, this.fetchImpl);
+    this.reading = new ReadingPipeline(config, this.transport);
   }
 
   async handle(
     request: ValidatedRequest,
     modelHint: unknown,
+    ctx?: AiHandleContext,
   ): Promise<Record<string, unknown>> {
     if (!this.config.openaiApiKey) fail(ErrorCode.noConfiguration);
     const model = resolveModel(this.config, modelHint);
@@ -47,9 +48,9 @@ export class AiProxyService {
       case 'dream_analysis':
         return this.dream(request, model);
       case 'coffee_analysis':
-        return this.coffee(request, model);
+        return this.coffee(request, ctx);
       case 'palm_analysis':
-        return this.palm(request, model);
+        return this.palm(request, ctx);
       case 'soulmate_draw':
         return this.soulmate(request);
       case 'tts':
@@ -119,37 +120,24 @@ export class AiProxyService {
 
   private async coffee(
     request: Extract<ValidatedRequest, { operation: 'coffee_analysis' }>,
-    model: string,
+    ctx?: AiHandleContext,
   ) {
-    if (!this.config.openaiVision) fail(ErrorCode.imageAnalysisUnavailable);
-    const image = coffeePayloadFromUnknown(request.payload, this.config);
-    const raw = await this.transport.complete({
-      model,
-      jsonMode: true,
-      messages: coffeeMessages(image.mimeType, image.bytes.toString('base64'), request.language),
+    return this.reading.coffee(request.payload, {
+      identity: ctx?.identity ?? 'anon',
+      parentKey: ctx?.parentKey ?? `coffee:${Date.now()}`,
+      language: request.language,
     });
-    return parseCoffeeData(raw);
   }
 
   private async palm(
     request: Extract<ValidatedRequest, { operation: 'palm_analysis' }>,
-    model: string,
+    ctx?: AiHandleContext,
   ) {
-    if (!this.config.openaiVision) fail(ErrorCode.imageAnalysisUnavailable);
-    const image = coffeePayloadFromUnknown(request.payload, this.config);
-    const hand =
-      typeof request.payload.hand === 'string' ? request.payload.hand : '';
-    const raw = await this.transport.complete({
-      model,
-      jsonMode: true,
-      messages: palmMessages(
-        image.mimeType,
-        image.bytes.toString('base64'),
-        hand,
-        request.language,
-      ),
+    return this.reading.palm(request.payload, {
+      identity: ctx?.identity ?? 'anon',
+      parentKey: ctx?.parentKey ?? `palm:${Date.now()}`,
+      language: request.language,
     });
-    return parsePalmData(raw);
   }
 
   private async soulmate(
@@ -162,7 +150,8 @@ export class AiProxyService {
       intention: request.intention,
     });
     const image = await this.transport.generateImage(built.prompt, {
-      size: '1024x1536',
+      size: this.config.openaiImageSize,
+      quality: this.config.openaiImageQuality,
     });
     return {
       imageBase64: image.imageBase64,

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/app_radius.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
+import '../../../../features/dream/copy/dream_copy.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
 import 'dream_reference_tokens.dart';
 
@@ -27,7 +28,7 @@ class DreamReferenceActionButtons extends StatelessWidget {
       children: [
         Expanded(
           child: _OutlineAction(
-            label: 'Rüyanı Yaz',
+            label: DreamCopy.writeDream,
             icon: Icons.edit_note_rounded,
             onTap: onWriteTap,
           ),
@@ -35,7 +36,7 @@ class DreamReferenceActionButtons extends StatelessWidget {
         SizedBox(width: DreamReferenceTokens.actionGap),
         Expanded(
           child: _OutlineAction(
-            label: 'Sesli Anlat',
+            label: DreamCopy.voiceTell,
             icon: Icons.mic_none_rounded,
             onTap: onVoiceTap,
             enabled: voiceEnabled,

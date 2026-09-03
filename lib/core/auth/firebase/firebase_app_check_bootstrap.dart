@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../config/app_config.dart';
 import '../../config/app_environment.dart';
+import '../../config/oracly_runtime_config.dart';
+import '../../config/oracly_runtime_keys.dart';
 import 'firebase_app_check_policy.dart';
 import 'firebase_auth_bootstrap.dart';
 
@@ -52,7 +54,7 @@ abstract final class FirebaseAppCheckBootstrap {
       return AppConfig.instance.environment;
     }
     return AppEnvironment.fromString(
-      const String.fromEnvironment('APP_ENV', defaultValue: ''),
+      OraclyRuntimeConfig.readRaw(OraclyRuntimeKeys.appEnv),
     );
   }
 

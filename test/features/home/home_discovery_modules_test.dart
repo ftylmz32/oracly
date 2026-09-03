@@ -1,4 +1,4 @@
-/// Home discovery grid — seven core doors, master order.
+/// Home discovery — reference 3×2 core + Dream secondary extension.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -11,9 +11,9 @@ import 'package:oracly_new/features/home/reference/home_reference_modules.dart';
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('home modules match seven discovery doors', () {
+  test('core discovery is reference 3×2 six doors', () {
     final modules = HomeReferenceModules.list();
-    expect(modules, hasLength(7));
+    expect(modules, hasLength(6));
     expect(modules.map((m) => m.id).toList(), [
       OraclyFeatureId.coffee,
       OraclyFeatureId.palm,
@@ -21,7 +21,6 @@ void main() {
       OraclyFeatureId.starMap,
       OraclyFeatureId.soulMate,
       OraclyFeatureId.tarot,
-      OraclyFeatureId.dream,
     ]);
     expect(modules.map((m) => HomeDiscoveryCopy.title(m.id)).toList(), [
       'Kahve Falı',
@@ -30,9 +29,14 @@ void main() {
       'Yıldızname',
       'Ruh Eşi',
       'Tarot',
-      'Rüya Analizi',
     ]);
-    expect(modules.last.visual, HomeModuleVisual.dream);
-    expect(modules.last.isNew, isTrue);
+  });
+
+  test('Dream stays reachable as secondary extension', () {
+    final dream = HomeReferenceModules.dreamExtension;
+    expect(dream.id, OraclyFeatureId.dream);
+    expect(dream.visual, HomeModuleVisual.dream);
+    expect(dream.isNew, isTrue);
+    expect(HomeDiscoveryCopy.title(dream.id), 'Rüya Analizi');
   });
 }

@@ -7,6 +7,7 @@ import '../../../core/design_system/app_icons.dart';
 import '../../../core/design_system/app_layout.dart';
 import '../../../core/design_system/oracly_chrome.dart';
 import '../../../core/design_system/oracly_header_action.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_spacing.dart';
 
 class DailyEnergyDetailsHeader extends StatelessWidget {
@@ -19,8 +20,6 @@ class DailyEnergyDetailsHeader extends StatelessWidget {
   final String moonPhaseLabel;
   final String dateLabel;
 
-  static const String _title = 'Günlük Enerji';
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -29,14 +28,14 @@ class DailyEnergyDetailsHeader extends StatelessWidget {
         children: [
           OraclyHeaderAction(
             icon: AppIcons.back,
-            label: 'Geri',
+            label: OraclyL10n.t(L10nKeys.back),
             onTap: () => Navigator.of(context).maybePop(),
           ),
           Expanded(
             child: Column(
               children: [
                 Text(
-                  _title.toUpperCase(),
+                  OraclyL10n.t('energy.details.title').toUpperCase(),
                   textAlign: TextAlign.center,
                   style: OraclyChrome.engravedTitle(size: 12.5),
                   maxLines: 1,

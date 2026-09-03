@@ -60,7 +60,7 @@ abstract final class OraclyNavigationService {
     _openExistingTab(context, OraclyTab.profile);
   }
 
-  /// Canonical OR — shell tab (enum coffee) when available; else push /chat.
+  /// Canonical OR — always a dedicated full-screen /chat route (no shell tab chrome).
   static void openChat(
     BuildContext context, {
     OracleReadingContext? readingContext,
@@ -68,7 +68,7 @@ abstract final class OraclyNavigationService {
     if (readingContext != null) {
       OrChatHandoffBuffer.offer(readingContext);
     }
-    if (_isTopNamedRoute(context, OraclyRoutes.chat)) {
+    if (_isTopNamedRoute(context, OraclyRoutes.chat, root: true)) {
       final handoff = OrChatHandoffBuffer.take();
       if (handoff != null) {
         ProviderScope.containerOf(context, listen: false)
@@ -77,16 +77,7 @@ abstract final class OraclyNavigationService {
       }
       return;
     }
-    if (_openExistingTab(context, OraclyTab.coffee)) {
-      final handoff = OrChatHandoffBuffer.take();
-      if (handoff != null) {
-        ProviderScope.containerOf(context, listen: false)
-            .read(companionControllerProvider)
-            .applyReadingHandoff(handoff);
-      }
-      return;
-    }
-    _pushNamed(context, OraclyRoutes.chat);
+    _pushNamed(context, OraclyRoutes.chat, root: true);
   }
 
   // ── Feature screens ────────────────────────────────────────────
@@ -253,22 +244,30 @@ abstract final class OraclyNavigationService {
   // ── Deep linking helper ────────────────────────────────────────
 
   /// Peek at the navigator top without popping — blocks duplicate pushes.
-  static bool _isTopNamedRoute(BuildContext context, String routeName) {
+  static bool _isTopNamedRoute(
+    BuildContext context,
+    String routeName, {
+    bool root = false,
+  }) {
     Route<dynamic>? top;
-    Navigator.of(context).popUntil((route) {
+    Navigator.of(context, rootNavigator: root).popUntil((route) {
       top = route;
       return true;
     });
     return top?.settings.name == routeName;
   }
 
-  static void _pushNamed(BuildContext context, String routeName) {
-    if (_isTopNamedRoute(context, routeName)) return;
+  static void _pushNamed(
+    BuildContext context,
+    String routeName, {
+    bool root = false,
+  }) {
+    if (_isTopNamedRoute(context, routeName, root: root)) return;
     final route = OraclyRouteGenerator.onGenerateRoute(
       RouteSettings(name: routeName),
     );
     if (route != null) {
-      Navigator.of(context).push(route);
+      Navigator.of(context, rootNavigator: root).push(route);
     }
   }
 }

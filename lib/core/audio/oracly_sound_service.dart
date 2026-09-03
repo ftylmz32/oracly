@@ -90,8 +90,12 @@ class OraclySoundService {
   Future<void> setAtmosphere(ZodiacSignId sign) => _ambient.setSign(sign);
 
   Future<void> setChamber(OraclySoundChamber chamber) async {
-    if (!_ambient.enabled || chamber == OraclySoundChamber.silence) {
-      if (!_ambient.enabled) await _ambient.stop();
+    if (!_ambient.enabled) {
+      await _ambient.stop();
+      return;
+    }
+    if (chamber == OraclySoundChamber.silence) {
+      await _ambient.stop();
       return;
     }
     await _ambient.refresh();

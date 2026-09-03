@@ -11,7 +11,8 @@ import '../../../core/universe/oracly_universe_layer.dart';
 import '../../../shared/widgets/oracly_scaffold.dart';
 import 'home_master_body.dart';
 
-/// Presentation root: scrollable Home. Bottom nav stays in the shell.
+/// Presentation root: cinematic preferred composition; natural scroll when
+/// content exceeds the viewport. Bottom nav stays in the shell.
 class HomeMasterPage extends StatelessWidget {
   const HomeMasterPage({super.key});
 

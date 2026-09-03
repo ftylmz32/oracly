@@ -14,10 +14,12 @@ import 'premium_entitlement_verifier.dart';
 class HttpBillingEntitlementVerifier implements PremiumEntitlementVerifier {
   HttpBillingEntitlementVerifier({
     required this.verifyUrl,
+    this.accessTokenProvider,
     http.Client? client,
   }) : _client = client ?? http.Client();
 
   final String verifyUrl;
+  final Future<String?> Function()? accessTokenProvider;
   final http.Client _client;
 
   @override
@@ -34,10 +36,15 @@ class HttpBillingEntitlementVerifier implements PremiumEntitlementVerifier {
       return PremiumVerifyResult.unverified('provider_not_configured');
     }
     try {
+      final headers = <String, String>{'content-type': 'application/json'};
+      final token = (await accessTokenProvider?.call())?.trim();
+      if (token != null && token.isNotEmpty && !token.startsWith('sk-')) {
+        headers['Authorization'] = 'Bearer $token';
+      }
       final response = await _client
           .post(
             Uri.parse(verifyUrl),
-            headers: const {'content-type': 'application/json'},
+            headers: headers,
             body: jsonEncode({
               'platform': platform,
               'productId': productId,
@@ -46,6 +53,9 @@ class HttpBillingEntitlementVerifier implements PremiumEntitlementVerifier {
             }),
           )
           .timeout(const Duration(seconds: 20));
+      if (response.statusCode == 401) {
+        return PremiumVerifyResult.unverified('auth_required');
+      }
       if (response.statusCode < 200 || response.statusCode >= 300) {
         return PremiumVerifyResult.error('http_${response.statusCode}');
       }

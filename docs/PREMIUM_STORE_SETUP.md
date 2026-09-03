@@ -33,6 +33,13 @@ No OpenAI or store secrets in the client. Prices come from the store query.
 
 When products are live, `StorePremiumPurchase.prepare()` sets `isConfigured` and the Premium CTA unlocks. Until then the UI stays on the honest unavailable plaque.
 
+Public legal documents (store policy) are configured only via real HTTPS URLs:
+
+- `ORACLY_PRIVACY_POLICY_URL`
+- `ORACLY_TERMS_OF_USE_URL`
+
+Do not invent placeholder domains. Until set, Privacy Policy / Terms taps fail honestly in-app.
+
 ## Entitlement
 
 Grant happens only after `PurchaseStatus.purchased` / `restored` and `completePurchase`. Local prefs store membership; there is no server receipt verifier yet. Minimum client security: never grant from a UI tap; never grant on cancel/error/pending.

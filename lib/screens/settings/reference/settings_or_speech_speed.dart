@@ -22,7 +22,8 @@ class SettingsOrSpeechSpeed extends StatelessWidget {
   final PersonalizationSettings settings;
   final Future<void> Function(
     PersonalizationSettings Function(PersonalizationSettings),
-  ) onSave;
+  )
+  onSave;
 
   String get _lang => settings.language;
 
@@ -66,4 +67,3 @@ class SettingsOrSpeechSpeed extends StatelessWidget {
     );
   }
 }
-

@@ -1,4 +1,4 @@
-/// Reference discovery grid — Keşfet band + 3-column wrap.
+/// Reference discovery grid — Keşfet 3×2 core + Dream extension strip.
 library;
 
 import 'package:flutter/material.dart';
@@ -18,16 +18,19 @@ import 'home_reference_scope.dart';
 import 'home_reference_tokens.dart';
 
 class HomeReferenceModuleGrid extends ConsumerWidget {
-  const HomeReferenceModuleGrid({super.key});
+  const HomeReferenceModuleGrid({super.key, this.layoutOverride});
+
+  final HomeViewportLayout? layoutOverride;
 
   static const int columns = 3;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final layout = HomeReferenceScope.maybeOf(context);
-    final gap = layout?.moduleGap ?? 10;
-    final tileH = (layout?.moduleTileHeight ?? 104)
-        .clamp(HomeReferenceTokens.moduleTileMinHeight, 120.0);
+    final layout = layoutOverride ?? HomeReferenceScope.maybeOf(context);
+    final gap = layout?.moduleGap ?? 11;
+    final tileH = (layout?.moduleTileHeight ?? 112)
+        .clamp(HomeReferenceTokens.moduleTileMinHeight, 128.0);
+    final dreamH = layout?.dreamExtensionHeight ?? 78;
     final first = ref.watch(isFirstSessionProvider).valueOrNull ?? false;
     final modules = HomeReferenceModules.list(quietPremium: first);
     final rows = (modules.length / columns).ceil();
@@ -104,6 +107,13 @@ class HomeReferenceModuleGrid extends ConsumerWidget {
             ),
           ),
         ],
+        SizedBox(height: gap),
+        SizedBox(
+          height: dreamH,
+          child: HomeReferenceModuleTile(
+            spec: HomeReferenceModules.dreamExtension,
+          ),
+        ),
       ],
     );
   }

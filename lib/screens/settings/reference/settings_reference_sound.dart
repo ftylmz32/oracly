@@ -24,14 +24,13 @@ class SettingsReferenceSound extends StatelessWidget {
   final PersonalizationSettings settings;
   final Future<void> Function(
     PersonalizationSettings Function(PersonalizationSettings),
-  ) onSave;
+  )
+  onSave;
   final VoidCallback onPickAtmosphere;
   final VoidCallback onPickOutput;
 
-  String _t(String key) => OraclyL10n.t(
-        key,
-        languageCode: AppLocale.normalize(settings.language),
-      );
+  String _t(String key) =>
+      OraclyL10n.t(key, languageCode: AppLocale.normalize(settings.language));
 
   @override
   Widget build(BuildContext context) {

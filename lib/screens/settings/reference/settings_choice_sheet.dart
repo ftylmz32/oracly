@@ -25,7 +25,7 @@ Future<T?> showSettingsChoiceSheet<T>({
     builder: (sheetContext) {
       return Material(
         color: AppColors.transparent,
-              child: ClipRRect(
+        child: ClipRRect(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(AppRadius.xlValue),
           ),
@@ -33,10 +33,14 @@ Future<T?> showSettingsChoiceSheet<T>({
             filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: AppColors.of(sheetContext).surface.withValues(alpha: 0.95),
+                color: AppColors.of(
+                  sheetContext,
+                ).surface.withValues(alpha: 0.95),
                 border: Border(
                   top: BorderSide(
-                    color: AppColors.of(sheetContext).gold.withValues(alpha: 0.28),
+                    color: AppColors.of(
+                      sheetContext,
+                    ).gold.withValues(alpha: 0.28),
                     width: AppBorderWidth.hairline,
                   ),
                 ),
@@ -104,15 +108,12 @@ class _ChoiceRow extends StatelessWidget {
               child: Text(
                 label,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: selected
-                      ? palette.goldLight
-                      : palette.textSecondary,
+                  color: selected ? palette.goldLight : palette.textSecondary,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                 ),
               ),
             ),
-            if (selected)
-              Icon(Icons.check_rounded, color: palette.gold),
+            if (selected) Icon(Icons.check_rounded, color: palette.gold),
           ],
         ),
       ),

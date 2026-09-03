@@ -46,6 +46,7 @@ class _DreamReferenceWriteSheetState extends State<DreamReferenceWriteSheet> {
   @override
   Widget build(BuildContext context) {
     final count = widget.controller.text.trim().length;
+    final maxSheet = MediaQuery.sizeOf(context).height * 0.92;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -60,66 +61,73 @@ class _DreamReferenceWriteSheetState extends State<DreamReferenceWriteSheet> {
             width: AppBorderWidth.hairline,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                DreamCopy.entryHeadline,
-                style: AppTextStyles.title.copyWith(
-                  color: AppColors.goldLight,
-                  fontWeight: FontWeight.w600,
-                ),
+        child: SafeArea(
+          top: false,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxSheet),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
               ),
-              SizedBox(height: AppSpacing.sm),
-              TextField(
-                controller: widget.controller,
-                maxLines: 7,
-                autofocus: true,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-                decoration: InputDecoration(
-                  hintText: DreamCopy.narrativeHint,
-                  hintStyle: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textHint,
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    DreamCopy.entryHeadline,
+                    style: AppTextStyles.title.copyWith(
+                      color: AppColors.goldLight,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  filled: true,
-                  fillColor: AppColors.surface.withValues(alpha: 0.65),
-                  border: _border(0.22),
-                  enabledBorder: _border(0.22),
-                  focusedBorder: _border(0.55),
-                ),
+                  SizedBox(height: AppSpacing.sm),
+                  TextField(
+                    controller: widget.controller,
+                    maxLines: 7,
+                    autofocus: true,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: DreamCopy.narrativeHint,
+                      hintStyle: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textHint,
+                      ),
+                      filled: true,
+                      fillColor: AppColors.surface.withValues(alpha: 0.65),
+                      border: _border(0.22),
+                      enabledBorder: _border(0.22),
+                      focusedBorder: _border(0.55),
+                    ),
+                  ),
+                  SizedBox(height: AppSpacing.xs),
+                  Text(
+                    DreamCopy.narrativeHelper,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textHint,
+                      height: 1.35,
+                    ),
+                  ),
+                  SizedBox(height: AppSpacing.xs),
+                  Text(
+                    DreamCopy.charCount(count),
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textHint,
+                    ),
+                  ),
+                  SizedBox(height: AppSpacing.lg),
+                  OraclyButton(
+                    text: DreamCopy.beginAnalysis,
+                    isExpanded: true,
+                    onPressed: widget.onSubmit,
+                  ),
+                ],
               ),
-              SizedBox(height: AppSpacing.xs),
-              Text(
-                DreamCopy.narrativeHelper,
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textHint,
-                  height: 1.35,
-                ),
-              ),
-              SizedBox(height: AppSpacing.xs),
-              Text(
-                '$count karakter',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textHint,
-                ),
-              ),
-              SizedBox(height: AppSpacing.lg),
-              OraclyButton(
-                text: DreamCopy.beginAnalysis,
-                isExpanded: true,
-                onPressed: widget.onSubmit,
-              ),
-            ],
+            ),
           ),
         ),
       ),

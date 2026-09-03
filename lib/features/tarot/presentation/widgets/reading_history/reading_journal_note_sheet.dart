@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/copy/session_ending_copy.dart';
 import '../../../../../core/copy/transparency_copy.dart';
 import '../../../../../core/design_system/app_layout.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -104,7 +105,7 @@ class _ReadingJournalNoteSheetState extends State<_ReadingJournalNoteSheet> {
                 ),
                 SizedBox(height: AppSpacing.md),
                 Text(
-                  'Kişisel Yansıma',
+                  OraclyL10n.t('journal.personal_reflection'),
                   style: AppTextStyles.titleSmall.copyWith(
                     color: AppColors.goldLight,
                     fontWeight: FontWeight.w700,
@@ -113,8 +114,10 @@ class _ReadingJournalNoteSheetState extends State<_ReadingJournalNoteSheet> {
                 SizedBox(height: AppSpacing.xs),
                 Text(
                   widget.cardName.isEmpty
-                      ? 'Bu an senin için ne ifade ediyor?'
-                      : '${widget.cardName} — bu an senin için ne ifade ediyor?',
+                      ? OraclyL10n.t('journal.reflection_prompt')
+                      : OraclyL10n
+                          .t('journal.reflection_prompt_named')
+                          .replaceAll('{name}', widget.cardName),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                     height: 1.5,
@@ -179,7 +182,7 @@ class _ReadingJournalNoteSheetState extends State<_ReadingJournalNoteSheet> {
                     SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: OraclyButton(
-                        text: 'Kaydet',
+                        text: OraclyL10n.t(L10nKeys.save),
                         onPressed: () =>
                             Navigator.pop(context, _note.text.trim()),
                       ),

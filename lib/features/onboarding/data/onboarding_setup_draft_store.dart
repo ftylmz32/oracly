@@ -33,4 +33,3 @@ class OnboardingSetupDraftStore {
     await _storage.remove(draftKey);
   }
 }
-

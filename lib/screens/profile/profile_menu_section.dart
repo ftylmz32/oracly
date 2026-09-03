@@ -3,12 +3,12 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/modules/oracly_feature_id.dart';
-import '../../../core/modules/oracly_feature_l10n.dart';
-import '../../../core/modules/oracly_feature_navigation.dart';
-import '../../../core/modules/oracly_feature_registry.dart';
-import '../../../core/navigation/universe/universe_navigation_copy.dart';
-import '../../../features/premium/presentation/widgets/settings_tiles.dart';
+import '../../core/modules/oracly_feature_id.dart';
+import '../../core/modules/oracly_feature_l10n.dart';
+import '../../core/modules/oracly_feature_navigation.dart';
+import '../../core/modules/oracly_feature_registry.dart';
+import '../../core/navigation/universe/universe_navigation_copy.dart';
+import '../../features/premium/presentation/widgets/settings_tiles.dart';
 
 class ProfileMenuSection extends StatelessWidget {
   const ProfileMenuSection({super.key});

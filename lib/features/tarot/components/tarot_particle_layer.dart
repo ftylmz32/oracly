@@ -5,7 +5,7 @@ import 'dart:math' show pi;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_colors.dart';
 import '../theme/tarot_tokens.dart';
 import '../presentation/painters/tarot_particle_painter.dart';
 

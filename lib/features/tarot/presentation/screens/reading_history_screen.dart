@@ -12,8 +12,7 @@ import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../components/tarot_loading.dart';
-import '../../navigation/tarot_navigator.dart';
-import '../../shared/constants/tarot_routes.dart';
+import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../presentation/animations/tarot_transition.dart';
 import '../screens/reading_history_detail_screen.dart';
 import '../utils/reading_history_mapper.dart';
@@ -150,10 +149,8 @@ class _ReadingHistoryScreenState extends ConsumerState<ReadingHistoryScreen>
                       const ReadingHistoryHeader(),
                       Expanded(
                         child: ReadingHistoryEmptyState(
-                          onStartReading: () => TarotNavigator.pushNamed(
-                            context,
-                            TarotRoutes.deckSelection,
-                          ),
+                          onStartReading: () =>
+                              OraclyNavigationService.startTarotFlow(context),
                         ),
                       ),
                     ],

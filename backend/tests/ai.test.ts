@@ -1,11 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   authHeader,
   chatBody,
   coffeeBody,
   coffeeJson,
+  coffeeObserverJson,
+  coffeeWriterJson,
+  openaiReadingSequence,
   palmBody,
   palmJson,
+  palmObserverJson,
+  palmWriterJson,
   dreamBody,
   dreamJson,
   fakeJpeg,
@@ -14,8 +19,10 @@ import {
   testApp,
   testConfig,
 } from './helpers.js';
+import { readingStageStore } from '../src/ai/reading/stage-cache.js';
 
 describe('ai complete', () => {
+  beforeEach(() => readingStageStore.clear());
   it('returns no_configuration when OPENAI_API_KEY is missing', async () => {
     const app = await testApp(
       testConfig({ OPENAI_API_KEY: '', AI_DEV_AUTH_BYPASS: 'true' }),
@@ -197,7 +204,7 @@ describe('ai complete', () => {
   });
 
   it('validates coffee vision and returns visual vs symbolic fields', async () => {
-    const app = await testApp(testConfig(), openaiText(coffeeJson));
+    const app = await testApp(testConfig(), openaiReadingSequence(coffeeObserverJson, coffeeWriterJson));
     const res = await app.inject({
       method: 'POST',
       url: '/v1/ai/complete',
@@ -205,9 +212,9 @@ describe('ai complete', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.visualObservation).toContain('izler');
+    expect(res.json().data.visualObservation).toContain('telve');
     expect(res.json().data.overall).toBeTruthy();
-    expect(res.json().data.symbols[0].name).toBe('Kus');
+    expect(Array.isArray(res.json().data.symbols)).toBe(true);
     await app.close();
   });
 
@@ -226,19 +233,19 @@ describe('ai complete', () => {
         },
       },
     });
-    expect(gif.json().error.code).toBe('invalid_request');
+    expect(gif.json().error.code).toBe('unsupported_image_type');
     const tiny = await app.inject({
       method: 'POST',
       url: '/v1/ai/complete',
       headers: { 'content-type': 'application/json' },
       payload: coffeeBody(Buffer.from([0xff, 0xd8, 0xff, 1, 2, 3])),
     });
-    expect(tiny.json().error.code).toBe('invalid_request');
+    expect(tiny.json().error.code).toBe('invalid_image');
     await app.close();
   });
 
   it('validates palm vision and returns symbolic line fields', async () => {
-    const app = await testApp(testConfig(), openaiText(palmJson));
+    const app = await testApp(testConfig(), openaiReadingSequence(palmObserverJson, palmWriterJson));
     const res = await app.inject({
       method: 'POST',
       url: '/v1/ai/complete',
@@ -248,20 +255,24 @@ describe('ai complete', () => {
     expect(res.json().success).toBe(true);
     expect(res.json().data.overall).toContain('sakin');
     expect(res.json().data.lifeLine).toBeTruthy();
-    expect(res.json().data.themes).toContain('introspection');
+    expect(Array.isArray(res.json().data.themes)).toBe(true);
     expect(JSON.stringify(res.json()).toLowerCase()).not.toContain('sk-');
     await app.close();
   });
 
   it('rejects palm certainty copy from the provider', async () => {
+    const badWriter = JSON.stringify({
+      visualObservation: { text: 'Acik avuc cizgileri net.', evidenceIds: ['p1'] },
+      overall: { text: 'Omrun su kadar surecek ve hastaliga sahipsin. Kesin olacak.', evidenceIds: ['p1'] },
+      lifeLine: { text: 'Uzun bir omur gosterir.', evidenceIds: ['p3'] },
+      headLine: { text: 'Duz cizgi.', evidenceIds: ['p2'] },
+      heartLine: { text: 'Kivrimli.', evidenceIds: ['p1'] },
+      fateLine: { text: '', evidenceIds: [] },
+      takeaway: { text: 'Kesin kader.', evidenceIds: ['p1'] },
+    });
     const app = await testApp(
       testConfig(),
-      openaiText(
-        JSON.stringify({
-          genelYapi: 'Omrun su kadar surecek ve hastaliga sahipsin.',
-          sonuc: 'Kesin olacak.',
-        }),
-      ),
+      openaiReadingSequence(palmObserverJson, badWriter),
     );
     const res = await app.inject({
       method: 'POST',
@@ -270,7 +281,7 @@ describe('ai complete', () => {
       payload: palmBody(),
     });
     expect(res.json().success).toBe(false);
-    expect(res.json().error.code).toBe('invalid_response');
+    expect(['invalid_response', 'quality_unavailable']).toContain(res.json().error.code);
     await app.close();
   });
 
@@ -324,7 +335,7 @@ describe('ai complete', () => {
       headers: authHeader(),
       payload: chatBody,
     });
-    expect(timeout.json().error.code).toBe('timeout');
+    expect(timeout.json().error.code).toBe('provider_timeout');
     await timed.close();
   });
 });

@@ -94,7 +94,9 @@ class _AstrologyReferenceScreenState
     final profileAsync = ref.watch(personalDiscoveryProfileProvider);
     final profile = profileAsync.valueOrNull;
     final themeLabels = profile?.personalizationThemes ?? const <String>[];
-    final isLoading = _restoringSign || profileAsync.isLoading;
+    // Profile personalizes themes only — never block the local hub on error.
+    final isLoading = _restoringSign ||
+        (profileAsync.isLoading && !profileAsync.hasError);
     final reading = AstrologyDailyReadingService.build(
       selected,
       profile: profile,
@@ -110,8 +112,6 @@ class _AstrologyReferenceScreenState
       reading: reading,
       themeLabels: themeLabels,
       isLoading: isLoading,
-      profileHasError: profileAsync.hasError,
-      onRetryProfile: () => ref.invalidate(personalDiscoveryProfileProvider),
       onBack: _handleBack,
       onSelected: (id) {
         _selectSign(id);

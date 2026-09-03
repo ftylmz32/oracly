@@ -1,4 +1,4 @@
-/// Canonical OR path — one screen for Home and feature handoffs.
+﻿/// Canonical OR path — one screen for Home and feature handoffs.
 library;
 
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ void main() {
         deckId: 'classic',
         deckName: 'Classic',
         readingTitle: 'Degnek Altilisi',
-        cardsSummary: 'Bugun · id:42 · Degnek Altilisi · Duz',
+        cardsSummary: 'Bugun Â· id:42 Â· Degnek Altilisi Â· Duz',
         interpretationSummary: 'Kisa ozet.',
         userQuestion: 'Ne goruyorum?',
         cardNames: ['Degnek Altilisi'],

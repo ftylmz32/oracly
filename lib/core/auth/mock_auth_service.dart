@@ -111,4 +111,11 @@ class MockAuthService implements AuthService {
     await _tokens?.clearTokens();
     return const ApiSuccess(true);
   }
+
+  @override
+  Future<ApiResult<bool>> deleteAccount() async {
+    await _sessions?.clearSession();
+    await _tokens?.clearTokens();
+    return const ApiSuccess(true);
+  }
 }

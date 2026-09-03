@@ -86,9 +86,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           Text(
             OnboardingCopy.windowsLabel,
             textAlign: TextAlign.center,
-            style: ReadingTypography.sectionLabel(
-              color: AppColors.textHint,
-            ),
+            style: ReadingTypography.sectionLabel(color: AppColors.textHint),
           ),
           SizedBox(height: AppSpacing.sm),
           OnboardingWindowList(labels: OnboardingCopy.windows),

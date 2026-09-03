@@ -13,7 +13,6 @@ import 'companion_reference_actions.dart';
 import 'companion_reference_input_bar.dart';
 import 'companion_reference_live_transcript.dart';
 import 'companion_reference_notice.dart';
-import 'companion_reference_output_mode.dart';
 import 'companion_reference_thinking.dart';
 import 'companion_reference_tokens.dart';
 import 'companion_reference_transcript_review.dart';
@@ -31,6 +30,10 @@ class CompanionReferenceComposerDock extends ConsumerWidget {
     this.onMicTap,
     this.onMicCancel,
     this.onPlusTap,
+    this.showShortcuts = false,
+    this.onPromptSelected,
+    this.kindId,
+    this.reserveShellNavigationClearance = true,
   });
 
   final TextEditingController inputController;
@@ -42,6 +45,10 @@ class CompanionReferenceComposerDock extends ConsumerWidget {
   final VoidCallback? onMicTap;
   final VoidCallback? onMicCancel;
   final VoidCallback? onPlusTap;
+  final bool showShortcuts;
+  final ValueChanged<String>? onPromptSelected;
+  final String? kindId;
+  final bool reserveShellNavigationClearance;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,19 +81,6 @@ class CompanionReferenceComposerDock extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CompanionReferenceOutputMode(
-                mode: output.mode,
-                speaking: output.isVoice && output.isSpeaking,
-                paused: output.isVoice && output.isPaused,
-                canReplay: output.canReplay,
-                voiceAllowed: !output.voiceUnavailable,
-                conversationAllowed: conversationAllowed,
-                turnPhase: talk ? turn.phase : null,
-                onChanged: output.setMode,
-                onStop: output.stop,
-                onPauseToggle: output.togglePause,
-                onReplay: output.replay,
-              ),
               CompanionReferenceVoiceNote(
                 visible: output.isVoice && output.voiceUnavailable,
               ),
@@ -115,6 +109,10 @@ class CompanionReferenceComposerDock extends ConsumerWidget {
           onMicTap: onMicTap,
           onMicCancel: onMicCancel,
           onPlusTap: onPlusTap,
+          showShortcuts: showShortcuts,
+          onPromptSelected: onPromptSelected,
+          kindId: kindId,
+          reserveShellNavigationClearance: reserveShellNavigationClearance,
         ),
       ],
     );

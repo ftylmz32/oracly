@@ -19,18 +19,21 @@ abstract final class CoffeeReadingParser {
     if (json == null) return null;
     final overall = _text(json, const ['genelYorum', 'overall', 'genel']);
     final takeaway = _text(json, const ['sonuc', 'takeaway', 'sonuç']);
+    final visualObservation = _text(json, const [
+      'gorselTespit',
+      'görselTespit',
+      'visualObservation',
+      'visual',
+      'detectedVisual',
+    ]);
     if (overall.isEmpty && takeaway.isEmpty) return null;
+    if (visualObservation.trim().length < 12) return null;
+    if (json['usable'] == false || json['okunabilir'] == false) return null;
     return CoffeeReading(
       id: id,
       createdAt: createdAt,
       imagePath: imagePath,
-      visualObservation: _text(json, const [
-        'gorselTespit',
-        'görselTespit',
-        'visualObservation',
-        'visual',
-        'detectedVisual',
-      ]),
+      visualObservation: visualObservation,
       overall: overall,
       love: _text(json, const ['ask', 'aşk', 'love']),
       career: _text(json, const ['kariyer', 'career']),

@@ -19,13 +19,16 @@ class OnboardingSetupForm extends StatefulWidget {
     required this.style,
     required this.onSkip,
     required this.onContinue,
+    this.onLanguageLive,
     this.draft,
     this.onDraftChanged,
+    this.busy = false,
   });
 
   final String language;
   final AiPersonality style;
-  final VoidCallback onSkip;
+  final void Function({required String language, required AiPersonality style})
+  onSkip;
   final void Function({
     required String name,
     DateTime? birthDate,
@@ -33,10 +36,11 @@ class OnboardingSetupForm extends StatefulWidget {
     required String language,
     required AiPersonality style,
   })
-      onContinue;
-
+  onContinue;
+  final Future<void> Function(String language)? onLanguageLive;
   final OnboardingSetupDraft? draft;
   final ValueChanged<OnboardingSetupDraft>? onDraftChanged;
+  final bool busy;
 
   @override
   State<OnboardingSetupForm> createState() => _OnboardingSetupFormState();
@@ -53,17 +57,25 @@ class _OnboardingSetupFormState extends State<OnboardingSetupForm> {
   void _emitDraft() {
     final saver = widget.onDraftChanged;
     if (saver == null) return;
-    final trimmed = _name.text.trim();
     saver(
       OnboardingSetupDraft(
         updatedAtMillis: DateTime.now().millisecondsSinceEpoch,
-        name: trimmed.isEmpty ? null : trimmed,
+        name: _name.text.trim().isEmpty ? null : _name.text.trim(),
         birthDate: _birth,
         birthPlaceTr: _birthCity?.nameTr,
         language: _language,
         style: _style,
       ),
     );
+  }
+
+  Future<void> _setLanguage(String raw) async {
+    final code = AppLocale.normalize(raw);
+    OraclyL10n.bind(code);
+    setState(() => _language = code);
+    _emitDraft();
+    await widget.onLanguageLive?.call(code);
+    if (mounted) setState(() {});
   }
 
   @override
@@ -114,31 +126,34 @@ class _OnboardingSetupFormState extends State<OnboardingSetupForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return OnboardingSetupFormContent(
-      nameController: _name,
-      birth: _birth,
-      birthCity: _birthCity,
-      language: _language,
-      style: _style,
-      onPickBirth: _pickBirth,
-      onPickBirthCity: _pickBirthCity,
-      onLanguage: (v) {
-        setState(() => _language = v);
-        _emitDraft();
-      },
-      onStyle: (v) {
-        setState(() => _style = v);
-        _emitDraft();
-      },
-      onContinue: () => widget.onContinue(
-        name: _name.text.trim(),
-        birthDate: _birth,
-        birthPlace: _birthCity?.nameTr,
-        language: _language,
-        style: _style,
-      ),
-      onSkip: widget.onSkip,
-    );
-  }
+  Widget build(BuildContext context) => OnboardingSetupFormContent(
+    nameController: _name,
+    birth: _birth,
+    birthCity: _birthCity,
+    language: _language,
+    style: _style,
+    busy: widget.busy,
+    onPickBirth: _pickBirth,
+    onPickBirthCity: _pickBirthCity,
+    onLanguage: _setLanguage,
+    onStyle: (v) {
+      setState(() => _style = v);
+      _emitDraft();
+    },
+    onContinue: widget.busy
+        ? null
+        : () => widget.onContinue(
+            name: _name.text.trim(),
+            birthDate: _birth,
+            birthPlace: _birthCity?.nameTr,
+            language: _language,
+            style: _style,
+          ),
+    onSkip: widget.busy
+        ? null
+        : () {
+            _emitDraft();
+            widget.onSkip(language: _language, style: _style);
+          },
+  );
 }

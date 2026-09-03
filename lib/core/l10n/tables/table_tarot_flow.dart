@@ -15,6 +15,8 @@ const kL10nTarotFlow = <String, L10nTriple>{
   'tarot.spread.celticCross': L10nTriple('Kelt Haçı', 'Celtic Cross', 'Кельтский крест'),
   'tarot.spread.single.banner': L10nTriple('TEK KART', 'ONE CARD', 'ОДНА КАРТА'),
   'tarot.spread.threeCard.banner': L10nTriple('ÜÇ KART', 'THREE CARDS', 'ТРИ КАРТЫ'),
+  'tarot.spread.threeCard.banner_short': L10nTriple('3 KART', '3 CARDS', '3 КАРТЫ'),
+  'tarot.spread.threeCard.compact': L10nTriple('3 Kart', '3 Cards', '3 карты'),
   'tarot.spread.fiveCard.banner': L10nTriple(
     'DERİN AÇILIM',
     'DEEP SPREAD',
@@ -49,6 +51,16 @@ const kL10nTarotFlow = <String, L10nTriple>{
   'tarot.action.note': L10nTriple('Kişisel not ekle', 'Add a personal note', 'Добавить личную заметку'),
   'tarot.action.new': L10nTriple('Yeni Açılım', 'New reading', 'Новый расклад'),
   'tarot.action.again': L10nTriple('Yeniden Açılım', 'Read again', 'Расклад ещё раз'),
+  'tarot.action.deepen': L10nTriple(
+    'Yorumu Derinleştir',
+    'Deepen reading',
+    'Углубить толкование',
+  ),
+  'tarot.spread.card_count': L10nTriple(
+    '{count} kart',
+    '{count} cards',
+    '{count} карт',
+  ),
   'tarot.empty.history': L10nTriple(
     'İlk açılımın burada yerini bulacak.',
     'Your first reading will find its place here.',
@@ -70,6 +82,9 @@ const kL10nTarotFlow = <String, L10nTriple>{
   'tarot.pos.present': L10nTriple('Şimdi', 'Present', 'Сейчас'),
   'tarot.pos.direction': L10nTriple('Yön', 'Direction', 'Путь'),
   'tarot.pos.future': L10nTriple('Gelecek', 'Future', 'Будущее'),
+  'tarot.pos.past.slot': L10nTriple('GEÇMİŞ', 'PAST', 'ПРОШЛОЕ'),
+  'tarot.pos.present.slot': L10nTriple('ŞİMDİ', 'NOW', 'СЕЙЧАС'),
+  'tarot.pos.future.slot': L10nTriple('GELECEK', 'AHEAD', 'БУДУЩЕЕ'),
   'tarot.pos.situation': L10nTriple('Durum', 'Situation', 'Ситуация'),
   'tarot.pos.hidden_influence': L10nTriple('Gizli etki', 'Hidden influence', 'Скрытое влияние'),
   'tarot.pos.challenge': L10nTriple('Zorluk', 'Challenge', 'Трудность'),

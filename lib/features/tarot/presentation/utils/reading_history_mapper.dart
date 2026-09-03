@@ -27,6 +27,7 @@ abstract final class ReadingHistoryMapper {
       summaryExcerpt: model.summaryExcerpt,
       isFavorite: model.isFavorite,
       readingType: _publicType(model),
+      isReversed: model.primaryIsReversed,
     );
   }
 

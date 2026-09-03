@@ -1,9 +1,7 @@
 /// OR-1170 — Seeded shuffle and draw pile management.
 library;
 
-import 'dart:math';
-
-import '../../../../core/copy/resilience_copy.dart';
+import '../../../core/copy/resilience_copy.dart';
 import '../models/tarot_card.dart';
 import '../services/deck_service.dart';
 import 'tarot_base_controller.dart';
@@ -87,14 +85,14 @@ class TarotDeckController extends TarotBaseController {
     notifyListeners();
   }
 
-  ({TarotCard card, bool isReversed}) drawNext({Random? random}) {
+  /// Production draws are always upright for v1 — reversed catalogue stays for legacy.
+  ({TarotCard card, bool isReversed}) drawNext() {
     if (_drawPile.isEmpty) {
       throw StateError('Draw pile is empty');
     }
     final card = _drawPile.removeLast();
-    final isReversed = random?.nextBool() ?? _orientationOf(card);
     notifyListeners();
-    return (card: card, isReversed: isReversed);
+    return (card: card, isReversed: false);
   }
 
   /// Draw the face-down fan slot the user actually touched.
@@ -105,15 +103,8 @@ class TarotDeckController extends TarotBaseController {
     }
     final pileIndex = _drawPile.length - n + fanIndex;
     final card = _drawPile.removeAt(pileIndex);
-    final isReversed = _orientationOf(card);
     notifyListeners();
-    return (card: card, isReversed: isReversed);
-  }
-
-  /// Frozen at draw — never re-rolled after reveal.
-  bool _orientationOf(TarotCard card) {
-    final seed = _shuffleSeed ?? 0;
-    return Random(seed ^ card.id ^ (_drawPile.length * 17)).nextBool();
+    return (card: card, isReversed: false);
   }
 
   void resetPile() {

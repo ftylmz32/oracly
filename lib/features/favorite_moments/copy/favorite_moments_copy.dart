@@ -21,6 +21,8 @@ abstract final class FavoriteMomentsCopy {
   static String get emptyTitle => _t('moments.empty_title');
   static String get emptyBody => _t('moments.empty_body');
   static String get openCta => _t('moments.open');
+  static String get sourceUnavailable => _t('moments.source_unavailable');
+  static String get snapshotNotice => _t('moments.snapshot_notice');
 
   static String featureLabel(FavoriteMoment moment) =>
       DiscoveryJournalCopy.badge(moment.source.journalKind);

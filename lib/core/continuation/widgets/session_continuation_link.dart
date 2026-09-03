@@ -4,7 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/providers/app_providers.dart';
+import '../../../app/providers/app_providers.dart';
 import '../../../core/design_system/oracly_chrome.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/reading_typography.dart';

@@ -62,15 +62,20 @@ const kL10nPalm = <String, L10nTriple>{
     'Choose a hand photo',
     'Выбери фото руки',
   ),
+  'palm.capture_heading': L10nTriple(
+    'Elini seç, çizgilerini birlikte okuyalım.',
+    'Choose your hand — let us read the lines together.',
+    'Выбери руку — прочитаем линии вместе.',
+  ),
   'palm.capture_guide': L10nTriple(
-    'Avucunun tamamını kadraja al.',
-    'Fit the whole palm in the frame.',
-    'Помести всю ладонь в кадр.',
+    'Avucunun tamamı görünür olsun.',
+    'Let the whole palm stay visible.',
+    'Пусть вся ладонь будет видна.',
   ),
   'palm.capture_tips': L10nTriple(
-    'Tam el · Parmaklar açık · Avuç görünür · Yumuşak ışık',
-    'Full hand · Fingers open · Palm visible · Soft light',
-    'Вся рука · Пальцы открыты · Ладонь видна · Мягкий свет',
+    'Tam el · Parmaklar açık · Yumuşak ışık · Sabit tut',
+    'Full hand · Fingers open · Soft light · Hold steady',
+    'Вся рука · Пальцы открыты · Мягкий свет · Держи ровно',
   ),
   'palm.use_photo': L10nTriple(
     'Bu fotoğrafı kullan',

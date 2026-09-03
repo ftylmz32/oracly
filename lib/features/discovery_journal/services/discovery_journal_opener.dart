@@ -10,7 +10,7 @@ import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../../core/navigation/oracly_page_transitions.dart';
 import '../../ai/oracle_conversation/models/oracle_reading_context_sources.dart';
 import '../../ai/oracle_conversation/navigation/oracle_conversation_route.dart';
-import '../../coffee/providers/coffee_providers.dart';
+import '../../coffee/presentation/reference/coffee_reference_screen.dart';
 import '../../dream/data/dream_record_mapper.dart';
 import '../../dream/providers/dream_providers.dart';
 import '../../palm/presentation/palm_reference_screen.dart';
@@ -34,7 +34,11 @@ abstract final class DiscoveryJournalOpener {
       case DiscoveryJournalKind.dream:
         await _openDream(context, ref, entry.id);
       case DiscoveryJournalKind.coffee:
-        await _openCoffee(context, ref, entry.id);
+        await Navigator.of(context).push(
+          OraclyPageTransitions.fade(
+            page: CoffeeReferenceScreen(savedReadingId: entry.id),
+          ),
+        );
       case DiscoveryJournalKind.companion:
         openOracleConversation(
           context,
@@ -59,19 +63,6 @@ abstract final class DiscoveryJournalOpener {
       case DiscoveryJournalKind.dailyMessage:
         OraclyNavigationService.openDailyMessage(context);
     }
-  }
-
-  static Future<void> _openCoffee(
-    BuildContext context,
-    WidgetRef ref,
-    String id,
-  ) async {
-    final reading =
-        ref.read(coffeeExperienceServiceProvider).savedById(id);
-    if (reading != null) {
-      ref.read(coffeeReadingControllerProvider).openSaved(reading);
-    }
-    OraclyNavigationService.openCoffee(context);
   }
 
   static Future<void> _openDream(

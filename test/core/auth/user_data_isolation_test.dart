@@ -22,6 +22,7 @@ import 'package:oracly_new/core/intelligence/data/personal_memory_store.dart';
 import 'package:oracly_new/core/intelligence/domain/models/personal_memory_summary.dart';
 import 'package:oracly_new/core/intelligence/services/personal_memory_relevance.dart';
 import 'package:oracly_new/features/coffee/data/coffee_reading_store.dart';
+import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/companion/services/companion_thread_memory.dart';
 import 'package:oracly_new/features/discovery_journal/services/discovery_journal_aggregator.dart';
 import 'package:oracly_new/features/favorite_moments/data/local_favorite_moments_repository.dart';
@@ -93,6 +94,15 @@ class _SwitchGateway implements FirebaseAuthGateway {
 
   @override
   Future<void> signOut() async {
+    _user = null;
+    _controller.add(null);
+  }
+
+  @override
+  Future<void> deleteCurrentUser() async {
+    if (_user == null) {
+      throw AuthGatewayException('no-current-user', code: 'no-current-user');
+    }
     _user = null;
     _controller.add(null);
   }
@@ -193,6 +203,7 @@ Future<void> _assertUserAPresent(LocalStorage storage) async {
 
 void main() {
   late LocalStorage storage;
+  late InMemorySecureStorage secure;
   late _SwitchGateway gateway;
   late FirebaseAuthService auth;
   late UserLocalDataIsolation isolation;
@@ -200,8 +211,12 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
+    secure = InMemorySecureStorage();
     gateway = _SwitchGateway();
-    isolation = UserLocalDataIsolation(storage);
+    isolation = UserLocalDataIsolation(
+      storage,
+      secureStorage: secure,
+    );
     auth = FirebaseAuthService(
       gateway: gateway,
       tokens: FirebaseIdTokenManager(gateway, fallback: _MemTokens()),

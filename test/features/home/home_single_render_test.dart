@@ -54,6 +54,7 @@ void main() {
     expect(find.byIcon(Icons.share_outlined), findsNothing);
     expect(find.textContaining('local AI'), findsNothing);
     expect(find.text('Onizleme'), findsNothing);
+    // Astrology + Yıldızname are LIVE with Dream — no Preview badges.
     expect(find.text('Önizleme'), findsNothing);
     expect(find.textContaining('home_master_reference'), findsNothing);
   });

@@ -30,7 +30,10 @@ void main() {
         child: MaterialApp(
           onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
           home: MediaQuery(
-            data: MediaQueryData(size: size),
+            data: MediaQueryData(
+              size: size,
+              padding: const EdgeInsets.only(top: 24, bottom: 34),
+            ),
             child: const HomeMasterPage(),
           ),
         ),

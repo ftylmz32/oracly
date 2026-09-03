@@ -9,7 +9,7 @@ class SplashCompletionGate {
 
   bool get artSettled => artPainted || artFailed;
 
-  /// Call when the ~3050ms controller completes.
+  /// Call when the branded splash controller completes (~1.5–2.0s).
   bool requestFinish() {
     if (artSettled) return true;
     pendingFinish = true;

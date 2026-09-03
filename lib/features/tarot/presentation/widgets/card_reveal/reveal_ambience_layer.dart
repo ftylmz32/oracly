@@ -60,7 +60,9 @@ class RevealAmbienceLayer extends StatelessWidget {
                   height: 200 + fogAlpha * 24,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.purpleDark.withValues(alpha: 0.28 * fogAlpha),
+                    color: AppColors.purpleDark.withValues(
+                      alpha: 0.28 * fogAlpha,
+                    ),
                   ),
                 ),
               ),
@@ -76,7 +78,9 @@ class RevealAmbienceLayer extends StatelessWidget {
                     height: 160 + fogAlpha * 16,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.purpleGlow.withValues(alpha: 0.12 * fogAlpha),
+                      color: AppColors.purpleGlow.withValues(
+                        alpha: 0.12 * fogAlpha,
+                      ),
                     ),
                   ),
                 ),
@@ -104,10 +108,7 @@ class RevealAmbienceLayer extends StatelessWidget {
 }
 
 class _RevealBloomPainter extends CustomPainter {
-  const _RevealBloomPainter({
-    required this.intensity,
-    this.focus = 0,
-  });
+  const _RevealBloomPainter({required this.intensity, this.focus = 0});
 
   final double intensity;
   final double focus;
@@ -122,8 +123,12 @@ class _RevealBloomPainter extends CustomPainter {
       Paint()
         ..shader = RadialGradient(
           colors: [
-            AppColors.purpleGlow.withValues(alpha: 0.14 * intensity + focus * 0.05),
-            AppColors.goldLight.withValues(alpha: 0.10 * intensity + focus * 0.05),
+            AppColors.purpleGlow.withValues(
+              alpha: 0.14 * intensity + focus * 0.05,
+            ),
+            AppColors.goldLight.withValues(
+              alpha: 0.10 * intensity + focus * 0.05,
+            ),
             AppColors.transparent,
           ],
           stops: const [0.0, 0.48, 1.0],
@@ -138,10 +143,7 @@ class _RevealBloomPainter extends CustomPainter {
 }
 
 class _RevealParticlesPainter extends CustomPainter {
-  const _RevealParticlesPainter({
-    required this.phase,
-    required this.intensity,
-  });
+  const _RevealParticlesPainter({required this.phase, required this.intensity});
 
   final double phase;
   final double intensity;

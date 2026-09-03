@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
@@ -10,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../features/tarot/presentation/epic031/tarot_epic031_primary_button.dart';
 import '../../../../shared/ui/oracly_bottom_sheet.dart';
+import '../../providers/premium_providers.dart';
 import 'premium_unlock_list.dart';
 
 abstract final class PremiumEntrySheet {
@@ -24,7 +26,7 @@ abstract final class PremiumEntrySheet {
   }
 }
 
-class PremiumEntryBody extends StatelessWidget {
+class PremiumEntryBody extends ConsumerWidget {
   const PremiumEntryBody({
     super.key,
     this.showCta = true,
@@ -35,7 +37,8 @@ class PremiumEntryBody extends StatelessWidget {
   final bool popBeforeOpen;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final storeOpen = ref.watch(premiumStatusProvider).purchaseConfigured;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
       child: Column(
@@ -52,15 +55,17 @@ class PremiumEntryBody extends StatelessWidget {
           ),
           SizedBox(height: AppSpacing.md),
           const PremiumUnlockList(compact: true),
-          SizedBox(height: AppSpacing.md),
-          Text(
-            PremiumCopy.ctaUnavailable,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.caption.copyWith(
-              color: OraclyChrome.goldLight.withValues(alpha: 0.82),
-              height: 1.35,
+          if (!storeOpen) ...[
+            SizedBox(height: AppSpacing.md),
+            Text(
+              PremiumCopy.ctaUnavailable,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.caption.copyWith(
+                color: OraclyChrome.goldLight.withValues(alpha: 0.82),
+                height: 1.35,
+              ),
             ),
-          ),
+          ],
           if (showCta) ...[
             SizedBox(height: AppSpacing.md),
             TarotEpic031PrimaryButton(

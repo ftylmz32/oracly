@@ -1,6 +1,8 @@
 /// OR-1070 — Premium history journal list card.
 library;
 
+import 'dart:math' show pi;
+
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
@@ -100,6 +102,7 @@ class _ReadingHistoryListCardState extends State<ReadingHistoryListCard> {
                               tag: widget.entry.heroTag,
                               child: _Thumbnail(
                                 imageAsset: widget.entry.cardImageAsset,
+                                isReversed: widget.entry.isReversed,
                               ),
                             ),
                             SizedBox(width: AppSpacing.md),
@@ -205,9 +208,13 @@ class _ReadingHistoryListCardState extends State<ReadingHistoryListCard> {
 }
 
 class _Thumbnail extends StatelessWidget {
-  const _Thumbnail({required this.imageAsset});
+  const _Thumbnail({
+    required this.imageAsset,
+    this.isReversed = false,
+  });
 
   final String imageAsset;
+  final bool isReversed;
 
   @override
   Widget build(BuildContext context) {
@@ -229,14 +236,17 @@ class _Thumbnail extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: AppRadius.sm,
-        child: TarotMajorCardArt(
-          imageAsset: imageAsset,
-          showChrome: false,
-          fallback: ColoredBox(
-            color: AppColors.purpleDark,
-            child: Icon(
-              Icons.style_rounded,
-              color: AppColors.goldLight.withValues(alpha: 0.7),
+        child: Transform.rotate(
+          angle: isReversed ? pi : 0,
+          child: TarotMajorCardArt(
+            imageAsset: imageAsset,
+            showChrome: false,
+            fallback: ColoredBox(
+              color: AppColors.purpleDark,
+              child: Icon(
+                Icons.style_rounded,
+                color: AppColors.goldLight.withValues(alpha: 0.7),
+              ),
             ),
           ),
         ),

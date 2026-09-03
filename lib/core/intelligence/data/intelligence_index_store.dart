@@ -52,19 +52,25 @@ class IntelligenceIndexMeta {
 class IntelligenceIndexStore {
   IntelligenceIndexStore(this._storage);
 
-  static const _key = 'or_intelligence_index';
+  static const key = 'or_intelligence_index';
 
   final LocalStorage _storage;
 
   IntelligenceIndexMeta? load() {
-    final raw = _storage.getString(_key);
+    final raw = _storage.getString(key);
     if (raw == null || raw.isEmpty) return null;
-    return IntelligenceIndexMeta.fromJson(
-      jsonDecode(raw) as Map<String, dynamic>,
-    );
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return IntelligenceIndexMeta.fromJson(
+        Map<String, dynamic>.from(decoded),
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> save(IntelligenceIndexMeta meta) async {
-    await _storage.setString(_key, jsonEncode(meta.toJson()));
+    await _storage.setString(key, jsonEncode(meta.toJson()));
   }
 }

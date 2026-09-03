@@ -20,6 +20,8 @@ import '../services/companion_experience_service.dart';
 import '../services/companion_insight_classify.dart';
 import '../services/first_reading_or_deepen.dart';
 import '../services/or_chat_handoff.dart';
+import '../services/or_operation_id.dart';
+import '../../gems/services/paid_ai_operation_id.dart';
 import 'companion_output_controller.dart';
 
 class CompanionController extends ChangeNotifier {
@@ -29,13 +31,15 @@ class CompanionController extends ChangeNotifier {
     this._storage,
     this._analytics,
     this._crashTelemetry,
-  });
+    String Function(String feature)? operationIdFactory,
+  }) : _operationIdFactory = operationIdFactory ?? PaidAiOperationId.create;
 
   final CompanionExperienceService _service;
   final CompanionOutputController _output;
   final LocalStorage? _storage;
   final AnalyticsService? _analytics;
   final CrashTelemetryService? _crashTelemetry;
+  final String Function(String feature) _operationIdFactory;
 
   CompanionState _state = const CompanionState(
     phase: CompanionPhase.initializing,
@@ -192,6 +196,7 @@ class CompanionController extends ChangeNotifier {
         context: result.context,
         linkStatus: CompanionLinkStatus.online,
       );
+      _restorePendingOperation();
     } catch (error) {
       // Bootstrap failed — keep chat mounted with an ephemeral session.
       // Do not claim the device is offline; send can still attempt the live path.
@@ -218,7 +223,7 @@ class CompanionController extends ChangeNotifier {
     _safeNotify();
   }
 
-  Future<void> send(String text) async {
+  Future<void> send(String text, {bool reusePendingOperation = false}) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
     if (_state.conversation == null || _state.context == null) {
@@ -259,20 +264,31 @@ class CompanionController extends ChangeNotifier {
     await _output.onUserSend();
     if (_disposed || token != _sendGeneration) return;
 
-    final already =
-        conversation.messages.isNotEmpty &&
-        conversation.messages.last.isUser &&
-        conversation.messages.last.content.trim() == trimmed;
-    final withUser = already
+    final pendingId = OrOperationId.pendingId(conversation.lastMessage);
+    final reuse = reusePendingOperation && pendingId != null;
+    var baseMessages = [...conversation.messages];
+    if (!reuse && pendingId != null) {
+      baseMessages[baseMessages.length - 1] = OrOperationId.withState(
+        baseMessages.last,
+        OrOperationId.abandoned,
+      );
+    }
+    final withUser = reuse
         ? conversation
         : conversation.copyWith(
             messages: [
-              ...conversation.messages,
+              ...baseMessages,
               AIMessage(
                 id: 'msg_u_${DateTime.now().millisecondsSinceEpoch}',
                 role: AIMessageRole.user,
                 content: trimmed,
                 createdAt: DateTime.now(),
+                metadata: {
+                  OrOperationId.metadataKey: _operationIdFactory(
+                    _readingContext == null ? 'chat' : 'oracle',
+                  ),
+                  OrOperationId.stateKey: OrOperationId.pending,
+                },
               ),
             ],
           );
@@ -305,6 +321,32 @@ class CompanionController extends ChangeNotifier {
         fromAi: result.fromAi,
         latency: DateTime.now().difference(started),
       );
+      if (!result.persisted) {
+        assert(() {
+          debugPrint(
+            '[OR] persistFailed keepReply=yes '
+            'msgCount=${result.conversation.messages.length}',
+          );
+          return true;
+        }());
+        _crashTelemetry?.recordSevere(
+          operation: 'or_persist',
+          errorCategory: 'local_persistence',
+        );
+        _state = _state.copyWith(
+          phase: CompanionPhase.conversing,
+          conversation: result.conversation,
+          errorMessage: CompanionCopy.saveFailed,
+          lastFailedText: null,
+          lastFailureKind: AiFailureKind.localPersistence,
+          linkStatus: CompanionLinkStatus.online,
+        );
+        _safeNotify();
+        try {
+          await _output.speakIfVoice(result.response.body);
+        } catch (_) {}
+        return;
+      }
       _state = _state.copyWith(
         phase: CompanionPhase.conversing,
         conversation: result.conversation,
@@ -405,6 +447,11 @@ class CompanionController extends ChangeNotifier {
 
   Future<void> retryLast() async {
     if (_disposed || _state.isBusy) return;
+    if (_state.lastFailureKind == AiFailureKind.localPersistence &&
+        OrOperationId.pendingId(_state.conversation?.lastMessage) == null) {
+      await retryPersist();
+      return;
+    }
     final failed = _state.lastFailedText?.trim() ?? '';
     if (failed.isEmpty) {
       await _reconnectWithoutMessage();
@@ -418,11 +465,57 @@ class CompanionController extends ChangeNotifier {
     );
     _safeNotify();
     try {
-      await send(failed);
+      await send(failed, reusePendingOperation: true);
     } finally {
       _networkRetry = false;
       if (!_disposed) _safeNotify();
     }
+  }
+
+  /// Saves the in-memory conversation only — zero provider calls.
+  Future<void> retryPersist() async {
+    if (_disposed || _state.isBusy) return;
+    if (_state.lastFailureKind != AiFailureKind.localPersistence) return;
+    final conversation = _state.conversation;
+    if (conversation == null) return;
+    final token = ++_sendGeneration;
+    _state = _state.copyWith(
+      phase: CompanionPhase.thinking,
+      errorMessage: null,
+      linkStatus: CompanionLinkStatus.online,
+    );
+    _safeNotify();
+    try {
+      await _service.persistConversation(conversation);
+      if (_disposed || token != _sendGeneration) return;
+      _state = _state.copyWith(
+        phase: CompanionPhase.conversing,
+        conversation: conversation,
+        clearFailureKind: true,
+        errorMessage: null,
+        lastFailedText: null,
+        linkStatus: CompanionLinkStatus.online,
+      );
+    } catch (error) {
+      if (_disposed || token != _sendGeneration) return;
+      assert(() {
+        debugPrint('[OR] persistRetryFailed errorType=${error.runtimeType}');
+        return true;
+      }());
+      _crashTelemetry?.recordSevere(
+        operation: 'or_persist_retry',
+        errorCategory: 'local_persistence',
+      );
+      _state = _state.copyWith(
+        phase: CompanionPhase.conversing,
+        conversation: conversation,
+        errorMessage: CompanionCopy.saveFailed,
+        lastFailureKind: AiFailureKind.localPersistence,
+        linkStatus: CompanionLinkStatus.online,
+      );
+    }
+    if (_disposed || token != _sendGeneration) return;
+    _safeNotify();
   }
 
   /// Soft reconnect with no user text — does not invent an assistant message.
@@ -470,6 +563,50 @@ class CompanionController extends ChangeNotifier {
     await send(lastUser.content);
   }
 
+  /// Makes an unresolved turn terminal without issuing a provider request.
+  Future<void> abandonPendingOperation() async {
+    if (_disposed || _state.isBusy) return;
+    final conversation = _state.conversation;
+    if (conversation == null ||
+        OrOperationId.pendingId(conversation.lastMessage) == null) {
+      return;
+    }
+    final messages = [...conversation.messages];
+    messages[messages.length - 1] = OrOperationId.withState(
+      messages.last,
+      OrOperationId.abandoned,
+    );
+    final abandoned = conversation.copyWith(
+      messages: messages,
+      updatedAt: DateTime.now(),
+    );
+    _state = _state.copyWith(
+      conversation: abandoned,
+      errorMessage: null,
+      lastFailedText: null,
+      clearFailureKind: true,
+      linkStatus: CompanionLinkStatus.online,
+    );
+    _safeNotify();
+    try {
+      await _service.persistConversation(abandoned);
+    } catch (_) {
+      // The in-memory terminal state still prevents accidental key reuse.
+    }
+  }
+
+  void _restorePendingOperation() {
+    final pending = _state.conversation?.lastMessage;
+    if (OrOperationId.pendingId(pending) == null) return;
+    _state = _state.copyWith(
+      phase: CompanionPhase.conversing,
+      errorMessage: ResilienceCopy.temporaryFailure,
+      lastFailedText: pending!.content,
+      lastFailureKind: AiFailureKind.providerError,
+      linkStatus: CompanionLinkStatus.online,
+    );
+  }
+
   Future<void> saveToMemory(String content) async {
     await _service.saveUserMemory(content: content);
     final refreshed = await _service.loadOrCreateSession();
@@ -488,11 +625,14 @@ class CompanionController extends ChangeNotifier {
     return switch (error.failure.kind) {
       AiFailureKind.noConfiguration => error.userMessage,
       AiFailureKind.unauthorized => error.userMessage,
+      AiFailureKind.authPending => error.userMessage,
+      AiFailureKind.appCheck => error.userMessage,
       AiFailureKind.network => CompanionCopy.connectionError,
       AiFailureKind.timeout => error.userMessage,
       AiFailureKind.rateLimit => error.userMessage,
       AiFailureKind.invalidResponse => error.userMessage,
       AiFailureKind.providerError => error.userMessage,
+      AiFailureKind.localPersistence => CompanionCopy.saveFailed,
       AiFailureKind.imageAnalysisUnavailable =>
         ResilienceCopy.analysisUnavailable,
     };

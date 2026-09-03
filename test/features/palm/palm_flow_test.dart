@@ -82,7 +82,7 @@ void main() {
     ).read(palmReadingControllerProvider);
     controller.startCapture();
     await tester.pump();
-    expect(find.text(PalmCopy.addPhotoTitle), findsOneWidget);
+    expect(find.text(PalmCopy.captureHeading), findsOneWidget);
 
     // Avoid Image.file decode (hangs under Windows widget tests).
     controller.debugSetImageForTest(
@@ -258,21 +258,6 @@ Widget _app(LocalStorage storage, {CoffeeImageInputPort? images}) {
   );
 }
 
-class _FakePalmImages implements CoffeeImageInputPort {
-  _FakePalmImages({required this.path});
-  final String path;
-
-  @override
-  bool get cameraAvailable => true;
-  @override
-  bool get galleryAvailable => true;
-  @override
-  Future<CoffeeImagePick?> pickFromCamera() async =>
-      CoffeeImagePick(path: path, mimeType: 'image/jpeg');
-  @override
-  Future<CoffeeImagePick?> pickFromGallery() async =>
-      CoffeeImagePick(path: path, mimeType: 'image/jpeg');
-}
 
 class _SilentPalmImages implements CoffeeImageInputPort {
   const _SilentPalmImages();

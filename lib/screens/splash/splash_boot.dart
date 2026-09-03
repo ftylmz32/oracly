@@ -10,6 +10,7 @@ import '../../core/data/datasources/local_storage.dart';
 import '../../core/data/repositories/local_onboarding_repository.dart';
 import '../../core/providers/backend_providers.dart' as backend;
 import '../../core/notifications/oracly_notification_providers.dart';
+import '../../core/notifications/oracly_notification_tap_router.dart';
 import '../../features/gems/providers/gem_providers.dart';
 
 /// Routing-critical: promote ephemeral storage, then read onboarding flag.
@@ -65,8 +66,14 @@ void splashScheduleWarmup(WidgetRef ref) {
 
 Future<void> _runWarmup(WidgetRef ref) async {
   try {
+    await ref.read(oraclyNotificationPortProvider).captureColdStartLaunch();
+  } catch (_) {}
+  try {
     final settings = await ref.read(settingsProvider.future);
     await ref.read(oraclyNotificationCoordinatorProvider).sync(settings);
+  } catch (_) {}
+  try {
+    OraclyNotificationTapRouter.openPending();
   } catch (_) {}
   try {
     ref.read(analyticsServiceProvider).logAppOpen();

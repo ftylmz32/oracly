@@ -44,6 +44,9 @@ abstract final class L10nKeys {
   static const back = 'common.back';
   static const save = 'common.save';
   static const cancel = 'common.cancel';
+  static const confirm = 'common.confirm';
+  static const ok = 'common.ok';
+  static const dismiss = 'common.dismiss';
   static const comingSoon = 'common.coming_soon';
   static const soundTitle = 'settings.sound';
   static const soundSubtitle = 'settings.sound_subtitle';

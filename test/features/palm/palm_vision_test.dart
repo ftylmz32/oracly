@@ -16,6 +16,7 @@ import 'package:oracly_new/features/palm/services/unavailable_palm_analysis.dart
 void main() {
   test('parser reads symbolic palm fields from a real map', () {
     final parsed = PalmVisionParser.fromMap({
+      'gorselTespit': 'Açık avuç; ana çizgiler net, kalp çizgisi hafif.',
       'genelYapi': 'Avuç açık ve sakin bir ritim taşıyor.',
       'yasamCizgisi': 'Yaşam çizgisi net; tempo yavaş okunuyor.',
       'zihinCizgisi': 'Zihin çizgisi karar anlarını hatırlatıyor.',

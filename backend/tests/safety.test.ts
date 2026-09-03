@@ -125,7 +125,7 @@ describe('safety', () => {
       payload: coffeeBody(huge),
     });
     expect(called).toBe(false);
-    expect(res.json().error.code).toBe('invalid_request');
+    expect(res.json().error.code).toBe('image_too_large');
     await app.close();
   });
 

@@ -86,17 +86,6 @@ void main() {
   });
 
   test('short follow-ups do not reset topic', () {
-    final turns = [
-      const ConversationTurn(
-        role: ConversationTurn.userRole,
-        text: 'Is konusunda ne yapacagimi bilmiyorum.',
-      ),
-      const ConversationTurn(
-        role: ConversationTurn.assistantRole,
-        text: 'Isi istememek mi, yanlis karar korkusu mu?',
-      ),
-    ];
-    // Use Turkish iş in first turn for topic detection:
     final jobTurns = [
       const ConversationTurn(
         role: ConversationTurn.userRole,
@@ -181,7 +170,7 @@ void main() {
         deckId: 'classic',
         deckName: 'Classic',
         readingTitle: 'Acilim',
-        cardsSummary: 'The Fool Â· id:abc-123',
+        cardsSummary: 'The Fool · id:abc-123',
         interpretationSummary: 'Yeni bir baslangic temasi.',
         userQuestion: 'Ne yapmaliyim?',
         cardNames: ['The Fool'],
@@ -206,3 +195,4 @@ void main() {
     expect(s, contains('seni anlıyorum'));
   });
 }
+

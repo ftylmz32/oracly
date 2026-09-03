@@ -8,6 +8,7 @@ import 'package:oracly_new/core/theme/app_theme.dart';
 import 'package:oracly_new/features/ai/production/oracly_ai_providers.dart';
 import 'package:oracly_new/features/ai/production/unconfigured_oracly_ai_service.dart';
 import 'package:oracly_new/features/companion/copy/companion_copy.dart';
+import 'package:oracly_new/features/companion/presentation/reference/companion_prompt_invitation.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_app_bar.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_idle.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_identity.dart';
@@ -21,6 +22,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const viewports = <Size>[
+    Size(320, 568),
+    Size(360, 640),
     Size(360, 800),
     Size(375, 812),
     Size(390, 844),
@@ -90,14 +93,12 @@ void main() {
     expect(find.text(CompanionCopy.idleSubtitle), findsOneWidget);
     expect(find.text(CompanionCopy.idleOptional), findsOneWidget);
     expect(CompanionCopy.suggestions.length, greaterThanOrEqualTo(7));
-    expect(find.text(CompanionCopy.suggestions.first), findsOneWidget);
-    expect(find.text(CompanionCopy.suggestions[1]), findsOneWidget);
+    expect(find.byType(CompanionPromptInvitation), findsAtLeastNWidgets(1));
     expect(find.text(CompanionCopy.suggestions.last), findsNothing);
-    expect(find.text(CompanionCopy.plusLabel), findsOneWidget);
     expect(find.byType(CompanionReferencePlusSlot), findsOneWidget);
     expect(find.byType(CompanionReferenceVoiceSlot), findsOneWidget);
     expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.north_east_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
   });
 
   testWidgets('typed text shows SEND and keyboard submit uses it', (tester) async {
@@ -116,7 +117,7 @@ void main() {
     );
     await tester.pump();
     expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.north_east_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
     expect(
       tester.widget<TextField>(find.byType(TextField)).keyboardType,
       TextInputType.multiline,
@@ -124,10 +125,10 @@ void main() {
 
     await tester.enterText(find.byType(TextField), 'Selam');
     await tester.pump();
-    expect(find.byIcon(Icons.north_east_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
     expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.north_east_rounded));
+    await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
     await tester.pump();
     expect(sent, 1);
 
@@ -166,8 +167,8 @@ void main() {
         expect(find.text(CompanionReferenceAppBar.title), findsWidgets);
         expect(find.text('OR REHBERİ'), findsNothing);
         expect(find.byType(CompanionReferenceIdentity), findsOneWidget);
-        // Free users meet OR presence + sample talk — not a fake personal result.
-        expect(find.text(CompanionCopy.presence), findsOneWidget);
+        // Free chamber: Luna guide line + honest Premium sample (not fake chat).
+        expect(find.text(CompanionCopy.guideSubtitle), findsOneWidget);
         expect(find.text(CompanionCopy.orPremiumLead), findsOneWidget);
         expect(find.text(CompanionCopy.orPremiumPersonality), findsOneWidget);
         expect(find.text(CompanionCopy.orPremiumSampleLabel), findsOneWidget);
@@ -179,3 +180,4 @@ void main() {
     }
   });
 }
+

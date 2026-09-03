@@ -3,6 +3,7 @@ library;
 
 import 'dart:io';
 
+import '../../../core/logging/analysis_debug_log.dart';
 import '../../ai/production/oracly_ai_service.dart';
 import '../copy/coffee_copy.dart';
 import '../models/coffee_image_pick.dart';
@@ -37,7 +38,15 @@ class OpenAiCoffeeAnalysis implements CoffeeAnalysisPort {
           imagePath: image.path,
         ),
       ),
-      error: (failure) => throw CoffeeAnalysisException(failure.userMessage),
+      error: (failure) {
+        logAnalysisFailure(
+          feature: 'CoffeeAnalysis',
+          stage: 'analyze',
+          error: failure,
+          kind: failure.kind.name,
+        );
+        throw CoffeeAnalysisException(failure.userMessage);
+      },
     );
   }
 }

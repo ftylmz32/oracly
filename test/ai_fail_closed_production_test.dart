@@ -117,7 +117,8 @@ void main() {
       config: config,
       transport: ProxyAiTransport(
         config: config,
-      appCheckToken: testAppCheckToken,
+        appCheckToken: testAppCheckToken,
+        accessToken: testAccessToken,
         client: MockClient((request) async {
           seen = request;
           return http.Response.bytes(
@@ -139,7 +140,7 @@ void main() {
     expect(result.isSuccess, isTrue, reason: '${result.failure}');
     expect(seen!.url.toString(), _prodProxy);
     expect(seen!.url.host, isNot('api.openai.com'));
-    expect(seen!.headers['Authorization'], isNull);
+    expect(seen!.headers['Authorization'], 'Bearer test-firebase-access-token');
     expect(seen!.body, isNot(contains('sk-')));
   });
 

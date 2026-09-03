@@ -41,7 +41,7 @@ void main() {
       transport: ProxyAiTransport(
         config: config,
       appCheckToken: testAppCheckToken,
-        accessToken: () async => 'user-access-token',
+        accessToken: ({bool forceRefresh = false}) async => 'user-access-token',
         client: MockClient((request) async {
           seen = request;
           return _okPortrait();
@@ -83,7 +83,8 @@ void main() {
       return ProxySoulMateDraw(
         transport: ProxyAiTransport(
           config: config,
-      appCheckToken: testAppCheckToken,
+          appCheckToken: testAppCheckToken,
+          accessToken: testAccessToken,
           client: MockClient((_) async => response),
         ),
       ).draw(
@@ -140,6 +141,7 @@ void main() {
         aiRuntimeConfigProvider.overrideWithValue(
           const AiRuntimeConfig(openAiKey: 'sk-dev-only'),
         ),
+        aiTransportProvider.overrideWithValue(null),
       ],
     );
     addTearDown(container.dispose);
@@ -160,7 +162,8 @@ void main() {
         ),
         aiTransportProvider.overrideWithValue(
           ProxyAiTransport(
-      appCheckToken: testAppCheckToken,
+            appCheckToken: testAppCheckToken,
+            accessToken: testAccessToken,
             config: const AiRuntimeConfig(
               environment: AppEnvironment.production,
               proxyUrl: _proxyUrl,
@@ -208,7 +211,7 @@ void main() {
       transport: ProxyAiTransport(
         config: config,
       appCheckToken: testAppCheckToken,
-        accessToken: () async => 'expired-token',
+        accessToken: ({bool forceRefresh = false}) async => 'expired-token',
         client: MockClient(
           (_) async => http.Response(
             jsonEncode({
@@ -236,7 +239,8 @@ void main() {
     final result = await ProxySoulMateDraw(
       transport: ProxyAiTransport(
         config: config,
-      appCheckToken: testAppCheckToken,
+        appCheckToken: testAppCheckToken,
+        accessToken: testAccessToken,
         client: MockClient(
           (_) async => _json({
             'success': true,
@@ -264,7 +268,8 @@ void main() {
     final port = ProxySoulMateDraw(
       transport: ProxyAiTransport(
         config: config,
-      appCheckToken: testAppCheckToken,
+        appCheckToken: testAppCheckToken,
+        accessToken: testAccessToken,
         client: MockClient((_) async {
           hits += 1;
           await Future<void>.delayed(const Duration(milliseconds: 40));
@@ -288,6 +293,7 @@ void main() {
         aiRuntimeConfigProvider.overrideWithValue(
           const AiRuntimeConfig(environment: AppEnvironment.production),
         ),
+        aiTransportProvider.overrideWithValue(null),
       ],
     );
     addTearDown(container.dispose);

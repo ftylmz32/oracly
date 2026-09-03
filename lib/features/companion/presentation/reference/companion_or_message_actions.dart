@@ -1,17 +1,20 @@
-/// Tiny last-OR actions — only when useful. Never a constant toolbar.
+/// Tiny last-Luna actions — copy · favorite · regenerate. Real only.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/accessibility/oracly_a11y.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/insight_copy/insight_copy_action.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
 import '../../../ai/domain/models/ai_message.dart';
+import '../../../favorite_moments/copy/favorite_moments_copy.dart';
 import '../../../favorite_moments/models/favorite_moment.dart';
-import '../../../favorite_moments/presentation/widgets/save_favorite_moment_link.dart';
+import '../../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../copy/companion_copy.dart';
+import 'companion_gold_line_icon.dart';
+import 'companion_reference_tokens.dart';
 
 class CompanionOrMessageActions extends StatelessWidget {
   const CompanionOrMessageActions({
@@ -34,41 +37,50 @@ class CompanionOrMessageActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (message.content.trim().isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(left: 24, top: 2),
-      child: Wrap(
-        spacing: 2,
-        runSpacing: 0,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          _TinyAction(
-            label: CompanionCopy.copyAction,
-            onTap: () => InsightCopyAction.copy(context, message.content),
-          ),
-          if (showSpeak)
-            _TinyAction(
-              label: CompanionCopy.speakAction,
-              onTap: () => onSpeak(message.content),
+    return Transform.translate(
+      offset: const Offset(0, -6),
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left:
+              CompanionReferenceTokens.avatarSize +
+              CompanionReferenceTokens.avatarGap,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showRetry)
+              _IconAction(
+                icon: Icons.auto_awesome_outlined,
+                label: CompanionCopy.regenerateAction,
+                onTap: onRegenerate,
+              ),
+            if (saveDraft != null) _FavoriteIconAction(draft: saveDraft!),
+            _IconAction(
+              icon: Icons.copy_rounded,
+              label: CompanionCopy.copyAction,
+              onTap: () => InsightCopyAction.copy(context, message.content),
             ),
-          if (saveDraft != null)
-            SaveFavoriteMomentLink(
-              draft: saveDraft!,
-              align: Alignment.centerLeft,
-            ),
-          if (showRetry)
-            _TinyAction(
-              label: CompanionCopy.regenerateAction,
-              onTap: onRegenerate,
-            ),
-        ],
+            if (showSpeak)
+              _IconAction(
+                icon: Icons.volume_up_outlined,
+                label: CompanionCopy.speakAction,
+                onTap: () => onSpeak(message.content),
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _TinyAction extends StatelessWidget {
-  const _TinyAction({required this.label, required this.onTap});
+class _IconAction extends StatelessWidget {
+  const _IconAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
+  final IconData icon;
   final String label;
   final VoidCallback onTap;
 
@@ -81,19 +93,48 @@ class _TinyAction extends StatelessWidget {
         onTap: onTap,
         child: ConstrainedBox(
           constraints: const BoxConstraints(
+            minWidth: OraclyA11y.minTouchTarget,
             minHeight: OraclyA11y.minTouchTarget,
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Text(
-              label,
-              style: AppTextStyles.caption.copyWith(
-                color: OraclyChrome.goldLight.withValues(
-                  alpha: OraclyA11y.quietGoldMuted,
-                ),
-                fontSize: 11,
-                letterSpacing: 0.35,
-              ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: OraclyChrome.goldLight.withValues(alpha: 0.72),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FavoriteIconAction extends ConsumerWidget {
+  const _FavoriteIconAction({required this.draft});
+
+  final FavoriteMoment draft;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final saved = ref.watch(favoriteMomentSavedProvider(draft.id));
+    final label = saved ? FavoriteMomentsCopy.unsave : FavoriteMomentsCopy.save;
+    return Semantics(
+      button: true,
+      label: label,
+      child: OraclyPressable(
+        onTap: () async {
+          final notifier = ref.read(favoriteMomentsProvider.notifier);
+          if (saved) {
+            await notifier.remove(draft.id);
+          } else {
+            await notifier.save(draft);
+          }
+        },
+        child: SizedBox(
+          width: OraclyA11y.minTouchTarget,
+          height: OraclyA11y.minTouchTarget,
+          child: Center(
+            child: CompanionGoldLineIcon(
+              kind: CompanionLineIconKind.heart,
+              size: 18,
             ),
           ),
         ),

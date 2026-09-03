@@ -46,7 +46,7 @@ class SettingsOrVoiceCard extends StatelessWidget {
               child: OraclyPressable(
                 onTap: onSelect,
                 behavior: HitTestBehavior.opaque,
-                    child: Padding(
+                child: Padding(
                   padding: EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

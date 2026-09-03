@@ -65,7 +65,10 @@ abstract final class OrSessionResolver {
             lastFailure == AiFailureKind.timeout ||
             lastFailure == AiFailureKind.noConfiguration ||
             lastFailure == AiFailureKind.invalidResponse ||
-            lastFailure == AiFailureKind.rateLimit)) {
+            lastFailure == AiFailureKind.rateLimit ||
+            lastFailure == AiFailureKind.authPending ||
+            lastFailure == AiFailureKind.appCheck ||
+            lastFailure == AiFailureKind.localPersistence)) {
       return OrSessionPresentation(
         state: OrSessionState.retrying,
         canCompose: true,
@@ -95,7 +98,21 @@ abstract final class OrSessionResolver {
       );
     }
 
-    if (lastFailure == AiFailureKind.unauthorized) {
+    if (lastFailure == AiFailureKind.authPending) {
+      return OrSessionPresentation(
+        state: OrSessionState.reconnecting,
+        canCompose: true,
+        canUseMic: false,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.connecting,
+        canRetry: true,
+        connecting: true,
+      );
+    }
+
+    if (lastFailure == AiFailureKind.unauthorized ||
+        lastFailure == AiFailureKind.appCheck) {
       return OrSessionPresentation(
         state: OrSessionState.sessionExpired,
         canCompose: true,
@@ -143,6 +160,18 @@ abstract final class OrSessionResolver {
         showPreview: false,
         showPaywallDock: false,
         statusLine: CompanionCopy.providerUnavailable,
+        canRetry: true,
+      );
+    }
+
+    if (lastFailure == AiFailureKind.localPersistence) {
+      return OrSessionPresentation(
+        state: OrSessionState.saveFailed,
+        canCompose: true,
+        canUseMic: !voiceUnavailable,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: CompanionCopy.saveFailed,
         canRetry: true,
       );
     }

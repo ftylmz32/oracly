@@ -7,26 +7,15 @@ import '../../astrology/models/astrology_daily_reading.dart';
 import '../../coffee/models/coffee_reading.dart';
 import '../../palm/models/palm_reading.dart';
 import '../../daily_message/models/daily_message.dart';
-import '../../tarot/history/tarot_history_privacy.dart';
 import '../models/favorite_moment.dart';
+import 'favorite_moment_tarot.dart';
 import 'favorite_moment_text.dart';
 
 abstract final class FavoriteMomentFactory {
   FavoriteMomentFactory._();
 
-  static FavoriteMoment tarot(ReadingModel reading) {
-    final ref = reading.id;
-    return FavoriteMoment(
-      id: '${FavoriteMomentSource.tarot.name}:$ref',
-      source: FavoriteMomentSource.tarot,
-      sourceRef: ref,
-      savedAt: DateTime.now(),
-      occurredAt: reading.createdAt,
-      quote: TarotHistoryPrivacy.shortInsight(reading),
-      visualAsset: reading.cardImageAsset,
-      visualLabel: reading.cardName,
-    );
-  }
+  static FavoriteMoment tarot(ReadingModel reading) =>
+      FavoriteMomentTarot.fromReading(reading);
 
   static FavoriteMoment tarotLive({
     required String sessionId,
@@ -34,18 +23,16 @@ abstract final class FavoriteMomentFactory {
     required String cardName,
     required String cardAsset,
     required String insight,
-  }) {
-    return FavoriteMoment(
-      id: '${FavoriteMomentSource.tarot.name}:$sessionId',
-      source: FavoriteMomentSource.tarot,
-      sourceRef: sessionId,
-      savedAt: DateTime.now(),
-      occurredAt: at,
-      quote: FavoriteMomentText.clip(insight),
-      visualAsset: cardAsset,
-      visualLabel: cardName,
-    );
-  }
+    bool isReversed = false,
+  }) =>
+      FavoriteMomentTarot.fromLive(
+        sessionId: sessionId,
+        at: at,
+        cardName: cardName,
+        cardAsset: cardAsset,
+        insight: insight,
+        isReversed: isReversed,
+      );
 
   static FavoriteMoment coffee(CoffeeReading reading) {
     return FavoriteMoment(

@@ -31,6 +31,7 @@ import 'tables/table_home_phrases.dart';
 import 'tables/table_help.dart';
 import 'tables/table_insight_copy.dart';
 import 'tables/table_insights.dart';
+import 'tables/table_legal.dart';
 import 'tables/table_or_chat.dart';
 import 'tables/table_or_core.dart';
 import 'tables/table_or_living.dart';
@@ -107,6 +108,7 @@ abstract final class AppStringTables {
     ...kL10nTarotHist,
     ...kL10nHome,
     ...kL10nHelp,
+    ...kL10nLegal,
     ...kL10nFirst,
     ...kL10nFortune,
     ...kL10nFortuneSymbols,

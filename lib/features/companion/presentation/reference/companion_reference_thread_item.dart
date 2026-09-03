@@ -8,7 +8,6 @@ import 'companion_message_entrance.dart';
 import '../../../../features/tarot/revisit/tarot_revisit_context.dart';
 import '../../../ai/domain/models/ai_message.dart';
 import '../../../favorite_moments/services/favorite_moment_factory.dart';
-import '../../copy/companion_copy.dart';
 import 'companion_or_message_actions.dart';
 import 'companion_reference_message_bubble.dart';
 import 'companion_reference_prompts.dart';

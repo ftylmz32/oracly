@@ -8,6 +8,7 @@ import 'package:oracly_new/screens/settings/reference/settings_reference_screen.
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
+import 'settings_test_fakes.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,7 @@ void main() {
       (tester) async {
         await tester.binding.setSurfaceSize(size);
         addTearDown(() => tester.binding.setSurfaceSize(null));
-        SharedPreferences.setMockInitialValues({});
+        SharedPreferences.setMockInitialValues(settingsTestLanguagePrefs);
         final storage = await LocalStorage.open();
         await tester.pumpWidget(
           buildProviderScopeHarness(

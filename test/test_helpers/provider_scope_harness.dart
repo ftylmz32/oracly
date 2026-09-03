@@ -5,6 +5,7 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/notifications/memory_notification_port.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_providers.dart';
 import 'package:oracly_new/features/premium/providers/premium_purchase_port_provider.dart';
+import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:oracly_new/features/premium/services/unavailable_premium_purchase.dart';
 
@@ -17,6 +18,7 @@ Widget buildProviderScopeHarness({
   return ProviderScope(
     overrides: [
       localStorageProvider.overrideWithValue(storage),
+      secureStorageProvider.overrideWithValue(InMemorySecureStorage()),
       oraclyNotificationPortProvider.overrideWithValue(
         MemoryNotificationPort(),
       ),

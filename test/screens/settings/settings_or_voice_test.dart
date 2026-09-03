@@ -25,7 +25,7 @@ void main() {
   late RecordingTts tts;
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues(settingsTestLanguagePrefs);
     storage = LocalStorage(await SharedPreferences.getInstance());
     tts = RecordingTts();
     OraclyL10n.bind('tr');
@@ -37,7 +37,7 @@ void main() {
   });
 
   Future<void> pumpSettings(WidgetTester tester) async {
-    await tester.binding.setSurfaceSize(const Size(390, 2400));
+    await tester.binding.setSurfaceSize(const Size(390, 3200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
       ProviderScope(
@@ -108,6 +108,7 @@ void main() {
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({
+      ...settingsTestLanguagePrefs,
       'settings_ai_personality': AiPersonality.direct.index,
     });
     storage = LocalStorage(await SharedPreferences.getInstance());
@@ -141,6 +142,7 @@ void main() {
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({
+      ...settingsTestLanguagePrefs,
       'settings_or_voice': 'male_calm',
     });
     storage = LocalStorage(await SharedPreferences.getInstance());

@@ -3,11 +3,12 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/l10n/oracly_format.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import 'card_detail_locale.dart';
 import 'card_detail_models.dart';
 
 class CardDetailInfoChips extends StatelessWidget {
@@ -37,31 +38,31 @@ class CardDetailInfoChips extends StatelessWidget {
                 runSpacing: AppSpacing.sm,
                 children: [
                   _MetaChip(
-                    label: 'Arkan',
+                    label: OraclyL10n.t('tarot.card.meta.arcana'),
                     value: content.arcanaType,
                     icon: Icons.auto_awesome_rounded,
                     accent: content.accentColor,
                   ),
                   _MetaChip(
-                    label: 'Element',
-                    value: content.element,
+                    label: OraclyL10n.t('tarot.card.meta.element'),
+                    value: CardDetailLocale.element(content),
                     icon: Icons.water_drop_outlined,
                     accent: content.accentColor,
                   ),
                   _MetaChip(
-                    label: 'Gezegen',
-                    value: content.planet,
+                    label: OraclyL10n.t('tarot.card.meta.planet'),
+                    value: CardDetailLocale.planet(content),
                     icon: Icons.public_rounded,
                     accent: content.accentColor,
                   ),
                   _MetaChip(
-                    label: 'Burç',
-                    value: content.zodiac,
+                    label: OraclyL10n.t('tarot.card.meta.zodiac'),
+                    value: CardDetailLocale.zodiac(content),
                     icon: Icons.star_outline_rounded,
                     accent: content.accentColor,
                   ),
                   _MetaChip(
-                    label: 'Numara',
+                    label: OraclyL10n.t('tarot.card.meta.number'),
                     value: OraclyFormat.cardNumber(content.number),
                     icon: Icons.tag_rounded,
                     accent: content.accentColor,
@@ -70,7 +71,7 @@ class CardDetailInfoChips extends StatelessWidget {
               ),
               SizedBox(height: AppSpacing.md),
               Text(
-                'Anahtar Kelimeler',
+                OraclyL10n.t('tarot.card.keywords'),
                 style: AppTextStyles.labelMedium.copyWith(
                   color: AppColors.textHint,
                 ),
@@ -79,7 +80,7 @@ class CardDetailInfoChips extends StatelessWidget {
               Wrap(
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.sm,
-                children: content.keywords
+                children: CardDetailLocale.keywords(content)
                     .map(
                       (k) => _KeywordChip(
                         label: k,

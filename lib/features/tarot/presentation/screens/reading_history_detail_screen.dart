@@ -1,6 +1,8 @@
 /// OR-1170 — Reading history detail with hero transition.
 library;
 
+import 'dart:math' show pi;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -196,9 +198,12 @@ class _ReadingHistoryDetailScreenState
                           child: SizedBox(
                             width: 44,
                             height: 64,
-                            child: TarotMajorCardArt(
-                              imageAsset: widget.entry.cardImageAsset,
-                              showChrome: false,
+                            child: Transform.rotate(
+                              angle: widget.entry.isReversed ? pi : 0,
+                              child: TarotMajorCardArt(
+                                imageAsset: widget.entry.cardImageAsset,
+                                showChrome: false,
+                              ),
                             ),
                           ),
                         ),

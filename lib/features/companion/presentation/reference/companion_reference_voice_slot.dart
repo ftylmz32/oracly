@@ -57,12 +57,12 @@ class CompanionReferenceVoiceSlot extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: OraclyChrome.cardSurface.withValues(
-                  alpha: listening ? 0.42 : 0.26,
+                color: OraclyChrome.violet.withValues(
+                  alpha: listening ? 0.48 : 0.22,
                 ),
                 border: Border.all(
-                  color: OraclyChrome.gold.withValues(
-                    alpha: listening || requesting ? 0.46 : 0.20,
+                  color: OraclyChrome.violet.withValues(
+                    alpha: listening || requesting ? 0.62 : 0.36,
                   ),
                   width: 0.65,
                 ),
@@ -82,12 +82,12 @@ class CompanionReferenceVoiceSlot extends StatelessWidget {
               child: Icon(
                 listening ? Icons.mic_rounded : Icons.mic_none_rounded,
                 size: 20,
-                color: OraclyChrome.goldLight.withValues(
+                color: OraclyChrome.cream.withValues(
                   alpha: listening
-                      ? 0.96
+                      ? 0.98
                       : requesting
-                          ? 0.68
-                          : 0.80,
+                          ? 0.72
+                          : 0.88,
                 ),
               ),
             ),

@@ -44,6 +44,7 @@ class FavoriteMoment {
     required this.quote,
     this.visualAsset,
     this.visualLabel,
+    this.visualIsReversed = false,
   });
 
   final String id;
@@ -54,6 +55,10 @@ class FavoriteMoment {
   final String quote;
   final String? visualAsset;
   final String? visualLabel;
+
+  /// When [visualAsset] reproduces a drawn Tarot card, preserve orientation.
+  /// Missing on old favorites → upright.
+  final bool visualIsReversed;
 
   String get dateLabel => OraclyFormat.date(occurredAt);
 
@@ -66,6 +71,7 @@ class FavoriteMoment {
         'quote': quote,
         if (visualAsset != null) 'visualAsset': visualAsset,
         if (visualLabel != null) 'visualLabel': visualLabel,
+        if (visualIsReversed) 'visualIsReversed': true,
       };
 
   factory FavoriteMoment.fromJson(Map<String, dynamic> json) {
@@ -86,6 +92,7 @@ class FavoriteMoment {
       quote: '${json['quote']}',
       visualAsset: json['visualAsset'] as String?,
       visualLabel: json['visualLabel'] as String?,
+      visualIsReversed: json['visualIsReversed'] as bool? ?? false,
     );
   }
 }

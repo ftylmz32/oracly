@@ -13,7 +13,8 @@ class OraclyLocaleScope extends InheritedWidget {
   final String code;
 
   static String of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<OraclyLocaleScope>();
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<OraclyLocaleScope>();
     return scope?.code ?? 'tr';
   }
 

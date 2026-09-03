@@ -19,9 +19,7 @@ class GemsReferenceAppBar extends StatelessWidget {
     return OraclyAppBar(
       title: title,
       onLeadingTap: onBack ?? () => Navigator.maybePop(context),
-      trailing: const OraclyLiveGemCapsule(onTap: _ignoreGemTap),
+      trailing: const OraclyLiveGemCapsule(interactive: false),
     );
   }
-
-  static void _ignoreGemTap() {}
 }

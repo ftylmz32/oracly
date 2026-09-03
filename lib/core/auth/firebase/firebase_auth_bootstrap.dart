@@ -8,27 +8,53 @@ abstract final class FirebaseAuthBootstrap {
   FirebaseAuthBootstrap._();
 
   static bool _ready = false;
+  static Future<bool>? _inFlight;
+
+  /// Riverpod-safe signal — flips when [tryInitialize] finishes.
+  static final ValueNotifier<bool> ready = ValueNotifier<bool>(false);
 
   static bool get isReady => _ready;
 
   /// Succeeds only when a real Firebase app can initialize
   /// (`google-services.json` / `GoogleService-Info.plist` / existing app).
   static Future<bool> tryInitialize() async {
-    if (Firebase.apps.isNotEmpty) {
-      _ready = true;
+    if (_ready || Firebase.apps.isNotEmpty) {
+      _setReady(true);
       return true;
     }
+    final existing = _inFlight;
+    if (existing != null) return existing;
+    final future = _initializeOnce();
+    _inFlight = future;
     try {
-      await Firebase.initializeApp();
-      _ready = Firebase.apps.isNotEmpty;
+      return await future;
+    } finally {
+      if (identical(_inFlight, future)) _inFlight = null;
+    }
+  }
+
+  static Future<bool> _initializeOnce() async {
+    try {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp();
+      }
+      _setReady(Firebase.apps.isNotEmpty);
     } catch (_) {
-      _ready = false;
+      _setReady(false);
     }
     return _ready;
   }
 
-  @visibleForTesting
-  static void debugSetReady(bool value) => _ready = value;
+  static void _setReady(bool value) {
+    _ready = value;
+    if (ready.value != value) ready.value = value;
+  }
 
-  static void reset() => _ready = false;
+  @visibleForTesting
+  static void debugSetReady(bool value) => _setReady(value);
+
+  static void reset() {
+    _inFlight = null;
+    _setReady(false);
+  }
 }

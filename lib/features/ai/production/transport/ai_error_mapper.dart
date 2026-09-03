@@ -19,13 +19,21 @@ abstract final class AiErrorMapper {
   static AiFailure fromCode(String? code) {
     return switch ((code ?? '').trim().toLowerCase()) {
       'no_configuration' => AiFailure.noConfiguration(),
-      'unauthorized' || 'forbidden' => AiFailure.unauthorized(),
+      'unauthorized' ||
+      'forbidden' ||
+      'authentication_required' =>
+        AiFailure.unauthorized(),
+      'app_check_required' || 'app_check' => AiFailure.appCheck(),
       'network' || 'network_error' => AiFailure.network(),
-      'timeout' => AiFailure.timeout(),
+      'timeout' || 'provider_timeout' => AiFailure.timeout(),
       'rate_limit' || 'rate_limited' => AiFailure.rateLimit(),
-      'invalid_response' => AiFailure.invalidResponse(),
+      'invalid_response' || 'quality_unavailable' => AiFailure.invalidResponse(),
+      'invalid_image' ||
+      'unsupported_image_type' ||
+      'image_too_large' ||
       'invalid_request' ||
-      'validation_error' =>
+      'validation_error' ||
+      'moderation_blocked' =>
         AiFailure.invalidImage(),
       'vision_unavailable' ||
       'image_unavailable' ||

@@ -11,6 +11,8 @@ export type SafeLog = {
   providerTextLength?: number;
   imagePayloadPresent?: boolean;
   parsedOk?: boolean;
+  /** True when a verified subject exists — never log the subject itself. */
+  identityPresent?: boolean;
 };
 
 const SECRETISH = /sk-[a-zA-Z0-9_-]{8,}|Bearer\s+\S+/i;

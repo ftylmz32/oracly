@@ -70,11 +70,15 @@ void main() {
   });
 
   test('onboarding completes with first-reading intent, not paywall', () {
-    final source = File(
+    final screen = File(
       'lib/features/onboarding/presentation/screens/onboarding_screen.dart',
     ).readAsStringSync();
-    expect(source, contains('requestFirstReading'));
-    expect(source, isNot(contains('showDialog')));
+    final finish = File(
+      'lib/features/onboarding/services/onboarding_finish.dart',
+    ).readAsStringSync();
+    expect(finish, contains('requestFirstReading'));
+    expect(screen, contains('finishOnboarding'));
+    expect(screen, isNot(contains('showDialog')));
     expect(
       OnboardingCopy.pages.any((p) => p.title.contains('Premium')),
       isFalse,

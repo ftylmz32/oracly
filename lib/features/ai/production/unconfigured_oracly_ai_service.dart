@@ -61,7 +61,9 @@ class UnconfiguredOraclyAiService implements OraclyAiService {
     required List<int> imageBytes,
     required String mimeType,
   }) async =>
-      AiOutcome.failure(AiFailure.imageAnalysisUnavailable());
+      AiOutcome.failure(
+        AiFailure.imageAnalysisUnavailable(feature: AiAnalysisFeature.coffee),
+      );
 
   @override
   Future<AiOutcome<PalmAiAnalysis>> analyzePalm({
@@ -69,5 +71,7 @@ class UnconfiguredOraclyAiService implements OraclyAiService {
     required String mimeType,
     required String hand,
   }) async =>
-      AiOutcome.failure(AiFailure.imageAnalysisUnavailable());
+      AiOutcome.failure(
+        AiFailure.imageAnalysisUnavailable(feature: AiAnalysisFeature.palm),
+      );
 }

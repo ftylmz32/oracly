@@ -108,3 +108,4 @@ void main() {
     expect(crisis!.toLowerCase(), contains('182'));
   });
 }
+

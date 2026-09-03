@@ -1,13 +1,11 @@
-/// Optional human starters — compact grid with inline expand.
+/// Optional human starters — horizontal chips or compact wrap.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/design_system/oracly_chrome.dart';
-import '../../../../core/theme/reading_typography.dart';
-import '../../../../shared/widgets/oracly_pressable.dart';
 import '../../copy/companion_copy.dart';
 import 'companion_prompt_invitation.dart';
+import 'companion_prompt_show_more.dart';
 import 'companion_reference_tokens.dart';
 
 export 'companion_prompt_invitation.dart'
@@ -23,6 +21,7 @@ class CompanionReferencePrompts extends StatefulWidget {
     this.light = false,
     this.collapsible = false,
     this.initialVisible = 4,
+    this.horizontal = false,
   });
 
   final ValueChanged<String> onSelected;
@@ -32,6 +31,7 @@ class CompanionReferencePrompts extends StatefulWidget {
   final bool light;
   final bool collapsible;
   final int initialVisible;
+  final bool horizontal;
 
   @override
   State<CompanionReferencePrompts> createState() =>
@@ -43,14 +43,79 @@ class _CompanionReferencePromptsState extends State<CompanionReferencePrompts> {
 
   @override
   Widget build(BuildContext context) {
-    final all =
-        CompanionCopy.suggestionsForKind(widget.kindId).take(widget.limit ?? 7);
+    final all = CompanionCopy.suggestionsForKind(
+      widget.kindId,
+    ).take(widget.limit ?? 7);
     final items = all.toList();
     final cap = widget.collapsible && !_expanded
         ? widget.initialVisible.clamp(1, items.length)
         : items.length;
     final visible = items.take(cap).toList();
     final hidden = items.length - visible.length;
+
+    if (widget.horizontal) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final showAll = constraints.maxWidth >= 400 && visible.length == 3;
+          final itemWidth = showAll
+              ? (constraints.maxWidth -
+                        CompanionReferenceTokens.promptGap *
+                            (visible.length - 1)) /
+                    visible.length
+              : 168.0;
+          return SizedBox(
+            height: CompanionReferenceTokens.quickPromptCardHeight,
+            child: Stack(
+              children: [
+                ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const ClampingScrollPhysics(),
+                  itemCount: visible.length,
+                  separatorBuilder: (_, _) =>
+                      SizedBox(width: CompanionReferenceTokens.promptGap),
+                  itemBuilder: (context, i) {
+                    final item = visible[i];
+                    return SizedBox(
+                      width: itemWidth,
+                      child: CompanionPromptInvitation(
+                        label: item,
+                        recessed: widget.recessed,
+                        light: widget.light,
+                        horizontalChip: true,
+                        iconIndex: i,
+                        onTap: () => widget.onSelected(item),
+                      ),
+                    );
+                  },
+                ),
+                if (!showAll && visible.length > 2)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: IgnorePointer(
+                      child: Container(
+                        width: 28,
+                        alignment: Alignment.centerRight,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.transparent, Color(0xFF08050D)],
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: Color(0xFFD9B765),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -68,7 +133,8 @@ class _CompanionReferencePromptsState extends State<CompanionReferencePrompts> {
               children: [
                 for (final item in visible)
                   SizedBox(
-                    width: twoCol &&
+                    width:
+                        twoCol &&
                             !CompanionPromptInvitation.spansFullWidth(item)
                         ? half
                         : maxWidth,
@@ -76,6 +142,7 @@ class _CompanionReferencePromptsState extends State<CompanionReferencePrompts> {
                       label: item,
                       recessed: widget.recessed,
                       light: widget.light,
+                      iconIndex: visible.indexOf(item),
                       onTap: () => widget.onSelected(item),
                     ),
                   ),
@@ -83,52 +150,13 @@ class _CompanionReferencePromptsState extends State<CompanionReferencePrompts> {
             ),
             if (widget.collapsible && hidden > 0 && !_expanded) ...[
               SizedBox(height: gap),
-              _ShowMoreChip(
-                label: CompanionCopy.plusLabel,
+              CompanionPromptShowMore(
                 onTap: () => setState(() => _expanded = true),
               ),
             ],
           ],
         );
       },
-    );
-  }
-}
-
-class _ShowMoreChip extends StatelessWidget {
-  const _ShowMoreChip({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: CompanionCopy.plusSemantics,
-      child: OraclyPressable(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: ReadingTypography.micro(
-                  color: OraclyChrome.goldLight.withValues(alpha: 0.62),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Icon(
-                Icons.expand_more_rounded,
-                size: 16,
-                color: OraclyChrome.goldLight.withValues(alpha: 0.50),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

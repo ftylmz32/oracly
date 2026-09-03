@@ -19,9 +19,9 @@ void main() {
     expect(OraclyA11y.iconGoldIdle, greaterThanOrEqualTo(0.75));
   });
 
-  test('app text scale soft-clamps without killing enlargement', () {
+  test('body text scale follows system above 1.4; chrome stays capped', () {
     final scaled = OraclyA11y.clampAppTextScaler(const TextScaler.linear(2.0));
-    expect(scaled.scale(10), closeTo(14.0, 0.01));
+    expect(scaled.scale(10), closeTo(20.0, 0.01));
     final chrome =
         OraclyA11y.clampChromeTextScaler(const TextScaler.linear(2.0));
     expect(chrome.scale(10), closeTo(12.0, 0.01));

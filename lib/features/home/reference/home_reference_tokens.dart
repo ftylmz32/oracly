@@ -1,4 +1,4 @@
-/// Reference Home layout tokens — scroll-friendly preferred sizes.
+/// Reference Home layout tokens — dashboard fit + scroll fallback sizes.
 library;
 
 import 'package:flutter/material.dart';
@@ -20,13 +20,13 @@ abstract final class HomeReferenceTokens {
   static const double screenTop = AppSpacing.s4;
 
   /// Minimum readable discovery tile height (scroll layout).
-  static const double moduleTileMinHeight = 96;
+  static const double moduleTileMinHeight = 104;
 
   static const BorderRadius heroRadius = AppRadius.s24;
   static const BorderRadius moduleRadius = AppRadius.s20;
   static const BorderRadius premiumRadius = AppRadius.s20;
 
-  static const double moduleTitleSize = 13;
+  static const double moduleTitleSize = 14;
   static const double moduleCaptionSize = 10;
   static const double heroButtonMinWidth = 120;
 

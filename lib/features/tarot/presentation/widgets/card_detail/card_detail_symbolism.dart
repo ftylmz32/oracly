@@ -5,20 +5,24 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import 'card_detail_locale.dart';
 import 'card_detail_models.dart';
 
 class CardDetailSymbolism extends StatelessWidget {
   const CardDetailSymbolism({
     super.key,
+    required this.cardId,
     required this.symbols,
     required this.entrance,
     required this.accent,
   });
 
+  final int cardId;
   final List<CardSymbolEntry> symbols;
   final double entrance;
   final Color accent;
@@ -26,6 +30,7 @@ class CardDetailSymbolism extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final slide = (1 - entrance) * 18;
+    final localized = CardDetailLocale.symbols(cardId: cardId, base: symbols);
     return Opacity(
       opacity: entrance.clamp(0.0, 1.0),
       child: Transform.translate(
@@ -36,17 +41,17 @@ class CardDetailSymbolism extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Sembolizm',
+                OraclyL10n.t('tarot.card.symbolism'),
                 style: AppTextStyles.titleSmall.copyWith(
                   color: AppColors.goldLight,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: AppSpacing.md),
-              ...symbols.asMap().entries.map((entry) {
+              ...localized.asMap().entries.map((entry) {
                 final index = entry.key;
                 final symbol = entry.value;
-                final isLast = index == symbols.length - 1;
+                final isLast = index == localized.length - 1;
                 return _SymbolTimelineTile(
                   symbol: symbol,
                   accent: accent,

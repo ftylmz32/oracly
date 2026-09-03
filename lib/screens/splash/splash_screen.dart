@@ -11,6 +11,7 @@ import '../../core/data/repositories/local_onboarding_repository.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/navigation/oracly_navigator_key.dart';
 import '../../core/navigation/oracly_routes.dart';
+import '../../core/notifications/oracly_notification_tap_router.dart';
 import '../../core/theme/oracly_reduced_motion.dart';
 import '../../features/share_reopen/services/share_link_opener.dart';
 import 'splash_boot.dart';
@@ -91,6 +92,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     );
     SplashDestination.commitRoute(context, dest);
     ShareLinkOpener.openPending();
+    OraclyNotificationTapRouter.openPending(context);
     final name = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
     if (name == OraclyRoutes.chat) {
       oraclyNavigatorKey.currentState?.pushNamed(OraclyRoutes.chat);

@@ -66,12 +66,13 @@ void main() {
     final source = File(
       'lib/features/companion/controllers/companion_controller.dart',
     ).readAsStringSync().replaceAll('\r\n', '\n');
+    final notifyIndex = source.indexOf('_safeNotify();');
+    final speakIndex = source.indexOf('await _output.speakIfVoice');
+    expect(notifyIndex, greaterThan(-1));
+    expect(speakIndex, greaterThan(notifyIndex));
     expect(
-      source.contains(
-        '_safeNotify();\n      if (_disposed || token != _sendGeneration) return;\n'
-        '      try {\n        await _output.speakIfVoice',
-      ),
-      isTrue,
+      source.substring(notifyIndex, speakIndex),
+      contains('if (_disposed || token != _sendGeneration) return;'),
     );
     expect(source.contains('OrSpeechProsody'), isFalse);
     final output = File(

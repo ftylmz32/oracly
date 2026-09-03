@@ -12,16 +12,13 @@ import '../data/palm_reading_store.dart';
 import '../services/openai_palm_analysis.dart';
 import '../services/palm_analysis_port.dart';
 import '../services/palm_experience_service.dart';
-import '../services/unavailable_palm_analysis.dart';
 
 final palmReadingStoreProvider = Provider<PalmReadingStore>((ref) {
   return PalmReadingStore(ref.watch(localStorageProvider));
 });
 
 final palmAnalysisProvider = Provider<PalmAnalysisPort>((ref) {
-  final ai = ref.watch(oraclyAiServiceProvider);
-  if (ai.visionAvailable) return OpenAiPalmAnalysis(ai: ai);
-  return const UnavailablePalmAnalysis();
+  return OpenAiPalmAnalysis(ai: ref.watch(oraclyAiServiceProvider));
 });
 
 final palmExperienceServiceProvider = Provider<PalmExperienceService>((ref) {
@@ -32,8 +29,10 @@ final palmExperienceServiceProvider = Provider<PalmExperienceService>((ref) {
   );
 });
 
+/// Session controller must survive chamber camera push + long AI analyze.
+/// autoDispose was dropping mid-flight success (phase never reached result).
 final palmReadingControllerProvider =
-    ChangeNotifierProvider.autoDispose<PalmReadingController>((ref) {
+    ChangeNotifierProvider<PalmReadingController>((ref) {
   return PalmReadingController(
     experience: ref.watch(palmExperienceServiceProvider),
     images: ref.watch(coffeeImageInputProvider),

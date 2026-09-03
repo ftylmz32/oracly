@@ -6,7 +6,6 @@ import 'package:oracly_new/core/intelligence/domain/models/personal_memory_summa
 import 'package:oracly_new/core/intelligence/services/personal_memory_or_copy.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/personality/or_persona_contract.dart';
-import 'package:oracly_new/features/ai/production/models/conversation_turn.dart';
 import 'package:oracly_new/features/companion/models/memory.dart';
 import 'package:oracly_new/features/companion/models/memory_permission.dart';
 import 'package:oracly_new/features/companion/models/reflection_context.dart';
@@ -130,3 +129,4 @@ void main() {
     expect(out.toLowerCase(), isNot(contains('database')));
   });
 }
+

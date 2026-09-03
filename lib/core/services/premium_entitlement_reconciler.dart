@@ -1,7 +1,4 @@
-/// Reconciles local Premium flag with verifier — anti-flicker when verified.
-///
-/// Release builds demote never-verified local flags. Remote validation against
-/// Apple/Google is still external / not claimed solved here.
+/// Reconciles local Premium flag with verifier — fail-closed on restart refresh.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -27,22 +24,19 @@ class PremiumEntitlementReconciler {
     required this.premium,
     required this.purchaseConfigured,
     required this.verifier,
+    this.canAttemptRestore = false,
     this.forceReleaseMode = false,
   });
 
   final PremiumRepository premium;
   final bool purchaseConfigured;
+  final bool canAttemptRestore;
   final PremiumEntitlementVerifier verifier;
-
-  /// Release demotion switch (tests + [PremiumService.forceReleaseMode]).
   final bool forceReleaseMode;
 
   bool get _releaseLocked => kReleaseMode || forceReleaseMode;
 
   Future<PremiumReconcileSnapshot> reconcile() async {
-    // DEV-ONLY: explicit ORACLY_DEV_PREMIUM unlocks canonical entitlement.
-    // Runs before store checks so local inspection works without IAP wiring.
-    // Ignored in release / production / staging via PremiumDevOverride.
     if (!_releaseLocked && PremiumDevOverride.isActive) {
       return const PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.active,
@@ -50,7 +44,7 @@ class PremiumEntitlementReconciler {
       );
     }
 
-    if (!purchaseConfigured) {
+    if (!purchaseConfigured && !canAttemptRestore) {
       return const PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.unavailable,
       );
@@ -64,13 +58,8 @@ class PremiumEntitlementReconciler {
     }
 
     if (localActive && !verified) {
-      // Never treat an unverified local boolean as production Premium.
       if (_releaseLocked) {
         await premium.clearLocalPremiumAccess();
-        return const PremiumReconcileSnapshot(
-          entitlement: PremiumEntitlementState.unverified,
-          message: 'local_cache_not_authoritative',
-        );
       }
       return const PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.unverified,
@@ -86,9 +75,10 @@ class PremiumEntitlementReconciler {
   Future<PremiumReconcileSnapshot> _refreshVerified() async {
     final creds = premium.readPurchaseCredentials();
     if (creds == null || !creds.isComplete) {
-      // Previously verified — keep active to avoid flicker without tokens.
+      await _demoteAfterFailedRefresh('missing_purchase_credentials');
       return const PremiumReconcileSnapshot(
-        entitlement: PremiumEntitlementState.active,
+        entitlement: PremiumEntitlementState.unverified,
+        message: 'missing_purchase_credentials',
       );
     }
 
@@ -99,9 +89,21 @@ class PremiumEntitlementReconciler {
       transactionId: creds.transactionId,
     );
 
-    if (result.isActive || result.status == PremiumVerifyStatus.pending) {
+    if (result.isActive) {
+      final plan = await premium.activePlan();
+      if (plan != null) {
+        await premium.activatePlan(plan, authoritative: true);
+      }
       return const PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.active,
+      );
+    }
+
+    if (result.status == PremiumVerifyStatus.pending) {
+      await _demoteAfterFailedRefresh(result.reason);
+      return PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.pending,
+        message: result.reason,
       );
     }
 
@@ -109,17 +111,19 @@ class PremiumEntitlementReconciler {
         result.status == PremiumVerifyStatus.inactive) {
       await premium.clearLocalPremiumAccess();
       return PremiumReconcileSnapshot(
-        entitlement: result.status == PremiumVerifyStatus.expired
-            ? PremiumEntitlementState.inactive
-            : PremiumEntitlementState.inactive,
+        entitlement: PremiumEntitlementState.inactive,
         message: result.reason,
       );
     }
 
-    // unverified / error after a prior authoritative grant: keep active
-    // briefly (offline / stub) — do not flicker locked.
-    return const PremiumReconcileSnapshot(
-      entitlement: PremiumEntitlementState.active,
+    await premium.clearLocalPremiumAccess();
+    return PremiumReconcileSnapshot(
+      entitlement: PremiumEntitlementState.unverified,
+      message: result.reason ?? 'verification_failed',
     );
+  }
+
+  Future<void> _demoteAfterFailedRefresh(String? _) async {
+    await premium.clearLocalPremiumAccess();
   }
 }

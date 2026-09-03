@@ -11,6 +11,7 @@ import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../copy/companion_copy.dart';
+import '../../models/or_chat_output_mode.dart';
 import '../../providers/companion_providers.dart';
 import '../../../premium/providers/premium_providers.dart';
 import 'companion_or_menu_row.dart';
@@ -68,6 +69,20 @@ Future<void> showCompanionOrMenu(
                           onTap: () async {
                             Navigator.pop(sheetContext);
                             await controller.startFreshConversation();
+                          },
+                        ),
+                        CompanionOrMenuRow(
+                          label: CompanionCopy.outputConversation,
+                          icon: Icons.record_voice_over_outlined,
+                          onTap: () {
+                            Navigator.pop(sheetContext);
+                            final output =
+                                ref.read(companionOutputControllerProvider);
+                            final next = output.mode ==
+                                    OrChatOutputMode.conversation
+                                ? OrChatOutputMode.text
+                                : OrChatOutputMode.conversation;
+                            output.setMode(next);
                           },
                         ),
                         if (hasReading)

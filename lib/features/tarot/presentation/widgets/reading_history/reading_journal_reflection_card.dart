@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../../core/copy/transparency_copy.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -54,7 +55,7 @@ class ReadingJournalReflectionCard extends StatelessWidget {
                 SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Kişisel Yansıma',
+                    OraclyL10n.t('journal.personal_reflection'),
                     style: AppTextStyles.labelLarge.copyWith(
                       color: AppColors.goldLight,
                       fontWeight: FontWeight.w700,
@@ -62,7 +63,9 @@ class ReadingJournalReflectionCard extends StatelessWidget {
                   ),
                 ),
                 OraclyTextAction(
-                  label: hasNote ? 'Düzenle' : 'Ekle',
+                  label: hasNote
+                      ? OraclyL10n.t('journal.edit')
+                      : OraclyL10n.t('journal.add'),
                   emphasized: true,
                   onPressed: onEdit,
                 ),

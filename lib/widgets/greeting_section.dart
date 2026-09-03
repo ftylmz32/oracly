@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_text_styles.dart';
-import '../../../widgets/glass_card.dart';
+import '../core/theme/app_text_styles.dart';
+import './glass_card.dart';
 import 'hero_orb.dart';
 
 class GreetingSection extends StatelessWidget {

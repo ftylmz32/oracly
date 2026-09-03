@@ -1,3 +1,8 @@
+import {
+  loadGooglePlayCredentials,
+  resolveAppleRootCertificates,
+} from './billing/load-credentials.js';
+
 export type AppEnv = 'development' | 'staging' | 'production';
 
 export type AuthMode =
@@ -15,8 +20,24 @@ export type AppConfig = {
   openaiModel: string;
   openaiAllowedModels: string[];
   openaiTimeoutMs: number;
+  /** Image generation timeout — GPT Image can take ~2 minutes. */
+  openaiImageTimeoutMs: number;
   openaiVision: boolean;
   openaiBaseUrl: string;
+  /** GPT Image model (Images API). Not a chat model. */
+  openaiImageModel: string;
+  openaiImageSize: string;
+  /** low | medium | high — keep test quality separate from production. */
+  openaiImageQuality: 'low' | 'medium' | 'high';
+  /**
+   * Coffee/Palm Stage-1 vision model. Fail-closed when unset or not allowlisted.
+   * Does not change OR/Tarot/Dream default OPENAI_MODEL.
+   */
+  openaiReadingVisionModel: string | null;
+  /** Coffee/Palm Stage-2 / repair writer model. */
+  openaiReadingWriterModel: string | null;
+  /** Lowest reasoning effort accepted by gpt-5.6 family for reading stages. */
+  openaiReadingReasoningEffort: 'none' | 'low' | 'medium';
   authRequired: boolean;
   devAuthBypass: boolean;
   authMode: AuthMode;
@@ -34,6 +55,11 @@ export type AppConfig = {
   globalAiConcurrency: number;
   firebaseProjectId: string | null;
   firebaseProjectNumber: string | null;
+  /**
+   * Optional App Check app-id allowlist (Firebase app IDs).
+   * When non-empty in locked envs, tokens whose `sub` is not listed fail closed.
+   */
+  firebaseAppCheckAppIds: string[];
   /** When true, AI routes require a verified X-Firebase-AppCheck token. */
   appCheckRequired: boolean;
   /** Development-only: skip App Check verification when not locked. */
@@ -41,6 +67,20 @@ export type AppConfig = {
   minImageBytes: number;
   maxImageBytes: number;
   maxBodyBytes: number;
+  /** Google Play package name (not from client body). */
+  playPackageName: string;
+  /** Parsed Play service-account credentials, or null when unset. */
+  googlePlayCredentials: import('google-auth-library').JWTInput | null;
+  appleBundleId: string | null;
+  appleAppAppleId: number | null;
+  appleIssuerId: string | null;
+  appleKeyId: string | null;
+  applePrivateKey: string | null;
+  appleRootCertificates: Buffer[];
+  applePreferEnvironment: 'Production' | 'Sandbox';
+  /** Billing verify IP rate limit (in-memory). */
+  billingRateLimitMax: number;
+  billingRateLimitWindowMs: number;
 };
 
 const DEFAULT_ALLOWED = ['gpt-4o', 'gpt-4o-mini'];
@@ -54,6 +94,39 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     ? requestedModel
     : 'gpt-4o';
   const timeoutSec = clampInt(env.OPENAI_TIMEOUT_SECONDS, 45, 1, 90);
+  // GPT Image generation can approach ~120s; clamp 30–180.
+  const imageTimeoutSec = clampInt(
+    env.OPENAI_IMAGE_TIMEOUT_SECONDS,
+    120,
+    30,
+    180,
+  );
+  const imageQualityRaw = (env.OPENAI_IMAGE_QUALITY ?? 'high')
+    .trim()
+    .toLowerCase();
+  const openaiImageQuality =
+    imageQualityRaw === 'low' || imageQualityRaw === 'medium'
+      ? imageQualityRaw
+      : 'high';
+  const openaiImageModel =
+    (env.OPENAI_IMAGE_MODEL ?? 'gpt-image-2').trim() || 'gpt-image-2';
+  const openaiImageSize =
+    (env.OPENAI_IMAGE_SIZE ?? '1024x1536').trim() || '1024x1536';
+  const readingVision =
+    nonEmpty(env.OPENAI_READING_VISION_MODEL) ??
+    nonEmpty(env.ORACLY_READING_VISION_MODEL);
+  const readingWriter =
+    nonEmpty(env.OPENAI_READING_WRITER_MODEL) ??
+    nonEmpty(env.ORACLY_READING_WRITER_MODEL);
+  const reasoningRaw = (
+    env.OPENAI_READING_REASONING_EFFORT ?? 'low'
+  )
+    .trim()
+    .toLowerCase();
+  const openaiReadingReasoningEffort =
+    reasoningRaw === 'none' || reasoningRaw === 'medium'
+      ? reasoningRaw
+      : 'low';
   const bypassRequested = parseBool(env.AI_DEV_AUTH_BYPASS, false);
   const authRequiredSetting = parseBool(env.AI_AUTH_REQUIRED, true);
   const jwtSecret = nonEmpty(env.AI_JWT_SECRET);
@@ -97,10 +170,17 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     openaiModel,
     openaiAllowedModels: allowed.includes('gpt-4o') ? allowed : ['gpt-4o', ...allowed],
     openaiTimeoutMs: timeoutSec * 1000,
+    openaiImageTimeoutMs: imageTimeoutSec * 1000,
     openaiVision: parseBool(env.OPENAI_VISION, true),
     openaiBaseUrl: (
       env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1'
     ).replace(/\/$/, ''),
+    openaiImageModel,
+    openaiImageSize,
+    openaiImageQuality,
+    openaiReadingVisionModel: readingVision,
+    openaiReadingWriterModel: readingWriter,
+    openaiReadingReasoningEffort,
     authRequired,
     devAuthBypass,
     authMode: resolveAuthMode({
@@ -132,6 +212,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     ),
     firebaseProjectId,
     firebaseProjectNumber: nonEmpty(env.FIREBASE_PROJECT_NUMBER),
+    firebaseAppCheckAppIds: parseList(
+      env.FIREBASE_APP_CHECK_APP_IDS ?? env.FIREBASE_APP_IDS,
+      [],
+    ).filter((id) => id.length > 0),
     appCheckRequired,
     appCheckBypass,
     minImageBytes: clampInt(env.AI_MIN_IMAGE_BYTES, 8 * 1024, 1024, 1024 * 1024),
@@ -146,6 +230,31 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       14 * 1024 * 1024,
       64 * 1024,
       24 * 1024 * 1024,
+    ),
+    playPackageName: (env.GOOGLE_PLAY_PACKAGE_NAME ?? 'app.oracly').trim() || 'app.oracly',
+    googlePlayCredentials: loadGooglePlayCredentials(
+      nonEmpty(env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON),
+      nonEmpty(env.GOOGLE_APPLICATION_CREDENTIALS),
+    ),
+    appleBundleId: nonEmpty(env.APPLE_BUNDLE_ID),
+    appleAppAppleId: parseOptionalInt(env.APPLE_APP_APPLE_ID),
+    appleIssuerId: nonEmpty(env.APPLE_IAP_ISSUER_ID),
+    appleKeyId: nonEmpty(env.APPLE_IAP_KEY_ID),
+    applePrivateKey: nonEmpty(env.APPLE_IAP_PRIVATE_KEY),
+    appleRootCertificates: resolveAppleRootCertificates(
+      nonEmpty(env.APPLE_ROOT_CA_PATHS),
+      nonEmpty(env.APPLE_ROOT_CA_DIR),
+    ),
+    applePreferEnvironment:
+      (env.APPLE_IAP_ENVIRONMENT ?? '').trim().toLowerCase() === 'sandbox'
+        ? 'Sandbox'
+        : 'Production',
+    billingRateLimitMax: clampInt(env.BILLING_RATE_LIMIT_MAX, 30, 1, 1000),
+    billingRateLimitWindowMs: clampInt(
+      env.BILLING_RATE_LIMIT_WINDOW_MS,
+      900_000,
+      1000,
+      86_400_000,
     ),
   };
 }
@@ -224,4 +333,10 @@ function parseJwksUrl(value: string | undefined, locked: boolean): string | null
   } catch {
     return null;
   }
+}
+
+function parseOptionalInt(value: string | undefined): number | null {
+  if (value == null || value.trim() === '') return null;
+  const n = Number.parseInt(value.trim(), 10);
+  return Number.isFinite(n) ? n : null;
 }

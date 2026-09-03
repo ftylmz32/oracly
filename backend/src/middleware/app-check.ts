@@ -21,6 +21,6 @@ export function requireAppCheck(verifier: AppCheckVerifier) {
     const result = await verifier.verify(token);
     if (result.ok) return;
     // Sanitized — do not distinguish missing vs invalid to clients.
-    await reply.code(401).send(errorEnvelope(ErrorCode.unauthorized));
+    await reply.code(401).send(errorEnvelope(ErrorCode.appCheckRequired));
   };
 }

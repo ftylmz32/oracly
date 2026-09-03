@@ -36,8 +36,8 @@ abstract final class MinorArcanaArt {
     '10_ten',
     '11_page',
     '12_knight',
-    '13_king',
     '14_queen',
+    '13_king',
   ];
 
   static const rankNumerals = <String>[
@@ -53,8 +53,8 @@ abstract final class MinorArcanaArt {
     'X',
     'P',
     'Ş',
-    'KR',
     'KÇ',
+    'KR',
   ];
 
   static String fileFor(String suit, int number) {

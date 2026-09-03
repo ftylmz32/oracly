@@ -10,9 +10,10 @@ import '../providers/gem_providers.dart';
 import 'oracly_gem_balance_pulse.dart';
 
 class OraclyLiveGemCapsule extends ConsumerWidget {
-  const OraclyLiveGemCapsule({super.key, this.onTap});
+  const OraclyLiveGemCapsule({super.key, this.onTap, this.interactive = true});
 
   final VoidCallback? onTap;
+  final bool interactive;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,7 +22,9 @@ class OraclyLiveGemCapsule extends ConsumerWidget {
       balance: wallet.balance,
       child: OraclyCrystalCapsule(
         count: wallet.formatted,
-        onTap: onTap ?? () => OraclyNavigationService.openGems(context),
+        onTap: interactive
+            ? onTap ?? () => OraclyNavigationService.openGems(context)
+            : null,
       ),
     );
   }

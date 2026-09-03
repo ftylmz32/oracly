@@ -1,0 +1,5 @@
+﻿/* Permission usage — English */
+"NSCameraUsageDescription" = "ORACLY uses the camera for coffee-cup, palm, and profile photos.";
+"NSPhotoLibraryUsageDescription" = "ORACLY uses your photo library to choose coffee-cup, palm, and profile photos.";
+"NSMicrophoneUsageDescription" = "ORACLY uses the microphone so you can speak a dream or talk with OR. Audio is not stored.";
+"NSSpeechRecognitionUsageDescription" = "ORACLY uses speech recognition to turn your voice into text for dreams and OR. Audio is not stored.";

@@ -9,6 +9,7 @@ import 'mock_auth_service.dart';
 import 'session_manager.dart';
 import 'token_manager.dart';
 import 'unconfigured_auth_service.dart';
+import '../storage/secure_storage.dart';
 import 'user_local_data_isolation.dart';
 
 abstract final class AuthServiceSelection {
@@ -21,9 +22,14 @@ abstract final class AuthServiceSelection {
     TokenManager? tokens,
     SessionManager? sessions,
     LocalStorage? storage,
+    SecureStorage? secureStorage,
   }) {
-    final isolation =
-        storage == null ? null : UserLocalDataIsolation(storage);
+    final isolation = storage == null || secureStorage == null
+        ? null
+        : UserLocalDataIsolation(
+            storage,
+            secureStorage: secureStorage,
+          );
     if (firebaseReady && gateway != null && gateway.isInitialized) {
       return FirebaseAuthService(
         gateway: gateway,

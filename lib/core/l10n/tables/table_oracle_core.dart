@@ -54,4 +54,9 @@ const kL10nOracleCore = <String, L10nTriple>{
     'Earlier in {earlier}, then later in {later}, a {theme} trace returned. Comparison is observational — not a firm conclusion.',
     'Сначала в области {earlier}, затем в {later} снова появился след «{theme}». Сравнение — наблюдение, не твёрдый вывод.',
   ),
+  'oracle.header.current': L10nTriple(
+    'Mevcut Açılım',
+    'Current reading',
+    'Текущий расклад',
+  ),
 };

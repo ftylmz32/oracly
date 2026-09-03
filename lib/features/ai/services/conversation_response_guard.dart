@@ -1,6 +1,7 @@
 /// RC-002 — Tone guard for AI conversation responses.
 library;
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/personality/or_core.dart';
 import '../../../core/personality/or_response_depth.dart';
 import '../../../core/reading/robotic_language_rewrite.dart';
@@ -42,7 +43,7 @@ abstract final class ConversationResponseGuard {
       allowTrailingQuestion: allowTrailingQuestion,
       priorAssistant: priorAssistant,
     );
-    if (cleaned.isEmpty) return 'Ne oldu?';
+    if (cleaned.isEmpty) return OraclyL10n.t('or.clarify');
     final shapedRaw = depth != null
         ? depth.cap(cleaned, spoken: spoken)
         : OrResponseDepth.legacyCap(cleaned, userMessage.trim());
@@ -61,7 +62,7 @@ abstract final class ConversationResponseGuard {
         attempt: 1,
       );
     }
-    return 'Ne oldu?';
+    return OraclyL10n.t('or.clarify');
   }
 
   /// Keeps short probes from sounding generic — cites a real user word.
@@ -113,14 +114,14 @@ abstract final class ConversationResponseGuard {
     var out = text.trim();
     if (out.isEmpty) return out;
     // Empathy sentences already shaped; nuke only if script still dominates.
-    if (OrCore.looksMetaAi(out)) return 'Ne oldu?';
+    if (OrCore.looksMetaAi(out)) return OraclyL10n.t('or.clarify');
     if (OrCore.looksPatronizing(out)) {
       final shaped = ConversationPatronizingGuard.shape(out);
-      return shaped.isEmpty ? 'Ne oldu?' : shaped;
+      return shaped.isEmpty ? OraclyL10n.t('or.clarify') : shaped;
     }
     if (OrCore.looksTherapistScript(out)) {
       final shaped = ConversationEmpathyGuard.shape(out);
-      return shaped.isEmpty ? 'Ne oldu?' : shaped;
+      return shaped.isEmpty ? OraclyL10n.t('or.clarify') : shaped;
     }
     return out;
   }

@@ -21,15 +21,15 @@ class ProfileReferenceDiscoveryBridge extends ConsumerWidget {
   final VoidCallback onTap;
 
   static IconData _iconFor(DiscoveryJournalEntry entry) => switch (entry.kind) {
-        DiscoveryJournalKind.dream => Icons.nights_stay_rounded,
-        DiscoveryJournalKind.coffee => Icons.local_cafe_rounded,
-        DiscoveryJournalKind.palm => Icons.pan_tool_outlined,
-        DiscoveryJournalKind.companion => Icons.forum_outlined,
-        DiscoveryJournalKind.tarot => Icons.auto_stories_rounded,
-        DiscoveryJournalKind.astrology => Icons.auto_awesome_rounded,
-        DiscoveryJournalKind.starMap => Icons.star_rounded,
-        DiscoveryJournalKind.dailyMessage => Icons.wb_twilight_outlined,
-      };
+    DiscoveryJournalKind.dream => Icons.nights_stay_rounded,
+    DiscoveryJournalKind.coffee => Icons.local_cafe_rounded,
+    DiscoveryJournalKind.palm => Icons.pan_tool_outlined,
+    DiscoveryJournalKind.companion => Icons.forum_outlined,
+    DiscoveryJournalKind.tarot => Icons.auto_stories_rounded,
+    DiscoveryJournalKind.astrology => Icons.auto_awesome_rounded,
+    DiscoveryJournalKind.starMap => Icons.star_rounded,
+    DiscoveryJournalKind.dailyMessage => Icons.wb_twilight_outlined,
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -118,4 +118,3 @@ class ProfileReferenceDiscoveryBridge extends ConsumerWidget {
     );
   }
 }
-

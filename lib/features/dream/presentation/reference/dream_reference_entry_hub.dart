@@ -51,7 +51,9 @@ class DreamReferenceEntryHub extends StatelessWidget {
                   Expanded(
                     child: LayoutBuilder(
                       builder: (context, mid) {
-                        final h = layout.heroHeight.clamp(172.0, mid.maxHeight);
+                        final maxH = mid.maxHeight;
+                        if (!(maxH > 0)) return const SizedBox.shrink();
+                        final h = layout.heroHeight.clamp(0.0, maxH);
                         return Align(
                           alignment: const Alignment(0, -0.08),
                           child: DreamReferenceIllustrationCard(height: h),

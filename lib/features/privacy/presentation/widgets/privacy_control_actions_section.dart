@@ -14,6 +14,7 @@ import '../../../../shared/widgets/oracly_entrance.dart';
 import '../../copy/privacy_control_copy.dart';
 import '../../providers/privacy_control_providers.dart';
 import '../../services/privacy_data_refresh.dart';
+import 'privacy_account_deletion_tile.dart';
 
 class PrivacyControlActionsSection extends ConsumerWidget {
   const PrivacyControlActionsSection({super.key});
@@ -87,6 +88,7 @@ class PrivacyControlActionsSection extends ConsumerWidget {
           index: 3,
           child: _AnalyticsToggle(),
         ),
+        const PrivacyAccountDeletionTile(),
       ],
     );
   }

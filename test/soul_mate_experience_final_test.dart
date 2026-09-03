@@ -16,10 +16,17 @@ void main() {
 
   test('pipeline stays on gpt-image-2 photoreal cinema', () {
     final transport = File('backend/src/ai/openai-transport.ts').readAsStringSync();
+    final config = File('backend/src/config.ts').readAsStringSync();
     final service = File('backend/src/ai/service.ts').readAsStringSync();
     final prompt = File('backend/src/ai/soulmate-prompt.ts').readAsStringSync();
-    expect(transport, contains("IMAGE_MODEL = 'gpt-image-2'"));
-    expect(service, contains('1024x1536'));
+    expect(config, contains("gpt-image-2"));
+    expect(config, contains('openaiImageModel'));
+    expect(transport, contains('openaiImageModel'));
+    // GPT Image returns b64_json by default; response_format is unsupported.
+    expect(transport, isNot(contains("response_format: 'b64_json'")));
+    expect(transport, contains('b64_json'));
+    expect(service, contains('openaiImageSize'));
+    expect(config, contains('1024x1536'));
     expect(prompt, contains('not a real person'));
     expect(prompt, contains('future partner'));
     expect(prompt, contains('Photorealistic cinematic portrait'));

@@ -15,6 +15,7 @@ void main() {
     final data = jsonDecode(jsonFile.readAsStringSync()) as Map<String, dynamic>;
     final info = data['project_info'] as Map<String, dynamic>;
     expect(info['project_id'], 'oracly-7f613');
+    expect(info['project_number'], '1075374196330');
 
     final clients = data['client'] as List<dynamic>;
     final packages = clients
@@ -24,6 +25,10 @@ void main() {
         )
         .toList();
     expect(packages, contains('app.oracly'));
+    final appIds = clients
+        .map((c) => ((c as Map)['client_info'] as Map)['mobilesdk_app_id'])
+        .toList();
+    expect(appIds, contains('1:1075374196330:android:200bc15b1e43a8a2ef2c13'));
 
     final gradle = File('android/app/build.gradle.kts').readAsStringSync();
     expect(gradle.contains('applicationId = "app.oracly"'), isTrue);

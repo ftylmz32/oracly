@@ -28,4 +28,7 @@ class MemoryNotificationPort implements OraclyNotificationPort {
     scheduled = null;
     cancelCount += 1;
   }
+
+  @override
+  Future<void> captureColdStartLaunch() async {}
 }

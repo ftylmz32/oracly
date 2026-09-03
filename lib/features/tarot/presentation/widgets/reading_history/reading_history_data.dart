@@ -40,6 +40,7 @@ class ReadingHistoryEntry {
     this.summaryExcerpt,
     this.isFavorite = false,
     this.readingType,
+    this.isReversed = false,
   });
 
   final String id;
@@ -57,6 +58,7 @@ class ReadingHistoryEntry {
   final String? summaryExcerpt;
   final bool isFavorite;
   final String? readingType;
+  final bool isReversed;
 
   String get timelineSummary => summaryExcerpt ?? aiSummary;
 

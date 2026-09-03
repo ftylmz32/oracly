@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -29,9 +30,9 @@ class TarotTableSpreadOverlay extends StatelessWidget {
   ];
 
   String _title(TarotSpreadType s) => switch (s) {
-        TarotSpreadType.single => 'Tek Kart',
-        TarotSpreadType.threeCard => '3 Kart',
-        TarotSpreadType.fiveCard => 'Derin Açılım',
+        TarotSpreadType.single => OraclyL10n.t('tarot.spread.single'),
+        TarotSpreadType.threeCard => OraclyL10n.t('tarot.spread.threeCard.compact'),
+        TarotSpreadType.fiveCard => OraclyL10n.t('tarot.spread.fiveCard'),
         _ => s.label,
       };
 

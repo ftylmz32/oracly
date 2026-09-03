@@ -94,7 +94,7 @@ void main() {
       isNot(contains('yapay zek')),
     );
     expect(StarMapPolishCopy.whatItIs.toLowerCase(), isNot(contains('ai')));
-    expect(AstrologyReferenceKindNote.label, 'Önizleme');
+    expect(AstrologyReferenceKindNote.label.toLowerCase(), isNot(contains('önizleme')));
     expect(AstrologyReferenceKindNote.detail, contains('yansıma'));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), isNot(contains('hesaplanmaz')));
     expect(

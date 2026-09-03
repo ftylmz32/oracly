@@ -32,7 +32,6 @@ class CoffeeReferenceBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final landing = CoffeeLandingView(
-      analysisAvailable: controller.analysisAvailable,
       cameraEnabled: controller.images.cameraAvailable,
       hasHistory: controller.history.isNotEmpty,
       onCamera: () {
@@ -73,6 +72,12 @@ class CoffeeReferenceBody extends ConsumerWidget {
                 },
           versionReloadToken: controller.versionReloadToken,
         ),
+      // Never fall through to landing with a silent empty result.
+      CoffeePhase.result => CoffeeErrorView(
+          message: CoffeeCopy.analysisFailed,
+          onRetry: controller.image != null ? onAnalyze : controller.retryCapture,
+          onBack: controller.backToEntry,
+        ),
       CoffeePhase.error => CoffeeErrorView(
           message: controller.errorMessage ?? CoffeeCopy.analysisFailed,
           onRetry: controller.image != null
@@ -80,7 +85,6 @@ class CoffeeReferenceBody extends ConsumerWidget {
               : controller.retryCapture,
           onBack: controller.backToEntry,
         ),
-      _ => landing,
     };
   }
 }

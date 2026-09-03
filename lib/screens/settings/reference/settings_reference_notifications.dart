@@ -22,28 +22,30 @@ class SettingsReferenceNotifications extends ConsumerWidget {
   final PersonalizationSettings settings;
   final Future<void> Function(
     PersonalizationSettings Function(PersonalizationSettings),
-  ) onSave;
+  )
+  onSave;
 
-  String _t(String key) => OraclyL10n.t(
-        key,
-        languageCode: AppLocale.normalize(settings.language),
-      );
+  String _t(String key) =>
+      OraclyL10n.t(key, languageCode: AppLocale.normalize(settings.language));
 
   Future<void> _set(WidgetRef ref, BuildContext context, bool enabled) async {
     if (enabled) {
       final allowed = await OraclyPermissionDialog.notifications(context);
       if (allowed != true || !context.mounted) return;
-      final granted =
-          await ref.read(oraclyNotificationPortProvider).requestPermission();
+      final granted = await ref
+          .read(oraclyNotificationPortProvider)
+          .requestPermission();
       if (!granted || !context.mounted) {
         final status = await Permission.notification.status;
         final permanentlyDenied = status.isPermanentlyDenied;
         final go = await OraclyDialog.confirm(
           context,
           title: _t('settings.notifications'),
-          message: _t(permanentlyDenied
-              ? 'notif.permission_permanent_body'
-              : 'notif.permission_denied_body'),
+          message: _t(
+            permanentlyDenied
+                ? 'notif.permission_permanent_body'
+                : 'notif.permission_denied_body',
+          ),
           confirmLabel: _t('notif.permission_settings_label'),
           cancelLabel: _t('notif.permission_later'),
         );

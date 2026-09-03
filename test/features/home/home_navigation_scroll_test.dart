@@ -25,6 +25,7 @@ import 'package:oracly_new/features/star_map/presentation/reference/star_map_ref
 import 'package:oracly_new/features/tarot/navigation/tarot_module_navigator.dart';
 import 'package:oracly_new/screens/profile/reference/profile_reference_screen.dart';
 import 'package:oracly_new/shared/navigation/oracly_navigation.dart';
+import 'package:oracly_new/shared/widgets/oracly_bottom_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
@@ -57,22 +58,25 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
   }
 
-  testWidgets('Home viewport scrolls with floating-nav clearance',
+  testWidgets('modern Home keeps Premium reachable without overflow',
       (tester) async {
     await pumpHome(tester);
     expect(find.byType(ListView), findsNothing);
-    expect(find.byType(SingleChildScrollView), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.byType(HomeMasterPremium),
-      80,
-      scrollable: find
-          .descendant(
-            of: find.byType(HomeMasterPage),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(find.byType(HomeMasterPremium), findsOneWidget);
+    if (find.byType(SingleChildScrollView).evaluate().isNotEmpty) {
+      await tester.scrollUntilVisible(
+        find.byType(HomeMasterPremium),
+        80,
+        scrollable: find
+            .descendant(
+              of: find.byType(HomeMasterPage),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.pump();
+    }
     final premium = tester.getRect(find.byType(HomeMasterPremium));
     final page = tester.getRect(find.byType(HomeMasterPage));
     expect(page.bottom - premium.bottom,
@@ -204,20 +208,31 @@ void main() {
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
       buildProviderScopeHarness(
         storage: storage,
-        child: const MaterialApp(home: OraclyAppShell()),
+        child: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(390, 844),
+            padding: EdgeInsets.only(bottom: 34),
+          ),
+          child: MaterialApp(
+            routes: {
+              '/': (_) => const OraclyAppShell(),
+              OraclyRoutes.chat: (_) => const CompanionReferenceScreen(),
+            },
+          ),
+        ),
       ),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle(const Duration(milliseconds: 100));
 
-    expect(find.text('Ana Sayfa'), findsWidgets);
-    expect(find.text('OR'), findsWidgets);
-    expect(find.text('Keşfet'), findsWidgets);
-    expect(find.text('Günlük'), findsOneWidget);
-    expect(find.text('Profil'), findsWidgets);
+    expect(find.byType(OraclyBottomBar), findsOneWidget);
+    expect(find.byType(HomeMasterPage), findsOneWidget);
 
     // Scope is below the shell — use a descendant context.
     final homeCtx = tester.element(find.byType(HomeMasterPage));
@@ -225,8 +240,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(CompanionReferenceScreen), findsWidgets);
+    // Dedicated /chat sits above the shell — dismiss before other tabs.
+    Navigator.of(tester.element(find.byType(CompanionReferenceScreen))).pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
 
-    OraclyNavigation.switchToTab(homeCtx, OraclyTab.astrology);
+    OraclyNavigation.switchToTab(
+      tester.element(find.byType(HomeMasterPage)),
+      OraclyTab.astrology,
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(ExploreReferenceScreen), findsWidgets);

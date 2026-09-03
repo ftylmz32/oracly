@@ -18,9 +18,22 @@ class LocalDreamRepository implements DreamRepository {
   Future<List<DreamRecord>> getAll() async {
     final raw = _storage.getStringList(_key);
     if (raw == null) return [];
-    return raw
-        .map((e) => DreamRecord.fromJson(jsonDecode(e) as Map<String, dynamic>))
-        .toList();
+    final items = <DreamRecord>[];
+    for (final row in raw) {
+      final record = _tryParse(row);
+      if (record != null) items.add(record);
+    }
+    return items;
+  }
+
+  static DreamRecord? _tryParse(String raw) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return DreamRecord.fromJson(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return null;
+    }
   }
 
   @override

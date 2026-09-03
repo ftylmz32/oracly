@@ -62,7 +62,7 @@ void main() {
     expect(deck.drawNext().card.id, expected[2]);
   });
 
-  test('orientation is decided at draw and stays put', () async {
+  test('production draws are upright and frozen at draw', () async {
     final first = TarotDeckController();
     await first.initializeDeck(deckId: 'classic', seed: 99);
     final second = TarotDeckController();
@@ -70,15 +70,16 @@ void main() {
     final a = first.drawFromFan(3);
     final b = second.drawFromFan(3);
     expect(a.card.id, b.card.id);
-    expect(a.isReversed, b.isReversed);
+    expect(a.isReversed, isFalse);
+    expect(b.isReversed, isFalse);
 
     final frozen = TarotDrawnCard(
       card: a.card,
       positionIndex: 0,
       isReversed: a.isReversed,
     );
-    expect(frozen.isReversed, a.isReversed);
-    expect(frozen.effectiveMeaning, isNotEmpty);
+    expect(frozen.isReversed, isFalse);
+    expect(frozen.effectiveMeaning, a.card.meaning);
   });
 
   test('queued reveal walks already-drawn cards without redrawing', () {

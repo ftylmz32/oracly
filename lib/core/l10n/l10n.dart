@@ -28,9 +28,14 @@ abstract final class OraclyL10n {
 
   /// Subscribe the current build to locale so getters refresh on change.
   static String depend(BuildContext context) {
-    final code = OraclyLocaleScope.of(context);
-    bind(code);
-    return code;
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<OraclyLocaleScope>();
+    if (scope != null) {
+      bind(scope.code);
+      return scope.code;
+    }
+    // No scope (tests / early boot) — keep the active bind.
+    return _bound;
   }
 
   static String t(String key, {String? languageCode}) {

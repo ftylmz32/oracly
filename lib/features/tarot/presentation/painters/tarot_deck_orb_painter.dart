@@ -6,7 +6,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// Slower, deeper crystal orb — distinct from Tarot Home orb.
 class TarotDeckOrbPainter extends CustomPainter {

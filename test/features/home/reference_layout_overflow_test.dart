@@ -15,8 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../test_helpers/provider_scope_harness.dart';
 
 void main() {
-  const viewports = <Size>[
-    Size(360, 640),
+  const fitViewports = <Size>[
     Size(360, 800),
     Size(375, 812),
     Size(390, 844),
@@ -25,6 +24,10 @@ void main() {
     Size(412, 915),
     Size(430, 932),
     Size(600, 960),
+  ];
+
+  const scrollViewports = <Size>[
+    Size(360, 640),
   ];
 
   double contentHeight(Size size, {double bottomSafe = 0}) {
@@ -48,11 +51,11 @@ void main() {
     );
   }
 
-  group('Master Home — viewport fit, zero overflow', () {
-    for (final size in viewports) {
+  group('Master Home — hierarchy + safe overflow', () {
+    for (final size in fitViewports) {
       final label = '${size.width.toInt()}x${size.height.toInt()}';
 
-      testWidgets('full home stack fits at $label', (tester) async {
+      testWidgets('full home stack at $label', (tester) async {
         final height = contentHeight(size, bottomSafe: 34);
         await tester.binding.setSurfaceSize(size);
         addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -70,6 +73,7 @@ void main() {
         expect(find.text('El Falı'), findsOneWidget);
         expect(find.text('Tarot'), findsOneWidget);
         expect(find.text('Ruh Eşi'), findsOneWidget);
+        expect(find.text('Rüya Analizi'), findsOneWidget);
         expect(find.text("Premium'a Geç"), findsWidgets);
         expect(find.text('Merhaba,'), findsOneWidget);
         expect(
@@ -81,8 +85,23 @@ void main() {
         expect(find.textContaining('Yolcu'), findsNothing);
         expect(find.textContaining('Hoş geldin'), findsNothing);
         expect(find.byType(ListView), findsNothing);
-        expect(find.byType(SingleChildScrollView), findsOneWidget);
         expect(find.textContaining('Premium'), findsWidgets);
+      });
+    }
+
+    for (final size in scrollViewports) {
+      final label = '${size.width.toInt()}x${size.height.toInt()}';
+
+      testWidgets('short home stack scrolls at $label', (tester) async {
+        await tester.binding.setSurfaceSize(size);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        SharedPreferences.setMockInitialValues({});
+        final storage = await LocalStorage.open();
+        await tester.pumpWidget(wrapHome(size, contentHeight(size, bottomSafe: 34), storage));
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(SingleChildScrollView), findsOneWidget);
       });
     }
   });

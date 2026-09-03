@@ -21,7 +21,7 @@ class CoffeeSymbolOrbitPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.05
       ..strokeCap = StrokeCap.round
-      ..color = OraclyChrome.goldLight.withValues(alpha: 0.18);
+      ..color = OraclyChrome.goldLight.withValues(alpha: 0.28);
     _dashedOval(canvas, c, rx, ry, paint, phase);
 
     for (var i = 0; i < 6; i++) {

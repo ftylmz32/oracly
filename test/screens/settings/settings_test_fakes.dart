@@ -8,6 +8,9 @@ import 'package:oracly_new/core/voice/oracly_voice_id.dart';
 import 'package:oracly_new/features/birth_chart/models/zodiac_sign_id.dart';
 import 'package:oracly_new/features/premium/models/personalization_models.dart';
 
+/// Turkish UI prefs so widget tests match [OraclyL10n.bind('tr')] copy.
+const settingsTestLanguagePrefs = {'settings_language': 'tr'};
+
 class SilentSound extends OraclySoundService {
   @override
   Future<void> initialize() async {}

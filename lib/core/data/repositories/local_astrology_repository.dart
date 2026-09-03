@@ -30,21 +30,35 @@ class LocalAstrologyRepository implements AstrologyRepository {
   Future<List<AstrologyRecord>> getHistory() async {
     final raw = _storage.getStringList(_historyKey);
     if (raw == null) return [];
-    return raw
-        .map((e) =>
-            AstrologyRecord.fromJson(jsonDecode(e) as Map<String, dynamic>))
-        .toList();
+    final items = <AstrologyRecord>[];
+    for (final row in raw) {
+      final record = _tryParse(row);
+      if (record != null) items.add(record);
+    }
+    return items;
+  }
+
+  static AstrologyRecord? _tryParse(String raw) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return AstrologyRecord.fromJson(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Future<void> save(AstrologyRecord record) async {
     final history = await getHistory();
+    final next = [
+      for (final item in history)
+        if (item.id != record.id) item,
+      record,
+    ];
     await _storage.setStringList(
       _historyKey,
-      [
-        ...history.map((e) => jsonEncode(e.toJson())),
-        jsonEncode(record.toJson()),
-      ],
+      next.map((e) => jsonEncode(e.toJson())).toList(),
     );
   }
 

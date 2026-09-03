@@ -57,7 +57,6 @@ class CardOfTheDayScreen extends StatelessWidget {
                           child: DestemCardArt(
                             card: data,
                             width: 160,
-                            height: 252,
                           ),
                         ),
                       SizedBox(height: AppSpacing.s12),

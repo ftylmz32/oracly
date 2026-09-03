@@ -9,7 +9,13 @@ import '../data/coffee_reading_store.dart';
 import '../models/coffee_image_pick.dart';
 import '../models/coffee_reading.dart';
 import 'coffee_analysis_port.dart';
+import 'coffee_image_archive.dart';
 import 'coffee_image_validator.dart';
+
+typedef CoffeeImagePersister = Future<String> Function({
+  required String readingId,
+  required String sourcePath,
+});
 
 class CoffeeReinterpretResult {
   const CoffeeReinterpretResult({
@@ -26,11 +32,14 @@ class CoffeeExperienceService {
     required this._store,
     required this._analysis,
     ReadingVersionService? versions,
-  }) : _versions = versions;
+    CoffeeImagePersister? persistImage,
+  })  : _versions = versions,
+        _persistImage = persistImage ?? CoffeeImageArchive.persist;
 
   final CoffeeReadingStore _store;
   final CoffeeAnalysisPort _analysis;
   final ReadingVersionService? _versions;
+  final CoffeeImagePersister _persistImage;
 
   bool get analysisAvailable => _analysis.isAvailable;
 
@@ -49,13 +58,30 @@ class CoffeeExperienceService {
       throw CoffeeAnalysisException(CoffeeCopy.analysisUnavailable);
     }
     final reading = await _analysis.analyze(image);
-    await _store.save(reading);
-    await _versions?.seedOriginal(
-      rootId: reading.id,
-      kind: ReadingVersionKind.coffee,
-      data: ReadingVersionPayload.coffee(reading),
+    final archived = await _persistImage(
+      readingId: reading.id,
+      sourcePath: image.path,
     );
-    return reading;
+    final persisted = CoffeeReading(
+      id: reading.id,
+      createdAt: reading.createdAt,
+      imagePath: archived,
+      overall: reading.overall,
+      love: reading.love,
+      career: reading.career,
+      money: reading.money,
+      nearFuture: reading.nearFuture,
+      takeaway: reading.takeaway,
+      visualObservation: reading.visualObservation,
+      symbols: reading.symbols,
+    );
+    await _store.save(persisted);
+    await _versions?.seedOriginal(
+      rootId: persisted.id,
+      kind: ReadingVersionKind.coffee,
+      data: ReadingVersionPayload.coffee(persisted),
+    );
+    return persisted;
   }
 
   Future<CoffeeReinterpretResult> reinterpret({
@@ -72,10 +98,15 @@ class CoffeeExperienceService {
       throw CoffeeAnalysisException(CoffeeCopy.analysisUnavailable);
     }
     final fresh = await _analysis.analyze(image);
+    final imagePath = current.imagePath ??
+        await _persistImage(
+          readingId: current.id,
+          sourcePath: image.path,
+        );
     final merged = CoffeeReading(
       id: current.id,
       createdAt: current.createdAt,
-      imagePath: current.imagePath ?? fresh.imagePath,
+      imagePath: imagePath,
       overall: fresh.overall,
       love: fresh.love,
       career: fresh.career,

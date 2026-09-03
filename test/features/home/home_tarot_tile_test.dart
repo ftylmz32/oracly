@@ -76,9 +76,9 @@ void main() {
 
   test('tarot is the sixth Home discovery door', () {
     final modules = HomeReferenceModules.list();
-    expect(modules, hasLength(7));
+    expect(modules, hasLength(6));
     expect(modules[5].id, OraclyFeatureId.tarot);
-    expect(modules.last.id, OraclyFeatureId.dream);
+    expect(HomeReferenceModules.dreamExtension.id, OraclyFeatureId.dream);
     expect(HomeDiscoveryCopy.title(OraclyFeatureId.tarot), 'Tarot');
     expect(HomeDiscoveryCopy.title(OraclyFeatureId.dream), 'Rüya Analizi');
   });

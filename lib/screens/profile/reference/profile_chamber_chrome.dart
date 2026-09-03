@@ -24,14 +24,13 @@ class ProfileChamberTitle extends StatelessWidget {
       title.trim(),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: ReadingTypography.sectionLabel(
-        fontSize: emphasis ? 12 : 11,
-      ).copyWith(
-        letterSpacing: 2.2,
-        color: OraclyChrome.goldLight.withValues(
-          alpha: emphasis ? 0.94 : 0.86,
-        ),
-      ),
+      style: ReadingTypography.sectionLabel(fontSize: emphasis ? 12 : 11)
+          .copyWith(
+            letterSpacing: 2.2,
+            color: OraclyChrome.goldLight.withValues(
+              alpha: emphasis ? 0.94 : 0.86,
+            ),
+          ),
     );
   }
 }

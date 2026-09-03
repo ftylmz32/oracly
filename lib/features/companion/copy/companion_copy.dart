@@ -12,6 +12,17 @@ abstract final class CompanionCopy {
   static String _t(String key) => OraclyL10n.t(key);
 
   static String get screenTitle => _t('or.screen_title');
+  static String get guideSubtitle => _t('or.guide_subtitle');
+  static String get introHello => _t('or.intro_hello');
+  static String get introBody => _t('or.intro_body');
+  static String get introBadge => _t('or.intro_badge');
+  static String get dayToday => _t('or.day_today');
+  static String get privacyNote => _t('or.privacy_note');
+  static String get shortcutTarot => _t('or.shortcut.tarot');
+  static String get shortcutCoffee => _t('or.shortcut.coffee');
+  static String get shortcutDream => _t('or.shortcut.dream');
+  static String get shortcutAstrology => _t('or.shortcut.astrology');
+  static String get shortcutSoulMate => _t('or.shortcut.soulmate');
   static String get memoryTransparency => _t('or.memory_transparency');
   static String get handoffBannerTarot => _t('or.handoff.banner.tarot');
   static String get handoffBannerGeneric => _t('or.handoff.banner.generic');
@@ -150,6 +161,8 @@ abstract final class CompanionCopy {
   static String get reconnecting => _t('or.reconnecting');
   static String get retrying => _t('or.retrying');
   static String get providerUnavailable => _t('or.provider_unavailable');
+  static String get saveFailed => _t('or.save_failed');
+  static String get saving => _t('or.saving');
   static String get welcomeTitle => _t('or.welcome_title');
   static String get welcomeBody => _t('or.welcome_body');
   static String get connectionError => _t('or.error');

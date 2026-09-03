@@ -12,7 +12,6 @@ import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context_sources.dart';
 import 'package:oracly_new/features/birth_chart/models/birth_profile.dart';
 import 'package:oracly_new/features/birth_chart/models/zodiac_sign_id.dart';
-import 'package:oracly_new/features/premium/copy/soul_mate_copy.dart';
 import 'package:oracly_new/features/premium/data/soul_mate_result_store.dart';
 import 'package:oracly_new/features/premium/models/soul_mate_saved_result.dart';
 import 'package:oracly_new/features/premium/data/soul_mate_interpretation_catalogue.dart';

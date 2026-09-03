@@ -24,53 +24,60 @@ class CompanionReferenceOrPremiumPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final invite = CompanionCopy.orPremiumHeadline;
-    return ListView(
-      padding: EdgeInsets.symmetric(
-        horizontal: CompanionReferenceTokens.screenHorizontal,
-        vertical: AppSpacing.s16,
-      ),
-      children: [
-        CompanionOrPresenceEntry(
-          emblem: const CompanionOrLivingCore(
-            size: 92,
-            breathe: true,
-            presence: CompanionOrPresence.idle,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final emblemSize = CompanionReferenceTokens.premiumEmblemFor(context);
+        final gap = CompanionReferenceTokens.sectionGapFor(context);
+        final breath = CompanionReferenceTokens.verticalBreathFor(context);
+        return CompanionReferenceTokens.fillScrollPane(
+          constraints: constraints,
+          padding: EdgeInsets.symmetric(
+            horizontal: CompanionReferenceTokens.screenHorizontal,
+            vertical: breath,
           ),
-          body: Column(
-            children: [
-              SizedBox(height: AppSpacing.s16),
-              Text(
-                invite,
-                textAlign: TextAlign.center,
-                style: ReadingTypography.title(
-                  color: OraclyChrome.cream.withValues(alpha: 0.95),
-                ).copyWith(fontSize: 20, height: 1.28),
+          children: [
+            CompanionOrPresenceEntry(
+              emblem: CompanionOrLivingCore(
+                size: emblemSize,
+                breathe: true,
+                presence: CompanionOrPresence.idle,
               ),
-              SizedBox(height: AppSpacing.s8),
-              Text(
-                CompanionCopy.orPremiumLead,
-                textAlign: TextAlign.center,
-                style: ReadingTypography.body(
-                  color: OraclyChrome.cream.withValues(alpha: 0.82),
-                ),
+              body: Column(
+                children: [
+                  SizedBox(height: gap * 0.65),
+                  Text(
+                    CompanionCopy.orPremiumHeadline,
+                    textAlign: TextAlign.center,
+                    style: ReadingTypography.title(
+                      color: OraclyChrome.cream.withValues(alpha: 0.95),
+                    ).copyWith(fontSize: 20, height: 1.28),
+                  ),
+                  SizedBox(height: AppSpacing.s8),
+                  Text(
+                    CompanionCopy.orPremiumLead,
+                    textAlign: TextAlign.center,
+                    style: ReadingTypography.body(
+                      color: OraclyChrome.cream.withValues(alpha: 0.82),
+                    ),
+                  ),
+                  SizedBox(height: AppSpacing.s8),
+                  Text(
+                    CompanionCopy.orPremiumPersonality,
+                    textAlign: TextAlign.center,
+                    style: ReadingTypography.bodySmall(
+                      color: OraclyChrome.goldLight.withValues(alpha: 0.78),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: AppSpacing.s8),
-              Text(
-                CompanionCopy.orPremiumPersonality,
-                textAlign: TextAlign.center,
-                style: ReadingTypography.bodySmall(
-                  color: OraclyChrome.goldLight.withValues(alpha: 0.78),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: AppSpacing.s24),
-        const CompanionReferenceOrPremiumSample(),
-        SizedBox(height: AppSpacing.s24),
-        const CompanionReferenceOrPaywallHost(showHero: false),
-      ],
+            ),
+            SizedBox(height: gap),
+            const CompanionReferenceOrPremiumSample(),
+            SizedBox(height: gap),
+            const CompanionReferenceOrPaywallHost(showHero: false),
+          ],
+        );
+      },
     );
   }
 }

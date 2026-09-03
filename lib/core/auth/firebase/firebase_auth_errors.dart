@@ -13,6 +13,12 @@ abstract final class FirebaseAuthErrors {
     if (code.contains('network')) {
       return NetworkException.noConnection();
     }
+    if (code == 'no-current-user') {
+      return NetworkException.unauthorized(AuthCopy.noCurrentUser);
+    }
+    if (code.contains('requires-recent-login')) {
+      return NetworkException.unauthorized(AuthCopy.requiresRecentLogin);
+    }
     if (code.contains('too-many-requests')) {
       return NetworkException(message: AuthCopy.tooManyAttempts);
     }
@@ -23,5 +29,22 @@ abstract final class FirebaseAuthErrors {
       return NetworkException.unauthorized(AuthCopy.invalidCredentials);
     }
     return NetworkException.unauthorized(AuthCopy.failed);
+  }
+
+  static NetworkException mapDelete(AuthGatewayException error) {
+    final code = error.code ?? '';
+    if (code.contains('network')) {
+      return NetworkException.noConnection();
+    }
+    if (code == 'no-current-user') {
+      return NetworkException.unauthorized(AuthCopy.noCurrentUser);
+    }
+    if (code.contains('requires-recent-login')) {
+      return NetworkException.unauthorized(AuthCopy.requiresRecentLogin);
+    }
+    if (code.contains('too-many-requests')) {
+      return NetworkException(message: AuthCopy.tooManyAttempts);
+    }
+    return NetworkException.unauthorized(AuthCopy.deleteFailed);
   }
 }

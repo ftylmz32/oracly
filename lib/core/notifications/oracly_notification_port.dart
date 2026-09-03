@@ -11,4 +11,7 @@ abstract class OraclyNotificationPort {
   Future<void> scheduleDaily(OraclyNotificationPayload payload);
 
   Future<void> cancelAll();
+
+  /// Reads cold-start notification response, if any.
+  Future<void> captureColdStartLaunch();
 }

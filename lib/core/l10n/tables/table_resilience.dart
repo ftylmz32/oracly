@@ -9,11 +9,7 @@ const kL10nResilience = <String, L10nTriple>{
     'A momentary pause',
     'Короткая пауза',
   ),
-  'resilience.retry': L10nTriple(
-    'TEKRAR DENE',
-    'TRY AGAIN',
-    'ЕЩЁ РАЗ',
-  ),
+  'resilience.retry': L10nTriple('TEKRAR DENE', 'TRY AGAIN', 'ЕЩЁ РАЗ'),
   'resilience.chat_loading': L10nTriple(
     'Seni dinliyorum…',
     'I am listening…',
@@ -109,6 +105,16 @@ const kL10nResilience = <String, L10nTriple>{
     'Session could not be verified. Please sign in again and try.',
     'Сессию не удалось подтвердить. Войди снова и попробуй.',
   ),
+  'resilience.ai_auth_pending': L10nTriple(
+    'Oturum hazırlanıyor. Bir an sonra tekrar dene.',
+    'Your session is still preparing. Please try again in a moment.',
+    'Сессия ещё готовится. Попробуй через мгновение.',
+  ),
+  'resilience.ai_app_check': L10nTriple(
+    'Güvenlik doğrulaması tamamlanamadı. Biraz sonra tekrar dene.',
+    'Security verification could not finish. Please try again shortly.',
+    'Проверка безопасности не завершилась. Попробуй чуть позже.',
+  ),
   'resilience.ai_empty': L10nTriple(
     'Yanıt bu sefer gelmedi. Tekrar denemek ister misin?',
     'No reply arrived this time. Would you like to try again?',
@@ -189,6 +195,11 @@ const kL10nResilience = <String, L10nTriple>{
     'Could not apply this setting right now. Let us try again.',
     'Не удалось применить эту настройку. Давай попробуем ещё раз.',
   ),
+  'resilience.settings_load_failed': L10nTriple(
+    'Ayarlar şu an açılamadı. Biraz sonra tekrar deneyebilirsin.',
+    'Settings could not open right now. You can try again in a moment.',
+    'Настройки сейчас не открылись. Можно попробовать через мгновение.',
+  ),
   'auth.not_configured': L10nTriple(
     'Giriş henüz hazır değil. Lütfen daha sonra dene.',
     'Sign-in is not ready yet. Please try later.',
@@ -213,5 +224,25 @@ const kL10nResilience = <String, L10nTriple>{
     'Oturum kapatıldı.',
     'Signed out.',
     'Сеанс завершён.',
+  ),
+  'auth.sign_out_failed': L10nTriple(
+    'Çıkış tamamlanamadı. Bir daha deneyelim.',
+    'Sign-out could not finish. Let us try again.',
+    'Выход не завершился. Давай попробуем ещё раз.',
+  ),
+  'auth.no_current_user': L10nTriple(
+    'Silinecek bir hesap bulunamadı.',
+    'No account is available to delete.',
+    'Нет аккаунта для удаления.',
+  ),
+  'auth.requires_recent_login': L10nTriple(
+    'Hesabı silmek için yakında yeniden giriş gerekir. Bu sürümde yeniden doğrulama yok; silme tamamlanmadı.',
+    'Deleting the account requires a recent sign-in. This release has no reauthentication path; deletion did not complete.',
+    'Для удаления аккаунта нужен недавний вход. В этой версии нет повторной проверки; удаление не выполнено.',
+  ),
+  'auth.delete_failed': L10nTriple(
+    'Hesap silinemedi. Yerel veriler ve hesap duruyor.',
+    'The account could not be deleted. Local data and the account remain.',
+    'Не удалось удалить аккаунт. Локальные данные и аккаунт сохранены.',
   ),
 };

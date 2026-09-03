@@ -20,6 +20,7 @@ import '../widgets/card_detail/card_detail_ai_insight.dart';
 import '../widgets/card_detail/card_detail_background.dart';
 import '../widgets/card_detail/card_detail_bottom_actions.dart';
 import '../widgets/card_detail/card_detail_catalogue.dart';
+import '../widgets/card_detail/card_detail_locale.dart';
 import '../widgets/card_detail/card_detail_hero_header.dart';
 import '../widgets/card_detail/card_detail_info_chips.dart';
 import '../widgets/card_detail/card_detail_meanings_accordion.dart';
@@ -129,6 +130,7 @@ class _CardDetailScreenState extends ConsumerState<CardDetailScreen>
   }
 
   Future<void> _share() async {
+    // Catalogue educational preview — not a user draw → always upright.
     await invokeDiscoveryShare(
       context,
       DiscoveryShareBuilder.tarot(
@@ -153,6 +155,7 @@ class _CardDetailScreenState extends ConsumerState<CardDetailScreen>
     final master = Curves.easeOutCubic.transform(
       _entrance.value.clamp(0.0, 1.0),
     );
+    final insight = CardDetailLocale.aiInsight(_content);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -201,6 +204,7 @@ class _CardDetailScreenState extends ConsumerState<CardDetailScreen>
                         ),
                         SizedBox(height: AppSpacing.xl),
                         CardDetailMeaningsAccordion(
+                          cardId: _content.id,
                           meanings: _content.meanings,
                           expandedKey: _expandedMeaning,
                           onToggle: _toggleMeaning,
@@ -209,17 +213,20 @@ class _CardDetailScreenState extends ConsumerState<CardDetailScreen>
                         ),
                         SizedBox(height: AppSpacing.xl),
                         CardDetailSymbolism(
+                          cardId: _content.id,
                           symbols: _content.symbols,
                           entrance: cardDetailSectionEntrance(2, master),
                           accent: _content.accentColor,
                         ),
                         SizedBox(height: AppSpacing.xl),
-                        CardDetailAiInsight(
-                          insight: _content.aiInsight,
-                          entrance: cardDetailSectionEntrance(3, master),
-                          accent: _content.accentColor,
-                        ),
-                        SizedBox(height: AppSpacing.xl),
+                        if (insight.isNotEmpty) ...[
+                          CardDetailAiInsight(
+                            insight: insight,
+                            entrance: cardDetailSectionEntrance(3, master),
+                            accent: _content.accentColor,
+                          ),
+                          SizedBox(height: AppSpacing.xl),
+                        ],
                         CardDetailRelatedCarousel(
                           relatedIds: _content.relatedIds,
                           entrance: cardDetailSectionEntrance(4, master),

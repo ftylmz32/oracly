@@ -3,6 +3,8 @@ library;
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import '../../data/datasources/local_storage.dart';
 import '../../domain/models/conversation_record.dart';
 import '../../domain/repositories/ai_conversation_repository.dart';
@@ -14,14 +16,43 @@ class LocalAiConversationRepository implements AiConversationRepository {
 
   final LocalStorage _storage;
 
+  /// Quarantined corrupt row count for the last [getAll] (tests / diagnostics).
+  int lastQuarantinedRows = 0;
+
   @override
   Future<List<ConversationRecord>> getAll() async {
     final raw = _storage.getStringList(_key);
-    if (raw == null) return [];
-    return raw
-        .map((e) =>
-            ConversationRecord.fromJson(jsonDecode(e) as Map<String, dynamic>))
-        .toList();
+    if (raw == null) {
+      lastQuarantinedRows = 0;
+      return [];
+    }
+    final items = <ConversationRecord>[];
+    var quarantined = 0;
+    for (final row in raw) {
+      final record = _tryParse(row);
+      if (record != null) {
+        items.add(record);
+      } else {
+        quarantined++;
+        assert(() {
+          // Metadata only — never row contents (private conversation).
+          debugPrint('[OR] historyQuarantine reason=row_parse');
+          return true;
+        }());
+      }
+    }
+    lastQuarantinedRows = quarantined;
+    return items;
+  }
+
+  static ConversationRecord? _tryParse(String raw) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return ConversationRecord.fromJson(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -52,10 +83,7 @@ class LocalAiConversationRepository implements AiConversationRepository {
     final all = await getAll();
     await _storage.setStringList(
       _key,
-      all
-          .where((e) => e.id != id)
-          .map((e) => jsonEncode(e.toJson()))
-          .toList(),
+      all.where((e) => e.id != id).map((e) => jsonEncode(e.toJson())).toList(),
     );
   }
 

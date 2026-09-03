@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/copy/first_session_copy.dart';
@@ -17,8 +18,11 @@ import 'package:oracly_new/core/first_session/first_session_intent.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/personality/living_greeting_copy.dart';
 import 'package:oracly_new/core/universe/oracly_universe_state.dart';
+import 'package:oracly_new/features/companion/presentation/reference/companion_reference_screen.dart';
 import 'package:oracly_new/features/companion/services/first_reading_or_deepen.dart';
 import 'package:oracly_new/features/home/master/home_master_hero.dart';
+import 'package:oracly_new/features/home/providers/home_now_provider.dart';
+import 'package:oracly_new/features/home/reference/home_reference_hero.dart';
 import 'package:oracly_new/features/premium/models/personalization_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +32,16 @@ void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
   final clock = DateTime(2026, 8, 29, 12);
+
+  List<Override> clockOverrides({
+    required bool firstPending,
+    ExperienceContext? living,
+  }) => [
+    homeNowProvider.overrideWithValue(clock),
+    firstReadingPendingProvider.overrideWith((ref) => firstPending),
+    if (living != null)
+      livingExperienceProvider.overrideWith((ref) async => living),
+  ];
 
   ExperienceContext returningExperience() => ExperienceContext(
     generatedAt: clock,
@@ -113,6 +127,26 @@ void main() {
     await storage.setBool(FirstReadingOrDeepen.consumedKey, true);
   }
 
+  Future<void> pumpHero(
+    WidgetTester tester, {
+    required LocalStorage storage,
+    required List<Override> overrides,
+    Size surface = const Size(390, 844),
+  }) async {
+    await tester.binding.setSurfaceSize(surface);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      buildProviderScopeHarness(
+        storage: storage,
+        overrides: overrides,
+        child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+
   testWidgets('first-session pending ignores returning living copy', (
     tester,
   ) async {
@@ -132,19 +166,11 @@ void main() {
       asOf: clock,
     );
 
-    await tester.pumpWidget(
-      buildProviderScopeHarness(
-        storage: storage,
-        overrides: [
-          firstReadingPendingProvider.overrideWith((ref) => true),
-          livingExperienceProvider.overrideWith((ref) async => living),
-        ],
-        child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
-      ),
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: clockOverrides(firstPending: true, living: living),
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text(FirstSessionCopy.homeCta), findsOneWidget);
     expect(find.text(FirstSessionCopy.homeSubtitleNew), findsOneWidget);
@@ -174,19 +200,11 @@ void main() {
       asOf: clock,
     );
 
-    await tester.pumpWidget(
-      buildProviderScopeHarness(
-        storage: storage,
-        overrides: [
-          firstReadingPendingProvider.overrideWith((ref) => false),
-          livingExperienceProvider.overrideWith((ref) async => living),
-        ],
-        child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
-      ),
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: clockOverrides(firstPending: false, living: living),
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text(FirstSessionCopy.continuityCta), findsOneWidget);
     expect(
@@ -196,6 +214,82 @@ void main() {
     expect(find.text(softHello), findsOneWidget);
     expect(find.text(returningInvite), findsNothing);
     expect(find.text(FirstSessionCopy.homeCta), findsNothing);
+  });
+
+  testWidgets('first-time user without conversation has no continuity CTA', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    final living = returningExperience();
+
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: clockOverrides(firstPending: false, living: living),
+    );
+
+    expect(find.text(FirstSessionCopy.continuityCta), findsNothing);
+    expect(find.text(FirstSessionCopy.homeCta), findsNothing);
+  });
+
+  testWidgets('continuity CTA opens existing OR conversation route', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    await markConsumed(storage, 'session_first');
+    await MockHistoryRepository(
+      storage,
+    ).saveReading(reading(id: 'session_first', cardName: 'The Star'));
+
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      buildProviderScopeHarness(
+        storage: storage,
+        overrides: clockOverrides(
+          firstPending: false,
+          living: returningExperience(),
+        ),
+        child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 80));
+
+    expect(find.text(FirstSessionCopy.continuityCta), findsOneWidget);
+    await tester.tap(find.text(FirstSessionCopy.continuityCta));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(CompanionReferenceScreen), findsOneWidget);
+  });
+
+  testWidgets('continuity CTA remains visible on compact phone width', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    await markConsumed(storage, 'session_first');
+    await MockHistoryRepository(
+      storage,
+    ).saveReading(reading(id: 'session_first', cardName: 'The Star'));
+
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: clockOverrides(
+        firstPending: false,
+        living: returningExperience(),
+      ),
+      surface: const Size(320, 568),
+    );
+
+    expect(find.text(FirstSessionCopy.continuityCta), findsOneWidget);
+    expect(find.byType(HomeReferenceHero), findsOneWidget);
+    final hero = tester.getSize(find.byType(HomeReferenceHero));
+    expect(hero.width, lessThanOrEqualTo(320));
   });
 
   testWidgets('default hero uses LivingGreetingCopy when returning', (
@@ -216,19 +310,11 @@ void main() {
       asOf: clock,
     );
 
-    await tester.pumpWidget(
-      buildProviderScopeHarness(
-        storage: storage,
-        overrides: [
-          firstReadingPendingProvider.overrideWith((ref) => false),
-          livingExperienceProvider.overrideWith((ref) async => living),
-        ],
-        child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
-      ),
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: clockOverrides(firstPending: false, living: living),
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text(expectedHello), findsOneWidget);
     expect(find.text(expectedInvite), findsOneWidget);
@@ -250,19 +336,11 @@ void main() {
       asOf: clock,
     );
 
-    await tester.pumpWidget(
-      buildProviderScopeHarness(
-        storage: storage,
-        overrides: [
-          firstReadingPendingProvider.overrideWith((ref) => false),
-          livingExperienceProvider.overrideWith((ref) async => living),
-        ],
-        child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
-      ),
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: clockOverrides(firstPending: false, living: living),
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text('Merhaba,'), findsOneWidget);
     expect(find.text(returningInvite), findsNothing);
@@ -275,21 +353,17 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
 
-    await tester.pumpWidget(
-      buildProviderScopeHarness(
-        storage: storage,
-        overrides: [
-          firstReadingPendingProvider.overrideWith((ref) => false),
-          livingExperienceProvider.overrideWith(
-            (ref) => Future<ExperienceContext>.error(StateError('offline')),
-          ),
-        ],
-        child: const MaterialApp(home: Scaffold(body: HomeMasterHero())),
-      ),
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: [
+        homeNowProvider.overrideWithValue(clock),
+        firstReadingPendingProvider.overrideWith((ref) => false),
+        livingExperienceProvider.overrideWith(
+          (ref) => Future<ExperienceContext>.error(StateError('offline')),
+        ),
+      ],
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text('Merhaba,'), findsOneWidget);
     expect(find.byType(HomeMasterHero), findsOneWidget);

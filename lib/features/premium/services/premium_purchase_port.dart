@@ -1,11 +1,15 @@
-/// Store billing port — App Store / Play when configured.
+/// Store billing port - App Store / Play when configured.
 library;
 
 import '../../../core/domain/models/premium_plan.dart';
 import '../models/premium_purchase_result.dart';
 
 abstract class PremiumPurchasePort {
+  /// Product catalogue loaded - required for new purchases / price labels.
   bool get isConfigured;
+
+  /// Store/plugin can run restorePurchases. Independent of catalogue load.
+  bool get canAttemptRestore;
 
   /// Query store products. May flip [isConfigured]. No-op when closed.
   Future<void> prepare();

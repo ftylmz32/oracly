@@ -56,6 +56,14 @@ android {
 
     buildTypes {
         release {
+            // R8 / resource shrinking for release APKs and App Bundles.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+
             // Production release uses upload keystore only — never silent debug signing.
             if (keystorePropertiesFile.exists()) {
                 val storePath = keystoreProperties["storeFile"] as String?

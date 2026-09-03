@@ -30,21 +30,21 @@ class CompanionReferencePlusSlot extends StatelessWidget {
           child: DecoratedBox(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: OraclyChrome.cardSurface.withValues(
-                alpha: active ? 0.30 : 0.18,
+              color: OraclyChrome.violet.withValues(
+                alpha: active ? 0.38 : 0.18,
               ),
               border: Border.all(
-                color: OraclyChrome.gold.withValues(
-                  alpha: active ? 0.22 : 0.12,
+                color: OraclyChrome.violet.withValues(
+                  alpha: active ? 0.55 : 0.22,
                 ),
-                width: 0.65,
+                width: 0.85,
               ),
             ),
             child: Icon(
               Icons.add_rounded,
-              size: 20,
-              color: OraclyChrome.goldLight.withValues(
-                alpha: active ? 0.82 : 0.38,
+              size: 22,
+              color: OraclyChrome.cream.withValues(
+                alpha: active ? 0.92 : 0.38,
               ),
             ),
           ),

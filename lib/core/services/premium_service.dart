@@ -36,6 +36,7 @@ class PremiumService {
 
   PremiumEntitlementVerifier get verifier => _verifier;
   bool get purchaseConfigured => _purchase.isConfigured;
+  bool get canAttemptRestore => _purchase.canAttemptRestore;
   bool get isActiveNow => _premium.isActiveNow;
   bool get wasAuthoritativelyVerified => _premium.wasAuthoritativelyVerified;
 
@@ -85,6 +86,7 @@ class PremiumService {
     return PremiumEntitlementReconciler(
       premium: _premium,
       purchaseConfigured: purchaseConfigured,
+      canAttemptRestore: canAttemptRestore,
       verifier: _verifier,
       forceReleaseMode: forceReleaseMode || this.forceReleaseMode,
     ).reconcile();

@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Kahve fincanı fotoğrafı çekmek için kamera gerekir.</string>
+	<string>ORACLY uses the camera for coffee-cup, palm, and profile photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Kahve fincanı fotoğrafı seçmek için galeri gerekir.</string>
+	<string>ORACLY uses your photo library to choose coffee-cup, palm, and profile photos.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Rüyanı sesli anlatmak için mikrofon gerekir.</string>
+	<string>ORACLY uses the microphone so you can speak a dream or talk with OR. Audio is not stored.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Rüyanı yazıya dökmek için ses tanıma gerekir. Ses kaydı saklanmaz.</string>
+	<string>ORACLY uses speech recognition to turn your voice into text for dreams and OR. Audio is not stored.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -78,12 +78,12 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<!-- Phones: portrait-first release UX (landscape not validated on critical flows). -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- iPad keeps all orientations — tablet layouts are allowed. -->
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

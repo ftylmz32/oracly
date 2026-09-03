@@ -17,16 +17,16 @@ class ProfileDiscoveryThemeChip extends StatelessWidget {
   final CrossDiscoveryInsight insight;
 
   static IconData _sourceIcon(String raw) => switch (raw) {
-        'tarot' => Icons.auto_stories_rounded,
-        'dream' => Icons.nights_stay_rounded,
-        'coffee' => Icons.local_cafe_rounded,
-        'reflection' => Icons.forum_outlined,
-        'palm' => Icons.pan_tool_outlined,
-        'astrology' => Icons.auto_awesome_rounded,
-        'star' || 'starMap' || 'star_map' => Icons.star_rounded,
-        'daily' || 'dailyMessage' => Icons.wb_twilight_outlined,
-        _ => Icons.circle_outlined,
-      };
+    'tarot' => Icons.auto_stories_rounded,
+    'dream' => Icons.nights_stay_rounded,
+    'coffee' => Icons.local_cafe_rounded,
+    'reflection' => Icons.forum_outlined,
+    'palm' => Icons.pan_tool_outlined,
+    'astrology' => Icons.auto_awesome_rounded,
+    'star' || 'starMap' || 'star_map' => Icons.star_rounded,
+    'daily' || 'dailyMessage' => Icons.wb_twilight_outlined,
+    _ => Icons.circle_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {

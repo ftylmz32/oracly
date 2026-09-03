@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -53,21 +54,21 @@ class _TarotRitualDeckReadyScreenState
               ),
               const SizedBox(height: AppSpacing.xl),
               Text(
-                'Desten hazır.',
+                OraclyL10n.t('tarot.ritual.deck_ready'),
                 style: AppTextStyles.headlineMedium.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Karıştır, kes, kartını çek.',
+                OraclyL10n.t('tarot.ritual.deck_ready_sub'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
               const Spacer(),
               OraclyButton(
-                text: 'Devam Et',
+                text: OraclyL10n.t('tarot.continue'),
                 isExpanded: true,
                 isLoading: _starting,
                 onPressed: _starting ? null : _start,

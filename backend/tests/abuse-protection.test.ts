@@ -1,16 +1,23 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { readingStageStore } from '../src/ai/reading/stage-cache.js';
 import {
   authHeader,
   chatBody,
   coffeeBody,
   coffeeJson,
+  coffeeObserverJson,
+  coffeeWriterJson,
+  openaiReadingSequence,
+  jsonResponse,
   fakeJpeg,
   openaiText,
   testApp,
   testConfig,
+  TINY_PNG_B64,
 } from './helpers.js';
 
 describe('ai abuse protection', () => {
+  beforeEach(() => readingStageStore.clear());
   it('rejects rapid duplicate chat bodies', async () => {
     const app = await testApp(testConfig(), openaiText('Merhaba.'));
     const headers = authHeader();
@@ -65,7 +72,7 @@ describe('ai abuse protection', () => {
       calls += 1;
       return new Response(
         JSON.stringify({
-          data: [{ b64_json: Buffer.from('fake-png').toString('base64') }],
+          data: [{ b64_json: TINY_PNG_B64 }],
         }),
         { status: 200, headers: { 'content-type': 'application/json' } },
       );
@@ -106,9 +113,10 @@ describe('ai abuse protection', () => {
 
   it('replays coffee success for the same paid operation id', async () => {
     let calls = 0;
-    const app = await testApp(testConfig(), async (_url, init) => {
+    const app = await testApp(testConfig(), async () => {
       calls += 1;
-      return openaiText(coffeeJson)();
+      const text = calls % 2 === 1 ? coffeeObserverJson : coffeeWriterJson;
+      return jsonResponse({ choices: [{ message: { content: text } }] });
     });
     const headers = {
       ...authHeader(),
@@ -131,16 +139,21 @@ describe('ai abuse protection', () => {
     });
     expect(second.statusCode).toBe(200);
     expect(second.json().success).toBe(true);
-    expect(calls).toBe(1);
+    expect(calls).toBe(2);
     await app.close();
   });
 
   it('expensive coffee burst is capped without blocking chat forever', async () => {
+    let stage = 0;
     const app = await testApp(
       testConfig({ AI_EXPENSIVE_RATE_MAX: '2' }),
       async (_url, init) => {
         const body = String(init?.body ?? '');
-        if (body.includes('image_url')) return openaiText(coffeeJson)();
+        if (body.includes('image_url') || body.includes('coffee_observation') || body.includes('coffee_narrative') || body.includes('json_schema')) {
+          stage += 1;
+          const text = stage % 2 === 1 ? coffeeObserverJson : coffeeWriterJson;
+          return jsonResponse({ choices: [{ message: { content: text } }] });
+        }
         return openaiText('Sakin bir nefes.')();
       },
     );

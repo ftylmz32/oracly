@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/oracly_app_bar.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
@@ -11,6 +12,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/widgets/oracly_cinematic_loading.dart';
+import '../../../../shared/widgets/oracly_error_state.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../../discovery_journal/presentation/widgets/discovery_archive_heading.dart';
 import '../../../discovery_journal/presentation/widgets/discovery_journal_atmosphere.dart';
@@ -68,7 +70,18 @@ class FavoriteMomentsScreen extends ConsumerWidget {
             Expanded(
               child: async.when(
                 loading: () => const OraclyCinematicLoading(compact: true),
-                error: (_, _) => const FavoriteMomentsEmpty(),
+                error: (_, _) => Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: OraclyChrome.screenSide,
+                    ),
+                    child: OraclyErrorState(
+                      title: ResilienceCopy.errorTitle,
+                      message: ResilienceCopy.temporaryFailure,
+                      onRetry: () => ref.invalidate(favoriteMomentsProvider),
+                    ),
+                  ),
+                ),
                 data: (items) => items.isEmpty
                     ? const FavoriteMomentsEmpty()
                     : ListView.builder(

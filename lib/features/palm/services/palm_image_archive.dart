@@ -38,17 +38,45 @@ abstract final class PalmImageArchive {
     return File(path).exists();
   }
 
+  static Future<bool> isOwnedPath(String path) async {
+    try {
+      final trimmed = path.trim();
+      if (trimmed.isEmpty) return false;
+      final root = _ownedPrefix(await _dir());
+      return File(trimmed).absolute.path.startsWith(root);
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Delete archived image when reading is removed — never touch external paths.
   static Future<void> deleteIfOwned(String? path) async {
-    if (path == null || path.isEmpty) return;
-    final file = File(path);
-    if (!await file.exists()) return;
-    final owned = (await _dir()).path;
-    if (!file.absolute.path.startsWith(Directory(owned).absolute.path)) {
-      return;
-    }
+    if (path == null || path.trim().isEmpty) return;
+    if (!await isOwnedPath(path)) return;
     try {
-      await file.delete();
+      final file = File(path);
+      if (await file.exists()) await file.delete();
     } catch (_) {}
+  }
+
+  /// Remove every file under the palm archive directory.
+  static Future<void> purgeOwnedArchive() async {
+    try {
+      final dir = await _dir();
+      if (!await dir.exists()) return;
+      await for (final entity in dir.list(followLinks: false)) {
+        if (entity is! File) continue;
+        try {
+          await entity.delete();
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  static String _ownedPrefix(Directory dir) {
+    final root = dir.absolute.path;
+    return root.endsWith(Platform.pathSeparator)
+        ? root
+        : '$root${Platform.pathSeparator}';
   }
 }

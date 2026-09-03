@@ -1,4 +1,4 @@
-/// TASK 58 — OR honesty chain: typed failures + quality never fake-live.
+﻿/// TASK 58 — OR honesty chain: typed failures + quality never fake-live.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -86,7 +86,7 @@ void main() {
       ),
       CompanionCopy.connectionError,
     );
-    // Network reachability ≠ every failure. Provider stays online in the strip.
+    // Network reachability â‰  every failure. Provider stays online in the strip.
     expect(
       CompanionController.linkForTest(AiFailureKind.providerError),
       CompanionLinkStatus.online,
@@ -183,3 +183,4 @@ class _FallbackTextAi implements OraclyAiService {
     throw UnsupportedError('palm');
   }
 }
+

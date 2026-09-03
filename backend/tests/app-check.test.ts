@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import {
   BypassAppCheckVerifier,
   FailClosedAppCheckVerifier,
@@ -52,7 +52,7 @@ describe('App Check gate', () => {
       payload: chatBody,
     });
     expect(res.statusCode).toBe(401);
-    expect(res.json().error.code).toBe('unauthorized');
+    expect(res.json().error.code).toBe('app_check_required');
     expect(JSON.stringify(res.json()).toLowerCase()).not.toContain('appcheck');
     await app.close();
   });
@@ -73,7 +73,7 @@ describe('App Check gate', () => {
       payload: chatBody,
     });
     expect(res.statusCode).toBe(401);
-    expect(res.json().error.code).toBe('unauthorized');
+    expect(res.json().error.code).toBe('app_check_required');
     await app.close();
   });
 
@@ -144,7 +144,7 @@ describe('App Check gate', () => {
       payload: chatBody,
     });
     expect(res.statusCode).toBe(401);
-    expect(res.json().error.code).toBe('unauthorized');
+    expect(res.json().error.code).toBe('app_check_required');
     await app.close();
   });
 
@@ -159,7 +159,8 @@ describe('App Check gate', () => {
     expect(health.statusCode).toBe(200);
     expect(health.json()).toEqual({ status: 'ok' });
     expect(ready.statusCode).toBe(200);
-    expect(ready.json()).toEqual({ status: 'ready' });
+    expect(ready.json().status).toBe('ready');
+    expect(ready.json().capabilities.alive).toBe(true);
     await app.close();
   });
 
@@ -183,3 +184,4 @@ describe('App Check gate', () => {
     await app.close();
   });
 });
+

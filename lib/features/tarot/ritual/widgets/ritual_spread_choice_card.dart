@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -24,11 +25,19 @@ class RitualSpreadChoiceCard extends StatelessWidget {
   final VoidCallback onTap;
 
   String get _title => switch (spread) {
-        TarotSpreadType.single => 'TEK KART',
-        TarotSpreadType.threeCard => '3 KART',
-        TarotSpreadType.fiveCard => 'DERİN AÇILIM',
-        _ => spread.label.toUpperCase(),
+        TarotSpreadType.single => OraclyL10n.t('tarot.spread.single.banner'),
+        TarotSpreadType.threeCard =>
+          OraclyL10n.t('tarot.spread.threeCard.banner_short'),
+        TarotSpreadType.fiveCard => OraclyL10n.t('tarot.spread.fiveCard.banner'),
+        TarotSpreadType.sevenCard =>
+          OraclyL10n.t('tarot.spread.sevenCard.banner'),
+        TarotSpreadType.celticCross =>
+          OraclyL10n.t('tarot.spread.celticCross.banner'),
       };
+
+  String get _cardCountLabel => OraclyL10n
+      .t('tarot.spread.card_count')
+      .replaceAll('{count}', '${spread.cardCount}');
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +74,7 @@ class RitualSpreadChoiceCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${spread.cardCount} kart',
+                    _cardCountLabel,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),

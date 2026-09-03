@@ -21,12 +21,7 @@ abstract final class OraclyTarotBridge {
       2 => 'swords',
       _ => 'wands',
     };
-    var n = (minor % 14) + 1;
-    if (n == 13) {
-      n = 14;
-    } else if (n == 14) {
-      n = 13;
-    }
+    final n = (minor % 14) + 1;
     return OraclyTarotDeck.byId('${suit}_${n.toString().padLeft(2, '0')}');
   }
 

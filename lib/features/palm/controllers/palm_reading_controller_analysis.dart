@@ -101,7 +101,12 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
   }
 
   void _setAnalysisError(String stage, PalmAnalysisError err, Object logged) {
-    logAnalysisFailure(feature: 'PalmAnalysis', stage: stage, error: logged);
+    logAnalysisFailure(
+      feature: 'PalmAnalysis',
+      stage: stage,
+      error: logged,
+      kind: err.kind.name,
+    );
     _lastError = err;
     _error = err.message;
     _phase = PalmPhase.error;

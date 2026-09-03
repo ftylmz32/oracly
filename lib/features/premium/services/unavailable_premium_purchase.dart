@@ -12,6 +12,9 @@ class UnavailablePremiumPurchase implements PremiumPurchasePort {
   bool get isConfigured => false;
 
   @override
+  bool get canAttemptRestore => false;
+
+  @override
   Future<void> prepare() async {}
 
   @override

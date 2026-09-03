@@ -29,7 +29,11 @@ class OpenAiImageAnalysis {
     required List<int> imageBytes,
     required String mimeType,
   }) {
-    final blocked = _blocked(imageBytes, mimeType);
+    final blocked = _blocked(
+      imageBytes,
+      mimeType,
+      feature: AiAnalysisFeature.coffee,
+    );
     if (blocked != null) return Future.value(blocked);
     final mime = CoffeeImageLimits.resolveMime(
       bytes: imageBytes,
@@ -58,7 +62,11 @@ class OpenAiImageAnalysis {
     required String mimeType,
     required String hand,
   }) {
-    final blocked = _blocked(imageBytes, mimeType);
+    final blocked = _blocked(
+      imageBytes,
+      mimeType,
+      feature: AiAnalysisFeature.palm,
+    );
     if (blocked != null) return Future.value(blocked);
     final mime = CoffeeImageLimits.resolveMime(
       bytes: imageBytes,
@@ -83,9 +91,15 @@ class OpenAiImageAnalysis {
     );
   }
 
-  AiOutcome<Never>? _blocked(List<int> imageBytes, String mimeType) {
+  AiOutcome<Never>? _blocked(
+    List<int> imageBytes,
+    String mimeType, {
+    required AiAnalysisFeature feature,
+  }) {
     if (!_config.visionAvailable) {
-      return AiOutcome.failure(AiFailure.imageAnalysisUnavailable());
+      return AiOutcome.failure(
+        AiFailure.imageAnalysisUnavailable(feature: feature),
+      );
     }
     final invalid = CoffeeImageLimits.validate(
       bytes: imageBytes,

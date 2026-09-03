@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/l10n/oracly_format.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/services/reading_service.dart';
@@ -75,7 +76,7 @@ void main() {
     final row = DiscoveryJournalMap.reading(saved);
     expect(row.kind, DiscoveryJournalKind.tarot);
     expect(row.title, '3 Kart Açılımı');
-    expect(row.dateLabel, contains('Ağustos'));
+    expect(row.dateLabel, OraclyFormat.dayMonth(saved.createdAt));
     expect(row.preview, isNotEmpty);
     expect(row.preview, isNot(contains('evimi beklemeli')));
   });

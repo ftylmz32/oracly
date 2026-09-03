@@ -116,4 +116,7 @@ class _HangingAuth implements AuthService {
 
   @override
   Future<ApiResult<bool>> signOut() async => const ApiSuccess(true);
+
+  @override
+  Future<ApiResult<bool>> deleteAccount() async => const ApiSuccess(true);
 }

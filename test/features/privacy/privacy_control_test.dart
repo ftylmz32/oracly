@@ -12,6 +12,7 @@ import 'package:oracly_new/features/favorite_moments/models/favorite_moment.dart
 import 'package:oracly_new/features/favorite_moments/services/favorite_moments_service.dart';
 import 'package:oracly_new/core/intelligence/services/personal_memory_service.dart';
 import 'package:oracly_new/features/privacy/services/privacy_control_service.dart';
+import 'package:oracly_new/features/tarot/data/datasources/tarot_local_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -66,13 +67,28 @@ void main() {
     expect(storage.getStringList('discovery_surface_memory_v1'), isNull);
   });
 
-  test('clear discovery history empties journal sources', () async {
+  test('clear discovery history empties journal sources but keeps favorites', () async {
+    final repo = LocalFavoriteMomentsRepository(storage);
+    await repo.save(
+      FavoriteMoment(
+        id: 'm-persist',
+        source: FavoriteMomentSource.tarot,
+        sourceRef: 'cleared-id',
+        savedAt: DateTime(2026, 1, 1),
+        occurredAt: DateTime(2026, 1, 1),
+        quote: 'Still saved',
+        visualAsset: 'lib/assets/images/tarot/major_arcana/17_yildiz.png',
+        visualLabel: 'Yildiz',
+      ),
+    );
     await storage.setStringList('or_reading_history', const ['r1']);
     await storage.setStringList('dream_records', const ['d1']);
     await storage.setStringList('coffee_readings', const ['c1']);
     await storage.setStringList('palm_readings', const ['p1']);
     await storage.setStringList('astrology_history', const ['a1']);
     await storage.setStringList('ai_conversations', const ['or1']);
+    await storage.setStringList(TarotLocalDataSource.historyKey, const ['t1']);
+    await storage.setString(TarotLocalDataSource.activeKey, 'active');
 
     await service(PersonalMemoryService(PersonalMemoryStore(storage)))
         .clearDiscoveryHistory();
@@ -83,5 +99,8 @@ void main() {
     expect(storage.getStringList('palm_readings'), isEmpty);
     expect(storage.getStringList('astrology_history'), isEmpty);
     expect(storage.getStringList('ai_conversations'), isEmpty);
+    expect(storage.getStringList(TarotLocalDataSource.historyKey), isEmpty);
+    expect(storage.getString(TarotLocalDataSource.activeKey), isNull);
+    expect((await repo.getAll()).length, 1);
   });
 }

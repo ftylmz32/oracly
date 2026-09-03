@@ -11,11 +11,10 @@ abstract final class PaidAiOperationId {
   /// Format: `or-{feature}-{time}-{entropy}` (header-safe, ≤128 chars).
   static String create(String feature) {
     final safe = feature.replaceAll(RegExp(r'[^a-z0-9]'), '');
-    final stamp = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
-    final entropy = List.generate(8, (_) => _random.nextInt(36))
-        .map((n) => n.toRadixString(36))
+    final entropy = List.generate(16, (_) => _random.nextInt(256))
+        .map((n) => n.toRadixString(16).padLeft(2, '0'))
         .join();
-    return 'or-$safe-$stamp-$entropy';
+    return 'or-$safe-$entropy';
   }
 
   /// Tarot sessions already have a stable id — normalize for headers.

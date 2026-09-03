@@ -65,3 +65,4 @@ void main() {
     expect(ChatPromptBuilder.system.toLowerCase(), contains('hazır empati'));
   });
 }
+

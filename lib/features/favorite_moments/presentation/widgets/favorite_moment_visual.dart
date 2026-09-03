@@ -2,6 +2,7 @@
 library;
 
 import 'dart:io';
+import 'dart:math' show pi;
 
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,7 @@ class FavoriteMomentVisual extends StatelessWidget {
     );
     Widget inner;
     if (asset != null && asset.isNotEmpty) {
-      if (asset.startsWith('assets/')) {
+      if (asset.startsWith('assets/') || asset.startsWith('lib/assets/')) {
         inner = Image.asset(
           asset,
           fit: BoxFit.cover,
@@ -46,6 +47,9 @@ class FavoriteMomentVisual extends StatelessWidget {
           cacheWidth: cacheW,
           errorBuilder: (_, error, stack) => _Icon(kind: moment.source, size: size),
         );
+      }
+      if (moment.visualIsReversed) {
+        inner = Transform.rotate(angle: pi, child: inner);
       }
     } else {
       inner = _Icon(kind: moment.source, size: size);

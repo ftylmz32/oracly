@@ -1,11 +1,11 @@
 /// Atmospheric music bed — low-volume zodiac loop (symbolic, not astrology).
 library;
 
-import 'dart:typed_data';
-
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../features/birth_chart/models/zodiac_sign_id.dart';
+import 'oracly_ambient_audio_context.dart';
 import 'oracly_atmosphere_palette.dart';
 import 'oracly_wav_synth.dart';
 
@@ -25,25 +25,26 @@ class OraclyAmbientBed {
   Future<void> ensureReady() async {
     if (_ready) return;
     try {
-      _player ??= AudioPlayer(playerId: 'oracly_ambient');
+      // Unique id — fixed ids collide across instances (unit tests).
+      _player ??= AudioPlayer(
+        playerId: 'oracly_ambient_${identityHashCode(this)}',
+      );
+      // BytesSource + loop needs mediaPlayer; lowLatency often fails silently.
+      await _player!.setPlayerMode(PlayerMode.mediaPlayer);
       await _player!.setReleaseMode(ReleaseMode.loop);
       await _player!.setVolume(0);
-      await _player!.setAudioContext(
-        AudioContext(
-          android: const AudioContextAndroid(
-            contentType: AndroidContentType.music,
-            usageType: AndroidUsageType.game,
-            audioFocus: AndroidAudioFocus.none,
-          ),
-          iOS: AudioContextIOS(
-            category: AVAudioSessionCategory.ambient,
-            options: const {AVAudioSessionOptions.mixWithOthers},
-          ),
-        ),
-      );
+      await _player!.setAudioContext(oraclyAmbientAudioContext());
       _ready = true;
-    } catch (_) {
+    } catch (e) {
+      try {
+        await _player?.dispose();
+      } catch (_) {}
+      _player = null;
       _ready = false;
+      assert(() {
+        debugPrint('[ORACLY] ambient init failed: $e');
+        return true;
+      }());
     }
   }
 
@@ -74,18 +75,24 @@ class OraclyAmbientBed {
     }
     final player = _player;
     if (player == null) return;
-
     final bytes = OraclyWavSynth.zodiacAtmosphere(_sign);
     if (bytes.isEmpty) return;
-
     try {
-      final source = _sourceFor('zodiac_${_sign.name}', bytes);
+      final source = _cache.putIfAbsent(
+        'zodiac_${_sign.name}',
+        () => BytesSource(bytes, mimeType: 'audio/wav'),
+      );
       await player.stop();
       if (token != _epoch || !_enabled) return;
       await player.setVolume(0);
       await player.play(source);
       await _fadeIn(epoch: token);
-    } catch (_) {}
+    } catch (e) {
+      assert(() {
+        debugPrint('[ORACLY] ambient play failed ($_sign): $e');
+        return true;
+      }());
+    }
   }
 
   Future<void> pauseForBackground() async {
@@ -121,16 +128,12 @@ class OraclyAmbientBed {
   Future<void> dispose() async {
     _epoch++;
     await stop();
-    await _player?.dispose();
+    try {
+      await _player?.dispose();
+    } catch (_) {}
     _player = null;
     _ready = false;
-  }
-
-  Source _sourceFor(String key, Uint8List bytes) {
-    return _cache.putIfAbsent(
-      key,
-      () => BytesSource(bytes, mimeType: 'audio/wav'),
-    );
+    _cache.clear();
   }
 
   Future<void> _fadeIn({required int epoch}) async {

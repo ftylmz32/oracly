@@ -1,4 +1,4 @@
-/// Shared helpers for OR response quality regression — behavior, not prose.
+﻿/// Shared helpers for OR response quality regression — behavior, not prose.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -68,3 +68,4 @@ class OrQualityHarness {
     }
   }
 }
+

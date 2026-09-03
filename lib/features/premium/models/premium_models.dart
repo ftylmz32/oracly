@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/copy/premium_copy.dart';
 import '../../../core/domain/models/premium_plan.dart';
-import 'premium_showcase.dart';
 
 enum PremiumPlanType {
   monthly('Aylık'),

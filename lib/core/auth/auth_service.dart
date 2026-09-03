@@ -20,4 +20,9 @@ abstract class AuthService {
   Future<ApiResult<AuthSession>> ensureAnonymousSession();
 
   Future<ApiResult<bool>> signOut();
+
+  /// Deletes the identity provider account. Does not wipe local data —
+  /// callers must run [AccountDeletionService] so wipe happens only after
+  /// remote success. Never reports success for logout-only.
+  Future<ApiResult<bool>> deleteAccount();
 }

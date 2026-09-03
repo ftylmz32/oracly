@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/l10n/l10n.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -19,16 +20,16 @@ abstract final class OraclyDialog {
     BuildContext context, {
     required String title,
     required String message,
-    String confirmLabel = 'Onayla',
-    String cancelLabel = 'İptal',
+    String? confirmLabel,
+    String? cancelLabel,
     bool destructive = false,
   }) {
     return showOraclyConfirmDialog(
       context,
       title: title,
       message: message,
-      confirmLabel: confirmLabel,
-      cancelLabel: cancelLabel,
+      confirmLabel: confirmLabel ?? OraclyL10n.t(L10nKeys.confirm),
+      cancelLabel: cancelLabel ?? OraclyL10n.t(L10nKeys.cancel),
       destructive: destructive,
     );
   }
@@ -38,10 +39,12 @@ abstract final class OraclyDialog {
     required String title,
     required String hint,
     String initial = '',
-    String confirmLabel = 'Kaydet',
-    String cancelLabel = 'İptal',
+    String? confirmLabel,
+    String? cancelLabel,
   }) {
     final controller = TextEditingController(text: initial);
+    final save = confirmLabel ?? OraclyL10n.t(L10nKeys.save);
+    final cancel = cancelLabel ?? OraclyL10n.t(L10nKeys.cancel);
     return showOraclyDialogSurface<String>(
       context,
       child: Builder(
@@ -75,11 +78,11 @@ abstract final class OraclyDialog {
               OraclyDialogActions(
                 children: [
                   OraclyTextAction(
-                    label: cancelLabel,
+                    label: cancel,
                     onPressed: () => Navigator.pop(dialogContext),
                   ),
                   OraclyGoldButton(
-                    label: confirmLabel,
+                    label: save,
                     onPressed: () => Navigator.pop(
                       dialogContext,
                       controller.text.trim(),
@@ -103,13 +106,13 @@ abstract final class OraclyDialog {
     BuildContext context, {
     required String title,
     required String message,
-    String buttonLabel = 'Tamam',
+    String? buttonLabel,
   }) {
     return showOraclyInfoDialog(
       context,
       title: title,
       message: message,
-      buttonLabel: buttonLabel,
+      buttonLabel: buttonLabel ?? OraclyL10n.t(L10nKeys.ok),
     );
   }
 }

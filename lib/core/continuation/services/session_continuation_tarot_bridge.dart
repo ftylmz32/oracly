@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 
-import '../../../../app/providers/app_providers.dart';
+import '../../../app/providers/app_providers.dart';
 
 import '../models/session_continuation.dart';
 

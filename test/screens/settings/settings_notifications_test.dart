@@ -25,14 +25,14 @@ void main() {
   late MemoryNotificationPort port;
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues(settingsTestLanguagePrefs);
     storage = LocalStorage(await SharedPreferences.getInstance());
     port = MemoryNotificationPort();
     OraclyL10n.bind('tr');
   });
 
   Future<void> pumpSettings(WidgetTester tester, {double width = 390}) async {
-    await tester.binding.setSurfaceSize(Size(width, 2400));
+    await tester.binding.setSurfaceSize(Size(width, 3200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
       ProviderScope(
@@ -70,7 +70,10 @@ void main() {
   testWidgets('persisted ON restores and schedules one daily invitation', (
     tester,
   ) async {
-    SharedPreferences.setMockInitialValues({'settings_notifications': true});
+    SharedPreferences.setMockInitialValues({
+      ...settingsTestLanguagePrefs,
+      'settings_notifications': true,
+    });
     storage = LocalStorage(await SharedPreferences.getInstance());
     await pumpSettings(tester);
     expect(port.scheduled?.kind, OraclyNotificationKind.daily);
@@ -100,7 +103,10 @@ void main() {
   });
 
   testWidgets('turning Bildirimler off cancels the daily slot', (tester) async {
-    SharedPreferences.setMockInitialValues({'settings_notifications': true});
+    SharedPreferences.setMockInitialValues({
+      ...settingsTestLanguagePrefs,
+      'settings_notifications': true,
+    });
     storage = LocalStorage(await SharedPreferences.getInstance());
     await pumpSettings(tester);
 

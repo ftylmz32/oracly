@@ -1,12 +1,9 @@
-/// Responsive height budget for zero-scroll Home (KN8-first).
+/// Home section floors — guidance only; never force-fit by crushing.
 library;
 
 import 'package:flutter/foundation.dart';
 
-/// Explicit section heights that sum to the content viewport.
-///
-/// Bottom navigation clearance is reserved *outside* these heights
-/// (body bottom padding via [AppLayout.scrollBottomInset]).
+/// Readable minimums used by preferred layout math.
 @immutable
 final class HomeMasterBudget {
   const HomeMasterBudget({
@@ -19,6 +16,7 @@ final class HomeMasterBudget {
     required this.premium,
     required this.contentHeight,
     required this.navClearance,
+    required this.fitsReadableGrid,
   });
 
   final double header;
@@ -30,42 +28,47 @@ final class HomeMasterBudget {
   final double premium;
   final double contentHeight;
   final double navClearance;
+  final bool fitsReadableGrid;
 
-  /// Gaps between the six content bands (five spacers).
   static const int gapCount = 5;
+  static const double discoveriesBand = 30.0;
 
-  /// Flex weights for flexible bands (hero / OR / today / grid).
-  static const int heroFlex = 30;
-  static const int orFlex = 24;
-  static const int todayFlex = 16;
-  static const int gridFlex = 34;
-  static const int flexTotal = heroFlex + orFlex + todayFlex + gridFlex;
+  /// Core discovery is 3×2 (reference). Dream sits as a secondary extension.
+  static const int gridRows = 2;
+  static const double minModuleTile = 104.0;
+  static const double todaySectionOverhead = 30.0;
+  static const double todayCardMin = 100.0;
+  static const double minHeroOrHeight = 118.0;
+  static const double compositionSafety = 8.0;
 
-  /// Resolves heights from the full body [maxHeight] (before nav padding).
+  /// Diagnostic: whether preferred floors fit without scroll.
   static HomeMasterBudget resolve({
     required double maxHeight,
     required double navClearance,
   }) {
     final raw = maxHeight.isFinite ? maxHeight : 700.0;
-    final content = (raw - navClearance).clamp(300.0, raw);
+    final content =
+        (raw - navClearance - compositionSafety).clamp(300.0, raw);
 
-    final tight = content < 520;
-    final compact = content < 600;
+    final header = 50.0;
+    final gap = 14.0;
+    final premium = 80.0;
+    final hero = 176.0;
+    final orSection = 124.0;
+    final today = todayCardMin + todaySectionOverhead;
+    final grid = discoveriesBand +
+        minModuleTile * gridRows +
+        gap * (gridRows - 1) +
+        gap +
+        76.0;
 
-    final header = tight ? 42.0 : (compact ? 44.0 : 48.0);
-    final gap = tight ? 4.0 : (compact ? 6.0 : 8.0);
-    final premium = tight ? 48.0 : (compact ? 52.0 : 56.0);
-
-    final chrome = header + premium + (gap * gapCount);
-    final flexible = (content - chrome).clamp(160.0, content);
-
-    double slice(int flex) => flexible * flex / flexTotal;
-
-    final hero = slice(heroFlex);
-    final orSection = slice(orFlex);
-    final today = slice(todayFlex);
-    // Absorb rounding into grid so the column sums exactly.
-    final grid = flexible - hero - orSection - today;
+    final allocated = header +
+        premium +
+        (gap * gapCount) +
+        hero +
+        orSection +
+        today +
+        grid;
 
     return HomeMasterBudget(
       header: header,
@@ -77,10 +80,10 @@ final class HomeMasterBudget {
       premium: premium,
       contentHeight: content,
       navClearance: navClearance,
+      fitsReadableGrid: content >= allocated,
     );
   }
 
-  /// Sum of content bands + gaps (must equal [contentHeight]).
   double get allocated =>
       header +
       premium +

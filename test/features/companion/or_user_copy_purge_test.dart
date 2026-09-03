@@ -1,4 +1,4 @@
-/// OR conversation UI — no source/transport/diagnostic copy in the thread.
+﻿/// OR conversation UI — no source/transport/diagnostic copy in the thread.
 library;
 
 import 'package:flutter/material.dart';
@@ -85,3 +85,4 @@ void main() {
     expect(AiSourceCopy.sourceLocal.toLowerCase(), contains('yerel'));
   });
 }
+

@@ -13,6 +13,8 @@ import 'package:oracly_new/features/astrology/presentation/reference/astrology_r
 import 'package:oracly_new/features/birth_chart/copy/birth_chart_copy.dart';
 import 'package:oracly_new/features/dream/copy/dream_copy.dart';
 import 'package:oracly_new/features/dream/presentation/reference/dream_reference_intro.dart';
+import 'package:oracly_new/features/explore/presentation/explore_module_card.dart';
+import 'package:oracly_new/features/explore/presentation/explore_reference_screen.dart';
 import 'package:oracly_new/features/home/reference/home_reference_module_grid.dart';
 import 'package:oracly_new/features/home/copy/home_discovery_copy.dart';
 import 'package:oracly_new/features/home/reference/home_reference_modules.dart';
@@ -39,9 +41,10 @@ void main() {
       DreamCopy.previewNoteNeedsOr.toLowerCase(),
       isNot(contains('katalog')),
     );
-    expect(DreamCopy.entryDescription, contains('Önizleme'));
+    expect(DreamCopy.entryDescription.toLowerCase(), isNot(contains('önizleme')));
     expect(DreamReferenceIntro.copy, contains('Önizleme'));
-    expect(AstrologyReferenceKindNote.label, 'Önizleme');
+    expect(AstrologyReferenceKindNote.label, PreviewCapabilityCopy.astrologyLabel);
+    expect(AstrologyReferenceKindNote.label.toLowerCase(), isNot(contains('önizleme')));
     expect(AstrologyReferenceKindNote.detail, contains('yansıma'));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), isNot(contains('katalog')));
     expect(StarMapPolishCopy.whatItIs, startsWith('Güneş burcuna göre'));
@@ -51,24 +54,32 @@ void main() {
     expect(BirthChartCopy.capabilityNote, contains('Güneş burcuna göre'));
     expect(BirthChartCopy.onboardingDescription, startsWith('Önizleme'));
     expect(BirthChartCopy.ephemerisNote, startsWith('Önizleme'));
-    expect(OraclyTab.astrology.universeHint, contains('Önizleme'));
+    expect(OraclyTab.astrology.universeHint.toLowerCase(), isNot(contains('önizleme')));
     expect(OraclyTab.starMap.universeHint.toLowerCase(), contains('yerel'));
     expect(OraclyTab.starMap.universeHint.toLowerCase(), isNot(contains('önizleme')));
     expect(
       UniverseNavigationCopy.bandUnderstandHint.toLowerCase(),
-      contains('önizleme'),
+      isNot(contains('önizleme')),
     );
     expect(
       UniverseNavigationCopy.realmUnderstandHint.toLowerCase(),
-      contains('önizleme'),
+      isNot(contains('önizleme')),
     );
     expect(
       OraclyFeatureRegistry.byId(OraclyFeatureId.dream)?.subtitle,
-      contains('Önizleme'),
+      isNot(contains('Önizleme')),
     );
     expect(
-      OraclyFeatureRegistry.byId(OraclyFeatureId.astrology)?.subtitle,
-      contains('Önizleme'),
+      OraclyFeatureRegistry.byId(OraclyFeatureId.dream)?.isLive,
+      isTrue,
+    );
+    expect(
+      OraclyFeatureRegistry.byId(OraclyFeatureId.astrology)?.isLive,
+      isTrue,
+    );
+    expect(
+      OraclyFeatureRegistry.byId(OraclyFeatureId.astrology)!.subtitle!.toLowerCase(),
+      isNot(contains('önizleme')),
     );
     expect(
       OraclyFeatureRegistry.byId(OraclyFeatureId.starMap)!.subtitle!.toLowerCase(),
@@ -88,11 +99,21 @@ void main() {
     );
     expect(
       OraclyFeatureRegistry.byId(OraclyFeatureId.dream)?.subtitle,
-      contains('Önizleme'),
+      isNot(contains('Önizleme')),
     );
     expect(
-      OraclyFeatureRegistry.byId(OraclyFeatureId.astrology)?.subtitle,
-      contains('Önizleme'),
+      OraclyFeatureRegistry.byId(OraclyFeatureId.dream)?.isLive,
+      isTrue,
+    );
+    expect(
+      OraclyFeatureRegistry.byId(OraclyFeatureId.astrology)?.isLive,
+      isTrue,
+    );
+    expect(
+      OraclyFeatureRegistry.byId(OraclyFeatureId.astrology)!
+          .subtitle!
+          .toLowerCase(),
+      isNot(contains('önizleme')),
     );
     expect(
       OraclyFeatureRegistry.byId(OraclyFeatureId.starMap)!.subtitle!.toLowerCase(),
@@ -100,7 +121,7 @@ void main() {
     );
   });
 
-  testWidgets('Home grid shows Önizleme on catalogue tiles', (tester) async {
+  testWidgets('Home grid shows no Preview badge on LIVE catalogue tiles', (tester) async {
     await tester.binding.setSurfaceSize(const Size(360, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
@@ -121,11 +142,43 @@ void main() {
     );
     await tester.pump();
 
-    // Visual master Home: no Önizleme chrome on cinematic cards.
+    // Dream / Astrology / Yıldızname are LIVE — no Preview badges on Home.
     expect(find.text(PreviewCapabilityCopy.badge), findsNothing);
+    expect(find.text('Yeni'), findsOneWidget);
     expect(find.text('Kahve Falı'), findsOneWidget);
     expect(find.textContaining('El'), findsWidgets);
     expect(find.text('Tarot'), findsOneWidget);
     expect(find.textContaining('Ruh'), findsWidgets);
+  });
+
+  testWidgets('Explore cards show no preview mark for LIVE audited modules', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    await tester.pumpWidget(
+      buildProviderScopeHarness(
+        storage: storage,
+        child: const MaterialApp(home: ExploreReferenceScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final cards = tester.widgetList<ExploreModuleCard>(
+      find.byType(ExploreModuleCard),
+    );
+    expect(
+      cards.any((c) => c.featureId == OraclyFeatureId.astrology),
+      isTrue,
+    );
+    expect(cards.any((c) => c.featureId == OraclyFeatureId.starMap), isTrue);
+    expect(cards.any((c) => c.featureId == OraclyFeatureId.dream), isTrue);
+    expect(
+      find.descendant(
+        of: find.byType(ExploreModuleCard),
+        matching: find.text(PreviewCapabilityCopy.badge),
+      ),
+      findsNothing,
+    );
   });
 }

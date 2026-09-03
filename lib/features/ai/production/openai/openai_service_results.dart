@@ -110,7 +110,9 @@ abstract final class OpenAiServiceResults {
           ),
         );
       },
-      error: AiOutcome.failure,
+      error: (failure) => AiOutcome.failure(
+        AiFailure.relabelImageAnalysis(failure, AiAnalysisFeature.palm),
+      ),
     );
   }
 
@@ -133,7 +135,9 @@ abstract final class OpenAiServiceResults {
         }
         return AiOutcome.success(parsed);
       },
-      error: AiOutcome.failure,
+      error: (failure) => AiOutcome.failure(
+        AiFailure.relabelImageAnalysis(failure, AiAnalysisFeature.coffee),
+      ),
     );
   }
 }

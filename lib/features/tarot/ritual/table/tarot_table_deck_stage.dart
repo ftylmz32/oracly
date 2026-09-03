@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
@@ -62,7 +63,7 @@ class TarotTableDeckStage extends StatelessWidget {
             ),
           if (phase == TarotTablePhase.preparing)
             Text(
-              'Desten hazırlanıyor…',
+              OraclyL10n.t('tarot.ritual.deck_preparing'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textSecondary,
               ),

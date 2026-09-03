@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -26,7 +27,7 @@ class TarotTableHint extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Kartı yukarı çek',
+            OraclyL10n.t('tarot.ritual.draw_hint'),
             style: AppTextStyles.labelSmall.copyWith(
               color: AppColors.textSecondary.withValues(alpha: 0.85),
               letterSpacing: 0.6,

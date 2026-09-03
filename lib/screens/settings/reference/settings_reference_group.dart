@@ -109,8 +109,8 @@ class _SettingsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = AppColors.of(context);
-    final content = SizedBox(
-      height: SettingsReferenceTokens.rowHeight,
+    final content = ConstrainedBox(
+      constraints: BoxConstraints(minHeight: SettingsReferenceTokens.rowHeight),
       child: Padding(
         padding: SettingsReferenceTokens.rowPadding,
         child: Row(
@@ -126,9 +126,7 @@ class _SettingsRow extends StatelessWidget {
                     palette.purple.withValues(alpha: 0.28),
                   ],
                 ),
-                border: Border.all(
-                  color: palette.gold.withValues(alpha: 0.28),
-                ),
+                border: Border.all(color: palette.gold.withValues(alpha: 0.28)),
               ),
               child: SizedBox(
                 width: SettingsReferenceTokens.rowIconWell,
@@ -143,6 +141,7 @@ class _SettingsRow extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -153,7 +152,7 @@ class _SettingsRow extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: palette.textPrimary.withValues(alpha: 0.94),
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
@@ -162,7 +161,7 @@ class _SettingsRow extends StatelessWidget {
                     style: AppTextStyles.caption.copyWith(
                       color: palette.textSecondary.withValues(alpha: 0.78),
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -175,11 +174,16 @@ class _SettingsRow extends StatelessWidget {
                 onChanged: row.onSwitchChanged!,
               )
             else if (row.trailingValue != null) ...[
-              Text(
-                row.trailingValue!,
-                style: AppTextStyles.caption.copyWith(
-                  color: palette.gold.withValues(alpha: 0.86),
-                  fontWeight: FontWeight.w600,
+              Flexible(
+                child: Text(
+                  row.trailingValue!,
+                  textAlign: TextAlign.end,
+                  style: AppTextStyles.caption.copyWith(
+                    color: palette.gold.withValues(alpha: 0.86),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(width: 4),

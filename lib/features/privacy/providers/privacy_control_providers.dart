@@ -4,6 +4,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/auth/account_deletion_service.dart';
 import '../../../core/domain/models/user_profile.dart';
 import '../../../services/memory_service.dart';
 import '../../discovery_journal/providers/discovery_journal_providers.dart';
@@ -20,6 +21,14 @@ final privacyControlServiceProvider = Provider<PrivacyControlService>((ref) {
     personalMemory: ref.watch(personalMemoryServiceProvider),
     birthCharts: ref.watch(birthChartRepositoryProvider),
     storage: ref.watch(localStorageProvider),
+  );
+});
+
+final accountDeletionServiceProvider = Provider<AccountDeletionService>((ref) {
+  return AccountDeletionService(
+    auth: ref.watch(authServiceProvider),
+    storage: ref.watch(localStorageProvider),
+    secureStorage: ref.watch(secureStorageProvider),
   );
 });
 

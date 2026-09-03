@@ -32,7 +32,7 @@ class CompanionReferenceAtmosphere extends StatelessWidget {
     );
     return OraclyCosmicBackground(
       heroGlow: false,
-      showStars: false,
+      showStars: true,
       showDust: atmosphere.showDust && presence != CompanionOrPresence.idle,
       showNebula: false,
       child: Stack(
@@ -51,7 +51,7 @@ class CompanionReferenceAtmosphere extends StatelessWidget {
                   center: const Alignment(0, -0.22),
                   radius: 0.72,
                   colors: [
-                    OraclyChrome.violet.withValues(alpha: 0.09),
+                    OraclyChrome.violet.withValues(alpha: 0.18),
                     const Color(0x00000000),
                   ],
                 ),
@@ -97,7 +97,7 @@ class CompanionReferenceAtmosphere extends StatelessWidget {
                   center: const Alignment(0, -0.12),
                   radius: 0.92,
                   colors: [
-                    OraclyChrome.violet.withValues(alpha: 0.055),
+                    OraclyChrome.violet.withValues(alpha: 0.12),
                     const Color(0x00000000),
                   ],
                 ),

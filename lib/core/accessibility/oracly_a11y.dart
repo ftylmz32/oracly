@@ -10,8 +10,9 @@ abstract final class OraclyA11y {
   /// WCAG-minded minimum interactive size (logical px).
   static const double minTouchTarget = 44;
 
-  /// App-wide soft text scale ceiling — prevents severe chrome overflow.
-  static const double maxAppTextScale = 1.4;
+  /// Body reading follows system accessibility scale (no soft 1.4 cap).
+  /// Compact chrome still uses [maxChromeTextScale].
+  static const double maxAppTextScale = 4.0;
 
   /// Compact chrome (nav labels) — scale gently, never balloon the bar.
   static const double maxChromeTextScale = 1.2;

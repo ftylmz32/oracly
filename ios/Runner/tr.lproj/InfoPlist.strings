@@ -1,0 +1,5 @@
+﻿/* Permission usage — Turkish */
+"NSCameraUsageDescription" = "ORACLY, kahve fincanı, avuç ve profil fotoğrafları için kamerayı kullanır.";
+"NSPhotoLibraryUsageDescription" = "ORACLY, kahve fincanı, avuç ve profil fotoğrafları seçmek için galeriyi kullanır.";
+"NSMicrophoneUsageDescription" = "ORACLY, rüyanı sesli anlatman veya OR ile konuşman için mikrofonu kullanır. Ses kaydı saklanmaz.";
+"NSSpeechRecognitionUsageDescription" = "ORACLY, rüya ve OR için sesini yazıya dökmek üzere ses tanımayı kullanır. Ses kaydı saklanmaz.";

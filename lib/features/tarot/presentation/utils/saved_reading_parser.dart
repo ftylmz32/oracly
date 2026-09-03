@@ -6,11 +6,13 @@ import '../../../../core/domain/models/reading.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../content/tarot/data/tarot_content_catalogue.dart';
 import '../../copy/tarot_polish_copy.dart';
+import '../../domain/models/reading_session.dart';
 import '../../interpretation/formatters/interpretation_formatter.dart';
 import '../../interpretation/models/interpretation_result.dart';
 import '../../reading/reading_question.dart';
 import '../widgets/ai_reading/ai_reading_content.dart';
 import '../widgets/reading_history/reading_history_data.dart';
+import 'saved_reading_drawn_cards.dart';
 
 abstract final class SavedReadingParser {
   SavedReadingParser._();
@@ -27,16 +29,14 @@ abstract final class SavedReadingParser {
     );
     final type = model?.readingType ?? entry.spreadType;
     final intention = ReadingQuestion.real(model?.intention);
-    final cardsBody = _cardsBody(model?.cards ?? const []);
+    final snapshots = model?.cards ?? const <ReadingCardSnapshot>[];
+    final drawn = snapshots.isNotEmpty
+        ? SavedReadingDrawnCards.fromSnapshots(snapshots)
+        : SavedReadingDrawnCards.fromEntry(entry);
+    final cardsBody = _cardsBody(snapshots);
 
     if (parsed != null) {
-      return _fromResult(
-        parsed,
-        entry,
-        type,
-        cardsBody,
-        intention,
-      );
+      return _fromResult(parsed, entry, type, cardsBody, intention, drawn);
     }
 
     return AiReadingContent(
@@ -58,6 +58,7 @@ abstract final class SavedReadingParser {
       readingTheme: model?.readingType,
       userQuestion: intention,
       promptQuestion: '',
+      drawnCards: drawn,
     );
   }
 
@@ -67,6 +68,7 @@ abstract final class SavedReadingParser {
     String type,
     String cardsBody,
     String? intention,
+    List<TarotDrawnCard> drawn,
   ) {
     return AiReadingContent(
       cardName: entry.cardName,
@@ -92,6 +94,7 @@ abstract final class SavedReadingParser {
       userQuestion: intention,
       promptQuestion: result.warnings,
       interpretationSource: result.source,
+      drawnCards: drawn,
     );
   }
 
@@ -106,7 +109,10 @@ abstract final class SavedReadingParser {
     if (card.cardId <= 0) {
       return '${TarotPolishCopy.cardField}: ${card.cardName} ($orientation)';
     }
-    final content = TarotContentCatalogue.byId(card.cardId);
+    final content = TarotContentCatalogue.forPersistedCard(
+      cardId: card.cardId,
+      imageAsset: card.cardImageAsset,
+    );
     final meaning =
         card.isReversed ? content.reversedMeaning : content.uprightMeaning;
     return '${TarotPolishCopy.cardField}: ${card.cardName}\n'

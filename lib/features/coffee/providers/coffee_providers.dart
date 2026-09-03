@@ -36,6 +36,8 @@ final coffeeExperienceServiceProvider = Provider<CoffeeExperienceService>((ref) 
   );
 });
 
+/// Session controller must survive chamber camera push + long AI analyze.
+/// autoDispose was dropping mid-flight success (phase never reached result).
 final coffeeReadingControllerProvider =
     ChangeNotifierProvider<CoffeeReadingController>((ref) {
   final controller = CoffeeReadingController(

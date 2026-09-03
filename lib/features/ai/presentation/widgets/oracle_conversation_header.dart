@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/design_system/app_icons.dart';
 import '../../../../core/design_system/oracly_header_action.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -54,7 +55,7 @@ class OracleConversationHeader extends StatelessWidget {
                 children: [
                   OraclyHeaderAction(
                     icon: AppIcons.back,
-                    label: 'Geri',
+                    label: OraclyL10n.t(L10nKeys.back),
                     onTap: onBack ?? () => Navigator.of(context).maybePop(),
                   ),
                   const OracleAvatar(size: 44, showGlow: true),
@@ -65,7 +66,7 @@ class OracleConversationHeader extends StatelessWidget {
                       children: [
                         Text(
                           reading.sourceLabel.isEmpty
-                              ? 'Mevcut Açılım'
+                              ? OraclyL10n.t('oracle.header.current')
                               : reading.sourceLabel,
                           style: AppTextStyles.labelMedium.copyWith(
                             color: AppColors.textMuted,

@@ -1,7 +1,7 @@
 /// OR-437 — Local enrichment for ritual journal entries (no AI calls).
 library;
 
-import '../../../../core/domain/models/ritual_journal_metadata.dart';
+import '../../../core/domain/models/ritual_journal_metadata.dart';
 import '../../insights/services/personal_insight_engine.dart';
 
 /// Derives mood keywords and excerpts from saved interpretation text.

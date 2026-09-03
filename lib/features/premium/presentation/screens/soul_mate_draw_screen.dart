@@ -8,6 +8,7 @@ import '../../../../features/birth_chart/providers/birth_information_provider.da
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../copy/soul_mate_copy.dart';
 import '../../providers/premium_providers.dart';
+import '../../providers/soul_mate_saved_provider.dart';
 import '../../services/premium_access.dart';
 import '../../services/soul_mate_dev_access.dart';
 import '../../services/soul_mate_draw_port.dart';
@@ -125,28 +126,40 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
             ? null
             : _intention.text.trim(),
       );
+      // Capture before await — dispose must not lose a successful paid draw.
+      final resultService = ref.read(soulMateResultServiceProvider);
       final result = await SoulMatePaidDraw.run(
         ref: ref,
         context: context,
         request: request,
       );
-      if (!mounted) return;
       if (result == null) {
-        setState(() => _busy = false);
+        if (mounted) setState(() => _busy = false);
         return;
       }
-      if (!mounted) return;
-      setState(() {
-        _busy = false;
-        _result = result;
-        _statusMessage = SoulMatePaidDraw.messageFor(result);
-      });
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _result = result;
+          _statusMessage = SoulMatePaidDraw.messageFor(result);
+        });
+      }
+      // Persist after UI update — disk I/O must not leave the chamber waiting.
       if (result.hasPortrait) {
-        _savedId = await SoulMateDrawPersistence.persistSuccess(
-          ref: ref,
+        final savedId = await SoulMateDrawPersistence.persistWithService(
+          service: resultService,
           request: request,
           imageBytes: result.imageBytes!,
+          onSaved: mounted
+              ? () {
+                  ref.invalidate(soulMateSavedResultProvider);
+                  ref.invalidate(soulMateSavedPortraitProvider);
+                }
+              : null,
         );
+        if (mounted && savedId != null) {
+          setState(() => _savedId = savedId);
+        }
       }
     } catch (_) {
       if (!mounted) return;

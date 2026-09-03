@@ -32,4 +32,7 @@ enum OrSessionState {
 
   /// TTS/voice output unavailable; text chat remains.
   voiceUnavailable,
+
+  /// Valid reply is visible; only local save failed — retry saves, not provider.
+  saveFailed,
 }

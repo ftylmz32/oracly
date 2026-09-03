@@ -72,6 +72,7 @@ import '../../features/premium/models/personalization_models.dart';
 // ── Infrastructure ─────────────────────────────────────────────────
 
 final localStorageProvider = backend.localStorageProvider;
+final secureStorageProvider = backend.secureStorageProvider;
 
 // ── Repositories ───────────────────────────────────────────────────
 
@@ -88,7 +89,10 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 });
 
 final premiumRepositoryProvider = Provider<PremiumRepository>((ref) {
-  return MockPremiumRepository(ref.watch(localStorageProvider));
+  return MockPremiumRepository(
+    ref.watch(localStorageProvider),
+    secureStorage: ref.watch(backend.secureStorageProvider),
+  );
 });
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
@@ -182,19 +186,36 @@ final settingsProvider =
       SettingsNotifier.new,
     );
 
-/// Resolved UI locale from persisted settings (`tr` / `en`).
-/// Always follows [settingsProvider] — never a one-shot startup snapshot.
+/// Resolved UI locale from persisted settings (`tr` / `en` / `ru`).
+///
+/// Follows [settingsProvider] when loaded. While settings are still loading,
+/// mirrors [AppLocale.resolvePreferred] (stored → device → tr) so a fresh
+/// English/Russian device is never forced to Turkish for one frame.
 final appLocaleProvider = Provider<Locale>((ref) {
   final async = ref.watch(settingsProvider);
-  final language = async.maybeWhen(
+  final loaded = async.maybeWhen(
     data: (s) => s.language,
     orElse: () => async.valueOrNull?.language,
   );
-  return AppLocale.toLocale(language);
+  if (loaded != null && loaded.trim().isNotEmpty) {
+    return AppLocale.toLocale(loaded);
+  }
+  final storage = ref.watch(localStorageProvider);
+  return AppLocale.toLocale(
+    AppLocale.resolvePreferred(
+      stored: storage.getString('settings_language'),
+      device: AppLocale.readDeviceLocale(),
+    ),
+  );
 });
 
-/// Material [ThemeMode] from persisted appearance (dark / light / system).
+/// Material [ThemeMode] — production v1 is Dark-only (see [AppAppearanceMode]).
 final appThemeModeProvider = Provider<ThemeMode>((ref) {
+  // Keep watching settings so flipping [lightModeUserSelectable] later rebuilds.
+  ref.watch(settingsProvider);
+  if (!AppAppearanceModeX.lightModeUserSelectable) {
+    return AppAppearanceModeX.productionThemeMode;
+  }
   final async = ref.watch(settingsProvider);
   final mode = async.maybeWhen(
     data: (s) => s.appearanceMode,
@@ -221,6 +242,7 @@ final achievementRepositoryProvider = Provider<AchievementRepository>((ref) {
 
 final apiClientProvider = backend.apiClientProvider;
 final authServiceProvider = backend.authServiceProvider;
+final firebaseAuthReadyProvider = backend.firebaseAuthReadyProvider;
 final sessionManagerProvider = backend.sessionManagerProvider;
 final tokenManagerProvider = backend.tokenManagerProvider;
 final syncQueueProvider = backend.syncQueueProvider;

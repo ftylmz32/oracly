@@ -4,13 +4,13 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/providers/app_providers.dart';
-import '../../../../core/security/ai_error_sanitizer.dart';
-import '../../../../features/gems/copy/gems_copy.dart';
-import '../../../../features/gems/models/paid_ai_operation.dart';
-import '../../../../features/gems/providers/gem_providers.dart';
-import '../../../../features/gems/services/gem_spend_guard.dart';
-import '../../../../features/gems/services/paid_ai_operation_binder.dart';
+import '../../../app/providers/app_providers.dart';
+import '../../../core/security/ai_error_sanitizer.dart';
+import '../../gems/copy/gems_copy.dart';
+import '../../gems/models/paid_ai_operation.dart';
+import '../../gems/providers/gem_providers.dart';
+import '../../gems/services/gem_spend_guard.dart';
+import '../../gems/services/paid_ai_operation_binder.dart';
 import '../copy/soul_mate_copy.dart';
 import '../economy/soul_mate_economy.dart';
 import '../providers/soul_mate_providers.dart';
@@ -24,6 +24,12 @@ abstract final class SoulMatePaidDraw {
     required BuildContext context,
     required SoulMateDrawRequest request,
   }) async {
+    // Capture before await — route dispose must not cancel a started draw.
+    final coordinator = ref.read(paidAiOperationCoordinatorProvider);
+    final analytics = ref.read(analyticsServiceProvider);
+    final drawPort = ref.read(soulMateDrawPortProvider);
+    final wallet = ref.read(gemWalletProvider);
+
     final op = await GemSpendGuard.beginPaid(
       ref,
       context: context,
@@ -33,27 +39,27 @@ abstract final class SoulMatePaidDraw {
       cost: SoulMateEconomy.drawCost,
     );
     if (op == null) return null;
-    if (!context.mounted) {
-      await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
-      return null;
-    }
-    ref.read(analyticsServiceProvider).logSoulmateStarted();
+
+    try {
+      analytics.logSoulmateStarted();
+    } catch (_) {}
     final started = DateTime.now();
     final result = await PaidAiOperationBinder.runWithKey(
       op.idempotencyKey,
-      () => ref.read(soulMateDrawPortProvider).draw(request),
+      () => drawPort.draw(request),
     );
     if (result.hasPortrait) {
-      ref.read(analyticsServiceProvider).logSoulmateSuccess(
-            latency: DateTime.now().difference(started),
-          );
-      await GemSpendGuard.settleOperation(
-        ref,
-        operation: op,
-        context: context.mounted ? context : null,
-      );
+      try {
+        analytics.logSoulmateSuccess(
+          latency: DateTime.now().difference(started),
+        );
+      } catch (_) {}
+      await coordinator.completeAfterProvider(op);
+      try {
+        wallet.reload();
+      } catch (_) {}
     } else {
-      await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+      await coordinator.abandon(op.id);
     }
     return result;
   }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/design_system/app_radius.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/performance/oracly_decode_cache.dart';
 import '../../../../shared/widgets/oracly_asset_image.dart';
 import 'dream_reference_tokens.dart';
@@ -65,7 +66,7 @@ class DreamReferenceIllustrationCard extends StatelessWidget {
                     diameter,
                     MediaQuery.devicePixelRatioOf(context),
                   ),
-                  semanticLabel: 'Rüya',
+                  semanticLabel: OraclyL10n.t(L10nKeys.dream),
                   errorBuilder: (_, _, _) => Icon(
                     Icons.nightlight_round,
                     color: OraclyChrome.goldLight.withValues(alpha: 0.88),

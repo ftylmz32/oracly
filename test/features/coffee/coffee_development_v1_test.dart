@@ -30,6 +30,7 @@ void main() {
   test('parser keeps structured Turkish sections without inventing symbols', () {
     const raw = '''
 {
+  "gorselTespit": "Dipte ince izler ve ağızda açık bir alan görünüyor.",
   "genelYorum": "Fincanda sakin bir açıklık var.",
   "ask": "Yakınlık için net bir cümle iyi gelir.",
   "kariyer": "Tek bir işi bitirmek kazandırır.",
@@ -202,6 +203,8 @@ void main() {
     final service = CoffeeExperienceService(
       store: store,
       analysis: _FakeCoffeeAnalysis(),
+      persistImage: ({required readingId, required sourcePath}) async =>
+          sourcePath,
     );
     final reading = await service.analyze(CoffeeImagePick(path: png.path));
     expect(reading.overall, 'Canlı fincan yorumu.');

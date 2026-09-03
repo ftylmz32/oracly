@@ -19,6 +19,9 @@ abstract class FirebaseAuthGateway {
   });
   Future<FirebaseAuthUserSnapshot> signInWithApple({required String idToken});
   Future<void> signOut();
+
+  /// Permanently deletes the signed-in Firebase user. Never a silent logout.
+  Future<void> deleteCurrentUser();
 }
 
 class AuthGatewayException implements Exception {

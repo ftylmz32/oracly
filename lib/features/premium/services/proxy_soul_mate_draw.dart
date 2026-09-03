@@ -1,6 +1,7 @@
 /// Soul-mate draw via proxy transport — never calls OpenAI from Flutter.
 library;
 
+import '../../../core/logging/analysis_debug_log.dart';
 import '../../ai/production/ai_request_abuse_policy.dart';
 import '../../ai/production/ai_request_fingerprint.dart';
 import '../../ai/production/ai_request_guard.dart';
@@ -59,8 +60,15 @@ class ProxySoulMateDraw implements SoulMateDrawPort {
             }
             return SoulMateDrawResult.success(imageBytes: portrait.bytes);
           },
-          error: (failure) =>
-              SoulMateDrawResult.unavailable(failure.userMessage),
+          error: (failure) {
+            logAnalysisFailure(
+              feature: 'SoulMateDraw',
+              stage: 'draw',
+              error: failure,
+              kind: failure.kind.name,
+            );
+            return SoulMateDrawResult.unavailable(failure.userMessage);
+          },
         );
       },
     );

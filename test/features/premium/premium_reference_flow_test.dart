@@ -2,21 +2,41 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_result.dart';
+import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
 import 'package:oracly_new/features/premium/presentation/reference/premium_reference_screen.dart';
+import 'package:oracly_new/features/premium/providers/premium_entitlement_verifier_provider.dart';
+import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
 import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:oracly_new/shared/widgets/oracly_gold_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
 
+class _ActiveVerifier implements PremiumEntitlementVerifier {
+  @override
+  bool get isRemoteVerifierConfigured => true;
+
+  @override
+  Future<PremiumVerifyResult> verify({
+    required String platform,
+    required String productId,
+    required String purchaseToken,
+    String? transactionId,
+  }) async =>
+      PremiumVerifyResult.active('test_active');
+}
+
 class _ConfiguredStorePort implements PremiumPurchasePort {
   @override
   bool get isConfigured => true;
+  @override
+  bool get canAttemptRestore => isConfigured;
 
   @override
   Future<void> prepare() async {}
@@ -43,6 +63,7 @@ void main() {
     WidgetTester tester,
     LocalStorage storage, {
     PremiumPurchasePort? purchasePort,
+    List<Override> overrides = const [],
   }) async {
     await tester.binding.setSurfaceSize(const Size(360, 1400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -50,6 +71,7 @@ void main() {
       buildProviderScopeHarness(
         storage: storage,
         purchasePort: purchasePort,
+        overrides: overrides,
         child: const MaterialApp(home: PremiumReferenceScreen()),
       ),
     );
@@ -85,15 +107,20 @@ void main() {
     expect(storage.getBool('or_premium_active') ?? false, isFalse);
   });
 
-  testWidgets('stale local flag stays locked without store', (tester) async {
+  testWidgets('stale local flag stays locked without successful verify',
+      (tester) async {
     SharedPreferences.setMockInitialValues({
       'or_premium_active': true,
       'or_premium_authoritative': true,
+      'or_premium_plan': PremiumPlanKind.yearly.index,
+      'or_premium_platform': 'android',
+      'or_premium_product_id': 'app.oracly.premium.yearly',
+      'or_premium_purchase_token': 'valid-token',
     });
     final storage = await LocalStorage.open();
-    await pumpScreen(tester, storage);
+    await pumpScreen(tester, storage, purchasePort: _ConfiguredStorePort());
     expect(find.text(PremiumCopy.ctaActive), findsNothing);
-    expect(find.text(PremiumCopy.ctaUnavailable), findsOneWidget);
+    expect(find.text(PremiumCopy.ctaUnavailable), findsNothing);
   });
 
   testWidgets('premium user sees active status without purchase CTA',
@@ -101,9 +128,20 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'or_premium_active': true,
       'or_premium_authoritative': true,
+      'or_premium_plan': PremiumPlanKind.yearly.index,
+      'or_premium_platform': 'android',
+      'or_premium_product_id': 'app.oracly.premium.yearly',
+      'or_premium_purchase_token': 'valid-token',
     });
     final storage = await LocalStorage.open();
-    await pumpScreen(tester, storage, purchasePort: _ConfiguredStorePort());
+    await pumpScreen(
+      tester,
+      storage,
+      purchasePort: _ConfiguredStorePort(),
+      overrides: [
+        premiumEntitlementVerifierProvider.overrideWithValue(_ActiveVerifier()),
+      ],
+    );
 
     expect(tester.takeException(), isNull);
     expect(find.text(PremiumCopy.ctaActive), findsOneWidget);

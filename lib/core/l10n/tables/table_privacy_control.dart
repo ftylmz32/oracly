@@ -146,4 +146,34 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Memory summary reset.',
     'Сводка памяти сброшена.',
   ),
+  'privacy.control.delete.account': L10nTriple(
+    'Hesabı kalıcı olarak sil',
+    'Permanently delete account',
+    'Удалить аккаунт навсегда',
+  ),
+  'privacy.control.delete.account.sub': L10nTriple(
+    'Firebase hesabın ve bu cihazdaki kişisel verilerin — yalnızca geçmiş temizleme değil',
+    'Your Firebase account and personal data on this device — not only clearing history',
+    'Аккаунт Firebase и личные данные на устройстве — не просто очистка истории',
+  ),
+  'privacy.control.delete.confirm.title': L10nTriple(
+    'Hesabı kalıcı olarak sil?',
+    'Permanently delete account?',
+    'Удалить аккаунт навсегда?',
+  ),
+  'privacy.control.delete.confirm.body': L10nTriple(
+    'Bu işlem hesabını kalıcı olarak siler. Yerel geçmiş, favoriler, hafıza ve Premium önbelleği de temizlenir. Yalnızca yerel verileri temizlemek için yukarıdaki ayrı kontrolleri kullan.',
+    'This permanently deletes your account. Local history, favorites, memory, and Premium cache are also cleared. To clear local data only, use the separate controls above.',
+    'Это навсегда удаляет аккаунт. Также очищаются история, избранное, память и кэш Premium. Чтобы очистить только локальные данные, используй отдельные действия выше.',
+  ),
+  'privacy.control.delete.confirm.action': L10nTriple(
+    'Hesabı sil',
+    'Delete account',
+    'Удалить аккаунт',
+  ),
+  'privacy.control.delete.success': L10nTriple(
+    'Hesap silindi. Yeni bir başlangıç için hazırsın.',
+    'Account deleted. You are ready for a fresh start.',
+    'Аккаунт удалён. Можно начать заново.',
+  ),
 };

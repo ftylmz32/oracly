@@ -1,4 +1,4 @@
-/// Entry chrome — back · KAHVE FALI · live gem, cup fills the chamber.
+/// Entry chrome — back · KAHVE FALI · live gem; landing scrolls in the chamber.
 library;
 
 import 'package:flutter/material.dart';

@@ -1,15 +1,16 @@
-/// Premium OR composer well — cosmic glass, ceremonial gold, quiet.
+﻿/// Premium Luna composer well — separate controls, privacy whisper.
 library;
-
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import '../../../../core/design_system/app_layout.dart';
-import '../../../../core/design_system/app_radius.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
+import '../../../../core/theme/reading_typography.dart';
+import '../../copy/companion_copy.dart';
 import '../../voice/companion_voice_phase.dart';
+import 'companion_feature_shortcuts.dart';
 import 'companion_reference_composer_row.dart';
+import 'companion_reference_prompts.dart';
 import 'companion_reference_tokens.dart';
 
 class CompanionReferenceInputBar extends StatelessWidget {
@@ -22,6 +23,10 @@ class CompanionReferenceInputBar extends StatelessWidget {
     this.onMicTap,
     this.onMicCancel,
     this.onPlusTap,
+    this.showShortcuts = false,
+    this.onPromptSelected,
+    this.kindId,
+    this.reserveShellNavigationClearance = true,
   });
 
   final TextEditingController controller;
@@ -31,10 +36,18 @@ class CompanionReferenceInputBar extends StatelessWidget {
   final VoidCallback? onMicTap;
   final VoidCallback? onMicCancel;
   final VoidCallback? onPlusTap;
+  final bool showShortcuts;
+
+  /// Sends the starter straight through the existing composer path.
+  final ValueChanged<String>? onPromptSelected;
+  final String? kindId;
+  final bool reserveShellNavigationClearance;
 
   @override
   Widget build(BuildContext context) {
-    final bottom = AppLayout.scrollBottomInset(context);
+    final bottom = reserveShellNavigationClearance
+        ? AppLayout.scrollBottomInset(context)
+        : MediaQuery.paddingOf(context).bottom + 8;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         CompanionReferenceTokens.screenHorizontal,
@@ -42,63 +55,55 @@ class CompanionReferenceInputBar extends StatelessWidget {
         CompanionReferenceTokens.screenHorizontal,
         bottom,
       ),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: CompanionReferenceTokens.inputRadius,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.48),
-              blurRadius: 22,
-              offset: const Offset(0, 10),
-            ),
-            BoxShadow(
-              color: OraclyChrome.violet.withValues(alpha: 0.10),
-              blurRadius: 18,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: CompanionReferenceTokens.inputRadius,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: CompanionReferenceTokens.inputRadius,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    const Color(0xFF221C2C).withValues(alpha: 0.55),
-                    const Color(0xFF121018).withValues(alpha: 0.96),
-                  ],
-                  stops: const [0.0, 0.22],
-                ),
-                border: Border.all(
-                  color: OraclyChrome.gold.withValues(alpha: 0.20),
-                  width: AppBorderWidth.hairline,
-                ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showShortcuts) ...[
+            if (onPromptSelected != null) ...[
+              CompanionReferencePrompts(
+                onSelected: onPromptSelected!,
+                horizontal: true,
+                limit: 3,
+                kindId: kindId,
               ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: CompanionReferenceTokens.composerMinHeight,
-                ),
-                child: Padding(
-                  padding: CompanionReferenceTokens.inputPadding,
-                  child: CompanionReferenceComposerRow(
-                    voicePhase: voicePhase,
-                    enabled: enabled,
-                    controller: controller,
-                    onSend: onSend,
-                    onMicTap: onMicTap,
-                    onMicCancel: onMicCancel,
-                    onPlusTap: onPlusTap,
+              const SizedBox(height: 10),
+            ],
+            const CompanionFeatureShortcuts(),
+            const SizedBox(height: 8),
+          ],
+          CompanionReferenceComposerRow(
+            voicePhase: voicePhase,
+            enabled: enabled,
+            controller: controller,
+            onSend: onSend,
+            onMicTap: onMicTap,
+            onMicCancel: onMicCancel,
+            onPlusTap: onPlusTap,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.lock_outline_rounded,
+                size: 11,
+                color: OraclyChrome.goldLight.withValues(alpha: 0.55),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  CompanionCopy.privacyNote,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: ReadingTypography.micro(
+                    color: OraclyChrome.goldLight.withValues(alpha: 0.58),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ),
+        ],
       ),
     );
   }

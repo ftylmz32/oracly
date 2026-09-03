@@ -1,4 +1,4 @@
-/// Context selection - relevant layers only, never a memory dump.
+﻿/// Context selection - relevant layers only, never a memory dump.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -112,3 +112,4 @@ void main() {
     expect(hint, contains('silence'));
   });
 }
+

@@ -119,7 +119,7 @@ void main() {
     expect(reading!.visualObservation, contains('çizgi'));
     expect(reading.symbols, isEmpty);
     final analysis = CoffeeVisionParser.parse(
-      '{"genelYorum":"ok","sonuc":"dur","semboller":[{"ad":"Kuş","anlam":"Haber","yorum":"Kapı."}]}',
+      '{"gorselTespit":"Dipte ince bir iz ve ağızda açık alan.","genelYorum":"ok ve sakin bir duruş.","sonuc":"dur","semboller":[{"ad":"Kuş","anlam":"Haber","yorum":"Kapı."}]}',
     );
     expect(analysis, isNotNull);
     expect(analysis!.symbols.first.name, 'Kuş');

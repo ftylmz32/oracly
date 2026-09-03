@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/design_system/app_icons.dart';
 import '../../../core/design_system/oracly_header_action.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/providers/backend_providers.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/reading_typography.dart';
@@ -46,7 +47,7 @@ class ShareReopenScreen extends ConsumerWidget {
                 alignment: Alignment.centerLeft,
                 child: OraclyHeaderAction(
                   icon: AppIcons.back,
-                  label: 'Geri',
+                  label: OraclyL10n.t(L10nKeys.back),
                   onTap: () => Navigator.of(context).maybePop(),
                 ),
               ),

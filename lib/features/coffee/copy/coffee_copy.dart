@@ -10,8 +10,10 @@ abstract final class CoffeeCopy {
   static String _t(String key) => OraclyL10n.t(key);
 
   static String get screenTitle => _t('coffee.screen_title');
+  static String get landingTitle => _t('coffee.landing_title');
   static String get landingLine => _t('coffee.landing_line');
   static String get hubLead => _t('coffee.hub_lead');
+  static String get orChoice => _t('coffee.or_choice');
   static String get photoCta => _t('coffee.photo_cta');
   static String get ritualTease => _t('coffee.ritual_tease');
   static String get ritualTitle => _t('coffee.ritual_title');
@@ -36,8 +38,16 @@ abstract final class CoffeeCopy {
   static String get emptyHistory => _t('coffee.empty_history');
   static String get addPhotoTitle => _t('coffee.add_photo_title');
   static String get previewLabel => _t('coffee.preview_label');
+  static String get captureHeading => _t('coffee.capture_heading');
+  static String get captureHelper => _t('coffee.capture_helper');
   static String get captureGuide => _t('coffee.capture_guide');
   static String get captureTips => _t('coffee.capture_tips');
+  static List<String> get captureChips => [
+        _t('coffee.capture_chip_interior'),
+        _t('coffee.capture_chip_center'),
+        _t('coffee.capture_chip_light'),
+        _t('coffee.capture_chip_steady'),
+      ];
   static String get usePhotoLabel => _t('coffee.use_photo');
   static String get previewCtaHint => _t('coffee.preview_cta_hint');
   static String get addPhotoHint => _t('coffee.add_photo_hint');

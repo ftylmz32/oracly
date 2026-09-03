@@ -10,6 +10,7 @@ import { createRequestId, logSafe } from './logging.js';
 import { registerAiRoutes } from './routes/ai.js';
 import { registerHealth } from './routes/health.js';
 import { registerBillingRoutes } from './routes/billing.js';
+import type { BillingProviders } from './billing/types.js';
 import type { OpenAiFetch } from './types.js';
 
 export type BuildOptions = {
@@ -18,6 +19,8 @@ export type BuildOptions = {
   logger?: boolean;
   /** Override App Check verifier (tests). */
   appCheck?: AppCheckVerifier;
+  /** Override billing store verifiers (tests). */
+  billing?: BillingProviders;
 };
 
 export async function buildServer(options: BuildOptions) {
@@ -37,13 +40,18 @@ export async function buildServer(options: BuildOptions) {
               '*.accessToken',
               '*.refreshToken',
               '*.openaiApiKey',
+              '*.purchaseToken',
+              'req.body.purchaseToken',
             ],
             censor: '[redacted]',
           },
         }
       : false,
     bodyLimit: config.maxBodyBytes,
-    requestTimeout: config.openaiTimeoutMs + 5_000,
+    // Must cover Soulmate GPT Image latency (~120s app + buffer). Cloud Run
+    // request timeout should be >= this value (deploy script uses 180s).
+    requestTimeout:
+      Math.max(config.openaiTimeoutMs, config.openaiImageTimeoutMs) + 15_000,
     genReqId: createRequestId,
   });
 
@@ -85,7 +93,7 @@ export async function buildServer(options: BuildOptions) {
   });
 
   await registerHealth(app, config, appCheck);
-  await registerBillingRoutes(app);
+  await registerBillingRoutes(app, config, options.billing ?? {});
   const service = new AiProxyService(config, options.fetchImpl);
   await registerAiRoutes(app, config, service, { appCheck });
   return app;

@@ -29,53 +29,60 @@ void main() {
     if (_e2e) await detectE2eProvider();
   });
 
-  test('backend unavailable + invalid + timeout → Turkish AiFailure', () async {
-    final unavailable = await e2eAi(e2eDeadProxyUrl).chat(
-      userMessage: 'Merhaba, nasilsin?',
-    );
-    expect(unavailable.failure?.kind, AiFailureKind.network);
-    expect(unavailable.failure?.userMessage, ResilienceCopy.aiUnavailable);
-    assertCleanError(unavailable.failure!.userMessage);
+  test(
+    'backend unavailable + invalid + timeout → Turkish AiFailure',
+    () async {
+      final unavailable = await e2eAi(
+        e2eDeadProxyUrl,
+      ).chat(userMessage: 'Merhaba, nasilsin?');
+      expect(unavailable.failure?.kind, AiFailureKind.network);
+      expect(unavailable.failure?.userMessage, ResilienceCopy.aiUnavailable);
+      assertCleanError(unavailable.failure!.userMessage);
 
-    // Missing-key assertion is only valid when the live proxy has no provider.
-    // When keyed, the same endpoint succeeds (or rate-limits honestly).
-    final live = await e2eAi(e2eProxyUrl).chat(
-      userMessage: 'Merhaba, nasilsin?',
-    );
-    e2eFailIfRateLimited(live.failure?.kind, live.failure?.userMessage);
-    if (e2eProviderConfigured) {
-      expect(live.isSuccess, isTrue, reason: '${live.failure}');
-      expect(live.value!.text.trim().length, greaterThan(5));
-    } else {
-      expect(live.failure?.kind, AiFailureKind.noConfiguration);
-      expect(live.failure?.userMessage, ResilienceCopy.aiConfigMissing);
-      assertCleanError(live.failure!.userMessage);
-    }
+      // Missing-key assertion is only valid when the live proxy has no provider.
+      // When keyed, the same endpoint succeeds (or rate-limits honestly).
+      final live = await e2eAi(
+        e2eProxyUrl,
+      ).chat(userMessage: 'Merhaba, nasilsin?');
+      e2eFailIfRateLimited(live.failure?.kind, live.failure?.userMessage);
+      if (e2eProviderConfigured) {
+        expect(live.isSuccess, isTrue, reason: '${live.failure}');
+        expect(live.value!.text.trim().length, greaterThan(5));
+      } else {
+        expect(live.failure?.kind, AiFailureKind.noConfiguration);
+        expect(live.failure?.userMessage, ResilienceCopy.aiConfigMissing);
+        assertCleanError(live.failure!.userMessage);
+      }
 
-    const tiny = AiRuntimeConfig(
-      proxyUrl: 'http://192.0.2.1:8787/v1/ai/complete',
-      timeout: Duration(milliseconds: 400),
-    );
-    final timed = await OpenAiOraclyAiService(
-      config: tiny,
-      transport: ProxyAiTransport(
-      appCheckToken: testAppCheckToken,config: tiny),
-    ).chat(userMessage: 'Merhaba, bugun nasilsin acaba?');
-    expect(
-      timed.failure?.kind,
-      anyOf(AiFailureKind.timeout, AiFailureKind.network),
-    );
-    assertCleanError(timed.failure!.userMessage);
+      const tiny = AiRuntimeConfig(
+        proxyUrl: 'http://192.0.2.1:8787/v1/ai/complete',
+        timeout: Duration(milliseconds: 400),
+      );
+      final timed = await OpenAiOraclyAiService(
+        config: tiny,
+        transport: ProxyAiTransport(
+          appCheckToken: testAppCheckToken,
+          accessToken: testAccessToken,
+          config: tiny,
+        ),
+      ).chat(userMessage: 'Merhaba, bugun nasilsin acaba?');
+      expect(
+        timed.failure?.kind,
+        anyOf(AiFailureKind.timeout, AiFailureKind.network),
+      );
+      assertCleanError(timed.failure!.userMessage);
 
-    final invalid = await ProxyAiTransport(
-      config: const AiRuntimeConfig(proxyUrl: e2eProxyUrl),
-      appCheckToken: testAppCheckToken,
-    ).execute(
-      const AiProxyRequest(operation: AiOperation.chat, payload: {}),
-    );
-    expect(invalid.failure?.kind, AiFailureKind.invalidResponse);
-    expect(invalid.failure?.userMessage, ResilienceCopy.aiEmptyResponse);
-  }, skip: skip, timeout: const Timeout(Duration(minutes: 1)));
+      final invalid = await ProxyAiTransport(
+        config: const AiRuntimeConfig(proxyUrl: e2eProxyUrl),
+        appCheckToken: testAppCheckToken,
+        accessToken: testAccessToken,
+      ).execute(const AiProxyRequest(operation: AiOperation.chat, payload: {}));
+      expect(invalid.failure?.kind, AiFailureKind.invalidResponse);
+      expect(invalid.failure?.userMessage, ResilienceCopy.aiEmptyResponse);
+    },
+    skip: skip,
+    timeout: const Timeout(Duration(minutes: 1)),
+  );
 
   test('optional auth server: unauthorized + rate limit', () async {
     try {
@@ -92,15 +99,15 @@ void main() {
       return;
     }
 
-    final unauthorized = await e2eAi(e2eAuthProxyUrl).chat(
-      userMessage: 'Merhaba, nasilsin?',
-    );
+    final unauthorized = await e2eAi(
+      e2eAuthProxyUrl,
+    ).chat(userMessage: 'Merhaba, nasilsin?');
     expect(unauthorized.failure?.kind, AiFailureKind.unauthorized);
     expect(unauthorized.failure?.userMessage, ResilienceCopy.aiUnauthorized);
 
     final limited = e2eAi(
       e2eAuthProxyUrl,
-      token: () async => 'rate-e2e-token',
+      token: ({bool forceRefresh = false}) async => 'rate-e2e-token',
     );
     await limited.chat(userMessage: 'Merhaba, nasilsin?');
     await limited.chat(userMessage: 'Merhaba, nasilsin?');

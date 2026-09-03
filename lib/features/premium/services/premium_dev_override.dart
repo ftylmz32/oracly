@@ -2,31 +2,39 @@
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../../../core/config/app_environment.dart';
+import '../../../core/config/oracly_runtime_config.dart';
+import '../../../core/config/oracly_runtime_keys.dart';
 
-/// Canonical developer entitlement override.
+/// Active only when **all** of:
+/// - [kDebugMode] (never profile / release)
+/// - [AppEnvironment.development]
+/// - [ORACLY_DEV_PREMIUM] enabled (`true`/`1`/`yes`/`on`)
 ///
-/// Active only when:
-/// - not release (`kReleaseMode` false)
-/// - `APP_ENV=development`
-/// - `ORACLY_DEV_PREMIUM=true` (dart-define or local dotenv)
-///
-/// Production / staging / release always ignore this flag.
+/// Does not rewrite PremiumGrantPolicy. Does not persist store membership.
 abstract final class PremiumDevOverride {
   PremiumDevOverride._();
 
-  /// Local command (debug):
-  /// `flutter run --dart-define=APP_ENV=development --dart-define=ORACLY_DEV_PREMIUM=true`
   static bool get isActive {
-    if (kReleaseMode) return false;
-    final env = _environment();
-    if (!env.isDevelopment) return false;
-    return _flagEnabled();
+    return allowsOverride(
+      debugBuild: kDebugMode,
+      environment: _environment(),
+      flagEnabled: _flagEnabled(),
+    );
   }
 
-  /// Back-compat for callers that checked the old compile-time switch.
+  /// Testable form of the compile-mode lock. Profile and release both pass
+  /// [debugBuild] as false and can never activate the override.
+  @visibleForTesting
+  static bool allowsOverride({
+    required bool debugBuild,
+    required AppEnvironment environment,
+    required bool flagEnabled,
+  }) {
+    return debugBuild && environment.isDevelopment && flagEnabled;
+  }
+
   static bool get enabled => isActive;
 
   @visibleForTesting
@@ -44,36 +52,19 @@ abstract final class PremiumDevOverride {
   static AppEnvironment _environment() {
     final override = debugEnvironment;
     if (override != null) return override;
-    const define = String.fromEnvironment('APP_ENV');
-    Map<String, String> env = const {};
-    try {
-      env = dotenv.env;
-    } catch (_) {}
     return AppEnvironment.fromString(
-      _first([define, env['APP_ENV']]) ??
-          (kReleaseMode ? 'production' : 'development'),
+      OraclyRuntimeConfig.readRaw(OraclyRuntimeKeys.appEnv) ??
+          (kDebugMode ? 'development' : 'production'),
     );
   }
 
   static bool _flagEnabled() {
     final override = debugFlag;
     if (override != null) return override;
-    const define = String.fromEnvironment('ORACLY_DEV_PREMIUM');
-    Map<String, String> env = const {};
-    try {
-      env = dotenv.env;
-    } catch (_) {}
-    final raw = (_first([define, env['ORACLY_DEV_PREMIUM']]) ?? '')
-        .trim()
-        .toLowerCase();
+    final raw =
+        (OraclyRuntimeConfig.readRaw(OraclyRuntimeKeys.devPremium) ?? '')
+            .trim()
+            .toLowerCase();
     return raw == '1' || raw == 'true' || raw == 'yes' || raw == 'on';
-  }
-
-  static String? _first(List<String?> values) {
-    for (final value in values) {
-      final trimmed = value?.trim();
-      if (trimmed != null && trimmed.isNotEmpty) return trimmed;
-    }
-    return null;
   }
 }

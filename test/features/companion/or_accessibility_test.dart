@@ -1,4 +1,4 @@
-/// OR chamber accessibility - targets, roles, live status, reduced motion.
+﻿/// OR chamber accessibility - targets, roles, live status, reduced motion.
 library;
 
 import 'package:flutter/material.dart';

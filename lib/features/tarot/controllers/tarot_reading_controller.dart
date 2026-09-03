@@ -1,8 +1,8 @@
 /// OR-1170 — Tarot reading session controller.
 library;
 
-import '../../../../core/copy/resilience_copy.dart';
-import '../../../../core/l10n/l10n.dart';
+import '../../../core/copy/resilience_copy.dart';
+import '../../../core/l10n/l10n.dart';
 import '../domain/models/reading_session.dart';
 import '../domain/models/reading_session_draw.dart';
 import '../domain/models/tarot_session_recovery.dart';
@@ -21,11 +21,12 @@ class TarotReadingController extends TarotBaseController {
     TarotReadingRepository? repository,
     TarotDeckController? deckController,
     TarotInterpretationService? interpretationService,
-  })  : _repository = repository ??
-            (throw ArgumentError('TarotReadingRepository is required')),
-        _deckController = deckController ?? TarotDeckController(),
-        _interpretationService =
-            interpretationService ?? TarotInterpretationService();
+  }) : _repository =
+           repository ??
+           (throw ArgumentError('TarotReadingRepository is required')),
+       _deckController = deckController ?? TarotDeckController(),
+       _interpretationService =
+           interpretationService ?? TarotInterpretationService();
 
   final TarotReadingRepository _repository;
   final TarotDeckController _deckController;
@@ -40,10 +41,7 @@ class TarotReadingController extends TarotBaseController {
 
   Future<void> restoreActiveSession() async {
     final raw = await _repository.loadActiveSession();
-    final recovered = TarotSessionRecovery.prepare(
-      raw,
-      activeOnly: true,
-    );
+    final recovered = TarotSessionRecovery.prepare(raw, activeOnly: true);
     if (recovered == null) {
       await _repository.clearActiveSession();
       return;
@@ -54,7 +52,8 @@ class TarotReadingController extends TarotBaseController {
       seed: recovered.shuffleSeed,
       drawnCardIds: recovered.drawnCards.map((c) => c.card.id).toList(),
     );
-    final changed = raw != null &&
+    final changed =
+        raw != null &&
         (raw.flowStep != recovered.flowStep ||
             raw.drawnCards.length != recovered.drawnCards.length);
     if (changed) await _persist();
@@ -159,21 +158,29 @@ class TarotReadingController extends TarotBaseController {
   Future<void> advanceAfterReveal() async {
     final current = _session;
     if (current == null) return;
+    // Snapshot so a failed persist never leaves a half-advanced session;
+    // retry must rerun only this stage with unchanged cards/identity.
+    final snapshot = current;
+    try {
+      if (current.hasQueuedReveal) {
+        _session = current.copyWith(
+          flowStep: ReadingFlowStep.reveal,
+          currentPositionIndex: current.currentPositionIndex + 1,
+        );
+        await _persist();
+        notifyListeners();
+        return;
+      }
 
-    if (current.hasQueuedReveal) {
-      _session = current.copyWith(
-        flowStep: ReadingFlowStep.reveal,
-        currentPositionIndex: current.currentPositionIndex + 1,
-      );
-      await _persist();
+      if (current.allCardsDrawn) {
+        await _updateStep(ReadingFlowStep.reading);
+      } else {
+        await _updateStep(ReadingFlowStep.cardSelection);
+      }
+    } catch (_) {
+      _session = snapshot;
       notifyListeners();
-      return;
-    }
-
-    if (current.allCardsDrawn) {
-      await _updateStep(ReadingFlowStep.reading);
-    } else {
-      await _updateStep(ReadingFlowStep.cardSelection);
+      rethrow;
     }
   }
 

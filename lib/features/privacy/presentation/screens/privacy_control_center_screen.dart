@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/copy/transparency_copy.dart';
 import '../../../../core/design_system/app_icons.dart';
 import '../../../../core/design_system/oracly_header_action.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -44,7 +45,7 @@ class PrivacyControlCenterScreen extends ConsumerWidget {
                 leading: Align(
                   child: OraclyHeaderAction(
                     icon: AppIcons.back,
-                    label: 'Geri',
+                    label: OraclyL10n.t(L10nKeys.back),
                     onTap: () => Navigator.of(context).maybePop(),
                   ),
                 ),

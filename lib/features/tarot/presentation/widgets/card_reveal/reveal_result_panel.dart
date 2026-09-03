@@ -22,6 +22,8 @@ class RevealResultPanel extends StatelessWidget {
     required this.buttonSlide,
     required this.onContinue,
     this.completionHint,
+    this.continueBusy = false,
+    this.continueError,
   });
 
   final RevealCardData data;
@@ -32,6 +34,8 @@ class RevealResultPanel extends StatelessWidget {
   final double buttonSlide;
   final VoidCallback onContinue;
   final String? completionHint;
+  final bool continueBusy;
+  final String? continueError;
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +98,22 @@ class RevealResultPanel extends StatelessWidget {
             offset: Offset(0, (1 - buttonSlide) * 28),
             child: Opacity(
               opacity: buttonOpacity.clamp(0.0, 1.0),
-              child: RevealContinueCta(onPressed: onContinue),
+              child: RevealContinueCta(
+                onPressed: continueBusy ? null : onContinue,
+                isLoading: continueBusy,
+              ),
             ),
           ),
+          if (continueError != null && continueError!.trim().isNotEmpty) ...[
+            SizedBox(height: AppSpacing.md),
+            Opacity(
+              opacity: buttonOpacity.clamp(0.0, 1.0),
+              child: RevealAdvanceError(
+                message: continueError!,
+                onRetry: continueBusy ? null : onContinue,
+              ),
+            ),
+          ],
         ],
       ),
     );

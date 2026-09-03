@@ -13,6 +13,7 @@ abstract final class OnboardingCopy {
 
   static String get skip => _t('onboard.skip');
   static String get continueLabel => _t('onboard.continue');
+  static String get completeFailed => _t('onboard.complete_failed');
   static String get startFirstReading => _t('onboard.start');
   static String get meetLabel => _t('onboard.meet');
   static String get firstReadingHint => _t('onboard.first_hint');
@@ -38,19 +39,19 @@ abstract final class OnboardingCopy {
   static String get storyWhisper => _t('onboard.story_whisper');
 
   static List<String> get windows => [
-        _t('onboard.window.coffee'),
-        _t('onboard.window.palm'),
-        _t('onboard.window.sky'),
-        _t('onboard.window.star'),
-        _t('onboard.window.tarot'),
-        _t('onboard.window.or'),
-      ];
+    _t('onboard.window.coffee'),
+    _t('onboard.window.palm'),
+    _t('onboard.window.sky'),
+    _t('onboard.window.star'),
+    _t('onboard.window.tarot'),
+    _t('onboard.window.or'),
+  ];
 
   static List<OnboardingPageData> get pages => [
-        OnboardingPageData(
-          title: title,
-          subtitle: tagline,
-          icon: Icons.auto_awesome_outlined,
-        ),
-      ];
+    OnboardingPageData(
+      title: title,
+      subtitle: tagline,
+      icon: Icons.auto_awesome_outlined,
+    ),
+  ];
 }

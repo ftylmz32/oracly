@@ -1,4 +1,4 @@
-/// Send — muted when empty, gold-violet when ready.
+﻿/// Send — gold circle with upward arrow when ready.
 library;
 
 import 'package:flutter/material.dart';
@@ -29,34 +29,35 @@ class CompanionReferenceSendButton extends StatelessWidget {
       child: OraclyPressable(
         onTap: active ? onTap : null,
         behavior: HitTestBehavior.opaque,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(999),
         child: SizedBox(
           width: size,
           height: size,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
+              shape: BoxShape.circle,
               gradient: active
                   ? LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        OraclyChrome.goldLight.withValues(alpha: 0.92),
-                        OraclyChrome.violet.withValues(alpha: 0.55),
+                        OraclyChrome.goldLight.withValues(alpha: 0.98),
+                        OraclyChrome.gold.withValues(alpha: 0.92),
                       ],
                     )
                   : null,
-              color: active ? null : OraclyChrome.violet.withValues(alpha: 0.10),
+              color: active
+                  ? null
+                  : OraclyChrome.violet.withValues(alpha: 0.14),
               border: Border.all(
                 color: OraclyChrome.gold.withValues(
-                  alpha: active ? 0.55 : 0.16,
+                  alpha: active ? 0.55 : 0.18,
                 ),
-                width: 0.65,
               ),
               boxShadow: active
                   ? [
                       BoxShadow(
-                        color: OraclyChrome.violet.withValues(alpha: 0.22),
+                        color: OraclyChrome.gold.withValues(alpha: 0.22),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
                       ),
@@ -64,8 +65,8 @@ class CompanionReferenceSendButton extends StatelessWidget {
                   : null,
             ),
             child: Icon(
-              Icons.north_east_rounded,
-              size: 18,
+              Icons.arrow_upward_rounded,
+              size: 20,
               color: active
                   ? OraclyChrome.midnight
                   : OraclyChrome.goldLight.withValues(alpha: 0.38),

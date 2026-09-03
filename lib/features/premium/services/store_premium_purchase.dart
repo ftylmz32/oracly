@@ -10,20 +10,33 @@ import '../../../core/domain/models/premium_plan.dart';
 import '../models/premium_purchase_result.dart';
 import 'premium_purchase_port.dart';
 import 'premium_store_catalog.dart';
+import 'store_iap_client.dart';
 import 'store_premium_purchase_session.dart';
 
 class StorePremiumPurchase implements PremiumPurchasePort {
-  StorePremiumPurchase({InAppPurchase? iap})
-      : _iap = iap ?? InAppPurchase.instance;
+  StorePremiumPurchase({InAppPurchase? iap, StoreIapClient? client})
+      : _iap = client ?? PluginStoreIapClient(iap);
 
-  final InAppPurchase _iap;
+  final StoreIapClient _iap;
   final StorePremiumPurchaseSession _session = StorePremiumPurchaseSession();
   StreamSubscription<List<PurchaseDetails>>? _sub;
+
+  /// True when the IAP plugin/store reports available (restore may proceed).
+  bool _storeAvailable = false;
+
+  /// True when at least one catalog product loaded (purchase may proceed).
   bool _configured = false;
   final Map<String, ProductDetails> _products = {};
 
   @override
   bool get isConfigured => _configured;
+
+  /// Store/plugin ready independent of product catalogue success.
+  @override
+  bool get canAttemptRestore => _storeAvailable;
+
+  @visibleForTesting
+  bool get storeAvailableForRestore => _storeAvailable;
 
   @override
   String? priceLabel(PremiumPlanKind plan) =>
@@ -41,26 +54,34 @@ class StorePremiumPurchase implements PremiumPurchasePort {
         const Duration(seconds: 2),
         onTimeout: () => false,
       );
+      _storeAvailable = available;
       if (!available) {
         _configured = false;
         _products.clear();
         return;
       }
       _listen();
-      final response = await _iap
-          .queryProductDetails(PremiumStoreCatalog.allIds)
-          .timeout(
-            const Duration(seconds: 8),
-            onTimeout: () => ProductDetailsResponse(
-              productDetails: const [],
-              notFoundIDs: PremiumStoreCatalog.allIds.toList(),
-            ),
-          );
-      _products
-        ..clear()
-        ..addEntries(response.productDetails.map((p) => MapEntry(p.id, p)));
-      _configured = _products.isNotEmpty;
+      try {
+        final response = await _iap
+            .queryProductDetails(PremiumStoreCatalog.allIds)
+            .timeout(
+              const Duration(seconds: 8),
+              onTimeout: () => ProductDetailsResponse(
+                productDetails: const [],
+                notFoundIDs: PremiumStoreCatalog.allIds.toList(),
+              ),
+            );
+        _products
+          ..clear()
+          ..addEntries(response.productDetails.map((p) => MapEntry(p.id, p)));
+        _configured = _products.isNotEmpty;
+      } catch (_) {
+        // Catalogue failure must not block restore of already-owned purchases.
+        _configured = false;
+        _products.clear();
+      }
     } catch (_) {
+      _storeAvailable = false;
       _configured = false;
       _products.clear();
     }
@@ -89,7 +110,9 @@ class StorePremiumPurchase implements PremiumPurchasePort {
 
   @override
   Future<PremiumPurchaseResult> restore() async {
-    if (!_configured) return PremiumPurchaseResult.restoreUnavailable();
+    // Restore needs the store/plugin, not a successful product catalogue query.
+    if (!_storeAvailable) return PremiumPurchaseResult.restoreUnavailable();
+    _listen();
     if (!_session.begin(restore: true)) {
       return PremiumPurchaseResult.restoreFailed();
     }
@@ -110,7 +133,7 @@ class StorePremiumPurchase implements PremiumPurchasePort {
 
   void _listen() {
     _sub ??= _iap.purchaseStream.listen(
-      (purchases) => _session.onPurchases(purchases, _iap),
+      (purchases) => _session.onPurchases(purchases, _iap.completePurchase),
       onError: (_) => _session.fail(),
     );
   }

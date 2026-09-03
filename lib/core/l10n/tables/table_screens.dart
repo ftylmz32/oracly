@@ -22,6 +22,28 @@ const kL10nScreens = <String, L10nTriple>{
   'history.clear': L10nTriple('Geçmişi temizle', 'Clear history', 'Очистить историю'),
   'history.you': L10nTriple('Sen', 'You', 'Ты'),
   'history.journey': L10nTriple('Kişisel Yolculuk', 'Personal journey', 'Личный путь'),
+  'history.journey_echo_themes': L10nTriple(
+    'Yolculuğunda yankılanan temalar',
+    'Themes echoing in your journey',
+    'Темы, откликающиеся в твоём пути',
+  ),
+  'journal.personal_reflection': L10nTriple(
+    'Kişisel Yansıma',
+    'Personal reflection',
+    'Личное отражение',
+  ),
+  'journal.reflection_prompt': L10nTriple(
+    'Bu an senin için ne ifade ediyor?',
+    'What does this moment mean to you?',
+    'Что этот момент значит для тебя?',
+  ),
+  'journal.reflection_prompt_named': L10nTriple(
+    '{name} — bu an senin için ne ifade ediyor?',
+    '{name} — what does this moment mean to you?',
+    '{name} — что этот момент значит для тебя?',
+  ),
+  'journal.edit': L10nTriple('Düzenle', 'Edit', 'Править'),
+  'journal.add': L10nTriple('Ekle', 'Add', 'Добавить'),
   'tarot.revealed_row': L10nTriple('Açılan Kartlar', 'Revealed cards', 'Открытые карты'),
   'tarot.oracle_header': L10nTriple('Kartların Sana Verdiği Mesaj', 'The message the cards gave you', 'Послание, которое дали карты'),
   'tarot.oracle_speaking': L10nTriple('Oracle konuşuyor...', 'The oracle is speaking...', 'Оракул говорит...'),

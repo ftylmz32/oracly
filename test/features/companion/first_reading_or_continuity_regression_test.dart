@@ -1,4 +1,4 @@
-/// Regression: Tarot → OR shell handoff survives provider settling.
+/// Regression: Tarot → OR handoff survives provider settling (dedicated /chat).
 library;
 
 import 'package:flutter/material.dart';
@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
+import 'package:oracly_new/core/navigation/oracly_routes.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/navigation/oracle_conversation_route.dart';
+import 'package:oracly_new/features/companion/presentation/reference/companion_reference_screen.dart';
 import 'package:oracly_new/features/companion/providers/companion_providers.dart';
 import 'package:oracly_new/features/companion/services/first_reading_or_deepen.dart';
 import 'package:oracly_new/features/companion/services/or_chat_handoff.dart';
@@ -56,12 +58,13 @@ void main() {
         tester.element(find.text('tarot-inside-shell')),
         readingContext: reading,
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-      expect(find.text('or-tab'), findsOneWidget);
+      expect(find.byType(CompanionReferenceScreen), findsOneWidget);
 
       final controller = ProviderScope.containerOf(
-        tester.element(find.text('or-tab')),
+        tester.element(find.byType(CompanionReferenceScreen)),
       ).read(companionControllerProvider);
 
       expect(controller.readingContext?.sessionId, 'session_first');
@@ -87,15 +90,18 @@ class _InsideShellAskOrHarnessState extends State<_InsideShellAskOrHarness> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: OraclyNavigationScope(
-        currentIndex: _tab,
-        switchToTab: (i) => setState(() => _tab = i),
-        child: Scaffold(
-          body: _tab == OraclyTab.home.index
-              ? const Text('tarot-inside-shell')
-              : const Text('or-tab'),
-        ),
-      ),
+      routes: {
+        '/': (_) => OraclyNavigationScope(
+              currentIndex: _tab,
+              switchToTab: (i) => setState(() => _tab = i),
+              child: Scaffold(
+                body: _tab == OraclyTab.home.index
+                    ? const Text('tarot-inside-shell')
+                    : const Text('or-tab'),
+              ),
+            ),
+        OraclyRoutes.chat: (_) => const CompanionReferenceScreen(),
+      },
     );
   }
 }

@@ -39,15 +39,16 @@ void main() {
     expect(at900.moduleTileHeight, greaterThan(at774.moduleTileHeight));
     expect(at900.moduleTileHeight, lessThanOrEqualTo(240));
     expect(at900.heroSlotHeight, greaterThan(at774.heroArtSize));
-    // Three rows + discoveries band inside the grid slot (layout token).
-    const discoveriesBand = 34.0;
-    const rowCount = 3;
+    const discoveriesBand = 30.0;
+    const rowCount = 2;
     expect(
       at900.gridSlotHeight,
       closeTo(
         at900.moduleTileHeight * rowCount +
             at900.moduleGap * (rowCount - 1) +
-            discoveriesBand,
+            discoveriesBand +
+            at900.moduleGap +
+            at900.dreamExtensionHeight,
         0.5,
       ),
     );
@@ -58,10 +59,9 @@ void main() {
     final mid = HomeReferenceTokens.layoutFor(774);
     expect(mid.moduleTileHeight, greaterThan(compact.moduleTileHeight));
     expect(mid.heroSlotHeight, greaterThan(compact.heroSlotHeight));
-    // Preferred sizes stay readable; short screens scroll instead of crushing.
     expect(mid.orGuideHeight, greaterThanOrEqualTo(118));
     expect(mid.heroSlotHeight, greaterThanOrEqualTo(160));
-    expect(mid.gridSlotHeight, greaterThanOrEqualTo(200));
-    expect(mid.moduleTileHeight, greaterThanOrEqualTo(96));
+    expect(mid.gridSlotHeight, greaterThanOrEqualTo(280));
+    expect(mid.moduleTileHeight, greaterThanOrEqualTo(104));
   });
 }

@@ -11,19 +11,19 @@ class DestemCardArt extends StatelessWidget {
   const DestemCardArt({
     super.key,
     required this.card,
-    this.height = 120,
     this.width = 78,
   });
 
+  /// Canonical shipped Tarot face — 512×896 px.
+  static const artworkAspectRatio = 512 / 896;
+
   final OraclyTarotCard card;
-  final double height;
   final double width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
@@ -39,17 +39,23 @@ class DestemCardArt extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8.5),
-        child: OraclyAssetImage(
-          assetPath: card.visualAsset,
-          fit: BoxFit.cover,
-          cacheCapPx: 320,
-          filterQuality: FilterQuality.medium,
-          fallback: ColoredBox(
-            color: OraclyChrome.midnight.withValues(alpha: 0.85),
-            child: Icon(
-              Icons.style_outlined,
-              color: OraclyChrome.goldLight.withValues(alpha: 0.55),
-              size: 22,
+        child: AspectRatio(
+          aspectRatio: artworkAspectRatio,
+          child: ColoredBox(
+            color: OraclyChrome.midnight.withValues(alpha: 0.92),
+            child: OraclyAssetImage(
+              assetPath: card.visualAsset,
+              fit: BoxFit.contain,
+              cacheCapPx: 320,
+              filterQuality: FilterQuality.medium,
+              fallback: ColoredBox(
+                color: OraclyChrome.midnight.withValues(alpha: 0.85),
+                child: Icon(
+                  Icons.style_outlined,
+                  color: OraclyChrome.goldLight.withValues(alpha: 0.55),
+                  size: 22,
+                ),
+              ),
             ),
           ),
         ),

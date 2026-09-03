@@ -52,6 +52,12 @@ try {
       'oracly-ai-proxy not ready — set OPENAI_API_KEY and FIREBASE_PROJECT_ID (or JWKS)',
     );
   }
+  if (locked && !config.openaiVision) {
+    app.log.warn(
+      { vision: false },
+      'oracly-ai-proxy vision disabled — coffee_analysis and palm_analysis return image_analysis_unavailable',
+    );
+  }
 } catch (error) {
   app.log.error(error);
   process.exit(1);

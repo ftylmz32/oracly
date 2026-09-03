@@ -12,6 +12,7 @@ import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../../core/universe/oracly_universe_layer.dart';
 import '../../../core/universe/oracly_universe_state.dart';
 import '../../premium/models/personalization_models.dart';
+import '../providers/home_now_provider.dart';
 import '../reference/home_reference_hero.dart';
 import '../services/first_continuity_home.dart';
 import '../services/home_hero_returning_copy.dart';
@@ -110,6 +111,10 @@ class HomeMasterHero extends ConsumerWidget {
     final storage = ref.watch(localStorageProvider);
     final history = ref.watch(readingHistoryProvider).asData?.value;
     if (history == null) return null;
-    return FirstContinuityHome.resolve(storage: storage, history: history);
+    return FirstContinuityHome.resolve(
+      storage: storage,
+      history: history,
+      now: ref.watch(homeNowProvider),
+    );
   }
 }

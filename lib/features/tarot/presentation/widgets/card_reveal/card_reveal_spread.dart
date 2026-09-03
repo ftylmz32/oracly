@@ -33,8 +33,9 @@ class RevealCardData {
 
   static RevealCardData fromDrawnCard(TarotDrawnCard drawn) {
     final card = drawn.card;
-    final orientation =
-        drawn.isReversed ? TarotPolishCopy.reversed : TarotPolishCopy.upright;
+    final orientation = drawn.isReversed
+        ? TarotPolishCopy.reversed
+        : TarotPolishCopy.upright;
     // Reveal hierarchy: name → position → orientation. Reading comes later.
     return RevealCardData(
       card: card,

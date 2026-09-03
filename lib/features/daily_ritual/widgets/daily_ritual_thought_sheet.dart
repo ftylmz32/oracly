@@ -99,14 +99,14 @@ class _DailyRitualThoughtSheetState extends State<_DailyRitualThoughtSheet> {
               ),
               SizedBox(height: AppSpacing.lg),
               Text(
-                'Bugün için bir düşünce',
+                OraclyL10n.t('ritual.thought.title'),
                 style: AppTextStyles.titleSmall.copyWith(
                   color: AppColors.goldLight.withValues(alpha: 0.92),
                 ),
               ),
               SizedBox(height: AppSpacing.sm),
               Text(
-                'Zorunlu değil. Bir cümle bile yeter.',
+                OraclyL10n.t('ritual.thought.sub'),
                 style: ReadingTypography.bodySmall(),
               ),
               SizedBox(height: AppSpacing.lg),
@@ -116,7 +116,7 @@ class _DailyRitualThoughtSheetState extends State<_DailyRitualThoughtSheet> {
                 maxLines: 4,
                 style: ReadingTypography.body(color: AppColors.textPrimary),
                 decoration: InputDecoration(
-                  hintText: 'Bugün aklımda kalan…',
+                  hintText: OraclyL10n.t('ritual.thought.hint'),
                   hintStyle: ReadingTypography.body(color: AppColors.textMuted),
                   filled: true,
                   fillColor: AppColors.background.withValues(alpha: 0.45),
@@ -147,7 +147,7 @@ class _DailyRitualThoughtSheetState extends State<_DailyRitualThoughtSheet> {
               Row(
                 children: [
                   OraclyTextAction(
-                    label: 'Belki sonra',
+                    label: OraclyL10n.t('ritual.thought.later'),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   SizedBox(width: AppSpacing.sm),

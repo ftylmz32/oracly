@@ -1,4 +1,4 @@
-/// OR output mode persists; never auto-starts mic or speech.
+﻿/// OR output mode persists; never auto-starts mic or speech.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -91,3 +91,4 @@ void main() {
     output.dispose();
   });
 }
+

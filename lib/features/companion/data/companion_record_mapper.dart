@@ -4,6 +4,7 @@ library;
 import '../../../core/domain/models/conversation_record.dart';
 import '../../../features/ai/domain/models/ai_conversation.dart';
 import '../../../features/ai/domain/models/ai_message.dart';
+import '../debug/or_runtime_log.dart';
 import '../models/conversation.dart';
 
 abstract final class CompanionRecordMapper {
@@ -27,11 +28,20 @@ abstract final class CompanionRecordMapper {
     } catch (_) {
       topic = ConversationTopic.general;
     }
+    final messages = <AIMessage>[];
+    for (final raw in record.messagesJson) {
+      final message = _tryMessageFromJson(raw);
+      if (message != null) {
+        messages.add(message);
+      } else {
+        logOrCorruptRow(reason: 'message_parse');
+      }
+    }
     return Conversation(
       id: record.id,
       title: record.title,
       topic: topic,
-      messages: record.messagesJson.map(_messageFromJson).toList(),
+      messages: messages,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     );
@@ -71,6 +81,14 @@ abstract final class CompanionRecordMapper {
       ),
       metadata: _metadata(json['metadata']),
     );
+  }
+
+  static AIMessage? _tryMessageFromJson(Map<String, dynamic> json) {
+    try {
+      return _messageFromJson(json);
+    } catch (_) {
+      return null;
+    }
   }
 
   static Map<String, String> _metadata(Object? raw) {

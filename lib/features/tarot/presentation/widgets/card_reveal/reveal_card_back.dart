@@ -47,10 +47,7 @@ class RevealPremiumCardBack extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              TarotCardBackArt(
-                lightBiasX: lightBiasX,
-                lightBiasY: lightBiasY,
-              ),
+              TarotCardBackArt(lightBiasX: lightBiasX, lightBiasY: lightBiasY),
               PhysicalCardThickness(elevation: lift),
               TarotPrintedMaterial(
                 lightBiasX: lightBiasX,

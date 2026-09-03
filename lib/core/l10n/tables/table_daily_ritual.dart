@@ -164,4 +164,24 @@ const kL10nDailyRitual = <String, L10nTriple>{
     'A short gleam passed. You need not wait for an answer; just look.',
     'Короткий блеск прошёл. Не обязан ждать ответа; просто смотри.',
   ),
+  'ritual.thought.title': L10nTriple(
+    'Bugün için bir düşünce',
+    'A thought for today',
+    'Мысль на сегодня',
+  ),
+  'ritual.thought.sub': L10nTriple(
+    'Zorunlu değil. Bir cümle bile yeter.',
+    'Optional. Even one sentence is enough.',
+    'Необязательно. Достаточно одной фразы.',
+  ),
+  'ritual.thought.hint': L10nTriple(
+    'Bugün aklımda kalan…',
+    'What stayed with me today…',
+    'Что осталось со мной сегодня…',
+  ),
+  'ritual.thought.later': L10nTriple(
+    'Belki sonra',
+    'Maybe later',
+    'Может позже',
+  ),
 };

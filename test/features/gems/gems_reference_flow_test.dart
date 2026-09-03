@@ -34,8 +34,9 @@ void main() {
     return storage;
   }
 
-  testWidgets('shows live balance and honest economy, never fake IAP',
-      (tester) async {
+  testWidgets('shows live balance and honest economy, never fake IAP', (
+    tester,
+  ) async {
     final storage = await pumpScreen(tester);
     final wallet = GemWalletService(GemWalletStore(storage));
 
@@ -57,8 +58,9 @@ void main() {
     expect(wallet.balance, 0);
   });
 
-  testWidgets('daily reward card opens existing daily rewards route',
-      (tester) async {
+  testWidgets('daily reward card opens existing daily rewards route', (
+    tester,
+  ) async {
     await pumpScreen(tester);
 
     final daily = find.text(GemsCopy.dailyRewardLink);
@@ -69,5 +71,19 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text(DailyRewardsCopy.screenTitle), findsOneWidget);
+  });
+
+  testWidgets('balance capsule is honest and non-interactive on gems screen', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    expect(find.byIcon(Icons.add), findsNothing);
+    final capsule = find.text(GemDisplay.format(0)).first;
+    await tester.tap(capsule);
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text(GemsCopy.screenTitle), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

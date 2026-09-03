@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -61,14 +62,14 @@ class _TarotRitualSpreadScreenState
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Açılım',
+                OraclyL10n.t('tarot.step.reveal'),
                 style: AppTextStyles.headlineMedium.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Kartların düzenini seç.',
+                OraclyL10n.t('tarot.ritual.spread_sub'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),

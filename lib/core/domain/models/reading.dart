@@ -80,6 +80,20 @@ class ReadingModel {
   final String? userId;
   final RitualJournalMetadata journal;
 
+  /// Primary card orientation from the saved cards snapshot.
+  /// Old readings without cards default upright (false).
+  bool get primaryIsReversed {
+    if (cards.isEmpty) return false;
+    for (final card in cards) {
+      if (card.cardId == cardId || card.cardImageAsset == cardImageAsset) {
+        return card.isReversed;
+      }
+    }
+    final ordered = [...cards]
+      ..sort((a, b) => a.positionIndex.compareTo(b.positionIndex));
+    return ordered.first.isReversed;
+  }
+
   List<String> get emotionalKeywords => journal.emotionalKeywords;
   String? get personalNote => journal.personalNote;
   String? get summaryExcerpt => journal.summaryExcerpt;

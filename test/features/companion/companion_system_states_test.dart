@@ -16,13 +16,13 @@ import 'package:oracly_new/shared/widgets/oracly_error_state.dart';
 
 void main() {
   test('empty, loading, error, offline, and retry copy stay human', () {
-    expect(CompanionCopy.idleTitle, contains('Aklında kalan'));
-    expect(CompanionCopy.idleSubtitle, contains('düşünme alanı'));
+    expect(CompanionCopy.idleTitle, contains('Luna'));
+    expect(CompanionCopy.idleSubtitle.toLowerCase(), contains('duygular'));
     expect(
       OrLivingVoice.thinkingPool(OrLivingSurface.or),
       contains(CompanionCopy.thinking),
     );
-    expect(CompanionCopy.speaking, 'OR konuşuyor…');
+    expect(CompanionCopy.speaking.toLowerCase(), contains('konuşuyor'));
     expect(CompanionCopy.stopSpeaking, 'DURDUR');
     expect(CompanionCopy.retry, 'Tekrar dene');
     expect(CompanionCopy.connectionError, contains("OR'a ulaşamadım"));
@@ -135,3 +135,4 @@ void main() {
     expect(find.text(CompanionCopy.replaySpeaking), findsOneWidget);
   });
 }
+

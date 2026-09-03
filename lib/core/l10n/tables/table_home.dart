@@ -6,6 +6,11 @@ import '../l10n_triple.dart';
 const kL10nHome = <String, L10nTriple>{
   'onboard.skip': L10nTriple('Atla', 'Skip', 'Пропустить'),
   'onboard.continue': L10nTriple('Devam', 'Continue', 'Продолжить'),
+  'onboard.complete_failed': L10nTriple(
+    'Kurulumu şu an tamamlayamadım. Bir daha deneyelim.',
+    'Could not finish setup right now. Let us try again.',
+    'Сейчас не удалось завершить настройку. Давай попробуем ещё раз.',
+  ),
   'onboard.start': L10nTriple(
     'İlk keşfine başla',
     'Begin your first discovery',

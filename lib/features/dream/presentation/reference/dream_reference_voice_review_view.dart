@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -85,7 +86,7 @@ class DreamReferenceVoiceReviewView extends StatelessWidget {
             ),
             SizedBox(height: AppSpacing.sm),
             OraclyButton(
-              text: 'Geri',
+              text: OraclyL10n.t(L10nKeys.back),
               type: OraclyButtonType.ghost,
               onPressed: onCancel,
             ),

@@ -128,11 +128,11 @@ void main() {
         .read(coffeeReadingControllerProvider)
         .startCapture();
     await tester.pump();
-    expect(find.text(CoffeeCopy.hubLead), findsNothing);
+    expect(find.textContaining(CoffeeCopy.hubLead), findsNothing);
 
     await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
     await tester.pump();
-    expect(find.text(CoffeeCopy.hubLead), findsOneWidget);
+    expect(find.textContaining(CoffeeCopy.hubLead), findsOneWidget);
   });
 
   for (final size in viewports) {
@@ -152,7 +152,7 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
       expect(find.text(CoffeeCopy.photoCta), findsOneWidget);
-      expect(find.text(CoffeeCopy.hubLead), findsOneWidget);
+      expect(find.textContaining(CoffeeCopy.hubLead), findsOneWidget);
       expect(find.text(CoffeeCopy.galleryLabel), findsOneWidget);
       expect(find.text(CoffeeCopy.ritualTease), findsNothing);
     });
@@ -177,7 +177,7 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
       expect(find.text(CoffeeCopy.photoCta), findsOneWidget);
-      expect(find.text(CoffeeCopy.hubLead), findsNothing);
+      expect(find.textContaining(CoffeeCopy.hubLead), findsNothing);
       expect(find.text(CoffeeCopy.usePhotoLabel), findsNothing);
     });
 

@@ -147,7 +147,7 @@ void main() {
       final result = await ai.chat(userMessage: 'Merhaba, bugün nasılsın?');
       expect(result.isSuccess, isTrue, reason: '${result.failure}');
       expect(seen!.url.toString(), _proxyUrl);
-      expect(seen!.headers['Authorization'], isNull);
+      expect(seen!.headers['Authorization'], 'Bearer test-firebase-access-token');
       expect(seen!.body, isNot(contains('sk-')));
       final body = jsonDecode(seen!.body) as Map<String, dynamic>;
       expect(body['operation'], 'chat');
@@ -165,7 +165,7 @@ void main() {
     final transport = ProxyAiTransport(
       config: config,
       appCheckToken: testAppCheckToken,
-      accessToken: () async => 'user-access-token',
+      accessToken: ({bool forceRefresh = false}) async => 'user-access-token',
       client: MockClient((request) async {
         seen = request;
         return _okChat();
@@ -325,7 +325,7 @@ void main() {
     final body = jsonDecode(seen!.body) as Map<String, dynamic>;
     expect(body['operation'], 'dream_analysis');
     expect(body['payload']['narrative'], contains('yılan'));
-    expect(seen!.headers['Authorization'], isNull);
+    expect(seen!.headers['Authorization'], 'Bearer test-firebase-access-token');
   });
 
   test(
@@ -439,7 +439,8 @@ void main() {
       guard: AiRequestGuard(),
       transport: ProxyAiTransport(
         config: _prodProxy,
-      appCheckToken: testAppCheckToken,
+        appCheckToken: testAppCheckToken,
+        accessToken: testAccessToken,
         client: MockClient((_) async {
           calls += 1;
           await gate.future;
@@ -516,7 +517,8 @@ void main() {
       config: config,
       transport: ProxyAiTransport(
         config: config,
-      appCheckToken: testAppCheckToken,
+        appCheckToken: testAppCheckToken,
+        accessToken: testAccessToken,
         client: MockClient((_) async => fail('must not call proxy')),
       ),
     );
@@ -573,8 +575,12 @@ const _prodProxy = AiRuntimeConfig(
 OpenAiOraclyAiService _service(AiRuntimeConfig config, MockClient client) {
   return OpenAiOraclyAiService(
     config: config,
-    transport: ProxyAiTransport(config: config,
-      appCheckToken: testAppCheckToken, client: client),
+    transport: ProxyAiTransport(
+      config: config,
+      appCheckToken: testAppCheckToken,
+      accessToken: testAccessToken,
+      client: client,
+    ),
     guard: AiRequestGuard(),
   );
 }

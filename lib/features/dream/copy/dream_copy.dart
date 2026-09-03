@@ -3,7 +3,6 @@ library;
 
 import '../../../core/copy/preview_capability_copy.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/personality/or_living_voice.dart';
 
 abstract final class DreamCopy {
   DreamCopy._();
@@ -11,6 +10,31 @@ abstract final class DreamCopy {
   static String _t(String key) => OraclyL10n.t(key);
 
   static String get screenTitle => _t('dream.screen_title');
+  static String get heroHeadline => _t('dream.hero_headline');
+  static String get heroSubline => _t('dream.hero_subline');
+  static String get inputPrompt => _t('dream.input_prompt');
+  static String get inputSupport => _t('dream.input_support');
+  static String get inputHint => _t('dream.input_hint');
+  static String charLimit(int current, {int max = 1000}) =>
+      _t('dream.char_limit')
+          .replaceAll('{current}', '$current')
+          .replaceAll('{max}', '$max');
+  static String get chipNightmare => _t('dream.chip_nightmare');
+  static String get chipClear => _t('dream.chip_clear');
+  static String get chipSymbols => _t('dream.chip_symbols');
+  static String get guidedIntro => _t('dream.guided_intro');
+  static String get guidedWho => _t('dream.guided_who');
+  static String get guidedWhere => _t('dream.guided_where');
+  static String get guidedFeeling => _t('dream.guided_feeling');
+  static String get guidedRecurring => _t('dream.guided_recurring');
+  static String get submitCta => _t('dream.submit_cta');
+  static String get resultMeaningTitle => _t('dream.result_meaning');
+  static String get resultSymbolsTitle => _t('dream.result_symbols');
+  static String get resultEmotionalTitle => _t('dream.result_emotional');
+  static String get resultEdit => _t('dream.result_edit');
+  static String get resultSaveJournal => _t('dream.result_save_journal');
+  static String get resultReinterpret => _t('dream.result_reinterpret');
+  static String get reflectionGeneric => _t('dream.reflection_generic');
   static String get previewNote => PreviewCapabilityCopy.dreamNote;
   static String get previewNoteLive => PreviewCapabilityCopy.dreamNoteLive;
   static String get previewNoteNeedsOr => PreviewCapabilityCopy.dreamNoteNeedsOr;
@@ -25,6 +49,9 @@ abstract final class DreamCopy {
   }
 
   static String get entryHeadline => _t('dream.entry_headline');
+  static String get writeDream => _t('dream.write');
+  static String get voiceTell => _t('dream.voice_tell');
+  static String charCount(int count) => OraclyFormat.charCount(count);
   static String get entryDescription => _t('dream.entry_body');
   static String get narrativeHint => _t('dream.narrative_hint');
   static String get narrativeHelper => _t('dream.helper');
@@ -84,8 +111,7 @@ abstract final class DreamCopy {
   static String get noLocations => _t('dream.no_locations');
   static String get noRelationships => _t('dream.no_rel');
   static String get noRecurring => _t('dream.no_recurring');
-  static String get organizing =>
-      OrLivingVoice.thinking(surface: OrLivingSurface.dream);
+  static String get organizing => _t('dream.organizing');
   static String get reflecting => organizing;
   static String get reflectiveQuestion => _t('dream.ask');
   static String get calmingTakeaway => _t('dream.step');

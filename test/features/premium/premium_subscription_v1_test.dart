@@ -197,6 +197,8 @@ class _ScriptedPurchase implements PremiumPurchasePort {
 
   @override
   bool get isConfigured => true;
+  @override
+  bool get canAttemptRestore => isConfigured;
 
   @override
   Future<void> prepare() async {}

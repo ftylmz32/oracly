@@ -26,8 +26,11 @@ void main() {
 
   setUp(() {
     OraclyL10n.bind('tr');
+    AppLocale.debugDeviceLocale = () => const Locale('tr');
     AppConfig.reset();
   });
+
+  tearDown(() => AppLocale.debugDeviceLocale = null);
 
   test('release-safe AppConfig boots without prior dotenv.load', () async {
     await AppConfig.initialize();
@@ -43,14 +46,16 @@ void main() {
     expect(cold.apiBaseUrl, isNotEmpty);
   });
 
-  test('empty prefs: onboarding incomplete, language tr, dark default', () async {
+  test('empty prefs: onboarding incomplete, language from device, dark default',
+      () async {
     SharedPreferences.setMockInitialValues({});
     final storage = LocalStorage(await SharedPreferences.getInstance());
     final onboarding = LocalOnboardingRepository(storage);
     final settings = await LocalSettingsRepository(storage).load();
+    final expected = AppLocale.fromDeviceLocale(AppLocale.readDeviceLocale());
 
     expect(await onboarding.isCompleted(), isFalse);
-    expect(settings.language, AppLocale.tr);
+    expect(settings.language, expected);
     expect(AppLocale.productionCodes, ['tr', 'en', 'ru']);
     expect(settings.darkAppearance, isTrue);
     expect(settings.notificationsEnabled, isFalse);

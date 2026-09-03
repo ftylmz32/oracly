@@ -3,13 +3,13 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../features/help/copy/help_copy.dart';
-import '../../../features/help/services/support_mail_launcher.dart';
-import '../../../features/help/services/support_report_payload.dart';
-import '../../../shared/ui/oracly_snackbar.dart';
-import '../../../shared/widgets/oracly_pressable.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../features/help/copy/help_copy.dart';
+import '../../features/help/services/support_mail_launcher.dart';
+import '../../features/help/services/support_report_payload.dart';
+import '../../shared/ui/oracly_snackbar.dart';
+import '../../shared/widgets/oracly_pressable.dart';
 
 class AboutContactEmail extends StatelessWidget {
   const AboutContactEmail({super.key});

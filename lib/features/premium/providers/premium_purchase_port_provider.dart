@@ -1,4 +1,4 @@
-/// Billing port provider — real store on mobile when products load.
+/// Billing port provider - real store on mobile when products load.
 library;
 
 import 'dart:async';
@@ -11,8 +11,8 @@ import '../services/premium_store_test_env_io.dart'
 import '../services/store_premium_purchase.dart';
 import '../services/unavailable_premium_purchase.dart';
 
-/// Mobile: [StorePremiumPurchase] (configured only after product query).
-/// Desktop/web/tests: closed store — honest unavailable UI.
+/// Mobile: [StorePremiumPurchase] (purchase needs catalogue; restore needs store).
+/// Desktop/web/tests: closed store - honest unavailable UI.
 final premiumPurchasePortProvider = Provider<PremiumPurchasePort>((ref) {
   if (premiumStoreUnderFlutterTest ||
       !StorePremiumPurchase.supportedPlatform) {

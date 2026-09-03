@@ -15,11 +15,7 @@ import 'oracly_gem_facet.dart';
 
 /// Dark velvet glass pill with fine gold edge — rare wallet chrome.
 class OraclyCrystalCapsule extends StatelessWidget {
-  const OraclyCrystalCapsule({
-    super.key,
-    required this.count,
-    this.onTap,
-  });
+  const OraclyCrystalCapsule({super.key, required this.count, this.onTap});
 
   final String count;
   final VoidCallback? onTap;
@@ -27,6 +23,7 @@ class OraclyCrystalCapsule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = OraclyL10n.t('settings.gems');
+    final interactive = onTap != null;
     return OraclyPressable(
       onTap: onTap,
       label: '$label, $count',
@@ -69,7 +66,7 @@ class OraclyCrystalCapsule extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const ExcludeSemantics(
-                  child: OraclyGemFacet(size: 16, glow: 0.92),
+                  child: OraclyGemFacet(size: 16, glow: 0.88),
                 ),
                 const SizedBox(width: 5),
                 ConstrainedBox(
@@ -89,34 +86,40 @@ class OraclyCrystalCapsule extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
-                ExcludeSemantics(
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          OraclyChrome.goldHighlight.withValues(alpha: 0.18),
-                          OraclyChrome.goldMuted.withValues(alpha: 0.08),
-                        ],
+                if (interactive) ...[
+                  const SizedBox(width: 4),
+                  ExcludeSemantics(
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            OraclyChrome.goldHighlight.withValues(alpha: 0.18),
+                            OraclyChrome.goldMuted.withValues(alpha: 0.08),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: OraclyChrome.goldPrimary.withValues(
+                            alpha: 0.52,
+                          ),
+                          width: 0.8,
+                        ),
                       ),
-                      border: Border.all(
-                        color: OraclyChrome.goldPrimary.withValues(alpha: 0.52),
-                        width: 0.8,
+                      child: Icon(
+                        Icons.add,
+                        size: 11,
+                        color: OraclyA11y.goldReadable(
+                          OraclyChrome.goldHighlight,
+                        ),
                       ),
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      size: 11,
-                      color: OraclyA11y.goldReadable(OraclyChrome.goldHighlight),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

@@ -38,8 +38,13 @@ abstract final class DreamRecordMapper {
   }
 
   static Dream fromRecord(DreamRecord record) {
-    if (record.payload != null) {
-      return Dream.fromJson(record.payload!);
+    final payload = record.payload;
+    if (payload != null) {
+      try {
+        return Dream.fromJson(Map<String, dynamic>.from(payload));
+      } catch (_) {
+        // Corrupt/schema-drift payload must not crash history load.
+      }
     }
     return Dream(
       id: record.id,

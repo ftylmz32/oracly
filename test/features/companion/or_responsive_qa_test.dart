@@ -1,4 +1,4 @@
-/// OR responsive QA — TECNO KN8 primary + portrait matrix.
+﻿/// OR responsive QA — TECNO KN8 primary + portrait matrix.
 ///
 /// Verifies header, messages, composer, keyboard, bottom nav clearance,
 /// voice controls, paywall CTA reachability, and scrolling without overflow.
@@ -36,6 +36,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// TECNO KN8 (HD+ ~360 logical) + common Android portraits.
 const _orViewports = <Size>[
+  Size(320, 568),
   Size(360, 640), // short KN8-class
   Size(360, 720),
   Size(360, 800), // primary KN8

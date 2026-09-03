@@ -1,4 +1,4 @@
-/// OR network recovery — offline accessible, real retry, no fake success.
+﻿/// OR network recovery — offline accessible, real retry, no fake success.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -53,3 +53,4 @@ void main() {
     );
   });
 }
+

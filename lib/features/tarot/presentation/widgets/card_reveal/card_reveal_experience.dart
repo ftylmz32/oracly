@@ -18,6 +18,8 @@ class CardRevealExperience extends StatefulWidget {
     this.startProgress = 0,
     this.soundCallbacks = RevealSoundCallbacks.silent,
     this.completionHint,
+    this.continueBusy = false,
+    this.continueError,
   });
 
   final RevealCardData data;
@@ -25,6 +27,8 @@ class CardRevealExperience extends StatefulWidget {
   final double startProgress;
   final RevealSoundCallbacks soundCallbacks;
   final String? completionHint;
+  final bool continueBusy;
+  final String? continueError;
 
   @override
   State<CardRevealExperience> createState() => _CardRevealExperienceState();
@@ -123,6 +127,8 @@ class _CardRevealExperienceState extends State<CardRevealExperience>
             data: widget.data,
             onContinue: widget.onContinue,
             completionHint: widget.completionHint,
+            continueBusy: widget.continueBusy,
+            continueError: widget.continueError,
           );
         },
       ),

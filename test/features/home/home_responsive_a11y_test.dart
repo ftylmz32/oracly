@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/accessibility/oracly_a11y.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/navigation/oracly_route_generator.dart';
 import 'package:oracly_new/features/home/master/home_master_hero.dart';
 import 'package:oracly_new/features/home/master/home_master_or.dart';
@@ -65,7 +64,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('text scale 1.3 on KN8 - no overflow, CTAs remain',
+  testWidgets('text scale 1.3 on KN8 - scroll fallback, CTAs remain',
       (tester) async {
     await pumpHome(tester, textScale: 1.3);
     expect(tester.takeException(), isNull);

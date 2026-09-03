@@ -1,6 +1,9 @@
 import { ErrorCode, fail } from '../errors.js';
+import { evaluatePalmQuality } from './human-quality.js';
 
 export type PalmData = {
+  /** Grounded visual notes — required; never invent geometry. */
+  visualObservation: string;
   overall: string;
   lifeLine: string;
   headLine: string;
@@ -19,15 +22,29 @@ const FORBIDDEN = [
   'kesin olacak',
   'kesin hayatına',
   'şu kadar yaşa',
+  'biometric',
+  'identify you',
+  'kimliğini tanıy',
 ];
 
 export function parsePalmData(raw: string): PalmData {
   const json = extractJson(raw);
   if (!json) fail(ErrorCode.invalidResponse);
-  const overall = pick(json, ['genelYapi', 'genelYapı', 'overall', 'genel'], 8);
+  if (json.usable === false || json.okunabilir === false) {
+    fail(ErrorCode.invalidImage);
+  }
+  const visualObservation = pick(json, [
+    'gorselTespit',
+    'görselTespit',
+    'visualObservation',
+    'observation',
+    'detectedVisual',
+  ], 12);
+  const overall = pick(json, ['genelYapi', 'genelYapı', 'overall', 'genel'], 12);
   const takeaway = pick(json, ['sonuc', 'sonuç', 'takeaway'], 1);
-  if (!overall && !takeaway) fail(ErrorCode.invalidResponse);
+  if (!visualObservation || !overall) fail(ErrorCode.invalidResponse);
   const data: PalmData = {
+    visualObservation,
     overall,
     lifeLine: pick(json, ['yasamCizgisi', 'yaşamÇizgisi', 'lifeLine'], 1),
     headLine: pick(json, ['zihinCizgisi', 'zihinÇizgisi', 'headLine'], 1),
@@ -39,6 +56,8 @@ export function parsePalmData(raw: string): PalmData {
   };
   const blob = Object.values(data).flat().join(' ').toLowerCase();
   if (FORBIDDEN.some((w) => blob.includes(w))) fail(ErrorCode.invalidResponse);
+  const quality = evaluatePalmQuality(data);
+  if (quality) fail(ErrorCode.invalidResponse);
   return data;
 }
 

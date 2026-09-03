@@ -13,7 +13,9 @@ import 'package:oracly_new/features/companion/models/or_session_state.dart';
 import 'package:oracly_new/features/companion/providers/companion_providers.dart';
 import 'package:oracly_new/features/companion/services/first_reading_or_deepen.dart';
 import 'package:oracly_new/features/companion/services/or_chat_handoff.dart';
+import 'package:oracly_new/features/companion/presentation/reference/companion_reference_screen.dart';
 import 'package:oracly_new/features/companion/services/or_session_resolver.dart';
+import 'package:oracly_new/core/navigation/oracly_routes.dart';
 import 'package:oracly_new/features/daily_message/copy/daily_message_copy.dart';
 import 'package:oracly_new/features/daily_message/models/daily_message.dart';
 import 'package:oracly_new/features/daily_message/models/daily_return_action.dart';
@@ -70,12 +72,13 @@ void main() {
     expect(OrChatHandoffBuffer.take(), isNull);
 
     await tester.tap(find.text(DailyMessageCopy.talkToOr));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.text('or-tab'), findsOneWidget);
+    expect(find.byType(CompanionReferenceScreen), findsOneWidget);
 
     final controller = ProviderScope.containerOf(
-      tester.element(find.text('or-tab')),
+      tester.element(find.byType(CompanionReferenceScreen)),
     ).read(companionControllerProvider);
 
     final ctx = controller.readingContext;
@@ -152,15 +155,16 @@ class _ShellHarnessState extends State<_ShellHarness> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: OraclyNavigationScope(
-        currentIndex: _tab,
-        switchToTab: (i) => setState(() => _tab = i),
-        child: Scaffold(
-          body: _tab == OraclyTab.home.index
-              ? Center(child: widget.child)
-              : const Text('or-tab'),
-        ),
-      ),
+      routes: {
+        '/': (_) => OraclyNavigationScope(
+              currentIndex: _tab,
+              switchToTab: (i) => setState(() => _tab = i),
+              child: Scaffold(
+                body: Center(child: widget.child),
+              ),
+            ),
+        OraclyRoutes.chat: (_) => const CompanionReferenceScreen(),
+      },
     );
   }
 }

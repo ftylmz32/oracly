@@ -78,7 +78,8 @@ class PremiumStatusController extends ChangeNotifier {
     if (_entitlement.isTransient) {
       return PremiumPurchaseResult.restoreUnavailable();
     }
-    if (!_service.purchaseConfigured) {
+    // Restore needs store/plugin availability, not a loaded product catalogue.
+    if (!_service.canAttemptRestore) {
       _set(PremiumEntitlementState.unavailable);
       return PremiumPurchaseResult.restoreUnavailable();
     }

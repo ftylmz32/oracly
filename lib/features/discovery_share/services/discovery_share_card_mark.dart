@@ -1,6 +1,9 @@
 /// Campaign visual — photoreal plate / user photo / card art. Glyphs last resort.
 library;
 
+import 'dart:math' show pi;
+import 'dart:ui' as ui;
+
 import 'package:flutter/painting.dart';
 
 import '../../../core/design_system/oracly_chrome.dart';
@@ -68,12 +71,10 @@ abstract final class DiscoveryShareCardMark {
           focusY: 0.4,
         );
       case DiscoveryShareKind.tarot:
-        DiscoveryShareCardImage.drawProtected(
+        _paintTarotFace(
           canvas,
           image,
-          DiscoveryShareCardLayout.card,
-          contain: true,
-          radius: 18,
+          reversed: discovery.visualIsReversed,
         );
       default:
         DiscoveryShareCardImage.drawProtected(
@@ -84,6 +85,30 @@ abstract final class DiscoveryShareCardMark {
         );
     }
     return true;
+  }
+
+  /// Drawn-card share: rotate complete face 180° when reversed.
+  /// Plate/glyph fallbacks never use this path — stay upright by design.
+  static void _paintTarotFace(
+    Canvas canvas,
+    ui.Image image, {
+    required bool reversed,
+  }) {
+    final dest = DiscoveryShareCardLayout.card;
+    if (reversed) {
+      canvas.save();
+      canvas.translate(dest.center.dx, dest.center.dy);
+      canvas.rotate(pi);
+      canvas.translate(-dest.center.dx, -dest.center.dy);
+    }
+    DiscoveryShareCardImage.drawProtected(
+      canvas,
+      image,
+      dest,
+      contain: true,
+      radius: 18,
+    );
+    if (reversed) canvas.restore();
   }
 
   static void _glyph(Canvas canvas, DiscoveryShareKind kind, Offset c) {

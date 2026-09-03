@@ -1,4 +1,4 @@
-/// OR performance boundaries — windowed context, visible cache, no full-history scan.
+﻿/// OR performance boundaries — windowed context, visible cache, no full-history scan.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -43,3 +43,4 @@ void main() {
     expect(CompanionTurnWindow.scanCap, 32);
   });
 }
+

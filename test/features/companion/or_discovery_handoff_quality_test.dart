@@ -1,4 +1,4 @@
-/// Discovery → OR handoff quality — context without re-explaining.
+/// Discovery â†’ OR handoff quality — context without re-explaining.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -22,7 +22,7 @@ void main() {
         deckId: 'classic',
         deckName: 'Classic',
         readingTitle: 'Açılım',
-        cardsSummary: 'Geçmiş · id:42 · The Moon · Düz',
+        cardsSummary: 'Geçmiş Â· id:42 Â· The Moon Â· Düz',
         interpretationSummary: 'Küçük ve net bir adım yeterli.',
         userQuestion: 'Ne yapmalıyım?',
         cardNames: ['The Moon'],
@@ -149,3 +149,4 @@ void main() {
     expect(hint.length, lessThanOrEqualTo(480));
   });
 }
+

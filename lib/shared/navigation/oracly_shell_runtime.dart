@@ -27,7 +27,9 @@ abstract final class OraclyShellRuntime {
     final container = ProviderScope.containerOf(context, listen: false);
     if (container.exists(companionVoiceTurnControllerProvider)) {
       unawaited(
-        container.read(companionVoiceTurnControllerProvider).handleExternalInterrupt(),
+        container
+            .read(companionVoiceTurnControllerProvider)
+            .handleExternalInterrupt(),
       );
     }
     if (container.exists(companionVoiceControllerProvider)) {
@@ -51,7 +53,9 @@ abstract final class OraclyShellRuntime {
         if (ref != null) {
           if (ref.exists(companionVoiceTurnControllerProvider)) {
             unawaited(
-              ref.read(companionVoiceTurnControllerProvider).handleExternalInterrupt(),
+              ref
+                  .read(companionVoiceTurnControllerProvider)
+                  .handleExternalInterrupt(),
             );
           }
           if (ref.exists(companionVoiceControllerProvider)) {
@@ -80,13 +84,18 @@ abstract final class OraclyShellRuntime {
       final sound = ref.read(oraclySoundServiceProvider);
       OraclySoundHooks.bind(sound);
       await LivingPresenceTracker.markPresent(ref.read(localStorageProvider));
-      await applyPersonalization(ref);
+      // settingsProvider owns audio synchronization. Avoid starting/replacing
+      // the same ambient source a second time during shell bootstrap.
+      await applyPersonalization(ref, syncAudio: false);
     } catch (_) {
       // Shell may be mounted in isolated tests without full providers.
     }
   }
 
-  static Future<void> applyPersonalization(WidgetRef ref) async {
+  static Future<void> applyPersonalization(
+    WidgetRef ref, {
+    bool syncAudio = true,
+  }) async {
     final PersonalizationSettings settings;
     try {
       settings = await ref.read(settingsProvider.future);
@@ -107,8 +116,10 @@ abstract final class OraclyShellRuntime {
       identity: OraclyVoiceId.parse(settings.orVoiceId),
       speed: settings.orSpeechSpeed,
     );
-    final sound = ref.read(oraclySoundServiceProvider);
-    await sound.setAtmosphere(settings.atmosphereSign);
-    await sound.syncAmbientEnabled(settings.ambientMusicEnabled);
+    if (syncAudio) {
+      final sound = ref.read(oraclySoundServiceProvider);
+      await sound.setAtmosphere(settings.atmosphereSign);
+      await sound.syncAmbientEnabled(settings.ambientMusicEnabled);
+    }
   }
 }

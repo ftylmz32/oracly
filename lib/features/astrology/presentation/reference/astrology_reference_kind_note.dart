@@ -13,7 +13,8 @@ class AstrologyReferenceKindNote extends StatelessWidget {
 
   final bool compact;
 
-  static String get label => PreviewCapabilityCopy.badge;
+  /// Chamber honesty label — not a Preview availability badge.
+  static String get label => PreviewCapabilityCopy.astrologyLabel;
   static String get detail => PreviewCapabilityCopy.astrologyDetail;
 
   @override

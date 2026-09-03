@@ -52,7 +52,7 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
         leading: Align(
           child: OraclyHeaderAction(
             icon: AppIcons.back,
-            label: 'Geri',
+            label: OraclyL10n.t(L10nKeys.back),
             onTap: () => Navigator.of(context).maybePop(),
           ),
         ),

@@ -49,52 +49,56 @@ class _MenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final brass = StarMapReferenceTokens.brassGlow;
     return StarMapReferenceCardShell(
-      height: StarMapReferenceTokens.menuCardHeight,
       borderRadius: StarMapReferenceTokens.menuCardRadius,
       padding: StarMapReferenceTokens.menuCardPadding,
       elevated: true,
       onTap: item.onTap,
-      child: Row(
-        children: [
-          _BrassIconWell(icon: item.icon),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  item.title,
-                  style: AppTextStyles.title.copyWith(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: OraclyChrome.cream.withValues(alpha: 0.92),
-                    height: 1.1,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (item.subtitle != null) ...[
-                  const SizedBox(height: 1),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: StarMapReferenceTokens.menuCardHeight - 12,
+        ),
+        child: Row(
+          children: [
+            _BrassIconWell(icon: item.icon),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Text(
-                    item.subtitle!,
-                    style: OraclyChrome.bodySecondary(size: 10).copyWith(
-                      height: 1.15,
+                    item.title,
+                    style: AppTextStyles.title.copyWith(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: OraclyChrome.cream.withValues(alpha: 0.92),
+                      height: 1.1,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (item.subtitle != null) ...[
+                    const SizedBox(height: 1),
+                    Text(
+                      item.subtitle!,
+                      style: OraclyChrome.bodySecondary(size: 10).copyWith(
+                        height: 1.15,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          Icon(
-            Icons.chevron_right_rounded,
-            size: 20,
-            color: brass.withValues(alpha: 0.70),
-          ),
-        ],
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: brass.withValues(alpha: 0.70),
+            ),
+          ],
+        ),
       ),
     );
   }

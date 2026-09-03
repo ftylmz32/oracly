@@ -43,9 +43,9 @@ const kL10nVoice = <String, L10nTriple>{
   'nav.hint.home': L10nTriple('Evrenin kapısı', 'Door of the universe', 'Дверь вселенной'),
   'nav.hint.coffee': L10nTriple('Fincan ve yorum', 'Cup and reading', 'Чашка и толкование'),
   'nav.hint.astrology': L10nTriple(
-    'Önizleme · bugünkü gökyüzü',
-    "Preview · today's sky",
-    'Предпросмотр · сегодняшнее небо',
+    'Güneş burcu okuması',
+    'Sun-sign reading',
+    'Чтение солнечного знака',
   ),
   'nav.hint.star': L10nTriple(
     'Yerel · kişisel hikâye arşivi',

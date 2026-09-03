@@ -15,7 +15,8 @@ import '../../../features/premium/providers/premium_providers.dart';
 import '../../profile/data/profile_photo_store.dart';
 import '../../../shared/widgets/oracly_scaffold.dart';
 import 'settings_reference_app_bar.dart';
-import 'settings_reference_body.dart';
+import 'settings_reference_content.dart';
+import 'settings_reference_load.dart';
 import 'settings_reference_tokens.dart';
 
 class SettingsReferenceScreen extends ConsumerStatefulWidget {
@@ -30,6 +31,8 @@ class _SettingsReferenceScreenState
     extends ConsumerState<SettingsReferenceScreen> {
   PersonalizationSettings _settings = const PersonalizationSettings();
   bool _loading = true;
+  bool _loadFailed = false;
+  bool _hasLoadedOnce = false;
   String _profileName = '';
   Future<void> _write = Future.value();
 
@@ -40,17 +43,32 @@ class _SettingsReferenceScreenState
   }
 
   Future<void> _load() async {
-    final s = await ref.read(settingsServiceProvider).load();
-    final profile = await ref.read(userRepositoryProvider).getProfile();
-    if (!mounted) return;
-    setState(() {
-      _settings = s;
-      _profileName = profile.name;
-      _loading = false;
-    });
-    try {
-      await ref.read(oraclyNotificationCoordinatorProvider).sync(s);
-    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _loadFailed = false;
+      });
+    }
+    await loadSettingsReference(
+      ref: ref,
+      context: context,
+      mounted: mounted,
+      hasLoadedOnce: _hasLoadedOnce,
+      onLoaded: ({required settings, required profileName}) {
+        setState(() {
+          _settings = settings;
+          _profileName = profileName;
+          _loading = false;
+          _loadFailed = false;
+          _hasLoadedOnce = true;
+        });
+      },
+      onFirstFailure: () => setState(() {
+        _loading = false;
+        _loadFailed = true;
+      }),
+      onCachedFailure: () => setState(() => _loading = false),
+    );
   }
 
   Future<void> _save(PersonalizationSettings updated) {
@@ -76,19 +94,17 @@ class _SettingsReferenceScreenState
   Widget build(BuildContext context) {
     ref.listen(settingsProvider, (previous, next) {
       final data = next.valueOrNull;
-      if (data == null || !mounted) return;
+      if (data == null || !mounted || _loadFailed) return;
       setState(() {
         _settings = data;
         _loading = false;
+        _hasLoadedOnce = true;
       });
     });
     ref.watch(appLocaleProvider);
     ref.watch(appThemeModeProvider);
     final premiumStatus = ref.watch(premiumStatusProvider);
     final lang = AppLocale.normalize(_settings.language);
-    final settingsForUi = _settings.copyWith(language: lang);
-    final photo = ref.watch(profilePhotoProvider);
-    final profilePremium = premiumStatus.isPremium;
     return OraclyScaffold(
       usePremiumBackground: false,
       backgroundOverlay: const HomeReferenceBackground(
@@ -110,13 +126,15 @@ class _SettingsReferenceScreenState
             ),
           ),
           Expanded(
-            child: SettingsReferenceBody(
+            child: SettingsReferenceContent(
               loading: _loading,
-              settings: settingsForUi,
+              loadFailed: _loadFailed,
+              settings: _settings.copyWith(language: lang),
               languageCode: lang,
               profileName: _profileName,
-              profilePremium: profilePremium,
-              profilePhoto: photo,
+              profilePremium: premiumStatus.isPremium,
+              profilePhoto: ref.watch(profilePhotoProvider),
+              onRetry: _load,
               onSave: (patch) => _save(patch(_settings)),
             ),
           ),

@@ -136,9 +136,11 @@ abstract final class PersonalInsightEngine {
   /// Build insight report from saved history — purely local computation.
   ///
   /// [totalReadings] may exceed [readings] when callers pass a theme window.
+  /// [asOf] pins the calendar month window (defaults to wall clock).
   static PersonalInsightReport analyze(
     List<ReadingModel> readings, {
     int? totalReadings,
+    DateTime? asOf,
   }) {
     final total = totalReadings ?? readings.length;
     if (readings.length < minReadingsForThemes) {
@@ -156,13 +158,14 @@ abstract final class PersonalInsightEngine {
       }
     }
 
-    final echoes = counts.entries
-        .where((e) => e.value >= minThemeOccurrences)
-        .map((e) => PersonalThemeEcho(theme: e.key, count: e.value))
-        .toList()
-      ..sort((a, b) => b.count.compareTo(a.count));
+    final echoes =
+        counts.entries
+            .where((e) => e.value >= minThemeOccurrences)
+            .map((e) => PersonalThemeEcho(theme: e.key, count: e.value))
+            .toList()
+          ..sort((a, b) => b.count.compareTo(a.count));
 
-    final monthly = _monthlyReflection(readings, counts);
+    final monthly = _monthlyReflection(readings, counts, asOf: asOf);
 
     return PersonalInsightReport(
       recurringThemes: echoes.take(4).toList(),
@@ -200,12 +203,18 @@ abstract final class PersonalInsightEngine {
 
   static PersonalMonthlyReflection? _monthlyReflection(
     List<ReadingModel> readings,
-    Map<PersonalInsightTheme, int> allTimeCounts,
-  ) {
-    final now = DateTime.now();
+    Map<PersonalInsightTheme, int> allTimeCounts, {
+    DateTime? asOf,
+  }) {
+    final now = asOf ?? DateTime.now();
     final monthStart = DateTime(now.year, now.month);
+    final monthEnd = DateTime(now.year, now.month + 1);
     final monthReadings = readings
-        .where((r) => !r.createdAt.isBefore(monthStart))
+        .where(
+          (r) =>
+              !r.createdAt.isBefore(monthStart) &&
+              r.createdAt.isBefore(monthEnd),
+        )
         .toList();
 
     if (monthReadings.length < minReadingsForMonthly) return null;

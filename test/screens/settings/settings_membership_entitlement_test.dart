@@ -11,8 +11,12 @@ import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/services/premium_service.dart';
 import 'package:oracly_new/features/premium/controllers/premium_status_controller.dart';
+import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
+import 'package:oracly_new/features/premium/models/premium_purchase_credentials.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_result.dart';
+import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
 import 'package:oracly_new/features/premium/providers/premium_providers.dart';
+import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
 import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:oracly_new/screens/settings/reference/settings_membership_badge.dart';
 import 'package:oracly_new/screens/settings/reference/settings_reference_screen.dart';
@@ -20,9 +24,46 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
 
+const _creds = PremiumPurchaseCredentials(
+  platform: 'android',
+  productId: 'app.oracly.premium.yearly',
+  purchaseToken: 'verified-token',
+);
+
+class _ActiveVerifier implements PremiumEntitlementVerifier {
+  @override
+  bool get isRemoteVerifierConfigured => true;
+
+  @override
+  Future<PremiumVerifyResult> verify({
+    required String platform,
+    required String productId,
+    required String purchaseToken,
+    String? transactionId,
+  }) async => PremiumVerifyResult.active('authoritative');
+}
+
+class _ResultVerifier implements PremiumEntitlementVerifier {
+  _ResultVerifier(this.result);
+  final PremiumVerifyResult result;
+
+  @override
+  bool get isRemoteVerifierConfigured => true;
+
+  @override
+  Future<PremiumVerifyResult> verify({
+    required String platform,
+    required String productId,
+    required String purchaseToken,
+    String? transactionId,
+  }) async => result;
+}
+
 class _ConfiguredPort implements PremiumPurchasePort {
   @override
   bool get isConfigured => true;
+  @override
+  bool get canAttemptRestore => isConfigured;
 
   @override
   Future<void> prepare() async {}
@@ -42,19 +83,95 @@ class _ConfiguredPort implements PremiumPurchasePort {
   Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async => null;
 }
 
+Future<(LocalStorage, MockPremiumRepository, MockUserRepository)>
+_open() async {
+  SharedPreferences.setMockInitialValues({});
+  final storage = await LocalStorage.open();
+  return (storage, MockPremiumRepository(storage), MockUserRepository(storage));
+}
+
+Future<void> _seedAuthoritative(MockPremiumRepository premium) async {
+  await premium.activatePlan(PremiumPlanKind.yearly, authoritative: true);
+  await premium.savePurchaseCredentials(_creds);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() => OraclyL10n.bind('en'));
 
-  testWidgets('membership matches canonical entitlement when active',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final storage = await LocalStorage.open();
-    final premium = MockPremiumRepository(storage);
-    final users = MockUserRepository(storage);
-    await premium.activatePlan(PremiumPlanKind.yearly, authoritative: true);
-    final service = PremiumService(premium, users, _ConfiguredPort());
+  test(
+    'authoritative grant with credentials stays active after load',
+    () async {
+      final (_, premium, users) = await _open();
+      await _seedAuthoritative(premium);
+      final status = PremiumStatusController(
+        PremiumService(premium, users, _ConfiguredPort(), _ActiveVerifier()),
+      );
+      await status.load();
+      expect(status.entitlement, PremiumEntitlementState.active);
+      expect(status.isPremium, isTrue);
+      expect(premium.wasAuthoritativelyVerified, isTrue);
+    },
+  );
+
+  test('non-authoritative local cache does not unlock Premium', () async {
+    final (_, premium, users) = await _open();
+    await premium.activatePlan(PremiumPlanKind.yearly, authoritative: false);
+    await premium.savePurchaseCredentials(_creds);
+    final status = PremiumStatusController(
+      PremiumService(premium, users, _ConfiguredPort(), _ActiveVerifier())
+        ..forceReleaseMode = true,
+    );
+    await status.load();
+    expect(status.isPremium, isFalse);
+    expect(status.entitlement, PremiumEntitlementState.unverified);
+  });
+
+  test('expired verification demotes Premium on refresh', () async {
+    final (_, premium, users) = await _open();
+    await _seedAuthoritative(premium);
+    final status = PremiumStatusController(
+      PremiumService(
+        premium,
+        users,
+        _ConfiguredPort(),
+        _ResultVerifier(PremiumVerifyResult.expired('expired')),
+      ),
+    );
+    await status.load();
+    expect(status.isPremium, isFalse);
+    expect(status.entitlement, PremiumEntitlementState.inactive);
+    expect(await premium.isPremiumActive(), isFalse);
+  });
+
+  test('revoked verification demotes Premium on refresh', () async {
+    final (_, premium, users) = await _open();
+    await _seedAuthoritative(premium);
+    final status = PremiumStatusController(
+      PremiumService(
+        premium,
+        users,
+        _ConfiguredPort(),
+        _ResultVerifier(PremiumVerifyResult.inactive('revoked')),
+      ),
+    );
+    await status.load();
+    expect(status.isPremium, isFalse);
+    expect(status.entitlement, PremiumEntitlementState.inactive);
+  });
+
+  testWidgets('membership matches canonical entitlement when active', (
+    tester,
+  ) async {
+    final (storage, premium, users) = await _open();
+    await _seedAuthoritative(premium);
+    final service = PremiumService(
+      premium,
+      users,
+      _ConfiguredPort(),
+      _ActiveVerifier(),
+    );
     final status = PremiumStatusController(service);
     await status.load();
     expect(status.isPremium, isTrue);
@@ -78,11 +195,10 @@ void main() {
     expect(badge.isPremium, isTrue);
   });
 
-  testWidgets('membership shows free when entitlement inactive', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final storage = await LocalStorage.open();
-    final premium = MockPremiumRepository(storage);
-    final users = MockUserRepository(storage);
+  testWidgets('membership shows free when entitlement inactive', (
+    tester,
+  ) async {
+    final (storage, premium, users) = await _open();
     final service = PremiumService(premium, users, _ConfiguredPort())
       ..forceReleaseMode = true;
     final status = PremiumStatusController(service);

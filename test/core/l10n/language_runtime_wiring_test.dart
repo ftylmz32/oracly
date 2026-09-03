@@ -18,6 +18,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  setUp(() {
+    AppLocale.debugDeviceLocale = () => const Locale('tr');
+    OraclyL10n.bind(AppLocale.tr);
+  });
+  tearDown(() => AppLocale.debugDeviceLocale = null);
+
   testWidgets('saving English updates appLocaleProvider and Settings title',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -34,16 +40,21 @@ void main() {
           builder: (context, ref, _) {
             container = ProviderScope.containerOf(context);
             // Watch so this tree rebuilds when language changes.
-            ref.watch(appLocaleProvider);
-            return const MaterialApp(
-              locale: Locale('en'),
-              supportedLocales: [Locale('en')],
-              localizationsDelegates: [
+            final locale = ref.watch(appLocaleProvider);
+            OraclyL10n.bind(locale.languageCode);
+            return MaterialApp(
+              locale: AppLocale.materialLocale(locale.languageCode),
+              supportedLocales: const [Locale('en'), Locale('ru')],
+              localizationsDelegates: const [
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              home: SettingsReferenceScreen(),
+              builder: (context, child) => OraclyLocaleScope(
+                code: locale.languageCode,
+                child: child ?? const SizedBox.shrink(),
+              ),
+              home: const SettingsReferenceScreen(),
             );
           },
         ),

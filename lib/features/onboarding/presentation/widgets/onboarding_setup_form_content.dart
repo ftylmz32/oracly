@@ -32,6 +32,7 @@ class OnboardingSetupFormContent extends StatelessWidget {
     required this.onStyle,
     required this.onContinue,
     required this.onSkip,
+    this.busy = false,
   });
 
   final TextEditingController nameController;
@@ -43,8 +44,9 @@ class OnboardingSetupFormContent extends StatelessWidget {
   final VoidCallback onPickBirthCity;
   final ValueChanged<String> onLanguage;
   final ValueChanged<AiPersonality> onStyle;
-  final VoidCallback onContinue;
-  final VoidCallback onSkip;
+  final VoidCallback? onContinue;
+  final VoidCallback? onSkip;
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +118,8 @@ class OnboardingSetupFormContent extends StatelessWidget {
           text: OnboardingCopy.startFirstReading,
           isExpanded: true,
           icon: Icons.arrow_forward_rounded,
+          isLoading: busy,
+          enabled: !busy,
           onPressed: onContinue,
         ),
         SizedBox(height: AppSpacing.sm),
@@ -124,10 +128,7 @@ class OnboardingSetupFormContent extends StatelessWidget {
           textAlign: TextAlign.center,
           style: ReadingTypography.footnote(color: AppColors.textHint),
         ),
-        OraclyTextAction(
-          label: OnboardingCopy.skip,
-          onPressed: onSkip,
-        ),
+        OraclyTextAction(label: OnboardingCopy.skip, onPressed: onSkip),
       ],
     );
   }

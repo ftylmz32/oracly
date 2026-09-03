@@ -30,8 +30,9 @@ void main() {
     expect(module?.routeName, OraclyRoutes.tarot);
     final doors = HomeReferenceModules.list();
     expect(doors.map((m) => m.id), contains(OraclyFeatureId.tarot));
-    expect(doors, hasLength(7));
-    expect(doors.last.id, OraclyFeatureId.dream);
+    expect(doors, hasLength(6));
+    expect(doors.last.id, OraclyFeatureId.tarot);
+    expect(HomeReferenceModules.dreamExtension.id, OraclyFeatureId.dream);
     expect(
       HomeDiscoveryCopy.title(OraclyFeatureId.tarot),
       'Tarot',

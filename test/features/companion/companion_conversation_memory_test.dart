@@ -152,3 +152,4 @@ void main() {
     expect(ctx, contains('DİREKT'));
   });
 }
+

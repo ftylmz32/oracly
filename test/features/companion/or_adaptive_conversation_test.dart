@@ -35,7 +35,7 @@ void main() {
       contains(OrConversationRegister.factual),
     );
     expect(
-      OrAdaptiveConversation.sense('Şaka yaptım lol').registers,
+      OrAdaptiveConversation.sense('Åaka yaptım lol').registers,
       contains(OrConversationRegister.casual),
     );
   });
@@ -79,3 +79,4 @@ void main() {
     );
   });
 }
+

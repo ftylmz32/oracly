@@ -113,9 +113,15 @@ export async function registerAiRoutes(
         const imagePayloadPresent =
           typeof payload?.imageBase64 === 'string' &&
           (payload.imageBase64 as string).length > 64;
+        const handleCtx = {
+          identity,
+          parentKey:
+            idemKey ??
+            `${validated.operation}:${fingerprint.slice(0, 48)}`,
+        };
 
         const run = async () => {
-          const data = await service.handle(validated, modelHint);
+          const data = await service.handle(validated, modelHint, handleCtx);
           return { status: 200, body: successEnvelope(data) };
         };
 
@@ -162,7 +168,7 @@ export async function registerAiRoutes(
           providerResponsePresent: code !== ErrorCode.invalidRequest,
           parsedOk: false,
         });
-        return reply.code(status).send(errorEnvelope(code));
+        return reply.code(status).send(errorEnvelope(code, proxy?.details));
       }
     },
   );

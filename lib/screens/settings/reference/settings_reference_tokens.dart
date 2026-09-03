@@ -22,13 +22,17 @@ abstract final class SettingsReferenceTokens {
 
   static const BorderRadius groupRadius = AppRadius.s20;
   static const BorderRadius profileRadius = AppRadius.s20;
-  static const EdgeInsets profilePadding =
-      EdgeInsets.symmetric(horizontal: 14, vertical: 12);
+  static const EdgeInsets profilePadding = EdgeInsets.symmetric(
+    horizontal: 14,
+    vertical: 12,
+  );
 
   static const double profileAvatarSize = 48;
   static const double rowHeight = 62;
-  static const EdgeInsets rowPadding =
-      EdgeInsets.symmetric(horizontal: 14, vertical: 10);
+  static const EdgeInsets rowPadding = EdgeInsets.symmetric(
+    horizontal: 14,
+    vertical: 10,
+  );
   static const double rowIconWell = AppLayout.referenceIconWell;
   static const BorderRadius rowIconRadius = AppRadius.s16;
 

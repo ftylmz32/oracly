@@ -39,8 +39,8 @@ import '../network/retry_interceptor.dart';
 import '../security/api_key_provider.dart';
 import '../security/certificate_pinning.dart';
 import '../storage/cache_storage.dart';
-import '../storage/encrypted_secure_storage.dart';
 import '../storage/local_cache_storage.dart';
+import '../storage/platform_secure_storage.dart';
 import '../storage/secure_storage.dart';
 import '../sync/background_sync.dart';
 import '../sync/conflict_resolver.dart';
@@ -61,7 +61,7 @@ final certificatePinningProvider = Provider<CertificatePinningConfig>((ref) {
 // ── Storage ──────────────────────────────────────────────────────
 
 final secureStorageProvider = Provider<SecureStorage>((ref) {
-  return EncryptedSecureStorage(ref.watch(localStorageProvider));
+  return PlatformSecureStorage();
 });
 
 final cacheStorageProvider = Provider<CacheStorage>((ref) {
@@ -74,8 +74,17 @@ final offlineCacheProvider = Provider<OfflineCache>((ref) {
 
 // ── Auth ─────────────────────────────────────────────────────────
 
+final firebaseAuthReadyProvider = Provider<bool>((ref) {
+  final notifier = FirebaseAuthBootstrap.ready;
+  void listener() => ref.invalidateSelf();
+  notifier.addListener(listener);
+  ref.onDispose(() => notifier.removeListener(listener));
+  return notifier.value || FirebaseAuthBootstrap.isReady;
+});
+
 final firebaseAuthGatewayProvider = Provider<FirebaseAuthGateway?>((ref) {
-  if (!FirebaseAuthBootstrap.isReady) return null;
+  final ready = ref.watch(firebaseAuthReadyProvider);
+  if (!ready) return null;
   return LiveFirebaseAuthGateway();
 });
 
@@ -93,13 +102,15 @@ final sessionManagerProvider = Provider<SessionManager>((ref) {
 });
 
 final authServiceProvider = Provider<AuthService>((ref) {
+  final ready = ref.watch(firebaseAuthReadyProvider);
   return AuthServiceSelection.create(
     productionLike: AuthRuntime.isProductionLike,
-    firebaseReady: FirebaseAuthBootstrap.isReady,
+    firebaseReady: ready,
     gateway: ref.watch(firebaseAuthGatewayProvider),
     tokens: ref.watch(tokenManagerProvider),
     sessions: ref.watch(sessionManagerProvider),
     storage: ref.watch(localStorageProvider),
+    secureStorage: ref.watch(secureStorageProvider),
   );
 });
 

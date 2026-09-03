@@ -55,10 +55,7 @@ class _BorderEnergyPainter extends CustomPainter {
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    canvas.drawPath(
-      metrics.extractPath(0, sweep),
-      paint,
-    );
+    canvas.drawPath(metrics.extractPath(0, sweep), paint);
   }
 
   @override

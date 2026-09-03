@@ -3,6 +3,7 @@ library;
 
 import '../../shared/models/content_types.dart';
 import '../models/tarot_card_content.dart';
+import 'tarot_court_legacy.dart';
 
 abstract final class TarotContentCatalogue {
   TarotContentCatalogue._();
@@ -14,6 +15,12 @@ abstract final class TarotContentCatalogue {
 
   static TarotCardContent byId(int id) =>
       all.firstWhere((c) => c.id == id, orElse: () => all.first);
+
+  static TarotCardContent forPersistedCard({
+    required int cardId,
+    String? imageAsset,
+  }) =>
+      TarotCourtLegacy.contentFor(cardId: cardId, imageAsset: imageAsset);
 
   static List<TarotCardContent> get majorArcana => _majorData
       .map((d) => _majorCard(d))
@@ -66,7 +73,7 @@ abstract final class TarotContentCatalogue {
   }) {
     final rank = _rankLabel(number);
     final nameTr = '$rank ${suit.nameTr}';
-    final name = '$rank of ${suit.nameEn}';
+    final name = '${_rankLabelEn(number)} of ${suit.nameEn}';
     final file = '${_minorRankFile(number)}_${suit.folder}.png';
     final theme = suit.themes[(number - 1) % suit.themes.length];
 
@@ -113,8 +120,17 @@ abstract final class TarotContentCatalogue {
         1 => 'As',
         11 => 'Papaz',
         12 => 'Kız',
-        13 => 'Kral',
-        14 => 'Kraliçe',
+        13 => 'Kraliçe',
+        14 => 'Kral',
+        _ => '$n',
+      };
+
+  static String _rankLabelEn(int n) => switch (n) {
+        1 => 'Ace',
+        11 => 'Page',
+        12 => 'Knight',
+        13 => 'Queen',
+        14 => 'King',
         _ => '$n',
       };
 
@@ -131,8 +147,8 @@ abstract final class TarotContentCatalogue {
     '10_ten',
     '11_page',
     '12_knight',
-    '13_king',
     '14_queen',
+    '13_king',
   ];
 
   static String _minorRankFile(int n) =>

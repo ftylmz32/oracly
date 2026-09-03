@@ -7,8 +7,12 @@ import '../../features/birth_chart/models/zodiac_sign_id.dart';
 abstract final class OraclyAtmospherePalette {
   OraclyAtmospherePalette._();
 
-  /// Target loop volume — quiet bed, never intro sting.
-  static const double volume = 0.11;
+  /// Player target after fade-in — quiet bed, never an intro sting.
+  /// Kept high enough to be audible on phone speakers with [bedVolume].
+  static const double volume = 0.28;
+
+  /// Synth peak amplitude before player gain (PCM −1…1 scale).
+  static const double bedVolume = 0.42;
 
   static List<double> frequencies(ZodiacSignId sign) => switch (sign) {
         // Koç — warm / energetic

@@ -43,16 +43,32 @@ class LocalSettingsRepository implements SettingsRepository {
   @override
   Future<PersonalizationSettings> load() async {
     final legacyDark = _storage.getBool(_darkKey) ?? true;
+    final storedRaw = _storage.getString(_appearanceKey);
     final appearance = AppAppearanceModeX.fromStorage(
-      _storage.getString(_appearanceKey),
+      storedRaw,
       legacyDark: legacyDark,
     );
+    // Migrate light/system → dark for v1 without deleting theme architecture.
+    if (!AppAppearanceModeX.lightModeUserSelectable &&
+        storedRaw != null &&
+        storedRaw != AppAppearanceMode.dark.name) {
+      await _storage.setString(_appearanceKey, AppAppearanceMode.dark.name);
+      await _storage.setBool(_darkKey, true);
+    } else if (!AppAppearanceModeX.lightModeUserSelectable &&
+        storedRaw == null &&
+        legacyDark == false) {
+      await _storage.setString(_appearanceKey, AppAppearanceMode.dark.name);
+      await _storage.setBool(_darkKey, true);
+    }
     final voiceReplies = _readVoiceRepliesEnabled();
     final outputMode = _readOutputMode(voiceReplies);
     return PersonalizationSettings(
       appearanceMode: appearance,
       darkAppearance: appearance != AppAppearanceMode.light,
-      language: AppLocale.normalize(_storage.getString(_langKey)),
+      language: AppLocale.resolvePreferred(
+        stored: _storage.getString(_langKey),
+        device: AppLocale.readDeviceLocale(),
+      ),
       notificationsEnabled: _storage.getBool(_notifKey) ?? false,
       soundEnabled: _storage.getBool(_soundKey) ?? true,
       hapticEnabled: _storage.getBool(_hapticKey) ?? true,
@@ -83,10 +99,12 @@ class LocalSettingsRepository implements SettingsRepository {
 
   @override
   Future<void> save(PersonalizationSettings settings) async {
-    await _storage.setString(_appearanceKey, settings.appearanceMode.name);
+    final appearance =
+        AppAppearanceModeX.coerceForProduction(settings.appearanceMode);
+    await _storage.setString(_appearanceKey, appearance.name);
     await _storage.setBool(
       _darkKey,
-      settings.appearanceMode != AppAppearanceMode.light,
+      appearance != AppAppearanceMode.light,
     );
     await _storage.setString(_langKey, AppLocale.normalize(settings.language));
     await _storage.setBool(_notifKey, settings.notificationsEnabled);

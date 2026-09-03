@@ -24,6 +24,8 @@ import 'package:oracly_new/screens/settings/reference/settings_reference_switch.
 import 'package:oracly_new/shared/widgets/oracly_pressable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'settings_test_fakes.dart';
+
 class _SilentSound extends OraclySoundService {
   @override
   Future<void> initialize() async {}
@@ -70,7 +72,7 @@ void main() {
   late LocalStorage storage;
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues(settingsTestLanguagePrefs);
     storage = LocalStorage(await SharedPreferences.getInstance());
     OraclyFeedbackGate.hapticEnabled = true;
     OraclyFeedbackGate.soundEnabled = true;
@@ -205,7 +207,7 @@ void main() {
     expect(OraclyFeedbackGate.hapticEnabled, isFalse);
     expect(OraclyTtsGate.voiceRepliesEnabled, isTrue);
     expect(find.text('SETTINGS'), findsOneWidget);
-    expect(find.text('Light'), findsOneWidget);
+    expect(find.text('Dark'), findsOneWidget);
     expect(find.text('Soon'), findsNothing);
     expect(find.text('Yakında'), findsNothing);
     expect(find.textContaining('saved'), findsNothing);
@@ -232,55 +234,19 @@ void main() {
     expect(prefs.getInt('settings_ai_personality'), AiPersonality.direct.index);
   });
 
-  testWidgets('appearance light persists and updates themeMode', (
+  testWidgets('appearance stays dark-only when light mode is gated', (
     tester,
   ) async {
-    late ProviderContainer container;
-    await tester.binding.setSurfaceSize(const Size(390, 2200));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          localStorageProvider.overrideWithValue(storage),
-          oraclyTtsProvider.overrideWithValue(_SilentTts()),
-          oraclySoundServiceProvider.overrideWithValue(_SilentSound()),
-          oraclyNotificationPortProvider.overrideWithValue(
-            MemoryNotificationPort(),
-          ),
-        ],
-        child: Consumer(
-          builder: (context, ref, _) {
-            container = ProviderScope.containerOf(context);
-            final mode = ref.watch(appThemeModeProvider);
-            return MaterialApp(
-              theme: AppTheme.light,
-              darkTheme: AppTheme.dark,
-              themeMode: mode,
-              home: const SettingsReferenceScreen(),
-            );
-          },
-        ),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await pumpSettings(tester);
 
-    await tester.ensureVisible(find.text('Tema'));
+    expect(find.text('Tema'), findsOneWidget);
+    expect(find.text(SettingsCopy.darkTitle), findsOneWidget);
+    expect(find.text('Açık'), findsNothing);
+
     await tester.tap(find.text('Tema'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('Açık').last);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    expect(container.read(appThemeModeProvider), ThemeMode.light);
-    expect(
-      Theme.of(tester.element(find.text('Tema'))).brightness,
-      Brightness.light,
-    );
-    expect(find.text('Açık'), findsOneWidget);
-
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('settings_appearance'), 'light');
+    expect(find.text('Açık'), findsNothing);
+    expect(find.text('Sistem'), findsNothing);
   });
 }

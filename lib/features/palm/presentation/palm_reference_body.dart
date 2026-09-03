@@ -71,6 +71,13 @@ class PalmReferenceBody extends ConsumerWidget {
                 },
           versionReloadToken: controller.versionReloadToken,
         ),
+      // Never fall through to landing with a silent empty result.
+      PalmPhase.result => PalmErrorView(
+          message: PalmCopy.analysisFailed,
+          canRetrySameImage: controller.image != null,
+          onRetry: controller.image != null ? onAnalyze : controller.retryCapture,
+          onBack: controller.backToEntry,
+        ),
       PalmPhase.error => PalmErrorView(
           message: controller.errorMessage ?? PalmCopy.analysisFailed,
           canRetrySameImage: controller.lastError?.canRetrySameImage == true &&
@@ -87,7 +94,6 @@ class PalmReferenceBody extends ConsumerWidget {
           },
           onBack: controller.backToEntry,
         ),
-      _ => landing,
     };
   }
 }

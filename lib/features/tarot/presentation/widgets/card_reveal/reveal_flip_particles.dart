@@ -40,10 +40,7 @@ class RevealFlipParticles extends StatelessWidget {
 }
 
 class _FlipBurstPainter extends CustomPainter {
-  _FlipBurstPainter({
-    required this.intensity,
-    required this.flipAngle,
-  });
+  _FlipBurstPainter({required this.intensity, required this.flipAngle});
 
   final double intensity;
   final double flipAngle;
@@ -67,10 +64,7 @@ class _FlipBurstPainter extends CustomPainter {
       };
       final r = 1.0 + (i % 4) * 0.4;
       canvas.drawCircle(
-        Offset(
-          cx + math.cos(angle) * dist,
-          cy + math.sin(angle) * dist * 0.65,
-        ),
+        Offset(cx + math.cos(angle) * dist, cy + math.sin(angle) * dist * 0.65),
         r,
         Paint()..color = color.withValues(alpha: alpha.clamp(0.0, 0.85)),
       );

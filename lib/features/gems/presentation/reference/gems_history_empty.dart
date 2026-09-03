@@ -1,13 +1,12 @@
-/// Gems ledger empty — small photoreal plate, one honest sentence.
+/// Gems ledger empty — canonical jewel mark, one honest sentence.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_assets.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
+import '../../../../core/design_system/oracly_gem_facet.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
-import '../../../../shared/widgets/oracly_empty_atmosphere.dart';
 import '../../copy/gems_copy.dart';
 
 class GemsHistoryEmpty extends StatelessWidget {
@@ -18,10 +17,10 @@ class GemsHistoryEmpty extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const OraclyEmptyAtmosphere(
-          assetPath: AppAssets.premiumGemstone,
-          size: 64,
-          warm: true,
+        const OraclyGemFacet(
+          size: 36,
+          glow: 1.05,
+          semanticsLabel: null,
         ),
         SizedBox(width: AppSpacing.s12),
         Expanded(

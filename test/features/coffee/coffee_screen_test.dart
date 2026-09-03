@@ -26,10 +26,12 @@ void main() {
     await tester.pumpWidget(_coffeeApp(storage));
     await tester.pump();
 
-    expect(find.text(CoffeeCopy.screenTitle), findsWidgets);
-    expect(find.text(CoffeeCopy.hubLead), findsOneWidget);
+    expect(find.text(CoffeeCopy.landingTitle), findsOneWidget);
+    expect(find.textContaining(CoffeeCopy.hubLead), findsOneWidget);
     expect(find.text(CoffeeCopy.photoCta), findsOneWidget);
-    expect(find.text(CoffeeCopy.capabilityNote), findsOneWidget);
+    expect(find.text(CoffeeCopy.orChoice), findsOneWidget);
+    expect(find.text(CoffeeCopy.capabilityNote), findsNothing);
+    expect(find.text(CoffeeCopy.overallTitle), findsOneWidget);
     expect(find.text(CoffeeCopy.galleryLabel), findsOneWidget);
     expect(find.text(CoffeeCopy.ritualTease), findsNothing);
     expect(find.text(CoffeeCopy.historyLink), findsNothing);

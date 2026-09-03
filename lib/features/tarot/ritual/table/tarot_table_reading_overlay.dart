@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -73,13 +74,13 @@ class TarotTableReadingOverlay extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             OraclyButton(
-              text: 'Yorumu Derinleştir',
+              text: OraclyL10n.t('tarot.action.deepen'),
               isExpanded: true,
               onPressed: onDeepen,
             ),
             const SizedBox(height: 8),
             OraclyButton(
-              text: "OR'a Sor",
+              text: OraclyL10n.t('tarot.or_open'),
               type: OraclyButtonType.secondary,
               isExpanded: true,
               onPressed: onAskOr,

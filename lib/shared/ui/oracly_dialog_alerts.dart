@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/l10n/l10n.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -15,10 +16,12 @@ Future<bool?> showOraclyConfirmDialog(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = 'Onayla',
-  String cancelLabel = 'İptal',
+  String? confirmLabel,
+  String? cancelLabel,
   bool destructive = false,
 }) {
+  final confirm = confirmLabel ?? OraclyL10n.t(L10nKeys.confirm);
+  final cancel = cancelLabel ?? OraclyL10n.t(L10nKeys.cancel);
   return showOraclyDialogSurface<bool>(
     context,
     child: Builder(
@@ -45,19 +48,19 @@ Future<bool?> showOraclyConfirmDialog(
             OraclyDialogActions(
               children: [
                 OraclyTextAction(
-                  label: cancelLabel,
+                  label: cancel,
                   onPressed: () => Navigator.pop(dialogContext, false),
                 ),
                 if (destructive)
                   OraclyTextAction(
-                    label: confirmLabel,
+                    label: confirm,
                     emphasized: true,
                     destructive: true,
                     onPressed: () => Navigator.pop(dialogContext, true),
                   )
                 else
                   OraclyGoldButton(
-                    label: confirmLabel,
+                    label: confirm,
                     onPressed: () => Navigator.pop(dialogContext, true),
                   ),
               ],
@@ -73,8 +76,9 @@ Future<void> showOraclyInfoDialog(
   BuildContext context, {
   required String title,
   required String message,
-  String buttonLabel = 'Tamam',
+  String? buttonLabel,
 }) {
+  final ok = buttonLabel ?? OraclyL10n.t(L10nKeys.ok);
   return showOraclyDialogSurface<void>(
     context,
     child: Builder(
@@ -101,7 +105,7 @@ Future<void> showOraclyInfoDialog(
             OraclyDialogActions(
               children: [
                 OraclyGoldButton(
-                  label: buttonLabel,
+                  label: ok,
                   onPressed: () => Navigator.pop(dialogContext),
                 ),
               ],

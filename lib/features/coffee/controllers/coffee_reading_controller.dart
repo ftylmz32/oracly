@@ -1,6 +1,8 @@
 /// Kahve Falı state machine.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../core/audio/oracly_feedback_gate.dart';
@@ -35,10 +37,12 @@ class CoffeeReadingController extends ChangeNotifier {
   List<CoffeeReading> _history = const [];
   bool _versionAdded = false;
   int _versionReloadToken = 0;
+  int _generation = 0;
 
   @override
   void dispose() {
     _disposed = true;
+    _generation++;
     super.dispose();
   }
 
@@ -70,19 +74,24 @@ class CoffeeReadingController extends ChangeNotifier {
       _safeNotify();
       return;
     }
+    final token = ++_generation;
     _phase = CoffeePhase.analyzing;
     _error = null;
     _safeNotify();
     try {
-      _reading = await _experience.analyze(image);
+      final reading = await _experience.analyze(image);
+      if (_disposed || token != _generation) return;
+      _reading = reading;
       _phase = CoffeePhase.result;
       OraclyFeedbackGate.successfulAnalysis();
       await loadHistory();
     } on CoffeeAnalysisException catch (e) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(feature: 'CoffeeAnalysis', stage: 'analyze', error: e);
       _error = e.message;
       _phase = CoffeePhase.error;
     } catch (error) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(
         feature: 'CoffeeAnalysis',
         stage: 'analyze',
@@ -101,6 +110,7 @@ class CoffeeReadingController extends ChangeNotifier {
     if (current == null || image == null) {
       throw StateError('coffee reinterpret failed');
     }
+    final token = ++_generation;
     _phase = CoffeePhase.analyzing;
     _error = null;
     _safeNotify();
@@ -109,6 +119,7 @@ class CoffeeReadingController extends ChangeNotifier {
         current: current,
         image: image,
       );
+      if (_disposed || token != _generation) return;
       _versionAdded = result.versionAdded;
       if (result.versionAdded) {
         _reading = result.reading;
@@ -117,6 +128,7 @@ class CoffeeReadingController extends ChangeNotifier {
       _phase = CoffeePhase.result;
       OraclyFeedbackGate.successfulAnalysis();
     } on CoffeeAnalysisException catch (e) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(
         feature: 'CoffeeAnalysis',
         stage: 'reinterpret',
@@ -125,6 +137,7 @@ class CoffeeReadingController extends ChangeNotifier {
       _error = e.message;
       _phase = CoffeePhase.error;
     } catch (error) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(
         feature: 'CoffeeAnalysis',
         stage: 'reinterpret',
@@ -134,16 +147,30 @@ class CoffeeReadingController extends ChangeNotifier {
       _phase = CoffeePhase.error;
     }
     _safeNotify();
+    if (_disposed || token != _generation) return;
     if (_phase != CoffeePhase.result) {
       throw StateError('coffee reinterpret failed');
     }
   }
 
   void openSaved(CoffeeReading reading) {
-    _reading = reading;
-    _image = reading.imagePath == null
-        ? null
-        : CoffeeImagePick(path: reading.imagePath!);
+    final path = reading.imagePath;
+    final exists = path != null && File(path).existsSync();
+    _reading = exists
+        ? reading
+        : CoffeeReading(
+            id: reading.id,
+            createdAt: reading.createdAt,
+            overall: reading.overall,
+            love: reading.love,
+            career: reading.career,
+            money: reading.money,
+            nearFuture: reading.nearFuture,
+            takeaway: reading.takeaway,
+            visualObservation: reading.visualObservation,
+            symbols: reading.symbols,
+          );
+    _image = exists ? CoffeeImagePick(path: path) : null;
     _error = null;
     _phase = CoffeePhase.result;
     _safeNotify();

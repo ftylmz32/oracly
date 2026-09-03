@@ -9,6 +9,12 @@ abstract final class AppReleaseInfo {
   static const version = '1.0.0';
   static const buildNumber = '1';
 
+  static String get applicationId => switch (defaultTargetPlatform) {
+        TargetPlatform.android => 'app.oracly',
+        TargetPlatform.iOS => 'com.example.oraclyNew',
+        _ => 'app.oracly',
+      };
+
   static String get platform => switch (defaultTargetPlatform) {
         TargetPlatform.android => 'android',
         TargetPlatform.iOS => 'ios',

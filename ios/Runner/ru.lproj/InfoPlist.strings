@@ -1,0 +1,5 @@
+﻿/* Permission usage — Russian */
+"NSCameraUsageDescription" = "ORACLY использует камеру для фото чашки кофе, ладони и профиля.";
+"NSPhotoLibraryUsageDescription" = "ORACLY использует галерею, чтобы выбрать фото чашки кофе, ладони и профиля.";
+"NSMicrophoneUsageDescription" = "ORACLY использует микрофон, чтобы рассказать сон или говорить с OR. Запись не сохраняется.";
+"NSSpeechRecognitionUsageDescription" = "ORACLY распознаёт речь, чтобы превратить голос в текст для снов и OR. Запись не сохраняется.";

@@ -28,6 +28,9 @@ abstract final class SettingsReferencePickers {
     String lang,
     AppAppearanceMode current,
   ) {
+    if (!AppAppearanceModeX.lightModeUserSelectable) {
+      return Future<AppAppearanceMode?>.value(null);
+    }
     return showSettingsChoiceSheet<AppAppearanceMode>(
       context: context,
       title: OraclyL10n.t(L10nKeys.theme, languageCode: lang),

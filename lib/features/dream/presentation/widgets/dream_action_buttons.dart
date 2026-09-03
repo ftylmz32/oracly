@@ -8,6 +8,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
+import '../../copy/dream_copy.dart';
 
 /// Equal-width rounded action buttons — write and voice.
 class DreamActionButtons extends StatelessWidget {
@@ -28,7 +29,7 @@ class DreamActionButtons extends StatelessWidget {
       children: [
         Expanded(
           child: _DreamActionButton(
-            label: 'Rüyanı Yaz',
+            label: DreamCopy.writeDream,
             icon: Icons.edit_outlined,
             onTap: onWriteTap,
           ),
@@ -36,7 +37,7 @@ class DreamActionButtons extends StatelessWidget {
         SizedBox(width: AppSpacing.md),
         Expanded(
           child: _DreamActionButton(
-            label: 'Sesli Anlat',
+            label: DreamCopy.voiceTell,
             icon: Icons.mic_none_rounded,
             onTap: onVoiceTap,
           ),

@@ -8,18 +8,24 @@ import '../../../../core/theme/reading_typography.dart';
 import 'coffee_reference_tokens.dart';
 
 class CoffeeCaptureHint extends StatelessWidget {
-  const CoffeeCaptureHint(this.text, {super.key, required this.attention});
+  const CoffeeCaptureHint(
+    this.text, {
+    super.key,
+    required this.attention,
+    this.edgeInset = true,
+  });
 
   final String text;
   final bool attention;
+  final bool edgeInset;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        CoffeeReferenceTokens.screenHorizontal,
+        edgeInset ? CoffeeReferenceTokens.screenHorizontal : 0,
         0,
-        CoffeeReferenceTokens.screenHorizontal,
+        edgeInset ? CoffeeReferenceTokens.screenHorizontal : 0,
         CoffeeReferenceTokens.gap,
       ),
       child: DecoratedBox(

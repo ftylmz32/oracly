@@ -25,31 +25,51 @@ const kL10nEconomy = <String, L10nTriple>{
     'Пакетов покупки нет. Баланс хранится на этом устройстве. Премиум кристаллы не даёт.',
   ),
   'gems.unit': L10nTriple('Mücevher', 'Gem', 'Кристалл'),
-  'gems.what_title': L10nTriple('Mücevher nedir?', 'What is a gem?', 'Что такое кристалл?'),
+  'gems.what_title': L10nTriple(
+    'Mücevher nedir?',
+    'What is a gem?',
+    'Что такое кристалл?',
+  ),
   'gems.what_body': L10nTriple(
     'Mücevher, ORACLY’de görünen kristal bakiyendir. Üst çubuktaki sayı ile aynı değerdir.',
     'A gem is the crystal balance shown in ORACLY. It is the same number as the top bar.',
     'Кристалл — видимый баланс в ORACLY. То же число, что в верхней полосе.',
   ),
-  'gems.earn_title': L10nTriple('Nasıl kazanılır?', 'How to earn?', 'Как получить?'),
+  'gems.earn_title': L10nTriple(
+    'Nasıl kazanılır?',
+    'How to earn?',
+    'Как получить?',
+  ),
   'gems.earn_body': L10nTriple(
     'İlk açılım için bir kez 20 mücevher verilir. Her gün Günlük Ödüller’den de 50 mücevher alabilirsin. Satın alma paketi yoktur.',
     'Twenty gems are given once for the first spread. You can also claim 50 gems from Daily rewards each day. There is no purchase pack.',
     'Двадцать кристаллов даются один раз за первый расклад. Каждый день в Ежедневных наградах можно взять 50. Пакетов покупки нет.',
   ),
-  'gems.spend_title': L10nTriple('Nerede kullanılır?', 'Where is it used?', 'Где используется?'),
+  'gems.spend_title': L10nTriple(
+    'Nerede kullanılır?',
+    'Where is it used?',
+    'Где используется?',
+  ),
   'gems.spend_body': L10nTriple(
     'Üç kart ve üzeri tarot yorumu 20 mücevher — karşılığında derin bir okuma. Tek kart ücretsizdir. Kahve, el ve rüya mücevher istemez.',
     'Three-card tarot and above cost 20 gems — you receive a deeper reading. A single card is free. Coffee, palm, and dream do not ask for gems.',
     'Расклад из трёх карт и больше стоит 20 кристаллов — ты получаешь более глубокое чтение. Одна карта бесплатна. Кофе, ладонь и сон кристаллов не просят.',
   ),
-  'gems.history': L10nTriple('Son hareketler', 'Recent movement', 'Последние движения'),
+  'gems.history': L10nTriple(
+    'Son hareketler',
+    'Recent movement',
+    'Последние движения',
+  ),
   'gems.history_empty': L10nTriple(
     'Henüz bir mücevher hareketi yok.',
     'There is no gem movement yet.',
     'Пока нет движения кристаллов.',
   ),
-  'gems.daily_link': L10nTriple('Günlük Ödüller', 'Daily rewards', 'Ежедневные награды'),
+  'gems.daily_link': L10nTriple(
+    'Günlük Ödüller',
+    'Daily rewards',
+    'Ежедневные награды',
+  ),
   'gems.open': L10nTriple('Mücevherler', 'Gems', 'Кристаллы'),
   'gems.cost_n': L10nTriple('{n} Mücevher', '{n} gems', '{n} кристаллов'),
   'gems.confirm_title': L10nTriple(
@@ -83,8 +103,16 @@ const kL10nEconomy = <String, L10nTriple>{
     'This discovery needs at least {cost}.',
     'Для этого открытия нужно минимум {cost}.',
   ),
-  'gems.reason.daily': L10nTriple('Günlük Ödül', 'Daily reward', 'Ежедневная награда'),
-  'gems.reason.starter': L10nTriple('İlk açılım', 'First spread', 'Первый расклад'),
+  'gems.reason.daily': L10nTriple(
+    'Günlük Ödül',
+    'Daily reward',
+    'Ежедневная награда',
+  ),
+  'gems.reason.starter': L10nTriple(
+    'İlk açılım',
+    'First spread',
+    'Первый расклад',
+  ),
   'gems.reason.tarot': L10nTriple('Tarot', 'Tarot', 'Таро'),
   'gems.reason.dream': L10nTriple('Rüya', 'Dream', 'Сон'),
   'gems.reason.coffee': L10nTriple('Kahve', 'Coffee', 'Кофе'),
@@ -100,9 +128,17 @@ const kL10nEconomy = <String, L10nTriple>{
     'If you wish, a quiet gift for today.',
     'Если хочешь — тихое подношение на сегодня.',
   ),
-  'rewards.gift': L10nTriple('Bugünkü Hediyen', "Today's gift", 'Подарок на сегодня'),
+  'rewards.gift': L10nTriple(
+    'Bugünkü Hediyen',
+    "Today's gift",
+    'Подарок на сегодня',
+  ),
   'rewards.unit': L10nTriple('Mücevher', 'Gem', 'Кристалл'),
-  'rewards.today': L10nTriple('Bugünün ödülü', "Today's reward", 'Награда за сегодня'),
+  'rewards.today': L10nTriple(
+    'Bugünün ödülü',
+    "Today's reward",
+    'Награда за сегодня',
+  ),
   'rewards.claim_short': L10nTriple('Hediye', 'Receive', 'Принять'),
   'rewards.streak': L10nTriple('Bu hafta', 'This week', 'На этой неделе'),
   'rewards.streak_hint': L10nTriple(
@@ -111,4 +147,14 @@ const kL10nEconomy = <String, L10nTriple>{
     'Дни, когда ты брал, помнятся — ничего не теряется, без давления.',
   ),
   'rewards.amount': L10nTriple('+{n} mücevher', '+{n} gems', '+{n} кристаллов'),
+  'rewards.load_failed': L10nTriple(
+    'Günlük hediye şu an açılamadı. Bir daha deneyelim.',
+    'Today’s gift could not open right now. Let us try again.',
+    'Подарок на сегодня сейчас не открылся. Давай попробуем ещё раз.',
+  ),
+  'rewards.claim_failed': L10nTriple(
+    'Hediyeyi şu an alamadım. Bir daha deneyelim.',
+    'Could not claim the gift right now. Let us try again.',
+    'Сейчас не удалось принять подарок. Давай попробуем ещё раз.',
+  ),
 };

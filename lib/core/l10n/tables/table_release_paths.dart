@@ -14,35 +14,23 @@ const kL10nReleasePaths = <String, L10nTriple>{
     'MEMBERSHIP PLAN',
     'ПЛАН ПОДПИСКИ',
   ),
-  'premium.plan_name.monthly': L10nTriple(
-    'Aylık',
-    'Monthly',
-    'Месячный',
-  ),
-  'premium.plan_name.yearly': L10nTriple(
-    'Yıllık',
-    'Yearly',
-    'Годовой',
-  ),
-  'premium.plan_name.lifetime': L10nTriple(
-    'Ömür Boyu',
-    'Lifetime',
-    'Навсегда',
-  ),
+  'premium.plan_name.monthly': L10nTriple('Aylık', 'Monthly', 'Месячный'),
+  'premium.plan_name.yearly': L10nTriple('Yıllık', 'Yearly', 'Годовой'),
+  'premium.plan_name.lifetime': L10nTriple('Ömür Boyu', 'Lifetime', 'Навсегда'),
   'premium.plan_period.monthly': L10nTriple(
-    'Aylık fatura',
-    'Billed monthly',
-    'Ежемесячная оплата',
+    'Aylık · otomatik yenilenir',
+    'Monthly · auto-renews',
+    'Ежемесячно · автопродление',
   ),
   'premium.plan_period.yearly': L10nTriple(
-    'Yıllık fatura',
-    'Billed yearly',
-    'Ежегодная оплата',
+    'Yıllık · otomatik yenilenir',
+    'Yearly · auto-renews',
+    'Ежегодно · автопродление',
   ),
   'premium.plan_period.lifetime': L10nTriple(
-    'Tek seferlik',
-    'One-time',
-    'Разовый платёж',
+    'Tek seferlik · yenilenmez',
+    'One-time · does not renew',
+    'Разовый · без продления',
   ),
   'reading.flow.breath': L10nTriple(
     'Bir an nefes al…',
@@ -64,6 +52,11 @@ const kL10nReleasePaths = <String, L10nTriple>{
     'The reading could not load. The spread session may have ended.',
     'Толкование не загрузилось. Сеанс расклада мог завершиться.',
   ),
+  'reading.flow.reveal_advance_failed': L10nTriple(
+    'Devam edilemedi. Kartların aynı kaldı — tekrar deneyebilirsin.',
+    'Could not continue. Your cards are unchanged — you can try again.',
+    'Не удалось продолжить. Карты те же — можно попробовать снова.',
+  ),
   'tarot.panel.card_message': L10nTriple(
     'Kart Mesajı',
     'Card Message',
@@ -74,11 +67,7 @@ const kL10nReleasePaths = <String, L10nTriple>{
     'Inner Meaning',
     'Внутренний смысл',
   ),
-  'tarot.panel.guidance': L10nTriple(
-    'Rehberlik',
-    'Guidance',
-    'Опора',
-  ),
+  'tarot.panel.guidance': L10nTriple('Rehberlik', 'Guidance', 'Опора'),
   'tarot.panel.daily_reflection': L10nTriple(
     'Günün Yansıması',
     "Day's Reflection",
@@ -89,21 +78,13 @@ const kL10nReleasePaths = <String, L10nTriple>{
     'Continue Reading',
     'Продолжить чтение',
   ),
-  'tarot.continue.all': L10nTriple(
-    'Tümü',
-    'All',
-    'Все',
-  ),
+  'tarot.continue.all': L10nTriple('Tümü', 'All', 'Все'),
   'tarot.action.do_spread': L10nTriple(
     'Açılım Yap',
     'Do a Spread',
     'Сделать расклад',
   ),
-  'tarot.action.share': L10nTriple(
-    'Paylaş',
-    'Share',
-    'Поделиться',
-  ),
+  'tarot.action.share': L10nTriple('Paylaş', 'Share', 'Поделиться'),
   'tarot.history.clear_filter': L10nTriple(
     'Filtreyi temizle',
     'Clear filter',

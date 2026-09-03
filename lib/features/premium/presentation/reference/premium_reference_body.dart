@@ -16,6 +16,7 @@ import 'premium_reference_cta_unavailable.dart';
 import 'premium_reference_experiences_section.dart';
 import 'premium_reference_gem_note.dart';
 import 'premium_reference_hero_card.dart';
+import 'premium_legal_disclosure.dart';
 import 'premium_reference_links.dart';
 import 'premium_reference_plans_section.dart';
 import 'premium_reference_tokens.dart';
@@ -131,6 +132,13 @@ class PremiumReferenceBody extends StatelessWidget {
                     PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
                 ] else
                   PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
+                if (status.loaded) ...[
+                  SizedBox(height: PremiumReferenceTokens.plansToCta),
+                  PremiumLegalDisclosure(
+                    selectedPlan: status.selectedPlan,
+                    showRestoreHint: !status.isPremium,
+                  ),
+                ],
                 SizedBox(height: PremiumReferenceTokens.ctaToLinks),
                 const PremiumReferenceLinks(),
               ],

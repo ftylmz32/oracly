@@ -151,13 +151,13 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.byIcon(Icons.north_east_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
     expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
     expect(composer.text, 'Merhaba OR');
     expect(sent, isFalse);
     expect(port.startCount, 1);
 
-    await tester.tap(find.byIcon(Icons.north_east_rounded));
+    await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
     await tester.pump();
     expect(sent, isTrue);
   });
@@ -190,7 +190,7 @@ void main() {
     await tester.pump();
 
     expect(composer.text.trim(), isEmpty);
-    expect(find.byIcon(Icons.north_east_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
     expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
     expect(sent, isFalse);
   });
@@ -317,3 +317,4 @@ class _LiveFake implements CompanionVoiceInputPort {
     _onEnded = null;
   }
 }
+

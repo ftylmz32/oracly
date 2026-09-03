@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../../core/copy/transparency_copy.dart';
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/domain/models/personal_insight_report.dart';
 import '../../../../../core/domain/models/personal_insight_theme.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -68,7 +69,7 @@ class ReadingPersonalInsightJournal extends StatelessWidget {
                       SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          'Kişisel Yolculuk',
+                          OraclyL10n.t('history.journey'),
                           style: AppTextStyles.labelLarge.copyWith(
                             color: AppColors.goldLight,
                             fontWeight: FontWeight.w700,
@@ -96,7 +97,7 @@ class ReadingPersonalInsightJournal extends StatelessWidget {
                   if (report.hasThemePattern) ...[
                     SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Yolculuğunda yankılanan temalar',
+                      OraclyL10n.t('history.journey_echo_themes'),
                       style: AppTextStyles.labelMedium.copyWith(
                         color: AppColors.textHint,
                       ),

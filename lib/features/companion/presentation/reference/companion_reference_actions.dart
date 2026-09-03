@@ -140,6 +140,32 @@ void forceScrollCompanionThread(ScrollController controller) {
   });
 }
 
+void restoreCompanionThreadToBottom(ScrollController controller) {
+  double? previousExtent;
+  var stableFrames = 0;
+  var remainingFrames = 12;
+
+  void followMeasuredExtent(Duration _) {
+    if (!controller.hasClients) return;
+    final extent = controller.position.maxScrollExtent;
+    controller.jumpTo(extent);
+
+    if (previousExtent != null && (extent - previousExtent!).abs() < 0.5) {
+      stableFrames++;
+    } else {
+      stableFrames = 0;
+    }
+    previousExtent = extent;
+    remainingFrames--;
+    if (stableFrames < 2 && remainingFrames > 0) {
+      WidgetsBinding.instance.addPostFrameCallback(followMeasuredExtent);
+      WidgetsBinding.instance.scheduleFrame();
+    }
+  }
+
+  WidgetsBinding.instance.addPostFrameCallback(followMeasuredExtent);
+}
+
 Future<void> saveLastCompanionMemory({
   required BuildContext context,
   required CompanionController controller,

@@ -118,14 +118,18 @@ OpenAiOraclyAiService e2eLiveAi(AiE2eProbe probe) {
   const config = AiRuntimeConfig(proxyUrl: e2eProxyUrl, model: 'gpt-4o-mini');
   return OpenAiOraclyAiService(
     config: config,
-    transport: ProxyAiTransport(config: config,
-      appCheckToken: testAppCheckToken, client: probe),
+    transport: ProxyAiTransport(
+      config: config,
+      appCheckToken: testAppCheckToken,
+      accessToken: testAccessToken,
+      client: probe,
+    ),
   );
 }
 
 OpenAiOraclyAiService e2eAi(
   String url, {
-  Future<String?> Function()? token,
+  Future<String?> Function({bool forceRefresh})? token,
 }) {
   final config = AiRuntimeConfig(proxyUrl: url);
   return OpenAiOraclyAiService(
@@ -133,7 +137,7 @@ OpenAiOraclyAiService e2eAi(
     transport: ProxyAiTransport(
       config: config,
       appCheckToken: testAppCheckToken,
-      accessToken: token,
+      accessToken: token ?? testAccessToken,
       client: _SerialHttp(),
     ),
   );

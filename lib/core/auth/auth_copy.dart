@@ -13,4 +13,8 @@ abstract final class AuthCopy {
   static String get invalidCredentials => _t('auth.invalid');
   static String get tooManyAttempts => _t('auth.too_many');
   static String get signedOut => _t('auth.signed_out');
+  static String get signOutFailed => _t('auth.sign_out_failed');
+  static String get noCurrentUser => _t('auth.no_current_user');
+  static String get requiresRecentLogin => _t('auth.requires_recent_login');
+  static String get deleteFailed => _t('auth.delete_failed');
 }

@@ -1,15 +1,14 @@
-/// Empty OR — compact invitation that fits the viewport.
+/// Empty Luna — cinematic intro, then real starters (no fake history).
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/accessibility/oracly_a11y.dart';
-import '../../../../core/design_system/oracly_chrome.dart';
-import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/design_system/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
+import '../../../../core/design_system/oracly_chrome.dart';
 import '../../copy/companion_copy.dart';
-import 'companion_or_living_core.dart';
-import 'companion_or_presence.dart';
+import 'companion_feature_shortcuts.dart';
+import 'companion_luna_intro_card.dart';
 import 'companion_reference_prompts.dart';
 import 'companion_reference_tokens.dart';
 
@@ -24,7 +23,6 @@ class CompanionReferenceIdle extends StatelessWidget {
   });
 
   final ValueChanged<String> onSelected;
-  // ignore: unused_field
   final String userName;
   final String personality;
   final String? kindId;
@@ -32,74 +30,50 @@ class CompanionReferenceIdle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: CompanionReferenceTokens.screenHorizontal,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 6),
-          Center(
-            child: CompanionOrLivingCore(
-              size: CompanionReferenceTokens.idleCoreSize,
-              breathe: true,
-              presence: CompanionOrPresence.idle,
-            ),
+    final short = CompanionReferenceTokens.isShortViewport(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return CompanionReferenceTokens.fillScrollPane(
+          constraints: constraints,
+          padding: EdgeInsets.symmetric(
+            horizontal: CompanionReferenceTokens.screenHorizontal,
           ),
-          const SizedBox(height: 10),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 300),
-            child: Text(
-              CompanionCopy.idleTitle,
+          alignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(height: short ? AppSpacing.s8 : AppSpacing.s12),
+            CompanionLunaIntroCard(compact: short),
+            if (contextLine != null && contextLine!.trim().isNotEmpty) ...[
+              SizedBox(height: AppSpacing.s12),
+              Text(
+                contextLine!,
+                textAlign: TextAlign.center,
+                style: ReadingTypography.opening(
+                  color: OraclyChrome.cream.withValues(alpha: 0.78),
+                ).copyWith(fontSize: 13),
+              ),
+            ],
+            SizedBox(height: short ? AppSpacing.s16 : AppSpacing.s24),
+            CompanionReferencePrompts(
+              onSelected: onSelected,
+              recessed: true,
+              horizontal: true,
+              limit: 3,
+              kindId: kindId,
+            ),
+            SizedBox(height: AppSpacing.s12),
+            const CompanionFeatureShortcuts(),
+            SizedBox(height: AppSpacing.s8),
+            Text(
+              CompanionCopy.idleOptional,
               textAlign: TextAlign.center,
-              style: ReadingTypography.title(
-                color: OraclyChrome.cream.withValues(alpha: 0.95),
-              ).copyWith(fontSize: 19, height: 1.26, letterSpacing: 0.12),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 280),
-            child: Text(
-              (contextLine != null && contextLine!.trim().isNotEmpty)
-                  ? contextLine!
-                  : CompanionCopy.idleSubtitle,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: ReadingTypography.opening(
-                color: OraclyChrome.cream.withValues(
-                  alpha: OraclyA11y.secondaryCream,
-                ),
-              ).copyWith(height: 1.45, fontSize: 13.5),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s12),
-          Text(
-            CompanionCopy.idleOptional,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.micro(
-              color: OraclyChrome.goldLight.withValues(
-                alpha: OraclyA11y.quietGoldMuted,
+              style: ReadingTypography.micro(
+                color: OraclyChrome.goldLight.withValues(alpha: 0.55),
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          Expanded(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: CompanionReferencePrompts(
-                onSelected: onSelected,
-                recessed: true,
-                collapsible: true,
-                initialVisible: 4,
-                kindId: kindId,
-              ),
-            ),
-          ),
-        ],
-      ),
+            SizedBox(height: AppSpacing.s16),
+          ],
+        );
+      },
     );
   }
 }

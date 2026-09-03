@@ -1,4 +1,7 @@
-/// OR-1130 — Encrypted local storage using SharedPreferences + encoding.
+/// OR-1130 — Deprecated base64 SharedPreferences shim (non-cryptographic).
+///
+/// Replaced by [PlatformSecureStorage]. Retained only for reference during
+/// migration; do not wire in production providers.
 library;
 
 import 'dart:convert';
@@ -6,7 +9,7 @@ import 'dart:convert';
 import '../data/datasources/local_storage.dart';
 import 'secure_storage.dart';
 
-/// Production swap target: flutter_secure_storage.
+@Deprecated('Use PlatformSecureStorage via secureStorageProvider')
 class EncryptedSecureStorage implements SecureStorage {
   EncryptedSecureStorage(this._localStorage, {String? namespace})
       : _prefix = namespace ?? 'secure_';
@@ -34,6 +37,10 @@ class EncryptedSecureStorage implements SecureStorage {
 
   @override
   Future<void> deleteAll() async {
-    // Prefix-scoped delete handled by higher-level registry in production.
+    for (final key in _localStorage.keys
+        .where((k) => k.startsWith(_prefix))
+        .toList()) {
+      await _localStorage.remove(key);
+    }
   }
 }

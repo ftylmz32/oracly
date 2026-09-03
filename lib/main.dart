@@ -12,7 +12,10 @@ import 'core/auth/firebase/firebase_app_check_bootstrap.dart';
 import 'core/auth/firebase/firebase_auth_bootstrap.dart';
 import 'core/config/app_config.dart';
 import 'core/data/datasources/local_storage.dart';
+import 'core/storage/secure_storage_bootstrap.dart';
+import 'core/data/repositories/mock_premium_repository.dart';
 import 'core/l10n/oracly_format.dart';
+import 'core/platform/oracly_phone_orientation.dart';
 import 'core/telemetry/crash_telemetry_bootstrap.dart';
 import 'features/share_reopen/services/share_link_inbox.dart';
 import 'screens/splash/splash_startup_log.dart';
@@ -20,12 +23,21 @@ import 'screens/splash/splash_startup_log.dart';
 void main() {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await OraclyPhoneOrientation.lockPhonesToPortrait();
     SplashStartupLog.mark('MAIN_START');
 
     // Capture route name without blocking first frame.
     ShareLinkInbox.instance.capture(
       WidgetsBinding.instance.platformDispatcher.defaultRouteName,
     );
+
+    // Debug/profile: load public .env.example before UI so ORACLY_DEV_PREMIUM
+    // is readable for Settings QA. Release never loads dotenv (kReleaseMode).
+    if (!kReleaseMode) {
+      try {
+        await dotenv.load(fileName: '.env.example', isOptional: true);
+      } catch (_) {}
+    }
 
     // Ephemeral storage → first Flutter frame paints brand overlay immediately.
     // Heavy init continues in parallel (see _deferredStartup).
@@ -55,21 +67,23 @@ Future<void> _deferredStartup(
   try {
     await OraclyFormat.ensureInitialized();
   } catch (_) {}
-  if (!kReleaseMode) {
-    try {
-      await dotenv.load(fileName: '.env.example', isOptional: true);
-    } catch (_) {}
-  }
   try {
     await AppConfig.initialize();
   } catch (_) {}
   try {
     await storage.tryPromote();
   } catch (_) {}
+  try {
+    final secure = container.read(secureStorageProvider);
+    await SecureStorageBootstrap.run(storage, secure);
+    final premium = container.read(premiumRepositoryProvider);
+    if (premium is MockPremiumRepository) {
+      await premium.warmCredentialCache();
+    }
+  } catch (_) {}
   await FirebaseAuthBootstrap.tryInitialize();
   await FirebaseAppCheckBootstrap.tryActivate();
-  unawaited(
-    AnonymousAuthBootstrap.ensure(container.read(authServiceProvider)),
-  );
+  container.invalidate(firebaseAuthReadyProvider);
+  await AnonymousAuthBootstrap.ensure(container.read(authServiceProvider));
   await CrashTelemetryBootstrap.install(container);
 }

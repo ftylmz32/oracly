@@ -41,6 +41,7 @@ abstract final class DiscoveryShareBuilder {
     String? theme,
     String cardName = '',
     String? cardAsset,
+    bool isReversed = false,
   }) {
     final name = cardName.trim();
     return ShareableDiscovery(
@@ -51,6 +52,8 @@ abstract final class DiscoveryShareBuilder {
       ),
       visualAsset: cardAsset,
       subjectLabel: name.isEmpty ? null : name,
+      // Drawn-card shares only; catalogue callers omit → upright.
+      visualIsReversed: isReversed && cardAsset != null && cardAsset.isNotEmpty,
     );
   }
 

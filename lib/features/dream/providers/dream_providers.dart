@@ -4,6 +4,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../ai/production/oracly_ai_providers.dart';
 import '../../../core/reading_version/providers/reading_version_providers.dart';
 import '../controllers/dream_analysis_controller.dart';
@@ -13,7 +14,7 @@ import '../services/dream_voice_input_port.dart';
 import '../services/speech_dream_voice_input.dart';
 
 final dreamVoiceInputProvider = Provider<DreamVoiceInputPort>((ref) {
-  return SpeechDreamVoiceInput();
+  return SpeechDreamVoiceInput(languageCode: () => OraclyL10n.code);
 });
 
 final dreamVoiceControllerProvider =

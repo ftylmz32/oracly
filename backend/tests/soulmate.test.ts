@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   authHeader,
+  jsonResponse,
   openaiImage,
   openaiText,
   soulmateBody,
@@ -79,6 +80,7 @@ describe('soulmate_draw', () => {
     expect(seen[0]?.model).toBe('gpt-image-2');
     expect(seen[0]?.n).toBe(1);
     expect(seen[0]?.size).toBe('1024x1536');
+    // GPT Image: response_format is unsupported; b64_json is returned by default.
     expect(seen[0]?.response_format).toBeUndefined();
     expect(seen[0]?.prompt).toContain('Elif');
     expect(seen[0]?.prompt).toContain('mist lilac');
@@ -152,6 +154,29 @@ describe('soulmate_draw', () => {
       headers: authHeader(),
       payload: soulmateBody,
     });
+    expect(res.json().error.code).toBe('invalid_response');
+    await app.close();
+  });
+
+  it('rejects image generations that return url without b64_json', async () => {
+    const urlOnly: typeof fetch = async (url) => {
+      if (String(url).includes('/images/generations')) {
+        return jsonResponse({
+          data: [{ url: 'https://cdn.example.com/portrait.png' }],
+        });
+      }
+      return jsonResponse({
+        choices: [{ message: { content: 'unused' } }],
+      });
+    };
+    const app = await testApp(testConfig(), urlOnly);
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/ai/complete',
+      headers: authHeader(),
+      payload: soulmateBody,
+    });
+    expect(res.json().success).toBe(false);
     expect(res.json().error.code).toBe('invalid_response');
     await app.close();
   });

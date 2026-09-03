@@ -69,13 +69,14 @@ class OpenAiPalmAnalysis implements PalmAnalysisPort {
       AiFailureKind.network => PalmAnalysisErrorKind.network,
       AiFailureKind.timeout => PalmAnalysisErrorKind.timeout,
       AiFailureKind.invalidResponse => PalmAnalysisErrorKind.invalidResponse,
+      AiFailureKind.authPending => PalmAnalysisErrorKind.network,
       AiFailureKind.imageAnalysisUnavailable ||
       AiFailureKind.noConfiguration ||
-      AiFailureKind.unauthorized =>
-        PalmAnalysisErrorKind.unavailable,
+      AiFailureKind.unauthorized ||
+      AiFailureKind.appCheck => PalmAnalysisErrorKind.unavailable,
       AiFailureKind.rateLimit ||
-      AiFailureKind.providerError =>
-        PalmAnalysisErrorKind.unknown,
+      AiFailureKind.providerError ||
+      AiFailureKind.localPersistence => PalmAnalysisErrorKind.unknown,
     };
     return PalmAnalysisError(kind, failure.userMessage);
   }

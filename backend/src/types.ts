@@ -43,7 +43,7 @@ export type OpenAiMessage = {
 
 export type OpenAiContentPart =
   | { type: 'text'; text: string }
-  | { type: 'image_url'; image_url: { url: string } };
+  | { type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' | 'original' | 'auto' } };
 
 export type OpenAiFetch = typeof fetch;
 

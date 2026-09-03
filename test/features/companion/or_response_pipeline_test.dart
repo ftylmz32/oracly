@@ -164,3 +164,4 @@ class _FixedAi implements OraclyAiService {
     throw UnsupportedError('palm');
   }
 }
+

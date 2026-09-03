@@ -316,12 +316,14 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     final content = _contentData;
     if (session == null || content == null) return null;
     final card = ReadingPremiumUtils.primaryCard(content);
+    final primary = content.drawnCards.isEmpty ? null : content.drawnCards.first;
     return FavoriteMomentFactory.tarotLive(
       sessionId: session.id,
       at: session.completedAt ?? DateTime.now(),
       cardName: content.cardName,
       cardAsset: card?.image ?? content.imageAsset,
       insight: content.fullInterpretation ?? content.generalMeaning,
+      isReversed: primary?.isReversed ?? false,
     );
   }
 
@@ -605,6 +607,11 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                             contentData.readingTheme,
                                         cardName: contentData.cardName,
                                         cardAsset: contentData.imageAsset,
+                                        isReversed: contentData.drawnCards
+                                                .isEmpty
+                                            ? false
+                                            : contentData
+                                                .drawnCards.first.isReversed,
                                       ),
                                     ),
                                     if (draft != null && sectionMaster > 0.45)

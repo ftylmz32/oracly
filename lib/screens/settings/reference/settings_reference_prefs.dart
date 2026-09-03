@@ -29,41 +29,54 @@ class SettingsReferencePrefs extends StatelessWidget {
   final PersonalizationSettings settings;
   final Future<void> Function(
     PersonalizationSettings Function(PersonalizationSettings),
-  ) onSave;
+  )
+  onSave;
   final VoidCallback onPickOrStyle;
   final VoidCallback onPickLanguage;
   final VoidCallback onPickAppearance;
   final VoidCallback onPickAtmosphere;
   final VoidCallback onPickOutput;
 
-  String _t(String key) => OraclyL10n.t(
-        key,
-        languageCode: AppLocale.normalize(settings.language),
-      );
+  String _t(String key) =>
+      OraclyL10n.t(key, languageCode: AppLocale.normalize(settings.language));
 
   @override
   Widget build(BuildContext context) {
     final lang = AppLocale.normalize(settings.language);
-    final themeLabel = switch (settings.appearanceMode) {
-      AppAppearanceMode.dark => _t(L10nKeys.themeDark),
-      AppAppearanceMode.light => _t(L10nKeys.themeLight),
-      AppAppearanceMode.system => _t(L10nKeys.themeSystem),
-    };
+    final themeLabel = _t(L10nKeys.themeDark);
+    final appearanceSelectable = AppAppearanceModeX.lightModeUserSelectable;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SettingsReferenceGroup(
-          title: _t(L10nKeys.sectionAppearance),
-          rows: [
-            SettingsReferenceRow(
-              icon: Icons.brightness_6_outlined,
-              title: _t(L10nKeys.theme),
-              subtitle: _t(L10nKeys.themeSubtitle),
-              trailingValue: themeLabel,
-              onTap: onPickAppearance,
-            ),
-          ],
-        ),
+        if (appearanceSelectable)
+          SettingsReferenceGroup(
+            title: _t(L10nKeys.sectionAppearance),
+            rows: [
+              SettingsReferenceRow(
+                icon: Icons.brightness_6_outlined,
+                title: _t(L10nKeys.theme),
+                subtitle: _t(L10nKeys.themeSubtitle),
+                trailingValue: switch (settings.appearanceMode) {
+                  AppAppearanceMode.dark => _t(L10nKeys.themeDark),
+                  AppAppearanceMode.light => _t(L10nKeys.themeLight),
+                  AppAppearanceMode.system => _t(L10nKeys.themeSystem),
+                },
+                onTap: onPickAppearance,
+              ),
+            ],
+          )
+        else
+          SettingsReferenceGroup(
+            title: _t(L10nKeys.sectionAppearance),
+            rows: [
+              SettingsReferenceRow(
+                icon: Icons.brightness_2_outlined,
+                title: _t(L10nKeys.theme),
+                subtitle: _t(L10nKeys.themeSubtitle),
+                trailingValue: themeLabel,
+              ),
+            ],
+          ),
         SizedBox(height: SettingsReferenceTokens.sectionGap),
         SettingsReferenceGroup(
           title: _t(L10nKeys.sectionLanguage),
@@ -123,10 +136,7 @@ class SettingsReferencePrefs extends StatelessWidget {
           onPickOutput: onPickOutput,
         ),
         SizedBox(height: SettingsReferenceTokens.sectionGap),
-        SettingsReferenceNotifications(
-          settings: settings,
-          onSave: onSave,
-        ),
+        SettingsReferenceNotifications(settings: settings, onSave: onSave),
         SizedBox(height: SettingsReferenceTokens.sectionGap),
         SettingsReferenceHonesty(languageCode: lang),
       ],

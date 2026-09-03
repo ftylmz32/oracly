@@ -1,4 +1,4 @@
-/// Theme runtime wiring — settings_appearance → MaterialApp themeMode.
+/// Theme runtime — production v1 forces Dark; Light architecture retained.
 library;
 
 import 'package:flutter/material.dart';
@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/design_system/oracly_light_sanctuary_background.dart';
+import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/theme/app_appearance.dart';
 import 'package:oracly_new/core/theme/app_theme.dart';
 import 'package:oracly_new/features/premium/models/personalization_models.dart';
@@ -16,12 +16,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('persisted light appearance applies on cold start', (tester) async {
+  test('production gate keeps Light architecture but forces Dark ThemeMode', () {
+    expect(AppAppearanceModeX.lightModeUserSelectable, isFalse);
+    expect(AppAppearanceModeX.productionThemeMode, ThemeMode.dark);
+    expect(
+      AppAppearanceModeX.coerceForProduction(AppAppearanceMode.light),
+      AppAppearanceMode.dark,
+    );
+    expect(
+      AppAppearanceModeX.coerceForProduction(AppAppearanceMode.system),
+      AppAppearanceMode.dark,
+    );
+    expect(AppAppearanceMode.light.themeMode, ThemeMode.light);
+    expect(AppAppearanceMode.system.themeMode, ThemeMode.system);
+  });
+
+  testWidgets('persisted light cannot make the app light', (tester) async {
     SharedPreferences.setMockInitialValues({
       'settings_appearance': 'light',
       'settings_dark': false,
+      'settings_language': 'tr',
     });
     final storage = LocalStorage(await SharedPreferences.getInstance());
+    OraclyL10n.bind('tr');
 
     await tester.binding.setSurfaceSize(const Size(390, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -45,60 +62,37 @@ void main() {
       ),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 800));
 
-    expect(container.read(appThemeModeProvider), ThemeMode.light);
-    expect(find.byType(OraclyLightSanctuaryBackground), findsWidgets);
-    expect(find.text('Açık'), findsOneWidget);
+    expect(container.read(appThemeModeProvider), ThemeMode.dark);
+    expect(find.text('Tema'), findsOneWidget);
+    expect(find.text('Koyu'), findsOneWidget);
+    expect(find.text('Açık'), findsNothing);
+    expect(
+      (await SharedPreferences.getInstance()).getString('settings_appearance'),
+      'dark',
+    );
   });
 
-  testWidgets('system appearance maps to ThemeMode.system', (tester) async {
-    SharedPreferences.setMockInitialValues({});
+  testWidgets('persisted system cannot make the app light', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'settings_appearance': 'system',
+      'settings_language': 'tr',
+    });
     final storage = LocalStorage(await SharedPreferences.getInstance());
-    late ProviderContainer container;
+    addTearDown(() {
+      tester.binding.platformDispatcher.clearPlatformBrightnessTestValue();
+    });
+    tester.binding.platformDispatcher.platformBrightnessTestValue =
+        Brightness.light;
 
+    late ProviderContainer container;
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localStorageProvider.overrideWithValue(storage)],
         child: Consumer(
           builder: (context, ref, _) {
             container = ProviderScope.containerOf(context);
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    await container.read(settingsProvider.notifier).saveSettings(
-          const PersonalizationSettings(
-            appearanceMode: AppAppearanceMode.system,
-          ),
-        );
-    expect(container.read(appThemeModeProvider), ThemeMode.system);
-
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('settings_appearance'), 'system');
-  });
-
-  testWidgets('system appearance follows OS brightness at runtime',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({
-      'settings_appearance': 'system',
-    });
-    final storage = LocalStorage(await SharedPreferences.getInstance());
-    addTearDown(() {
-      tester.binding.platformDispatcher.clearPlatformBrightnessTestValue();
-    });
-
-    tester.binding.platformDispatcher.platformBrightnessTestValue =
-        Brightness.dark;
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localStorageProvider.overrideWithValue(storage)],
-        child: Consumer(
-          builder: (context, ref, _) {
             final mode = ref.watch(appThemeModeProvider);
             return MaterialApp(
               theme: AppTheme.light,
@@ -118,31 +112,25 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
+    expect(container.read(appThemeModeProvider), ThemeMode.dark);
     expect(find.text('dark'), findsOneWidget);
-
-    tester.binding.platformDispatcher.platformBrightnessTestValue =
-        Brightness.light;
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(find.text('light'), findsOneWidget);
   });
 
-  testWidgets('picking Açık in Settings updates Material brightness',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
+  testWidgets('Settings does not offer Light/System selector', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'settings_language': 'tr',
+    });
     final storage = LocalStorage(await SharedPreferences.getInstance());
+    OraclyL10n.bind('tr');
 
     await tester.binding.setSurfaceSize(const Size(390, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    late ProviderContainer container;
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localStorageProvider.overrideWithValue(storage)],
         child: Consumer(
           builder: (context, ref, _) {
-            container = ProviderScope.containerOf(context);
             final mode = ref.watch(appThemeModeProvider);
             return MaterialApp(
               theme: AppTheme.light,
@@ -155,26 +143,47 @@ void main() {
       ),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 800));
 
+    expect(find.text('Tema'), findsOneWidget);
+    expect(find.text('Koyu'), findsOneWidget);
     await tester.tap(find.text('Tema'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    await tester.tap(find.text('Açık').last);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-
-    expect(container.read(appThemeModeProvider), ThemeMode.light);
-    expect(Theme.of(tester.element(find.text('Tema'))).brightness,
-        Brightness.light);
-    expect(find.byType(OraclyLightSanctuaryBackground), findsWidgets);
-    expect(
-      (await SharedPreferences.getInstance()).getString('settings_appearance'),
-      'light',
-    );
+    expect(find.text('Açık'), findsNothing);
+    expect(find.text('Sistem'), findsNothing);
   });
 
-  test('legacy settings_dark migrates when appearance key missing', () async {
+  testWidgets('saving light via API still resolves dark ThemeMode',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({'settings_language': 'tr'});
+    final storage = LocalStorage(await SharedPreferences.getInstance());
+    late ProviderContainer container;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localStorageProvider.overrideWithValue(storage)],
+        child: Consumer(
+          builder: (context, ref, _) {
+            container = ProviderScope.containerOf(context);
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await container.read(settingsProvider.notifier).saveSettings(
+          const PersonalizationSettings(
+            appearanceMode: AppAppearanceMode.light,
+          ),
+        );
+    expect(container.read(appThemeModeProvider), ThemeMode.dark);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('settings_appearance'), 'dark');
+  });
+
+  test('legacy settings_dark=false migrates to dark for v1', () async {
     SharedPreferences.setMockInitialValues({'settings_dark': false});
     final storage = LocalStorage(await SharedPreferences.getInstance());
 
@@ -183,6 +192,7 @@ void main() {
     );
     addTearDown(container.dispose);
     final settings = await container.read(settingsServiceProvider).load();
-    expect(settings.appearanceMode, AppAppearanceMode.light);
+    expect(settings.appearanceMode, AppAppearanceMode.dark);
+    expect(container.read(appThemeModeProvider), ThemeMode.dark);
   });
 }

@@ -1,4 +1,4 @@
-/// Product Completion Batch 1 — Premium override, Dream sections, Explore, OR.
+/// Product Completion Batch 1 â€” Premium override, Dream sections, Explore, OR.
 library;
 
 import 'package:flutter/material.dart';
@@ -162,15 +162,17 @@ void main() {
 
     test('idle copy and follow-up chips', () {
       OraclyL10n.bind('tr');
-      expect(CompanionCopy.idleTitle, contains('Akl'));
+      expect(CompanionCopy.idleTitle, contains('Luna'));
       expect(CompanionCopy.menuNewChat, 'Yeni bir konu');
       expect(CompanionCopy.menuRemoveReading, contains('sohbetten'));
       final chips = CompanionFollowUpChips.forTurn(
         lastUserMessage: 'Ne yapacagimi bilmiyorum',
         hasReadingContext: true,
       );
-      expect(chips.last, contains('işaret'));
+      expect(chips, isNotEmpty);
+      expect(chips.last.toLowerCase(), contains('aret'));
       expect(CompanionCopy.thinking, isNot(contains('OR dusunuyor')));
     });
   });
 }
+

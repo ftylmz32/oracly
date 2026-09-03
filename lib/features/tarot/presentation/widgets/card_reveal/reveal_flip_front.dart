@@ -77,10 +77,7 @@ class RevealFlipFront extends StatelessWidget {
                 foil: 0.5 + gold * 0.25,
                 matte: 0.48,
               ),
-              TarotFoilGlide(
-                progress: art,
-                lightBiasX: lightBiasX,
-              ),
+              TarotFoilGlide(progress: art, lightBiasX: lightBiasX),
             ],
           ),
         ),

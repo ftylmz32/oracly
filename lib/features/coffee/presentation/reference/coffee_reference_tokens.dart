@@ -52,11 +52,9 @@ abstract final class CoffeeReferenceTokens {
         ),
       ];
 
-  static double artHeightFor(double maxContentHeight) {
-    final tight = maxContentHeight < 540;
-    return (maxContentHeight * 0.54).clamp(
-      tight ? 220.0 : 280.0,
-      tight ? 340.0 : 440.0,
-    );
-  }
+  /// Quiet gap below the decorative closing, above chamber nav clearance.
+  static const double landingBreath = 32;
+
+  /// Camera / gallery pills — reference is medium width, not full bleed.
+  static const double ctaWidthFactor = 0.68;
 }

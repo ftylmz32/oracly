@@ -5,6 +5,8 @@ import '../../services/prompt_sanitizer.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/personality/or_response_depth.dart';
 import '../contexts/reading_ai_context.dart';
+import '../../../companion/services/or_operation_id.dart';
+import '../../../gems/services/paid_ai_operation_id.dart';
 import '../models/conversation_turn.dart';
 import '../transport/ai_operation.dart';
 import '../transport/ai_proxy_request.dart';
@@ -29,19 +31,22 @@ abstract final class OpenAiServiceRequests {
     final encoded = [
       for (final turn in ConversationTurn.takeRecent(turns)) turn.toPayload(),
     ];
+    final payload = <String, dynamic>{
+      'userMessage': PromptSanitizer.sanitize(userMessage),
+      if (encoded.isEmpty) 'priorUser': _prior(priorUser, max: 4),
+      if (encoded.isNotEmpty) 'turns': encoded,
+      if (voice.isNotEmpty) 'personality': voice,
+      if (style.isNotEmpty) 'styleHint': PromptSanitizer.sanitize(style),
+      'depth': depth.name,
+      'spoken': spoken,
+      ..._language,
+    };
     return AiProxyRequest(
       operation: AiOperation.chat,
       model: model,
-      payload: {
-        'userMessage': PromptSanitizer.sanitize(userMessage),
-        if (encoded.isEmpty) 'priorUser': _prior(priorUser, max: 4),
-        if (encoded.isNotEmpty) 'turns': encoded,
-        if (voice.isNotEmpty) 'personality': voice,
-        if (style.isNotEmpty) 'styleHint': PromptSanitizer.sanitize(style),
-        'depth': depth.name,
-        'spoken': spoken,
-        ..._language,
-      },
+      payload: payload,
+      idempotencyKey:
+          OrOperationId.current ?? PaidAiOperationId.create('chat'),
     );
   }
 
@@ -68,20 +73,23 @@ abstract final class OpenAiServiceRequests {
     final encoded = [
       for (final turn in ConversationTurn.takeRecent(turns)) turn.toPayload(),
     ];
+    final payload = <String, dynamic>{
+      'userMessage': PromptSanitizer.sanitize(userMessage),
+      if (encoded.isEmpty) 'priorUser': _prior(priorUser, max: 8),
+      if (encoded.isNotEmpty) 'turns': encoded,
+      if (voice.isNotEmpty) 'personality': voice,
+      if (style.isNotEmpty) 'styleHint': PromptSanitizer.sanitize(style),
+      'depth': depth.name,
+      'spoken': spoken,
+      'context': ctx,
+      ..._language,
+    };
     return AiProxyRequest(
       operation: AiOperation.oracle,
       model: model,
-      payload: {
-        'userMessage': PromptSanitizer.sanitize(userMessage),
-        if (encoded.isEmpty) 'priorUser': _prior(priorUser, max: 8),
-        if (encoded.isNotEmpty) 'turns': encoded,
-        if (voice.isNotEmpty) 'personality': voice,
-        if (style.isNotEmpty) 'styleHint': PromptSanitizer.sanitize(style),
-        'depth': depth.name,
-        'spoken': spoken,
-        'context': ctx,
-        ..._language,
-      },
+      payload: payload,
+      idempotencyKey:
+          OrOperationId.current ?? PaidAiOperationId.create('oracle'),
     );
   }
 

@@ -9,16 +9,22 @@ const kL10nCoffee = <String, L10nTriple>{
     'COFFEE',
     'КОФЕ',
   ),
+  'coffee.landing_title': L10nTriple(
+    'KAHVE FALI',
+    'COFFEE READING',
+    'КОФЕЙНАЯ ЧАША',
+  ),
   'coffee.landing_line': L10nTriple(
     'Masa hazır. Fincan hâlâ sıcak.',
     'The table is ready. The cup is still warm.',
     'Стол готов. Чашка ещё теплая.',
   ),
   'coffee.hub_lead': L10nTriple(
-    'Fincanındaki izleri birlikte okuyalım.',
-    'Let us read the marks in your cup together.',
-    'Давай вместе прочитаем следы в твоей чашке.',
+    'Fincandaki izleri birlikte okuyalım.',
+    'Let us read the traces in the cup together.',
+    'Давай вместе прочитаем следы в чашке.',
   ),
+  'coffee.or_choice': L10nTriple('VEYA', 'OR', 'ИЛИ'),
   'coffee.photo_cta': L10nTriple(
     'FOTOĞRAF ÇEK',
     'TAKE PHOTO',
@@ -115,15 +121,45 @@ const kL10nCoffee = <String, L10nTriple>{
     'Review the cup',
     'Рассмотри чашку',
   ),
+  'coffee.capture_heading': L10nTriple(
+    'Fincanını hizala, izleri birlikte okuyalım.',
+    'Align your cup — let us read the traces together.',
+    'Выровняй чашку — прочитаем следы вместе.',
+  ),
+  'coffee.capture_helper': L10nTriple(
+    'İzleri daha net okumamız için fincanını hizala.',
+    'Align your cup so we can read the traces more clearly.',
+    'Выровняй чашку, чтобы мы яснее прочитали следы.',
+  ),
   'coffee.capture_guide': L10nTriple(
-    'Fincanın içini altın çemberin içine al.',
-    'Settle the cup interior inside the gold circle.',
-    'Помести внутренность чашки внутрь золотого круга.',
+    'Fincanın iç yüzeyini altın halkaya al.',
+    'Place the inner surface inside the gold rim.',
+    'Помести внутреннюю поверхность в золотой обод.',
   ),
   'coffee.capture_tips': L10nTriple(
-    'İç yüzey · Ortada · Yumuşak ışık · Sabit el',
-    'Interior · Centered · Soft light · Steady hand',
-    'Внутри · По центру · Мягкий свет · Без дрожи',
+    'Ortala · Yumuşak ışık · Sabit tut',
+    'Center · Soft light · Hold steady',
+    'По центру · Мягкий свет · Держи ровно',
+  ),
+  'coffee.capture_chip_interior': L10nTriple(
+    'İç yüzey',
+    'Interior',
+    'Внутри',
+  ),
+  'coffee.capture_chip_center': L10nTriple(
+    'Ortada',
+    'Centered',
+    'По центру',
+  ),
+  'coffee.capture_chip_light': L10nTriple(
+    'Yumuşak ışık',
+    'Soft light',
+    'Мягкий свет',
+  ),
+  'coffee.capture_chip_steady': L10nTriple(
+    'Sabit tut',
+    'Hold steady',
+    'Держи ровно',
   ),
   'coffee.use_photo': L10nTriple(
     'Bu fotoğrafı kullan',

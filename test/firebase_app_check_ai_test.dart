@@ -54,7 +54,7 @@ void main() {
       config: _prod,
       transport: ProxyAiTransport(
         config: _prod,
-        accessToken: () async => 'firebase-id-token',
+        accessToken: ({bool forceRefresh = false}) async => 'firebase-id-token',
         appCheckToken: testAppCheckToken,
         client: MockClient((request) async {
           seen = request;
@@ -70,6 +70,7 @@ void main() {
     expect(result.isSuccess, isTrue, reason: '${result.failure}');
     expect(seen!.headers['Authorization'], 'Bearer firebase-id-token');
     expect(seen!.headers[ProxyAiHeaders.appCheckHeader], 'test-app-check-token');
+    expect(seen!.headers['Idempotency-Key'], startsWith('or-'));
     expect(seen!.body, isNot(contains('test-app-check-token')));
   });
 
@@ -77,8 +78,8 @@ void main() {
     var called = false;
     final outcome = await ProxyAiTransport(
       config: _prod,
-      accessToken: () async => 'firebase-id-token',
-      appCheckToken: () async => null,
+      accessToken: ({bool forceRefresh = false}) async => 'firebase-id-token',
+      appCheckToken: ({bool forceRefresh = false}) async => null,
       client: MockClient((_) async {
         called = true;
         return http.Response('{}', 200);
@@ -91,7 +92,7 @@ void main() {
       ),
     );
     expect(called, isFalse);
-    expect(outcome.failure?.kind, AiFailureKind.unauthorized);
+    expect(outcome.failure?.kind, AiFailureKind.appCheck);
     expect(outcome.failure?.userMessage.toLowerCase(), isNot(contains('token')));
   });
 
@@ -99,7 +100,7 @@ void main() {
     expect(
       AiTransportSelection.create(
         _prod,
-        accessToken: () async => 't',
+        accessToken: ({bool forceRefresh = false}) async => 't',
         appCheckToken: testAppCheckToken,
       ),
       isA<ProxyAiTransport>(),
@@ -110,7 +111,7 @@ void main() {
     http.Request? seen;
     await ProxyAiTransport(
       config: _prod,
-      accessToken: () async => 'firebase-id-token',
+      accessToken: ({bool forceRefresh = false}) async => 'firebase-id-token',
       appCheckToken: testAppCheckToken,
       client: MockClient((request) async {
         seen = request;

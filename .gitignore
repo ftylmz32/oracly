@@ -102,3 +102,8 @@ _w_probe.py
 _x.py
 tmp_rize.py
 
+
+# E3E live-smoke private artifacts (tokens, fixtures, ledger)
+tool/e3e_private/
+tool/dart_defines.e3e.json
+

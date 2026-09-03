@@ -59,6 +59,19 @@ export type ValidatedRequest = BaseRequest & { language: AppLanguage };
 export function validateAiBody(body: unknown): ValidatedRequest {
   const record = asRecord(body);
   if (!record) fail(ErrorCode.invalidRequest);
+  // Reject unknown top-level keys. Identity spoof fields are ignored (never trusted).
+  const allowedTop = new Set([
+    'operation',
+    'payload',
+    'model',
+    'userId',
+    'user_id',
+    'uid',
+    'sub',
+  ]);
+  for (const key of Object.keys(record)) {
+    if (!allowedTop.has(key)) fail(ErrorCode.invalidRequest);
+  }
   // userId / user_id / sub in the body are ignored. Identity comes only
   // from verified Authorization. Never trust client-supplied user ids.
   const operation = record.operation;

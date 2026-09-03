@@ -18,6 +18,7 @@ import 'package:oracly_new/features/ai/production/ai_request_exception.dart';
 import 'package:oracly_new/features/companion/controllers/companion_controller.dart';
 import 'package:oracly_new/features/companion/controllers/companion_output_controller.dart';
 import 'package:oracly_new/features/companion/copy/companion_copy.dart';
+import 'package:oracly_new/features/companion/models/companion_send_result.dart';
 import 'package:oracly_new/features/companion/models/companion_state.dart';
 import 'package:oracly_new/features/companion/models/conversation.dart';
 import 'package:oracly_new/features/companion/models/insight_request.dart';
@@ -26,6 +27,7 @@ import 'package:oracly_new/features/companion/models/or_session_state.dart';
 import 'package:oracly_new/features/companion/models/reflection_context.dart';
 import 'package:oracly_new/features/companion/services/companion_experience_service.dart';
 import 'package:oracly_new/features/companion/services/companion_responder.dart';
+import 'package:oracly_new/features/companion/models/companion_response.dart';
 import 'package:oracly_new/features/companion/services/first_reading_or_deepen.dart';
 import 'package:oracly_new/features/companion/services/or_session_resolver.dart';
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
@@ -324,8 +326,7 @@ class _ScriptedExperience extends CompanionExperienceService {
   OracleReadingContext? lastReading;
 
   @override
-  Future<({Conversation conversation, CompanionResponse response, bool fromAi})>
-  send({
+  Future<CompanionSendResult> send({
     required Conversation conversation,
     required ReflectionContext context,
     required InsightRequest request,
@@ -340,7 +341,7 @@ class _ScriptedExperience extends CompanionExperienceService {
       content: body,
       createdAt: now,
     );
-    return (
+    return CompanionSendResult(
       conversation: conversation.copyWith(
         messages: [...conversation.messages, assistant],
         updatedAt: now,
@@ -370,8 +371,7 @@ class _FailingExperience extends CompanionExperienceService {
       );
 
   @override
-  Future<({Conversation conversation, CompanionResponse response, bool fromAi})>
-  send({
+  Future<CompanionSendResult> send({
     required Conversation conversation,
     required ReflectionContext context,
     required InsightRequest request,

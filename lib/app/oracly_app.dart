@@ -41,8 +41,8 @@ class OraclyApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      locale: locale,
-      supportedLocales: AppLocale.supportedLocales,
+      locale: AppLocale.materialLocale(locale.languageCode),
+      supportedLocales: const [Locale('tr'), Locale('en'), Locale('ru')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

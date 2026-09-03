@@ -16,6 +16,7 @@ import '../../features/premium/presentation/widgets/settings_tiles.dart';
 import '../../core/theme/craftsmanship_rhythm.dart';
 import '../../shared/widgets/oracly_entrance.dart';
 import 'about_contact_email.dart';
+import 'about_legal_section.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -40,7 +41,7 @@ class AboutScreen extends StatelessWidget {
                 leading: Align(
                   child: OraclyHeaderAction(
                     icon: AppIcons.back,
-                    label: 'Geri',
+                    label: OraclyL10n.t(L10nKeys.back),
                     onTap: () => Navigator.of(context).maybePop(),
                   ),
                 ),
@@ -106,6 +107,8 @@ class AboutScreen extends StatelessWidget {
                         title: OraclyL10n.t('about.contact'),
                       ),
                       const AboutContactEmail(),
+                      SizedBox(height: AppSpacing.lg),
+                      const AboutLegalSection(),
                       SizedBox(height: AppSpacing.xxl),
                     ],
                   ),

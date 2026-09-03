@@ -1,9 +1,10 @@
-/// P0 - OR opens offline; loopback proxy is not auto-claimed on phones.
+﻿/// P0 - OR opens offline; loopback proxy is not auto-claimed on phones.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/config/app_environment.dart';
+import 'package:oracly_new/core/config/oracly_runtime_config.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/navigation/oracly_route_generator.dart';
 import 'package:oracly_new/core/navigation/oracly_routes.dart';
@@ -22,35 +23,70 @@ import '../../test_helpers/provider_scope_harness.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('loopback proxy auto-default is desktop/web only', () {
+  test('local proxy addresses are platform-specific helpers', () {
     expect(
-      AiRuntimeConfig.loopbackProxyAutoDefaultAllowed(
+      AiRuntimeConfig.devProxyAutoDefaultUrl(
         platform: TargetPlatform.android,
         isWeb: false,
       ),
-      isFalse,
+      AiRuntimeConfig.androidEmulatorDevProxyUrl,
     );
     expect(
-      AiRuntimeConfig.loopbackProxyAutoDefaultAllowed(
+      AiRuntimeConfig.devProxyAutoDefaultUrl(
         platform: TargetPlatform.iOS,
         isWeb: false,
       ),
-      isFalse,
+      AiRuntimeConfig.localDevProxyUrl,
     );
     expect(
-      AiRuntimeConfig.loopbackProxyAutoDefaultAllowed(
+      AiRuntimeConfig.devProxyAutoDefaultUrl(
         platform: TargetPlatform.windows,
         isWeb: false,
       ),
-      isTrue,
+      AiRuntimeConfig.localDevProxyUrl,
     );
     expect(
       AiRuntimeConfig.loopbackProxyAutoDefaultAllowed(
         platform: TargetPlatform.android,
-        isWeb: true,
+        isWeb: false,
       ),
-      isTrue,
+      isFalse,
     );
+  });
+
+  test('unset debug environment does not silently select localhost', () {
+    OraclyRuntimeConfig.testEnv = const {};
+    addTearDown(() => OraclyRuntimeConfig.testEnv = null);
+    final config = AiRuntimeConfig.resolve();
+    expect(config.environment, AppEnvironment.development);
+    expect(config.resolvedProxyUrl, isNull);
+    expect(config.isConfigured, isFalse);
+  });
+
+  test('explicit LOCAL selects Android emulator loopback', () {
+    OraclyRuntimeConfig.testEnv = const {'APP_ENV': 'local'};
+    addTearDown(() => OraclyRuntimeConfig.testEnv = null);
+    final config = AiRuntimeConfig.resolve();
+    expect(config.resolvedProxyUrl, AiRuntimeConfig.androidEmulatorDevProxyUrl);
+    expect(config.safeEnvironmentLabel, 'LOCAL');
+    expect(config.safeTransportLabel, 'local-proxy');
+  });
+
+  test('INTERNAL is pinned to R3.1B HTTPS and ignores endpoint override', () {
+    OraclyRuntimeConfig.testEnv = const {
+      'APP_ENV': 'internal',
+      'ORACLY_AI_PROXY_URL': 'http://10.0.2.2:8787/v1/ai/complete',
+    };
+    addTearDown(() => OraclyRuntimeConfig.testEnv = null);
+    final config = AiRuntimeConfig.resolve();
+    expect(config.environment, AppEnvironment.staging);
+    expect(config.resolvedProxyUrl, OraclyRuntimeConfig.internalAiProxyUrl);
+    expect(config.safeEnvironmentLabel, 'INTERNAL');
+    expect(
+      config.safeHostLabel,
+      'r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app',
+    );
+    expect(config.safeTransportLabel, 'remote-proxy');
   });
 
   test('production rejects loopback hosts in resolvedProxyUrl', () {

@@ -12,6 +12,7 @@ abstract final class PalmEdgeSketch {
   PalmEdgeSketch._();
 
   static const int maxEdge = 480;
+  static const int maxCacheEntries = 4;
   static final Map<String, Uint8List?> _cache = {};
 
   static void clearCache() => _cache.clear();
@@ -22,16 +23,23 @@ abstract final class PalmEdgeSketch {
     try {
       final file = File(path);
       if (!await file.exists()) {
-        _cache[path] = null;
+        _put(path, null);
         return null;
       }
       final bytes = await file.readAsBytes();
       final out = fromBytes(bytes);
-      _cache[path] = out;
+      _put(path, out);
       return out;
     } catch (_) {
-      _cache[path] = null;
+      _put(path, null);
       return null;
+    }
+  }
+
+  static void _put(String path, Uint8List? value) {
+    _cache[path] = value;
+    while (_cache.length > maxCacheEntries) {
+      _cache.remove(_cache.keys.first);
     }
   }
 

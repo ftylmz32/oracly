@@ -1,4 +1,4 @@
-/// Message surfaces — editorial OR, muted user notes.
+﻿/// Message surfaces -- violet user notes, dark Luna sanctuary bubbles.
 library;
 
 import 'package:flutter/material.dart';
@@ -18,52 +18,101 @@ class CompanionReferenceBubbleSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isUser) return _UserNote(child: child);
-    return _OrEditorial(child: child);
-  }
-}
-
-class _UserNote extends StatelessWidget {
-  const _UserNote({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
+    if (isUser) {
+      // User bubbles include a small “tail” on the bottom-right.
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: CompanionReferenceTokens.userRadius,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  OraclyChrome.violet.withValues(alpha: 0.48),
+                  const Color(0xFF1A1230).withValues(alpha: 0.90),
+                ],
+              ),
+              border: Border.all(
+                color: OraclyChrome.violet.withValues(alpha: 0.40),
+              ),
+            ),
+            child: child,
+          ),
+          Positioned(
+            right: -4,
+            bottom: -3,
+            child: SizedBox(
+              width: 14,
+              height: 12,
+              child: CustomPaint(
+                painter: _UserBubbleTailPainter(
+                  fill: const Color(0xFF1A1230).withValues(alpha: 0.90),
+                  stroke: OraclyChrome.violet.withValues(alpha: 0.40),
+                  strokeWidth: 1.1,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: CompanionReferenceTokens.userRadius,
-        color: const Color(0xFF120E16).withValues(alpha: 0.92),
+        borderRadius: CompanionReferenceTokens.orRadius,
+        color: const Color(0xFF0E0B14).withValues(alpha: 0.92),
         border: Border.all(
-          color: OraclyChrome.violet.withValues(alpha: 0.16),
-          width: 0.45,
+          color: OraclyChrome.violet.withValues(alpha: 0.38),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: OraclyChrome.violet.withValues(alpha: 0.14),
+            blurRadius: 14,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: child,
     );
   }
 }
 
-class _OrEditorial extends StatelessWidget {
-  const _OrEditorial({required this.child});
+class _UserBubbleTailPainter extends CustomPainter {
+  _UserBubbleTailPainter({
+    required this.fill,
+    required this.stroke,
+    required this.strokeWidth,
+  });
 
-  final Widget child;
+  final Color fill;
+  final Color stroke;
+  final double strokeWidth;
 
   @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: OraclyChrome.gold.withValues(alpha: 0.28),
-            width: 1.0,
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: child,
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final p = Path()
+      ..moveTo(size.width * 0.35, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..close();
+
+    final fillPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = fill;
+    final strokePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = stroke
+      ..strokeWidth = strokeWidth
+      ..strokeJoin = StrokeJoin.round;
+
+    canvas.drawPath(p, fillPaint);
+    canvas.drawPath(p, strokePaint);
   }
+
+  @override
+  bool shouldRepaint(covariant _UserBubbleTailPainter oldDelegate) =>
+      oldDelegate.fill != fill ||
+      oldDelegate.stroke != stroke ||
+      oldDelegate.strokeWidth != strokeWidth;
 }

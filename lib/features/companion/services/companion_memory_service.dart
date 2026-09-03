@@ -1,8 +1,8 @@
 /// SPRINT-003 — Transparent user memory bridge.
 library;
 
-import '../../../../models/memory_item.dart';
-import '../../../../services/memory_service.dart';
+import '../../../models/memory_item.dart';
+import '../../../services/memory_service.dart';
 import '../models/memory.dart';
 import '../models/memory_permission.dart';
 

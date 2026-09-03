@@ -62,18 +62,21 @@ class StorePremiumPurchaseSession {
 
   Future<void> onPurchases(
     List<PurchaseDetails> purchases,
-    InAppPurchase iap,
+    Future<void> Function(PurchaseDetails purchase) completePurchase,
   ) async {
     if (purchases.isEmpty && _restore) {
       _complete(PremiumPurchaseResult.noneFound());
       return;
     }
     for (final purchase in purchases) {
-      await _handle(purchase, iap);
+      await _handle(purchase, completePurchase);
     }
   }
 
-  Future<void> _handle(PurchaseDetails purchase, InAppPurchase iap) async {
+  Future<void> _handle(
+    PurchaseDetails purchase,
+    Future<void> Function(PurchaseDetails purchase) completePurchase,
+  ) async {
     final kind = PremiumStoreCatalog.kindFor(purchase.productID);
     switch (purchase.status) {
       case PurchaseStatus.pending:
@@ -93,7 +96,7 @@ class StorePremiumPurchaseSession {
         }
         if (_expected != null && kind != _expected) return;
         if (purchase.pendingCompletePurchase) {
-          await iap.completePurchase(purchase);
+          await completePurchase(purchase);
         }
         final creds = PremiumPurchaseCredentials(
           platform: defaultTargetPlatform == TargetPlatform.iOS

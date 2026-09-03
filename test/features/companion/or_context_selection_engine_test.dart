@@ -205,3 +205,4 @@ void main() {
     expect(selected.preferenceHint, isNull);
   });
 }
+

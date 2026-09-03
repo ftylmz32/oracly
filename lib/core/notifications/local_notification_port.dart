@@ -9,6 +9,8 @@ import 'package:timezone/timezone.dart' as tz;
 import 'oracly_notification_payload.dart';
 import 'oracly_notification_planner.dart';
 import 'oracly_notification_port.dart';
+import 'oracly_notification_tap_background.dart';
+import 'oracly_notification_tap_router.dart';
 
 class LocalNotificationPort implements OraclyNotificationPort {
   LocalNotificationPort({FlutterLocalNotificationsPlugin? plugin})
@@ -35,8 +37,30 @@ class LocalNotificationPort implements OraclyNotificationPort {
         requestSoundPermission: false,
       ),
     );
-    await _plugin.initialize(init);
+    await _plugin.initialize(
+      init,
+      onDidReceiveNotificationResponse: _onNotificationTap,
+      onDidReceiveBackgroundNotificationResponse: oraclyNotificationTapBackground,
+    );
     _ready = true;
+  }
+
+  static void _onNotificationTap(NotificationResponse response) {
+    OraclyNotificationTapRouter.offerPayload(response.payload);
+    OraclyNotificationTapRouter.openPending();
+  }
+
+  @override
+  Future<void> captureColdStartLaunch() async {
+    await initialize();
+    try {
+      final details = await _plugin.getNotificationAppLaunchDetails();
+      if (details?.didNotificationLaunchApp ?? false) {
+        OraclyNotificationTapRouter.offerPayload(
+          details!.notificationResponse?.payload,
+        );
+      }
+    } catch (_) {}
   }
 
   @override

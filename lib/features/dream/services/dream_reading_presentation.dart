@@ -18,6 +18,13 @@ class DreamReadingSection {
   final bool emphasized;
 }
 
+class DreamSymbolRow {
+  const DreamSymbolRow({required this.label, required this.meaning});
+
+  final String label;
+  final String meaning;
+}
+
 abstract final class DreamReadingPresentation {
   DreamReadingPresentation._();
 
@@ -72,6 +79,54 @@ abstract final class DreamReadingPresentation {
       }
     }
     return out;
+  }
+
+  static String? overallMeaning(Dream? dream) {
+    return _bodyOf(dream, DreamInsightKind.mainInterpretation) ??
+        _bodyOf(dream, DreamInsightKind.summary);
+  }
+
+  static String? emotionalReading(Dream? dream) {
+    return _bodyOf(dream, DreamInsightKind.emotionalMeaning);
+  }
+
+  static String? reflectionQuote(Dream? dream) {
+    final closing = _bodyOf(dream, DreamInsightKind.closingTakeaway);
+    if (closing != null && closing.isNotEmpty) return closing;
+    return null;
+  }
+
+  static List<String> emotionalTags(Dream? dream) {
+    final emotions = dream?.understanding?.emotions ?? const [];
+    return emotions
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .map((e) => '#${e.replaceAll(RegExp(r'\s+'), '')}')
+        .toList();
+  }
+
+  static List<DreamSymbolRow> symbolRows(Dream? dream) {
+    if (dream == null) return const [];
+    final symbols = dream.understanding?.symbols ?? const [];
+    if (symbols.isNotEmpty) {
+      return [
+        for (final symbol in symbols)
+          if (symbol.label.trim().isNotEmpty)
+            DreamSymbolRow(
+              label: symbol.label.trim(),
+              meaning: symbol.observedContext?.trim() ?? '',
+            ),
+      ];
+    }
+    final body = _bodyOf(dream, DreamInsightKind.symbols);
+    if (body == null || body.isEmpty) return const [];
+    return body
+        .split(RegExp(r'[\n·,;]+'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .map((e) => DreamSymbolRow(label: e, meaning: ''))
+        .take(8)
+        .toList();
   }
 
   static String? _bodyOf(Dream? dream, DreamInsightKind kind) {

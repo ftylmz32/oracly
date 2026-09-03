@@ -31,6 +31,8 @@ class SaveFavoriteMomentLink extends ConsumerWidget {
         saved ? FavoriteMomentsCopy.unsave : FavoriteMomentsCopy.save;
     return Align(
       alignment: align,
+      widthFactor: 1,
+      heightFactor: 1,
       child: Semantics(
         button: true,
         label: label,

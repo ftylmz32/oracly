@@ -30,3 +30,28 @@ void logOrSubmit({
     'blocked=${blocked ? 'yes' : 'no'}',
   );
 }
+
+/// Stage markers only — never message content or tokens.
+void logOrPersist({
+  required String stage,
+  required bool ok,
+  String? errorType,
+  bool? fromAi,
+  bool? priorUserSaved,
+}) {
+  if (!kDebugMode) return;
+  final bits = <String>[
+    'stage=$stage',
+    'ok=${ok ? 'yes' : 'no'}',
+    if (fromAi != null) 'fromAi=${fromAi ? 'yes' : 'no'}',
+    if (priorUserSaved != null)
+      'priorUserSaved=${priorUserSaved ? 'yes' : 'no'}',
+    if (errorType != null) 'errorType=$errorType',
+  ];
+  debugPrint('OR_PERSIST: ${bits.join(' ')}');
+}
+
+void logOrCorruptRow({required String reason}) {
+  if (!kDebugMode) return;
+  debugPrint('OR_HISTORY: quarantine reason=$reason');
+}

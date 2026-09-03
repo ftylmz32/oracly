@@ -1,4 +1,4 @@
-/// OR mic requesting — quiet gold focus, never a Material spinner.
+﻿/// OR mic requesting — quiet gold focus, never a Material spinner.
 library;
 
 import 'package:flutter/material.dart';
@@ -53,3 +53,4 @@ void main() {
     expect(find.byIcon(Icons.mic_rounded), findsOneWidget);
   });
 }
+

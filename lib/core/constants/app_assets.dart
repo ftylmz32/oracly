@@ -13,8 +13,10 @@ abstract final class AppAssets {
   /// Official ORACLY logo — crescent · oracle profile · star (do not redraw).
   /// Never use legacy circular orbit/vesica marks as brand identity.
   static const String brandLogo = '$_brandRoot/oracly_logo.png';
+
   /// Splash-only master — black keyed out for cosmic background integration.
   static const String brandLogoSplash = '$_brandRoot/oracly_logo_splash.png';
+
   /// Final single-image Flutter splash (crescent/woman + ORACLY wordmark).
   static const String splashFinal = 'assets/splash/oracly_splash_final.png';
 
@@ -27,13 +29,26 @@ abstract final class AppAssets {
   static const String heroOrbPremium = '$_imagesRoot/or_presence_orb.webp';
   static const String premiumBannerCrown =
       '$_premiumRoot/premium_crown_photoreal.webp';
-  static const String coffeeRitualHero =
-      '$_imagesRoot/coffee_ritual_hero.webp';
+  static const String coffeeRitualHero = '$_imagesRoot/coffee_ritual_hero.webp';
   static const String tarotHero = '$_imagesRoot/tarot_hero.webp';
   static const String homeHeroMoon = '$_homeRoot/home_hero_moon.webp';
   static const String homeOrGuide = '$_homeRoot/home_or_guide.webp';
+
+  /// Luna chat hero — extracted from owned design reference (portrait only).
+  static const String lunaPortraitHero =
+      '$_imagesRoot/companion/luna_portrait_hero_v2_runtime.png';
+
+  /// Circular Luna avatar for assistant bubbles.
+  static const String lunaAvatar =
+      '$_imagesRoot/companion/luna_portrait_hero_v2_runtime.png';
+
+  /// Soft nebula wash behind Luna hero (owned reference, blurred).
+  static const String lunaNebulaWash =
+      '$_imagesRoot/companion/luna_nebula_wash.webp';
   static const String homeTarot = '$_homeRoot/home_tarot.webp';
   static const String homeDream = '$_homeRoot/home_dream.webp';
+  static const String dreamEntryHero =
+      '$_imagesRoot/dream/dream_entry_hero.webp';
   static const String homeAstrology = '$_homeRoot/home_astrology.webp';
   static const String homeYildizname = '$_homeRoot/home_yildizname.webp';
   static const String homeCoffee = '$_homeRoot/home_coffee.webp';

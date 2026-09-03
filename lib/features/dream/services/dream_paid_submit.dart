@@ -4,12 +4,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/providers/app_providers.dart';
-import '../../../../features/gems/copy/gems_copy.dart';
-import '../../../../features/gems/models/paid_ai_operation.dart';
-import '../../../../features/gems/providers/gem_providers.dart';
-import '../../../../features/gems/services/gem_spend_guard.dart';
-import '../../../../features/gems/services/paid_ai_operation_binder.dart';
+import '../../../app/providers/app_providers.dart';
+import '../../gems/copy/gems_copy.dart';
+import '../../gems/models/paid_ai_operation.dart';
+import '../../gems/providers/gem_providers.dart';
+import '../../gems/services/gem_spend_guard.dart';
+import '../../gems/services/paid_ai_operation_binder.dart';
 import '../../personal_discovery/services/personal_discovery_refresh.dart';
 import '../controllers/dream_analysis_controller.dart';
 import '../economy/dream_economy.dart';

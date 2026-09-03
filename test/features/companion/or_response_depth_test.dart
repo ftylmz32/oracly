@@ -105,3 +105,4 @@ void main() {
     expect(const PersonalizationSettings().orResponseDepth, OrResponseDepth.balanced);
   });
 }
+

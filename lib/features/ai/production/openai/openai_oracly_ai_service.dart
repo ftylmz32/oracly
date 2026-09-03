@@ -19,6 +19,7 @@ import 'openai_image_analysis.dart';
 import 'openai_paid_requests.dart';
 import 'openai_service_requests.dart';
 import 'openai_service_results.dart';
+import '../../../companion/services/or_operation_id.dart';
 
 class OpenAiOraclyAiService implements OraclyAiService {
   OpenAiOraclyAiService({
@@ -56,9 +57,10 @@ class OpenAiOraclyAiService implements OraclyAiService {
     bool spoken = false,
   }) {
     return _guard.runOutcome(
-      'chat',
+      OrOperationId.current ?? 'chat',
       kind: AiRequestKind.chat,
-      fingerprint: AiRequestFingerprint.text('chat', userMessage),
+      fingerprint:
+          OrOperationId.current ?? AiRequestFingerprint.text('chat', userMessage),
       () async {
         return OpenAiServiceResults.chat(
           await _transport.execute(
@@ -92,12 +94,11 @@ class OpenAiOraclyAiService implements OraclyAiService {
     bool spoken = false,
   }) {
     return _guard.runOutcome(
-      'oracle:${context.kindId}',
+      OrOperationId.current ?? 'oracle:${context.kindId}',
       kind: AiRequestKind.oracle,
-      fingerprint: AiRequestFingerprint.text(
-        'oracle:${context.kindId}',
-        userMessage,
-      ),
+      fingerprint:
+          OrOperationId.current ??
+          AiRequestFingerprint.text('oracle:${context.kindId}', userMessage),
       () async {
         return OpenAiServiceResults.chat(
           await _transport.execute(

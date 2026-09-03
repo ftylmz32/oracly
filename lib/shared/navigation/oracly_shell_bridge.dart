@@ -11,6 +11,9 @@ abstract final class OraclyShellBridge {
 
   static OraclyShellTabSwitcher? _switchTab;
 
+  /// True while the live [OraclyAppShell] is mounted.
+  static bool get isActive => _switchTab != null;
+
   static void bind(OraclyShellTabSwitcher switchTab) {
     _switchTab = switchTab;
   }

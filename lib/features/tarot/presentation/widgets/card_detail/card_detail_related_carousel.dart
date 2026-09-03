@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_shadows.dart';
@@ -42,7 +43,7 @@ class CardDetailRelatedCarousel extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Text(
-                'İlgili Kartlar',
+                OraclyL10n.t('tarot.card.related'),
                 style: AppTextStyles.titleSmall.copyWith(
                   color: AppColors.goldLight,
                   fontWeight: FontWeight.w700,

@@ -11,11 +11,13 @@ class TarotReadingActions extends StatelessWidget {
     required this.highlight,
     this.cardName = '',
     this.cardAsset,
+    this.isReversed = false,
   });
 
   final String highlight;
   final String cardName;
   final String? cardAsset;
+  final bool isReversed;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class TarotReadingActions extends StatelessWidget {
               theme: highlight,
               cardName: cardName,
               cardAsset: cardAsset,
+              isReversed: isReversed,
             ),
           ),
         ),

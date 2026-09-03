@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/app_spacing.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 
@@ -43,6 +44,10 @@ abstract final class DreamReferenceTokens {
     OraclyChrome.cardPadH,
     OraclyChrome.cardPadV,
   );
+
+  /// Extra clearance so CTA / expanded prompts sit above floating nav.
+  static double entryScrollBottomInset(BuildContext context) =>
+      AppLayout.scrollBottomInset(context) + AppSpacing.xl;
 
   static const double _introHeight = 20;
   static const double _sectionBlockHeight = 28;

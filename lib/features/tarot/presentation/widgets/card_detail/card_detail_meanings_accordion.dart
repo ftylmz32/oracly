@@ -5,16 +5,19 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import 'card_detail_locale.dart';
 import 'card_detail_models.dart';
 
 class CardDetailMeaningsAccordion extends StatelessWidget {
   const CardDetailMeaningsAccordion({
     super.key,
+    required this.cardId,
     required this.meanings,
     required this.expandedKey,
     required this.onToggle,
@@ -22,6 +25,7 @@ class CardDetailMeaningsAccordion extends StatelessWidget {
     required this.accent,
   });
 
+  final int cardId;
   final CardMeaningSections meanings;
   final String? expandedKey;
   final ValueChanged<String> onToggle;
@@ -41,7 +45,7 @@ class CardDetailMeaningsAccordion extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Anlamlar',
+                OraclyL10n.t('tarot.card.meanings'),
                 style: AppTextStyles.titleSmall.copyWith(
                   color: AppColors.goldLight,
                   fontWeight: FontWeight.w700,
@@ -56,7 +60,11 @@ class CardDetailMeaningsAccordion extends StatelessWidget {
                 return _MeaningPanel(
                   title: title,
                   icon: icon,
-                  body: meanings.textForKey(key),
+                  body: CardDetailLocale.meaning(
+                    cardId: cardId,
+                    sections: meanings,
+                    key: key,
+                  ),
                   expanded: expanded,
                   accent: accent,
                   onTap: () => onToggle(key),

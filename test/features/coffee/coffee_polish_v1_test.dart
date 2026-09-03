@@ -46,6 +46,7 @@ void main() {
     final reading = CoffeeReadingParser.parse(
       '''
 {
+  "gorselTespit": "Dipte ince izler, ağız kenarı daha açık görünüyor.",
   "genelYorum": "Fincanda sakin bir açıklık var.",
   "ask": "Yakınlık için net bir cümle iyi gelir.",
   "kariyer": "Tek bir işi bitirmek kazandırır.",

@@ -22,16 +22,17 @@ class OnboardingSetupDraft {
   final String language;
   final AiPersonality style;
 
-  DateTime get updatedAt => DateTime.fromMillisecondsSinceEpoch(updatedAtMillis);
+  DateTime get updatedAt =>
+      DateTime.fromMillisecondsSinceEpoch(updatedAtMillis);
 
   Map<String, dynamic> toJson() => {
-        'updatedAtMillis': updatedAtMillis,
-        if (name != null) 'name': name,
-        if (birthDate != null) 'birthDateIso': birthDate!.toIso8601String(),
-        if (birthPlaceTr != null) 'birthPlaceTr': birthPlaceTr,
-        'language': language,
-        'style': style.name,
-      };
+    'updatedAtMillis': updatedAtMillis,
+    if (name != null) 'name': name,
+    if (birthDate != null) 'birthDateIso': birthDate!.toIso8601String(),
+    if (birthPlaceTr != null) 'birthPlaceTr': birthPlaceTr,
+    'language': language,
+    'style': style.name,
+  };
 
   factory OnboardingSetupDraft.fromJson(Map<String, dynamic> json) {
     final updatedAtMillis = json['updatedAtMillis'] as int? ?? 0;
@@ -43,8 +44,9 @@ class OnboardingSetupDraft {
           : null,
       birthPlaceTr: json['birthPlaceTr'] as String?,
       language: (json['language'] as String?) ?? 'tr',
-      style: AiPersonality.values.byName(json['style'] as String? ?? 'mystical'),
+      style: AiPersonality.values.byName(
+        json['style'] as String? ?? 'mystical',
+      ),
     );
   }
 }
-

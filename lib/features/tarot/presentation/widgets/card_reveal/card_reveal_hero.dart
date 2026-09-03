@@ -12,11 +12,7 @@ import 'reveal_flip_card.dart';
 import 'reveal_timeline.dart';
 
 class CardRevealHero extends StatelessWidget {
-  const CardRevealHero({
-    super.key,
-    required this.progress,
-    required this.data,
-  });
+  const CardRevealHero({super.key, required this.progress, required this.data});
 
   final double progress;
   final RevealCardData data;
@@ -38,8 +34,7 @@ class CardRevealHero extends StatelessWidget {
               fogIntensity: RevealTimeline.fogRichness(t),
               particleSpeed: RevealTimeline.particleSpeed(t),
               glowIntensity: RevealTimeline.glowBehind(t),
-              particlePhase:
-                  t * pi * 2 * RevealTimeline.particleDrift(t),
+              particlePhase: t * pi * 2 * RevealTimeline.particleDrift(t),
               stillness: RevealTimeline.anticipationStillness(t),
               orbFocus: RevealTimeline.orbFocus(t),
             ),
@@ -64,8 +59,7 @@ class CardRevealHero extends StatelessWidget {
               shadowDepth: RevealTimeline.shadowDepth(t),
               goldOpacity: RevealTimeline.frontGoldOpacity(t),
               artOpacity: RevealTimeline.frontArtOpacity(t),
-              particlePhase:
-                  t * pi * 2 * RevealTimeline.particleDrift(t),
+              particlePhase: t * pi * 2 * RevealTimeline.particleDrift(t),
             ),
           ),
         ],

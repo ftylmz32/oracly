@@ -1,4 +1,5 @@
 import { ErrorCode, fail } from '../errors.js';
+import { evaluateCoffeeQuality } from './human-quality.js';
 
 export function extractChatText(raw: string): string {
   const text = raw.trim();
@@ -69,13 +70,24 @@ export type CoffeeData = {
 export function parseCoffeeData(raw: string): CoffeeData {
   const json = extractJson(raw);
   if (!json) fail(ErrorCode.invalidResponse);
+  if (json.usable === false || json.okunabilir === false) {
+    fail(ErrorCode.invalidImage);
+  }
+  const visualObservation = pickText(json, [
+    'gorselTespit',
+    'görselTespit',
+    'visualObservation',
+    'visual',
+    'detectedVisual',
+    'observation',
+  ], 12);
   const overall = pickText(json, [
     'genelYorum',
     'overall',
     'genel',
     'genel_yorum',
     'general',
-  ], 1);
+  ], 12);
   const takeaway = pickText(json, [
     'sonuc',
     'takeaway',
@@ -83,16 +95,9 @@ export function parseCoffeeData(raw: string): CoffeeData {
     'kapanis',
     'closing',
   ], 1);
-  if (!overall && !takeaway) fail(ErrorCode.invalidResponse);
-  return {
-    visualObservation: pickText(json, [
-      'gorselTespit',
-      'görselTespit',
-      'visualObservation',
-      'visual',
-      'detectedVisual',
-      'observation',
-    ], 1),
+  if (!visualObservation || !overall) fail(ErrorCode.invalidResponse);
+  const data: CoffeeData = {
+    visualObservation,
     overall,
     love: pickText(json, ['ask', 'aşk', 'love', 'iliski', 'ilişki'], 1),
     career: pickText(json, ['kariyer', 'career', 'is', 'iş', 'work'], 1),
@@ -114,6 +119,9 @@ export function parseCoffeeData(raw: string): CoffeeData {
     takeaway,
     symbols: parseSymbols(json.semboller ?? json.symbols),
   };
+  const quality = evaluateCoffeeQuality(data);
+  if (quality) fail(ErrorCode.invalidResponse);
+  return data;
 }
 
 function extractJson(raw: string): Record<string, unknown> | null {

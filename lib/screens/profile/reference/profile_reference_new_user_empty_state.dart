@@ -71,4 +71,3 @@ class ProfileReferenceNewUserEmptyState extends StatelessWidget {
     );
   }
 }
-

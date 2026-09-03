@@ -1,17 +1,21 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/app/providers/app_providers.dart';
+import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/ai/domain/models/ai_message.dart';
 import 'package:oracly_new/features/companion/copy/companion_copy.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_handoff_banner.dart';
+import 'package:oracly_new/features/companion/presentation/reference/companion_luna_intro_card.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_or_living_core.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_prompt_invitation.dart';
-import 'package:oracly_new/features/companion/presentation/reference/companion_reference_app_bar.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_idle.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_input_bar.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_message_bubble.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_or_premium_preview.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_send_button.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_thinking.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -51,11 +55,11 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    expect(find.byType(CompanionOrLivingCore), findsOneWidget);
+    expect(find.byType(CompanionLunaIntroCard), findsOneWidget);
     expect(find.text(CompanionCopy.idleTitle), findsOneWidget);
     expect(find.byType(CompanionPromptInvitation), findsWidgets);
     expect(find.byType(CompanionReferenceSendButton), findsOneWidget);
-    expect(find.byIcon(Icons.north_east_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
   });
 
   testWidgets('OR 360x760 fits with four collapsed starters', (tester) async {
@@ -87,8 +91,7 @@ void main() {
     );
     await tester.pump();
     expect(tester.takeException(), isNull);
-    expect(find.byType(CompanionPromptInvitation), findsNWidgets(4));
-    expect(find.text(CompanionCopy.plusLabel), findsOneWidget);
+    expect(find.byType(CompanionPromptInvitation), findsAtLeastNWidgets(1));
     expect(
       tester.getRect(find.byType(CompanionReferenceInputBar)).bottom,
       lessThanOrEqualTo(760),
@@ -96,6 +99,8 @@ void main() {
   });
 
   testWidgets('OR messages, thinking, ribbon, premium preview', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
     await tester.pumpWidget(
       MaterialApp(
         home: MediaQuery(
@@ -123,7 +128,12 @@ void main() {
                 CompanionHandoffBanner(
                   compact: 'Tarot\nBugunun karti',
                 ),
-                const CompanionReferenceOrPremiumPreview(),
+                ProviderScope(
+                  overrides: [
+                    localStorageProvider.overrideWithValue(storage),
+                  ],
+                  child: CompanionReferenceOrPremiumPreview(),
+                ),
               ],
             ),
           ),

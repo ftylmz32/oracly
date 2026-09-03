@@ -140,4 +140,11 @@ abstract final class OraclyFormat {
     final tag = _localeTag(languageCode);
     return NumberFormat('0', tag).format(value);
   }
+
+  /// Character count for text fields — e.g. dream write sheet.
+  static String charCount(int value, {String? languageCode}) {
+    final lang = _lang(languageCode);
+    return OraclyL10n.t('format.char_count', languageCode: lang)
+        .replaceAll('{count}', integer(value, languageCode: lang));
+  }
 }

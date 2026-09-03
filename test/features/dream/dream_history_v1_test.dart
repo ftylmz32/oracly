@@ -55,6 +55,26 @@ void main() {
     expect(DreamHistoryLabels.dateLabel(dream.recordedAt), contains('23:41'));
   });
 
+  test('corrupt dream payload does not crash history restore', () {
+    final restored = DreamRecordMapper.fromRecord(
+      DreamRecord(
+        id: 'bad',
+        text: 'shell narrative',
+        analysis: '',
+        createdAt: DateTime(2026, 8, 8),
+        payload: const {
+          'id': 'bad',
+          'narrative': 'shell narrative',
+          'recordedAt': 'not-a-date',
+          'insights': 'broken',
+        },
+      ),
+    );
+    expect(restored.id, 'bad');
+    expect(restored.narrative, 'shell narrative');
+    expect(restored.insights, isEmpty);
+  });
+
   test('symbol block includes meaning and dream relation', () {
     const symbol = DreamSymbol(
       token: 'kedi',
@@ -73,7 +93,7 @@ void main() {
   test('error copy is clear Turkish', () {
     expect(DreamCopy.analysisFailed, 'Yorum bu sefer tutmadı. Bir daha deneyelim.');
     expect(DreamCopy.retry, 'TEKRAR DENE');
-    expect(DreamCopy.beginAnalysis, 'Rüyayı aç');
+    expect(DreamCopy.beginAnalysis, 'RÜYAMI YORUMLA');
     expect(DreamCopy.narrativeHint, contains('detaylı anlat'));
   });
 

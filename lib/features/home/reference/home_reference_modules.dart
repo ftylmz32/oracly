@@ -1,4 +1,4 @@
-/// Live Home grid — seven core discovery doors (3-column wrap).
+/// Live Home discovery — reference 3×2 core + Dream extension.
 library;
 
 import '../../../core/modules/oracly_feature_id.dart';
@@ -6,7 +6,7 @@ import 'home_module_visual.dart';
 import 'home_reference_module_tile.dart';
 
 abstract final class HomeReferenceModules {
-  /// Coffee · Palm · Astrology · Yıldızname · SoulMate · Tarot · Dream.
+  /// Coffee · Palm · Astrology · Yıldızname · SoulMate · Tarot (reference 3×2).
   static List<HomeReferenceModuleSpec> list({bool quietPremium = false}) => [
         const HomeReferenceModuleSpec(
           id: OraclyFeatureId.coffee,
@@ -33,10 +33,12 @@ abstract final class HomeReferenceModules {
           id: OraclyFeatureId.tarot,
           visual: HomeModuleVisual.tarot,
         ),
-        const HomeReferenceModuleSpec(
-          id: OraclyFeatureId.dream,
-          visual: HomeModuleVisual.dream,
-          isNew: true,
-        ),
       ];
+
+  /// Secondary doorway after the core six — never shrinks the 3×2.
+  static const HomeReferenceModuleSpec dreamExtension = HomeReferenceModuleSpec(
+    id: OraclyFeatureId.dream,
+    visual: HomeModuleVisual.dream,
+    isNew: true,
+  );
 }

@@ -32,69 +32,74 @@ class ExploreReferenceScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final premium = ref.watch(premiumStatusProvider).isPremium;
-    return ReadingLongFormScroll(
-      kicker: ExploreCopy.screenTitle,
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.lg,
-        AppLayout.scrollBottomInset(context),
-      ),
-      children: [
-        Text(
-          ExploreCopy.screenTitle,
-          style: ReadingTypography.title(
-            color: OraclyChrome.cream.withValues(alpha: 0.96),
-          ),
+    return SafeArea(
+      bottom: false,
+      child: ReadingLongFormScroll(
+        kicker: ExploreCopy.screenTitle,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.md,
+          AppSpacing.lg,
+          AppLayout.scrollBottomInset(context),
         ),
-        SizedBox(height: AppSpacing.sm),
-        Text(
-          ExploreCopy.subtitle,
-          style: ReadingTypography.body(
-            color: OraclyChrome.cream.withValues(alpha: 0.72),
-          ),
-        ),
-        SizedBox(height: AppSpacing.xl),
-        ExploreModuleCard(
-          title: HomeDiscoveryCopy.title(OraclyFeatureId.coffee),
-          subtitle: ExploreCopy.featuredSubtitle,
-          visual: HomeModuleVisual.coffee,
-          featured: true,
-          premiumLocked: false,
-          onTap: () => OraclyFeatureNavigation.open(
-            context,
-            OraclyFeatureId.coffee,
-          ),
-        ),
-        SizedBox(height: AppSpacing.md),
-        Text(
-          ExploreCopy.modulesLabel,
-          style: ReadingTypography.sectionLabel(
-            color: OraclyChrome.goldLight.withValues(alpha: 0.75),
-          ),
-        ),
-        SizedBox(height: AppSpacing.sm),
-        for (final row in _modules)
-          if (row.$1 != OraclyFeatureId.coffee) ...[
-            ExploreModuleCard(
-              title: HomeDiscoveryCopy.title(row.$1),
-              subtitle: ExploreCopy.moduleHint(row.$1),
-              visual: row.$2,
-              featured: false,
-              premiumLocked: row.$3 && !premium,
-              onTap: () => OraclyFeatureNavigation.open(context, row.$1),
+        children: [
+          Text(
+            ExploreCopy.screenTitle,
+            style: ReadingTypography.title(
+              color: OraclyChrome.cream.withValues(alpha: 0.96),
             ),
-            SizedBox(height: AppSpacing.sm),
-          ],
-        SizedBox(height: AppSpacing.lg),
-        Text(
-          ExploreCopy.orHint,
-          textAlign: TextAlign.center,
-          style: ReadingTypography.footnote(
-            color: OraclyChrome.cream.withValues(alpha: 0.55),
           ),
-        ),
-      ],
+          SizedBox(height: AppSpacing.sm),
+          Text(
+            ExploreCopy.subtitle,
+            style: ReadingTypography.body(
+              color: OraclyChrome.cream.withValues(alpha: 0.72),
+            ),
+          ),
+          SizedBox(height: AppSpacing.xl),
+          ExploreModuleCard(
+            featureId: OraclyFeatureId.coffee,
+            title: HomeDiscoveryCopy.title(OraclyFeatureId.coffee),
+            subtitle: ExploreCopy.featuredSubtitle,
+            visual: HomeModuleVisual.coffee,
+            featured: true,
+            premiumLocked: false,
+            onTap: () => OraclyFeatureNavigation.open(
+              context,
+              OraclyFeatureId.coffee,
+            ),
+          ),
+          SizedBox(height: AppSpacing.md),
+          Text(
+            ExploreCopy.modulesLabel,
+            style: ReadingTypography.sectionLabel(
+              color: OraclyChrome.goldLight.withValues(alpha: 0.75),
+            ),
+          ),
+          SizedBox(height: AppSpacing.sm),
+          for (final row in _modules)
+            if (row.$1 != OraclyFeatureId.coffee) ...[
+              ExploreModuleCard(
+                featureId: row.$1,
+                title: HomeDiscoveryCopy.title(row.$1),
+                subtitle: ExploreCopy.moduleHint(row.$1),
+                visual: row.$2,
+                featured: false,
+                premiumLocked: row.$3 && !premium,
+                onTap: () => OraclyFeatureNavigation.open(context, row.$1),
+              ),
+              SizedBox(height: AppSpacing.sm),
+            ],
+          SizedBox(height: AppSpacing.lg),
+          Text(
+            ExploreCopy.orHint,
+            textAlign: TextAlign.center,
+            style: ReadingTypography.footnote(
+              color: OraclyChrome.cream.withValues(alpha: 0.55),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

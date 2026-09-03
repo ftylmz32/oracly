@@ -32,6 +32,7 @@ class ShareableDiscovery {
     this.visual,
     this.visualAsset,
     this.subjectLabel,
+    this.visualIsReversed = false,
   });
 
   final DiscoveryShareKind kind;
@@ -44,6 +45,10 @@ class ShareableDiscovery {
 
   /// Card name, zodiac sign, or symbolic title drawn on canvas.
   final String? subjectLabel;
+
+  /// When [visualAsset] reproduces a user's drawn Tarot card, preserve
+  /// orientation. Decorative / catalogue / plate fallbacks stay upright.
+  final bool visualIsReversed;
 
   String get caption =>
       '${DiscoveryShareCopy.themeLabel}:\n$highlight\n\n${DiscoveryShareCopy.brand}';

@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+﻿import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/companion/models/companion_state.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_or_atmosphere.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_or_living_tokens.dart';
@@ -91,3 +91,4 @@ void main() {
     );
   });
 }
+

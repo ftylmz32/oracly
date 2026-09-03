@@ -244,6 +244,11 @@ const kL10nOrCore = <String, L10nTriple>{
     'A fight with a boss wears you down. I think the real matter is what broke in that moment. What exactly got stuck?',
     'Спор с начальником утомляет. Думаю, суть в том, что сломалось в тот момент. Что именно застряло?',
   ),
+  'or.clarify': L10nTriple(
+    'Ne oldu?',
+    'What happened?',
+    'Что случилось?',
+  ),
   'or.repeat': L10nTriple(
     'Peki, başka bir yerden bakalım. Şimdi ne duruyor?',
     'Alright, from another angle. What’s here now?',

@@ -18,8 +18,10 @@ import 'package:oracly_new/shared/navigation/oracly_navigation.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('Astrology is LOCAL/PREVIEW - never live sky AI', () {
-    expect(AstrologyReferenceKindNote.label, PreviewCapabilityCopy.badge);
+  test('Astrology is LOCAL catalogue LIVE - never live sky AI', () {
+    expect(OraclyFeatureRegistry.byId(OraclyFeatureId.astrology)!.isLive, isTrue);
+    expect(AstrologyReferenceKindNote.label, PreviewCapabilityCopy.astrologyLabel);
+    expect(AstrologyReferenceKindNote.label.toLowerCase(), isNot(contains('önizleme')));
     expect(AstrologyReferenceKindNote.detail.toLowerCase(), contains('yansıma'));
     expect(OraclyL10n.t('astro.live').toLowerCase(), contains('burç'));
     expect(OraclyL10n.t('astro.live').toLowerCase(), isNot(contains('gökyüzü')));

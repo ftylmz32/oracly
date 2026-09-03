@@ -36,6 +36,7 @@ class DiscoveryShareController {
       visual: discovery.visual,
       visualAsset: discovery.visualAsset,
       subjectLabel: discovery.subjectLabel,
+      visualIsReversed: discovery.visualIsReversed,
     );
   }
 

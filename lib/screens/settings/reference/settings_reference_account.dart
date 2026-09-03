@@ -8,10 +8,7 @@ import '../../../core/navigation/oracly_navigation_service.dart';
 import 'settings_reference_group.dart';
 
 class SettingsReferenceAccount extends StatelessWidget {
-  const SettingsReferenceAccount({
-    super.key,
-    required this.languageCode,
-  });
+  const SettingsReferenceAccount({super.key, required this.languageCode});
 
   final String languageCode;
 

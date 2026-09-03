@@ -59,16 +59,19 @@ export class FirebaseAppCheckVerifier implements AppCheckVerifier {
     private readonly getKey: JWTVerifyGetKey,
     private readonly projectId: string,
     private readonly projectNumber: string | null,
+    private readonly allowedAppIds: readonly string[] = [],
   ) {}
 
   static fromProject(
     projectId: string,
     projectNumber: string | null = null,
+    allowedAppIds: readonly string[] = [],
   ): FirebaseAppCheckVerifier {
     return new FirebaseAppCheckVerifier(
       createRemoteJWKSet(new URL(APP_CHECK_JWKS_URL)),
       projectId,
       projectNumber,
+      allowedAppIds,
     );
   }
 
@@ -91,6 +94,17 @@ export class FirebaseAppCheckVerifier implements AppCheckVerifier {
       if (!iss.startsWith('https://firebaseappcheck.googleapis.com/')) {
         return { ok: false, reason: 'invalid' };
       }
+      if (this.allowedAppIds.length > 0) {
+        const appId =
+          typeof payload.sub === 'string'
+            ? payload.sub.trim()
+            : typeof payload.app_id === 'string'
+              ? String(payload.app_id).trim()
+              : '';
+        if (!appId || !this.allowedAppIds.includes(appId)) {
+          return { ok: false, reason: 'invalid' };
+        }
+      }
       return { ok: true };
     } catch {
       return { ok: false, reason: 'invalid' };
@@ -109,6 +123,7 @@ export function createAppCheckVerifier(config: AppConfig): AppCheckVerifier {
     return FirebaseAppCheckVerifier.fromProject(
       config.firebaseProjectId,
       config.firebaseProjectNumber,
+      config.firebaseAppCheckAppIds,
     );
   } catch {
     return new FailClosedAppCheckVerifier();

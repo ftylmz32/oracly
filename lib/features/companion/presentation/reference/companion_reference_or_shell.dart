@@ -62,8 +62,7 @@ class CompanionReferenceOrShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reading = controller.readingContext;
-    final arrival =
-        reading == null ? null : OrChatHandoff.arrivalLine(reading);
+    final arrival = reading == null ? null : OrChatHandoff.arrivalLine(reading);
     final handoff = CompanionHandoffBanner.of(
       state.context?.proactiveAcknowledgment,
     );
@@ -105,33 +104,31 @@ class CompanionReferenceOrShell extends StatelessWidget {
             personality: personality,
           ),
         ),
-        // Soft-cap dock on short/keyboard canvases — never clip CTAs or mic.
         if (session.canCompose)
-          Flexible(
-            fit: FlexFit.loose,
-            child: SingleChildScrollView(
-              reverse: true,
-              physics: const ClampingScrollPhysics(),
-              child: CompanionReferenceComposerDock(
-                inputController: inputController,
-                onSend: onSend,
-                enabled: !busy,
-                busy: busy,
-                errorMessage: (!busy && state.errorMessage != null)
-                    ? state.errorMessage
-                    : null,
-                onRetry: () => controller.retryLast(),
-                onMicTap: session.canUseMic ? onMicTap : null,
-                onMicCancel: onMicCancel,
-                onPlusTap: onPlusTap,
-              ),
-            ),
+          CompanionReferenceComposerDock(
+            key: const ValueKey('companion_lower_interaction_area'),
+            inputController: inputController,
+            onSend: onSend,
+            enabled: !busy,
+            busy: busy,
+            errorMessage: (!busy && state.errorMessage != null)
+                ? state.errorMessage
+                : null,
+            onRetry: () => controller.retryLast(),
+            onMicTap: session.canUseMic ? onMicTap : null,
+            onMicCancel: onMicCancel,
+            onPlusTap: onPlusTap,
+            showShortcuts: messages.isNotEmpty,
+            onPromptSelected: session.canCompose ? onSelected : null,
+            kindId: reading?.kind.name,
+            reserveShellNavigationClearance: false,
           )
         else if (session.showPaywallDock)
           Flexible(
             fit: FlexFit.loose,
             child: SingleChildScrollView(
               reverse: true,
+              clipBehavior: Clip.none,
               physics: const ClampingScrollPhysics(),
               child: const CompanionReferenceOrPremiumDock(),
             ),

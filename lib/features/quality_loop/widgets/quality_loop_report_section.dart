@@ -4,7 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../premium/presentation/widgets/settings_tiles.dart';
 import '../copy/quality_loop_copy.dart';
 import '../providers/quality_loop_providers.dart';

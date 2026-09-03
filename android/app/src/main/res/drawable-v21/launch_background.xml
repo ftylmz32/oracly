@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Native brand cover while Flutter engine starts — #07050D + centered logo. -->
+<!-- Logo-free native cover. Flutter owns the single branded splash. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/launch_background" />
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/splash_brand_logo" />
-    </item>
 </layer-list>

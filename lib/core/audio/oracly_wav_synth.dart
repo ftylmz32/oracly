@@ -119,7 +119,7 @@ abstract final class OraclyWavSynth {
   static Uint8List zodiacAtmosphere(ZodiacSignId sign) {
     return _droneLoop(
       OraclyAtmospherePalette.frequencies(sign),
-      bedVolume: 0.028,
+      bedVolume: OraclyAtmospherePalette.bedVolume,
     );
   }
 

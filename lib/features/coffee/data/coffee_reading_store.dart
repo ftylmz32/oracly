@@ -15,10 +15,23 @@ class CoffeeReadingStore {
 
   List<CoffeeReading> all() {
     final raw = _storage.getStringList(key) ?? const <String>[];
-    return [
-      for (final row in raw)
-        CoffeeReading.fromJson(jsonDecode(row) as Map<String, dynamic>),
-    ]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final items = <CoffeeReading>[];
+    for (final row in raw) {
+      final reading = _tryParse(row);
+      if (reading != null) items.add(reading);
+    }
+    items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return items;
+  }
+
+  static CoffeeReading? _tryParse(String raw) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return CoffeeReading.fromJson(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return null;
+    }
   }
 
   CoffeeReading? byId(String id) {

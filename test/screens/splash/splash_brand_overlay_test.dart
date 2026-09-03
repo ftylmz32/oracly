@@ -18,8 +18,8 @@ Future<void> _allowSplashArtDecode(WidgetTester tester) async {
 }
 
 void main() {
-  test('Flutter branded animation is ~3 seconds', () {
-    expect(SplashBrandOverlay.durationMs, inInclusiveRange(2900, 3200));
+  test('Flutter branded animation is deliberate but capped near 2 seconds', () {
+    expect(SplashBrandOverlay.durationMs, inInclusiveRange(1500, 2000));
     expect(SplashFinalTimeline.durationMs, SplashBrandOverlay.durationMs);
   });
 
@@ -72,15 +72,18 @@ void main() {
     expect(find.byType(Image), findsWidgets);
     await _allowSplashArtDecode(tester);
     expect(frames, greaterThanOrEqualTo(1));
-    await tester.pump(const Duration(milliseconds: 3100));
+    await tester.pump(const Duration(milliseconds: 1500));
+    expect(done, 0);
+    await tester.pump(const Duration(milliseconds: 500));
     for (var i = 0; i < 30 && done == 0; i++) {
       await tester.pump(const Duration(milliseconds: 16));
     }
     expect(done, 1);
   });
 
-  testWidgets('first frame is never blank — overlay covers midnight',
-      (tester) async {
+  testWidgets('first frame is never blank — overlay covers midnight', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(home: SplashBrandOverlay(onDone: _noop)),
     );
@@ -93,15 +96,12 @@ void main() {
     var done = 0;
     await tester.pumpWidget(
       MaterialApp(
-        home: SplashBrandOverlay(
-          reduced: true,
-          onDone: () => done++,
-        ),
+        home: SplashBrandOverlay(reduced: true, onDone: () => done++),
       ),
     );
     await tester.pump();
     await _allowSplashArtDecode(tester);
-    await tester.pump(const Duration(milliseconds: 1700));
+    await tester.pump(const Duration(milliseconds: 1800));
     for (var i = 0; i < 30 && done == 0; i++) {
       await tester.pump(const Duration(milliseconds: 16));
     }

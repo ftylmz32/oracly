@@ -33,31 +33,47 @@ class ProfileReferenceCardShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final premium = weight == ProfileSurfaceWeight.hero;
-    final elevated = weight == ProfileSurfaceWeight.highlight ||
+    final elevated =
+        weight == ProfileSurfaceWeight.highlight ||
         weight == ProfileSurfaceWeight.story;
-    final glow = glowStrength ??
+    final glow =
+        glowStrength ??
         switch (weight) {
           ProfileSurfaceWeight.hero => 1.22,
           ProfileSurfaceWeight.highlight => 1.05,
           ProfileSurfaceWeight.story => 0.78,
           ProfileSurfaceWeight.utility => 0.48,
         };
-    final radius = borderRadius ??
+    final radius =
+        borderRadius ??
         switch (weight) {
           ProfileSurfaceWeight.hero => ProfileReferenceTokens.heroRadius,
           ProfileSurfaceWeight.highlight => AppRadius.s24,
           ProfileSurfaceWeight.story => AppRadius.s24,
           ProfileSurfaceWeight.utility => AppRadius.s20,
         };
-    final pad = padding ??
+    final pad =
+        padding ??
         switch (weight) {
           ProfileSurfaceWeight.hero => ProfileReferenceTokens.heroPadding,
-          ProfileSurfaceWeight.highlight =>
-            const EdgeInsets.fromLTRB(14, 12, 12, 12),
-          ProfileSurfaceWeight.story =>
-            const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          ProfileSurfaceWeight.utility =>
-            const EdgeInsets.fromLTRB(14, 10, 12, 10),
+          ProfileSurfaceWeight.highlight => const EdgeInsets.fromLTRB(
+            14,
+            12,
+            12,
+            12,
+          ),
+          ProfileSurfaceWeight.story => const EdgeInsets.fromLTRB(
+            16,
+            14,
+            16,
+            14,
+          ),
+          ProfileSurfaceWeight.utility => const EdgeInsets.fromLTRB(
+            14,
+            10,
+            12,
+            10,
+          ),
         };
 
     return OraclyGlassCard(

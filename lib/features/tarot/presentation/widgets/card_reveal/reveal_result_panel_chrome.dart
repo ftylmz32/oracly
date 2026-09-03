@@ -4,19 +4,19 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../../core/copy/first_session_copy.dart';
+import '../../../../../core/copy/resilience_copy.dart';
 import '../../../../../core/first_session/first_session_scope.dart';
+import '../../../../../core/security/ai_error_sanitizer.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_radius.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../core/theme/reading_typography.dart';
 import '../../../../../shared/widgets/oracly_button.dart';
+import '../../../../../shared/widgets/oracly_text_action.dart';
 
 class RevealRarityChip extends StatelessWidget {
-  const RevealRarityChip({
-    super.key,
-    required this.label,
-    required this.color,
-  });
+  const RevealRarityChip({super.key, required this.label, required this.color});
 
   final String label;
   final Color color;
@@ -37,10 +37,7 @@ class RevealRarityChip extends StatelessWidget {
           width: AppBorderWidth.hairline,
         ),
         boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.35),
-            blurRadius: 14,
-          ),
+          BoxShadow(color: color.withValues(alpha: 0.35), blurRadius: 14),
         ],
       ),
       child: Padding(
@@ -62,9 +59,14 @@ class RevealRarityChip extends StatelessWidget {
 }
 
 class RevealContinueCta extends StatelessWidget {
-  const RevealContinueCta({super.key, required this.onPressed});
+  const RevealContinueCta({
+    super.key,
+    required this.onPressed,
+    this.isLoading = false,
+  });
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +76,38 @@ class RevealContinueCta extends StatelessWidget {
           : FirstSessionCopy.revealContinueDefault,
       onPressed: onPressed,
       isExpanded: true,
+      isLoading: isLoading,
       size: OraclyButtonSize.large,
+    );
+  }
+}
+
+/// Compact recoverable notice — cards stay on screen.
+class RevealAdvanceError extends StatelessWidget {
+  const RevealAdvanceError({super.key, required this.message, this.onRetry});
+
+  final String message;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          AiErrorSanitizer.guard(message),
+          textAlign: TextAlign.center,
+          style: ReadingTypography.bodySmall(color: AppColors.textSecondary),
+        ),
+        if (onRetry != null) ...[
+          SizedBox(height: AppSpacing.sm),
+          OraclyTextAction(
+            label: ResilienceCopy.retryAction,
+            emphasized: true,
+            onPressed: onRetry,
+          ),
+        ],
+      ],
     );
   }
 }

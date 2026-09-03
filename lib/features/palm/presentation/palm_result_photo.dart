@@ -40,11 +40,13 @@ class _PalmResultPhotoState extends State<PalmResultPhoto> {
   Future<void> _resolveAspect(String path) async {
     try {
       final bytes = await File(path).readAsBytes();
-      final codec = await ui.instantiateImageCodec(bytes);
+      // Tiny decode — aspect only; UI uses cacheWidth for display.
+      final codec = await ui.instantiateImageCodec(bytes, targetWidth: 64);
       final frame = await codec.getNextFrame();
       final image = frame.image;
       final next = image.width / image.height;
       image.dispose();
+      codec.dispose();
       if (!mounted) return;
       setState(() => _aspect = next.clamp(0.68, 1.05));
     } catch (_) {}

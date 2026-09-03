@@ -237,6 +237,8 @@ class _ScriptedPort implements PremiumPurchasePort {
 
   @override
   bool get isConfigured => configured;
+  @override
+  bool get canAttemptRestore => isConfigured;
 
   @override
   Future<void> prepare() async {}
@@ -264,6 +266,8 @@ class _SlowPort implements PremiumPurchasePort {
 
   @override
   bool get isConfigured => true;
+  @override
+  bool get canAttemptRestore => isConfigured;
 
   @override
   Future<void> prepare() async {}

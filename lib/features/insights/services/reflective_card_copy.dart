@@ -2,7 +2,7 @@
 library;
 
 import '../../content/tarot/data/tarot_card_gloss.dart';
-import '../../content/tarot/data/tarot_content_catalogue.dart';
+import '../../content/tarot/data/tarot_court_legacy.dart';
 import '../../content/tarot/models/tarot_card_content.dart';
 import '../../tarot/interpretation/models/reading_context.dart';
 import '../../tarot/reading/reading_card_beat.dart';
@@ -43,7 +43,10 @@ abstract final class ReflectiveCardCopy {
     ReadingCardContext card,
     String Function(TarotCardContent) pick,
   ) =>
-      pick(TarotContentCatalogue.byId(card.cardId));
+      pick(TarotCourtLegacy.contentFor(
+        cardId: card.cardId,
+        imageAsset: card.imageAsset,
+      ));
 
   static String clause(String text) {
     final trimmed = text.trim();

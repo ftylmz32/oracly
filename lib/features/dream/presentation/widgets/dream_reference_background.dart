@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/design_system/app_gradients.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/oracly_quiet_motion.dart';
 
 /// Mystical dream atmosphere — matches reference background layers.
 class DreamReferenceBackground extends StatefulWidget {
@@ -30,7 +31,13 @@ class _DreamReferenceBackgroundState extends State<DreamReferenceBackground>
     _motion = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 52),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    OraclyQuietMotion.ambient(context, _motion, rest: 0.18);
   }
 
   @override
@@ -125,13 +132,14 @@ class _Nebula extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final blur = OraclyQuietMotion.still(context) ? 28.0 : 78.0;
     return Positioned(
       top: top,
       left: left,
       right: right,
       child: IgnorePointer(
         child: ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 78, sigmaY: 78),
+          imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: Container(
             width: size,
             height: size,

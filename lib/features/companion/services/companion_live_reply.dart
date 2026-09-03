@@ -30,7 +30,6 @@ class CompanionLiveReply {
     Future<({OrResponseDepth depth, bool spoken})> Function()? lengthPrefs,
     String? Function()? memoryPromptHint,
   }) : this._(
-         responder,
          bridge,
          styleHint,
          personality,
@@ -39,7 +38,6 @@ class CompanionLiveReply {
        );
 
   const CompanionLiveReply._(
-    this._responder,
     this._bridge,
     this._styleHint,
     this._personality,
@@ -47,7 +45,6 @@ class CompanionLiveReply {
     this._memoryPromptHint,
   );
 
-  final CompanionResponder _responder;
   final CompanionAiBridge? _bridge;
   final Future<String?> Function(String userMessage) _styleHint;
   final Future<String?> Function() _personality;
@@ -111,22 +108,7 @@ class CompanionLiveReply {
       readingContext: readingContext,
     );
     if (live == null) {
-      assert(() {
-        debugPrint('[OR] bridge stage=localFallback');
-        return true;
-      }());
-      return (
-        response: _responder.respond(
-          request: request,
-          context: context,
-          priorUser: priorUser,
-          turns: turns,
-          personality: personality,
-          depth: depth,
-          spoken: prefs.spoken,
-        ),
-        fromAi: false,
-      );
+      throw AiRequestException(AiFailure.noConfiguration());
     }
     return (response: CompanionResponse(body: live), fromAi: true);
   }

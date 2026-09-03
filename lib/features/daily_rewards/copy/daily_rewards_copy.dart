@@ -20,6 +20,8 @@ abstract final class DailyRewardsCopy {
   static String get claimedLabel => _t('rewards.claimed');
   static String get streakLabel => _t('rewards.streak');
   static String get streakHint => _t('rewards.streak_hint');
+  static String get loadFailed => _t('rewards.load_failed');
+  static String get claimFailed => _t('rewards.claim_failed');
 
   static String rewardAmountLabel([int amount = GemEconomy.dailyReward]) =>
       _t('rewards.amount').replaceAll('{n}', GemDisplay.format(amount));

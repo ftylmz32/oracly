@@ -81,6 +81,21 @@ class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
   @override
   Future<void> signOut() => _auth.signOut();
 
+  @override
+  Future<void> deleteCurrentUser() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw AuthGatewayException('no-current-user', code: 'no-current-user');
+      }
+      await user.delete();
+    } on AuthGatewayException {
+      rethrow;
+    } on FirebaseAuthException catch (e) {
+      throw AuthGatewayException(e.code, code: e.code);
+    }
+  }
+
   Future<FirebaseAuthUserSnapshot> _run(
     Future<FirebaseAuthUserSnapshot> Function() action,
   ) async {

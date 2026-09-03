@@ -1,7 +1,6 @@
 /// Honest tarot gem/premium contract — free one-card, paid deeper spreads.
 library;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';

@@ -12,6 +12,7 @@ import '../../../features/companion/services/companion_voice_conversation_access
 import '../../../features/premium/models/personalization_models.dart';
 import '../../../shared/widgets/oracly_skeleton_loader.dart';
 import 'settings_reference_account.dart';
+import 'settings_reference_developer_qa.dart';
 import 'settings_reference_pickers.dart';
 import 'settings_reference_prefs.dart';
 import 'settings_reference_profile_summary.dart';
@@ -91,6 +92,10 @@ class SettingsReferenceBody extends StatelessWidget {
                 ),
                 SizedBox(height: SettingsReferenceTokens.profileToFirstSection),
                 SettingsReferenceAccount(languageCode: languageCode),
+                if (SettingsReferenceDeveloperQa.visible) ...[
+                  SizedBox(height: SettingsReferenceTokens.sectionGap),
+                  const SettingsReferenceDeveloperQa(),
+                ],
                 SizedBox(height: SettingsReferenceTokens.sectionGap),
                 SettingsReferencePrefs(
                   settings: settings,

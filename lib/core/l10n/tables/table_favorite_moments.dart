@@ -60,4 +60,14 @@ const kL10nFavoriteMoments = <String, L10nTriple>{
     'Open collection',
     'Открыть коллекцию',
   ),
+  'moments.source_unavailable': L10nTriple(
+    'Kaynak okuma artık burada değil.',
+    'The source reading is no longer here.',
+    'Исходное чтение больше недоступно.',
+  ),
+  'moments.snapshot_notice': L10nTriple(
+    'Orijinal kayıt silinmiş; bu, sakladığın anın bir kopyası.',
+    'The original record was cleared; this is the excerpt you saved.',
+    'Исходная запись удалена; это сохранённый тобой отрывок.',
+  ),
 };

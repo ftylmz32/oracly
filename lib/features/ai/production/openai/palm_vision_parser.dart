@@ -13,6 +13,14 @@ class PalmVisionParser {
   ];
 
   static Map<String, dynamic>? fromMap(Map<String, dynamic> json) {
+    if (json['usable'] == false || json['okunabilir'] == false) return null;
+    final visual = _pick(json, const [
+      'visualObservation',
+      'gorselTespit',
+      'görselTespit',
+      'observation',
+      'detectedVisual',
+    ]);
     final overall = _pick(json, const [
       'overall',
       'genelYapi',
@@ -21,7 +29,9 @@ class PalmVisionParser {
     ]);
     final takeaway = _pick(json, const ['takeaway', 'sonuc', 'sonuç']);
     if (overall.isEmpty && takeaway.isEmpty) return null;
+    if (visual.trim().length < 12) return null;
     final parsed = <String, dynamic>{
+      'visualObservation': visual,
       'overall': overall,
       'lifeLine': _pick(json, const ['lifeLine', 'yasamCizgisi', 'yaşamÇizgisi']),
       'headLine': _pick(json, const ['headLine', 'zihinCizgisi', 'zihinÇizgisi']),

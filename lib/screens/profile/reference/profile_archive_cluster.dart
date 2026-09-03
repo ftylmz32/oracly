@@ -31,7 +31,7 @@ class ProfileArchiveCluster extends ConsumerWidget {
     final journalLine = journal.isEmpty
         ? DiscoveryJournalCopy.emptyTitle
         : '${DiscoveryJournalCopy.badge(journal.first.kind)} · '
-            '${journal.first.title}';
+              '${journal.first.title}';
 
     return ProfileReferenceCardShell(
       weight: ProfileSurfaceWeight.utility,
@@ -84,7 +84,11 @@ class _ArchiveRow extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: OraclyChrome.goldLight.withValues(alpha: 0.88)),
+            Icon(
+              icon,
+              size: 18,
+              color: OraclyChrome.goldLight.withValues(alpha: 0.88),
+            ),
             SizedBox(width: AppSpacing.s12),
             Expanded(
               child: Column(

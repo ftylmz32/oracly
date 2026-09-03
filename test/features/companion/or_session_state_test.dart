@@ -1,4 +1,4 @@
-/// OR session state resolver — chamber stays usable in every state.
+﻿/// OR session state resolver — chamber stays usable in every state.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -184,3 +184,4 @@ void main() {
     );
   });
 }
+

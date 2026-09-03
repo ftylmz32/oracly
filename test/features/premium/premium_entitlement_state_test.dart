@@ -33,13 +33,11 @@ class _ActiveVerifier implements PremiumEntitlementVerifier {
 
 class _Port implements PremiumPurchasePort {
   _Port({
-    this.configured = true,
     this.purchaseResult,
     this.restoreResult,
     this.throwOnPurchase = false,
   });
 
-  bool configured;
   PremiumPurchaseResult? purchaseResult;
   PremiumPurchaseResult? restoreResult;
   final bool throwOnPurchase;
@@ -51,7 +49,9 @@ class _Port implements PremiumPurchasePort {
   );
 
   @override
-  bool get isConfigured => configured;
+  bool get isConfigured => true;
+  @override
+  bool get canAttemptRestore => isConfigured;
 
   @override
   Future<void> prepare() async {}
@@ -123,8 +123,9 @@ void main() {
   test('active membership from repository is active entitlement', () async {
     final (premium, users) = await repos();
     await premium.activatePlan(PremiumPlanKind.yearly, authoritative: true);
+    await premium.savePurchaseCredentials(_Port._creds);
     final status = PremiumStatusController(
-      PremiumService(premium, users, _Port()),
+      PremiumService(premium, users, _Port(), _ActiveVerifier()),
     );
     await status.load();
     expect(status.entitlement, PremiumEntitlementState.active);

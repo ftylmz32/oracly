@@ -3,8 +3,9 @@ library;
 
 import "package:flutter/material.dart";
 
-import "../../../../../core/theme/app_colors.dart";
-import "../../../../../core/theme/app_text_styles.dart";
+import "../../../../core/l10n/l10n.dart";
+import "../../../../core/theme/app_colors.dart";
+import "../../../../core/theme/app_text_styles.dart";
 import "../../presentation/widgets/card_reveal/card_reveal_spread.dart";
 import "ritual_card_shell.dart";
 
@@ -18,7 +19,11 @@ class RitualSpreadSlots extends StatelessWidget {
   final List<RevealCardData> placed;
   final int totalSlots;
 
-  static const labels3 = ["GEÇMİŞ", "ŞİMDİ", "GELECEK"];
+  static List<String> get labels3 => [
+        OraclyL10n.t('tarot.pos.past.slot'),
+        OraclyL10n.t('tarot.pos.present.slot'),
+        OraclyL10n.t('tarot.pos.future.slot'),
+      ];
 
   @override
   Widget build(BuildContext context) {

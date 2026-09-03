@@ -34,5 +34,6 @@ class HomeReferenceScope extends InheritedWidget {
       layout.heroArtSize != oldWidget.layout.heroArtSize ||
       layout.heroSlotHeight != oldWidget.layout.heroSlotHeight ||
       layout.gridSlotHeight != oldWidget.layout.gridSlotHeight ||
+      layout.dreamExtensionHeight != oldWidget.layout.dreamExtensionHeight ||
       layout.headerHeight != oldWidget.layout.headerHeight;
 }

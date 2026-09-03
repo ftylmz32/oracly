@@ -4,7 +4,34 @@ library;
 import '../l10n_triple.dart';
 
 const kL10nCompanion = <String, L10nTriple>{
-  'or.screen_title': L10nTriple('OR', 'OR', 'OR'),
+  'or.screen_title': L10nTriple('LUNA', 'LUNA', 'LUNA'),
+  'or.guide_subtitle': L10nTriple(
+    'Senin rehberin. Her zaman burada.',
+    'Your guide. Always here.',
+    'Твой проводник. Всегда рядом.',
+  ),
+  'or.intro_hello': L10nTriple(
+    'Merhaba, ben Luna ✨',
+    'Hello, I am Luna ✨',
+    'Привет, я Luna ✨',
+  ),
+  'or.intro_body': L10nTriple(
+    'Düşüncelerini, duygularını, merak ettiklerini benimle paylaşabilirsin. Fal, astroloji, rüyaların, ilişkilerin... Hepsini birlikte keşfederiz.',
+    'You can share your thoughts, feelings, and questions with me. Tarot, astrology, dreams, relationships... We explore them together.',
+    'Можешь делиться мыслями, чувствами и вопросами. Вместе подумаем о таро, астрологии, снах и отношениях.',
+  ),
+  'or.intro_badge': L10nTriple('24/7 seninle', 'With you 24/7', 'С тобой 24/7'),
+  'or.day_today': L10nTriple('Bugün', 'Today', 'Сегодня'),
+  'or.privacy_note': L10nTriple(
+    'Konuşmaların gizlidir ve sadece sana özeldir.',
+    'Your conversations are private and only for you.',
+    'Твои разговоры конфиденциальны и только для тебя.',
+  ),
+  'or.shortcut.tarot': L10nTriple('Tarot Falı', 'Tarot', 'Таро'),
+  'or.shortcut.coffee': L10nTriple('Kahve Falı', 'Coffee', 'Кофе'),
+  'or.shortcut.dream': L10nTriple('Rüya Analizi', 'Dream', 'Сны'),
+  'or.shortcut.astrology': L10nTriple('Astroloji', 'Astrology', 'Астрология'),
+  'or.shortcut.soulmate': L10nTriple('Ruh Eşi', 'Soulmate', 'Родств. душа'),
   'or.memory_transparency': L10nTriple(
     'Yalnızca kaydettiğin anıları hatırlıyorum. Hafızanı istediğin zaman görüntüleyebilirsin.',
     'I remember only the notes you saved. You can view your memory anytime.',
@@ -353,14 +380,14 @@ const kL10nCompanion = <String, L10nTriple>{
   'or.paused': L10nTriple('Duraklatıldı', 'Paused', 'Пауза'),
   'or.idle': L10nTriple('Yer açık.', 'There is room.', 'Место есть.'),
   'or.idle_title': L10nTriple(
-    'Aklında kalan yerden başlayalım.',
-    'Let us start where your mind left off.',
-    'Давай начнём с того места, где осталась мысль.',
+    'Merhaba, ben Luna ✨',
+    'Hello, I am Luna ✨',
+    'Привет, я Luna ✨',
   ),
   'or.idle_subtitle': L10nTriple(
-    'Kararlarını, duygularını ve okumalarındaki izleri birlikte netleştiren sakin bir düşünme alanı.',
-    'A calm space to clarify your decisions, feelings, and the threads in your readings.',
-    'Спокойное пространство, чтобы прояснить решения, чувства и нити в твоих чтениях.',
+    'Düşüncelerini, duygularını, merak ettiklerini benimle paylaşabilirsin. Fal, astroloji, rüyaların, ilişkilerin... Hepsini birlikte keşfederiz.',
+    'You can share your thoughts, feelings, and questions with me. Tarot, astrology, dreams, relationships... We explore them together.',
+    'Можешь делиться мыслями, чувствами и вопросами. Вместе подумаем о таро, астрологии, снах и отношениях.',
   ),
   'or.presence': L10nTriple('Dinliyorum.', "I'm listening.", 'Слушаю.'),
   'or.idle_optional': L10nTriple(
@@ -375,8 +402,8 @@ const kL10nCompanion = <String, L10nTriple>{
     'Открыть начала разговора',
   ),
   'or.msg_you': L10nTriple('Sen', 'You', 'Ты'),
-  'or.msg_or': L10nTriple('OR', 'OR', 'OR'),
-  'or.send': L10nTriple("OR'a sor", 'Ask OR', 'Спросить OR'),
+  'or.msg_or': L10nTriple('Luna', 'Luna', 'Luna'),
+  'or.send': L10nTriple("Luna'ya sor", 'Ask Luna', 'Спросить Luna'),
   'or.copy': L10nTriple('Kopyala', 'Copy', 'Копировать'),
   'or.copied': L10nTriple('Kopyalandı.', 'Copied.', 'Скопировано.'),
   'or.speak': L10nTriple('Sesli dinle', 'Listen', 'Слушать'),
@@ -614,9 +641,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Спокойное пространство для размышления',
   ),
   'or.input_hint': L10nTriple(
-    'Aklındaki durumu olduğu gibi yaz…',
-    'Write what is on your mind as it is…',
-    'Напиши, что у тебя на уме, как есть…',
+    "Luna'ya bir şey sor...",
+    'Ask Luna something...',
+    'Спроси Luna о чём-нибудь...',
   ),
   'or.ask': L10nTriple("OR'a Sor", 'Ask OR', 'Спросить OR'),
   'or.oracle_hint': L10nTriple(
@@ -630,9 +657,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Собираю воедино детали, которые ты сказал…',
   ),
   'or.presence_thinking': L10nTriple(
-    'OR düşünüyor...',
-    'OR is thinking...',
-    'OR думает...',
+    'Luna düşünüyor...',
+    'Luna is thinking...',
+    'Luna думает...',
   ),
   'or.new_reply': L10nTriple('Yeni yanıt', 'New reply', 'Новый ответ'),
   'or.error': L10nTriple(
@@ -666,4 +693,10 @@ const kL10nCompanion = <String, L10nTriple>{
     "I can't reach OR right now. You can try again.",
     'Сейчас не могу связаться с OR. Можно попробовать снова.',
   ),
+  'or.save_failed': L10nTriple(
+    'Yanıt geldi ama kaydedilemedi. Tekrar deneyebilirsin.',
+    'Response received but could not be saved. You can try again.',
+    'Ответ получен, но не сохранился. Можно попробовать снова.',
+  ),
+  'or.saving': L10nTriple('Kaydediyorum...', 'Saving...', 'Сохраняю...'),
 };

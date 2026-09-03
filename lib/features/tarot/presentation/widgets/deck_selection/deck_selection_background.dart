@@ -6,8 +6,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../../../../../core/theme/app_colors.dart';
-import '../../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/oracly_brand_signature.dart';
 import 'deck_selection_cinematic.dart';
 
 /// Soft purple nebula — quieter particles than Tarot Home.

@@ -1,4 +1,4 @@
-/// Voice conversation turns — clear phases, no mic auto-loop.
+﻿/// Voice conversation turns — clear phases, no mic auto-loop.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -142,7 +142,7 @@ void main() {
     OraclyTtsGate.paused.value = false;
   });
 
-  test('ready → listen → think → speak → ready, never auto-reopens mic', () async {
+  test('ready â†’ listen â†’ think â†’ speak â†’ ready, never auto-reopens mic', () async {
     expect(turn.phase, OrVoiceTurnPhase.ready);
     await turn.onMicTap();
     expect(turn.phase, OrVoiceTurnPhase.listening);
@@ -192,3 +192,4 @@ void main() {
   });
 
 }
+

@@ -26,6 +26,7 @@ abstract final class PalmCopy {
   static String get galleryLabel => _t('palm.gallery');
   static String get previewLabel => _t('palm.preview_label');
   static String get addPhotoTitle => _t('palm.add_photo_title');
+  static String get captureHeading => _t('palm.capture_heading');
   static String get captureGuide => _t('palm.capture_guide');
   static String get captureTips => _t('palm.capture_tips');
   static String get usePhotoLabel => _t('palm.use_photo');

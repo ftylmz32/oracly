@@ -1,6 +1,7 @@
 /// Restore/persist hooks for SoulMate draw screen.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/soul_mate_saved_provider.dart';
@@ -49,15 +50,32 @@ abstract final class SoulMateDrawPersistence {
     required SoulMateDrawRequest request,
     required List<int> imageBytes,
   }) async {
+    final service = ref.read(soulMateResultServiceProvider);
+    return persistWithService(
+      service: service,
+      request: request,
+      imageBytes: imageBytes,
+      onSaved: () {
+        ref.invalidate(soulMateSavedResultProvider);
+        ref.invalidate(soulMateSavedPortraitProvider);
+      },
+    );
+  }
+
+  /// Safe after route dispose — callers must capture [service] before awaiting draw.
+  static Future<String?> persistWithService({
+    required SoulMateResultService service,
+    required SoulMateDrawRequest request,
+    required List<int> imageBytes,
+    VoidCallback? onSaved,
+  }) async {
     try {
-      final saved =
-          await ref.read(soulMateResultServiceProvider).saveSuccessfulDraw(
-                request: request,
-                imageBytes: imageBytes,
-                parts: SoulMateInterpretation.partsFor(request),
-              );
-      ref.invalidate(soulMateSavedResultProvider);
-      ref.invalidate(soulMateSavedPortraitProvider);
+      final saved = await service.saveSuccessfulDraw(
+        request: request,
+        imageBytes: imageBytes,
+        parts: SoulMateInterpretation.partsFor(request),
+      );
+      onSaved?.call();
       return saved?.id;
     } catch (_) {
       return null;

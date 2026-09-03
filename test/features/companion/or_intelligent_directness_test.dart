@@ -80,3 +80,4 @@ void main() {
     expect(OrCore.looksPatronizing('Sakin ol. Sen anlamıyorsun.'), isTrue);
   });
 }
+

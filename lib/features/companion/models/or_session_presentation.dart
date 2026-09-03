@@ -49,5 +49,6 @@ class OrSessionPresentation {
       state == OrSessionState.voiceUnavailable ||
       state == OrSessionState.purchasePending ||
       state == OrSessionState.reconnecting ||
-      state == OrSessionState.retrying;
+      state == OrSessionState.retrying ||
+      state == OrSessionState.saveFailed;
 }

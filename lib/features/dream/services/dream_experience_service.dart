@@ -13,6 +13,7 @@ import '../data/dream_record_mapper.dart';
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
 import 'dream_ai_insight_mapper.dart';
+import 'dream_context_enricher.dart';
 import 'dream_pattern_service.dart';
 import 'dream_reflection_generator.dart';
 import 'dream_understanding_service.dart';
@@ -105,9 +106,13 @@ class DreamExperienceService {
     );
 
     if (ai.isConfigured) {
+      final aiNarrative = DreamContextEnricher.narrativeForAi(
+        narrative: narrative,
+        tags: tags,
+      );
       final outcome = await ai.analyzeDream(
         DreamAiContext(
-          narrative: narrative,
+          narrative: aiNarrative,
           symbols: understanding.symbols.map((s) => s.label).toList(),
           emotions: understanding.emotions,
         ),

@@ -16,9 +16,9 @@ const kL10nUniverse = <String, L10nTriple>{
   'band.explore_hint': L10nTriple('Ritüel ve açılım', 'Ritual and spread', 'Ритуал и расклад'),
   'band.reflect_hint': L10nTriple('OR rehberin', 'OR, your guide', 'OR, твой проводник'),
   'band.understand_hint': L10nTriple(
-    'Rüya, yıldızname, astroloji (önizleme)',
-    'Dream, star reading, astrology (preview)',
-    'Сон, звёздная книга, астрология (предпросмотр)',
+    'Rüya, yıldızname, astroloji',
+    'Dream, star reading, astrology',
+    'Сон, звёздная книга, астрология',
   ),
   'section.remember': L10nTriple('Hatırla', 'Remember', 'Помнить'),
   'section.grow': L10nTriple('Büyü', 'Grow', 'Расти'),
@@ -53,9 +53,9 @@ const kL10nUniverse = <String, L10nTriple>{
     'Разговор с OR и личные отражения',
   ),
   'realm.understand_hint': L10nTriple(
-    'Rüya, yıldızname, astroloji (önizleme)',
-    'Dream, star reading, astrology (preview)',
-    'Сон, звёздная книга, астрология (предпросмотр)',
+    'Rüya, yıldızname, astroloji',
+    'Dream, star reading, astrology',
+    'Сон, звёздная книга, астрология',
   ),
   'realm.remember_hint':
       L10nTriple('Geçmiş, günlük, hafıza', 'Past, journal, memory', 'Прошлое, дневник, память'),

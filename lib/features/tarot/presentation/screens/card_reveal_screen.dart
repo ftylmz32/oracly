@@ -38,6 +38,8 @@ class _CardRevealScreenState extends State<CardRevealScreen>
   late final AnimationController _enter;
   RevealCardData? _data;
   bool _opening = false;
+  bool _navigated = false;
+  String? _advanceError;
 
   @override
   void initState() {
@@ -71,16 +73,24 @@ class _CardRevealScreenState extends State<CardRevealScreen>
   }
 
   Future<void> _openNext() async {
-    if (_opening) return;
-    _opening = true;
+    if (_opening || _navigated) return;
+    setState(() {
+      _opening = true;
+      _advanceError = null;
+    });
     final reading = TarotScope.of(context).reading;
     try {
       await reading.advanceAfterReveal();
     } catch (_) {
-      if (mounted) _opening = false;
+      if (!mounted) return;
+      setState(() {
+        _opening = false;
+        _advanceError = ReadingFlowCopy.revealAdvanceFailed;
+      });
       return;
     }
-    if (!mounted) return;
+    if (!mounted || _navigated) return;
+    _navigated = true;
 
     final session = reading.session;
     if (session != null && session.flowStep == ReadingFlowStep.reveal) {
@@ -125,7 +135,7 @@ class _CardRevealScreenState extends State<CardRevealScreen>
     }
 
     return PopScope(
-      canPop: true,
+      canPop: !_opening,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _opening = true;
       },
@@ -137,7 +147,8 @@ class _CardRevealScreenState extends State<CardRevealScreen>
             final enterT = TarotTokens.revealCurve.transform(
               _enter.value.clamp(0.0, 1.0),
             );
-            final settleOpacity = TarotTokens.screenSettleOpacityBegin +
+            final settleOpacity =
+                TarotTokens.screenSettleOpacityBegin +
                 (1.0 - TarotTokens.screenSettleOpacityBegin) * enterT;
             return Opacity(opacity: settleOpacity, child: child);
           },
@@ -147,10 +158,13 @@ class _CardRevealScreenState extends State<CardRevealScreen>
               CardRevealExperience(
                 data: data,
                 onContinue: _openNext,
+                continueBusy: _opening,
+                continueError: _advanceError,
                 startProgress: widget.fromManualPick
                     ? RevealTimeline.flipEnd + 0.06
                     : 0,
-                soundCallbacks: OraclyFeedbackGate.sound?.revealCallbacks ??
+                soundCallbacks:
+                    OraclyFeedbackGate.sound?.revealCallbacks ??
                     RevealSoundCallbacks.silent,
                 completionHint: _completionHint(context),
               ),
@@ -173,8 +187,5 @@ Route<T> cardRevealRitualRoute<T>({
   required Widget page,
   RouteSettings? settings,
 }) {
-  return tarotRitualDepthHandoffRoute<T>(
-    page: page,
-    settings: settings,
-  );
+  return tarotRitualDepthHandoffRoute<T>(page: page, settings: settings);
 }

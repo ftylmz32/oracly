@@ -12,11 +12,7 @@ abstract final class ConversationQuestionGuard {
     String? priorAssistant,
   }) {
     var out = text.trim();
-    if (!allowTrailingQuestion) {
-      out = stripAnyTrailing(out);
-    } else {
-      out = stripMechanicalTrailing(out, priorAssistant: priorAssistant);
-    }
+    out = stripMechanicalTrailing(out, priorAssistant: priorAssistant);
     return out;
   }
 

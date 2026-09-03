@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -13,7 +14,7 @@ Future<String?> showTarotCustomIntentDialog(BuildContext context) {
     builder: (ctx) => AlertDialog(
       backgroundColor: const Color(0xFF120C1C),
       title: Text(
-        'Niyetin',
+        OraclyL10n.t('tarot.ritual.intention_title'),
         style: AppTextStyles.titleMedium.copyWith(color: AppColors.gold),
       ),
       content: TextField(
@@ -25,11 +26,11 @@ Future<String?> showTarotCustomIntentDialog(BuildContext context) {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
-          child: const Text('Vazgeç'),
+          child: Text(OraclyL10n.t(L10nKeys.dismiss)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, controller.text),
-          child: const Text('Tamam'),
+          child: Text(OraclyL10n.t(L10nKeys.ok)),
         ),
       ],
     ),

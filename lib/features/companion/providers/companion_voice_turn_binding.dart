@@ -18,6 +18,7 @@ void bindCompanionVoiceTurnPremium({
       ref.read(premiumStatusProvider).entitlement.allowsPremiumFeatures;
 
   void sync(CompanionOutputController next) {
+    if (turn.isDisposed) return;
     turn.setActive(next.isConversation && allowed());
   }
 

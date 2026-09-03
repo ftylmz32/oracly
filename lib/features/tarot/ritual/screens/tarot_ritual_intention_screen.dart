@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -62,14 +63,14 @@ class _TarotRitualIntentionScreenState extends State<TarotRitualIntentionScreen>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Niyetin',
+                OraclyL10n.t('tarot.ritual.intention_title'),
                 style: AppTextStyles.headlineMedium.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Bir soru getir — ya da sessizce devam et.',
+                OraclyL10n.t('tarot.ritual.intention_sub'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -85,14 +86,14 @@ class _TarotRitualIntentionScreenState extends State<TarotRitualIntentionScreen>
               ),
               const Spacer(),
               OraclyButton(
-                text: 'Açılımı Seç',
+                text: OraclyL10n.t('tarot.ritual.pick_spread'),
                 isExpanded: true,
                 onPressed: () => _continue(skip: false),
               ),
               TextButton(
                 onPressed: () => _continue(skip: true),
                 child: Text(
-                  'Niyetsiz devam et',
+                  OraclyL10n.t('tarot.ritual.intention_skip'),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),

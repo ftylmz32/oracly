@@ -3,6 +3,7 @@ library;
 
 import '../../../core/copy/resilience_copy.dart';
 import '../copy/dream_copy.dart';
+import 'dream_voice_permission.dart';
 
 enum DreamVoiceFailureKind {
   permissionDenied,
@@ -61,6 +62,22 @@ class DreamVoiceFailure implements Exception {
         DreamVoiceFailureKind.timeout,
         ResilienceCopy.slowResponse,
       );
+
+  bool get isRecoverableDuringCapture {
+    return kind == DreamVoiceFailureKind.emptyTranscription ||
+        kind == DreamVoiceFailureKind.timeout;
+  }
+
+  factory DreamVoiceFailure.permissionDeniedFor(DreamVoicePermission permission) {
+    return switch (permission) {
+      DreamVoicePermission.denied => DreamVoiceFailure.permissionDenied(),
+      DreamVoicePermission.permanentlyDenied =>
+        DreamVoiceFailure.permissionPermanentlyDenied(),
+      DreamVoicePermission.unavailable =>
+        DreamVoiceFailure.microphoneUnavailable(),
+      DreamVoicePermission.granted => DreamVoiceFailure.speechUnavailable(),
+    };
+  }
 
   @override
   String toString() => 'DreamVoiceFailure($kind)';

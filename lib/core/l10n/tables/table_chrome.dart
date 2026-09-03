@@ -57,6 +57,9 @@ const kL10nChrome = <String, L10nTriple>{
   L10nKeys.back: L10nTriple('Geri', 'Back', 'Назад'),
   L10nKeys.save: L10nTriple('Kaydet', 'Save', 'Сохранить'),
   L10nKeys.cancel: L10nTriple('İptal', 'Cancel', 'Отмена'),
+  L10nKeys.confirm: L10nTriple('Onayla', 'Confirm', 'Подтвердить'),
+  L10nKeys.ok: L10nTriple('Tamam', 'OK', 'Готово'),
+  L10nKeys.dismiss: L10nTriple('Vazgeç', 'Dismiss', 'Отмена'),
   L10nKeys.comingSoon: L10nTriple('Yakında', 'Soon', 'Скоро'),
   L10nKeys.soundTitle: L10nTriple('Ses efektleri', 'Sound effects', 'Звуковые эффекты'),
   L10nKeys.soundSubtitle: L10nTriple(
@@ -67,9 +70,9 @@ const kL10nChrome = <String, L10nTriple>{
   L10nKeys.ambientMusicTitle:
       L10nTriple('Atmosferik müzik', 'Atmospheric music', 'Атмосферная музыка'),
   L10nKeys.ambientMusicSubtitle: L10nTriple(
-    'Sembolik sessiz atmosfer — bilimsel iddia değildir',
-    'Symbolic quiet atmosphere — not a scientific claim',
-    'Символическая тихая атмосфера — не научное утверждение',
+    'Sessiz döngüsel yatak sesi — açınca duyulur',
+    'Quiet looping bed — audible when turned on',
+    'Тихий циклический фон — слышен при включении',
   ),
   L10nKeys.hapticTitle:
       L10nTriple('Dokunsal geri bildirim', 'Haptic feedback', 'Тактильный отклик'),
@@ -114,9 +117,9 @@ const kL10nChrome = <String, L10nTriple>{
   ),
   L10nKeys.atmosphereTitle: L10nTriple('Atmosfer', 'Atmosphere', 'Атмосфера'),
   L10nKeys.atmosphereSubtitle: L10nTriple(
-    'Sembolik seçim — bilimsel iddia değildir',
-    'Symbolic choice — not a scientific claim',
-    'Символический выбор — не научное утверждение',
+    'Atmosferik müzik açıkken hangi yatağın çalacağını seçer',
+    'Chooses which bed plays when atmospheric music is on',
+    'Выбирает фон, когда атмосферная музыка включена',
   ),
   L10nKeys.profilePremiumActive: L10nTriple(
     'Premium üyeliğin aktif.',

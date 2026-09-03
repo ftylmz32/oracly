@@ -1,4 +1,4 @@
-/// FinalOraclySplash — one full-screen source art, ~3s, over destination.
+/// FinalOraclySplash — one full-screen source art, ~1.9s, over destination.
 library;
 
 import 'package:flutter/material.dart';
@@ -22,6 +22,7 @@ class SplashBrandOverlay extends StatefulWidget {
 
   final VoidCallback onDone;
   final bool reduced;
+
   /// Fired once after the overlay's first Flutter frame (destination may mount).
   final VoidCallback? onFirstFrame;
 
@@ -44,19 +45,20 @@ class _SplashBrandOverlayState extends State<SplashBrandOverlay>
   void initState() {
     super.initState();
     SplashStartupLog.mark('FINAL_SPLASH_INIT');
-    _c = AnimationController(
-      vsync: this,
-      duration: Duration(
-        milliseconds: widget.reduced
-            ? SplashBrandOverlay.reducedMs
-            : SplashBrandOverlay.durationMs,
-      ),
-    )..addStatusListener((s) {
-        if (s == AnimationStatus.completed) {
-          SplashStartupLog.mark('FINAL_SPLASH_ANIMATION_END');
-          if (_gate.requestFinish()) _finish();
-        }
-      });
+    _c =
+        AnimationController(
+          vsync: this,
+          duration: Duration(
+            milliseconds: widget.reduced
+                ? SplashBrandOverlay.reducedMs
+                : SplashBrandOverlay.durationMs,
+          ),
+        )..addStatusListener((s) {
+          if (s == AnimationStatus.completed) {
+            SplashStartupLog.mark('FINAL_SPLASH_ANIMATION_END');
+            if (_gate.requestFinish()) _finish();
+          }
+        });
     SplashStartupLog.mark('FINAL_SPLASH_ANIMATION_START');
     _c.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) => _signalFirstFrame());

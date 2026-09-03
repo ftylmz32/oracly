@@ -8,6 +8,7 @@ extension CoffeeReadingCapture on CoffeeReadingController {
   }
 
   void backToEntry() {
+    _generation++;
     _phase = CoffeePhase.entry;
     _image = null;
     _reading = null;
@@ -50,6 +51,7 @@ extension CoffeeReadingCapture on CoffeeReadingController {
   }
 
   void retryCapture() {
+    _generation++;
     _phase = CoffeePhase.capture;
     _error = null;
     _safeNotify();

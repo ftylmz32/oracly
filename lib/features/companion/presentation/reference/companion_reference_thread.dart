@@ -53,6 +53,12 @@ class _CompanionReferenceThreadState
     widget.scrollController.addListener(_onScroll);
     _visible = _cacheVisible(widget.messages);
     _seenCount = _visible.length;
+    if (_visible.isNotEmpty) {
+      // A restored conversation has no previous scroll position. Wait until
+      // both the list and the persistent lower dock have completed layout,
+      // then reveal the newest complete turn.
+      restoreCompanionThreadToBottom(widget.scrollController);
+    }
   }
 
   @override
@@ -62,14 +68,18 @@ class _CompanionReferenceThreadState
       oldWidget.scrollController.removeListener(_onScroll);
       widget.scrollController.addListener(_onScroll);
     }
+    // Capture this before the longer list changes maxScrollExtent. Checking
+    // after layout incorrectly makes a user who was at the bottom look far
+    // away from it and leaves the newest assistant turn behind the dock.
+    final wasNearBottom = isCompanionThreadNearBottom(widget.scrollController);
     final next = _cacheVisible(widget.messages);
     if (next.length <= _seenCount) return;
     final grew = next.length - _seenCount;
     _seenCount = next.length;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (isCompanionThreadNearBottom(widget.scrollController)) {
-        scrollCompanionThread(widget.scrollController);
+      if (wasNearBottom) {
+        forceScrollCompanionThread(widget.scrollController);
         if (_showNewReply) setState(() => _showNewReply = false);
       } else if (grew > 0) {
         setState(() => _showNewReply = true);

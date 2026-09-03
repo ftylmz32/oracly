@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/accessibility/oracly_a11y.dart';
 import '../../../core/design_system/app_radius.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/reading_typography.dart';
 import '../../../shared/widgets/oracly_pressable.dart';
@@ -13,16 +14,17 @@ class HomeReferenceHeroDetailButton extends StatelessWidget {
   const HomeReferenceHeroDetailButton({
     super.key,
     this.onPressed,
-    this.label = 'Kart çek',
+    this.label,
     this.compact = false,
   });
 
   final VoidCallback? onPressed;
-  final String label;
+  final String? label;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
+    final text = label ?? OraclyL10n.t('ritual.card_of_day.draw');
     return OraclyPressable(
       onTap: onPressed,
       borderRadius: AppRadius.round,
@@ -60,7 +62,7 @@ class HomeReferenceHeroDetailButton extends StatelessWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                label,
+                text,
                 maxLines: 1,
                 softWrap: false,
                 style: ReadingTypography.cta(

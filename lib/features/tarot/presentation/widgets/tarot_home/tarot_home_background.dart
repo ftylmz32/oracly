@@ -6,8 +6,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../../../../../core/theme/app_colors.dart';
-import '../../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/oracly_brand_signature.dart';
 import '../../../theme/tarot_tokens.dart';
 import '../../../components/tarot_particle_layer.dart';
 import '../tarot_home/oracly_sacred_identity.dart';

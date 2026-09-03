@@ -1,4 +1,4 @@
-/// Canonical Oracly gem — faceted celestial crystal at any size.
+/// Canonical Oracly gem — violet jewel with gold rim, any size.
 library;
 
 import 'package:flutter/material.dart';

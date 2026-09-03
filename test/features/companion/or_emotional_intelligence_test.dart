@@ -27,7 +27,7 @@ void main() {
       contains(OrEmotionalSignal.uncertainty),
     );
     expect(
-      OrEmotionalIntelligence.sense('Şaka yaptım lol').signals,
+      OrEmotionalIntelligence.sense('Åaka yaptım lol').signals,
       contains(OrEmotionalSignal.humor),
     );
     expect(
@@ -80,3 +80,4 @@ void main() {
     expect(result.category, AiOutputQualityCategory.fakeMemory);
   });
 }
+

@@ -1,4 +1,4 @@
-/// Starter invitations — compact midnight glass surfaces.
+﻿/// Starter invitations -- violet glass cards with gold line-art icons.
 library;
 
 import 'package:flutter/material.dart';
@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
+import 'companion_gold_line_icon.dart';
+import 'companion_reference_tokens.dart';
 
 class CompanionPromptInvitation extends StatelessWidget {
   const CompanionPromptInvitation({
@@ -14,21 +16,35 @@ class CompanionPromptInvitation extends StatelessWidget {
     required this.onTap,
     this.recessed = false,
     this.light = false,
+    this.horizontalChip = false,
+    this.icon,
+    this.iconIndex = 0,
+    this.lineIcon,
   });
 
   final String label;
   final VoidCallback onTap;
   final bool recessed;
   final bool light;
+  final bool horizontalChip;
+  final IconData? icon;
+  final int iconIndex;
+  final CompanionLineIconKind? lineIcon;
 
   static bool spansFullWidth(String label) => label.trim().length > 44;
 
+  static const lineIcons = <CompanionLineIconKind>[
+    CompanionLineIconKind.crystal,
+    CompanionLineIconKind.heart,
+    CompanionLineIconKind.cards,
+    CompanionLineIconKind.dream,
+    CompanionLineIconKind.astrology,
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final fill = light ? 0.04 : (recessed ? 0.06 : 0.08);
-    final edge = light ? 0.09 : (recessed ? 0.11 : 0.14);
-    final textAlpha = light ? 0.66 : (recessed ? 0.72 : 0.84);
-    const radius = 12.0;
+    final radius = horizontalChip ? 14.0 : 12.0;
+    final kind = lineIcon ?? lineIcons[iconIndex % lineIcons.length];
     return OraclyPressable(
       onTap: onTap,
       borderRadius: BorderRadius.circular(radius),
@@ -36,43 +52,58 @@ class CompanionPromptInvitation extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(radius),
-          color: const Color(0xFF0A080C).withValues(alpha: fill + 0.04),
-          border: Border.all(
-            color: OraclyChrome.gold.withValues(alpha: edge),
-            width: 0.45,
+          color: const Color(0xFF1A1224).withValues(
+            alpha: light ? 0.42 : 0.68,
           ),
+          border: Border.all(
+            color: OraclyChrome.violet.withValues(
+              alpha: light ? 0.42 : 0.62,
+            ),
+            width: 1.1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: OraclyChrome.violet.withValues(alpha: 0.18),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: light ? 10 : 12,
-            vertical: light ? 7 : 9,
+            horizontal: horizontalChip ? 12 : (light ? 10 : 12),
+            vertical: horizontalChip ? 10 : (light ? 7 : 9),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  textAlign: TextAlign.left,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: ReadingTypography.bodySmall(
-                    color: OraclyChrome.cream.withValues(alpha: textAlpha),
-                  ).copyWith(
-                    height: 1.30,
-                    fontSize: light ? 12.0 : 13.0,
-                    letterSpacing: 0.04,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: horizontalChip ? 168 : double.infinity,
+              minHeight: horizontalChip
+                  ? CompanionReferenceTokens.quickPromptCardHeight - 20
+                  : 0,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CompanionGoldLineIcon(kind: kind, size: 16),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.left,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: ReadingTypography.bodySmall(
+                      color: OraclyChrome.cream.withValues(
+                        alpha: light ? 0.72 : 0.90,
+                      ),
+                    ).copyWith(
+                      height: 1.28,
+                      fontSize: light ? 12.0 : 12.5,
+                    ),
                   ),
                 ),
-              ),
-              if (!light) ...[
-                const SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 9,
-                  color: OraclyChrome.goldLight.withValues(alpha: 0.38),
-                ),
               ],
-            ],
+            ),
           ),
         ),
       ),

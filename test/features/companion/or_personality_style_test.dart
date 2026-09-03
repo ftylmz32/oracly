@@ -58,3 +58,4 @@ void main() {
     expect(OrPersonality.label(again.aiPersonality), 'DİREKT');
   });
 }
+

@@ -15,7 +15,7 @@ void main() {
 
   test('welcomes humor when the user is playful', () {
     expect(
-      OrNaturalHumor.stanceFor('Şaka yaptım lol'),
+      OrNaturalHumor.stanceFor('Åaka yaptım lol'),
       OrHumorStance.welcome,
     );
     expect(
@@ -64,3 +64,4 @@ void main() {
     expect(result.category, AiOutputQualityCategory.repetitiveFiller);
   });
 }
+

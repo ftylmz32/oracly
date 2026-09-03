@@ -15,6 +15,7 @@ void main() {
 
   test('backend map -> PalmAiAnalysis -> toReading keeps takeaway', () {
     final parsed = PalmVisionParser.fromMap({
+      'visualObservation': 'Açık avuç, ana çizgiler görünür durumda.',
       'overall': 'Avuç sakin ve açık duruyor.',
       'takeaway': 'En net işaret yakınlık ritmi.',
       'heartLine': 'Kalp çizgisi yumuşak bir yay çiziyor.',

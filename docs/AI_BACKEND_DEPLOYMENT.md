@@ -4,6 +4,11 @@
 LOCAL / STAGING / PRODUCTION are separate. Nothing here has been deployed.
 ```
 
+**Phase E2:** Cloud Run preparation assets live in `backend/Dockerfile`,  
+`backend/scripts/deploy-cloud-run.sh` (do not run until authorized), and  
+[`docs/CLOUD_RUN_E2_RUNBOOK.md`](./CLOUD_RUN_E2_RUNBOOK.md).  
+No Cloud Run service was created from this repository in E2.
+
 ```
 Flutter  →  HTTPS ingress  →  Fastify AI proxy  →  OpenAI
 ```
