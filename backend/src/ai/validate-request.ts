@@ -12,6 +12,10 @@ import { parseOrVoiceId, type OrVoiceId } from './or-voice.js';
 import { parseOrSpeechSpeed, type OrSpeechSpeed } from './or-speech-speed.js';
 import { parseTurns, type ChatTurn } from './parse-turns.js';
 import { asRecord, sanitizeText, stringList } from './sanitize.js';
+import {
+  validateTarotAnalysisPayload,
+  type TarotAnalysisInput,
+} from './tarot-reading.js';
 
 type BaseRequest =
   | {
@@ -36,6 +40,7 @@ type BaseRequest =
       kind: OracleKind;
       context: Record<string, unknown>;
     }
+  | { operation: 'tarot_analysis'; payload: TarotAnalysisInput }
   | { operation: 'dream_analysis'; payload: Record<string, unknown> }
   | { operation: 'coffee_analysis'; payload: Record<string, unknown> }
   | { operation: 'palm_analysis'; payload: Record<string, unknown> }
@@ -85,6 +90,12 @@ export function validateAiBody(body: unknown): ValidatedRequest {
       return { ...validateChat(payload), language };
     case 'oracle':
       return { ...validateOracle(payload), language };
+    case 'tarot_analysis':
+      return {
+        operation: 'tarot_analysis',
+        payload: validateTarotAnalysisPayload(payload),
+        language,
+      };
     case 'dream_analysis':
       return { ...validateDream(payload), language };
     case 'coffee_analysis':
