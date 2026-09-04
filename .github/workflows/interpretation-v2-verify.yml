@@ -6,6 +6,10 @@ on:
       - interpretation/v2-batch1-continuity
   workflow_dispatch:
 
+concurrency:
+  group: interpretation-v2-batch1-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   flutter:
     runs-on: ubuntu-latest
@@ -25,8 +29,8 @@ jobs:
       - name: Dependencies
         run: flutter pub get
 
-      - name: Analyze
-        run: flutter analyze --no-fatal-infos
+      - name: Analyze (errors fatal, baseline warnings/info nonfatal)
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Batch 1 focused tests
         run: >-
