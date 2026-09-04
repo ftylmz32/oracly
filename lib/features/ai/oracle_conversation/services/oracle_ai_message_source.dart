@@ -15,10 +15,9 @@ class OracleAiMessageSource {
     this._ai,
     OracleConversationResponder? local,
     Future<List<String>> Function()? observedThemes,
-    Future<String?> Function(String userMessage)? contextHintFor,
+    this._contextHintFor,
   })  : _local = local ?? const OracleConversationResponder(),
-        _observedThemes = observedThemes ?? (() async => const <String>[]),
-        _contextHintFor = contextHintFor;
+        _observedThemes = observedThemes ?? (() async => const <String>[]);
 
   final OraclyAiService? _ai;
   final OracleConversationResponder _local;
