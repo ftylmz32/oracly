@@ -55,10 +55,13 @@ export async function registerBillingRoutes(
     config.billingRateLimitMax,
     config.billingRateLimitWindowMs,
   );
-  const authHook =
-    config.authRequired && config.authMode !== 'fail_closed'
-      ? requireAuth(createAuthenticationService(config))
-      : null;
+  // Must mirror /v1/ai/complete: attach the hook whenever auth is required,
+  // regardless of authMode. authMode === 'fail_closed' resolves to
+  // FailClosedAuthenticationService, which rejects every request with 401 —
+  // omitting the hook here would silently let requests bypass auth instead.
+  const authHook = config.authRequired
+    ? requireAuth(createAuthenticationService(config))
+    : null;
 
   app.post<{ Body: VerifyBody }>(
     '/v1/billing/verify',

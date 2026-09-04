@@ -1414,3 +1414,117 @@ describe('billing verify trust boundary', () => {
     await app.close();
   });
 });
+
+describe('billing verify fail-closed auth', () => {
+  function missingFirebaseConfig(appEnv: 'production' | 'staging') {
+    return testConfig({
+      APP_ENV: appEnv,
+      FIREBASE_PROJECT_ID: '',
+      AI_JWKS_URL: '',
+      AI_JWT_SECRET: '',
+    });
+  }
+
+  it('production + missing Firebase/JWKS/JWT config: rejects with 401 before verifying', async () => {
+    const config = missingFirebaseConfig('production');
+    expect(config.authRequired).toBe(true);
+    expect(config.authMode).toBe('fail_closed');
+    let providerCalled = false;
+    const app = await testApp(config, undefined, {
+      billing: {
+        google: mockVerifier(async () => {
+          providerCalled = true;
+          return billingResult('active');
+        }),
+      },
+    });
+    const res = await post(app, {
+      platform: 'android',
+      productId: YEARLY,
+      purchaseToken: 'no-auth-token',
+    });
+    expect(res.statusCode).toBe(401);
+    expect(providerCalled).toBe(false);
+    await app.close();
+  });
+
+  it('staging + missing Firebase/JWKS/JWT config: rejects with 401 before verifying', async () => {
+    const config = missingFirebaseConfig('staging');
+    expect(config.authRequired).toBe(true);
+    expect(config.authMode).toBe('fail_closed');
+    let providerCalled = false;
+    const app = await testApp(config, undefined, {
+      billing: {
+        google: mockVerifier(async () => {
+          providerCalled = true;
+          return billingResult('active');
+        }),
+      },
+    });
+    const res = await post(app, {
+      platform: 'android',
+      productId: YEARLY,
+      purchaseToken: 'no-auth-token',
+    });
+    expect(res.statusCode).toBe(401);
+    expect(providerCalled).toBe(false);
+    await app.close();
+  });
+
+  it('configured authenticated billing path remains functional', async () => {
+    const config = testConfig({
+      AI_DEV_AUTH_BYPASS: 'false',
+      AI_AUTH_REQUIRED: 'true',
+      AI_JWT_SECRET: 'billing-test-secret',
+      AI_JWT_ISSUER: 'https://issuer.example',
+      AI_JWT_AUDIENCE: 'oracly-ai',
+      FIREBASE_PROJECT_ID: '',
+      AI_JWKS_URL: '',
+    });
+    expect(config.authMode).toBe('hs256');
+    const app = await testApp(config, undefined, {
+      billing: {
+        google: mockVerifier(async () => billingResult('active')),
+      },
+    });
+    const token = signHs256('billing-test-secret', {
+      sub: 'user-fix-check',
+      iss: 'https://issuer.example',
+      aud: 'oracly-ai',
+    });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/billing/verify',
+      headers: {
+        authorization: `Bearer ${token}`,
+        'content-type': 'application/json',
+      },
+      payload: {
+        platform: 'android',
+        productId: YEARLY,
+        purchaseToken: 'auth-ok-token',
+      },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().status).toBe('active');
+    await app.close();
+  });
+
+  it('development bypass (authRequired=false) preserves unauthenticated access', async () => {
+    const config = billingTestConfig();
+    expect(config.authRequired).toBe(false);
+    const app = await testApp(config, undefined, {
+      billing: {
+        google: mockVerifier(async () => billingResult('active')),
+      },
+    });
+    const res = await post(app, {
+      platform: 'android',
+      productId: YEARLY,
+      purchaseToken: 'dev-token',
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().status).toBe('active');
+    await app.close();
+  });
+});
