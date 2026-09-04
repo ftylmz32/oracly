@@ -4,6 +4,7 @@ library;
 enum AiOperation {
   chat,
   oracle,
+  tarotAnalysis,
   dreamAnalysis,
   coffeeAnalysis,
   palmAnalysis,
@@ -15,6 +16,7 @@ extension AiOperationWire on AiOperation {
   String get wireName => switch (this) {
         AiOperation.chat => 'chat',
         AiOperation.oracle => 'oracle',
+        AiOperation.tarotAnalysis => 'tarot_analysis',
         AiOperation.dreamAnalysis => 'dream_analysis',
         AiOperation.coffeeAnalysis => 'coffee_analysis',
         AiOperation.palmAnalysis => 'palm_analysis',
