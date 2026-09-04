@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  verify:
+  flutter:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -34,3 +34,27 @@ jobs:
           test/interpretation_v2_batch1_continuity_test.dart
           test/ai_or_ask_v2_test.dart
           test/ai_or_honesty_p0_test.dart
+
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Continuity contract tests
+        run: npx vitest run tests/interpretation-v2-continuity.test.ts tests/ai.test.ts
