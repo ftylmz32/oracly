@@ -50,6 +50,7 @@ import '../../core/services/premium_service.dart';
 import '../../core/services/reading_service.dart';
 import '../../features/premium/providers/premium_purchase_port_provider.dart';
 import '../../features/premium/providers/premium_entitlement_verifier_provider.dart';
+import '../../features/premium/providers/review_access_provider.dart';
 import '../../core/services/settings_service.dart';
 import '../../core/services/tarot_service.dart';
 import '../../core/audio/oracly_feedback_gate.dart';
@@ -159,6 +160,8 @@ final premiumServiceProvider = Provider<PremiumService>((ref) {
     ref.watch(userRepositoryProvider),
     ref.watch(premiumPurchasePortProvider),
     ref.watch(premiumEntitlementVerifierProvider),
+    ref.watch(reviewAccessRepositoryProvider),
+    ref.watch(reviewAccessServiceProvider),
   );
 });
 

@@ -18,11 +18,17 @@ class PremiumStatusController extends ChangeNotifier {
   PremiumPlanKind _selectedPlan = PremiumPlanKind.yearly;
   PremiumPlanKind? _activePlan;
   List<PremiumPlanModel> _plans = const [];
+  bool _reviewAccessActive = false;
 
   bool get loaded => _loaded;
   PremiumEntitlementState get entitlement => _entitlement;
   String? get entitlementMessage => _entitlementMessage;
-  bool get isPremium => _entitlement.allowsPremiumFeatures;
+  /// Commerce entitlement OR an active Play/App Store reviewer grant —
+  /// distinguishable via [isReviewAccessActive]; never written back into
+  /// [entitlement], and never mixed with purchase credentials.
+  bool get isPremium =>
+      _entitlement.allowsPremiumFeatures || _reviewAccessActive;
+  bool get isReviewAccessActive => _reviewAccessActive;
   bool get isFree => !isPremium;
   bool get busy => _entitlement.isTransient;
   bool get purchaseConfigured => _service.purchaseConfigured;
@@ -108,6 +114,22 @@ class PremiumStatusController extends ChangeNotifier {
     final snap = await _service.reconcile();
     _entitlement = snap.entitlement;
     _entitlementMessage = snap.message;
+    // Review access is a fallback only — real commerce entitlement above
+    // is untouched and always takes priority.
+    _reviewAccessActive = _entitlement.allowsPremiumFeatures
+        ? false
+        : await _service.reviewAccessActive();
+  }
+
+  /// Submits a Play/App Store reviewer code. Never touches purchase
+  /// credentials or commerce entitlement state.
+  Future<bool> activateReviewAccess(String code) async {
+    final granted = await _service.activateReviewAccess(code);
+    if (granted) {
+      _reviewAccessActive = true;
+      notifyListeners();
+    }
+    return granted;
   }
 
   Future<void> _settle(PremiumPurchaseResult result) async {

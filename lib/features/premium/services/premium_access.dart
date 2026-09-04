@@ -23,8 +23,17 @@ abstract final class PremiumAccess {
     }
   }
 
-  static bool isActive(BuildContext context) =>
-      entitlementOf(context).allowsPremiumFeatures;
+  /// Commerce entitlement OR an active Play/App Store reviewer grant — the
+  /// single boolean every feature gate should call.
+  static bool isActive(BuildContext context) {
+    try {
+      final container = ProviderScope.containerOf(context, listen: false);
+      final status = container.read(premiumStatusProvider);
+      return status.loaded && status.isPremium;
+    } catch (_) {
+      return false;
+    }
+  }
 
   static bool ensure(BuildContext context) => isActive(context);
 

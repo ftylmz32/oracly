@@ -10,6 +10,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
 import '../../../daily_rewards/copy/daily_rewards_copy.dart';
 import '../../../gems/copy/gems_copy.dart';
+import 'review_access_sheet.dart';
 
 class PremiumReferenceLinks extends StatelessWidget {
   const PremiumReferenceLinks({super.key});
@@ -45,6 +46,16 @@ class PremiumReferenceLinks extends StatelessWidget {
         _Link(
           label: OraclyL10n.t(L10nKeys.privacy),
           onTap: () => OraclyNavigationService.openPrivacy(context),
+        ),
+        Text(
+          '·',
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.gold.withValues(alpha: 0.55),
+          ),
+        ),
+        _Link(
+          label: 'Review access',
+          onTap: () => ReviewAccessSheet.show(context),
         ),
       ],
     );

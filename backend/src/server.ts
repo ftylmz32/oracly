@@ -10,6 +10,7 @@ import { createRequestId, logSafe } from './logging.js';
 import { registerAiRoutes } from './routes/ai.js';
 import { registerHealth } from './routes/health.js';
 import { registerBillingRoutes } from './routes/billing.js';
+import { registerReviewAccessRoutes } from './routes/review-access.js';
 import type { BillingProviders } from './billing/types.js';
 import type { OpenAiFetch } from './types.js';
 
@@ -94,6 +95,7 @@ export async function buildServer(options: BuildOptions) {
 
   await registerHealth(app, config, appCheck);
   await registerBillingRoutes(app, config, options.billing ?? {});
+  await registerReviewAccessRoutes(app, config);
   const service = new AiProxyService(config, options.fetchImpl);
   await registerAiRoutes(app, config, service, { appCheck });
   return app;

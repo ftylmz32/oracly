@@ -28,6 +28,7 @@ class CompanionReferenceOrPaywall extends StatelessWidget {
     this.plans = const [],
     this.selectedPlan = PremiumPlanKind.yearly,
     this.onSelectPlan,
+    this.premiumUnlocked,
   });
 
   final PremiumEntitlementState entitlement;
@@ -41,9 +42,14 @@ class CompanionReferenceOrPaywall extends StatelessWidget {
   final VoidCallback onPurchase;
   final VoidCallback onRestore;
 
+  /// Commerce entitlement OR an active reviewer grant. Defaults to
+  /// [entitlement]'s own commerce-only flag when not supplied, so existing
+  /// callers keep their exact prior behavior.
+  final bool? premiumUnlocked;
+
   @override
   Widget build(BuildContext context) {
-    final active = entitlement.allowsPremiumFeatures;
+    final active = premiumUnlocked ?? entitlement.allowsPremiumFeatures;
     final showPlans = purchaseConfigured &&
         !active &&
         !entitlement.isTransient &&

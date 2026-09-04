@@ -21,8 +21,11 @@ abstract final class CompanionOrConversationAccess {
   static PremiumEntitlementState watch(WidgetRef ref) =>
       ref.watch(premiumStatusProvider).entitlement;
 
+  /// Commerce entitlement OR an active reviewer grant — never derive this
+  /// from [stateOf] alone, that returns commerce-only state and would
+  /// silently exclude review access.
   static bool isAllowed(BuildContext context) =>
-      stateOf(context).allowsPremiumFeatures;
+      PremiumAccess.isActive(context);
 
   /// Premium always; otherwise one matching unconsumed first-reading deepen.
   static bool canCompose(

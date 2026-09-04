@@ -3,7 +3,6 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../premium/models/premium_entitlement_state.dart';
 import '../../premium/providers/premium_providers.dart';
 import '../controllers/companion_output_controller.dart';
 import '../controllers/companion_voice_turn_controller.dart';
@@ -14,8 +13,10 @@ void bindCompanionVoiceTurnPremium({
   required CompanionOutputController Function() readOutput,
   required ProviderListenable<CompanionOutputController> outputListenable,
 }) {
-  bool allowed() =>
-      ref.read(premiumStatusProvider).entitlement.allowsPremiumFeatures;
+  // isPremium already includes an active reviewer grant alongside commerce
+  // entitlement — never read .entitlement.allowsPremiumFeatures directly
+  // here, that would silently exclude review access.
+  bool allowed() => ref.read(premiumStatusProvider).isPremium;
 
   void sync(CompanionOutputController next) {
     if (turn.isDisposed) return;

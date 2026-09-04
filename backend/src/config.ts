@@ -81,6 +81,14 @@ export type AppConfig = {
   /** Billing verify IP rate limit (in-memory). */
   billingRateLimitMax: number;
   billingRateLimitWindowMs: number;
+  /**
+   * SHA-256 hex digest of the Play/App Store closed-test reviewer access
+   * code. The raw code itself is never stored server-side or shipped in the
+   * app. Null (unset) means the review-access route stays fail-closed.
+   */
+  reviewAccessCodeHash: string | null;
+  reviewAccessRateLimitMax: number;
+  reviewAccessRateLimitWindowMs: number;
 };
 
 const DEFAULT_ALLOWED = ['gpt-4o', 'gpt-4o-mini'];
@@ -256,7 +264,27 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       1000,
       86_400_000,
     ),
+    reviewAccessCodeHash: normalizeHash(env.REVIEW_ACCESS_CODE_HASH),
+    reviewAccessRateLimitMax: clampInt(
+      env.REVIEW_ACCESS_RATE_LIMIT_MAX,
+      8,
+      1,
+      100,
+    ),
+    reviewAccessRateLimitWindowMs: clampInt(
+      env.REVIEW_ACCESS_RATE_LIMIT_WINDOW_MS,
+      900_000,
+      1000,
+      86_400_000,
+    ),
   };
+}
+
+/** Lowercased 64-hex-char SHA-256 digest, or null when unset/malformed. */
+function normalizeHash(value: string | undefined): string | null {
+  const trimmed = nonEmpty(value)?.toLowerCase() ?? null;
+  if (!trimmed) return null;
+  return /^[0-9a-f]{64}$/.test(trimmed) ? trimmed : null;
 }
 
 export function resolveModel(config: AppConfig, hint: unknown): string {

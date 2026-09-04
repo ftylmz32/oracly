@@ -25,6 +25,7 @@ class CompanionReferenceOrPaywallHost extends ConsumerWidget {
     final status = ref.watch(premiumStatusProvider);
     return CompanionReferenceOrPaywall(
       entitlement: status.entitlement,
+      premiumUnlocked: status.isPremium,
       purchaseConfigured: status.purchaseConfigured,
       entitlementMessage: status.entitlementMessage,
       compact: compact,

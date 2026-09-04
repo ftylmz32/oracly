@@ -21,9 +21,21 @@ abstract final class OrSessionResolver {
     bool busy = false,
     bool networkRetry = false,
     bool contextualDeepenAllowed = false,
+    /// Commerce entitlement OR an active reviewer grant. Defaults to
+    /// [entitlement]'s own commerce-only flag when not supplied, so every
+    /// existing caller keeps its exact prior behavior. Callers with a live
+    /// [PremiumStatusController] should always pass its `isPremium` here —
+    /// review access must unlock composing the same way Premium does.
+    bool? premiumUnlocked,
   }) {
-    if (entitlement == PremiumEntitlementState.pending ||
-        entitlement == PremiumEntitlementState.restoring) {
+    final unlocked = premiumUnlocked ?? entitlement.allowsPremiumFeatures;
+    // A lingering commerce pending/restoring state must never block someone
+    // who already has an effective Premium unlock (real entitlement or
+    // review access) — otherwise a stuck in-app-purchase query can paywall
+    // a reviewer even though PremiumStatus already says active.
+    if (!unlocked &&
+        (entitlement == PremiumEntitlementState.pending ||
+            entitlement == PremiumEntitlementState.restoring)) {
       return OrSessionPresentation(
         state: OrSessionState.purchasePending,
         canCompose: false,
@@ -36,7 +48,7 @@ abstract final class OrSessionResolver {
       );
     }
 
-    if (!entitlement.allowsPremiumFeatures) {
+    if (!unlocked) {
       if (contextualDeepenAllowed) {
         return OrSessionPresentation(
           state: OrSessionState.free,
