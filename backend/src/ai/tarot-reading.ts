@@ -222,7 +222,9 @@ export async function runTarotAnalysis(
       tarotRepairUser(evidence, narrative, violation),
     );
     violation = bindTarotNarrative(narrative, input);
-    if (violation) fail(ErrorCode.invalidResponse, { violation });
+    if (violation) {
+      fail(ErrorCode.invalidResponse, 200, { violation });
+    }
   }
 
   return toPublicTarot(narrative);
