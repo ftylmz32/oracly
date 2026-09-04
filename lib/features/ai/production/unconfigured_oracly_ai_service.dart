@@ -10,6 +10,7 @@ import 'models/coffee_ai_analysis.dart';
 import 'models/conversation_turn.dart';
 import 'models/dream_ai_analysis.dart';
 import 'models/palm_ai_analysis.dart';
+import 'models/tarot_ai_analysis.dart';
 import 'oracly_ai_service.dart';
 
 class UnconfiguredOraclyAiService implements OraclyAiService {
@@ -48,6 +49,12 @@ class UnconfiguredOraclyAiService implements OraclyAiService {
     OrResponseDepth depth = OrResponseDepth.fallback,
     bool spoken = false,
   }) async =>
+      AiOutcome.failure(AiFailure.noConfiguration());
+
+  @override
+  Future<AiOutcome<TarotAiAnalysis>> analyzeTarot(
+    TarotAiAnalysisRequest request,
+  ) async =>
       AiOutcome.failure(AiFailure.noConfiguration());
 
   @override
