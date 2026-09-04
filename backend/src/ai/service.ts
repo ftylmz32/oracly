@@ -11,6 +11,7 @@ import {
 } from './prompts.js';
 import { buildSoulmateImagePrompt } from './soulmate-prompt.js';
 import { requestOpenAiSpeech } from './openai-speech.js';
+import { runTarotAnalysis } from './tarot-reading.js';
 import type { ValidatedRequest } from './validate-request.js';
 import { ReadingPipeline } from './reading/pipeline.js';
 
@@ -45,6 +46,8 @@ export class AiProxyService {
         return this.chat(request, model);
       case 'oracle':
         return this.oracle(request, model);
+      case 'tarot_analysis':
+        return this.tarot(request);
       case 'dream_analysis':
         return this.dream(request, model);
       case 'coffee_analysis':
@@ -104,6 +107,17 @@ export class AiProxyService {
       }),
     );
     return { text };
+  }
+
+  private async tarot(
+    request: Extract<ValidatedRequest, { operation: 'tarot_analysis' }>,
+  ) {
+    return runTarotAnalysis(
+      this.config,
+      this.transport,
+      request.payload,
+      request.language,
+    );
   }
 
   private async dream(
