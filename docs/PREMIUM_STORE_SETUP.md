@@ -42,7 +42,16 @@ Do not invent placeholder domains. Until set, Privacy Policy / Terms taps fail h
 
 ## Entitlement
 
-Grant happens only after `PurchaseStatus.purchased` / `restored` and `completePurchase`. Local prefs store membership; there is no server receipt verifier yet. Minimum client security: never grant from a UI tap; never grant on cancel/error/pending.
+Grant happens only after `PurchaseStatus.purchased` / `restored` and `completePurchase`. The
+client calls the backend `POST /v1/billing/verify` (`backend/src/routes/billing.ts`), which
+performs real server-side Apple/Google receipt verification (`backend/src/billing/apple-store.ts`,
+`backend/src/billing/google-play.ts`) and requires an authenticated Firebase identity whenever
+auth is required — including when Firebase/JWT configuration is missing, which fails closed
+with 401 rather than allowing the request through. Purchase-token ownership is currently
+tracked in an in-process map (`backend/src/billing/entitlement-binding.ts`); it is not yet
+durable across restarts or safe with more than one backend instance (tracked P1 — see
+`docs/RELEASE_LEDGER.md`). Minimum client security: never grant from a UI tap; never grant on
+cancel/error/pending.
 
 ## Gems
 

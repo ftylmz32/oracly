@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { AppCheckVerifier } from '../auth/app-check.js';
 import type { AppConfig } from '../config.js';
+import { createBillingProviders } from '../billing/verify.js';
 
 export type ReadinessCapabilities = {
   alive: true;
@@ -9,6 +10,14 @@ export type ReadinessCapabilities = {
   textProviderConfigured: boolean;
   visionConfigured: boolean;
   imageGenerationConfigured: boolean;
+  /**
+   * Observability only — never gates the /ready status code. A deployment
+   * can be "ready" for AI traffic while billing verification is still
+   * unconfigured; these booleans make that otherwise-invisible state
+   * checkable without exposing any credential value.
+   */
+  billingGoogleConfigured: boolean;
+  billingAppleConfigured: boolean;
 };
 
 /**
@@ -54,6 +63,7 @@ export function readinessCapabilities(
     textProviderConfigured && config.openaiVision === true;
   const imageGenerationConfigured =
     textProviderConfigured && Boolean(config.openaiImageModel.trim());
+  const billingProviders = createBillingProviders(config);
   return {
     alive: true,
     authenticationConfigured,
@@ -61,5 +71,7 @@ export function readinessCapabilities(
     textProviderConfigured,
     visionConfigured,
     imageGenerationConfigured,
+    billingGoogleConfigured: billingProviders.google.configured,
+    billingAppleConfigured: billingProviders.apple.configured,
   };
 }

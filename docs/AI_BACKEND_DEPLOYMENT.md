@@ -339,10 +339,18 @@ This repository cannot perform steps 1–9. They need an external host and secre
 
 | | |
 |---|---|
-| CODE READY | Yes (fail-closed AI + Firebase JWKS + Docker + limits) |
+| CODE READY | Yes (fail-closed AI + billing + Firebase JWKS + Docker + limits) |
 | DEPLOYMENT PREPARED | Yes (docs, image, env, health/ready, shutdown) |
-| DEPLOYED | **No** |
+| DEPLOYED (isolated, 0% traffic) | **Yes** — see `docs/RELEASE_LEDGER.md` R1/R2 |
+| PROMOTED TO PRODUCTION TRAFFIC | **No** — production still serves the pre-R1 revision |
 | STORE READY | **No** |
 
-No deployment from this repository has been performed.  
-**Next manual step:** provision an HTTPS host, inject `OPENAI_API_KEY` + `FIREBASE_PROJECT_ID=oracly-7f613`, run the Docker image, then point Flutter `ORACLY_AI_PROXY_URL` at `https://<that-host>/v1/ai/complete`.
+Isolated, non-traffic-serving Cloud Run release-candidate revisions have been deployed from
+this repository (`docs/RELEASE_LEDGER.md`, sections "R1 production AI backend consolidation"
+and "R2 controlled dependency remediation"); their revision tags, image digests, and
+health/ready checks are recorded there. **Production traffic is still 100% on the older,
+un-promoted revision** — no canary or traffic promotion has occurred, and no Flutter endpoint
+was changed to point at a candidate.
+**Next manual step:** complete Firebase/billing/legal console work, then perform the
+separately authorized canary/traffic promotion described in `docs/RELEASE_LEDGER.md`'s
+"Exact ordered release roadmap" before finalizing Flutter production runtime defines.

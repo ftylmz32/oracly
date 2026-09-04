@@ -59,4 +59,26 @@ describe('health', () => {
     expect(JSON.stringify(ok.json()).toLowerCase()).not.toContain('sk-');
     await firebaseReady.close();
   });
+
+  it('reports billing provider configuration without gating readiness or leaking credentials', async () => {
+    const unconfigured = await testApp(testConfig());
+    const res1 = await unconfigured.inject({ method: 'GET', url: '/ready' });
+    expect(res1.json().capabilities.billingGoogleConfigured).toBe(false);
+    expect(res1.json().capabilities.billingAppleConfigured).toBe(false);
+    // Billing being unconfigured must not block AI readiness.
+    expect(res1.json().status).toBe('ready');
+    await unconfigured.close();
+
+    const googleConfigured = await testApp(
+      testConfig({
+        GOOGLE_PLAY_PACKAGE_NAME: 'app.oracly',
+        GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: '{"type":"service_account"}',
+      }),
+    );
+    const res2 = await googleConfigured.inject({ method: 'GET', url: '/ready' });
+    expect(res2.json().capabilities.billingGoogleConfigured).toBe(true);
+    expect(res2.json().capabilities.billingAppleConfigured).toBe(false);
+    expect(JSON.stringify(res2.json())).not.toContain('service_account');
+    await googleConfigured.close();
+  });
 });
