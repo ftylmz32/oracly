@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/copy/ai_source_copy.dart';
 import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/voice/oracly_tts_gate.dart';
+import '../../../oracle_core/services/oracle_or_style_hint.dart';
 import '../../../personal_discovery/providers/personal_discovery_providers.dart';
-import '../../../personal_discovery/services/discovery_or_context.dart';
 import '../../domain/models/ai_conversation.dart';
 import '../../domain/models/ai_message.dart';
 import '../../production/ai_request_exception.dart';
@@ -28,9 +28,16 @@ final oracleConversationRepositoryProvider =
     memory: ref.watch(oracleConversationMemoryProvider),
     source: OracleAiMessageSource(
       ai: ref.watch(oraclyAiServiceProvider),
-      observedThemes: () async {
-        final profile = await ref.read(personalDiscoveryProfileProvider.future);
-        return DiscoveryOrContext.themeLabels(profile);
+      contextHintFor: (message) async {
+        try {
+          final profile = await ref
+              .read(personalDiscoveryProfileProvider.future)
+              .timeout(const Duration(seconds: 3));
+          return OracleOrStyleHint.forMessage(profile, message);
+        } catch (_) {
+          // Continuity is optional. A slow/failed profile must never block OR.
+          return null;
+        }
       },
     ),
   );
