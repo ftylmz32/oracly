@@ -3,6 +3,7 @@ import type { FastifyRequest } from 'fastify';
 export type AiOperation =
   | 'chat'
   | 'oracle'
+  | 'tarot_analysis'
   | 'dream_analysis'
   | 'coffee_analysis'
   | 'palm_analysis'
@@ -12,6 +13,7 @@ export type AiOperation =
 export const OPERATIONS: readonly AiOperation[] = [
   'chat',
   'oracle',
+  'tarot_analysis',
   'dream_analysis',
   'coffee_analysis',
   'palm_analysis',
