@@ -15,6 +15,7 @@ abstract final class OracleContextMapper {
           readingTitle: ctx.readingTitle,
           cardsSummary: ctx.cardsSummary,
           interpretationSummary: ctx.interpretationSummary,
+          fullInterpretation: ctx.fullInterpretation,
           userQuestion: ctx.userQuestion,
           cardNames: ctx.cardNames,
           cardIds: ctx.cardIds,
