@@ -1,0 +1,36 @@
+name: Interpretation V2 Batch 1 Verify
+
+on:
+  push:
+    branches:
+      - interpretation/v2-batch1-continuity
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Batch 1 focused tests
+        run: >-
+          flutter test
+          test/interpretation_v2_batch1_continuity_test.dart
+          test/ai_or_ask_v2_test.dart
+          test/ai_or_honesty_p0_test.dart
