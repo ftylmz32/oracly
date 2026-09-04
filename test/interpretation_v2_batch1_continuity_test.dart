@@ -3,12 +3,14 @@ import 'package:oracly_new/core/personality/or_response_depth.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/services/oracle_ai_message_source.dart';
 import 'package:oracly_new/features/ai/production/ai_outcome.dart';
+import 'package:oracly_new/features/ai/production/contexts/oracle_context_mapper.dart';
 import 'package:oracly_new/features/ai/production/contexts/reading_ai_context.dart';
 import 'package:oracly_new/features/ai/production/models/chat_ai_reply.dart';
 import 'package:oracly_new/features/ai/production/models/coffee_ai_analysis.dart';
 import 'package:oracly_new/features/ai/production/models/conversation_turn.dart';
 import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart';
 import 'package:oracly_new/features/ai/production/models/palm_ai_analysis.dart';
+import 'package:oracly_new/features/ai/production/openai/openai_service_requests.dart';
 import 'package:oracly_new/features/ai/production/oracly_ai_service.dart';
 
 void main() {
@@ -30,6 +32,7 @@ void main() {
     expect(ai.lastStyleHint, startsWith('OBSERVATION:'));
     expect(ai.lastStyleHint, contains('Karar teması'));
     expect(ai.lastUserMessage, contains('İşimle'));
+    expect(ai.lastContext, isA<TarotAiContext>());
   });
 
   test('OR does not manufacture continuity when no relevant evidence exists', () async {
@@ -45,6 +48,39 @@ void main() {
     );
 
     expect(ai.lastStyleHint, isNull);
+  });
+
+  test('continuity evidence is bounded before crossing the AI boundary', () async {
+    final ai = _CaptureAi();
+    final source = OracleAiMessageSource(
+      ai: ai,
+      contextHintFor: (_) async => List.filled(600, 'x').join(),
+    );
+
+    await source.reply(
+      context: _tarot(),
+      userMessage: 'İş tarafındaki tekrar ne anlatıyor?',
+    );
+
+    expect(ai.lastStyleHint, startsWith('OBSERVATION:'));
+    expect(ai.lastStyleHint!.length, lessThanOrEqualTo(333));
+  });
+
+  test('oracle proxy payload preserves tagged continuity and structured reading', () {
+    final request = OpenAiServiceRequests.oracle(
+      model: 'test-model',
+      context: OracleContextMapper.fromOracle(_tarot()),
+      userMessage: 'Bu karar neden tekrar ediyor?',
+      priorUser: const [],
+      styleHint:
+          'OBSERVATION: Karar teması Tarot ve Kahve okumalarında tekrar etti.',
+    );
+
+    expect(request.payload['styleHint'], startsWith('OBSERVATION:'));
+    final context = request.payload['context'] as Map<String, dynamic>;
+    expect(context['kind'], 'tarot');
+    expect(context['cardsSummary'], contains('Two of Swords'));
+    expect(context.containsKey('observedThemes'), isFalse);
   });
 }
 
@@ -66,6 +102,7 @@ OracleReadingContext _tarot() {
 class _CaptureAi implements OraclyAiService {
   String? lastStyleHint;
   String? lastUserMessage;
+  ReadingAiContext? lastContext;
 
   @override
   bool get isConfigured => true;
@@ -88,6 +125,7 @@ class _CaptureAi implements OraclyAiService {
     OrResponseDepth depth = OrResponseDepth.fallback,
     bool spoken = false,
   }) async {
+    lastContext = context;
     lastStyleHint = styleHint;
     lastUserMessage = userMessage;
     return AiOutcome.success(
