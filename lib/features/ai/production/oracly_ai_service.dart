@@ -1,4 +1,4 @@
-/// Single AI service for chat, OR'a Sor, dream, and coffee vision.
+/// Single AI service for chat, OR'a Sor, dream, and reading analysis.
 library;
 
 import '../../../core/personality/or_response_depth.dart';
@@ -9,6 +9,7 @@ import 'models/coffee_ai_analysis.dart';
 import 'models/conversation_turn.dart';
 import 'models/dream_ai_analysis.dart';
 import 'models/palm_ai_analysis.dart';
+import 'models/tarot_ai_analysis.dart';
 
 abstract class OraclyAiService {
   bool get isConfigured;
@@ -39,6 +40,10 @@ abstract class OraclyAiService {
     OrResponseDepth depth = OrResponseDepth.fallback,
     bool spoken = false,
   });
+
+  Future<AiOutcome<TarotAiAnalysis>> analyzeTarot(
+    TarotAiAnalysisRequest request,
+  );
 
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context);
 
