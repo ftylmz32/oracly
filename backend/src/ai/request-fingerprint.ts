@@ -8,6 +8,16 @@ export function fingerprintRequest(request: ValidatedRequest): string {
       return `chat:${sanitizeText(request.userMessage).toLowerCase()}`;
     case 'oracle':
       return `oracle:${request.kind}:${sanitizeText(request.userMessage).toLowerCase()}`;
+    case 'tarot_analysis': {
+      const cardKey = request.payload.cards
+        .map((card) => `${card.cardId}:${card.isReversed ? 1 : 0}`)
+        .join('-');
+      const journey = request.payload.journey;
+      const themeKey = (journey?.recurringThemes ?? [])
+        .map((theme) => sanitizeText(theme, 80).toLowerCase())
+        .join('|');
+      return `tarot:${request.payload.sessionId}:${cardKey}:${sanitizeText(request.payload.userQuestion ?? '', 240).toLowerCase()}:${themeKey}`;
+    }
     case 'dream_analysis': {
       const narrative = sanitizeText(request.payload.narrative).toLowerCase();
       return `dream:${narrative}`;
@@ -48,6 +58,7 @@ export function parseIdempotencyKey(header: unknown): string | null {
 
 export function isExpensiveOperation(operation: string): boolean {
   return (
+    operation === 'tarot_analysis' ||
     operation === 'coffee_analysis' ||
     operation === 'palm_analysis' ||
     operation === 'soulmate_draw' ||
