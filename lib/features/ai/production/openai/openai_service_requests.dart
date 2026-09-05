@@ -8,6 +8,7 @@ import '../contexts/reading_ai_context.dart';
 import '../../../companion/services/or_operation_id.dart';
 import '../../../gems/services/paid_ai_operation_id.dart';
 import '../models/conversation_turn.dart';
+import '../models/tarot_ai_analysis.dart';
 import '../transport/ai_operation.dart';
 import '../transport/ai_proxy_request.dart';
 import '../transport/reading_context_json.dart';
@@ -90,6 +91,46 @@ abstract final class OpenAiServiceRequests {
       payload: payload,
       idempotencyKey:
           OrOperationId.current ?? PaidAiOperationId.create('oracle'),
+    );
+  }
+
+  static AiProxyRequest tarot({
+    required String model,
+    required TarotAiRequestContext context,
+  }) {
+    final cards = [
+      for (final card in context.cards.take(10))
+        {
+          'cardId': card.cardId,
+          'cardName': PromptSanitizer.sanitize(card.cardName),
+          'positionLabel': PromptSanitizer.sanitize(card.positionLabel),
+          'positionKey': PromptSanitizer.sanitize(card.positionKey),
+          'isReversed': card.isReversed,
+          'meaning': PromptSanitizer.sanitize(card.meaning),
+          'keywords': [
+            for (final keyword in card.keywords.take(8))
+              if (keyword.trim().isNotEmpty)
+                PromptSanitizer.sanitize(keyword),
+          ],
+        },
+    ];
+    final continuity = context.continuity.toPayload();
+    final payload = <String, dynamic>{
+      'sessionId': PromptSanitizer.sanitize(context.sessionId),
+      'spreadLabel': PromptSanitizer.sanitize(context.spreadLabel),
+      if ((context.userQuestion ?? '').trim().isNotEmpty)
+        'userQuestion': PromptSanitizer.sanitize(context.userQuestion!),
+      if ((context.readingTheme ?? '').trim().isNotEmpty)
+        'readingTheme': PromptSanitizer.sanitize(context.readingTheme!),
+      'cards': cards,
+      if (continuity.isNotEmpty) 'continuity': continuity,
+      ..._language,
+    };
+    return AiProxyRequest(
+      operation: AiOperation.tarotAnalysis,
+      model: model,
+      payload: payload,
+      idempotencyKey: PaidAiOperationId.create('tarot'),
     );
   }
 
