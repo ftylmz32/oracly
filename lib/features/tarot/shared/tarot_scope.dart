@@ -4,13 +4,16 @@ library;
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../ai/production/oracly_ai_providers.dart';
 import '../art/tarot_image_budget.dart';
 import '../controllers/tarot_flow_controller.dart';
 import '../controllers/tarot_reading_controller.dart';
 import '../data/repositories/tarot_reading_repository_impl.dart';
 import '../domain/models/reading_session.dart';
+import '../services/tarot_interpretation_service.dart';
 import '../shared/constants/tarot_routes.dart';
 
 /// Inherited controller bundle for the tarot ritual subtree.
@@ -42,7 +45,7 @@ class TarotScope extends InheritedWidget {
 }
 
 /// Root widget that wires tarot controllers for nested navigators.
-class TarotModuleRoot extends StatefulWidget {
+class TarotModuleRoot extends ConsumerStatefulWidget {
   const TarotModuleRoot({
     super.key,
     required this.storage,
@@ -55,10 +58,10 @@ class TarotModuleRoot extends StatefulWidget {
   final GlobalKey<NavigatorState>? navigatorKey;
 
   @override
-  State<TarotModuleRoot> createState() => _TarotModuleRootState();
+  ConsumerState<TarotModuleRoot> createState() => _TarotModuleRootState();
 }
 
-class _TarotModuleRootState extends State<TarotModuleRoot>
+class _TarotModuleRootState extends ConsumerState<TarotModuleRoot>
     with WidgetsBindingObserver {
   late final TarotFlowController _flow;
   late final TarotReadingController _reading;
@@ -71,6 +74,9 @@ class _TarotModuleRootState extends State<TarotModuleRoot>
     _flow = TarotFlowController();
     _reading = TarotReadingController(
       repository: TarotReadingRepositoryImpl.fromStorage(widget.storage),
+      interpretationService: TarotInterpretationService.production(
+        ref.read(oraclyAiServiceProvider),
+      ),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) => _restoreSession());
   }
