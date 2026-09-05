@@ -27,6 +27,7 @@ class AiInterpretationExecutor implements InterpretationExecutor {
     final hints = context.journeyHints;
     final outcome = await _ai.analyzeTarot(
       TarotAiRequestContext(
+        operationId: request.requestId,
         sessionId: context.sessionId,
         spreadLabel: context.spreadLabel,
         userQuestion: context.userQuestion,
