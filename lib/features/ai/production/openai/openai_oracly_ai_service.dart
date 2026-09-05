@@ -145,17 +145,11 @@ class OpenAiOraclyAiService implements OraclyAiService {
   Future<AiOutcome<TarotAiAnalysis>> analyzeTarot(
     TarotAiRequestContext context,
   ) {
-    final cardKey = context.cards
-        .map((card) => '${card.cardId}:${card.isReversed ? 1 : 0}:${card.positionKey}')
-        .join('|');
-    final fingerprint = AiRequestFingerprint.text(
-      'tarot',
-      '${context.sessionId}|$cardKey|${context.continuity.priorReadingCount}',
-    );
+    final operationKey = 'tarot:${context.operationId}';
     return _guard.runOutcome(
-      'tarot:${context.sessionId}',
+      operationKey,
       kind: AiRequestKind.tarot,
-      fingerprint: fingerprint,
+      fingerprint: AiRequestFingerprint.text('tarot', context.operationId),
       () async {
         return OpenAiServiceResults.tarot(
           await _transport.execute(
