@@ -8,6 +8,7 @@ import '../models/coffee_ai_analysis.dart';
 import '../models/dream_ai_analysis.dart';
 import '../models/palm_ai_analysis.dart';
 import '../models/soul_mate_ai_portrait.dart';
+import '../models/tarot_ai_analysis.dart';
 import 'coffee_vision_parser.dart';
 import 'dream_analysis_parser.dart';
 import 'palm_vision_parser.dart';
@@ -60,6 +61,43 @@ abstract final class OpenAiServiceResults {
           return AiOutcome.failure(AiFailure.invalidResponse());
         }
         return AiOutcome.success(parsed);
+      },
+      error: AiOutcome.failure,
+    );
+  }
+
+  static AiOutcome<TarotAiAnalysis> tarot(
+    AiOutcome<Map<String, dynamic>> outcome,
+  ) {
+    return outcome.when(
+      success: (data) {
+        String text(String key) {
+          final raw = data[key];
+          return raw is String ? raw.trim() : '';
+        }
+
+        final summary = text('summary');
+        final advice = text('advice');
+        final closing = text('closingMessage');
+        if (summary.isEmpty || advice.isEmpty || closing.isEmpty) {
+          return AiOutcome.failure(AiFailure.invalidResponse());
+        }
+        return AiOutcome.success(
+          TarotAiAnalysis(
+            summary: summary,
+            love: text('love'),
+            career: text('career'),
+            money: text('money'),
+            health: text('health'),
+            spiritualGuidance: text('spiritualGuidance'),
+            advice: advice,
+            warnings: text('warnings'),
+            luckyEnergy: text('luckyEnergy'),
+            dailyFocus: text('dailyFocus'),
+            closingMessage: closing,
+            rawText: text('rawText').isEmpty ? null : text('rawText'),
+          ),
+        );
       },
       error: AiOutcome.failure,
     );

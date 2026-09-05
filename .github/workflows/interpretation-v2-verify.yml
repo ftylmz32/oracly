@@ -1,0 +1,66 @@
+name: Interpretation V2 Batch 1 Verify
+
+on:
+  push:
+    branches:
+      - interpretation/v2-batch1-continuity
+  workflow_dispatch:
+
+concurrency:
+  group: interpretation-v2-batch1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Analyze (errors fatal, baseline warnings/info nonfatal)
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Batch 1 focused tests
+        run: >-
+          flutter test
+          test/interpretation_v2_batch1_continuity_test.dart
+          test/features/tarot/tarot_continuity_cache_key_test.dart
+          test/features/tarot/tarot_production_ai_executor_test.dart
+          test/ai_or_ask_v2_test.dart
+          test/ai_or_honesty_p0_test.dart
+
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Continuity and Tarot AI contract tests
+        run: npx vitest run tests/interpretation-v2-continuity.test.ts tests/tarot-analysis.test.ts tests/ai.test.ts

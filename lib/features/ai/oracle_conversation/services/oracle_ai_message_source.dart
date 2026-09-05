@@ -1,6 +1,7 @@
 /// OR'a Sor reply source — live AI, or dev-only local responder.
 library;
 
+import '../../../../core/honesty/or_response_grounding.dart';
 import '../../production/ai_failure.dart';
 import '../../production/ai_request_exception.dart';
 import '../../production/contexts/oracle_context_mapper.dart';
@@ -14,12 +15,14 @@ class OracleAiMessageSource {
     this._ai,
     OracleConversationResponder? local,
     Future<List<String>> Function()? observedThemes,
+    this._contextHintFor,
   })  : _local = local ?? const OracleConversationResponder(),
         _observedThemes = observedThemes ?? (() async => const <String>[]);
 
   final OraclyAiService? _ai;
   final OracleConversationResponder _local;
   final Future<List<String>> Function() _observedThemes;
+  final Future<String?> Function(String userMessage)? _contextHintFor;
 
   bool get fromAi {
     final ai = _ai;
@@ -47,14 +50,28 @@ class OracleAiMessageSource {
     if (ai == null || !ai.isConfigured) {
       throw AiRequestException(AiFailure.noConfiguration());
     }
+
+    final observedThemes = await _observedThemes();
+    final contextHint = _tagObservation(
+      await _contextHintFor?.call(userMessage),
+    );
+    final hasMemoryEvidence =
+        observedThemes.isNotEmpty ||
+        OrResponseGrounding.hasContextEvidence(contextHint);
+
     final outcome = await ai.askOracle(
       context: OracleContextMapper.fromOracle(context),
       userMessage: userMessage,
       priorUser: priorUser,
-      observedThemes: await _observedThemes(),
+      observedThemes: observedThemes,
+      styleHint: contextHint,
     );
     return outcome.when(
-      success: (reply) => ConversationResponseGuard.polish(reply.text),
+      success: (reply) => ConversationResponseGuard.polish(
+        reply.text,
+        userMessage: userMessage,
+        hasMemoryEvidence: hasMemoryEvidence,
+      ),
       error: (failure) => throw AiRequestException(failure),
     );
   }
@@ -82,5 +99,12 @@ class OracleAiMessageSource {
       await Future<void>.delayed(const Duration(milliseconds: 32));
       yield token;
     }
+  }
+
+  static String? _tagObservation(String? raw) {
+    final text = (raw ?? '').trim();
+    if (text.isEmpty) return null;
+    final capped = text.length <= 320 ? text : text.substring(0, 320).trim();
+    return 'OBSERVATION: $capped';
   }
 }

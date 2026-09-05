@@ -36,6 +36,33 @@ class JourneyPersonalizationHints {
       (revisitPriorExcerpt == null || revisitPriorExcerpt!.isEmpty) &&
       (revisitInstruction == null || revisitInstruction!.isEmpty);
 
+  /// Stable cache identity for the actual continuity evidence.
+  ///
+  /// Prior reading count alone is not enough: two profiles can have the same
+  /// count while carrying different recurring themes, recent cards or revisit
+  /// evidence. Keeping all evidence in this token prevents a stale tarot
+  /// interpretation from being reused after the user's story changes.
+  String get cacheToken {
+    final raw = <String>[
+      priorReadingCount.toString(),
+      hasPriorNotes ? '1' : '0',
+      recurringThemeLabels.map((e) => e.trim()).join('|'),
+      recentCardNames.map((e) => e.trim()).join('|'),
+      priorOpenings.map((e) => e.trim()).join('|'),
+      revisitPriorExcerpt?.trim() ?? '',
+      revisitInstruction?.trim() ?? '',
+    ].join('~');
+
+    // Deterministic FNV-1a 32-bit hash; unlike Object.hash/hashCode this token
+    // remains stable for persisted caches across process restarts.
+    var hash = 0x811c9dc5;
+    for (final unit in raw.codeUnits) {
+      hash ^= unit;
+      hash = (hash * 0x01000193) & 0xffffffff;
+    }
+    return hash.toRadixString(16).padLeft(8, '0');
+  }
+
   JourneyPersonalizationHints withRevisit({
     required String priorExcerpt,
     required String instruction,

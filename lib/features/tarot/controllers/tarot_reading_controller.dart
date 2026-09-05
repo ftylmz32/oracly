@@ -35,6 +35,7 @@ class TarotReadingController extends TarotBaseController {
   ReadingSession? _session;
   bool _drawLocked = false;
   Future<AiReadingContent>? _interpretationInflight;
+  JourneyPersonalizationHints? _lastJourneyHints;
 
   ReadingSession? get session => _session;
   TarotDeckController get deckController => _deckController;
@@ -71,6 +72,7 @@ class TarotReadingController extends TarotBaseController {
     try {
       final seed = DateTime.now().millisecondsSinceEpoch;
       await _deckController.initializeDeck(deckId: deckId, seed: seed);
+      _lastJourneyHints = null;
       _session = ReadingSession(
         id: 'session_$seed',
         deckId: _deckController.deckId,
@@ -184,30 +186,6 @@ class TarotReadingController extends TarotBaseController {
     }
   }
 
-  TarotDrawnCard _applyDraw(
-    ReadingSession current,
-    ({TarotCard card, bool isReversed}) draw,
-  ) {
-    final position = SpreadService.positionAt(
-      current.spread,
-      current.drawnCards.length,
-    );
-    final drawn = TarotDrawnCard(
-      card: draw.card,
-      positionIndex: current.drawnCards.length,
-      isReversed: draw.isReversed,
-      positionLabel: position?.label,
-      positionKey: position?.key,
-    );
-
-    _session = current.copyWith(
-      drawnCards: [...current.drawnCards, drawn],
-      flowStep: ReadingFlowStep.reveal,
-      currentPositionIndex: current.drawnCards.length,
-    );
-    return drawn;
-  }
-
   Future<AiReadingContent> resolveInterpretationContent({
     JourneyPersonalizationHints? journeyHints,
     bool forceRefresh = false,
@@ -218,6 +196,15 @@ class TarotReadingController extends TarotBaseController {
     }
     final pending = _interpretationInflight;
     if (pending != null) return pending;
+
+    if (journeyHints != null && !journeyHints.isEmpty) {
+      _lastJourneyHints = journeyHints;
+    }
+    final effectiveJourneyHints =
+        journeyHints != null && !journeyHints.isEmpty
+            ? journeyHints
+            : _lastJourneyHints;
+
     isLoading = true;
     notifyListeners();
     final future = () async {
@@ -225,7 +212,7 @@ class TarotReadingController extends TarotBaseController {
         final content = await _interpretationService.generateContent(
           current,
           language: OraclyL10n.code,
-          journeyHints: journeyHints,
+          journeyHints: effectiveJourneyHints,
           forceRefresh: forceRefresh,
         );
         if (_session?.id != current.id) {
@@ -270,6 +257,7 @@ class TarotReadingController extends TarotBaseController {
   }
 
   Future<void> loadSession(String id) async {
+    _lastJourneyHints = null;
     _session = await _repository.loadSession(id);
     if (_session != null) {
       _deckController.restorePile(
@@ -292,6 +280,7 @@ class TarotReadingController extends TarotBaseController {
 
   void resetSession() {
     _session = null;
+    _lastJourneyHints = null;
     _deckController.resetPile();
     notifyListeners();
   }

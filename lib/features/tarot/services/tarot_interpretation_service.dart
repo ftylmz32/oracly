@@ -9,6 +9,7 @@ import '../../../core/copy/resilience_copy.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/reading/ai_output_quality_logger.dart';
 import '../../../core/reading/ai_output_quality_tarot.dart';
+import '../../ai/production/oracly_ai_service.dart';
 import '../copy/tarot_l10n.dart';
 import '../domain/models/reading_session.dart';
 import '../../insights/models/journey_personalization_hints.dart';
@@ -20,6 +21,7 @@ import '../interpretation/models/interpretation_stream_event.dart';
 import '../interpretation/models/reading_context.dart';
 import '../interpretation/services/interpretation_engine.dart';
 import '../interpretation/cache/interpretation_cache.dart';
+import '../interpretation/executors/ai_interpretation_executor.dart';
 import '../interpretation/executors/local_interpretation_executor.dart';
 import '../../../core/copy/session_ending_copy.dart';
 import '../../../core/safety/sensitive_topic_gate.dart';
@@ -33,12 +35,18 @@ class TarotInterpretationService {
     InterpretationEngine? engine,
     InterpretationCache? cache,
     InterpretationFormatter? formatter,
+    OraclyAiService? ai,
   })  : _formatter = formatter ?? const InterpretationFormatter(),
         _engine = engine ??
             InterpretationEngineFactory.create(
               cache: cache ?? _InMemoryCacheFallback(),
-              executor: LocalInterpretationExecutor(),
+              executor: ai == null
+                  ? LocalInterpretationExecutor()
+                  : AiInterpretationExecutor(ai: ai),
             );
+
+  factory TarotInterpretationService.production(OraclyAiService ai) =>
+      TarotInterpretationService(ai: ai);
 
   final InterpretationEngine _engine;
   final InterpretationFormatter _formatter;
