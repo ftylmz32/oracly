@@ -13,6 +13,7 @@ import '../models/conversation_turn.dart';
 import '../../../../core/personality/or_response_depth.dart';
 import '../models/dream_ai_analysis.dart';
 import '../models/palm_ai_analysis.dart';
+import '../models/tarot_ai_analysis.dart';
 import '../oracly_ai_service.dart';
 import '../transport/ai_transport.dart';
 import 'openai_image_analysis.dart';
@@ -131,6 +132,34 @@ class OpenAiOraclyAiService implements OraclyAiService {
         return OpenAiServiceResults.dream(
           await _transport.execute(
             OpenAiPaidRequests.dream(
+              model: _config.model,
+              context: context,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Future<AiOutcome<TarotAiAnalysis>> analyzeTarot(
+    TarotAiRequestContext context,
+  ) {
+    final cardKey = context.cards
+        .map((card) => '${card.cardId}:${card.isReversed ? 1 : 0}:${card.positionKey}')
+        .join('|');
+    final fingerprint = AiRequestFingerprint.text(
+      'tarot',
+      '${context.sessionId}|$cardKey|${context.continuity.priorReadingCount}',
+    );
+    return _guard.runOutcome(
+      'tarot:${context.sessionId}',
+      kind: AiRequestKind.tarot,
+      fingerprint: fingerprint,
+      () async {
+        return OpenAiServiceResults.tarot(
+          await _transport.execute(
+            OpenAiServiceRequests.tarot(
               model: _config.model,
               context: context,
             ),
