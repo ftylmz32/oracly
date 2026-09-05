@@ -75,6 +75,7 @@ class TarotAiContinuity {
 @immutable
 class TarotAiRequestContext {
   const TarotAiRequestContext({
+    required this.operationId,
     required this.sessionId,
     required this.spreadLabel,
     required this.cards,
@@ -83,6 +84,9 @@ class TarotAiRequestContext {
     this.continuity = const TarotAiContinuity(),
   });
 
+  /// One engine attempt. Retries of the same request reuse it; a genuine
+  /// regenerate receives a new ID and is therefore not confused with a retry.
+  final String operationId;
   final String sessionId;
   final String spreadLabel;
   final List<TarotAiCardEvidence> cards;
