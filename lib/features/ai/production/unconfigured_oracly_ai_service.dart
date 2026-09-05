@@ -10,6 +10,7 @@ import 'models/coffee_ai_analysis.dart';
 import 'models/conversation_turn.dart';
 import 'models/dream_ai_analysis.dart';
 import 'models/palm_ai_analysis.dart';
+import 'models/tarot_ai_analysis.dart';
 import 'oracly_ai_service.dart';
 
 class UnconfiguredOraclyAiService implements OraclyAiService {
@@ -53,6 +54,12 @@ class UnconfiguredOraclyAiService implements OraclyAiService {
   @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(
     DreamAiContext context,
+  ) async =>
+      AiOutcome.failure(AiFailure.noConfiguration());
+
+  @override
+  Future<AiOutcome<TarotAiAnalysis>> analyzeTarot(
+    TarotAiRequestContext context,
   ) async =>
       AiOutcome.failure(AiFailure.noConfiguration());
 
