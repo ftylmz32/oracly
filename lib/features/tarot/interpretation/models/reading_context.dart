@@ -94,10 +94,12 @@ class ReadingContext {
 
   String get cacheKey {
     final q = (userQuestion ?? '').trim().hashCode;
-    final h = journeyHints?.priorReadingCount ?? 0;
+    final continuity = journeyHints?.cacheToken ?? 'no-continuity';
+    final lang = language.trim().toLowerCase();
+    final theme = (readingTheme ?? '').trim().toLowerCase();
     final cardsKey =
         cards.map((c) => '${c.cardId}:${c.isReversed}').join('-');
-    return 'interp_${sessionId}_${shuffleSeed ?? 0}_${q}_${h}_$cardsKey';
+    return 'interp_${sessionId}_${shuffleSeed ?? 0}_${q}_${lang}_${theme}_${continuity}_$cardsKey';
   }
 
   factory ReadingContext.fromSession(
