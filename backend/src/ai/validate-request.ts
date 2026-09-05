@@ -37,6 +37,7 @@ type BaseRequest =
       context: Record<string, unknown>;
     }
   | { operation: 'dream_analysis'; payload: Record<string, unknown> }
+  | { operation: 'tarot_analysis'; payload: Record<string, unknown> }
   | { operation: 'coffee_analysis'; payload: Record<string, unknown> }
   | { operation: 'palm_analysis'; payload: Record<string, unknown> }
   | {
@@ -87,6 +88,8 @@ export function validateAiBody(body: unknown): ValidatedRequest {
       return { ...validateOracle(payload), language };
     case 'dream_analysis':
       return { ...validateDream(payload), language };
+    case 'tarot_analysis':
+      return { ...validateTarot(payload), language };
     case 'coffee_analysis':
       return { operation: 'coffee_analysis', payload, language };
     case 'palm_analysis':
@@ -136,6 +139,70 @@ function validateOracle(payload: Record<string, unknown>): Extract<BaseRequest, 
     spoken: parseSpoken(payload.spoken),
     kind: kind as OracleKind,
     context,
+  };
+}
+
+function validateTarot(
+  payload: Record<string, unknown>,
+): Extract<BaseRequest, { operation: 'tarot_analysis' }> {
+  const sessionId = sanitizeText(payload.sessionId, 120);
+  const spreadLabel = sanitizeText(payload.spreadLabel, 120);
+  if (!sessionId || !spreadLabel || !Array.isArray(payload.cards)) {
+    fail(ErrorCode.invalidRequest);
+  }
+  const cards: Record<string, unknown>[] = [];
+  for (const raw of payload.cards.slice(0, 10)) {
+    const card = asRecord(raw);
+    if (!card) fail(ErrorCode.invalidRequest);
+    const cardName = sanitizeText(card.cardName, 120);
+    const positionLabel = sanitizeText(card.positionLabel, 120);
+    const positionKey = sanitizeText(card.positionKey, 80);
+    const meaning = sanitizeText(card.meaning, 1200);
+    const cardId = typeof card.cardId === 'number' && Number.isInteger(card.cardId)
+      ? card.cardId
+      : -1;
+    if (cardId < 0 || !cardName || !positionLabel || !meaning) {
+      fail(ErrorCode.invalidRequest);
+    }
+    cards.push({
+      cardId,
+      cardName,
+      positionLabel,
+      positionKey,
+      isReversed: card.isReversed === true,
+      meaning,
+      keywords: stringList(card.keywords, 8),
+    });
+  }
+  if (cards.length === 0) fail(ErrorCode.invalidRequest);
+
+  const continuityRaw = asRecord(payload.continuity);
+  const continuity = continuityRaw
+    ? {
+        recurringThemes: stringList(continuityRaw.recurringThemes, 4),
+        recentCardNames: stringList(continuityRaw.recentCardNames, 3),
+        hasPriorNotes: continuityRaw.hasPriorNotes === true,
+        priorReadingCount:
+          typeof continuityRaw.priorReadingCount === 'number' &&
+          Number.isInteger(continuityRaw.priorReadingCount) &&
+          continuityRaw.priorReadingCount > 0
+            ? Math.min(continuityRaw.priorReadingCount, 10000)
+            : 0,
+        revisitPriorExcerpt: sanitizeText(continuityRaw.revisitPriorExcerpt, 900),
+        revisitInstruction: sanitizeText(continuityRaw.revisitInstruction, 360),
+      }
+    : undefined;
+
+  return {
+    operation: 'tarot_analysis',
+    payload: {
+      sessionId,
+      spreadLabel,
+      userQuestion: sanitizeText(payload.userQuestion, 800),
+      readingTheme: sanitizeText(payload.readingTheme, 80),
+      cards,
+      ...(continuity ? { continuity } : {}),
+    },
   };
 }
 
