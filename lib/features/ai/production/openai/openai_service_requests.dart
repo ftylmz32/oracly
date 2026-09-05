@@ -130,7 +130,8 @@ abstract final class OpenAiServiceRequests {
       operation: AiOperation.tarotAnalysis,
       model: model,
       payload: payload,
-      idempotencyKey: PaidAiOperationId.create('tarot'),
+      idempotencyKey:
+          PaidAiOperationId.fromExisting('tarot', context.operationId),
     );
   }
 
