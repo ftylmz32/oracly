@@ -52,9 +52,10 @@ class _SettingsReferenceScreenState
     await loadSettingsReference(
       ref: ref,
       context: context,
-      mounted: mounted,
+      isMounted: () => mounted,
       hasLoadedOnce: _hasLoadedOnce,
       onLoaded: ({required settings, required profileName}) {
+        if (!mounted) return;
         setState(() {
           _settings = settings;
           _profileName = profileName;
@@ -63,11 +64,17 @@ class _SettingsReferenceScreenState
           _hasLoadedOnce = true;
         });
       },
-      onFirstFailure: () => setState(() {
-        _loading = false;
-        _loadFailed = true;
-      }),
-      onCachedFailure: () => setState(() => _loading = false),
+      onFirstFailure: () {
+        if (!mounted) return;
+        setState(() {
+          _loading = false;
+          _loadFailed = true;
+        });
+      },
+      onCachedFailure: () {
+        if (!mounted) return;
+        setState(() => _loading = false);
+      },
     );
   }
 

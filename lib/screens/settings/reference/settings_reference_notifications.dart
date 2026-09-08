@@ -35,8 +35,10 @@ class SettingsReferenceNotifications extends ConsumerWidget {
       final granted = await ref
           .read(oraclyNotificationPortProvider)
           .requestPermission();
-      if (!granted || !context.mounted) {
+      if (!context.mounted) return;
+      if (!granted) {
         final status = await Permission.notification.status;
+        if (!context.mounted) return;
         final permanentlyDenied = status.isPermanentlyDenied;
         final go = await OraclyDialog.confirm(
           context,
@@ -56,6 +58,7 @@ class SettingsReferenceNotifications extends ConsumerWidget {
         return;
       }
     }
+    if (!context.mounted) return;
     await onSave((s) => s.copyWith(notificationsEnabled: enabled));
   }
 
