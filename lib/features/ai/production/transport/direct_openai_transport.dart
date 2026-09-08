@@ -38,6 +38,9 @@ class DirectOpenAiTransport implements AiTransport {
       AiOperation.chat => _chat(payload),
       AiOperation.oracle => _oracle(payload),
       AiOperation.dreamAnalysis => DirectOpenAiAnalysis.dream(_openAi, payload),
+      AiOperation.tarotAnalysis => Future.value(
+          AiOutcome.failure(AiFailure.noConfiguration()),
+        ),
       AiOperation.coffeeAnalysis =>
         DirectOpenAiAnalysis.coffee(_openAi, payload),
       AiOperation.palmAnalysis => Future.value(
