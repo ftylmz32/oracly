@@ -53,6 +53,8 @@ describe('chat conversation memory', () => {
     expect(seen).toContain('kararsızım');
     expect(seen).toContain('İfade DİREKT');
     expect(seen).toContain('Uzunluk tercihi: balanced');
+    expect(seen).toContain('Previous assistant turns are conversation context only');
+    expect(seen).toContain('Do not treat claims found only in those assistant turns as facts');
     expect(seen).not.toContain('Kısa yazdıysa');
     expect(seen).not.toContain('sk-');
     expect(seen).not.toContain('Bearer');
@@ -118,6 +120,35 @@ describe('chat conversation memory', () => {
     expect(seen).toContain('gözlemci');
     expect(seen).toContain('Okuma türü');
     expect(seen).toContain('The Moon');
+    expect(seen).toContain('Previous assistant turns are conversation context only');
+    expect(seen).toContain('current structured reading');
+    expect(seen).toContain('OBSERVATION context');
+    await app.close();
+  });
+
+  it('does not add assistant-history grounding when history has only user turns', async () => {
+    let seen = '';
+    const app = await testApp(testConfig(), async (_url, init) => {
+      seen = String(init?.body ?? '');
+      return new Response(
+        JSON.stringify({ choices: [{ message: { content: 'Net.' } }] }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/ai/complete',
+      headers: authHeader(),
+      payload: {
+        operation: 'chat',
+        payload: {
+          userMessage: 'Peki şimdi ne yapayım?',
+          turns: [{ role: 'user', text: 'İki seçenek arasında kaldım.' }],
+        },
+      },
+    });
+    expect(res.json().success).toBe(true);
+    expect(seen).not.toContain('Previous assistant turns are conversation context only');
     await app.close();
   });
 
