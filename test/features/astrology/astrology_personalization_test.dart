@@ -40,12 +40,15 @@ void main() {
     ],
   );
 
-  test('without history, inner theme stays honestly empty', () {
+  test('without history, inner theme stays honest and daily lanes stay complete', () {
     final reading = AstrologyDailyReadingService.build(
       aries,
       now: DateTime(2026, 8, 13),
     );
     expect(reading.innerTheme, PersonalThemeCopy.insufficient);
+    expect(reading.love.trim(), isNotEmpty);
+    expect(reading.career.trim(), isNotEmpty);
+    expect(reading.money.trim(), isNotEmpty);
     for (final word in _forbidden) {
       expect(reading.overall.toLowerCase(), isNot(contains(word)));
       expect(reading.innerTheme.toLowerCase(), isNot(contains(word)));
@@ -65,6 +68,7 @@ void main() {
     expect(reading.innerTheme, contains('yeniden karşına çıkıyor'));
     expect(reading.love.toLowerCase(), contains('ilişki'));
     expect(reading.career.toLowerCase(), contains('kariyer'));
+    expect(reading.money.trim(), isNotEmpty);
   });
 
   test('same user sees different copy on different days', () {
