@@ -75,13 +75,16 @@ class _DailyMessageScreenState extends ConsumerState<DailyMessageScreen> {
     final ctaAction = _actionFor(recommendation.feature, message.action);
     if (!_recorded) {
       _recorded = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        DailyMessageSession.persist(
-          store: DailyReturnStore(storage),
-          memory: ref.read(discoverySurfaceMemoryProvider),
+      final store = DailyReturnStore(storage);
+      final memory = ref.read(discoverySurfaceMemoryProvider);
+      final discoveryContainer = ProviderScope.containerOf(context, listen: false);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await DailyMessageSession.persist(
+          store: store,
+          memory: memory,
           message: message,
         );
-        PersonalDiscoveryRefresh.invalidate(ref);
+        PersonalDiscoveryRefresh.invalidateContainer(discoveryContainer);
       });
     }
     return OraclyScaffold(
