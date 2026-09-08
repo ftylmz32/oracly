@@ -38,7 +38,7 @@ abstract final class AstrologyPersonalization {
         seed: seed,
       ),
       love: loveLife.isEmpty
-          ? ''
+          ? base.love
           : AstrologyFortuneStory.lane(
               sign: signName,
               catalog: base.love,
@@ -46,7 +46,7 @@ abstract final class AstrologyPersonalization {
               seed: seed + 1,
             ),
       career: careerLife.isEmpty
-          ? ''
+          ? base.career
           : AstrologyFortuneStory.lane(
               sign: signName,
               catalog: base.career,
@@ -59,7 +59,7 @@ abstract final class AstrologyPersonalization {
         life: focus,
         seed: seed + 4,
       ),
-      money: '',
+      money: base.money,
       advice: AstrologyFortuneStory.lane(
         sign: signName,
         catalog: base.advice,
