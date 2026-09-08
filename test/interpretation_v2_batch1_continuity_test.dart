@@ -18,7 +18,7 @@ void main() {
     final ai = _CaptureAi();
     final source = OracleAiMessageSource(
       ai: ai,
-      contextHintFor: (message) async => message.contains('iş')
+      contextHintFor: (message) async => message.contains('karar')
           ? 'Karar teması Tarot ve Kahve okumalarında tekrar etti.'
           : null,
     );
