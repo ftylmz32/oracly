@@ -56,6 +56,7 @@ class AiInterpretationExecutor implements InterpretationExecutor {
             : TarotAiContinuity(
                 recurringThemes: hints.recurringThemeLabels.take(4).toList(),
                 recentCardNames: hints.recentCardNames.take(3).toList(),
+                priorOpenings: hints.priorOpenings.take(4).toList(),
                 hasPriorNotes: hints.hasPriorNotes,
                 priorReadingCount: hints.priorReadingCount,
                 revisitPriorExcerpt: hints.revisitPriorExcerpt,
