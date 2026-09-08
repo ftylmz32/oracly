@@ -4,6 +4,7 @@ library;
 import '../../../ai/production/ai_failure.dart';
 import '../../../ai/production/models/tarot_ai_analysis.dart';
 import '../../../ai/production/oracly_ai_service.dart';
+import '../../../ai/production/tarot_ai_service.dart';
 import '../models/interpretation_error.dart';
 import '../models/interpretation_request.dart';
 import '../models/interpretation_result.dart';
@@ -19,13 +20,18 @@ class AiInterpretationExecutor implements InterpretationExecutor {
   final OraclyAiService _ai;
 
   @override
-  bool get isOnline => _ai.isConfigured;
+  bool get isOnline => _ai.isConfigured && _ai is TarotAiService;
 
   @override
   Future<InterpretationResult> execute(InterpretationRequest request) async {
+    final tarotAi = _ai;
+    if (tarotAi is! TarotAiService) {
+      _throwFailure(AiFailure.noConfiguration());
+    }
+
     final context = request.context;
     final hints = context.journeyHints;
-    final outcome = await _ai.analyzeTarot(
+    final outcome = await tarotAi.analyzeTarot(
       TarotAiRequestContext(
         operationId: request.requestId,
         sessionId: context.sessionId,
