@@ -113,7 +113,9 @@ class _CardRevealScreenState extends State<CardRevealScreen>
       return;
     }
 
-    Navigator.of(context).push(
+    // The reveal step is complete. Replace it with the result instead of
+    // leaving an already-consumed reveal route underneath the reading screen.
+    Navigator.of(context).pushReplacement(
       readingRitualRoute<void>(
         page: const ReadingScreen(),
         settings: const RouteSettings(name: TarotRoutes.reading),

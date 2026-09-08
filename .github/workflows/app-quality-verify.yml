@@ -44,3 +44,4 @@ jobs:
           flutter test test/features/coffee/coffee_result_flow_test.dart
           flutter test test/features/palm/palm_controller_analysis_test.dart
           flutter test test/features/palm/palm_result_flow_test.dart
+          flutter test test/features/tarot/tarot_cinematic_motion_test.dart
