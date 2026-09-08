@@ -13,4 +13,9 @@ abstract final class PersonalDiscoveryRefresh {
     ref.invalidate(personalDiscoveryProfileProvider);
     ref.invalidate(discoveryJournalEntriesProvider);
   }
+
+  static void invalidateContainer(ProviderContainer container) {
+    container.invalidate(personalDiscoveryProfileProvider);
+    container.invalidate(discoveryJournalEntriesProvider);
+  }
 }

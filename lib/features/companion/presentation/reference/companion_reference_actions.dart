@@ -81,6 +81,7 @@ Future<void> sendCompanionComposer({
   )) {
     return;
   }
+  final discoveryContainer = ProviderScope.containerOf(context, listen: false);
   final voice = ref.read(companionVoiceControllerProvider);
   if (voice.isActive) await voice.stop();
   if (!context.mounted) return;
@@ -110,7 +111,7 @@ Future<void> sendCompanionComposer({
   voice.consumeTranscript();
   FocusScope.of(context).unfocus();
   await session.send(text);
-  PersonalDiscoveryRefresh.invalidate(ref);
+  PersonalDiscoveryRefresh.invalidateContainer(discoveryContainer);
   if (!context.mounted) return;
   onScrolled();
 }
