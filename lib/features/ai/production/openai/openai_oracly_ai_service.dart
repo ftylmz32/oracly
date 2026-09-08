@@ -15,6 +15,7 @@ import '../models/dream_ai_analysis.dart';
 import '../models/palm_ai_analysis.dart';
 import '../models/tarot_ai_analysis.dart';
 import '../oracly_ai_service.dart';
+import '../tarot_ai_service.dart';
 import '../transport/ai_transport.dart';
 import 'openai_image_analysis.dart';
 import 'openai_paid_requests.dart';
@@ -22,7 +23,7 @@ import 'openai_service_requests.dart';
 import 'openai_service_results.dart';
 import '../../../companion/services/or_operation_id.dart';
 
-class OpenAiOraclyAiService implements OraclyAiService {
+class OpenAiOraclyAiService implements OraclyAiService, TarotAiService {
   OpenAiOraclyAiService({
     required this._config,
     required this._transport,
