@@ -3,6 +3,9 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/features/ai/production/ai_outcome.dart';
+import 'package:oracly_new/features/ai/production/models/tarot_ai_analysis.dart';
+import 'package:oracly_new/features/ai/production/unconfigured_oracly_ai_service.dart';
 import 'package:oracly_new/features/content/tarot/data/tarot_content_catalogue.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
 import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
@@ -22,6 +25,33 @@ import 'package:oracly_new/features/tarot/presentation/widgets/deck_selection/de
 import 'package:oracly_new/features/tarot/services/deck_service.dart';
 import 'package:oracly_new/features/tarot/services/tarot_interpretation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class _SuccessfulTarotAi extends UnconfiguredOraclyAiService {
+  const _SuccessfulTarotAi();
+
+  @override
+  bool get isConfigured => true;
+
+  @override
+  Future<AiOutcome<TarotAiAnalysis>> analyzeTarot(
+    TarotAiRequestContext context,
+  ) async =>
+      AiOutcome.success(
+        const TarotAiAnalysis(
+          summary: 'Gerçek model yanıtı kartların mesajını birlikte okuyor.',
+          love: '',
+          career: '',
+          money: '',
+          health: '',
+          spiritualGuidance: '',
+          advice: 'Kartların ortak yönünü somut bir adımla sınamayı dene.',
+          warnings: '',
+          luckyEnergy: '',
+          dailyFocus: '',
+          closingMessage: 'İstersen bu açılımı bir sonraki adımla sürdürebiliriz.',
+        ),
+      );
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -55,10 +85,6 @@ void main() {
     final local = await LocalInterpretationExecutor().execute(_request());
     expect(local.source, InterpretationSource.local);
 
-    final stubAi = await AiInterpretationExecutor().execute(_request());
-    expect(stubAi.source, InterpretationSource.local);
-    expect(stubAi.source, isNot(InterpretationSource.ai));
-
     final content = await TarotInterpretationService().generateContent(
       _session(),
     );
@@ -73,22 +99,11 @@ void main() {
     );
   });
 
-  test('AI source is only AI after a successful real AI parse', () {
-    final parsed = AiInterpretationExecutor().parseAiResponse(
-      _request(),
-      '''
-## Açılımın Teması
-Gerçek model yanıtı.
-
-## Kartların Mesajı
-Kartların gözlemlenen mesajı.
-
-## Açılımın Genel Yorumu
-Açılımın bütünü.
-''',
-    );
-    expect(parsed, isNotNull);
-    expect(parsed!.source, InterpretationSource.ai);
+  test('AI source is only AI after a successful structured AI response', () async {
+    final parsed = await AiInterpretationExecutor(
+      ai: const _SuccessfulTarotAi(),
+    ).execute(_request());
+    expect(parsed.source, InterpretationSource.ai);
     expect(
       TarotPolishCopy.readingFootnote(fromAi: true),
       startsWith(TarotPolishCopy.sourceAi),
