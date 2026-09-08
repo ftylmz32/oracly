@@ -12,8 +12,9 @@ import 'models/dream_ai_analysis.dart';
 import 'models/palm_ai_analysis.dart';
 import 'models/tarot_ai_analysis.dart';
 import 'oracly_ai_service.dart';
+import 'tarot_ai_service.dart';
 
-class UnconfiguredOraclyAiService implements OraclyAiService {
+class UnconfiguredOraclyAiService implements OraclyAiService, TarotAiService {
   const UnconfiguredOraclyAiService({this.allowsLocalFallback = false});
 
   @override
