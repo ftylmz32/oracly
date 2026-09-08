@@ -192,7 +192,7 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
             onTap: () async {
               Navigator.pop(context);
               await controller.regenerate();
-              if (!context.mounted) return;
+              if (!mounted) return;
               OraclySnackBar.show(
                 context,
                 message: PersonalInsightsCopy.regeneratedConfirmation,
@@ -206,7 +206,7 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
               Navigator.pop(context);
               final text = controller.exportText();
               await Clipboard.setData(ClipboardData(text: text));
-              if (!context.mounted) return;
+              if (!mounted) return;
               OraclySnackBar.show(
                 context,
                 message: PersonalInsightsCopy.exportedConfirmation,
@@ -231,7 +231,7 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
             onTap: () async {
               Navigator.pop(context);
               await controller.hideInsight(id);
-              if (!context.mounted) return;
+              if (!mounted) return;
               OraclySnackBar.show(
                 context,
                 message: PersonalInsightsCopy.hiddenConfirmation,
@@ -252,9 +252,10 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
                 cancelLabel: OraclyL10n.t('trust.delete_cancel'),
                 destructive: true,
               );
+              if (!mounted) return;
               if (confirmed == true) {
                 await controller.deleteInsight(id);
-                if (!context.mounted) return;
+                if (!mounted) return;
                 OraclySnackBar.show(
                   context,
                   message: PersonalInsightsCopy.deletedConfirmation,
