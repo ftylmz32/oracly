@@ -8,6 +8,7 @@ on:
       - interpretation/v2-batch3-dialogue-freshness
       - interpretation/v2-batch4-turn-context
       - interpretation/v2-batch5-history-grounding
+      - interpretation/v2-batch6-correction-precedence
   workflow_dispatch:
 
 concurrency:
