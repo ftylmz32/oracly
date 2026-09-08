@@ -78,6 +78,10 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
   Future<void> _analyze(PalmReadingController controller) async {
     if (controller.phase == PalmPhase.analyzing || _starting) return;
     setState(() => _starting = true);
+    // Provider-owned collaborators outlive this screen. Capture them before
+    // any await so cleanup never depends on a disposed WidgetRef.
+    final coordinator = ref.read(paidAiOperationCoordinatorProvider);
+    final analytics = ref.read(analyticsServiceProvider);
     try {
       final image = controller.image;
       if (image != null) {
@@ -103,32 +107,32 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
       );
       if (op == null) return;
       if (!mounted) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await coordinator.abandon(op.id);
         return;
       }
-      ref.read(analyticsServiceProvider).logPalmStarted();
+      analytics.logPalmStarted();
       final started = DateTime.now();
       await PaidAiOperationBinder.runWithKey(op.idempotencyKey, () {
         return controller.analyze();
       });
-      if (controller.phase != PalmPhase.result || controller.reading == null) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+      if (!mounted ||
+          controller.phase != PalmPhase.result ||
+          controller.reading == null) {
+        await coordinator.abandon(op.id);
         if (controller.phase == PalmPhase.error) {
-          ref
-              .read(analyticsServiceProvider)
-              .logPalmFailure(errorCategory: 'analysis');
+          analytics.logPalmFailure(errorCategory: 'analysis');
         }
         return;
       }
-      ref.read(analyticsServiceProvider).logPalmSuccess(
-            latency: DateTime.now().difference(started),
-          );
+      analytics.logPalmSuccess(
+        latency: DateTime.now().difference(started),
+      );
       await GemSpendGuard.settleOperation(
         ref,
         operation: op,
-        context: mounted ? context : null,
+        context: context,
       );
-      if (mounted) PersonalDiscoveryRefresh.invalidate(ref);
+      PersonalDiscoveryRefresh.invalidate(ref);
     } finally {
       if (mounted) {
         setState(() => _starting = false);
