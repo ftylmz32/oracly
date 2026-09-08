@@ -24,14 +24,14 @@ class AiInterpretationExecutor implements InterpretationExecutor {
 
   @override
   Future<InterpretationResult> execute(InterpretationRequest request) async {
-    final tarotAi = _ai;
-    if (tarotAi is! TarotAiService) {
+    final ai = _ai;
+    if (ai is! TarotAiService) {
       _throwFailure(AiFailure.noConfiguration());
     }
 
     final context = request.context;
     final hints = context.journeyHints;
-    final outcome = await tarotAi.analyzeTarot(
+    final outcome = await ai.analyzeTarot(
       TarotAiRequestContext(
         operationId: request.requestId,
         sessionId: context.sessionId,
