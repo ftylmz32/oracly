@@ -10,6 +10,11 @@ const ASSISTANT_HISTORY_GROUNDING =
   'but require user statements, the current structured reading, or explicitly tagged ' +
   'OBSERVATION context before treating a claim as evidence.';
 
+const LATEST_USER_PRECEDENCE =
+  'The current user message has priority over earlier conversation turns. ' +
+  'If it corrects, narrows, updates, or changes the subject, follow the latest message ' +
+  'and do not keep repeating superseded assumptions from older turns.';
+
 export function parseTurns(input: unknown, maxItems = 8): ChatTurn[] {
   if (!Array.isArray(input)) return [];
   const out: ChatTurn[] = [];
@@ -32,6 +37,7 @@ export function historyMessages(
   if (turns.length) {
     const hasAssistantTurn = turns.some((turn) => turn.role === 'assistant');
     return [
+      { role: 'system', content: LATEST_USER_PRECEDENCE },
       ifMessage(hasAssistantTurn),
       ...turns.map((turn) => ({ role: turn.role, content: turn.text })),
     ].filter((message): message is OpenAiMessage => message !== null);
