@@ -42,3 +42,5 @@ jobs:
           flutter test test/features/companion/companion_reference_completion_test.dart
           flutter test test/features/coffee/coffee_cancel_analysis_test.dart
           flutter test test/features/coffee/coffee_result_flow_test.dart
+          flutter test test/features/palm/palm_controller_analysis_test.dart
+          flutter test test/features/palm/palm_result_flow_test.dart
