@@ -39,6 +39,7 @@ class OracleAiMessageSource {
     required OracleReadingContext context,
     required String userMessage,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) async {
     if (_useLocalFallback) {
       return _local.respond(
@@ -72,6 +73,7 @@ class OracleAiMessageSource {
         reply.text,
         userMessage: userMessage,
         hasMemoryEvidence: hasMemoryEvidence,
+        priorAssistant: priorAssistant,
       ),
       error: (failure) => throw AiRequestException(failure),
     );
@@ -81,6 +83,7 @@ class OracleAiMessageSource {
     required OracleReadingContext context,
     required String userMessage,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) async* {
     if (_useLocalFallback) {
       yield* _local.respondStream(
@@ -94,6 +97,7 @@ class OracleAiMessageSource {
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
+      priorAssistant: priorAssistant,
     );
     final tokens = text.split(RegExp(r'(?<=\s)'));
     for (final token in tokens) {
