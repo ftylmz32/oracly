@@ -77,13 +77,14 @@ abstract final class DeckSelectionStart {
     // the pending Home CTA intent (intent is gone by reading result time).
     if (spreadType == TarotFirstReading.spread) {
       final storage = ref.read(localStorageProvider);
+      final pending = ref.read(firstReadingPendingProvider.notifier);
       if (FirstSessionIntent.isPending(storage)) {
         final sessionId = scope.reading.session?.id;
         if (sessionId != null) {
           await FirstReadingOrDeepen.markEligible(storage, sessionId);
         }
         await FirstSessionIntent.consumePendingFirstReading(storage);
-        ref.read(firstReadingPendingProvider.notifier).state = false;
+        pending.state = false;
       }
     }
     if (!context.mounted) return false;
