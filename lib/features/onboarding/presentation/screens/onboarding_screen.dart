@@ -35,6 +35,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   late final OnboardingSetupDraftStore _draftStore;
   OnboardingSetupDraft? _draft;
 
+  ProviderContainer get _container =>
+      ProviderScope.containerOf(context, listen: false);
+
   @override
   void initState() {
     super.initState();
@@ -49,8 +52,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _resumeDraftLocale() async {
     final d = _draft;
     if (d == null || !mounted) return;
+    final container = _container;
     await OnboardingProfileSaver.apply(
       ref,
+      container: container,
       language: d.language,
       style: d.style,
     );
@@ -72,9 +77,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }) async {
     if (_finishing) return;
     setState(() => _finishing = true);
+    final container = _container;
     try {
       await finishOnboarding(
         ref: ref,
+        container: container,
         draftStore: _draftStore,
         name: name,
         birthDate: birthDate,
@@ -131,7 +138,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         onDraftChanged: _persistDraft,
         onLanguageLive: (code) async {
           OraclyL10n.bind(code);
-          await OnboardingProfileSaver.apply(ref, language: code);
+          final container = _container;
+          await OnboardingProfileSaver.apply(
+            ref,
+            container: container,
+            language: code,
+          );
           if (mounted) setState(() {});
         },
         onSkipSetup: ({required language, required style}) =>
