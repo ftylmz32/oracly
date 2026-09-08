@@ -13,6 +13,7 @@ import 'onboarding_profile_saver.dart';
 
 Future<bool> finishOnboarding({
   required WidgetRef ref,
+  required ProviderContainer container,
   required OnboardingSetupDraftStore draftStore,
   String name = '',
   DateTime? birthDate,
@@ -20,24 +21,31 @@ Future<bool> finishOnboarding({
   required String language,
   required AiPersonality style,
 }) async {
+  // Capture all dependencies while the onboarding WidgetRef is still alive.
+  final storage = ref.read(localStorageProvider);
+  final starterGrant = ref.read(gemStarterGrantProvider);
+  final wallet = ref.read(gemWalletProvider);
+  final onboardingRepository = ref.read(onboardingRepositoryProvider);
+  final pendingFirstReading = ref.read(firstReadingPendingProvider.notifier);
+
   await OnboardingCompletion.run(
     persistProfile: () => OnboardingProfileSaver.apply(
       ref,
+      container: container,
       name: name,
       birthDate: birthDate,
       birthPlace: birthPlace,
       language: language,
       style: style,
     ),
-    requestFirstReading: () =>
-        FirstSessionIntent.requestFirstReading(ref.read(localStorageProvider)),
+    requestFirstReading: () => FirstSessionIntent.requestFirstReading(storage),
     grantStarterGems: () async {
-      await ref.read(gemStarterGrantProvider).ensureOnce();
-      ref.read(gemWalletProvider).reload();
+      await starterGrant.ensureOnce();
+      wallet.reload();
     },
     clearDraft: draftStore.clear,
-    markCompleted: () => ref.read(onboardingRepositoryProvider).markCompleted(),
+    markCompleted: onboardingRepository.markCompleted,
   );
-  ref.read(firstReadingPendingProvider.notifier).state = true;
+  pendingFirstReading.state = true;
   return true;
 }
