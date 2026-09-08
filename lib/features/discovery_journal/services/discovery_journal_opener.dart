@@ -71,12 +71,12 @@ abstract final class DiscoveryJournalOpener {
     String id,
   ) async {
     final record = await ref.read(dreamRepositoryProvider).getById(id);
+    if (!context.mounted) return;
     if (record != null) {
       ref
           .read(dreamAnalysisControllerProvider)
           .openSaved(DreamRecordMapper.fromRecord(record));
     }
-    if (!context.mounted) return;
     OraclyNavigationService.openDream(context);
   }
 
