@@ -61,10 +61,12 @@ class BirthChartController extends ChangeNotifier {
     } catch (_) {
       if (_disposed) return;
       if (_phase != BirthChartPhase.generating) {
-        await _service.clearSavedData();
-        if (_disposed) return;
         _errorMessage = BirthChartCopy.recoverFailed;
-        _phase = BirthChartPhase.error;
+        // A transient read/rebuild failure must not destroy persisted data or
+        // throw away an already-renderable journey held by this controller.
+        _phase = hasRenderableJourney
+            ? BirthChartPhase.journey
+            : BirthChartPhase.error;
       }
     } finally {
       if (!_disposed) {

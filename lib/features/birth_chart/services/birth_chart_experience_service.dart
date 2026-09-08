@@ -71,16 +71,12 @@ class BirthChartExperienceService {
       return const BirthChartLoadResult.clearedCorrupt();
     }
 
-    try {
-      if (_needsRebuild(chart)) {
-        chart = await _buildAndSave(chart.profile);
-      } else if (!BirthChartPersistenceValidator.isJourneyReady(chart)) {
-        chart = await _buildAndSave(chart.profile);
-      }
-    } catch (_) {
-      final profile = chart.profile;
-      await clearSavedData();
-      return BirthChartLoadResult.clearedCorrupt(profileHint: profile);
+    if (_needsRebuild(chart) ||
+        !BirthChartPersistenceValidator.isJourneyReady(chart)) {
+      // Rebuild can depend on calculation/interpretation infrastructure.
+      // Transient failures must not delete a valid mapped saved record; let
+      // the caller surface a retry state while keeping recovery data intact.
+      chart = await _buildAndSave(chart.profile);
     }
 
     if (!BirthChartPersistenceValidator.isJourneyReady(chart)) {

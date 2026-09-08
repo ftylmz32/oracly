@@ -4,17 +4,36 @@ import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.d
 import 'package:oracly_new/features/birth_chart/controllers/birth_chart_controller.dart';
 import 'package:oracly_new/features/birth_chart/copy/birth_chart_copy.dart';
 import 'package:oracly_new/features/birth_chart/data/birth_chart_record_mapper.dart';
+import 'package:oracly_new/features/birth_chart/models/birth_chart.dart';
 import 'package:oracly_new/features/birth_chart/models/birth_profile.dart';
+import 'package:oracly_new/features/birth_chart/models/chart_fidelity.dart';
 import 'package:oracly_new/features/birth_chart/services/birth_chart_experience_service.dart';
+import 'package:oracly_new/features/birth_chart/services/chart_calculation_port.dart';
 import 'package:oracly_new/features/birth_chart/services/natal_chart_calculator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class _ThrowingCalculator implements ChartCalculationPort {
+  const _ThrowingCalculator();
+
+  @override
+  ChartCalculationFidelity get fidelity =>
+      ChartCalculationFidelity.tropicalSunSign;
+
+  @override
+  BirthChart calculate(BirthProfile profile) {
+    throw StateError('temporary calculation failure');
+  }
+}
+
 Future<({LocalStorage storage, BirthChartExperienceService service})>
-    _createService() async {
+    _createService({ChartCalculationPort? calculator}) async {
   SharedPreferences.setMockInitialValues({});
   final storage = await LocalStorage.open();
   final repository = LocalBirthChartRepository(storage);
-  final service = BirthChartExperienceService(repository: repository);
+  final service = BirthChartExperienceService(
+    repository: repository,
+    calculator: calculator,
+  );
   return (storage: storage, service: service);
 }
 
@@ -42,6 +61,23 @@ void main() {
       expect(result.chart?.insights, isNotEmpty);
       expect(result.chart?.moon, isNull);
       expect(result.chart?.planets, isEmpty);
+    });
+
+    test('preserves mapped saved chart when rebuild fails transiently', () async {
+      final env = await _createService(calculator: const _ThrowingCalculator());
+      final repository = LocalBirthChartRepository(env.storage);
+      final incomplete = const NatalChartCalculator().calculate(
+        BirthProfile(
+          birthDate: DateTime(1995, 8, 15),
+          birthPlace: 'İstanbul',
+          birthTimeKnown: false,
+        ),
+      );
+      await repository.save(BirthChartRecordMapper.toRecord(incomplete));
+
+      await expectLater(env.service.loadSaved(), throwsStateError);
+
+      expect(await repository.getLatest(), isNotNull);
     });
 
     test('clears corrupt json and returns profile hint when possible', () async {
@@ -93,6 +129,27 @@ void main() {
       expect(controller.isInitializing, isFalse);
       expect(controller.phase, BirthChartPhase.journey);
       expect(controller.hasRenderableJourney, isTrue);
+    });
+
+    test('load failure keeps persisted recovery data for retry', () async {
+      final env = await _createService(calculator: const _ThrowingCalculator());
+      final repository = LocalBirthChartRepository(env.storage);
+      final incomplete = const NatalChartCalculator().calculate(
+        BirthProfile(
+          birthDate: DateTime(1990, 3, 25),
+          birthPlace: 'Ankara',
+          birthTimeKnown: false,
+        ),
+      );
+      await repository.save(BirthChartRecordMapper.toRecord(incomplete));
+
+      final controller = BirthChartController(env.service);
+      await controller.loadSaved();
+
+      expect(controller.isInitializing, isFalse);
+      expect(controller.phase, BirthChartPhase.error);
+      expect(controller.errorMessage, BirthChartCopy.recoverFailed);
+      expect(await repository.getLatest(), isNotNull);
     });
 
     test('restartOnboarding clears SharedPreferences trap', () async {
