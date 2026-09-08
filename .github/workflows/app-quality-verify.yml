@@ -38,3 +38,4 @@ jobs:
           flutter test test/features/astrology/astrology_personalization_test.dart
           flutter test test/screens/profile/name_edit_material_test.dart
           flutter test test/screens/profile/profile_photo_store_test.dart
+          flutter test test/features/discovery_journal/discovery_journal_test.dart
