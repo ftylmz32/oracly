@@ -39,8 +39,10 @@ abstract final class ProfilePhotoActions {
 
   static Future<bool?> commit(WidgetRef ref, ProfilePhotoAction action) async {
     if (action == ProfilePhotoAction.remove) {
-      await ProfilePhotoStore.clear(ref.read(localStorageProvider));
-      ref.read(profilePhotoEpochProvider.notifier).state++;
+      final storage = ref.read(localStorageProvider);
+      final epoch = ref.read(profilePhotoEpochProvider.notifier);
+      await ProfilePhotoStore.clear(storage);
+      epoch.state++;
       return true;
     }
     if (action == ProfilePhotoAction.camera) {
@@ -53,6 +55,8 @@ abstract final class ProfilePhotoActions {
   }
 
   static Future<bool?> _pick(WidgetRef ref, ImageSource source) async {
+    final storage = ref.read(localStorageProvider);
+    final epoch = ref.read(profilePhotoEpochProvider.notifier);
     try {
       if (source == ImageSource.camera) {
         if (!cameraAvailable) return false;
@@ -64,8 +68,8 @@ abstract final class ProfilePhotoActions {
         imageQuality: 88,
       );
       if (file == null) return null;
-      await ProfilePhotoStore.save(ref.read(localStorageProvider), file.path);
-      ref.read(profilePhotoEpochProvider.notifier).state++;
+      await ProfilePhotoStore.save(storage, file.path);
+      epoch.state++;
       return true;
     } catch (_) {
       return false;
