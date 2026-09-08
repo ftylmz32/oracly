@@ -5,6 +5,7 @@ import '../../../../core/honesty/or_response_grounding.dart';
 import '../../production/ai_failure.dart';
 import '../../production/ai_request_exception.dart';
 import '../../production/contexts/oracle_context_mapper.dart';
+import '../../production/models/conversation_turn.dart';
 import '../../production/oracly_ai_service.dart';
 import '../../services/conversation_response_guard.dart';
 import '../models/oracle_reading_context.dart';
@@ -39,6 +40,7 @@ class OracleAiMessageSource {
     required OracleReadingContext context,
     required String userMessage,
     List<String> priorUser = const [],
+    List<ConversationTurn> turns = const [],
     String? priorAssistant,
   }) async {
     if (_useLocalFallback) {
@@ -67,6 +69,7 @@ class OracleAiMessageSource {
       priorUser: priorUser,
       observedThemes: observedThemes,
       styleHint: contextHint,
+      turns: turns,
     );
     return outcome.when(
       success: (reply) => ConversationResponseGuard.polish(
@@ -83,6 +86,7 @@ class OracleAiMessageSource {
     required OracleReadingContext context,
     required String userMessage,
     List<String> priorUser = const [],
+    List<ConversationTurn> turns = const [],
     String? priorAssistant,
   }) async* {
     if (_useLocalFallback) {
@@ -97,6 +101,7 @@ class OracleAiMessageSource {
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
+      turns: turns,
       priorAssistant: priorAssistant,
     );
     final tokens = text.split(RegExp(r'(?<=\s)'));
