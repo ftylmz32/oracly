@@ -84,17 +84,20 @@ abstract final class GemSpendGuard {
     required PaidAiOperation operation,
     BuildContext? context,
   }) async {
-    final ok = await ref
-        .read(paidAiOperationCoordinatorProvider)
-        .completeAfterProvider(operation);
-    ref.read(gemWalletProvider).reload();
+    // Capture provider-owned collaborators before the async boundary so a
+    // screen can be disposed while the provider completion is in flight.
+    final coordinator = ref.read(paidAiOperationCoordinatorProvider);
+    final wallet = ref.read(gemWalletProvider);
+    final analytics = ref.read(analyticsServiceProvider);
+    final ok = await coordinator.completeAfterProvider(operation);
+    wallet.reload();
     if (ok && operation.isBillable) {
-      ref.read(analyticsServiceProvider).logGemPurchaseSuccess(
-            reason: _reasonKey(
-              ledgerKey: operation.ledgerKey,
-              reason: operation.reason,
-            ),
-          );
+      analytics.logGemPurchaseSuccess(
+        reason: _reasonKey(
+          ledgerKey: operation.ledgerKey,
+          reason: operation.reason,
+        ),
+      );
     }
     final ctx = context;
     if (!ok && operation.isBillable && ctx != null && ctx.mounted) {
