@@ -1,13 +1,14 @@
-name: Interpretation V2 Batch 1 Verify
+name: Interpretation V2 Verify
 
 on:
   push:
     branches:
       - interpretation/v2-batch1-continuity
+      - interpretation/v2-batch2-freshness
   workflow_dispatch:
 
 concurrency:
-  group: interpretation-v2-batch1-${{ github.ref }}
+  group: interpretation-v2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,7 +33,7 @@ jobs:
       - name: Analyze (errors fatal, baseline warnings/info nonfatal)
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      - name: Batch 1 focused tests
+      - name: Interpretation V2 focused tests
         run: >-
           flutter test
           test/interpretation_v2_batch1_continuity_test.dart
