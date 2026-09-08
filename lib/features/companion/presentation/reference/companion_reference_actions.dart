@@ -106,6 +106,17 @@ Future<void> sendCompanionComposer({
     );
     return;
   }
+  // A second submit can still arrive from the keyboard, a preset, or voice
+  // while the previous OR turn is thinking. The controller correctly ignores
+  // that send; keep the composer intact instead of clearing unsent text first.
+  if (session.state.isBusy) {
+    logOrSubmit(
+      textLength: text.trim().length,
+      sessionReady: true,
+      blocked: true,
+    );
+    return;
+  }
   logOrSubmit(textLength: text.trim().length, sessionReady: true);
   composer.clear();
   voice.consumeTranscript();
