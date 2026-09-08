@@ -16,47 +16,44 @@ abstract final class OnboardingProfileSaver {
 
   static Future<void> apply(
     WidgetRef ref, {
+    required ProviderContainer container,
     String name = '',
     DateTime? birthDate,
     String? birthPlace,
     String? language,
     AiPersonality? style,
   }) async {
+    // Capture every provider dependency before the first async boundary so
+    // onboarding persistence can safely finish even if its screen is removed.
+    final profile = ref.read(userProfileProvider.notifier);
+    final currentSettings =
+        ref.read(settingsProvider).value ?? const PersonalizationSettings();
+    final settings = ref.read(settingsProvider.notifier);
+    final birthChart = birthDate == null
+        ? null
+        : ref.read(birthChartExperienceServiceProvider);
+
     final trimmed = name.trim();
     if (trimmed.isNotEmpty) {
-      await ref.read(userProfileProvider.notifier).saveName(trimmed);
+      await profile.saveName(trimmed);
     }
-    await _settings(ref, language: language, style: style);
-    if (birthDate == null) return;
+    if (language != null || style != null) {
+      await settings.saveSettings(
+        currentSettings.copyWith(language: language, aiPersonality: style),
+      );
+    }
+    if (birthDate == null || birthChart == null) return;
     try {
-      await ref
-          .read(birthChartExperienceServiceProvider)
-          .generate(
-            BirthProfile(
-              birthDate: birthDate,
-              birthPlace:
-                  birthPlace ?? OraclyL10n.t('onboard.birth_unspecified'),
-            ),
-          );
-      ref.invalidate(birthInformationProvider);
-      PersonalDiscoveryRefresh.invalidate(ref);
+      await birthChart.generate(
+        BirthProfile(
+          birthDate: birthDate,
+          birthPlace: birthPlace ?? OraclyL10n.t('onboard.birth_unspecified'),
+        ),
+      );
+      container.invalidate(birthInformationProvider);
+      PersonalDiscoveryRefresh.invalidateContainer(container);
     } catch (_) {
       // Do not block Home if chart persist fails.
     }
-  }
-
-  static Future<void> _settings(
-    WidgetRef ref, {
-    String? language,
-    AiPersonality? style,
-  }) async {
-    if (language == null && style == null) return;
-    final current =
-        ref.read(settingsProvider).value ?? const PersonalizationSettings();
-    await ref
-        .read(settingsProvider.notifier)
-        .saveSettings(
-          current.copyWith(language: language, aiPersonality: style),
-        );
   }
 }
