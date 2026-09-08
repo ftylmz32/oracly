@@ -24,6 +24,7 @@ class ExploreReferenceScreen extends ConsumerWidget {
     (OraclyFeatureId.coffee, HomeModuleVisual.coffee, false),
     (OraclyFeatureId.palm, HomeModuleVisual.palm, false),
     (OraclyFeatureId.dream, HomeModuleVisual.dream, false),
+    (OraclyFeatureId.tarot, HomeModuleVisual.tarot, false),
     (OraclyFeatureId.astrology, HomeModuleVisual.astrology, false),
     (OraclyFeatureId.starMap, HomeModuleVisual.starMap, false),
     (OraclyFeatureId.soulMate, HomeModuleVisual.soulMate, true),
