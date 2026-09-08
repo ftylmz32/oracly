@@ -51,3 +51,4 @@ jobs:
           flutter test test/features/onboarding/onboarding_completion_reliability_test.dart
           flutter test test/features/onboarding/onboarding_experience_test.dart
           flutter test test/features/onboarding/onboarding_locale_p1_test.dart
+          flutter test test/features/birth_chart/birth_chart_controller_test.dart

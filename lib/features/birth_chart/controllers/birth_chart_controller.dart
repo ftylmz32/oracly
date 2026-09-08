@@ -25,6 +25,7 @@ class BirthChartController extends ChangeNotifier {
   String? _statusMessage;
   var _isInitializing = true;
   var _editing = false;
+  var _disposed = false;
 
   BirthChartPhase get phase => _phase;
   BirthChart? get chart => _chart;
@@ -41,7 +42,7 @@ class BirthChartController extends ChangeNotifier {
     if (_phase == BirthChartPhase.generating) return;
     try {
       final result = await _service.loadSaved();
-      if (_phase == BirthChartPhase.generating) return;
+      if (_disposed || _phase == BirthChartPhase.generating) return;
       switch (result.status) {
         case BirthChartLoadStatus.none:
           break;
@@ -58,18 +59,23 @@ class BirthChartController extends ChangeNotifier {
           _statusMessage = BirthChartCopy.corruptDataCleared;
       }
     } catch (_) {
+      if (_disposed) return;
       if (_phase != BirthChartPhase.generating) {
         await _service.clearSavedData();
+        if (_disposed) return;
         _errorMessage = BirthChartCopy.recoverFailed;
         _phase = BirthChartPhase.error;
       }
     } finally {
-      _isInitializing = false;
-      notifyListeners();
+      if (!_disposed) {
+        _isInitializing = false;
+        notifyListeners();
+      }
     }
   }
 
   Future<void> generate(BirthProfile profile) async {
+    if (_disposed) return;
     _lastProfile = profile;
     _onboardingProfileHint = profile;
     _statusMessage = null;
@@ -78,21 +84,25 @@ class BirthChartController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     await Future<void>.delayed(const Duration(milliseconds: 420));
+    if (_disposed) return;
     try {
       final result = await _service.generate(profile);
+      if (_disposed) return;
       if (!BirthChartPersistenceValidator.isJourneyReady(result.chart)) {
         throw StateError('Birth chart insights missing after generation');
       }
       _chart = result.chart;
       _phase = BirthChartPhase.journey;
     } catch (_) {
+      if (_disposed) return;
       _phase = BirthChartPhase.error;
       _errorMessage = BirthChartCopy.generateFailed;
     }
-    notifyListeners();
+    if (!_disposed) notifyListeners();
   }
 
   void beginEdit() {
+    if (_disposed) return;
     _applyOnboardingHint(_chart?.profile ?? _lastProfile);
     _editing = true;
     _phase = BirthChartPhase.onboarding;
@@ -101,6 +111,7 @@ class BirthChartController extends ChangeNotifier {
   }
 
   void cancelEdit() {
+    if (_disposed) return;
     _editing = false;
     if (_chart != null &&
         BirthChartPersistenceValidator.isJourneyReady(_chart!)) {
@@ -110,6 +121,7 @@ class BirthChartController extends ChangeNotifier {
   }
 
   Future<void> recoverJourney() async {
+    if (_disposed) return;
     final profile = _chart?.profile ?? _lastProfile;
     if (profile == null) {
       await restartOnboarding();
@@ -119,6 +131,7 @@ class BirthChartController extends ChangeNotifier {
   }
 
   Future<void> regenerateFromSavedProfile() async {
+    if (_disposed) return;
     final profile = _chart?.profile ?? _lastProfile ?? _onboardingProfileHint;
     if (profile == null) {
       await restartOnboarding();
@@ -128,9 +141,11 @@ class BirthChartController extends ChangeNotifier {
   }
 
   Future<void> clearSavedAndRestart({BirthProfile? profileHint}) async {
+    if (_disposed) return;
     final hint =
         profileHint ?? _chart?.profile ?? _lastProfile ?? _onboardingProfileHint;
     await _service.clearSavedData();
+    if (_disposed) return;
     _chart = null;
     _editing = false;
     _errorMessage = null;
@@ -149,5 +164,11 @@ class BirthChartController extends ChangeNotifier {
       _onboardingProfileHint = profile;
       _lastProfile = profile;
     }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }
