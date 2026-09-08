@@ -181,6 +181,7 @@ function validateTarot(
     ? {
         recurringThemes: stringList(continuityRaw.recurringThemes, 4),
         recentCardNames: stringList(continuityRaw.recentCardNames, 3),
+        priorOpenings: stringList(continuityRaw.priorOpenings, 4),
         hasPriorNotes: continuityRaw.hasPriorNotes === true,
         priorReadingCount:
           typeof continuityRaw.priorReadingCount === 'number' &&

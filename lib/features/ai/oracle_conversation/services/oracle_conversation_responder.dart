@@ -63,10 +63,13 @@ class OracleConversationResponder {
     required OracleReadingContext context,
     required String userMessage,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 480));
     return ConversationResponseGuard.polish(
       _buildResponse(context, userMessage, priorUser),
+      userMessage: userMessage,
+      priorAssistant: priorAssistant,
     );
   }
 
@@ -74,11 +77,13 @@ class OracleConversationResponder {
     required OracleReadingContext context,
     required String userMessage,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) async* {
     final full = await respond(
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
+      priorAssistant: priorAssistant,
     );
     final tokens = full.split(RegExp(r'(?<=\s)'));
     for (final token in tokens) {

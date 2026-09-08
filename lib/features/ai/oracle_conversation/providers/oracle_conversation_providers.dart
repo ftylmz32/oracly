@@ -166,6 +166,14 @@ class OracleConversationNotifier
         .where((m) => m.isUser)
         .map((m) => m.content)
         .toList();
+    String? priorAssistant;
+    for (var i = conv.messages.length - 1; i >= 0; i--) {
+      final message = conv.messages[i];
+      if (!message.isUser) {
+        priorAssistant = message.content;
+        break;
+      }
+    }
     var buffer = '';
     try {
       await for (final chunk in repo.streamMessage(
@@ -173,6 +181,7 @@ class OracleConversationNotifier
         userMessage: trimmed,
         context: _context,
         priorUser: priorUser,
+        priorAssistant: priorAssistant,
       )) {
         buffer += chunk;
         state = state.copyWith(streamBuffer: buffer);

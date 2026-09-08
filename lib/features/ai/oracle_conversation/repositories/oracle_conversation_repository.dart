@@ -5,6 +5,7 @@ import '../../../../core/copy/ai_source_copy.dart';
 import '../../domain/models/ai_conversation.dart';
 import '../../domain/models/ai_message.dart';
 import '../../domain/models/oracle_response.dart';
+import '../../production/models/conversation_turn.dart';
 import '../../services/conversation_memory.dart';
 import '../models/oracle_reading_context.dart';
 import '../services/oracle_ai_message_source.dart';
@@ -19,12 +20,14 @@ abstract interface class OracleConversationRepository {
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   });
   Stream<String> streamMessage({
     required String conversationId,
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   });
   Future<OracleResponse> regenerateMessage({
     required String conversationId,
@@ -75,8 +78,10 @@ class MockOracleConversationRepository implements OracleConversationRepository {
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) async {
     _activeContext = context;
+    final turns = _turnsFrom(_memory.get(conversationId)?.messages ?? const []);
     final userMsg = AIMessage(
       id: 'msg_u_${DateTime.now().millisecondsSinceEpoch}',
       role: AIMessageRole.user,
@@ -89,6 +94,8 @@ class MockOracleConversationRepository implements OracleConversationRepository {
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
+      turns: turns,
+      priorAssistant: priorAssistant,
     );
 
     final assistant = AIMessage(
@@ -118,8 +125,10 @@ class MockOracleConversationRepository implements OracleConversationRepository {
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) {
     _activeContext = context;
+    final turns = _turnsFrom(_memory.get(conversationId)?.messages ?? const []);
     final userMsg = AIMessage(
       id: 'msg_u_${DateTime.now().millisecondsSinceEpoch}',
       role: AIMessageRole.user,
@@ -132,6 +141,8 @@ class MockOracleConversationRepository implements OracleConversationRepository {
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
+      turns: turns,
+      priorAssistant: priorAssistant,
     );
   }
 
@@ -152,10 +163,21 @@ class MockOracleConversationRepository implements OracleConversationRepository {
         .where((m) => m.isUser && m.id != userMsg.id)
         .map((m) => m.content)
         .toList();
+    final turns = _turnsFrom(conv.messages.take(idx - 1));
+    String? priorAssistant;
+    for (var i = idx - 2; i >= 0; i--) {
+      final message = conv.messages[i];
+      if (!message.isUser) {
+        priorAssistant = message.content;
+        break;
+      }
+    }
     final text = await _source.reply(
       context: context,
       userMessage: userMsg.content,
       priorUser: priorUser,
+      turns: turns,
+      priorAssistant: priorAssistant,
     );
 
     final regenerated = AIMessage(
@@ -181,6 +203,16 @@ class MockOracleConversationRepository implements OracleConversationRepository {
   }
 
   OracleReadingContext? get activeContext => _activeContext;
+
+  static List<ConversationTurn> _turnsFrom(Iterable<AIMessage> messages) {
+    return ConversationTurn.takeRecent([
+      for (final message in messages)
+        if (message.content.trim().isNotEmpty)
+          message.isUser
+              ? ConversationTurn.user(message.content)
+              : ConversationTurn.assistant(message.content),
+    ]);
+  }
 
   static AIConversationKind _kindFor(OracleReadingContext context) {
     return switch (context.kind) {

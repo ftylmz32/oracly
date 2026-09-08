@@ -39,6 +39,7 @@ class TarotAiContinuity {
   const TarotAiContinuity({
     this.recurringThemes = const [],
     this.recentCardNames = const [],
+    this.priorOpenings = const [],
     this.hasPriorNotes = false,
     this.priorReadingCount = 0,
     this.revisitPriorExcerpt,
@@ -47,6 +48,7 @@ class TarotAiContinuity {
 
   final List<String> recurringThemes;
   final List<String> recentCardNames;
+  final List<String> priorOpenings;
   final bool hasPriorNotes;
   final int priorReadingCount;
   final String? revisitPriorExcerpt;
@@ -55,6 +57,7 @@ class TarotAiContinuity {
   bool get isEmpty =>
       recurringThemes.isEmpty &&
       recentCardNames.isEmpty &&
+      priorOpenings.isEmpty &&
       !hasPriorNotes &&
       priorReadingCount == 0 &&
       (revisitPriorExcerpt == null || revisitPriorExcerpt!.trim().isEmpty) &&
@@ -63,6 +66,7 @@ class TarotAiContinuity {
   Map<String, dynamic> toPayload() => {
         if (recurringThemes.isNotEmpty) 'recurringThemes': recurringThemes,
         if (recentCardNames.isNotEmpty) 'recentCardNames': recentCardNames,
+        if (priorOpenings.isNotEmpty) 'priorOpenings': priorOpenings,
         if (hasPriorNotes) 'hasPriorNotes': true,
         if (priorReadingCount > 0) 'priorReadingCount': priorReadingCount,
         if ((revisitPriorExcerpt ?? '').trim().isNotEmpty)

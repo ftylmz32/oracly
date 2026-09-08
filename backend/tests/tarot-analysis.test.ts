@@ -27,6 +27,10 @@ function validBody() {
       continuity: {
         recurringThemes: ['karar'],
         recentCardNames: ['Eight of Wands'],
+        priorOpenings: [
+          'kartlar bu açılımda karar ile hareket arasındak',
+          'bu kez önünde duran konu iki seçenek arasındak',
+        ],
         priorReadingCount: 3,
       },
     },
@@ -41,7 +45,28 @@ describe('tarot_analysis contract', () => {
     const cards = validated.payload.cards as Array<Record<string, unknown>>;
     expect(cards).toHaveLength(1);
     expect(cards[0]?.cardName).toBe('Two of Swords');
-    expect((validated.payload.continuity as Record<string, unknown>).recurringThemes).toEqual(['karar']);
+    const continuity = validated.payload.continuity as Record<string, unknown>;
+    expect(continuity.recurringThemes).toEqual(['karar']);
+    expect(continuity.priorOpenings).toEqual([
+      'kartlar bu açılımda karar ile hareket arasındak',
+      'bu kez önünde duran konu iki seçenek arasındak',
+    ]);
+  });
+
+  it('bounds prior openings before they reach the prompt', () => {
+    const body = validBody();
+    body.payload.continuity.priorOpenings = [
+      'one',
+      'two',
+      'three',
+      'four',
+      'five',
+      'six',
+    ];
+    const validated = validateAiBody(body);
+    if (validated.operation !== 'tarot_analysis') throw new Error('tarot expected');
+    const continuity = validated.payload.continuity as Record<string, unknown>;
+    expect(continuity.priorOpenings).toEqual(['one', 'two', 'three', 'four']);
   });
 
   it('rejects tarot requests without real card evidence', () => {
@@ -53,7 +78,7 @@ describe('tarot_analysis contract', () => {
     ).toThrow();
   });
 
-  it('prompt explicitly separates current evidence from continuity observations', () => {
+  it('prompt explicitly separates evidence and uses prior openings only for freshness', () => {
     const validated = validateAiBody(validBody());
     if (validated.operation !== 'tarot_analysis') throw new Error('tarot expected');
     const messages = tarotMessages(validated.payload, validated.language);
@@ -61,9 +86,12 @@ describe('tarot_analysis contract', () => {
     const input = String(messages[1]?.content ?? '');
     expect(system).toContain('READING_EVIDENCE');
     expect(system).toContain('CONTINUITY_OBSERVATIONS');
+    expect(system).toContain('priorOpenings');
+    expect(system).toContain('Do not reuse or closely paraphrase');
     expect(system).toContain('Never invent a card');
     expect(input).toContain('Two of Swords');
     expect(input).toContain('"recurringThemes":["karar"]');
+    expect(input).toContain('"priorOpenings"');
   });
 
   it('normalizes strict provider JSON', () => {
