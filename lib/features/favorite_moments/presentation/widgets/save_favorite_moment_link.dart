@@ -75,13 +75,17 @@ class SaveFavoriteMomentLink extends ConsumerWidget {
   }
 
   Future<void> _save(BuildContext context, WidgetRef ref) async {
+    // Some feature-specific drafts need async preparation. Capture the
+    // provider-owned notifier before that boundary so leaving the source
+    // screen cannot turn a successful preparation into a disposed-ref read.
+    final favorites = ref.read(favoriteMomentsProvider.notifier);
     var moment = draft;
     if (prepare != null) {
       final prepared = await prepare!();
       if (prepared == null) return;
       moment = prepared;
     }
-    await ref.read(favoriteMomentsProvider.notifier).save(moment);
+    await favorites.save(moment);
     if (!context.mounted) return;
     OraclySnackBar.success(context, FavoriteMomentsCopy.saved);
   }
