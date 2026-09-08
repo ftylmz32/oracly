@@ -6,6 +6,7 @@ on:
       - interpretation/v2-batch1-continuity
       - interpretation/v2-batch2-freshness
       - interpretation/v2-batch3-dialogue-freshness
+      - interpretation/v2-batch4-turn-context
   workflow_dispatch:
 
 concurrency:
