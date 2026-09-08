@@ -1,6 +1,7 @@
 import type { OpenAiMessage } from '../types.js';
 import type { OracleKind } from '../types.js';
 import { chatSystem, oracleReadingGrounding, personalityLine, type ChatPersonality } from './chat-style.js';
+import { taggedContinuityGrounding } from './continuity-style.js';
 import { depthLine, type ChatDepth } from './chat-depth.js';
 import { historyMessages, type ChatTurn } from './parse-turns.js';
 import { coffeeSystem, coffeeUserLead } from './coffee-style.js';
@@ -74,12 +75,14 @@ export function oracleMessages(
 ): OpenAiMessage[] {
   const hint = sanitizeText(styleHint ?? '', 360);
   const voice = personalityLine(personality, language);
+  const continuityRule = hint ? taggedContinuityGrounding(language) : '';
   const system = [
     chatSystem(language),
     oracleReadingGrounding(language),
     responseLanguageDirective(language),
     voice,
     depthLine(depth, spoken, language),
+    continuityRule,
     hint,
   ].filter(Boolean).join(' ');
   return [

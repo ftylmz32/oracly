@@ -70,6 +70,10 @@ abstract final class ConversationResponseGuard {
     final r = reply.trim();
     final u = userMessage.trim();
     if (u.length < 16 || r.length >= 72) return r;
+    // This connective sentence is currently Turkish copy. Never leak it into
+    // English/Russian conversations; those replies stay untouched until the
+    // same grounding cue has localized copy.
+    if (OraclyL10n.code != AppLocale.tr) return r;
     final token = _concreteUserToken(u);
     if (token == null) return r;
     if (r.toLowerCase().contains(token)) return r;
@@ -102,12 +106,17 @@ abstract final class ConversationResponseGuard {
         return t;
       }
     }
-    final words = lower
-        .split(RegExp(r'[^a-züğışöçâîû0-9]+'))
-        .where((w) => w.length >= 4)
-        .toList();
-    if (words.isEmpty) return null;
-    return words.first;
+    const stop = {
+      'bunu', 'şunu', 'böyle', 'şöyle', 'neden', 'nasıl', 'sence', 'şimdi',
+      'biraz', 'aslında', 'gerçekten', 'çünkü', 'fakat', 'yani', 'daha',
+      'kadar', 'gibi', 'olan', 'oldu', 'oluyor', 'olabilir', 'benim', 'senin',
+      'bence', 'acaba',
+    };
+    final words = lower.split(RegExp(r'[^a-züğışöçâîû0-9]+'));
+    for (final word in words) {
+      if (word.length >= 4 && !stop.contains(word)) return word;
+    }
+    return null;
   }
 
   static String _stripForcedEmpathy(String text) {

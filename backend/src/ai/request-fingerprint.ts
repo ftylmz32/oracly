@@ -12,6 +12,20 @@ export function fingerprintRequest(request: ValidatedRequest): string {
       const narrative = sanitizeText(request.payload.narrative).toLowerCase();
       return `dream:${narrative}`;
     }
+    case 'tarot_analysis': {
+      const session = sanitizeText(request.payload.sessionId, 120).toLowerCase();
+      const cards = Array.isArray(request.payload.cards)
+        ? request.payload.cards
+            .slice(0, 10)
+            .map((raw) => {
+              if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return '';
+              const card = raw as Record<string, unknown>;
+              return `${String(card.cardId ?? '')}:${card.isReversed === true ? 1 : 0}:${sanitizeText(card.positionKey, 80)}`;
+            })
+            .join('|')
+        : '';
+      return `tarot:${session}:${cards}`;
+    }
     case 'coffee_analysis':
       return imageFp('coffee', request.payload);
     case 'palm_analysis':
@@ -51,6 +65,7 @@ export function isExpensiveOperation(operation: string): boolean {
     operation === 'coffee_analysis' ||
     operation === 'palm_analysis' ||
     operation === 'soulmate_draw' ||
-    operation === 'dream_analysis'
+    operation === 'dream_analysis' ||
+    operation === 'tarot_analysis'
   );
 }

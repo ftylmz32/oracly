@@ -4,6 +4,7 @@ export type AiOperation =
   | 'chat'
   | 'oracle'
   | 'dream_analysis'
+  | 'tarot_analysis'
   | 'coffee_analysis'
   | 'palm_analysis'
   | 'soulmate_draw'
@@ -13,6 +14,7 @@ export const OPERATIONS: readonly AiOperation[] = [
   'chat',
   'oracle',
   'dream_analysis',
+  'tarot_analysis',
   'coffee_analysis',
   'palm_analysis',
   'soulmate_draw',

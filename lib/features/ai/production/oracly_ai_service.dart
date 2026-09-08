@@ -1,4 +1,4 @@
-/// Single AI service for chat, OR'a Sor, dream, and coffee vision.
+/// Single AI service for chat, OR'a Sor, dream, and vision readings.
 library;
 
 import '../../../core/personality/or_response_depth.dart';

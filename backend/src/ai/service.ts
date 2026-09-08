@@ -3,12 +3,13 @@ import { resolveModel } from '../config.js';
 import { ErrorCode, fail } from '../errors.js';
 import type { OpenAiFetch } from '../types.js';
 import { OpenAiTransport } from './openai-transport.js';
-import { extractChatText, parseDreamData } from './parse-provider.js';
+import { extractChatText, parseDreamData, parseTarotData } from './parse-provider.js';
 import {
   chatMessages,
   dreamMessages,
   oracleMessages,
 } from './prompts.js';
+import { tarotMessages } from './tarot-style.js';
 import { buildSoulmateImagePrompt } from './soulmate-prompt.js';
 import { requestOpenAiSpeech } from './openai-speech.js';
 import type { ValidatedRequest } from './validate-request.js';
@@ -47,6 +48,8 @@ export class AiProxyService {
         return this.oracle(request, model);
       case 'dream_analysis':
         return this.dream(request, model);
+      case 'tarot_analysis':
+        return this.tarot(request, model);
       case 'coffee_analysis':
         return this.coffee(request, ctx);
       case 'palm_analysis':
@@ -116,6 +119,19 @@ export class AiProxyService {
       messages: dreamMessages(request.payload, request.language),
     });
     return parseDreamData(raw);
+  }
+
+  private async tarot(
+    request: Extract<ValidatedRequest, { operation: 'tarot_analysis' }>,
+    model: string,
+  ) {
+    const raw = await this.transport.complete({
+      model,
+      jsonMode: true,
+      messages: tarotMessages(request.payload, request.language),
+      temperature: 0.68,
+    });
+    return parseTarotData(raw);
   }
 
   private async coffee(

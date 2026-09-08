@@ -12,6 +12,7 @@ abstract final class ConversationQuestionGuard {
     String? priorAssistant,
   }) {
     var out = text.trim();
+    if (!allowTrailingQuestion) return stripAnyTrailing(out);
     out = stripMechanicalTrailing(out, priorAssistant: priorAssistant);
     return out;
   }
@@ -72,10 +73,29 @@ abstract final class ConversationQuestionGuard {
   static bool _repeatsPriorProbe(String last, String? prior) {
     final p = (prior ?? '').trim();
     if (p.isEmpty || !p.contains('?')) return false;
+
+    final priorParts = _sentences(p);
+    final priorQuestion = priorParts.lastWhere(
+      (sentence) => sentence.trim().endsWith('?'),
+      orElse: () => '',
+    );
+    final currentNormalized = _normalizeQuestion(last);
+    final priorNormalized = _normalizeQuestion(priorQuestion);
+    if (currentNormalized.length >= 12 &&
+        currentNormalized == priorNormalized) {
+      return true;
+    }
+
     final family = _family(last);
     if (family == null) return false;
-    return _family(p) == family;
+    return _family(priorQuestion) == family;
   }
+
+  static String _normalizeQuestion(String text) => text
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9çğıöşüа-яё]+', caseSensitive: false), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
 
   static String? _family(String text) {
     final lower = text.toLowerCase();

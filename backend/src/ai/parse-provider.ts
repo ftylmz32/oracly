@@ -48,6 +48,66 @@ export function parseDreamData(raw: string): DreamData {
   };
 }
 
+export type TarotData = {
+  summary: string;
+  love: string;
+  career: string;
+  money: string;
+  health: string;
+  spiritualGuidance: string;
+  advice: string;
+  warnings: string;
+  luckyEnergy: string;
+  dailyFocus: string;
+  closingMessage: string;
+  rawText: string;
+};
+
+export function parseTarotData(raw: string): TarotData {
+  const json = extractJson(raw);
+  if (!json) fail(ErrorCode.invalidResponse);
+  const summary = pickText(json, ['summary', 'ozet', 'özet'], 8);
+  const advice = pickText(json, ['advice', 'tavsiye', 'guidance'], 8);
+  const closingMessage = pickText(
+    json,
+    ['closingMessage', 'closing', 'kapanis', 'kapanış'],
+    8,
+  );
+  if (!summary || !advice || !closingMessage) fail(ErrorCode.invalidResponse);
+  const result: TarotData = {
+    summary,
+    love: pickText(json, ['love', 'ask', 'aşk'], 1),
+    career: pickText(json, ['career', 'kariyer', 'is', 'iş'], 1),
+    money: pickText(json, ['money', 'para', 'finans'], 1),
+    health: pickText(json, ['health', 'denge', 'wellbeing'], 1),
+    spiritualGuidance: pickText(
+      json,
+      ['spiritualGuidance', 'reflection', 'yansima', 'yansıma'],
+      1,
+    ),
+    advice,
+    warnings: pickText(json, ['warnings', 'questions', 'sorular'], 1),
+    luckyEnergy: pickText(json, ['luckyEnergy', 'story', 'hikaye', 'hikâye'], 1),
+    dailyFocus: pickText(json, ['dailyFocus', 'focus', 'odak'], 1),
+    closingMessage,
+    rawText: '',
+  };
+  result.rawText = [
+    result.summary,
+    result.love,
+    result.career,
+    result.money,
+    result.health,
+    result.spiritualGuidance,
+    result.advice,
+    result.warnings,
+    result.luckyEnergy,
+    result.dailyFocus,
+    result.closingMessage,
+  ].filter(Boolean).join('\n\n');
+  return result;
+}
+
 export type CoffeeSymbol = {
   name: string;
   meaning: string;
