@@ -19,12 +19,14 @@ abstract interface class OracleConversationRepository {
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   });
   Stream<String> streamMessage({
     required String conversationId,
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   });
   Future<OracleResponse> regenerateMessage({
     required String conversationId,
@@ -75,6 +77,7 @@ class MockOracleConversationRepository implements OracleConversationRepository {
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) async {
     _activeContext = context;
     final userMsg = AIMessage(
@@ -89,6 +92,7 @@ class MockOracleConversationRepository implements OracleConversationRepository {
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
+      priorAssistant: priorAssistant,
     );
 
     final assistant = AIMessage(
@@ -118,6 +122,7 @@ class MockOracleConversationRepository implements OracleConversationRepository {
     required String userMessage,
     required OracleReadingContext context,
     List<String> priorUser = const [],
+    String? priorAssistant,
   }) {
     _activeContext = context;
     final userMsg = AIMessage(
@@ -132,6 +137,7 @@ class MockOracleConversationRepository implements OracleConversationRepository {
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
+      priorAssistant: priorAssistant,
     );
   }
 
@@ -152,10 +158,19 @@ class MockOracleConversationRepository implements OracleConversationRepository {
         .where((m) => m.isUser && m.id != userMsg.id)
         .map((m) => m.content)
         .toList();
+    String? priorAssistant;
+    for (var i = idx - 2; i >= 0; i--) {
+      final message = conv.messages[i];
+      if (!message.isUser) {
+        priorAssistant = message.content;
+        break;
+      }
+    }
     final text = await _source.reply(
       context: context,
       userMessage: userMsg.content,
       priorUser: priorUser,
+      priorAssistant: priorAssistant,
     );
 
     final regenerated = AIMessage(
