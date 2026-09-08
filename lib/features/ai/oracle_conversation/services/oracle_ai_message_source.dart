@@ -48,6 +48,7 @@ class OracleAiMessageSource {
         context: context,
         userMessage: userMessage,
         priorUser: priorUser,
+        priorAssistant: priorAssistant,
       );
     }
     final ai = _ai;
@@ -94,6 +95,7 @@ class OracleAiMessageSource {
         context: context,
         userMessage: userMessage,
         priorUser: priorUser,
+        priorAssistant: priorAssistant,
       );
       return;
     }
