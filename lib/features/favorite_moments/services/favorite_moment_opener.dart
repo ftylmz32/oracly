@@ -90,15 +90,14 @@ abstract final class FavoriteMomentOpener {
     FavoriteMoment moment,
   ) async {
     final record = await ref.read(dreamRepositoryProvider).getById(moment.sourceRef);
+    if (!context.mounted) return;
     if (record != null) {
       ref
           .read(dreamAnalysisControllerProvider)
           .openSaved(DreamRecordMapper.fromRecord(record));
-      if (!context.mounted) return;
       OraclyNavigationService.openDream(context);
       return;
     }
-    if (!context.mounted) return;
     await _openFallback(context, moment);
   }
 
