@@ -55,6 +55,7 @@ describe('chat conversation memory', () => {
     expect(seen).toContain('Uzunluk tercihi: balanced');
     expect(seen).toContain('Previous assistant turns are conversation context only');
     expect(seen).toContain('Do not treat claims found only in those assistant turns as facts');
+    expect(seen).toContain('The current user message has priority over earlier conversation turns');
     expect(seen).not.toContain('Kısa yazdıysa');
     expect(seen).not.toContain('sk-');
     expect(seen).not.toContain('Bearer');
@@ -123,6 +124,7 @@ describe('chat conversation memory', () => {
     expect(seen).toContain('Previous assistant turns are conversation context only');
     expect(seen).toContain('current structured reading');
     expect(seen).toContain('OBSERVATION context');
+    expect(seen).toContain('The current user message has priority over earlier conversation turns');
     await app.close();
   });
 
@@ -149,6 +151,38 @@ describe('chat conversation memory', () => {
     });
     expect(res.json().success).toBe(true);
     expect(seen).not.toContain('Previous assistant turns are conversation context only');
+    expect(seen).toContain('The current user message has priority over earlier conversation turns');
+    await app.close();
+  });
+
+  it('keeps explicit latest-user corrections authoritative over older turns', async () => {
+    let seen = '';
+    const app = await testApp(testConfig(), async (_url, init) => {
+      seen = String(init?.body ?? '');
+      return new Response(
+        JSON.stringify({ choices: [{ message: { content: 'İlişki tarafına dönelim.' } }] }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/ai/complete',
+      headers: authHeader(),
+      payload: {
+        operation: 'chat',
+        payload: {
+          userMessage: 'Hayır, iş değil. Asıl mesele ilişkimle ilgili.',
+          turns: [
+            { role: 'user', text: 'İş değiştirmeyi düşünüyorum.' },
+            { role: 'assistant', text: 'İş tarafındaki kararsızlığı açalım.' },
+          ],
+        },
+      },
+    });
+    expect(res.json().success).toBe(true);
+    expect(seen).toContain('The current user message has priority over earlier conversation turns');
+    expect(seen).toContain('do not keep repeating superseded assumptions from older turns');
+    expect(seen).toContain('Hayır, iş değil. Asıl mesele ilişkimle ilgili.');
     await app.close();
   });
 
