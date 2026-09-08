@@ -19,7 +19,7 @@ typedef SettingsLoaded =
 Future<void> loadSettingsReference({
   required WidgetRef ref,
   required BuildContext context,
-  required bool mounted,
+  required bool Function() isMounted,
   required bool hasLoadedOnce,
   required SettingsLoaded onLoaded,
   required VoidCallback onFirstFailure,
@@ -28,16 +28,18 @@ Future<void> loadSettingsReference({
   try {
     final s = await ref.read(settingsServiceProvider).load();
     final profile = await ref.read(userRepositoryProvider).getProfile();
-    if (!mounted) return;
+    if (!isMounted()) return;
     onLoaded(settings: s, profileName: profile.name);
     try {
       await ref.read(oraclyNotificationCoordinatorProvider).sync(s);
     } catch (_) {}
   } catch (_) {
-    if (!mounted) return;
+    if (!isMounted()) return;
     if (hasLoadedOnce) {
       onCachedFailure();
-      OraclySnackBar.show(context, message: ResilienceCopy.settingsLoadFailed);
+      if (context.mounted) {
+        OraclySnackBar.show(context, message: ResilienceCopy.settingsLoadFailed);
+      }
     } else {
       onFirstFailure();
     }
