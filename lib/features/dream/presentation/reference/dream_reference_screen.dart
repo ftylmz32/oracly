@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../app/providers/app_providers.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/ui/oracly_permission_dialog.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
