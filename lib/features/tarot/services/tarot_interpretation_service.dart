@@ -128,8 +128,24 @@ class TarotInterpretationService {
         context: context,
         forceRefresh: true,
       );
+      final guarded = ReflectiveIntelligence.guard(result);
+      if (!AiOutputQualityTarot.passes(guarded)) {
+        final category = AiOutputQualityTarot.firstFailure(guarded);
+        if (category != null) {
+          AiOutputQualityLogger.logFailure(
+            operationId: 'tarot.interpret',
+            category: category,
+            attempt: 2,
+          );
+        }
+        return _synthesizeLocalFallback(
+          session,
+          context,
+          cause: 'retry-quality',
+        );
+      }
       return _formatter.toUiContent(
-        result: ReflectiveIntelligence.guard(result),
+        result: guarded,
         session: session,
       );
     } catch (_) {
