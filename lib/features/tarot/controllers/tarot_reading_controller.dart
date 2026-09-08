@@ -186,6 +186,30 @@ class TarotReadingController extends TarotBaseController {
     }
   }
 
+  TarotDrawnCard _applyDraw(
+    ReadingSession current,
+    ({TarotCard card, bool isReversed}) draw,
+  ) {
+    final position = SpreadService.positionAt(
+      current.spread,
+      current.drawnCards.length,
+    );
+    final drawn = TarotDrawnCard(
+      card: draw.card,
+      positionIndex: current.drawnCards.length,
+      isReversed: draw.isReversed,
+      positionLabel: position?.label,
+      positionKey: position?.key,
+    );
+
+    _session = current.copyWith(
+      drawnCards: [...current.drawnCards, drawn],
+      flowStep: ReadingFlowStep.reveal,
+      currentPositionIndex: current.drawnCards.length,
+    );
+    return drawn;
+  }
+
   Future<AiReadingContent> resolveInterpretationContent({
     JourneyPersonalizationHints? journeyHints,
     bool forceRefresh = false,
