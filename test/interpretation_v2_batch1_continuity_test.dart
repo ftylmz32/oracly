@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/personality/or_response_depth.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context.dart';
+import 'package:oracly_new/features/ai/oracle_conversation/repositories/oracle_conversation_repository.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/services/oracle_ai_message_source.dart';
 import 'package:oracly_new/features/ai/production/ai_outcome.dart';
 import 'package:oracly_new/features/ai/production/contexts/oracle_context_mapper.dart';
@@ -66,6 +67,33 @@ void main() {
     expect(ai.lastStyleHint!.length, lessThanOrEqualTo(333));
   });
 
+  test('OR repository sends recent user and assistant turns to live AI', () async {
+    final ai = _CaptureAi();
+    final repo = MockOracleConversationRepository(
+      source: OracleAiMessageSource(ai: ai),
+    );
+    final conversation = await repo.startConversation(_tarot());
+
+    await repo.sendMessage(
+      conversationId: conversation.id,
+      userMessage: 'İlk mesajım bu.',
+      context: _tarot(),
+    );
+    expect(ai.lastTurns, isEmpty);
+
+    await repo.sendMessage(
+      conversationId: conversation.id,
+      userMessage: 'Peki şimdi neye bakmalıyım?',
+      context: _tarot(),
+    );
+
+    expect(ai.lastTurns, hasLength(2));
+    expect(ai.lastTurns[0].role, ConversationTurn.userRole);
+    expect(ai.lastTurns[0].text, 'İlk mesajım bu.');
+    expect(ai.lastTurns[1].role, ConversationTurn.assistantRole);
+    expect(ai.lastTurns[1].text, contains('karar ile hız'));
+  });
+
   test('oracle proxy payload preserves tagged continuity and structured reading', () {
     final request = OpenAiServiceRequests.oracle(
       model: 'test-model',
@@ -103,6 +131,7 @@ class _CaptureAi implements OraclyAiService {
   String? lastStyleHint;
   String? lastUserMessage;
   ReadingAiContext? lastContext;
+  List<ConversationTurn> lastTurns = const [];
 
   @override
   bool get isConfigured => true;
@@ -128,6 +157,7 @@ class _CaptureAi implements OraclyAiService {
     lastContext = context;
     lastStyleHint = styleHint;
     lastUserMessage = userMessage;
+    lastTurns = List<ConversationTurn>.from(turns);
     return AiOutcome.success(
       const ChatAiReply(
         text: 'Burada karar ile hız arasında aynı anda çalışan iki ayrı iz var; bunu tek bir kesin sonuca bağlamadan okumak daha doğru.',
