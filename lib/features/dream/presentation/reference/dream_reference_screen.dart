@@ -1,15 +1,19 @@
 /// Reference-accurate Dream Analysis screen — rebuilt from design reference.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../app/providers/app_providers.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/ui/oracly_permission_dialog.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../controllers/dream_analysis_controller.dart';
 import '../../copy/dream_copy.dart';
+import '../../data/dream_entry_draft_store.dart';
 import '../../models/dream_emotion.dart';
 import '../../models/dream_entry_context.dart';
 import '../../providers/dream_providers.dart';
@@ -33,9 +37,57 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
   final _narrativeController = TextEditingController();
   final _selectedChips = <DreamEntryChipId>{};
   final _guidedAnswers = <DreamGuidedQuestionId, String>{};
+  late final DreamEntryDraftStore _draftStore;
+  Timer? _draftTimer;
+  bool _draftClearedForCompleted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _draftStore = DreamEntryDraftStore(ref.read(localStorageProvider));
+    _restoreDraft();
+    _narrativeController.addListener(_scheduleDraftSave);
+  }
+
+  void _restoreDraft() {
+    final draft = _draftStore.load();
+    if (draft == null) return;
+    _narrativeController.text = draft.narrative;
+    _selectedChips
+      ..clear()
+      ..addAll(draft.chips);
+    _guidedAnswers
+      ..clear()
+      ..addAll(draft.guidedAnswers);
+  }
+
+  void _scheduleDraftSave() {
+    _draftClearedForCompleted = false;
+    _draftTimer?.cancel();
+    _draftTimer = Timer(const Duration(milliseconds: 350), () {
+      unawaited(_persistDraft());
+    });
+  }
+
+  Future<void> _persistDraft() => _draftStore.save(
+        narrative: _narrativeController.text,
+        chips: _selectedChips,
+        guidedAnswers: _guidedAnswers,
+      );
+
+  Future<void> _clearDraft() async {
+    _draftTimer?.cancel();
+    _draftClearedForCompleted = true;
+    await _draftStore.clear();
+  }
 
   @override
   void dispose() {
+    _draftTimer?.cancel();
+    _narrativeController.removeListener(_scheduleDraftSave);
+    if (!_draftClearedForCompleted) {
+      unawaited(_persistDraft());
+    }
     _narrativeController.dispose();
     super.dispose();
   }
@@ -70,6 +122,9 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
       emotions: _buildEmotions(),
       tags: _buildTags(),
     );
+    if (controller.phase == DreamJourneyPhase.complete) {
+      await _clearDraft();
+    }
   }
 
   Future<void> _onVoiceTap() async {
@@ -95,11 +150,13 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
         );
     ref.read(dreamVoiceControllerProvider).reset();
     controller.reset();
+    _draftTimer?.cancel();
     _narrativeController.clear();
     setState(() {
       _selectedChips.clear();
       _guidedAnswers.clear();
     });
+    unawaited(_clearDraft());
   }
 
   void _editDream(DreamAnalysisController controller) {
@@ -111,6 +168,7 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
       _selectedChips.clear();
       _guidedAnswers.clear();
     });
+    _scheduleDraftSave();
   }
 
   void _toggleChip(DreamEntryChipId chip) {
@@ -121,10 +179,12 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
         _selectedChips.add(chip);
       }
     });
+    _scheduleDraftSave();
   }
 
   void _onGuidedChanged(DreamGuidedQuestionId id, String value) {
     setState(() => _guidedAnswers[id] = value);
+    _scheduleDraftSave();
   }
 
   @override

@@ -14,6 +14,7 @@ import '../../../../core/theme/reading_typography.dart';
 import '../../../gems/widgets/oracly_live_gem_capsule.dart';
 import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../../../shared/navigation/oracly_navigation.dart';
 import '../../../../shared/widgets/oracly_cinematic_loading.dart';
 import '../../../../shared/widgets/oracly_error_state.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
@@ -31,6 +32,15 @@ class DiscoveryJournalScreen extends ConsumerWidget {
     return SessionContinuationFocusStore(storage)
         .consumeFor(SessionContinuationTarget.discoveryJournal)
         ?.theme;
+  }
+
+  void _handleBack(BuildContext context) {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+      return;
+    }
+    OraclyNavigation.switchToTab(context, OraclyTab.home);
   }
 
   @override
@@ -57,7 +67,7 @@ class DiscoveryJournalScreen extends ConsumerWidget {
               child: OraclyAppBar(
                 title: DiscoveryJournalCopy.screenTitle,
                 titleIcon: Icons.auto_stories_rounded,
-                onLeadingTap: () => Navigator.of(context).maybePop(),
+                onLeadingTap: () => _handleBack(context),
                 trailing: const OraclyLiveGemCapsule(),
               ),
             ),
