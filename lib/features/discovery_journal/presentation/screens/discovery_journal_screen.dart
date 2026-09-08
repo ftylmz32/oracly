@@ -24,12 +24,22 @@ import '../widgets/discovery_journal_atmosphere.dart';
 import '../widgets/discovery_journal_empty.dart';
 import '../widgets/discovery_journal_timeline.dart';
 
-class DiscoveryJournalScreen extends ConsumerWidget {
+class DiscoveryJournalScreen extends ConsumerStatefulWidget {
   const DiscoveryJournalScreen({super.key});
 
-  String? _consumeFocusTheme(WidgetRef ref) {
+  @override
+  ConsumerState<DiscoveryJournalScreen> createState() =>
+      _DiscoveryJournalScreenState();
+}
+
+class _DiscoveryJournalScreenState extends ConsumerState<DiscoveryJournalScreen> {
+  String? _focusTheme;
+
+  @override
+  void initState() {
+    super.initState();
     final storage = ref.read(localStorageProvider);
-    return SessionContinuationFocusStore(storage)
+    _focusTheme = SessionContinuationFocusStore(storage)
         .consumeFor(SessionContinuationTarget.discoveryJournal)
         ?.theme;
   }
@@ -44,9 +54,8 @@ class DiscoveryJournalScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final async = ref.watch(discoveryJournalEntriesProvider);
-    final focusTheme = _consumeFocusTheme(ref);
     return OraclyScaffold(
       safeArea: false,
       usePremiumBackground: false,
@@ -100,7 +109,7 @@ class DiscoveryJournalScreen extends ConsumerWidget {
                     ? const DiscoveryJournalEmpty()
                     : DiscoveryJournalTimeline(
                         items: items,
-                        focusTheme: focusTheme,
+                        focusTheme: _focusTheme,
                       ),
               ),
             ),
