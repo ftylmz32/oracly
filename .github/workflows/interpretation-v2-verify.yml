@@ -7,6 +7,7 @@ on:
       - interpretation/v2-batch2-freshness
       - interpretation/v2-batch3-dialogue-freshness
       - interpretation/v2-batch4-turn-context
+      - interpretation/v2-batch5-history-grounding
   workflow_dispatch:
 
 concurrency:
@@ -67,5 +68,5 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Continuity and Tarot AI contract tests
-        run: npx vitest run tests/interpretation-v2-continuity.test.ts tests/tarot-analysis.test.ts tests/ai.test.ts
+      - name: Interpretation V2 backend contract tests
+        run: npx vitest run tests/interpretation-v2-continuity.test.ts tests/tarot-analysis.test.ts tests/ai.test.ts tests/chat-conversation.test.ts
