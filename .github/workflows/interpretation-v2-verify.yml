@@ -11,6 +11,7 @@ on:
       - interpretation/v2-batch6-correction-precedence
       - interpretation/v2-batch7-local-fallback-continuity
       - interpretation/v2-batch8-natural-grounding
+      - interpretation/v2-batch9-tarot-retry-regression
   workflow_dispatch:
 
 concurrency:
@@ -46,6 +47,7 @@ jobs:
           test/features/tarot/tarot_continuity_cache_key_test.dart
           test/features/tarot/tarot_production_ai_executor_test.dart
           test/features/tarot/tarot_cross_section_repetition_test.dart
+          test/features/tarot/tarot_retry_quality_fallback_test.dart
           test/features/ai/oracle_dialogue_freshness_test.dart
           test/features/ai/oracle_local_fallback_continuity_test.dart
           test/features/ai/oracle_natural_grounding_test.dart
