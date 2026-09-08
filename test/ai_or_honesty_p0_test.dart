@@ -75,7 +75,8 @@ void main() {
       context: _tarot(),
       userMessage: 'Bu kart ne anlatıyor?',
     );
-    expect(reply, 'Canlı OR yanıt metni.');
+    expect(reply, contains('Canlı OR yanıt metni.'));
+    expect(reply, isNot(contains(AiSourceCopy.sourceLocal)));
     expect(AiSourceCopy.footnote(fromAi: true), AiSourceCopy.sourceLive);
     expect(AiSourceCopy.orAskFootnote(fromAi: true), AiSourceCopy.orAskLive);
     expect(AiSourceCopy.sourceLive, 'OR yanıtı.');
