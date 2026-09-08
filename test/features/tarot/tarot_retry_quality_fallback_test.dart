@@ -29,6 +29,8 @@ void main() {
 }
 
 const _retryMarker = 'LOW_QUALITY_RETRY_SHOULD_NEVER_RENDER';
+const _repetitiveRetry =
+    '$_retryMarker karar yol denge enerji bugün yarın seçenek hareket duraklama odak';
 
 class _FailThenLowQualityEngine extends InterpretationEngine {
   _FailThenLowQualityEngine()
@@ -55,13 +57,13 @@ class _FailThenLowQualityEngine extends InterpretationEngine {
     return InterpretationResult(
       requestId: 'retry',
       sessionId: context.sessionId,
-      summary: _retryMarker,
+      summary: _repetitiveRetry,
       love: '',
-      career: '',
+      career: _repetitiveRetry,
       money: '',
       health: '',
       spiritualGuidance: '',
-      advice: '',
+      advice: _repetitiveRetry,
       warnings: '',
       luckyEnergy: '',
       dailyFocus: '',
