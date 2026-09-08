@@ -77,6 +77,10 @@ ReadingContext _context() => ReadingContext(
       journeyHints: const JourneyPersonalizationHints(
         recurringThemeLabels: ['karar'],
         recentCardNames: ['Eight of Wands'],
+        priorOpenings: [
+          'kartlar bu açılımda karar ile hareket arasındak',
+          'bu kez önünde duran konu iki seçenek arasındak',
+        ],
         priorReadingCount: 3,
       ),
     );
@@ -97,6 +101,8 @@ void main() {
     expect(sent.cards.single.meaning, 'Karar ve denge.');
     expect(sent.continuity.recurringThemes, ['karar']);
     expect(sent.continuity.recentCardNames, ['Eight of Wands']);
+    expect(sent.continuity.priorOpenings, hasLength(2));
+    expect(sent.continuity.priorOpenings.first, startsWith('kartlar bu açılımda'));
     expect(result.source, InterpretationSource.ai);
     expect(result.summary, contains('karar'));
   });
