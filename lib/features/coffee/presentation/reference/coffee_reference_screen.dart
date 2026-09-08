@@ -82,6 +82,10 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
   Future<void> _analyze(CoffeeReadingController controller) async {
     if (controller.phase == CoffeePhase.analyzing || _starting) return;
     setState(() => _starting = true);
+    // These provider-owned collaborators outlive this screen. Capture them
+    // before any await so cleanup remains safe if the user navigates away.
+    final coordinator = ref.read(paidAiOperationCoordinatorProvider);
+    final analytics = ref.read(analyticsServiceProvider);
     try {
       final image = controller.image;
       if (image == null) {
@@ -110,10 +114,10 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
       );
       if (op == null) return;
       if (!mounted) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await coordinator.abandon(op.id);
         return;
       }
-      ref.read(analyticsServiceProvider).logCoffeeStarted();
+      analytics.logCoffeeStarted();
       final started = DateTime.now();
       await PaidAiOperationBinder.runWithKey(op.idempotencyKey, () {
         return controller.analyze();
@@ -121,17 +125,15 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
       if (!mounted ||
           controller.phase != CoffeePhase.result ||
           controller.reading == null) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await coordinator.abandon(op.id);
         if (controller.phase == CoffeePhase.error) {
-          ref.read(analyticsServiceProvider).logCoffeeFailure(
-                errorCategory: 'analysis',
-              );
+          analytics.logCoffeeFailure(errorCategory: 'analysis');
         }
         return;
       }
-      ref.read(analyticsServiceProvider).logCoffeeSuccess(
-            latency: DateTime.now().difference(started),
-          );
+      analytics.logCoffeeSuccess(
+        latency: DateTime.now().difference(started),
+      );
       await GemSpendGuard.settleOperation(
         ref,
         operation: op,
