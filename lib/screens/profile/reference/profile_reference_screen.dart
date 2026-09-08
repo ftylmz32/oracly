@@ -42,6 +42,7 @@ class _ProfileReferenceScreenState
       initial: current,
       confirmLabel: ProfileCopy.saveLabel,
     );
+    if (!mounted) return;
     if (name != null && name.trim().isNotEmpty) {
       await ref.read(userProfileProvider.notifier).saveName(name.trim());
     }
@@ -52,7 +53,7 @@ class _ProfileReferenceScreenState
       context,
       hasPhoto: ref.read(profilePhotoProvider) != null,
     );
-    if (action == null) return;
+    if (!mounted || action == null) return;
     final ok = await ProfilePhotoActions.commit(ref, action);
     if (ok == false && context.mounted) {
       OraclySnackBar.show(
