@@ -45,5 +45,6 @@ jobs:
           flutter test test/features/palm/palm_controller_analysis_test.dart
           flutter test test/features/palm/palm_result_flow_test.dart
           flutter test test/features/tarot/tarot_cinematic_motion_test.dart
+          flutter test test/features/tarot/ritual/tarot_ritual_presentation_test.dart
           flutter test test/features/favorite_moments/favorite_moments_test.dart
           flutter test test/features/favorite_moments/favorite_moment_opener_integrity_test.dart
