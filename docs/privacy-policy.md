@@ -1,6 +1,6 @@
 # ORACLY Privacy Policy
 
-**Last updated: September 10, 2026**
+**Last updated: September 13, 2026**
 
 ORACLY is a personal guidance and entertainment application that includes features such as tarot, coffee-cup readings, palm readings, astrology, dream interpretation, soulmate experiences, and the OR/Luna assistant.
 
@@ -15,7 +15,6 @@ Depending on the features you use, ORACLY may process:
 - **Account and app identifiers**, including an anonymous Firebase user identifier, app/device identifiers needed for authentication, App Check, security, and service operation.
 - **Reading and app activity data**, such as feature usage, operation status, saved readings, favorites, memory/personalization data, and diagnostic events.
 - **Purchase and entitlement information**, such as product identifiers, transaction/purchase tokens, and subscription or Premium entitlement status. ORACLY does not receive your full payment-card details from the app stores.
-- **Advertising and consent information**, if rewarded advertising is enabled, including information processed by Google Mobile Ads/AdMob and Google User Messaging Platform (UMP) for ad delivery, consent, fraud prevention, and reward verification.
 
 ## 2. How information is used
 
@@ -25,7 +24,7 @@ We use information to:
 - personalize future ORACLY experiences and maintain continuity where enabled;
 - store and restore readings and operation state;
 - authenticate requests and protect the service from abuse;
-- verify Premium purchases, entitlements, and server-authoritative Gem/reward transactions;
+- verify Premium purchases, entitlements, and server-authoritative Gem transactions;
 - improve reliability, diagnose errors, and measure product performance;
 - comply with legal, security, fraud-prevention, and platform requirements.
 
@@ -41,8 +40,7 @@ ORACLY may use service providers including:
 
 - **Google Firebase / Google Cloud** for authentication, App Check, backend infrastructure, storage, and related services;
 - **OpenAI-compatible AI services** for AI interpretation and image-generation features;
-- **Google Play Billing / Apple App Store** for purchase and subscription verification;
-- **Google AdMob / Google UMP** for rewarded ads and consent management where enabled.
+- **Google Play Billing / Apple App Store** for purchase and subscription verification.
 
 These providers process information according to their own terms and privacy obligations and only as needed for the relevant service.
 
