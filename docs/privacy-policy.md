@@ -50,7 +50,7 @@ ORACLY may temporarily or durably store operation metadata, uploaded reading inp
 
 Local reading history, favorites, memory/personalization information, and other user-bound data may remain on the device until you clear them or use the available deletion controls.
 
-Retention periods may vary by data type. Certain records may be retained longer when required for billing reconciliation, fraud prevention, security, dispute handling, or legal compliance.
+Retention periods may vary by data type. Certain limited records may be retained longer when required for billing reconciliation, fraud prevention, security, dispute handling, or legal compliance. Where appropriate, retained records may be pseudonymized or detached from the active ORACLY account identity.
 
 ## 6. Security
 
@@ -64,9 +64,11 @@ ORACLY is intended for **users aged 18 and over** and is not directed to childre
 
 ORACLY includes privacy controls that allow users to clear certain local history, favorites, and memory/personalization data.
 
-The app also provides a **Permanently delete account** action in the privacy/settings area. This deletes the current Firebase authentication identity and user-bound data stored locally on the device.
+The app also provides a **Permanently delete account** action in the privacy/settings area. When this action succeeds, ORACLY first performs an authenticated server-side deletion workflow for user-owned service data, including supported reading, memory/personalization, operation, staged-input, Gem, and notification records, and then deletes the current Firebase authentication identity and clears user-bound data stored locally on the device.
 
-For deletion of server-side data associated with your ORACLY use, or for any data not covered by the in-app deletion control, follow the instructions on the ORACLY Data Deletion page:
+Some limited purchase, fraud-prevention, accounting, security, or audit records may be retained where necessary for legitimate operational, legal, or dispute-handling purposes. Where feasible, such retained records are kept without active account ownership and in pseudonymous form.
+
+If you can no longer access the app, or if you need help with deletion, follow the instructions on the ORACLY Data Deletion page:
 
 **https://github.com/ftylmz32/oracly/blob/main/docs/data-deletion.md**
 
