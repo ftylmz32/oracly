@@ -47,10 +47,10 @@ class EnvironmentConfig {
         source['ENABLE_LOGGING'],
         defaultValue: !environment.isProduction,
       ),
-      enableCertificatePinning: _parseBool(
-        source['ENABLE_CERT_PINNING'],
-        defaultValue: environment.isProduction,
-      ),
+      // R6 — certificate pinning intentionally unsupported (platform TLS).
+      // ENABLE_CERT_PINNING is ignored so production cannot claim pinning
+      // while ApiClient still uses an ordinary http.Client.
+      enableCertificatePinning: false,
       syncIntervalSeconds:
           int.tryParse(source['SYNC_INTERVAL_SECONDS'] ?? '') ?? 300,
     );

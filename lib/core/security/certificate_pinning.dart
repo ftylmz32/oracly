@@ -1,8 +1,7 @@
-/// OR-1130 — Certificate pinning structure for production TLS.
+/// Certificate pinning config — intentionally inactive (platform TLS only).
 library;
 
-import '../config/app_config.dart';
-
+/// Host + SPKI pin material. Reserved for a future real pinning design.
 class PinnedCertificate {
   const PinnedCertificate({
     required this.host,
@@ -18,37 +17,31 @@ abstract class CertificatePinningConfig {
   bool get isEnabled;
 }
 
+/// R6 — pinning is intentionally unsupported. ApiClient uses ordinary
+/// `http.Client` with OS certificate / hostname validation only.
+///
+/// Do not set [isEnabled] true without a real pinned transport wired into
+/// ApiClient and an operational pin rotation plan.
 class EnvironmentCertificatePinning implements CertificatePinningConfig {
   const EnvironmentCertificatePinning();
 
   @override
-  bool get isEnabled =>
-      AppConfig.isInitialized && AppConfig.instance.enableCertificatePinning;
+  bool get isEnabled => false;
 
   @override
-  List<PinnedCertificate> get pinnedCertificates => const [
-        PinnedCertificate(
-          host: 'api.oracly.app',
-          sha256Pins: [
-            // Replace with production SPKI pins before release.
-            'sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
-          ],
-        ),
-        PinnedCertificate(
-          host: 'staging-api.oracly.app',
-          sha256Pins: [
-            'sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=',
-          ],
-        ),
-      ];
+  List<PinnedCertificate> get pinnedCertificates => const [];
 }
 
-/// Hook point for HttpClient badCertificateCallback / native pinning layer.
-abstract class CertificatePinValidator {
-  bool validate(String host, List<int> certificateBytes);
-}
+/// Release/security readiness must not treat a config flag as enforcement.
+abstract final class CertificatePinningReadiness {
+  CertificatePinningReadiness._();
 
-class NoOpCertificatePinValidator implements CertificatePinValidator {
-  @override
-  bool validate(String host, List<int> certificateBytes) => true;
+  /// True only when pinning is claimed **and** pin material exists.
+  /// Today always false — ORACLY uses platform TLS only.
+  static bool reportsActiveEnforcement([
+    CertificatePinningConfig? config,
+  ]) {
+    final cfg = config ?? const EnvironmentCertificatePinning();
+    return cfg.isEnabled && cfg.pinnedCertificates.isNotEmpty;
+  }
 }

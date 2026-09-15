@@ -35,4 +35,12 @@ void main() {
       expect(cfg.apiBaseUrl, 'http://localhost:8080');
     }
   });
+
+  test('production never claims certificate pinning is enabled', () {
+    final cfg = EnvironmentConfig.fromEnv({
+      'APP_ENV': 'production',
+      'ENABLE_CERT_PINNING': 'true',
+    });
+    expect(cfg.enableCertificatePinning, isFalse);
+  });
 }

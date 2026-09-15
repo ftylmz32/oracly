@@ -1,4 +1,7 @@
 /// OR-1130 — HTTP client abstraction with interceptors.
+///
+/// R6 — transport is ordinary platform TLS via [http.Client]. Certificate
+/// pinning is intentionally not wired; do not invent a NoOp "pinned" client.
 library;
 
 import 'dart:async';
