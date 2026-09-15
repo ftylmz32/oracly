@@ -204,21 +204,42 @@ export async function executeClaimedReading(input: {
 
     logWorkerStage(log, 'notification_started', { operationId, feature });
     try {
-      await input.notifier.notifyCompleted({
-        operationId,
-        ownerUserId: operation.ownerUserId,
-        readingType: operation.readingType,
-      });
-      await input.results.markNotificationSent(operationId, nowMs);
-      logWorkerStage(log, 'notification_completed', { operationId, feature });
+      // R2.1 — at-most-once: claim the right to dispatch BEFORE any FCM
+      // call. A redelivered/concurrent invocation observing an existing
+      // claim (whatever its outcome) must never call the provider again.
+      const claim = await input.results.claimNotificationDispatch(operationId, nowMs);
+      if (claim === 'claimed') {
+        try {
+          await input.notifier.notifyCompleted({
+            operationId,
+            ownerUserId: operation.ownerUserId,
+            readingType: operation.readingType,
+          });
+          await input.results.markNotificationSent(operationId, nowMs);
+          logWorkerStage(log, 'notification_completed', { operationId, feature });
+        } catch (error) {
+          log.error({
+            event: 'notification_send_failed',
+            operationId,
+            feature,
+            errorCode: error instanceof Error ? error.name.slice(0, 80) : 'notification_error',
+          });
+          // Push failure must never fail an already-persisted reading. The
+          // claim above already prevents any later redelivery from
+          // retrying this user-visible send, ambiguous or not.
+        }
+      } else {
+        logWorkerStage(log, 'notification_already_dispatched', { operationId, feature });
+      }
     } catch (error) {
       log.error({
-        event: 'notification_send_failed',
+        event: 'notification_claim_failed',
         operationId,
         feature,
-        errorCode: error instanceof Error ? error.name.slice(0, 80) : 'notification_error',
+        errorCode: error instanceof Error ? error.name.slice(0, 80) : 'notification_claim_error',
       });
-      // Push failure must never fail an already-persisted reading.
+      // Claim-transaction failure (e.g. a Firestore hiccup) must never
+      // fail an already-persisted reading either.
     }
     // Retryable failures above never reach here — cleanup only runs after a
     // successfully persisted result, exactly like the legacy delete() call

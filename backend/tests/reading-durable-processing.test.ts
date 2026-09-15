@@ -175,6 +175,34 @@ it('notification failure never changes a persisted completed reading to failed',
   expect(h.notifier.calls).toBe(1);
 });
 
+it('R2.1 — a pre-existing notification claim (simulated crash/redelivery boundary) blocks any FCM call for this run', async () => {
+  const h = harness('coffee');
+  const operation = await h.createAndStage();
+  h.clock.ms = operation.readyAtMs;
+  // Simulate a redelivered/racing worker invocation that already won the
+  // durable dispatch claim for this operation before THIS run even
+  // started processing (e.g. a lease-expiry race, or a crash between the
+  // claim and the actual FCM call on a previous attempt). Nothing about
+  // persisting the reading result happens before this in real life, so
+  // seed the result document first — persistOnce() below then reuses it.
+  await h.results.persistOnce({
+    schemaVersion: 1,
+    operationId: operation.operationId,
+    ownerUserId: h.owner,
+    readingType: 'coffee',
+    resultId: `coffee_${operation.operationId}`,
+    data: { overall: 'pre-existing', symbols: [], themes: [] },
+    persistedAtMs: h.clock.ms,
+    notificationSentAtMs: null,
+  });
+  await h.results.claimNotificationDispatch(operation.operationId, h.clock.ms);
+
+  expect(await h.processor.process(operation.operationId)).toBe('completed');
+  expect(h.notifier.calls).toBe(0);
+  expect(await h.results.get(operation.operationId)).not.toBeNull();
+  expect((await h.repository.getById(operation.operationId))?.status).toBe('ready');
+});
+
 it('active processing lease blocks reclaim until expiry then resumes same operation', async () => {
   const h = harness('palm');
   const operation = await h.createAndStage();

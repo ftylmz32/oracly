@@ -4,6 +4,7 @@ library;
 import '../data/datasources/local_storage.dart';
 import '../network/api_result.dart';
 import '../network/network_exception.dart';
+import '../notifications/push_token_cleanup.dart';
 import '../storage/secure_storage.dart';
 import 'auth_service.dart';
 import 'user_local_data_isolation.dart';
@@ -33,6 +34,13 @@ class AccountDeletionService {
         NetworkException.unauthorized('Account data could not be deleted.'),
       );
     }
+    // Server-side deletion is already authoritative for owner-wide
+    // notification-token cleanup (every token/registration row scoped to
+    // this owner is purged as part of deleteServerData()). This is an
+    // additional, purely local, best-effort step that never blocks or
+    // weakens the server-first ordering below.
+    await PushTokenCleanup.deleteLocalToken();
+
     final remote = await _auth.deleteAccount();
     if (remote.isFailure) {
       return ApiFailure(remote.errorOrNull!);

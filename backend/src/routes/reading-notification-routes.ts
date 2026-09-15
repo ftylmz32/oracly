@@ -30,4 +30,22 @@ export async function registerReadingNotificationRoutes(
       return reply.code(200).send(successEnvelope({ registered: true }));
     },
   );
+
+  // R2.1 — explicit sign-out cleanup. Deliberately takes no token in the
+  // body: ownership comes only from verified auth (same discipline as
+  // registration above), and the server already knows which token (if
+  // any) is registered for this identity — so the client never needs to
+  // resend/log the raw token value just to unregister it. Idempotent:
+  // unregistering an already-absent token still returns success.
+  app.post(
+    '/v1/reading-notifications/token/unregister',
+    { preHandler: [auth, appCheck] },
+    async (request, reply) => {
+      if (!options.tokens || !request.identityKey) {
+        return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
+      }
+      await options.tokens.unregister(request.identityKey);
+      return reply.code(200).send(successEnvelope({ unregistered: true }));
+    },
+  );
 }

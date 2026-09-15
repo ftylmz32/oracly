@@ -195,6 +195,40 @@ describe('SMD1 soulmate durable worker', () => {
     expect(h.interpretationCalls()).toBe(1);
   });
 
+  it('R2.1 — a pre-existing notification claim (simulated crash/redelivery boundary) blocks any FCM call for this run', async () => {
+    const h = harness();
+    h.entitlement.grant(h.owner);
+    const operation = await h.createDurable();
+    // Simulate a redelivered/racing worker invocation that already won
+    // the durable dispatch claim before THIS run started (e.g. a
+    // lease-expiry race, or a crash between the claim and the actual FCM
+    // call on a previous attempt).
+    await h.results.persistOnce({
+      schemaVersion: 1,
+      operationId: operation.operationId,
+      ownerUserId: h.owner,
+      readingType: 'soulmate',
+      resultId: `soulmate_${operation.operationId}`,
+      data: {
+        personality: 'durable personality',
+        dynamic: 'durable dynamic',
+        attraction: 'durable attraction',
+        challenge: 'durable challenge',
+        meeting: 'durable meeting',
+        feeling: 'durable feeling',
+        identity: { archetype: 'the-wanderer' },
+        portraitAvailable: true,
+      },
+      persistedAtMs: h.clock.ms,
+      notificationSentAtMs: null,
+    });
+    await h.results.claimNotificationDispatch(operation.operationId, h.clock.ms);
+
+    expect(await h.processor.process(operation.operationId)).toBe('completed');
+    expect(h.notifier.calls).toBe(0);
+    expect((await h.repository.getById(operation.operationId))?.status).toBe('ready');
+  });
+
   it('worker retry after the portrait checkpoint keeps the portrait attempt count at exactly 1', async () => {
     const h = harness();
     h.entitlement.grant(h.owner);

@@ -15,6 +15,8 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/network/api_result.dart';
 import 'package:oracly_new/core/network/network_exception.dart';
+import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
+import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
 import 'package:oracly_new/screens/profile/copy/profile_copy.dart';
 import 'package:oracly_new/screens/profile/reference/profile_reference_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -107,6 +109,71 @@ void main() {
     expect(auth.signOutCalls, 2);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
   });
+
+  testWidgets(
+    'R2.1 — sign-out requests server-side push-token unregister while the old identity is still authenticated, before completing sign-out',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      final calls = <String>[];
+      final auth = _ControllableAuth()..order = calls;
+      final sessions = InMemorySessionManager(_MemTokens());
+      await sessions.setSession(_session());
+      final sender = _RecordingSender(calls);
+      await _pump(
+        tester,
+        storage: storage,
+        auth: auth,
+        sessions: sessions,
+        sender: sender.call,
+      );
+
+      await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
+      await tester.tap(find.text(ProfileCopy.logoutTitle));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(sender.calls, hasLength(1));
+      expect(sender.calls.single.method, 'POST');
+      expect(
+        sender.calls.single.path,
+        '/v1/reading-notifications/token/unregister',
+      );
+      // The cleanup call is awaited strictly before signOut() runs.
+      expect(calls, ['unregister', 'sign_out']);
+      expect(auth.signOutCalls, 1);
+      expect(find.text(AuthCopy.signedOut), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'R2.1 — a push-cleanup network failure never blocks sign-out',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      final auth = _ControllableAuth();
+      final sessions = InMemorySessionManager(_MemTokens());
+      await sessions.setSession(_session());
+      final sender = _ThrowingSender();
+      await _pump(
+        tester,
+        storage: storage,
+        auth: auth,
+        sessions: sessions,
+        sender: sender.call,
+      );
+
+      await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
+      await tester.tap(find.text(ProfileCopy.logoutTitle));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(sender.callCount, 1);
+      expect(auth.signOutCalls, 1);
+      expect(find.text(AuthCopy.signedOut), findsOneWidget);
+      expect(find.text(AuthCopy.signOutFailed), findsNothing);
+    },
+  );
 }
 
 Future<void> _pump(
@@ -114,6 +181,7 @@ Future<void> _pump(
   required LocalStorage storage,
   required AuthService auth,
   required SessionManager sessions,
+  ReadingOperationSender? sender,
 }) async {
   await tester.binding.setSurfaceSize(const Size(360, 1600));
   addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -123,12 +191,50 @@ Future<void> _pump(
         localStorageProvider.overrideWithValue(storage),
         authServiceProvider.overrideWithValue(auth),
         sessionManagerProvider.overrideWithValue(sessions),
+        if (sender != null)
+          readingOperationSenderProvider.overrideWithValue(sender),
       ],
       child: const MaterialApp(home: ProfileReferenceScreen()),
     ),
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
+}
+
+class _RecordedCall {
+  const _RecordedCall(this.method, this.path, this.body);
+  final String method;
+  final String path;
+  final Map<String, Object>? body;
+}
+
+class _RecordingSender {
+  _RecordingSender(this._order);
+  final List<String> _order;
+  final List<_RecordedCall> calls = [];
+
+  Future<ReadingOperationWire?> call(
+    String method,
+    String path,
+    Map<String, Object>? body,
+  ) async {
+    calls.add(_RecordedCall(method, path, body));
+    _order.add('unregister');
+    return const ReadingOperationWire(statusCode: 200, json: {'data': {}});
+  }
+}
+
+class _ThrowingSender {
+  int callCount = 0;
+
+  Future<ReadingOperationWire?> call(
+    String method,
+    String path,
+    Map<String, Object>? body,
+  ) async {
+    callCount++;
+    throw Exception('simulated push-cleanup network failure');
+  }
 }
 
 AuthSession _session() => AuthSession(
@@ -144,6 +250,7 @@ class _ControllableAuth implements AuthService {
   int signOutCalls = 0;
   bool fail = false;
   Duration delay = Duration.zero;
+  List<String>? order;
 
   @override
   bool get isConfigured => true;
@@ -151,6 +258,7 @@ class _ControllableAuth implements AuthService {
   @override
   Future<ApiResult<bool>> signOut() async {
     signOutCalls++;
+    order?.add('sign_out');
     if (delay > Duration.zero) await Future<void>.delayed(delay);
     if (fail) {
       return const ApiFailure(NetworkException(message: 'provider'));

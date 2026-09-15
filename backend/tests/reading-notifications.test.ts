@@ -49,6 +49,24 @@ describe('reading completion notifications', () => {
     await expect(tokens.get('owner-b')).resolves.toBe('same-device-token');
   });
 
+  it('R2.1 — an ambiguous/transient provider failure never purges a valid token', async () => {
+    const store = new MemoryDocumentStore();
+    const tokens = new ReadingNotificationTokens(store);
+    await tokens.register('owner-ambiguous', 'still-valid-token');
+    const request = vi.fn().mockRejectedValue(new Error('network_timeout'));
+    const notifier = new FirebaseReadingCompletionNotifier(config, tokens, { request });
+
+    await expect(notifier.notifyCompleted({
+      operationId: '00000000000000000000000000000003',
+      ownerUserId: 'owner-ambiguous',
+      readingType: 'coffee',
+    })).rejects.toThrow('network_timeout');
+    expect(request).toHaveBeenCalledOnce();
+    // Unlike the definite UNREGISTERED case above, an ambiguous transport
+    // failure must leave the registration exactly as it was.
+    await expect(tokens.get('owner-ambiguous')).resolves.toBe('still-valid-token');
+  });
+
   it('logout unregister is idempotent and expected-token guarded', async () => {
     const tokens = new ReadingNotificationTokens(new MemoryDocumentStore());
     await tokens.register('owner', 'fresh-token');

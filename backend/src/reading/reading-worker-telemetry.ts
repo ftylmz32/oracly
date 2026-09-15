@@ -16,6 +16,9 @@ export type ReadingWorkerStage =
   | 'result_persist_completed'
   | 'notification_started'
   | 'notification_completed'
+  // R2.1 — the durable dispatch claim was already held (or already sent)
+  // by an earlier/racing invocation; this run never called the provider.
+  | 'notification_already_dispatched'
   // SMD1 — Soulmate durable worker (no staged input image, no separate
   // validation phase; a durable portrait-persist step instead).
   | 'soulmate_input_load_started'
