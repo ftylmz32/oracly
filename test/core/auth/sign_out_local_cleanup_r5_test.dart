@@ -9,6 +9,7 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
+import 'package:oracly_new/features/dream/services/dream_attempt_store.dart';
 import 'package:oracly_new/features/reading_operation/models/reading_operation_status.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_pending_operation_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +39,10 @@ Future<void> _seedAccountScoped(
   await pending.save(ReadingType.coffee, _pending);
   await pending.save(ReadingType.palm, _pending);
   await pending.save(ReadingType.soulmate, _pending);
+  await storage.setString(
+    DreamAttemptStore.key,
+    '{"fp":"dream:seed","id":"or-dream-r5"}',
+  );
   await MockPremiumRepository(
     storage,
     secureStorage: secure,
@@ -64,6 +69,7 @@ void main() {
     expect(boot.storage.getStringList('or_reading_history'), isEmpty);
     expect(boot.storage.getStringList('ai_conversations'), isEmpty);
     expect(boot.storage.getString('user_memories'), isNull);
+    expect(boot.storage.getString(DreamAttemptStore.key), isNull);
     expect(await MockPremiumRepository(boot.storage).isPremiumActive(), isFalse);
   });
 

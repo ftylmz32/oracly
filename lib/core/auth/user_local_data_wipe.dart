@@ -13,6 +13,7 @@ import '../../features/coffee/data/coffee_reading_store.dart';
 import '../../features/companion/services/first_reading_or_deepen.dart';
 import '../../features/daily_rewards/services/daily_rewards_service.dart';
 import '../../features/daily_ritual/services/card_of_the_day_store.dart';
+import '../../features/dream/services/dream_attempt_store.dart';
 import '../../features/favorite_moments/data/local_favorite_moments_repository.dart';
 import '../../features/gems/data/paid_ai_operation_store.dart';
 import '../../features/oracle_core/data/oracle_next_action_memory.dart';
@@ -93,6 +94,7 @@ abstract final class UserLocalDataWipe {
     await step(() => storage.remove('soulmate_portrait_hashes'));
     await step(() => storage.remove('soulmate_portrait_identity'));
     await step(() => storage.remove(PaidAiOperationStore.key));
+    await step(() => storage.remove(DreamAttemptStore.key));
     await step(
       () => storage.setStringList(TarotLocalDataSource.historyKey, const []),
     );

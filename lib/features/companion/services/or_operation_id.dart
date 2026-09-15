@@ -3,6 +3,7 @@ library;
 import 'dart:async';
 
 import '../../ai/domain/models/ai_message.dart';
+import '../../gems/services/paid_ai_operation_binder.dart';
 
 abstract final class OrOperationId {
   OrOperationId._();
@@ -16,8 +17,13 @@ abstract final class OrOperationId {
 
   static String? get current => Zone.current[_zoneKey] as String?;
 
-  static Future<T> run<T>(String id, Future<T> Function() body) =>
-      runZoned(body, zoneValues: {_zoneKey: id});
+  /// Turn-scoped zone + Idempotency-Key binder for one user send intent.
+  static Future<T> run<T>(String id, Future<T> Function() body) {
+    return runZoned(
+      () => PaidAiOperationBinder.runWithKey(id, body),
+      zoneValues: {_zoneKey: id},
+    );
+  }
 
   static String? pendingId(AIMessage? message) {
     if (message == null || !message.isUser) return null;

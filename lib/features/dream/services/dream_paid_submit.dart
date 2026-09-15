@@ -1,4 +1,4 @@
-/// Dream paid analyze — confirm, bind idempotency, settle once.
+/// Dream paid analyze — confirm, bind stable attempt idempotency, settle once.
 library;
 
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ import '../../personal_discovery/services/personal_discovery_refresh.dart';
 import '../controllers/dream_analysis_controller.dart';
 import '../economy/dream_economy.dart';
 import '../models/dream_emotion.dart';
+import 'dream_attempt_store.dart';
 
 abstract final class DreamPaidSubmit {
   DreamPaidSubmit._();
@@ -31,6 +32,9 @@ abstract final class DreamPaidSubmit {
     if (_running) return;
     _running = true;
     try {
+      final attempts = DreamAttemptStore(ref.read(localStorageProvider));
+      final attemptId = await attempts.resolveId(narrative);
+      if (!context.mounted) return;
       final op = await GemSpendGuard.beginPaid(
         ref,
         context: context,
@@ -38,6 +42,7 @@ abstract final class DreamPaidSubmit {
         ledgerKey: DreamEconomy.ledgerKey,
         reason: GemsCopy.reasonDream,
         cost: DreamEconomy.analysisCost,
+        existingId: attemptId,
       );
       if (op == null) return;
       if (!context.mounted) {
@@ -57,17 +62,24 @@ abstract final class DreamPaidSubmit {
         ref.read(analyticsServiceProvider).logDreamCompleted(
               latency: DateTime.now().difference(started),
             );
+        await attempts.clear();
         await GemSpendGuard.settleOperation(
           ref,
           operation: op,
           context: context.mounted ? context : null,
         );
         if (context.mounted) PersonalDiscoveryRefresh.invalidate(ref);
-      } else {
+      } else if (op.isBillable) {
+        // Keep DreamAttemptStore id for retry; drop unpaid pending charge intent.
         await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
       }
     } finally {
       _running = false;
     }
+  }
+
+  /// Explicit new dream / reset — next submit must not reuse prior attempt.
+  static Future<void> clearAttempt(WidgetRef ref) {
+    return DreamAttemptStore(ref.read(localStorageProvider)).clear();
   }
 }

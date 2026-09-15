@@ -1,6 +1,8 @@
 /// Reference-accurate Dream Analysis screen — rebuilt from design reference.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -94,6 +96,7 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
           QualityFeature.dream,
         );
     ref.read(dreamVoiceControllerProvider).reset();
+    unawaited(DreamPaidSubmit.clearAttempt(ref));
     controller.reset();
     _narrativeController.clear();
     setState(() {
@@ -106,6 +109,7 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
     final dream = controller.dream;
     if (dream == null) return;
     _narrativeController.text = dream.narrative;
+    unawaited(DreamPaidSubmit.clearAttempt(ref));
     controller.reset();
     setState(() {
       _selectedChips.clear();

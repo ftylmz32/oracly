@@ -4,6 +4,8 @@ library;
 import 'dart:async';
 
 import '../../../core/copy/resilience_copy.dart';
+import '../../gems/services/paid_ai_operation_binder.dart';
+import '../../gems/services/paid_ai_operation_id.dart';
 import '../copy/tarot_l10n.dart';
 import '../domain/models/reading_session.dart';
 import '../presentation/widgets/ai_reading/ai_reading_content.dart';
@@ -37,9 +39,12 @@ class TarotReadingCompletion {
     }
     AiReadingContent content;
     try {
-      content = await (load ??
-              () => _interpretation.generateContent(session))()
-          .timeout(timeout);
+      // Session id is the sole provider idempotency identity for this reading.
+      final key = PaidAiOperationId.fromExisting('tarot', session.id);
+      content = await PaidAiOperationBinder.runWithKey(
+        key,
+        () => (load ?? () => _interpretation.generateContent(session))(),
+      ).timeout(timeout);
     } catch (_) {
       if (_charge.alreadyCharged(session.id)) {
         return _interpretation.emergencyFallback(
