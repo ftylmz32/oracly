@@ -2,6 +2,7 @@
 library;
 
 import 'package:oracly_new/core/audio/oracly_sound_service.dart';
+import 'package:oracly_new/core/runtime/oracly_apply_outcome.dart';
 import 'package:oracly_new/core/voice/oracly_tts_port.dart';
 import 'package:oracly_new/core/voice/or_speech_speed.dart';
 import 'package:oracly_new/core/voice/oracly_voice_id.dart';
@@ -19,10 +20,12 @@ class SilentSound extends OraclySoundService {
   Future<void> ensureSfxReady() async {}
 
   @override
-  Future<void> syncAmbientEnabled(bool enabled) async {}
+  Future<OraclyApplyOutcome> syncAmbientEnabled(bool enabled) async =>
+      OraclyApplyOutcome.success;
 
   @override
-  Future<void> setAtmosphere(ZodiacSignId sign) async {}
+  Future<OraclyApplyOutcome> setAtmosphere(ZodiacSignId sign) async =>
+      OraclyApplyOutcome.success;
 }
 
 class SilentTts implements OraclyTtsPort {

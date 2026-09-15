@@ -39,11 +39,17 @@ const _banned = [
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('ten coffee readings speak to the cup, not the engine', () {
-    final texts = _coffee();
-    expect(texts, hasLength(10));
-    _review(texts, requireToken: true);
-  });
+  test(
+    'BATCH 3A.2: ten coffee cups with no backend overall all fail '
+    'composition — there is no client engine left to speak for the cup',
+    () {
+      final results = _coffee();
+      expect(results, hasLength(10));
+      for (final reading in results) {
+        expect(reading, isNull);
+      }
+    },
+  );
 
   test('ten astrology readings never expose implementation', () {
     final texts = _astrology();
@@ -72,33 +78,35 @@ void main() {
     }
   });
 
-  test('low-trust coffee mark stays uncertain', () {
-    final reading = CoffeeFortuneComposer.compose(
-      CoffeeReading(
-        id: 'faint',
-        createdAt: DateTime(2026, 8, 18),
-        overall: '',
-        love: 'Aşkta mutlaka düğün var.',
-        career: 'Terfi kesin.',
-        money: '',
-        nearFuture: '',
-        takeaway: '',
-        visualObservation: 'Ağızda belirsiz bir iz.',
-        symbols: const [
-          CoffeeSymbol(
-            name: 'kuş',
-            meaning: '',
-            interpretation: '',
-            trust: CoffeeMarkTrust.low,
-          ),
-        ],
-      ),
-    );
-    expect(reading.overall.toLowerCase(), contains('net değil'));
-    expect(reading.overall.toLowerCase(), contains('kuş'));
-    expect(reading.love, isEmpty);
-    expect(reading.career, isEmpty);
-  });
+  test(
+    'BATCH 3A.2: a missing overall fails composition even when optional '
+    'lanes make overconfident claims — no client engine steps in to '
+    'salvage a partial backend result',
+    () {
+      final reading = CoffeeFortuneComposer.compose(
+        CoffeeReading(
+          id: 'faint',
+          createdAt: DateTime(2026, 8, 18),
+          overall: '',
+          love: 'Aşkta mutlaka düğün var.',
+          career: 'Terfi kesin.',
+          money: '',
+          nearFuture: '',
+          takeaway: '',
+          visualObservation: 'Ağızda belirsiz bir iz.',
+          symbols: const [
+            CoffeeSymbol(
+              name: 'kuş',
+              meaning: '',
+              interpretation: '',
+              trust: CoffeeMarkTrust.low,
+            ),
+          ],
+        ),
+      );
+      expect(reading, isNull);
+    },
+  );
 }
 
 void _review(
@@ -158,7 +166,7 @@ bool _someone(String lower) {
   return tokens.any(lower.contains);
 }
 
-List<String> _coffee() {
+List<CoffeeReading?> _coffee() {
   const cups = [
     ['kuş', 'yol'],
     ['kalp', 'yüzük'],
@@ -190,7 +198,7 @@ List<String> _coffee() {
           ],
         ),
         themes: i == 2 ? const ['değişim'] : const [],
-      ).overall,
+      ),
   ];
 }
 

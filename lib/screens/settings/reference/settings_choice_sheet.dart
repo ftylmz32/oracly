@@ -21,8 +21,13 @@ Future<T?> showSettingsChoiceSheet<T>({
   return showModalBottomSheet<T>(
     context: context,
     useRootNavigator: true,
+    isScrollControlled: true,
     backgroundColor: AppColors.transparent,
     builder: (sheetContext) {
+      // Long option lists (e.g. 12 zodiac signs) plus large text scaling
+      // can exceed the screen height — cap the sheet and let it scroll
+      // instead of overflowing past the bottom of the viewport.
+      final maxHeight = MediaQuery.sizeOf(sheetContext).height * 0.82;
       return Material(
         color: AppColors.transparent,
         child: ClipRRect(
@@ -46,27 +51,32 @@ Future<T?> showSettingsChoiceSheet<T>({
                 ),
               ),
               child: SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(AppSpacing.lg),
-                      child: Text(
-                        title,
-                        style: AppTextStyles.titleSmall.copyWith(
-                          color: AppColors.of(sheetContext).goldLight,
-                          fontWeight: FontWeight.w700,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: maxHeight),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(AppSpacing.lg),
+                          child: Text(
+                            title,
+                            style: AppTextStyles.titleSmall.copyWith(
+                              color: AppColors.of(sheetContext).goldLight,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
-                      ),
+                        for (final opt in options)
+                          _ChoiceRow(
+                            label: opt.$2,
+                            selected: opt.$1 == current,
+                            onTap: () => Navigator.pop(sheetContext, opt.$1),
+                          ),
+                        SizedBox(height: AppSpacing.md),
+                      ],
                     ),
-                    for (final opt in options)
-                      _ChoiceRow(
-                        label: opt.$2,
-                        selected: opt.$1 == current,
-                        onTap: () => Navigator.pop(sheetContext, opt.$1),
-                      ),
-                    SizedBox(height: AppSpacing.md),
-                  ],
+                  ),
                 ),
               ),
             ),

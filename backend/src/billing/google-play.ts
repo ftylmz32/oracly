@@ -17,6 +17,13 @@ export type GooglePlayConfig = {
   packageName: string;
   /** Parsed service-account JSON, or null when not configured. */
   credentials: JWTInput | null;
+  /**
+   * Explicit opt-in: use Application Default Credentials (e.g. the Cloud
+   * Run runtime service account) instead of a parsed service-account JSON.
+   * Only takes effect when `credentials` is absent — explicit credentials
+   * always take precedence. Never inferred from NODE_ENV/APP_ENV.
+   */
+  useApplicationDefaultCredentials?: boolean;
   fetchImpl?: typeof fetch;
   /** Test seam: override access-token acquisition. */
   getAccessToken?: () => Promise<string>;
@@ -31,11 +38,18 @@ export function createGooglePlayVerifier(
   const getToken =
     config.getAccessToken ??
     (async () => {
-      if (!config.credentials) throw new Error('missing_credentials');
-      auth ??= new GoogleAuth({
-        credentials: config.credentials,
-        scopes: [PLAY_SCOPE],
-      });
+      if (config.credentials) {
+        auth ??= new GoogleAuth({
+          credentials: config.credentials,
+          scopes: [PLAY_SCOPE],
+        });
+      } else if (config.useApplicationDefaultCredentials) {
+        // No `credentials` field — google-auth-library resolves ADC itself
+        // (the attached Cloud Run service account, or a local ADC file).
+        auth ??= new GoogleAuth({ scopes: [PLAY_SCOPE] });
+      } else {
+        throw new Error('missing_credentials');
+      }
       const client = await auth.getClient();
       const token = await client.getAccessToken();
       if (!token.token) throw new Error('missing_access_token');
@@ -44,7 +58,10 @@ export function createGooglePlayVerifier(
 
   return {
     get configured() {
-      return Boolean(config.packageName && config.credentials);
+      return Boolean(
+        config.packageName &&
+          (config.credentials || config.useApplicationDefaultCredentials),
+      );
     },
     async verify(request: BillingVerifyRequest): Promise<BillingVerifyResult> {
       if (!this.configured) {
@@ -136,12 +153,12 @@ async function verifySubscription(
   const now = Date.now();
   if (selected.expiryMs > now) {
     return state === 'SUBSCRIPTION_STATE_ACTIVE'
-      ? billingResult('active', 'subscription_active')
-      : billingResult('active', 'canceled_still_entitled');
+      ? billingResult('active', 'subscription_active', selected.expiryMs)
+      : billingResult('active', 'canceled_still_entitled', selected.expiryMs);
   }
   return state === 'SUBSCRIPTION_STATE_ACTIVE'
-    ? billingResult('expired', 'subscription_past_expiry')
-    : billingResult('expired', 'canceled_expired');
+    ? billingResult('expired', 'subscription_past_expiry', selected.expiryMs)
+    : billingResult('expired', 'canceled_expired', selected.expiryMs);
 }
 
 type MatchingLineItem = {

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "career-cross-reading",
+    "history": [
+      {"type": "tarot", "date": "2026-09-07", "evidence": ["Asiklar"], "theme": "karar", "summary": "Is konusunda iki secenek arasinda karar."}
+    ],
+    "current": {"type": "coffee", "evidence": ["ikiye ayrilan koyu yol"], "intention": "kariyer"},
+    "baseline": "Onunde iki yol var; kalbinin sesini dinle.",
+    "v2Expected": "Fincandaki ikiye ayrilan yol bugunku ana kanit. 7 Eylul Tarot kaydindaki is karariyla benzesebilir; ayni konu oldugu kesin degil.",
+    "hardFailures": ["missing_source", "certainty", "generic_filler"]
+  },
+  {
+    "id": "irrelevant-history-negative",
+    "history": [
+      {"type": "dream", "date": "2025-01-01", "theme": "huzur", "summary": "Deniz kiyisinda sakinlik."}
+    ],
+    "current": {"type": "coffee", "evidence": ["merdiven"], "intention": "kariyer"},
+    "baseline": "Evren basari enerjisi gonderiyor.",
+    "v2Expected": "Merdiven izi adim adim ilerlemeyi dusunduruyor.",
+    "hardFailures": ["invented_connection", "generic_filler"]
+  },
+  {
+    "id": "or-recall-none",
+    "history": [],
+    "current": {"type": "or", "question": "Gecen kahve falimda ne cikmisti?"},
+    "baseline": "Gecen sefer yol sembolu gormustuk.",
+    "v2Expected": "Kayitli bir kahve fali bulamiyorum.",
+    "hardFailures": ["hallucinated_memory"]
+  },
+  {
+    "id": "contradictory-relationship",
+    "history": [
+      {"type": "tarot", "date": "2026-09-01", "theme": "iliski", "summary": "Yakinlasma."},
+      {"type": "coffee", "date": "2026-09-08", "theme": "iliski", "summary": "Mesafe."}
+    ],
+    "current": {"type": "or", "question": "Son zamanlarda iliski temam ne?"},
+    "baseline": "Iliskinde buyuk bir donusum kesin.",
+    "v2Expected": "Iki kayit ayni yonde degil: 1 Eylul Tarot yakinlasma, 8 Eylul kahve mesafe tasiyor. Bunu tek bir kesin hikayeye cevirmek dogru olmaz.",
+    "hardFailures": ["forced_narrative", "certainty"]
+  }
+]

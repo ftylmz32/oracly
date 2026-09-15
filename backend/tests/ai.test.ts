@@ -20,9 +20,68 @@ import {
   testConfig,
 } from './helpers.js';
 import { readingStageStore } from '../src/ai/reading/stage-cache.js';
+import { dreamMessages } from '../src/ai/prompts.js';
 
 describe('ai complete', () => {
   beforeEach(() => readingStageStore.clear());
+
+  it('requires grounded non-empty Dream daily reflection without personal history', () => {
+    const user = String(
+      dreamMessages({ narrative: 'Sessiz bir bahçede altın bir kapı gördüm.' })[1]?.content,
+    );
+    expect(user).toContain('gunlukYansi (boş bırakma;');
+    expect(user).toContain('yalnızca rüya anlatısına dayanan');
+    expect(user).toContain('kişisel gerçek uydurma');
+    expect(user).not.toContain('yoksa boş bırak');
+  });
+  it('requires relational symbol reasoning and discourages generic tropes in Dream prompts', () => {
+    // Regression for a real production quality defect: the model defaulted to
+    // dictionary-style, one-symbol-at-a-time readings and generic tropes
+    // ("new opportunity", "new beginning") instead of connecting the dream's
+    // specific details to each other.
+    const messages = dreamMessages({
+      narrative: 'Eski bir evin bahçesindeydim, gökyüzü çok açıktı ve altın bir kapı gördüm.',
+    });
+    const system = String(messages[0]?.content);
+    const user = String(messages[1]?.content);
+    expect(system).toContain('ayrıntı arasındaki ilişkiyi kur');
+    expect(system).toContain('yalnızca anlatı açıkça destekliyorsa kullan');
+    expect(user).toContain('en az iki somut ayrıntıyı birbirine bağlayan');
+    expect(user).toContain('kalıp ve genel ifadelerden kaçın');
+  });
+  it('requires the Dream emotional field to describe atmosphere, not restate the narrative verbatim', () => {
+    const user = String(
+      dreamMessages({ narrative: 'Karanlık bir ormanda yalnız yürüyordum.' })[1]?.content,
+    );
+    expect(user).toContain(
+      'duygusalTema (rüyanın genel duygusal atmosferi; anlatı cümlelerini olduğu gibi tekrarlama;',
+    );
+    expect(user).toContain('birden fazla/karışık duygudan söz edebilirsin');
+  });
+  it('requires explicitly stated (including negated) emotion to outrank inferred atmosphere', () => {
+    // Regression for a real production quality defect: a live dream where
+    // the user explicitly said they were NOT afraid, only mildly urgent,
+    // still came back with an invented "loneliness" the narrative never
+    // stated, ignoring the negated fear and the stated urgency entirely.
+    const messages = dreamMessages({
+      narrative: 'Tren istasyonundaydım, korkmuyordum ama bir şeyi kaçırıyormuşum gibi hafif bir aciliyet hissi vardı.',
+    });
+    const system = String(messages[0]?.content);
+    const user = String(messages[1]?.content);
+    expect(system).toContain('olumsuzlanmış ifadeler');
+    expect(system).toContain('atmosferden çıkarılan tahminden önce yansıt');
+    expect(system).toContain('anlatının belirtmediği bir duyguyu');
+    expect(user).toContain('olumsuzlanmış olsa bile');
+    expect(user).toContain('anlatının belirtmediği bir duygu uydurma');
+  });
+  it('requires the interpretation to show how one detail changes another, not just co-mention them', () => {
+    const system = String(dreamMessages({ narrative: 'Bir kapı ve bir ışık gördüm.' })[0]?.content);
+    const user = String(dreamMessages({ narrative: 'Bir kapı ve bir ışık gördüm.' })[1]?.content);
+    expect(system).toContain('yalnızca yan yana anmak yetmez');
+    expect(system).toContain('anlamını nasıl değiştirdiğini');
+    expect(user).toContain('anlamını nasıl değiştirdiğini');
+    expect(user).toContain('anlatılan duygusal ipuçlarını yoruma katıştır');
+  });
   it('returns no_configuration when OPENAI_API_KEY is missing', async () => {
     const app = await testApp(
       testConfig({ OPENAI_API_KEY: '', AI_DEV_AUTH_BYPASS: 'true' }),

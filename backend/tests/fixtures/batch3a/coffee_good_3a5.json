@@ -1,0 +1,91 @@
+{
+  "source": "batch3a5-good-additive",
+  "personalization": {
+    "firstName": "Fatih"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "base",
+        "description": "Dense grounds at the base with an open curve around them.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "lower_wall",
+        "description": "Marks rising from the lower inner surface.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper",
+        "description": "Sparse marks on the upper inner surface and a clearer rim.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      },
+      {
+        "id": "e4",
+        "region": "handle",
+        "description": "Small marks extending toward the handle.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibinde yoğun tortu duruyor; alt iç yüzeyden yükselen izler ve üst kenardaki seyrelme de seçiliyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "overall": {
+      "text": "Dipte toplanan yoğunluk, henüz dağılmamış bir iç ağırlığa işaret ediyor. Bu ağırlık bütün günü kaplamadan durabiliyor; asıl örüntü, bir şeyi hemen bitirmekten çok nereye ait olduğunu ayırmadan taşınan bir eşik. Yakın olanların beklentisi ile kendi yerin aynı hizada durmuyor. Şimdiki gerilim, hızdan çok iki ayrı bağlılığın aynı anda tutulmasında. Burada zorlanan sey kapanisin hizi degil, ait oldugun yeri ve baskasinin beklentisini ayni kefede tutmadan ayakta kalmak. Agirlik gercek, fakat gunu tek basina yoneten sey o agirlik olmak zorunda degil.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Üst iç yüzeydeki seyrelme, yakın dönemde dışarıdan bir hareketin içeri sızabileceğini düşündürüyor. Bu, hazır bir sonuç değil; ritmin dışarıdan gelen kısa bir temasla yer değiştirmesi. Kulp tarafındaki küçük izler, bu aralığın yalnız tamamlanan bir kapanıştan çok başkalarının gidiş gelişiyle şekilleneceğini söylüyor. Yaklaşan şey büyük bir müdahale değil, dışarıdaki hareketin içeriye doğru kayması. Bu kayma, hazir bir sonuc getirmez; disaridaki hareketin iceriye dogru yer degistirmesi, onundeki araligi baskasinin gidis gelisiyle doldurur. Yaklasan temas, gunun temposunu tek basina belirlemez ama yakin donemin yonunu degistirir.",
+      "evidenceIds": [
+        "e3",
+        "e4"
+      ]
+    },
+    "takeaway": {
+      "text": "Yükselen izler, sonraki günlerde gündelik düzenin başkalarının temposundan önce kendi adımınla kurulması gerektiğini söylüyor. Bu ritim bir anda kurulmuyor; tekrar eden küçük temaslar birikerek günün sırasını değiştiriyor. Somut ipucu, dışarıdaki hareketi izlerken kendi gün dilimini kaybetmemek ve o sırayı dışarıya bırakmamak. Kucuk temaslar biriktikce gunun sirasi disaridan gelen tempoya teslim olmadan da degisebilir. Asil ise yarayan, o sirayi korumak degil, kendi adimini kaybetmeden disaridaki hareketi izleyebilmek.",
+      "evidenceIds": [
+        "e2"
+      ]
+    }
+  }
+}

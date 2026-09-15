@@ -63,7 +63,7 @@ void main() {
 
     test('failed generation abandons paid op without charging when cost enabled',
         () async {
-      await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+      await wallet.acceptAuthoritativeBalance(50);
       final op = await coordinator.begin(
         feature: PaidAiFeature.palm,
         ledgerKey: PalmEconomy.ledgerKey,

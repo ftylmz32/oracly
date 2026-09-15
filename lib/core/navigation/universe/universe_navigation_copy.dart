@@ -50,6 +50,7 @@ abstract final class UniverseNavigationCopy {
 
   static String get mapTitle => _t('map.title');
   static String get mapIntro => _t('map.intro');
+  static String get mapTabSpaces => _t('map.tab_spaces');
 
   static String get realmPortal => _t('realm.portal');
   static String get realmExplore => _t('realm.explore');

@@ -17,6 +17,10 @@
         android:name="android.hardware.camera.any"
         android:required="false"
         tools:replace="android:required"/>
+    <!-- RECORD_AUDIO otherwise implies a required microphone; dream/OR voice
+         input is optional (typed text always works), so keep mic-less
+         devices eligible too. -->
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
     <!-- App-owned capture and system Photo Picker need no broad storage access. -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"

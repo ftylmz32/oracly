@@ -106,6 +106,7 @@ class CompanionLiveReply {
       depth: depth,
       spoken: prefs.spoken,
       readingContext: readingContext,
+      observedThemes: context.recurringThemes,
     );
     if (live == null) {
       throw AiRequestException(AiFailure.noConfiguration());

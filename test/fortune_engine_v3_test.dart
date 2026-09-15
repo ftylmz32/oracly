@@ -14,7 +14,7 @@ import 'package:oracly_new/features/premium/services/soul_mate_draw_port.dart';
 import 'package:oracly_new/features/premium/services/soul_mate_interpretation.dart';
 
 void main() {
-  CoffeeReading _cup({
+  CoffeeReading? _cup({
     required String id,
     List<CoffeeSymbol> symbols = const [],
     String observation = '',
@@ -37,93 +37,60 @@ void main() {
     );
   }
 
-  test('multi-symbol reading is a story, not four encyclopedia cards', () {
-    OraclyL10n.bind('tr');
-    final reading = _cup(
-      id: 'story',
-      observation: 'Fincanda kuş ve yol yan yana.',
-      symbols: const [
-        CoffeeSymbol(name: 'kuş', meaning: '', interpretation: ''),
-        CoffeeSymbol(name: 'yol', meaning: '', interpretation: ''),
-        CoffeeSymbol(name: 'kalp', meaning: '', interpretation: ''),
-      ],
-    );
-    expect(reading.overall.toLowerCase(), contains('kuş'));
-    expect(reading.overall.toLowerCase(), contains('yol'));
-    expect(reading.overall.toLowerCase(), contains('haber'));
-    expect(reading.overall, isNot(contains('Kuş = özellik')));
-    expect(FortuneVoice.claimsCertainty(reading.overall), isFalse);
-  });
-
-  test('openings rotate by reading id without losing the symbols', () {
-    OraclyL10n.bind('tr');
-    const symbols = [
-      CoffeeSymbol(name: 'yol', meaning: '', interpretation: ''),
-    ];
-    // Two ids can legitimately land on the same opening, so read the rotation
-    // across a handful of cups instead of a single pair.
-    final readings = [
-      for (final id in ['alpha', 'omega', 'beta', 'delta', 'sigma', 'theta'])
-        _cup(id: id, symbols: symbols, observation: 'Bir yol izi.').overall,
-    ];
-    expect(readings.toSet().length, greaterThan(1), reason: readings.join('|'));
-    for (final reading in readings) {
-      expect(reading.toLowerCase(), contains('yol'));
-    }
-  });
-
-  test('personal change theme attaches only with path or key symbols', () {
-    OraclyL10n.bind('tr');
-    final withPath = _cup(
-      id: 'p',
-      symbols: const [CoffeeSymbol(name: 'yol', meaning: '', interpretation: '')],
-      observation: 'Açık bir yol.',
-      themes: const ['değişim'],
-    );
-    final noPath = _cup(
-      id: 'n',
-      observation: 'Fincanda duruluk.',
-      themes: const ['değişim'],
-    );
-    expect(withPath.overall.toLowerCase(), contains('değişim'));
-    expect(noPath.overall.toLowerCase(), isNot(contains('değişim')));
-    expect(noPath.overall.toLowerCase(), isNot(contains('kalp')));
-  });
-
-  test('English and Russian stay natural and language-pure', () {
-    const symbols = [
-      CoffeeSymbol(name: 'bird', meaning: '', interpretation: ''),
-      CoffeeSymbol(name: 'road', meaning: '', interpretation: ''),
-    ];
-    OraclyL10n.bind('en');
-    final en = _cup(
-      id: 'en',
-      symbols: symbols,
-      observation: 'A bird beside an open road.',
-    );
-    // Openings rotate by seed, so assert the shared shape: both marks named,
-    // read as one pair, and no Turkish left in the English voice.
-    expect(en.overall.toLowerCase(), contains('bird'));
-    expect(en.overall.toLowerCase(), contains('road'));
-    expect(
-      RegExp('together|beside').hasMatch(en.overall.toLowerCase()),
-      isTrue,
-      reason: en.overall,
-    );
-    expect(en.overall, isNot(contains('ön plana')));
-    expect(en.overall, isNot(matches(RegExp('[şğıİ]'))), reason: en.overall);
-    expect(en.love, isEmpty);
-    expect(en.career, isEmpty);
-    OraclyL10n.bind('ru');
-    final ru = _cup(
-      id: 'ru',
-      symbols: symbols,
-      observation: 'Птица рядом с дорогой.',
-    );
-    expect(ru.overall, contains('рядом'));
-    expect(ru.overall, isNot(contains('gündeme')));
-    OraclyL10n.bind('tr');
-  });
+  test(
+    'BATCH 3A.2: no client story/opening-rotation/theme-attachment/'
+    'locale-weaving engine remains — a raw-dump backend overall fails '
+    'composition regardless of symbols, themes, or language',
+    () {
+      OraclyL10n.bind('tr');
+      expect(
+        _cup(
+          id: 'story',
+          observation: 'Fincanda kuş ve yol yan yana.',
+          symbols: const [
+            CoffeeSymbol(name: 'kuş', meaning: '', interpretation: ''),
+            CoffeeSymbol(name: 'yol', meaning: '', interpretation: ''),
+            CoffeeSymbol(name: 'kalp', meaning: '', interpretation: ''),
+          ],
+        ),
+        isNull,
+      );
+      expect(
+        _cup(
+          id: 'p',
+          symbols: const [CoffeeSymbol(name: 'yol', meaning: '', interpretation: '')],
+          observation: 'Açık bir yol.',
+          themes: const ['değişim'],
+        ),
+        isNull,
+      );
+      OraclyL10n.bind('en');
+      expect(
+        _cup(
+          id: 'en',
+          symbols: const [
+            CoffeeSymbol(name: 'bird', meaning: '', interpretation: ''),
+            CoffeeSymbol(name: 'road', meaning: '', interpretation: ''),
+          ],
+          observation: 'A bird beside an open road.',
+        ),
+        isNull,
+      );
+      OraclyL10n.bind('ru');
+      expect(
+        _cup(
+          id: 'ru',
+          symbols: const [
+            CoffeeSymbol(name: 'bird', meaning: '', interpretation: ''),
+            CoffeeSymbol(name: 'road', meaning: '', interpretation: ''),
+          ],
+          observation: 'Птица рядом с дорогой.',
+        ),
+        isNull,
+      );
+      OraclyL10n.bind('tr');
+    },
+  );
 
   test('palm never invents a missing line or a medical claim', () {
     OraclyL10n.bind('tr');
@@ -132,11 +99,11 @@ void main() {
         id: 'hand',
         createdAt: DateTime(2026, 8, 16),
         hand: PalmHand.left,
-        overall: 'Avuç geniş.',
+        overall: 'Avuç geniş; sakin ama net bir yapı hissettiriyor.',
         heartLine: 'Kalp çizgisi belirgin.',
         headLine: '',
       ),
-    );
+    )!;
     expect(composed.headLine, isEmpty);
     expect(composed.heartLine, isNotEmpty);
     expect(FortuneVoice.claimsMedical(composed.fullText), isFalse);

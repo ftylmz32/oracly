@@ -1,0 +1,60 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "Dense residue cluster near the middle wall, slightly elongated toward the handle side.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A clearer open area at the base beside the dense cluster.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "rim",
+        "description": "A thin scattered trail near the rim, lighter than the cluster.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Ortada belirgin bir küme, dipte ise daha açık bir alan göze çarpıyor; ağza yakın ince bir iz de seçiliyor ve üst kısımda hafif bir gölgelenme duruyor.",
+      "evidenceIds": ["e1", "e2", "e3"]
+    },
+    "overall": {
+      "text": "Yoğun kümenin dipteki açıklıkla yan yana durması, ertelediğin bir kararın nihayet yerini bulmaya başladığını düşündürüyor. Bu bir toparlanma ve rahatlama anına işaret ediyor gibi duruyor; biriken bir şeyin yavaşça hafiflediğini hissettiriyor. Bu değişimin yakın çevrende de fark edileceğini düşündürüyor; belki bir konuşma, belki küçük bir haber bu sürece eşlik edebilir.",
+      "evidenceIds": ["e1", "e2"]
+    },
+    "love": { "text": "", "evidenceIds": [] },
+    "career": { "text": "", "evidenceIds": [] },
+    "money": { "text": "", "evidenceIds": [] },
+    "nearFuture": {
+      "text": "Yoğun kümenin dipteki açıklıkla yan yana durması, ertelediğin bir kararın nihayet yerini bulmaya başladığını düşündürüyor; bu bir toparlanma ve rahatlama anına işaret ediyor gibi duruyor. Bu değişimin yakın çevrende de fark edileceğini düşündürüyor.",
+      "evidenceIds": ["e1", "e2"]
+    },
+    "takeaway": {
+      "text": "Yoğun kümenin dipteki açıklıkla yan yana durması, ertelediğin bir kararın nihayet yerini bulmaya başladığını düşündürüyor; bu bir toparlanma ve rahatlama anına işaret ediyor gibi duruyor.",
+      "evidenceIds": ["e1", "e2"]
+    }
+  }
+}

@@ -32,10 +32,7 @@ class DailyRewardsService {
     );
   }
 
-  /// Earn first, then mark the day. Never lock the day without gems.
-  ///
-  /// Wallet [operationId] keeps retries safe if claimed-day write fails after
-  /// a successful credit.
+  /// Server time and the server ledger decide eligibility and amount.
   Future<DailyRewardClaimResult> claim({DateTime? asOf}) async {
     final moment = asOf ?? DateTime.now();
     final current = await load(asOf: moment);
@@ -50,13 +47,21 @@ class DailyRewardsService {
       if (_storage.getString(claimedKey) == _dayKey(moment)) {
         return DailyRewardClaimSuccess(await load(asOf: moment));
       }
-      final dayKey = _dayKey(moment);
       try {
-        await _wallet.earn(
-          amount: GemEconomy.dailyReward,
-          reason: GemsCopy.reasonDailyReward,
-          operationId: 'daily_reward_$dayKey',
+        final result = await _wallet.claimDaily(
+          idempotencyKey: 'daily-reward-request-v1',
         );
+        if (result == null) {
+          return DailyRewardClaimFailure(
+            message: DailyRewardsCopy.claimFailed,
+            state: current,
+          );
+        }
+        final dayKey = result.serverDay ?? _dayKey(moment);
+        await _storage.setString(claimedKey, dayKey);
+        if (result.applied && !result.idempotent) {
+          await _user.incrementStreak();
+        }
       } on GemSpendException catch (e) {
         return DailyRewardClaimFailure(
           message: e.message,
@@ -64,15 +69,6 @@ class DailyRewardsService {
         );
       }
 
-      try {
-        await _storage.setString(claimedKey, dayKey);
-        await _user.incrementStreak();
-      } catch (_) {
-        return DailyRewardClaimFailure(
-          message: DailyRewardsCopy.claimFailed,
-          state: await load(asOf: moment),
-        );
-      }
       return DailyRewardClaimSuccess(await load(asOf: moment));
     } catch (_) {
       return DailyRewardClaimFailure(
@@ -84,8 +80,10 @@ class DailyRewardsService {
     }
   }
 
-  static String _dayKey(DateTime date) =>
-      '${date.year.toString().padLeft(4, '0')}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')}';
+  static String _dayKey(DateTime date) {
+    final utc = date.toUtc();
+    return '${utc.year.toString().padLeft(4, '0')}-'
+        '${utc.month.toString().padLeft(2, '0')}-'
+        '${utc.day.toString().padLeft(2, '0')}';
+  }
 }

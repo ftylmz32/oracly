@@ -3,6 +3,9 @@ part of 'palm_reading_controller.dart';
 mixin PalmReadingCapture on ChangeNotifier {
   late PalmExperienceService _experience;
   late CoffeeImageInputPort _images;
+  ReadingFeatureRunner? _live;
+  ReadingPendingOperationStore? _pendingStore;
+  ReadingLiveState? liveState;
 
   PalmPhase _phase = PalmPhase.entry;
   PalmHand _hand = PalmHand.right;
@@ -14,23 +17,57 @@ mixin PalmReadingCapture on ChangeNotifier {
   bool _versionAdded = false;
   int _versionReloadToken = 0;
   bool _disposed = false;
+  bool _accelerating = false;
+  String? _accelerationError;
+  int? _accelerationCost;
+  String? _accelerationCostFor;
+  String? _accelerationPriceToken;
+  Future<void> Function(int balance)? _acceptAuthoritativeBalance;
   int _generation = 0;
+  Timer? _resumeTimer;
 
   void bindCapture(
     PalmExperienceService experience,
-    CoffeeImageInputPort images,
-  ) {
+    CoffeeImageInputPort images, {
+    ReadingFeatureRunner? live,
+    ReadingPendingOperationStore? pendingStore,
+    Future<void> Function(int balance)? acceptAuthoritativeBalance,
+  }) {
     _experience = experience;
     _images = images;
+    _live = live;
+    _pendingStore = pendingStore;
+    _acceptAuthoritativeBalance = acceptAuthoritativeBalance;
   }
 
   void markDisposed() {
     _disposed = true;
     _generation++;
+    _resumeTimer?.cancel();
   }
 
   void safeNotify() {
     if (!_disposed && hasListeners) notifyListeners();
+  }
+
+  /// Server-quoted Gem cost for THIS operation. Null until fetched (or if
+  /// the fetch fails) -- never a locally invented fallback number.
+  int? get accelerationCost => _accelerationCost;
+
+  Future<void> refreshAccelerationCost(
+    ReadingFeatureRunner live,
+    String operationId,
+  ) async {
+    if (_accelerationCostFor == operationId && _accelerationCost != null) {
+      return;
+    }
+    final quote = await live.flow.quoteAcceleration(operationId);
+    if (_disposed || liveState?.snapshot?.operationId != operationId) return;
+    if (quote == null) return;
+    _accelerationCostFor = operationId;
+    _accelerationCost = quote.canonicalCost;
+    _accelerationPriceToken = quote.priceToken;
+    safeNotify();
   }
 
   PalmPhase get phase => _phase;

@@ -85,13 +85,15 @@ void main() {
         id: 'p1',
         createdAt: DateTime(2026, 8, 18),
         hand: PalmHand.right,
-        overall: 'El geniş ve belirgin çizgili.',
+        overall:
+            'El geniş ve belirgin çizgili; sakin ama kararlı bir tempo '
+            'hissettiriyor.',
         heartLine: 'Kalp çizgisinin belirgin yapısı.',
         headLine: '',
         lifeLine: '',
         fateLine: '',
       ),
-    );
+    )!;
     final soul = SoulMateInterpretation.forRequest(
       SoulMateDrawRequest(
         name: 'Ayşe',

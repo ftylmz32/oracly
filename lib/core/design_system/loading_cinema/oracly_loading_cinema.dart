@@ -29,6 +29,7 @@ class OraclyLoadingCinema extends StatefulWidget {
     this.slowAfter = const Duration(seconds: 28),
     this.compact = false,
     this.stage,
+    this.action,
   });
 
   final OraclyLoadingKind kind;
@@ -39,6 +40,7 @@ class OraclyLoadingCinema extends StatefulWidget {
   final Duration slowAfter;
   final bool compact;
   final Widget? stage;
+  final Widget? action;
 
   @override
   State<OraclyLoadingCinema> createState() => _OraclyLoadingCinemaState();
@@ -80,9 +82,15 @@ class _OraclyLoadingCinemaState extends State<OraclyLoadingCinema> {
   Widget build(BuildContext context) {
     if (_slowed) {
       return Center(
-        child: OraclyLoadingFailsafe(
-          onRetry: widget.onRetry,
-          kind: widget.kind,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OraclyLoadingFailsafe(onRetry: widget.onRetry, kind: widget.kind),
+            if (widget.action != null) ...[
+              const SizedBox(height: 18),
+              widget.action!,
+            ],
+          ],
         ),
       );
     }
@@ -113,6 +121,10 @@ class _OraclyLoadingCinemaState extends State<OraclyLoadingCinema> {
                     color: OraclyChrome.cream.withValues(alpha: 0.62),
                   ),
                 ),
+              ],
+              if (widget.action != null) ...[
+                const SizedBox(height: 18),
+                widget.action!,
               ],
             ],
           ),

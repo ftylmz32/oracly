@@ -7,12 +7,11 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_onboarding_repository.dart';
 import 'package:oracly_new/core/first_session/first_session_intent.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_starter_grant.dart';
-import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/onboarding/services/onboarding_completion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/fake_gem_authority.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +62,7 @@ void main() {
   test('retry after partial failure grants starter gems once', () async {
     SharedPreferences.setMockInitialValues({});
     final storage = LocalStorage(await SharedPreferences.getInstance());
-    final wallet = GemWalletService(GemWalletStore(storage));
+    final wallet = FakeGemAuthority().wallet(storage);
     final grant = GemStarterGrant(wallet, storage);
     final onboarding = LocalOnboardingRepository(storage);
     var blowGems = true;

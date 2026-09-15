@@ -33,15 +33,21 @@ class SoulMateInterpretationBlock extends StatelessWidget {
           body: parts.dynamics,
           index: 2,
         ),
+        if (parts.meeting.trim().isNotEmpty)
+          ChamberReadingLane(
+            title: SoulMateCopy.meetingLabel,
+            body: parts.meeting,
+            index: 3,
+          ),
         ChamberReadingLane(
           title: SoulMateCopy.feelingLabel,
           body: parts.feeling,
-          index: 3,
+          index: 4,
         ),
         ChamberReadingLane(
           title: SoulMateCopy.yourSideLabel,
           body: parts.yourSide,
-          index: 4,
+          index: 5,
         ),
       ],
     );

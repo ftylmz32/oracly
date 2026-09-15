@@ -40,6 +40,8 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../support/fake_reading_operation_backend.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -70,6 +72,7 @@ void main() {
       final controller = CoffeeReadingController(
         experience: experience,
         images: _FixedImages(fixturePath),
+        live: fakeImmediateReadingFeatureRunner(),
       );
       await controller.acceptCapturedPath(fixturePath);
       await controller.analyze();
@@ -142,6 +145,7 @@ void main() {
               sourcePath,
         ),
         images: _FixedImages(fixturePath),
+        live: fakeImmediateReadingFeatureRunner(),
       );
       await controller.acceptCapturedPath(fixturePath);
       final path = controller.image!.path;
@@ -214,6 +218,7 @@ void main() {
       final controller = PalmReadingController(
         experience: experience,
         images: _FixedImages(fixturePath),
+        live: fakeImmediateReadingFeatureRunner(),
       );
       controller.selectHand(PalmHand.right);
       await controller.acceptCapturedPath(fixturePath);
@@ -274,7 +279,7 @@ void main() {
       final storage = LocalStorage(await SharedPreferences.getInstance());
       final wallet = GemWalletService(GemWalletStore(storage));
       final ops = PaidAiOperationCoordinator(wallet: wallet, storage: storage);
-      await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+      await wallet.acceptAuthoritativeBalance(50);
       final op = await ops.begin(
         feature: PaidAiFeature.coffee,
         ledgerKey: 'coffee_gem_charged',
@@ -285,21 +290,21 @@ void main() {
       expect(wallet.balance, 50);
     });
 
-    test('palm idempotent settle charges once on retry', () async {
+    test('palm remains non-billable and retries do not charge', () async {
       SharedPreferences.setMockInitialValues({});
       final storage = LocalStorage(await SharedPreferences.getInstance());
       final wallet = GemWalletService(GemWalletStore(storage));
       final ops = PaidAiOperationCoordinator(wallet: wallet, storage: storage);
-      await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+      await wallet.acceptAuthoritativeBalance(50);
       final op = await ops.begin(
         feature: PaidAiFeature.palm,
         ledgerKey: 'palm_gem_charged',
         reason: GemsCopy.reasonPalm,
-        cost: 20,
+        cost: null,
       );
       expect(await ops.completeAfterProvider(op), isTrue);
       expect(await ops.completeAfterProvider(op), isTrue);
-      expect(wallet.balance, 30);
+      expect(wallet.balance, 50);
     });
   });
 }

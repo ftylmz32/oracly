@@ -20,7 +20,11 @@ const kL10nSoulMate = <String, L10nTriple>{
     'We have not created a portrait for you yet.',
     'Мы ещё не создали для тебя портрет.',
   ),
-  'soulmate.screen_title': L10nTriple('RUH EŞİ', 'SOULMATE', 'РОДСТВЕННАЯ ДУША'),
+  'soulmate.screen_title': L10nTriple(
+    'RUH EŞİ',
+    'SOULMATE',
+    'РОДСТВЕННАЯ ДУША',
+  ),
   'soulmate.screen_lead': L10nTriple(
     'Birkaç sakin bilgi yeter. Portre, senin paylaştıklarından doğan sembolik bir hayal.',
     'A few calm details are enough. The portrait is a symbolic imagining born from what you share.',
@@ -31,7 +35,11 @@ const kL10nSoulMate = <String, L10nTriple>{
     'This is a symbolic portrait — not a real person, a guaranteed soulmate, or a future meeting.',
     'Это символический портрет — не реальный человек, не гарантированная родственная душа и не встреча в будущем.',
   ),
-  'soulmate.interpretation': L10nTriple('Sezgisel yansıma', 'Intuitive reflection', 'Интуитивное отражение'),
+  'soulmate.interpretation': L10nTriple(
+    'Sezgisel yansıma',
+    'Intuitive reflection',
+    'Интуитивное отражение',
+  ),
   'soulmate.energy': L10nTriple(
     'BU PORTREDE İLK DİKKATİMİ ÇEKEN',
     'WHAT FIRST DRAWS MY EYE IN THIS PORTRAIT',
@@ -42,18 +50,41 @@ const kL10nSoulMate = <String, L10nTriple>{
     'WHY IT MIGHT DRAW YOU',
     'ПОЧЕМУ ЭТО МОЖЕТ ПРИТЯГИВАТЬ',
   ),
-  'soulmate.dynamics': L10nTriple('YANINDA NASIL DURABİLİR', 'HOW IT MIGHT SIT BESIDE YOU', 'КАК ЭТО МОЖЕТ БЫТЬ РЯДОМ'),
+  'soulmate.dynamics': L10nTriple(
+    'YANINDA NASIL DURABİLİR',
+    'HOW IT MIGHT SIT BESIDE YOU',
+    'КАК ЭТО МОЖЕТ БЫТЬ РЯДОМ',
+  ),
   'soulmate.feeling': L10nTriple(
     'SANA NASIL BİR HİSSETTİREBİLİR?',
     'HOW IT MIGHT FEEL TO YOU',
     'КАКОЕ ЧУВСТВО ЭТО МОЖЕТ ПРИНЕСТИ',
+  ),
+  'soulmate.meeting': L10nTriple(
+    'KARŞILAŞMA ENERJİSİ',
+    'HOW A MEETING MIGHT FEEL',
+    'КАКОЙ МОЖЕТ БЫТЬ ВСТРЕЧА',
+  ),
+  'soulmate.interpreting': L10nTriple(
+    'Portre duruyor. Yansımayı hazırlıyorum...',
+    'The portrait is here. Preparing the reflection...',
+    'Портрет уже здесь. Готовлю отражение...',
+  ),
+  'soulmate.interpretation_failed': L10nTriple(
+    'Portre duruyor. Yansıma bu sefer yazılamadı. Yalnızca metni yeniden deneyebilirsin.',
+    'The portrait remains. The reflection could not be written this time. You can retry only the text.',
+    'Портрет остаётся. Отражение сейчас не получилось. Можно повторить только текст.',
   ),
   'soulmate.your_side': L10nTriple(
     'SENİN TARAFINDA ÖNE ÇIKAN',
     'WHAT STANDS OUT ON YOUR SIDE',
     'ЧТО ВЫДЕЛЯЕТСЯ НА ТВОЕЙ СТОРОНЕ',
   ),
-  'soulmate.symbolic': L10nTriple('SEMBOLİK MESAJ', 'SYMBOLIC MESSAGE', 'СИМВОЛИЧЕСКОЕ ПОСЛАНИЕ'),
+  'soulmate.symbolic': L10nTriple(
+    'SEMBOLİK MESAJ',
+    'SYMBOLIC MESSAGE',
+    'СИМВОЛИЧЕСКОЕ ПОСЛАНИЕ',
+  ),
   'soulmate.you': L10nTriple('sen', 'you', 'ты'),
   'soulmate.season.winter': L10nTriple('kış', 'winter', 'зимнем'),
   'soulmate.season.spring': L10nTriple('ilkbahar', 'spring', 'весеннем'),
@@ -104,6 +135,16 @@ const kL10nSoulMate = <String, L10nTriple>{
     '{who}, this character may leave not pressure, but a sense of company you can stand in with trust.',
     '{who}, этот образ может оставить не давление, а чувство присутствия, в котором можно стоять с доверием.',
   ),
+  'soulmate.copy.feeling.3': L10nTriple(
+    '{who}, bu bakışta telaş yok; yanında sessiz kalmanın da bir konuşma sayıldığı bir hava seziliyor.',
+    '{who}, there is no hurry in this gaze; it hints at a quiet where silence still counts as being heard.',
+    '{who}, в этом взгляде нет спешки — в нём чувствуется тишина, где молчание тоже считается разговором.',
+  ),
+  'soulmate.copy.feeling.4': L10nTriple(
+    '{who}, portredeki duruş küçük bir merak taşıyor; yanında meraklı kalabileceğin bir alan gibi.',
+    '{who}, the stance in the portrait carries a quiet curiosity; a space where staying curious feels welcome.',
+    '{who}, поза в портрете несёт тихое любопытство — пространство, где можно оставаться любопытным.',
+  ),
   'soulmate.copy.your_side.0': L10nTriple(
     '{who}, senin tarafında öne çıkan şey, kendini kaybetmeden açılabilme ihtiyacın olabilir.',
     '{who}, what may stand out on your side is the need to open without losing yourself.',
@@ -119,16 +160,42 @@ const kL10nSoulMate = <String, L10nTriple>{
     '{who}, what stands out on your side is the right to choose without rushing.',
     '{who}, на твоей стороне выделяется право выбирать без спешки.',
   ),
+  'soulmate.copy.your_side.3': L10nTriple(
+    '{who}, senin tarafında öne çıkabilecek şey, bir şeyi kanıtlamadan da yeterli görünme hakkın.',
+    '{who}, what may stand out on your side is the right to feel enough without proving it.',
+    '{who}, на твоей стороне может выделяться право чувствовать себя достаточным без доказательств.',
+  ),
+  'soulmate.copy.your_side.4': L10nTriple(
+    '{who}, portre senin tarafında sabrını hatırlatıyor: her şeyin hemen netleşmesi gerekmiyor.',
+    '{who}, the portrait recalls your patience: not everything needs to become clear right away.',
+    '{who}, портрет напоминает о твоём терпении: не всё обязано проясниться сразу.',
+  ),
   'soulmate.brand': L10nTriple('ORACLY', 'ORACLY', 'ORACLY'),
-  'soulmate.name_label': L10nTriple('İsim veya hitap adı', 'Name or how you are addressed', 'Имя или обращение'),
-  'soulmate.name_hint': L10nTriple('Adın veya hitabın', 'Your name or address', 'Твоё имя или обращение'),
+  'soulmate.name_label': L10nTriple(
+    'İsim veya hitap adı',
+    'Name or how you are addressed',
+    'Имя или обращение',
+  ),
+  'soulmate.name_hint': L10nTriple(
+    'Adın veya hitabın',
+    'Your name or address',
+    'Твоё имя или обращение',
+  ),
   'soulmate.form_why': L10nTriple(
     'İsim yoruma, doğum ışığa, duruş yüze, tercih portreye iz bırakır.',
     'Name shapes the reading, birth the light, presence the face, preference the portrait.',
     'Имя формирует текст, дата — свет, присутствие — лицо, предпочтение — портрет.',
   ),
-  'soulmate.birth_label': L10nTriple('Doğum tarihi', 'Birth date', 'Дата рождения'),
-  'soulmate.birth_hint': L10nTriple('Gün / Ay / Yıl', 'Day / Month / Year', 'День / месяц / год'),
+  'soulmate.birth_label': L10nTriple(
+    'Doğum tarihi',
+    'Birth date',
+    'Дата рождения',
+  ),
+  'soulmate.birth_hint': L10nTriple(
+    'Gün / Ay / Yıl',
+    'Day / Month / Year',
+    'День / месяц / год',
+  ),
   'soulmate.gender_label': L10nTriple(
     'Portredeki duruş (isteğe bağlı)',
     'Presence in the portrait (optional)',
@@ -142,10 +209,21 @@ const kL10nSoulMate = <String, L10nTriple>{
     'A preference (optional)',
     'Предпочтение (необязательно)',
   ),
-  'soulmate.intention_hint':
-      L10nTriple('Kısa bir tercih veya niyet', 'A short preference or intention', 'Краткое предпочтение или намерение'),
-  'soulmate.draw_cta': L10nTriple('PORTREYİ OLUŞTUR', 'CREATE PORTRAIT', 'СОЗДАТЬ ПОРТРЕТ'),
-  'soulmate.redraw_cta': L10nTriple('Yeniden Oluştur', 'Create again', 'Создать снова'),
+  'soulmate.intention_hint': L10nTriple(
+    'Kısa bir tercih veya niyet',
+    'A short preference or intention',
+    'Краткое предпочтение или намерение',
+  ),
+  'soulmate.draw_cta': L10nTriple(
+    'PORTREYİ OLUŞTUR',
+    'CREATE PORTRAIT',
+    'СОЗДАТЬ ПОРТРЕТ',
+  ),
+  'soulmate.redraw_cta': L10nTriple(
+    'Yeniden Oluştur',
+    'Create again',
+    'Создать снова',
+  ),
   'soulmate.drawing': L10nTriple(
     'Portrede öne çıkan detayları hazırlıyorum...',
     'Preparing the details that stand out in the portrait...',
@@ -161,10 +239,45 @@ const kL10nSoulMate = <String, L10nTriple>{
     'Light is settling gently…',
     'Свет мягко укладывается…',
   ),
+  'soulmate.drawing_slow_title': L10nTriple(
+    'Çizimin hâlâ hazırlanıyor ✨',
+    'Your portrait is still being prepared ✨',
+    'Твой портрет всё ещё создаётся ✨',
+  ),
+  'soulmate.drawing_slow_body': L10nTriple(
+    'Bazı portreler biraz daha zaman alabiliyor. Çizimin üzerinde çalışmaya devam ediyorum.',
+    'Some portraits can take a little longer. I am still working on yours.',
+    'Некоторым портретам нужно чуть больше времени. Я продолжаю работать над твоим.',
+  ),
+  'soulmate.drawing_slow_secondary': L10nTriple(
+    'Burada bekleyebilir veya daha sonra geri dönebilirsin.',
+    'You can wait here or come back later.',
+    'Можно подождать здесь или вернуться позже.',
+  ),
   'soulmate.unavailable': L10nTriple(
     'Portreyi şu an oluşturamadım. Bir daha deneyelim.',
     'I could not create the portrait right now. Let us try again.',
     'Сейчас не удалось создать портрет. Давай попробуем ещё раз.',
+  ),
+  'soulmate.failure_temporary': L10nTriple(
+    'Portre bu sefer tamamlanamadı. Tekrar deneyebilirsin.',
+    'The portrait did not finish this time. You can try again.',
+    'Портрет на этот раз не завершился. Можно попробовать ещё раз.',
+  ),
+  'soulmate.failure_connection': L10nTriple(
+    'Bağlantı kesildi. Portre kaybolmadıysa bir sonraki denemede açılır.',
+    'The connection dropped. If the portrait finished, the next try will open it.',
+    'Связь прервалась. Если портрет уже готов, следующая попытка его откроет.',
+  ),
+  'soulmate.failure_input': L10nTriple(
+    'Bu bilgilerle portre oluşmadı. Adı veya tarihi kontrol edip yeniden dene.',
+    'Those details did not produce a portrait. Check the name or date, then try again.',
+    'С этими данными портрет не получился. Проверь имя или дату и попробуй снова.',
+  ),
+  'soulmate.failure_unavailable': L10nTriple(
+    'Portre şu an hazırlanamıyor. Biraz sonra yeniden deneyebilirsin.',
+    'The portrait cannot be prepared right now. You can try again later.',
+    'Портрет сейчас не получается подготовить. Можно попробовать позже.',
   ),
   'soulmate.retry': L10nTriple('TEKRAR DENE', 'TRY AGAIN', 'ЕЩЁ РАЗ'),
   'soulmate.name_required': L10nTriple(
@@ -172,7 +285,11 @@ const kL10nSoulMate = <String, L10nTriple>{
     'Write a name or address to continue.',
     'Чтобы продолжить, напиши имя или обращение.',
   ),
-  'soulmate.birth_required': L10nTriple('Doğum tarihini seç.', 'Choose a birth date.', 'Выбери дату рождения.'),
+  'soulmate.birth_required': L10nTriple(
+    'Doğum tarihini seç.',
+    'Choose a birth date.',
+    'Выбери дату рождения.',
+  ),
   'soulmate.premium_required': L10nTriple(
     'Bu özellik Premium üyelik gerektirir.',
     'This feature requires Premium membership.',

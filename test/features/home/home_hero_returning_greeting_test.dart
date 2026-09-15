@@ -1,6 +1,8 @@
 /// Home hero — living returning greeting wired without changing CTA priority.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +11,7 @@ import 'package:oracly_new/core/copy/first_session_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/domain/models/reading.dart';
+import 'package:oracly_new/core/domain/models/user_profile.dart';
 import 'package:oracly_new/core/experience/domain/models/experience_context.dart';
 import 'package:oracly_new/core/experience/domain/models/greeting_context.dart';
 import 'package:oracly_new/core/experience/domain/models/journey_context.dart';
@@ -27,6 +30,13 @@ import 'package:oracly_new/features/premium/models/personalization_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
+
+class _DelayedProfile extends UserProfileNotifier {
+  final completer = Completer<UserProfileModel>();
+
+  @override
+  Future<UserProfileModel> build() => completer.future;
+}
 
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
@@ -320,6 +330,28 @@ void main() {
     expect(find.text(expectedInvite), findsOneWidget);
     expect(find.text(FirstSessionCopy.continuityCta), findsNothing);
     expect(find.text(FirstSessionCopy.homeCta), findsNothing);
+  });
+
+  testWidgets('returning hero reacts when profile resolves after loading', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    final delayed = _DelayedProfile();
+    await pumpHero(
+      tester,
+      storage: storage,
+      overrides: [
+        ...clockOverrides(firstPending: false, living: returningExperience()),
+        userProfileProvider.overrideWith(() => delayed),
+      ],
+    );
+    expect(find.textContaining('Fatih'), findsNothing);
+    delayed.completer.complete(const UserProfileModel(name: 'Fatih Taha'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 20));
+    expect(find.textContaining('Fatih'), findsOneWidget);
+    expect(find.textContaining('Taha'), findsNothing);
   });
 
   testWidgets('non-returning living experience keeps default hero plate', (

@@ -17,6 +17,7 @@ class JourneyPersonalizationHints {
     this.priorOpenings = const [],
     this.revisitPriorExcerpt,
     this.revisitInstruction,
+    this.memorySummary,
   });
 
   final List<String> recurringThemeLabels;
@@ -26,6 +27,7 @@ class JourneyPersonalizationHints {
   final List<String> priorOpenings;
   final String? revisitPriorExcerpt;
   final String? revisitInstruction;
+  final String? memorySummary;
 
   bool get isEmpty =>
       recurringThemeLabels.isEmpty &&
@@ -34,7 +36,23 @@ class JourneyPersonalizationHints {
       priorReadingCount == 0 &&
       priorOpenings.isEmpty &&
       (revisitPriorExcerpt == null || revisitPriorExcerpt!.isEmpty) &&
-      (revisitInstruction == null || revisitInstruction!.isEmpty);
+      (revisitInstruction == null || revisitInstruction!.isEmpty) &&
+      (memorySummary == null || memorySummary!.isEmpty);
+
+  JourneyPersonalizationHints withMemory(String? value) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return this;
+    return JourneyPersonalizationHints(
+      recurringThemeLabels: recurringThemeLabels,
+      recentCardNames: recentCardNames,
+      hasPriorNotes: hasPriorNotes,
+      priorReadingCount: priorReadingCount,
+      priorOpenings: priorOpenings,
+      revisitPriorExcerpt: revisitPriorExcerpt,
+      revisitInstruction: revisitInstruction,
+      memorySummary: text,
+    );
+  }
 
   JourneyPersonalizationHints withRevisit({
     required String priorExcerpt,
@@ -48,6 +66,7 @@ class JourneyPersonalizationHints {
       priorOpenings: priorOpenings,
       revisitPriorExcerpt: priorExcerpt,
       revisitInstruction: instruction,
+      memorySummary: memorySummary,
     );
   }
 
@@ -68,7 +87,8 @@ class JourneyPersonalizationHints {
 
   /// One observational line for the reading — null when nothing meaningful to cite.
   String? observationalPreface() {
-    final hasMeaningfulHistory = recurringThemeLabels.isNotEmpty ||
+    final hasMeaningfulHistory =
+        recurringThemeLabels.isNotEmpty ||
         hasPriorNotes ||
         priorReadingCount >= 2;
     if (!hasMeaningfulHistory) return null;

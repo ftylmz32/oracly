@@ -15,6 +15,8 @@ import 'package:oracly_new/features/palm/services/palm_experience_service.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import '../../support/fake_reading_operation_backend.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -42,6 +44,7 @@ void main() {
     return PalmReadingController(
       experience: experience,
       images: _FakeImages(fixturePath),
+      live: fakeImmediateReadingFeatureRunner(),
     );
   }
 
@@ -84,7 +87,10 @@ void main() {
 
     await controller.analyze();
     expect(controller.phase, PalmPhase.error);
-    expect(controller.lastError?.kind, PalmAnalysisErrorKind.network);
+    // BATCH 5F: the specific PalmAnalysisException kind no longer surfaces
+    // once the failure crosses the ReadingOperation runner — it maps to
+    // the same generic operation-failed kind every feature failure uses.
+    expect(controller.lastError?.kind, PalmAnalysisErrorKind.unknown);
     expect(controller.lastError?.canRetrySameImage, isTrue);
 
     await controller.retryAnalysis();

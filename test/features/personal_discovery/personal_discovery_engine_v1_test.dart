@@ -68,6 +68,7 @@ void main() {
         coffee: [pdeCoffee('c1', 'Bu değişim yumuşak.')],
         dreams: [pdeDream('d1', 'Rüyada değişim vardı.')],
       ),
+      now: DateTime(2026, 8, 12),
     );
     final signal = p.themeSignals.firstWhere((s) => s.label == 'değişim');
     expect(signal.strength, DiscoveryThemeStrength.strong);

@@ -15,6 +15,8 @@ import '../../core/intelligence/data/ritual_history_reader.dart';
 import '../../core/intelligence/domain/repositories/intelligence_repository.dart';
 import '../../core/intelligence/services/intelligence_layer_service.dart';
 import '../../core/intelligence/services/personal_memory_service.dart';
+import '../../core/memory/oracly_memory_retriever.dart';
+import '../../core/memory/oracly_memory_store.dart';
 import '../../core/experience/engine/experience_orchestrator.dart';
 import '../../core/experience/services/experience_orchestrator_service.dart';
 import '../../core/reflection/data/sources/reading_reflection_source.dart';
@@ -55,6 +57,7 @@ import '../../core/services/settings_service.dart';
 import '../../core/services/tarot_service.dart';
 import '../../core/audio/oracly_feedback_gate.dart';
 import '../../core/audio/oracly_sound_service.dart';
+import '../../core/runtime/oracly_apply_outcome.dart';
 import '../../core/voice/oracly_device_tts.dart';
 import '../../core/voice/oracly_proxy_speech.dart';
 import '../../core/voice/oracly_reply_tts.dart';
@@ -82,7 +85,11 @@ final tarotRepositoryProvider = Provider<TarotRepository>((ref) {
 });
 
 final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
-  return MockHistoryRepository(ref.watch(localStorageProvider));
+  final storage = ref.watch(localStorageProvider);
+  return MockHistoryRepository(
+    storage,
+    memory: OraclyMemoryStore(storage),
+  );
 });
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
@@ -303,6 +310,15 @@ final personalMemoryServiceProvider = Provider<PersonalMemoryService>((ref) {
   return PersonalMemoryService(ref.watch(personalMemoryStoreProvider));
 });
 
+/// Interpretation Engine V2 canonical source-attributed memory.
+final oraclyMemoryStoreProvider = Provider<OraclyMemoryStore>((ref) {
+  return OraclyMemoryStore(ref.watch(localStorageProvider));
+});
+
+final oraclyMemoryRetrieverProvider = Provider<OraclyMemoryRetriever>((ref) {
+  return OraclyMemoryRetriever(ref.watch(oraclyMemoryStoreProvider));
+});
+
 // ── Reflection engine (RC-010) ─────────────────────────────────────
 // Logical heart of long-term understanding — not wired to UI in RC-010.
 
@@ -412,6 +428,25 @@ class UserProfileNotifier extends AsyncNotifier<UserProfileModel> {
   }
 }
 
+/// Result of applying live audio/voice effects during a Settings save —
+/// [settings] is the value actually persisted, which may have been
+/// corrected (e.g. ambient music forced back OFF) when the requested
+/// effect could not really be applied. Never inferred by the caller from
+/// a swallowed exception.
+class SettingsAudioApplyResult {
+  const SettingsAudioApplyResult({
+    required this.settings,
+    this.ambientFailed = false,
+    this.voiceFailed = false,
+  });
+
+  final PersonalizationSettings settings;
+  final bool ambientFailed;
+  final bool voiceFailed;
+
+  bool get hasFailure => ambientFailed || voiceFailed;
+}
+
 class SettingsNotifier extends AsyncNotifier<PersonalizationSettings> {
   @override
   Future<PersonalizationSettings> build() async {
@@ -431,32 +466,43 @@ class SettingsNotifier extends AsyncNotifier<PersonalizationSettings> {
         identity: OraclyVoiceId.parse(loaded.orVoiceId),
         speed: loaded.orSpeechSpeed,
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ORACLY] settings load: voice bind failed: $e');
+    }
     try {
-      await sound.setAtmosphere(loaded.atmosphereSign);
-      await sound.syncAmbientEnabled(loaded.ambientMusicEnabled);
-    } catch (_) {}
+      final signOutcome = await sound.setAtmosphere(loaded.atmosphereSign);
+      final ambientOutcome = await sound.syncAmbientEnabled(
+        loaded.ambientMusicEnabled,
+      );
+      if (signOutcome.isFailure || ambientOutcome.isFailure) {
+        // Passive cold-start restore degrades safely: logged for
+        // diagnostics, never crashes settings load, and the persisted
+        // preference is left as the user set it — an explicit save is
+        // what corrects it (see saveSettings below).
+        debugPrint('[ORACLY] settings load: ambient restore failed');
+      }
+    } catch (e) {
+      debugPrint('[ORACLY] settings load: ambient restore threw: $e');
+    }
     return loaded;
   }
 
-  Future<void> saveSettings(PersonalizationSettings settings) async {
+  Future<SettingsAudioApplyResult> saveSettings(
+    PersonalizationSettings settings,
+  ) async {
     final prior = state.valueOrNull;
-    final normalized = settings.copyWith(
+    var normalized = settings.copyWith(
       language: AppLocale.normalize(settings.language),
     );
     OraclyL10n.bind(normalized.language);
-    await ref.read(settingsServiceProvider).save(normalized);
-    state = AsyncData(normalized);
-    if (prior != null && prior.language != normalized.language) {
-      ref
-          .read(analyticsServiceProvider)
-          .logLanguageChanged(normalized.language);
-    }
+
     OraclyFeedbackGate.bind(
       service: ref.read(oraclySoundServiceProvider),
       haptics: normalized.hapticEnabled,
       sounds: normalized.soundEnabled,
     );
+
+    var voiceFailed = false;
     try {
       OraclyTtsGate.bind(
         service: ref.read(oraclyTtsProvider),
@@ -471,12 +517,67 @@ class SettingsNotifier extends AsyncNotifier<PersonalizationSettings> {
         // ignore: unawaited_futures
         OraclyTtsGate.stop();
       }
-    } catch (_) {}
+    } catch (e) {
+      // Intentional: voiceRepliesEnabled is a persisted PREFERENCE, not a
+      // guarantee that the engine can speak right now — that real-time
+      // capability is already tracked independently by
+      // OraclyTtsGate.unavailable at the moment OR actually tries to
+      // speak (see OraclyTtsGate._speakNow), and surfaced there. A bind()
+      // failure here does not silently claim success: voiceFailed already
+      // folds into SettingsAudioApplyResult.hasFailure, which the Settings
+      // screen surfaces as an honest, concise error (see
+      // SettingsReferenceScreen._save).
+      voiceFailed = true;
+      debugPrint('[ORACLY] settings save: voice bind failed: $e');
+    }
+
     final sound = ref.read(oraclySoundServiceProvider);
+    var ambientFailed = false;
+    // Specifically whether the enable/disable call itself (not the sign
+    // apply) could not be proven to have worked — that is the only signal
+    // relevant to whether a stop actually silenced playback.
+    var enableCallUnproven = false;
     try {
-      await sound.setAtmosphere(normalized.atmosphereSign);
-      await sound.syncAmbientEnabled(normalized.ambientMusicEnabled);
-    } catch (_) {}
+      final signOutcome = await sound.setAtmosphere(normalized.atmosphereSign);
+      final ambientOutcome = await sound.syncAmbientEnabled(
+        normalized.ambientMusicEnabled,
+      );
+      ambientFailed =
+          signOutcome == OraclyApplyOutcome.failure ||
+          ambientOutcome == OraclyApplyOutcome.failure;
+      enableCallUnproven = ambientOutcome == OraclyApplyOutcome.failure;
+    } catch (e) {
+      ambientFailed = true;
+      enableCallUnproven = true;
+      debugPrint('[ORACLY] settings save: ambient bind threw: $e');
+    }
+
+    if (ambientFailed && normalized.ambientMusicEnabled) {
+      // Playback could not actually start — never persist a false ON, or
+      // the switch would show ON forever while nothing plays.
+      normalized = normalized.copyWith(ambientMusicEnabled: false);
+      try {
+        await sound.syncAmbientEnabled(false);
+      } catch (_) {}
+    } else if (!normalized.ambientMusicEnabled && enableCallUnproven) {
+      // Stop could not be proven to have worked — never persist a false
+      // OFF while playback may still be audible.
+      normalized = normalized.copyWith(ambientMusicEnabled: true);
+    }
+
+    await ref.read(settingsServiceProvider).save(normalized);
+    state = AsyncData(normalized);
+    if (prior != null && prior.language != normalized.language) {
+      ref
+          .read(analyticsServiceProvider)
+          .logLanguageChanged(normalized.language);
+    }
+
+    return SettingsAudioApplyResult(
+      settings: normalized,
+      ambientFailed: ambientFailed,
+      voiceFailed: voiceFailed,
+    );
   }
 }
 

@@ -15,13 +15,16 @@ import {
   coffeeObserverJson,
   coffeeWriterJson,
   openaiReadingSequence,
+  palmBody,
   palmObserverJson,
   palmWriterJson,
   testApp,
   testConfig,
 } from './helpers.js';
 import { readFileSync } from 'node:fs';
+import { createHmac } from 'node:crypto';
 import { errorEnvelope } from '../src/errors.js';
+import { evidenceBoundPersonalization, evidenceThemes } from '../src/ai/reading/pipeline.js';
 
 const coffeeNeg = JSON.parse(
   readFileSync('./tests/fixtures/e3g/e3f_coffee_negative.json', 'utf8'),
@@ -30,7 +33,7 @@ const palmNeg = JSON.parse(
   readFileSync('./tests/fixtures/e3g/e3f_palm_negative.json', 'utf8'),
 );
 const coffee10 = JSON.parse(
-  readFileSync('../tool/e3e_private/evidence/coffee_analysis_e3g_call10_response.json', 'utf8'),
+  readFileSync('./tests/fixtures/e3g_private/coffee_analysis_e3g_call10_response.json', 'utf8'),
 );
 
 describe('E3H two-stage reading pipeline', () => {
@@ -146,6 +149,109 @@ describe('E3H two-stage reading pipeline', () => {
     expect(res.json().data.evidenceIds).toBeUndefined();
     expect(res.json().data._e3h).toBeUndefined();
     await app.close();
+  });
+
+  it('observe-to-writer seam exposes themes before accepting bounded memory', async () => {
+    const observer = JSON.parse(coffeeObserverJson);
+    observer.evidence[0].description = 'Two clear residue paths split like a crossroads decision.';
+    const app = await testApp(
+      testConfig(),
+      openaiReadingSequence(JSON.stringify(observer), coffeeWriterJson),
+    );
+    const observeBody = coffeeBody() as { payload: Record<string, unknown> };
+    observeBody.payload.readingPhase = 'observe';
+    observeBody.payload.readingBridgeKey = 'bridge-coffee-1';
+    const observed = await app.inject({
+      method: 'POST', url: '/v1/ai/complete',
+      headers: { ...authHeader(), 'idempotency-key': 'bridge-coffee-1:observe' },
+      payload: observeBody,
+    });
+    expect(observed.json().data.relevantThemes).toEqual(['decision']);
+
+    const writeBody = coffeeBody() as { payload: Record<string, unknown> };
+    delete writeBody.payload.imageBase64;
+    delete writeBody.payload.byteLength;
+    writeBody.payload.readingPhase = 'write';
+    writeBody.payload.readingBridgeKey = 'bridge-coffee-1';
+    writeBody.payload.observationToken = observed.json().data.observationToken;
+    writeBody.payload.personalization = {
+      relevantThemes: ['decision'],
+      memorySummary: '[tarot | 2026-09-07 | t1] Prior decision remained open.',
+    };
+    const written = await app.inject({
+      method: 'POST', url: '/v1/ai/complete',
+      headers: { ...authHeader(), 'idempotency-key': 'bridge-coffee-1:write' },
+      payload: writeBody,
+    });
+    expect(written.json().success).toBe(true);
+    await app.close();
+  });
+
+  it('signed handoff rejects tampering, expiry, type and operation reuse', async () => {
+    const app = await testApp(testConfig(), openaiReadingSequence(coffeeObserverJson, coffeeWriterJson));
+    const body = coffeeBody() as { payload: Record<string, unknown> };
+    body.payload.readingPhase = 'observe';
+    body.payload.readingBridgeKey = 'secure-bridge-a';
+    const observed = await app.inject({
+      method: 'POST', url: '/v1/ai/complete',
+      headers: { ...authHeader(), 'idempotency-key': 'secure-observe' }, payload: body,
+    });
+    const token = observed.json().data.observationToken as string;
+    const write = (payload: Record<string, unknown>, key: string) => app.inject({
+      method: 'POST', url: '/v1/ai/complete',
+      headers: { ...authHeader(), 'idempotency-key': key },
+      payload: { operation: 'coffee_analysis', payload: {
+        language: 'tr', readingPhase: 'write', readingBridgeKey: 'secure-bridge-a', ...payload,
+      } },
+    });
+    expect((await write({ observationToken: `${token}x` }, 'tamper-write')).json().success).toBe(false);
+    expect((await write({ observationToken: token, readingBridgeKey: 'secure-bridge-b' }, 'wrong-op-write')).json().success).toBe(false);
+
+    const [encoded] = token.split('.');
+    const packet = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8'));
+    packet.expiresAt = Date.now() - 1;
+    const expiredBody = Buffer.from(JSON.stringify(packet)).toString('base64url');
+    const expiredSig = createHmac('sha256', 'sk-test-server-only').update(expiredBody).digest('base64url');
+    expect((await write({ observationToken: `${expiredBody}.${expiredSig}` }, 'expired-write')).json().success).toBe(false);
+
+    const palm = palmBody() as { payload: Record<string, unknown> };
+    delete palm.payload.imageBase64;
+    delete palm.payload.byteLength;
+    Object.assign(palm.payload, {
+      readingPhase: 'write', readingBridgeKey: 'secure-bridge-a', observationToken: token,
+    });
+    const wrongType = await app.inject({
+      method: 'POST', url: '/v1/ai/complete',
+      headers: { ...authHeader(), 'idempotency-key': 'wrong-type-write' }, payload: palm,
+    });
+    expect(wrongType.json().success).toBe(false);
+    await app.close();
+  });
+
+  it('derives bounded relevance only from current visual evidence', () => {
+    expect(evidenceThemes([
+      { description: 'A clear split path resembles a crossroads and decision.' },
+      { description: 'A small bird-like mark suggests news or a message.' },
+    ])).toEqual(['decision', 'communication']);
+    expect(evidenceThemes([
+      { description: 'A dense round patch appears near the cup base.' },
+    ])).toEqual([]);
+    expect(evidenceThemes([
+      { description: 'Maybe a split decision path.', confidence: 'low', visibility: 'uncertain' },
+      { description: 'Some vague texture is present.', confidence: 'medium', visibility: 'partial' },
+    ])).toEqual([]);
+  });
+
+  it('strips unrelated memory but retains source attribution for matching evidence', () => {
+    const evidence = [{ description: 'A visible split path forms a crossroads decision.' }];
+    expect(evidenceBoundPersonalization(evidence, {
+      relevantThemes: ['relationship'],
+      memorySummary: '[tarot | 2026-09-07 | t1] Unrelated relationship.',
+    })).toBeUndefined();
+    expect(evidenceBoundPersonalization(evidence, {
+      relevantThemes: ['decision'],
+      memorySummary: '[tarot | 2026-09-07 | t1] Prior decision remained open.',
+    })?.memorySummary).toContain('[tarot | 2026-09-07 | t1]');
   });
 
   it('config requires reading models for coffee/palm fail-closed when missing', async () => {

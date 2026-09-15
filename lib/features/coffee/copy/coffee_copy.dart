@@ -61,6 +61,9 @@ abstract final class CoffeeCopy {
   static String get imageTooLarge => _t('coffee.image_too_large');
   static String get imageUnclear => _t('coffee.image_unclear');
   static String get imageRequired => _t('coffee.image_required');
+  static String get imageUnsupported => _t('coffee.image_unsupported');
+  static String get imageNormalizeFailed =>
+      _t('coffee.image_normalize_failed');
   static String get qualityBrighten => _t('coffee.quality.brighten');
   static String get qualityFrame => _t('coffee.quality.frame');
   static String get qualityBlur => _t('coffee.quality.blur');

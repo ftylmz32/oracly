@@ -13,6 +13,10 @@ export type SafeLog = {
   parsedOk?: boolean;
   /** True when a verified subject exists — never log the subject itself. */
   identityPresent?: boolean;
+  /** Internal bind/quality code only — never prose, images, or tokens. */
+  bindFailure?: string;
+  priorViolation?: string;
+  diagnosticStage?: string;
 };
 
 const SECRETISH = /sk-[a-zA-Z0-9_-]{8,}|Bearer\s+\S+/i;

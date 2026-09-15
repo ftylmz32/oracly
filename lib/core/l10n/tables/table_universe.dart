@@ -29,6 +29,7 @@ const kL10nUniverse = <String, L10nTriple>{
       L10nTriple('Yolculuğundaki izler', 'Traces on your path', 'Следы на твоём пути'),
   'section.account_hint':
       L10nTriple('Premium ve ayarlar', 'Premium and settings', 'Премиум и настройки'),
+  'map.tab_spaces': L10nTriple('Ana mekânlar', 'Main spaces', 'Основные разделы'),
   'map.title': L10nTriple('Evren Haritası', 'Universe map', 'Карта вселенной'),
   'map.intro': L10nTriple(
     'ORACLY tek bir evren — her köşe farklı bir deneyim. Nereye gitmek istediğini hisset; burada kaybolmana gerek yok.',

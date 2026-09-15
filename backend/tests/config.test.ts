@@ -80,3 +80,77 @@ describe('config host binding', () => {
     expect(cfg.authMode).toBe('fail_closed');
   });
 });
+
+describe('config GOOGLE_PLAY_USE_ADC', () => {
+  it('defaults false when unset', () => {
+    const cfg = loadConfig({ APP_ENV: 'production' });
+    expect(cfg.googlePlayUseAdc).toBe(false);
+  });
+
+  it('defaults false in development too — never inferred from APP_ENV', () => {
+    const cfg = loadConfig({ APP_ENV: 'development' });
+    expect(cfg.googlePlayUseAdc).toBe(false);
+  });
+
+  it('parses true explicitly', () => {
+    const cfg = loadConfig({
+      APP_ENV: 'production',
+      GOOGLE_PLAY_USE_ADC: 'true',
+    });
+    expect(cfg.googlePlayUseAdc).toBe(true);
+  });
+
+  it('parses false explicitly', () => {
+    const cfg = loadConfig({
+      APP_ENV: 'production',
+      GOOGLE_PLAY_USE_ADC: 'false',
+    });
+    expect(cfg.googlePlayUseAdc).toBe(false);
+  });
+});
+
+describe('config ORACLY_DEV_READING_WAIT_MS', () => {
+  it('defaults null (no override) when unset', () => {
+    const cfg = loadConfig({ APP_ENV: 'development' });
+    expect(cfg.readingWaitOverrideMs).toBeNull();
+  });
+
+  it('parses an explicit positive value in development', () => {
+    const cfg = loadConfig({
+      APP_ENV: 'development',
+      ORACLY_DEV_READING_WAIT_MS: '10000',
+    });
+    expect(cfg.readingWaitOverrideMs).toBe(10000);
+  });
+
+  it('rejects zero/negative/non-numeric values (falls back to null, never a real wait shortened to 0)', () => {
+    expect(
+      loadConfig({ APP_ENV: 'development', ORACLY_DEV_READING_WAIT_MS: '0' })
+        .readingWaitOverrideMs,
+    ).toBeNull();
+    expect(
+      loadConfig({ APP_ENV: 'development', ORACLY_DEV_READING_WAIT_MS: '-5' })
+        .readingWaitOverrideMs,
+    ).toBeNull();
+    expect(
+      loadConfig({ APP_ENV: 'development', ORACLY_DEV_READING_WAIT_MS: 'nope' })
+        .readingWaitOverrideMs,
+    ).toBeNull();
+  });
+
+  it('is hard-locked to null in staging regardless of the env var', () => {
+    const cfg = loadConfig({
+      APP_ENV: 'staging',
+      ORACLY_DEV_READING_WAIT_MS: '10000',
+    });
+    expect(cfg.readingWaitOverrideMs).toBeNull();
+  });
+
+  it('is hard-locked to null in production regardless of the env var', () => {
+    const cfg = loadConfig({
+      APP_ENV: 'production',
+      ORACLY_DEV_READING_WAIT_MS: '10000',
+    });
+    expect(cfg.readingWaitOverrideMs).toBeNull();
+  });
+});

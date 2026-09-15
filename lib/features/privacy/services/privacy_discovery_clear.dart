@@ -3,6 +3,7 @@ library;
 
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/domain/repositories/birth_chart_repository.dart';
+import '../../../core/memory/oracly_memory_store.dart';
 import '../../../core/services/history_service.dart';
 import '../../../features/coffee/data/coffee_reading_store.dart';
 import '../../../features/palm/data/palm_reading_store.dart';
@@ -26,6 +27,17 @@ abstract final class PrivacyDiscoveryClear {
     await storage.setStringList('ai_conversations', const []);
     await storage.setStringList(TarotLocalDataSource.historyKey, const []);
     await storage.remove(TarotLocalDataSource.activeKey);
+    String? birthChartSourceId;
+    try {
+      birthChartSourceId = (await birthCharts.getLatest())?.id;
+    } catch (_) {}
     await birthCharts.clearLatest();
+    if (birthChartSourceId != null) {
+      try {
+        await OraclyMemoryStore(storage).removeBySource(birthChartSourceId);
+      } catch (_) {
+        // Clearing the source remains authoritative when the index is damaged.
+      }
+    }
   }
 }

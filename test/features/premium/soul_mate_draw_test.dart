@@ -1,7 +1,7 @@
 /// Premium — Ruh Eşini Çiz list, lock, detail, fail-closed draw.
 library;
 
-import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,14 +25,26 @@ import 'package:oracly_new/features/premium/services/soul_mate_draw_port.dart';
 import 'package:oracly_new/features/premium/services/soul_mate_interpretation.dart';
 import 'package:oracly_new/features/premium/services/soul_mate_draw_validation.dart';
 import 'package:oracly_new/features/premium/services/unavailable_soul_mate_draw.dart';
+import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/fake_reading_operation_backend.dart';
 import '../../test_helpers/provider_scope_harness.dart';
 
 void _unlockDevPremium() {
   PremiumDevOverride.debugEnvironment = AppEnvironment.development;
   PremiumDevOverride.debugFlag = true;
 }
+
+const _testPortraitPng = <int>[
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00,
+  0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+  0x00, 0x01, 0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xDE,
+  0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63,
+  0xF8, 0xCF, 0xC0, 0x00, 0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x05,
+  0xFE, 0xD4, 0xEF, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
+  0xAE, 0x42, 0x60, 0x82,
+];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -207,7 +219,12 @@ void main() {
     expect(find.text(SoulMateCopy.redrawCta), findsNothing);
   });
 
-  testWidgets('loading copy appears while a real port is pending',
+  // SMD1 — every new submission is server-authoritative: the screen no
+  // longer calls `soulMateDrawPortProvider` at all (that legacy direct-call
+  // port only still matters for a pre-SMD1 client). These two tests now
+  // drive the fake reading-operation backend directly, exactly like the
+  // real durable worker would.
+  testWidgets('drawing copy appears while the durable operation is pending',
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -215,13 +232,18 @@ void main() {
     final storage = await LocalStorage.open();
     _unlockDevPremium();
     await MockPremiumRepository(storage).activatePlan(PremiumPlanKind.yearly);
-    final gate = Completer<SoulMateDrawResult>();
+    final backend = FakeReadingOperationBackend();
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           localStorageProvider.overrideWithValue(storage),
-          soulMateDrawPortProvider.overrideWithValue(_GatedDraw(gate)),
+          readingFeatureRunnerProvider.overrideWithValue(
+            fakeImmediateReadingFeatureRunner(backend: backend),
+          ),
+          readingOperationInputGatewayProvider.overrideWithValue(
+            fakeReadingOperationInputGateway(backend: backend),
+          ),
         ],
         child: const MaterialApp(home: SoulMateDrawScreen()),
       ),
@@ -235,18 +257,15 @@ void main() {
     await _pickDefaultBirth(tester);
     await _tapDraw(tester);
     await tester.pump();
+    // The durable operation is created and left `waiting`/`processing`
+    // server-side — nothing further completes it in this test, so the
+    // client stays in its observing/drawing state.
     expect(find.text(SoulMateCopy.drawing), findsWidgets);
-    gate.complete(
-      SoulMateDrawResult.unavailable(SoulMateCopy.unavailable),
-    );
-    // Let the honest failure land before the tree is torn down.
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text(SoulMateCopy.unavailable), findsWidgets);
+    expect(backend.operationCount, 1);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('success port shows portrait and redraw', (tester) async {
+  testWidgets('durable completion shows portrait and redraw', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
@@ -254,12 +273,18 @@ void main() {
     await SoulMateResultStore.clear(storage);
     _unlockDevPremium();
     await MockPremiumRepository(storage).activatePlan(PremiumPlanKind.yearly);
+    final backend = FakeReadingOperationBackend();
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           localStorageProvider.overrideWithValue(storage),
-          soulMateDrawPortProvider.overrideWithValue(const _SuccessDraw()),
+          readingFeatureRunnerProvider.overrideWithValue(
+            fakeImmediateReadingFeatureRunner(backend: backend),
+          ),
+          readingOperationInputGatewayProvider.overrideWithValue(
+            fakeReadingOperationInputGateway(backend: backend),
+          ),
         ],
         child: const MaterialApp(home: SoulMateDrawScreen()),
       ),
@@ -273,11 +298,47 @@ void main() {
     await _pickDefaultBirth(tester);
     await _tapDraw(tester);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+
+    final active = await backend.send(
+      'GET',
+      '/v1/reading-flow/active?readingType=soulmate',
+      null,
+    );
+    final operationId =
+        ((active!.json!['data'] as Map)['operation'] as Map)['operationId']
+            as String;
+    backend.setSoulmatePortrait(
+      operationId,
+      imageBase64: base64Encode(_testPortraitPng),
+    );
+    backend.completeServerSide(
+      operationId,
+      resultId: 'soulmate_$operationId',
+      result: const {
+        'personality': 'p',
+        'dynamic': 'd',
+        'attraction': 'a',
+        'challenge': 'c',
+        'meeting': 'm',
+        'feeling': 'f',
+      },
+    );
+    // The screen's own 3s poll timer discovers the completion. Applying it
+    // involves a best-effort local Journal write (real dart:io file I/O),
+    // which the fake test clock alone does not advance — a genuine
+    // event-loop turn via `runAsync` lets that settle either way.
+    await tester.pump(const Duration(seconds: 4));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.pump();
+
     expect(find.text(SoulMateCopy.redrawCta), findsOneWidget);
     expect(find.text(SoulMateCopy.brandMark), findsOneWidget);
-    expect(find.text(SoulMateCopy.energyLabel), findsOneWidget);
     expect(find.text(SoulMateCopy.honesty), findsOneWidget);
+    // SMD1 — unlike the old progressive (portrait-then-interpretation)
+    // client-driven reveal, a durable `ready` operation always carries its
+    // full interpretation already, so the energy section renders
+    // immediately rather than staying in an "interpreting…" phase.
+    expect(find.text(SoulMateCopy.energyLabel), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text(SoulMateCopy.redrawCta),
       120,
@@ -498,35 +559,3 @@ Future<void> _confirmDatePicker(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 200));
 }
 
-class _GatedDraw implements SoulMateDrawPort {
-  _GatedDraw(this.gate);
-  final Completer<SoulMateDrawResult> gate;
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  Future<SoulMateDrawResult> draw(SoulMateDrawRequest request) => gate.future;
-}
-
-class _SuccessDraw implements SoulMateDrawPort {
-  const _SuccessDraw();
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  Future<SoulMateDrawResult> draw(SoulMateDrawRequest request) async {
-    return const SoulMateDrawResult.success(
-      imageBytes: <int>[
-        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00,
-        0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
-        0x00, 0x01, 0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xDE,
-        0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63,
-        0xF8, 0xCF, 0xC0, 0x00, 0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x05,
-        0xFE, 0xD4, 0xEF, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
-        0xAE, 0x42, 0x60, 0x82,
-      ],
-    );
-  }
-}

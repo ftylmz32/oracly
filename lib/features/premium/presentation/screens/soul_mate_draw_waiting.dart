@@ -11,9 +11,16 @@ import '../../../../core/theme/oracly_quiet_motion.dart';
 import '../../copy/soul_mate_copy.dart';
 
 class SoulMateDrawWaiting extends StatefulWidget {
-  const SoulMateDrawWaiting({super.key, this.onRetry});
+  const SoulMateDrawWaiting({
+    super.key,
+    this.onRetry,
+    this.activeSince,
+    this.slowAfter = const Duration(seconds: 28),
+  });
 
   final VoidCallback? onRetry;
+  final DateTime? activeSince;
+  final Duration slowAfter;
 
   @override
   State<SoulMateDrawWaiting> createState() => _SoulMateDrawWaitingState();
@@ -21,7 +28,40 @@ class SoulMateDrawWaiting extends StatefulWidget {
 
 class _SoulMateDrawWaitingState extends State<SoulMateDrawWaiting> {
   Timer? _timer;
+  Timer? _slowTimer;
   var _phase = 0;
+  var _slow = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _armSlowState();
+  }
+
+  @override
+  void didUpdateWidget(covariant SoulMateDrawWaiting oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.activeSince != widget.activeSince ||
+        oldWidget.slowAfter != widget.slowAfter) {
+      _armSlowState();
+    }
+  }
+
+  void _armSlowState() {
+    _slowTimer?.cancel();
+    final elapsed = widget.activeSince == null
+        ? Duration.zero
+        : DateTime.now().difference(widget.activeSince!);
+    final remaining = widget.slowAfter - elapsed;
+    if (remaining <= Duration.zero) {
+      _slow = true;
+      return;
+    }
+    _slow = false;
+    _slowTimer = Timer(remaining, () {
+      if (mounted) setState(() => _slow = true);
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -42,6 +82,7 @@ class _SoulMateDrawWaitingState extends State<SoulMateDrawWaiting> {
   @override
   void dispose() {
     _timer?.cancel();
+    _slowTimer?.cancel();
     super.dispose();
   }
 
@@ -50,8 +91,16 @@ class _SoulMateDrawWaitingState extends State<SoulMateDrawWaiting> {
     // Natural height — portrait stage (~227) + gap + phase copy must not clip.
     return OraclyLoadingCinema(
       kind: OraclyLoadingKind.soulMate,
-      message: SoulMateCopy.drawingPhases[_phase],
-      onRetry: widget.onRetry,
+      message: _slow
+          ? SoulMateCopy.drawingSlowTitle
+          : SoulMateCopy.drawingPhases[_phase],
+      subtitle: _slow
+          ? '${SoulMateCopy.drawingSlowBody}\n\n${SoulMateCopy.drawingSlowSecondary}'
+          : null,
+      // Soulmate elapsed time is presentation only. Its own timer above
+      // replaces the generic failure-style failsafe while the server state
+      // remains active; no retry callback is exposed here.
+      slowAfter: const Duration(days: 365),
     );
   }
 }

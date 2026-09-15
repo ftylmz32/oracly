@@ -43,26 +43,33 @@ class EnvironmentConfig {
       environment: environment,
       apiBaseUrl: baseUrl,
       apiVersion: source['API_VERSION'] ?? 'v1',
-      enableLogging: _parseBool(source['ENABLE_LOGGING'], defaultValue: !environment.isProduction),
+      enableLogging: _parseBool(
+        source['ENABLE_LOGGING'],
+        defaultValue: !environment.isProduction,
+      ),
       enableCertificatePinning: _parseBool(
         source['ENABLE_CERT_PINNING'],
         defaultValue: environment.isProduction,
       ),
-      syncIntervalSeconds: int.tryParse(source['SYNC_INTERVAL_SECONDS'] ?? '') ?? 300,
+      syncIntervalSeconds:
+          int.tryParse(source['SYNC_INTERVAL_SECONDS'] ?? '') ?? 300,
     );
   }
 
   static const _productionFallback = 'https://api.oracly.app';
 
-  static String _resolveBaseUrl(AppEnvironment env, Map<String, String> source) {
+  static String _resolveBaseUrl(
+    AppEnvironment env,
+    Map<String, String> source,
+  ) {
     final override = source['API_BASE_URL'];
     final raw = (override != null && override.isNotEmpty)
         ? override
         : switch (env) {
-            AppEnvironment.development =>
-              source['DEV_API_BASE_URL'] ?? 'http://localhost:8080',
+            AppEnvironment.development => source['DEV_API_BASE_URL'] ?? '',
             AppEnvironment.staging =>
-              source['STAGING_API_BASE_URL'] ?? 'https://staging-api.oracly.app',
+              source['STAGING_API_BASE_URL'] ??
+                  'https://staging-api.oracly.app',
             AppEnvironment.production =>
               source['PROD_API_BASE_URL'] ?? _productionFallback,
           };

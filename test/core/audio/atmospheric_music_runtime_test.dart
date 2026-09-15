@@ -7,12 +7,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
+import 'package:oracly_new/core/audio/oracly_ambient_audio_context.dart';
 import 'package:oracly_new/core/audio/oracly_ambient_bed.dart';
 import 'package:oracly_new/core/audio/oracly_atmosphere_palette.dart';
 import 'package:oracly_new/core/audio/oracly_feedback_gate.dart';
 import 'package:oracly_new/core/audio/oracly_sound_service.dart';
 import 'package:oracly_new/core/audio/oracly_wav_synth.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/runtime/oracly_apply_outcome.dart';
 import 'package:oracly_new/core/data/repositories/local_settings_repository.dart';
 import 'package:oracly_new/features/birth_chart/models/zodiac_sign_id.dart';
 import 'package:oracly_new/features/premium/models/personalization_models.dart';
@@ -29,27 +31,27 @@ class _SpySound extends OraclySoundService {
   Future<void> initialize() async {}
 
   @override
-  Future<void> syncAmbientEnabled(bool enabled) async {
+  Future<OraclyApplyOutcome> syncAmbientEnabled(bool enabled) async {
     ambientSyncCalls.add(enabled);
-    await super.syncAmbientEnabled(enabled);
+    return super.syncAmbientEnabled(enabled);
   }
 
   @override
-  Future<void> setAtmosphere(ZodiacSignId sign) async {
+  Future<OraclyApplyOutcome> setAtmosphere(ZodiacSignId sign) async {
     atmosphereCalls.add(sign);
-    await super.setAtmosphere(sign);
+    return super.setAtmosphere(sign);
   }
 
   @override
-  Future<void> stopAmbient() async {
+  Future<OraclyApplyOutcome> stopAmbient() async {
     stopCount++;
-    await super.stopAmbient();
+    return super.stopAmbient();
   }
 
   @override
-  Future<void> refreshAmbient() async {
+  Future<OraclyApplyOutcome> refreshAmbient() async {
     refreshCount++;
-    await super.refreshAmbient();
+    return super.refreshAmbient();
   }
 }
 
@@ -58,13 +60,15 @@ class _CountingSound extends OraclySoundService {
   final ambientSyncCalls = <bool>[];
 
   @override
-  Future<void> setAtmosphere(ZodiacSignId sign) async {
+  Future<OraclyApplyOutcome> setAtmosphere(ZodiacSignId sign) async {
     atmosphereCalls.add(sign);
+    return OraclyApplyOutcome.success;
   }
 
   @override
-  Future<void> syncAmbientEnabled(bool enabled) async {
+  Future<OraclyApplyOutcome> syncAmbientEnabled(bool enabled) async {
     ambientSyncCalls.add(enabled);
+    return OraclyApplyOutcome.success;
   }
 
   @override
@@ -317,4 +321,100 @@ void main() {
     await bed.refresh(epoch: 0);
     expect(bed.enabled, isFalse);
   });
+
+  group('RELIABILITY BATCH 2A — Fix 1/3: real outcome, never swallowed', () {
+    test(
+      'ensureReady reports failure honestly when the platform plugin is unavailable',
+      () async {
+        final bed = OraclyAmbientBed();
+        addTearDown(bed.dispose);
+        // No audioplayers platform channel registered in this sandbox —
+        // a real, not fabricated, failure.
+        final ready = await bed.ensureReady();
+        expect(ready, isFalse);
+      },
+    );
+
+    test(
+      'setEnabled(true) returns a real failure outcome instead of silently succeeding',
+      () async {
+        final bed = OraclyAmbientBed();
+        addTearDown(bed.dispose);
+        final outcome = await bed.setEnabled(true);
+        expect(outcome, OraclyApplyOutcome.failure);
+      },
+    );
+
+    test(
+      'setEnabled(false) succeeds even when nothing was ever playing',
+      () async {
+        final bed = OraclyAmbientBed();
+        addTearDown(bed.dispose);
+        final outcome = await bed.setEnabled(false);
+        expect(outcome, OraclyApplyOutcome.success);
+      },
+    );
+
+    test(
+      'setSign while disabled never attempts playback and always succeeds',
+      () async {
+        final bed = OraclyAmbientBed();
+        addTearDown(bed.dispose);
+        final outcome = await bed.setSign(ZodiacSignId.aries);
+        expect(outcome, OraclyApplyOutcome.success);
+        expect(bed.sign, ZodiacSignId.aries);
+      },
+    );
+  });
+
+  group('FOLLOW-UP 2A — Fix 1: a stop failure never claims OFF', () {
+    test(
+      'a stop failure keeps the bed effectively enabled, never a false OFF',
+      () async {
+        final bed = _StopFailsBed();
+        addTearDown(bed.dispose);
+        await bed.setEnabled(true);
+        expect(bed.enabled, isTrue);
+
+        final outcome = await bed.setEnabled(false);
+
+        expect(outcome, OraclyApplyOutcome.failure);
+        // Stop was never proven to have worked — must not claim OFF while
+        // playback may still be audible.
+        expect(bed.enabled, isTrue);
+      },
+    );
+
+    test('a successful stop still commits to disabled as before', () async {
+      final bed = OraclyAmbientBed();
+      addTearDown(bed.dispose);
+      await bed.setEnabled(true);
+      final outcome = await bed.setEnabled(false);
+      // No plugin registered, so nothing was ever actually playing —
+      // stop() on a null player is a trivial, real success.
+      expect(outcome, OraclyApplyOutcome.success);
+      expect(bed.enabled, isFalse);
+    });
+  });
+
+  group('real-device regression: ambient AudioContext construction', () {
+    test(
+      'oraclyAmbientAudioContext never throws (real-device-confirmed '
+      'AudioContextIOS assertion: mixWithOthers may not be set explicitly '
+      'alongside the ambient category, which already implies it)',
+      () {
+        // Before the fix this threw a Dart assertion error even on Android,
+        // because AudioContext(android:, iOS:) unconditionally constructs
+        // the iOS sub-config regardless of the runtime platform — masked in
+        // the `ensureReady`-level tests above because a missing platform
+        // channel produces the same "failure" outcome as this assertion did.
+        expect(oraclyAmbientAudioContext, returnsNormally);
+      },
+    );
+  });
+}
+
+class _StopFailsBed extends OraclyAmbientBed {
+  @override
+  Future<OraclyApplyOutcome> stop() async => OraclyApplyOutcome.failure;
 }

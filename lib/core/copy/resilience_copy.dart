@@ -53,4 +53,9 @@ abstract final class ResilienceCopy {
   static String get profileLoadFailed => _t('resilience.profile_failed');
   static String get settingsSaveFailed => _t('resilience.settings_save_failed');
   static String get settingsLoadFailed => _t('resilience.settings_load_failed');
+  static String get readingSaveFailed => _t('resilience.reading_save_failed');
+  static String get settingsAudioApplyFailed =>
+      _t('resilience.settings_audio_apply_failed');
+  static String get settingsNotificationApplyFailed =>
+      _t('resilience.settings_notification_apply_failed');
 }

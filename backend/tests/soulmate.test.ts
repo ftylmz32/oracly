@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { resetSoulmateUniquenessIndex } from '../src/ai/soulmate-uniqueness-index.js';
 import {
   authHeader,
   jsonResponse,
@@ -11,6 +12,10 @@ import {
 } from './helpers.js';
 
 describe('soulmate_draw', () => {
+  beforeEach(() => {
+    resetSoulmateUniquenessIndex();
+  });
+
   it('rejects unauthenticated requests', async () => {
     const app = await testApp(testConfig(), openaiImage());
     const res = await app.inject({
@@ -67,14 +72,16 @@ describe('soulmate_draw', () => {
       },
     });
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({
-      success: true,
-      data: {
-        imageBase64: TINY_PNG_B64,
-        mimeType: 'image/png',
-        operation: 'soulmate_draw',
-      },
-    });
+    const body = res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.imageBase64).toBe(TINY_PNG_B64);
+    expect(body.data.mimeType).toBe('image/png');
+    expect(body.data.operation).toBe('soulmate_draw');
+    expect(body.data.identity.mood).toBeTruthy();
+    expect(body.data.identity.presence).toContain('adult');
+    expect(body.data.identity.nonce).toMatch(/^[a-f0-9]+$/);
+    expect(body.data.identity.version).toBe(2);
+    expect(body.data.identity.contentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(seen).toHaveLength(1);
     expect(seen[0]?.url).toContain('/images/generations');
     expect(seen[0]?.model).toBe('gpt-image-2');
@@ -82,9 +89,11 @@ describe('soulmate_draw', () => {
     expect(seen[0]?.size).toBe('1024x1536');
     // GPT Image: response_format is unsupported; b64_json is returned by default.
     expect(seen[0]?.response_format).toBeUndefined();
-    expect(seen[0]?.prompt).toContain('Elif');
-    expect(seen[0]?.prompt).toContain('mist lilac');
+    expect(seen[0]?.prompt).toContain('Identity direction');
+    expect(seen[0]?.prompt).not.toContain('Elif');
     expect(seen[0]?.prompt).not.toContain('1994-03-12');
+    expect(seen[0]?.prompt).not.toContain('user-access-token');
+    expect(seen[0]?.prompt).not.toContain('@');
     expect(seen[0]?.prompt).not.toContain(
       'CLIENT_AUTHORED_PROMPT_MUST_BE_IGNORED',
     );

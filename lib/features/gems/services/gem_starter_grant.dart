@@ -2,8 +2,6 @@
 library;
 
 import '../../../core/data/datasources/local_storage.dart';
-import '../copy/gems_copy.dart';
-import '../economy/gem_economy.dart';
 import 'gem_wallet_service.dart';
 
 class GemStarterGrant {
@@ -20,25 +18,18 @@ class GemStarterGrant {
   bool get alreadyGranted =>
       _claimedInMemory || (_storage.getBool(flagKey) ?? false);
 
-  /// Grants [GemEconomy.starterGrant] once. Duplicate calls are no-ops.
-  ///
-  /// Earns before the flag is set so a crash mid-grant cannot permanently
-  /// skip the starter pack. [operationId] prevents a double credit if the
-  /// flag write is the step that fails.
+  /// Requests the account-scoped server grant. The local flag is UX-only.
   Future<bool> ensureOnce() async {
-    if (alreadyGranted) return false;
     if (_wallet.busy) return false;
     _claimedInMemory = true;
     try {
-      final before = _wallet.balance;
-      await _wallet.earn(
-        amount: GemEconomy.starterGrant,
-        reason: GemsCopy.reasonStarter,
-        operationId: operationId,
-      );
+      final result = await _wallet.claimStarter(idempotencyKey: operationId);
+      if (result == null) {
+        _claimedInMemory = false;
+        return false;
+      }
       await _storage.setBool(flagKey, true);
-      return _wallet.balance > before ||
-          (_storage.getBool(flagKey) ?? false);
+      return result.applied && !result.idempotent;
     } catch (_) {
       _claimedInMemory = false;
       return false;

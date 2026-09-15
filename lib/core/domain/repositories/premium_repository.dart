@@ -26,7 +26,10 @@ abstract class PremiumRepository {
 
   Future<void> savePurchaseCredentials(PremiumPurchaseCredentials credentials);
 
-  PremiumPurchaseCredentials? readPurchaseCredentials();
+  /// Async: a fresh instance's secure-storage-backed cache may not be warm
+  /// yet (see [MockPremiumRepository.warmCredentialCache]) — callers must
+  /// never treat "not loaded yet" as "does not exist".
+  Future<PremiumPurchaseCredentials?> readPurchaseCredentials();
 
   Future<List<PremiumPlanModel>> getPlans();
 }

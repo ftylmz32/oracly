@@ -1,0 +1,40 @@
+{
+  "source": "batch3a2-qa-live",
+  "personalization": {
+    "firstName": "Fatih",
+    "relevantThemes": [
+      "karar verme"
+    ]
+  },
+  "trustedHandSide": true,
+  "narrative": {
+    "visualObservation": {
+      "text": "Sağ avuç içinde üç ana çizgi seçiliyor; merkezdeki ve başparmak çevresindeki çizgiler daha belirgin, üstteki çizgi ise daha hafif görünüyor.",
+      "evidenceIds": []
+    },
+    "overall": {
+      "text": "Fatih, bu avuçta akıl ile duygunun birbirine karışmadan ilerlemesi, karar verirken önce ne düşündüğünü ve ne hissettiğini ayrı ayrı tartabildiğini anlatıyor. Uzun ve hafif aşağı yönelen zihin çizgisi yalnızca mantıksal ayrıntılara değil, olasılıklara ve sezgisel çağrışımlara da yer verdiğini düşündürüyor. Bir konuda ikna olduğunda kolay dağılmıyor; ancak seçenekleri zihninde fazla büyütmek karar süresini uzatabilir. İlişkilerde duyguyu hemen sergilemektense önce güven ve tutarlılık araman daha doğal olabilir.",
+      "evidenceIds": []
+    },
+    "lifeLine": {
+      "text": "Başparmak çevresinde belirgin ve geniş bir yay çizen yaşam çizgisi, alıştığın insanlara, düzene ve sorumluluklara bağlı kalabilen; başladığını sürdürmeyi önemseyen bir yapıyla ilişkilendirilebilir.",
+      "evidenceIds": []
+    },
+    "headLine": {
+      "text": "Uzun, büyük ölçüde kesintisiz ve dış kenara doğru hafifçe kıvrılan zihin çizgisi; yoğun düşünme, bir meseleyi farklı açılardan inceleme ve kararın arkasındaki anlamı arama eğilimini öne çıkarıyor.",
+      "evidenceIds": []
+    },
+    "heartLine": {
+      "text": "Üst bölümde uzanan hafif kavisli fakat sığ çizgi, duyguların yokluğundan çok ölçülü ifade edilmesine karşılık gelir: yakınlık kurarken sözlerden ziyade davranışların sürekliliğine önem verebilirsin.",
+      "evidenceIds": []
+    },
+    "fateLine": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Merkezdeki uzun zihin çizgin seçenekleri etraflıca değerlendirdiğini, başparmak çevresindeki belirgin yay ise seçimin netleşince istikrarla ilerleyebildiğini anlatıyor. Asıl gelişim alanın, daha çok düşünmek ile daha iyi karar vermek arasındaki farkı fark etmek olabilir. Özellikle iki makul seçenek arasında kaldığında, ölçütlerini baştan iki ya da üç maddeyle sınırlamak sana iyi gelir; böylece hayal gücünü korurken gereksiz zihinsel turları azaltabilir, verdiğin karara da daha rahat sahip çıkabilirsin.",
+      "evidenceIds": []
+    }
+  }
+}

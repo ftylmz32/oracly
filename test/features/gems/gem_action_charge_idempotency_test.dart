@@ -1,103 +1,48 @@
-/// Idempotency — same actionId never double-deducts.
+/// Retired local charge compatibility surface must always fail closed.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/features/gems/copy/gems_copy.dart';
 import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
-import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_action_charge.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  test('positive local commit cannot debit cached or legacy balance', () async {
+    final storage = LocalStorage.ephemeral({
+      GemWalletStore.serverBalanceCacheKey: 100,
+      GemWalletStore.balanceKey: 9000,
+    });
+    final wallet = GemWalletService(GemWalletStore(storage));
+    final charge = GemActionCharge(wallet, storage, ledgerKey: 'retired');
 
-  late LocalStorage storage;
-  late GemWalletService wallet;
-
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
-    storage = LocalStorage(await SharedPreferences.getInstance());
-    wallet = GemWalletService(GemWalletStore(storage));
-  });
-
-  test('commit deducts exactly once for the same actionId', () async {
-    await wallet.earn(
-      amount: 100,
-      reason: GemsCopy.reasonDailyReward,
-    );
-    final charger = GemActionCharge(
-      wallet,
-      storage,
-      ledgerKey: 'test_ledger_idempotency',
-    );
-
+    expect(await charge.commit(actionId: 'action-1', cost: 20, reason: 'tarot'), isFalse);
     expect(wallet.balance, 100);
-
-    final ok1 = await charger.commit(
-      actionId: 'action_1',
-      cost: 20,
-      reason: GemsCopy.reasonTarot,
-    );
-    expect(ok1, isTrue);
-    expect(wallet.balance, 80);
-
-    // Simulate double settle with the same actionId.
-    final ok2 = await charger.commit(
-      actionId: 'action_1',
-      cost: 20,
-      reason: GemsCopy.reasonTarot,
-    );
-    expect(ok2, isTrue);
-    expect(wallet.balance, 80);
+    expect(storage.getInt(GemWalletStore.balanceKey), 9000);
+    expect(charge.alreadyCharged('action-1'), isFalse);
   });
 
-  test('parallel duplicate commit deducts once', () async {
-    await wallet.earn(
-      amount: 100,
-      reason: GemsCopy.reasonDailyReward,
-    );
-    final charger = GemActionCharge(
-      wallet,
-      storage,
-      ledgerKey: 'test_ledger_parallel',
-    );
-    await Future.wait([
-      charger.commit(
-        actionId: 'race',
-        cost: 20,
-        reason: GemsCopy.reasonTarot,
-      ),
-      charger.commit(
-        actionId: 'race',
-        cost: 20,
-        reason: GemsCopy.reasonTarot,
-      ),
-    ]);
-    expect(wallet.history.where((t) => t.amount < 0), hasLength(1));
-    expect(wallet.balance, 80);
+  test('parallel retired commits cannot create local settlement proof', () async {
+    final storage = LocalStorage.ephemeral({GemWalletStore.serverBalanceCacheKey: 40});
+    final wallet = GemWalletService(GemWalletStore(storage));
+    final charge = GemActionCharge(wallet, storage, ledgerKey: 'retired-race');
+
+    expect(await Future.wait([
+      charge.commit(actionId: 'same-action', cost: 20, reason: 'tarot'),
+      charge.commit(actionId: 'same-action', cost: 20, reason: 'tarot'),
+    ]), [false, false]);
+    expect(wallet.balance, 40);
+    expect(charge.alreadyCharged('same-action'), isFalse);
   });
 
-  test('commit with cost <= 0 never mutates', () async {
-    await wallet.earn(
-      amount: GemEconomy.dailyReward,
-      reason: GemsCopy.reasonDailyReward,
-    );
-    final before = wallet.balance;
-    final charger = GemActionCharge(
-      wallet,
+  test('free compatibility operation remains a no-op', () async {
+    final storage = LocalStorage.ephemeral({GemWalletStore.serverBalanceCacheKey: 25});
+    final charge = GemActionCharge(
+      GemWalletService(GemWalletStore(storage)),
       storage,
-      ledgerKey: 'test_ledger_zero_cost',
+      ledgerKey: 'free',
     );
-
-    final ok = await charger.commit(
-      actionId: 'x',
-      cost: 0,
-      reason: GemsCopy.reasonTarot,
-    );
-    expect(ok, isTrue);
-    expect(wallet.balance, before);
+    expect(await charge.commit(actionId: 'free-1', cost: 0, reason: 'free'), isTrue);
+    expect(storage.getInt(GemWalletStore.serverBalanceCacheKey), 25);
   });
 }
-

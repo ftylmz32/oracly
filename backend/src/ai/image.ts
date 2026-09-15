@@ -28,13 +28,31 @@ export function parseCoffeeImage(
   }
   // Reject obviously corrupt base64 (decoded empty / nonsense).
   if (bytes.length === 0) fail(ErrorCode.invalidImage);
-  if (bytes.length > config.maxImageBytes) fail(ErrorCode.imageTooLarge);
-  if (bytes.length < config.minImageBytes) fail(ErrorCode.invalidImage);
-  if (!magicMatches(bytes, mime)) fail(ErrorCode.invalidImage);
+  validateImageBytes(bytes, mime, config);
   return {
     mimeType: mime === 'image/jpg' ? 'image/jpeg' : mime,
     bytes,
   };
+}
+
+/**
+ * Shared bytes-level gate reused for both the inline-base64 request path
+ * (above) and BATCH 5I's GCS-staged path — the same size bounds and
+ * magic-byte check apply regardless of where the bytes came from. Never
+ * trusts a claimed MIME type alone.
+ */
+export function validateImageBytes(
+  bytes: Buffer,
+  mimeType: string,
+  config: AppConfig,
+): void {
+  if (bytes.length > config.maxImageBytes) fail(ErrorCode.imageTooLarge);
+  if (bytes.length < config.minImageBytes) fail(ErrorCode.invalidImage);
+  if (!magicMatches(bytes, mimeType)) fail(ErrorCode.invalidImage);
+}
+
+export function isAllowedImageMime(mimeType: string): boolean {
+  return ALLOWED.has(mimeType);
 }
 
 export function coffeePayloadFromUnknown(

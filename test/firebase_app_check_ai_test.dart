@@ -44,6 +44,27 @@ void main() {
     );
   });
 
+  test(
+    'staging (internal QA sideload) uses the debug provider too — Play '
+    'Integrity/App Attest cannot attest an unpublished, non-release build',
+    () {
+      expect(
+        FirebaseAppCheckPolicy.useDebugProvider(
+          environment: AppEnvironment.staging,
+          releaseLocked: false,
+        ),
+        isTrue,
+      );
+      expect(
+        FirebaseAppCheckPolicy.useDebugProvider(
+          environment: AppEnvironment.staging,
+          releaseLocked: true,
+        ),
+        isFalse,
+      );
+    },
+  );
+
   test('production proxy requires App Check token', () {
     expect(ProxyAiHeaders.requiresAppCheck(_prod), isTrue);
   });

@@ -22,6 +22,7 @@ export function createBillingProviders(
       createGooglePlayVerifier({
         packageName: config.playPackageName,
         credentials: config.googlePlayCredentials,
+        useApplicationDefaultCredentials: config.googlePlayUseAdc,
       }),
     apple:
       overrides.apple ??

@@ -43,6 +43,7 @@ abstract final class ReadingContextFromJson {
       analysis: _opt(json, 'analysis'),
       emotionalTheme: _opt(json, 'emotionalTheme'),
       fullInterpretation: _opt(json, 'fullInterpretation'),
+      memorySummary: _opt(json, 'memorySummary'),
     );
   }
 

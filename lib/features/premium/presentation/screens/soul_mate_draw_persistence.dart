@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/soul_mate_saved_provider.dart';
+import '../../data/soul_mate_interpretation_catalogue.dart';
 import '../../services/soul_mate_draw_port.dart';
-import '../../services/soul_mate_interpretation.dart';
+import '../../services/soul_mate_identity.dart';
 import '../../services/soul_mate_result_service.dart';
 
 class SoulMateRestoredState {
@@ -17,6 +18,8 @@ class SoulMateRestoredState {
     required this.intention,
     required this.birthDate,
     required this.gender,
+    this.interpretation,
+    this.identity,
   });
 
   final SoulMateDrawResult result;
@@ -25,6 +28,8 @@ class SoulMateRestoredState {
   final String intention;
   final DateTime birthDate;
   final SoulMateGenderPref? gender;
+  final SoulMateReadingParts? interpretation;
+  final SoulMateIdentity? identity;
 }
 
 abstract final class SoulMateDrawPersistence {
@@ -36,12 +41,18 @@ abstract final class SoulMateDrawPersistence {
     if (loaded == null) return null;
     final meta = loaded.meta;
     return SoulMateRestoredState(
-      result: SoulMateDrawResult.success(imageBytes: loaded.bytes),
+      result: SoulMateDrawResult.success(
+        imageBytes: loaded.bytes,
+        identity: meta.identity,
+      ),
       savedId: meta.id,
       name: meta.name,
       intention: meta.intention ?? '',
       birthDate: meta.birthDate,
       gender: meta.gender,
+      interpretation:
+          meta.hasAuthoritativeInterpretation ? meta.parts : null,
+      identity: meta.identity,
     );
   }
 
@@ -68,12 +79,19 @@ abstract final class SoulMateDrawPersistence {
     required SoulMateDrawRequest request,
     required List<int> imageBytes,
     VoidCallback? onSaved,
+    String? recordId,
+    String? expectedOwnerId,
+    SoulMateReadingParts? parts,
+    SoulMateIdentity? identity,
   }) async {
     try {
       final saved = await service.saveSuccessfulDraw(
         request: request,
         imageBytes: imageBytes,
-        parts: SoulMateInterpretation.partsFor(request),
+        parts: parts,
+        recordId: recordId,
+        expectedOwnerId: expectedOwnerId,
+        identity: identity,
       );
       onSaved?.call();
       return saved?.id;

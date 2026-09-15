@@ -2,7 +2,6 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:oracly_new/core/copy/fortune_voice.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/reading/human_reader.dart';
 import 'package:oracly_new/features/astrology/services/astrology_daily_reading_service.dart';
@@ -19,39 +18,44 @@ import 'package:oracly_new/features/star_map/services/star_map_reading_service.d
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('coffee readings avoid quiz tone and equation dumps', () {
-    const cups = [
-      ['kuş', 'yol'],
-      ['kalp', 'yüzük'],
-      ['dağ', 'anahtar'],
-      ['kuş'],
-      ['mektup', 'yol'],
-    ];
-    for (var i = 0; i < cups.length; i++) {
-      final text = CoffeeFortuneComposer.compose(
-        CoffeeReading(
-          id: 'q-$i',
-          createdAt: DateTime(2026, 8, 24),
-          overall: '',
-          love: '',
-          career: '',
-          money: '',
-          nearFuture: '',
-          takeaway: '',
-          visualObservation: 'Ağızda ${cups[i].join(' ve ')} duruyor.',
-          symbols: [
-            for (final name in cups[i])
-              CoffeeSymbol(name: name, meaning: '', interpretation: ''),
-          ],
-        ),
-      ).overall;
-      expect(text.contains('?'), isFalse, reason: text);
-      expect(text.contains('='), isFalse, reason: text);
-      expect(text.toLowerCase(), isNot(contains('kendine sorman')));
-      expect(HumanReader.looksGeneric(text), isFalse, reason: text);
-      expect(FortuneVoice.looksRobotic(text), isFalse, reason: text);
-    }
-  });
+  test(
+    'coffee never fabricates a reading from symbols alone when the backend overall is missing',
+    () {
+      // BATCH 3A.2: compose() no longer weaves a client-side reading out of
+      // symbols when the backend interpretation is empty/missing — that was
+      // the legacy quiz-tone/equation-dump generator this test used to
+      // exercise. A missing overall is now a typed failure (null), never a
+      // fabricated "reading", so there is no generated text left to check
+      // for quiz tone or "=" dumps.
+      const cups = [
+        ['kuş', 'yol'],
+        ['kalp', 'yüzük'],
+        ['dağ', 'anahtar'],
+        ['kuş'],
+        ['mektup', 'yol'],
+      ];
+      for (var i = 0; i < cups.length; i++) {
+        final reading = CoffeeFortuneComposer.compose(
+          CoffeeReading(
+            id: 'q-$i',
+            createdAt: DateTime(2026, 8, 24),
+            overall: '',
+            love: '',
+            career: '',
+            money: '',
+            nearFuture: '',
+            takeaway: '',
+            visualObservation: 'Ağızda ${cups[i].join(' ve ')} duruyor.',
+            symbols: [
+              for (final name in cups[i])
+                CoffeeSymbol(name: name, meaning: '', interpretation: ''),
+            ],
+          ),
+        );
+        expect(reading, isNull);
+      }
+    },
+  );
 
   test('astrology overall is sky-grounded without quiz or new-age filler', () {
     final signs = AstrologyContentCatalogue.signs.take(6).toList();

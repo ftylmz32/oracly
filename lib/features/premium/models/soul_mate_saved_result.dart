@@ -3,6 +3,7 @@ library;
 
 import '../data/soul_mate_interpretation_catalogue.dart';
 import '../services/soul_mate_draw_port.dart';
+import '../services/soul_mate_identity.dart';
 
 class SoulMateSavedResult {
   const SoulMateSavedResult({
@@ -15,6 +16,7 @@ class SoulMateSavedResult {
     this.gender,
     this.intention,
     this.localeCode = 'tr',
+    this.identity,
   });
 
   final String id;
@@ -26,6 +28,9 @@ class SoulMateSavedResult {
   final String portraitPath;
   final SoulMateReadingParts parts;
   final String localeCode;
+  final SoulMateIdentity? identity;
+
+  bool get hasAuthoritativeInterpretation => parts.authoritative;
 
   SoulMateDrawRequest toRequest() => SoulMateDrawRequest(
         name: name,
@@ -49,7 +54,10 @@ class SoulMateSavedResult {
           'dynamics': parts.dynamics,
           'feeling': parts.feeling,
           'yourSide': parts.yourSide,
+          'meeting': parts.meeting,
+          'authoritative': parts.authoritative,
         },
+        if (identity != null) 'identity': identity!.toJson(),
       };
 
   factory SoulMateSavedResult.fromJson(Map<String, dynamic> json) {
@@ -69,7 +77,10 @@ class SoulMateSavedResult {
         dynamics: (parts['dynamics'] as String?) ?? '',
         feeling: (parts['feeling'] as String?) ?? '',
         yourSide: (parts['yourSide'] as String?) ?? '',
+        meeting: (parts['meeting'] as String?) ?? '',
+        authoritative: parts['authoritative'] == true,
       ),
+      identity: SoulMateIdentity.fromMap(json['identity']),
     );
   }
 

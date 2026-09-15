@@ -17,13 +17,17 @@ abstract final class FirebaseAppCheckPolicy {
     return !environment.isDevelopment;
   }
 
-  /// Debug provider only for explicit non-release development.
+  /// Debug provider for any non-release-locked build, regardless of
+  /// [environment]. Play Integrity / App Attest require the app to be
+  /// recognized by Google Play or notarized by Apple; a debug build
+  /// (including an internal/staging sideload for QA or store review) is
+  /// neither, so it cannot earn a real attestation verdict — only a
+  /// release-locked build (real Play/App Store distribution) can.
   /// Never silently activate in release / release-locked builds.
   static bool useDebugProvider({
     required AppEnvironment environment,
     required bool releaseLocked,
   }) {
-    if (releaseLocked) return false;
-    return environment.isDevelopment;
+    return !releaseLocked;
   }
 }

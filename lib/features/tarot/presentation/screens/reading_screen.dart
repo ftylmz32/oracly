@@ -11,6 +11,7 @@ import '../../../../app/providers/app_providers.dart';
 import '../../copy/tarot_revisit_copy.dart';
 import '../../revisit/tarot_revisit_intent_store.dart';
 import '../../../../core/copy/session_ending_copy.dart';
+import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/audio/oracly_feedback_gate.dart';
 import '../../copy/tarot_polish_copy.dart';
 import '../../economy/tarot_economy.dart';
@@ -60,6 +61,7 @@ import '../../../../core/reading_version/models/reading_version_kind.dart';
 import '../../../../core/reading_version/providers/reading_version_providers.dart';
 import '../../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../../core/reading_version/widgets/reading_version_host.dart';
+import '../../../../core/memory/oracly_memory.dart';
 
 /// Cinematic interpretation — intro, staggered sections, premium actions.
 class ReadingScreen extends ConsumerStatefulWidget {
@@ -80,6 +82,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   bool _loading = true;
   bool _exiting = false;
   bool _journalPersisted = false;
+  bool _journalPersistFailed = false;
   int _loadToken = 0;
   String? _savedReadingId;
   int _versionReloadToken = 0;
@@ -138,6 +141,18 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       excludeSessionId: session.id,
       extraThemeLabels: discovery?.personalizationThemes ?? const [],
     );
+    try {
+      journeyHints = journeyHints.withMemory(
+        ref
+            .read(oraclyMemoryRetrieverProvider)
+            .forInterpretation(
+              query: session.intention.text,
+              currentType: OraclyReadingType.tarot,
+            ),
+      );
+    } catch (_) {
+      // Connected context is optional; the Tarot reading remains available.
+    }
     final revisit = await TarotRevisitIntentStore(
       ref.read(localStorageProvider),
     ).consume();
@@ -150,19 +165,20 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     AiReadingContent? content;
     String? loadError;
     try {
-      content = await TarotReadingCompletion(
-        charge: TarotReadingCharge(
-          ref.read(gemWalletServiceProvider),
-          ref.read(localStorageProvider),
-          analytics: ref.read(analyticsServiceProvider),
-        ),
-      ).complete(
-        session,
-        load: () => reading.resolveInterpretationContent(
-          journeyHints: journeyHints,
-        ),
-        shouldCommit: () => mounted && token == _loadToken,
-      );
+      content =
+          await TarotReadingCompletion(
+            charge: TarotReadingCharge(
+              ref.read(gemWalletServiceProvider),
+              ref.read(localStorageProvider),
+              analytics: ref.read(analyticsServiceProvider),
+            ),
+          ).complete(
+            session,
+            load: () => reading.resolveInterpretationContent(
+              journeyHints: journeyHints,
+            ),
+            shouldCommit: () => mounted && token == _loadToken,
+          );
     } on InterpretationException catch (e) {
       content = null;
       loadError = e.message;
@@ -255,6 +271,13 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
+  /// Auto-saves the reading to History/Journal. Idempotent: [saveFromSession]
+  /// always persists under the stable session id, so a retry after a
+  /// failure (or a duplicate call) upserts the same entry rather than
+  /// creating a copy. Every failure is caught here — this method is
+  /// called unawaited from the load path, so an uncaught exception would
+  /// otherwise escape into the global error zone while the reading still
+  /// looks saved to the user.
   Future<void> _persistToJournal({bool offerNote = false}) async {
     if (_journalPersisted) {
       if (offerNote) await _offerPersonalNote();
@@ -265,28 +288,63 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     final content = _contentData;
     if (session == null || content == null) return;
 
-    final completed = session.status == ReadingSessionStatus.completed
-        ? session
-        : await reading.completeSession();
-    final saved = await ref.read(readingServiceProvider).saveFromSession(
-          session: completed,
-          aiSummary: content.fullInterpretation ?? content.generalMeaning,
-        );
-    _journalPersisted = true;
-    _savedReadingId = saved?.id;
-    if (saved != null) {
-      await ref.read(readingVersionServiceProvider).seedOriginal(
-            rootId: saved.id,
-            kind: ReadingVersionKind.tarot,
-            data: ReadingVersionPayload.tarot(saved.aiSummary),
+    try {
+      final completed = session.status == ReadingSessionStatus.completed
+          ? session
+          : await reading.completeSession();
+      final saved = await ref
+          .read(readingServiceProvider)
+          .saveFromSession(
+            session: completed,
+            aiSummary: content.fullInterpretation ?? content.generalMeaning,
           );
+      _journalPersisted = true;
+      _savedReadingId = saved?.id;
+      if (saved != null) {
+        await ref
+            .read(readingVersionServiceProvider)
+            .seedOriginal(
+              rootId: saved.id,
+              kind: ReadingVersionKind.tarot,
+              data: ReadingVersionPayload.tarot(saved.aiSummary),
+            );
+      }
+      ref
+          .read(analyticsServiceProvider)
+          .logReadingCompleted(spreadType: completed.spread.name);
+      ref.invalidate(readingHistoryProvider);
+      // A saved reading means this is no longer the user's first session --
+      // without this, the Soulmate prerequisite gate (isFirstSessionProvider)
+      // keeps its stale cached value and never lets Soulmate unlock after a
+      // real completed daily-card reading.
+      ref.invalidate(isFirstSessionProvider);
+      PersonalDiscoveryRefresh.invalidate(ref);
+      if (mounted && _journalPersistFailed) {
+        setState(() => _journalPersistFailed = false);
+      }
+      if (offerNote) await _offerPersonalNote();
+    } catch (e) {
+      debugPrint('[ReadingScreen] journal persist failed: $e');
+      if (!mounted) return;
+      setState(() => _journalPersistFailed = true);
+      _showJournalPersistFailedFeedback();
     }
-    ref.read(analyticsServiceProvider).logReadingCompleted(
-          spreadType: completed.spread.name,
-        );
-    ref.invalidate(readingHistoryProvider);
-    PersonalDiscoveryRefresh.invalidate(ref);
-    if (offerNote) await _offerPersonalNote();
+  }
+
+  void _showJournalPersistFailedFeedback() {
+    if (!mounted) return;
+    OraclySnackBar.error(
+      context,
+      ResilienceCopy.readingSaveFailed,
+      action: SnackBarAction(
+        label: ResilienceCopy.retryAction,
+        textColor: AppColors.goldLight,
+        onPressed: () {
+          // ignore: unawaited_futures
+          _persistToJournal();
+        },
+      ),
+    );
   }
 
   Future<void> _offerPersonalNote() async {
@@ -297,10 +355,9 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       cardName: content?.cardName ?? '',
     );
     if (note == null || note.isEmpty) return;
-    await ref.read(readingServiceProvider).updatePersonalNote(
-          readingId: _savedReadingId!,
-          note: note,
-        );
+    await ref
+        .read(readingServiceProvider)
+        .updatePersonalNote(readingId: _savedReadingId!, note: note);
     ref.invalidate(readingHistoryProvider);
     PersonalDiscoveryRefresh.invalidate(ref);
   }
@@ -316,7 +373,9 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     final content = _contentData;
     if (session == null || content == null) return null;
     final card = ReadingPremiumUtils.primaryCard(content);
-    final primary = content.drawnCards.isEmpty ? null : content.drawnCards.first;
+    final primary = content.drawnCards.isEmpty
+        ? null
+        : content.drawnCards.first;
     return FavoriteMomentFactory.tarotLive(
       sessionId: session.id,
       at: session.completedAt ?? DateTime.now(),
@@ -352,25 +411,28 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       final savedId = _savedReadingId;
       var changed = true;
       if (savedId != null) {
-        final result =
-            await ref.read(readingVersionServiceProvider).tryAppendRevision(
-                  rootId: savedId,
-                  kind: ReadingVersionKind.tarot,
-                  data: ReadingVersionPayload.tarot(summary),
-                );
+        final result = await ref
+            .read(readingVersionServiceProvider)
+            .tryAppendRevision(
+              rootId: savedId,
+              kind: ReadingVersionKind.tarot,
+              data: ReadingVersionPayload.tarot(summary),
+            );
         if (!mounted) return false;
         changed = result.added;
         if (!changed) {
           setState(() => _loading = false);
           return false;
         }
-        final readings = await ref.read(historyRepositoryProvider).getReadings();
+        final readings = await ref
+            .read(historyRepositoryProvider)
+            .getReadings();
         if (!mounted) return false;
         for (final item in readings) {
           if (item.id == savedId || item.sessionId == savedId) {
-            await ref.read(historyRepositoryProvider).saveReading(
-                  item.copyWith(aiSummary: summary),
-                );
+            await ref
+                .read(historyRepositoryProvider)
+                .saveReading(item.copyWith(aiSummary: summary));
             break;
           }
         }
@@ -379,9 +441,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
         PersonalDiscoveryRefresh.invalidate(ref);
       }
       await reading.updateSession(
-        (reading.session ?? session).copyWith(
-          interpretation: summary,
-        ),
+        (reading.session ?? session).copyWith(interpretation: summary),
       );
       if (!mounted) return false;
       setState(() {
@@ -424,7 +484,9 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   }
 
   double _panelOpacityFor(double sectionMaster) {
-    return Curves.easeOutCubic.transform((sectionMaster / 0.12).clamp(0.0, 1.0));
+    return Curves.easeOutCubic.transform(
+      (sectionMaster / 0.12).clamp(0.0, 1.0),
+    );
   }
 
   @override
@@ -467,191 +529,201 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     return QualityLoopGate(
       feature: QualityFeature.tarot,
       child: PopScope(
-      canPop: true,
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            AnimatedBuilder(
-              animation: _ambient,
-              builder: (context, _) {
-                final ambientT = _ambient.value;
-                final livingIntensity = 0.62 +
-                    _content.value * 0.08 +
-                    TarotEmotionalRhythm.peakPulse(
-                      _content.value,
-                      centre: 0.08,
-                      width: 0.10,
-                    ) *
-                        0.12;
+        canPop: true,
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              AnimatedBuilder(
+                animation: _ambient,
+                builder: (context, _) {
+                  final ambientT = _ambient.value;
+                  final livingIntensity =
+                      0.62 +
+                      _content.value * 0.08 +
+                      TarotEmotionalRhythm.peakPulse(
+                            _content.value,
+                            centre: 0.08,
+                            width: 0.10,
+                          ) *
+                          0.12;
 
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Positioned.fill(
-                      child: ReadingBackground(
-                        fogIntensity: livingIntensity,
-                        phase: ambientT,
-                      ),
-                    ),
-                    ReadingElementGlow(
-                      theme: elementTheme,
-                      phase: ambientT,
-                      intensity: _panelOpacityFor(_content.value) * 0.82,
-                    ),
-                    ReadingFloatingParticles(
-                      phase: ambientT,
-                      intensity: livingIntensity,
-                    ),
-                  ],
-                );
-              },
-            ),
-            AnimatedBuilder(
-              animation: _intro,
-              builder: (context, child) {
-                final introOpacity =
-                    ReadingIntroTimeline.introOpacity(_intro.value);
-                final cardLift = ReadingIntroTimeline.cardLift(_intro.value);
-                final showIntro = introOpacity > 0.01;
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (showIntro)
-                      SafeArea(
-                        child: ReadingIntroPhase(
-                          content: contentData,
-                          progress: introOpacity,
-                          cardLift: cardLift,
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned.fill(
+                        child: ReadingBackground(
+                          fogIntensity: livingIntensity,
+                          phase: ambientT,
                         ),
                       ),
-                    child!,
-                  ],
-                );
-              },
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    AnimatedBuilder(
-                      animation: Listenable.merge([_intro, _content]),
-                      builder: (context, _) {
-                        final introOpacity =
-                            ReadingIntroTimeline.introOpacity(_intro.value);
-                        final showIntro = introOpacity > 0.01;
-                        final sectionMaster = _content.value;
-                        if (!showIntro || sectionMaster > 0.05) {
-                          return SizedBox(height: AppSpacing.xl);
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                    Expanded(
-                      child: AnimatedBuilder(
-                        animation: _intro,
-                        builder: (context, child) {
-                          final showIntro =
-                              ReadingIntroTimeline.introOpacity(_intro.value) >
-                                  0.01;
-                          return ReadingPremiumScrollView(
-                            kicker: contentData.spreadLabel ??
-                                contentData.cardName,
-                            padding: EdgeInsets.only(
-                              top: showIntro ? 0 : AppSpacing.md,
-                              bottom: AppLayout.contentBottomBreath,
-                            ),
-                            child: child!,
-                          );
+                      ReadingElementGlow(
+                        theme: elementTheme,
+                        phase: ambientT,
+                        intensity: _panelOpacityFor(_content.value) * 0.82,
+                      ),
+                      ReadingFloatingParticles(
+                        phase: ambientT,
+                        intensity: livingIntensity,
+                      ),
+                    ],
+                  );
+                },
+              ),
+              AnimatedBuilder(
+                animation: _intro,
+                builder: (context, child) {
+                  final introOpacity = ReadingIntroTimeline.introOpacity(
+                    _intro.value,
+                  );
+                  final cardLift = ReadingIntroTimeline.cardLift(_intro.value);
+                  final showIntro = introOpacity > 0.01;
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (showIntro)
+                        SafeArea(
+                          child: ReadingIntroPhase(
+                            content: contentData,
+                            progress: introOpacity,
+                            cardLift: cardLift,
+                          ),
+                        ),
+                      child!,
+                    ],
+                  );
+                },
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      AnimatedBuilder(
+                        animation: Listenable.merge([_intro, _content]),
+                        builder: (context, _) {
+                          final introOpacity =
+                              ReadingIntroTimeline.introOpacity(_intro.value);
+                          final showIntro = introOpacity > 0.01;
+                          final sectionMaster = _content.value;
+                          if (!showIntro || sectionMaster > 0.05) {
+                            return SizedBox(height: AppSpacing.xl);
+                          }
+                          return const SizedBox.shrink();
                         },
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxWidth: TarotTokens.maxContentWidth,
-                            ),
-                            child: AnimatedBuilder(
-                              animation: Listenable.merge([_content, _exit]),
-                              builder: (context, _) {
-                                final sectionMaster = _content.value;
-                                final exitProgress = _exit.value;
-                                final draft = _tarotMomentDraft();
-                                return Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    ReadingPremiumBody(
-                                      content: contentData,
-                                      sectionMaster: sectionMaster,
-                                      panelOpacity:
-                                          _panelOpacityFor(sectionMaster),
-                                      ambientPhase: _ambient.value,
-                                      exitProgress: exitProgress,
-                                    ),
-                                    ReadingFooterActions(
-                                      progress: readingFooterProgress(
-                                        sectionMaster,
+                      ),
+                      Expanded(
+                        child: AnimatedBuilder(
+                          animation: _intro,
+                          builder: (context, child) {
+                            final showIntro =
+                                ReadingIntroTimeline.introOpacity(
+                                  _intro.value,
+                                ) >
+                                0.01;
+                            return ReadingPremiumScrollView(
+                              kicker:
+                                  contentData.spreadLabel ??
+                                  contentData.cardName,
+                              padding: EdgeInsets.only(
+                                top: showIntro ? 0 : AppSpacing.md,
+                                bottom: AppLayout.contentBottomBreath,
+                              ),
+                              child: child!,
+                            );
+                          },
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxWidth: TarotTokens.maxContentWidth,
+                              ),
+                              child: AnimatedBuilder(
+                                animation: Listenable.merge([_content, _exit]),
+                                builder: (context, _) {
+                                  final sectionMaster = _content.value;
+                                  final exitProgress = _exit.value;
+                                  final draft = _tarotMomentDraft();
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      ReadingPremiumBody(
+                                        content: contentData,
+                                        sectionMaster: sectionMaster,
+                                        panelOpacity: _panelOpacityFor(
+                                          sectionMaster,
+                                        ),
+                                        ambientPhase: _ambient.value,
+                                        exitProgress: exitProgress,
                                       ),
-                                      exitProgress: exitProgress,
-                                      onNewReading:
-                                          _exiting ? null : _newReading,
-                                      onSave: _journalPersisted
-                                          ? null
-                                          : _saveReading,
-                                      onAskOracle: _openOracleConversation,
-                                      onAddReflection: _journalPersisted
-                                          ? _offerPersonalNote
-                                          : null,
-                                      shareDiscovery:
-                                          DiscoveryShareBuilder.tarot(
-                                        theme: contentData.spreadLabel ??
-                                            contentData.readingTheme,
-                                        cardName: contentData.cardName,
-                                        cardAsset: contentData.imageAsset,
-                                        isReversed: contentData.drawnCards
-                                                .isEmpty
-                                            ? false
-                                            : contentData
-                                                .drawnCards.first.isReversed,
+                                      ReadingFooterActions(
+                                        progress: readingFooterProgress(
+                                          sectionMaster,
+                                        ),
+                                        exitProgress: exitProgress,
+                                        onNewReading: _exiting
+                                            ? null
+                                            : _newReading,
+                                        onSave: _journalPersisted
+                                            ? null
+                                            : _saveReading,
+                                        onAskOracle: _openOracleConversation,
+                                        onAddReflection: _journalPersisted
+                                            ? _offerPersonalNote
+                                            : null,
+                                        shareDiscovery:
+                                            DiscoveryShareBuilder.tarot(
+                                              theme:
+                                                  contentData.spreadLabel ??
+                                                  contentData.readingTheme,
+                                              cardName: contentData.cardName,
+                                              cardAsset: contentData.imageAsset,
+                                              isReversed:
+                                                  contentData.drawnCards.isEmpty
+                                                  ? false
+                                                  : contentData
+                                                        .drawnCards
+                                                        .first
+                                                        .isReversed,
+                                            ),
                                       ),
-                                    ),
-                                    if (draft != null && sectionMaster > 0.45)
-                                      SaveFavoriteMomentLink(
-                                        draft: draft,
-                                        prepare: _prepareTarotMoment,
+                                      if (draft != null && sectionMaster > 0.45)
+                                        SaveFavoriteMomentLink(
+                                          draft: draft,
+                                          prepare: _prepareTarotMoment,
+                                        ),
+                                      if (_savedReadingId != null &&
+                                          sectionMaster > 0.45)
+                                        ReadingVersionHost(
+                                          rootId: _savedReadingId!,
+                                          kind: ReadingVersionKind.tarot,
+                                          reloadToken: _versionReloadToken,
+                                          onSelect: _applyTarotVersion,
+                                        ),
+                                      if (sectionMaster > 0.45)
+                                        ReadingQualityActions(
+                                          feature: QualityFeature.tarot,
+                                          retry: _reinterpretWithoutCharge,
+                                        ),
+                                      SizedBox(
+                                        height: AppLayout.scrollBottomInset(
+                                          context,
+                                        ),
                                       ),
-                                    if (_savedReadingId != null &&
-                                        sectionMaster > 0.45)
-                                      ReadingVersionHost(
-                                        rootId: _savedReadingId!,
-                                        kind: ReadingVersionKind.tarot,
-                                        reloadToken: _versionReloadToken,
-                                        onSelect: _applyTarotVersion,
-                                      ),
-                                    if (sectionMaster > 0.45)
-                                      ReadingQualityActions(
-                                        feature: QualityFeature.tarot,
-                                        retry: _reinterpretWithoutCharge,
-                                      ),
-                                    SizedBox(
-                                      height: AppLayout.scrollBottomInset(
-                                        context,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

@@ -3,6 +3,7 @@ library;
 
 import '../../features/personal_discovery/models/personal_discovery_profile.dart';
 import '../../features/premium/models/personalization_models.dart';
+import '../runtime/oracly_apply_outcome.dart';
 import 'oracly_notification_planner.dart';
 import 'oracly_notification_port.dart';
 
@@ -15,10 +16,11 @@ class OraclyNotificationCoordinator {
   final OraclyNotificationPort port;
   final Future<PersonalDiscoveryProfile> Function() loadProfile;
 
-  Future<void> sync(PersonalizationSettings settings) async {
+  /// Never throws — [port] reports a real scheduling/cancel failure as
+  /// [OraclyApplyOutcome.failure] instead of letting it disappear.
+  Future<OraclyApplyOutcome> sync(PersonalizationSettings settings) async {
     if (!settings.notificationsEnabled) {
-      await port.cancelAll();
-      return;
+      return port.cancelAll();
     }
     PersonalDiscoveryProfile profile = PersonalDiscoveryProfile.empty;
     try {
@@ -29,9 +31,8 @@ class OraclyNotificationCoordinator {
       profile: profile,
     );
     if (payload == null) {
-      await port.cancelAll();
-      return;
+      return port.cancelAll();
     }
-    await port.scheduleDaily(payload);
+    return port.scheduleDaily(payload);
   }
 }

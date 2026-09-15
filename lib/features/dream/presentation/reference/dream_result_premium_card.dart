@@ -43,11 +43,13 @@ class DreamResultPremiumCard extends StatelessWidget {
                 children: [
                   Icon(icon, size: 16, color: OraclyChrome.goldLight.withValues(alpha: 0.78)),
                   const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: ReadingTypography.sectionLabel(
-                      color: OraclyChrome.goldLight.withValues(alpha: 0.88),
-                      fontSize: 11,
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: ReadingTypography.sectionLabel(
+                        color: OraclyChrome.goldLight.withValues(alpha: 0.88),
+                        fontSize: 11,
+                      ),
                     ),
                   ),
                 ],

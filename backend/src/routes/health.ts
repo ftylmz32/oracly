@@ -10,6 +10,8 @@ export type ReadinessCapabilities = {
   textProviderConfigured: boolean;
   visionConfigured: boolean;
   imageGenerationConfigured: boolean;
+  readingStagingConfigured: boolean;
+  readingDurabilityConfigured: boolean;
   /**
    * Observability only — never gates the /ready status code. A deployment
    * can be "ready" for AI traffic while billing verification is still
@@ -35,7 +37,10 @@ export async function registerHealth(
     const ready =
       capabilities.authenticationConfigured &&
       capabilities.appCheckConfigured &&
-      capabilities.textProviderConfigured;
+      capabilities.textProviderConfigured &&
+      (config.appEnv === 'development' ||
+        (capabilities.readingStagingConfigured &&
+          capabilities.readingDurabilityConfigured));
     if (!ready) {
       return reply.code(503).send({
         status: 'not_ready',
@@ -64,6 +69,13 @@ export function readinessCapabilities(
   const imageGenerationConfigured =
     textProviderConfigured && Boolean(config.openaiImageModel.trim());
   const billingProviders = createBillingProviders(config);
+  const readingStagingConfigured = Boolean(config.readingStagingBucket);
+  const readingDurabilityConfigured = Boolean(
+    config.readingTaskQueue &&
+      config.readingTaskTargetUrl &&
+      config.readingTaskAudience &&
+      config.readingTaskServiceAccount,
+  );
   return {
     alive: true,
     authenticationConfigured,
@@ -71,6 +83,8 @@ export function readinessCapabilities(
     textProviderConfigured,
     visionConfigured,
     imageGenerationConfigured,
+    readingStagingConfigured,
+    readingDurabilityConfigured,
     billingGoogleConfigured: billingProviders.google.configured,
     billingAppleConfigured: billingProviders.apple.configured,
   };

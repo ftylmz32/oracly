@@ -10,7 +10,8 @@ export function fingerprintRequest(request: ValidatedRequest): string {
       return `oracle:${request.kind}:${sanitizeText(request.userMessage).toLowerCase()}`;
     case 'dream_analysis': {
       const narrative = sanitizeText(request.payload.narrative).toLowerCase();
-      return `dream:${narrative}`;
+      const memory = sanitizeText(request.payload.memorySummary, 220).toLowerCase();
+      return `dream:${narrative}|${memory}`;
     }
     case 'coffee_analysis':
       return imageFp('coffee', request.payload);
@@ -18,6 +19,10 @@ export function fingerprintRequest(request: ValidatedRequest): string {
       return imageFp('palm', request.payload, String(request.payload.hand ?? ''));
     case 'soulmate_draw':
       return `soulmate:${sanitizeText(request.name).toLowerCase()}|${request.birthDate}|${request.gender ?? ''}|${sanitizeText(request.intention ?? '').toLowerCase()}`;
+    case 'soulmate_interpretation':
+      return `soulmate-text:${sanitizeText(request.name).toLowerCase()}|${request.birthDate}|${request.gender ?? ''}|${sanitizeText(request.intention ?? '').toLowerCase()}|${request.identity?.nonce ?? ''}|${sanitizeText(request.memorySummary ?? '', 220).toLowerCase()}`;
+    case 'tarot_reading':
+      return `tarot:${request.cards.map((card) => card.name).join(',').toLowerCase()}|${sanitizeText(request.spreadLabel).toLowerCase()}|${sanitizeText(request.userQuestion ?? '').toLowerCase()}`;
     case 'tts':
       return `tts:${sanitizeText(request.text).toLowerCase()}|${request.voiceId}|${request.speechSpeed}`;
   }

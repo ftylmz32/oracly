@@ -8,6 +8,7 @@ import '../auth/auth_service.dart';
 import '../auth/auth_service_selection.dart';
 import '../auth/firebase/firebase_auth_bootstrap.dart';
 import '../auth/firebase/firebase_auth_gateway.dart';
+import '../auth/firebase/firebase_auth_user.dart';
 import '../auth/firebase/firebase_id_token_manager.dart';
 import '../auth/firebase/live_firebase_auth_gateway.dart';
 import '../auth/secure_token_manager.dart';
@@ -18,6 +19,7 @@ import '../data/repositories/local_ai_conversation_repository.dart';
 import '../data/repositories/local_birth_chart_repository.dart';
 import '../data/repositories/local_astrology_repository.dart';
 import '../data/repositories/local_dream_repository.dart';
+import '../memory/oracly_memory_store.dart';
 import '../domain/repositories/ai_conversation_repository.dart';
 import '../domain/repositories/birth_chart_repository.dart';
 import '../domain/repositories/astrology_repository.dart';
@@ -86,6 +88,16 @@ final firebaseAuthGatewayProvider = Provider<FirebaseAuthGateway?>((ref) {
   final ready = ref.watch(firebaseAuthReadyProvider);
   if (!ready) return null;
   return LiveFirebaseAuthGateway();
+});
+
+/// Reactive authenticated owner. Unlike Firebase initialization readiness,
+/// this does not become non-null until an actual Firebase user exists.
+final firebaseAuthUserProvider = StreamProvider<FirebaseAuthUserSnapshot?>((
+  ref,
+) {
+  final gateway = ref.watch(firebaseAuthGatewayProvider);
+  if (gateway == null) return Stream.value(null);
+  return gateway.authStateChanges();
 });
 
 final tokenManagerProvider = Provider<TokenManager>((ref) {
@@ -184,7 +196,9 @@ final remoteConfigPortProvider = Provider<RemoteConfigPort>((ref) {
   return const LocalRemoteConfigPort();
 });
 
-final remoteConfigPendingStoreProvider = Provider<RemoteConfigPendingStore>((ref) {
+final remoteConfigPendingStoreProvider = Provider<RemoteConfigPendingStore>((
+  ref,
+) {
   return RemoteConfigPendingStore(ref.watch(localStorageProvider));
 });
 
@@ -199,14 +213,19 @@ final experimentServiceProvider = Provider<ExperimentService>((ref) {
   return ExperimentService(storage: ref.watch(localStorageProvider));
 });
 
-final performanceMonitorProvider = Provider<PerformanceMonitoringService>((ref) {
-  return NoOpPerformanceMonitoring(logger: ref.watch(performanceLoggerProvider));
+final performanceMonitorProvider = Provider<PerformanceMonitoringService>((
+  ref,
+) {
+  return NoOpPerformanceMonitoring(
+    logger: ref.watch(performanceLoggerProvider),
+  );
 });
 
 // ── Extended repositories ────────────────────────────────────────
 
 final dreamRepositoryProvider = Provider<DreamRepository>((ref) {
-  return LocalDreamRepository(ref.watch(localStorageProvider));
+  final storage = ref.watch(localStorageProvider);
+  return LocalDreamRepository(storage, memory: OraclyMemoryStore(storage));
 });
 
 final birthChartRepositoryProvider = Provider<BirthChartRepository>((ref) {
@@ -217,7 +236,9 @@ final astrologyRepositoryProvider = Provider<AstrologyRepository>((ref) {
   return LocalAstrologyRepository(ref.watch(localStorageProvider));
 });
 
-final aiConversationRepositoryProvider = Provider<AiConversationRepository>((ref) {
+final aiConversationRepositoryProvider = Provider<AiConversationRepository>((
+  ref,
+) {
   return LocalAiConversationRepository(ref.watch(localStorageProvider));
 });
 

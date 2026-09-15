@@ -1,11 +1,13 @@
 /// Device local notifications — one inexact daily slot, never stacked.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../runtime/oracly_apply_outcome.dart';
 import 'oracly_notification_payload.dart';
 import 'oracly_notification_planner.dart';
 import 'oracly_notification_port.dart';
@@ -76,46 +78,61 @@ class LocalNotificationPort implements OraclyNotificationPort {
           true;
       final os = await Permission.notification.request();
       return androidOk && iosOk && os.isGranted;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ORACLY] notification permission request failed: $e');
       return false;
     }
   }
 
   @override
-  Future<void> scheduleDaily(OraclyNotificationPayload payload) async {
-    await initialize();
-    await _plugin.cancel(_id);
-    await _plugin.zonedSchedule(
-      _id,
-      payload.title,
-      payload.body,
-      _nextDaily(),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channel,
-          'ORACLY',
-          channelDescription: 'Gentle daily invitations',
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority,
+  Future<OraclyApplyOutcome> scheduleDaily(
+    OraclyNotificationPayload payload,
+  ) async {
+    try {
+      await initialize();
+      await _plugin.cancel(_id);
+      await _plugin.zonedSchedule(
+        _id,
+        payload.title,
+        payload.body,
+        _nextDaily(),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            _channel,
+            'ORACLY',
+            channelDescription: 'Gentle daily invitations',
+            importance: Importance.defaultImportance,
+            priority: Priority.defaultPriority,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: false,
+            presentSound: true,
+          ),
         ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: false,
-          presentSound: true,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
-      payload: payload.kind.name,
-    );
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: payload.kind.name,
+      );
+      return OraclyApplyOutcome.success;
+    } catch (e) {
+      // Always logged (not assert-gated) so a release-build scheduling
+      // failure still leaves a diagnosable trace instead of vanishing.
+      debugPrint('[ORACLY] scheduleDaily failed: $e');
+      return OraclyApplyOutcome.failure;
+    }
   }
 
   @override
-  Future<void> cancelAll() async {
+  Future<OraclyApplyOutcome> cancelAll() async {
     try {
       await _plugin.cancel(_id);
       await _plugin.cancelAll();
-    } catch (_) {}
+      return OraclyApplyOutcome.success;
+    } catch (e) {
+      debugPrint('[ORACLY] notification cancelAll failed: $e');
+      return OraclyApplyOutcome.failure;
+    }
   }
 
   tz.TZDateTime _nextDaily() {

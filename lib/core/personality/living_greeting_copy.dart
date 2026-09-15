@@ -6,17 +6,14 @@ import '../copy/first_session_copy.dart';
 import '../experience/domain/models/experience_context.dart';
 import '../experience/domain/models/greeting_context.dart';
 import '../universe/oracly_universe_state.dart';
+import '../copy/home_greeting_name.dart';
 import 'living_universe_copy.dart';
 import 'or_phrase_rotator.dart';
 
 abstract final class LivingGreetingCopy {
   LivingGreetingCopy._();
 
-  static const _intros = [
-    'Merhaba',
-    'Hoş geldin',
-    'Buradasın',
-  ];
+  static const _intros = ['Merhaba', 'Hoş geldin', 'Buradasın'];
 
   static const _newJourney = [
     'İlk adımın sessizce başlıyor.',
@@ -38,11 +35,13 @@ abstract final class LivingGreetingCopy {
     if (experience.greeting.tone == GreetingTone.newJourney) {
       return FirstSessionCopy.homeGreeting;
     }
-    return OrPhraseRotator.daily(
+    final greeting = OrPhraseRotator.daily(
       pool: _intros,
       day: asOf,
       salt: userName ?? 'guest',
     );
+    final firstName = HomeGreetingName.firstNameOrNull(userName);
+    return firstName == null ? greeting : '$greeting, $firstName';
   }
 
   static String subtitle({

@@ -7,6 +7,7 @@ import '../../../core/domain/models/premium_plan.dart';
 import '../../../core/services/premium_service.dart';
 import '../models/premium_entitlement_state.dart';
 import '../models/premium_purchase_result.dart';
+import '../models/review_access_result.dart';
 
 class PremiumStatusController extends ChangeNotifier {
   PremiumStatusController(this._service);
@@ -122,14 +123,23 @@ class PremiumStatusController extends ChangeNotifier {
   }
 
   /// Submits a Play/App Store reviewer code. Never touches purchase
-  /// credentials or commerce entitlement state.
-  Future<bool> activateReviewAccess(String code) async {
-    final granted = await _service.activateReviewAccess(code);
-    if (granted) {
+  /// credentials or commerce entitlement state. Returns the full
+  /// [ReviewAccessResult] so the caller can distinguish a definitive "wrong
+  /// code" denial from a transient network/server failure and word the
+  /// message honestly instead of always saying the code is wrong.
+  Future<ReviewAccessResult> activateReviewAccessResult(String code) async {
+    final result = await _service.activateReviewAccessResult(code);
+    if (result.granted) {
       _reviewAccessActive = true;
       notifyListeners();
     }
-    return granted;
+    return result;
+  }
+
+  /// Convenience wrapper over [activateReviewAccessResult] for callers that
+  /// only care whether access was granted.
+  Future<bool> activateReviewAccess(String code) async {
+    return (await activateReviewAccessResult(code)).granted;
   }
 
   Future<void> _settle(PremiumPurchaseResult result) async {

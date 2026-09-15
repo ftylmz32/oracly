@@ -84,10 +84,28 @@ abstract final class OraclyFormat {
   }
 
   /// Clock time — 24h for TR/RU, 12h for EN.
+  ///
+  /// Deferred startup awaits [ensureInitialized] AFTER the first frame
+  /// (see main.dart), so a screen can render before ICU locale data is
+  /// ready. Fall back to a manual, still locale-correct format instead of
+  /// throwing a LocaleDataException — matches [_safeDate]'s pattern.
   static String time(DateTime date, {String? languageCode}) {
     final tag = _localeTag(languageCode);
+    if (!_datesReady) return _safeTime(date, tag);
     if (tag == AppLocale.en) return DateFormat.jm(tag).format(date);
     return DateFormat.Hm(tag).format(date);
+  }
+
+  static String _safeTime(DateTime date, String tag) {
+    if (tag == AppLocale.en) {
+      final hour12 = date.hour % 12 == 0 ? 12 : date.hour % 12;
+      final minute = date.minute.toString().padLeft(2, '0');
+      final suffix = date.hour < 12 ? 'AM' : 'PM';
+      return '$hour12:$minute $suffix';
+    }
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   /// Numeric calendar form for forms / stamps (locale separators).

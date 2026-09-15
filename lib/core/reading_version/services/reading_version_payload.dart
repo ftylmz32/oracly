@@ -81,7 +81,11 @@ abstract final class ReadingVersionPayload {
   static Dream? applyDream(Dream? base, Map<String, dynamic> data) {
     final payload = data['payload'];
     if (payload is Map<String, dynamic>) {
-      return Dream.fromJson(payload);
+      try {
+        return Dream.fromJson(payload);
+      } catch (_) {
+        // Corrupt/schema-drift version payload must not crash the reader.
+      }
     }
     if (base == null) return null;
     return base;

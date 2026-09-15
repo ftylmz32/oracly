@@ -16,7 +16,7 @@ void main() {
   test('backend map -> PalmAiAnalysis -> toReading keeps takeaway', () {
     final parsed = PalmVisionParser.fromMap({
       'visualObservation': 'Açık avuç, ana çizgiler görünür durumda.',
-      'overall': 'Avuç sakin ve açık duruyor.',
+      'overall': 'Avuç sakin ve açık duruyor, çizgiler net okunuyor.',
       'takeaway': 'En net işaret yakınlık ritmi.',
       'heartLine': 'Kalp çizgisi yumuşak bir yay çiziyor.',
       'themes': ['yakınlık', 'denge'],
@@ -39,7 +39,7 @@ void main() {
     expect(reading.takeaway, 'En net işaret yakınlık ritmi.');
     expect(reading.themes, ['yakınlık', 'denge']);
 
-    final composed = PalmFortuneComposer.compose(reading);
+    final composed = PalmFortuneComposer.compose(reading)!;
     expect(composed.takeaway, contains('yakınlık'));
   });
 
@@ -54,7 +54,7 @@ void main() {
         createdAt: DateTime(2026, 8, 27),
         hand: PalmHand.left,
       ),
-    );
+    )!;
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(body: PalmResultSections(reading: composed)),

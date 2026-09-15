@@ -58,10 +58,9 @@ class _ConfiguredPort implements PremiumPurchasePort {
 /// Fake server: grants only for [validCode], counts every call, never
 /// touches billing/store vocabulary.
 class _FakeReviewAccessService implements ReviewAccessService {
-  _FakeReviewAccessService({this.validCode = 'PLAY-REVIEW-1'});
-
-  String? validCode;
+  String? validCode = 'PLAY-REVIEW-1';
   int activateCalls = 0;
+  bool networkFailureNext = false;
   final submittedCodes = <String>[];
 
   @override
@@ -71,6 +70,10 @@ class _FakeReviewAccessService implements ReviewAccessService {
   Future<ReviewAccessResult> activate(String code) async {
     activateCalls += 1;
     submittedCodes.add(code);
+    if (networkFailureNext) {
+      networkFailureNext = false;
+      return ReviewAccessResult.denied('network_or_parse', definitive: false);
+    }
     if (validCode != null && code == validCode) {
       return ReviewAccessResult.granted();
     }
@@ -116,8 +119,8 @@ void main() {
     await status.load();
     expect(status.isPremium, isFalse);
 
-    final granted = await status.activateReviewAccess('PLAY-REVIEW-1');
-    expect(granted, isTrue);
+    final result = await status.activateReviewAccessResult('PLAY-REVIEW-1');
+    expect(result.granted, isTrue);
     expect(status.isPremium, isTrue);
     expect(status.isReviewAccessActive, isTrue);
     // Distinguishable: commerce entitlement is untouched.
@@ -138,11 +141,37 @@ void main() {
     );
     await status.load();
 
-    final granted = await status.activateReviewAccess('wrong-code');
-    expect(granted, isFalse);
+    final result = await status.activateReviewAccessResult('wrong-code');
+    expect(result.granted, isFalse);
+    expect(result.definitive, isTrue);
     expect(status.isPremium, isFalse);
     expect(reviewRepo.isGrantedLocally, isFalse);
   });
+
+  test(
+    'transient network failure activating a code is reported as non-definitive',
+    () async {
+      final (premium, users, reviewRepo, reviewService) = await deps();
+      reviewService.networkFailureNext = true;
+      final status = PremiumStatusController(
+        PremiumService(
+          premium,
+          users,
+          const UnavailablePremiumPurchase(),
+          null,
+          reviewRepo,
+          reviewService,
+        ),
+      );
+      await status.load();
+
+      final result = await status.activateReviewAccessResult('PLAY-REVIEW-1');
+      expect(result.granted, isFalse);
+      expect(result.definitive, isFalse);
+      expect(status.isPremium, isFalse);
+      expect(reviewRepo.isGrantedLocally, isFalse);
+    },
+  );
 
   test(
     'review access does not spoof store purchase verification: no purchase '
@@ -168,7 +197,7 @@ void main() {
       expect(premium.isActiveNow, isFalse);
       expect(premium.wasAuthoritativelyVerified, isFalse);
       expect(await premium.activePlan(), isNull);
-      expect(premium.readPurchaseCredentials(), isNull);
+      expect(await premium.readPurchaseCredentials(), isNull);
     },
   );
 

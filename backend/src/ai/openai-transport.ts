@@ -72,7 +72,7 @@ export class OpenAiTransport {
         throw new ProxyError(ErrorCode.noConfiguration);
       }
       if (response.status === 429) {
-        throw new ProxyError(ErrorCode.rateLimited, 429);
+        throw new ProxyError(ErrorCode.rateLimited, 429, await rateLimitDetails(response));
       }
       if (response.status === 408) {
         throw new ProxyError(ErrorCode.providerTimeout, 408);
@@ -138,7 +138,7 @@ export class OpenAiTransport {
         throw new ProxyError(ErrorCode.noConfiguration);
       }
       if (response.status === 429) {
-        throw new ProxyError(ErrorCode.rateLimited, 429);
+        throw new ProxyError(ErrorCode.rateLimited, 429, await rateLimitDetails(response));
       }
       if (response.status === 408) {
         throw new ProxyError(ErrorCode.providerTimeout, 408);
@@ -164,6 +164,93 @@ export class OpenAiTransport {
       clearTimeout(timer);
     }
   }
+}
+
+/** SM-RL2 §1/§2 — bounded, sanitized 429 evidence captured on the
+ * ProxyError.details for a rate-limit rejection, used by the Soulmate
+ * durable worker's bounded-retry decision (soulmate-provider-failure.ts)
+ * and its `provider_rate_limited` observability log. Generic to this
+ * shared transport (Coffee/Palm/Soulmate all flow through here) — never
+ * affects `ProxyError.code`, which every existing caller already
+ * switches on, so this is purely additive metadata. Deliberately never
+ * captures the API key, Authorization header, request payload, or an
+ * unbounded raw response body — only a small set of structured fields
+ * useful for diagnosing WHY a request was rate-limited (see SM-PR1). A
+ * body-parse failure still leaves the 429/rate_limited classification
+ * intact — the caller already decided that from the HTTP status alone. */
+const MAX_PROVIDER_MESSAGE_LENGTH = 300;
+const MAX_RATE_LIMIT_HEADER_VALUE_LENGTH = 64;
+const MAX_RATE_LIMIT_HEADERS = 12;
+
+async function rateLimitDetails(response: Response): Promise<Record<string, unknown>> {
+  const details: Record<string, unknown> = {};
+
+  const retryAfterMs = parseRetryAfterMs(response.headers.get('retry-after'));
+  if (retryAfterMs != null) details.retryAfterMs = retryAfterMs;
+
+  const requestId = response.headers.get('x-request-id') ?? response.headers.get('request-id');
+  if (requestId) details.requestId = requestId.slice(0, 128);
+
+  const rateLimit = collectRateLimitHeaders(response.headers);
+  if (rateLimit) details.rateLimit = rateLimit;
+
+  const providerMessage = await readProviderMessage(response);
+  if (providerMessage) details.providerMessage = providerMessage;
+
+  return details;
+}
+
+function parseRetryAfterMs(raw: string | null): number | undefined {
+  if (!raw) return undefined;
+  const seconds = Number(raw);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.round(seconds * 1000);
+  }
+  const dateMs = Date.parse(raw);
+  if (Number.isFinite(dateMs)) {
+    const deltaMs = dateMs - Date.now();
+    if (deltaMs > 0) return deltaMs;
+  }
+  return undefined;
+}
+
+/** Bounded count and per-value length — never an unbounded header dump. */
+function collectRateLimitHeaders(headers: Headers): Record<string, string> | undefined {
+  const out: Record<string, string> = {};
+  let count = 0;
+  for (const [name, value] of headers.entries()) {
+    if (!/^x-ratelimit-(limit|remaining|reset)-/i.test(name)) continue;
+    if (count >= MAX_RATE_LIMIT_HEADERS) break;
+    out[name.toLowerCase()] = value.slice(0, MAX_RATE_LIMIT_HEADER_VALUE_LENGTH);
+    count += 1;
+  }
+  return count > 0 ? out : undefined;
+}
+
+/** Only `error.type` / `error.code` / `error.message` — never the raw body,
+ * never headers/payload, bounded to a short sanitized string. Defensively
+ * redacts anything that looks like a bearer token or an OpenAI secret key
+ * even though the provider is not expected to echo one back — this must
+ * hold regardless of what the provider's body ever contains. */
+async function readProviderMessage(response: Response): Promise<string | undefined> {
+  try {
+    const body = (await response.json()) as {
+      error?: { type?: unknown; code?: unknown; message?: unknown };
+    };
+    const parts = [body.error?.type, body.error?.code, body.error?.message].filter(
+      (value): value is string => typeof value === 'string' && value.length > 0,
+    );
+    if (parts.length === 0) return undefined;
+    return redactSecrets(parts.join(' | ')).slice(0, MAX_PROVIDER_MESSAGE_LENGTH);
+  } catch {
+    return undefined;
+  }
+}
+
+function redactSecrets(text: string): string {
+  return text
+    .replace(/Bearer\s+\S+/gi, '[redacted]')
+    .replace(/sk-[a-zA-Z0-9_-]{8,}/g, '[redacted]');
 }
 
 function mapTransportError(error: unknown): ProxyError {

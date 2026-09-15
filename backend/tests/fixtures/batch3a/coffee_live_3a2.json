@@ -1,0 +1,39 @@
+{
+  "source": "batch3a2-qa-live",
+  "personalization": {
+    "firstName": "Fatih",
+    "relevantThemes": [
+      "karar verme"
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibindeki yoğun tortu, alt iç yüzeye doğru iki yandan uzanırken üst bölüm daha açık ve ferah görünüyor.",
+      "evidenceIds": []
+    },
+    "overall": {
+      "text": "Fatih, zihnini bir süredir meşgul eden tek bir konu çevresinde farklı olasılıkları tartıyor olabilirsin. Merkezdeki ağırlığın iki ayrı yönde ilerlemesi, kararın kendisinden çok sonuçlarını hesapladığını düşündürüyor: Bir seçenek daha tanıdık ve güvenli, diğeri ise daha fazla inisiyatif istiyor. İnce, yarım kalan yay da meseleyi tamamen kapatmadan önce koymak istediğin bir sınırı simgeliyor olabilir. Burada acele etmekten çok, hangi yükün gerçekten sana ait olduğunu ayırmak önem kazanıyor.",
+      "evidenceIds": []
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Orta iç yüzeyde dağılan küçük izler, önündeki dönemde tek büyük gelişmeden ziyade peş peşe gelecek ufak bilgiler ve konuşmalarla netleşmeye işaret ediyor. Üst kısmın seyrek kalması, zihinsel baskının hafifleyebileceğini; fakat bunun dışarıdan gelecek kesin bir cevaptan çok, ayrıntıları sadeleştirmenle mümkün olacağını anlatıyor. Yakın zamanda karar ölçütlerini iki ya da üç maddeye indirmek işini kolaylaştırabilir.",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Fincanın dibindeki yoğunluk ile yukarı çıktıkça azalan izler birlikte, zor kısmın seçenek bulmak değil, biriken düşünceleri elemek olduğunu söylüyor. Kulp tarafına yönelen kıvrım ise son sözün çevrenin beklentilerinden çok senin gündelik düzenine dayanması gerektiğini düşündürüyor. Sana sürdürülebilir gelen seçeneği belirleyip geri kalan ayrıntıları ikinci plana koyman, kararı daha sakin ve somut hâle getirebilir.",
+      "evidenceIds": []
+    }
+  }
+}

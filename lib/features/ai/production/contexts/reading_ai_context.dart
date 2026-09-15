@@ -44,6 +44,7 @@ final class DreamAiContext extends ReadingAiContext {
     this.analysis,
     this.emotionalTheme,
     this.fullInterpretation,
+    this.memorySummary,
   });
 
   final String narrative;
@@ -52,6 +53,7 @@ final class DreamAiContext extends ReadingAiContext {
   final String? analysis;
   final String? emotionalTheme;
   final String? fullInterpretation;
+  final String? memorySummary;
 
   @override
   String get kindId => 'dream';

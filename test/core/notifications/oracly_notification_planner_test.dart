@@ -1,6 +1,8 @@
 /// Daily invitations — one payload, public theme names only.
 library;
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/notifications/memory_notification_port.dart';
@@ -8,6 +10,7 @@ import 'package:oracly_new/core/notifications/oracly_notification_coordinator.da
 import 'package:oracly_new/core/notifications/oracly_notification_kind.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_planner.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_privacy.dart';
+import 'package:oracly_new/core/runtime/oracly_apply_outcome.dart';
 import 'package:oracly_new/features/personal_discovery/models/personal_discovery_profile.dart';
 import 'package:oracly_new/features/personal_discovery/models/personal_discovery_sources.dart';
 import 'package:oracly_new/features/personal_discovery/models/cross_discovery_insight.dart';
@@ -181,5 +184,62 @@ void main() {
     );
     expect(port.scheduled?.kind, OraclyNotificationKind.daily);
     expect(port.scheduled?.body, isNot(contains('/')));
+  });
+
+  group('RELIABILITY BATCH 2A — Fix 5: never silently swallowed', () {
+    test('successful schedule reports success, not just "no exception"', () async {
+      final port = MemoryNotificationPort();
+      final coordinator = OraclyNotificationCoordinator(
+        port: port,
+        loadProfile: () async => PersonalDiscoveryProfile.empty,
+      );
+      final outcome = await coordinator.sync(
+        const PersonalizationSettings(notificationsEnabled: true),
+      );
+      expect(outcome, OraclyApplyOutcome.success);
+    });
+
+    test('a real scheduling failure is reported, not swallowed', () async {
+      final port = MemoryNotificationPort()..scheduleShouldFail = true;
+      final coordinator = OraclyNotificationCoordinator(
+        port: port,
+        loadProfile: () async => PersonalDiscoveryProfile.empty,
+      );
+      final outcome = await coordinator.sync(
+        const PersonalizationSettings(notificationsEnabled: true),
+      );
+      expect(outcome, OraclyApplyOutcome.failure);
+      expect(port.scheduled, isNull);
+    });
+
+    test('a real cancellation failure is reported, not swallowed', () async {
+      final port = MemoryNotificationPort()..cancelShouldFail = true;
+      final coordinator = OraclyNotificationCoordinator(
+        port: port,
+        loadProfile: () async => PersonalDiscoveryProfile.empty,
+      );
+      final outcome = await coordinator.sync(
+        const PersonalizationSettings(),
+      );
+      expect(outcome, OraclyApplyOutcome.failure);
+    });
+
+    test(
+      'LocalNotificationPort always cancels the single fixed daily id '
+      'before rescheduling — architecturally no duplicate schedule',
+      () {
+        final source = File(
+          'lib/core/notifications/local_notification_port.dart',
+        ).readAsStringSync();
+        expect(source, contains("static const _id = 4101;"));
+        final scheduleBody = source.substring(
+          source.indexOf('Future<OraclyApplyOutcome> scheduleDaily'),
+        );
+        final cancelIndex = scheduleBody.indexOf('_plugin.cancel(_id)');
+        final zonedScheduleIndex = scheduleBody.indexOf('_plugin.zonedSchedule(');
+        expect(cancelIndex, greaterThan(-1));
+        expect(zonedScheduleIndex, greaterThan(cancelIndex));
+      },
+    );
   });
 }

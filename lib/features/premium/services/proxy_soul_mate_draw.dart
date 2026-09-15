@@ -7,9 +7,12 @@ import '../../ai/production/ai_request_fingerprint.dart';
 import '../../ai/production/ai_request_guard.dart';
 import '../../ai/production/openai/openai_paid_requests.dart';
 import '../../ai/production/openai/openai_service_results.dart';
+import '../../ai/production/ai_failure.dart';
 import '../../ai/production/transport/ai_transport.dart';
 import '../copy/soul_mate_copy.dart';
 import 'soul_mate_draw_port.dart';
+import 'soul_mate_generation_policy.dart';
+import 'soul_mate_identity.dart';
 
 class ProxySoulMateDraw implements SoulMateDrawPort {
   ProxySoulMateDraw({
@@ -36,7 +39,11 @@ class ProxySoulMateDraw implements SoulMateDrawPort {
       'soulmate',
       kind: AiRequestKind.soulmate,
       fingerprint: fp,
-      limited: () => SoulMateDrawResult.unavailable(SoulMateCopy.unavailable),
+      limited: () => SoulMateDrawResult.unavailable(
+        SoulMateCopy.failureTemporary,
+        failureKind: SoulMateFailureKind.temporary,
+        aiKind: AiFailureKind.rateLimit,
+      ),
       succeeded: (r) => r.hasPortrait,
       () async {
         final outcome = OpenAiServiceResults.soulMate(
@@ -56,9 +63,16 @@ class ProxySoulMateDraw implements SoulMateDrawPort {
         return outcome.when(
           success: (portrait) {
             if (!portrait.hasImage) {
-              return SoulMateDrawResult.unavailable(SoulMateCopy.unavailable);
+              return SoulMateDrawResult.unavailable(
+                SoulMateCopy.failureTemporary,
+                failureKind: SoulMateFailureKind.temporary,
+                aiKind: AiFailureKind.invalidResponse,
+              );
             }
-            return SoulMateDrawResult.success(imageBytes: portrait.bytes);
+            return SoulMateDrawResult.success(
+              imageBytes: portrait.bytes,
+              identity: SoulMateIdentity.fromMap(portrait.identity),
+            );
           },
           error: (failure) {
             logAnalysisFailure(
@@ -67,7 +81,11 @@ class ProxySoulMateDraw implements SoulMateDrawPort {
               error: failure,
               kind: failure.kind.name,
             );
-            return SoulMateDrawResult.unavailable(failure.userMessage);
+            return SoulMateDrawResult.unavailable(
+              failure.userMessage,
+              failureKind: SoulMateGenerationPolicy.failureKindFor(failure.kind),
+              aiKind: failure.kind,
+            );
           },
         );
       },

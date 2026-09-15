@@ -13,6 +13,7 @@ import '../../premium/models/personalization_models.dart';
 import '../models/privacy_control_snapshot.dart';
 import '../services/privacy_control_service.dart';
 import '../services/privacy_control_snapshot_builder.dart';
+import '../../reading_operation/providers/reading_live_provider.dart';
 
 final privacyControlServiceProvider = Provider<PrivacyControlService>((ref) {
   return PrivacyControlService(
@@ -25,18 +26,29 @@ final privacyControlServiceProvider = Provider<PrivacyControlService>((ref) {
 });
 
 final accountDeletionServiceProvider = Provider<AccountDeletionService>((ref) {
+  final send = ref.watch(readingOperationSenderProvider);
   return AccountDeletionService(
     auth: ref.watch(authServiceProvider),
     storage: ref.watch(localStorageProvider),
     secureStorage: ref.watch(secureStorageProvider),
+    deleteServerData: () async {
+      if (send == null) return false;
+      final response = await send('POST', '/v1/account/deletion', const {});
+      final data = response?.json?['data'];
+      return response?.statusCode == 202 &&
+          data is Map &&
+          data['status'] == 'accepted';
+    },
   );
 });
 
-final privacyControlSnapshotProvider =
-    FutureProvider<PrivacyControlSnapshot>((ref) async {
-  final profile = ref.watch(userProfileProvider).valueOrNull ??
-      const UserProfileModel();
-  final settings = ref.watch(settingsProvider).valueOrNull ??
+final privacyControlSnapshotProvider = FutureProvider<PrivacyControlSnapshot>((
+  ref,
+) async {
+  final profile =
+      ref.watch(userProfileProvider).valueOrNull ?? const UserProfileModel();
+  final settings =
+      ref.watch(settingsProvider).valueOrNull ??
       const PersonalizationSettings();
   final journal = await ref.watch(discoveryJournalEntriesProvider.future);
   final languageCode = ref.watch(appLocaleProvider).languageCode;

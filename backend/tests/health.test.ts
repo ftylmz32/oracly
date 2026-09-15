@@ -50,6 +50,10 @@ describe('health', () => {
       testConfig({
         APP_ENV: 'production',
         FIREBASE_PROJECT_ID: 'oracly-7f613',
+        READING_STAGING_BUCKET: 'test-reading-staging',
+        READING_TASK_QUEUE: 'test-reading-queue',
+        READING_TASK_TARGET_URL: 'https://example.test/internal/reading-tasks/process',
+        READING_TASK_SERVICE_ACCOUNT: 'worker@example.test',
       }),
     );
     const ok = await firebaseReady.inject({ method: 'GET', url: '/ready' });

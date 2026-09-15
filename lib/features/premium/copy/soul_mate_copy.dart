@@ -10,7 +10,8 @@ abstract final class SoulMateCopy {
 
   static String get listTitle => _t('soulmate.list_title');
   static String get listDescription => _t('soulmate.list_description');
-  static String get listDescriptionSaved => _t('soulmate.list_description_saved');
+  static String get listDescriptionSaved =>
+      _t('soulmate.list_description_saved');
   static String get screenTitle => _t('soulmate.screen_title');
   static String get screenLead => _t('soulmate.screen_lead');
   static String get honesty => _t('soulmate.honesty');
@@ -20,6 +21,10 @@ abstract final class SoulMateCopy {
   static String get dynamicsLabel => _t('soulmate.dynamics');
   static String get feelingLabel => _t('soulmate.feeling');
   static String get yourSideLabel => _t('soulmate.your_side');
+  static String get meetingLabel => _t('soulmate.meeting');
+  static String get interpreting => _t('soulmate.interpreting');
+  static String get interpretationFailed =>
+      _t('soulmate.interpretation_failed');
   static String get symbolicLabel => _t('soulmate.symbolic');
   static String get brandMark => _t('soulmate.brand');
   static String get nameLabel => _t('soulmate.name_label');
@@ -38,8 +43,20 @@ abstract final class SoulMateCopy {
   static String get drawing => _t('soulmate.drawing');
   static String get drawingPhase2 => _t('soulmate.drawing_2');
   static String get drawingPhase3 => _t('soulmate.drawing_3');
-  static List<String> get drawingPhases => [drawing, drawingPhase2, drawingPhase3];
+  static List<String> get drawingPhases => [
+    drawing,
+    drawingPhase2,
+    drawingPhase3,
+  ];
+  static String get drawingSlowTitle => _t('soulmate.drawing_slow_title');
+  static String get drawingSlowBody => _t('soulmate.drawing_slow_body');
+  static String get drawingSlowSecondary =>
+      _t('soulmate.drawing_slow_secondary');
   static String get unavailable => _t('soulmate.unavailable');
+  static String get failureTemporary => _t('soulmate.failure_temporary');
+  static String get failureConnection => _t('soulmate.failure_connection');
+  static String get failureInput => _t('soulmate.failure_input');
+  static String get failureUnavailable => _t('soulmate.failure_unavailable');
   static String get retry => _t('soulmate.retry');
   static String get nameRequired => _t('soulmate.name_required');
   static String get birthRequired => _t('soulmate.birth_required');

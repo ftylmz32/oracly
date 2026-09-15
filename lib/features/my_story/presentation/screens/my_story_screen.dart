@@ -10,9 +10,9 @@ import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../discovery_journal/presentation/widgets/discovery_journal_atmosphere.dart';
-import '../../../personal_discovery/models/personal_discovery_profile.dart';
 import '../../../personal_discovery/providers/personal_discovery_providers.dart';
 import '../../../../shared/widgets/oracly_cinematic_loading.dart';
+import '../../../../shared/widgets/oracly_error_state.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../copy/my_story_copy.dart';
 import '../../models/personal_story.dart';
@@ -67,10 +67,9 @@ class MyStoryScreen extends ConsumerWidget {
             Expanded(
               child: async.when(
                 loading: () => const OraclyCinematicLoading(compact: true),
-                error: (_, _) => _StoryScroll(
-                  story: PersonalStoryComposer.compose(
-                    PersonalDiscoveryProfile.empty,
-                  ),
+                error: (_, _) => OraclyErrorState(
+                  message: MyStoryCopy.loadFailed,
+                  onRetry: () => ref.invalidate(personalDiscoveryProfileProvider),
                 ),
                 data: (profile) => _StoryScroll(
                   story: PersonalStoryComposer.compose(profile),

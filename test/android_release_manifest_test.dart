@@ -19,6 +19,17 @@ void main() {
       RegExp(r'android:name="android\.hardware\.camera\.any"[\s\S]*?android:required="false"').hasMatch(manifest),
       isTrue,
     );
-    expect(manifest, isNot(contains('com.google.android.gms.permission.AD_ID')));
+    // Rewarded ads are not shipping this release, so google_mobile_ads was
+    // removed from the dependency graph entirely (pubspec.yaml) -- there is
+    // no longer any library merging AD_ID in, so a manifest-level removal
+    // directive for it is dead cruft, not a needed defense. Absence here is
+    // a strictly stronger guarantee than "present but tools:remove"; the
+    // compiled-artifact truth is independently verified in
+    // android_release_bundle_manifest_test.dart against the real merged
+    // manifest, including the modern AdServices permissions this predates.
+    expect(
+      manifest,
+      isNot(contains('com.google.android.gms.permission.AD_ID')),
+    );
   });
 }

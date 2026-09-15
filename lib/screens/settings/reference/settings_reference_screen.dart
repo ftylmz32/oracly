@@ -8,6 +8,7 @@ import '../../../app/providers/app_providers.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/notifications/oracly_notification_providers.dart';
 import '../../../core/copy/resilience_copy.dart';
+import '../../../core/runtime/oracly_apply_outcome.dart';
 import '../../../shared/ui/oracly_snackbar.dart';
 import '../../../features/home/reference/home_reference_background.dart';
 import '../../../features/premium/models/personalization_models.dart';
@@ -77,8 +78,46 @@ class _SettingsReferenceScreenState
     _write = _write.then((_) async {
       if (!mounted) return;
       try {
-        await ref.read(settingsProvider.notifier).saveSettings(_settings);
-        await ref.read(oraclyNotificationCoordinatorProvider).sync(_settings);
+        final audioResult = await ref
+            .read(settingsProvider.notifier)
+            .saveSettings(_settings);
+        if (mounted && audioResult.settings != _settings) {
+          // The requested effect could not really apply (e.g. ambient
+          // music could not start) — reflect the corrected, honest state.
+          setState(() => _settings = audioResult.settings);
+        }
+        if (!mounted) return;
+
+        var notifyFailed = false;
+        final notifyOutcome = await ref
+            .read(oraclyNotificationCoordinatorProvider)
+            .sync(_settings);
+        if (notifyOutcome.isFailure) {
+          notifyFailed = true;
+          // Never claim a state that was not actually proven:
+          // - requested ON but scheduling failed -> nothing is actually
+          //   scheduled -> correct to OFF.
+          // - requested OFF but cancelling failed -> the schedule may
+          //   still exist -> correct back to ON.
+          final corrected = _settings.copyWith(
+            notificationsEnabled: !_settings.notificationsEnabled,
+          );
+          await ref.read(settingsProvider.notifier).saveSettings(corrected);
+          if (mounted) setState(() => _settings = corrected);
+        }
+
+        if (!mounted) return;
+        if (audioResult.hasFailure) {
+          OraclySnackBar.show(
+            context,
+            message: ResilienceCopy.settingsAudioApplyFailed,
+          );
+        } else if (notifyFailed) {
+          OraclySnackBar.show(
+            context,
+            message: ResilienceCopy.settingsNotificationApplyFailed,
+          );
+        }
       } catch (_) {
         if (!mounted) return;
         OraclySnackBar.show(

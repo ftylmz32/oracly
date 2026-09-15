@@ -11,6 +11,8 @@ export const ErrorCode = {
   invalidImage: 'invalid_image',
   unsupportedImageType: 'unsupported_image_type',
   imageTooLarge: 'image_too_large',
+  /** Coffee V2 slotted staging: this exact photo is already used by another slot. */
+  duplicateStagedImage: 'duplicate_staged_image',
   invalidResponse: 'invalid_response',
   timeout: 'timeout',
   /** Alias used in client contracts for provider abort. */
@@ -22,6 +24,8 @@ export const ErrorCode = {
   /** Writer/repair failed deterministic human-quality / evidence binding. */
   qualityUnavailable: 'quality_unavailable',
   internalError: 'internal_error',
+  /** Canonical acceleration cost exceeds authoritative balance. */
+  insufficientGems: 'insufficient_gems',
 } as const;
 
 export type ErrorCodeName = (typeof ErrorCode)[keyof typeof ErrorCode];

@@ -7,6 +7,8 @@ export type AiOperation =
   | 'coffee_analysis'
   | 'palm_analysis'
   | 'soulmate_draw'
+  | 'soulmate_interpretation'
+  | 'tarot_reading'
   | 'tts';
 
 export const OPERATIONS: readonly AiOperation[] = [
@@ -16,6 +18,8 @@ export const OPERATIONS: readonly AiOperation[] = [
   'coffee_analysis',
   'palm_analysis',
   'soulmate_draw',
+  'soulmate_interpretation',
+  'tarot_reading',
   'tts',
 ] as const;
 

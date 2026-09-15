@@ -69,8 +69,8 @@ class _DailyMessageScreenState extends ConsumerState<DailyMessageScreen> {
     );
     final recommendation = ref.watch(discoveryRecommendationProvider);
     final reason = DiscoveryRecommendationCopy.reason(recommendation);
-    final showReentry = recommendation.feature !=
-            DiscoveryRecommendedFeature.dailyMessage ||
+    final showReentry =
+        recommendation.feature != DiscoveryRecommendedFeature.dailyMessage ||
         recommendation.hasEvidence;
     final ctaAction = _actionFor(recommendation.feature, message.action);
     if (!_recorded) {
@@ -87,9 +87,7 @@ class _DailyMessageScreenState extends ConsumerState<DailyMessageScreen> {
     return OraclyScaffold(
       safeArea: false,
       usePremiumBackground: false,
-      backgroundOverlay: const DailyMessageAtmosphere(
-        child: SizedBox.shrink(),
-      ),
+      backgroundOverlay: const DailyMessageAtmosphere(child: SizedBox.shrink()),
       child: SafeArea(
         bottom: false,
         child: Padding(
@@ -110,59 +108,80 @@ class _DailyMessageScreenState extends ConsumerState<DailyMessageScreen> {
                 ),
               ),
               Expanded(
-                child: Align(
-                  alignment: const Alignment(0, -0.18),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        DailyMessageCard(message: message),
-                        InsightCopyLink(text: message.text),
-                        SaveFavoriteMomentLink(
-                          draft: FavoriteMomentFactory.daily(message),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
                         ),
-                        DiscoveryShareAction(
-                          discovery: DiscoveryShareBuilder.dailyInsight(
-                            highlight: message.text,
+                        child: Align(
+                          alignment: const Alignment(0, -0.18),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 400),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                DailyMessageCard(message: message),
+                                InsightCopyLink(text: message.text),
+                                SaveFavoriteMomentLink(
+                                  draft: FavoriteMomentFactory.daily(message),
+                                ),
+                                DiscoveryShareAction(
+                                  discovery: DiscoveryShareBuilder.dailyInsight(
+                                    highlight: message.text,
+                                  ),
+                                ),
+                                if (showReentry) ...[
+                                  const SizedBox(height: AppSpacing.s8),
+                                  Text(
+                                    DailyMessageCopy.discoveryTitle,
+                                    textAlign: TextAlign.center,
+                                    style: ReadingTypography.sectionLabel(
+                                      color: OraclyChrome.goldLight.withValues(
+                                        alpha: 0.9,
+                                      ),
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.s8),
+                                  if (reason != null) ...[
+                                    Text(
+                                      reason,
+                                      textAlign: TextAlign.center,
+                                      style: ReadingTypography.body(
+                                        color: OraclyChrome.cream.withValues(
+                                          alpha: 0.78,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: AppSpacing.s8),
+                                  ],
+                                  Text(
+                                    DiscoveryRecommendationCopy.cta(
+                                      recommendation.feature,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    style: ReadingTypography.bodyCore(
+                                      color: OraclyChrome.goldLight.withValues(
+                                        alpha: 0.94,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: AppSpacing.s8),
+                                DailyReturnCta(
+                                  action: ctaAction,
+                                  message: message,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        if (showReentry) ...[
-                          const SizedBox(height: AppSpacing.s8),
-                          Text(
-                            DailyMessageCopy.discoveryTitle,
-                            textAlign: TextAlign.center,
-                            style: ReadingTypography.sectionLabel(
-                              color: OraclyChrome.goldLight.withValues(alpha: 0.9),
-                              fontSize: 11,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.s8),
-                          if (reason != null) ...[
-                            Text(
-                              reason,
-                              textAlign: TextAlign.center,
-                              style: ReadingTypography.body(
-                                color: OraclyChrome.cream.withValues(alpha: 0.78),
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.s8),
-                          ],
-                          Text(
-                            DiscoveryRecommendationCopy.cta(
-                              recommendation.feature,
-                            ),
-                            textAlign: TextAlign.center,
-                            style: ReadingTypography.bodyCore(
-                              color: OraclyChrome.goldLight.withValues(alpha: 0.94),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: AppSpacing.s8),
-                        DailyReturnCta(action: ctaAction, message: message),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

@@ -28,7 +28,6 @@ import 'package:oracly_new/features/discovery_journal/services/discovery_journal
 import 'package:oracly_new/features/favorite_moments/data/local_favorite_moments_repository.dart';
 import 'package:oracly_new/features/favorite_moments/models/favorite_moment.dart';
 import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
-import 'package:oracly_new/features/gems/models/gem_transaction.dart';
 import 'package:oracly_new/features/personal_discovery/models/personal_discovery_sources.dart';
 import 'package:oracly_new/features/personal_discovery/services/discovery_or_context.dart';
 import 'package:oracly_new/features/personal_discovery/services/personal_discovery_profile_builder.dart';
@@ -120,16 +119,7 @@ Future<void> _seedUserA(LocalStorage storage) async {
     const UserProfileModel(name: 'Synthetic Alice', isPremium: true),
   );
   await MockPremiumRepository(storage).activatePlan(PremiumPlanKind.monthly);
-  await GemWalletStore(storage).write(
-    balance: 77,
-    transaction: GemTransaction(
-      id: 'tx-a',
-      createdAt: now,
-      amount: 77,
-      reason: 'seed',
-      type: GemTransactionType.earned,
-    ),
-  );
+  await GemWalletStore(storage).cacheServerBalance(77);
   await LocalFavoriteMomentsRepository(storage).save(
     FavoriteMoment(
       id: 'fav-a',

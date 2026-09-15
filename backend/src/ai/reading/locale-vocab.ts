@@ -1,7 +1,12 @@
 /** Locale-safe region vocabulary for the production writer handoff. */
 
 import type { AppLanguage } from '../app-language.js';
-import type { CoffeeObservation, PalmObservation, ReadingEvidenceItem } from './types.js';
+import type {
+  CoffeeObservation,
+  PalmObservation,
+  ReadingEvidenceItem,
+  ReadingPersonalization,
+} from './types.js';
 
 const COFFEE_REGION_TR: Record<string, string> = {
   rim: 'fincanın ağız kenarı',
@@ -77,11 +82,14 @@ export type WriterEvidencePacket = {
   >;
   usable: boolean;
   checks: Record<string, boolean>;
+  /** BATCH 3A.1 — omitted entirely when no real context is available. */
+  personalization?: ReadingPersonalization;
 };
 
 export function buildCoffeeWriterPacket(
   obs: CoffeeObservation,
   language: AppLanguage,
+  personalization?: ReadingPersonalization,
 ): WriterEvidencePacket {
   const vocab: Record<string, string> = {};
   const evidence = obs.evidence.map((e) => {
@@ -99,6 +107,7 @@ export function buildCoffeeWriterPacket(
     evidence,
     usable: obs.usable,
     checks: obs.checks as unknown as Record<string, boolean>,
+    ...(personalization ? { personalization } : {}),
   };
 }
 
@@ -106,6 +115,7 @@ export function buildPalmWriterPacket(
   obs: PalmObservation,
   language: AppLanguage,
   trustedSide: 'left' | 'right' | null,
+  personalization?: ReadingPersonalization,
 ): WriterEvidencePacket {
   const evidence = obs.evidence.map((e) => ({
     ...sanitizeHandednessInItem(e, trustedSide),
@@ -122,6 +132,7 @@ export function buildPalmWriterPacket(
     regionVocabulary: {},
     evidence,
     usable: obs.usable,
+    ...(personalization ? { personalization } : {}),
     checks: obs.checks as unknown as Record<string, boolean>,
   };
 }

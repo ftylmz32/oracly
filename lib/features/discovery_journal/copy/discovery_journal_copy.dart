@@ -67,6 +67,7 @@ abstract final class DiscoveryJournalCopy {
         'astrology' => _t('journal.src.astrology'),
         'star' || 'starMap' || 'star_map' => _t('journal.src.star'),
         'daily' || 'dailyMessage' => _t('journal.src.daily'),
+        'soulMate' || 'soulmate' => _t('journal.badge.soulmate'),
         _ => raw,
       };
 
@@ -82,6 +83,7 @@ abstract final class DiscoveryJournalCopy {
         DiscoveryJournalKind.astrology => _t('journal.badge.astro'),
         DiscoveryJournalKind.starMap => _t('journal.badge.star'),
         DiscoveryJournalKind.dailyMessage => _t('journal.badge.daily'),
+        DiscoveryJournalKind.soulMate => _t('journal.badge.soulmate'),
       };
 
   static String recency(String band) => switch (band) {

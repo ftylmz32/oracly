@@ -36,7 +36,7 @@ class TarotInterpretationService {
   })  : _formatter = formatter ?? const InterpretationFormatter(),
         _engine = engine ??
             InterpretationEngineFactory.create(
-              cache: cache ?? _InMemoryCacheFallback(),
+              cache: cache ?? InMemoryInterpretationCache(),
               executor: LocalInterpretationExecutor(),
             );
 
@@ -274,7 +274,7 @@ class TarotInterpretationService {
 }
 
 /// Used when service is constructed without DI — replaced at bootstrap.
-class _InMemoryCacheFallback implements InterpretationCache {
+class InMemoryInterpretationCache implements InterpretationCache {
   final _store = <String, InterpretationResult>{};
 
   @override

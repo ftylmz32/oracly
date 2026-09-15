@@ -19,6 +19,7 @@ class CoffeeGoldPreview extends StatelessWidget {
     this.framed = false,
     this.attention = false,
     this.hero = false,
+    this.maxCacheWidth,
   });
 
   final String path;
@@ -26,6 +27,7 @@ class CoffeeGoldPreview extends StatelessWidget {
   final bool framed;
   final bool attention;
   final bool hero;
+  final int? maxCacheWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,11 @@ class CoffeeGoldPreview extends StatelessWidget {
               alignment: Alignment.center,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
-              cacheWidth: oraclyDecodeCachePx(hero ? 720 : 560, dpr),
+              cacheWidth: oraclyDecodeCachePx(
+                hero ? 720 : 560,
+                dpr,
+                maxPx: maxCacheWidth ?? 2048,
+              ),
               errorBuilder: (context, error, stackTrace) {
                 return Icon(
                   Icons.coffee_outlined,

@@ -4,7 +4,9 @@
 ///
 /// HONESTY: Without a remote verifier returning active, release builds do not
 /// grant. Debug may optionally grant via PremiumDevOverride (non-authoritative).
-/// Apple/Google receipt validation is not implemented here.
+/// Apple/Google receipt validation happens server-side (real App Store Server
+/// API / Google Play Developer API calls) — this class only calls the
+/// verifier and never judges a receipt/token itself.
 library;
 
 import 'package:flutter/foundation.dart';

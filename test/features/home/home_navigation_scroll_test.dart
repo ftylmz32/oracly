@@ -11,7 +11,7 @@ import 'package:oracly_new/core/navigation/oracly_navigation_service.dart';
 import 'package:oracly_new/core/navigation/oracly_route_generator.dart';
 import 'package:oracly_new/core/navigation/oracly_routes.dart';
 import 'package:oracly_new/features/astrology/presentation/reference/astrology_reference_screen.dart';
-import 'package:oracly_new/features/coffee/presentation/reference/coffee_reference_screen.dart';
+import 'package:oracly_new/features/coffee/coffee_v2/presentation/coffee_v2_entry_gate.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_screen.dart';
 import 'package:oracly_new/features/discovery_journal/presentation/screens/discovery_journal_screen.dart';
 import 'package:oracly_new/features/explore/presentation/explore_reference_screen.dart';
@@ -144,7 +144,7 @@ void main() {
     OraclyFeatureNavigation.open(navContext, OraclyFeatureId.coffee);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.byType(CoffeeReferenceScreen), findsOneWidget);
+    expect(find.byType(CoffeeV2EntryGate), findsOneWidget);
     Navigator.of(navContext).pop();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));

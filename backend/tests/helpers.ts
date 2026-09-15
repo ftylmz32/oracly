@@ -3,6 +3,9 @@ import { loadConfig, type AppConfig } from '../src/config.js';
 import { StaticAppCheckVerifier } from '../src/auth/app-check.js';
 import { buildServer } from '../src/server.js';
 import type { OpenAiFetch } from '../src/types.js';
+import { MemorySharedWindowStore } from '../src/rate-limit/shared-window-store.js';
+import { FirestoreResponseReplayRepository } from '../src/middleware/response-replay-repository.js';
+import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 
 export function testConfig(overrides: Record<string, string> = {}): AppConfig {
   return loadConfig({
@@ -20,6 +23,7 @@ export function testConfig(overrides: Record<string, string> = {}): AppConfig {
     AI_RATE_LIMIT_MAX: '20',
     AI_RATE_LIMIT_WINDOW_MS: '900000',
     AI_MAX_CONCURRENT: '2',
+    READING_TASK_AUDIENCE: 'https://oracly-test.example',
     ...overrides,
   });
 }
@@ -30,6 +34,18 @@ export async function testApp(
   options: {
     appCheck?: import('../src/auth/app-check.js').AppCheckVerifier;
     billing?: import('../src/billing/types.js').BillingProviders;
+    entitlementRepository?: import('../src/billing/entitlement-repository.js').EntitlementBindingRepository;
+    readingOperationRepository?: import('../src/reading/operation-repository.js').ReadingOperationRepository;
+    readingClock?: import('../src/reading/clock.js').ServerClock;
+    readingWaitPolicy?: import('../src/reading/wait-policy.js').WaitPolicy;
+    gemLedger?: import('../src/reading/gem-ledger.js').GemLedger;
+    readingFlow?: import('../src/reading/reading-flow.js').ReadingFlow;
+    readingOperationInputRepository?: import('../src/reading/operation-input-repository.js').ReadingOperationInputRepository;
+    rewardedAds?: import('../src/server.js').BuildOptions['rewardedAds'];
+    readingStagedImageRepository?: import('../src/reading/operation-staged-image-repository.js').ReadingStagedImageRepository;
+    sharedWindowStore?: import('../src/rate-limit/shared-window-store.js').SharedWindowStore;
+    accountDeletionRepository?: import('../src/account/account-deletion.js').AccountDeletionRepository;
+    responseReplayRepository?: import('../src/middleware/response-replay-repository.js').ResponseReplayRepository;
   } = {},
 ) {
   const app = await buildServer({
@@ -38,6 +54,18 @@ export async function testApp(
     logger: false,
     appCheck: options.appCheck,
     billing: options.billing,
+    entitlementRepository: options.entitlementRepository,
+    readingOperationRepository: options.readingOperationRepository,
+    readingClock: options.readingClock,
+    readingWaitPolicy: options.readingWaitPolicy,
+    gemLedger: options.gemLedger,
+    readingFlow: options.readingFlow,
+    readingOperationInputRepository: options.readingOperationInputRepository,
+    rewardedAds: options.rewardedAds,
+    readingStagedImageRepository: options.readingStagedImageRepository,
+    sharedWindowStore: options.sharedWindowStore ?? new MemorySharedWindowStore(),
+    accountDeletionRepository: options.accountDeletionRepository,
+    responseReplayRepository: options.responseReplayRepository ?? new FirestoreResponseReplayRepository(new MemoryDocumentStore()),
   });
   return app;
 }

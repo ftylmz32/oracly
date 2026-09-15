@@ -53,15 +53,13 @@ void main() {
       gateway: gateway,
       tokens: tokens,
       sessions: sessions,
-      isolation: UserLocalDataIsolation(
-        storage,
-        secureStorage: secure,
-      ),
+      isolation: UserLocalDataIsolation(storage, secureStorage: secure),
     );
     deletion = AccountDeletionService(
       auth: auth,
       storage: storage,
       secureStorage: secure,
+      deleteServerData: () async => true,
     );
   });
 
@@ -87,49 +85,53 @@ void main() {
     );
   }
 
-  void expectUserBoundCleared() {
+  Future<void> expectUserBoundCleared() async {
     expect(storage.getStringList('or_reading_history'), isEmpty);
     expect(storage.getStringList(TarotLocalDataSource.historyKey), isEmpty);
     expect(storage.getString(LocalFavoriteMomentsRepository.key), isNull);
     expect(storage.getString(PersonalMemoryStore.key), isNull);
     expect(storage.getString('user_name'), isNull);
-    expect(premiumRepo.readPurchaseCredentials(), isNull);
+    expect(await premiumRepo.readPurchaseCredentials(), isNull);
     expect(premiumRepo.isActiveNow, isFalse);
   }
 
-  test('anonymous deletion success wipes local and bootstraps fresh session',
-      () async {
-    await seedUserBound();
-    await auth.signInAnonymously();
-    expect(gateway.currentUser?.isAnonymous, isTrue);
+  test(
+    'anonymous deletion success wipes local and bootstraps fresh session',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+      expect(gateway.currentUser?.isAnonymous, isTrue);
 
-    final result = await deletion.deleteAccountAndWipeLocalData();
+      final result = await deletion.deleteAccountAndWipeLocalData();
 
-    expect(result.isSuccess, isTrue);
-    expectUserBoundCleared();
-    expect(storage.getString('settings_language'), 'en');
-    expect(storage.getBool('onboarding_completed'), isTrue);
-    expect(sessions.currentSession, isNotNull);
-    expect(gateway.currentUser, isNotNull);
-    expect(gateway.deleteCalls, 1);
-  });
+      expect(result.isSuccess, isTrue);
+      await expectUserBoundCleared();
+      expect(storage.getString('settings_language'), 'en');
+      expect(storage.getBool('onboarding_completed'), isTrue);
+      expect(sessions.currentSession, isNotNull);
+      expect(gateway.currentUser, isNotNull);
+      expect(gateway.deleteCalls, 1);
+    },
+  );
 
-  test('authenticated deletion success clears premium credentials and history',
-      () async {
-    await seedUserBound();
-    final signedIn = await auth.signInWithEmail(
-      const EmailCredentials(email: 'a@b.c', password: 'x'),
-    );
-    expect(signedIn.isSuccess, isTrue);
-    expect(gateway.currentUser?.isAnonymous, isFalse);
+  test(
+    'authenticated deletion success clears premium credentials and history',
+    () async {
+      await seedUserBound();
+      final signedIn = await auth.signInWithEmail(
+        const EmailCredentials(email: 'a@b.c', password: 'x'),
+      );
+      expect(signedIn.isSuccess, isTrue);
+      expect(gateway.currentUser?.isAnonymous, isFalse);
 
-    final result = await deletion.deleteAccountAndWipeLocalData();
+      final result = await deletion.deleteAccountAndWipeLocalData();
 
-    expect(result.isSuccess, isTrue);
-    expectUserBoundCleared();
-    expect(gateway.deleteCalls, 1);
-    expect(gateway.currentUser?.isAnonymous, isTrue);
-  });
+      expect(result.isSuccess, isTrue);
+      await expectUserBoundCleared();
+      expect(gateway.deleteCalls, 1);
+      expect(gateway.currentUser?.isAnonymous, isTrue);
+    },
+  );
 
   test('Firebase deletion failure does not wipe or claim success', () async {
     await seedUserBound();
@@ -142,7 +144,7 @@ void main() {
     expect(result.errorOrNull?.message, isNot(AuthCopy.signedOut));
     expect(storage.getStringList('or_reading_history'), isNotEmpty);
     expect(storage.getString('user_name'), 'Ada');
-    expect(premiumRepo.readPurchaseCredentials(), isNotNull);
+    expect(await premiumRepo.readPurchaseCredentials(), isNotNull);
     expect(gateway.currentUser, isNotNull);
     expect(sessions.currentSession, isNotNull);
   });
@@ -176,27 +178,31 @@ void main() {
     expect(gateway.deleteCalls, 0);
   });
 
-  test('deleteAccount alone never pretends logout is deletion success',
-      () async {
-    await auth.signInAnonymously();
-    gateway.deleteError = 'requires-recent-login';
+  test(
+    'deleteAccount alone never pretends logout is deletion success',
+    () async {
+      await auth.signInAnonymously();
+      gateway.deleteError = 'requires-recent-login';
 
-    final failed = await auth.deleteAccount();
-    expect(failed.isFailure, isTrue);
-    expect(gateway.currentUser, isNotNull);
+      final failed = await auth.deleteAccount();
+      expect(failed.isFailure, isTrue);
+      expect(gateway.currentUser, isNotNull);
 
-    gateway.deleteError = null;
-    final ok = await auth.deleteAccount();
-    expect(ok.isSuccess, isTrue);
-    expect(gateway.currentUser, isNull);
-    expect(sessions.currentSession, isNull);
-  });
+      gateway.deleteError = null;
+      final ok = await auth.deleteAccount();
+      expect(ok.isSuccess, isTrue);
+      expect(gateway.currentUser, isNull);
+      expect(sessions.currentSession, isNull);
+    },
+  );
 
   test('mapDelete maps requires-recent-login and no-current-user', () {
     expect(
       FirebaseAuthErrors.mapDelete(
-        AuthGatewayException('requires-recent-login',
-            code: 'requires-recent-login'),
+        AuthGatewayException(
+          'requires-recent-login',
+          code: 'requires-recent-login',
+        ),
       ).message,
       AuthCopy.requiresRecentLogin,
     );
@@ -254,8 +260,7 @@ class _DeletionGateway implements FirebaseAuthGateway {
   Future<FirebaseAuthUserSnapshot> signInWithGoogle({
     required String idToken,
     String? accessToken,
-  }) =>
-      signInAnonymously();
+  }) => signInAnonymously();
 
   @override
   Future<FirebaseAuthUserSnapshot> signInWithApple({required String idToken}) =>

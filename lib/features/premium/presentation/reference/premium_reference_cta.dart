@@ -19,6 +19,7 @@ class PremiumReferenceCta extends StatelessWidget {
     required this.isPremium,
     this.onActivate,
     this.onRestore,
+    this.onRetryStore,
     this.busy = false,
     this.purchaseConfigured = false,
     this.joinLabel,
@@ -27,6 +28,13 @@ class PremiumReferenceCta extends StatelessWidget {
   final bool isPremium;
   final VoidCallback? onActivate;
   final VoidCallback? onRestore;
+
+  /// Re-checks store/catalog availability (e.g. reloads the product
+  /// catalogue) when the store isn't configured yet. Distinct from
+  /// [onRestore] — restoring purchases is meaningless before the store is
+  /// even reachable. Falls back to [onRestore] when not supplied so callers
+  /// that predate this param keep their exact prior behavior.
+  final VoidCallback? onRetryStore;
   final bool busy;
   final bool purchaseConfigured;
   final String? joinLabel;
@@ -37,7 +45,7 @@ class PremiumReferenceCta extends StatelessWidget {
       return const _ActiveBanner();
     }
     if (!purchaseConfigured) {
-      return PremiumReferenceCtaUnavailable(onRetry: onRestore);
+      return PremiumReferenceCtaUnavailable(onRetry: onRetryStore ?? onRestore);
     }
 
     return Column(

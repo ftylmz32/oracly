@@ -15,6 +15,7 @@ import 'package:oracly_new/features/coffee/presentation/reference/coffee_referen
 import 'package:oracly_new/features/coffee/providers/coffee_providers.dart';
 import 'package:oracly_new/features/coffee/services/coffee_image_input_port.dart';
 import 'package:oracly_new/features/coffee/services/unavailable_coffee_analysis.dart';
+import 'package:oracly_new/features/reading_operation/copy/reading_live_copy.dart';
 import 'package:oracly_new/shared/widgets/oracly_asset_image.dart';
 import 'package:oracly_new/shared/widgets/oracly_bottom_bar.dart';
 import 'package:oracly_new/shared/widgets/oracly_gold_button.dart';
@@ -76,7 +77,7 @@ void main() {
         ),
       ),
     );
-    expect(find.text(CoffeeCopy.analyzing), findsOneWidget);
+    expect(find.text(ReadingLiveCopy.headline), findsOneWidget);
 
     await tester.pumpWidget(
       MaterialApp(

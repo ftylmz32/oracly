@@ -58,15 +58,18 @@ class _ReviewAccessBodyState extends ConsumerState<ReviewAccessBody> {
       _status = _Status.submitting;
       _message = null;
     });
-    final granted = await ref
+    final result = await ref
         .read(premiumStatusProvider)
-        .activateReviewAccess(code);
+        .activateReviewAccessResult(code);
     if (!mounted) return;
     setState(() {
-      _status = granted ? _Status.success : _Status.failure;
-      _message = granted
+      _status = result.granted ? _Status.success : _Status.failure;
+      _message = result.granted
           ? 'Access granted. Premium areas are now unlocked for review.'
-          : 'This code is not valid right now.';
+          : (result.definitive
+              ? 'This code is not valid right now.'
+              : "Couldn't reach the server to check this code. Check your "
+                  'connection and try again.');
     });
   }
 

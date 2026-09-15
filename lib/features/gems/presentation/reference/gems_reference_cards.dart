@@ -16,10 +16,12 @@ import 'gems_history_empty.dart';
 import 'gems_reference_tokens.dart';
 
 class GemsInfoCard extends StatelessWidget {
-  const GemsInfoCard({super.key, required this.title, required this.body});
+  const GemsInfoCard({super.key, required this.title, required this.body, this.icon, this.trailing});
 
   final String title;
   final String body;
+  final IconData? icon;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +33,12 @@ class GemsInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: OraclyChrome.goldLight.withValues(alpha: 0.9),
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            children: [
+              if (icon != null) ...[Icon(icon, size: 18, color: OraclyChrome.goldLight), const SizedBox(width: 8)],
+              Expanded(child: Text(title, style: AppTextStyles.labelMedium.copyWith(color: OraclyChrome.goldLight.withValues(alpha: 0.9), fontWeight: FontWeight.w600))),
+              if (trailing != null) trailing!,
+            ],
           ),
           const SizedBox(height: 4),
           Text(

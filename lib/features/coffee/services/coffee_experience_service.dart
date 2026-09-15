@@ -84,6 +84,58 @@ class CoffeeExperienceService {
     return persisted;
   }
 
+  /// Resumes an already-staged operation using ONLY the server-held
+  /// image — never local bytes. Used to recover a `waiting` operation
+  /// after the client's local image state was lost (app restart,
+  /// controller disposal). Fails closed (never fabricates a reading)
+  /// when the analysis port doesn't support staged resume.
+  Future<CoffeeReading> analyzeStaged({
+    required String operationId,
+    required String mimeType,
+  }) async {
+    final analysis = _analysis;
+    if (analysis is! CoffeeStagedAnalysisPort) {
+      throw CoffeeAnalysisException(CoffeeCopy.analysisUnavailable);
+    }
+    final staged = analysis as CoffeeStagedAnalysisPort;
+    final reading = await staged.analyzeStaged(
+      operationId: operationId,
+      mimeType: mimeType,
+    );
+    // No local source to archive — imagePath stays null (already the
+    // case on `reading`, per CoffeeStagedAnalysisPort's contract).
+    await _store.save(reading);
+    await _versions?.seedOriginal(
+      rootId: reading.id,
+      kind: ReadingVersionKind.coffee,
+      data: ReadingVersionPayload.coffee(reading),
+    );
+    return reading;
+  }
+
+  Future<CoffeeReading> restoreCompleted({
+    required String resultId,
+    required DateTime persistedAt,
+    required Map<String, dynamic> result,
+  }) async {
+    final analysis = _analysis;
+    if (analysis is! CoffeeCompletedAnalysisPort) {
+      throw CoffeeAnalysisException(CoffeeCopy.analysisUnavailable);
+    }
+    final reading = (analysis as CoffeeCompletedAnalysisPort).restoreCompleted(
+      resultId: resultId,
+      persistedAt: persistedAt,
+      result: result,
+    );
+    await _store.save(reading);
+    await _versions?.seedOriginal(
+      rootId: reading.id,
+      kind: ReadingVersionKind.coffee,
+      data: ReadingVersionPayload.coffee(reading),
+    );
+    return reading;
+  }
+
   Future<CoffeeReinterpretResult> reinterpret({
     required CoffeeReading current,
     required CoffeeImagePick image,

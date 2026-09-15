@@ -15,8 +15,14 @@ import 'package:oracly_new/core/data/repositories/local_dream_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/domain/models/user_profile.dart';
+import 'package:oracly_new/core/continuation/models/session_continuation.dart';
+import 'package:oracly_new/core/continuation/services/session_continuation_focus_store.dart';
 import 'package:oracly_new/core/intelligence/data/intelligence_index_store.dart';
 import 'package:oracly_new/core/intelligence/domain/models/intelligence_facet_counts.dart';
+import 'package:oracly_new/core/reading_version/models/reading_version_entry.dart';
+import 'package:oracly_new/core/reading_version/models/reading_version_group.dart';
+import 'package:oracly_new/core/reading_version/models/reading_version_kind.dart';
+import 'package:oracly_new/core/reading_version/services/reading_version_store.dart';
 import 'package:oracly_new/core/services/history_service.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/astrology/data/astrology_preferences_store.dart';
@@ -29,12 +35,26 @@ import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_starter_grant.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
+import 'package:oracly_new/features/oracle_core/data/oracle_next_action_memory.dart';
+import 'package:oracly_new/features/oracle_core/models/oracle_next_action_event.dart';
 import 'package:oracly_new/features/palm/data/palm_reading_store.dart';
+import 'package:oracly_new/features/personal_discovery/data/daily_personal_observation_store.dart';
 import 'package:oracly_new/features/personal_discovery/data/discovery_surface_memory.dart';
+import 'package:oracly_new/features/personal_discovery/models/daily_personal_observation_record.dart';
+import 'package:oracly_new/features/personal_discovery/models/discovery_recommended_feature.dart';
 import 'package:oracly_new/features/privacy/services/privacy_discovery_clear.dart';
+import 'package:oracly_new/features/reading_feedback/data/reading_feedback_store.dart';
+import 'package:oracly_new/features/reading_feedback/models/reading_feedback_category.dart';
+import 'package:oracly_new/features/reading_feedback/models/reading_feedback_event.dart';
+import 'package:oracly_new/features/share_reopen/models/share_ownership.dart';
+import 'package:oracly_new/features/share_reopen/services/share_ownership_store.dart';
 import 'package:oracly_new/features/tarot/data/datasources/tarot_local_datasource.dart';
+import 'package:oracly_new/features/tarot/revisit/tarot_revisit_intent.dart';
+import 'package:oracly_new/features/tarot/revisit/tarot_revisit_intent_store.dart';
+import 'package:oracly_new/features/tarot/revisit/tarot_revisit_mode.dart';
 import 'package:oracly_new/screens/profile/data/profile_photo_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/fake_gem_authority.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -48,36 +68,35 @@ void main() {
     secure = InMemorySecureStorage();
   });
 
-  test('gem history skips corrupt rows and keeps spend path usable', () async {
+  test('gem history skips corrupt rows and cannot authorize local spend', () async {
     final wallet = GemWalletService(GemWalletStore(storage));
-    await wallet.earn(amount: 30, reason: 'seed');
+    await wallet.acceptAuthoritativeBalance(30);
     await storage.setStringList(GemWalletStore.txKey, [
       'not-json',
       '{"id":"","amount":1,"reason":"x","type":"earned","createdAt":"2026-01-01"}',
       ...?storage.getStringList(GemWalletStore.txKey),
     ]);
-    expect(wallet.history, isNotEmpty);
-    await wallet.spend(amount: 10, reason: 'ok');
-    expect(wallet.balance, 20);
+    expect(wallet.history, isEmpty);
+    await expectLater(wallet.spend(amount: 10, reason: 'blocked'), throwsA(isA<GemSpendException>()));
+    expect(wallet.balance, 30);
   });
 
-  test('starter grant crash-after-earn still completes without double credit',
-      () async {
-    final wallet = GemWalletService(GemWalletStore(storage));
-    await wallet.earn(
-      amount: GemEconomy.starterGrant,
-      reason: 'partial',
-      operationId: GemStarterGrant.operationId,
-    );
-    expect(wallet.balance, GemEconomy.starterGrant);
-    expect(storage.getBool(GemStarterGrant.flagKey), isNot(true));
+  test(
+    'starter grant lost local flag still does not double server credit',
+    () async {
+      final authority = FakeGemAuthority();
+      final wallet = authority.wallet(storage);
+      await wallet.claimStarter(idempotencyKey: GemStarterGrant.operationId);
+      expect(wallet.balance, GemEconomy.starterGrant);
+      expect(storage.getBool(GemStarterGrant.flagKey), isNot(true));
 
-    final starter = GemStarterGrant(wallet, storage);
-    expect(await starter.ensureOnce(), isTrue);
-    expect(wallet.balance, GemEconomy.starterGrant);
-    expect(storage.getBool(GemStarterGrant.flagKey), isTrue);
-    expect(await starter.ensureOnce(), isFalse);
-  });
+      final starter = GemStarterGrant(wallet, storage);
+      expect(await starter.ensureOnce(), isFalse);
+      expect(wallet.balance, GemEconomy.starterGrant);
+      expect(storage.getBool(GemStarterGrant.flagKey), isTrue);
+      expect(await starter.ensureOnce(), isFalse);
+    },
+  );
 
   test('profile name syncs legacy user_name and survives reopen', () async {
     final repo = MockUserRepository(storage);
@@ -152,35 +171,38 @@ void main() {
     expect(prefs.getString('settings_language'), 'en');
   });
 
-  test('account wipe clears deepen daily claim and intelligence index', () async {
-    await FirstReadingOrDeepen.markEligible(storage, 'sess-a');
-    await storage.setString(FirstReadingOrDeepen.sessionKey, 'sess-a');
-    await storage.setBool(FirstReadingOrDeepen.consumedKey, true);
-    await storage.setString(DailyRewardsService.claimedKey, '2026-08-31');
-    await storage.setString(AstrologyPreferencesStore.signKey, 'leo');
-    await IntelligenceIndexStore(storage).save(
-      IntelligenceIndexMeta(
-        schemaVersion: 1,
-        builtAt: DateTime(2026, 8, 31),
-        counts: const IntelligenceFacetCounts(
-          readings: 1,
-          favoriteCards: 0,
-          recurringThemes: 0,
-          reflections: 0,
-          conversations: 0,
-          ritualDays: 0,
+  test(
+    'account wipe clears deepen daily claim and intelligence index',
+    () async {
+      await FirstReadingOrDeepen.markEligible(storage, 'sess-a');
+      await storage.setString(FirstReadingOrDeepen.sessionKey, 'sess-a');
+      await storage.setBool(FirstReadingOrDeepen.consumedKey, true);
+      await storage.setString(DailyRewardsService.claimedKey, '2026-08-31');
+      await storage.setString(AstrologyPreferencesStore.signKey, 'leo');
+      await IntelligenceIndexStore(storage).save(
+        IntelligenceIndexMeta(
+          schemaVersion: 1,
+          builtAt: DateTime(2026, 8, 31),
+          counts: const IntelligenceFacetCounts(
+            readings: 1,
+            favoriteCards: 0,
+            recurringThemes: 0,
+            reflections: 0,
+            conversations: 0,
+            ritualDays: 0,
+          ),
         ),
-      ),
-    );
+      );
 
-    await UserLocalDataWipe.run(storage, secureStorage: secure);
+      await UserLocalDataWipe.run(storage, secureStorage: secure);
 
-    expect(FirstReadingOrDeepen.eligibleSessionId(storage), isNull);
-    expect(FirstReadingOrDeepen.isConsumed(storage), isFalse);
-    expect(storage.getString(DailyRewardsService.claimedKey), isNull);
-    expect(storage.getString(AstrologyPreferencesStore.signKey), isNull);
-    expect(IntelligenceIndexStore(storage).load(), isNull);
-  });
+      expect(FirstReadingOrDeepen.eligibleSessionId(storage), isNull);
+      expect(FirstReadingOrDeepen.isConsumed(storage), isFalse);
+      expect(storage.getString(DailyRewardsService.claimedKey), isNull);
+      expect(storage.getString(AstrologyPreferencesStore.signKey), isNull);
+      expect(IntelligenceIndexStore(storage).load(), isNull);
+    },
+  );
 
   test('account wipe deletes profile photo file and key', () async {
     final dir = await Directory.systemTemp.createTemp('oracly-photo-wipe');
@@ -194,25 +216,25 @@ void main() {
     expect(photo.existsSync(), isFalse);
   });
 
-  test('gem starter can grant again after wipe with fresh grant instance',
-      () async {
-    final wallet = GemWalletService(GemWalletStore(storage));
-    final starter = GemStarterGrant(wallet, storage);
-    expect(await starter.ensureOnce(), isTrue);
-    expect(await starter.ensureOnce(), isFalse);
+  test(
+    'local wipe cannot grant the same server starter again',
+    () async {
+      final authority = FakeGemAuthority();
+      final wallet = authority.wallet(storage);
+      final starter = GemStarterGrant(wallet, storage);
+      expect(await starter.ensureOnce(), isTrue);
+      expect(await starter.ensureOnce(), isFalse);
 
-    await UserLocalDataWipe.run(storage, secureStorage: secure);
+      await UserLocalDataWipe.run(storage, secureStorage: secure);
 
-    final afterWipe = GemStarterGrant(wallet, storage);
-    expect(await afterWipe.ensureOnce(), isTrue);
-    expect(wallet.balance, GemEconomy.starterGrant);
-  });
+      final afterWipe = GemStarterGrant(wallet, storage);
+      expect(await afterWipe.ensureOnce(), isFalse);
+      expect(wallet.balance, GemEconomy.starterGrant);
+    },
+  );
 
   test('account switch wipes user-bound keys for next owner', () async {
-    final isolation = UserLocalDataIsolation(
-      storage,
-      secureStorage: secure,
-    );
+    final isolation = UserLocalDataIsolation(storage, secureStorage: secure);
     await isolation.onSignedIn('owner-a');
     await storage.setString(DailyRewardsService.claimedKey, '2026-08-31');
     await storage.setString(FirstReadingOrDeepen.sessionKey, 'deepen-a');
@@ -251,6 +273,93 @@ void main() {
     final history = await repo.getHistory();
     expect(history.length, 1);
     expect(history.single.id, first.id);
+  });
+
+  test('account wipe clears next-action memory, personal observation, '
+      'reading feedback, revisit intent, and insight privacy prefs', () async {
+    await OracleNextActionMemory(storage).record(
+      OracleNextActionEvent(
+        theme: 'love',
+        feature: DiscoveryRecommendedFeature.tarot.name,
+        at: DateTime(2026, 8, 31),
+        kind: 'shown',
+      ),
+    );
+    await DailyPersonalObservationStore(storage).write(
+      const DailyPersonalObservationRecord(
+        dateKey: '2026-08-31',
+        evidenceFingerprint: 'fp',
+        theme: 'love',
+        line: 'You keep circling the same question.',
+        variant: 0,
+      ),
+    );
+    await ReadingFeedbackStore(storage).add(
+      ReadingFeedbackEvent(
+        feature: ReadingFeedbackFeature.tarot,
+        category: ReadingFeedbackCategory.generic,
+        ok: true,
+        at: DateTime(2026, 8, 31),
+      ),
+    );
+    await TarotRevisitIntentStore(storage).write(
+      const TarotRevisitIntent(
+        priorReadingId: 'r1',
+        mode: TarotRevisitMode.compare,
+        priorExcerpt: 'The Tower reversed spoke of upheaval.',
+      ),
+    );
+    await storage.setStringList('personal_insights_hidden', const ['a']);
+    await storage.setStringList('personal_insights_deleted', const ['b']);
+
+    await UserLocalDataWipe.run(storage, secureStorage: secure);
+
+    expect(OracleNextActionMemory(storage).all(), isEmpty);
+    expect(DailyPersonalObservationStore(storage).read(), isNull);
+    expect(ReadingFeedbackStore(storage).all(), isEmpty);
+    expect(TarotRevisitIntentStore(storage).peek(), isNull);
+    expect(storage.getStringList('personal_insights_hidden'), isNull);
+    expect(storage.getStringList('personal_insights_deleted'), isNull);
+  });
+
+  test('account wipe clears reading version history, continuation focus, '
+      'and share ownership', () async {
+    await ReadingVersionStore(storage).save(
+      ReadingVersionGroup(
+        rootId: 'root-1',
+        kind: ReadingVersionKind.tarot,
+        entries: [
+          ReadingVersionEntry(
+            number: 1,
+            at: DateTime(2026, 8, 31),
+            fingerprint: 'fp',
+            data: const {},
+          ),
+        ],
+      ),
+    );
+    await SessionContinuationFocusStore(storage).write(
+      const SessionContinuation(
+        target: SessionContinuationTarget.tarot,
+        line: 'Bir sonraki adım seni bekliyor.',
+        theme: 'dönüşüm',
+      ),
+    );
+    await ShareOwnershipStore(
+      storage,
+    ).put(const ShareOwnership(id: 'share-1', ownerUserId: 'owner-a'));
+
+    // Sanity: the seeded data is actually present before the wipe.
+    expect(ReadingVersionStore(storage).byRootId('root-1'), isNotNull);
+    expect(SessionContinuationFocusStore(storage).peek(), isNotNull);
+    expect(ShareOwnershipStore(storage).byId('share-1'), isNotNull);
+
+    await UserLocalDataWipe.run(storage, secureStorage: secure);
+
+    expect(ReadingVersionStore(storage).byRootId('root-1'), isNull);
+    expect(storage.getString(ReadingVersionStore.key), isNull);
+    expect(SessionContinuationFocusStore(storage).peek(), isNull);
+    expect(ShareOwnershipStore(storage).byId('share-1'), isNull);
   });
 
   test('privacy discovery clear removes tarot session stores', () async {

@@ -3,6 +3,7 @@ library;
 
 import 'package:oracly_new/core/domain/models/dream_record.dart';
 import 'package:oracly_new/core/domain/repositories/dream_repository.dart';
+import 'package:oracly_new/features/ai/production/ai_failure.dart';
 import 'package:oracly_new/features/ai/production/ai_outcome.dart';
 import 'package:oracly_new/features/ai/production/contexts/reading_ai_context.dart';
 import 'package:oracly_new/features/ai/production/models/chat_ai_reply.dart';
@@ -27,6 +28,16 @@ class LiveDreamAiStub implements OraclyAiService {
 
   @override
   bool get visionAvailable => false;
+
+  @override
+  Future<AiOutcome<ChatAiReply>> generateTarotReading({
+    required List<Map<String, dynamic>> cards,
+    required String spreadLabel,
+    String? userQuestion,
+    String? readingTheme,
+    Map<String, dynamic>? journeyHints,
+  }) async =>
+      AiOutcome.failure(AiFailure.noConfiguration());
 
   @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) async {
@@ -72,6 +83,7 @@ class LiveDreamAiStub implements OraclyAiService {
   Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffee({
     required List<int> imageBytes,
     required String mimeType,
+    Map<String, dynamic>? personalization,
   }) async =>
       throw UnsupportedError('coffee');
 
@@ -80,6 +92,7 @@ class LiveDreamAiStub implements OraclyAiService {
     required List<int> imageBytes,
     required String mimeType,
     required String hand,
+    Map<String, dynamic>? personalization,
   }) async =>
       throw UnsupportedError('palm');
 }

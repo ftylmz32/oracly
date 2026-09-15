@@ -17,108 +17,111 @@ import 'package:oracly_new/features/coffee/services/coffee_fortune_composer.dart
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('cup story stays one narrative and never invents a life', () {
-    final reading = _compose(
-      symbols: const ['kuş', 'yol'],
-      observation: 'Ağızda kuş, yanında açık bir çizgi.',
-    );
-    expect(reading.overall.toLowerCase(), contains('kuş'));
-    expect(reading.overall.toLowerCase(), contains('yol'));
-    expect(
-      reading.overall.toLowerCase().contains('yan yana') ||
-          reading.overall.toLowerCase().contains('yanında') ||
-          reading.overall.toLowerCase().contains('yanındaki'),
-      isTrue,
-    );
-    expect(reading.overall.toLowerCase(), isNot(contains('tekrar eden')));
-    expect(reading.overall.toLowerCase(), isNot(contains('kuş = ')));
-    expect(reading.love, isEmpty);
-    expect(reading.career, isEmpty);
-    expect(reading.money, isEmpty);
-    expect(reading.nearFuture, isEmpty);
-    expect(reading.takeaway, isEmpty);
-  });
+  test(
+    'BATCH 3A.2: coffee never invents a life from symbols alone when the '
+    'backend wrote no real overall — a raw vision-dump "overall" is a '
+    'failed interpretation, not a story to weave',
+    () {
+      final reading = CoffeeFortuneComposer.compose(
+        CoffeeReading(
+          id: 'no-backend-overall',
+          createdAt: DateTime(2026, 8, 18),
+          overall: 'Kuş = haber.',
+          love: '',
+          career: '',
+          money: '',
+          nearFuture: '',
+          takeaway: '',
+          visualObservation: 'Ağızda kuş, yanında açık bir çizgi.',
+          symbols: const [
+            CoffeeSymbol(name: 'kuş', meaning: '', interpretation: ''),
+            CoffeeSymbol(name: 'yol', meaning: '', interpretation: ''),
+          ],
+        ),
+      );
+      expect(reading, isNull);
+    },
+  );
 
-  test('ambiguous marks stay faint, never named as facts', () {
-    final reading = CoffeeFortuneComposer.compose(
-      CoffeeReading(
-        id: 'faint',
-        createdAt: DateTime(2026, 8, 18),
-        overall: 'Kuş = haber.',
-        love: '',
-        career: '',
-        money: '',
-        nearFuture: '',
-        takeaway: '',
-        visualObservation: 'Ağızda belirsiz bir iz.',
-        symbols: const [
-          CoffeeSymbol(
-            name: 'kuş',
-            meaning: '',
-            interpretation: '',
-            trust: CoffeeMarkTrust.low,
-          ),
-        ],
-      ),
-    );
-    expect(reading.overall.toLowerCase(), contains('kuşa benzeyen'));
-    expect(reading.overall.toLowerCase(), contains('net değil'));
-    expect(reading.overall, isNot(contains('=')));
-    expect(reading.takeaway, isEmpty);
-  });
+  test(
+    'BATCH 3A.2: an ambiguous/low-trust mark never gets named as fact via '
+    'a client-fabricated story — a missing backend overall stays a '
+    'failure, hedged or not',
+    () {
+      final reading = CoffeeFortuneComposer.compose(
+        CoffeeReading(
+          id: 'faint',
+          createdAt: DateTime(2026, 8, 18),
+          overall: 'Kuş = haber.',
+          love: '',
+          career: '',
+          money: '',
+          nearFuture: '',
+          takeaway: '',
+          visualObservation: 'Ağızda belirsiz bir iz.',
+          symbols: const [
+            CoffeeSymbol(
+              name: 'kuş',
+              meaning: '',
+              interpretation: '',
+              trust: CoffeeMarkTrust.low,
+            ),
+          ],
+        ),
+      );
+      expect(reading, isNull);
+    },
+  );
 
-  test('real decision theme binds only when the cup has a path mark', () {
-    final withPath = _compose(
-      id: 'decision-path',
-      symbols: const ['yol'],
-      observation: 'Açık bir yol.',
-      themes: const ['karar verme'],
-    );
-    final noPath = _compose(
-      id: 'decision-empty',
-      observation: 'Fincanda duruluk var.',
-      themes: const ['karar verme'],
-    );
-    expect(withPath.overall.toLowerCase(), contains('karar verme'));
-    expect(withPath.overall.toLowerCase(), contains('canlıysa'));
-    expect(noPath.overall.toLowerCase(), isNot(contains('karar verme')));
-    expect(noPath.overall.toLowerCase(), isNot(contains('tekrar eden')));
-    expect(noPath.overall.toLowerCase(), isNot(contains('canlıysa')));
-  });
+  test(
+    'BATCH 3A.1: topic lanes trust the backend\'s own decision, not a '
+    'client symbol lexicon — the backend already evidence-binds each '
+    'subject before writing it (see BATCH 3A), so real backend text for a '
+    'lane is authoritative and a lane the backend left empty stays empty, '
+    'independent of which symbols the client happens to recognize',
+    () {
+      final love = _compose(
+        symbols: const ['kalp'],
+        observation: 'Kulpa yakın kalp.',
+        love: 'Bu iz yakınlığın tonunu daha görünür kılıyor.',
+        career: 'İş dosyası ayrı durmuyor.',
+      );
+      // Backend wrote real content for both — both are shown as-is.
+      expect(love.love, contains('yakınlığın'));
+      expect(love.career, contains('İş dosyası'));
 
-  test('topic lanes stay optional and grounded', () {
-    final love = _compose(
-      symbols: const ['kalp'],
-      observation: 'Kulpa yakın kalp.',
-      love: 'Bu iz yakınlığın tonunu daha görünür kılıyor.',
-      career: 'İş dosyası ayrı durmuyor.',
-    );
-    expect(love.love, contains('yakınlığın'));
-    expect(love.career, isEmpty);
+      final noCareerEvidence = _compose(
+        symbols: const ['kalp'],
+        observation: 'Kulpa yakın kalp.',
+        love: 'Bu iz yakınlığın tonunu daha görünür kılıyor.',
+      );
+      // Backend deliberately left career empty (no evidence) — stays empty.
+      expect(noCareerEvidence.career, isEmpty);
 
-    final work = _compose(
-      symbols: const ['anahtar'],
-      observation: 'Duvarda anahtar.',
-      career: 'Bu anahtar bekleyen bir işi yerinden oynatabilir.',
-    );
-    expect(work.career, contains('işi'));
-    expect(work.love, isEmpty);
+      final work = _compose(
+        symbols: const ['anahtar'],
+        observation: 'Duvarda anahtar.',
+        career: 'Bu anahtar bekleyen bir işi yerinden oynatabilir.',
+      );
+      expect(work.career, contains('işi'));
+      expect(work.love, isEmpty);
 
-    final news = _compose(
-      symbols: const ['mektup'],
-      observation: 'Ağızda mektup.',
-      nearFuture: 'Küçük bir haber önce gelebilir.',
-    );
-    expect(news.nearFuture, contains('haber'));
+      final news = _compose(
+        symbols: const ['mektup'],
+        observation: 'Ağızda mektup.',
+        nearFuture: 'Küçük bir haber önce gelebilir.',
+      );
+      expect(news.nearFuture, contains('haber'));
 
-    final caution = _compose(
-      symbols: const ['dağ'],
-      observation: 'Dipte dağ.',
-      takeaway: 'Burada acele etmeden durmakta fayda var.',
-    );
-    expect(caution.takeaway, contains('acele'));
-    expect(caution.career, isEmpty);
-  });
+      final caution = _compose(
+        symbols: const ['dağ'],
+        observation: 'Dipte dağ.',
+        takeaway: 'Burada acele etmeden durmakta fayda var.',
+      );
+      expect(caution.takeaway, contains('acele'));
+      expect(caution.career, isEmpty);
+    },
+  );
 
   testWidgets('real cup photo sits above the spoken reading', (tester) async {
     final file = File(
@@ -177,6 +180,16 @@ void main() {
   });
 }
 
+// BATCH 3A.2: a real backend overall is required for compose() to return
+// a reading at all — this default stands in for a validated backend
+// interpretation (long enough, no dump, no robotic/certainty phrasing)
+// so tests below can focus on the optional lanes/UI, not on overall
+// itself.
+const _validOverall =
+    'Fincanda görünen izler, son zamanlarda ertelenen bir konunun yeniden '
+    'gündeme geldiğine işaret ediyor; bu süreci zorlamadan, kendi hızında '
+    'ilerletmek sana iyi gelebilir.';
+
 CoffeeReading _compose({
   String id = 'cup',
   List<String> symbols = const [],
@@ -191,7 +204,7 @@ CoffeeReading _compose({
     CoffeeReading(
       id: id,
       createdAt: DateTime(2026, 8, 18),
-      overall: 'Kuş = haber.',
+      overall: _validOverall,
       love: love,
       career: career,
       money: 'Para kartı.',
@@ -204,5 +217,5 @@ CoffeeReading _compose({
       ],
     ),
     themes: themes,
-  );
+  )!;
 }

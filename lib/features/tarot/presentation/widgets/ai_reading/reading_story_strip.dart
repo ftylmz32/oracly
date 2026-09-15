@@ -58,22 +58,28 @@ class ReadingStoryStrip extends StatelessWidget {
                 ),
               )
             else
-              SizedBox(
-                height: ReadingStoryFace.stripHeight,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: CraftsmanshipRhythm.scrollPhysics,
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-                  itemCount: faces.length,
-                  separatorBuilder: (context, index) => SizedBox(width: gap),
-                  itemBuilder: (context, index) {
-                    return ReadingStoryArrive(
-                      index: index,
-                      count: faces.length,
-                      master: progress,
-                      child: ReadingStoryFace(spec: faces[index]),
-                    );
-                  },
+              // Intrinsic height (not a fixed-height guess) so the strip
+              // never overflows when accessibility text scale grows the
+              // name/position labels inside each card tile.
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: CraftsmanshipRhythm.scrollPhysics,
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var i = 0; i < faces.length; i++) ...[
+                        if (i > 0) SizedBox(width: gap),
+                        ReadingStoryArrive(
+                          index: i,
+                          count: faces.length,
+                          master: progress,
+                          child: ReadingStoryFace(spec: faces[i]),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
           ],

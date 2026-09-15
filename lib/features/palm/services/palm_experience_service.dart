@@ -76,6 +76,70 @@ class PalmExperienceService {
     return persisted;
   }
 
+  /// Resumes an already-staged operation using ONLY the server-held
+  /// image — never local bytes. Used to recover a `waiting` operation
+  /// after the client's local image state was lost (app restart,
+  /// controller disposal). Fails closed (never fabricates a reading)
+  /// when the analysis port doesn't support staged resume.
+  Future<PalmReading> analyzeStaged({
+    required String operationId,
+    required String mimeType,
+    required PalmHand hand,
+  }) async {
+    final analysis = _analysis;
+    if (analysis is! PalmStagedAnalysisPort) {
+      throw PalmAnalysisException(
+        PalmAnalysisError(
+          PalmAnalysisErrorKind.unavailable,
+          PalmCopy.analysisUnavailable,
+        ),
+      );
+    }
+    final staged = analysis as PalmStagedAnalysisPort;
+    final reading = await staged.analyzeStaged(
+      operationId: operationId,
+      mimeType: mimeType,
+      hand: hand,
+    );
+    // No local source to archive — imagePath stays null (already the
+    // case on `reading`, per PalmStagedAnalysisPort's contract).
+    await store?.save(reading);
+    await _versions?.seedOriginal(
+      rootId: reading.id,
+      kind: ReadingVersionKind.palm,
+      data: ReadingVersionPayload.palm(reading),
+    );
+    return reading;
+  }
+
+  Future<PalmReading> restoreCompleted({
+    required String resultId,
+    required DateTime persistedAt,
+    required PalmHand hand,
+    required Map<String, dynamic> result,
+  }) async {
+    final analysis = _analysis;
+    if (analysis is! PalmCompletedAnalysisPort) {
+      throw PalmAnalysisException(PalmAnalysisError(
+        PalmAnalysisErrorKind.unavailable,
+        PalmCopy.analysisUnavailable,
+      ));
+    }
+    final reading = (analysis as PalmCompletedAnalysisPort).restoreCompleted(
+      resultId: resultId,
+      persistedAt: persistedAt,
+      hand: hand,
+      result: result,
+    );
+    await store?.save(reading);
+    await _versions?.seedOriginal(
+      rootId: reading.id,
+      kind: ReadingVersionKind.palm,
+      data: ReadingVersionPayload.palm(reading),
+    );
+    return reading;
+  }
+
   Future<PalmReinterpretResult> reinterpret({
     required PalmReading current,
     required CoffeeImagePick image,

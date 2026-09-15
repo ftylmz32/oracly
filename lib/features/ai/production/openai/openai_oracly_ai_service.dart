@@ -21,7 +21,11 @@ import 'openai_service_requests.dart';
 import 'openai_service_results.dart';
 import '../../../companion/services/or_operation_id.dart';
 
-class OpenAiOraclyAiService implements OraclyAiService {
+class OpenAiOraclyAiService
+    implements
+        OraclyAiService,
+        OraclyStagedImageAiService,
+        OraclyEvidenceMemoryAiService {
   OpenAiOraclyAiService({
     required this._config,
     required this._transport,
@@ -60,7 +64,8 @@ class OpenAiOraclyAiService implements OraclyAiService {
       OrOperationId.current ?? 'chat',
       kind: AiRequestKind.chat,
       fingerprint:
-          OrOperationId.current ?? AiRequestFingerprint.text('chat', userMessage),
+          OrOperationId.current ??
+          AiRequestFingerprint.text('chat', userMessage),
       () async {
         return OpenAiServiceResults.chat(
           await _transport.execute(
@@ -122,18 +127,50 @@ class OpenAiOraclyAiService implements OraclyAiService {
   }
 
   @override
+  Future<AiOutcome<ChatAiReply>> generateTarotReading({
+    required List<Map<String, dynamic>> cards,
+    required String spreadLabel,
+    String? userQuestion,
+    String? readingTheme,
+    Map<String, dynamic>? journeyHints,
+  }) {
+    final cardsKey = cards
+        .map((c) => '${c['name']}:${c['positionLabel']}:${c['reversed']}')
+        .join(',');
+    return _guard.runOutcome(
+      'tarot:$cardsKey',
+      kind: AiRequestKind.tarot,
+      fingerprint: AiRequestFingerprint.text('tarot', cardsKey),
+      () async {
+        return OpenAiServiceResults.chat(
+          await _transport.execute(
+            OpenAiPaidRequests.tarotReading(
+              cards: cards,
+              spreadLabel: spreadLabel,
+              userQuestion: userQuestion,
+              readingTheme: readingTheme,
+              journeyHints: journeyHints,
+            ),
+          ),
+          _config.model,
+        );
+      },
+    );
+  }
+
+  @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) {
     return _guard.runOutcome(
       'dream',
       kind: AiRequestKind.dream,
-      fingerprint: AiRequestFingerprint.text('dream', context.narrative),
+      fingerprint: AiRequestFingerprint.text(
+        'dream',
+        '${context.narrative}|${context.memorySummary ?? ''}',
+      ),
       () async {
         return OpenAiServiceResults.dream(
           await _transport.execute(
-            OpenAiPaidRequests.dream(
-              model: _config.model,
-              context: context,
-            ),
+            OpenAiPaidRequests.dream(model: _config.model, context: context),
           ),
         );
       },
@@ -144,18 +181,103 @@ class OpenAiOraclyAiService implements OraclyAiService {
   Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffee({
     required List<int> imageBytes,
     required String mimeType,
-  }) =>
-      _images.coffee(imageBytes: imageBytes, mimeType: mimeType);
+    Map<String, dynamic>? personalization,
+  }) => _images.coffee(
+    imageBytes: imageBytes,
+    mimeType: mimeType,
+    personalization: personalization,
+  );
 
   @override
   Future<AiOutcome<PalmAiAnalysis>> analyzePalm({
     required List<int> imageBytes,
     required String mimeType,
     required String hand,
-  }) =>
-      _images.palm(
-        imageBytes: imageBytes,
-        mimeType: mimeType,
-        hand: hand,
-      );
+    Map<String, dynamic>? personalization,
+  }) => _images.palm(
+    imageBytes: imageBytes,
+    mimeType: mimeType,
+    hand: hand,
+    personalization: personalization,
+  );
+
+  @override
+  Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffeeStaged({
+    required String operationId,
+    required String mimeType,
+    Map<String, dynamic>? personalization,
+  }) => _images.coffeeStaged(
+    operationId: operationId,
+    mimeType: mimeType,
+    personalization: personalization,
+  );
+
+  @override
+  Future<AiOutcome<PalmAiAnalysis>> analyzePalmStaged({
+    required String operationId,
+    required String mimeType,
+    required String hand,
+    Map<String, dynamic>? personalization,
+  }) => _images.palmStaged(
+    operationId: operationId,
+    mimeType: mimeType,
+    hand: hand,
+    personalization: personalization,
+  );
+
+  @override
+  Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffeeWithEvidenceMemory({
+    required List<int> imageBytes,
+    required String mimeType,
+    required Map<String, dynamic>? basePersonalization,
+    required String? Function(List<String> themes) memorySummary,
+  }) => _images.coffeeWithEvidenceMemory(
+    imageBytes: imageBytes,
+    mimeType: mimeType,
+    basePersonalization: basePersonalization,
+    memorySummary: memorySummary,
+  );
+
+  @override
+  Future<AiOutcome<PalmAiAnalysis>> analyzePalmWithEvidenceMemory({
+    required List<int> imageBytes,
+    required String mimeType,
+    required String hand,
+    required Map<String, dynamic>? basePersonalization,
+    required String? Function(List<String> themes) memorySummary,
+  }) => _images.palmWithEvidenceMemory(
+    imageBytes: imageBytes,
+    mimeType: mimeType,
+    hand: hand,
+    basePersonalization: basePersonalization,
+    memorySummary: memorySummary,
+  );
+
+  @override
+  Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffeeStagedWithEvidenceMemory({
+    required String operationId,
+    required String mimeType,
+    required Map<String, dynamic>? basePersonalization,
+    required String? Function(List<String> themes) memorySummary,
+  }) => _images.coffeeStagedWithEvidenceMemory(
+    operationId: operationId,
+    mimeType: mimeType,
+    basePersonalization: basePersonalization,
+    memorySummary: memorySummary,
+  );
+
+  @override
+  Future<AiOutcome<PalmAiAnalysis>> analyzePalmStagedWithEvidenceMemory({
+    required String operationId,
+    required String mimeType,
+    required String hand,
+    required Map<String, dynamic>? basePersonalization,
+    required String? Function(List<String> themes) memorySummary,
+  }) => _images.palmStagedWithEvidenceMemory(
+    operationId: operationId,
+    mimeType: mimeType,
+    hand: hand,
+    basePersonalization: basePersonalization,
+    memorySummary: memorySummary,
+  );
 }

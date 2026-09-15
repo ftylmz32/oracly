@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../features/coffee/presentation/reference/coffee_reference_screen.dart';
+import '../../features/coffee/coffee_v2/presentation/coffee_v2_entry_gate.dart';
 import '../../features/palm/presentation/palm_reference_screen.dart';
 import '../../features/companion/presentation/reference/companion_reference_screen.dart';
 import '../../features/astrology/presentation/reference/astrology_reference_screen.dart';
@@ -109,7 +109,7 @@ abstract final class OraclyRouteGenerator {
       case OraclyRoutes.coffee:
         return OraclyPageTransitions.chamber(
           personality: ChamberTransitionPersonality.coffee,
-          page: const CoffeeReferenceScreen(),
+          page: const CoffeeV2EntryGate(),
           settings: settings,
         );
       case OraclyRoutes.palm:

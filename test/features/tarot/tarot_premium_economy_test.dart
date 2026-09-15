@@ -8,7 +8,6 @@ import 'package:oracly_new/core/modules/oracly_feature_id.dart';
 import 'package:oracly_new/core/modules/oracly_feature_registry.dart';
 import 'package:oracly_new/features/daily_ritual/services/daily_ritual_reflections.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/premium/models/premium_models.dart';
@@ -23,6 +22,7 @@ import 'package:oracly_new/features/tarot/first_session/tarot_first_reading.dart
 import 'package:oracly_new/features/tarot/presentation/widgets/card_reveal/card_reveal_spread.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/tarot_entry/tarot_entry_spread_choice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/fake_gem_authority.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -31,11 +31,14 @@ void main() {
   late GemWalletService wallet;
   late TarotReadingCharge charge;
   late TarotReadingCompletion completion;
+  late FakeGemAuthority authority;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
-    wallet = GemWalletService(GemWalletStore(storage));
+    authority = FakeGemAuthority(balance: 50);
+    wallet = authority.wallet(storage);
+    await wallet.refresh();
     charge = TarotReadingCharge(wallet, storage);
     completion = TarotReadingCompletion(charge: charge);
   });
@@ -73,7 +76,6 @@ void main() {
   });
 
   test('single-card success does not deduct', () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
     expect(
       await completion.complete(_session('free', TarotSpreadType.single)),
       isNotNull,
@@ -84,7 +86,6 @@ void main() {
 
   test('paid success deducts once; failure, cancel, and retry stay honest',
       () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
     expect(
       await completion.complete(
         _session('fail'),
@@ -102,10 +103,11 @@ void main() {
     expect(wallet.balance, 30);
     expect(await completion.complete(_session('ok')), isNotNull);
     expect(wallet.balance, 30);
-    expect(wallet.history.where((t) => t.amount < 0), hasLength(1));
   });
 
   test('empty wallet still receives a free one-card reading', () async {
+    authority.balance = 0;
+    await wallet.refresh();
     expect(
       await completion.complete(_session('empty', TarotSpreadType.single)),
       isNotNull,

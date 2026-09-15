@@ -9,6 +9,7 @@ import '../../../core/domain/models/reading.dart';
 import '../../coffee/models/coffee_reading.dart';
 import '../../daily_message/models/daily_message.dart';
 import '../../palm/models/palm_reading.dart';
+import '../../premium/models/soul_mate_saved_result.dart';
 import '../models/discovery_journal_entry.dart';
 import '../models/discovery_journal_range.dart';
 import 'discovery_journal_map.dart';
@@ -25,7 +26,10 @@ abstract final class DiscoveryJournalAggregator {
     List<AstrologyRecord> astrology = const [],
     BirthChartRecord? starChart,
     List<DailyMessage> daily = const [],
+    SoulMateSavedResult? soulMate,
   }) {
+    final soulMateEntry =
+        soulMate == null ? null : DiscoveryJournalMap.soulMate(soulMate);
     final items = <DiscoveryJournalEntry>[
       ...readings.map(DiscoveryJournalMap.reading),
       ...dreams.map(DiscoveryJournalMap.dream),
@@ -35,6 +39,7 @@ abstract final class DiscoveryJournalAggregator {
       ...astrology.map(DiscoveryJournalMap.astrology),
       if (starChart != null) DiscoveryJournalMap.starMap(starChart),
       ...daily.map(DiscoveryJournalMap.daily),
+      ?soulMateEntry,
     ];
     items.sort((a, b) => b.date.compareTo(a.date));
     return items;

@@ -12,7 +12,6 @@ import 'package:oracly_new/features/daily_rewards/models/daily_reward_state.dart
 import 'package:oracly_new/features/daily_rewards/presentation/reference/daily_rewards_reference_screen.dart';
 import 'package:oracly_new/features/daily_rewards/providers/daily_rewards_providers.dart';
 import 'package:oracly_new/features/daily_rewards/services/daily_rewards_service.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/providers/gem_providers.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
@@ -21,6 +20,7 @@ import 'package:oracly_new/shared/widgets/oracly_skeleton_loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
+import '../../support/fake_gem_authority.dart';
 
 class _FlakyRewards extends DailyRewardsService {
   _FlakyRewards(
@@ -66,7 +66,7 @@ void main() {
   }) async {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
-    final wallet = GemWalletService(GemWalletStore(storage));
+    final wallet = FakeGemAuthority().wallet(storage);
     final service = _FlakyRewards(
       MockUserRepository(storage),
       storage,

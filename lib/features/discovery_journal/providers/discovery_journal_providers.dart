@@ -8,6 +8,7 @@ import '../../coffee/providers/coffee_providers.dart';
 import '../../daily_message/data/daily_return_store.dart';
 import '../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../palm/providers/palm_providers.dart';
+import '../../premium/providers/soul_mate_saved_provider.dart';
 import '../models/discovery_journal_entry.dart';
 import '../services/discovery_journal_aggregator.dart';
 import '../services/discovery_journal_saved.dart';
@@ -27,6 +28,7 @@ final discoveryJournalEntriesProvider =
   );
   final favorites =
       ref.watch(favoriteMomentsProvider).valueOrNull ?? const [];
+  final soulMate = await _soulMate(ref);
   final merged = DiscoveryJournalAggregator.merge(
     readings: readings,
     dreams: dreams,
@@ -36,6 +38,17 @@ final discoveryJournalEntriesProvider =
     astrology: astrology,
     starChart: starChart,
     daily: daily,
+    soulMate: soulMate,
   );
   return DiscoveryJournalSaved.mark(merged, favorites);
 });
+
+Future<dynamic> _soulMate(Ref ref) async {
+  try {
+    final loaded =
+        await ref.watch(soulMateResultServiceProvider).latestWithPortrait();
+    return loaded?.meta;
+  } catch (_) {
+    return null;
+  }
+}

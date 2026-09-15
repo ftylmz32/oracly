@@ -117,6 +117,9 @@ class _AstrologyReferenceScreenState
         _selectSign(id);
       },
       onDetail: _openDetailReading,
+      onRetry: profileAsync.isLoading
+          ? () => ref.invalidate(personalDiscoveryProfileProvider)
+          : null,
     ),
     );
   }

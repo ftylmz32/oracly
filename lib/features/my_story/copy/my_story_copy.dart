@@ -14,6 +14,7 @@ abstract final class MyStoryCopy {
   static String get periodHeading => _t('my_story.period_heading');
   static String get footnote => _t('journal.philosophy');
   static String get sourcesPrefix => _t('my_story.sources_prefix');
+  static String get loadFailed => _t('my_story.load_failed');
 
   static String sourcesLine(String sources) =>
       _t('my_story.sources_prefix').replaceAll('{sources}', sources);

@@ -95,6 +95,23 @@ void main() {
     expect(cfg.billingVerifyUrl, contains('127.0.0.1'));
   });
 
+  test('development dart-define file is loopback-safe and public-only', () {
+    final file = File('tool/dart_defines.development.json');
+    final map = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    expect(map['APP_ENV'], 'development');
+    expect(map['ORACLY_AI_PROXY_URL'], contains('127.0.0.1'));
+    for (final key in map.keys) {
+      expect(key.toUpperCase(), isNot(contains('OPENAI')));
+      expect(key.toUpperCase(), isNot(contains('SECRET')));
+      expect(key.toUpperCase(), isNot(contains('PRIVATE')));
+    }
+    // The exact value this file is meant to durably fix: an explicit
+    // loopback proxy URL under plain APP_ENV=development must resolve.
+    OraclyRuntimeConfig.testEnv = map.map((k, v) => MapEntry(k, '$v'));
+    final cfg = OraclyRuntimeConfig.resolve(releaseLocked: false);
+    expect(cfg.aiProxyUrl, 'http://127.0.0.1:8787/v1/ai/complete');
+  });
+
   test('production dart-define example is public-only and documents billing', () {
     final example = File('tool/dart_defines.production.example.json');
     final map = jsonDecode(example.readAsStringSync()) as Map<String, dynamic>;

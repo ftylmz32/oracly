@@ -13,7 +13,6 @@ import '../../../../shared/widgets/oracly_error_state.dart';
 import '../../copy/soul_mate_copy.dart';
 import '../../data/soul_mate_interpretation_catalogue.dart';
 import '../../services/soul_mate_draw_port.dart';
-import '../../services/soul_mate_interpretation.dart';
 import '../reference/premium_reference_tokens.dart';
 import 'soul_mate_draw_form.dart';
 import 'soul_mate_draw_result_view.dart';
@@ -36,6 +35,11 @@ class SoulMateDrawBody extends StatelessWidget {
     required this.onRedraw,
     required this.onRetry,
     this.savedId,
+    this.interpretation,
+    this.interpretationBusy = false,
+    this.interpretationFailed = false,
+    this.onRetryInterpretation,
+    this.activeSince,
   });
 
   final TextEditingController nameController;
@@ -51,10 +55,16 @@ class SoulMateDrawBody extends StatelessWidget {
   final VoidCallback onDraw;
   final VoidCallback onRedraw;
   final VoidCallback onRetry;
+  final SoulMateReadingParts? interpretation;
+  final bool interpretationBusy;
+  final bool interpretationFailed;
+  final VoidCallback? onRetryInterpretation;
+  final DateTime? activeSince;
 
   @override
   Widget build(BuildContext context) {
-    final failed = !busy &&
+    final failed =
+        !busy &&
         statusMessage != null &&
         (result == null || !result!.hasPortrait);
 
@@ -76,14 +86,17 @@ class SoulMateDrawBody extends StatelessWidget {
           ),
         ),
         SizedBox(height: AppSpacing.s8),
-        if (busy) const SoulMateDrawWaiting(),
+        if (busy) SoulMateDrawWaiting(activeSince: activeSince),
         if (!busy && result != null && result!.hasPortrait)
           SoulMateDrawResultView(
             imageBytes: result!.imageBytes!,
-            parts: _parts,
+            parts: interpretation,
             name: nameController.text,
             savedId: savedId,
             onRedraw: onRedraw,
+            interpretationBusy: interpretationBusy,
+            interpretationFailed: interpretationFailed,
+            onRetryInterpretation: onRetryInterpretation,
           )
         else if (!busy && !failed) ...[
           SoulMateDrawForm(
@@ -118,28 +131,6 @@ class SoulMateDrawBody extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-
-  SoulMateReadingParts get _parts {
-    final birth = birthDate;
-    if (birth == null) {
-      return const SoulMateReadingParts(
-        energy: '',
-        attraction: '',
-        dynamics: '',
-        feeling: '',
-        yourSide: '',
-      );
-    }
-    final intention = intentionController.text.trim();
-    return SoulMateInterpretation.partsFor(
-      SoulMateDrawRequest(
-        name: nameController.text,
-        birthDate: birth,
-        gender: gender,
-        intention: intention.isEmpty ? null : intention,
-      ),
     );
   }
 }

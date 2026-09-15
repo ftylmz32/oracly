@@ -68,12 +68,6 @@ class ReadingStoryFace extends StatelessWidget {
   final ReadingStoryFaceSpec spec;
   final bool hero;
 
-  static double heightFor(double width) =>
-      width * 1.55 + AppSpacing.xs * 2 + AppSpacing.sm + AppSpacing.xxl + AppSpacing.md;
-
-  static double get stripHeight =>
-      heightFor(ReadingSacredRhythm.companionCardWidth);
-
   @override
   Widget build(BuildContext context) {
     final width = hero

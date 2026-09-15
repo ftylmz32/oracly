@@ -11,9 +11,6 @@ import 'package:oracly_new/core/first_session/first_session_intent.dart';
 import 'package:oracly_new/core/first_session/first_session_scope.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/daily_ritual/widgets/daily_ritual_tarot_bridge.dart';
-import 'package:oracly_new/features/gems/copy/gems_copy.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
-import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/home/master/home_master_hero.dart';
 import 'package:oracly_new/features/home/reference/home_reference_hero.dart';
 import 'package:oracly_new/features/home/reference/home_reference_hero_detail_button.dart';
@@ -23,6 +20,7 @@ import 'package:oracly_new/features/tarot/economy/tarot_reading_charge.dart';
 import 'package:oracly_new/features/tarot/first_session/tarot_first_reading.dart';
 import 'package:oracly_new/features/tarot/shared/tarot_scope.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'support/fake_gem_authority.dart';
 
 import 'test_helpers/provider_scope_harness.dart';
 
@@ -114,9 +112,9 @@ void main() {
     test('single-card start cannot create a gem charge', () async {
       SharedPreferences.setMockInitialValues({});
       final storage = LocalStorage(await SharedPreferences.getInstance());
-      final wallet = GemWalletService(GemWalletStore(storage));
+      final wallet = FakeGemAuthority(balance: 50).wallet(storage);
+      await wallet.refresh();
       final charge = TarotReadingCharge(wallet, storage);
-      await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
 
       expect(TarotEconomy.costFor(TarotSpreadType.single), isNull);
       expect(

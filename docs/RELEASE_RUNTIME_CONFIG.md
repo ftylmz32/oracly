@@ -3,6 +3,47 @@
 Canonical Flutter client keys live in `OraclyRuntimeConfig` / `OraclyRuntimeKeys`.
 Do **not** invent production hosts. Do **not** put secrets in dart-defines.
 
+## Local development (real device or emulator against the local backend)
+
+The client never reads the developer's own `.env` file at runtime — `main.dart`
+deliberately only loads the checked-in `.env.example` (safe placeholders only,
+e.g. `ORACLY_DEV_PREMIUM`), so a real backend URL in a personal `.env` is never
+picked up by `flutter run` on its own. Config always flows through
+`--dart-define` (directly or via `--dart-define-from-file`), the same as
+staging/production.
+
+The ONE supported local command:
+
+```bash
+flutter run --dart-define-from-file=tool/dart_defines.development.json
+```
+
+`tool/dart_defines.development.json` already ships with `APP_ENV=development`
+and `ORACLY_AI_PROXY_URL=http://127.0.0.1:8787/v1/ai/complete`. For a real
+Android device (not the emulator), forward the port first:
+
+```bash
+adb reverse tcp:8787 tcp:8787
+```
+
+For the Android **emulator** specifically, edit the file's
+`ORACLY_AI_PROXY_URL` to `http://10.0.2.2:8787/v1/ai/complete` (the emulator's
+alias for the host loopback) — or omit `ORACLY_AI_PROXY_URL` entirely and use
+`--dart-define=APP_ENV=local` instead, which auto-guesses the right loopback
+URL per platform with zero other configuration
+(`AiRuntimeConfig.devProxyAutoDefaultUrl`).
+
+`APP_ENV=development` (this file's value) and `APP_ENV=local` both allow a
+loopback `ORACLY_AI_PROXY_URL` — the difference is only that `local` will also
+auto-guess one when none is explicitly set. Neither is ever honored once
+release-locked (see below).
+
+Confirm it worked: the app logs
+`[ProxyAiTransport] configured=true usesProxy=true vision=true
+endpoint=http://127.0.0.1:8787/v1/ai/complete` on startup (debug builds only).
+`configured=false` means no proxy URL resolved — check the dart-define file
+path and that the backend is actually listening on that port.
+
 ## Mandatory for store release
 
 | Key | Notes |

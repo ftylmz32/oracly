@@ -1,7 +1,9 @@
 /// HTTP billing verify client — posts tokens; never invents [active].
 ///
-/// When the backend stub replies unverified / provider_not_configured,
-/// that is honest: Apple/Google validation is not implemented yet.
+/// The backend performs real Apple/Google store verification (App Store
+/// Server API / Google Play Developer API). A reply of unverified /
+/// provider_not_configured means this specific deployment has no store
+/// credentials configured yet, not that verification is unimplemented.
 library;
 
 import 'dart:convert';

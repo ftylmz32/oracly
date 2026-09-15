@@ -71,6 +71,14 @@ export type AppConfig = {
   playPackageName: string;
   /** Parsed Play service-account credentials, or null when unset. */
   googlePlayCredentials: import('google-auth-library').JWTInput | null;
+  /**
+   * Explicit opt-in: use Application Default Credentials (e.g. the Cloud
+   * Run runtime service account) for Google Play verification instead of a
+   * parsed service-account JSON. Only takes effect when no explicit
+   * credentials are configured. Defaults false — never inferred from
+   * APP_ENV/locked state.
+   */
+  googlePlayUseAdc: boolean;
   appleBundleId: string | null;
   appleAppAppleId: number | null;
   appleIssuerId: string | null;
@@ -89,6 +97,49 @@ export type AppConfig = {
   reviewAccessCodeHash: string | null;
   reviewAccessRateLimitMax: number;
   reviewAccessRateLimitWindowMs: number;
+  /**
+   * True in production/staging (always), or when explicitly opted into for
+   * local Firestore integration testing. When true, purchase-token binding
+   * must use durable Firestore storage — never the in-process fallback —
+   * and fails closed if Firestore is unreachable/unconfigured.
+   */
+  entitlementDurableRequired: boolean;
+  /** Firestore database id — '(default)' unless a named database is used. */
+  firestoreDatabaseId: string;
+  /**
+   * BATCH 5I — private GCS bucket for durable Coffee/Palm image staging.
+   * Null (unset) means the staging route and staged-image retrieval both
+   * fail closed — never falls back to the default Firebase bucket, a local
+   * temp file, or in-memory storage.
+   */
+  readingStagingBucket: string | null;
+  /** Cloud Tasks queue used for durable Coffee/Palm completion. */
+  readingTaskQueue: string | null;
+  readingTaskLocation: string;
+  readingTaskTargetUrl: string | null;
+  /** Canonical Cloud Run service URL used as the Google OIDC audience. */
+  readingTaskAudience: string | null;
+  readingTaskServiceAccount: string | null;
+  /**
+   * Candidate-only diagnostic: stop the durable worker after staged GCS
+   * retrieval succeeds, before any provider call. Default false. Must never
+   * be left enabled on a traffic-serving revision.
+   */
+  readingWorkerStopAfterStaged: boolean;
+  /**
+   * Development-only override for the Coffee/Palm reading-operation wait
+   * duration (milliseconds), in place of the real `PROVISIONAL_WAIT_MS`
+   * values in `reading/wait-policy.ts`. Hard-locked to `null` outside
+   * `development` — same never-honored-when-locked rule as
+   * `devAuthBypass`/`appCheckBypass` above. Not a commercial value: it
+   * exists only so a local dev backend can be live end-to-end tested
+   * without a real multi-hour wait; `wait-policy.ts`'s own defaults (what
+   * ships to real users) are untouched by this.
+   */
+  readingWaitOverrideMs: number | null;
+  /** HMAC secret validating a rewarded-ad SSV callback's signature. Null
+   * (unset) means the rewarded-ad claim route fails closed. */
+  rewardedAdClaimSecret: string | null;
 };
 
 const DEFAULT_ALLOWED = ['gpt-4o', 'gpt-4o-mini'];
@@ -244,6 +295,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       nonEmpty(env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON),
       nonEmpty(env.GOOGLE_APPLICATION_CREDENTIALS),
     ),
+    googlePlayUseAdc: parseBool(env.GOOGLE_PLAY_USE_ADC, false),
     appleBundleId: nonEmpty(env.APPLE_BUNDLE_ID),
     appleAppAppleId: parseOptionalInt(env.APPLE_APP_APPLE_ID),
     appleIssuerId: nonEmpty(env.APPLE_IAP_ISSUER_ID),
@@ -277,7 +329,36 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       1000,
       86_400_000,
     ),
+    // Always durable when locked — no env var can weaken this, matching
+    // App Check's own bypass-never-honored-when-locked rule.
+    entitlementDurableRequired:
+      locked || parseBool(env.ORACLY_ENTITLEMENT_DURABLE, false),
+    firestoreDatabaseId:
+      nonEmpty(env.FIRESTORE_DATABASE_ID) ?? '(default)',
+    readingStagingBucket: nonEmpty(env.READING_STAGING_BUCKET),
+    readingTaskQueue: nonEmpty(env.READING_TASK_QUEUE),
+    readingTaskLocation:
+      nonEmpty(env.READING_TASK_LOCATION) ?? 'europe-west1',
+    readingTaskTargetUrl: nonEmpty(env.READING_TASK_TARGET_URL),
+    readingTaskAudience: nonEmpty(env.READING_TASK_AUDIENCE),
+    readingTaskServiceAccount:
+      nonEmpty(env.READING_TASK_SERVICE_ACCOUNT),
+    readingWorkerStopAfterStaged: parseBool(
+      env.READING_WORKER_STOP_AFTER_STAGED,
+      false,
+    ),
+    readingWaitOverrideMs: locked
+      ? null
+      : positiveIntOrNull(env.ORACLY_DEV_READING_WAIT_MS),
+    rewardedAdClaimSecret: nonEmpty(env.ORACLY_REWARDED_AD_CLAIM_SECRET),
   };
+}
+
+/** A positive integer (milliseconds), or null when unset/invalid. Never
+ * honored in production/staging — see `readingWaitOverrideMs` above. */
+function positiveIntOrNull(value: string | undefined): number | null {
+  const n = Number.parseInt(value ?? '', 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
 /** Lowercased 64-hex-char SHA-256 digest, or null when unset/malformed. */

@@ -22,6 +22,7 @@ class CompanionReferenceOrPaywall extends StatelessWidget {
     required this.purchaseConfigured,
     required this.onPurchase,
     required this.onRestore,
+    this.onRetryStore,
     this.entitlementMessage,
     this.compact = false,
     this.showHero = true,
@@ -41,6 +42,12 @@ class CompanionReferenceOrPaywall extends StatelessWidget {
   final ValueChanged<PremiumPlanKind>? onSelectPlan;
   final VoidCallback onPurchase;
   final VoidCallback onRestore;
+
+  /// Re-checks store/catalog availability. Used instead of [onRestore] for
+  /// the "store isn't configured yet" retry action — attempting a purchase
+  /// restore before the store is even reachable is a mismatched action for
+  /// a "try the store again" label.
+  final VoidCallback? onRetryStore;
 
   /// Commerce entitlement OR an active reviewer grant. Defaults to
   /// [entitlement]'s own commerce-only flag when not supplied, so existing
@@ -110,6 +117,7 @@ class CompanionReferenceOrPaywall extends StatelessWidget {
             joinLabel: CompanionCopy.orPaywallCta,
             onActivate: entitlement.canStartPurchase ? onPurchase : null,
             onRestore: entitlement.canStartRestore ? onRestore : null,
+            onRetryStore: onRetryStore,
           ),
           if (!active) ...[
             SizedBox(height: AppSpacing.s8),

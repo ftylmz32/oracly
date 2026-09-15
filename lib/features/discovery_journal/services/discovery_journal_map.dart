@@ -10,6 +10,8 @@ import '../../birth_chart/data/birth_chart_record_mapper.dart';
 import '../../coffee/models/coffee_reading.dart';
 import '../../daily_message/models/daily_message.dart';
 import '../../palm/models/palm_reading.dart';
+import '../../premium/models/soul_mate_saved_result.dart';
+import '../../premium/services/soul_mate_journal_link.dart';
 import '../../personal_discovery/services/personal_theme_extractor.dart';
 import '../../tarot/history/tarot_history_privacy.dart';
 import '../copy/discovery_journal_copy.dart';
@@ -112,6 +114,18 @@ abstract final class DiscoveryJournalMap {
       title: DiscoveryJournalCopy.starTitle,
       preview: preview,
       themes: _themes([preview]),
+    );
+  }
+
+  static DiscoveryJournalEntry? soulMate(SoulMateSavedResult saved) {
+    if (!SoulMateJournalLink.isComplete(saved)) return null;
+    final preview = _clip(saved.parts.feeling, '');
+    return DiscoveryJournalEntry(
+      id: saved.id,
+      kind: DiscoveryJournalKind.soulMate,
+      date: saved.createdAt,
+      title: DiscoveryJournalCopy.badge(DiscoveryJournalKind.soulMate),
+      preview: preview.isEmpty ? _clip(saved.parts.energy, '') : preview,
     );
   }
 

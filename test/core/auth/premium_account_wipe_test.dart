@@ -33,14 +33,14 @@ Future<void> _seedPremiumWithCredentials(MockPremiumRepository premium) async {
   );
 }
 
-void _expectPremiumFullyCleared(
+Future<void> _expectPremiumFullyCleared(
   LocalStorage storage,
   InMemorySecureStorage secure,
   MockPremiumRepository premium,
-) {
+) async {
   expect(premium.isActiveNow, isFalse);
   expect(premium.wasAuthoritativelyVerified, isFalse);
-  expect(premium.readPurchaseCredentials(), isNull);
+  expect(await premium.readPurchaseCredentials(), isNull);
   expect(storage.getBool(MockPremiumRepository.activeKey), isNull);
   expect(storage.getInt(MockPremiumRepository.planKey), isNull);
   expect(storage.getBool(MockPremiumRepository.authoritativeKey), isNull);
@@ -64,11 +64,11 @@ void main() {
 
     expect(premium.isActiveNow, isTrue);
     expect(premium.wasAuthoritativelyVerified, isTrue);
-    expect(premium.readPurchaseCredentials(), isNotNull);
+    expect(await premium.readPurchaseCredentials(), isNotNull);
 
     await UserLocalDataWipe.run(storage, secureStorage: secure);
 
-    _expectPremiumFullyCleared(storage, secure, premium);
+    await _expectPremiumFullyCleared(storage, secure, premium);
     expect(storage.getString('settings_language'), 'en');
     expect(storage.getString('unrelated_pref'), 'keep-me');
   });
@@ -86,9 +86,9 @@ void main() {
 
       await isolation.onSignedIn('user-b');
 
-      _expectPremiumFullyCleared(storage, secure, premium);
+      await _expectPremiumFullyCleared(storage, secure, premium);
       expect(isolation.localOwnerId, 'user-b');
-      expect(premium.readPurchaseCredentials()?.purchaseToken, isNull);
+      expect((await premium.readPurchaseCredentials())?.purchaseToken, isNull);
     },
   );
 

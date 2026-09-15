@@ -77,13 +77,25 @@ abstract final class DreamAnalysisGuard {
     ]) {
       if (token != null && lower.contains(token.toLowerCase())) return true;
     }
-    final scene = facts.scene.toLowerCase();
-    if (scene.length >= 8) {
-      final word = scene.split(' ').where((w) => w.length >= 4).firstOrNull;
-      if (word != null && lower.contains(word)) return true;
-    }
-    return false;
+    // A paraphrase of the told narrative should still count as grounded, so
+    // check overlap against every significant word the user actually wrote,
+    // not just one arbitrarily-picked word from a single scene fragment.
+    final toldWords = _significantWords(facts.told);
+    if (toldWords.isEmpty) return false;
+    return _significantWords(text).any(toldWords.contains);
   }
+
+  static const _connectorWords = {
+    'bir', 'bu', 'şu', 'ile', 'için', 'ama', 'gibi', 'olan', 've', 'de', 'da',
+    'çok', 'daha', 'her', 'ben', 'sen', 'biz', 'siz', 'onlar', 'kadar', 'sonra',
+  };
+
+  static Set<String> _significantWords(String value) => value
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9çğıöşü]+'), ' ')
+      .split(' ')
+      .where((w) => w.length >= 4 && !_connectorWords.contains(w))
+      .toSet();
 
   static bool _inventsImage(String text, DreamAnalysisFacts facts) {
     final lower = text.toLowerCase();

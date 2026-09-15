@@ -1,0 +1,8 @@
+{
+  "APP_ENV": "development",
+  "ORACLY_AI_PROXY_URL": "http://127.0.0.1:8787/v1/ai/complete",
+  "ORACLY_AI_MODEL": "gpt-4o",
+  "ORACLY_AI_VISION": "true",
+  "ORACLY_AI_TIMEOUT_SECONDS": "45",
+  "ORACLY_AI_IMAGE_TIMEOUT_SECONDS": "120"
+}

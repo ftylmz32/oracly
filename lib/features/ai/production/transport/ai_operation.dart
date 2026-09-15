@@ -8,6 +8,8 @@ enum AiOperation {
   coffeeAnalysis,
   palmAnalysis,
   soulmateDraw,
+  soulmateInterpretation,
+  tarotReading,
   tts,
 }
 
@@ -19,6 +21,8 @@ extension AiOperationWire on AiOperation {
         AiOperation.coffeeAnalysis => 'coffee_analysis',
         AiOperation.palmAnalysis => 'palm_analysis',
         AiOperation.soulmateDraw => 'soulmate_draw',
+        AiOperation.soulmateInterpretation => 'soulmate_interpretation',
+        AiOperation.tarotReading => 'tarot_reading',
         AiOperation.tts => 'tts',
       };
 }

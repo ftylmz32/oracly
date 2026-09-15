@@ -1,0 +1,60 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "upper_wall",
+        "description": "Dense residue mass in the upper left area of the interior wall.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "middle_wall",
+        "description": "A downward line running through the middle wall on the right side.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "base",
+        "description": "A dark, denser patch at the base of the cup.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Ortada belirgin bir iz kümesi, dipte daha koyu bir alan ve kulp tarafında ince dağınık noktalar seçiliyor; ağız kenarında da hafif bir gölgelenme duruyor. Üst duvarda ayrıca seyrek bir birikinti var.",
+      "evidenceIds": ["e1", "e2", "e3"]
+    },
+    "overall": {
+      "text": "Fincanın sol üst kısmında yoğun bir tortu var. Sağ tarafta aşağı inen bir çizgi görülüyor. Dipte koyu bir alan bulunuyor. Kulp tarafında ince bir iz seçiliyor. Ağız kenarında birkaç dağınık nokta duruyor. Orta duvarda ayrıca ince bir birikinti var. Üst kısımdaki tortu oldukça belirgin görünüyor. Alt tarafta ise daha seyrek bir doku mevcut.",
+      "evidenceIds": ["e1", "e2", "e3"]
+    },
+    "love": { "text": "", "evidenceIds": [] },
+    "career": { "text": "", "evidenceIds": [] },
+    "money": { "text": "", "evidenceIds": [] },
+    "nearFuture": {
+      "text": "Üst kısımdaki yoğunluk ile dipteki koyu alan yan yana duruyor. Kulptaki ince iz de bunlarla aynı hizada duruyor. Ağız kenarındaki noktalar da orada görülüyor. Orta duvardaki birikinti de aynı bölgede bulunuyor.",
+      "evidenceIds": ["e1", "e2", "e3"]
+    },
+    "takeaway": {
+      "text": "Yoğun tortu, koyu alan ve ince iz burada yan yana görülüyor. Dağınık noktalar da orada duruyor. Seyrek doku da aynı çevrede bulunuyor.",
+      "evidenceIds": ["e1", "e2", "e3"]
+    }
+  }
+}

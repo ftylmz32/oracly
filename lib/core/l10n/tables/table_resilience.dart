@@ -200,6 +200,21 @@ const kL10nResilience = <String, L10nTriple>{
     'Settings could not open right now. You can try again in a moment.',
     'Настройки сейчас не открылись. Можно попробовать через мгновение.',
   ),
+  'resilience.settings_audio_apply_failed': L10nTriple(
+    'Ses şu anda başlatılamadı. Lütfen tekrar dene.',
+    'Sound could not start right now. Please try again.',
+    'Звук сейчас не запустился. Пожалуйста, попробуй снова.',
+  ),
+  'resilience.reading_save_failed': L10nTriple(
+    'Bu okuma kaydedilemedi. Tekrar deneyebilirsin.',
+    'This reading could not be saved. You can try again.',
+    'Это толкование не удалось сохранить. Можно попробовать снова.',
+  ),
+  'resilience.settings_notification_apply_failed': L10nTriple(
+    'Bildirim zamanlaması şu anda uygulanamadı. Lütfen tekrar dene.',
+    'The notification schedule could not be applied right now. Please try again.',
+    'Расписание уведомлений сейчас не удалось применить. Пожалуйста, попробуй снова.',
+  ),
   'auth.not_configured': L10nTriple(
     'Giriş henüz hazır değil. Lütfen daha sonra dene.',
     'Sign-in is not ready yet. Please try later.',

@@ -79,6 +79,19 @@ abstract final class OrContextSelectionSources {
     return obs != null && !OrContextBucketHelpers.looksFeature(obs);
   }
 
+  /// Recurring symbolic themes across Tarot/Coffee/Palm/Dream/Astrology —
+  /// bounded, deduped upstream ([CompanionContextBuilder]). Tagged
+  /// INTERPRETATION, never FACT — a repeated symbol is not a stated fact.
+  static String? crossFeatureThemes(ReflectionContext? reflection) {
+    final themes = reflection?.recurringThemes ?? const [];
+    if (themes.isEmpty) return null;
+    final top = themes.take(3).join(', ');
+    return OrLongTermMemoryBoundaries.tag(
+      OrMemoryKind.interpretation,
+      'Tekrar eden semboller: $top.',
+    );
+  }
+
   /// Soft PREFERENCE from [PersonalMemoryService.promptHint] — never a dump.
   static String? memoryPreference({
     required String? promptHint,

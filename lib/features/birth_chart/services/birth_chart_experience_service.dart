@@ -2,6 +2,8 @@
 library;
 
 import '../../../core/domain/repositories/birth_chart_repository.dart';
+import '../../../core/memory/oracly_memory_factory.dart';
+import '../../../core/memory/oracly_memory_store.dart';
 import '../data/birth_chart_record_mapper.dart';
 import '../models/birth_chart.dart';
 import '../models/birth_profile.dart';
@@ -25,17 +27,16 @@ class BirthChartLoadResult {
     this.profileHint,
   });
 
-  const BirthChartLoadResult.none()
-      : this._(status: BirthChartLoadStatus.none);
+  const BirthChartLoadResult.none() : this._(status: BirthChartLoadStatus.none);
 
   const BirthChartLoadResult.loaded(BirthChart chart)
-      : this._(status: BirthChartLoadStatus.loaded, chart: chart);
+    : this._(status: BirthChartLoadStatus.loaded, chart: chart);
 
   const BirthChartLoadResult.clearedCorrupt({BirthProfile? profileHint})
-      : this._(
-          status: BirthChartLoadStatus.clearedCorrupt,
-          profileHint: profileHint,
-        );
+    : this._(
+        status: BirthChartLoadStatus.clearedCorrupt,
+        profileHint: profileHint,
+      );
 
   final BirthChartLoadStatus status;
   final BirthChart? chart;
@@ -47,12 +48,14 @@ class BirthChartExperienceService {
     required this._repository,
     ChartCalculationPort? calculator,
     ChartInsightGenerator? insightGenerator,
-  })  : _calculator = calculator ?? const NatalChartCalculator(),
-        _insights = insightGenerator ?? const ChartInsightGenerator();
+    this._memory,
+  }) : _calculator = calculator ?? const NatalChartCalculator(),
+       _insights = insightGenerator ?? const ChartInsightGenerator();
 
   final BirthChartRepository _repository;
   final ChartCalculationPort _calculator;
   final ChartInsightGenerator _insights;
+  final OraclyMemoryStore? _memory;
 
   Future<BirthChartExperienceResult> generate(BirthProfile profile) async {
     final chart = await _buildAndSave(profile);
@@ -89,11 +92,24 @@ class BirthChartExperienceService {
       return BirthChartLoadResult.clearedCorrupt(profileHint: profile);
     }
 
+    await _writeMemory(chart);
+
     return BirthChartLoadResult.loaded(chart);
   }
 
   Future<void> clearSavedData() async {
+    String? sourceId;
+    try {
+      sourceId = (await _repository.getLatest())?.id;
+    } catch (_) {}
     await _repository.clearLatest();
+    if (sourceId != null) {
+      try {
+        await _memory?.removeBySource(sourceId);
+      } catch (_) {
+        // Connected memory is an optional index; source deletion still wins.
+      }
+    }
   }
 
   Future<BirthChart?> loadSavedChart() async {
@@ -104,6 +120,7 @@ class BirthChartExperienceService {
   Future<BirthChart> ensureChartReady(BirthChart chart) async {
     if (BirthChartPersistenceValidator.isJourneyReady(chart) &&
         !_needsRebuild(chart)) {
+      await _writeMemory(chart);
       return chart;
     }
     return _buildAndSave(chart.profile);
@@ -121,6 +138,10 @@ class BirthChartExperienceService {
   }
 
   Future<BirthChart> _buildAndSave(BirthProfile profile) async {
+    String? previousSourceId;
+    try {
+      previousSourceId = (await _repository.getLatest())?.id;
+    } catch (_) {}
     var chart = _calculator.calculate(profile);
     final insights = _insights.generate(chart);
     final themes = _insights.lifeThemes(chart);
@@ -141,7 +162,32 @@ class BirthChartExperienceService {
       precision: chart.precision,
       fidelity: chart.fidelity,
     );
+    if (!BirthChartPersistenceValidator.isJourneyReady(chart)) {
+      throw StateError('Birth chart interpretation is incomplete');
+    }
     await _repository.save(BirthChartRecordMapper.toRecord(chart));
+    await _writeMemory(chart, supersededSourceId: previousSourceId);
     return chart;
+  }
+
+  Future<void> _writeMemory(
+    BirthChart chart, {
+    String? supersededSourceId,
+  }) async {
+    final memory = _memory;
+    if (memory == null ||
+        !BirthChartPersistenceValidator.isJourneyReady(chart)) {
+      return;
+    }
+    if (supersededSourceId != null && supersededSourceId != chart.id) {
+      try {
+        await memory.removeBySource(supersededSourceId);
+      } catch (_) {}
+    }
+    try {
+      await memory.upsert(OraclyMemoryFactory.birthChart(chart));
+    } catch (_) {
+      // Result persistence is authoritative and must remain available.
+    }
   }
 }

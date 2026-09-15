@@ -1,0 +1,11 @@
+{
+    "APP_ENV":  "staging",
+    "ORACLY_PRIVACY_POLICY_URL":  "https://example.com/privacy",
+    "ORACLY_TERMS_OF_USE_URL":  "https://example.com/terms",
+    "ORACLY_AI_VISION":  "true",
+    "ORACLY_AI_IMAGE_TIMEOUT_SECONDS":  "120",
+    "ORACLY_AI_MODEL":  "gpt-4o",
+    "ORACLY_BILLING_VERIFY_URL":  "https://e3f---oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify",
+    "ORACLY_AI_TIMEOUT_SECONDS":  "45",
+    "ORACLY_AI_PROXY_URL":  "https://e3f---oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete"
+}

@@ -1,11 +1,12 @@
 /// Charges tarot gems once, after a reading is actually committed.
 library;
 
+// ignore_for_file: prefer_initializing_formals
+
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/services/analytics_service.dart';
 import '../../gems/copy/gems_copy.dart';
 import '../../gems/models/paid_ai_operation.dart';
-import '../../gems/services/gem_action_charge.dart';
 import '../../gems/services/gem_wallet_service.dart';
 import '../../gems/services/paid_ai_operation_coordinator.dart';
 import '../../gems/services/paid_ai_operation_id.dart';
@@ -17,20 +18,13 @@ class TarotReadingCharge {
     GemWalletService wallet,
     LocalStorage storage, {
     AnalyticsService? analytics,
-  })  : _charge = GemActionCharge(
-          wallet,
-          storage,
-          ledgerKey: _key,
-        ),
-        _ops = PaidAiOperationCoordinator(
-          wallet: wallet,
-          storage: storage,
-        ),
-        _analytics = analytics;
+  }) : _wallet = wallet,
+       _ops = PaidAiOperationCoordinator(wallet: wallet, storage: storage),
+       _analytics = analytics;
 
   static const _key = 'tarot_gem_charged_sessions';
 
-  final GemActionCharge _charge;
+  final GemWalletService _wallet;
   final PaidAiOperationCoordinator _ops;
   final AnalyticsService? _analytics;
 
@@ -39,14 +33,14 @@ class TarotReadingCharge {
 
   bool alreadyCharged(String sessionId) {
     final id = _opId(sessionId);
-    return _charge.alreadyCharged(id) || _charge.alreadyCharged(sessionId);
+    return _ops.store.byId(id)?.status == PaidAiOperationStatus.settled;
   }
 
   bool canAfford(TarotSpreadType spread, {required String sessionId}) {
     if (alreadyCharged(sessionId)) return true;
     final cost = TarotEconomy.costFor(spread);
     if (cost == null || cost <= 0) return true;
-    return _charge.canAfford(cost);
+    return _wallet.canSpend(cost);
   }
 
   /// Provider produced usable content — persist before settle for resume.

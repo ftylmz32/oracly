@@ -8,10 +8,12 @@ class SoulMateAiPortrait {
   const SoulMateAiPortrait({
     required this.bytes,
     this.mimeType = 'image/png',
+    this.identity,
   });
 
   final List<int> bytes;
   final String mimeType;
+  final Map<String, dynamic>? identity;
 
   bool get hasImage => bytes.isNotEmpty;
 
@@ -19,6 +21,7 @@ class SoulMateAiPortrait {
   static SoulMateAiPortrait? tryFromBase64(
     String raw, {
     String? mimeType,
+    Map<String, dynamic>? identity,
   }) {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) return null;
@@ -33,6 +36,7 @@ class SoulMateAiPortrait {
     return SoulMateAiPortrait(
       bytes: bytes,
       mimeType: mime.isNotEmpty ? mime : _guessMime(bytes),
+      identity: identity,
     );
   }
 

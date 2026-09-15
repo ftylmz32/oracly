@@ -1,6 +1,7 @@
 /** Short-window duplicate filter — same body, not a second reading. */
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ErrorCode, errorEnvelope } from '../errors.js';
+import type { SharedWindowStore } from '../rate-limit/shared-window-store.js';
 
 type Hit = { at: number; fingerprint: string };
 
@@ -12,22 +13,28 @@ const windows: Record<string, number> = {
   coffee_analysis: 5_000,
   palm_analysis: 5_000,
   soulmate_draw: 8_000,
+  soulmate_interpretation: 1_200,
 };
 
-export function createDuplicateRequestGuard() {
+export function createDuplicateRequestGuard(shared?: SharedWindowStore) {
   const recent = new Map<string, Hit>();
 
-  return function rejectDuplicate(
+  return async function rejectDuplicate(
     request: FastifyRequest,
     reply: FastifyReply,
     operation: string,
     fingerprint: string,
-  ): boolean {
+  ): Promise<boolean> {
     const key = request.identityKey;
     if (!key || !fingerprint) return false;
     const bucket = `${key}|${operation}`;
     const now = Date.now();
     const windowMs = windows[operation] ?? 2_000;
+    if (shared) {
+      const allowed = await shared.consume(`duplicate:${operation}`, `${key}:${fingerprint}`, 1, windowMs);
+      if (!allowed) void reply.code(429).send(errorEnvelope(ErrorCode.rateLimited));
+      return !allowed;
+    }
     const last = recent.get(bucket);
     if (
       last &&

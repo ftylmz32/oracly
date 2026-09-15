@@ -1,4 +1,4 @@
-/// Soulmate experience final — real image, honest reading, cinematic reveal.
+/// Soulmate experience final — generated image, honest symbolic reading.
 library;
 
 import 'dart:io';
@@ -14,11 +14,17 @@ import 'package:oracly_new/features/premium/services/soul_mate_interpretation.da
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('pipeline stays on gpt-image-2 photoreal cinema', () {
+  test('pipeline stays on gpt-image-2 premium graphite portrait', () {
     final transport = File('backend/src/ai/openai-transport.ts').readAsStringSync();
     final config = File('backend/src/config.ts').readAsStringSync();
     final service = File('backend/src/ai/service.ts').readAsStringSync();
     final prompt = File('backend/src/ai/soulmate-prompt.ts').readAsStringSync();
+    final promptBuilder = File(
+      'backend/src/ai/soulmate-portrait-prompt-builder.ts',
+    ).readAsStringSync();
+    final visualProfile = File(
+      'backend/src/ai/soulmate-visual-profile.ts',
+    ).readAsStringSync();
     expect(config, contains("gpt-image-2"));
     expect(config, contains('openaiImageModel'));
     expect(transport, contains('openaiImageModel'));
@@ -27,13 +33,14 @@ void main() {
     expect(transport, contains('b64_json'));
     expect(service, contains('openaiImageSize'));
     expect(config, contains('1024x1536'));
-    expect(prompt, contains('not a real person'));
-    expect(prompt, contains('future partner'));
-    expect(prompt, contains('Photorealistic cinematic portrait'));
-    expect(prompt, contains('no porcelain'));
-    expect(prompt, isNot(contains('dall-e')));
-    expect(prompt, isNot(contains('painted character')));
-    expect(prompt, isNot(contains('oil-paint')));
+    expect(prompt, contains('buildSoulmatePortraitPrompt'));
+    expect(visualProfile, contains('fine refined graphite'));
+    expect(promptBuilder, contains('premium graphite pencil portrait'));
+    expect(promptBuilder, contains('not 3D'));
+    expect(promptBuilder, contains('Strictly avoid 3D rendering, CGI'));
+    expect(promptBuilder, contains('not a digital render'));
+    expect(promptBuilder, contains('creative symbolic companion image'));
+    expect(promptBuilder, contains('not a real person'));
   });
 
   test('reading uses real inputs and never claims a soulmate arrival', () {

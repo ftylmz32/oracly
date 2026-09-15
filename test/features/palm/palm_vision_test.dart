@@ -31,6 +31,25 @@ void main() {
     expect(parsed['themes'], contains('introspection'));
   });
 
+  test('parser rejects an observer-flagged unusable image (usable:false)', () {
+    expect(
+      PalmVisionParser.fromMap({
+        'usable': false,
+        'overall': 'Bu metin usable:false olsa bile asla döndürülmemeli.',
+        'takeaway': 'Görülmemesi gereken içerik.',
+      }),
+      isNull,
+      reason: 'the observer explicitly marked the image unusable',
+    );
+    expect(
+      PalmVisionParser.fromMap({
+        'okunabilir': false,
+        'overall': 'Türkçe alan adıyla da aynı kural geçerli olmalı.',
+      }),
+      isNull,
+    );
+  });
+
   test('parser rejects medical or fatal certainty copy', () {
     expect(
       PalmVisionParser.fromMap({

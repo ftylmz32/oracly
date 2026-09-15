@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/copy/premium_entitlement_message.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
@@ -26,17 +27,16 @@ class CompanionReferenceOrEntitlementBanner extends StatelessWidget {
       PremiumEntitlementState.restoring => CompanionCopy.orEntitlementRestoring,
       PremiumEntitlementState.unavailable =>
         CompanionCopy.orEntitlementUnavailable,
-      PremiumEntitlementState.error =>
-        message?.trim().isNotEmpty == true
-            ? message!.trim()
-            : CompanionCopy.orEntitlementError,
-      PremiumEntitlementState.unverified =>
-        message?.trim().isNotEmpty == true
-            ? message!.trim()
-            : CompanionCopy.orEntitlementUnavailable,
+      PremiumEntitlementState.error => PremiumEntitlementMessage.forReason(
+        message,
+        fallback: CompanionCopy.orEntitlementError,
+      ),
+      PremiumEntitlementState.unverified => PremiumEntitlementMessage.forReason(
+        message,
+        fallback: CompanionCopy.orEntitlementUnavailable,
+      ),
       PremiumEntitlementState.active ||
-      PremiumEntitlementState.inactive =>
-        null,
+      PremiumEntitlementState.inactive => null,
     };
     if (text == null) return const SizedBox.shrink();
     return Padding(

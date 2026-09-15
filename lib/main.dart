@@ -16,6 +16,7 @@ import 'core/storage/secure_storage_bootstrap.dart';
 import 'core/data/repositories/mock_premium_repository.dart';
 import 'core/l10n/oracly_format.dart';
 import 'core/platform/oracly_phone_orientation.dart';
+import 'core/notifications/reading_push_bootstrap.dart';
 import 'core/telemetry/crash_telemetry_bootstrap.dart';
 import 'features/share_reopen/services/share_link_inbox.dart';
 import 'screens/splash/splash_startup_log.dart';
@@ -85,5 +86,6 @@ Future<void> _deferredStartup(
   await FirebaseAppCheckBootstrap.tryActivate();
   container.invalidate(firebaseAuthReadyProvider);
   await AnonymousAuthBootstrap.ensure(container.read(authServiceProvider));
+  await ReadingPushBootstrap.install(container);
   await CrashTelemetryBootstrap.install(container);
 }

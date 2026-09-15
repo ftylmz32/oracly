@@ -1,11 +1,10 @@
-/// Home personalization — real name or Yolcu; time-band ritual copy.
+/// Home personalization — real first name or a bare greeting; time-band ritual copy.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
-import 'package:oracly_new/core/copy/first_session_copy.dart';
 import 'package:oracly_new/core/copy/home_personal_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/universe/oracly_ritual_time.dart';
@@ -29,12 +28,43 @@ void main() {
         time: OraclyRitualTime.evening,
         profileName: '  ',
       ),
-      'İyi akşamlar, ${FirstSessionCopy.homeGuestName}',
+      'İyi akşamlar',
     );
     expect(
       HomePersonalCopy.greeting(time: OraclyRitualTime.morning),
-      'İyi sabahlar, Yolcu',
+      'İyi sabahlar',
     );
+  });
+
+  test('a full name uses only the first name, never the whole string', () {
+    expect(
+      HomePersonalCopy.greeting(
+        time: OraclyRitualTime.night,
+        profileName: 'Fatih Taha Yılmaz',
+      ),
+      'İyi geceler, Fatih',
+    );
+  });
+
+  test('a real first name is never truncated to 1-2 characters', () {
+    final result = HomePersonalCopy.greeting(
+      time: OraclyRitualTime.night,
+      profileName: 'Fatih',
+    );
+    expect(result, 'İyi geceler, Fatih');
+    expect(result, isNot(contains('Fa,')));
+  });
+
+  test('placeholder-like stored names never render as the greeting name', () {
+    for (final placeholder in ['null', 'user', 'guest', '-']) {
+      expect(
+        HomePersonalCopy.greeting(
+          time: OraclyRitualTime.night,
+          profileName: placeholder,
+        ),
+        'İyi geceler',
+      );
+    }
   });
 
   test('ritual welcome follows the four time bands', () {
@@ -56,8 +86,9 @@ void main() {
     );
   });
 
-  testWidgets('hero shows fixed Merhaba greeting, not a personalized name',
-      (tester) async {
+  testWidgets('hero shows fixed Merhaba greeting, not a personalized name', (
+    tester,
+  ) async {
     SharedPreferences.setMockInitialValues({'profile_name': 'Fatih'});
     final storage = await LocalStorage.open();
     final evening = OraclyUniverseState.current(DateTime(2026, 8, 13, 20));

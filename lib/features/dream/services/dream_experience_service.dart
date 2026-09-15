@@ -5,6 +5,8 @@ import '../../../core/reading_version/models/reading_version_kind.dart';
 import '../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../core/reading_version/services/reading_version_service.dart';
 import '../../../core/domain/repositories/dream_repository.dart';
+import '../../../core/memory/oracly_memory.dart';
+import '../../../core/memory/oracly_memory_retriever.dart';
 import '../../ai/production/ai_failure.dart';
 import '../../ai/production/ai_request_exception.dart';
 import '../../ai/production/contexts/reading_ai_context.dart';
@@ -19,10 +21,7 @@ import 'dream_reflection_generator.dart';
 import 'dream_understanding_service.dart';
 
 class DreamExperienceResult {
-  const DreamExperienceResult({
-    required this.dream,
-    this.versionAdded = true,
-  });
+  const DreamExperienceResult({required this.dream, this.versionAdded = true});
 
   final Dream dream;
   final bool versionAdded;
@@ -35,11 +34,11 @@ class DreamExperienceService {
     DreamUnderstandingService? understandingService,
     DreamPatternService? patternService,
     DreamReflectionGenerator? reflectionGenerator,
-    ReadingVersionService? versions,
-  })  : _understanding = understandingService ?? DreamUnderstandingService(),
-        _patterns = patternService ?? const DreamPatternService(),
-        _reflection = reflectionGenerator ?? const DreamReflectionGenerator(),
-        _versions = versions;
+    this._versions,
+    this._memory,
+  }) : _understanding = understandingService ?? DreamUnderstandingService(),
+       _patterns = patternService ?? const DreamPatternService(),
+       _reflection = reflectionGenerator ?? const DreamReflectionGenerator();
 
   final DreamRepository repository;
   final OraclyAiService ai;
@@ -47,6 +46,7 @@ class DreamExperienceService {
   final DreamPatternService _patterns;
   final DreamReflectionGenerator _reflection;
   final ReadingVersionService? _versions;
+  final OraclyMemoryRetriever? _memory;
 
   bool get aiAvailable => ai.isConfigured;
 
@@ -110,11 +110,28 @@ class DreamExperienceService {
         narrative: narrative,
         tags: tags,
       );
+      String? memorySummary;
+      final currentQuery = [
+        narrative.trim(),
+        ...selectedEmotions.map((emotion) => emotion.label),
+        ...tags.map((tag) => tag.trim()).where((tag) => tag.isNotEmpty),
+      ].join(' ');
+      if (narrative.trim().length >= 8) {
+        try {
+          memorySummary = _memory?.forInterpretation(
+            query: currentQuery,
+            currentType: OraclyReadingType.dream,
+          );
+        } catch (_) {
+          // Connected memory enriches one existing call; it is never required.
+        }
+      }
       final outcome = await ai.analyzeDream(
         DreamAiContext(
           narrative: aiNarrative,
           symbols: understanding.symbols.map((s) => s.label).toList(),
           emotions: understanding.emotions,
+          memorySummary: memorySummary,
         ),
       );
       dream = dream.copyWith(

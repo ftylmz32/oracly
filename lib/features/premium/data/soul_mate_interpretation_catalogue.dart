@@ -10,6 +10,8 @@ class SoulMateReadingParts {
     required this.dynamics,
     required this.feeling,
     required this.yourSide,
+    this.meeting = '',
+    this.authoritative = false,
   });
 
   final String energy;
@@ -17,6 +19,10 @@ class SoulMateReadingParts {
   final String dynamics;
   final String feeling;
   final String yourSide;
+  final String meeting;
+
+  /// True only for an accepted AI reading. Local templates are never authoritative.
+  final bool authoritative;
 
   String get joined =>
       '$energy\n\n$attraction\n\n$dynamics\n\n$feeling\n\n$yourSide';
@@ -51,7 +57,10 @@ abstract final class SoulMateInterpretationCatalogue {
             'who': who,
             'pref': preference,
           });
-    final idx = tone % 3;
+    // 5 variants each for feeling/yourSide — combined with the 2×2×2
+    // energy/attraction/dynamics axes, 200 total combinations (was 72),
+    // so a genuine portrait no longer reads as one of a small fixed set.
+    final idx = tone % 5;
     return SoulMateReadingParts(
       energy: energy,
       attraction: attraction,

@@ -7,6 +7,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../features/premium/models/premium_purchase_result.dart';
+import '../../features/premium/models/review_access_result.dart';
 import '../../features/premium/services/local_cache_entitlement_verifier.dart';
 import '../../features/premium/services/premium_entitlement_verifier.dart';
 import '../../features/premium/services/premium_purchase_port.dart';
@@ -129,15 +130,34 @@ class PremiumService {
 
   /// Submits a reviewer-entered code. On success, persists it locally so
   /// [reviewAccessActive] can keep self-validating on every reconcile.
-  /// Returns false (not "granted") if the server said yes but the client
-  /// could not actually persist it — telling the UI success in that case
-  /// would not survive an app restart.
-  Future<bool> activateReviewAccess(String code) async {
+  /// Returns the full [ReviewAccessResult] — not just whether it granted —
+  /// so a caller can tell a real "wrong code" denial (definitive) apart from
+  /// a transient network/server failure (not definitive) and word the
+  /// message honestly instead of always saying the code is wrong. Also
+  /// reports non-definitive if the server said yes but the client could not
+  /// actually persist it — telling the UI success in that case would not
+  /// survive an app restart.
+  Future<ReviewAccessResult> activateReviewAccessResult(String code) async {
     final service = _reviewAccessService;
     final repo = _reviewAccessRepository;
-    if (service == null || repo == null) return false;
+    if (service == null || repo == null) {
+      return ReviewAccessResult.denied('not_configured');
+    }
     final result = await service.activate(code);
-    if (!result.granted) return false;
-    return repo.markGranted(code);
+    if (!result.granted) return result;
+    final persisted = await repo.markGranted(code);
+    if (!persisted) {
+      return ReviewAccessResult.denied(
+        'local_persist_failed',
+        definitive: false,
+      );
+    }
+    return result;
+  }
+
+  /// Convenience wrapper over [activateReviewAccessResult] for callers that
+  /// only care whether access was granted.
+  Future<bool> activateReviewAccess(String code) async {
+    return (await activateReviewAccessResult(code)).granted;
   }
 }

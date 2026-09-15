@@ -49,13 +49,22 @@ abstract final class FirebaseAppCheckBootstrap {
     return _activated;
   }
 
+  /// Dart-define is authoritative — it's what the rest of the AI runtime
+  /// ([OraclyRuntimeConfig]/[AiRuntimeConfig]) resolves environment from.
+  /// [AppConfig]'s environment comes from dotenv only, which doesn't see
+  /// `--dart-define`/`--dart-define-from-file`, so it can silently disagree
+  /// for a build like `APP_ENV=internal` and select the wrong App Check
+  /// provider even though the AI proxy itself resolved staging correctly.
+  @visibleForTesting
+  static AppEnvironment resolveEnvironment() => _resolveEnvironment();
+
   static AppEnvironment _resolveEnvironment() {
+    final raw = OraclyRuntimeConfig.readRaw(OraclyRuntimeKeys.appEnv);
+    if (raw != null) return AppEnvironment.fromString(raw);
     if (AppConfig.isInitialized) {
       return AppConfig.instance.environment;
     }
-    return AppEnvironment.fromString(
-      OraclyRuntimeConfig.readRaw(OraclyRuntimeKeys.appEnv),
-    );
+    return AppEnvironment.development;
   }
 
   @visibleForTesting

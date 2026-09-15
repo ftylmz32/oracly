@@ -45,8 +45,17 @@ abstract final class AppFontSizes {
 abstract final class AppTypography {
   AppTypography._();
 
-  static const String displayFontFamily = 'Cormorant Garamond';
-  static const String bodyFontFamily = 'Inter';
+  // The designed identity is Cormorant Garamond (display) + Inter (body),
+  // but neither is bundled as an app asset (no pubspec `fonts:` entry, no
+  // font file anywhere in the repo) -- a String name here would never
+  // resolve to anything and every glyph would render through Flutter's
+  // undocumented "unresolved family" substitution, not the well-defined
+  // "no family requested" default path. `null` is that well-defined path:
+  // Flutter's own Material default (engine-bundled Roboto), the same on
+  // every platform, deterministically. Restore the intended family names
+  // here (and only here) once real, licensed font files are bundled.
+  static const String? displayFontFamily = null;
+  static const String? bodyFontFamily = null;
 
   static TextStyle _display({
     required double size,
@@ -182,8 +191,8 @@ abstract final class AppTypography {
 abstract final class AppTextStyles {
   AppTextStyles._();
 
-  static const String displayFontFamily = AppTypography.displayFontFamily;
-  static const String bodyFontFamily = AppTypography.bodyFontFamily;
+  static const String? displayFontFamily = AppTypography.displayFontFamily;
+  static const String? bodyFontFamily = AppTypography.bodyFontFamily;
 
   static TextStyle get displayLarge => AppTypography.displayXl;
   static TextStyle get displayMedium => AppTypography.displayL;

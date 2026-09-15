@@ -54,7 +54,8 @@ void main() {
     expect(find.byType(ProfileReferenceHeader), findsOneWidget);
     expect(find.text(ProfileCopy.guestName), findsOneWidget);
     expect(find.text(ProfileCopy.spaceWhisper), findsOneWidget);
-    expect(find.text(GemDisplay.format(0)), findsAtLeastNWidgets(1));
+    expect(find.text('—'), findsAtLeastNWidgets(1));
+    expect(find.text(GemDisplay.format(0)), findsNothing);
     expect(find.text(ProfileCopy.premiumMember), findsNothing);
     expect(find.text(ProfileCopy.premiumActive), findsNothing);
     expect(find.text('Başarılarım'), findsNothing);

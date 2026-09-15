@@ -1,6 +1,9 @@
 /// Legal / store policy readiness — URLs, disclosures, manage, restore copy.
 library;
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
@@ -85,6 +88,31 @@ void main() {
     expect(OraclyLegalUrls.hasPrivacyPolicy, isTrue);
     expect(OraclyLegalUrls.hasTermsOfUse, isTrue);
     expect(OraclyLegalUrls.privacyPolicyUri?.host, 'oracly.app');
+  });
+
+  test('production config has canonical HTTPS legal documents', () {
+    final config = jsonDecode(
+      File('tool/dart_defines.production.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final privacy = Uri.parse(
+      config[OraclyLegalUrls.privacyPolicyEnvKey] as String,
+    );
+    final terms = Uri.parse(
+      config[OraclyLegalUrls.termsOfUseEnvKey] as String,
+    );
+    expect(
+      privacy.toString(),
+      'https://github.com/ftylmz32/oracly/blob/main/docs/privacy-policy.md',
+    );
+    expect(
+      terms.toString(),
+      'https://github.com/ftylmz32/oracly/blob/main/docs/terms-of-use.md',
+    );
+
+    final launcher =
+        File('lib/core/legal/legal_document_launcher.dart').readAsStringSync();
+    expect(launcher, contains('LaunchMode.externalApplication'));
+    expect(launcher, contains('catch (_)'));
   });
 
   test('manage-subscription URIs are official store endpoints', () {

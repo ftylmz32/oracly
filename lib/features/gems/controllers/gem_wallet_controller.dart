@@ -8,69 +8,115 @@ import '../data/gem_display.dart';
 import '../models/gem_transaction.dart';
 import '../services/gem_wallet_service.dart';
 
+enum GemWalletHydrationState { loading, stale, authoritative, error }
+
 class GemWalletController extends ChangeNotifier {
   GemWalletController(this._service) {
-    _balance = _service.balance;
+    _balance = _service.cachedBalance;
     _history = _service.history;
+    _hydrationState = _balance == null
+        ? GemWalletHydrationState.loading
+        : GemWalletHydrationState.stale;
   }
 
   final GemWalletService _service;
 
-  int _balance = 0;
+  int? _balance;
   List<GemTransaction> _history = const [];
   bool _busy = false;
+  bool _stale = true;
+  late GemWalletHydrationState _hydrationState;
+  bool _disposed = false;
 
-  int get balance => _balance;
-  String get formatted => GemDisplay.format(_balance);
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  void _safeNotify() {
+    if (!_disposed) notifyListeners();
+  }
+
+  int get balance => _balance ?? 0;
+  int? get displayBalance => _balance;
+  String get formatted => _balance == null ? '—' : GemDisplay.format(_balance!);
   List<GemTransaction> get history => _history;
   bool get busy => _busy || _service.busy;
+  bool get stale => _stale;
+  GemWalletHydrationState get hydrationState => _hydrationState;
+  bool get authoritative =>
+      _hydrationState == GemWalletHydrationState.authoritative;
+  String? get ownerId => _service.ownerId;
 
   bool canSpend(int amount) => !_busy && _service.canSpend(amount);
 
-  void reload() {
-    _balance = _service.balance;
-    _history = _service.history;
-    notifyListeners();
-  }
-
-  Future<bool> earn({
-    required int amount,
-    required String reason,
-  }) async {
-    if (_busy) return false;
+  Future<void> reload() async {
+    if (_busy) return;
     _busy = true;
-    notifyListeners();
+    _hydrationState = _balance == null
+        ? GemWalletHydrationState.loading
+        : GemWalletHydrationState.stale;
+    _safeNotify();
     try {
-      _balance = await _service.earn(amount: amount, reason: reason);
+      final refreshed = await _service.refresh();
+      if (refreshed == null) {
+        _hydrationState = _service.canHydrate
+            ? GemWalletHydrationState.error
+            : (_balance == null
+                  ? GemWalletHydrationState.loading
+                  : GemWalletHydrationState.stale);
+        return;
+      }
+      _balance = refreshed;
       _history = _service.history;
-      return true;
+      _stale = _service.stale;
+      _hydrationState = GemWalletHydrationState.authoritative;
+    } catch (_) {
+      _stale = true;
+      _hydrationState = GemWalletHydrationState.error;
     } finally {
       _busy = false;
-      notifyListeners();
+      _safeNotify();
     }
   }
 
-  Future<bool> spend({
-    required int amount,
-    required String reason,
-  }) async {
+  Future<void> acceptAuthoritativeBalance(int balance) async {
+    await _service.acceptAuthoritativeBalance(balance);
+    _balance = _service.balance;
+    _stale = _service.stale;
+    _hydrationState = GemWalletHydrationState.authoritative;
+    _safeNotify();
+  }
+
+  Future<bool> earn({required int amount, required String reason}) async {
+    if (_busy) return false;
+    _busy = true;
+    _safeNotify();
+    try {
+      return false;
+    } finally {
+      _busy = false;
+      _safeNotify();
+    }
+  }
+
+  Future<bool> spend({required int amount, required String reason}) async {
     if (_busy) return false;
     if (!canSpend(amount)) {
-      notifyListeners();
+      _safeNotify();
       return false;
     }
     _busy = true;
-    notifyListeners();
+    _safeNotify();
     try {
-      _balance = await _service.spend(amount: amount, reason: reason);
-      _history = _service.history;
-      return true;
+      return false;
     } on GemSpendException {
       _balance = _service.balance;
       return false;
     } finally {
       _busy = false;
-      notifyListeners();
+      _safeNotify();
     }
   }
 

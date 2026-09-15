@@ -57,11 +57,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       }
       // Gems/reconcile stay non-blocking for the route decision.
       unawaited(splashDeferredBoot(ref));
-      splashScheduleWarmup(ref);
+      splashScheduleWarmup(ProviderScope.containerOf(context, listen: false));
     } catch (_) {
       if (!mounted) return;
       unawaited(splashResilientBoot(ref));
-      splashScheduleWarmup(ref);
+      splashScheduleWarmup(ProviderScope.containerOf(context, listen: false));
     }
   }
 

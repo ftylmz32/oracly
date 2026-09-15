@@ -196,7 +196,7 @@ class _CountingPremiumRepository implements PremiumRepository {
       _inner.savePurchaseCredentials(credentials);
 
   @override
-  PremiumPurchaseCredentials? readPurchaseCredentials() =>
+  Future<PremiumPurchaseCredentials?> readPurchaseCredentials() =>
       _inner.readPurchaseCredentials();
 
   @override

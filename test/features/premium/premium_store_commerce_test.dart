@@ -178,7 +178,7 @@ void main() {
 
   test('premium grant does not mutate gem wallet', () async {
     final gems = GemWalletService(GemWalletStore(storage));
-    await gems.earn(amount: 50, reason: 'test_seed');
+    await gems.acceptAuthoritativeBalance(50);
     final before = gems.balance;
     final service = PremiumService(
       premiumRepo,

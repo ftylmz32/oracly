@@ -1,13 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { createHash } from 'node:crypto';
 import {
-  profilesDiffer,
-  visualProfileFromBirthDate,
-} from '../src/ai/soulmate-profile.js';
+  coreFromSeed,
+  coresEqual,
+  portraitSeed,
+} from '../src/ai/soulmate-portrait-identity.js';
 import {
   buildSoulmateImagePrompt,
   newSoulmateNonce,
 } from '../src/ai/soulmate-prompt.js';
+import { resetSoulmateUniquenessIndex } from '../src/ai/soulmate-uniqueness-index.js';
 import {
   authHeader,
   openaiImage,
@@ -20,29 +22,29 @@ const USER_A = { name: 'Asel', birthDate: '2019-05-26', gender: 'feminine' as co
 const USER_B = { name: 'Deniz', birthDate: '1995-08-15', gender: 'masculine' as const };
 
 describe('soulmate prompt personalization', () => {
-  it('builds materially different profiles for different birth dates', () => {
-    const a = visualProfileFromBirthDate(USER_A.birthDate);
-    const b = visualProfileFromBirthDate(USER_B.birthDate);
-    expect(profilesDiffer(a, b)).toBe(true);
-    expect(a.colorFamily).toContain('sage');
-    expect(b.colorFamily).toContain('amber');
-    expect(a.setting).not.toBe(b.setting);
-    expect(a.mood).not.toBe(b.mood);
+  beforeEach(() => {
+    resetSoulmateUniquenessIndex();
   });
 
-  it('keeps the same date deterministic', () => {
-    const first = visualProfileFromBirthDate(USER_A.birthDate);
-    const second = visualProfileFromBirthDate(USER_A.birthDate);
-    expect(first).toEqual(second);
+  it('keeps the same account on one core identity', () => {
+    const seed = portraitSeed('acct-a', 'feminine');
+    const first = coreFromSeed(seed, 'feminine');
+    const second = coreFromSeed(seed, 'feminine');
+    expect(coresEqual(first, second)).toBe(true);
+    const again = portraitSeed('acct-a', 'feminine');
+    expect(coreFromSeed(again, 'feminine')).toEqual(first);
   });
 
-  it('issues a new nonce for every draw of the same user', () => {
+  it('issues a new nonce for every draw, while the identity-locked prompt itself stays stable for the same user', () => {
     const first = buildSoulmateImagePrompt(USER_A);
     const second = buildSoulmateImagePrompt(USER_A);
     expect(first.nonce).not.toBe(second.nonce);
     expect(first.nonce).toHaveLength(16);
     expect(second.nonce).toHaveLength(16);
-    expect(first.prompt).not.toBe(second.prompt);
+    // Every visual dimension is locked to the deterministic per-account seed,
+    // not the render nonce -- see soulmate-uniqueness.test.ts's dedicated
+    // determinism test for the full rationale.
+    expect(first.prompt).toBe(second.prompt);
     expect(newSoulmateNonce()).not.toBe(newSoulmateNonce());
   });
 
@@ -52,25 +54,47 @@ describe('soulmate prompt personalization', () => {
     const b = buildSoulmateImagePrompt(USER_B, nonce);
     expect(a.nonce).toBe(b.nonce);
     expect(a.prompt).not.toBe(b.prompt);
-    expect(a.prompt).toContain('sage');
-    expect(b.prompt).toContain('amber');
-    expect(a.prompt).toContain('Asel');
-    expect(b.prompt).toContain('Deniz');
+    expect(a.prompt).toContain('Identity direction');
+    expect(b.prompt).toContain('Identity direction');
+    expect(a.prompt).not.toContain('Asel');
+    expect(b.prompt).not.toContain('Deniz');
     expect(a.prompt).not.toContain(USER_A.birthDate);
     expect(b.prompt).not.toContain(USER_B.birthDate);
+    expect(a.identity.presence).not.toBe(b.identity.presence);
+    expect(a.identity.faceShape).toBeTruthy();
   });
 
   it('never places a firebase uid or client user id in the prompt', () => {
     const built = buildSoulmateImagePrompt({
       ...USER_A,
-      name: 'Asel',
+      name: 'asel@example.com',
+      accountKey: 'sub:firebase-uid-user-1',
     });
     expect(built.prompt.toLowerCase()).not.toContain('uid');
     expect(built.prompt).not.toContain('user-1');
+    expect(built.prompt).not.toContain('asel@example.com');
+    expect(built.prompt).not.toContain(built.seed);
     expect(built.prompt).not.toMatch(/firebase/i);
-    expect(built.prompt.toLowerCase()).toContain('photorealistic');
-    expect(built.prompt.toLowerCase()).not.toContain('oil-paint');
-    expect(built.prompt.toLowerCase()).not.toContain('painted character');
+  });
+
+  it('reads as a graphite pencil portrait and explicitly rejects 3D/CGI/photographic aesthetics', () => {
+    const built = buildSoulmateImagePrompt(USER_A);
+    const lower = built.prompt.toLowerCase();
+    expect(lower).toContain('graphite');
+    expect(lower).toContain('hand-drawn');
+    expect(lower).toContain('pencil');
+    expect(lower).not.toContain('photorealistic');
+    expect(lower).not.toContain('film photography');
+    // "photograph" only ever appears inside an explicit rejection phrase
+    // (spec section 3), never as a positive instruction to render one.
+    expect(lower).toContain('not a photograph with a sketch filter');
+    expect(lower).not.toContain('shoot like');
+    expect(lower).not.toContain('photoreal');
+    expect(lower).toContain('not 3d, not cgi');
+    expect(lower).toContain('strictly avoid 3d rendering, cgi');
+    expect(lower).toContain('plastic skin');
+    expect(lower).toContain('generic ai-model faces');
+    expect(lower).toContain('sketch filter');
   });
 
   it('routes two users through soulmate_draw with different prompt signatures', async () => {

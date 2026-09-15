@@ -1,13 +1,17 @@
 /// Phase 4 — One Oracly deck ready; begins session then opens ritual.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/widgets/oracly_button.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../presentation/screens/deck_selection_start.dart';
@@ -31,12 +35,34 @@ class _TarotRitualDeckReadyScreenState
   Future<void> _start() async {
     if (_starting) return;
     setState(() => _starting = true);
-    final ok = await DeckSelectionStart.confirm(
-      context: context,
-      ref: ref,
-      deckId: TarotDeckCatalogue.activeId,
-    );
-    if (mounted && !ok) setState(() => _starting = false);
+    try {
+      final ok = await DeckSelectionStart.confirm(
+        context: context,
+        ref: ref,
+        deckId: TarotDeckCatalogue.activeId,
+      ).timeout(const Duration(seconds: 20));
+      if (mounted && !ok) setState(() => _starting = false);
+    } catch (e) {
+      // Never leave Continue spinning forever: any thrown or timed-out
+      // failure here (this call makes no network request -- it only
+      // initializes local session state) must clear the loading state and
+      // offer a retry instead of stranding the user on this screen.
+      debugPrint('[TarotRitualDeckReadyScreen] start failed: $e');
+      if (!mounted) return;
+      setState(() => _starting = false);
+      OraclySnackBar.error(
+        context,
+        ResilienceCopy.sessionInitFailed,
+        action: SnackBarAction(
+          label: ResilienceCopy.retryAction,
+          textColor: AppColors.goldLight,
+          onPressed: () {
+            // ignore: unawaited_futures
+            _start();
+          },
+        ),
+      );
+    }
   }
 
   @override

@@ -11,10 +11,12 @@ import '../../gems/models/paid_ai_operation.dart';
 import '../../gems/providers/gem_providers.dart';
 import '../../gems/services/gem_spend_guard.dart';
 import '../../gems/services/paid_ai_operation_binder.dart';
+import '../../ai/production/ai_failure.dart';
 import '../copy/soul_mate_copy.dart';
 import '../economy/soul_mate_economy.dart';
 import '../providers/soul_mate_providers.dart';
 import 'soul_mate_draw_port.dart';
+import 'soul_mate_generation_policy.dart';
 
 abstract final class SoulMatePaidDraw {
   SoulMatePaidDraw._();
@@ -23,6 +25,7 @@ abstract final class SoulMatePaidDraw {
     required WidgetRef ref,
     required BuildContext context,
     required SoulMateDrawRequest request,
+    String? existingOperationId,
   }) async {
     // Capture before await — route dispose must not cancel a started draw.
     final coordinator = ref.read(paidAiOperationCoordinatorProvider);
@@ -37,6 +40,7 @@ abstract final class SoulMatePaidDraw {
       ledgerKey: SoulMateEconomy.ledgerKey,
       reason: GemsCopy.reasonSoulMate,
       cost: SoulMateEconomy.drawCost,
+      existingId: existingOperationId,
     );
     if (op == null) return null;
 
@@ -65,10 +69,30 @@ abstract final class SoulMatePaidDraw {
   }
 
   static String? messageFor(SoulMateDrawResult result) {
-    if (result.hasPortrait) return null;
-    return AiErrorSanitizer.guard(
-      result.message,
-      fallback: SoulMateCopy.unavailable,
-    );
+    if (result.hasPortrait || result.declined) return null;
+    final kind = result.aiKind;
+    if (kind == null) {
+      return AiErrorSanitizer.guard(
+        result.message,
+        fallback: SoulMateCopy.unavailable,
+      );
+    }
+    if (kind == AiFailureKind.unauthorized ||
+        kind == AiFailureKind.appCheck ||
+        kind == AiFailureKind.noConfiguration ||
+        kind == AiFailureKind.authPending) {
+      return AiErrorSanitizer.guard(
+        result.message,
+        fallback: SoulMateCopy.failureUnavailable,
+      );
+    }
+    final failure = result.failureKind ??
+        SoulMateGenerationPolicy.failureKindFor(kind);
+    return switch (failure) {
+      SoulMateFailureKind.connection => SoulMateCopy.failureConnection,
+      SoulMateFailureKind.input => SoulMateCopy.failureInput,
+      SoulMateFailureKind.unavailable => SoulMateCopy.failureUnavailable,
+      SoulMateFailureKind.temporary => SoulMateCopy.failureTemporary,
+    };
   }
 }

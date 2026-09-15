@@ -20,7 +20,6 @@ class AnalyticsService {
   }
 
   void logAppOpen({String? destination}) => _analytics.appOpen(destination: destination);
-
   void logCoffeeStarted() {
     _analytics.coffeeStarted();
     quality?.started(QualityFeature.coffee);

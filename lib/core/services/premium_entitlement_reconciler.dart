@@ -10,10 +10,7 @@ import '../../features/premium/services/premium_entitlement_verifier.dart';
 import '../domain/repositories/premium_repository.dart';
 
 class PremiumReconcileSnapshot {
-  const PremiumReconcileSnapshot({
-    required this.entitlement,
-    this.message,
-  });
+  const PremiumReconcileSnapshot({required this.entitlement, this.message});
 
   final PremiumEntitlementState entitlement;
   final String? message;
@@ -73,7 +70,7 @@ class PremiumEntitlementReconciler {
   }
 
   Future<PremiumReconcileSnapshot> _refreshVerified() async {
-    final creds = premium.readPurchaseCredentials();
+    final creds = await premium.readPurchaseCredentials();
     if (creds == null || !creds.isComplete) {
       await _demoteAfterFailedRefresh('missing_purchase_credentials');
       return const PremiumReconcileSnapshot(
@@ -112,6 +109,20 @@ class PremiumEntitlementReconciler {
       await premium.clearLocalPremiumAccess();
       return PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.inactive,
+        message: result.reason,
+      );
+    }
+
+    if (result.status == PremiumVerifyStatus.error) {
+      // Transient failure (network, parse error, backend 5xx) — the store
+      // never actually said this purchase is invalid, it just couldn't be
+      // confirmed right now. Reaching this branch already required
+      // `localActive && verified` (an already-proven grant), so never
+      // demote it on ambiguity; the next successful reconcile re-confirms
+      // normally. A never-verified user never reaches this branch at all
+      // (see `reconcile()`), so this cannot fabricate Premium for anyone.
+      return PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.active,
         message: result.reason,
       );
     }

@@ -4,20 +4,19 @@ library;
 import '../../../core/data/datasources/local_storage.dart';
 import '../data/paid_ai_operation_store.dart';
 import '../models/paid_ai_operation.dart';
-import 'gem_action_charge.dart';
 import 'gem_wallet_service.dart';
 import 'paid_ai_operation_id.dart';
 
 class PaidAiOperationCoordinator {
   PaidAiOperationCoordinator({
     required this._wallet,
-    required this._storage,
+    required LocalStorage storage,
     PaidAiOperationStore? store,
-  }) : _store = store ?? PaidAiOperationStore(_storage);
+  }) : _store = store ?? PaidAiOperationStore(storage);
 
   final GemWalletService _wallet;
-  final LocalStorage _storage;
   final PaidAiOperationStore _store;
+  final Map<String, Future<bool>> _settlements = <String, Future<bool>>{};
 
   PaidAiOperationStore get store => _store;
 
@@ -70,25 +69,34 @@ class PaidAiOperationCoordinator {
   }
 
   /// Deducts once. Safe to call after resume or lost-network replay.
-  Future<bool> settle(PaidAiOperation op) async {
+  Future<bool> settle(PaidAiOperation op) {
+    final active = _settlements[op.id];
+    if (active != null) return active;
+    final future = _settleOnce(op);
+    _settlements[op.id] = future;
+    return future.whenComplete(() => _settlements.remove(op.id));
+  }
+
+  Future<bool> _settleOnce(PaidAiOperation op) async {
     if (!op.isBillable) {
       await _store.remove(op.id);
       return true;
     }
-    final charge = GemActionCharge(
-      _wallet,
-      _storage,
-      ledgerKey: op.ledgerKey,
+    if (op.feature != PaidAiFeature.tarot) return false;
+    final result = await _wallet.settleTarot(
+      operationId: op.id,
+      // The operation path is the server's canonical idempotency identity.
+      // Keep this transport key bounded even when an external session id is long.
+      idempotencyKey: 'tarot-settle-request-v1',
     );
-    final ok = await charge.commit(
-      actionId: op.id,
-      cost: op.cost,
-      reason: op.reason,
-    );
+    if (result == null) {
+      try {
+        await _wallet.refresh();
+      } catch (_) {}
+    }
+    final ok = result?.applied == true;
     if (ok) {
-      await _store.upsert(
-        op.copyWith(status: PaidAiOperationStatus.settled),
-      );
+      await _store.upsert(op.copyWith(status: PaidAiOperationStatus.settled));
     }
     return ok;
   }

@@ -7,11 +7,15 @@ import '../../domain/models/reading.dart';
 import '../../domain/repositories/history_repository.dart';
 import '../../history/history_scale_policy.dart';
 import '../datasources/local_storage.dart';
+import '../../memory/oracly_memory_factory.dart';
+import '../../memory/oracly_memory_store.dart';
 
 class MockHistoryRepository implements HistoryRepository {
-  MockHistoryRepository(this._storage);
+  MockHistoryRepository(this._storage, {OraclyMemoryStore? memory})
+    : _memory = memory;
 
   final LocalStorage _storage;
+  final OraclyMemoryStore? _memory;
   static const _key = 'or_reading_history';
 
   @override
@@ -47,6 +51,7 @@ class MockHistoryRepository implements HistoryRepository {
           .map((r) => jsonEncode(r.toJson())),
     ]);
     await _storage.setStringList(_key, list);
+    await _memory?.upsert(OraclyMemoryFactory.tarot(reading));
   }
 
   @override
@@ -54,10 +59,18 @@ class MockHistoryRepository implements HistoryRepository {
     final current = await getReadings();
     await _storage.setStringList(
       _key,
-      current.where((r) => r.id != id).map((r) => jsonEncode(r.toJson())).toList(),
+      current
+          .where((r) => r.id != id)
+          .map((r) => jsonEncode(r.toJson()))
+          .toList(),
     );
+    await _memory?.removeBySource(id);
   }
 
   @override
-  Future<void> clearAll() async => _storage.setStringList(_key, []);
+  Future<void> clearAll() async {
+    final ids = (await getReadings()).map((e) => e.id).toList();
+    await _storage.setStringList(_key, []);
+    for (final id in ids) await _memory?.removeBySource(id);
+  }
 }

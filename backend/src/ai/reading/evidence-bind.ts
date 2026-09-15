@@ -7,13 +7,17 @@ import {
   evaluatePalmQuality,
   type HumanQualityFailure,
 } from '../human-quality.js';
-import type {
-  CoffeeNarrative,
-  CoffeeObservation,
-  NarrativeSection,
-  PalmNarrative,
-  PalmObservation,
-  ReadingEvidenceItem,
+import { coffeeEvidenceConcentration } from './coffee-diversity.js';
+import {
+  isCoffeeV2SourceSlot,
+  type CoffeeNarrative,
+  type CoffeeObservation,
+  type CoffeeV2Observation,
+  type NarrativeSection,
+  type PalmNarrative,
+  type PalmObservation,
+  type ReadingEvidenceItem,
+  type ReadingPersonalization,
 } from './types.js';
 
 export type BindFailure =
@@ -29,7 +33,14 @@ export type BindFailure =
   | 'locale_leak'
   | 'embedded_disclaimer'
   | 'generic_closing'
-  | 'inferred_handedness';
+  | 'inferred_handedness'
+  | 'theme_domination'
+  | 'section_redundancy'
+  | 'insight_collapse'
+  | 'stock_advice'
+  | 'evidence_reuse'
+  /** A real internal evidence id literally appeared inside prose text. */
+  | 'evidence_id_in_prose';
 
 const FORTUNE_LEAK =
   /gelecek|kehanet|kaderin|you will meet|destiny awaits|fal olarak|yorumu:/i;
@@ -47,6 +58,74 @@ export function acceptCoffeeObservation(obs: CoffeeObservation): BindFailure | n
     return 'unusable';
   }
   return acceptEvidenceList(obs.evidence, 3);
+}
+
+/**
+ * Coffee V2 (three-photo reading) — additive, dedicated quality gate.
+ * Never touches or replaces `acceptCoffeeObservation` above (legacy,
+ * single-image). Photo QUALITY and visual CONTENT are different things:
+ * this gate rejects unusable photography, never uninteresting residue.
+ */
+export type CoffeeV2GateFailure =
+  | 'unusable'
+  | 'cup_primary_not_visible'
+  | 'cup_secondary_not_visible'
+  | 'saucer_not_visible'
+  | 'inadequate_focus_light'
+  | 'no_residue_on_either_cup'
+  | 'invalid_source_slot'
+  | BindFailure;
+
+export function acceptCoffeeV2Observation(
+  obs: CoffeeV2Observation,
+): CoffeeV2GateFailure | null {
+  if (!obs.usable) return 'unusable';
+  const { cupPrimary, cupSecondary, saucer } = obs.photoChecks;
+  if (!cupPrimary.cupInteriorVisible) return 'cup_primary_not_visible';
+  if (!cupSecondary.cupInteriorVisible) return 'cup_secondary_not_visible';
+  if (!saucer.saucerVisible) return 'saucer_not_visible';
+  if (!cupPrimary.adequateFocusLight || !cupSecondary.adequateFocusLight || !saucer.adequateFocusLight) {
+    return 'inadequate_focus_light';
+  }
+  // Deliberately NOT required: saucer.residueOrFlowVisible, residue on
+  // BOTH cup sides, or a minimum symbol count — a genuinely sparse surface
+  // is valid evidence, not a quality failure.
+  if (!cupPrimary.residueVisible && !cupSecondary.residueVisible) {
+    return 'no_residue_on_either_cup';
+  }
+  for (const item of obs.evidence) {
+    if (!isCoffeeV2SourceSlot(item.sourceSlot)) return 'invalid_source_slot';
+  }
+  return acceptEvidenceList(obs.evidence, 3);
+}
+
+/**
+ * Adapts an already-accepted CoffeeV2Observation into the exact shape the
+ * existing, unmodified Coffee writer (`runCoffeeWriter` /
+ * `buildCoffeeWriterPacket` / `bindCoffeeNarrative`) already consumes.
+ * Those functions read only `.evidence` at runtime (never `.checks`) --
+ * `checks` below exists purely to satisfy `CoffeeObservation`'s type with a
+ * faithful summary, not a re-run of the V2 gate (already passed). Each
+ * evidence item's `sourceSlot` rides through structurally unchanged, so the
+ * writer prompt sees it in the evidence JSON without any writer/prompt
+ * change at all.
+ */
+export function adaptCoffeeV2ForWriter(obs: CoffeeV2Observation): CoffeeObservation {
+  const { cupPrimary, cupSecondary, saucer } = obs.photoChecks;
+  return {
+    usable: obs.usable,
+    reason: obs.reason,
+    checks: {
+      cupInteriorVisible: cupPrimary.cupInteriorVisible && cupSecondary.cupInteriorVisible,
+      adequateFocusLight:
+        cupPrimary.adequateFocusLight && cupSecondary.adequateFocusLight && saucer.adequateFocusLight,
+      residueVisible: cupPrimary.residueVisible || cupSecondary.residueVisible,
+      milkFoamObstruction: false,
+      usefulRegionsVisible:
+        cupPrimary.usefulRegionsVisible || cupSecondary.usefulRegionsVisible || saucer.usefulRegionsVisible,
+    },
+    evidence: obs.evidence,
+  };
 }
 
 export function acceptPalmObservation(obs: PalmObservation): BindFailure | null {
@@ -106,6 +185,15 @@ function mapQuality(q: HumanQualityFailure): BindFailure {
   if (q === 'embedded_disclaimer') return 'embedded_disclaimer';
   if (q === 'generic_closing') return 'generic_closing';
   if (q === 'inferred_handedness') return 'inferred_handedness';
+  if (
+    q === 'theme_domination' ||
+    q === 'section_redundancy' ||
+    q === 'insight_collapse' ||
+    q === 'stock_advice' ||
+    q === 'evidence_reuse'
+  ) {
+    return q;
+  }
   return 'human_quality';
 }
 
@@ -113,6 +201,7 @@ export function bindCoffeeNarrative(
   narrative: CoffeeNarrative,
   obs: CoffeeObservation,
   language: AppLanguage = 'tr',
+  personalization?: ReadingPersonalization,
 ): BindFailure | null {
   const known = new Set(obs.evidence.map((e) => e.id));
   const required: NarrativeSection[] = [
@@ -143,8 +232,22 @@ export function bindCoffeeNarrative(
     nearFuture: narrative.nearFuture.text,
     takeaway: narrative.takeaway.text,
     language,
+    hasMemoryContext: Boolean(personalization?.memorySummary),
+    relevantThemes: personalization?.relevantThemes,
   });
   if (quality) return mapQuality(quality);
+  if (
+    coffeeEvidenceConcentration(
+      {
+        overall: narrative.overall,
+        nearFuture: narrative.nearFuture,
+        takeaway: narrative.takeaway,
+      },
+      obs.evidence,
+    )
+  ) {
+    return 'insight_collapse';
+  }
   return null;
 }
 
@@ -153,6 +256,7 @@ export function bindPalmNarrative(
   obs: PalmObservation,
   language: AppLanguage = 'tr',
   trustedHandSide = false,
+  personalization?: ReadingPersonalization,
 ): BindFailure | null {
   const known = new Set(obs.evidence.map((e) => e.id));
   if (!narrative.visualObservation?.text?.trim() || !narrative.overall?.text?.trim()) {
@@ -179,6 +283,8 @@ export function bindPalmNarrative(
     takeaway: narrative.takeaway.text,
     language,
     trustedHandSide,
+    hasMemoryContext: Boolean(personalization?.memorySummary),
+    relevantThemes: personalization?.relevantThemes,
   });
   if (quality) return mapQuality(quality);
   return null;
@@ -203,6 +309,17 @@ function bindSections(
     for (const id of ids) {
       if (!known.has(id)) return 'unknown_evidence_id';
     }
+    // A raw internal id (e.g. "e1", "p3") literally written into the
+    // prose itself — the id belongs in evidenceIds, never in the text a
+    // user reads. Short ids only (>=2 chars) matched at a word boundary
+    // so this never false-positives on ordinary language.
+    for (const id of known) {
+      if (id.length < 2) continue;
+      const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`\\b${escaped}\\b`).test(text)) {
+        return 'evidence_id_in_prose';
+      }
+    }
     if (
       /(bir demlik var|there is a teapot|demlik mevcut)/i.test(text) &&
       hedges.some((h) => /demlik|teapot|çaydanlık|caydanlik/.test(h))
@@ -214,7 +331,7 @@ function bindSections(
 }
 
 export function observationFail(
-  code: BindFailure,
+  code: BindFailure | CoffeeV2GateFailure,
   details?: Record<string, unknown>,
 ): never {
   if (code === 'unusable') {
@@ -232,7 +349,13 @@ export function narrativeFail(
     code === 'locale_leak' ||
     code === 'embedded_disclaimer' ||
     code === 'generic_closing' ||
-    code === 'inferred_handedness'
+    code === 'inferred_handedness' ||
+    code === 'theme_domination' ||
+    code === 'section_redundancy' ||
+    code === 'insight_collapse' ||
+    code === 'stock_advice' ||
+    code === 'evidence_reuse' ||
+    code === 'evidence_id_in_prose'
   ) {
     fail(ErrorCode.qualityUnavailable, 200, { bindFailure: code, ...details });
   }

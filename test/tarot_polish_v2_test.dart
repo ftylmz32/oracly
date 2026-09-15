@@ -274,34 +274,17 @@ Temel anlam: Belirsizlik.
     expect(entry.dateLabel, contains('2026'));
   });
 
-  test('gem spend deducts once and blocks insufficient', () async {
+  test('local gem spend fails closed and preserves server snapshot', () async {
     SharedPreferences.setMockInitialValues({});
     final wallet = GemWalletService(
       GemWalletStore(LocalStorage(await SharedPreferences.getInstance())),
     );
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
-    await wallet.spend(
-      amount: TarotEconomy.readingCost,
-      reason: GemsCopy.reasonTarot,
-    );
-    expect(wallet.balance, 30);
-    expect(
-      () => wallet.spend(amount: 40, reason: GemsCopy.reasonTarot),
-      throwsA(
-        isA<GemSpendException>().having(
-          (e) => e.message,
-          'message',
-          GemsCopy.insufficient,
-        ),
-      ),
-    );
-    final first = wallet.spend(amount: 10, reason: GemsCopy.reasonTarot);
-    expect(
-      () => wallet.spend(amount: 10, reason: GemsCopy.reasonTarot),
+    await wallet.acceptAuthoritativeBalance(50);
+    await expectLater(
+      wallet.spend(amount: TarotEconomy.readingCost, reason: GemsCopy.reasonTarot),
       throwsA(isA<GemSpendException>()),
     );
-    await first;
-    expect(wallet.balance, 20);
+    expect(wallet.balance, 50);
   });
 
   testWidgets('start screen shows cost and blocks zero balance', (tester) async {
@@ -333,7 +316,7 @@ Temel anlam: Belirsizlik.
     await tester.binding.setSurfaceSize(const Size(393, 852));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({
-      GemWalletStore.balanceKey: 50,
+      GemWalletStore.serverBalanceCacheKey: 50,
     });
     final storage = await LocalStorage.open();
     await tester.pumpWidget(
@@ -353,6 +336,6 @@ Temel anlam: Belirsizlik.
     await tester.tap(find.text('RİTÜELE GİR'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
-    expect(storage.getInt(GemWalletStore.balanceKey), 50);
+    expect(storage.getInt(GemWalletStore.serverBalanceCacheKey), 50);
   });
 }

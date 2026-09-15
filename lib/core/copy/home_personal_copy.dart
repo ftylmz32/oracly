@@ -4,7 +4,7 @@ library;
 import '../l10n/l10n.dart';
 import '../universe/oracly_ritual_time.dart';
 import 'birthday_ritual.dart';
-import 'first_session_copy.dart';
+import 'home_greeting_name.dart';
 
 abstract final class HomePersonalCopy {
   HomePersonalCopy._();
@@ -15,9 +15,11 @@ abstract final class HomePersonalCopy {
     bool isBirthday = false,
   }) {
     if (isBirthday) return BirthdayRitual.greeting;
-    final trimmed = (profileName ?? '').trim();
-    final who = trimmed.isEmpty ? FirstSessionCopy.homeGuestName : trimmed;
-    return '${_hello(time)}, $who';
+    final firstName = HomeGreetingName.firstNameOrNull(profileName);
+    // No trustworthy first name — a bare time-of-day greeting, never a
+    // placeholder word like "Traveler"/"Guest" standing in for a name.
+    if (firstName == null) return _hello(time);
+    return '${_hello(time)}, $firstName';
   }
 
   static String ritualWelcome(
@@ -34,9 +36,9 @@ abstract final class HomePersonalCopy {
   }
 
   static String _hello(OraclyRitualTime time) => switch (time) {
-        OraclyRitualTime.morning => OraclyL10n.t('home.hello.morning'),
-        OraclyRitualTime.afternoon => OraclyL10n.t('home.hello.afternoon'),
-        OraclyRitualTime.evening => OraclyL10n.t('home.hello.evening'),
-        OraclyRitualTime.night => OraclyL10n.t('home.hello.night'),
-      };
+    OraclyRitualTime.morning => OraclyL10n.t('home.hello.morning'),
+    OraclyRitualTime.afternoon => OraclyL10n.t('home.hello.afternoon'),
+    OraclyRitualTime.evening => OraclyL10n.t('home.hello.evening'),
+    OraclyRitualTime.night => OraclyL10n.t('home.hello.night'),
+  };
 }

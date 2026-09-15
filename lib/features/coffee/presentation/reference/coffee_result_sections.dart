@@ -39,14 +39,14 @@ class CoffeeResultSections extends StatelessWidget {
       children: [
         const CoffeeResultTitle(),
         SizedBox(height: CraftsmanshipRhythm.afterTitle),
-        if (showSeen) ...[
-          ChamberNarrativeBlock(body: seen),
-          SizedBox(height: CraftsmanshipRhythm.betweenSections),
-        ],
         ChamberNarrativeBlock(
           hero: true,
           body: overall.isEmpty ? CoffeeCopy.disclaimer : overall,
         ),
+        if (showSeen) ...[
+          SizedBox(height: CraftsmanshipRhythm.betweenSections),
+          ChamberNarrativeBlock(body: seen),
+        ],
         CoffeeResultObservations(
           symbols: reading.symbols,
           markKeys: markKeys,

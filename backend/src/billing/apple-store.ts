@@ -191,8 +191,8 @@ function mapAppleStatus(
         return billingResult('unverified', 'missing_expiry');
       }
       return futureExpiry
-        ? billingResult('active', 'subscription_active')
-        : billingResult('expired', 'subscription_past_expiry');
+        ? billingResult('active', 'subscription_active', expiresDate)
+        : billingResult('expired', 'subscription_past_expiry', expiresDate);
     case Status.BILLING_GRACE_PERIOD:
       return billingResult('active', 'grace_period');
     case Status.BILLING_RETRY:
@@ -201,7 +201,7 @@ function mapAppleStatus(
         return billingResult('unverified', 'billing_retry_missing_expiry');
       }
       return futureExpiry
-        ? billingResult('active', 'billing_retry_entitled')
+        ? billingResult('active', 'billing_retry_entitled', expiresDate)
         : billingResult('pending', 'billing_retry');
     case Status.EXPIRED:
       return billingResult('expired', 'subscription_expired');

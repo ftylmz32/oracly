@@ -84,8 +84,8 @@ class DreamUnderstandingService {
   List<content.DreamSymbolContent> _matchCatalogue(String lower) {
     final hits = <content.DreamSymbolContent>[];
     for (final item in DreamSymbolCatalogue.all) {
-      if (lower.contains(item.tokenTr.toLowerCase()) ||
-          lower.contains(item.token.toLowerCase())) {
+      if (_hasWord(lower, item.tokenTr.toLowerCase()) ||
+          _hasWord(lower, item.token.toLowerCase())) {
         hits.add(item);
       }
     }
@@ -127,7 +127,7 @@ class DreamUnderstandingService {
   List<String> _extractLocations(String lower) {
     final found = <String>[];
     for (final entry in _locationTokens.entries) {
-      if (lower.contains(entry.key)) found.add(entry.value);
+      if (_hasWord(lower, entry.key)) found.add(entry.value);
     }
     return found;
   }
@@ -135,12 +135,31 @@ class DreamUnderstandingService {
   List<DreamRelationship> _extractRelationships(String lower) {
     final found = <DreamRelationship>[];
     for (final entry in _relationshipTokens.entries) {
-      if (lower.contains(entry.key)) {
+      if (_hasWord(lower, entry.key)) {
         found.add(DreamRelationship(label: entry.value, role: entry.value));
       }
     }
     return found;
   }
+
+  /// True if [token] occurs in [text] at a real word start -- e.g. "tren"
+  /// matches inside "trenin"/"treni" (Turkish inflects by suffixing only),
+  /// but "ev" does not match inside "sevgi" and "eş" does not match inside
+  /// "ateş", because a genuine match can never have a letter immediately
+  /// before it.
+  static bool _hasWord(String text, String token) {
+    if (token.isEmpty) return false;
+    var index = text.indexOf(token);
+    while (index != -1) {
+      final before = index == 0 ? null : text[index - 1];
+      if (before == null || !_isTurkishLetter(before)) return true;
+      index = text.indexOf(token, index + 1);
+    }
+    return false;
+  }
+
+  static bool _isTurkishLetter(String char) =>
+      RegExp(r'[a-zçğıöşü]', unicode: true).hasMatch(char);
 
   List<String> _recurringTokens(String lower) {
     final words = lower

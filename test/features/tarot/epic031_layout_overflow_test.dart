@@ -40,7 +40,8 @@ void main() {
 
         expect(tester.takeException(), isNull);
         expect(find.text('TAROT'), findsOneWidget);
-        expect(find.text(GemDisplay.format(0)), findsOneWidget);
+        expect(find.text('—'), findsOneWidget);
+        expect(find.text(GemDisplay.format(0)), findsNothing);
         expect(
           find.text('Bugün evren sana ne fısıldıyor?'),
           findsOneWidget,

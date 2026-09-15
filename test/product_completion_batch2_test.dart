@@ -80,7 +80,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final store = GemWalletStore(await LocalStorage.open());
       final service = GemWalletService(store);
-      await service.earn(amount: 42, reason: 'test');
+      await service.acceptAuthoritativeBalance(42);
       expect(GemDisplay.format(service.balance), GemDisplay.format(42));
     });
   });

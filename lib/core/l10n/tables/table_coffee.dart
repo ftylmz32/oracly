@@ -209,6 +209,16 @@ const kL10nCoffee = <String, L10nTriple>{
     'Add a cup photo first.',
     'Сначала добавь фото чашки.',
   ),
+  'coffee.image_unsupported': L10nTriple(
+    'Bu fotoğraf formatı desteklenmiyor. JPEG veya PNG deneyin.',
+    'This photo format is not supported. Try JPEG or PNG.',
+    'Этот формат фото не поддерживается. Попробуйте JPEG или PNG.',
+  ),
+  'coffee.image_normalize_failed': L10nTriple(
+    'Fotoğraf hazırlanamadı. Başka bir kare deneyelim.',
+    'The photo could not be prepared. Try another frame.',
+    'Не удалось подготовить фото. Попробуйте другой кадр.',
+  ),
   'coffee.quality.brighten': L10nTriple(
     'Fincanın içini biraz daha aydınlık çek.',
     'Photograph the inside of the cup with a little more light.',

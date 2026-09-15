@@ -187,6 +187,33 @@ void main() {
     expect(style.toLowerCase(), isNot(contains('değişim konusu')));
   });
 
+  test('recurring cross-feature themes enter as bounded INTERPRETATION', () {
+    final selected = OrContextSelectionEngine.select(
+      currentMessage: 'Bugün nasılım sence?',
+      recentMessages: const [],
+      reflection: const ReflectionContext(
+        recurringThemes: ['dönüşüm', 'belirsizlik', 'kariyer', 'aşk', 'para'],
+      ),
+    );
+    expect(selected.crossFeatureThemes, contains('INTERPRETATION'));
+    expect(selected.crossFeatureThemes, contains('dönüşüm'));
+    // Only the top 3 are ever surfaced — never a full-history dump.
+    expect(selected.crossFeatureThemes, isNot(contains('para')));
+    final style = selected.toStyleHint();
+    expect(style, contains('dönüşüm'));
+    expect(style.toLowerCase(), isNot(contains('fact: ')));
+  });
+
+  test('no recurring themes leaves the bucket empty, not a fabricated one',
+      () {
+    final selected = OrContextSelectionEngine.select(
+      currentMessage: 'Merhaba.',
+      recentMessages: const [],
+      reflection: const ReflectionContext(),
+    );
+    expect(selected.crossFeatureThemes, isNull);
+  });
+
   test('skips promptHint when proactive observation already fills memory', () {
     const obs =
         'Son dönemde karar verme konusu birkaç farklı keşfinde yeniden '

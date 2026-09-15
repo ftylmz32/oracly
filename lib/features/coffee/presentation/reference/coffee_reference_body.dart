@@ -4,11 +4,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../personal_discovery/models/personal_discovery_profile.dart';
-import '../../../personal_discovery/providers/personal_discovery_providers.dart';
 import '../../controllers/coffee_reading_controller.dart';
 import '../../copy/coffee_copy.dart';
-import '../../services/coffee_fortune_composer.dart';
 import 'coffee_capture_view.dart';
 import 'coffee_error_view.dart';
 import 'coffee_landing_view.dart';
@@ -47,63 +44,49 @@ class CoffeeReferenceBody extends ConsumerWidget {
     return switch (controller.phase) {
       CoffeePhase.entry => landing,
       CoffeePhase.capture => CoffeeCaptureView(
-          controller: controller,
-          busy: busy,
-          onAnalyze: onAnalyze,
-        ),
+        controller: controller,
+        busy: busy,
+        onAnalyze: onAnalyze,
+      ),
       CoffeePhase.analyzing => CoffeeLoadingView(
-          message: CoffeeCopy.analyzing,
-          subtitle: CoffeeCopy.analyzingSubtitle,
-          imagePath: controller.image?.path,
-        ),
+        message: CoffeeCopy.analyzing,
+        subtitle: controller.liveSubtitle ?? CoffeeCopy.analyzingSubtitle,
+        imagePath: controller.image?.path,
+        onAccelerate: controller.canAccelerate
+            ? controller.accelerateWaiting
+            : null,
+        accelerating: controller.accelerating,
+        accelerationError: controller.accelerationError,
+        accelerationCost: controller.accelerationCost,
+        liveState: controller.liveState,
+      ),
       CoffeePhase.result when controller.reading != null => CoffeeResultView(
-          reading: CoffeeFortuneComposer.compose(
-            controller.reading!,
-            themes: _themes(
-              ref.watch(personalDiscoveryProfileProvider).asData?.value,
-            ),
-          ),
-          onNewCup: controller.backToEntry,
-          onReinterpret: controller.image == null
-              ? null
-              : () async {
-                  await controller.reinterpret();
-                  return controller.lastVersionAdded;
-                },
-          versionReloadToken: controller.versionReloadToken,
-        ),
+        // BATCH 3A.2: controller.reading is already the composed,
+        // authoritative reading produced by CoffeeFortuneComposer at
+        // analysis time — re-composing here was redundant and, before
+        // this batch, was also the second place a legacy template
+        // could have silently replaced valid backend text.
+        reading: controller.reading!,
+        onNewCup: controller.backToEntry,
+        onReinterpret: controller.image == null
+            ? null
+            : () async {
+                await controller.reinterpret();
+                return controller.lastVersionAdded;
+              },
+        versionReloadToken: controller.versionReloadToken,
+      ),
       // Never fall through to landing with a silent empty result.
       CoffeePhase.result => CoffeeErrorView(
-          message: CoffeeCopy.analysisFailed,
-          onRetry: controller.image != null ? onAnalyze : controller.retryCapture,
-          onBack: controller.backToEntry,
-        ),
+        message: CoffeeCopy.analysisFailed,
+        onRetry: controller.image != null ? onAnalyze : controller.retryCapture,
+        onBack: controller.backToEntry,
+      ),
       CoffeePhase.error => CoffeeErrorView(
-          message: controller.errorMessage ?? CoffeeCopy.analysisFailed,
-          onRetry: controller.image != null
-              ? onAnalyze
-              : controller.retryCapture,
-          onBack: controller.backToEntry,
-        ),
+        message: controller.errorMessage ?? CoffeeCopy.analysisFailed,
+        onRetry: controller.image != null ? onAnalyze : controller.retryCapture,
+        onBack: controller.backToEntry,
+      ),
     };
   }
-}
-
-List<String> _themes(PersonalDiscoveryProfile? profile) {
-  if (profile == null) return const [];
-  final seen = <String>{};
-  final out = <String>[];
-  void add(String raw) {
-    final text = raw.trim();
-    if (text.isEmpty || !seen.add(text.toLowerCase())) return;
-    out.add(text);
-  }
-
-  for (final theme in profile.recurringThemes) {
-    add(theme);
-  }
-  for (final signal in profile.themeSignals) {
-    if (signal.isRecurring) add(signal.label);
-  }
-  return out;
 }

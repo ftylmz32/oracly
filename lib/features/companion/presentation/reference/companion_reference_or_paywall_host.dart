@@ -53,6 +53,7 @@ class CompanionReferenceOrPaywallHost extends ConsumerWidget {
           popOnGranted: popOnGranted,
         );
       },
+      onRetryStore: () => ref.read(premiumStatusProvider).load(),
     );
   }
 }

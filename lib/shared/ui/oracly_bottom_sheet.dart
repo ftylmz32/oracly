@@ -65,37 +65,46 @@ abstract final class OraclyBottomSheet {
                     ),
                     child: SafeArea(
                       top: false,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            SizedBox(height: AppSpacing.sm),
-                            Center(
-                              child: Container(
-                                width: 40,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color:
-                                      AppColors.gold.withValues(alpha: 0.35),
-                                  borderRadius: AppRadius.round,
+                      // showGeneralDialog inserts pageBuilder content
+                      // directly into the Overlay with no implicit Material
+                      // ancestor (unlike showModalBottomSheet/Scaffold).
+                      // Material-dependent descendants (TextField, ink
+                      // effects) need one; `transparency` keeps this sheet's
+                      // own blur/gradient chrome above untouched.
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(height: AppSpacing.sm),
+                              Center(
+                                child: Container(
+                                  width: 40,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        AppColors.gold.withValues(alpha: 0.35),
+                                    borderRadius: AppRadius.round,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(AppSpacing.md),
-                              child: Text(
-                                title,
-                                textAlign: TextAlign.center,
-                                style: AppTextStyles.titleMedium.copyWith(
-                                  color: AppColors.goldLight,
-                                  fontWeight: FontWeight.w700,
+                              Padding(
+                                padding: EdgeInsets.all(AppSpacing.md),
+                                child: Text(
+                                  title,
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.titleMedium.copyWith(
+                                    color: AppColors.goldLight,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                            ),
-                            child,
-                            SizedBox(height: AppSpacing.md),
-                          ],
+                              child,
+                              SizedBox(height: AppSpacing.md),
+                            ],
+                          ),
                         ),
                       ),
                     ),

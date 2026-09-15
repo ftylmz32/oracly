@@ -82,6 +82,7 @@ final companionExperienceServiceProvider = Provider<CompanionExperienceService>(
       dailyRitual: ref.watch(dailyRitualServiceProvider),
       users: ref.watch(userRepositoryProvider),
       personalMemory: ref.watch(personalMemoryServiceProvider),
+      connectedMemory: ref.watch(oraclyMemoryStoreProvider),
       ai: ref.watch(oraclyAiServiceProvider),
       observationLine: () async {
         try {

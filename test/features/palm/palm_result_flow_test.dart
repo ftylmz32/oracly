@@ -17,6 +17,8 @@ import 'package:oracly_new/features/palm/services/palm_experience_service.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import '../../support/fake_reading_operation_backend.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -42,6 +44,7 @@ void main() {
             sourcePath,
       ),
       images: _FakeImages(fixturePath),
+      live: fakeImmediateReadingFeatureRunner(),
     );
   }
 

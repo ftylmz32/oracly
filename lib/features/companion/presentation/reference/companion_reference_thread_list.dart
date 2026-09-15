@@ -49,6 +49,7 @@ class CompanionReferenceThreadList extends StatelessWidget {
     return ListView.separated(
       controller: scrollController,
       physics: const ClampingScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       // ignore: deprecated_member_use
       cacheExtent: 600,
       padding: EdgeInsets.fromLTRB(

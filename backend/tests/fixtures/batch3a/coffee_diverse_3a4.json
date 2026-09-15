@@ -1,0 +1,79 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "base",
+        "description": "Dense grounds at the base with an open curve around them.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "lower_wall",
+        "description": "Marks rising from the lower inner surface.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper",
+        "description": "Sparse marks on the upper inner surface.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibindeki yoğun tortu, çevresindeki açık kavisle duruyor; alt iç yüzeyden yükselen izler de seçiliyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "overall": {
+      "text": "Fatih, bu fincanda iki ayri baglilik ayni anda duruyor gibi. Dipteki agirlik henuz dagilmamis; cevresindeki acik hat ise o yukun tasinabilecegi bir pay birakiyor. Kapatmadan once koymak istedigin sinir, aceleden cok aitlik sorusu gibi duruyor. Yakin olanlarin beklentisi ile kendi yerin henuz ayni sey degil. Bu, bir seyi hemen sonuclandirmaktan cok, kime ait oldugunu henuz ayirmadan durdugun bir esik. Burada zorlanan sey hiz degil, bagliligin iki ayri yuzunu ayni anda tutabilmek.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Ust ic yuzeyde izlerin seyrelmesi, yakin donemde tek bir buyuk haberden cok kisa konusmalar ve parca bilgilerle netlesmeye isaret ediyor. Bu, disaridan gelecek hazir bir cevap degil; seslerin sirayla gelecegi bir aralik. Bu donemde kendini yukseltmekten cok, kimin neyi netlestirdigini dinlemek daha cok ise yarayabilir. Kucuk temaslar, bu donemin asil dili gibi duruyor.",
+      "evidenceIds": [
+        "e3"
+      ]
+    },
+    "takeaway": {
+      "text": "Kulp tarafina dogru uzanan kavis, son sozun cevrendeki beklentiden cok kendi gundelik ritmine yaslanmasi gerektigini soyluyor. Yukselen izler, bu ritmin bir anda degil, kucuk temaslarla olustugunu dusunduruyor. Bu fincanin somut ipucu, tempo senden geldiginde cevrenin sesini ikinci planda birakabilmek ve gun icindeki nefesini kaybetmemek.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    }
+  }
+}

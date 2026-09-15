@@ -4,14 +4,18 @@ library;
 import 'dart:convert';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/memory/oracly_memory_factory.dart';
+import '../../../core/memory/oracly_memory_store.dart';
 import '../models/coffee_reading.dart';
 
 class CoffeeReadingStore {
-  CoffeeReadingStore(this._storage);
+  CoffeeReadingStore(this._storage, {OraclyMemoryStore? memory})
+      : _memory = memory;
 
   static const key = 'coffee_readings';
 
   final LocalStorage _storage;
+  final OraclyMemoryStore? _memory;
 
   List<CoffeeReading> all() {
     final raw = _storage.getStringList(key) ?? const <String>[];
@@ -51,5 +55,15 @@ class CoffeeReadingStore {
       key,
       next.map((e) => jsonEncode(e.toJson())).toList(),
     );
+    await _memory?.upsert(OraclyMemoryFactory.coffee(reading));
+  }
+
+  Future<void> delete(String id) async {
+    await _storage.setStringList(
+      key,
+      all().where((e) => e.id != id)
+          .map((e) => jsonEncode(e.toJson())).toList(),
+    );
+    await _memory?.removeBySource(id);
   }
 }

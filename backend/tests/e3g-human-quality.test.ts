@@ -82,6 +82,39 @@ describe('E3G human quality regression', () => {
       }),
     ).toBe('duplicate_sections');
   });
+  it(
+    'rejects visualObservation restated almost verbatim in a later section ' +
+      '(the real live-Coffee defect: nearFuture repeated the observation ' +
+      'as connective prose)',
+    () => {
+      expect(
+        evaluateCoffeeQuality({
+          ...goodCoffee,
+          nearFuture:
+            'Once bunu fark etmek yeterli. Because ' +
+            goodCoffee.visualObservation,
+        }),
+      ).toBe('duplicate_sections');
+    },
+  );
+  it('rejects a palm line section restated almost verbatim elsewhere', () => {
+    expect(
+      evaluatePalmQuality({
+        ...goodPalm,
+        fateLine: goodPalm.heartLine,
+      }),
+    ).toBe('duplicate_sections');
+  });
+  it('does not false-positive on sections sharing only a short common phrase', () => {
+    expect(
+      evaluateCoffeeQuality({
+        ...goodCoffee,
+        career:
+          'Is hayatinda fincanin dibi gibi sakin bir zemin ariyor olabilirsin; ' +
+          'toplantidan once birkac dakika sessiz kalmak isine yarayabilir.',
+      }),
+    ).toBeNull();
+  });
   it('rejects generic palm energy/balance text', () => {
     expect(
       evaluatePalmQuality({

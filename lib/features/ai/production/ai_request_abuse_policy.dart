@@ -9,6 +9,7 @@ enum AiRequestKind {
   palm,
   tarot,
   soulmate,
+  soulmateText,
   tts,
 }
 
@@ -62,6 +63,7 @@ abstract final class AiRequestAbusePolicy {
         AiRequestKind.coffee || AiRequestKind.palm => vision,
         AiRequestKind.dream || AiRequestKind.tarot => ritual,
         AiRequestKind.soulmate => soulmate,
+        AiRequestKind.soulmateText => chat,
         AiRequestKind.tts => tts,
       };
 

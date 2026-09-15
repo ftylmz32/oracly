@@ -8,12 +8,11 @@ import 'package:oracly_new/core/analytics/product_analytics_params.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/monitoring/firebase_analytics.dart';
 import 'package:oracly_new/core/services/analytics_service.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
-import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_economy.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_reading_charge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/fake_gem_authority.dart';
 
 class _RecordingSink implements FirebaseAnalyticsService {
   final events = <MapEntry<String, Map<String, Object?>?>>[];
@@ -68,8 +67,9 @@ void main() {
   test('tarot gem success fires once after first paid commit', () async {
     SharedPreferences.setMockInitialValues({});
     final storage = LocalStorage(await SharedPreferences.getInstance());
-    final wallet = GemWalletService(GemWalletStore(storage));
-    await wallet.earn(amount: 100, reason: 'seed');
+    final authority = FakeGemAuthority(balance: 100);
+    final wallet = authority.wallet(storage);
+    await wallet.refresh();
     final charge = TarotReadingCharge(wallet, storage, analytics: analytics);
     expect(TarotEconomy.costFor(TarotSpreadType.threeCard), greaterThan(0));
 

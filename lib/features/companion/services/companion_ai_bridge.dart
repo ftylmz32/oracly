@@ -34,6 +34,7 @@ class CompanionAiBridge {
     OrResponseDepth depth = OrResponseDepth.fallback,
     bool spoken = false,
     OracleReadingContext? readingContext,
+    List<String> observedThemes = const [],
   }) async {
     if (!_ai.isConfigured) return null;
     // Tagged FACT/OBSERVATION/INTERPRETATION only — never "any styleHint".
@@ -76,6 +77,7 @@ class CompanionAiBridge {
                   personality: personality,
                   depth: depth,
                   spoken: spoken,
+                  observedThemes: observedThemes,
                 )
               : await _ai.chat(
                   userMessage: userMessage,
@@ -116,6 +118,7 @@ class CompanionAiBridge {
     OrResponseDepth depth = OrResponseDepth.fallback,
     bool spoken = false,
     OracleReadingContext? readingContext,
+    List<String> observedThemes = const [],
   }) async {
     if (_ai.isConfigured) {
       return tryLive(
@@ -127,6 +130,7 @@ class CompanionAiBridge {
         depth: depth,
         spoken: spoken,
         readingContext: readingContext,
+        observedThemes: observedThemes,
       );
     }
     if (_ai.allowsLocalFallback) return null;

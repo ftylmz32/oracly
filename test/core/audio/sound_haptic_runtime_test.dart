@@ -10,6 +10,7 @@ import 'package:oracly_new/core/audio/oracly_sound_service.dart';
 import 'package:oracly_new/core/audio/oracly_wav_synth.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_settings_repository.dart';
+import 'package:oracly_new/core/runtime/oracly_apply_outcome.dart';
 import 'package:oracly_new/features/premium/models/personalization_models.dart';
 import 'package:oracly_new/shared/widgets/oracly_pressable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,8 +22,9 @@ class _CountingSoundService extends OraclySoundService {
   Future<void> initialize() async {}
 
   @override
-  Future<void> play(OraclySoundCue cue) async {
+  Future<OraclyApplyOutcome> play(OraclySoundCue cue) async {
     plays.add(cue);
+    return OraclyApplyOutcome.success;
   }
 }
 

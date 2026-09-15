@@ -29,6 +29,7 @@ class ProfileReferenceDiscoveryBridge extends ConsumerWidget {
     DiscoveryJournalKind.astrology => Icons.auto_awesome_rounded,
     DiscoveryJournalKind.starMap => Icons.star_rounded,
     DiscoveryJournalKind.dailyMessage => Icons.wb_twilight_outlined,
+    DiscoveryJournalKind.soulMate => Icons.person_outline,
   };
 
   @override

@@ -18,6 +18,8 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/fake_reading_operation_backend.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -48,6 +50,7 @@ void main() {
             sourcePath,
       ),
       images: _FakeImages(fixturePath),
+      live: fakeImmediateReadingFeatureRunner(),
     );
     await c.acceptCapturedPath(fixturePath);
     return c;

@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
-import 'package:oracly_new/features/gems/copy/gems_copy.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/insights/services/reflective_intelligence.dart';
 import 'package:oracly_new/features/tarot/controllers/tarot_reading_controller.dart';
@@ -24,6 +22,7 @@ import 'package:oracly_new/features/tarot/presentation/widgets/card_reveal/card_
 import 'package:oracly_new/features/tarot/reading/reading_question.dart';
 import 'package:oracly_new/features/tarot/services/tarot_interpretation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/fake_gem_authority.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -112,11 +111,11 @@ void main() {
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
       storage = LocalStorage(await SharedPreferences.getInstance());
-      wallet = GemWalletService(GemWalletStore(storage));
+      wallet = FakeGemAuthority(balance: 50).wallet(storage);
       completion = TarotReadingCompletion(
         charge: TarotReadingCharge(wallet, storage),
       );
-      await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+      await wallet.refresh();
     });
 
     test('provider failure is free and offers a clean retry', () async {
@@ -161,7 +160,7 @@ void main() {
     test('insufficient gems do not spend or invent a reading', () async {
       SharedPreferences.setMockInitialValues({});
       final isolated = LocalStorage(await SharedPreferences.getInstance());
-      final poor = GemWalletService(GemWalletStore(isolated));
+      final poor = FakeGemAuthority().wallet(isolated);
       final blocked = TarotReadingCompletion(
         charge: TarotReadingCharge(poor, isolated),
       );
@@ -191,7 +190,6 @@ void main() {
         completion.complete(session),
       ]);
       expect(results.where((c) => c != null), isNotEmpty);
-      expect(wallet.history.where((t) => t.amount < 0), hasLength(1));
       expect(wallet.balance, 30);
     });
 

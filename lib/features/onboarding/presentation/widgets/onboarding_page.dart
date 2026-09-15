@@ -50,67 +50,84 @@ class _OnboardingPageState extends State<OnboardingPage>
   Widget build(BuildContext context) {
     final fade = AppMotion.fade(_enter);
     final slide = AppMotion.slideUp(_enter);
-    return Padding(
-      padding: AppSpacing.screenHorizontal.copyWith(
-        top: AppSpacing.xxl,
-        bottom: AppSpacing.lg,
-      ),
-      child: Column(
-        children: [
-          const Spacer(),
-          FadeTransition(
-            opacity: fade,
-            child: SlideTransition(
-              position: slide,
-              child: Text(
-                OnboardingCopy.title,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.displaySmall.copyWith(
-                  color: AppColors.goldLight,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 4,
+    // LayoutBuilder + SingleChildScrollView + ConstrainedBox(minHeight): keeps
+    // the whisper content centered when it fits, but scrolls instead of
+    // overflowing on short screens or larger text scales (see
+    // BirthChartRecoveryScroll for the same pattern elsewhere in the app).
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          padding: AppSpacing.screenHorizontal.copyWith(
+            top: AppSpacing.xxl,
+            bottom: AppSpacing.lg,
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FadeTransition(
+                  opacity: fade,
+                  child: SlideTransition(
+                    position: slide,
+                    child: Text(
+                      OnboardingCopy.title,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.displaySmall.copyWith(
+                        color: AppColors.goldLight,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 4,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                SizedBox(height: AppSpacing.md),
+                FadeTransition(
+                  opacity: fade,
+                  child: Text(
+                    OnboardingCopy.tagline,
+                    textAlign: TextAlign.center,
+                    style: ReadingTypography.body(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                SizedBox(height: AppSpacing.xl),
+                Text(
+                  OnboardingCopy.windowsLabel,
+                  textAlign: TextAlign.center,
+                  style: ReadingTypography.sectionLabel(
+                    color: AppColors.textHint,
+                  ),
+                ),
+                SizedBox(height: AppSpacing.sm),
+                OnboardingWindowList(labels: OnboardingCopy.windows),
+                SizedBox(height: AppSpacing.xl),
+                Text(
+                  OnboardingCopy.orHint,
+                  textAlign: TextAlign.center,
+                  style: ReadingTypography.footnote(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                SizedBox(height: AppSpacing.sm),
+                Text(
+                  OnboardingCopy.honesty,
+                  textAlign: TextAlign.center,
+                  style: ReadingTypography.footnote(color: AppColors.textHint),
+                ),
+                SizedBox(height: AppSpacing.xs),
+                Text(
+                  OnboardingCopy.gemsWhisper,
+                  textAlign: TextAlign.center,
+                  style: ReadingTypography.footnote(color: AppColors.textHint),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: AppSpacing.md),
-          FadeTransition(
-            opacity: fade,
-            child: Text(
-              OnboardingCopy.tagline,
-              textAlign: TextAlign.center,
-              style: ReadingTypography.body(color: AppColors.textSecondary),
-            ),
-          ),
-          SizedBox(height: AppSpacing.xl),
-          Text(
-            OnboardingCopy.windowsLabel,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.sectionLabel(color: AppColors.textHint),
-          ),
-          SizedBox(height: AppSpacing.sm),
-          OnboardingWindowList(labels: OnboardingCopy.windows),
-          SizedBox(height: AppSpacing.xl),
-          Text(
-            OnboardingCopy.orHint,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.footnote(color: AppColors.textSecondary),
-          ),
-          SizedBox(height: AppSpacing.sm),
-          Text(
-            OnboardingCopy.honesty,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.footnote(color: AppColors.textHint),
-          ),
-          SizedBox(height: AppSpacing.xs),
-          Text(
-            OnboardingCopy.gemsWhisper,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.footnote(color: AppColors.textHint),
-          ),
-          const Spacer(),
-        ],
-      ),
+        );
+      },
     );
   }
 }

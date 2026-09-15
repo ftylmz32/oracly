@@ -17,6 +17,7 @@ abstract final class DiscoveryJournalEntryIcon {
         'astrology' => DiscoveryJournalKind.astrology,
         'star' || 'starMap' || 'star_map' => DiscoveryJournalKind.starMap,
         'daily' || 'dailyMessage' => DiscoveryJournalKind.dailyMessage,
+        'soulMate' || 'soulmate' => DiscoveryJournalKind.soulMate,
         _ => null,
       };
 
@@ -29,5 +30,6 @@ abstract final class DiscoveryJournalEntryIcon {
         DiscoveryJournalKind.astrology => Icons.brightness_2_outlined,
         DiscoveryJournalKind.starMap => Icons.blur_circular_outlined,
         DiscoveryJournalKind.dailyMessage => Icons.wb_twilight_outlined,
+        DiscoveryJournalKind.soulMate => Icons.person_outline,
       };
 }

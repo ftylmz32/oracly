@@ -3,18 +3,16 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/features/gems/copy/gems_copy.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_starter_grant.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/tarot/domain/models/reading_session.dart';
 import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
-import 'package:oracly_new/features/tarot/economy/tarot_economy.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_reading_charge.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_reading_completion.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_reveal/card_reveal_spread.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'support/fake_gem_authority.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -23,27 +21,29 @@ void main() {
   late GemWalletService wallet;
   late TarotReadingCharge charge;
   late TarotReadingCompletion completion;
+  late FakeGemAuthority authority;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
-    wallet = GemWalletService(GemWalletStore(storage));
+    authority = FakeGemAuthority();
+    wallet = authority.wallet(storage);
     charge = TarotReadingCharge(wallet, storage);
     completion = TarotReadingCompletion(charge: charge);
   });
 
   test('normal reading spends exactly 20 gems once', () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+    authority.balance = 50;
+    await wallet.refresh();
     final content = await completion.complete(_session('normal'));
     expect(content, isNotNull);
     expect(content!.generalMeaning.trim(), isNotEmpty);
     expect(wallet.balance, 30);
-    expect(wallet.history.where((t) => t.amount < 0), hasLength(1));
-    expect(wallet.history.first.amount, -TarotEconomy.readingCost);
   });
 
   test('provider failure does not spend gems', () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+    authority.balance = 50;
+    await wallet.refresh();
     final content = await completion.complete(
       _session('fallback'),
       load: () async => throw Exception('interpretation engine failed'),
@@ -54,7 +54,8 @@ void main() {
   });
 
   test('retry after failure charges once on success', () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+    authority.balance = 50;
+    await wallet.refresh();
     expect(
       await completion.complete(
         _session('retry'),
@@ -65,7 +66,6 @@ void main() {
     expect(wallet.balance, 50);
     expect(await completion.complete(_session('retry')), isNotNull);
     expect(wallet.balance, 30);
-    expect(wallet.history.where((t) => t.amount < 0), hasLength(1));
   });
 
   test('charge failure does not present a completed reading', () async {
@@ -76,7 +76,8 @@ void main() {
   });
 
   test('duplicate retry does not spend a second 20', () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+    authority.balance = 50;
+    await wallet.refresh();
     final first = await completion.complete(_session('dup'));
     final retry = await completion.complete(
       _session('dup'),
@@ -85,11 +86,11 @@ void main() {
     expect(first, isNotNull);
     expect(retry, isNotNull);
     expect(wallet.balance, 30);
-    expect(wallet.history.where((t) => t.amount < 0), hasLength(1));
   });
 
   test('insufficient balance never goes negative', () async {
-    await wallet.earn(amount: 10, reason: GemsCopy.reasonDailyReward);
+    authority.balance = 10;
+    await wallet.refresh();
     expect(await completion.complete(_session('short')), isNull);
     expect(wallet.balance, 10);
     expect(wallet.balance, greaterThanOrEqualTo(0));
@@ -108,7 +109,8 @@ void main() {
   });
 
   test('cancel or back before commit does not charge', () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+    authority.balance = 50;
+    await wallet.refresh();
     final content = await completion.complete(
       _session('cancel'),
       shouldCommit: () => false,

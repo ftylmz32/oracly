@@ -22,3 +22,25 @@ abstract class PalmAnalysisPort {
 
   Future<PalmReading> analyze(CoffeeImagePick image, {required PalmHand hand});
 }
+
+/// Optional capability: resume an already-staged operation using ONLY
+/// the server-held image — never local bytes. Implemented by the real
+/// vision adapter only; callers check `is PalmStagedAnalysisPort` before
+/// use, so test doubles that never exercise recovery need not implement
+/// it.
+abstract class PalmStagedAnalysisPort {
+  Future<PalmReading> analyzeStaged({
+    required String operationId,
+    required String mimeType,
+    required PalmHand hand,
+  });
+}
+
+abstract class PalmCompletedAnalysisPort {
+  PalmReading restoreCompleted({
+    required String resultId,
+    required DateTime persistedAt,
+    required PalmHand hand,
+    required Map<String, dynamic> result,
+  });
+}

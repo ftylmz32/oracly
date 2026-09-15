@@ -42,7 +42,8 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(wallet.balance, 0);
-    expect(find.text(GemDisplay.format(0)), findsAtLeastNWidgets(2));
+    expect(find.text('—'), findsAtLeastNWidgets(2));
+    expect(find.text(GemDisplay.format(0)), findsNothing);
     expect(find.text('+${GemEconomy.starterGrant}'), findsOneWidget);
     expect(
       find.text('+${GemEconomy.dailyReward}${GemsCopy.dailyValueSuffix}'),
@@ -79,7 +80,7 @@ void main() {
     await pumpScreen(tester);
 
     expect(find.byIcon(Icons.add), findsNothing);
-    final capsule = find.text(GemDisplay.format(0)).first;
+    final capsule = find.text('—').first;
     await tester.tap(capsule);
     await tester.pump(const Duration(milliseconds: 300));
 

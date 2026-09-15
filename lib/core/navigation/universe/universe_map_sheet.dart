@@ -119,7 +119,7 @@ class _TabSpacesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Ana mekânlar',
+          UniverseNavigationCopy.mapTabSpaces,
           style: AppTextStyles.labelMedium.copyWith(
             color: AppColors.textHint,
           ),

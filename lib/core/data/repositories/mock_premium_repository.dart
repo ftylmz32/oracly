@@ -133,7 +133,7 @@ class MockPremiumRepository implements PremiumRepository {
   }
 
   @override
-  PremiumPurchaseCredentials? readPurchaseCredentials() {
+  Future<PremiumPurchaseCredentials?> readPurchaseCredentials() async {
     final platform = _storage.getString(platformKey);
     final productId = _storage.getString(productIdKey);
     if (platform == null || productId == null) {
@@ -141,9 +141,21 @@ class MockPremiumRepository implements PremiumRepository {
       _credentialsLoaded = false;
       return null;
     }
-    if (_credentialsLoaded) return _credentialCache;
+    if (!_credentialsLoaded) {
+      // A fresh instance (e.g. right after app restart) may be asked to
+      // reconcile before `warmCredentialCache()` has finished its async
+      // secure-storage read. Await it here rather than falling through to
+      // the legacy-plaintext-only path below, which is empty for any
+      // credential saved after migration (savePurchaseCredentials deletes
+      // the legacy keys) -- treating that as "missing" would wrongly wipe
+      // a real, previously-authoritatively-verified grant without ever
+      // asking the server again.
+      await _reloadCredentialCache();
+      _credentialsLoaded = true;
+    }
+    if (_credentialCache != null) return _credentialCache;
 
-    // Pre-migration only: legacy plaintext input before bootstrap runs.
+    // Pre-migration only: legacy plaintext input before bootstrap ever ran.
     final legacyToken = _storage.getString(purchaseTokenKey);
     if (legacyToken == null || legacyToken.isEmpty) return null;
     return PremiumPurchaseCredentials(

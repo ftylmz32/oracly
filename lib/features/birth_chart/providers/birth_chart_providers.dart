@@ -14,6 +14,7 @@ final birthChartExperienceServiceProvider =
     Provider<BirthChartExperienceService>((ref) {
   return BirthChartExperienceService(
     repository: ref.watch(birthChartRepositoryProvider),
+    memory: ref.watch(oraclyMemoryStoreProvider),
   );
 });
 

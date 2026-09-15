@@ -39,6 +39,10 @@ void main() {
     expect(OraclyL10n.t('cup.read.look.0'), contains('{seen}'));
     expect(OraclyL10n.t('fortune.cup.single'), contains('Geleneksel okumada'));
     expect(OraclyL10n.t('fortune.cup.single'), contains('net bir sonuç'));
+    // BATCH 3A.2: a backend overall that asserts certainty is a failed
+    // interpretation, never rewritten into a hedged "reading" client-side
+    // — compose() returns null, so no certainty claim (raw or reworded)
+    // can ever reach the user via this path.
     final reading = CoffeeFortuneComposer.compose(
       CoffeeReading(
         id: 'bird-cup',
@@ -60,10 +64,7 @@ void main() {
         ],
       ),
     );
-    expect(reading.overall.toLowerCase(), contains('kuş'));
-    expect(reading.overall, contains('Geleneksel okumada'));
-    expect(FortuneVoice.claimsCertainty(reading.overall), isFalse);
-    expect(reading.overall.toLowerCase(), isNot(contains('kesin haber alacaksın')));
+    expect(reading, isNull);
   });
 
   test('tarot points toward a stance, never a guaranteed future', () {

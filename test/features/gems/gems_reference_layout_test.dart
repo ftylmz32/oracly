@@ -15,6 +15,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const viewports = <Size>[
+    Size(320, 568),
     Size(360, 800),
     Size(375, 812),
     Size(390, 844),
@@ -53,7 +54,8 @@ void main() {
     expect(find.text(GemsReferenceAppBar.title), findsOneWidget);
     expect(find.text('MÜCEVHERLER'), findsOneWidget);
     expect(find.byType(GemsBalanceHero), findsOneWidget);
-    expect(find.text(GemDisplay.format(0)), findsAtLeastNWidgets(2));
+    expect(find.text('—'), findsAtLeastNWidgets(2));
+    expect(find.text(GemDisplay.format(0)), findsNothing);
     expect(find.text('+${GemEconomy.starterGrant}'), findsOneWidget);
     expect(
       find.text('+${GemEconomy.dailyReward}${GemsCopy.dailyValueSuffix}'),

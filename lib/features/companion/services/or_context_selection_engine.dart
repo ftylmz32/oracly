@@ -75,6 +75,9 @@ abstract final class OrContextSelectionEngine {
       recentDiscovery: discovery,
       relevantMemory: memory,
       featureSpecific: feature,
+      crossFeatureThemes: OrContextSelectionSources.crossFeatureThemes(
+        reflection,
+      ),
       preferenceHint: preference,
       emotionalGuidance: OrEmotionalIntelligence.styleHintFor(current),
       humorGuidance: OrNaturalHumor.styleHintFor(current),

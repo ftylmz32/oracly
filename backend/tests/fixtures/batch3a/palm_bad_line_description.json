@@ -1,0 +1,66 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "onePalmFacing": true,
+      "majorLinesVisible": true,
+      "adequateFocusLight": true,
+      "overlapOcclusion": false,
+      "dorsal": false
+    },
+    "evidence": [
+      {
+        "id": "p1",
+        "region": "heart_line",
+        "description": "Heart line is long and curved across the upper palm.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p2",
+        "region": "head_line",
+        "description": "Head line is short and straight through the mid-palm.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p3",
+        "region": "life_line",
+        "description": "Life line is deep and continuous from the thumb base to the wrist.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Açık bir avuç içi kameraya bakıyor; üç ana çizgi net seçilebiliyor ve parmak dipleri de görünüyor.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    },
+    "overall": {
+      "text": "Kalp çizgisi uzun ve kıvrımlıdır. Zihin çizgisi kısa ve düzdür. Yaşam çizgisi derin ve kesiksizdir. Kalp çizgisi üst tarafta belirgindir. Zihin çizgisi ortada net görünüyor. Yaşam çizgisi başparmak kökünden başlıyor. Kalp çizgisi parmak diplerine kadar uzanıyor. Zihin çizgisi orta hizada duruyor.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    },
+    "heartLine": {
+      "text": "Uzun ve kıvrımlı, üst tarafta belirgin, parmak diplerine kadar uzanıyor.",
+      "evidenceIds": ["p1"]
+    },
+    "headLine": {
+      "text": "Kısa ve düz, ortada net görünüyor, orta hizada duruyor.",
+      "evidenceIds": ["p2"]
+    },
+    "lifeLine": {
+      "text": "Derin ve kesiksiz, başparmak kökünden başlıyor, bileğe doğru devam ediyor.",
+      "evidenceIds": ["p3"]
+    },
+    "fateLine": { "text": "", "evidenceIds": [] },
+    "takeaway": {
+      "text": "Kalp çizgisi kıvrımlı, zihin çizgisi düz, yaşam çizgisi derin görünüyor ve hepsi net seçiliyor.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    }
+  }
+}

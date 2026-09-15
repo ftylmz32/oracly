@@ -10,7 +10,6 @@ import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/first_session/first_session_scope.dart';
 import 'package:oracly_new/features/daily_rewards/services/daily_rewards_service.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_starter_grant.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
@@ -19,6 +18,7 @@ import 'package:oracly_new/features/tarot/economy/tarot_economy.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_reading_charge.dart';
 import 'package:oracly_new/features/tarot/first_session/tarot_first_reading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'support/fake_gem_authority.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,11 +26,13 @@ void main() {
   late LocalStorage storage;
   late GemWalletService wallet;
   late GemStarterGrant starter;
+  late FakeGemAuthority authority;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
-    wallet = GemWalletService(GemWalletStore(storage));
+    authority = FakeGemAuthority(serverDay: '2026-08-09');
+    wallet = authority.wallet(storage);
     starter = GemStarterGrant(wallet, storage);
   });
 
@@ -40,7 +42,6 @@ void main() {
     expect(TarotEconomy.costFor(TarotFirstReading.spread), isNull);
     expect(await starter.ensureOnce(), isTrue);
     expect(wallet.balance, 20);
-    expect(wallet.history.first.reason, GemsCopy.reasonStarter);
     expect(await starter.ensureOnce(), isFalse);
     expect(wallet.balance, 20);
   });
@@ -48,13 +49,13 @@ void main() {
   test('restart does not grant starter gems again', () async {
     await starter.ensureOnce();
     final restarted = GemStarterGrant(
-      GemWalletService(GemWalletStore(storage)),
+      authority.wallet(storage),
       storage,
     );
     expect(restarted.alreadyGranted, isTrue);
     expect(await restarted.ensureOnce(), isFalse);
     expect(restarted.alreadyGranted, isTrue);
-    expect(GemWalletService(GemWalletStore(storage)).balance, 20);
+    expect(authority.wallet(storage).balance, 20);
   });
 
   test('repeated onboarding tap does not grant again', () async {
@@ -77,9 +78,9 @@ void main() {
 
   test('insufficient gems after starter resources stay non-negative', () async {
     await starter.ensureOnce();
-    await wallet.spend(
-      amount: TarotEconomy.readingCost,
-      reason: GemsCopy.reasonTarot,
+    await wallet.settleTarot(
+      operationId: 'consume-starter',
+      idempotencyKey: 'consume-starter-request',
     );
     expect(wallet.balance, 0);
     expect(
@@ -96,17 +97,13 @@ void main() {
       storage,
       wallet,
     );
-    final before = await rewards.load(asOf: DateTime(2026, 8, 9));
+    final before = await rewards.load(asOf: DateTime.utc(2026, 8, 9));
     expect(before.claimedToday, isFalse);
     expect(wallet.balance, 20);
 
-    final claimed = await rewards.claim(asOf: DateTime(2026, 8, 9));
+    final claimed = await rewards.claim(asOf: DateTime.utc(2026, 8, 9));
     expect(claimed.claimedToday, isTrue);
     expect(wallet.balance, 70);
-    expect(
-      wallet.history.map((e) => e.reason),
-      containsAll([GemsCopy.reasonStarter, GemsCopy.reasonDailyReward]),
-    );
   });
 
   test('onboarding copy explains first reading without pay or premium', () {

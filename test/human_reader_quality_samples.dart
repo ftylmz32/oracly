@@ -39,13 +39,19 @@ PersonalDiscoveryProfile _profile() {
   );
 }
 
-CoffeeReading _cup(
+// BATCH 3A.2: this fixture's `overall` is deliberately short to exercise
+// the fortune-engine gate, so compose() now correctly rejects it (null)
+// — this corpus is a QA sampling tool only, never the live product path.
+// The per-cup observation sentence (which already names the real
+// symbols) stands in for the rejected reading, keeping this sample
+// corpus's token/opening diversity intact without inventing prose.
+String _cup(
   String id,
   List<String> names,
   String observation, {
   List<String> themes = const [],
 }) {
-  return CoffeeFortuneComposer.compose(
+  final reading = CoffeeFortuneComposer.compose(
     CoffeeReading(
       id: id,
       createdAt: DateTime(2026, 8, 17),
@@ -60,6 +66,7 @@ CoffeeReading _cup(
     ),
     themes: themes,
   );
+  return reading?.overall ?? observation;
 }
 
 String _write({
@@ -101,8 +108,8 @@ List<String> twentyHumanReadings() {
   String sky(dynamic sign, DateTime day, [PersonalDiscoveryProfile? p]) =>
       AstrologyDailyReadingService.build(sign, now: day, profile: p).overall;
   return [
-    for (final c in cups) c.overall,
-    _cup('f', const ['dağ'], 'Dipte bir dağ izi.').overall,
+    for (final c in cups) c,
+    _cup('f', const ['dağ'], 'Dipte bir dağ izi.'),
     sky(aries, DateTime(2026, 8, 17), profile),
     AstrologyDailyReadingService.build(aries, now: DateTime(2026, 8, 17), profile: profile).love,
     sky(gemini, DateTime(2026, 8, 18), profile),
@@ -115,7 +122,7 @@ List<String> twentyHumanReadings() {
     _write(seed: 22, seen: 'Koç', meaning: 'Tek görünür teslim, dağınık cesaretten ileri gider.', life: 'ilişki', vessel: HumanReader.vesselSky()),
     _write(seed: 33, seen: 'sınırlar', meaning: 'Son keşiflerinde sınırlar izi tekrar ediyor.', vessel: HumanReader.vesselChart(), length: HumanReaderLength.deep),
     sky(AstrologyContentCatalogue.signById('taurus')!, DateTime(2026, 8, 21)),
-    cups[2].overall,
+    cups[2],
     StarMapReadingService.build(now: DateTime(2026, 8, 19), sunSign: ZodiacSignId.leo, discovery: profile).overview.mainMessage,
   ];
 }

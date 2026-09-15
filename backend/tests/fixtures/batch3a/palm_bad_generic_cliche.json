@@ -1,0 +1,57 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "onePalmFacing": true,
+      "majorLinesVisible": true,
+      "adequateFocusLight": true,
+      "overlapOcclusion": false,
+      "dorsal": false
+    },
+    "evidence": [
+      {
+        "id": "p1",
+        "region": "heart_line",
+        "description": "Heart line curves mildly across the upper palm with darker contrast.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p2",
+        "region": "head_line",
+        "description": "Head line runs straight through the mid-palm.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p3",
+        "region": "life_line",
+        "description": "Life line arcs from the thumb base toward the wrist.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Açık bir avuç içi net görünüyor; ana çizgiler rahatça seçilebiliyor ve genel yapı oldukça belirgin duruyor. Işık iyi ve odak net; avuç kameraya doğrudan bakıyor.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    },
+    "overall": {
+      "text": "Bu avuç güçlü bir enerji ve dengeli bir yaklaşım taşıyor. Genel olarak açık ve net bir yapı görülüyor; belirgin ana çizgiler mevcut ve bu dikkat çekici bir yapı oluşturuyor. Avuç enerjisi oldukça güçlü ve dengeli bir yaklaşım her zaman ön planda; bu genel olarak açık ve net bir izlenim bırakıyor.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    },
+    "heartLine": { "text": "", "evidenceIds": [] },
+    "headLine": { "text": "", "evidenceIds": [] },
+    "lifeLine": { "text": "", "evidenceIds": [] },
+    "fateLine": { "text": "", "evidenceIds": [] },
+    "takeaway": {
+      "text": "Avuç enerjisi dengeli bir yaklaşım ve güçlü bir enerji ile devam ediyor; genel olarak açık ve net bir izlenim bırakıyor. Belirgin ana çizgiler mevcut ve dikkat çekici bir yapı sürüyor.",
+      "evidenceIds": ["p1", "p3"]
+    }
+  }
+}

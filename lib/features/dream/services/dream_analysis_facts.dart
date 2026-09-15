@@ -69,15 +69,15 @@ class DreamAnalysisFacts {
   }
 
   static bool _appears(String lower, DreamSymbol symbol) {
-    return lower.contains(symbol.label.toLowerCase()) ||
-        lower.contains(symbol.token.toLowerCase());
+    return _hasWord(lower, symbol.label.toLowerCase()) ||
+        _hasWord(lower, symbol.token.toLowerCase());
   }
 
   static String? _firstWhere(List<String> values, String lower) {
     for (final value in values) {
       if (value.trim().isEmpty) continue;
-      if (lower.contains(value.toLowerCase()) ||
-          lower.contains(value.toLowerCase().split(' ').first)) {
+      if (_hasWord(lower, value.toLowerCase()) ||
+          _hasWord(lower, value.toLowerCase().split(' ').first)) {
         return value;
       }
     }
@@ -91,7 +91,7 @@ class DreamAnalysisFacts {
     for (final person in people) {
       final label = person.label.trim();
       if (label.isEmpty) continue;
-      if (lower.contains(label.toLowerCase())) return label;
+      if (_hasWord(lower, label.toLowerCase())) return label;
     }
     return people
         .map((p) => p.label.trim())
@@ -99,16 +99,43 @@ class DreamAnalysisFacts {
         .firstOrNull;
   }
 
+  /// True if [token] occurs in [text] at a real word start -- e.g. "tren"
+  /// matches inside "trenin"/"treni" (Turkish inflects by suffixing only),
+  /// but "at" does not match inside "saat" and "ay" does not match inside
+  /// "ray"/"raylar", because a genuine match can never have a letter
+  /// immediately before it.
+  static bool _hasWord(String text, String token) {
+    if (token.isEmpty) return false;
+    var index = text.indexOf(token);
+    while (index != -1) {
+      final before = index == 0 ? null : text[index - 1];
+      if (before == null || !_isTurkishLetter(before)) return true;
+      index = text.indexOf(token, index + 1);
+    }
+    return false;
+  }
+
+  static bool _isTurkishLetter(String char) =>
+      RegExp(r'[a-zçğıöşü]', unicode: true).hasMatch(char);
+
   static String _scene(String told) {
     var text = told.trim();
     text = text.replaceFirst(RegExp(r'^[Rr]üyamda\s+'), '');
     if (text.isEmpty) return '';
-    final i = text.indexOf(RegExp(r'[.!?]'));
-    final clause = i > 8 && i < 110 ? text.substring(0, i) : text;
-    if (clause.length <= 88) return _trimEdge(clause);
-    final cut = clause.substring(0, 88);
-    final sp = cut.lastIndexOf(' ');
-    return _trimEdge(sp > 24 ? cut.substring(0, sp) : cut);
+    final period = text.indexOf(RegExp(r'[.!?]'));
+    if (period > 8 && period < 110) {
+      return _trimEdge(text.substring(0, period));
+    }
+    // No early sentence end (a long, comma/conjunction-joined run-on, which
+    // real dream narratives often are). Only take a fragment if it stops at
+    // a pause the narrative itself contains -- never hard-cut a run-on at an
+    // arbitrary word boundary, which can splice half a clause into a
+    // template and read as broken grammar.
+    final pause = text.indexOf(
+      RegExp(r',| ve | ile | ama | fakat | ancak | derken '),
+    );
+    if (pause > 8 && pause < 88) return _trimEdge(text.substring(0, pause));
+    return '';
   }
 
   static String? _detail({

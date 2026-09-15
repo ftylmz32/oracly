@@ -14,6 +14,7 @@ class OrSelectedContext {
     this.recentDiscovery,
     this.relevantMemory,
     this.featureSpecific,
+    this.crossFeatureThemes,
     this.preferenceHint,
     this.threadGuidance,
     this.emotionalGuidance,
@@ -35,6 +36,10 @@ class OrSelectedContext {
 
   /// INTERPRETATION — feature/reading handoff (symbolic), never as FACT.
   final String? featureSpecific;
+
+  /// INTERPRETATION — recurring cross-feature symbolic themes, bounded and
+  /// deduped upstream; never promoted to FACT.
+  final String? crossFeatureThemes;
 
   /// PREFERENCE — tone/style when relevant; never a command.
   final String? preferenceHint;
@@ -59,7 +64,8 @@ class OrSelectedContext {
           interpretation: featureSpecific,
           preference: preferenceHint,
         ) ||
-        _ok(relevantMemory);
+        _ok(relevantMemory) ||
+        _ok(crossFeatureThemes);
     final parts = <String>[
       OrResponseGrounding.styleHintRule,
       if (longTerm) OrLongTermMemoryBoundaries.promptTr,
@@ -68,6 +74,7 @@ class OrSelectedContext {
       if (_ok(featureSpecific)) featureSpecific!.trim(),
       if (_ok(relevantMemory) && !_ok(recentDiscovery))
         relevantMemory!.trim(),
+      if (_ok(crossFeatureThemes)) crossFeatureThemes!.trim(),
       if (_ok(preferenceHint)) preferenceHint!.trim(),
       if (_ok(emotionalGuidance)) emotionalGuidance!.trim(),
       if (_ok(humorGuidance)) humorGuidance!.trim(),

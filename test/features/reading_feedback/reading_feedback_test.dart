@@ -60,7 +60,7 @@ void main() {
 
   test('retry does not spend gems', () async {
     SharedPreferences.setMockInitialValues({
-      GemWalletStore.balanceKey: 40,
+      GemWalletStore.serverBalanceCacheKey: 40,
     });
     final storage = LocalStorage(await SharedPreferences.getInstance());
     final wallet = GemWalletService(GemWalletStore(storage));
@@ -81,7 +81,7 @@ void main() {
 
     expect(ok, isTrue);
     expect(wallet.balance, before);
-    expect(charge.alreadyCharged('s1'), isTrue);
+    expect(charge.alreadyCharged('s1'), isFalse);
     expect(service, isNotNull);
   });
 }

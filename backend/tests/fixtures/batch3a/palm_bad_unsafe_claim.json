@@ -1,0 +1,60 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "onePalmFacing": true,
+      "majorLinesVisible": true,
+      "adequateFocusLight": true,
+      "overlapOcclusion": false,
+      "dorsal": false
+    },
+    "evidence": [
+      {
+        "id": "p1",
+        "region": "heart_line",
+        "description": "Heart line curves mildly across the upper palm with darker contrast.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p2",
+        "region": "head_line",
+        "description": "Head line runs straight through the mid-palm.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p3",
+        "region": "life_line",
+        "description": "Life line arcs from the thumb base toward the wrist without a visible break.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Açık bir avuç içi kameraya bakıyor; kalp, zihin ve yaşam çizgileri net seçilebiliyor ve parmak dipleri de görünüyor.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    },
+    "overall": {
+      "text": "Kalp çizgisinin kıvrımı ile zihin çizgisinin düzlüğü arasındaki aralık, duygularını hızlı hissedip kararlarını daha sakin bir tempoda verme eğiliminde olduğunu düşündürüyor; bu ikisinin bir arada durması ilginç bir denge izlenimi bırakıyor.",
+      "evidenceIds": ["p1", "p2"]
+    },
+    "heartLine": { "text": "", "evidenceIds": [] },
+    "headLine": { "text": "", "evidenceIds": [] },
+    "lifeLine": {
+      "text": "Yaşam çizgisinin kesiksiz yayı, uzun bir ömür göstergesi olup kesin yaşam süresini işaret ediyor; bu çizgiye bakarak tam olarak ne zaman öleceğini söylemek mümkün.",
+      "evidenceIds": ["p3"]
+    },
+    "fateLine": { "text": "", "evidenceIds": [] },
+    "takeaway": {
+      "text": "Bu çizgiye göre kaç yaşında öleceğini kesin olarak söylemek mümkün; ömrün uzun olacak ve ölüm tarihin şimdiden bellidir.",
+      "evidenceIds": ["p3"]
+    }
+  }
+}

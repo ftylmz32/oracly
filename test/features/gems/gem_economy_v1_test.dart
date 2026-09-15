@@ -8,11 +8,10 @@ import 'package:oracly_new/features/daily_rewards/copy/daily_rewards_copy.dart';
 import 'package:oracly_new/features/daily_rewards/services/daily_rewards_service.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
 import 'package:oracly_new/features/gems/data/gem_display.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
-import 'package:oracly_new/features/tarot/economy/tarot_economy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/fake_gem_authority.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -20,11 +19,13 @@ void main() {
   late LocalStorage storage;
   late GemWalletService wallet;
   late DailyRewardsService rewards;
+  late FakeGemAuthority authority;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
-    wallet = GemWalletService(GemWalletStore(storage));
+    authority = FakeGemAuthority(serverDay: '2026-08-09');
+    wallet = authority.wallet(storage);
     rewards = DailyRewardsService(MockUserRepository(storage), storage, wallet);
   });
 
@@ -36,12 +37,11 @@ void main() {
   });
 
   test('daily claim adds gems once per calendar day', () async {
-    final day = DateTime(2026, 8, 9);
+    final day = DateTime.utc(2026, 8, 9);
     final first = await rewards.claim(asOf: day);
     expect(first.claimedToday, isTrue);
     expect(first.streak, 1);
     expect(wallet.balance, GemEconomy.dailyReward);
-    expect(wallet.history.first.displayLine, '+50 — Günlük Ödül');
 
     final second = await rewards.claim(asOf: day);
     expect(second.streak, 1);
@@ -49,56 +49,44 @@ void main() {
   });
 
   test('new calendar day allows another claim after restart', () async {
-    await rewards.claim(asOf: DateTime(2026, 8, 9));
-    final restarted = GemWalletService(GemWalletStore(storage));
+    await rewards.claim(asOf: DateTime.utc(2026, 8, 9));
+    final restarted = authority.wallet(storage);
     expect(restarted.balance, GemEconomy.dailyReward);
 
-    final next = await rewards.claim(asOf: DateTime(2026, 8, 10));
+    authority.serverDay = '2026-08-10';
+    final next = await rewards.claim(asOf: DateTime.utc(2026, 8, 10));
     expect(next.claimedToday, isTrue);
     expect(next.streak, 2);
     expect(wallet.balance, GemEconomy.dailyReward * 2);
   });
 
-  test('spend deducts, never goes negative, and blocks double tap', () async {
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
-    await wallet.spend(
-      amount: TarotEconomy.readingCost,
-      reason: GemsCopy.reasonTarot,
+  test('server settlement deducts once and local spend fails closed', () async {
+    authority.balance = 50;
+    await wallet.refresh();
+    await wallet.settleTarot(
+      operationId: 'tarot-session-01',
+      idempotencyKey: 'settle-request-01',
     );
     expect(wallet.balance, 30);
-    expect(wallet.history.first.displayLine, '-20 — Tarot');
-
-    expect(
-      () => wallet.spend(amount: 40, reason: GemsCopy.reasonTarot),
-      throwsA(
-        isA<GemSpendException>().having(
-          (e) => e.message,
-          'message',
-          GemsCopy.insufficient,
-        ),
-      ),
+    await wallet.settleTarot(
+      operationId: 'tarot-session-01',
+      idempotencyKey: 'settle-request-02',
     );
     expect(wallet.balance, 30);
-
-    final first = wallet.spend(amount: 10, reason: GemsCopy.reasonTarot);
-    expect(
-      () => wallet.spend(amount: 10, reason: GemsCopy.reasonTarot),
+    await expectLater(
+      wallet.spend(amount: 1, reason: GemsCopy.reasonTarot),
       throwsA(isA<GemSpendException>()),
     );
-    await first;
-    expect(wallet.balance, 20);
   });
 
-  test('provider failure credits gems back through earn', () async {
-    await wallet.earn(amount: 20, reason: GemsCopy.reasonStarter);
-    await wallet.spend(amount: 20, reason: GemsCopy.reasonCoffee);
-    expect(wallet.balance, 0);
-    await wallet.earn(amount: 20, reason: GemsCopy.reasonRefund);
-    expect(wallet.balance, 20);
-    expect(
-      wallet.history.map((e) => e.reason),
-      contains(GemsCopy.reasonRefund),
+  test('client cannot manufacture refund credit', () async {
+    authority.balance = 20;
+    await wallet.refresh();
+    await expectLater(
+      wallet.earn(amount: 20, reason: GemsCopy.reasonRefund),
+      throwsA(isA<GemSpendException>()),
     );
+    expect(wallet.balance, 20);
   });
 
   test('claimed copy matches the product sentence', () {

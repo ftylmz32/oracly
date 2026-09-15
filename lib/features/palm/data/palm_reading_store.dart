@@ -4,16 +4,20 @@ library;
 import 'dart:convert';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/memory/oracly_memory_factory.dart';
+import '../../../core/memory/oracly_memory_store.dart';
 import '../models/palm_hand.dart';
 import '../models/palm_reading.dart';
 import '../services/palm_image_archive.dart';
 
 class PalmReadingStore {
-  PalmReadingStore(this._storage);
+  PalmReadingStore(this._storage, {OraclyMemoryStore? memory})
+    : _memory = memory;
 
   static const key = 'palm_readings';
 
   final LocalStorage _storage;
+  final OraclyMemoryStore? _memory;
 
   List<PalmReading> all() {
     final raw = _storage.getStringList(key) ?? const <String>[];
@@ -50,38 +54,41 @@ class PalmReadingStore {
         if (item.id != reading.id) item,
       reading,
     ];
-    await _storage.setStringList(
-      key,
-      next.map(_toJson).toList(),
-    );
+    await _storage.setStringList(key, next.map(_toJson).toList());
+    await _memory?.upsert(OraclyMemoryFactory.palm(reading));
   }
 
   Future<void> delete(String id) async {
     final existing = byId(id);
-    final next = [for (final item in all()) if (item.id != id) item];
+    final next = [
+      for (final item in all())
+        if (item.id != id) item,
+    ];
     await _storage.setStringList(key, next.map(_toJson).toList());
     await PalmImageArchive.deleteIfOwned(existing?.imagePath);
+    await _memory?.removeBySource(id);
   }
 
   String _toJson(PalmReading reading) => jsonEncode({
-        'id': reading.id,
-        'createdAt': reading.createdAt.toIso8601String(),
-        'hand': reading.hand.name,
-        'overall': reading.overall,
-        'lifeLine': reading.lifeLine,
-        'headLine': reading.headLine,
-        'heartLine': reading.heartLine,
-        'fateLine': reading.fateLine,
-        'takeaway': reading.takeaway,
-        'symbols': reading.symbols,
-        'themes': reading.themes,
-        if (reading.imagePath != null) 'imagePath': reading.imagePath,
-      });
+    'id': reading.id,
+    'createdAt': reading.createdAt.toIso8601String(),
+    'hand': reading.hand.name,
+    'overall': reading.overall,
+    'lifeLine': reading.lifeLine,
+    'headLine': reading.headLine,
+    'heartLine': reading.heartLine,
+    'fateLine': reading.fateLine,
+    'takeaway': reading.takeaway,
+    'symbols': reading.symbols,
+    'themes': reading.themes,
+    if (reading.imagePath != null) 'imagePath': reading.imagePath,
+  });
 
   PalmReading _fromJson(Map<String, dynamic> json) {
     return PalmReading(
       id: json['id'] as String? ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0),
       hand: json['hand'] == 'left' ? PalmHand.left : PalmHand.right,
       overall: json['overall'] as String? ?? '',

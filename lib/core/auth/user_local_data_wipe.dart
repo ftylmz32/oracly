@@ -3,8 +3,10 @@ library;
 
 import '../data/datasources/local_storage.dart';
 import '../data/repositories/mock_premium_repository.dart';
+import '../continuation/services/session_continuation_focus_store.dart';
 import '../intelligence/data/intelligence_index_store.dart';
 import '../intelligence/data/personal_memory_store.dart';
+import '../reading_version/services/reading_version_store.dart';
 import '../storage/secure_storage.dart';
 import '../../features/astrology/data/astrology_preferences_store.dart';
 import '../../features/coffee/data/coffee_reading_store.dart';
@@ -15,9 +17,15 @@ import '../../features/favorite_moments/data/local_favorite_moments_repository.d
 import '../../features/gems/data/gem_wallet_store.dart';
 import '../../features/gems/data/paid_ai_operation_store.dart';
 import '../../features/gems/services/gem_starter_grant.dart';
+import '../../features/oracle_core/data/oracle_next_action_memory.dart';
 import '../../features/palm/data/palm_reading_store.dart';
+import '../../features/personal_discovery/data/daily_personal_observation_store.dart';
 import '../../features/premium/data/soul_mate_result_store.dart';
+import '../../features/premium/services/soul_mate_generation_session.dart';
+import '../../features/reading_feedback/data/reading_feedback_store.dart';
+import '../../features/share_reopen/services/share_ownership_store.dart';
 import '../../features/tarot/data/datasources/tarot_local_datasource.dart';
+import '../../features/tarot/revisit/tarot_revisit_intent_store.dart';
 import '../../features/privacy/services/discovery_owned_image_wipe.dart';
 import '../../screens/profile/data/profile_photo_store.dart';
 
@@ -38,6 +46,7 @@ abstract final class UserLocalDataWipe {
     await storage.remove('birth_chart_latest');
     await storage.remove(LocalFavoriteMomentsRepository.key);
     await storage.remove(PersonalMemoryStore.key);
+    await storage.remove('oracly_connected_memory_v2');
     await storage.remove(PersonalMemoryStore.userResetKey);
     await storage.remove('discovery_surface_memory_v1');
     await storage.remove('user_memories');
@@ -59,12 +68,23 @@ abstract final class UserLocalDataWipe {
     await storage.remove(AstrologyPreferencesStore.signKey);
     await storage.remove(CardOfTheDayStore.storageKey);
     await storage.remove(IntelligenceIndexStore.key);
+    await storage.remove(OracleNextActionMemory.key);
+    await storage.remove(DailyPersonalObservationStore.key);
+    await storage.remove(ReadingFeedbackStore.key);
+    await storage.remove(TarotRevisitIntentStore.key);
+    await storage.remove('personal_insights_hidden');
+    await storage.remove('personal_insights_deleted');
+    await storage.remove(ReadingVersionStore.key);
+    await storage.remove(SessionContinuationFocusStore.key);
+    await storage.remove(ShareOwnershipStore.key);
     await MockPremiumRepository.clearPersistedLocalState(
       storage,
       secureStorage: secureStorage,
     );
     await secureStorage.deleteAll();
     await storage.remove(GemWalletStore.balanceKey);
+    await storage.remove(GemWalletStore.serverBalanceCacheKey);
+    await storage.remove(GemWalletStore.serverBalanceOwnerKey);
     await storage.remove(GemWalletStore.txKey);
     await storage.remove(GemStarterGrant.flagKey);
     await storage.remove('tarot_gem_charged_sessions');
@@ -73,15 +93,19 @@ abstract final class UserLocalDataWipe {
     await storage.remove('palm_gem_charged');
     await storage.remove('soulmate_gem_charged');
     await SoulMateResultStore.clear(storage);
+    await SoulMateGenerationSessionStore.clear(storage);
+    await storage.remove('soulmate_portrait_hashes');
+    await storage.remove('soulmate_portrait_identity');
     await storage.remove(PaidAiOperationStore.key);
     await storage.setStringList(TarotLocalDataSource.historyKey, const []);
     await storage.remove(TarotLocalDataSource.activeKey);
     for (final domain in _contentFavoriteDomains) {
       await storage.remove('content_favorites_$domain');
     }
-    for (final key in storage.keys
-        .where((k) => k.startsWith('content_favorites_'))
-        .toList()) {
+    for (final key
+        in storage.keys
+            .where((k) => k.startsWith('content_favorites_'))
+            .toList()) {
       await storage.remove(key);
     }
     for (final prefix in _prefixedUserKeys) {

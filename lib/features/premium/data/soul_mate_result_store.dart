@@ -40,6 +40,7 @@ abstract final class SoulMateResultStore {
     required List<int> portraitBytes,
     Directory? documents,
   }) async {
+    if (portraitBytes.isEmpty) return null;
     final previous = await readMeta(storage);
     final dir = documents ?? await getApplicationDocumentsDirectory();
     final dest = File('${dir.path}/${portraitPrefix}_${record.id}.jpg');
@@ -54,6 +55,7 @@ abstract final class SoulMateResultStore {
       portraitPath: dest.path,
       parts: record.parts,
       localeCode: record.localeCode,
+      identity: record.identity,
     );
     await storage.setString(metaKey, jsonEncode(saved.toJson()));
     if (previous != null && previous.portraitPath != dest.path) {

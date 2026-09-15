@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../features/birth_chart/models/zodiac_sign_id.dart';
 import '../../features/tarot/presentation/widgets/card_reveal/reveal_sound_callbacks.dart';
+import '../runtime/oracly_apply_outcome.dart';
 import 'oracly_ambient_bed.dart';
 import 'oracly_sfx_cues.dart';
 import 'oracly_sound_chamber.dart';
@@ -42,9 +43,7 @@ class OraclySoundService {
 
   Future<void> initialize() async {
     await ensureSfxReady();
-    try {
-      await _ambient.ensureReady();
-    } catch (_) {}
+    await _ambient.ensureReady();
   }
 
   Future<void> ensureSfxReady() async {
@@ -69,11 +68,23 @@ class OraclySoundService {
       );
       _sfxReady = true;
     } catch (e) {
-      _sfxReady = false;
-      assert(() {
-        debugPrint('[ORACLY] sfx init failed: $e');
-        return true;
-      }());
+      await _resetSfxPlayer();
+      // Always logged (not assert-gated) — a release build must still
+      // leave a diagnosable trace instead of the failure vanishing.
+      debugPrint('[ORACLY] sfx init failed: $e');
+    }
+  }
+
+  /// Drops a possibly-broken player so the next attempt starts fresh —
+  /// a single failed init/play must never permanently poison SFX.
+  Future<void> _resetSfxPlayer() async {
+    _sfxReady = false;
+    final broken = _sfx;
+    _sfx = null;
+    if (broken != null) {
+      try {
+        await broken.dispose();
+      } catch (_) {}
     }
   }
 
@@ -82,63 +93,73 @@ class OraclySoundService {
   Future<void> stopSfx() async {
     try {
       await _sfx?.stop();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ORACLY] sfx stop failed: $e');
+    }
   }
 
-  Future<void> syncAmbientEnabled(bool enabled) => _ambient.setEnabled(enabled);
+  Future<OraclyApplyOutcome> syncAmbientEnabled(bool enabled) =>
+      _ambient.setEnabled(enabled);
 
-  Future<void> setAtmosphere(ZodiacSignId sign) => _ambient.setSign(sign);
+  Future<OraclyApplyOutcome> setAtmosphere(ZodiacSignId sign) =>
+      _ambient.setSign(sign);
 
-  Future<void> setChamber(OraclySoundChamber chamber) async {
+  Future<OraclyApplyOutcome> setChamber(OraclySoundChamber chamber) async {
     if (!_ambient.enabled) {
-      await _ambient.stop();
-      return;
+      return _ambient.stop();
     }
     if (chamber == OraclySoundChamber.silence) {
-      await _ambient.stop();
-      return;
+      return _ambient.stop();
     }
-    await _ambient.refresh();
+    return _ambient.refresh();
   }
 
-  Future<void> refreshAmbient() => _ambient.refresh();
+  Future<OraclyApplyOutcome> refreshAmbient() => _ambient.refresh();
 
   Future<void> pauseAmbientForBackground() => _ambient.pauseForBackground();
 
   Future<void> resumeAmbientFromBackground() =>
       _ambient.resumeFromBackground();
 
-  Future<void> stopAmbient() => _ambient.stop();
+  Future<OraclyApplyOutcome> stopAmbient() => _ambient.stop();
 
   void syncEnabled(bool enabled) => syncSfxEnabled(enabled);
 
-  Future<void> play(OraclySoundCue cue) async {
-    if (!_sfxEnabled) return;
+  /// Plays [cue]. Disabled and cooldown-skipped attempts count as success —
+  /// only a real, attempted playback failure is reported as [OraclyApplyOutcome.failure].
+  /// A failure never poisons future taps: the next call is always retried.
+  Future<OraclyApplyOutcome> play(OraclySoundCue cue) async {
+    if (!_sfxEnabled) return OraclyApplyOutcome.success;
     await ensureSfxReady();
-    if (!_sfxEnabled || !_sfxReady) return;
+    if (!_sfxEnabled) return OraclyApplyOutcome.success;
+    if (!_sfxReady) return OraclyApplyOutcome.failure;
     final sfx = _sfx;
-    if (sfx == null) return;
+    if (sfx == null) return OraclyApplyOutcome.failure;
 
     final cooldown = _cooldowns[cue];
     if (cooldown != null) {
       final last = _lastCueAt[cue];
-      if (last != null && DateTime.now().difference(last) < cooldown) return;
+      if (last != null && DateTime.now().difference(last) < cooldown) {
+        return OraclyApplyOutcome.success;
+      }
     }
     _lastCueAt[cue] = DateTime.now();
 
     final detune = 0.98 + _rng.nextDouble() * 0.04;
     final bytes = OraclySfxCues.bytesFor(cue, detune);
-    if (bytes.length <= 44) return;
+    if (bytes.length <= 44) return OraclyApplyOutcome.failure;
 
     try {
       final source = BytesSource(bytes, mimeType: 'audio/wav');
       await sfx.stop();
       await sfx.play(source);
+      return OraclyApplyOutcome.success;
     } catch (e) {
-      assert(() {
-        debugPrint('[ORACLY] sfx play failed ($cue): $e');
-        return true;
-      }());
+      debugPrint('[ORACLY] sfx play failed ($cue): $e');
+      // Drop the possibly-broken player so the very next tap gets a fresh
+      // one instead of repeating the same failure forever.
+      await _resetSfxPlayer();
+      return OraclyApplyOutcome.failure;
     }
   }
 

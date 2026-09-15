@@ -6,6 +6,7 @@ import '../../../core/experience/domain/models/greeting_context.dart';
 import '../../../core/personality/living_greeting_copy.dart';
 import '../../../core/universe/oracly_universe_state.dart';
 import '../../premium/models/personalization_models.dart';
+import '../../../core/copy/home_greeting_name.dart';
 
 /// Returning-user strings from the existing living greeting system.
 abstract final class HomeHeroReturningCopy {
@@ -55,7 +56,6 @@ abstract final class HomeHeroReturningCopy {
       experience != null && experience.greeting.tone == GreetingTone.returning;
 
   static String? _name(String? raw) {
-    final trimmed = raw?.trim() ?? '';
-    return trimmed.isEmpty ? null : trimmed;
+    return HomeGreetingName.firstNameOrNull(raw);
   }
 }

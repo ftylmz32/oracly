@@ -10,7 +10,6 @@ import 'package:oracly_new/features/coffee/data/coffee_symbol_lexicon.dart';
 import 'package:oracly_new/features/coffee/models/coffee_reading.dart';
 import 'package:oracly_new/features/coffee/models/coffee_symbol.dart';
 import 'package:oracly_new/features/coffee/services/coffee_fortune_composer.dart';
-import 'package:oracly_new/features/coffee/services/coffee_fortune_narration.dart';
 import 'package:oracly_new/features/palm/models/palm_hand.dart';
 import 'package:oracly_new/features/palm/models/palm_reading.dart';
 import 'package:oracly_new/features/palm/services/palm_fortune_composer.dart';
@@ -19,61 +18,55 @@ import 'package:oracly_new/features/palm/services/palm_fortune_narration.dart';
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('coffee weaves multiple real symbols into one story', () {
-    final composed = CoffeeFortuneComposer.compose(
-      CoffeeReading(
-        id: 'c1',
-        createdAt: DateTime(2026, 8, 15),
-        overall: 'iletişim ön plana çıkabilir',
-        love: 'duygusal bir hareketlilik yaşanabilir',
-        career: 'İş hayatında yeni fırsatlar olabilir.',
-        money: 'yeni fırsatlar gündeme gelebilir',
-        nearFuture: 'gündeme gelebilir',
-        takeaway: '',
-        visualObservation: 'Fincanın ağız kısmındaki açık yol ve uçan bir kuş.',
-        symbols: const [
-          CoffeeSymbol(name: 'kuş', meaning: '', interpretation: ''),
-          CoffeeSymbol(name: 'yol', meaning: '', interpretation: ''),
-        ],
-      ),
-      themes: const ['değişim'],
-    );
-    expect(composed.overall.toLowerCase(), contains('kuş'));
-    expect(composed.overall.toLowerCase(), contains('yol'));
-    expect(composed.overall.toLowerCase(), contains('yan yana'));
-    expect(composed.takeaway, isEmpty);
-    expect(composed.overall.toLowerCase(), isNot(contains('dağ')));
-    expect(composed.overall.toLowerCase(), contains('değişim'));
-    expect(FortuneVoice.looksRobotic(composed.overall), isFalse);
-    final spoken = CoffeeFortuneNarration.body(composed);
-    expect(spoken, contains(composed.overall));
-    expect(spoken.toLowerCase(), contains('kuş'));
-    expect(spoken, isNot(contains('\n\n\n')));
-    expect(FortuneVoice.looksRobotic(composed.love), isFalse);
-    expect(composed.love, isEmpty);
-    expect(composed.career, isEmpty);
-    expect(composed.overall.toLowerCase(), contains('yakın'));
-    expect(CoffeeSymbolLexicon.match('kuş')!.id, 'bird');
-  });
+  test(
+    'BATCH 3A.2: coffee never fabricates a symbol-woven story from '
+    'symbols/themes alone — a short/missing backend overall fails '
+    'composition instead',
+    () {
+      final composed = CoffeeFortuneComposer.compose(
+        CoffeeReading(
+          id: 'c1',
+          createdAt: DateTime(2026, 8, 15),
+          overall: 'iletişim ön plana çıkabilir',
+          love: 'duygusal bir hareketlilik yaşanabilir',
+          career: 'İş hayatında yeni fırsatlar olabilir.',
+          money: 'yeni fırsatlar gündeme gelebilir',
+          nearFuture: 'gündeme gelebilir',
+          takeaway: '',
+          visualObservation:
+              'Fincanın ağız kısmındaki açık yol ve uçan bir kuş.',
+          symbols: const [
+            CoffeeSymbol(name: 'kuş', meaning: '', interpretation: ''),
+            CoffeeSymbol(name: 'yol', meaning: '', interpretation: ''),
+          ],
+        ),
+        themes: const ['değişim'],
+      );
+      expect(composed, isNull);
+      expect(CoffeeSymbolLexicon.match('kuş')!.id, 'bird');
+    },
+  );
 
-  test('coffee does not invent a symbol the provider omitted', () {
-    final composed = CoffeeFortuneComposer.compose(
-      CoffeeReading(
-        id: 'c2',
-        createdAt: DateTime(2026, 8, 15),
-        overall: 'Fincanda duruluk var.',
-        love: '',
-        career: '',
-        money: '',
-        nearFuture: '',
-        takeaway: '',
-        visualObservation: 'Fincanda duruluk var.',
-      ),
-    );
-    expect(composed.overall.toLowerCase(), isNot(contains('yol')));
-    expect(composed.overall.toLowerCase(), isNot(contains('kalp')));
-    expect(composed.overall, contains('duruluk'));
-  });
+  test(
+    'BATCH 3A.2: a short backend overall never gets padded into an '
+    'invented story, with or without symbols',
+    () {
+      final composed = CoffeeFortuneComposer.compose(
+        CoffeeReading(
+          id: 'c2',
+          createdAt: DateTime(2026, 8, 15),
+          overall: 'Fincanda duruluk var.',
+          love: '',
+          career: '',
+          money: '',
+          nearFuture: '',
+          takeaway: '',
+          visualObservation: 'Fincanda duruluk var.',
+        ),
+      );
+      expect(composed, isNull);
+    },
+  );
 
   test('palm copy is grounded and never medical', () {
     final composed = PalmFortuneComposer.compose(
@@ -81,13 +74,15 @@ void main() {
         id: 'p1',
         createdAt: DateTime(2026, 8, 15),
         hand: PalmHand.right,
-        overall: 'El geniş ve belirgin çizgili.',
+        overall:
+            'El geniş ve belirgin çizgili; tempo hızlı değil, temkinli bir '
+            'yapı hissettiriyor.',
         heartLine: 'Kalp çizgisinin belirgin yapısı.',
         headLine: 'Zihin çizgisi net ve uzun.',
         lifeLine: 'Yaşam çizgisi kavisli.',
         fateLine: 'Yön çizgisi zayıf.',
       ),
-    );
+    )!;
     expect(composed.heartLine, contains('Kalp çizgisinin belirgin yapısı'));
     expect(composed.heartLine.toLowerCase(), isNot(contains('vazgeçmeyen')));
     expect(composed.lifeLine, contains('kavisli'));

@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers/app_providers.dart';
@@ -11,6 +12,7 @@ import '../../core/data/repositories/local_onboarding_repository.dart';
 import '../../core/providers/backend_providers.dart' as backend;
 import '../../core/notifications/oracly_notification_providers.dart';
 import '../../core/notifications/oracly_notification_tap_router.dart';
+import '../../core/runtime/oracly_apply_outcome.dart';
 import '../../features/gems/providers/gem_providers.dart';
 
 /// Routing-critical: promote ephemeral storage, then read onboarding flag.
@@ -60,29 +62,50 @@ Future<bool> splashCriticalBoot(WidgetRef ref) async {
 }
 
 /// Non-blocking warm-up — never holds splash to Home.
-void splashScheduleWarmup(WidgetRef ref) {
-  unawaited(_runWarmup(ref));
+///
+/// Takes the app-level [ProviderContainer], not a widget-scoped [WidgetRef].
+/// This work is fire-and-forget and is expected to keep running well after
+/// the splash widget that scheduled it has already been disposed and
+/// replaced by Home/Onboarding — reading through a disposed widget's `ref`
+/// throws `Bad state: Cannot use "ref" after the widget was disposed`
+/// (previously swallowed here as an opaque "sync threw" log line). The
+/// container is not tied to any widget's lifecycle, so the same
+/// `.read`/`.invalidate` calls stay valid for as long as the app runs.
+void splashScheduleWarmup(ProviderContainer container) {
+  unawaited(_runWarmup(container));
 }
 
-Future<void> _runWarmup(WidgetRef ref) async {
+Future<void> _runWarmup(ProviderContainer container) async {
   try {
-    await ref.read(oraclyNotificationPortProvider).captureColdStartLaunch();
+    await container
+        .read(oraclyNotificationPortProvider)
+        .captureColdStartLaunch();
   } catch (_) {}
   try {
-    final settings = await ref.read(settingsProvider.future);
-    await ref.read(oraclyNotificationCoordinatorProvider).sync(settings);
-  } catch (_) {}
+    final settings = await container.read(settingsProvider.future);
+    final outcome = await container
+        .read(oraclyNotificationCoordinatorProvider)
+        .sync(settings);
+    if (outcome.isFailure) {
+      // Passive startup degrades safely — never crashes, never shows the
+      // toggle as ON if scheduling silently failed to apply — but the
+      // failure must still leave a trace instead of vanishing.
+      debugPrint('[ORACLY] startup notification sync failed');
+    }
+  } catch (e) {
+    debugPrint('[ORACLY] startup notification sync threw: $e');
+  }
   try {
     OraclyNotificationTapRouter.openPending();
   } catch (_) {}
   try {
-    ref.read(analyticsServiceProvider).logAppOpen();
+    container.read(analyticsServiceProvider).logAppOpen();
   } catch (_) {}
   try {
-    await ref.read(backend.remoteConfigServiceProvider).beginSession();
+    await container.read(backend.remoteConfigServiceProvider).beginSession();
   } catch (_) {}
   try {
-    ref.invalidate(experienceOrchestratorServiceProvider);
+    container.invalidate(experienceOrchestratorServiceProvider);
   } catch (_) {}
 }
 

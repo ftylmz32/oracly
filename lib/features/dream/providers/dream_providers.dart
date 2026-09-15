@@ -19,22 +19,23 @@ final dreamVoiceInputProvider = Provider<DreamVoiceInputPort>((ref) {
 
 final dreamVoiceControllerProvider =
     ChangeNotifierProvider.autoDispose<DreamVoiceController>((ref) {
-  return DreamVoiceController(ref.watch(dreamVoiceInputProvider));
-});
+      return DreamVoiceController(ref.watch(dreamVoiceInputProvider));
+    });
 
 final dreamExperienceServiceProvider = Provider<DreamExperienceService>((ref) {
   return DreamExperienceService(
     repository: ref.watch(dreamRepositoryProvider),
     ai: ref.watch(oraclyAiServiceProvider),
     versions: ref.watch(readingVersionServiceProvider),
+    memory: ref.watch(oraclyMemoryRetrieverProvider),
   );
 });
 
 final dreamAnalysisControllerProvider =
     ChangeNotifierProvider<DreamAnalysisController>((ref) {
-  final controller = DreamAnalysisController(
-    ref.watch(dreamExperienceServiceProvider),
-  );
-  controller.loadHistory();
-  return controller;
-});
+      final controller = DreamAnalysisController(
+        ref.watch(dreamExperienceServiceProvider),
+      );
+      controller.loadHistory();
+      return controller;
+    });

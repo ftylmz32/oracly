@@ -6,9 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
-import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
-import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/premium/models/premium_models.dart';
 import 'package:oracly_new/features/premium/presentation/reference/premium_reference_screen.dart';
 import 'package:oracly_new/features/premium/services/premium_dev_override.dart';
@@ -16,6 +14,7 @@ import 'package:oracly_new/features/premium/services/unavailable_premium_purchas
 import 'package:oracly_new/features/tarot/economy/tarot_economy.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_reading_charge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/fake_gem_authority.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
 
@@ -59,12 +58,14 @@ void main() {
   test('failed or repeated gem charge does not deduct twice', () async {
     SharedPreferences.setMockInitialValues({});
     final storage = LocalStorage(await SharedPreferences.getInstance());
-    final wallet = GemWalletService(GemWalletStore(storage));
+    final authority = FakeGemAuthority();
+    final wallet = authority.wallet(storage);
     final charge = TarotReadingCharge(wallet, storage);
     expect(await charge.commit('s1'), isFalse);
     expect(wallet.balance, 0);
 
-    await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+    authority.balance = 50;
+    await wallet.refresh();
     expect(await charge.commit('s1'), isTrue);
     expect(wallet.balance, 30);
     expect(await charge.commit('s1'), isTrue);

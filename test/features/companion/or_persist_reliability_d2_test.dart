@@ -639,6 +639,17 @@ class _CountingAi implements OraclyAiService {
   }) => chat(userMessage: userMessage);
 
   @override
+  Future<AiOutcome<ChatAiReply>> generateTarotReading({
+    required List<Map<String, dynamic>> cards,
+    required String spreadLabel,
+    String? userQuestion,
+    String? readingTheme,
+    Map<String, dynamic>? journeyHints,
+  }) {
+    throw UnsupportedError('tarot');
+  }
+
+  @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) {
     throw UnsupportedError('dream');
   }
@@ -647,6 +658,7 @@ class _CountingAi implements OraclyAiService {
   Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffee({
     required List<int> imageBytes,
     required String mimeType,
+    Map<String, dynamic>? personalization,
   }) {
     throw UnsupportedError('coffee');
   }
@@ -656,6 +668,7 @@ class _CountingAi implements OraclyAiService {
     required List<int> imageBytes,
     required String mimeType,
     required String hand,
+    Map<String, dynamic>? personalization,
   }) {
     throw UnsupportedError('palm');
   }

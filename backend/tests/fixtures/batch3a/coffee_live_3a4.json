@@ -1,0 +1,91 @@
+{
+  "source": "batch3a4-qa-live",
+  "personalization": {
+    "firstName": "Fatih"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "base",
+        "description": "Dense grounds at the base with an open curve around them.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "lower_wall",
+        "description": "Marks rising from the lower inner surface.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper",
+        "description": "Sparse marks on the upper inner surface and a clearer rim.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      },
+      {
+        "id": "e4",
+        "region": "handle",
+        "description": "Small marks extending toward the handle.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibinde yoğun bir tortu, çevresinde kıvrımlı bir bant var. Üst iç yüzey ve fincanın ağız kenarı ise belirgin biçimde ferah kalmış.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Bir süredir zihninde ağırlık yapan tek bir mesele, başka konuları da kendi çevresinde topluyor gibi. Fakat bu yük bütünüyle kapalı değil: orta iç yüzeyde yukarı doğru ilerleyen izler, içinde tuttuklarını parça parça ifade ettikçe sıkışıklığın çözülebileceğini düşündürüyor. Buradaki asıl gerilim, konuşmak istemenle sonucu kontrol altında tutma arzun arasında.",
+      "evidenceIds": [
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Yakın dönemde gündeminin kalabalığı azalabilir; fincanın ağız kenarındaki açıklık, önünde daha sakin ve okunabilir bir sürece işaret ediyor. Kulp tarafına uzanan küçük izler ise bu değişimin tamamen yalnız yaşanmayacağını, yakın çevrenden gelecek kısa bir haber ya da yorumun düşüncelerini netleştirebileceğini söylüyor. Bu etki büyük bir müdahaleden çok, doğru anda duyulan bir cümle gibi.",
+      "evidenceIds": [
+        "e3",
+        "e4"
+      ]
+    },
+    "takeaway": {
+      "text": "Sağ tarafta açık alanı çevreleyen kıvrım, korumaya çalıştığın kişisel bir alanın bulunduğunu düşündürüyor. Bu fincanın sana bıraktığı esas mesaj, yükünü boşaltırken sınırını da koruyabileceğin: her şeyi anlatmak zorunda değilsin, fakat seni içeride tutan asıl cümleyi saklamak da artık ağır geliyor. Ölçülü bir açıklık, hem kendi yerini kaybetmeden ilerlemeni hem de meselenin çevresinde dönmeyi bırakmanı sağlayabilir.",
+      "evidenceIds": [
+        "e1"
+      ]
+    }
+  }
+}

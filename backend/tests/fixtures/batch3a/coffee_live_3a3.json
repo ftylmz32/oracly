@@ -1,0 +1,13 @@
+{
+  "source": "batch3a3-qa-live",
+  "personalization": { "firstName": "Fatih" },
+  "narrative": {
+    "visualObservation": { "text": "Fincanın dibindeki yoğun tortu, çevresindeki açık kavisle birlikte sanki ağırlığı sınırlandırılmış bir alan gibi duruyor. Alt iç yüzeyden yükselen izler ise bu durağanlığı hafifçe hareketlendiriyor.", "evidenceIds": [] },
+    "overall": { "text": "Fatih, bir süredir zihninde fazla yer tutan bir konuyu bütünüyle çözmeye çalışıyor olabilirsin. Fincanın dibinde toplanan yoğunluk, meselenin özünün aslında tek bir noktada düğümlendiğini; çevreye dağılan küçük izler ise yan ihtimallerin kararını olduğundan karmaşık gösterdiğini düşündürüyor. Kulp tarafına doğru uzanan kavis, sana yakın olanların beklentilerinin veya alışılmış düzeninin seçiminde payı olabileceğine işaret ediyor. Buna karşılık yoğun tortuyu çevresinden ayıran açık hat, kendi sınırını belirlediğinde asıl düşüncenin daha rahat seçilebileceğini söylüyor. Buradaki vurgu acele etmekten çok, sana ait gerekçeyle başkalarının etkisini birbirinden ayırmakta.", "evidenceIds": [] },
+    "love": { "text": "", "evidenceIds": [] },
+    "career": { "text": "", "evidenceIds": [] },
+    "money": { "text": "", "evidenceIds": [] },
+    "nearFuture": { "text": "Üst iç yüzeyde izlerin seyrelmesi, yakın dönemde zihinsel baskının hafiflemesine dair temkinli bir işaret sayılabilir. Her şeyin kendiliğinden çözülmesinden ziyade, ana meseleye dönüp dağınık ayrıntıları geride bırakman bu ferahlığı getirebilir.", "evidenceIds": [] },
+    "takeaway": { "text": "Bu fincanın en belirgin sözü şu: Dipte ağırlık yapan konu gerçek, fakat onu çevreleyen açık kavis çıkışın da aynı meselenin içinde bulunduğunu düşündürüyor. Yukarı yükselen kısa izler arasında seni en çok rahatlatan yön, büyük olasılıkla kararının özüne en yakın olan yön.", "evidenceIds": [] }
+  }
+}

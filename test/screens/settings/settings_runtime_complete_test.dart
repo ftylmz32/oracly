@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/audio/oracly_sound_service.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/runtime/oracly_apply_outcome.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/notifications/memory_notification_port.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_providers.dart';
@@ -32,10 +33,12 @@ class _SilentSound extends OraclySoundService {
   Future<void> ensureSfxReady() async {}
 
   @override
-  Future<void> syncAmbientEnabled(bool enabled) async {}
+  Future<OraclyApplyOutcome> syncAmbientEnabled(bool enabled) async =>
+      OraclyApplyOutcome.success;
 
   @override
-  Future<void> setAtmosphere(ZodiacSignId sign) async {}
+  Future<OraclyApplyOutcome> setAtmosphere(ZodiacSignId sign) async =>
+      OraclyApplyOutcome.success;
 }
 
 class _SilentTts implements OraclyTtsPort {

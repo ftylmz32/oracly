@@ -7,11 +7,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/auth/firebase/firebase_auth_gateway.dart';
 import '../ai_failure.dart';
+import '../soulmate_client_timeout.dart';
 import '../ai_outcome.dart';
 import '../ai_proxy_readiness.dart';
 import '../ai_runtime_config.dart';
@@ -23,6 +25,33 @@ import 'ai_transport.dart';
 import 'ai_token_reader.dart';
 import 'proxy_ai_headers.dart';
 import 'proxy_ai_transport_log.dart';
+
+/// Coffee/Palm analysis chains a vision "observer" call and a text
+/// "writer" call server-side — genuinely 60-90s+ under real load, the
+/// same order of magnitude as Soulmate's image generation, not the
+/// single-call chat/dream-analysis operations `configTimeout` (45s
+/// default) is sized for. Real-device evidence: a Palm analysis that
+/// completed successfully server-side at ~62.5s was still marked
+/// `failed` client-side because the old 45s HTTP timeout fired first —
+/// the backend result arrived, but the operation had already been
+/// closed out as failed, so the client never observed a genuine
+/// success. Giving these operations the same longer client wait
+/// Soulmate already uses (still bounded well under Cloud Run's ceiling)
+/// fixes that without touching the pipeline's own latency.
+@visibleForTesting
+Duration proxyAiClientTimeoutFor(
+  AiOperation operation, {
+  required Duration imageTimeout,
+  required Duration configTimeout,
+}) {
+  return switch (operation) {
+    AiOperation.soulmateDraw ||
+    AiOperation.coffeeAnalysis ||
+    AiOperation.palmAnalysis =>
+      SoulmateClientTimeout.wait(imageTimeout),
+    _ => configTimeout,
+  };
+}
 
 class ProxyAiTransport implements AiTransport {
   ProxyAiTransport({
@@ -90,9 +119,11 @@ class ProxyAiTransport implements AiTransport {
             body: jsonEncode(request.toJson()),
           )
           .timeout(
-            request.operation == AiOperation.soulmateDraw
-                ? _config.imageTimeout
-                : _config.timeout,
+            proxyAiClientTimeoutFor(
+              request.operation,
+              imageTimeout: _config.imageTimeout,
+              configTimeout: _config.timeout,
+            ),
           );
       final image = request.payload['imageBase64'];
       if (response.statusCode != 200) {

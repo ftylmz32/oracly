@@ -21,6 +21,63 @@ void main() {
       expect(result.emotions, contains('Huzurlu'));
       expect(result.summary, isNot(contains('kesin')));
     });
+
+    test('"saat" does not become the animal "at"', () {
+      // Regression for a real production defect: naive substring matching
+      // found the lexicon token "at" (horse) inside "saat" (clock/hour),
+      // showing a horse symbol for a dream that never mentioned one.
+      final result = service.build(
+        narrative: 'İstasyonda büyük, durmuş bir saat vardı.',
+      );
+      final labels = result.symbols.map((s) => s.label.toLowerCase()).toSet();
+      expect(labels, isNot(contains('at')));
+    });
+
+    test('"ray"/"raylar"/"rayların" does not become the symbol "ay"', () {
+      // Regression for the same class of defect: "ay" (moon) matched inside
+      // "ray"/"raylar"/"rayların" (rail/rails/of-the-rails).
+      for (final narrative in [
+        'Raylar arasında ince bir su akıyordu.',
+        'Rayların arasında ince bir su vardı.',
+        'İnce bir ray gördüm.',
+      ]) {
+        final result = service.build(narrative: narrative);
+        final labels =
+            result.symbols.map((s) => s.label.toLowerCase()).toSet();
+        expect(labels, isNot(contains('ay')), reason: narrative);
+      }
+    });
+
+    test('a real standalone mention of "at" or "ay" is still detected', () {
+      // The fix must reject substring collisions without rejecting genuine,
+      // real word-boundary matches of the same short tokens.
+      final horse = service.build(narrative: 'Yanımda kahverengi bir at duruyordu.');
+      expect(
+        horse.symbols.map((s) => s.label.toLowerCase()),
+        contains('at'),
+      );
+      final moon = service.build(narrative: 'Gökyüzünde büyük bir ay vardı.');
+      expect(
+        moon.symbols.map((s) => s.label.toLowerCase()),
+        contains('ay'),
+      );
+    });
+
+    test('genuine symbols in a multi-element narrative are retained', () {
+      final result = service.build(
+        narrative:
+            'Eski tren istasyonunda tüm lambalar yanıyordu. Rayların '
+            'arasında ince bir su vardı, suyun içinde bir pusula duruyordu. '
+            'Büyük beyaz bir kuş gördüm.',
+      );
+      final labels = result.symbols.map((s) => s.label.toLowerCase()).toSet();
+      expect(labels, contains('su'));
+      expect(labels, contains('beyaz'));
+      expect(labels, contains('kuş'));
+      expect(result.locations, contains('Tren'));
+      expect(labels, isNot(contains('at')));
+      expect(labels, isNot(contains('ay')));
+    });
   });
 
   group('DreamPatternService', () {

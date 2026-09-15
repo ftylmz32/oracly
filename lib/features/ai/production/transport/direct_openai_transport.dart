@@ -46,6 +46,13 @@ class DirectOpenAiTransport implements AiTransport {
       AiOperation.soulmateDraw => Future.value(
           AiOutcome.failure(AiFailure.noConfiguration()),
         ),
+      AiOperation.soulmateInterpretation => Future.value(
+          AiOutcome.failure(AiFailure.noConfiguration()),
+        ),
+      // Tarot is proxy-only by design — never direct-to-OpenAI, even in dev.
+      AiOperation.tarotReading => Future.value(
+          AiOutcome.failure(AiFailure.noConfiguration()),
+        ),
       AiOperation.tts => _openAi.speech(
           text: payload['text'] as String? ?? '',
           personality: payload['personality'] as String? ?? 'mystical',

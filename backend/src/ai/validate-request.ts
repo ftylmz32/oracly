@@ -12,6 +12,7 @@ import { parseOrVoiceId, type OrVoiceId } from './or-voice.js';
 import { parseOrSpeechSpeed, type OrSpeechSpeed } from './or-speech-speed.js';
 import { parseTurns, type ChatTurn } from './parse-turns.js';
 import { asRecord, sanitizeText, stringList } from './sanitize.js';
+import type { SoulmateIdentity } from './soulmate-prompt.js';
 
 type BaseRequest =
   | {
@@ -39,12 +40,29 @@ type BaseRequest =
   | { operation: 'dream_analysis'; payload: Record<string, unknown> }
   | { operation: 'coffee_analysis'; payload: Record<string, unknown> }
   | { operation: 'palm_analysis'; payload: Record<string, unknown> }
-  | {
+    | {
       operation: 'soulmate_draw';
       name: string;
       birthDate: string;
       gender?: 'feminine' | 'masculine';
       intention?: string;
+    }
+    | {
+      operation: 'soulmate_interpretation';
+      name: string;
+      birthDate: string;
+      gender?: 'feminine' | 'masculine';
+      intention?: string;
+      identity?: SoulmateIdentity;
+      memorySummary?: string;
+    }
+  | {
+      operation: 'tarot_reading';
+      cards: TarotCardInput[];
+      spreadLabel: string;
+      userQuestion?: string;
+      readingTheme?: string;
+      journeyHints?: TarotJourneyHints;
     }
   | {
       operation: 'tts';
@@ -93,9 +111,78 @@ export function validateAiBody(body: unknown): ValidatedRequest {
       return { operation: 'palm_analysis', payload, language };
     case 'soulmate_draw':
       return { ...validateSoulMate(payload), language };
+    case 'soulmate_interpretation':
+      return { ...validateSoulMateInterpretation(payload), language };
+    case 'tarot_reading':
+      return { ...validateTarot(payload), language };
     case 'tts':
       return { ...validateTts(payload), language };
   }
+}
+
+export type TarotCardInput = {
+  name: string;
+  positionLabel: string;
+  reversed: boolean;
+  meaning: string;
+  keywords: string[];
+};
+
+export type TarotJourneyHints = {
+  recurringThemes: string[];
+  recentCardNames: string[];
+  priorReadingCount: number;
+  revisitExcerpt?: string;
+  memorySummary?: string;
+};
+
+const CARD_MAX = 12;
+
+function validateTarot(
+  payload: Record<string, unknown>,
+): Extract<BaseRequest, { operation: 'tarot_reading' }> {
+  const rawCards = Array.isArray(payload.cards) ? payload.cards : [];
+  const cards: TarotCardInput[] = [];
+  for (const raw of rawCards.slice(0, CARD_MAX)) {
+    const record = asRecord(raw);
+    if (!record) continue;
+    const name = sanitizeText(record.name, 80);
+    const positionLabel = sanitizeText(record.positionLabel, 80);
+    if (!name || !positionLabel) continue;
+    cards.push({
+      name,
+      positionLabel,
+      reversed: record.reversed === true,
+      meaning: sanitizeText(record.meaning, 400),
+      keywords: stringList(record.keywords, 8),
+    });
+  }
+  if (cards.length === 0) fail(ErrorCode.invalidRequest);
+  const spreadLabel = sanitizeText(payload.spreadLabel, 80);
+  if (!spreadLabel) fail(ErrorCode.invalidRequest);
+  const userQuestion = sanitizeText(payload.userQuestion, 400);
+  const readingTheme = sanitizeText(payload.readingTheme, 80);
+  const hintsRecord = asRecord(payload.journeyHints);
+  const journeyHints: TarotJourneyHints | undefined = hintsRecord
+    ? {
+        recurringThemes: stringList(hintsRecord.recurringThemes, 5),
+        recentCardNames: stringList(hintsRecord.recentCardNames, 5),
+        priorReadingCount:
+          typeof hintsRecord.priorReadingCount === 'number'
+            ? Math.max(0, Math.floor(hintsRecord.priorReadingCount))
+            : 0,
+        revisitExcerpt: sanitizeText(hintsRecord.revisitExcerpt, 240) || undefined,
+        memorySummary: sanitizeText(hintsRecord.memorySummary, 220) || undefined,
+      }
+    : undefined;
+  return {
+    operation: 'tarot_reading',
+    cards,
+    spreadLabel,
+    userQuestion: userQuestion || undefined,
+    readingTheme: readingTheme || undefined,
+    journeyHints,
+  };
 }
 
 function validateChat(payload: Record<string, unknown>): Extract<BaseRequest, { operation: 'chat' }> {
@@ -162,6 +249,51 @@ function validateSoulMate(
   };
 }
 
+function validateSoulMateInterpretation(
+  payload: Record<string, unknown>,
+): Extract<BaseRequest, { operation: 'soulmate_interpretation' }> {
+  const base = validateSoulMate(payload);
+  return {
+    operation: 'soulmate_interpretation',
+    name: base.name,
+    birthDate: base.birthDate,
+    gender: base.gender,
+    intention: base.intention,
+    identity: parseSoulmateIdentity(payload.identity),
+    memorySummary: sanitizeText(payload.memorySummary, 220) || undefined,
+  };
+}
+
+function parseSoulmateIdentity(raw: unknown): SoulmateIdentity | undefined {
+  const record = asRecord(raw);
+  if (!record) return undefined;
+  const nonce = sanitizeText(record.nonce, 32);
+  const presence = sanitizeText(record.presence, 80);
+  const mood = sanitizeText(record.mood, 80);
+  if (!nonce || !presence || !mood) return undefined;
+  const versionRaw = Number(record.version);
+  return {
+    version: Number.isFinite(versionRaw) && versionRaw > 0 ? versionRaw : 1,
+    nonce,
+    presence,
+    colorFamily: sanitizeText(record.colorFamily, 120),
+    mood,
+    setting: sanitizeText(record.setting, 180),
+    lighting: sanitizeText(record.lighting, 180),
+    wardrobe: sanitizeText(record.wardrobe, 180),
+    composition: sanitizeText(record.composition, 180),
+    pose: sanitizeText(record.pose, 160),
+    expression: sanitizeText(record.expression, 160),
+    ageBand: sanitizeText(record.ageBand, 40),
+    faceShape: sanitizeText(record.faceShape, 80),
+    hairFamily: sanitizeText(record.hairFamily, 80),
+    eyePresentation: sanitizeText(record.eyePresentation, 80),
+    relationshipArchetype: sanitizeText(record.relationshipArchetype, 80),
+    expressionEnergy: sanitizeText(record.expressionEnergy, 80),
+    stylingEnergy: sanitizeText(record.stylingEnergy, 80),
+  };
+}
+
 function validateTts(
   payload: Record<string, unknown>,
 ): Extract<BaseRequest, { operation: 'tts' }> {
@@ -179,7 +311,14 @@ function validateTts(
 function validateDream(payload: Record<string, unknown>): Extract<BaseRequest, { operation: 'dream_analysis' }> {
   const narrative = sanitizeText(payload.narrative);
   if (narrative.length < 8) fail(ErrorCode.invalidRequest);
-  return { operation: 'dream_analysis', payload };
+  return {
+    operation: 'dream_analysis',
+    payload: {
+      ...payload,
+      narrative,
+      memorySummary: sanitizeText(payload.memorySummary, 220) || undefined,
+    },
+  };
 }
 
 function assertOracleFields(kind: OracleKind, context: Record<string, unknown>): void {

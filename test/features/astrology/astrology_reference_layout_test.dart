@@ -42,7 +42,8 @@ void main() {
 
         expect(tester.takeException(), isNull);
         expect(find.text('ASTROLOJİ'), findsOneWidget);
-        expect(find.text(GemDisplay.format(0)), findsOneWidget);
+        expect(find.text('—'), findsOneWidget);
+        expect(find.text(GemDisplay.format(0)), findsNothing);
         expect(find.text('Koç'), findsWidgets);
         expect(find.text('Boğa'), findsOneWidget);
         expect(find.text('İkizler'), findsOneWidget);

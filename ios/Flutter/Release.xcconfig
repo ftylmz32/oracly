@@ -1,1 +1,3 @@
 #include "Generated.xcconfig"
+// Set ORACLY_ADMOB_APP_ID in the protected release build environment.
+ORACLY_ADMOB_APP_ID=disabled

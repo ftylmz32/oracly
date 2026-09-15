@@ -7,7 +7,6 @@ import 'package:oracly_new/core/universe/oracly_universe_state.dart';
 import 'package:oracly_new/features/daily_ritual/services/daily_ritual_intent.dart';
 import 'package:oracly_new/features/daily_ritual/services/daily_ritual_reflections.dart';
 import 'package:oracly_new/features/daily_ritual/services/daily_ritual_service.dart';
-import 'package:oracly_new/features/gems/copy/gems_copy.dart';
 import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
@@ -77,7 +76,7 @@ void main() {
 
     test('marking ritual card drawn does not spend gems', () async {
       final wallet = GemWalletService(GemWalletStore(storage));
-      await wallet.earn(amount: 50, reason: GemsCopy.reasonDailyReward);
+      await wallet.acceptAuthoritativeBalance(50);
       await service.markCardDrawn(day);
       expect(wallet.balance, 50);
       expect(wallet.history.where((t) => t.amount < 0), isEmpty);

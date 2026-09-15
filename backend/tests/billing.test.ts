@@ -1364,14 +1364,14 @@ describe('billing verify trust boundary', () => {
   });
 
   it('binds an active purchase token to the authenticated identity', async () => {
-    const { resetPurchaseBindingsForTests } = await import(
-      '../src/billing/entitlement-binding.js'
+    const { InMemoryEntitlementRepository } = await import(
+      '../src/billing/entitlement-repository.js'
     );
-    resetPurchaseBindingsForTests();
     const app = await testApp(authedConfig(), undefined, {
       billing: {
         google: mockVerifier(async () => billingResult('active')),
       },
+      entitlementRepository: new InMemoryEntitlementRepository(),
     });
     const tokenA = signHs256('billing-test-secret', {
       sub: 'user-a',

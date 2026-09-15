@@ -1,12 +1,13 @@
-/// Coffee analysis wait — real cup, amber breath, honest slow recovery.
+/// Coffee analysis wait — real cup hero + the shared countdown/acceleration
+/// waiting screen.
 library;
 
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/design_system/loading_cinema/oracly_loading_cinema.dart';
-import '../../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
+import '../../../reading_operation/presentation/reading_wait_screen.dart';
+import '../../../reading_operation/services/reading_live_flow.dart';
 import 'coffee_cup_wait.dart';
 
 class CoffeeLoadingView extends StatelessWidget {
@@ -16,26 +17,36 @@ class CoffeeLoadingView extends StatelessWidget {
     this.subtitle,
     this.imagePath,
     this.onRetry,
+    this.onAccelerate,
+    this.accelerating = false,
+    this.accelerationError,
+    this.accelerationCost,
+    this.liveState,
   });
 
   final String message;
   final String? subtitle;
   final String? imagePath;
   final VoidCallback? onRetry;
+  final VoidCallback? onAccelerate;
+  final bool accelerating;
+  final String? accelerationError;
+  final int? accelerationCost;
+  final ReadingLiveState? liveState;
 
   @override
   Widget build(BuildContext context) {
     final path = imagePath;
     final hasCup = path != null && File(path).existsSync();
-    return OraclyLoadingCinema(
-      kind: OraclyLoadingKind.coffee,
-      message: message,
-      subtitle: subtitle,
-      imagePath: path,
-      onRetry: onRetry,
-      stage: hasCup
-          ? CoffeeCupWait(message: '', path: path, fixedHeight: 268)
+    return ReadingWaitScreen(
+      liveState: liveState,
+      hero: hasCup
+          ? CoffeeCupWait(message: '', path: path, fixedHeight: 140)
           : null,
+      onAccelerate: onAccelerate,
+      accelerating: accelerating,
+      accelerationError: accelerationError,
+      accelerationCost: accelerationCost,
     );
   }
 }

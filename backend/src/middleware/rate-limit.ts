@@ -1,8 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ErrorCode, errorEnvelope } from '../errors.js';
+import type { SharedWindowStore } from '../rate-limit/shared-window-store.js';
 
 /** In-memory sliding window. Single instance only — not distributed. */
-export function createIdentityRateLimit(max: number, windowMs: number) {
+export function createIdentityRateLimit(max: number, windowMs: number, shared?: SharedWindowStore) {
   const hits = new Map<string, number[]>();
 
   return async function rateLimitHook(
@@ -14,6 +15,10 @@ export function createIdentityRateLimit(max: number, windowMs: number) {
       await reply.code(401).send(errorEnvelope(ErrorCode.unauthorized));
       return;
     }
+    if (shared && !(await shared.consume('identity', key, max, windowMs))) {
+      await reply.code(429).send(errorEnvelope(ErrorCode.rateLimited)); return;
+    }
+    if (shared) return;
     const now = Date.now();
     const recent = (hits.get(key) ?? []).filter((at) => now - at < windowMs);
     if (recent.length >= max) {

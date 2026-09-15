@@ -28,6 +28,7 @@ class AstrologyReferenceScreenView extends StatelessWidget {
     required this.onBack,
     required this.onSelected,
     required this.onDetail,
+    this.onRetry,
   });
 
   final List<ZodiacSignContent> signs;
@@ -39,6 +40,7 @@ class AstrologyReferenceScreenView extends StatelessWidget {
   final VoidCallback onBack;
   final ValueChanged<String> onSelected;
   final VoidCallback onDetail;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +80,7 @@ class AstrologyReferenceScreenView extends StatelessWidget {
                             ? AstrologyReferenceLoadingState(
                                 sign: selected,
                                 viewportHeight: constraints.maxHeight,
+                                onRetry: onRetry,
                               )
                             : AstrologyReferenceHubBody(
                                 signs: signs,

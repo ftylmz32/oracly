@@ -7,6 +7,8 @@ import '../../../core/domain/repositories/ai_conversation_repository.dart';
 import '../../../core/domain/repositories/user_repository.dart';
 import '../../../core/intelligence/services/intelligence_layer_service.dart';
 import '../../../core/intelligence/services/personal_memory_service.dart';
+import '../../../core/memory/oracly_memory.dart' as connected;
+import '../../../core/memory/oracly_memory_store.dart';
 import '../../../core/personality/or_response_depth.dart';
 import '../../../features/ai/domain/models/ai_message.dart';
 import '../../../features/ai/oracle_conversation/models/oracle_reading_context.dart';
@@ -41,6 +43,7 @@ class CompanionExperienceService {
     CompanionResponder? responder,
     CompanionMemoryService? memoryService,
     PersonalMemoryService? personalMemory,
+    OraclyMemoryStore? connectedMemory,
     OraclyAiService? ai,
     Future<String?> Function(String userMessage)? styleHint,
     Future<String?> Function()? personality,
@@ -64,12 +67,14 @@ class CompanionExperienceService {
          lengthPrefs: lengthPrefs,
          memoryPromptHint: () => personalMemory?.promptHint(),
        ),
-       _memory = memoryService ?? CompanionMemoryService(MemoryService());
+       _memory = memoryService ?? CompanionMemoryService(MemoryService()),
+       _connectedMemory = connectedMemory;
 
   final AiConversationRepository _conversations;
   final CompanionContextBuilder _contextBuilder;
   final CompanionLiveReply _live;
   final CompanionMemoryService _memory;
+  final OraclyMemoryStore? _connectedMemory;
 
   Future<({Conversation conversation, ReflectionContext context})>
   loadOrCreateSession() async {
@@ -205,6 +210,23 @@ class CompanionExperienceService {
         source: MemorySource.user,
       ),
     );
+    final now = DateTime.now();
+    final normalized = content.trim();
+    if (normalized.isNotEmpty) {
+      await _connectedMemory?.upsert(
+        connected.OraclyMemory(
+          id: 'fact:${normalized.toLowerCase()}',
+          kind: connected.OraclyMemoryKind.stableFact,
+          source: connected.OraclyMemorySource(
+            id: 'user_saved_${now.millisecondsSinceEpoch}',
+            type: connected.OraclyReadingType.orConversation,
+            occurredAt: now,
+          ),
+          summary: normalized,
+          confidence: 1,
+        ),
+      );
+    }
   }
 
   Future<List<Memory>> savedMemories() => _memory.savedMemories();

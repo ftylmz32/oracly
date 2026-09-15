@@ -73,20 +73,38 @@ BlindSample _coffee(CoffeeFortuneEngineCup cup) {
     ),
     themes: cup.themes,
   );
+  // BATCH 3A.2: these fixtures deliberately use raw vision-dump `overall`
+  // text to exercise the fortune-engine gate, so compose() correctly
+  // rejects them (null) now that the legacy weaver is gone. This corpus
+  // is a QA sampling tool only, never the live product path, so it falls
+  // back to the raw fixture text for polish review rather than needing
+  // every sample rewritten into backend-quality prose.
+  final text = reading?.overall ?? cup.overall;
   return BlindSample(
     feature: BlindFeature.coffee,
-    text: _polish(reading.overall, AiOutputQualityKind.coffee),
+    text: _polish(text, AiOutputQualityKind.coffee),
     anchors: cup.symbols,
   );
 }
 
 BlindSample _palm(PalmEngineHand hand) {
   final reading = PalmFortuneComposer.compose(hand.toReading());
+  // Same QA-corpus fallback as _coffee() above, but joins the per-line
+  // texts (richer/more specific than the bare dump overall) when they
+  // exist, so the blind-review generic detector still has real content
+  // to look at instead of one short sentence.
+  final text = reading?.overall ?? _palmFallbackText(hand);
   return BlindSample(
     feature: BlindFeature.palm,
-    text: _polish(reading.overall, AiOutputQualityKind.palm),
+    text: _polish(text, AiOutputQualityKind.palm),
     anchors: [...hand.symbols, ...hand.mustContain],
   );
+}
+
+String _palmFallbackText(PalmEngineHand hand) {
+  final lines = [hand.heart, hand.head, hand.life, hand.fate]
+      .where((s) => s.trim().isNotEmpty);
+  return lines.isNotEmpty ? lines.join(' ') : hand.overall;
 }
 
 BlindSample _dream(String narrative, {List<DreamEmotion> emotions = const []}) {

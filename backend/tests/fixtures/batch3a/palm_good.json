@@ -1,0 +1,66 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "onePalmFacing": true,
+      "majorLinesVisible": true,
+      "adequateFocusLight": true,
+      "overlapOcclusion": false,
+      "dorsal": false
+    },
+    "evidence": [
+      {
+        "id": "p1",
+        "region": "heart_line",
+        "description": "Heart line curves mildly across the upper palm with darker contrast and shortens toward the finger bases.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p2",
+        "region": "head_line",
+        "description": "Head line runs more straight through the mid-palm, continuous, spaced clearly from the heart line.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p3",
+        "region": "life_line",
+        "description": "Life line arcs from the thumb base toward the wrist without a visible break.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Açık bir avuç içi kameraya bakıyor; kalp, zihin ve yaşam çizgileri net seçilebiliyor.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    },
+    "overall": {
+      "text": "Kalp çizgisinin kıvrımı ile zihin çizgisinin düzlüğü arasındaki aralık, duygularını hızlı hissedip kararlarını daha sakin bir tempoda verme eğiliminde olduğunu düşündürüyor. Yaşam çizgisinin kesintisiz yayı ise değişen dönemlerde bile bir sürekliliği koruma becerine işaret ediyor gibi; bu bir kader iddiası değil, bir mizaç okuması.",
+      "evidenceIds": ["p1", "p2", "p3"]
+    },
+    "heartLine": {
+      "text": "Üstte hafif kıvrımlı, koyu kontrastlı; parmak diplerine doğru kısalarak bitiyor.",
+      "evidenceIds": ["p1"]
+    },
+    "headLine": {
+      "text": "Ortada düz ve sürekli; kalp çizgisinden net aralıkla ayrılıyor.",
+      "evidenceIds": ["p2"]
+    },
+    "lifeLine": {
+      "text": "Başparmak kökünden yay çizerek bileğe doğru kesiksiz devam ediyor.",
+      "evidenceIds": ["p3"]
+    },
+    "fateLine": { "text": "", "evidenceIds": [] },
+    "takeaway": {
+      "text": "Hızlı hisseden ama yavaş karar veren bir tempo ile sürekliliği koruma isteği bir arada duruyor; bu dengeyi fark etmek, ilişkilerinde ve iş hayatında sabırlı davranmana yardımcı olabilir.",
+      "evidenceIds": ["p1", "p3"]
+    }
+  }
+}

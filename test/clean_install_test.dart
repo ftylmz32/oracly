@@ -35,31 +35,33 @@ void main() {
   test('release-safe AppConfig boots without prior dotenv.load', () async {
     await AppConfig.initialize();
     expect(AppConfig.isInitialized, isTrue);
-    expect(AppConfig.instance.apiBaseUrl, isNotEmpty);
+    expect(AppConfig.instance.apiBaseUrl, isEmpty);
     expect(AppConfig.instance.environment, isA<AppEnvironment>());
   });
 
   test('EnvironmentConfig.fromEnv tolerates empty and missing dotenv', () {
     final empty = EnvironmentConfig.fromEnv(const {});
-    expect(empty.apiBaseUrl, isNotEmpty);
+    expect(empty.apiBaseUrl, isEmpty);
     final cold = EnvironmentConfig.fromEnv();
-    expect(cold.apiBaseUrl, isNotEmpty);
+    expect(cold.apiBaseUrl, isEmpty);
   });
 
-  test('empty prefs: onboarding incomplete, language from device, dark default',
-      () async {
-    SharedPreferences.setMockInitialValues({});
-    final storage = LocalStorage(await SharedPreferences.getInstance());
-    final onboarding = LocalOnboardingRepository(storage);
-    final settings = await LocalSettingsRepository(storage).load();
-    final expected = AppLocale.fromDeviceLocale(AppLocale.readDeviceLocale());
+  test(
+    'empty prefs: onboarding incomplete, language from device, dark default',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      final onboarding = LocalOnboardingRepository(storage);
+      final settings = await LocalSettingsRepository(storage).load();
+      final expected = AppLocale.fromDeviceLocale(AppLocale.readDeviceLocale());
 
-    expect(await onboarding.isCompleted(), isFalse);
-    expect(settings.language, expected);
-    expect(AppLocale.productionCodes, ['tr', 'en', 'ru']);
-    expect(settings.darkAppearance, isTrue);
-    expect(settings.notificationsEnabled, isFalse);
-  });
+      expect(await onboarding.isCompleted(), isFalse);
+      expect(settings.language, expected);
+      expect(AppLocale.productionCodes, ['tr', 'en', 'ru']);
+      expect(settings.darkAppearance, isTrue);
+      expect(settings.notificationsEnabled, isFalse);
+    },
+  );
 
   test('AI runtime resolves without dotenv — no crash', () {
     final cfg = AiRuntimeConfig.resolve();
@@ -109,13 +111,12 @@ void main() {
           .whereType<File>()
           .where((f) => f.path.endsWith('.webp'))
           .length;
-      final thumbs = Directory(
-        'lib/assets/images/tarot/thumbs/minor_arcana/$suit',
-      )
-          .listSync()
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.webp'))
-          .length;
+      final thumbs =
+          Directory('lib/assets/images/tarot/thumbs/minor_arcana/$suit')
+              .listSync()
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.webp'))
+              .length;
       expect(full, 14, reason: suit);
       expect(thumbs, 14, reason: 'thumbs/$suit');
     }
@@ -137,31 +138,32 @@ void main() {
     }
   });
 
-  testWidgets('clean prefs: first screen is onboarding, no permission prompts', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    SharedPreferences.setMockInitialValues({});
-    final storage = await LocalStorage.open();
-    expect(await LocalOnboardingRepository(storage).isCompleted(), isFalse);
+  testWidgets(
+    'clean prefs: first screen is onboarding, no permission prompts',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      SharedPreferences.setMockInitialValues({});
+      final storage = await LocalStorage.open();
+      expect(await LocalOnboardingRepository(storage).isCompleted(), isFalse);
 
-    await tester.pumpWidget(
-      buildProviderScopeHarness(
-        storage: storage,
-        child: const MaterialApp(home: OnboardingScreen()),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpWidget(
+        buildProviderScopeHarness(
+          storage: storage,
+          child: const MaterialApp(home: OnboardingScreen()),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.text('ORACLY'), findsOneWidget);
-    expect(find.text(OnboardingCopy.skip), findsOneWidget);
-    expect(find.text(OnboardingCopy.meetLabel), findsOneWidget);
-    expect(find.textContaining('İzin'), findsNothing);
-    expect(find.textContaining('Permission'), findsNothing);
+      expect(find.text('ORACLY'), findsOneWidget);
+      expect(find.text(OnboardingCopy.skip), findsOneWidget);
+      expect(find.text(OnboardingCopy.meetLabel), findsOneWidget);
+      expect(find.textContaining('İzin'), findsNothing);
+      expect(find.textContaining('Permission'), findsNothing);
 
-    await LocalOnboardingRepository(storage).markCompleted();
-    expect(await LocalOnboardingRepository(storage).isCompleted(), isTrue);
-  });
+      await LocalOnboardingRepository(storage).markCompleted();
+      expect(await LocalOnboardingRepository(storage).isCompleted(), isTrue);
+    },
+  );
 }

@@ -31,13 +31,23 @@ class DreamReferenceResultActions extends ConsumerWidget {
   final Future<bool> Function()? onReinterpret;
   final int versionReloadToken;
 
+  /// Themes come only from what the user actually wrote in this dream, not
+  /// from the AI-generated interpretation text: that prose can carry a theme
+  /// word (e.g. "ilişki"/"bağlantı" used to mean "connection between
+  /// symbols", or memory-influenced phrasing) that has nothing to do with
+  /// the current dream, and there is no way to tell that apart from a
+  /// genuine theme once it is mixed into the analysis text.
+  static List<String> themesFor(Dream? current) {
+    if (current == null) return const [];
+    return PersonalThemeExtractor.themesIn(current.narrative)
+        .map((t) => t.label)
+        .toList(growable: false);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final current = dream;
-    final themes = PersonalThemeExtractor.labelsIn([
-      if (current != null) current.narrative,
-      analysis,
-    ]);
+    final themes = themesFor(current);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

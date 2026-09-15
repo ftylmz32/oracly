@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/copy/premium_copy.dart';
+import '../../../../core/copy/premium_entitlement_message.dart';
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/theme/reading_typography.dart';
@@ -74,9 +75,13 @@ class PremiumReferenceBody extends StatelessWidget {
                       color: OraclyChrome.cream.withValues(alpha: 0.7),
                     ),
                   )
-                else if (status.entitlement == PremiumEntitlementState.error) ...[
+                else if (status.entitlement ==
+                    PremiumEntitlementState.error) ...[
                   Text(
-                    status.entitlementMessage ?? PremiumCopy.purchaseFailed,
+                    PremiumEntitlementMessage.forReason(
+                      status.entitlementMessage,
+                      fallback: PremiumCopy.purchaseFailed,
+                    ),
                     textAlign: TextAlign.center,
                     style: ReadingTypography.body(
                       color: OraclyChrome.cream.withValues(alpha: 0.86),
@@ -112,8 +117,10 @@ class PremiumReferenceBody extends StatelessWidget {
                 else if (status.entitlement ==
                     PremiumEntitlementState.unverified) ...[
                   Text(
-                    status.entitlementMessage ??
-                        PremiumCopy.entitlementUnverified,
+                    PremiumEntitlementMessage.forReason(
+                      status.entitlementMessage,
+                      fallback: PremiumCopy.entitlementUnverified,
+                    ),
                     textAlign: TextAlign.center,
                     style: ReadingTypography.body(
                       color: OraclyChrome.cream.withValues(alpha: 0.86),

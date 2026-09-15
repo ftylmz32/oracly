@@ -10,4 +10,5 @@ enum DiscoveryJournalKind {
   astrology,
   starMap,
   dailyMessage,
+  soulMate,
 }

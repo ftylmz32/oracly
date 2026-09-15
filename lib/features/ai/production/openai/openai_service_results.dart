@@ -75,9 +75,11 @@ abstract final class OpenAiServiceResults {
           return AiOutcome.failure(AiFailure.invalidResponse());
         }
         final mime = data['mimeType'];
+        final identity = data['identity'];
         final portrait = SoulMateAiPortrait.tryFromBase64(
           raw,
           mimeType: mime is String ? mime : null,
+          identity: identity is Map ? Map<String, dynamic>.from(identity) : null,
         );
         if (portrait == null) {
           return AiOutcome.failure(AiFailure.invalidResponse());

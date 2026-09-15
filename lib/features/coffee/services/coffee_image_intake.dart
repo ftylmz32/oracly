@@ -1,9 +1,11 @@
-/// Capture intake — pick photo, then soft quality tip (never cup ML).
+/// Capture intake — pick photo, normalize to JPEG, then soft quality tip
+/// (never cup ML).
 library;
 
 import '../copy/coffee_copy.dart';
 import '../models/coffee_image_pick.dart';
 import 'coffee_image_input_port.dart';
+import 'coffee_image_normalizer.dart';
 import 'coffee_image_pick_exception.dart';
 import 'coffee_image_validator.dart';
 
@@ -53,12 +55,22 @@ abstract final class CoffeeImageIntake {
   }
 
   static Future<CoffeeImageIntakeResult> assess(CoffeeImagePick picked) async {
-    final check = await CoffeeImageValidator.validate(picked.path);
+    CoffeeImagePick normalized;
+    try {
+      normalized = await CoffeeImageNormalizer.normalize(picked);
+    } on CoffeeNormalizeException catch (e) {
+      // Keep the original pick so a soft normalize failure (e.g. unusual
+      // encoder quirk) doesn't block the preview/CTA — analysis still runs
+      // against the raw file, matching this feature's existing degraded-mode
+      // contract (see coffee_flow_layout_test.dart).
+      return CoffeeImageIntakeResult(image: picked, error: e.message);
+    }
+    final check = await CoffeeImageValidator.validate(normalized.path);
     if (!check.ok) {
-      return CoffeeImageIntakeResult(image: picked, error: check.message);
+      return CoffeeImageIntakeResult(image: normalized, error: check.message);
     }
     return CoffeeImageIntakeResult(
-      image: picked,
+      image: normalized,
       qualityHint: check.guidance,
     );
   }

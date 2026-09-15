@@ -2,6 +2,7 @@
 library;
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/auth/anonymous_auth_bootstrap.dart';
 import '../../../core/auth/auth_service.dart';
@@ -54,7 +55,7 @@ abstract final class AiProxyReadiness {
     if (!FirebaseAppCheckBootstrap.isActivated) {
       await FirebaseAppCheckBootstrap.tryActivate(
         environment: config.environment,
-        releaseLocked: config.simulateReleaseBuild,
+        releaseLocked: config.simulateReleaseBuild || kReleaseMode,
       );
     }
 
@@ -101,8 +102,9 @@ abstract final class AiProxyReadiness {
       return live;
     }
     await Future<void>.delayed(_tokenRetryDelay);
-    final refreshed =
-        (await gateway.currentIdToken(forceRefresh: true))?.trim();
+    final refreshed = (await gateway.currentIdToken(
+      forceRefresh: true,
+    ))?.trim();
     if (refreshed != null &&
         refreshed.isNotEmpty &&
         ProxyAiHeaders.maySendUserToken(config, refreshed)) {

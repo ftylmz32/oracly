@@ -11,6 +11,7 @@ import 'package:oracly_new/features/dream/copy/dream_copy.dart';
 import 'package:oracly_new/features/dream/models/dream.dart';
 import 'package:oracly_new/features/dream/models/dream_emotion.dart';
 import 'package:oracly_new/features/dream/services/dream_analysis_composer.dart';
+import 'package:oracly_new/features/dream/services/dream_analysis_facts.dart';
 import 'package:oracly_new/features/dream/services/dream_analysis_guard.dart';
 import 'package:oracly_new/features/dream/services/dream_pattern_service.dart';
 import 'package:oracly_new/features/dream/services/dream_reading_presentation.dart';
@@ -148,6 +149,59 @@ void main() {
     expect(DreamPromptStyle.userLead, contains('tek açık soru'));
     expect(DreamPromptStyle.userLead, contains('X = Y yok'));
   });
+
+  test(
+    'prompt requires relational symbol reasoning and discourages generic '
+    'tropes',
+    () {
+      expect(DreamPromptStyle.system, contains('ayrıntı arasındaki ilişkiyi kur'));
+      expect(
+        DreamPromptStyle.system,
+        contains('yalnızca anlatı açıkça destekliyorsa kullan'),
+      );
+      expect(
+        DreamPromptStyle.userLead,
+        contains('en az iki somut ayrıntıyı birbirine bağlayan'),
+      );
+      expect(DreamPromptStyle.userLead, contains('kalıp ve genel ifadelerden kaçın'));
+    },
+  );
+
+  test(
+    'long run-on dream with no early punctuation never splices a dangling '
+    'scene fragment',
+    () {
+      // Regression for a real production defect: a long, comma/"ve"-joined
+      // narrative with no early sentence end used to be hard-truncated at an
+      // arbitrary 88-character word boundary and spliced into a template as
+      // if it were a complete clause, producing broken Turkish grammar
+      // ("...yıldızlar normalden çok daha yine de yumuşak bir iz bırakıyor.").
+      const told =
+          'gece eski bir evin bahçesindeydim gökyüzü çok açıktı ve yıldızlar '
+          'normalden çok daha yakın görünüyordu kendi doğum haritamı '
+          'düşünürken önümde altın bir kapı belirdi ve hafif bir yağmur '
+          'başladı';
+      final understanding = DreamUnderstandingService().build(
+        narrative: told,
+      );
+      final facts = DreamAnalysisFacts.from(
+        narrative: told,
+        understanding: understanding,
+      );
+      if (facts.scene.isNotEmpty) {
+        expect(told, contains(facts.scene));
+        expect(facts.scene, isNot(endsWith('daha')));
+        expect(facts.scene, isNot(endsWith(' çok')));
+        expect(facts.scene, isNot(endsWith(' ve')));
+        expect(facts.scene, isNot(endsWith(' ile')));
+        expect(facts.scene, isNot(endsWith(' bir')));
+      }
+      final reading = _read(told);
+      expect(reading, isNot(contains('çok daha yine de')));
+      expect(reading, isNot(contains(told)));
+      _quality(reading);
+    },
+  );
 }
 
 String _read(

@@ -1,0 +1,84 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "base",
+        "description": "Dense grounds at the base rising along both inner sides.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "middle_wall",
+        "description": "Small scattered marks on the mid inner surface.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "handle_side",
+        "description": "A curve turning toward the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "personalization": {
+    "firstName": "Fatih",
+    "relevantThemes": [
+      "karar verme"
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibindeki yoğun tortu, alt iç yüzeye doğru iki yandan uzanırken üst bölüm daha açık ve ferah görünüyor.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "overall": {
+      "text": "Fatih, bu fincanda agirlik henuz dagilmamis; ust taraf ise o yukun tasinabilecegi bir aciklik birakiyor. Iki yana uzanan tortu, meselenin tek bir kaynaktan degil, iki farkli bagliliktan beslendigini dusunduruyor. Kapatmadan once koymak istedigin sinir, aceleden cok aitlik sorusu gibi duruyor. Ustteki ferahlik ise hemen kapanmasi gereken bir seyden cok, henuz adlandirilmamis bir pay birakmak istegini cagristiriyor.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Orta yuzeydeki kucuk izler, tek bir buyuk haberden cok pes pese gelecek kisa konusmalar ve parca bilgilerle netlesmeye isaret ediyor. Bu, disaridan gelecek hazir bir cevap degil; ayrintilarin kendiliginden seyrelebilecegi bir aralik. Bu donemde sesini yukseltmekten cok, kimin neyi netlestirdigini dinlemek daha cok ise yarayabilir.",
+      "evidenceIds": [
+        "e2"
+      ]
+    },
+    "takeaway": {
+      "text": "Kulp tarafina donen kivrim, son sozun cevrendeki beklentiden cok kendi gundelik ritmine yaslanmasi gerektigini soyluyor. Bu fincanin somut ipucu, yukun hangisinin sana ait oldugunu ayirmak ve gerisini ikinci planda birakabilmek. Agirlik ile ferahligin ayni anda durmasi, bitirmekten once nefes alabildigin bir yer oldugunu anlatiyor.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    }
+  }
+}

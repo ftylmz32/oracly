@@ -1,120 +1,136 @@
-import { randomBytes } from 'node:crypto';
 import { sanitizeText } from './sanitize.js';
 import {
-  visualProfileFromBirthDate,
+  alternateRenderNonce,
+  newRenderNonce,
+  presenceFor,
+  type PortraitPresentation,
+} from './soulmate-portrait-identity.js';
+import { buildSoulmatePortraitPrompt } from './soulmate-portrait-prompt-builder.js';
+import {
+  ARCHETYPE_LABEL,
+  buildSoulmateVisualProfile,
+  soulmatePortraitSeed,
   type SoulmateVisualProfile,
-} from './soulmate-profile.js';
+} from './soulmate-visual-profile.js';
 
 export type SoulmatePromptInput = {
   name: string;
   birthDate: string;
   gender?: 'feminine' | 'masculine';
   intention?: string;
+  accountKey?: string;
+};
+
+/**
+ * Public portrait identity. `nonce`, `presence`, `mood` are required by the
+ * client (see `SoulMateIdentity.fromMap`) and by the soulmate-interpretation
+ * text prompt below — every other field is optional context, populated on a
+ * best-effort basis from the new visual profile for continuity with
+ * existing consumers (local cache, interpretation tone tags).
+ */
+export type SoulmateIdentity = {
+  version: number;
+  nonce: string;
+  presence: string;
+  mood: string;
+  expression: string;
+  wardrobe: string;
+  ageBand: string;
+  faceShape: string;
+  hairFamily: string;
+  eyePresentation: string;
+  relationshipArchetype: string;
+  expressionEnergy: string;
+  stylingEnergy: string;
+  contentHash?: string;
+  // Legacy optional fields from the pre-signature-portrait identity shape
+  // (render-variation-per-sitting concepts that no longer exist once every
+  // visual dimension is locked to the deterministic profile). Kept optional,
+  // never populated by the current builder, so validate-request.ts's
+  // existing client-echo parser (shared across all AI operations) needs no
+  // change to keep accepting an older cached client identity payload.
+  colorFamily?: string;
+  setting?: string;
+  lighting?: string;
+  composition?: string;
+  pose?: string;
 };
 
 export type SoulmatePromptBuild = {
   prompt: string;
   nonce: string;
-  profile: SoulmateVisualProfile;
+  identity: SoulmateIdentity;
+  core: SoulmateVisualProfile;
+  seed: string;
 };
 
-const VARIATION = [
-  {
-    pose: 'three-quarter gaze toward left light, calm confidence',
-    expression: 'natural, slightly mysterious, not smiling at camera',
-    detail: 'visible skin microtexture, natural hair strands',
-  },
-  {
-    pose: 'soft frontal presence, chin slightly lowered',
-    expression: 'quiet composure, eyes alive but unforced',
-    detail: 'believable pores and soft catchlights, no plastic skin',
-  },
-  {
-    pose: 'profile turning slowly into key light',
-    expression: 'inward calm, mouth relaxed',
-    detail: 'correct ear and neck anatomy, real fabric folds',
-  },
-  {
-    pose: 'glance past the camera, unhurried',
-    expression: 'slight mystery, no posed smile',
-    detail: 'asymmetry kept natural; no perfect mirrored face',
-  },
-  {
-    pose: 'look over the near shoulder toward rim light',
-    expression: 'restrained warmth without grinning',
-    detail: 'hands only if fully correct — five fingers, real joints',
-  },
-  {
-    pose: 'head tilted as if listening',
-    expression: 'thoughtful stillness',
-    detail: 'natural eyebrows and lashes, no AI-smooth glaze',
-  },
-  {
-    pose: 'seated stillness, gaze gently off-axis',
-    expression: 'calm confidence',
-    detail: 'wardrobe sits on real shoulders; no fantasy costume',
-  },
-  {
-    pose: 'eyes half-lidded, soft breath in the face',
-    expression: 'intimate quiet, never theatrical',
-    detail: 'cinematic shallow depth, background softly out of focus',
-  },
-];
-
 export function newSoulmateNonce(): string {
-  return randomBytes(8).toString('hex');
+  return newRenderNonce();
 }
 
-export function soulmateVariation(nonce: string): (typeof VARIATION)[number] {
-  const n = Number.parseInt(nonce.slice(0, 4), 16);
-  const index = Number.isFinite(n) ? n % VARIATION.length : 0;
-  return VARIATION[index] ?? VARIATION[0]!;
+export function nextSoulmateRenderNonce(nonce: string): string {
+  return alternateRenderNonce(nonce);
+}
+
+export function soulmatePresence(gender?: 'feminine' | 'masculine'): string {
+  return presenceFor(presentationOf(gender));
+}
+
+export function describeSoulmateIdentity(
+  input: SoulmatePromptInput,
+  nonce: string,
+): SoulmateIdentity {
+  const presentation = presentationOf(input.gender);
+  const accountKey = input.accountKey?.trim() || 'anon';
+  const seed = soulmatePortraitSeed(accountKey, presentation);
+  const profile = buildSoulmateVisualProfile(seed, presentation);
+  return toIdentity(profile, nonce);
 }
 
 export function buildSoulmateImagePrompt(
   input: SoulmatePromptInput,
-  nonce = newSoulmateNonce(),
+  nonce = newRenderNonce(),
 ): SoulmatePromptBuild {
-  const profile = visualProfileFromBirthDate(input.birthDate);
-  const variation = soulmateVariation(nonce);
-  const presence =
-    input.gender === 'feminine'
-      ? 'feminine-presenting adult'
-      : input.gender === 'masculine'
-        ? 'masculine-presenting adult'
-        : 'adult of unspecified presentation';
-  const name = sanitizeText(input.name, 80);
-  const intention = sanitizeText(input.intention ?? '', 200);
-  const prompt = [
-    'Photorealistic cinematic portrait photograph — editorial luxury still, not illustration.',
-    'This is a creative, symbolic companion image — not a real person, a prediction, or a future partner.',
-    'Shoot like premium film photography: photoreal skin, eyes, hair, clothing, and body proportions.',
-    'Natural skin texture with subtle pores; no porcelain, no over-smoothed plastic face.',
-    'Natural eye asymmetry; realistic lashes; no glassy AI eyes.',
-    'If hands appear: anatomically correct, five fingers, no distortion — otherwise keep hands out of frame.',
-    'Lighting: soft key light plus subtle rim light; warm gold and violet environmental balance; no neon.',
-    'Expression: emotionally subtle — calm confidence and slight mystery. Avoid a generic smile-at-camera.',
-    'Wardrobe: contemporary and believable everyday clothing. No costume, fantasy armor, or mystical robes.',
-    'Background: photoreal atmospheric environment with shallow depth of field — never a flat studio void.',
-    'Composition: face fully inside the frame with headroom; never crop through eyes, forehead, or chin.',
-    'No text, watermark, logo, hearts, sparkles, cartoon effects, celebrity likeness, or stock-template face.',
-    `Presence: a calm ${presence}.`,
-    `Color family: ${profile.colorFamily}.`,
-    `Mood: ${profile.mood}.`,
-    `Setting: ${profile.setting}.`,
-    `Light: ${profile.lighting}.`,
-    `Wardrobe: ${profile.wardrobe}.`,
-    `Composition: ${profile.composition}.`,
-    `Pose: ${variation.pose}.`,
-    `Expression: ${variation.expression}.`,
-    `Craft detail: ${variation.detail}.`,
-    name ? `Given-name inspiration only — never paint letters: ${name}.` : '',
-    intention
-      ? `Quiet intention may tint mood only, never literal props of text: ${intention}.`
-      : '',
-    `Unrepeatable sitting reference for composition only, never visible as text: ${nonce}.`,
-  ]
-    .filter(Boolean)
-    .join(' ');
-  return { prompt, nonce, profile };
+  const presentation = presentationOf(input.gender);
+  const accountKey = input.accountKey?.trim() || 'anon';
+  const seed = soulmatePortraitSeed(accountKey, presentation);
+  const profile = buildSoulmateVisualProfile(seed, presentation);
+  const identity = toIdentity(profile, nonce);
+  const prompt = buildSoulmatePortraitPrompt(profile);
+  return { prompt, nonce, identity, core: profile, seed };
+}
+
+function toIdentity(profile: SoulmateVisualProfile, nonce: string): SoulmateIdentity {
+  const archetypeLabel = ARCHETYPE_LABEL[profile.archetype];
+  return {
+    version: profile.version,
+    nonce,
+    presence: presenceFor(profile.presentation),
+    mood: archetypeLabel,
+    expression: profile.expression,
+    wardrobe: profile.clothing,
+    ageBand: profile.ageDescriptor,
+    faceShape: profile.faceShape,
+    hairFamily: profile.hairTexture,
+    eyePresentation: profile.eyeCharacter,
+    relationshipArchetype: archetypeLabel,
+    expressionEnergy: profile.expression,
+    stylingEnergy: profile.linework,
+  };
+}
+
+function presentationOf(gender?: string): PortraitPresentation {
+  if (gender === 'feminine' || gender === 'masculine') return gender;
+  return 'unspecified';
+}
+
+export function publicSoulmateIdentity(
+  identity: SoulmateIdentity,
+  contentHash: string,
+): SoulmateIdentity {
+  return {
+    ...identity,
+    contentHash,
+    nonce: sanitizeText(identity.nonce, 32),
+  };
 }

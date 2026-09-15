@@ -107,26 +107,30 @@ abstract final class DreamReadingPresentation {
 
   static List<DreamSymbolRow> symbolRows(Dream? dream) {
     if (dream == null) return const [];
-    final symbols = dream.understanding?.symbols ?? const [];
-    if (symbols.isNotEmpty) {
-      return [
-        for (final symbol in symbols)
-          if (symbol.label.trim().isNotEmpty)
-            DreamSymbolRow(
-              label: symbol.label.trim(),
-              meaning: symbol.observedContext?.trim() ?? '',
-            ),
-      ];
-    }
+    // The composed insight (AI-first, quality-gated by DreamAnalysisGuard)
+    // can name symbols the fixed local catalogue/lexicon has no entry for at
+    // all (e.g. a compass, a train), so it takes priority whenever an
+    // interpretation exists. The raw locally-extracted understanding is only
+    // shown before any interpretation exists yet.
     final body = _bodyOf(dream, DreamInsightKind.symbols);
-    if (body == null || body.isEmpty) return const [];
-    return body
-        .split(RegExp(r'[\n·,;]+'))
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .map((e) => DreamSymbolRow(label: e, meaning: ''))
-        .take(8)
-        .toList();
+    if (body != null && body.isNotEmpty) {
+      return body
+          .split(RegExp(r'[\n·,;]+'))
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .map((e) => DreamSymbolRow(label: e, meaning: ''))
+          .take(8)
+          .toList();
+    }
+    final symbols = dream.understanding?.symbols ?? const [];
+    return [
+      for (final symbol in symbols)
+        if (symbol.label.trim().isNotEmpty)
+          DreamSymbolRow(
+            label: symbol.label.trim(),
+            meaning: symbol.observedContext?.trim() ?? '',
+          ),
+    ];
   }
 
   static String? _bodyOf(Dream? dream, DreamInsightKind kind) {

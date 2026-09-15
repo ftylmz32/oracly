@@ -12,6 +12,7 @@ import 'package:oracly_new/core/notifications/memory_notification_port.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_providers.dart';
 import 'package:oracly_new/features/birth_chart/models/zodiac_sign_id.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/runtime/oracly_apply_outcome.dart';
 import 'package:oracly_new/core/theme/app_theme.dart';
 import 'package:oracly_new/core/voice/oracly_tts_gate.dart';
 import 'package:oracly_new/core/voice/oracly_tts_port.dart';
@@ -34,10 +35,12 @@ class _SilentSound extends OraclySoundService {
   Future<void> ensureSfxReady() async {}
 
   @override
-  Future<void> syncAmbientEnabled(bool enabled) async {}
+  Future<OraclyApplyOutcome> syncAmbientEnabled(bool enabled) async =>
+      OraclyApplyOutcome.success;
 
   @override
-  Future<void> setAtmosphere(ZodiacSignId sign) async {}
+  Future<OraclyApplyOutcome> setAtmosphere(ZodiacSignId sign) async =>
+      OraclyApplyOutcome.success;
 }
 
 class _SilentTts implements OraclyTtsPort {

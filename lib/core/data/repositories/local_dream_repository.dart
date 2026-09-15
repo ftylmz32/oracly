@@ -6,13 +6,16 @@ import 'dart:convert';
 import '../../data/datasources/local_storage.dart';
 import '../../domain/models/dream_record.dart';
 import '../../domain/repositories/dream_repository.dart';
+import '../../memory/oracly_memory_factory.dart';
+import '../../memory/oracly_memory_store.dart';
 
 class LocalDreamRepository implements DreamRepository {
-  LocalDreamRepository(this._storage);
+  LocalDreamRepository(this._storage, {this._memory});
 
   static const _key = 'dream_records';
 
   final LocalStorage _storage;
+  final OraclyMemoryStore? _memory;
 
   @override
   Future<List<DreamRecord>> getAll() async {
@@ -57,6 +60,11 @@ class LocalDreamRepository implements DreamRepository {
       _key,
       updated.map((e) => jsonEncode(e.toJson())).toList(),
     );
+    try {
+      await _memory?.upsert(OraclyMemoryFactory.dream(record));
+    } catch (_) {
+      // The feature record is authoritative; connected memory is optional.
+    }
   }
 
   @override
@@ -64,11 +72,13 @@ class LocalDreamRepository implements DreamRepository {
     final all = await getAll();
     await _storage.setStringList(
       _key,
-      all
-          .where((e) => e.id != id)
-          .map((e) => jsonEncode(e.toJson()))
-          .toList(),
+      all.where((e) => e.id != id).map((e) => jsonEncode(e.toJson())).toList(),
     );
+    try {
+      await _memory?.removeBySource(id);
+    } catch (_) {
+      // Source deletion must succeed even when the index is unavailable.
+    }
   }
 
   @override

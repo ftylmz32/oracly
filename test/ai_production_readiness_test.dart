@@ -317,6 +317,16 @@ class _FailingAi implements OraclyAiService {
       AiOutcome.failure(AiFailure.timeout());
 
   @override
+  Future<AiOutcome<ChatAiReply>> generateTarotReading({
+    required List<Map<String, dynamic>> cards,
+    required String spreadLabel,
+    String? userQuestion,
+    String? readingTheme,
+    Map<String, dynamic>? journeyHints,
+  }) async =>
+      AiOutcome.failure(AiFailure.timeout());
+
+  @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) async =>
       AiOutcome.failure(AiFailure.timeout());
 
@@ -324,6 +334,7 @@ class _FailingAi implements OraclyAiService {
   Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffee({
     required List<int> imageBytes,
     required String mimeType,
+    Map<String, dynamic>? personalization,
   }) async =>
       AiOutcome.failure(AiFailure.timeout());
 
@@ -332,6 +343,7 @@ class _FailingAi implements OraclyAiService {
     required List<int> imageBytes,
     required String mimeType,
     required String hand,
+    Map<String, dynamic>? personalization,
   }) async =>
       AiOutcome.failure(AiFailure.timeout());
 }

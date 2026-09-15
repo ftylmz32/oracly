@@ -1,13 +1,16 @@
 /// RC-012 — First session tests.
 library;
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/copy/first_session_copy.dart';
 import 'package:oracly_new/core/copy/onboarding_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/first_session/first_session_intent.dart';
 import 'package:oracly_new/core/services/first_session_service.dart';
+import 'package:oracly_new/core/domain/models/reading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -92,5 +95,45 @@ void main() {
       );
       expect(FirstSessionIntent.isPending(restarted), isFalse);
     });
+  });
+
+  group('isFirstSessionProvider refresh after Tarot completion', () {
+    // Regression for the Soulmate prerequisite release blocker: a completed
+    // daily Tarot reading changes the underlying history, but
+    // isFirstSessionProvider is a cached FutureProvider -- without an
+    // explicit invalidation, Soulmate would keep showing the "start with
+    // today's free card" gate forever, even after the user just did it.
+    test(
+      'stays stale until invalidated, then reflects the new reading',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final storage = LocalStorage(await SharedPreferences.getInstance());
+        final container = ProviderContainer(
+          overrides: [localStorageProvider.overrideWithValue(storage)],
+        );
+        addTearDown(container.dispose);
+
+        expect(await container.read(isFirstSessionProvider.future), isTrue);
+
+        await container.read(historyRepositoryProvider).saveReading(
+          ReadingModel(
+            id: 'r1',
+            cardId: 0,
+            cardName: 'The Sun',
+            cardImageAsset: 'a',
+            spreadType: 'Tek Kart',
+            aiSummary: 'A free daily card reading.',
+            createdAt: DateTime(2026, 9, 11),
+          ),
+        );
+
+        // Proves the staleness this fix addresses: without invalidation the
+        // cached value does not see the new reading.
+        expect(await container.read(isFirstSessionProvider.future), isTrue);
+
+        container.invalidate(isFirstSessionProvider);
+        expect(await container.read(isFirstSessionProvider.future), isFalse);
+      },
+    );
   });
 }

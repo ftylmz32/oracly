@@ -5,24 +5,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
-import 'package:oracly_new/core/copy/resilience_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/features/premium/copy/soul_mate_copy.dart';
 import 'package:oracly_new/features/premium/presentation/screens/soul_mate_draw_screen.dart';
 import 'package:oracly_new/features/premium/providers/premium_providers.dart';
-import 'package:oracly_new/features/premium/providers/soul_mate_providers.dart';
 import 'package:oracly_new/core/config/app_environment.dart';
 import 'package:oracly_new/features/premium/services/premium_dev_override.dart';
-import 'package:oracly_new/features/premium/services/soul_mate_draw_port.dart';
+import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../support/fake_reading_operation_backend.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   tearDown(PremiumDevOverride.resetDebug);
 
-  testWidgets('auth-style failure message is shown, not a fake portrait',
+  // SMD1 — every new submission is server-authoritative: the screen never
+  // calls `soulMateDrawPortProvider` (the direct-AI port) at all anymore,
+  // so a port-level auth failure can no longer occur on the new path. The
+  // new equivalent honesty guarantee is: a server-side terminal failure
+  // shows honest failure copy — never a fake portrait — via the durable
+  // `failed` outcome.
+  testWidgets(
+      'a durable operation that the server marks failed shows honest failure copy, not a fake portrait',
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -32,11 +39,17 @@ void main() {
     PremiumDevOverride.debugFlag = true;
     await MockPremiumRepository(storage).activatePlan(PremiumPlanKind.yearly);
 
+    final backend = FakeReadingOperationBackend();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           localStorageProvider.overrideWithValue(storage),
-          soulMateDrawPortProvider.overrideWithValue(const _AuthFailDraw()),
+          readingFeatureRunnerProvider.overrideWithValue(
+            fakeImmediateReadingFeatureRunner(backend: backend),
+          ),
+          readingOperationInputGatewayProvider.overrideWithValue(
+            fakeReadingOperationInputGateway(backend: backend),
+          ),
         ],
         child: const MaterialApp(home: SoulMateDrawScreen()),
       ),
@@ -62,22 +75,25 @@ void main() {
     await tester.ensureVisible(cta);
     await tester.tap(cta);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 80));
 
-    expect(find.text(ResilienceCopy.aiUnauthorized), findsOneWidget);
+    final active = await backend.send(
+      'GET',
+      '/v1/reading-flow/active?readingType=soulmate',
+      null,
+    );
+    final operationId =
+        ((active!.json!['data'] as Map)['operation'] as Map)['operationId']
+            as String;
+    await backend.send(
+      'POST',
+      '/v1/reading-operations/$operationId/fail',
+      const {},
+    );
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pump();
+
+    expect(find.text(SoulMateCopy.failureTemporary), findsOneWidget);
     expect(find.text(SoulMateCopy.redrawCta), findsNothing);
     expect(find.text(SoulMateCopy.retry), findsOneWidget);
   });
-}
-
-class _AuthFailDraw implements SoulMateDrawPort {
-  const _AuthFailDraw();
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  Future<SoulMateDrawResult> draw(SoulMateDrawRequest request) async {
-    return SoulMateDrawResult.unavailable(ResilienceCopy.aiUnauthorized);
-  }
 }

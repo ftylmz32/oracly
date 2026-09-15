@@ -19,7 +19,8 @@ abstract final class PremiumCopy {
   static String gemNote(int amount) =>
       _t('premium.gem_note').replaceAll('{n}', '$amount');
   static String get gemSectionTitle => _t('premium.gem_section_title');
-  static String get benefitSoulmateTitle => _t('premium.benefit.soulmate.title');
+  static String get benefitSoulmateTitle =>
+      _t('premium.benefit.soulmate.title');
   static String get benefitSoulmateBody => _t('premium.benefit.soulmate.body');
   static String get benefitCoffeeTitle => _t('premium.benefit.coffee.title');
   static String get benefitCoffeeBody => _t('premium.benefit.coffee.body');
@@ -27,7 +28,8 @@ abstract final class PremiumCopy {
   static String get benefitPalmBody => _t('premium.benefit.palm.body');
   static String get benefitDiscoveryTitle =>
       _t('premium.benefit.discovery.title');
-  static String get benefitDiscoveryBody => _t('premium.benefit.discovery.body');
+  static String get benefitDiscoveryBody =>
+      _t('premium.benefit.discovery.body');
   static String get benefitOrTitle => _t('premium.benefit.or.title');
   static String get benefitOrBody => _t('premium.benefit.or.body');
   static String get benefitJourneyTitle => _t('premium.benefit.journey.title');
@@ -55,12 +57,18 @@ abstract final class PremiumCopy {
   static String get gateTitle => _t('premium.gate_title');
   static String get gateLead => _t('premium.gate_lead');
   static List<String> get unlocks => [
-        benefitDepthTitle,
-        benefitContinuityTitle,
-        benefitPersonalizationTitle,
-      ];
+    benefitDepthTitle,
+    benefitContinuityTitle,
+    benefitPersonalizationTitle,
+  ];
   static String get entitlementUnverified =>
       _t('premium.entitlement_unverified');
+  static String get entitlementNetworkError =>
+      _t('premium.entitlement_network_error');
+  static String get entitlementBoundOtherAccount =>
+      _t('premium.entitlement_bound_other_account');
+  static String get entitlementMissingCredentials =>
+      _t('premium.entitlement_missing_credentials');
   static String get ctaExplore => _t('premium.cta_explore');
   static String get homeBannerTitle => _t('premium.home_banner_title');
   static String get homeBannerBody => _t('premium.home_banner_body');
@@ -97,14 +105,14 @@ abstract final class PremiumCopy {
   static String get planPeriodLifetime => _t('premium.plan_period.lifetime');
 
   static String planLabel(PremiumPlanKind kind) => switch (kind) {
-        PremiumPlanKind.monthly => planMonthlyLabel,
-        PremiumPlanKind.yearly => planYearlyLabel,
-        PremiumPlanKind.lifetime => planLifetimeLabel,
-      };
+    PremiumPlanKind.monthly => planMonthlyLabel,
+    PremiumPlanKind.yearly => planYearlyLabel,
+    PremiumPlanKind.lifetime => planLifetimeLabel,
+  };
 
   static String planPeriod(PremiumPlanKind kind) => switch (kind) {
-        PremiumPlanKind.monthly => planPeriodMonthly,
-        PremiumPlanKind.yearly => planPeriodYearly,
-        PremiumPlanKind.lifetime => planPeriodLifetime,
-      };
+    PremiumPlanKind.monthly => planPeriodMonthly,
+    PremiumPlanKind.yearly => planPeriodYearly,
+    PremiumPlanKind.lifetime => planPeriodLifetime,
+  };
 }

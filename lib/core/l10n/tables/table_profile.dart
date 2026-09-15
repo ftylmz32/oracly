@@ -88,6 +88,11 @@ const kL10nProfile = <String, L10nTriple>{
     'This mark appeared in: {sources}',
     'Этот след появился в: {sources}',
   ),
+  'my_story.load_failed': L10nTriple(
+    'Hikâyen şu an açılamadı. Biraz sonra tekrar deneyebilirsin.',
+    'Your story could not open right now. You can try again in a moment.',
+    'Твоя история сейчас не открылась. Можно попробовать через мгновение.',
+  ),
   'profile.premium_discover_cta': L10nTriple(
     'KEŞFET',
     'EXPLORE',
@@ -172,9 +177,14 @@ const kL10nProfile = <String, L10nTriple>{
     'Когда накопится несколько открытий, твой путь начнёт проявляться здесь.',
   ),
   'journal.soulmate_note': L10nTriple(
-    'Ruh eşi portreleri henüz günlüğe kaydedilmez.',
-    'Soulmate portraits are not saved to the journal yet.',
-    'Портреты родственной души пока не сохраняются в дневник.',
+    'Tamamlanan ruh eşi yansıması burada durur. Bitmemiş bir okuma kaydedilmez.',
+    'A completed Soulmate reflection stays here. An unfinished reading is not saved.',
+    'Завершённое отражение родственной души остаётся здесь. Незавершённое чтение не сохраняется.',
+  ),
+  'journal.badge.soulmate': L10nTriple(
+    'Ruh Eşi',
+    'Soulmate',
+    'Родственная душа',
   ),
   'journal.open': L10nTriple(
     'Keşfetmeye dön',

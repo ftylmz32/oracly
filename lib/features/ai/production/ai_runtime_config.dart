@@ -135,20 +135,31 @@ class AiRuntimeConfig {
         ? _first([keys?.openAiKey, env['OPENAI_API_KEY']])
         : null;
     final visionRaw = (runtime.aiVision ?? 'true').toLowerCase();
+    // An explicitly configured ORACLY_AI_PROXY_URL (dart-define or dotenv)
+    // is always honored in development — APP_ENV=development is the
+    // documented, supported local-development value and must not silently
+    // boot into unconfigured just because it isn't the narrower
+    // APP_ENV=local. `local` additionally unlocks an auto-guessed loopback
+    // URL when NOTHING was explicitly configured at all, so
+    // `flutter run --dart-define=APP_ENV=local` works with zero other
+    // configuration. Regression note: an earlier version of this method
+    // discarded an already-resolved `runtime.aiProxyUrl` whenever
+    // `explicitLocal` was false, which broke the documented
+    // APP_ENV=development + ORACLY_AI_PROXY_URL workflow entirely.
     var proxyUrl = runtime.aiProxyUrl;
-    // Loopback is available only after an explicit APP_ENV=local selection.
-    if (!kReleaseMode && environment.isDevelopment && explicitLocal) {
-      proxyUrl = OraclyRuntimeConfig.readRaw(OraclyRuntimeKeys.aiProxyUrl);
-      if (proxyUrl == null && !const bool.fromEnvironment('FLUTTER_TEST')) {
-        proxyUrl = devProxyAutoDefaultUrl();
-      }
+    if (!kReleaseMode &&
+        environment.isDevelopment &&
+        proxyUrl == null &&
+        explicitLocal &&
+        !const bool.fromEnvironment('FLUTTER_TEST')) {
+      proxyUrl = devProxyAutoDefaultUrl();
+    }
+    if (!kReleaseMode && environment.isDevelopment) {
       proxyUrl = AiProxyUrlPolicy.sanitize(
         raw: proxyUrl,
         isDevelopment: true,
         releaseLocked: false,
       );
-    } else if (environment.isDevelopment) {
-      proxyUrl = null;
     }
     return AiRuntimeConfig(
       environment: environment,

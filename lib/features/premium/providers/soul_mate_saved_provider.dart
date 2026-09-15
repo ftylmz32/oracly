@@ -7,7 +7,10 @@ import '../../../app/providers/app_providers.dart';
 import '../services/soul_mate_result_service.dart';
 
 final soulMateResultServiceProvider = Provider<SoulMateResultService>((ref) {
-  return SoulMateResultService(ref.watch(localStorageProvider));
+  return SoulMateResultService(
+    ref.watch(localStorageProvider),
+    memory: ref.watch(oraclyMemoryStoreProvider),
+  );
 });
 
 final soulMateSavedResultProvider = FutureProvider<bool>((ref) async {

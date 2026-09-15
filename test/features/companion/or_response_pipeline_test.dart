@@ -7,6 +7,7 @@ import 'package:oracly_new/core/copy/resilience_copy.dart';
 import 'package:oracly_new/core/personality/or_response_depth.dart';
 import 'package:oracly_new/core/reading/ai_output_quality_kind.dart';
 import 'package:oracly_new/core/reading/ai_output_quality_runner.dart';
+import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context.dart';
 import 'package:oracly_new/features/ai/production/ai_failure.dart';
 import 'package:oracly_new/features/ai/production/ai_outcome.dart';
 import 'package:oracly_new/features/ai/production/ai_request_exception.dart';
@@ -91,6 +92,28 @@ void main() {
     expect(text, isNull);
   });
 
+  test(
+      'observedThemes reaches askOracle when the main Luna chat carries a '
+      'reading context', () async {
+    final ai = _ThemeCapturingAi();
+    final bridge = CompanionAiBridge(ai);
+    const context = OracleReadingContext(
+      sessionId: 's1',
+      spreadLabel: 'Tek Kart',
+      deckId: 'rider-waite',
+      deckName: 'Rider-Waite',
+      readingTitle: 'Günlük Kart',
+      cardsSummary: 'Güneş',
+      interpretationSummary: 'Aydınlanma ve netlik.',
+    );
+    await bridge.tryLive(
+      userMessage: 'Bu kart hakkında ne düşünüyorsun?',
+      readingContext: context,
+      observedThemes: const ['dönüşüm', 'belirsizlik'],
+    );
+    expect(ai.lastObservedThemes, ['dönüşüm', 'belirsizlik']);
+  });
+
   test('finalize apply keeps conversational body', () {
     final out = OrResponseFinalize.apply(
       'Karar eşiğinde duruyorsun. Bir adım yeter.',
@@ -143,6 +166,17 @@ class _FixedAi implements OraclyAiService {
   }
 
   @override
+  Future<AiOutcome<ChatAiReply>> generateTarotReading({
+    required List<Map<String, dynamic>> cards,
+    required String spreadLabel,
+    String? userQuestion,
+    String? readingTheme,
+    Map<String, dynamic>? journeyHints,
+  }) {
+    throw UnsupportedError('tarot');
+  }
+
+  @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) {
     throw UnsupportedError('dream');
   }
@@ -151,6 +185,7 @@ class _FixedAi implements OraclyAiService {
   Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffee({
     required List<int> imageBytes,
     required String mimeType,
+    Map<String, dynamic>? personalization,
   }) {
     throw UnsupportedError('coffee');
   }
@@ -160,6 +195,86 @@ class _FixedAi implements OraclyAiService {
     required List<int> imageBytes,
     required String mimeType,
     required String hand,
+    Map<String, dynamic>? personalization,
+  }) {
+    throw UnsupportedError('palm');
+  }
+}
+
+/// Captures the [observedThemes] the bridge forwards into askOracle.
+class _ThemeCapturingAi implements OraclyAiService {
+  List<String>? lastObservedThemes;
+
+  @override
+  bool get isConfigured => true;
+
+  @override
+  bool get allowsLocalFallback => false;
+
+  @override
+  bool get visionAvailable => false;
+
+  @override
+  Future<AiOutcome<ChatAiReply>> chat({
+    required String userMessage,
+    List<String> priorUser = const [],
+    String? styleHint,
+    String? personality,
+    List<ConversationTurn> turns = const [],
+    OrResponseDepth depth = OrResponseDepth.fallback,
+    bool spoken = false,
+  }) async =>
+      AiOutcome.success(const ChatAiReply(text: 'Sakin bir gözlem paylaşayım.'));
+
+  @override
+  Future<AiOutcome<ChatAiReply>> askOracle({
+    required ReadingAiContext context,
+    required String userMessage,
+    List<String> priorUser = const [],
+    List<String> observedThemes = const [],
+    String? styleHint,
+    String? personality,
+    List<ConversationTurn> turns = const [],
+    OrResponseDepth depth = OrResponseDepth.fallback,
+    bool spoken = false,
+  }) async {
+    lastObservedThemes = observedThemes;
+    return AiOutcome.success(
+      const ChatAiReply(text: 'Bu kart üzerine birlikte düşünelim.'),
+    );
+  }
+
+  @override
+  Future<AiOutcome<ChatAiReply>> generateTarotReading({
+    required List<Map<String, dynamic>> cards,
+    required String spreadLabel,
+    String? userQuestion,
+    String? readingTheme,
+    Map<String, dynamic>? journeyHints,
+  }) {
+    throw UnsupportedError('tarot');
+  }
+
+  @override
+  Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) {
+    throw UnsupportedError('dream');
+  }
+
+  @override
+  Future<AiOutcome<CoffeeAiAnalysis>> analyzeCoffee({
+    required List<int> imageBytes,
+    required String mimeType,
+    Map<String, dynamic>? personalization,
+  }) {
+    throw UnsupportedError('coffee');
+  }
+
+  @override
+  Future<AiOutcome<PalmAiAnalysis>> analyzePalm({
+    required List<int> imageBytes,
+    required String mimeType,
+    required String hand,
+    Map<String, dynamic>? personalization,
   }) {
     throw UnsupportedError('palm');
   }

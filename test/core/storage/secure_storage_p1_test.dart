@@ -123,7 +123,7 @@ void main() {
     expect(storage.getString(MockPremiumRepository.transactionIdKey), isNull);
     expect(await secure.read(PremiumCredentialKeys.purchaseToken), 'secret-token');
     expect(await secure.read(PremiumCredentialKeys.transactionId), 'txn-1');
-    expect(premium.readPurchaseCredentials()?.purchaseToken, 'secret-token');
+    expect((await premium.readPurchaseCredentials())?.purchaseToken, 'secret-token');
   });
 
   test('warmCredentialCache loads migrated legacy credentials', () async {
@@ -134,7 +134,7 @@ void main() {
     });
     final premium = _premium(storage, secure);
     await premium.warmCredentialCache();
-    expect(premium.readPurchaseCredentials()?.purchaseToken, 'legacy');
+    expect((await premium.readPurchaseCredentials())?.purchaseToken, 'legacy');
     expect(storage.getString(MockPremiumRepository.purchaseTokenKey), isNull);
   });
 
@@ -157,7 +157,7 @@ void main() {
     await isolation.onSignedIn('user-a');
     await isolation.onSignedIn('user-b');
 
-    expect(premium.readPurchaseCredentials(), isNull);
+    expect(await premium.readPurchaseCredentials(), isNull);
     expect(await secure.read(PremiumCredentialKeys.purchaseToken), isNull);
     expect(storage.getString(MockPremiumRepository.purchaseTokenKey), isNull);
   });
@@ -178,7 +178,7 @@ void main() {
     await UserLocalDataWipe.run(storage, secureStorage: secure);
 
     expect(premium.isActiveNow, isFalse);
-    expect(premium.readPurchaseCredentials(), isNull);
+    expect(await premium.readPurchaseCredentials(), isNull);
     expect(await secure.read(PremiumCredentialKeys.purchaseToken), isNull);
     expect(storage.getString(MockPremiumRepository.purchaseTokenKey), isNull);
   });
@@ -206,7 +206,7 @@ void main() {
     await reconciler.reconcile();
 
     expect(premium.isActiveNow, isFalse);
-    expect(premium.readPurchaseCredentials()?.purchaseToken, 'token');
+    expect((await premium.readPurchaseCredentials())?.purchaseToken, 'token');
   });
 
   test('SecureStorageBootstrap runs both migrations once', () async {

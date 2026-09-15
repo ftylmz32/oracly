@@ -1,0 +1,92 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "onePalmFacing": true,
+      "majorLinesVisible": true,
+      "adequateFocusLight": true,
+      "overlapOcclusion": false,
+      "dorsal": false
+    },
+    "evidence": [
+      {
+        "id": "p1",
+        "region": "head_line",
+        "description": "Head line is long, slightly downward, mostly uninterrupted, with a slight outward curve.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p2",
+        "region": "life_line",
+        "description": "Life line draws a wide arc around the thumb.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "p3",
+        "region": "heart_line",
+        "description": "Upper line is a light shallow curve.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "personalization": {
+    "firstName": "Fatih",
+    "relevantThemes": [
+      "karar verme"
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Sağ avuç içinde üç ana çizgi seçiliyor; merkezdeki ve başparmak çevresindeki çizgiler daha belirgin, üstteki çizgi ise daha hafif görünüyor.",
+      "evidenceIds": [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    },
+    "overall": {
+      "text": "Fatih, bu avucta akil ile duygu birbirine karismadan durabiliyor; bir konuda ikna olunca dagilmiyorsun. Yakinlikta once tutarlilik araman, duygunun yoklugundan cok olculu bir yaklasim gibi duruyor. Alistigin duzeni koruma ile yeni bir denemeye yer acma ayni anda duruyor; asil gerilim, hangisini once dinleyecegin.",
+      "evidenceIds": [
+        "p1",
+        "p2",
+        "p3"
+      ]
+    },
+    "lifeLine": {
+      "text": "Basparmak cevresindeki genis yay, alistigin insanlara ve sorumluluklara bagli kalabilen, basladigini surdurmeyi onemseyen bir yapiyla iliskilendirilebilir.",
+      "evidenceIds": [
+        "p2"
+      ]
+    },
+    "headLine": {
+      "text": "Uzun, hafif asagi yonelen, buyuk olcude kesintisiz ve dis kenara dogru kivrilan zihin cizgisi; bir meseleyi birkac acidan inceleyip sonra kolay dagilmadigini anlatiyor.",
+      "evidenceIds": [
+        "p1"
+      ]
+    },
+    "heartLine": {
+      "text": "Ustteki hafif ve sig cizgi, duygunun yoklugundan cok olculu ifadesine denk geliyor: yakinlikta sozden cok davranisin surekliligine bakiyorsun.",
+      "evidenceIds": [
+        "p3"
+      ]
+    },
+    "fateLine": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Bu avucun biraktigi yer, daha fazla dusunmek ile bir dusuncenin isini bitirdigi ani ayirt etmek gibi duruyor. Tanidik duzeni korurken yeni bir denemeye yer acmak, bu okumanin sana ozgu gerilimi; ikisi de ayni anda tam dogru olmak zorunda degil.",
+      "evidenceIds": [
+        "p2",
+        "p3"
+      ]
+    }
+  }
+}

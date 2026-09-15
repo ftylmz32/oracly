@@ -1,0 +1,60 @@
+{
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A dense residue cluster near the middle wall shaped somewhat like a ring.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": "may resemble a ring"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A clear open patch at the base of the cup.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "handle_side",
+        "description": "A short thin trail near the handle side.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Ortada bir halkayı andıran bir küme, dipte açık bir alan ve kulpa yakın ince bir iz duruyor.",
+      "evidenceIds": ["e1", "e2", "e3"]
+    },
+    "overall": {
+      "text": "Bu iz geleneksel olarak sıcak bir sohbet anlamına gelebilir ve yakın zamanda yeni bir başlangıç yaşanabilir. Sosyal çevrende iletişim ön plana çıkabilir ve duygusal bir hareketlilik hissedilebilir. Önümüzdeki dönemde fırsatlar doğabilir ve hayatına beklenmedik kapılar açılabilir.",
+      "evidenceIds": ["e1", "e2", "e3"]
+    },
+    "love": {
+      "text": "Aşk hayatında yeni bir başlangıç veya sıcak bir buluşma yaşanabilir.",
+      "evidenceIds": ["e1"]
+    },
+    "career": { "text": "", "evidenceIds": [] },
+    "money": { "text": "", "evidenceIds": [] },
+    "nearFuture": { "text": "", "evidenceIds": [] },
+    "takeaway": {
+      "text": "Bu fincan genel olarak olumlu bir enerji taşıyor; yeni bir başlangıç için hazır olabilirsin.",
+      "evidenceIds": ["e2", "e3"]
+    }
+  }
+}

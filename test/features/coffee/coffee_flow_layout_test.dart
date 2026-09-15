@@ -2,6 +2,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,11 +21,38 @@ import 'package:oracly_new/features/coffee/services/coffee_analysis_port.dart';
 import 'package:oracly_new/features/coffee/services/coffee_experience_service.dart';
 import 'package:oracly_new/features/coffee/services/coffee_image_input_port.dart';
 import 'package:oracly_new/features/coffee/services/unavailable_coffee_analysis.dart';
+import 'package:oracly_new/features/reading_operation/copy/reading_live_copy.dart';
 import 'package:oracly_new/shared/widgets/oracly_gold_button.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../support/fake_reading_operation_backend.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // `_analyzeLive` stages real image bytes (`File(image.path).readAsBytes()`)
+  // before calling `live.submit`, and a real fixture file makes
+  // CoffeeImageIntake take its real-normalization path (needs
+  // path_provider) instead of short-circuiting on a missing file — so any
+  // test that reaches analyze() needs both a real file on disk and a faked
+  // PathProviderPlatform. Mirrors the fixture pattern already used by
+  // coffee_cancel_analysis_test.dart et al.
+  late Directory tempDir;
+  late String fixturePath;
+
+  setUp(() async {
+    tempDir = await Directory.systemTemp.createTemp('coffee_flow_layout_');
+    PathProviderPlatform.instance = _FakePathProvider(tempDir.path);
+    final sample = File('test/features/palm/fixtures/palm_sample.jpg');
+    fixturePath = '${tempDir.path}/cup.jpg';
+    await sample.copy(fixturePath);
+  });
+
+  tearDown(() async {
+    if (await tempDir.exists()) await tempDir.delete(recursive: true);
+  });
 
   const viewports = <Size>[
     Size(360, 800),
@@ -90,7 +118,8 @@ void main() {
         ),
         gate: gate,
       ),
-      images: const _FakeCoffeeImages(path: 'cup.jpg'),
+      images: _FakeCoffeeImages(path: fixturePath),
+      live: fakeImmediateReadingFeatureRunner(),
     );
     controller.startCapture();
     await controller.pickGallery();
@@ -101,10 +130,16 @@ void main() {
     gate.complete();
     await pending;
     expect(controller.phase, CoffeePhase.error);
-    expect(controller.errorMessage, CoffeeCopy.analysisUnavailable);
+    // BATCH 5F: the specific CoffeeAnalysisException message no longer
+    // surfaces once the failure crosses the ReadingOperation runner —
+    // it maps to the same generic operation-failed copy every feature
+    // failure uses (ReadingFeatureRunner.submit's own catch-all).
+    expect(controller.errorMessage, ReadingLiveCopy.failed);
   });
 
-  testWidgets('loading copy appears while analyzing', (tester) async {
+  testWidgets('waiting screen copy appears while analyzing', (tester) async {
+    // The waiting screen now shows its own fixed countdown-screen headline
+    // rather than the per-call message/subtitle passed in.
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -112,7 +147,7 @@ void main() {
         ),
       ),
     );
-    expect(find.text(CoffeeCopy.analyzing), findsOneWidget);
+    expect(find.text(ReadingLiveCopy.headline), findsOneWidget);
   });
 
   testWidgets('back from capture returns to landing', (tester) async {
@@ -278,4 +313,17 @@ class _LiveCoffeeAnalysis implements CoffeeAnalysisPort {
   Future<CoffeeReading> analyze(CoffeeImagePick image) async {
     throw StateError('not used');
   }
+}
+
+class _FakePathProvider extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  _FakePathProvider(this.root);
+  final String root;
+  @override
+  Future<String?> getApplicationDocumentsPath() async => root;
+  @override
+  Future<String?> getApplicationSupportPath() async => root;
+  @override
+  Future<String?> getTemporaryPath() async => root;
 }

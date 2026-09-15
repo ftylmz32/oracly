@@ -8,6 +8,7 @@ import 'package:oracly_new/core/audio/oracly_sound_chamber.dart';
 import 'package:oracly_new/core/audio/oracly_sound_service.dart';
 import 'package:oracly_new/core/audio/oracly_wav_synth.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
+import 'package:oracly_new/core/runtime/oracly_apply_outcome.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_reveal/reveal_sound_callbacks.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_reveal/reveal_timeline.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/shuffle/shuffle_ritual_experience.dart';
@@ -20,8 +21,9 @@ class _CountingSoundService extends OraclySoundService {
   Future<void> initialize() async {}
 
   @override
-  Future<void> play(OraclySoundCue cue) async {
+  Future<OraclyApplyOutcome> play(OraclySoundCue cue) async {
     plays.add(cue);
+    return OraclyApplyOutcome.success;
   }
 }
 
