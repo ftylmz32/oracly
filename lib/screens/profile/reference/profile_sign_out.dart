@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
 import '../../../core/auth/auth_copy.dart';
+import '../../../core/auth/sign_out_local_cleanup.dart';
 import '../../../core/notifications/push_token_cleanup.dart';
 import '../../../features/reading_operation/providers/reading_live_provider.dart';
 import '../../../shared/navigation/oracly_navigation.dart';
@@ -28,7 +29,27 @@ Future<bool> profileSignOut({
     OraclySnackBar.show(context, message: AuthCopy.signOutFailed);
     return false;
   }
-  OraclySnackBar.show(context, message: AuthCopy.signedOut);
-  OraclyNavigation.switchToTab(context, OraclyTab.home);
+
+  // R5 — wipe account-scoped local state only after successful sign-out.
+  // Capture messenger before provider refresh: invalidation rebuilds Profile
+  // into loading and can drop a post-refresh context-based snackbar.
+  final messenger = ScaffoldMessenger.maybeOf(context);
+
+  await SignOutLocalCleanup.wipeDiskOnly(
+    storage: ref.read(localStorageProvider),
+    secureStorage: ref.read(secureStorageProvider),
+  );
+
+  if (messenger != null) {
+    OraclySnackBar.showOnMessenger(messenger, message: AuthCopy.signedOut);
+  } else if (context.mounted) {
+    OraclySnackBar.show(context, message: AuthCopy.signedOut);
+  }
+
+  if (context.mounted) {
+    OraclyNavigation.switchToTab(context, OraclyTab.home);
+  }
+
+  SignOutLocalCleanup.refreshProviders(ref);
   return true;
 }

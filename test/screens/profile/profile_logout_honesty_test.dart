@@ -15,16 +15,22 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/network/api_result.dart';
 import 'package:oracly_new/core/network/network_exception.dart';
+import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
 import 'package:oracly_new/screens/profile/copy/profile_copy.dart';
 import 'package:oracly_new/screens/profile/reference/profile_reference_screen.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() => OraclyL10n.bind('tr'));
+  setUp(() {
+    OraclyL10n.bind('tr');
+    PathProviderPlatform.instance = _LogoutPathProvider();
+  });
 
   testWidgets('successful logout shows signed-out message once', (
     tester,
@@ -39,7 +45,7 @@ void main() {
     await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 1200));
 
     expect(auth.signOutCalls, 1);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
@@ -82,7 +88,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 20));
     // In-flight logout hides the CTA so a second tap cannot re-enter.
     expect(find.text(ProfileCopy.logoutTitle), findsNothing);
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 1200));
 
     expect(auth.signOutCalls, 1);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
@@ -105,7 +111,7 @@ void main() {
     auth.fail = false;
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 2000));
     expect(auth.signOutCalls, 2);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
   });
@@ -131,7 +137,7 @@ void main() {
       await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
       await tester.tap(find.text(ProfileCopy.logoutTitle));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 1200));
 
       expect(sender.calls, hasLength(1));
       expect(sender.calls.single.method, 'POST');
@@ -166,7 +172,7 @@ void main() {
       await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
       await tester.tap(find.text(ProfileCopy.logoutTitle));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 1200));
 
       expect(sender.callCount, 1);
       expect(auth.signOutCalls, 1);
@@ -189,6 +195,7 @@ Future<void> _pump(
     ProviderScope(
       overrides: [
         localStorageProvider.overrideWithValue(storage),
+        secureStorageProvider.overrideWithValue(InMemorySecureStorage()),
         authServiceProvider.overrideWithValue(auth),
         sessionManagerProvider.overrideWithValue(sessions),
         if (sender != null)
@@ -329,4 +336,20 @@ class _MemTokens implements TokenManager {
   @override
   Future<bool> hasValidAccessToken() async =>
       access != null && access!.isNotEmpty;
+}
+
+class _LogoutPathProvider extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  @override
+  Future<String?> getApplicationSupportPath() async => '.';
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async => '.';
+
+  @override
+  Future<String?> getTemporaryPath() async => '.';
+
+  @override
+  Future<String?> getApplicationCachePath() async => '.';
 }

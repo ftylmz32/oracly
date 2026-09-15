@@ -141,6 +141,8 @@ void main() {
     );
     await isolation.onSignedIn('owner-a');
     await isolation.onSignedIn('owner-b');
+    // Image wipe is fire-and-forget inside UserLocalDataWipe; await for assertion.
+    await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImages(storage);
 
     expect(CoffeeReadingStore(storage).all(), isEmpty);
     expect(PalmReadingStore(storage).all(), isEmpty);
@@ -153,6 +155,7 @@ void main() {
     final palm = await seedPalm();
 
     await UserLocalDataWipe.run(storage, secureStorage: secure);
+    await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImages(storage);
 
     expect(CoffeeReadingStore(storage).all(), isEmpty);
     expect(PalmReadingStore(storage).all(), isEmpty);

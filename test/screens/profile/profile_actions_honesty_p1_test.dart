@@ -15,10 +15,13 @@ import 'package:oracly_new/core/auth/token_manager.dart';
 import 'package:oracly_new/core/auth/unconfigured_auth_service.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/network/api_result.dart';
+import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/screens/profile/copy/profile_copy.dart';
 import 'package:oracly_new/screens/profile/reference/profile_account_session.dart';
 import 'package:oracly_new/screens/profile/reference/profile_reference_screen.dart';
 import 'package:oracly_new/screens/settings/reference/settings_reference_screen.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -28,6 +31,7 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    PathProviderPlatform.instance = _LogoutPathProvider();
     storage = LocalStorage(await SharedPreferences.getInstance());
   });
 
@@ -99,7 +103,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 1200));
 
     expect(auth.signOutCalls, 1);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
@@ -118,6 +122,7 @@ Future<void> _pumpProfile(
     ProviderScope(
       overrides: [
         localStorageProvider.overrideWithValue(storage),
+        secureStorageProvider.overrideWithValue(InMemorySecureStorage()),
         ...overrides,
       ],
       child: const MaterialApp(home: ProfileReferenceScreen()),
@@ -217,4 +222,20 @@ class _MemTokens implements TokenManager {
   @override
   Future<bool> hasValidAccessToken() async =>
       access != null && access!.isNotEmpty;
+}
+
+class _LogoutPathProvider extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  @override
+  Future<String?> getApplicationSupportPath() async => '.';
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async => '.';
+
+  @override
+  Future<String?> getTemporaryPath() async => '.';
+
+  @override
+  Future<String?> getApplicationCachePath() async => '.';
 }

@@ -12,6 +12,7 @@ import 'package:oracly_new/core/auth/firebase/firebase_id_token_manager.dart';
 import 'package:oracly_new/core/auth/session_manager.dart';
 import 'package:oracly_new/core/auth/token_manager.dart';
 import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
+import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
@@ -252,16 +253,20 @@ void main() {
     expect(isolation.localOwnerId, isNot(_userA), reason: 'ISOLATION');
   });
 
-  test('same synthetic user keeps local data after logout and login', () async {
+  test('same synthetic user starts empty after logout wipe then login', () async {
     gateway.signInAs(_userA);
     await auth.signInAnonymously();
     await _seedUserA(storage);
 
     await auth.signOut();
+    // R5 — explicit logout wipe (profileSignOut path) clears account data.
+    await UserLocalDataWipe.run(storage, secureStorage: secure);
+    await storage.remove(UserLocalDataIsolation.ownerKey);
+
     gateway.signInAs(_userA);
     await auth.signInAnonymously();
 
-    await _assertUserAPresent(storage);
+    await _assertEmptySession(storage);
     expect(isolation.localOwnerId, _userA);
   });
 }

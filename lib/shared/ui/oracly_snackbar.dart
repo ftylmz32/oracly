@@ -18,6 +18,22 @@ abstract final class OraclySnackBar {
   }) {
     final messenger = ScaffoldMessenger.maybeOf(context);
     if (messenger == null) return;
+    showOnMessenger(
+      messenger,
+      message: message,
+      action: action,
+      duration: duration,
+    );
+  }
+
+  /// Use a captured [ScaffoldMessengerState] when the calling route may rebuild
+  /// (e.g. post–sign-out account-boundary provider invalidation).
+  static void showOnMessenger(
+    ScaffoldMessengerState messenger, {
+    required String message,
+    SnackBarAction? action,
+    Duration duration = const Duration(seconds: 3),
+  }) {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(

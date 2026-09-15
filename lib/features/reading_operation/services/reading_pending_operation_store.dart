@@ -73,4 +73,18 @@ class ReadingPendingOperationStore {
   Future<void> clear(ReadingType type) {
     return _storage.remove(_key(type));
   }
+
+  /// R5 — account-boundary wipe for every durable pending pointer.
+  /// Clears known [ReadingType] keys plus any stray `reading_pending_operation_*`.
+  static Future<void> clearAll(LocalStorage storage) async {
+    final store = ReadingPendingOperationStore(storage);
+    for (final type in ReadingType.values) {
+      await store.clear(type);
+    }
+    for (final key in storage.keys
+        .where((k) => k.startsWith('reading_pending_operation_'))
+        .toList()) {
+      await storage.remove(key);
+    }
+  }
 }

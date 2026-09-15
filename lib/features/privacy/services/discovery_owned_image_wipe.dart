@@ -10,23 +10,27 @@ import '../../palm/services/palm_image_archive.dart';
 abstract final class DiscoveryOwnedImageWipe {
   DiscoveryOwnedImageWipe._();
 
-  /// Best-effort physical cleanup ? never blocks metadata wipe.
+  /// Best-effort physical cleanup — never blocks metadata wipe.
   static Future<void> wipeCoffeeAndPalmImages(LocalStorage storage) async {
     try {
-      final paths = <String>{};
-      for (final reading in CoffeeReadingStore(storage).all()) {
-        _addPath(paths, reading.imagePath);
-      }
-      for (final reading in PalmReadingStore(storage).all()) {
-        _addPath(paths, reading.imagePath);
-      }
-      for (final path in paths) {
-        await CoffeeImageArchive.deleteIfOwned(path);
-        await PalmImageArchive.deleteIfOwned(path);
-      }
-      await CoffeeImageArchive.purgeOwnedArchive();
-      await PalmImageArchive.purgeOwnedArchive();
+      await _wipeBody(storage).timeout(const Duration(milliseconds: 800));
     } catch (_) {}
+  }
+
+  static Future<void> _wipeBody(LocalStorage storage) async {
+    final paths = <String>{};
+    for (final reading in CoffeeReadingStore(storage).all()) {
+      _addPath(paths, reading.imagePath);
+    }
+    for (final reading in PalmReadingStore(storage).all()) {
+      _addPath(paths, reading.imagePath);
+    }
+    for (final path in paths) {
+      await CoffeeImageArchive.deleteIfOwned(path);
+      await PalmImageArchive.deleteIfOwned(path);
+    }
+    await CoffeeImageArchive.purgeOwnedArchive();
+    await PalmImageArchive.purgeOwnedArchive();
   }
 
   static void _addPath(Set<String> paths, String? raw) {

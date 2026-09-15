@@ -1,4 +1,4 @@
-/// Clears device-local user data — used on account switch only.
+/// Clears device-local user data — account switch, deletion, and logout.
 library;
 
 import '../data/datasources/local_storage.dart';
@@ -14,119 +14,109 @@ import '../../features/companion/services/first_reading_or_deepen.dart';
 import '../../features/daily_rewards/services/daily_rewards_service.dart';
 import '../../features/daily_ritual/services/card_of_the_day_store.dart';
 import '../../features/favorite_moments/data/local_favorite_moments_repository.dart';
-import '../../features/gems/data/gem_wallet_store.dart';
 import '../../features/gems/data/paid_ai_operation_store.dart';
-import '../../features/gems/services/gem_starter_grant.dart';
 import '../../features/oracle_core/data/oracle_next_action_memory.dart';
 import '../../features/palm/data/palm_reading_store.dart';
 import '../../features/personal_discovery/data/daily_personal_observation_store.dart';
 import '../../features/premium/data/soul_mate_result_store.dart';
 import '../../features/premium/services/soul_mate_generation_session.dart';
 import '../../features/reading_feedback/data/reading_feedback_store.dart';
+import '../../features/reading_operation/services/reading_pending_operation_store.dart';
 import '../../features/share_reopen/services/share_ownership_store.dart';
 import '../../features/tarot/data/datasources/tarot_local_datasource.dart';
 import '../../features/tarot/revisit/tarot_revisit_intent_store.dart';
 import '../../features/privacy/services/discovery_owned_image_wipe.dart';
 import '../../screens/profile/data/profile_photo_store.dart';
+import 'user_local_data_wipe_keys.dart';
 
 abstract final class UserLocalDataWipe {
   UserLocalDataWipe._();
 
+  /// Wipes every known ACCOUNT_SCOPED local store. Continues after individual
+  /// failures so one broken key cannot leave the rest of the identity intact.
+  /// Device-scoped settings (`settings_*`) are intentionally untouched.
   static Future<void> run(
     LocalStorage storage, {
     required SecureStorage secureStorage,
   }) async {
-    await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImages(storage);
-    await storage.setStringList('or_reading_history', const []);
-    await storage.setStringList('dream_records', const []);
-    await storage.setStringList(CoffeeReadingStore.key, const []);
-    await storage.setStringList(PalmReadingStore.key, const []);
-    await storage.setStringList('astrology_history', const []);
-    await storage.setStringList('ai_conversations', const []);
-    await storage.remove('birth_chart_latest');
-    await storage.remove(LocalFavoriteMomentsRepository.key);
-    await storage.remove(PersonalMemoryStore.key);
-    await storage.remove('oracly_connected_memory_v2');
-    await storage.remove(PersonalMemoryStore.userResetKey);
-    await storage.remove('discovery_surface_memory_v1');
-    await storage.remove('user_memories');
-    await storage.remove('user_name');
-    await storage.remove('profile_name');
-    await storage.remove('profile_job');
-    await storage.remove('profile_interests');
-    await storage.remove('profile_goals');
-    await storage.remove('profile_streak');
-    await storage.remove('profile_readings');
-    await storage.remove('profile_spiritual');
-    await storage.remove('profile_favorite_deck');
-    await storage.remove('profile_achievements');
-    await ProfilePhotoStore.clear(storage);
-    await storage.remove('onboarding_setup_draft');
-    await storage.remove(FirstReadingOrDeepen.sessionKey);
-    await storage.remove(FirstReadingOrDeepen.consumedKey);
-    await storage.remove(DailyRewardsService.claimedKey);
-    await storage.remove(AstrologyPreferencesStore.signKey);
-    await storage.remove(CardOfTheDayStore.storageKey);
-    await storage.remove(IntelligenceIndexStore.key);
-    await storage.remove(OracleNextActionMemory.key);
-    await storage.remove(DailyPersonalObservationStore.key);
-    await storage.remove(ReadingFeedbackStore.key);
-    await storage.remove(TarotRevisitIntentStore.key);
-    await storage.remove('personal_insights_hidden');
-    await storage.remove('personal_insights_deleted');
-    await storage.remove(ReadingVersionStore.key);
-    await storage.remove(SessionContinuationFocusStore.key);
-    await storage.remove(ShareOwnershipStore.key);
-    await MockPremiumRepository.clearPersistedLocalState(
-      storage,
-      secureStorage: secureStorage,
+    Future<void> step(Future<void> Function() action) async {
+      try {
+        await action();
+      } catch (_) {}
+    }
+
+    // Owned-image FS cleanup is best-effort and must never stall account
+    // isolation when path_provider is unavailable (e.g. widget tests).
+    // ignore: unawaited_futures
+    DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImages(storage);
+    await step(() => storage.setStringList('or_reading_history', const []));
+    await step(() => storage.setStringList('dream_records', const []));
+    await step(() => storage.setStringList(CoffeeReadingStore.key, const []));
+    await step(() => storage.setStringList(PalmReadingStore.key, const []));
+    await step(() => storage.setStringList('astrology_history', const []));
+    await step(() => storage.setStringList('ai_conversations', const []));
+    await step(() => storage.remove('birth_chart_latest'));
+    await step(() => storage.remove(LocalFavoriteMomentsRepository.key));
+    await step(() => storage.remove(PersonalMemoryStore.key));
+    await step(() => storage.remove('oracly_connected_memory_v2'));
+    await step(() => storage.remove(PersonalMemoryStore.userResetKey));
+    await step(() => storage.remove('discovery_surface_memory_v1'));
+    await step(() => storage.remove('user_memories'));
+    await step(() => _clearKeys(storage, UserLocalDataWipeKeys.profile));
+    await step(() => ProfilePhotoStore.clear(storage));
+    await step(() => storage.remove('onboarding_setup_draft'));
+    await step(() => storage.remove(FirstReadingOrDeepen.sessionKey));
+    await step(() => storage.remove(FirstReadingOrDeepen.consumedKey));
+    await step(() => storage.remove(DailyRewardsService.claimedKey));
+    await step(() => storage.remove(AstrologyPreferencesStore.signKey));
+    await step(() => storage.remove(CardOfTheDayStore.storageKey));
+    await step(() => storage.remove(IntelligenceIndexStore.key));
+    await step(() => storage.remove(OracleNextActionMemory.key));
+    await step(() => storage.remove(DailyPersonalObservationStore.key));
+    await step(() => storage.remove(ReadingFeedbackStore.key));
+    await step(() => storage.remove(TarotRevisitIntentStore.key));
+    await step(() => storage.remove('personal_insights_hidden'));
+    await step(() => storage.remove('personal_insights_deleted'));
+    await step(() => storage.remove(ReadingVersionStore.key));
+    await step(() => storage.remove(SessionContinuationFocusStore.key));
+    await step(() => storage.remove(ShareOwnershipStore.key));
+    await step(
+      () => MockPremiumRepository.clearPersistedLocalState(
+        storage,
+        secureStorage: secureStorage,
+      ),
     );
-    await secureStorage.deleteAll();
-    await storage.remove(GemWalletStore.balanceKey);
-    await storage.remove(GemWalletStore.serverBalanceCacheKey);
-    await storage.remove(GemWalletStore.serverBalanceOwnerKey);
-    await storage.remove(GemWalletStore.txKey);
-    await storage.remove(GemStarterGrant.flagKey);
-    await storage.remove('tarot_gem_charged_sessions');
-    await storage.remove('coffee_gem_charged');
-    await storage.remove('dream_gem_charged');
-    await storage.remove('palm_gem_charged');
-    await storage.remove('soulmate_gem_charged');
-    await SoulMateResultStore.clear(storage);
-    await SoulMateGenerationSessionStore.clear(storage);
-    await storage.remove('soulmate_portrait_hashes');
-    await storage.remove('soulmate_portrait_identity');
-    await storage.remove(PaidAiOperationStore.key);
-    await storage.setStringList(TarotLocalDataSource.historyKey, const []);
-    await storage.remove(TarotLocalDataSource.activeKey);
-    for (final domain in _contentFavoriteDomains) {
-      await storage.remove('content_favorites_$domain');
-    }
-    for (final key
-        in storage.keys
-            .where((k) => k.startsWith('content_favorites_'))
-            .toList()) {
-      await storage.remove(key);
-    }
-    for (final prefix in _prefixedUserKeys) {
-      for (final key
-          in storage.keys.where((k) => k.startsWith(prefix)).toList()) {
-        await storage.remove(key);
-      }
+    await step(() => secureStorage.deleteAll());
+    await step(() => _clearKeys(storage, UserLocalDataWipeKeys.gems));
+    await step(() => SoulMateResultStore.clear(storage));
+    await step(() => SoulMateGenerationSessionStore.clear(storage));
+    await step(() => storage.remove('soulmate_portrait_hashes'));
+    await step(() => storage.remove('soulmate_portrait_identity'));
+    await step(() => storage.remove(PaidAiOperationStore.key));
+    await step(
+      () => storage.setStringList(TarotLocalDataSource.historyKey, const []),
+    );
+    await step(() => storage.remove(TarotLocalDataSource.activeKey));
+    await step(() => ReadingPendingOperationStore.clearAll(storage));
+    await step(
+      () => _clearPrefixed(storage, UserLocalDataWipeKeys.contentFavoritePrefix),
+    );
+    await step(() => _clearPrefixed(storage, 'content_favorites_'));
+    for (final prefix in UserLocalDataWipeKeys.prefixedUser) {
+      await step(() => _clearPrefixed(storage, prefix));
     }
   }
 
-  static const _prefixedUserKeys = [
-    'daily_ritual_',
-    'or_tarot_interpretation_',
-    'daily_return_',
-  ];
+  static Future<void> _clearKeys(LocalStorage storage, List<String> keys) async {
+    for (final key in keys) {
+      await storage.remove(key);
+    }
+  }
 
-  static const _contentFavoriteDomains = [
-    'tarot',
-    'dream',
-    'astrology',
-    'daily_energy',
-    'oracle',
-  ];
+  static Future<void> _clearPrefixed(LocalStorage storage, String prefix) async {
+    for (final key
+        in storage.keys.where((k) => k.startsWith(prefix)).toList()) {
+      await storage.remove(key);
+    }
+  }
 }
