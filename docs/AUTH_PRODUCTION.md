@@ -154,3 +154,29 @@ Token lifecycle is owned by the Firebase App Check SDK (`getToken` + auto-refres
 4. Do **not** commit debug tokens to git or hardcode them in Flutter source.
 
 Play Integrity / DeviceCheck / App Attest provider enrollment in Firebase Console is EXTERNAL and done after this client wiring is green.
+
+## Firestore / Storage client access (R7)
+
+**Model: backend-only, deny-all client Security Rules.**
+
+The Flutter app uses Firebase **Auth**, **App Check**, and **Messaging** only. It does **not** depend on `cloud_firestore` or `firebase_storage`, and production `lib/` has no direct Firestore/Storage client SDK usage.
+
+Sensitive reads/writes (reading operations, Gem ledger, staged Coffee/Palm images, Soulmate portraits, notification tokens, account deletion, etc.) go through the authenticated ORACLY backend using `@google-cloud/firestore` and `@google-cloud/storage` with service-account credentials. **Admin/server SDKs bypass Firebase Security Rules.**
+
+Source-controlled client rules (must be deployed deliberately — R7 does not deploy them):
+
+| File | Client policy |
+|---|---|
+| `firestore.rules` | `allow read, write: if false` for all documents |
+| `storage.rules` | `allow read, write: if false` for all objects |
+| `firebase.json` | References those rule files only (no project ID / secrets) |
+
+### Before public release
+
+1. Confirm active project: `oracly-7f613`.
+2. Compare deployed rules to `firestore.rules` / `storage.rules` (Firebase Console → Rules, or Firebase Rules API with a privileged account).
+3. Deploy only after review: `firebase deploy --only firestore:rules,storage` (or equivalent CI), never as a silent side-effect of an app release.
+4. Drift check: any Console edit that grants client `read`/`write` is a release blocker until reconciled with this repo.
+
+Image bytes (Coffee/Palm staging, Soulmate portraits) are private GCS objects under owner-scoped paths, downloaded server-side and returned only on authenticated backend routes — not via public object ACLs or permanent Firebase download tokens.
+

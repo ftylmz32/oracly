@@ -1,0 +1,14 @@
+rules_version = '2';
+
+// ORACLY R7 — Firebase Storage client access is deny-all.
+// Coffee/Palm staging and Soulmate portraits are private GCS objects
+// accessed only by the ORACLY backend via @google-cloud/storage
+// (service-account credentials), which bypasses these Security Rules.
+// Do not grant client SDK access without an explicit architecture review.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
