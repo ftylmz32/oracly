@@ -15,6 +15,7 @@ abstract final class LegalDocumentLauncher {
     final uri = switch (kind) {
       LegalDocumentKind.privacyPolicy => OraclyLegalUrls.privacyPolicyUri,
       LegalDocumentKind.termsOfUse => OraclyLegalUrls.termsOfUseUri,
+      LegalDocumentKind.dataDeletion => OraclyLegalUrls.dataDeletionUri,
     };
     if (uri == null) return LegalOpenResult.missingUrl;
     try {

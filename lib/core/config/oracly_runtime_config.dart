@@ -16,6 +16,7 @@ class OraclyRuntimeConfig {
     this.billingVerifyUrl,
     this.privacyPolicyUrl,
     this.termsOfUseUrl,
+    this.dataDeletionUrl,
     this.aiModel,
     this.aiTimeoutSeconds,
     this.aiVision,
@@ -28,6 +29,7 @@ class OraclyRuntimeConfig {
   final String? billingVerifyUrl;
   final String? privacyPolicyUrl;
   final String? termsOfUseUrl;
+  final String? dataDeletionUrl;
   final String? aiModel;
   final String? aiTimeoutSeconds;
   final String? aiVision;
@@ -80,6 +82,9 @@ class OraclyRuntimeConfig {
       OraclyRuntimeKeys.termsOfUseUrl => const String.fromEnvironment(
         'ORACLY_TERMS_OF_USE_URL',
       ),
+      OraclyRuntimeKeys.dataDeletionUrl => const String.fromEnvironment(
+        'ORACLY_DATA_DELETION_URL',
+      ),
       OraclyRuntimeKeys.devPremium => const String.fromEnvironment(
         'ORACLY_DEV_PREMIUM',
       ),
@@ -129,6 +134,13 @@ class OraclyRuntimeConfig {
       termsOfUseUrl: _publicDoc(
         ReleaseEndpointPolicy.sanitize(
           raw: readRaw(OraclyRuntimeKeys.termsOfUseUrl),
+          isDevelopment: false,
+          releaseLocked: true,
+        ),
+      ),
+      dataDeletionUrl: _publicDoc(
+        ReleaseEndpointPolicy.sanitize(
+          raw: readRaw(OraclyRuntimeKeys.dataDeletionUrl),
           isDevelopment: false,
           releaseLocked: true,
         ),

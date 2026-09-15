@@ -12,6 +12,7 @@ abstract final class LegalCopy {
   static String get section => _t('legal.section');
   static String get privacyPolicy => _t('legal.privacy_policy');
   static String get termsOfUse => _t('legal.terms_of_use');
+  static String get dataDeletion => _t('legal.data_deletion');
   static String get manageSubscription => _t('legal.manage_subscription');
   static String get missingUrl => _t('legal.missing_url');
   static String get opensExternally => _t('legal.opens_externally');

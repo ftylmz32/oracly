@@ -63,6 +63,7 @@ Missing / localhost / LAN / plain HTTP values are **rejected** in release (fail 
 | `ORACLY_AI_VISION` | Default `true` |
 | `ORACLY_PRIVACY_POLICY_URL` | Public HTTPS privacy policy |
 | `ORACLY_TERMS_OF_USE_URL` | Public HTTPS terms |
+| `ORACLY_DATA_DELETION_URL` | Public HTTPS data deletion instructions |
 
 ## Debug-only (never in store builds)
 
@@ -93,7 +94,8 @@ flutter build appbundle --release \
   --dart-define=ORACLY_AI_VISION=true \
   --dart-define=ORACLY_AI_TIMEOUT_SECONDS=45 \
   --dart-define=ORACLY_PRIVACY_POLICY_URL=https://<REQUIRED_PUBLIC_HOST>/privacy \
-  --dart-define=ORACLY_TERMS_OF_USE_URL=https://<REQUIRED_PUBLIC_HOST>/terms
+  --dart-define=ORACLY_TERMS_OF_USE_URL=https://<REQUIRED_PUBLIC_HOST>/terms \
+  --dart-define=ORACLY_DATA_DELETION_URL=https://<REQUIRED_PUBLIC_HOST>/data-deletion
 ```
 
 APK:

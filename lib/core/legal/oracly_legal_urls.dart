@@ -9,6 +9,7 @@ abstract final class OraclyLegalUrls {
 
   static const privacyPolicyEnvKey = OraclyRuntimeKeys.privacyPolicyUrl;
   static const termsOfUseEnvKey = OraclyRuntimeKeys.termsOfUseUrl;
+  static const dataDeletionEnvKey = OraclyRuntimeKeys.dataDeletionUrl;
 
   /// Test-only source. Production reads dart-define + dotenv.
   static set testEnv(Map<String, String>? value) =>
@@ -19,9 +20,12 @@ abstract final class OraclyLegalUrls {
       OraclyRuntimeConfig.resolve().privacyPolicyUrl;
   static String? get termsOfUseUrl =>
       OraclyRuntimeConfig.resolve().termsOfUseUrl;
+  static String? get dataDeletionUrl =>
+      OraclyRuntimeConfig.resolve().dataDeletionUrl;
 
   static bool get hasPrivacyPolicy => privacyPolicyUrl != null;
   static bool get hasTermsOfUse => termsOfUseUrl != null;
+  static bool get hasDataDeletion => dataDeletionUrl != null;
 
   static Uri? get privacyPolicyUri {
     final raw = privacyPolicyUrl;
@@ -30,6 +34,11 @@ abstract final class OraclyLegalUrls {
 
   static Uri? get termsOfUseUri {
     final raw = termsOfUseUrl;
+    return raw == null ? null : Uri.tryParse(raw);
+  }
+
+  static Uri? get dataDeletionUri {
+    final raw = dataDeletionUrl;
     return raw == null ? null : Uri.tryParse(raw);
   }
 }

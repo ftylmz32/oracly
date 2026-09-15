@@ -14,6 +14,7 @@ import 'package:oracly_new/core/legal/legal_document_kind.dart';
 import 'package:oracly_new/core/legal/legal_document_launcher.dart';
 import 'package:oracly_new/core/legal/oracly_legal_urls.dart';
 import 'package:oracly_new/core/legal/store_subscription_management.dart';
+import 'package:oracly_new/core/config/release_endpoint_policy.dart';
 import 'package:oracly_new/features/premium/presentation/reference/premium_legal_disclosure.dart';
 import 'package:oracly_new/features/premium/presentation/reference/premium_reference_cta.dart';
 
@@ -57,10 +58,11 @@ void main() {
     );
   });
 
-  test('missing real Privacy/Terms URL fails honestly', () async {
+  test('missing real Privacy/Terms/Data-Deletion URL fails honestly', () async {
     OraclyLegalUrls.testEnv = null;
     expect(OraclyLegalUrls.hasPrivacyPolicy, isFalse);
     expect(OraclyLegalUrls.hasTermsOfUse, isFalse);
+    expect(OraclyLegalUrls.hasDataDeletion, isFalse);
     expect(
       await LegalDocumentLauncher.open(LegalDocumentKind.privacyPolicy),
       LegalOpenResult.missingUrl,
@@ -69,36 +71,53 @@ void main() {
       await LegalDocumentLauncher.open(LegalDocumentKind.termsOfUse),
       LegalOpenResult.missingUrl,
     );
+    expect(
+      await LegalDocumentLauncher.open(LegalDocumentKind.dataDeletion),
+      LegalOpenResult.missingUrl,
+    );
   });
 
   test('placeholder and http URLs are rejected', () {
     OraclyLegalUrls.testEnv = {
       OraclyLegalUrls.privacyPolicyEnvKey: 'https://example.com/privacy',
       OraclyLegalUrls.termsOfUseEnvKey: 'http://insecure.oracly.app/terms',
+      OraclyLegalUrls.dataDeletionEnvKey:
+          'https://REPLACE_WITH_PUBLIC_HOST/data-deletion',
     };
     expect(OraclyLegalUrls.privacyPolicyUrl, isNull);
     expect(OraclyLegalUrls.termsOfUseUrl, isNull);
+    expect(OraclyLegalUrls.dataDeletionUrl, isNull);
   });
 
   test('configured HTTPS URLs are accepted', () {
     OraclyLegalUrls.testEnv = {
       OraclyLegalUrls.privacyPolicyEnvKey: 'https://oracly.app/privacy',
       OraclyLegalUrls.termsOfUseEnvKey: 'https://oracly.app/terms',
+      OraclyLegalUrls.dataDeletionEnvKey: 'https://oracly.app/data-deletion',
     };
     expect(OraclyLegalUrls.hasPrivacyPolicy, isTrue);
     expect(OraclyLegalUrls.hasTermsOfUse, isTrue);
+    expect(OraclyLegalUrls.hasDataDeletion, isTrue);
     expect(OraclyLegalUrls.privacyPolicyUri?.host, 'oracly.app');
+    expect(OraclyLegalUrls.dataDeletionUri?.host, 'oracly.app');
   });
 
   test('production config has canonical HTTPS legal documents', () {
     final config = jsonDecode(
       File('tool/dart_defines.production.json').readAsStringSync(),
     ) as Map<String, dynamic>;
+    expect(config.containsKey(OraclyLegalUrls.privacyPolicyEnvKey), isTrue);
+    expect(config.containsKey(OraclyLegalUrls.termsOfUseEnvKey), isTrue);
+    expect(config.containsKey(OraclyLegalUrls.dataDeletionEnvKey), isTrue);
+
     final privacy = Uri.parse(
       config[OraclyLegalUrls.privacyPolicyEnvKey] as String,
     );
     final terms = Uri.parse(
       config[OraclyLegalUrls.termsOfUseEnvKey] as String,
+    );
+    final dataDeletion = Uri.parse(
+      config[OraclyLegalUrls.dataDeletionEnvKey] as String,
     );
     expect(
       privacy.toString(),
@@ -108,11 +127,59 @@ void main() {
       terms.toString(),
       'https://github.com/ftylmz32/oracly/blob/main/docs/terms-of-use.md',
     );
+    expect(
+      dataDeletion.toString(),
+      'https://github.com/ftylmz32/oracly/blob/main/docs/data-deletion.md',
+    );
+    for (final uri in [privacy, terms, dataDeletion]) {
+      expect(uri.scheme, 'https');
+      expect(
+        ReleaseEndpointPolicy.sanitize(
+          raw: uri.toString(),
+          isDevelopment: false,
+          releaseLocked: true,
+        ),
+        isNotNull,
+        reason: '$uri must survive release sanitization, not just parse',
+      );
+    }
 
     final launcher =
         File('lib/core/legal/legal_document_launcher.dart').readAsStringSync();
     expect(launcher, contains('LaunchMode.externalApplication'));
     expect(launcher, contains('catch (_)'));
+    expect(launcher, contains('LegalDocumentKind.dataDeletion'));
+  });
+
+  test(
+    'a release build using the old placeholder legal URLs would fail this guard',
+    () {
+      final oldPlaceholderConfig = <String, dynamic>{
+        'APP_ENV': 'production',
+        OraclyLegalUrls.privacyPolicyEnvKey:
+            'https://REPLACE_WITH_PUBLIC_HOST/privacy',
+        OraclyLegalUrls.termsOfUseEnvKey:
+            'https://REPLACE_WITH_PUBLIC_HOST/terms',
+        OraclyLegalUrls.dataDeletionEnvKey:
+            'https://REPLACE_WITH_PUBLIC_HOST/data-deletion',
+      };
+      OraclyLegalUrls.testEnv =
+          oldPlaceholderConfig.map((k, v) => MapEntry(k, '$v'));
+      expect(OraclyLegalUrls.hasPrivacyPolicy, isFalse);
+      expect(OraclyLegalUrls.hasTermsOfUse, isFalse);
+      expect(OraclyLegalUrls.hasDataDeletion, isFalse);
+    },
+  );
+
+  test('Settings/About Data Deletion tile uses the authoritative runtime config', () {
+    final aboutSection = File(
+      'lib/screens/about/about_legal_section.dart',
+    ).readAsStringSync();
+    expect(aboutSection, contains('LegalDocumentKind.dataDeletion'));
+    expect(aboutSection, contains('OraclyLegalUrls.hasDataDeletion'));
+    // Must route through the shared launcher/runtime-config, never a
+    // hardcoded literal URL competing with OraclyRuntimeConfig.
+    expect(aboutSection, isNot(matches(RegExp(r'https?://'))));
   });
 
   test('manage-subscription URIs are official store endpoints', () {

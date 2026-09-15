@@ -41,6 +41,17 @@ class AboutLegalSection extends StatelessWidget {
             LegalDocumentKind.termsOfUse,
           ),
         ),
+        SettingsNavTile(
+          icon: Icons.delete_outline,
+          title: LegalCopy.dataDeletion,
+          subtitle: OraclyLegalUrls.hasDataDeletion
+              ? LegalCopy.opensExternally
+              : LegalCopy.missingUrl,
+          onTap: () => LegalLinkActions.openDocument(
+            context,
+            LegalDocumentKind.dataDeletion,
+          ),
+        ),
         SizedBox(height: AppSpacing.md),
       ],
     );

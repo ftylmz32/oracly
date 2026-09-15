@@ -22,6 +22,7 @@ abstract final class OraclyRuntimeKeys {
   static const aiVision = 'ORACLY_AI_VISION';
   static const privacyPolicyUrl = 'ORACLY_PRIVACY_POLICY_URL';
   static const termsOfUseUrl = 'ORACLY_TERMS_OF_USE_URL';
+  static const dataDeletionUrl = 'ORACLY_DATA_DELETION_URL';
   static const devPremium = 'ORACLY_DEV_PREMIUM';
   static const openAiApiKey = 'OPENAI_API_KEY';
 
@@ -39,6 +40,7 @@ abstract final class OraclyRuntimeKeys {
     OraclyRuntimeKey(aiVision, OraclyRuntimeKeyClass.optionalRelease),
     OraclyRuntimeKey(privacyPolicyUrl, OraclyRuntimeKeyClass.optionalRelease),
     OraclyRuntimeKey(termsOfUseUrl, OraclyRuntimeKeyClass.optionalRelease),
+    OraclyRuntimeKey(dataDeletionUrl, OraclyRuntimeKeyClass.optionalRelease),
     OraclyRuntimeKey(devPremium, OraclyRuntimeKeyClass.debugOnly),
     OraclyRuntimeKey(openAiApiKey, OraclyRuntimeKeyClass.debugOnly),
   ];

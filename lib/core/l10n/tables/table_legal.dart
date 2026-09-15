@@ -24,6 +24,11 @@ const kL10nLegal = <String, L10nTriple>{
     'Terms of Use',
     'Условия использования',
   ),
+  'legal.data_deletion': L10nTriple(
+    'Veri Silme',
+    'Data Deletion',
+    'Удаление данных',
+  ),
   'legal.manage_subscription': L10nTriple(
     'Aboneliği yönet',
     'Manage subscription',
