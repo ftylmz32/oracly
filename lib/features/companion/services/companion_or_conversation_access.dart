@@ -52,6 +52,14 @@ abstract final class CompanionOrConversationAccess {
   }
 
   /// Mic / voice always require Premium — never the free deepen.
+  static Future<bool> ensurePremiumFresh(BuildContext context) async {
+    if (!await PremiumAccess.ensureFresh(context, promptIfInactive: false)) {
+      if (context.mounted) await showGate(context);
+      return false;
+    }
+    return true;
+  }
+
   static bool ensurePremium(BuildContext context) {
     if (isAllowed(context)) return true;
     showGate(context);

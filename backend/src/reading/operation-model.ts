@@ -15,7 +15,12 @@ export const OPERATION_STATUSES = [
 ] as const;
 export type ReadingOperationStatus = (typeof OPERATION_STATUSES)[number];
 
-export const FAILURE_CODES = ['unavailable', 'invalid', 'cancelled'] as const;
+export const FAILURE_CODES = [
+  'unavailable',
+  'invalid',
+  'cancelled',
+  'entitlement_denied',
+] as const;
 export type FailureCode = (typeof FAILURE_CODES)[number];
 
 export const SCHEMA_VERSION = 1;
@@ -78,6 +83,11 @@ export type PublicOperationStatus = {
   resultReady: boolean;
   resultId: string | null;
   accelerated: boolean;
+  /**
+   * R3.1 — allow-listed failure classification when status is `failed`.
+   * Omitted otherwise. Never includes provider/internal detail strings.
+   */
+  failureCode?: FailureCode;
 };
 
 export function isReadingType(value: unknown): value is ReadingType {
@@ -207,6 +217,10 @@ export function toPublicStatus(
     resultReady,
     resultId: resultReady ? record.resultId : null,
     accelerated: record.acceleratedAtMs != null,
+    // R3.1 — expose allow-listed failureCode only on failed operations.
+    ...(record.status === 'failed' && record.failureCode != null
+      ? { failureCode: record.failureCode }
+      : {}),
   };
 }
 

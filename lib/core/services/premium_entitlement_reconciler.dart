@@ -10,10 +10,18 @@ import '../../features/premium/services/premium_entitlement_verifier.dart';
 import '../domain/repositories/premium_repository.dart';
 
 class PremiumReconcileSnapshot {
-  const PremiumReconcileSnapshot({required this.entitlement, this.message});
+  const PremiumReconcileSnapshot({
+    required this.entitlement,
+    this.message,
+    this.definitive = true,
+  });
 
   final PremiumEntitlementState entitlement;
   final String? message;
+
+  /// False only for transient verify/transport failures that preserve a
+  /// previously-proven active grant without freshly confirming it.
+  final bool definitive;
 }
 
 class PremiumEntitlementReconciler {
@@ -121,9 +129,11 @@ class PremiumEntitlementReconciler {
       // demote it on ambiguity; the next successful reconcile re-confirms
       // normally. A never-verified user never reaches this branch at all
       // (see `reconcile()`), so this cannot fabricate Premium for anyone.
+      // R3.1 — definitive:false so freshness is not advanced.
       return PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.active,
         message: result.reason,
+        definitive: false,
       );
     }
 

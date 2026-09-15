@@ -1,6 +1,7 @@
 /// Parses public operation payloads. Rejects client-authored authority.
 library;
 
+import '../models/reading_failure_code.dart';
 import '../models/reading_operation_snapshot.dart';
 import '../models/reading_operation_status.dart';
 
@@ -22,9 +23,17 @@ class ReadingOperationCodec {
     if (createdAt == null || readyAt == null || serverNow == null) return null;
     if (remainingMs is! int || remainingMs < 0) return null;
     if (waitFinished is! bool || resultReady is! bool) return null;
-    if (json.containsKey('ownerUserId') || json.containsKey('failureCode')) {
+    // ownerUserId is never public — reject as client-authority pollution.
+    if (json.containsKey('ownerUserId')) return null;
+    // R3.1 — failureCode is public allow-list only when status is failed.
+    // Present on non-failed payloads → reject. Unknown codes → unknown.
+    final hasFailureCode = json.containsKey('failureCode');
+    if (hasFailureCode && status != ReadingOperationStatus.failed) {
       return null;
     }
+    final failureCode = status == ReadingOperationStatus.failed
+        ? readingFailureCodeFromWire(json['failureCode'])
+        : ReadingFailureCode.unknown;
     final resultId = json['resultId'];
     if (resultId != null && resultId is! String) return null;
     if (resultReady && (resultId == null || resultId.isEmpty)) return null;
@@ -42,6 +51,7 @@ class ReadingOperationCodec {
       resultReady: resultReady,
       resultId: resultId,
       durable: json['durable'] == true,
+      failureCode: failureCode,
     );
   }
 

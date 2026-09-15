@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/copy/resilience_copy.dart';
 import '../../../../features/birth_chart/providers/birth_information_provider.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
+import '../../../reading_operation/models/reading_failure_code.dart';
 import '../../copy/soul_mate_copy.dart';
 import '../../../discovery_journal/providers/discovery_journal_providers.dart';
 import '../../providers/premium_providers.dart';
@@ -104,7 +105,7 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     final durable = await SoulMateReadingOrchestrator.recoverDurable(ref);
     if (!mounted) return;
     if (durable.kind != SoulMateDurableKind.none) {
-      _applyDurable(durable);
+      await _applyDurable(durable);
       return;
     }
 
@@ -159,7 +160,7 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   /// SMD1 — applies a [SoulMateDurableOutcome] from either a fresh
   /// submission or a recovery poll. `active` schedules exactly one more
   /// poll; every other kind stops polling.
-  void _applyDurable(SoulMateDurableOutcome outcome) {
+  Future<void> _applyDurable(SoulMateDurableOutcome outcome) async {
     if (!mounted) return;
     _staleLegacy = false;
     switch (outcome.kind) {
@@ -187,11 +188,25 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
         _scheduleDurablePoll();
       case SoulMateDurableKind.failed:
         _pollTimer?.cancel();
+        // R3.1 — only definite entitlement denial triggers Premium self-heal.
+        // Unrelated / unknown / missing codes keep Premium state untouched.
+        final entitlementDenied = outcome.failureCode.isEntitlementDenial;
+        var stillPremium = true;
+        if (entitlementDenied) {
+          stillPremium =
+              await PremiumAccess.healAfterEntitlementDenial(context);
+          if (!mounted) return;
+        }
         setState(() {
           _activeSince = null;
           _busy = false;
-          _statusMessage = SoulMateCopy.failureTemporary;
+          _statusMessage = entitlementDenied && !stillPremium
+              ? SoulMateCopy.premiumRequired
+              : SoulMateCopy.failureTemporary;
         });
+        if (entitlementDenied && !stillPremium) {
+          PremiumAccess.prompt(context);
+        }
       case SoulMateDurableKind.unavailable:
         _pollTimer?.cancel();
         setState(() {
@@ -216,7 +231,7 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
         if (!mounted || token != _pollToken) return;
         final outcome = await SoulMateReadingOrchestrator.recoverDurable(ref);
         if (!mounted || token != _pollToken) return;
-        _applyDurable(outcome);
+        await _applyDurable(outcome);
       }());
     });
   }
@@ -306,7 +321,7 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   void _retry() {
     _freshNext = false;
     setState(() => _statusMessage = null);
-    _draw();
+    unawaited(_draw());
   }
 
   /// SMD1 — every new submission from this build is server-authoritative:
@@ -325,10 +340,9 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
       OraclySnackBar.show(context, message: error);
       return;
     }
-    if (!SoulMateDevAccess.allows(context)) {
-      PremiumAccess.prompt(context);
-      return;
-    }
+    // R3 — never trust a stale Premium badge for a paid durable submission.
+    if (!await SoulMateDevAccess.allowsFresh(context)) return;
+    if (!mounted) return;
     _drawLock = true;
     try {
       // A stale-legacy operation (SMD1 §11) must always retry with a
@@ -362,7 +376,7 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
         fresh: fresh,
       );
       if (!mounted) return;
-      _applyDurable(outcome);
+      await _applyDurable(outcome);
     } catch (_) {
       if (!mounted) return;
       setState(() {

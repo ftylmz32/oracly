@@ -21,7 +21,9 @@ Future<void> toggleCompanionMic({
   required TextEditingController composer,
 }) async {
   // Mic stays Premium-only — free deepen is text-only.
-  if (!CompanionOrConversationAccess.ensurePremium(context)) return;
+  // R3 — refresh stale entitlement before starting a Premium-only voice turn.
+  if (!await CompanionOrConversationAccess.ensurePremiumFresh(context)) return;
+  if (!context.mounted) return;
   final turn = ref.read(companionVoiceTurnControllerProvider);
   if (turn.isActive) {
     if (turn.phase == OrVoiceTurnPhase.listening || turn.isReady) {

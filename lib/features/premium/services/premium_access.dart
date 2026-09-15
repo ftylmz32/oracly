@@ -37,6 +37,39 @@ abstract final class PremiumAccess {
 
   static bool ensure(BuildContext context) => isActive(context);
 
+  /// R3 — await a fresh reconciliation when stale, then gate.
+  /// Returns false (and optionally prompts) when definitively inactive.
+  static Future<bool> ensureFresh(
+    BuildContext context, {
+    bool promptIfInactive = true,
+  }) async {
+    try {
+      final container = ProviderScope.containerOf(context, listen: false);
+      final status = container.read(premiumStatusProvider);
+      await status.ensureFresh();
+      if (!context.mounted) return false;
+      if (status.isPremium) return true;
+      if (promptIfInactive) prompt(context);
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// R3 — server denial self-heal. Forces reconcile; never auto-retries paid
+  /// work. Returns true when Premium remains active after re-verify.
+  static Future<bool> healAfterEntitlementDenial(BuildContext context) async {
+    try {
+      final container = ProviderScope.containerOf(context, listen: false);
+      final status = container.read(premiumStatusProvider);
+      await status.forceReconcile();
+      if (!context.mounted) return false;
+      return status.isPremium;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static void prompt(BuildContext context) {
     PremiumEntrySheet.show(context);
   }

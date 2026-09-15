@@ -81,6 +81,22 @@ void main() {
         'resultReady': false,
         'resultId': null,
         'failureCode': 'unavailable',
+      })?.failureCode.name,
+      'unavailable',
+    );
+    expect(
+      codec.parse({
+        'operationId': 'c' * 32,
+        'readingType': 'soulmate',
+        'status': 'waiting',
+        'createdAt': '2026-09-08T00:00:00.000Z',
+        'readyAt': '2026-09-08T02:00:00.000Z',
+        'serverNow': '2026-09-08T02:00:00.000Z',
+        'waitFinished': true,
+        'remainingMs': 0,
+        'resultReady': false,
+        'resultId': null,
+        'failureCode': 'unavailable',
       }),
       isNull,
     );

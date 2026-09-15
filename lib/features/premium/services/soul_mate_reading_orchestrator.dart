@@ -19,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
 import '../../ai/production/ai_request_fingerprint.dart';
+import '../../reading_operation/models/reading_failure_code.dart';
 import '../../reading_operation/models/reading_operation_status.dart';
 import '../../reading_operation/providers/reading_live_provider.dart';
 import '../../reading_operation/services/reading_live_flow.dart';
@@ -480,7 +481,10 @@ class SoulMateReadingOrchestrator {
       );
     }
     if (begun.kind == ReadingLiveKind.failed) {
-      return const SoulMateDurableOutcome(kind: SoulMateDurableKind.failed);
+      return SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.failed,
+        failureCode: snapshot.failureCode,
+      );
     }
     if (begun.kind == ReadingLiveKind.ready) {
       return _finishReady(
@@ -524,7 +528,10 @@ class SoulMateReadingOrchestrator {
       return const SoulMateDurableOutcome(kind: SoulMateDurableKind.none);
     }
     if (state.kind == ReadingLiveKind.failed) {
-      return const SoulMateDurableOutcome(kind: SoulMateDurableKind.failed);
+      return SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.failed,
+        failureCode: snapshot.failureCode,
+      );
     }
     if (state.kind == ReadingLiveKind.ready) {
       return _finishReady(
@@ -660,6 +667,7 @@ class SoulMateDurableOutcome {
     this.interpretation,
     this.savedId,
     this.activeSince,
+    this.failureCode = ReadingFailureCode.unknown,
   });
 
   final SoulMateDurableKind kind;
@@ -670,6 +678,9 @@ class SoulMateDurableOutcome {
   /// Server-authoritative operation creation time. UI-only elapsed-time
   /// presentation may use this; it never changes operation validity.
   final DateTime? activeSince;
+
+  /// R3.1 — allow-listed failure class when [kind] is failed.
+  final ReadingFailureCode failureCode;
 }
 
 class SoulMateRecoveryState {

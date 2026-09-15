@@ -20,6 +20,7 @@ import '../widgets/oracly_bottom_bar.dart';
 import '../widgets/oracly_pressable.dart';
 import 'oracly_navigation_scope.dart';
 import 'oracly_shell_bridge.dart';
+import 'oracly_shell_lifecycle_attachment.dart';
 import 'oracly_shell_runtime.dart';
 import 'oracly_tab_pane.dart';
 
@@ -38,8 +39,7 @@ class OraclyAppShell extends ConsumerStatefulWidget {
   ConsumerState<OraclyAppShell> createState() => _OraclyAppShellState();
 }
 
-class _OraclyAppShellState extends ConsumerState<OraclyAppShell>
-    with WidgetsBindingObserver {
+class _OraclyAppShellState extends ConsumerState<OraclyAppShell> {
   late int _currentIndex = widget.initialTab.index;
 
   late final List<GlobalKey<NavigatorState>> _navigatorKeys = List.generate(
@@ -56,11 +56,13 @@ class _OraclyAppShellState extends ConsumerState<OraclyAppShell>
   ];
 
   late final OraclyShellTabSwitcher _bridgeSwitch = _switchFromBridge;
+  late final OraclyShellLifecycleAttachment _lifecycle =
+      OraclyShellLifecycleAttachment(onLifecycle: _onLifecycle);
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycle.attach();
     OraclyShellBridge.bind(_bridgeSwitch);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -71,23 +73,22 @@ class _OraclyAppShellState extends ConsumerState<OraclyAppShell>
   @override
   void dispose() {
     OraclyShellBridge.unbind(_bridgeSwitch);
-    WidgetsBinding.instance.removeObserver(this);
+    _lifecycle.detach();
     unawaited(OraclyTtsGate.stop());
     super.dispose();
   }
 
-  void _switchFromBridge(OraclyTab tab) {
-    if (!mounted) return;
-    _onDestinationSelected(tab.index);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void _onLifecycle(AppLifecycleState state) {
     OraclyShellRuntime.handleLifecycle(
       state,
       ref.read(oraclySoundServiceProvider),
       ref: ref,
     );
+  }
+
+  void _switchFromBridge(OraclyTab tab) {
+    if (!mounted) return;
+    _onDestinationSelected(tab.index);
   }
 
   void _onDestinationSelected(int index) {

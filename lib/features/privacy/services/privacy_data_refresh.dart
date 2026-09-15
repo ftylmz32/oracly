@@ -11,6 +11,7 @@ import '../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../gems/providers/gem_providers.dart';
 import '../../personal_discovery/providers/personal_discovery_providers.dart';
 import '../../personal_discovery/services/personal_discovery_refresh.dart';
+import '../../premium/providers/premium_providers.dart';
 
 abstract final class PrivacyDataRefresh {
   PrivacyDataRefresh._();
@@ -39,6 +40,9 @@ abstract final class PrivacyDataRefresh {
     ref.invalidate(readingHistoryProvider);
     ref.invalidate(settingsProvider);
     ref.invalidate(premiumActiveProvider);
+    // R3 — rebuild PremiumStatusController so in-memory Premium cannot leak
+    // across identities after disk wipe. New controller loads independently.
+    ref.invalidate(premiumStatusProvider);
     PersonalDiscoveryRefresh.invalidate(ref);
     ref.invalidate(discoveryRevisitOfferProvider);
     ref.invalidate(discoverySurfaceMemoryProvider);

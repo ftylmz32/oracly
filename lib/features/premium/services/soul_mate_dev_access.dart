@@ -23,4 +23,10 @@ abstract final class SoulMateDevAccess {
     if (allowsTestAccess) return true;
     return PremiumAccess.ensure(context);
   }
+
+  /// R3 — stale-aware gate for draw/retry. Never fabricates Premium.
+  static Future<bool> allowsFresh(BuildContext context) async {
+    if (allowsTestAccess) return true;
+    return PremiumAccess.ensureFresh(context);
+  }
 }

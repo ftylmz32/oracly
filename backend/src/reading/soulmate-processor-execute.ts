@@ -125,7 +125,7 @@ export async function executeClaimedSoulmateReading(input: {
       await input.flow.failFinal({
         ownerUserId: operation.ownerUserId,
         operationId,
-        failureCode: 'invalid',
+        failureCode: 'entitlement_denied',
       });
       return 'failed';
     }

@@ -279,7 +279,7 @@ describe('reading operations', () => {
     ).rejects.toMatchObject({ code: 'not_found' });
   });
 
-  it('rejects an invalid reading type and does not expose internal failure codes', async () => {
+  it('exposes allow-listed failureCode on failed status only', async () => {
     const setup = harness();
     const { app } = await appFor(setup);
     const invalid = await app.inject({
@@ -312,9 +312,9 @@ describe('reading operations', () => {
     });
     const body = JSON.stringify(status.json());
     expect(status.json().data.status).toBe('failed');
-    expect(body).not.toContain('unavailable');
-    expect(body).not.toContain('failureCode');
+    expect(status.json().data.failureCode).toBe('unavailable');
     expect(body).not.toContain('provider');
+    expect(body).not.toContain('ownerUserId');
     await app.close();
   });
 

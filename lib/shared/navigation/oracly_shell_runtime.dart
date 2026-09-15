@@ -18,6 +18,7 @@ import '../../core/voice/oracly_voice_id.dart';
 import '../../features/companion/providers/companion_providers.dart';
 import '../../features/gems/providers/gem_providers.dart';
 import '../../features/premium/models/personalization_models.dart';
+import '../../features/premium/providers/premium_providers.dart';
 
 abstract final class OraclyShellRuntime {
   OraclyShellRuntime._();
@@ -68,7 +69,10 @@ abstract final class OraclyShellRuntime {
       case AppLifecycleState.resumed:
         // Do not resume interrupted OR speech after a call/background.
         sound.resumeAmbientFromBackground();
-        if (ref != null) unawaited(reconcilePaidOps(ref));
+        if (ref != null) {
+          unawaited(reconcilePaidOps(ref));
+          unawaited(reconcilePremiumIfStale(ref));
+        }
     }
   }
 
@@ -77,6 +81,18 @@ abstract final class OraclyShellRuntime {
     try {
       await ref.read(paidAiOperationCoordinatorProvider).reconcile();
     } catch (_) {}
+  }
+
+  /// R3 — foreground Premium sync. Uses [PremiumStatusController.ensureFresh]
+  /// so rapid resume bursts and concurrent feature taps share one in-flight
+  /// reconciliation when the 120s freshness window has elapsed.
+  static Future<void> reconcilePremiumIfStale(WidgetRef ref) async {
+    try {
+      if (!ref.exists(premiumStatusProvider)) return;
+      await ref.read(premiumStatusProvider).ensureFresh();
+    } catch (_) {
+      // Billing/store/auth may not be ready yet — never crash the shell.
+    }
   }
 
   static Future<void> bootstrap(WidgetRef ref) async {

@@ -1,6 +1,7 @@
 /// Server-authored operation view. The client never mutates these fields.
 library;
 
+import 'reading_failure_code.dart';
 import 'reading_operation_status.dart';
 
 class ReadingOperationSnapshot {
@@ -16,6 +17,7 @@ class ReadingOperationSnapshot {
     required this.resultReady,
     required this.resultId,
     this.durable = false,
+    this.failureCode = ReadingFailureCode.unknown,
   });
 
   final String operationId;
@@ -33,6 +35,10 @@ class ReadingOperationSnapshot {
   /// observational: the client never derives execution authority from this
   /// flag, only presentation (e.g. legacy-stale-operation detection).
   final bool durable;
+
+  /// R3.1 — allow-listed public failure class when [status] is failed.
+  /// Historical payloads without a code decode as [ReadingFailureCode.unknown].
+  final ReadingFailureCode failureCode;
 
   bool get operationFailed => status == ReadingOperationStatus.failed;
 }
