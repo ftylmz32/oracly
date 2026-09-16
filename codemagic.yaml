@@ -1,0 +1,40 @@
+workflows:
+  ios-release:
+    name: ORACLY iOS Release
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+
+    integrations:
+      app_store_connect: "ORACLY Codemagic"
+
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: app.oracly
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+
+      - name: Set up iOS code signing
+        script: xcode-project use-profiles
+
+      - name: Build iOS IPA
+        script: |
+          flutter build ipa --release \
+            --build-name=1.0 \
+            --build-number=1 \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: false
