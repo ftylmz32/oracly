@@ -8,6 +8,8 @@ workflows:
       app_store_connect: "ORACLY Codemagic"
 
     environment:
+      groups:
+        - ios_secrets
       ios_signing:
         distribution_type: app_store
         bundle_identifier: app.oracly
@@ -16,6 +18,22 @@ workflows:
       cocoapods: default
 
     scripts:
+      - name: Restore Firebase iOS config
+        script: |
+          if [ -z "${FIREBASE_IOS_PLIST_B64:-}" ]; then
+            echo "FIREBASE_IOS_PLIST_B64 is not configured"
+            exit 1
+          fi
+          mkdir -p ios/Runner
+          printf '%s' "$FIREBASE_IOS_PLIST_B64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          plutil -lint ios/Runner/GoogleService-Info.plist
+          FIREBASE_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :BUNDLE_ID' ios/Runner/GoogleService-Info.plist)
+          if [ "$FIREBASE_BUNDLE_ID" != "app.oracly" ]; then
+            echo "Firebase iOS config bundle mismatch: $FIREBASE_BUNDLE_ID"
+            exit 1
+          fi
+          echo "Firebase iOS config restored for app.oracly"
+
       - name: Align FlutterFire iOS SDK versions
         script: |
           python3 - <<'PY'
