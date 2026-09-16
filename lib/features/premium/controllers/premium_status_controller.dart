@@ -8,6 +8,7 @@ import '../../../core/services/premium_service.dart';
 import '../models/premium_entitlement_state.dart';
 import '../models/premium_purchase_result.dart';
 import '../models/review_access_result.dart';
+import '../services/premium_plan_availability.dart';
 import 'premium_reconcile_freshness.dart';
 
 class PremiumStatusController extends ChangeNotifier {
@@ -50,6 +51,7 @@ class PremiumStatusController extends ChangeNotifier {
   bool get loaded => _loaded;
   PremiumEntitlementState get entitlement => _entitlement;
   String? get entitlementMessage => _entitlementMessage;
+
   /// Commerce entitlement OR an active Play/App Store reviewer grant —
   /// distinguishable via [isReviewAccessActive]; never written back into
   /// [entitlement], and never mixed with purchase credentials.
@@ -67,8 +69,15 @@ class PremiumStatusController extends ChangeNotifier {
     try {
       await _service.preparePurchase();
       _activePlan = await _service.activePlan();
-      _plans = await _service.getPlans();
-      if (_activePlan != null) _selectedPlan = _activePlan!;
+      _plans = PremiumPlanAvailability.visiblePlans(await _service.getPlans());
+      if (_activePlan != null &&
+          PremiumPlanAvailability.isPurchasable(_activePlan!)) {
+        _selectedPlan = _activePlan!;
+      } else {
+        _selectedPlan = PremiumPlanAvailability.normalizeSelection(
+          _selectedPlan,
+        );
+      }
       await _guardedReconcile(keepActiveWhileRefreshing: true);
       _loaded = true;
     } catch (_) {
@@ -106,24 +115,24 @@ class PremiumStatusController extends ChangeNotifier {
   }
 
   /// R3 — single-flight: concurrent callers share one in-flight reconcile.
-  Future<void> _guardedReconcile({
-    required bool keepActiveWhileRefreshing,
-  }) {
+  Future<void> _guardedReconcile({required bool keepActiveWhileRefreshing}) {
     final existing = _inFlight;
     if (existing != null) return existing;
-    final future = _reconcile(
-      keepActiveWhileRefreshing: keepActiveWhileRefreshing,
-    ).then((definitive) {
-      _freshness.recordAttempt(definitive: definitive, now: _now());
-    }).whenComplete(() {
-      _inFlight = null;
-    });
+    final future =
+        _reconcile(keepActiveWhileRefreshing: keepActiveWhileRefreshing)
+            .then((definitive) {
+              _freshness.recordAttempt(definitive: definitive, now: _now());
+            })
+            .whenComplete(() {
+              _inFlight = null;
+            });
     _inFlight = future;
     return future;
   }
 
   void selectPlan(PremiumPlanKind kind) {
     if (isPremium || busy) return;
+    if (!PremiumPlanAvailability.isPurchasable(kind)) return;
     _selectedPlan = kind;
     notifyListeners();
   }
@@ -137,10 +146,20 @@ class PremiumStatusController extends ChangeNotifier {
     if (!_entitlement.canStartPurchase) {
       return PremiumPurchaseResult.unavailable();
     }
-    _set(PremiumEntitlementState.pending,
-        PremiumPurchaseResult.pending().message);
+    final plan = PremiumPlanAvailability.normalizeSelection(_selectedPlan);
+    if (plan != _selectedPlan) {
+      _selectedPlan = plan;
+      notifyListeners();
+    }
+    if (!PremiumPlanAvailability.isPurchasable(plan)) {
+      return PremiumPurchaseResult.unavailable();
+    }
+    _set(
+      PremiumEntitlementState.pending,
+      PremiumPurchaseResult.pending().message,
+    );
     try {
-      final result = await _service.purchase(_selectedPlan);
+      final result = await _service.purchase(plan);
       await _settle(result);
       return result;
     } catch (_) {
@@ -158,8 +177,10 @@ class PremiumStatusController extends ChangeNotifier {
       _set(PremiumEntitlementState.unavailable);
       return PremiumPurchaseResult.restoreUnavailable();
     }
-    _set(PremiumEntitlementState.restoring,
-        PremiumPurchaseResult.pending().message);
+    _set(
+      PremiumEntitlementState.restoring,
+      PremiumPurchaseResult.pending().message,
+    );
     try {
       final result = await _service.restore();
       await _settle(result);

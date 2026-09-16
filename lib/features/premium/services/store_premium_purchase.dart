@@ -8,6 +8,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../../core/domain/models/premium_plan.dart';
 import '../models/premium_purchase_result.dart';
+import 'premium_plan_availability.dart';
 import 'premium_purchase_port.dart';
 import 'premium_store_catalog.dart';
 import 'store_iap_client.dart';
@@ -15,7 +16,7 @@ import 'store_premium_purchase_session.dart';
 
 class StorePremiumPurchase implements PremiumPurchasePort {
   StorePremiumPurchase({InAppPurchase? iap, StoreIapClient? client})
-      : _iap = client ?? PluginStoreIapClient(iap);
+    : _iap = client ?? PluginStoreIapClient(iap);
 
   final StoreIapClient _iap;
   final StorePremiumPurchaseSession _session = StorePremiumPurchaseSession();
@@ -62,13 +63,14 @@ class StorePremiumPurchase implements PremiumPurchasePort {
       }
       _listen();
       try {
+        final queryIds = PremiumPlanAvailability.storeQueryIds();
         final response = await _iap
-            .queryProductDetails(PremiumStoreCatalog.allIds)
+            .queryProductDetails(queryIds)
             .timeout(
               const Duration(seconds: 8),
               onTimeout: () => ProductDetailsResponse(
                 productDetails: const [],
-                notFoundIDs: PremiumStoreCatalog.allIds.toList(),
+                notFoundIDs: queryIds.toList(),
               ),
             );
         _products
@@ -90,6 +92,9 @@ class StorePremiumPurchase implements PremiumPurchasePort {
   @override
   Future<PremiumPurchaseResult> purchase(PremiumPlanKind plan) async {
     if (!_configured) return PremiumPurchaseResult.unavailable();
+    if (!PremiumPlanAvailability.isPurchasable(plan)) {
+      return PremiumPurchaseResult.unavailable();
+    }
     final product = _products[PremiumStoreCatalog.idFor(plan)];
     if (product == null) return PremiumPurchaseResult.unavailable();
     if (!_session.begin(expected: plan, restore: false)) {
