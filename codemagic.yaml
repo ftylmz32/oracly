@@ -16,8 +16,28 @@ workflows:
       cocoapods: default
 
     scripts:
-      - name: Get Flutter packages
-        script: flutter pub get
+      - name: Align FlutterFire iOS SDK versions
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("pubspec.yaml")
+          text = p.read_text(encoding="utf-8")
+          replacements = {
+              "  firebase_core: ^4.13.0": "  firebase_core: 4.15.0",
+              "  firebase_auth: ^6.6.1": "  firebase_auth: 6.7.0",
+              "  firebase_app_check: 0.4.6": "  firebase_app_check: 0.4.8",
+              "  firebase_messaging: ^16.6.0": "  firebase_messaging: 16.7.0",
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f"Expected dependency line not found: {old}")
+              text = text.replace(old, new, 1)
+          p.write_text(text, encoding="utf-8")
+          print("Aligned FlutterFire packages to Firebase iOS SDK 12.19.0")
+          PY
+          rm -rf .dart_tool ios/Flutter/ephemeral
+          flutter pub get
 
       - name: Refresh Xcode project tooling
         script: gem update xcodeproj --no-document
