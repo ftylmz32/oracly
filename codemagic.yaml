@@ -19,8 +19,11 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
 
+      - name: Refresh Xcode project tooling
+        script: gem update xcodeproj --no-document
+
       - name: Set up iOS code signing
-        script: xcode-project use-profiles --project ios/Runner.xcodeproj
+        script: xcode-project use-profiles --project ios/Runner.xcodeproj --verbose
 
       - name: Build iOS IPA
         script: |
