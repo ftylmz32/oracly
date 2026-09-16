@@ -22,6 +22,19 @@ workflows:
       - name: Refresh Xcode project tooling
         script: gem update xcodeproj --no-document
 
+      - name: Normalize Xcode project encoding
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("ios/Runner.xcodeproj/project.pbxproj")
+          data = p.read_bytes()
+          if data.startswith(b"\xef\xbb\xbf"):
+              p.write_bytes(data[3:])
+              print("Removed UTF-8 BOM from project.pbxproj")
+          else:
+              print("project.pbxproj has no UTF-8 BOM")
+          PY
+
       - name: Set up iOS code signing
         script: xcode-project use-profiles --project ios/Runner.xcodeproj --verbose
 
