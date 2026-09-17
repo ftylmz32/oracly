@@ -76,11 +76,115 @@ workflows:
       - name: Set up iOS code signing
         script: xcode-project use-profiles --project ios/Runner.xcodeproj --verbose
 
+      - name: Create production dart-defines
+        script: |
+          mkdir -p tool
+          cat > tool/dart_defines.production.json <<'EOF'
+          {
+            "APP_ENV": "production",
+            "ORACLY_AI_PROXY_URL": "https://r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete",
+            "ORACLY_BILLING_VERIFY_URL": "https://r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify",
+            "ORACLY_AI_MODEL": "gpt-4o",
+            "ORACLY_AI_VISION": "true",
+            "ORACLY_AI_TIMEOUT_SECONDS": "45",
+            "ORACLY_AI_IMAGE_TIMEOUT_SECONDS": "120"
+          }
+          EOF
+          echo "Created tool/dart_defines.production.json"
+
+      - name: Validate production dart-defines
+        script: |
+          python3 - <<'PY'
+          import ipaddress
+          import json
+          import sys
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          path = Path("tool/dart_defines.production.json")
+          if not path.is_file():
+              raise SystemExit("missing tool/dart_defines.production.json")
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          app_env = data.get("APP_ENV")
+          ai = data.get("ORACLY_AI_PROXY_URL")
+          billing = data.get("ORACLY_BILLING_VERIFY_URL")
+
+          if app_env != "production":
+              raise SystemExit(f"APP_ENV must be production, got {app_env!r}")
+          if not isinstance(ai, str) or not isinstance(billing, str):
+              raise SystemExit("AI/billing URLs must be strings")
+
+          banned_substrings = (
+              "REPLACE_WITH",
+              "localhost",
+              "127.0.0.1",
+              "10.0.2.2",
+              "0.0.0.0",
+              "[::1]",
+              "::1",
+          )
+
+          def is_private_or_lan(host: str) -> bool:
+              h = host.lower().strip("[]")
+              if h.endswith(".local"):
+                  return True
+              try:
+                  ip = ipaddress.ip_address(h)
+              except ValueError:
+                  return False
+              return (
+                  ip.is_private
+                  or ip.is_loopback
+                  or ip.is_link_local
+                  or ip.is_unspecified
+              )
+
+          def validate_https(url: str, *, suffix: str, label: str) -> None:
+              raw = url.strip()
+              if not raw:
+                  raise SystemExit(f"{label} is empty")
+              upper = raw.upper()
+              for banned in banned_substrings:
+                  if banned.upper() in upper:
+                      raise SystemExit(f"{label} contains banned token {banned!r}")
+              parsed = urlparse(raw)
+              if parsed.scheme.lower() != "https":
+                  raise SystemExit(f"{label} must be HTTPS")
+              host = (parsed.hostname or "").lower()
+              if not host:
+                  raise SystemExit(f"{label} has no host")
+              if is_private_or_lan(host):
+                  raise SystemExit(f"{label} must not use localhost/LAN host {host!r}")
+              path = parsed.path.rstrip("/")
+              if not path.endswith(suffix):
+                  raise SystemExit(
+                      f"{label} must end with {suffix}, got path {parsed.path!r}"
+                  )
+
+          validate_https(ai, suffix="/v1/ai/complete", label="ORACLY_AI_PROXY_URL")
+          validate_https(
+              billing, suffix="/v1/billing/verify", label="ORACLY_BILLING_VERIFY_URL"
+          )
+
+          # Never allow secrets in dart-defines.
+          for forbidden in ("OPENAI_API_KEY", "API_KEY", "SECRET", "PASSWORD", "TOKEN"):
+              for key in data:
+                  if forbidden in key.upper():
+                      raise SystemExit(f"forbidden secret-like key in dart-defines: {key}")
+
+          print("Production dart-defines validated")
+          print(f"APP_ENV={app_env}")
+          print(f"ORACLY_AI_PROXY_URL={ai}")
+          print(f"ORACLY_BILLING_VERIFY_URL={billing}")
+          PY
+
       - name: Build iOS IPA
         script: |
           flutter build ipa --release \
+            --dart-define-from-file=tool/dart_defines.production.json \
             --build-name=1.0 \
-            --build-number=1 \
+            --build-number=2 \
             --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:
