@@ -82,8 +82,8 @@ workflows:
           cat > tool/dart_defines.production.json <<'EOF'
           {
             "APP_ENV": "production",
-            "ORACLY_AI_PROXY_URL": "https://r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete",
-            "ORACLY_BILLING_VERIFY_URL": "https://r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify",
+            "ORACLY_AI_PROXY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete",
+            "ORACLY_BILLING_VERIFY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify",
             "ORACLY_AI_MODEL": "gpt-4o",
             "ORACLY_AI_VISION": "true",
             "ORACLY_AI_TIMEOUT_SECONDS": "45",
@@ -166,6 +166,17 @@ workflows:
           validate_https(
               billing, suffix="/v1/billing/verify", label="ORACLY_BILLING_VERIFY_URL"
           )
+
+          # Reject Cloud Run revision-tag hosts (e.g. tag---service-hash.a.run.app).
+          for label, url in (
+              ("ORACLY_AI_PROXY_URL", ai),
+              ("ORACLY_BILLING_VERIFY_URL", billing),
+          ):
+              host = (urlparse(url.strip()).hostname or "").lower()
+              if "---" in host:
+                  raise SystemExit(
+                      f"{label} must use the stable service URL, not revision tag host {host!r}"
+                  )
 
           # Never allow secrets in dart-defines.
           for forbidden in ("OPENAI_API_KEY", "API_KEY", "SECRET", "PASSWORD", "TOKEN"):

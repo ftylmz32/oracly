@@ -55,5 +55,17 @@ void main() {
       expect(url, 'http://127.0.0.1:8787/v1/reading-operations');
       expect(url, isNot(contains('/v1/ai/complete/v1/')));
     });
+
+    test('stable production proxy strips to service origin, not a tag host', () {
+      const proxy =
+          'https://oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete';
+      final origin = readingOperationBackendOrigin(proxy);
+      expect(origin, 'https://oracly-api-uya7zqzwra-ew.a.run.app');
+      expect(Uri.parse(origin).host.contains('---'), isFalse);
+      expect(
+        '$origin/v1/gems/balance',
+        'https://oracly-api-uya7zqzwra-ew.a.run.app/v1/gems/balance',
+      );
+    });
   });
 }

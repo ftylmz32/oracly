@@ -47,8 +47,9 @@ class OraclyRuntimeConfig {
 
   bool get isReleaseConfigComplete => missingMandatoryReleaseKeys.isEmpty;
 
+  /// Stable Cloud Run service URL only — never a retired revision-tag host.
   static const internalBackendBaseUrl =
-      'https://r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app';
+      'https://oracly-api-uya7zqzwra-ew.a.run.app';
   static const internalAiProxyUrl = '$internalBackendBaseUrl/v1/ai/complete';
   static const internalBillingVerifyUrl =
       '$internalBackendBaseUrl/v1/billing/verify';

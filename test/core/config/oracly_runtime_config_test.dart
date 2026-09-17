@@ -136,4 +136,32 @@ void main() {
       reason: 'example placeholders must not pass release sanitization',
     );
   });
+
+  test('internal backend URL is the stable service host, never a revision tag', () {
+    final host = Uri.parse(OraclyRuntimeConfig.internalBackendBaseUrl).host;
+    expect(host, 'oracly-api-uya7zqzwra-ew.a.run.app');
+    expect(host.contains('---'), isFalse);
+    expect(OraclyRuntimeConfig.internalBackendBaseUrl.contains('r31b'), isFalse);
+    expect(
+      OraclyRuntimeConfig.internalAiProxyUrl,
+      'https://oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete',
+    );
+    expect(
+      OraclyRuntimeConfig.internalBillingVerifyUrl,
+      'https://oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify',
+    );
+  });
+
+  test('APP_ENV=internal pins stable service URL even if override is a tag', () {
+    OraclyRuntimeConfig.testEnv = {
+      OraclyRuntimeKeys.appEnv: 'internal',
+      OraclyRuntimeKeys.aiProxyUrl:
+          'https://r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete',
+      OraclyRuntimeKeys.billingVerifyUrl:
+          'https://r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify',
+    };
+    final cfg = OraclyRuntimeConfig.resolve(releaseLocked: true);
+    expect(cfg.aiProxyUrl, OraclyRuntimeConfig.internalAiProxyUrl);
+    expect(Uri.parse(cfg.aiProxyUrl!).host.contains('---'), isFalse);
+  });
 }

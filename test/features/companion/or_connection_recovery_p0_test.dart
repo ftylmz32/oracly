@@ -72,7 +72,7 @@ void main() {
     expect(config.safeTransportLabel, 'local-proxy');
   });
 
-  test('INTERNAL is pinned to R3.1B HTTPS and ignores endpoint override', () {
+  test('INTERNAL is pinned to stable Cloud Run HTTPS and ignores override', () {
     OraclyRuntimeConfig.testEnv = const {
       'APP_ENV': 'internal',
       'ORACLY_AI_PROXY_URL': 'http://10.0.2.2:8787/v1/ai/complete',
@@ -84,8 +84,9 @@ void main() {
     expect(config.safeEnvironmentLabel, 'INTERNAL');
     expect(
       config.safeHostLabel,
-      'r31b-200bc15b---oracly-api-uya7zqzwra-ew.a.run.app',
+      'oracly-api-uya7zqzwra-ew.a.run.app',
     );
+    expect(config.safeHostLabel.contains('---'), isFalse);
     expect(config.safeTransportLabel, 'remote-proxy');
   });
 
