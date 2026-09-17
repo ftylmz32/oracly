@@ -26,6 +26,10 @@ RUN npm ci --omit=dev && chown -R oracly:oracly /app
 
 COPY --from=build --chown=oracly:oracly /app/dist ./dist
 
+# Official Apple PKI roots for App Store Server Library JWS verification.
+# Production: APPLE_ROOT_CA_DIR=/app/certs/apple
+COPY --chown=oracly:oracly certs/apple ./certs/apple
+
 USER oracly
 EXPOSE 8080
 
