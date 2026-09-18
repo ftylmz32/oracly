@@ -1,19 +1,21 @@
 # ORACLY Destek
 
-ORACLY ile ilgili teknik sorunlar, satın alma/abonelik sorunları, hesap ve uygulama kullanımıyla ilgili destek talepleri için:
+ORACLY ile ilgili teknik sorunlar, satın alma/abonelik sorunları,
+hesap ve uygulama kullanımıyla ilgili destek talepleri için:
 
-**E-posta:** ftylmz32@gmail.com
+**E-posta:** [destek@oracly.app](mailto:destek@oracly.app)
 
-Destek talebi gönderirken aşağıdaki bilgileri ekleyebilirsiniz:
+Destek talebinizde şunları belirtebilirsiniz:
 
-- Cihaz modeli
-- İşletim sistemi sürümü
+- cihaz modeli
+- işletim sistemi sürümü
 - ORACLY uygulama sürümü
-- Sorunun kısa açıklaması
+- sorunun kısa açıklaması
 
-Lütfen destek talebinizde parola, ödeme kartı bilgisi, kimlik doğrulama anahtarı/token veya benzeri hassas kimlik bilgilerini paylaşmayın.
+Lütfen şifre, ödeme kartı bilgisi, kimlik doğrulama jetonu veya diğer
+hassas kimlik bilgilerini göndermeyin.
 
-## Gizlilik ve veri yönetimi
+## İlgili belgeler
 
 - [Gizlilik Politikası](privacy-policy.md)
-- [Veri Silme / Kullanıcı Gizlilik Tercihleri](data-deletion.md)
+- [Veri Silme / Gizlilik Tercihleri](data-deletion.md)
