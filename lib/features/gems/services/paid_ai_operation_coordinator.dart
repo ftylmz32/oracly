@@ -21,6 +21,7 @@ class PaidAiOperationCoordinator {
   PaidAiOperationStore get store => _store;
 
   /// Free ops return a non-persisted settled stub. Paid ops persist as pending.
+  /// Non-Tarot billable features are refused here — there is no settle endpoint.
   Future<PaidAiOperation> begin({
     required PaidAiFeature feature,
     required String ledgerKey,
@@ -29,6 +30,12 @@ class PaidAiOperationCoordinator {
     String? existingId,
   }) async {
     final amount = cost ?? 0;
+    if (amount > 0 && feature != PaidAiFeature.tarot) {
+      throw UnsupportedError(
+        'PaidAiFeature.${feature.name} has no server settle path; '
+        'keep analysisCost null until billing is productized.',
+      );
+    }
     final id = existingId != null && existingId.trim().isNotEmpty
         ? PaidAiOperationId.fromExisting(feature.name, existingId)
         : PaidAiOperationId.create(feature.name);
@@ -91,7 +98,14 @@ class PaidAiOperationCoordinator {
       await _store.remove(op.id);
       return true;
     }
-    if (op.feature != PaidAiFeature.tarot) return false;
+    if (op.feature != PaidAiFeature.tarot) {
+      assert(
+        false,
+        'Non-Tarot paid settle is unsupported for ${op.feature.name}',
+      );
+      await abandon(op.id);
+      return false;
+    }
     if (_store.byId(op.id)?.status == PaidAiOperationStatus.settled) {
       return true;
     }

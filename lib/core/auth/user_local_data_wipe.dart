@@ -95,6 +95,8 @@ abstract final class UserLocalDataWipe {
     await step(() => storage.remove('soulmate_portrait_identity'));
     await step(() => storage.remove(PaidAiOperationStore.key));
     await step(() => storage.remove(DreamAttemptStore.key));
+    await step(() => storage.remove('coffee_v2_submission'));
+    await step(() => storage.remove('coffee_v2_acknowledged_operation'));
     await step(
       () => storage.setStringList(TarotLocalDataSource.historyKey, const []),
     );

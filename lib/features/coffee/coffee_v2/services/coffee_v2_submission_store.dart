@@ -13,12 +13,20 @@ class CoffeeV2SubmissionStore {
   CoffeeV2SubmissionStore(
     this._storage, {
     String? ownerId,
+    this.ownerResolver,
     this.requireOwner = false,
-  }) : ownerId = ownerId?.trim();
+  }) : _fixedOwnerId = ownerId?.trim();
 
   final LocalStorage _storage;
-  final String? ownerId;
+  final String? _fixedOwnerId;
+  final String? Function()? ownerResolver;
   final bool requireOwner;
+
+  String? get ownerId {
+    final resolved = ownerResolver?.call()?.trim();
+    if (resolved != null && resolved.isNotEmpty) return resolved;
+    return _fixedOwnerId;
+  }
 
   static const _key = 'coffee_v2_submission';
   static const _acknowledgedOperationKey = 'coffee_v2_acknowledged_operation';

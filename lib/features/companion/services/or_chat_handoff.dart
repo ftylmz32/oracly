@@ -23,7 +23,7 @@ abstract final class OrChatHandoffBuffer {
     return value;
   }
 
-  @visibleForTesting
+  /// Drops a pending handoff without applying it (fresh OR entry).
   static void clear() => _pending = null;
 }
 

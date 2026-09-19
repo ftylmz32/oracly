@@ -274,19 +274,21 @@ void main() {
   });
 
   group('Gem settlement gate', () {
-    test('coffee abandon on failure does not charge when cost enabled', () async {
+    test('coffee paid begin is refused without settle path', () async {
       SharedPreferences.setMockInitialValues({});
       final storage = LocalStorage(await SharedPreferences.getInstance());
       final wallet = GemWalletService(GemWalletStore(storage));
       final ops = PaidAiOperationCoordinator(wallet: wallet, storage: storage);
       await wallet.acceptAuthoritativeBalance(50);
-      final op = await ops.begin(
-        feature: PaidAiFeature.coffee,
-        ledgerKey: 'coffee_gem_charged',
-        reason: GemsCopy.reasonCoffee,
-        cost: 20,
+      await expectLater(
+        () => ops.begin(
+          feature: PaidAiFeature.coffee,
+          ledgerKey: 'coffee_gem_charged',
+          reason: GemsCopy.reasonCoffee,
+          cost: 20,
+        ),
+        throwsA(isA<UnsupportedError>()),
       );
-      await ops.abandon(op.id);
       expect(wallet.balance, 50);
     });
 

@@ -66,15 +66,19 @@ abstract final class OraclyNavigationService {
     BuildContext context, {
     OracleReadingContext? readingContext,
   }) {
+    final container = ProviderScope.containerOf(context, listen: false);
     if (readingContext != null) {
       OrChatHandoffBuffer.offer(readingContext);
+    } else {
+      // Fresh OR entry without an explicit handoff must not keep a prior
+      // Coffee/Palm/Tarot reading context attached to the companion.
+      OrChatHandoffBuffer.clear();
+      container.read(companionControllerProvider).clearReadingContext();
     }
     if (_isTopNamedRoute(context, OraclyRoutes.chat, root: true)) {
       final handoff = OrChatHandoffBuffer.take();
       if (handoff != null) {
-        ProviderScope.containerOf(context, listen: false)
-            .read(companionControllerProvider)
-            .applyReadingHandoff(handoff);
+        container.read(companionControllerProvider).applyReadingHandoff(handoff);
       }
       return;
     }
@@ -215,7 +219,8 @@ abstract final class OraclyNavigationService {
   }
 
   static void openAchievements(BuildContext context) {
-    _pushNamed(context, OraclyRoutes.achievements);
+    // Achievements remain reserved — never open a gamified gallery.
+    openHome(context);
   }
 
   // ── Premium & settings ─────────────────────────────────────────
