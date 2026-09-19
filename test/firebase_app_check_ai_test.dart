@@ -33,7 +33,7 @@ void main() {
         environment: AppEnvironment.development,
         releaseLocked: true,
       ),
-      isFalse,
+      FirebaseAppCheckPolicy.forceDebugProvider,
     );
     expect(
       FirebaseAppCheckPolicy.useDebugProvider(
@@ -60,7 +60,7 @@ void main() {
           environment: AppEnvironment.staging,
           releaseLocked: true,
         ),
-        isFalse,
+        FirebaseAppCheckPolicy.forceDebugProvider,
       );
     },
   );

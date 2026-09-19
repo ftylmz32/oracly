@@ -7,6 +7,11 @@ import '../controllers/gem_wallet_controller.dart';
 class GemWalletHydrationCoordinator {
   final Map<String, Future<void>> _inFlight = {};
   final Map<String, int> _authoritativeBalances = {};
+  final Set<String> _bootstrapInFlight = {};
+
+  bool beginBootstrap(String ownerId) => _bootstrapInFlight.add(ownerId);
+
+  void endBootstrap(String ownerId) => _bootstrapInFlight.remove(ownerId);
 
   Future<void> hydrate(String ownerId, GemWalletController controller) {
     final known = _authoritativeBalances[ownerId];
@@ -34,13 +39,14 @@ class GemWalletHydrationCoordinator {
   Future<void> hydrateWithRetry(
     String ownerId,
     GemWalletController controller, {
-    int attempts = 6,
+    int attempts = 8,
   }) async {
     for (var i = 0; i < attempts; i++) {
       if (controller.ownerId != ownerId) return;
       await hydrate(ownerId, controller);
       if (controller.authoritative) return;
-      await Future<void>.delayed(Duration(milliseconds: 400 * (i + 1)));
+      // Back off hard — App Check rate-limits ("Too many attempts").
+      await Future<void>.delayed(Duration(milliseconds: 800 * (i + 1)));
     }
   }
 }

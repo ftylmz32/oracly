@@ -1,6 +1,8 @@
 /// Activates Firebase App Check after [FirebaseAuthBootstrap] succeeds.
 library;
 
+import 'dart:async';
+
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/foundation.dart';
 
@@ -15,12 +17,30 @@ abstract final class FirebaseAppCheckBootstrap {
   FirebaseAppCheckBootstrap._();
 
   static bool _activated = false;
+  static Future<bool>? _inFlight;
 
   static bool get isActivated => _activated;
 
   /// Call only after Firebase Core is ready. Failures are swallowed;
   /// production AI fail-closes later when no token can be obtained.
   static Future<bool> tryActivate({
+    AppEnvironment? environment,
+    bool? releaseLocked,
+  }) {
+    if (_activated) return Future.value(true);
+    final active = _inFlight;
+    if (active != null) return active;
+    final future = _activateOnce(
+      environment: environment,
+      releaseLocked: releaseLocked,
+    );
+    _inFlight = future;
+    return future.whenComplete(() {
+      if (identical(_inFlight, future)) _inFlight = null;
+    });
+  }
+
+  static Future<bool> _activateOnce({
     AppEnvironment? environment,
     bool? releaseLocked,
   }) async {
@@ -43,18 +63,18 @@ abstract final class FirebaseAppCheckBootstrap {
       );
       await FirebaseAppCheck.instance.setTokenAutoRefreshEnabled(true);
       _activated = true;
-    } catch (_) {
+      print(
+        '[AppCheck] activated debug=$debug env=${env.name} locked=$locked',
+      );
+    } catch (e) {
       _activated = false;
+      print('[AppCheck] activate failed: $e');
     }
     return _activated;
   }
 
   /// Dart-define is authoritative — it's what the rest of the AI runtime
   /// ([OraclyRuntimeConfig]/[AiRuntimeConfig]) resolves environment from.
-  /// [AppConfig]'s environment comes from dotenv only, which doesn't see
-  /// `--dart-define`/`--dart-define-from-file`, so it can silently disagree
-  /// for a build like `APP_ENV=internal` and select the wrong App Check
-  /// provider even though the AI proxy itself resolved staging correctly.
   @visibleForTesting
   static AppEnvironment resolveEnvironment() => _resolveEnvironment();
 
@@ -70,5 +90,8 @@ abstract final class FirebaseAppCheckBootstrap {
   @visibleForTesting
   static void debugSetActivated(bool value) => _activated = value;
 
-  static void reset() => _activated = false;
+  static void reset() {
+    _activated = false;
+    _inFlight = null;
+  }
 }

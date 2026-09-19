@@ -24,7 +24,7 @@ abstract final class GemWalletBootstrap {
     FirebaseAuthGateway? liveGateway,
   }) async {
     if (!config.usesProxy) {
-      debugPrint('[GemWallet] proxy not configured — cannot hydrate');
+      print('[GemWallet] proxy not configured — cannot hydrate');
       return false;
     }
     if (!FirebaseAuthBootstrap.isReady) {
@@ -43,9 +43,10 @@ abstract final class GemWalletBootstrap {
       liveGateway: liveGateway,
     );
     if (failure != null) {
-      debugPrint('[GemWallet] transport not ready: $failure');
+      print('[GemWallet] transport not ready: $failure');
       return false;
     }
+    print('[GemWallet] transport ready');
     return true;
   }
 }

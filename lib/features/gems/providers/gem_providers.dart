@@ -3,7 +3,6 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
@@ -82,33 +81,45 @@ Future<void> _bootstrapOwner(
   String ownerId,
   GemWalletController controller,
 ) async {
-  final ready = await GemWalletBootstrap.ensureReady(
-    config: ref.read(aiRuntimeConfigProvider),
-    auth: ref.read(authServiceProvider),
-    accessToken: ({bool forceRefresh = false}) =>
-        ref.read(tokenManagerProvider).getAccessToken(
-              forceRefresh: forceRefresh,
-            ),
-    appCheckToken: ({bool forceRefresh = false}) =>
-        FirebaseAppCheckToken.resolve(forceRefresh: forceRefresh),
-    liveGateway: ref.read(backend.firebaseAuthGatewayProvider),
-  );
-  if (!ready) debugPrint('[GemWallet] bootstrap not ready for $ownerId');
-  await ref
-      .read(gemWalletHydrationCoordinatorProvider)
-      .hydrateWithRetry(ownerId, controller);
+  final coord = ref.read(gemWalletHydrationCoordinatorProvider);
+  if (!coord.beginBootstrap(ownerId)) return;
   try {
-    await ref.read(gemStarterGrantProvider).ensureOnce();
-  } catch (e) {
-    debugPrint('[GemWallet] starter grant error: $e');
-  }
-  final cached = controller.ownerId == ownerId
-      ? ref.read(gemWalletServiceProvider).cachedBalance
-      : null;
-  if (cached != null) {
-    await controller.acceptAuthoritativeBalance(cached);
-  } else if (!controller.authoritative) {
-    await controller.reload();
+    final ready = await GemWalletBootstrap.ensureReady(
+      config: ref.read(aiRuntimeConfigProvider),
+      auth: ref.read(authServiceProvider),
+      accessToken: ({bool forceRefresh = false}) =>
+          ref.read(tokenManagerProvider).getAccessToken(
+                forceRefresh: forceRefresh,
+              ),
+      appCheckToken: ({bool forceRefresh = false}) =>
+          FirebaseAppCheckToken.resolve(forceRefresh: forceRefresh),
+      liveGateway: ref.read(backend.firebaseAuthGatewayProvider),
+    );
+    if (!ready) {
+      print('[GemWallet] bootstrap not ready for $ownerId — defer');
+      // Keep trying; App Check may recover after Play Integrity / debug token.
+      Future<void>.delayed(const Duration(seconds: 12), () {
+        unawaited(_bootstrapOwner(ref, ownerId, controller));
+      });
+      return;
+    }
+    print('[GemWallet] bootstrap ready owner=$ownerId');
+    await coord.hydrateWithRetry(ownerId, controller);
+    try {
+      await ref.read(gemStarterGrantProvider).ensureOnce();
+    } catch (e) {
+      print('[GemWallet] starter grant error: $e');
+    }
+    final cached = controller.ownerId == ownerId
+        ? ref.read(gemWalletServiceProvider).cachedBalance
+        : null;
+    if (cached != null) {
+      await controller.acceptAuthoritativeBalance(cached);
+    } else if (!controller.authoritative) {
+      await controller.reload();
+    }
+  } finally {
+    coord.endBootstrap(ownerId);
   }
 }
 

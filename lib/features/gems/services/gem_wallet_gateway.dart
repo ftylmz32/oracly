@@ -60,27 +60,28 @@ class GemWalletGateway {
       key == null ? null : <String, Object>{'idempotencyKey': key},
     );
     if (wire == null) {
-      debugPrint('[GemWalletGateway] $method $path — no wire (auth/AppCheck?)');
+      print('[GemWalletGateway] $method $path — no wire (auth/AppCheck?)');
       return null;
     }
     if (wire.statusCode < 200 || wire.statusCode >= 300) {
-      debugPrint(
+      print(
         '[GemWalletGateway] $method $path — HTTP ${wire.statusCode}',
       );
       return null;
     }
     final data = wire.json?['data'];
     if (data is! Map) {
-      debugPrint('[GemWalletGateway] $method $path — missing data map');
+      print('[GemWalletGateway] $method $path — missing data map');
       return null;
     }
     final balance = _readBalance(data['balance']);
     if (balance == null) {
-      debugPrint(
+      print(
         '[GemWalletGateway] $method $path — bad balance=${data['balance']}',
       );
       return null;
     }
+    print('[GemWalletGateway] $method $path — OK balance=$balance');
     return GemServerResult(
       balance: balance,
       applied: data['granted'] == true || data['settled'] == true,
