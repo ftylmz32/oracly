@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_auth_gateway.dart';
 import 'firebase_auth_user.dart';
+import 'live_firebase_auth_reauth.dart';
 
 class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
   LiveFirebaseAuthGateway([FirebaseAuth? auth])
@@ -82,35 +83,45 @@ class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
   Future<void> reauthenticateWithGoogle({
     required String idToken,
     String? accessToken,
-  }) => _reauthenticate(
-        GoogleAuthProvider.credential(idToken: idToken, accessToken: accessToken),
+  }) =>
+      LiveFirebaseAuthReauth.withCredential(
+        _auth,
+        GoogleAuthProvider.credential(
+          idToken: idToken,
+          accessToken: accessToken,
+        ),
+      );
+
+  @override
+  Future<void> reauthenticateWithGoogleProvider() =>
+      LiveFirebaseAuthReauth.withProvider(
+        _auth,
+        GoogleAuthProvider()..addScope('email'),
       );
 
   @override
   Future<void> reauthenticateWithApple({required String idToken}) =>
-      _reauthenticate(OAuthProvider('apple.com').credential(idToken: idToken));
+      LiveFirebaseAuthReauth.withCredential(
+        _auth,
+        OAuthProvider('apple.com').credential(idToken: idToken),
+      );
+
+  @override
+  Future<void> reauthenticateWithAppleProvider() =>
+      LiveFirebaseAuthReauth.withProvider(
+        _auth,
+        AppleAuthProvider()..addScope('email'),
+      );
 
   @override
   Future<void> reauthenticateWithEmail({
     required String email,
     required String password,
-  }) => _reauthenticate(
+  }) =>
+      LiveFirebaseAuthReauth.withCredential(
+        _auth,
         EmailAuthProvider.credential(email: email, password: password),
       );
-
-  Future<void> _reauthenticate(AuthCredential credential) async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) {
-        throw AuthGatewayException('no-current-user', code: 'no-current-user');
-      }
-      await user.reauthenticateWithCredential(credential);
-    } on AuthGatewayException {
-      rethrow;
-    } on FirebaseAuthException catch (e) {
-      throw AuthGatewayException(e.code, code: e.code);
-    }
-  }
 
   @override
   Future<void> signOut() => _auth.signOut();
@@ -155,6 +166,7 @@ class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
       email: user.email,
       displayName: user.displayName,
       isAnonymous: user.isAnonymous,
+      providerIds: [for (final info in user.providerData) info.providerId],
     );
   }
 }

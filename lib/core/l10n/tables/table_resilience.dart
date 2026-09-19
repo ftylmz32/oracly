@@ -251,9 +251,14 @@ const kL10nResilience = <String, L10nTriple>{
     'Нет аккаунта для удаления.',
   ),
   'auth.requires_recent_login': L10nTriple(
-    'Hesabı silmek için yakında yeniden giriş gerekir. Bu sürümde yeniden doğrulama yok; silme tamamlanmadı.',
-    'Deleting the account requires a recent sign-in. This release has no reauthentication path; deletion did not complete.',
-    'Для удаления аккаунта нужен недавний вход. В этой версии нет повторной проверки; удаление не выполнено.',
+    'Hesabı silmek için kimliğini yeniden doğrula.',
+    'Confirm your identity again to delete the account.',
+    'Подтверди личность снова, чтобы удалить аккаунт.',
+  ),
+  'auth.password_hint': L10nTriple(
+    'Şifre',
+    'Password',
+    'Пароль',
   ),
   'auth.delete_failed': L10nTriple(
     'Hesap silinemedi. Yerel veriler ve hesap duruyor.',

@@ -5,6 +5,7 @@ import '../network/api_result.dart';
 import '../network/network_exception.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
+import 'models/account_reauth_method.dart';
 import 'models/auth_credentials.dart';
 import 'models/auth_session.dart';
 import 'session_manager.dart';
@@ -65,6 +66,15 @@ class UnconfiguredAuthService implements AuthService {
 
   @override
   bool get isCurrentUserAnonymous => true;
+
+  @override
+  bool get hasCurrentIdentity => false;
+
+  @override
+  List<AccountReauthMethod> get currentReauthMethods => const [];
+
+  @override
+  String? get currentUserEmail => null;
 
   @override
   Future<ApiResult<bool>> reauthenticate(

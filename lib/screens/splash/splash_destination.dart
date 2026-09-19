@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/auth/account_deletion_pending_state.dart';
+import '../../core/auth/presentation/account_deletion_pending_screen.dart';
 import '../../core/data/datasources/local_storage.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../shared/navigation/oracly_navigation.dart';
@@ -12,6 +14,7 @@ abstract final class SplashDestination {
 
   static const midnight = Color(0xFF07050D);
 
+  /// Pending deletion blocks Home/Onboarding until identity cleanup finishes.
   /// Completed -> Home shell. Incomplete -> Onboarding.
   ///
   /// A saved setup draft must never skip onboarding. [OnboardingScreen]
@@ -22,9 +25,11 @@ abstract final class SplashDestination {
     // lives in OnboardingScreen — do not route Home from an incomplete draft.
     required LocalStorage storage,
   }) {
-    final Widget page = onboardingCompleted
-        ? const OraclyAppShell()
-        : const OnboardingScreen();
+    final Widget page = AccountDeletionPendingState.isBlocked.value
+        ? const AccountDeletionPendingScreen()
+        : onboardingCompleted
+            ? const OraclyAppShell()
+            : const OnboardingScreen();
     return ColoredBox(color: midnight, child: page);
   }
 

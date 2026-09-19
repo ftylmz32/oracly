@@ -7,6 +7,7 @@ import '../../network/api_result.dart';
 import '../../network/network_exception.dart';
 import '../auth_copy.dart';
 import '../auth_service.dart';
+import '../models/account_reauth_method.dart';
 import '../models/auth_credentials.dart';
 import '../models/auth_session.dart';
 import '../session_manager.dart';
@@ -117,21 +118,39 @@ class FirebaseAuthService implements AuthService {
   bool get isCurrentUserAnonymous => _gateway.currentUser?.isAnonymous ?? true;
 
   @override
+  bool get hasCurrentIdentity => _gateway.currentUser != null;
+
+  @override
+  List<AccountReauthMethod> get currentReauthMethods =>
+      _gateway.currentUser?.reauthMethods ?? const [];
+
+  @override
+  String? get currentUserEmail => _gateway.currentUser?.email;
+
+  @override
   Future<ApiResult<bool>> reauthenticate(
     AccountReauthCredentials credentials,
   ) async {
     try {
       switch (credentials.provider) {
         case AuthProviderKind.google:
-          final oauth = credentials.oauth!;
-          await _gateway.reauthenticateWithGoogle(
-            idToken: oauth.idToken,
-            accessToken: oauth.accessToken,
-          );
+          if (credentials.usesNativeProviderFlow) {
+            await _gateway.reauthenticateWithGoogleProvider();
+          } else {
+            final oauth = credentials.oauth!;
+            await _gateway.reauthenticateWithGoogle(
+              idToken: oauth.idToken,
+              accessToken: oauth.accessToken,
+            );
+          }
         case AuthProviderKind.apple:
-          await _gateway.reauthenticateWithApple(
-            idToken: credentials.oauth!.idToken,
-          );
+          if (credentials.usesNativeProviderFlow) {
+            await _gateway.reauthenticateWithAppleProvider();
+          } else {
+            await _gateway.reauthenticateWithApple(
+              idToken: credentials.oauth!.idToken,
+            );
+          }
         case AuthProviderKind.email:
           final email = credentials.email!;
           await _gateway.reauthenticateWithEmail(

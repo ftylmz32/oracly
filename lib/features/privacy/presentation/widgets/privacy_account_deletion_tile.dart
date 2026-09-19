@@ -1,15 +1,19 @@
-/// Account deletion tile — destructive confirm, remote-first, honest errors.
+/// Account deletion tile — destructive confirm, reauth, remote-first wipe.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/providers/app_providers.dart';
+import '../../../../core/auth/account_deletion_pending_state.dart';
+import '../../../../core/auth/presentation/account_deletion_pending_screen.dart';
 import '../../../../features/premium/presentation/widgets/settings_tiles.dart';
 import '../../../../shared/ui/oracly_dialog.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/widgets/oracly_entrance.dart';
 import '../../copy/privacy_control_copy.dart';
 import '../../providers/privacy_control_providers.dart';
+import '../../services/account_deletion_reauth_prompt.dart';
 import '../../services/privacy_data_refresh.dart';
 
 class PrivacyAccountDeletionTile extends ConsumerWidget {
@@ -38,17 +42,40 @@ class PrivacyAccountDeletionTile extends ConsumerWidget {
     );
     if (confirmed != true || !context.mounted) return;
 
+    final auth = ref.read(authServiceProvider);
+    final reauth = auth.isCurrentUserAnonymous
+        ? null
+        : await AccountDeletionReauthPrompt.collect(context, auth);
+    if (!auth.isCurrentUserAnonymous && reauth == null) {
+      // Cancelled provider/password prompt — zero destructive work.
+      return;
+    }
+    if (!context.mounted) return;
+
     final result = await ref
         .read(accountDeletionServiceProvider)
-        .deleteAccountAndWipeLocalData();
+        .deleteAccountAndWipeLocalData(reauth: reauth);
     if (!context.mounted) return;
 
     if (result.isFailure) {
-      OraclySnackBar.show(
-        context,
-        message: result.errorOrNull?.message ??
-            PrivacyControlCopy.confirmDeleteBody,
-      );
+      if (AccountDeletionPendingState.isBlocked.value) {
+        OraclySnackBar.show(
+          context,
+          message: PrivacyControlCopy.deletePendingBody,
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute<void>(
+            builder: (_) => const AccountDeletionPendingScreen(),
+          ),
+          (_) => false,
+        );
+      } else {
+        OraclySnackBar.show(
+          context,
+          message: result.errorOrNull?.message ??
+              PrivacyControlCopy.confirmDeleteBody,
+        );
+      }
       return;
     }
 

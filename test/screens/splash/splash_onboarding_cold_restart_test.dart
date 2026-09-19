@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_onboarding_repository.dart';
 import 'package:oracly_new/features/onboarding/data/onboarding_setup_draft.dart';
@@ -30,6 +31,14 @@ OnboardingSetupDraft _sampleDraft({String name = 'Ada'}) {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    AccountDeletionPendingState.isBlocked.value = false;
+  });
+
+  tearDown(() {
+    AccountDeletionPendingState.isBlocked.value = false;
+  });
 
   test(
     'seeded onboarding_completed survives ephemeral cold start after promote',

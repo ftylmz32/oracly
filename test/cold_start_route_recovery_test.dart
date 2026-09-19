@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/anonymous_auth_bootstrap.dart';
 import 'package:oracly_new/core/auth/auth_service.dart';
+import 'package:oracly_new/core/auth/models/account_reauth_method.dart';
 import 'package:oracly_new/core/auth/models/auth_credentials.dart';
 import 'package:oracly_new/core/auth/models/auth_session.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
@@ -122,6 +123,15 @@ class _HangingAuth implements AuthService {
 
   @override
   bool get isCurrentUserAnonymous => true;
+
+  @override
+  bool get hasCurrentIdentity => false;
+
+  @override
+  List<AccountReauthMethod> get currentReauthMethods => const [];
+
+  @override
+  String? get currentUserEmail => null;
 
   @override
   Future<ApiResult<bool>> reauthenticate(

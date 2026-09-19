@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
 import 'package:oracly_new/core/auth/account_deletion_service.dart';
 import 'package:oracly_new/core/auth/auth_copy.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_auth_errors.dart';
@@ -11,6 +12,7 @@ import 'package:oracly_new/core/auth/firebase/firebase_auth_gateway.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_auth_service.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_auth_user.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_id_token_manager.dart';
+import 'package:oracly_new/core/auth/models/account_reauth_method.dart';
 import 'package:oracly_new/core/auth/models/auth_credentials.dart';
 import 'package:oracly_new/core/auth/session_manager.dart';
 import 'package:oracly_new/core/auth/token_manager.dart';
@@ -41,6 +43,7 @@ void main() {
   late InMemorySessionManager sessions;
 
   setUp(() async {
+    AccountDeletionPendingState.isBlocked.value = false;
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
     secure = InMemorySecureStorage();
@@ -64,7 +67,10 @@ void main() {
     );
   });
 
-  tearDown(() => auth.dispose());
+  tearDown(() {
+    AccountDeletionPendingState.isBlocked.value = false;
+    auth.dispose();
+  });
 
   Future<void> seedUserBound() async {
     await storage.setStringList('or_reading_history', const ['r1']);
@@ -232,16 +238,59 @@ void main() {
   );
 
   test(
-    'a plain (non-reauth) delete failure does NOT set the pending marker — '
-    'only the specific requires-recent-login case does',
+    'post-server identity network failure marks pending — wipe stays zero',
     () async {
       await seedUserBound();
       await auth.signInAnonymously();
       gateway.deleteError = 'network-request-failed';
 
-      await deletion.deleteAccountAndWipeLocalData();
+      final result = await deletion.deleteAccountAndWipeLocalData();
 
+      expect(result.isFailure, isTrue);
+      expect(deletion.hasPendingIdentityCleanup, isTrue);
+      expect(AccountDeletionPendingState.isBlocked.value, isTrue);
+      expect(storage.getString('user_name'), 'Ada');
+      expect(gateway.currentUser, isNotNull);
+    },
+  );
+
+  test(
+    'post-server Firebase internal failure marks pending',
+    () async {
+      await seedUserBound();
+      await auth.signInWithEmail(
+        const EmailCredentials(email: 'a@b.c', password: 'x'),
+      );
+      gateway.deleteError = 'internal-error';
+
+      final result = await deletion.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.email(
+          EmailCredentials(email: 'a@b.c', password: 'x'),
+        ),
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(deletion.hasPendingIdentityCleanup, isTrue);
+      expect(AccountDeletionPendingState.isBlocked.value, isTrue);
+      expect(storage.getString('user_name'), 'Ada');
+    },
+  );
+
+  test(
+    'post-server identity already absent finishes wipe without pending loop',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+      gateway.deleteError = 'no-current-user';
+      gateway.clearUserBeforeThrowing = true;
+
+      final result = await deletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isSuccess, isTrue);
       expect(deletion.hasPendingIdentityCleanup, isFalse);
+      expect(AccountDeletionPendingState.isBlocked.value, isFalse);
+      await expectUserBoundCleared();
+      expect(gateway.currentUser?.isAnonymous, isTrue);
     },
   );
 
@@ -572,6 +621,124 @@ void main() {
     );
   });
 
+  group('linked Google / Apple native provider reauth', () {
+    test('Google reauth success → server → identity → wipe', () async {
+      var serverCalls = 0;
+      final counting = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      await seedUserBound();
+      await auth.signInWithGoogle(
+        const OAuthCredentials(idToken: 'g-id'),
+      );
+      expect(auth.currentReauthMethods, [AccountReauthMethod.google]);
+
+      final result = await counting.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.google(),
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(gateway.reauthCalls, 1);
+      expect(serverCalls, 1);
+      expect(gateway.deleteCalls, 1);
+      await expectUserBoundCleared();
+    });
+
+    test('Google reauth cancel/failure: server=0 identity=0 wipe=0 pending=false',
+        () async {
+      var serverCalls = 0;
+      final counting = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      await seedUserBound();
+      await auth.signInWithGoogle(
+        const OAuthCredentials(idToken: 'g-id'),
+      );
+      gateway.reauthError = 'user-cancelled';
+
+      final result = await counting.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.google(),
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(serverCalls, 0);
+      expect(gateway.deleteCalls, 0);
+      expect(counting.hasPendingIdentityCleanup, isFalse);
+      expect(storage.getString('user_name'), 'Ada');
+    });
+
+    test('Apple reauth success → wipe', () async {
+      await seedUserBound();
+      await auth.signInWithApple(
+        const OAuthCredentials(idToken: 'a-id'),
+      );
+      expect(auth.currentReauthMethods, [AccountReauthMethod.apple]);
+
+      final result = await deletion.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.apple(),
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(gateway.reauthCalls, 1);
+      await expectUserBoundCleared();
+    });
+
+    test('Apple reauth failure leaves zero destructive work', () async {
+      var serverCalls = 0;
+      final counting = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      await seedUserBound();
+      await auth.signInWithApple(
+        const OAuthCredentials(idToken: 'a-id'),
+      );
+      gateway.reauthError = 'canceled';
+
+      final result = await counting.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.apple(),
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(serverCalls, 0);
+      expect(gateway.deleteCalls, 0);
+      expect(counting.hasPendingIdentityCleanup, isFalse);
+    });
+
+    test('multi-provider snapshot exposes ordered reauth methods', () async {
+      await gateway.signInMultiLinked();
+      expect(
+        auth.currentReauthMethods,
+        [
+          AccountReauthMethod.google,
+          AccountReauthMethod.apple,
+          AccountReauthMethod.email,
+        ],
+      );
+      expect(
+        AccountReauthMethodResolver.preferred(auth.currentReauthMethods),
+        AccountReauthMethod.google,
+      );
+    });
+  });
+
   test('mapDelete maps requires-recent-login and no-current-user', () {
     expect(
       FirebaseAuthErrors.mapDelete(
@@ -595,6 +762,7 @@ class _DeletionGateway implements FirebaseAuthGateway {
   final _controller = StreamController<FirebaseAuthUserSnapshot?>.broadcast();
   FirebaseAuthUserSnapshot? _user;
   String? deleteError;
+  bool clearUserBeforeThrowing = false;
   int deleteCalls = 0;
   int anonSerial = 0;
 
@@ -627,7 +795,21 @@ class _DeletionGateway implements FirebaseAuthGateway {
     required String email,
     required String password,
   }) async {
-    _user = FirebaseAuthUserSnapshot(uid: 'mail-1', email: email);
+    _user = FirebaseAuthUserSnapshot(
+      uid: 'mail-1',
+      email: email,
+      providerIds: const ['password'],
+    );
+    _controller.add(_user);
+    return _user!;
+  }
+
+  Future<FirebaseAuthUserSnapshot> signInMultiLinked() async {
+    _user = const FirebaseAuthUserSnapshot(
+      uid: 'multi-1',
+      email: 'm@b.c',
+      providerIds: ['google.com', 'password', 'apple.com'],
+    );
     _controller.add(_user);
     return _user!;
   }
@@ -636,11 +818,26 @@ class _DeletionGateway implements FirebaseAuthGateway {
   Future<FirebaseAuthUserSnapshot> signInWithGoogle({
     required String idToken,
     String? accessToken,
-  }) => signInAnonymously();
+  }) async {
+    _user = const FirebaseAuthUserSnapshot(
+      uid: 'google-1',
+      email: 'g@b.c',
+      providerIds: ['google.com'],
+    );
+    _controller.add(_user);
+    return _user!;
+  }
 
   @override
-  Future<FirebaseAuthUserSnapshot> signInWithApple({required String idToken}) =>
-      signInAnonymously();
+  Future<FirebaseAuthUserSnapshot> signInWithApple({required String idToken}) async {
+    _user = const FirebaseAuthUserSnapshot(
+      uid: 'apple-1',
+      email: 'a@privaterelay.appleid.com',
+      providerIds: ['apple.com'],
+    );
+    _controller.add(_user);
+    return _user!;
+  }
 
   @override
   Future<void> signOut() async {
@@ -651,6 +848,10 @@ class _DeletionGateway implements FirebaseAuthGateway {
   @override
   Future<void> deleteCurrentUser() async {
     deleteCalls++;
+    if (clearUserBeforeThrowing) {
+      _user = null;
+      _controller.add(null);
+    }
     if (deleteError != null) {
       throw AuthGatewayException(deleteError!, code: deleteError);
     }
@@ -671,7 +872,13 @@ class _DeletionGateway implements FirebaseAuthGateway {
   }) => _reauth();
 
   @override
+  Future<void> reauthenticateWithGoogleProvider() => _reauth();
+
+  @override
   Future<void> reauthenticateWithApple({required String idToken}) => _reauth();
+
+  @override
+  Future<void> reauthenticateWithAppleProvider() => _reauth();
 
   @override
   Future<void> reauthenticateWithEmail({

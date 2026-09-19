@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 
 import '../network/api_result.dart';
 import 'auth_service.dart';
+import 'models/account_reauth_method.dart';
 import 'models/auth_credentials.dart';
 import 'models/auth_session.dart';
 import 'session_manager.dart';
@@ -124,6 +125,23 @@ class MockAuthService implements AuthService {
       _sessions?.currentSession?.provider != AuthProviderKind.google &&
       _sessions?.currentSession?.provider != AuthProviderKind.apple &&
       _sessions?.currentSession?.provider != AuthProviderKind.email;
+
+  @override
+  bool get hasCurrentIdentity => _sessions?.currentSession != null;
+
+  @override
+  List<AccountReauthMethod> get currentReauthMethods {
+    final provider = _sessions?.currentSession?.provider;
+    return switch (provider) {
+      AuthProviderKind.google => const [AccountReauthMethod.google],
+      AuthProviderKind.apple => const [AccountReauthMethod.apple],
+      AuthProviderKind.email => const [AccountReauthMethod.email],
+      _ => const [],
+    };
+  }
+
+  @override
+  String? get currentUserEmail => _sessions?.currentSession?.email;
 
   @override
   Future<ApiResult<bool>> reauthenticate(

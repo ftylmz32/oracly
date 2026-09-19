@@ -13,6 +13,7 @@ import '../../features/premium/services/premium_entitlement_verifier.dart';
 import '../../features/premium/services/premium_purchase_port.dart';
 import '../../features/premium/services/review_access_service.dart';
 import '../../features/premium/services/unavailable_premium_purchase.dart';
+import '../auth/account_deletion_pending_state.dart';
 import '../data/repositories/review_access_repository.dart';
 import '../domain/models/premium_plan.dart';
 import '../domain/repositories/premium_repository.dart';
@@ -46,10 +47,14 @@ class PremiumService {
   PremiumEntitlementVerifier get verifier => _verifier;
   bool get purchaseConfigured => _purchase.isConfigured;
   bool get canAttemptRestore => _purchase.canAttemptRestore;
-  bool get isActiveNow => _premium.isActiveNow;
+  bool get isActiveNow =>
+      AccountDeletionPendingState.isBlocked.value ? false : _premium.isActiveNow;
   bool get wasAuthoritativelyVerified => _premium.wasAuthoritativelyVerified;
 
-  Future<bool> isActive() => _premium.isPremiumActive();
+  Future<bool> isActive() async {
+    if (AccountDeletionPendingState.isBlocked.value) return false;
+    return _premium.isPremiumActive();
+  }
   Future<PremiumPlanKind?> activePlan() => _premium.activePlan();
 
   PremiumGrantPolicy get _grants => PremiumGrantPolicy(

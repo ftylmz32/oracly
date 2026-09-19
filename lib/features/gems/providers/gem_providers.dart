@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/auth/account_deletion_pending_state.dart';
 import '../../../core/auth/firebase/firebase_app_check_token.dart';
 import '../../../core/providers/backend_providers.dart' as backend;
 import '../../ai/production/oracly_ai_providers.dart';
@@ -80,6 +81,9 @@ Future<void> _boot(
   String ownerId,
   GemWalletController controller,
 ) {
+  if (AccountDeletionPendingState.isBlocked.value) {
+    return Future<void>.value();
+  }
   return bootstrapGemWalletOwner(
     ref: ref,
     ownerId: ownerId,

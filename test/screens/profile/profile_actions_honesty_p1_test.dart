@@ -8,6 +8,7 @@ import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/auth/auth_copy.dart';
 import 'package:oracly_new/core/auth/auth_service.dart';
 import 'package:oracly_new/core/auth/mock_auth_service.dart';
+import 'package:oracly_new/core/auth/models/account_reauth_method.dart';
 import 'package:oracly_new/core/auth/models/auth_credentials.dart';
 import 'package:oracly_new/core/auth/models/auth_session.dart';
 import 'package:oracly_new/core/auth/session_manager.dart';
@@ -166,6 +167,15 @@ class _RecordingAuth implements AuthService {
 
   @override
   bool get isCurrentUserAnonymous => true;
+
+  @override
+  bool get hasCurrentIdentity => false;
+
+  @override
+  List<AccountReauthMethod> get currentReauthMethods => const [];
+
+  @override
+  String? get currentUserEmail => null;
 
   @override
   Future<ApiResult<bool>> reauthenticate(

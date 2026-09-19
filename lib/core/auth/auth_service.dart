@@ -2,6 +2,7 @@
 library;
 
 import '../network/api_result.dart';
+import 'models/account_reauth_method.dart';
 import 'models/auth_credentials.dart';
 import 'models/auth_session.dart';
 
@@ -31,6 +32,15 @@ abstract class AuthService {
   /// email) user, for whom [reauthenticate] must succeed before any
   /// destructive account action.
   bool get isCurrentUserAnonymous;
+
+  /// True when Firebase currently holds a signed-in user (any kind).
+  bool get hasCurrentIdentity;
+
+  /// Linked reauth methods for the current user (empty when anonymous/none).
+  List<AccountReauthMethod> get currentReauthMethods;
+
+  /// Email for password reauth UI — null when unavailable.
+  String? get currentUserEmail;
 
   /// Re-proves the CURRENT linked user's identity with a fresh credential
   /// from the same provider. Never signs in as a different user, never

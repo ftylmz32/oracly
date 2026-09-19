@@ -176,4 +176,54 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Account deleted. You are ready for a fresh start.',
     'Аккаунт удалён. Можно начать заново.',
   ),
+  'privacy.control.delete.reauth.password.title': L10nTriple(
+    'Kimliğini doğrula',
+    'Confirm it is you',
+    'Подтверди, что это ты',
+  ),
+  'privacy.control.delete.reauth.password.body': L10nTriple(
+    'Hesabı silmek için şifreni gir. Şifre kaydedilmez.',
+    'Enter your password to delete the account. It is never saved.',
+    'Введи пароль, чтобы удалить аккаунт. Он не сохраняется.',
+  ),
+  'privacy.control.delete.reauth.password.action': L10nTriple(
+    'Doğrula ve sil',
+    'Confirm and delete',
+    'Подтвердить и удалить',
+  ),
+  'privacy.control.delete.reauth.cancel': L10nTriple(
+    'Vazgeç',
+    'Cancel',
+    'Отмена',
+  ),
+  'privacy.control.delete.reauth.google': L10nTriple(
+    'Google ile doğrula',
+    'Confirm with Google',
+    'Подтвердить через Google',
+  ),
+  'privacy.control.delete.reauth.apple': L10nTriple(
+    'Apple ile doğrula',
+    'Confirm with Apple',
+    'Подтвердить через Apple',
+  ),
+  'privacy.control.delete.reauth.email': L10nTriple(
+    'Şifre ile doğrula',
+    'Confirm with password',
+    'Подтвердить паролем',
+  ),
+  'privacy.control.delete.pending.title': L10nTriple(
+    'Hesap kaldırma tamamlanmadı',
+    'Account removal is incomplete',
+    'Удаление аккаунта не завершено',
+  ),
+  'privacy.control.delete.pending.body': L10nTriple(
+    'Sunucu tarafı silindi; kimlik doğrulaması hâlâ gerekiyor. Uygulama normal kullanıma açılmaz.',
+    'Server data was deleted; identity confirmation is still required. The app will not open normally.',
+    'Серверные данные удалены; нужна повторная проверка личности. Обычный вход закрыт.',
+  ),
+  'privacy.control.delete.pending.retry': L10nTriple(
+    'Doğrulamayı tamamla',
+    'Finish confirmation',
+    'Завершить подтверждение',
+  ),
 };
