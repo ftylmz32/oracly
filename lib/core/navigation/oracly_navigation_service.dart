@@ -8,6 +8,7 @@ import '../../features/ai/oracle_conversation/models/oracle_reading_context.dart
 import '../../features/companion/providers/companion_providers.dart';
 import '../../features/companion/services/or_chat_handoff.dart';
 import '../../features/daily_ritual/services/daily_ritual_intent.dart';
+import '../../features/tarot/domain/models/tarot_spread.dart';
 import '../../features/tarot/navigation/tarot_navigator.dart';
 import '../../features/tarot/shared/constants/tarot_routes.dart';
 import '../../features/tarot/shared/tarot_scope.dart';
@@ -65,15 +66,19 @@ abstract final class OraclyNavigationService {
     BuildContext context, {
     OracleReadingContext? readingContext,
   }) {
+    final container = ProviderScope.containerOf(context, listen: false);
     if (readingContext != null) {
       OrChatHandoffBuffer.offer(readingContext);
+    } else {
+      // Fresh OR entry without an explicit handoff must not keep a prior
+      // Coffee/Palm/Tarot reading context attached to the companion.
+      OrChatHandoffBuffer.clear();
+      container.read(companionControllerProvider).clearReadingContext();
     }
     if (_isTopNamedRoute(context, OraclyRoutes.chat, root: true)) {
       final handoff = OrChatHandoffBuffer.take();
       if (handoff != null) {
-        ProviderScope.containerOf(context, listen: false)
-            .read(companionControllerProvider)
-            .applyReadingHandoff(handoff);
+        container.read(companionControllerProvider).applyReadingHandoff(handoff);
       }
       return;
     }
@@ -121,9 +126,15 @@ abstract final class OraclyNavigationService {
   }
 
   static void startTarotFlow(BuildContext context, {String? spreadType}) {
-    if (TarotScope.maybeOf(context) == null) {
+    final scope = TarotScope.maybeOf(context);
+    if (scope == null) {
       openTarotHome(context);
       return;
+    }
+    final title = spreadType?.trim();
+    if (title != null && title.isNotEmpty) {
+      final parsed = TarotSpreadType.fromTitle(title);
+      if (parsed != null) scope.flow.selectSpread(parsed);
     }
     openTarotModuleRoute(context, TarotRoutes.deckSelection);
   }
@@ -208,7 +219,8 @@ abstract final class OraclyNavigationService {
   }
 
   static void openAchievements(BuildContext context) {
-    _pushNamed(context, OraclyRoutes.achievements);
+    // Achievements remain reserved — never open a gamified gallery.
+    openHome(context);
   }
 
   // ── Premium & settings ─────────────────────────────────────────

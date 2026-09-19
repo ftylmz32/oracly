@@ -72,6 +72,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
   String? _accelerationPriceToken;
   Timer? _resumeTimer;
   int _generation = 0;
+  int _readyMisses = 0;
 
   @override
   void dispose() {
@@ -311,6 +312,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
         final saved = resultId == null ? null : experience.savedById(resultId);
         if (saved != null) {
           reading = saved;
+          _readyMisses = 0;
         } else {
           final operationId = state.snapshot?.operationId;
           final completed = operationId == null
@@ -322,10 +324,18 @@ class CoffeeV2FlowController extends ChangeNotifier {
               persistedAt: completed.persistedAt,
               result: completed.result,
             );
+            _readyMisses = 0;
           }
         }
         final restored = reading;
         if (restored == null) {
+          _readyMisses += 1;
+          if (_readyMisses >= 10) {
+            observeError = ReadingLiveCopy.failed;
+            await submission?.onTerminalFailure();
+            _notify();
+            return;
+          }
           _scheduleServerPoll(token: token);
           _notify();
           return;

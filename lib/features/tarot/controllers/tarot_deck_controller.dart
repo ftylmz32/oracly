@@ -57,6 +57,7 @@ class TarotDeckController extends TarotBaseController {
       _isShuffled = true;
     } catch (error) {
       errorMessage = ResilienceCopy.sessionInitFailed;
+      rethrow;
     } finally {
       isLoading = false;
     }

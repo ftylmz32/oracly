@@ -37,7 +37,8 @@ abstract final class StarMapReadingService {
   }
 
   static int _tone(DateTime day, ZodiacSignId? sunSign) {
-    final sign = sunSign?.index ?? 0;
+    // No sun → day-only salt. Never default to Aries (index 0) as if known.
+    final sign = sunSign?.index ?? day.weekday;
     return (day.year * 17 + day.month * 29 + day.day + sign * 13) % 3;
   }
 }

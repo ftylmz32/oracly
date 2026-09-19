@@ -1,6 +1,8 @@
 /// Günlük Ödüller — day strip · gift card · once-per-day claim.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -71,7 +73,14 @@ class _DailyRewardsReferenceScreenState
     if (!mounted) return;
     switch (result) {
       case DailyRewardClaimSuccess(:final state):
-        ref.read(gemWalletProvider).reload();
+        final cached = ref.read(gemWalletServiceProvider).cachedBalance;
+        if (cached != null) {
+          await ref
+              .read(gemWalletProvider)
+              .acceptAuthoritativeBalance(cached);
+        } else {
+          unawaited(ref.read(gemWalletProvider).reload());
+        }
         ref.invalidate(userProfileProvider);
         setState(() {
           _state = state;

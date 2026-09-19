@@ -41,7 +41,7 @@ abstract final class LivingUniverseCopy {
 
   static const streakSeven = [
     'Ritüelin derinleşiyor — kendiliğinden, baskısız.',
-    'Yedi gün bir arada — bu bir alışkanlıktan fazlası olabilir.',
+    'Yedi dönüş birikti — bu bir alışkanlıktan fazlası olabilir.',
     'Süreklilik sessizce büyüyor.',
   ];
 

@@ -23,7 +23,6 @@ import '../../features/tarot/presentation/screens/reading_history_screen.dart';
 import '../../features/help/presentation/help_screen.dart';
 import '../../screens/about/about_screen.dart';
 import '../../screens/privacy/privacy_screen.dart';
-import '../../screens/profile/achievements_screen.dart';
 import '../../screens/settings/reference/settings_reference_screen.dart';
 import '../../features/share_reopen/presentation/share_reopen_screen.dart';
 import '../../features/share_reopen/services/share_link_parser.dart';
@@ -148,8 +147,9 @@ abstract final class OraclyRouteGenerator {
           settings: settings,
         );
       case OraclyRoutes.achievements:
-        return OraclyPageTransitions.slideUp(
-          page: const AchievementsScreen(),
+        // Reserved product — deep links recover to the live shell.
+        return OraclyPageTransitions.fade(
+          page: const OraclyAppShell(),
           settings: settings,
         );
       case OraclyRoutes.about:

@@ -44,7 +44,7 @@ abstract final class ProxyAiHeaders {
     if (token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
-    final appCheck = (await appCheckToken?.call(forceRefresh: false))?.trim();
+    final appCheck = await resolveAppCheckToken(appCheckToken);
     final required = requiresAppCheck(config);
     if (required) {
       if (appCheck == null || appCheck.isEmpty) return null;

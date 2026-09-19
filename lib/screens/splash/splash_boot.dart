@@ -38,19 +38,20 @@ Future<bool> splashFastOnboarding(WidgetRef ref) async {
 
 /// Work required before honest gem balance — runs while cinema continues.
 /// Promote is idempotent if [splashFastOnboarding] already hydrated prefs.
+///
+/// Starter grant + wallet reload are owned by [gemWalletProvider] bootstrap
+/// once auth/App Check are ready — do not race them here.
 Future<void> splashDeferredBoot(WidgetRef ref) async {
   final storage = ref.read(localStorageProvider);
   if (storage.isEphemeral) {
     await storage.tryPromote();
   }
   try {
-    await ref.read(gemStarterGrantProvider).ensureOnce();
-  } catch (_) {}
-  try {
     await ref.read(paidAiOperationCoordinatorProvider).reconcile();
   } catch (_) {}
+  // Touch the wallet so bootstrap/auth listen starts during splash.
   try {
-    ref.read(gemWalletProvider).reload();
+    ref.read(gemWalletProvider);
   } catch (_) {}
 }
 

@@ -49,6 +49,12 @@ class DreamAnalysisController extends ChangeNotifier {
   bool get lastVersionAdded => _versionAdded;
   int get versionReloadToken => _versionReloadToken;
 
+  @visibleForTesting
+  void seedHistoryForTest(List<Dream> dreams) {
+    _history = List<Dream>.unmodifiable(dreams);
+    _safeNotify();
+  }
+
   Future<void> loadHistory() async {
     _history = await _service.loadHistory();
     _safeNotify();

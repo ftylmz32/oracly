@@ -79,10 +79,10 @@ class _PremiumReferenceScreenState
       return;
     }
     final cancelled = result.outcome == PremiumPurchaseOutcome.cancelled;
-    final soft = cancelled ||
-        result.outcome == PremiumPurchaseOutcome.pending ||
-        result.outcome == PremiumPurchaseOutcome.noneFound ||
-        result.outcome == PremiumPurchaseOutcome.unverified;
+    final pending = result.outcome == PremiumPurchaseOutcome.pending;
+    final noneFound = result.outcome == PremiumPurchaseOutcome.noneFound;
+    final unverified = result.outcome == PremiumPurchaseOutcome.unverified;
+    final soft = cancelled || pending || noneFound;
     analytics.logOperation(
       operation: restore
           ? 'premium_restore_completed'
@@ -92,6 +92,12 @@ class _PremiumReferenceScreenState
       success: soft,
       errorCategory: result.outcome.name,
     );
+    // Unverified is not success — store may have billed but entitlement
+    // was not confirmed. Never celebrate it as activation.
+    if (unverified) {
+      OraclySnackBar.error(context, result.message);
+      return;
+    }
     if (soft) {
       OraclySnackBar.success(context, result.message);
       return;

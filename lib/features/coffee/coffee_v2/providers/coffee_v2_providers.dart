@@ -30,12 +30,15 @@ final coffeeV2StagedImageGatewayProvider = Provider<ReadingStagedImageGateway?>(
 final coffeeV2SubmissionStoreProvider = Provider<CoffeeV2SubmissionStore>((
   ref,
 ) {
-  final authUser = ref.watch(firebaseAuthUserProvider);
-  final gateway = ref.watch(firebaseAuthGatewayProvider);
-  final ownerId = authUser.valueOrNull?.uid ?? gateway?.currentUser?.uid;
+  // Stable instance — resolve owner at read/write time so auth readiness
+  // does not recreate the flow controller and wipe in-progress captures.
   return CoffeeV2SubmissionStore(
     ref.watch(localStorageProvider),
-    ownerId: ownerId,
+    ownerResolver: () {
+      final authUser = ref.read(firebaseAuthUserProvider);
+      final gateway = ref.read(firebaseAuthGatewayProvider);
+      return authUser.valueOrNull?.uid ?? gateway?.currentUser?.uid;
+    },
     requireOwner: true,
   );
 });
@@ -64,7 +67,7 @@ final coffeeV2FlowControllerProvider =
           ? CoffeeV2SubmissionController(
               flow: runner.flow,
               stagedImages: stagedImages,
-              store: ref.watch(coffeeV2SubmissionStoreProvider),
+              store: ref.read(coffeeV2SubmissionStoreProvider),
             )
           : null;
       final controller = CoffeeV2FlowController(

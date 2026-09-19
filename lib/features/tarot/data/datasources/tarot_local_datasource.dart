@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../../../../core/data/datasources/local_storage.dart';
 import '../../domain/models/reading_session.dart';
 import '../../domain/models/tarot_session_recovery.dart';
+import 'tarot_history_compat.dart';
 
 class TarotLocalDataSource {
   TarotLocalDataSource(this._storage);
@@ -15,9 +16,6 @@ class TarotLocalDataSource {
 
   final LocalStorage _storage;
 
-  static const _historyKey = historyKey;
-  static const _activeKey = activeKey;
-
   Future<List<ReadingSession>> fetchCompleted() async {
     final all = await fetchAll();
     return all.where((s) => s.status == ReadingSessionStatus.completed).toList()
@@ -26,7 +24,7 @@ class TarotLocalDataSource {
   }
 
   Future<List<ReadingSession>> fetchAll() async {
-    final raw = _storage.getStringList(_historyKey) ?? [];
+    final raw = await TarotHistoryCompat.readHistoryRows(_storage);
     final sessions = <ReadingSession>[];
     for (final row in raw) {
       final session = TarotSessionRecovery.decode(row);
@@ -46,11 +44,11 @@ class TarotLocalDataSource {
 
   Future<ReadingSession?> fetchActive() async {
     final recovered = TarotSessionRecovery.decode(
-      _storage.getString(_activeKey),
+      await TarotHistoryCompat.readActiveRaw(_storage),
       activeOnly: true,
     );
     if (recovered == null) {
-      final raw = _storage.getString(_activeKey);
+      final raw = await TarotHistoryCompat.readActiveRaw(_storage);
       if (raw != null && raw.isNotEmpty) await clearActive();
       return null;
     }
@@ -58,11 +56,11 @@ class TarotLocalDataSource {
   }
 
   Future<void> saveActive(ReadingSession session) async {
-    await _storage.setString(_activeKey, jsonEncode(session.toJson()));
+    await _storage.setString(activeKey, jsonEncode(session.toJson()));
   }
 
   Future<void> clearActive() async {
-    await _storage.setString(_activeKey, '');
+    await _storage.setString(activeKey, '');
   }
 
   Future<void> upsert(ReadingSession session) async {
@@ -74,7 +72,7 @@ class TarotLocalDataSource {
           .where((s) => s.id != session.id)
           .map((s) => jsonEncode(s.toJson())),
     ];
-    await _storage.setStringList(_historyKey, updated);
+    await _storage.setStringList(historyKey, updated);
 
     if (session.status == ReadingSessionStatus.inProgress) {
       await saveActive(session);
@@ -89,7 +87,7 @@ class TarotLocalDataSource {
   Future<void> remove(String id) async {
     final all = await fetchAll();
     await _storage.setStringList(
-      _historyKey,
+      historyKey,
       all.where((s) => s.id != id).map((s) => jsonEncode(s.toJson())).toList(),
     );
     final active = await fetchActive();

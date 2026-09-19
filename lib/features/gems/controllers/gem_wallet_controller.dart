@@ -90,34 +90,15 @@ class GemWalletController extends ChangeNotifier {
   }
 
   Future<bool> earn({required int amount, required String reason}) async {
-    if (_busy) return false;
-    _busy = true;
-    _safeNotify();
-    try {
-      return false;
-    } finally {
-      _busy = false;
-      _safeNotify();
-    }
+    // Dead legacy API — production uses purpose-specific server commands.
+    assert(false, 'GemWalletController.earn is not a production path');
+    return false;
   }
 
   Future<bool> spend({required int amount, required String reason}) async {
-    if (_busy) return false;
-    if (!canSpend(amount)) {
-      _safeNotify();
-      return false;
-    }
-    _busy = true;
-    _safeNotify();
-    try {
-      return false;
-    } on GemSpendException {
-      _balance = _service.balance;
-      return false;
-    } finally {
-      _busy = false;
-      _safeNotify();
-    }
+    // Dead legacy API — production uses settleTarot / paid AI coordinators.
+    assert(false, 'GemWalletController.spend is not a production path');
+    return false;
   }
 
   String get insufficientMessage => GemsCopy.insufficient;

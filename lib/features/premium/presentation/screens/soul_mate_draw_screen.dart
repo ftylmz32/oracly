@@ -414,8 +414,11 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     ref.watch(birthInformationProvider);
     _maybePrefillBirth();
     final locked = !SoulMateDevAccess.allows(context);
+    // Saved portraits remain readable after entitlement lapses — Premium
+    // gates only fresh draw/redraw (allowsFresh on those actions).
+    final showLockedPreview = locked && _result == null;
     return SoulMateDrawShell(
-      body: locked
+      body: showLockedPreview
           ? const SoulMateDrawPreview()
           : SoulMateDrawBody(
               nameController: _name,

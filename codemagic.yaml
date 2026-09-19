@@ -87,7 +87,10 @@ workflows:
             "ORACLY_AI_MODEL": "gpt-4o",
             "ORACLY_AI_VISION": "true",
             "ORACLY_AI_TIMEOUT_SECONDS": "45",
-            "ORACLY_AI_IMAGE_TIMEOUT_SECONDS": "120"
+            "ORACLY_AI_IMAGE_TIMEOUT_SECONDS": "120",
+            "ORACLY_PRIVACY_POLICY_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/privacy-policy.md",
+            "ORACLY_TERMS_OF_USE_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/terms-of-use.md",
+            "ORACLY_DATA_DELETION_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/data-deletion.md"
           }
           EOF
           echo "Created tool/dart_defines.production.json"

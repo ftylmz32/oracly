@@ -18,6 +18,9 @@ abstract final class UserLocalDataWipeKeys {
     'profile_spiritual',
     'profile_favorite_deck',
     'profile_achievements',
+    'profile_achievement_dates',
+    'or_selected_deck',
+    'or_selected_spread',
   ];
 
   static const gems = [

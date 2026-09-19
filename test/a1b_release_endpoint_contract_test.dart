@@ -63,6 +63,30 @@ void main() {
     },
   );
 
+  test(
+    'codemagic.yaml embeds the same stable Cloud Run host, never a revision '
+    'tag — regression for Build 2 shipping a temporary '
+    'r31b-200bc15b---... revision URL that 401s once that revision is '
+    'retired',
+    () {
+      final yaml = File('codemagic.yaml').readAsStringSync();
+      const stableHost = 'oracly-api-uya7zqzwra-ew.a.run.app';
+      expect(yaml, contains('https://$stableHost/v1/ai/complete'));
+      expect(yaml, contains('https://$stableHost/v1/billing/verify'));
+      // The heredoc that writes tool/dart_defines.production.json is the
+      // only place a revision-tag host could sneak back in.
+      final defineBlock = yaml.split('Create production dart-defines').last;
+      final urlLines = defineBlock
+          .split('\n')
+          .where((line) => line.contains('ORACLY_') && line.contains('http'))
+          .toList();
+      expect(urlLines, isNotEmpty);
+      for (final line in urlLines) {
+        expect(line.contains('---'), isFalse, reason: line);
+      }
+    },
+  );
+
   test('development loopback requires explicit configuration', () {
     final implicit = EnvironmentConfig.fromEnv(const {
       'APP_ENV': 'development',
