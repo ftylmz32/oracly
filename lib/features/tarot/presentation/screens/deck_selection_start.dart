@@ -36,7 +36,13 @@ abstract final class DeckSelectionStart {
           !DeckSelectionPremiumGate.allow(context, chosen)) {
         return false;
       }
-      final scope = TarotScope.of(context);
+      final scope = TarotScope.maybeOf(context);
+      if (scope == null) {
+        throw StateError(
+          'TarotScope missing at deck confirm — route was opened outside '
+          'the nested TarotModuleNavigator (check daily-card / bridge push)',
+        );
+      }
       // Flow controller is authoritative after applySpread / user selection.
       // Do not let a stale selectedSpreadProvider override a free single-card
       // ritual into a paid multi-card spread.

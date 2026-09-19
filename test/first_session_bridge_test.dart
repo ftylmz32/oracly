@@ -211,14 +211,16 @@ void main() {
       final storage = await LocalStorage.open();
       await FirstSessionIntent.requestFirstReading(storage);
 
+      final navKey = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
         buildProviderScopeHarness(
           storage: storage,
           child: MaterialApp(
             home: TarotModuleRoot(
               storage: storage,
-              child: const DailyRitualTarotBridge(
-                child: SizedBox(key: Key('bridge')),
+              child: DailyRitualTarotBridge(
+                navigatorKey: navKey,
+                child: const SizedBox(key: Key('bridge')),
               ),
             ),
           ),
