@@ -45,7 +45,8 @@ class HomeMasterHero extends ConsumerWidget {
       hello: _hello(context, ref),
       invite: FirstSessionCopy.homeSubtitleNew,
       ctaLabel: FirstSessionCopy.homeCta,
-      onCta: () => OraclyNavigationService.openTarotHome(context),
+      // Align with daily single-card ritual — never open default 3-card home.
+      onCta: () => OraclyNavigationService.startDailyCardDraw(context),
     );
   }
 

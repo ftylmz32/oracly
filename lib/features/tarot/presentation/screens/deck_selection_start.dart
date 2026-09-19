@@ -9,7 +9,6 @@ import '../../../../core/first_session/first_session_intent.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../gems/copy/gems_copy.dart';
 import '../../../gems/services/gem_spend_guard.dart';
-import '../../domain/models/tarot_spread.dart';
 import '../../economy/tarot_economy.dart';
 import '../../first_session/tarot_first_reading.dart';
 import '../../../companion/services/first_reading_or_deepen.dart';
@@ -35,9 +34,11 @@ abstract final class DeckSelectionStart {
       return false;
     }
     final scope = TarotScope.of(context);
-    final spread = scope.flow.spread;
-    final spreadTitle = ref.read(selectedSpreadProvider) ?? spread.label;
-    final spreadType = TarotSpreadType.fromTitle(spreadTitle) ?? spread;
+    // Flow controller is authoritative after applySpread / user selection.
+    // Do not let a stale selectedSpreadProvider override a free single-card
+    // ritual into a paid multi-card spread.
+    final spreadType = scope.flow.spread;
+    ref.read(selectedSpreadProvider.notifier).state = spreadType.label;
     final cost = TarotEconomy.costFor(spreadType);
     final allowed = GemSpendGuard.ensureAffordable(
       ref,

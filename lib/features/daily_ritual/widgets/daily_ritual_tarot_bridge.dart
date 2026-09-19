@@ -33,12 +33,21 @@ class _DailyRitualTarotBridgeState
   }
 
   Future<void> _maybeStartPendingFlow() async {
-    final dailyDraw = DailyRitualIntent.consumePendingDraw();
-    if (!dailyDraw) return;
+    if (!DailyRitualIntent.hasPendingDraw) return;
     if (!mounted) return;
 
     final scope = TarotScope.maybeOf(context);
     if (scope == null) return;
+
+    // Wait for restore so a stale active session cannot overwrite this draw.
+    final ready = scope.restoreReady;
+    if (ready != null) await ready;
+    if (!mounted) return;
+    if (!DailyRitualIntent.hasPendingDraw) return;
+
+    await scope.reading.abandonActiveForNewStart();
+    if (!DailyRitualIntent.consumePendingDraw()) return;
+    if (!mounted) return;
 
     await TarotFirstReading.applySpread(ref, context);
     if (!mounted) return;

@@ -128,6 +128,128 @@ void main() {
     );
   });
 
+  test(
+    'App Check token resolution retries after a transient cold-start miss, '
+    'then succeeds — regression for a real device racing App Attest\'s '
+    'first-ever attestation against the request deadline',
+    () async {
+      var calls = 0;
+      http.Request? seen;
+      final result = await ProxyAiTransport(
+        config: _prod,
+        accessToken: ({bool forceRefresh = false}) async => 'firebase-id-token',
+        appCheckToken: ({bool forceRefresh = false}) async {
+          calls++;
+          // First two calls simulate App Attest still mid-attestation;
+          // only a forced-refresh retry after backoff succeeds.
+          if (calls < 3) return null;
+          return 'late-app-check-token';
+        },
+        client: MockClient((request) async {
+          seen = request;
+          return http.Response(
+            '{"success":true,"data":{"text":"ok"}}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ).execute(
+        const AiProxyRequest(
+          operation: AiOperation.chat,
+          model: 'gpt-4o',
+          payload: {'userMessage': 'Merhaba'},
+        ),
+      );
+      expect(result.isSuccess, isTrue, reason: '${result.failure}');
+      expect(seen!.headers[ProxyAiHeaders.appCheckHeader], 'late-app-check-token');
+      expect(calls, greaterThanOrEqualTo(3));
+    },
+  );
+
+  test(
+    'Coffee analysis survives the same transient App Check miss as any '
+    'other operation — the retry lives in the shared header path, not a '
+    'per-feature workaround',
+    () async {
+      final outcome = await ProxyAiTransport(
+        config: _prod,
+        accessToken: ({bool forceRefresh = false}) async => 'firebase-id-token',
+        appCheckToken: ({bool forceRefresh = false}) async =>
+            forceRefresh ? 'recovered-token' : null,
+        client: MockClient((request) async {
+          return http.Response(
+            '{"success":true,"data":{"observation":"ok"}}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ).execute(
+        const AiProxyRequest(
+          operation: AiOperation.coffeeAnalysis,
+          model: 'gpt-4o',
+          payload: {'imageBase64': 'ZmFrZQ==', 'mimeType': 'image/jpeg'},
+        ),
+      );
+      expect(outcome.isSuccess, isTrue, reason: '${outcome.failure}');
+    },
+  );
+
+  test(
+    'Palm analysis survives the same transient App Check miss as any other '
+    'operation',
+    () async {
+      final outcome = await ProxyAiTransport(
+        config: _prod,
+        accessToken: ({bool forceRefresh = false}) async => 'firebase-id-token',
+        appCheckToken: ({bool forceRefresh = false}) async =>
+            forceRefresh ? 'recovered-token' : null,
+        client: MockClient((request) async {
+          return http.Response(
+            '{"success":true,"data":{"observation":"ok"}}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ).execute(
+        const AiProxyRequest(
+          operation: AiOperation.palmAnalysis,
+          model: 'gpt-4o',
+          payload: {
+            'imageBase64': 'ZmFrZQ==',
+            'mimeType': 'image/jpeg',
+            'hand': 'right',
+          },
+        ),
+      );
+      expect(outcome.isSuccess, isTrue, reason: '${outcome.failure}');
+    },
+  );
+
+  test(
+    'App Check resolution still fails closed — after every retry is '
+    'exhausted — rather than sending the request unauthenticated',
+    () async {
+      var called = false;
+      final outcome = await ProxyAiTransport(
+        config: _prod,
+        accessToken: ({bool forceRefresh = false}) async => 'firebase-id-token',
+        appCheckToken: ({bool forceRefresh = false}) async => null,
+        client: MockClient((_) async {
+          called = true;
+          return http.Response('{}', 200);
+        }),
+      ).execute(
+        const AiProxyRequest(
+          operation: AiOperation.coffeeAnalysis,
+          model: 'gpt-4o',
+          payload: {'imageBase64': 'ZmFrZQ==', 'mimeType': 'image/jpeg'},
+        ),
+      );
+      expect(called, isFalse);
+      expect(outcome.failure?.kind, AiFailureKind.appCheck);
+    },
+  );
+
   test('request body contract unchanged when App Check present', () async {
     http.Request? seen;
     await ProxyAiTransport(

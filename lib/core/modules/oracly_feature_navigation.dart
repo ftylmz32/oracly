@@ -2,16 +2,12 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/providers/app_providers.dart';
 import '../../features/premium/services/premium_access.dart';
 import '../../features/premium/services/soul_mate_navigation.dart';
 import '../../screens/memory/memory_screen.dart';
-import '../copy/first_session_copy.dart';
 import '../navigation/oracly_navigation_service.dart';
 import '../navigation/oracly_page_transitions.dart';
-import '../../shared/ui/oracly_snackbar.dart';
 import 'oracly_feature_id.dart';
 import 'oracly_feature_module.dart';
 import 'oracly_feature_registry.dart';
@@ -31,10 +27,6 @@ abstract final class OraclyFeatureNavigation {
   }
 
   static void open(BuildContext context, OraclyFeatureId id) {
-    if (id == OraclyFeatureId.soulMate &&
-        _deferSoulMateForFirstSession(context)) {
-      return;
-    }
     final gated = module(id);
     if (gated != null &&
         gated.requiresPremium &&
@@ -78,6 +70,8 @@ abstract final class OraclyFeatureNavigation {
       case OraclyFeatureId.settings:
         OraclyNavigationService.openSettings(context);
       case OraclyFeatureId.soulMate:
+        // Never hijack Soul Mate into Tarot / daily-card — Premium gate
+        // above already prompts; entitled users open Soul Mate itself.
         SoulMateNavigation.open(context);
       case OraclyFeatureId.dailyEnergy:
         OraclyNavigationService.openDailyEnergy(context);
@@ -85,24 +79,6 @@ abstract final class OraclyFeatureNavigation {
       case OraclyFeatureId.moonCalendar:
       case OraclyFeatureId.manifestation:
         _openReserved(context, id);
-    }
-  }
-
-  /// First session: free card before Premium Soul Mate paywall.
-  static bool _deferSoulMateForFirstSession(BuildContext context) {
-    if (PremiumAccess.isActive(context)) return false;
-    try {
-      final container = ProviderScope.containerOf(context, listen: false);
-      final first = container.read(isFirstSessionProvider).valueOrNull ?? false;
-      if (!first) return false;
-      OraclySnackBar.show(
-        context,
-        message: FirstSessionCopy.soulMateLater,
-      );
-      OraclyNavigationService.startDailyCardDraw(context);
-      return true;
-    } catch (_) {
-      return false;
     }
   }
 

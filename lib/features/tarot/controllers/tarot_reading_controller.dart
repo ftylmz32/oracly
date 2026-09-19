@@ -60,6 +60,17 @@ class TarotReadingController extends TarotBaseController {
     notifyListeners();
   }
 
+  /// Drop a prior in-progress session so a new ritual cannot collide with
+  /// restore / daily-draw races on a stale active document.
+  Future<void> abandonActiveForNewStart() async {
+    await _repository.clearActiveSession();
+    _session = null;
+    _drawLocked = false;
+    _interpretationInflight = null;
+    clearError();
+    notifyListeners();
+  }
+
   Future<ReadingSession> beginSession({
     required TarotSpreadType spread,
     required String deckId,
@@ -69,8 +80,12 @@ class TarotReadingController extends TarotBaseController {
     isLoading = true;
     clearError();
     try {
+      await abandonActiveForNewStart();
       final seed = DateTime.now().millisecondsSinceEpoch;
       await _deckController.initializeDeck(deckId: deckId, seed: seed);
+      if (_deckController.drawPile.isEmpty) {
+        throw StateError('Tarot deck failed to initialize');
+      }
       _session = ReadingSession(
         id: 'session_$seed',
         deckId: _deckController.deckId,

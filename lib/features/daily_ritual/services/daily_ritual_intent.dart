@@ -9,6 +9,9 @@ abstract final class DailyRitualIntent {
 
   static void requestDailyCardDraw() => _pendingDraw = true;
 
+  /// Peek without consuming — used to skip stale session restore.
+  static bool get hasPendingDraw => _pendingDraw;
+
   /// Returns true once when a pending draw was waiting.
   static bool consumePendingDraw() {
     if (!_pendingDraw) return false;
