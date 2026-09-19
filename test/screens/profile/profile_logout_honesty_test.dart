@@ -279,6 +279,16 @@ class _ControllableAuth implements AuthService {
   }
 
   @override
+  bool get isCurrentUserAnonymous => true;
+
+  @override
+  Future<ApiResult<bool>> reauthenticate(
+    AccountReauthCredentials credentials,
+  ) async {
+    throw UnsupportedError('reauth is not part of this logout test');
+  }
+
+  @override
   Future<ApiResult<AuthSession>> signInAnonymously() => _unused();
 
   @override

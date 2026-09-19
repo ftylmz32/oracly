@@ -10,6 +10,9 @@ import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
+import 'package:oracly_new/features/companion/models/memory.dart';
+import 'package:oracly_new/features/companion/models/memory_permission.dart';
+import 'package:oracly_new/features/companion/providers/companion_providers.dart';
 import 'package:oracly_new/models/memory_item.dart';
 import 'package:oracly_new/screens/memory/memory_screen.dart';
 import 'package:oracly_new/services/memory_service.dart';
@@ -25,7 +28,7 @@ void main() {
         'independent SharedPreferences instance', () async {
       SharedPreferences.setMockInitialValues({});
       final storage = LocalStorage(await SharedPreferences.getInstance());
-      final service = MemoryService(storage: storage);
+      final service = MemoryService(storage);
 
       await service.saveUserName('Ada');
       await service.addAdvancedMemory(
@@ -70,7 +73,7 @@ void main() {
         ],
       });
       final storage = LocalStorage(await SharedPreferences.getInstance());
-      final service = MemoryService(storage: storage);
+      final service = MemoryService(storage);
 
       final memories = await service.getAdvancedMemories();
 
@@ -87,7 +90,7 @@ void main() {
         'leaves exactly the updated content, no duplicate', () async {
       SharedPreferences.setMockInitialValues({});
       final storage = LocalStorage(await SharedPreferences.getInstance());
-      final service = MemoryService(storage: storage);
+      final service = MemoryService(storage);
       final original = MemoryItem(
         category: 'goal',
         content: 'Old value',
@@ -114,7 +117,7 @@ void main() {
     test('delete removes the memory permanently', () async {
       SharedPreferences.setMockInitialValues({});
       final storage = LocalStorage(await SharedPreferences.getInstance());
-      final service = MemoryService(storage: storage);
+      final service = MemoryService(storage);
       await service.addAdvancedMemory(
         MemoryItem(
           category: 'goal',
@@ -142,7 +145,7 @@ void main() {
         ],
       });
       final storage = LocalStorage(await SharedPreferences.getInstance());
-      final service = MemoryService(storage: storage);
+      final service = MemoryService(storage);
       expect(await service.getUserName(), 'Owner A');
       expect(await service.getAdvancedMemories(), isNotEmpty);
 
@@ -155,7 +158,7 @@ void main() {
     test('clearMemory() also clears the saved display name', () async {
       SharedPreferences.setMockInitialValues({});
       final storage = LocalStorage(await SharedPreferences.getInstance());
-      final service = MemoryService(storage: storage);
+      final service = MemoryService(storage);
       await service.saveUserName('Someone');
       await service.addAdvancedMemory(
         MemoryItem(
@@ -197,5 +200,83 @@ void main() {
         expect(find.textContaining('Seeded via shared storage'), findsOneWidget);
       },
     );
+  });
+
+  group('real provider composition boundary (OR <-> MemoryScreen)', () {
+    // Exercises the actual production providers (`memoryServiceProvider`,
+    // `companionMemoryServiceProvider`), not a direct MemoryService unit
+    // instance — proving OR's companion memory bridge and MemoryScreen
+    // really do share one storage boundary end to end.
+    test('OR saves a memory -> the canonical memoryServiceProvider instance '
+        'sees it immediately (same container, no second storage path)',
+        () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      final container = ProviderContainer(
+        overrides: [localStorageProvider.overrideWithValue(storage)],
+      );
+      addTearDown(container.dispose);
+
+      final or = container.read(companionMemoryServiceProvider);
+      await or.save(
+        Memory(
+          id: 'mem_1',
+          content: 'OR-saved fact',
+          category: 'general',
+          permission: MemoryPermission.saved,
+          createdAt: DateTime(2026, 1, 1),
+          source: MemorySource.user,
+        ),
+      );
+
+      final screenSide = container.read(memoryServiceProvider);
+      final memories = await screenSide.getAdvancedMemories();
+      expect(memories.map((m) => m.content), contains('OR-saved fact'));
+    });
+
+    test('a name saved through the canonical provider is visible via the '
+        "companion bridge's userName() (same source, both directions)",
+        () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      final container = ProviderContainer(
+        overrides: [localStorageProvider.overrideWithValue(storage)],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(memoryServiceProvider).saveUserName('Composed Name');
+
+      expect(
+        await container.read(companionMemoryServiceProvider).userName(),
+        'Composed Name',
+      );
+    });
+
+    test('deleting through the companion bridge removes it for every other '
+        'reader of the same canonical provider', () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      final container = ProviderContainer(
+        overrides: [localStorageProvider.overrideWithValue(storage)],
+      );
+      addTearDown(container.dispose);
+
+      final or = container.read(companionMemoryServiceProvider);
+      await or.save(
+        Memory(
+          id: 'mem_2',
+          content: 'To be deleted from OR side',
+          category: 'general',
+          permission: MemoryPermission.saved,
+          createdAt: DateTime(2026, 1, 1),
+          source: MemorySource.user,
+        ),
+      );
+      await or.deleteByContent('To be deleted from OR side');
+
+      final memories =
+          await container.read(memoryServiceProvider).getAdvancedMemories();
+      expect(memories, isEmpty);
+    });
   });
 }

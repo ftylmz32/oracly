@@ -118,4 +118,18 @@ class MockAuthService implements AuthService {
     await _tokens?.clearTokens();
     return const ApiSuccess(true);
   }
+
+  @override
+  bool get isCurrentUserAnonymous =>
+      _sessions?.currentSession?.provider != AuthProviderKind.google &&
+      _sessions?.currentSession?.provider != AuthProviderKind.apple &&
+      _sessions?.currentSession?.provider != AuthProviderKind.email;
+
+  @override
+  Future<ApiResult<bool>> reauthenticate(
+    AccountReauthCredentials credentials,
+  ) async {
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    return const ApiSuccess(true);
+  }
 }

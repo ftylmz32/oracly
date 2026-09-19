@@ -42,7 +42,9 @@ import 'package:oracly_new/features/companion/models/or_session_state.dart';
 import 'package:oracly_new/features/companion/models/reflection_context.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_notice.dart';
 import 'package:oracly_new/features/companion/services/companion_experience_service.dart';
+import 'package:oracly_new/features/companion/services/companion_memory_service.dart';
 import 'package:oracly_new/features/companion/services/or_session_resolver.dart';
+import 'package:oracly_new/services/memory_service.dart';
 import 'package:oracly_new/features/companion/services/or_operation_id.dart';
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -492,6 +494,7 @@ CompanionController _controller({
   final experience = CompanionExperienceService(
     conversationRepository: repo,
     intelligence: intelligence,
+    memoryService: CompanionMemoryService(MemoryService(LocalStorage.ephemeral())),
     ai: ai,
   );
   final controller = CompanionController(
@@ -544,6 +547,7 @@ class _RestartExperience extends CompanionExperienceService {
        super(
          conversationRepository: conversationRepository,
          intelligence: intelligence,
+         memoryService: CompanionMemoryService(MemoryService(LocalStorage.ephemeral())),
          ai: ai,
        );
 
@@ -729,6 +733,7 @@ class _FailingProviderExperience extends CompanionExperienceService {
             indexStore: IntelligenceIndexStore(LocalStorage.ephemeral()),
           ),
         ),
+        memoryService: CompanionMemoryService(MemoryService(LocalStorage.ephemeral())),
       );
 
   int providerCalls = 0;

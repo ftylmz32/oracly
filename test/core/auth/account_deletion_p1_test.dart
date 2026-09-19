@@ -21,6 +21,7 @@ import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/intelligence/data/personal_memory_store.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/favorite_moments/data/local_favorite_moments_repository.dart';
+import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_credentials.dart';
 import 'package:oracly_new/features/tarot/data/datasources/tarot_local_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -124,9 +125,14 @@ void main() {
       expect(signedIn.isSuccess, isTrue);
       expect(gateway.currentUser?.isAnonymous, isFalse);
 
-      final result = await deletion.deleteAccountAndWipeLocalData();
+      final result = await deletion.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.email(
+          EmailCredentials(email: 'a@b.c', password: 'x'),
+        ),
+      );
 
       expect(result.isSuccess, isTrue);
+      expect(gateway.reauthCalls, 1);
       await expectUserBoundCleared();
       expect(gateway.deleteCalls, 1);
       expect(gateway.currentUser?.isAnonymous, isTrue);
@@ -156,7 +162,11 @@ void main() {
     );
     gateway.deleteError = 'requires-recent-login';
 
-    final result = await deletion.deleteAccountAndWipeLocalData();
+    final result = await deletion.deleteAccountAndWipeLocalData(
+      reauth: const AccountReauthCredentials.email(
+        EmailCredentials(email: 'a@b.c', password: 'x'),
+      ),
+    );
 
     expect(result.isFailure, isTrue);
     expect(result.errorOrNull?.message, AuthCopy.requiresRecentLogin);
@@ -207,7 +217,11 @@ void main() {
       gateway.deleteError = 'requires-recent-login';
       expect(deletion.hasPendingIdentityCleanup, isFalse);
 
-      final result = await deletion.deleteAccountAndWipeLocalData();
+      final result = await deletion.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.email(
+          EmailCredentials(email: 'a@b.c', password: 'x'),
+        ),
+      );
 
       expect(result.isFailure, isTrue);
       expect(deletion.hasPendingIdentityCleanup, isTrue);
@@ -240,7 +254,11 @@ void main() {
         const EmailCredentials(email: 'a@b.c', password: 'x'),
       );
       gateway.deleteError = 'requires-recent-login';
-      await deletion.deleteAccountAndWipeLocalData();
+      await deletion.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.email(
+          EmailCredentials(email: 'a@b.c', password: 'x'),
+        ),
+      );
       expect(deletion.hasPendingIdentityCleanup, isTrue);
 
       // Simulate a successful reauth having happened — identity delete now
@@ -265,7 +283,11 @@ void main() {
         const EmailCredentials(email: 'a@b.c', password: 'x'),
       );
       gateway.deleteError = 'requires-recent-login';
-      await deletion.deleteAccountAndWipeLocalData();
+      await deletion.deleteAccountAndWipeLocalData(
+        reauth: const AccountReauthCredentials.email(
+          EmailCredentials(email: 'a@b.c', password: 'x'),
+        ),
+      );
 
       final retry = await deletion.retryPendingIdentityCleanup();
 
@@ -284,6 +306,271 @@ void main() {
       expect(gateway.deleteCalls, 0);
     },
   );
+
+  group('pre-deletion reauthentication for linked users', () {
+    test(
+      'linked (email) user without a reauth credential is refused BEFORE '
+      'any destructive call — server delete count is zero',
+      () async {
+        var serverCalls = 0;
+        final counting = AccountDeletionService(
+          auth: auth,
+          storage: storage,
+          secureStorage: secure,
+          deleteServerData: () async {
+            serverCalls++;
+            return true;
+          },
+        );
+        await seedUserBound();
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+
+        final result = await counting.deleteAccountAndWipeLocalData();
+
+        expect(result.isFailure, isTrue);
+        expect(result.errorOrNull?.message, AuthCopy.requiresRecentLogin);
+        expect(serverCalls, 0);
+        expect(gateway.deleteCalls, 0);
+        expect(counting.hasPendingIdentityCleanup, isFalse);
+        expect(storage.getString('user_name'), 'Ada');
+        expect(gateway.currentUser?.email, 'a@b.c');
+      },
+    );
+
+    test(
+      'reauth failure (wrong password / cancelled) leaves zero destructive '
+      'calls — server delete, identity delete, wipe, and pending marker are '
+      'all untouched',
+      () async {
+        var serverCalls = 0;
+        final counting = AccountDeletionService(
+          auth: auth,
+          storage: storage,
+          secureStorage: secure,
+          deleteServerData: () async {
+            serverCalls++;
+            return true;
+          },
+        );
+        await seedUserBound();
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+        gateway.reauthError = 'wrong-password';
+
+        final result = await counting.deleteAccountAndWipeLocalData(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'wrong'),
+          ),
+        );
+
+        expect(result.isFailure, isTrue);
+        expect(gateway.reauthCalls, 1);
+        expect(serverCalls, 0);
+        expect(gateway.deleteCalls, 0);
+        expect(counting.hasPendingIdentityCleanup, isFalse);
+        expect(storage.getString('user_name'), 'Ada');
+        expect(gateway.currentUser?.email, 'a@b.c');
+        expect(sessions.currentSession, isNotNull);
+      },
+    );
+
+    test(
+      'successful reauth but server-data deletion itself fails: Firebase '
+      'identity remains, no local wipe, no pending marker (only a later '
+      'identity-deletion failure — not a server failure — is "pending")',
+      () async {
+        final failingServer = AccountDeletionService(
+          auth: auth,
+          storage: storage,
+          secureStorage: secure,
+          deleteServerData: () async => false,
+        );
+        await seedUserBound();
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+
+        final result = await failingServer.deleteAccountAndWipeLocalData(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'x'),
+          ),
+        );
+
+        expect(result.isFailure, isTrue);
+        expect(gateway.reauthCalls, 1);
+        expect(gateway.deleteCalls, 0);
+        expect(failingServer.hasPendingIdentityCleanup, isFalse);
+        expect(gateway.currentUser, isNotNull);
+        expect(storage.getString('user_name'), 'Ada');
+      },
+    );
+
+    test(
+      'successful reauth -> server delete -> identity delete -> wipe, all '
+      'in order, for a linked user (full happy path)',
+      () async {
+        var serverCalls = 0;
+        final counting = AccountDeletionService(
+          auth: auth,
+          storage: storage,
+          secureStorage: secure,
+          deleteServerData: () async {
+            serverCalls++;
+            return true;
+          },
+        );
+        await seedUserBound();
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+
+        final result = await counting.deleteAccountAndWipeLocalData(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'x'),
+          ),
+        );
+
+        expect(result.isSuccess, isTrue);
+        expect(gateway.reauthCalls, 1);
+        expect(serverCalls, 1);
+        expect(gateway.deleteCalls, 1);
+        await expectUserBoundCleared();
+        expect(gateway.currentUser?.isAnonymous, isTrue);
+        expect(sessions.currentSession, isNotNull);
+      },
+    );
+
+    test(
+      'duplicate server-delete retry is idempotent — retryPendingIdentityCleanup '
+      'safely calls deleteServerData a second time after it already succeeded',
+      () async {
+        var serverCalls = 0;
+        final counting = AccountDeletionService(
+          auth: auth,
+          storage: storage,
+          secureStorage: secure,
+          deleteServerData: () async {
+            serverCalls++;
+            return true;
+          },
+        );
+        await seedUserBound();
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+        gateway.deleteError = 'requires-recent-login';
+        await counting.deleteAccountAndWipeLocalData(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'x'),
+          ),
+        );
+        expect(serverCalls, 1);
+        expect(counting.hasPendingIdentityCleanup, isTrue);
+
+        gateway.deleteError = null;
+        final retry = await counting.retryPendingIdentityCleanup();
+
+        expect(retry.isSuccess, isTrue);
+        expect(serverCalls, 2, reason: 'idempotent second call, not skipped');
+        await expectUserBoundCleared();
+      },
+    );
+
+    test(
+      'a completed deletion leaves no Premium, gems, or memory residue — '
+      'cross-checks every user-bound key the wipe is responsible for',
+      () async {
+        await seedUserBound();
+        await storage.setInt(GemWalletStore.balanceKey, 500);
+        await storage.setInt(GemWalletStore.serverBalanceCacheKey, 500);
+        await storage.setString(GemWalletStore.serverBalanceOwnerKey, 'owner-a');
+        await storage.setString(PersonalMemoryStore.key, 'leftover-memory');
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+
+        final result = await deletion.deleteAccountAndWipeLocalData(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'x'),
+          ),
+        );
+
+        expect(result.isSuccess, isTrue);
+        expect(storage.getInt(GemWalletStore.balanceKey), isNull);
+        expect(storage.getInt(GemWalletStore.serverBalanceCacheKey), isNull);
+        expect(storage.getString(GemWalletStore.serverBalanceOwnerKey), isNull);
+        expect(storage.getString(PersonalMemoryStore.key), isNull);
+        // ownerKey is intentionally repopulated with the fresh anonymous
+        // session's own id right after the wipe — never left pointing at
+        // the deleted owner, but not null either (a new session needs an
+        // owner to isolate against too).
+        expect(
+          storage.getString(UserLocalDataIsolation.ownerKey),
+          isNot('owner-a'),
+        );
+        await expectUserBoundCleared();
+      },
+    );
+  });
+
+  group('startup pending-cleanup gate (mirrors main.dart\'s _deferredStartup)',
+      () {
+    test(
+      'a pending marker that a no-credential retry cannot resolve stays '
+      'blocking — the startup gate must not treat this as a healthy account',
+      () async {
+        await seedUserBound();
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+        gateway.deleteError = 'requires-recent-login';
+        await deletion.deleteAccountAndWipeLocalData(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'x'),
+          ),
+        );
+        expect(deletion.hasPendingIdentityCleanup, isTrue);
+
+        // Exactly what main.dart's startup gate does: one automatic retry,
+        // no credentials available (no reauth UI wired up yet).
+        await deletion.retryPendingIdentityCleanup();
+
+        expect(
+          deletion.hasPendingIdentityCleanup,
+          isTrue,
+          reason: 'still requires a real reauth the automatic retry cannot '
+              'supply — the gate must stay blocked, never fall through to '
+              'normal anonymous bootstrap',
+        );
+      },
+    );
+
+    test(
+      'once the identity is actually deletable, the automatic startup '
+      'retry clears the gate with no infinite loop (one call, one result)',
+      () async {
+        await seedUserBound();
+        await auth.signInWithEmail(
+          const EmailCredentials(email: 'a@b.c', password: 'x'),
+        );
+        gateway.deleteError = 'requires-recent-login';
+        await deletion.deleteAccountAndWipeLocalData(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'x'),
+          ),
+        );
+        gateway.deleteError = null;
+
+        await deletion.retryPendingIdentityCleanup();
+
+        expect(deletion.hasPendingIdentityCleanup, isFalse);
+        expect(gateway.deleteCalls, 2, reason: 'exactly one retry attempt');
+      },
+    );
+  });
 
   test('mapDelete maps requires-recent-login and no-current-user', () {
     expect(
@@ -372,6 +659,31 @@ class _DeletionGateway implements FirebaseAuthGateway {
     }
     _user = null;
     _controller.add(null);
+  }
+
+  String? reauthError;
+  int reauthCalls = 0;
+
+  @override
+  Future<void> reauthenticateWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) => _reauth();
+
+  @override
+  Future<void> reauthenticateWithApple({required String idToken}) => _reauth();
+
+  @override
+  Future<void> reauthenticateWithEmail({
+    required String email,
+    required String password,
+  }) => _reauth();
+
+  Future<void> _reauth() async {
+    reauthCalls++;
+    if (reauthError != null) {
+      throw AuthGatewayException(reauthError!, code: reauthError);
+    }
   }
 }
 

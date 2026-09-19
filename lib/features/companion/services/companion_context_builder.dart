@@ -6,7 +6,6 @@ import '../../../core/intelligence/services/intelligence_layer_service.dart';
 import '../../../core/intelligence/services/personal_memory_service.dart';
 import '../../../features/daily_ritual/models/daily_ritual_day.dart';
 import '../../../features/daily_ritual/services/daily_ritual_service.dart';
-import '../../../services/memory_service.dart';
 import '../copy/companion_copy.dart';
 import '../models/reflection_context.dart';
 import 'companion_memory_service.dart';
@@ -14,12 +13,12 @@ import 'companion_memory_service.dart';
 class CompanionContextBuilder {
   CompanionContextBuilder({
     required this.intelligence,
-    CompanionMemoryService? memoryService,
+    required CompanionMemoryService memoryService,
     this.personalMemory,
     this.dailyRitual,
     this.users,
     this.observationLine,
-  }) : _memory = memoryService ?? CompanionMemoryService(MemoryService());
+  }) : _memory = memoryService;
 
   final IntelligenceLayerService intelligence;
   final PersonalMemoryService? personalMemory;
@@ -81,7 +80,7 @@ class CompanionContextBuilder {
       final fromProfile = (await users?.getProfile())?.name.trim();
       if (fromProfile != null && fromProfile.isNotEmpty) return fromProfile;
     } catch (_) {}
-    return MemoryService().getUserName();
+    return _memory.userName();
   }
 
   String welcomeMessage(ReflectionContext context) {

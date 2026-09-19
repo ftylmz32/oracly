@@ -318,7 +318,7 @@ final personalMemoryServiceProvider = Provider<PersonalMemoryService>((ref) {
 /// there is exactly one storage path (never a second, untestable
 /// `SharedPreferences.getInstance()` race) for legacy user-memory data.
 final memoryServiceProvider = Provider<MemoryService>((ref) {
-  return MemoryService(storage: ref.watch(localStorageProvider));
+  return MemoryService(ref.watch(localStorageProvider));
 });
 
 /// Interpretation Engine V2 canonical source-attributed memory.

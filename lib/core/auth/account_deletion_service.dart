@@ -8,6 +8,7 @@ import '../notifications/push_token_cleanup.dart';
 import '../storage/secure_storage.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
+import 'models/auth_credentials.dart';
 import 'user_local_data_isolation.dart';
 import 'user_local_data_wipe.dart';
 
@@ -38,7 +39,30 @@ class AccountDeletionService {
 
   /// Deletes the Firebase (or mock) account, then clears user-bound local data.
   /// On remote failure: does not wipe, does not claim success, does not logout.
-  Future<ApiResult<bool>> deleteAccountAndWipeLocalData() async {
+  ///
+  /// For a LINKED (non-anonymous) user, Firebase requires a "recent" login
+  /// before it will honor a destructive account action. [reauth] must carry
+  /// a fresh credential from the same provider the user is already linked
+  /// with; if the current user is linked and [reauth] is null, or the
+  /// reauthentication itself fails or is cancelled, this returns immediately
+  /// with ZERO destructive calls — [deleteServerData] is never invoked,
+  /// nothing is wiped, no pending marker is set, the account is untouched.
+  /// An anonymous user needs no reauthentication at all.
+  Future<ApiResult<bool>> deleteAccountAndWipeLocalData({
+    AccountReauthCredentials? reauth,
+  }) async {
+    if (!_auth.isCurrentUserAnonymous) {
+      if (reauth == null) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.requiresRecentLogin));
+      }
+      final reauthResult = await _auth.reauthenticate(reauth);
+      if (reauthResult.isFailure) {
+        // Reauth cancelled/failed — the user remains exactly as they were;
+        // no server call, no wipe, no pending marker.
+        return ApiFailure(reauthResult.errorOrNull!);
+      }
+    }
+
     // Server-owned content must be accepted for deletion before the Firebase
     // identity (and therefore its authorization to retry) is destroyed.
     final serverAccepted = await deleteServerData();
@@ -72,13 +96,24 @@ class AccountDeletionService {
     return const ApiSuccess(true);
   }
 
-  /// Call once reauthentication has succeeded and the Firebase identity has
-  /// actually been deleted (or on next startup if it turns out the identity
-  /// was already gone by some other path) to complete the interrupted
-  /// deletion: re-runs server deletion (idempotent — safe even though it
-  /// already succeeded the first time) then finishes the local wipe.
-  Future<ApiResult<bool>> retryPendingIdentityCleanup() async {
+  /// Call to complete an interrupted deletion: re-runs server deletion
+  /// (idempotent — safe even though it already succeeded the first time)
+  /// once the Firebase identity is actually gone, then finishes the local
+  /// wipe. If the identity is still linked and still requires a fresh
+  /// login, pass [reauth]; without it (or if it fails) this stays safely in
+  /// the pending state — no data recreation, no wipe, no infinite retry
+  /// loop, just a typed failure the caller can surface as "reauth needed".
+  Future<ApiResult<bool>> retryPendingIdentityCleanup({
+    AccountReauthCredentials? reauth,
+  }) async {
     if (!hasPendingIdentityCleanup) return const ApiSuccess(true);
+
+    if (!_auth.isCurrentUserAnonymous && reauth != null) {
+      final reauthResult = await _auth.reauthenticate(reauth);
+      if (reauthResult.isFailure) {
+        return ApiFailure(reauthResult.errorOrNull!);
+      }
+    }
 
     final stillPresent = await _auth.deleteAccount();
     if (stillPresent.isFailure) {

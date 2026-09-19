@@ -4,13 +4,13 @@ import 'profile_service.dart';
 
 class ContextService {
 
+  ContextService(this._memoryService, [ProfileService? profileService])
+      : _profileService = profileService ?? ProfileService();
 
-  final MemoryService _memoryService =
-      MemoryService();
+  final MemoryService _memoryService;
 
 
-  final ProfileService _profileService =
-      ProfileService();
+  final ProfileService _profileService;
 
 
 

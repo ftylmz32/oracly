@@ -106,6 +106,21 @@ class _SwitchGateway implements FirebaseAuthGateway {
     _user = null;
     _controller.add(null);
   }
+
+  @override
+  Future<void> reauthenticateWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) async {}
+
+  @override
+  Future<void> reauthenticateWithApple({required String idToken}) async {}
+
+  @override
+  Future<void> reauthenticateWithEmail({
+    required String email,
+    required String password,
+  }) async {}
 }
 
 Future<void> _seedUserA(LocalStorage storage) async {

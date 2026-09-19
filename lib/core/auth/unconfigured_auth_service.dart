@@ -63,6 +63,15 @@ class UnconfiguredAuthService implements AuthService {
         NetworkException.unauthorized(AuthCopy.notConfigured),
       );
 
+  @override
+  bool get isCurrentUserAnonymous => true;
+
+  @override
+  Future<ApiResult<bool>> reauthenticate(
+    AccountReauthCredentials credentials,
+  ) async =>
+      ApiFailure(NetworkException.unauthorized(AuthCopy.notConfigured));
+
   ApiFailure<AuthSession> _fail() => ApiFailure(
         NetworkException.unauthorized(AuthCopy.notConfigured),
       );

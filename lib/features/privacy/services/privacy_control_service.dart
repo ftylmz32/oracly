@@ -22,7 +22,8 @@ class PrivacyControlService {
         _personalMemory = personalMemory,
         _birthCharts = birthCharts,
         _storage = storage,
-        _legacyMemory = legacyMemory ?? MemoryService();
+        // Same injected LocalStorage, never a second acquisition path.
+        _legacyMemory = legacyMemory ?? MemoryService(storage);
 
   final HistoryService _history;
   final FavoriteMomentsService _favorites;

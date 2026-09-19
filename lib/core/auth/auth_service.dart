@@ -25,4 +25,15 @@ abstract class AuthService {
   /// callers must run [AccountDeletionService] so wipe happens only after
   /// remote success. Never reports success for logout-only.
   Future<ApiResult<bool>> deleteAccount();
+
+  /// True when the current identity has no linked credential (anonymous) —
+  /// deletion needs no reauthentication. False for a linked (Google/Apple/
+  /// email) user, for whom [reauthenticate] must succeed before any
+  /// destructive account action.
+  bool get isCurrentUserAnonymous;
+
+  /// Re-proves the CURRENT linked user's identity with a fresh credential
+  /// from the same provider. Never signs in as a different user, never
+  /// fabricates success.
+  Future<ApiResult<bool>> reauthenticate(AccountReauthCredentials credentials);
 }

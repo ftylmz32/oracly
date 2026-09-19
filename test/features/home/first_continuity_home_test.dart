@@ -22,6 +22,7 @@ import 'package:oracly_new/features/companion/controllers/companion_output_contr
 import 'package:oracly_new/features/companion/models/conversation.dart';
 import 'package:oracly_new/features/companion/models/or_chat_output_mode.dart';
 import 'package:oracly_new/features/companion/services/companion_experience_service.dart';
+import 'package:oracly_new/features/companion/services/companion_memory_service.dart';
 import 'package:oracly_new/features/companion/services/first_reading_or_deepen.dart';
 import 'package:oracly_new/features/home/master/home_master_hero.dart';
 import 'package:oracly_new/features/home/reference/home_reference_hero.dart';
@@ -32,6 +33,7 @@ import 'package:oracly_new/core/experience/domain/models/recommendation_context.
 import 'package:oracly_new/core/experience/domain/models/reflection_context.dart';
 import 'package:oracly_new/features/home/services/first_continuity_home.dart';
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
+import 'package:oracly_new/services/memory_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
@@ -429,5 +431,6 @@ class _UnusedExperience extends CompanionExperienceService {
             indexStore: IntelligenceIndexStore(LocalStorage.ephemeral()),
           ),
         ),
+        memoryService: CompanionMemoryService(MemoryService(LocalStorage.ephemeral())),
       );
 }

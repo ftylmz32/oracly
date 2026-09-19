@@ -113,6 +113,43 @@ class FirebaseAuthService implements AuthService {
     );
   }
 
+  @override
+  bool get isCurrentUserAnonymous => _gateway.currentUser?.isAnonymous ?? true;
+
+  @override
+  Future<ApiResult<bool>> reauthenticate(
+    AccountReauthCredentials credentials,
+  ) async {
+    try {
+      switch (credentials.provider) {
+        case AuthProviderKind.google:
+          final oauth = credentials.oauth!;
+          await _gateway.reauthenticateWithGoogle(
+            idToken: oauth.idToken,
+            accessToken: oauth.accessToken,
+          );
+        case AuthProviderKind.apple:
+          await _gateway.reauthenticateWithApple(
+            idToken: credentials.oauth!.idToken,
+          );
+        case AuthProviderKind.email:
+          final email = credentials.email!;
+          await _gateway.reauthenticateWithEmail(
+            email: email.email,
+            password: email.password,
+          );
+        case AuthProviderKind.anonymous:
+        case AuthProviderKind.guest:
+          return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
+      return const ApiSuccess(true);
+    } on AuthGatewayException catch (e) {
+      return ApiFailure(FirebaseAuthErrors.map(e));
+    } catch (_) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+  }
+
   Future<ApiResult<AuthSession>> _sign(
     Future<FirebaseAuthUserSnapshot> Function() action, {
     AuthProviderKind provider = AuthProviderKind.anonymous,

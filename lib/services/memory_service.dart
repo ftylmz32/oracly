@@ -1,38 +1,28 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../core/data/datasources/local_storage.dart';
 import '../models/memory_item.dart';
 
 class MemoryService {
-  /// Canonical storage boundary — same [LocalStorage] every other feature
-  /// uses. Falls back to opening [SharedPreferences] directly only when no
-  /// instance is injected, so existing call sites keep working unchanged
-  /// while new/updated call sites (see `memoryServiceProvider`) share the
-  /// app's one real storage instance instead of racing a second
-  /// `SharedPreferences.getInstance()` call of their own.
-  // ignore: prefer_initializing_formals
-  MemoryService({LocalStorage? storage}) : _storage = storage;
+  /// Canonical storage boundary — same [LocalStorage] instance every other
+  /// feature uses. No fallback, no second `SharedPreferences.getInstance()`
+  /// acquisition path — every caller must go through `memoryServiceProvider`
+  /// (or otherwise supply the app's one real [LocalStorage]).
+  MemoryService(this._storage);
 
-  final LocalStorage? _storage;
-
-  Future<LocalStorage> _resolveStorage() async =>
-      _storage ?? LocalStorage(await SharedPreferences.getInstance());
+  final LocalStorage _storage;
 
   static const String _nameKey = "user_name";
   static const String _memoryKey = "user_memories";
 
   // Kullanıcı adını kaydet
   Future<void> saveUserName(String name) async {
-    final storage = await _resolveStorage();
-    await storage.setString(_nameKey, name);
+    await _storage.setString(_nameKey, name);
   }
 
   // Kullanıcı adını getir
   Future<String?> getUserName() async {
-    final storage = await _resolveStorage();
-    return storage.getString(_nameKey);
+    return _storage.getString(_nameKey);
   }
 
   // Yeni hafıza ekleme
@@ -51,16 +41,14 @@ class MemoryService {
 
   // Hafızaları kaydet
   Future<void> _saveMemories(List<MemoryItem> memories) async {
-    final storage = await _resolveStorage();
     final encoded = memories.map((e) => jsonEncode(e.toJson())).toList();
-    await storage.setStringList(_memoryKey, encoded);
+    await _storage.setStringList(_memoryKey, encoded);
   }
 
   // Gelişmiş hafızaları getir — bozuk/eski satırlar atılmaz, ham metin
   // olarak korunur; tek bir satırın bozuk olması diğerlerini etkilemez.
   Future<List<MemoryItem>> getAdvancedMemories() async {
-    final storage = await _resolveStorage();
-    final data = storage.getStringList(_memoryKey) ?? [];
+    final data = _storage.getStringList(_memoryKey) ?? [];
     return data.map((item) {
       try {
         return MemoryItem.fromJson(jsonDecode(item));
@@ -111,11 +99,10 @@ class MemoryService {
 
   // Tüm hafızayı temizle
   Future<void> clearMemory() async {
-    final storage = await _resolveStorage();
-    await storage.remove(_memoryKey);
-    await storage.remove(_nameKey);
+    await _storage.remove(_memoryKey);
+    await _storage.remove(_nameKey);
     // Personal Memory Core — compact summary, not raw chat.
-    await storage.remove('or_personal_memory_v1');
-    await storage.remove('discovery_surface_memory_v1');
+    await _storage.remove('or_personal_memory_v1');
+    await _storage.remove('discovery_surface_memory_v1');
   }
 }

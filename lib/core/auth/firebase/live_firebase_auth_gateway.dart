@@ -79,6 +79,40 @@ class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
   }
 
   @override
+  Future<void> reauthenticateWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) => _reauthenticate(
+        GoogleAuthProvider.credential(idToken: idToken, accessToken: accessToken),
+      );
+
+  @override
+  Future<void> reauthenticateWithApple({required String idToken}) =>
+      _reauthenticate(OAuthProvider('apple.com').credential(idToken: idToken));
+
+  @override
+  Future<void> reauthenticateWithEmail({
+    required String email,
+    required String password,
+  }) => _reauthenticate(
+        EmailAuthProvider.credential(email: email, password: password),
+      );
+
+  Future<void> _reauthenticate(AuthCredential credential) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw AuthGatewayException('no-current-user', code: 'no-current-user');
+      }
+      await user.reauthenticateWithCredential(credential);
+    } on AuthGatewayException {
+      rethrow;
+    } on FirebaseAuthException catch (e) {
+      throw AuthGatewayException(e.code, code: e.code);
+    }
+  }
+
+  @override
   Future<void> signOut() => _auth.signOut();
 
   @override

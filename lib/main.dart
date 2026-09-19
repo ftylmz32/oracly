@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/oracly_app.dart';
 import 'app/providers/app_providers.dart';
+import 'core/auth/account_deletion_pending_state.dart';
 import 'core/auth/anonymous_auth_bootstrap.dart';
 import 'core/auth/firebase/firebase_app_check_bootstrap.dart';
 import 'core/auth/firebase/firebase_auth_bootstrap.dart';
@@ -18,6 +19,7 @@ import 'core/l10n/oracly_format.dart';
 import 'core/platform/oracly_phone_orientation.dart';
 import 'core/notifications/reading_push_bootstrap.dart';
 import 'core/telemetry/crash_telemetry_bootstrap.dart';
+import 'features/privacy/providers/privacy_control_providers.dart';
 import 'features/share_reopen/services/share_link_inbox.dart';
 import 'screens/splash/splash_startup_log.dart';
 
@@ -85,7 +87,24 @@ Future<void> _deferredStartup(
   await FirebaseAuthBootstrap.tryInitialize();
   await FirebaseAppCheckBootstrap.tryActivate();
   container.invalidate(firebaseAuthReadyProvider);
-  await AnonymousAuthBootstrap.ensure(container.read(authServiceProvider));
+
+  // An interrupted account deletion (server data gone, Firebase identity
+  // not) must never be silently treated as a normal, healthy account.
+  // Try once to finish it automatically (safe/idempotent even if nothing
+  // was actually pending); only continue into normal anonymous-session
+  // bootstrap once it's confirmed clear.
+  try {
+    final deletion = container.read(accountDeletionServiceProvider);
+    if (deletion.hasPendingIdentityCleanup) {
+      await deletion.retryPendingIdentityCleanup();
+    }
+    AccountDeletionPendingState.isBlocked.value =
+        deletion.hasPendingIdentityCleanup;
+  } catch (_) {}
+
+  if (!AccountDeletionPendingState.isBlocked.value) {
+    await AnonymousAuthBootstrap.ensure(container.read(authServiceProvider));
+  }
   await ReadingPushBootstrap.install(container);
   await CrashTelemetryBootstrap.install(container);
 }
