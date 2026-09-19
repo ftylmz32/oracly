@@ -63,7 +63,9 @@ class MockUserRepository implements UserRepository {
     await _storage.setInt(_readingsKey, profile.totalReadings);
     await _storage.setDouble(_spiritKey, profile.spiritualLevel);
     await _storage.setString(_deckKey, profile.favoriteDeckId);
-    await _storage.setBool(_premiumKey, profile.isPremium);
+    // Never write Premium from profile saves — MockPremiumRepository owns
+    // `or_premium_active`. A stale UserProfileModel.isPremium must not
+    // resurrect entitlement after authoritative demote.
     await _storage.setStringList(
       _achievementsKey,
       profile.unlockedAchievementKeys,

@@ -6,8 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/chamber_header_lead.dart';
-import '../../../../core/modules/oracly_feature_id.dart';
-import '../../../../core/modules/oracly_feature_registry.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../features/birth_chart/providers/birth_information_provider.dart';
 import '../../../../features/personal_discovery/providers/personal_discovery_providers.dart';
@@ -78,17 +76,16 @@ class StarMapReferenceScreen extends ConsumerWidget {
                   SizedBox(height: StarMapReferenceTokens.headerToChart),
                   ChamberHeaderLead(text: StarMapPolishCopy.leadLine),
                   SizedBox(height: StarMapReferenceTokens.leadToHero * 0.35),
-                  if (OraclyFeatureRegistry.byId(OraclyFeatureId.starMap)
-                          ?.isPreview ??
-                      false)
-                    Text(
-                      StarMapPolishCopy.previewBadge,
-                      textAlign: TextAlign.center,
-                      style: ReadingTypography.footnote(
-                        color: StarMapReferenceTokens.cream
-                            .withValues(alpha: 0.62),
-                      ),
+                  // Honesty note: live chamber, but sun-sign archive — not
+                  // a full ephemeris natal. Always visible (not preview-gated).
+                  Text(
+                    StarMapPolishCopy.capabilityNote,
+                    textAlign: TextAlign.center,
+                    style: ReadingTypography.footnote(
+                      color: StarMapReferenceTokens.cream
+                          .withValues(alpha: 0.62),
                     ),
+                  ),
                   SizedBox(height: StarMapReferenceTokens.leadToHero * 0.65),
                   Expanded(
                     child: LayoutBuilder(

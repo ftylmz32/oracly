@@ -13,10 +13,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/design_system/chamber_waiting_stage.dart';
 import '../../../../shared/navigation/oracly_navigation.dart';
 import '../../copy/coffee_copy.dart';
 import '../../presentation/reference/coffee_error_view.dart';
 import '../../presentation/reference/coffee_landing_chamber.dart';
+import '../../presentation/reference/coffee_reference_screen.dart';
 import '../models/coffee_v2_flow_stage.dart';
 import '../providers/coffee_v2_providers.dart';
 import 'coffee_v2_active_observing_view.dart';
@@ -43,10 +45,18 @@ class CoffeeV2FlowScreen extends ConsumerWidget {
     return CoffeeLandingChamber(
       onBack: () => _handleBack(context),
       child: switch (controller.stage) {
-        CoffeeV2FlowStage.booting => const SizedBox.shrink(),
+        CoffeeV2FlowStage.booting => ChamberWaitingStage(
+            message: CoffeeCopy.analyzing,
+          ),
         CoffeeV2FlowStage.unavailable => CoffeeErrorView(
             message: CoffeeCopy.analysisUnavailable,
-            onRetry: () {},
+            onRetry: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute<void>(
+                  builder: (_) => const CoffeeReferenceScreen(),
+                ),
+              );
+            },
             onBack: () => _handleBack(context),
           ),
         CoffeeV2FlowStage.intro => CoffeeV2IntroView(

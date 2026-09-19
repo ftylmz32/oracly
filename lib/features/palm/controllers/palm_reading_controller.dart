@@ -72,14 +72,38 @@ class PalmReadingController extends ChangeNotifier
         await _acceptAuthoritativeBalance?.call(authoritativeBalance);
       }
       if (result.outcome == ReadingAccelerationOutcome.alreadyEligible) {
-        // The free wait was already over server-side -- zero Gems charged,
-        // nothing to accelerate. The operation is still exactly `waiting`;
-        // do NOT force a fake `processing` state (that would lie about
-        // server truth). The existing poll loop (already running since
-        // this operation first became `waiting`) keeps observing on its
-        // own -- this is not a failure, so no error is shown either.
+        // Wait already finished server-side — resume staged analysis even
+        // when no poll loop is running (restart without pending prefs).
         _accelerationCost = result.canonicalCost;
         _accelerationPriceToken = result.priceToken;
+        final hand = pending?.handSide == PalmHand.left.name
+            ? PalmHand.left
+            : PalmHand.right;
+        PalmReading? captured;
+        Future<String> runPipeline() async {
+          final reading = await _experience.analyzeStaged(
+            operationId: operationId,
+            mimeType: pending?.mimeType ?? 'image/jpeg',
+            hand: hand,
+          );
+          captured = reading;
+          return reading.id;
+        }
+
+        final token = ++_generation;
+        final resumed = await live.resumeAccelerated(
+          begun: liveState!,
+          runPipeline: runPipeline,
+        );
+        _applyAnalyzeSnapshot(
+          token: token,
+          live: live,
+          source: pending?.sourceRequestId ?? operationId,
+          fallbackImagePath: _image?.path ?? '',
+          runPipeline: runPipeline,
+          capturedReading: () => captured,
+          state: resumed,
+        );
         return;
       }
       if (result.outcome == ReadingAccelerationOutcome.priceChanged) {
@@ -179,6 +203,19 @@ class PalmReadingController extends ChangeNotifier
         if (pending != null &&
             pending.operationId == state.snapshot?.operationId) {
           await _recoverWaiting(pending: pending);
+          return;
+        }
+        // Pending prefs missing after restart — still resume with staged
+        // server image so analyzing cannot dead-end forever.
+        if (recoveredOperationId != null) {
+          await _recoverWaiting(
+            pending: ReadingPendingOperation(
+              operationId: recoveredOperationId,
+              sourceRequestId: recoveredOperationId,
+              mimeType: 'image/jpeg',
+              handSide: _hand.name,
+            ),
+          );
           return;
         }
         safeNotify();

@@ -51,24 +51,29 @@ class PremiumReferenceCta extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        OraclyGoldButton(
-          label: busy
-              ? PremiumCopy.ctaBusy
-              : (joinLabel ?? PremiumCopy.ctaJoin),
-          expanded: true,
-          borderRadius: PremiumReferenceTokens.ctaRadius,
-          onPressed: busy ? null : onActivate,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          PremiumCopy.ctaHintConfigured,
-          textAlign: TextAlign.center,
-          style: ReadingTypography.footnote(
-            color: OraclyChrome.cream.withValues(alpha: 0.58),
+        if (onActivate != null) ...[
+          OraclyGoldButton(
+            label: busy
+                ? PremiumCopy.ctaBusy
+                : (joinLabel ?? PremiumCopy.ctaJoin),
+            expanded: true,
+            borderRadius: PremiumReferenceTokens.ctaRadius,
+            onPressed: busy ? null : onActivate,
           ),
-        ),
-        if (onRestore != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            PremiumCopy.ctaHintConfigured,
+            textAlign: TextAlign.center,
+            style: ReadingTypography.footnote(
+              color: OraclyChrome.cream.withValues(alpha: 0.58),
+            ),
+          ),
+        ] else if (onRetryStore != null) ...[
+          PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
           const SizedBox(height: 14),
+        ],
+        if (onRestore != null) ...[
+          if (onActivate != null) const SizedBox(height: 14),
           OraclyPressable(
             onTap: busy ? null : onRestore,
             child: Text(

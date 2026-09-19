@@ -18,6 +18,8 @@ void main() {
       'or_selected_spread': 'three',
       'profile_achievement_dates': '{"first_reading":"2026-08-01T00:00:00.000Z"}',
       'profile_achievements': ['first_reading'],
+      'or_review_access_granted': true,
+      'coffee_v2_submission': '{}',
     });
     final storage = LocalStorage(await SharedPreferences.getInstance());
     expect(UserLocalDataWipeKeys.profile, contains('or_selected_deck'));
@@ -29,6 +31,8 @@ void main() {
     expect(storage.getString('or_selected_deck'), isNull);
     expect(storage.getString('or_selected_spread'), isNull);
     expect(storage.getString('profile_achievement_dates'), isNull);
+    expect(storage.getBool('or_review_access_granted'), isNull);
+    expect(storage.getString('coffee_v2_submission'), isNull);
   });
 
   test('achievement unlock records real UTC timestamp', () async {

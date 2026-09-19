@@ -85,6 +85,7 @@ class MockPremiumRepository implements PremiumRepository {
 
   @override
   Future<PremiumPlanKind?> activePlan() async {
+    if (!isActiveNow) return null;
     final index = _storage.getInt(planKey);
     if (index == null) return null;
     return PremiumPlanKind.values[index.clamp(0, 2)];
@@ -104,6 +105,7 @@ class MockPremiumRepository implements PremiumRepository {
   Future<void> clearLocalPremiumAccess() async {
     await _storage.setBool(activeKey, false);
     await _storage.setBool(authoritativeKey, false);
+    await _storage.remove(planKey);
   }
 
   @override

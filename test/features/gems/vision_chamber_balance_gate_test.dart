@@ -61,23 +61,18 @@ void main() {
       }
     });
 
-    test('failed generation abandons paid op without charging when cost enabled',
-        () async {
+    test('non-Tarot paid begin fails closed when cost is set', () async {
       await wallet.acceptAuthoritativeBalance(50);
-      final op = await coordinator.begin(
-        feature: PaidAiFeature.palm,
-        ledgerKey: PalmEconomy.ledgerKey,
-        reason: GemsCopy.reasonPalm,
-        cost: 20,
+      await expectLater(
+        () => coordinator.begin(
+          feature: PaidAiFeature.palm,
+          ledgerKey: PalmEconomy.ledgerKey,
+          reason: GemsCopy.reasonPalm,
+          cost: 20,
+        ),
+        throwsA(isA<UnsupportedError>()),
       );
-      expect(op.isBillable, isTrue);
       expect(wallet.balance, 50);
-      await coordinator.abandon(op.id);
-      expect(wallet.balance, 50);
-      expect(
-        coordinator.store.byId(op.id)?.status,
-        PaidAiOperationStatus.abandoned,
-      );
     });
 
     test('wallet cannot spend when balance is zero and cost is set', () {
