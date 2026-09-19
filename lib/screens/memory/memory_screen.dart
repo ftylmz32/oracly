@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
-
+import '../../app/providers/app_providers.dart';
 import '../../core/copy/resilience_copy.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/copy/transparency_copy.dart';
@@ -33,7 +33,7 @@ import '../../shared/widgets/oracly_scaffold.dart';
 
 
 
-class MemoryScreen extends StatefulWidget {
+class MemoryScreen extends ConsumerStatefulWidget {
 
   const MemoryScreen({super.key});
 
@@ -41,15 +41,17 @@ class MemoryScreen extends StatefulWidget {
 
   @override
 
-  State<MemoryScreen> createState() => _MemoryScreenState();
+  ConsumerState<MemoryScreen> createState() => _MemoryScreenState();
 
 }
 
 
 
-class _MemoryScreenState extends State<MemoryScreen> {
+class _MemoryScreenState extends ConsumerState<MemoryScreen> {
 
-  final MemoryService _memoryService = MemoryService();
+  // Canonical injected instance — never construct MemoryService() directly
+  // here (that would bypass the shared LocalStorage boundary).
+  MemoryService get _memoryService => ref.read(memoryServiceProvider);
 
   List<MemoryItem> _memories = [];
 

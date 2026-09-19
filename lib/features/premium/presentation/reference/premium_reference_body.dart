@@ -114,15 +114,6 @@ class PremiumReferenceBody extends StatelessWidget {
                   ),
                 ] else if (status.isPremium)
                   const PremiumReferenceCta(isPremium: true)
-                else if (status.canAttemptRestore && !status.isPremium)
-                  PremiumReferenceCta(
-                    isPremium: false,
-                    busy: status.busy,
-                    purchaseConfigured: true,
-                    onActivate: null,
-                    onRestore: onRestore,
-                    onRetryStore: onRetryStore,
-                  )
                 else if (status.entitlement ==
                     PremiumEntitlementState.unverified) ...[
                   Text(
@@ -155,7 +146,16 @@ class PremiumReferenceBody extends StatelessWidget {
                     )
                   else
                     PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
-                ] else
+                ] else if (status.canAttemptRestore)
+                  PremiumReferenceCta(
+                    isPremium: false,
+                    busy: status.busy,
+                    purchaseConfigured: true,
+                    onActivate: null,
+                    onRestore: onRestore,
+                    onRetryStore: onRetryStore,
+                  )
+                else
                   PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
                 if (status.loaded) ...[
                   SizedBox(height: PremiumReferenceTokens.plansToCta),

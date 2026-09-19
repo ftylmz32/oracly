@@ -64,6 +64,9 @@ abstract final class UserLocalDataWipe {
     await step(() => storage.remove(PersonalMemoryStore.userResetKey));
     await step(() => storage.remove('discovery_surface_memory_v1'));
     await step(() => storage.remove('user_memories'));
+    // MemoryService's saved display name — was missing here, letting a new
+    // account on the same device inherit the prior account's saved name.
+    await step(() => storage.remove('user_name'));
     await step(() => _clearKeys(storage, UserLocalDataWipeKeys.profile));
     await step(() => ProfilePhotoStore.clear(storage));
     await step(() => storage.remove('onboarding_setup_draft'));

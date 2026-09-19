@@ -17,6 +17,7 @@ import '../../core/intelligence/services/intelligence_layer_service.dart';
 import '../../core/intelligence/services/personal_memory_service.dart';
 import '../../core/memory/oracly_memory_retriever.dart';
 import '../../core/memory/oracly_memory_store.dart';
+import '../../services/memory_service.dart';
 import '../../core/experience/engine/experience_orchestrator.dart';
 import '../../core/experience/services/experience_orchestrator_service.dart';
 import '../../core/reflection/data/sources/reading_reflection_source.dart';
@@ -308,6 +309,16 @@ final personalMemoryStoreProvider = Provider<PersonalMemoryStore>((ref) {
 
 final personalMemoryServiceProvider = Provider<PersonalMemoryService>((ref) {
   return PersonalMemoryService(ref.watch(personalMemoryStoreProvider));
+});
+
+/// Canonical legacy "OR memory" boundary — the one production
+/// [MemoryService] instance, backed by the same [LocalStorage] every other
+/// feature uses. `MemoryScreen` and the companion memory bridge must read
+/// this provider rather than constructing their own `MemoryService()`, so
+/// there is exactly one storage path (never a second, untestable
+/// `SharedPreferences.getInstance()` race) for legacy user-memory data.
+final memoryServiceProvider = Provider<MemoryService>((ref) {
+  return MemoryService(storage: ref.watch(localStorageProvider));
 });
 
 /// Interpretation Engine V2 canonical source-attributed memory.

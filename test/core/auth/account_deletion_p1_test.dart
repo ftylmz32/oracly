@@ -196,6 +196,95 @@ void main() {
     },
   );
 
+  test(
+    'requires-recent-login persists a pending-identity-cleanup marker '
+    '(server data was already deleted; the identity was not)',
+    () async {
+      await seedUserBound();
+      await auth.signInWithEmail(
+        const EmailCredentials(email: 'a@b.c', password: 'x'),
+      );
+      gateway.deleteError = 'requires-recent-login';
+      expect(deletion.hasPendingIdentityCleanup, isFalse);
+
+      final result = await deletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(deletion.hasPendingIdentityCleanup, isTrue);
+      // Still fail-safe: no local wipe, no logout, while pending.
+      expect(storage.getString('user_name'), 'Ada');
+      expect(gateway.currentUser?.email, 'a@b.c');
+    },
+  );
+
+  test(
+    'a plain (non-reauth) delete failure does NOT set the pending marker — '
+    'only the specific requires-recent-login case does',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+      gateway.deleteError = 'network-request-failed';
+
+      await deletion.deleteAccountAndWipeLocalData();
+
+      expect(deletion.hasPendingIdentityCleanup, isFalse);
+    },
+  );
+
+  test(
+    'retryPendingIdentityCleanup completes the deletion once the identity '
+    'can finally be deleted (idempotent — server deletion runs again safely)',
+    () async {
+      await seedUserBound();
+      await auth.signInWithEmail(
+        const EmailCredentials(email: 'a@b.c', password: 'x'),
+      );
+      gateway.deleteError = 'requires-recent-login';
+      await deletion.deleteAccountAndWipeLocalData();
+      expect(deletion.hasPendingIdentityCleanup, isTrue);
+
+      // Simulate a successful reauth having happened — identity delete now
+      // succeeds.
+      gateway.deleteError = null;
+      final retry = await deletion.retryPendingIdentityCleanup();
+
+      expect(retry.isSuccess, isTrue);
+      expect(deletion.hasPendingIdentityCleanup, isFalse);
+      await expectUserBoundCleared();
+      expect(gateway.currentUser?.isAnonymous, isTrue);
+      expect(sessions.currentSession, isNotNull);
+    },
+  );
+
+  test(
+    'retryPendingIdentityCleanup stays pending — never wipes — if the '
+    'identity still cannot be deleted',
+    () async {
+      await seedUserBound();
+      await auth.signInWithEmail(
+        const EmailCredentials(email: 'a@b.c', password: 'x'),
+      );
+      gateway.deleteError = 'requires-recent-login';
+      await deletion.deleteAccountAndWipeLocalData();
+
+      final retry = await deletion.retryPendingIdentityCleanup();
+
+      expect(retry.isFailure, isTrue);
+      expect(deletion.hasPendingIdentityCleanup, isTrue);
+      expect(storage.getString('user_name'), 'Ada');
+    },
+  );
+
+  test(
+    'retryPendingIdentityCleanup is a no-op success when nothing is pending',
+    () async {
+      expect(deletion.hasPendingIdentityCleanup, isFalse);
+      final retry = await deletion.retryPendingIdentityCleanup();
+      expect(retry.isSuccess, isTrue);
+      expect(gateway.deleteCalls, 0);
+    },
+  );
+
   test('mapDelete maps requires-recent-login and no-current-user', () {
     expect(
       FirebaseAuthErrors.mapDelete(

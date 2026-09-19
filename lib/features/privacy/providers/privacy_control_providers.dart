@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers/app_providers.dart';
 import '../../../core/auth/account_deletion_service.dart';
 import '../../../core/domain/models/user_profile.dart';
-import '../../../services/memory_service.dart';
 import '../../discovery_journal/providers/discovery_journal_providers.dart';
 import '../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../premium/models/personalization_models.dart';
@@ -56,7 +55,7 @@ final privacyControlSnapshotProvider = FutureProvider<PrivacyControlSnapshot>((
   return PrivacyControlSnapshotBuilder.build(
     favorites: ref.watch(favoriteMomentsServiceProvider),
     personalMemory: ref.watch(personalMemoryServiceProvider),
-    legacyMemory: MemoryService(),
+    legacyMemory: ref.watch(memoryServiceProvider),
     profile: profile,
     settings: settings,
     discoveryCount: journal.length,
