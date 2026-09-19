@@ -1,8 +1,7 @@
 /// Local persistence abstraction.
 library;
 
-import 'dart:async';
-
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Thin wrapper around [SharedPreferences] for testability.
@@ -57,10 +56,20 @@ class LocalStorage {
       return false;
     }
   }
+  /// Raw value without typed casts — used for legacy migration.
+  Object? peek(String key) =>
+      _memory != null ? _memory![key] : _prefs!.get(key);
+
+  void _badType(String key, String expected, Object actual) => debugPrint(
+        '[LocalStorage] $key expected $expected, got ${actual.runtimeType}',
+      );
 
   String? getString(String key) {
-    final m = _memory;
-    return m != null ? m[key] as String? : _prefs!.getString(key);
+    final v = peek(key);
+    if (v == null) return null;
+    if (v is String) return v;
+    _badType(key, 'String', v);
+    return null;
   }
 
   Future<bool> setString(String key, String value) async {
@@ -70,8 +79,12 @@ class LocalStorage {
   }
 
   int? getInt(String key) {
-    final m = _memory;
-    return m != null ? m[key] as int? : _prefs!.getInt(key);
+    final v = peek(key);
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is double) return v.toInt();
+    _badType(key, 'int', v);
+    return null;
   }
 
   Future<bool> setInt(String key, int value) async {
@@ -81,8 +94,12 @@ class LocalStorage {
   }
 
   double? getDouble(String key) {
-    final m = _memory;
-    return m != null ? m[key] as double? : _prefs!.getDouble(key);
+    final v = peek(key);
+    if (v == null) return null;
+    if (v is double) return v;
+    if (v is int) return v.toDouble();
+    _badType(key, 'double', v);
+    return null;
   }
 
   Future<bool> setDouble(String key, double value) async {
@@ -92,8 +109,11 @@ class LocalStorage {
   }
 
   bool? getBool(String key) {
-    final m = _memory;
-    return m != null ? m[key] as bool? : _prefs!.getBool(key);
+    final v = peek(key);
+    if (v == null) return null;
+    if (v is bool) return v;
+    _badType(key, 'bool', v);
+    return null;
   }
 
   Future<bool> setBool(String key, bool value) async {
@@ -103,14 +123,14 @@ class LocalStorage {
   }
 
   List<String>? getStringList(String key) {
-    final m = _memory;
-    if (m != null) {
-      final value = m[key];
-      if (value is List<String>) return value;
-      if (value is List) return value.cast<String>();
-      return null;
+    final v = peek(key);
+    if (v == null) return null;
+    if (v is List<String>) return List<String>.from(v);
+    if (v is List && v.every((e) => e is String)) {
+      return v.cast<String>().toList();
     }
-    return _prefs!.getStringList(key);
+    _badType(key, 'List<String>', v);
+    return null;
   }
 
   Future<bool> setStringList(String key, List<String> values) async {

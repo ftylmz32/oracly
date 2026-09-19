@@ -1,6 +1,8 @@
 /// OR-1170 — Tarot reading session controller.
 library;
 
+import 'package:flutter/foundation.dart';
+
 import '../../../core/copy/resilience_copy.dart';
 import '../../../core/l10n/l10n.dart';
 import '../domain/models/reading_session.dart';
@@ -35,6 +37,7 @@ class TarotReadingController extends TarotBaseController {
   ReadingSession? _session;
   bool _drawLocked = false;
   Future<AiReadingContent>? _interpretationInflight;
+  int _sessionSeq = 0;
 
   ReadingSession? get session => _session;
   TarotDeckController get deckController => _deckController;
@@ -79,15 +82,19 @@ class TarotReadingController extends TarotBaseController {
   }) async {
     isLoading = true;
     clearError();
+    var stage = 'abandon';
     try {
       await abandonActiveForNewStart();
+      stage = 'initializeDeck';
       final seed = DateTime.now().millisecondsSinceEpoch;
       await _deckController.initializeDeck(deckId: deckId, seed: seed);
       if (_deckController.drawPile.isEmpty) {
         throw StateError('Tarot deck failed to initialize');
       }
+      stage = 'createSession';
+      _sessionSeq += 1;
       _session = ReadingSession(
-        id: 'session_$seed',
+        id: 'session_${seed}_$_sessionSeq',
         deckId: _deckController.deckId,
         userId: userId,
         spread: spread,
@@ -96,10 +103,12 @@ class TarotReadingController extends TarotBaseController {
         startedAt: DateTime.now(),
         flowStep: ReadingFlowStep.deckSelection,
       );
+      stage = 'persist';
       await _persist();
       return _session!;
-    } catch (error) {
+    } catch (error, stack) {
       errorMessage = ResilienceCopy.sessionInitFailed;
+      debugPrint('[TarotReading] beginSession failed at $stage: $error\n$stack');
       rethrow;
     } finally {
       isLoading = false;
