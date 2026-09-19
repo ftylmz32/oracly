@@ -39,7 +39,8 @@ void main() {
     expect(await world.ops.completeAfterProvider(op), isTrue);
     expect(world.serverBalance, 20);
     expect(world.wallet.balance, 20);
-    expect(world.settleCalls, 2);
+    // Second call is local-settled short-circuit — no second debit request.
+    expect(world.settleCalls, 1);
   });
 
   test('lost response leaves providerOk and restart retries same operation', () async {

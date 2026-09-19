@@ -187,7 +187,12 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       loadError = null;
     }
     // Balance must track spend even if the user left mid-load.
-    ref.read(gemWalletProvider).reload();
+    final cached = ref.read(gemWalletServiceProvider).cachedBalance;
+    if (cached != null) {
+      await ref.read(gemWalletProvider).acceptAuthoritativeBalance(cached);
+    } else {
+      await ref.read(gemWalletProvider).reload();
+    }
     if (content == null) {
       if (mounted && token == _loadToken) {
         setState(() {

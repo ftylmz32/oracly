@@ -17,6 +17,7 @@ import '../services/gem_starter_grant.dart';
 import '../services/gem_wallet_bootstrap.dart';
 import '../services/gem_wallet_gateway.dart';
 import '../services/gem_wallet_hydration.dart';
+import '../services/gem_wallet_owner_bootstrap.dart';
 import '../services/gem_wallet_service.dart';
 import '../services/paid_ai_operation_coordinator.dart';
 import '../services/rewarded_ad_service.dart';
@@ -42,23 +43,21 @@ final gemWalletServiceProvider = Provider<GemWalletService>((ref) {
 
 final gemWalletHydrationCoordinatorProvider =
     Provider<GemWalletHydrationCoordinator>((ref) {
-      return GemWalletHydrationCoordinator();
-    });
+  return GemWalletHydrationCoordinator();
+});
 
 final gemWalletProvider = ChangeNotifierProvider<GemWalletController>((ref) {
   final service = ref.watch(gemWalletServiceProvider);
   final controller = GemWalletController(service);
-
   ref.listen(backend.firebaseAuthUserProvider, (_, next) {
     final uid = next.valueOrNull?.uid;
     if (uid == null || uid.isEmpty) return;
-    unawaited(_bootstrapOwner(ref, uid, controller));
+    unawaited(_boot(ref, uid, controller));
   });
-
   final ownerId = service.ownerId;
   Future.microtask(() async {
     if (ownerId != null && ownerId.isNotEmpty) {
-      await _bootstrapOwner(ref, ownerId, controller);
+      await _boot(ref, ownerId, controller);
       return;
     }
     await GemWalletBootstrap.ensureReady(
@@ -76,51 +75,19 @@ final gemWalletProvider = ChangeNotifierProvider<GemWalletController>((ref) {
   return controller;
 });
 
-Future<void> _bootstrapOwner(
+Future<void> _boot(
   Ref ref,
   String ownerId,
   GemWalletController controller,
-) async {
-  final coord = ref.read(gemWalletHydrationCoordinatorProvider);
-  if (!coord.beginBootstrap(ownerId)) return;
-  try {
-    final ready = await GemWalletBootstrap.ensureReady(
-      config: ref.read(aiRuntimeConfigProvider),
-      auth: ref.read(authServiceProvider),
-      accessToken: ({bool forceRefresh = false}) =>
-          ref.read(tokenManagerProvider).getAccessToken(
-                forceRefresh: forceRefresh,
-              ),
-      appCheckToken: ({bool forceRefresh = false}) =>
-          FirebaseAppCheckToken.resolve(forceRefresh: forceRefresh),
-      liveGateway: ref.read(backend.firebaseAuthGatewayProvider),
-    );
-    if (!ready) {
-      print('[GemWallet] bootstrap not ready for $ownerId — defer');
-      // Keep trying; App Check may recover after Play Integrity / debug token.
-      Future<void>.delayed(const Duration(seconds: 12), () {
-        unawaited(_bootstrapOwner(ref, ownerId, controller));
-      });
-      return;
-    }
-    print('[GemWallet] bootstrap ready owner=$ownerId');
-    await coord.hydrateWithRetry(ownerId, controller);
-    try {
-      await ref.read(gemStarterGrantProvider).ensureOnce();
-    } catch (e) {
-      print('[GemWallet] starter grant error: $e');
-    }
-    final cached = controller.ownerId == ownerId
-        ? ref.read(gemWalletServiceProvider).cachedBalance
-        : null;
-    if (cached != null) {
-      await controller.acceptAuthoritativeBalance(cached);
-    } else if (!controller.authoritative) {
-      await controller.reload();
-    }
-  } finally {
-    coord.endBootstrap(ownerId);
-  }
+) {
+  return bootstrapGemWalletOwner(
+    ref: ref,
+    ownerId: ownerId,
+    controller: controller,
+    wallet: ref.read(gemWalletServiceProvider),
+    coordinator: ref.read(gemWalletHydrationCoordinatorProvider),
+    ensureStarter: () => ref.read(gemStarterGrantProvider).ensureOnce(),
+  );
 }
 
 final gemStarterGrantProvider = Provider<GemStarterGrant>((ref) {

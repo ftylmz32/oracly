@@ -32,6 +32,12 @@ class PaidAiOperationCoordinator {
     final id = existingId != null && existingId.trim().isNotEmpty
         ? PaidAiOperationId.fromExisting(feature.name, existingId)
         : PaidAiOperationId.create(feature.name);
+    final existing = _store.byId(id);
+    if (existing != null &&
+        existing.status == PaidAiOperationStatus.settled &&
+        existing.feature == feature) {
+      return existing;
+    }
     final op = PaidAiOperation(
       id: id,
       feature: feature,
@@ -40,8 +46,11 @@ class PaidAiOperationCoordinator {
       cost: amount,
       status: amount <= 0
           ? PaidAiOperationStatus.settled
-          : PaidAiOperationStatus.pending,
-      createdAtMs: DateTime.now().millisecondsSinceEpoch,
+          : (existing?.status == PaidAiOperationStatus.providerOk
+                ? PaidAiOperationStatus.providerOk
+                : PaidAiOperationStatus.pending),
+      createdAtMs: existing?.createdAtMs ??
+          DateTime.now().millisecondsSinceEpoch,
     );
     if (op.isBillable) await _store.upsert(op);
     return op;
@@ -83,22 +92,24 @@ class PaidAiOperationCoordinator {
       return true;
     }
     if (op.feature != PaidAiFeature.tarot) return false;
+    if (_store.byId(op.id)?.status == PaidAiOperationStatus.settled) {
+      return true;
+    }
     final result = await _wallet.settleTarot(
       operationId: op.id,
-      // The operation path is the server's canonical idempotency identity.
-      // Keep this transport key bounded even when an external session id is long.
+      // Server debit identity is the path operationId (hashed). This body key
+      // only satisfies the purpose-body schema.
       idempotencyKey: 'tarot-settle-request-v1',
     );
     if (result == null) {
       try {
         await _wallet.refresh();
       } catch (_) {}
+      return false;
     }
-    final ok = result?.applied == true;
-    if (ok) {
-      await _store.upsert(op.copyWith(status: PaidAiOperationStatus.settled));
-    }
-    return ok;
+    // Any successful settle envelope (including idempotent replay) is final.
+    await _store.upsert(op.copyWith(status: PaidAiOperationStatus.settled));
+    return true;
   }
 
   /// After provider success: mark then settle. Never double-charges.

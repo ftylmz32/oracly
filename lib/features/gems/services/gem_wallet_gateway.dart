@@ -1,8 +1,6 @@
 /// Authenticated, purpose-specific server wallet commands.
 library;
 
-import 'package:flutter/foundation.dart';
-
 import '../../reading_operation/services/reading_operation_gateway.dart';
 
 class GemServerResult {
