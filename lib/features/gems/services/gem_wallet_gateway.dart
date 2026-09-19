@@ -1,6 +1,8 @@
 /// Authenticated, purpose-specific server wallet commands.
 library;
 
+import 'package:flutter/foundation.dart';
+
 import '../../reading_operation/services/reading_operation_gateway.dart';
 
 class GemServerResult {
@@ -57,13 +59,30 @@ class GemWalletGateway {
       path,
       key == null ? null : <String, Object>{'idempotencyKey': key},
     );
-    if (wire == null || wire.statusCode < 200 || wire.statusCode >= 300) {
+    if (wire == null) {
+      debugPrint('[GemWalletGateway] $method $path — no wire (auth/AppCheck?)');
+      return null;
+    }
+    if (wire.statusCode < 200 || wire.statusCode >= 300) {
+      debugPrint(
+        '[GemWalletGateway] $method $path — HTTP ${wire.statusCode}',
+      );
       return null;
     }
     final data = wire.json?['data'];
-    if (data is! Map || data['balance'] is! int) return null;
+    if (data is! Map) {
+      debugPrint('[GemWalletGateway] $method $path — missing data map');
+      return null;
+    }
+    final balance = _readBalance(data['balance']);
+    if (balance == null) {
+      debugPrint(
+        '[GemWalletGateway] $method $path — bad balance=${data['balance']}',
+      );
+      return null;
+    }
     return GemServerResult(
-      balance: data['balance'] as int,
+      balance: balance,
       applied: data['granted'] == true || data['settled'] == true,
       idempotent: data['idempotent'] == true,
       canonicalCost: data['canonicalCost'] is int
@@ -71,5 +90,11 @@ class GemWalletGateway {
           : null,
       serverDay: data['serverDay'] as String?,
     );
+  }
+
+  static int? _readBalance(Object? raw) {
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    return null;
   }
 }
