@@ -121,9 +121,14 @@ void main() {
   test("main resolves deletion gate before Premium warm", () {
     final main = File("lib/main.dart").readAsStringSync();
     final gate = main.indexOf("resolveFromLocalStorage");
-    final warm = main.indexOf("warmPremiumIfClear");
+    final reconcile = main.indexOf("resolveAndReconcile");
+    final ownerStartup = main.indexOf("AccountDeletionOwnerBootstrap.runIfClear");
     expect(gate, greaterThan(0));
-    expect(warm, greaterThan(gate));
+    expect(reconcile, greaterThan(gate));
+    // Premium warm now lives inside the canonical owner-startup coordinator,
+    // which itself re-checks allowsOwnerBoundExperience before warming —
+    // this asserts main still sequences gate resolve before that coordinator.
+    expect(ownerStartup, greaterThan(reconcile));
   });
 
   test("pubspec does not directory-include all images (PNG masters)", () {
