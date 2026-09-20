@@ -1,6 +1,8 @@
 /// Queues notification tap payloads until navigation is ready.
 library;
 
+import 'package:flutter/foundation.dart';
+
 import 'oracly_notification_kind.dart';
 
 class OraclyNotificationTapInbox {
@@ -17,6 +19,9 @@ class OraclyNotificationTapInbox {
     _pending = null;
     _lastConsumedRaw = null;
   }
+
+  @visibleForTesting
+  bool get hasPendingForTest => _pending != null;
 
   void offer(String? raw) {
     if (raw == null) return;

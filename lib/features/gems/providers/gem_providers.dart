@@ -50,13 +50,18 @@ final gemWalletHydrationCoordinatorProvider =
 final gemWalletProvider = ChangeNotifierProvider<GemWalletController>((ref) {
   final service = ref.watch(gemWalletServiceProvider);
   final controller = GemWalletController(service);
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
+    return controller;
+  }
   ref.listen(backend.firebaseAuthUserProvider, (_, next) {
+    if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
     final uid = next.valueOrNull?.uid;
     if (uid == null || uid.isEmpty) return;
     unawaited(_boot(ref, uid, controller));
   });
   final ownerId = service.ownerId;
   Future.microtask(() async {
+    if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
     if (ownerId != null && ownerId.isNotEmpty) {
       await _boot(ref, ownerId, controller);
       return;
@@ -81,7 +86,7 @@ Future<void> _boot(
   String ownerId,
   GemWalletController controller,
 ) {
-  if (AccountDeletionPendingState.isBlocked.value) {
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
     return Future<void>.value();
   }
   return bootstrapGemWalletOwner(

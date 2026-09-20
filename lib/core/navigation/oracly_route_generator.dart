@@ -27,6 +27,8 @@ import '../../screens/settings/reference/settings_reference_screen.dart';
 import '../../features/share_reopen/presentation/share_reopen_screen.dart';
 import '../../features/share_reopen/services/share_link_parser.dart';
 import '../../shared/navigation/oracly_navigation.dart';
+import '../auth/account_deletion_pending_state.dart';
+import '../auth/presentation/account_deletion_pending_screen.dart';
 import '../navigation/oracly_page_transitions.dart';
 import 'immersive/chamber_transition_personality.dart';
 import 'oracly_routes.dart';
@@ -36,6 +38,9 @@ abstract final class OraclyRouteGenerator {
 
   /// Resolves named routes for deep linking and programmatic navigation.
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    if (AccountDeletionPendingState.blocksDeepLinks) {
+      return _pendingDeletionRoute(settings);
+    }
     final shareUri = ShareLinkParser.parse(settings.name);
     if (shareUri != null) {
       return OraclyPageTransitions.fade(
@@ -180,5 +185,13 @@ abstract final class OraclyRouteGenerator {
           settings: settings,
         );
     }
+  }
+
+  /// Single pending-cleanup destination — fail-closed for every feature route.
+  static Route<dynamic> _pendingDeletionRoute(RouteSettings settings) {
+    return OraclyPageTransitions.fade(
+      page: const AccountDeletionPendingScreen(),
+      settings: settings,
+    );
   }
 }

@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import '../auth/account_deletion_pending_state.dart';
 import '../navigation/oracly_navigator_key.dart';
 import '../navigation/oracly_navigation_service.dart';
 import '../../shared/navigation/oracly_navigation_scope.dart';
@@ -18,6 +19,8 @@ abstract final class OraclyNotificationTapRouter {
   }
 
   static void openPending([BuildContext? context]) {
+    // Keep inbox queued until the deletion gate is clear.
+    if (AccountDeletionPendingState.blocksDeepLinks) return;
     if (!_navigatorReady(context)) return;
     final kind = OraclyNotificationTapInbox.instance.take();
     if (kind == null) return;

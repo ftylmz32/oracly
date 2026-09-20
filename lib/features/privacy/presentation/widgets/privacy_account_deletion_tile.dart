@@ -58,7 +58,7 @@ class PrivacyAccountDeletionTile extends ConsumerWidget {
     if (!context.mounted) return;
 
     if (result.isFailure) {
-      if (AccountDeletionPendingState.isBlocked.value) {
+      if (AccountDeletionPendingState.isBlocked) {
         OraclySnackBar.show(
           context,
           message: PrivacyControlCopy.deletePendingBody,

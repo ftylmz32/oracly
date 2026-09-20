@@ -26,11 +26,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    AccountDeletionPendingState.isBlocked.value = false;
+    AccountDeletionPendingState.markClear();
   });
 
   tearDown(() {
-    AccountDeletionPendingState.isBlocked.value = false;
+    AccountDeletionPendingState.markClear();
   });
 
   test('pending deletion routes to completion screen — not Home', () async {
@@ -38,7 +38,7 @@ void main() {
       LocalOnboardingRepository.completedKey: true,
     });
     final storage = LocalStorage(await SharedPreferences.getInstance());
-    AccountDeletionPendingState.isBlocked.value = true;
+    AccountDeletionPendingState.markBlocked();
 
     final page = SplashDestination.build(
       onboardingCompleted: true,
@@ -55,6 +55,7 @@ void main() {
       LocalOnboardingRepository.completedKey: true,
     });
     final storage = LocalStorage(await SharedPreferences.getInstance());
+    AccountDeletionPendingState.markClear();
 
     final page = SplashDestination.build(
       onboardingCompleted: true,
@@ -65,7 +66,7 @@ void main() {
   });
 
   testWidgets('pending screen shows completion copy', (tester) async {
-    AccountDeletionPendingState.isBlocked.value = true;
+    AccountDeletionPendingState.markBlocked();
     await tester.pumpWidget(
       const MaterialApp(home: AccountDeletionPendingScreen()),
     );
@@ -84,7 +85,7 @@ void main() {
       final service = PremiumService(premium, MockUserRepository(storage));
 
       expect(premium.isActiveNow, isTrue);
-      AccountDeletionPendingState.isBlocked.value = true;
+      AccountDeletionPendingState.markBlocked();
       expect(service.isActiveNow, isFalse);
       expect(await service.isActive(), isFalse);
     },
@@ -99,7 +100,7 @@ void main() {
       GemWalletStore.serverBalanceOwnerKey: 'deleted-owner',
     });
     final storage = LocalStorage(await SharedPreferences.getInstance());
-    AccountDeletionPendingState.isBlocked.value = true;
+    AccountDeletionPendingState.markBlocked();
 
     // Data is intentionally not wiped yet (identity still present).
     expect(storage.getString(PersonalMemoryStore.key), 'secret-memory');

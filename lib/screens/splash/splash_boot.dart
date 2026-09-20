@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers/app_providers.dart';
+import '../../core/auth/account_deletion_pending_state.dart';
 import '../../core/data/datasources/local_storage.dart';
 import '../../core/data/repositories/local_onboarding_repository.dart';
 import '../../core/providers/backend_providers.dart' as backend;
@@ -41,7 +42,11 @@ Future<bool> splashFastOnboarding(WidgetRef ref) async {
 ///
 /// Starter grant + wallet reload are owned by [gemWalletProvider] bootstrap
 /// once auth/App Check are ready — do not race them here.
+///
+/// Must not touch the wallet while the account-deletion gate is unresolved
+/// or blocked.
 Future<void> splashDeferredBoot(WidgetRef ref) async {
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
   final storage = ref.read(localStorageProvider);
   if (storage.isEphemeral) {
     await storage.tryPromote();
@@ -49,6 +54,7 @@ Future<void> splashDeferredBoot(WidgetRef ref) async {
   try {
     await ref.read(paidAiOperationCoordinatorProvider).reconcile();
   } catch (_) {}
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
   // Touch the wallet so bootstrap/auth listen starts during splash.
   try {
     ref.read(gemWalletProvider);

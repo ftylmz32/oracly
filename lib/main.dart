@@ -28,6 +28,7 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
     await OraclyPhoneOrientation.lockPhonesToPortrait();
     SplashStartupLog.mark('MAIN_START');
+    AccountDeletionPendingState.beginStartup();
 
     // Capture route name without blocking first frame.
     ShareLinkInbox.instance.capture(
@@ -84,25 +85,29 @@ Future<void> _deferredStartup(
       await premium.warmCredentialCache();
     }
   } catch (_) {}
+  // An interrupted account deletion (server data gone, Firebase identity
+  // not) must never be silently treated as a normal, healthy account.
+  // Local gate resolve is routing-critical and must happen before gems/auth
+  // bootstrap; splash also resolves independently for first-paint safety.
+  try {
+    await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+  } catch (_) {}
+
   await FirebaseAuthBootstrap.tryInitialize();
   await FirebaseAppCheckBootstrap.tryActivate();
   container.invalidate(firebaseAuthReadyProvider);
 
-  // An interrupted account deletion (server data gone, Firebase identity
-  // not) must never be silently treated as a normal, healthy account.
-  // Try once to finish it automatically (safe/idempotent even if nothing
-  // was actually pending); only continue into normal anonymous-session
-  // bootstrap once it's confirmed clear.
   try {
     final deletion = container.read(accountDeletionServiceProvider);
     if (deletion.hasPendingIdentityCleanup) {
       await deletion.retryPendingIdentityCleanup();
     }
-    AccountDeletionPendingState.isBlocked.value =
-        deletion.hasPendingIdentityCleanup;
+    AccountDeletionPendingState.applyFromMarker(
+      deletion.hasPendingIdentityCleanup,
+    );
   } catch (_) {}
 
-  if (!AccountDeletionPendingState.isBlocked.value) {
+  if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
     await AnonymousAuthBootstrap.ensure(container.read(authServiceProvider));
   }
   await ReadingPushBootstrap.install(container);

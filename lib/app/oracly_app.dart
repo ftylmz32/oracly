@@ -9,10 +9,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/accessibility/oracly_a11y.dart';
+import '../core/auth/account_deletion_pending_state.dart';
 import '../core/auth/account_switch_refresh_host.dart';
 import '../core/auth/anonymous_auth_bootstrap.dart';
 import '../core/auth/firebase/firebase_app_check_bootstrap.dart';
 import '../core/auth/firebase/firebase_auth_bootstrap.dart';
+import '../core/auth/presentation/account_deletion_pending_screen.dart';
 import '../core/config/app_config.dart';
 import '../core/data/datasources/local_storage.dart';
 import '../core/l10n/l10n.dart';
@@ -49,9 +51,16 @@ class OraclyApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
-      onUnknownRoute: (_) => OraclyPageTransitions.fade(
-        page: const OraclyAppShell(),
-      ),
+      onUnknownRoute: (_) {
+        if (AccountDeletionPendingState.blocksDeepLinks) {
+          return OraclyPageTransitions.fade(
+            page: const AccountDeletionPendingScreen(),
+          );
+        }
+        return OraclyPageTransitions.fade(
+          page: const OraclyAppShell(),
+        );
+      },
       builder: (context, child) {
         final media = MediaQuery.of(context);
         final isLight = Theme.of(context).brightness == Brightness.light;

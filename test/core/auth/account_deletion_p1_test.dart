@@ -43,7 +43,7 @@ void main() {
   late InMemorySessionManager sessions;
 
   setUp(() async {
-    AccountDeletionPendingState.isBlocked.value = false;
+    AccountDeletionPendingState.markClear();
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
     secure = InMemorySecureStorage();
@@ -68,7 +68,7 @@ void main() {
   });
 
   tearDown(() {
-    AccountDeletionPendingState.isBlocked.value = false;
+    AccountDeletionPendingState.markClear();
     auth.dispose();
   });
 
@@ -248,7 +248,7 @@ void main() {
 
       expect(result.isFailure, isTrue);
       expect(deletion.hasPendingIdentityCleanup, isTrue);
-      expect(AccountDeletionPendingState.isBlocked.value, isTrue);
+      expect(AccountDeletionPendingState.isBlocked, isTrue);
       expect(storage.getString('user_name'), 'Ada');
       expect(gateway.currentUser, isNotNull);
     },
@@ -271,7 +271,7 @@ void main() {
 
       expect(result.isFailure, isTrue);
       expect(deletion.hasPendingIdentityCleanup, isTrue);
-      expect(AccountDeletionPendingState.isBlocked.value, isTrue);
+      expect(AccountDeletionPendingState.isBlocked, isTrue);
       expect(storage.getString('user_name'), 'Ada');
     },
   );
@@ -288,7 +288,7 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(deletion.hasPendingIdentityCleanup, isFalse);
-      expect(AccountDeletionPendingState.isBlocked.value, isFalse);
+      expect(AccountDeletionPendingState.isBlocked, isFalse);
       await expectUserBoundCleared();
       expect(gateway.currentUser?.isAnonymous, isTrue);
     },
@@ -493,8 +493,8 @@ void main() {
     );
 
     test(
-      'duplicate server-delete retry is idempotent — retryPendingIdentityCleanup '
-      'safely calls deleteServerData a second time after it already succeeded',
+      'pending retry does NOT call deleteServerData again — server already '
+      'accepted when the pending marker was written',
       () async {
         var serverCalls = 0;
         final counting = AccountDeletionService(
@@ -520,10 +520,13 @@ void main() {
         expect(counting.hasPendingIdentityCleanup, isTrue);
 
         gateway.deleteError = null;
+        final anonBefore = gateway.anonSerial;
         final retry = await counting.retryPendingIdentityCleanup();
 
         expect(retry.isSuccess, isTrue);
-        expect(serverCalls, 2, reason: 'idempotent second call, not skipped');
+        expect(serverCalls, 1, reason: 'no second authenticated server delete');
+        expect(gateway.anonSerial, anonBefore + 1,
+            reason: 'exactly one fresh anonymous session after cleanup');
         await expectUserBoundCleared();
       },
     );

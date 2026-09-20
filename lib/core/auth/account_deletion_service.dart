@@ -73,6 +73,9 @@ class AccountDeletionService {
     return const ApiSuccess(true);
   }
 
+  /// [pendingIdentityCleanup] means server deletion was already accepted.
+  /// Retry: optional reauth → prove identity gone → local wipe only.
+  /// No second authenticated server deletion (token may already be cleared).
   Future<ApiResult<bool>> retryPendingIdentityCleanup({
     AccountReauthCredentials? reauth,
   }) async {
@@ -86,7 +89,6 @@ class AccountDeletionService {
     }
 
     if (!_auth.hasCurrentIdentity) {
-      await deleteServerData();
       await _finishAfterIdentityDeleted();
       return const ApiSuccess(true);
     }
@@ -95,7 +97,6 @@ class AccountDeletionService {
     if (stillPresent.isFailure) {
       final error = stillPresent.errorOrNull!;
       if (!_auth.hasCurrentIdentity) {
-        await deleteServerData();
         await _finishAfterIdentityDeleted();
         return const ApiSuccess(true);
       }
@@ -103,7 +104,6 @@ class AccountDeletionService {
       return ApiFailure(error);
     }
 
-    await deleteServerData();
     await _finishAfterIdentityDeleted();
     return const ApiSuccess(true);
   }
@@ -122,14 +122,14 @@ class AccountDeletionService {
 
   Future<void> _markPending() async {
     await _storage.setBool(pendingIdentityCleanupKey, true);
-    AccountDeletionPendingState.isBlocked.value = true;
+    AccountDeletionPendingState.markBlocked();
   }
 
   Future<void> _finishAfterIdentityDeleted() async {
     await UserLocalDataWipe.run(_storage, secureStorage: _secureStorage);
     await _storage.remove(UserLocalDataIsolation.ownerKey);
     await _storage.remove(pendingIdentityCleanupKey);
-    AccountDeletionPendingState.isBlocked.value = false;
+    AccountDeletionPendingState.markClear();
     UserLocalDataIsolation.accountSwitchEpoch.value++;
     await _auth.ensureAnonymousSession();
   }

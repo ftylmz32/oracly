@@ -5,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
-import '../account_deletion_pending_state.dart';
-import '../anonymous_auth_bootstrap.dart';
+import '../../../core/data/repositories/local_onboarding_repository.dart';
 import '../../../core/design_system/oracly_chrome.dart';
+import '../../../core/notifications/oracly_notification_tap_router.dart';
 import '../../../core/theme/reading_typography.dart';
+import '../../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../../features/privacy/copy/privacy_control_copy.dart';
 import '../../../features/privacy/providers/privacy_control_providers.dart';
 import '../../../features/privacy/services/account_deletion_reauth_prompt.dart';
 import '../../../features/privacy/services/privacy_data_refresh.dart';
+import '../../../features/share_reopen/services/share_link_opener.dart';
 import '../../../shared/navigation/oracly_navigation.dart';
 import '../../../shared/ui/oracly_snackbar.dart';
 import '../../../shared/widgets/oracly_gold_button.dart';
@@ -51,15 +53,22 @@ class _AccountDeletionPendingScreenState
         );
         return;
       }
-      AccountDeletionPendingState.isBlocked.value = false;
-      await AnonymousAuthBootstrap.ensure(auth);
+      // Gate + anonymous session already settled in _finishAfterIdentityDeleted.
       PrivacyDataRefresh.afterAccountSwitch(ref);
       if (!mounted) return;
+      final onboardingDone = ref.read(localStorageProvider).getBool(
+            LocalOnboardingRepository.completedKey,
+          ) ??
+          false;
+      final next = onboardingDone
+          ? const OraclyAppShell()
+          : const OnboardingScreen();
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (_) => const OraclyAppShell(),
-        ),
+        MaterialPageRoute<void>(builder: (_) => next),
       );
+      // Resume queued deep links only after owner-bound destination is live.
+      ShareLinkOpener.openPending();
+      OraclyNotificationTapRouter.openPending(context);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -91,9 +100,7 @@ class _AccountDeletionPendingScreenState
               ),
               const SizedBox(height: 28),
               OraclyGoldButton(
-                label: _busy
-                    ? PrivacyControlCopy.deletePendingRetry
-                    : PrivacyControlCopy.deletePendingRetry,
+                label: PrivacyControlCopy.deletePendingRetry,
                 onPressed: _busy ? null : _retry,
                 expanded: true,
               ),

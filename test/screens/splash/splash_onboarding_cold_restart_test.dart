@@ -33,11 +33,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    AccountDeletionPendingState.isBlocked.value = false;
+    AccountDeletionPendingState.resetForTest();
+    AccountDeletionPendingState.markClear();
   });
 
   tearDown(() {
-    AccountDeletionPendingState.isBlocked.value = false;
+    AccountDeletionPendingState.resetForTest();
   });
 
   test(

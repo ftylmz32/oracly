@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/auth/account_deletion_pending_state.dart';
 import '../../../core/auth/anonymous_auth_bootstrap.dart';
 import '../../../core/auth/auth_service.dart';
 import '../../../core/auth/firebase/firebase_app_check_bootstrap.dart';
@@ -23,6 +24,10 @@ abstract final class GemWalletBootstrap {
     AiTokenReader? appCheckToken,
     FirebaseAuthGateway? liveGateway,
   }) async {
+    if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
+      print('[GemWallet] deletion gate not clear — skip bootstrap');
+      return false;
+    }
     if (!config.usesProxy) {
       print('[GemWallet] proxy not configured — cannot hydrate');
       return false;
@@ -34,6 +39,9 @@ abstract final class GemWalletBootstrap {
       environment: config.environment,
       releaseLocked: config.simulateReleaseBuild || kReleaseMode,
     );
+    if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
+      return false;
+    }
     await AnonymousAuthBootstrap.ensure(auth);
     final failure = await AiProxyReadiness.ensure(
       config: config,

@@ -48,11 +48,13 @@ class PremiumService {
   bool get purchaseConfigured => _purchase.isConfigured;
   bool get canAttemptRestore => _purchase.canAttemptRestore;
   bool get isActiveNow =>
-      AccountDeletionPendingState.isBlocked.value ? false : _premium.isActiveNow;
+      AccountDeletionPendingState.allowsOwnerBoundExperience
+          ? _premium.isActiveNow
+          : false;
   bool get wasAuthoritativelyVerified => _premium.wasAuthoritativelyVerified;
 
   Future<bool> isActive() async {
-    if (AccountDeletionPendingState.isBlocked.value) return false;
+    if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return false;
     return _premium.isPremiumActive();
   }
   Future<PremiumPlanKind?> activePlan() => _premium.activePlan();

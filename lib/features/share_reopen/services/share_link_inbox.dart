@@ -1,6 +1,8 @@
 /// Holds an inbound share URI until the navigator can present it.
 library;
 
+import 'package:flutter/foundation.dart';
+
 import 'share_link_parser.dart';
 
 class ShareLinkInbox {
@@ -24,4 +26,10 @@ class ShareLinkInbox {
     _pending = null;
     return uri;
   }
+
+  @visibleForTesting
+  void clearForTest() => _pending = null;
+
+  @visibleForTesting
+  bool get hasPendingForTest => _pending != null;
 }
