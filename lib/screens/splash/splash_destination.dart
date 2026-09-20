@@ -3,10 +3,9 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/auth/account_deletion_gate_destination.dart';
 import '../../core/auth/account_deletion_pending_state.dart';
-import '../../core/auth/presentation/account_deletion_pending_screen.dart';
-import '../../core/auth/presentation/account_integrity_recovery_screen.dart';
-import '../../core/auth/presentation/secure_startup_recovery_screen.dart';
+import '../../core/auth/presentation/account_deletion_gate_screen.dart';
 import '../../core/data/datasources/local_storage.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../shared/navigation/oracly_navigation.dart';
@@ -29,20 +28,11 @@ abstract final class SplashDestination {
       !AccountDeletionPendingState.isUnresolved,
       'SplashDestination.build requires a resolved deletion gate',
     );
-    final Widget page = switch (AccountDeletionPendingState.phase.value) {
-      AccountDeletionGatePhase.storageUnavailable =>
-        const SecureStartupRecoveryScreen(),
-      AccountDeletionGatePhase.integrityRecovery =>
-        const AccountIntegrityRecoveryScreen(),
-      AccountDeletionGatePhase.blocked ||
-      AccountDeletionGatePhase.finalizing =>
-        const AccountDeletionPendingScreen(),
-      AccountDeletionGatePhase.clear => onboardingCompleted
-          ? const OraclyAppShell()
-          : const OnboardingScreen(),
-      AccountDeletionGatePhase.unresolved =>
-        throw StateError('gate unresolved'),
-    };
+    final override = screenForGateDestination(
+      AccountDeletionGateDestinations.current,
+    );
+    final page = override ??
+        (onboardingCompleted ? const OraclyAppShell() : const OnboardingScreen());
     return ColoredBox(color: midnight, child: page);
   }
 

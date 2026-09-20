@@ -12,7 +12,22 @@ import 'account_deletion_pending_state.dart';
 import 'anonymous_auth_bootstrap.dart';
 import 'auth_service.dart';
 
-enum OwnerStartupOutcome { completed, skippedNotClear }
+enum OwnerStartupOutcome {
+  /// Gate wasn't clear — no-op, nothing was attempted.
+  skippedNotClear,
+
+  /// [AuthService.hasCurrentIdentity] is true after the attempt, whether
+  /// that identity already existed or was freshly bootstrapped. Secure
+  /// storage bootstrap / Premium warm / push install are best-effort and do
+  /// NOT affect this outcome — this is about whether an owner IDENTITY
+  /// exists, not whether every network service succeeded.
+  ownerIdentityEstablished,
+
+  /// No current identity exists after the attempt — bootstrap failed or
+  /// timed out, and none already existed. Callers must NOT treat this as
+  /// healthy: do not route Home, do not claim owner readiness.
+  ownerIdentityUnavailable,
+}
 
 abstract final class AccountDeletionOwnerBootstrap {
   AccountDeletionOwnerBootstrap._();
@@ -40,8 +55,10 @@ abstract final class AccountDeletionOwnerBootstrap {
 
   /// Single-flight guard — a normal cold start (main._deferredStartup) and a
   /// storage-recovery retry (SecureStartupRecoveryScreen) must never run the
-  /// full owner pipeline concurrently for the same process.
-  static Future<void>? _inFlight;
+  /// full owner pipeline concurrently for the same process. Typed so a
+  /// concurrent caller awaits the SAME real outcome instead of a hardcoded
+  /// "it worked" — see the P0 fix this replaced.
+  static Future<OwnerStartupOutcome>? _inFlight;
 
   /// THE canonical post-gate owner startup: secure storage bootstrap,
   /// Premium credential warm, anonymous/current owner readiness, then
@@ -54,6 +71,14 @@ abstract final class AccountDeletionOwnerBootstrap {
   /// No-ops (returns [OwnerStartupOutcome.skippedNotClear]) unless the gate
   /// is already [AccountDeletionPendingState.allowsOwnerBoundExperience] —
   /// callers are responsible for resolving the gate first.
+  ///
+  /// The returned outcome is honest about identity, not about every
+  /// best-effort step: [OwnerStartupOutcome.ownerIdentityEstablished] means
+  /// [AuthService.hasCurrentIdentity] is true after the attempt;
+  /// [OwnerStartupOutcome.ownerIdentityUnavailable] means it is not, and
+  /// callers that route based on this (the recovery screens) must NOT
+  /// proceed to Home for that outcome — see
+  /// deletion_gate_recovery_router.dart.
   static Future<OwnerStartupOutcome> runIfClear(
     ProviderContainer container,
   ) async {
@@ -62,27 +87,36 @@ abstract final class AccountDeletionOwnerBootstrap {
     }
     final existing = _inFlight;
     if (existing != null) {
-      await existing;
-      return OwnerStartupOutcome.completed;
+      return existing;
     }
     final future = _run(container);
     _inFlight = future;
     try {
-      await future;
-      return OwnerStartupOutcome.completed;
+      return await future;
     } finally {
       _inFlight = null;
     }
   }
 
-  static Future<void> _run(ProviderContainer container) async {
+  static Future<OwnerStartupOutcome> _run(ProviderContainer container) async {
     try {
       final storage = container.read(localStorageProvider);
       final secure = container.read(secureStorageProvider);
       await SecureStorageBootstrap.run(storage, secure);
       await warmPremiumIfClear(container.read(premiumRepositoryProvider));
     } catch (_) {}
-    await ensureAnonymousIfClear(container.read(authServiceProvider));
+
+    final auth = container.read(authServiceProvider);
+    // Reuses an existing current identity instead of creating another one —
+    // AuthService.ensureAnonymousSession (used internally) already does
+    // this; only signs in anonymously when no current identity exists.
+    await ensureAnonymousIfClear(auth);
+
+    if (!auth.hasCurrentIdentity) {
+      return OwnerStartupOutcome.ownerIdentityUnavailable;
+    }
+
     await installReadingPushIfClear(container);
+    return OwnerStartupOutcome.ownerIdentityEstablished;
   }
 }

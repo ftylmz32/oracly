@@ -27,9 +27,8 @@ import '../../screens/settings/reference/settings_reference_screen.dart';
 import '../../features/share_reopen/presentation/share_reopen_screen.dart';
 import '../../features/share_reopen/services/share_link_parser.dart';
 import '../../shared/navigation/oracly_navigation.dart';
-import '../auth/account_deletion_pending_state.dart';
-import '../auth/presentation/account_deletion_pending_screen.dart';
-import '../auth/presentation/account_integrity_recovery_screen.dart';
+import '../auth/account_deletion_gate_destination.dart';
+import '../auth/presentation/account_deletion_gate_screen.dart';
 import '../navigation/oracly_page_transitions.dart';
 import 'immersive/chamber_transition_personality.dart';
 import 'oracly_routes.dart';
@@ -39,8 +38,11 @@ abstract final class OraclyRouteGenerator {
 
   /// Resolves named routes for deep linking and programmatic navigation.
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    if (AccountDeletionPendingState.blocksDeepLinks) {
-      return _pendingDeletionRoute(settings);
+    final gateOverride = screenForGateDestination(
+      AccountDeletionGateDestinations.current,
+    );
+    if (gateOverride != null) {
+      return OraclyPageTransitions.fade(page: gateOverride, settings: settings);
     }
     final shareUri = ShareLinkParser.parse(settings.name);
     if (shareUri != null) {
@@ -186,22 +188,5 @@ abstract final class OraclyRouteGenerator {
           settings: settings,
         );
     }
-  }
-
-  /// Single pending-cleanup destination — fail-closed for every feature
-  /// route. A corrupt marker routes to the integrity-recovery screen, never
-  /// to the pending-deletion screen — that copy claims a real deletion
-  /// lifecycle is known to exist, which a corrupt marker never proves.
-  static Route<dynamic> _pendingDeletionRoute(RouteSettings settings) {
-    if (AccountDeletionPendingState.isIntegrityRecovery) {
-      return OraclyPageTransitions.fade(
-        page: const AccountIntegrityRecoveryScreen(),
-        settings: settings,
-      );
-    }
-    return OraclyPageTransitions.fade(
-      page: const AccountDeletionPendingScreen(),
-      settings: settings,
-    );
   }
 }

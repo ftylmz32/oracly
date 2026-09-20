@@ -14,10 +14,10 @@ import '../../../features/onboarding/presentation/screens/onboarding_screen.dart
 import '../../../screens/splash/splash_boot.dart';
 import '../../data/repositories/local_onboarding_repository.dart';
 import '../../../shared/navigation/oracly_navigation.dart';
+import '../account_deletion_gate_destination.dart';
 import '../account_deletion_owner_bootstrap.dart';
 import '../account_deletion_pending_state.dart';
-import 'account_deletion_pending_screen.dart';
-import 'account_integrity_recovery_screen.dart';
+import 'account_deletion_gate_screen.dart';
 import 'secure_startup_recovery_screen.dart';
 
 /// Re-resolves the durable-storage/deletion gate and routes to whichever
@@ -34,36 +34,45 @@ Future<void> resolveDeletionGateAndRoute({
   );
   if (!isMounted()) return;
 
-  switch (status) {
-    case AccountDeletionGateResolveStatus.storageUnavailable:
-      _replace(context, isMounted, const SecureStartupRecoveryScreen());
-    case AccountDeletionGateResolveStatus.integrityRecovery:
-      _replace(context, isMounted, const AccountIntegrityRecoveryScreen());
-    case AccountDeletionGateResolveStatus.blocked:
-    case AccountDeletionGateResolveStatus.finalizing:
-      _replace(context, isMounted, const AccountDeletionPendingScreen());
-    case AccountDeletionGateResolveStatus.clear:
-      final container = ProviderScope.containerOf(context, listen: false);
-      // REQUIRED: secure storage bootstrap, Premium warm, anonymous owner
-      // readiness, push install — resume the SAME pipeline a normal clear
-      // cold start runs, awaited before Home is shown.
-      await AccountDeletionOwnerBootstrap.runIfClear(container);
-      // BEST-EFFORT, non-blocking: paid-op reconcile, gem wallet touch,
-      // notification/analytics/remote-config warm-up — the same deferred
-      // work a normal splash boot schedules, so a recovered session never
-      // silently skips it for the whole app session.
-      splashScheduleWarmup(container);
-      if (!isMounted()) return;
-      final done = ref.read(localStorageProvider).getBool(
-            LocalOnboardingRepository.completedKey,
-          ) ??
-          false;
-      _replace(
-        context,
-        isMounted,
-        done ? const OraclyAppShell() : const OnboardingScreen(),
-      );
+  if (status != AccountDeletionGateResolveStatus.clear) {
+    final screen = screenForGateDestination(
+      AccountDeletionGateDestinations.forResolveStatus(status),
+    );
+    _replace(context, isMounted, screen!);
+    return;
   }
+
+  final container = ProviderScope.containerOf(context, listen: false);
+  // REQUIRED: secure storage bootstrap, Premium warm, anonymous owner
+  // readiness, push install — resume the SAME pipeline a normal clear
+  // cold start runs, awaited before Home is shown.
+  final outcome = await AccountDeletionOwnerBootstrap.runIfClear(container);
+  if (!isMounted()) return;
+
+  if (outcome == OwnerStartupOutcome.ownerIdentityUnavailable) {
+    // Do not fabricate auth success, do not route Home and let every
+    // owner-bound service fail independently — stay in secure recovery and
+    // let the user retry. Storage itself is fine (status == clear); only
+    // the owner identity could not be established this attempt.
+    _replace(context, isMounted, const SecureStartupRecoveryScreen());
+    return;
+  }
+
+  // BEST-EFFORT, non-blocking: paid-op reconcile, gem wallet touch,
+  // notification/analytics/remote-config warm-up — the same deferred work
+  // a normal splash boot schedules, so a recovered session never silently
+  // skips it for the whole app session.
+  splashScheduleWarmup(container);
+  if (!isMounted()) return;
+  final done = ref.read(localStorageProvider).getBool(
+        LocalOnboardingRepository.completedKey,
+      ) ??
+      false;
+  _replace(
+    context,
+    isMounted,
+    done ? const OraclyAppShell() : const OnboardingScreen(),
+  );
 }
 
 void _replace(BuildContext context, bool Function() isMounted, Widget page) {

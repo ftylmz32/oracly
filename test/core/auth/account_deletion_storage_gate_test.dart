@@ -669,7 +669,10 @@ void main() {
   );
 
   group('canonical post-gate owner startup coordinator', () {
-    ProviderContainer buildContainer(LocalStorage storage) {
+    ProviderContainer buildContainer(
+      LocalStorage storage, {
+      AuthService? auth,
+    }) {
       return ProviderContainer(
         overrides: [
           localStorageProvider.overrideWithValue(storage),
@@ -677,9 +680,21 @@ void main() {
           premiumRepositoryProvider.overrideWithValue(
             _CountingPremium(storage),
           ),
-          authServiceProvider.overrideWithValue(MockAuthService()),
+          authServiceProvider.overrideWithValue(auth ?? MockAuthService()),
         ],
       );
+    }
+
+    /// A real (non-Mock) current identity — AnonymousAuthBootstrap.ensure
+    /// explicitly refuses to drive MockAuthService, so any test that needs
+    /// runIfClear to observe hasCurrentIdentity == true after the attempt
+    /// must pre-establish a real session first.
+    Future<MockAuthService> buildAuthWithSession() async {
+      final auth = MockAuthService(
+        sessions: InMemorySessionManager(_NoopTokens()),
+      );
+      await auth.signInAnonymously();
+      return auth;
     }
 
     test(
@@ -704,13 +719,14 @@ void main() {
     );
 
     test(
-      'runIfClear runs the full pipeline (Premium warm at least) when the '
-      'gate is clear — the same pipeline a normal cold start and a '
-      'successful storage recovery both resume',
+      'runIfClear runs the full pipeline and reports ownerIdentityEstablished '
+      'when an owner identity already exists — the same pipeline a normal '
+      'cold start and a successful storage recovery both resume',
       () async {
         SharedPreferences.setMockInitialValues({});
         final storage = LocalStorage(await SharedPreferences.getInstance());
-        final container = buildContainer(storage);
+        final auth = await buildAuthWithSession();
+        final container = buildContainer(storage, auth: auth);
         addTearDown(container.dispose);
         AccountDeletionPendingState.markClear();
 
@@ -718,7 +734,7 @@ void main() {
           container,
         );
 
-        expect(outcome, OwnerStartupOutcome.completed);
+        expect(outcome, OwnerStartupOutcome.ownerIdentityEstablished);
         final premium =
             container.read(premiumRepositoryProvider) as _CountingPremium;
         expect(premium.warmCount, 1);
@@ -726,12 +742,36 @@ void main() {
     );
 
     test(
-      'concurrent runIfClear calls single-flight — Premium is warmed once, '
-      'not twice, for two overlapping callers (main + storage-recovery race)',
+      'P0 FIX: runIfClear reports ownerIdentityUnavailable — never a '
+      'lying "completed" — when no owner identity exists after the attempt '
+      '(bootstrap unavailable/failed)',
       () async {
         SharedPreferences.setMockInitialValues({});
         final storage = LocalStorage(await SharedPreferences.getInstance());
-        final container = buildContainer(storage);
+        // Bare MockAuthService has no session, and AnonymousAuthBootstrap
+        // explicitly refuses to drive MockAuthService — simulates a real
+        // bootstrap that could not establish any identity.
+        final container = buildContainer(storage, auth: MockAuthService());
+        addTearDown(container.dispose);
+        AccountDeletionPendingState.markClear();
+
+        final outcome = await AccountDeletionOwnerBootstrap.runIfClear(
+          container,
+        );
+
+        expect(outcome, OwnerStartupOutcome.ownerIdentityUnavailable);
+      },
+    );
+
+    test(
+      'concurrent runIfClear calls single-flight — Premium is warmed once, '
+      'not twice, for two overlapping callers (main + storage-recovery '
+      'race), and both callers observe the SAME real outcome',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final storage = LocalStorage(await SharedPreferences.getInstance());
+        final auth = await buildAuthWithSession();
+        final container = buildContainer(storage, auth: auth);
         addTearDown(container.dispose);
         AccountDeletionPendingState.markClear();
 
@@ -740,7 +780,10 @@ void main() {
           AccountDeletionOwnerBootstrap.runIfClear(container),
         ]);
 
-        expect(results, everyElement(OwnerStartupOutcome.completed));
+        expect(
+          results,
+          everyElement(OwnerStartupOutcome.ownerIdentityEstablished),
+        );
         final premium =
             container.read(premiumRepositoryProvider) as _CountingPremium;
         expect(
@@ -751,6 +794,59 @@ void main() {
         );
       },
     );
+  });
+
+  group('P0-5: storage recovery must not fabricate auth success', () {
+    testWidgets(
+        'durable storage resolves clear but no owner identity is '
+        'available → stays in secure recovery UX, never routes Home, '
+        'never fabricates auth success', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      AccountDeletionPendingState.markStorageUnavailable();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            localStorageProvider.overrideWithValue(storage),
+            secureStorageProvider.overrideWithValue(InMemorySecureStorage()),
+            premiumRepositoryProvider.overrideWithValue(
+              MockPremiumRepository(
+                storage,
+                secureStorage: InMemorySecureStorage(),
+              ),
+            ),
+            // Bare MockAuthService: no session, and AnonymousAuthBootstrap
+            // refuses to drive MockAuthService — simulates owner-identity
+            // bootstrap being genuinely unavailable even though storage
+            // itself resolved clear.
+            authServiceProvider.overrideWithValue(MockAuthService()),
+          ],
+          child: const MaterialApp(home: SecureStartupRecoveryScreen()),
+        ),
+      );
+
+      await tester.tap(find.text(PrivacyControlCopy.storageRecoveryRetry));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.byType(SecureStartupRecoveryScreen), findsOneWidget);
+      expect(find.byType(OraclyAppShell), findsNothing);
+      expect(find.byType(AccountDeletionPendingScreen), findsNothing);
+    });
+
+    // The counter-case (identity already established → proceeds past
+    // recovery) is proven at the unit level instead of as a widget test:
+    // "runIfClear runs the full pipeline and reports ownerIdentityEstablished
+    // when an owner identity already exists" above covers the outcome this
+    // router branches on. A full widget-level pump of that path additionally
+    // exercises real push-installation platform channels
+    // (installReadingPushIfClear) with no plugin mocking, which hangs
+    // indefinitely in this test binding rather than failing fast — pumping
+    // fake frame time does not advance real platform-channel IO. Existing
+    // SplashDestination tests already cover "clear phase renders
+    // Home/Onboarding" independently of the owner-bootstrap pipeline.
   });
 
   group(
