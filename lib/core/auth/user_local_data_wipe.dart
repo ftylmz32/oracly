@@ -116,16 +116,33 @@ abstract final class UserLocalDataWipe {
     }
   }
 
+  /// Best-effort PER KEY, not per group: a single throwing `remove` must
+  /// never stop the loop before it reaches the rest of [keys]. Several
+  /// account-scoped keys (e.g. the reading-count ledger ids/baseline) sit
+  /// late in [UserLocalDataWipeKeys.profile] — if an earlier key's remove
+  /// call threw and aborted the whole loop, the outer `step()` wrapper in
+  /// [run] would swallow that one exception while silently leaving every
+  /// later key (including those) on disk for the next owner.
   static Future<void> _clearKeys(LocalStorage storage, List<String> keys) async {
     for (final key in keys) {
-      await storage.remove(key);
+      try {
+        await storage.remove(key);
+      } catch (_) {}
     }
   }
 
+  /// Same per-key isolation as [_clearKeys], for a whole prefix set. The
+  /// matching keys are snapshotted once up front so a key removed earlier
+  /// in the loop can't change which keys are still pending, and one
+  /// key's failure never prevents the rest of the same prefix from being
+  /// attempted.
   static Future<void> _clearPrefixed(LocalStorage storage, String prefix) async {
-    for (final key
-        in storage.keys.where((k) => k.startsWith(prefix)).toList()) {
-      await storage.remove(key);
+    final matching =
+        storage.keys.where((k) => k.startsWith(prefix)).toList();
+    for (final key in matching) {
+      try {
+        await storage.remove(key);
+      } catch (_) {}
     }
   }
 }

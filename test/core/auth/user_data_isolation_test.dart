@@ -45,6 +45,25 @@ const _userB = 'synthetic-oracly-user-b';
 const _ghost = 'ISOLATIONMARKER42';
 const _orQuestion = 'Karar vermekte zorlanıyorum; keşiflerimde ne görüyordun?';
 
+/// Throws when [remove] is called for any key in [failingKeys], then
+/// behaves normally for everything else — proves an account switch that
+/// hits one unrelated profile-key removal failure still reaches and
+/// clears the reading-count ledger/baseline for the next owner.
+class _KeyFailingStorage extends LocalStorage {
+  _KeyFailingStorage(SharedPreferences prefs, {required this.failingKeys})
+      : super(prefs);
+
+  final Set<String> failingKeys;
+
+  @override
+  Future<bool> remove(String key) async {
+    if (failingKeys.contains(key)) {
+      throw StateError('simulated remove failure for $key');
+    }
+    return super.remove(key);
+  }
+}
+
 class _SwitchGateway implements FirebaseAuthGateway {
   final _controller = StreamController<FirebaseAuthUserSnapshot?>.broadcast();
   FirebaseAuthUserSnapshot? _user;
@@ -342,6 +361,72 @@ void main() {
             const [];
     expect(ledgerAfterB, ['owner-b-r1']);
     expect(ledgerAfterB, isNot(contains('owner-a-r1')));
+  });
+
+  test(
+      'an unrelated profile-key removal failure during an account switch '
+      'must not leave owner A\'s reading ledger/baseline behind for '
+      'owner B — cleanup continues past the one failing key', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final failingStorage = _KeyFailingStorage(
+      prefs,
+      failingKeys: {'profile_spiritual'},
+    );
+    final failingIsolation = UserLocalDataIsolation(
+      failingStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+
+    // Owner A: real migrated ledger state, plus an unrelated profile key
+    // that will fail to remove during the switch below.
+    await failingIsolation.onSignedIn('owner-a-switch');
+    final usersA = MockUserRepository(failingStorage);
+    final historyA = MockHistoryRepository(failingStorage);
+    await failingStorage.setDouble('profile_spiritual', 0.5);
+    await usersA.ensureReadingCompletionMigration(const []);
+    await historyA.saveReading(
+      pdeTarot(
+        'owner-a-switch-r1',
+        '$_ghost owner A reading',
+        at: DateTime(2026, 8, 20),
+      ),
+    );
+    await usersA.recordReadingCompletion('owner-a-switch-r1');
+    expect((await usersA.getProfile()).totalReadings, 1);
+
+    // Switch to owner B — profile_spiritual's removal throws, but the
+    // switch must still complete and reach every later key.
+    await failingIsolation.onSignedIn('owner-b-switch');
+
+    expect(failingIsolation.localOwnerId, 'owner-b-switch');
+    expect(
+      failingStorage.getDouble('profile_spiritual'),
+      0.5,
+      reason: 'the deliberately failing key may remain',
+    );
+    expect(
+      failingStorage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      isNull,
+      reason: 'the ledger sits after the failing key and must still be '
+          'reached and cleared',
+    );
+    expect(
+      failingStorage.getInt(MockUserRepository.legacyBaselineKey),
+      isNull,
+      reason: 'the baseline sits after the failing key and must still be '
+          'reached and cleared',
+    );
+    expect(await historyA.getReadings(), isEmpty);
+
+    final usersB = MockUserRepository(failingStorage);
+    final freshProfile = await usersB.getProfile();
+    expect(
+      freshProfile.totalReadings,
+      0,
+      reason: 'owner B must not inherit owner A\'s reading count merely '
+          'because an unrelated profile key failed to remove',
+    );
   });
 
   test('same synthetic user starts empty after logout wipe then login', () async {
