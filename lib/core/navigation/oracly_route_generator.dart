@@ -30,6 +30,7 @@ import '../../shared/navigation/oracly_navigation.dart';
 import '../auth/account_deletion_gate_destination.dart';
 import '../auth/presentation/account_deletion_gate_screen.dart';
 import '../navigation/oracly_page_transitions.dart';
+import 'deferred_gate_route_host.dart';
 import 'immersive/chamber_transition_personality.dart';
 import 'oracly_routes.dart';
 
@@ -38,9 +39,17 @@ abstract final class OraclyRouteGenerator {
 
   /// Resolves named routes for deep linking and programmatic navigation.
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    final gateOverride = screenForGateDestination(
-      AccountDeletionGateDestinations.current,
-    );
+    final destination = AccountDeletionGateDestinations.current;
+    // Unresolved must never become a permanent black/neutral route once the
+    // gate later resolves — DeferredGateRouteHost replays THESE settings
+    // through this same generator exactly once the gate settles.
+    if (destination == AccountDeletionGateDestination.unresolved) {
+      return OraclyPageTransitions.fade(
+        page: DeferredGateRouteHost(originalSettings: settings),
+        settings: settings,
+      );
+    }
+    final gateOverride = screenForGateDestination(destination);
     if (gateOverride != null) {
       return OraclyPageTransitions.fade(page: gateOverride, settings: settings);
     }

@@ -21,9 +21,11 @@ import '../core/data/datasources/local_storage.dart';
 import '../core/l10n/l10n.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_theme.dart';
+import '../core/navigation/deferred_gate_route_host.dart';
 import '../core/navigation/oracly_navigator_key.dart';
 import '../core/navigation/oracly_page_transitions.dart';
 import '../core/navigation/oracly_route_generator.dart';
+import '../core/navigation/oracly_routes.dart';
 import '../features/share_reopen/widgets/share_link_host.dart';
 import '../screens/splash/splash_screen.dart';
 import '../shared/navigation/oracly_navigation.dart';
@@ -51,11 +53,26 @@ class OraclyApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      // Splash (home) always owns the true first screen: the platform's
+      // defaultRouteName (e.g. a cold-launch deep link) is NOT necessarily
+      // "/" — Flutter's default initial-route generation would otherwise
+      // resolve that name via onGenerateRoute as the very FIRST route,
+      // bypassing Splash and the deletion gate entirely. main.dart already
+      // captures defaultRouteName into ShareLinkInbox before runApp, and
+      // SplashScreen replays it (share links, the /chat shortcut) only
+      // after the gate resolves — forcing "/" here is what makes that the
+      // only path.
+      initialRoute: OraclyRoutes.splash,
       onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
-      onUnknownRoute: (_) {
-        final gateOverride = screenForGateDestination(
-          AccountDeletionGateDestinations.current,
-        );
+      onUnknownRoute: (settings) {
+        final destination = AccountDeletionGateDestinations.current;
+        if (destination == AccountDeletionGateDestination.unresolved) {
+          return OraclyPageTransitions.fade(
+            page: DeferredGateRouteHost(originalSettings: settings),
+            settings: settings,
+          );
+        }
+        final gateOverride = screenForGateDestination(destination);
         if (gateOverride != null) {
           return OraclyPageTransitions.fade(page: gateOverride);
         }

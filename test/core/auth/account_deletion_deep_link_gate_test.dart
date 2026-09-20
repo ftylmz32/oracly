@@ -2,12 +2,16 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
+import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/auth/presentation/account_deletion_pending_screen.dart';
 import 'package:oracly_new/core/auth/presentation/account_integrity_recovery_screen.dart';
 import 'package:oracly_new/core/auth/presentation/gate_unresolved_screen.dart';
 import 'package:oracly_new/core/auth/presentation/secure_startup_recovery_screen.dart';
+import 'package:oracly_new/core/navigation/deferred_gate_route_host.dart';
 import 'package:oracly_new/core/navigation/oracly_route_generator.dart';
 import 'package:oracly_new/core/navigation/oracly_routes.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_kind.dart';
@@ -120,8 +124,9 @@ void main() {
         expect(built, isNot(isA<AccountDeletionPendingScreen>()));
       });
 
-      test('unresolved → neutral gate screen for $name — NOT the '
-          'pending-deletion claim screen, no feature route', () {
+      test('unresolved → self-resolving neutral gate host for $name — NOT '
+          'the pending-deletion claim screen, no feature route, and it '
+          'preserves the original settings for later replay', () {
         AccountDeletionPendingState.phase.value =
             AccountDeletionGatePhase.unresolved;
         final route = OraclyRouteGenerator.onGenerateRoute(
@@ -133,7 +138,11 @@ void main() {
           const AlwaysStoppedAnimation<double>(1),
           const AlwaysStoppedAnimation<double>(1),
         );
-        expect(built, isA<GateUnresolvedScreen>());
+        expect(built, isA<DeferredGateRouteHost>());
+        expect(
+          (built as DeferredGateRouteHost).originalSettings.name,
+          name,
+        );
         expect(built, isNot(isA<AccountDeletionPendingScreen>()));
         expect(built, isNot(isA<OraclyAppShell>()));
       });
@@ -269,6 +278,166 @@ void main() {
       expect(ShareLinkInbox.instance.hasPendingForTest, isTrue);
       ShareLinkInbox.instance.clearForTest();
     }
+  });
+  group(
+      'P0: a route requested while unresolved must self-resolve once the '
+      'gate settles — never a permanent neutral screen', () {
+    Future<NavigatorState> pumpNavigatorApp(WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            localStorageProvider.overrideWithValue(LocalStorage.ephemeral()),
+          ],
+          child: MaterialApp(
+            home: const SizedBox.shrink(),
+            onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
+          ),
+        ),
+      );
+      return tester.state<NavigatorState>(find.byType(Navigator));
+    }
+
+    /// Both the entering route's transition (440ms) and the exiting route's
+    /// transition (320ms) must fully finish before the OLD route
+    /// (DeferredGateRouteHost/GateUnresolvedScreen) is actually disposed —
+    /// pushReplacement itself fires immediately, but a bounded settle is
+    /// still needed for the tree to reflect it.
+    Future<void> settleGateTransition(WidgetTester tester) async {
+      // The slowest chamber personality (tarot) enters over 580ms; give a
+      // comfortable margin above every personality's enter/exit duration.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    testWidgets(
+        'unresolved -> pushNamed(/chat) -> neutral gate host only, then '
+        'clear -> Companion appears exactly once, no duplicate push',
+        (tester) async {
+      AccountDeletionPendingState.phase.value =
+          AccountDeletionGatePhase.unresolved;
+      final nav = await pumpNavigatorApp(tester);
+
+      nav.pushNamed(OraclyRoutes.chat);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.byType(GateUnresolvedScreen), findsOneWidget);
+      expect(find.byType(CompanionReferenceScreen), findsNothing);
+      expect(find.byType(AccountDeletionPendingScreen), findsNothing);
+
+      AccountDeletionPendingState.markClear();
+      await tester.pump();
+      await settleGateTransition(tester);
+
+      expect(find.byType(CompanionReferenceScreen), findsOneWidget);
+      expect(find.byType(GateUnresolvedScreen), findsNothing);
+    });
+
+    testWidgets(
+        'unresolved -> pushNamed(/tarot) -> neutral gate host only, then '
+        'clear -> Tarot appears exactly once, no duplicate push',
+        (tester) async {
+      AccountDeletionPendingState.phase.value =
+          AccountDeletionGatePhase.unresolved;
+      final nav = await pumpNavigatorApp(tester);
+
+      nav.pushNamed(OraclyRoutes.tarot);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.byType(GateUnresolvedScreen), findsOneWidget);
+      expect(find.byType(TarotModuleNavigator), findsNothing);
+
+      AccountDeletionPendingState.markClear();
+      await tester.pump();
+      await settleGateTransition(tester);
+
+      expect(find.byType(TarotModuleNavigator), findsOneWidget);
+      expect(find.byType(GateUnresolvedScreen), findsNothing);
+    });
+
+    testWidgets(
+        'unresolved -> pushNamed(/chat) -> resolves to storageUnavailable '
+        '-> SecureStartupRecoveryScreen (never the pending-deletion claim)',
+        (tester) async {
+      AccountDeletionPendingState.phase.value =
+          AccountDeletionGatePhase.unresolved;
+      final nav = await pumpNavigatorApp(tester);
+      nav.pushNamed(OraclyRoutes.chat);
+      await tester.pump();
+
+      AccountDeletionPendingState.markStorageUnavailable();
+      await tester.pump();
+      await settleGateTransition(tester);
+
+      expect(find.byType(SecureStartupRecoveryScreen), findsOneWidget);
+      expect(find.byType(AccountDeletionPendingScreen), findsNothing);
+      expect(find.byType(GateUnresolvedScreen), findsNothing);
+    });
+
+    testWidgets(
+        'unresolved -> pushNamed(/chat) -> resolves to integrityRecovery '
+        '-> AccountIntegrityRecoveryScreen (never the pending-deletion claim)',
+        (tester) async {
+      AccountDeletionPendingState.phase.value =
+          AccountDeletionGatePhase.unresolved;
+      final nav = await pumpNavigatorApp(tester);
+      nav.pushNamed(OraclyRoutes.chat);
+      await tester.pump();
+
+      AccountDeletionPendingState.markIntegrityRecovery();
+      await tester.pump();
+      await settleGateTransition(tester);
+
+      expect(find.byType(AccountIntegrityRecoveryScreen), findsOneWidget);
+      expect(find.byType(AccountDeletionPendingScreen), findsNothing);
+      expect(find.byType(GateUnresolvedScreen), findsNothing);
+    });
+
+    testWidgets(
+        'unresolved -> pushNamed(/chat) -> resolves to blocked -> '
+        'AccountDeletionPendingScreen', (tester) async {
+      AccountDeletionPendingState.phase.value =
+          AccountDeletionGatePhase.unresolved;
+      final nav = await pumpNavigatorApp(tester);
+      nav.pushNamed(OraclyRoutes.chat);
+      await tester.pump();
+
+      AccountDeletionPendingState.markBlocked();
+      await tester.pump();
+      await settleGateTransition(tester);
+
+      expect(find.byType(AccountDeletionPendingScreen), findsOneWidget);
+      expect(find.byType(GateUnresolvedScreen), findsNothing);
+    });
+
+    testWidgets(
+        'unresolved -> pushNamed(/chat) -> resolves to finalizing -> '
+        'AccountDeletionPendingScreen', (tester) async {
+      AccountDeletionPendingState.phase.value =
+          AccountDeletionGatePhase.unresolved;
+      final nav = await pumpNavigatorApp(tester);
+      nav.pushNamed(OraclyRoutes.chat);
+      await tester.pump();
+
+      AccountDeletionPendingState.markFinalizing();
+      await tester.pump();
+      await settleGateTransition(tester);
+
+      expect(find.byType(AccountDeletionPendingScreen), findsOneWidget);
+      expect(find.byType(GateUnresolvedScreen), findsNothing);
+    });
+  });
+
+  test(
+      'unresolved: notification openPending also leaves the inbox queued '
+      '(same fail-closed guarantee as share links)', () {
+    AccountDeletionPendingState.phase.value =
+        AccountDeletionGatePhase.unresolved;
+    OraclyNotificationTapInbox.instance.offer('daily');
+    OraclyNotificationTapRouter.openPending();
+    expect(OraclyNotificationTapInbox.instance.hasPendingForTest, isTrue);
   });
 }
 
