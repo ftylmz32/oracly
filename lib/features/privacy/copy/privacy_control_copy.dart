@@ -75,6 +75,18 @@ abstract final class PrivacyControlCopy {
       _t('privacy.control.delete.pending.body');
   static String get deletePendingRetry =>
       _t('privacy.control.delete.pending.retry');
+  static String get deleteFinalizingTitle =>
+      _t('privacy.control.delete.finalizing.title');
+  static String get deleteFinalizingBody =>
+      _t('privacy.control.delete.finalizing.body');
+  static String get deleteFinalizingRetry =>
+      _t('privacy.control.delete.finalizing.retry');
+  static String get storageRecoveryTitle =>
+      _t('privacy.control.storage.recovery.title');
+  static String get storageRecoveryBody =>
+      _t('privacy.control.storage.recovery.body');
+  static String get storageRecoveryRetry =>
+      _t('privacy.control.storage.recovery.retry');
 
   static String reauthMethodLabel(AccountReauthMethod method) => switch (method) {
         AccountReauthMethod.google =>

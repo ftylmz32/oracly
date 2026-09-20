@@ -12,8 +12,11 @@ void main() {
       "lib/screens/splash/splash_screen.dart",
     ).readAsStringSync();
     final boot = File("lib/screens/splash/splash_boot.dart").readAsStringSync();
+    final entry = File(
+      "lib/screens/splash/splash_entry_bootstrap.dart",
+    ).readAsStringSync();
     expect(splash, contains("splashFastOnboarding"));
-    expect(splash, contains("splashScheduleWarmup"));
+    expect(entry, contains("splashScheduleWarmup"));
     expect(boot, contains("beginSession"));
     expect(boot, contains("oraclyNotificationCoordinatorProvider"));
     expect(splash, isNot(contains("beginSession")));
@@ -112,6 +115,15 @@ void main() {
     expect(app, contains("AnonymousAuthBootstrap.ensure"));
     expect(app, contains("unawaited("));
     expect(app, isNot(contains("await AnonymousAuthBootstrap.ensure")));
+    expect(app, contains("resolveFromLocalStorage"));
+  });
+
+  test("main resolves deletion gate before Premium warm", () {
+    final main = File("lib/main.dart").readAsStringSync();
+    final gate = main.indexOf("resolveFromLocalStorage");
+    final warm = main.indexOf("warmPremiumIfClear");
+    expect(gate, greaterThan(0));
+    expect(warm, greaterThan(gate));
   });
 
   test("pubspec does not directory-include all images (PNG masters)", () {

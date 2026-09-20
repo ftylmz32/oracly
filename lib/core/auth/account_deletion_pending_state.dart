@@ -1,14 +1,14 @@
-/// Startup gate for interrupted account deletion cleanup.
+/// Startup gate for interrupted account deletion / durable storage readiness.
 ///
 /// Production [main] calls [beginStartup] so the phase is [unresolved] before
-/// the first frame. Routing-critical local storage then resolves to [clear] or
-/// [blocked] before any owner-bound destination may mount.
+/// the first frame. Routing-critical local storage then resolves to a proven
+/// phase before any owner-bound destination may mount.
+///
+/// [clear] means durable storage WAS successfully read AND no deletion
+/// finalization markers remain. It never means "storage read failed".
 ///
 /// The notifier defaults to [clear] so unit tests that never touch splash/main
 /// keep generating normal routes. Race tests call [beginStartup] explicitly.
-///
-/// [blocked] means: server deletion already accepted; Firebase identity and/or
-/// local wipe still incomplete. Only [AccountDeletionPendingScreen] may mount.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -20,6 +20,15 @@ enum AccountDeletionGatePhase {
   unresolved,
   clear,
   blocked,
+  storageUnavailable,
+  finalizing,
+}
+
+enum AccountDeletionGateResolveStatus {
+  clear,
+  blocked,
+  finalizing,
+  storageUnavailable,
 }
 
 abstract final class AccountDeletionPendingState {
@@ -36,10 +45,16 @@ abstract final class AccountDeletionPendingState {
 
   static bool get isBlocked => phase.value == AccountDeletionGatePhase.blocked;
 
-  /// Owner-bound UI, gem hydrate, deep links, and anonymous bootstrap.
+  static bool get isStorageUnavailable =>
+      phase.value == AccountDeletionGatePhase.storageUnavailable;
+
+  static bool get isFinalizing =>
+      phase.value == AccountDeletionGatePhase.finalizing;
+
+  /// Owner-bound UI, gem hydrate, deep links, push, and premium warm.
   static bool get allowsOwnerBoundExperience => isClear;
 
-  /// Fail-closed while unresolved or blocked.
+  /// Fail-closed for every non-clear phase.
   static bool get blocksDeepLinks => !isClear;
 
   /// Call from production [main] before [runApp] — never from feature code.
@@ -47,33 +62,71 @@ abstract final class AccountDeletionPendingState {
     phase.value = AccountDeletionGatePhase.unresolved;
   }
 
-  /// Promote durable prefs if needed, then read the pending marker.
-  /// Does not wait on network, App Check, gems, notifications, or analytics.
-  static Future<void> resolveFromLocalStorage(LocalStorage storage) async {
+  /// Promote durable prefs if needed, then read deletion markers.
+  /// Never treats a failed durable read as "no pending deletion".
+  static Future<AccountDeletionGateResolveStatus> resolveFromLocalStorage(
+    LocalStorage storage,
+  ) async {
     if (storage.isEphemeral) {
-      await storage.tryPromote();
+      final promoted = await storage.tryPromote();
+      if (!promoted || storage.isEphemeral) {
+        phase.value = AccountDeletionGatePhase.storageUnavailable;
+        return AccountDeletionGateResolveStatus.storageUnavailable;
+      }
     }
-    applyFromMarker(
-      storage.getBool(AccountDeletionService.pendingIdentityCleanupKey) ??
-          false,
-    );
+
+    final anonPending =
+        storage.getBool(AccountDeletionService.pendingAnonymousBootstrapKey) ??
+            false;
+    if (anonPending) {
+      phase.value = AccountDeletionGatePhase.finalizing;
+      return AccountDeletionGateResolveStatus.finalizing;
+    }
+
+    final identityPending =
+        storage.getBool(AccountDeletionService.pendingIdentityCleanupKey) ??
+            false;
+    if (identityPending) {
+      phase.value = AccountDeletionGatePhase.blocked;
+      return AccountDeletionGateResolveStatus.blocked;
+    }
+
+    phase.value = AccountDeletionGatePhase.clear;
+    return AccountDeletionGateResolveStatus.clear;
   }
 
-  static void applyFromMarker(bool pending) {
-    phase.value = pending
-        ? AccountDeletionGatePhase.blocked
-        : AccountDeletionGatePhase.clear;
+  static void applyFromMarkers({
+    required bool identityCleanupPending,
+    required bool anonymousBootstrapPending,
+  }) {
+    if (anonymousBootstrapPending) {
+      phase.value = AccountDeletionGatePhase.finalizing;
+      return;
+    }
+    if (identityCleanupPending) {
+      phase.value = AccountDeletionGatePhase.blocked;
+      return;
+    }
+    phase.value = AccountDeletionGatePhase.clear;
   }
 
   static void markBlocked() {
     phase.value = AccountDeletionGatePhase.blocked;
   }
 
+  static void markFinalizing() {
+    phase.value = AccountDeletionGatePhase.finalizing;
+  }
+
+  static void markStorageUnavailable() {
+    phase.value = AccountDeletionGatePhase.storageUnavailable;
+  }
+
   static void markClear() {
     phase.value = AccountDeletionGatePhase.clear;
   }
 
-  /// Test helper — returns to unresolved (cold-start race simulations).
+  /// Test helper — cold-start race simulations.
   @visibleForTesting
   static void resetForTest() {
     phase.value = AccountDeletionGatePhase.unresolved;

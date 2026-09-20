@@ -226,4 +226,34 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Finish confirmation',
     'Завершить подтверждение',
   ),
+  'privacy.control.delete.finalizing.title': L10nTriple(
+    'Hesap temizliği tamamlanıyor',
+    'Finishing account cleanup',
+    'Завершение очистки аккаунта',
+  ),
+  'privacy.control.delete.finalizing.body': L10nTriple(
+    'Eski kimlik kaldırıldı. Güvenli bir oturum kurulamadı. Ana ekran henüz açılmaz.',
+    'The old identity was removed. A secure session could not be established yet. Home stays closed.',
+    'Старая личность удалена. Безопасный сеанс ещё не создан. Обычный вход закрыт.',
+  ),
+  'privacy.control.delete.finalizing.retry': L10nTriple(
+    'Oturumu kur',
+    'Establish session',
+    'Создать сеанс',
+  ),
+  'privacy.control.storage.recovery.title': L10nTriple(
+    'Hesap verisi açılamıyor',
+    'Account data cannot open safely',
+    'Данные аккаунта недоступны',
+  ),
+  'privacy.control.storage.recovery.body': L10nTriple(
+    'ORACLY şu anda hesap verilerinizi güvenle açamıyor.',
+    'ORACLY cannot safely open your account data right now.',
+    'ORACLY сейчас не может безопасно открыть данные аккаунта.',
+  ),
+  'privacy.control.storage.recovery.retry': L10nTriple(
+    'Yeniden dene',
+    'Retry',
+    'Повторить',
+  ),
 };

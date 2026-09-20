@@ -108,6 +108,7 @@ void main() {
       await seedUserBound();
       await auth.signInAnonymously();
       expect(gateway.currentUser?.isAnonymous, isTrue);
+      final beforeAnon = gateway.anonSerial;
 
       final result = await deletion.deleteAccountAndWipeLocalData();
 
@@ -118,6 +119,10 @@ void main() {
       expect(sessions.currentSession, isNotNull);
       expect(gateway.currentUser, isNotNull);
       expect(gateway.deleteCalls, 1);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(deletion.hasPendingAnonymousBootstrap, isFalse);
+      // Exactly one replacement anonymous identity after the deleted one.
+      expect(gateway.anonSerial, beforeAnon + 1);
     },
   );
 
@@ -288,7 +293,8 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(deletion.hasPendingIdentityCleanup, isFalse);
-      expect(AccountDeletionPendingState.isBlocked, isFalse);
+      expect(deletion.hasPendingAnonymousBootstrap, isFalse);
+      expect(AccountDeletionPendingState.isClear, isTrue);
       await expectUserBoundCleared();
       expect(gateway.currentUser?.isAnonymous, isTrue);
     },
@@ -353,6 +359,63 @@ void main() {
       final retry = await deletion.retryPendingIdentityCleanup();
       expect(retry.isSuccess, isTrue);
       expect(gateway.deleteCalls, 0);
+    },
+  );
+
+  test(
+    'identity deleted + anonymous sign-in fails → gate stays finalizing',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+      gateway.anonSignInError = 'network-request-failed';
+
+      final result = await deletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(AccountDeletionPendingState.isFinalizing, isTrue);
+      expect(AccountDeletionPendingState.isClear, isFalse);
+      expect(deletion.hasPendingAnonymousBootstrap, isTrue);
+      expect(deletion.hasPendingIdentityCleanup, isFalse);
+      await expectUserBoundCleared();
+      expect(gateway.currentUser, isNull);
+      expect(gateway.deleteCalls, 1);
+
+      gateway.anonSignInError = null;
+      final deletesBeforeRetry = gateway.deleteCalls;
+      final anonBefore = gateway.anonSerial;
+      final retry = await deletion.retryPendingIdentityCleanup();
+
+      expect(retry.isSuccess, isTrue);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(gateway.deleteCalls, deletesBeforeRetry);
+      expect(gateway.anonSerial, anonBefore + 1);
+      expect(gateway.currentUser?.isAnonymous, isTrue);
+    },
+  );
+
+  test(
+    'partial anonymous user + token failure: retry does not deleteAccount',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+      gateway.failIdTokenAfterAnonCreate = true;
+
+      final result = await deletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(AccountDeletionPendingState.isFinalizing, isTrue);
+      expect(deletion.hasPendingAnonymousBootstrap, isTrue);
+      expect(gateway.currentUser?.isAnonymous, isTrue);
+      final uid = gateway.currentUser!.uid;
+      final deletesBefore = gateway.deleteCalls;
+
+      gateway.failIdTokenAfterAnonCreate = false;
+      final retry = await deletion.retryPendingIdentityCleanup();
+
+      expect(retry.isSuccess, isTrue);
+      expect(gateway.deleteCalls, deletesBefore);
+      expect(gateway.currentUser?.uid, uid);
+      expect(AccountDeletionPendingState.isClear, isTrue);
     },
   );
 
@@ -768,6 +831,8 @@ class _DeletionGateway implements FirebaseAuthGateway {
   bool clearUserBeforeThrowing = false;
   int deleteCalls = 0;
   int anonSerial = 0;
+  String? anonSignInError;
+  bool failIdTokenAfterAnonCreate = false;
 
   @override
   bool get isInitialized => true;
@@ -779,11 +844,17 @@ class _DeletionGateway implements FirebaseAuthGateway {
   Stream<FirebaseAuthUserSnapshot?> authStateChanges() => _controller.stream;
 
   @override
-  Future<String?> currentIdToken({bool forceRefresh = false}) async =>
-      _user == null ? null : _idToken;
+  Future<String?> currentIdToken({bool forceRefresh = false}) async {
+    if (_user == null) return null;
+    if (failIdTokenAfterAnonCreate && _user!.isAnonymous) return null;
+    return _idToken;
+  }
 
   @override
   Future<FirebaseAuthUserSnapshot> signInAnonymously() async {
+    if (anonSignInError != null) {
+      throw AuthGatewayException(anonSignInError!, code: anonSignInError);
+    }
     anonSerial++;
     _user = FirebaseAuthUserSnapshot(
       uid: 'anon-$anonSerial',

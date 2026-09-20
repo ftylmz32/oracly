@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
+import '../../../../core/auth/account_deletion_owner_bootstrap.dart';
 import '../../../../core/auth/account_deletion_pending_state.dart';
 import '../../../../core/auth/presentation/account_deletion_pending_screen.dart';
 import '../../../../features/premium/presentation/widgets/settings_tiles.dart';
@@ -58,10 +59,13 @@ class PrivacyAccountDeletionTile extends ConsumerWidget {
     if (!context.mounted) return;
 
     if (result.isFailure) {
-      if (AccountDeletionPendingState.isBlocked) {
+      if (AccountDeletionPendingState.isBlocked ||
+          AccountDeletionPendingState.isFinalizing) {
         OraclySnackBar.show(
           context,
-          message: PrivacyControlCopy.deletePendingBody,
+          message: AccountDeletionPendingState.isFinalizing
+              ? PrivacyControlCopy.deleteFinalizingBody
+              : PrivacyControlCopy.deletePendingBody,
         );
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute<void>(
@@ -80,6 +84,10 @@ class PrivacyAccountDeletionTile extends ConsumerWidget {
     }
 
     PrivacyDataRefresh.afterAccountSwitch(ref);
+    await AccountDeletionOwnerBootstrap.installReadingPushIfClear(
+      ProviderScope.containerOf(context, listen: false),
+    );
+    if (!context.mounted) return;
     ref.invalidate(privacyControlSnapshotProvider);
     OraclySnackBar.show(context, message: PrivacyControlCopy.successDelete);
     Navigator.of(context).popUntil((route) => route.isFirst);

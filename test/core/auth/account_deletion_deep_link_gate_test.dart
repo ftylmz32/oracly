@@ -130,6 +130,30 @@ void main() {
       OraclyNotificationKind.daily,
     );
   });
+
+  test('finalizing and storageUnavailable also block deep links', () {
+    for (final phase in [
+      AccountDeletionGatePhase.finalizing,
+      AccountDeletionGatePhase.storageUnavailable,
+      AccountDeletionGatePhase.unresolved,
+    ]) {
+      AccountDeletionPendingState.phase.value = phase;
+      expect(AccountDeletionPendingState.blocksDeepLinks, isTrue);
+      expect(AccountDeletionPendingState.allowsOwnerBoundExperience, isFalse);
+      ShareLinkInbox.instance.offer(
+        ShareLinkParser.build(
+          const SharePublicPayload(
+            id: 'ab12cd34ef56ab78',
+            kind: DiscoveryShareKind.tarot,
+            highlight: 'Denge',
+          ),
+        ),
+      );
+      ShareLinkOpener.openPending();
+      expect(ShareLinkInbox.instance.hasPendingForTest, isTrue);
+      ShareLinkInbox.instance.clearForTest();
+    }
+  });
 }
 
 class _UnusedContext implements BuildContext {

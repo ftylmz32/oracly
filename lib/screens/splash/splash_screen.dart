@@ -19,6 +19,7 @@ import 'splash_boot.dart';
 import 'splash_brand_overlay.dart';
 import 'splash_cinema_prefs.dart';
 import 'splash_destination.dart';
+import 'splash_entry_bootstrap.dart';
 import 'splash_startup_log.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -34,11 +35,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   late bool _onboardingCompleted;
   bool _overlayVisible = true;
   bool _navigated = false;
-
-  /// Brand splash painted — destination still waits on the deletion gate.
   bool _splashPainted = false;
-
-  /// Heavy Home/Onboarding mounts only after splash art + gate resolve.
   bool _destinationMounted = false;
 
   @override
@@ -49,7 +46,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _onboardingCompleted =
         storage.getBool(LocalOnboardingRepository.completedKey) ?? false;
     AccountDeletionPendingState.phase.addListener(_onGateChanged);
-    unawaited(_bootstrap());
+    unawaited(
+      splashEntryBootstrap(
+        ref: ref,
+        currentOnboarding: _onboardingCompleted,
+        setOnboardingIfChanged: (v) => setState(() => _onboardingCompleted = v),
+        isMounted: () => mounted,
+        tryMountDestination: _tryMountDestination,
+        containerOf: () =>
+            ProviderScope.containerOf(context, listen: false),
+      ),
+    );
   }
 
   @override
@@ -61,37 +68,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void _onGateChanged() {
     if (!mounted) return;
     _tryMountDestination();
-  }
-
-  Future<void> _bootstrap() async {
-    try {
-      // Routing-critical local gate BEFORE any owner-bound destination.
-      await AccountDeletionPendingState.resolveFromLocalStorage(
-        ref.read(localStorageProvider),
-      );
-      if (!mounted) return;
-      _tryMountDestination();
-
-      final completed = await splashFastOnboarding(ref);
-      if (!mounted) return;
-      if (completed != _onboardingCompleted) {
-        setState(() => _onboardingCompleted = completed);
-      }
-      if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
-        unawaited(splashDeferredBoot(ref));
-        splashScheduleWarmup(ProviderScope.containerOf(context, listen: false));
-      }
-    } catch (_) {
-      if (!mounted) return;
-      if (AccountDeletionPendingState.isUnresolved) {
-        AccountDeletionPendingState.markClear();
-      }
-      _tryMountDestination();
-      unawaited(splashResilientBoot(ref));
-      if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
-        splashScheduleWarmup(ProviderScope.containerOf(context, listen: false));
-      }
-    }
   }
 
   void _onSplashFirstFrame() {
@@ -124,20 +100,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       );
     }
     if (!mounted) return;
-
     final completed = await splashFastOnboarding(ref);
     if (!mounted) return;
     if (completed != _onboardingCompleted) {
       setState(() => _onboardingCompleted = completed);
     }
-    final dest = SplashDestination.build(
-      onboardingCompleted: completed,
-      storage: ref.read(localStorageProvider),
+    SplashDestination.commitRoute(
+      context,
+      SplashDestination.build(
+        onboardingCompleted: completed,
+        storage: ref.read(localStorageProvider),
+      ),
     );
-    SplashDestination.commitRoute(context, dest);
-
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
-
     ShareLinkOpener.openPending();
     OraclyNotificationTapRouter.openPending(context);
     final name = WidgetsBinding.instance.platformDispatcher.defaultRouteName;
@@ -155,7 +130,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Never blank; never Home while gate unresolved.
           SplashDestination.unresolvedUnderlay(),
           if (_destinationMounted)
             SplashDestination.build(

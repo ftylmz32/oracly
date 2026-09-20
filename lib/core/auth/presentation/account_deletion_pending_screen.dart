@@ -1,12 +1,17 @@
-/// Root gate while Firebase identity cleanup is still pending.
+/// Root gate while Firebase identity cleanup / anon bootstrap is pending.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/auth/account_deletion_owner_bootstrap.dart';
+import '../../../core/auth/account_deletion_pending_state.dart';
+import '../../../core/auth/account_deletion_service.dart';
+import '../../../core/auth/models/auth_credentials.dart';
 import '../../../core/data/repositories/local_onboarding_repository.dart';
 import '../../../core/design_system/oracly_chrome.dart';
+import '../../../core/network/api_result.dart';
 import '../../../core/notifications/oracly_notification_tap_router.dart';
 import '../../../core/theme/reading_typography.dart';
 import '../../../features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -36,15 +41,9 @@ class _AccountDeletionPendingScreenState
     if (_busy) return;
     setState(() => _busy = true);
     try {
-      final auth = ref.read(authServiceProvider);
       final deletion = ref.read(accountDeletionServiceProvider);
-      final reauth = auth.isCurrentUserAnonymous
-          ? null
-          : await AccountDeletionReauthPrompt.collect(context, auth);
-      if (!auth.isCurrentUserAnonymous && reauth == null) return;
-      if (!mounted) return;
-      final result = await deletion.retryPendingIdentityCleanup(reauth: reauth);
-      if (!mounted) return;
+      final result = await _runRetry(deletion);
+      if (!mounted || result == null) return;
       if (result.isFailure) {
         OraclySnackBar.show(
           context,
@@ -53,29 +52,46 @@ class _AccountDeletionPendingScreenState
         );
         return;
       }
-      // Gate + anonymous session already settled in _finishAfterIdentityDeleted.
-      PrivacyDataRefresh.afterAccountSwitch(ref);
-      if (!mounted) return;
-      final onboardingDone = ref.read(localStorageProvider).getBool(
-            LocalOnboardingRepository.completedKey,
-          ) ??
-          false;
-      final next = onboardingDone
-          ? const OraclyAppShell()
-          : const OnboardingScreen();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => next),
-      );
-      // Resume queued deep links only after owner-bound destination is live.
-      ShareLinkOpener.openPending();
-      OraclyNotificationTapRouter.openPending(context);
+      await _enterHealthyApp();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
+  Future<ApiResult<bool>?> _runRetry(AccountDeletionService deletion) async {
+    if (deletion.hasPendingAnonymousBootstrap) {
+      return deletion.retryPendingIdentityCleanup();
+    }
+    final auth = ref.read(authServiceProvider);
+    final AccountReauthCredentials? reauth = auth.isCurrentUserAnonymous
+        ? null
+        : await AccountDeletionReauthPrompt.collect(context, auth);
+    if (!auth.isCurrentUserAnonymous && reauth == null) return null;
+    return deletion.retryPendingIdentityCleanup(reauth: reauth);
+  }
+
+  Future<void> _enterHealthyApp() async {
+    PrivacyDataRefresh.afterAccountSwitch(ref);
+    final container = ProviderScope.containerOf(context, listen: false);
+    await AccountDeletionOwnerBootstrap.installReadingPushIfClear(container);
+    if (!mounted) return;
+    final onboardingDone = ref.read(localStorageProvider).getBool(
+          LocalOnboardingRepository.completedKey,
+        ) ??
+        false;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            onboardingDone ? const OraclyAppShell() : const OnboardingScreen(),
+      ),
+    );
+    ShareLinkOpener.openPending();
+    OraclyNotificationTapRouter.openPending(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final finalizing = AccountDeletionPendingState.isFinalizing;
     return OraclyScaffold(
       child: SafeArea(
         child: Padding(
@@ -84,7 +100,9 @@ class _AccountDeletionPendingScreenState
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                PrivacyControlCopy.deletePendingTitle,
+                finalizing
+                    ? PrivacyControlCopy.deleteFinalizingTitle
+                    : PrivacyControlCopy.deletePendingTitle,
                 textAlign: TextAlign.center,
                 style: ReadingTypography.sectionLabel(
                   color: OraclyChrome.goldLight,
@@ -92,7 +110,9 @@ class _AccountDeletionPendingScreenState
               ),
               const SizedBox(height: 16),
               Text(
-                PrivacyControlCopy.deletePendingBody,
+                finalizing
+                    ? PrivacyControlCopy.deleteFinalizingBody
+                    : PrivacyControlCopy.deletePendingBody,
                 textAlign: TextAlign.center,
                 style: ReadingTypography.body(
                   color: OraclyChrome.cream.withValues(alpha: 0.86),
@@ -100,7 +120,9 @@ class _AccountDeletionPendingScreenState
               ),
               const SizedBox(height: 28),
               OraclyGoldButton(
-                label: PrivacyControlCopy.deletePendingRetry,
+                label: finalizing
+                    ? PrivacyControlCopy.deleteFinalizingRetry
+                    : PrivacyControlCopy.deletePendingRetry,
                 onPressed: _busy ? null : _retry,
                 expanded: true,
               ),

@@ -15,6 +15,7 @@ import '../core/auth/anonymous_auth_bootstrap.dart';
 import '../core/auth/firebase/firebase_app_check_bootstrap.dart';
 import '../core/auth/firebase/firebase_auth_bootstrap.dart';
 import '../core/auth/presentation/account_deletion_pending_screen.dart';
+import '../core/auth/presentation/secure_startup_recovery_screen.dart';
 import '../core/config/app_config.dart';
 import '../core/data/datasources/local_storage.dart';
 import '../core/l10n/l10n.dart';
@@ -52,6 +53,11 @@ class OraclyApp extends ConsumerWidget {
       ],
       onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
       onUnknownRoute: (_) {
+        if (AccountDeletionPendingState.isStorageUnavailable) {
+          return OraclyPageTransitions.fade(
+            page: const SecureStartupRecoveryScreen(),
+          );
+        }
         if (AccountDeletionPendingState.blocksDeepLinks) {
           return OraclyPageTransitions.fade(
             page: const AccountDeletionPendingScreen(),
@@ -95,8 +101,11 @@ class OraclyApp extends ConsumerWidget {
   }
 }
 
-/// Bootstraps [LocalStorage] and [AppConfig] before the widget tree mounts.
-/// Never blocks first paint on network auth — anonymous ensure runs in parallel.
+/// Alternate bootstrap helper — not used by production [main].
+///
+/// Reachable only from startup performance source tests / tooling.
+/// Obeys the same deletion gate before any anonymous owner bootstrap.
+@Deprecated('Production uses main() + SplashScreen; keep gate-aware.')
 Future<ProviderContainer> bootstrapProviders() async {
   await AppConfig.initialize();
   await FirebaseAuthBootstrap.tryInitialize();
@@ -107,8 +116,11 @@ Future<ProviderContainer> bootstrapProviders() async {
       localStorageProvider.overrideWithValue(storage),
     ],
   );
-  unawaited(
-    AnonymousAuthBootstrap.ensure(container.read(authServiceProvider)),
-  );
+  await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+  if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
+    unawaited(
+      AnonymousAuthBootstrap.ensure(container.read(authServiceProvider)),
+    );
+  }
   return container;
 }

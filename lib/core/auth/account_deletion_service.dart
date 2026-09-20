@@ -6,12 +6,11 @@ import '../network/api_result.dart';
 import '../network/network_exception.dart';
 import '../notifications/push_token_cleanup.dart';
 import '../storage/secure_storage.dart';
+import 'account_deletion_finalizer.dart';
 import 'account_deletion_pending_state.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
 import 'models/auth_credentials.dart';
-import 'user_local_data_isolation.dart';
-import 'user_local_data_wipe.dart';
 
 class AccountDeletionService {
   AccountDeletionService({
@@ -28,22 +27,22 @@ class AccountDeletionService {
 
   static const pendingIdentityCleanupKey =
       'account_deletion_pending_identity_cleanup';
+  static const pendingAnonymousBootstrapKey =
+      AccountDeletionFinalizer.anonymousBootstrapKey;
 
   bool get hasPendingIdentityCleanup =>
       _storage.getBool(pendingIdentityCleanupKey) ?? false;
+  bool get hasPendingAnonymousBootstrap =>
+      _storage.getBool(pendingAnonymousBootstrapKey) ?? false;
+  bool get hasPendingFinalization =>
+      hasPendingIdentityCleanup || hasPendingAnonymousBootstrap;
 
-  /// Linked users require [reauth]. On reauth cancel/fail: zero destructive
-  /// work. After server deletion succeeds, any unproven identity deletion
-  /// enters pending cleanup (not only `requires-recent-login`).
   Future<ApiResult<bool>> deleteAccountAndWipeLocalData({
     AccountReauthCredentials? reauth,
   }) async {
     if (!_auth.hasCurrentIdentity) {
-      return ApiFailure(
-        NetworkException.unauthorized(AuthCopy.noCurrentUser),
-      );
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.noCurrentUser));
     }
-
     if (!_auth.isCurrentUserAnonymous) {
       if (reauth == null) {
         return ApiFailure(
@@ -55,7 +54,6 @@ class AccountDeletionService {
         return ApiFailure(reauthResult.errorOrNull!);
       }
     }
-
     final serverAccepted = await deleteServerData();
     if (!serverAccepted) {
       return ApiFailure(
@@ -63,74 +61,60 @@ class AccountDeletionService {
       );
     }
     await PushTokenCleanup.deleteLocalToken();
-
     final remote = await _auth.deleteAccount();
     if (remote.isFailure) {
       return _afterIdentityDeleteFailure(remote.errorOrNull!);
     }
-
-    await _finishAfterIdentityDeleted();
-    return const ApiSuccess(true);
+    return _finish();
   }
 
-  /// [pendingIdentityCleanup] means server deletion was already accepted.
-  /// Retry: optional reauth → prove identity gone → local wipe only.
-  /// No second authenticated server deletion (token may already be cleared).
   Future<ApiResult<bool>> retryPendingIdentityCleanup({
     AccountReauthCredentials? reauth,
   }) async {
+    if (hasPendingAnonymousBootstrap) {
+      return AccountDeletionFinalizer.completeAnonymousBootstrap(
+        auth: _auth,
+        storage: _storage,
+        identityCleanupKey: pendingIdentityCleanupKey,
+      );
+    }
     if (!hasPendingIdentityCleanup) return const ApiSuccess(true);
-
     if (!_auth.isCurrentUserAnonymous && reauth != null) {
       final reauthResult = await _auth.reauthenticate(reauth);
       if (reauthResult.isFailure) {
         return ApiFailure(reauthResult.errorOrNull!);
       }
     }
-
-    if (!_auth.hasCurrentIdentity) {
-      await _finishAfterIdentityDeleted();
-      return const ApiSuccess(true);
-    }
-
+    if (!_auth.hasCurrentIdentity) return _finish();
     final stillPresent = await _auth.deleteAccount();
     if (stillPresent.isFailure) {
       final error = stillPresent.errorOrNull!;
-      if (!_auth.hasCurrentIdentity) {
-        await _finishAfterIdentityDeleted();
-        return const ApiSuccess(true);
-      }
-      await _markPending();
+      if (!_auth.hasCurrentIdentity) return _finish();
+      await _markIdentityPending();
       return ApiFailure(error);
     }
-
-    await _finishAfterIdentityDeleted();
-    return const ApiSuccess(true);
+    return _finish();
   }
 
   Future<ApiResult<bool>> _afterIdentityDeleteFailure(
     NetworkException error,
   ) async {
-    // Identity already gone — finish wipe rather than looping forever.
-    if (!_auth.hasCurrentIdentity) {
-      await _finishAfterIdentityDeleted();
-      return const ApiSuccess(true);
-    }
-    await _markPending();
+    if (!_auth.hasCurrentIdentity) return _finish();
+    await _markIdentityPending();
     return ApiFailure(error);
   }
 
-  Future<void> _markPending() async {
-    await _storage.setBool(pendingIdentityCleanupKey, true);
-    AccountDeletionPendingState.markBlocked();
-  }
+  Future<ApiResult<bool>> _finish() =>
+      AccountDeletionFinalizer.finishAfterIdentityDeleted(
+        auth: _auth,
+        storage: _storage,
+        secureStorage: _secureStorage,
+        identityCleanupKey: pendingIdentityCleanupKey,
+      );
 
-  Future<void> _finishAfterIdentityDeleted() async {
-    await UserLocalDataWipe.run(_storage, secureStorage: _secureStorage);
-    await _storage.remove(UserLocalDataIsolation.ownerKey);
-    await _storage.remove(pendingIdentityCleanupKey);
-    AccountDeletionPendingState.markClear();
-    UserLocalDataIsolation.accountSwitchEpoch.value++;
-    await _auth.ensureAnonymousSession();
+  Future<void> _markIdentityPending() async {
+    await _storage.setBool(pendingIdentityCleanupKey, true);
+    await _storage.remove(pendingAnonymousBootstrapKey);
+    AccountDeletionPendingState.markBlocked();
   }
 }
