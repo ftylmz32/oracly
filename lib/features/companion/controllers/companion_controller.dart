@@ -18,6 +18,7 @@ import '../models/reflection_context.dart';
 import '../services/companion_ephemeral_session.dart';
 import '../services/companion_experience_service.dart';
 import '../services/companion_insight_classify.dart';
+import '../services/companion_session_bootstrap.dart';
 import '../services/first_reading_or_deepen.dart';
 import '../services/or_chat_handoff.dart';
 import '../services/or_operation_id.dart';
@@ -80,17 +81,53 @@ class CompanionController extends ChangeNotifier {
   }
 
   /// Starts a fresh OR session without feature handoff context.
+  ///
+  /// Overwrites the durable [CompanionSessionBootstrap.sessionId] thread so a
+  /// later cold start cannot resurrect the previous chat.
   Future<void> startFreshConversation() async {
     _pendingHandoff = null;
     _readingContext = null;
     _sendGeneration++;
+    final now = DateTime.now();
+    final fresh = Conversation(
+      id: CompanionSessionBootstrap.sessionId,
+      title: 'OR Companion',
+      topic: ConversationTopic.general,
+      messages: [
+        AIMessage(
+          id: 'welcome_${now.millisecondsSinceEpoch}',
+          role: AIMessageRole.assistant,
+          content: CompanionCopy.welcomeLine(),
+          createdAt: now,
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    );
+    final keptContext = _state.context ?? const ReflectionContext();
     _state = CompanionState(
       phase: CompanionPhase.welcome,
       linkStatus: CompanionLinkStatus.online,
-      conversation: CompanionEphemeralSession.welcome(),
-      context: const ReflectionContext(),
+      conversation: fresh,
+      context: ReflectionContext(
+        userName: keptContext.userName,
+        savedMemories: keptContext.savedMemories,
+        recentReflectionTexts: keptContext.recentReflectionTexts,
+        recurringThemes: keptContext.recurringThemes,
+        readingCount: keptContext.readingCount,
+        dreamCount: keptContext.dreamCount,
+        hasBirthChart: keptContext.hasBirthChart,
+        ritualDaysCount: keptContext.ritualDaysCount,
+        unfinishedJournalHint: keptContext.unfinishedJournalHint,
+        proactiveAcknowledgment: keptContext.proactiveAcknowledgment,
+      ),
     );
     _safeNotify();
+    try {
+      await _service.persistConversation(fresh);
+    } catch (_) {
+      // UI already shows the fresh welcome; persist retry surfaces on send.
+    }
   }
 
   /// Drops active feature reading context; keeps the thread.
@@ -445,6 +482,14 @@ class CompanionController extends ChangeNotifier {
   @visibleForTesting
   void invalidateSendForTest() => _sendGeneration++;
 
+  @visibleForTesting
+  void markOfflineForTest() {
+    _state = _state.copyWith(
+      linkStatus: CompanionLinkStatus.offline,
+      lastFailureKind: AiFailureKind.network,
+    );
+  }
+
   Future<void> retryLast() async {
     if (_disposed || _state.isBusy) return;
     if (_state.lastFailureKind == AiFailureKind.localPersistence &&
@@ -520,9 +565,6 @@ class CompanionController extends ChangeNotifier {
 
   /// Soft reconnect with no user text — does not invent an assistant message.
   Future<void> _reconnectWithoutMessage() async {
-    final wasNetwork =
-        _state.lastFailureKind == AiFailureKind.network ||
-        _state.linkStatus == CompanionLinkStatus.offline;
     _networkRetry = true;
     _state = _state.copyWith(
       linkStatus: CompanionLinkStatus.reconnecting,
@@ -534,11 +576,12 @@ class CompanionController extends ChangeNotifier {
         await initialize();
         return;
       }
-      // Honest: without a live probe, stay offline if the last failure was network.
+      // Clear the offline banner so the user can send again. The next send is
+      // the real network probe — do not force offline without a new failure.
       _state = _state.copyWith(
-        linkStatus: wasNetwork
-            ? CompanionLinkStatus.offline
-            : CompanionLinkStatus.online,
+        linkStatus: CompanionLinkStatus.online,
+        clearFailureKind: true,
+        lastFailedText: null,
       );
     } finally {
       _networkRetry = false;

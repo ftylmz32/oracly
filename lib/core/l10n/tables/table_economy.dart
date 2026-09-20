@@ -20,9 +20,9 @@ const kL10nEconomy = <String, L10nTriple>{
     'Если хочешь — тихое подношение на сегодня',
   ),
   'gems.shop_honesty': L10nTriple(
-    'Satın alma paketi yok. Bakiye bu cihazda tutulur. Premium mücevher vermez.',
-    'There is no purchase pack. Balance is kept on this device. Premium does not grant gems.',
-    'Пакетов покупки нет. Баланс хранится на этом устройстве. Премиум кристаллы не даёт.',
+    'Satın alma paketi yok. Bakiye sunucu hesabındadır. Premium mücevher vermez.',
+    'There is no purchase pack. Balance is kept on your account server-side. Premium does not grant gems.',
+    'Пакетов покупки нет. Баланс хранится на сервере аккаунта. Премиум кристаллы не даёт.',
   ),
   'gems.unit': L10nTriple('Mücevher', 'Gem', 'Кристалл'),
   'gems.what_title': L10nTriple(

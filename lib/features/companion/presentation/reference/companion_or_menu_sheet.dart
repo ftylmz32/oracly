@@ -15,6 +15,7 @@ import '../../models/or_chat_output_mode.dart';
 import '../../providers/companion_providers.dart';
 import '../../../premium/providers/premium_providers.dart';
 import 'companion_or_menu_row.dart';
+import 'companion_reference_actions.dart';
 
 Future<void> showCompanionOrMenu(
   BuildContext context, {
@@ -71,6 +72,20 @@ Future<void> showCompanionOrMenu(
                             await controller.startFreshConversation();
                           },
                         ),
+                        if ((controller.state.conversation?.messages
+                                    .any((m) => m.isUser) ??
+                                false))
+                          CompanionOrMenuRow(
+                            label: CompanionCopy.saveToMemory,
+                            icon: Icons.bookmark_add_outlined,
+                            onTap: () async {
+                              Navigator.pop(sheetContext);
+                              await saveLastCompanionMemory(
+                                context: context,
+                                controller: controller,
+                              );
+                            },
+                          ),
                         CompanionOrMenuRow(
                           label: CompanionCopy.outputConversation,
                           icon: Icons.record_voice_over_outlined,

@@ -83,6 +83,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   bool _exiting = false;
   bool _journalPersisted = false;
   bool _journalPersistFailed = false;
+  Future<void>? _journalPersistInFlight;
   int _loadToken = 0;
   String? _savedReadingId;
   int _versionReloadToken = 0;
@@ -284,6 +285,29 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   /// otherwise escape into the global error zone while the reading still
   /// looks saved to the user.
   Future<void> _persistToJournal({bool offerNote = false}) async {
+    if (_journalPersisted) {
+      if (offerNote) await _offerPersonalNote();
+      return;
+    }
+    // Coalesce concurrent auto-save + manual Save taps before the flag flips.
+    final inFlight = _journalPersistInFlight;
+    if (inFlight != null) {
+      await inFlight;
+      if (offerNote && _journalPersisted) await _offerPersonalNote();
+      return;
+    }
+    final job = _persistToJournalBody(offerNote: offerNote);
+    _journalPersistInFlight = job;
+    try {
+      await job;
+    } finally {
+      if (identical(_journalPersistInFlight, job)) {
+        _journalPersistInFlight = null;
+      }
+    }
+  }
+
+  Future<void> _persistToJournalBody({bool offerNote = false}) async {
     if (_journalPersisted) {
       if (offerNote) await _offerPersonalNote();
       return;
