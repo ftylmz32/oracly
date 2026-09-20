@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
 import 'package:oracly_new/core/auth/presentation/account_deletion_pending_screen.dart';
+import 'package:oracly_new/core/auth/presentation/account_integrity_recovery_screen.dart';
 import 'package:oracly_new/core/navigation/oracly_route_generator.dart';
 import 'package:oracly_new/core/navigation/oracly_routes.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_kind.dart';
@@ -66,6 +67,23 @@ void main() {
         expect(built, isA<AccountDeletionPendingScreen>());
       });
     }
+  });
+
+  test(
+      'integrityRecovery → integrity screen for a named route — never the '
+      'pending-deletion claim screen', () {
+    AccountDeletionPendingState.markIntegrityRecovery();
+    final route = OraclyRouteGenerator.onGenerateRoute(
+      const RouteSettings(name: OraclyRoutes.home),
+    );
+    expect(route, isA<PageRouteBuilder<dynamic>>());
+    final built = (route! as PageRouteBuilder<dynamic>).pageBuilder(
+      _UnusedContext(),
+      const AlwaysStoppedAnimation<double>(1),
+      const AlwaysStoppedAnimation<double>(1),
+    );
+    expect(built, isA<AccountIntegrityRecoveryScreen>());
+    expect(built, isNot(isA<AccountDeletionPendingScreen>()));
   });
 
   test('clear gate still generates Home shell', () {
@@ -131,10 +149,13 @@ void main() {
     );
   });
 
-  test('finalizing and storageUnavailable also block deep links', () {
+  test(
+      'finalizing, storageUnavailable, integrityRecovery, and unresolved '
+      'also block deep links', () {
     for (final phase in [
       AccountDeletionGatePhase.finalizing,
       AccountDeletionGatePhase.storageUnavailable,
+      AccountDeletionGatePhase.integrityRecovery,
       AccountDeletionGatePhase.unresolved,
     ]) {
       AccountDeletionPendingState.phase.value = phase;

@@ -26,10 +26,21 @@ abstract final class AccountDeletionMarkers {
     return MarkerRead.corrupt;
   }
 
-  /// True for both a real `true` and a corrupt (wrong-type) value — a
-  /// marker this can't prove is safe must never be treated as clear.
+  /// True for both a real `true` and a corrupt (wrong-type) value — ROUTING
+  /// safety only: a marker this can't prove is safe must never be treated
+  /// as clear for the purpose of opening Home/gems/push/deep links. This
+  /// must NEVER be used to authorize destructive work (server delete,
+  /// identity delete, local wipe, replacement-anonymous-identity creation)
+  /// — see [isExactlyTrue].
   static bool isPendingOrCorrupt(LocalStorage storage, String key) {
     final result = read(storage, key);
     return result == MarkerRead.isTrue || result == MarkerRead.corrupt;
   }
+
+  /// Exact persisted `true` — the ONLY marker state that may authorize
+  /// destructive account-deletion work. A corrupt (wrong-type) value is
+  /// UNKNOWN state, not evidence a deletion was ever accepted, requested,
+  /// or that any identity/local data should be touched.
+  static bool isExactlyTrue(LocalStorage storage, String key) =>
+      read(storage, key) == MarkerRead.isTrue;
 }

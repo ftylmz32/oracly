@@ -256,4 +256,24 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Retry',
     'Повторить',
   ),
+  'privacy.control.integrity.recovery.title': L10nTriple(
+    'Hesap güvenlik durumu doğrulanamadı',
+    'Account safety state could not be verified',
+    'Не удалось проверить безопасность аккаунта',
+  ),
+  'privacy.control.integrity.recovery.body': L10nTriple(
+    'ORACLY şu anda hesabınızın güvenli durumunu doğrulayamıyor. Verileriniz silinmedi ve hesabınız kaldırılmadı.',
+    'ORACLY cannot verify your account\'s safety state right now. Your data has not been deleted and your account has not been removed.',
+    'ORACLY сейчас не может подтвердить безопасное состояние аккаунта. Ваши данные не удалены, а аккаунт не был удалён.',
+  ),
+  'privacy.control.integrity.recovery.retry': L10nTriple(
+    'Yeniden dene',
+    'Retry',
+    'Повторить',
+  ),
+  'privacy.control.integrity.recovery.continue_deletion': L10nTriple(
+    'Hesap silme işlemine devam et',
+    'Continue account deletion',
+    'Продолжить удаление аккаунта',
+  ),
 };

@@ -15,6 +15,7 @@ import '../core/auth/anonymous_auth_bootstrap.dart';
 import '../core/auth/firebase/firebase_app_check_bootstrap.dart';
 import '../core/auth/firebase/firebase_auth_bootstrap.dart';
 import '../core/auth/presentation/account_deletion_pending_screen.dart';
+import '../core/auth/presentation/account_integrity_recovery_screen.dart';
 import '../core/auth/presentation/secure_startup_recovery_screen.dart';
 import '../core/config/app_config.dart';
 import '../core/data/datasources/local_storage.dart';
@@ -56,6 +57,11 @@ class OraclyApp extends ConsumerWidget {
         if (AccountDeletionPendingState.isStorageUnavailable) {
           return OraclyPageTransitions.fade(
             page: const SecureStartupRecoveryScreen(),
+          );
+        }
+        if (AccountDeletionPendingState.isIntegrityRecovery) {
+          return OraclyPageTransitions.fade(
+            page: const AccountIntegrityRecoveryScreen(),
           );
         }
         if (AccountDeletionPendingState.blocksDeepLinks) {

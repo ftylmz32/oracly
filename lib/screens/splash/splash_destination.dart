@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/auth/account_deletion_pending_state.dart';
 import '../../core/auth/presentation/account_deletion_pending_screen.dart';
+import '../../core/auth/presentation/account_integrity_recovery_screen.dart';
 import '../../core/auth/presentation/secure_startup_recovery_screen.dart';
 import '../../core/data/datasources/local_storage.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -31,6 +32,8 @@ abstract final class SplashDestination {
     final Widget page = switch (AccountDeletionPendingState.phase.value) {
       AccountDeletionGatePhase.storageUnavailable =>
         const SecureStartupRecoveryScreen(),
+      AccountDeletionGatePhase.integrityRecovery =>
+        const AccountIntegrityRecoveryScreen(),
       AccountDeletionGatePhase.blocked ||
       AccountDeletionGatePhase.finalizing =>
         const AccountDeletionPendingScreen(),

@@ -31,20 +31,35 @@ class AccountDeletionService {
   static const pendingAnonymousBootstrapKey =
       AccountDeletionFinalizer.anonymousBootstrapKey;
 
-  /// A corrupt (wrong-type) marker counts as pending — never as "absent".
-  /// See [AccountDeletionMarkers].
-  bool get hasPendingIdentityCleanup =>
-      AccountDeletionMarkers.isPendingOrCorrupt(
+  /// EXACT persisted `true` only — never a corrupt (wrong-type) value. A
+  /// corrupt marker is unknown state, not evidence a deletion was ever
+  /// requested or accepted, and must never authorize destructive work
+  /// (server delete, identity delete, local wipe, anonymous-identity
+  /// creation). See [AccountDeletionMarkers.isExactlyTrue].
+  bool get hasPendingIdentityCleanup => AccountDeletionMarkers.isExactlyTrue(
         _storage,
         pendingIdentityCleanupKey,
       );
   bool get hasPendingAnonymousBootstrap =>
-      AccountDeletionMarkers.isPendingOrCorrupt(
+      AccountDeletionMarkers.isExactlyTrue(
         _storage,
         pendingAnonymousBootstrapKey,
       );
   bool get hasPendingFinalization =>
       hasPendingIdentityCleanup || hasPendingAnonymousBootstrap;
+
+  /// True when either marker is present but of the wrong type — unknown
+  /// state that routing must fail closed on, but that must never by itself
+  /// authorize any destructive account action. Routing-safety code should
+  /// prefer [AccountDeletionPendingState] (which already fails closed to
+  /// `integrityRecovery`); this getter exists so destructive-authority code
+  /// (e.g. [retryPendingIdentityCleanup]) can refuse in depth even if
+  /// invoked directly, bypassing the gate.
+  bool get hasCorruptDeletionMarker =>
+      AccountDeletionMarkers.read(_storage, pendingIdentityCleanupKey) ==
+          MarkerRead.corrupt ||
+      AccountDeletionMarkers.read(_storage, pendingAnonymousBootstrapKey) ==
+          MarkerRead.corrupt;
 
   Future<ApiResult<bool>> deleteAccountAndWipeLocalData({
     AccountReauthCredentials? reauth,
@@ -80,6 +95,17 @@ class AccountDeletionService {
   Future<ApiResult<bool>> retryPendingIdentityCleanup({
     AccountReauthCredentials? reauth,
   }) async {
+    // Defense in depth: a corrupt marker must never authorize destructive
+    // work even if this is called directly, bypassing the startup gate
+    // (which already refuses to invoke this for a corrupt marker).
+    if (hasCorruptDeletionMarker) {
+      return ApiFailure(
+        NetworkException(
+          message: 'deletion_state_corrupt',
+          kind: NetworkErrorKind.unauthorized,
+        ),
+      );
+    }
     if (hasPendingAnonymousBootstrap) {
       return AccountDeletionFinalizer.completeAnonymousBootstrap(
         auth: _auth,

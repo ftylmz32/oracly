@@ -23,6 +23,14 @@ enum AccountDeletionGatePhase {
   blocked,
   storageUnavailable,
   finalizing,
+  /// A marker is present but of the WRONG TYPE (corrupt). This is UNKNOWN
+  /// state — not evidence a deletion was ever requested or accepted. It
+  /// blocks the same owner-bound surface as [blocked]/[finalizing] but must
+  /// NEVER trigger [AccountDeletionService.retryPendingIdentityCleanup],
+  /// identity deletion, local wipe, or anonymous-identity creation. Distinct
+  /// from [blocked]/[finalizing], which mean a REAL deletion lifecycle is
+  /// known to exist.
+  integrityRecovery,
 }
 
 enum AccountDeletionGateResolveStatus {
@@ -30,6 +38,7 @@ enum AccountDeletionGateResolveStatus {
   blocked,
   finalizing,
   storageUnavailable,
+  integrityRecovery,
 }
 
 abstract final class AccountDeletionPendingState {
@@ -51,6 +60,9 @@ abstract final class AccountDeletionPendingState {
 
   static bool get isFinalizing =>
       phase.value == AccountDeletionGatePhase.finalizing;
+
+  static bool get isIntegrityRecovery =>
+      phase.value == AccountDeletionGatePhase.integrityRecovery;
 
   /// Owner-bound UI, gem hydrate, deep links, push, and premium warm.
   static bool get allowsOwnerBoundExperience => isClear;
@@ -84,24 +96,32 @@ abstract final class AccountDeletionPendingState {
   }
 
   /// THE real startup sequence: resolve durable storage, then — ONLY if
-  /// that resolution actually proved storage durable — attempt one
-  /// automatic finalization retry and re-derive the phase from its outcome.
+  /// that resolution actually proved storage durable AND the markers read
+  /// as trustworthy (not corrupt) — attempt one automatic finalization
+  /// retry and re-derive the phase from its outcome.
   ///
-  /// If resolution came back [AccountDeletionGateResolveStatus.storageUnavailable],
-  /// this returns immediately without touching [deletion] at all: no marker
-  /// read, no retry, no [applyFromMarkers] call. Re-reading the same two
-  /// markers through the same untrustworthy (empty ephemeral) storage would
-  /// see no keys and silently derive "clear", overwriting the correct
-  /// fail-closed result. [main] and any other real startup entry point call
-  /// this one function instead of reimplementing the sequence inline, so
-  /// there is exactly one place this guard can be forgotten.
+  /// If resolution came back [AccountDeletionGateResolveStatus.storageUnavailable]
+  /// or [AccountDeletionGateResolveStatus.integrityRecovery], this returns
+  /// immediately without touching [deletion] at all: no marker read, no
+  /// retry, no [applyFromMarkers] call. Re-reading the same two markers
+  /// through the same untrustworthy (empty ephemeral, or corrupt) storage
+  /// would either silently derive "clear" (overwriting the correct
+  /// fail-closed result) or — worse — treat a corrupt marker as genuine
+  /// pending-deletion evidence and trigger destructive work it was never
+  /// authorized to trigger. [main] and any other real startup entry point
+  /// call this one function instead of reimplementing the sequence inline,
+  /// so there is exactly one place this guard can be forgotten.
   static Future<void> resolveAndReconcile(
     LocalStorage storage,
     AccountDeletionService deletion,
   ) async {
-    await resolveFromLocalStorage(storage);
-    if (isStorageUnavailable) return;
+    final status = await resolveFromLocalStorage(storage);
+    if (status == AccountDeletionGateResolveStatus.storageUnavailable) return;
+    if (status == AccountDeletionGateResolveStatus.integrityRecovery) return;
     try {
+      // hasPendingFinalization is EXACT-true-only (never corrupt) — see
+      // AccountDeletionService — so this can never retry a corrupt marker
+      // even if reached with one somehow still present.
       if (deletion.hasPendingFinalization) {
         await deletion.retryPendingIdentityCleanup();
       }
@@ -123,22 +143,32 @@ abstract final class AccountDeletionPendingState {
       }
     }
 
-    // A corrupt (wrong-type) marker counts as pending — never as "absent".
-    // See AccountDeletionMarkers.
-    final anonPending = AccountDeletionMarkers.isPendingOrCorrupt(
+    final anonRead = AccountDeletionMarkers.read(
       storage,
       AccountDeletionService.pendingAnonymousBootstrapKey,
     );
-    if (anonPending) {
+    final identityRead = AccountDeletionMarkers.read(
+      storage,
+      AccountDeletionService.pendingIdentityCleanupKey,
+    );
+
+    // A corrupt (wrong-type) marker is UNKNOWN state — never proof a real
+    // deletion lifecycle exists. Fail closed to a DISTINCT phase from
+    // blocked/finalizing so it can never trigger the automatic retry those
+    // phases allow. Checked before either "isTrue" branch so a corrupt
+    // marker on ONE key can never be masked by a genuinely-true value on
+    // the other.
+    if (anonRead == MarkerRead.corrupt || identityRead == MarkerRead.corrupt) {
+      phase.value = AccountDeletionGatePhase.integrityRecovery;
+      return AccountDeletionGateResolveStatus.integrityRecovery;
+    }
+
+    if (anonRead == MarkerRead.isTrue) {
       phase.value = AccountDeletionGatePhase.finalizing;
       return AccountDeletionGateResolveStatus.finalizing;
     }
 
-    final identityPending = AccountDeletionMarkers.isPendingOrCorrupt(
-      storage,
-      AccountDeletionService.pendingIdentityCleanupKey,
-    );
-    if (identityPending) {
+    if (identityRead == MarkerRead.isTrue) {
       phase.value = AccountDeletionGatePhase.blocked;
       return AccountDeletionGateResolveStatus.blocked;
     }
@@ -172,6 +202,10 @@ abstract final class AccountDeletionPendingState {
 
   static void markStorageUnavailable() {
     phase.value = AccountDeletionGatePhase.storageUnavailable;
+  }
+
+  static void markIntegrityRecovery() {
+    phase.value = AccountDeletionGatePhase.integrityRecovery;
   }
 
   static void markClear() {

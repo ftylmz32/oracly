@@ -1,8 +1,6 @@
 /// Splash entry: resolve deletion gate fail-closed, then owner-bound boot.
 library;
 
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,7 +27,6 @@ Future<void> splashEntryBootstrap({
     if (!isMounted()) return;
     if (completed != currentOnboarding) setOnboardingIfChanged(completed);
     if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
-      unawaited(splashDeferredBoot(ref));
       splashScheduleWarmup(containerOf());
     }
   } catch (_) {
@@ -39,7 +36,6 @@ Future<void> splashEntryBootstrap({
     }
     tryMountDestination();
     if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
-      unawaited(splashResilientBoot(ref));
       splashScheduleWarmup(containerOf());
     }
   }

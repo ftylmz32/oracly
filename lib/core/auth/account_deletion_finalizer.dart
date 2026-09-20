@@ -52,6 +52,16 @@ abstract final class AccountDeletionFinalizer {
       );
     }
 
+    // AuthService.ensureAnonymousSession reuses whatever current user
+    // already exists — it does not itself guarantee that user is anonymous.
+    // Positively prove the replacement identity before clearing the gate;
+    // an unexpectedly linked/non-anonymous current user must stay
+    // finalizing rather than have this silently declare success for an
+    // identity that was never actually re-bootstrapped as anonymous.
+    if (!auth.hasCurrentIdentity || !auth.isCurrentUserAnonymous) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+
     await storage.remove(anonymousBootstrapKey);
     await storage.remove(identityCleanupKey);
     AccountDeletionPendingState.markClear();

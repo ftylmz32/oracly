@@ -87,6 +87,14 @@ abstract final class PrivacyControlCopy {
       _t('privacy.control.storage.recovery.body');
   static String get storageRecoveryRetry =>
       _t('privacy.control.storage.recovery.retry');
+  static String get integrityRecoveryTitle =>
+      _t('privacy.control.integrity.recovery.title');
+  static String get integrityRecoveryBody =>
+      _t('privacy.control.integrity.recovery.body');
+  static String get integrityRecoveryRetry =>
+      _t('privacy.control.integrity.recovery.retry');
+  static String get integrityRecoveryContinueDeletion =>
+      _t('privacy.control.integrity.recovery.continue_deletion');
 
   static String reauthMethodLabel(AccountReauthMethod method) => switch (method) {
         AccountReauthMethod.google =>
