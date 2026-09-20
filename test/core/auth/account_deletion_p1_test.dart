@@ -170,6 +170,114 @@ void main() {
   );
 
   test(
+    'local wipe failure AFTER the identity is genuinely deleted stays '
+    'finalizing — residual ledger is never attached to a "clear" '
+    'anonymous session; retry after storage recovers completes cleanly '
+    'with no second destructive identity delete',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = _KeyFailingStorage(
+        prefs,
+        failingKeys: {MockUserRepository.readingLedgerIdsKey},
+      );
+      final failingSecure = InMemorySecureStorage();
+      final failingGateway = _DeletionGateway();
+      final failingSessions = InMemorySessionManager(
+        FirebaseIdTokenManager(failingGateway, fallback: _MemTokens()),
+      );
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: failingSessions,
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: failingSecure,
+        ),
+      );
+      final failingDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: failingStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async => true,
+      );
+
+      await failingAuth.signInAnonymously();
+      await failingStorage.setStringList('or_reading_history', const ['r1']);
+      final usersOnFailingStorage = MockUserRepository(failingStorage);
+      await usersOnFailingStorage.ensureReadingCompletionMigration(const []);
+      await usersOnFailingStorage.recordReadingCompletion('pre-deletion-r1');
+      expect((await usersOnFailingStorage.getProfile()).totalReadings, 1);
+
+      // Server delete succeeds, identity delete succeeds, local wipe
+      // starts, readingLedgerIdsKey's own removal fails.
+      final result = await failingDeletion.deleteAccountAndWipeLocalData();
+
+      expect(
+        result.isSuccess,
+        isFalse,
+        reason: 'the local wipe did not fully complete',
+      );
+      expect(failingGateway.deleteCalls, 1);
+      expect(
+        AccountDeletionPendingState.isFinalizing,
+        isTrue,
+        reason: 'a real deletion is known to exist — stay hidden from the '
+            'app, fail-closed, never clear or blocked',
+      );
+      expect(failingDeletion.hasPendingLocalWipe, isTrue);
+      expect(
+        failingDeletion.hasPendingIdentityCleanup,
+        isFalse,
+        reason: 'the identity really is gone — that concern is resolved; '
+            'a retry must never re-attempt deleteAccount on it',
+      );
+      expect(failingDeletion.hasPendingAnonymousBootstrap, isFalse);
+      expect(
+        failingStorage.getStringList(MockUserRepository.readingLedgerIdsKey),
+        isNotNull,
+        reason: 'the residual ledger must still be there — never silently '
+            'attached to a "clear" anonymous session',
+      );
+
+      // Restart: recreate storage/service state, make storage healthy,
+      // retry finalization.
+      final healthyStorage = LocalStorage(prefs);
+      final healthyDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: healthyStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async => true,
+      );
+
+      final retryResult = await healthyDeletion.retryPendingIdentityCleanup();
+
+      expect(retryResult.isSuccess, isTrue);
+      expect(
+        failingGateway.deleteCalls,
+        1,
+        reason: 'no second destructive delete of an already-deleted '
+            'identity',
+      );
+      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(
+        healthyStorage.getStringList(MockUserRepository.readingLedgerIdsKey),
+        isNull,
+      );
+      expect(
+        healthyStorage.getInt(MockUserRepository.legacyBaselineKey),
+        isNull,
+      );
+      final freshProfileAfterRetry =
+          await MockUserRepository(healthyStorage).getProfile();
+      expect(freshProfileAfterRetry.totalReadings, 0);
+      expect(healthyDeletion.hasPendingLocalWipe, isFalse);
+      expect(healthyDeletion.hasPendingAnonymousBootstrap, isFalse);
+      expect(healthyDeletion.hasPendingIdentityCleanup, isFalse);
+    },
+  );
+
+  test(
     'authenticated deletion success clears premium credentials and history',
     () async {
       await seedUserBound();
@@ -882,6 +990,25 @@ void main() {
       AuthCopy.noCurrentUser,
     );
   });
+}
+
+/// Throws when [remove] is called for any key in [failingKeys], then
+/// behaves normally for everything else — simulates a real local-wipe
+/// write failure at an EXACT key, independent of whether the identity
+/// deletion itself succeeded.
+class _KeyFailingStorage extends LocalStorage {
+  _KeyFailingStorage(SharedPreferences prefs, {required this.failingKeys})
+      : super(prefs);
+
+  final Set<String> failingKeys;
+
+  @override
+  Future<bool> remove(String key) async {
+    if (failingKeys.contains(key)) {
+      throw StateError('simulated remove failure for $key');
+    }
+    return super.remove(key);
+  }
 }
 
 class _DeletionGateway implements FirebaseAuthGateway {

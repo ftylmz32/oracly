@@ -17,13 +17,40 @@ abstract final class AccountDeletionFinalizer {
   static const anonymousBootstrapKey =
       'account_deletion_pending_anonymous_bootstrap';
 
+  /// Set when the Firebase identity IS confirmed deleted but the LOCAL
+  /// account-scoped wipe did not fully succeed. Distinct from
+  /// [AccountDeletionService.pendingIdentityCleanupKey] (which means the
+  /// Firebase identity itself still needs deleting) — conflating the two
+  /// would risk a retry re-attempting [AuthService.deleteAccount] on an
+  /// identity that is already gone. A retry while this is set must
+  /// re-attempt ONLY the local wipe.
+  static const localWipePendingKey = 'account_deletion_pending_local_wipe';
+
   static Future<ApiResult<bool>> finishAfterIdentityDeleted({
     required AuthService auth,
     required LocalStorage storage,
     required SecureStorage secureStorage,
     required String identityCleanupKey,
   }) async {
-    await UserLocalDataWipe.run(storage, secureStorage: secureStorage);
+    final wipeResult = await UserLocalDataWipe.run(
+      storage,
+      secureStorage: secureStorage,
+    );
+    if (!wipeResult.isComplete) {
+      // The identity is gone — that concern is genuinely resolved, so
+      // identityCleanupKey is cleared (a retry must never re-attempt
+      // deleteAccount on an already-deleted identity). But local
+      // account-scoped cleanup did not fully succeed, so the deleted
+      // owner's residue may still be on disk: stay finalizing, keep
+      // ownerKey exactly as it was (still sufficient to force another
+      // wipe attempt), and never proceed to bootstrap — let alone
+      // expose — a "clear" anonymous owner over that residue.
+      await storage.remove(identityCleanupKey);
+      await storage.setBool(localWipePendingKey, true);
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    await storage.remove(localWipePendingKey);
     await storage.remove(UserLocalDataIsolation.ownerKey);
     await storage.remove(identityCleanupKey);
     await storage.setBool(anonymousBootstrapKey, true);

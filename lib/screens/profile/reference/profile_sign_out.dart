@@ -35,6 +35,11 @@ Future<bool> profileSignOut({
   // into loading and can drop a post-refresh context-based snackbar.
   final messenger = ScaffoldMessenger.maybeOf(context);
 
+  // Firebase sign-out already succeeded above (that's this function's own
+  // precondition) — a still-incomplete LOCAL wipe never turns that into a
+  // reported sign-out failure; it only leaves the owner marker in place so
+  // the next distinct sign-in safely retries cleanup before being treated
+  // as isolated.
   await SignOutLocalCleanup.wipeDiskOnly(
     storage: ref.read(localStorageProvider),
     secureStorage: ref.read(secureStorageProvider),

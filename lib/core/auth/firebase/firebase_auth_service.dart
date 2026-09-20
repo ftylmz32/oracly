@@ -13,6 +13,7 @@ import '../models/auth_session.dart';
 import '../session_manager.dart';
 import '../token_manager.dart';
 import '../user_local_data_isolation.dart';
+import '../user_local_data_isolation_result.dart';
 import 'firebase_account_deletion.dart';
 import 'firebase_auth_errors.dart';
 import 'firebase_auth_gateway.dart';
@@ -196,13 +197,28 @@ class FirebaseAuthService implements AuthService {
       if (token == null || token.isEmpty || token.startsWith('mock_')) {
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
+      // Local ownership isolation must be PROVEN before this session is
+      // ever published. Publishing first and isolating after (the prior
+      // order) let the app observe a "successful" session for a new
+      // owner while a prior owner's account-scoped residue could still be
+      // sitting under it. Never let an isolation failure — of any kind —
+      // escape as an unhandled exception into the auth-state listener;
+      // it always resolves to an honest ApiFailure instead.
+      UserLocalDataIsolationResult? isolationResult;
+      try {
+        isolationResult = await _isolation?.onSignedIn(user.uid);
+      } catch (_) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
+      if (isolationResult != null && !isolationResult.success) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
       final session = FirebaseSessionMapper.fromUser(
         user: user,
         idToken: token,
         provider: provider,
       );
       await _sessions?.setSession(session);
-      await _isolation?.onSignedIn(user.uid);
       return ApiSuccess(session);
     } on AuthGatewayException catch (e) {
       return ApiFailure(FirebaseAuthErrors.map(e));

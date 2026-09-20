@@ -59,7 +59,9 @@ class _AccountDeletionPendingScreenState
   }
 
   Future<ApiResult<bool>?> _runRetry(AccountDeletionService deletion) async {
-    if (deletion.hasPendingAnonymousBootstrap) {
+    // Neither a pending local wipe nor a pending anonymous bootstrap needs
+    // reauth credentials — both are purely local/anonymous retries.
+    if (deletion.hasPendingLocalWipe || deletion.hasPendingAnonymousBootstrap) {
       return deletion.retryPendingIdentityCleanup();
     }
     final auth = ref.read(authServiceProvider);

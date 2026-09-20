@@ -6,6 +6,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../network/api_result.dart';
+import '../network/network_exception.dart';
+import 'auth_copy.dart';
 import 'auth_service.dart';
 import 'models/account_reauth_method.dart';
 import 'models/auth_credentials.dart';
@@ -48,8 +50,13 @@ class MockAuthService implements AuthService {
   }
 
   Future<ApiResult<AuthSession>> _finish(AuthSession session) async {
+    // Same ordering invariant as FirebaseAuthService: isolation must be
+    // proven before the session is published.
+    final isolationResult = await _isolation?.onSignedIn(session.userId);
+    if (isolationResult != null && !isolationResult.success) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
     await _sessions?.setSession(session);
-    await _isolation?.onSignedIn(session.userId);
     return ApiSuccess(session);
   }
 

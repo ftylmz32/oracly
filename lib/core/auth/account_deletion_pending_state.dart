@@ -127,6 +127,7 @@ abstract final class AccountDeletionPendingState {
       }
       applyFromMarkers(
         identityCleanupPending: deletion.hasPendingIdentityCleanup,
+        localWipePending: deletion.hasPendingLocalWipe,
         anonymousBootstrapPending: deletion.hasPendingAnonymousBootstrap,
       );
     } catch (_) {}
@@ -179,9 +180,15 @@ abstract final class AccountDeletionPendingState {
 
   static void applyFromMarkers({
     required bool identityCleanupPending,
+    required bool localWipePending,
     required bool anonymousBootstrapPending,
   }) {
-    if (anonymousBootstrapPending) {
+    // localWipePending means the identity is already gone and only local
+    // cleanup remains — the same "a real deletion is known to exist, keep
+    // it hidden from the app" state as anonymousBootstrapPending, never
+    // the "identity might still need destructive work" state blocked
+    // represents.
+    if (anonymousBootstrapPending || localWipePending) {
       phase.value = AccountDeletionGatePhase.finalizing;
       return;
     }

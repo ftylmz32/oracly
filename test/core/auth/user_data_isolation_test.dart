@@ -363,70 +363,165 @@ void main() {
     expect(ledgerAfterB, isNot(contains('owner-a-r1')));
   });
 
+  Future<void> runLedgerOwnerSwitchFailureScenario({
+    required String failingKey,
+    required String ownerA,
+    required String ownerB,
+  }) async {
+    final switchEpochBefore = UserLocalDataIsolation.accountSwitchEpoch.value;
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final failingStorage = _KeyFailingStorage(prefs, failingKeys: {failingKey});
+    final failingSecure = InMemorySecureStorage();
+    final failingIsolation = UserLocalDataIsolation(
+      failingStorage,
+      secureStorage: failingSecure,
+    );
+    final switchGateway = _SwitchGateway();
+    final switchSessions = InMemorySessionManager(_MemTokens());
+    final switchAuth = FirebaseAuthService(
+      gateway: switchGateway,
+      tokens: _MemTokens(),
+      sessions: switchSessions,
+      isolation: failingIsolation,
+    );
+
+    // Owner A signs in first (no switch needed yet) and builds a real,
+    // migrated ledger.
+    switchGateway.signInAs(ownerA);
+    final firstSignIn = await switchAuth.signInAnonymously();
+    expect(firstSignIn.isSuccess, isTrue);
+    final ownerASession = firstSignIn.dataOrNull;
+    expect(failingIsolation.localOwnerId, ownerA);
+    final usersA = MockUserRepository(failingStorage);
+    final historyA = MockHistoryRepository(failingStorage);
+    await usersA.ensureReadingCompletionMigration(const []);
+    await historyA.saveReading(
+      pdeTarot('$ownerA-r1', '$_ghost owner A reading', at: DateTime(2026, 8, 20)),
+    );
+    await usersA.recordReadingCompletion('$ownerA-r1');
+    expect((await usersA.getProfile()).totalReadings, 1);
+
+    // Attempt to switch to owner B through the REAL auth + isolation
+    // path — the failing key's own removal throws.
+    switchGateway.signInAs(ownerB);
+    final switchAttempt = await switchAuth.signInAnonymously();
+
+    expect(
+      switchAttempt.isFailure,
+      isTrue,
+      reason: 'a session for owner B must never be reported successful '
+          'while local isolation has not actually completed',
+    );
+    expect(
+      switchSessions.currentSession?.userId,
+      ownerASession?.userId,
+      reason: 'the committed session must still be owner A\'s — no '
+          'successful owner-B application session may be committed',
+    );
+    expect(switchSessions.currentSession?.userId, isNot(ownerB));
+    expect(
+      failingIsolation.localOwnerId,
+      ownerA,
+      reason: 'ownerKey must NOT be re-labelled to B merely because the '
+          'wipe attempted on B\'s behalf was incomplete',
+    );
+    expect(
+      failingStorage.peek(failingKey),
+      isNotNull,
+      reason: 'the deliberately failing key itself may remain',
+    );
+    expect(await historyA.getReadings(), isEmpty,
+        reason: 'independent later cleanup still ran');
+    expect(
+      UserLocalDataIsolation.accountSwitchEpoch.value,
+      switchEpochBefore,
+      reason: 'an incomplete switch must not announce a completed one',
+    );
+
+    // Make storage healthy and retry.
+    final healthyStorage = LocalStorage(prefs);
+    final healthyIsolation = UserLocalDataIsolation(
+      healthyStorage,
+      secureStorage: failingSecure,
+    );
+    final retryResult = await healthyIsolation.onSignedIn(ownerB);
+
+    expect(retryResult.success, isTrue);
+    expect(healthyIsolation.localOwnerId, ownerB);
+    expect(healthyStorage.getStringList(failingKey), isNull);
+    expect(healthyStorage.getInt(failingKey), isNull);
+    final usersB = MockUserRepository(healthyStorage);
+    final freshProfile = await usersB.getProfile();
+    expect(freshProfile.totalReadings, 0);
+    expect(
+      healthyStorage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      isNot(contains('$ownerA-r1')),
+    );
+  }
+
   test(
-      'an unrelated profile-key removal failure during an account switch '
-      'must not leave owner A\'s reading ledger/baseline behind for '
-      'owner B — cleanup continues past the one failing key', () async {
+      'the reading-count LEDGER key\'s own removal failure blocks owner '
+      'commit and the successful application session; retry after '
+      'storage recovers completes the switch cleanly', () async {
+    await runLedgerOwnerSwitchFailureScenario(
+      failingKey: MockUserRepository.readingLedgerIdsKey,
+      ownerA: 'owner-a-ledger-fail',
+      ownerB: 'owner-b-ledger-fail',
+    );
+  });
+
+  test(
+      'the legacy BASELINE key\'s own removal failure blocks owner commit '
+      'and the successful application session; retry after storage '
+      'recovers completes the switch cleanly', () async {
+    await runLedgerOwnerSwitchFailureScenario(
+      failingKey: MockUserRepository.legacyBaselineKey,
+      ownerA: 'owner-a-baseline-fail',
+      ownerB: 'owner-b-baseline-fail',
+    );
+  });
+
+  test(
+      'the auth-state-change listener never leaks an unhandled exception '
+      'when isolation fails for the switch it is reacting to', () async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     final failingStorage = _KeyFailingStorage(
       prefs,
-      failingKeys: {'profile_spiritual'},
+      failingKeys: {MockUserRepository.readingLedgerIdsKey},
     );
     final failingIsolation = UserLocalDataIsolation(
       failingStorage,
       secureStorage: InMemorySecureStorage(),
     );
+    final leakGateway = _SwitchGateway();
+    Object? unhandled;
 
-    // Owner A: real migrated ledger state, plus an unrelated profile key
-    // that will fail to remove during the switch below.
-    await failingIsolation.onSignedIn('owner-a-switch');
-    final usersA = MockUserRepository(failingStorage);
-    final historyA = MockHistoryRepository(failingStorage);
-    await failingStorage.setDouble('profile_spiritual', 0.5);
-    await usersA.ensureReadingCompletionMigration(const []);
-    await historyA.saveReading(
-      pdeTarot(
-        'owner-a-switch-r1',
-        '$_ghost owner A reading',
-        at: DateTime(2026, 8, 20),
-      ),
-    );
-    await usersA.recordReadingCompletion('owner-a-switch-r1');
-    expect((await usersA.getProfile()).totalReadings, 1);
+    await runZonedGuarded(() async {
+      final leakAuth = FirebaseAuthService(
+        gateway: leakGateway,
+        tokens: _MemTokens(),
+        sessions: InMemorySessionManager(_MemTokens()),
+        isolation: failingIsolation,
+      );
+      leakGateway.signInAs('owner-a-leak');
+      await leakAuth.signInAnonymously();
+      await MockUserRepository(failingStorage).ensureReadingCompletionMigration(
+        const [],
+      );
 
-    // Switch to owner B — profile_spiritual's removal throws, but the
-    // switch must still complete and reach every later key.
-    await failingIsolation.onSignedIn('owner-b-switch');
+      // This switch's isolation will fail (the ledger key's own removal
+      // throws) — both the explicit call below AND the auth-state-change
+      // listener independently reacting to the same gateway event must
+      // resolve to an honest ApiFailure, never an unhandled exception.
+      leakGateway.signInAs('owner-b-leak');
+      await leakAuth.signInAnonymously();
+      await Future<void>.delayed(Duration.zero);
+      leakAuth.dispose();
+    }, (error, stack) => unhandled = error);
 
-    expect(failingIsolation.localOwnerId, 'owner-b-switch');
-    expect(
-      failingStorage.getDouble('profile_spiritual'),
-      0.5,
-      reason: 'the deliberately failing key may remain',
-    );
-    expect(
-      failingStorage.getStringList(MockUserRepository.readingLedgerIdsKey),
-      isNull,
-      reason: 'the ledger sits after the failing key and must still be '
-          'reached and cleared',
-    );
-    expect(
-      failingStorage.getInt(MockUserRepository.legacyBaselineKey),
-      isNull,
-      reason: 'the baseline sits after the failing key and must still be '
-          'reached and cleared',
-    );
-    expect(await historyA.getReadings(), isEmpty);
-
-    final usersB = MockUserRepository(failingStorage);
-    final freshProfile = await usersB.getProfile();
-    expect(
-      freshProfile.totalReadings,
-      0,
-      reason: 'owner B must not inherit owner A\'s reading count merely '
-          'because an unrelated profile key failed to remove',
-    );
+    expect(unhandled, isNull);
   });
 
   test('same synthetic user starts empty after logout wipe then login', () async {

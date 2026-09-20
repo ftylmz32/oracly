@@ -28,6 +28,8 @@ class AccountDeletionService {
 
   static const pendingIdentityCleanupKey =
       'account_deletion_pending_identity_cleanup';
+  static const pendingLocalWipeKey =
+      AccountDeletionFinalizer.localWipePendingKey;
   static const pendingAnonymousBootstrapKey =
       AccountDeletionFinalizer.anonymousBootstrapKey;
 
@@ -40,13 +42,19 @@ class AccountDeletionService {
         _storage,
         pendingIdentityCleanupKey,
       );
+  bool get hasPendingLocalWipe => AccountDeletionMarkers.isExactlyTrue(
+        _storage,
+        pendingLocalWipeKey,
+      );
   bool get hasPendingAnonymousBootstrap =>
       AccountDeletionMarkers.isExactlyTrue(
         _storage,
         pendingAnonymousBootstrapKey,
       );
   bool get hasPendingFinalization =>
-      hasPendingIdentityCleanup || hasPendingAnonymousBootstrap;
+      hasPendingIdentityCleanup ||
+      hasPendingLocalWipe ||
+      hasPendingAnonymousBootstrap;
 
   /// True when either marker is present but of the wrong type — unknown
   /// state that routing must fail closed on, but that must never by itself
@@ -57,6 +65,8 @@ class AccountDeletionService {
   /// invoked directly, bypassing the gate.
   bool get hasCorruptDeletionMarker =>
       AccountDeletionMarkers.read(_storage, pendingIdentityCleanupKey) ==
+          MarkerRead.corrupt ||
+      AccountDeletionMarkers.read(_storage, pendingLocalWipeKey) ==
           MarkerRead.corrupt ||
       AccountDeletionMarkers.read(_storage, pendingAnonymousBootstrapKey) ==
           MarkerRead.corrupt;
@@ -105,6 +115,12 @@ class AccountDeletionService {
           kind: NetworkErrorKind.unauthorized,
         ),
       );
+    }
+    if (hasPendingLocalWipe) {
+      // Identity is already gone — retry ONLY the local wipe, never a
+      // second destructive deleteAccount call on an already-deleted
+      // identity.
+      return _finish();
     }
     if (hasPendingAnonymousBootstrap) {
       return AccountDeletionFinalizer.completeAnonymousBootstrap(

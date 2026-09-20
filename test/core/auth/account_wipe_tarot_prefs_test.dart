@@ -43,10 +43,17 @@ void main() {
     final storage = LocalStorage(await SharedPreferences.getInstance());
     expect(UserLocalDataWipeKeys.profile, contains('or_selected_deck'));
     expect(UserLocalDataWipeKeys.profile, contains('or_selected_spread'));
-    await UserLocalDataWipe.run(
+    final result = await UserLocalDataWipe.run(
       storage,
       secureStorage: InMemorySecureStorage(),
     );
+    expect(
+      result.isComplete,
+      isTrue,
+      reason: 'nothing was made to fail — the whole wipe must report '
+          'complete',
+    );
+    expect(result.failedOperations, isEmpty);
     expect(storage.getString('or_selected_deck'), isNull);
     expect(storage.getString('or_selected_spread'), isNull);
     expect(storage.getString('profile_achievement_dates'), isNull);
@@ -77,11 +84,12 @@ void main() {
       contains(MockUserRepository.legacyBaselineKey),
     );
 
-    await UserLocalDataWipe.run(
+    final result = await UserLocalDataWipe.run(
       storage,
       secureStorage: InMemorySecureStorage(),
     );
 
+    expect(result.isComplete, isTrue);
     expect(
       storage.getStringList(MockUserRepository.readingLedgerIdsKey),
       isNull,
@@ -123,9 +131,26 @@ void main() {
     // step() boundary in UserLocalDataWipe.run already guarantees this;
     // what this test actually proves is what happens AFTER that one
     // failure, inside the same key-clearing pass.
-    await UserLocalDataWipe.run(
+    final result = await UserLocalDataWipe.run(
       storage,
       secureStorage: InMemorySecureStorage(),
+    );
+
+    expect(
+      result.isComplete,
+      isFalse,
+      reason: 'one mandatory key failed — the result must say so honestly',
+    );
+    expect(result.failedOperations, contains('profile_spiritual'));
+    expect(
+      result.failedOperations,
+      isNot(contains(MockUserRepository.readingLedgerIdsKey)),
+      reason: 'the ledger key itself succeeded — it must not be reported '
+          'as failed',
+    );
+    expect(
+      result.failedOperations,
+      isNot(contains(MockUserRepository.legacyBaselineKey)),
     );
 
     // The deliberately failing key may remain — that part of the
@@ -169,11 +194,13 @@ void main() {
       failingKeys: {'content_favorites_b'},
     );
 
-    await UserLocalDataWipe.run(
+    final result = await UserLocalDataWipe.run(
       storage,
       secureStorage: InMemorySecureStorage(),
     );
 
+    expect(result.isComplete, isFalse);
+    expect(result.failedOperations, contains('content_favorites_b'));
     expect(storage.getString('content_favorites_a'), isNull);
     expect(
       storage.getString('content_favorites_b'),
