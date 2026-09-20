@@ -13,7 +13,6 @@ import 'core/auth/firebase/firebase_app_check_bootstrap.dart';
 import 'core/auth/firebase/firebase_auth_bootstrap.dart';
 import 'core/config/app_config.dart';
 import 'core/data/datasources/local_storage.dart';
-import 'core/storage/secure_storage_bootstrap.dart';
 import 'core/l10n/oracly_format.dart';
 import 'core/platform/oracly_phone_orientation.dart';
 import 'core/telemetry/crash_telemetry_bootstrap.dart';
@@ -83,33 +82,16 @@ Future<void> _deferredStartup(
   await FirebaseAppCheckBootstrap.tryActivate();
   container.invalidate(firebaseAuthReadyProvider);
 
-  try {
-    final deletion = container.read(accountDeletionServiceProvider);
-    if (deletion.hasPendingFinalization) {
-      await deletion.retryPendingIdentityCleanup();
-    }
-    AccountDeletionPendingState.applyFromMarkers(
-      identityCleanupPending: deletion.hasPendingIdentityCleanup,
-      anonymousBootstrapPending: deletion.hasPendingAnonymousBootstrap,
-    );
-  } catch (_) {}
+  await AccountDeletionPendingState.resolveAndReconcile(
+    storage,
+    container.read(accountDeletionServiceProvider),
+  );
 
   if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
     await CrashTelemetryBootstrap.install(container);
     return;
   }
 
-  try {
-    final secure = container.read(secureStorageProvider);
-    await SecureStorageBootstrap.run(storage, secure);
-    await AccountDeletionOwnerBootstrap.warmPremiumIfClear(
-      container.read(premiumRepositoryProvider),
-    );
-  } catch (_) {}
-
-  await AccountDeletionOwnerBootstrap.ensureAnonymousIfClear(
-    container.read(authServiceProvider),
-  );
-  await AccountDeletionOwnerBootstrap.installReadingPushIfClear(container);
+  await AccountDeletionOwnerBootstrap.runIfClear(container);
   await CrashTelemetryBootstrap.install(container);
 }

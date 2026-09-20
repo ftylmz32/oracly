@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/auth/account_deletion_owner_bootstrap.dart';
 import '../../../core/auth/account_deletion_pending_state.dart';
 import '../../../core/auth/presentation/account_deletion_pending_screen.dart';
 import '../../../core/data/repositories/local_onboarding_repository.dart';
@@ -47,6 +48,14 @@ class _SecureStartupRecoveryScreenState
             ),
           );
         case AccountDeletionGateResolveStatus.clear:
+          // Resume the SAME canonical owner startup a normal clear cold
+          // start runs (secure storage bootstrap, Premium warm, anonymous
+          // owner readiness, push install) — never route to Home/Onboarding
+          // from a recovered session that skipped all of it.
+          await AccountDeletionOwnerBootstrap.runIfClear(
+            ProviderScope.containerOf(context, listen: false),
+          );
+          if (!mounted) return;
           final done = ref.read(localStorageProvider).getBool(
                 LocalOnboardingRepository.completedKey,
               ) ??

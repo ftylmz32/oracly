@@ -7,6 +7,7 @@ import '../network/network_exception.dart';
 import '../notifications/push_token_cleanup.dart';
 import '../storage/secure_storage.dart';
 import 'account_deletion_finalizer.dart';
+import 'account_deletion_markers.dart';
 import 'account_deletion_pending_state.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
@@ -30,10 +31,18 @@ class AccountDeletionService {
   static const pendingAnonymousBootstrapKey =
       AccountDeletionFinalizer.anonymousBootstrapKey;
 
+  /// A corrupt (wrong-type) marker counts as pending — never as "absent".
+  /// See [AccountDeletionMarkers].
   bool get hasPendingIdentityCleanup =>
-      _storage.getBool(pendingIdentityCleanupKey) ?? false;
+      AccountDeletionMarkers.isPendingOrCorrupt(
+        _storage,
+        pendingIdentityCleanupKey,
+      );
   bool get hasPendingAnonymousBootstrap =>
-      _storage.getBool(pendingAnonymousBootstrapKey) ?? false;
+      AccountDeletionMarkers.isPendingOrCorrupt(
+        _storage,
+        pendingAnonymousBootstrapKey,
+      );
   bool get hasPendingFinalization =>
       hasPendingIdentityCleanup || hasPendingAnonymousBootstrap;
 
