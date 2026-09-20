@@ -28,6 +28,7 @@ import '../../../../core/theme/oracly_quiet_motion.dart';
 import '../../../../core/theme/oracly_reduced_motion.dart';
 import '../../../../features/ai/oracle_conversation/models/oracle_reading_context.dart';
 import '../../../../features/ai/oracle_conversation/navigation/oracle_conversation_route.dart';
+import '../../../../core/domain/models/reading.dart';
 import '../../domain/models/reading_session.dart';
 import '../../shared/tarot_scope.dart';
 import '../theme/tarot_emotional_rhythm.dart';
@@ -293,6 +294,22 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     );
   }
 
+  /// Durable commit point: history (inside saveFromSession, via
+  /// ReadingService.saveReading -> HistoryRepository.saveReading) and the
+  /// exactly-once reading count (ReadingService -> recordReadingCompletion)
+  /// are the CORE persistence — required before this can report success.
+  /// Version seeding is bundled into that same core requirement: it is
+  /// cheap, purely local, and idempotent by rootId (ReadingVersionService
+  /// .seedOriginal no-ops if a group already exists), so retrying it
+  /// together with the save is free and a reading is never marked "saved"
+  /// while its version history is missing.
+  ///
+  /// [_journalGate.completed] is set ONLY after every one of those calls
+  /// has returned successfully — never before. Everything below that line
+  /// (analytics, cache invalidation) is best-effort and wrapped so it can
+  /// never turn an already-durable save into a user-visible failure or
+  /// re-arm the "save failed, tap Retry" banner for work that has nothing
+  /// left to retry.
   Future<void> _persistToJournalBody() async {
     if (_journalGate.completed) return;
     final reading = TarotScope.of(context).reading;
@@ -300,18 +317,18 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     final content = _contentData;
     if (session == null || content == null) return;
 
+    ReadingSession completed;
+    ReadingModel? saved;
     try {
-      final completed = session.status == ReadingSessionStatus.completed
+      completed = session.status == ReadingSessionStatus.completed
           ? session
           : await reading.completeSession();
-      final saved = await ref
+      saved = await ref
           .read(readingServiceProvider)
           .saveFromSession(
             session: completed,
             aiSummary: content.fullInterpretation ?? content.generalMeaning,
           );
-      _journalGate.completed = true;
-      _savedReadingId = saved?.id;
       if (saved != null) {
         await ref
             .read(readingVersionServiceProvider)
@@ -321,9 +338,31 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
               data: ReadingVersionPayload.tarot(saved.aiSummary),
             );
       }
+    } catch (e) {
+      debugPrint('[ReadingScreen] journal persist failed: $e');
+      if (!mounted) return;
+      setState(() => _journalPersistFailed = true);
+      _showJournalPersistFailedFeedback();
+      return;
+    }
+
+    // Every core step above succeeded — this reading IS durably saved.
+    _journalGate.completed = true;
+    _savedReadingId = saved?.id;
+    if (mounted && _journalPersistFailed) {
+      setState(() => _journalPersistFailed = false);
+    }
+
+    // Best-effort only from here — none of this may flip
+    // _journalPersistFailed; the durable save above already succeeded.
+    try {
       ref
           .read(analyticsServiceProvider)
           .logReadingCompleted(spreadType: completed.spread.name);
+    } catch (e) {
+      debugPrint('[ReadingScreen] analytics (best-effort) failed: $e');
+    }
+    try {
       ref.invalidate(readingHistoryProvider);
       // A saved reading means this is no longer the user's first session --
       // without this, the Soulmate prerequisite gate (isFirstSessionProvider)
@@ -331,14 +370,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       // real completed daily-card reading.
       ref.invalidate(isFirstSessionProvider);
       PersonalDiscoveryRefresh.invalidate(ref);
-      if (mounted && _journalPersistFailed) {
-        setState(() => _journalPersistFailed = false);
-      }
     } catch (e) {
-      debugPrint('[ReadingScreen] journal persist failed: $e');
-      if (!mounted) return;
-      setState(() => _journalPersistFailed = true);
-      _showJournalPersistFailedFeedback();
+      debugPrint('[ReadingScreen] cache invalidation (best-effort) failed: $e');
     }
   }
 

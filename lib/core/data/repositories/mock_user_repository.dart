@@ -27,6 +27,25 @@ class MockUserRepository implements UserRepository {
   static const _achievementsKey = 'profile_achievements';
   static const _achievementDatesKey = 'profile_achievement_dates';
 
+  /// Durable ledger of reading ids already recorded toward totalReadings —
+  /// the idempotency contract for [recordReadingCompletion]. Every id ever
+  /// recorded stays here for the life of the install; the set only grows.
+  static const _readingLedgerIdsKey = 'profile_reading_ledger_ids';
+
+  /// The pre-ledger totalReadings value, captured at most once (the first
+  /// time [recordReadingCompletion] ever runs on this install) and never
+  /// changed again. totalReadings going forward is always
+  /// `_legacyBaseline + ledger.length` — a pure computation with no
+  /// separately-incremented counter to drift out of sync with the ledger,
+  /// so a crash between writes can only leave the ledger and the baseline
+  /// each individually durable; recomputing from them is always correct.
+  static const _legacyBaselineKey = 'profile_reading_ledger_legacy_baseline';
+
+  /// Serializes all recordReadingCompletion calls (regardless of id) onto
+  /// one queue, so two concurrent callers can never both observe "not yet
+  /// recorded" for the same id and each append/increment independently.
+  Future<void> _readingLedgerQueue = Future.value();
+
   static const _achievementDefs = [
     ('first_reading', 'İlk Açılım', 'İlk tarot açılımını tamamladın.',
         Icons.auto_awesome_rounded),
@@ -43,7 +62,7 @@ class MockUserRepository implements UserRepository {
       interests: _storage.getStringList(_interestsKey) ?? [],
       goals: _storage.getStringList(_goalsKey) ?? [],
       currentStreak: _storage.getInt(_streakKey) ?? 0,
-      totalReadings: _storage.getInt(_readingsKey) ?? 0,
+      totalReadings: _computeTotalReadings(),
       spiritualLevel: _storage.getDouble(_spiritKey) ?? 0.0,
       favoriteDeckId: _storage.getString(_deckKey) ?? 'classic',
       isPremium: _storage.getBool(_premiumKey) ?? false,
@@ -116,13 +135,55 @@ class MockUserRepository implements UserRepository {
   }
 
   @override
-  Future<void> incrementReadings() async {
-    final profile = await getProfile();
-    final total = profile.totalReadings + 1;
-    // Do not invent spiritual "levels" — counts only.
-    await saveProfile(profile.copyWith(totalReadings: total));
-    if (total == 1) await unlockAchievement('first_reading');
+  Future<bool> recordReadingCompletion(String readingId) {
+    // Chain onto the queue regardless of whether the previous job threw,
+    // so one failed attempt can never block every later one.
+    final result = _readingLedgerQueue.then(
+      (_) => _recordReadingCompletionLocked(readingId),
+    );
+    _readingLedgerQueue = result.then((_) {}, onError: (_) {});
+    return result;
+  }
+
+  Future<bool> _recordReadingCompletionLocked(String readingId) async {
+    final ledger = _storage.getStringList(_readingLedgerIdsKey) ?? const [];
+    final alreadyRecorded = ledger.contains(readingId);
+    if (!alreadyRecorded) {
+      await _storage.setStringList(_readingLedgerIdsKey, [
+        ...ledger,
+        readingId,
+      ]);
+    }
+    // Captured from whatever totalReadings already held BEFORE this ledger
+    // ever contributes — exactly once, ever. A legacy user's existing
+    // count becomes the permanent floor; it can only grow from here.
+    if (_storage.getInt(_legacyBaselineKey) == null) {
+      await _storage.setInt(
+        _legacyBaselineKey,
+        _storage.getInt(_readingsKey) ?? 0,
+      );
+    }
+    final total = _computeTotalReadings();
+    // Mirror the computed total into the plain int key for legacy direct
+    // readers (e.g. settings snapshots) — best-effort; getProfile() never
+    // trusts this value once the ledger is active, only the computation.
+    await _storage.setInt(_readingsKey, total);
+    if (total >= 1) await unlockAchievement('first_reading');
     if (total >= 100) await unlockAchievement('cards_100');
+    return !alreadyRecorded;
+  }
+
+  int _computeTotalReadings() {
+    final baseline = _storage.getInt(_legacyBaselineKey);
+    if (baseline == null) {
+      // Ledger has never run on this install — the plain counter (legacy
+      // behavior, or 0 for a fresh install) is authoritative until the
+      // first recordReadingCompletion call establishes the floor.
+      return _storage.getInt(_readingsKey) ?? 0;
+    }
+    final ledgerCount =
+        (_storage.getStringList(_readingLedgerIdsKey) ?? const []).length;
+    return baseline + ledgerCount;
   }
 
   Map<String, DateTime> _achievementDates() {
