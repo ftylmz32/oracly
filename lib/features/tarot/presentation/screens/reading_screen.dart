@@ -62,6 +62,7 @@ import '../../../../core/reading_version/providers/reading_version_providers.dar
 import '../../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../../core/reading_version/widgets/reading_version_host.dart';
 import '../../../../core/memory/oracly_memory.dart';
+import '../../services/journal_persist_gate.dart';
 
 /// Cinematic interpretation — intro, staggered sections, premium actions.
 class ReadingScreen extends ConsumerStatefulWidget {
@@ -81,9 +82,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   String? _loadError;
   bool _loading = true;
   bool _exiting = false;
-  bool _journalPersisted = false;
   bool _journalPersistFailed = false;
-  Future<void>? _journalPersistInFlight;
+  final JournalPersistGate _journalGate = JournalPersistGate();
   int _loadToken = 0;
   String? _savedReadingId;
   int _versionReloadToken = 0;
@@ -280,38 +280,21 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   /// Auto-saves the reading to History/Journal. Idempotent: [saveFromSession]
   /// always persists under the stable session id, so a retry after a
   /// failure (or a duplicate call) upserts the same entry rather than
-  /// creating a copy. Every failure is caught here — this method is
-  /// called unawaited from the load path, so an uncaught exception would
-  /// otherwise escape into the global error zone while the reading still
-  /// looks saved to the user.
+  /// creating a copy. Concurrent auto-save + manual Save coalesce through
+  /// [_journalGate] so side-effects run once. Every failure is caught here —
+  /// this method is called unawaited from the load path, so an uncaught
+  /// exception would otherwise escape into the global error zone while the
+  /// reading still looks saved to the user.
   Future<void> _persistToJournal({bool offerNote = false}) async {
-    if (_journalPersisted) {
-      if (offerNote) await _offerPersonalNote();
-      return;
-    }
-    // Coalesce concurrent auto-save + manual Save taps before the flag flips.
-    final inFlight = _journalPersistInFlight;
-    if (inFlight != null) {
-      await inFlight;
-      if (offerNote && _journalPersisted) await _offerPersonalNote();
-      return;
-    }
-    final job = _persistToJournalBody(offerNote: offerNote);
-    _journalPersistInFlight = job;
-    try {
-      await job;
-    } finally {
-      if (identical(_journalPersistInFlight, job)) {
-        _journalPersistInFlight = null;
-      }
-    }
+    await _journalGate.run(
+      body: _persistToJournalBody,
+      offerNote: offerNote,
+      onOfferNote: _offerPersonalNote,
+    );
   }
 
-  Future<void> _persistToJournalBody({bool offerNote = false}) async {
-    if (_journalPersisted) {
-      if (offerNote) await _offerPersonalNote();
-      return;
-    }
+  Future<void> _persistToJournalBody() async {
+    if (_journalGate.completed) return;
     final reading = TarotScope.of(context).reading;
     final session = reading.session;
     final content = _contentData;
@@ -327,7 +310,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
             session: completed,
             aiSummary: content.fullInterpretation ?? content.generalMeaning,
           );
-      _journalPersisted = true;
+      _journalGate.completed = true;
       _savedReadingId = saved?.id;
       if (saved != null) {
         await ref
@@ -351,7 +334,6 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       if (mounted && _journalPersistFailed) {
         setState(() => _journalPersistFailed = false);
       }
-      if (offerNote) await _offerPersonalNote();
     } catch (e) {
       debugPrint('[ReadingScreen] journal persist failed: $e');
       if (!mounted) return;
@@ -393,7 +375,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
 
   Future<void> _saveReading() async {
     await _persistToJournal(offerNote: true);
-    if (!mounted) return;
+    if (!mounted || !_journalGate.completed) return;
     OraclySnackBar.success(context, SessionEndingCopy.saveConfirmation);
   }
 
@@ -692,11 +674,11 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                         onNewReading: _exiting
                                             ? null
                                             : _newReading,
-                                        onSave: _journalPersisted
+                                        onSave: _journalGate.completed
                                             ? null
                                             : _saveReading,
                                         onAskOracle: _openOracleConversation,
-                                        onAddReflection: _journalPersisted
+                                        onAddReflection: _journalGate.completed
                                             ? _offerPersonalNote
                                             : null,
                                         shareDiscovery:

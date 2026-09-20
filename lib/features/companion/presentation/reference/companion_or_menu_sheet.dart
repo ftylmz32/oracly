@@ -10,6 +10,7 @@ import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
+import '../../../ai/production/ai_failure.dart';
 import '../../copy/companion_copy.dart';
 import '../../models/or_chat_output_mode.dart';
 import '../../providers/companion_providers.dart';
@@ -70,6 +71,22 @@ Future<void> showCompanionOrMenu(
                           onTap: () async {
                             Navigator.pop(sheetContext);
                             await controller.startFreshConversation();
+                            if (!context.mounted) return;
+                            if (controller.state.lastFailureKind ==
+                                AiFailureKind.localPersistence) {
+                              OraclySnackBar.error(
+                                context,
+                                CompanionCopy.saveFailed,
+                                action: SnackBarAction(
+                                  label: CompanionCopy.retry,
+                                  textColor: OraclyChrome.goldLight,
+                                  onPressed: () {
+                                    // ignore: unawaited_futures
+                                    controller.retryLast();
+                                  },
+                                ),
+                              );
+                            }
                           },
                         ),
                         if ((controller.state.conversation?.messages

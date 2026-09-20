@@ -51,9 +51,9 @@ const kL10nEconomy = <String, L10nTriple>{
     'Где используется?',
   ),
   'gems.spend_body': L10nTriple(
-    'Üç kart ve üzeri tarot yorumu 20 mücevher — karşılığında derin bir okuma. Tek kart ücretsizdir. Kahve, el ve rüya mücevher istemez.',
-    'Three-card tarot and above cost 20 gems — you receive a deeper reading. A single card is free. Coffee, palm, and dream do not ask for gems.',
-    'Расклад из трёх карт и больше стоит 20 кристаллов — ты получаешь более глубокое чтение. Одна карта бесплатна. Кофе, ладонь и сон кристаллов не просят.',
+    'Üç kart ve üzeri tarot yorumu 20 mücevher — karşılığında derin bir okuma. Tek kart ücretsizdir. Kahve, el ve rüya yorumunun kendisi mücevher istemez; beklerken sunulan isteğe bağlı hızlandırma, sunucunun belirttiği maliyeti gösterebilir.',
+    'Three-card tarot and above cost 20 gems — you receive a deeper reading. A single card is free. Coffee, palm, and dream readings themselves do not ask for gems; optional wait acceleration may show a server-quoted cost when offered.',
+    'Расклад из трёх карт и больше стоит 20 кристаллов — ты получаешь более глубокое чтение. Одна карта бесплатна. Само чтение кофе, ладони и сна кристаллов не просит; при ожидании опциональное ускорение может показать стоимость с сервера.',
   ),
   'gems.history': L10nTriple(
     'Son hareketler',

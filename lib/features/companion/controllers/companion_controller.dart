@@ -48,6 +48,8 @@ class CompanionController extends ChangeNotifier {
   );
   bool _disposed = false;
   bool _networkRetry = false;
+  bool _regenLocked = false;
+  bool _freshStartFailed = false;
   OracleReadingContext? _pendingHandoff;
   OracleReadingContext? _readingContext;
   int _sendGeneration = 0;
@@ -82,9 +84,11 @@ class CompanionController extends ChangeNotifier {
 
   /// Starts a fresh OR session without feature handoff context.
   ///
-  /// Overwrites the durable [CompanionSessionBootstrap.sessionId] thread so a
-  /// later cold start cannot resurrect the previous chat.
+  /// Durable [CompanionSessionBootstrap.sessionId] is overwritten first. The
+  /// in-memory welcome appears only after that save succeeds — never claim a
+  /// new chat while the old thread remains on disk.
   Future<void> startFreshConversation() async {
+    if (_disposed || _state.isBusy) return;
     _pendingHandoff = null;
     _readingContext = null;
     _sendGeneration++;
@@ -105,6 +109,26 @@ class CompanionController extends ChangeNotifier {
       updatedAt: now,
     );
     final keptContext = _state.context ?? const ReflectionContext();
+    try {
+      await _service.persistConversation(fresh);
+    } catch (_) {
+      _freshStartFailed = true;
+      _crashTelemetry?.recordSevere(
+        operation: 'or_fresh_chat',
+        errorCategory: 'local_persistence',
+      );
+      // Keep the existing thread; surface a calm retryable save failure.
+      _state = _state.copyWith(
+        errorMessage: CompanionCopy.saveFailed,
+        lastFailedText: null,
+        lastFailureKind: AiFailureKind.localPersistence,
+        linkStatus: CompanionLinkStatus.online,
+      );
+      _safeNotify();
+      return;
+    }
+    if (_disposed) return;
+    _freshStartFailed = false;
     _state = CompanionState(
       phase: CompanionPhase.welcome,
       linkStatus: CompanionLinkStatus.online,
@@ -123,11 +147,6 @@ class CompanionController extends ChangeNotifier {
       ),
     );
     _safeNotify();
-    try {
-      await _service.persistConversation(fresh);
-    } catch (_) {
-      // UI already shows the fresh welcome; persist retry surfaces on send.
-    }
   }
 
   /// Drops active feature reading context; keeps the thread.
@@ -492,6 +511,10 @@ class CompanionController extends ChangeNotifier {
 
   Future<void> retryLast() async {
     if (_disposed || _state.isBusy) return;
+    if (_freshStartFailed) {
+      await startFreshConversation();
+      return;
+    }
     if (_state.lastFailureKind == AiFailureKind.localPersistence &&
         OrOperationId.pendingId(_state.conversation?.lastMessage) == null) {
       await retryPersist();
@@ -520,6 +543,10 @@ class CompanionController extends ChangeNotifier {
   /// Saves the in-memory conversation only — zero provider calls.
   Future<void> retryPersist() async {
     if (_disposed || _state.isBusy) return;
+    if (_freshStartFailed) {
+      await startFreshConversation();
+      return;
+    }
     if (_state.lastFailureKind != AiFailureKind.localPersistence) return;
     final conversation = _state.conversation;
     if (conversation == null) return;
@@ -589,21 +616,39 @@ class CompanionController extends ChangeNotifier {
     }
   }
 
+  /// Replaces the last assistant answer with a fresh provider generation.
+  ///
+  /// Removes the completed user turn and its assistant reply, then [send]s the
+  /// same text so exactly one user turn remains with a **new** operation id.
   Future<void> regenerateLast() async {
+    if (_disposed || _state.isBusy || _regenLocked) return;
     final conversation = _state.conversation;
-    if (conversation == null || _state.isBusy) return;
+    if (conversation == null) return;
     final msgs = [
       for (final message in conversation.messages)
         if (message.content.trim().isNotEmpty) message,
     ];
     if (msgs.length < 2 || msgs.last.isUser) return;
-    final lastUser = msgs.lastWhere((message) => message.isUser);
-    _state = _state.copyWith(
-      conversation: conversation.copyWith(
-        messages: msgs.sublist(0, msgs.length - 1),
-      ),
-    );
-    await send(lastUser.content);
+    final lastUserIndex = msgs.lastIndexWhere((message) => message.isUser);
+    if (lastUserIndex < 0) return;
+    final text = msgs[lastUserIndex].content;
+    // Sync lock before any await — rapid double taps share one generation.
+    _regenLocked = true;
+    try {
+      _state = _state.copyWith(
+        conversation: conversation.copyWith(
+          messages: msgs.sublist(0, lastUserIndex),
+          updatedAt: DateTime.now(),
+        ),
+        errorMessage: null,
+        lastFailedText: null,
+        clearFailureKind: true,
+      );
+      _safeNotify();
+      await send(text);
+    } finally {
+      _regenLocked = false;
+    }
   }
 
   /// Makes an unresolved turn terminal without issuing a provider request.
