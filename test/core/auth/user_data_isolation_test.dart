@@ -274,6 +274,76 @@ void main() {
     expect(isolation.localOwnerId, isNot(_userA), reason: 'ISOLATION');
   });
 
+  test(
+      'owner B inherits NEITHER owner A\'s reading-count ledger, legacy '
+      'baseline, totalReadings, nor achievements — and owner B\'s own '
+      'first reading counts exactly once with no owner-A id leaking in',
+      () async {
+    gateway.signInAs(_userA);
+    await auth.signInAnonymously();
+
+    // Owner A: activate the ledger and record one genuinely new reading —
+    // ends with a real, non-empty ledger, a set (non-null) baseline, and
+    // totalReadings > 0 (exactly what "migrated ledger state" means).
+    final usersA = MockUserRepository(storage);
+    final historyA = MockHistoryRepository(storage);
+    final now = DateTime(2026, 8, 20);
+    await usersA.ensureReadingCompletionMigration(const []);
+    await historyA.saveReading(
+      pdeTarot('owner-a-r1', '$_ghost owner A reading', at: now),
+    );
+    await usersA.recordReadingCompletion('owner-a-r1');
+    final beforeSwitch = await usersA.getProfile();
+    expect(beforeSwitch.totalReadings, 1);
+    expect(beforeSwitch.unlockedAchievementKeys, contains('first_reading'));
+    expect(
+      storage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      ['owner-a-r1'],
+    );
+    expect(storage.getInt(MockUserRepository.legacyBaselineKey), 0);
+
+    // Switch accounts — the same real onSignedIn-driven wipe path the rest
+    // of this file already exercises for profile/gems/memory.
+    await auth.signOut();
+    gateway.signInAs(_userB);
+    await auth.signInAnonymously();
+    expect(isolation.localOwnerId, _userB);
+
+    // Immediately after the switch: nothing of owner A's reading state
+    // survives, and a FRESH MockUserRepository instance over the same
+    // storage confirms totalReadings starts at a genuine zero for B, not
+    // owner A's baseline.
+    expect(
+      storage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      isNull,
+    );
+    expect(storage.getInt(MockUserRepository.legacyBaselineKey), isNull);
+    expect(storage.getInt('profile_readings'), isNull);
+    expect(await MockHistoryRepository(storage).getReadings(), isEmpty);
+    final usersB = MockUserRepository(storage);
+    final freshProfile = await usersB.getProfile();
+    expect(freshProfile.totalReadings, 0);
+    expect(freshProfile.unlockedAchievementKeys, isEmpty);
+
+    // Owner B's own first reading — migration must activate fresh for B
+    // (no owner-A residue to reconcile against) and contribute exactly
+    // one, tagged only under B's own id.
+    final historyB = MockHistoryRepository(storage);
+    await historyB.saveReading(
+      pdeTarot('owner-b-r1', 'owner B reading', at: now),
+    );
+    await usersB.ensureReadingCompletionMigration(['owner-b-r1']);
+    await usersB.recordReadingCompletion('owner-b-r1');
+
+    final afterOwnerBReading = await usersB.getProfile();
+    expect(afterOwnerBReading.totalReadings, 1);
+    final ledgerAfterB =
+        storage.getStringList(MockUserRepository.readingLedgerIdsKey) ??
+            const [];
+    expect(ledgerAfterB, ['owner-b-r1']);
+    expect(ledgerAfterB, isNot(contains('owner-a-r1')));
+  });
+
   test('same synthetic user starts empty after logout wipe then login', () async {
     gateway.signInAs(_userA);
     await auth.signInAnonymously();

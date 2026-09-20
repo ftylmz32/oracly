@@ -19,6 +19,7 @@ import 'package:oracly_new/core/auth/token_manager.dart';
 import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
+import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/intelligence/data/personal_memory_store.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
@@ -80,6 +81,14 @@ void main() {
     await storage.setString('user_name', 'Ada');
     await storage.setString('settings_language', 'en');
     await storage.setBool('onboarding_completed', true);
+    // Reading-count idempotency ledger — account-scoped state a deletion
+    // must wipe exactly like the rest of this owner's history/profile.
+    await storage.setInt('profile_readings', 7);
+    await storage.setStringList(
+      MockUserRepository.readingLedgerIdsKey,
+      const ['del-r1', 'del-r2'],
+    );
+    await storage.setInt(MockUserRepository.legacyBaselineKey, 5);
     final premium = premiumRepo;
     await premium.activatePlan(PremiumPlanKind.yearly, authoritative: true);
     await premium.savePurchaseCredentials(
@@ -100,6 +109,12 @@ void main() {
     expect(storage.getString('user_name'), isNull);
     expect(await premiumRepo.readPurchaseCredentials(), isNull);
     expect(premiumRepo.isActiveNow, isFalse);
+    expect(storage.getInt('profile_readings'), isNull);
+    expect(
+      storage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      isNull,
+    );
+    expect(storage.getInt(MockUserRepository.legacyBaselineKey), isNull);
   }
 
   test(
@@ -123,6 +138,34 @@ void main() {
       expect(deletion.hasPendingAnonymousBootstrap, isFalse);
       // Exactly one replacement anonymous identity after the deleted one.
       expect(gateway.anonSerial, beforeAnon + 1);
+    },
+  );
+
+  test(
+    'successful deletion cannot resurrect the deleted owner\'s reading '
+    'count — a FRESH MockUserRepository over the same storage reports a '
+    'genuine totalReadings == 0, not the deleted owner\'s baseline',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+
+      final result = await deletion.deleteAccountAndWipeLocalData();
+      expect(result.isSuccess, isTrue);
+      await expectUserBoundCleared();
+
+      // A brand-new repository instance — proves the zero comes from
+      // durably-cleared storage, not a value cached on the old instance.
+      final freshUsers = MockUserRepository(storage);
+      final freshProfile = await freshUsers.getProfile();
+      expect(freshProfile.totalReadings, 0);
+      expect(freshProfile.unlockedAchievementKeys, isEmpty);
+
+      // Migration must activate fresh for the new anonymous owner too —
+      // with no legacy ids to reconcile, one genuinely new reading must
+      // contribute exactly +1, not resume from the deleted owner's 7.
+      await freshUsers.ensureReadingCompletionMigration(const []);
+      await freshUsers.recordReadingCompletion('post-deletion-r1');
+      expect((await freshUsers.getProfile()).totalReadings, 1);
     },
   );
 
@@ -164,6 +207,15 @@ void main() {
     expect(await premiumRepo.readPurchaseCredentials(), isNotNull);
     expect(gateway.currentUser, isNotNull);
     expect(sessions.currentSession, isNotNull);
+    // Remote-first contract: deletion is NOT complete, so the reading
+    // ledger must remain exactly as it was — never wiped ahead of a real
+    // success.
+    expect(storage.getInt('profile_readings'), 7);
+    expect(
+      storage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      ['del-r1', 'del-r2'],
+    );
+    expect(storage.getInt(MockUserRepository.legacyBaselineKey), 5);
   });
 
   test('requires-recent-login fails honestly without wipe or logout', () async {
@@ -185,6 +237,14 @@ void main() {
     expect(premiumRepo.isActiveNow, isTrue);
     expect(gateway.currentUser?.email, 'a@b.c');
     expect(sessions.currentSession, isNotNull);
+    // Reauth failed BEFORE any destructive step — the ledger must be
+    // completely untouched, not partially wiped.
+    expect(storage.getInt('profile_readings'), 7);
+    expect(
+      storage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      ['del-r1', 'del-r2'],
+    );
+    expect(storage.getInt(MockUserRepository.legacyBaselineKey), 5);
   });
 
   test('no current user fails without wipe', () async {

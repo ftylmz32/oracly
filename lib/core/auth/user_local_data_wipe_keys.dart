@@ -1,6 +1,7 @@
 /// Key lists for [UserLocalDataWipe] — keep wipe orchestration under 150 lines.
 library;
 
+import '../data/repositories/mock_user_repository.dart';
 import '../../features/gems/data/gem_wallet_store.dart';
 import '../../features/gems/services/gem_starter_grant.dart';
 
@@ -21,6 +22,12 @@ abstract final class UserLocalDataWipeKeys {
     'profile_achievement_dates',
     'or_selected_deck',
     'or_selected_spread',
+    // The reading-count idempotency ledger is account-scoped state — a new
+    // owner on this device must never inherit a prior owner's reading
+    // ledger, legacy baseline, or the computed totalReadings that follows
+    // from them.
+    MockUserRepository.readingLedgerIdsKey,
+    MockUserRepository.legacyBaselineKey,
   ];
 
   static const gems = [

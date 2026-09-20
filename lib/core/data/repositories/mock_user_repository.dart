@@ -34,11 +34,18 @@ class MockUserRepository implements UserRepository {
   /// never double-counts), then grows by exactly one entry per genuinely
   /// new reading from then on. Every id ever recorded stays here for the
   /// life of the install; the set only grows.
-  static const _readingLedgerIdsKey = 'profile_reading_ledger_ids';
+  ///
+  /// PUBLIC and referenced directly by [UserLocalDataWipeKeys.profile] —
+  /// this is account-scoped state. A new owner on the same device must
+  /// never inherit a prior owner's reading ledger; the canonical wipe
+  /// contract is the single source of truth for what "account-scoped"
+  /// means, so it must always be able to name this key without a second,
+  /// independently-maintained string literal drifting out of sync.
+  static const readingLedgerIdsKey = 'profile_reading_ledger_ids';
 
   /// The RESIDUAL legacy totalReadings value — set at most once, by
   /// [ensureReadingCompletionMigration], and never changed again.
-  /// totalReadings going forward is always `_legacyBaseline +
+  /// totalReadings going forward is always `legacyBaseline +
   /// ledger.length`: a pure computation with no separately-incremented
   /// counter to drift out of sync with the ledger, so a crash between
   /// writes can only leave the ledger and the baseline each individually
@@ -47,7 +54,10 @@ class MockUserRepository implements UserRepository {
   /// baseline is only the part of the old lifetime count NOT already
   /// represented by one of those known ids (see
   /// [ensureReadingCompletionMigration]).
-  static const _legacyBaselineKey = 'profile_reading_ledger_legacy_baseline';
+  ///
+  /// PUBLIC for the same reason as [readingLedgerIdsKey] — account-scoped,
+  /// and named directly by the canonical wipe contract.
+  static const legacyBaselineKey = 'profile_reading_ledger_legacy_baseline';
 
   /// Serializes migration and every recordReadingCompletion call (regardless
   /// of id) onto one queue, so two concurrent callers — including two
@@ -185,7 +195,7 @@ class MockUserRepository implements UserRepository {
   ///   under-count more real, distinct history rows than are already on
   ///   disk.
   Future<void> _ensureMigrationLocked(List<String> existingHistoryIds) async {
-    if (_storage.getInt(_legacyBaselineKey) != null) return;
+    if (_storage.getInt(legacyBaselineKey) != null) return;
     final legacyTotal = _storage.getInt(_readingsKey) ?? 0;
     final knownIds = existingHistoryIds.toSet().toList();
     final residualBaseline =
@@ -197,8 +207,8 @@ class MockUserRepository implements UserRepository {
     // The opposite order (baseline first) would risk the guard above
     // treating migration as "done" while the known ids were never
     // actually seeded, which none of the ledger-based math is safe under.
-    await _storage.setStringList(_readingLedgerIdsKey, knownIds);
-    await _storage.setInt(_legacyBaselineKey, residualBaseline);
+    await _storage.setStringList(readingLedgerIdsKey, knownIds);
+    await _storage.setInt(legacyBaselineKey, residualBaseline);
   }
 
   @override
@@ -214,13 +224,13 @@ class MockUserRepository implements UserRepository {
     // ReadingService flow always does) — treats the legacy counter as the
     // whole floor with no known legacy ids, matching the pre-migration
     // fallback this class always had.
-    if (_storage.getInt(_legacyBaselineKey) == null) {
+    if (_storage.getInt(legacyBaselineKey) == null) {
       await _ensureMigrationLocked(const []);
     }
-    final ledger = _storage.getStringList(_readingLedgerIdsKey) ?? const [];
+    final ledger = _storage.getStringList(readingLedgerIdsKey) ?? const [];
     final alreadyRecorded = ledger.contains(readingId);
     if (!alreadyRecorded) {
-      await _storage.setStringList(_readingLedgerIdsKey, [
+      await _storage.setStringList(readingLedgerIdsKey, [
         ...ledger,
         readingId,
       ]);
@@ -236,7 +246,7 @@ class MockUserRepository implements UserRepository {
   }
 
   int _computeTotalReadings() {
-    final baseline = _storage.getInt(_legacyBaselineKey);
+    final baseline = _storage.getInt(legacyBaselineKey);
     if (baseline == null) {
       // Migration has never run on this install — the plain counter
       // (legacy behavior, or 0 for a fresh install) is authoritative until
@@ -245,7 +255,7 @@ class MockUserRepository implements UserRepository {
       return _storage.getInt(_readingsKey) ?? 0;
     }
     final ledgerCount =
-        (_storage.getStringList(_readingLedgerIdsKey) ?? const []).length;
+        (_storage.getStringList(readingLedgerIdsKey) ?? const []).length;
     return baseline + ledgerCount;
   }
 

@@ -35,6 +35,49 @@ void main() {
     expect(storage.getString('coffee_v2_submission'), isNull);
   });
 
+  test(
+      'wipe clears the reading-count ledger AND the legacy baseline — the '
+      'ledger is account-scoped state, never left for the next owner',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      'profile_readings': 15,
+      'profile_reading_ledger_ids': ['old-a', 'old-b'],
+      'profile_reading_ledger_legacy_baseline': 13,
+      'profile_achievements': ['first_reading'],
+      'or_reading_history': ['old owner reading'],
+      'settings_language': 'tr',
+      'settings_theme': 'dark',
+    });
+    final storage = LocalStorage(await SharedPreferences.getInstance());
+    expect(
+      UserLocalDataWipeKeys.profile,
+      contains(MockUserRepository.readingLedgerIdsKey),
+    );
+    expect(
+      UserLocalDataWipeKeys.profile,
+      contains(MockUserRepository.legacyBaselineKey),
+    );
+
+    await UserLocalDataWipe.run(
+      storage,
+      secureStorage: InMemorySecureStorage(),
+    );
+
+    expect(
+      storage.getStringList(MockUserRepository.readingLedgerIdsKey),
+      isNull,
+    );
+    expect(storage.getInt(MockUserRepository.legacyBaselineKey), isNull);
+    expect(storage.getInt('profile_readings'), isNull);
+    expect(storage.getStringList('or_reading_history'), isEmpty);
+    expect(storage.getStringList('profile_achievements'), isNull);
+
+    // Device-scoped settings must never be touched by an account-scoped
+    // wipe.
+    expect(storage.getString('settings_language'), 'tr');
+    expect(storage.getString('settings_theme'), 'dark');
+  });
+
   test('achievement unlock records real UTC timestamp', () async {
     SharedPreferences.setMockInitialValues({});
     final storage = LocalStorage(await SharedPreferences.getInstance());
