@@ -105,6 +105,12 @@ class _FlakyUserRepository implements UserRepository {
   }
 
   @override
+  Future<void> ensureReadingCompletionMigration(
+    List<String> existingHistoryIds,
+  ) =>
+      _real.ensureReadingCompletionMigration(existingHistoryIds);
+
+  @override
   Future<UserProfileModel> getProfile() => _real.getProfile();
 
   @override
@@ -119,6 +125,48 @@ class _FlakyUserRepository implements UserRepository {
 
   @override
   Future<void> incrementStreak() => _real.incrementStreak();
+}
+
+/// Builds a stand-alone [ReadingModel] as if it were written directly by
+/// the pre-ledger app version — used to prepopulate History with "legacy"
+/// rows that predate recordReadingCompletion ever existing.
+ReadingModel _legacyReading(String id) => ReadingModel(
+      id: id,
+      cardId: 0,
+      cardName: 'The Fool',
+      cardImageAsset: 'assets/fool.png',
+      spreadType: 'single',
+      aiSummary: 'legacy summary for $id',
+      createdAt: DateTime(2025, 1, 1),
+    );
+
+/// Fails one specific numbered durable write (1-based, counting setInt AND
+/// setStringList calls together, in the order they actually happen) then
+/// behaves normally — used to prove ensureReadingCompletionMigration's own
+/// two writes (ledger, then baseline) converge correctly no matter which
+/// one a simulated process crash lands on.
+class _FlakyLocalStorage extends LocalStorage {
+  _FlakyLocalStorage(SharedPreferences prefs, {this.failAtWriteIndex})
+      : super(prefs);
+
+  final int? failAtWriteIndex;
+  int writeCount = 0;
+
+  Future<bool> _maybeFail(Future<bool> Function() actual) async {
+    writeCount++;
+    if (failAtWriteIndex != null && writeCount == failAtWriteIndex) {
+      throw StateError('simulated crash at write #$writeCount');
+    }
+    return actual();
+  }
+
+  @override
+  Future<bool> setStringList(String key, List<String> values) =>
+      _maybeFail(() => super.setStringList(key, values));
+
+  @override
+  Future<bool> setInt(String key, int value) =>
+      _maybeFail(() => super.setInt(key, value));
 }
 
 /// Fails the version-seed write itself on the first N calls, then
@@ -480,6 +528,242 @@ void main() {
       expect(profile.totalReadings, 1);
       expect(profile.unlockedAchievementKeys, contains('first_reading'));
       expect(profile.unlockedAchievementKeys, isNot(contains('cards_100')));
+    });
+  });
+
+  group('P0: legacy reading-count migration '
+      '(ensureReadingCompletionMigration)', () {
+    test(
+        'A: a legacy history row already represented by the old counter, '
+        'when replayed, contributes +0 — not a second +1', () async {
+      await storage.setInt('profile_readings', 15);
+      await realHistory.saveReading(_legacyReading('legacy-session-1'));
+
+      final service = ReadingService(realHistory, users);
+      await service.saveFromSession(
+        session: _session(id: 'legacy-session-1'),
+        aiSummary: 'replayed',
+      );
+
+      expect(await realHistory.getReadings(), hasLength(1));
+      expect((await users.getProfile()).totalReadings, 15);
+
+      // Restart: fresh repository/service instances over the SAME durable
+      // storage, replaying the same legacy id again.
+      final restartedHistory = MockHistoryRepository(storage);
+      final restartedUsers = MockUserRepository(storage);
+      final restartedService = ReadingService(
+        restartedHistory,
+        restartedUsers,
+      );
+      await restartedService.saveFromSession(
+        session: _session(id: 'legacy-session-1'),
+        aiSummary: 'replayed again after restart',
+      );
+
+      expect(await restartedHistory.getReadings(), hasLength(1));
+      expect((await restartedUsers.getProfile()).totalReadings, 15);
+    });
+
+    test(
+        'B: legacy total (15) with 10 retained legacy ids — migration '
+        'preserves 15, replaying all 10 keeps 15, one genuinely new '
+        'reading makes it 16 and stays 16 on repeat', () async {
+      await storage.setInt('profile_readings', 15);
+      final legacyIds = List.generate(10, (i) => 'legacy-b-$i');
+      for (final id in legacyIds) {
+        await realHistory.saveReading(_legacyReading(id));
+      }
+
+      final service = ReadingService(realHistory, users);
+      // Migration activates on the first save after upgrade — replay one
+      // of the known legacy ids to trigger it without adding a new one.
+      await service.saveFromSession(
+        session: _session(id: legacyIds.first),
+        aiSummary: 'replay 1',
+      );
+      expect((await users.getProfile()).totalReadings, 15);
+
+      for (final id in legacyIds) {
+        await service.saveFromSession(session: _session(id: id), aiSummary: 'replay');
+      }
+      expect(await realHistory.getReadings(), hasLength(10));
+      expect((await users.getProfile()).totalReadings, 15);
+
+      await service.saveFromSession(
+        session: _session(id: 'new-session-1'),
+        aiSummary: 'genuinely new',
+      );
+      expect((await users.getProfile()).totalReadings, 16);
+
+      await service.saveFromSession(
+        session: _session(id: 'new-session-1'),
+        aiSummary: 'genuinely new, re-saved',
+      );
+      await service.saveFromSession(
+        session: _session(id: 'new-session-1'),
+        aiSummary: 'genuinely new, re-saved again',
+      );
+      expect(await realHistory.getReadings(), hasLength(11));
+      expect((await users.getProfile()).totalReadings, 16);
+    });
+
+    test(
+        'C: legacy total (100) with only 25 retained ids (history retention '
+        'trimmed the rest) — migration preserves 100, replaying retained '
+        'legacy ids keeps 100, a new reading makes it 101', () async {
+      await storage.setInt('profile_readings', 100);
+      final retainedIds = List.generate(25, (i) => 'legacy-c-$i');
+      for (final id in retainedIds) {
+        await realHistory.saveReading(_legacyReading(id));
+      }
+
+      final service = ReadingService(realHistory, users);
+      for (final id in retainedIds) {
+        await service.saveFromSession(session: _session(id: id), aiSummary: 'replay');
+      }
+      expect((await users.getProfile()).totalReadings, 100);
+
+      await service.saveFromSession(
+        session: _session(id: 'new-session-c'),
+        aiSummary: 'genuinely new',
+      );
+      expect((await users.getProfile()).totalReadings, 101);
+    });
+
+    test(
+        'D: an inconsistent legacy fixture (counter=5, but History retains '
+        '8 unique ids) never decreases the total, never double-counts the '
+        '8 known ids, and documents the exact resulting total as '
+        'max(counter, knownIds) = 8', () async {
+      await storage.setInt('profile_readings', 5);
+      final inconsistentIds = List.generate(8, (i) => 'legacy-d-$i');
+      for (final id in inconsistentIds) {
+        await realHistory.saveReading(_legacyReading(id));
+      }
+
+      final service = ReadingService(realHistory, users);
+      // Trigger migration by replaying one of the 8 known ids.
+      await service.saveFromSession(
+        session: _session(id: inconsistentIds.first),
+        aiSummary: 'replay',
+      );
+
+      // Documented policy: max(legacyCounter, knownIds.length) = max(5, 8).
+      expect((await users.getProfile()).totalReadings, 8);
+
+      for (final id in inconsistentIds) {
+        await service.saveFromSession(session: _session(id: id), aiSummary: 'replay');
+      }
+      expect(
+        (await users.getProfile()).totalReadings,
+        8,
+        reason: 'replaying any of the 8 known ids must never add to the '
+            'total — the policy already counted them all once',
+      );
+
+      await service.saveFromSession(
+        session: _session(id: 'new-session-d'),
+        aiSummary: 'genuinely new',
+      );
+      expect((await users.getProfile()).totalReadings, 9);
+    });
+
+    test(
+        'E: two concurrent saves during the very first migration '
+        'activation, with an existing legacy baseline, execute safely — '
+        'no duplicate contribution, correct history, correct total',
+        () async {
+      await storage.setInt('profile_readings', 15);
+      final service = ReadingService(realHistory, users);
+
+      await Future.wait([
+        service.saveFromSession(
+          session: _session(id: 'concurrent-e-a'),
+          aiSummary: 'a',
+        ),
+        service.saveFromSession(
+          session: _session(id: 'concurrent-e-b'),
+          aiSummary: 'b',
+        ),
+      ]);
+
+      expect(await realHistory.getReadings(), hasLength(2));
+      expect((await users.getProfile()).totalReadings, 17);
+    });
+
+    test(
+        'F: migration interrupted at either of its own two durable-write '
+        'boundaries (ledger, then baseline) converges to exactly the same '
+        'result as an uninterrupted migration once retried after a '
+        'restart', () async {
+      for (final failAt in [1, 2]) {
+        SharedPreferences.setMockInitialValues({'profile_readings': 15});
+        final prefs = await SharedPreferences.getInstance();
+
+        // Setup phase over a HEALTHY storage — pre-existing legacy rows
+        // must not consume the flaky write budget the assertions below
+        // target specifically at migration's own two writes.
+        final setupStorage = LocalStorage(prefs);
+        await MockHistoryRepository(setupStorage).saveReading(
+          _legacyReading('legacy-f-1'),
+        );
+        await MockHistoryRepository(setupStorage).saveReading(
+          _legacyReading('legacy-f-2'),
+        );
+
+        final flakyStorage = _FlakyLocalStorage(prefs, failAtWriteIndex: failAt);
+        final flakyHistory = MockHistoryRepository(flakyStorage);
+        final flakyUsers = MockUserRepository(flakyStorage);
+        final service = ReadingService(flakyHistory, flakyUsers);
+        var threw = false;
+        try {
+          await service.saveFromSession(
+            session: _session(id: 'new-after-crash'),
+            aiSummary: 'first attempt, interrupted',
+          );
+        } catch (_) {
+          threw = true;
+        }
+        expect(
+          threw,
+          isTrue,
+          reason: 'failAt=$failAt must have interrupted this attempt',
+        );
+        // The new reading must not have been committed to history by a
+        // migration that never finished.
+        expect(
+          await flakyHistory.getReadings(),
+          hasLength(2),
+          reason: 'failAt=$failAt: only the 2 pre-existing legacy rows',
+        );
+
+        // Restart: fresh, HEALTHY repositories over the SAME underlying
+        // SharedPreferences instance.
+        final healthyStorage = LocalStorage(prefs);
+        final restartedHistory = MockHistoryRepository(healthyStorage);
+        final restartedUsers = MockUserRepository(healthyStorage);
+        final restartedService = ReadingService(
+          restartedHistory,
+          restartedUsers,
+        );
+        await restartedService.saveFromSession(
+          session: _session(id: 'new-after-crash'),
+          aiSummary: 'retry after restart',
+        );
+
+        expect(
+          await restartedHistory.getReadings(),
+          hasLength(3),
+          reason: 'failAt=$failAt: 2 legacy + 1 genuinely new after retry',
+        );
+        expect(
+          (await restartedUsers.getProfile()).totalReadings,
+          16,
+          reason: 'failAt=$failAt: 15 legacy (unchanged) + 1 new — the same '
+              'result an uninterrupted migration would have produced',
+        );
+      }
     });
   });
 

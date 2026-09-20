@@ -28,23 +28,41 @@ class MockUserRepository implements UserRepository {
   static const _achievementDatesKey = 'profile_achievement_dates';
 
   /// Durable ledger of reading ids already recorded toward totalReadings —
-  /// the idempotency contract for [recordReadingCompletion]. Every id ever
-  /// recorded stays here for the life of the install; the set only grows.
+  /// the idempotency contract for [recordReadingCompletion]. Seeded once by
+  /// [ensureReadingCompletionMigration] with whatever stable ids History
+  /// already retained BEFORE the ledger existed (so replaying one of THOSE
+  /// never double-counts), then grows by exactly one entry per genuinely
+  /// new reading from then on. Every id ever recorded stays here for the
+  /// life of the install; the set only grows.
   static const _readingLedgerIdsKey = 'profile_reading_ledger_ids';
 
-  /// The pre-ledger totalReadings value, captured at most once (the first
-  /// time [recordReadingCompletion] ever runs on this install) and never
-  /// changed again. totalReadings going forward is always
-  /// `_legacyBaseline + ledger.length` — a pure computation with no
-  /// separately-incremented counter to drift out of sync with the ledger,
-  /// so a crash between writes can only leave the ledger and the baseline
-  /// each individually durable; recomputing from them is always correct.
+  /// The RESIDUAL legacy totalReadings value — set at most once, by
+  /// [ensureReadingCompletionMigration], and never changed again.
+  /// totalReadings going forward is always `_legacyBaseline +
+  /// ledger.length`: a pure computation with no separately-incremented
+  /// counter to drift out of sync with the ledger, so a crash between
+  /// writes can only leave the ledger and the baseline each individually
+  /// durable; recomputing from them is always correct. "Residual" because
+  /// migration may seed the ledger with KNOWN legacy ids up front — the
+  /// baseline is only the part of the old lifetime count NOT already
+  /// represented by one of those known ids (see
+  /// [ensureReadingCompletionMigration]).
   static const _legacyBaselineKey = 'profile_reading_ledger_legacy_baseline';
 
-  /// Serializes all recordReadingCompletion calls (regardless of id) onto
-  /// one queue, so two concurrent callers can never both observe "not yet
-  /// recorded" for the same id and each append/increment independently.
+  /// Serializes migration and every recordReadingCompletion call (regardless
+  /// of id) onto one queue, so two concurrent callers — including two
+  /// concurrent FIRST activations of the migration — can never both
+  /// observe "not yet migrated"/"not yet recorded" and each act
+  /// independently.
   Future<void> _readingLedgerQueue = Future.value();
+
+  Future<T> _enqueueReadingLedgerJob<T>(Future<T> Function() job) {
+    final result = _readingLedgerQueue.then((_) => job());
+    // Chain onto the queue regardless of whether this job threw, so one
+    // failed attempt can never block every later one.
+    _readingLedgerQueue = result.then((_) {}, onError: (_) {});
+    return result;
+  }
 
   static const _achievementDefs = [
     ('first_reading', 'İlk Açılım', 'İlk tarot açılımını tamamladın.',
@@ -135,17 +153,70 @@ class MockUserRepository implements UserRepository {
   }
 
   @override
-  Future<bool> recordReadingCompletion(String readingId) {
-    // Chain onto the queue regardless of whether the previous job threw,
-    // so one failed attempt can never block every later one.
-    final result = _readingLedgerQueue.then(
-      (_) => _recordReadingCompletionLocked(readingId),
+  Future<void> ensureReadingCompletionMigration(
+    List<String> existingHistoryIds,
+  ) {
+    return _enqueueReadingLedgerJob(
+      () => _ensureMigrationLocked(existingHistoryIds),
     );
-    _readingLedgerQueue = result.then((_) {}, onError: (_) {});
-    return result;
+  }
+
+  /// One-time reconciliation between the pre-ledger totalReadings counter
+  /// and the stable reading ids History already retained at the moment
+  /// the ledger activates. No-ops instantly once migration has already run
+  /// (baseline non-null) — safe and cheap to call on every save.
+  ///
+  /// Without this, a legacy history row already counted in the OLD
+  /// `profile_readings` value would look "unknown" to the new ledger the
+  /// first time it's ever replayed (e.g. an old reading resurfacing
+  /// through a retry or a version-seed path) and would be counted a
+  /// SECOND time — a migration double-count.
+  ///
+  /// Policy for [existingHistoryIds].length vs the legacy total (documented
+  /// per the required test matrix):
+  /// - legacy total >= known ids: `residualBaseline = legacyTotal -
+  ///   knownIds.length`; post-migration total is unchanged
+  ///   (`residualBaseline + knownIds.length == legacyTotal`).
+  /// - legacy total < known ids (an inconsistent legacy fixture — History
+  ///   somehow retained MORE distinct stable ids than the counter ever
+  ///   recorded): `residualBaseline = 0`; post-migration total becomes
+  ///   `knownIds.length` — i.e. `max(legacyTotal, knownIds.length)`. The
+  ///   lifetime count is NEVER decreased, and it is also never allowed to
+  ///   under-count more real, distinct history rows than are already on
+  ///   disk.
+  Future<void> _ensureMigrationLocked(List<String> existingHistoryIds) async {
+    if (_storage.getInt(_legacyBaselineKey) != null) return;
+    final legacyTotal = _storage.getInt(_readingsKey) ?? 0;
+    final knownIds = existingHistoryIds.toSet().toList();
+    final residualBaseline =
+        legacyTotal > knownIds.length ? legacyTotal - knownIds.length : 0;
+    // Ledger write FIRST: if the process dies right after this line, the
+    // baseline below is still null, so a retry re-enters this same method
+    // (the guard above does not short-circuit) and safely re-writes both
+    // with the same inputs — never double counts, never loses the seed.
+    // The opposite order (baseline first) would risk the guard above
+    // treating migration as "done" while the known ids were never
+    // actually seeded, which none of the ledger-based math is safe under.
+    await _storage.setStringList(_readingLedgerIdsKey, knownIds);
+    await _storage.setInt(_legacyBaselineKey, residualBaseline);
+  }
+
+  @override
+  Future<bool> recordReadingCompletion(String readingId) {
+    return _enqueueReadingLedgerJob(
+      () => _recordReadingCompletionLocked(readingId),
+    );
   }
 
   Future<bool> _recordReadingCompletionLocked(String readingId) async {
+    // Defense in depth for a caller that records completion without ever
+    // calling ensureReadingCompletionMigration first (the real
+    // ReadingService flow always does) — treats the legacy counter as the
+    // whole floor with no known legacy ids, matching the pre-migration
+    // fallback this class always had.
+    if (_storage.getInt(_legacyBaselineKey) == null) {
+      await _ensureMigrationLocked(const []);
+    }
     final ledger = _storage.getStringList(_readingLedgerIdsKey) ?? const [];
     final alreadyRecorded = ledger.contains(readingId);
     if (!alreadyRecorded) {
@@ -153,15 +224,6 @@ class MockUserRepository implements UserRepository {
         ...ledger,
         readingId,
       ]);
-    }
-    // Captured from whatever totalReadings already held BEFORE this ledger
-    // ever contributes — exactly once, ever. A legacy user's existing
-    // count becomes the permanent floor; it can only grow from here.
-    if (_storage.getInt(_legacyBaselineKey) == null) {
-      await _storage.setInt(
-        _legacyBaselineKey,
-        _storage.getInt(_readingsKey) ?? 0,
-      );
     }
     final total = _computeTotalReadings();
     // Mirror the computed total into the plain int key for legacy direct
@@ -176,9 +238,10 @@ class MockUserRepository implements UserRepository {
   int _computeTotalReadings() {
     final baseline = _storage.getInt(_legacyBaselineKey);
     if (baseline == null) {
-      // Ledger has never run on this install — the plain counter (legacy
-      // behavior, or 0 for a fresh install) is authoritative until the
-      // first recordReadingCompletion call establishes the floor.
+      // Migration has never run on this install — the plain counter
+      // (legacy behavior, or 0 for a fresh install) is authoritative until
+      // the first ensureReadingCompletionMigration/recordReadingCompletion
+      // call establishes the floor.
       return _storage.getInt(_readingsKey) ?? 0;
     }
     final ledgerCount =

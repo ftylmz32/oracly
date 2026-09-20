@@ -57,6 +57,14 @@ class ReadingService {
       userId: userId,
       journal: enriched,
     );
+    // Gathered BEFORE saving the incoming reading, so a genuinely NEW
+    // reading is never mistaken for one of the pre-existing legacy ids it
+    // reconciles against. Cheap/no-op once migration has already run for
+    // this install — safe to call unconditionally on every save.
+    final existingIds = (await _history.getReadings())
+        .map((r) => r.id)
+        .toList();
+    await _user.ensureReadingCompletionMigration(existingIds);
     await _history.saveReading(reading);
     // reading.id is the SAME stable id _history.saveReading dedupes on
     // (sessionId when provided) — recordReadingCompletion uses it as the

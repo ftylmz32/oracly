@@ -18,6 +18,20 @@ class MockHistoryRepository implements HistoryRepository {
   final OraclyMemoryStore? _memory;
   static const _key = 'or_reading_history';
 
+  /// Serializes every mutation (save/delete/clear) onto one queue. Each
+  /// mutation is read-modify-write over the SAME encoded list — without
+  /// this, two concurrent saves for DIFFERENT reading ids can each read
+  /// the same "before" list and one write silently clobbers the other's
+  /// entry (last write wins), losing a reading that was never actually
+  /// deleted or superseded.
+  Future<void> _writeQueue = Future.value();
+
+  Future<T> _enqueueWrite<T>(Future<T> Function() job) {
+    final result = _writeQueue.then((_) => job());
+    _writeQueue = result.then((_) {}, onError: (_) {});
+    return result;
+  }
+
   @override
   Future<List<ReadingModel>> getReadings() async {
     final raw = _storage.getStringList(_key) ?? [];
@@ -41,7 +55,11 @@ class MockHistoryRepository implements HistoryRepository {
   }
 
   @override
-  Future<void> saveReading(ReadingModel reading) async {
+  Future<void> saveReading(ReadingModel reading) {
+    return _enqueueWrite(() => _saveReadingLocked(reading));
+  }
+
+  Future<void> _saveReadingLocked(ReadingModel reading) async {
     final current = await getReadings();
     final encoded = jsonEncode(reading.toJson());
     final list = HistoryScalePolicy.trimEncodedRetention([
@@ -55,7 +73,11 @@ class MockHistoryRepository implements HistoryRepository {
   }
 
   @override
-  Future<void> deleteReading(String id) async {
+  Future<void> deleteReading(String id) {
+    return _enqueueWrite(() => _deleteReadingLocked(id));
+  }
+
+  Future<void> _deleteReadingLocked(String id) async {
     final current = await getReadings();
     await _storage.setStringList(
       _key,
@@ -68,7 +90,11 @@ class MockHistoryRepository implements HistoryRepository {
   }
 
   @override
-  Future<void> clearAll() async {
+  Future<void> clearAll() {
+    return _enqueueWrite(_clearAllLocked);
+  }
+
+  Future<void> _clearAllLocked() async {
     final ids = (await getReadings()).map((e) => e.id).toList();
     await _storage.setStringList(_key, []);
     for (final id in ids) await _memory?.removeBySource(id);
