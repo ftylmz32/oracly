@@ -5,6 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
+import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
+import 'package:oracly_new/features/premium/providers/premium_providers.dart';
+import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
+import 'package:oracly_new/features/premium/models/premium_purchase_result.dart';
+import 'package:oracly_new/features/premium/controllers/premium_status_controller.dart';
+import 'package:oracly_new/core/services/premium_service.dart';
+import 'package:oracly_new/core/modules/oracly_feature_navigation.dart';
+import 'package:oracly_new/core/domain/models/premium_plan.dart';
+import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
+import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/modules/oracly_feature_id.dart';
 import 'package:oracly_new/core/navigation/oracly_route_generator.dart';
@@ -19,6 +30,44 @@ import 'package:oracly_new/features/tarot/navigation/tarot_module_navigator.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
+
+class _ColdStartActiveVerifier implements PremiumEntitlementVerifier {
+  @override
+  bool get isRemoteVerifierConfigured => true;
+
+  @override
+  Future<PremiumVerifyResult> verify({
+    required String platform,
+    required String productId,
+    required String purchaseToken,
+    String? transactionId,
+  }) async => PremiumVerifyResult.active('cold_start_active');
+}
+
+class _ColdStartStorePort implements PremiumPurchasePort {
+  @override
+  bool get isConfigured => true;
+
+  @override
+  bool get canAttemptRestore => true;
+
+  @override
+  Future<void> prepare() async {}
+
+  @override
+  String? priceLabel(PremiumPlanKind plan) => null;
+
+  @override
+  Future<PremiumPurchaseResult> purchase(PremiumPlanKind plan) async =>
+      PremiumPurchaseResult.unavailable();
+
+  @override
+  Future<PremiumPurchaseResult> restore() async =>
+      PremiumPurchaseResult.restoreUnavailable();
+
+  @override
+  Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async => null;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -87,6 +136,65 @@ void main() {
     expect(find.byType(TarotModuleNavigator), findsNothing);
     expect(find.byType(SoulMateDrawScreen), findsNothing);
   });
+
+  testWidgets(
+    'cold-start entitled Soul Mate tap awaits Premium load then opens Soul Mate, never paywall/Tarot',
+    (tester) async {
+      const size = Size(390, 844);
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      SharedPreferences.setMockInitialValues({
+        'or_premium_active': true,
+        'or_premium_authoritative': true,
+        'or_premium_plan': PremiumPlanKind.yearly.index,
+        'or_premium_platform': 'android',
+        'or_premium_product_id': 'app.oracly.premium.yearly',
+        'or_premium_purchase_token': 'cold-start-valid-token',
+      });
+      final storage = await LocalStorage.open();
+      final premiumRepo = MockPremiumRepository(storage);
+      final service = PremiumService(
+        premiumRepo,
+        MockUserRepository(storage),
+        _ColdStartStorePort(),
+        _ColdStartActiveVerifier(),
+      )..forceReleaseMode = true;
+      final status = PremiumStatusController(service);
+      expect(status.loaded, isFalse);
+
+      await tester.pumpWidget(
+        buildProviderScopeHarness(
+          storage: storage,
+          overrides: [
+            premiumStatusProvider.overrideWithValue(status),
+          ],
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: TextButton(
+                  onPressed: () => OraclyFeatureNavigation.open(
+                    context,
+                    OraclyFeatureId.soulMate,
+                  ),
+                  child: const Text('OPEN_SOULMATE'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('OPEN_SOULMATE'));
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(status.loaded, isTrue);
+      expect(status.isPremium, isTrue);
+      expect(find.byType(SoulMateDrawScreen), findsOneWidget);
+      expect(find.text(PremiumCopy.gateTitle), findsNothing);
+      expect(find.byType(TarotModuleNavigator), findsNothing);
+    },
+  );
 
   testWidgets('Tarot tile opens Tarot only', (tester) async {
     await pumpHome(tester);
