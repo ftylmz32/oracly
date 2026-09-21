@@ -248,6 +248,49 @@ void main() {
     },
   );
 
+  test(
+    'stale wallet service never sends a server command after auth owner changes',
+    () async {
+      final storage = LocalStorage.ephemeral();
+      var currentOwner = 'uid-a';
+      var calls = 0;
+      final service = GemWalletService(
+        GemWalletStore(storage),
+        ownerId: 'uid-a',
+        requireOwner: true,
+        currentOwnerId: () => currentOwner,
+        gateway: GemWalletGateway((method, path, body) async {
+          calls += 1;
+          return const ReadingOperationWire(
+            statusCode: 200,
+            json: {
+              'data': {
+                'balance': 20,
+                'settled': true,
+                'idempotent': false,
+                'canonicalCost': 20,
+              },
+            },
+          );
+        }),
+      );
+
+      currentOwner = 'uid-b';
+      final result = await service.settleTarot(
+        operationId: 'or-tarot-owner-race',
+        idempotencyKey: 'tarot-settle-request-v1',
+      );
+
+      expect(result, isNull);
+      expect(calls, 0);
+      expect(service.canSpend(1), isFalse);
+      await expectLater(
+        service.acceptAuthoritativeBalance(20),
+        throwsA(isA<GemSpendException>()),
+      );
+    },
+  );
+
   test('gateway accepts numeric balance as num from JSON', () async {
     final storage = LocalStorage.ephemeral();
     final service = GemWalletService(
