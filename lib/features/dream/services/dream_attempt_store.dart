@@ -4,6 +4,7 @@ library;
 import 'dart:convert';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/datasources/storage_result.dart';
 import '../../ai/production/ai_request_fingerprint.dart';
 import '../../gems/services/paid_ai_operation_id.dart';
 
@@ -26,11 +27,13 @@ class DreamAttemptStore {
       return existing.id;
     }
     final id = PaidAiOperationId.create('dream');
-    await _storage.setString(key, jsonEncode({'fp': fp, 'id': id}));
+    await _storage
+        .setString(key, jsonEncode({'fp': fp, 'id': id}))
+        .requireDurable(key);
     return id;
   }
 
-  Future<void> clear() => _storage.remove(key);
+  Future<void> clear() => _storage.remove(key).requireDurable(key);
 
   static String fingerprint(String narrative) =>
       AiRequestFingerprint.text('dream', narrative.trim().toLowerCase());
