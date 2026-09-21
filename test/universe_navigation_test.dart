@@ -33,8 +33,9 @@ void main() {
       expect(reflect.map((m) => m.id), contains(OraclyFeatureId.personalInsights));
     });
 
-    test('feature navigation can open memory and insights', () {
+    test('feature navigation can open custom stacks and insights', () {
       expect(OraclyFeatureNavigation.canOpen(OraclyFeatureId.memory), isTrue);
+      expect(OraclyFeatureNavigation.canOpen(OraclyFeatureId.soulMate), isTrue);
       expect(
         OraclyFeatureNavigation.canOpen(OraclyFeatureId.personalInsights),
         isTrue,
