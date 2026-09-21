@@ -93,6 +93,9 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
         }
         if (!mounted) return;
       }
+      final operations = ref.read(paidAiOperationCoordinatorProvider);
+      final wallet = ref.read(gemWalletProvider);
+      final analytics = ref.read(analyticsServiceProvider);
       final op = await GemSpendGuard.beginPaid(
         ref,
         context: context,
@@ -103,28 +106,30 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
       );
       if (op == null) return;
       if (!mounted) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await operations.abandon(op.id);
         return;
       }
-      ref.read(analyticsServiceProvider).logPalmStarted();
+      analytics.logPalmStarted();
       final started = DateTime.now();
       await PaidAiOperationBinder.runWithKey(op.idempotencyKey, () {
         return controller.analyze();
       });
-      if (controller.phase != PalmPhase.result || controller.reading == null) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+      if (!mounted ||
+          controller.phase != PalmPhase.result ||
+          controller.reading == null) {
+        await operations.abandon(op.id);
         if (controller.phase == PalmPhase.error) {
-          ref
-              .read(analyticsServiceProvider)
-              .logPalmFailure(errorCategory: 'analysis');
+          analytics.logPalmFailure(errorCategory: 'analysis');
         }
         return;
       }
-      ref.read(analyticsServiceProvider).logPalmSuccess(
-            latency: DateTime.now().difference(started),
-          );
-      await GemSpendGuard.settleOperation(
-        ref,
+      analytics.logPalmSuccess(
+        latency: DateTime.now().difference(started),
+      );
+      await GemSpendGuard.settleOperationCaptured(
+        coordinator: operations,
+        wallet: wallet,
+        analytics: analytics,
         operation: op,
         context: mounted ? context : null,
       );
