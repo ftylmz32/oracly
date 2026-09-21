@@ -257,9 +257,10 @@ class PalmReadingController extends ChangeNotifier
   Future<void> recoverActive() async {
     final live = _live;
     if (live == null) return;
+    final token = _generation;
     final pending = _pendingStore?.load(ReadingType.palm);
     final state = await live.flow.recover(ReadingType.palm);
-    if (_disposed) return;
+    if (_disposed || token != _generation) return;
     switch (state.kind) {
       case ReadingLiveKind.ready:
         unawaited(_pendingStore?.clear(ReadingType.palm));
