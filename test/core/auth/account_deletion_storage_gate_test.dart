@@ -296,7 +296,7 @@ void main() {
           auth: MockAuthService(),
           storage: storage,
           secureStorage: InMemorySecureStorage(),
-          deleteServerData: () async => true,
+          deleteServerData: (_) async => true,
         );
       }
 
@@ -362,7 +362,7 @@ void main() {
             auth: auth,
             storage: storage,
             secureStorage: InMemorySecureStorage(),
-            deleteServerData: () async => true,
+            deleteServerData: (_) async => true,
           );
 
           await AccountDeletionPendingState.resolveAndReconcile(
@@ -399,7 +399,7 @@ void main() {
             auth: auth,
             storage: storage,
             secureStorage: InMemorySecureStorage(),
-            deleteServerData: () async => true,
+            deleteServerData: (_) async => true,
           );
 
           await AccountDeletionPendingState.resolveAndReconcile(
@@ -593,7 +593,7 @@ void main() {
             auth: MockAuthService(),
             storage: storage,
             secureStorage: InMemorySecureStorage(),
-            deleteServerData: () async => true,
+            deleteServerData: (_) async => true,
           );
           expect(deletion.hasPendingIdentityCleanup, isFalse);
           expect(deletion.hasCorruptDeletionMarker, isTrue);
@@ -611,7 +611,7 @@ void main() {
             auth: MockAuthService(),
             storage: storage,
             secureStorage: InMemorySecureStorage(),
-            deleteServerData: () async => true,
+            deleteServerData: (_) async => true,
           );
           expect(deletion.hasPendingAnonymousBootstrap, isFalse);
           expect(deletion.hasCorruptDeletionMarker, isTrue);
@@ -1313,7 +1313,7 @@ class _CountingAuth implements AuthService {
 /// [AccountDeletionService.deleteAccountAndWipeLocalData] would take.
 class _CountingServerDelete {
   int calls = 0;
-  Future<bool> call() async {
+  Future<bool> call(String expectedTargetUid) async {
     calls++;
     return true;
   }

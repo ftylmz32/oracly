@@ -30,9 +30,15 @@ final accountDeletionServiceProvider = Provider<AccountDeletionService>((ref) {
     auth: ref.watch(authServiceProvider),
     storage: ref.watch(localStorageProvider),
     secureStorage: ref.watch(secureStorageProvider),
-    deleteServerData: () async {
+    deleteServerData: (expectedTargetUid) async {
       if (send == null) return false;
-      final response = await send('POST', '/v1/account/deletion', const {});
+      // The backend independently re-derives whose data to delete from
+      // the verified auth token alone — this field is only an anti-race
+      // ASSERTION the backend rejects on if it doesn't match, never an
+      // authorization mechanism.
+      final response = await send('POST', '/v1/account/deletion', {
+        'expectedTargetUid': expectedTargetUid,
+      });
       final data = response?.json?['data'];
       return response?.statusCode == 202 &&
           data is Map &&

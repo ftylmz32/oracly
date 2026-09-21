@@ -23,6 +23,17 @@ abstract final class AccountDeletionFinalizer {
       'account_deletion_pending_server_delete';
   static const localWipePendingKey = 'account_deletion_pending_local_wipe';
 
+  /// Durable creation-intent provenance: armed BEFORE Firebase is ever
+  /// asked to create a replacement anonymous identity, so that if the
+  /// SUBSEQUENT [AccountDeletionTarget.persistBootstrap] write fails after
+  /// Firebase already created one, a retry can recognize the resulting
+  /// live anonymous identity as belonging to THIS bootstrap attempt rather
+  /// than refusing it as an unrelated pre-existing identity. Cleared as
+  /// soon as [AccountDeletionTarget.persistBootstrap] durably succeeds —
+  /// bootstrapUid itself is the provenance from then on.
+  static const bootstrapCreationArmedKey =
+      'account_deletion_bootstrap_creation_armed';
+
   static Future<ApiResult<bool>> finishAfterIdentityDeleted({
     required AuthService auth,
     required LocalStorage storage,
@@ -111,11 +122,29 @@ abstract final class AccountDeletionFinalizer {
       );
     }
 
-    // No provenance yet — refuse any PRE-EXISTING identity (including anon).
-    if (auth.hasCurrentIdentity) {
-      AccountDeletionPendingState.markFinalizing();
-      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    final creationArmed = storage.getBool(bootstrapCreationArmedKey) ?? false;
+    if (!creationArmed) {
+      // No provenance yet, and no creation attempt was ever armed — a
+      // current identity here belongs to some unrelated flow, never to
+      // this deletion's replacement bootstrap. Refuse it.
+      if (auth.hasCurrentIdentity) {
+        AccountDeletionPendingState.markFinalizing();
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
+      // Durably arm intent BEFORE Firebase creates anything. If the
+      // persistBootstrap write below fails after Firebase already
+      // created the identity, a retry reads this flag and safely
+      // recognizes that SAME live anonymous identity as ours — instead
+      // of refusing it forever as "pre-existing".
+      if (!await storage.setBool(bootstrapCreationArmedKey, true)) {
+        AccountDeletionPendingState.markFinalizing();
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
     }
+    // creationArmed && !hasCurrentIdentity (e.g. the Firebase session
+    // itself never actually landed) falls through to ensureAnonymousSession
+    // below exactly like a first attempt — safe, since no identity exists
+    // yet to confuse with an unrelated one.
 
     final session = await auth.ensureAnonymousSession();
     final created = auth.currentUserId?.trim();
@@ -135,6 +164,10 @@ abstract final class AccountDeletionFinalizer {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
+    // bootstrapUid is now the durable provenance — the creation-intent
+    // flag has served its purpose. Its own removal failing is not fatal:
+    // a stray true value here is inert once bootstrapUid is read first.
+    await storage.remove(bootstrapCreationArmedKey);
     if (session.isFailure) {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(
@@ -174,10 +207,23 @@ abstract final class AccountDeletionFinalizer {
     );
   }
 
+  /// Retirement order is the entire point of this function: [
+  /// anonymousBootstrapKey] — the LAST remaining durable phase marker by
+  /// the time this runs — must stay `true` until target/bootstrap
+  /// provenance cleanup has ALREADY durably succeeded. Removing it first
+  /// (the previous, buggy order) opened a restart window where a crash
+  /// between that removal and the provenance cleanup below left every
+  /// boolean phase marker absent while stale `targetUid`/`bootstrapUid`
+  /// provenance was still on disk — indistinguishable from a genuinely
+  /// clear device unless a caller specifically re-checks provenance too.
+  /// Only the LAST successful write here (anonymousBootstrapKey's own
+  /// removal) may retire the final gate authority.
   static Future<ApiResult<bool>> _clearAllMarkers({
     required LocalStorage storage,
     required String identityCleanupKey,
   }) async {
+    // Already-absent-by-construction at this point in the normal flow —
+    // attempted defensively so a historical/partial state converges too.
     if (!await storage.remove(identityCleanupKey)) {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
@@ -190,10 +236,8 @@ abstract final class AccountDeletionFinalizer {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
-    if (!await storage.remove(anonymousBootstrapKey)) {
-      AccountDeletionPendingState.markFinalizing();
-      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
-    }
+
+    // Provenance cleanup BEFORE the last durable gate marker is retired.
     if (!await AccountDeletionTarget.clearTarget(storage)) {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
@@ -202,6 +246,14 @@ abstract final class AccountDeletionFinalizer {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
+
+    // ONLY NOW — target and bootstrap provenance are already durably
+    // gone — may the final gate authority itself be retired.
+    if (!await storage.remove(anonymousBootstrapKey)) {
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+
     if (AccountDeletionMarkers.isExactlyTrue(
           storage,
           serverDeletePendingKey,

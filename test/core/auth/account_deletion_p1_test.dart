@@ -16,6 +16,7 @@ import 'package:oracly_new/core/auth/firebase/firebase_auth_gateway.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_auth_service.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_auth_user.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_id_token_manager.dart';
+import 'package:oracly_new/core/auth/mock_auth_service.dart';
 import 'package:oracly_new/core/auth/models/account_reauth_method.dart';
 import 'package:oracly_new/core/auth/models/auth_credentials.dart';
 import 'package:oracly_new/core/auth/models/auth_session.dart';
@@ -76,7 +77,7 @@ void main() {
       auth: auth,
       storage: storage,
       secureStorage: secure,
-      deleteServerData: () async => true,
+      deleteServerData: (_) async => true,
     );
   });
 
@@ -214,7 +215,7 @@ void main() {
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async => true,
+        deleteServerData: (_) async => true,
       );
 
       await failingAuth.signInAnonymously();
@@ -262,7 +263,7 @@ void main() {
         auth: failingAuth,
         storage: healthyStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async => true,
+        deleteServerData: (_) async => true,
       );
 
       final retryResult = await healthyDeletion.retryPendingIdentityCleanup();
@@ -317,7 +318,7 @@ void main() {
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -364,7 +365,7 @@ void main() {
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -389,7 +390,7 @@ void main() {
         auth: failingAuth,
         storage: LocalStorage(prefs),
         secureStorage: failingSecure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -432,7 +433,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -465,7 +466,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -488,7 +489,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           throw StateError('network collapsed');
         },
@@ -507,7 +508,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -533,7 +534,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           if (AccountDeletionMarkers.isExactlyTrue(
             storage,
@@ -607,7 +608,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -643,7 +644,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -687,7 +688,7 @@ void main() {
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -724,7 +725,7 @@ void main() {
         auth: failingAuth,
         storage: LocalStorage(prefs),
         secureStorage: failingSecure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -786,7 +787,7 @@ void main() {
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverDeleteCalls++;
           return true;
         },
@@ -829,7 +830,7 @@ void main() {
         auth: failingAuth,
         storage: healthyStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverDeleteCalls++;
           return true;
         },
@@ -873,7 +874,7 @@ void main() {
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async => true,
+        deleteServerData: (_) async => true,
       );
       await failingAuth.signInAnonymously();
       failingStorage.falseReturnKeys.add(
@@ -920,7 +921,7 @@ void main() {
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async => true,
+        deleteServerData: (_) async => true,
       );
       await failingAuth.signInAnonymously();
       // localWipePendingKey's establishment (setBool) succeeds normally —
@@ -956,6 +957,424 @@ void main() {
       expect(AccountDeletionPendingState.isClear, isTrue);
       expect(failingDeletion.hasPendingLocalWipe, isFalse);
       expect(failingDeletion.hasPendingAnonymousBootstrap, isFalse);
+    },
+  );
+
+  test(
+    'P0-1 / 3C: ownerKey belongs to a DIFFERENT uid than the live Firebase '
+    'identity — deletion fails closed BEFORE any destructive call, and the '
+    'target never destructively advances',
+    () async {
+      await auth.signInAnonymously();
+      var serverCalls = 0;
+      await storage.setString(
+        UserLocalDataIsolation.ownerKey,
+        'stale-owner-A',
+      );
+      final guarded = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: (_) async {
+          serverCalls++;
+          return true;
+        },
+      );
+
+      final result = await guarded.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(serverCalls, 0);
+      expect(gateway.deleteCalls, 0);
+      expect(
+        AccountDeletionTarget.readTargetUid(storage),
+        isNull,
+        reason: 'target must never be persisted for a device whose local '
+            'data belongs to someone else',
+      );
+      expect(
+        storage.getString(UserLocalDataIsolation.ownerKey),
+        'stale-owner-A',
+      );
+    },
+  );
+
+  test(
+    'P0-2 / 2A: bootstrapUid persistence failing AFTER Firebase already '
+    'created the replacement anonymous identity is recoverable — retry '
+    'recognizes and binds that SAME identity, never creates a second one, '
+    'and never calls deleteAccount against it',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingSecure = InMemorySecureStorage();
+      final failingGateway = _DeletionGateway();
+      final failingSessions = InMemorySessionManager(
+        FirebaseIdTokenManager(failingGateway, fallback: _MemTokens()),
+      );
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: failingSessions,
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: failingSecure,
+        ),
+      );
+      // Identity already deleted, wipe already done — exactly the state
+      // finishAfterIdentityDeleted leaves before calling
+      // completeAnonymousBootstrap.
+      await failingStorage.setString(
+        AccountDeletionTarget.targetUidKey,
+        'deleted-owner-A',
+      );
+      await failingStorage.setBool(
+        AccountDeletionFinalizer.anonymousBootstrapKey,
+        true,
+      );
+      failingStorage.falseReturnKeys.add(AccountDeletionTarget.bootstrapUidKey);
+      final failingDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: failingStorage,
+        secureStorage: failingSecure,
+        deleteServerData: (_) async => true,
+      );
+
+      final firstAttempt = await failingDeletion.retryPendingIdentityCleanup();
+
+      expect(firstAttempt.isFailure, isTrue);
+      expect(
+        failingGateway.currentUser,
+        isNotNull,
+        reason: 'Firebase DID create a replacement anonymous identity',
+      );
+      expect(failingGateway.currentUser!.isAnonymous, isTrue);
+      final createdUid = failingGateway.currentUser!.uid;
+      expect(
+        AccountDeletionTarget.readBootstrapUid(failingStorage),
+        isNull,
+        reason: 'persistBootstrap never durably succeeded on this attempt',
+      );
+      expect(
+        failingGateway.deleteCalls,
+        0,
+        reason: 'the freshly created anonymous identity must never be '
+            'deleted just because provenance failed to record it',
+      );
+
+      // Retry with storage healthy: must recognize createdUid as OURS
+      // (never refuse it as "pre-existing"), and must not create a SECOND
+      // anonymous identity.
+      failingStorage.falseReturnKeys.clear();
+      final anonSerialBeforeRetry = failingGateway.anonSerial;
+      final retry = await failingDeletion.retryPendingIdentityCleanup();
+
+      expect(retry.isSuccess, isTrue);
+      expect(
+        failingGateway.anonSerial,
+        anonSerialBeforeRetry,
+        reason: 'no second anonymous identity is created',
+      );
+      expect(failingGateway.currentUser?.uid, createdUid);
+      expect(failingGateway.deleteCalls, 0);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(
+        AccountDeletionTarget.readBootstrapUid(failingStorage),
+        isNull,
+        reason: 'fully retired once finalization actually completed',
+      );
+    },
+  );
+
+  test(
+    'P0-2 / 2A: process restart at the exact boundary between Firebase '
+    'anonymous creation and durable bootstrapUid persistence stays '
+    'finalizing, never clear, and the retry above still applies after '
+    'restart',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        AccountDeletionFinalizer.anonymousBootstrapKey: true,
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      await failingStorage.setString(
+        AccountDeletionTarget.targetUidKey,
+        'deleted-owner-A',
+      );
+      final failingGateway = _DeletionGateway();
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: InMemorySessionManager(_MemTokens()),
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: InMemorySecureStorage(),
+        ),
+      );
+      failingStorage.falseReturnKeys.add(AccountDeletionTarget.bootstrapUidKey);
+      await AccountDeletionFinalizer.completeAnonymousBootstrap(
+        auth: failingAuth,
+        storage: failingStorage,
+        identityCleanupKey: AccountDeletionService.pendingIdentityCleanupKey,
+      );
+
+      // Simulate a full process restart: fresh phase resolution from disk.
+      AccountDeletionPendingState.resetForTest();
+      final restartStatus =
+          await AccountDeletionPendingState.resolveFromLocalStorage(
+        LocalStorage(prefs),
+      );
+      expect(restartStatus, AccountDeletionGateResolveStatus.finalizing);
+      expect(failingGateway.deleteCalls, 0);
+    },
+  );
+
+  test(
+    'P0-1 / 1B: clearTarget failing during the final marker handoff leaves '
+    'anonymousBootstrapKey durably true — never a marker-free gap even '
+    'though provenance cleanup was already attempted; restart at this exact '
+    'boundary stays finalizing, and a healthy retry converges',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingGateway = _DeletionGateway();
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: InMemorySessionManager(_MemTokens()),
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: InMemorySecureStorage(),
+        ),
+      );
+      await failingStorage.setBool(
+        AccountDeletionFinalizer.anonymousBootstrapKey,
+        true,
+      );
+      await failingStorage.setString(
+        AccountDeletionTarget.bootstrapUidKey,
+        'anon-recorded',
+      );
+      failingGateway.forceUser(
+        const FirebaseAuthUserSnapshot(uid: 'anon-recorded', isAnonymous: true),
+      );
+      failingStorage.falseReturnRemoveKeys.add(AccountDeletionTarget.targetUidKey);
+
+      final result = await AccountDeletionFinalizer.completeAnonymousBootstrap(
+        auth: failingAuth,
+        storage: failingStorage,
+        identityCleanupKey: AccountDeletionService.pendingIdentityCleanupKey,
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(
+        failingStorage.getBool(AccountDeletionFinalizer.anonymousBootstrapKey),
+        isTrue,
+        reason: 'the final gate authority must not be retired before '
+            'target/bootstrap provenance cleanup has already succeeded',
+      );
+      expect(AccountDeletionPendingState.isFinalizing, isTrue);
+
+      AccountDeletionPendingState.resetForTest();
+      final restart = await AccountDeletionPendingState.resolveFromLocalStorage(
+        failingStorage,
+      );
+      expect(restart, AccountDeletionGateResolveStatus.finalizing);
+
+      failingStorage.falseReturnRemoveKeys.clear();
+      final retry = await AccountDeletionFinalizer.completeAnonymousBootstrap(
+        auth: failingAuth,
+        storage: failingStorage,
+        identityCleanupKey: AccountDeletionService.pendingIdentityCleanupKey,
+      );
+      expect(retry.isSuccess, isTrue);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+    },
+  );
+
+  test(
+    'P0-1 / 1B: clearBootstrap failing during the final marker handoff also '
+    'leaves anonymousBootstrapKey durably true',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingGateway = _DeletionGateway();
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: InMemorySessionManager(_MemTokens()),
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: InMemorySecureStorage(),
+        ),
+      );
+      await failingStorage.setBool(
+        AccountDeletionFinalizer.anonymousBootstrapKey,
+        true,
+      );
+      await failingStorage.setString(
+        AccountDeletionTarget.bootstrapUidKey,
+        'anon-recorded-2',
+      );
+      failingGateway.forceUser(
+        const FirebaseAuthUserSnapshot(
+          uid: 'anon-recorded-2',
+          isAnonymous: true,
+        ),
+      );
+      failingStorage.falseReturnRemoveKeys.add(
+        AccountDeletionTarget.bootstrapUidKey,
+      );
+
+      final result = await AccountDeletionFinalizer.completeAnonymousBootstrap(
+        auth: failingAuth,
+        storage: failingStorage,
+        identityCleanupKey: AccountDeletionService.pendingIdentityCleanupKey,
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(
+        failingStorage.getBool(AccountDeletionFinalizer.anonymousBootstrapKey),
+        isTrue,
+      );
+      expect(AccountDeletionPendingState.isFinalizing, isTrue);
+
+      failingStorage.falseReturnRemoveKeys.clear();
+      final retry = await AccountDeletionFinalizer.completeAnonymousBootstrap(
+        auth: failingAuth,
+        storage: failingStorage,
+        identityCleanupKey: AccountDeletionService.pendingIdentityCleanupKey,
+      );
+      expect(retry.isSuccess, isTrue);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+    },
+  );
+
+  test(
+    'P0-1 / 1C: a harmless target-only orphan (persistTarget succeeded, '
+    'then a crash before any destructive phase marker was EVER set) is '
+    'safely retired by resolveAndReconcile instead of bricking in '
+    'integrityRecovery forever',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final orphanStorage = LocalStorage(await SharedPreferences.getInstance());
+      await orphanStorage.setString(
+        AccountDeletionTarget.targetUidKey,
+        'crashed-before-server-delete',
+      );
+
+      final initialStatus =
+          await AccountDeletionPendingState.resolveFromLocalStorage(
+        orphanStorage,
+      );
+      expect(
+        initialStatus,
+        AccountDeletionGateResolveStatus.integrityRecovery,
+        reason: 'never silently derive clear from leftover provenance alone',
+      );
+
+      AccountDeletionPendingState.resetForTest();
+      final orphanDeletion = AccountDeletionService(
+        auth: MockAuthService(),
+        storage: orphanStorage,
+        secureStorage: InMemorySecureStorage(),
+        deleteServerData: (_) async => true,
+      );
+      await AccountDeletionPendingState.resolveAndReconcile(
+        orphanStorage,
+        orphanDeletion,
+      );
+
+      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(AccountDeletionTarget.readTargetUid(orphanStorage), isNull);
+    },
+  );
+
+  test(
+    'P0-1 / 1C: a bootstrapUid-only orphan is likewise safely reconciled '
+    '(never authorizes destructive work — only clears bookkeeping)',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final orphanStorage = LocalStorage(await SharedPreferences.getInstance());
+      await orphanStorage.setString(
+        AccountDeletionTarget.bootstrapUidKey,
+        'anon-leftover',
+      );
+
+      AccountDeletionPendingState.resetForTest();
+      final orphanDeletion = AccountDeletionService(
+        auth: MockAuthService(),
+        storage: orphanStorage,
+        secureStorage: InMemorySecureStorage(),
+        deleteServerData: (_) async => true,
+      );
+      await AccountDeletionPendingState.resolveAndReconcile(
+        orphanStorage,
+        orphanDeletion,
+      );
+
+      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(AccountDeletionTarget.readBootstrapUid(orphanStorage), isNull);
+    },
+  );
+
+  test(
+    'P0-1 / 1A: a CORRUPT bootstrapUid is never treated as a harmless '
+    'orphan — integrityRecovery survives resolveAndReconcile and the '
+    'corrupt value is never silently mutated',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        AccountDeletionTarget.bootstrapUidKey: 42,
+      });
+      final corruptStorage = LocalStorage(await SharedPreferences.getInstance());
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(
+        corruptStorage,
+      );
+      expect(status, AccountDeletionGateResolveStatus.integrityRecovery);
+
+      AccountDeletionPendingState.resetForTest();
+      final deletion = AccountDeletionService(
+        auth: MockAuthService(),
+        storage: corruptStorage,
+        secureStorage: InMemorySecureStorage(),
+        deleteServerData: (_) async => true,
+      );
+      await AccountDeletionPendingState.resolveAndReconcile(
+        corruptStorage,
+        deletion,
+      );
+
+      expect(
+        AccountDeletionPendingState.isIntegrityRecovery,
+        isTrue,
+        reason: 'corrupt provenance must never be auto-reconciled as '
+            'harmless',
+      );
+      expect(corruptStorage.peek(AccountDeletionTarget.bootstrapUidKey), 42);
+    },
+  );
+
+  test(
+    'P0-1 / 1C: anonymousBootstrap=true WITH bootstrapUid present is a REAL '
+    'active phase, not an orphan — resolveFromLocalStorage reads '
+    'finalizing, never integrityRecovery',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        AccountDeletionService.pendingAnonymousBootstrapKey: true,
+      });
+      final storageWithBootstrap =
+          LocalStorage(await SharedPreferences.getInstance());
+      await storageWithBootstrap.setString(
+        AccountDeletionTarget.bootstrapUidKey,
+        'anon-in-progress',
+      );
+
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(
+        storageWithBootstrap,
+      );
+      expect(status, AccountDeletionGateResolveStatus.finalizing);
     },
   );
 
@@ -1359,7 +1778,7 @@ void main() {
           auth: auth,
           storage: storage,
           secureStorage: secure,
-          deleteServerData: () async {
+          deleteServerData: (_) async {
             serverCalls++;
             return true;
           },
@@ -1391,7 +1810,7 @@ void main() {
           auth: auth,
           storage: storage,
           secureStorage: secure,
-          deleteServerData: () async {
+          deleteServerData: (_) async {
             serverCalls++;
             return true;
           },
@@ -1429,7 +1848,7 @@ void main() {
           auth: auth,
           storage: storage,
           secureStorage: secure,
-          deleteServerData: () async {
+          deleteServerData: (_) async {
             serverCalls++;
             return false;
           },
@@ -1475,7 +1894,7 @@ void main() {
           auth: auth,
           storage: storage,
           secureStorage: secure,
-          deleteServerData: () async {
+          deleteServerData: (_) async {
             serverCalls++;
             return true;
           },
@@ -1510,7 +1929,7 @@ void main() {
           auth: auth,
           storage: storage,
           secureStorage: secure,
-          deleteServerData: () async {
+          deleteServerData: (_) async {
             serverCalls++;
             return true;
           },
@@ -1640,7 +2059,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -1669,7 +2088,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -1713,7 +2132,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -1760,7 +2179,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return false;
         },
@@ -1817,7 +2236,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },
@@ -1845,7 +2264,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async => true,
+        deleteServerData: (_) async => true,
       );
       final asB = await pending.retryPendingIdentityCleanup();
       expect(asB.isFailure, isTrue);
@@ -1875,7 +2294,7 @@ void main() {
         auth: auth,
         storage: storage,
         secureStorage: secure,
-        deleteServerData: () async {
+        deleteServerData: (_) async {
           serverCalls++;
           return true;
         },

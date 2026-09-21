@@ -13,6 +13,7 @@ import 'account_deletion_target.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
 import 'models/auth_credentials.dart';
+import 'user_local_data_isolation.dart';
 
 class AccountDeletionService {
   AccountDeletionService({
@@ -25,7 +26,12 @@ class AccountDeletionService {
   final AuthService _auth;
   final LocalStorage _storage;
   final SecureStorage _secureStorage;
-  final Future<bool> Function() deleteServerData;
+
+  /// Receives the DURABLE deletion target uid as an anti-race assertion —
+  /// see [AccountDeletionTarget]. The backend must independently re-verify
+  /// this against the authenticated request's own identity and reject on
+  /// mismatch; this parameter is never itself an authorization mechanism.
+  final Future<bool> Function(String expectedTargetUid) deleteServerData;
 
   static const pendingServerDeleteKey =
       AccountDeletionFinalizer.serverDeletePendingKey;
@@ -69,7 +75,8 @@ class AccountDeletionService {
           MarkerRead.corrupt ||
       AccountDeletionMarkers.read(_storage, pendingAnonymousBootstrapKey) ==
           MarkerRead.corrupt ||
-      AccountDeletionTarget.isTargetCorrupt(_storage);
+      AccountDeletionTarget.isTargetCorrupt(_storage) ||
+      AccountDeletionTarget.isBootstrapCorrupt(_storage);
 
   /// Marker true but no valid target (and legacy migrate failed).
   bool get hasOrphanDeletionMarker =>
@@ -201,6 +208,17 @@ class AccountDeletionService {
           NetworkException.unauthorized(AuthCopy.noCurrentUser),
         );
       }
+      // Audit local owner binding BEFORE the first destructive call of
+      // any kind (server delete, identity delete) and before the target
+      // is even persisted. A present-but-DIFFERENT ownerKey means this
+      // device's local data belongs to someone else — never advance the
+      // target, never call the server, never touch the identity. A null
+      // ownerKey is a legitimate first-sign-in/bootstrap state and is not
+      // itself a mismatch.
+      final owner = _storage.getString(UserLocalDataIsolation.ownerKey)?.trim();
+      if (owner != null && owner.isNotEmpty && owner != uid) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
       if (!await AccountDeletionTarget.persistTarget(_storage, uid)) {
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
@@ -212,9 +230,18 @@ class AccountDeletionService {
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
 
+    // The durable target uid is sent as an anti-race assertion the
+    // backend independently re-verifies against the authenticated
+    // request's own identity — see AccountDeletionService.deleteServerData.
+    final expectedTargetUid = AccountDeletionTarget.readTargetUid(_storage);
+    if (expectedTargetUid == null) {
+      AccountDeletionPendingState.markIntegrityRecovery();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+
     final bool serverAccepted;
     try {
-      serverAccepted = await deleteServerData();
+      serverAccepted = await deleteServerData(expectedTargetUid);
     } catch (_) {
       AccountDeletionPendingState.markBlocked();
       return ApiFailure(

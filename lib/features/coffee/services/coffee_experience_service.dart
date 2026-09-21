@@ -2,6 +2,7 @@
 library;
 
 import '../../../core/reading_version/models/reading_version_kind.dart';
+import '../../../core/reading_version/services/reading_version_fingerprint.dart';
 import '../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../core/reading_version/services/reading_version_service.dart';
 import '../copy/coffee_copy.dart';
@@ -119,12 +120,18 @@ class CoffeeExperienceService {
     );
     // No local source to archive — imagePath stays null (already the
     // case on `reading`, per CoffeeStagedAnalysisPort's contract).
+    // Reading metadata is the commit point — save it durably FIRST.
     await _store.save(reading);
-    await _versions?.seedOriginal(
-      rootId: reading.id,
-      kind: ReadingVersionKind.coffee,
-      data: ReadingVersionPayload.coffee(reading),
-    );
+    // Version seed is post-commit enrichment — its failure must never
+    // turn an already-durable reading into a user-visible failure (which
+    // would risk a caller retrying and repeating the paid provider op).
+    try {
+      await _versions?.seedOriginal(
+        rootId: reading.id,
+        kind: ReadingVersionKind.coffee,
+        data: ReadingVersionPayload.coffee(reading),
+      );
+    } catch (_) {}
     return reading;
   }
 
@@ -142,15 +149,29 @@ class CoffeeExperienceService {
       persistedAt: persistedAt,
       result: result,
     );
+    // Reading metadata is the commit point — save it durably FIRST.
     await _store.save(reading);
-    await _versions?.seedOriginal(
-      rootId: reading.id,
-      kind: ReadingVersionKind.coffee,
-      data: ReadingVersionPayload.coffee(reading),
-    );
+    // Version seed is post-commit enrichment — its failure must never
+    // turn an already-durable reading into a user-visible failure.
+    try {
+      await _versions?.seedOriginal(
+        rootId: reading.id,
+        kind: ReadingVersionKind.coffee,
+        data: ReadingVersionPayload.coffee(reading),
+      );
+    } catch (_) {}
     return reading;
   }
 
+  /// Reading metadata is the durable commit point; version history is
+  /// secondary enrichment. Order matters: (1) a NON-MUTATING duplicate
+  /// check — safe before any commit because the coffee fingerprint is
+  /// text-only and never depends on `imagePath` — (2) only then create a
+  /// new image candidate (never for a duplicate/no-op, so nothing is ever
+  /// orphaned by one), (3) durably save the merged reading, rolling back
+  /// ONLY a newly-created candidate (never a prior committed image) if
+  /// that save fails, and (4) append the version revision best-effort
+  /// AFTER the reading itself is durable.
   Future<CoffeeReinterpretResult> reinterpret({
     required CoffeeReading current,
     required CoffeeImagePick image,
@@ -165,6 +186,30 @@ class CoffeeExperienceService {
       throw CoffeeAnalysisException(CoffeeCopy.analysisUnavailable);
     }
     final fresh = await _analysis.analyze(image);
+
+    final versions = _versions;
+    if (versions != null) {
+      final probe = current.copyWith(
+        overall: fresh.overall,
+        love: fresh.love,
+        career: fresh.career,
+        money: fresh.money,
+        nearFuture: fresh.nearFuture,
+        takeaway: fresh.takeaway,
+        visualObservation: fresh.visualObservation,
+      );
+      final probeFingerprint = ReadingVersionFingerprint.of(
+        ReadingVersionPayload.coffee(probe),
+        ReadingVersionKind.coffee,
+      );
+      final activeFingerprint =
+          versions.groupFor(current.id)?.activeEntry?.fingerprint;
+      if (activeFingerprint == probeFingerprint) {
+        return CoffeeReinterpretResult(reading: current, versionAdded: false);
+      }
+    }
+
+    final createdCandidate = current.imagePath == null;
     final imagePath = current.imagePath ??
         await _persistImage(
           readingId: current.id,
@@ -183,19 +228,28 @@ class CoffeeExperienceService {
       visualObservation: fresh.visualObservation,
       symbols: fresh.symbols,
     );
-    final payload = ReadingVersionPayload.coffee(merged);
-    var added = true;
-    final versions = _versions;
-    if (versions != null) {
-      final result = await versions.tryAppendRevision(
-        rootId: current.id,
-        kind: ReadingVersionKind.coffee,
-        data: payload,
-      );
-      added = result.added;
-      if (!added) return CoffeeReinterpretResult(reading: current, versionAdded: false);
+
+    try {
+      await _store.save(merged);
+    } catch (_) {
+      if (createdCandidate) await CoffeeImageArchive.deleteIfOwned(imagePath);
+      rethrow;
     }
-    await _store.save(merged);
+
+    var added = false;
+    if (versions != null) {
+      try {
+        final result = await versions.tryAppendRevision(
+          rootId: current.id,
+          kind: ReadingVersionKind.coffee,
+          data: ReadingVersionPayload.coffee(merged),
+        );
+        added = result.added;
+      } catch (_) {
+        // Enrichment failure must not turn the already-durable reading
+        // into a user-visible "analysis failed".
+      }
+    }
     return CoffeeReinterpretResult(reading: merged, versionAdded: added);
   }
 }

@@ -65,11 +65,16 @@ class CoffeeReadingStore {
   }
 
   Future<void> delete(String id) async {
-    await _storage.setStringList(
+    final ok = await _storage.setStringList(
       key,
       all().where((e) => e.id != id)
           .map((e) => jsonEncode(e.toJson())).toList(),
     );
-    await _memory?.removeBySource(id);
+    if (!ok) {
+      throw StateError('coffee reading metadata delete failed');
+    }
+    try {
+      await _memory?.removeBySource(id);
+    } catch (_) {}
   }
 }

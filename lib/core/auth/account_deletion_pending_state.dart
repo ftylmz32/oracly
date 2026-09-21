@@ -118,7 +118,28 @@ abstract final class AccountDeletionPendingState {
   ) async {
     final status = await resolveFromLocalStorage(storage);
     if (status == AccountDeletionGateResolveStatus.storageUnavailable) return;
-    if (status == AccountDeletionGateResolveStatus.integrityRecovery) return;
+    if (status == AccountDeletionGateResolveStatus.integrityRecovery) {
+      // One specific integrityRecovery cause is provably harmless: nothing
+      // is corrupt, no phase marker is (or ever was, per these exact
+      // reads) durably true — only leftover target/bootstrap provenance
+      // survived a crash that happened either before any destructive work
+      // began, or after every destructive step had already fully
+      // completed. Reconciling ONLY this proven-safe case avoids bricking
+      // the app in integrityRecovery forever over a crash that never
+      // authorized anything destructive; anything less certain (corrupt,
+      // or a real phase marker still true) is deliberately left alone.
+      if (!deletion.hasCorruptDeletionMarker &&
+          !deletion.hasPendingFinalization &&
+          (AccountDeletionTarget.hasValidTarget(storage) ||
+              AccountDeletionTarget.readBootstrapUid(storage) != null)) {
+        try {
+          if (await AccountDeletionTarget.reconcileHarmlessOrphan(storage)) {
+            phase.value = AccountDeletionGatePhase.clear;
+          }
+        } catch (_) {}
+      }
+      return;
+    }
     try {
       // hasPendingFinalization is EXACT-true-only (never corrupt) — see
       // AccountDeletionService — so this can never retry a corrupt marker
@@ -167,7 +188,8 @@ abstract final class AccountDeletionPendingState {
         identityRead == MarkerRead.corrupt ||
         localWipeRead == MarkerRead.corrupt ||
         serverDeleteRead == MarkerRead.corrupt ||
-        AccountDeletionTarget.isTargetCorrupt(storage)) {
+        AccountDeletionTarget.isTargetCorrupt(storage) ||
+        AccountDeletionTarget.isBootstrapCorrupt(storage)) {
       phase.value = AccountDeletionGatePhase.integrityRecovery;
       return AccountDeletionGateResolveStatus.integrityRecovery;
     }
@@ -181,6 +203,17 @@ abstract final class AccountDeletionPendingState {
         serverDeleteRead == MarkerRead.isTrue) {
       phase.value = AccountDeletionGatePhase.blocked;
       return AccountDeletionGateResolveStatus.blocked;
+    }
+
+    // Every boolean phase marker is durably absent — but a target or
+    // bootstrap provenance key surviving alone is never evidence of a
+    // healthy clear device. It must be reconciled (see
+    // AccountDeletionTarget.reconcileHarmlessOrphan, invoked only from
+    // resolveAndReconcile) before this may ever read as clear again.
+    if (AccountDeletionTarget.hasValidTarget(storage) ||
+        AccountDeletionTarget.readBootstrapUid(storage) != null) {
+      phase.value = AccountDeletionGatePhase.integrityRecovery;
+      return AccountDeletionGateResolveStatus.integrityRecovery;
     }
 
     phase.value = AccountDeletionGatePhase.clear;

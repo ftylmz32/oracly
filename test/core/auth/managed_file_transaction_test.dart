@@ -4,6 +4,10 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/reading_version/models/reading_version_kind.dart';
+import 'package:oracly_new/core/reading_version/services/reading_version_payload.dart';
+import 'package:oracly_new/core/reading_version/services/reading_version_service.dart';
+import 'package:oracly_new/core/reading_version/services/reading_version_store.dart';
 import 'package:oracly_new/features/coffee/data/coffee_reading_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
 import 'package:oracly_new/features/coffee/models/coffee_reading.dart';
@@ -209,6 +213,338 @@ void main() {
       expect(File(priorPath).existsSync(), isFalse);
     });
   });
+
+  group('P0-4: Coffee staged/restore — version failure never denies a durable reading', () {
+    test('analyzeStaged: version seed throws — reading still returns, history has exactly one entry', () async {
+      final store = CoffeeReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      storage.throwingKeys.add(ReadingVersionStore.key);
+      final svc = CoffeeExperienceService(
+        store: store,
+        analysis: _FakeStagedCoffeeAnalysis(id: 'staged-1'),
+        versions: versions,
+      );
+
+      final reading = await svc.analyzeStaged(
+        operationId: 'op-1',
+        mimeType: 'image/jpeg',
+      );
+
+      expect(reading.id, 'staged-1');
+      expect(store.all(), hasLength(1));
+      expect(store.byId('staged-1'), isNotNull);
+    });
+
+    test('restoreCompleted: version seed throws — reading still returns durably', () async {
+      final store = CoffeeReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      storage.throwingKeys.add(ReadingVersionStore.key);
+      final svc = CoffeeExperienceService(
+        store: store,
+        analysis: _FakeStagedCoffeeAnalysis(id: 'restored-1'),
+        versions: versions,
+      );
+
+      final reading = await svc.restoreCompleted(
+        resultId: 'restored-1',
+        persistedAt: DateTime.utc(2026, 1, 1),
+        result: const {},
+      );
+
+      expect(reading.id, 'restored-1');
+      expect(store.all(), hasLength(1));
+    });
+  });
+
+  group('P0-4: Coffee reinterpret — metadata-first commit boundary', () {
+    test(
+        'current.imagePath null + metadata save fails — the new candidate '
+        'is deleted, current reading is unchanged', () async {
+      final store = CoffeeReadingStore(storage);
+      final current = CoffeeReading(
+        id: 'c-noimg',
+        createdAt: DateTime.utc(2026, 1, 1),
+        overall: 'old-o',
+        love: 'old-l',
+        career: 'old-c',
+        money: 'old-m',
+        nearFuture: 'old-n',
+        takeaway: 'old-t',
+      );
+      await store.save(current);
+
+      storage.falseReturnKeys.add(CoffeeReadingStore.key);
+      final svc = CoffeeExperienceService(
+        store: store,
+        analysis: _FakeCoffeeAnalysis(id: 'c-noimg'),
+      );
+
+      await expectLater(
+        svc.reinterpret(
+          current: current,
+          image: CoffeeImagePick(path: fixturePath),
+        ),
+        throwsA(isA<StateError>()),
+      );
+
+      final archive =
+          Directory('${root.path}${Platform.pathSeparator}coffee_images');
+      if (archive.existsSync()) {
+        expect(archive.listSync().whereType<File>(), isEmpty);
+      }
+      storage.falseReturnKeys.clear();
+      expect(store.byId('c-noimg')!.overall, 'old-o');
+      expect(store.byId('c-noimg')!.imagePath, isNull);
+    });
+
+    test(
+        'duplicate/no-op reinterpret never creates an image candidate at '
+        'all — old reading unchanged, versionAdded false', () async {
+      final store = CoffeeReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      final current = CoffeeReading(
+        id: 'c-dup',
+        createdAt: DateTime.utc(2026, 1, 1),
+        overall: 'o',
+        love: 'l',
+        career: 'c',
+        money: 'm',
+        nearFuture: 'n',
+        takeaway: 't',
+      );
+      await store.save(current);
+      await versions.seedOriginal(
+        rootId: 'c-dup',
+        kind: ReadingVersionKind.coffee,
+        data: ReadingVersionPayload.coffee(current),
+      );
+
+      final svc = CoffeeExperienceService(
+        store: store,
+        // Returns the exact same text as `current` — a genuine duplicate.
+        analysis: _FakeCoffeeAnalysis(id: 'c-dup'),
+        versions: versions,
+      );
+
+      final result = await svc.reinterpret(
+        current: current,
+        image: CoffeeImagePick(path: fixturePath),
+      );
+
+      expect(result.versionAdded, isFalse);
+      expect(result.reading, same(current));
+      final archive =
+          Directory('${root.path}${Platform.pathSeparator}coffee_images');
+      expect(
+        archive.existsSync(),
+        isFalse,
+        reason: 'no candidate should ever be created for a duplicate',
+      );
+    });
+
+    test(
+        'version append throwing AFTER a successful metadata save never '
+        'turns the durable reading into a failure', () async {
+      final store = CoffeeReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      final current = CoffeeReading(
+        id: 'c-verfail',
+        createdAt: DateTime.utc(2026, 1, 1),
+        overall: 'old-o',
+        love: 'old-l',
+        career: 'old-c',
+        money: 'old-m',
+        nearFuture: 'old-n',
+        takeaway: 'old-t',
+      );
+      await store.save(current);
+      storage.throwingKeys.add(ReadingVersionStore.key);
+
+      final svc = CoffeeExperienceService(
+        store: store,
+        analysis: _FakeCoffeeAnalysis(id: 'c-verfail'),
+        versions: versions,
+      );
+
+      final result = await svc.reinterpret(
+        current: current,
+        image: CoffeeImagePick(path: fixturePath),
+      );
+
+      expect(result.versionAdded, isFalse);
+      expect(result.reading.overall, 'o');
+      expect(store.byId('c-verfail')!.overall, 'o');
+    });
+  });
+
+  group('P0-4: Palm staged/restore — version failure never denies a durable reading', () {
+    test('analyzeStaged: version seed throws — reading still returns, history has exactly one entry', () async {
+      final store = PalmReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      storage.throwingKeys.add(ReadingVersionStore.key);
+      final svc = PalmExperienceService(
+        store: store,
+        analysis: _FakeStagedPalmAnalysis(id: 'p-staged-1'),
+        versions: versions,
+      );
+
+      final reading = await svc.analyzeStaged(
+        operationId: 'op-1',
+        mimeType: 'image/jpeg',
+        hand: PalmHand.left,
+      );
+
+      expect(reading.id, 'p-staged-1');
+      expect(store.all(), hasLength(1));
+    });
+
+    test('restoreCompleted: version seed throws — reading still returns durably', () async {
+      final store = PalmReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      storage.throwingKeys.add(ReadingVersionStore.key);
+      final svc = PalmExperienceService(
+        store: store,
+        analysis: _FakeStagedPalmAnalysis(id: 'p-restored-1'),
+        versions: versions,
+      );
+
+      final reading = await svc.restoreCompleted(
+        resultId: 'p-restored-1',
+        persistedAt: DateTime.utc(2026, 1, 1),
+        hand: PalmHand.right,
+        result: const {},
+      );
+
+      expect(reading.id, 'p-restored-1');
+      expect(store.all(), hasLength(1));
+    });
+  });
+
+  group('P0-4: Palm reinterpret — metadata-first commit boundary', () {
+    test(
+        'current.imagePath null + metadata save fails — the new candidate '
+        'is deleted, current reading is unchanged', () async {
+      final store = PalmReadingStore(storage);
+      final current = PalmReading(
+        id: 'p-noimg',
+        createdAt: DateTime.utc(2026, 1, 1),
+        hand: PalmHand.left,
+        overall: 'old-o',
+        lifeLine: 'old-l',
+        headLine: 'old-h',
+        heartLine: 'old-he',
+        fateLine: 'old-f',
+        takeaway: 'old-t',
+      );
+      await store.save(current);
+
+      storage.falseReturnKeys.add(PalmReadingStore.key);
+      final svc = PalmExperienceService(
+        store: store,
+        analysis: _FakePalmAnalysis(id: 'p-noimg'),
+      );
+
+      await expectLater(
+        svc.reinterpret(
+          current: current,
+          image: CoffeeImagePick(path: fixturePath),
+          hand: PalmHand.left,
+        ),
+        throwsA(isA<StateError>()),
+      );
+
+      final archive =
+          Directory('${root.path}${Platform.pathSeparator}palm_images');
+      if (archive.existsSync()) {
+        expect(archive.listSync().whereType<File>(), isEmpty);
+      }
+      storage.falseReturnKeys.clear();
+      expect(store.byId('p-noimg')!.overall, 'old-o');
+      expect(store.byId('p-noimg')!.imagePath, isNull);
+    });
+
+    test(
+        'duplicate/no-op reinterpret never creates an image candidate at '
+        'all — old reading unchanged, versionAdded false', () async {
+      final store = PalmReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      final current = PalmReading(
+        id: 'p-dup',
+        createdAt: DateTime.utc(2026, 1, 1),
+        hand: PalmHand.right,
+        overall: 'o',
+        lifeLine: 'l',
+        headLine: 'd',
+        heartLine: 'h',
+        takeaway: 't',
+      );
+      await store.save(current);
+      await versions.seedOriginal(
+        rootId: 'p-dup',
+        kind: ReadingVersionKind.palm,
+        data: ReadingVersionPayload.palm(current),
+      );
+
+      final svc = PalmExperienceService(
+        store: store,
+        // Returns the exact same text as `current` — a genuine duplicate.
+        analysis: _FakePalmAnalysis(id: 'p-dup'),
+        versions: versions,
+      );
+
+      final result = await svc.reinterpret(
+        current: current,
+        image: CoffeeImagePick(path: fixturePath),
+        hand: PalmHand.right,
+      );
+
+      expect(result.versionAdded, isFalse);
+      expect(result.reading, same(current));
+      final archive =
+          Directory('${root.path}${Platform.pathSeparator}palm_images');
+      expect(
+        archive.existsSync(),
+        isFalse,
+        reason: 'no candidate should ever be created for a duplicate',
+      );
+    });
+
+    test(
+        'version append throwing AFTER a successful metadata save never '
+        'turns the durable reading into a failure', () async {
+      final store = PalmReadingStore(storage);
+      final versions = ReadingVersionService(ReadingVersionStore(storage));
+      final current = PalmReading(
+        id: 'p-verfail',
+        createdAt: DateTime.utc(2026, 1, 1),
+        hand: PalmHand.right,
+        overall: 'old-o',
+        lifeLine: 'old-l',
+        headLine: 'old-h',
+        heartLine: 'old-he',
+        fateLine: 'old-f',
+        takeaway: 'old-t',
+      );
+      await store.save(current);
+      storage.throwingKeys.add(ReadingVersionStore.key);
+
+      final svc = PalmExperienceService(
+        store: store,
+        analysis: _FakePalmAnalysis(id: 'p-verfail'),
+        versions: versions,
+      );
+
+      final result = await svc.reinterpret(
+        current: current,
+        image: CoffeeImagePick(path: fixturePath),
+        hand: PalmHand.right,
+      );
+
+      expect(result.versionAdded, isFalse);
+      expect(result.reading.overall, 'o');
+      expect(store.byId('p-verfail')!.overall, 'o');
+    });
+  });
 }
 
 SoulMateSavedResult _soul(String id) => SoulMateSavedResult(
@@ -265,5 +601,105 @@ class _FakePalmAnalysis implements PalmAnalysisPort {
         headLine: 'd',
         takeaway: 't',
         imagePath: image.path,
+      );
+}
+
+class _FakeStagedCoffeeAnalysis
+    implements
+        CoffeeAnalysisPort,
+        CoffeeStagedAnalysisPort,
+        CoffeeCompletedAnalysisPort {
+  _FakeStagedCoffeeAnalysis({this.id = 'c-staged'});
+  final String id;
+
+  @override
+  bool get isAvailable => true;
+
+  @override
+  Future<CoffeeReading> analyze(CoffeeImagePick image) async =>
+      throw UnsupportedError('not used by this fake');
+
+  @override
+  Future<CoffeeReading> analyzeStaged({
+    required String operationId,
+    required String mimeType,
+  }) async =>
+      CoffeeReading(
+        id: id,
+        createdAt: DateTime.utc(2026, 1, 1),
+        overall: 'o',
+        love: 'l',
+        career: 'c',
+        money: 'm',
+        nearFuture: 'n',
+        takeaway: 't',
+      );
+
+  @override
+  CoffeeReading restoreCompleted({
+    required String resultId,
+    required DateTime persistedAt,
+    required Map<String, dynamic> result,
+  }) =>
+      CoffeeReading(
+        id: resultId,
+        createdAt: persistedAt,
+        overall: 'o',
+        love: 'l',
+        career: 'c',
+        money: 'm',
+        nearFuture: 'n',
+        takeaway: 't',
+      );
+}
+
+class _FakeStagedPalmAnalysis
+    implements PalmAnalysisPort, PalmStagedAnalysisPort, PalmCompletedAnalysisPort {
+  _FakeStagedPalmAnalysis({this.id = 'p-staged'});
+  final String id;
+
+  @override
+  bool get isAvailable => true;
+
+  @override
+  Future<PalmReading> analyze(
+    CoffeeImagePick image, {
+    required PalmHand hand,
+  }) async =>
+      throw UnsupportedError('not used by this fake');
+
+  @override
+  Future<PalmReading> analyzeStaged({
+    required String operationId,
+    required String mimeType,
+    required PalmHand hand,
+  }) async =>
+      PalmReading(
+        id: id,
+        createdAt: DateTime.utc(2026, 1, 1),
+        hand: hand,
+        overall: 'o',
+        lifeLine: 'l',
+        headLine: 'd',
+        heartLine: 'h',
+        takeaway: 't',
+      );
+
+  @override
+  PalmReading restoreCompleted({
+    required String resultId,
+    required DateTime persistedAt,
+    required PalmHand hand,
+    required Map<String, dynamic> result,
+  }) =>
+      PalmReading(
+        id: resultId,
+        createdAt: persistedAt,
+        hand: hand,
+        overall: 'o',
+        lifeLine: 'l',
+        headLine: 'd',
+        heartLine: 'h',
+        takeaway: 't',
       );
 }

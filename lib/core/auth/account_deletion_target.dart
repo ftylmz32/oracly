@@ -42,6 +42,15 @@ abstract final class AccountDeletionTarget {
     return trimmed.isEmpty ? null : trimmed;
   }
 
+  /// Wrong-type / blank string while a key exists — corrupt. Mirrors
+  /// [isTargetCorrupt] for the bootstrap provenance key.
+  static bool isBootstrapCorrupt(LocalStorage storage) {
+    final raw = storage.peek(bootstrapUidKey);
+    if (raw == null) return false;
+    if (raw is! String) return true;
+    return raw.trim().isEmpty;
+  }
+
   /// Persist [uid] and verify the durable read-back.
   static Future<bool> persistTarget(LocalStorage storage, String uid) async {
     final trimmed = uid.trim();
@@ -94,5 +103,21 @@ abstract final class AccountDeletionTarget {
     final live = auth.currentUserId?.trim();
     if (target == null || live == null || live.isEmpty) return false;
     return live == target;
+  }
+
+  /// Retires leftover target/bootstrap provenance ONLY when the caller has
+  /// already proven no deletion phase marker is durably true (and neither
+  /// key is corrupt) — i.e. this provenance is orphaned residue from a
+  /// crash that happened either before any destructive work began
+  /// (`persistTarget` succeeded, then the next durable write never landed)
+  /// or after every destructive step already fully completed (finalization
+  /// reached the point of clearing this same provenance, then crashed
+  /// before the LAST durable gate marker was retired). Never authorizes
+  /// destructive work itself — only clears bookkeeping keys once proven
+  /// harmless by the caller.
+  static Future<bool> reconcileHarmlessOrphan(LocalStorage storage) async {
+    if (!await clearTarget(storage)) return false;
+    if (!await clearBootstrap(storage)) return false;
+    return true;
   }
 }

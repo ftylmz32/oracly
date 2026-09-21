@@ -70,9 +70,17 @@ class PalmReadingStore {
       for (final item in all())
         if (item.id != id) item,
     ];
-    await _storage.setStringList(key, next.map(_toJson).toList());
+    final ok = await _storage.setStringList(key, next.map(_toJson).toList());
+    if (!ok) {
+      // Metadata removal never durably succeeded — the retained reading
+      // still points at its image, so the physical file must NOT be
+      // deleted out from under it.
+      throw StateError('palm reading metadata delete failed');
+    }
     await PalmImageArchive.deleteIfOwned(existing?.imagePath);
-    await _memory?.removeBySource(id);
+    try {
+      await _memory?.removeBySource(id);
+    } catch (_) {}
   }
 
   String _toJson(PalmReading reading) => jsonEncode({
