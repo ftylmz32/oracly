@@ -3,6 +3,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/network/api_result.dart';
+import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
+import 'package:oracly_new/core/auth/models/auth_session.dart';
+import 'package:oracly_new/core/auth/auth_service.dart';
+import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
@@ -30,6 +35,41 @@ import 'package:oracly_new/features/tarot/navigation/tarot_module_navigator.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
+
+class _OwnerIsolatingAuth implements AuthService {
+  _OwnerIsolatingAuth(this.storage, this.uid);
+
+  final LocalStorage storage;
+  final String uid;
+  int ensureCalls = 0;
+
+  @override
+  bool get isConfigured => true;
+
+  @override
+  String? get currentUserId => uid;
+
+  @override
+  bool get hasCurrentIdentity => true;
+
+  @override
+  Future<ApiResult<AuthSession>> ensureAnonymousSession() async {
+    ensureCalls += 1;
+    await storage.setString(UserLocalDataIsolation.ownerKey, uid);
+    return ApiSuccess(
+      AuthSession(
+        userId: uid,
+        provider: AuthProviderKind.anonymous,
+        accessToken: 'test-access',
+        refreshToken: 'test-refresh',
+        expiresAt: DateTime.now().add(const Duration(hours: 1)),
+      ),
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _ColdStartActiveVerifier implements PremiumEntitlementVerifier {
   @override
@@ -152,7 +192,14 @@ void main() {
         'or_premium_purchase_token': 'cold-start-valid-token',
       });
       final storage = await LocalStorage.open();
-      final premiumRepo = MockPremiumRepository(storage);
+      const ownerId = 'cold-start-owner-a';
+      final auth = _OwnerIsolatingAuth(storage, ownerId);
+      final premiumRepo = MockPremiumRepository(
+        storage,
+        ownerAccessAllowed: () =>
+            storage.getString(UserLocalDataIsolation.ownerKey) == ownerId,
+      );
+      expect(premiumRepo.ownerAccessReady, isFalse);
       final service = PremiumService(
         premiumRepo,
         MockUserRepository(storage),
@@ -166,6 +213,7 @@ void main() {
         buildProviderScopeHarness(
           storage: storage,
           overrides: [
+            authServiceProvider.overrideWithValue(auth),
             premiumStatusProvider.overrideWith((ref) => status),
           ],
           child: MaterialApp(
@@ -201,6 +249,12 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
 
+      expect(auth.ensureCalls, 1);
+      expect(
+        storage.getString(UserLocalDataIsolation.ownerKey),
+        ownerId,
+      );
+      expect(status.ownerAccessReady, isTrue);
       expect(status.loaded, isTrue);
       expect(status.isPremium, isTrue);
       expect(find.byType(SoulMateDrawScreen), findsOneWidget);
