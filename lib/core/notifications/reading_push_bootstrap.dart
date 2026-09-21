@@ -36,9 +36,13 @@ abstract final class ReadingPushBootstrap {
   @visibleForTesting
   static ReadingPushMessaging? messagingForTest;
 
+  @visibleForTesting
+  static String? installedOwnerIdForTest;
+
   static Future<void> install(ProviderContainer container) async {
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
     _installedOwnerId =
+        installedOwnerIdForTest ??
         container.read(firebaseAuthUserProvider).valueOrNull?.uid ??
         container.read(firebaseAuthGatewayProvider)?.currentUser?.uid;
     try {
@@ -165,6 +169,7 @@ abstract final class ReadingPushBootstrap {
     _opened = null;
     _pendingDestination = null;
     _installedOwnerId = null;
+    installedOwnerIdForTest = null;
   }
 }
 
