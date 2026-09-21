@@ -17,6 +17,7 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/daily_rewards/presentation/reference/daily_rewards_reference_screen.dart';
 import '../../features/gems/presentation/reference/gems_reference_screen.dart';
 import '../../features/premium/presentation/reference/premium_reference_screen.dart';
+import '../../features/premium/presentation/screens/soul_mate_draw_screen.dart';
 import '../../features/star_map/presentation/reference/star_map_reference_screen.dart';
 import '../../features/tarot/navigation/tarot_module_navigator.dart';
 import '../../features/tarot/presentation/screens/reading_history_screen.dart';
@@ -133,6 +134,14 @@ abstract final class OraclyRouteGenerator {
       case OraclyRoutes.palm:
         return OraclyPageTransitions.sharedAxis(
           page: PalmReferenceScreen(
+            operationId: _readingOperationId(settings.arguments),
+          ),
+          settings: settings,
+        );
+      case OraclyRoutes.soulMate:
+        return OraclyPageTransitions.chamber(
+          personality: ChamberTransitionPersonality.soulMate,
+          page: SoulMateDrawScreen(
             operationId: _readingOperationId(settings.arguments),
           ),
           settings: settings,
