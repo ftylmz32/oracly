@@ -177,6 +177,45 @@ void main() {
     expect(controller.authoritative, isTrue);
   });
 
+  test(
+    'owner switch while balance GET is in flight cannot publish or cache the old owner response',
+    () async {
+      final storage = LocalStorage.ephemeral();
+      final response = Completer<ReadingOperationWire?>();
+      var liveOwner = 'uid-a';
+      final store = GemWalletStore(storage);
+      final service = GemWalletService(
+        store,
+        ownerId: 'uid-a',
+        requireOwner: true,
+        currentOwnerId: () => liveOwner,
+        gateway: GemWalletGateway((method, path, body) {
+          expect(method, 'GET');
+          expect(path, '/v1/gems/balance');
+          return response.future;
+        }),
+      );
+      final controller = GemWalletController(service);
+
+      final pending = controller.reload();
+      liveOwner = 'uid-b';
+      response.complete(
+        const ReadingOperationWire(
+          statusCode: 200,
+          json: {
+            'data': {'balance': 95},
+          },
+        ),
+      );
+      await pending;
+
+      expect(controller.authoritative, isFalse);
+      expect(controller.displayBalance, isNull);
+      expect(service.stale, isTrue);
+      expect(store.balanceForOwner('uid-a'), isNull);
+    },
+  );
+
   test('account switch never exposes the previous owner balance', () async {
     final storage = LocalStorage.ephemeral({
       GemWalletStore.serverBalanceOwnerKey: 'uid-a',
