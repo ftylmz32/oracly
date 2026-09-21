@@ -19,10 +19,15 @@ enum DreamJourneyPhase {
 }
 
 class DreamAnalysisController extends ChangeNotifier {
-  DreamAnalysisController(this._service);
+  DreamAnalysisController(
+    this._service, {
+    Duration organizingDelay = const Duration(milliseconds: 480),
+  }) : _organizingDelay = organizingDelay;
 
   final DreamExperienceService _service;
+  final Duration _organizingDelay;
   bool _disposed = false;
+  int _generation = 0;
 
   DreamJourneyPhase _phase = DreamJourneyPhase.entry;
   Dream? _dream;
@@ -34,6 +39,7 @@ class DreamAnalysisController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _generation++;
     super.dispose();
   }
 
@@ -56,7 +62,17 @@ class DreamAnalysisController extends ChangeNotifier {
   }
 
   Future<void> loadHistory() async {
-    _history = await _service.loadHistory();
+    final token = _generation;
+    final history = await _service.loadHistory();
+    if (_disposed || token != _generation) return;
+    _history = history;
+    _safeNotify();
+  }
+
+  Future<void> _loadHistoryFor(int token) async {
+    final history = await _service.loadHistory();
+    if (_disposed || token != _generation) return;
+    _history = history;
     _safeNotify();
   }
 
@@ -65,15 +81,18 @@ class DreamAnalysisController extends ChangeNotifier {
     List<DreamEmotion> emotions = const [],
     List<String> tags = const [],
   }) async {
-    if (_phase == DreamJourneyPhase.organizing ||
+    if (_disposed ||
+        _phase == DreamJourneyPhase.organizing ||
         _phase == DreamJourneyPhase.reflecting) {
       return;
     }
+    final token = ++_generation;
     _phase = DreamJourneyPhase.organizing;
     _errorMessage = null;
     _safeNotify();
 
-    await Future<void>.delayed(const Duration(milliseconds: 480));
+    await Future<void>.delayed(_organizingDelay);
+    if (_disposed || token != _generation) return;
 
     _phase = DreamJourneyPhase.reflecting;
     _safeNotify();
@@ -84,10 +103,12 @@ class DreamAnalysisController extends ChangeNotifier {
         selectedEmotions: emotions,
         tags: tags,
       );
+      if (_disposed || token != _generation) return;
       _dream = result.dream;
       _phase = DreamJourneyPhase.complete;
-      await loadHistory();
+      await _loadHistoryFor(token);
     } on AiRequestException catch (e) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(
         feature: 'DreamAnalysis',
         stage: 'analyze',
@@ -96,6 +117,7 @@ class DreamAnalysisController extends ChangeNotifier {
       _phase = DreamJourneyPhase.error;
       _errorMessage = e.userMessage;
     } catch (error) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(
         feature: 'DreamAnalysis',
         stage: 'analyze',
@@ -108,7 +130,8 @@ class DreamAnalysisController extends ChangeNotifier {
   }
 
   Future<void> reinterpret() async {
-    if (_phase == DreamJourneyPhase.organizing ||
+    if (_disposed ||
+        _phase == DreamJourneyPhase.organizing ||
         _phase == DreamJourneyPhase.reflecting) {
       return;
     }
@@ -116,19 +139,23 @@ class DreamAnalysisController extends ChangeNotifier {
     if (current == null) {
       throw StateError('dream reinterpret failed');
     }
+    final token = ++_generation;
     _phase = DreamJourneyPhase.reflecting;
     _errorMessage = null;
     _safeNotify();
     try {
       final result = await _service.reinterpret(current);
+      if (_disposed || token != _generation) return;
       _versionAdded = result.versionAdded;
       if (result.versionAdded) {
         _dream = result.dream;
         _versionReloadToken++;
-        await loadHistory();
+        await _loadHistoryFor(token);
+        if (_disposed || token != _generation) return;
       }
       _phase = DreamJourneyPhase.complete;
     } on AiRequestException catch (e) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(
         feature: 'DreamAnalysis',
         stage: 'reinterpret',
@@ -137,6 +164,7 @@ class DreamAnalysisController extends ChangeNotifier {
       _phase = DreamJourneyPhase.error;
       _errorMessage = e.userMessage;
     } catch (error) {
+      if (_disposed || token != _generation) return;
       logAnalysisFailure(
         feature: 'DreamAnalysis',
         stage: 'reinterpret',
@@ -146,12 +174,16 @@ class DreamAnalysisController extends ChangeNotifier {
       _errorMessage = DreamCopy.analysisFailed;
     }
     _safeNotify();
-    if (_phase != DreamJourneyPhase.complete) {
+    if (!_disposed &&
+        token == _generation &&
+        _phase != DreamJourneyPhase.complete) {
       throw StateError('dream reinterpret failed');
     }
   }
 
   void openSaved(Dream dream) {
+    if (_disposed) return;
+    _generation++;
     _dream = dream;
     _errorMessage = null;
     _phase = DreamJourneyPhase.complete;
@@ -159,6 +191,8 @@ class DreamAnalysisController extends ChangeNotifier {
   }
 
   void reset() {
+    if (_disposed) return;
+    _generation++;
     _phase = DreamJourneyPhase.entry;
     _dream = null;
     _errorMessage = null;
