@@ -120,7 +120,7 @@ ReadingPushDestination? readingPushDestination(Map<String, dynamic> data) {
   if (data['type'] != 'reading_completed') return null;
   final operationId = data['operationId'];
   if (operationId is! String ||
-      !RegExp(r'^[a-f0-9]{32}\$').hasMatch(operationId)) {
+      !RegExp(r'^[a-f0-9]{32}$').hasMatch(operationId)) {
     return null;
   }
   final route = switch (data['readingType']) {
