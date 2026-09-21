@@ -132,13 +132,14 @@ class CoffeeV2SubmissionController {
         sha256: checksum,
         sizeBytes: sizeBytes,
       );
-      _record = _record.copyWith(
-        slots: {
-          ..._record.slots,
-          slot: CoffeeV2SlotRecord(asset: asset),
-        },
+      await _commitRecord(
+        _record.copyWith(
+          slots: {
+            ..._record.slots,
+            slot: CoffeeV2SlotRecord(asset: asset),
+          },
+        ),
       );
-      await _persist();
       return CoffeeV2SlotSelectionResult.success(asset);
     } on ImageNormalizeException catch (e) {
       return CoffeeV2SlotSelectionResult.failure(_classify(e));
@@ -154,20 +155,22 @@ class CoffeeV2SubmissionController {
 
   Future<void> clearSlot(CoffeeV2PhotoSlot slot) async {
     _requireDraft();
-    _record = _record.copyWith(
-      slots: {..._record.slots, slot: const CoffeeV2SlotRecord()},
+    await _commitRecord(
+      _record.copyWith(
+        slots: {..._record.slots, slot: const CoffeeV2SlotRecord()},
+      ),
     );
-    await _persist();
   }
 
   Future<void> confirmSlot(CoffeeV2PhotoSlot slot) async {
     _requireDraft();
     final existing = _record.slots[slot];
     if (existing?.asset == null) return;
-    _record = _record.copyWith(
-      slots: {..._record.slots, slot: existing!.copyWith(confirmed: true)},
+    await _commitRecord(
+      _record.copyWith(
+        slots: {..._record.slots, slot: existing!.copyWith(confirmed: true)},
+      ),
     );
-    await _persist();
   }
 
   Future<CoffeeV2SubmissionOutcome> beginSubmission(
@@ -179,20 +182,36 @@ class CoffeeV2SubmissionController {
     if (validationIssue != null) {
       return CoffeeV2SubmissionOutcome.blockedByValidation;
     }
+
+    // Persist idempotency identity BEFORE creating anything server-side.
+    // If the app dies after create succeeds but before operationId binding
+    // lands locally, restart can re-submit this SAME sourceRequestId and the
+    // backend's createIfAbsent contract returns the original operation.
+    final persistedSource = _record.sourceRequestId?.trim();
+    final durableSourceRequestId =
+        persistedSource != null && persistedSource.isNotEmpty
+            ? persistedSource
+            : sourceRequestId;
+    if (persistedSource == null || persistedSource.isEmpty) {
+      await _commitRecord(
+        _record.copyWith(sourceRequestId: durableSourceRequestId),
+        requireDurableOwner: true,
+      );
+    }
+
     final begun = await flow.begin(
       readingType: ReadingType.coffee,
-      sourceRequestId: sourceRequestId,
+      sourceRequestId: durableSourceRequestId,
     );
     final snapshot = begun.snapshot;
     if (snapshot == null) return CoffeeV2SubmissionOutcome.retryableFailure;
     // Exactly one operation for this whole three-photo submission — every
     // subsequent stage call below, and any later retry, targets this SAME
     // operationId. Never re-entered: `_record.isActive` above guards it.
-    _record = _record.copyWith(
-      operationId: snapshot.operationId,
-      sourceRequestId: sourceRequestId,
+    await _commitRecord(
+      _record.copyWith(operationId: snapshot.operationId),
+      requireDurableOwner: true,
     );
-    await _persist();
     return _stageSequentially();
   }
 
@@ -221,13 +240,15 @@ class CoffeeV2SubmissionController {
         slot: slot.wireValue,
       );
       if (!ok) return CoffeeV2SubmissionOutcome.retryableFailure;
-      _record = _record.copyWith(
-        slots: {
-          ..._record.slots,
-          slot: slotRecord!.copyWith(stageState: CoffeeV2StageState.staged),
-        },
+      await _commitRecord(
+        _record.copyWith(
+          slots: {
+            ..._record.slots,
+            slot: slotRecord!.copyWith(stageState: CoffeeV2StageState.staged),
+          },
+        ),
+        requireDurableOwner: true,
       );
-      await _persist();
     }
     return CoffeeV2SubmissionOutcome.completedStaging;
   }
@@ -263,8 +284,7 @@ class CoffeeV2SubmissionController {
         revalidated[slot] = const CoffeeV2SlotRecord();
       }
     }
-    _record = loaded.copyWith(slots: revalidated);
-    await _persist();
+    await _commitRecord(loaded.copyWith(slots: revalidated));
   }
 
   Future<bool> _slotAssetStillValid(CoffeeV2PhotoAsset asset) async {
@@ -283,34 +303,45 @@ class CoffeeV2SubmissionController {
     if (_record.isActive) {
       throw StateError('Cannot cancel an active Coffee V2 submission');
     }
-    await _deleteTempFiles(_record);
+    final previous = _record;
+    if (store.ownerReady) {
+      await store.clearDurable();
+    } else {
+      await store.clear();
+    }
     _record = CoffeeV2SubmissionRecord.empty();
-    await store.clear();
+    await _deleteTempFiles(previous);
   }
 
   /// Upload-only data can be released after restoration, but operation and
   /// result identity remain durable until explicit acknowledgement.
   Future<void> onResultRestored(String resultId) async {
-    await _deleteTempFiles(_record);
-    _record = _record.copyWith(
-      slots: CoffeeV2SubmissionRecord.empty().slots,
-      resultId: resultId,
-      resultPendingAcknowledgement: true,
+    final previous = _record;
+    await _commitRecord(
+      _record.copyWith(
+        slots: CoffeeV2SubmissionRecord.empty().slots,
+        resultId: resultId,
+        resultPendingAcknowledgement: true,
+      ),
+      requireDurableOwner: true,
     );
-    await _persist();
+    await _deleteTempFiles(previous);
   }
 
   Future<void> onTerminalFailure() async {
-    await _deleteTempFiles(_record);
-    _record = _record.copyWith(slots: CoffeeV2SubmissionRecord.empty().slots);
-    await _persist();
+    final previous = _record;
+    await _commitRecord(
+      _record.copyWith(slots: CoffeeV2SubmissionRecord.empty().slots),
+      requireDurableOwner: true,
+    );
+    await _deleteTempFiles(previous);
   }
 
   Future<void> acknowledgeTerminalHandoff() async {
     final operationId = _record.operationId;
-    if (operationId != null) await store.acknowledge(operationId);
+    if (operationId != null) await store.acknowledgeDurable(operationId);
+    await store.clearDurable();
     _record = CoffeeV2SubmissionRecord.empty();
-    await store.clear();
   }
 
   Future<void> _deleteTempFiles(CoffeeV2SubmissionRecord record) async {
@@ -326,7 +357,17 @@ class CoffeeV2SubmissionController {
     }
   }
 
-  Future<void> _persist() => store.save(_record);
+  Future<void> _commitRecord(
+    CoffeeV2SubmissionRecord next, {
+    bool requireDurableOwner = false,
+  }) async {
+    if (requireDurableOwner) {
+      await store.saveDurable(next);
+    } else {
+      await store.save(next);
+    }
+    _record = next;
+  }
 
   void _requireDraft() {
     if (_record.isActive) {
