@@ -73,12 +73,22 @@ class UserLocalDataIsolation {
     // a failure must never poison later, independent retries — but keep
     // the ORIGINAL error visible to whoever is awaiting `result` itself.
     _queue = result.then((_) {}, onError: (_) {});
-    result.whenComplete(() {
+    void clearIfCurrent() {
       if (identical(_inFlight, result)) {
         _inFlight = null;
         _inFlightUid = null;
       }
-    });
+    }
+
+    // Preserve [result] identity for same-target callers while ensuring
+    // cleanup never creates an ignored Future that repeats a transition
+    // error into the zone after the original caller already handled it.
+    unawaited(
+      result.then<void>(
+        (_) => clearIfCurrent(),
+        onError: (Object _, StackTrace __) => clearIfCurrent(),
+      ),
+    );
     return result;
   }
 
