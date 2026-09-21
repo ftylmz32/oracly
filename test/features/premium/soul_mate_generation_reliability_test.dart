@@ -212,7 +212,7 @@ void main() {
       var calls = 0;
 
       await expectLater(
-        () => runner.start(
+        runner.start(
           storage: storage,
           ownerId: 'owner-a',
           fingerprint: 'fp-a',
