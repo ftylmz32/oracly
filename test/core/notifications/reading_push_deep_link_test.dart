@@ -9,6 +9,7 @@ import 'package:oracly_new/core/navigation/oracly_routes.dart';
 import 'package:oracly_new/core/notifications/reading_push_bootstrap.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/presentation/coffee_v2_entry_gate.dart';
 import 'package:oracly_new/features/palm/presentation/palm_reference_screen.dart';
+import 'package:oracly_new/features/premium/presentation/screens/soul_mate_draw_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -38,6 +39,17 @@ void main() {
       'operationId': id,
     });
     expect(destination?.route, OraclyRoutes.palm);
+    expect(destination?.operationId, id);
+  });
+
+  test('completion push identifies the exact Soul Mate operation', () {
+    final id = 'e' * 32;
+    final destination = readingPushDestination({
+      'type': 'reading_completed',
+      'readingType': 'soulmate',
+      'operationId': id,
+    });
+    expect(destination?.route, OraclyRoutes.soulMate);
     expect(destination?.operationId, id);
   });
 
@@ -91,6 +103,38 @@ void main() {
       find.byType(CoffeeV2EntryGate),
     );
     expect(gate.operationId, id);
+  });
+
+  testWidgets('Soul Mate push route forwards its exact operation id', (
+    tester,
+  ) async {
+    final id = 'f' * 32;
+    final storage = await LocalStorage.open();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localStorageProvider.overrideWithValue(storage)],
+        child: MaterialApp(
+          onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).pushNamed(
+                OraclyRoutes.soulMate,
+                arguments: {'operationId': id},
+              ),
+              child: const Text('open-soulmate'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open-soulmate'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    final screen = tester.widget<SoulMateDrawScreen>(
+      find.byType(SoulMateDrawScreen),
+    );
+    expect(screen.operationId, id);
   });
 
   testWidgets('Palm push route forwards its exact operation id', (
