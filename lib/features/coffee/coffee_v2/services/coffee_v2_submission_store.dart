@@ -136,9 +136,11 @@ class CoffeeV2SubmissionStore {
     required bool requireOwnerNow,
   }) async {
     final currentOwner = ownerId;
-    if ((requireOwner || requireOwnerNow) &&
-        (currentOwner == null || currentOwner.isEmpty)) {
-      throw StateError('coffee v2 owner unavailable');
+    if (requireOwner && (currentOwner == null || currentOwner.isEmpty)) {
+      if (requireOwnerNow) {
+        throw StateError('coffee v2 owner unavailable');
+      }
+      return;
     }
     final ok = await _storage.setString(
       _acknowledgedOperationKey,
