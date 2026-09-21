@@ -14,8 +14,13 @@ abstract final class ShareLinkOpener {
   ShareLinkOpener._();
 
   static void openPending([BuildContext? context]) {
-    // Keep inbox queued until the deletion gate is clear.
+    // Keep inbox queued until the deletion gate AND a concrete navigation
+    // surface are ready. Never consume first and discover there is nowhere
+    // to push the share screen.
     if (AccountDeletionPendingState.blocksDeepLinks) return;
+    final nav = oraclyNavigatorKey.currentState;
+    final hasContext = context != null && context.mounted;
+    if (nav == null && !hasContext) return;
     final uri = ShareLinkInbox.instance.take();
     if (uri == null) return;
     open(uri, context: context);
