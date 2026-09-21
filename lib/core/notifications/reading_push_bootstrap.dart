@@ -253,6 +253,7 @@ ReadingPushDestination? readingPushDestination(Map<String, dynamic> data) {
   final route = switch (data['readingType']) {
     'coffee' => OraclyRoutes.coffee,
     'palm' => OraclyRoutes.palm,
+    'soulmate' => OraclyRoutes.soulMate,
     _ => null,
   };
   return route == null
