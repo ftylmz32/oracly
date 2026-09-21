@@ -73,7 +73,17 @@ class GemWalletService {
     if (gateway == null) return null;
     final result = await run(gateway);
     if (result == null) return null;
-    await _accept(result);
+
+    // The server command is authoritative. Once it returned a successful
+    // settlement/reward envelope, a local display-cache failure must not
+    // rewrite that server success into "command failed" — settlement retry is
+    // idempotent, but UI/recovery still need to know the server accepted it.
+    // Keep the wallet stale so a later reload rehydrates the display.
+    try {
+      await _accept(result);
+    } catch (_) {
+      _stale = true;
+    }
     return result;
   });
 
