@@ -199,9 +199,9 @@ void main() {
     },
   );
 
-  testWidgets(
+  test(
     'server-owned Coffee recovers from waiting without any pending pointer',
-    (tester) async {
+    () async {
       final backend = FakeReadingOperationBackend(immediatelyEligible: false);
       final controllerA = CoffeeReadingController(
         experience: CoffeeExperienceService(
@@ -235,6 +235,7 @@ void main() {
           backend: backend,
           serverOwnedCompletion: true,
         ),
+        serverPollInterval: const Duration(milliseconds: 1),
       );
       addTearDown(controllerB.dispose);
 
@@ -254,8 +255,11 @@ void main() {
         },
       );
 
-      await tester.pump(const Duration(seconds: 3));
-      await tester.pump();
+      final deadline = DateTime.now().add(const Duration(seconds: 1));
+      while (controllerB.phase != CoffeePhase.result &&
+          DateTime.now().isBefore(deadline)) {
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+      }
 
       expect(controllerB.phase, CoffeePhase.result);
       expect(controllerB.reading?.id, 'coffee_server_ready');
