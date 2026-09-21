@@ -12,6 +12,7 @@ import '../../features/reading_operation/providers/reading_live_provider.dart';
 import '../auth/account_deletion_pending_state.dart';
 import '../navigation/oracly_navigator_key.dart';
 import '../navigation/oracly_routes.dart';
+import '../../shared/navigation/oracly_shell_bridge.dart';
 
 /// Injectable messaging surface for unit tests (no Firebase platform).
 @visibleForTesting
@@ -28,6 +29,7 @@ abstract final class ReadingPushBootstrap {
 
   static StreamSubscription<String>? _refresh;
   static StreamSubscription<RemoteMessage>? _opened;
+  static ReadingPushDestination? _pendingDestination;
 
   @visibleForTesting
   static ReadingPushMessaging? messagingForTest;
@@ -89,8 +91,37 @@ abstract final class ReadingPushBootstrap {
     if (!AccountDeletionPendingState.isClear) return;
     final destination = readingPushDestination(message.data);
     if (destination == null) return;
+    // Cold start may receive the initial FCM message while Splash is still
+    // the root route. Pushing now would be erased by Splash's later
+    // pushReplacement(Home). Keep the exact target until the live shell binds.
+    _pendingDestination = destination;
+    openPending();
+  }
+
+  /// Opens the latest tapped completion only after the live app shell exists.
+  /// If navigation is not ready yet the destination stays queued.
+  static void openPending() {
+    if (!AccountDeletionPendingState.isClear ||
+        !OraclyShellBridge.isActive) {
+      return;
+    }
+    final destination = _pendingDestination;
+    if (destination == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      oraclyNavigatorKey.currentState?.pushNamed(
+      if (!AccountDeletionPendingState.isClear ||
+          !OraclyShellBridge.isActive) {
+        return;
+      }
+      final current = _pendingDestination;
+      if (current == null ||
+          current.route != destination.route ||
+          current.operationId != destination.operationId) {
+        return;
+      }
+      final navigator = oraclyNavigatorKey.currentState;
+      if (navigator == null) return;
+      _pendingDestination = null;
+      navigator.pushNamed(
         destination.route,
         arguments: {'operationId': destination.operationId},
       );
@@ -98,11 +129,16 @@ abstract final class ReadingPushBootstrap {
   }
 
   @visibleForTesting
+  static ReadingPushDestination? get pendingDestinationForTest =>
+      _pendingDestination;
+
+  @visibleForTesting
   static Future<void> cancelSubscriptionsForTest() async {
     await _refresh?.cancel();
     await _opened?.cancel();
     _refresh = null;
     _opened = null;
+    _pendingDestination = null;
   }
 }
 
