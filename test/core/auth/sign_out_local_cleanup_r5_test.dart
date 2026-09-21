@@ -15,6 +15,8 @@ import 'package:oracly_new/features/reading_operation/models/reading_operation_s
 import 'package:oracly_new/features/reading_operation/services/reading_pending_operation_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/test_path_provider.dart';
+
 /// Throws when [remove] is called for any key in [failingKeys], then
 /// behaves normally for everything else.
 class _KeyFailingStorage extends LocalStorage {
@@ -40,6 +42,7 @@ const _pending = ReadingPendingOperation(
 
 Future<({LocalStorage storage, InMemorySecureStorage secure})> _boot() async {
   SharedPreferences.setMockInitialValues({});
+  await installTestPathProvider('oracly-signout-');
   final storage = LocalStorage(await SharedPreferences.getInstance());
   return (storage: storage, secure: InMemorySecureStorage());
 }

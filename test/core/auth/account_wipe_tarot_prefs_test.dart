@@ -9,6 +9,8 @@ import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/test_path_provider.dart';
+
 /// Throws when [remove] is called for any key in [failingKeys], then
 /// behaves normally for everything else — used to prove wipe cleanup is
 /// best-effort PER KEY, not per group: one throwing remove must never
@@ -30,6 +32,10 @@ class _KeyFailingStorage extends LocalStorage {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() async {
+    await installTestPathProvider('oracly-tarot-wipe-');
+  });
 
   test('wipe clears deck/spread prefs and fake achievement dates', () async {
     SharedPreferences.setMockInitialValues({

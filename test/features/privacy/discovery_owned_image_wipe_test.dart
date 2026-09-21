@@ -482,8 +482,8 @@ void main() {
     });
 
     test(
-        'corrupt journal is fail-closed — never treated as empty pending, '
-        'never authorizes Coffee metadata erase', () async {
+        'corrupt journal with healthy archive access reconciles and retires '
+        'the corrupt ledger', () async {
       final archived = await seedCoffee();
       expect(File(archived).existsSync(), isTrue);
       final ephemeral = LocalStorage.ephemeral({
@@ -495,17 +495,86 @@ void main() {
           await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
         ephemeral,
       );
+      expect(result.complete, isTrue);
+      expect(result.metadataMayBeCleared, isTrue);
       expect(
         OwnedFileCleanupJournal.inspect(ephemeral),
-        OwnedFileJournalRead.corrupt,
+        OwnedFileJournalRead.absent,
+        reason: 'corrupt journal must be retired after reconciliation',
+      );
+      expect(File(archived).existsSync(), isFalse);
+    });
+
+    test(
+        'corrupt journal + path_provider unavailable stays incomplete with '
+        'metadata retained', () async {
+      await seedCoffee();
+      final ephemeral = LocalStorage.ephemeral({
+        OwnedFileCleanupJournal.key: 42,
+        CoffeeReadingStore.key: storage.getStringList(CoffeeReadingStore.key)!,
+      });
+      PathProviderPlatform.instance = _ThrowingPathProvider();
+
+      final result =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
+        ephemeral,
       );
       expect(result.complete, isFalse);
       expect(result.metadataMayBeCleared, isFalse);
       expect(
-        CoffeeReadingStore(ephemeral).all(),
-        isNotEmpty,
-        reason: 'corrupt journal must never authorize metadata erase',
+        OwnedFileCleanupJournal.inspect(ephemeral),
+        OwnedFileJournalRead.corrupt,
       );
+      expect(CoffeeReadingStore(ephemeral).all(), isNotEmpty);
+
+      PathProviderPlatform.instance = _TempPathProvider(root.path);
+      final recovered =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
+        ephemeral,
+      );
+      expect(recovered.complete, isTrue);
+      expect(
+        OwnedFileCleanupJournal.inspect(ephemeral),
+        OwnedFileJournalRead.absent,
+      );
+    });
+
+    test(
+        'empty metadata but orphan owned archive file is still purged by '
+        'strict wipe before reporting complete', () async {
+      final orphan = File(
+        '${root.path}${Platform.pathSeparator}coffee_images'
+        '${Platform.pathSeparator}orphan.jpg',
+      );
+      await orphan.parent.create(recursive: true);
+      await orphan.writeAsBytes(const [1, 2, 3]);
+      expect(CoffeeReadingStore(storage).all(), isEmpty);
+
+      final result =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(storage);
+      expect(result.complete, isTrue);
+      expect(orphan.existsSync(), isFalse);
+    });
+
+    test(
+        'corrupt journal is fail-closed when reconciliation cannot finish',
+        () async {
+      final archived = await seedCoffee();
+      expect(File(archived).existsSync(), isTrue);
+      await _makeUndeletable(archived);
+      final ephemeral = LocalStorage.ephemeral({
+        OwnedFileCleanupJournal.key: 'not-a-list',
+        CoffeeReadingStore.key: storage.getStringList(CoffeeReadingStore.key)!,
+      });
+
+      final result =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
+        ephemeral,
+      );
+      expect(result.complete, isFalse);
+      expect(result.metadataMayBeCleared, isFalse);
+      expect(CoffeeReadingStore(ephemeral).all(), isNotEmpty);
+      await _makeDeletable(archived);
     });
 
     test(

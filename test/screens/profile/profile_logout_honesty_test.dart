@@ -21,16 +21,16 @@ import 'package:oracly_new/features/reading_operation/providers/reading_live_pro
 import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
 import 'package:oracly_new/screens/profile/copy/profile_copy.dart';
 import 'package:oracly_new/screens/profile/reference/profile_reference_screen.dart';
-import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../support/test_path_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     OraclyL10n.bind('tr');
-    PathProviderPlatform.instance = _LogoutPathProvider();
+    await installTestPathProvider('oracly-logout-');
   });
 
   testWidgets('successful logout shows signed-out message once', (
@@ -46,8 +46,6 @@ void main() {
     await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
-    // Strict owned-file cleanup awaits real filesystem Futures; FakeAsync
-    // alone will not complete them — flush the real event loop first.
     await _flushRealIo(tester);
     await tester.pump(const Duration(milliseconds: 1200));
 
@@ -92,9 +90,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 20));
     // In-flight logout hides the CTA so a second tap cannot re-enter.
     expect(find.text(ProfileCopy.logoutTitle), findsNothing);
-    await tester.pump(const Duration(milliseconds: 1200));
     await _flushRealIo(tester);
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1200));
 
     expect(auth.signOutCalls, 1);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
@@ -191,11 +188,10 @@ void main() {
   );
 }
 
-/// Strict account-boundary wipe awaits real filesystem Futures. FakeAsync
-/// pumps alone will not complete them — flush the real event loop once.
+/// PathProvider microtasks need one real-loop flush under FakeAsync.
 Future<void> _flushRealIo(WidgetTester tester) {
   return tester.runAsync(() async {
-    await Future<void>.delayed(const Duration(milliseconds: 80));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
   });
 }
 
@@ -372,20 +368,4 @@ class _MemTokens implements TokenManager {
   @override
   Future<bool> hasValidAccessToken() async =>
       access != null && access!.isNotEmpty;
-}
-
-class _LogoutPathProvider extends Fake
-    with MockPlatformInterfaceMixin
-    implements PathProviderPlatform {
-  @override
-  Future<String?> getApplicationSupportPath() async => '.';
-
-  @override
-  Future<String?> getApplicationDocumentsPath() async => '.';
-
-  @override
-  Future<String?> getTemporaryPath() async => '.';
-
-  @override
-  Future<String?> getApplicationCachePath() async => '.';
 }

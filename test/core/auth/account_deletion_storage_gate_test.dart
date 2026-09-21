@@ -39,13 +39,16 @@ import 'package:oracly_new/screens/splash/splash_destination.dart';
 import 'package:oracly_new/shared/navigation/oracly_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/test_path_provider.dart';
+
 Widget _child(Widget page) => (page as ColoredBox).child!;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     AccountDeletionPendingState.resetForTest();
+    await installTestPathProvider('oracly-gate-');
   });
 
   tearDown(() {

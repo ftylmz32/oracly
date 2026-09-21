@@ -21,9 +21,9 @@ import 'package:oracly_new/screens/profile/copy/profile_copy.dart';
 import 'package:oracly_new/screens/profile/reference/profile_account_session.dart';
 import 'package:oracly_new/screens/profile/reference/profile_reference_screen.dart';
 import 'package:oracly_new/screens/settings/reference/settings_reference_screen.dart';
-import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../support/test_path_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,7 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    PathProviderPlatform.instance = _LogoutPathProvider();
+    await installTestPathProvider('oracly-profile-actions-');
     storage = LocalStorage(await SharedPreferences.getInstance());
   });
 
@@ -105,7 +105,7 @@ void main() {
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
     await tester.runAsync(() async {
-      await Future<void>.delayed(const Duration(milliseconds: 80));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
     });
     await tester.pump(const Duration(milliseconds: 1200));
 
@@ -245,20 +245,4 @@ class _MemTokens implements TokenManager {
   @override
   Future<bool> hasValidAccessToken() async =>
       access != null && access!.isNotEmpty;
-}
-
-class _LogoutPathProvider extends Fake
-    with MockPlatformInterfaceMixin
-    implements PathProviderPlatform {
-  @override
-  Future<String?> getApplicationSupportPath() async => '.';
-
-  @override
-  Future<String?> getApplicationDocumentsPath() async => '.';
-
-  @override
-  Future<String?> getTemporaryPath() async => '.';
-
-  @override
-  Future<String?> getApplicationCachePath() async => '.';
 }

@@ -56,4 +56,11 @@ abstract final class OwnedFileCleanupJournal {
     if (remaining.isEmpty) return storage.remove(key);
     return storage.setStringList(key, remaining.toList());
   }
+
+  /// Removes a corrupt journal key after owned obligations are reconciled.
+  /// Works regardless of the stored value's type.
+  static Future<bool> retireCorrupt(LocalStorage storage) async {
+    if (inspect(storage) != OwnedFileJournalRead.corrupt) return true;
+    return storage.remove(key);
+  }
 }

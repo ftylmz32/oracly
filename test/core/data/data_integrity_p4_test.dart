@@ -68,6 +68,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     storage = LocalStorage(await SharedPreferences.getInstance());
     secure = InMemorySecureStorage();
+    final root = await Directory.systemTemp.createTemp('oracly-p4-');
+    PathProviderPlatform.instance = _DataIntegrityPathProvider(root.path);
   });
 
   test('gem history skips corrupt rows and cannot authorize local spend', () async {

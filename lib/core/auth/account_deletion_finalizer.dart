@@ -6,6 +6,7 @@ import '../data/datasources/storage_result.dart';
 import '../network/api_result.dart';
 import '../network/network_exception.dart';
 import '../storage/secure_storage.dart';
+import 'account_deletion_markers.dart';
 import 'account_deletion_pending_state.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
@@ -17,6 +18,11 @@ abstract final class AccountDeletionFinalizer {
 
   static const anonymousBootstrapKey =
       'account_deletion_pending_anonymous_bootstrap';
+
+  /// Same key as [AccountDeletionService.pendingServerDeleteKey] — kept here
+  /// as a literal to avoid a circular library import with the service.
+  static const serverDeletePendingKey =
+      'account_deletion_pending_server_delete';
 
   /// Set when the Firebase identity IS confirmed deleted but the LOCAL
   /// account-scoped wipe did not fully succeed. Distinct from
@@ -70,6 +76,11 @@ abstract final class AccountDeletionFinalizer {
       // it into one so this existing try/catch catches both the same way.
       await storage.setBool(localWipePendingKey, true).requireDurable();
       await storage.remove(identityCleanupKey).requireDurable();
+      // identityCleanup is superseded — any leftover serverDeletePending is
+      // obsolete and must not survive into the anonymous owner phase.
+      await storage
+          .remove(AccountDeletionFinalizer.serverDeletePendingKey)
+          .requireDurable();
     } catch (_) {
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
@@ -139,18 +150,33 @@ abstract final class AccountDeletionFinalizer {
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
 
-    // identityCleanupKey is retired FIRST: if only one of these two removals
-    // can be proven durable, it must be this one — otherwise a stale
-    // identityCleanupKey could later be misread as "this (freshly
-    // bootstrapped, otherwise-healthy) anonymous identity still needs
-    // deleting" by AccountDeletionService.retryPendingIdentityCleanup.
-    // anonymousBootstrapKey staying `true` in the meantime is always safe:
-    // it only ever routes a retry back into this same idempotent function.
+    // Before CLEAR every deletion-phase marker must be durably absent —
+    // including a leftover serverDeletePending that failed to retire earlier.
+    // A stale earlier-phase marker must never attack this fresh anonymous
+    // owner on the next cold start.
     if (!await storage.remove(identityCleanupKey)) {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
+    if (!await storage.remove(localWipePendingKey)) {
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    if (!await storage.remove(serverDeletePendingKey)) {
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
     if (!await storage.remove(anonymousBootstrapKey)) {
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    if (AccountDeletionMarkers.isExactlyTrue(
+          storage,
+          serverDeletePendingKey,
+        ) ||
+        AccountDeletionMarkers.isExactlyTrue(storage, identityCleanupKey) ||
+        AccountDeletionMarkers.isExactlyTrue(storage, localWipePendingKey) ||
+        AccountDeletionMarkers.isExactlyTrue(storage, anonymousBootstrapKey)) {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }

@@ -8,6 +8,7 @@ import '../../coffee/data/coffee_reading_store.dart';
 import '../../coffee/services/coffee_image_archive.dart';
 import '../../palm/data/palm_reading_store.dart';
 import '../../palm/services/palm_image_archive.dart';
+import 'archive_path_kind.dart';
 
 abstract final class DiscoveryOwnedImageWipe {
   DiscoveryOwnedImageWipe._();
@@ -35,18 +36,13 @@ abstract final class DiscoveryOwnedImageWipe {
     await PalmImageArchive.purgeOwnedArchive();
   }
 
-  /// STRICT account-boundary cleanup. See [OwnedFileCleanupResult] for when
-  /// Coffee/Palm metadata may still be cleared after an incomplete pass.
+  /// STRICT account-boundary cleanup. See [OwnedFileCleanupResult].
   static Future<OwnedFileCleanupResult> wipeCoffeeAndPalmImagesStrict(
     LocalStorage storage,
   ) async {
     final journalState = OwnedFileCleanupJournal.inspect(storage);
     if (journalState == OwnedFileJournalRead.corrupt) {
-      // UNKNOWN ledger — fail closed; never treat as "no pending files"
-      // and never authorize metadata erase that would orphan survivors.
-      await CoffeeImageArchive.purgeOwnedArchiveStrict();
-      await PalmImageArchive.purgeOwnedArchiveStrict();
-      return OwnedFileCleanupResult.retainMetadata;
+      return _reconcileCorruptJournal(storage);
     }
 
     final paths = <String>{...OwnedFileCleanupJournal.read(storage)};
@@ -55,14 +51,6 @@ abstract final class DiscoveryOwnedImageWipe {
     }
     for (final reading in PalmReadingStore(storage).all()) {
       _addPath(paths, reading.imagePath);
-    }
-
-    if (paths.isEmpty) {
-      // ignore: unawaited_futures
-      CoffeeImageArchive.purgeOwnedArchive();
-      // ignore: unawaited_futures
-      PalmImageArchive.purgeOwnedArchive();
-      return OwnedFileCleanupResult.ok;
     }
 
     final failed = <String>{};
@@ -77,28 +65,71 @@ abstract final class DiscoveryOwnedImageWipe {
       }
     }
 
-    if (failed.isEmpty) {
+    // Always await STRICT archive purge — orphans with empty metadata too.
+    final coffeePurgeOk = await CoffeeImageArchive.purgeOwnedArchiveStrict();
+    final palmPurgeOk = await PalmImageArchive.purgeOwnedArchiveStrict();
+
+    if (failed.isEmpty && coffeePurgeOk && palmPurgeOk) {
       final journalOk = await OwnedFileCleanupJournal.clear(storage, resolved);
-      final coffeePurgeOk = await CoffeeImageArchive.purgeOwnedArchiveStrict();
-      final palmPurgeOk = await PalmImageArchive.purgeOwnedArchiveStrict();
-      if (journalOk && coffeePurgeOk && palmPurgeOk) {
-        return OwnedFileCleanupResult.ok;
-      }
-      // Resolved deletes but journal/purge unsettled — metadata still has
-      // nothing left to point at resolved paths; journal clear failure of
-      // an empty/near-empty set is rare. Fail closed without blocking
-      // metadata if all physical paths resolved.
+      if (journalOk) return OwnedFileCleanupResult.ok;
+      return OwnedFileCleanupResult.retainMetadata;
+    }
+
+    if (failed.isNotEmpty) {
+      final journalOk = await OwnedFileCleanupJournal.record(storage, failed);
       return journalOk
           ? OwnedFileCleanupResult.incompleteJournaled
           : OwnedFileCleanupResult.retainMetadata;
     }
 
-    final journalOk = await OwnedFileCleanupJournal.record(storage, failed);
-    await CoffeeImageArchive.purgeOwnedArchiveStrict();
-    await PalmImageArchive.purgeOwnedArchiveStrict();
-    return journalOk
-        ? OwnedFileCleanupResult.incompleteJournaled
-        : OwnedFileCleanupResult.retainMetadata;
+    // Paths resolved but purge unsettled — fail closed on metadata.
+    return OwnedFileCleanupResult.retainMetadata;
+  }
+
+  /// Corrupt journal: fail closed, purge owned dirs, reconcile metadata
+  /// paths, then retire the corrupt ledger only when every obligation is
+  /// proven gone.
+  static Future<OwnedFileCleanupResult> _reconcileCorruptJournal(
+    LocalStorage storage,
+  ) async {
+    final coffeePurgeOk = await CoffeeImageArchive.purgeOwnedArchiveStrict();
+    final palmPurgeOk = await PalmImageArchive.purgeOwnedArchiveStrict();
+    if (!coffeePurgeOk || !palmPurgeOk) {
+      return OwnedFileCleanupResult.retainMetadata;
+    }
+
+    final paths = <String>{};
+    for (final reading in CoffeeReadingStore(storage).all()) {
+      _addPath(paths, reading.imagePath);
+    }
+    for (final reading in PalmReadingStore(storage).all()) {
+      _addPath(paths, reading.imagePath);
+    }
+
+    for (final path in paths) {
+      final coffeeKind = await CoffeeImageArchive.classifyPath(path);
+      final palmKind = await PalmImageArchive.classifyPath(path);
+      if (coffeeKind == ArchivePathKind.unknown ||
+          palmKind == ArchivePathKind.unknown) {
+        return OwnedFileCleanupResult.retainMetadata;
+      }
+      final coffeeOk = await CoffeeImageArchive.deleteIfOwnedStrict(path);
+      final palmOk = await PalmImageArchive.deleteIfOwnedStrict(path);
+      if (!coffeeOk || !palmOk) {
+        return OwnedFileCleanupResult.retainMetadata;
+      }
+    }
+
+    // Second purge for any orphan that metadata never referenced.
+    if (!await CoffeeImageArchive.purgeOwnedArchiveStrict() ||
+        !await PalmImageArchive.purgeOwnedArchiveStrict()) {
+      return OwnedFileCleanupResult.retainMetadata;
+    }
+
+    if (!await OwnedFileCleanupJournal.retireCorrupt(storage)) {
+      return OwnedFileCleanupResult.retainMetadata;
+    }
+    return OwnedFileCleanupResult.ok;
   }
 
   static void _addPath(Set<String> paths, String? raw) {

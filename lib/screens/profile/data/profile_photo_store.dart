@@ -8,7 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/auth/managed_file_path.dart';
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/datasources/storage_result.dart';
 
 abstract final class ProfilePhotoStore {
   ProfilePhotoStore._();
@@ -35,7 +37,13 @@ abstract final class ProfilePhotoStore {
     final mark = stamp ?? DateTime.now().millisecondsSinceEpoch;
     final dest = File('${dir.path}/${filePrefix}_$mark.jpg');
     await File(sourcePath).copy(dest.path);
-    await storage.setString(key, dest.path);
+    try {
+      await storage.setString(key, dest.path).requireDurable();
+    } catch (_) {
+      // Metadata never committed — delete the new file and keep previous.
+      await _deleteQuietly(dest.path);
+      rethrow;
+    }
     if (previous != null && previous != dest.path) {
       await _deleteQuietly(previous);
     }
@@ -47,41 +55,31 @@ abstract final class ProfilePhotoStore {
     await _deleteQuietly(stored);
   }
 
-  /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
+  /// Account-boundary wipe — tri-state ownership (see [ManagedPathKind]).
   ///
-  /// Physical delete only when the stored path is proven to be an ORACLY-
-  /// managed profile photo (`oracly_profile_photo_*` under app documents).
-  /// External / corrupt / unowned paths are NEVER deleted: metadata is
-  /// retired safely so wipe can continue without touching gallery files.
+  /// - managed: delete file, then remove metadata
+  /// - notManaged: never delete file; metadata may be removed
+  /// - unknown: keep file AND metadata; fail for retry
   static Future<void> clearStrict(LocalStorage storage) async {
     final stored = storage.getString(key);
     if (stored != null && stored.isNotEmpty) {
-      if (await _isManagedProfilePath(stored)) {
-        if (!await _deleteStrict(stored)) {
-          throw StateError('profile photo file delete failed');
-        }
+      final kind = await ManagedFilePath.classify(
+        stored,
+        filePrefix: filePrefix,
+      );
+      switch (kind) {
+        case ManagedPathKind.managed:
+          if (!await _deleteStrict(stored)) {
+            throw StateError('profile photo file delete failed');
+          }
+        case ManagedPathKind.notManaged:
+          break;
+        case ManagedPathKind.unknown:
+          throw StateError('profile photo ownership unknown');
       }
-      // Unmanaged / corrupt path: drop metadata only — never delete the file.
     }
     if (!await storage.remove(key)) {
       throw StateError('profile photo key removal failed');
-    }
-  }
-
-  /// Proven ORACLY-managed profile photo under application documents.
-  static Future<bool> _isManagedProfilePath(String path) async {
-    try {
-      final trimmed = path.trim();
-      if (trimmed.isEmpty) return false;
-      final name = trimmed.replaceAll('\\', '/').split('/').last;
-      if (!name.startsWith('${filePrefix}_')) return false;
-      final docs = await getApplicationDocumentsDirectory();
-      final docsNorm = docs.path.replaceAll('\\', '/');
-      final pathNorm = trimmed.replaceAll('\\', '/');
-      return pathNorm.startsWith('$docsNorm/');
-    } catch (_) {
-      // Ownership undetermined — treat as unmanaged (do not delete file).
-      return false;
     }
   }
 
@@ -97,7 +95,7 @@ abstract final class ProfilePhotoStore {
     try {
       final file = File(path);
       if (!file.existsSync()) return true;
-      await file.delete();
+      file.deleteSync();
       return true;
     } catch (_) {
       return false;

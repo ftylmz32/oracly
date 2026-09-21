@@ -6,7 +6,9 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/auth/managed_file_path.dart';
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/datasources/storage_result.dart';
 import '../models/soul_mate_saved_result.dart';
 
 abstract final class SoulMateResultStore {
@@ -57,7 +59,14 @@ abstract final class SoulMateResultStore {
       localeCode: record.localeCode,
       identity: record.identity,
     );
-    await storage.setString(metaKey, jsonEncode(saved.toJson()));
+    try {
+      await storage
+          .setString(metaKey, jsonEncode(saved.toJson()))
+          .requireDurable();
+    } catch (_) {
+      await _deleteQuietly(dest.path);
+      rethrow;
+    }
     if (previous != null && previous.portraitPath != dest.path) {
       await _deleteQuietly(previous.portraitPath);
     }
@@ -70,40 +79,28 @@ abstract final class SoulMateResultStore {
     await _deleteQuietly(previous?.portraitPath);
   }
 
-  /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
-  ///
-  /// Physical delete only when [portraitPath] is proven ORACLY-managed
-  /// (`oracly_soulmate_portrait_*` under app documents). External /
-  /// corrupt / unowned paths are NEVER deleted: metadata is retired so
-  /// wipe continues without touching gallery files.
+  /// Account-boundary wipe — tri-state ownership (see [ManagedPathKind]).
   static Future<void> clearStrict(LocalStorage storage) async {
     final previous = await readMeta(storage);
     final path = previous?.portraitPath;
     if (path != null && path.isNotEmpty) {
-      if (await _isManagedPortraitPath(path)) {
-        if (!await _deleteStrict(path)) {
-          throw StateError('soulmate portrait file delete failed');
-        }
+      final kind = await ManagedFilePath.classify(
+        path,
+        filePrefix: portraitPrefix,
+      );
+      switch (kind) {
+        case ManagedPathKind.managed:
+          if (!await _deleteStrict(path)) {
+            throw StateError('soulmate portrait file delete failed');
+          }
+        case ManagedPathKind.notManaged:
+          break;
+        case ManagedPathKind.unknown:
+          throw StateError('soulmate portrait ownership unknown');
       }
-      // Unmanaged / corrupt path: drop metadata only — never delete the file.
     }
     if (!await storage.remove(metaKey)) {
       throw StateError('soulmate meta key removal failed');
-    }
-  }
-
-  static Future<bool> _isManagedPortraitPath(String path) async {
-    try {
-      final trimmed = path.trim();
-      if (trimmed.isEmpty) return false;
-      final name = trimmed.replaceAll('\\', '/').split('/').last;
-      if (!name.startsWith('${portraitPrefix}_')) return false;
-      final docs = await getApplicationDocumentsDirectory();
-      final docsNorm = docs.path.replaceAll('\\', '/');
-      final pathNorm = trimmed.replaceAll('\\', '/');
-      return pathNorm.startsWith('$docsNorm/');
-    } catch (_) {
-      return false;
     }
   }
 
@@ -119,7 +116,7 @@ abstract final class SoulMateResultStore {
     try {
       final file = File(path);
       if (!file.existsSync()) return true;
-      await file.delete();
+      file.deleteSync();
       return true;
     } catch (_) {
       return false;

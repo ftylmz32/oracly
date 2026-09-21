@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/auth/managed_file_path.dart';
 import '../../privacy/services/archive_path_kind.dart';
 
 abstract final class PalmImageArchive {
@@ -17,7 +18,6 @@ abstract final class PalmImageArchive {
     return dir;
   }
 
-  /// Copy normalized source into durable app-owned path for [readingId].
   static Future<String> persist({
     required String readingId,
     required String sourcePath,
@@ -44,13 +44,18 @@ abstract final class PalmImageArchive {
     return (await classifyPath(path)) == ArchivePathKind.owned;
   }
 
+  /// Does not create the archive directory (classification is side-effect free).
   static Future<ArchivePathKind> classifyPath(String path) async {
     try {
       final trimmed = path.trim();
       if (trimmed.isEmpty) return ArchivePathKind.notOwned;
-      final root = _ownedPrefix(await _dir());
-      final absolute = File(trimmed).absolute.path;
-      return absolute.startsWith(root)
+      final root = await getApplicationDocumentsDirectory();
+      final archive = Directory(
+        '${root.path}${Platform.pathSeparator}palm_images',
+      );
+      final rootNorm = ManagedFilePath.normalize(archive.absolute.path);
+      final fileNorm = ManagedFilePath.normalize(File(trimmed).absolute.path);
+      return ManagedFilePath.isStrictlyInside(rootNorm, fileNorm)
           ? ArchivePathKind.owned
           : ArchivePathKind.notOwned;
     } catch (_) {
@@ -74,14 +79,13 @@ abstract final class PalmImageArchive {
     if (kind == ArchivePathKind.unknown) return false;
     try {
       final file = File(path);
-      if (await file.exists()) await file.delete();
+      if (file.existsSync()) file.deleteSync();
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  /// Remove every file under the palm archive directory.
   static Future<void> purgeOwnedArchive() async {
     try {
       final dir = await _dir();
@@ -95,36 +99,31 @@ abstract final class PalmImageArchive {
     } catch (_) {}
   }
 
-  /// Account-boundary wipe variant — returns `false` if a file THAT WAS
-  /// FOUND under the archive directory could not be deleted. If the
-  /// directory/platform itself is unreachable (e.g. path_provider isn't
-  /// wired up), this degrades to `true` — the same tolerant behavior
-  /// [purgeOwnedArchive] already had — since that is an environment
-  /// limitation, not evidence a known owned file failed to delete.
+  /// STRICT: path_provider failure is UNKNOWN → false.
+  /// Missing archive directory means no orphans → true (do not create it).
+  /// Sync FS after documents resolution — avoids dart:io Future stalls.
   static Future<bool> purgeOwnedArchiveStrict() async {
-    Directory dir;
+    final Directory dir;
     try {
-      dir = await _dir();
-      if (!await dir.exists()) return true;
+      final root = await getApplicationDocumentsDirectory();
+      dir = Directory('${root.path}${Platform.pathSeparator}palm_images');
+      if (!dir.existsSync()) return true;
     } catch (_) {
-      return true;
+      return false;
     }
     var ok = true;
-    await for (final entity in dir.list(followLinks: false)) {
-      if (entity is! File) continue;
-      try {
-        await entity.delete();
-      } catch (_) {
-        ok = false;
+    try {
+      for (final entity in dir.listSync(followLinks: false)) {
+        if (entity is! File) continue;
+        try {
+          entity.deleteSync();
+        } catch (_) {
+          ok = false;
+        }
       }
+    } catch (_) {
+      return false;
     }
     return ok;
-  }
-
-  static String _ownedPrefix(Directory dir) {
-    final root = dir.absolute.path;
-    return root.endsWith(Platform.pathSeparator)
-        ? root
-        : '$root${Platform.pathSeparator}';
   }
 }

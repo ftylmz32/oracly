@@ -54,7 +54,10 @@ class PalmReadingStore {
         if (item.id != reading.id) item,
       reading,
     ];
-    await _storage.setStringList(key, next.map(_toJson).toList());
+    final ok = await _storage.setStringList(key, next.map(_toJson).toList());
+    if (!ok) {
+      throw StateError('palm reading metadata write failed');
+    }
     await _memory?.upsert(OraclyMemoryFactory.palm(reading));
   }
 
