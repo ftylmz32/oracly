@@ -535,9 +535,10 @@ class CoffeeReadingController extends ChangeNotifier {
   Future<void> recoverActive() async {
     final live = _live;
     if (live == null) return;
+    final token = _generation;
     final pending = _pendingStore?.load(ReadingType.coffee);
     final state = await live.flow.recover(ReadingType.coffee);
-    if (_disposed) return;
+    if (_disposed || token != _generation) return;
     switch (state.kind) {
       case ReadingLiveKind.ready:
         unawaited(_pendingStore?.clear(ReadingType.coffee));
