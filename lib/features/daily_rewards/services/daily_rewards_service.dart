@@ -20,11 +20,14 @@ class DailyRewardsService {
   static const claimedKey = 'daily_reward_claimed_on';
 
   bool _claiming = false;
+  String? _claimedDayInMemory;
 
   Future<DailyRewardState> load({DateTime? asOf}) async {
     final moment = asOf ?? DateTime.now();
     final profile = await _user.getProfile();
-    final claimed = _storage.getString(claimedKey) == _dayKey(moment);
+    final today = _dayKey(moment);
+    final claimed =
+        _claimedDayInMemory == today || _storage.getString(claimedKey) == today;
     return DailyRewardState(
       streak: profile.currentStreak,
       claimedToday: claimed,
@@ -58,6 +61,11 @@ class DailyRewardsService {
           );
         }
         final dayKey = result.serverDay ?? _dayKey(moment);
+        // Server claim is authoritative. Reflect it immediately in memory so
+        // a local SharedPreferences write failure cannot make a successfully
+        // granted reward look unclaimed in this session. Restart recovery is
+        // still safe because the server ledger is idempotent.
+        _claimedDayInMemory = dayKey;
         await _storage.setString(claimedKey, dayKey);
         if (result.applied && !result.idempotent) {
           await _user.incrementStreak();
