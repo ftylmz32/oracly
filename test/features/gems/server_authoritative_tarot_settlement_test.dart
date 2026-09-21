@@ -215,10 +215,10 @@ class _World {
       : serverBalance = initialBalance {
     this.storage = storage ?? LocalStorage.ephemeral();
     wallet = GemWalletService(
-      GemWalletStore(storage),
+      GemWalletStore(this.storage),
       gateway: GemWalletGateway(_send),
     );
-    ops = PaidAiOperationCoordinator(wallet: wallet, storage: storage);
+    ops = PaidAiOperationCoordinator(wallet: wallet, storage: this.storage);
   }
 
   late final LocalStorage storage;
