@@ -1,6 +1,8 @@
 /// R8 — Dream MODEL B: same narrative reuses attempt id; wipe clears it.
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
@@ -88,6 +90,47 @@ void main() {
       observed = PaidAiOperationBinder.idempotencyKey ?? '';
     });
     expect(observed, id);
+  });
+
+  test(
+    'concurrent paid binders never overwrite each other idempotency key',
+    () async {
+      final firstEntered = Completer<void>();
+      final secondEntered = Completer<void>();
+      final releaseFirst = Completer<void>();
+      final releaseSecond = Completer<void>();
+
+      final first = PaidAiOperationBinder.runWithKey('op-first', () async {
+        firstEntered.complete();
+        await releaseFirst.future;
+        return PaidAiOperationBinder.idempotencyKey;
+      });
+      await firstEntered.future;
+
+      final second = PaidAiOperationBinder.runWithKey('op-second', () async {
+        secondEntered.complete();
+        await releaseSecond.future;
+        return PaidAiOperationBinder.idempotencyKey;
+      });
+      await secondEntered.future;
+
+      releaseSecond.complete();
+      expect(await second, 'op-second');
+      releaseFirst.complete();
+      expect(await first, 'op-first');
+      expect(PaidAiOperationBinder.idempotencyKey, isNull);
+    },
+  );
+
+  test('nested paid binder restores parent async-context key', () async {
+    await PaidAiOperationBinder.runWithKey('outer-op', () async {
+      expect(PaidAiOperationBinder.idempotencyKey, 'outer-op');
+      await PaidAiOperationBinder.runWithKey('inner-op', () async {
+        expect(PaidAiOperationBinder.idempotencyKey, 'inner-op');
+      });
+      expect(PaidAiOperationBinder.idempotencyKey, 'outer-op');
+    });
+    expect(PaidAiOperationBinder.idempotencyKey, isNull);
   });
 
   test('account wipe removes dream attempt recovery key', () async {
