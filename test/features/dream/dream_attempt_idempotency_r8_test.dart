@@ -10,6 +10,8 @@ import 'package:oracly_new/features/gems/services/paid_ai_operation_binder.dart'
 import 'package:oracly_new/features/gems/services/paid_ai_operation_id.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/false_return_local_storage.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -41,6 +43,41 @@ void main() {
     final second = await attempts.resolveId('same narrative');
     expect(second, isNot(first));
   });
+
+  test(
+    'false-returning attempt write never reports a durable logical id',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final failing = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      )..falseReturnKeys.add(DreamAttemptStore.key);
+      final failingAttempts = DreamAttemptStore(failing);
+
+      await expectLater(
+        failingAttempts.resolveId('storage failure dream'),
+        throwsStateError,
+      );
+
+      expect(failing.getString(DreamAttemptStore.key), isNull);
+    },
+  );
+
+  test(
+    'false-returning clear never pretends the attempt identity was reset',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final failing = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      );
+      final failingAttempts = DreamAttemptStore(failing);
+      final id = await failingAttempts.resolveId('keep me');
+      failing.falseReturnRemoveKeys.add(DreamAttemptStore.key);
+
+      await expectLater(failingAttempts.clear(), throwsStateError);
+
+      expect(await failingAttempts.resolveId('keep me'), id);
+    },
+  );
 
   test('binder key matches PaidAiOperationId.fromExisting for attempt', () async {
     final id = await attempts.resolveId('binder check');
