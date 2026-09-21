@@ -88,6 +88,10 @@ class GemWalletService {
       throw const GemSpendException('owner_changed');
     }
     await _store.cacheServerBalance(balance, ownerId: ownerId);
+    if (!_ownerIsCurrent) {
+      _stale = true;
+      throw const GemSpendException('owner_changed');
+    }
     _stale = false;
   }
 
