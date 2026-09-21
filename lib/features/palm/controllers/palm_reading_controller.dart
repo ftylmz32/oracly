@@ -359,6 +359,15 @@ class PalmReadingController extends ChangeNotifier
   }
 
   void openSaved(PalmReading reading) {
+    if (_disposed) return;
+    _generation++;
+    _resumeTimer?.cancel();
+    liveState = null;
+    _accelerating = false;
+    _accelerationError = null;
+    _accelerationCost = null;
+    _accelerationCostFor = null;
+    _accelerationPriceToken = null;
     final path = reading.imagePath;
     final exists = path != null && File(path).existsSync();
     _reading = exists ? reading : reading.copyWith(clearImagePath: true);
