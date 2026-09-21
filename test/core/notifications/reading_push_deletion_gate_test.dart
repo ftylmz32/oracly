@@ -231,8 +231,11 @@ void main() {
       );
 
       AccountDeletionPendingState.markClear();
-      ReadingPushBootstrap.installedOwnerIdForTest = 'uid-b';
-      await ReadingPushBootstrap.install(container);
+      // Production install() calls this same owner-binding path before any
+      // platform re-subscription work. Prove the security boundary directly:
+      // rebinding to B discards A's queued completion immediately.
+      ReadingPushBootstrap.bindOwnerForTest('uid-b');
+      expect(ReadingPushBootstrap.pendingDestinationForTest, isNull);
 
       await tester.pumpWidget(
         MaterialApp(
