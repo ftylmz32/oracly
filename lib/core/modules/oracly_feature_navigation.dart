@@ -1,6 +1,8 @@
 /// OR-438 — Module-aware navigation bridge (uses existing nav service).
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../features/premium/services/premium_access.dart';
@@ -28,12 +30,26 @@ abstract final class OraclyFeatureNavigation {
 
   static void open(BuildContext context, OraclyFeatureId id) {
     final gated = module(id);
-    if (gated != null &&
-        gated.requiresPremium &&
-        !PremiumAccess.ensure(context)) {
-      PremiumAccess.prompt(context);
+    if (gated != null && gated.requiresPremium) {
+      // Cold-start safe: a real subscriber may tap before PremiumStatusController
+      // has completed its first load/reconcile. Never turn "not loaded yet"
+      // into a false paywall.
+      unawaited(_openPremiumGated(context, id));
       return;
     }
+    _openResolved(context, id);
+  }
+
+  static Future<void> _openPremiumGated(
+    BuildContext context,
+    OraclyFeatureId id,
+  ) async {
+    final allowed = await PremiumAccess.ensureFresh(context);
+    if (!allowed || !context.mounted) return;
+    _openResolved(context, id);
+  }
+
+  static void _openResolved(BuildContext context, OraclyFeatureId id) {
     switch (id) {
       case OraclyFeatureId.home:
         OraclyNavigationService.openHome(context);
