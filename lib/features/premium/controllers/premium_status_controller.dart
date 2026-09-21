@@ -62,6 +62,7 @@ class PremiumStatusController extends ChangeNotifier {
   bool get isFree => !isPremium;
   bool get busy => _entitlement.isTransient;
   bool get purchaseConfigured => _service.purchaseConfigured;
+  bool get ownerAccessReady => _service.ownerAccessReady;
   bool get canAttemptRestore => _service.canAttemptRestore;
   PremiumPlanKind get selectedPlan => _selectedPlan;
   PremiumPlanKind? get activePlan => _activePlan;
