@@ -19,13 +19,15 @@ abstract final class OraclyNotificationTapRouter {
   }
 
   static void openPending([BuildContext? context]) {
-    // Keep inbox queued until the deletion gate is clear.
+    // Keep inbox queued until the deletion gate AND a concrete navigation
+    // context are ready. Never consume first and discover context is null:
+    // shell activation can precede navigator-key context by a frame.
     if (AccountDeletionPendingState.blocksDeepLinks) return;
     if (!_navigatorReady(context)) return;
-    final kind = OraclyNotificationTapInbox.instance.take();
-    if (kind == null) return;
     final ctx = _resolveContext(context);
     if (ctx == null) return;
+    final kind = OraclyNotificationTapInbox.instance.take();
+    if (kind == null) return;
     _openKind(ctx, kind);
   }
 
