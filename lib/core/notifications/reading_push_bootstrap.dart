@@ -119,7 +119,19 @@ final class ReadingPushDestination {
 ReadingPushDestination? readingPushDestination(Map<String, dynamic> data) {
   if (data['type'] != 'reading_completed') return null;
   final operationId = data['operationId'];
-  if (operationId is! String || operationId.length != 32) return null;
+  if (operationId is! String ||
+      !RegExp(r'^[a-f0-9]{32}  final route = switch (data['readingType']) {
+    'coffee' => OraclyRoutes.coffee,
+    'palm' => OraclyRoutes.palm,
+    _ => null,
+  };
+  return route == null
+      ? null
+      : ReadingPushDestination(route: route, operationId: operationId);
+}
+).hasMatch(operationId)) {
+    return null;
+  }
   final route = switch (data['readingType']) {
     'coffee' => OraclyRoutes.coffee,
     'palm' => OraclyRoutes.palm,
