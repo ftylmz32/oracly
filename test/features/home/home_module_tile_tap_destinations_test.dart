@@ -186,7 +186,18 @@ void main() {
 
       await tester.tap(find.text('OPEN_SOULMATE'));
       await tester.pump();
-      await tester.pumpAndSettle();
+
+      // Soul Mate's premium atmosphere intentionally runs a perpetual ambient
+      // animation, so pumpAndSettle() can never complete on this screen.
+      // Advance a bounded amount of virtual time until the entitlement load
+      // and chamber transition have both had a chance to complete.
+      for (var i = 0;
+          i < 30 &&
+              (!status.loaded ||
+                  find.byType(SoulMateDrawScreen).evaluate().isEmpty);
+          i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(status.loaded, isTrue);
       expect(status.isPremium, isTrue);
