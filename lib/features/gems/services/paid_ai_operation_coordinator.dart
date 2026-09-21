@@ -121,15 +121,32 @@ class PaidAiOperationCoordinator {
       } catch (_) {}
       return false;
     }
-    // Any successful settle envelope (including idempotent replay) is final.
-    await _store.upsert(op.copyWith(status: PaidAiOperationStatus.settled));
+    // Any successful settle envelope (including idempotent replay) is final
+    // SERVER truth. If the local settled marker cannot be persisted, keep the
+    // older durable providerOk/pending row intact: restart may replay the same
+    // settlement idempotently, but we must not tell the live caller the server
+    // charge failed after it actually succeeded.
+    try {
+      await _store.upsert(op.copyWith(status: PaidAiOperationStatus.settled));
+    } catch (_) {}
     return true;
   }
 
   /// After provider success: mark then settle. Never double-charges.
   Future<bool> completeAfterProvider(PaidAiOperation op) async {
-    await markProviderOk(op.id);
-    return settle(op.copyWith(status: PaidAiOperationStatus.providerOk));
+    // Promotion is the crash-recovery marker. A storage failure here must not
+    // be silently called durable; nevertheless the live process already KNOWS
+    // the provider succeeded, so it should still attempt the server-authority
+    // settlement immediately. The original pending row remains untouched when
+    // promotion fails.
+    try {
+      await markProviderOk(op.id);
+    } catch (_) {}
+    try {
+      return await settle(op.copyWith(status: PaidAiOperationStatus.providerOk));
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Resume / splash — settle providerOk leftovers; drop stale pending
@@ -137,11 +154,20 @@ class PaidAiOperationCoordinator {
   Future<int> reconcile() async {
     var settled = 0;
     for (final op in _store.needingSettle()) {
-      if (await settle(op)) settled += 1;
+      try {
+        if (await settle(op)) settled += 1;
+      } catch (_) {
+        // Per-operation isolation: one corrupt/unwritable local row must not
+        // prevent another providerOk operation from being idempotently settled.
+      }
     }
     for (final op in _store.all()) {
       if (op.status == PaidAiOperationStatus.pending && op.isBillable) {
-        await abandon(op.id);
+        try {
+          await abandon(op.id);
+        } catch (_) {
+          // Leave pending in place when abandonment itself is not durable.
+        }
       }
     }
     return settled;
