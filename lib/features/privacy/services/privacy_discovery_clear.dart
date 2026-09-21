@@ -2,6 +2,7 @@
 library;
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/repositories/local_dream_repository.dart';
 import '../../../core/domain/repositories/birth_chart_repository.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../../../core/services/history_service.dart';
@@ -19,10 +20,18 @@ abstract final class PrivacyDiscoveryClear {
     required BirthChartRepository birthCharts,
   }) async {
     await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImages(storage);
-    await history.clear();
+
+    final memory = OraclyMemoryStore(storage);
+    await _purgeCoffeeSources(storage, memory);
+    await _purgePalmSources(storage, memory);
+    await _purgeDreamSources(storage, memory);
+
+    // Malformed/unparseable legacy rows survive typed delete — force empty.
     await storage.setStringList('dream_records', const []);
     await storage.setStringList(CoffeeReadingStore.key, const []);
     await storage.setStringList(PalmReadingStore.key, const []);
+
+    await history.clear();
     await storage.setStringList('astrology_history', const []);
     await storage.setStringList('ai_conversations', const []);
     await storage.setStringList(TarotLocalDataSource.historyKey, const []);
@@ -34,10 +43,46 @@ abstract final class PrivacyDiscoveryClear {
     await birthCharts.clearLatest();
     if (birthChartSourceId != null) {
       try {
-        await OraclyMemoryStore(storage).removeBySource(birthChartSourceId);
+        await memory.removeBySource(birthChartSourceId);
       } catch (_) {
         // Clearing the source remains authoritative when the index is damaged.
       }
+    }
+  }
+
+  static Future<void> _purgeCoffeeSources(
+    LocalStorage storage,
+    OraclyMemoryStore memory,
+  ) async {
+    final store = CoffeeReadingStore(storage, memory: memory);
+    for (final id in store.all().map((e) => e.id).toList()) {
+      try {
+        await store.delete(id);
+      } catch (_) {}
+    }
+  }
+
+  static Future<void> _purgePalmSources(
+    LocalStorage storage,
+    OraclyMemoryStore memory,
+  ) async {
+    final store = PalmReadingStore(storage, memory: memory);
+    for (final id in store.all().map((e) => e.id).toList()) {
+      try {
+        await store.delete(id);
+      } catch (_) {}
+    }
+  }
+
+  static Future<void> _purgeDreamSources(
+    LocalStorage storage,
+    OraclyMemoryStore memory,
+  ) async {
+    final repo = LocalDreamRepository(storage, memory: memory);
+    for (final id in (await repo.getAll()).map((e) => e.id).toList()) {
+      try {
+        await repo.delete(id);
+      } catch (_) {}
     }
   }
 }
