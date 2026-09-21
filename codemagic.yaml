@@ -198,7 +198,7 @@ workflows:
           flutter build ipa --release \
             --dart-define-from-file=tool/dart_defines.production.json \
             --build-name=1.0 \
-            --build-number=3 \
+            --build-number=4 \
             --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:
