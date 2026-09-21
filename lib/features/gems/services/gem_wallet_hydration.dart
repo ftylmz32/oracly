@@ -5,32 +5,35 @@ import '../controllers/gem_wallet_controller.dart';
 
 /// One auth-driven refresh per owner and ProviderContainer.
 class GemWalletHydrationCoordinator {
-  final Map<String, Future<void>> _inFlight = {};
+  final Map<String, Future<bool>> _inFlight = {};
   final Set<String> _bootstrapInFlight = {};
 
   bool beginBootstrap(String ownerId) => _bootstrapInFlight.add(ownerId);
 
   void endBootstrap(String ownerId) => _bootstrapInFlight.remove(ownerId);
 
-  Future<void> hydrate(String ownerId, GemWalletController controller) {
+  Future<void> hydrate(String ownerId, GemWalletController controller) async {
     final active = _inFlight[ownerId];
     if (active != null) {
-      return active.then((_) async {
-        // A provider rebuild may have produced a different controller for the
-        // SAME uid while the first reload was in flight. Never replay a
-        // coordinator-cached balance into that new controller: wallet balance
-        // can change after any settle/reward endpoint, so only the server or
-        // the owner-bound durable store may be authoritative.
-        if (controller.ownerId == ownerId && !controller.authoritative) {
-          await controller.reload();
-        }
-      });
+      final succeeded = await active;
+      if (controller.ownerId != ownerId || controller.authoritative) return;
+
+      // The first controller's successful GET has just written the same
+      // owner-bound durable store. Adopt that exact persisted snapshot in the
+      // recreated controller without a second GET. If the shared GET failed
+      // (or no durable value exists), retry from the server instead.
+      if (succeeded && controller.acceptHydratedCachedBalance()) return;
+      await controller.reloadAuthoritatively();
+      return;
     }
-    final future = controller.reload();
+
+    final future = controller.reloadAuthoritatively();
     _inFlight[ownerId] = future;
-    return future.whenComplete(() {
+    try {
+      await future;
+    } finally {
       if (identical(_inFlight[ownerId], future)) _inFlight.remove(ownerId);
-    });
+    }
   }
 
   Future<void> hydrateWithRetry(
