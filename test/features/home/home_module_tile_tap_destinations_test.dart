@@ -172,6 +172,16 @@ void main() {
   testWidgets('Soul Mate tile opens Premium gate, never Tarot', (tester) async {
     await pumpHome(tester);
     await tapModule(tester, OraclyFeatureId.soulMate);
+
+    // Premium feature navigation is intentionally async so cold-start
+    // entitlement can reconcile before deciding. Wait a bounded amount for
+    // the inactive decision + dialog transition; never assume one fixed frame.
+    for (var i = 0;
+        i < 30 && find.text(PremiumCopy.gateTitle).evaluate().isEmpty;
+        i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
     expect(find.text(PremiumCopy.gateTitle), findsOneWidget);
     expect(find.byType(TarotModuleNavigator), findsNothing);
     expect(find.byType(SoulMateDrawScreen), findsNothing);
