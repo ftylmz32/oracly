@@ -166,7 +166,7 @@ void main() {
         buildProviderScopeHarness(
           storage: storage,
           overrides: [
-            premiumStatusProvider.overrideWithValue(status),
+            premiumStatusProvider.overrideWith((ref) => status),
           ],
           child: MaterialApp(
             home: Builder(
