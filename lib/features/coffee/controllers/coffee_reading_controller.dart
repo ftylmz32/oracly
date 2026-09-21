@@ -471,6 +471,10 @@ class CoffeeReadingController extends ChangeNotifier {
         final saved = resultId == null ? null : _experience.savedById(resultId);
         if (saved != null) {
           openSaved(saved);
+          // openSaved() intentionally clears generic live state for history
+          // opens. Exact completion recovery must retain the operation that
+          // authenticated this deep-link target.
+          liveState = state;
           return;
         }
         final completed = await live.flow.fetchCompletedResult(operationId);
@@ -482,6 +486,7 @@ class CoffeeReadingController extends ChangeNotifier {
         );
         if (_disposed || token != _generation) return;
         openSaved(restored);
+        liveState = state;
       case ReadingLiveKind.waiting:
       case ReadingLiveKind.processing:
         _phase = CoffeePhase.analyzing;
