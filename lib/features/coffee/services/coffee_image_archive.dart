@@ -5,6 +5,8 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../../privacy/services/archive_path_kind.dart';
+
 abstract final class CoffeeImageArchive {
   CoffeeImageArchive._();
 
@@ -38,13 +40,22 @@ abstract final class CoffeeImageArchive {
   }
 
   static Future<bool> isOwnedPath(String path) async {
+    return (await classifyPath(path)) == ArchivePathKind.owned;
+  }
+
+  /// Tri-state ownership for STRICT account-boundary cleanup.
+  /// [ArchivePathKind.unknown] must never be treated as "external success".
+  static Future<ArchivePathKind> classifyPath(String path) async {
     try {
       final trimmed = path.trim();
-      if (trimmed.isEmpty) return false;
+      if (trimmed.isEmpty) return ArchivePathKind.notOwned;
       final root = _ownedPrefix(await _dir());
-      return File(trimmed).absolute.path.startsWith(root);
+      final absolute = File(trimmed).absolute.path;
+      return absolute.startsWith(root)
+          ? ArchivePathKind.owned
+          : ArchivePathKind.notOwned;
     } catch (_) {
-      return false;
+      return ArchivePathKind.unknown;
     }
   }
 
@@ -59,13 +70,14 @@ abstract final class CoffeeImageArchive {
   }
 
   /// Account-boundary wipe variant — used only by [DiscoveryOwnedImageWipe].
-  /// Never touches a path outside this archive (returns `true` — nothing
-  /// owned to clean up). Returns `false` only when an OWNED file's delete
-  /// itself failed, so the caller can keep the path for retry instead of
-  /// silently treating the file as gone.
+  /// Returns `false` when an OWNED delete fails OR ownership cannot be
+  /// determined ([ArchivePathKind.unknown]). Proven non-owned paths are
+  /// ignored (`true`).
   static Future<bool> deleteIfOwnedStrict(String? path) async {
     if (path == null || path.trim().isEmpty) return true;
-    if (!await isOwnedPath(path)) return true;
+    final kind = await classifyPath(path);
+    if (kind == ArchivePathKind.notOwned) return true;
+    if (kind == ArchivePathKind.unknown) return false;
     try {
       final file = File(path);
       if (await file.exists()) await file.delete();

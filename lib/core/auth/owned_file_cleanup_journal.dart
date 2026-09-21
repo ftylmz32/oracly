@@ -9,12 +9,27 @@ library;
 
 import '../data/datasources/local_storage.dart';
 
+enum OwnedFileJournalRead { absent, valid, corrupt }
+
 abstract final class OwnedFileCleanupJournal {
   OwnedFileCleanupJournal._();
 
   static const key = 'account_owned_file_cleanup_pending';
 
+  /// Type-safe journal inspect — a wrong-type value is UNKNOWN, never
+  /// silently "no pending files".
+  static OwnedFileJournalRead inspect(LocalStorage storage) {
+    final raw = storage.peek(key);
+    if (raw == null) return OwnedFileJournalRead.absent;
+    if (raw is List<String>) return OwnedFileJournalRead.valid;
+    if (raw is List && raw.every((e) => e is String)) {
+      return OwnedFileJournalRead.valid;
+    }
+    return OwnedFileJournalRead.corrupt;
+  }
+
   static Set<String> read(LocalStorage storage) {
+    if (inspect(storage) != OwnedFileJournalRead.valid) return <String>{};
     final raw = storage.getStringList(key);
     if (raw == null) return <String>{};
     return raw.toSet();
@@ -26,6 +41,7 @@ abstract final class OwnedFileCleanupJournal {
   /// could otherwise be lost the moment its owning metadata is cleared.
   static Future<bool> record(LocalStorage storage, Set<String> paths) async {
     if (paths.isEmpty) return true;
+    if (inspect(storage) == OwnedFileJournalRead.corrupt) return false;
     final merged = read(storage)..addAll(paths);
     return storage.setStringList(key, merged.toList());
   }
@@ -35,6 +51,7 @@ abstract final class OwnedFileCleanupJournal {
     LocalStorage storage,
     Set<String> resolvedPaths,
   ) async {
+    if (inspect(storage) == OwnedFileJournalRead.corrupt) return false;
     final remaining = read(storage)..removeAll(resolvedPaths);
     if (remaining.isEmpty) return storage.remove(key);
     return storage.setStringList(key, remaining.toList());

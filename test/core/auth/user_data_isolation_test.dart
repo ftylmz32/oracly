@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_auth_gateway.dart';
@@ -35,6 +36,8 @@ import 'package:oracly_new/features/personal_discovery/services/personal_discove
 import 'package:oracly_new/features/tarot/data/datasources/tarot_local_datasource.dart';
 import 'package:oracly_new/features/tarot/domain/models/reading_session.dart';
 import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/personal_discovery/pde_test_fixtures.dart';
@@ -277,9 +280,12 @@ void main() {
   late _SwitchGateway gateway;
   late FirebaseAuthService auth;
   late UserLocalDataIsolation isolation;
+  late Directory root;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    root = await Directory.systemTemp.createTemp('oracly-isolation-');
+    PathProviderPlatform.instance = _IsolationPathProvider(root.path);
     storage = LocalStorage(await SharedPreferences.getInstance());
     secure = InMemorySecureStorage();
     gateway = _SwitchGateway();
@@ -295,7 +301,12 @@ void main() {
     );
   });
 
-  tearDown(() => auth.dispose());
+  tearDown(() async {
+    auth.dispose();
+    try {
+      if (await root.exists()) await root.delete(recursive: true);
+    } catch (_) {}
+  });
 
   test('user B cannot see user A local journal profile gems premium memory',
       () async {
@@ -868,6 +879,127 @@ void main() {
     raceAuth.dispose();
   });
 
+  test(
+      'P0-2 delayed C event: B paused, currentUser silently becomes C '
+      '(no authStateChanges yet) — releasing B MUST NOT publish; later C '
+      'event alone becomes the session', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final holdStorage = _HoldWipeStorage(prefs);
+    holdStorage.hold = Completer<void>();
+    final holdIsolation = UserLocalDataIsolation(
+      holdStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    final raceGateway = _DelayedEventGateway();
+    final sessions = InMemorySessionManager(_MemTokens());
+    final raceAuth = FirebaseAuthService(
+      gateway: raceGateway,
+      tokens: _MemTokens(),
+      sessions: sessions,
+      isolation: holdIsolation,
+    );
+
+    raceGateway.setUser('uid-A', emit: true);
+    await raceAuth.signInAnonymously();
+    expect(sessions.currentSession?.userId, 'uid-A');
+
+    await holdStorage.setString(UserLocalDataIsolation.ownerKey, 'uid-A');
+    await holdStorage.setStringList(
+      MockUserRepository.readingLedgerIdsKey,
+      const ['seed'],
+    );
+
+    raceGateway.setUser('uid-B', emit: true);
+    final bFuture = raceAuth.signInAnonymously();
+    await holdStorage.wipeStarted.future;
+
+    // Critical: change currentUser to C WITHOUT emitting authStateChanges.
+    raceGateway.setUser('uid-C', emit: false);
+
+    holdStorage.hold!.complete();
+    final bResult = await bFuture;
+
+    expect(
+      bResult.isFailure,
+      isTrue,
+      reason: 'B must not publish when live gateway.currentUser is already C',
+    );
+    expect(
+      sessions.currentSession?.userId,
+      isNot('uid-B'),
+      reason: 'SessionManager must not contain B',
+    );
+
+    // Only now emit C — and drive C's session work.
+    raceGateway.emitCurrent();
+    final cResult = await raceAuth.signInAnonymously();
+    await Future<void>.delayed(const Duration(milliseconds: 40));
+
+    expect(cResult.isSuccess, isTrue);
+    expect(sessions.currentSession?.userId, 'uid-C');
+    expect(holdIsolation.localOwnerId, 'uid-C');
+    raceAuth.dispose();
+  });
+
+  test(
+      'P0-2 delayed events A→B→C→B: generation + live currentUser proof '
+      'both agree — B snapshot never commits a C token', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final holdStorage = _HoldWipeStorage(prefs);
+    holdStorage.hold = Completer<void>();
+    final holdIsolation = UserLocalDataIsolation(
+      holdStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    final raceGateway = _DelayedEventGateway();
+    final sessions = InMemorySessionManager(_MemTokens());
+    final raceAuth = FirebaseAuthService(
+      gateway: raceGateway,
+      tokens: _MemTokens(),
+      sessions: sessions,
+      isolation: holdIsolation,
+    );
+
+    raceGateway.setUser('uid-A', emit: true);
+    await raceAuth.signInAnonymously();
+    await holdStorage.setString(UserLocalDataIsolation.ownerKey, 'uid-A');
+    await holdStorage.setStringList(
+      MockUserRepository.readingLedgerIdsKey,
+      const ['seed'],
+    );
+
+    raceGateway.setUser('uid-B', emit: true);
+    final firstB = raceAuth.signInAnonymously();
+    await holdStorage.wipeStarted.future;
+
+    raceGateway.setUser('uid-C', emit: false);
+    holdStorage.hold!.complete();
+    final firstBResult = await firstB;
+    expect(firstBResult.isFailure, isTrue);
+    expect(sessions.currentSession?.userId, isNot('uid-B'));
+    expect(
+      sessions.currentSession?.accessToken,
+      isNot(contains('uid-B')),
+      reason: 'B must never commit a token fetched while currentUser=C',
+    );
+
+    raceGateway.emitCurrent();
+    final cResult = await raceAuth.signInAnonymously();
+    expect(cResult.isSuccess, isTrue);
+    expect(sessions.currentSession?.userId, 'uid-C');
+    expect(sessions.currentSession?.accessToken, contains('uid-C'));
+
+    raceGateway.setUser('uid-B', emit: true);
+    final secondB = await raceAuth.signInAnonymously();
+    expect(secondB.isSuccess, isTrue);
+    expect(sessions.currentSession?.userId, 'uid-B');
+    expect(sessions.currentSession?.accessToken, contains('uid-B'));
+    expect(firstBResult.isFailure, isTrue);
+    raceAuth.dispose();
+  });
+
   test('same synthetic user starts empty after logout wipe then login', () async {
     gateway.signInAs(_userA);
     await auth.signInAnonymously();
@@ -886,6 +1018,113 @@ void main() {
   });
 }
 
+/// Gateway that can change [currentUser] immediately while DELAYING
+/// [authStateChanges] emission — the concrete race generation alone cannot
+/// catch.
+class _DelayedEventGateway implements FirebaseAuthGateway {
+  final _controller = StreamController<FirebaseAuthUserSnapshot?>.broadcast();
+  FirebaseAuthUserSnapshot? _user;
+
+  void setUser(String uid, {required bool emit}) {
+    _user = FirebaseAuthUserSnapshot(uid: uid, isAnonymous: true);
+    if (emit) _controller.add(_user);
+  }
+
+  void emitCurrent() => _controller.add(_user);
+
+  @override
+  bool get isInitialized => true;
+
+  @override
+  FirebaseAuthUserSnapshot? get currentUser => _user;
+
+  @override
+  Stream<FirebaseAuthUserSnapshot?> authStateChanges() => _controller.stream;
+
+  @override
+  Future<String?> currentIdToken({bool forceRefresh = false}) async {
+    final u = _user;
+    if (u == null) return null;
+    // Bind token to the LIVE gateway identity so a stale snapshot cannot
+    // honestly claim this token.
+    return 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${u.uid}.sig';
+  }
+
+  @override
+  Future<FirebaseAuthUserSnapshot> signInAnonymously() async {
+    _user ??= const FirebaseAuthUserSnapshot(uid: _userA, isAnonymous: true);
+    _controller.add(_user);
+    return _user!;
+  }
+
+  @override
+  Future<FirebaseAuthUserSnapshot> signInWithEmail({
+    required String email,
+    required String password,
+  }) async =>
+      signInAnonymously();
+
+  @override
+  Future<FirebaseAuthUserSnapshot> signInWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) async =>
+      signInAnonymously();
+
+  @override
+  Future<FirebaseAuthUserSnapshot> signInWithApple({required String idToken}) async =>
+      signInAnonymously();
+
+  @override
+  Future<void> signOut() async {
+    _user = null;
+    _controller.add(null);
+  }
+
+  @override
+  Future<void> deleteCurrentUser() async {
+    _user = null;
+    _controller.add(null);
+  }
+
+  @override
+  Future<void> reauthenticateWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) async {}
+
+  @override
+  Future<void> reauthenticateWithGoogleProvider() async {}
+
+  @override
+  Future<void> reauthenticateWithApple({required String idToken}) async {}
+
+  @override
+  Future<void> reauthenticateWithAppleProvider() async {}
+
+  @override
+  Future<void> reauthenticateWithEmail({
+    required String email,
+    required String password,
+  }) async {}
+}
+
+class _IsolationPathProvider extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  _IsolationPathProvider(this.root);
+  final String root;
+
+  @override
+  Future<String?> getApplicationSupportPath() async => root;
+  @override
+  Future<String?> getApplicationDocumentsPath() async => root;
+  @override
+  Future<String?> getTemporaryPath() async => root;
+  @override
+  Future<String?> getApplicationCachePath() async => root;
+}
+
 class _MemTokens implements TokenManager {
   String? access;
   String? refresh;
@@ -899,7 +1138,7 @@ class _MemTokens implements TokenManager {
   @override
   Future<void> saveTokens({
     required String accessToken,
-    String? refreshToken,
+    required String refreshToken,
     DateTime? expiresAt,
   }) async {
     access = accessToken;

@@ -53,6 +53,8 @@ import 'package:oracly_new/features/tarot/revisit/tarot_revisit_intent.dart';
 import 'package:oracly_new/features/tarot/revisit/tarot_revisit_intent_store.dart';
 import 'package:oracly_new/features/tarot/revisit/tarot_revisit_mode.dart';
 import 'package:oracly_new/screens/profile/data/profile_photo_store.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../support/fake_gem_authority.dart';
 
@@ -204,17 +206,36 @@ void main() {
     },
   );
 
-  test('account wipe deletes profile photo file and key', () async {
+  test('account wipe deletes managed profile photo file and key', () async {
     final dir = await Directory.systemTemp.createTemp('oracly-photo-wipe');
-    final photo = File('${dir.path}/photo.jpg');
-    await photo.writeAsBytes(const [1, 2, 3]);
-    await storage.setString(ProfilePhotoStore.key, photo.path);
+    PathProviderPlatform.instance = _DataIntegrityPathProvider(dir.path);
+    final source = File('${dir.path}/source.jpg');
+    await source.writeAsBytes(const [1, 2, 3]);
+    await ProfilePhotoStore.save(storage, source.path, documents: dir);
+    final managed = storage.getString(ProfilePhotoStore.key)!;
+    expect(File(managed).existsSync(), isTrue);
 
     await UserLocalDataWipe.run(storage, secureStorage: secure);
 
     expect(storage.getString(ProfilePhotoStore.key), isNull);
-    expect(photo.existsSync(), isFalse);
+    expect(File(managed).existsSync(), isFalse);
   });
+
+  test(
+    'account wipe never deletes an external path stored in profile metadata',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('oracly-photo-ext');
+      PathProviderPlatform.instance = _DataIntegrityPathProvider(dir.path);
+      final external = File('${dir.path}/gallery.jpg');
+      await external.writeAsBytes(const [9, 9, 9]);
+      await storage.setString(ProfilePhotoStore.key, external.path);
+
+      await UserLocalDataWipe.run(storage, secureStorage: secure);
+
+      expect(storage.getString(ProfilePhotoStore.key), isNull);
+      expect(external.existsSync(), isTrue);
+    },
+  );
 
   test(
     'local wipe cannot grant the same server starter again',
@@ -375,4 +396,20 @@ void main() {
     expect(storage.getStringList(TarotLocalDataSource.historyKey), isEmpty);
     expect(storage.getString(TarotLocalDataSource.activeKey), isNull);
   });
+}
+
+class _DataIntegrityPathProvider extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  _DataIntegrityPathProvider(this.root);
+  final String root;
+
+  @override
+  Future<String?> getApplicationSupportPath() async => root;
+  @override
+  Future<String?> getApplicationDocumentsPath() async => root;
+  @override
+  Future<String?> getTemporaryPath() async => root;
+  @override
+  Future<String?> getApplicationCachePath() async => root;
 }

@@ -81,13 +81,21 @@ class ReadingPendingOperationStore {
   /// removal did not durably succeed, so [UserLocalDataWipe] catches it.
   static Future<void> clearAll(LocalStorage storage) async {
     final failed = <String>[];
+    Future<void> removeKey(String key) async {
+      try {
+        if (!await storage.remove(key)) failed.add(key);
+      } catch (_) {
+        failed.add(key);
+      }
+    }
+
     for (final type in ReadingType.values) {
-      if (!await storage.remove(_key(type))) failed.add(_key(type));
+      await removeKey(_key(type));
     }
     for (final key in storage.keys
         .where((k) => k.startsWith('reading_pending_operation_'))
         .toList()) {
-      if (!await storage.remove(key)) failed.add(key);
+      await removeKey(key);
     }
     if (failed.isNotEmpty) {
       throw StateError('reading pending operation keys not removed: $failed');

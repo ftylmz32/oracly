@@ -45,11 +45,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    AccountDeletionPendingState.beginStartup();
+    AccountDeletionPendingState.resetForTest();
   });
 
   tearDown(() {
     AccountDeletionPendingState.markClear();
+    AccountDeletionPendingState.resetForTest();
   });
 
   test('durable prefs + no marker → clear', () async {
@@ -486,6 +487,30 @@ void main() {
     });
 
     test(
+        'STARTUP: pendingServerDeleteKey stored as String → integrityRecovery',
+        () async {
+      final storage = LocalStorage.ephemeral({
+        AccountDeletionService.pendingServerDeleteKey: 'true',
+      });
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+      expect(status, AccountDeletionGateResolveStatus.integrityRecovery);
+    });
+
+    test(
+        'STARTUP: pendingServerDeleteKey genuinely true → blocked '
+        '(never clear, never Home)',
+        () async {
+      final storage = LocalStorage.ephemeral({
+        AccountDeletionService.pendingServerDeleteKey: true,
+      });
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+      expect(status, AccountDeletionGateResolveStatus.blocked);
+      expect(AccountDeletionPendingState.allowsOwnerBoundExperience, isFalse);
+    });
+
+    test(
         'STARTUP C: local-wipe marker stored as String → integrityRecovery, '
         'NOT clear, NOT finalizing — a corrupt marker must never be ignored '
         'and must never authorize local wipe/destructive work', () async {
@@ -527,6 +552,7 @@ void main() {
 
     test('all three markers genuinely false → clear', () async {
       final storage = LocalStorage.ephemeral({
+        AccountDeletionService.pendingServerDeleteKey: false,
         AccountDeletionService.pendingIdentityCleanupKey: false,
         AccountDeletionService.pendingLocalWipeKey: false,
         AccountDeletionService.pendingAnonymousBootstrapKey: false,

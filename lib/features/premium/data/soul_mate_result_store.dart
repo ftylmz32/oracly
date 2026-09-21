@@ -71,21 +71,39 @@ abstract final class SoulMateResultStore {
   }
 
   /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
-  /// Unlike [clear], the portrait file is deleted FIRST: [metaKey] is
-  /// retired only once that delete is proven to have succeeded (or there
-  /// was never a portrait to delete). A failed delete leaves the metadata
-  /// — and therefore the portrait path — in storage for retry, instead of
-  /// erasing it and orphaning the file forever.
+  ///
+  /// Physical delete only when [portraitPath] is proven ORACLY-managed
+  /// (`oracly_soulmate_portrait_*` under app documents). External /
+  /// corrupt / unowned paths are NEVER deleted: metadata is retired so
+  /// wipe continues without touching gallery files.
   static Future<void> clearStrict(LocalStorage storage) async {
     final previous = await readMeta(storage);
     final path = previous?.portraitPath;
     if (path != null && path.isNotEmpty) {
-      if (!await _deleteStrict(path)) {
-        throw StateError('soulmate portrait file delete failed');
+      if (await _isManagedPortraitPath(path)) {
+        if (!await _deleteStrict(path)) {
+          throw StateError('soulmate portrait file delete failed');
+        }
       }
+      // Unmanaged / corrupt path: drop metadata only — never delete the file.
     }
     if (!await storage.remove(metaKey)) {
       throw StateError('soulmate meta key removal failed');
+    }
+  }
+
+  static Future<bool> _isManagedPortraitPath(String path) async {
+    try {
+      final trimmed = path.trim();
+      if (trimmed.isEmpty) return false;
+      final name = trimmed.replaceAll('\\', '/').split('/').last;
+      if (!name.startsWith('${portraitPrefix}_')) return false;
+      final docs = await getApplicationDocumentsDirectory();
+      final docsNorm = docs.path.replaceAll('\\', '/');
+      final pathNorm = trimmed.replaceAll('\\', '/');
+      return pathNorm.startsWith('$docsNorm/');
+    } catch (_) {
+      return false;
     }
   }
 

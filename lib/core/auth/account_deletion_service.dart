@@ -1,4 +1,4 @@
-/// Canonical account deletion: remote identity first, then local wipe.
+/// Canonical account deletion: remote data → identity → local wipe.
 library;
 
 import '../data/datasources/local_storage.dart';
@@ -26,6 +26,13 @@ class AccountDeletionService {
   final SecureStorage _secureStorage;
   final Future<bool> Function() deleteServerData;
 
+  /// Durable evidence that server-side account deletion was REQUESTED and
+  /// must be (re)attempted before any Firebase identity work. Armed BEFORE
+  /// [deleteServerData] so a crash or false-return write never leaves the
+  /// app with zero deletion authority after a server accept.
+  static const pendingServerDeleteKey =
+      'account_deletion_pending_server_delete';
+
   static const pendingIdentityCleanupKey =
       'account_deletion_pending_identity_cleanup';
   static const pendingLocalWipeKey =
@@ -33,11 +40,11 @@ class AccountDeletionService {
   static const pendingAnonymousBootstrapKey =
       AccountDeletionFinalizer.anonymousBootstrapKey;
 
-  /// EXACT persisted `true` only — never a corrupt (wrong-type) value. A
-  /// corrupt marker is unknown state, not evidence a deletion was ever
-  /// requested or accepted, and must never authorize destructive work
-  /// (server delete, identity delete, local wipe, anonymous-identity
-  /// creation). See [AccountDeletionMarkers.isExactlyTrue].
+  /// EXACT persisted `true` only — never a corrupt (wrong-type) value.
+  bool get hasPendingServerDelete => AccountDeletionMarkers.isExactlyTrue(
+        _storage,
+        pendingServerDeleteKey,
+      );
   bool get hasPendingIdentityCleanup => AccountDeletionMarkers.isExactlyTrue(
         _storage,
         pendingIdentityCleanupKey,
@@ -52,18 +59,14 @@ class AccountDeletionService {
         pendingAnonymousBootstrapKey,
       );
   bool get hasPendingFinalization =>
+      hasPendingServerDelete ||
       hasPendingIdentityCleanup ||
       hasPendingLocalWipe ||
       hasPendingAnonymousBootstrap;
 
-  /// True when either marker is present but of the wrong type — unknown
-  /// state that routing must fail closed on, but that must never by itself
-  /// authorize any destructive account action. Routing-safety code should
-  /// prefer [AccountDeletionPendingState] (which already fails closed to
-  /// `integrityRecovery`); this getter exists so destructive-authority code
-  /// (e.g. [retryPendingIdentityCleanup]) can refuse in depth even if
-  /// invoked directly, bypassing the gate.
   bool get hasCorruptDeletionMarker =>
+      AccountDeletionMarkers.read(_storage, pendingServerDeleteKey) ==
+          MarkerRead.corrupt ||
       AccountDeletionMarkers.read(_storage, pendingIdentityCleanupKey) ==
           MarkerRead.corrupt ||
       AccountDeletionMarkers.read(_storage, pendingLocalWipeKey) ==
@@ -88,39 +91,12 @@ class AccountDeletionService {
         return ApiFailure(reauthResult.errorOrNull!);
       }
     }
-    final serverAccepted = await deleteServerData();
-    if (!serverAccepted) {
-      return ApiFailure(
-        NetworkException.unauthorized('Account data could not be deleted.'),
-      );
-    }
-    await PushTokenCleanup.deleteLocalToken();
-    // Durable finalization authority must exist BEFORE the Firebase
-    // identity can disappear. Arm and POSITIVELY VERIFY the
-    // identity-cleanup marker first: if identity deletion then succeeds
-    // and the app crashes (or a later marker write itself fails) before
-    // finishAfterIdentityDeleted's own localWipePendingKey write lands,
-    // this marker is what proves a restart is NOT "clear" — it means the
-    // server already accepted deletion and local state must never be
-    // treated as an ordinary signed-in account again. If this write
-    // itself cannot be proven durable, the identity must not be deleted
-    // at all — fail honestly with the identity still fully intact.
-    if (!await _storage.setBool(pendingIdentityCleanupKey, true)) {
-      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
-    }
-    final remote = await _auth.deleteAccount();
-    if (remote.isFailure) {
-      return _afterIdentityDeleteFailure(remote.errorOrNull!);
-    }
-    return _finish();
+    return _runFromServerDeletePhase();
   }
 
   Future<ApiResult<bool>> retryPendingIdentityCleanup({
     AccountReauthCredentials? reauth,
   }) async {
-    // Defense in depth: a corrupt marker must never authorize destructive
-    // work even if this is called directly, bypassing the startup gate
-    // (which already refuses to invoke this for a corrupt marker).
     if (hasCorruptDeletionMarker) {
       return ApiFailure(
         NetworkException(
@@ -129,12 +105,7 @@ class AccountDeletionService {
         ),
       );
     }
-    if (hasPendingLocalWipe) {
-      // Identity is already gone — retry ONLY the local wipe, never a
-      // second destructive deleteAccount call on an already-deleted
-      // identity.
-      return _finish();
-    }
+    if (hasPendingLocalWipe) return _finish();
     if (hasPendingAnonymousBootstrap) {
       return AccountDeletionFinalizer.completeAnonymousBootstrap(
         auth: _auth,
@@ -142,21 +113,92 @@ class AccountDeletionService {
         identityCleanupKey: pendingIdentityCleanupKey,
       );
     }
-    if (!hasPendingIdentityCleanup) return const ApiSuccess(true);
-    if (!_auth.isCurrentUserAnonymous && reauth != null) {
-      final reauthResult = await _auth.reauthenticate(reauth);
-      if (reauthResult.isFailure) {
-        return ApiFailure(reauthResult.errorOrNull!);
+    // identityCleanup means the server phase already succeeded — prefer it
+    // over a leftover serverDeletePending that failed to retire.
+    if (hasPendingIdentityCleanup) {
+      if (!_auth.isCurrentUserAnonymous && reauth != null) {
+        final reauthResult = await _auth.reauthenticate(reauth);
+        if (reauthResult.isFailure) {
+          return ApiFailure(reauthResult.errorOrNull!);
+        }
       }
-    }
-    if (!_auth.hasCurrentIdentity) return _finish();
-    final stillPresent = await _auth.deleteAccount();
-    if (stillPresent.isFailure) {
-      final error = stillPresent.errorOrNull!;
       if (!_auth.hasCurrentIdentity) return _finish();
-      await _markIdentityPending();
-      return ApiFailure(error);
+      final stillPresent = await _auth.deleteAccount();
+      if (stillPresent.isFailure) {
+        final error = stillPresent.errorOrNull!;
+        if (!_auth.hasCurrentIdentity) return _finish();
+        await _markIdentityPending();
+        return ApiFailure(error);
+      }
+      return _finish();
     }
+    if (hasPendingServerDelete) {
+      if (!_auth.hasCurrentIdentity) {
+        return _promoteServerPhaseToIdentityCleanup();
+      }
+      if (!_auth.isCurrentUserAnonymous && reauth != null) {
+        final reauthResult = await _auth.reauthenticate(reauth);
+        if (reauthResult.isFailure) {
+          return ApiFailure(reauthResult.errorOrNull!);
+        }
+      }
+      return _runFromServerDeletePhase(alreadyArmed: true);
+    }
+    return const ApiSuccess(true);
+  }
+
+  /// Shared path for first-time delete and serverDeletePending retry.
+  Future<ApiResult<bool>> _runFromServerDeletePhase({
+    bool alreadyArmed = false,
+  }) async {
+    if (!alreadyArmed) {
+      // Durable deletion authority BEFORE any destructive remote call.
+      if (!await _storage.setBool(pendingServerDeleteKey, true)) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
+      AccountDeletionPendingState.markBlocked();
+    }
+
+    final serverAccepted = await deleteServerData();
+    if (!serverAccepted) {
+      // Keep serverDeletePending — retry must call the SERVER again.
+      // Never reinterpret this as permission to delete Firebase identity.
+      AccountDeletionPendingState.markBlocked();
+      return ApiFailure(
+        NetworkException.unauthorized('Account data could not be deleted.'),
+      );
+    }
+
+    await PushTokenCleanup.deleteLocalToken();
+
+    // Promote to identityCleanup BEFORE retiring serverDeletePending —
+    // never a marker-free gap after the server has accepted.
+    if (!await _storage.setBool(pendingIdentityCleanupKey, true)) {
+      // Server accepted, identityCleanup not durable — leave
+      // serverDeletePending true so restart is never "clear".
+      AccountDeletionPendingState.markBlocked();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    // Retire serverDeletePending only after identityCleanup is proven.
+    if (!await _storage.remove(pendingServerDeleteKey)) {
+      // identityCleanup is true — still fail-closed; retry will see
+      // identityCleanup (and possibly leftover serverDeletePending).
+      AccountDeletionPendingState.markBlocked();
+    }
+
+    final remote = await _auth.deleteAccount();
+    if (remote.isFailure) {
+      return _afterIdentityDeleteFailure(remote.errorOrNull!);
+    }
+    return _finish();
+  }
+
+  Future<ApiResult<bool>> _promoteServerPhaseToIdentityCleanup() async {
+    if (!await _storage.setBool(pendingIdentityCleanupKey, true)) {
+      AccountDeletionPendingState.markBlocked();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    await _storage.remove(pendingServerDeleteKey);
     return _finish();
   }
 
@@ -177,21 +219,12 @@ class AccountDeletionService {
       );
 
   Future<void> _markIdentityPending() async {
-    // Reinforce the identity-cleanup marker with an authoritative bool
-    // result — a `false` here is a durable-write failure, not success.
-    // (On the happy path the marker was already armed before deleteAccount;
-    // this path covers failed deleteAccount while the identity still exists.)
     if (!await _storage.setBool(pendingIdentityCleanupKey, true)) {
       AccountDeletionPendingState.markBlocked();
       return;
     }
-    // Best-effort retire of a stale anonymous-bootstrap marker. A false
-    // remove must not clear the blocked phase: identityCleanup remaining
-    // true is what keeps the gate fail-closed.
-    if (!await _storage.remove(pendingAnonymousBootstrapKey)) {
-      // Leave anonymousBootstrap as-is if still present; blocked phase
-      // below is the honest signal.
-    }
+    await _storage.remove(pendingAnonymousBootstrapKey);
+    await _storage.remove(pendingServerDeleteKey);
     AccountDeletionPendingState.markBlocked();
   }
 }

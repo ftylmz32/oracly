@@ -34,6 +34,8 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/false_return_local_storage.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -50,7 +52,11 @@ void main() {
   });
 
   tearDown(() async {
-    if (await root.exists()) await root.delete(recursive: true);
+    try {
+      if (await root.exists()) await root.delete(recursive: true);
+    } catch (_) {
+      // Windows may hold a file handle briefly after attrib/delete.
+    }
   });
 
   Future<File> gallerySource() async {
@@ -430,8 +436,140 @@ void main() {
 
       final ok = await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(storage);
 
-      expect(ok, isTrue);
+      expect(ok.complete, isTrue);
       expect(external.existsSync(), isTrue);
+    });
+
+    test(
+        'delete fail + journal write fail retains Coffee metadata as the '
+        'last durable locator — wipe incomplete, owner transfer blocked',
+        () async {
+      final archived = await seedCoffee();
+      await _makeUndeletable(archived);
+      final failing = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      );
+      // Copy coffee readings into the failing storage.
+      await failing.setStringList(
+        CoffeeReadingStore.key,
+        storage.getStringList(CoffeeReadingStore.key)!,
+      );
+      failing.falseReturnKeys.add(OwnedFileCleanupJournal.key);
+
+      final result =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(failing);
+      expect(result.complete, isFalse);
+      expect(result.metadataMayBeCleared, isFalse);
+
+      final wipe = await UserLocalDataWipe.run(
+        failing,
+        secureStorage: secure,
+      );
+      expect(wipe.isComplete, isFalse);
+      expect(
+        CoffeeReadingStore(failing).all().single.imagePath,
+        archived,
+        reason: 'metadata must survive when the journal cannot retain the path',
+      );
+      expect(File(archived).existsSync(), isTrue);
+
+      await _makeDeletable(archived);
+      failing.falseReturnKeys.clear();
+      final recovered =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(failing);
+      expect(recovered.complete, isTrue);
+      expect(File(archived).existsSync(), isFalse);
+    });
+
+    test(
+        'corrupt journal is fail-closed — never treated as empty pending, '
+        'never authorizes Coffee metadata erase', () async {
+      final archived = await seedCoffee();
+      expect(File(archived).existsSync(), isTrue);
+      final ephemeral = LocalStorage.ephemeral({
+        OwnedFileCleanupJournal.key: 'not-a-list',
+        CoffeeReadingStore.key: storage.getStringList(CoffeeReadingStore.key)!,
+      });
+
+      final result =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
+        ephemeral,
+      );
+      expect(
+        OwnedFileCleanupJournal.inspect(ephemeral),
+        OwnedFileJournalRead.corrupt,
+      );
+      expect(result.complete, isFalse);
+      expect(result.metadataMayBeCleared, isFalse);
+      expect(
+        CoffeeReadingStore(ephemeral).all(),
+        isNotEmpty,
+        reason: 'corrupt journal must never authorize metadata erase',
+      );
+    });
+
+    test(
+        'path_provider ownership unknown → strict wipe incomplete, '
+        'path remains retryable via journal or metadata; after recovery '
+        'file deletes', () async {
+      final archived = await seedCoffee();
+      PathProviderPlatform.instance = _ThrowingPathProvider();
+
+      final result =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(storage);
+      expect(result.complete, isFalse);
+      expect(File(archived).existsSync(), isTrue);
+
+      final wipe = await UserLocalDataWipe.run(storage, secureStorage: secure);
+      expect(wipe.isComplete, isFalse);
+      final stillLocatable = CoffeeReadingStore(storage).all().isNotEmpty ||
+          OwnedFileCleanupJournal.read(storage).contains(archived);
+      expect(stillLocatable, isTrue);
+      expect(File(archived).existsSync(), isTrue);
+
+      PathProviderPlatform.instance = _TempPathProvider(root.path);
+      final recovered =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(storage);
+      expect(recovered.complete, isTrue);
+      expect(File(archived).existsSync(), isFalse);
+    });
+
+    test(
+        'external file in profile metadata is NEVER deleted by strict wipe',
+        () async {
+      final rogue = File(
+        '${root.path}${Platform.pathSeparator}not_oracly_photo.jpg',
+      );
+      await rogue.writeAsBytes(const [1, 2, 3]);
+      await storage.setString(ProfilePhotoStore.key, rogue.path);
+
+      final wipe = await UserLocalDataWipe.run(storage, secureStorage: secure);
+      expect(wipe.isComplete, isTrue);
+      expect(rogue.existsSync(), isTrue);
+      expect(storage.getString(ProfilePhotoStore.key), isNull);
+    });
+
+    test(
+        'external file in soulmate metadata is NEVER deleted by strict wipe',
+        () async {
+      final rogue = File(
+        '${root.path}${Platform.pathSeparator}gallery_soulmate.jpg',
+      );
+      await rogue.writeAsBytes(const [4, 5, 6]);
+      final escapedPath = rogue.path.replaceAll('\\', '\\\\');
+      await storage.setString(
+        SoulMateResultStore.metaKey,
+        '{"id":"x","createdAt":"2026-01-01T00:00:00.000","name":"A",'
+        '"birthDate":"1990-01-01T00:00:00.000","intention":"calm",'
+        '"portraitPath":"$escapedPath",'
+        '"parts":{"energy":"e","attraction":"a","dynamics":"d",'
+        '"feeling":"f","yourSide":"y"}}',
+      );
+
+      final wipe = await UserLocalDataWipe.run(storage, secureStorage: secure);
+      expect(wipe.isComplete, isTrue);
+      expect(rogue.existsSync(), isTrue);
+      expect(await SoulMateResultStore.readMeta(storage), isNull);
     });
   });
 }
@@ -466,4 +604,21 @@ class _TempPathProvider extends Fake
   Future<String?> getTemporaryPath() async => root;
   @override
   Future<String?> getApplicationCachePath() async => root;
+}
+
+class _ThrowingPathProvider extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  @override
+  Future<String?> getApplicationSupportPath() async =>
+      throw StateError('path_provider unavailable');
+  @override
+  Future<String?> getApplicationDocumentsPath() async =>
+      throw StateError('path_provider unavailable');
+  @override
+  Future<String?> getTemporaryPath() async =>
+      throw StateError('path_provider unavailable');
+  @override
+  Future<String?> getApplicationCachePath() async =>
+      throw StateError('path_provider unavailable');
 }

@@ -126,6 +126,7 @@ abstract final class AccountDeletionPendingState {
         await deletion.retryPendingIdentityCleanup();
       }
       applyFromMarkers(
+        serverDeletePending: deletion.hasPendingServerDelete,
         identityCleanupPending: deletion.hasPendingIdentityCleanup,
         localWipePending: deletion.hasPendingLocalWipe,
         anonymousBootstrapPending: deletion.hasPendingAnonymousBootstrap,
@@ -152,27 +153,19 @@ abstract final class AccountDeletionPendingState {
       storage,
       AccountDeletionService.pendingIdentityCleanupKey,
     );
-    // The identity is ALREADY gone by the time this marker is ever true —
-    // it means only LOCAL cleanup remains. This gate must see it: without
-    // this read, a cold start with ONLY this marker true (the other two
-    // false/absent) would derive "clear" here and SplashEntryBootstrap
-    // could mount an owner-bound destination before resolveAndReconcile
-    // (which DOES already check it) ever runs.
     final localWipeRead = AccountDeletionMarkers.read(
       storage,
       AccountDeletionService.pendingLocalWipeKey,
     );
+    final serverDeleteRead = AccountDeletionMarkers.read(
+      storage,
+      AccountDeletionService.pendingServerDeleteKey,
+    );
 
-    // A corrupt (wrong-type) marker on ANY of the three is UNKNOWN state —
-    // never proof a real deletion lifecycle exists, and never grounds to
-    // authorize local wipe/destructive work. Fail closed to a DISTINCT
-    // phase from blocked/finalizing so it can never trigger the automatic
-    // retry those phases allow. Checked before every "isTrue" branch so a
-    // corrupt marker on ONE key can never be masked by a genuinely-true
-    // value on another.
     if (anonRead == MarkerRead.corrupt ||
         identityRead == MarkerRead.corrupt ||
-        localWipeRead == MarkerRead.corrupt) {
+        localWipeRead == MarkerRead.corrupt ||
+        serverDeleteRead == MarkerRead.corrupt) {
       phase.value = AccountDeletionGatePhase.integrityRecovery;
       return AccountDeletionGateResolveStatus.integrityRecovery;
     }
@@ -182,7 +175,8 @@ abstract final class AccountDeletionPendingState {
       return AccountDeletionGateResolveStatus.finalizing;
     }
 
-    if (identityRead == MarkerRead.isTrue) {
+    if (identityRead == MarkerRead.isTrue ||
+        serverDeleteRead == MarkerRead.isTrue) {
       phase.value = AccountDeletionGatePhase.blocked;
       return AccountDeletionGateResolveStatus.blocked;
     }
@@ -192,20 +186,16 @@ abstract final class AccountDeletionPendingState {
   }
 
   static void applyFromMarkers({
+    bool serverDeletePending = false,
     required bool identityCleanupPending,
     required bool localWipePending,
     required bool anonymousBootstrapPending,
   }) {
-    // localWipePending means the identity is already gone and only local
-    // cleanup remains — the same "a real deletion is known to exist, keep
-    // it hidden from the app" state as anonymousBootstrapPending, never
-    // the "identity might still need destructive work" state blocked
-    // represents.
     if (anonymousBootstrapPending || localWipePending) {
       phase.value = AccountDeletionGatePhase.finalizing;
       return;
     }
-    if (identityCleanupPending) {
+    if (identityCleanupPending || serverDeletePending) {
       phase.value = AccountDeletionGatePhase.blocked;
       return;
     }
@@ -236,5 +226,6 @@ abstract final class AccountDeletionPendingState {
   @visibleForTesting
   static void resetForTest() {
     phase.value = AccountDeletionGatePhase.unresolved;
+    _inFlightResolve = null;
   }
 }

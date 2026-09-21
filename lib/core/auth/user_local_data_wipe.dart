@@ -78,25 +78,37 @@ abstract final class UserLocalDataWipe {
     Future<void> clearList(String key) =>
         storage.setStringList(key, const []).requireDurable();
 
-    // Owned-image FS cleanup (actual Coffee/Palm photo files) MUST be
-    // awaited and MUST run before the metadata steps below that clear the
-    // reading records these paths come from — capturing the paths after
-    // that metadata is gone would make them unrecoverable. A failure here
-    // (file couldn't be deleted) is recorded — Coffee/Palm paths that
-    // couldn't be deleted are durably journaled by
-    // DiscoveryOwnedImageWipe itself before this returns, so a retry can
-    // still find them even though the metadata step right after this one
-    // runs unconditionally regardless of this step's outcome.
+    // Owned-image FS cleanup MUST run before Coffee/Palm metadata clears.
+    // [OwnedFileCleanupResult.metadataMayBeCleared] is the ONLY signal that
+    // those reading records may be erased — if a failed delete could not
+    // even be journaled, metadata stays as the last durable locator.
+    var coffeePalmMetaOkToClear = true;
     await step('discovery_owned_images', () async {
-      final ok = await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
+      final result =
+          await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
         storage,
       );
-      if (!ok) throw StateError('owned coffee/palm image cleanup incomplete');
+      coffeePalmMetaOkToClear = result.metadataMayBeCleared;
+      if (!result.complete) {
+        throw StateError('owned coffee/palm image cleanup incomplete');
+      }
     });
     await step('or_reading_history', () => clearList('or_reading_history'));
     await step('dream_records', () => clearList('dream_records'));
-    await step(CoffeeReadingStore.key, () => clearList(CoffeeReadingStore.key));
-    await step(PalmReadingStore.key, () => clearList(PalmReadingStore.key));
+    if (coffeePalmMetaOkToClear) {
+      await step(
+        CoffeeReadingStore.key,
+        () => clearList(CoffeeReadingStore.key),
+      );
+      await step(
+        PalmReadingStore.key,
+        () => clearList(PalmReadingStore.key),
+      );
+    } else {
+      // Retain reading metadata so retry still finds surviving owned files.
+      failed.add(CoffeeReadingStore.key);
+      failed.add(PalmReadingStore.key);
+    }
     await step('astrology_history', () => clearList('astrology_history'));
     await step('ai_conversations', () => clearList('ai_conversations'));
     await step('birth_chart_latest', () => removeKey('birth_chart_latest'));

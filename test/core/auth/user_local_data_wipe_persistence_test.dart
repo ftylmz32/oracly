@@ -11,6 +11,7 @@ import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
+import 'package:oracly_new/core/storage/premium_credential_keys.dart';
 import 'package:oracly_new/features/premium/services/soul_mate_generation_session.dart';
 import 'package:oracly_new/screens/profile/data/profile_photo_store.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -160,6 +161,94 @@ void main() {
 
     expect(result.isComplete, isFalse);
     expect(result.failedOperations, contains('profile_photo'));
+  });
+
+  test(
+      'MockPremiumRepository.clearPersistedLocalState: a THROWING middle '
+      'Premium key still lets later Premium SharedPreferences keys and '
+      'secure credential deletes run — wipe remains incomplete', () async {
+    await storage.setBool(MockPremiumRepository.activeKey, true);
+    await storage.setString(MockPremiumRepository.planKey, 'yearly');
+    await storage.setString(
+      MockPremiumRepository.legacyCredentialPrefKeys.first,
+      'legacy-token',
+    );
+    await secure.write(PremiumCredentialKeys.purchaseToken, 'tok');
+    await secure.write(PremiumCredentialKeys.transactionId, 'txn');
+    storage.throwingRemoveKeys.add(MockPremiumRepository.activeKey);
+
+    final result = await UserLocalDataWipe.run(storage, secureStorage: secure);
+
+    expect(result.isComplete, isFalse);
+    expect(result.failedOperations, contains('premium_local_state'));
+    expect(
+      storage.attempts[MockPremiumRepository.planKey] ?? 0,
+      greaterThan(0),
+      reason: 'later Premium key must still be attempted after a throw',
+    );
+    expect(
+      storage.attempts[MockPremiumRepository.legacyCredentialPrefKeys.first] ??
+          0,
+      greaterThan(0),
+    );
+    expect(
+      secure.snapshot.containsKey(PremiumCredentialKeys.purchaseToken),
+      isFalse,
+    );
+    expect(
+      secure.snapshot.containsKey(PremiumCredentialKeys.transactionId),
+      isFalse,
+    );
+  });
+
+  test(
+      'ReadingPendingOperationStore.clearAll: a THROWING known key still '
+      'attempts remaining known types and stray pending keys', () async {
+    await storage.setString('reading_pending_operation_coffee', '{}');
+    await storage.setString('reading_pending_operation_palm', '{}');
+    await storage.setString('reading_pending_operation_stray_y', '{}');
+    storage.throwingRemoveKeys.add('reading_pending_operation_coffee');
+
+    final result = await UserLocalDataWipe.run(storage, secureStorage: secure);
+
+    expect(result.isComplete, isFalse);
+    expect(result.failedOperations, contains('reading_pending_operations'));
+    expect(
+      storage.getString('reading_pending_operation_palm'),
+      isNull,
+      reason: 'sibling known type still removed after coffee threw',
+    );
+    expect(
+      storage.getString('reading_pending_operation_stray_y'),
+      isNull,
+      reason: 'stray pending key still attempted after a throw',
+    );
+    expect(
+      storage.getString('reading_pending_operation_coffee'),
+      isNotNull,
+    );
+  });
+
+  test(
+      'mixed false + throw across Premium keys: both recorded, cleanup '
+      'continues for siblings', () async {
+    final keys = MockPremiumRepository.localUserBoundKeys;
+    expect(keys.length, greaterThanOrEqualTo(2));
+    await storage.setBool(keys[0], true);
+    await storage.setString(keys[1], 'x');
+    if (keys.length > 2) {
+      await storage.setString(keys[2], 'y');
+    }
+    storage.falseReturnRemoveKeys.add(keys[0]);
+    storage.throwingRemoveKeys.add(keys[1]);
+
+    final result = await UserLocalDataWipe.run(storage, secureStorage: secure);
+
+    expect(result.isComplete, isFalse);
+    expect(result.failedOperations, contains('premium_local_state'));
+    if (keys.length > 2) {
+      expect(storage.attempts[keys[2]] ?? 0, greaterThan(0));
+    }
   });
 
   test('a fully healthy storage backend reports a complete wipe', () async {

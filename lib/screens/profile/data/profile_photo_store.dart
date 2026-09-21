@@ -48,21 +48,40 @@ abstract final class ProfilePhotoStore {
   }
 
   /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
-  /// Unlike [clear], the physical file is deleted FIRST: the metadata
-  /// [key] is retired only once that delete is proven to have succeeded
-  /// (or there was never a file to delete). A failed delete leaves the
-  /// path in storage — untouched — so a retry still knows exactly which
-  /// file to remove, instead of the path being erased and the file
-  /// silently orphaned forever.
+  ///
+  /// Physical delete only when the stored path is proven to be an ORACLY-
+  /// managed profile photo (`oracly_profile_photo_*` under app documents).
+  /// External / corrupt / unowned paths are NEVER deleted: metadata is
+  /// retired safely so wipe can continue without touching gallery files.
   static Future<void> clearStrict(LocalStorage storage) async {
     final stored = storage.getString(key);
     if (stored != null && stored.isNotEmpty) {
-      if (!await _deleteStrict(stored)) {
-        throw StateError('profile photo file delete failed');
+      if (await _isManagedProfilePath(stored)) {
+        if (!await _deleteStrict(stored)) {
+          throw StateError('profile photo file delete failed');
+        }
       }
+      // Unmanaged / corrupt path: drop metadata only — never delete the file.
     }
     if (!await storage.remove(key)) {
       throw StateError('profile photo key removal failed');
+    }
+  }
+
+  /// Proven ORACLY-managed profile photo under application documents.
+  static Future<bool> _isManagedProfilePath(String path) async {
+    try {
+      final trimmed = path.trim();
+      if (trimmed.isEmpty) return false;
+      final name = trimmed.replaceAll('\\', '/').split('/').last;
+      if (!name.startsWith('${filePrefix}_')) return false;
+      final docs = await getApplicationDocumentsDirectory();
+      final docsNorm = docs.path.replaceAll('\\', '/');
+      final pathNorm = trimmed.replaceAll('\\', '/');
+      return pathNorm.startsWith('$docsNorm/');
+    } catch (_) {
+      // Ownership undetermined — treat as unmanaged (do not delete file).
+      return false;
     }
   }
 

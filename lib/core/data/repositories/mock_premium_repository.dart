@@ -67,16 +67,30 @@ class MockPremiumRepository implements PremiumRepository {
     required SecureStorage secureStorage,
   }) async {
     final failed = <String>[];
+    Future<void> removeKey(String key) async {
+      try {
+        if (!await storage.remove(key)) failed.add(key);
+      } catch (_) {
+        failed.add(key);
+      }
+    }
+
     for (final key in localUserBoundKeys) {
-      if (!await storage.remove(key)) failed.add(key);
+      await removeKey(key);
     }
-    if (!await storage.remove(PremiumCredentialMigration.doneKey)) {
-      failed.add(PremiumCredentialMigration.doneKey);
+    await removeKey(PremiumCredentialMigration.doneKey);
+    try {
+      await secureStorage.delete(PremiumCredentialKeys.purchaseToken);
+    } catch (_) {
+      failed.add('secure:${PremiumCredentialKeys.purchaseToken}');
     }
-    await secureStorage.delete(PremiumCredentialKeys.purchaseToken);
-    await secureStorage.delete(PremiumCredentialKeys.transactionId);
+    try {
+      await secureStorage.delete(PremiumCredentialKeys.transactionId);
+    } catch (_) {
+      failed.add('secure:${PremiumCredentialKeys.transactionId}');
+    }
     for (final key in legacyCredentialPrefKeys) {
-      if (!await storage.remove(key)) failed.add(key);
+      await removeKey(key);
     }
     if (failed.isNotEmpty) {
       throw StateError('premium local state keys not removed: $failed');

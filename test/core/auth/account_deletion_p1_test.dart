@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/account_deletion_finalizer.dart';
+import 'package:oracly_new/core/auth/account_deletion_markers.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
 import 'package:oracly_new/core/auth/account_deletion_service.dart';
 import 'package:oracly_new/core/auth/auth_copy.dart';
@@ -281,10 +282,8 @@ void main() {
   );
 
   test(
-    'P0-2 / 2A: if the identity-cleanup marker itself cannot be proven '
-    'durable, the Firebase identity is never deleted at all — server '
-    'already accepted, but zero destructive identity calls happen and the '
-    'identity remains fully intact',
+    'P0-1 / 1C-A: pre-server marker setBool false — server delete calls 0, '
+    'identity delete calls 0, no destructive operation begins',
     () async {
       final prefs = await SharedPreferences.getInstance();
       final failingStorage = FalseReturnLocalStorage(prefs);
@@ -302,11 +301,198 @@ void main() {
           secureStorage: failingSecure,
         ),
       );
+      var serverCalls = 0;
       final failingDeletion = AccountDeletionService(
         auth: failingAuth,
         storage: failingStorage,
         secureStorage: failingSecure,
-        deleteServerData: () async => true,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      await failingAuth.signInAnonymously();
+      failingStorage.falseReturnKeys.add(
+        AccountDeletionService.pendingServerDeleteKey,
+      );
+
+      final result = await failingDeletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(serverCalls, 0);
+      expect(failingGateway.deleteCalls, 0);
+      expect(failingDeletion.hasPendingServerDelete, isFalse);
+      expect(failingDeletion.hasPendingIdentityCleanup, isFalse);
+      expect(failingGateway.currentUser, isNotNull);
+    },
+  );
+
+  test(
+    'P0-1 / 1C-D: successful handoff — serverDeletePending → server '
+    'accepted → identityCleanup → serverDeletePending retired → identity '
+    'deletion, with a marker present at every boundary',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+      final markersAtServerCall = <String>[];
+      final markersAtIdentityDelete = <String>[];
+      var serverCalls = 0;
+      final tracing = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          if (AccountDeletionMarkers.isExactlyTrue(
+            storage,
+            AccountDeletionService.pendingServerDeleteKey,
+          )) {
+            markersAtServerCall.add('serverDeletePending');
+          }
+          if (AccountDeletionMarkers.isExactlyTrue(
+            storage,
+            AccountDeletionService.pendingIdentityCleanupKey,
+          )) {
+            markersAtServerCall.add('identityCleanup');
+          }
+          return true;
+        },
+      );
+      gateway.onDeleteCurrentUser = () {
+        if (AccountDeletionMarkers.isExactlyTrue(
+          storage,
+          AccountDeletionService.pendingServerDeleteKey,
+        )) {
+          markersAtIdentityDelete.add('serverDeletePending');
+        }
+        if (AccountDeletionMarkers.isExactlyTrue(
+          storage,
+          AccountDeletionService.pendingIdentityCleanupKey,
+        )) {
+          markersAtIdentityDelete.add('identityCleanup');
+        }
+      };
+
+      final result = await tracing.deleteAccountAndWipeLocalData();
+
+      expect(result.isSuccess, isTrue);
+      expect(serverCalls, 1);
+      expect(markersAtServerCall, ['serverDeletePending']);
+      expect(
+        markersAtIdentityDelete,
+        contains('identityCleanup'),
+        reason: 'identityCleanup must be durable before deleteAccount()',
+      );
+      expect(
+        markersAtIdentityDelete,
+        isNot(contains('serverDeletePending')),
+        reason: 'serverDeletePending is retired only after identityCleanup '
+            'is proven — and before identity delete begins',
+      );
+    },
+  );
+
+  test(
+    'P0-1 / 1C-E: restart at each phase produces the correct next action',
+    () async {
+      // Phase: serverDeletePending only → retry calls server again.
+      await storage.setBool(
+        AccountDeletionService.pendingServerDeleteKey,
+        true,
+      );
+      AccountDeletionPendingState.resetForTest();
+      var status = await AccountDeletionPendingState.resolveFromLocalStorage(
+        storage,
+      );
+      expect(status, AccountDeletionGateResolveStatus.blocked);
+      var serverCalls = 0;
+      var identityDeletes = 0;
+      gateway.onDeleteCurrentUser = () => identityDeletes++;
+      final serverPhase = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      await auth.signInAnonymously();
+      final serverRetry = await serverPhase.retryPendingIdentityCleanup();
+      expect(serverRetry.isSuccess, isTrue);
+      expect(serverCalls, 1);
+      expect(identityDeletes, 1);
+
+      // Phase: identityCleanup only (identity still present) → delete
+      // identity without calling server.
+      SharedPreferences.setMockInitialValues({});
+      storage = LocalStorage(await SharedPreferences.getInstance());
+      secure = InMemorySecureStorage();
+      gateway = _DeletionGateway();
+      sessions = InMemorySessionManager(
+        FirebaseIdTokenManager(gateway, fallback: tokens),
+      );
+      auth = FirebaseAuthService(
+        gateway: gateway,
+        tokens: tokens,
+        sessions: sessions,
+        isolation: UserLocalDataIsolation(storage, secureStorage: secure),
+      );
+      await storage.setBool(
+        AccountDeletionService.pendingIdentityCleanupKey,
+        true,
+      );
+      serverCalls = 0;
+      identityDeletes = 0;
+      gateway.onDeleteCurrentUser = () => identityDeletes++;
+      final identityPhase = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      await auth.signInAnonymously();
+      final identityRetry = await identityPhase.retryPendingIdentityCleanup();
+      expect(identityRetry.isSuccess, isTrue);
+      expect(serverCalls, 0);
+      expect(identityDeletes, 1);
+    },
+  );
+
+  test(
+    'P0-1 / 1C-C: server delete succeeds but identityCleanup setBool is '
+    'false — Firebase identity delete stays at 0, serverDeletePending '
+    'remains durable, gate is NOT clear, retry retains server-phase '
+    'knowledge',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingSecure = InMemorySecureStorage();
+      final failingGateway = _DeletionGateway();
+      final failingSessions = InMemorySessionManager(
+        FirebaseIdTokenManager(failingGateway, fallback: _MemTokens()),
+      );
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: failingSessions,
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: failingSecure,
+        ),
+      );
+      var serverCalls = 0;
+      final failingDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: failingStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
       );
       await failingAuth.signInAnonymously();
       failingStorage.falseReturnKeys.add(
@@ -316,17 +502,37 @@ void main() {
       final result = await failingDeletion.deleteAccountAndWipeLocalData();
 
       expect(result.isFailure, isTrue);
+      expect(serverCalls, 1);
       expect(
         failingGateway.deleteCalls,
         0,
-        reason: 'the identity must never be deleted before the durable '
-            'marker that would prove finalization is in progress is '
-            'actually armed',
+        reason: 'identity must never be deleted before identityCleanup is '
+            'durably armed',
       );
       expect(failingGateway.currentUser, isNotNull);
       expect(failingDeletion.hasPendingIdentityCleanup, isFalse);
+      expect(
+        failingDeletion.hasPendingServerDelete,
+        isTrue,
+        reason: 'serverDeletePending must remain — never a marker-free gap '
+            'after the server has already accepted',
+      );
       expect(failingDeletion.hasPendingLocalWipe, isFalse);
-      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(AccountDeletionPendingState.isClear, isFalse);
+      expect(AccountDeletionPendingState.isBlocked, isTrue);
+
+      // Retry with healthy storage still sees the server-phase marker.
+      final healthy = AccountDeletionService(
+        auth: failingAuth,
+        storage: LocalStorage(prefs),
+        secureStorage: failingSecure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      expect(healthy.hasPendingServerDelete, isTrue);
+      expect(healthy.hasPendingIdentityCleanup, isFalse);
     },
   );
 
@@ -407,6 +613,7 @@ void main() {
 
       // Restart: resolve the gate from these exact markers.
       AccountDeletionPendingState.applyFromMarkers(
+        serverDeletePending: failingDeletion.hasPendingServerDelete,
         identityCleanupPending: failingDeletion.hasPendingIdentityCleanup,
         localWipePending: failingDeletion.hasPendingLocalWipe,
         anonymousBootstrapPending: failingDeletion.hasPendingAnonymousBootstrap,
@@ -1012,14 +1219,18 @@ void main() {
 
     test(
       'successful reauth but server-data deletion itself fails: Firebase '
-      'identity remains, no local wipe, no pending marker (only a later '
-      'identity-deletion failure — not a server failure — is "pending")',
+      'identity remains, no local wipe, serverDeletePending stays armed '
+      'so retry calls the SERVER again (never skips to identity delete)',
       () async {
+        var serverCalls = 0;
         final failingServer = AccountDeletionService(
           auth: auth,
           storage: storage,
           secureStorage: secure,
-          deleteServerData: () async => false,
+          deleteServerData: () async {
+            serverCalls++;
+            return false;
+          },
         );
         await seedUserBound();
         await auth.signInWithEmail(
@@ -1034,10 +1245,22 @@ void main() {
 
         expect(result.isFailure, isTrue);
         expect(gateway.reauthCalls, 1);
+        expect(serverCalls, 1);
         expect(gateway.deleteCalls, 0);
         expect(failingServer.hasPendingIdentityCleanup, isFalse);
+        expect(failingServer.hasPendingServerDelete, isTrue);
+        expect(AccountDeletionPendingState.isBlocked, isTrue);
         expect(gateway.currentUser, isNotNull);
         expect(storage.getString('user_name'), 'Ada');
+
+        final retry = await failingServer.retryPendingIdentityCleanup(
+          reauth: const AccountReauthCredentials.email(
+            EmailCredentials(email: 'a@b.c', password: 'x'),
+          ),
+        );
+        expect(retry.isFailure, isTrue);
+        expect(serverCalls, 2, reason: 'retry must call server delete again');
+        expect(gateway.deleteCalls, 0);
       },
     );
 
