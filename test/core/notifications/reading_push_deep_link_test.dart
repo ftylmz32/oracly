@@ -51,6 +51,14 @@ void main() {
       }),
       isNull,
     );
+    expect(
+      readingPushDestination({
+        'type': 'reading_completed',
+        'readingType': 'coffee',
+        'operationId': 'Z' * 32,
+      }),
+      isNull,
+    );
   });
 
   testWidgets('Coffee push route forwards its exact operation id', (
