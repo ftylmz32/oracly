@@ -42,10 +42,12 @@ void main() {
     expect(find.byType(CoffeeReferenceScreen), findsOneWidget);
   });
 
-  testWidgets('fresh Coffee uses V2 only when no recovery state exists', (
-    tester,
-  ) async {
-    await tester.pumpWidget(app(v2: false, legacy: false));
-    expect(find.byType(CoffeeV2FlowScreen), findsOneWidget);
-  });
+  testWidgets(
+    'fresh Coffee falls back to legacy when V2 transport is unavailable',
+    (tester) async {
+      await tester.pumpWidget(app(v2: false, legacy: false));
+      expect(find.byType(CoffeeReferenceScreen), findsOneWidget);
+      expect(find.byType(CoffeeV2FlowScreen), findsNothing);
+    },
+  );
 }

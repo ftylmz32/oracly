@@ -25,6 +25,8 @@ abstract final class OraclyRuntimeKeys {
   static const dataDeletionUrl = 'ORACLY_DATA_DELETION_URL';
   static const devPremium = 'ORACLY_DEV_PREMIUM';
   static const openAiApiKey = 'OPENAI_API_KEY';
+  static const appCheckDebugProvider = 'ORACLY_APP_CHECK_DEBUG_PROVIDER';
+  static const gemEconomyProbe = 'ORACLY_GEM_ECONOMY_PROBE';
 
   /// Public client keys only — never secrets.
   static const catalog = <OraclyRuntimeKey>[
@@ -43,6 +45,8 @@ abstract final class OraclyRuntimeKeys {
     OraclyRuntimeKey(dataDeletionUrl, OraclyRuntimeKeyClass.optionalRelease),
     OraclyRuntimeKey(devPremium, OraclyRuntimeKeyClass.debugOnly),
     OraclyRuntimeKey(openAiApiKey, OraclyRuntimeKeyClass.debugOnly),
+    OraclyRuntimeKey(appCheckDebugProvider, OraclyRuntimeKeyClass.debugOnly),
+    OraclyRuntimeKey(gemEconomyProbe, OraclyRuntimeKeyClass.debugOnly),
   ];
 
   static List<String> get mandatoryReleaseNames => catalog

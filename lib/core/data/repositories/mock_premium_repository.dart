@@ -10,15 +10,30 @@ import '../../storage/premium_credential_keys.dart';
 import '../../storage/premium_credential_migration.dart';
 import '../../storage/secure_storage.dart';
 import '../datasources/local_storage.dart';
+import '../datasources/storage_result.dart';
 
-class MockPremiumRepository implements PremiumRepository {
+class MockPremiumRepository implements PremiumRepository, PremiumOwnerBoundary {
   MockPremiumRepository(
     this._storage, {
     SecureStorage? secureStorage,
-  }) : _secure = secureStorage ?? InMemorySecureStorage();
+    bool Function()? ownerAccessAllowed,
+  }) : _secure = secureStorage ?? InMemorySecureStorage(),
+       _ownerAccessAllowed = ownerAccessAllowed;
 
   final LocalStorage _storage;
   final SecureStorage _secure;
+  final bool Function()? _ownerAccessAllowed;
+
+  bool get _ownerAllowed => _ownerAccessAllowed?.call() ?? true;
+
+  @override
+  bool get ownerAccessReady => _ownerAllowed;
+
+  void _requireOwnerAccess() {
+    if (!_ownerAllowed) {
+      throw StateError('premium owner boundary not isolated');
+    }
+  }
 
   PremiumPurchaseCredentials? _credentialCache;
   bool _credentialsLoaded = false;
@@ -58,18 +73,42 @@ class MockPremiumRepository implements PremiumRepository {
   }
 
   /// Removes all local Premium entitlement cache and secure credentials.
+  /// Account-boundary wipe — used only by [UserLocalDataWipe]. A `false`
+  /// (non-throwing) removal is exactly as much a failure here as a thrown
+  /// one, so it throws to let the wipe's per-step failure tracking catch
+  /// it the same way; every other key is still attempted regardless.
   static Future<void> clearPersistedLocalState(
     LocalStorage storage, {
     required SecureStorage secureStorage,
   }) async {
-    for (final key in localUserBoundKeys) {
-      await storage.remove(key);
+    final failed = <String>[];
+    Future<void> removeKey(String key) async {
+      try {
+        if (!await storage.remove(key)) failed.add(key);
+      } catch (_) {
+        failed.add(key);
+      }
     }
-    await storage.remove(PremiumCredentialMigration.doneKey);
-    await secureStorage.delete(PremiumCredentialKeys.purchaseToken);
-    await secureStorage.delete(PremiumCredentialKeys.transactionId);
+
+    for (final key in localUserBoundKeys) {
+      await removeKey(key);
+    }
+    await removeKey(PremiumCredentialMigration.doneKey);
+    try {
+      await secureStorage.delete(PremiumCredentialKeys.purchaseToken);
+    } catch (_) {
+      failed.add('secure:${PremiumCredentialKeys.purchaseToken}');
+    }
+    try {
+      await secureStorage.delete(PremiumCredentialKeys.transactionId);
+    } catch (_) {
+      failed.add('secure:${PremiumCredentialKeys.transactionId}');
+    }
     for (final key in legacyCredentialPrefKeys) {
-      await storage.remove(key);
+      await removeKey(key);
+    }
+    if (failed.isNotEmpty) {
+      throw StateError('premium local state keys not removed: $failed');
     }
   }
 
@@ -77,14 +116,16 @@ class MockPremiumRepository implements PremiumRepository {
   Future<bool> isPremiumActive() async => isActiveNow;
 
   @override
-  bool get isActiveNow => _storage.getBool(activeKey) ?? false;
+  bool get isActiveNow =>
+      _ownerAllowed && (_storage.getBool(activeKey) ?? false);
 
   @override
   bool get wasAuthoritativelyVerified =>
-      _storage.getBool(authoritativeKey) ?? false;
+      _ownerAllowed && (_storage.getBool(authoritativeKey) ?? false);
 
   @override
   Future<PremiumPlanKind?> activePlan() async {
+    if (!_ownerAllowed || !isActiveNow) return null;
     final index = _storage.getInt(planKey);
     if (index == null) return null;
     return PremiumPlanKind.values[index.clamp(0, 2)];
@@ -95,23 +136,48 @@ class MockPremiumRepository implements PremiumRepository {
     PremiumPlanKind plan, {
     bool authoritative = false,
   }) async {
-    await _storage.setBool(activeKey, true);
-    await _storage.setInt(planKey, plan.index);
-    await _storage.setBool(authoritativeKey, authoritative);
+    _requireOwnerAccess();
+    // Commit marker LAST. A partial write may leave harmless metadata behind,
+    // but must never expose active Premium before plan + authority are durable.
+    try {
+      await _storage.setInt(planKey, plan.index).requireDurable(planKey);
+      await _storage
+          .setBool(authoritativeKey, authoritative)
+          .requireDurable(authoritativeKey);
+      await _storage.setBool(activeKey, true).requireDurable(activeKey);
+    } catch (_) {
+      // Fail closed. Best-effort rollback never turns a failed commit into
+      // active access; the original persistence error is still rethrown.
+      try {
+        await _storage.setBool(activeKey, false).requireDurable(activeKey);
+      } catch (_) {}
+      try {
+        await _storage
+            .setBool(authoritativeKey, false)
+            .requireDurable(authoritativeKey);
+      } catch (_) {}
+      rethrow;
+    }
   }
 
   @override
   Future<void> clearLocalPremiumAccess() async {
-    await _storage.setBool(activeKey, false);
-    await _storage.setBool(authoritativeKey, false);
+    _requireOwnerAccess();
+    // Active=false is the revocation commit marker and must land first.
+    await _storage.setBool(activeKey, false).requireDurable(activeKey);
+    await _storage
+        .setBool(authoritativeKey, false)
+        .requireDurable(authoritativeKey);
+    await _storage.remove(planKey).requireDurable(planKey);
   }
 
   @override
   Future<void> savePurchaseCredentials(
     PremiumPurchaseCredentials credentials,
   ) async {
-    await _storage.setString(platformKey, credentials.platform);
-    await _storage.setString(productIdKey, credentials.productId);
+    _requireOwnerAccess();
+    // Secure proof first, discoverable metadata second. Callers activate the
+    // entitlement only AFTER this method succeeds.
     await _secure.write(
       PremiumCredentialKeys.purchaseToken,
       credentials.purchaseToken,
@@ -125,8 +191,34 @@ class MockPremiumRepository implements PremiumRepository {
     } else {
       await _secure.delete(PremiumCredentialKeys.transactionId);
     }
+
+    try {
+      await _storage
+          .setString(platformKey, credentials.platform)
+          .requireDurable(platformKey);
+      await _storage
+          .setString(productIdKey, credentials.productId)
+          .requireDurable(productIdKey);
+    } catch (_) {
+      // Incomplete metadata must not be mistaken for a usable credential set.
+      try {
+        await _storage.remove(platformKey).requireDurable(platformKey);
+      } catch (_) {}
+      try {
+        await _storage.remove(productIdKey).requireDurable(productIdKey);
+      } catch (_) {}
+      _credentialCache = null;
+      _credentialsLoaded = false;
+      rethrow;
+    }
+
+    // Legacy plaintext cleanup is security hygiene, not the commit marker for
+    // this already-secure credential. Do not invalidate a verified purchase
+    // solely because obsolete plaintext removal failed.
     for (final key in legacyCredentialPrefKeys) {
-      await _storage.remove(key);
+      try {
+        await _storage.remove(key);
+      } catch (_) {}
     }
     _credentialCache = credentials;
     _credentialsLoaded = true;
@@ -134,6 +226,7 @@ class MockPremiumRepository implements PremiumRepository {
 
   @override
   Future<PremiumPurchaseCredentials?> readPurchaseCredentials() async {
+    if (!_ownerAllowed) return null;
     final platform = _storage.getString(platformKey);
     final productId = _storage.getString(productIdKey);
     if (platform == null || productId == null) {

@@ -125,6 +125,28 @@ class ReadingLiveFlow {
     return _fromSnapshot(parsed);
   }
 
+  /// Recovers one exact server operation by id. Used by completion deep links
+  /// and push taps so navigation cannot accidentally attach to a different
+  /// active operation of the same feature.
+  Future<ReadingLiveState> recoverOperation(String operationId) async {
+    final normalized = operationId.trim();
+    if (normalized.isEmpty) {
+      return const ReadingLiveState(kind: ReadingLiveKind.idle, snapshot: null);
+    }
+    final fetched = await _operations.fetch(normalized);
+    final snapshot = fetched.snapshot;
+    if (snapshot == null) {
+      return ReadingLiveState(
+        kind: ReadingLiveKind.idle,
+        snapshot: null,
+        failureStage: 'fetch',
+        httpStatus: fetched.httpStatus,
+        backendCode: fetched.backendCode,
+      );
+    }
+    return _fromSnapshot(snapshot);
+  }
+
   Future<ReadingLiveState> claimIfEligible(String operationId) async {
     if (_claimed == operationId) {
       return ReadingLiveState(

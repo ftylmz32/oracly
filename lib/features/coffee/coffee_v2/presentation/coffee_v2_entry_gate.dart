@@ -9,17 +9,27 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../reading_operation/providers/reading_live_provider.dart';
 import '../../presentation/reference/coffee_reference_screen.dart';
 import '../providers/coffee_v2_providers.dart';
 import 'coffee_v2_flow_screen.dart';
 
 class CoffeeV2EntryGate extends ConsumerWidget {
-  const CoffeeV2EntryGate({super.key, this.savedReadingId});
+  const CoffeeV2EntryGate({
+    super.key,
+    this.savedReadingId,
+    this.operationId,
+  });
 
   final String? savedReadingId;
+  final String? operationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final targetOperationId = operationId?.trim();
+    if (targetOperationId != null && targetOperationId.isNotEmpty) {
+      return CoffeeReferenceScreen(operationId: targetOperationId);
+    }
     final id = savedReadingId?.trim();
     if (id != null && id.isNotEmpty) {
       return CoffeeReferenceScreen(savedReadingId: id);
@@ -28,6 +38,13 @@ class CoffeeV2EntryGate extends ConsumerWidget {
     if (hasV2Recovery) return const CoffeeV2FlowScreen();
     final hasLegacyPending = ref.watch(coffeeHasLegacyPendingOperationProvider);
     if (hasLegacyPending) {
+      return const CoffeeReferenceScreen();
+    }
+    // V2 needs live reading transport. Without it, never trap the user on
+    // a blank/unavailable V2 chamber — fall back to legacy Coffee.
+    final runner = ref.watch(readingFeatureRunnerProvider);
+    final staged = ref.watch(coffeeV2StagedImageGatewayProvider);
+    if (runner == null || staged == null) {
       return const CoffeeReferenceScreen();
     }
     return const CoffeeV2FlowScreen();

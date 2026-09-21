@@ -1,6 +1,8 @@
 /// El Falı screen — own feature root, not a Home tile.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,10 +31,17 @@ import 'palm_reference_body.dart';
 import 'palm_tokens.dart';
 
 class PalmReferenceScreen extends ConsumerStatefulWidget {
-  const PalmReferenceScreen({super.key, this.savedReadingId});
+  const PalmReferenceScreen({
+    super.key,
+    this.savedReadingId,
+    this.operationId,
+  });
 
   /// When set, restores that persisted palm reading on open.
   final String? savedReadingId;
+
+  /// Completion deep-link target. Takes precedence over feature-wide recovery.
+  final String? operationId;
 
   @override
   ConsumerState<PalmReferenceScreen> createState() =>
@@ -45,7 +54,18 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _openSavedIfNeeded());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openRequestedTarget());
+  }
+
+  void _openRequestedTarget() {
+    final operationId = widget.operationId?.trim();
+    if (operationId != null && operationId.isNotEmpty) {
+      unawaited(
+        ref.read(palmReadingControllerProvider).recoverOperation(operationId),
+      );
+      return;
+    }
+    _openSavedIfNeeded();
   }
 
   void _openSavedIfNeeded() {
@@ -93,6 +113,9 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
         }
         if (!mounted) return;
       }
+      final operations = ref.read(paidAiOperationCoordinatorProvider);
+      final wallet = ref.read(gemWalletProvider);
+      final analytics = ref.read(analyticsServiceProvider);
       final op = await GemSpendGuard.beginPaid(
         ref,
         context: context,
@@ -103,28 +126,30 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
       );
       if (op == null) return;
       if (!mounted) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await operations.abandon(op.id);
         return;
       }
-      ref.read(analyticsServiceProvider).logPalmStarted();
+      analytics.logPalmStarted();
       final started = DateTime.now();
       await PaidAiOperationBinder.runWithKey(op.idempotencyKey, () {
         return controller.analyze();
       });
-      if (controller.phase != PalmPhase.result || controller.reading == null) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+      if (!mounted ||
+          controller.phase != PalmPhase.result ||
+          controller.reading == null) {
+        await operations.abandon(op.id);
         if (controller.phase == PalmPhase.error) {
-          ref
-              .read(analyticsServiceProvider)
-              .logPalmFailure(errorCategory: 'analysis');
+          analytics.logPalmFailure(errorCategory: 'analysis');
         }
         return;
       }
-      ref.read(analyticsServiceProvider).logPalmSuccess(
-            latency: DateTime.now().difference(started),
-          );
-      await GemSpendGuard.settleOperation(
-        ref,
+      analytics.logPalmSuccess(
+        latency: DateTime.now().difference(started),
+      );
+      await GemSpendGuard.settleOperationCaptured(
+        coordinator: operations,
+        wallet: wallet,
+        analytics: analytics,
         operation: op,
         context: mounted ? context : null,
       );

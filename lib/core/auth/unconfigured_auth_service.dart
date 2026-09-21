@@ -5,6 +5,7 @@ import '../network/api_result.dart';
 import '../network/network_exception.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
+import 'models/account_reauth_method.dart';
 import 'models/auth_credentials.dart';
 import 'models/auth_session.dart';
 import 'session_manager.dart';
@@ -62,6 +63,27 @@ class UnconfiguredAuthService implements AuthService {
   Future<ApiResult<bool>> deleteAccount() async => ApiFailure(
         NetworkException.unauthorized(AuthCopy.notConfigured),
       );
+
+  @override
+  bool get isCurrentUserAnonymous => true;
+
+  @override
+  bool get hasCurrentIdentity => false;
+
+  @override
+  String? get currentUserId => null;
+
+  @override
+  List<AccountReauthMethod> get currentReauthMethods => const [];
+
+  @override
+  String? get currentUserEmail => null;
+
+  @override
+  Future<ApiResult<bool>> reauthenticate(
+    AccountReauthCredentials credentials,
+  ) async =>
+      ApiFailure(NetworkException.unauthorized(AuthCopy.notConfigured));
 
   ApiFailure<AuthSession> _fail() => ApiFailure(
         NetworkException.unauthorized(AuthCopy.notConfigured),

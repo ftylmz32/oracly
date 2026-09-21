@@ -19,6 +19,8 @@ import 'package:oracly_new/features/share_reopen/models/share_public_payload.dar
 import 'package:oracly_new/features/share_reopen/services/share_access_resolver.dart';
 import 'package:oracly_new/features/share_reopen/services/share_feature_routes.dart';
 import 'package:oracly_new/features/share_reopen/services/share_link_parser.dart';
+import 'package:oracly_new/features/share_reopen/services/share_link_opener.dart';
+import 'package:oracly_new/features/share_reopen/services/share_link_inbox.dart';
 import 'package:oracly_new/features/share_reopen/services/share_ownership_store.dart';
 import 'package:oracly_new/features/share_reopen/services/share_payload_codec.dart';
 import 'package:oracly_new/features/share_reopen/services/share_reference_issuer.dart';
@@ -29,7 +31,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../discovery_share/discovery_share_fakes.dart';
 
 void main() {
-  setUp(() => OraclyL10n.bind('tr'));
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    OraclyL10n.bind('tr');
+    ShareLinkInbox.instance.clearForTest();
+  });
+
+  tearDown(() => ShareLinkInbox.instance.clearForTest());
 
   AuthSession owner() => AuthSession(
         userId: 'owner-1',
@@ -159,6 +168,24 @@ void main() {
     expect(port.last!.caption, isNot(contains('bırakmalı')));
     expect(port.last!.caption.toLowerCase(), isNot(contains('owneruserid')));
   });
+
+  test(
+    'pending share link stays queued when no navigator/context exists',
+    () {
+      final uri = ShareLinkParser.build(
+        const SharePublicPayload(
+          id: 'ab12cd34ef56ab78',
+          kind: DiscoveryShareKind.tarot,
+          highlight: 'Denge',
+        ),
+      );
+      ShareLinkInbox.instance.offer(uri);
+
+      ShareLinkOpener.openPending();
+
+      expect(ShareLinkInbox.instance.hasPendingForTest, isTrue);
+    },
+  );
 
   test('canceled share does not bind ownership', () async {
     SharedPreferences.setMockInitialValues({});

@@ -135,9 +135,27 @@ class PremiumReferenceBody extends StatelessWidget {
                       onActivate: onPurchase,
                       onRestore: onRestore,
                     )
+                  else if (status.canAttemptRestore)
+                    PremiumReferenceCta(
+                      isPremium: false,
+                      busy: status.busy,
+                      purchaseConfigured: true,
+                      onActivate: null,
+                      onRestore: onRestore,
+                      onRetryStore: onRetryStore,
+                    )
                   else
                     PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
-                ] else
+                ] else if (status.canAttemptRestore)
+                  PremiumReferenceCta(
+                    isPremium: false,
+                    busy: status.busy,
+                    purchaseConfigured: true,
+                    onActivate: null,
+                    onRestore: onRestore,
+                    onRetryStore: onRetryStore,
+                  )
+                else
                   PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
                 if (status.loaded) ...[
                   SizedBox(height: PremiumReferenceTokens.plansToCta),

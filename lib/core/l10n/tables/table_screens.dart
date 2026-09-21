@@ -89,7 +89,9 @@ const kL10nScreens = <String, L10nTriple>{
   'memory.cat.interest': L10nTriple('İlgi', 'Interest', 'Интерес'),
   'memory.cat.job': L10nTriple('İş', 'Work', 'Работа'),
   'memory.cat.technology': L10nTriple('Teknoloji', 'Technology', 'Технология'),
+  'memory.cat.general': L10nTriple('Genel', 'General', 'Общее'),
   'memory.imp.high': L10nTriple('Yüksek', 'High', 'Высокая'),
   'memory.imp.medium': L10nTriple('Orta', 'Medium', 'Средняя'),
   'memory.imp.low': L10nTriple('Düşük', 'Low', 'Низкая'),
+  'memory.imp.normal': L10nTriple('Normal', 'Normal', 'Обычная'),
 };

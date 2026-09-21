@@ -34,11 +34,13 @@ import 'package:oracly_new/features/companion/models/or_chat_output_mode.dart';
 import 'package:oracly_new/features/companion/models/reflection_context.dart';
 import 'package:oracly_new/features/companion/services/companion_ai_bridge.dart';
 import 'package:oracly_new/features/companion/services/companion_experience_service.dart';
+import 'package:oracly_new/features/companion/services/companion_memory_service.dart';
 import 'package:oracly_new/features/companion/services/companion_responder.dart';
 import 'package:oracly_new/features/companion/models/companion_response.dart';
 import 'package:oracly_new/features/companion/services/or_chat_handoff.dart';
 import 'package:oracly_new/features/palm/models/palm_hand.dart';
 import 'package:oracly_new/features/palm/models/palm_reading.dart';
+import 'package:oracly_new/services/memory_service.dart';
 
 void main() {
   setUp(OrChatHandoffBuffer.clear);
@@ -140,6 +142,7 @@ void main() {
     final deferred = _DeferredExperience(
       conversationRepository: conversations,
       intelligence: intelligence,
+      memoryService: CompanionMemoryService(MemoryService(storage)),
     );
     final output = CompanionOutputController(
       persistMode: (_) async {},
@@ -286,6 +289,7 @@ class _DeferredExperience extends CompanionExperienceService {
   _DeferredExperience({
     required super.conversationRepository,
     required super.intelligence,
+    required super.memoryService,
   });
 
   final Completer<String> _gate = Completer<String>();

@@ -52,7 +52,15 @@ class GemWalletController extends ChangeNotifier {
   bool canSpend(int amount) => !_busy && _service.canSpend(amount);
 
   Future<void> reload() async {
-    if (_busy) return;
+    await reloadAuthoritatively();
+  }
+
+  /// Returns true only when this exact reload obtained a fresh server
+  /// balance. Used by the hydration coordinator to let a recreated
+  /// same-owner controller join one in-flight GET without replaying an
+  /// old coordinator-cached number.
+  Future<bool> reloadAuthoritatively() async {
+    if (_busy) return authoritative;
     _busy = true;
     _hydrationState = _balance == null
         ? GemWalletHydrationState.loading
@@ -66,19 +74,35 @@ class GemWalletController extends ChangeNotifier {
             : (_balance == null
                   ? GemWalletHydrationState.loading
                   : GemWalletHydrationState.stale);
-        return;
+        return false;
       }
       _balance = refreshed;
       _history = _service.history;
       _stale = _service.stale;
       _hydrationState = GemWalletHydrationState.authoritative;
+      return true;
     } catch (_) {
       _stale = true;
       _hydrationState = GemWalletHydrationState.error;
+      return false;
     } finally {
       _busy = false;
       _safeNotify();
     }
+  }
+
+  /// Adopts the owner-bound durable cache currently held by this controller's
+  /// service without issuing another GET or re-writing disk. Call only after
+  /// a shared same-owner in-flight hydration has just succeeded.
+  bool acceptHydratedCachedBalance() {
+    final cached = _service.acceptHydratedCachedBalance();
+    if (cached == null) return false;
+    _balance = cached;
+    _history = _service.history;
+    _stale = _service.stale;
+    _hydrationState = GemWalletHydrationState.authoritative;
+    _safeNotify();
+    return true;
   }
 
   Future<void> acceptAuthoritativeBalance(int balance) async {
@@ -90,34 +114,15 @@ class GemWalletController extends ChangeNotifier {
   }
 
   Future<bool> earn({required int amount, required String reason}) async {
-    if (_busy) return false;
-    _busy = true;
-    _safeNotify();
-    try {
-      return false;
-    } finally {
-      _busy = false;
-      _safeNotify();
-    }
+    // Dead legacy API — production uses purpose-specific server commands.
+    assert(false, 'GemWalletController.earn is not a production path');
+    return false;
   }
 
   Future<bool> spend({required int amount, required String reason}) async {
-    if (_busy) return false;
-    if (!canSpend(amount)) {
-      _safeNotify();
-      return false;
-    }
-    _busy = true;
-    _safeNotify();
-    try {
-      return false;
-    } on GemSpendException {
-      _balance = _service.balance;
-      return false;
-    } finally {
-      _busy = false;
-      _safeNotify();
-    }
+    // Dead legacy API — production uses settleTarot / paid AI coordinators.
+    assert(false, 'GemWalletController.spend is not a production path');
+    return false;
   }
 
   String get insufficientMessage => GemsCopy.insufficient;

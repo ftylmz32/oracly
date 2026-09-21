@@ -19,14 +19,17 @@ class GemWalletService {
     GemWalletGateway? gateway,
     String? ownerId,
     bool requireOwner = false,
+    String? Function()? currentOwnerId,
   }) : _gateway = gateway,
        ownerId = ownerId?.trim(),
-       _requireOwner = requireOwner;
+       _requireOwner = requireOwner,
+       _currentOwnerId = currentOwnerId;
 
   final GemWalletStore _store;
   final GemWalletGateway? _gateway;
   final String? ownerId;
   final bool _requireOwner;
+  final String? Function()? _currentOwnerId;
   bool _busy = false;
   bool _stale = true;
 
@@ -36,22 +39,59 @@ class GemWalletService {
       _requireOwner ? _store.balanceForOwner(ownerId) : _store.balance();
   int get balance => cachedBalance ?? 0;
   bool get canHydrate =>
-      _gateway != null && (!_requireOwner || ownerId?.isNotEmpty == true);
+      _gateway != null &&
+      (!_requireOwner ||
+          (ownerId?.isNotEmpty == true && _ownerIsCurrent));
   List<GemTransaction> get history => _store.history();
 
   bool canSpend(int amount) =>
-      amount > 0 && !_busy && !_stale && balance >= amount;
+      amount > 0 &&
+      !_busy &&
+      !_stale &&
+      (!_requireOwner || _ownerIsCurrent) &&
+      balance >= amount;
+
+  bool get _ownerIsCurrent {
+    if (!_requireOwner) return true;
+    final owner = ownerId;
+    if (owner == null || owner.isEmpty) return false;
+    final resolver = _currentOwnerId;
+    if (resolver == null) return true;
+    final live = resolver()?.trim();
+    return live != null && live.isNotEmpty && live == owner;
+  }
 
   Future<int?> refresh() => _locked(() async {
+    if (!_ownerIsCurrent) return null;
     final result = await _gateway?.balance();
-    return result == null ? null : _accept(result);
+    if (result == null || !_ownerIsCurrent) return null;
+    return _accept(result);
   });
+
+  /// Marks the CURRENT owner-bound durable cache authoritative for this
+  /// service instance without performing network I/O or writing it again.
+  /// This is safe only when the hydration coordinator has just observed a
+  /// successful same-owner in-flight GET that wrote this cache.
+  int? acceptHydratedCachedBalance() {
+    if (!_ownerIsCurrent) return null;
+    final cached = cachedBalance;
+    if (cached == null || cached < 0) return null;
+    _stale = false;
+    return cached;
+  }
 
   /// Accepts a balance returned by another authenticated wallet endpoint.
   /// This updates the display snapshot and performs no client arithmetic.
   Future<void> acceptAuthoritativeBalance(int balance) async {
     if (balance < 0) return;
+    if (!_ownerIsCurrent) {
+      throw const GemSpendException('owner_changed');
+    }
     await _store.cacheServerBalance(balance, ownerId: ownerId);
+    if (!_ownerIsCurrent) {
+      _stale = true;
+      throw const GemSpendException('owner_changed');
+    }
     _stale = false;
   }
 
@@ -69,16 +109,34 @@ class GemWalletService {
   Future<GemServerResult?> _command(
     Future<GemServerResult?> Function(GemWalletGateway gateway) run,
   ) => _locked(() async {
+    if (!_ownerIsCurrent) return null;
     final gateway = _gateway;
     if (gateway == null) return null;
     final result = await run(gateway);
     if (result == null) return null;
-    await _accept(result);
+
+    // The server command is authoritative. Once it returned a successful
+    // settlement/reward envelope, a local display-cache failure must not
+    // rewrite that server success into "command failed" — settlement retry is
+    // idempotent, but UI/recovery still need to know the server accepted it.
+    // Keep the wallet stale so a later reload rehydrates the display.
+    try {
+      await _accept(result);
+    } catch (_) {
+      _stale = true;
+    }
     return result;
   });
 
   Future<int> _accept(GemServerResult result) async {
+    if (!_ownerIsCurrent) {
+      throw const GemSpendException('owner_changed');
+    }
     await _store.cacheServerBalance(result.balance, ownerId: ownerId);
+    if (!_ownerIsCurrent) {
+      _stale = true;
+      throw const GemSpendException('owner_changed');
+    }
     _stale = false;
     return result.balance;
   }

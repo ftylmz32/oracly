@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/l10n/l10n.dart';
+import '../../core/auth/user_local_data_isolation.dart';
 import '../../core/theme/app_appearance.dart';
 import '../../core/data/repositories/user_achievement_repository.dart';
 import '../../core/domain/repositories/achievement_repository.dart';
@@ -17,6 +18,7 @@ import '../../core/intelligence/services/intelligence_layer_service.dart';
 import '../../core/intelligence/services/personal_memory_service.dart';
 import '../../core/memory/oracly_memory_retriever.dart';
 import '../../core/memory/oracly_memory_store.dart';
+import '../../services/memory_service.dart';
 import '../../core/experience/engine/experience_orchestrator.dart';
 import '../../core/experience/services/experience_orchestrator_service.dart';
 import '../../core/reflection/data/sources/reading_reflection_source.dart';
@@ -97,9 +99,22 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 });
 
 final premiumRepositoryProvider = Provider<PremiumRepository>((ref) {
+  final storage = ref.watch(localStorageProvider);
+  final gateway = ref.watch(backend.firebaseAuthGatewayProvider);
+  // Watch auth user so the repository boundary is rebuilt promptly on a
+  // Firebase identity change, before any application session is published.
+  ref.watch(backend.firebaseAuthUserProvider);
   return MockPremiumRepository(
-    ref.watch(localStorageProvider),
+    storage,
     secureStorage: ref.watch(backend.secureStorageProvider),
+    ownerAccessAllowed: () {
+      final liveUid = gateway?.currentUser?.uid;
+      final localUid = storage.getString(UserLocalDataIsolation.ownerKey);
+      return liveUid != null &&
+          liveUid.isNotEmpty &&
+          localUid != null &&
+          localUid == liveUid;
+    },
   );
 });
 
@@ -308,6 +323,16 @@ final personalMemoryStoreProvider = Provider<PersonalMemoryStore>((ref) {
 
 final personalMemoryServiceProvider = Provider<PersonalMemoryService>((ref) {
   return PersonalMemoryService(ref.watch(personalMemoryStoreProvider));
+});
+
+/// Canonical legacy "OR memory" boundary — the one production
+/// [MemoryService] instance, backed by the same [LocalStorage] every other
+/// feature uses. `MemoryScreen` and the companion memory bridge must read
+/// this provider rather than constructing their own `MemoryService()`, so
+/// there is exactly one storage path (never a second, untestable
+/// `SharedPreferences.getInstance()` race) for legacy user-memory data.
+final memoryServiceProvider = Provider<MemoryService>((ref) {
+  return MemoryService(ref.watch(localStorageProvider));
 });
 
 /// Interpretation Engine V2 canonical source-attributed memory.

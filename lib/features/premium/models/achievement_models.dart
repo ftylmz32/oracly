@@ -46,7 +46,7 @@ abstract final class AchievementCatalogue {
             id: id,
             unlocked: keys.contains(id.key),
             icon: Achievement.icons[id]!,
-            unlockedAt: keys.contains(id.key) ? DateTime(2026, 8, 1) : null,
+            unlockedAt: null,
           ),
         )
         .toList();

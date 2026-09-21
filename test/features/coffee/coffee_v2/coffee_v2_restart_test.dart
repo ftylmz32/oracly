@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_photo_slot.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_stage_state.dart';
+import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_submission_record.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_submission_controller.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_submission_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
@@ -20,9 +21,11 @@ import 'package:oracly_new/features/reading_operation/services/reading_operation
 import 'package:oracly_new/features/reading_operation/services/reading_staged_image_gateway.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/coffee_v2_test_support.dart';
 import '../../../support/fake_reading_operation_backend.dart';
+import '../../../support/false_return_local_storage.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -286,6 +289,106 @@ void main() {
     },
   );
 
+  test(
+    'AP — false-returning draft persistence never advances in-memory slot state',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final failing = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      )..falseReturnKeys.add('coffee_v2_submission');
+      sharedStorage = failing;
+      final controller = buildController();
+      final primary = await writeJpeg('ap-primary.jpg', totalSize: 9001);
+
+      await expectLater(
+        controller.setSlot(
+          CoffeeV2PhotoSlot.cupPrimary,
+          CoffeeImagePick(path: primary),
+        ),
+        throwsStateError,
+      );
+
+      expect(controller.assetFor(CoffeeV2PhotoSlot.cupPrimary), isNull);
+      expect(CoffeeV2SubmissionStore(sharedStorage).load(), isNull);
+    },
+  );
+
+  test(
+    'AQ — operationId bind write loss restarts with the same durable sourceRequestId',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final durable = _FailNthStringStorage(
+        await SharedPreferences.getInstance(),
+      );
+      sharedStorage = durable;
+      final controller = buildController();
+      final primary = await writeJpeg('aq-primary.jpg', totalSize: 9001);
+      final secondary = await writeJpeg('aq-secondary.jpg', totalSize: 9101);
+      final saucer = await writeJpeg('aq-saucer.jpg', totalSize: 9201);
+      for (final entry in {
+        CoffeeV2PhotoSlot.cupPrimary: primary,
+        CoffeeV2PhotoSlot.cupSecondary: secondary,
+        CoffeeV2PhotoSlot.saucer: saucer,
+      }.entries) {
+        await controller.setSlot(entry.key, CoffeeImagePick(path: entry.value));
+        await controller.confirmSlot(entry.key);
+      }
+
+      // beginSubmission performs two critical writes: sourceRequestId BEFORE
+      // create, then operationId AFTER create. Fail only the second one.
+      durable.failAt = durable.setStringAttempts + 2;
+      await expectLater(
+        controller.beginSubmission('src-aq-stable'),
+        throwsStateError,
+      );
+      expect(backend.operationCount, 1);
+      expect(controller.record.isDraft, isTrue);
+      expect(controller.record.sourceRequestId, 'src-aq-stable');
+
+      durable.failAt = null;
+      final restarted = buildController();
+      await restarted.recoverDraftOrSubmission();
+      expect(restarted.record.sourceRequestId, 'src-aq-stable');
+      final outcome = await restarted.beginSubmission('src-aq-must-not-replace');
+
+      expect(outcome, CoffeeV2SubmissionOutcome.completedStaging);
+      expect(backend.operationCount, 1);
+      expect(restarted.record.operationId, isNotNull);
+      expect(restarted.record.sourceRequestId, 'src-aq-stable');
+    },
+  );
+
+  test(
+    'AR — terminal clear false keeps durable + in-memory operation for retry',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final failing = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      );
+      sharedStorage = failing;
+      final store = CoffeeV2SubmissionStore(sharedStorage);
+      final active = CoffeeV2SubmissionRecord.empty().copyWith(
+        operationId: 'a' * 32,
+        sourceRequestId: 'src-ar',
+        resultId: 'result-ar',
+        resultPendingAcknowledgement: true,
+      );
+      await store.save(active);
+      final controller = buildController();
+      await controller.recoverDraftOrSubmission();
+      failing.falseReturnRemoveKeys.add('coffee_v2_submission');
+
+      await expectLater(
+        controller.acknowledgeTerminalHandoff(),
+        throwsStateError,
+      );
+
+      expect(controller.record.operationId, 'a' * 32);
+      expect(store.load()?.operationId, 'a' * 32);
+      expect(store.loadAcknowledgedOperationId(), 'a' * 32);
+    },
+  );
+
   test('AO — retryable failure keeps V2 metadata/local files', () async {
     final controller = await activeSubmissionWithFailure('saucer');
     final tempFiles = coffeeV2CanonicalSlotOrder
@@ -298,4 +401,18 @@ void main() {
     final store = CoffeeV2SubmissionStore(sharedStorage);
     expect(store.load()?.operationId, controller.record.operationId);
   });
+}
+
+class _FailNthStringStorage extends LocalStorage {
+  _FailNthStringStorage(super.prefs);
+
+  int setStringAttempts = 0;
+  int? failAt;
+
+  @override
+  Future<bool> setString(String key, String value) async {
+    setStringAttempts++;
+    if (failAt == setStringAttempts) return false;
+    return super.setString(key, value);
+  }
 }

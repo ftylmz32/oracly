@@ -7,12 +7,32 @@ import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
+import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/dream/services/dream_attempt_store.dart';
 import 'package:oracly_new/features/reading_operation/models/reading_operation_status.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_pending_operation_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../support/test_path_provider.dart';
+
+/// Throws when [remove] is called for any key in [failingKeys], then
+/// behaves normally for everything else.
+class _KeyFailingStorage extends LocalStorage {
+  _KeyFailingStorage(SharedPreferences prefs, {required this.failingKeys})
+      : super(prefs);
+
+  final Set<String> failingKeys;
+
+  @override
+  Future<bool> remove(String key) async {
+    if (failingKeys.contains(key)) {
+      throw StateError('simulated remove failure for $key');
+    }
+    return super.remove(key);
+  }
+}
 
 const _pending = ReadingPendingOperation(
   operationId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -22,6 +42,7 @@ const _pending = ReadingPendingOperation(
 
 Future<({LocalStorage storage, InMemorySecureStorage secure})> _boot() async {
   SharedPreferences.setMockInitialValues({});
+  await installTestPathProvider('oracly-signout-');
   final storage = LocalStorage(await SharedPreferences.getInstance());
   return (storage: storage, secure: InMemorySecureStorage());
 }
@@ -103,6 +124,92 @@ void main() {
       ReadingPendingOperationStore(boot.storage).load(ReadingType.coffee),
       isNull,
     );
+  });
+
+  test(
+      'an incomplete local wipe during sign-out preserves the owner '
+      'safety signal instead of claiming a completed local cleanup',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final failingStorage = _KeyFailingStorage(
+      prefs,
+      failingKeys: {MockUserRepository.readingLedgerIdsKey},
+    );
+    final secure = InMemorySecureStorage();
+    await failingStorage.setString(UserLocalDataIsolation.ownerKey, 'user-a');
+    await MockUserRepository(failingStorage).ensureReadingCompletionMigration(
+      const [],
+    );
+    final beforeEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
+
+    final result = await SignOutLocalCleanup.wipeDiskOnly(
+      storage: failingStorage,
+      secureStorage: secure,
+    );
+
+    expect(result.isComplete, isFalse);
+    expect(
+      failingStorage.getString(UserLocalDataIsolation.ownerKey),
+      'user-a',
+      reason: 'auth sign-out already succeeded — this is ONLY about local '
+          'privacy cleanup, and an incomplete cleanup must leave the '
+          'owner marker in place so the next distinct sign-in is forced '
+          'to retry it, never silently treated as unowned/new-user data',
+    );
+    expect(
+      UserLocalDataIsolation.accountSwitchEpoch.value,
+      beforeEpoch,
+      reason: 'an incomplete cleanup must not announce a completed switch',
+    );
+  });
+
+  test(
+      'a later, genuinely different sign-in after an incomplete sign-out '
+      'wipe retries cleanup before treating that owner as isolated',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final failingStorage = _KeyFailingStorage(
+      prefs,
+      failingKeys: {MockUserRepository.readingLedgerIdsKey},
+    );
+    final secure = InMemorySecureStorage();
+    await failingStorage.setString(UserLocalDataIsolation.ownerKey, 'user-a');
+    await MockUserRepository(failingStorage).ensureReadingCompletionMigration(
+      const [],
+    );
+
+    final signOutResult = await SignOutLocalCleanup.wipeDiskOnly(
+      storage: failingStorage,
+      secureStorage: secure,
+    );
+    expect(signOutResult.isComplete, isFalse);
+    expect(
+      failingStorage.getString(UserLocalDataIsolation.ownerKey),
+      'user-a',
+    );
+
+    // A different user now signs in on this device — isolation must
+    // retry the wipe (it's still failing) and must NOT commit user-b as
+    // the local owner.
+    final failingIsolation = UserLocalDataIsolation(
+      failingStorage,
+      secureStorage: secure,
+    );
+    final retryOnFailingStorage = await failingIsolation.onSignedIn('user-b');
+    expect(retryOnFailingStorage.success, isFalse);
+    expect(failingIsolation.localOwnerId, 'user-a');
+
+    // Once storage recovers, the SAME distinct sign-in finally succeeds.
+    final healthyStorage = LocalStorage(prefs);
+    final healthyIsolation = UserLocalDataIsolation(
+      healthyStorage,
+      secureStorage: secure,
+    );
+    final retryOnHealthyStorage = await healthyIsolation.onSignedIn('user-b');
+    expect(retryOnHealthyStorage.success, isTrue);
+    expect(healthyIsolation.localOwnerId, 'user-b');
   });
 
   test('failed sign-out path must not wipe when cleanup is skipped', () async {

@@ -5,9 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/copy/resilience_copy.dart';
+import '../../../core/services/analytics_service.dart';
+import '../../../shared/ui/oracly_snackbar.dart';
+import '../controllers/gem_wallet_controller.dart';
 import '../models/paid_ai_operation.dart';
 import '../providers/gem_providers.dart';
 import 'gem_spend_ui.dart';
+import 'paid_ai_operation_coordinator.dart';
 
 abstract final class GemSpendGuard {
   GemSpendGuard._();
@@ -48,13 +53,23 @@ abstract final class GemSpendGuard {
             reason: _reasonKey(ledgerKey: ledgerKey, reason: reason),
           );
     }
-    return ref.read(paidAiOperationCoordinatorProvider).begin(
-          feature: feature,
-          ledgerKey: ledgerKey,
-          reason: reason,
-          cost: cost,
-          existingId: existingId,
-        );
+    try {
+      return await ref.read(paidAiOperationCoordinatorProvider).begin(
+            feature: feature,
+            ledgerKey: ledgerKey,
+            reason: reason,
+            cost: cost,
+            existingId: existingId,
+          );
+    } catch (_) {
+      // A billable provider call must never start unless its pending operation
+      // was durably recorded first. Storage failure therefore stops here,
+      // before AI work and before any server debit can happen.
+      if (context.mounted) {
+        OraclySnackBar.error(context, ResilienceCopy.temporaryFailure);
+      }
+      return null;
+    }
   }
 
   /// Legacy confirm-only entry — prefer [beginPaid] for paid AI flows.
@@ -83,22 +98,57 @@ abstract final class GemSpendGuard {
     WidgetRef ref, {
     required PaidAiOperation operation,
     BuildContext? context,
+  }) {
+    // Capture provider-backed objects synchronously. Callers that may outlive
+    // their widget should prefer [settleOperationCaptured] and capture these
+    // BEFORE starting their long provider request.
+    return settleOperationCaptured(
+      coordinator: ref.read(paidAiOperationCoordinatorProvider),
+      wallet: ref.read(gemWalletProvider),
+      analytics: ref.read(analyticsServiceProvider),
+      operation: operation,
+      context: context,
+    );
+  }
+
+  static Future<bool> settleOperationCaptured({
+    required PaidAiOperationCoordinator coordinator,
+    required GemWalletController wallet,
+    required AnalyticsService analytics,
+    required PaidAiOperation operation,
+    BuildContext? context,
   }) async {
-    final ok = await ref
-        .read(paidAiOperationCoordinatorProvider)
-        .completeAfterProvider(operation);
-    ref.read(gemWalletProvider).reload();
-    if (ok && operation.isBillable) {
-      ref.read(analyticsServiceProvider).logGemPurchaseSuccess(
-            reason: _reasonKey(
-              ledgerKey: operation.ledgerKey,
-              reason: operation.reason,
-            ),
-          );
+    bool ok;
+    try {
+      ok = await coordinator.completeAfterProvider(operation);
+    } catch (_) {
+      ok = false;
     }
+
+    // Synchronize the UI-facing wallet from server authority. A stale captured
+    // controller is safe: GemWalletService now refuses commands when its owner
+    // no longer matches live auth, and GemWalletController suppresses notify
+    // after dispose.
+    try {
+      await wallet.reload();
+    } catch (_) {}
+
+    if (ok && operation.isBillable) {
+      analytics.logGemPurchaseSuccess(
+        reason: _reasonKey(
+          ledgerKey: operation.ledgerKey,
+          reason: operation.reason,
+        ),
+      );
+    }
+
     final ctx = context;
     if (!ok && operation.isBillable && ctx != null && ctx.mounted) {
-      GemSpendUi.showInsufficient(ctx, cost: operation.cost);
+      if (wallet.authoritative && wallet.balance < operation.cost) {
+        GemSpendUi.showInsufficient(ctx, cost: operation.cost);
+      } else {
+        OraclySnackBar.error(ctx, ResilienceCopy.temporaryFailure);
+      }
     }
     return ok;
   }

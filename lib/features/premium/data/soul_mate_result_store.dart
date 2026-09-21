@@ -6,7 +6,9 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/auth/managed_file_path.dart';
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/datasources/storage_result.dart';
 import '../models/soul_mate_saved_result.dart';
 
 abstract final class SoulMateResultStore {
@@ -43,7 +45,12 @@ abstract final class SoulMateResultStore {
     if (portraitBytes.isEmpty) return null;
     final previous = await readMeta(storage);
     final dir = documents ?? await getApplicationDocumentsDirectory();
-    final dest = File('${dir.path}/${portraitPrefix}_${record.id}.jpg');
+    // Unique candidate — never overwrite the prior committed path before
+    // metadata is durable (same-id replacement must not destroy old bytes).
+    final stamp = DateTime.now().microsecondsSinceEpoch;
+    final dest = File(
+      '${dir.path}/${portraitPrefix}_${record.id}_$stamp.jpg',
+    );
     await dest.writeAsBytes(portraitBytes, flush: true);
     final saved = SoulMateSavedResult(
       id: record.id,
@@ -57,7 +64,14 @@ abstract final class SoulMateResultStore {
       localeCode: record.localeCode,
       identity: record.identity,
     );
-    await storage.setString(metaKey, jsonEncode(saved.toJson()));
+    try {
+      await storage
+          .setString(metaKey, jsonEncode(saved.toJson()))
+          .requireDurable();
+    } catch (_) {
+      await _deleteQuietly(dest.path);
+      rethrow;
+    }
     if (previous != null && previous.portraitPath != dest.path) {
       await _deleteQuietly(previous.portraitPath);
     }
@@ -70,11 +84,47 @@ abstract final class SoulMateResultStore {
     await _deleteQuietly(previous?.portraitPath);
   }
 
+  /// Account-boundary wipe — tri-state ownership (see [ManagedPathKind]).
+  static Future<void> clearStrict(LocalStorage storage) async {
+    final previous = await readMeta(storage);
+    final path = previous?.portraitPath;
+    if (path != null && path.isNotEmpty) {
+      final kind = await ManagedFilePath.classify(
+        path,
+        filePrefix: portraitPrefix,
+      );
+      switch (kind) {
+        case ManagedPathKind.managed:
+          if (!await _deleteStrict(path)) {
+            throw StateError('soulmate portrait file delete failed');
+          }
+        case ManagedPathKind.notManaged:
+          break;
+        case ManagedPathKind.unknown:
+          throw StateError('soulmate portrait ownership unknown');
+      }
+    }
+    if (!await storage.remove(metaKey)) {
+      throw StateError('soulmate meta key removal failed');
+    }
+  }
+
   static Future<void> _deleteQuietly(String? path) async {
     if (path == null || path.isEmpty) return;
     try {
       final file = File(path);
       if (file.existsSync()) await file.delete();
     } catch (_) {}
+  }
+
+  static Future<bool> _deleteStrict(String path) async {
+    try {
+      final file = File(path);
+      if (!file.existsSync()) return true;
+      file.deleteSync();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }

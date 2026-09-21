@@ -18,11 +18,29 @@ import '../models/reflection_context.dart';
 import '../services/companion_ephemeral_session.dart';
 import '../services/companion_experience_service.dart';
 import '../services/companion_insight_classify.dart';
+import '../services/companion_session_bootstrap.dart';
 import '../services/first_reading_or_deepen.dart';
 import '../services/or_chat_handoff.dart';
 import '../services/or_operation_id.dart';
 import '../../gems/services/paid_ai_operation_id.dart';
 import 'companion_output_controller.dart';
+
+/// What the CURRENT retryable failure (if any) is actually about — lets
+/// [CompanionController.retryLast]/[CompanionController.retryPersist]
+/// dispatch to the right recovery without a stale flag from an unrelated,
+/// already-resolved failure hijacking a later, different one.
+enum _FailureOrigin {
+  /// No unresolved failure, or it was already resolved.
+  none,
+
+  /// The last unresolved failure was [CompanionController
+  /// .startFreshConversation] failing to persist the new thread.
+  freshStart,
+
+  /// The last unresolved failure belongs to a normal message send/persist
+  /// against the EXISTING conversation — never routes to New Chat.
+  message,
+}
 
 class CompanionController extends ChangeNotifier {
   CompanionController(
@@ -47,6 +65,8 @@ class CompanionController extends ChangeNotifier {
   );
   bool _disposed = false;
   bool _networkRetry = false;
+  bool _regenLocked = false;
+  _FailureOrigin _failureOrigin = _FailureOrigin.none;
   OracleReadingContext? _pendingHandoff;
   OracleReadingContext? _readingContext;
   int _sendGeneration = 0;
@@ -80,15 +100,82 @@ class CompanionController extends ChangeNotifier {
   }
 
   /// Starts a fresh OR session without feature handoff context.
+  ///
+  /// Full atomicity: the durable [CompanionSessionBootstrap.sessionId]
+  /// overwrite is attempted first, and EVERY live-session mutation —
+  /// clearing the pending handoff/reading context, bumping the send
+  /// generation, and swapping in the new conversation/context — happens
+  /// only after that save succeeds. On failure, the old conversation, old
+  /// readingContext, and old pending handoff all remain exactly as they
+  /// were; only the retryable save-failure state changes. Never claim a
+  /// new chat while the old thread remains on disk, and never lose the
+  /// user's live session to a failed attempt at replacing it.
   Future<void> startFreshConversation() async {
+    if (_disposed || _state.isBusy) return;
+    final now = DateTime.now();
+    final fresh = Conversation(
+      id: CompanionSessionBootstrap.sessionId,
+      title: 'OR Companion',
+      topic: ConversationTopic.general,
+      messages: [
+        AIMessage(
+          id: 'welcome_${now.millisecondsSinceEpoch}',
+          role: AIMessageRole.assistant,
+          content: CompanionCopy.welcomeLine(),
+          createdAt: now,
+        ),
+      ],
+      createdAt: now,
+      updatedAt: now,
+    );
+    final keptContext = _state.context ?? const ReflectionContext();
+    try {
+      await _service.persistConversation(fresh);
+    } catch (_) {
+      _failureOrigin = _FailureOrigin.freshStart;
+      _crashTelemetry?.recordSevere(
+        operation: 'or_fresh_chat',
+        errorCategory: 'local_persistence',
+      );
+      // Keep the existing thread AND its reading context/handoff intact;
+      // surface a calm retryable save failure. Nothing about the live
+      // session changes on this path.
+      _state = _state.copyWith(
+        errorMessage: CompanionCopy.saveFailed,
+        lastFailedText: null,
+        lastFailureKind: AiFailureKind.localPersistence,
+        linkStatus: CompanionLinkStatus.online,
+      );
+      _safeNotify();
+      return;
+    }
+    if (_disposed) return;
+    // Durable commit point reached — only now may the live session move
+    // on from the old conversation/handoff.
+    _failureOrigin = _FailureOrigin.none;
     _pendingHandoff = null;
     _readingContext = null;
     _sendGeneration++;
     _state = CompanionState(
       phase: CompanionPhase.welcome,
       linkStatus: CompanionLinkStatus.online,
-      conversation: CompanionEphemeralSession.welcome(),
-      context: const ReflectionContext(),
+      conversation: fresh,
+      // proactiveAcknowledgment is deliberately OMITTED: it is transient
+      // feature-handoff text (e.g. "I see you just drew a card about...")
+      // tied to the OLD reading context this fresh chat is explicitly
+      // leaving behind. Everything else here is stable, long-term journey
+      // memory and must survive a fresh start unchanged.
+      context: ReflectionContext(
+        userName: keptContext.userName,
+        savedMemories: keptContext.savedMemories,
+        recentReflectionTexts: keptContext.recentReflectionTexts,
+        recurringThemes: keptContext.recurringThemes,
+        readingCount: keptContext.readingCount,
+        dreamCount: keptContext.dreamCount,
+        hasBirthChart: keptContext.hasBirthChart,
+        ritualDaysCount: keptContext.ritualDaysCount,
+        unfinishedJournalHint: keptContext.unfinishedJournalHint,
+      ),
     );
     _safeNotify();
   }
@@ -232,6 +319,7 @@ class CompanionController extends ChangeNotifier {
     final conversation = _state.conversation;
     final context = _state.context;
     if (conversation == null || context == null) {
+      _failureOrigin = _FailureOrigin.message;
       _state = _state.copyWith(
         phase: CompanionPhase.welcome,
         linkStatus: CompanionLinkStatus.online,
@@ -333,6 +421,7 @@ class CompanionController extends ChangeNotifier {
           operation: 'or_persist',
           errorCategory: 'local_persistence',
         );
+        _failureOrigin = _FailureOrigin.message;
         _state = _state.copyWith(
           phase: CompanionPhase.conversing,
           conversation: result.conversation,
@@ -347,6 +436,7 @@ class CompanionController extends ChangeNotifier {
         } catch (_) {}
         return;
       }
+      _failureOrigin = _FailureOrigin.none;
       _state = _state.copyWith(
         phase: CompanionPhase.conversing,
         conversation: result.conversation,
@@ -388,6 +478,7 @@ class CompanionController extends ChangeNotifier {
         return true;
       }());
       // Failures stay in-chat. Network → offline strip; others → online + typed copy.
+      _failureOrigin = _FailureOrigin.message;
       _state = _state.copyWith(
         phase: CompanionPhase.conversing,
         conversation: withUser,
@@ -412,6 +503,7 @@ class CompanionController extends ChangeNotifier {
       }());
       // Unknown ≠ offline. Keep chat usable; offer calm retry without a fake
       // connectivity claim.
+      _failureOrigin = _FailureOrigin.message;
       _state = _state.copyWith(
         phase: CompanionPhase.conversing,
         conversation: withUser,
@@ -445,8 +537,20 @@ class CompanionController extends ChangeNotifier {
   @visibleForTesting
   void invalidateSendForTest() => _sendGeneration++;
 
+  @visibleForTesting
+  void markOfflineForTest() {
+    _state = _state.copyWith(
+      linkStatus: CompanionLinkStatus.offline,
+      lastFailureKind: AiFailureKind.network,
+    );
+  }
+
   Future<void> retryLast() async {
     if (_disposed || _state.isBusy) return;
+    if (_failureOrigin == _FailureOrigin.freshStart) {
+      await startFreshConversation();
+      return;
+    }
     if (_state.lastFailureKind == AiFailureKind.localPersistence &&
         OrOperationId.pendingId(_state.conversation?.lastMessage) == null) {
       await retryPersist();
@@ -475,6 +579,10 @@ class CompanionController extends ChangeNotifier {
   /// Saves the in-memory conversation only — zero provider calls.
   Future<void> retryPersist() async {
     if (_disposed || _state.isBusy) return;
+    if (_failureOrigin == _FailureOrigin.freshStart) {
+      await startFreshConversation();
+      return;
+    }
     if (_state.lastFailureKind != AiFailureKind.localPersistence) return;
     final conversation = _state.conversation;
     if (conversation == null) return;
@@ -488,6 +596,7 @@ class CompanionController extends ChangeNotifier {
     try {
       await _service.persistConversation(conversation);
       if (_disposed || token != _sendGeneration) return;
+      _failureOrigin = _FailureOrigin.none;
       _state = _state.copyWith(
         phase: CompanionPhase.conversing,
         conversation: conversation,
@@ -506,6 +615,7 @@ class CompanionController extends ChangeNotifier {
         operation: 'or_persist_retry',
         errorCategory: 'local_persistence',
       );
+      _failureOrigin = _FailureOrigin.message;
       _state = _state.copyWith(
         phase: CompanionPhase.conversing,
         conversation: conversation,
@@ -520,9 +630,6 @@ class CompanionController extends ChangeNotifier {
 
   /// Soft reconnect with no user text — does not invent an assistant message.
   Future<void> _reconnectWithoutMessage() async {
-    final wasNetwork =
-        _state.lastFailureKind == AiFailureKind.network ||
-        _state.linkStatus == CompanionLinkStatus.offline;
     _networkRetry = true;
     _state = _state.copyWith(
       linkStatus: CompanionLinkStatus.reconnecting,
@@ -534,11 +641,12 @@ class CompanionController extends ChangeNotifier {
         await initialize();
         return;
       }
-      // Honest: without a live probe, stay offline if the last failure was network.
+      // Clear the offline banner so the user can send again. The next send is
+      // the real network probe — do not force offline without a new failure.
       _state = _state.copyWith(
-        linkStatus: wasNetwork
-            ? CompanionLinkStatus.offline
-            : CompanionLinkStatus.online,
+        linkStatus: CompanionLinkStatus.online,
+        clearFailureKind: true,
+        lastFailedText: null,
       );
     } finally {
       _networkRetry = false;
@@ -546,21 +654,39 @@ class CompanionController extends ChangeNotifier {
     }
   }
 
+  /// Replaces the last assistant answer with a fresh provider generation.
+  ///
+  /// Removes the completed user turn and its assistant reply, then [send]s the
+  /// same text so exactly one user turn remains with a **new** operation id.
   Future<void> regenerateLast() async {
+    if (_disposed || _state.isBusy || _regenLocked) return;
     final conversation = _state.conversation;
-    if (conversation == null || _state.isBusy) return;
+    if (conversation == null) return;
     final msgs = [
       for (final message in conversation.messages)
         if (message.content.trim().isNotEmpty) message,
     ];
     if (msgs.length < 2 || msgs.last.isUser) return;
-    final lastUser = msgs.lastWhere((message) => message.isUser);
-    _state = _state.copyWith(
-      conversation: conversation.copyWith(
-        messages: msgs.sublist(0, msgs.length - 1),
-      ),
-    );
-    await send(lastUser.content);
+    final lastUserIndex = msgs.lastIndexWhere((message) => message.isUser);
+    if (lastUserIndex < 0) return;
+    final text = msgs[lastUserIndex].content;
+    // Sync lock before any await — rapid double taps share one generation.
+    _regenLocked = true;
+    try {
+      _state = _state.copyWith(
+        conversation: conversation.copyWith(
+          messages: msgs.sublist(0, lastUserIndex),
+          updatedAt: DateTime.now(),
+        ),
+        errorMessage: null,
+        lastFailedText: null,
+        clearFailureKind: true,
+      );
+      _safeNotify();
+      await send(text);
+    } finally {
+      _regenLocked = false;
+    }
   }
 
   /// Makes an unresolved turn terminal without issuing a provider request.
@@ -607,11 +733,32 @@ class CompanionController extends ChangeNotifier {
     );
   }
 
-  Future<void> saveToMemory(String content) async {
-    await _service.saveUserMemory(content: content);
-    final refreshed = await _service.loadOrCreateSession();
-    _state = _state.copyWith(context: refreshed.context);
-    _safeNotify();
+  /// Persists [content] as a saved user memory. Never throws — a real
+  /// persistence failure is caught and reported as `false` so the caller
+  /// can show an honest error (never a false success) with no unhandled
+  /// async error escaping into the global error zone. The underlying
+  /// store (MemoryService.addAdvancedMemory) dedupes by normalized
+  /// content, so calling this again with the same content — a retry — can
+  /// never create a duplicate memory.
+  Future<bool> saveToMemory(String content) async {
+    try {
+      await _service.saveUserMemory(content: content);
+    } catch (e) {
+      _crashTelemetry?.recordSevere(
+        operation: 'or_save_memory',
+        errorCategory: 'local_persistence',
+      );
+      return false;
+    }
+    // Best-effort only: the memory is already durably saved above: a
+    // failure refreshing the in-memory context must not be reported as a
+    // save failure.
+    try {
+      final refreshed = await _service.loadOrCreateSession();
+      _state = _state.copyWith(context: refreshed.context);
+      _safeNotify();
+    } catch (_) {}
+    return true;
   }
 
   /// Map typed failures to calm in-chat copy — never invent offline as a wall.

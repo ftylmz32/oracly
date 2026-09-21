@@ -73,6 +73,9 @@ class _SettingsReferenceScreenState
   }
 
   Future<void> _save(PersonalizationSettings updated) {
+    final previousNotify = _settings.notificationsEnabled;
+    final notifyIntentChanged =
+        updated.notificationsEnabled != previousNotify;
     _settings = updated;
     if (mounted) setState(() {});
     _write = _write.then((_) async {
@@ -92,18 +95,17 @@ class _SettingsReferenceScreenState
         final notifyOutcome = await ref
             .read(oraclyNotificationCoordinatorProvider)
             .sync(_settings);
-        if (notifyOutcome.isFailure) {
+        // Only roll back the notifications flag when THIS save changed it.
+        // Ambient/sound/language saves must not invert an unrelated toggle.
+        if (notifyOutcome.isFailure && notifyIntentChanged) {
           notifyFailed = true;
-          // Never claim a state that was not actually proven:
-          // - requested ON but scheduling failed -> nothing is actually
-          //   scheduled -> correct to OFF.
-          // - requested OFF but cancelling failed -> the schedule may
-          //   still exist -> correct back to ON.
           final corrected = _settings.copyWith(
-            notificationsEnabled: !_settings.notificationsEnabled,
+            notificationsEnabled: previousNotify,
           );
           await ref.read(settingsProvider.notifier).saveSettings(corrected);
           if (mounted) setState(() => _settings = corrected);
+        } else if (notifyOutcome.isFailure) {
+          notifyFailed = true;
         }
 
         if (!mounted) return;

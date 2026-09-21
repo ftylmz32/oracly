@@ -4,6 +4,7 @@ library;
 import 'dart:convert';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/datasources/storage_result.dart';
 import 'soul_mate_generation_policy.dart';
 
 class SoulMateGenerationRecord {
@@ -82,10 +83,19 @@ abstract final class SoulMateGenerationSessionStore {
     LocalStorage storage,
     SoulMateGenerationRecord record,
   ) {
-    return storage.setString(key, jsonEncode(record.toJson()));
+    return storage
+        .setString(key, jsonEncode(record.toJson()))
+        .requireDurable(key);
   }
 
-  static Future<void> clear(LocalStorage storage) => storage.remove(key);
+  static Future<void> clear(LocalStorage storage) =>
+      storage.remove(key).requireDurable(key);
+
+  /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
+  /// Unlike [clear], a `false` (non-throwing) removal is treated as a
+  /// failure rather than silently ignored.
+  static Future<void> clearStrict(LocalStorage storage) =>
+      storage.remove(key).requireDurable(key);
 
   /// Drop another account's in-flight marker. Does not touch a saved portrait.
   static Future<SoulMateGenerationRecord?> readForOwner(

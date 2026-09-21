@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers/app_providers.dart';
 import '../../core/audio/oracly_feedback_gate.dart';
 import '../../core/navigation/oracly_navigation_service.dart';
+import '../../core/notifications/reading_push_bootstrap.dart';
 import '../../core/voice/oracly_tts_gate.dart';
 import '../../features/home/home_page.dart';
 import '../../features/companion/presentation/reference/companion_or_tab_placeholder.dart';
@@ -66,6 +67,7 @@ class _OraclyAppShellState extends ConsumerState<OraclyAppShell> {
     OraclyShellBridge.bind(_bridgeSwitch);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      ReadingPushBootstrap.openPending();
       unawaited(OraclyShellRuntime.bootstrap(ref));
     });
   }

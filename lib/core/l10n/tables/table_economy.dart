@@ -20,9 +20,9 @@ const kL10nEconomy = <String, L10nTriple>{
     'Если хочешь — тихое подношение на сегодня',
   ),
   'gems.shop_honesty': L10nTriple(
-    'Satın alma paketi yok. Bakiye bu cihazda tutulur. Premium mücevher vermez.',
-    'There is no purchase pack. Balance is kept on this device. Premium does not grant gems.',
-    'Пакетов покупки нет. Баланс хранится на этом устройстве. Премиум кристаллы не даёт.',
+    'Satın alma paketi yok. Bakiye sunucu hesabındadır. Premium mücevher vermez.',
+    'There is no purchase pack. Balance is kept on your account server-side. Premium does not grant gems.',
+    'Пакетов покупки нет. Баланс хранится на сервере аккаунта. Премиум кристаллы не даёт.',
   ),
   'gems.unit': L10nTriple('Mücevher', 'Gem', 'Кристалл'),
   'gems.what_title': L10nTriple(
@@ -51,9 +51,9 @@ const kL10nEconomy = <String, L10nTriple>{
     'Где используется?',
   ),
   'gems.spend_body': L10nTriple(
-    'Üç kart ve üzeri tarot yorumu 20 mücevher — karşılığında derin bir okuma. Tek kart ücretsizdir. Kahve, el ve rüya mücevher istemez.',
-    'Three-card tarot and above cost 20 gems — you receive a deeper reading. A single card is free. Coffee, palm, and dream do not ask for gems.',
-    'Расклад из трёх карт и больше стоит 20 кристаллов — ты получаешь более глубокое чтение. Одна карта бесплатна. Кофе, ладонь и сон кристаллов не просят.',
+    'Üç kart ve üzeri tarot yorumu 20 mücevher — karşılığında derin bir okuma. Tek kart ücretsizdir. Kahve, el ve rüya yorumunun kendisi mücevher istemez; beklerken sunulan isteğe bağlı hızlandırma, sunucunun belirttiği maliyeti gösterebilir.',
+    'Three-card tarot and above cost 20 gems — you receive a deeper reading. A single card is free. Coffee, palm, and dream readings themselves do not ask for gems; optional wait acceleration may show a server-quoted cost when offered.',
+    'Расклад из трёх карт и больше стоит 20 кристаллов — ты получаешь более глубокое чтение. Одна карта бесплатна. Само чтение кофе, ладони и сна кристаллов не просит; при ожидании опциональное ускорение может показать стоимость с сервера.',
   ),
   'gems.history': L10nTriple(
     'Son hareketler',

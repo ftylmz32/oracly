@@ -38,7 +38,8 @@ import '../../support/fake_reading_operation_backend.dart';
 
 /// Implements BOTH the normal (local-bytes) and staged-only analysis
 /// ports so a test can assert exactly which path a given call took.
-class _TrackingAnalysis implements CoffeeAnalysisPort, CoffeeStagedAnalysisPort {
+class _TrackingAnalysis
+    implements CoffeeAnalysisPort, CoffeeStagedAnalysisPort, CoffeeCompletedAnalysisPort {
   int localBytesCalls = 0;
   int stagedCalls = 0;
   String? lastStagedOperationId;
@@ -81,6 +82,25 @@ class _TrackingAnalysis implements CoffeeAnalysisPort, CoffeeStagedAnalysisPort 
       imagePath: null,
     );
   }
+  @override
+  CoffeeReading restoreCompleted({
+    required String resultId,
+    required DateTime persistedAt,
+    required Map<String, dynamic> result,
+  }) {
+    return CoffeeReading(
+      id: resultId,
+      createdAt: persistedAt,
+      overall: result['overall'] as String? ?? 'server result',
+      love: result['love'] as String? ?? '',
+      career: result['career'] as String? ?? '',
+      money: result['money'] as String? ?? '',
+      nearFuture: result['nearFuture'] as String? ?? '',
+      takeaway: result['takeaway'] as String? ?? '',
+      imagePath: null,
+    );
+  }
+
 }
 
 class _FakeImages implements CoffeeImageInputPort {
@@ -176,6 +196,75 @@ void main() {
       // Honest: without identity to resume by, it only reflects status.
       expect(controllerB.phase, CoffeePhase.analyzing);
       expect(controllerB.reading, isNull);
+    },
+  );
+
+  test(
+    'server-owned Coffee recovers from waiting without any pending pointer',
+    () async {
+      final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+      final controllerA = CoffeeReadingController(
+        experience: CoffeeExperienceService(
+          store: sharedReadingStore,
+          analysis: _TrackingAnalysis(),
+          persistImage: ({required readingId, required sourcePath}) async => sourcePath,
+        ),
+        images: _FakeImages(fixturePath),
+        live: fakeImmediateReadingFeatureRunner(
+          backend: backend,
+          serverOwnedCompletion: true,
+        ),
+        // Deliberately NO pendingStore: production recovery must converge
+        // from the server-owned active operation alone.
+      );
+      controllerA.startCapture();
+      await controllerA.pickGallery();
+      await controllerA.analyze();
+      final operationId = controllerA.liveState?.snapshot?.operationId;
+      expect(operationId, isNotNull);
+      expect(controllerA.phase, CoffeePhase.analyzing);
+      controllerA.dispose();
+
+      final controllerB = CoffeeReadingController(
+        experience: CoffeeExperienceService(
+          store: sharedReadingStore,
+          analysis: _TrackingAnalysis(),
+        ),
+        images: _FakeImages(fixturePath),
+        live: fakeImmediateReadingFeatureRunner(
+          backend: backend,
+          serverOwnedCompletion: true,
+        ),
+        serverPollInterval: const Duration(milliseconds: 1),
+      );
+      addTearDown(controllerB.dispose);
+
+      await controllerB.recoverActive();
+      expect(controllerB.phase, CoffeePhase.analyzing);
+
+      backend.completeServerSide(
+        operationId!,
+        resultId: 'coffee_server_ready',
+        result: const {
+          'overall': 'server owned result',
+          'love': '',
+          'career': '',
+          'money': '',
+          'nearFuture': '',
+          'takeaway': 'done',
+        },
+      );
+
+      final deadline = DateTime.now().add(const Duration(seconds: 1));
+      while (controllerB.phase != CoffeePhase.result &&
+          DateTime.now().isBefore(deadline)) {
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+      }
+
+      expect(controllerB.phase, CoffeePhase.result);
+      expect(controllerB.reading?.id, 'coffee_server_ready');
+      expect(controllerB.reading?.overall, 'server owned result');
+      expect(backend.operationCount, 1);
     },
   );
 
@@ -299,6 +388,93 @@ void main() {
   );
 
   test(
+    'completion deep link restores the exact Coffee operation even when another Coffee operation is active',
+    () async {
+      final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+      final runner = fakeImmediateReadingFeatureRunner(
+        backend: backend,
+        serverOwnedCompletion: true,
+      );
+      final target = await runner.flow.begin(
+        readingType: ReadingType.coffee,
+        sourceRequestId: 'push-target-coffee',
+      );
+      final targetId = target.snapshot!.operationId;
+      backend.completeServerSide(
+        targetId,
+        resultId: 'coffee_push_target_result',
+        result: const {
+          'overall': 'exact push target',
+          'love': '',
+          'career': '',
+          'money': '',
+          'nearFuture': '',
+          'takeaway': 'done',
+        },
+      );
+
+      final other = await runner.flow.begin(
+        readingType: ReadingType.coffee,
+        sourceRequestId: 'other-active-coffee',
+      );
+      expect(other.snapshot!.operationId, isNot(targetId));
+
+      final controller = CoffeeReadingController(
+        experience: CoffeeExperienceService(
+          store: sharedReadingStore,
+          analysis: _TrackingAnalysis(),
+        ),
+        images: _FakeImages(fixturePath),
+        live: runner,
+        pendingStore: sharedPendingStore,
+      );
+      addTearDown(controller.dispose);
+
+      await controller.recoverOperation(targetId);
+
+      expect(controller.phase, CoffeePhase.result);
+      expect(controller.liveState?.snapshot?.operationId, targetId);
+      expect(controller.reading?.id, 'coffee_push_target_result');
+      expect(controller.reading?.overall, 'exact push target');
+    },
+  );
+
+  test(
+    'Coffee exact recovery rejects a Palm operation id',
+    () async {
+      final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+      final runner = fakeImmediateReadingFeatureRunner(
+        backend: backend,
+        serverOwnedCompletion: true,
+      );
+      final palm = await runner.flow.begin(
+        readingType: ReadingType.palm,
+        sourceRequestId: 'wrong-feature-target',
+      );
+      backend.completeServerSide(
+        palm.snapshot!.operationId,
+        resultId: 'wrong_feature_result',
+      );
+
+      final controller = CoffeeReadingController(
+        experience: CoffeeExperienceService(
+          store: sharedReadingStore,
+          analysis: _TrackingAnalysis(),
+        ),
+        images: _FakeImages(fixturePath),
+        live: runner,
+        pendingStore: sharedPendingStore,
+      );
+      addTearDown(controller.dispose);
+
+      await controller.recoverOperation(palm.snapshot!.operationId);
+
+      expect(controller.phase, CoffeePhase.entry);
+      expect(controller.reading, isNull);
+    },
+  );
+
+test(
     'the pending record is cleared once the operation reaches a terminal '
     'state, so a later recoverActive() call does not try to resume it '
     'again',

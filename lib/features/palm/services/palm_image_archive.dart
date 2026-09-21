@@ -5,6 +5,9 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../../../core/auth/managed_file_path.dart';
+import '../../privacy/services/archive_path_kind.dart';
+
 abstract final class PalmImageArchive {
   PalmImageArchive._();
 
@@ -15,7 +18,6 @@ abstract final class PalmImageArchive {
     return dir;
   }
 
-  /// Copy normalized source into durable app-owned path for [readingId].
   static Future<String> persist({
     required String readingId,
     required String sourcePath,
@@ -25,10 +27,11 @@ abstract final class PalmImageArchive {
       throw StateError('palm source missing');
     }
     final safeId = readingId.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+    final name =
+        '${safeId}_${DateTime.now().microsecondsSinceEpoch}.jpg';
     final dest = File(
-      '${(await _dir()).path}${Platform.pathSeparator}$safeId.jpg',
+      '${(await _dir()).path}${Platform.pathSeparator}$name',
     );
-    if (src.absolute.path == dest.absolute.path) return dest.path;
     await src.copy(dest.path);
     return dest.path;
   }
@@ -39,17 +42,28 @@ abstract final class PalmImageArchive {
   }
 
   static Future<bool> isOwnedPath(String path) async {
+    return (await classifyPath(path)) == ArchivePathKind.owned;
+  }
+
+  /// Does not create the archive directory (classification is side-effect free).
+  static Future<ArchivePathKind> classifyPath(String path) async {
     try {
       final trimmed = path.trim();
-      if (trimmed.isEmpty) return false;
-      final root = _ownedPrefix(await _dir());
-      return File(trimmed).absolute.path.startsWith(root);
+      if (trimmed.isEmpty) return ArchivePathKind.notOwned;
+      final root = await getApplicationDocumentsDirectory();
+      final archive = Directory(
+        '${root.path}${Platform.pathSeparator}palm_images',
+      );
+      final rootNorm = ManagedFilePath.normalize(archive.absolute.path);
+      final fileNorm = ManagedFilePath.normalize(File(trimmed).absolute.path);
+      return ManagedFilePath.isStrictlyInside(rootNorm, fileNorm)
+          ? ArchivePathKind.owned
+          : ArchivePathKind.notOwned;
     } catch (_) {
-      return false;
+      return ArchivePathKind.unknown;
     }
   }
 
-  /// Delete archived image when reading is removed — never touch external paths.
   static Future<void> deleteIfOwned(String? path) async {
     if (path == null || path.trim().isEmpty) return;
     if (!await isOwnedPath(path)) return;
@@ -59,7 +73,20 @@ abstract final class PalmImageArchive {
     } catch (_) {}
   }
 
-  /// Remove every file under the palm archive directory.
+  static Future<bool> deleteIfOwnedStrict(String? path) async {
+    if (path == null || path.trim().isEmpty) return true;
+    final kind = await classifyPath(path);
+    if (kind == ArchivePathKind.notOwned) return true;
+    if (kind == ArchivePathKind.unknown) return false;
+    try {
+      final file = File(path);
+      if (file.existsSync()) file.deleteSync();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static Future<void> purgeOwnedArchive() async {
     try {
       final dir = await _dir();
@@ -73,10 +100,31 @@ abstract final class PalmImageArchive {
     } catch (_) {}
   }
 
-  static String _ownedPrefix(Directory dir) {
-    final root = dir.absolute.path;
-    return root.endsWith(Platform.pathSeparator)
-        ? root
-        : '$root${Platform.pathSeparator}';
+  /// STRICT: path_provider failure is UNKNOWN → false.
+  /// Missing archive directory means no orphans → true (do not create it).
+  /// Sync FS after documents resolution — avoids dart:io Future stalls.
+  static Future<bool> purgeOwnedArchiveStrict() async {
+    final Directory dir;
+    try {
+      final root = await getApplicationDocumentsDirectory();
+      dir = Directory('${root.path}${Platform.pathSeparator}palm_images');
+      if (!dir.existsSync()) return true;
+    } catch (_) {
+      return false;
+    }
+    var ok = true;
+    try {
+      for (final entity in dir.listSync(followLinks: false)) {
+        if (entity is! File) continue;
+        try {
+          entity.deleteSync();
+        } catch (_) {
+          ok = false;
+        }
+      }
+    } catch (_) {
+      return false;
+    }
+    return ok;
   }
 }

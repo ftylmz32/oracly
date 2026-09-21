@@ -22,6 +22,25 @@ abstract class FirebaseAuthGateway {
 
   /// Permanently deletes the signed-in Firebase user. Never a silent logout.
   Future<void> deleteCurrentUser();
+
+  /// Re-proves identity with a fresh Google credential (token-based).
+  Future<void> reauthenticateWithGoogle({
+    required String idToken,
+    String? accessToken,
+  });
+
+  /// Native mobile Google reauth via Firebase Auth provider UI.
+  Future<void> reauthenticateWithGoogleProvider();
+
+  Future<void> reauthenticateWithApple({required String idToken});
+
+  /// Native mobile Apple reauth via Firebase Auth provider UI.
+  Future<void> reauthenticateWithAppleProvider();
+
+  Future<void> reauthenticateWithEmail({
+    required String email,
+    required String password,
+  });
 }
 
 class AuthGatewayException implements Exception {

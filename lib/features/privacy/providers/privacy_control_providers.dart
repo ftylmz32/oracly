@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers/app_providers.dart';
 import '../../../core/auth/account_deletion_service.dart';
 import '../../../core/domain/models/user_profile.dart';
-import '../../../services/memory_service.dart';
 import '../../discovery_journal/providers/discovery_journal_providers.dart';
 import '../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../premium/models/personalization_models.dart';
@@ -31,9 +30,15 @@ final accountDeletionServiceProvider = Provider<AccountDeletionService>((ref) {
     auth: ref.watch(authServiceProvider),
     storage: ref.watch(localStorageProvider),
     secureStorage: ref.watch(secureStorageProvider),
-    deleteServerData: () async {
+    deleteServerData: (expectedTargetUid) async {
       if (send == null) return false;
-      final response = await send('POST', '/v1/account/deletion', const {});
+      // The backend independently re-derives whose data to delete from
+      // the verified auth token alone — this field is only an anti-race
+      // ASSERTION the backend rejects on if it doesn't match, never an
+      // authorization mechanism.
+      final response = await send('POST', '/v1/account/deletion', {
+        'expectedTargetUid': expectedTargetUid,
+      });
       final data = response?.json?['data'];
       return response?.statusCode == 202 &&
           data is Map &&
@@ -56,7 +61,7 @@ final privacyControlSnapshotProvider = FutureProvider<PrivacyControlSnapshot>((
   return PrivacyControlSnapshotBuilder.build(
     favorites: ref.watch(favoriteMomentsServiceProvider),
     personalMemory: ref.watch(personalMemoryServiceProvider),
-    legacyMemory: MemoryService(),
+    legacyMemory: ref.watch(memoryServiceProvider),
     profile: profile,
     settings: settings,
     discoveryCount: journal.length,

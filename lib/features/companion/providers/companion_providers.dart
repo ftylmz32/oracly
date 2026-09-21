@@ -18,8 +18,16 @@ import '../controllers/companion_voice_controller.dart';
 import '../controllers/companion_voice_turn_controller.dart';
 import '../models/or_chat_output_mode.dart';
 import '../services/companion_experience_service.dart';
+import '../services/companion_memory_service.dart';
 import '../services/companion_speech_voice_input.dart';
 import '../services/companion_voice_input_port.dart';
+
+/// Canonical companion-facing wrapper over the one production
+/// [MemoryService] instance (`memoryServiceProvider`) — never a second,
+/// independently-constructed `MemoryService()`.
+final companionMemoryServiceProvider = Provider<CompanionMemoryService>((ref) {
+  return CompanionMemoryService(ref.watch(memoryServiceProvider));
+});
 
 final companionVoiceInputProvider = Provider<CompanionVoiceInputPort>(
   (ref) => SpeechCompanionVoiceInput(),
@@ -79,6 +87,7 @@ final companionExperienceServiceProvider = Provider<CompanionExperienceService>(
     return CompanionExperienceService(
       conversationRepository: ref.watch(aiConversationRepositoryProvider),
       intelligence: ref.watch(intelligenceLayerServiceProvider),
+      memoryService: ref.watch(companionMemoryServiceProvider),
       dailyRitual: ref.watch(dailyRitualServiceProvider),
       users: ref.watch(userRepositoryProvider),
       personalMemory: ref.watch(personalMemoryServiceProvider),

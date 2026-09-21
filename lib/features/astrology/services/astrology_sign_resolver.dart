@@ -24,11 +24,12 @@ class AstrologySignResolver {
   }
 
   Future<String> resolve() async {
-    final saved = savedSignId;
-    if (saved != null) return saved;
-
+    // Birth-chart sun is identity; browse preference must not override it.
     final fromBirth = await _sunSignFromBirthChart();
     if (fromBirth != null) return fromBirth;
+
+    final saved = savedSignId;
+    if (saved != null) return saved;
     return fallbackId;
   }
 

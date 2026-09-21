@@ -549,6 +549,53 @@ class SoulMateReadingOrchestrator {
     );
   }
 
+  /// Exact completion recovery for a push/deep-link target. Unlike
+  /// [recoverDurable], this never falls back to another feature-wide active
+  /// Soulmate operation.
+  static Future<SoulMateDurableOutcome> recoverDurableOperation(
+    WidgetRef ref,
+    String operationId,
+  ) async {
+    final normalized = operationId.trim();
+    if (normalized.isEmpty) {
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.unavailable,
+      );
+    }
+    final runner = ref.read(readingFeatureRunnerProvider);
+    if (runner == null) {
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.unavailable,
+      );
+    }
+    final state = await runner.flow.recoverOperation(normalized);
+    final snapshot = state.snapshot;
+    if (snapshot == null ||
+        snapshot.readingType != ReadingType.soulmate ||
+        !snapshot.durable) {
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.unavailable,
+      );
+    }
+    if (state.kind == ReadingLiveKind.failed) {
+      return SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.failed,
+        failureCode: snapshot.failureCode,
+      );
+    }
+    if (state.kind == ReadingLiveKind.ready) {
+      return _finishReady(
+        ref,
+        snapshot.operationId,
+        activeSince: snapshot.createdAt,
+      );
+    }
+    return SoulMateDurableOutcome(
+      kind: SoulMateDurableKind.active,
+      activeSince: snapshot.createdAt,
+    );
+  }
+
   /// Fetches the authoritative result + authenticated portrait for a
   /// `ready` durable operation and persists it to the local Journal
   /// exactly once (upserts by `operationId`, so controller recreation,

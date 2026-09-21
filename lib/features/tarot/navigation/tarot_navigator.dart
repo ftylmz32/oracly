@@ -71,10 +71,24 @@ abstract final class TarotNavigator {
     String routeName, {
     Object? arguments,
   }) {
+    return pushNamedOn<T>(
+      Navigator.of(context),
+      routeName,
+      arguments: arguments,
+    );
+  }
+
+  /// Push onto an explicit [NavigatorState] — required when the caller
+  /// BuildContext sits above the nested Tarot navigator (e.g. daily bridge).
+  static Future<T?> pushNamedOn<T>(
+    NavigatorState navigator,
+    String routeName, {
+    Object? arguments,
+  }) {
     final route = onGenerateRoute(
       RouteSettings(name: routeName, arguments: arguments),
     );
-    return Navigator.of(context).push<T>(route as Route<T>);
+    return navigator.push<T>(route as Route<T>);
   }
 
   static void pop<T extends Object?>(BuildContext context, [T? result]) {

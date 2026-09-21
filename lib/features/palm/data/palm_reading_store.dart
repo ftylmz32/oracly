@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 
+import '../../../core/auth/owned_file_cleanup_journal.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
@@ -54,8 +55,14 @@ class PalmReadingStore {
         if (item.id != reading.id) item,
       reading,
     ];
-    await _storage.setStringList(key, next.map(_toJson).toList());
-    await _memory?.upsert(OraclyMemoryFactory.palm(reading));
+    final ok = await _storage.setStringList(key, next.map(_toJson).toList());
+    if (!ok) {
+      throw StateError('palm reading metadata write failed');
+    }
+    // Memory enrichment is reconcilable — reading metadata is the commit point.
+    try {
+      await _memory?.upsert(OraclyMemoryFactory.palm(reading));
+    } catch (_) {}
   }
 
   Future<void> delete(String id) async {
@@ -64,9 +71,21 @@ class PalmReadingStore {
       for (final item in all())
         if (item.id != id) item,
     ];
-    await _storage.setStringList(key, next.map(_toJson).toList());
+    final ok = await _storage.setStringList(key, next.map(_toJson).toList());
+    if (!ok) {
+      // Metadata removal never durably succeeded — the retained reading
+      // still points at its image, so the physical file must NOT be
+      // deleted out from under it.
+      throw StateError('palm reading metadata delete failed');
+    }
     await PalmImageArchive.deleteIfOwned(existing?.imagePath);
-    await _memory?.removeBySource(id);
+    try {
+      await _memory?.removeBySource(id);
+    } catch (_) {}
+  }
+
+  Future<bool> journalOwnedImagePath(String path) {
+    return OwnedFileCleanupJournal.record(_storage, {path});
   }
 
   String _toJson(PalmReading reading) => jsonEncode({

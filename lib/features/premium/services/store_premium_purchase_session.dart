@@ -47,14 +47,10 @@ class StorePremiumPurchaseSession {
     try {
       return await wait.future.timeout(
         timeout,
-        onTimeout: () => _restore
-            ? PremiumPurchaseResult.noneFound()
-            : PremiumPurchaseResult.failed(),
+        onTimeout: () => PremiumPurchaseResult.failed(),
       );
     } on TimeoutException {
-      return _restore
-          ? PremiumPurchaseResult.noneFound()
-          : PremiumPurchaseResult.failed();
+      return PremiumPurchaseResult.failed();
     }
   }
 

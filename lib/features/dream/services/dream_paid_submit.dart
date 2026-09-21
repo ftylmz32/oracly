@@ -29,9 +29,14 @@ abstract final class DreamPaidSubmit {
     required List<DreamEmotion> emotions,
     required List<String> tags,
   }) async {
-    if (_running) return;
+    if (_running || !context.mounted) return;
     _running = true;
     try {
+      // Capture provider-backed objects before the long AI request. The
+      // continuation may outlive this widget/context after navigation.
+      final operations = ref.read(paidAiOperationCoordinatorProvider);
+      final wallet = ref.read(gemWalletProvider);
+      final analytics = ref.read(analyticsServiceProvider);
       final attempts = DreamAttemptStore(ref.read(localStorageProvider));
       final attemptId = await attempts.resolveId(narrative);
       if (!context.mounted) return;
@@ -46,10 +51,10 @@ abstract final class DreamPaidSubmit {
       );
       if (op == null) return;
       if (!context.mounted) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await operations.abandon(op.id);
         return;
       }
-      ref.read(analyticsServiceProvider).logDreamStarted();
+      analytics.logDreamStarted();
       final started = DateTime.now();
       await PaidAiOperationBinder.runWithKey(op.idempotencyKey, () {
         return controller.submit(
@@ -59,19 +64,21 @@ abstract final class DreamPaidSubmit {
         );
       });
       if (controller.phase == DreamJourneyPhase.complete) {
-        ref.read(analyticsServiceProvider).logDreamCompleted(
-              latency: DateTime.now().difference(started),
-            );
+        analytics.logDreamCompleted(
+          latency: DateTime.now().difference(started),
+        );
         await attempts.clear();
-        await GemSpendGuard.settleOperation(
-          ref,
+        await GemSpendGuard.settleOperationCaptured(
+          coordinator: operations,
+          wallet: wallet,
+          analytics: analytics,
           operation: op,
           context: context.mounted ? context : null,
         );
         if (context.mounted) PersonalDiscoveryRefresh.invalidate(ref);
       } else if (op.isBillable) {
         // Keep DreamAttemptStore id for retry; drop unpaid pending charge intent.
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await operations.abandon(op.id);
       }
     } finally {
       _running = false;

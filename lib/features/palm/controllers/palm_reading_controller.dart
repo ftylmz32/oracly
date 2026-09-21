@@ -72,14 +72,38 @@ class PalmReadingController extends ChangeNotifier
         await _acceptAuthoritativeBalance?.call(authoritativeBalance);
       }
       if (result.outcome == ReadingAccelerationOutcome.alreadyEligible) {
-        // The free wait was already over server-side -- zero Gems charged,
-        // nothing to accelerate. The operation is still exactly `waiting`;
-        // do NOT force a fake `processing` state (that would lie about
-        // server truth). The existing poll loop (already running since
-        // this operation first became `waiting`) keeps observing on its
-        // own -- this is not a failure, so no error is shown either.
+        // Wait already finished server-side — resume staged analysis even
+        // when no poll loop is running (restart without pending prefs).
         _accelerationCost = result.canonicalCost;
         _accelerationPriceToken = result.priceToken;
+        final hand = pending?.handSide == PalmHand.left.name
+            ? PalmHand.left
+            : PalmHand.right;
+        PalmReading? captured;
+        Future<String> runPipeline() async {
+          final reading = await _experience.analyzeStaged(
+            operationId: operationId,
+            mimeType: pending?.mimeType ?? 'image/jpeg',
+            hand: hand,
+          );
+          captured = reading;
+          return reading.id;
+        }
+
+        final token = ++_generation;
+        final resumed = await live.resumeAccelerated(
+          begun: liveState!,
+          runPipeline: runPipeline,
+        );
+        _applyAnalyzeSnapshot(
+          token: token,
+          live: live,
+          source: pending?.sourceRequestId ?? operationId,
+          fallbackImagePath: _image?.path ?? '',
+          runPipeline: runPipeline,
+          capturedReading: () => captured,
+          state: resumed,
+        );
         return;
       }
       if (result.outcome == ReadingAccelerationOutcome.priceChanged) {
@@ -139,6 +163,86 @@ class PalmReadingController extends ChangeNotifier
     super.dispose();
   }
 
+  /// Completion deep-link/push recovery for one exact server operation.
+  /// Never attaches to another currently-active Palm operation.
+  Future<void> recoverOperation(String operationId) async {
+    final normalized = operationId.trim();
+    final live = _live;
+    if (normalized.isEmpty || live == null) return;
+    final token = ++_generation;
+    await _recoverOperationById(
+      token: token,
+      live: live,
+      operationId: normalized,
+    );
+  }
+
+  Future<void> _recoverOperationById({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) async {
+    final state = await live.flow.recoverOperation(operationId);
+    if (_disposed || token != _generation) return;
+    final snapshot = state.snapshot;
+    if (snapshot == null || snapshot.readingType != ReadingType.palm) return;
+
+    liveState = state;
+    switch (state.kind) {
+      case ReadingLiveKind.ready:
+        final pending = _pendingStore?.load(ReadingType.palm);
+        if (pending?.operationId == operationId) {
+          unawaited(_pendingStore?.clear(ReadingType.palm));
+        }
+        final resultId = snapshot.resultId;
+        final saved = resultId == null ? null : _experience.savedById(resultId);
+        if (saved != null) {
+          openSaved(saved);
+          return;
+        }
+        await _restoreServerCompleted(state, live);
+      case ReadingLiveKind.waiting:
+      case ReadingLiveKind.processing:
+        _phase = PalmPhase.analyzing;
+        _error = null;
+        _lastError = null;
+        _scheduleTargetOperationPoll(
+          token: token,
+          live: live,
+          operationId: operationId,
+        );
+        safeNotify();
+      case ReadingLiveKind.failed:
+        _error = ReadingLiveCopy.failed;
+        _lastError = PalmAnalysisError(
+          PalmAnalysisErrorKind.unknown,
+          ReadingLiveCopy.failed,
+        );
+        _phase = PalmPhase.error;
+        safeNotify();
+      case ReadingLiveKind.idle:
+        break;
+    }
+  }
+
+  void _scheduleTargetOperationPoll({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) {
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(
+      const Duration(seconds: 3),
+      () => unawaited(
+        _recoverOperationById(
+          token: token,
+          live: live,
+          operationId: operationId,
+        ),
+      ),
+    );
+  }
+
   /// BATCH 5F — call on feature open / controller reconstruction so an
   /// active Palm operation (waiting/processing/ready/failed) survives an
   /// app kill+relaunch. Never re-runs AI for an already-ready result and
@@ -153,9 +257,10 @@ class PalmReadingController extends ChangeNotifier
   Future<void> recoverActive() async {
     final live = _live;
     if (live == null) return;
+    final token = _generation;
     final pending = _pendingStore?.load(ReadingType.palm);
     final state = await live.flow.recover(ReadingType.palm);
-    if (_disposed) return;
+    if (_disposed || token != _generation) return;
     switch (state.kind) {
       case ReadingLiveKind.ready:
         unawaited(_pendingStore?.clear(ReadingType.palm));
@@ -179,6 +284,19 @@ class PalmReadingController extends ChangeNotifier
         if (pending != null &&
             pending.operationId == state.snapshot?.operationId) {
           await _recoverWaiting(pending: pending);
+          return;
+        }
+        // Pending prefs missing after restart — still resume with staged
+        // server image so analyzing cannot dead-end forever.
+        if (recoveredOperationId != null) {
+          await _recoverWaiting(
+            pending: ReadingPendingOperation(
+              operationId: recoveredOperationId,
+              sourceRequestId: recoveredOperationId,
+              mimeType: 'image/jpeg',
+              handSide: _hand.name,
+            ),
+          );
           return;
         }
         safeNotify();
@@ -241,6 +359,15 @@ class PalmReadingController extends ChangeNotifier
   }
 
   void openSaved(PalmReading reading) {
+    if (_disposed) return;
+    _generation++;
+    _resumeTimer?.cancel();
+    liveState = null;
+    _accelerating = false;
+    _accelerationError = null;
+    _accelerationCost = null;
+    _accelerationCostFor = null;
+    _accelerationPriceToken = null;
     final path = reading.imagePath;
     final exists = path != null && File(path).existsSync();
     _reading = exists ? reading : reading.copyWith(clearImagePath: true);

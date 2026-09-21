@@ -1,7 +1,6 @@
 /// Companion journey — live AI, fail-closed, never invented memory.
 library;
 
-import '../../../services/memory_service.dart';
 import '../../../core/copy/ai_source_copy.dart';
 import '../../../core/domain/repositories/ai_conversation_repository.dart';
 import '../../../core/domain/repositories/user_repository.dart';
@@ -37,11 +36,11 @@ class CompanionExperienceService {
   CompanionExperienceService({
     required AiConversationRepository conversationRepository,
     required IntelligenceLayerService intelligence,
+    required CompanionMemoryService memoryService,
     DailyRitualService? dailyRitual,
     CompanionContextBuilder? contextBuilder,
     UserRepository? users,
     CompanionResponder? responder,
-    CompanionMemoryService? memoryService,
     PersonalMemoryService? personalMemory,
     OraclyMemoryStore? connectedMemory,
     OraclyAiService? ai,
@@ -54,6 +53,7 @@ class CompanionExperienceService {
            contextBuilder ??
            CompanionContextBuilder(
              intelligence: intelligence,
+             memoryService: memoryService,
              dailyRitual: dailyRitual,
              users: users,
              personalMemory: personalMemory,
@@ -67,7 +67,7 @@ class CompanionExperienceService {
          lengthPrefs: lengthPrefs,
          memoryPromptHint: () => personalMemory?.promptHint(),
        ),
-       _memory = memoryService ?? CompanionMemoryService(MemoryService()),
+       _memory = memoryService,
        _connectedMemory = connectedMemory;
 
   final AiConversationRepository _conversations;

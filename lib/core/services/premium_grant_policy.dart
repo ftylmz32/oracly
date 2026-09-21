@@ -93,10 +93,13 @@ class PremiumGrantPolicy {
     required bool authoritative,
     PremiumPurchaseCredentials? credentials,
   }) async {
-    await _premium.activatePlan(plan, authoritative: authoritative);
+    // A verified store grant is not locally committed until its proof is
+    // durable. Otherwise a credential write failure could leave active=true
+    // for the live session yet make restart unverifiable.
     if (credentials != null) {
       await _premium.savePurchaseCredentials(credentials);
     }
+    await _premium.activatePlan(plan, authoritative: authoritative);
     // Profile flag mirrors local access. Authoritative proof is separate
     // (wasAuthoritativelyVerified) — never overwrite access with false here.
     final profile = await _user.getProfile();

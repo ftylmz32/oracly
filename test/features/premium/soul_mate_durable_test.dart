@@ -141,7 +141,11 @@ Future<LocalStorage> _premiumStorage() async {
   return storage;
 }
 
-Widget _screen(LocalStorage storage, FakeReadingOperationBackend backend) {
+Widget _screen(
+  LocalStorage storage,
+  FakeReadingOperationBackend backend, {
+  String? operationId,
+}) {
   return ProviderScope(
     overrides: [
       localStorageProvider.overrideWithValue(storage),
@@ -152,7 +156,7 @@ Widget _screen(LocalStorage storage, FakeReadingOperationBackend backend) {
         fakeReadingOperationInputGateway(backend: backend),
       ),
     ],
-    child: const MaterialApp(home: SoulMateDrawScreen()),
+    child: MaterialApp(home: SoulMateDrawScreen(operationId: operationId)),
   );
 }
 
@@ -412,6 +416,80 @@ void main() {
 
       final secondSave = await SoulMateResultStore.readMeta(storage);
       expect(secondSave?.id, operationId);
+    },
+  );
+
+  testWidgets(
+    'exact completion target opens that Soul Mate operation even when another Soul Mate is active',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final storage = await _premiumStorage();
+      final backend = FakeReadingOperationBackend();
+
+      final targetCreated = await backend.send(
+        'POST',
+        '/v1/reading-operations',
+        {
+          'readingType': 'soulmate',
+          'sourceRequestId': 'push-target-soulmate-01aaaaaaaaaaaaaaaaaaaaaaaa',
+          'language': 'tr',
+          'executionMode': 'durable',
+        },
+      );
+      final targetId =
+          (targetCreated!.json!['data'] as Map)['operationId'] as String;
+      await backend.send('POST', '/v1/reading-operations/$targetId/input', {
+        'name': 'Target Ada',
+        'birthIso': '1995-03-02',
+      });
+      backend.setSoulmatePortrait(targetId, imageBase64: _pngBase64);
+      backend.completeServerSide(
+        targetId,
+        resultId: 'soulmate_$targetId',
+        result: const {
+          'personality': 'target-p',
+          'dynamic': 'target-d',
+          'attraction': 'target-a',
+          'challenge': 'target-c',
+          'meeting': 'target-m',
+          'feeling': 'target-f',
+        },
+      );
+
+      final otherCreated = await backend.send(
+        'POST',
+        '/v1/reading-operations',
+        {
+          'readingType': 'soulmate',
+          'sourceRequestId': 'other-active-soulmate-01aaaaaaaaaaaaaaaaaaaaaaa',
+          'language': 'tr',
+          'executionMode': 'durable',
+        },
+      );
+      final otherId =
+          (otherCreated!.json!['data'] as Map)['operationId'] as String;
+      await backend.send('POST', '/v1/reading-operations/$otherId/input', {
+        'name': 'Other Ada',
+        'birthIso': '1996-04-03',
+      });
+
+      expect(otherId, isNot(targetId));
+      expect(await _activeOperationId(tester, backend), otherId);
+
+      await tester.pumpWidget(
+        _screen(storage, backend, operationId: targetId),
+      );
+      await tester.pump();
+      await _loadPremium(tester);
+      await _settleRealIo(tester);
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text(SoulMateCopy.redrawCta), findsOneWidget);
+      expect(find.text(SoulMateCopy.drawing), findsNothing);
+      final saved = await SoulMateResultStore.readMeta(storage);
+      expect(saved?.id, targetId);
+      expect(backend.operationCount, 2);
     },
   );
 

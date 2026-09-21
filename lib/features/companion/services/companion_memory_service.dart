@@ -11,6 +11,8 @@ class CompanionMemoryService {
 
   final MemoryService _legacy;
 
+  Future<String?> userName() => _legacy.getUserName();
+
   Future<List<Memory>> savedMemories() async {
     final items = await _legacy.getAdvancedMemories();
     return items

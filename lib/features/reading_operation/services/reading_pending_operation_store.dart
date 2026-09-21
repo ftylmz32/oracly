@@ -66,7 +66,7 @@ class ReadingPendingOperationStore {
     }
   }
 
-  Future<void> save(ReadingType type, ReadingPendingOperation operation) {
+  Future<bool> save(ReadingType type, ReadingPendingOperation operation) {
     return _storage.setString(_key(type), jsonEncode(operation.toJson()));
   }
 
@@ -76,15 +76,29 @@ class ReadingPendingOperationStore {
 
   /// R5 — account-boundary wipe for every durable pending pointer.
   /// Clears known [ReadingType] keys plus any stray `reading_pending_operation_*`.
+  /// A `false` (non-throwing) removal is exactly as much a failure as a
+  /// thrown one — every key is still attempted, but this throws if any
+  /// removal did not durably succeed, so [UserLocalDataWipe] catches it.
   static Future<void> clearAll(LocalStorage storage) async {
-    final store = ReadingPendingOperationStore(storage);
+    final failed = <String>[];
+    Future<void> removeKey(String key) async {
+      try {
+        if (!await storage.remove(key)) failed.add(key);
+      } catch (_) {
+        failed.add(key);
+      }
+    }
+
     for (final type in ReadingType.values) {
-      await store.clear(type);
+      await removeKey(_key(type));
     }
     for (final key in storage.keys
         .where((k) => k.startsWith('reading_pending_operation_'))
         .toList()) {
-      await storage.remove(key);
+      await removeKey(key);
+    }
+    if (failed.isNotEmpty) {
+      throw StateError('reading pending operation keys not removed: $failed');
     }
   }
 }

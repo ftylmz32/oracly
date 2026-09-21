@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/navigation/oracly_navigator_key.dart';
 import '../../../core/navigation/oracly_page_transitions.dart';
+import '../../../core/auth/account_deletion_pending_state.dart';
 import '../presentation/share_reopen_screen.dart';
 import 'share_link_inbox.dart';
 import 'share_link_parser.dart';
@@ -13,12 +14,20 @@ abstract final class ShareLinkOpener {
   ShareLinkOpener._();
 
   static void openPending([BuildContext? context]) {
+    // Keep inbox queued until the deletion gate AND a concrete navigation
+    // surface are ready. Never consume first and discover there is nowhere
+    // to push the share screen.
+    if (AccountDeletionPendingState.blocksDeepLinks) return;
+    final nav = oraclyNavigatorKey.currentState;
+    final hasContext = context != null && context.mounted;
+    if (nav == null && !hasContext) return;
     final uri = ShareLinkInbox.instance.take();
     if (uri == null) return;
     open(uri, context: context);
   }
 
   static void open(Uri uri, {BuildContext? context}) {
+    if (AccountDeletionPendingState.blocksDeepLinks) return;
     if (ShareLinkParser.payloadOf(uri) == null) return;
     final nav = oraclyNavigatorKey.currentState;
     final page = OraclyPageTransitions.fade(

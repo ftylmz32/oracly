@@ -4,8 +4,10 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_result.dart';
 import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
@@ -139,6 +141,12 @@ void main() {
       storage,
       purchasePort: _ConfiguredStorePort(),
       overrides: [
+        // This widget test isolates the Premium presentation/service contract.
+        // Production owner isolation is covered separately; use an explicitly
+        // unrestricted repository here rather than weakening the real gate.
+        premiumRepositoryProvider.overrideWithValue(
+          MockPremiumRepository(storage),
+        ),
         premiumEntitlementVerifierProvider.overrideWithValue(_ActiveVerifier()),
       ],
     );

@@ -7,6 +7,7 @@ import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../support/fake_gem_authority.dart';
+import '../../support/false_return_local_storage.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +79,34 @@ void main() {
     expect((next as DailyRewardClaimSuccess).state.streak, 2);
     expect(wallet.balance, GemEconomy.dailyReward * 2);
   });
+
+  test(
+    'server-confirmed reward stays claimed in-session when local marker write returns false',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final failing = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      )..falseReturnKeys.add(DailyRewardsService.claimedKey);
+      final server = FakeGemAuthority(serverDay: '2026-09-03');
+      final w = server.wallet(failing);
+      final rewards = DailyRewardsService(
+        MockUserRepository(failing),
+        failing,
+        w,
+      );
+      final day = DateTime.utc(2026, 9, 3);
+
+      final first = await rewards.claim(asOf: day);
+      expect(first, isA<DailyRewardClaimSuccess>());
+      expect((first as DailyRewardClaimSuccess).state.claimedToday, isTrue);
+      expect(w.balance, GemEconomy.dailyReward);
+
+      final second = await rewards.claim(asOf: day);
+      expect(second, isA<DailyRewardClaimSuccess>());
+      expect((second as DailyRewardClaimSuccess).state.claimedToday, isTrue);
+      expect(w.balance, GemEconomy.dailyReward);
+    },
+  );
 
   test('rapid overlapping claims do not double credit', () async {
     authority.serverDay = '2026-09-02';

@@ -8,6 +8,7 @@ import '../../../app/providers/app_providers.dart';
 import '../../../core/auth/auth_copy.dart';
 import '../../../core/auth/sign_out_local_cleanup.dart';
 import '../../../core/notifications/push_token_cleanup.dart';
+import '../../../core/notifications/reading_push_bootstrap.dart';
 import '../../../features/reading_operation/providers/reading_live_provider.dart';
 import '../../../shared/navigation/oracly_navigation.dart';
 import '../../../shared/ui/oracly_snackbar.dart';
@@ -30,11 +31,20 @@ Future<bool> profileSignOut({
     return false;
   }
 
+  // Auth is gone now. Stop old-owner completion listeners and drop any queued
+  // reading target before local wipe/provider refresh can expose a new owner.
+  await ReadingPushBootstrap.clearOwnerBinding();
+
   // R5 — wipe account-scoped local state only after successful sign-out.
   // Capture messenger before provider refresh: invalidation rebuilds Profile
   // into loading and can drop a post-refresh context-based snackbar.
   final messenger = ScaffoldMessenger.maybeOf(context);
 
+  // Firebase sign-out already succeeded above (that's this function's own
+  // precondition) — a still-incomplete LOCAL wipe never turns that into a
+  // reported sign-out failure; it only leaves the owner marker in place so
+  // the next distinct sign-in safely retries cleanup before being treated
+  // as isolated.
   await SignOutLocalCleanup.wipeDiskOnly(
     storage: ref.read(localStorageProvider),
     secureStorage: ref.read(secureStorageProvider),

@@ -16,6 +16,43 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 
 void main() {
+  group('ReadingOperationOwnerBinding', () {
+    test('binds once to the first concrete owner and rejects owner changes', () {
+      final binding = ReadingOperationOwnerBinding();
+
+      expect(binding.boundOwnerId, isNull);
+      expect(binding.bindOrMatches(null), isTrue);
+      expect(binding.bindOrMatches(' uid-a '), isTrue);
+      expect(binding.boundOwnerId, 'uid-a');
+      expect(binding.bindOrMatches('uid-a'), isTrue);
+      expect(binding.bindOrMatches('uid-b'), isFalse);
+      expect(binding.bindOrMatches(null), isFalse);
+      expect(binding.boundOwnerId, 'uid-a');
+    });
+
+    test('initial owner is normalized and cannot be replaced', () {
+      final binding = ReadingOperationOwnerBinding(initialOwnerId: ' uid-a ');
+
+      expect(binding.boundOwnerId, 'uid-a');
+      expect(binding.bindOrMatches('uid-a'), isTrue);
+      expect(binding.bindOrMatches(' uid-a '), isTrue);
+      expect(binding.bindOrMatches('uid-b'), isFalse);
+      expect(binding.boundOwnerId, 'uid-a');
+    });
+
+    test('ownerless sender stays ownerless until a real identity appears', () {
+      final binding = ReadingOperationOwnerBinding(initialOwnerId: '   ');
+
+      expect(binding.bindOrMatches(null), isTrue);
+      expect(binding.bindOrMatches(''), isTrue);
+      expect(binding.boundOwnerId, isNull);
+
+      expect(binding.bindOrMatches('uid-late'), isTrue);
+      expect(binding.boundOwnerId, 'uid-late');
+      expect(binding.bindOrMatches('uid-other'), isFalse);
+    });
+  });
+
   group('readingOperationBackendOrigin', () {
     test('strips the /v1/ai/complete suffix to recover the backend origin', () {
       expect(

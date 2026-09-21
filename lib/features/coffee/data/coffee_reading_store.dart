@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 
+import '../../../core/auth/owned_file_cleanup_journal.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
@@ -51,19 +52,35 @@ class CoffeeReadingStore {
         if (item.id != reading.id) item,
       reading,
     ];
-    await _storage.setStringList(
+    final ok = await _storage.setStringList(
       key,
       next.map((e) => jsonEncode(e.toJson())).toList(),
     );
-    await _memory?.upsert(OraclyMemoryFactory.coffee(reading));
+    if (!ok) {
+      throw StateError('coffee reading metadata write failed');
+    }
+    // Memory enrichment is reconcilable — reading metadata is the commit point.
+    try {
+      await _memory?.upsert(OraclyMemoryFactory.coffee(reading));
+    } catch (_) {}
   }
 
   Future<void> delete(String id) async {
-    await _storage.setStringList(
+    final ok = await _storage.setStringList(
       key,
       all().where((e) => e.id != id)
           .map((e) => jsonEncode(e.toJson())).toList(),
     );
-    await _memory?.removeBySource(id);
+    if (!ok) {
+      throw StateError('coffee reading metadata delete failed');
+    }
+    try {
+      await _memory?.removeBySource(id);
+    } catch (_) {}
+  }
+
+  /// Locator for an owned archive that survived a failed metadata commit.
+  Future<bool> journalOwnedImagePath(String path) {
+    return OwnedFileCleanupJournal.record(_storage, {path});
   }
 }

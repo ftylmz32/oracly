@@ -138,4 +138,25 @@ class _FakeGateway implements FirebaseAuthGateway {
     _user = null;
     _controller.add(null);
   }
+
+  @override
+  Future<void> reauthenticateWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) async {}
+
+  @override
+  Future<void> reauthenticateWithGoogleProvider() async {}
+
+  @override
+  Future<void> reauthenticateWithApple({required String idToken}) async {}
+
+  @override
+  Future<void> reauthenticateWithAppleProvider() async {}
+
+  @override
+  Future<void> reauthenticateWithEmail({
+    required String email,
+    required String password,
+  }) async {}
 }

@@ -9,11 +9,13 @@ import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
+import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/services/premium_service.dart';
 import 'package:oracly_new/features/premium/controllers/premium_status_controller.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_result.dart';
 import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
 import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
+import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:oracly_new/features/premium/services/premium_store_catalog.dart';
 import 'package:oracly_new/features/premium/services/store_iap_client.dart';
 import 'package:oracly_new/features/premium/services/store_premium_purchase.dart';
@@ -47,12 +49,46 @@ class _UnverifiedVerifier implements PremiumEntitlementVerifier {
       PremiumVerifyResult.unverified('backend_rejected');
 }
 
+class _BlockingPreparePort implements PremiumPurchasePort {
+  final entered = Completer<void>();
+  final release = Completer<void>();
+  int prepareCalls = 0;
+
+  @override
+  bool get isConfigured => false;
+
+  @override
+  bool get canAttemptRestore => false;
+
+  @override
+  Future<void> prepare() async {
+    prepareCalls++;
+    if (!entered.isCompleted) entered.complete();
+    await release.future;
+  }
+
+  @override
+  String? priceLabel(PremiumPlanKind plan) => null;
+
+  @override
+  Future<PremiumPurchaseResult> purchase(PremiumPlanKind plan) async =>
+      PremiumPurchaseResult.unavailable();
+
+  @override
+  Future<PremiumPurchaseResult> restore() async =>
+      PremiumPurchaseResult.restoreUnavailable();
+
+  @override
+  Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async => null;
+}
+
 class _FakeIap implements StoreIapClient {
   _FakeIap({
     this.available = true,
     this.products = const [],
     this.queryThrows = false,
     this.restoreEmits = const [],
+    this.emptyQueryAttempts = 0,
   });
 
   final bool available;
@@ -60,9 +96,15 @@ class _FakeIap implements StoreIapClient {
   final bool queryThrows;
   final List<PurchaseDetails> restoreEmits;
 
+  /// How many leading [queryProductDetails] calls return an empty catalogue
+  /// before the real [products] are returned — simulates a cold storefront
+  /// connection missing the first query attempt(s).
+  final int emptyQueryAttempts;
+
   final _purchaseController =
       StreamController<List<PurchaseDetails>>.broadcast();
   int restoreCalls = 0;
+  int queryCalls = 0;
 
   @override
   Future<bool> isAvailable() async => available;
@@ -71,11 +113,15 @@ class _FakeIap implements StoreIapClient {
   Future<ProductDetailsResponse> queryProductDetails(
     Set<String> identifiers,
   ) async {
+    queryCalls++;
     if (queryThrows) throw StateError('query failed');
+    final effective = queryCalls <= emptyQueryAttempts
+        ? const <ProductDetails>[]
+        : products;
     return ProductDetailsResponse(
-      productDetails: products,
+      productDetails: effective,
       notFoundIDs: identifiers
-          .where((id) => products.every((p) => p.id != id))
+          .where((id) => effective.every((p) => p.id != id))
           .toList(),
     );
   }
@@ -138,6 +184,31 @@ void main() {
     userRepo = MockUserRepository(storage);
   });
 
+  test(
+    'controller load is single-flight so concurrent callers cannot race store prepare',
+    () async {
+      final port = _BlockingPreparePort();
+      final service = PremiumService(
+        premiumRepo,
+        userRepo,
+        port,
+        _ActiveVerifier(),
+      );
+      final status = PremiumStatusController(service);
+
+      final first = status.load();
+      await port.entered.future;
+      final second = status.load();
+
+      expect(identical(first, second), isTrue);
+      expect(port.prepareCalls, 1);
+
+      port.release.complete();
+      await Future.wait([first, second]);
+      expect(port.prepareCalls, 1);
+    },
+  );
+
   test('store available + catalogue available -> restore works', () async {
     final iap = _FakeIap(
       available: true,
@@ -163,6 +234,42 @@ void main() {
     expect(await service.isActive(), isTrue);
     expect(premiumRepo.wasAuthoritativelyVerified, isTrue);
   });
+
+  test(
+    'catalogue query retries once after a cold-start empty miss, then '
+    'succeeds — Premium must not be permanently "unavailable" just because '
+    'the very first storefront query lost the race',
+    () async {
+      final iap = _FakeIap(
+        available: true,
+        products: [_yearlyProduct()],
+        emptyQueryAttempts: 1,
+      );
+      addTearDown(iap.dispose);
+      final port = StorePremiumPurchase(client: iap);
+      await port.prepare();
+      expect(iap.queryCalls, 2, reason: 'first miss must trigger one retry');
+      expect(port.isConfigured, isTrue);
+      expect(port.priceLabel(PremiumPlanKind.yearly), 'TRY 899.99');
+    },
+  );
+
+  test(
+    'catalogue query gives up as unavailable only after the retry also '
+    'misses — never claims configured on a genuine empty catalogue',
+    () async {
+      final iap = _FakeIap(
+        available: true,
+        products: const [],
+        emptyQueryAttempts: 5,
+      );
+      addTearDown(iap.dispose);
+      final port = StorePremiumPurchase(client: iap);
+      await port.prepare();
+      expect(iap.queryCalls, 2, reason: 'exactly one retry, not unbounded');
+      expect(port.isConfigured, isFalse);
+    },
+  );
 
   test('store available + catalogue empty -> restore still attempted', () async {
     final iap = _FakeIap(

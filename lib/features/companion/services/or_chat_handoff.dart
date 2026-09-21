@@ -1,8 +1,6 @@
 /// Compact feature to OR handoff — never dumps full history.
 library;
 
-import 'package:flutter/foundation.dart';
-
 import '../../../core/l10n/l10n.dart';
 import '../../ai/oracle_conversation/models/oracle_reading_context.dart';
 import 'or_discovery_handoff_quality.dart';
@@ -23,7 +21,7 @@ abstract final class OrChatHandoffBuffer {
     return value;
   }
 
-  @visibleForTesting
+  /// Drops a pending handoff without applying it (fresh OR entry).
   static void clear() => _pending = null;
 }
 

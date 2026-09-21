@@ -72,6 +72,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
   String? _accelerationPriceToken;
   Timer? _resumeTimer;
   int _generation = 0;
+  int _readyMisses = 0;
 
   @override
   void dispose() {
@@ -138,6 +139,8 @@ class CoffeeV2FlowController extends ChangeNotifier {
       return;
     }
     await submission!.recoverDraftOrSubmission();
+    if (_disposed) return;
+    _sourceRequestId ??= record.sourceRequestId;
     _introDismissed =
         record.isActive ||
         coffeeV2CanonicalSlotOrder.any(
@@ -242,31 +245,51 @@ class CoffeeV2FlowController extends ChangeNotifier {
     _stagingInFlight = true;
     stagingRetryable = false;
     _notify();
-    _sourceRequestId ??= 'coffee-v2-${DateTime.now().microsecondsSinceEpoch}';
-    final outcome = await sub.beginSubmission(_sourceRequestId!);
-    _stagingInFlight = false;
-    if (outcome == CoffeeV2SubmissionOutcome.completedStaging) {
-      _startObserving();
-    } else {
+    _sourceRequestId ??= record.sourceRequestId ??
+        'coffee-v2-${DateTime.now().microsecondsSinceEpoch}';
+    try {
+      final outcome = await sub.beginSubmission(_sourceRequestId!);
+      if (outcome == CoffeeV2SubmissionOutcome.completedStaging) {
+        _startObserving();
+      } else {
+        stagingRetryable = true;
+      }
+    } catch (_) {
+      // Local durability failure is retryable but must never advance the UI
+      // as though the operation binding was safely recorded.
       stagingRetryable = true;
+    } finally {
+      _stagingInFlight = false;
+      _notify();
     }
-    _notify();
   }
 
   Future<void> retryStaging() async {
     final sub = submission;
     if (sub == null) return;
+    // A create/binding failure can leave a durable sourceRequestId but no
+    // local operationId. Retry through beginSubmission so the backend's
+    // createIfAbsent returns the SAME operation instead of inventing one.
+    if (!record.isActive) {
+      await beginSubmission();
+      return;
+    }
     _stagingInFlight = true;
     stagingRetryable = false;
     _notify();
-    final outcome = await sub.retrySubmission();
-    _stagingInFlight = false;
-    if (outcome == CoffeeV2SubmissionOutcome.completedStaging) {
-      _startObserving();
-    } else {
+    try {
+      final outcome = await sub.retrySubmission();
+      if (outcome == CoffeeV2SubmissionOutcome.completedStaging) {
+        _startObserving();
+      } else {
+        stagingRetryable = true;
+      }
+    } catch (_) {
       stagingRetryable = true;
+    } finally {
+      _stagingInFlight = false;
+      _notify();
     }
-    _notify();
   }
 
   /// After a completed reading (ready or terminally failed) the submission
@@ -311,6 +334,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
         final saved = resultId == null ? null : experience.savedById(resultId);
         if (saved != null) {
           reading = saved;
+          _readyMisses = 0;
         } else {
           final operationId = state.snapshot?.operationId;
           final completed = operationId == null
@@ -322,10 +346,18 @@ class CoffeeV2FlowController extends ChangeNotifier {
               persistedAt: completed.persistedAt,
               result: completed.result,
             );
+            _readyMisses = 0;
           }
         }
         final restored = reading;
         if (restored == null) {
+          _readyMisses += 1;
+          if (_readyMisses >= 10) {
+            observeError = ReadingLiveCopy.failed;
+            await submission?.onTerminalFailure();
+            _notify();
+            return;
+          }
           _scheduleServerPoll(token: token);
           _notify();
           return;

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_auth_gateway.dart';
 import 'firebase_auth_user.dart';
+import 'live_firebase_auth_reauth.dart';
 
 class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
   LiveFirebaseAuthGateway([FirebaseAuth? auth])
@@ -79,6 +80,50 @@ class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
   }
 
   @override
+  Future<void> reauthenticateWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) =>
+      LiveFirebaseAuthReauth.withCredential(
+        _auth,
+        GoogleAuthProvider.credential(
+          idToken: idToken,
+          accessToken: accessToken,
+        ),
+      );
+
+  @override
+  Future<void> reauthenticateWithGoogleProvider() =>
+      LiveFirebaseAuthReauth.withProvider(
+        _auth,
+        GoogleAuthProvider()..addScope('email'),
+      );
+
+  @override
+  Future<void> reauthenticateWithApple({required String idToken}) =>
+      LiveFirebaseAuthReauth.withCredential(
+        _auth,
+        OAuthProvider('apple.com').credential(idToken: idToken),
+      );
+
+  @override
+  Future<void> reauthenticateWithAppleProvider() =>
+      LiveFirebaseAuthReauth.withProvider(
+        _auth,
+        AppleAuthProvider()..addScope('email'),
+      );
+
+  @override
+  Future<void> reauthenticateWithEmail({
+    required String email,
+    required String password,
+  }) =>
+      LiveFirebaseAuthReauth.withCredential(
+        _auth,
+        EmailAuthProvider.credential(email: email, password: password),
+      );
+
+  @override
   Future<void> signOut() => _auth.signOut();
 
   @override
@@ -121,6 +166,7 @@ class LiveFirebaseAuthGateway implements FirebaseAuthGateway {
       email: user.email,
       displayName: user.displayName,
       isAnonymous: user.isAnonymous,
+      providerIds: [for (final info in user.providerData) info.providerId],
     );
   }
 }

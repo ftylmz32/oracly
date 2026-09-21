@@ -35,6 +35,7 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
   final _narrativeController = TextEditingController();
   final _selectedChips = <DreamEntryChipId>{};
   final _guidedAnswers = <DreamGuidedQuestionId, String>{};
+  bool _composing = false;
 
   @override
   void dispose() {
@@ -100,6 +101,7 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
     controller.reset();
     _narrativeController.clear();
     setState(() {
+      _composing = false;
       _selectedChips.clear();
       _guidedAnswers.clear();
     });
@@ -112,6 +114,7 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
     unawaited(DreamPaidSubmit.clearAttempt(ref));
     controller.reset();
     setState(() {
+      _composing = true;
       _selectedChips.clear();
       _guidedAnswers.clear();
     });
@@ -156,9 +159,11 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
             narrative: _narrativeController,
             selectedChips: _selectedChips,
             guidedAnswers: _guidedAnswers,
+            composing: _composing,
             onChipToggle: _toggleChip,
             onGuidedChanged: _onGuidedChanged,
             onVoiceTap: _onVoiceTap,
+            onCompose: () => setState(() => _composing = true),
             onSubmit: () => _submit(analysis),
             onEditDream: () => _editDream(analysis),
             onStopVoice: voice.stop,
@@ -172,8 +177,15 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
             onVoiceRetry: _retryVoice,
             onVoiceBack: voice.reset,
             onNewDream: () => _reset(analysis),
-            onAnalysisRetry: () => _submit(analysis),
-            onAnalysisBack: analysis.reset,
+            onAnalysisRetry: () {
+              setState(() => _composing = true);
+              _submit(analysis);
+            },
+            onAnalysisBack: () {
+              analysis.reset();
+              setState(() => _composing = false);
+            },
+            onOpenSaved: analysis.openSaved,
           ),
         ),
       ),

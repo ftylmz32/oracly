@@ -76,6 +76,9 @@ class FakeReadingOperationBackend {
   /// creating a duplicate.
   int get operationCount => _byId.length;
 
+  static final _operationPath = RegExp(
+    r'^/v1/reading-operations/([a-f0-9]{32})$',
+  );
   static final _claimPath = RegExp(
     r'^/v1/reading-operations/([a-f0-9]{32})/claim$',
   );
@@ -108,6 +111,16 @@ class FakeReadingOperationBackend {
   ) async {
     if (method == 'POST' && path == '/v1/reading-operations') {
       return _create(body);
+    }
+    final exactOperation = _operationPath.firstMatch(path);
+    if (method == 'GET' && exactOperation != null) {
+      final op = _byId[exactOperation.group(1)!];
+      return op == null
+          ? const ReadingOperationWire(statusCode: 404, json: null)
+          : ReadingOperationWire(
+              statusCode: 200,
+              json: {'data': _publicJson(op)},
+            );
     }
     final stage = _stagePath.firstMatch(path);
     if (method == 'POST' && stage != null && _byId[stage.group(1)!] != null) {

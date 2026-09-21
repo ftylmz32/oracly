@@ -4,9 +4,11 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers/app_providers.dart';
+import '../../core/auth/account_deletion_pending_state.dart';
 import '../../core/data/datasources/local_storage.dart';
 import '../../core/data/repositories/local_onboarding_repository.dart';
 import '../../core/providers/backend_providers.dart' as backend;
@@ -38,19 +40,25 @@ Future<bool> splashFastOnboarding(WidgetRef ref) async {
 
 /// Work required before honest gem balance — runs while cinema continues.
 /// Promote is idempotent if [splashFastOnboarding] already hydrated prefs.
+///
+/// Starter grant + wallet reload are owned by [gemWalletProvider] bootstrap
+/// once auth/App Check are ready — do not race them here.
+///
+/// Must not touch the wallet while the account-deletion gate is unresolved
+/// or blocked.
 Future<void> splashDeferredBoot(WidgetRef ref) async {
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
   final storage = ref.read(localStorageProvider);
   if (storage.isEphemeral) {
     await storage.tryPromote();
   }
   try {
-    await ref.read(gemStarterGrantProvider).ensureOnce();
-  } catch (_) {}
-  try {
     await ref.read(paidAiOperationCoordinatorProvider).reconcile();
   } catch (_) {}
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
+  // Touch the wallet so bootstrap/auth listen starts during splash.
   try {
-    ref.read(gemWalletProvider).reload();
+    ref.read(gemWalletProvider);
   } catch (_) {}
 }
 
@@ -61,7 +69,21 @@ Future<bool> splashCriticalBoot(WidgetRef ref) async {
   return completed;
 }
 
-/// Non-blocking warm-up — never holds splash to Home.
+enum DeferredWarmupOutcome { completed, skippedNotClear }
+
+/// Single-flight guard — a normal splash boot and a successful storage- or
+/// integrity-recovery retry all call [splashScheduleWarmup]; a concurrent
+/// second caller awaits the first's own in-progress run instead of
+/// re-triggering paid-operation reconcile, the gem wallet touch, or the
+/// notification/analytics/remote-config warm-up a second time.
+Future<void>? _inFlightDeferredWarmup;
+
+/// Best-effort, non-blocking, single-flight post-gate warm-up — shared by
+/// [splashEntryBootstrap] and every recovery screen's clear-path retry, so
+/// neither silently skips paid-operation reconcile / the gem wallet touch /
+/// notification-tap / analytics / remote-config warm-up for the whole app
+/// session. Never blocks Home; no-ops unless the account-deletion gate is
+/// already clear.
 ///
 /// Takes the app-level [ProviderContainer], not a widget-scoped [WidgetRef].
 /// This work is fire-and-forget and is expected to keep running well after
@@ -72,7 +94,45 @@ Future<bool> splashCriticalBoot(WidgetRef ref) async {
 /// container is not tied to any widget's lifecycle, so the same
 /// `.read`/`.invalidate` calls stay valid for as long as the app runs.
 void splashScheduleWarmup(ProviderContainer container) {
-  unawaited(_runWarmup(container));
+  unawaited(scheduleDeferredWarmupIfClear(container));
+}
+
+Future<DeferredWarmupOutcome> scheduleDeferredWarmupIfClear(
+  ProviderContainer container,
+) async {
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
+    return DeferredWarmupOutcome.skippedNotClear;
+  }
+  final existing = _inFlightDeferredWarmup;
+  if (existing != null) {
+    await existing;
+    return DeferredWarmupOutcome.completed;
+  }
+  final future = _runDeferredWarmup(container);
+  _inFlightDeferredWarmup = future;
+  try {
+    await future;
+    return DeferredWarmupOutcome.completed;
+  } finally {
+    _inFlightDeferredWarmup = null;
+  }
+}
+
+Future<void> _runDeferredWarmup(ProviderContainer container) async {
+  final storage = container.read(localStorageProvider);
+  if (storage.isEphemeral) {
+    await storage.tryPromote();
+  }
+  try {
+    await container.read(paidAiOperationCoordinatorProvider).reconcile();
+  } catch (_) {}
+  if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
+    // Touch the wallet so bootstrap/auth listen starts.
+    try {
+      container.read(gemWalletProvider);
+    } catch (_) {}
+  }
+  await _runWarmup(container);
 }
 
 Future<void> _runWarmup(ProviderContainer container) async {

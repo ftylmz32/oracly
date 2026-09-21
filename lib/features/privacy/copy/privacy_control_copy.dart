@@ -1,6 +1,7 @@
 /// Privacy Control Center copy.
 library;
 
+import '../../../core/auth/models/account_reauth_method.dart';
 import '../../../core/l10n/l10n.dart';
 
 abstract final class PrivacyControlCopy {
@@ -59,4 +60,48 @@ abstract final class PrivacyControlCopy {
   static String get confirmDeleteAction =>
       _t('privacy.control.delete.confirm.action');
   static String get successDelete => _t('privacy.control.delete.success');
+
+  static String get reauthPasswordTitle =>
+      _t('privacy.control.delete.reauth.password.title');
+  static String get reauthPasswordBody =>
+      _t('privacy.control.delete.reauth.password.body');
+  static String get reauthPasswordAction =>
+      _t('privacy.control.delete.reauth.password.action');
+  static String get reauthCancel =>
+      _t('privacy.control.delete.reauth.cancel');
+  static String get deletePendingTitle =>
+      _t('privacy.control.delete.pending.title');
+  static String get deletePendingBody =>
+      _t('privacy.control.delete.pending.body');
+  static String get deletePendingRetry =>
+      _t('privacy.control.delete.pending.retry');
+  static String get deleteFinalizingTitle =>
+      _t('privacy.control.delete.finalizing.title');
+  static String get deleteFinalizingBody =>
+      _t('privacy.control.delete.finalizing.body');
+  static String get deleteFinalizingRetry =>
+      _t('privacy.control.delete.finalizing.retry');
+  static String get storageRecoveryTitle =>
+      _t('privacy.control.storage.recovery.title');
+  static String get storageRecoveryBody =>
+      _t('privacy.control.storage.recovery.body');
+  static String get storageRecoveryRetry =>
+      _t('privacy.control.storage.recovery.retry');
+  static String get integrityRecoveryTitle =>
+      _t('privacy.control.integrity.recovery.title');
+  static String get integrityRecoveryBody =>
+      _t('privacy.control.integrity.recovery.body');
+  static String get integrityRecoveryRetry =>
+      _t('privacy.control.integrity.recovery.retry');
+  static String get integrityRecoveryContinueDeletion =>
+      _t('privacy.control.integrity.recovery.continue_deletion');
+
+  static String reauthMethodLabel(AccountReauthMethod method) => switch (method) {
+        AccountReauthMethod.google =>
+          _t('privacy.control.delete.reauth.google'),
+        AccountReauthMethod.apple =>
+          _t('privacy.control.delete.reauth.apple'),
+        AccountReauthMethod.email =>
+          _t('privacy.control.delete.reauth.email'),
+      };
 }

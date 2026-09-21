@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { MemorySharedWindowStore } from '../src/rate-limit/shared-window-store.js';
 import type { AccountDeletionRepository, DeletionReceipt } from '../src/account/account-deletion.js';
 import { StaticAppCheckVerifier } from '../src/auth/app-check.js';
+import { identityKeyFromSubject } from '../src/auth/identity.js';
 import { authHeader, appCheckHeader, signHs256, testApp, testConfig, chatBody } from './helpers.js';
 import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 import { FirestoreReadingOperationRepository } from '../src/reading/operation-repository.js';
@@ -26,14 +27,22 @@ class DeletionFake implements AccountDeletionRepository {
 }
 
 describe('R4 architecture hardening', () => {
-  it('account deletion derives identity from verified auth and returns an idempotent receipt', async () => {
+  it('account deletion derives identity from verified auth and returns an idempotent receipt — a body uid is never authorization', async () => {
     const repository = new DeletionFake();
     const app = await testApp(testConfig({ AI_JWT_SECRET: SECRET, AI_APP_CHECK_REQUIRED: 'true' }), undefined, {
       appCheck: new StaticAppCheckVerifier('r4-app-check'), accountDeletionRepository: repository,
     });
-    const first = await app.inject({ method: 'POST', url: '/v1/account/deletion', headers, payload: { uid: 'attacker-choice' } });
+    // expectedTargetUid must match the VERIFIED identity (r4-user) — the
+    // now-required anti-race assertion — while the legacy `uid` field is
+    // still ignored entirely for authorization purposes.
+    const first = await app.inject({
+      method: 'POST', url: '/v1/account/deletion', headers,
+      payload: { uid: 'attacker-choice', expectedTargetUid: 'r4-user' },
+    });
     expect(first.statusCode).toBe(202); expect(first.json().data.receiptId).toBe('r4-receipt');
-    expect(repository.calls).toHaveLength(1); expect(repository.calls[0]).not.toContain('attacker-choice');
+    expect(repository.calls).toHaveLength(1);
+    expect(repository.calls[0]).toBe(identityKeyFromSubject('r4-user'));
+    expect(repository.calls[0]).not.toContain('attacker-choice');
     await app.close();
   });
 

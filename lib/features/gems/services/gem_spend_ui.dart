@@ -1,6 +1,8 @@
 /// Confirm / affordability dialogs for gem spend — kept out of the guard.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,6 +10,7 @@ import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/ui/oracly_dialog.dart';
 import '../../../shared/ui/oracly_snackbar.dart';
+import '../controllers/gem_wallet_controller.dart';
 import '../copy/gems_copy.dart';
 import '../providers/gem_providers.dart';
 
@@ -21,7 +24,27 @@ abstract final class GemSpendUi {
   }) {
     if (cost == null || cost <= 0) return true;
     final wallet = ref.read(gemWalletProvider);
-    if (wallet.busy) return false;
+    if (wallet.busy ||
+        wallet.hydrationState == GemWalletHydrationState.loading) {
+      OraclySnackBar.error(context, GemsCopy.busy);
+      return false;
+    }
+    if (!wallet.authoritative) {
+      OraclySnackBar.error(
+        context,
+        GemsCopy.busy,
+        action: SnackBarAction(
+          label: GemsCopy.openGemsAction,
+          textColor: AppColors.goldLight,
+          onPressed: () {
+            unawaited(wallet.reload());
+            OraclyNavigationService.openGems(context);
+          },
+        ),
+      );
+      unawaited(wallet.reload());
+      return false;
+    }
     if (!wallet.canSpend(cost)) {
       showInsufficient(context, cost: cost);
       return false;

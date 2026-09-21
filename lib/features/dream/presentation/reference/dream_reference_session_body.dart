@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import '../../controllers/dream_analysis_controller.dart';
 import '../../controllers/dream_voice_controller.dart';
 import '../../copy/dream_copy.dart';
+import '../../models/dream.dart';
 import '../../models/dream_entry_context.dart';
 import '../../voice/dream_voice_phase.dart';
+import 'dream_reference_entry_hub.dart';
 import 'dream_reference_entry_view.dart';
 import 'dream_reference_error_view.dart';
 import 'dream_reference_loading_view.dart';
@@ -23,9 +25,11 @@ class DreamReferenceSessionBody extends StatelessWidget {
     required this.narrative,
     required this.selectedChips,
     required this.guidedAnswers,
+    required this.composing,
     required this.onChipToggle,
     required this.onGuidedChanged,
     required this.onVoiceTap,
+    required this.onCompose,
     required this.onSubmit,
     required this.onEditDream,
     required this.onStopVoice,
@@ -36,6 +40,7 @@ class DreamReferenceSessionBody extends StatelessWidget {
     required this.onNewDream,
     required this.onAnalysisRetry,
     required this.onAnalysisBack,
+    required this.onOpenSaved,
   });
 
   final DreamAnalysisController analysis;
@@ -43,9 +48,11 @@ class DreamReferenceSessionBody extends StatelessWidget {
   final TextEditingController narrative;
   final Set<DreamEntryChipId> selectedChips;
   final Map<DreamGuidedQuestionId, String> guidedAnswers;
+  final bool composing;
   final ValueChanged<DreamEntryChipId> onChipToggle;
   final void Function(DreamGuidedQuestionId id, String value) onGuidedChanged;
   final VoidCallback onVoiceTap;
+  final VoidCallback onCompose;
   final VoidCallback onSubmit;
   final VoidCallback onEditDream;
   final VoidCallback onStopVoice;
@@ -56,6 +63,7 @@ class DreamReferenceSessionBody extends StatelessWidget {
   final VoidCallback onNewDream;
   final VoidCallback onAnalysisRetry;
   final VoidCallback onAnalysisBack;
+  final ValueChanged<Dream> onOpenSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -106,16 +114,24 @@ class DreamReferenceSessionBody extends StatelessWidget {
           onRetry: onVoiceRetry,
           onBack: onVoiceBack,
         ),
-      DreamVoicePhase.idle => DreamReferenceEntryView(
-          key: const ValueKey('entry'),
-          controller: narrative,
-          selectedChips: selectedChips,
-          guidedAnswers: guidedAnswers,
-          onChipToggle: onChipToggle,
-          onGuidedChanged: onGuidedChanged,
-          onVoiceTap: onVoiceTap,
-          onSubmit: onSubmit,
-        ),
+      DreamVoicePhase.idle => composing
+          ? DreamReferenceEntryView(
+              key: const ValueKey('entry'),
+              controller: narrative,
+              selectedChips: selectedChips,
+              guidedAnswers: guidedAnswers,
+              onChipToggle: onChipToggle,
+              onGuidedChanged: onGuidedChanged,
+              onVoiceTap: onVoiceTap,
+              onSubmit: onSubmit,
+            )
+          : DreamReferenceEntryHub(
+              key: const ValueKey('hub'),
+              dreams: analysis.history,
+              onWriteTap: onCompose,
+              onVoiceTap: onVoiceTap,
+              onDreamTap: onOpenSaved,
+            ),
     };
   }
 }

@@ -1,6 +1,8 @@
 /// One in-flight Soulmate generation. Rapid taps join it; they do not fork it.
 library;
 
+import 'dart:async';
+
 import '../../../core/data/datasources/local_storage.dart';
 import 'soul_mate_draw_port.dart';
 import 'soul_mate_generation_identity.dart';
@@ -45,12 +47,22 @@ class SoulMateGenerationRunner {
     );
     _inflight = future;
     _owner = ownerId;
-    future.whenComplete(() {
+    void clearIfCurrent() {
       if (identical(_inflight, future)) {
         _inflight = null;
         _owner = null;
       }
-    });
+    }
+
+    // Do not use an ignored whenComplete() here: if [future] fails, the
+    // Future returned by whenComplete would repeat the same error into the
+    // zone even when the caller correctly awaits/catches the original.
+    unawaited(
+      future.then<void>(
+        (_) => clearIfCurrent(),
+        onError: (Object _, StackTrace __) => clearIfCurrent(),
+      ),
+    );
     return future;
   }
 

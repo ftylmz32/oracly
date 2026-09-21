@@ -17,18 +17,21 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/daily_rewards/presentation/reference/daily_rewards_reference_screen.dart';
 import '../../features/gems/presentation/reference/gems_reference_screen.dart';
 import '../../features/premium/presentation/reference/premium_reference_screen.dart';
+import '../../features/premium/presentation/screens/soul_mate_draw_screen.dart';
 import '../../features/star_map/presentation/reference/star_map_reference_screen.dart';
 import '../../features/tarot/navigation/tarot_module_navigator.dart';
 import '../../features/tarot/presentation/screens/reading_history_screen.dart';
 import '../../features/help/presentation/help_screen.dart';
 import '../../screens/about/about_screen.dart';
 import '../../screens/privacy/privacy_screen.dart';
-import '../../screens/profile/achievements_screen.dart';
 import '../../screens/settings/reference/settings_reference_screen.dart';
 import '../../features/share_reopen/presentation/share_reopen_screen.dart';
 import '../../features/share_reopen/services/share_link_parser.dart';
 import '../../shared/navigation/oracly_navigation.dart';
+import '../auth/account_deletion_gate_destination.dart';
+import '../auth/presentation/account_deletion_gate_screen.dart';
 import '../navigation/oracly_page_transitions.dart';
+import 'deferred_gate_route_host.dart';
 import 'immersive/chamber_transition_personality.dart';
 import 'oracly_routes.dart';
 
@@ -37,6 +40,20 @@ abstract final class OraclyRouteGenerator {
 
   /// Resolves named routes for deep linking and programmatic navigation.
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    final destination = AccountDeletionGateDestinations.current;
+    // Unresolved must never become a permanent black/neutral route once the
+    // gate later resolves — DeferredGateRouteHost replays THESE settings
+    // through this same generator exactly once the gate settles.
+    if (destination == AccountDeletionGateDestination.unresolved) {
+      return OraclyPageTransitions.fade(
+        page: DeferredGateRouteHost(originalSettings: settings),
+        settings: settings,
+      );
+    }
+    final gateOverride = screenForGateDestination(destination);
+    if (gateOverride != null) {
+      return OraclyPageTransitions.fade(page: gateOverride, settings: settings);
+    }
     final shareUri = ShareLinkParser.parse(settings.name);
     if (shareUri != null) {
       return OraclyPageTransitions.fade(
@@ -109,12 +126,24 @@ abstract final class OraclyRouteGenerator {
       case OraclyRoutes.coffee:
         return OraclyPageTransitions.chamber(
           personality: ChamberTransitionPersonality.coffee,
-          page: const CoffeeV2EntryGate(),
+          page: CoffeeV2EntryGate(
+            operationId: _readingOperationId(settings.arguments),
+          ),
           settings: settings,
         );
       case OraclyRoutes.palm:
         return OraclyPageTransitions.sharedAxis(
-          page: const PalmReferenceScreen(),
+          page: PalmReferenceScreen(
+            operationId: _readingOperationId(settings.arguments),
+          ),
+          settings: settings,
+        );
+      case OraclyRoutes.soulMate:
+        return OraclyPageTransitions.chamber(
+          personality: ChamberTransitionPersonality.soulMate,
+          page: SoulMateDrawScreen(
+            operationId: _readingOperationId(settings.arguments),
+          ),
           settings: settings,
         );
       case OraclyRoutes.readingHistory:
@@ -148,8 +177,9 @@ abstract final class OraclyRouteGenerator {
           settings: settings,
         );
       case OraclyRoutes.achievements:
-        return OraclyPageTransitions.slideUp(
-          page: const AchievementsScreen(),
+        // Reserved product — deep links recover to the live shell.
+        return OraclyPageTransitions.fade(
+          page: const OraclyAppShell(),
           settings: settings,
         );
       case OraclyRoutes.about:
@@ -180,5 +210,15 @@ abstract final class OraclyRouteGenerator {
           settings: settings,
         );
     }
+  }
+
+  static String? _readingOperationId(Object? arguments) {
+    if (arguments is! Map) return null;
+    final raw = arguments['operationId'];
+    if (raw is! String) return null;
+    final normalized = raw.trim();
+    return RegExp(r'^[a-f0-9]{32}$').hasMatch(normalized)
+        ? normalized
+        : null;
   }
 }

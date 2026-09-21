@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/ui/oracly_permission_dialog.dart';
 import '../../controllers/companion_controller.dart';
@@ -168,6 +169,14 @@ void restoreCompanionThreadToBottom(ScrollController controller) {
   WidgetsBinding.instance.addPostFrameCallback(followMeasuredExtent);
 }
 
+/// Save-to-Memory has a real failure boundary: [CompanionController
+/// .saveToMemory] never throws (a persistence failure is caught and
+/// reported as `false`), so this can never leave an unhandled async error
+/// in flight, and the success snackbar is shown ONLY when the save
+/// genuinely succeeded — never optimistically. Retry re-calls this same
+/// function, and the underlying store dedupes by content
+/// (MemoryService.addAdvancedMemory), so any number of retries converge
+/// on one saved memory, never a duplicate.
 Future<void> saveLastCompanionMemory({
   required BuildContext context,
   required CompanionController controller,
@@ -176,8 +185,22 @@ Future<void> saveLastCompanionMemory({
   if (conversation == null) return;
   final users = conversation.messages.where((m) => m.isUser);
   if (users.isEmpty) return;
-  await controller.saveToMemory(users.last.content);
-  if (context.mounted) {
+  final saved = await controller.saveToMemory(users.last.content);
+  if (!context.mounted) return;
+  if (saved) {
     OraclySnackBar.show(context, message: CompanionCopy.memorySaved);
+    return;
   }
+  OraclySnackBar.error(
+    context,
+    CompanionCopy.saveFailed,
+    action: SnackBarAction(
+      label: CompanionCopy.retry,
+      textColor: OraclyChrome.goldLight,
+      onPressed: () {
+        // ignore: unawaited_futures
+        saveLastCompanionMemory(context: context, controller: controller);
+      },
+    ),
+  );
 }

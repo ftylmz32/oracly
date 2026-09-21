@@ -12,9 +12,12 @@ import 'package:oracly_new/core/storage/premium_credential_keys.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_credentials.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/test_path_provider.dart';
+
 Future<(LocalStorage, InMemorySecureStorage, MockPremiumRepository)>
     _fixture() async {
   SharedPreferences.setMockInitialValues({});
+  await installTestPathProvider('oracly-premium-wipe-');
   final storage = LocalStorage(await SharedPreferences.getInstance());
   final secure = InMemorySecureStorage();
   final premium = MockPremiumRepository(storage, secureStorage: secure);

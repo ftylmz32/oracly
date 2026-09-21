@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../core/auth/firebase/firebase_app_check_token.dart';
 import '../../../core/providers/backend_providers.dart';
+import '../../ai/production/ai_proxy_readiness.dart';
 import '../../ai/production/oracly_ai_providers.dart';
 import '../../ai/production/transport/ai_operation.dart';
 import '../../ai/production/transport/ai_proxy_request.dart';
@@ -22,22 +23,9 @@ import '../services/reading_operation_input_gateway.dart';
 import '../services/reading_pending_operation_store.dart';
 import '../services/reading_staged_image_gateway.dart';
 
-/// `ORACLY_AI_PROXY_URL` (and every dart-define/doc example of it) is the
-/// FULL `/v1/ai/complete` endpoint, not a bare backend origin — see
-/// `AiRuntimeConfig.localDevProxyUrl`/`androidEmulatorDevProxyUrl` and
-/// `docs/RELEASE_RUNTIME_CONFIG.md`. ReadingOperation routes live at other
-/// paths on the SAME backend (`/v1/reading-operations`, `/v1/reading-flow/
-/// active`, ...), so the sender below must derive the backend's origin by
-/// stripping this suffix before appending any other path — otherwise every
-/// ReadingOperation call 404s against a doubled path like
-/// `.../v1/ai/complete/v1/reading-operations`.
+/// Strips `/v1/ai/complete` from ORACLY_AI_PROXY_URL to get the backend origin.
 const _aiCompleteEndpointSuffix = '/v1/ai/complete';
 
-/// Strips the `/v1/ai/complete` endpoint suffix (and any trailing slash)
-/// from a configured `ORACLY_AI_PROXY_URL` to recover the backend's bare
-/// origin, so other backend paths (`/v1/reading-operations`, ...) can be
-/// appended without doubling. A URL that doesn't carry the suffix is
-/// returned unchanged (trailing slash trimmed only).
 @visibleForTesting
 String readingOperationBackendOrigin(String proxyUrl) {
   var root = proxyUrl.endsWith('/')
@@ -49,18 +37,82 @@ String readingOperationBackendOrigin(String proxyUrl) {
   return root;
 }
 
-/// Shared authenticated sender for every reading-operation client — the
-/// feature runner, the acceleration client, and the structured-input
-/// gateway all speak through the same transport so there is exactly one
-/// place that builds auth/App-Check headers for this surface.
+
+@visibleForTesting
+class ReadingOperationOwnerBinding {
+  ReadingOperationOwnerBinding({String? initialOwnerId})
+      : _boundOwnerId = _normalize(initialOwnerId);
+
+  String? _boundOwnerId;
+
+  String? get boundOwnerId => _boundOwnerId;
+
+  bool bindOrMatches(String? liveOwnerId) {
+    final live = _normalize(liveOwnerId);
+    if (live == null) return _boundOwnerId == null;
+    final bound = _boundOwnerId;
+    if (bound == null) {
+      _boundOwnerId = live;
+      return true;
+    }
+    return bound == live;
+  }
+
+  static String? _normalize(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+}
+
+/// Shared authenticated sender for reading + gem wallet transport.
 ReadingOperationSender? _buildSender(Ref ref) {
   final config = ref.watch(aiRuntimeConfigProvider);
   final proxy = config.resolvedProxyUrl;
   if (proxy == null || proxy.isEmpty || !config.usesProxy) return null;
   final tokens = ref.watch(tokenManagerProvider);
   final gatewayAuth = ref.watch(firebaseAuthGatewayProvider);
+  final auth = ref.watch(authServiceProvider);
+
+  // A sender instance belongs to the first concrete authenticated owner it
+  // observes. Provider rebuilds create a new sender for a new owner, while
+  // stale controllers keep the old closure — those stale closures must fail
+  // closed instead of silently using the new user's live Firebase token.
+  final ownerBinding = ReadingOperationOwnerBinding(
+    initialOwnerId: gatewayAuth?.currentUser?.uid,
+  );
+
+  String? liveOwnerId() {
+    final live = gatewayAuth?.currentUser?.uid;
+    if (live != null && live.trim().isNotEmpty) return live;
+    return auth.currentUserId;
+  }
+
+  bool bindOrMatchesOwner() =>
+      ownerBinding.bindOrMatches(liveOwnerId());
 
   return (String method, String path, Map<String, Object>? body) async {
+    if (!bindOrMatchesOwner()) {
+      debugPrint('[ReadingSender] blocked stale owner $method $path');
+      return null;
+    }
+    // Wallet and reading share this sender — never race ahead of auth/App Check.
+    final blocked = await AiProxyReadiness.ensure(
+      config: config,
+      auth: auth,
+      accessToken: ({bool forceRefresh = false}) =>
+          tokens.getAccessToken(forceRefresh: forceRefresh),
+      appCheckToken: ({bool forceRefresh = false}) =>
+          FirebaseAppCheckToken.resolve(forceRefresh: forceRefresh),
+      liveGateway: gatewayAuth,
+    );
+    if (blocked != null) {
+      debugPrint('[ReadingSender] blocked $method $path: $blocked');
+      return null;
+    }
+    if (!bindOrMatchesOwner()) {
+      debugPrint('[ReadingSender] blocked owner change $method $path');
+      return null;
+    }
     final headers = await ProxyAiHeaders.build(
       config: config,
       request: const AiProxyRequest(operation: AiOperation.chat, payload: {}),
@@ -71,6 +123,13 @@ ReadingOperationSender? _buildSender(Ref ref) {
       liveGateway: gatewayAuth,
     );
     if (headers == null) return null;
+    // Auth can change while token/App Check headers are being resolved.
+    // Re-check immediately before network I/O so a stale sender never emits
+    // a request carrying another owner's freshly-issued token.
+    if (!bindOrMatchesOwner()) {
+      debugPrint('[ReadingSender] blocked post-header owner change $method $path');
+      return null;
+    }
     final root = readingOperationBackendOrigin(proxy);
     final uri = Uri.parse('$root$path');
     final client = http.Client();

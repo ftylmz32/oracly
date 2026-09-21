@@ -18,6 +18,8 @@ import 'package:oracly_new/features/premium/services/soul_mate_paid_draw.dart';
 import 'package:oracly_new/features/premium/services/soul_mate_result_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/false_return_local_storage.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -198,6 +200,67 @@ void main() {
     gate.complete();
     await inflight;
   });
+
+  test(
+    'I2 session write false stops generation before any provider call',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      )..falseReturnKeys.add(SoulMateGenerationSessionStore.key);
+      final runner = SoulMateGenerationRunner();
+      var calls = 0;
+
+      await expectLater(
+        runner.start(
+          storage: storage,
+          ownerId: 'owner-a',
+          fingerprint: 'fp-a',
+          fresh: false,
+          name: 'Ada',
+          birthIso: '1995-03-02',
+          drawOnce: (id) async {
+            calls += 1;
+            return SoulMateDrawResult.success(imageBytes: [1, 2, 3]);
+          },
+        ),
+        throwsStateError,
+      );
+
+      expect(calls, 0);
+      expect(SoulMateGenerationSessionStore.read(storage), isNull);
+    },
+  );
+
+  test(
+    'I3 foreign owner marker cleanup false blocks ownership transfer',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      );
+      await SoulMateGenerationSessionStore.write(
+        storage,
+        const SoulMateGenerationRecord(
+          ownerId: 'owner-a',
+          logicalId: 'logical-a',
+          fingerprint: 'fp-a',
+          phase: SoulMateGenerationPhase.generating,
+        ),
+      );
+      storage.falseReturnRemoveKeys.add(SoulMateGenerationSessionStore.key);
+
+      await expectLater(
+        SoulMateGenerationSessionStore.readForOwner(storage, 'owner-b'),
+        throwsStateError,
+      );
+
+      expect(
+        SoulMateGenerationSessionStore.read(storage)?.ownerId,
+        'owner-a',
+      );
+    },
+  );
 
   test('J rebuild does not lose a successful result', () async {
     final harness = await _Harness.open();

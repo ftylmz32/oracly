@@ -2,6 +2,7 @@
 library;
 
 import '../../../core/reading_version/models/reading_version_kind.dart';
+import '../../../core/reading_version/services/reading_version_fingerprint.dart';
 import '../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../core/reading_version/services/reading_version_service.dart';
 import '../../coffee/models/coffee_image_pick.dart';
@@ -62,17 +63,35 @@ class PalmExperienceService {
       );
     }
     final reading = await _analysis.analyze(image, hand: hand);
+    final prior = store?.byId(reading.id);
     final archived = await _persistImage(
       readingId: reading.id,
       sourcePath: image.path,
     );
     final persisted = reading.copyWith(imagePath: archived);
-    await store?.save(persisted);
-    await _versions?.seedOriginal(
-      rootId: persisted.id,
-      kind: ReadingVersionKind.palm,
-      data: ReadingVersionPayload.palm(persisted),
-    );
+    try {
+      await store?.save(persisted);
+    } catch (_) {
+      if (!await PalmImageArchive.deleteIfOwnedStrict(archived)) {
+        await store?.journalOwnedImagePath(archived);
+      }
+      rethrow;
+    }
+    final priorPath = prior?.imagePath;
+    if (priorPath != null &&
+        priorPath.isNotEmpty &&
+        priorPath != archived) {
+      if (!await PalmImageArchive.deleteIfOwnedStrict(priorPath)) {
+        await store?.journalOwnedImagePath(priorPath);
+      }
+    }
+    try {
+      await _versions?.seedOriginal(
+        rootId: persisted.id,
+        kind: ReadingVersionKind.palm,
+        data: ReadingVersionPayload.palm(persisted),
+      );
+    } catch (_) {}
     return persisted;
   }
 
@@ -103,12 +122,17 @@ class PalmExperienceService {
     );
     // No local source to archive — imagePath stays null (already the
     // case on `reading`, per PalmStagedAnalysisPort's contract).
+    // Reading metadata is the commit point — save it durably FIRST.
     await store?.save(reading);
-    await _versions?.seedOriginal(
-      rootId: reading.id,
-      kind: ReadingVersionKind.palm,
-      data: ReadingVersionPayload.palm(reading),
-    );
+    // Version seed is post-commit enrichment — its failure must never
+    // turn an already-durable reading into a user-visible failure.
+    try {
+      await _versions?.seedOriginal(
+        rootId: reading.id,
+        kind: ReadingVersionKind.palm,
+        data: ReadingVersionPayload.palm(reading),
+      );
+    } catch (_) {}
     return reading;
   }
 
@@ -131,15 +155,29 @@ class PalmExperienceService {
       hand: hand,
       result: result,
     );
+    // Reading metadata is the commit point — save it durably FIRST.
     await store?.save(reading);
-    await _versions?.seedOriginal(
-      rootId: reading.id,
-      kind: ReadingVersionKind.palm,
-      data: ReadingVersionPayload.palm(reading),
-    );
+    // Version seed is post-commit enrichment — its failure must never
+    // turn an already-durable reading into a user-visible failure.
+    try {
+      await _versions?.seedOriginal(
+        rootId: reading.id,
+        kind: ReadingVersionKind.palm,
+        data: ReadingVersionPayload.palm(reading),
+      );
+    } catch (_) {}
     return reading;
   }
 
+  /// Reading metadata is the durable commit point; version history is
+  /// secondary enrichment. Order matters: (1) a NON-MUTATING duplicate
+  /// check — safe before any commit because the palm fingerprint is
+  /// text-only and never depends on `imagePath` — (2) only then create a
+  /// new image candidate (never for a duplicate/no-op, so nothing is ever
+  /// orphaned by one), (3) durably save the merged reading, rolling back
+  /// ONLY a newly-created candidate (never a prior committed image) if
+  /// that save fails, and (4) append the version revision best-effort
+  /// AFTER the reading itself is durable.
   Future<PalmReinterpretResult> reinterpret({
     required PalmReading current,
     required CoffeeImagePick image,
@@ -155,6 +193,35 @@ class PalmExperienceService {
       );
     }
     final fresh = await _analysis.analyze(image, hand: hand);
+
+    final versions = _versions;
+    if (versions != null) {
+      final probe = current.copyWith(
+        overall: fresh.overall,
+        lifeLine: fresh.lifeLine,
+        headLine: fresh.headLine,
+        heartLine: fresh.heartLine,
+        fateLine: fresh.fateLine,
+        takeaway: fresh.takeaway,
+        symbols: fresh.symbols,
+        themes: fresh.themes,
+      );
+      final probeFingerprint = ReadingVersionFingerprint.of(
+        ReadingVersionPayload.palm(probe),
+        ReadingVersionKind.palm,
+      );
+      final activeFingerprint =
+          versions.groupFor(current.id)?.activeEntry?.fingerprint ??
+              ReadingVersionFingerprint.of(
+                ReadingVersionPayload.palm(current),
+                ReadingVersionKind.palm,
+              );
+      if (activeFingerprint == probeFingerprint) {
+        return PalmReinterpretResult(reading: current, versionAdded: false);
+      }
+    }
+
+    final createdCandidate = current.imagePath == null;
     final imagePath = current.imagePath ??
         await _persistImage(
           readingId: current.id,
@@ -171,20 +238,40 @@ class PalmExperienceService {
       themes: fresh.themes,
       imagePath: imagePath,
     );
-    var added = true;
-    final versions = _versions;
+
+    try {
+      await store?.save(merged);
+    } catch (_) {
+      if (createdCandidate) {
+        if (!await PalmImageArchive.deleteIfOwnedStrict(imagePath)) {
+          await store?.journalOwnedImagePath(imagePath);
+        }
+      }
+      rethrow;
+    }
+
+    var added = false;
     if (versions != null) {
-      final result = await versions.tryAppendRevision(
-        rootId: current.id,
-        kind: ReadingVersionKind.palm,
-        data: ReadingVersionPayload.palm(merged),
-      );
-      added = result.added;
-      if (!added) {
-        return PalmReinterpretResult(reading: current, versionAdded: false);
+      try {
+        final existing = versions.groupFor(current.id);
+        if (existing == null || existing.entries.isEmpty) {
+          await versions.seedOriginal(
+            rootId: current.id,
+            kind: ReadingVersionKind.palm,
+            data: ReadingVersionPayload.palm(current),
+          );
+        }
+        final result = await versions.tryAppendRevision(
+          rootId: current.id,
+          kind: ReadingVersionKind.palm,
+          data: ReadingVersionPayload.palm(merged),
+        );
+        added = result.added;
+      } catch (_) {
+        // Enrichment failure must not turn the already-durable reading
+        // into a user-visible "analysis failed".
       }
     }
-    await store?.save(merged);
     return PalmReinterpretResult(reading: merged, versionAdded: added);
   }
 

@@ -34,9 +34,11 @@ class CoffeeReadingController extends ChangeNotifier {
     ReadingFeatureRunner? live,
     ReadingPendingOperationStore? pendingStore,
     Future<void> Function(int balance)? acceptAuthoritativeBalance,
+    Duration serverPollInterval = const Duration(seconds: 3),
   }) : _live = live,
        _pendingStore = pendingStore,
-       _acceptAuthoritativeBalance = acceptAuthoritativeBalance;
+       _acceptAuthoritativeBalance = acceptAuthoritativeBalance,
+       _serverPollInterval = serverPollInterval;
 
   final CoffeeExperienceService _experience;
   final CoffeeImageInputPort _images;
@@ -48,6 +50,7 @@ class CoffeeReadingController extends ChangeNotifier {
   // an operation has been staged — see analyzeStaged.
   final ReadingPendingOperationStore? _pendingStore;
   final Future<void> Function(int balance)? _acceptAuthoritativeBalance;
+  final Duration _serverPollInterval;
   bool _accelerating = false;
   String? _accelerationError;
   int? _accelerationCost;
@@ -232,18 +235,16 @@ class CoffeeReadingController extends ChangeNotifier {
     );
     final stagedOperationId = state.snapshot?.operationId;
     if (state.kind == ReadingLiveKind.waiting && stagedOperationId != null) {
-      // Staging already happened inside submit() by this point — persist
-      // the operation's identity (never bytes) so recoverActive() can
-      // find and resume this SAME operation even if this controller
-      // instance never sees another tick (app kill, not just dispose).
-      unawaited(
-        _pendingStore?.save(
-          ReadingType.coffee,
-          ReadingPendingOperation(
-            operationId: stagedOperationId,
-            sourceRequestId: source,
-            mimeType: mimeType,
-          ),
+      // Staging already succeeded server-side. The local pointer is useful
+      // metadata, but never the authority. Observe its bool result so a
+      // false-returning SharedPreferences write is not mistaken for durable
+      // success; recovery below can still converge from server active state.
+      await _pendingStore?.save(
+        ReadingType.coffee,
+        ReadingPendingOperation(
+          operationId: stagedOperationId,
+          sourceRequestId: source,
+          mimeType: mimeType,
         ),
       );
     }
@@ -353,7 +354,7 @@ class CoffeeReadingController extends ChangeNotifier {
   }) {
     _resumeTimer?.cancel();
     _resumeTimer = Timer(
-      const Duration(seconds: 3),
+      _serverPollInterval,
       () => unawaited(() async {
         if (_disposed || token != _generation) return;
         final state = await live.flow.recover(ReadingType.coffee);
@@ -434,6 +435,95 @@ class CoffeeReadingController extends ChangeNotifier {
     _safeNotify();
   }
 
+  /// Completion deep-link/push recovery for one exact server operation.
+  /// Never falls back to the feature-wide active operation, so a tap for
+  /// operation A cannot accidentally open operation B.
+  Future<void> recoverOperation(String operationId) async {
+    final normalized = operationId.trim();
+    final live = _live;
+    if (normalized.isEmpty || live == null) return;
+    final token = ++_generation;
+    await _recoverOperationById(
+      token: token,
+      live: live,
+      operationId: normalized,
+    );
+  }
+
+  Future<void> _recoverOperationById({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) async {
+    final state = await live.flow.recoverOperation(operationId);
+    if (_disposed || token != _generation) return;
+    final snapshot = state.snapshot;
+    if (snapshot == null || snapshot.readingType != ReadingType.coffee) return;
+
+    liveState = state;
+    switch (state.kind) {
+      case ReadingLiveKind.ready:
+        final pending = _pendingStore?.load(ReadingType.coffee);
+        if (pending?.operationId == operationId) {
+          unawaited(_pendingStore?.clear(ReadingType.coffee));
+        }
+        final resultId = snapshot.resultId;
+        final saved = resultId == null ? null : _experience.savedById(resultId);
+        if (saved != null) {
+          openSaved(saved);
+          // openSaved() intentionally clears generic live state for history
+          // opens. Exact completion recovery must retain the operation that
+          // authenticated this deep-link target.
+          liveState = state;
+          return;
+        }
+        final completed = await live.flow.fetchCompletedResult(operationId);
+        if (_disposed || token != _generation || completed == null) return;
+        final restored = await _experience.restoreCompleted(
+          resultId: completed.resultId,
+          persistedAt: completed.persistedAt,
+          result: completed.result,
+        );
+        if (_disposed || token != _generation) return;
+        openSaved(restored);
+        liveState = state;
+      case ReadingLiveKind.waiting:
+      case ReadingLiveKind.processing:
+        _phase = CoffeePhase.analyzing;
+        _error = null;
+        _scheduleTargetOperationPoll(
+          token: token,
+          live: live,
+          operationId: operationId,
+        );
+        _safeNotify();
+      case ReadingLiveKind.failed:
+        _error = ReadingLiveCopy.failed;
+        _phase = CoffeePhase.error;
+        _safeNotify();
+      case ReadingLiveKind.idle:
+        break;
+    }
+  }
+
+  void _scheduleTargetOperationPoll({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) {
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(
+      _serverPollInterval,
+      () => unawaited(
+        _recoverOperationById(
+          token: token,
+          live: live,
+          operationId: operationId,
+        ),
+      ),
+    );
+  }
+
   /// BATCH 5F — call on feature open / controller reconstruction so an
   /// active Coffee operation (waiting/processing/ready/failed) survives an
   /// app kill+relaunch. Never re-runs AI for an already-ready result and
@@ -450,9 +540,10 @@ class CoffeeReadingController extends ChangeNotifier {
   Future<void> recoverActive() async {
     final live = _live;
     if (live == null) return;
+    final token = _generation;
     final pending = _pendingStore?.load(ReadingType.coffee);
     final state = await live.flow.recover(ReadingType.coffee);
-    if (_disposed) return;
+    if (_disposed || token != _generation) return;
     switch (state.kind) {
       case ReadingLiveKind.ready:
         unawaited(_pendingStore?.clear(ReadingType.coffee));
@@ -491,6 +582,11 @@ class CoffeeReadingController extends ChangeNotifier {
           await _recoverWaiting(pending: pending);
           return;
         }
+        // Server-owned Coffee completion must not depend on SharedPreferences.
+        // If the pointer was never written (false-return, old build, storage
+        // loss), keep polling the authoritative active operation instead of
+        // leaving the user on an endless analyzing screen.
+        _scheduleServerPoll(token: _generation, live: live);
         _safeNotify();
       case ReadingLiveKind.processing:
         liveState = state;
@@ -622,9 +718,11 @@ class CoffeeReadingController extends ChangeNotifier {
       if (_disposed || token != _generation) return;
       liveState = state;
       if (state.kind == ReadingLiveKind.ready && captured != null) {
+        // Reading metadata is authoritative even when version enrichment
+        // failed — versionAdded only gates history UI reload.
+        _reading = captured!.reading;
         _versionAdded = captured!.versionAdded;
         if (captured!.versionAdded) {
-          _reading = captured!.reading;
           _versionReloadToken++;
         }
         _phase = CoffeePhase.result;
@@ -655,6 +753,15 @@ class CoffeeReadingController extends ChangeNotifier {
   }
 
   void openSaved(CoffeeReading reading) {
+    if (_disposed) return;
+    _generation++;
+    _resumeTimer?.cancel();
+    liveState = null;
+    _accelerating = false;
+    _accelerationError = null;
+    _accelerationCost = null;
+    _accelerationCostFor = null;
+    _accelerationPriceToken = null;
     final path = reading.imagePath;
     final exists = path != null && File(path).existsSync();
     _reading = exists

@@ -23,7 +23,13 @@ class OraclyLiveGemCapsule extends ConsumerWidget {
       child: OraclyCrystalCapsule(
         count: wallet.formatted,
         onTap: interactive
-            ? onTap ?? () => OraclyNavigationService.openGems(context)
+            ? onTap ??
+                () {
+                  if (!wallet.authoritative) {
+                    wallet.reload();
+                  }
+                  OraclyNavigationService.openGems(context);
+                }
             : null,
       ),
     );

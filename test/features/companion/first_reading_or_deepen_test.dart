@@ -26,6 +26,7 @@ import 'package:oracly_new/features/companion/models/or_chat_output_mode.dart';
 import 'package:oracly_new/features/companion/models/or_session_state.dart';
 import 'package:oracly_new/features/companion/models/reflection_context.dart';
 import 'package:oracly_new/features/companion/services/companion_experience_service.dart';
+import 'package:oracly_new/features/companion/services/companion_memory_service.dart';
 import 'package:oracly_new/features/companion/services/companion_responder.dart';
 import 'package:oracly_new/features/companion/models/companion_response.dart';
 import 'package:oracly_new/features/companion/services/first_reading_or_deepen.dart';
@@ -33,6 +34,7 @@ import 'package:oracly_new/features/companion/services/or_session_resolver.dart'
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
 import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:oracly_new/features/tarot/first_session/tarot_first_reading.dart';
+import 'package:oracly_new/services/memory_service.dart';
 
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
@@ -318,6 +320,7 @@ class _ScriptedExperience extends CompanionExperienceService {
             indexStore: IntelligenceIndexStore(LocalStorage.ephemeral()),
           ),
         ),
+        memoryService: CompanionMemoryService(MemoryService(LocalStorage.ephemeral())),
       );
 
   final bool fromAi;
@@ -368,6 +371,7 @@ class _FailingExperience extends CompanionExperienceService {
             indexStore: IntelligenceIndexStore(LocalStorage.ephemeral()),
           ),
         ),
+        memoryService: CompanionMemoryService(MemoryService(LocalStorage.ephemeral())),
       );
 
   @override

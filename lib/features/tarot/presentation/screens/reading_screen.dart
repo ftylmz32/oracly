@@ -28,6 +28,7 @@ import '../../../../core/theme/oracly_quiet_motion.dart';
 import '../../../../core/theme/oracly_reduced_motion.dart';
 import '../../../../features/ai/oracle_conversation/models/oracle_reading_context.dart';
 import '../../../../features/ai/oracle_conversation/navigation/oracle_conversation_route.dart';
+import '../../../../core/domain/models/reading.dart';
 import '../../domain/models/reading_session.dart';
 import '../../shared/tarot_scope.dart';
 import '../theme/tarot_emotional_rhythm.dart';
@@ -62,6 +63,7 @@ import '../../../../core/reading_version/providers/reading_version_providers.dar
 import '../../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../../core/reading_version/widgets/reading_version_host.dart';
 import '../../../../core/memory/oracly_memory.dart';
+import '../../services/journal_persist_gate.dart';
 
 /// Cinematic interpretation — intro, staggered sections, premium actions.
 class ReadingScreen extends ConsumerStatefulWidget {
@@ -81,8 +83,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   String? _loadError;
   bool _loading = true;
   bool _exiting = false;
-  bool _journalPersisted = false;
   bool _journalPersistFailed = false;
+  final JournalPersistGate _journalGate = JournalPersistGate();
   int _loadToken = 0;
   String? _savedReadingId;
   int _versionReloadToken = 0;
@@ -134,6 +136,13 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       return;
     }
 
+    // Capture provider-backed dependencies before the first awaited boundary.
+    // This method may outlive the screen after navigation; a disposed WidgetRef
+    // must never be touched by its continuation.
+    final localStorage = ref.read(localStorageProvider);
+    final walletService = ref.read(gemWalletServiceProvider);
+    final walletController = ref.read(gemWalletProvider);
+    final analytics = ref.read(analyticsServiceProvider);
     final priorReadings = ref.read(readingHistoryProvider).valueOrNull ?? [];
     final discovery = ref.read(personalDiscoveryProfileProvider).valueOrNull;
     var journeyHints = JourneyPersonalizationBuilder.fromHistory(
@@ -153,9 +162,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     } catch (_) {
       // Connected context is optional; the Tarot reading remains available.
     }
-    final revisit = await TarotRevisitIntentStore(
-      ref.read(localStorageProvider),
-    ).consume();
+    final revisit = await TarotRevisitIntentStore(localStorage).consume();
     if (revisit != null) {
       journeyHints = journeyHints.withRevisit(
         priorExcerpt: revisit.priorExcerpt,
@@ -168,9 +175,9 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       content =
           await TarotReadingCompletion(
             charge: TarotReadingCharge(
-              ref.read(gemWalletServiceProvider),
-              ref.read(localStorageProvider),
-              analytics: ref.read(analyticsServiceProvider),
+              walletService,
+              localStorage,
+              analytics: analytics,
             ),
           ).complete(
             session,
@@ -186,8 +193,18 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       content = null;
       loadError = null;
     }
-    // Balance must track spend even if the user left mid-load.
-    ref.read(gemWalletProvider).reload();
+    // Balance must track a settlement even if the user left mid-load.
+    // Use the captured controller/service only — never a disposed WidgetRef.
+    final cached = walletService.cachedBalance;
+    if (cached != null) {
+      try {
+        await walletController.acceptAuthoritativeBalance(cached);
+      } catch (_) {}
+    } else {
+      try {
+        await walletController.reload();
+      } catch (_) {}
+    }
     if (content == null) {
       if (mounted && token == _loadToken) {
         setState(() {
@@ -274,32 +291,54 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   /// Auto-saves the reading to History/Journal. Idempotent: [saveFromSession]
   /// always persists under the stable session id, so a retry after a
   /// failure (or a duplicate call) upserts the same entry rather than
-  /// creating a copy. Every failure is caught here — this method is
-  /// called unawaited from the load path, so an uncaught exception would
-  /// otherwise escape into the global error zone while the reading still
-  /// looks saved to the user.
+  /// creating a copy. Concurrent auto-save + manual Save coalesce through
+  /// [_journalGate] so side-effects run once. Every failure is caught here —
+  /// this method is called unawaited from the load path, so an uncaught
+  /// exception would otherwise escape into the global error zone while the
+  /// reading still looks saved to the user.
   Future<void> _persistToJournal({bool offerNote = false}) async {
-    if (_journalPersisted) {
-      if (offerNote) await _offerPersonalNote();
-      return;
-    }
+    await _journalGate.run(
+      body: _persistToJournalBody,
+      offerNote: offerNote,
+      onOfferNote: _offerPersonalNote,
+    );
+  }
+
+  /// Durable commit point: history (inside saveFromSession, via
+  /// ReadingService.saveReading -> HistoryRepository.saveReading) and the
+  /// exactly-once reading count (ReadingService -> recordReadingCompletion)
+  /// are the CORE persistence — required before this can report success.
+  /// Version seeding is bundled into that same core requirement: it is
+  /// cheap, purely local, and idempotent by rootId (ReadingVersionService
+  /// .seedOriginal no-ops if a group already exists), so retrying it
+  /// together with the save is free and a reading is never marked "saved"
+  /// while its version history is missing.
+  ///
+  /// [_journalGate.completed] is set ONLY after every one of those calls
+  /// has returned successfully — never before. Everything below that line
+  /// (analytics, cache invalidation) is best-effort and wrapped so it can
+  /// never turn an already-durable save into a user-visible failure or
+  /// re-arm the "save failed, tap Retry" banner for work that has nothing
+  /// left to retry.
+  Future<void> _persistToJournalBody() async {
+    if (_journalGate.completed) return;
     final reading = TarotScope.of(context).reading;
     final session = reading.session;
     final content = _contentData;
     if (session == null || content == null) return;
 
+    ReadingSession completed;
+    ReadingModel? saved;
     try {
-      final completed = session.status == ReadingSessionStatus.completed
+      completed = session.status == ReadingSessionStatus.completed
           ? session
           : await reading.completeSession();
-      final saved = await ref
+      saved = await ref
           .read(readingServiceProvider)
           .saveFromSession(
             session: completed,
             aiSummary: content.fullInterpretation ?? content.generalMeaning,
           );
-      _journalPersisted = true;
-      _savedReadingId = saved?.id;
       if (saved != null) {
         await ref
             .read(readingVersionServiceProvider)
@@ -309,9 +348,31 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
               data: ReadingVersionPayload.tarot(saved.aiSummary),
             );
       }
+    } catch (e) {
+      debugPrint('[ReadingScreen] journal persist failed: $e');
+      if (!mounted) return;
+      setState(() => _journalPersistFailed = true);
+      _showJournalPersistFailedFeedback();
+      return;
+    }
+
+    // Every core step above succeeded — this reading IS durably saved.
+    _journalGate.completed = true;
+    _savedReadingId = saved?.id;
+    if (mounted && _journalPersistFailed) {
+      setState(() => _journalPersistFailed = false);
+    }
+
+    // Best-effort only from here — none of this may flip
+    // _journalPersistFailed; the durable save above already succeeded.
+    try {
       ref
           .read(analyticsServiceProvider)
           .logReadingCompleted(spreadType: completed.spread.name);
+    } catch (e) {
+      debugPrint('[ReadingScreen] analytics (best-effort) failed: $e');
+    }
+    try {
       ref.invalidate(readingHistoryProvider);
       // A saved reading means this is no longer the user's first session --
       // without this, the Soulmate prerequisite gate (isFirstSessionProvider)
@@ -319,15 +380,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       // real completed daily-card reading.
       ref.invalidate(isFirstSessionProvider);
       PersonalDiscoveryRefresh.invalidate(ref);
-      if (mounted && _journalPersistFailed) {
-        setState(() => _journalPersistFailed = false);
-      }
-      if (offerNote) await _offerPersonalNote();
     } catch (e) {
-      debugPrint('[ReadingScreen] journal persist failed: $e');
-      if (!mounted) return;
-      setState(() => _journalPersistFailed = true);
-      _showJournalPersistFailedFeedback();
+      debugPrint('[ReadingScreen] cache invalidation (best-effort) failed: $e');
     }
   }
 
@@ -364,7 +418,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
 
   Future<void> _saveReading() async {
     await _persistToJournal(offerNote: true);
-    if (!mounted) return;
+    if (!mounted || !_journalGate.completed) return;
     OraclySnackBar.success(context, SessionEndingCopy.saveConfirmation);
   }
 
@@ -663,11 +717,11 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                         onNewReading: _exiting
                                             ? null
                                             : _newReading,
-                                        onSave: _journalPersisted
+                                        onSave: _journalGate.completed
                                             ? null
                                             : _saveReading,
                                         onAskOracle: _openOracleConversation,
-                                        onAddReflection: _journalPersisted
+                                        onAddReflection: _journalGate.completed
                                             ? _offerPersonalNote
                                             : null,
                                         shareDiscovery:

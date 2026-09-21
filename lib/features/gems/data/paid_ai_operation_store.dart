@@ -4,6 +4,7 @@ library;
 import 'dart:convert';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/datasources/storage_result.dart';
 import '../models/paid_ai_operation.dart';
 
 class PaidAiOperationStore {
@@ -53,12 +54,14 @@ class PaidAiOperationStore {
     await _write([for (final op in all()) if (op.id != id) op]);
   }
 
-  Future<void> clear() => _storage.remove(key);
+  Future<void> clear() => _storage.remove(key).requireDurable(key);
 
   Future<void> _write(List<PaidAiOperation> ops) async {
-    await _storage.setStringList(
-      key,
-      ops.map((e) => jsonEncode(e.toJson())).toList(),
-    );
+    await _storage
+        .setStringList(
+          key,
+          ops.map((e) => jsonEncode(e.toJson())).toList(),
+        )
+        .requireDurable(key);
   }
 }

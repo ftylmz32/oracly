@@ -1,0 +1,76 @@
+/// Root recovery when durable LocalStorage cannot be opened.
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/design_system/oracly_chrome.dart';
+import '../../../core/theme/reading_typography.dart';
+import '../../../features/privacy/copy/privacy_control_copy.dart';
+import '../../../shared/widgets/oracly_gold_button.dart';
+import '../../../shared/widgets/oracly_scaffold.dart';
+import 'deletion_gate_recovery_router.dart';
+
+class SecureStartupRecoveryScreen extends ConsumerStatefulWidget {
+  const SecureStartupRecoveryScreen({super.key});
+
+  @override
+  ConsumerState<SecureStartupRecoveryScreen> createState() =>
+      _SecureStartupRecoveryScreenState();
+}
+
+class _SecureStartupRecoveryScreenState
+    extends ConsumerState<SecureStartupRecoveryScreen> {
+  bool _busy = false;
+
+  Future<void> _retry() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await resolveDeletionGateAndRoute(
+        context: context,
+        ref: ref,
+        isMounted: () => mounted,
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OraclyScaffold(
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                PrivacyControlCopy.storageRecoveryTitle,
+                textAlign: TextAlign.center,
+                style: ReadingTypography.sectionLabel(
+                  color: OraclyChrome.goldLight,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                PrivacyControlCopy.storageRecoveryBody,
+                textAlign: TextAlign.center,
+                style: ReadingTypography.body(
+                  color: OraclyChrome.cream.withValues(alpha: 0.86),
+                ),
+              ),
+              const SizedBox(height: 28),
+              OraclyGoldButton(
+                label: PrivacyControlCopy.storageRecoveryRetry,
+                onPressed: _busy ? null : _retry,
+                expanded: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

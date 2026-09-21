@@ -20,7 +20,6 @@ import '../../../ai/presentation/widgets/conversation_closing_whisper.dart';
 import '../../../ai/presentation/widgets/conversation_message_entrance.dart';
 import '../../../ai/presentation/widgets/oracle_conversation_input.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
-import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/widgets/oracly_cinematic_loading.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../../../shared/widgets/oracly_text_action.dart';
@@ -29,6 +28,7 @@ import '../../controllers/companion_controller.dart';
 import '../../copy/companion_copy.dart';
 import '../../models/companion_state.dart';
 import '../../providers/companion_providers.dart';
+import '../reference/companion_reference_actions.dart';
 import '../widgets/companion_header.dart';
 import '../widgets/companion_suggestion_chips.dart';
 
@@ -81,15 +81,11 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen> {
     OraclyNavigationService.openMemory(context);
   }
 
-  Future<void> _saveLastUserMessage(CompanionController controller) async {
-    final conversation = controller.state.conversation;
-    if (conversation == null) return;
-    final lastUser = conversation.messages.where((m) => m.isUser).lastOrNull;
-    if (lastUser == null) return;
-    await controller.saveToMemory(lastUser.content);
-    if (mounted) {
-      OraclySnackBar.show(context, message: CompanionCopy.memorySaved);
-    }
+  Future<void> _saveLastUserMessage(CompanionController controller) {
+    // Shares the same failure boundary as the OR menu's Save to Memory:
+    // success snackbar only on a genuine save, an error+Retry snackbar on
+    // a real persistence failure, never an unhandled async error.
+    return saveLastCompanionMemory(context: context, controller: controller);
   }
 
   @override
@@ -243,12 +239,5 @@ class _ErrorBody extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-extension _LastOrNull<E> on Iterable<E> {
-  E? get lastOrNull {
-    if (isEmpty) return null;
-    return last;
   }
 }

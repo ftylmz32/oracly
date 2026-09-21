@@ -1,23 +1,12 @@
 /// OR-1170 — Provider scope for tarot controllers with persistence.
 library;
 
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/datasources/local_storage.dart';
-import '../../ai/production/oracly_ai_providers.dart';
-import '../art/tarot_image_budget.dart';
 import '../controllers/tarot_flow_controller.dart';
 import '../controllers/tarot_reading_controller.dart';
-import '../data/repositories/tarot_reading_repository_impl.dart';
-import '../domain/models/reading_session.dart';
-import '../interpretation/executors/ai_interpretation_executor.dart';
-import '../interpretation/executors/local_interpretation_executor.dart';
-import '../interpretation/services/interpretation_engine.dart';
-import '../services/tarot_interpretation_service.dart';
-import '../shared/constants/tarot_routes.dart';
+
+export 'tarot_module_root.dart';
 
 /// Inherited controller bundle for the tarot ritual subtree.
 class TarotScope extends InheritedWidget {
@@ -26,10 +15,14 @@ class TarotScope extends InheritedWidget {
     required this.flow,
     required this.reading,
     required super.child,
+    this.restoreReady,
   });
 
   final TarotFlowController flow;
   final TarotReadingController reading;
+
+  /// Completes after the first active-session restore attempt finishes.
+  final Future<void>? restoreReady;
 
   static TarotScope of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<TarotScope>();
@@ -43,108 +36,8 @@ class TarotScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(TarotScope oldWidget) {
-    return flow != oldWidget.flow || reading != oldWidget.reading;
-  }
-}
-
-/// Root widget that wires tarot controllers for nested navigators.
-class TarotModuleRoot extends ConsumerStatefulWidget {
-  const TarotModuleRoot({
-    super.key,
-    required this.storage,
-    required this.child,
-    this.navigatorKey,
-  });
-
-  final LocalStorage storage;
-  final Widget child;
-  final GlobalKey<NavigatorState>? navigatorKey;
-
-  @override
-  ConsumerState<TarotModuleRoot> createState() => _TarotModuleRootState();
-}
-
-class _TarotModuleRootState extends ConsumerState<TarotModuleRoot>
-    with WidgetsBindingObserver {
-  late final TarotFlowController _flow;
-  late final TarotReadingController _reading;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    TarotImageBudget.enter();
-    _flow = TarotFlowController();
-    _reading = TarotReadingController(
-      repository: TarotReadingRepositoryImpl.fromStorage(widget.storage),
-      interpretationService: _buildInterpretationService(),
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _restoreSession());
-  }
-
-  /// Real backend-proxied Tarot AI when configured; the existing local
-  /// deterministic engine stays the fail-closed fallback (handled inside
-  /// TarotInterpretationService — never wired here as the primary path).
-  TarotInterpretationService _buildInterpretationService() {
-    final ai = ref.read(oraclyAiServiceProvider);
-    final executor = ai.isConfigured
-        ? AiInterpretationExecutor(ai: ai)
-        : LocalInterpretationExecutor();
-    return TarotInterpretationService(
-      engine: InterpretationEngineFactory.create(
-        cache: InMemoryInterpretationCache(),
-        executor: executor,
-      ),
-    );
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
-      unawaited(_reading.flush());
-    }
-  }
-
-  Future<void> _restoreSession() async {
-    await _reading.restoreActiveSession();
-    if (!mounted) return;
-    final session = _reading.session;
-    if (session == null || session.status == ReadingSessionStatus.completed) {
-      return;
-    }
-    _flow.selectSpread(session.spread);
-    final route = _routeForStep(session.flowStep);
-    widget.navigatorKey?.currentState?.pushNamedAndRemoveUntil(
-      route,
-      (route) => route.settings.name == TarotRoutes.home,
-    );
-  }
-
-  String _routeForStep(ReadingFlowStep step) => switch (step) {
-        ReadingFlowStep.deckSelection => TarotRoutes.deckSelection,
-        ReadingFlowStep.shuffle => TarotRoutes.shuffle,
-        ReadingFlowStep.cardSelection => TarotRoutes.shuffle,
-        ReadingFlowStep.reveal => TarotRoutes.shuffle,
-        ReadingFlowStep.reading => TarotRoutes.reading,
-        ReadingFlowStep.completed => TarotRoutes.home,
-      };
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    TarotImageBudget.leave();
-    _flow.dispose();
-    _reading.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TarotScope(
-      flow: _flow,
-      reading: _reading,
-      child: widget.child,
-    );
+    return flow != oldWidget.flow ||
+        reading != oldWidget.reading ||
+        restoreReady != oldWidget.restoreReady;
   }
 }

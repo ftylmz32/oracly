@@ -1,17 +1,15 @@
 /// OR-438 — Module-aware navigation bridge (uses existing nav service).
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
 
-import '../../app/providers/app_providers.dart';
+import 'package:flutter/material.dart';
+
 import '../../features/premium/services/premium_access.dart';
 import '../../features/premium/services/soul_mate_navigation.dart';
 import '../../screens/memory/memory_screen.dart';
-import '../copy/first_session_copy.dart';
 import '../navigation/oracly_navigation_service.dart';
 import '../navigation/oracly_page_transitions.dart';
-import '../../shared/ui/oracly_snackbar.dart';
 import 'oracly_feature_id.dart';
 import 'oracly_feature_module.dart';
 import 'oracly_feature_registry.dart';
@@ -20,28 +18,58 @@ import 'oracly_feature_registry.dart';
 abstract final class OraclyFeatureNavigation {
   OraclyFeatureNavigation._();
 
+  static final Set<OraclyFeatureId> _premiumGateInFlight =
+      <OraclyFeatureId>{};
+
   static OraclyFeatureModule? module(OraclyFeatureId id) =>
       OraclyFeatureRegistry.byId(id);
 
   static bool canOpen(OraclyFeatureId id) {
     final m = module(id);
     if (m == null) return false;
-    if (id == OraclyFeatureId.memory) return true;
+    // Custom stack destinations do not have a registered named route.
+    if (id == OraclyFeatureId.memory || id == OraclyFeatureId.soulMate) {
+      return true;
+    }
     return m.isNavigable;
   }
 
   static void open(BuildContext context, OraclyFeatureId id) {
-    if (id == OraclyFeatureId.soulMate &&
-        _deferSoulMateForFirstSession(context)) {
-      return;
-    }
     final gated = module(id);
-    if (gated != null &&
-        gated.requiresPremium &&
-        !PremiumAccess.ensure(context)) {
-      PremiumAccess.prompt(context);
+    if (gated != null && gated.requiresPremium) {
+      // Cold-start safe: a real subscriber may tap before PremiumStatusController
+      // has completed its first load/reconcile. Never turn "not loaded yet"
+      // into a false paywall. Also single-flight rapid taps so an inactive
+      // user cannot stack duplicate Premium sheets while the first gate is
+      // still reconciling.
+      if (!_premiumGateInFlight.add(id)) return;
+      unawaited(_openPremiumGatedSingleFlight(context, id));
       return;
     }
+    _openResolved(context, id);
+  }
+
+  static Future<void> _openPremiumGatedSingleFlight(
+    BuildContext context,
+    OraclyFeatureId id,
+  ) async {
+    try {
+      await _openPremiumGated(context, id);
+    } finally {
+      _premiumGateInFlight.remove(id);
+    }
+  }
+
+  static Future<void> _openPremiumGated(
+    BuildContext context,
+    OraclyFeatureId id,
+  ) async {
+    final allowed = await PremiumAccess.ensureFresh(context);
+    if (!allowed || !context.mounted) return;
+    _openResolved(context, id);
+  }
+
+  static void _openResolved(BuildContext context, OraclyFeatureId id) {
     switch (id) {
       case OraclyFeatureId.home:
         OraclyNavigationService.openHome(context);
@@ -78,6 +106,8 @@ abstract final class OraclyFeatureNavigation {
       case OraclyFeatureId.settings:
         OraclyNavigationService.openSettings(context);
       case OraclyFeatureId.soulMate:
+        // Never hijack Soul Mate into Tarot / daily-card — Premium gate
+        // above already prompts; entitled users open Soul Mate itself.
         SoulMateNavigation.open(context);
       case OraclyFeatureId.dailyEnergy:
         OraclyNavigationService.openDailyEnergy(context);
@@ -85,24 +115,6 @@ abstract final class OraclyFeatureNavigation {
       case OraclyFeatureId.moonCalendar:
       case OraclyFeatureId.manifestation:
         _openReserved(context, id);
-    }
-  }
-
-  /// First session: free card before Premium Soul Mate paywall.
-  static bool _deferSoulMateForFirstSession(BuildContext context) {
-    if (PremiumAccess.isActive(context)) return false;
-    try {
-      final container = ProviderScope.containerOf(context, listen: false);
-      final first = container.read(isFirstSessionProvider).valueOrNull ?? false;
-      if (!first) return false;
-      OraclySnackBar.show(
-        context,
-        message: FirstSessionCopy.soulMateLater,
-      );
-      OraclyNavigationService.startDailyCardDraw(context);
-      return true;
-    } catch (_) {
-      return false;
     }
   }
 

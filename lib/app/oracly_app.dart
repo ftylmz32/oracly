@@ -9,18 +9,23 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/accessibility/oracly_a11y.dart';
+import '../core/auth/account_deletion_gate_destination.dart';
+import '../core/auth/account_deletion_pending_state.dart';
 import '../core/auth/account_switch_refresh_host.dart';
 import '../core/auth/anonymous_auth_bootstrap.dart';
 import '../core/auth/firebase/firebase_app_check_bootstrap.dart';
 import '../core/auth/firebase/firebase_auth_bootstrap.dart';
+import '../core/auth/presentation/account_deletion_gate_screen.dart';
 import '../core/config/app_config.dart';
 import '../core/data/datasources/local_storage.dart';
 import '../core/l10n/l10n.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_theme.dart';
+import '../core/navigation/deferred_gate_route_host.dart';
 import '../core/navigation/oracly_navigator_key.dart';
 import '../core/navigation/oracly_page_transitions.dart';
 import '../core/navigation/oracly_route_generator.dart';
+import '../core/navigation/oracly_routes.dart';
 import '../features/share_reopen/widgets/share_link_host.dart';
 import '../screens/splash/splash_screen.dart';
 import '../shared/navigation/oracly_navigation.dart';
@@ -48,10 +53,33 @@ class OraclyApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      // Splash (home) always owns the true first screen: the platform's
+      // defaultRouteName (e.g. a cold-launch deep link) is NOT necessarily
+      // "/" — Flutter's default initial-route generation would otherwise
+      // resolve that name via onGenerateRoute as the very FIRST route,
+      // bypassing Splash and the deletion gate entirely. main.dart already
+      // captures defaultRouteName into ShareLinkInbox before runApp, and
+      // SplashScreen replays it (share links, the /chat shortcut) only
+      // after the gate resolves — forcing "/" here is what makes that the
+      // only path.
+      initialRoute: OraclyRoutes.splash,
       onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
-      onUnknownRoute: (_) => OraclyPageTransitions.fade(
-        page: const OraclyAppShell(),
-      ),
+      onUnknownRoute: (settings) {
+        final destination = AccountDeletionGateDestinations.current;
+        if (destination == AccountDeletionGateDestination.unresolved) {
+          return OraclyPageTransitions.fade(
+            page: DeferredGateRouteHost(originalSettings: settings),
+            settings: settings,
+          );
+        }
+        final gateOverride = screenForGateDestination(destination);
+        if (gateOverride != null) {
+          return OraclyPageTransitions.fade(page: gateOverride);
+        }
+        return OraclyPageTransitions.fade(
+          page: const OraclyAppShell(),
+        );
+      },
       builder: (context, child) {
         final media = MediaQuery.of(context);
         final isLight = Theme.of(context).brightness == Brightness.light;
@@ -86,8 +114,11 @@ class OraclyApp extends ConsumerWidget {
   }
 }
 
-/// Bootstraps [LocalStorage] and [AppConfig] before the widget tree mounts.
-/// Never blocks first paint on network auth — anonymous ensure runs in parallel.
+/// Alternate bootstrap helper — not used by production [main].
+///
+/// Reachable only from startup performance source tests / tooling.
+/// Obeys the same deletion gate before any anonymous owner bootstrap.
+@Deprecated('Production uses main() + SplashScreen; keep gate-aware.')
 Future<ProviderContainer> bootstrapProviders() async {
   await AppConfig.initialize();
   await FirebaseAuthBootstrap.tryInitialize();
@@ -98,8 +129,11 @@ Future<ProviderContainer> bootstrapProviders() async {
       localStorageProvider.overrideWithValue(storage),
     ],
   );
-  unawaited(
-    AnonymousAuthBootstrap.ensure(container.read(authServiceProvider)),
-  );
+  await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+  if (AccountDeletionPendingState.allowsOwnerBoundExperience) {
+    unawaited(
+      AnonymousAuthBootstrap.ensure(container.read(authServiceProvider)),
+    );
+  }
   return container;
 }

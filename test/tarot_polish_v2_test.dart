@@ -6,8 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/domain/models/reading.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context.dart';
+import 'package:oracly_new/features/gems/controllers/gem_wallet_controller.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
 import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
+import 'package:oracly_new/features/gems/providers/gem_providers.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/insights/services/reflective_card_copy.dart';
 import 'package:oracly_new/features/insights/services/reflective_reading_copy.dart';
@@ -292,9 +294,20 @@ Temel anlam: Belirsizlik.
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
+    // `GemSpendGuard`/`GemSpendUi.ensureAffordable` now fail-closed on a
+    // merely stale/cached balance — it requires a freshly-reconciled
+    // (`authoritative`) wallet before it will even evaluate affordability,
+    // showing a "please wait / retry" message instead otherwise (the real
+    // provider chain can never reach `authoritative` in a widget test with
+    // no configured backend proxy). Seed a wallet that has already gone
+    // through a real authoritative reconcile at balance 0, exactly like
+    // the "local gem spend fails closed" unit test above does.
+    final wallet = GemWalletController(GemWalletService(GemWalletStore(storage)));
+    await wallet.acceptAuthoritativeBalance(0);
     await tester.pumpWidget(
       buildProviderScopeHarness(
         storage: storage,
+        overrides: [gemWalletProvider.overrideWith((ref) => wallet)],
         child: const MaterialApp(home: TarotEpic031Page()),
       ),
     );

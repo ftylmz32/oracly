@@ -154,8 +154,8 @@ void main() {
       PersonalMemoryStore.key: '{"schemaVersion":1,"preferredName":"X","themes":[],"recentDiscoveries":[],"preferences":[],"recentTopics":[],"fingerprint":"x"}',
       'user_memories': ['{"category":"general","content":"hi","importance":"normal","createdAt":"2026-08-01T00:00:00.000"}'],
     });
-    await MemoryService().clearMemory();
     final prefs = await SharedPreferences.getInstance();
+    await MemoryService(LocalStorage(prefs)).clearMemory();
     expect(prefs.getString(PersonalMemoryStore.key), isNull);
     expect(prefs.getStringList('user_memories'), isNull);
   });

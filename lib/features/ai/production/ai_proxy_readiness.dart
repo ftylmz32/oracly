@@ -59,7 +59,12 @@ abstract final class AiProxyReadiness {
       );
     }
 
-    final attestation = await _resolveToken(appCheckToken);
+    // App Check gets its own, more patient retry schedule than the generic
+    // `_resolveToken` below — see `resolveAppCheckToken`'s doc comment.
+    // `ProxyAiHeaders.build` resolves it again moments later (it needs the
+    // token value, not just a yes/no check); both must use the same
+    // schedule or a request could pass this check and still fail there.
+    final attestation = await resolveAppCheckToken(appCheckToken);
     if (attestation == null || attestation.isEmpty) {
       return AiFailure.appCheck();
     }

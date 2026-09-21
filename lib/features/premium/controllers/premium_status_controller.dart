@@ -35,6 +35,7 @@ class PremiumStatusController extends ChangeNotifier {
   static const retryThrottle = PremiumReconcileFreshness.retryThrottle;
 
   Future<void>? _inFlight;
+  Future<void>? _loadInFlight;
 
   /// True only after a *definitive* reconcile within [freshnessWindow].
   bool get isFresh => _freshness.isFresh(_now());
@@ -61,11 +62,23 @@ class PremiumStatusController extends ChangeNotifier {
   bool get isFree => !isPremium;
   bool get busy => _entitlement.isTransient;
   bool get purchaseConfigured => _service.purchaseConfigured;
+  bool get ownerAccessReady => _service.ownerAccessReady;
+  bool get canAttemptRestore => _service.canAttemptRestore;
   PremiumPlanKind get selectedPlan => _selectedPlan;
   PremiumPlanKind? get activePlan => _activePlan;
   List<PremiumPlanModel> get plans => _plans;
 
-  Future<void> load() async {
+  Future<void> load() {
+    final existing = _loadInFlight;
+    if (existing != null) return existing;
+    final future = _loadOnce().whenComplete(() {
+      _loadInFlight = null;
+    });
+    _loadInFlight = future;
+    return future;
+  }
+
+  Future<void> _loadOnce() async {
     try {
       await _service.preparePurchase();
       _activePlan = await _service.activePlan();

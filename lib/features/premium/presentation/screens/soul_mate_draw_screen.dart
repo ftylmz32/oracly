@@ -29,7 +29,10 @@ import 'soul_mate_draw_preview.dart';
 import 'soul_mate_draw_shell.dart';
 
 class SoulMateDrawScreen extends ConsumerStatefulWidget {
-  const SoulMateDrawScreen({super.key});
+  const SoulMateDrawScreen({super.key, this.operationId});
+
+  /// Exact durable completion target from push/deep-link navigation.
+  final String? operationId;
 
   @override
   ConsumerState<SoulMateDrawScreen> createState() => _SoulMateDrawScreenState();
@@ -56,10 +59,14 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   int _pollToken = 0;
   bool _staleLegacy = false;
   DateTime? _activeSince;
+  String? _targetOperationId;
 
   @override
   void initState() {
     super.initState();
+    final target = widget.operationId?.trim();
+    _targetOperationId =
+        target == null || target.isEmpty ? null : target;
     WidgetsBinding.instance.addPostFrameCallback((_) => _resumeOrRestore());
   }
 
@@ -72,6 +79,19 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   }
 
   Future<void> _resumeOrRestore() async {
+    final exactOperationId = _targetOperationId;
+    if (exactOperationId != null) {
+      final exact = await SoulMateReadingOrchestrator.recoverDurableOperation(
+        ref,
+        exactOperationId,
+      );
+      if (!mounted) return;
+      // Exact deep links never attach to some other active SoulMate job
+      // and never fall back to an unrelated previously-saved portrait.
+      await _applyDurable(exact);
+      return;
+    }
+
     final runner = ref.read(soulMateGenerationRunnerProvider);
     final owner = SoulMateDrawAction.ownerOf(ref);
     final inflight = runner.currentFor(owner);
@@ -229,7 +249,13 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     _pollTimer = Timer(const Duration(seconds: 3), () {
       unawaited(() async {
         if (!mounted || token != _pollToken) return;
-        final outcome = await SoulMateReadingOrchestrator.recoverDurable(ref);
+        final exactOperationId = _targetOperationId;
+        final outcome = exactOperationId == null
+            ? await SoulMateReadingOrchestrator.recoverDurable(ref)
+            : await SoulMateReadingOrchestrator.recoverDurableOperation(
+                ref,
+                exactOperationId,
+              );
         if (!mounted || token != _pollToken) return;
         await _applyDurable(outcome);
       }());
@@ -414,8 +440,11 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     ref.watch(birthInformationProvider);
     _maybePrefillBirth();
     final locked = !SoulMateDevAccess.allows(context);
+    // Saved portraits remain readable after entitlement lapses — Premium
+    // gates only fresh draw/redraw (allowsFresh on those actions).
+    final showLockedPreview = locked && _result == null;
     return SoulMateDrawShell(
-      body: locked
+      body: showLockedPreview
           ? const SoulMateDrawPreview()
           : SoulMateDrawBody(
               nameController: _name,

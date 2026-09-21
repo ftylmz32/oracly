@@ -44,6 +44,7 @@ class _TarotModuleNavigatorState extends ConsumerState<TarotModuleNavigator> {
       child: FirstSessionScope(
         isFirstSession: isFirstSession,
         child: DailyRitualTarotBridge(
+          navigatorKey: _navigatorKey,
           child: PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, _) {

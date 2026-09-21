@@ -3,10 +3,16 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_kind.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_tap_inbox.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_tap_router.dart';
 import 'package:oracly_new/shared/navigation/oracly_navigation_scope.dart';
+import 'package:oracly_new/shared/navigation/oracly_shell_bridge.dart';
+import 'package:oracly_new/shared/navigation/oracly_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../test_helpers/provider_scope_harness.dart';
 
 void main() {
   setUp(() => OraclyNotificationTapInbox.instance.resetForTests());
@@ -38,14 +44,40 @@ void main() {
     );
   });
 
+  test(
+    'active shell without navigator context does not consume pending payload',
+    () {
+      OraclyNotificationTapInbox.instance.offer('daily');
+
+      void switcher(OraclyTab _) {}
+      OraclyShellBridge.bind(switcher);
+      addTearDown(() => OraclyShellBridge.unbind(switcher));
+
+      OraclyNotificationTapRouter.openPending();
+
+      expect(
+        OraclyNotificationTapInbox.instance.pendingKind,
+        OraclyNotificationKind.daily,
+      );
+    },
+  );
+
   testWidgets('navigator ready consumes pending payload once', (tester) async {
     OraclyNotificationTapInbox.instance.offer('companion');
+    // `openChat` reads `companionControllerProvider` (to clear a stale
+    // reading-context handoff on a fresh open) — a real ProviderScope is
+    // required, exactly as the live app always provides one at its root.
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
     await tester.pumpWidget(
-      MaterialApp(
-        home: OraclyNavigationScope(
-          currentIndex: 0,
-          switchToTab: (_) {},
-          child: const SizedBox(),
+      buildProviderScopeHarness(
+        storage: storage,
+        child: MaterialApp(
+          home: OraclyNavigationScope(
+            currentIndex: 0,
+            switchToTab: (_) {},
+            child: const SizedBox(),
+          ),
         ),
       ),
     );

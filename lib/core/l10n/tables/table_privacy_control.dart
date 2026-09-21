@@ -176,4 +176,104 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Account deleted. You are ready for a fresh start.',
     'Аккаунт удалён. Можно начать заново.',
   ),
+  'privacy.control.delete.reauth.password.title': L10nTriple(
+    'Kimliğini doğrula',
+    'Confirm it is you',
+    'Подтверди, что это ты',
+  ),
+  'privacy.control.delete.reauth.password.body': L10nTriple(
+    'Hesabı silmek için şifreni gir. Şifre kaydedilmez.',
+    'Enter your password to delete the account. It is never saved.',
+    'Введи пароль, чтобы удалить аккаунт. Он не сохраняется.',
+  ),
+  'privacy.control.delete.reauth.password.action': L10nTriple(
+    'Doğrula ve sil',
+    'Confirm and delete',
+    'Подтвердить и удалить',
+  ),
+  'privacy.control.delete.reauth.cancel': L10nTriple(
+    'Vazgeç',
+    'Cancel',
+    'Отмена',
+  ),
+  'privacy.control.delete.reauth.google': L10nTriple(
+    'Google ile doğrula',
+    'Confirm with Google',
+    'Подтвердить через Google',
+  ),
+  'privacy.control.delete.reauth.apple': L10nTriple(
+    'Apple ile doğrula',
+    'Confirm with Apple',
+    'Подтвердить через Apple',
+  ),
+  'privacy.control.delete.reauth.email': L10nTriple(
+    'Şifre ile doğrula',
+    'Confirm with password',
+    'Подтвердить паролем',
+  ),
+  'privacy.control.delete.pending.title': L10nTriple(
+    'Hesap kaldırma tamamlanmadı',
+    'Account removal is incomplete',
+    'Удаление аккаунта не завершено',
+  ),
+  'privacy.control.delete.pending.body': L10nTriple(
+    'Sunucu tarafı silindi; kimlik doğrulaması hâlâ gerekiyor. Uygulama normal kullanıma açılmaz.',
+    'Server data was deleted; identity confirmation is still required. The app will not open normally.',
+    'Серверные данные удалены; нужна повторная проверка личности. Обычный вход закрыт.',
+  ),
+  'privacy.control.delete.pending.retry': L10nTriple(
+    'Doğrulamayı tamamla',
+    'Finish confirmation',
+    'Завершить подтверждение',
+  ),
+  'privacy.control.delete.finalizing.title': L10nTriple(
+    'Hesap temizliği tamamlanıyor',
+    'Finishing account cleanup',
+    'Завершение очистки аккаунта',
+  ),
+  'privacy.control.delete.finalizing.body': L10nTriple(
+    'Eski kimlik kaldırıldı. Güvenli bir oturum kurulamadı. Ana ekran henüz açılmaz.',
+    'The old identity was removed. A secure session could not be established yet. Home stays closed.',
+    'Старая личность удалена. Безопасный сеанс ещё не создан. Обычный вход закрыт.',
+  ),
+  'privacy.control.delete.finalizing.retry': L10nTriple(
+    'Oturumu kur',
+    'Establish session',
+    'Создать сеанс',
+  ),
+  'privacy.control.storage.recovery.title': L10nTriple(
+    'Hesap verisi açılamıyor',
+    'Account data cannot open safely',
+    'Данные аккаунта недоступны',
+  ),
+  'privacy.control.storage.recovery.body': L10nTriple(
+    'ORACLY şu anda hesap verilerinizi güvenle açamıyor.',
+    'ORACLY cannot safely open your account data right now.',
+    'ORACLY сейчас не может безопасно открыть данные аккаунта.',
+  ),
+  'privacy.control.storage.recovery.retry': L10nTriple(
+    'Yeniden dene',
+    'Retry',
+    'Повторить',
+  ),
+  'privacy.control.integrity.recovery.title': L10nTriple(
+    'Hesap güvenlik durumu doğrulanamadı',
+    'Account safety state could not be verified',
+    'Не удалось проверить безопасность аккаунта',
+  ),
+  'privacy.control.integrity.recovery.body': L10nTriple(
+    'ORACLY şu anda hesabınızın güvenli durumunu doğrulayamıyor. Verileriniz silinmedi ve hesabınız kaldırılmadı.',
+    'ORACLY cannot verify your account\'s safety state right now. Your data has not been deleted and your account has not been removed.',
+    'ORACLY сейчас не может подтвердить безопасное состояние аккаунта. Ваши данные не удалены, а аккаунт не был удалён.',
+  ),
+  'privacy.control.integrity.recovery.retry': L10nTriple(
+    'Yeniden dene',
+    'Retry',
+    'Повторить',
+  ),
+  'privacy.control.integrity.recovery.continue_deletion': L10nTriple(
+    'Hesap silme işlemine devam et',
+    'Continue account deletion',
+    'Продолжить удаление аккаунта',
+  ),
 };

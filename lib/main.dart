@@ -7,17 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/oracly_app.dart';
 import 'app/providers/app_providers.dart';
-import 'core/auth/anonymous_auth_bootstrap.dart';
+import 'core/auth/account_deletion_owner_bootstrap.dart';
+import 'core/auth/account_deletion_pending_state.dart';
 import 'core/auth/firebase/firebase_app_check_bootstrap.dart';
 import 'core/auth/firebase/firebase_auth_bootstrap.dart';
 import 'core/config/app_config.dart';
 import 'core/data/datasources/local_storage.dart';
-import 'core/storage/secure_storage_bootstrap.dart';
-import 'core/data/repositories/mock_premium_repository.dart';
 import 'core/l10n/oracly_format.dart';
 import 'core/platform/oracly_phone_orientation.dart';
-import 'core/notifications/reading_push_bootstrap.dart';
 import 'core/telemetry/crash_telemetry_bootstrap.dart';
+import 'features/privacy/providers/privacy_control_providers.dart';
 import 'features/share_reopen/services/share_link_inbox.dart';
 import 'screens/splash/splash_startup_log.dart';
 
@@ -26,22 +25,18 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
     await OraclyPhoneOrientation.lockPhonesToPortrait();
     SplashStartupLog.mark('MAIN_START');
+    AccountDeletionPendingState.beginStartup();
 
-    // Capture route name without blocking first frame.
     ShareLinkInbox.instance.capture(
       WidgetsBinding.instance.platformDispatcher.defaultRouteName,
     );
 
-    // Debug/profile: load public .env.example before UI so ORACLY_DEV_PREMIUM
-    // is readable for Settings QA. Release never loads dotenv (kReleaseMode).
     if (!kReleaseMode) {
       try {
         await dotenv.load(fileName: '.env.example', isOptional: true);
       } catch (_) {}
     }
 
-    // Ephemeral storage → first Flutter frame paints brand overlay immediately.
-    // Heavy init continues in parallel (see _deferredStartup).
     final storage = LocalStorage.ephemeral();
     final container = ProviderContainer(
       overrides: [
@@ -71,21 +66,32 @@ Future<void> _deferredStartup(
   try {
     await AppConfig.initialize();
   } catch (_) {}
+
+  // Durable storage first, then routing-critical deletion gate — BEFORE any
+  // owner-bound cache hydration (Premium, push, anonymous owner bootstrap).
   try {
     await storage.tryPromote();
   } catch (_) {}
   try {
-    final secure = container.read(secureStorageProvider);
-    await SecureStorageBootstrap.run(storage, secure);
-    final premium = container.read(premiumRepositoryProvider);
-    if (premium is MockPremiumRepository) {
-      await premium.warmCredentialCache();
-    }
-  } catch (_) {}
+    await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+  } catch (_) {
+    AccountDeletionPendingState.markStorageUnavailable();
+  }
+
   await FirebaseAuthBootstrap.tryInitialize();
   await FirebaseAppCheckBootstrap.tryActivate();
   container.invalidate(firebaseAuthReadyProvider);
-  await AnonymousAuthBootstrap.ensure(container.read(authServiceProvider));
-  await ReadingPushBootstrap.install(container);
+
+  await AccountDeletionPendingState.resolveAndReconcile(
+    storage,
+    container.read(accountDeletionServiceProvider),
+  );
+
+  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
+    await CrashTelemetryBootstrap.install(container);
+    return;
+  }
+
+  await AccountDeletionOwnerBootstrap.runIfClear(container);
   await CrashTelemetryBootstrap.install(container);
 }

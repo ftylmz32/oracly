@@ -4,6 +4,7 @@ library;
 import 'dart:convert';
 
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/data/datasources/storage_result.dart';
 import '../models/gem_transaction.dart';
 
 class GemWalletStore {
@@ -68,16 +69,26 @@ class GemWalletStore {
 
   Future<void> cacheServerBalance(int balance, {String? ownerId}) async {
     final owner = ownerId?.trim();
+    final normalized = balance < 0 ? 0 : balance;
     if (owner == null || owner.isEmpty) {
       // Compatibility for isolated legacy/test services. Production wallet
       // providers always supply an authenticated owner.
-      await _storage.setInt(serverBalanceCacheKey, balance < 0 ? 0 : balance);
+      await _storage
+          .setInt(serverBalanceCacheKey, normalized)
+          .requireDurable(serverBalanceCacheKey);
       return;
     }
-    // Remove first so a crash can produce only "loading", never a balance
-    // associated with the wrong account.
-    await _storage.remove(serverBalanceCacheKey);
-    await _storage.setString(serverBalanceOwnerKey, owner);
-    await _storage.setInt(serverBalanceCacheKey, balance < 0 ? 0 : balance);
+    // Remove first AND prove that removal was durable before changing owner.
+    // If a false-returning remove were ignored, the old owner's balance could
+    // remain while the owner key flips to the new uid — a cross-account leak.
+    await _storage
+        .remove(serverBalanceCacheKey)
+        .requireDurable(serverBalanceCacheKey);
+    await _storage
+        .setString(serverBalanceOwnerKey, owner)
+        .requireDurable(serverBalanceOwnerKey);
+    await _storage
+        .setInt(serverBalanceCacheKey, normalized)
+        .requireDurable(serverBalanceCacheKey);
   }
 }

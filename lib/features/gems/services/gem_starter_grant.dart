@@ -22,17 +22,25 @@ class GemStarterGrant {
   Future<bool> ensureOnce() async {
     if (_wallet.busy) return false;
     _claimedInMemory = true;
-    try {
-      final result = await _wallet.claimStarter(idempotencyKey: operationId);
-      if (result == null) {
-        _claimedInMemory = false;
-        return false;
+
+    final result = await (() async {
+      try {
+        return await _wallet.claimStarter(idempotencyKey: operationId);
+      } catch (_) {
+        return null;
       }
-      await _storage.setBool(flagKey, true);
-      return result.applied && !result.idempotent;
-    } catch (_) {
+    })();
+    if (result == null) {
       _claimedInMemory = false;
       return false;
     }
+
+    // The server grant has already been accepted. This flag is UX-only:
+    // failure to persist it cannot undo server authority and must not make
+    // this process request/represent the starter grant as unclaimed again.
+    try {
+      await _storage.setBool(flagKey, true);
+    } catch (_) {}
+    return result.applied && !result.idempotent;
   }
 }

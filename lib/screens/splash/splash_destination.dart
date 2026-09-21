@@ -3,6 +3,9 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/auth/account_deletion_gate_destination.dart';
+import '../../core/auth/account_deletion_pending_state.dart';
+import '../../core/auth/presentation/account_deletion_gate_screen.dart';
 import '../../core/data/datasources/local_storage.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../shared/navigation/oracly_navigation.dart';
@@ -12,19 +15,24 @@ abstract final class SplashDestination {
 
   static const midnight = Color(0xFF07050D);
 
-  /// Completed -> Home shell. Incomplete -> Onboarding.
-  ///
-  /// A saved setup draft must never skip onboarding. [OnboardingScreen]
-  /// restores and resumes the draft itself.
+  /// Brand-safe underlay while the deletion gate is still [unresolved].
+  static Widget unresolvedUnderlay() =>
+      const ColoredBox(color: midnight, child: SizedBox.expand());
+
+  /// Must not be called while the gate is [unresolved].
   static Widget build({
     required bool onboardingCompleted,
-    // Ignored: callers pass storage for a stable splash API. Draft restore
-    // lives in OnboardingScreen — do not route Home from an incomplete draft.
     required LocalStorage storage,
   }) {
-    final Widget page = onboardingCompleted
-        ? const OraclyAppShell()
-        : const OnboardingScreen();
+    assert(
+      !AccountDeletionPendingState.isUnresolved,
+      'SplashDestination.build requires a resolved deletion gate',
+    );
+    final override = screenForGateDestination(
+      AccountDeletionGateDestinations.current,
+    );
+    final page = override ??
+        (onboardingCompleted ? const OraclyAppShell() : const OnboardingScreen());
     return ColoredBox(color: midnight, child: page);
   }
 
