@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/reading_operation/providers/reading_live_provider.dart';
@@ -46,6 +45,10 @@ abstract final class ReadingPushBootstrap {
         container.read(firebaseAuthUserProvider).valueOrNull?.uid ??
         container.read(firebaseAuthGatewayProvider)?.currentUser?.uid;
     _bindOwner(nextOwnerId);
+    if (_installedOwnerId == null) {
+      await clearOwnerBinding();
+      return;
+    }
     try {
       final messaging = messagingForTest;
       if (messaging != null) {
@@ -98,6 +101,8 @@ abstract final class ReadingPushBootstrap {
   }
 
   static void _openReading(RemoteMessage message) {
+    final owner = _installedOwnerId;
+    if (owner == null || owner.isEmpty) return;
     final destination = readingPushDestination(message.data);
     if (destination == null) return;
     // Preserve the exact completion even while deletion/integrity recovery
@@ -111,7 +116,7 @@ abstract final class ReadingPushBootstrap {
     _pendingDestination = ReadingPushDestination(
       route: destination.route,
       operationId: destination.operationId,
-      ownerId: _installedOwnerId,
+      ownerId: owner,
     );
     openPending();
   }
@@ -165,14 +170,23 @@ abstract final class ReadingPushBootstrap {
     final normalized = ownerId?.trim();
     final next = normalized == null || normalized.isEmpty ? null : normalized;
     final pending = _pendingDestination;
-    if (pending?.ownerId != null &&
-        next != null &&
-        pending!.ownerId != next) {
-      // Account boundary: a completion tapped under A must never survive a
-      // successful rebind to B, even before a navigator exists.
+    if (next == null ||
+        (pending?.ownerId != null && pending!.ownerId != next)) {
+      // Account boundary: never retain a queued completion once there is no
+      // authenticated owner, or when a different owner becomes current.
       _pendingDestination = null;
     }
     _installedOwnerId = next;
+  }
+
+  /// Successful sign-out boundary. Stops old-owner listeners and drops any
+  /// queued completion before local/provider cleanup proceeds.
+  static Future<void> clearOwnerBinding() async {
+    _bindOwner(null);
+    await _refresh?.cancel();
+    await _opened?.cancel();
+    _refresh = null;
+    _opened = null;
   }
 
   @visibleForTesting
