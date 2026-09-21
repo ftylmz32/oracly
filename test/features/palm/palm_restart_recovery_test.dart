@@ -30,7 +30,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../support/fake_reading_operation_backend.dart';
 
-class _TrackingAnalysis implements PalmAnalysisPort, PalmStagedAnalysisPort {
+class _TrackingAnalysis implements PalmAnalysisPort, PalmStagedAnalysisPort, PalmCompletedAnalysisPort {
   int localBytesCalls = 0;
   int stagedCalls = 0;
   String? lastStagedOperationId;
@@ -67,6 +67,23 @@ class _TrackingAnalysis implements PalmAnalysisPort, PalmStagedAnalysisPort {
       hand: hand,
       overall: 'overall (from server-staged image)',
       takeaway: 'takeaway',
+      imagePath: null,
+    );
+  }
+
+  @override
+  PalmReading restoreCompleted({
+    required String resultId,
+    required DateTime persistedAt,
+    required PalmHand hand,
+    required Map<String, dynamic> result,
+  }) {
+    return PalmReading(
+      id: resultId,
+      createdAt: persistedAt,
+      hand: hand,
+      overall: result['overall']?.toString() ?? '',
+      takeaway: result['takeaway']?.toString() ?? '',
       imagePath: null,
     );
   }
@@ -180,6 +197,56 @@ void main() {
   );
 
   test(
+    'completion deep link restores the exact Palm operation even when another Palm operation is active',
+    () async {
+      final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+      final runner = fakeImmediateReadingFeatureRunner(
+        backend: backend,
+        serverOwnedCompletion: true,
+      );
+      final target = await runner.flow.begin(
+        readingType: ReadingType.palm,
+        sourceRequestId: 'push-target-palm',
+      );
+      final targetId = target.snapshot!.operationId;
+      backend.completeServerSide(
+        targetId,
+        resultId: 'palm_push_target_result',
+        result: const {
+          '_handSide': 'left',
+          'overall': 'exact palm target',
+          'takeaway': 'done',
+        },
+      );
+
+      final other = await runner.flow.begin(
+        readingType: ReadingType.palm,
+        sourceRequestId: 'other-active-palm',
+      );
+      expect(other.snapshot!.operationId, isNot(targetId));
+
+      final controller = PalmReadingController(
+        experience: PalmExperienceService(
+          store: sharedReadingStore,
+          analysis: _TrackingAnalysis(),
+        ),
+        images: _FakeImages(fixturePath),
+        live: runner,
+        pendingStore: sharedPendingStore,
+      );
+      addTearDown(controller.dispose);
+
+      await controller.recoverOperation(targetId);
+
+      expect(controller.phase, PalmPhase.result);
+      expect(controller.liveState?.snapshot?.operationId, targetId);
+      expect(controller.reading?.id, 'palm_push_target_result');
+      expect(controller.reading?.overall, 'exact palm target');
+      expect(controller.reading?.hand, PalmHand.left);
+    },
+  );
+
+test(
     'the pending record is cleared once the operation reaches a terminal '
     'state',
     () async {
