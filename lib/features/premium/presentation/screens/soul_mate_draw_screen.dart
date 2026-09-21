@@ -86,12 +86,9 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
         exactOperationId,
       );
       if (!mounted) return;
-      if (exact.kind != SoulMateDurableKind.none) {
-        await _applyDurable(exact);
-      } else {
-        // Exact deep links never attach to some other active SoulMate job.
-        await _restoreSaved();
-      }
+      // Exact deep links never attach to some other active SoulMate job
+      // and never fall back to an unrelated previously-saved portrait.
+      await _applyDurable(exact);
       return;
     }
 
