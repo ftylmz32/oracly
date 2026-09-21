@@ -40,13 +40,18 @@ class GemWalletHydrationCoordinator {
     String ownerId,
     GemWalletController controller, {
     int attempts = 8,
+    bool Function()? stillCurrent,
   }) async {
+    bool current() =>
+        controller.ownerId == ownerId && (stillCurrent?.call() ?? true);
+
     for (var i = 0; i < attempts; i++) {
-      if (controller.ownerId != ownerId) return;
+      if (!current()) return;
       await hydrate(ownerId, controller);
-      if (controller.authoritative) return;
+      if (!current() || controller.authoritative) return;
       // Back off hard — App Check rate-limits ("Too many attempts").
       await Future<void>.delayed(Duration(milliseconds: 800 * (i + 1)));
+      if (!current()) return;
     }
   }
 }
