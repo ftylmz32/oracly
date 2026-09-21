@@ -50,10 +50,16 @@ class MockAuthService implements AuthService {
   }
 
   Future<ApiResult<AuthSession>> _finish(AuthSession session) async {
-    // Same ordering invariant as FirebaseAuthService: isolation must be
-    // proven before the session is published.
+    // Same ordering + stale-session invariant as FirebaseAuthService:
+    // isolation must be proven before the session is published, and a
+    // DIFFERENT-uid session that fails isolation must not leave the OLD
+    // uid's session sitting there either.
+    final previousSessionUid = _sessions?.currentSession?.userId;
+    final isDifferentUid =
+        previousSessionUid != null && previousSessionUid != session.userId;
     final isolationResult = await _isolation?.onSignedIn(session.userId);
     if (isolationResult != null && !isolationResult.success) {
+      if (isDifferentUid) await _sessions?.clearSession();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
     await _sessions?.setSession(session);

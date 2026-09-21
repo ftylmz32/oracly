@@ -197,6 +197,19 @@ class FirebaseAuthService implements AuthService {
       if (token == null || token.isEmpty || token.startsWith('mock_')) {
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
+      // Captured BEFORE isolation runs: whether this Firebase snapshot is
+      // for a genuinely DIFFERENT identity than whatever application
+      // session is currently authoritative. A same-uid transient failure
+      // (e.g. a refresh hiccup) may safely leave that same-user session
+      // in place; a DIFFERENT uid must never leave the OLD uid's session
+      // sitting there once we know the current Firebase identity is not
+      // that uid any more — Firebase-uid-B + application-session-uid-A is
+      // not a safe state, even though B itself was correctly never
+      // committed either.
+      final previousSessionUid = _sessions?.currentSession?.userId;
+      final isDifferentUid =
+          previousSessionUid != null && previousSessionUid != user.uid;
+
       // Local ownership isolation must be PROVEN before this session is
       // ever published. Publishing first and isolating after (the prior
       // order) let the app observe a "successful" session for a new
@@ -208,9 +221,16 @@ class FirebaseAuthService implements AuthService {
       try {
         isolationResult = await _isolation?.onSignedIn(user.uid);
       } catch (_) {
+        if (isDifferentUid) await _sessions?.clearSession();
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
       if (isolationResult != null && !isolationResult.success) {
+        // Isolation for the (different) incoming uid failed — the OLD
+        // uid's session must not remain authoritative under a current
+        // Firebase identity that is no longer that uid. ownerKey itself
+        // is untouched by this — UserLocalDataIsolation already left it
+        // at the prior owner as the durable residue-safety signal.
+        if (isDifferentUid) await _sessions?.clearSession();
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
       final session = FirebaseSessionMapper.fromUser(

@@ -24,6 +24,7 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/datasources/unpromotable_local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_onboarding_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
+import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/network/api_result.dart';
 import 'package:oracly_new/core/network/network_exception.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
@@ -80,6 +81,68 @@ void main() {
         await AccountDeletionPendingState.resolveFromLocalStorage(storage);
     expect(status, AccountDeletionGateResolveStatus.finalizing);
     expect(AccountDeletionPendingState.isFinalizing, isTrue);
+  });
+
+  test(
+      'STARTUP A: durable prefs + ONLY pendingLocalWipe=true → finalizing, '
+      'never clear — the identity is already gone and only local cleanup '
+      'remains, exactly the state anonymousBootstrapPending represents',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      AccountDeletionService.pendingLocalWipeKey: true,
+    });
+    final storage = LocalStorage(await SharedPreferences.getInstance());
+    final status =
+        await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+    expect(status, AccountDeletionGateResolveStatus.finalizing);
+    expect(AccountDeletionPendingState.isFinalizing, isTrue);
+    expect(AccountDeletionPendingState.allowsOwnerBoundExperience, isFalse);
+    expect(AccountDeletionPendingState.blocksDeepLinks, isTrue);
+  });
+
+  test(
+      'STARTUP B: with ONLY pendingLocalWipe=true, the same resolve+mount '
+      'sequence SplashEntryBootstrap actually runs (resolveFromLocalStorage '
+      'then building the destination from the resulting phase) never '
+      'produces an owner-bound destination', () async {
+    SharedPreferences.setMockInitialValues({
+      AccountDeletionService.pendingLocalWipeKey: true,
+      LocalOnboardingRepository.completedKey: true,
+    });
+    final storage = LocalStorage(await SharedPreferences.getInstance());
+
+    // Exactly splashEntryBootstrap's own first two steps, in order.
+    await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+    final destination = SplashDestination.build(
+      onboardingCompleted: true,
+      storage: storage,
+    );
+
+    final mounted = _child(destination);
+    expect(
+      mounted,
+      isNot(isA<OraclyAppShell>()),
+      reason: 'no Home/owner-bound destination may mount before cleanup '
+          'reconciliation notices the local-wipe marker',
+    );
+    expect(AccountDeletionPendingState.isFinalizing, isTrue);
+  });
+
+  test(
+      'STARTUP D: pendingLocalWipe=true AND pendingIdentityCleanup=true → '
+      'finalizing, never clear, never blocked — finalizing (a real '
+      'deletion known to exist) takes precedence over blocked (identity '
+      'might still need destructive work)', () async {
+    SharedPreferences.setMockInitialValues({
+      AccountDeletionService.pendingLocalWipeKey: true,
+      AccountDeletionService.pendingIdentityCleanupKey: true,
+    });
+    final storage = LocalStorage(await SharedPreferences.getInstance());
+    final status =
+        await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+    expect(status, AccountDeletionGateResolveStatus.finalizing);
+    expect(AccountDeletionPendingState.isFinalizing, isTrue);
+    expect(AccountDeletionPendingState.isBlocked, isFalse);
   });
 
   test('promote fails → storageUnavailable, never clear', () async {
@@ -302,6 +365,45 @@ void main() {
           expect(deletion.hasPendingIdentityCleanup, isFalse);
         },
       );
+
+      test(
+        'STARTUP E: a pending LOCAL-WIPE marker that a restart retry can '
+        'resolve (storage is healthy now) completes the wipe, bootstraps a '
+        'fresh anonymous owner, and only THEN clears the gate',
+        () async {
+          SharedPreferences.setMockInitialValues({
+            AccountDeletionService.pendingLocalWipeKey: true,
+            MockUserRepository.readingLedgerIdsKey: ['old-owner-r1'],
+          });
+          final storage = LocalStorage(await SharedPreferences.getInstance());
+          final auth = MockAuthService(
+            sessions: InMemorySessionManager(_NoopTokens()),
+          );
+          await auth.signInAnonymously();
+          final deletion = AccountDeletionService(
+            auth: auth,
+            storage: storage,
+            secureStorage: InMemorySecureStorage(),
+            deleteServerData: () async => true,
+          );
+
+          await AccountDeletionPendingState.resolveAndReconcile(
+            storage,
+            deletion,
+          );
+
+          expect(AccountDeletionPendingState.isClear, isTrue);
+          expect(deletion.hasPendingLocalWipe, isFalse);
+          expect(deletion.hasPendingAnonymousBootstrap, isFalse);
+          expect(deletion.hasPendingIdentityCleanup, isFalse);
+          expect(
+            storage.getStringList(MockUserRepository.readingLedgerIdsKey),
+            isNull,
+            reason: 'the residual ledger must be gone once the gate is '
+                'genuinely clear',
+          );
+        },
+      );
     },
   );
 
@@ -378,6 +480,57 @@ void main() {
 
     test('both markers absent → clear', () async {
       final storage = LocalStorage.ephemeral();
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+      expect(status, AccountDeletionGateResolveStatus.clear);
+    });
+
+    test(
+        'STARTUP C: local-wipe marker stored as String → integrityRecovery, '
+        'NOT clear, NOT finalizing — a corrupt marker must never be ignored '
+        'and must never authorize local wipe/destructive work', () async {
+      final storage = LocalStorage.ephemeral({
+        AccountDeletionService.pendingLocalWipeKey: 'true',
+      });
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+      expect(status, AccountDeletionGateResolveStatus.integrityRecovery);
+      expect(AccountDeletionPendingState.isFinalizing, isFalse);
+      expect(AccountDeletionPendingState.allowsOwnerBoundExperience, isFalse);
+    });
+
+    test(
+        'STARTUP C: local-wipe marker stored as int → integrityRecovery, '
+        'NOT clear', () async {
+      final storage = LocalStorage.ephemeral({
+        AccountDeletionService.pendingLocalWipeKey: 1,
+      });
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+      expect(status, AccountDeletionGateResolveStatus.integrityRecovery);
+    });
+
+    test(
+        'local-wipe marker corrupt takes priority over genuinely-true '
+        'identity AND anonymous-bootstrap markers — corrupt on ANY of the '
+        'three must never be masked by true values on the others',
+        () async {
+      final storage = LocalStorage.ephemeral({
+        AccountDeletionService.pendingLocalWipeKey: 'true',
+        AccountDeletionService.pendingIdentityCleanupKey: true,
+        AccountDeletionService.pendingAnonymousBootstrapKey: true,
+      });
+      final status =
+          await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+      expect(status, AccountDeletionGateResolveStatus.integrityRecovery);
+    });
+
+    test('all three markers genuinely false → clear', () async {
+      final storage = LocalStorage.ephemeral({
+        AccountDeletionService.pendingIdentityCleanupKey: false,
+        AccountDeletionService.pendingLocalWipeKey: false,
+        AccountDeletionService.pendingAnonymousBootstrapKey: false,
+      });
       final status =
           await AccountDeletionPendingState.resolveFromLocalStorage(storage);
       expect(status, AccountDeletionGateResolveStatus.clear);

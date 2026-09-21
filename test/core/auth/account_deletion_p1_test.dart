@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/auth/account_deletion_finalizer.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
 import 'package:oracly_new/core/auth/account_deletion_service.dart';
 import 'package:oracly_new/core/auth/auth_copy.dart';
@@ -274,6 +275,82 @@ void main() {
       expect(healthyDeletion.hasPendingLocalWipe, isFalse);
       expect(healthyDeletion.hasPendingAnonymousBootstrap, isFalse);
       expect(healthyDeletion.hasPendingIdentityCleanup, isFalse);
+    },
+  );
+
+  test(
+    'P0-4: if the durable local-wipe marker itself fails to write, this '
+    'fails closed WITHOUT ever starting the wipe — residue is completely '
+    'untouched, and the gate stays finalizing, never clear',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = _BoolWriteFailingStorage(
+        prefs,
+        failingKey: AccountDeletionFinalizer.localWipePendingKey,
+      );
+      await failingStorage.setStringList(
+        'or_reading_history',
+        const ['old owner reading'],
+      );
+      await MockUserRepository(failingStorage).ensureReadingCompletionMigration(
+        const [],
+      );
+      await MockUserRepository(failingStorage).recordReadingCompletion(
+        'pre-crash-r1',
+      );
+
+      final result = await AccountDeletionFinalizer.finishAfterIdentityDeleted(
+        auth: auth,
+        storage: failingStorage,
+        secureStorage: InMemorySecureStorage(),
+        identityCleanupKey: 'irrelevant_identity_key',
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(
+        failingStorage.getStringList('or_reading_history'),
+        isNotEmpty,
+        reason: 'the wipe must never have started at all',
+      );
+      expect(
+        failingStorage.getStringList(MockUserRepository.readingLedgerIdsKey),
+        isNotNull,
+        reason: 'residue is completely untouched, not partially wiped',
+      );
+      expect(AccountDeletionPendingState.isFinalizing, isTrue);
+    },
+  );
+
+  test(
+    'P0-4: if establishing the anonymous-bootstrap marker itself fails '
+    'AFTER a successful wipe, the local-wipe marker is NOT prematurely '
+    'retired — no durable window where every finalization marker is '
+    'absent while finalization is not actually done',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = _BoolWriteFailingStorage(
+        prefs,
+        failingKey: AccountDeletionFinalizer.anonymousBootstrapKey,
+      );
+
+      final result = await AccountDeletionFinalizer.finishAfterIdentityDeleted(
+        auth: auth,
+        storage: failingStorage,
+        secureStorage: InMemorySecureStorage(),
+        identityCleanupKey: 'irrelevant_identity_key',
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(
+        failingStorage.getBool(AccountDeletionFinalizer.localWipePendingKey),
+        isTrue,
+        reason: 'the handoff to anonymousBootstrapKey never durably '
+            'succeeded, so localWipePendingKey must not have been '
+            'retired — some finalization marker is ALWAYS present here',
+      );
+      expect(AccountDeletionPendingState.isFinalizing, isTrue);
     },
   );
 
@@ -997,8 +1074,7 @@ void main() {
 /// write failure at an EXACT key, independent of whether the identity
 /// deletion itself succeeded.
 class _KeyFailingStorage extends LocalStorage {
-  _KeyFailingStorage(SharedPreferences prefs, {required this.failingKeys})
-      : super(prefs);
+  _KeyFailingStorage(super.prefs, {required this.failingKeys});
 
   final Set<String> failingKeys;
 
@@ -1008,6 +1084,24 @@ class _KeyFailingStorage extends LocalStorage {
       throw StateError('simulated remove failure for $key');
     }
     return super.remove(key);
+  }
+}
+
+/// Fails a `setBool` write for an exact key, then behaves normally for
+/// everything else — for tests that specifically need to interrupt a
+/// marker being ESTABLISHED (as opposed to [_KeyFailingStorage], which
+/// targets a key's REMOVAL).
+class _BoolWriteFailingStorage extends LocalStorage {
+  _BoolWriteFailingStorage(super.prefs, {required this.failingKey});
+
+  final String failingKey;
+
+  @override
+  Future<bool> setBool(String key, bool value) async {
+    if (key == failingKey) {
+      throw StateError('simulated setBool failure for $key');
+    }
+    return super.setBool(key, value);
   }
 }
 

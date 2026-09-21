@@ -50,8 +50,7 @@ const _orQuestion = 'Karar vermekte zorlanıyorum; keşiflerimde ne görüyordun
 /// hits one unrelated profile-key removal failure still reaches and
 /// clears the reading-count ledger/baseline for the next owner.
 class _KeyFailingStorage extends LocalStorage {
-  _KeyFailingStorage(SharedPreferences prefs, {required this.failingKeys})
-      : super(prefs);
+  _KeyFailingStorage(super.prefs, {required this.failingKeys});
 
   final Set<String> failingKeys;
 
@@ -60,6 +59,22 @@ class _KeyFailingStorage extends LocalStorage {
     if (failingKeys.contains(key)) {
       throw StateError('simulated remove failure for $key');
     }
+    return super.remove(key);
+  }
+}
+
+/// Counts calls to [remove] for specific keys, and adds a small delay so
+/// two concurrent transitions have a real window to (incorrectly) overlap
+/// if single-flight/serialization isn't actually working.
+class _CountingDelayStorage extends LocalStorage {
+  _CountingDelayStorage(super.prefs);
+
+  final Map<String, int> removeCallCounts = {};
+
+  @override
+  Future<bool> remove(String key) async {
+    removeCallCounts[key] = (removeCallCounts[key] ?? 0) + 1;
+    await Future<void>.delayed(const Duration(milliseconds: 5));
     return super.remove(key);
   }
 }
@@ -391,7 +406,6 @@ void main() {
     switchGateway.signInAs(ownerA);
     final firstSignIn = await switchAuth.signInAnonymously();
     expect(firstSignIn.isSuccess, isTrue);
-    final ownerASession = firstSignIn.dataOrNull;
     expect(failingIsolation.localOwnerId, ownerA);
     final usersA = MockUserRepository(failingStorage);
     final historyA = MockHistoryRepository(failingStorage);
@@ -414,12 +428,14 @@ void main() {
           'while local isolation has not actually completed',
     );
     expect(
-      switchSessions.currentSession?.userId,
-      ownerASession?.userId,
-      reason: 'the committed session must still be owner A\'s — no '
-          'successful owner-B application session may be committed',
+      switchSessions.currentSession,
+      isNull,
+      reason: 'Firebase is now owner B, so a stale owner-A application '
+          'session left in place would be Firebase-uid-B + '
+          'application-session-uid-A — not a safe state, even though B '
+          'itself was correctly never committed. The session must be '
+          'cleared, not merely "still A".',
     );
-    expect(switchSessions.currentSession?.userId, isNot(ownerB));
     expect(
       failingIsolation.localOwnerId,
       ownerA,
@@ -522,6 +538,157 @@ void main() {
     }, (error, stack) => unhandled = error);
 
     expect(unhandled, isNull);
+  });
+
+  test(
+      'P0-3: two concurrent onSignedIn calls for the SAME target uid share '
+      'ONE in-flight transition — the wipe runs exactly once, both callers '
+      'observe the identical outcome', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final countingStorage = _CountingDelayStorage(prefs);
+    await countingStorage.setString(
+      UserLocalDataIsolation.ownerKey,
+      'owner-a-concurrent',
+    );
+    final isolation = UserLocalDataIsolation(
+      countingStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+
+    final call1 = isolation.onSignedIn('owner-b-concurrent');
+    final call2 = isolation.onSignedIn('owner-b-concurrent');
+    final results = await Future.wait([call1, call2]);
+
+    expect(
+      identical(call1, call2),
+      isTrue,
+      reason: 'the second caller must share the exact same in-flight '
+          'Future, not start an independent second transition',
+    );
+    expect(results[0].success, isTrue);
+    expect(results[1].success, isTrue);
+    expect(
+      countingStorage.removeCallCounts[MockUserRepository.readingLedgerIdsKey] ??
+          0,
+      1,
+      reason: 'the ledger removal must have been attempted exactly once '
+          'for this ONE logical transition, not once per caller',
+    );
+    expect(isolation.localOwnerId, 'owner-b-concurrent');
+  });
+
+  test(
+      'P0-3: two concurrent onSignedIn calls for DIFFERENT target uids '
+      'serialize — no overlapping wipes, and the final owner corresponds '
+      'to the LAST transition without either wipe running twice',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final countingStorage = _CountingDelayStorage(prefs);
+    await countingStorage.setString(
+      UserLocalDataIsolation.ownerKey,
+      'owner-a-serial',
+    );
+    final isolation = UserLocalDataIsolation(
+      countingStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+
+    // Fired back-to-back, neither awaited before the other starts.
+    final callB = isolation.onSignedIn('owner-b-serial');
+    final callC = isolation.onSignedIn('owner-c-serial');
+    final results = await Future.wait([callB, callC]);
+
+    expect(results[0].success, isTrue);
+    expect(results[1].success, isTrue);
+    expect(
+      isolation.localOwnerId,
+      'owner-c-serial',
+      reason: 'the LAST-enqueued transition (A->B, then B->C once A->B has '
+          'fully settled) determines the final owner',
+    );
+    // Each of the two DISTINCT transitions (A->B, then B->C) removes the
+    // ledger key once on its own path (it starts absent, so removal is a
+    // safe no-op each time) — exactly two attempts total, never more,
+    // which is only possible if they never overlapped.
+    expect(
+      countingStorage.removeCallCounts[MockUserRepository.readingLedgerIdsKey] ??
+          0,
+      2,
+    );
+  });
+
+  test(
+      'P0-3: a concurrent refresh for the SAME already-current owner never '
+      'triggers a wipe at all', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final countingStorage = _CountingDelayStorage(prefs);
+    await countingStorage.setString(
+      UserLocalDataIsolation.ownerKey,
+      'owner-same',
+    );
+    final isolation = UserLocalDataIsolation(
+      countingStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+
+    final call1 = isolation.onSignedIn('owner-same');
+    final call2 = isolation.onSignedIn('owner-same');
+    final results = await Future.wait([call1, call2]);
+
+    expect(results[0].success, isTrue);
+    expect(results[1].success, isTrue);
+    expect(
+      countingStorage.removeCallCounts[MockUserRepository.readingLedgerIdsKey],
+      isNull,
+      reason: 'same owner, no switch — no wipe of any kind may run',
+    );
+  });
+
+  test(
+      'P0-3: through the REAL FirebaseAuthService, an explicit sign-in '
+      'call and the auth-state-change listener reacting to the SAME '
+      'underlying event produce exactly ONE logical A->B wipe — the '
+      'ledger removal is attempted once, not once per caller', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final countingStorage = _CountingDelayStorage(prefs);
+    final countingIsolation = UserLocalDataIsolation(
+      countingStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    final realGateway = _SwitchGateway();
+    final realAuth = FirebaseAuthService(
+      gateway: realGateway,
+      tokens: _MemTokens(),
+      sessions: InMemorySessionManager(_MemTokens()),
+      isolation: countingIsolation,
+    );
+
+    realGateway.signInAs('owner-a-real-count');
+    await realAuth.signInAnonymously();
+
+    realGateway.signInAs('owner-b-real-count');
+    final explicitCall = realAuth.signInAnonymously();
+    // Give the auth-state-change listener's own independently-triggered
+    // call a chance to actually start before the explicit call settles.
+    await Future<void>.delayed(Duration.zero);
+    final explicitResult = await explicitCall;
+    // Let anything the listener scheduled fully settle too.
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+
+    expect(explicitResult.isSuccess, isTrue);
+    expect(countingIsolation.localOwnerId, 'owner-b-real-count');
+    expect(
+      countingStorage.removeCallCounts[MockUserRepository.readingLedgerIdsKey] ??
+          0,
+      1,
+      reason: 'a single logical A->B transition, regardless of how many '
+          'independent callers observed the same underlying auth event',
+    );
+    realAuth.dispose();
   });
 
   test('same synthetic user starts empty after logout wipe then login', () async {

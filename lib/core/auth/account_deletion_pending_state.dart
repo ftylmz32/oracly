@@ -152,19 +152,32 @@ abstract final class AccountDeletionPendingState {
       storage,
       AccountDeletionService.pendingIdentityCleanupKey,
     );
+    // The identity is ALREADY gone by the time this marker is ever true —
+    // it means only LOCAL cleanup remains. This gate must see it: without
+    // this read, a cold start with ONLY this marker true (the other two
+    // false/absent) would derive "clear" here and SplashEntryBootstrap
+    // could mount an owner-bound destination before resolveAndReconcile
+    // (which DOES already check it) ever runs.
+    final localWipeRead = AccountDeletionMarkers.read(
+      storage,
+      AccountDeletionService.pendingLocalWipeKey,
+    );
 
-    // A corrupt (wrong-type) marker is UNKNOWN state — never proof a real
-    // deletion lifecycle exists. Fail closed to a DISTINCT phase from
-    // blocked/finalizing so it can never trigger the automatic retry those
-    // phases allow. Checked before either "isTrue" branch so a corrupt
-    // marker on ONE key can never be masked by a genuinely-true value on
-    // the other.
-    if (anonRead == MarkerRead.corrupt || identityRead == MarkerRead.corrupt) {
+    // A corrupt (wrong-type) marker on ANY of the three is UNKNOWN state —
+    // never proof a real deletion lifecycle exists, and never grounds to
+    // authorize local wipe/destructive work. Fail closed to a DISTINCT
+    // phase from blocked/finalizing so it can never trigger the automatic
+    // retry those phases allow. Checked before every "isTrue" branch so a
+    // corrupt marker on ONE key can never be masked by a genuinely-true
+    // value on another.
+    if (anonRead == MarkerRead.corrupt ||
+        identityRead == MarkerRead.corrupt ||
+        localWipeRead == MarkerRead.corrupt) {
       phase.value = AccountDeletionGatePhase.integrityRecovery;
       return AccountDeletionGateResolveStatus.integrityRecovery;
     }
 
-    if (anonRead == MarkerRead.isTrue) {
+    if (anonRead == MarkerRead.isTrue || localWipeRead == MarkerRead.isTrue) {
       phase.value = AccountDeletionGatePhase.finalizing;
       return AccountDeletionGateResolveStatus.finalizing;
     }
