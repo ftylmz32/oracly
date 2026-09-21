@@ -77,6 +77,9 @@ class _BlockingPreparePort implements PremiumPurchasePort {
   @override
   Future<PremiumPurchaseResult> restore() async =>
       PremiumPurchaseResult.restoreUnavailable();
+
+  @override
+  Future<PremiumPurchaseResult?> consumeUnsolicitedGrant() async => null;
 }
 
 class _FakeIap implements StoreIapClient {

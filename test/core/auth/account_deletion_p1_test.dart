@@ -454,6 +454,56 @@ void main() {
   );
 
   test(
+    'P0-2 / 2C-C: restart after serverDeletePending armed but BEFORE any '
+    'server call — only actual server acceptance advances phase',
+    () async {
+      await auth.signInAnonymously();
+      final uid = auth.currentUserId!;
+      await storage.setBool(
+        AccountDeletionService.pendingServerDeleteKey,
+        true,
+      );
+      await storage.setString(AccountDeletionService.targetUidKey, uid);
+      AccountDeletionPendingState.resetForTest();
+      final restart =
+          await AccountDeletionPendingState.resolveFromLocalStorage(storage);
+      expect(restart, AccountDeletionGateResolveStatus.blocked);
+
+      var serverCalls = 0;
+      final pending = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: (_) async {
+          serverCalls++;
+          return false;
+        },
+      );
+      final refused = await pending.retryPendingIdentityCleanup();
+      expect(refused.isFailure, isTrue);
+      expect(serverCalls, 1);
+      expect(pending.hasPendingServerDelete, isTrue);
+      expect(pending.hasPendingIdentityCleanup, isFalse);
+      expect(gateway.deleteCalls, 0);
+
+      final accepted = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: (_) async {
+          serverCalls++;
+          return true;
+        },
+      );
+      final done = await accepted.retryPendingIdentityCleanup();
+      expect(done.isSuccess, isTrue);
+      expect(serverCalls, 2);
+      expect(gateway.deleteCalls, 1);
+      expect(accepted.hasPendingServerDelete, isFalse);
+    },
+  );
+
+  test(
     'P0 target: marker without target uid → integrityRecovery, zero '
     'destructive calls',
     () async {

@@ -1,6 +1,7 @@
 /// Profile / SoulMate managed-path tri-state + save durability.
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -142,6 +143,106 @@ void main() {
       ManagedFilePath.normalize(managed.single.path),
       ManagedFilePath.normalize(prior),
     );
+  });
+
+  test(
+      'profile external rogue path — file never deleted, metadata removed',
+      () async {
+    final external = File('${root.path}${Platform.pathSeparator}gallery.jpg')
+      ..writeAsBytesSync(const [9, 9, 9]);
+    await storage.setString(ProfilePhotoStore.key, external.path);
+
+    await ProfilePhotoStore.clearStrict(storage);
+
+    expect(external.existsSync(), isTrue);
+    expect(storage.getString(ProfilePhotoStore.key), isNull);
+  });
+
+  test(
+      'profile traversal metadata path never deletes the escaped target',
+      () async {
+    final escape = File(
+      '${root.parent.path}${Platform.pathSeparator}'
+      '${ProfilePhotoStore.filePrefix}_escape.jpg',
+    )..writeAsBytesSync(const [4, 4, 4]);
+    final traversal =
+        '${root.path}${Platform.pathSeparator}..${Platform.pathSeparator}'
+        '${ProfilePhotoStore.filePrefix}_escape.jpg';
+    await storage.setString(ProfilePhotoStore.key, traversal);
+
+    await ProfilePhotoStore.clearStrict(storage);
+
+    expect(escape.existsSync(), isTrue);
+    expect(storage.getString(ProfilePhotoStore.key), isNull);
+  });
+
+  test(
+      'soulmate external rogue path — portrait never deleted, meta removed',
+      () async {
+    final external = File('${root.path}${Platform.pathSeparator}rogue.jpg')
+      ..writeAsBytesSync(const [3, 3, 3]);
+    await storage.setString(
+      SoulMateResultStore.metaKey,
+      jsonEncode(
+        SoulMateSavedResult(
+          id: 'sm-ext',
+          createdAt: DateTime(2026, 1, 1),
+          name: 'A',
+          birthDate: DateTime(1990, 1, 1),
+          intention: 'calm',
+          portraitPath: external.path,
+          parts: const SoulMateReadingParts(
+            energy: 'e',
+            attraction: 'a',
+            dynamics: 'd',
+            feeling: 'f',
+            yourSide: 'y',
+          ),
+        ).toJson(),
+      ),
+    );
+
+    await SoulMateResultStore.clearStrict(storage);
+
+    expect(external.existsSync(), isTrue);
+    expect(await SoulMateResultStore.readMeta(storage), isNull);
+  });
+
+  test(
+      'soulmate traversal metadata path never deletes the escaped portrait',
+      () async {
+    final escape = File(
+      '${root.parent.path}${Platform.pathSeparator}'
+      '${SoulMateResultStore.portraitPrefix}_escape.jpg',
+    )..writeAsBytesSync(const [5, 5, 5]);
+    final traversal =
+        '${root.path}${Platform.pathSeparator}..${Platform.pathSeparator}'
+        '${SoulMateResultStore.portraitPrefix}_escape.jpg';
+    await storage.setString(
+      SoulMateResultStore.metaKey,
+      jsonEncode(
+        SoulMateSavedResult(
+          id: 'sm-trav',
+          createdAt: DateTime(2026, 1, 1),
+          name: 'A',
+          birthDate: DateTime(1990, 1, 1),
+          intention: 'calm',
+          portraitPath: traversal,
+          parts: const SoulMateReadingParts(
+            energy: 'e',
+            attraction: 'a',
+            dynamics: 'd',
+            feeling: 'f',
+            yourSide: 'y',
+          ),
+        ).toJson(),
+      ),
+    );
+
+    await SoulMateResultStore.clearStrict(storage);
+
+    expect(escape.existsSync(), isTrue);
+    expect(await SoulMateResultStore.readMeta(storage), isNull);
   });
 }
 

@@ -341,8 +341,10 @@ class AccountDeletionService {
       AccountDeletionPendingState.markBlocked();
       return;
     }
+    // Superseded markers must be retired when possible; a false remove leaves
+    // fail-closed dual-marker state (never pretend the earlier phase is gone).
     await _storage.remove(pendingAnonymousBootstrapKey);
-    await _storage.remove(pendingServerDeleteKey);
+    await _retireServerDeletePendingIfPresent();
     AccountDeletionPendingState.markBlocked();
   }
 }
