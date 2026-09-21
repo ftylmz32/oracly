@@ -39,6 +39,8 @@ import 'package:oracly_new/features/premium/services/premium_entitlement_verifie
 import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/false_return_local_storage.dart';
+
 class _ScriptedVerifier implements PremiumEntitlementVerifier {
   _ScriptedVerifier(this._results);
   final List<PremiumVerifyResult> _results;
@@ -261,6 +263,62 @@ void main() {
       expect(creds!.purchaseToken, _realPurchase.purchaseToken);
       expect(creds.productId, _realPurchase.productId);
       expect(creds.transactionId, _realPurchase.transactionId);
+    },
+  );
+
+  test(
+    'verified purchase cannot expose active Premium when active commit returns false',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      )..falseReturnKeys.add(MockPremiumRepository.activeKey);
+      final secure = InMemorySecureStorage();
+      final repo = MockPremiumRepository(storage, secureStorage: secure);
+      final service = PremiumService(
+        repo,
+        MockUserRepository(storage),
+        _GrantPort(_realPurchase),
+        _ScriptedVerifier([PremiumVerifyResult.active('ok')]),
+      )..forceReleaseMode = true;
+
+      await expectLater(
+        service.purchase(PremiumPlanKind.monthly),
+        throwsStateError,
+      );
+
+      expect(repo.isActiveNow, isFalse);
+      expect(repo.wasAuthoritativelyVerified, isFalse);
+      final creds = await repo.readPurchaseCredentials();
+      expect(creds?.purchaseToken, _realPurchase.purchaseToken);
+    },
+  );
+
+  test(
+    'credential metadata failure blocks Premium before active marker is written',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      )..falseReturnKeys.add(MockPremiumRepository.productIdKey);
+      final secure = InMemorySecureStorage();
+      final repo = MockPremiumRepository(storage, secureStorage: secure);
+      final service = PremiumService(
+        repo,
+        MockUserRepository(storage),
+        _GrantPort(_realPurchase),
+        _ScriptedVerifier([PremiumVerifyResult.active('ok')]),
+      )..forceReleaseMode = true;
+
+      await expectLater(
+        service.purchase(PremiumPlanKind.monthly),
+        throwsStateError,
+      );
+
+      expect(repo.isActiveNow, isFalse);
+      expect(repo.wasAuthoritativelyVerified, isFalse);
+      expect(storage.getString(MockPremiumRepository.platformKey), isNull);
+      expect(storage.getString(MockPremiumRepository.productIdKey), isNull);
     },
   );
 
