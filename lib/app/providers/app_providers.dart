@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/l10n/l10n.dart';
+import '../../core/auth/user_local_data_isolation.dart';
 import '../../core/theme/app_appearance.dart';
 import '../../core/data/repositories/user_achievement_repository.dart';
 import '../../core/domain/repositories/achievement_repository.dart';
@@ -98,9 +99,22 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 });
 
 final premiumRepositoryProvider = Provider<PremiumRepository>((ref) {
+  final storage = ref.watch(localStorageProvider);
+  final gateway = ref.watch(backend.firebaseAuthGatewayProvider);
+  // Watch auth user so the repository boundary is rebuilt promptly on a
+  // Firebase identity change, before any application session is published.
+  ref.watch(backend.firebaseAuthUserProvider);
   return MockPremiumRepository(
-    ref.watch(localStorageProvider),
+    storage,
     secureStorage: ref.watch(backend.secureStorageProvider),
+    ownerAccessAllowed: () {
+      final liveUid = gateway?.currentUser?.uid;
+      final localUid = storage.getString(UserLocalDataIsolation.ownerKey);
+      return liveUid != null &&
+          liveUid.isNotEmpty &&
+          localUid != null &&
+          localUid == liveUid;
+    },
   );
 });
 
