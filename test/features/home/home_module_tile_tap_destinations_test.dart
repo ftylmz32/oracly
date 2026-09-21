@@ -185,11 +185,13 @@ void main() {
       );
 
       await tester.tap(find.text('OPEN_SOULMATE'));
+      await tester.tap(find.text('OPEN_SOULMATE'));
       await tester.pump();
 
-      // Soul Mate's premium atmosphere intentionally runs a perpetual ambient
-      // animation, so pumpAndSettle() can never complete on this screen.
-      // Advance a bounded amount of virtual time until the entitlement load
+      // Rapid taps share one Premium gate flight; Soul Mate's premium
+      // atmosphere then intentionally runs a perpetual ambient animation,
+      // so pumpAndSettle() can never complete on this screen. Advance a
+      // bounded amount of virtual time until the entitlement load
       // and chamber transition have both had a chance to complete.
       for (var i = 0;
           i < 30 &&
