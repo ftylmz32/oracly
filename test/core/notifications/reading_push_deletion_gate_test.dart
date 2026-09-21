@@ -139,6 +139,67 @@ void main() {
     },
   );
 
+  testWidgets(
+    'installed reading listener queues completion while gate is blocked then opens after clear',
+    (tester) async {
+      final id = 'f' * 32;
+      await ReadingPushBootstrap.install(container);
+
+      AccountDeletionPendingState.markBlocked();
+      messaging.emitOpened(
+        RemoteMessage(
+          data: {
+            'type': 'reading_completed',
+            'readingType': 'palm',
+            'operationId': id,
+          },
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        ReadingPushBootstrap.pendingDestinationForTest?.operationId,
+        id,
+      );
+
+      RouteSettings? opened;
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: oraclyNavigatorKey,
+          onGenerateRoute: (settings) {
+            opened = settings;
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder: (_) => const Scaffold(body: Text('reading-target')),
+            );
+          },
+          home: const Scaffold(body: Text('home')),
+        ),
+      );
+
+      void switcher(OraclyTab _) {}
+      OraclyShellBridge.bind(switcher);
+      addTearDown(() => OraclyShellBridge.unbind(switcher));
+
+      ReadingPushBootstrap.openPending();
+      await tester.pump();
+      expect(opened, isNull);
+      expect(
+        ReadingPushBootstrap.pendingDestinationForTest?.operationId,
+        id,
+      );
+
+      AccountDeletionPendingState.markClear();
+      ReadingPushBootstrap.openPending();
+      await tester.pump();
+      await tester.pump();
+
+      expect(opened?.name, OraclyRoutes.palm);
+      expect((opened?.arguments as Map?)?['operationId'], id);
+      expect(ReadingPushBootstrap.pendingDestinationForTest, isNull);
+    },
+  );
+
   test('blocked reading notification does not navigate', () async {
     AccountDeletionPendingState.markBlocked();
     final id = 'c' * 32;
@@ -190,4 +251,6 @@ class _FakeMessaging implements ReadingPushMessaging {
   Future<RemoteMessage?> getInitialMessage() async => initial;
 
   void emitRefresh(String value) => _refresh.add(value);
+
+  void emitOpened(RemoteMessage message) => _opened.add(message);
 }
