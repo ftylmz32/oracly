@@ -208,9 +208,7 @@ abstract final class OraclyRouteGenerator {
     final raw = arguments['operationId'];
     if (raw is! String) return null;
     final normalized = raw.trim();
-    return RegExp(r'^[a-f0-9]{32}  }
-}
-).hasMatch(normalized)
+    return RegExp(r'^[a-f0-9]{32}\$').hasMatch(normalized)
         ? normalized
         : null;
   }
