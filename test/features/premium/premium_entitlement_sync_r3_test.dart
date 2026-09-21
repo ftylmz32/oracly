@@ -8,6 +8,7 @@ import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/services/premium_service.dart';
+import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/premium/controllers/premium_status_controller.dart';
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
@@ -111,6 +112,53 @@ Future<({PremiumStatusController c, _ScriptedVerifier v, _Clock clock})>
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+    'Premium cache and credentials are invisible across an unisolated owner switch',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final storage = LocalStorage(prefs);
+      final secure = InMemorySecureStorage();
+
+      await storage.setString(UserLocalDataIsolation.ownerKey, 'uid-a');
+      final seed = MockPremiumRepository(storage, secureStorage: secure);
+      await seed.savePurchaseCredentials(_creds);
+      await seed.activatePlan(PremiumPlanKind.monthly, authoritative: true);
+
+      var liveUid = 'uid-b';
+      final guarded = MockPremiumRepository(
+        storage,
+        secureStorage: secure,
+        ownerAccessAllowed: () =>
+            storage.getString(UserLocalDataIsolation.ownerKey) == liveUid,
+      );
+
+      expect(guarded.isActiveNow, isFalse);
+      expect(guarded.wasAuthoritativelyVerified, isFalse);
+      expect(await guarded.activePlan(), isNull);
+      expect(await guarded.readPurchaseCredentials(), isNull);
+
+      await expectLater(
+        guarded.activatePlan(
+          PremiumPlanKind.monthly,
+          authoritative: true,
+        ),
+        throwsStateError,
+      );
+
+      await storage.setString(UserLocalDataIsolation.ownerKey, 'uid-b');
+      expect(guarded.isActiveNow, isTrue);
+      expect(guarded.wasAuthoritativelyVerified, isTrue);
+      expect(
+        (await guarded.readPurchaseCredentials())?.purchaseToken,
+        _creds.purchaseToken,
+      );
+
+      liveUid = 'uid-c';
+      expect(guarded.isActiveNow, isFalse);
+    },
+  );
 
   test('cold startup reconciles Premium', () async {
     final h = await _activeController();
