@@ -388,6 +388,93 @@ void main() {
   );
 
   test(
+    'completion deep link restores the exact Coffee operation even when another Coffee operation is active',
+    () async {
+      final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+      final runner = fakeImmediateReadingFeatureRunner(
+        backend: backend,
+        serverOwnedCompletion: true,
+      );
+      final target = await runner.flow.begin(
+        readingType: ReadingType.coffee,
+        sourceRequestId: 'push-target-coffee',
+      );
+      final targetId = target.snapshot!.operationId;
+      backend.completeServerSide(
+        targetId,
+        resultId: 'coffee_push_target_result',
+        result: const {
+          'overall': 'exact push target',
+          'love': '',
+          'career': '',
+          'money': '',
+          'nearFuture': '',
+          'takeaway': 'done',
+        },
+      );
+
+      final other = await runner.flow.begin(
+        readingType: ReadingType.coffee,
+        sourceRequestId: 'other-active-coffee',
+      );
+      expect(other.snapshot!.operationId, isNot(targetId));
+
+      final controller = CoffeeReadingController(
+        experience: CoffeeExperienceService(
+          store: sharedReadingStore,
+          analysis: _TrackingAnalysis(),
+        ),
+        images: _FakeImages(fixturePath),
+        live: runner,
+        pendingStore: sharedPendingStore,
+      );
+      addTearDown(controller.dispose);
+
+      await controller.recoverOperation(targetId);
+
+      expect(controller.phase, CoffeePhase.result);
+      expect(controller.liveState?.snapshot?.operationId, targetId);
+      expect(controller.reading?.id, 'coffee_push_target_result');
+      expect(controller.reading?.overall, 'exact push target');
+    },
+  );
+
+  test(
+    'Coffee exact recovery rejects a Palm operation id',
+    () async {
+      final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+      final runner = fakeImmediateReadingFeatureRunner(
+        backend: backend,
+        serverOwnedCompletion: true,
+      );
+      final palm = await runner.flow.begin(
+        readingType: ReadingType.palm,
+        sourceRequestId: 'wrong-feature-target',
+      );
+      backend.completeServerSide(
+        palm.snapshot!.operationId,
+        resultId: 'wrong_feature_result',
+      );
+
+      final controller = CoffeeReadingController(
+        experience: CoffeeExperienceService(
+          store: sharedReadingStore,
+          analysis: _TrackingAnalysis(),
+        ),
+        images: _FakeImages(fixturePath),
+        live: runner,
+        pendingStore: sharedPendingStore,
+      );
+      addTearDown(controller.dispose);
+
+      await controller.recoverOperation(palm.snapshot!.operationId);
+
+      expect(controller.phase, CoffeePhase.entry);
+      expect(controller.reading, isNull);
+    },
+  );
+
+test(
     'the pending record is cleared once the operation reaches a terminal '
     'state, so a later recoverActive() call does not try to resume it '
     'again',
