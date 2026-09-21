@@ -64,7 +64,8 @@ class GemWalletService {
   Future<int?> refresh() => _locked(() async {
     if (!_ownerIsCurrent) return null;
     final result = await _gateway?.balance();
-    return result == null ? null : _accept(result);
+    if (result == null || !_ownerIsCurrent) return null;
+    return _accept(result);
   });
 
   /// Marks the CURRENT owner-bound durable cache authoritative for this
@@ -124,7 +125,14 @@ class GemWalletService {
   });
 
   Future<int> _accept(GemServerResult result) async {
+    if (!_ownerIsCurrent) {
+      throw const GemSpendException('owner_changed');
+    }
     await _store.cacheServerBalance(result.balance, ownerId: ownerId);
+    if (!_ownerIsCurrent) {
+      _stale = true;
+      throw const GemSpendException('owner_changed');
+    }
     _stale = false;
     return result.balance;
   }
