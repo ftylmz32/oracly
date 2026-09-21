@@ -34,6 +34,15 @@ class LocalStorage {
   }
 
   /// Flush ephemeral writes into prefs when they become available.
+  ///
+  /// Every promoted entry's own `Future<bool>` result is inspected — a
+  /// write that resolves `false` (no exception) is exactly as much a
+  /// promotion failure as one that throws. On ANY such failure this
+  /// returns `false` WITHOUT ever swapping `_prefs` in or clearing
+  /// `_memory`: the caller must keep reading/writing through the ephemeral
+  /// map, and a later retry re-attempts every entry (already-durable ones
+  /// are simply rewritten with the same value, which is idempotent) rather
+  /// than losing whichever entries never actually got promoted.
   Future<bool> tryPromote() async {
     final memory = _memory;
     if (memory == null) return true;
@@ -42,12 +51,23 @@ class LocalStorage {
           .timeout(const Duration(seconds: 3));
       for (final e in memory.entries) {
         final v = e.value;
-        if (v is String) await prefs.setString(e.key, v);
-        else if (v is int) await prefs.setInt(e.key, v);
-        else if (v is double) await prefs.setDouble(e.key, v);
-        else if (v is bool) await prefs.setBool(e.key, v);
-        else if (v is List<String>) await prefs.setStringList(e.key, v);
-        else if (v is List) await prefs.setStringList(e.key, v.cast<String>());
+        bool ok;
+        if (v is String) {
+          ok = await prefs.setString(e.key, v);
+        } else if (v is int) {
+          ok = await prefs.setInt(e.key, v);
+        } else if (v is double) {
+          ok = await prefs.setDouble(e.key, v);
+        } else if (v is bool) {
+          ok = await prefs.setBool(e.key, v);
+        } else if (v is List<String>) {
+          ok = await prefs.setStringList(e.key, v);
+        } else if (v is List) {
+          ok = await prefs.setStringList(e.key, v.cast<String>());
+        } else {
+          ok = true;
+        }
+        if (!ok) return false;
       }
       _prefs = prefs;
       _memory = null;

@@ -79,6 +79,30 @@ class _CountingDelayStorage extends LocalStorage {
   }
 }
 
+/// Holds the first wipe-key [remove] until [release] completes — lets a
+/// newer Firebase identity event enter `_sessionFromUser` while an older
+/// isolation is still mid-wipe.
+class _HoldWipeStorage extends LocalStorage {
+  _HoldWipeStorage(super.prefs);
+
+  Completer<void>? hold;
+  final wipeStarted = Completer<void>();
+  int wipeRemoveCalls = 0;
+
+  @override
+  Future<bool> remove(String key) async {
+    // The reading ledger is always part of UserLocalDataWipe — first hit
+    // is a reliable "wipe actually started" signal.
+    if (key == MockUserRepository.readingLedgerIdsKey) {
+      wipeRemoveCalls++;
+      if (!wipeStarted.isCompleted) wipeStarted.complete();
+      final gate = hold;
+      if (gate != null) await gate.future;
+    }
+    return super.remove(key);
+  }
+}
+
 class _SwitchGateway implements FirebaseAuthGateway {
   final _controller = StreamController<FirebaseAuthUserSnapshot?>.broadcast();
   FirebaseAuthUserSnapshot? _user;
@@ -689,6 +713,159 @@ void main() {
           'independent callers observed the same underlying auth event',
     );
     realAuth.dispose();
+  });
+
+  test(
+      'P0-3 A→B→C: releasing a paused B isolation after Firebase is already '
+      'C never publishes B — eventual session and owner are C only', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final holdStorage = _HoldWipeStorage(prefs);
+    holdStorage.hold = Completer<void>();
+    final holdIsolation = UserLocalDataIsolation(
+      holdStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    final raceGateway = _SwitchGateway();
+    final sessions = InMemorySessionManager(_MemTokens());
+    final raceAuth = FirebaseAuthService(
+      gateway: raceGateway,
+      tokens: _MemTokens(),
+      sessions: sessions,
+      isolation: holdIsolation,
+    );
+
+    raceGateway.signInAs('uid-A');
+    await raceAuth.signInAnonymously();
+    expect(sessions.currentSession?.userId, 'uid-A');
+
+    // Seed a prior owner so B's sign-in must wipe (and hit our hold).
+    await holdStorage.setString(UserLocalDataIsolation.ownerKey, 'uid-A');
+    await holdStorage.setStringList(
+      MockUserRepository.readingLedgerIdsKey,
+      const ['seed'],
+    );
+
+    raceGateway.signInAs('uid-B');
+    final bFuture = raceAuth.signInAnonymously();
+    await holdStorage.wipeStarted.future;
+
+    // Firebase is already C while B is still mid-wipe.
+    raceGateway.signInAs('uid-C');
+    final cFuture = raceAuth.signInAnonymously();
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+
+    holdStorage.hold!.complete();
+    final bResult = await bFuture;
+    final cResult = await cFuture;
+    await Future<void>.delayed(const Duration(milliseconds: 40));
+
+    expect(
+      bResult.isFailure,
+      isTrue,
+      reason: 'stale B must never publish after C superseded it',
+    );
+    expect(cResult.isSuccess, isTrue);
+    expect(sessions.currentSession?.userId, 'uid-C');
+    expect(holdIsolation.localOwnerId, 'uid-C');
+    expect(raceGateway.currentUser?.uid, 'uid-C');
+    raceAuth.dispose();
+  });
+
+  test(
+      'P0-3 A→B→C→B: an old first-B async must not become current merely '
+      'because uid later returns to B — generation, not uid equality',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final holdStorage = _HoldWipeStorage(prefs);
+    holdStorage.hold = Completer<void>();
+    final holdIsolation = UserLocalDataIsolation(
+      holdStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    final raceGateway = _SwitchGateway();
+    final sessions = InMemorySessionManager(_MemTokens());
+    final raceAuth = FirebaseAuthService(
+      gateway: raceGateway,
+      tokens: _MemTokens(),
+      sessions: sessions,
+      isolation: holdIsolation,
+    );
+
+    raceGateway.signInAs('uid-A');
+    await raceAuth.signInAnonymously();
+    await holdStorage.setString(UserLocalDataIsolation.ownerKey, 'uid-A');
+    await holdStorage.setStringList(
+      MockUserRepository.readingLedgerIdsKey,
+      const ['seed'],
+    );
+
+    raceGateway.signInAs('uid-B');
+    final firstB = raceAuth.signInAnonymously();
+    await holdStorage.wipeStarted.future;
+
+    raceGateway.signInAs('uid-C');
+    final cFuture = raceAuth.signInAnonymously();
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+
+    holdStorage.hold!.complete();
+    final firstBResult = await firstB;
+    final cResult = await cFuture;
+    expect(firstBResult.isFailure, isTrue);
+    expect(cResult.isSuccess, isTrue);
+    expect(sessions.currentSession?.userId, 'uid-C');
+
+    // Later return to B — a NEW generation. First-B must stay failed.
+    raceGateway.signInAs('uid-B');
+    final secondB = await raceAuth.signInAnonymously();
+    expect(secondB.isSuccess, isTrue);
+    expect(sessions.currentSession?.userId, 'uid-B');
+    expect(holdIsolation.localOwnerId, 'uid-B');
+    expect(firstBResult.isFailure, isTrue);
+    raceAuth.dispose();
+  });
+
+  test(
+      'P0-3: a stale callback after sign-out must never recreate a session',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final holdStorage = _HoldWipeStorage(prefs);
+    holdStorage.hold = Completer<void>();
+    final holdIsolation = UserLocalDataIsolation(
+      holdStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    final raceGateway = _SwitchGateway();
+    final sessions = InMemorySessionManager(_MemTokens());
+    final raceAuth = FirebaseAuthService(
+      gateway: raceGateway,
+      tokens: _MemTokens(),
+      sessions: sessions,
+      isolation: holdIsolation,
+    );
+
+    raceGateway.signInAs('uid-A');
+    await raceAuth.signInAnonymously();
+    await holdStorage.setString(UserLocalDataIsolation.ownerKey, 'uid-A');
+    await holdStorage.setStringList(
+      MockUserRepository.readingLedgerIdsKey,
+      const ['seed'],
+    );
+
+    raceGateway.signInAs('uid-B');
+    final bFuture = raceAuth.signInAnonymously();
+    await holdStorage.wipeStarted.future;
+
+    await raceAuth.signOut();
+    expect(sessions.currentSession, isNull);
+
+    holdStorage.hold!.complete();
+    final bResult = await bFuture;
+    expect(bResult.isFailure, isTrue);
+    expect(sessions.currentSession, isNull);
+    raceAuth.dispose();
   });
 
   test('same synthetic user starts empty after logout wipe then login', () async {

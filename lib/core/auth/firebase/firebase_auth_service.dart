@@ -39,6 +39,20 @@ class FirebaseAuthService implements AuthService {
   final UserLocalDataIsolation? _isolation;
   StreamSubscription<FirebaseAuthUserSnapshot?>? _sub;
 
+  // Guards against an async snapshot publishing a session after a NEWER
+  // Firebase identity event has already superseded it (e.g. an explicit
+  // sign-in for B is still isolating when authStateChanges fires for C —
+  // B must never commit once C is current). All entries into
+  // _sessionFromUser for the SAME uid as the current generation join it
+  // (so an explicit sign-in racing the listener for the SAME event can
+  // still both commit); any entry for a genuinely DIFFERENT uid — or a
+  // sign-out — starts a new, strictly later generation. Freshness is
+  // decided by generation number, never by uid equality alone, so a
+  // rapid B -> C -> B sequence can't let stale first-B work look current
+  // merely because the uid coincidentally matches again later.
+  int _generation = 0;
+  String? _generationUid;
+
   @override
   bool get isConfigured => _gateway.isInitialized;
 
@@ -100,6 +114,11 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<ApiResult<bool>> signOut() async {
+    // A newer auth event (explicit sign-out) — any in-flight
+    // _sessionFromUser call for whatever was current must become stale
+    // and must never resurrect a session after this.
+    _generation++;
+    _generationUid = null;
     await _gateway.signOut();
     await _sessions?.clearSession();
     await _tokens?.clearTokens();
@@ -192,6 +211,7 @@ class FirebaseAuthService implements AuthService {
     if (user == null) {
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
+    final myGeneration = _enterGeneration(user.uid);
     try {
       final token = await _gateway.currentIdToken(forceRefresh: forceRefresh);
       if (token == null || token.isEmpty || token.startsWith('mock_')) {
@@ -221,6 +241,12 @@ class FirebaseAuthService implements AuthService {
       try {
         isolationResult = await _isolation?.onSignedIn(user.uid);
       } catch (_) {
+        // If a NEWER identity event has superseded this call while it was
+        // isolating, that event alone owns the session now — this call
+        // must not touch it (not even to clear it) either way.
+        if (_isStale(myGeneration)) {
+          return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+        }
         if (isDifferentUid) await _sessions?.clearSession();
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
@@ -230,23 +256,70 @@ class FirebaseAuthService implements AuthService {
         // Firebase identity that is no longer that uid. ownerKey itself
         // is untouched by this — UserLocalDataIsolation already left it
         // at the prior owner as the durable residue-safety signal.
+        if (_isStale(myGeneration)) {
+          return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+        }
         if (isDifferentUid) await _sessions?.clearSession();
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
+
+      // A newer identity-affecting event (a later sign-in for a genuinely
+      // different uid, an explicit sign-out, or authStateChanges reacting
+      // to either) started while this call was still isolating — that
+      // event alone owns deciding what the session should be from here.
+      // This call must neither publish ITS session nor touch whatever the
+      // newer event may already have committed or cleared.
+      if (_isStale(myGeneration)) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
+
       final session = FirebaseSessionMapper.fromUser(
         user: user,
         idToken: token,
         provider: provider,
       );
+      // Prove freshness again immediately before publish — a newer event
+      // may have entered between the last stale check and this point.
+      if (_isStale(myGeneration)) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
       await _sessions?.setSession(session);
+      // TOCTOU: a newer event may have published (or cleared) DURING
+      // setSession. If we are now stale and the session we just wrote is
+      // still the one sitting in SessionManager, remove it — never leave a
+      // superseded snapshot authoritative. If a newer event already wrote
+      // a different uid, leave that alone.
+      if (_isStale(myGeneration)) {
+        final current = _sessions?.currentSession?.userId;
+        if (current == user.uid) {
+          await _sessions?.clearSession();
+        }
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
       return ApiSuccess(session);
     } on AuthGatewayException catch (e) {
       return ApiFailure(FirebaseAuthErrors.map(e));
     }
   }
 
+  /// Joins the CURRENT generation if [uid] matches whatever it was last
+  /// entered for (an explicit call and the listener reacting to the same
+  /// underlying event both legitimately share one generation); otherwise
+  /// starts a strictly NEWER generation for a genuinely different uid.
+  int _enterGeneration(String uid) {
+    if (_generationUid == uid) return _generation;
+    _generation++;
+    _generationUid = uid;
+    return _generation;
+  }
+
+  bool _isStale(int myGeneration) => myGeneration != _generation;
+
   Future<void> _syncSession(FirebaseAuthUserSnapshot? user) async {
     if (user == null) {
+      // A newer auth event (sign-out) — see the comment on _generation.
+      _generation++;
+      _generationUid = null;
       await _sessions?.clearSession();
       await _tokens?.clearTokens();
       return;

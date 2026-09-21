@@ -46,6 +46,9 @@ void main() {
     await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
+    // Strict owned-file cleanup awaits real filesystem Futures; FakeAsync
+    // alone will not complete them — flush the real event loop first.
+    await _flushRealIo(tester);
     await tester.pump(const Duration(milliseconds: 1200));
 
     expect(auth.signOutCalls, 1);
@@ -90,6 +93,8 @@ void main() {
     // In-flight logout hides the CTA so a second tap cannot re-enter.
     expect(find.text(ProfileCopy.logoutTitle), findsNothing);
     await tester.pump(const Duration(milliseconds: 1200));
+    await _flushRealIo(tester);
+    await tester.pump();
 
     expect(auth.signOutCalls, 1);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
@@ -112,6 +117,7 @@ void main() {
     auth.fail = false;
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
+    await _flushRealIo(tester);
     await tester.pump(const Duration(milliseconds: 2000));
     expect(auth.signOutCalls, 2);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
@@ -138,6 +144,7 @@ void main() {
       await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
       await tester.tap(find.text(ProfileCopy.logoutTitle));
       await tester.pump();
+      await _flushRealIo(tester);
       await tester.pump(const Duration(milliseconds: 1200));
 
       expect(sender.calls, hasLength(1));
@@ -173,6 +180,7 @@ void main() {
       await tester.ensureVisible(find.text(ProfileCopy.logoutTitle));
       await tester.tap(find.text(ProfileCopy.logoutTitle));
       await tester.pump();
+      await _flushRealIo(tester);
       await tester.pump(const Duration(milliseconds: 1200));
 
       expect(sender.callCount, 1);
@@ -181,6 +189,14 @@ void main() {
       expect(find.text(AuthCopy.signOutFailed), findsNothing);
     },
   );
+}
+
+/// Strict account-boundary wipe awaits real filesystem Futures. FakeAsync
+/// pumps alone will not complete them — flush the real event loop once.
+Future<void> _flushRealIo(WidgetTester tester) {
+  return tester.runAsync(() async {
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+  });
 }
 
 Future<void> _pump(

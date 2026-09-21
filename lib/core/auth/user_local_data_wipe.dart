@@ -2,6 +2,7 @@
 library;
 
 import '../data/datasources/local_storage.dart';
+import '../data/datasources/storage_result.dart';
 import '../data/repositories/mock_premium_repository.dart';
 import '../data/repositories/review_access_repository.dart';
 import '../continuation/services/session_continuation_focus_store.dart';
@@ -68,126 +69,117 @@ abstract final class UserLocalDataWipe {
       }
     }
 
-    // Owned-image FS cleanup (actual photo files, not a storage key) is
-    // best-effort and intentionally fire-and-forget — it must never stall
-    // account isolation when path_provider is unavailable (e.g. widget
-    // tests), and there is no synchronous key identity to report here.
-    // ignore: unawaited_futures
-    DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImages(storage);
-    await step(
-      'or_reading_history',
-      () => storage.setStringList('or_reading_history', const []),
-    );
-    await step(
-      'dream_records',
-      () => storage.setStringList('dream_records', const []),
-    );
-    await step(
-      CoffeeReadingStore.key,
-      () => storage.setStringList(CoffeeReadingStore.key, const []),
-    );
-    await step(
-      PalmReadingStore.key,
-      () => storage.setStringList(PalmReadingStore.key, const []),
-    );
-    await step(
-      'astrology_history',
-      () => storage.setStringList('astrology_history', const []),
-    );
-    await step(
-      'ai_conversations',
-      () => storage.setStringList('ai_conversations', const []),
-    );
-    await step('birth_chart_latest', () => storage.remove('birth_chart_latest'));
+    // A `false` (non-throwing) LocalStorage result is exactly as much a
+    // failure as a thrown exception — these two convert it into one so
+    // every `step(...)` call below (which already catches exceptions)
+    // catches both the same way, without needing a parallel bool-checking
+    // path at every call site.
+    Future<void> removeKey(String key) => storage.remove(key).requireDurable();
+    Future<void> clearList(String key) =>
+        storage.setStringList(key, const []).requireDurable();
+
+    // Owned-image FS cleanup (actual Coffee/Palm photo files) MUST be
+    // awaited and MUST run before the metadata steps below that clear the
+    // reading records these paths come from — capturing the paths after
+    // that metadata is gone would make them unrecoverable. A failure here
+    // (file couldn't be deleted) is recorded — Coffee/Palm paths that
+    // couldn't be deleted are durably journaled by
+    // DiscoveryOwnedImageWipe itself before this returns, so a retry can
+    // still find them even though the metadata step right after this one
+    // runs unconditionally regardless of this step's outcome.
+    await step('discovery_owned_images', () async {
+      final ok = await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(
+        storage,
+      );
+      if (!ok) throw StateError('owned coffee/palm image cleanup incomplete');
+    });
+    await step('or_reading_history', () => clearList('or_reading_history'));
+    await step('dream_records', () => clearList('dream_records'));
+    await step(CoffeeReadingStore.key, () => clearList(CoffeeReadingStore.key));
+    await step(PalmReadingStore.key, () => clearList(PalmReadingStore.key));
+    await step('astrology_history', () => clearList('astrology_history'));
+    await step('ai_conversations', () => clearList('ai_conversations'));
+    await step('birth_chart_latest', () => removeKey('birth_chart_latest'));
     await step(
       LocalFavoriteMomentsRepository.key,
-      () => storage.remove(LocalFavoriteMomentsRepository.key),
+      () => removeKey(LocalFavoriteMomentsRepository.key),
     );
-    await step(
-      PersonalMemoryStore.key,
-      () => storage.remove(PersonalMemoryStore.key),
-    );
+    await step(PersonalMemoryStore.key, () => removeKey(PersonalMemoryStore.key));
     await step(
       'oracly_connected_memory_v2',
-      () => storage.remove('oracly_connected_memory_v2'),
+      () => removeKey('oracly_connected_memory_v2'),
     );
     await step(
       PersonalMemoryStore.userResetKey,
-      () => storage.remove(PersonalMemoryStore.userResetKey),
+      () => removeKey(PersonalMemoryStore.userResetKey),
     );
     await step(
       'discovery_surface_memory_v1',
-      () => storage.remove('discovery_surface_memory_v1'),
+      () => removeKey('discovery_surface_memory_v1'),
     );
-    await step('user_memories', () => storage.remove('user_memories'));
+    await step('user_memories', () => removeKey('user_memories'));
     // MemoryService's saved display name — was missing here, letting a new
     // account on the same device inherit the prior account's saved name.
-    await step('user_name', () => storage.remove('user_name'));
+    await step('user_name', () => removeKey('user_name'));
     await stepKeys(() => _clearKeys(storage, UserLocalDataWipeKeys.profile));
-    await step('profile_photo', () => ProfilePhotoStore.clear(storage));
-    await step(
-      'onboarding_setup_draft',
-      () => storage.remove('onboarding_setup_draft'),
-    );
+    await step('profile_photo', () => ProfilePhotoStore.clearStrict(storage));
+    await step('onboarding_setup_draft', () => removeKey('onboarding_setup_draft'));
     await step(
       FirstReadingOrDeepen.sessionKey,
-      () => storage.remove(FirstReadingOrDeepen.sessionKey),
+      () => removeKey(FirstReadingOrDeepen.sessionKey),
     );
     await step(
       FirstReadingOrDeepen.consumedKey,
-      () => storage.remove(FirstReadingOrDeepen.consumedKey),
+      () => removeKey(FirstReadingOrDeepen.consumedKey),
     );
     await step(
       DailyRewardsService.claimedKey,
-      () => storage.remove(DailyRewardsService.claimedKey),
+      () => removeKey(DailyRewardsService.claimedKey),
     );
     await step(
       AstrologyPreferencesStore.signKey,
-      () => storage.remove(AstrologyPreferencesStore.signKey),
+      () => removeKey(AstrologyPreferencesStore.signKey),
     );
     await step(
       CardOfTheDayStore.storageKey,
-      () => storage.remove(CardOfTheDayStore.storageKey),
+      () => removeKey(CardOfTheDayStore.storageKey),
     );
     await step(
       IntelligenceIndexStore.key,
-      () => storage.remove(IntelligenceIndexStore.key),
+      () => removeKey(IntelligenceIndexStore.key),
     );
     await step(
       OracleNextActionMemory.key,
-      () => storage.remove(OracleNextActionMemory.key),
+      () => removeKey(OracleNextActionMemory.key),
     );
     await step(
       DailyPersonalObservationStore.key,
-      () => storage.remove(DailyPersonalObservationStore.key),
+      () => removeKey(DailyPersonalObservationStore.key),
     );
     await step(
       ReadingFeedbackStore.key,
-      () => storage.remove(ReadingFeedbackStore.key),
+      () => removeKey(ReadingFeedbackStore.key),
     );
     await step(
       TarotRevisitIntentStore.key,
-      () => storage.remove(TarotRevisitIntentStore.key),
+      () => removeKey(TarotRevisitIntentStore.key),
     );
     await step(
       'personal_insights_hidden',
-      () => storage.remove('personal_insights_hidden'),
+      () => removeKey('personal_insights_hidden'),
     );
     await step(
       'personal_insights_deleted',
-      () => storage.remove('personal_insights_deleted'),
+      () => removeKey('personal_insights_deleted'),
     );
-    await step(
-      ReadingVersionStore.key,
-      () => storage.remove(ReadingVersionStore.key),
-    );
+    await step(ReadingVersionStore.key, () => removeKey(ReadingVersionStore.key));
     await step(
       SessionContinuationFocusStore.key,
-      () => storage.remove(SessionContinuationFocusStore.key),
+      () => removeKey(SessionContinuationFocusStore.key),
     );
     await step(
       ShareOwnershipStore.key,
-      () => storage.remove(ShareOwnershipStore.key),
+      () => removeKey(ShareOwnershipStore.key),
     );
     await step(
       'premium_local_state',
@@ -198,46 +190,43 @@ abstract final class UserLocalDataWipe {
     );
     await step('secure_storage', () => secureStorage.deleteAll());
     await stepKeys(() => _clearKeys(storage, UserLocalDataWipeKeys.gems));
-    await step('soul_mate_result', () => SoulMateResultStore.clear(storage));
+    await step(
+      'soul_mate_result',
+      () => SoulMateResultStore.clearStrict(storage),
+    );
     await step(
       'soul_mate_generation_session',
-      () => SoulMateGenerationSessionStore.clear(storage),
+      () => SoulMateGenerationSessionStore.clearStrict(storage),
     );
     await step(
       'soulmate_portrait_hashes',
-      () => storage.remove('soulmate_portrait_hashes'),
+      () => removeKey('soulmate_portrait_hashes'),
     );
     await step(
       'soulmate_portrait_identity',
-      () => storage.remove('soulmate_portrait_identity'),
+      () => removeKey('soulmate_portrait_identity'),
     );
-    await step(
-      PaidAiOperationStore.key,
-      () => storage.remove(PaidAiOperationStore.key),
-    );
-    await step(
-      DreamAttemptStore.key,
-      () => storage.remove(DreamAttemptStore.key),
-    );
+    await step(PaidAiOperationStore.key, () => removeKey(PaidAiOperationStore.key));
+    await step(DreamAttemptStore.key, () => removeKey(DreamAttemptStore.key));
     await step(
       'coffee_v2_submission',
-      () => storage.remove('coffee_v2_submission'),
+      () => removeKey('coffee_v2_submission'),
     );
     await step(
       'coffee_v2_acknowledged_operation',
-      () => storage.remove('coffee_v2_acknowledged_operation'),
+      () => removeKey('coffee_v2_acknowledged_operation'),
     );
     await step(
       ReviewAccessRepository.grantedKey,
-      () => storage.remove(ReviewAccessRepository.grantedKey),
+      () => removeKey(ReviewAccessRepository.grantedKey),
     );
     await step(
       TarotLocalDataSource.historyKey,
-      () => storage.setStringList(TarotLocalDataSource.historyKey, const []),
+      () => clearList(TarotLocalDataSource.historyKey),
     );
     await step(
       TarotLocalDataSource.activeKey,
-      () => storage.remove(TarotLocalDataSource.activeKey),
+      () => removeKey(TarotLocalDataSource.activeKey),
     );
     await step(
       'reading_pending_operations',
@@ -253,14 +242,14 @@ abstract final class UserLocalDataWipe {
     return UserLocalDataWipeResult(failedOperations: failed);
   }
 
-  /// Best-effort PER KEY, not per group: a single throwing `remove` must
-  /// never stop the loop before it reaches the rest of [keys]. Returns the
-  /// keys whose removal actually failed, so [run] can report them rather
-  /// than silently absorbing them. Several account-scoped keys (e.g. the
-  /// reading-count ledger ids/baseline) sit late in
-  /// [UserLocalDataWipeKeys.profile] — if an earlier key's remove call
-  /// threw and aborted the whole loop, every later key (including those)
-  /// would have been silently left on disk for the next owner.
+  /// Best-effort PER KEY, not per group: a single throwing (or false-
+  /// returning) `remove` must never stop the loop before it reaches the
+  /// rest of [keys]. Returns the keys whose removal actually failed, so
+  /// [run] can report them rather than silently absorbing them. Several
+  /// account-scoped keys (e.g. the reading-count ledger ids/baseline) sit
+  /// late in [UserLocalDataWipeKeys.profile] — if an earlier key's remove
+  /// call threw and aborted the whole loop, every later key (including
+  /// those) would have been silently left on disk for the next owner.
   static Future<List<String>> _clearKeys(
     LocalStorage storage,
     List<String> keys,
@@ -268,7 +257,7 @@ abstract final class UserLocalDataWipe {
     final failed = <String>[];
     for (final key in keys) {
       try {
-        await storage.remove(key);
+        if (!await storage.remove(key)) failed.add(key);
       } catch (_) {
         failed.add(key);
       }
@@ -290,7 +279,7 @@ abstract final class UserLocalDataWipe {
         storage.keys.where((k) => k.startsWith(prefix)).toList();
     for (final key in matching) {
       try {
-        await storage.remove(key);
+        if (!await storage.remove(key)) failed.add(key);
       } catch (_) {
         failed.add(key);
       }

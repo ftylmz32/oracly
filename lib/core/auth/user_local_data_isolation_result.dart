@@ -31,6 +31,15 @@ class UserLocalDataIsolationResult {
   ) =>
       UserLocalDataIsolationResult._(success: false, wipeResult: wipeResult);
 
+  /// Cleanup (or the very first sign-in on this device) succeeded, but the
+  /// durable `ownerKey` write itself resolved `false` — a persistence
+  /// failure, not an exception. [accountSwitchEpoch] must never bump, and
+  /// the caller must not publish a session for the new uid: the prior
+  /// owner's marker (or no marker at all, on a first sign-in) is left
+  /// exactly as it was, which safely forces another attempt on retry.
+  factory UserLocalDataIsolationResult.ownerCommitFailed() =>
+      const UserLocalDataIsolationResult._(success: false);
+
   final bool success;
 
   /// Populated only when [success] is false — the exact wipe failure this

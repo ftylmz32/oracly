@@ -104,6 +104,9 @@ void main() {
     await tester.pump();
     await tester.tap(find.text(ProfileCopy.logoutTitle));
     await tester.pump();
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+    });
     await tester.pump(const Duration(milliseconds: 1200));
 
     expect(auth.signOutCalls, 1);

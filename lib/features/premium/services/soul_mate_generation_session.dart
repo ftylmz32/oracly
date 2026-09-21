@@ -87,6 +87,15 @@ abstract final class SoulMateGenerationSessionStore {
 
   static Future<void> clear(LocalStorage storage) => storage.remove(key);
 
+  /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
+  /// Unlike [clear], a `false` (non-throwing) removal is treated as a
+  /// failure rather than silently ignored.
+  static Future<void> clearStrict(LocalStorage storage) async {
+    if (!await storage.remove(key)) {
+      throw StateError('soulmate generation session key not removed');
+    }
+  }
+
   /// Drop another account's in-flight marker. Does not touch a saved portrait.
   static Future<SoulMateGenerationRecord?> readForOwner(
     LocalStorage storage,

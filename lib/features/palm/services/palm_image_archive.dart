@@ -59,6 +59,23 @@ abstract final class PalmImageArchive {
     } catch (_) {}
   }
 
+  /// Account-boundary wipe variant — used only by [DiscoveryOwnedImageWipe].
+  /// Never touches a path outside this archive (returns `true` — nothing
+  /// owned to clean up). Returns `false` only when an OWNED file's delete
+  /// itself failed, so the caller can keep the path for retry instead of
+  /// silently treating the file as gone.
+  static Future<bool> deleteIfOwnedStrict(String? path) async {
+    if (path == null || path.trim().isEmpty) return true;
+    if (!await isOwnedPath(path)) return true;
+    try {
+      final file = File(path);
+      if (await file.exists()) await file.delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Remove every file under the palm archive directory.
   static Future<void> purgeOwnedArchive() async {
     try {
@@ -71,6 +88,32 @@ abstract final class PalmImageArchive {
         } catch (_) {}
       }
     } catch (_) {}
+  }
+
+  /// Account-boundary wipe variant — returns `false` if a file THAT WAS
+  /// FOUND under the archive directory could not be deleted. If the
+  /// directory/platform itself is unreachable (e.g. path_provider isn't
+  /// wired up), this degrades to `true` — the same tolerant behavior
+  /// [purgeOwnedArchive] already had — since that is an environment
+  /// limitation, not evidence a known owned file failed to delete.
+  static Future<bool> purgeOwnedArchiveStrict() async {
+    Directory dir;
+    try {
+      dir = await _dir();
+      if (!await dir.exists()) return true;
+    } catch (_) {
+      return true;
+    }
+    var ok = true;
+    await for (final entity in dir.list(followLinks: false)) {
+      if (entity is! File) continue;
+      try {
+        await entity.delete();
+      } catch (_) {
+        ok = false;
+      }
+    }
+    return ok;
   }
 
   static String _ownedPrefix(Directory dir) {

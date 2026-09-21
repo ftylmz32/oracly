@@ -88,7 +88,9 @@ class UserLocalDataIsolation {
       return UserLocalDataIsolationResult.noSwitchNeeded();
     }
     if (previous == null) {
-      await _storage.setString(ownerKey, uid);
+      if (!await _storage.setString(ownerKey, uid)) {
+        return UserLocalDataIsolationResult.ownerCommitFailed();
+      }
       return UserLocalDataIsolationResult.noSwitchNeeded();
     }
     final wipeResult = await UserLocalDataWipe.run(
@@ -98,8 +100,17 @@ class UserLocalDataIsolation {
     if (!wipeResult.isComplete) {
       return UserLocalDataIsolationResult.wipeIncomplete(wipeResult);
     }
+    // ownerKey must be PROVEN durably committed to the new uid before the
+    // epoch bumps — a caller reacting to accountSwitchEpoch must never
+    // observe it before the new owner is actually safe to read/write as
+    // current. On a false (non-throwing) write failure, the prior owner's
+    // marker is left exactly as it was; that stale marker safely forces
+    // another full attempt on retry rather than silently leaving the
+    // device with no recorded owner at all.
+    if (!await _storage.setString(ownerKey, uid)) {
+      return UserLocalDataIsolationResult.ownerCommitFailed();
+    }
     accountSwitchEpoch.value++;
-    await _storage.setString(ownerKey, uid);
     return UserLocalDataIsolationResult.switched();
   }
 

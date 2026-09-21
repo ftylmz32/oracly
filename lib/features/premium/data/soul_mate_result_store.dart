@@ -70,11 +70,41 @@ abstract final class SoulMateResultStore {
     await _deleteQuietly(previous?.portraitPath);
   }
 
+  /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
+  /// Unlike [clear], the portrait file is deleted FIRST: [metaKey] is
+  /// retired only once that delete is proven to have succeeded (or there
+  /// was never a portrait to delete). A failed delete leaves the metadata
+  /// — and therefore the portrait path — in storage for retry, instead of
+  /// erasing it and orphaning the file forever.
+  static Future<void> clearStrict(LocalStorage storage) async {
+    final previous = await readMeta(storage);
+    final path = previous?.portraitPath;
+    if (path != null && path.isNotEmpty) {
+      if (!await _deleteStrict(path)) {
+        throw StateError('soulmate portrait file delete failed');
+      }
+    }
+    if (!await storage.remove(metaKey)) {
+      throw StateError('soulmate meta key removal failed');
+    }
+  }
+
   static Future<void> _deleteQuietly(String? path) async {
     if (path == null || path.isEmpty) return;
     try {
       final file = File(path);
       if (file.existsSync()) await file.delete();
     } catch (_) {}
+  }
+
+  static Future<bool> _deleteStrict(String path) async {
+    try {
+      final file = File(path);
+      if (!file.existsSync()) return true;
+      await file.delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }

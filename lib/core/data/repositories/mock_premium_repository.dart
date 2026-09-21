@@ -58,18 +58,28 @@ class MockPremiumRepository implements PremiumRepository {
   }
 
   /// Removes all local Premium entitlement cache and secure credentials.
+  /// Account-boundary wipe — used only by [UserLocalDataWipe]. A `false`
+  /// (non-throwing) removal is exactly as much a failure here as a thrown
+  /// one, so it throws to let the wipe's per-step failure tracking catch
+  /// it the same way; every other key is still attempted regardless.
   static Future<void> clearPersistedLocalState(
     LocalStorage storage, {
     required SecureStorage secureStorage,
   }) async {
+    final failed = <String>[];
     for (final key in localUserBoundKeys) {
-      await storage.remove(key);
+      if (!await storage.remove(key)) failed.add(key);
     }
-    await storage.remove(PremiumCredentialMigration.doneKey);
+    if (!await storage.remove(PremiumCredentialMigration.doneKey)) {
+      failed.add(PremiumCredentialMigration.doneKey);
+    }
     await secureStorage.delete(PremiumCredentialKeys.purchaseToken);
     await secureStorage.delete(PremiumCredentialKeys.transactionId);
     for (final key in legacyCredentialPrefKeys) {
-      await storage.remove(key);
+      if (!await storage.remove(key)) failed.add(key);
+    }
+    if (failed.isNotEmpty) {
+      throw StateError('premium local state keys not removed: $failed');
     }
   }
 

@@ -4,6 +4,7 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/auth/owned_file_cleanup_journal.dart';
 import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
@@ -279,6 +280,176 @@ void main() {
     expect(PalmReadingStore(storage).all(), isEmpty);
     expect(File(archived).existsSync(), isFalse);
   });
+
+  group('P0-4 / 4A — strict account-boundary file cleanup', () {
+    test(
+        'coffee owned file delete failure blocks an owner switch; the '
+        'journal preserves the exact path, and a retry after the file '
+        'becomes deletable again completes the switch', () async {
+      final archived = await seedCoffee();
+      await _makeUndeletable(archived);
+
+      final isolation = UserLocalDataIsolation(storage, secureStorage: secure);
+      await isolation.onSignedIn('owner-a-coffee-fail');
+      final blocked = await isolation.onSignedIn('owner-b-coffee-fail');
+
+      expect(blocked.success, isFalse);
+      expect(isolation.localOwnerId, 'owner-a-coffee-fail');
+      expect(File(archived).existsSync(), isTrue);
+      expect(OwnedFileCleanupJournal.read(storage), contains(archived));
+
+      await _makeDeletable(archived);
+      final recovered = await isolation.onSignedIn('owner-b-coffee-fail');
+
+      expect(recovered.success, isTrue);
+      expect(isolation.localOwnerId, 'owner-b-coffee-fail');
+      expect(File(archived).existsSync(), isFalse);
+      expect(OwnedFileCleanupJournal.read(storage), isEmpty);
+    });
+
+    test(
+        'palm owned file delete failure blocks an owner switch; retry after '
+        'recovery completes it', () async {
+      final archived = await seedPalm();
+      await _makeUndeletable(archived);
+
+      final isolation = UserLocalDataIsolation(storage, secureStorage: secure);
+      await isolation.onSignedIn('owner-a-palm-fail');
+      final blocked = await isolation.onSignedIn('owner-b-palm-fail');
+
+      expect(blocked.success, isFalse);
+      expect(isolation.localOwnerId, 'owner-a-palm-fail');
+      expect(File(archived).existsSync(), isTrue);
+      expect(OwnedFileCleanupJournal.read(storage), contains(archived));
+
+      await _makeDeletable(archived);
+      final recovered = await isolation.onSignedIn('owner-b-palm-fail');
+
+      expect(recovered.success, isTrue);
+      expect(isolation.localOwnerId, 'owner-b-palm-fail');
+      expect(File(archived).existsSync(), isFalse);
+    });
+
+    test(
+        'profile photo delete failure blocks an owner switch; the path stays '
+        'in storage for retry instead of being orphaned', () async {
+      final profileSrc = File('${root.path}${Platform.pathSeparator}profile_fail.jpg');
+      await profileSrc.writeAsBytes(const [4, 5, 6]);
+      await ProfilePhotoStore.save(storage, profileSrc.path, documents: root);
+      final profilePath = storage.getString(ProfilePhotoStore.key)!;
+      await _makeUndeletable(profilePath);
+
+      final isolation = UserLocalDataIsolation(storage, secureStorage: secure);
+      await isolation.onSignedIn('owner-a-profile-fail');
+      final blocked = await isolation.onSignedIn('owner-b-profile-fail');
+
+      expect(blocked.success, isFalse);
+      expect(isolation.localOwnerId, 'owner-a-profile-fail');
+      expect(File(profilePath).existsSync(), isTrue);
+      expect(
+        storage.getString(ProfilePhotoStore.key),
+        profilePath,
+        reason: 'metadata must not be erased before the physical file is '
+            'proven gone — otherwise the path would be lost forever',
+      );
+
+      await _makeDeletable(profilePath);
+      final recovered = await isolation.onSignedIn('owner-b-profile-fail');
+
+      expect(recovered.success, isTrue);
+      expect(File(profilePath).existsSync(), isFalse);
+      expect(storage.getString(ProfilePhotoStore.key), isNull);
+    });
+
+    test(
+        'soulmate portrait delete failure blocks an owner switch; retry '
+        'after recovery completes it', () async {
+      final savedSoulmate = await SoulMateResultStore.save(
+        storage: storage,
+        record: SoulMateSavedResult(
+          id: 'sm-fail',
+          createdAt: DateTime(2026, 1, 1),
+          name: 'A',
+          birthDate: DateTime(1990, 1, 1),
+          intention: 'calm',
+          portraitPath: '',
+          parts: const SoulMateReadingParts(
+            energy: 'e',
+            attraction: 'a',
+            dynamics: 'd',
+            feeling: 'f',
+            yourSide: 'y',
+          ),
+        ),
+        portraitBytes: const [7, 8, 9],
+        documents: root,
+      );
+      final portraitPath = savedSoulmate!.portraitPath;
+      await _makeUndeletable(portraitPath);
+
+      final isolation = UserLocalDataIsolation(storage, secureStorage: secure);
+      await isolation.onSignedIn('owner-a-soulmate-fail');
+      final blocked = await isolation.onSignedIn('owner-b-soulmate-fail');
+
+      expect(blocked.success, isFalse);
+      expect(isolation.localOwnerId, 'owner-a-soulmate-fail');
+      expect(File(portraitPath).existsSync(), isTrue);
+      expect(
+        (await SoulMateResultStore.readMeta(storage))?.portraitPath,
+        portraitPath,
+        reason: 'metadata must not be erased before the physical file is '
+            'proven gone',
+      );
+
+      await _makeDeletable(portraitPath);
+      final recovered = await isolation.onSignedIn('owner-b-soulmate-fail');
+
+      expect(recovered.success, isTrue);
+      expect(File(portraitPath).existsSync(), isFalse);
+      expect(await SoulMateResultStore.readMeta(storage), isNull);
+    });
+
+    test(
+        'an external (non-owned) file is never deleted and never counted as '
+        'a strict cleanup failure', () async {
+      final external = File('${root.path}${Platform.pathSeparator}outside_strict.jpg');
+      await external.writeAsBytes(const [1, 2, 3]);
+      await CoffeeReadingStore(storage).save(
+        CoffeeReading(
+          id: 'coffee-external-strict',
+          createdAt: DateTime(2026, 1, 1),
+          overall: 'Cup',
+          love: 'Love',
+          career: 'Career',
+          money: 'Money',
+          nearFuture: 'Near',
+          takeaway: 'Take',
+          imagePath: external.path,
+        ),
+      );
+
+      final ok = await DiscoveryOwnedImageWipe.wipeCoffeeAndPalmImagesStrict(storage);
+
+      expect(ok, isTrue);
+      expect(external.existsSync(), isTrue);
+    });
+  });
+}
+
+Future<void> _makeUndeletable(String path) async {
+  if (Platform.isWindows) {
+    await Process.run('attrib', ['+R', path]);
+  } else {
+    await Process.run('chmod', ['0444', path]);
+  }
+}
+
+Future<void> _makeDeletable(String path) async {
+  if (Platform.isWindows) {
+    await Process.run('attrib', ['-R', path]);
+  } else {
+    await Process.run('chmod', ['0644', path]);
+  }
 }
 
 class _TempPathProvider extends Fake

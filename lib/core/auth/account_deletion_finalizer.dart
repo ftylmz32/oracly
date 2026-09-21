@@ -2,6 +2,7 @@
 library;
 
 import '../data/datasources/local_storage.dart';
+import '../data/datasources/storage_result.dart';
 import '../network/api_result.dart';
 import '../network/network_exception.dart';
 import '../storage/secure_storage.dart';
@@ -64,8 +65,11 @@ abstract final class AccountDeletionFinalizer {
   }) async {
     AccountDeletionPendingState.markFinalizing();
     try {
-      await storage.setBool(localWipePendingKey, true);
-      await storage.remove(identityCleanupKey);
+      // A `false` (non-throwing) result from either write is exactly as
+      // much a failure as a thrown exception — requireDurable() converts
+      // it into one so this existing try/catch catches both the same way.
+      await storage.setBool(localWipePendingKey, true).requireDurable();
+      await storage.remove(identityCleanupKey).requireDurable();
     } catch (_) {
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
@@ -86,12 +90,18 @@ abstract final class AccountDeletionFinalizer {
     }
 
     try {
-      await storage.setBool(anonymousBootstrapKey, true);
+      // Establish anonymousBootstrapKey FIRST, and only once THAT write is
+      // proven durable may localWipePendingKey/ownerKey ever be retired —
+      // whichever of these three fails, at least one finalization marker
+      // is always still left durably `true` (never a marker-free gap),
+      // and a retry safely re-attempts every one of them (all idempotent).
+      await storage.setBool(anonymousBootstrapKey, true).requireDurable();
+      await storage.remove(localWipePendingKey).requireDurable();
+      await storage.remove(UserLocalDataIsolation.ownerKey).requireDurable();
     } catch (_) {
+      AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
-    await storage.remove(localWipePendingKey);
-    await storage.remove(UserLocalDataIsolation.ownerKey);
     AccountDeletionPendingState.markFinalizing();
     return completeAnonymousBootstrap(
       auth: auth,
@@ -106,7 +116,9 @@ abstract final class AccountDeletionFinalizer {
     required LocalStorage storage,
     required String identityCleanupKey,
   }) async {
-    await storage.setBool(anonymousBootstrapKey, true);
+    if (!await storage.setBool(anonymousBootstrapKey, true)) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
     AccountDeletionPendingState.markFinalizing();
 
     final session = await auth.ensureAnonymousSession();
@@ -127,8 +139,21 @@ abstract final class AccountDeletionFinalizer {
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
 
-    await storage.remove(anonymousBootstrapKey);
-    await storage.remove(identityCleanupKey);
+    // identityCleanupKey is retired FIRST: if only one of these two removals
+    // can be proven durable, it must be this one — otherwise a stale
+    // identityCleanupKey could later be misread as "this (freshly
+    // bootstrapped, otherwise-healthy) anonymous identity still needs
+    // deleting" by AccountDeletionService.retryPendingIdentityCleanup.
+    // anonymousBootstrapKey staying `true` in the meantime is always safe:
+    // it only ever routes a retry back into this same idempotent function.
+    if (!await storage.remove(identityCleanupKey)) {
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    if (!await storage.remove(anonymousBootstrapKey)) {
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
     AccountDeletionPendingState.markClear();
     UserLocalDataIsolation.accountSwitchEpoch.value++;
     return const ApiSuccess(true);

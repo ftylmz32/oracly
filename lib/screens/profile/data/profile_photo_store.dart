@@ -47,12 +47,42 @@ abstract final class ProfilePhotoStore {
     await _deleteQuietly(stored);
   }
 
+  /// Account-boundary wipe variant — used only by [UserLocalDataWipe].
+  /// Unlike [clear], the physical file is deleted FIRST: the metadata
+  /// [key] is retired only once that delete is proven to have succeeded
+  /// (or there was never a file to delete). A failed delete leaves the
+  /// path in storage — untouched — so a retry still knows exactly which
+  /// file to remove, instead of the path being erased and the file
+  /// silently orphaned forever.
+  static Future<void> clearStrict(LocalStorage storage) async {
+    final stored = storage.getString(key);
+    if (stored != null && stored.isNotEmpty) {
+      if (!await _deleteStrict(stored)) {
+        throw StateError('profile photo file delete failed');
+      }
+    }
+    if (!await storage.remove(key)) {
+      throw StateError('profile photo key removal failed');
+    }
+  }
+
   static Future<void> _deleteQuietly(String? path) async {
     if (path == null || path.isEmpty) return;
     try {
       final file = File(path);
       if (file.existsSync()) await file.delete();
     } catch (_) {}
+  }
+
+  static Future<bool> _deleteStrict(String path) async {
+    try {
+      final file = File(path);
+      if (!file.existsSync()) return true;
+      await file.delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }
 

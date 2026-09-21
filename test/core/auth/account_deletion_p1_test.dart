@@ -30,6 +30,8 @@ import 'package:oracly_new/features/premium/models/premium_purchase_credentials.
 import 'package:oracly_new/features/tarot/data/datasources/tarot_local_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/false_return_local_storage.dart';
+
 const _idToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig';
 
 void main() {
@@ -275,6 +277,280 @@ void main() {
       expect(healthyDeletion.hasPendingLocalWipe, isFalse);
       expect(healthyDeletion.hasPendingAnonymousBootstrap, isFalse);
       expect(healthyDeletion.hasPendingIdentityCleanup, isFalse);
+    },
+  );
+
+  test(
+    'P0-2 / 2A: if the identity-cleanup marker itself cannot be proven '
+    'durable, the Firebase identity is never deleted at all — server '
+    'already accepted, but zero destructive identity calls happen and the '
+    'identity remains fully intact',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingSecure = InMemorySecureStorage();
+      final failingGateway = _DeletionGateway();
+      final failingSessions = InMemorySessionManager(
+        FirebaseIdTokenManager(failingGateway, fallback: _MemTokens()),
+      );
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: failingSessions,
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: failingSecure,
+        ),
+      );
+      final failingDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: failingStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async => true,
+      );
+      await failingAuth.signInAnonymously();
+      failingStorage.falseReturnKeys.add(
+        AccountDeletionService.pendingIdentityCleanupKey,
+      );
+
+      final result = await failingDeletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(
+        failingGateway.deleteCalls,
+        0,
+        reason: 'the identity must never be deleted before the durable '
+            'marker that would prove finalization is in progress is '
+            'actually armed',
+      );
+      expect(failingGateway.currentUser, isNotNull);
+      expect(failingDeletion.hasPendingIdentityCleanup, isFalse);
+      expect(failingDeletion.hasPendingLocalWipe, isFalse);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+    },
+  );
+
+  test(
+    'P0-2 / 2A: the identity-cleanup marker is durably present at the exact '
+    'moment the Firebase identity delete call is made — a continuous '
+    'marker chain with no gap',
+    () async {
+      await seedUserBound();
+      await auth.signInAnonymously();
+      bool? markerPresentAtDeleteTime;
+      gateway.onDeleteCurrentUser = () {
+        markerPresentAtDeleteTime = deletion.hasPendingIdentityCleanup;
+      };
+
+      final result = await deletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isSuccess, isTrue);
+      expect(
+        markerPresentAtDeleteTime,
+        isTrue,
+        reason: 'pendingIdentityCleanupKey must already be true before '
+            'deleteAccount() is even called, not written afterward',
+      );
+    },
+  );
+
+  test(
+    'P0-2 / 2B-B: if the localWipePendingKey marker fails to write AFTER '
+    'the identity is genuinely gone, the identity-cleanup marker remains '
+    'true, no local wipe starts, a restart resolves blocked (never clear), '
+    'and a healthy retry enters the local wipe without repeating the '
+    'server delete',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingSecure = InMemorySecureStorage();
+      final failingGateway = _DeletionGateway();
+      final failingSessions = InMemorySessionManager(
+        FirebaseIdTokenManager(failingGateway, fallback: _MemTokens()),
+      );
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: failingSessions,
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: failingSecure,
+        ),
+      );
+      var serverDeleteCalls = 0;
+      final failingDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: failingStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async {
+          serverDeleteCalls++;
+          return true;
+        },
+      );
+      await failingAuth.signInAnonymously();
+      failingStorage.falseReturnKeys.add(
+        AccountDeletionFinalizer.localWipePendingKey,
+      );
+
+      final result = await failingDeletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(failingGateway.deleteCalls, 1, reason: 'identity really is gone');
+      expect(failingGateway.currentUser, isNull);
+      expect(
+        failingDeletion.hasPendingIdentityCleanup,
+        isTrue,
+        reason: 'the marker armed before deleteAccount() is still there — '
+            'the localWipePendingKey handoff never durably succeeded',
+      );
+      expect(failingDeletion.hasPendingLocalWipe, isFalse);
+
+      // Restart: resolve the gate from these exact markers.
+      AccountDeletionPendingState.applyFromMarkers(
+        identityCleanupPending: failingDeletion.hasPendingIdentityCleanup,
+        localWipePending: failingDeletion.hasPendingLocalWipe,
+        anonymousBootstrapPending: failingDeletion.hasPendingAnonymousBootstrap,
+      );
+      expect(
+        AccountDeletionPendingState.isBlocked,
+        isTrue,
+        reason: 'never clear — the server already accepted deletion',
+      );
+
+      // Healthy retry — must not call deleteServerData again, and must not
+      // call deleteAccount again (hasCurrentIdentity is already false).
+      final healthyStorage = LocalStorage(prefs);
+      final healthyDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: healthyStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async {
+          serverDeleteCalls++;
+          return true;
+        },
+      );
+      final retryResult = await healthyDeletion.retryPendingIdentityCleanup();
+
+      expect(retryResult.isSuccess, isTrue);
+      expect(
+        serverDeleteCalls,
+        1,
+        reason: 'server delete happened once, during the original attempt '
+            '— retry must never call it a second time',
+      );
+      expect(failingGateway.deleteCalls, 1);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+    },
+  );
+
+  test(
+    'P0-2 / 2B-C: if the anonymousBootstrapKey marker fails to write after '
+    'a successful local wipe, localWipePendingKey remains true, the gate '
+    'stays finalizing, and there is no anonymous clear state',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingSecure = InMemorySecureStorage();
+      final failingGateway = _DeletionGateway();
+      final failingSessions = InMemorySessionManager(
+        FirebaseIdTokenManager(failingGateway, fallback: _MemTokens()),
+      );
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: failingSessions,
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: failingSecure,
+        ),
+      );
+      final failingDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: failingStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async => true,
+      );
+      await failingAuth.signInAnonymously();
+      failingStorage.falseReturnKeys.add(
+        AccountDeletionFinalizer.anonymousBootstrapKey,
+      );
+
+      final result = await failingDeletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(failingDeletion.hasPendingLocalWipe, isTrue);
+      expect(failingDeletion.hasPendingAnonymousBootstrap, isFalse);
+      expect(AccountDeletionPendingState.isFinalizing, isTrue);
+
+      failingStorage.falseReturnKeys.clear();
+      final retryResult = await failingDeletion.retryPendingIdentityCleanup();
+      expect(retryResult.isSuccess, isTrue);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+    },
+  );
+
+  test(
+    'P0-2 / 2B-D: a marker REMOVAL that returns false (establishment '
+    'having already succeeded) never pretends retirement succeeded — '
+    'durable state remains fail-closed, at least one finalization marker '
+    'is always still present, and a retry converges',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final failingStorage = FalseReturnLocalStorage(prefs);
+      final failingSecure = InMemorySecureStorage();
+      final failingGateway = _DeletionGateway();
+      final failingSessions = InMemorySessionManager(
+        FirebaseIdTokenManager(failingGateway, fallback: _MemTokens()),
+      );
+      final failingAuth = FirebaseAuthService(
+        gateway: failingGateway,
+        tokens: _MemTokens(),
+        sessions: failingSessions,
+        isolation: UserLocalDataIsolation(
+          failingStorage,
+          secureStorage: failingSecure,
+        ),
+      );
+      final failingDeletion = AccountDeletionService(
+        auth: failingAuth,
+        storage: failingStorage,
+        secureStorage: failingSecure,
+        deleteServerData: () async => true,
+      );
+      await failingAuth.signInAnonymously();
+      // localWipePendingKey's establishment (setBool) succeeds normally —
+      // only its REMOVAL (during the anonymousBootstrapKey handoff) fails.
+      failingStorage.falseReturnRemoveKeys.add(
+        AccountDeletionFinalizer.localWipePendingKey,
+      );
+
+      final result = await failingDeletion.deleteAccountAndWipeLocalData();
+
+      expect(result.isFailure, isTrue);
+      expect(
+        failingDeletion.hasPendingAnonymousBootstrap,
+        isTrue,
+        reason: 'anonymousBootstrapKey establishment (which runs BEFORE '
+            'the failing removal) still durably succeeded',
+      );
+      expect(
+        failingDeletion.hasPendingLocalWipe,
+        isTrue,
+        reason: 'its removal failed — it must still read as true, not '
+            'silently retired',
+      );
+      expect(
+        AccountDeletionPendingState.isFinalizing,
+        isTrue,
+        reason: 'at least one finalization marker is always present here',
+      );
+
+      failingStorage.falseReturnRemoveKeys.clear();
+      final retryResult = await failingDeletion.retryPendingIdentityCleanup();
+      expect(retryResult.isSuccess, isTrue);
+      expect(AccountDeletionPendingState.isClear, isTrue);
+      expect(failingDeletion.hasPendingLocalWipe, isFalse);
+      expect(failingDeletion.hasPendingAnonymousBootstrap, isFalse);
     },
   );
 
@@ -1114,6 +1390,7 @@ class _DeletionGateway implements FirebaseAuthGateway {
   int anonSerial = 0;
   String? anonSignInError;
   bool failIdTokenAfterAnonCreate = false;
+  void Function()? onDeleteCurrentUser;
 
   @override
   bool get isInitialized => true;
@@ -1203,6 +1480,7 @@ class _DeletionGateway implements FirebaseAuthGateway {
   @override
   Future<void> deleteCurrentUser() async {
     deleteCalls++;
+    onDeleteCurrentUser?.call();
     if (clearUserBeforeThrowing) {
       _user = null;
       _controller.add(null);

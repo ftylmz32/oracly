@@ -52,16 +52,29 @@ abstract final class SignOutLocalCleanup {
       storage,
       secureStorage: secureStorage,
     );
-    if (result.isComplete) {
-      try {
-        await storage.remove(UserLocalDataIsolation.ownerKey);
-        UserLocalDataIsolation.accountSwitchEpoch.value++;
-      } catch (_) {
-        // The wipe itself is what result.isComplete reports on — a
-        // failure only here just means ownerKey stays at the just-signed-
-        // out uid, which still safely forces a retry on the next sign-in.
-      }
+    if (!result.isComplete) return result;
+    // A `false` (non-throwing) removal is exactly as much a failure here
+    // as a thrown one: either way ownerKey would still show the just-
+    // signed-out uid, which is what forces UserLocalDataIsolation to
+    // retry on the next sign-in rather than silently treating leftover
+    // data as already isolated. The epoch must not bump, and the caller
+    // must not be told cleanup is complete, unless ownerKey's removal is
+    // actually proven durable.
+    bool ownerKeyRemoved;
+    try {
+      ownerKeyRemoved = await storage.remove(UserLocalDataIsolation.ownerKey);
+    } catch (_) {
+      ownerKeyRemoved = false;
     }
+    if (!ownerKeyRemoved) {
+      return UserLocalDataWipeResult(
+        failedOperations: [
+          ...result.failedOperations,
+          UserLocalDataIsolation.ownerKey,
+        ],
+      );
+    }
+    UserLocalDataIsolation.accountSwitchEpoch.value++;
     return result;
   }
 

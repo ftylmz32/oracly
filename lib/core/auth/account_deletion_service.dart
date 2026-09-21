@@ -95,6 +95,19 @@ class AccountDeletionService {
       );
     }
     await PushTokenCleanup.deleteLocalToken();
+    // Durable finalization authority must exist BEFORE the Firebase
+    // identity can disappear. Arm and POSITIVELY VERIFY the
+    // identity-cleanup marker first: if identity deletion then succeeds
+    // and the app crashes (or a later marker write itself fails) before
+    // finishAfterIdentityDeleted's own localWipePendingKey write lands,
+    // this marker is what proves a restart is NOT "clear" — it means the
+    // server already accepted deletion and local state must never be
+    // treated as an ordinary signed-in account again. If this write
+    // itself cannot be proven durable, the identity must not be deleted
+    // at all — fail honestly with the identity still fully intact.
+    if (!await _storage.setBool(pendingIdentityCleanupKey, true)) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
     final remote = await _auth.deleteAccount();
     if (remote.isFailure) {
       return _afterIdentityDeleteFailure(remote.errorOrNull!);
@@ -164,8 +177,21 @@ class AccountDeletionService {
       );
 
   Future<void> _markIdentityPending() async {
-    await _storage.setBool(pendingIdentityCleanupKey, true);
-    await _storage.remove(pendingAnonymousBootstrapKey);
+    // Reinforce the identity-cleanup marker with an authoritative bool
+    // result — a `false` here is a durable-write failure, not success.
+    // (On the happy path the marker was already armed before deleteAccount;
+    // this path covers failed deleteAccount while the identity still exists.)
+    if (!await _storage.setBool(pendingIdentityCleanupKey, true)) {
+      AccountDeletionPendingState.markBlocked();
+      return;
+    }
+    // Best-effort retire of a stale anonymous-bootstrap marker. A false
+    // remove must not clear the blocked phase: identityCleanup remaining
+    // true is what keeps the gate fail-closed.
+    if (!await _storage.remove(pendingAnonymousBootstrapKey)) {
+      // Leave anonymousBootstrap as-is if still present; blocked phase
+      // below is the honest signal.
+    }
     AccountDeletionPendingState.markBlocked();
   }
 }
