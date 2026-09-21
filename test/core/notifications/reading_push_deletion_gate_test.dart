@@ -256,6 +256,33 @@ void main() {
     },
   );
 
+  testWidgets(
+    'old-owner listener event cannot be relabeled as the new authenticated owner',
+    (tester) async {
+      await ReadingPushBootstrap.cancelSubscriptionsForTest();
+      ReadingPushBootstrap.installedOwnerIdForTest = 'uid-a';
+      await ReadingPushBootstrap.install(container);
+      expect(ReadingPushBootstrap.installedOwnerForTest, 'uid-a');
+
+      // Simulate the narrow A→B handoff window: owner binding has advanced to
+      // B, but the old A listener has not yet been cancelled by re-install.
+      ReadingPushBootstrap.bindOwnerForTest('uid-b');
+      messaging.emitOpened(
+        RemoteMessage(
+          data: {
+            'type': 'reading_completed',
+            'readingType': 'coffee',
+            'operationId': 'b' * 32,
+          },
+        ),
+      );
+      await tester.pump();
+
+      expect(ReadingPushBootstrap.installedOwnerForTest, 'uid-b');
+      expect(ReadingPushBootstrap.pendingDestinationForTest, isNull);
+    },
+  );
+
   test('blocked reading notification does not navigate', () async {
     AccountDeletionPendingState.markBlocked();
     final id = 'c' * 32;
