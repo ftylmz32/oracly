@@ -325,6 +325,41 @@ void main() {
     expect(grant.alreadyGranted, isFalse);
   });
 
+  test(
+    'starter server success survives local UX-flag storage exception',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = _ThrowingStarterFlagStorage(
+        await SharedPreferences.getInstance(),
+      );
+      final service = GemWalletService(
+        GemWalletStore(storage),
+        ownerId: 'uid-a',
+        requireOwner: true,
+        gateway: GemWalletGateway((method, path, body) async {
+          if (path.contains('starter-grant')) {
+            return const ReadingOperationWire(
+              statusCode: 200,
+              json: {
+                'data': {
+                  'balance': 20,
+                  'granted': true,
+                  'idempotent': false,
+                },
+              },
+            );
+          }
+          return null;
+        }),
+      );
+      final grant = GemStarterGrant(service, storage);
+
+      expect(await grant.ensureOnce(), isTrue);
+      expect(grant.alreadyGranted, isTrue);
+      expect(service.cachedBalance, 20);
+    },
+  );
+
   test('starter grant success caches authoritative balance', () async {
     final storage = LocalStorage.ephemeral();
     final service = GemWalletService(
@@ -382,4 +417,17 @@ void main() {
     expect(rich.canSpend(20), isTrue);
     expect(rich.canSpend(80), isFalse);
   });
+}
+
+
+class _ThrowingStarterFlagStorage extends LocalStorage {
+  _ThrowingStarterFlagStorage(super.prefs);
+
+  @override
+  Future<bool> setBool(String key, bool value) {
+    if (key == GemStarterGrant.flagKey) {
+      throw StateError('simulated starter flag write failure');
+    }
+    return super.setBool(key, value);
+  }
 }
