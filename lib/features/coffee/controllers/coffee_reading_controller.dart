@@ -34,9 +34,11 @@ class CoffeeReadingController extends ChangeNotifier {
     ReadingFeatureRunner? live,
     ReadingPendingOperationStore? pendingStore,
     Future<void> Function(int balance)? acceptAuthoritativeBalance,
+    Duration serverPollInterval = const Duration(seconds: 3),
   }) : _live = live,
        _pendingStore = pendingStore,
-       _acceptAuthoritativeBalance = acceptAuthoritativeBalance;
+       _acceptAuthoritativeBalance = acceptAuthoritativeBalance,
+       _serverPollInterval = serverPollInterval;
 
   final CoffeeExperienceService _experience;
   final CoffeeImageInputPort _images;
@@ -48,6 +50,7 @@ class CoffeeReadingController extends ChangeNotifier {
   // an operation has been staged — see analyzeStaged.
   final ReadingPendingOperationStore? _pendingStore;
   final Future<void> Function(int balance)? _acceptAuthoritativeBalance;
+  final Duration _serverPollInterval;
   bool _accelerating = false;
   String? _accelerationError;
   int? _accelerationCost;
@@ -351,7 +354,7 @@ class CoffeeReadingController extends ChangeNotifier {
   }) {
     _resumeTimer?.cancel();
     _resumeTimer = Timer(
-      const Duration(seconds: 3),
+      _serverPollInterval,
       () => unawaited(() async {
         if (_disposed || token != _generation) return;
         final state = await live.flow.recover(ReadingType.coffee);
