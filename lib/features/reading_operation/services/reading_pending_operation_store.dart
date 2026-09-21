@@ -66,7 +66,7 @@ class ReadingPendingOperationStore {
     }
   }
 
-  Future<void> save(ReadingType type, ReadingPendingOperation operation) {
+  Future<bool> save(ReadingType type, ReadingPendingOperation operation) {
     return _storage.setString(_key(type), jsonEncode(operation.toJson()));
   }
 
