@@ -67,6 +67,18 @@ class GemWalletService {
     return result == null ? null : _accept(result);
   });
 
+  /// Marks the CURRENT owner-bound durable cache authoritative for this
+  /// service instance without performing network I/O or writing it again.
+  /// This is safe only when the hydration coordinator has just observed a
+  /// successful same-owner in-flight GET that wrote this cache.
+  int? acceptHydratedCachedBalance() {
+    if (!_ownerIsCurrent) return null;
+    final cached = cachedBalance;
+    if (cached == null || cached < 0) return null;
+    _stale = false;
+    return cached;
+  }
+
   /// Accepts a balance returned by another authenticated wallet endpoint.
   /// This updates the display snapshot and performs no client arithmetic.
   Future<void> acceptAuthoritativeBalance(int balance) async {
