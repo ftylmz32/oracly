@@ -46,7 +46,40 @@ ReadingOperationSender? _buildSender(Ref ref) {
   final gatewayAuth = ref.watch(firebaseAuthGatewayProvider);
   final auth = ref.watch(authServiceProvider);
 
+  // A sender instance belongs to the first concrete authenticated owner it
+  // observes. Provider rebuilds create a new sender for a new owner, while
+  // stale controllers keep the old closure — those stale closures must fail
+  // closed instead of silently using the new user's live Firebase token.
+  String? boundOwnerId =
+      gatewayAuth?.currentUser?.uid.trim().isNotEmpty == true
+          ? gatewayAuth!.currentUser!.uid.trim()
+          : null;
+
+  String? liveOwnerId() {
+    final live = gatewayAuth?.currentUser?.uid.trim();
+    if (live != null && live.isNotEmpty) return live;
+    final serviceOwner = auth.currentUserId?.trim();
+    return serviceOwner != null && serviceOwner.isNotEmpty
+        ? serviceOwner
+        : null;
+  }
+
+  bool bindOrMatchesOwner() {
+    final live = liveOwnerId();
+    if (live == null) return boundOwnerId == null;
+    final bound = boundOwnerId;
+    if (bound == null) {
+      boundOwnerId = live;
+      return true;
+    }
+    return bound == live;
+  }
+
   return (String method, String path, Map<String, Object>? body) async {
+    if (!bindOrMatchesOwner()) {
+      debugPrint('[ReadingSender] blocked stale owner $method $path');
+      return null;
+    }
     // Wallet and reading share this sender — never race ahead of auth/App Check.
     final blocked = await AiProxyReadiness.ensure(
       config: config,
@@ -61,6 +94,10 @@ ReadingOperationSender? _buildSender(Ref ref) {
       debugPrint('[ReadingSender] blocked $method $path: $blocked');
       return null;
     }
+    if (!bindOrMatchesOwner()) {
+      debugPrint('[ReadingSender] blocked owner change $method $path');
+      return null;
+    }
     final headers = await ProxyAiHeaders.build(
       config: config,
       request: const AiProxyRequest(operation: AiOperation.chat, payload: {}),
@@ -71,6 +108,13 @@ ReadingOperationSender? _buildSender(Ref ref) {
       liveGateway: gatewayAuth,
     );
     if (headers == null) return null;
+    // Auth can change while token/App Check headers are being resolved.
+    // Re-check immediately before network I/O so a stale sender never emits
+    // a request carrying another owner's freshly-issued token.
+    if (!bindOrMatchesOwner()) {
+      debugPrint('[ReadingSender] blocked post-header owner change $method $path');
+      return null;
+    }
     final root = readingOperationBackendOrigin(proxy);
     final uri = Uri.parse('$root$path');
     final client = http.Client();
