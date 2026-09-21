@@ -4,6 +4,10 @@ library;
 import '../../../features/premium/models/premium_purchase_credentials.dart';
 import '../models/premium_plan.dart';
 
+abstract interface class PremiumOwnerBoundary {
+  bool get ownerAccessReady;
+}
+
 abstract class PremiumRepository {
   Future<bool> isPremiumActive();
 
