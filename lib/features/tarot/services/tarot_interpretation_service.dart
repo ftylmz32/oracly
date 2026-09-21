@@ -33,12 +33,23 @@ class TarotInterpretationService {
     InterpretationEngine? engine,
     InterpretationCache? cache,
     InterpretationFormatter? formatter,
-  })  : _formatter = formatter ?? const InterpretationFormatter(),
-        _engine = engine ??
-            InterpretationEngineFactory.create(
-              cache: cache ?? InMemoryInterpretationCache(),
-              executor: LocalInterpretationExecutor(),
-            );
+    bool? allowLocalFallback,
+  }) : allowLocalFallback = allowLocalFallback ?? engine == null,
+       _formatter = formatter ?? const InterpretationFormatter(),
+       _engine =
+           engine ??
+           InterpretationEngineFactory.create(
+             cache: cache ?? InMemoryInterpretationCache(),
+             executor: LocalInterpretationExecutor(),
+           );
+
+  /// When false (production / release), exhausted provider or quality failure
+  /// throws [InterpretationException] instead of synthesizing local prose.
+  ///
+  /// Bare construction (no [engine]) defaults to true for local development
+  /// and tests. [TarotModuleRoot] always injects an engine and passes
+  /// [OraclyAiService.allowsLocalFallback] explicitly.
+  final bool allowLocalFallback;
 
   final InterpretationEngine _engine;
   final InterpretationFormatter _formatter;
@@ -92,7 +103,7 @@ class TarotInterpretationService {
         guarded = ReflectiveIntelligence.guard(retry);
       }
       if (!AiOutputQualityTarot.passes(guarded)) {
-        return _synthesizeLocalFallback(session, context, cause: 'quality');
+        return _fallbackOrFail(session, context, cause: 'quality');
       }
       return _formatter.toUiContent(result: guarded, session: session);
     } on InterpretationException catch (error) {
@@ -129,8 +140,31 @@ class TarotInterpretationService {
         debugPrint('[TarotInterpretation] Force-refresh retry failed');
         return true;
       }());
-      return _synthesizeLocalFallback(session, context, cause: error);
+      return _fallbackOrFail(session, context, cause: error);
     }
+  }
+
+  Future<AiReadingContent> _fallbackOrFail(
+    ReadingSession session,
+    ReadingContext context, {
+    required Object cause,
+  }) async {
+    if (allowLocalFallback) {
+      return _synthesizeLocalFallback(session, context, cause: cause);
+    }
+    if (cause is InterpretationException) {
+      throw InterpretationException(
+        type: cause.type,
+        message: cause.message,
+        cause: cause.cause ?? cause,
+        retryable: cause.retryable,
+      );
+    }
+    throw InterpretationException(
+      type: InterpretationFailureType.retry,
+      message: ResilienceCopy.interpretationFailed,
+      cause: cause,
+    );
   }
 
   Future<AiReadingContent> _synthesizeLocalFallback(
@@ -194,15 +228,17 @@ class TarotInterpretationService {
     final reveal = RevealCardData.fromDrawnCard(drawn);
     final meaning = drawn.effectiveMeaning.trim();
     final body = meaning.isNotEmpty ? meaning : reason;
-    final cardReadings = session.drawnCards.map((d) {
-      final named = TarotCardGloss.named(d.localizedName, d.card.id);
-      final ori = TarotL10n.orientation(reversed: d.isReversed);
-      final pos = d.localizedPosition;
-      final text = d.effectiveMeaning.trim().isEmpty
-          ? reason
-          : d.effectiveMeaning.trim();
-      return '$pos · $named · $ori\n$text';
-    }).join('\n\n');
+    final cardReadings = session.drawnCards
+        .map((d) {
+          final named = TarotCardGloss.named(d.localizedName, d.card.id);
+          final ori = TarotL10n.orientation(reversed: d.isReversed);
+          final pos = d.localizedPosition;
+          final text = d.effectiveMeaning.trim().isEmpty
+              ? reason
+              : d.effectiveMeaning.trim();
+          return '$pos · $named · $ori\n$text';
+        })
+        .join('\n\n');
 
     return AiReadingContent(
       cardName: session.drawnCards.length == 1

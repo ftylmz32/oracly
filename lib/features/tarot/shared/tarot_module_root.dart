@@ -14,11 +14,10 @@ import '../controllers/tarot_flow_controller.dart';
 import '../controllers/tarot_reading_controller.dart';
 import '../data/repositories/tarot_reading_repository_impl.dart';
 import '../domain/models/reading_session.dart';
-import '../interpretation/executors/ai_interpretation_executor.dart';
-import '../interpretation/executors/local_interpretation_executor.dart';
 import '../interpretation/services/interpretation_engine.dart';
 import '../services/tarot_interpretation_service.dart';
 import '../shared/constants/tarot_routes.dart';
+import 'tarot_interpretation_wiring.dart';
 import 'tarot_scope.dart';
 
 /// Root widget that wires tarot controllers for nested navigators.
@@ -65,13 +64,11 @@ class _TarotModuleRootState extends ConsumerState<TarotModuleRoot>
 
   TarotInterpretationService _buildInterpretationService() {
     final ai = ref.read(oraclyAiServiceProvider);
-    final executor = ai.isConfigured
-        ? AiInterpretationExecutor(ai: ai)
-        : LocalInterpretationExecutor();
     return TarotInterpretationService(
+      allowLocalFallback: ai.allowsLocalFallback,
       engine: InterpretationEngineFactory.create(
         cache: InMemoryInterpretationCache(),
-        executor: executor,
+        executor: tarotInterpretationExecutorFor(ai),
       ),
     );
   }
@@ -104,13 +101,13 @@ class _TarotModuleRootState extends ConsumerState<TarotModuleRoot>
   }
 
   String _routeForStep(ReadingFlowStep step) => switch (step) {
-        ReadingFlowStep.deckSelection => TarotRoutes.deckSelection,
-        ReadingFlowStep.shuffle => TarotRoutes.shuffle,
-        ReadingFlowStep.cardSelection => TarotRoutes.shuffle,
-        ReadingFlowStep.reveal => TarotRoutes.shuffle,
-        ReadingFlowStep.reading => TarotRoutes.reading,
-        ReadingFlowStep.completed => TarotRoutes.home,
-      };
+    ReadingFlowStep.deckSelection => TarotRoutes.deckSelection,
+    ReadingFlowStep.shuffle => TarotRoutes.shuffle,
+    ReadingFlowStep.cardSelection => TarotRoutes.shuffle,
+    ReadingFlowStep.reveal => TarotRoutes.shuffle,
+    ReadingFlowStep.reading => TarotRoutes.reading,
+    ReadingFlowStep.completed => TarotRoutes.home,
+  };
 
   @override
   void dispose() {

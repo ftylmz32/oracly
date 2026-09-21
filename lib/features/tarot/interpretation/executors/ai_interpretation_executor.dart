@@ -1,8 +1,11 @@
 /// Real backend-proxied Tarot AI executor — grounded strictly in the drawn
 /// cards. Never calls OpenAI directly from the client (proxy-only, matching
 /// every other paid AI feature). Throws on any failure so the caller
-/// (TarotInterpretationService) falls back to LocalInterpretationExecutor —
-/// AI is the primary path, local synthesis is the fail-closed fallback.
+/// ([TarotInterpretationService]) can decide: local synthesis only when
+/// [allowLocalFallback] is true; otherwise fail closed with a typed error.
+///
+/// [executeStream] still delegates to local synthesis, but no production
+/// user flow currently reaches [TarotInterpretationService.generateStream].
 library;
 
 import '../../../ai/production/oracly_ai_service.dart';
