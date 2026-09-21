@@ -118,6 +118,12 @@ abstract final class AccountDeletionTarget {
   static Future<bool> reconcileHarmlessOrphan(LocalStorage storage) async {
     if (!await clearTarget(storage)) return false;
     if (!await clearBootstrap(storage)) return false;
+    // Stale armed-only residue from prior builds — bookkeeping, not authority.
+    if (!await storage.remove(
+      'account_deletion_bootstrap_creation_armed',
+    )) {
+      return false;
+    }
     return true;
   }
 }

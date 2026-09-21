@@ -122,8 +122,15 @@ abstract final class AccountDeletionFinalizer {
       );
     }
 
-    final creationArmed = storage.getBool(bootstrapCreationArmedKey) ?? false;
-    if (!creationArmed) {
+    final creationArmed = AccountDeletionMarkers.read(
+      storage,
+      bootstrapCreationArmedKey,
+    );
+    if (creationArmed == MarkerRead.corrupt) {
+      AccountDeletionPendingState.markIntegrityRecovery();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    if (creationArmed != MarkerRead.isTrue) {
       // No provenance yet, and no creation attempt was ever armed — a
       // current identity here belongs to some unrelated flow, never to
       // this deletion's replacement bootstrap. Refuse it.
@@ -131,20 +138,11 @@ abstract final class AccountDeletionFinalizer {
         AccountDeletionPendingState.markFinalizing();
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
-      // Durably arm intent BEFORE Firebase creates anything. If the
-      // persistBootstrap write below fails after Firebase already
-      // created the identity, a retry reads this flag and safely
-      // recognizes that SAME live anonymous identity as ours — instead
-      // of refusing it forever as "pre-existing".
       if (!await storage.setBool(bootstrapCreationArmedKey, true)) {
         AccountDeletionPendingState.markFinalizing();
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
     }
-    // creationArmed && !hasCurrentIdentity (e.g. the Firebase session
-    // itself never actually landed) falls through to ensureAnonymousSession
-    // below exactly like a first attempt — safe, since no identity exists
-    // yet to confuse with an unrelated one.
 
     final session = await auth.ensureAnonymousSession();
     final created = auth.currentUserId?.trim();
@@ -164,10 +162,9 @@ abstract final class AccountDeletionFinalizer {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
-    // bootstrapUid is now the durable provenance — the creation-intent
-    // flag has served its purpose. Its own removal failing is not fatal:
-    // a stray true value here is inert once bootstrapUid is read first.
-    await storage.remove(bootstrapCreationArmedKey);
+    // Armed flag is retired only inside _clearAllMarkers — removing it
+    // here would open a CLEAR path that still leaves armed=true if later
+    // steps fail after markClear conditions are wrongly met.
     if (session.isFailure) {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(
@@ -246,9 +243,16 @@ abstract final class AccountDeletionFinalizer {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
+    // Creation-armed bookkeeping must not survive CLEAR — a stale true
+    // would skip the "refuse pre-existing identity" defense on a later
+    // deletion cycle.
+    if (!await storage.remove(bootstrapCreationArmedKey)) {
+      AccountDeletionPendingState.markFinalizing();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
 
-    // ONLY NOW — target and bootstrap provenance are already durably
-    // gone — may the final gate authority itself be retired.
+    // ONLY NOW — target, bootstrap uid, and armed provenance are already
+    // durably gone — may the final gate authority itself be retired.
     if (!await storage.remove(anonymousBootstrapKey)) {
       AccountDeletionPendingState.markFinalizing();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
@@ -261,6 +265,12 @@ abstract final class AccountDeletionFinalizer {
         AccountDeletionMarkers.isExactlyTrue(storage, identityCleanupKey) ||
         AccountDeletionMarkers.isExactlyTrue(storage, localWipePendingKey) ||
         AccountDeletionMarkers.isExactlyTrue(storage, anonymousBootstrapKey) ||
+        AccountDeletionMarkers.isExactlyTrue(
+          storage,
+          bootstrapCreationArmedKey,
+        ) ||
+        AccountDeletionMarkers.read(storage, bootstrapCreationArmedKey) ==
+            MarkerRead.corrupt ||
         AccountDeletionTarget.hasValidTarget(storage) ||
         AccountDeletionTarget.readBootstrapUid(storage) != null) {
       AccountDeletionPendingState.markFinalizing();

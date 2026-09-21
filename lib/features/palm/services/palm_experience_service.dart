@@ -72,14 +72,18 @@ class PalmExperienceService {
     try {
       await store?.save(persisted);
     } catch (_) {
-      await PalmImageArchive.deleteIfOwned(archived);
+      if (!await PalmImageArchive.deleteIfOwnedStrict(archived)) {
+        await store?.journalOwnedImagePath(archived);
+      }
       rethrow;
     }
     final priorPath = prior?.imagePath;
     if (priorPath != null &&
         priorPath.isNotEmpty &&
         priorPath != archived) {
-      await PalmImageArchive.deleteIfOwned(priorPath);
+      if (!await PalmImageArchive.deleteIfOwnedStrict(priorPath)) {
+        await store?.journalOwnedImagePath(priorPath);
+      }
     }
     try {
       await _versions?.seedOriginal(
@@ -207,7 +211,11 @@ class PalmExperienceService {
         ReadingVersionKind.palm,
       );
       final activeFingerprint =
-          versions.groupFor(current.id)?.activeEntry?.fingerprint;
+          versions.groupFor(current.id)?.activeEntry?.fingerprint ??
+              ReadingVersionFingerprint.of(
+                ReadingVersionPayload.palm(current),
+                ReadingVersionKind.palm,
+              );
       if (activeFingerprint == probeFingerprint) {
         return PalmReinterpretResult(reading: current, versionAdded: false);
       }
@@ -234,13 +242,25 @@ class PalmExperienceService {
     try {
       await store?.save(merged);
     } catch (_) {
-      if (createdCandidate) await PalmImageArchive.deleteIfOwned(imagePath);
+      if (createdCandidate) {
+        if (!await PalmImageArchive.deleteIfOwnedStrict(imagePath)) {
+          await store?.journalOwnedImagePath(imagePath);
+        }
+      }
       rethrow;
     }
 
     var added = false;
     if (versions != null) {
       try {
+        final existing = versions.groupFor(current.id);
+        if (existing == null || existing.entries.isEmpty) {
+          await versions.seedOriginal(
+            rootId: current.id,
+            kind: ReadingVersionKind.palm,
+            data: ReadingVersionPayload.palm(current),
+          );
+        }
         final result = await versions.tryAppendRevision(
           rootId: current.id,
           kind: ReadingVersionKind.palm,

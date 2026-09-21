@@ -131,7 +131,11 @@ abstract final class AccountDeletionPendingState {
       if (!deletion.hasCorruptDeletionMarker &&
           !deletion.hasPendingFinalization &&
           (AccountDeletionTarget.hasValidTarget(storage) ||
-              AccountDeletionTarget.readBootstrapUid(storage) != null)) {
+              AccountDeletionTarget.readBootstrapUid(storage) != null ||
+              AccountDeletionMarkers.isExactlyTrue(
+                storage,
+                'account_deletion_bootstrap_creation_armed',
+              ))) {
         try {
           if (await AccountDeletionTarget.reconcileHarmlessOrphan(storage)) {
             phase.value = AccountDeletionGatePhase.clear;
@@ -189,7 +193,12 @@ abstract final class AccountDeletionPendingState {
         localWipeRead == MarkerRead.corrupt ||
         serverDeleteRead == MarkerRead.corrupt ||
         AccountDeletionTarget.isTargetCorrupt(storage) ||
-        AccountDeletionTarget.isBootstrapCorrupt(storage)) {
+        AccountDeletionTarget.isBootstrapCorrupt(storage) ||
+        AccountDeletionMarkers.read(
+              storage,
+              'account_deletion_bootstrap_creation_armed',
+            ) ==
+            MarkerRead.corrupt) {
       phase.value = AccountDeletionGatePhase.integrityRecovery;
       return AccountDeletionGateResolveStatus.integrityRecovery;
     }
@@ -211,7 +220,11 @@ abstract final class AccountDeletionPendingState {
     // AccountDeletionTarget.reconcileHarmlessOrphan, invoked only from
     // resolveAndReconcile) before this may ever read as clear again.
     if (AccountDeletionTarget.hasValidTarget(storage) ||
-        AccountDeletionTarget.readBootstrapUid(storage) != null) {
+        AccountDeletionTarget.readBootstrapUid(storage) != null ||
+        AccountDeletionMarkers.isExactlyTrue(
+          storage,
+          'account_deletion_bootstrap_creation_armed',
+        )) {
       phase.value = AccountDeletionGatePhase.integrityRecovery;
       return AccountDeletionGateResolveStatus.integrityRecovery;
     }

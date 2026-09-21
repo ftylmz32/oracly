@@ -326,9 +326,11 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     if (_disposed || token != _generation) return;
     liveState = state;
     if (state.kind == ReadingLiveKind.ready && captured != null) {
+      // Reading metadata is authoritative even when version enrichment
+      // failed — versionAdded only gates history UI reload.
+      _reading = captured!.reading;
       _versionAdded = captured!.versionAdded;
       if (captured!.versionAdded) {
-        _reading = captured!.reading;
         _versionReloadToken++;
       }
       _phase = PalmPhase.result;

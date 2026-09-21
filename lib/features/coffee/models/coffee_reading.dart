@@ -82,6 +82,7 @@ class CoffeeReading {
     String? nearFuture,
     String? takeaway,
     String? visualObservation,
+    List<CoffeeSymbol>? symbols,
   }) {
     return CoffeeReading(
       id: id,
@@ -94,7 +95,7 @@ class CoffeeReading {
       nearFuture: nearFuture ?? this.nearFuture,
       takeaway: takeaway ?? this.takeaway,
       visualObservation: visualObservation ?? this.visualObservation,
-      symbols: symbols,
+      symbols: symbols ?? this.symbols,
     );
   }
 }

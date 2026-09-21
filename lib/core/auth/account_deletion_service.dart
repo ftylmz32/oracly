@@ -75,6 +75,11 @@ class AccountDeletionService {
           MarkerRead.corrupt ||
       AccountDeletionMarkers.read(_storage, pendingAnonymousBootstrapKey) ==
           MarkerRead.corrupt ||
+      AccountDeletionMarkers.read(
+            _storage,
+            AccountDeletionFinalizer.bootstrapCreationArmedKey,
+          ) ==
+          MarkerRead.corrupt ||
       AccountDeletionTarget.isTargetCorrupt(_storage) ||
       AccountDeletionTarget.isBootstrapCorrupt(_storage);
 

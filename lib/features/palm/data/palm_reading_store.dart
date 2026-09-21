@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 
+import '../../../core/auth/owned_file_cleanup_journal.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
@@ -81,6 +82,10 @@ class PalmReadingStore {
     try {
       await _memory?.removeBySource(id);
     } catch (_) {}
+  }
+
+  Future<bool> journalOwnedImagePath(String path) {
+    return OwnedFileCleanupJournal.record(_storage, {path});
   }
 
   String _toJson(PalmReading reading) => jsonEncode({

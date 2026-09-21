@@ -2,6 +2,7 @@
 library;
 
 import '../../../features/coffee/models/coffee_reading.dart';
+import '../../../features/coffee/models/coffee_symbol.dart';
 import '../../../features/dream/models/dream.dart';
 import '../../../features/palm/models/palm_reading.dart';
 import '../models/reading_version_kind.dart';
@@ -19,6 +20,14 @@ abstract final class ReadingVersionPayload {
         'nearFuture': reading.nearFuture,
         'takeaway': reading.takeaway,
         'visualObservation': reading.visualObservation,
+        'symbols': [
+          for (final s in reading.symbols)
+            {
+              'name': s.name,
+              'meaning': s.meaning,
+              'interpretation': s.interpretation,
+            },
+        ],
       };
 
   static Map<String, dynamic> palm(PalmReading reading) => {
@@ -41,6 +50,18 @@ abstract final class ReadingVersionPayload {
       '${data['summary'] ?? ''}';
 
   static CoffeeReading applyCoffee(CoffeeReading base, Map<String, dynamic> data) {
+    List<CoffeeSymbol> symbolsFrom(Object? raw) {
+      if (raw is! List) return base.symbols;
+      final out = <CoffeeSymbol>[];
+      for (final item in raw) {
+        if (item is! Map) continue;
+        try {
+          out.add(CoffeeSymbol.fromJson(Map<String, dynamic>.from(item)));
+        } catch (_) {}
+      }
+      return out.isEmpty ? base.symbols : out;
+    }
+
     return base.copyWith(
       overall: '${data['overall'] ?? base.overall}',
       love: '${data['love'] ?? base.love}',
@@ -50,6 +71,7 @@ abstract final class ReadingVersionPayload {
       takeaway: '${data['takeaway'] ?? base.takeaway}',
       visualObservation:
           '${data['visualObservation'] ?? base.visualObservation}',
+      symbols: symbolsFrom(data['symbols']),
     );
   }
 

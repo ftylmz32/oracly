@@ -80,14 +80,18 @@ class CoffeeExperienceService {
     try {
       await _store.save(persisted);
     } catch (_) {
-      await CoffeeImageArchive.deleteIfOwned(archived);
+      if (!await CoffeeImageArchive.deleteIfOwnedStrict(archived)) {
+        await _store.journalOwnedImagePath(archived);
+      }
       rethrow;
     }
     final priorPath = prior?.imagePath;
     if (priorPath != null &&
         priorPath.isNotEmpty &&
         priorPath != archived) {
-      await CoffeeImageArchive.deleteIfOwned(priorPath);
+      if (!await CoffeeImageArchive.deleteIfOwnedStrict(priorPath)) {
+        await _store.journalOwnedImagePath(priorPath);
+      }
     }
     // Version seed is post-commit enrichment — never deny a durable reading.
     try {
@@ -197,13 +201,20 @@ class CoffeeExperienceService {
         nearFuture: fresh.nearFuture,
         takeaway: fresh.takeaway,
         visualObservation: fresh.visualObservation,
+        symbols: fresh.symbols,
       );
       final probeFingerprint = ReadingVersionFingerprint.of(
         ReadingVersionPayload.coffee(probe),
         ReadingVersionKind.coffee,
       );
+      // Missing group: compare against the CURRENT durable reading —
+      // never invent a baseline by mutating version state first.
       final activeFingerprint =
-          versions.groupFor(current.id)?.activeEntry?.fingerprint;
+          versions.groupFor(current.id)?.activeEntry?.fingerprint ??
+              ReadingVersionFingerprint.of(
+                ReadingVersionPayload.coffee(current),
+                ReadingVersionKind.coffee,
+              );
       if (activeFingerprint == probeFingerprint) {
         return CoffeeReinterpretResult(reading: current, versionAdded: false);
       }
@@ -232,13 +243,26 @@ class CoffeeExperienceService {
     try {
       await _store.save(merged);
     } catch (_) {
-      if (createdCandidate) await CoffeeImageArchive.deleteIfOwned(imagePath);
+      if (createdCandidate) {
+        if (!await CoffeeImageArchive.deleteIfOwnedStrict(imagePath)) {
+          await _store.journalOwnedImagePath(imagePath);
+        }
+      }
       rethrow;
     }
 
     var added = false;
     if (versions != null) {
       try {
+        // Missing group: establish PREVIOUS current as Original, then append.
+        final existing = versions.groupFor(current.id);
+        if (existing == null || existing.entries.isEmpty) {
+          await versions.seedOriginal(
+            rootId: current.id,
+            kind: ReadingVersionKind.coffee,
+            data: ReadingVersionPayload.coffee(current),
+          );
+        }
         final result = await versions.tryAppendRevision(
           rootId: current.id,
           kind: ReadingVersionKind.coffee,
