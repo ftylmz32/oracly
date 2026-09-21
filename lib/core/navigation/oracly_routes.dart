@@ -20,6 +20,7 @@ abstract final class OraclyRoutes {
   static const starMap = '/star-map';
   static const coffee = '/coffee';
   static const palm = '/palm';
+  static const soulMate = '/soul-mate';
   static const readingHistory = '/reading-history';
   static const discoveryJournal = '/discovery-journal';
   static const myStory = '/my-story';
