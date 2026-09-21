@@ -1,6 +1,8 @@
 /// El Falı screen — own feature root, not a Home tile.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,10 +31,17 @@ import 'palm_reference_body.dart';
 import 'palm_tokens.dart';
 
 class PalmReferenceScreen extends ConsumerStatefulWidget {
-  const PalmReferenceScreen({super.key, this.savedReadingId});
+  const PalmReferenceScreen({
+    super.key,
+    this.savedReadingId,
+    this.operationId,
+  });
 
   /// When set, restores that persisted palm reading on open.
   final String? savedReadingId;
+
+  /// Completion deep-link target. Takes precedence over feature-wide recovery.
+  final String? operationId;
 
   @override
   ConsumerState<PalmReferenceScreen> createState() =>
@@ -45,7 +54,18 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _openSavedIfNeeded());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openRequestedTarget());
+  }
+
+  void _openRequestedTarget() {
+    final operationId = widget.operationId?.trim();
+    if (operationId != null && operationId.isNotEmpty) {
+      unawaited(
+        ref.read(palmReadingControllerProvider).recoverOperation(operationId),
+      );
+      return;
+    }
+    _openSavedIfNeeded();
   }
 
   void _openSavedIfNeeded() {
