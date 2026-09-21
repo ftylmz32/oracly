@@ -558,7 +558,9 @@ class SoulMateReadingOrchestrator {
   ) async {
     final normalized = operationId.trim();
     if (normalized.isEmpty) {
-      return const SoulMateDurableOutcome(kind: SoulMateDurableKind.none);
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.unavailable,
+      );
     }
     final runner = ref.read(readingFeatureRunnerProvider);
     if (runner == null) {
@@ -571,7 +573,9 @@ class SoulMateReadingOrchestrator {
     if (snapshot == null ||
         snapshot.readingType != ReadingType.soulmate ||
         !snapshot.durable) {
-      return const SoulMateDurableOutcome(kind: SoulMateDurableKind.none);
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.unavailable,
+      );
     }
     if (state.kind == ReadingLiveKind.failed) {
       return SoulMateDurableOutcome(
