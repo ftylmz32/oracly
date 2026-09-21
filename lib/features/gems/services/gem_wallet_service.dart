@@ -19,14 +19,17 @@ class GemWalletService {
     GemWalletGateway? gateway,
     String? ownerId,
     bool requireOwner = false,
+    String? Function()? currentOwnerId,
   }) : _gateway = gateway,
        ownerId = ownerId?.trim(),
-       _requireOwner = requireOwner;
+       _requireOwner = requireOwner,
+       _currentOwnerId = currentOwnerId;
 
   final GemWalletStore _store;
   final GemWalletGateway? _gateway;
   final String? ownerId;
   final bool _requireOwner;
+  final String? Function()? _currentOwnerId;
   bool _busy = false;
   bool _stale = true;
 
@@ -36,13 +39,30 @@ class GemWalletService {
       _requireOwner ? _store.balanceForOwner(ownerId) : _store.balance();
   int get balance => cachedBalance ?? 0;
   bool get canHydrate =>
-      _gateway != null && (!_requireOwner || ownerId?.isNotEmpty == true);
+      _gateway != null &&
+      (!_requireOwner ||
+          (ownerId?.isNotEmpty == true && _ownerIsCurrent));
   List<GemTransaction> get history => _store.history();
 
   bool canSpend(int amount) =>
-      amount > 0 && !_busy && !_stale && balance >= amount;
+      amount > 0 &&
+      !_busy &&
+      !_stale &&
+      (!_requireOwner || _ownerIsCurrent) &&
+      balance >= amount;
+
+  bool get _ownerIsCurrent {
+    if (!_requireOwner) return true;
+    final owner = ownerId;
+    if (owner == null || owner.isEmpty) return false;
+    final resolver = _currentOwnerId;
+    if (resolver == null) return true;
+    final live = resolver()?.trim();
+    return live != null && live.isNotEmpty && live == owner;
+  }
 
   Future<int?> refresh() => _locked(() async {
+    if (!_ownerIsCurrent) return null;
     final result = await _gateway?.balance();
     return result == null ? null : _accept(result);
   });
@@ -51,6 +71,9 @@ class GemWalletService {
   /// This updates the display snapshot and performs no client arithmetic.
   Future<void> acceptAuthoritativeBalance(int balance) async {
     if (balance < 0) return;
+    if (!_ownerIsCurrent) {
+      throw const GemSpendException('owner_changed');
+    }
     await _store.cacheServerBalance(balance, ownerId: ownerId);
     _stale = false;
   }
@@ -69,6 +92,7 @@ class GemWalletService {
   Future<GemServerResult?> _command(
     Future<GemServerResult?> Function(GemWalletGateway gateway) run,
   ) => _locked(() async {
+    if (!_ownerIsCurrent) return null;
     final gateway = _gateway;
     if (gateway == null) return null;
     final result = await run(gateway);
