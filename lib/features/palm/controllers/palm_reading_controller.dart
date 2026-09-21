@@ -163,6 +163,86 @@ class PalmReadingController extends ChangeNotifier
     super.dispose();
   }
 
+  /// Completion deep-link/push recovery for one exact server operation.
+  /// Never attaches to another currently-active Palm operation.
+  Future<void> recoverOperation(String operationId) async {
+    final normalized = operationId.trim();
+    final live = _live;
+    if (normalized.isEmpty || live == null) return;
+    final token = ++_generation;
+    await _recoverOperationById(
+      token: token,
+      live: live,
+      operationId: normalized,
+    );
+  }
+
+  Future<void> _recoverOperationById({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) async {
+    final state = await live.flow.recoverOperation(operationId);
+    if (_disposed || token != _generation) return;
+    final snapshot = state.snapshot;
+    if (snapshot == null || snapshot.readingType != ReadingType.palm) return;
+
+    liveState = state;
+    switch (state.kind) {
+      case ReadingLiveKind.ready:
+        final pending = _pendingStore?.load(ReadingType.palm);
+        if (pending?.operationId == operationId) {
+          unawaited(_pendingStore?.clear(ReadingType.palm));
+        }
+        final resultId = snapshot.resultId;
+        final saved = resultId == null ? null : _experience.savedById(resultId);
+        if (saved != null) {
+          openSaved(saved);
+          return;
+        }
+        await _restoreServerCompleted(state, live);
+      case ReadingLiveKind.waiting:
+      case ReadingLiveKind.processing:
+        _phase = PalmPhase.analyzing;
+        _error = null;
+        _lastError = null;
+        _scheduleTargetOperationPoll(
+          token: token,
+          live: live,
+          operationId: operationId,
+        );
+        safeNotify();
+      case ReadingLiveKind.failed:
+        _error = ReadingLiveCopy.failed;
+        _lastError = PalmAnalysisError(
+          PalmAnalysisErrorKind.unknown,
+          ReadingLiveCopy.failed,
+        );
+        _phase = PalmPhase.error;
+        safeNotify();
+      case ReadingLiveKind.idle:
+        break;
+    }
+  }
+
+  void _scheduleTargetOperationPoll({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) {
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(
+      const Duration(seconds: 3),
+      () => unawaited(
+        _recoverOperationById(
+          token: token,
+          live: live,
+          operationId: operationId,
+        ),
+      ),
+    );
+  }
+
   /// BATCH 5F — call on feature open / controller reconstruction so an
   /// active Palm operation (waiting/processing/ready/failed) survives an
   /// app kill+relaunch. Never re-runs AI for an already-ready result and
