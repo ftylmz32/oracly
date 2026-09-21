@@ -4,6 +4,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/providers/app_providers.dart';
+
 import '../models/premium_entitlement_state.dart';
 import '../presentation/reference/premium_entry_sheet.dart';
 import '../providers/premium_providers.dart';
@@ -45,7 +47,20 @@ abstract final class PremiumAccess {
   }) async {
     try {
       final container = ProviderScope.containerOf(context, listen: false);
-      final status = container.read(premiumStatusProvider);
+      var status = container.read(premiumStatusProvider);
+
+      // Production Premium is owner-bound. Home may become visible while the
+      // deferred Firebase/local-owner isolation is still converging, so an
+      // owner mismatch here means "not proven yet", not "Free". Complete/join
+      // the canonical auth session first, then re-read the provider because
+      // auth readiness may have rebuilt the repository/status controller.
+      if (!status.ownerAccessReady) {
+        await container.read(authServiceProvider).ensureAnonymousSession();
+        if (!context.mounted) return false;
+        status = container.read(premiumStatusProvider);
+        if (!status.ownerAccessReady) return false;
+      }
+
       await status.ensureFresh();
       if (!context.mounted) return false;
       if (status.isPremium) return true;
