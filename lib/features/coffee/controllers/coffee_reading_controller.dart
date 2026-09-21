@@ -435,6 +435,90 @@ class CoffeeReadingController extends ChangeNotifier {
     _safeNotify();
   }
 
+  /// Completion deep-link/push recovery for one exact server operation.
+  /// Never falls back to the feature-wide active operation, so a tap for
+  /// operation A cannot accidentally open operation B.
+  Future<void> recoverOperation(String operationId) async {
+    final normalized = operationId.trim();
+    final live = _live;
+    if (normalized.isEmpty || live == null) return;
+    final token = ++_generation;
+    await _recoverOperationById(
+      token: token,
+      live: live,
+      operationId: normalized,
+    );
+  }
+
+  Future<void> _recoverOperationById({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) async {
+    final state = await live.flow.recoverOperation(operationId);
+    if (_disposed || token != _generation) return;
+    final snapshot = state.snapshot;
+    if (snapshot == null || snapshot.readingType != ReadingType.coffee) return;
+
+    liveState = state;
+    switch (state.kind) {
+      case ReadingLiveKind.ready:
+        final pending = _pendingStore?.load(ReadingType.coffee);
+        if (pending?.operationId == operationId) {
+          unawaited(_pendingStore?.clear(ReadingType.coffee));
+        }
+        final resultId = snapshot.resultId;
+        final saved = resultId == null ? null : _experience.savedById(resultId);
+        if (saved != null) {
+          openSaved(saved);
+          return;
+        }
+        final completed = await live.flow.fetchCompletedResult(operationId);
+        if (_disposed || token != _generation || completed == null) return;
+        final restored = await _experience.restoreCompleted(
+          resultId: completed.resultId,
+          persistedAt: completed.persistedAt,
+          result: completed.result,
+        );
+        if (_disposed || token != _generation) return;
+        openSaved(restored);
+      case ReadingLiveKind.waiting:
+      case ReadingLiveKind.processing:
+        _phase = CoffeePhase.analyzing;
+        _error = null;
+        _scheduleTargetOperationPoll(
+          token: token,
+          live: live,
+          operationId: operationId,
+        );
+        _safeNotify();
+      case ReadingLiveKind.failed:
+        _error = ReadingLiveCopy.failed;
+        _phase = CoffeePhase.error;
+        _safeNotify();
+      case ReadingLiveKind.idle:
+        break;
+    }
+  }
+
+  void _scheduleTargetOperationPoll({
+    required int token,
+    required ReadingFeatureRunner live,
+    required String operationId,
+  }) {
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(
+      _serverPollInterval,
+      () => unawaited(
+        _recoverOperationById(
+          token: token,
+          live: live,
+          operationId: operationId,
+        ),
+      ),
+    );
+  }
+
   /// BATCH 5F — call on feature open / controller reconstruction so an
   /// active Coffee operation (waiting/processing/ready/failed) survives an
   /// app kill+relaunch. Never re-runs AI for an already-ready result and
