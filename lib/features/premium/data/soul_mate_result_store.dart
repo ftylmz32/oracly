@@ -45,7 +45,12 @@ abstract final class SoulMateResultStore {
     if (portraitBytes.isEmpty) return null;
     final previous = await readMeta(storage);
     final dir = documents ?? await getApplicationDocumentsDirectory();
-    final dest = File('${dir.path}/${portraitPrefix}_${record.id}.jpg');
+    // Unique candidate — never overwrite the prior committed path before
+    // metadata is durable (same-id replacement must not destroy old bytes).
+    final stamp = DateTime.now().microsecondsSinceEpoch;
+    final dest = File(
+      '${dir.path}/${portraitPrefix}_${record.id}_$stamp.jpg',
+    );
     await dest.writeAsBytes(portraitBytes, flush: true);
     final saved = SoulMateSavedResult(
       id: record.id,

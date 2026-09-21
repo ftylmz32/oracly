@@ -10,6 +10,7 @@ import 'package:oracly_new/core/auth/account_deletion_markers.dart';
 import 'package:oracly_new/core/auth/account_deletion_owner_bootstrap.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
 import 'package:oracly_new/core/auth/account_deletion_service.dart';
+import 'package:oracly_new/core/auth/account_deletion_target.dart';
 import 'package:oracly_new/core/auth/auth_service.dart';
 import 'package:oracly_new/core/auth/mock_auth_service.dart';
 import 'package:oracly_new/core/auth/models/account_reauth_method.dart';
@@ -353,6 +354,10 @@ void main() {
             sessions: InMemorySessionManager(_NoopTokens()),
           );
           await auth.signInAnonymously();
+          await storage.setString(
+            AccountDeletionTarget.targetUidKey,
+            auth.currentUserId!,
+          );
           final deletion = AccountDeletionService(
             auth: auth,
             storage: storage,
@@ -384,6 +389,12 @@ void main() {
             sessions: InMemorySessionManager(_NoopTokens()),
           );
           await auth.signInAnonymously();
+          await storage.setString(
+            AccountDeletionTarget.targetUidKey,
+            auth.currentUserId!,
+          );
+          // Local-wipe phase assumes the old Firebase identity is already gone.
+          await auth.signOut();
           final deletion = AccountDeletionService(
             auth: auth,
             storage: storage,
@@ -828,12 +839,13 @@ void main() {
         () async {
           SharedPreferences.setMockInitialValues({
             AccountDeletionFinalizer.anonymousBootstrapKey: true,
+            AccountDeletionTarget.targetUidKey: 'deleted-owner-A',
           });
           final storage = LocalStorage(await SharedPreferences.getInstance());
           final auth = MockAuthService(
             sessions: InMemorySessionManager(_NoopTokens()),
           );
-          await auth.signInAnonymously();
+          // No pre-existing identity — bootstrap must CREATE the replacement.
           AccountDeletionPendingState.markFinalizing();
 
           final result = await AccountDeletionFinalizer.completeAnonymousBootstrap(
@@ -845,6 +857,8 @@ void main() {
 
           expect(result.isSuccess, isTrue);
           expect(AccountDeletionPendingState.isClear, isTrue);
+          expect(auth.hasCurrentIdentity, isTrue);
+          expect(auth.isCurrentUserAnonymous, isTrue);
         },
       );
     },
@@ -1238,6 +1252,9 @@ class _CountingAuth implements AuthService {
   bool get isCurrentUserAnonymous => false;
   @override
   bool get hasCurrentIdentity => true;
+
+  @override
+  String? get currentUserId => null;
   @override
   List<AccountReauthMethod> get currentReauthMethods => const [];
   @override
@@ -1312,6 +1329,9 @@ class _LinkedIdentityReuseAuth implements AuthService {
   bool get isCurrentUserAnonymous => false;
   @override
   bool get hasCurrentIdentity => true;
+
+  @override
+  String? get currentUserId => null;
   @override
   List<AccountReauthMethod> get currentReauthMethods =>
       const [AccountReauthMethod.google];

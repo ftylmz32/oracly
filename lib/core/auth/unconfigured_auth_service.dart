@@ -71,6 +71,9 @@ class UnconfiguredAuthService implements AuthService {
   bool get hasCurrentIdentity => false;
 
   @override
+  String? get currentUserId => null;
+
+  @override
   List<AccountReauthMethod> get currentReauthMethods => const [];
 
   @override

@@ -143,6 +143,9 @@ class MockAuthService implements AuthService {
   bool get hasCurrentIdentity => _sessions?.currentSession != null;
 
   @override
+  String? get currentUserId => _sessions?.currentSession?.userId;
+
+  @override
   List<AccountReauthMethod> get currentReauthMethods {
     final provider = _sessions?.currentSession?.provider;
     return switch (provider) {

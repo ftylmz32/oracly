@@ -27,10 +27,12 @@ abstract final class CoffeeImageArchive {
       throw StateError('coffee source missing');
     }
     final safeId = readingId.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+    // Unique candidate — never overwrite a prior committed archive path.
+    final name =
+        '${safeId}_${DateTime.now().microsecondsSinceEpoch}.jpg';
     final dest = File(
-      '${(await _dir()).path}${Platform.pathSeparator}$safeId.jpg',
+      '${(await _dir()).path}${Platform.pathSeparator}$name',
     );
-    if (src.absolute.path == dest.absolute.path) return dest.path;
     await src.copy(dest.path);
     return dest.path;
   }

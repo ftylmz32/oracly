@@ -141,6 +141,9 @@ class FirebaseAuthService implements AuthService {
   bool get hasCurrentIdentity => _gateway.currentUser != null;
 
   @override
+  String? get currentUserId => _gateway.currentUser?.uid;
+
+  @override
   List<AccountReauthMethod> get currentReauthMethods =>
       _gateway.currentUser?.reauthMethods ?? const [];
 

@@ -35,12 +35,22 @@ abstract final class ProfilePhotoStore {
     final previous = storage.getString(key);
     final dir = documents ?? await getApplicationDocumentsDirectory();
     final mark = stamp ?? DateTime.now().millisecondsSinceEpoch;
-    final dest = File('${dir.path}/${filePrefix}_$mark.jpg');
+    // Unique candidate even when [stamp] collides with a prior committed file.
+    var dest = File('${dir.path}/${filePrefix}_$mark.jpg');
+    if (previous != null && previous == dest.path) {
+      dest = File(
+        '${dir.path}/${filePrefix}_${mark}_${DateTime.now().microsecondsSinceEpoch}.jpg',
+      );
+    } else if (dest.existsSync()) {
+      dest = File(
+        '${dir.path}/${filePrefix}_${mark}_${DateTime.now().microsecondsSinceEpoch}.jpg',
+      );
+    }
     await File(sourcePath).copy(dest.path);
     try {
       await storage.setString(key, dest.path).requireDurable();
     } catch (_) {
-      // Metadata never committed — delete the new file and keep previous.
+      // Metadata never committed — delete ONLY the candidate.
       await _deleteQuietly(dest.path);
       rethrow;
     }

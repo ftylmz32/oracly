@@ -58,6 +58,7 @@ class CoffeeExperienceService {
       throw CoffeeAnalysisException(CoffeeCopy.analysisUnavailable);
     }
     final reading = await _analysis.analyze(image);
+    final prior = _store.byId(reading.id);
     final archived = await _persistImage(
       readingId: reading.id,
       sourcePath: image.path,
@@ -75,12 +76,26 @@ class CoffeeExperienceService {
       visualObservation: reading.visualObservation,
       symbols: reading.symbols,
     );
-    await _store.save(persisted);
-    await _versions?.seedOriginal(
-      rootId: persisted.id,
-      kind: ReadingVersionKind.coffee,
-      data: ReadingVersionPayload.coffee(persisted),
-    );
+    try {
+      await _store.save(persisted);
+    } catch (_) {
+      await CoffeeImageArchive.deleteIfOwned(archived);
+      rethrow;
+    }
+    final priorPath = prior?.imagePath;
+    if (priorPath != null &&
+        priorPath.isNotEmpty &&
+        priorPath != archived) {
+      await CoffeeImageArchive.deleteIfOwned(priorPath);
+    }
+    // Version seed is post-commit enrichment — never deny a durable reading.
+    try {
+      await _versions?.seedOriginal(
+        rootId: persisted.id,
+        kind: ReadingVersionKind.coffee,
+        data: ReadingVersionPayload.coffee(persisted),
+      );
+    } catch (_) {}
     return persisted;
   }
 

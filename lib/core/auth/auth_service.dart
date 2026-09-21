@@ -36,6 +36,10 @@ abstract class AuthService {
   /// True when Firebase currently holds a signed-in user (any kind).
   bool get hasCurrentIdentity;
 
+  /// Live Firebase / provider uid for the current identity — never email.
+  /// Null when no identity is signed in.
+  String? get currentUserId;
+
   /// Linked reauth methods for the current user (empty when anonymous/none).
   List<AccountReauthMethod> get currentReauthMethods;
 

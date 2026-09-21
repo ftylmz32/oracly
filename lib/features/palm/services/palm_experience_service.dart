@@ -62,17 +62,31 @@ class PalmExperienceService {
       );
     }
     final reading = await _analysis.analyze(image, hand: hand);
+    final prior = store?.byId(reading.id);
     final archived = await _persistImage(
       readingId: reading.id,
       sourcePath: image.path,
     );
     final persisted = reading.copyWith(imagePath: archived);
-    await store?.save(persisted);
-    await _versions?.seedOriginal(
-      rootId: persisted.id,
-      kind: ReadingVersionKind.palm,
-      data: ReadingVersionPayload.palm(persisted),
-    );
+    try {
+      await store?.save(persisted);
+    } catch (_) {
+      await PalmImageArchive.deleteIfOwned(archived);
+      rethrow;
+    }
+    final priorPath = prior?.imagePath;
+    if (priorPath != null &&
+        priorPath.isNotEmpty &&
+        priorPath != archived) {
+      await PalmImageArchive.deleteIfOwned(priorPath);
+    }
+    try {
+      await _versions?.seedOriginal(
+        rootId: persisted.id,
+        kind: ReadingVersionKind.palm,
+        data: ReadingVersionPayload.palm(persisted),
+      );
+    } catch (_) {}
     return persisted;
   }
 

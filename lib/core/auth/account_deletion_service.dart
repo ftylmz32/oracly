@@ -9,6 +9,7 @@ import '../storage/secure_storage.dart';
 import 'account_deletion_finalizer.dart';
 import 'account_deletion_markers.dart';
 import 'account_deletion_pending_state.dart';
+import 'account_deletion_target.dart';
 import 'auth_copy.dart';
 import 'auth_service.dart';
 import 'models/auth_credentials.dart';
@@ -26,21 +27,16 @@ class AccountDeletionService {
   final SecureStorage _secureStorage;
   final Future<bool> Function() deleteServerData;
 
-  /// Durable evidence that server-side account deletion was REQUESTED and
-  /// must be (re)attempted before any Firebase identity work. Armed BEFORE
-  /// [deleteServerData] so a crash or false-return write never leaves the
-  /// app with zero deletion authority after a server accept.
   static const pendingServerDeleteKey =
       AccountDeletionFinalizer.serverDeletePendingKey;
-
   static const pendingIdentityCleanupKey =
       'account_deletion_pending_identity_cleanup';
   static const pendingLocalWipeKey =
       AccountDeletionFinalizer.localWipePendingKey;
   static const pendingAnonymousBootstrapKey =
       AccountDeletionFinalizer.anonymousBootstrapKey;
+  static const targetUidKey = AccountDeletionTarget.targetUidKey;
 
-  /// EXACT persisted `true` only — never a corrupt (wrong-type) value.
   bool get hasPendingServerDelete => AccountDeletionMarkers.isExactlyTrue(
         _storage,
         pendingServerDeleteKey,
@@ -72,7 +68,14 @@ class AccountDeletionService {
       AccountDeletionMarkers.read(_storage, pendingLocalWipeKey) ==
           MarkerRead.corrupt ||
       AccountDeletionMarkers.read(_storage, pendingAnonymousBootstrapKey) ==
-          MarkerRead.corrupt;
+          MarkerRead.corrupt ||
+      AccountDeletionTarget.isTargetCorrupt(_storage);
+
+  /// Marker true but no valid target (and legacy migrate failed).
+  bool get hasOrphanDeletionMarker =>
+      hasPendingFinalization &&
+      !AccountDeletionTarget.hasValidTarget(_storage) &&
+      !AccountDeletionTarget.isTargetCorrupt(_storage);
 
   Future<ApiResult<bool>> deleteAccountAndWipeLocalData({
     AccountReauthCredentials? reauth,
@@ -98,12 +101,25 @@ class AccountDeletionService {
     AccountReauthCredentials? reauth,
   }) async {
     if (hasCorruptDeletionMarker) {
+      AccountDeletionPendingState.markIntegrityRecovery();
       return ApiFailure(
         NetworkException(
           message: 'deletion_state_corrupt',
           kind: NetworkErrorKind.unauthorized,
         ),
       );
+    }
+    if (hasPendingFinalization) {
+      final bound = await _ensureTargetBound();
+      if (bound == null) {
+        AccountDeletionPendingState.markIntegrityRecovery();
+        return ApiFailure(
+          NetworkException(
+            message: 'deletion_target_unbound',
+            kind: NetworkErrorKind.unauthorized,
+          ),
+        );
+      }
     }
     if (hasPendingLocalWipe) return _finish();
     if (hasPendingAnonymousBootstrap) {
@@ -113,58 +129,87 @@ class AccountDeletionService {
         identityCleanupKey: pendingIdentityCleanupKey,
       );
     }
-    // identityCleanup means server acceptance was already proven. Prefer it
-    // over a leftover serverDeletePending — but retire that leftover BEFORE
-    // any Firebase identity work so it cannot attack a later anonymous owner.
     if (hasPendingIdentityCleanup) {
-      if (!await _retireServerDeletePendingIfPresent()) {
-        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
-      }
-      if (!_auth.isCurrentUserAnonymous && reauth != null) {
-        final reauthResult = await _auth.reauthenticate(reauth);
-        if (reauthResult.isFailure) {
-          return ApiFailure(reauthResult.errorOrNull!);
-        }
-      }
-      if (!_auth.hasCurrentIdentity) return _finish();
-      final stillPresent = await _auth.deleteAccount();
-      if (stillPresent.isFailure) {
-        final error = stillPresent.errorOrNull!;
-        if (!_auth.hasCurrentIdentity) return _finish();
-        await _markIdentityPending();
-        return ApiFailure(error);
-      }
-      return _finish();
+      return _retryIdentityCleanup(reauth: reauth);
     }
     if (hasPendingServerDelete) {
-      // Absence of Firebase identity is NOT proof the server accepted.
-      // Never promote to identityCleanup without a real server accept.
-      if (!_auth.hasCurrentIdentity) {
-        AccountDeletionPendingState.markBlocked();
-        return ApiFailure(
-          NetworkException.unauthorized(AuthCopy.noCurrentUser),
-        );
-      }
-      if (!_auth.isCurrentUserAnonymous && reauth != null) {
-        final reauthResult = await _auth.reauthenticate(reauth);
-        if (reauthResult.isFailure) {
-          return ApiFailure(reauthResult.errorOrNull!);
-        }
-      }
-      return _runFromServerDeletePhase(alreadyArmed: true);
+      return _retryServerDelete(reauth: reauth);
     }
     return const ApiSuccess(true);
   }
 
-  /// Shared path for first-time delete and serverDeletePending retry.
+  Future<ApiResult<bool>> _retryIdentityCleanup({
+    AccountReauthCredentials? reauth,
+  }) async {
+    if (!await _retireServerDeletePendingIfPresent()) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    if (!_auth.hasCurrentIdentity) return _finish();
+    if (!_guardCurrentIsTarget()) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    if (!_auth.isCurrentUserAnonymous && reauth != null) {
+      final reauthResult = await _auth.reauthenticate(reauth);
+      if (reauthResult.isFailure) {
+        return ApiFailure(reauthResult.errorOrNull!);
+      }
+      if (!_guardCurrentIsTarget()) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
+    }
+    final stillPresent = await _auth.deleteAccount();
+    if (stillPresent.isFailure) {
+      final error = stillPresent.errorOrNull!;
+      if (!_auth.hasCurrentIdentity) return _finish();
+      await _markIdentityPending();
+      return ApiFailure(error);
+    }
+    return _finish();
+  }
+
+  Future<ApiResult<bool>> _retryServerDelete({
+    AccountReauthCredentials? reauth,
+  }) async {
+    if (!_auth.hasCurrentIdentity) {
+      AccountDeletionPendingState.markBlocked();
+      return ApiFailure(
+        NetworkException.unauthorized(AuthCopy.noCurrentUser),
+      );
+    }
+    if (!_guardCurrentIsTarget()) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+    if (!_auth.isCurrentUserAnonymous && reauth != null) {
+      final reauthResult = await _auth.reauthenticate(reauth);
+      if (reauthResult.isFailure) {
+        return ApiFailure(reauthResult.errorOrNull!);
+      }
+      if (!_guardCurrentIsTarget()) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
+    }
+    return _runFromServerDeletePhase(alreadyArmed: true);
+  }
+
   Future<ApiResult<bool>> _runFromServerDeletePhase({
     bool alreadyArmed = false,
   }) async {
     if (!alreadyArmed) {
+      final uid = _auth.currentUserId?.trim();
+      if (uid == null || uid.isEmpty) {
+        return ApiFailure(
+          NetworkException.unauthorized(AuthCopy.noCurrentUser),
+        );
+      }
+      if (!await AccountDeletionTarget.persistTarget(_storage, uid)) {
+        return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+      }
       if (!await _storage.setBool(pendingServerDeleteKey, true)) {
         return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
       }
       AccountDeletionPendingState.markBlocked();
+    } else if (!_guardCurrentIsTarget()) {
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
 
     final bool serverAccepted;
@@ -189,9 +234,12 @@ class AccountDeletionService {
       AccountDeletionPendingState.markBlocked();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
-    // identityCleanup is durable — serverDeletePending is now obsolete and
-    // MUST be retired before Firebase identity deletion may begin.
     if (!await _storage.remove(pendingServerDeleteKey)) {
+      AccountDeletionPendingState.markBlocked();
+      return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
+    }
+
+    if (!_guardCurrentIsTarget()) {
       AccountDeletionPendingState.markBlocked();
       return ApiFailure(NetworkException.unauthorized(AuthCopy.failed));
     }
@@ -203,9 +251,30 @@ class AccountDeletionService {
     return _finish();
   }
 
-  /// Retires a leftover [pendingServerDeleteKey] after identityCleanup is
-  /// already the authoritative phase. Returns false if the marker is still
-  /// exactly true after the attempt (fail-closed — no identity work yet).
+  /// Returns the bound target uid, migrating legacy markers when safe.
+  Future<String?> _ensureTargetBound() async {
+    final existing = AccountDeletionTarget.readTargetUid(_storage);
+    if (existing != null) return existing;
+    if (AccountDeletionTarget.isTargetCorrupt(_storage)) return null;
+    final migrated = await AccountDeletionTarget.tryMigrateLegacyTarget(
+      storage: _storage,
+      auth: _auth,
+    );
+    if (!migrated) return null;
+    return AccountDeletionTarget.readTargetUid(_storage);
+  }
+
+  bool _guardCurrentIsTarget() {
+    if (AccountDeletionTarget.currentMatchesTarget(
+      storage: _storage,
+      auth: _auth,
+    )) {
+      return true;
+    }
+    AccountDeletionPendingState.markBlocked();
+    return false;
+  }
+
   Future<bool> _retireServerDeletePendingIfPresent() async {
     if (!hasPendingServerDelete) return true;
     if (!await _storage.remove(pendingServerDeleteKey)) {

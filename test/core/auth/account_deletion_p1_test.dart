@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/account_deletion_finalizer.dart';
 import 'package:oracly_new/core/auth/account_deletion_markers.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
+import 'package:oracly_new/core/auth/account_deletion_target.dart';
 import 'package:oracly_new/core/auth/account_deletion_service.dart';
 import 'package:oracly_new/core/auth/auth_copy.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_auth_errors.dart';
@@ -17,6 +18,7 @@ import 'package:oracly_new/core/auth/firebase/firebase_auth_user.dart';
 import 'package:oracly_new/core/auth/firebase/firebase_id_token_manager.dart';
 import 'package:oracly_new/core/auth/models/account_reauth_method.dart';
 import 'package:oracly_new/core/auth/models/auth_credentials.dart';
+import 'package:oracly_new/core/auth/models/auth_session.dart';
 import 'package:oracly_new/core/auth/session_manager.dart';
 import 'package:oracly_new/core/auth/token_manager.dart';
 import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
@@ -421,6 +423,10 @@ void main() {
         AccountDeletionService.pendingServerDeleteKey,
         true,
       );
+      await storage.setString(
+        AccountDeletionService.targetUidKey,
+        'uid-absent-owner',
+      );
       var serverCalls = 0;
       final pending = AccountDeletionService(
         auth: auth,
@@ -443,6 +449,32 @@ void main() {
       expect(gateway.deleteCalls, 0);
       expect(AccountDeletionPendingState.isBlocked, isTrue);
       expect(storage.getString('user_name'), isNull);
+    },
+  );
+
+  test(
+    'P0 target: marker without target uid → integrityRecovery, zero '
+    'destructive calls',
+    () async {
+      await storage.setBool(
+        AccountDeletionService.pendingServerDeleteKey,
+        true,
+      );
+      var serverCalls = 0;
+      final pending = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      final result = await pending.retryPendingIdentityCleanup();
+      expect(result.isFailure, isTrue);
+      expect(serverCalls, 0);
+      expect(gateway.deleteCalls, 0);
+      expect(AccountDeletionPendingState.isIntegrityRecovery, isTrue);
     },
   );
 
@@ -556,10 +588,13 @@ void main() {
     'P0-1 / 1C-E: restart at each phase produces the correct next action',
     () async {
       // Phase: serverDeletePending only → retry calls server again.
+      await auth.signInAnonymously();
+      final uidA = auth.currentUserId!;
       await storage.setBool(
         AccountDeletionService.pendingServerDeleteKey,
         true,
       );
+      await storage.setString(AccountDeletionService.targetUidKey, uidA);
       AccountDeletionPendingState.resetForTest();
       var status = await AccountDeletionPendingState.resolveFromLocalStorage(
         storage,
@@ -577,7 +612,6 @@ void main() {
           return true;
         },
       );
-      await auth.signInAnonymously();
       final serverRetry = await serverPhase.retryPendingIdentityCleanup();
       expect(serverRetry.isSuccess, isTrue);
       expect(serverCalls, 1);
@@ -615,6 +649,10 @@ void main() {
         },
       );
       await auth.signInAnonymously();
+      await storage.setString(
+        AccountDeletionService.targetUidKey,
+        auth.currentUserId!,
+      );
       final identityRetry = await identityPhase.retryPendingIdentityCleanup();
       expect(identityRetry.isSuccess, isTrue);
       expect(serverCalls, 0);
@@ -976,6 +1014,10 @@ void main() {
       final failingStorage = _BoolWriteFailingStorage(
         prefs,
         failingKey: AccountDeletionFinalizer.anonymousBootstrapKey,
+      );
+      await failingStorage.setString(
+        AccountDeletionTarget.targetUidKey,
+        'deleted-owner-A',
       );
 
       final result = await AccountDeletionFinalizer.finishAfterIdentityDeleted(
@@ -1709,6 +1751,170 @@ void main() {
     });
   });
 
+  group('P0 deletion target uid binding', () {
+    test('cross-owner server retry never deletes B', () async {
+      await auth.signInAnonymously();
+      final uidA = auth.currentUserId!;
+      var serverCalls = 0;
+      final tracking = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return false;
+        },
+      );
+      final interrupted = await tracking.deleteAccountAndWipeLocalData();
+      expect(interrupted.isFailure, isTrue);
+      expect(serverCalls, 1);
+      expect(tracking.hasPendingServerDelete, isTrue);
+      expect(
+        AccountDeletionTarget.readTargetUid(storage),
+        uidA,
+      );
+
+      // Switch Firebase current identity to unrelated B.
+      gateway.forceUser(
+        FirebaseAuthUserSnapshot(uid: 'owner-B', isAnonymous: true),
+      );
+      await sessions.setSession(
+        AuthSession(
+          userId: 'owner-B',
+          provider: AuthProviderKind.anonymous,
+          accessToken: _idToken,
+          refreshToken: 'r',
+          expiresAt: DateTime.now().add(const Duration(hours: 1)),
+          isGuest: true,
+        ),
+      );
+      await storage.setString(UserLocalDataIsolation.ownerKey, 'owner-B');
+
+      final asB = await tracking.retryPendingIdentityCleanup();
+      expect(asB.isFailure, isTrue);
+      expect(serverCalls, 1, reason: 'must not call server as B');
+      expect(gateway.deleteCalls, 0);
+      expect(AccountDeletionTarget.readTargetUid(storage), uidA);
+      expect(tracking.hasPendingServerDelete, isTrue);
+      expect(storage.getString(UserLocalDataIsolation.ownerKey), 'owner-B');
+
+      // Restore A — lifecycle continues under A only.
+      gateway.forceUser(
+        FirebaseAuthUserSnapshot(uid: uidA, isAnonymous: true),
+      );
+      await sessions.setSession(
+        AuthSession(
+          userId: uidA,
+          provider: AuthProviderKind.anonymous,
+          accessToken: _idToken,
+          refreshToken: 'r',
+          expiresAt: DateTime.now().add(const Duration(hours: 1)),
+          isGuest: true,
+        ),
+      );
+      await storage.setString(UserLocalDataIsolation.ownerKey, uidA);
+      final healthy = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      final asA = await healthy.retryPendingIdentityCleanup();
+      expect(asA.isSuccess, isTrue);
+      expect(serverCalls, 2);
+      expect(gateway.deleteCalls, 1);
+      expect(AccountDeletionTarget.readTargetUid(storage), isNull);
+    });
+
+    test('cross-owner identityCleanup never deletes B', () async {
+      await auth.signInAnonymously();
+      final uidA = auth.currentUserId!;
+      await storage.setBool(
+        AccountDeletionService.pendingIdentityCleanupKey,
+        true,
+      );
+      await storage.setString(AccountDeletionService.targetUidKey, uidA);
+
+      gateway.forceUser(
+        FirebaseAuthUserSnapshot(uid: 'owner-B', isAnonymous: true),
+      );
+      final pending = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async => true,
+      );
+      final asB = await pending.retryPendingIdentityCleanup();
+      expect(asB.isFailure, isTrue);
+      expect(gateway.deleteCalls, 0);
+      expect(pending.hasPendingIdentityCleanup, isTrue);
+
+      gateway.forceUser(
+        FirebaseAuthUserSnapshot(uid: uidA, isAnonymous: true),
+      );
+      final asA = await pending.retryPendingIdentityCleanup();
+      expect(asA.isSuccess, isTrue);
+      expect(gateway.deleteCalls, 1);
+    });
+
+    test('legacy marker migrates only when ownerKey == currentUserId',
+        () async {
+      await auth.signInAnonymously();
+      expect(auth.currentUserId, isNotNull);
+      await storage.setBool(
+        AccountDeletionService.pendingServerDeleteKey,
+        true,
+      );
+      // No target yet — ownerKey was set by isolation on sign-in.
+      expect(AccountDeletionTarget.readTargetUid(storage), isNull);
+      var serverCalls = 0;
+      final pending = AccountDeletionService(
+        auth: auth,
+        storage: storage,
+        secureStorage: secure,
+        deleteServerData: () async {
+          serverCalls++;
+          return true;
+        },
+      );
+      final result = await pending.retryPendingIdentityCleanup();
+      expect(result.isSuccess, isTrue);
+      expect(serverCalls, 1);
+      expect(AccountDeletionTarget.readTargetUid(storage), isNull);
+    });
+
+    test('unrelated anonymous cannot be accepted as bootstrap', () async {
+      await storage.setBool(
+        AccountDeletionFinalizer.anonymousBootstrapKey,
+        true,
+      );
+      await storage.setString(
+        AccountDeletionService.targetUidKey,
+        'deleted-A',
+      );
+      gateway.forceUser(
+        const FirebaseAuthUserSnapshot(uid: 'stranger-anon', isAnonymous: true),
+      );
+      final result =
+          await AccountDeletionFinalizer.completeAnonymousBootstrap(
+        auth: auth,
+        storage: storage,
+        identityCleanupKey: AccountDeletionService.pendingIdentityCleanupKey,
+      );
+      expect(result.isFailure, isTrue);
+      expect(
+        AccountDeletionMarkers.isExactlyTrue(
+          storage,
+          AccountDeletionFinalizer.anonymousBootstrapKey,
+        ),
+        isTrue,
+      );
+    });
+  });
+
   test('mapDelete maps requires-recent-login and no-current-user', () {
     expect(
       FirebaseAuthErrors.mapDelete(
@@ -1780,6 +1986,11 @@ class _DeletionGateway implements FirebaseAuthGateway {
 
   @override
   FirebaseAuthUserSnapshot? get currentUser => _user;
+
+  void forceUser(FirebaseAuthUserSnapshot? user) {
+    _user = user;
+    _controller.add(_user);
+  }
 
   @override
   Stream<FirebaseAuthUserSnapshot?> authStateChanges() => _controller.stream;

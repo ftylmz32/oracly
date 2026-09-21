@@ -16,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import '../data/datasources/local_storage.dart';
 import 'account_deletion_markers.dart';
 import 'account_deletion_service.dart';
+import 'account_deletion_target.dart';
 
 enum AccountDeletionGatePhase {
   unresolved,
@@ -165,7 +166,8 @@ abstract final class AccountDeletionPendingState {
     if (anonRead == MarkerRead.corrupt ||
         identityRead == MarkerRead.corrupt ||
         localWipeRead == MarkerRead.corrupt ||
-        serverDeleteRead == MarkerRead.corrupt) {
+        serverDeleteRead == MarkerRead.corrupt ||
+        AccountDeletionTarget.isTargetCorrupt(storage)) {
       phase.value = AccountDeletionGatePhase.integrityRecovery;
       return AccountDeletionGateResolveStatus.integrityRecovery;
     }

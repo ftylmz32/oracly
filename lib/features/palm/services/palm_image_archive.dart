@@ -27,10 +27,11 @@ abstract final class PalmImageArchive {
       throw StateError('palm source missing');
     }
     final safeId = readingId.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+    final name =
+        '${safeId}_${DateTime.now().microsecondsSinceEpoch}.jpg';
     final dest = File(
-      '${(await _dir()).path}${Platform.pathSeparator}$safeId.jpg',
+      '${(await _dir()).path}${Platform.pathSeparator}$name',
     );
-    if (src.absolute.path == dest.absolute.path) return dest.path;
     await src.copy(dest.path);
     return dest.path;
   }

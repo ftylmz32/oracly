@@ -58,7 +58,10 @@ class CoffeeReadingStore {
     if (!ok) {
       throw StateError('coffee reading metadata write failed');
     }
-    await _memory?.upsert(OraclyMemoryFactory.coffee(reading));
+    // Memory enrichment is reconcilable — reading metadata is the commit point.
+    try {
+      await _memory?.upsert(OraclyMemoryFactory.coffee(reading));
+    } catch (_) {}
   }
 
   Future<void> delete(String id) async {

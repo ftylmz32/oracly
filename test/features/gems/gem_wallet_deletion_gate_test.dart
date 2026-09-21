@@ -110,6 +110,9 @@ class _CountingAuth implements AuthService {
   bool get hasCurrentIdentity => true;
 
   @override
+  String? get currentUserId => 'u1';
+
+  @override
   List<AccountReauthMethod> get currentReauthMethods => const [];
 
   @override
