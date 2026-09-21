@@ -78,7 +78,9 @@ Future<GemWalletOwnerBootstrapOutcome> bootstrapGemWalletOwner({
     final cached =
         controller.ownerId == ownerId ? wallet.cachedBalance : null;
     if (cached != null) {
-      await controller.acceptAuthoritativeBalance(cached);
+      // Starter/reward endpoints already persisted the server balance.
+      // Reflect that exact owner-bound cache in UI without writing it again.
+      controller.acceptHydratedCachedBalance();
     } else if (!controller.authoritative) {
       await controller.reload();
     }
