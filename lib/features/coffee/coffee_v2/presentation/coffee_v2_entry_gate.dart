@@ -15,12 +15,21 @@ import '../providers/coffee_v2_providers.dart';
 import 'coffee_v2_flow_screen.dart';
 
 class CoffeeV2EntryGate extends ConsumerWidget {
-  const CoffeeV2EntryGate({super.key, this.savedReadingId});
+  const CoffeeV2EntryGate({
+    super.key,
+    this.savedReadingId,
+    this.operationId,
+  });
 
   final String? savedReadingId;
+  final String? operationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final targetOperationId = operationId?.trim();
+    if (targetOperationId != null && targetOperationId.isNotEmpty) {
+      return CoffeeReferenceScreen(operationId: targetOperationId);
+    }
     final id = savedReadingId?.trim();
     if (id != null && id.isNotEmpty) {
       return CoffeeReferenceScreen(savedReadingId: id);
