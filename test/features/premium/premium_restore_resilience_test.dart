@@ -15,6 +15,7 @@ import 'package:oracly_new/features/premium/controllers/premium_status_controlle
 import 'package:oracly_new/features/premium/models/premium_purchase_result.dart';
 import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
 import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
+import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:oracly_new/features/premium/services/premium_store_catalog.dart';
 import 'package:oracly_new/features/premium/services/store_iap_client.dart';
 import 'package:oracly_new/features/premium/services/store_premium_purchase.dart';
@@ -46,6 +47,36 @@ class _UnverifiedVerifier implements PremiumEntitlementVerifier {
     String? transactionId,
   }) async =>
       PremiumVerifyResult.unverified('backend_rejected');
+}
+
+class _BlockingPreparePort implements PremiumPurchasePort {
+  final entered = Completer<void>();
+  final release = Completer<void>();
+  int prepareCalls = 0;
+
+  @override
+  bool get isConfigured => false;
+
+  @override
+  bool get canAttemptRestore => false;
+
+  @override
+  Future<void> prepare() async {
+    prepareCalls++;
+    if (!entered.isCompleted) entered.complete();
+    await release.future;
+  }
+
+  @override
+  String? priceLabel(PremiumPlanKind plan) => null;
+
+  @override
+  Future<PremiumPurchaseResult> purchase(PremiumPlanKind plan) async =>
+      PremiumPurchaseResult.unavailable();
+
+  @override
+  Future<PremiumPurchaseResult> restore() async =>
+      PremiumPurchaseResult.restoreUnavailable();
 }
 
 class _FakeIap implements StoreIapClient {
@@ -149,6 +180,31 @@ void main() {
     premiumRepo = MockPremiumRepository(storage);
     userRepo = MockUserRepository(storage);
   });
+
+  test(
+    'controller load is single-flight so concurrent callers cannot race store prepare',
+    () async {
+      final port = _BlockingPreparePort();
+      final service = PremiumService(
+        premiumRepo,
+        userRepo,
+        port,
+        _ActiveVerifier(),
+      );
+      final status = PremiumStatusController(service);
+
+      final first = status.load();
+      await port.entered.future;
+      final second = status.load();
+
+      expect(identical(first, second), isTrue);
+      expect(port.prepareCalls, 1);
+
+      port.release.complete();
+      await Future.wait([first, second]);
+      expect(port.prepareCalls, 1);
+    },
+  );
 
   test('store available + catalogue available -> restore works', () async {
     final iap = _FakeIap(
