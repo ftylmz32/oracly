@@ -59,11 +59,10 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     );
     final stagedOperationId = state.snapshot?.operationId;
     if (state.kind == ReadingLiveKind.waiting && stagedOperationId != null) {
-      // Staging already happened inside submit() by this point — persist
-      // the operation's identity (never bytes) so recoverActive() can
-      // find and resume this SAME operation even if this controller
-      // instance never sees another tick (app kill, not just dispose).
-      unawaited(_pendingStore?.save(
+      // The server-staged operation is authoritative; local metadata is only
+      // a recovery aid. Observe the bool result instead of silently treating
+      // a false-returning SharedPreferences write as durable success.
+      await _pendingStore?.save(
         ReadingType.palm,
         ReadingPendingOperation(
           operationId: stagedOperationId,
@@ -71,7 +70,7 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
           mimeType: mimeType,
           handSide: _hand.name,
         ),
-      ));
+      );
     }
     if (_disposed || token != _generation) return;
     _applyAnalyzeSnapshot(
