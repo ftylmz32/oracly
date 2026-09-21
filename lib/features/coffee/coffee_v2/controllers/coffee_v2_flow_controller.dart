@@ -139,6 +139,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
       return;
     }
     await submission!.recoverDraftOrSubmission();
+    if (_disposed) return;
     _sourceRequestId ??= record.sourceRequestId;
     _introDismissed =
         record.isActive ||
