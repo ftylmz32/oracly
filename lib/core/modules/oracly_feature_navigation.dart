@@ -43,14 +43,21 @@ abstract final class OraclyFeatureNavigation {
       // user cannot stack duplicate Premium sheets while the first gate is
       // still reconciling.
       if (!_premiumGateInFlight.add(id)) return;
-      unawaited(
-        _openPremiumGated(context, id).whenComplete(
-          () => _premiumGateInFlight.remove(id),
-        ),
-      );
+      unawaited(_openPremiumGatedSingleFlight(context, id));
       return;
     }
     _openResolved(context, id);
+  }
+
+  static Future<void> _openPremiumGatedSingleFlight(
+    BuildContext context,
+    OraclyFeatureId id,
+  ) async {
+    try {
+      await _openPremiumGated(context, id);
+    } finally {
+      _premiumGateInFlight.remove(id);
+    }
   }
 
   static Future<void> _openPremiumGated(
