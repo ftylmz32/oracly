@@ -69,6 +69,18 @@ class _KeyFailingStorage extends LocalStorage {
 /// Counts calls to [remove] for specific keys, and adds a small delay so
 /// two concurrent transitions have a real window to (incorrectly) overlap
 /// if single-flight/serialization isn't actually working.
+class _ThrowingOwnerReadStorage extends LocalStorage {
+  _ThrowingOwnerReadStorage(super.prefs);
+
+  @override
+  String? getString(String key) {
+    if (key == UserLocalDataIsolation.ownerKey) {
+      throw StateError('simulated owner read failure');
+    }
+    return super.getString(key);
+  }
+}
+
 class _CountingDelayStorage extends LocalStorage {
   _CountingDelayStorage(super.prefs);
 
@@ -572,6 +584,34 @@ void main() {
       leakAuth.dispose();
     }, (error, stack) => unhandled = error);
 
+    expect(unhandled, isNull);
+  });
+
+  test(
+      'isolation transition error is observed once and cleanup does not leak a duplicate zone error',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final throwingStorage = _ThrowingOwnerReadStorage(prefs);
+    final isolation = UserLocalDataIsolation(
+      throwingStorage,
+      secureStorage: InMemorySecureStorage(),
+    );
+    Object? unhandled;
+    Object? observed;
+
+    await runZonedGuarded(() async {
+      try {
+        await isolation.onSignedIn('owner-b-throw');
+      } catch (error) {
+        observed = error;
+      }
+      // Flush the cleanup continuation; an ignored whenComplete would
+      // repeat the same transition error into this zone here.
+      await Future<void>.delayed(Duration.zero);
+    }, (error, stack) => unhandled = error);
+
+    expect(observed, isA<StateError>());
     expect(unhandled, isNull);
   });
 
