@@ -88,9 +88,13 @@ abstract final class ReadingPushBootstrap {
   }
 
   static void _openReading(RemoteMessage message) {
-    if (!AccountDeletionPendingState.isClear) return;
     final destination = readingPushDestination(message.data);
     if (destination == null) return;
+    // Preserve the exact completion even while deletion/integrity recovery
+    // temporarily blocks owner-bound navigation. openPending() is the sole
+    // gate that decides when it is safe to consume this queued target.
+    // This matches share/general-notification inbox semantics and prevents a
+    // valid Coffee/Palm completion tap from being lost during recovery.
     // Cold start may receive the initial FCM message while Splash is still
     // the root route. Pushing now would be erased by Splash's later
     // pushReplacement(Home). Keep the exact target until the live shell binds.
