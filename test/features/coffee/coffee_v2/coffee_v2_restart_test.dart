@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_photo_slot.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_stage_state.dart';
+import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_submission_record.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_submission_controller.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_submission_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
