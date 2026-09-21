@@ -41,10 +41,11 @@ abstract final class ReadingPushBootstrap {
 
   static Future<void> install(ProviderContainer container) async {
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
-    _installedOwnerId =
+    final nextOwnerId =
         installedOwnerIdForTest ??
         container.read(firebaseAuthUserProvider).valueOrNull?.uid ??
         container.read(firebaseAuthGatewayProvider)?.currentUser?.uid;
+    _bindOwner(nextOwnerId);
     try {
       final messaging = messagingForTest;
       if (messaging != null) {
@@ -130,32 +131,52 @@ abstract final class ReadingPushBootstrap {
     if (destinationOwner != null &&
         ownerAtInstall != null &&
         destinationOwner != ownerAtInstall) {
-      // Completion belongs to an older authenticated owner. Never replay it
-      // into the next account after a successful switch.
       _pendingDestination = null;
       return;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!AccountDeletionPendingState.isClear ||
-          !OraclyShellBridge.isActive) {
-        return;
-      }
-      final current = _pendingDestination;
-      if (current == null ||
-          current.route != destination.route ||
-          current.operationId != destination.operationId) {
-        return;
-      }
-      final navigator = oraclyNavigatorKey.currentState;
-      if (navigator == null) return;
-      _pendingDestination = null;
+    // If the live root navigator is ready, consume immediately. Waiting one
+    // extra frame made gate-clear drains fragile and served no safety purpose;
+    // when the navigator is not ready we simply keep the exact destination
+    // queued for the shell's next openPending() call.
+    final navigator = oraclyNavigatorKey.currentState;
+    if (navigator == null) return;
+
+    final current = _pendingDestination;
+    if (current == null ||
+        current.route != destination.route ||
+        current.operationId != destination.operationId ||
+        current.ownerId != destination.ownerId) {
+      return;
+    }
+
+    try {
       navigator.pushNamed(
         destination.route,
         arguments: {'operationId': destination.operationId},
       );
-    });
+      _pendingDestination = null;
+    } catch (_) {
+      // Keep the destination queued if route construction/navigation throws.
+    }
   }
+
+  static void _bindOwner(String? ownerId) {
+    final normalized = ownerId?.trim();
+    final next = normalized == null || normalized.isEmpty ? null : normalized;
+    final pending = _pendingDestination;
+    if (pending?.ownerId != null &&
+        next != null &&
+        pending!.ownerId != next) {
+      // Account boundary: a completion tapped under A must never survive a
+      // successful rebind to B, even before a navigator exists.
+      _pendingDestination = null;
+    }
+    _installedOwnerId = next;
+  }
+
+  @visibleForTesting
+  static void bindOwnerForTest(String? ownerId) => _bindOwner(ownerId);
 
   @visibleForTesting
   static ReadingPushDestination? get pendingDestinationForTest =>
