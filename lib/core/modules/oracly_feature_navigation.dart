@@ -24,7 +24,10 @@ abstract final class OraclyFeatureNavigation {
   static bool canOpen(OraclyFeatureId id) {
     final m = module(id);
     if (m == null) return false;
-    if (id == OraclyFeatureId.memory) return true;
+    // Custom stack destinations do not have a registered named route.
+    if (id == OraclyFeatureId.memory || id == OraclyFeatureId.soulMate) {
+      return true;
+    }
     return m.isNavigable;
   }
 
