@@ -37,6 +37,33 @@ String readingOperationBackendOrigin(String proxyUrl) {
   return root;
 }
 
+
+@visibleForTesting
+class ReadingOperationOwnerBinding {
+  ReadingOperationOwnerBinding({String? initialOwnerId})
+      : _boundOwnerId = _normalize(initialOwnerId);
+
+  String? _boundOwnerId;
+
+  String? get boundOwnerId => _boundOwnerId;
+
+  bool bindOrMatches(String? liveOwnerId) {
+    final live = _normalize(liveOwnerId);
+    if (live == null) return _boundOwnerId == null;
+    final bound = _boundOwnerId;
+    if (bound == null) {
+      _boundOwnerId = live;
+      return true;
+    }
+    return bound == live;
+  }
+
+  static String? _normalize(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+}
+
 /// Shared authenticated sender for reading + gem wallet transport.
 ReadingOperationSender? _buildSender(Ref ref) {
   final config = ref.watch(aiRuntimeConfigProvider);
@@ -50,30 +77,18 @@ ReadingOperationSender? _buildSender(Ref ref) {
   // observes. Provider rebuilds create a new sender for a new owner, while
   // stale controllers keep the old closure — those stale closures must fail
   // closed instead of silently using the new user's live Firebase token.
-  String? boundOwnerId =
-      gatewayAuth?.currentUser?.uid.trim().isNotEmpty == true
-          ? gatewayAuth!.currentUser!.uid.trim()
-          : null;
+  final ownerBinding = ReadingOperationOwnerBinding(
+    initialOwnerId: gatewayAuth?.currentUser?.uid,
+  );
 
   String? liveOwnerId() {
-    final live = gatewayAuth?.currentUser?.uid.trim();
-    if (live != null && live.isNotEmpty) return live;
-    final serviceOwner = auth.currentUserId?.trim();
-    return serviceOwner != null && serviceOwner.isNotEmpty
-        ? serviceOwner
-        : null;
+    final live = gatewayAuth?.currentUser?.uid;
+    if (live != null && live.trim().isNotEmpty) return live;
+    return auth.currentUserId;
   }
 
-  bool bindOrMatchesOwner() {
-    final live = liveOwnerId();
-    if (live == null) return boundOwnerId == null;
-    final bound = boundOwnerId;
-    if (bound == null) {
-      boundOwnerId = live;
-      return true;
-    }
-    return bound == live;
-  }
+  bool bindOrMatchesOwner() =>
+      ownerBinding.bindOrMatches(liveOwnerId());
 
   return (String method, String path, Map<String, Object>? body) async {
     if (!bindOrMatchesOwner()) {
