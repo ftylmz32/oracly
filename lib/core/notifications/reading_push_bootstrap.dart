@@ -193,6 +193,9 @@ abstract final class ReadingPushBootstrap {
   static void bindOwnerForTest(String? ownerId) => _bindOwner(ownerId);
 
   @visibleForTesting
+  static String? get installedOwnerForTest => _installedOwnerId;
+
+  @visibleForTesting
   static ReadingPushDestination? get pendingDestinationForTest =>
       _pendingDestination;
 
