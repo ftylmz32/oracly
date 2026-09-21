@@ -52,6 +52,10 @@ class PremiumService {
           ? _premium.isActiveNow
           : false;
   bool get wasAuthoritativelyVerified => _premium.wasAuthoritativelyVerified;
+  bool get ownerAccessReady =>
+      _premium is PremiumOwnerBoundary
+          ? (_premium as PremiumOwnerBoundary).ownerAccessReady
+          : true;
 
   Future<bool> isActive() async {
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return false;
