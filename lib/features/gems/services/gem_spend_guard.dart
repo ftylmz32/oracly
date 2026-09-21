@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/copy/resilience_copy.dart';
 import '../models/paid_ai_operation.dart';
 import '../providers/gem_providers.dart';
 import 'gem_spend_ui.dart';
@@ -48,13 +49,23 @@ abstract final class GemSpendGuard {
             reason: _reasonKey(ledgerKey: ledgerKey, reason: reason),
           );
     }
-    return ref.read(paidAiOperationCoordinatorProvider).begin(
-          feature: feature,
-          ledgerKey: ledgerKey,
-          reason: reason,
-          cost: cost,
-          existingId: existingId,
-        );
+    try {
+      return await ref.read(paidAiOperationCoordinatorProvider).begin(
+            feature: feature,
+            ledgerKey: ledgerKey,
+            reason: reason,
+            cost: cost,
+            existingId: existingId,
+          );
+    } catch (_) {
+      // A billable provider call must never start unless its pending operation
+      // was durably recorded first. Storage failure therefore stops here,
+      // before AI work and before any server debit can happen.
+      if (context.mounted) {
+        OraclySnackBar.error(context, ResilienceCopy.temporaryFailure);
+      }
+      return null;
+    }
   }
 
   /// Legacy confirm-only entry — prefer [beginPaid] for paid AI flows.
