@@ -1,6 +1,8 @@
 /// Compact Kahve Falı screen — same visual language as Tarot / Dream.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,10 +29,17 @@ import 'coffee_landing_chamber.dart';
 import 'coffee_reference_body.dart';
 
 class CoffeeReferenceScreen extends ConsumerStatefulWidget {
-  const CoffeeReferenceScreen({super.key, this.savedReadingId});
+  const CoffeeReferenceScreen({
+    super.key,
+    this.savedReadingId,
+    this.operationId,
+  });
 
   /// When set, restores that persisted coffee reading on open.
   final String? savedReadingId;
+
+  /// Completion deep-link target. Takes precedence over feature-wide recovery.
+  final String? operationId;
 
   @override
   ConsumerState<CoffeeReferenceScreen> createState() =>
@@ -43,7 +52,18 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _openSavedIfNeeded());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openRequestedTarget());
+  }
+
+  void _openRequestedTarget() {
+    final operationId = widget.operationId?.trim();
+    if (operationId != null && operationId.isNotEmpty) {
+      unawaited(
+        ref.read(coffeeReadingControllerProvider).recoverOperation(operationId),
+      );
+      return;
+    }
+    _openSavedIfNeeded();
   }
 
   void _openSavedIfNeeded() {
