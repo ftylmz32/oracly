@@ -12,7 +12,7 @@ import '../../storage/secure_storage.dart';
 import '../datasources/local_storage.dart';
 import '../datasources/storage_result.dart';
 
-class MockPremiumRepository implements PremiumRepository {
+class MockPremiumRepository implements PremiumRepository, PremiumOwnerBoundary {
   MockPremiumRepository(
     this._storage, {
     SecureStorage? secureStorage,
@@ -25,6 +25,9 @@ class MockPremiumRepository implements PremiumRepository {
   final bool Function()? _ownerAccessAllowed;
 
   bool get _ownerAllowed => _ownerAccessAllowed?.call() ?? true;
+
+  @override
+  bool get ownerAccessReady => _ownerAllowed;
 
   void _requireOwnerAccess() {
     if (!_ownerAllowed) {
