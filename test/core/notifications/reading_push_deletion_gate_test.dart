@@ -12,8 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
-import 'package:oracly_new/core/providers/backend_providers.dart';
-import 'package:oracly_new/core/auth/firebase/firebase_auth_user.dart';
 import 'package:oracly_new/core/notifications/reading_push_bootstrap.dart';
 import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 
@@ -206,23 +204,9 @@ void main() {
     'queued reading completion is discarded after authenticated owner changes',
     (tester) async {
       await ReadingPushBootstrap.cancelSubscriptionsForTest();
-      container.dispose();
 
-      final ownerA = ProviderContainer(
-        overrides: [
-          firebaseAuthUserProvider.overrideWith(
-            (ref) => Stream.value(
-              const FirebaseAuthUserSnapshot(uid: 'uid-a'),
-            ),
-          ),
-          readingOperationSenderProvider.overrideWithValue(
-            (method, path, body) async => null,
-          ),
-        ],
-      );
-      container = ownerA;
-      await ReadingPushBootstrap.install(ownerA);
-      await Future<void>.delayed(Duration.zero);
+      ReadingPushBootstrap.installedOwnerIdForTest = 'uid-a';
+      await ReadingPushBootstrap.install(container);
 
       AccountDeletionPendingState.markBlocked();
       final id = 'a' * 32;
@@ -241,23 +225,14 @@ void main() {
         ReadingPushBootstrap.pendingDestinationForTest?.operationId,
         id,
       );
-
-      final ownerB = ProviderContainer(
-        overrides: [
-          firebaseAuthUserProvider.overrideWith(
-            (ref) => Stream.value(
-              const FirebaseAuthUserSnapshot(uid: 'uid-b'),
-            ),
-          ),
-          readingOperationSenderProvider.overrideWithValue(
-            (method, path, body) async => null,
-          ),
-        ],
+      expect(
+        ReadingPushBootstrap.pendingDestinationForTest?.ownerId,
+        'uid-a',
       );
-      container = ownerB;
+
       AccountDeletionPendingState.markClear();
-      await ReadingPushBootstrap.install(ownerB);
-      await Future<void>.delayed(Duration.zero);
+      ReadingPushBootstrap.installedOwnerIdForTest = 'uid-b';
+      await ReadingPushBootstrap.install(container);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -274,8 +249,6 @@ void main() {
       await tester.pump();
 
       expect(ReadingPushBootstrap.pendingDestinationForTest, isNull);
-
-      ownerA.dispose();
     },
   );
 
