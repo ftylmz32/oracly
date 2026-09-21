@@ -16,10 +16,21 @@ class MockPremiumRepository implements PremiumRepository {
   MockPremiumRepository(
     this._storage, {
     SecureStorage? secureStorage,
-  }) : _secure = secureStorage ?? InMemorySecureStorage();
+    bool Function()? ownerAccessAllowed,
+  }) : _secure = secureStorage ?? InMemorySecureStorage(),
+       _ownerAccessAllowed = ownerAccessAllowed;
 
   final LocalStorage _storage;
   final SecureStorage _secure;
+  final bool Function()? _ownerAccessAllowed;
+
+  bool get _ownerAllowed => _ownerAccessAllowed?.call() ?? true;
+
+  void _requireOwnerAccess() {
+    if (!_ownerAllowed) {
+      throw StateError('premium owner boundary not isolated');
+    }
+  }
 
   PremiumPurchaseCredentials? _credentialCache;
   bool _credentialsLoaded = false;
@@ -102,15 +113,16 @@ class MockPremiumRepository implements PremiumRepository {
   Future<bool> isPremiumActive() async => isActiveNow;
 
   @override
-  bool get isActiveNow => _storage.getBool(activeKey) ?? false;
+  bool get isActiveNow =>
+      _ownerAllowed && (_storage.getBool(activeKey) ?? false);
 
   @override
   bool get wasAuthoritativelyVerified =>
-      _storage.getBool(authoritativeKey) ?? false;
+      _ownerAllowed && (_storage.getBool(authoritativeKey) ?? false);
 
   @override
   Future<PremiumPlanKind?> activePlan() async {
-    if (!isActiveNow) return null;
+    if (!_ownerAllowed || !isActiveNow) return null;
     final index = _storage.getInt(planKey);
     if (index == null) return null;
     return PremiumPlanKind.values[index.clamp(0, 2)];
@@ -121,6 +133,7 @@ class MockPremiumRepository implements PremiumRepository {
     PremiumPlanKind plan, {
     bool authoritative = false,
   }) async {
+    _requireOwnerAccess();
     // Commit marker LAST. A partial write may leave harmless metadata behind,
     // but must never expose active Premium before plan + authority are durable.
     try {
@@ -146,6 +159,7 @@ class MockPremiumRepository implements PremiumRepository {
 
   @override
   Future<void> clearLocalPremiumAccess() async {
+    _requireOwnerAccess();
     // Active=false is the revocation commit marker and must land first.
     await _storage.setBool(activeKey, false).requireDurable(activeKey);
     await _storage
@@ -158,6 +172,7 @@ class MockPremiumRepository implements PremiumRepository {
   Future<void> savePurchaseCredentials(
     PremiumPurchaseCredentials credentials,
   ) async {
+    _requireOwnerAccess();
     // Secure proof first, discoverable metadata second. Callers activate the
     // entitlement only AFTER this method succeeds.
     await _secure.write(
@@ -208,6 +223,7 @@ class MockPremiumRepository implements PremiumRepository {
 
   @override
   Future<PremiumPurchaseCredentials?> readPurchaseCredentials() async {
+    if (!_ownerAllowed) return null;
     final platform = _storage.getString(platformKey);
     final productId = _storage.getString(productIdKey);
     if (platform == null || productId == null) {
