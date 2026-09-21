@@ -18,6 +18,9 @@ import 'oracly_feature_registry.dart';
 abstract final class OraclyFeatureNavigation {
   OraclyFeatureNavigation._();
 
+  static final Set<OraclyFeatureId> _premiumGateInFlight =
+      <OraclyFeatureId>{};
+
   static OraclyFeatureModule? module(OraclyFeatureId id) =>
       OraclyFeatureRegistry.byId(id);
 
@@ -36,8 +39,15 @@ abstract final class OraclyFeatureNavigation {
     if (gated != null && gated.requiresPremium) {
       // Cold-start safe: a real subscriber may tap before PremiumStatusController
       // has completed its first load/reconcile. Never turn "not loaded yet"
-      // into a false paywall.
-      unawaited(_openPremiumGated(context, id));
+      // into a false paywall. Also single-flight rapid taps so an inactive
+      // user cannot stack duplicate Premium sheets while the first gate is
+      // still reconciling.
+      if (!_premiumGateInFlight.add(id)) return;
+      unawaited(
+        _openPremiumGated(context, id).whenComplete(
+          () => _premiumGateInFlight.remove(id),
+        ),
+      );
       return;
     }
     _openResolved(context, id);
