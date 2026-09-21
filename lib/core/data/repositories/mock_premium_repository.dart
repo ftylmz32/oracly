@@ -10,6 +10,7 @@ import '../../storage/premium_credential_keys.dart';
 import '../../storage/premium_credential_migration.dart';
 import '../../storage/secure_storage.dart';
 import '../datasources/local_storage.dart';
+import '../datasources/storage_result.dart';
 
 class MockPremiumRepository implements PremiumRepository {
   MockPremiumRepository(
@@ -120,24 +121,45 @@ class MockPremiumRepository implements PremiumRepository {
     PremiumPlanKind plan, {
     bool authoritative = false,
   }) async {
-    await _storage.setBool(activeKey, true);
-    await _storage.setInt(planKey, plan.index);
-    await _storage.setBool(authoritativeKey, authoritative);
+    // Commit marker LAST. A partial write may leave harmless metadata behind,
+    // but must never expose active Premium before plan + authority are durable.
+    try {
+      await _storage.setInt(planKey, plan.index).requireDurable(planKey);
+      await _storage
+          .setBool(authoritativeKey, authoritative)
+          .requireDurable(authoritativeKey);
+      await _storage.setBool(activeKey, true).requireDurable(activeKey);
+    } catch (_) {
+      // Fail closed. Best-effort rollback never turns a failed commit into
+      // active access; the original persistence error is still rethrown.
+      try {
+        await _storage.setBool(activeKey, false).requireDurable(activeKey);
+      } catch (_) {}
+      try {
+        await _storage
+            .setBool(authoritativeKey, false)
+            .requireDurable(authoritativeKey);
+      } catch (_) {}
+      rethrow;
+    }
   }
 
   @override
   Future<void> clearLocalPremiumAccess() async {
-    await _storage.setBool(activeKey, false);
-    await _storage.setBool(authoritativeKey, false);
-    await _storage.remove(planKey);
+    // Active=false is the revocation commit marker and must land first.
+    await _storage.setBool(activeKey, false).requireDurable(activeKey);
+    await _storage
+        .setBool(authoritativeKey, false)
+        .requireDurable(authoritativeKey);
+    await _storage.remove(planKey).requireDurable(planKey);
   }
 
   @override
   Future<void> savePurchaseCredentials(
     PremiumPurchaseCredentials credentials,
   ) async {
-    await _storage.setString(platformKey, credentials.platform);
-    await _storage.setString(productIdKey, credentials.productId);
+    // Secure proof first, discoverable metadata second. Callers activate the
+    // entitlement only AFTER this method succeeds.
     await _secure.write(
       PremiumCredentialKeys.purchaseToken,
       credentials.purchaseToken,
@@ -151,8 +173,34 @@ class MockPremiumRepository implements PremiumRepository {
     } else {
       await _secure.delete(PremiumCredentialKeys.transactionId);
     }
+
+    try {
+      await _storage
+          .setString(platformKey, credentials.platform)
+          .requireDurable(platformKey);
+      await _storage
+          .setString(productIdKey, credentials.productId)
+          .requireDurable(productIdKey);
+    } catch (_) {
+      // Incomplete metadata must not be mistaken for a usable credential set.
+      try {
+        await _storage.remove(platformKey).requireDurable(platformKey);
+      } catch (_) {}
+      try {
+        await _storage.remove(productIdKey).requireDurable(productIdKey);
+      } catch (_) {}
+      _credentialCache = null;
+      _credentialsLoaded = false;
+      rethrow;
+    }
+
+    // Legacy plaintext cleanup is security hygiene, not the commit marker for
+    // this already-secure credential. Do not invalidate a verified purchase
+    // solely because obsolete plaintext removal failed.
     for (final key in legacyCredentialPrefKeys) {
-      await _storage.remove(key);
+      try {
+        await _storage.remove(key);
+      } catch (_) {}
     }
     _credentialCache = credentials;
     _credentialsLoaded = true;
