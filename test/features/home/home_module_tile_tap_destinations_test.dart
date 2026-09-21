@@ -12,6 +12,7 @@ import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/premium/services/premium_purchase_port.dart';
 import 'package:oracly_new/features/premium/services/premium_entitlement_verifier.dart';
+import 'package:oracly_new/features/premium/services/unavailable_premium_purchase.dart';
 import 'package:oracly_new/features/premium/providers/premium_providers.dart';
 import 'package:oracly_new/features/premium/models/premium_verify_result.dart';
 import 'package:oracly_new/features/premium/models/premium_purchase_result.dart';
@@ -170,7 +171,53 @@ void main() {
   });
 
   testWidgets('Soul Mate tile opens Premium gate, never Tarot', (tester) async {
-    await pumpHome(tester);
+    // Free-user Home must reach a definitive inactive decision. Production
+    // PremiumAccess.ensureFresh awaits auth/owner isolation first and will
+    // not prompt while ownerAccessReady is still false — so the harness must
+    // provide the same owner-bound auth path as cold-start, without granting
+    // Premium. Otherwise the tile tap is intentionally a silent no-op.
+    const size = Size(390, 844);
+    await tester.binding.setSurfaceSize(size);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    const ownerId = 'free-home-owner-a';
+    final auth = _OwnerIsolatingAuth(storage, ownerId);
+    final premiumRepo = MockPremiumRepository(
+      storage,
+      ownerAccessAllowed: () =>
+          storage.getString(UserLocalDataIsolation.ownerKey) == ownerId,
+    );
+    final service = PremiumService(
+      premiumRepo,
+      MockUserRepository(storage),
+      const UnavailablePremiumPurchase(),
+    )..forceReleaseMode = true;
+    final status = PremiumStatusController(service);
+    expect(status.isPremium, isFalse);
+
+    await tester.pumpWidget(
+      buildProviderScopeHarness(
+        storage: storage,
+        overrides: [
+          authServiceProvider.overrideWithValue(auth),
+          premiumStatusProvider.overrideWith((ref) => status),
+        ],
+        child: MaterialApp(
+          onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
+          home: MediaQuery(
+            data: const MediaQueryData(
+              size: size,
+              padding: EdgeInsets.only(bottom: 34),
+            ),
+            child: const HomeMasterPage(),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
     await tapModule(tester, OraclyFeatureId.soulMate);
 
     // Premium feature navigation is intentionally async so cold-start
@@ -182,6 +229,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
 
+    expect(auth.ensureCalls, greaterThanOrEqualTo(1));
+    expect(status.ownerAccessReady, isTrue);
+    expect(status.loaded, isTrue);
+    expect(status.isPremium, isFalse);
     expect(find.text(PremiumCopy.gateTitle), findsOneWidget);
     expect(find.byType(TarotModuleNavigator), findsNothing);
     expect(find.byType(SoulMateDrawScreen), findsNothing);
