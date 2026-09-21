@@ -39,6 +39,10 @@ final gemWalletServiceProvider = Provider<GemWalletService>((ref) {
     gateway: sender == null ? null : GemWalletGateway(sender),
     ownerId: ownerId,
     requireOwner: true,
+    // Keep server commands bound to the uid this service was created for.
+    // A stale screen/service surviving an auth switch must never send an old
+    // operation using the new Firebase user's live token.
+    currentOwnerId: gateway == null ? null : () => gateway.currentUser?.uid,
   );
 });
 
