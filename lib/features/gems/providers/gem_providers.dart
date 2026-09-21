@@ -53,51 +53,101 @@ final gemWalletProvider = ChangeNotifierProvider<GemWalletController>((ref) {
   if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
     return controller;
   }
-  ref.listen(backend.firebaseAuthUserProvider, (_, next) {
-    if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
-    final uid = next.valueOrNull?.uid;
-    if (uid == null || uid.isEmpty) return;
-    unawaited(_boot(ref, uid, controller));
+
+  // Capture every dependency synchronously while this provider Ref is valid.
+  // No delayed/awaited callback below ever calls ref.read after disposal.
+  final config = ref.read(aiRuntimeConfigProvider);
+  final auth = ref.read(authServiceProvider);
+  final tokenManager = ref.read(tokenManagerProvider);
+  final liveGateway = ref.read(backend.firebaseAuthGatewayProvider);
+  final coordinator = ref.read(gemWalletHydrationCoordinatorProvider);
+  final starter = ref.read(gemStarterGrantProvider);
+
+  var disposed = false;
+  Timer? retryTimer;
+  ref.onDispose(() {
+    disposed = true;
+    retryTimer?.cancel();
+    retryTimer = null;
   });
-  final ownerId = service.ownerId;
-  Future.microtask(() async {
-    if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
-    if (ownerId != null && ownerId.isNotEmpty) {
-      await _boot(ref, ownerId, controller);
-      return;
+
+  bool ownerStillCurrent(String ownerId) {
+    if (disposed ||
+        !AccountDeletionPendingState.allowsOwnerBoundExperience ||
+        controller.ownerId != ownerId) {
+      return false;
     }
-    await GemWalletBootstrap.ensureReady(
-      config: ref.read(aiRuntimeConfigProvider),
-      auth: ref.read(authServiceProvider),
+    final liveOwner = liveGateway?.currentUser?.uid ?? auth.currentUserId;
+    return liveOwner == ownerId;
+  }
+
+  Future<void> bootOwner(String ownerId) async {
+    if (!ownerStillCurrent(ownerId)) return;
+    retryTimer?.cancel();
+    retryTimer = null;
+
+    final outcome = await bootstrapGemWalletOwner(
+      ownerId: ownerId,
+      controller: controller,
+      wallet: service,
+      coordinator: coordinator,
+      config: config,
+      auth: auth,
       accessToken: ({bool forceRefresh = false}) =>
-          ref.read(tokenManagerProvider).getAccessToken(
-                forceRefresh: forceRefresh,
-              ),
+          tokenManager.getAccessToken(forceRefresh: forceRefresh),
       appCheckToken: ({bool forceRefresh = false}) =>
           FirebaseAppCheckToken.resolve(forceRefresh: forceRefresh),
-      liveGateway: ref.read(backend.firebaseAuthGatewayProvider),
+      liveGateway: liveGateway,
+      ensureStarter: starter.ensureOnce,
+      isOwnerCurrent: () => ownerStillCurrent(ownerId),
     );
+
+    // Provider disposal/account switch can happen while bootstrap awaits.
+    // Never create a timer after disposal; the old owner gets no second life.
+    if (!ownerStillCurrent(ownerId)) return;
+    if (outcome == GemWalletOwnerBootstrapOutcome.deferredNotReady) {
+      retryTimer = Timer(const Duration(seconds: 12), () {
+        if (!ownerStillCurrent(ownerId)) return;
+        unawaited(bootOwner(ownerId));
+      });
+    }
+  }
+
+  ref.listen(backend.firebaseAuthUserProvider, (_, next) {
+    if (disposed ||
+        !AccountDeletionPendingState.allowsOwnerBoundExperience) {
+      return;
+    }
+    final uid = next.valueOrNull?.uid;
+    if (uid == null || uid.isEmpty || controller.ownerId != uid) return;
+    unawaited(bootOwner(uid));
   });
+
+  final ownerId = service.ownerId;
+  if (ownerId != null && ownerId.isNotEmpty) {
+    Future.microtask(() => bootOwner(ownerId));
+  } else {
+    // Auth-late bootstrap: use only captured dependencies. Once anonymous
+    // auth becomes real, firebaseAuthUserProvider rebuild/listen owns wallet
+    // hydration for that concrete uid.
+    Future.microtask(() async {
+      if (disposed ||
+          !AccountDeletionPendingState.allowsOwnerBoundExperience) {
+        return;
+      }
+      await GemWalletBootstrap.ensureReady(
+        config: config,
+        auth: auth,
+        accessToken: ({bool forceRefresh = false}) =>
+            tokenManager.getAccessToken(forceRefresh: forceRefresh),
+        appCheckToken: ({bool forceRefresh = false}) =>
+            FirebaseAppCheckToken.resolve(forceRefresh: forceRefresh),
+        liveGateway: liveGateway,
+      );
+    });
+  }
   return controller;
 });
-
-Future<void> _boot(
-  Ref ref,
-  String ownerId,
-  GemWalletController controller,
-) {
-  if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
-    return Future<void>.value();
-  }
-  return bootstrapGemWalletOwner(
-    ref: ref,
-    ownerId: ownerId,
-    controller: controller,
-    wallet: ref.read(gemWalletServiceProvider),
-    coordinator: ref.read(gemWalletHydrationCoordinatorProvider),
-    ensureStarter: () => ref.read(gemStarterGrantProvider).ensureOnce(),
-  );
-}
 
 final gemStarterGrantProvider = Provider<GemStarterGrant>((ref) {
   return GemStarterGrant(
