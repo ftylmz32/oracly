@@ -12,6 +12,7 @@ import '../../features/reading_operation/providers/reading_live_provider.dart';
 import '../auth/account_deletion_pending_state.dart';
 import '../navigation/oracly_navigator_key.dart';
 import '../navigation/oracly_routes.dart';
+import '../providers/backend_providers.dart';
 import '../../shared/navigation/oracly_shell_bridge.dart';
 
 /// Injectable messaging surface for unit tests (no Firebase platform).
@@ -30,12 +31,16 @@ abstract final class ReadingPushBootstrap {
   static StreamSubscription<String>? _refresh;
   static StreamSubscription<RemoteMessage>? _opened;
   static ReadingPushDestination? _pendingDestination;
+  static String? _installedOwnerId;
 
   @visibleForTesting
   static ReadingPushMessaging? messagingForTest;
 
   static Future<void> install(ProviderContainer container) async {
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
+    _installedOwnerId =
+        container.read(firebaseAuthUserProvider).valueOrNull?.uid ??
+        container.read(firebaseAuthGatewayProvider)?.currentUser?.uid;
     try {
       final messaging = messagingForTest;
       if (messaging != null) {
@@ -98,7 +103,11 @@ abstract final class ReadingPushBootstrap {
     // Cold start may receive the initial FCM message while Splash is still
     // the root route. Pushing now would be erased by Splash's later
     // pushReplacement(Home). Keep the exact target until the live shell binds.
-    _pendingDestination = destination;
+    _pendingDestination = ReadingPushDestination(
+      route: destination.route,
+      operationId: destination.operationId,
+      ownerId: _installedOwnerId,
+    );
     openPending();
   }
 
@@ -111,6 +120,18 @@ abstract final class ReadingPushBootstrap {
     }
     final destination = _pendingDestination;
     if (destination == null) return;
+
+    final ownerAtInstall = _installedOwnerId;
+    final destinationOwner = destination.ownerId;
+    if (destinationOwner != null &&
+        ownerAtInstall != null &&
+        destinationOwner != ownerAtInstall) {
+      // Completion belongs to an older authenticated owner. Never replay it
+      // into the next account after a successful switch.
+      _pendingDestination = null;
+      return;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!AccountDeletionPendingState.isClear ||
           !OraclyShellBridge.isActive) {
@@ -143,14 +164,20 @@ abstract final class ReadingPushBootstrap {
     _refresh = null;
     _opened = null;
     _pendingDestination = null;
+    _installedOwnerId = null;
   }
 }
 
 final class ReadingPushDestination {
-  const ReadingPushDestination({required this.route, required this.operationId});
+  const ReadingPushDestination({
+    required this.route,
+    required this.operationId,
+    this.ownerId,
+  });
 
   final String route;
   final String operationId;
+  final String? ownerId;
 }
 
 /// Pure mapping kept independently testable from the Firebase platform
