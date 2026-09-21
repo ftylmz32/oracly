@@ -10,6 +10,9 @@ import 'package:oracly_new/features/gems/services/gem_wallet_gateway.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_hydration.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../support/false_return_local_storage.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +101,79 @@ void main() {
       '—',
     );
   });
+
+  test(
+    'owner switch fails closed when old balance removal returns false',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      );
+      final store = GemWalletStore(storage);
+      await store.cacheServerBalance(77, ownerId: 'uid-a');
+      storage.falseReturnRemoveKeys.add(GemWalletStore.serverBalanceCacheKey);
+
+      final controller = GemWalletController(
+        GemWalletService(
+          store,
+          ownerId: 'uid-b',
+          requireOwner: true,
+          gateway: GemWalletGateway((method, path, body) async {
+            return const ReadingOperationWire(
+              statusCode: 200,
+              json: {
+                'data': {'balance': 42},
+              },
+            );
+          }),
+        ),
+      );
+
+      await controller.reload();
+
+      expect(controller.authoritative, isFalse);
+      expect(controller.hydrationState, GemWalletHydrationState.error);
+      expect(store.balanceForOwner('uid-b'), isNull);
+      expect(store.balanceForOwner('uid-a'), 77);
+      expect(storage.getString(GemWalletStore.serverBalanceOwnerKey), 'uid-a');
+    },
+  );
+
+  test(
+    'owner switch never exposes old balance when new owner write fails',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final storage = FalseReturnLocalStorage(
+        await SharedPreferences.getInstance(),
+      );
+      final store = GemWalletStore(storage);
+      await store.cacheServerBalance(77, ownerId: 'uid-a');
+      storage.falseReturnKeys.add(GemWalletStore.serverBalanceOwnerKey);
+
+      final controller = GemWalletController(
+        GemWalletService(
+          store,
+          ownerId: 'uid-b',
+          requireOwner: true,
+          gateway: GemWalletGateway((method, path, body) async {
+            return const ReadingOperationWire(
+              statusCode: 200,
+              json: {
+                'data': {'balance': 42},
+              },
+            );
+          }),
+        ),
+      );
+
+      await controller.reload();
+
+      expect(controller.authoritative, isFalse);
+      expect(controller.hydrationState, GemWalletHydrationState.error);
+      expect(store.balanceForOwner('uid-b'), isNull);
+      expect(storage.getInt(GemWalletStore.serverBalanceCacheKey), isNull);
+    },
+  );
 
   test('gateway accepts numeric balance as num from JSON', () async {
     final storage = LocalStorage.ephemeral();
