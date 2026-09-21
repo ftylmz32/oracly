@@ -92,7 +92,20 @@ abstract final class AccountDeletionPendingState {
     if (existing != null) return existing;
     final future = _resolveFromLocalStorage(storage);
     _inFlightResolve = future;
-    future.whenComplete(() => _inFlightResolve = null);
+
+    void clearIfCurrent() {
+      if (identical(_inFlightResolve, future)) {
+        _inFlightResolve = null;
+      }
+    }
+
+    // Do not ignore whenComplete(): if resolution fails, the Future returned
+    // by whenComplete would repeat that error into the zone even when the
+    // original caller correctly awaits/catches [future].
+    future.then<void>(
+      (_) => clearIfCurrent(),
+      onError: (Object _, StackTrace __) => clearIfCurrent(),
+    );
     return future;
   }
 
