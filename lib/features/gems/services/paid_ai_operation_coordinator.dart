@@ -95,7 +95,8 @@ class PaidAiOperationCoordinator {
 
   Future<bool> _settleOnce(PaidAiOperation op) async {
     if (!op.isBillable) {
-      await _store.remove(op.id);
+      // Free operations are deliberately never journaled. Do not manufacture
+      // a storage dependency by "removing" a row that was never persisted.
       return true;
     }
     if (op.feature != PaidAiFeature.tarot) {
