@@ -7,10 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers/app_providers.dart';
 import '../../../core/copy/resilience_copy.dart';
 import '../../../core/services/analytics_service.dart';
+import '../../../shared/ui/oracly_snackbar.dart';
 import '../controllers/gem_wallet_controller.dart';
 import '../models/paid_ai_operation.dart';
 import '../providers/gem_providers.dart';
 import 'gem_spend_ui.dart';
+import 'paid_ai_operation_coordinator.dart';
 
 abstract final class GemSpendGuard {
   GemSpendGuard._();
