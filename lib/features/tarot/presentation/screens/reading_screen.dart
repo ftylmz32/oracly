@@ -136,6 +136,13 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       return;
     }
 
+    // Capture provider-backed dependencies before the first awaited boundary.
+    // This method may outlive the screen after navigation; a disposed WidgetRef
+    // must never be touched by its continuation.
+    final localStorage = ref.read(localStorageProvider);
+    final walletService = ref.read(gemWalletServiceProvider);
+    final walletController = ref.read(gemWalletProvider);
+    final analytics = ref.read(analyticsServiceProvider);
     final priorReadings = ref.read(readingHistoryProvider).valueOrNull ?? [];
     final discovery = ref.read(personalDiscoveryProfileProvider).valueOrNull;
     var journeyHints = JourneyPersonalizationBuilder.fromHistory(
@@ -155,9 +162,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     } catch (_) {
       // Connected context is optional; the Tarot reading remains available.
     }
-    final revisit = await TarotRevisitIntentStore(
-      ref.read(localStorageProvider),
-    ).consume();
+    final revisit = await TarotRevisitIntentStore(localStorage).consume();
     if (revisit != null) {
       journeyHints = journeyHints.withRevisit(
         priorExcerpt: revisit.priorExcerpt,
@@ -170,9 +175,9 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       content =
           await TarotReadingCompletion(
             charge: TarotReadingCharge(
-              ref.read(gemWalletServiceProvider),
-              ref.read(localStorageProvider),
-              analytics: ref.read(analyticsServiceProvider),
+              walletService,
+              localStorage,
+              analytics: analytics,
             ),
           ).complete(
             session,
@@ -188,12 +193,17 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       content = null;
       loadError = null;
     }
-    // Balance must track spend even if the user left mid-load.
-    final cached = ref.read(gemWalletServiceProvider).cachedBalance;
+    // Balance must track a settlement even if the user left mid-load.
+    // Use the captured controller/service only — never a disposed WidgetRef.
+    final cached = walletService.cachedBalance;
     if (cached != null) {
-      await ref.read(gemWalletProvider).acceptAuthoritativeBalance(cached);
+      try {
+        await walletController.acceptAuthoritativeBalance(cached);
+      } catch (_) {}
     } else {
-      await ref.read(gemWalletProvider).reload();
+      try {
+        await walletController.reload();
+      } catch (_) {}
     }
     if (content == null) {
       if (mounted && token == _loadToken) {
