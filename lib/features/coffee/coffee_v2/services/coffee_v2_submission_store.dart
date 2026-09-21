@@ -31,6 +31,9 @@ class CoffeeV2SubmissionStore {
   static const _key = 'coffee_v2_submission';
   static const _acknowledgedOperationKey = 'coffee_v2_acknowledged_operation';
 
+  bool get ownerReady =>
+      !requireOwner || (ownerId != null && ownerId!.isNotEmpty);
+
   CoffeeV2SubmissionRecord? load() {
     if (requireOwner && (ownerId == null || ownerId!.isEmpty)) return null;
     final raw = _storage.getString(_key);
@@ -50,18 +53,57 @@ class CoffeeV2SubmissionStore {
     }
   }
 
-  Future<void> save(CoffeeV2SubmissionRecord record) {
+  Future<void> save(CoffeeV2SubmissionRecord record) async {
     final currentOwner = ownerId;
     if (requireOwner && (currentOwner == null || currentOwner.isEmpty)) {
-      return Future.value();
+      return;
     }
+    await _saveOwned(record, currentOwner);
+  }
+
+  /// Integrity-critical write used once the flow is about to create or has
+  /// already created a server operation. At that point an ownerless no-op is
+  /// not acceptable: losing the local binding can create a second operation
+  /// after restart even though the server already owns the first one.
+  Future<void> saveDurable(CoffeeV2SubmissionRecord record) async {
+    final currentOwner = ownerId;
+    if (requireOwner && (currentOwner == null || currentOwner.isEmpty)) {
+      throw StateError('coffee v2 owner unavailable');
+    }
+    await _saveOwned(record, currentOwner);
+  }
+
+  Future<void> _saveOwned(
+    CoffeeV2SubmissionRecord record,
+    String? currentOwner,
+  ) async {
+    _assertStoredOwnerCompatible(currentOwner);
     final owned = currentOwner == null || currentOwner.isEmpty
         ? record
         : record.copyWith(ownerId: currentOwner);
-    return _storage.setString(_key, jsonEncode(owned.toJson()));
+    final ok = await _storage.setString(_key, jsonEncode(owned.toJson()));
+    if (!ok) throw StateError('coffee v2 submission not persisted');
   }
 
-  Future<void> clear() => _storage.remove(_key);
+  Future<void> clear() async {
+    final currentOwner = ownerId;
+    if (requireOwner && (currentOwner == null || currentOwner.isEmpty)) {
+      return;
+    }
+    _assertStoredOwnerCompatible(currentOwner);
+    final ok = await _storage.remove(_key);
+    if (!ok) throw StateError('coffee v2 submission not cleared');
+  }
+
+  Future<void> clearDurable() async {
+    final currentOwner = ownerId;
+    if (requireOwner && (currentOwner == null || currentOwner.isEmpty)) {
+      throw StateError('coffee v2 owner unavailable');
+    }
+    _assertStoredOwnerCompatible(currentOwner);
+    final ok = await _storage.remove(_key);
+    if (!ok) throw StateError('coffee v2 submission not cleared');
+  }
 
   String? loadAcknowledgedOperationId() {
     if (requireOwner && (ownerId == null || ownerId!.isEmpty)) return null;
@@ -81,16 +123,48 @@ class CoffeeV2SubmissionStore {
     }
   }
 
-  Future<void> acknowledge(String operationId) {
-    if (requireOwner && (ownerId == null || ownerId!.isEmpty)) {
-      return Future.value();
+  Future<void> acknowledge(String operationId) async {
+    if (requireOwner && (ownerId == null || ownerId!.isEmpty)) return;
+    await _acknowledgeOwned(operationId, requireOwnerNow: false);
+  }
+
+  Future<void> acknowledgeDurable(String operationId) =>
+      _acknowledgeOwned(operationId, requireOwnerNow: true);
+
+  Future<void> _acknowledgeOwned(
+    String operationId, {
+    required bool requireOwnerNow,
+  }) async {
+    final currentOwner = ownerId;
+    if ((requireOwner || requireOwnerNow) &&
+        (currentOwner == null || currentOwner.isEmpty)) {
+      throw StateError('coffee v2 owner unavailable');
     }
-    return _storage.setString(
+    final ok = await _storage.setString(
       _acknowledgedOperationKey,
       jsonEncode({
-        if (ownerId != null && ownerId!.isNotEmpty) 'ownerId': ownerId,
+        if (currentOwner != null && currentOwner.isNotEmpty)
+          'ownerId': currentOwner,
         'operationId': operationId,
       }),
     );
+    if (!ok) throw StateError('coffee v2 acknowledgement not persisted');
+  }
+
+  void _assertStoredOwnerCompatible(String? currentOwner) {
+    if (currentOwner == null || currentOwner.isEmpty) return;
+    final raw = _storage.getString(_key);
+    if (raw == null) return;
+    try {
+      final record = CoffeeV2SubmissionRecord.fromJson(jsonDecode(raw));
+      final storedOwner = record.ownerId;
+      if (storedOwner != null && storedOwner != currentOwner) {
+        throw StateError('coffee v2 owner mismatch');
+      }
+    } on StateError {
+      rethrow;
+    } catch (_) {
+      throw StateError('coffee v2 submission metadata corrupt');
+    }
   }
 }
