@@ -26,6 +26,7 @@ void main() {
     AccountDeletionPendingState.markClear();
     messaging = _FakeMessaging();
     ReadingPushBootstrap.messagingForTest = messaging;
+    ReadingPushBootstrap.installedOwnerIdForTest = 'uid-a';
     posts = <String>[];
     container = ProviderContainer(
       overrides: [
