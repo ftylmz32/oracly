@@ -125,12 +125,16 @@ abstract final class OraclyRouteGenerator {
       case OraclyRoutes.coffee:
         return OraclyPageTransitions.chamber(
           personality: ChamberTransitionPersonality.coffee,
-          page: const CoffeeV2EntryGate(),
+          page: CoffeeV2EntryGate(
+            operationId: _readingOperationId(settings.arguments),
+          ),
           settings: settings,
         );
       case OraclyRoutes.palm:
         return OraclyPageTransitions.sharedAxis(
-          page: const PalmReferenceScreen(),
+          page: PalmReferenceScreen(
+            operationId: _readingOperationId(settings.arguments),
+          ),
           settings: settings,
         );
       case OraclyRoutes.readingHistory:
@@ -197,5 +201,13 @@ abstract final class OraclyRouteGenerator {
           settings: settings,
         );
     }
+  }
+
+  static String? _readingOperationId(Object? arguments) {
+    if (arguments is! Map) return null;
+    final raw = arguments['operationId'];
+    if (raw is! String) return null;
+    final normalized = raw.trim();
+    return normalized.length == 32 ? normalized : null;
   }
 }
