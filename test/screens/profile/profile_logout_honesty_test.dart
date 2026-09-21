@@ -16,6 +16,7 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/network/api_result.dart';
 import 'package:oracly_new/core/network/network_exception.dart';
+import 'package:oracly_new/core/notifications/reading_push_bootstrap.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
@@ -30,6 +31,7 @@ void main() {
 
   setUp(() async {
     OraclyL10n.bind('tr');
+    await ReadingPushBootstrap.clearOwnerBinding();
     await installTestPathProvider('oracly-logout-');
   });
 
@@ -39,6 +41,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final storage = LocalStorage(await SharedPreferences.getInstance());
     final auth = _ControllableAuth();
+    ReadingPushBootstrap.bindOwnerForTest('uid-live');
     final sessions = InMemorySessionManager(_MemTokens());
     await sessions.setSession(_session());
     await _pump(tester, storage: storage, auth: auth, sessions: sessions);
@@ -50,6 +53,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1200));
 
     expect(auth.signOutCalls, 1);
+    expect(ReadingPushBootstrap.installedOwnerForTest, isNull);
     expect(find.text(AuthCopy.signedOut), findsOneWidget);
     expect(find.text(AuthCopy.signOutFailed), findsNothing);
   });
