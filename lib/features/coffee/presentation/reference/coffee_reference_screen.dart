@@ -100,6 +100,9 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
         OraclySnackBar.show(context, message: tip);
       }
       if (!mounted) return;
+      final operations = ref.read(paidAiOperationCoordinatorProvider);
+      final wallet = ref.read(gemWalletProvider);
+      final analytics = ref.read(analyticsServiceProvider);
       final op = await GemSpendGuard.beginPaid(
         ref,
         context: context,
@@ -110,10 +113,10 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
       );
       if (op == null) return;
       if (!mounted) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await operations.abandon(op.id);
         return;
       }
-      ref.read(analyticsServiceProvider).logCoffeeStarted();
+      analytics.logCoffeeStarted();
       final started = DateTime.now();
       await PaidAiOperationBinder.runWithKey(op.idempotencyKey, () {
         return controller.analyze();
@@ -121,19 +124,19 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
       if (!mounted ||
           controller.phase != CoffeePhase.result ||
           controller.reading == null) {
-        await ref.read(paidAiOperationCoordinatorProvider).abandon(op.id);
+        await operations.abandon(op.id);
         if (controller.phase == CoffeePhase.error) {
-          ref.read(analyticsServiceProvider).logCoffeeFailure(
-                errorCategory: 'analysis',
-              );
+          analytics.logCoffeeFailure(errorCategory: 'analysis');
         }
         return;
       }
-      ref.read(analyticsServiceProvider).logCoffeeSuccess(
-            latency: DateTime.now().difference(started),
-          );
-      await GemSpendGuard.settleOperation(
-        ref,
+      analytics.logCoffeeSuccess(
+        latency: DateTime.now().difference(started),
+      );
+      await GemSpendGuard.settleOperationCaptured(
+        coordinator: operations,
+        wallet: wallet,
+        analytics: analytics,
         operation: op,
         context: mounted ? context : null,
       );
