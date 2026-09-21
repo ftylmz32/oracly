@@ -232,18 +232,16 @@ class CoffeeReadingController extends ChangeNotifier {
     );
     final stagedOperationId = state.snapshot?.operationId;
     if (state.kind == ReadingLiveKind.waiting && stagedOperationId != null) {
-      // Staging already happened inside submit() by this point — persist
-      // the operation's identity (never bytes) so recoverActive() can
-      // find and resume this SAME operation even if this controller
-      // instance never sees another tick (app kill, not just dispose).
-      unawaited(
-        _pendingStore?.save(
-          ReadingType.coffee,
-          ReadingPendingOperation(
-            operationId: stagedOperationId,
-            sourceRequestId: source,
-            mimeType: mimeType,
-          ),
+      // Staging already succeeded server-side. The local pointer is useful
+      // metadata, but never the authority. Observe its bool result so a
+      // false-returning SharedPreferences write is not mistaken for durable
+      // success; recovery below can still converge from server active state.
+      await _pendingStore?.save(
+        ReadingType.coffee,
+        ReadingPendingOperation(
+          operationId: stagedOperationId,
+          sourceRequestId: source,
+          mimeType: mimeType,
         ),
       );
     }
@@ -491,6 +489,11 @@ class CoffeeReadingController extends ChangeNotifier {
           await _recoverWaiting(pending: pending);
           return;
         }
+        // Server-owned Coffee completion must not depend on SharedPreferences.
+        // If the pointer was never written (false-return, old build, storage
+        // loss), keep polling the authoritative active operation instead of
+        // leaving the user on an endless analyzing screen.
+        _scheduleServerPoll(token: _generation, live: live);
         _safeNotify();
       case ReadingLiveKind.processing:
         liveState = state;
