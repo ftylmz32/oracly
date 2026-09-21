@@ -6,7 +6,6 @@ import '../controllers/gem_wallet_controller.dart';
 /// One auth-driven refresh per owner and ProviderContainer.
 class GemWalletHydrationCoordinator {
   final Map<String, Future<void>> _inFlight = {};
-  final Map<String, int> _authoritativeBalances = {};
   final Set<String> _bootstrapInFlight = {};
 
   bool beginBootstrap(String ownerId) => _bootstrapInFlight.add(ownerId);
@@ -14,22 +13,20 @@ class GemWalletHydrationCoordinator {
   void endBootstrap(String ownerId) => _bootstrapInFlight.remove(ownerId);
 
   Future<void> hydrate(String ownerId, GemWalletController controller) {
-    final known = _authoritativeBalances[ownerId];
-    if (known != null) return controller.acceptAuthoritativeBalance(known);
     final active = _inFlight[ownerId];
     if (active != null) {
       return active.then((_) async {
-        final balance = _authoritativeBalances[ownerId];
-        if (balance != null && controller.ownerId == ownerId) {
-          await controller.acceptAuthoritativeBalance(balance);
+        // A provider rebuild may have produced a different controller for the
+        // SAME uid while the first reload was in flight. Never replay a
+        // coordinator-cached balance into that new controller: wallet balance
+        // can change after any settle/reward endpoint, so only the server or
+        // the owner-bound durable store may be authoritative.
+        if (controller.ownerId == ownerId && !controller.authoritative) {
+          await controller.reload();
         }
       });
     }
-    final future = controller.reload().then((_) {
-      if (controller.authoritative && controller.ownerId == ownerId) {
-        _authoritativeBalances[ownerId] = controller.balance;
-      }
-    });
+    final future = controller.reload();
     _inFlight[ownerId] = future;
     return future.whenComplete(() {
       if (identical(_inFlight[ownerId], future)) _inFlight.remove(ownerId);
