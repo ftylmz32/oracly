@@ -64,9 +64,14 @@ abstract final class ReadingPushBootstrap {
         (value) => unawaited(_register(container, value)),
       );
       await _opened?.cancel();
-      _opened = FirebaseMessaging.onMessageOpenedApp.listen(_openReading);
+      final listenerOwner = _installedOwnerId;
+      _opened = FirebaseMessaging.onMessageOpenedApp.listen(
+        (message) => _openReading(message, expectedOwner: listenerOwner),
+      );
       final initial = await firebase.getInitialMessage();
-      if (initial != null) _openReading(initial);
+      if (initial != null) {
+        _openReading(initial, expectedOwner: listenerOwner);
+      }
     } catch (_) {
       // Missing/stale token, denied permission, or platform failure is never
       // allowed to affect the reading lifecycle.
@@ -85,9 +90,14 @@ abstract final class ReadingPushBootstrap {
       (value) => unawaited(_register(container, value)),
     );
     await _opened?.cancel();
-    _opened = messaging.onMessageOpenedApp.listen(_openReading);
+    final listenerOwner = _installedOwnerId;
+    _opened = messaging.onMessageOpenedApp.listen(
+      (message) => _openReading(message, expectedOwner: listenerOwner),
+    );
     final initial = await messaging.getInitialMessage();
-    if (initial != null) _openReading(initial);
+    if (initial != null) {
+      _openReading(initial, expectedOwner: listenerOwner);
+    }
   }
 
   static Future<void> _register(
@@ -100,9 +110,16 @@ abstract final class ReadingPushBootstrap {
     await send('POST', '/v1/reading-notifications/token', {'token': token});
   }
 
-  static void _openReading(RemoteMessage message) {
+  static void _openReading(
+    RemoteMessage message, {
+    required String? expectedOwner,
+  }) {
     final owner = _installedOwnerId;
     if (owner == null || owner.isEmpty) return;
+    // Listener generations are account-bound. An event delivered by an old
+    // subscription during A→B handoff must never be relabeled as B merely
+    // because B became current before cancellation completed.
+    if (expectedOwner == null || expectedOwner != owner) return;
     final destination = readingPushDestination(message.data);
     if (destination == null) return;
     // Preserve the exact completion even while deletion/integrity recovery
