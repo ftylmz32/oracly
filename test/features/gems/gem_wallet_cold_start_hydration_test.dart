@@ -175,6 +175,79 @@ void main() {
     },
   );
 
+  test(
+    'same-owner provider rebuild reloads server instead of replaying stale coordinator balance',
+    () async {
+      final storage = LocalStorage.ephemeral();
+      final coordinator = GemWalletHydrationCoordinator();
+      var serverBalance = 50;
+      var gets = 0;
+
+      GemWalletController controller() => GemWalletController(
+            GemWalletService(
+              GemWalletStore(storage),
+              ownerId: 'uid-a',
+              requireOwner: true,
+              gateway: GemWalletGateway((method, path, body) async {
+                gets += 1;
+                return ReadingOperationWire(
+                  statusCode: 200,
+                  json: {
+                    'data': {'balance': serverBalance},
+                  },
+                );
+              }),
+            ),
+          );
+
+      final first = controller();
+      await coordinator.hydrate('uid-a', first);
+      expect(first.balance, 50);
+      expect(gets, 1);
+
+      // Server-authoritative balance changes after a settle/reward while the
+      // coordinator itself survives a provider rebuild.
+      serverBalance = 10;
+      final rebuilt = controller();
+      await coordinator.hydrate('uid-a', rebuilt);
+
+      expect(gets, 2);
+      expect(rebuilt.balance, 10);
+      expect(rebuilt.authoritative, isTrue);
+    },
+  );
+
+  test(
+    'hydrate retry stops immediately when captured owner becomes stale',
+    () async {
+      final storage = LocalStorage.ephemeral();
+      var current = true;
+      var gets = 0;
+      final controller = GemWalletController(
+        GemWalletService(
+          GemWalletStore(storage),
+          ownerId: 'uid-a',
+          requireOwner: true,
+          gateway: GemWalletGateway((method, path, body) async {
+            gets += 1;
+            current = false;
+            return null;
+          }),
+        ),
+      );
+
+      await GemWalletHydrationCoordinator().hydrateWithRetry(
+        'uid-a',
+        controller,
+        attempts: 5,
+        stillCurrent: () => current,
+      );
+
+      expect(gets, 1);
+      expect(controller.authoritative, isFalse);
+    },
+  );
+
   test('gateway accepts numeric balance as num from JSON', () async {
     final storage = LocalStorage.ephemeral();
     final service = GemWalletService(
