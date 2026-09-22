@@ -12,7 +12,7 @@
 | Remote | `https://github.com/ftylmz32/oracly.git` (`ftylmz32/oracly`) |
 | Active remediation branch | `fix/final-product-remediation-20260922` |
 | Active worktree | `D:/oracly_final_r1` |
-| Current HEAD | `173d75228248baf32ea0d4f04fe936665efff342` |
+| Current HEAD | `4c41f7bff42b9b0d347e98caa56638ec744e8f68` (docs Night Shift; R2.1 code tip `173d7522`) |
 | `release/ios-1.0` HEAD | `1b7151dca954f0cc25f39f815c0dacf0613a1164` |
 | Build 4 state | Untouched — commit `1b7151dc` *chore(ios): prepare App Store build 4* remains on `release/ios-1.0` |
 

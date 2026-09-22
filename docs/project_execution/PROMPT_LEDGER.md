@@ -50,6 +50,7 @@ Chronological project execution ledger.
 | Status | **PASS (docs / read-only)** |
 | Kind | Documentation + inventory + forensic audit |
 | Start HEAD | `173d75228248baf32ea0d4f04fe936665efff342` |
+| End HEAD | `4c41f7bff42b9b0d347e98caa56638ec744e8f68` |
 | Application source modified | **NO** |
 | Test source modified | **NO** |
 | Artifacts | Operating contract, handoff, ledger, workspace inventory, `TAROT_PHASE0_FORENSIC_BASELINE.md` |
