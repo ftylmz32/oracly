@@ -61,11 +61,11 @@ void main() {
     }
   });
 
-  test('lookup never fabricates missing non-Wands Minor profiles', () {
-    expect(NarrativeTarotProfileCatalog.lookup('cups_01'), isNull);
+  test('lookup never fabricates missing Swords or Pentacles profiles', () {
     expect(NarrativeTarotProfileCatalog.lookup('swords_07'), isNull);
     expect(NarrativeTarotProfileCatalog.lookup('pentacles_10'), isNull);
-    expect(NarrativeTarotProfileCatalog.contains('cups_14'), isFalse);
+    expect(NarrativeTarotProfileCatalog.contains('swords_01'), isFalse);
+    expect(NarrativeTarotProfileCatalog.contains('pentacles_01'), isFalse);
     expect(NarrativeTarotProfileCatalog.lookup('major_99'), isNull);
   });
 

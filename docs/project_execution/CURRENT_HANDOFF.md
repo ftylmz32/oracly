@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3B1 Narrative Wands profiles
+**Updated:** 2026-09-22 — Tarot Phase 3B2 Narrative Cups profiles
 
 ---
 
@@ -15,8 +15,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Active worktree | `D:/oracly_final_r1` | Where remediation docs/code land |
 | Last verified **application/code** baseline (pre-3A) | `173d75228248baf32ea0d4f04fe936665efff342` | R2.1 — prior Flutter-verified code tip (3627/0/15/0) |
 | Phase 3A end | `200a3a874fcce763cfdeb2299cfd7177dcb03290` | Major Narrative foundation |
-| Phase 3B1 task start | `200a3a874fcce763cfdeb2299cfd7177dcb03290` | Wands Minor foundation start |
-| Phase 0 documentation baseline | `7155ad8535bd051a152437757fd11296b243de0b` | Night Shift docs tip at Phase 1 task start |
+| Phase 3B1 end | `66e814ebac1e84ea6ee556030d8f7af93be7daed` | Wands complete (docs tip) |
+| Phase 3B2 task start | `66e814ebac1e84ea6ee556030d8f7af93be7daed` | Cups start |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -75,7 +75,8 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 2.1 — Harness false-positive hardening | **COMPLETE** |
 | Phase 3A — Major Arcana Narrative semantic foundation | **COMPLETE** |
 | Phase 3B1 — Wands Minor Narrative profiles | **COMPLETE** |
-| Phase 3B+ — Cups / Swords / Pentacles / Evidence Engine | **NOT STARTED** |
+| Phase 3B2 — Cups Minor Narrative profiles | **COMPLETE** |
+| Phase 3B+ — Swords / Pentacles / Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -91,10 +92,17 @@ Pre-existing local noise (do **not** stage/clean):
 | Field | Value |
 |---|---|
 | Status | **PASS** |
-| V2 profile coverage | **36 / 78** |
+| Wands | **14 / 14** |
+
+### Phase 3B2
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| V2 profile coverage | **50 / 78** |
 | Major | **22 / 22** |
 | Wands | **14 / 14** |
-| Cups | **0 / 14** |
+| Cups | **14 / 14** |
 | Swords | **0 / 14** |
 | Pentacles | **0 / 14** |
 | Narrative Evidence Engine | **NOT IMPLEMENTED** |
@@ -105,7 +113,7 @@ Pre-existing local noise (do **not** stage/clean):
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
-- `lib/features/tarot/narrative/data/` — `NarrativeTarotProfileCatalog` + Major + Wands profiles
+- `lib/features/tarot/narrative/data/` — catalog + Major + Wands + Cups profiles
 - Tests: `test/features/tarot/narrative_domain/`
 
 ### Spec artifacts
@@ -120,7 +128,6 @@ Production surface:
 - Canonical corpus: `test/fixtures/narrative_tarot_v2_corpus.json`
 - CONTRACT HARNESS (test-only): `test/support/narrative_tarot_v2/`
 - Tests: `test/features/tarot/narrative_v2/`
-- Legacy corpus retained: `test/fixtures/interpretation_engine_v2_corpus.json` (insufficient for V2; not deleted)
 
 ---
 
@@ -131,6 +138,7 @@ Production surface:
 | Flutter (at code baseline `173d7522`) | **3627** passed · **0** failed · **15** skipped · **0** timed out |
 | Flutter (Phase 3A — PL-T3A) | **3662** passed · **0** failed · **15** skipped · **0** timed out |
 | Flutter (Phase 3B1 — PL-T3B1) | **3669** passed · **0** failed · **15** skipped · **0** timed out |
+| Flutter (Phase 3B2 — PL-T3B2) | **3676** passed · **0** failed · **15** skipped · **0** timed out |
 | Backend (known) | **658** passed · **0** failed · **1** skipped |
 
 ---
@@ -153,7 +161,7 @@ Coffee / Palm / SoulMate production E2E · StoreKit monthly/yearly · restore ·
 
 ## Next action
 
-**ChatGPT review before next Minor suit.**
+**ChatGPT review before Swords.**
 
-Do **not** start Cups until that review.
+Do **not** start Swords until that review.
 Do **not** mark future items completed until verified.

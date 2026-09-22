@@ -17,8 +17,8 @@ void main() {
     return buf.toString();
   }
 
-  test('all 36 registered V2 profiles pass TR/EN/RU locale sanity', () {
-    expect(NarrativeTarotProfileCatalog.all.length, 36);
+  test('all 50 registered V2 profiles pass TR/EN/RU locale sanity', () {
+    expect(NarrativeTarotProfileCatalog.all.length, 50);
     for (final p in NarrativeTarotProfileCatalog.all) {
       final tr = body(p, 'tr');
       final en = body(p, 'en');

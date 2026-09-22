@@ -159,6 +159,35 @@ Chronological project execution ledger.
 | Backend modified | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3B2 — CUPS NARRATIVE PROFILES
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | CUPS 14 NARRATIVE CARD PROFILES |
+| Start SHA | `66e814ebac1e84ea6ee556030d8f7af93be7daed` |
+| Application source modified | **YES** (`lib/features/tarot/narrative/**` only) |
+| Test / docs modified | **YES** |
+| Total V2 profiles | **50 / 78** |
+| Major | **22 / 22** |
+| Wands | **14 / 14** |
+| Cups | **14 / 14** |
+| Swords / Pentacles | **0 / 14** each |
+| Locale coverage | TR/EN/RU complete for all 50; full-body locale sanity |
+| Mind-reading authoring guard | YES (Cups semantic fields) |
+| Catalog | + `cupsProfiles`; `minorProfiles` = 28 |
+| User path wiring | **NONE** — V2 not reachable |
+| Network / provider | **NONE** |
+| Phase 3B2 Cups tests | 7 passed |
+| Phase 3A/3B1 regression | 15 passed |
+| Phase 2/2.1 harness | 27 passed |
+| R2 fail-closed | 20 passed |
+| Other Tarot regression | reading engine 4 · oracle quality 3 |
+| Flutter analyze | errors=0 · warnings=0 · infos=199 |
+| Full Flutter | **3676** passed · **0** failed · **15** skipped · **0** timed out |
+| Backend modified | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -172,8 +201,9 @@ Chronological project execution ledger.
 | PL-T2.1 | Tarot Phase 2.1 — harness false-positive hardening | **DONE** |
 | PL-T3A | Tarot Phase 3A — Narrative domain + Major profiles | **DONE** |
 | PL-T3B1 | Tarot Phase 3B1 — Minor foundation + Wands | **DONE** |
-| PL-T3B+ | Tarot Phase 3B+ — Cups / Swords / Pentacles | PLANNED |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A+3B1 done) |
+| PL-T3B2 | Tarot Phase 3B2 — Cups Narrative profiles | **DONE** |
+| PL-T3B+ | Tarot Phase 3B+ — Swords / Pentacles | PLANNED |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A+3B1+3B2 done) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
