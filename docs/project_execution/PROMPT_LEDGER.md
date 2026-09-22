@@ -484,6 +484,27 @@ Chronological project execution ledger.
 | Full Flutter | **3756** passed · **0** failed · **15** skipped · **0** timed out (+7 from FR-M01/M02 tests) |
 | Outcome | **PASS** |
 
+### PL-T3C.5D — FR-M04 KEYWORD ONTOLOGY DESIGN
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (design only) |
+| Kind | Audit / ontology / full mapping — **no production keywordIds changes** |
+| Start SHA | `bc9ff060801d941c16ed32b32d8708177fa20c21` |
+| Plan | `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md` |
+| Current inventory | assignments **468** · unique **397** · singleton **352** (**88.66%**) |
+| Proposed vocabulary | **124** defined · **118** used in projection |
+| Projected singleton rate | **24.58%** |
+| Full 78×orientation mapping | **YES** |
+| Migration table | **YES** (397) |
+| Ambiguous mapping count | **1** hard (`envy`) + review notes |
+| Engine usage contract | **READY FOR CHATGPT REVIEW** |
+| Production source modified | **NO** |
+| Diagnostic test | `narrative_red_team_fr_m04_keyword_baseline_test.dart` |
+| FR-M04 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -511,7 +532,8 @@ Chronological project execution ledger.
 | PL-T3C.5A | Tarot Phase 3C.5A — FR-B01 Magician desire EN contamination | **DONE** (FR-B01 RESOLVED; readiness NO) |
 | PL-T3C.5B | Tarot Phase 3C.5B — FR-M03 shadow vs reversed court separation | **DONE** (FR-M03 + RT-M02 RESOLVED; readiness NO) |
 | PL-T3C.5C | Tarot Phase 3C.5C — FR-M01 / FR-M02 EN naturalness | **DONE** (FR-M01/M02 RESOLVED; RT-M03 minors-only; FR-M04 OPEN; readiness NO) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M01/M02/M03 + RT-M01/M02/M03 RESOLVED; FR-M04 OPEN; Evidence Engine blocked) |
+| PL-T3C.5D | Tarot Phase 3C.5D — FR-M04 keyword ontology design | **DONE** (design only; FR-M04 OPEN; readiness NO) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M01/M02/M03 + RT-M* RESOLVED; FR-M04 OPEN — ontology designed; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

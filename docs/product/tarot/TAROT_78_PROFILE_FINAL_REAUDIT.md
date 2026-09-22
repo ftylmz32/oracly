@@ -563,3 +563,26 @@ Historical 3C.4 findings above are preserved; this section records remediation o
 | Regression test | `narrative_fr_m01_m02_en_naturalness_test.dart` |
 
 Historical 3C.4 / 3C.5A / 3C.5B findings above are preserved; this section records remediation only.
+
+---
+
+## Phase 3C.5D design follow-up — FR-M04 keyword ontology
+
+| Field | Value |
+|---|---|
+| Phase | **3C.5D** |
+| Finding | **FR-M04** |
+| Kind | **DESIGN / MAPPING ONLY** — no production keywordIds changed |
+| Plan | `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md` |
+| Current unique / singleton | **397** / **352** (**88.66%**) |
+| Proposed lexicon size | **124** defined · **118** used in projection |
+| Projected singleton % | **24.58%** |
+| Full 78×orientation mapping | **COMPLETE** |
+| Migration table | **COMPLETE** (397 rows) |
+| Ambiguous hard-stop | `envy` (+ review notes: pressure SPLIT, balance→stability, delay dual-layer, top-frequency weighting) |
+| FR-M04 | **OPEN** — implementation pending ChatGPT review |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Production source modified | **NO** |
+
+Historical findings above are preserved; this section records design only.
