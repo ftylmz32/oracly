@@ -215,6 +215,21 @@ Chronological project execution ledger.
 | Backend modified | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3B3.1 — CURRENT HANDOFF PROJECT-MEMORY RESTORATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | DOCUMENTATION REPAIR — CURRENT_HANDOFF restoration |
+| Start SHA | `427b76bbebdc9a7f161869b9ac66e7c151fa5c95` |
+| Reason | Phase 3B3 accidentally compacted CURRENT_HANDOFF and removed still-valid canonical history/open release state |
+| Application source modified | **NO** |
+| Test source modified | **NO** |
+| Docs modified | **YES** — `CURRENT_HANDOFF.md` · `PROMPT_LEDGER.md` |
+| Restored | R1/R2/R2.1 · full Tarot phase history · Visual System status · spec/Phase 2 pointers · baseline history · open P1 backlog · release-proof items |
+| Preserved | Phase 3B3 Swords state · **64 / 78** V2 coverage |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -230,6 +245,7 @@ Chronological project execution ledger.
 | PL-T3B1 | Tarot Phase 3B1 — Minor foundation + Wands | **DONE** |
 | PL-T3B2 | Tarot Phase 3B2 — Cups Narrative profiles | **DONE** |
 | PL-T3B3 | Tarot Phase 3B3 — Swords Narrative profiles | **DONE** |
+| PL-T3B3.1 | Tarot Phase 3B3.1 — CURRENT_HANDOFF project-memory restoration | **DONE** |
 | PL-T3B+ | Tarot Phase 3B+ — Pentacles | PLANNED |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A–3B3 done) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
