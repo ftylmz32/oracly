@@ -385,3 +385,28 @@ Contract intent: profiles (including `keywordIds` / `symbolTags`) feed determini
 - Automated opener/similarity gates are necessary but insufficient (Jaccard misses paraphrase collapse; metrics miss Magician contamination).  
 - Auditor did not modify `lib/` profiles.  
 - Diagnostics helpers under `tool/qa/phase3c4_*.py` are local worktree aids only (not committed as production).
+
+---
+
+## Phase 3C.5A remediation follow-up — FR-B01
+
+| Field | Value |
+|---|---|
+| Phase | **3C.5A** |
+| Finding | **FR-B01** |
+| Status | **RESOLVED** |
+| Production field | `major_01.desire.en` only |
+| TR / RU | **Untouched** |
+| Old contaminated EN | `Honest leave-taking may be sought — to see one's own effort leave a real mark on the outcome.` |
+| New semantic direction | Magician desire to see own effort / skill / agency leave a real mark on the outcome (aligned with TR/RU; no leave-taking / departure family) |
+| New EN | `One may want to see one's own effort leave a real mark on the outcome.` |
+| Canonical fidelity (`major_01`) | **FAITHFUL** |
+| QUESTIONABLE-DRIFT | **0** |
+| CLEAR-DRIFT (from FR-B01) | **0** after remediation |
+| Regression test | `test/features/tarot/narrative_domain/narrative_major_01_desire_fr_b01_test.dart` |
+| FR-M01 / FR-M02 / FR-M03 / FR-M04 | **Still OPEN** |
+| RT-M02 / RT-M03 | **Still OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+
+Historical 3C.4 findings above are preserved; this section records remediation only.

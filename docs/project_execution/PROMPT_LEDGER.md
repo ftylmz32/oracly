@@ -403,6 +403,32 @@ Chronological project execution ledger.
 | Phase 2/2.1 | **27** passed · **0** failed |
 | Outcome | **PASS** (audit) |
 
+### PL-T3C.5A — FR-B01 MAGICIAN DESIRE CONTAMINATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | Blocker remediation — EN desire only |
+| Start SHA | `582a2fd88c386bb64746b549950a22fd6ab04557` |
+| Field changed | `major_01.desire.en` only |
+| Old contamination | `Honest leave-taking may be sought — to see one's own effort leave a real mark on the outcome.` |
+| New EN | `One may want to see one's own effort leave a real mark on the outcome.` |
+| Canonical source | Magician catalog (`oracly_tarot_major_00_10.dart`) + TR/RU desire alignment |
+| Locale alignment | TR/RU untouched; EN restored to effort/agency → real mark on outcome |
+| Focused test | `narrative_major_01_desire_fr_b01_test.dart` — **3** passed · **0** failed |
+| Profile domain | **86** passed · **0** failed |
+| Phase 3C red-team | **28** passed · **0** failed |
+| Phase 2/2.1 | **27** passed · **0** failed |
+| R2/R2.1 | **13** passed · **0** failed |
+| Analyze | errors **0** · warnings **0** (infos baseline only) |
+| Full Flutter | **3740** passed · **0** failed · **15** skipped · **0** timed out (+3 from focused FR-B01 tests) |
+| Canonical fidelity | **FAITHFUL** · QUESTIONABLE-DRIFT **0** · CLEAR-DRIFT **0** |
+| FR-B01 | **RESOLVED** |
+| FR-M01 / FR-M02 / FR-M03 / FR-M04 | **OPEN** |
+| RT-M02 / RT-M03 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -427,7 +453,8 @@ Chronological project execution ledger.
 | PL-T3C.3A.1 | Tarot Phase 3C.3A.1 — RT-M03A naturalness repair | **DONE** |
 | PL-T3C.3B | Tarot Phase 3C.3B — RT-M03 relationship/decision/action interaction semantics | **DONE** |
 | PL-T3C.4 | Tarot Phase 3C.4 — Final 78-card cross-deck re-audit | **DONE** (readiness NO) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M02/M03 OPEN after 3C.4; Evidence Engine blocked) |
+| PL-T3C.5A | Tarot Phase 3C.5A — FR-B01 Magician desire EN contamination | **DONE** (FR-B01 RESOLVED; readiness NO) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01 RESOLVED; FR-M01–M04 + RT-M02/M03 OPEN; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
