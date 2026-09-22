@@ -61,10 +61,10 @@ void main() {
     }
   });
 
-  test('lookup never fabricates missing Pentacles profiles', () {
-    expect(NarrativeTarotProfileCatalog.lookup('pentacles_10'), isNull);
-    expect(NarrativeTarotProfileCatalog.contains('pentacles_01'), isFalse);
+  test('lookup never fabricates unknown profile ids', () {
     expect(NarrativeTarotProfileCatalog.lookup('major_99'), isNull);
+    expect(NarrativeTarotProfileCatalog.lookup('pentacles_99'), isNull);
+    expect(NarrativeTarotProfileCatalog.contains('fake_card'), isFalse);
   });
 
   test('no cross-Major full profile duplication', () {

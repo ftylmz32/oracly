@@ -31,14 +31,13 @@ void main() {
     expect(ids.length, ids.toSet().length);
   });
 
-  test('Wands remain 14 within expanded V2 catalog; no Pentacles', () {
+  test('Wands remain 14 within completed 78-profile V2 catalog', () {
     expect(NarrativeTarotProfileCatalog.wandsProfiles.length, 14);
     expect(NarrativeTarotProfileCatalog.majorProfiles.length, 22);
-    expect(NarrativeTarotProfileCatalog.count, greaterThanOrEqualTo(36));
+    expect(NarrativeTarotProfileCatalog.count, 78);
     for (final p in NarrativeTarotProfileCatalog.wandsProfiles) {
       expect(p.canonicalCardId.startsWith('wands_'), isTrue);
     }
-    expect(NarrativeTarotProfileCatalog.lookup('pentacles_01'), isNull);
   });
 
   test('no full-profile duplication across Wands profiles', () {

@@ -1,7 +1,7 @@
 /// Authoritative Narrative Tarot V2 profile catalog.
 ///
-/// Phase 3B3: Major (22) + Wands (14) + Cups (14) + Swords (14) = 64.
-/// Lookup never silently fabricates a profile from legacy deck data.
+/// Phase 3B4: Major (22) + Wands (14) + Cups (14) + Swords (14) + Pentacles (14)
+/// = 78. Lookup never silently fabricates a profile from legacy deck data.
 /// Missing V2 profile returns null — observable to callers.
 ///
 /// NOT wired into the user reading path.
@@ -10,6 +10,7 @@ library;
 import '../domain/narrative_card_profile.dart';
 import 'profiles/narrative_cups_profiles.dart';
 import 'profiles/narrative_major_profiles.dart';
+import 'profiles/narrative_pentacles_profiles.dart';
 import 'profiles/narrative_swords_profiles.dart';
 import 'profiles/narrative_wands_profiles.dart';
 
@@ -21,6 +22,7 @@ abstract final class NarrativeTarotProfileCatalog {
     ...kNarrativeWandsProfiles,
     ...kNarrativeCupsProfiles,
     ...kNarrativeSwordsProfiles,
+    ...kNarrativePentaclesProfiles,
   ]);
 
   static final Map<String, NarrativeCardProfile> _byId = {
@@ -36,6 +38,7 @@ abstract final class NarrativeTarotProfileCatalog {
     ...kNarrativeWandsProfiles,
     ...kNarrativeCupsProfiles,
     ...kNarrativeSwordsProfiles,
+    ...kNarrativePentaclesProfiles,
   ]);
 
   static List<NarrativeCardProfile> get wandsProfiles =>
@@ -47,10 +50,13 @@ abstract final class NarrativeTarotProfileCatalog {
   static List<NarrativeCardProfile> get swordsProfiles =>
       List.unmodifiable(kNarrativeSwordsProfiles);
 
+  static List<NarrativeCardProfile> get pentaclesProfiles =>
+      List.unmodifiable(kNarrativePentaclesProfiles);
+
   static bool contains(String canonicalCardId) =>
       _byId.containsKey(canonicalCardId);
 
-  /// Returns null when no V2 profile exists (e.g. Pentacles in Phase 3B3).
+  /// Returns null when no V2 profile exists for [canonicalCardId].
   static NarrativeCardProfile? lookup(String canonicalCardId) =>
       _byId[canonicalCardId];
 

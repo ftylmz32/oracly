@@ -31,14 +31,13 @@ void main() {
     expect(ids.length, ids.toSet().length);
   });
 
-  test('Cups remain 14 within expanded V2 catalog; no Pentacles', () {
+  test('Cups remain 14 within completed 78-profile V2 catalog', () {
     expect(NarrativeTarotProfileCatalog.cupsProfiles.length, 14);
     expect(NarrativeTarotProfileCatalog.majorProfiles.length, 22);
-    expect(NarrativeTarotProfileCatalog.count, greaterThanOrEqualTo(50));
+    expect(NarrativeTarotProfileCatalog.count, 78);
     for (final p in NarrativeTarotProfileCatalog.cupsProfiles) {
       expect(p.canonicalCardId.startsWith('cups_'), isTrue);
     }
-    expect(NarrativeTarotProfileCatalog.lookup('pentacles_01'), isNull);
   });
 
   test('every Cups id exists on OraclyTarotDeck and is complete', () {

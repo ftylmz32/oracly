@@ -230,6 +230,25 @@ Chronological project execution ledger.
 | Preserved | Phase 3B3 Swords state · **64 / 78** V2 coverage |
 | Outcome | **PASS** |
 
+### PL-T3B4 — PENTACLES NARRATIVE PROFILES + 78 PROFILE COMPLETENESS
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | PENTACLES 14 NARRATIVE CARD PROFILES + 78/78 CATALOG |
+| Start SHA | `2c5c6aa637ed5b5d9407f8e913d18fea543cd839` |
+| Profiles | Major **22** · Wands **14** · Cups **14** · Swords **14** · Pentacles **14** = **78 / 78** |
+| Catalog == deck ids | **PASS** (exact set equality) |
+| Locale sanity | **78** TR/EN/RU |
+| Financial / health guards | **PASS** |
+| High-risk Pentacles (05/07/10 + pairs) | **PASS** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| User path / runtime V2 | **UNCHANGED** / **NOT USER-REACHABLE** |
+| Flutter analyze | errors=0 · warnings=0 · infos=199 |
+| Full Flutter | **3699** passed · **0** failed · **15** skipped · **0** timed out |
+| Backend modified | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -246,8 +265,8 @@ Chronological project execution ledger.
 | PL-T3B2 | Tarot Phase 3B2 — Cups Narrative profiles | **DONE** |
 | PL-T3B3 | Tarot Phase 3B3 — Swords Narrative profiles | **DONE** |
 | PL-T3B3.1 | Tarot Phase 3B3.1 — CURRENT_HANDOFF project-memory restoration | **DONE** |
-| PL-T3B+ | Tarot Phase 3B+ — Pentacles | PLANNED |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A–3B3 done) |
+| PL-T3B4 | Tarot Phase 3B4 — Pentacles + 78 profile completeness | **DONE** |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A–3B4 profiles done; Evidence Engine not started) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

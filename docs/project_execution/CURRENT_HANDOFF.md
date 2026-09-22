@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3B3.1 handoff project-memory restoration
+**Updated:** 2026-09-22 — Tarot Phase 3B4 Pentacles profiles (78 / 78 semantic catalog)
 
 ---
 
@@ -19,6 +19,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3B2 end | `c30c3005c11f1e4e52c8612cf9a65828d72a9388` | Cups complete |
 | Phase 3B3 task start | `c30c3005c11f1e4e52c8612cf9a65828d72a9388` | Swords start |
 | Phase 3B3 end | `427b76bbebdc9a7f161869b9ac66e7c151fa5c95` | Swords profiles commit |
+| Phase 3B3.1 end | `2c5c6aa637ed5b5d9407f8e913d18fea543cd839` | Handoff project-memory restoration |
+| Phase 3B4 task start | `2c5c6aa637ed5b5d9407f8e913d18fea543cd839` | Pentacles start |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -79,7 +81,9 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3B1 — Wands Minor Narrative profiles | **COMPLETE** |
 | Phase 3B2 — Cups Minor Narrative profiles | **COMPLETE** |
 | Phase 3B3 — Swords Minor Narrative profiles | **COMPLETE** |
-| Phase 3B+ — Pentacles / Evidence Engine | **NOT STARTED** |
+| Phase 3B3.1 — CURRENT_HANDOFF project-memory restoration | **COMPLETE** (docs) |
+| Phase 3B4 — Pentacles Minor Narrative profiles | **COMPLETE** |
+| Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -109,21 +113,31 @@ Pre-existing local noise (do **not** stage/clean):
 | Field | Value |
 |---|---|
 | Status | **PASS** |
-| V2 profile coverage | **64 / 78** |
+| Swords | **14 / 14** |
+| V2 profile coverage (then) | **64 / 78** |
+
+### Phase 3B4
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| V2 profile coverage | **78 / 78** |
 | Major | **22 / 22** |
 | Wands | **14 / 14** |
 | Cups | **14 / 14** |
 | Swords | **14 / 14** |
-| Pentacles | **0 / 14** |
+| Pentacles | **14 / 14** |
+| Full 78-profile catalog | **COMPLETE** (exact set equality with `OraclyTarotDeck.expectedIds`) |
 | Narrative Evidence Engine | **NOT IMPLEMENTED** |
 | Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
 | Canonical deck | Unchanged (78 / 22 / 56) |
 | Current Tarot user path | Unmodified |
 
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
-- `lib/features/tarot/narrative/data/` — catalog + Major + Wands + Cups + Swords profiles
+- `lib/features/tarot/narrative/data/` — catalog + Major + Wands + Cups + Swords + Pentacles profiles
 - Tests: `test/features/tarot/narrative_domain/`
 
 ### Spec artifacts
@@ -152,6 +166,7 @@ Production surface:
 | Flutter (Phase 3B1 — PL-T3B1) | 3669 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3B2 — PL-T3B2) | 3676 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3B3 — PL-T3B3) | 3685 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3B4 — PL-T3B4) | 3699 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -176,7 +191,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Pentacles.**
+**ChatGPT review and 78-card cross-deck semantic red-team before Narrative Evidence Engine.**
 
-Do **not** start Pentacles until that review.
+Do **not** start Evidence Engine / Visual System / Memory-Recurring until that review.
 Do **not** mark future items completed until verified.

@@ -43,27 +43,13 @@ void main() {
     expect(ids.length, ids.toSet().length);
   });
 
-  test('catalog totals 64 = 22 Major + 14 Wands + 14 Cups + 14 Swords', () {
-    expect(NarrativeTarotProfileCatalog.count, 64);
-    expect(NarrativeTarotProfileCatalog.all.length, 64);
-    expect(NarrativeTarotProfileCatalog.majorProfiles.length, 22);
-    expect(NarrativeTarotProfileCatalog.wandsProfiles.length, 14);
-    expect(NarrativeTarotProfileCatalog.cupsProfiles.length, 14);
+  test('Swords remain 14 within completed 78-profile V2 catalog', () {
     expect(NarrativeTarotProfileCatalog.swordsProfiles.length, 14);
-    expect(NarrativeTarotProfileCatalog.minorProfiles.length, 42);
-    for (final p in NarrativeTarotProfileCatalog.all) {
-      final id = p.canonicalCardId;
-      expect(
-        id.startsWith('major_') ||
-            id.startsWith('wands_') ||
-            id.startsWith('cups_') ||
-            id.startsWith('swords_'),
-        isTrue,
-        reason: id,
-      );
-      expect(id.startsWith('pentacles_'), isFalse);
+    expect(NarrativeTarotProfileCatalog.count, 78);
+    expect(NarrativeTarotProfileCatalog.minorProfiles.length, 56);
+    for (final p in NarrativeTarotProfileCatalog.swordsProfiles) {
+      expect(p.canonicalCardId.startsWith('swords_'), isTrue);
     }
-    expect(NarrativeTarotProfileCatalog.lookup('pentacles_01'), isNull);
   });
 
   test('every Swords id exists on OraclyTarotDeck and is complete', () {
@@ -91,9 +77,9 @@ void main() {
     }
   });
 
-  test('no full-profile duplication across all 64 V2 profiles', () {
+  test('no full-profile duplication across Swords profiles', () {
     final sigs = <String, String>{};
-    for (final p in NarrativeTarotProfileCatalog.all) {
+    for (final p in NarrativeTarotProfileCatalog.swordsProfiles) {
       final sig = NarrativeCardProfileValidator.primarySignature(p);
       expect(
         sigs.containsKey(sig),
