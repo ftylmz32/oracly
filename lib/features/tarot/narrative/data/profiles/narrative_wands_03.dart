@@ -22,7 +22,7 @@ const kNarrativeWands03 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Büyüme, acele zafer hikâyesine, övünce veya dağınık hevese kayabilir.',
-    'At the edge of this archetype, a hasty victory story, boast, or scattered zeal.',
+    'Early success can tip into a hasty victory story, boast, or scattered zeal.',
     'Рост может стать историей поспешной победы, похвальбой или рассеянным пылом.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands03 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, çabasının işlediğini görünür bir ilerleme olarak hissetmek isteyebilir.',
-    'What is sought is to feel that effort is working as visible progress.',
+    'Quietly, one may seek to feel that effort is working as visible progress.',
     'Может хотеться почувствовать, что усилие работает как видимое продвижение.',
   ),
   fear: L10nTriple(

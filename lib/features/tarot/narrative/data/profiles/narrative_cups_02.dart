@@ -22,7 +22,7 @@ const kNarrativeCups02 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Buluşma, dengesizliğe, yansıtıma veya acele birleşmeye kayabilir.',
-    'Without balance, meeting can become imbalance, projection, or hasty union.',
+    'When unbalanced, Meeting becomes imbalance, projection, or hasty union.',
     'Встреча может стать дисбалансом, проекцией или поспешным союзом.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups02 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, karşılıklı bir duygusal alışverişi güvenle denemek isteyebilir.',
-    'Here the reach is to try mutual emotional exchange in safety.',
+    'It can feel important to try mutual emotional exchange in safety.',
     'Может хотеться безопасно попробовать взаимный эмоциональный обмен.',
   ),
   fear: L10nTriple(

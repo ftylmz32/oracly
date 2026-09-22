@@ -469,6 +469,61 @@ Historical Phase 3C finding RT-M03 remains documented above as evidence; this se
 
 ---
 
+## Phase 3C.3A.1 follow-up — RT-M03A naturalness repair
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** (naturalness frozen for core/desire/shadow EN) |
+| Phase | 3C.3A.1 |
+| Start HEAD | `8e6eedb6cbae693a236c1273725d75fcec63937f` |
+| Reason | Independent review: 3C.3A replaced historical stems with a rotation of new scaffolds; some EN fields became fragmentary / telegraphic |
+| Scope | `coreMeaning.en` · `desire.en` · `shadow.en` only |
+| TR/RU | **NONE changed** (remain aligned) |
+
+### Replacement-scaffold counts (EN, target fields)
+
+| Phrase family | Before (at 3C.3A tip) | After |
+|---|---:|---:|
+| At the center: | 15 | 0 |
+| The meaning turns on | 6 | 0 |
+| Part of this archetype | 13 | 0 |
+| At the edge of this archetype | 8 | 0 |
+| What is wanted is | 6 | 0 |
+| The pull is | 6 | 0 |
+| A need to | 11 | 0 |
+| The energy leans toward | 7 | 0 |
+| Without balance | 8 | 0 |
+| The risk is | 5 | 0 |
+
+### Change accounting (vs 3C.3A tip)
+
+| | |
+|---|---|
+| Profiles changed | **77** |
+| coreMeaning.en | **44** |
+| desire.en | **73** |
+| shadow.en | **33** |
+| Known stilted / fragmentary / template-swap remaining | **0** |
+| Canonical fidelity | QUESTIONABLE-DRIFT=0 · CLEAR-DRIFT=0 |
+| Safety | **PASS** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **RESOLVED** (exact clones=0; near-clones=0) |
+| RT-M03 | **PARTIALLY REMEDIATED / OPEN** (interaction fields still pending 3C.3B) |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| 3C.3A naturalness quality | **FROZEN** |
+
+### Phase 2 / 2.1 targeted-count note
+
+Canonical command: `flutter test test/features/tarot/narrative_v2/`
+
+Files (5): `narrative_tarot_corpus_coverage_test.dart`, `narrative_tarot_corpus_schema_test.dart`, `narrative_tarot_hard_failure_contract_test.dart`, `narrative_tarot_phase21_hardening_test.dart`, `narrative_tarot_quality_contract_test.dart`
+
+Result at 3C.3A.1 validation: **27 passed · 0 failed · 0 skipped · 0 timed out**
+
+The Phase 3C.3A final report's **26** was a reporting/scope miscount in the summary table (no Phase 2 files changed in 3C.3A; full Flutter rose exactly +6 for the six new RT-M03A tests). Re-running the canonical target confirms **27**.
+
+---
+
 ## Method notes / limitations
 
 - Automated similarity is a **candidate generator**, not proof of defect.  

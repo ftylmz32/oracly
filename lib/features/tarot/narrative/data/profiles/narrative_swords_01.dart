@@ -12,7 +12,7 @@ const kNarrativeSwords01 = NarrativeCardProfile(
   canonicalCardId: 'swords_01',
   coreMeaning: L10nTriple(
     'İlk keskinliği anlatır; henüz savaş değil, duru bir fikrin kenarıdır.',
-    'Not yet a war: a first edge as the rim of a clear idea.',
+    'A first edge; not yet a war, but the rim of a clear idea.',
     'Говорит о первом острие; ещё не война, а край ясной идеи.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords01 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Keskinlik sert söze, dağınık zihne veya kesmek için kesmeye kayabilir.',
-    'The risk is a harsh word, a scattered mind, or cutting for its own sake when Edge is pushed too far.',
+    'Edge may slide into a harsh word, a scattered mind, or cutting for its own sake.',
     'Остриё может стать жёстким словом, рассеянным умом или резаньем ради резанья.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords01 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, içeride uyanan duru fikri bozmadan tutmak isteyebilir.',
-    'Part of this archetype longs to hold a waking clear idea without breaking it.',
+    'Holding a waking clear idea without breaking it may be sought.',
     'Может хотеться удержать просыпающуюся ясную идею, не ломая её.',
   ),
   fear: L10nTriple(

@@ -12,7 +12,7 @@ const kNarrativeSwords08 = NarrativeCardProfile(
   canonicalCardId: 'swords_08',
   coreMeaning: L10nTriple(
     'Kendi düşüncesiyle sarılı zihni anlatır; hissedilen bir bağdır, iki seçenek kilidi değil.',
-    'Here the field is a mind wrapped in its own thought; a felt bind, not a two-option lock.',
+    'A mind wrapped in its own thought; a felt bind, not a two-option lock.',
     'Говорит об уме, обмотанном собственной мыслью; об ощущаемой связи, не о замке двух вариантов.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords08 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Sıkışma kurban hikâyesine, hareketsizliğe veya korku ağına kayabilir.',
-    'Without balance, tightness can become a victim story, immobility, or a web of fear.',
+    'When unbalanced, Tightness becomes a victim story, immobility, or a web of fear.',
     'Теснота может стать историей жертвы, неподвижностью или сетью страха.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords08 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, kendi kurduğu ağdan serbest bir nefes almak isteyebilir.',
-    'What is sought is to take a freer breath from a web one built oneself.',
+    'There may be a wish to take a freer breath from a web one built oneself.',
     'Может хотеться более свободного дыхания от сети, которую сплели сами.',
   ),
   fear: L10nTriple(

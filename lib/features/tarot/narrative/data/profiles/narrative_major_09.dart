@@ -12,7 +12,7 @@ const kNarrativeMajor09 = NarrativeCardProfile(
   canonicalCardId: 'major_09',
   coreMeaning: L10nTriple(
     'Dış gürültüden çekilip deneyimi içeriden inceleyerek kişisel bir ışık bulmayı anlatır.',
-    'At the center: withdrawing from noise to examine experience and find a personal light.',
+    'Withdrawing from noise to examine experience and find a personal light.',
     'Карта говорит об уходе от шума ради осмысления опыта и поиска собственного света.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor09 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, acele yanıtlar olmadan neyin gerçekten önemli olduğunu anlamak isteyebilir.',
-    'The longing is to understand what truly matters without rushed answers.',
+    'Someone may long to understand what truly matters without rushed answers.',
     'Может появиться желание понять действительно важное без поспешных ответов.',
   ),
   fear: L10nTriple(

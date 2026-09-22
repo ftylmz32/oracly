@@ -22,7 +22,7 @@ const kNarrativePentacles13 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Bakım, boğucu kontrole, kendini tüketmeye veya her şeyi üstlenmeye kayabilir.',
-    'Pushed too far, care yields smothering control, self-exhaustion, or taking everything on.',
+    'Smothering control, self-exhaustion, or taking everything on can appear when Care goes too far.',
     'Забота может стать удушающим контролем, самоистощением или принятием всего на себя.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles13 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elindeki alanı güvenilir ve bereketli tutmak isteyebilir.',
-    'Part of this archetype longs to keep the space in hand reliable and fertile.',
+    'Keeping what is in hand reliable and fertile may be longed for.',
     'Может хотеться держать пространство в руке надёжным и плодородным.',
   ),
   fear: L10nTriple(

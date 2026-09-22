@@ -12,7 +12,7 @@ const kNarrativeWands13 = NarrativeCardProfile(
   canonicalCardId: 'wands_13',
   coreMeaning: L10nTriple(
     'Evin içindeki olgun ateşi anlatır; sahne ateşi değildir.',
-    'The card holds mature fire inside a house, not stage-fire.',
+    'Mature fire inside a house; not stage-fire.',
     'Говорит о зрелом огне внутри дома; не о сценическом огне.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeWands13 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Sıcaklık, kontrole, kıskançlığa veya sahiplenmeye kayabilir.',
-    'Pushed too far, warmth yields control, envy, or possession.',
+    'Warmth may slide into control, envy, or possession.',
     'Теплота может стать контролем, завистью или присвоением.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands13 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, olgun bir sıcaklığın güvenle paylaşılabildiği bir ev atmosferi isteyebilir.',
-    'The energy leans toward a household climate where mature warmth can be shared safely.',
+    'A household climate where mature warmth can be shared safely may be longed for.',
     'Может хотеться домашнего климата, где зрелую теплоту можно безопасно делить.',
   ),
   fear: L10nTriple(

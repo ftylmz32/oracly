@@ -12,7 +12,7 @@ const kNarrativeMajor20 = NarrativeCardProfile(
   canonicalCardId: 'major_20',
   coreMeaning: L10nTriple(
     'Geçmişi dürüstçe değerlendirip daha uyanık bir seçimle yeniden yönelmeyi anlatır.',
-    'At the center: reviewing the past honestly and choosing a more awake direction.',
+    'Reviewing the past honestly and choosing a more awake direction.',
     'Карта говорит о честном пересмотре прошлого и выборе более осознанного направления.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor20 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, deneyimlerini bütünleyip daha anlamlı bir çağrıya karşılık vermek isteyebilir.',
-    'A need to integrate experience and respond to a more meaningful calling can become visible.',
+    'Integrating experience and answering a more meaningful calling may become important.',
     'Может возникнуть желание объединить опыт и ответить на более значимый внутренний зов.',
   ),
   fear: L10nTriple(

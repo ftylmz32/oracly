@@ -12,7 +12,7 @@ const kNarrativeSwords06 = NarrativeCardProfile(
   canonicalCardId: 'swords_06',
   coreMeaning: L10nTriple(
     'Suyun üstünde giden zihni anlatır; henüz liman değil, sakin bir geçiştir.',
-    'What holds here is a mind traveling on water: a calm crossing, not yet harbor.',
+    'A mind traveling on water; not yet harbor, but a calm crossing.',
     'Говорит об уме, идущем по воде; ещё не гавань, а спокойный переход.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords06 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yorgun bir durulukla daha sakin bir kıyıya geçmek isteyebilir.',
-    'The longing is to cross toward a calmer shore with tired clarity.',
+    'Quietly, one may seek to cross toward a calmer shore with tired clarity.',
     'Может хотеться перейти к более спокойному берегу с усталой ясностью.',
   ),
   fear: L10nTriple(

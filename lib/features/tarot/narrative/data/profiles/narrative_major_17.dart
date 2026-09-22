@@ -32,7 +32,7 @@ const kNarrativeMajor17 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yeniden güvenebileceği sade bir işaret ve ferah bir yön arayabilir.',
-    'The pull is for a simple sign of trust and a spacious direction.',
+    'A simple sign of trust and a spacious direction may be longed for.',
     'Может хотеться простого знака, которому можно довериться, и свободного направления.',
   ),
   fear: L10nTriple(

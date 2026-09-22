@@ -32,7 +32,7 @@ const kNarrativeMajor02 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, dış seslerden uzaklaşıp kendi sessiz kavrayışına güvenmek isteyebilir.',
-    'The energy leans toward trying to step away from outside voices and trust quiet understanding.',
+    'Stepping away from outside voices to trust quiet understanding may feel necessary.',
     'Может появиться желание отойти от внешних голосов и довериться тихому пониманию.',
   ),
   fear: L10nTriple(

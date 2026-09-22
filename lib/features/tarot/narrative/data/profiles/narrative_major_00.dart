@@ -32,7 +32,7 @@ const kNarrativeMajor00 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, geçmiş tanımların yükü olmadan kendini yeniden deneyimlemek isteyebilir.',
-    'The pull is to experience oneself without the weight of old definitions.',
+    'One may long to meet oneself without the weight of old definitions.',
     'Может возникнуть желание почувствовать себя без груза прежних определений.',
   ),
   fear: L10nTriple(

@@ -22,7 +22,7 @@ const kNarrativePentacles10 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Soy, baskıya, zorunlu role veya kökleri taşlaştırmaya kayabilir.',
-    'The risk is pressure, a forced role, or turning roots into stone when Lineage is pushed too far.',
+    'Lineage can tip into pressure, a forced role, or turning roots into stone.',
     'Линия может стать давлением, навязанной ролью или окаменением корней.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles10 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, emeğin kendinden öteye tutunmasını isteyebilir.',
-    'The longing is for labor to hold beyond the self.',
+    'Quietly, one may reach for labor to hold beyond the self.',
     'Может хотеться, чтобы труд держался дальше себя.',
   ),
   fear: L10nTriple(

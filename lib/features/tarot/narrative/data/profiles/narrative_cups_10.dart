@@ -12,7 +12,7 @@ const kNarrativeCups10 = NarrativeCardProfile(
   canonicalCardId: 'cups_10',
   coreMeaning: L10nTriple(
     'Sakin dolu sofrayı anlatır; sonsuzluk iddiası değil, paylaşılan çember alanıdır.',
-    'What holds here is a calm full table: a field of shared circle, not a forever claim.',
+    'A calm full table; not a forever claim, but a field of shared circle.',
     'Говорит о спокойном полном столе; не о вечной претензии, а о поле общего круга.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups10 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, gerçek bir çemberde sakin bir ortak sofrayı yaşamak isteyebilir.',
-    'The longing is to live a calm shared table inside a real circle.',
+    'There may be a wish to live a calm shared table inside a real circle.',
     'Может хотеться жить спокойным общим столом внутри реального круга.',
   ),
   fear: L10nTriple(

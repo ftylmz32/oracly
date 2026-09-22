@@ -22,7 +22,7 @@ const kNarrativeWands14 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Yön, baskıya, egoya veya dinlememeye kayabilir.',
-    'The risk is pressure, ego, or not listening when Heading is pushed too far.',
+    'Heading may slide into pressure, ego, or not listening.',
     'Курс может стать давлением, эго или неслушанием.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands14 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, iradesini başkalarını yakmadan anlamlı bir yöne bağlamak isteyebilir.',
-    'The pull is to bind will to a meaningful heading without burning others.',
+    'Binding will to a meaningful heading without burning others may be sought.',
     'Может хотеться связать волю с осмысленным курсом, не сжигая других.',
   ),
   fear: L10nTriple(

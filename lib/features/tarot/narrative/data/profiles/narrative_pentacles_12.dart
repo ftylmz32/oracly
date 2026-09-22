@@ -22,7 +22,7 @@ const kNarrativePentacles12 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Sebat, katılığa, hız korkusuna veya hiç sapmamaya kayabilir.',
-    'Without balance, steadfastness can become rigidity, fear of speed, or never turning aside.',
+    'When unbalanced, Steadfastness becomes rigidity, fear of speed, or never turning aside.',
     'Стойкость может стать жёсткостью, страхом скорости или отказом свернуть.',
   ),
   tension: L10nTriple(

@@ -12,7 +12,7 @@ const kNarrativeMajor14 = NarrativeCardProfile(
   canonicalCardId: 'major_14',
   coreMeaning: L10nTriple(
     'Farklı unsurları acele etmeden karıştırıp sürdürülebilir bir orta yol oluşturmayı anlatır.',
-    'This archetype names patiently blending different elements into a sustainable middle way.',
+    'Patiently blending different elements into a sustainable middle way.',
     'Карта говорит о терпеливом соединении разных элементов в устойчивый срединный путь.',
   ),
   light: L10nTriple(

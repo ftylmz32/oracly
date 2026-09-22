@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3C.3A RT-M03 core/desire/shadow template diversification (part 1)
+**Updated:** 2026-09-22 — Tarot Phase 3C.3A.1 RT-M03A naturalness repair
 
 ---
 
@@ -29,6 +29,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.2 task start | `b03fac88ed45948d779ea208fd1536d7b39c3223` | RT-M01 Cups 09/10 |
 | Phase 3C.2 end | `776f040778ed61a94cead565b60016f5c8dc0e61` | RT-M01 resolved |
 | Phase 3C.3A task start | `776f040778ed61a94cead565b60016f5c8dc0e61` | RT-M03 part 1 (core/desire/shadow) |
+| Phase 3C.3A end | `8e6eedb6cbae693a236c1273725d75fcec63937f` | RT-M03 part 1 diversity gates |
+| Phase 3C.3A.1 task start | `8e6eedb6cbae693a236c1273725d75fcec63937f` | RT-M03A naturalness repair |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -95,6 +97,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.1 — RT-M02 reversed-orientation remediation | **COMPLETE** |
 | Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **COMPLETE** |
 | Phase 3C.3A — RT-M03 core/desire/shadow template diversification | **COMPLETE** (RT-M03 still OPEN) |
+| Phase 3C.3A.1 — RT-M03A naturalness repair | **COMPLETE** (3C.3A naturalness FROZEN; RT-M03 still OPEN) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -205,18 +208,41 @@ Pre-existing local noise (do **not** stage/clean):
 
 | Field | Value |
 |---|---|
-| Status | **PASS** (part 1 only) |
+| Status | **PASS** (part 1 only; metrics green; naturalness later repaired in 3C.3A.1) |
 | Fields in scope | `coreMeaning` · `desire` · `shadow` |
 | Profiles touched | **78** |
 | coreMeaning changed | **62** (EN) |
 | desire changed | **78** (EN) |
 | shadow changed | **47** (EN) |
 | Top opener share (all target × locales) | **≤ 25%** |
-| Replacement monoculture | **NO** |
+| Replacement monoculture | **NO** (mechanical gate); residual scaffold rotation repaired in **3C.3A.1** |
 | Historical EN stems (`It speaks of` / wish / slide) | **62→0** / **78→0** / **47→0** |
 | RT-M01 | **RESOLVED** |
 | RT-M02 | **RESOLVED** (shadow↔reversed exact clones=0) |
 | RT-M03 | **PARTIALLY REMEDIATED / OPEN** (interaction fields not yet remediated) |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** |
+
+### Phase 3C.3A.1
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| 3C.3A naturalness quality | **FROZEN** |
+| Fields changed | EN `coreMeaning` / `desire` / `shadow` only |
+| Profiles changed | **77** |
+| coreMeaning.en | **44** |
+| desire.en | **73** |
+| shadow.en | **33** |
+| TR/RU fields changed | **NONE** |
+| Replacement scaffolds cleared | At the center / meaning turns on / Part of this archetype / At the edge… → **0** |
+| Known stilted / fragmentary / template-swap remaining | **0** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **RESOLVED** |
+| RT-M03 | **PARTIALLY REMEDIATED / OPEN** |
 | DECK READY FOR EVIDENCE ENGINE | **NO** |
 | Narrative Evidence Engine | **NOT IMPLEMENTED** |
 | Runtime V2 | **NOT USER-REACHABLE** |
@@ -260,6 +286,7 @@ Production surface:
 | Flutter (Phase 3C.1 — PL-T3C.1) | 3715 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.2 — PL-T3C.2) | 3719 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.3A — PL-T3C.3A) | 3725 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3C.3A.1 — PL-T3C.3A.1) | 3728 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -284,7 +311,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before RT-M03 interaction-field remediation (Phase 3C.3B).**
+**ChatGPT review before Phase 3C.3B.**
 
 Do **not** start Phase 3C.3B, Evidence Engine, Visual System, or Memory-Recurring until an explicit next prompt.
 Do **not** mark future items completed until verified.

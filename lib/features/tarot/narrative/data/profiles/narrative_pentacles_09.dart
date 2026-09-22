@@ -32,7 +32,7 @@ const kNarrativePentacles09 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elindekiyle huzurlu ve bağımsız durmayı isteyebilir.',
-    'A need to stand at peace and independent with what is in hand can become visible.',
+    'Standing at peace and independent with what is in hand may be sought.',
     'Может хотеться стоять спокойно и самостоятельно с тем, что в руке.',
   ),
   fear: L10nTriple(

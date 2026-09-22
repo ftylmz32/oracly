@@ -22,7 +22,7 @@ const kNarrativePentacles03 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'İşbirliği, görünürlük yarışına veya katkıyı inkâr etmeye kayabilir.',
-    'Over-identifying with collaboration can open into a contest for visibility or denying a contribution.',
+    'Collaboration can tip into a contest for visibility or denying a contribution.',
     'Сотрудничество может стать соревнованием за видимость или отрицанием вклада.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles03 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, emeğin başkalarıyla anlamlı bir şekilde birleşmesini isteyebilir.',
-    'Part of this archetype longs for labor to join meaningfully with others.',
+    'Labor joining meaningfully with others may be what is hoped for.',
     'Может хотеться, чтобы труд осмысленно соединился с другими.',
   ),
   fear: L10nTriple(

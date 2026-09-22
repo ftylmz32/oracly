@@ -12,7 +12,7 @@ const kNarrativeCups13 = NarrativeCardProfile(
   canonicalCardId: 'cups_13',
   coreMeaning: L10nTriple(
     'Duyguyu tutan olgun kabı anlatır; daha çok hisseden bir rol değil, tutma ve ayırt etme alanıdır.',
-    'What holds here is a mature vessel that holds feeling: a field of holding and discerning, not a role that feels more.',
+    'A mature vessel that holds feeling; not a role that feels more, but a field of holding and discerning.',
     'Говорит о зрелом сосуде, держащем чувство; не о роли, что чувствует больше, а о поле удержания и различения.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups13 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Tutma taşmaya, sınır yokluğuna veya kurtarma saplantısına kayabilir.',
-    'At the edge of this archetype, overflow, no boundary, or rescuing.',
+    'Holding can tip into overflow, vanished boundaries, or rescuing.',
     'Удержание может стать переполнением, отсутствием границ или спасательством.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups13 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duyguları olgun bir kabın dinginliğiyle taşımak isteyebilir.',
-    'What is sought is to carry feelings with the calm of a mature vessel.',
+    'Quietly, one may seek to carry feelings with the calm of a mature vessel.',
     'Может хотеться нести чувства спокойствием зрелого сосуда.',
   ),
   fear: L10nTriple(

@@ -12,7 +12,7 @@ const kNarrativeCups12 = NarrativeCardProfile(
   canonicalCardId: 'cups_12',
   coreMeaning: L10nTriple(
     'Kadehi yola çıkaranı anlatır; sunma ve akış alanıdır, peşinden koşulan romantizm değil.',
-    'The meaning turns on one who takes the cup on the road; a field of offer and flow, not chase-romance.',
+    'One who takes the cup on the road; a field of offer and flow, not romance-as-chase.',
     'Говорит о том, кто берёт чашу в путь; поле предложения и потока, не романтики-погони.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups12 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duygusal bir sunuyu yolda dürüstçe ilerletmek isteyebilir.',
-    'The longing is to advance an emotional offer honestly on the road.',
+    'There may be a wish to advance an emotional offer honestly on the road.',
     'Может хотеться честно продвигать эмоциональное предложение в пути.',
   ),
   fear: L10nTriple(

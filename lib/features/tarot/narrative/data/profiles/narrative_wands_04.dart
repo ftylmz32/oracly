@@ -12,7 +12,7 @@ const kNarrativeWands04 = NarrativeCardProfile(
   canonicalCardId: 'wands_04',
   coreMeaning: L10nTriple(
     'Ateşin ev eşiğinde durduğu ara nefesi ve köklenen bir molayı anlatır.',
-    'This archetype names fire pausing at a household threshold; a rooted interval of breath.',
+    'Fire pausing at a household threshold; a rooted interval of breath.',
     'Говорит об огне у порога дома; об укоренённом промежутке дыхания.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeWands04 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Mola, erken kutlama, dağılma veya yerleşememe haline kayabilir.',
-    'The risk is an early feast, scatter, or unsettled drift when The pause is pushed too far.',
+    'The pause may slide into an early feast, scatter, or unsettled drift.',
     'Пауза может стать ранним праздником, рассевом или неустроенностью.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands04 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, burada güvenle durabileceği sıcak bir eşik arayabilir.',
-    'Part of this archetype longs for a warm threshold where one can stand with trust.',
+    'A warm threshold where one can stand with trust may be sought.',
     'Может хотеться тёплого порога, где можно стоять с доверием.',
   ),
   fear: L10nTriple(

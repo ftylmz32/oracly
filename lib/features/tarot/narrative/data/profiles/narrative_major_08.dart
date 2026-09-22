@@ -32,7 +32,7 @@ const kNarrativeMajor08 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, sertleşmeden dayanabilmek ve kendi yoğunluğuna güvenmek isteyebilir.',
-    'A need to endure without hardening and trust one\'s own intensity can become visible.',
+    'Enduring without hardening — and trusting one\'s own intensity — may be the quiet aim.',
     'Может хотеться выдерживать трудности без ожесточения и доверять собственной силе чувств.',
   ),
   fear: L10nTriple(

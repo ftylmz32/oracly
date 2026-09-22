@@ -22,7 +22,7 @@ const kNarrativePentacles01 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Tohum, acele sonuç beklentisine veya henüz olmayan bolluğu saymaya kayabilir.',
-    'Pushed too far, the seed yields rushing for results or counting abundance that is not yet there.',
+    'Rushing for results or counting abundance that is not yet there can appear when The seed goes too far.',
     'Семя может стать спешкой к результату или подсчётом ещё несуществующего изобилия.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles01 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elde uyanan ilk maddi imkânı bozmadan tutmak isteyebilir.',
-    'A need to hold a first material possibility without breaking it can become visible.',
+    'Holding a first material possibility carefully, without breaking it, may matter.',
     'Может хотеться удержать первую вещественную возможность, не ломая её.',
   ),
   fear: L10nTriple(

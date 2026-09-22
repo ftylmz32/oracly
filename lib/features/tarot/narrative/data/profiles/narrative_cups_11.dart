@@ -22,7 +22,7 @@ const kNarrativeCups11 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Merak aşırı duyarlılığa, kaçış düşüne veya her işareti abartmaya kayabilir.',
-    'Without balance, curiosity can become over-sensitivity, escape-dream, or overreading every sign.',
+    'Curiosity can tip into over-sensitivity, escape into dream, or overreading every sign.',
     'Любопытство может стать сверхчувствительностью, мечтой-бегством или преувеличением каждого знака.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups11 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duygusal dili utangaç ama açık bir merakla öğrenmek isteyebilir.',
-    'The energy leans toward trying to learn emotional language with shy, open curiosity.',
+    'Someone may want to learn emotional language with shy, open curiosity.',
     'Может хотеться изучать язык чувств с застенчивым открытым любопытством.',
   ),
   fear: L10nTriple(

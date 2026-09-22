@@ -32,7 +32,7 @@ const kNarrativeWands05 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, sürtünmede bile onurunu koruyarak ayakta kalmak isteyebilir.',
-    'A need to stay standing with honor even inside friction can become visible.',
+    'Staying standing with honor even inside friction may matter.',
     'Может хотеться устоять с честью даже внутри трения.',
   ),
   fear: L10nTriple(

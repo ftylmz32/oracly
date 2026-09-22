@@ -12,7 +12,7 @@ const kNarrativeSwords05 = NarrativeCardProfile(
   canonicalCardId: 'swords_05',
   coreMeaning: L10nTriple(
     'Kazanılmış gibi duran boş bir kesiyi anlatır; söz savaşında neşe yoktur.',
-    'At the center: a hollow cut that looks like winning; there is no joy in a war of words.',
+    'A hollow cut that looks like winning; there is no joy in a war of words.',
     'Говорит о пустом разрезе, похожем на победу; в войне слов радости нет.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords05 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, tartışmada üstün çıkmayı veya son sözü almayı isteyebilir.',
-    'A need to come out ahead in an argument, or to take the last word can become visible.',
+    'Coming out ahead in an argument — or taking the last word — may pull strongly.',
     'Может хотеться выйти впереди в споре или взять последнее слово.',
   ),
   fear: L10nTriple(

@@ -154,4 +154,82 @@ void main() {
       isTrue,
     );
   });
+
+  test('RT-M03A.1 replacement-scaffold concentration stays bounded', () {
+    final scaffolds = <String, RegExp>{
+      'At the center:': RegExp(r'^At the center:', multiLine: true),
+      'The meaning turns on': RegExp(
+        r'^The meaning turns on\b',
+        multiLine: true,
+      ),
+      'Part of this archetype': RegExp(
+        r'^Part of this archetype\b',
+        multiLine: true,
+      ),
+      'At the edge of this archetype': RegExp(
+        r'^At the edge of this archetype\b',
+        multiLine: true,
+      ),
+      'What is wanted is': RegExp(r'^What is wanted is\b', multiLine: true),
+      'The pull is': RegExp(r'^The pull is\b', multiLine: true),
+      'A need to': RegExp(r'^A need to\b', multiLine: true),
+      'The energy leans toward': RegExp(
+        r'^The energy leans toward\b',
+        multiLine: true,
+      ),
+      'Without balance': RegExp(r'^Without balance\b', multiLine: true),
+      'The risk is': RegExp(r'^The risk is\b', multiLine: true),
+    };
+    final heavy = <String>[];
+    for (final entry in scaffolds.entries) {
+      var n = 0;
+      for (final p in all) {
+        for (final s in [p.coreMeaning.en, p.desire.en, p.shadow.en]) {
+          if (entry.value.hasMatch(s.trim())) n++;
+        }
+      }
+      // Soft cap: occasional natural use OK; mass scaffolding not.
+      if (n > 8) heavy.add('${entry.key}=$n');
+    }
+    expect(heavy, isEmpty, reason: heavy.join(', '));
+  });
+
+  test('RT-M03A.1 no fragmentary At-the-edge noun-list shadows', () {
+    final bad = <String>[];
+    final verb = RegExp(
+      r'\b(can|may|becomes?|turns?|hardens?|appears?|is|are|does|do)\b',
+      caseSensitive: false,
+    );
+    for (final p in all) {
+      final s = p.shadow.en.trim();
+      if (!s.startsWith('At the edge of this archetype,')) continue;
+      final rest = s.substring('At the edge of this archetype,'.length);
+      if (!verb.hasMatch(rest)) bad.add(p.canonicalCardId);
+    }
+    expect(bad, isEmpty, reason: bad.join(', '));
+  });
+
+  test(
+    'RT-M03A.1 high-risk EN shadows stay grammatical and non-telegraphic',
+    () {
+      String sh(String id) =>
+          NarrativeTarotProfileCatalog.lookup(id)!.shadow.en.toLowerCase();
+      expect(sh('swords_09').contains('catastrophe-dream'), isFalse);
+      expect(sh('swords_09').contains('insomnia-identity'), isFalse);
+      expect(sh('swords_09').contains('guilt-load'), isFalse);
+      expect(
+        sh('swords_09').contains('can') || sh('swords_09').contains('may'),
+        isTrue,
+      );
+      expect(
+        sh('pentacles_07').contains('waiting') ||
+            sh('pentacles_07').contains('patience'),
+        isTrue,
+      );
+      expect(
+        sh('pentacles_07').startsWith('at the edge of this archetype,'),
+        isFalse,
+      );
+    },
+  );
 }

@@ -325,6 +325,28 @@ Chronological project execution ledger.
 | Full Flutter | **3725** passed · **0** failed · **15** skipped · **0** timed out |
 | Outcome | **PASS** |
 
+### PL-T3C.3A.1 — RT-M03A NATURALNESS REPAIR
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | RT-M03A naturalness — remove replacement-template rotation |
+| Start SHA | `8e6eedb6cbae693a236c1273725d75fcec63937f` |
+| Profiles changed | **77** |
+| Fields changed | coreMeaning.en **44** · desire.en **73** · shadow.en **33** |
+| TR/RU | **NONE** |
+| Scaffold before→after | At the center 15→0 · meaning turns on 6→0 · Part of this archetype 13→0 · At the edge 8→0 · What is wanted 6→0 · The pull is 6→0 · A need to 11→0 · energy leans 7→0 · Without balance 8→0 · The risk is 5→0 |
+| Stilted/fragmentary/template-swap remaining | **0** |
+| Canonical fidelity | drift **0** |
+| Safety | **PASS** |
+| RT-M01 / RT-M02 | **RESOLVED** / **RESOLVED** |
+| RT-M03 | **PARTIALLY REMEDIATED / OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| 3C.3A naturalness | **FROZEN** |
+| Phase 2 26/27 | Canonical `flutter test test/features/tarot/narrative_v2/` = **27** passed; 3C.3A summary **26** was reporting miscount |
+| Full Flutter | **3728** passed · **0** failed · **15** skipped · **0** timed out |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -346,6 +368,7 @@ Chronological project execution ledger.
 | PL-T3C.1 | Tarot Phase 3C.1 — RT-M02 reversed-orientation remediation | **DONE** |
 | PL-T3C.2 | Tarot Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **DONE** |
 | PL-T3C.3A | Tarot Phase 3C.3A — RT-M03 core/desire/shadow diversification | **DONE** (RT-M03 still OPEN) |
+| PL-T3C.3A.1 | Tarot Phase 3C.3A.1 — RT-M03A naturalness repair | **DONE** (naturalness FROZEN; RT-M03 still OPEN) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M03 partially remediated/open; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |

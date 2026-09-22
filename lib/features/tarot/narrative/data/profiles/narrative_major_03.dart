@@ -12,7 +12,7 @@ const kNarrativeMajor03 = NarrativeCardProfile(
   canonicalCardId: 'major_03',
   coreMeaning: L10nTriple(
     'Büyümeyi besleyen ilgiyi, duyusal canlılığı ve üretken bir alan kurmayı anlatır.',
-    'At the center: care that supports growth, sensory aliveness, and a fertile space for creation.',
+    'Care that supports growth, sensory aliveness, and a fertile space for creation.',
     'Карта говорит о заботе, поддерживающей рост, чувственной живости и плодотворном пространстве созидания.',
   ),
   light: L10nTriple(

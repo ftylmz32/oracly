@@ -12,7 +12,7 @@ const kNarrativePentacles04 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_04',
   coreMeaning: L10nTriple(
     'Eşiği koruyan kapalı eli anlatır; kilitlemek değil, tutarak güvence aramaktır.',
-    'What holds here is a closed hand at the threshold: seeking safety by holding, not locking everything.',
+    'A closed hand at the threshold; not locking everything, but seeking safety by holding.',
     'Говорит о закрытой руке на пороге; не о запирании всего, а о поиске опоры через удержание.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles04 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elindekini kaybetmeden saklamak isteyebilir.',
-    'The longing is to keep what is in hand without losing it.',
+    'A longing to keep what is in hand without losing it may surface.',
     'Может хотеться сохранить то, что в руке, не теряя его.',
   ),
   fear: L10nTriple(

@@ -32,7 +32,7 @@ const kNarrativeMajor15 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yoğunluk, güvence veya boşluğu hızla susturan bir yakınlık arayabilir.',
-    'What is wanted is intensity, reassurance, or closeness that quickly quiets emptiness.',
+    'Intensity, reassurance, or closeness that quickly quiets emptiness may be reached for.',
     'Может хотеться интенсивности, уверенности или близости, быстро заглушающей пустоту.',
   ),
   fear: L10nTriple(

@@ -32,7 +32,7 @@ const kNarrativeMajor19 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, anlaşılır, sıcak ve yaşam enerjisini rahatça ifade edebildiği bir alan isteyebilir.',
-    'The longing is for a warm, clear space where life energy can be expressed freely.',
+    'It can feel important to find a warm, clear space where life energy can be expressed freely.',
     'Может хотеться теплого и ясного пространства для свободного выражения жизненной энергии.',
   ),
   fear: L10nTriple(

@@ -12,7 +12,7 @@ const kNarrativeWands09 = NarrativeCardProfile(
   canonicalCardId: 'wands_09',
   coreMeaning: L10nTriple(
     'Korunan son kıvılcımı anlatır; bitmiş bir yol değildir.',
-    'Here the field is the last guarded spark; the path is not finished.',
+    'The last guarded spark; the path is not finished.',
     'Говорит о последней охраняемой искре; путь ещё не окончен.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeWands09 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Nöbet, tükenmişlik, şüphe veya yalnız savaş anlatısına kayabilir.',
-    'Pushed too far, the watch yields exhaustion, doubt, or a lone-war story.',
+    'The watch can tip into exhaustion, doubt, or a lone-war story.',
     'Дозор может стать истощением, сомнением или повестью одинокой войны.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands09 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yorgun olsa da son ateşini kaybetmeden ayakta kalmak isteyebilir.',
-    'The energy leans toward trying to stay standing without losing the last fire, even while tired.',
+    'Staying standing without losing the last fire — even while tired — may be the aim.',
     'Может хотеться устоять, не теряя последний огонь, даже в усталости.',
   ),
   fear: L10nTriple(

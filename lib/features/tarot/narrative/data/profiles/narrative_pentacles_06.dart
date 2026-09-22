@@ -22,7 +22,7 @@ const kNarrativePentacles06 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Paylaşım, üstünlük gösterisine, borç yüklemeye veya almak utancına kayabilir.',
-    'At the edge of this archetype, a display of superiority, loading debt, or shame at receiving.',
+    'Giving and receiving can tip into a display of superiority, loading debt, or shame at receiving.',
     'Обмен может стать показом превосходства, навешиванием долга или стыдом принимать.',
   ),
   tension: L10nTriple(

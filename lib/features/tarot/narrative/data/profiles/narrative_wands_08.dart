@@ -22,7 +22,7 @@ const kNarrativeWands08 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Hız, acele, dağılma veya her oku kovalama sabırsızlığına kayabilir.',
-    'Pushed too far, speed yields haste, scatter, or impatience that chases every arrow.',
+    'Speed may harden into haste, scatter, or impatience that chases every arrow.',
     'Скорость может стать спешкой, рассевом или нетерпением, гонящимся за каждой стрелой.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands08 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, tıkanmadan akan, net bir hareket ritmi isteyebilir.',
-    'What is wanted is a clear rhythm of motion that does not clog.',
+    'A clear rhythm of motion that does not clog may be sought.',
     'Может хотеться ясного ритма движения, который не засоряется.',
   ),
   fear: L10nTriple(

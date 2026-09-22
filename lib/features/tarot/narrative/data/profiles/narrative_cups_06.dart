@@ -12,7 +12,7 @@ const kNarrativeCups06 = NarrativeCardProfile(
   canonicalCardId: 'cups_06',
   coreMeaning: L10nTriple(
     'Eski kadehin bugünkü sofrada durmasını anlatır; bellek ve yalınlık alanıdır, karşılıklılık değil.',
-    'At the center: an old cup on today\'s table; a field of memory and simplicity, not mutuality.',
+    'An old cup on today\'s table; a field of memory and simplicity, not mutuality.',
     'Говорит о старой чаше на сегодняшнем столе; поле памяти и простоты, не взаимности.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups06 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, tanıdık bir sıcaklığı yalınlıkla yeniden hissetmek isteyebilir.',
-    'A need to feel a familiar warmth again in simplicity can become visible.',
+    'Familiar warmth in simple form may be what someone reaches for.',
     'Может хотеться снова почувствовать знакомое тепло в простоте.',
   ),
   fear: L10nTriple(

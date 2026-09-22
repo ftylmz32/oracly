@@ -12,7 +12,7 @@ const kNarrativeCups14 = NarrativeCardProfile(
   canonicalCardId: 'cups_14',
   coreMeaning: L10nTriple(
     'Suyu yönlendiren sakin duruşu anlatır; duyguları kontrol eden bir rol değil, ölçülü sorumluluk alanıdır.',
-    'What holds here is a calm stance that steers water: a field of measured responsibility, not a role that controls emotion.',
+    'A calm stance that steers water; not a role that controls emotion, but a field of measured responsibility.',
     'Говорит о спокойной позе, направляющей воду; не о роли, контролирующей эмоции, а о поле сдержанной ответственности.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups14 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Yön verme soğukluğa, bastırmaya veya donmuş bir duruşa kayabilir.',
-    'Over-identifying with steering can open into coldness, suppression, or a frozen stance.',
+    'Steering may harden into coldness, suppression, or a frozen stance.',
     'Направление может стать холодностью, подавлением или замёрзшей позой.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups14 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duygusal akışı ölçülü bir sorumlulukla yönlendirmek isteyebilir.',
-    'The longing is to steer emotional flow with measured responsibility.',
+    'Quietly, one may seek to steer emotional flow with measured responsibility.',
     'Может хотеться направлять эмоциональный поток с сдержанной ответственностью.',
   ),
   fear: L10nTriple(

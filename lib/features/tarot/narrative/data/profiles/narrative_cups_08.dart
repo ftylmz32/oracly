@@ -12,7 +12,7 @@ const kNarrativeCups08 = NarrativeCardProfile(
   canonicalCardId: 'cups_08',
   coreMeaning: L10nTriple(
     'Geride bırakılan kadeh ve daha derin arayışı anlatır; aktif ayrılış alanıdır, durgunluk değil.',
-    'The meaning turns on a cup left behind and a deeper search; a field of active leaving, not pause.',
+    'A cup left behind and a deeper search; a field of active leaving, not pause.',
     'Говорит об оставленной чаше и более глубоком поиске; поле активного ухода, не паузы.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups08 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Ayrılış yakarak gitmeye, kaçışa veya yarım bırakılmış arayışa kayabilir.',
-    'Without balance, leaving can become departing by burning, escape, or a half-abandoned search.',
+    'Departing by burning, escape, or a half-abandoned search can appear when Leaving goes too far.',
     'Уход может стать уходом сожжением, бегством или наполовину брошенным поиском.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups08 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, artık yetmeyen duygusal zemini dürüstçe terk etmek isteyebilir.',
-    'Part of this archetype longs to leave an emotional ground that no longer holds, honestly.',
+    'Honest leave-taking may be sought — to leave an emotional ground that no longer holds, honestly.',
     'Может хотеться честно оставить эмоциональную почву, которая больше не держит.',
   ),
   fear: L10nTriple(

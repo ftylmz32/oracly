@@ -22,7 +22,7 @@ const kNarrativeSwords10 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Son felaket kimliğine, kalkmamaya veya her şey bitti hikâyesine kayabilir.',
-    'The end turns brittle when it becomes disaster-identity, not rising, or an all-is-over story.',
+    'An ending can turn brittle when it becomes identifying with disaster, refusing to rise, or telling a story that everything is over.',
     'Конец может стать личностью бедствия, невставанием или историей «всё кончено».',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords10 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, tükenmiş bir dilin veya fikir savaşının kapanmasını isteyebilir.',
-    'The longing is for exhausted language or a war of ideas to close.',
+    'There may be a wish for exhausted language or a war of ideas to close.',
     'Может хотеться, чтобы исчерпанный язык или война идей закрылась.',
   ),
   fear: L10nTriple(

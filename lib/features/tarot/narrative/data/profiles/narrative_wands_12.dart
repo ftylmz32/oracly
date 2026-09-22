@@ -12,7 +12,7 @@ const kNarrativeWands12 = NarrativeCardProfile(
   canonicalCardId: 'wands_12',
   coreMeaning: L10nTriple(
     'Hareket halindeki ateşi anlatır; varış noktası henüz ev değildir.',
-    'The meaning turns on fire in motion; the destination is not yet home.',
+    'Fire in motion; the destination is not yet home.',
     'Говорит об огне в движении; место прибытия ещё не дом.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands12 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duramayan bir ısıyı anlamlı bir yola dönüştürmek isteyebilir.',
-    'A need to turn restless heat into a meaningful road can become visible.',
+    'Turning restless heat into a meaningful road may become important.',
     'Может хотеться превратить неспокойный жар в осмысленную дорогу.',
   ),
   fear: L10nTriple(

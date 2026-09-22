@@ -32,7 +32,7 @@ const kNarrativeSwords03 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, kırık ama duru bir yeri sessizce tanımak isteyebilir.',
-    'Part of this archetype longs to quietly recognize a place both broken and still clear.',
+    'Quietly recognizing a place both broken and still clear may be needed.',
     'Может хотеться тихо узнать место и сломанное, и всё ещё ясное.',
   ),
   fear: L10nTriple(

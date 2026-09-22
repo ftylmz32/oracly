@@ -32,7 +32,7 @@ const kNarrativePentacles14 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, maddenin güvenilir ve hesaplı durmasını isteyebilir.',
-    'The longing is for matter to stand reliable and accountable.',
+    'Someone may long for matter to stand reliable and accountable.',
     'Может хотеться, чтобы вещество стояло надёжным и подотчётным.',
   ),
   fear: L10nTriple(

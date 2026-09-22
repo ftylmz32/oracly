@@ -32,7 +32,7 @@ const kNarrativePentacles02 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, iki yükümlülüğü kırılmadan taşımayı isteyebilir.',
-    'The pull is to carry two obligations without breaking either.',
+    'Carrying two obligations without breaking either may be the quiet demand.',
     'Может хотеться нести два обязательства, не ломая ни одно.',
   ),
   fear: L10nTriple(

@@ -32,7 +32,7 @@ const kNarrativeMajor01 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, kendi emeğinin sonuç üzerinde gerçek bir iz bıraktığını görmek isteyebilir.',
-    'A need to see one\'s own effort leave a real mark on the outcome can become visible.',
+    'Honest leave-taking may be sought — to see one\'s own effort leave a real mark on the outcome.',
     'Может хотеться увидеть, что собственный труд действительно повлиял на результат.',
   ),
   fear: L10nTriple(

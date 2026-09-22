@@ -12,7 +12,7 @@ const kNarrativeCups09 = NarrativeCardProfile(
   canonicalCardId: 'cups_09',
   coreMeaning: L10nTriple(
     'Dolu kadehi sahnelenmiş mutluluk değil, kişisel yeterlilik olarak anlatır.',
-    'At the center: a full cup as personal enough, not staged happiness.',
+    'A full cup as personal enough, not staged happiness.',
     'Говорит о полной чаше как о личной достаточности, не о показном счастье.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups09 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Doyum şişmeye, yalnız zafere veya sergilenmiş mutluluğa kayabilir.',
-    'At the edge of this archetype, inflation, lone victory, or displayed happiness.',
+    'Satisfaction can tip into inflation, lone victory, or happiness put on display.',
     'Удовлетворение может стать раздутостью, одиночной победой или показным счастьем.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups09 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duygusal bir doluluğu kendi içinde sakinçe tatmak isteyebilir.',
-    'Part of this archetype longs to taste emotional fullness calmly within oneself.',
+    'Calm emotional fullness within oneself may be what is sought.',
     'Может хотеться спокойно вкусить эмоциональную полноту внутри себя.',
   ),
   fear: L10nTriple(

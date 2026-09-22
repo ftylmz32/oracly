@@ -32,7 +32,7 @@ const kNarrativeWands07 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, baskı altında bile \'ben buradayım\' diyebilecek bir duruş isteyebilir.',
-    'What is wanted is a stance that can still say \'I am here\' under pressure.',
+    'A stance that can still say \'I am here\' under pressure may be needed.',
     'Может хотеться стойки, способной даже под давлением сказать «я здесь».',
   ),
   fear: L10nTriple(

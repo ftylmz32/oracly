@@ -32,7 +32,7 @@ const kNarrativeMajor13 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, ağırlaşmış bir dönemi kapatıp daha dürüst bir yaşam alanı isteyebilir.',
-    'What is sought is to close a burdensome chapter and inhabit a truer space.',
+    'A longing to close a burdensome chapter and inhabit a truer space may surface.',
     'Может возникнуть желание завершить тяжелый этап и перейти в более честное пространство жизни.',
   ),
   fear: L10nTriple(

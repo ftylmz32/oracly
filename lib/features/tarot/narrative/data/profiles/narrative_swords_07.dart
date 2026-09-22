@@ -22,7 +22,7 @@ const kNarrativeSwords07 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Saklama güvensizliğe, yalnız plana veya kendine yalana kayabilir.',
-    'At the edge of this archetype, mistrust, a lone plan, or a lie to oneself.',
+    'Strategy can tip into mistrust, a lone plan, or a lie to oneself.',
     'Укрытие может стать недоверием, одиноким планом или ложью себе.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords07 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, dolaylı bir hareketi veya saklanan sözü anlamak isteyebilir.',
-    'The pull is to understand an indirect move or a hidden word.',
+    'Understanding an indirect move or a hidden word may become important.',
     'Может хотеться понять косвенное движение или скрытое слово.',
   ),
   fear: L10nTriple(

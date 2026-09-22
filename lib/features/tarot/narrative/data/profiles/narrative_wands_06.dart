@@ -12,7 +12,7 @@ const kNarrativeWands06 = NarrativeCardProfile(
   canonicalCardId: 'wands_06',
   coreMeaning: L10nTriple(
     'Bir eşiği geçmiş ateşi anlatır; henüz sonsuz zafer değildir.',
-    'The card holds fire that has crossed a threshold, not endless triumph.',
+    'Fire that has crossed a threshold; not endless triumph.',
     'Говорит об огне, перешедшем порог; не о вечной победе.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands06 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, geçtiği eşiğin sade ve dürüst biçimde görülmesini isteyebilir.',
-    'Part of this archetype longs for the crossed threshold to be seen simply and honestly.',
+    'Having the crossed threshold seen simply and honestly may be wanted.',
     'Может хотеться, чтобы перейденный порог увидели просто и честно.',
   ),
   fear: L10nTriple(
