@@ -17,7 +17,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   ),
   light: L10nTriple(
     'Düşünceleri saymak, hepsine inanmadan zihin yükünü ayırmaya alan açabilir.',
-    'Counting thoughts can make room to separate mind-load without believing them all.',
+    'Counting thoughts can make room to separate the mental burden without believing them all.',
     'Считать мысли может дать место отделить ношу ума, не веря всем.',
   ),
   shadow: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, gece zihninin gürültüsünden sakin bir sabah istemek isteyebilir.',
-    'Someone may long for a quiet morning after the night-mind\'s noise.',
+    'Someone may long for a quiet morning after the noise of nighttime worry.',
     'Может хотеться тихого утра после шума ночного ума.',
   ),
   fear: L10nTriple(
@@ -58,7 +58,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(
       'Sayılan düşünce, gece yükünü kehanet sanmadan tutar.',
-      'Counted thought holds night-load without mistaking it for prophecy.',
+      'Counted thought holds the night\'s mental burden without mistaking it for prophecy.',
       'Сочтённая мысль держит ночную ношу, не принимая её за пророчество.',
     ),
     transforms: <ReversedTransformKind>[],
@@ -67,7 +67,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
       'Gece düşüncesi felaket hayaline aşırı şişebilir veya uykusuzluk kimliği ve suç yüküne içe çekilebilir.',
-      'Night thought may tip into excess catastrophe-dream, or internalize into insomnia-identity and private guilt-load.',
+      'Nighttime worry may swell until catastrophic scenarios feel larger than the evidence, or fear and sleeplessness may turn inward until private guilt begins to shape how the night is read.',
       'Ночная мысль может перейти в избыточную мечту-катастрофу или уйти внутрь в личность бессонницы и частный груз вины.',
     ),
     transforms: [

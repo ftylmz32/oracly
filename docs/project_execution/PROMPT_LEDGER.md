@@ -457,6 +457,33 @@ Chronological project execution ledger.
 | Full Flutter | **3749** passed · **0** failed · **15** skipped · **0** timed out (+9 from FR-M03 tests) |
 | Outcome | **PASS** |
 
+### PL-T3C.5C — FR-M01 / FR-M02 TARGETED EN NATURALNESS
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | English prose naturalness only |
+| Start SHA | `4b1c7aecc8b9a77a0452a4a318ccb509b00d4c75` |
+| Profiles changed | `swords_09`, `cups_10` |
+| EN fields changed | swords_09: light, desire, upright.expression, reversed.expression · cups_10: coreMeaning, desire, relationshipDynamic |
+| TR / RU | **Unchanged** |
+| keywordIds / transforms | **Unchanged** |
+| Canonical fidelity | **FAITHFUL** |
+| Naturalness read-back | **PASS** |
+| FR-M01 / FR-M02 | **RESOLVED** |
+| RT-M01 / RT-M02 | **RESOLVED** (protected) |
+| RT-M03 | **RESOLVED — NON-BLOCKING MINORS REMAIN** |
+| FR-M04 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — FR-M04 blocks |
+| Focused test | `narrative_fr_m01_m02_en_naturalness_test.dart` — **7** passed · **0** failed |
+| Profile domain | **102** passed · **0** failed |
+| Phase 3C red-team | **28** passed · **0** failed |
+| Phase 2/2.1 | **27** passed · **0** failed |
+| R2/R2.1 | **13** passed · **0** failed |
+| Analyze | errors **0** · warnings **0** (infos baseline only) |
+| Full Flutter | **3756** passed · **0** failed · **15** skipped · **0** timed out (+7 from FR-M01/M02 tests) |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -483,7 +510,8 @@ Chronological project execution ledger.
 | PL-T3C.4 | Tarot Phase 3C.4 — Final 78-card cross-deck re-audit | **DONE** (readiness NO) |
 | PL-T3C.5A | Tarot Phase 3C.5A — FR-B01 Magician desire EN contamination | **DONE** (FR-B01 RESOLVED; readiness NO) |
 | PL-T3C.5B | Tarot Phase 3C.5B — FR-M03 shadow vs reversed court separation | **DONE** (FR-M03 + RT-M02 RESOLVED; readiness NO) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M03 + RT-M02 RESOLVED; FR-M01/M02/M04 + RT-M03 OPEN; Evidence Engine blocked) |
+| PL-T3C.5C | Tarot Phase 3C.5C — FR-M01 / FR-M02 EN naturalness | **DONE** (FR-M01/M02 RESOLVED; RT-M03 minors-only; FR-M04 OPEN; readiness NO) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M01/M02/M03 + RT-M01/M02/M03 RESOLVED; FR-M04 OPEN; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

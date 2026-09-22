@@ -483,3 +483,83 @@ Historical 3C.4 findings above are preserved; this section records remediation o
 | Regression test | `narrative_fr_m03_shadow_reversed_separation_test.dart` |
 
 Historical 3C.4 findings above are preserved; this section records remediation only.
+
+---
+
+## Phase 3C.5C remediation follow-up — FR-M01 / FR-M02
+
+| Field | Value |
+|---|---|
+| Phase | **3C.5C** |
+| Findings | **FR-M01**, **FR-M02** |
+| Status | **RESOLVED** / **RESOLVED** |
+| RT-M03 | **RESOLVED — NON-BLOCKING MINORS REMAIN** |
+
+### Initial EN field audit
+
+**swords_09**
+
+| Field | Classification | Action |
+|---|---|---|
+| coreMeaning.en | NATURAL | leave |
+| light.en | COMPOUND-SHORTHAND (`mind-load`) | rewrite |
+| shadow.en | NATURAL | leave |
+| tension.en | NATURAL | leave |
+| desire.en | COMPOUND-SHORTHAND (`night-mind`) | rewrite |
+| fear.en | NATURAL | leave |
+| relationshipDynamic.en | NATURAL | leave |
+| decisionDynamic.en | NATURAL | leave |
+| actionDirection.en | NATURAL | leave |
+| upright.expression.en | COMPOUND-SHORTHAND (`night-load`) | rewrite |
+| reversed.expression.en | COMPOUND-SHORTHAND (`catastrophe-dream` / `insomnia-identity` / `guilt-load`) | rewrite |
+
+**cups_10**
+
+| Field | Classification | Action |
+|---|---|---|
+| coreMeaning.en | AWKWARD (`field of shared circle`) | rewrite |
+| light.en | NATURAL | leave |
+| shadow.en | NATURAL | leave |
+| tension.en | NATURAL (defensible) | leave |
+| desire.en | AWKWARD (`live a calm shared table`) | rewrite |
+| fear.en | NATURAL | leave |
+| relationshipDynamic.en | COMPOUND-SHORTHAND (`circle-culture`) | rewrite |
+| decisionDynamic.en | NATURAL | leave |
+| actionDirection.en | NATURAL | leave |
+| upright.expression.en | NATURAL | leave |
+| reversed.expression.en | NATURAL | leave |
+
+### Production changes (EN only)
+
+| Card | Fields changed |
+|---|---|
+| `swords_09` | `light.en`, `desire.en`, `upright.expression.en`, `reversed.expression.en` |
+| `cups_10` | `coreMeaning.en`, `desire.en`, `relationshipDynamic.en` |
+
+| Item | Value |
+|---|---|
+| TR / RU | **Unchanged** |
+| keywordIds | **Unchanged** (FR-M04) |
+| transforms | **Unchanged** (`swords_09`: excess + internalization) |
+| Canonical fidelity | **FAITHFUL** |
+| Naturalness read-back | No metadata-leak compounds; ordinary English |
+| cups_09 vs cups_10 | Distinction preserved (personal contentment vs shared multi-person circle) |
+
+### Status after 3C.5C
+
+| Item | Status |
+|---|---|
+| FR-B01 | **RESOLVED** |
+| FR-M01 | **RESOLVED** |
+| FR-M02 | **RESOLVED** |
+| FR-M03 | **RESOLVED** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **RESOLVED** |
+| RT-M03 | **RESOLVED — NON-BLOCKING MINORS REMAIN** |
+| Remaining MINORS | FR-m01 RU contrast scaffold · FR-m02 “Quietly, one may seek” · FR-m03 cups_09 “enough” nouning · FR-m04 swords_10 compound craft |
+| FR-M04 | **OPEN** (blocking for Evidence Engine) |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — FR-M04 blocks |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Regression test | `narrative_fr_m01_m02_en_naturalness_test.dart` |
+
+Historical 3C.4 / 3C.5A / 3C.5B findings above are preserved; this section records remediation only.

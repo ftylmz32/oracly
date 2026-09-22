@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3C.5B FR-M03 shadow/reversed court separation
+**Updated:** 2026-09-23 — Tarot Phase 3C.5C FR-M01/M02 EN naturalness remediation
 
 ---
 
@@ -38,6 +38,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.5A task start | `582a2fd88c386bb64746b549950a22fd6ab04557` | FR-B01 Magician desire EN |
 | Phase 3C.5A end | `05aa15cca2d1b6fd00ce0d773f3656cb8ee5dbb4` | FR-B01 Magician desire RESOLVED |
 | Phase 3C.5B task start | `05aa15cca2d1b6fd00ce0d773f3656cb8ee5dbb4` | FR-M03 shadow vs reversed |
+| Phase 3C.5B end | `4b1c7aecc8b9a77a0452a4a318ccb509b00d4c75` | FR-M03 + RT-M02 RESOLVED |
+| Phase 3C.5C task start | `4b1c7aecc8b9a77a0452a4a318ccb509b00d4c75` | FR-M01 / FR-M02 EN naturalness |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -109,6 +111,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.4 — Final 78-card cross-deck re-audit | **COMPLETE** (audit PASS; deck readiness **NO**) |
 | Phase 3C.5A — FR-B01 Magician desire EN contamination | **COMPLETE** (FR-B01 RESOLVED; readiness still **NO**) |
 | Phase 3C.5B — FR-M03 shadow vs reversed court separation | **COMPLETE** (FR-M03 + RT-M02 RESOLVED; readiness still **NO**) |
+| Phase 3C.5C — FR-M01 / FR-M02 EN naturalness | **COMPLETE** (FR-M01/M02 + RT-M03 minors-only; readiness still **NO** — FR-M04) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -355,6 +358,29 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.5C
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| FR-B01 | **RESOLVED** |
+| FR-M01 | **RESOLVED** |
+| FR-M02 | **RESOLVED** |
+| FR-M03 | **RESOLVED** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **RESOLVED** |
+| RT-M03 | **RESOLVED — NON-BLOCKING MINORS REMAIN** |
+| Profiles changed | `swords_09`, `cups_10` |
+| EN fields changed | swords_09: light/desire/upright.expression/reversed.expression · cups_10: coreMeaning/desire/relationshipDynamic |
+| TR / RU | **Unchanged** |
+| keywordIds | **Unchanged** |
+| FR-M04 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — FR-M04 blocks |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** |
+
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
@@ -397,6 +423,7 @@ Production surface:
 | Flutter (Phase 3C.4 — PL-T3C.4) | docs/test-only; production source unmodified |
 | Flutter (Phase 3C.5A — PL-T3C.5A) | 3740 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.5B — PL-T3C.5B) | 3749 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3C.5C — PL-T3C.5C) | 3756 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -421,13 +448,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before FR-M01 / FR-M02 naturalness remediation.**
+**ChatGPT review before FR-M04 keyword ontology remediation.**
 
-Phase 3C.5B: **COMPLETE** if PASS · FR-B01: **RESOLVED** · FR-M03: **RESOLVED** · RT-M02: **RESOLVED**.
+Phase 3C.5C: **COMPLETE** if PASS · FR-B01: **RESOLVED** · FR-M01: **RESOLVED** · FR-M02: **RESOLVED** · FR-M03: **RESOLVED** · RT-M01: **RESOLVED** · RT-M02: **RESOLVED** · RT-M03: **RESOLVED — NON-BLOCKING MINORS REMAIN**.
 
-Still OPEN: FR-M01 · FR-M02 · FR-M04 · RT-M03.
+Still OPEN: FR-M04 (blocking).
 
-DECK READY FOR EVIDENCE ENGINE: **NO** · Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
+DECK READY FOR EVIDENCE ENGINE: **NO** — FR-M04 blocks · Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
 
-Do **not** start FR-M01/M02/M04, Narrative Evidence Engine, Visual System, or Memory-Recurring until readiness YES.
+Do **not** start FR-M04, Narrative Evidence Engine, Visual System, or Memory-Recurring until readiness YES.
 Do **not** mark future items completed until verified.
