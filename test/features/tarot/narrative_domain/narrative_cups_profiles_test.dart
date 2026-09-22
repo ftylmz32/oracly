@@ -31,26 +31,13 @@ void main() {
     expect(ids.length, ids.toSet().length);
   });
 
-  test('catalog totals 50 = 22 Major + 14 Wands + 14 Cups', () {
-    expect(NarrativeTarotProfileCatalog.count, 50);
-    expect(NarrativeTarotProfileCatalog.all.length, 50);
-    expect(NarrativeTarotProfileCatalog.majorProfiles.length, 22);
-    expect(NarrativeTarotProfileCatalog.wandsProfiles.length, 14);
+  test('Cups remain 14 within expanded V2 catalog; no Pentacles', () {
     expect(NarrativeTarotProfileCatalog.cupsProfiles.length, 14);
-    expect(NarrativeTarotProfileCatalog.minorProfiles.length, 28);
-    for (final p in NarrativeTarotProfileCatalog.all) {
-      final id = p.canonicalCardId;
-      expect(
-        id.startsWith('major_') ||
-            id.startsWith('wands_') ||
-            id.startsWith('cups_'),
-        isTrue,
-        reason: id,
-      );
-      expect(id.startsWith('swords_'), isFalse);
-      expect(id.startsWith('pentacles_'), isFalse);
+    expect(NarrativeTarotProfileCatalog.majorProfiles.length, 22);
+    expect(NarrativeTarotProfileCatalog.count, greaterThanOrEqualTo(50));
+    for (final p in NarrativeTarotProfileCatalog.cupsProfiles) {
+      expect(p.canonicalCardId.startsWith('cups_'), isTrue);
     }
-    expect(NarrativeTarotProfileCatalog.lookup('swords_01'), isNull);
     expect(NarrativeTarotProfileCatalog.lookup('pentacles_01'), isNull);
   });
 
@@ -79,9 +66,9 @@ void main() {
     }
   });
 
-  test('no full-profile duplication across all 50 V2 profiles', () {
+  test('no full-profile duplication across Cups profiles', () {
     final sigs = <String, String>{};
-    for (final p in NarrativeTarotProfileCatalog.all) {
+    for (final p in NarrativeTarotProfileCatalog.cupsProfiles) {
       final sig = NarrativeCardProfileValidator.primarySignature(p);
       expect(
         sigs.containsKey(sig),

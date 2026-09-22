@@ -31,14 +31,13 @@ void main() {
     expect(ids.length, ids.toSet().length);
   });
 
-  test('Wands remain 14 within expanded V2 catalog; no Swords/Pentacles', () {
+  test('Wands remain 14 within expanded V2 catalog; no Pentacles', () {
     expect(NarrativeTarotProfileCatalog.wandsProfiles.length, 14);
     expect(NarrativeTarotProfileCatalog.majorProfiles.length, 22);
     expect(NarrativeTarotProfileCatalog.count, greaterThanOrEqualTo(36));
     for (final p in NarrativeTarotProfileCatalog.wandsProfiles) {
       expect(p.canonicalCardId.startsWith('wands_'), isTrue);
     }
-    expect(NarrativeTarotProfileCatalog.lookup('swords_01'), isNull);
     expect(NarrativeTarotProfileCatalog.lookup('pentacles_01'), isNull);
   });
 

@@ -1,0 +1,85 @@
+/// Narrative Tarot V2 Swords profile — seeded from Oracly deck meanings.
+/// Phase 3B3: not wired into the user reading path.
+library;
+
+import '../../../../../core/l10n/l10n_triple.dart';
+import '../../domain/narrative_card_profile.dart';
+import '../../domain/narrative_orientation_profile.dart';
+import '../../domain/narrative_symbol_tags.dart';
+import '../../domain/reversed_transform_kind.dart';
+
+const kNarrativeSwords05 = NarrativeCardProfile(
+  canonicalCardId: 'swords_05',
+  coreMeaning: L10nTriple(
+    'Kazanılmış gibi duran boş bir kesiyi anlatır; söz savaşında neşe yoktur.',
+    'It speaks of a hollow cut that looks like winning; there is no joy in a war of words.',
+    'Говорит о пустом разрезе, похожем на победу; в войне слов радости нет.',
+  ),
+  light: L10nTriple(
+    'Kılıcı indirmek, puan saymayı bırakarak ilişkiyi koruyabilir.',
+    'Lowering the sword can protect the bond by stopping the scorekeeping.',
+    'Опустить меч может сберечь связь, перестав вести счёт.',
+  ),
+  shadow: L10nTriple(
+    'Haklılık incitmeyi, intikamı veya yalnız kalmayı büyütmeye kayabilir.',
+    'Rightness may slide into amplifying hurt, revenge, or being left alone.',
+    'Правота может усиливать ранение, месть или одинокое оставление.',
+  ),
+  tension: L10nTriple(
+    'Kazanma isteği ile bağın maliyetini görmeme riski çekişir.',
+    'The wish to win contends with the risk of not seeing the cost to the bond.',
+    'Желание победить спорит с риском не видеть цену для связи.',
+  ),
+  desire: L10nTriple(
+    'Kişi, tartışmada üstün çıkmayı veya son sözü almayı isteyebilir.',
+    'There may be a wish to come out ahead in an argument, or to take the last word.',
+    'Может хотеться выйти впереди в споре или взять последнее слово.',
+  ),
+  fear: L10nTriple(
+    'Kaybetmek, aşağılanmak veya yalnız kalmak kaygı yaratabilir.',
+    'Losing, humiliation, or being left alone may cause unease.',
+    'Тревогу может вызывать поражение, унижение или остаться одному.',
+  ),
+  relationshipDynamic: L10nTriple(
+    'Bağda incitici bir haklılık belirebilir; düşman ilanını puan tutmaktan ayırmayı ister.',
+    'Hurting rightness may appear in a bond; it asks to separate declaring an enemy from keeping score.',
+    'В связи может явиться ранящая правота; карта просит отделить объявление врага от ведения счёта.',
+  ),
+  decisionDynamic: L10nTriple(
+    'Seçim, zaferi değil, sözün bağa maliyetini tartmaya yaslanır.',
+    'The choice leans on weighing the cost of words to the bond, not on victory.',
+    'Выбор опирается на взвешивание цены слов для связи, а не на победу.',
+  ),
+  actionDirection: L10nTriple(
+    'Tartışmayı duraklatın; kılıcı indirin, puan saymayın.',
+    'Pause the argument; lower the sword, do not keep score.',
+    'Приостановите спор; опустите меч, не ведите счёт.',
+  ),
+  upright: NarrativeOrientationProfile(
+    expression: L10nTriple(
+      'İndirilen kılıç, boş zaferi ilişki maliyetinden ayırır.',
+      'A lowered sword separates hollow winning from relational cost.',
+      'Опущенный меч отделяет пустую победу от цены отношений.',
+    ),
+    transforms: <ReversedTransformKind>[],
+    keywordIds: ['hollowWin', 'warOfWords', 'hurting'],
+  ),
+  reversed: NarrativeOrientationProfile(
+    expression: L10nTriple(
+      'Haklılık intikama, aşağılık hissine veya yalnızlığa kayabilir.',
+      'Rightness may slide into revenge, humiliation-feeling, or aloneness.',
+      'Правота может стать местью, ощущением унижения или одиночеством.',
+    ),
+    transforms: [
+      ReversedTransformKind.excess,
+      ReversedTransformKind.misdirection,
+    ],
+    keywordIds: ['humiliation', 'revenge', 'beingLeft'],
+  ),
+  symbolTags: [
+    NarrativeSymbolTags.friction,
+    NarrativeSymbolTags.judgment,
+    NarrativeSymbolTags.accountability,
+  ],
+  profileRevision: 1,
+);
