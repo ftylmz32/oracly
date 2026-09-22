@@ -413,9 +413,7 @@ Metric hierarchy is now locked:
 | swords_12 upright fastMind→haste | INVERSION | momentum, communication, clarity |
 | hastyUnion→union | LOSS | →haste |
 | diminishedJoy→joy | INVERSION | →withdrawal |
-| overcare→
-urture | LOSS | →
-escue |
+| overcare→nurture | LOSS | →rescue |
 
 ### Decision log (LOCKED)
 
