@@ -66,9 +66,9 @@ const kNarrativeSwords11 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Merak dedikodu ve acele hükümde taşabilir veya soruşturmayı dinlemekten sapıtabilir.',
-      'Curiosity may tip into excess gossip and hasty verdict, or misdirect inquiry away from listening.',
-      'Любопытство может перейти в избыточную сплетню и поспешный приговор или сбить расследование в сторону от слушания.',
+      'Soruşturma dinlemeyi geride bırakacak kadar acele bir yanıta koşabilir, ya da sorular bilinen yerine söylentiye yöneltilebilir.',
+      'Inquiry may rush toward a quick answer until listening falls behind, or questions may be steered toward rumor instead of what is actually known.',
+      'Расследование может спешить к быстрому ответу, пока слушание отстаёт, или вопросы могут быть направлены к слуху вместо того, что действительно известно.',
     ),
     transforms: [
       ReversedTransformKind.excess,

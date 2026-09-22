@@ -66,9 +66,9 @@ const kNarrativeWands11 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Haberci enerjisi dağınık hevese, övünce veya dinlememeye dönüşebilir.',
-      'Messenger energy may become scattered zeal, boast, or refusal to listen.',
-      'Энергия вестника может стать рассеянным пылом, похвальбой или отказом слушать.',
+      'Keşif ateşi bir anda fazla kıvılcıma dağılabilir, ya da bilineni gösterme isteği sorup dinleme isteğini geride bırakabilir.',
+      'Exploratory fire may scatter across too many sparks at once, or showing what one knows may outrun the willingness to ask and listen.',
+      'Исследовательский огонь может рассеяться по слишком многим искрам сразу, или показ того, что знаешь, может обогнать готовность спрашивать и слушать.',
     ),
     transforms: [
       ReversedTransformKind.misdirection,

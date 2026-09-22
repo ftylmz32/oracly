@@ -429,6 +429,34 @@ Chronological project execution ledger.
 | DECK READY FOR EVIDENCE ENGINE | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3C.5B — FR-M03 SHADOW / REVERSED SEMANTIC SEPARATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | Court/page reversed.expression remediation |
+| Start SHA | `05aa15cca2d1b6fd00ce0d773f3656cb8ee5dbb4` |
+| Inventory | 5 SEMANTIC-NEAR-CLONE remediations; cups_10/pentacles_10 DISTINCT untouched |
+| Profiles changed | `cups_11`, `swords_11`, `swords_13`, `swords_14`, `wands_11` |
+| Field changed | `reversed.expression` TR/EN/RU |
+| Transforms changed | **NONE** |
+| Human near-clone final count (FR-M03 audited scope) | **0** |
+| Exact shadow↔reversed clones | **0** |
+| Locale alignment | **PASS** |
+| Safety | **PASS** |
+| FR-B01 / RT-M01 | **RESOLVED** (protected) |
+| FR-M03 / RT-M02 | **RESOLVED** |
+| FR-M01 / FR-M02 / FR-M04 / RT-M03 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Focused test | `narrative_fr_m03_shadow_reversed_separation_test.dart` — **9** passed · **0** failed |
+| Profile domain | **95** passed · **0** failed |
+| Phase 3C red-team | **28** passed · **0** failed |
+| Phase 2/2.1 | **27** passed · **0** failed |
+| R2/R2.1 | **13** passed · **0** failed |
+| Analyze | errors **0** · warnings **0** (infos baseline only) |
+| Full Flutter | **3749** passed · **0** failed · **15** skipped · **0** timed out (+9 from FR-M03 tests) |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -454,7 +482,8 @@ Chronological project execution ledger.
 | PL-T3C.3B | Tarot Phase 3C.3B — RT-M03 relationship/decision/action interaction semantics | **DONE** |
 | PL-T3C.4 | Tarot Phase 3C.4 — Final 78-card cross-deck re-audit | **DONE** (readiness NO) |
 | PL-T3C.5A | Tarot Phase 3C.5A — FR-B01 Magician desire EN contamination | **DONE** (FR-B01 RESOLVED; readiness NO) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01 RESOLVED; FR-M01–M04 + RT-M02/M03 OPEN; Evidence Engine blocked) |
+| PL-T3C.5B | Tarot Phase 3C.5B — FR-M03 shadow vs reversed court separation | **DONE** (FR-M03 + RT-M02 RESOLVED; readiness NO) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M03 + RT-M02 RESOLVED; FR-M01/M02/M04 + RT-M03 OPEN; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

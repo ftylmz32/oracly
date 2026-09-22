@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3C.5A FR-B01 Magician desire EN remediation
+**Updated:** 2026-09-23 — Tarot Phase 3C.5B FR-M03 shadow/reversed court separation
 
 ---
 
@@ -36,6 +36,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.4 task start | `b7180fc6498456c3badc063dff207497aef47087` | Final 78-card independent re-audit |
 | Phase 3C.4 end | `582a2fd88c386bb64746b549950a22fd6ab04557` | Final re-audit docs tip |
 | Phase 3C.5A task start | `582a2fd88c386bb64746b549950a22fd6ab04557` | FR-B01 Magician desire EN |
+| Phase 3C.5A end | `05aa15cca2d1b6fd00ce0d773f3656cb8ee5dbb4` | FR-B01 Magician desire RESOLVED |
+| Phase 3C.5B task start | `05aa15cca2d1b6fd00ce0d773f3656cb8ee5dbb4` | FR-M03 shadow vs reversed |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -106,6 +108,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.3B — RT-M03 relationship/decision/action interaction semantics | **COMPLETE** (RT-M03 was pending 3C.4) |
 | Phase 3C.4 — Final 78-card cross-deck re-audit | **COMPLETE** (audit PASS; deck readiness **NO**) |
 | Phase 3C.5A — FR-B01 Magician desire EN contamination | **COMPLETE** (FR-B01 RESOLVED; readiness still **NO**) |
+| Phase 3C.5B — FR-M03 shadow vs reversed court separation | **COMPLETE** (FR-M03 + RT-M02 RESOLVED; readiness still **NO**) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -328,6 +331,30 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.5B
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| FR-B01 | **RESOLVED** |
+| FR-M03 | **RESOLVED** |
+| RT-M02 | **RESOLVED** |
+| Profiles changed | **5** — `cups_11`, `swords_11`, `swords_13`, `swords_14`, `wands_11` |
+| Field changed | `reversed.expression` TR/EN/RU only |
+| Transform assignments | **NONE** changed |
+| cups_10 / pentacles_10 edited | **NO** |
+| Human near-clones in audited FR-M03 scope | **0** |
+| Exact shadow↔reversed clones | **0** |
+| FR-M01 | **OPEN** |
+| FR-M02 | **OPEN** |
+| FR-M04 | **OPEN** |
+| RT-M03 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** |
+
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
@@ -369,6 +396,7 @@ Production surface:
 | Flutter (Phase 3C.3B — PL-T3C.3B) | 3737 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.4 — PL-T3C.4) | docs/test-only; production source unmodified |
 | Flutter (Phase 3C.5A — PL-T3C.5A) | 3740 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3C.5B — PL-T3C.5B) | 3749 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -393,13 +421,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before next targeted remediation.**
+**ChatGPT review before FR-M01 / FR-M02 naturalness remediation.**
 
-Phase 3C.5A: **COMPLETE** if PASS · FR-B01: **RESOLVED** · CLEAR-DRIFT from FR-B01: **0**.
+Phase 3C.5B: **COMPLETE** if PASS · FR-B01: **RESOLVED** · FR-M03: **RESOLVED** · RT-M02: **RESOLVED**.
 
-Still OPEN: FR-M01 · FR-M02 · FR-M03 · FR-M04 · RT-M02 · RT-M03.
+Still OPEN: FR-M01 · FR-M02 · FR-M04 · RT-M03.
 
 DECK READY FOR EVIDENCE ENGINE: **NO** · Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
 
-Do **not** start FR-M01/M02/M03/M04, Narrative Evidence Engine, Visual System, or Memory-Recurring until readiness YES.
+Do **not** start FR-M01/M02/M04, Narrative Evidence Engine, Visual System, or Memory-Recurring until readiness YES.
 Do **not** mark future items completed until verified.

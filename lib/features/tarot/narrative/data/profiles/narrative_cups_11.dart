@@ -66,9 +66,9 @@ const kNarrativeCups11 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Merak aşırı duyarlılığa taşabilir veya her işareti kaçış düşüne çarpıtabilir.',
-      'Curiosity may tip into excess sensitivity, or distort every sign into an escape-dream.',
-      'Любопытство может перейти в избыточную чувствительность или исказить каждый знак в мечту-бегство.',
+      'Duygu dili her hissi işaret sayacak kadar şişebilir, ya da hayal gücü gerçekten hissedileni öğrenmek yerine içe kaçış düşüne bükülebilir.',
+      'Feeling-language may swell until every sensation is treated as a sign, or imagination may bend inward into dream instead of learning what is actually felt.',
+      'Язык чувств может раздуться, пока каждое ощущение не станет знаком, или воображение может уйти внутрь в мечту вместо того, чтобы учиться тому, что действительно чувствуется.',
     ),
     transforms: [
       ReversedTransformKind.excess,

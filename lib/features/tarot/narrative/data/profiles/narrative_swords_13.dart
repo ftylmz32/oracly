@@ -66,9 +66,9 @@ const kNarrativeSwords13 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Netlik sıcaklıktan yoksun soğuk yargıya incelenebilir veya mesafeyi silaha ve acı dile çarpıtabilir.',
-      'Clarity may thin into a cold verdict lacking warmth, or distort distance into a weapon and bitter tongue.',
-      'Ясность может истончиться до холодного приговора без тепла или исказить дистанцию в оружие и горький язык.',
+      'Netlik, sınırı insanî tutan sıcaklığı yitirebilir, ya da temiz bir çizgi keskin bir savunmaya burkulabilir.',
+      'Clarity may lose the warmth that keeps a boundary humane, or a clean line may be twisted into a cutting defense.',
+      'Ясность может утратить тепло, которое делает границу человечной, или чистая линия может быть искривлена в режущую защиту.',
     ),
     transforms: [
       ReversedTransformKind.deficiency,

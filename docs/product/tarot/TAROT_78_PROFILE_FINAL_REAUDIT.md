@@ -410,3 +410,76 @@ Contract intent: profiles (including `keywordIds` / `symbolTags`) feed determini
 | Narrative Evidence Engine | **NOT IMPLEMENTED** |
 
 Historical 3C.4 findings above are preserved; this section records remediation only.
+
+---
+
+## Phase 3C.5B remediation follow-up — FR-M03
+
+| Field | Value |
+|---|---|
+| Phase | **3C.5B** |
+| Finding | **FR-M03** |
+| Status | **RESOLVED** |
+| RT-M02 | **RESOLVED** (exact clones 0; FR-M03 human near-clones in audited scope 0) |
+
+### Initial court/page inventory (shadow vs reversed.expression)
+
+| Card | Classification | Notes |
+|---|---|---|
+| wands_11 | **SEMANTIC-NEAR-CLONE** | Same triad (scattered zeal / boast / not listening) |
+| wands_12 | DISTINCT | Escape vs seeking battle — third facet differs |
+| wands_13 | MILD-ECHO | Control/envy shared; possession vs dimming differs |
+| wands_14 | MILD-ECHO | Same pressure/ego/listen facets with thin “become” wrap; not escalated in FR-M03 register |
+| cups_11 | **SEMANTIC-NEAR-CLONE** | Over-sensitivity / escape-dream / overreading signs |
+| cups_12 | DISTINCT | Misdirect + excess mechanism clear |
+| cups_13 | DISTINCT | Excess rescue vs deficiency of boundary |
+| cups_14 | DISTINCT | Block expression / internalize until freeze |
+| swords_11 | **SEMANTIC-NEAR-CLONE** | Gossip / hasty verdict / not listening |
+| swords_12 | MILD-ECHO | Transform wrap over shared facets; mechanism present |
+| swords_13 | **SEMANTIC-NEAR-CLONE** | Cold verdict / distance-weapon / bitter tongue |
+| swords_14 | **SEMANTIC-NEAR-CLONE** | Rigidity / heartless rule / distance idol |
+| pentacles_11 | DISTINCT | Misdirect sell/imitate vs avoid by postponing |
+| pentacles_12 | DISTINCT | Excess rigidity vs block turning aside |
+| pentacles_13 | DISTINCT | Excess smother vs distort stewardship |
+| pentacles_14 | MILD-ECHO | Transform wrap; load-misdirect present |
+| cups_10 | DISTINCT | Belonging→distort/swell mechanism; leave untouched |
+| pentacles_10 | DISTINCT | Lineage→excess/block mechanism; leave untouched |
+
+### Production remediation
+
+| Field | Value |
+|---|---|
+| Profiles changed | **5** — `cups_11`, `swords_11`, `swords_13`, `swords_14`, `wands_11` |
+| Field changed | `reversed.expression` TR/EN/RU only |
+| Shadow changed | **NO** |
+| Transform assignments changed | **NONE** |
+| cups_10 / pentacles_10 edited | **NO** (sufficiently distinct) |
+
+### Blind-swap (human)
+
+| Card | Shadow→reversed swap loss? | Cross-court noun-swap? |
+|---|---|---|
+| cups_11 | **NO** | **NO** |
+| swords_11 | **NO** | **NO** |
+| swords_13 | **NO** | **NO** |
+| swords_14 | **NO** | **NO** |
+| wands_11 | **NO** | **NO** |
+
+### Status after 3C.5B
+
+| Item | Status |
+|---|---|
+| FR-B01 | **RESOLVED** |
+| FR-M03 | **RESOLVED** |
+| RT-M02 | **RESOLVED** |
+| FR-M01 | **OPEN** |
+| FR-M02 | **OPEN** |
+| FR-M04 | **OPEN** |
+| RT-M03 | **OPEN** |
+| Locale alignment | **PASS** |
+| Safety | **PASS** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Regression test | `narrative_fr_m03_shadow_reversed_separation_test.dart` |
+
+Historical 3C.4 findings above are preserved; this section records remediation only.
