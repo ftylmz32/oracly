@@ -46,6 +46,7 @@ abstract final class Ntv2HardFailure {
     unknownMemoryEvidence,
     unknownRecurrenceEvidence,
     orientationMismatch,
+    spreadFactMismatch,
     foreignAccountEvidence,
     deletedEvidenceUsed,
     recurrenceCountMismatch,

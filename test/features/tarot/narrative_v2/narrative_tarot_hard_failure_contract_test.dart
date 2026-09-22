@@ -11,7 +11,7 @@ void main() {
   test('hard-failure taxonomy is stable', () {
     expect(Ntv2HardFailure.all.length, 15);
     expect(Ntv2HardFailure.all, contains(Ntv2HardFailure.fabricatedRecurrence));
-    expect(Ntv2HardFailure.all, contains(Ntv2HardFailure.safetyViolation));
+    expect(Ntv2HardFailure.all, contains(Ntv2HardFailure.spreadFactMismatch));
   });
 
   test('every scenario hardFailures match evaluator', () {
@@ -25,27 +25,12 @@ void main() {
     }
   });
 
-  test('corpus contains intentional hard-fail examples', () {
+  test('every hard tag appears in intentional negative fixtures', () {
     final seen = <String>{};
     for (final s in corpus.scenarios) {
       seen.addAll(s.expected.hardFailures);
     }
-    for (final tag in const [
-      Ntv2HardFailure.unknownCardRef,
-      Ntv2HardFailure.undrawnCardRef,
-      Ntv2HardFailure.unknownPositionRef,
-      Ntv2HardFailure.unknownRelationshipEvidence,
-      Ntv2HardFailure.unknownMemoryEvidence,
-      Ntv2HardFailure.unknownRecurrenceEvidence,
-      Ntv2HardFailure.recurrenceCountMismatch,
-      Ntv2HardFailure.fabricatedRecurrence,
-      Ntv2HardFailure.orientationMismatch,
-      Ntv2HardFailure.unsupportedCertainty,
-      Ntv2HardFailure.safetyViolation,
-      Ntv2HardFailure.languageMismatch,
-      Ntv2HardFailure.foreignAccountEvidence,
-      Ntv2HardFailure.deletedEvidenceUsed,
-    ]) {
+    for (final tag in Ntv2HardFailure.all) {
       expect(seen, contains(tag), reason: 'missing intentional fail: $tag');
     }
   });

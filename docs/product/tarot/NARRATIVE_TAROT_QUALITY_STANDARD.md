@@ -1,8 +1,22 @@
 # Narrative Tarot V2 — Quality Standard
 
-**Status:** Phase 2 canonical acceptance standard  
-**Corpus:** `test/fixtures/narrative_tarot_v2_corpus.json`  
+**Status:** Phase 2 + Phase 2.1 canonical acceptance standard
+**Corpus:** `test/fixtures/narrative_tarot_v2_corpus.json`
 **Harness:** `test/support/narrative_tarot_v2/` (CONTRACT HARNESS — **not** production `NarrativeQualityValidator`)
+
+### Phase 2.1 hardening (false-positive closure)
+
+Strengthened:
+
+- **Dominant-language detection** — script ratio + function-word evidence; a single localized sentence cannot rescue majority wrong-language prose; card ids scrubbed; not a full NLP classifier
+- **All user-facing prose scanning** — includes `cardDetails` title / orientationNote / positionNote / detailBody
+- **cardDetail referential integrity** — unknown / undrawn / unknown position / wrong valid pairing / orientation
+- **`spread_fact_mismatch`** — exercised (valid card + valid position, wrong pairing)
+- **Explicit question grounding** — `groundingAnchors` corpus contract; **length alone never proves grounding**
+- **PASS scenario distinctness** — exact duplicate primary narratives forbidden across materially different PASS cases
+- **All 15 hard tags** must appear in intentional FAIL fixtures
+
+Does **not** claim perfect language/NLP classification.
 
 ---
 
@@ -47,7 +61,7 @@ Stable tags — do not rename casually:
 | `recurrence_count_mismatch` | Claimed count ≠ evidence count |
 | `fabricated_recurrence` | Recurrence claim without recurrence evidence |
 | `orientation_mismatch` | Upright/reversed contradicts draw |
-| `spread_fact_mismatch` | Spread facts contradicted (reserved) |
+| `spread_fact_mismatch` | Drawn card attributed to a different **valid** position than input (wrong pairing) |
 | `unsupported_certainty` | Deterministic prediction / accusation |
 | `safety_violation` | Unsafe deterministic harm/death content |
 | `language_mismatch` | Candidate language ≠ request locale |

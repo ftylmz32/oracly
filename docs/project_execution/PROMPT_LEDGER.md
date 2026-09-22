@@ -92,6 +92,22 @@ Chronological project execution ledger.
 | Network / provider | **NONE** |
 | Outcome | **PASS** |
 
+### PL-T2.1 — QUALITY HARNESS FALSE-POSITIVE HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | QUALITY HARNESS FALSE-POSITIVE HARDENING |
+| Start SHA | `878154a9ee562e60fbf1a7b76db584355e2d4277` |
+| Application source modified | **NO** |
+| Test / fixture / docs modified | **YES** |
+| Corpus count | 82 (POS 44 · NEG 38) |
+| Languages | TR · EN · RU (dominant-language contract) |
+| All 15 hard tags exercised | **YES** |
+| Phase 2.1 tests | 27 passed · 0 failed |
+| Network / provider | **NONE** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -102,6 +118,7 @@ Chronological project execution ledger.
 | PL-T1 | Tarot Phase 1 — product architecture / spec | **DONE** (docs) |
 | PL-T1.1 | Tarot Phase 1.1 — contract hardening | **DONE** (docs) |
 | PL-T2 | Tarot Phase 2 — quality corpus + acceptance harness | **DONE** (tests/fixtures/docs) |
+| PL-T2.1 | Tarot Phase 2.1 — harness false-positive hardening | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PLANNED |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |

@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 2 quality corpus + harness
+**Updated:** 2026-09-22 — Tarot Phase 2.1 harness false-positive hardening
 
 ---
 
@@ -72,7 +72,8 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 1.1 — Architecture contract hardening | **COMPLETE** (docs) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
-| Phase 2 — Quality corpus + harness | **COMPLETE** (tests + fixtures + docs; offline) |
+| Phase 2 — Quality corpus + harness | **COMPLETE** |
+| Phase 2.1 — Harness false-positive hardening | **COMPLETE** |
 | Phase 3 — Semantic profiles + Narrative Evidence Engine | **NOT STARTED** |
 
 ### Spec artifacts
@@ -121,7 +122,7 @@ Coffee / Palm / SoulMate production E2E · StoreKit monthly/yearly · restore ·
 
 ## Next action
 
-**ChatGPT / product-owner review of Phase 2** before **Phase 3**.
+**ChatGPT / product-owner review of Phase 2.1** before **Phase 3**.
 
 Do **not** start Phase 3 until that review.
 Do **not** mark future items completed until verified.

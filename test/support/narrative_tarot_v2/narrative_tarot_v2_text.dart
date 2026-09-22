@@ -19,6 +19,17 @@ abstract final class Ntv2TextHeuristics {
     for (final b in beats) {
       buf.writeln('${b['text'] ?? ''}');
     }
+    final details = (candidate['cardDetails'] as List? ?? const []).cast<Map>();
+    for (final d in details) {
+      for (final k in const [
+        'title',
+        'orientationNote',
+        'positionNote',
+        'detailBody',
+      ]) {
+        buf.writeln('${d[k] ?? ''}');
+      }
+    }
     final legacy = candidate['legacySections'];
     if (legacy is Map) {
       for (final v in legacy.values) {
@@ -26,6 +37,23 @@ abstract final class Ntv2TextHeuristics {
       }
     }
     return buf.toString();
+  }
+
+  /// Normalized primary narrative for PASS distinctness checks.
+  static String primarySignature(Map candidate) {
+    final parts = <String>[];
+    for (final k in const [
+      'opening',
+      'coreTension',
+      'movement',
+      'turningPoint',
+      'meaningForUser',
+      'actionDirection',
+      'closing',
+    ]) {
+      parts.add('${candidate[k] ?? ''}'.trim().toLowerCase());
+    }
+    return parts.join('||');
   }
 
   static final certainty = RegExp(

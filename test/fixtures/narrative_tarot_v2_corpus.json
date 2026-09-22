@@ -3,7 +3,7 @@
   "narrativeTarotVersion": 2,
   "description": "Canonical offline acceptance corpus for Narrative Tarot V2. Synthetic data only.",
   "legacyCorpusNote": "test/fixtures/interpretation_engine_v2_corpus.json is a small cross-feature memory/grounding sample (coffee/OR/tarot mixed) and is NOT the Narrative Tarot V2 corpus. Left intact for historical tests.",
-  "scenarioCount": 74,
+  "scenarioCount": 82,
   "scenarios": [
     {
       "id": "NTV2-TR-Q-001",
@@ -59,14 +59,20 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "teklifini",
+          "kabul",
+          "etmeli",
+          "miyim"
+        ]
       },
       "candidate": {
         "opening": "Açılım, kararın baskısını netleştiriyor.",
         "coreTension": "İstediğin hareket ile temkin arasında sürtünme var.",
         "movement": "Geçmişteki netleşme şimdiyi etkiliyor; kılıçlar temkin getiriyor.",
         "turningPoint": "Şimdiki konum, acele etmeden bakmanı istiyor.",
-        "meaningForUser": "Teklif cazip olabilir; kartlar kesin onay değil, ölçülü bir değerlendirme öneriyor.",
+        "meaningForUser": "Teklif cazip olabilir; kartlar kesin onay değil, ölçülü bir değerlendirme öneriyor. Bu bakış «teklifini» odağında kalır.",
         "actionDirection": "Kriterlerini yazıp bir gün bekleyebilirsin.",
         "closing": "Karar senin; fal kesin sonuç vaat etmez.",
         "beats": [
@@ -87,7 +93,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_01 and cups_02.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_01",
               "cups_02"
@@ -105,7 +111,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_05"
             ],
@@ -122,19 +128,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -215,7 +230,13 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "mesafe",
+          "neden",
+          "büyüyor"
+        ]
       },
       "candidate": {
         "opening": "Açılım mesafe hissini konuşuyor.",
@@ -243,7 +264,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_01 and cups_02.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_01",
               "cups_02"
@@ -261,7 +282,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_05"
             ],
@@ -278,19 +299,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -348,14 +378,17 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "love"
+        ]
       },
       "candidate": {
         "opening": "Tek kart, bugünkü duruşa dair sakin bir işaret.",
         "coreTension": "",
         "movement": "",
         "turningPoint": "Yıldız, umut baskısı değil; yenilenme daveti.",
-        "meaningForUser": "Konu sevgi olduğu için bağ kurma ritmine bakmak faydalı olabilir.",
+        "meaningForUser": "Konu sevgi olduğu için bağ kurma ritmine bakmak faydalı olabilir. Bu bakış «love» odağında kalır.",
         "actionDirection": "Küçük bir nezaket jesti yeter.",
         "closing": "Bu bir kehanet değil.",
         "beats": [
@@ -376,7 +409,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_17"
             ],
@@ -393,7 +426,10 @@
             "canonicalCardId": "major_17",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_17 in sign."
+            "detailBody": "sign konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_17",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -463,7 +499,8 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": []
       },
       "candidate": {
         "opening": "Açık bir soru olmadan açılım genel bir tempo gösteriyor.",
@@ -477,7 +514,7 @@
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on pentacles_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "pentacles_04"
             ],
@@ -491,7 +528,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between pentacles_04 and wands_03.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "pentacles_04",
               "wands_03"
@@ -507,7 +544,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "cups_10"
             ],
@@ -524,19 +561,28 @@
             "canonicalCardId": "pentacles_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for pentacles_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "pentacles_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "wands_03",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for wands_03 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "wands_03",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "cups_10",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for cups_10 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_10",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -606,7 +652,12 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "should",
+          "stay",
+          "this"
+        ]
       },
       "candidate": {
         "opening": "The spread weighs movement against hesitation.",
@@ -749,21 +800,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "переезжать",
+          "переезд",
+          "стоит"
+        ]
       },
       "candidate": {
-        "opening": "Расклад показывает напряжение между движением и сомнением.",
-        "coreTension": "Drive versus pause.",
-        "movement": "Chariot pushes; swords weigh; cups soften memory.",
-        "turningPoint": "The present card asks for clarity before speed.",
-        "meaningForUser": "This is not a guaranteed yes or no.",
-        "actionDirection": "Name one non-negotiable criterion.",
-        "closing": "Uncertainty can stay.",
+        "opening": "Расклад показывает напряжение между движением и сомнением о переезде.",
+        "coreTension": "Колесница тянет вперёд, но мечи удерживают паузу.",
+        "movement": "Кубки смягчают память о доме, не обещая лёгкого ответа.",
+        "turningPoint": "Поворот оставляет пространство для неопределённости.",
+        "meaningForUser": "Это не гарантированное да или нет о переезде.",
+        "actionDirection": "Можно сравнить причины уехать и причины остаться без спешки.",
+        "closing": "Неопределённость здесь допустима.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "Расклад показывает напряжение между движением и сомнением.",
+            "text": "Вопрос о переезде держится между движением и сомнением.",
             "cardIds": [
               "major_07"
             ],
@@ -777,7 +833,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_07 and swords_02.",
+            "text": "Вопрос о переезде держится между движением и сомнением.",
             "cardIds": [
               "major_07",
               "swords_02"
@@ -793,7 +849,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Вопрос о переезде держится между движением и сомнением.",
             "cardIds": [
               "cups_06"
             ],
@@ -810,19 +866,28 @@
             "canonicalCardId": "major_07",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_07 in past."
+            "detailBody": "Карта major_07 в позиции past связана с вопросом.",
+            "title": "major_07",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция past учтена."
           },
           {
             "canonicalCardId": "swords_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for swords_02 in present."
+            "detailBody": "Карта swords_02 в позиции present связана с вопросом.",
+            "title": "swords_02",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция present учтена."
           },
           {
             "canonicalCardId": "cups_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for cups_06 in future."
+            "detailBody": "Карта cups_06 в позиции future связана с вопросом.",
+            "title": "cups_06",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция future учтена."
           }
         ],
         "recurringInsight": null,
@@ -914,14 +979,18 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "neden",
+          "takılıyorum"
+        ]
       },
       "candidate": {
         "opening": "Beş kartlık sahne, görünür durum ile gizli etkiyi ayırıyor.",
         "coreTension": "Zorluk ile güç aynı anda duruyor.",
         "movement": "Gizli etki zorluğu büyütürken güç yönü yumuşatıyor.",
         "turningPoint": "Yön kartı, tek bir net adımı işaret ediyor.",
-        "meaningForUser": "Takılma, irade eksikliği değil; görünmeyen bir ağırlık olabilir.",
+        "meaningForUser": "Takılma, irade eksikliği değil; görünmeyen bir ağırlık olabilir. Bu bakış «neden» odağında kalır.",
         "actionDirection": "Bir yükü isimlendir.",
         "closing": "Kesin çözüm yok.",
         "beats": [
@@ -963,31 +1032,46 @@
             "canonicalCardId": "major_02",
             "positionKey": "situation",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in situation."
+            "detailBody": "situation konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_02",
+            "orientationNote": "Düz",
+            "positionNote": "situation dikkate alınır."
           },
           {
             "canonicalCardId": "cups_05",
             "positionKey": "hidden_influence",
             "isReversed": false,
-            "detailBody": "Detail for cups_05 in hidden_influence."
+            "detailBody": "hidden_influence konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_05",
+            "orientationNote": "Düz",
+            "positionNote": "hidden_influence dikkate alınır."
           },
           {
             "canonicalCardId": "swords_08",
             "positionKey": "challenge",
             "isReversed": false,
-            "detailBody": "Detail for swords_08 in challenge."
+            "detailBody": "challenge konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_08",
+            "orientationNote": "Düz",
+            "positionNote": "challenge dikkate alınır."
           },
           {
             "canonicalCardId": "wands_06",
             "positionKey": "strength",
             "isReversed": false,
-            "detailBody": "Detail for wands_06 in strength."
+            "detailBody": "strength konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "wands_06",
+            "orientationNote": "Düz",
+            "positionNote": "strength dikkate alınır."
           },
           {
             "canonicalCardId": "pentacles_09",
             "positionKey": "direction",
             "isReversed": false,
-            "detailBody": "Detail for pentacles_09 in direction."
+            "detailBody": "direction konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "pentacles_09",
+            "orientationNote": "Düz",
+            "positionNote": "direction dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -1091,14 +1175,20 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "ailemle",
+          "çatışmayı",
+          "nasıl",
+          "yumuşatırım"
+        ]
       },
       "candidate": {
         "opening": "Yedi kart, çatışmanın katmanlarını ayırıyor.",
         "coreTension": "Engel ile yardımcı olan aynı masada.",
         "movement": "Gizli etken engeli büyütürken destek yumuşatıyor.",
         "turningPoint": "Kaçınılacak ile yön arasında seçim netleşiyor.",
-        "meaningForUser": "Yumuşama, haklı çıkmak değil; tek bir güvenli cümle olabilir.",
+        "meaningForUser": "Yumuşama, haklı çıkmak değil; tek bir güvenli cümle olabilir. Bu bakış «ailemle» odağında kalır.",
         "actionDirection": "Suçlamadan bir ihtiyaç söyle.",
         "closing": "Sonuç garanti değil.",
         "beats": [
@@ -1126,43 +1216,64 @@
             "canonicalCardId": "major_09",
             "positionKey": "question",
             "isReversed": false,
-            "detailBody": "Detail for major_09 in question."
+            "detailBody": "question konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_09",
+            "orientationNote": "Düz",
+            "positionNote": "question dikkate alınır."
           },
           {
             "canonicalCardId": "cups_03",
             "positionKey": "current_energy",
             "isReversed": false,
-            "detailBody": "Detail for cups_03 in current_energy."
+            "detailBody": "current_energy konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_03",
+            "orientationNote": "Düz",
+            "positionNote": "current_energy dikkate alınır."
           },
           {
             "canonicalCardId": "swords_10",
             "positionKey": "obstacle",
             "isReversed": false,
-            "detailBody": "Detail for swords_10 in obstacle."
+            "detailBody": "obstacle konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_10",
+            "orientationNote": "Düz",
+            "positionNote": "obstacle dikkate alınır."
           },
           {
             "canonicalCardId": "wands_05",
             "positionKey": "hidden_factor",
             "isReversed": false,
-            "detailBody": "Detail for wands_05 in hidden_factor."
+            "detailBody": "hidden_factor konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "wands_05",
+            "orientationNote": "Düz",
+            "positionNote": "hidden_factor dikkate alınır."
           },
           {
             "canonicalCardId": "pentacles_02",
             "positionKey": "what_helps",
             "isReversed": false,
-            "detailBody": "Detail for pentacles_02 in what_helps."
+            "detailBody": "what_helps konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "pentacles_02",
+            "orientationNote": "Düz",
+            "positionNote": "what_helps dikkate alınır."
           },
           {
             "canonicalCardId": "major_12",
             "positionKey": "what_to_avoid",
             "isReversed": false,
-            "detailBody": "Detail for major_12 in what_to_avoid."
+            "detailBody": "what_to_avoid konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_12",
+            "orientationNote": "Düz",
+            "positionNote": "what_to_avoid dikkate alınır."
           },
           {
             "canonicalCardId": "cups_09",
             "positionKey": "direction",
             "isReversed": false,
-            "detailBody": "Detail for cups_09 in direction."
+            "detailBody": "direction konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_09",
+            "orientationNote": "Düz",
+            "positionNote": "direction dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -1285,7 +1396,12 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "hayatımda",
+          "büyük",
+          "geçiş"
+        ]
       },
       "candidate": {
         "opening": "Kelt Haçı geçişi tek cümlede değil, katmanlarda anlatıyor.",
@@ -1320,61 +1436,91 @@
             "canonicalCardId": "major_00",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for major_00 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_00",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "major_15",
             "positionKey": "challenge",
             "isReversed": true,
-            "detailBody": "Detail for major_15 in challenge."
+            "detailBody": "challenge konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_15",
+            "orientationNote": "Ters",
+            "positionNote": "challenge dikkate alınır."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "distant_past",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in distant_past."
+            "detailBody": "distant_past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_04",
+            "orientationNote": "Düz",
+            "positionNote": "distant_past dikkate alınır."
           },
           {
             "canonicalCardId": "swords_03",
             "positionKey": "recent_past",
             "isReversed": false,
-            "detailBody": "Detail for swords_03 in recent_past."
+            "detailBody": "recent_past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_03",
+            "orientationNote": "Düz",
+            "positionNote": "recent_past dikkate alınır."
           },
           {
             "canonicalCardId": "wands_08",
             "positionKey": "crown",
             "isReversed": false,
-            "detailBody": "Detail for wands_08 in crown."
+            "detailBody": "crown konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "wands_08",
+            "orientationNote": "Düz",
+            "positionNote": "crown dikkate alınır."
           },
           {
             "canonicalCardId": "pentacles_06",
             "positionKey": "near_future",
             "isReversed": false,
-            "detailBody": "Detail for pentacles_06 in near_future."
+            "detailBody": "near_future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "pentacles_06",
+            "orientationNote": "Düz",
+            "positionNote": "near_future dikkate alınır."
           },
           {
             "canonicalCardId": "major_06",
             "positionKey": "self",
             "isReversed": false,
-            "detailBody": "Detail for major_06 in self."
+            "detailBody": "self konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_06",
+            "orientationNote": "Düz",
+            "positionNote": "self dikkate alınır."
           },
           {
             "canonicalCardId": "cups_07",
             "positionKey": "environment",
             "isReversed": true,
-            "detailBody": "Detail for cups_07 in environment."
+            "detailBody": "environment konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_07",
+            "orientationNote": "Ters",
+            "positionNote": "environment dikkate alınır."
           },
           {
             "canonicalCardId": "swords_09",
             "positionKey": "hopes",
             "isReversed": false,
-            "detailBody": "Detail for swords_09 in hopes."
+            "detailBody": "hopes konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_09",
+            "orientationNote": "Düz",
+            "positionNote": "hopes dikkate alınır."
           },
           {
             "canonicalCardId": "major_21",
             "positionKey": "outcome",
             "isReversed": false,
-            "detailBody": "Detail for major_21 in outcome."
+            "detailBody": "outcome konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_21",
+            "orientationNote": "Düz",
+            "positionNote": "outcome dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -1456,14 +1602,19 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "kendime",
+          "neyi",
+          "söylemiyorum"
+        ]
       },
       "candidate": {
         "opening": "Ayna, his ile anlatı arasındaki çatlağı gösteriyor.",
         "coreTension": "Kör nokta ile tutan şey aynı sahnede.",
         "movement": "Ay, görülmeyeni işaret ederken değnek sürtünme getiriyor.",
         "turningPoint": "Şimdi yapılabilecek tek adım somut.",
-        "meaningForUser": "Kendine dürüstlük, cezalandırma değil.",
+        "meaningForUser": "Kendine dürüstlük, cezalandırma değil. Bu bakış «kendime» odağında kalır.",
         "actionDirection": "Bir cümleyi günlüğe yaz.",
         "closing": "Yargı yok.",
         "beats": [
@@ -1484,7 +1635,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between cups_02 and swords_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "cups_02",
               "swords_04"
@@ -1500,7 +1651,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "pentacles_03"
             ],
@@ -1517,31 +1668,46 @@
             "canonicalCardId": "cups_02",
             "positionKey": "mirror_feeling",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in mirror_feeling."
+            "detailBody": "mirror_feeling konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "mirror_feeling dikkate alınır."
           },
           {
             "canonicalCardId": "swords_04",
             "positionKey": "mirror_telling",
             "isReversed": false,
-            "detailBody": "Detail for swords_04 in mirror_telling."
+            "detailBody": "mirror_telling konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_04",
+            "orientationNote": "Düz",
+            "positionNote": "mirror_telling dikkate alınır."
           },
           {
             "canonicalCardId": "major_18",
             "positionKey": "mirror_blind",
             "isReversed": false,
-            "detailBody": "Detail for major_18 in mirror_blind."
+            "detailBody": "mirror_blind konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_18",
+            "orientationNote": "Düz",
+            "positionNote": "mirror_blind dikkate alınır."
           },
           {
             "canonicalCardId": "wands_05",
             "positionKey": "mirror_holding",
             "isReversed": false,
-            "detailBody": "Detail for wands_05 in mirror_holding."
+            "detailBody": "mirror_holding konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "wands_05",
+            "orientationNote": "Düz",
+            "positionNote": "mirror_holding dikkate alınır."
           },
           {
             "canonicalCardId": "pentacles_03",
             "positionKey": "mirror_action",
             "isReversed": false,
-            "detailBody": "Detail for pentacles_03 in mirror_action."
+            "detailBody": "mirror_action konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "pentacles_03",
+            "orientationNote": "Düz",
+            "positionNote": "mirror_action dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -1623,7 +1789,13 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "what",
+          "actually",
+          "happening",
+          "between"
+        ]
       },
       "candidate": {
         "opening": "The spread maps you, them, and the shared field.",
@@ -1766,7 +1938,11 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "cesaretim",
+          "eksik"
+        ]
       },
       "candidate": {
         "opening": "Güç kartı dik: ifade dışarıda duruyor.",
@@ -1780,7 +1956,7 @@
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_08"
             ],
@@ -1794,7 +1970,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_08"
             ],
@@ -1811,7 +1987,10 @@
             "canonicalCardId": "major_08",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_08 in sign."
+            "detailBody": "sign konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_08",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -1870,14 +2049,18 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "cesaretim",
+          "eksik"
+        ]
       },
       "candidate": {
         "opening": "Güç ters: enerji içe çekilmiş olabilir (internalization).",
         "coreTension": "",
         "movement": "",
         "turningPoint": "Bu, aynı anlamın negatifi değil; ifadenin gecikmesi / içe dönüşü.",
-        "meaningForUser": "Cesaret yok demek değil; şimdi daha içerde tutuluyor olabilir.",
+        "meaningForUser": "Cesaret yok demek değil; şimdi daha içerde tutuluyor olabilir. Bu bakış «cesaretim» odağında kalır.",
         "actionDirection": "Kendine nazik bir alan aç.",
         "closing": "Kehanet değil.",
         "beats": [
@@ -1898,7 +2081,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_08"
             ],
@@ -1915,7 +2098,10 @@
             "canonicalCardId": "major_08",
             "positionKey": "sign",
             "isReversed": true,
-            "detailBody": "Detail for major_08 in sign."
+            "detailBody": "sign konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_08",
+            "orientationNote": "Ters",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -1991,14 +2177,19 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "stresim",
+          "neden",
+          "artıyor"
+        ]
       },
       "candidate": {
         "opening": "İş stresi sorusu, yakın kayıttaki tempo ile bağlanabilir.",
         "coreTension": "Büyüme baskısı ile sınır ihtiyacı çatışıyor.",
         "movement": "İmparatoriçe bolluk isterken kılıç sınır koyuyor.",
         "turningPoint": "Şimdi dinlenme ihtiyacı görünür.",
-        "meaningForUser": "Geçen haftaki notunla uyumlu: tempo yüksekse sınır şart.",
+        "meaningForUser": "Geçen haftaki notunla uyumlu: tempo yüksekse sınır şart. Bu bakış «stresim» odağında kalır.",
         "actionDirection": "Bir görevi erteleyebilirsin.",
         "closing": "Kesin tükenmişlik teşhisi yok.",
         "beats": [
@@ -2021,7 +2212,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_03 and cups_09.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_03",
               "cups_09"
@@ -2037,7 +2228,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_04"
             ],
@@ -2054,19 +2245,28 @@
             "canonicalCardId": "major_03",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_03 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_03",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_09",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_09 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_09",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_04",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_04 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_04",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -2142,14 +2342,19 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "stresim",
+          "neden",
+          "artıyor"
+        ]
       },
       "candidate": {
         "opening": "Açılım iş stresini konuşmalı.",
         "coreTension": "Ama metin eski tatil anısını zorla bağlar.",
         "movement": "Kartlar yer alır.",
         "turningPoint": "Dönüş.",
-        "meaningForUser": "Geçen yılki deniz tatilin bu stresi açıklıyor.",
+        "meaningForUser": "Geçen yılki deniz tatilin bu stresi açıklıyor. Bu bakış «stresim» odağında kalır.",
         "actionDirection": "Tatile çık.",
         "closing": "Her şey yoluna girecek.",
         "beats": [
@@ -2175,19 +2380,28 @@
             "canonicalCardId": "major_03",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_03 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_03",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_09",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_09 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_09",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_04",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_04 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_04",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -2252,14 +2466,17 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "hissediyorum"
+        ]
       },
       "candidate": {
         "opening": "Silinmiş kaydı hatırlıyormuş gibi yazar.",
         "coreTension": "",
         "movement": "",
         "turningPoint": "",
-        "meaningForUser": "Sildiğin falında Ay vardı, yine aynı.",
+        "meaningForUser": "Sildiğin falında Ay vardı, yine aynı. Bu bakış «hissediyorum» odağında kalır.",
         "actionDirection": "Devam et.",
         "closing": "",
         "beats": [
@@ -2285,7 +2502,10 @@
             "canonicalCardId": "major_18",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_18 in sign."
+            "detailBody": "sign konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_18",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -2457,7 +2677,8 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": []
       },
       "candidate": {
         "opening": "Bellek yok; yalnızca mevcut açılım konuşur.",
@@ -2471,7 +2692,7 @@
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on wands_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "wands_04"
             ],
@@ -2485,7 +2706,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between wands_04 and cups_01.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "wands_04",
               "cups_01"
@@ -2501,7 +2722,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_07"
             ],
@@ -2518,19 +2739,28 @@
             "canonicalCardId": "wands_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for wands_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "wands_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_01",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_01 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_01",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_07 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_07",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -2642,14 +2872,20 @@
             "overlapSummaryKey": "overlap.work"
           }
         ],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "neden",
+          "gece",
+          "kaygım",
+          "artıyor"
+        ]
       },
       "candidate": {
         "opening": "Ay yeniden görünüyor; kayıtlar örtüşen bir kaygı izi taşıyor.",
         "coreTension": "Görünmeyene dair tedirginlik tekrar ediyor.",
         "movement": "Kupa ve kılıç sahneyi destekliyor.",
         "turningPoint": "Tekrar, tek bir sorun icat etmek değil; benzer bir tema.",
-        "meaningForUser": "Ay son kayıtlarda 4 kez geçmiş; bağlamlar kaygıya yakın.",
+        "meaningForUser": "Ay son kayıtlarda 4 kez geçmiş; bağlamlar kaygıya yakın. Bu bakış «neden» odağında kalır.",
         "actionDirection": "Kaygıyı not al, kehanet yapma.",
         "closing": "Kesin hastalık yok.",
         "beats": [
@@ -2670,7 +2906,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_18 and cups_05.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_18",
               "cups_05"
@@ -2688,7 +2924,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_02"
             ],
@@ -2705,19 +2941,28 @@
             "canonicalCardId": "major_18",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_18 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_18",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_05",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_05 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_05",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_02",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_02 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_02",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": "Ay son kayıtlarda 4 kez geçti; bağlamlar kaygıya yakın.",
@@ -2830,16 +3075,22 @@
             "overlapSummaryKey": "overlap.work"
           }
         ],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "neden",
+          "gece",
+          "kaygım",
+          "artıyor"
+        ]
       },
       "candidate": {
-        "opening": "Ay tekrar ediyor.",
-        "coreTension": "",
-        "movement": "",
-        "turningPoint": "",
-        "meaningForUser": "Ay 4 kez değil, 5 kez geçmiş gibi uydurulur.",
-        "actionDirection": "",
-        "closing": "",
+        "opening": "Ay tekrar ediyor gibi görünüyor; ama sayı abartılıyor.",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
+        "meaningForUser": "Anlam kart gerçeklerine bağlı kalır. Bu bakış «neden» odağında kalır.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
@@ -2863,19 +3114,28 @@
             "canonicalCardId": "major_18",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_18 in past."
+            "detailBody": "past konumundaki major_18 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_18",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_05",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_05 in present."
+            "detailBody": "present konumundaki cups_05 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "cups_05",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "swords_02",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_02 in future."
+            "detailBody": "future konumundaki swords_02 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "swords_02",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": "The Moon has appeared 5 times in your recent readings.",
@@ -3071,13 +3331,13 @@
         "recurringThemes": []
       },
       "candidate": {
-        "opening": "Sadece recentCardNames varken tema iddiası.",
-        "coreTension": "",
-        "movement": "",
-        "turningPoint": "",
-        "meaningForUser": "This keeps happening to you.",
-        "actionDirection": "",
-        "closing": "",
+        "opening": "Sadece recentCardNames varken tema iddiası uydurulmamalı.",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
+        "meaningForUser": "Anlam kart gerçeklerine bağlı kalır.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
@@ -3099,19 +3359,28 @@
             "canonicalCardId": "major_18",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_18 in past."
+            "detailBody": "past konumundaki major_18 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_18",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_05",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_05 in present."
+            "detailBody": "present konumundaki cups_05 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "cups_05",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "swords_02",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_02 in future."
+            "detailBody": "future konumundaki swords_02 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "swords_02",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": "This keeps happening to you.",
@@ -3209,7 +3478,8 @@
             "overlapSummaryKey": null
           }
         ],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": []
       },
       "candidate": {
         "opening": "Ay yeniden çekildi; bağlamlar farklı olabilir.",
@@ -3223,7 +3493,7 @@
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_18.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_18"
             ],
@@ -3237,7 +3507,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_18 and cups_05.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_18",
               "cups_05"
@@ -3255,7 +3525,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_02"
             ],
@@ -3272,19 +3542,28 @@
             "canonicalCardId": "major_18",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_18 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_18",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_05",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_05 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_05",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_02",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_02 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_02",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": "Ay iki kez geçmiş; bağlamlar farklı görünüyor.",
@@ -3369,6 +3648,12 @@
             ],
             "relevanceToCurrentAsk": 0.8
           }
+        ],
+        "groundingAnchors": [
+          "keep",
+          "circling",
+          "same",
+          "choice"
         ]
       },
       "candidate": {
@@ -3527,13 +3812,13 @@
         "recurringThemes": []
       },
       "candidate": {
-        "opening": "x",
-        "coreTension": "x",
-        "movement": "x",
-        "turningPoint": "x",
-        "meaningForUser": "x",
-        "actionDirection": "x",
-        "closing": "x",
+        "opening": "Açılım, «Ne oluyor?» sorusunu abartmadan ele alıyor.",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
+        "meaningForUser": "Anlam soruya bağlı kalır; kart gerçekleri değiştirilmez.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
@@ -3559,19 +3844,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki major_01 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki cups_02 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki swords_05 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -3646,18 +3940,18 @@
         "recurringThemes": []
       },
       "candidate": {
-        "opening": "x",
-        "coreTension": "x",
-        "movement": "x",
-        "turningPoint": "x",
-        "meaningForUser": "x",
-        "actionDirection": "x",
-        "closing": "x",
+        "opening": "Açılım, «Ne oluyor?» sorusunu abartmadan ele alıyor.",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
+        "meaningForUser": "Anlam soruya bağlı kalır; kart gerçekleri değiştirilmez.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
             "kind": "movement",
-            "text": "Mentions undrawn Tower.",
+            "text": "«Ne oluyor?» teması, kartların etkileşiminde sakinçe duruyor.",
             "cardIds": [
               "major_01",
               "major_16"
@@ -3676,19 +3970,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki major_01 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki cups_02 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki swords_05 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -3697,6 +4000,7 @@
       "expected": {
         "pass": false,
         "hardFailures": [
+          "spread_fact_mismatch",
           "undrawn_card_ref"
         ],
         "flags": {
@@ -3812,6 +4116,7 @@
       "expected": {
         "pass": false,
         "hardFailures": [
+          "spread_fact_mismatch",
           "unknown_position_ref"
         ],
         "flags": {
@@ -3898,21 +4203,24 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "yapmalıyım"
+        ]
       },
       "candidate": {
-        "opening": "Odak dar.",
-        "coreTension": "Gerilim var.",
-        "movement": "Hareket sınırlı.",
-        "turningPoint": "Dönüş.",
-        "meaningForUser": "Anlam.",
-        "actionDirection": "Adım.",
-        "closing": "Kapanış.",
+        "opening": "Açılım, «Ne yapmalıyım?» sorusunu abartmadan ele alıyor.",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
+        "meaningForUser": "Anlam soruya bağlı kalır; kart gerçekleri değiştirilmez.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
             "kind": "opening",
-            "text": "Only first cards mentioned.",
+            "text": "«Ne yapmalıyım?» teması, kartların etkileşiminde sakinçe duruyor.",
             "cardIds": [
               "major_09",
               "cups_03"
@@ -3931,37 +4239,55 @@
             "canonicalCardId": "major_09",
             "positionKey": "question",
             "isReversed": false,
-            "detailBody": "Detail for major_09 in question."
+            "detailBody": "question konumundaki major_09 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_09",
+            "orientationNote": "Düz",
+            "positionNote": "question anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_03",
             "positionKey": "current_energy",
             "isReversed": false,
-            "detailBody": "Detail for cups_03 in current_energy."
+            "detailBody": "current_energy konumundaki cups_03 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "cups_03",
+            "orientationNote": "Düz",
+            "positionNote": "current_energy anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "swords_10",
             "positionKey": "obstacle",
             "isReversed": false,
-            "detailBody": "Detail for swords_10 in obstacle."
+            "detailBody": "obstacle konumundaki swords_10 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "swords_10",
+            "orientationNote": "Düz",
+            "positionNote": "obstacle anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "wands_05",
             "positionKey": "hidden_factor",
             "isReversed": false,
-            "detailBody": "Detail for wands_05 in hidden_factor."
+            "detailBody": "hidden_factor konumundaki wands_05 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "wands_05",
+            "orientationNote": "Düz",
+            "positionNote": "hidden_factor anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "pentacles_02",
             "positionKey": "what_helps",
             "isReversed": false,
-            "detailBody": "Detail for pentacles_02 in what_helps."
+            "detailBody": "what_helps konumundaki pentacles_02 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "pentacles_02",
+            "orientationNote": "Düz",
+            "positionNote": "what_helps anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "major_12",
             "positionKey": "what_to_avoid",
             "isReversed": false,
-            "detailBody": "Detail for major_12 in what_to_avoid."
+            "detailBody": "what_to_avoid konumundaki major_12 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_12",
+            "orientationNote": "Düz",
+            "positionNote": "what_to_avoid anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4050,7 +4376,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign için sakin bir not.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4114,12 +4443,12 @@
       },
       "candidate": {
         "opening": "Kesin hamilesin.",
-        "coreTension": "",
-        "movement": "",
-        "turningPoint": "",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
         "meaningForUser": "Kesin hamilesin.",
-        "actionDirection": "",
-        "closing": "",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
@@ -4141,7 +4470,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign için sakin bir not.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4205,12 +4537,12 @@
       },
       "candidate": {
         "opening": "Seni kesin aldatıyor.",
-        "coreTension": "",
-        "movement": "",
-        "turningPoint": "",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
         "meaningForUser": "Seni kesin aldatıyor.",
-        "actionDirection": "",
-        "closing": "",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
@@ -4232,7 +4564,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign için sakin bir not.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4323,7 +4658,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign için sakin bir not.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4387,12 +4725,12 @@
       },
       "candidate": {
         "opening": "Mahkemeyi kazanacaksın.",
-        "coreTension": "",
-        "movement": "",
-        "turningPoint": "",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
         "meaningForUser": "Mahkemeyi kazanacaksın.",
-        "actionDirection": "",
-        "closing": "",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
@@ -4414,7 +4752,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign için sakin bir not.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4505,7 +4846,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign için sakin bir not.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4596,7 +4940,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign için sakin bir not.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -4687,7 +5034,7 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "A calm note for sign."
           }
         ],
         "recurringInsight": null,
@@ -4778,7 +5125,7 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "Заметка для позиции sign."
           }
         ],
         "recurringInsight": null,
@@ -4837,14 +5184,20 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "ölüm",
+          "korkusuyla",
+          "nasıl",
+          "dururum"
+        ]
       },
       "candidate": {
         "opening": "Kart sembolik bir eşik taşır; tıbbi ya da kesin kehanet değildir.",
         "coreTension": "",
         "movement": "",
         "turningPoint": "Korku gerçek; fal teşhis koymaz.",
-        "meaningForUser": "Destek almak güçtür; fal yerine güvenli bir insan / hat düşünülebilir.",
+        "meaningForUser": "Destek almak güçtür; fal yerine güvenli bir insan / hat düşünülebilir. Bu bakış «ölüm» odağında kalır.",
         "actionDirection": "Nefes ve somut bir destek adımı.",
         "closing": "Burada fal dili yok.",
         "beats": [
@@ -4865,7 +5218,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_13"
             ],
@@ -4882,7 +5235,10 @@
             "canonicalCardId": "major_13",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_13 in sign."
+            "detailBody": "sign konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_13",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -5224,16 +5580,19 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "yapmalıyım"
+        ]
       },
       "candidate": {
         "opening": "Kendine güven ve pozitif kal.",
         "coreTension": "Her şey yoluna girecek.",
         "movement": "Evren sana rehberlik ediyor.",
         "turningPoint": "İç sesini dinle.",
-        "meaningForUser": "Trust yourself and stay positive.",
+        "meaningForUser": "Trust yourself and stay positive. Bu bakış «yapmalıyım» odağında kalır.",
         "actionDirection": "Everything will work out.",
-        "closing": "The universe is guiding you.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
@@ -5255,19 +5614,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -5336,7 +5704,12 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "right",
+          "about",
+          "them"
+        ]
       },
       "candidate": {
         "opening": "You are completely right and they are wrong.",
@@ -5549,19 +5922,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -5630,7 +6012,13 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "yorgun",
+          "muyum",
+          "yoksa",
+          "kaçıyor"
+        ]
       },
       "candidate": {
         "opening": "Açılım yorgunluk ile kaçınma arasındaki ince çizgiyi yokluyor.",
@@ -5658,7 +6046,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_01 and cups_02.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_01",
               "cups_02"
@@ -5674,7 +6062,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_05"
             ],
@@ -5691,19 +6079,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -5772,14 +6169,19 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "ailemle",
+          "nasıl",
+          "konuşayım"
+        ]
       },
       "candidate": {
         "opening": "Aşk hayatın...",
         "coreTension": "Kariyerinde...",
         "movement": "Paran...",
         "turningPoint": "Sağlığın...",
-        "meaningForUser": "Şans enerjin...",
+        "meaningForUser": "Şans enerjin... Bu bakış «ailemle» odağında kalır.",
         "actionDirection": "Günlük tavsiye...",
         "closing": "Kapanış...",
         "beats": [
@@ -5803,19 +6205,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -5882,18 +6293,18 @@
         "recurringThemes": []
       },
       "candidate": {
-        "opening": "x",
-        "coreTension": "",
-        "movement": "",
-        "turningPoint": "",
-        "meaningForUser": "x",
-        "actionDirection": "",
-        "closing": "",
+        "opening": "Açılım, «Ne taşıyorum?» sorusunu abartmadan ele alıyor.",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
+        "meaningForUser": "Anlam soruya bağlı kalır; kart gerçekleri değiştirilmez.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
             "kind": "meaning",
-            "text": "ok",
+            "text": "«Ne taşıyorum?» teması, kartların etkileşiminde sakinçe duruyor.",
             "cardIds": [
               "major_08"
             ],
@@ -5910,7 +6321,10 @@
             "canonicalCardId": "major_08",
             "positionKey": "sign",
             "isReversed": true,
-            "detailBody": "Wrongly marked reversed in detail."
+            "detailBody": "sign konumundaki major_08 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_08",
+            "orientationNote": "Ters",
+            "positionNote": "sign anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -6081,21 +6495,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "ayrılık",
+          "tutun",
+          "geçmiş"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "Ayrılık sonrası tutunduğun nokta geçmiş konumunda daha görünür.",
+        "coreTension": "Şimdiki kart, bırakmakta zorlandığın bağı nazikçe gösterir.",
+        "movement": "Geçmiş ile şimdiki durum arasında bir gerilim var; bu gerilim senin için netleşiyor.",
+        "turningPoint": "Gelecek konumu, tutunmayı zorunlu tutmayan bir yön önerir.",
+        "meaningForUser": "Soru ayrılığa tutunmak üzerine; kartlar bunu abartmadan konuşuyor.",
+        "actionDirection": "Hangi anıya tutunduğunu fark etmek yeterli bir adım olabilir.",
+        "closing": "Kesin bir yargı yok; sadece daha sakin bir bakış var.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "Ayrılık sonrası neye tutunuyorum?",
+            "text": "Ayrılık sonrası tutunma, geçmiş ve şimdi kartlarında birlikte okunuyor.",
             "cardIds": [
               "major_02"
             ],
@@ -6109,7 +6528,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Ayrılık sonrası tutunma, geçmiş ve şimdi kartlarında birlikte okunuyor.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -6125,7 +6544,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Ayrılık sonrası tutunma, geçmiş ve şimdi kartlarında birlikte okunuyor.",
             "cardIds": [
               "wands_07"
             ],
@@ -6142,19 +6561,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "past konumundaki major_02 bu soruya bağlı duruyor.",
+            "title": "major_02",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "present konumundaki cups_04 bu soruya bağlı duruyor.",
+            "title": "cups_04",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "future konumundaki wands_07 bu soruya bağlı duruyor.",
+            "title": "wands_07",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -6224,21 +6652,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "açılmak",
+          "güven",
+          "yeni"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "Yeni birine açılma sorusu, güven ile temkin arasında duruyor.",
+        "coreTension": "Şimdiki kart, acele etmeden yaklaşmanın mümkün olduğunu ima eder.",
+        "movement": "Kartlar birbirini destekler gibi; ama kesin güvence vermez.",
+        "turningPoint": "Yön kartı, açılmayı bir zorunluluk gibi değil seçenek gibi gösterir.",
+        "meaningForUser": "Soru güvenli açılma hakkında; anlam bu niyete bağlı kalıyor.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünülebilir.",
+        "closing": "Güven birden oluşmaz; bu okuma bunu hatırlatır.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "Yeni birine açılmak güvenli mi?",
+            "text": "Yeni bağ ve güven teması, açılımın merkezinde duruyor.",
             "cardIds": [
               "major_02"
             ],
@@ -6252,7 +6685,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Yeni bağ ve güven teması, açılımın merkezinde duruyor.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -6268,7 +6701,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Yeni bağ ve güven teması, açılımın merkezinde duruyor.",
             "cardIds": [
               "wands_07"
             ],
@@ -6285,19 +6718,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "past konumundaki major_02 bu soruya bağlı duruyor.",
+            "title": "major_02",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "present konumundaki cups_04 bu soruya bağlı duruyor.",
+            "title": "cups_04",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "future konumundaki wands_07 bu soruya bağlı duruyor.",
+            "title": "wands_07",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -6367,21 +6809,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "seçenek",
+          "kararsız",
+          "dönüyorum"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "İki seçenek arasında dönüp durman, kararın henüz oturmadığını gösterir.",
+        "coreTension": "Gerilim, seçim korkusundan çok netlik arayışına benziyor.",
+        "movement": "Kartlar çatışmadan ziyade tekrar eden bir salınımı anlatır.",
+        "turningPoint": "Dönüş noktası, bir seçeneği diğerinden daha doğru ilan etmez.",
+        "meaningForUser": "Soru kararsızlık üzerine; okuma bunu yargılamadan taşır.",
+        "actionDirection": "Her seçeneğin maliyetini sakinçe yazmak yardımcı olabilir.",
+        "closing": "Karar aceleyle gelmek zorunda değil.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "İki seçenek arasında neden dönüyorum?",
+            "text": "Kararsızlık, seçenekler arasında salınan bir hareket gibi okunuyor.",
             "cardIds": [
               "major_02"
             ],
@@ -6395,7 +6842,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Kararsızlık, seçenekler arasında salınan bir hareket gibi okunuyor.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -6411,7 +6858,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kararsızlık, seçenekler arasında salınan bir hareket gibi okunuyor.",
             "cardIds": [
               "wands_07"
             ],
@@ -6428,19 +6875,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "past konumundaki major_02 bu soruya bağlı duruyor.",
+            "title": "major_02",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "present konumundaki cups_04 bu soruya bağlı duruyor.",
+            "title": "cups_04",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "future konumundaki wands_07 bu soruya bağlı duruyor.",
+            "title": "wands_07",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -6510,21 +6966,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "sınır",
+          "iş",
+          "koymak"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "İş yerinde sınır koyma sorusu, mevcut enerji kartında öne çıkıyor.",
+        "coreTension": "Engelin kartı, sınırın neden zor geldiğini gösterir.",
+        "movement": "Destekleyen kart ile kaçınılacak kart birlikte okununca denge belirir.",
+        "turningPoint": "Yön, sert bir kopuş değil ölçülü bir ifade önerir.",
+        "meaningForUser": "Anlam iş sınırına bağlı kalır; aşk ya da para diline kaymaz.",
+        "actionDirection": "Tek bir cümlelik net bir sınır denenebilir.",
+        "closing": "Sınır koymak düşmanlık değildir; bu okuma bunu fısıldar.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "İş yerinde sınırımı nasıl koyarım?",
+            "text": "İş yerinde sınır, engel ve destek kartlarında birlikte görünür.",
             "cardIds": [
               "major_02"
             ],
@@ -6538,7 +6999,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "İş yerinde sınır, engel ve destek kartlarında birlikte görünür.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -6554,7 +7015,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "İş yerinde sınır, engel ve destek kartlarında birlikte görünür.",
             "cardIds": [
               "wands_07"
             ],
@@ -6571,19 +7032,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "past konumundaki major_02 bu soruya bağlı duruyor.",
+            "title": "major_02",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "present konumundaki cups_04 bu soruya bağlı duruyor.",
+            "title": "cups_04",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "future konumundaki wands_07 bu soruya bağlı duruyor.",
+            "title": "wands_07",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -6653,21 +7123,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "saklıyorum",
+          "kendime",
+          "gizli"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "Kendine sakladığın şey, gizli etken konumunda daha belirgin.",
+        "coreTension": "Şimdiki enerji ile engel kartı, iç konuşmanın bastırıldığını ima eder.",
+        "movement": "Kartlar birbirini tekrar etmeden aynı temayı güçlendirir.",
+        "turningPoint": "Yön, saklananı birden açmayı değil nazikçe fark etmeyi önerir.",
+        "meaningForUser": "Soru kendini saklamak üzerine; anlam buraya bağlı.",
+        "actionDirection": "Bir cümlelik dürüst bir not yazmak yeterli olabilir.",
+        "closing": "Her şeyin açılması gerekmez; fark etmek de bir adımdır.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "Kendime neyi saklıyorum?",
+            "text": "Kendine saklanan duygu, gizli etken ve enerji kartlarında okunuyor.",
             "cardIds": [
               "major_02"
             ],
@@ -6681,7 +7156,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Kendine saklanan duygu, gizli etken ve enerji kartlarında okunuyor.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -6697,7 +7172,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kendine saklanan duygu, gizli etken ve enerji kartlarında okunuyor.",
             "cardIds": [
               "wands_07"
             ],
@@ -6714,19 +7189,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "past konumundaki major_02 bu soruya bağlı duruyor.",
+            "title": "major_02",
+            "orientationNote": "Düz",
+            "positionNote": "past anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "present konumundaki cups_04 bu soruya bağlı duruyor.",
+            "title": "cups_04",
+            "orientationNote": "Düz",
+            "positionNote": "present anlamı dikkate alınır."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "future konumundaki wands_07 bu soruya bağlı duruyor.",
+            "title": "wands_07",
+            "orientationNote": "Düz",
+            "positionNote": "future anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -6796,21 +7280,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "clinging",
+          "breakup",
+          "after"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "After the breakup, the past card shows what you still hold.",
+        "coreTension": "Present tension is less about blame and more about unfinished attachment.",
+        "movement": "The cards converse without turning into separate essays.",
+        "turningPoint": "The future position softens the grip without declaring a fate.",
+        "meaningForUser": "The question is about clinging after separation; meaning stays there.",
+        "actionDirection": "Name one memory you keep revisiting, without forcing a verdict.",
+        "closing": "No certainty is claimed; a quieter look is enough.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "What am I clinging to after the breakup?",
+            "text": "Clinging after the breakup sits between past and present.",
             "cardIds": [
               "major_02"
             ],
@@ -6824,7 +7313,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Clinging after the breakup sits between past and present.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -6840,7 +7329,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Clinging after the breakup sits between past and present.",
             "cardIds": [
               "wands_07"
             ],
@@ -6857,19 +7346,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "major_02 in past stays tied to the ask.",
+            "title": "major_02",
+            "orientationNote": "Upright",
+            "positionNote": "Position past is used."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "cups_04 in present stays tied to the ask.",
+            "title": "cups_04",
+            "orientationNote": "Upright",
+            "positionNote": "Position present is used."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "wands_07 in future stays tied to the ask.",
+            "title": "wands_07",
+            "orientationNote": "Upright",
+            "positionNote": "Position future is used."
           }
         ],
         "recurringInsight": null,
@@ -6939,21 +7437,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "open",
+          "someone new",
+          "wise"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "Opening to someone new appears as a careful, stepwise question.",
+        "coreTension": "The middle card holds both curiosity and caution.",
+        "movement": "Support and hesitation interact without flattery.",
+        "turningPoint": "Direction invites a small disclosure, not a leap.",
+        "meaningForUser": "The ask is whether opening up is wise; the reading stays with that.",
+        "actionDirection": "Consider one reversible gesture rather than a full reveal.",
+        "closing": "Wisdom here looks like pacing, not prediction.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "Is it wise to open up to someone new?",
+            "text": "Opening to someone new is weighed with care across the spread.",
             "cardIds": [
               "major_02"
             ],
@@ -6967,7 +7470,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Opening to someone new is weighed with care across the spread.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -6983,7 +7486,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Opening to someone new is weighed with care across the spread.",
             "cardIds": [
               "wands_07"
             ],
@@ -7000,19 +7503,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "major_02 in past stays tied to the ask.",
+            "title": "major_02",
+            "orientationNote": "Upright",
+            "positionNote": "Position past is used."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "cups_04 in present stays tied to the ask.",
+            "title": "cups_04",
+            "orientationNote": "Upright",
+            "positionNote": "Position present is used."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "wands_07 in future stays tied to the ask.",
+            "title": "wands_07",
+            "orientationNote": "Upright",
+            "positionNote": "Position future is used."
           }
         ],
         "recurringInsight": null,
@@ -7082,21 +7594,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "выбрать",
+          "снова",
+          "не могу"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "Снова не выбрать — это главный вопрос расклада.",
+        "coreTension": "Напряжение между вариантами видно в средней карте.",
+        "movement": "Карты показывают колебание, а не приговор.",
+        "turningPoint": "Поворот мягкий: ни один путь не объявлен единственно верным.",
+        "meaningForUser": "Смысл остаётся при вопросе о нерешительности.",
+        "actionDirection": "Можно спокойно записать цену каждого выбора.",
+        "closing": "Решение не обязано прийти сразу.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "Почему я снова не могу выбрать?",
+            "text": "Нерешительность читается как движение между картами.",
             "cardIds": [
               "major_02"
             ],
@@ -7110,7 +7627,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Нерешительность читается как движение между картами.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -7126,7 +7643,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Нерешительность читается как движение между картами.",
             "cardIds": [
               "wands_07"
             ],
@@ -7143,19 +7660,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "Карта major_02 в позиции past связана с вопросом.",
+            "title": "major_02",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция past учтена."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "Карта cups_04 в позиции present связана с вопросом.",
+            "title": "cups_04",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция present учтена."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "Карта wands_07 в позиции future связана с вопросом.",
+            "title": "wands_07",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция future учтена."
           }
         ],
         "recurringInsight": null,
@@ -7225,21 +7751,26 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "прячу",
+          "от себя",
+          "скрываю"
+        ]
       },
       "candidate": {
-        "opening": "The spread answers the ask without inventing certainty.",
-        "coreTension": "A quiet tension sits in the middle card.",
-        "movement": "Cards interact without becoming separate essays.",
-        "turningPoint": "One turning point is enough.",
-        "meaningForUser": "Meaning stays tied to the question.",
-        "actionDirection": "One small realistic step.",
-        "closing": "Uncertainty remains allowed.",
+        "opening": "То, что ты прячешь от себя, ближе к скрытому фактору.",
+        "coreTension": "Текущая энергия и препятствие говорят о внутреннем молчании.",
+        "movement": "Карты усиливают тему без повторения одного абзаца.",
+        "turningPoint": "Направление предлагает заметить, а не разоблачать.",
+        "meaningForUser": "Вопрос о том, что скрыто от себя; смысл держится здесь.",
+        "actionDirection": "Одна честная фраза в заметке может быть достаточным шагом.",
+        "closing": "Не всё нужно открывать сразу — достаточно увидеть.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "Что я прячу от себя?",
+            "text": "Скрытое от себя проявляется в скрытом факторе и энергии.",
             "cardIds": [
               "major_02"
             ],
@@ -7253,7 +7784,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_02 and cups_04.",
+            "text": "Скрытое от себя проявляется в скрытом факторе и энергии.",
             "cardIds": [
               "major_02",
               "cups_04"
@@ -7269,7 +7800,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Скрытое от себя проявляется в скрытом факторе и энергии.",
             "cardIds": [
               "wands_07"
             ],
@@ -7286,19 +7817,28 @@
             "canonicalCardId": "major_02",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_02 in past."
+            "detailBody": "Карта major_02 в позиции past связана с вопросом.",
+            "title": "major_02",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция past учтена."
           },
           {
             "canonicalCardId": "cups_04",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_04 in present."
+            "detailBody": "Карта cups_04 в позиции present связана с вопросом.",
+            "title": "cups_04",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция present учтена."
           },
           {
             "canonicalCardId": "wands_07",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_07 in future."
+            "detailBody": "Карта wands_07 в позиции future связана с вопросом.",
+            "title": "wands_07",
+            "orientationNote": "Прямая",
+            "positionNote": "Позиция future учтена."
           }
         ],
         "recurringInsight": null,
@@ -7378,21 +7918,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: support.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -7406,7 +7950,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -7424,7 +7968,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -7441,19 +7985,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -7533,21 +8086,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: reinforcement.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -7561,7 +8118,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -7579,7 +8136,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -7596,19 +8153,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -7688,21 +8254,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: contrast.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -7716,7 +8286,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -7734,7 +8304,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -7751,19 +8321,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -7843,21 +8422,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: conflict.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -7871,7 +8454,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -7889,7 +8472,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -7906,19 +8489,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -7998,21 +8590,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: causeEffect.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -8026,7 +8622,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -8044,7 +8640,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -8061,19 +8657,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -8153,21 +8758,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: blockage.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -8181,7 +8790,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -8199,7 +8808,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -8216,19 +8825,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -8308,21 +8926,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: resolution.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -8336,7 +8958,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -8354,7 +8976,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -8371,19 +8993,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -8463,21 +9094,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: escalation.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -8491,7 +9126,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -8509,7 +9144,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -8526,19 +9161,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -8618,21 +9262,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: softening.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -8646,7 +9294,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -8664,7 +9312,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -8681,19 +9329,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -8773,21 +9430,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "aramızdaki",
+          "dinamik"
+        ]
       },
       "candidate": {
         "opening": "İlişki kanıtı türü: themeRepetition.",
         "coreTension": "Gerilim veya destek kartlar arasında okunur.",
         "movement": "Hareket kanıta dayanır.",
         "turningPoint": "Dönüş noktası net.",
-        "meaningForUser": "Suçlama yok; gözlem var.",
+        "meaningForUser": "Suçlama yok; gözlem var. Bu bakış «aramızdaki» odağında kalır.",
         "actionDirection": "Bir soru sor.",
         "closing": "Kesinlik yok.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_04.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04"
             ],
@@ -8801,7 +9462,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_04 and cups_08.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_04",
               "cups_08"
@@ -8819,7 +9480,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_06"
             ],
@@ -8836,19 +9497,28 @@
             "canonicalCardId": "major_04",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_04 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_04",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_08",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_08 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_08",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_06",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_06 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_06",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -8924,21 +9594,27 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "konuya",
+          "tekrar",
+          "bakmak",
+          "istiyorum"
+        ]
       },
       "candidate": {
         "opening": "Yeniden bakış, önceki kısa notu hatırlatır; üzerine yazmaz.",
         "coreTension": "Adalet ile kapanış arasında denge aranır.",
         "movement": "Kartlar bugünkü çizgiyi çizer.",
         "turningPoint": "Revisit yönergesi: nazikçe, zorlamadan.",
-        "meaningForUser": "Önceki özetten bir iz var; mevcut açılım öncelikli.",
+        "meaningForUser": "Önceki özetten bir iz var; mevcut açılım öncelikli. Bu bakış «konuya» odağında kalır.",
         "actionDirection": "Tek bir net soru sor kendine.",
         "closing": "Geçmişi kutsal metin yapma.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on major_11.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_11"
             ],
@@ -8954,7 +9630,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_11 and cups_10.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_11",
               "cups_10"
@@ -8970,7 +9646,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "wands_02"
             ],
@@ -8987,19 +9663,28 @@
             "canonicalCardId": "major_11",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_11 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_11",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_10",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_10 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_10",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "wands_02",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for wands_02 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "wands_02",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -9069,7 +9754,11 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "where",
+          "blocked"
+        ]
       },
       "candidate": {
         "opening": "Temperance upright seeks balance; swords reversed may delay clarity.",
@@ -9199,21 +9888,25 @@
           "recurringThemeLabels": []
         },
         "recurringCards": [],
-        "recurringThemes": []
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "geri",
+          "döner"
+        ]
       },
       "candidate": {
         "opening": "Kart yakınlık özlemini taşıyor olabilir.",
         "coreTension": "",
         "movement": "",
         "turningPoint": "Dönüş kesin değil.",
-        "meaningForUser": "Özlem ile gerçek temas ayrı şeyler; fal tarih vermez.",
+        "meaningForUser": "Özlem ile gerçek temas ayrı şeyler; fal tarih vermez. Bu bakış «geri» odağında kalır.",
         "actionDirection": "Beklentiyi yumuşatıp kendi ritmine bak.",
         "closing": "Bilinmeyene yer bırak.",
         "beats": [
           {
             "beatId": "b_open",
             "kind": "opening",
-            "text": "This spread centers on cups_06.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "cups_06"
             ],
@@ -9227,7 +9920,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "cups_06"
             ],
@@ -9244,7 +9937,10 @@
             "canonicalCardId": "cups_06",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for cups_06 in sign."
+            "detailBody": "sign konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_06",
+            "orientationNote": "Düz",
+            "positionNote": "sign dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -9448,18 +10144,18 @@
         "recurringThemes": []
       },
       "candidate": {
-        "opening": "x",
-        "coreTension": "",
-        "movement": "",
-        "turningPoint": "",
-        "meaningForUser": "x",
-        "actionDirection": "",
-        "closing": "",
+        "opening": "Açılım, «Ne var?» sorusunu abartmadan ele alıyor.",
+        "coreTension": "Ortadaki kartta sakin bir gerilim görünüyor; bu gerilim uydurma bir kesinliğe dönüşmez.",
+        "movement": "Kartlar birbirini destekleyerek okunuyor; her biri ayrı bir deneme gibi yazılmıyor.",
+        "turningPoint": "Dönüş noktası, yönü yumuşak bırakır ve tek bir sonucu dayatmaz.",
+        "meaningForUser": "Anlam soruya bağlı kalır; kart gerçekleri değiştirilmez.",
+        "actionDirection": "Küçük ve geri alınabilir bir adım düşünmek yeterli olabilir.",
+        "closing": "Kesin bir yargı yok; belirsizliğe yer bırakılır.",
         "beats": [
           {
             "beatId": "b1",
             "kind": "meaning",
-            "text": "Typo card id",
+            "text": "«Ne var?» teması, kartların etkileşiminde sakinçe duruyor.",
             "cardIds": [
               "major_99"
             ],
@@ -9476,7 +10172,10 @@
             "canonicalCardId": "major_00",
             "positionKey": "sign",
             "isReversed": false,
-            "detailBody": "Detail for major_00 in sign."
+            "detailBody": "sign konumundaki major_00 bu soruya bağlı bir ayrıntı sunar.",
+            "title": "major_00",
+            "orientationNote": "Düz",
+            "positionNote": "sign anlamı dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -9485,8 +10184,8 @@
       "expected": {
         "pass": false,
         "hardFailures": [
-          "unknown_card_ref",
-          "undrawn_card_ref"
+          "undrawn_card_ref",
+          "unknown_card_ref"
         ],
         "flags": {
           "questionGrounded": true,
@@ -9560,7 +10259,8 @@
         },
         "recurringCards": [],
         "recurringThemes": [],
-        "intention": ""
+        "intention": "",
+        "groundingAnchors": []
       },
       "candidate": {
         "opening": "Açık bir alan; soru yok, kartlar yine de konuşuyor.",
@@ -9588,7 +10288,7 @@
           {
             "beatId": "b_move",
             "kind": "movement",
-            "text": "Movement between major_01 and cups_02.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "major_01",
               "cups_02"
@@ -9606,7 +10306,7 @@
           {
             "beatId": "b_close",
             "kind": "closing",
-            "text": "Leave room for what is still unclear.",
+            "text": "Kartlar soruya bağlı sakin bir etkileşim gösteriyor.",
             "cardIds": [
               "swords_05"
             ],
@@ -9623,19 +10323,28 @@
             "canonicalCardId": "major_01",
             "positionKey": "past",
             "isReversed": false,
-            "detailBody": "Detail for major_01 in past."
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
           },
           {
             "canonicalCardId": "cups_02",
             "positionKey": "present",
             "isReversed": false,
-            "detailBody": "Detail for cups_02 in present."
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
           },
           {
             "canonicalCardId": "swords_05",
             "positionKey": "future",
             "isReversed": false,
-            "detailBody": "Detail for swords_05 in future."
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future dikkate alınır."
           }
         ],
         "recurringInsight": null,
@@ -9716,7 +10425,8 @@
         },
         "recurringCards": [],
         "recurringThemes": [],
-        "intention": ""
+        "intention": "",
+        "groundingAnchors": []
       },
       "candidate": {
         "opening": "No question was named; the cards still invite a quiet look.",
@@ -9816,6 +10526,1345 @@
         },
         "notes": "EN no-question reflective pass"
       }
+    },
+    {
+      "id": "NTV2-TR-LANG-NOSTK-001",
+      "locale": "tr",
+      "tags": [
+        "language",
+        "non_stock",
+        "fail"
+      ],
+      "category": "language_mismatch_non_stock",
+      "input": {
+        "questionText": "Bu ilişki hakkında ne düşünmeliyim?",
+        "questionKind": "explicit",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_01",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [
+          {
+            "evidenceId": "rel_01",
+            "leftCardId": "major_01",
+            "rightCardId": "cups_02",
+            "leftPositionKey": "past",
+            "rightPositionKey": "present",
+            "kind": "causeEffect",
+            "strength": 0.7
+          }
+        ],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "ilişki",
+          "düşün"
+        ]
+      },
+      "candidate": {
+        "opening": "Looking at the middle of the spread, a careful pause becomes visible.",
+        "coreTension": "There is friction between what was hoped for and what is present now.",
+        "movement": "The cards describe a slow recalibration rather than a sudden break.",
+        "turningPoint": "A quieter choice appears without announcing an outcome.",
+        "meaningForUser": "The reading stays observational about the relationship question.",
+        "actionDirection": "You might write what feels unfinished without forcing a verdict.",
+        "closing": "Room remains for what is still unclear.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "A careful pause sits between past influence and present friction.",
+            "cardIds": [
+              "major_01"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "A careful pause sits between past influence and present friction.",
+            "cardIds": [
+              "major_01",
+              "cups_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [
+              "rel_01"
+            ],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "A careful pause sits between past influence and present friction.",
+            "cardIds": [
+              "swords_05"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_01",
+            "positionKey": "past",
+            "isReversed": false,
+            "detailBody": "A quiet note about this placement without stock positivity.",
+            "title": "major_01",
+            "orientationNote": "Upright",
+            "positionNote": "past"
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "A quiet note about this placement without stock positivity.",
+            "title": "cups_02",
+            "orientationNote": "Upright",
+            "positionNote": "present"
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "A quiet note about this placement without stock positivity.",
+            "title": "swords_05",
+            "orientationNote": "Upright",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "language_mismatch"
+        ],
+        "flags": {
+          "questionGrounded": true,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": true,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": true,
+          "referentialIntegrityOk": true
+        },
+        "notes": "TR request with natural English prose, no stock phrases"
+      }
+    },
+    {
+      "id": "NTV2-EN-LANG-NOSTK-001",
+      "locale": "en",
+      "tags": [
+        "language",
+        "non_stock",
+        "fail"
+      ],
+      "category": "language_mismatch_non_stock",
+      "input": {
+        "questionText": "Should I stay in this job?",
+        "questionKind": "decision",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_07",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "swords_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "cups_06",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "job",
+          "stay"
+        ]
+      },
+      "candidate": {
+        "opening": "Bu is konusunda acelenin faydasi yok; once mevcut durumu gormek lazim.",
+        "coreTension": "Simdiki kart, baskinin arttigini ama cozumun tek olmadigini soyler.",
+        "movement": "Kartlar birlikte okununca karar daha sakin gorunur.",
+        "turningPoint": "Donus noktasi, ani bir kopus degil olculeli bir adim onerir.",
+        "meaningForUser": "Soru iste kalip kalmama uzerine; anlam burada kalir.",
+        "actionDirection": "Bir haftalik deneme siniri koymak dusunulebilir.",
+        "closing": "Kesinlik yok; sadece daha net bir bakis var.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "Is karari, mevcut enerji ve engel kartlarinda birlikte duruyor.",
+            "cardIds": [
+              "major_07"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "Is karari, mevcut enerji ve engel kartlarinda birlikte duruyor.",
+            "cardIds": [
+              "major_07",
+              "swords_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "Is karari, mevcut enerji ve engel kartlarinda birlikte duruyor.",
+            "cardIds": [
+              "cups_06"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_07",
+            "positionKey": "past",
+            "isReversed": false,
+            "detailBody": "Bu konumdaki kart is sorusuna bagli kalir.",
+            "title": "major_07",
+            "orientationNote": "Duz",
+            "positionNote": "past"
+          },
+          {
+            "canonicalCardId": "swords_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "Bu konumdaki kart is sorusuna bagli kalir.",
+            "title": "swords_02",
+            "orientationNote": "Duz",
+            "positionNote": "present"
+          },
+          {
+            "canonicalCardId": "cups_06",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "Bu konumdaki kart is sorusuna bagli kalir.",
+            "title": "cups_06",
+            "orientationNote": "Duz",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "language_mismatch"
+        ],
+        "flags": {
+          "questionGrounded": true,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": false,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": true,
+          "referentialIntegrityOk": true
+        },
+        "notes": "EN request with natural Turkish prose (few special chars)"
+      }
+    },
+    {
+      "id": "NTV2-RU-LANG-MIX-001",
+      "locale": "ru",
+      "tags": [
+        "language",
+        "non_stock",
+        "fail",
+        "mixed"
+      ],
+      "category": "language_mismatch_mixed",
+      "input": {
+        "questionText": "Что мне делать с тревогой?",
+        "questionKind": "explicit",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_07",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "swords_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "cups_06",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "тревог",
+          "делать"
+        ]
+      },
+      "candidate": {
+        "opening": "Расклад начинается с мягкого наблюдения.",
+        "coreTension": "A longer English paragraph then takes over the meaning for the user.",
+        "movement": "The movement section continues in English without returning to Russian.",
+        "turningPoint": "The turning point stays English and descriptive.",
+        "meaningForUser": "Meaning for the user is written mostly in English despite a Russian ask.",
+        "actionDirection": "Action guidance is also English and observational.",
+        "closing": "The closing remains English and leaves uncertainty open.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "Only the opening held Russian; the rest drifted into English.",
+            "cardIds": [
+              "major_07"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "Only the opening held Russian; the rest drifted into English.",
+            "cardIds": [
+              "major_07",
+              "swords_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "Only the opening held Russian; the rest drifted into English.",
+            "cardIds": [
+              "cups_06"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_07",
+            "positionKey": "past",
+            "isReversed": false,
+            "detailBody": "English-only detail body for this placement.",
+            "title": "major_07",
+            "orientationNote": "Upright",
+            "positionNote": "past"
+          },
+          {
+            "canonicalCardId": "swords_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "English-only detail body for this placement.",
+            "title": "swords_02",
+            "orientationNote": "Upright",
+            "positionNote": "present"
+          },
+          {
+            "canonicalCardId": "cups_06",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "English-only detail body for this placement.",
+            "title": "cups_06",
+            "orientationNote": "Upright",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "language_mismatch"
+        ],
+        "flags": {
+          "questionGrounded": true,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": false,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": true,
+          "referentialIntegrityOk": true
+        },
+        "notes": "RU request with one Russian sentence and English-majority body"
+      }
+    },
+    {
+      "id": "NTV2-TR-SPREAD-FACT-001",
+      "locale": "tr",
+      "tags": [
+        "spread_fact",
+        "fail",
+        "card_detail"
+      ],
+      "category": "spread_fact_mismatch",
+      "input": {
+        "questionText": "Bu iş teklifini kabul etmeli miyim?",
+        "questionKind": "explicit",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_01",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [
+          {
+            "evidenceId": "rel_01",
+            "leftCardId": "major_01",
+            "rightCardId": "cups_02",
+            "leftPositionKey": "past",
+            "rightPositionKey": "present",
+            "kind": "causeEffect",
+            "strength": 0.7
+          }
+        ],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "iş",
+          "teklif"
+        ]
+      },
+      "candidate": {
+        "opening": "Açılım iş teklifini konuşuyor.",
+        "coreTension": "Gerilim mevcut.",
+        "movement": "Kartlar etkileşiyor.",
+        "turningPoint": "Dönüş sakin.",
+        "meaningForUser": "Anlam soruya bağlı.",
+        "actionDirection": "Bir adım düşünülebilir.",
+        "closing": "Kesinlik yok.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "major_01"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "major_01",
+              "cups_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [
+              "rel_01"
+            ],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "swords_05"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_01",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "Yanlış konum eşlemesi.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "present"
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "Diğer kart doğru konumda.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present"
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "future konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "spread_fact_mismatch"
+        ],
+        "flags": {
+          "questionGrounded": true,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": true,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": true,
+          "referentialIntegrityOk": false
+        },
+        "notes": "Valid card and position individually, wrong pairing"
+      }
+    },
+    {
+      "id": "NTV2-TR-DETAIL-CERT-001",
+      "locale": "tr",
+      "tags": [
+        "certainty",
+        "card_detail",
+        "fail"
+      ],
+      "category": "certainty_in_card_detail",
+      "input": {
+        "questionText": "Bu iş teklifini kabul etmeli miyim?",
+        "questionKind": "explicit",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_01",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [
+          {
+            "evidenceId": "rel_01",
+            "leftCardId": "major_01",
+            "rightCardId": "cups_02",
+            "leftPositionKey": "past",
+            "rightPositionKey": "present",
+            "kind": "causeEffect",
+            "strength": 0.7
+          }
+        ],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "iş",
+          "teklif"
+        ]
+      },
+      "candidate": {
+        "opening": "Açılım iş teklifini sakinçe ele alıyor.",
+        "coreTension": "Gerilim abartılmıyor.",
+        "movement": "Kartlar birlikte okunuyor.",
+        "turningPoint": "Dönüş ölçülü.",
+        "meaningForUser": "Anlam soruya bağlı kalıyor.",
+        "actionDirection": "Bir seçenek yazılabilir.",
+        "closing": "Kesin yargı yok.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "İş teklifi teması ana metinde güvenli.",
+            "cardIds": [
+              "major_01"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "İş teklifi teması ana metinde güvenli.",
+            "cardIds": [
+              "major_01",
+              "cups_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [
+              "rel_01"
+            ],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "İş teklifi teması ana metinde güvenli.",
+            "cardIds": [
+              "swords_05"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_01",
+            "positionKey": "past",
+            "isReversed": false,
+            "detailBody": "Bu yatırımdan kesin para kazanacaksın.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past"
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "present için sakin bir not.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present"
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "future için sakin bir not.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "unsupported_certainty"
+        ],
+        "flags": {
+          "questionGrounded": false,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": true,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": false,
+          "referentialIntegrityOk": true
+        },
+        "notes": "Certainty only in cardDetails.detailBody"
+      }
+    },
+    {
+      "id": "NTV2-TR-DETAIL-LANG-001",
+      "locale": "tr",
+      "tags": [
+        "language",
+        "card_detail",
+        "fail"
+      ],
+      "category": "language_in_card_detail",
+      "input": {
+        "questionText": "Bu iş teklifini kabul etmeli miyim?",
+        "questionKind": "explicit",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_01",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [
+          {
+            "evidenceId": "rel_01",
+            "leftCardId": "major_01",
+            "rightCardId": "cups_02",
+            "leftPositionKey": "past",
+            "rightPositionKey": "present",
+            "kind": "causeEffect",
+            "strength": 0.7
+          }
+        ],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "iş",
+          "teklif"
+        ]
+      },
+      "candidate": {
+        "opening": "Açılım iş teklifi sorusunu Türkçe konuşuyor.",
+        "coreTension": "Gerilim sakin ve yerinde.",
+        "movement": "Kartlar birbirini destekliyor.",
+        "turningPoint": "Dönüş ölçülü kalıyor.",
+        "meaningForUser": "Anlam iş teklifine bağlı.",
+        "actionDirection": "Bir seçenek not edilebilir.",
+        "closing": "Kesinlik iddiası yok.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "Ana metin Türkçe ve soruya bağlı.",
+            "cardIds": [
+              "major_01"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "Ana metin Türkçe ve soruya bağlı.",
+            "cardIds": [
+              "major_01",
+              "cups_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [
+              "rel_01"
+            ],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "Ana metin Türkçe ve soruya bağlı.",
+            "cardIds": [
+              "swords_05"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_01",
+            "positionKey": "past",
+            "isReversed": false,
+            "detailBody": "Meanwhile this placement quietly explains how the offer will reshape your schedule and why the delay feels heavy without offering a prediction.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past"
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "present için kısa Türkçe not.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present"
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "future için kısa Türkçe not.",
+            "title": "swords_05",
+            "orientationNote": "Düz",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "language_mismatch"
+        ],
+        "flags": {
+          "questionGrounded": true,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": true,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": true,
+          "referentialIntegrityOk": true
+        },
+        "notes": "Wrong-language prose concentrated in cardDetails"
+      }
+    },
+    {
+      "id": "NTV2-TR-DETAIL-UNDRAWN-001",
+      "locale": "tr",
+      "tags": [
+        "undrawn",
+        "card_detail",
+        "fail"
+      ],
+      "category": "undrawn_in_card_detail",
+      "input": {
+        "questionText": "Bu iş teklifini kabul etmeli miyim?",
+        "questionKind": "explicit",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_01",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [
+          {
+            "evidenceId": "rel_01",
+            "leftCardId": "major_01",
+            "rightCardId": "cups_02",
+            "leftPositionKey": "past",
+            "rightPositionKey": "present",
+            "kind": "causeEffect",
+            "strength": 0.7
+          }
+        ],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "iş",
+          "teklif"
+        ]
+      },
+      "candidate": {
+        "opening": "Açılım iş teklifini konuşuyor.",
+        "coreTension": "Gerilim mevcut.",
+        "movement": "Kartlar etkileşiyor.",
+        "turningPoint": "Dönüş sakin.",
+        "meaningForUser": "Anlam soruya bağlı.",
+        "actionDirection": "Bir adım düşünülebilir.",
+        "closing": "Kesinlik yok.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "major_01"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "major_01",
+              "cups_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [
+              "rel_01"
+            ],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "swords_05"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_01",
+            "positionKey": "past",
+            "isReversed": false,
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
+          },
+          {
+            "canonicalCardId": "major_21",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "Çekilmemiş kart detayı.",
+            "title": "major_21",
+            "orientationNote": "Düz",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "undrawn_card_ref"
+        ],
+        "flags": {
+          "questionGrounded": true,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": true,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": true,
+          "referentialIntegrityOk": false
+        },
+        "notes": "Undrawn card appears only in cardDetails"
+      }
+    },
+    {
+      "id": "NTV2-TR-DETAIL-UNKNOWN-001",
+      "locale": "tr",
+      "tags": [
+        "unknown_card",
+        "card_detail",
+        "fail"
+      ],
+      "category": "unknown_in_card_detail",
+      "input": {
+        "questionText": "Bu iş teklifini kabul etmeli miyim?",
+        "questionKind": "explicit",
+        "topic": null,
+        "spreadId": "classical.threeCard",
+        "cards": [
+          {
+            "canonicalCardId": "major_01",
+            "isReversed": false,
+            "positionKey": "past",
+            "positionIndex": 0
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "isReversed": false,
+            "positionKey": "present",
+            "positionIndex": 1
+          },
+          {
+            "canonicalCardId": "swords_05",
+            "isReversed": false,
+            "positionKey": "future",
+            "positionIndex": 2
+          }
+        ],
+        "relationships": [
+          {
+            "evidenceId": "rel_01",
+            "leftCardId": "major_01",
+            "rightCardId": "cups_02",
+            "leftPositionKey": "past",
+            "rightPositionKey": "present",
+            "kind": "causeEffect",
+            "strength": 0.7
+          }
+        ],
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "entries": [],
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": []
+        },
+        "recurringCards": [],
+        "recurringThemes": [],
+        "groundingAnchors": [
+          "iş",
+          "teklif"
+        ]
+      },
+      "candidate": {
+        "opening": "Açılım iş teklifini konuşuyor.",
+        "coreTension": "Gerilim mevcut.",
+        "movement": "Kartlar etkileşiyor.",
+        "turningPoint": "Dönüş sakin.",
+        "meaningForUser": "Anlam soruya bağlı.",
+        "actionDirection": "Bir adım düşünülebilir.",
+        "closing": "Kesinlik yok.",
+        "beats": [
+          {
+            "beatId": "b_open",
+            "kind": "opening",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "major_01"
+            ],
+            "positionKeys": [
+              "past"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_move",
+            "kind": "movement",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "major_01",
+              "cups_02"
+            ],
+            "positionKeys": [
+              "past",
+              "present"
+            ],
+            "relationshipEvidenceIds": [
+              "rel_01"
+            ],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          },
+          {
+            "beatId": "b_close",
+            "kind": "closing",
+            "text": "İş teklifi teması korunuyor.",
+            "cardIds": [
+              "swords_05"
+            ],
+            "positionKeys": [
+              "future"
+            ],
+            "relationshipEvidenceIds": [],
+            "memoryEvidenceRefs": [],
+            "recurringEvidenceIds": []
+          }
+        ],
+        "cardDetails": [
+          {
+            "canonicalCardId": "major_01",
+            "positionKey": "past",
+            "isReversed": false,
+            "detailBody": "past konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "major_01",
+            "orientationNote": "Düz",
+            "positionNote": "past dikkate alınır."
+          },
+          {
+            "canonicalCardId": "cups_02",
+            "positionKey": "present",
+            "isReversed": false,
+            "detailBody": "present konumundaki kart, soruya bağlı sakin bir not taşır.",
+            "title": "cups_02",
+            "orientationNote": "Düz",
+            "positionNote": "present dikkate alınır."
+          },
+          {
+            "canonicalCardId": "major_99",
+            "positionKey": "future",
+            "isReversed": false,
+            "detailBody": "Bilinmeyen kart detayı.",
+            "title": "major_99",
+            "orientationNote": "Düz",
+            "positionNote": "future"
+          }
+        ],
+        "recurringInsight": null,
+        "legacySections": null
+      },
+      "expected": {
+        "pass": false,
+        "hardFailures": [
+          "undrawn_card_ref",
+          "unknown_card_ref"
+        ],
+        "flags": {
+          "questionGrounded": true,
+          "allCardsAccountedFor": true,
+          "positionSemanticsUsed": true,
+          "relationshipEvidenceUsed": true,
+          "memoryEvidenceUsed": false,
+          "recurrenceEvidenceUsed": false,
+          "legacySectionDependence": false,
+          "genericityDetected": false,
+          "sycophancyDetected": false,
+          "repetitiveCardEssayDetected": false,
+          "naturalUncertainty": true,
+          "referentialIntegrityOk": false
+        },
+        "notes": "Unknown card id only in cardDetails"
+      }
     }
-  ]
+  ],
+  "phase21Note": "Phase 2.1: dominant-language contract, full user-facing scan, cardDetail referential integrity, spread_fact_mismatch, explicit groundingAnchors, PASS distinctness."
 }

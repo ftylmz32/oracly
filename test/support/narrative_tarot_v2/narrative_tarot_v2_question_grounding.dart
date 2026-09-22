@@ -1,4 +1,6 @@
-/// Phase 2 CONTRACT HARNESS — questionGrounded heuristic.
+/// Phase 2 CONTRACT HARNESS — questionGrounding (offline corpus contract).
+///
+/// Length alone never proves grounding. Prefer fixture groundingAnchors.
 library;
 
 import 'narrative_tarot_v2_hard_failures.dart';
@@ -37,18 +39,43 @@ abstract final class Ntv2QuestionGrounding {
             2) {
       return false;
     }
-    final q = '${s.input['questionText'] ?? ''}'.trim();
-    if (q.isEmpty) return true;
-    final tokens = q
+
+    final kind = '${s.input['questionKind'] ?? ''}'.trim();
+    final anchors = ((s.input['groundingAnchors'] as List?) ?? const [])
+        .cast<String>()
+        .map((a) => a.trim().toLowerCase())
+        .where((a) => a.isNotEmpty)
+        .toList();
+
+    // Open / no-question: no forced keyword overlap.
+    if (kind == 'none' ||
+        kind == 'open' ||
+        (kind.isEmpty &&
+            '${s.input['questionText'] ?? ''}'.trim().isEmpty &&
+            anchors.isEmpty)) {
+      return true;
+    }
+
+    final lower = text.toLowerCase();
+    if (anchors.isNotEmpty) {
+      return anchors.any(lower.contains);
+    }
+
+    // Fallback: question/topic token overlap — never length-alone.
+    final seed = [
+      '${s.input['questionText'] ?? ''}',
+      '${s.input['topic'] ?? ''}',
+      '${s.input['intention'] ?? ''}',
+    ].join(' ');
+    final tokens = seed
         .toLowerCase()
         .split(RegExp(r'\W+'))
         .where((t) => t.length > 3)
-        .take(4);
-    final lower = text.toLowerCase();
+        .take(6);
     var hits = 0;
     for (final t in tokens) {
       if (lower.contains(t)) hits++;
     }
-    return hits > 0 || lower.length > 40;
+    return hits > 0;
   }
 }

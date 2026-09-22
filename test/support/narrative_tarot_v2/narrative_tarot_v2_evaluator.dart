@@ -4,7 +4,6 @@
 /// Later production validators must be tested against the same corpus.
 library;
 
-import 'narrative_tarot_v2_hard_failures.dart';
 import 'narrative_tarot_v2_hard_scan.dart';
 import 'narrative_tarot_v2_models.dart';
 import 'narrative_tarot_v2_soft_flags.dart';
@@ -25,6 +24,10 @@ abstract final class Ntv2ContractEvaluator {
     final cards = (input['cards'] as List).cast<Map>();
     final drawn = cards.map((c) => c['canonicalCardId'] as String).toSet();
     final positions = cards.map((c) => c['positionKey'] as String).toSet();
+    final positionByCard = {
+      for (final c in cards)
+        c['canonicalCardId'] as String: c['positionKey'] as String,
+    };
     final orientation = {
       for (final c in cards)
         c['canonicalCardId'] as String: c['isReversed'] as bool,
@@ -46,10 +49,10 @@ abstract final class Ntv2ContractEvaluator {
         if ('${e['contentForModel']}'.contains('DELETED_SOURCE'))
           e['evidenceRef'] as String,
     };
-    final recurringCards =
-        (input['recurringCards'] as List? ?? const []).cast<Map>();
-    final recurringThemes =
-        (input['recurringThemes'] as List? ?? const []).cast<Map>();
+    final recurringCards = (input['recurringCards'] as List? ?? const [])
+        .cast<Map>();
+    final recurringThemes = (input['recurringThemes'] as List? ?? const [])
+        .cast<Map>();
     final recIds = <String>{
       for (final r in recurringCards) r['evidenceId'] as String,
       for (final r in recurringThemes) r['evidenceId'] as String,
@@ -66,6 +69,7 @@ abstract final class Ntv2ContractEvaluator {
 
     Ntv2HardScan.scanBeatRefs(
       beats,
+      positionByCard: positionByCard,
       drawn: drawn,
       positions: positions,
       relIds: relIds,
@@ -73,13 +77,14 @@ abstract final class Ntv2ContractEvaluator {
       recIds: recIds,
       hard: hard,
     );
-    for (final d in details) {
-      final id = d['canonicalCardId'] as String;
-      final rev = d['isReversed'] as bool;
-      if (orientation.containsKey(id) && orientation[id] != rev) {
-        hard.add(Ntv2HardFailure.orientationMismatch);
-      }
-    }
+    Ntv2HardScan.scanCardDetails(
+      details,
+      positionByCard: positionByCard,
+      orientation: orientation,
+      drawn: drawn,
+      positions: positions,
+      hard: hard,
+    );
     Ntv2HardScan.checkRecurrence(text, recCounts, recIds, hard);
     Ntv2HardScan.checkCertaintySafety(text, hard);
     Ntv2HardScan.checkMemoryPrivacy(beats, foreignRefs, deletedRefs, hard);
