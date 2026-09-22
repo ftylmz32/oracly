@@ -1,9 +1,9 @@
 # NARRATIVE TAROT DATA CONTRACT
 
-**Program:** ORACLY Narrative Tarot V2  
-**Document kind:** IMPLEMENTATION DATA CONTRACT (pseudocode / tables — no Dart files yet)  
-**Schema version:** `narrativeTarotVersion = 2`  
-**Status:** Phase 1 — **NOT IMPLEMENTED**
+**Program:** ORACLY Narrative Tarot V2
+**Document kind:** IMPLEMENTATION DATA CONTRACT (pseudocode / tables — no Dart files yet)
+**Schema version:** `narrativeTarotVersion = 2`
+**Status:** Phase 1 / 1.1 hardened — **NOT IMPLEMENTED**
 
 Companion: `NARRATIVE_TAROT_SPEC.md`, `NARRATIVE_TAROT_MIGRATION_PLAN.md`
 
@@ -44,7 +44,9 @@ class NarrativeCardProfile {
 }
 ```
 
-**Derivation:** adapters may seed from existing `symbolicMeaning` → core, `challengeMeaning` → shadow, etc., until authored profiles are complete.
+**Derivation:** adapters may seed from existing meanings during Phase 3 / shadow only.
+
+**Production V2 gate:** all 78 cards × release locales must pass deterministic completeness — missing profile is **not** a production success condition (see Spec §4).
 
 ---
 
@@ -52,9 +54,9 @@ class NarrativeCardProfile {
 
 ```dart
 class NarrativeOrientationProfile {
-  final L10nTriple expression;            // how this orientation speaks
-  final List<ReversedTransformKind> transforms; // upright: usually empty/default
-  final List<String> keywordIds;          // optional bridge to existing keywords
+  final L10nTriple expression;
+  final List<ReversedTransformKind> transforms;
+  final List<String> keywordIds;
 }
 
 enum ReversedTransformKind {
@@ -69,21 +71,23 @@ enum ReversedTransformKind {
 
 ```dart
 class SpreadSemanticDefinition {
-  final String spreadId;                  // e.g. classical.threeCard | signature.the_mirror
+  final String spreadId;                  // classical.* | signature.the_mirror | signature.between_us
   final String? legacyTypeName;           // TarotSpreadType.name when classical
   final int cardCount;
-  final String purposeKey;                // l10n key for spread purpose
+  final String purposeKey;
   final List<SpreadPositionSemantic> positions;
   final List<int> interpretationOrder;
-  final NarrativeGeometryHook geometryHook; // for Visual System
-  final NarrativeLengthBand lengthBand;   // short|medium|full|deep
-}
-
-enum NarrativeGeometryHook {
-  singleFocus, linearThree, classicalFive, classicalSeven,
-  celticCross, mirrorAxis, betweenUsBridge, other,
+  final NarrativeGeometryHook geometryHook;
+  final NarrativeLengthBand lengthBand;
 }
 ```
+
+**Canonical signature ids (immutable once persisted):**
+
+- `signature.the_mirror`
+- `signature.between_us`
+
+Underscore forms (`signature_the_mirror`) are **not** valid persisted ids.
 
 ---
 
@@ -93,18 +97,18 @@ enum NarrativeGeometryHook {
 class SpreadPositionSemantic {
   final String positionKey;
   final int index;
-  final String role;                      // stable role id
-  final String guidingQuestionKey;        // l10n
-  final TemporalOrientation temporal;     // past|present|future|none
-  final String narrativeFunction;         // setup|conflict|aid|outcome|...
+  final String role;
+  final String guidingQuestionKey;
+  final TemporalOrientation temporal;
+  final String narrativeFunction;
   final List<PositionRelationEdge> relationToOtherSlots;
-  final double weight;                    // 0..1
-  final String displayLabelKey;           // l10n
+  final double weight;
+  final String displayLabelKey;
 }
 
 class PositionRelationEdge {
   final String otherPositionKey;
-  final String edgeKind;                  // opposes|supports|explains|...
+  final String edgeKind;
 }
 ```
 
@@ -115,12 +119,12 @@ class PositionRelationEdge {
 ```dart
 class TarotNarrativeCardEvidence {
   final String canonicalCardId;
-  final int ritualCardId;                 // 0..77 bridge id when applicable
+  final int ritualCardId;
   final bool isReversed;
   final String positionKey;
   final int positionIndex;
-  final String displayName;               // locale-resolved at request build
-  final NarrativeCardProfile profileSlice;// or profile id + resolved locale strings
+  final String displayName;
+  final NarrativeCardProfile profileSlice;
   final String imageAsset;
 }
 ```
@@ -129,18 +133,19 @@ Facts: card, orientation, position — AI must not rewrite.
 
 ---
 
-## 6. TarotNarrativeRelationshipEvidence (DERIVED FACT / INFERENCE BAND)
+## 6. TarotNarrativeRelationshipEvidence
 
 ```dart
 class TarotNarrativeRelationshipEvidence {
+  final String evidenceId;                // REQUIRED — request-scoped opaque id
   final String leftCardId;
   final String rightCardId;
   final String leftPositionKey;
   final String rightPositionKey;
   final RelationshipKind kind;
-  final String provenance;                // relatedIds|suitAffinity|positionRoles|traitOverlap|adjacency
-  final double strength;                  // 0..1
-  final String? noteKeyOrText;            // optional localized seed from OraclyTarotRelations
+  final String provenance;
+  final double strength;
+  final String? noteKeyOrText;
 }
 
 enum RelationshipKind {
@@ -149,7 +154,15 @@ enum RelationshipKind {
 }
 ```
 
-Deterministic builder emits these. AI may narrate among them; must not invent undrawn cards.
+### Evidence id contract
+
+| Rule | Requirement |
+|---|---|
+| Presence | Every relationship evidence row has a unique `evidenceId` within the request |
+| Scope | Request-scoped / opaque (e.g. `rel_01`) — deterministic within builder for a given request |
+| AI | May reference **only** ids supplied in `TarotNarrativeRequest.relationships` |
+| AI | May **never invent** an evidence id |
+| Validator | Unknown `relationshipEvidenceIds` on beats ⇒ **HARD FAIL** |
 
 ---
 
@@ -157,11 +170,12 @@ Deterministic builder emits these. AI may narrate among them; must not invent un
 
 ```dart
 class TarotRecurringCardEvidence {
+  final String evidenceId;                // REQUIRED — request-scoped
   final String canonicalCardId;
-  final int occurrenceCount;              // exact
+  final int occurrenceCount;              // exact deterministic count
   final List<RecurringOccurrence> occurrences;
-  final bool contextsOverlap;             // computed relevance
-  final String? overlapSummaryKey;        // only if overlap true
+  final bool contextsOverlap;
+  final String? overlapSummaryKey;
 }
 
 class RecurringOccurrence {
@@ -174,21 +188,24 @@ class RecurringOccurrence {
 }
 ```
 
+**Authority:** Sole source for explicit card-recurrence claims/counts.
+
 ---
 
 ## 8. TarotRecurringThemeEvidence
 
 ```dart
 class TarotRecurringThemeEvidence {
-  final String themeIdOrLabel;            // from verified insights / intention clusters
+  final String evidenceId;                // REQUIRED — request-scoped
+  final String themeIdOrLabel;
   final int supportCount;
   final List<String> supportingReadingIds;
-  final List<String> relatedCardIds;      // optional
-  final double relevanceToCurrentAsk;     // 0..1 vs current question/spread
+  final List<String> relatedCardIds;
+  final double relevanceToCurrentAsk;
 }
 ```
 
-Separate from card recurrence. Omit when `relevanceToCurrentAsk` below threshold.
+**Authority:** Sole source for explicit theme-recurrence claims. Omit when relevance below threshold.
 
 ---
 
@@ -196,29 +213,45 @@ Separate from card recurrence. Omit when `relevanceToCurrentAsk` below threshold
 
 ```dart
 class TarotNarrativeMemoryEvidence {
-  final String? memorySummary;            // verified OraclyMemory excerpt
-  final String? revisitPriorExcerpt;
-  final String? revisitInstruction;
+  final List<MemoryEvidenceEntry> entries;
   final int priorReadingCount;
-  final List<String> recentCardNames;     // bounded
-  final List<String> recurringThemeLabels;// bounded
-  final bool included;                    // false ⇒ omit from prompt
-  final String omitReason;                // none|empty|irrelevant|privacy
+  final List<String> recentCardNames;      // MIGRATION HINT ONLY
+  final List<String> recurringThemeLabels; // MIGRATION HINT ONLY
+  final bool included;
+  final String omitReason;                 // none|empty|irrelevant|privacy
 }
+
+class MemoryEvidenceEntry {
+  final String evidenceRef;                // REQUIRED opaque request-scoped ref (e.g. mem_01)
+  final MemoryEvidenceKind kind;           // memorySummary|revisitExcerpt|revisitInstruction
+  final String contentForModel;            // bounded; never encoded into ids
+}
+
+enum MemoryEvidenceKind { memorySummary, revisitExcerpt, revisitInstruction }
 ```
 
-Hierarchy: current spread > current context > relevant recent history > longer memory.
+### Recurrence vs memory hints
+
+`recentCardNames` / `recurringThemeLabels` **must not** authorize “appeared N times” or “theme keeps returning”.
+Dedicated recurrence evidence only.
+
+### Privacy of memory refs
+
+- Refs are opaque; no raw private memory inside ids.
+- User-facing result does not expose evidence identifiers.
+- Share/export strips quality/evidence metadata.
+- Analytics/logging must not dump `contentForModel`.
+- Prefer **not** persisting raw memory evidence with the reading (see §15).
+- R1: deleting history/memory removes future influence.
 
 ---
 
 ## 10. TarotNarrativeRequest
 
-Authoritative package for synthesis. Prefer **stable IDs** over bare ambiguous strings.
-
 ```dart
 class TarotNarrativeRequest {
-  final int narrativeTarotVersion;        // 2
-  final String languageCode;              // tr|en|ru
+  final int narrativeTarotVersion;
+  final String languageCode;
   final String sessionId;
   final String readingId;
   final QuestionGrounding question;
@@ -233,21 +266,23 @@ class TarotNarrativeRequest {
 
 class QuestionGrounding {
   final String? rawText;
-  final String? topic;                    // love|career|daily|general|...
-  final QuestionKind kind;                // explicit|topicOnly|open|relationship|decision|...
+  final String? topic;
+  final QuestionKind kind;
   final bool hasRealQuestion;
 }
 
 class RequestBounds {
-  final int maxPriorReadingsScanned;      // e.g. 20
-  final int maxRecurringOccurrencesListed;// e.g. 5
-  final int maxRelationships;             // e.g. 12
-  final int maxMemoryChars;               // e.g. 800
-  final int maxThemeLabels;               // e.g. 4
+  final int maxPriorReadingsScanned;
+  final int maxRecurringOccurrencesListed;
+  final int maxRelationships;
+  final int maxMemoryChars;
+  final int maxThemeLabels;
 }
 ```
 
-### Bound defaults (contract)
+The request is the **closed universe** of referenceable card ids, position keys, and evidence ids/refs for this synthesis.
+
+### Bound defaults
 
 | Bound | Default |
 |---|---|
@@ -266,21 +301,19 @@ class RequestBounds {
 
 | Layer | Who produces | Mutable by AI? |
 |---|---|---|
-| **FACTS** | Session / store (cards, orientation, positions, question, saved recurrence) | **NO** |
-| **INFERENCES** | Deterministic evidence builder (relationships, relevance scores, counts) | AI may **select**; must not invent contradiction of facts |
+| **FACTS** | Session / store | **NO** |
+| **INFERENCES** | Deterministic evidence builder | AI may **select**; must not contradict facts |
 | **AI NARRATIVE** | Model synthesis | YES — prose only |
 
-AI must never rewrite a fact (wrong card, false count, invented reading id).
+AI must never rewrite a fact (wrong card, false count, invented reading id, invented evidence id).
 
 ---
 
 ## 12. TarotNarrativeResult
 
-Primary product schema. Love/Career/Money are **not** required primary fields.
-
 ```dart
 class TarotNarrativeResult {
-  final int narrativeTarotVersion;        // 2
+  final int narrativeTarotVersion;
   final String languageCode;
   final String sessionId;
   final String readingId;
@@ -294,24 +327,14 @@ class TarotNarrativeResult {
   final String closing;
   final List<TarotNarrativeBeat> beats;
   final List<TarotCardDetailResult> cardDetails;
-  final String? recurringInsight;         // optional user-facing; only if evidence
+  final String? recurringInsight;         // only if dedicated recurrence evidence exists
   final TarotNarrativeQualityMetadata quality;
   final DateTime generatedAt;
-  final InterpretationSource source;      // ai|local (local only when policy allows)
+  final InterpretationSource source;
 }
 ```
 
-### Legacy adapter (migration only)
-
-May project into old `InterpretationResult` / `AiReadingContent` for temporary UI:
-
-| Legacy field | Projection rule |
-|---|---|
-| summary | opening + meaningForUser (clipped) |
-| advice | actionDirection |
-| closingMessage | closing |
-| fullInterpretation | concatenated narrative beats |
-| love/career/money/… | empty or topic-conditional secondary only |
+Love/Career/Money are **not** required primary fields. Legacy adapter may project for interim UI.
 
 ---
 
@@ -320,22 +343,21 @@ May project into old `InterpretationResult` / `AiReadingContent` for temporary U
 ```dart
 class TarotNarrativeBeat {
   final String beatId;
-  final String kind;                      // opening|tension|movement|turn|meaning|action|closing|custom
+  final String kind;
   final String text;
-  final List<String> cardIds;
-  final List<String> positionKeys;
-  final List<String> relationshipEvidenceIds;
-  final List<String> memoryEvidenceRefs;  // opaque refs, not raw PII dump
+  final List<String> cardIds;                    // must ⊆ request cards
+  final List<String> positionKeys;               // must ⊆ request positions
+  final List<String> relationshipEvidenceIds;    // must ⊆ request relationship evidenceIds
+  final List<String> memoryEvidenceRefs;         // must ⊆ request memory evidenceRefs
+  final List<String> recurringEvidenceIds;       // optional; must ⊆ card/theme recurrence evidenceIds
 }
 ```
 
-Traceability is **required** for quality/debug. Not necessarily shown to user.
+Traceability is **required** for quality/debug. **Not** shown to user. Share/export strips these ids.
 
 ---
 
 ## 14. TarotCardDetailResult
-
-Secondary layer (card sheet / expand).
 
 ```dart
 class TarotCardDetailResult {
@@ -345,66 +367,106 @@ class TarotCardDetailResult {
   final String title;
   final String orientationNote;
   final String positionNote;
-  final String detailBody;                // concise; not a second full reading
+  final String detailBody;
   final String imageAsset;
 }
 ```
+
+Together with beats, supports **`allCardsAccountedFor`** without forcing equal narrative paragraphs.
 
 ---
 
 ## 15. TarotNarrativeQualityMetadata
 
-Machine-checkable flags for Phase 2 harness (define fields now; scoring later).
-
 ```dart
 class TarotNarrativeQualityMetadata {
   final bool questionGrounded;
-  final bool allCardsRepresented;
+  final bool allCardsAccountedFor;        // preferred name (Phase 1.1)
   final bool positionSemanticsUsed;
   final bool relationshipEvidenceUsed;
   final bool unsupportedCertaintyDetected;
   final bool memoryEvidenceUsed;
   final bool recurrenceEvidenceUsed;
   final bool legacySectionDependence;
-  final double? genericityScore;          // optional future
-  final List<String> failureTags;         // empty if pass
+  final bool referentialIntegrityOk;
+  final double? genericityScore;
+  final List<String> failureTags;
 }
 ```
 
-Production fail-closed (R2/R2.1): quality failure ⇒ typed error / retry — **not** fake success.
+### Persistence / privacy boundary (Phase 1.1)
+
+| Field class | Runtime | Persist with reading | Debug-only | Safe analytics | Share/export |
+|---|---|---|---|---|---|
+| Booleans / failure tags / genericityScore | YES | **MAY** persist (useful reopen/audit) | — | YES if aggregated | Strip if any risk |
+| Opaque evidence ids/refs | YES | **Prefer NOT** persist | YES | NO | **MUST strip** |
+| Raw memory `contentForModel` | YES (request only) | **MUST NOT** persist on result | ephemeral | NO | NO |
+| Beat texts / narrative prose | YES | YES (user content) | — | careful | YES (user-facing) |
+
+**Preferred architecture:** persist narrative prose + version + minimal quality booleans/tags; recompute or drop detailed evidence graphs; never persist unnecessary raw memory evidence.
+
+Quality metadata must **not** become a container for private memory content.
 
 ---
 
-## 16. Localization strategy (Decision H)
+## 16. NarrativeQualityValidator — HARD FAILURES (Phase 1.1)
+
+AI output **must fail** validation if any of:
+
+| Failure | Meaning |
+|---|---|
+| Unknown / undrawn card id on beat or detail | not in request cards |
+| Unknown position key | not in request spread |
+| Unknown relationship `evidenceId` | not in request.relationships |
+| Unknown memory `evidenceRef` | not in request.memory.entries |
+| Unknown recurring `evidenceId` | not in request recurrence lists |
+| Recurrence claim count ≠ deterministic evidence | rewritten count |
+| Recurring card claim without supplied recurrence evidence | invented recurrence |
+| Rewritten orientation vs request facts | |
+| Rewritten spread facts (card set / positions) | |
+
+These are **HARD FAILURES**.
+
+Production behavior remains **R2 / R2.1**:
+
+typed failure → bounded retry → fail-closed
+
+**Never** silently repair fabricated facts into a successful reading.
+
+Referential integrity: beat → evidence refs must resolve inside the request universe.
+
+---
+
+## 17. Localization strategy (Decision H)
 
 | Asset | Strategy |
 |---|---|
-| Card names, profile fields, position labels, spread purpose | Authored `L10nTriple` / l10n keys (tr/en/ru) |
-| AI narrative body | Generated in `languageCode` of request |
-| Quality / mixed-language | Reject or fail quality if body language mismatches request |
-| Recurrence user strings | Template + localized card names; counts are numeric facts |
+| Profiles, positions, spread purpose | Authored l10n / `L10nTriple` |
+| AI narrative body | Request `languageCode` |
+| Mixed/wrong language body | Quality fail |
+| Recurrence templates | Localized names + numeric facts |
 
 ---
 
-## 17. Domain vs UI (Decision F)
+## 18. Domain vs UI (Decision F)
 
-- `TarotNarrativeResult` lives in **domain / interpretation** layer.
-- Widgets map beats → Narrative Result UI (Phase 6/7).
-- No widget imports inside evidence builders or quality validators.
-- Visual System consumes `geometryHook` + card assets only — not AI prose structure.
+- `TarotNarrativeResult` is domain-layer.
+- Widgets map beats; no business logic in widgets.
+- Internal evidence ids never render in UI / share.
 
 ---
 
-## 18. Pipeline data flow (contract view)
+## 19. Pipeline data flow
 
 ```text
 ReadingSession (facts)
   → NarrativeEvidenceBuilder (deterministic)
-       profiles · positions · relationships · recurrence · memory filter
+       profiles · positions · relationships(+evidenceId)
+       recurrence(+evidenceId) · memory entries(+evidenceRef)
   → TarotNarrativeRequest
   → NarrativeAiSynthesizer (AI)
-  → NarrativeQualityValidator
+  → NarrativeQualityValidator (HARD referential + quality gates)
   → TarotNarrativeResult (v2)
-  → Persistence (versioned)
-  → UI mapper / legacy adapter
+  → Persistence (versioned; minimal metadata; no raw memory dump)
+  → UI mapper / legacy adapter (strip internal refs on export)
 ```

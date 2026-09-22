@@ -1,9 +1,9 @@
 # NARRATIVE TAROT SPEC — Product Behavior Contract
 
-**Program:** ORACLY Narrative Tarot V2  
-**Document kind:** PRODUCT BEHAVIOR (no runtime code)  
-**Branch:** `fix/final-product-remediation-20260922`  
-**Depends on:** `ORACLY_MASTER_OPERATING_CONTRACT.md`, `TAROT_PHASE0_FORENSIC_BASELINE.md`  
+**Program:** ORACLY Narrative Tarot V2
+**Document kind:** PRODUCT BEHAVIOR (no runtime code)
+**Branch:** `fix/final-product-remediation-20260922`
+**Depends on:** `ORACLY_MASTER_OPERATING_CONTRACT.md`, `TAROT_PHASE0_FORENSIC_BASELINE.md`
 **Status:** Phase 1 architecture/spec — **NOT IMPLEMENTED**
 
 ---
@@ -20,7 +20,7 @@ ORACLY Tarot is not a catalogue reader that dumps Love / Career / Money blocks p
 
 The user must feel:
 
-> “The app did not read card definitions to me.  
+> “The app did not read card definitions to me.
 > It understood the spread I drew and answered what I asked.”
 
 ### What a reading interprets (as ONE coherent whole)
@@ -91,6 +91,18 @@ Legacy section fields may be adapted for old UI during migration (see Migration 
 
 Absolute word budgets are Phase 2 corpus concerns; Phase 1 rule: **complexity scales with cards and spread purpose, not with filler**.
 
+### All-card coverage without ten mini-essays
+
+Quality uses **`allCardsAccountedFor`** (not “every card in every beat”).
+
+| Rule | Meaning |
+|---|---|
+| Accounted for | Every drawn card appears in **traceable** result data (beats and/or `cardDetails`) |
+| Primary narrative | May prioritize cards/relationships that drive the arc |
+| Equal paragraphs | **Not** required — especially Celtic Cross |
+| Forbidden | Ignoring a drawn card entirely; contradicting or silently replacing a drawn card |
+| Quality | Detect truly ignored cards without forcing repetitive prose |
+
 ---
 
 ## 4. Card semantic profile
@@ -125,19 +137,33 @@ Phase 0 proved useful existing fields:
 
 ### Recommended architecture (Decision A)
 
-**Separate keyed V2 layer: `NarrativeCardProfile` keyed by canonical card id**  
+**Separate keyed V2 layer: `NarrativeCardProfile` keyed by canonical card id**
 (e.g. `major_00`, `cups_01`) — **not** mutating `OraclyTarotCard` fields in place.
 
 | Criterion | Why separate profile wins |
 |---|---|
 | Backward compatibility | Ritual / catalogue / bridge keep working; old readings unchanged |
 | Localization | Profile copy uses same `L10nTriple` (or locale maps) without rewriting card builders |
-| Risk | Incomplete profiles can fall back to existing meanings until filled |
+| Risk | Incomplete profiles allowed **only** in dev / migration / shadow — never production V2 |
 | Maintainability | Narrative semantics evolve without touching 78 catalogue files blindly |
 | Reuse | Profiles **derive / cite** existing meanings; adapters map symbolic→core, challenge→shadow seed |
 | Testability | Profile completeness tests independent of UI / AI |
 
 V2 **EXTENDS / ADAPTS** current data via adapters — does **not** duplicate 78 cards from scratch.
+
+### Profile completeness / production release gate
+
+| Context | Incomplete `NarrativeCardProfile` allowed? |
+|---|---|
+| Development / Phase 3 construction | YES — may seed from catalogue meanings |
+| Migration / shadow validation | YES — documented fallback for corpus only |
+| **Production user path for Narrative Tarot V2** | **NO** |
+
+**Hard rule:** Narrative Tarot V2 **MUST NOT** become the production user path until **all 78** canonical cards have **complete** required profile coverage for **every release-supported locale** (tr / en / ru per app contract).
+
+- Existing catalogue meanings are authored **source material** for building profiles.
+- “Missing V2 profile → silent catalogue fallback” is **not** a production success condition.
+- Deterministic completeness gate (Phase 2/3 harness) must fail the release switch if any required field is empty for any card/locale.
 
 ---
 
@@ -245,7 +271,21 @@ Positions **influence interpretation**, not merely decorate.
 
 Do **not** implement in Phase 1. Spec only.
 
-### `signature_the_mirror` — THE MIRROR — 5 cards
+### Canonical signature spread ids (immutable once persisted)
+
+| Stable persistence / domain id | Display name (locale may refine) |
+|---|---|
+| `signature.the_mirror` | THE MIRROR |
+| `signature.between_us` | BETWEEN US |
+
+**Rules:**
+
+- These dotted ids are the **only** persisted/domain identifiers.
+- Underscore forms such as `signature_the_mirror` are **deprecated / wrong** for persistence — never store them.
+- **Stable spread ids are immutable once persisted.** Renames affect display/l10n only.
+- Display / localized titles remain separate from ids.
+
+### `signature.the_mirror` — THE MIRROR — 5 cards
 
 | # | Semantic purpose |
 |---|---|
@@ -258,7 +298,7 @@ Do **not** implement in Phase 1. Spec only.
 - **Narrative geometry hook:** vertical mirror / center axis (Visual System Phase 7).
 - **Story expectation:** honesty about self-split; turning point on “not seeing”; action on slot 5.
 
-### `signature_between_us` — BETWEEN US — 5 cards
+### `signature.between_us` — BETWEEN US — 5 cards
 
 | # | Semantic purpose |
 |---|---|
@@ -271,7 +311,7 @@ Do **not** implement in Phase 1. Spec only.
 - **Narrative geometry hook:** two poles + bridge (Visual System Phase 7).
 - **Story expectation:** dyadic tension; no fabricated accusations; uncertainty preserved.
 
-Localized display names may refine; **semantic purpose is the contract**.  
+Localized display names may refine; **semantic purpose is the contract**.
 Integration: new spread ids extend catalog **without** remapping old `TarotSpreadType` ordinals (Migration Plan §G).
 
 ---
@@ -296,9 +336,9 @@ Integration: new spread ids extend catalog **without** remapping old `TarotSprea
 
 ### Evidence hierarchy (strict)
 
-1. **CURRENT SPREAD / QUESTION**  
-2. **DIRECT CURRENT USER CONTEXT** (intention topic, revisit instruction if active)  
-3. **RELEVANT RECENT VERIFIED HISTORY**  
+1. **CURRENT SPREAD / QUESTION**
+2. **DIRECT CURRENT USER CONTEXT** (intention topic, revisit instruction if active)
+3. **RELEVANT RECENT VERIFIED HISTORY**
 4. **LONGER-TERM MEMORY** (only if relevant)
 
 History **never** overpowers the current draw.
@@ -336,10 +376,23 @@ Lookback default: last **20** Tarot readings or **90 days**, whichever bound is 
 
 | Concept | Meaning |
 |---|---|
-| `recurringCardEvidence` | Same card id recurring — contexts may differ |
-| `recurringThemeEvidence` | Overlapping themes / questions with relevance check |
+| `TarotRecurringCardEvidence` | **Authoritative** same-card recurrence — contexts may differ |
+| `TarotRecurringThemeEvidence` | **Authoritative** overlapping themes with relevance check |
 
-If contexts **differ**: acknowledge recurrence without inventing one shared problem.  
+### Recurrence authority (Phase 1.1)
+
+Dedicated recurrence evidence is the **ONLY** authoritative source for explicit recurrence claims/counts in V2.
+
+Legacy compatibility fields on memory (`recentCardNames`, `recurringThemeLabels`) may remain as **context hints** during migration but **MUST NOT** authorize statements such as:
+
+- “This card has appeared 4 times”
+- “This theme keeps returning”
+
+unless dedicated deterministic recurrence evidence proves it.
+
+Avoid duplicate/conflicting truth sources.
+
+If contexts **differ**: acknowledge recurrence without inventing one shared problem.
 If contexts **overlap**: may name an evidence-backed recurring theme.
 
 **No fabricated recurrence.**
@@ -388,18 +441,18 @@ Tarot supports reflection; it does **not** prove unknowable real-world facts.
 
 ## 15. Success experience (product Definition of Done)
 
-1. Enter Tarot  
-2. Choose spread (classical or signature)  
-3. State intention / question (or skip honestly)  
-4. Select / shuffle / draw  
-5. Reveal (ritual pacing)  
-6. Wait for interpretation (intentional loading; fail-closed on failure)  
-7. Receive **narrative** primary result  
-8. Explore **card detail** as secondary layer  
-9. See **recurrence only if real**  
-10. Save / history / journal  
-11. Reopen later (versioned schema)  
-12. Share where supported  
+1. Enter Tarot
+2. Choose spread (classical or signature)
+3. State intention / question (or skip honestly)
+4. Select / shuffle / draw
+5. Reveal (ritual pacing)
+6. Wait for interpretation (intentional loading; fail-closed on failure)
+7. Receive **narrative** primary result
+8. Explore **card detail** as secondary layer
+9. See **recurrence only if real**
+10. Save / history / journal
+11. Reopen later (versioned schema)
+12. Share where supported
 
 Complete only when this **whole ritual** works — not when unit tests alone pass.
 
