@@ -66,9 +66,9 @@ const kNarrativeCups12 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Akış dağınık kalbe, kaçış romantizmine veya savrulmuş sunuya kayabilir.',
-      'Flow may slide into a scattered heart, escape-romance, or a flung offer.',
-      'Поток может стать рассеянным сердцем, романтикой-бегством или разбросанным предложением.',
+      'Akış kaçış romantizmine sapabilir veya kalbi savrulmuş sunulara aşırı dağıtabilir.',
+      'Flow may misdirect into escape-romance, or excess may scatter the heart into flung offers.',
+      'Поток может сбиться в романтику-бегство, а избыток — рассеять сердце в разбросанные предложения.',
     ),
     transforms: [
       ReversedTransformKind.misdirection,

@@ -66,9 +66,9 @@ const kNarrativeSwords07 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Saklama güvensizliğe, yalnız plana veya kendine yalana kayabilir.',
-      'Hiding may slide into mistrust, a lone plan, or a lie to oneself.',
-      'Укрытие может стать недоверием, одиноким планом или ложью себе.',
+      'Saklama güvensizlik ve yalnız plana çarpıtılabilir veya yalnızca içte tutulan bir yalana çekilebilir.',
+      'Hiding may distort into mistrust and a lone plan, or turn privately into a lie kept only within.',
+      'Укрытие может исказиться в недоверие и одинокий план или уйти внутрь в ложь, хранимую лишь внутри.',
     ),
     transforms: [
       ReversedTransformKind.distortion,

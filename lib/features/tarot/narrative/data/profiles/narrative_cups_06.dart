@@ -66,9 +66,9 @@ const kNarrativeCups06 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Bellek geçmişe kilitlenmeye, çocuk rolüne veya şimdiyi kaçırmaya kayabilir.',
-      'Memory may lock to the past, a child role, or missing the now.',
-      'Память может зафиксироваться в прошлом, детской роли или упущенном настоящем.',
+      'Bellek geçmiş rolünü içe çekebilir veya şimdiyle teması erteleyebilir.',
+      'Memory may internalize into a private past-role, or delay contact with the present.',
+      'Память может уйти внутрь в частную прошлую роль или отложить контакт с настоящим.',
     ),
     transforms: [
       ReversedTransformKind.internalization,

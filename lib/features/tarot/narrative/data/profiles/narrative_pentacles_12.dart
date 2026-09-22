@@ -66,9 +66,9 @@ const kNarrativePentacles12 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Sebat katılığa, hız korkusuna veya hiç sapmamaya kayabilir.',
-      'Steadfastness may slide into rigidity, fear of speed, or never turning.',
-      'Стойкость может стать жёсткостью, страхом скорости или отказом свернуть.',
+      'Sebat aşırı katılığa sertleşebilir veya sapmayı engelleyerek yolu esnetilemez kılabilir.',
+      'Steadfastness may harden into excess rigidity, or block turning aside until the path cannot flex.',
+      'Стойкость может затвердеть в избыточную жёсткость или заблокировать поворот, пока путь не перестанет гнуться.',
     ),
     transforms: [
       ReversedTransformKind.excess,

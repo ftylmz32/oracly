@@ -66,9 +66,9 @@ const kNarrativePentacles14 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Sorumluluk baskıya, katı otoriteye veya yük atmaya kayabilir.',
-      'Responsibility may slide into pressure, rigid authority, or casting the load.',
-      'Ответственность может стать давлением, жёсткой властью или сбрасыванием нагрузки.',
+      'Sorumluluk baskı ve katı otoritede şişebilir veya yükü başkasına yönlendirerek sapabilir.',
+      'Responsibility may swell into excess pressure and rigid authority, or misdirect the load onto others.',
+      'Ответственность может раздуться в избыточное давление и жёсткую власть или сбить нагрузку на других.',
     ),
     transforms: [
       ReversedTransformKind.excess,

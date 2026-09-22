@@ -66,9 +66,9 @@ const kNarrativePentacles06 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Paylaşım üstünlüğe, borç yüklemeye veya almak utancına kayabilir.',
-      'Sharing may slide into superiority, loading debt, or shame at receiving.',
-      'Обмен может стать превосходством, навешиванием долга или стыдом принимать.',
+      'Paylaşım üstünlük gösterisine çarpıtılabilir veya armağanı borç yüküne ve alma utancına aşırı çevirebilir.',
+      'Sharing may distort into a superiority display, or excess may load the gift as debt and shame at receiving.',
+      'Обмен может исказиться в показ превосходства, а избыток — превратить дар в долг и стыд принимать.',
     ),
     transforms: [
       ReversedTransformKind.distortion,

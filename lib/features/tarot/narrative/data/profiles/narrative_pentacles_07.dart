@@ -66,9 +66,9 @@ const kNarrativePentacles07 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Sabır donuk bekleyişe, acele toplamaya veya bakmamaya kayabilir.',
-      'Patience may slide into frozen waiting, rushing to gather, or not looking.',
-      'Терпение может стать застывшим ожиданием, спешкой собрать или несмотрением.',
+      'Sabır yeniden bakmadan donuk bekleyişe uzayabilir veya tarlaya bakmayı — bazen erken kopararak — kaçınmaya çevirebilir.',
+      'Patience may delay into frozen waiting that never reassesses, or avoid the crop by not looking — and sometimes by pulling early to escape the wait.',
+      'Терпение может растянуться в отсрочку без пересмотра или избегать поля, не глядя — а иногда срывая рано, чтобы уйти от ожидания.',
     ),
     transforms: [ReversedTransformKind.delay, ReversedTransformKind.avoidance],
     keywordIds: ['frozenWait', 'prematurePull', 'blindDelay'],

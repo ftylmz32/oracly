@@ -66,9 +66,9 @@ const kNarrativeCups09 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Doyum şişmeye, yalnız zafere veya sergilenmiş mutluluğa kayabilir.',
-      'Satisfaction may slide into inflation, lone victory, or displayed happiness.',
-      'Удовлетворение может стать раздутостью, одиночной победой или показным счастьем.',
+      'Doyum sergilemede şişebilir veya paylaşımı davet etmeyen özel bir zafere çekilebilir.',
+      'Satisfaction may swell into excess display, or retreat privately into a lone victory that no longer invites sharing.',
+      'Удовлетворение может раздуться в показной избыток или уйти внутрь в одиночную победу, уже не зовущую делиться.',
     ),
     transforms: [
       ReversedTransformKind.excess,

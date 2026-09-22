@@ -348,6 +348,28 @@ None.
 
 ---
 
+## Phase 3C.1 follow-up — RT-M02 remediation
+
+| Field | Value |
+|---|---|
+| Status | **RESOLVED** |
+| Phase | 3C.1 |
+| Start HEAD | `05c485656fd890fdaf20eaaa4db7de221c390fab` |
+| Initial exact shadow↔reversed clones | **19** |
+| Initial high-similarity (≥0.75) candidates | **9** |
+| Additional soft clones remediitated | **8** |
+| Profiles changed | **36** (reversed.expression only) |
+| Transform assignments changed | **NONE** |
+| Final exact clones | **0** |
+| Unresolved semantic near-clones | **0** |
+| RT-M01 | **OPEN** (untouched) |
+| RT-M03 | **OPEN** (untouched) |
+| DECK READY FOR EVIDENCE ENGINE | **NO** (remaining MAJOR findings) |
+
+Historical Phase 3C finding RT-M02 remains documented above as evidence; this section records resolution.
+
+---
+
 ## Method notes / limitations
 
 - Automated similarity is a **candidate generator**, not proof of defect.  

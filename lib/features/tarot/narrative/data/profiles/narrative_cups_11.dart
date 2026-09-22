@@ -66,9 +66,9 @@ const kNarrativeCups11 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Merak aşırı duyarlılığa, kaçış düşüne veya işaret abartısına kayabilir.',
-      'Curiosity may slide into over-sensitivity, escape-dream, or sign exaggeration.',
-      'Любопытство может стать сверхчувствительностью, мечтой-бегством или преувеличением знаков.',
+      'Merak aşırı duyarlılığa taşabilir veya her işareti kaçış düşüne çarpıtabilir.',
+      'Curiosity may tip into excess sensitivity, or distort every sign into an escape-dream.',
+      'Любопытство может перейти в избыточную чувствительность или исказить каждый знак в мечту-бегство.',
     ),
     transforms: [
       ReversedTransformKind.excess,

@@ -66,9 +66,9 @@ const kNarrativeSwords08 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Sıkışma kurban hikâyesine, hareketsizliğe veya korku ağına kayabilir.',
-      'Tightness may slide into a victim story, immobility, or a web of fear.',
-      'Теснота может стать историей жертвы, неподвижностью или сетью страха.',
+      'Sıkışma kurban hikâyesine içe çekilebilir veya korku hareketsizliği örene dek ifadeyi engelleyebilir.',
+      'Tightness may internalize into a victim story, or block movement until fear weaves immobility.',
+      'Теснота может уйти внутрь в историю жертвы или заблокировать движение, пока страх не сплетёт неподвижность.',
     ),
     transforms: [
       ReversedTransformKind.internalization,

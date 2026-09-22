@@ -66,9 +66,9 @@ const kNarrativePentacles10 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Soy baskıya, zorunlu role veya taşlaşmış köke kayabilir.',
-      'Lineage may slide into pressure, a forced role, or petrified roots.',
-      'Линия может стать давлением, навязанной ролью или окаменевшими корнями.',
+      'Soy baskı ve zorunlu rolde şişebilir veya canlı ifadeyi kökler taşlaşana dek bloke edebilir.',
+      'Lineage may swell into excess pressure and a forced role, or block living expression until roots harden into stone.',
+      'Линия может раздуться в избыточное давление и навязанную роль или блокировать живое выражение, пока корни не окаменеют.',
     ),
     transforms: [
       ReversedTransformKind.excess,

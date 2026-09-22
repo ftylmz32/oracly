@@ -66,9 +66,9 @@ const kNarrativeSwords04 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Mola kaçış uykuya, ertelemeye veya uyuşmaya kayabilir.',
-      'The pause may slide into escape-sleep, delay, or numbness.',
-      'Пауза может стать сном-бегством, отсрочкой или онемением.',
+      'Mola hayattan kaçış uykusuna kayabilir veya dönüşü uyuşma çökene dek erteleyebilir.',
+      'The pause may avoid life as escape-sleep, or delay return until numbness settles.',
+      'Пауза может избегать жизни как сон-бегство или откладывать возвращение, пока не осядет онемение.',
     ),
     transforms: [ReversedTransformKind.avoidance, ReversedTransformKind.delay],
     keywordIds: ['escapeSleep', 'defer', 'numbness'],

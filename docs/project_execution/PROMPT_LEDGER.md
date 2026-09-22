@@ -264,6 +264,25 @@ Chronological project execution ledger.
 | Tests added | `test/features/tarot/narrative_domain/red_team/` |
 | Outcome | **PASS** |
 
+### PL-T3C.1 — RT-M02 REVERSED ORIENTATION SIGNAL REMEDIATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | RT-M02 ONLY — shadow ≠ reversed.expression |
+| Start SHA | `05c485656fd890fdaf20eaaa4db7de221c390fab` |
+| Initial exact clones | **19** |
+| Initial high-similarity (≥0.75) | **9** |
+| Profiles changed | **36** |
+| Final exact clones | **0** |
+| Unresolved near-clones | **0** |
+| Transform assignments changed | **NONE** |
+| RT-M01 / RT-M03 | **OPEN** / **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Production source modified | **YES** (profiles `reversed.expression` only) |
+| Full Flutter | **3715** passed · **0** failed · **15** skipped · **0** timed out |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -282,7 +301,8 @@ Chronological project execution ledger.
 | PL-T3B3.1 | Tarot Phase 3B3.1 — CURRENT_HANDOFF project-memory restoration | **DONE** |
 | PL-T3B4 | Tarot Phase 3B4 — Pentacles + 78 profile completeness | **DONE** |
 | PL-T3C | Tarot Phase 3C — 78-card cross-deck semantic red-team | **DONE** (audit) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (profiles 78/78; Evidence Engine blocked pending MAJOR remediation) |
+| PL-T3C.1 | Tarot Phase 3C.1 — RT-M02 reversed-orientation remediation | **DONE** |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M01/M03 open; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

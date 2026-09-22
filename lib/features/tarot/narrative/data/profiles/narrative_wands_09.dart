@@ -66,9 +66,9 @@ const kNarrativeWands09 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Nöbet tükenmişliğe, şüpheye veya yalnız savaş hissine dönüşebilir.',
-      'The watch may become exhaustion, doubt, or a sense of lone war.',
-      'Дозор может стать истощением, сомнением или ощущением одинокой войны.',
+      'Nöbet dayanıklılık ve şüphede incelenebilir veya özel bir yalnız savaş anlatısına içe çekilebilir.',
+      'The watch may thin into deficient endurance and doubt, or internalize into a private lone-war story.',
+      'Дозор может истончиться до недостаточной стойкости и сомнения или уйти внутрь в частную повесть одинокой войны.',
     ),
     transforms: [
       ReversedTransformKind.deficiency,

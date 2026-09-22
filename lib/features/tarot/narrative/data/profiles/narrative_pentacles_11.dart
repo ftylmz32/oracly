@@ -66,9 +66,9 @@ const kNarrativePentacles11 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Merak acele satmaya, taklide veya öğrenmeyi ertelemeye kayabilir.',
-      'Curiosity may slide into rushing to sell, imitation, or postponing learning.',
-      'Любопытство может стать спешкой продать, подражанием или откладыванием учения.',
+      'Merak acele satmaya veya taklide sapabilir veya öğrenmeyi erteleyerek kaçınabilir.',
+      'Curiosity may misdirect into rushing to sell or imitate, or avoid learning by postponing practice.',
+      'Любопытство может сбиться в спешку продать или подражать, или избегать учения, откладывая практику.',
     ),
     transforms: [
       ReversedTransformKind.misdirection,

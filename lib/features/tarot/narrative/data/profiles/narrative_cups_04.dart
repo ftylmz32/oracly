@@ -66,9 +66,9 @@ const kNarrativeCups04 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Durma; nankörlüğe, kaçışa veya duygu körlüğüne kayabilir.',
-      'Stillness may slide into ingratitude, escape, or feeling-blindness.',
-      'Покой может стать неблагодарностью, бегством или слепотой к чувствам.',
+      'Durgunluk duygudan kaçınmaya kayabilir veya sunulanı artık görmeyen bir eksikliğe incelenebilir.',
+      'Stillness may avoid feeling through escape, or thin into a deficiency that no longer notices what is offered.',
+      'Покой может избегать чувства через бегство или истончиться до дефицита, который уже не замечает предложенного.',
     ),
     transforms: [
       ReversedTransformKind.avoidance,

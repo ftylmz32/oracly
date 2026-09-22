@@ -66,9 +66,9 @@ const kNarrativeSwords02 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Duruş karar kaçışına, inkâra veya donmaya kayabilir.',
-      'The stance may slide into flight from decision, denial, or freeze.',
-      'Поза может стать бегством от решения, отрицанием или заморозкой.',
+      'Duruş karardan kaçınmaya — inkâr veya kaçışla — kayabilir veya seçim donana dek erteleyebilir.',
+      'The stance may avoid deciding through flight or denial, or delay until freeze replaces choice.',
+      'Поза может избегать решения через бегство или отрицание, или откладывать, пока заморозка не заменит выбор.',
     ),
     transforms: [ReversedTransformKind.avoidance, ReversedTransformKind.delay],
     keywordIds: ['decisionFlight', 'denial', 'freeze'],

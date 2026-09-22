@@ -66,9 +66,9 @@ const kNarrativeSwords12 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Hız düşüncesiz hamleye, dinlememeye veya ezmeye kayabilir.',
-      'Speed may slide into thoughtless move, not listening, or crushing.',
-      'Скорость может стать бездумным ходом, неслушанием или давлением.',
+      'Hız düşüncesiz hamlede taşabilir veya gücü dinlemek yerine ezmeye yöneltebilir.',
+      'Speed may tip into excess thoughtless move, or misdirect force toward crushing instead of listening.',
+      'Скорость может перейти в избыточный бездумный ход или сбить силу к давлению вместо слушания.',
     ),
     transforms: [
       ReversedTransformKind.excess,

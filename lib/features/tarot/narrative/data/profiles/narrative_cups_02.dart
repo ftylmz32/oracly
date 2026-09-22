@@ -66,9 +66,9 @@ const kNarrativeCups02 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Buluşma dengesizliğe, yansıtıma veya acele birleşmeye kayabilir.',
-      'Meeting may slide into imbalance, projection, or hasty union.',
-      'Встреча может стать дисбалансом, проекцией или поспешным союзом.',
+      'Karşılıklılık yansıtıma çarpılabilir veya acele birleşme aşırıya kaçabilir.',
+      'Reciprocity may distort into projection, or excess may rush a merge before both cups are truly offered.',
+      'Взаимность может исказиться в проекцию, а избыток — поторопить слияние, пока обе чаши ещё не предложены по-настоящему.',
     ),
     transforms: [
       ReversedTransformKind.distortion,

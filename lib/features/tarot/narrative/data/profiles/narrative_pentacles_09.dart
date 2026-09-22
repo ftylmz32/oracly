@@ -66,9 +66,9 @@ const kNarrativePentacles09 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Yeterlik gösterişe, kapanmaya veya paylaşmayı reddetmeye kayabilir.',
-      'Sufficiency may slide into display, shutting in, or refusing to share.',
-      'Достаточность может стать показом, замыканием или отказом делиться.',
+      'Yeterlik gösterişte şişebilir veya paylaşmayı reddeden yalnızlığa içten kapanabilir.',
+      'Sufficiency may swell into excess display, or close privately into solitude that refuses to share.',
+      'Достаточность может раздуться в показной избыток или замкнуться внутрь в одиночество, отказывающееся делиться.',
     ),
     transforms: [
       ReversedTransformKind.excess,

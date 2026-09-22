@@ -66,9 +66,9 @@ const kNarrativeCups03 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Sofrada yüzeysellik, dışlanma veya gürültülü boşluk baskınlaşabilir.',
-      'Surface cheer, exclusion, or noisy emptiness may dominate the table.',
-      'За столом могут возобладать поверхностность, исключённость или шумная пустота.',
+      'Paylaşım yüzeysel neşe ve dışlanmaya incelenebilir veya toplanmayı gürültülü boşluğa çarpıtabilir.',
+      'Sharing may thin into deficient surface cheer and exclusion, or distort gathering into noisy emptiness.',
+      'Обмен может истончиться до недостаточной поверхностной веселости и исключённости или исказить собрание в шумную пустоту.',
     ),
     transforms: [
       ReversedTransformKind.deficiency,

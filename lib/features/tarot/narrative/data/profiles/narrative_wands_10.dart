@@ -66,9 +66,9 @@ const kNarrativeWands10 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Yük kahramanlık oyununa, çöküş korkusuna veya paylaşamamaya kayabilir.',
-      'Load may slide into hero-play, collapse-fear, or inability to share the weight.',
-      'Ноша может стать игрой героя, страхом обвала или неспособностью разделить тяжесть.',
+      'Yük kahramanlık oyunu ve çöküş korkusunda şişebilir veya ağırlık devredilemeyene dek paylaşımı bloke edebilir.',
+      'Load may swell into excess hero-play and collapse-fear, or block sharing until the weight cannot be delegated.',
+      'Ноша может раздуться в избыточную игру героя и страх обвала или блокировать делегирование, пока тяжесть нельзя поручить.',
     ),
     transforms: [
       ReversedTransformKind.excess,

@@ -66,9 +66,9 @@ const kNarrativePentacles08 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Disiplin mekanik tekrara, tükenmeye veya ilerlememeye kayabilir.',
-      'Discipline may slide into mechanical repetition, exhaustion, or no advance.',
-      'Дисциплина может стать механическим повтором, истощением или отсутствием продвижения.',
+      'Disiplin mekanik tekrar ve kendini tüketmede şişebilir veya zanaat ilerleyemeyene dek ilerlemeyi bloke edebilir.',
+      'Discipline may swell into excess mechanical repetition and self-exhaustion, or block advance until the craft cannot move.',
+      'Дисциплина может раздуться в избыточный механический повтор и самоистощение или блокировать продвижение, пока ремесло не сможет двигаться.',
     ),
     transforms: [
       ReversedTransformKind.excess,

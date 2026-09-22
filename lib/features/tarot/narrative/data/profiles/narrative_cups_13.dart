@@ -66,9 +66,9 @@ const kNarrativeCups13 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Tutma taşmaya, sınır yokluğuna veya kurtarma saplantısına kayabilir.',
-      'Holding may slide into overflow, no boundary, or rescuing.',
-      'Удержание может стать переполнением, отсутствием границ или спасательством.',
+      'Tutma kurtarma saplantısında taşabilir veya sınır eksikliğine incelenebilir.',
+      'Holding may overflow in excess rescue, or thin into a deficiency of boundary.',
+      'Удержание может переполниться избыточным спасательством или истончиться до дефицита границ.',
     ),
     transforms: [
       ReversedTransformKind.excess,

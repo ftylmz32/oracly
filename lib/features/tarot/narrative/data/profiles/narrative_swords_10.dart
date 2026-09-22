@@ -66,9 +66,9 @@ const kNarrativeSwords10 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Son felaket kimliğine, kalkmamaya veya her şey bitti hikâyesine kayabilir.',
-      'The end may slide into disaster-identity, not rising, or an all-is-over story.',
-      'Конец может стать личностью бедствия, невставанием или историей «всё кончено».',
+      'Son felaket kimliğine içe çekilebilir veya kalkışı engelleyerek her şey bitti hikâyesinde tutabilir.',
+      'The ending may internalize into disaster-identity, or block rising until an all-is-over story holds still.',
+      'Конец может уйти внутрь в личность бедствия или заблокировать подъём, пока история «всё кончено» держит неподвижным.',
     ),
     transforms: [
       ReversedTransformKind.internalization,

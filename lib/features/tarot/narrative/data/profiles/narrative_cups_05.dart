@@ -66,9 +66,9 @@ const kNarrativeCups05 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Bakış yalnızca kayba kilitlenebilir; umutsuzluk veya inkâr baskınlaşabilir.',
-      'Gaze may lock only on loss; despair or denial may dominate.',
-      'Взгляд может зафиксироваться только на утрате; могут возобладать отчаяние или отрицание.',
+      'Bakış dökülene aşırı kilitlenebilir veya ayakta kalana dönmeyi inkâr ederek kaçınabilir.',
+      'Gaze may tip into excess fixation on what spilled, or avoid turning toward what still stands.',
+      'Взгляд может чрезмерно зафиксироваться на разлитом или избегать поворота к тому, что ещё стоит.',
     ),
     transforms: [ReversedTransformKind.excess, ReversedTransformKind.avoidance],
     keywordIds: ['onlyLoss', 'despair', 'denial'],

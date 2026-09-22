@@ -66,9 +66,9 @@ const kNarrativeSwords14 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'İlke katılığa, kalpsiz kurala veya mesafe putuna kayabilir.',
-      'Principle may slide into rigidity, heartless rule, or an idol of distance.',
-      'Принцип может стать жёсткостью, бессердечным правилом или кумиром дистанции.',
+      'İlke kalpsiz kurala incelenebilir veya mesafeyi puta çarpıtabilir.',
+      'Principle may thin into heartless rule, or distort distance into an idol.',
+      'Принцип может истончиться до бессердечного правила или исказить дистанцию в кумир.',
     ),
     transforms: [
       ReversedTransformKind.deficiency,

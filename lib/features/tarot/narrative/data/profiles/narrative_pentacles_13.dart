@@ -66,9 +66,9 @@ const kNarrativePentacles13 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Bakım boğucu kontrole, tükenmeye veya her şeyi üstlenmeye kayabilir.',
-      'Care may slide into smothering control, exhaustion, or taking everything on.',
-      'Забота может стать удушающим контролем, истощением или принятием всего на себя.',
+      'Bakım boğucu kontrole aşırı kayabilir veya vekilliği her şeyi üstlenmeye çarpıtabilir.',
+      'Care may tip into excess control that smothers, or distort stewardship into taking everything on.',
+      'Забота может перейти в избыточный удушающий контроль или исказить попечение в принятие всего на себя.',
     ),
     transforms: [
       ReversedTransformKind.excess,

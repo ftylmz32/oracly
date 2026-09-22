@@ -66,9 +66,9 @@ const kNarrativeCups14 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Yön verme soğukluğa, bastırmaya veya donmuş duruşa kayabilir.',
-      'Steering may slide into coldness, suppression, or a frozen stance.',
-      'Направление может стать холодностью, подавлением или замёрзшей позой.',
+      'Yön verme sıcak ifadeyi soğuklukta engelleyebilir veya duyguyu donmuş bir duruşa içe çekebilir.',
+      'Steering may block warm expression into coldness, or internalize feeling until the stance freezes.',
+      'Направление может заблокировать тёплое выражение в холодность или увести чувство внутрь, пока поза не замёрзнет.',
     ),
     transforms: [
       ReversedTransformKind.blockedExpression,

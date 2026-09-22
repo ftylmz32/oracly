@@ -66,9 +66,9 @@ const kNarrativeSwords03 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Üzüntü dramatik acıya, suçlamaya veya kapanmamaya kayabilir.',
-      'Sorrow may slide into dramatic pain, blame, or staying unclosed.',
-      'Печаль может стать драматической болью, обвинением или незакрытостью.',
+      'Üzüntü dramatik acı ve suçlamada taşabilir veya kapanmayı sonsuz açık bırakmaya çarpıtabilir.',
+      'Sorrow may tip into excess drama and blame, or distort closure into staying forever unclosed.',
+      'Печаль может перейти в избыточную драму и обвинение или исказить закрытие в вечную незакрытость.',
     ),
     transforms: [
       ReversedTransformKind.excess,

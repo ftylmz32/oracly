@@ -66,9 +66,9 @@ const kNarrativeSwords06 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Geçiş kaçışa, geçmiş yüküne veya varamama korkusuna kayabilir.',
-      'Crossing may slide into escape, past-load, or fear of not arriving.',
-      'Переход может стать бегством, грузом прошлого или страхом не прибыть.',
+      'Geçiş varışı kaçış olarak kaçınabilir veya bütün geçmişi yükleyerek tekneyi varamama korkusuyla saptırabilir.',
+      'Crossing may avoid arrival as escape, or misdirect the boat by loading the whole past until fear of not arriving steers.',
+      'Переход может избегать прибытия как бегство или сбить лодку, грузя всё прошлое, пока страх неприбытия ведёт.',
     ),
     transforms: [
       ReversedTransformKind.avoidance,

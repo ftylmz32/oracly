@@ -66,9 +66,9 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Gece düşüncesi felaket hayaline, uykusuzluk kimliğine veya suç yüküne kayabilir.',
-      'Night thought may slide into catastrophe-dream, insomnia-identity, or guilt-load.',
-      'Ночная мысль может стать мечтой-катастрофой, личностью бессонницы или грузом вины.',
+      'Gece düşüncesi felaket hayaline aşırı şişebilir veya uykusuzluk kimliği ve suç yüküne içe çekilebilir.',
+      'Night thought may tip into excess catastrophe-dream, or internalize into insomnia-identity and private guilt-load.',
+      'Ночная мысль может перейти в избыточную мечту-катастрофу или уйти внутрь в личность бессонницы и частный груз вины.',
     ),
     transforms: [
       ReversedTransformKind.excess,

@@ -66,9 +66,9 @@ const kNarrativeCups08 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Ayrılış yakmaya, kaçışa veya yarım bırakılmış arayışa kayabilir.',
-      'Leaving may slide into burning, escape, or a half-abandoned search.',
-      'Уход может стать сожжением, бегством или наполовину брошенным поиском.',
+      'Ayrılış yakarak gitmeye sapabilir veya dürüst arayışın ifadesini yarıda keserek engelleyebilir.',
+      'Leaving may misdirect into dramatic burning, or block honest search by abandoning it halfway.',
+      'Уход может сбиться в драматическое сожжение или заблокировать честный поиск, бросив его на середине.',
     ),
     transforms: [
       ReversedTransformKind.misdirection,

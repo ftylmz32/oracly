@@ -66,9 +66,9 @@ const kNarrativePentacles04 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Tutma kilitlenmeye, reddetmeye veya korkuyla sıkmaya kayabilir.',
-      'Holding may slide into locking, refusal, or gripping from fear.',
-      'Удержание может стать запиранием, отказом или сжатием от страха.',
+      'Tutma kilitlenme ve korkuyla sıkmada şişebilir veya eli kapalı tutarak paylaşmayı kaçınabilir.',
+      'Holding may swell into excess locking and fear-grip, or avoid sharing by keeping the hand closed.',
+      'Удержание может раздуться в избыточное запирание и сжатие от страха или избегать обмена, держа руку закрытой.',
     ),
     transforms: [ReversedTransformKind.excess, ReversedTransformKind.avoidance],
     keywordIds: ['lockedGrip', 'refusal', 'fearHold'],

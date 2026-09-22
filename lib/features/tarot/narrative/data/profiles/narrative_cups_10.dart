@@ -66,9 +66,9 @@ const kNarrativeCups10 = NarrativeCardProfile(
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
-      'Sofrada ideal sahne, zorlanmış neşe veya gizlenen çatlaklar baskınlaşabilir.',
-      'Ideal stage, forced joy, or hidden cracks may dominate the table.',
-      'За столом могут возобладать идеальная сцена, вынужденная радость или скрытые трещины.',
+      'Aidiyet çatlakları gizleyen ideal sahneye çarpıtılabilir veya sofrada zorlanmış neşede şişebilir.',
+      'Belonging may distort into an ideal stage that hides cracks, or swell into excess forced joy at the table.',
+      'Принадлежность может исказиться в идеальную сцену, скрывающую трещины, или раздуться в избыточную вынужденную радость за столом.',
     ),
     transforms: [
       ReversedTransformKind.distortion,
