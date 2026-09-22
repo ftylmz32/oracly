@@ -149,7 +149,7 @@ Chronological project execution ledger.
 | User path wiring | **NONE** — V2 not reachable |
 | Network / provider | **NONE** |
 | New symbol tags | `burden` · `endurance` · `friction` · `recognition` |
-| Phase 3B1 domain tests | see validation block |
+| Phase 3B1 domain tests | 7 passed (wands + full locale sanity) |
 | Phase 3A regression | 8 passed |
 | Phase 2/2.1 harness | 27 passed |
 | R2 fail-closed | 20 passed |
