@@ -41,9 +41,9 @@ const kNarrativeCups09 = NarrativeCardProfile(
     'Тревогу может вызывать исчезновение полноты или вид одиночной победы.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda kişisel yeter hissedilebilir; bunu ortak aidiyetten ayırmayı ister.',
-    'Personal enough may be felt in a bond; it asks to separate that from shared belonging.',
-    'В связи может ощущаться личная достаточность; карта просит отделить её от общей принадлежности.',
+    'Kişi, kendi duygusal doyumunu bağa getirebilir; ilişkiyi o doyumu üretmek için kullanmak zorunda kalmaz.',
+    'One may bring personal emotional contentment into connection without needing the bond to manufacture that worth.',
+    'Человек может принести в связь личную эмоциональную наполненность, не требуя, чтобы связь сама производила эту ценность.',
   ),
   decisionDynamic: L10nTriple(
     'Seçim, sahne etkisinden çok içerdeki gerçek doyumu yoklar.',

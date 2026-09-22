@@ -370,6 +370,30 @@ Historical Phase 3C finding RT-M02 remains documented above as evidence; this se
 
 ---
 
+## Phase 3C.2 follow-up — RT-M01 remediation
+
+| Field | Value |
+|---|---|
+| Status | **RESOLVED** |
+| Phase | 3C.2 |
+| Start HEAD | `b03fac88ed45948d779ea208fd1536d7b39c3223` |
+| Fields changed | `cups_09.relationshipDynamic` · `cups_10.relationshipDynamic` (TR/EN/RU) |
+| Before similarity (EN Jaccard) | **≈ 0.77** |
+| After similarity (EN Jaccard) | **0.107** |
+| cups_09 identity | Personal emotional contentment brought into connection without requiring the bond to manufacture worth |
+| cups_10 identity | Shared emotional field / circle-culture with room for more than one person |
+| Blind-swap cups_09→cups_10 | **NO** — personal contentment-into-connection ≠ shared circle field |
+| Blind-swap cups_10→cups_09 | **NO** — multi-person belonging field ≠ individual sufficiency-in-connection |
+| Locales | TR/EN/RU aligned; no destiny/mind-reading |
+| Safety | PASS |
+| RT-M02 | **RESOLVED** (unchanged) |
+| RT-M03 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+
+Historical Phase 3C finding RT-M01 remains documented above as evidence; this section records resolution.
+
+---
+
 ## Method notes / limitations
 
 - Automated similarity is a **candidate generator**, not proof of defect.  

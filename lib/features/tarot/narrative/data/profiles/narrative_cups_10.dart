@@ -41,9 +41,9 @@ const kNarrativeCups10 = NarrativeCardProfile(
     'Тревогу может вызывать распад круга или вид обязательной радости.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda ortak aidiyet softça büyüyebilir; kişisel yeterden ayırmayı ister.',
-    'Shared belonging may grow softly in a bond; it asks to separate that from personal enough.',
-    'В связи может мягко расти общая принадлежность; карта просит отделить её от личной достаточности.',
+    'Duygusal esenlik, paylaşılan bir alanda birlikte tutulabilir; birden fazla kişinin sığdığı ortak bir çember kültürüdür.',
+    'Emotional wellbeing may be held together in a shared field — a circle-culture with room for more than one person.',
+    'Эмоциональное благополучие может удерживаться вместе в общем поле — культуре круга, где есть место больше чем одному.',
   ),
   decisionDynamic: L10nTriple(
     'Seçim, sahne dekoru yerine sofranın gerçekten taşıyıp taşımadığını yoklar.',

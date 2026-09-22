@@ -283,6 +283,25 @@ Chronological project execution ledger.
 | Full Flutter | **3715** passed · **0** failed · **15** skipped · **0** timed out |
 | Outcome | **PASS** |
 
+### PL-T3C.2 — RT-M01 CUPS 09/10 RELATIONSHIP DISTINCTION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | RT-M01 ONLY — cups_09 / cups_10 relationshipDynamic |
+| Start SHA | `b03fac88ed45948d779ea208fd1536d7b39c3223` |
+| Fields changed | `relationshipDynamic` TR/EN/RU on cups_09 + cups_10 |
+| Before similarity | **≈ 0.77** |
+| After similarity | **0.107** |
+| Blind-swap | **NO / NO** |
+| Locale alignment | **PASS** |
+| Safety | **PASS** |
+| RT-M02 | **RESOLVED** (unchanged) |
+| RT-M03 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Full Flutter | **3719** passed · **0** failed · **15** skipped · **0** timed out |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -302,7 +321,8 @@ Chronological project execution ledger.
 | PL-T3B4 | Tarot Phase 3B4 — Pentacles + 78 profile completeness | **DONE** |
 | PL-T3C | Tarot Phase 3C — 78-card cross-deck semantic red-team | **DONE** (audit) |
 | PL-T3C.1 | Tarot Phase 3C.1 — RT-M02 reversed-orientation remediation | **DONE** |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M01/M03 open; Evidence Engine blocked) |
+| PL-T3C.2 | Tarot Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **DONE** |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M03 open; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

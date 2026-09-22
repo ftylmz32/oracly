@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3C.1 RT-M02 reversed-orientation remediation
+**Updated:** 2026-09-22 — Tarot Phase 3C.2 RT-M01 Cups 09/10 relationship distinction
 
 ---
 
@@ -25,6 +25,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C task start | `c2b5a6d8fa54fe17ba8c000b536d5e3f5a689f01` | Cross-deck red-team |
 | Phase 3C end (audit) | `05c485656fd890fdaf20eaaa4db7de221c390fab` | RT-M02/M01/M03 documented |
 | Phase 3C.1 task start | `05c485656fd890fdaf20eaaa4db7de221c390fab` | RT-M02 remediation |
+| Phase 3C.1 end | `b03fac88ed45948d779ea208fd1536d7b39c3223` | RT-M02 resolved |
+| Phase 3C.2 task start | `b03fac88ed45948d779ea208fd1536d7b39c3223` | RT-M01 Cups 09/10 |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -89,6 +91,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3B4 — Pentacles Minor Narrative profiles | **COMPLETE** |
 | Phase 3C — 78-card cross-deck semantic red-team | **COMPLETE** (audit) |
 | Phase 3C.1 — RT-M02 reversed-orientation remediation | **COMPLETE** |
+| Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **COMPLETE** |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -177,6 +180,24 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.2
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **RESOLVED** |
+| RT-M03 | **OPEN** |
+| Fields changed | `cups_09.relationshipDynamic` · `cups_10.relationshipDynamic` |
+| Before similarity | **≈ 0.77** |
+| After similarity | **0.107** |
+| Blind-swap | **NO / NO** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** (RT-M03 still open) |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** |
+
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
@@ -212,6 +233,7 @@ Production surface:
 | Flutter (Phase 3B3 — PL-T3B3) | 3685 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3B4 — PL-T3B4) | 3699 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.1 — PL-T3C.1) | 3715 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3C.2 — PL-T3C.2) | 3719 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -236,7 +258,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before RT-M01 remediation.**
+**ChatGPT review before RT-M03 remediation.**
 
-Do **not** start RT-M01, RT-M03, Evidence Engine, Visual System, or Memory-Recurring until an explicit next prompt.
+Do **not** start RT-M03, Evidence Engine, Visual System, or Memory-Recurring until an explicit next prompt.
 Do **not** mark future items completed until verified.
