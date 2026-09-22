@@ -75,6 +75,23 @@ Chronological project execution ledger.
 | Focus | UTF-8 hygiene · signature id lock · evidence ids/refs · hard quality fail · 78-profile gate · shadow economy · recurrence authority · allCardsAccountedFor · quality metadata privacy |
 | Outcome | PASS |
 
+### PL-T2 — QUALITY CORPUS + ACCEPTANCE HARNESS
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | QUALITY CORPUS + ACCEPTANCE HARNESS |
+| Start SHA | `b31c62f0c950c4ab2f5a91e368fa7ddb31b3f53b` |
+| Application source modified | **NO** |
+| Test / fixture / docs modified | **YES** |
+| Canonical corpus | `test/fixtures/narrative_tarot_v2_corpus.json` |
+| Fixture count | 74 (POS 44 · NEG 30) |
+| Languages | TR 54 · EN 15 · RU 5 |
+| Hard-fail categories | 15 stable tags |
+| Phase 2 tests | 19 passed · 0 failed · 0 skipped · 0 timed out |
+| Network / provider | **NONE** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -84,7 +101,7 @@ Chronological project execution ledger.
 | PL-T0 | Tarot Phase 0 — forensic baseline | **DONE** (docs) |
 | PL-T1 | Tarot Phase 1 — product architecture / spec | **DONE** (docs) |
 | PL-T1.1 | Tarot Phase 1.1 — contract hardening | **DONE** (docs) |
-| PL-T2 | Tarot Phase 2 — quality corpus + acceptance harness | **PLANNED** — awaits Phase 1/1.1 owner review |
+| PL-T2 | Tarot Phase 2 — quality corpus + acceptance harness | **DONE** (tests/fixtures/docs) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PLANNED |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |

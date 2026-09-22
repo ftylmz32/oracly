@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 1.1 contract hardening
+**Updated:** 2026-09-22 — Tarot Phase 2 quality corpus + harness
 
 ---
 
@@ -72,13 +72,25 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 1.1 — Architecture contract hardening | **COMPLETE** (docs) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
-| Phase 2 — Quality corpus + harness | **NOT STARTED** |
+| Phase 2 — Quality corpus + harness | **COMPLETE** (tests + fixtures + docs; offline) |
+| Phase 3 — Semantic profiles + Narrative Evidence Engine | **NOT STARTED** |
 
 ### Spec artifacts
 
 - `docs/product/tarot/NARRATIVE_TAROT_SPEC.md`
 - `docs/product/tarot/NARRATIVE_TAROT_DATA_CONTRACT.md`
 - `docs/product/tarot/NARRATIVE_TAROT_MIGRATION_PLAN.md`
+- `docs/product/tarot/NARRATIVE_TAROT_QUALITY_STANDARD.md`
+
+### Phase 2 artifacts
+
+- Canonical corpus: `test/fixtures/narrative_tarot_v2_corpus.json`
+- CONTRACT HARNESS (test-only): `test/support/narrative_tarot_v2/`
+- Tests: `test/features/tarot/narrative_v2/`
+- Legacy corpus retained: `test/fixtures/interpretation_engine_v2_corpus.json` (insufficient for V2; not deleted)
+
+**Runtime Narrative Tarot:** NOT IMPLEMENTED
+**Phase 3:** NOT STARTED
 
 ---
 
@@ -109,7 +121,7 @@ Coffee / Palm / SoulMate production E2E · StoreKit monthly/yearly · restore ·
 
 ## Next action
 
-**ChatGPT / product-owner review of Phase 1 + 1.1** before **Phase 2**.
+**ChatGPT / product-owner review of Phase 2** before **Phase 3**.
 
-Do **not** start Phase 2 until that review.
+Do **not** start Phase 3 until that review.
 Do **not** mark future items completed until verified.
