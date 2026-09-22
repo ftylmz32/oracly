@@ -108,6 +108,29 @@ Chronological project execution ledger.
 | Network / provider | **NONE** |
 | Outcome | **PASS** |
 
+### PL-T3A — NARRATIVE DOMAIN + MAJOR PROFILES
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | NARRATIVE DOMAIN FOUNDATION + 22 MAJOR PROFILES |
+| Start SHA | `9ef658d9b35bf599435670946cb188c3d425a6de` |
+| Application source modified | **YES** (`lib/features/tarot/narrative/**` only) |
+| Test / docs modified | **YES** |
+| Major profiles | **22 / 22** |
+| Minor profiles | **0** |
+| Locale coverage | TR 22/22 · EN 22/22 · RU 22/22 |
+| Catalog | `NarrativeTarotProfileCatalog` — nullable lookup, no silent fabricate |
+| User path wiring | **NONE** — V2 not reachable |
+| Network / provider | **NONE** |
+| Phase 3A domain tests | 8 passed · 0 failed |
+| Phase 2/2.1 harness | 27 passed · 0 failed |
+| R2 fail-closed | 20 passed · 0 failed |
+| Flutter analyze | errors=0 · warnings=0 · infos=199 (repo baseline) |
+| Full Flutter | **3662** passed · **0** failed · **15** skipped · **0** timed out |
+| Backend modified | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -119,7 +142,9 @@ Chronological project execution ledger.
 | PL-T1.1 | Tarot Phase 1.1 — contract hardening | **DONE** (docs) |
 | PL-T2 | Tarot Phase 2 — quality corpus + acceptance harness | **DONE** (tests/fixtures/docs) |
 | PL-T2.1 | Tarot Phase 2.1 — harness false-positive hardening | **DONE** |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PLANNED |
+| PL-T3A | Tarot Phase 3A — Narrative domain + Major profiles | **DONE** |
+| PL-T3B+ | Tarot Phase 3B+ — Minor profiles / Evidence Engine | PLANNED |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A done) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

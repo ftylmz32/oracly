@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 2.1 harness false-positive hardening
+**Updated:** 2026-09-22 — Tarot Phase 3A Narrative Major Arcana profiles
 
 ---
 
@@ -13,7 +13,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 |---|---|---|
 | Canonical branch | `fix/final-product-remediation-20260922` | Active remediation branch |
 | Active worktree | `D:/oracly_final_r1` | Where remediation docs/code land |
-| Last verified **application/code** baseline | `173d75228248baf32ea0d4f04fe936665efff342` | R2.1 — last Flutter-verified code tip (3627/0/15/0) |
+| Last verified **application/code** baseline (pre-3A) | `173d75228248baf32ea0d4f04fe936665efff342` | R2.1 — prior Flutter-verified code tip (3627/0/15/0) |
+| Phase 3A task start | `9ef658d9b35bf599435670946cb188c3d425a6de` | Phase 2.1 tip — Narrative domain start |
 | Phase 0 documentation baseline | `7155ad8535bd051a152437757fd11296b243de0b` | Night Shift docs tip at Phase 1 task start |
 | Phase 1.1 task start baseline | `f506c7733822f24d57a2e14254004c907a789f33` | Start of contract hardening |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
@@ -34,7 +35,7 @@ Updating this handoff must **not** trigger recursive commits solely to refresh a
 | Build 4 state | Untouched — `1b7151dc` on `release/ios-1.0` |
 
 Pre-existing local noise (do **not** stage/clean):
-`design/runtime/astrology_runtime.png`, generated plugin registrants, possible line-ending dirt on tests, `tool/qa/`.
+`design/runtime/astrology_runtime.png`, generated plugin registrants, possible line-ending dirt on tests, `tool/qa/` helper scripts.
 
 ---
 
@@ -70,11 +71,30 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 0 — Forensic baseline | **COMPLETE** (read-only docs) |
 | Phase 1 — Narrative product + architecture spec | **COMPLETE** (docs) |
 | Phase 1.1 — Architecture contract hardening | **COMPLETE** (docs) |
-| Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** |
-| Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 | Phase 2 — Quality corpus + harness | **COMPLETE** |
 | Phase 2.1 — Harness false-positive hardening | **COMPLETE** |
-| Phase 3 — Semantic profiles + Narrative Evidence Engine | **NOT STARTED** |
+| Phase 3A — Major Arcana Narrative semantic foundation | **COMPLETE** |
+| Phase 3B+ — Minor profiles / Evidence Engine | **NOT STARTED** |
+| Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
+| Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
+
+### Phase 3A
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Major profiles | **22 / 22** |
+| Minor profiles | **0** (not started) |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Canonical deck | Unchanged (78 / 22 / 56) |
+| Current Tarot user path | Unmodified |
+
+Production surface:
+
+- `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
+- `lib/features/tarot/narrative/data/` — `NarrativeTarotProfileCatalog` + Major profiles
+- Tests: `test/features/tarot/narrative_domain/`
 
 ### Spec artifacts
 
@@ -90,9 +110,6 @@ Pre-existing local noise (do **not** stage/clean):
 - Tests: `test/features/tarot/narrative_v2/`
 - Legacy corpus retained: `test/fixtures/interpretation_engine_v2_corpus.json` (insufficient for V2; not deleted)
 
-**Runtime Narrative Tarot:** NOT IMPLEMENTED
-**Phase 3:** NOT STARTED
-
 ---
 
 ## Latest verified baselines
@@ -100,6 +117,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Suite | Result |
 |---|---|
 | Flutter (at code baseline `173d7522`) | **3627** passed · **0** failed · **15** skipped · **0** timed out |
+| Flutter (Phase 3A — PL-T3A) | **3662** passed · **0** failed · **15** skipped · **0** timed out |
 | Backend (known) | **658** passed · **0** failed · **1** skipped |
 
 ---
@@ -122,7 +140,7 @@ Coffee / Palm / SoulMate production E2E · StoreKit monthly/yearly · restore ·
 
 ## Next action
 
-**ChatGPT / product-owner review of Phase 2.1** before **Phase 3**.
+**ChatGPT review before Phase 3B.**
 
-Do **not** start Phase 3 until that review.
+Do **not** start Phase 3B until that review.
 Do **not** mark future items completed until verified.

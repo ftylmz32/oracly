@@ -1,0 +1,85 @@
+/// Narrative Tarot V2 Major Arcana profile — seeded from Oracly deck meanings.
+/// Phase 3A: not wired into the user reading path.
+library;
+
+import '../../../../../core/l10n/l10n_triple.dart';
+import '../../domain/narrative_card_profile.dart';
+import '../../domain/narrative_orientation_profile.dart';
+import '../../domain/narrative_symbol_tags.dart';
+import '../../domain/reversed_transform_kind.dart';
+
+const kNarrativeMajor14 = NarrativeCardProfile(
+  canonicalCardId: 'major_14',
+  coreMeaning: L10nTriple(
+    'Farklı unsurları acele etmeden karıştırıp sürdürülebilir bir orta yol oluşturmayı anlatır.',
+    'It speaks of patiently blending different elements into a sustainable middle way.',
+    'Карта говорит о терпеливом соединении разных элементов в устойчивый срединный путь.',
+  ),
+  light: L10nTriple(
+    'Ölçülü uyarlama, karşıt görünen ihtiyaçların birlikte işlemesini mümkün kılabilir.',
+    'Measured adjustment can allow seemingly opposite needs to work together.',
+    'Соразмерная настройка позволяет, казалось бы, противоположным потребностям действовать вместе.',
+  ),
+  shadow: L10nTriple(
+    'Denge arayışı, gerekli ayrımları silen belirsiz bir uzlaşmaya dönüşebilir.',
+    'The search for balance can become vague compromise that erases necessary distinctions.',
+    'Поиск равновесия может стать расплывчатым компромиссом, стирающим важные различия.',
+  ),
+  tension: L10nTriple(
+    'Değişimi hızlandırma isteği ile doğal karışım süresine saygı arasında sabır gerekir.',
+    'Patience is needed between accelerating change and respecting the natural pace of integration.',
+    'Между ускорением перемен и уважением к естественному темпу соединения требуется терпение.',
+  ),
+  desire: L10nTriple(
+    'Kişi, aşırılıklardan yorulmadan dengeli ve akışkan bir düzen kurmak isteyebilir.',
+    'There may be a wish for a balanced, fluid rhythm free from exhausting extremes.',
+    'Может хотеться ровного и гибкого ритма без изматывающих крайностей.',
+  ),
+  fear: L10nTriple(
+    'Uyumun bozulması, aşırıya kaçmak veya parçaların birleşmemesi kaygı yaratabilir.',
+    'Disrupted harmony, excess, or elements failing to combine may cause concern.',
+    'Тревогу могут вызывать нарушение гармонии, крайности или неспособность частей соединиться.',
+  ),
+  relationshipDynamic: L10nTriple(
+    'Farklı hızları uyumlar; iki tarafın da özünü kaybetmeden ortak ritim kurmasını destekler.',
+    'It harmonizes different tempos and supports a shared rhythm without either side losing itself.',
+    'Карта согласует разные темпы и помогает создать общий ритм без потери себя.',
+  ),
+  decisionDynamic: L10nTriple(
+    'Seçim, tek hamle yerine küçük ayarların birleşen etkisini değerlendirmeyi gerektirir.',
+    'The choice favors evaluating the combined effect of small adjustments over one dramatic move.',
+    'Выбор предлагает оценить общий эффект малых изменений вместо одного резкого шага.',
+  ),
+  actionDirection: L10nTriple(
+    'Oranı küçültün, bir değişkeni ayarlayın ve etkisini gözleyerek yeniden dengeleyin.',
+    'Reduce the scale, adjust one variable, and rebalance after observing its effect.',
+    'Уменьшите масштаб, настройте один фактор и восстановите равновесие после наблюдения.',
+  ),
+  upright: NarrativeOrientationProfile(
+    expression: L10nTriple(
+      'Sabırlı bütünleşme, farklı güçlerden sakin ve işlevsel bir bileşim oluşturur.',
+      'Patient integration creates a calm, workable blend from different forces.',
+      'Терпеливое объединение создает спокойное и действенное сочетание разных сил.',
+    ),
+    transforms: <ReversedTransformKind>[],
+    keywordIds: ['balance', 'integration', 'alchemy'],
+  ),
+  reversed: NarrativeOrientationProfile(
+    expression: L10nTriple(
+      'Karışım dengesizleşebilir, süreç aceleye gelebilir veya aşırılıklar yeniden belirginleşebilir.',
+      'The blend may become uneven, the process rushed, or extremes become prominent again.',
+      'Сочетание может стать неравномерным, процесс — поспешным, а крайности — снова усилиться.',
+    ),
+    transforms: [
+      ReversedTransformKind.excess,
+      ReversedTransformKind.distortion,
+    ],
+    keywordIds: ['imbalance', 'haste', 'extremes'],
+  ),
+  symbolTags: [
+    NarrativeSymbolTags.balance,
+    NarrativeSymbolTags.integration,
+    NarrativeSymbolTags.alchemy,
+  ],
+  profileRevision: 1,
+);
