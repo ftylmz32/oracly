@@ -131,10 +131,8 @@ class TarotInterpretationService {
         context: context,
         forceRefresh: true,
       );
-      return _formatter.toUiContent(
-        result: ReflectiveIntelligence.guard(result),
-        session: session,
-      );
+      final guarded = ReflectiveIntelligence.guard(result);
+      return _qualityGatedContent(guarded, session, context);
     } catch (_) {
       assert(() {
         debugPrint('[TarotInterpretation] Force-refresh retry failed');
@@ -142,6 +140,27 @@ class TarotInterpretationService {
       }());
       return _fallbackOrFail(session, context, cause: error);
     }
+  }
+
+  /// Every AI result that can become a successful Tarot result must pass
+  /// [AiOutputQualityTarot] first — no route back to the UI skips this gate.
+  Future<AiReadingContent> _qualityGatedContent(
+    InterpretationResult guarded,
+    ReadingSession session,
+    ReadingContext context,
+  ) async {
+    if (AiOutputQualityTarot.passes(guarded)) {
+      return _formatter.toUiContent(result: guarded, session: session);
+    }
+    final category = AiOutputQualityTarot.firstFailure(guarded);
+    if (category != null) {
+      AiOutputQualityLogger.logFailure(
+        operationId: 'tarot.interpret',
+        category: category,
+        attempt: 1,
+      );
+    }
+    return _fallbackOrFail(session, context, cause: 'quality');
   }
 
   Future<AiReadingContent> _fallbackOrFail(

@@ -79,6 +79,48 @@ void main() {
     });
   });
 
+  group('B2 — retry-path quality gate (R2.1)', () {
+    test(
+      'error then bad quality on retry — production stays fail-closed',
+      () async {
+        final service = _service(
+          executor: _FailThenExecutor(_badQualityRetryResult),
+          allowLocalFallback: false,
+        );
+        await expectLater(
+          service.generateContent(_session()),
+          throwsA(isA<InterpretationException>()),
+        );
+      },
+    );
+
+    test(
+      'error then good quality on retry — production returns AI result',
+      () async {
+        final service = _service(
+          executor: _FailThenExecutor(_goodQualityRetryResult),
+          allowLocalFallback: false,
+        );
+        final content = await service.generateContent(_session());
+        expect(content.isAiInterpretation, isTrue);
+        expect(content.generalMeaning.trim(), isNotEmpty);
+      },
+    );
+
+    test(
+      'error then bad quality on retry — development may use local fallback',
+      () async {
+        final service = _service(
+          executor: _FailThenExecutor(_badQualityRetryResult),
+          allowLocalFallback: true,
+        );
+        final content = await service.generateContent(_session());
+        expect(content.generalMeaning.trim(), isNotEmpty);
+        expect(content.isAiInterpretation, isFalse);
+      },
+    );
+  });
+
   group('C — development local fallback', () {
     test('local synthesis remains when allowLocalFallback is true', () async {
       final service = _service(
@@ -298,6 +340,81 @@ class _CertaintyQualityExecutor implements InterpretationExecutor {
     InterpretationRequest request,
   ) => const Stream.empty();
 }
+
+/// First call throws (mirrors the primary-path provider error); the
+/// force-refresh retry returns a structurally valid result whose quality
+/// is controlled by the caller — exercises the R2.1 retry-path gate.
+class _FailThenExecutor implements InterpretationExecutor {
+  _FailThenExecutor(this._retryResult);
+
+  final InterpretationResult Function(InterpretationRequest request)
+  _retryResult;
+  int _calls = 0;
+
+  @override
+  bool get isOnline => true;
+
+  @override
+  Future<InterpretationResult> execute(InterpretationRequest request) async {
+    _calls++;
+    if (_calls == 1) {
+      throw const InterpretationException(
+        type: InterpretationFailureType.retry,
+        message: 'Okuma tamamlanamadı. Lütfen tekrar dene.',
+      );
+    }
+    return _retryResult(request);
+  }
+
+  @override
+  Stream<InterpretationStreamEvent> executeStream(
+    InterpretationRequest request,
+  ) => const Stream.empty();
+}
+
+const _badQualityRetryText = _CertaintyQualityExecutor._bad;
+
+InterpretationResult _badQualityRetryResult(InterpretationRequest request) =>
+    InterpretationResult(
+      requestId: request.requestId,
+      sessionId: request.context.sessionId,
+      summary: _badQualityRetryText,
+      love: _badQualityRetryText,
+      career: _badQualityRetryText,
+      money: _badQualityRetryText,
+      health: _badQualityRetryText,
+      spiritualGuidance: _badQualityRetryText,
+      advice: _badQualityRetryText,
+      warnings: _badQualityRetryText,
+      luckyEnergy: _badQualityRetryText,
+      dailyFocus: _badQualityRetryText,
+      closingMessage: _badQualityRetryText,
+      generatedAt: DateTime.now(),
+      source: InterpretationSource.ai,
+    );
+
+const _goodQualityRetryText =
+    'Bu dönemde kendi iç sesini dinlemek sana alan açacak, '
+    'seçimlerinde daha huzurlu hissetmeni sağlayacak.';
+
+InterpretationResult _goodQualityRetryResult(InterpretationRequest request) =>
+    InterpretationResult(
+      requestId: request.requestId,
+      sessionId: request.context.sessionId,
+      summary: _goodQualityRetryText,
+      love: _goodQualityRetryText,
+      career: _goodQualityRetryText,
+      money: _goodQualityRetryText,
+      health: _goodQualityRetryText,
+      spiritualGuidance: _goodQualityRetryText,
+      advice: _goodQualityRetryText,
+      warnings: _goodQualityRetryText,
+      luckyEnergy: _goodQualityRetryText,
+      dailyFocus: _goodQualityRetryText,
+      closingMessage: _goodQualityRetryText,
+      generatedAt: DateTime.now(),
+      source: InterpretationSource.ai,
+    );
 
 class _ConfiguredFailingAi implements OraclyAiService {
   @override
