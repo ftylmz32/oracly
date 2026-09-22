@@ -22,7 +22,7 @@ const kNarrativeWands05 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Sınav, düşman hikâyesine, öfkeye veya yenilgi anlatısına kayabilir.',
-    'The trial may slide into an enemy story, anger, or a defeat narrative.',
+    'The trial turns brittle when it becomes an enemy story, anger, or a defeat narrative.',
     'Испытание может стать историей врага, гневом или повестью о поражении.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands05 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, sürtünmede bile onurunu koruyarak ayakta kalmak isteyebilir.',
-    'There may be a wish to stay standing with honor even inside friction.',
+    'A need to stay standing with honor even inside friction can become visible.',
     'Может хотеться устоять с честью даже внутри трения.',
   ),
   fear: L10nTriple(

@@ -32,7 +32,7 @@ const kNarrativeMajor10 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, sıkışmış bir düzenin hareketlenmesini ve yeni bir fırsat alanı açılmasını isteyebilir.',
-    'There may be a wish for a stuck pattern to move and open space for opportunity.',
+    'Part of this archetype longs for a stuck pattern to move and open space for opportunity.',
     'Может хотеться, чтобы застывшая схема сдвинулась и освободила место для возможности.',
   ),
   fear: L10nTriple(

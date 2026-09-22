@@ -394,6 +394,81 @@ Historical Phase 3C finding RT-M01 remains documented above as evidence; this se
 
 ---
 
+## Phase 3C.3A follow-up — RT-M03 semantic template remediation, part 1
+
+| Field | Value |
+|---|---|
+| Status | **PARTIALLY REMEDIATED — STILL OPEN** |
+| Phase | 3C.3A |
+| Start HEAD | `776f040778ed61a94cead565b60016f5c8dc0e61` |
+| Fields in scope | `coreMeaning` · `desire` · `shadow` (TR/EN/RU aligned; EN structural diversification) |
+| Fields **not** in scope | `relationshipDynamic` · `decisionDynamic` · `actionDirection` |
+| Profiles touched | **78** |
+| coreMeaning fields changed | **62** (EN) |
+| desire fields changed | **78** (EN) |
+| shadow fields changed | **47** (EN) |
+| TR/RU | Preserved from pre-3C.3A (already naturally diverse; opener share ≪ 25%) |
+
+### Before metrics (opener stem = first 4 normalized tokens)
+
+| Field · locale | Top opener | Count | % of 78 |
+|---|---|---:|---:|
+| coreMeaning · EN | `it speaks of a` | 29 | 37.2% |
+| desire · EN | `there may be a` | 78 | 100.0% |
+| shadow · EN | (opener varied; phrase `may slide into` mid-sentence) | — | — |
+| coreMeaning · TR | max stem | 1 | 1.3% |
+| desire · TR | max stem | 1 | 1.3% |
+| shadow · TR | max stem | 1 | 1.3% |
+| coreMeaning · RU | max stem | 1 | 1.3% |
+| desire · RU | max stem | 2 | 2.6% |
+| shadow · RU | max stem | 2 | 2.6% |
+
+Historical exact EN phrase counts (core+desire+shadow):
+
+| Phrase | Before |
+|---|---:|
+| `It speaks of` | **62** |
+| `There may be a wish` | **78** |
+| `may slide into` | **47** |
+
+### After metrics
+
+| Field · locale | Top opener | Count | % of 78 |
+|---|---|---:|---:|
+| coreMeaning · EN | `the meaning turns on` | 6 | 7.7% |
+| desire · EN | `part of this archetype` | 13 | 16.7% |
+| shadow · EN | `at the edge of` | 8 | 10.3% |
+| coreMeaning · TR | max stem | 1 | 1.3% |
+| desire · TR | max stem | 1 | 1.3% |
+| shadow · TR | max stem | 1 | 1.3% |
+| coreMeaning · RU | max stem | 1 | 1.3% |
+| desire · RU | max stem | 2 | 2.6% |
+| shadow · RU | max stem | 2 | 2.6% |
+
+Historical exact EN phrase counts after:
+
+| Phrase | After |
+|---|---:|
+| `It speaks of` | **0** |
+| `There may be a wish` | **0** |
+| `may slide into` | **0** |
+
+| Check | Result |
+|---|---|
+| Top opener share ≤ 25% (all target × locales) | **PASS** |
+| Replacement monoculture | **NO** |
+| Canonical fidelity (changed coreMeaning) | FAITHFUL / FAITHFUL-WITH-EXPANSION; QUESTIONABLE-DRIFT=0; CLEAR-DRIFT=0 |
+| Locale alignment TR/EN/RU | **PASS** |
+| Safety | **PASS** |
+| RT-M01 | **RESOLVED** (untouched) |
+| RT-M02 | **RESOLVED** (shadow≠reversed exact clones=0; near-clones=0) |
+| RT-M03 | **PARTIALLY REMEDIATED — STILL OPEN** (interaction fields not yet remediated) |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+
+Historical Phase 3C finding RT-M03 remains documented above as evidence; this section records part-1 remediation only.
+
+---
+
 ## Method notes / limitations
 
 - Automated similarity is a **candidate generator**, not proof of defect.  

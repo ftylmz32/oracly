@@ -12,7 +12,7 @@ const kNarrativeSwords13 = NarrativeCardProfile(
   canonicalCardId: 'swords_13',
   coreMeaning: L10nTriple(
     'Gerçeği nazik tutan zihni anlatır; daha az hisseden bir rol değil, insanî sınır ve ayırt etme alanıdır.',
-    'It speaks of a mind that holds truth kindly; not a role that feels less, but a field of humane boundary and discernment.',
+    'Not a role that feels less: a mind that holds truth kindly as a field of humane boundary and discernment.',
     'Говорит об уме, держащем правду мягко; не о роли, что чувствует меньше, а о поле человечной границы и различения.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords13 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Netlik soğuk yargıya, mesafe silahına veya acı dile kayabilir.',
-    'Clarity may slide into cold verdict, distance-as-weapon, or bitter tongue.',
+    'Cold verdict, distance-as-weapon, or bitter tongue appears when Clarity dominates.',
     'Ясность может стать холодным приговором, дистанцией-оружием или горьким языком.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords13 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, hem keskin hem koruyan bir dil istemek isteyebilir.',
-    'There may be a wish for speech that is both sharp and protecting.',
+    'Part of this archetype longs for speech that is both sharp and protecting.',
     'Может хотеться речи и острой, и защищающей.',
   ),
   fear: L10nTriple(

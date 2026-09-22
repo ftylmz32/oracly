@@ -12,7 +12,7 @@ const kNarrativeSwords12 = NarrativeCardProfile(
   canonicalCardId: 'swords_12',
   coreMeaning: L10nTriple(
     'Düşünceyi yola çıkaran kılıcı anlatır; hızlı zihin ve zorlayıcı iletişim alanıdır.',
-    'It speaks of a sword that takes thought on the road; a field of rapid mind and forceful speech.',
+    'Here the field is a sword that takes thought on the road; a field of rapid mind and forceful speech.',
     'Говорит о мече, берущем мысль в дорогу; о поле быстрого ума и настойчивой речи.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords12 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Hız düşüncesiz hamleye, dinlememeye veya başkasını ezmeye kayabilir.',
-    'Speed may slide into thoughtless move, not listening, or crushing another.',
+    'Pushed too far, speed yields thoughtless move, not listening, or crushing another.',
     'Скорость может стать бездумным ходом, неслушанием или давлением на другого.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords12 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duramayan bir argümanı ya da ani bir söz hamlesini ilerletmek isteyebilir.',
-    'There may be a wish to advance an argument that cannot wait, or a sudden verbal move.',
+    'Here the reach is to advance an argument that cannot wait, or a sudden verbal move.',
     'Может хотеться продвинуть довод, который не ждёт, или внезапный словесный ход.',
   ),
   fear: L10nTriple(

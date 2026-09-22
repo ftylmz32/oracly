@@ -12,7 +12,7 @@ const kNarrativeSwords10 = NarrativeCardProfile(
   canonicalCardId: 'swords_10',
   coreMeaning: L10nTriple(
     'Zihinsel bir sonu anlatır; bedenin sonu değildir, tükenmiş bir düşünce döngüsüdür.',
-    'It speaks of a mental ending; not the end of a body, but an exhausted thought-cycle.',
+    'The center is a mental ending — an exhausted thought-cycle, rather than the end of a body.',
     'Говорит об умственном конце; не о конце тела, а об исчерпанном цикле мысли.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords10 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Son felaket kimliğine, kalkmamaya veya her şey bitti hikâyesine kayabilir.',
-    'The end may slide into disaster-identity, not rising, or an all-is-over story.',
+    'The end turns brittle when it becomes disaster-identity, not rising, or an all-is-over story.',
     'Конец может стать личностью бедствия, невставанием или историей «всё кончено».',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords10 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, tükenmiş bir dilin veya fikir savaşının kapanmasını isteyebilir.',
-    'There may be a wish for exhausted language or a war of ideas to close.',
+    'The longing is for exhausted language or a war of ideas to close.',
     'Может хотеться, чтобы исчерпанный язык или война идей закрылась.',
   ),
   fear: L10nTriple(

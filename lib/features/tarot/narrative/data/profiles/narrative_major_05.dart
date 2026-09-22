@@ -32,7 +32,7 @@ const kNarrativeMajor05 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, deneyimini yerleştirebileceği anlamlı bir çerçeve ve rehberlik arayabilir.',
-    'There may be a wish for guidance and a meaningful framework that can hold experience.',
+    'Part of this archetype longs for guidance and a meaningful framework that can hold experience.',
     'Может появиться желание найти наставление и осмысленную рамку для своего опыта.',
   ),
   fear: L10nTriple(

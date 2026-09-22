@@ -12,7 +12,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   canonicalCardId: 'swords_09',
   coreMeaning: L10nTriple(
     'Gece çoğalan düşünceleri anlatır; gündüz kadar gerçek olmayabilirler, tanı değildir.',
-    'It speaks of thoughts that multiply at night; they may be less real by day — not a diagnosis.',
+    'At the center: thoughts that multiply at night; they may be less real by day — not a diagnosis.',
     'Говорит о мыслях, что множатся ночью; днём они могут быть менее реальны — не диагноз.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Gece düşüncesi felaket hayaline, uykusuzluk kimliğine veya suç yüküne kayabilir.',
-    'Night thought may slide into catastrophe-dream, insomnia-identity, or guilt-load.',
+    'At the edge of this archetype, catastrophe-dream, insomnia-identity, or guilt-load.',
     'Ночная мысль может стать мечтой-катастрофой, личностью бессонницы или грузом вины.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, gece zihninin gürültüsünden sakin bir sabah istemek isteyebilir.',
-    'There may be a wish for a quiet morning after the night-mind\'s noise.',
+    'The longing is for a quiet morning after the night-mind\'s noise.',
     'Может хотеться тихого утра после шума ночного ума.',
   ),
   fear: L10nTriple(

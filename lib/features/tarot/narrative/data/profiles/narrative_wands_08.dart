@@ -12,7 +12,7 @@ const kNarrativeWands08 = NarrativeCardProfile(
   canonicalCardId: 'wands_08',
   coreMeaning: L10nTriple(
     'Havada giden okları anlatır; henüz varış veya tamamlanma değildir.',
-    'It speaks of arrows in air; not yet arrival or completion.',
+    'Not yet arrival or completion; the meaning is arrows in air.',
     'Говорит о стрелах в воздухе; ещё не о прибытии и не о завершении.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeWands08 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Hız, acele, dağılma veya her oku kovalama sabırsızlığına kayabilir.',
-    'Speed may slide into haste, scatter, or impatience that chases every arrow.',
+    'Pushed too far, speed yields haste, scatter, or impatience that chases every arrow.',
     'Скорость может стать спешкой, рассевом или нетерпением, гонящимся за каждой стрелой.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands08 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, tıkanmadan akan, net bir hareket ritmi isteyebilir.',
-    'There may be a wish for a clear rhythm of motion that does not clog.',
+    'What is wanted is a clear rhythm of motion that does not clog.',
     'Может хотеться ясного ритма движения, который не засоряется.',
   ),
   fear: L10nTriple(

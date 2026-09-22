@@ -12,7 +12,7 @@ const kNarrativePentacles13 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_13',
   coreMeaning: L10nTriple(
     'Pratik bakımın olgun elini anlatır; yön vermek değil, maddeyi gözeten vekilliktir.',
-    'It speaks of a mature hand of practical care; not commanding direction, but stewardship of matter.',
+    'A mature hand of practical care names stewardship of matter; it refuses commanding direction.',
     'Говорит о зрелой руке практического заботливого ухода; не о командовании, а о попечении над веществом.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles13 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Bakım, boğucu kontrole, kendini tüketmeye veya her şeyi üstlenmeye kayabilir.',
-    'Care may slide into smothering control, self-exhaustion, or taking everything on.',
+    'Pushed too far, care yields smothering control, self-exhaustion, or taking everything on.',
     'Забота может стать удушающим контролем, самоистощением или принятием всего на себя.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles13 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elindeki alanı güvenilir ve bereketli tutmak isteyebilir.',
-    'There may be a wish to keep the space in hand reliable and fertile.',
+    'Part of this archetype longs to keep the space in hand reliable and fertile.',
     'Может хотеться держать пространство в руке надёжным и плодородным.',
   ),
   fear: L10nTriple(

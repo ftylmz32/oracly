@@ -12,7 +12,7 @@ const kNarrativePentacles05 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_05',
   coreMeaning: L10nTriple(
     'Eşik dışında kalan maddeyi anlatır; yokluk hissi vardır, değer silinmiş değildir.',
-    'It speaks of matter left outside the threshold; scarcity may be felt, but worth is not erased.',
+    'This archetype names matter left outside the threshold; scarcity may be felt, but worth is not erased.',
     'Говорит о веществе за порогом; может чувствоваться нехватка, но достоинство не стёрто.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles05 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Kıtlık, utanca, kendini değersiz saymaya veya yardım istememeye kayabilir.',
-    'Scarcity may slide into shame, counting oneself unworthy, or not asking for help.',
+    'Over-identifying with scarcity can open into shame, counting oneself unworthy, or not asking for help.',
     'Нехватка может стать стыдом, ощущением недостойности или отказом просить помощи.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles05 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yeniden eşikte yer bulmayı veya yükün hafiflemesini isteyebilir.',
-    'There may be a wish to find a place at the threshold again, or for the strain to ease.',
+    'Here the reach is to find a place at the threshold again, or for the strain to ease.',
     'Может хотеться снова найти место у порога или чтобы напряжение ослабло.',
   ),
   fear: L10nTriple(

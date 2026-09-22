@@ -32,7 +32,7 @@ const kNarrativeMajor11 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, durumun açıkça görülmesini ve emeğin hakkaniyetle karşılık bulmasını isteyebilir.',
-    'There may be a wish for the situation to be seen clearly and effort treated fairly.',
+    'A need for the situation to be seen clearly and effort treated fairly can become visible.',
     'Может хотеться ясного признания ситуации и справедливой оценки вложенного труда.',
   ),
   fear: L10nTriple(

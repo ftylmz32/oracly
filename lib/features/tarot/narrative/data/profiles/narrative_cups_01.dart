@@ -12,7 +12,7 @@ const kNarrativeCups01 = NarrativeCardProfile(
   canonicalCardId: 'cups_01',
   coreMeaning: L10nTriple(
     'Henüz hikâyeye dönüşmemiş ilk suyu anlatır; duygu vardır, anlatı henüz yoktur.',
-    'It speaks of first water not yet a story; feeling is present, narrative is not.',
+    'At the center: first water not yet a story; feeling is present, narrative is not.',
     'Говорит о первой воде, ещё не ставшей историей; чувство есть, рассказа ещё нет.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups01 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'İlk his, herkese dökülmeye, kapanmaya veya hissetmekten kaçınmaya kayabilir.',
-    'First feeling may slide into pouring for everyone, closing off, or fleeing feeling itself.',
+    'Without balance, first feeling can become pouring for everyone, closing off, or fleeing feeling itself.',
     'Первое чувство может стать разливанием всем, закрытием или бегством от самого чувства.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups01 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, uyanan yumuşaklığı bozmadan tutmak ve tanımak isteyebilir.',
-    'There may be a wish to hold and recognize soft awakening without forcing it.',
+    'The longing is to hold and recognize soft awakening without forcing it.',
     'Может хотеться удержать и узнать мягкое пробуждение, не форсируя его.',
   ),
   fear: L10nTriple(

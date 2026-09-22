@@ -12,7 +12,7 @@ const kNarrativePentacles06 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_06',
   coreMeaning: L10nTriple(
     'Verilen ve alınan maddeyi anlatır; merhamet gösterisi değil, tartılan paylaşımdır.',
-    'It speaks of matter given and received; not a display of mercy, but weighed exchange.',
+    'The center is matter given and received — weighed exchange, rather than a display of mercy.',
     'Говорит о веществе, данном и принятом; не о показе милости, а о взвешенном обмене.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles06 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Paylaşım, üstünlük gösterisine, borç yüklemeye veya almak utancına kayabilir.',
-    'Sharing may slide into a display of superiority, loading debt, or shame at receiving.',
+    'At the edge of this archetype, a display of superiority, loading debt, or shame at receiving.',
     'Обмен может стать показом превосходства, навешиванием долга или стыдом принимать.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles06 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yardımın gerçekten işe yaramasını ve alınabilmesini isteyebilir.',
-    'There may be a wish for help to truly land and be receivable.',
+    'A need for help to truly land and be receivable can become visible.',
     'Может хотеться, чтобы помощь действительно дошла и была принимаемой.',
   ),
   fear: L10nTriple(

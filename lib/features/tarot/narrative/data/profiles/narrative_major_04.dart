@@ -32,7 +32,7 @@ const kNarrativeMajor04 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, neye dayanacağını bildiği sağlam ve öngörülebilir bir düzen isteyebilir.',
-    'There may be a wish for a solid, predictable order one can rely upon.',
+    'The energy leans toward a solid, predictable order one can rely upon.',
     'Может возникнуть желание обрести прочный и понятный порядок, на который можно опереться.',
   ),
   fear: L10nTriple(

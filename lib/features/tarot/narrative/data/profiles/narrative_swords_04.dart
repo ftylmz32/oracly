@@ -12,7 +12,7 @@ const kNarrativeSwords04 = NarrativeCardProfile(
   canonicalCardId: 'swords_04',
   coreMeaning: L10nTriple(
     'Kının içindeki kılıcı anlatır; savaş bitmiş gibi değil, zihin için bir aradır.',
-    'It speaks of the sword in its sheath; not as if war ended, but an interval for the mind.',
+    'Not as if war ended: the sword in its sheath as an interval for the mind.',
     'Говорит о мече в ножнах; не будто война кончилась, а о промежутке для ума.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords04 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Mola kaçış uykuya, ertelemeye veya uyuşmaya kayabilir.',
-    'The pause may slide into escape-sleep, delay, or numbness.',
+    'Escape-sleep, delay, or numbness appears when The pause dominates.',
     'Пауза может стать сном-бегством, отсрочкой или онемением.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords04 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yorgun zihni kısa bir kın aralığında yatırmak isteyebilir.',
-    'There may be a wish to lay a tired mind in a brief sheath-interval.',
+    'The longing is to lay a tired mind in a brief sheath-interval.',
     'Может хотеться уложить усталый ум в краткий промежуток ножен.',
   ),
   fear: L10nTriple(

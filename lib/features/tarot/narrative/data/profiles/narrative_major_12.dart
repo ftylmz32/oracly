@@ -12,7 +12,7 @@ const kNarrativeMajor12 = NarrativeCardProfile(
   canonicalCardId: 'major_12',
   coreMeaning: L10nTriple(
     'Zorlamayı bırakıp bekleme alanında yeni bir bakış açısının oluşmasına izin vermeyi anlatır.',
-    'It speaks of releasing force and allowing a new perspective to form within a pause.',
+    'At the center: releasing force and allowing a new perspective to form within a pause.',
     'Карта говорит об отказе от давления и рождении нового взгляда в пространстве паузы.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor12 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, sıkışmış duruma başka bir açıdan bakarak anlamlı bir çıkış bulmak isteyebilir.',
-    'There may be a wish to view an impasse differently and find a meaningful way through.',
+    'Part of this archetype longs to view an impasse differently and find a meaningful way through.',
     'Может хотеться взглянуть на тупик иначе и найти осмысленный путь через него.',
   ),
   fear: L10nTriple(

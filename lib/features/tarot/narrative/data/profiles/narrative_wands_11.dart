@@ -12,7 +12,7 @@ const kNarrativeWands11 = NarrativeCardProfile(
   canonicalCardId: 'wands_11',
   coreMeaning: L10nTriple(
     'Yeni bir ateşin habercisini anlatır; usta veya sahne ustası değildir.',
-    'It speaks of a messenger of new fire; not a master or staged expert.',
+    'The card holds a messenger of new fire, not a master or staged expert.',
     'Говорит о вестнике нового огня; не о мастере и не о сценическом знатоке.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeWands11 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Haberci, dağınık hevese, övünce veya dinlememeye kayabilir.',
-    'The messenger may slide into scattered zeal, boast, or not listening.',
+    'Pushed too far, the messenger yields scattered zeal, boast, or not listening.',
     'Вестник может стать рассеянным пылом, похвальбой или неслушанием.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands11 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, taze bir kıvılcımı soru sorarak keşfetmek isteyebilir.',
-    'There may be a wish to discover a fresh spark by asking questions.',
+    'Here the reach is to discover a fresh spark by asking questions.',
     'Может хотеться открыть свежую искру через вопросы.',
   ),
   fear: L10nTriple(

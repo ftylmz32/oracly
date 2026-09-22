@@ -12,7 +12,7 @@ const kNarrativePentacles09 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_09',
   coreMeaning: L10nTriple(
     'Emeğin yeterliliğini anlatır; vitrin değil, bağımsız yeterlik alanıdır.',
-    'It speaks of enough-ness from one\'s labor; not a shop window, but a field of independent sufficiency.',
+    'The center is enough-ness from one\'s labor — a field of independent sufficiency, rather than a shop window.',
     'Говорит о достаточности от своего труда; не о витрине, а о поле самостоятельной достаточности.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles09 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Yeterlik, gösterişe, yalnızlığa kapanmaya veya paylaşmayı reddetmeye kayabilir.',
-    'Sufficiency may slide into display, shutting into solitude, or refusing to share.',
+    'Display, shutting into solitude, or refusing to share appears when Sufficiency dominates.',
     'Достаточность может стать показом, замыканием в одиночестве или отказом делиться.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles09 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elindekiyle huzurlu ve bağımsız durmayı isteyebilir.',
-    'There may be a wish to stand at peace and independent with what is in hand.',
+    'A need to stand at peace and independent with what is in hand can become visible.',
     'Может хотеться стоять спокойно и самостоятельно с тем, что в руке.',
   ),
   fear: L10nTriple(

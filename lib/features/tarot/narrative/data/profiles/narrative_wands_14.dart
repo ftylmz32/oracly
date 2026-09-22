@@ -12,7 +12,7 @@ const kNarrativeWands14 = NarrativeCardProfile(
   canonicalCardId: 'wands_14',
   coreMeaning: L10nTriple(
     'Ateşi bir yöne çağıran sorumlu duruşu anlatır; yakarak yönetmek değildir.',
-    'It speaks of a responsible stance that calls fire into a heading; not ruling by burning.',
+    'Not ruling by burning; the meaning is a responsible stance that calls fire into a heading.',
     'Говорит об ответственной позе, зовущей огонь в курс; не о правлении сжиганием.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeWands14 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Yön, baskıya, egoya veya dinlememeye kayabilir.',
-    'Heading may slide into pressure, ego, or not listening.',
+    'The risk is pressure, ego, or not listening when Heading is pushed too far.',
     'Курс может стать давлением, эго или неслушанием.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands14 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, iradesini başkalarını yakmadan anlamlı bir yöne bağlamak isteyebilir.',
-    'There may be a wish to bind will to a meaningful heading without burning others.',
+    'The pull is to bind will to a meaningful heading without burning others.',
     'Может хотеться связать волю с осмысленным курсом, не сжигая других.',
   ),
   fear: L10nTriple(

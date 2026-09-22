@@ -12,7 +12,7 @@ const kNarrativePentacles08 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_08',
   coreMeaning: L10nTriple(
     'Tekrarlayan eli anlatır; ortak övgü değil, bireysel ustalık disiplinidir.',
-    'It speaks of a repeating hand; not shared praise, but discipline of individual mastery.',
+    'Not shared praise: a repeating hand as discipline of individual mastery.',
     'Говорит о повторяющейся руке; не об общей похвале, а о дисциплине личного мастерства.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles08 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Disiplin, mekanik tekrara, kendini tüketmeye veya hiç ilerlememeye kayabilir.',
-    'Discipline may slide into mechanical repetition, self-exhaustion, or never advancing.',
+    'Without balance, discipline can become mechanical repetition, self-exhaustion, or never advancing.',
     'Дисциплина может стать механическим повтором, самоистощением или отсутствием продвижения.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles08 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elinin işi güvenilir ve keskin tutmasını isteyebilir.',
-    'There may be a wish for the hand to hold the craft reliable and sharp.',
+    'The longing is for the hand to hold the craft reliable and sharp.',
     'Может хотеться, чтобы рука держала ремесло надёжным и острым.',
   ),
   fear: L10nTriple(

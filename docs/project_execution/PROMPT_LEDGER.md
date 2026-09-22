@@ -302,6 +302,29 @@ Chronological project execution ledger.
 | Full Flutter | **3719** passed · **0** failed · **15** skipped · **0** timed out |
 | Outcome | **PASS** |
 
+### PL-T3C.3A — RT-M03 CORE / DESIRE / SHADOW TEMPLATE DIVERSIFICATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (part 1; RT-M03 remains OPEN) |
+| Kind | RT-M03 PART 1 — `coreMeaning` / `desire` / `shadow` only |
+| Start SHA | `776f040778ed61a94cead565b60016f5c8dc0e61` |
+| Profiles touched | **78** |
+| Fields changed | coreMeaning **62** · desire **78** · shadow **47** (EN structural; TR/RU preserved) |
+| Baseline top openers EN | core `it speaks of a` 37.2% · desire `there may be a` 100% · shadow phrase `may slide into` 47 |
+| After top openers EN | core `the meaning turns on` 7.7% · desire `part of this archetype` 16.7% · shadow `at the edge of` 10.3% |
+| Historical stems after | `It speaks of` **0** · wish **0** · `may slide into` **0** |
+| Replacement monoculture | **NO** (max opener ≤ 16.7%) |
+| Canonical fidelity | FAITHFUL / FAITHFUL-WITH-EXPANSION; drift **0** |
+| Locale alignment | **PASS** (TR/EN/RU) |
+| Safety | **PASS** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **RESOLVED** (exact clones **0**) |
+| RT-M03 | **PARTIALLY REMEDIATED / OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Full Flutter | **3725** passed · **0** failed · **15** skipped · **0** timed out |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -322,7 +345,8 @@ Chronological project execution ledger.
 | PL-T3C | Tarot Phase 3C — 78-card cross-deck semantic red-team | **DONE** (audit) |
 | PL-T3C.1 | Tarot Phase 3C.1 — RT-M02 reversed-orientation remediation | **DONE** |
 | PL-T3C.2 | Tarot Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **DONE** |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M03 open; Evidence Engine blocked) |
+| PL-T3C.3A | Tarot Phase 3C.3A — RT-M03 core/desire/shadow diversification | **DONE** (RT-M03 still OPEN) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M03 partially remediated/open; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

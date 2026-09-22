@@ -12,7 +12,7 @@ const kNarrativeWands02 = NarrativeCardProfile(
   canonicalCardId: 'wands_02',
   coreMeaning: L10nTriple(
     'İki ufuk arasında duran ateşi; henüz atılmamış bir adımı anlatır.',
-    'It speaks of fire standing between two horizons; a step not yet taken.',
+    'Here the field is fire standing between two horizons; a step not yet taken.',
     'Говорит об огне между двумя горизонтами; о шаге, который ещё не сделан.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands02 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, doğru ufku seçmeden önce manzarayı sakinçe kavramak isteyebilir.',
-    'There may be a wish to grasp the view calmly before choosing a horizon.',
+    'Part of this archetype longs to grasp the view calmly before choosing a horizon.',
     'Может хотеться спокойно охватить вид, прежде чем выбрать горизонт.',
   ),
   fear: L10nTriple(

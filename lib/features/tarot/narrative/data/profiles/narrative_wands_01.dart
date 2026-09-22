@@ -12,7 +12,7 @@ const kNarrativeWands01 = NarrativeCardProfile(
   canonicalCardId: 'wands_01',
   coreMeaning: L10nTriple(
     'Henüz biçim almamış bir iradenin ilk kıvılcımını ve taze bir başlangıç ısısını anlatır.',
-    'It speaks of a first spark of will not yet shaped, and the heat of a fresh beginning.',
+    'The meaning turns on a first spark of will not yet shaped, and the heat of a fresh beginning.',
     'Говорит о первой искре ещё несформированной воли и тепле свежего начала.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeWands01 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Kıvılcım, plansız yangına veya savrulmuş bir coşkuya kayabilir.',
-    'The spark may slide into planless fire or scattered excitement.',
+    'At the edge of this archetype, planless fire or scattered excitement.',
     'Искра может стать пожаром без плана или рассеянным восторгом.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands01 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, içeride uyanan ısıyı gerçek bir başlangıca çevirmek isteyebilir.',
-    'There may be a wish to turn inner heat into a real beginning.',
+    'Here the reach is to turn inner heat into a real beginning.',
     'Может хотеться превратить внутренний жар в настоящее начало.',
   ),
   fear: L10nTriple(

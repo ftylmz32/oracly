@@ -12,7 +12,7 @@ const kNarrativeSwords14 = NarrativeCardProfile(
   canonicalCardId: 'swords_14',
   coreMeaning: L10nTriple(
     'İlkeyle duran kılıcı anlatır; kontrol eden bir rol değil, sorumlu ve sakin yargı alanıdır.',
-    'It speaks of a sword that stands on principle; not a role that controls, but a field of accountable calm judgment.',
+    'Not a role that controls: a sword that stands on principle as a field of accountable calm judgment.',
     'Говорит о мече, стоящем на принципе; не о роли, что контролирует, а о поле ответственного спокойного суждения.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords14 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'İlke katılığa, kalpsiz kurala veya mesafe putuna kayabilir.',
-    'Principle may slide into rigidity, heartless rule, or an idol of distance.',
+    'The risk is rigidity, heartless rule, or an idol of distance when Principle is pushed too far.',
     'Принцип может стать жёсткостью, бессердечным правилом или кумиром дистанции.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords14 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, soğuk değil duru bir omurga istemek isteyebilir.',
-    'There may be a wish for a spine that is clear, not cold.',
+    'The longing is for a spine that is clear, not cold.',
     'Может хотеться хребта ясного, не холодного.',
   ),
   fear: L10nTriple(

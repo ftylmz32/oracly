@@ -32,7 +32,7 @@ const kNarrativeMajor21 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, parçalarının uyumlu bir bütünde yer bulmasını ve emeğinin tamamlanmasını isteyebilir.',
-    'There may be a wish for all parts to belong within a coherent whole and for work to conclude.',
+    'The energy leans toward all parts to belong within a coherent whole and for work to conclude.',
     'Может хотеться, чтобы все части нашли место в целостности, а труд получил завершение.',
   ),
   fear: L10nTriple(

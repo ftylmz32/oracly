@@ -12,7 +12,7 @@ const kNarrativePentacles01 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_01',
   coreMeaning: L10nTriple(
     'İlk tohumu anlatır; henüz hasat değil, elde tutulan maddenin başlangıcıdır.',
-    'It speaks of a first seed; not yet a harvest, but matter held in the hand at its start.',
+    'The center is a first seed — matter held in the hand at its start, rather than yet a harvest.',
     'Говорит о первом семени; ещё не урожай, а начало вещества в руке.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles01 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Tohum, acele sonuç beklentisine veya henüz olmayan bolluğu saymaya kayabilir.',
-    'The seed may slide into rushing for results or counting abundance that is not yet there.',
+    'Pushed too far, the seed yields rushing for results or counting abundance that is not yet there.',
     'Семя может стать спешкой к результату или подсчётом ещё несуществующего изобилия.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles01 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, elde uyanan ilk maddi imkânı bozmadan tutmak isteyebilir.',
-    'There may be a wish to hold a first material possibility without breaking it.',
+    'A need to hold a first material possibility without breaking it can become visible.',
     'Может хотеться удержать первую вещественную возможность, не ломая её.',
   ),
   fear: L10nTriple(

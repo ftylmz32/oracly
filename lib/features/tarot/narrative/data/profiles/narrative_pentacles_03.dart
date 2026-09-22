@@ -12,7 +12,7 @@ const kNarrativePentacles03 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_03',
   coreMeaning: L10nTriple(
     'Ortak atölyeyi anlatır; alkış değil, birbirine dokunan işin örülmesidir.',
-    'It speaks of a shared workshop; not applause, but work woven together.',
+    'The center is a shared workshop — work woven together, rather than applause.',
     'Говорит об общей мастерской; не об аплодисментах, а о сплетённой вместе работе.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles03 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'İşbirliği, görünürlük yarışına veya katkıyı inkâr etmeye kayabilir.',
-    'Collaboration may slide into a contest for visibility or denying a contribution.',
+    'Over-identifying with collaboration can open into a contest for visibility or denying a contribution.',
     'Сотрудничество может стать соревнованием за видимость или отрицанием вклада.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles03 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, emeğin başkalarıyla anlamlı bir şekilde birleşmesini isteyebilir.',
-    'There may be a wish for labor to join meaningfully with others.',
+    'Part of this archetype longs for labor to join meaningfully with others.',
     'Может хотеться, чтобы труд осмысленно соединился с другими.',
   ),
   fear: L10nTriple(

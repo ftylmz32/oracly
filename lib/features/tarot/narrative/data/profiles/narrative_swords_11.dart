@@ -12,7 +12,7 @@ const kNarrativeSwords11 = NarrativeCardProfile(
   canonicalCardId: 'swords_11',
   coreMeaning: L10nTriple(
     'Havanın habercisini anlatır; yargıç değil, keskin merakla öğrenme alanıdır.',
-    'It speaks of a messenger of air; not a judge, but a field of sharp learning curiosity.',
+    'What holds here is a messenger of air: a field of sharp learning curiosity, not a judge.',
     'Говорит о вестнике воздуха; не о судье, а о поле острого любопытства к учению.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords11 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Merak dedikoduya, acele hükme veya dinlememeye kayabilir.',
-    'Curiosity may slide into gossip, hasty verdict, or not listening.',
+    'Pushed too far, curiosity yields gossip, hasty verdict, or not listening.',
     'Любопытство может стать сплетней, поспешным приговором или неслушанием.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords11 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, henüz olgun olmayan ama canlı bir zihinle öğrenmek isteyebilir.',
-    'There may be a wish to learn with a mind still sharp and not yet mature.',
+    'The pull is to learn with a mind still sharp and not yet mature.',
     'Может хотеться учиться острым, ещё не зрелым умом.',
   ),
   fear: L10nTriple(

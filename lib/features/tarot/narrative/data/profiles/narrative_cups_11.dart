@@ -12,7 +12,7 @@ const kNarrativeCups11 = NarrativeCardProfile(
   canonicalCardId: 'cups_11',
   coreMeaning: L10nTriple(
     'Suyun elçisini anlatır; derin deniz değil, duygusal dil öğrenme alanıdır.',
-    'It speaks of a messenger of water; not the deep sea, but a field of learning emotional language.',
+    'The center is a messenger of water — a field of learning emotional language, rather than the deep sea.',
     'Говорит о посланнике воды; не о глубоком море, а о поле изучения языка чувств.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups11 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Merak aşırı duyarlılığa, kaçış düşüne veya her işareti abartmaya kayabilir.',
-    'Curiosity may slide into over-sensitivity, escape-dream, or overreading every sign.',
+    'Without balance, curiosity can become over-sensitivity, escape-dream, or overreading every sign.',
     'Любопытство может стать сверхчувствительностью, мечтой-бегством или преувеличением каждого знака.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups11 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, duygusal dili utangaç ama açık bir merakla öğrenmek isteyebilir.',
-    'There may be a wish to learn emotional language with shy, open curiosity.',
+    'The energy leans toward trying to learn emotional language with shy, open curiosity.',
     'Может хотеться изучать язык чувств с застенчивым открытым любопытством.',
   ),
   fear: L10nTriple(

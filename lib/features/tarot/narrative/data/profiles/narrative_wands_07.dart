@@ -12,7 +12,7 @@ const kNarrativeWands07 = NarrativeCardProfile(
   canonicalCardId: 'wands_07',
   coreMeaning: L10nTriple(
     'Tek noktadan korunan kıvılcımı ve sınır tutan bir duruşu anlatır.',
-    'It speaks of a spark guarded from one point and a stance that holds a boundary.',
+    'A spark guarded from one point and a stance that holds a boundary.',
     'Говорит об искре, охраняемой с одной точки, и о стойке, держащей границу.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands07 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, baskı altında bile \'ben buradayım\' diyebilecek bir duruş isteyebilir.',
-    'There may be a wish for a stance that can still say \'I am here\' under pressure.',
+    'What is wanted is a stance that can still say \'I am here\' under pressure.',
     'Может хотеться стойки, способной даже под давлением сказать «я здесь».',
   ),
   fear: L10nTriple(

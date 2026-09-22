@@ -12,7 +12,7 @@ const kNarrativeSwords03 = NarrativeCardProfile(
   canonicalCardId: 'swords_03',
   coreMeaning: L10nTriple(
     'Keskin bir üzüntüyü anlatır; tiyatro değildir, acılı bir netlik alanıdır.',
-    'It speaks of sharp sorrow; not theatre, but a field of painful clarity.',
+    'Sharp sorrow is not theatre; it is a field of painful clarity.',
     'Говорит об острой печали; не о театре, а о поле больной ясности.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords03 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Üzüntü dramatik acıya, suçlamaya veya kapanmamaya kayabilir.',
-    'Sorrow may slide into dramatic pain, blame, or staying unclosed.',
+    'Sorrow turns brittle when it becomes dramatic pain, blame, or staying unclosed.',
     'Печаль может стать драматической болью, обвинением или незакрытостью.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords03 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, kırık ama duru bir yeri sessizce tanımak isteyebilir.',
-    'There may be a wish to quietly recognize a place both broken and still clear.',
+    'Part of this archetype longs to quietly recognize a place both broken and still clear.',
     'Может хотеться тихо узнать место и сломанное, и всё ещё ясное.',
   ),
   fear: L10nTriple(

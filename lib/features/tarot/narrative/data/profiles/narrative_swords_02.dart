@@ -12,7 +12,7 @@ const kNarrativeSwords02 = NarrativeCardProfile(
   canonicalCardId: 'swords_02',
   coreMeaning: L10nTriple(
     'İki kılıç arasında duran zihni anlatır; kilitli bir seçim duruşudur, sıkışmış hapis değil.',
-    'It speaks of a mind between two swords; a locked choice-stance, not a trapped prison.',
+    'At the center: a mind between two swords; a locked choice-stance, not a trapped prison.',
     'Говорит об уме между двумя мечами; о замкнутой позе выбора, не о тюрьме.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords02 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Duruş karar kaçışına, inkâra veya donmaya kayabilir.',
-    'The stance may slide into flight from decision, denial, or freeze.',
+    'Without balance, the stance can become flight from decision, denial, or freeze.',
     'Поза может стать бегством от решения, отрицанием или заморозкой.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords02 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, körü körüne seçmeden önce her iki tarafı sakinçe görmek isteyebilir.',
-    'There may be a wish to see both sides calmly before choosing blindly.',
+    'The longing is to see both sides calmly before choosing blindly.',
     'Может хотеться спокойно увидеть обе стороны, прежде чем выбирать вслепую.',
   ),
   fear: L10nTriple(

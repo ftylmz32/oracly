@@ -12,7 +12,7 @@ const kNarrativeMajor14 = NarrativeCardProfile(
   canonicalCardId: 'major_14',
   coreMeaning: L10nTriple(
     'Farklı unsurları acele etmeden karıştırıp sürdürülebilir bir orta yol oluşturmayı anlatır.',
-    'It speaks of patiently blending different elements into a sustainable middle way.',
+    'This archetype names patiently blending different elements into a sustainable middle way.',
     'Карта говорит о терпеливом соединении разных элементов в устойчивый срединный путь.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor14 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, aşırılıklardan yorulmadan dengeli ve akışkan bir düzen kurmak isteyebilir.',
-    'There may be a wish for a balanced, fluid rhythm free from exhausting extremes.',
+    'A need for a balanced, fluid rhythm free from exhausting extremes can become visible.',
     'Может хотеться ровного и гибкого ритма без изматывающих крайностей.',
   ),
   fear: L10nTriple(

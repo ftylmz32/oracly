@@ -12,7 +12,7 @@ const kNarrativePentacles02 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_02',
   coreMeaning: L10nTriple(
     'İki ağırlık arasında ritmi anlatır; hiçbirini seçmemek değil, pratik denge tutmaktır.',
-    'It speaks of rhythm between two weights; not choosing none, but holding practical balance.',
+    'Rhythm between two weights names holding practical balance; it refuses choosing none.',
     'Говорит о ритме между двумя тяжестями; не об отказе выбирать, а о практическом равновесии.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles02 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Jonglörlük dağılmaya, kararsızlığa veya her şeyi aynı anda tutmaya kayabilir.',
-    'Juggling may slide into scatter, indecision, or gripping everything at once.',
+    'Juggling turns brittle when it becomes scatter, indecision, or gripping everything at once.',
     'Жонглирование может стать рассеянием, нерешительностью или хваткой всего сразу.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles02 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, iki yükümlülüğü kırılmadan taşımayı isteyebilir.',
-    'There may be a wish to carry two obligations without breaking either.',
+    'The pull is to carry two obligations without breaking either.',
     'Может хотеться нести два обязательства, не ломая ни одно.',
   ),
   fear: L10nTriple(

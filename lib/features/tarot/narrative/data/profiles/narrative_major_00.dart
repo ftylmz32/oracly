@@ -12,7 +12,7 @@ const kNarrativeMajor00 = NarrativeCardProfile(
   canonicalCardId: 'major_00',
   coreMeaning: L10nTriple(
     'Yeni bir eşiğe, sonucu bilmeden ama öğrenmeye açık biçimde yaklaşmayı anlatır.',
-    'It speaks of approaching a new threshold without certainty, yet with openness to learn.',
+    'Approaching a new threshold without certainty, yet with openness to learn.',
     'Эта карта говорит о приближении к новому порогу без уверенности, но с готовностью учиться.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor00 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, geçmiş tanımların yükü olmadan kendini yeniden deneyimlemek isteyebilir.',
-    'There may be a wish to experience oneself without the weight of old definitions.',
+    'The pull is to experience oneself without the weight of old definitions.',
     'Может возникнуть желание почувствовать себя без груза прежних определений.',
   ),
   fear: L10nTriple(

@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3C.2 RT-M01 Cups 09/10 relationship distinction
+**Updated:** 2026-09-22 — Tarot Phase 3C.3A RT-M03 core/desire/shadow template diversification (part 1)
 
 ---
 
@@ -27,6 +27,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.1 task start | `05c485656fd890fdaf20eaaa4db7de221c390fab` | RT-M02 remediation |
 | Phase 3C.1 end | `b03fac88ed45948d779ea208fd1536d7b39c3223` | RT-M02 resolved |
 | Phase 3C.2 task start | `b03fac88ed45948d779ea208fd1536d7b39c3223` | RT-M01 Cups 09/10 |
+| Phase 3C.2 end | `776f040778ed61a94cead565b60016f5c8dc0e61` | RT-M01 resolved |
+| Phase 3C.3A task start | `776f040778ed61a94cead565b60016f5c8dc0e61` | RT-M03 part 1 (core/desire/shadow) |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -92,6 +94,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C — 78-card cross-deck semantic red-team | **COMPLETE** (audit) |
 | Phase 3C.1 — RT-M02 reversed-orientation remediation | **COMPLETE** |
 | Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **COMPLETE** |
+| Phase 3C.3A — RT-M03 core/desire/shadow template diversification | **COMPLETE** (RT-M03 still OPEN) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -198,6 +201,28 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.3A
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (part 1 only) |
+| Fields in scope | `coreMeaning` · `desire` · `shadow` |
+| Profiles touched | **78** |
+| coreMeaning changed | **62** (EN) |
+| desire changed | **78** (EN) |
+| shadow changed | **47** (EN) |
+| Top opener share (all target × locales) | **≤ 25%** |
+| Replacement monoculture | **NO** |
+| Historical EN stems (`It speaks of` / wish / slide) | **62→0** / **78→0** / **47→0** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **RESOLVED** (shadow↔reversed exact clones=0) |
+| RT-M03 | **PARTIALLY REMEDIATED / OPEN** (interaction fields not yet remediated) |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** |
+
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
@@ -234,6 +259,7 @@ Production surface:
 | Flutter (Phase 3B4 — PL-T3B4) | 3699 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.1 — PL-T3C.1) | 3715 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.2 — PL-T3C.2) | 3719 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3C.3A — PL-T3C.3A) | 3725 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -258,7 +284,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before RT-M03 remediation.**
+**ChatGPT review before RT-M03 interaction-field remediation (Phase 3C.3B).**
 
-Do **not** start RT-M03, Evidence Engine, Visual System, or Memory-Recurring until an explicit next prompt.
+Do **not** start Phase 3C.3B, Evidence Engine, Visual System, or Memory-Recurring until an explicit next prompt.
 Do **not** mark future items completed until verified.

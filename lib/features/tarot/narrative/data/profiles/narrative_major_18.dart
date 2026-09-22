@@ -32,7 +32,7 @@ const kNarrativeMajor18 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, karmaşık duyguların içinden güvenilir bir anlam ve yön bulmak isteyebilir.',
-    'There may be a wish to find trustworthy meaning and direction within complex feelings.',
+    'What is sought is to find trustworthy meaning and direction within complex feelings.',
     'Может хотеться найти надежный смысл и направление среди сложных чувств.',
   ),
   fear: L10nTriple(

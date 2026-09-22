@@ -32,7 +32,7 @@ const kNarrativeMajor07 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, enerjisini dağıtmadan belirlediği hedefe doğru somut yol almak isteyebilir.',
-    'There may be a wish to make concrete progress without scattering energy.',
+    'What is sought is to make concrete progress without scattering energy.',
     'Может возникнуть желание заметно продвинуться к цели, не рассеивая силы.',
   ),
   fear: L10nTriple(

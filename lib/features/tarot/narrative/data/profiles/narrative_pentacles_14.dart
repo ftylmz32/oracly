@@ -12,7 +12,7 @@ const kNarrativePentacles14 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_14',
   coreMeaning: L10nTriple(
     'Sorumlu maddeyi anlatır; yalnızca bakmak değil, yön ve hesap verebilirlik tutmaktır.',
-    'It speaks of responsible matter; not care alone, but holding direction and accountability.',
+    'The center is responsible matter — holding direction and accountability, rather than care alone.',
     'Говорит об ответственном веществе; не об одной заботе, а об удержании направления и подотчётности.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles14 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Sorumluluk, baskıya, katı otoriteye veya yükü başkasına atmaya kayabilir.',
-    'Responsibility may slide into pressure, rigid authority, or casting the load onto others.',
+    'Pressure, rigid authority, or casting the load onto others appears when Responsibility dominates.',
     'Ответственность может стать давлением, жёсткой властью или сбрасыванием нагрузки на других.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles14 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, maddenin güvenilir ve hesaplı durmasını isteyebilir.',
-    'There may be a wish for matter to stand reliable and accountable.',
+    'The longing is for matter to stand reliable and accountable.',
     'Может хотеться, чтобы вещество стояло надёжным и подотчётным.',
   ),
   fear: L10nTriple(

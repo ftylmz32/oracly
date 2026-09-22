@@ -12,7 +12,7 @@ const kNarrativeCups04 = NarrativeCardProfile(
   canonicalCardId: 'cups_04',
   coreMeaning: L10nTriple(
     'Önde duran kadehe bakılmayan durgunluğu anlatır; yeterlilik ve içe dönüş alanıdır.',
-    'It speaks of stillness when the cup in front is not looked at; a field of enough and inward turn.',
+    'This archetype names stillness when the cup in front is not looked at; a field of enough and inward turn.',
     'Говорит о покое, когда чаша перед глазами не замечается; поле достаточности и поворота внутрь.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups04 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Durgunluk, nankörlüğe, kaçışa veya duygu körlüğüne kayabilir.',
-    'Stillness may slide into ingratitude, escape, or feeling-blindness.',
+    'Stillness turns brittle when it becomes ingratitude, escape, or feeling-blindness.',
     'Покой может стать неблагодарностью, бегством или слепотой к чувствам.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups04 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yorgunluğu yokluk sanmadan içerde bir durak bulmak isteyebilir.',
-    'There may be a wish to find an inward pause without mistaking weariness for absence.',
+    'Here the reach is to find an inward pause without mistaking weariness for absence.',
     'Может хотеться найти внутреннюю паузу, не принимая усталость за отсутствие.',
   ),
   fear: L10nTriple(

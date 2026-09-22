@@ -12,7 +12,7 @@ const kNarrativePentacles12 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_12',
   coreMeaning: L10nTriple(
     'Saban temposunu anlatır; öğrenme değil, kararlı ve yavaş ilerleyen çabadır.',
-    'It speaks of field-tempo; not learning alone, but steadfast effort moving at a plough\'s pace.',
+    'The center is field-tempo — steadfast effort moving at a plough\'s pace, rather than learning alone.',
     'Говорит о темпе поля; не об одном учении, а о стойком усилии в темпе плуга.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles12 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Sebat, katılığa, hız korkusuna veya hiç sapmamaya kayabilir.',
-    'Steadfastness may slide into rigidity, fear of speed, or never turning aside.',
+    'Without balance, steadfastness can become rigidity, fear of speed, or never turning aside.',
     'Стойкость может стать жёсткостью, страхом скорости или отказом свернуть.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles12 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yolun güvenilir ve kırılmadan sürmesini isteyebilir.',
-    'There may be a wish for the road to hold reliable and unbroken.',
+    'A need for the road to hold reliable and unbroken can become visible.',
     'Может хотеться, чтобы дорога держалась надёжной и неразрывной.',
   ),
   fear: L10nTriple(

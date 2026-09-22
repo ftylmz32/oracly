@@ -12,7 +12,7 @@ const kNarrativeWands10 = NarrativeCardProfile(
   canonicalCardId: 'wands_10',
   coreMeaning: L10nTriple(
     'Çok fazla değneğin omuzlarda konuştuğu yük dilini anlatır.',
-    'It speaks of too many wands; the language of shoulders under load.',
+    'At the center: too many wands; the language of shoulders under load.',
     'Говорит о слишком многих жезлах; о языке плеч под ношей.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeWands10 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, sorumluluğu bırakmadan yükü paylaşılabilir hale getirmek isteyebilir.',
-    'There may be a wish to make the load shareable without abandoning responsibility.',
+    'A need to make the load shareable without abandoning responsibility can become visible.',
     'Может хотеться сделать ношу делимой, не бросая ответственность.',
   ),
   fear: L10nTriple(

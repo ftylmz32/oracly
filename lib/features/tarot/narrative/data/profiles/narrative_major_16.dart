@@ -12,7 +12,7 @@ const kNarrativeMajor16 = NarrativeCardProfile(
   canonicalCardId: 'major_16',
   coreMeaning: L10nTriple(
     'Dayanıksız bir yapının sarsılmasıyla saklı gerçeğin ve gerekli değişimin açığa çıkmasını anlatır.',
-    'It speaks of an unstable structure shaking enough to expose truth and necessary change.',
+    'At the center: an unstable structure shaking enough to expose truth and necessary change.',
     'Карта говорит о потрясении непрочной структуры, открывающем скрытую правду и необходимую перемену.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor16 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, yanılsamadan uzak, gerçek koşullara dayanabilen sağlam bir temel isteyebilir.',
-    'There may be a wish for solid ground able to withstand reality without illusion.',
+    'What is wanted is solid ground able to withstand reality without illusion.',
     'Может возникнуть желание обрести прочную основу, выдерживающую реальность без иллюзий.',
   ),
   fear: L10nTriple(

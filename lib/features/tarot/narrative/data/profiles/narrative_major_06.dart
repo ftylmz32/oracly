@@ -12,7 +12,7 @@ const kNarrativeMajor06 = NarrativeCardProfile(
   canonicalCardId: 'major_06',
   coreMeaning: L10nTriple(
     'Yakınlık, değer uyumu ve kişinin kendini bir seçim içinde bütünüyle ortaya koymasını anlatır.',
-    'It speaks of intimacy, aligned values, and bringing the whole self into a choice.',
+    'The meaning turns on intimacy, aligned values, and bringing the whole self into a choice.',
     'Карта говорит о близости, согласованности ценностей и целостном присутствии человека в выборе.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor06 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, olduğu gibi görüldüğü ve gönüllü karşılık bulduğu bir yakınlık isteyebilir.',
-    'There may be a wish for closeness where one is seen fully and freely reciprocated.',
+    'What is wanted is closeness where one is seen fully and freely reciprocated.',
     'Может хотеться близости, в которой человека видят целиком и отвечают ему свободно.',
   ),
   fear: L10nTriple(

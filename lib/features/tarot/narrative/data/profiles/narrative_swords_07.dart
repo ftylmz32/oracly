@@ -12,7 +12,7 @@ const kNarrativeSwords07 = NarrativeCardProfile(
   canonicalCardId: 'swords_07',
   coreMeaning: L10nTriple(
     'Görünmeden çekilen bir kılıcı anlatır; yargı değildir, saklanan bir iz alanıdır.',
-    'It speaks of a sword drawn unseen; not a verdict, but a field of hidden trace.',
+    'A sword drawn unseen is not a verdict; it is a field of hidden trace.',
     'Говорит о мече, извлечённом невидимо; не о приговоре, а о поле скрытого следа.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeSwords07 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Saklama güvensizliğe, yalnız plana veya kendine yalana kayabilir.',
-    'Hiding may slide into mistrust, a lone plan, or a lie to oneself.',
+    'At the edge of this archetype, mistrust, a lone plan, or a lie to oneself.',
     'Укрытие может стать недоверием, одиноким планом или ложью себе.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeSwords07 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, dolaylı bir hareketi veya saklanan sözü anlamak isteyebilir.',
-    'There may be a wish to understand an indirect move or a hidden word.',
+    'The pull is to understand an indirect move or a hidden word.',
     'Может хотеться понять косвенное движение или скрытое слово.',
   ),
   fear: L10nTriple(

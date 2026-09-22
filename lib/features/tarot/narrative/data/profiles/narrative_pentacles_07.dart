@@ -12,7 +12,7 @@ const kNarrativePentacles07 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_07',
   coreMeaning: L10nTriple(
     'Henüz olgunlaşmamış ekini anlatır; sabır ve gözden geçirme, erken toplamaktan ayrıdır.',
-    'It speaks of a crop not yet ripe; patience and reassessment stand apart from premature harvest.',
+    'The meaning turns on a crop not yet ripe; patience and reassessment stand apart from premature harvest.',
     'Говорит о ещё не зрелом посеве; терпение и пересмотр отдельны от преждевременного сбора.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles07 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Sabır, donuk bekleyişe, acele toplamaya veya hiç bakmamaya kayabilir.',
-    'Patience may slide into frozen waiting, rushing to gather, or never looking again.',
+    'At the edge of this archetype, frozen waiting, rushing to gather, or never looking again.',
     'Терпение может стать застывшим ожиданием, спешкой собрать или вовсе не смотреть снова.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles07 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, ektiğinin zamanında karşılık bulmasını isteyebilir.',
-    'There may be a wish for what was sown to meet its time.',
+    'What is wanted is what was sown to meet its time.',
     'Может хотеться, чтобы посеянное встретило своё время.',
   ),
   fear: L10nTriple(

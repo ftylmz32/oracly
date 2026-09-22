@@ -12,7 +12,7 @@ const kNarrativeCups05 = NarrativeCardProfile(
   canonicalCardId: 'cups_05',
   coreMeaning: L10nTriple(
     'Dökülen kadehler ile ayakta kalanları birlikte anlatır; kayıp ve yas alanıdır.',
-    'It speaks of spilled cups beside those still standing; a field of loss and mourning.',
+    'At the center: spilled cups beside those still standing; a field of loss and mourning.',
     'Говорит о разлитых чашах рядом с ещё стоящими; поле утраты и скорби.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups05 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, kaybı yok saymadan yasını tamamlamak isteyebilir.',
-    'There may be a wish to complete mourning without denying the loss.',
+    'A need to complete mourning without denying the loss can become visible.',
     'Может хотеться завершить скорбь, не отрицая утрату.',
   ),
   fear: L10nTriple(

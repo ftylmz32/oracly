@@ -12,7 +12,7 @@ const kNarrativeMajor03 = NarrativeCardProfile(
   canonicalCardId: 'major_03',
   coreMeaning: L10nTriple(
     'Büyümeyi besleyen ilgiyi, duyusal canlılığı ve üretken bir alan kurmayı anlatır.',
-    'It speaks of care that supports growth, sensory aliveness, and a fertile space for creation.',
+    'At the center: care that supports growth, sensory aliveness, and a fertile space for creation.',
     'Карта говорит о заботе, поддерживающей рост, чувственной живости и плодотворном пространстве созидания.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeMajor03 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, emeğinin kök saldığı, sıcak ve karşılık veren bir ortam arayabilir.',
-    'There may be a wish for a warm, responsive setting where effort can take root.',
+    'A need for a warm, responsive setting where effort can take root can become visible.',
     'Может возникнуть стремление к теплой, отзывчивой среде, где труд способен укорениться.',
   ),
   fear: L10nTriple(

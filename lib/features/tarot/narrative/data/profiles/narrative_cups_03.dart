@@ -12,7 +12,7 @@ const kNarrativeCups03 = NarrativeCardProfile(
   canonicalCardId: 'cups_03',
   coreMeaning: L10nTriple(
     'Üç kadehin sofrasını anlatır; yalnızlığın karşıtıdır, evlilik kehaneti değildir.',
-    'It speaks of a table of three cups; the opposite of solitude, not a marriage prophecy.',
+    'At the center: a table of three cups; the opposite of solitude, not a marriage prophecy.',
     'Говорит о столе трёх чаш; противоположность одиночества, не пророчество брака.',
   ),
   light: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups03 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, samimi bir paylaşım sofrasında yer almak isteyebilir.',
-    'There may be a wish to take a seat at a table of sincere sharing.',
+    'Here the reach is to take a seat at a table of sincere sharing.',
     'Может хотеться занять место за столом искреннего обмена.',
   ),
   fear: L10nTriple(

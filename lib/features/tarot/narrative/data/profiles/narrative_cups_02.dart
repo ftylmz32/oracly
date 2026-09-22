@@ -12,7 +12,7 @@ const kNarrativeCups02 = NarrativeCardProfile(
   canonicalCardId: 'cups_02',
   coreMeaning: L10nTriple(
     'İki kadehin buluşmasını anlatır; evlilik kehaneti değildir, karşılıklılık alanıdır.',
-    'It speaks of two cups meeting; not a marriage prophecy, but a field of reciprocity.',
+    'Two cups meeting names a field of reciprocity; it refuses a marriage prophecy.',
     'Говорит о встрече двух чаш; не о пророчестве брака, а о поле взаимности.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups02 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Buluşma, dengesizliğe, yansıtıma veya acele birleşmeye kayabilir.',
-    'Meeting may slide into imbalance, projection, or hasty union.',
+    'Without balance, meeting can become imbalance, projection, or hasty union.',
     'Встреча может стать дисбалансом, проекцией или поспешным союзом.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups02 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, karşılıklı bir duygusal alışverişi güvenle denemek isteyebilir.',
-    'There may be a wish to try mutual emotional exchange in safety.',
+    'Here the reach is to try mutual emotional exchange in safety.',
     'Может хотеться безопасно попробовать взаимный эмоциональный обмен.',
   ),
   fear: L10nTriple(

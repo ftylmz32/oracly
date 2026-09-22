@@ -12,7 +12,7 @@ const kNarrativeCups07 = NarrativeCardProfile(
   canonicalCardId: 'cups_07',
   coreMeaning: L10nTriple(
     'Birçok kadehten hepsinin su taşımadığını anlatır; seçenek ve düş alanı, doyum değil.',
-    'It speaks of many cups, not all holding water; a field of options and dream, not satisfaction.',
+    'At the center: many cups, not all holding water; a field of options and dream, not satisfaction.',
     'Говорит о многих чашах, не все из которых держат воду; поле вариантов и мечты, не удовлетворения.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativeCups07 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Bakış yalnızca izlemeye, kaçış düşüne veya kararsızlığa kayabilir.',
-    'Gaze may slide into watching only, escape-dream, or indecision.',
+    'Watching only, escape-dream, or indecision appears when Gaze dominates.',
     'Взгляд может стать только наблюдением, мечтой-бегством или нерешительностью.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativeCups07 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, hayali bozmadan gerçek bir seçeneğe dokunmak isteyebilir.',
-    'There may be a wish to touch a real option without shattering the dream.',
+    'What is sought is to touch a real option without shattering the dream.',
     'Может хотеться коснуться реального варианта, не разрушая мечту.',
   ),
   fear: L10nTriple(

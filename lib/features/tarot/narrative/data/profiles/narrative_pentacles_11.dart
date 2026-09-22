@@ -12,7 +12,7 @@ const kNarrativePentacles11 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_11',
   coreMeaning: L10nTriple(
     'Maddenin öğrencisini anlatır; tüccar değil, pratikle öğrenen meraklı bir eldir.',
-    'It speaks of a student hand of matter; not a merchant, but curiosity learning by practice.',
+    'Not a merchant: a student hand of matter as curiosity learning by practice.',
     'Говорит об ученической руке вещества; не о торговце, а о любопытстве, учащемся практикой.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles11 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Merak, acele satmaya, yüzeysel taklide veya öğrenmeyi ertelemeye kayabilir.',
-    'Curiosity may slide into rushing to sell, shallow imitation, or postponing learning.',
+    'Curiosity turns brittle when it becomes rushing to sell, shallow imitation, or postponing learning.',
     'Любопытство может стать спешкой продать, поверхностным подражанием или откладыванием учения.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles11 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, pratik bir yolla maddenin dilini kavramak isteyebilir.',
-    'There may be a wish to grasp the language of matter through practice.',
+    'The energy leans toward trying to grasp the language of matter through practice.',
     'Может хотеться схватить язык вещества через практику.',
   ),
   fear: L10nTriple(

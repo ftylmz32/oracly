@@ -12,7 +12,7 @@ const kNarrativePentacles10 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_10',
   coreMeaning: L10nTriple(
     'Zaman içinde köklü ortak yapıyı anlatır; miras vaadi değil, süren bir soydur.',
-    'It speaks of rooted shared structure across time; not a promise of inheritance, but lasting lineage.',
+    'Rooted shared structure across time is not a promise of inheritance; it is lasting lineage.',
     'Говорит об укоренённой общей структуре во времени; не об обещании наследства, а о длящейся линии.',
   ),
   light: L10nTriple(
@@ -22,7 +22,7 @@ const kNarrativePentacles10 = NarrativeCardProfile(
   ),
   shadow: L10nTriple(
     'Soy, baskıya, zorunlu role veya kökleri taşlaştırmaya kayabilir.',
-    'Lineage may slide into pressure, a forced role, or turning roots into stone.',
+    'The risk is pressure, a forced role, or turning roots into stone when Lineage is pushed too far.',
     'Линия может стать давлением, навязанной ролью или окаменением корней.',
   ),
   tension: L10nTriple(
@@ -32,7 +32,7 @@ const kNarrativePentacles10 = NarrativeCardProfile(
   ),
   desire: L10nTriple(
     'Kişi, emeğin kendinden öteye tutunmasını isteyebilir.',
-    'There may be a wish for labor to hold beyond the self.',
+    'The longing is for labor to hold beyond the self.',
     'Может хотеться, чтобы труд держался дальше себя.',
   ),
   fear: L10nTriple(
