@@ -658,6 +658,30 @@ Historical Phase 3C finding RT-M03 remains documented above as evidence; this se
 
 ---
 
+## Phase 3C.4 status pointer — FINAL RE-AUDIT
+
+Independent CURRENT-HEAD re-audit lives in:
+
+`docs/product/tarot/TAROT_78_PROFILE_FINAL_REAUDIT.md`
+
+| Field | Value |
+|---|---|
+| Audit HEAD | `b7180fc6498456c3badc063dff207497aef47087` |
+| Profiles reviewed | **78 / 78** |
+| Audit completeness | **PASS** |
+| BLOCKER | **1** (`major_01.desire.en` cross-card contamination) |
+| MAJOR | **4** |
+| MINOR | **4** |
+| INFO | **4** |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **OPEN** (exact clones 0; unresolved human semantic near-clones) |
+| RT-M03 | **OPEN** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+
+Do **not** treat prior 3C.3B “REMEDIATED — PENDING FINAL RE-AUDIT” as readiness YES. Phase 3C.4 found blockers.
+
+---
+
 ## Method notes / limitations
 
 - Automated similarity is a **candidate generator**, not proof of defect.  

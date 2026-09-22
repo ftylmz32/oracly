@@ -380,6 +380,29 @@ Chronological project execution ledger.
 | Full Flutter | **3737** passed · **0** failed · **15** skipped · **0** timed out |
 | Outcome | **PASS** |
 
+### PL-T3C.4 — FINAL 78-CARD CROSS-DECK RE-AUDIT
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (audit complete; readiness **NO**) |
+| Kind | Auditor-only — no production profile edits |
+| Start SHA | `b7180fc6498456c3badc063dff207497aef47087` |
+| Profiles reviewed | **78 / 78** |
+| Report | `docs/product/tarot/TAROT_78_PROFILE_FINAL_REAUDIT.md` |
+| BLOCKER / MAJOR / MINOR / INFO | **1 / 4 / 4 / 4** |
+| Canonical fidelity | CLEAR-DRIFT **1** (`major_01.desire.en`) |
+| RT-M01 | **RESOLVED** |
+| RT-M02 | **OPEN** (exact 0; human semantic near-clones unresolved) |
+| RT-M03 | **OPEN** |
+| Keyword-id ontology | **BLOCKING** (352/397 singletons) |
+| Symbol-tag ontology | **CONCERNS** (non-blocking as sparse motifs) |
+| Transform distribution | excess 37 · release 1 — **NON-BLOCKING** |
+| Evidence Engine fitness | **FAIL** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Production source modified | **NO** |
+| Phase 2/2.1 | **27** passed · **0** failed |
+| Outcome | **PASS** (audit) |
+
 ---
 
 ## Planned (not started)
@@ -400,10 +423,11 @@ Chronological project execution ledger.
 | PL-T3C | Tarot Phase 3C — 78-card cross-deck semantic red-team | **DONE** (audit) |
 | PL-T3C.1 | Tarot Phase 3C.1 — RT-M02 reversed-orientation remediation | **DONE** |
 | PL-T3C.2 | Tarot Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **DONE** |
-| PL-T3C.3A | Tarot Phase 3C.3A — RT-M03 core/desire/shadow diversification | **DONE** (RT-M03 still OPEN) |
-| PL-T3C.3A.1 | Tarot Phase 3C.3A.1 — RT-M03A naturalness repair | **DONE** (naturalness FROZEN; RT-M03 still OPEN) |
-| PL-T3C.3B | Tarot Phase 3C.3B — RT-M03 relationship/decision/action interaction semantics | **DONE** (RT-M03 REMEDIATED — PENDING FINAL RE-AUDIT) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M03 remediated pending Phase 3C.4 re-audit; Evidence Engine blocked) |
+| PL-T3C.3A | Tarot Phase 3C.3A — RT-M03 core/desire/shadow diversification | **DONE** |
+| PL-T3C.3A.1 | Tarot Phase 3C.3A.1 — RT-M03A naturalness repair | **DONE** |
+| PL-T3C.3B | Tarot Phase 3C.3B — RT-M03 relationship/decision/action interaction semantics | **DONE** |
+| PL-T3C.4 | Tarot Phase 3C.4 — Final 78-card cross-deck re-audit | **DONE** (readiness NO) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M02/M03 OPEN after 3C.4; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
