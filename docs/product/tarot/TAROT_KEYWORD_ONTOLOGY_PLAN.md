@@ -1,13 +1,13 @@
 # Tarot Keyword Ontology Plan — Phase 3C.5D / FR-M04
 
-**Status:** DESIGN ONLY — not implemented  
-**Active mapping revision:** Phase **3C.5D.1** (semantic repair)  
-**Branch tip at design start:** `bc9ff060801d941c16ed32b32d8708177fa20c21`  
-**Worktree:** `D:/oracly_final_r1`  
-**Production `keywordIds`:** **UNCHANGED**  
-**FR-M04:** remains **OPEN** until a later ChatGPT-reviewed implementation task  
+**Status:** DESIGN ONLY — not implemented
+**Active mapping revision:** Phase **3C.5D.1** (semantic repair)
+**Branch tip at design start:** `bc9ff060801d941c16ed32b32d8708177fa20c21`
+**Worktree:** `D:/oracly_final_r1`
+**Production `keywordIds`:** **UNCHANGED**
+**FR-M04:** remains **OPEN** until a later ChatGPT-reviewed implementation task
 
-Machine-readable companion (local worktree aid, not production):  
+Machine-readable companion (local worktree aid, not production):
 `tool/qa/phase3c5d_ontology_design.json` · inventory `tool/qa/phase3c5d_keyword_inventory.json`
 
 ---
@@ -52,10 +52,10 @@ Reproduced programmatically from all 78 Narrative profiles (not copied from 3C.4
 
 ## 3. Problem statement
 
-1. **Singleton monoculture** — most ids are card-private labels (`catastropheDream`, `fertileHand`, `shopWindow`), so overlap detection almost never fires.  
-2. **Imagery as metadata** — many ids encode card picture language rather than reusable semantics.  
-3. **Synonym scatter** — same concept appears as `mindLoad` / `nightThought` / `mindBurden`-class prose without a shared id.  
-4. **Layer confusion risk** — some ids echo `ReversedTransformKind` (`avoidance`, `delay`, `release`) or `symbolTags` without a clear division of labor.  
+1. **Singleton monoculture** — most ids are card-private labels (`catastropheDream`, `fertileHand`, `shopWindow`), so overlap detection almost never fires.
+2. **Imagery as metadata** — many ids encode card picture language rather than reusable semantics.
+3. **Synonym scatter** — same concept appears as `mindLoad` / `nightThought` / `mindBurden`-class prose without a shared id.
+4. **Layer confusion risk** — some ids echo `ReversedTransformKind` (`avoidance`, `delay`, `release`) or `symbolTags` without a clear division of labor.
 5. **Unsafe if over-trusted** — a future engine must not treat a single keyword match as relationship or recurrence proof.
 
 ---
@@ -64,10 +64,10 @@ Reproduced programmatically from all 78 Narrative profiles (not copied from 3C.4
 
 ### Naming
 
-- `lowerCamelCase` stable ids  
-- Language-agnostic (not TR/EN/RU strings)  
-- No sentence fragments, no card names/numbers, no suit names as ids  
-- No medical/diagnostic/legal accusation labels  
+- `lowerCamelCase` stable ids
+- Language-agnostic (not TR/EN/RU strings)
+- No sentence fragments, no card names/numbers, no suit names as ids
+- No medical/diagnostic/legal accusation labels
 
 ### Layers (do not merge)
 
@@ -81,17 +81,17 @@ Rule: prefer **not** duplicating a transform enum as the sole keyword for an ori
 
 ### Merge vs keep
 
-- **Merge** only true synonyms / imagery variants of one concept.  
-- **Do not merge** useful distinctions (`clarity`≠`certainty`, `boundary`≠`coldness`, `grief`≠`release`, `belonging`≠`dependence`, `pause`≠`delay`, `care/nurture`≠`rescue`).  
+- **Merge** only true synonyms / imagery variants of one concept.
+- **Do not merge** useful distinctions (`clarity`≠`certainty`, `boundary`≠`coldness`, `grief`≠`release`, `belonging`≠`dependence`, `pause`≠`delay`, `care/nurture`≠`rescue`).
 
 ### Granularity
 
-Target: **shared enough to group**, **specific enough to preserve card identity**.  
+Target: **shared enough to group**, **specific enough to preserve card identity**.
 
 Rejected extremes:
 
-- ~90% singletons (status quo)  
-- ~10 ultra-generic labels for the whole deck  
+- ~90% singletons (status quo)
+- ~10 ultra-generic labels for the whole deck
 
 Chosen band: **~110–130 canonical ids**, projected singleton rate **~20–30%**, with many ids used 3–8 times.
 
@@ -105,17 +105,17 @@ Upright and reversed proposed sets must **not be identical** for any card. Share
 
 ### Stability / versioning
 
-- After first production persistence/use: ids are **immutable** except via explicit migration.  
-- Document ontology revision separately from `profileRevision`.  
+- After first production persistence/use: ids are **immutable** except via explicit migration.
+- Document ontology revision separately from `profileRevision`.
 - Never silently rename in place once Evidence Engine or storage depends on ids.
 
 ### Recurrence authority (locked)
 
-Keywords may **help** soft theme inference.  
+Keywords may **help** soft theme inference.
 They **never** authorize:
 
-- “appeared N times”  
-- “theme keeps returning”  
+- “appeared N times”
+- “theme keeps returning”
 
 Those require `TarotRecurringCardEvidence` / `TarotRecurringThemeEvidence` only.
 
@@ -127,12 +127,12 @@ Those require `TarotRecurringCardEvidence` / `TarotRecurringThemeEvidence` only.
 
 Concept families (illustrative, not exhaustive):
 
-- Agency / craft / fire: `agency`, `craft`, `focus`, `direction`, `will`, `spark`, `enthusiasm`, `mastery`, `vitality`, `courage`, `creation`  
-- Belonging / emotion: `belonging`, `nurture`, `compassion`, `holding`, `receptivity`, `intimacy`, `joy`, `grief`, `enough`, `flow`, `overflow`, `attachment`, `union`, `reciprocity`  
-- Mind / speech: `clarity`, `truth`, `inquiry`, `curiosity`, `discernment`, `judgment`, `boundary`, `restraint`, `communication`, `harshSpeech`, `notListening`, `mindBurden`, `confusion`, `bias`  
-- Structure / material: `structure`, `stability`, `accountability`, `discipline`, `tradition`, `roots`, `resource`, `labor`, `stewardship`, `abundance`, `scarcity`  
-- Process / time: `pause`, `delay`, `timing`, `threshold`, `change`, `ending`, `release`, `renewal`, `integration`, `completion`, `cycles`, `stagnation`  
-- Difficult dynamics: `control`, `pressure`, `haste`, `rigidity`, `scatter`, `escape`, `avoidance`, `denial`, `doubt`, `resistance`, `withdrawal`, `isolation`, `suppression`, `projection`, `boast`, `display`, `imbalance`, `instability`, `exhaustion`, `strain`, `burden`, `fear`, `despair`, `anger`, `discord`, …  
+- Agency / craft / fire: `agency`, `craft`, `focus`, `direction`, `will`, `spark`, `enthusiasm`, `mastery`, `vitality`, `courage`, `creation`
+- Belonging / emotion: `belonging`, `nurture`, `compassion`, `holding`, `receptivity`, `intimacy`, `joy`, `grief`, `enough`, `flow`, `overflow`, `attachment`, `union`, `reciprocity`
+- Mind / speech: `clarity`, `truth`, `inquiry`, `curiosity`, `discernment`, `judgment`, `boundary`, `restraint`, `communication`, `harshSpeech`, `notListening`, `mindBurden`, `confusion`, `bias`
+- Structure / material: `structure`, `stability`, `accountability`, `discipline`, `tradition`, `roots`, `resource`, `labor`, `stewardship`, `abundance`, `scarcity`
+- Process / time: `pause`, `delay`, `timing`, `threshold`, `change`, `ending`, `release`, `renewal`, `integration`, `completion`, `cycles`, `stagnation`
+- Difficult dynamics: `control`, `pressure`, `haste`, `rigidity`, `scatter`, `escape`, `avoidance`, `denial`, `doubt`, `resistance`, `withdrawal`, `isolation`, `suppression`, `projection`, `boast`, `display`, `imbalance`, `instability`, `exhaustion`, `strain`, `burden`, `fear`, `despair`, `anger`, `discord`, …
 - Roles / openings: `messenger`, `learning`, `listening`, `opening`, `closing`, `principle`, `fairness`, `authority`, `socialExpectation`, `externalDemand`, `internalStrain`
 
 Each id has a short definition in Appendix A. Example cards are recoverable from the full mapping (Appendix B).
@@ -222,10 +222,10 @@ No forced Ace→Ten taxonomy. Accidental cross-suit rank rhyme (e.g. “first/op
 
 ### Court identity — **PASS**
 
-Pages → `learning` / `messenger` / `curiosity` flavors  
-Knights → motion / direction / haste risks  
-Queens → holding / boundary / nurture / discernment  
-Kings → principle / accountability / structure / stewardship  
+Pages → `learning` / `messenger` / `curiosity` flavors
+Knights → motion / direction / haste risks
+Queens → holding / boundary / nurture / discernment
+Kings → principle / accountability / structure / stewardship
 
 **Forbidden encodings avoided:** Page≠weak child, King≠superior masculine authority, Queen≠feminine-only care.
 
@@ -272,25 +272,25 @@ Kings → principle / accountability / structure / stewardship
 
 ### Allowed soft uses
 
-- Candidate theme overlap hints  
-- Soft relationship / support / contrast scoring inputs  
-- Profile similarity hints  
-- Question-relevance hints  
+- Candidate theme overlap hints
+- Soft relationship / support / contrast scoring inputs
+- Profile similarity hints
+- Question-relevance hints
 
 ### Forbidden
 
-- Future prediction from keywords  
-- Mind-reading  
-- Recurrence counts (“keeps returning”)  
-- Automatic conclusion from a **single** shared keyword  
-- Overriding contradictory card meaning / orientation / spread position  
+- Future prediction from keywords
+- Mind-reading
+- Recurrence counts (“keeps returning”)
+- Automatic conclusion from a **single** shared keyword
+- Overriding contradictory card meaning / orientation / spread position
 
 ### Scoring safeguards (design only — not implemented)
 
-1. One shared keyword alone ≠ relationship.  
-2. High-frequency keywords (`scatter`, `haste`, …) receive **lower discriminative weight**.  
-3. Confidence rises with **multiple independent** signals (keywords + transforms + prose anchors + positions).  
-4. Canonical relations / spread position / orientation remain separate inputs.  
+1. One shared keyword alone ≠ relationship.
+2. High-frequency keywords (`scatter`, `haste`, …) receive **lower discriminative weight**.
+3. Confidence rises with **multiple independent** signals (keywords + transforms + prose anchors + positions).
+4. Canonical relations / spread position / orientation remain separate inputs.
 5. Keyword overlap never overrides contradictory profile semantics.
 
 **ENGINE USAGE CONTRACT: READY FOR CHATGPT REVIEW**
@@ -338,15 +338,15 @@ From applying the proposed map (design simulation only):
 
 For the future implementation task (not this task):
 
-1. **No production change without ChatGPT approval of this plan.**  
-2. After apply: singleton % ≤ **35%** (target ~25%).  
-3. Canonical vocabulary size between **90 and 150**.  
-4. Identical upright/reversed keyword sets = **0**.  
-5. Each orientation has **2–4** keyword ids.  
-6. No keyword id equals a `ReversedTransformKind` name **unless** documented exception (`delay`/`avoidance`/`release` content cases).  
-7. No unsafe accusation ids present.  
-8. Full migration table applied with zero CURRENT ids left unmapped (except explicit DROP).  
-9. Existing FR-B01 / FR-M01 / FR-M02 / FR-M03 / RT-M01 / RT-M02 regressions remain green.  
+1. **No production change without ChatGPT approval of this plan.**
+2. After apply: singleton % ≤ **35%** (target ~25%).
+3. Canonical vocabulary size between **90 and 150**.
+4. Identical upright/reversed keyword sets = **0**.
+5. Each orientation has **2–4** keyword ids.
+6. No keyword id equals a `ReversedTransformKind` name **unless** documented exception (`delay`/`avoidance`/`release` content cases).
+7. No unsafe accusation ids present.
+8. Full migration table applied with zero CURRENT ids left unmapped (except explicit DROP).
+9. Existing FR-B01 / FR-M01 / FR-M02 / FR-M03 / RT-M01 / RT-M02 regressions remain green.
 10. Keyword change is **ids only** — no prose/TR/RU/transforms/symbolTags edits in the same commit unless separately scoped.
 
 ---
@@ -355,22 +355,22 @@ For the future implementation task (not this task):
 
 **After 3C.5D.1:** **AMBIGUOUS MAPPINGS = 0**.
 
-Previous provisional envy→ttachment is **rejected**. envy is KEEP.
+Previous provisional envy→attachment is **rejected**. envy is KEEP.
 
 Review notes that remain as implementation discipline (not unresolved mappings):
 
-- pressure specialization must be re-checked against prose at implement time  
-- high-frequency scatter/haste soft-weighting belongs to Evidence Engine planning later  
-- delay dual-layer lint at implement time  
+- pressure specialization must be re-checked against prose at implement time
+- high-frequency scatter/haste soft-weighting belongs to Evidence Engine planning later
+- delay dual-layer lint at implement time
 
 ## 17. Implementation scope recommendation
 
 **Next task (after ChatGPT review):** FR-M04 implementation only:
 
-- Apply keywordId remaps on all 78 profiles (upright + reversed)  
-- Add ontology constants module (canonical id list + optional docs)  
-- Add enforcement tests for gates in §15  
-- **Do not** start Narrative Evidence Engine in the same phase  
+- Apply keywordId remaps on all 78 profiles (upright + reversed)
+- Add ontology constants module (canonical id list + optional docs)
+- Add enforcement tests for gates in §15
+- **Do not** start Narrative Evidence Engine in the same phase
 - **Do not** modify prose, symbolTags, or transforms unless a blocking contradiction appears (then STOP)
 
 **Deck ready for Evidence Engine after successful FR-M04 implementation + review:** still requires explicit readiness decision; this design alone does **not** flip readiness to YES.
@@ -383,9 +383,9 @@ Review notes that remain as implementation discipline (not unresolved mappings):
 
 ## Phase 3C.5D.1 — semantic mapping repair
 
-**Status:** DESIGN ONLY — ACTIVE IMPLEMENTATION TARGET  
-**Start SHA:** 9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b  
-**Machine companion:** 	ool/qa/phase3c5d1_ontology_design.json  
+**Status:** DESIGN ONLY — ACTIVE IMPLEMENTATION TARGET
+**Start SHA:** 9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b
+**Machine companion:** `tool/qa/phase3c5d1_ontology_design.json`
 **Production keywordIds:** still **UNCHANGED**
 
 ### Why
@@ -394,23 +394,23 @@ Independent ChatGPT review approved architecture but found **semantic inversions
 
 Metric hierarchy is now locked:
 
-1. semantic fidelity  
-2. orientation fidelity  
-3. card identity  
-4. layer separation  
-5. reuse/groupability  
-6. singleton rate  
+1. semantic fidelity
+2. orientation fidelity
+3. card identity
+4. layer separation
+5. reuse/groupability
+6. singleton rate
 
 ### Confirmed defects repaired
 
 | Defect | Before | After |
 |---|---|---|
-| wands_08 upright speed→haste | INVERSION | momentum, messenger, low |
-| pentacles_02 upright 	woWeights/practicalBalance/juggle→ imbalance/stability/scatter | INVERSION | coordination, alance, ocus |
-| alance→stability | LOSS | **KEEP** alance distinct |
+| wands_08 upright speed→haste | INVERSION | momentum, messenger, flow |
+| pentacles_02 upright twoWeights/practicalBalance/juggle→ imbalance/stability/scatter | INVERSION | coordination, balance, focus |
+| balance→stability | LOSS | **KEEP** balance distinct |
 | instability→stability | INVERSION | **KEEP** instability distinct |
-| envy→ttachment | LOSS | **KEEP** envy |
-| swords_12 upright astMind→haste | INVERSION | momentum, communication, clarity |
+| envy→attachment | LOSS | **KEEP** envy |
+| swords_12 upright fastMind→haste | INVERSION | momentum, communication, clarity |
 | hastyUnion→union | LOSS | →haste |
 | diminishedJoy→joy | INVERSION | →withdrawal |
 | overcare→
@@ -466,23 +466,23 @@ escue |
 
 Hard gates:
 
-- 78 profiles / 156 orientations mapped  
-- 2–4 ids per orientation  
-- identical upright/reversed sets = 0  
-- no semantic inversion / semantic loss / orientation collapse  
-- no unmapped current ids except documented DROP  
-- no unsafe accusation/certainty ids  
-- no duplicate id inside one orientation  
-- no transform-only orientation semantics  
-- singleton % target ≤35%, **never** via false merge  
-- all ids exist in canonical ontology  
-- prior FR/RT regressions remain green  
+- 78 profiles / 156 orientations mapped
+- 2–4 ids per orientation
+- identical upright/reversed sets = 0
+- no semantic inversion / semantic loss / orientation collapse
+- no unmapped current ids except documented DROP
+- no unsafe accusation/certainty ids
+- no duplicate id inside one orientation
+- no transform-only orientation semantics
+- singleton % target ≤35%, **never** via false merge
+- all ids exist in canonical ontology
+- prior FR/RT regressions remain green
 
 Vocabulary: **expected review band 90–160**; exceeding allowed if required by semantic fidelity.
 
 ### Ontology plan approved for implementation?
 
-**YES — pending ChatGPT confirmation of this 3C.5D.1 repair.**  
+**YES — pending ChatGPT confirmation of this 3C.5D.1 repair.**
 FR-M04 remains OPEN until a separate implementation task applies ids.
 
 ## Appendix A — Canonical lexicon (ACTIVE — 3C.5D.1)
