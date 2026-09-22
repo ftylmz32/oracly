@@ -16,17 +16,15 @@ void main() {
     expect(majors.length, 22);
   });
 
-  test('exactly 22 Major Narrative profiles, no Minors', () {
-    expect(NarrativeTarotProfileCatalog.count, 22);
+  test('exactly 22 Major Narrative profiles remain', () {
     expect(NarrativeTarotProfileCatalog.majorProfiles.length, 22);
-    expect(NarrativeTarotProfileCatalog.all.length, 22);
-    for (final p in NarrativeTarotProfileCatalog.all) {
+    for (final p in NarrativeTarotProfileCatalog.majorProfiles) {
       expect(p.canonicalCardId.startsWith('major_'), isTrue);
     }
   });
 
-  test('one profile per Major id, no duplicates', () {
-    final ids = NarrativeTarotProfileCatalog.all
+  test('one Major profile per Major id, no duplicates', () {
+    final ids = NarrativeTarotProfileCatalog.majorProfiles
         .map((p) => p.canonicalCardId)
         .toList();
     expect(ids.toSet().length, ids.length);
@@ -57,22 +55,23 @@ void main() {
     }
   });
 
-  test('profile ids exist on OraclyTarotDeck', () {
-    for (final p in NarrativeTarotProfileCatalog.all) {
+  test('Major profile ids exist on OraclyTarotDeck', () {
+    for (final p in NarrativeTarotProfileCatalog.majorProfiles) {
       expect(OraclyTarotDeck.byId(p.canonicalCardId), isNotNull);
     }
   });
 
-  test('lookup never fabricates missing Minor profiles', () {
+  test('lookup never fabricates missing non-Wands Minor profiles', () {
     expect(NarrativeTarotProfileCatalog.lookup('cups_01'), isNull);
-    expect(NarrativeTarotProfileCatalog.lookup('wands_14'), isNull);
-    expect(NarrativeTarotProfileCatalog.contains('swords_07'), isFalse);
+    expect(NarrativeTarotProfileCatalog.lookup('swords_07'), isNull);
+    expect(NarrativeTarotProfileCatalog.lookup('pentacles_10'), isNull);
+    expect(NarrativeTarotProfileCatalog.contains('cups_14'), isFalse);
     expect(NarrativeTarotProfileCatalog.lookup('major_99'), isNull);
   });
 
-  test('no cross-card full profile duplication', () {
+  test('no cross-Major full profile duplication', () {
     final sigs = <String, String>{};
-    for (final p in NarrativeTarotProfileCatalog.all) {
+    for (final p in NarrativeTarotProfileCatalog.majorProfiles) {
       final sig = NarrativeCardProfileValidator.primarySignature(p);
       expect(
         sigs.containsKey(sig),
@@ -83,7 +82,7 @@ void main() {
     }
   });
 
-  test('basic locale script sanity on sample fields', () {
+  test('basic locale script sanity on sample Major fields', () {
     final fool = NarrativeTarotProfileCatalog.lookup('major_00')!;
     expect(RegExp(r'[ğüşöçıİĞÜŞÖÇ]').hasMatch(fool.coreMeaning.tr), isTrue);
     expect(RegExp(r'[А-Яа-яЁё]').hasMatch(fool.coreMeaning.ru), isTrue);

@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3A Narrative Major Arcana profiles
+**Updated:** 2026-09-22 — Tarot Phase 3B1 Narrative Wands profiles
 
 ---
 
@@ -14,9 +14,9 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Canonical branch | `fix/final-product-remediation-20260922` | Active remediation branch |
 | Active worktree | `D:/oracly_final_r1` | Where remediation docs/code land |
 | Last verified **application/code** baseline (pre-3A) | `173d75228248baf32ea0d4f04fe936665efff342` | R2.1 — prior Flutter-verified code tip (3627/0/15/0) |
-| Phase 3A task start | `9ef658d9b35bf599435670946cb188c3d425a6de` | Phase 2.1 tip — Narrative domain start |
+| Phase 3A end | `200a3a874fcce763cfdeb2299cfd7177dcb03290` | Major Narrative foundation |
+| Phase 3B1 task start | `200a3a874fcce763cfdeb2299cfd7177dcb03290` | Wands Minor foundation start |
 | Phase 0 documentation baseline | `7155ad8535bd051a152437757fd11296b243de0b` | Night Shift docs tip at Phase 1 task start |
-| Phase 1.1 task start baseline | `f506c7733822f24d57a2e14254004c907a789f33` | Start of contract hardening |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -74,7 +74,8 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 2 — Quality corpus + harness | **COMPLETE** |
 | Phase 2.1 — Harness false-positive hardening | **COMPLETE** |
 | Phase 3A — Major Arcana Narrative semantic foundation | **COMPLETE** |
-| Phase 3B+ — Minor profiles / Evidence Engine | **NOT STARTED** |
+| Phase 3B1 — Wands Minor Narrative profiles | **COMPLETE** |
+| Phase 3B+ — Cups / Swords / Pentacles / Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -84,7 +85,18 @@ Pre-existing local noise (do **not** stage/clean):
 |---|---|
 | Status | **PASS** |
 | Major profiles | **22 / 22** |
-| Minor profiles | **0** (not started) |
+
+### Phase 3B1
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| V2 profile coverage | **36 / 78** |
+| Major | **22 / 22** |
+| Wands | **14 / 14** |
+| Cups | **0 / 14** |
+| Swords | **0 / 14** |
+| Pentacles | **0 / 14** |
 | Narrative Evidence Engine | **NOT IMPLEMENTED** |
 | Runtime V2 | **NOT USER-REACHABLE** |
 | Canonical deck | Unchanged (78 / 22 / 56) |
@@ -93,7 +105,7 @@ Pre-existing local noise (do **not** stage/clean):
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
-- `lib/features/tarot/narrative/data/` — `NarrativeTarotProfileCatalog` + Major profiles
+- `lib/features/tarot/narrative/data/` — `NarrativeTarotProfileCatalog` + Major + Wands profiles
 - Tests: `test/features/tarot/narrative_domain/`
 
 ### Spec artifacts
@@ -118,6 +130,7 @@ Production surface:
 |---|---|
 | Flutter (at code baseline `173d7522`) | **3627** passed · **0** failed · **15** skipped · **0** timed out |
 | Flutter (Phase 3A — PL-T3A) | **3662** passed · **0** failed · **15** skipped · **0** timed out |
+| Flutter (Phase 3B1 — PL-T3B1) | **3669** passed · **0** failed · **15** skipped · **0** timed out |
 | Backend (known) | **658** passed · **0** failed · **1** skipped |
 
 ---
@@ -140,7 +153,7 @@ Coffee / Palm / SoulMate production E2E · StoreKit monthly/yearly · restore ·
 
 ## Next action
 
-**ChatGPT review before Phase 3B.**
+**ChatGPT review before next Minor suit.**
 
-Do **not** start Phase 3B until that review.
+Do **not** start Cups until that review.
 Do **not** mark future items completed until verified.

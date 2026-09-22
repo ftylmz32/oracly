@@ -14,6 +14,7 @@ abstract final class NarrativeSymbolTags {
   static const belonging = 'belonging';
   static const bondage = 'bondage';
   static const breakthrough = 'breakthrough';
+  static const burden = 'burden';
   static const change = 'change';
   static const choice = 'choice';
   static const clarity = 'clarity';
@@ -28,8 +29,10 @@ abstract final class NarrativeSymbolTags {
   static const desire = 'desire';
   static const direction = 'direction';
   static const ending = 'ending';
+  static const endurance = 'endurance';
   static const focus = 'focus';
   static const freedom = 'freedom';
+  static const friction = 'friction';
   static const grief = 'grief';
   static const guidance = 'guidance';
   static const hope = 'hope';
@@ -44,6 +47,7 @@ abstract final class NarrativeSymbolTags {
   static const nurture = 'nurture';
   static const pause = 'pause';
   static const perspective = 'perspective';
+  static const recognition = 'recognition';
   static const release = 'release';
   static const renewal = 'renewal';
   static const restraint = 'restraint';
@@ -81,6 +85,7 @@ abstract final class NarrativeSymbolTags {
     belonging,
     bondage,
     breakthrough,
+    burden,
     change,
     choice,
     clarity,
@@ -95,8 +100,10 @@ abstract final class NarrativeSymbolTags {
     desire,
     direction,
     ending,
+    endurance,
     focus,
     freedom,
+    friction,
     grief,
     guidance,
     hope,
@@ -111,6 +118,7 @@ abstract final class NarrativeSymbolTags {
     nurture,
     pause,
     perspective,
+    recognition,
     release,
     renewal,
     restraint,

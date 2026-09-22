@@ -131,6 +131,34 @@ Chronological project execution ledger.
 | Backend modified | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3B1 — MINOR FOUNDATION + WANDS
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | MINOR FOUNDATION + WANDS 14 PROFILES |
+| Start SHA | `200a3a874fcce763cfdeb2299cfd7177dcb03290` |
+| Application source modified | **YES** (`lib/features/tarot/narrative/**` only) |
+| Test / docs modified | **YES** |
+| Total V2 profiles | **36 / 78** |
+| Major | **22 / 22** |
+| Wands | **14 / 14** |
+| Cups / Swords / Pentacles | **0 / 14** each |
+| Locale coverage | TR/EN/RU complete for all 36; full-body locale sanity |
+| Catalog | `all` · `majorProfiles` · `minorProfiles` · `wandsProfiles` — nullable lookup |
+| User path wiring | **NONE** — V2 not reachable |
+| Network / provider | **NONE** |
+| New symbol tags | `burden` · `endurance` · `friction` · `recognition` |
+| Phase 3B1 domain tests | see validation block |
+| Phase 3A regression | 8 passed |
+| Phase 2/2.1 harness | 27 passed |
+| R2 fail-closed | 20 passed |
+| Other Tarot regression | reading engine 4 · oracle quality 3 |
+| Flutter analyze | errors=0 · warnings=0 · infos=199 |
+| Full Flutter | **3669** passed · **0** failed · **15** skipped · **0** timed out |
+| Backend modified | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -143,8 +171,9 @@ Chronological project execution ledger.
 | PL-T2 | Tarot Phase 2 — quality corpus + acceptance harness | **DONE** (tests/fixtures/docs) |
 | PL-T2.1 | Tarot Phase 2.1 — harness false-positive hardening | **DONE** |
 | PL-T3A | Tarot Phase 3A — Narrative domain + Major profiles | **DONE** |
-| PL-T3B+ | Tarot Phase 3B+ — Minor profiles / Evidence Engine | PLANNED |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A done) |
+| PL-T3B1 | Tarot Phase 3B1 — Minor foundation + Wands | **DONE** |
+| PL-T3B+ | Tarot Phase 3B+ — Cups / Swords / Pentacles | PLANNED |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A+3B1 done) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
