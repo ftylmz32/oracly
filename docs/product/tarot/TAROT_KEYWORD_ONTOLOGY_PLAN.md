@@ -1,6 +1,7 @@
 # Tarot Keyword Ontology Plan — Phase 3C.5D / FR-M04
 
 **Status:** DESIGN ONLY — not implemented  
+**Active mapping revision:** Phase **3C.5D.1** (semantic repair)  
 **Branch tip at design start:** `bc9ff060801d941c16ed32b32d8708177fa20c21`  
 **Worktree:** `D:/oracly_final_r1`  
 **Production `keywordIds`:** **UNCHANGED**  
@@ -352,18 +353,15 @@ For the future implementation task (not this task):
 
 ## 16. Ambiguous mappings requiring ChatGPT review
 
-| CURRENT | Issue | Provisional |
-|---|---|---|
-| `envy` | Distinct concept vs merge into `attachment`? | **NEEDS-HUMAN-DECISION** — provisional `attachment` |
-| `pressure` SPLIT | Confirm per-card specialization table | Draft specialization exists; review each card |
-| `balance`→`stability` | Sometimes balance is active equilibration, not stability | Acceptable? or KEEP `balance` in lexicon |
-| `inquiry` vs `curiosity` | Closely related; both kept — confirm court Pages don’t collapse |
-| `delay` as keyword + transform | Content vs mechanism double-marking | Allow with lint exception |
-| High-frequency `scatter`/`haste` | Soft-weight floors for engine scoring | Confirm weight curve |
+**After 3C.5D.1:** **AMBIGUOUS MAPPINGS = 0**.
 
-**Ambiguous count for hard stop:** **1** primary (`envy`) + **5** review notes above.
+Previous provisional envy→ttachment is **rejected**. envy is KEEP.
 
----
+Review notes that remain as implementation discipline (not unresolved mappings):
+
+- pressure specialization must be re-checked against prose at implement time  
+- high-frequency scatter/haste soft-weighting belongs to Evidence Engine planning later  
+- delay dual-layer lint at implement time  
 
 ## 17. Implementation scope recommendation
 
@@ -379,8 +377,115 @@ For the future implementation task (not this task):
 
 ---
 
-## Appendix A — Canonical lexicon
 
+
+---
+
+## Phase 3C.5D.1 — semantic mapping repair
+
+**Status:** DESIGN ONLY — ACTIVE IMPLEMENTATION TARGET  
+**Start SHA:** 9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b  
+**Machine companion:** 	ool/qa/phase3c5d1_ontology_design.json  
+**Production keywordIds:** still **UNCHANGED**
+
+### Why
+
+Independent ChatGPT review approved architecture but found **semantic inversions / over-merges** in the first mapping pass (heuristic normalization over semantic review).
+
+Metric hierarchy is now locked:
+
+1. semantic fidelity  
+2. orientation fidelity  
+3. card identity  
+4. layer separation  
+5. reuse/groupability  
+6. singleton rate  
+
+### Confirmed defects repaired
+
+| Defect | Before | After |
+|---|---|---|
+| wands_08 upright speed→haste | INVERSION | momentum, messenger, low |
+| pentacles_02 upright 	woWeights/practicalBalance/juggle→ imbalance/stability/scatter | INVERSION | coordination, alance, ocus |
+| alance→stability | LOSS | **KEEP** alance distinct |
+| instability→stability | INVERSION | **KEEP** instability distinct |
+| envy→ttachment | LOSS | **KEEP** envy |
+| swords_12 upright astMind→haste | INVERSION | momentum, communication, clarity |
+| hastyUnion→union | LOSS | →haste |
+| diminishedJoy→joy | INVERSION | →withdrawal |
+| overcare→
+urture | LOSS | →
+escue |
+
+### Decision log (LOCKED)
+
+| Topic | Decision |
+|---|---|
+| envy | **KEEP** as canonical id (symbolic only; never mind-reading) |
+| balance | **KEEP** distinct from stability |
+| instability | **KEEP** distinct from stability |
+| neutral rapid motion | **momentum** — directed forward motion not inherently premature |
+| inquiry vs curiosity | **KEEP both** |
+| delay | conditional keyword+transform dual-use allowed when expression concerns postponement AND another content keyword identifies WHAT is delayed |
+| pressure | contextual split only where evidence supports; else KEEP pressure |
+
+### Pre-repair baseline (3C.5D projection)
+
+| Metric | Value |
+|---|---:|
+| Defined lexicon | 124 |
+| Used | 118 |
+| Singleton % | 24.58% |
+| Semantic inversions found by review | ≥5 classes (see table) |
+
+### Post-repair projection (ACTIVE)
+
+| Metric | Value |
+|---|---:|
+| Defined lexicon | 128 |
+| Used | 122 |
+| Total assignments | 439 |
+| Singleton ids | 30 |
+| Singleton % | 24.59% |
+| Avg upright / reversed | 2.76 / 2.87 |
+| Identical upright/reversed sets | 0 |
+| Ambiguous mappings | 0 |
+| Audit inversions/losses after repair | 0 |
+
+### Forced example upright sets
+
+| Card | Proposed upright |
+|---|---|
+| wands_08 | momentum, messenger, flow |
+| swords_12 | momentum, communication, clarity |
+| pentacles_02 | coordination, balance, focus |
+| major_11 | balance, truth, accountability |
+| major_14 | balance, integration, restraint |
+
+### Revised implementation gates (ACTIVE)
+
+Hard gates:
+
+- 78 profiles / 156 orientations mapped  
+- 2–4 ids per orientation  
+- identical upright/reversed sets = 0  
+- no semantic inversion / semantic loss / orientation collapse  
+- no unmapped current ids except documented DROP  
+- no unsafe accusation/certainty ids  
+- no duplicate id inside one orientation  
+- no transform-only orientation semantics  
+- singleton % target ≤35%, **never** via false merge  
+- all ids exist in canonical ontology  
+- prior FR/RT regressions remain green  
+
+Vocabulary: **expected review band 90–160**; exceeding allowed if required by semantic fidelity.
+
+### Ontology plan approved for implementation?
+
+**YES — pending ChatGPT confirmation of this 3C.5D.1 repair.**  
+FR-M04 remains OPEN until a separate implementation task applies ids.
+
+## Appendix A — Canonical lexicon (ACTIVE — 3C.5D.1)
 
 | ID | Definition |
 |---|---|
@@ -392,6 +497,7 @@ For the future implementation task (not this task):
 | `authority` | legitimate standing to decide |
 | `avoidance` | sidestepping what needs facing |
 | `awakening` | stirring into awareness |
+| `balance` | active equilibration between competing forces, needs, weights, or standards |
 | `belonging` | shared place among others |
 | `bias` | slanted reading of evidence |
 | `boast` | self-display over substance |
@@ -409,10 +515,11 @@ For the future implementation task (not this task):
 | `conformity` | yielding to external mold |
 | `confusion` | mixed or unclear thought |
 | `control` | dominating grip |
+| `coordination` | holding multiple demands in workable relation |
 | `courage` | willingness to face risk |
 | `craft` | skilled making / practiced ability |
 | `creation` | bringing something into form |
-| `curiosity` | open desire to learn |
+| `curiosity` | the desire / openness to learn |
 | `cycles` | repeating pattern over time |
 | `delay` | postponement of action or clarity |
 | `denial` | refusing to acknowledge |
@@ -428,6 +535,7 @@ For the future implementation task (not this task):
 | `ending` | closing of a chapter |
 | `enough` | sufficiency without excess demand |
 | `enthusiasm` | warm eager engagement |
+| `envy` | painful comparison / possessive jealousy around another's value, attention, warmth, or standing (symbolic only; never mind-reading) |
 | `escape` | leaving instead of meeting |
 | `exhaustion` | depleted capacity |
 | `externalDemand` | pressure arriving from outside |
@@ -443,11 +551,11 @@ For the future implementation task (not this task):
 | `holding` | containing feeling without forcing |
 | `hope` | forward-leaning expectation |
 | `illusion` | mis-seen appearance |
-| `imbalance` | lost equilibrium |
+| `imbalance` | lost equilibrium between competing forces or standards |
 | `impatience` | intolerance of waiting |
 | `indecision` | inability to choose |
-| `inquiry` | asking to understand |
-| `instability` | unsteady ground |
+| `inquiry` | the act/process of questioning or examining to understand |
+| `instability` | unsteady ground; loss of reliable footing |
 | `integration` | bringing parts into one whole |
 | `internalStrain` | pressure felt from within |
 | `intimacy` | close mutual emotional contact |
@@ -462,6 +570,7 @@ For the future implementation task (not this task):
 | `messenger` | bringing news without claiming mastery |
 | `mindBurden` | heavy mental load / night worry weight |
 | `misdirection` | aim turned away from true object |
+| `momentum` | directed forward motion or rapid movement that is not inherently premature |
 | `mystery` | what remains unknown |
 | `notListening` | refusal or failure to hear |
 | `nurture` | care that sustains growth |
@@ -469,7 +578,7 @@ For the future implementation task (not this task):
 | `overflow` | feeling beyond what can be held |
 | `pause` | chosen stilling |
 | `perspective` | shifted vantage |
-| `pressure` | external or internal force to perform |
+| `pressure` | force to perform when source is unspecified |
 | `principle` | rule held as fair measure |
 | `projection` | placing inner content onto others |
 | `receptivity` | openness to receive |
@@ -490,7 +599,7 @@ For the future implementation task (not this task):
 | `socialExpectation` | role pressure from others |
 | `solitude` | chosen or forced aloneness |
 | `spark` | fresh beginning impulse |
-| `stability` | steady lasting ground |
+| `stability` | steady lasting ground / continuity |
 | `stagnation` | stuck non-movement |
 | `stewardship` | caretaking of what is held |
 | `strain` | stressed tension under load |
@@ -510,567 +619,567 @@ For the future implementation task (not this task):
 | `withdrawal` | pulling inward from contact |
 
 
-## Appendix B — Full 78×orientation mapping
+## Appendix B — Full 78×orientation mapping (ACTIVE — 3C.5D.1)
 
-| Card | Ori | CURRENT | PROPOSED | Rationale |
-|---|---|---|---|---|
-| `cups_01` | upright | `firstWater`, `heldCup`, `softOpening` | `opening`, `holding` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_01` | reversed | `overflow`, `closing`, `feelingFlee` | `overflow`, `closing`, `escape` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_02` | upright | `twoCups`, `reciprocity`, `offeredCup` | `intimacy`, `reciprocity`, `opening` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_02` | reversed | `imbalance`, `projection`, `hastyUnion` | `imbalance`, `projection`, `union` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_03` | upright | `sharedTable`, `friendship`, `gathering` | `belonging`, `ending` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_03` | reversed | `surface`, `exclusion`, `noise` | `illusion`, `isolation`, `confusion` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_04` | upright | `stillCup`, `enough`, `inwardPause` | `pause`, `enough` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_04` | reversed | `ingratitude`, `escape`, `feelingBlind` | `discord`, `escape`, `confusion` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_05` | upright | `spilledCups`, `mourning`, `whatStands` | `overflow`, `grief`, `stability` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_05` | reversed | `onlyLoss`, `despair`, `denial` | `despair`, `denial` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_06` | upright | `oldCup`, `memory`, `simplicity` | `roots`, `clarity` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_06` | reversed | `pastLock`, `childRole`, `missingNow` | `bondage`, `socialExpectation`, `escape` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_07` | upright | `manyCups`, `options`, `touchOne` | `overflow`, `choice`, `focus` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_07` | reversed | `escapeDream`, `indecision`, `mirage` | `escape`, `indecision`, `illusion` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_08` | upright | `cupLeft`, `deeperSearch`, `turning` | `withdrawal`, `inquiry`, `change` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_08` | reversed | `burnLeave`, `escape`, `halfSearch` | `escape`, `inquiry` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_09` | upright | `fullCup`, `innerEnough`, `quietTaste` | `enough`, `joy` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_09` | reversed | `inflation`, `loneVictory`, `display` | `boast`, `isolation`, `display` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_10` | upright | `fullTable`, `sharedCircle`, `calmBelonging` | `belonging`, `union` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_10` | reversed | `idealStage`, `forcedJoy`, `hiddenCracks` | `illusion`, `display`, `denial` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_11` | upright | `waterMessenger`, `softCuriosity`, `feelingLanguage` | `messenger`, `curiosity`, `receptivity` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_11` | reversed | `overSensitivity`, `escapeDream`, `oracleFeeling` | `overflow`, `escape`, `illusion` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_12` | upright | `cupOnRoad`, `offer`, `flow` | `threshold`, `opening`, `flow` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_12` | reversed | `scatteredHeart`, `escapeRomance`, `flungOffer` | `scatter`, `escape`, `haste` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_13` | upright | `matureVessel`, `compassion`, `holding` | `stewardship`, `compassion`, `holding` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_13` | reversed | `overflow`, `noBoundary`, `rescuing` | `overflow`, `boundary`, `rescue` | map current→canonical; preserve transform content without duplicating transform enums |
-| `cups_14` | upright | `steeringWater`, `measuredFlow`, `calmStance` | `direction`, `flow`, `restraint` | map current→canonical; density 2–4; orientation-distinct |
-| `cups_14` | reversed | `coldness`, `suppression`, `frozenStance` | `coldness`, `suppression`, `rigidity` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_00` | upright | `threshold`, `curiosity`, `freedom` | `threshold`, `curiosity`, `freedom` | map current→canonical; density 2–4; orientation-distinct |
-| `major_00` | reversed | `haste`, `scatter`, `avoidance` | `haste`, `scatter`, `avoidance` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_01` | upright | `craft`, `focus`, `agency` | `craft`, `focus`, `agency` | map current→canonical; density 2–4; orientation-distinct |
-| `major_01` | reversed | `scatter`, `control`, `doubt` | `scatter`, `control`, `doubt` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_02` | upright | `silence`, `intuition`, `mystery` | `silence`, `intuition`, `mystery` | map current→canonical; density 2–4; orientation-distinct |
-| `major_02` | reversed | `secrecy`, `confusion`, `withdrawal` | `silence`, `confusion`, `withdrawal` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_03` | upright | `nurture`, `abundance`, `creation` | `nurture`, `abundance`, `creation` | map current→canonical; density 2–4; orientation-distinct |
-| `major_03` | reversed | `depletion`, `overcare`, `neglect` | `exhaustion`, `nurture`, `withdrawal` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_04` | upright | `structure`, `authority`, `stability` | `structure`, `authority`, `stability` | map current→canonical; density 2–4; orientation-distinct |
-| `major_04` | reversed | `rigidity`, `control`, `instability` | `rigidity`, `control`, `stability` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_05` | upright | `teaching`, `tradition`, `values` | `teaching`, `tradition`, `values` | map current→canonical; density 2–4; orientation-distinct |
-| `major_05` | reversed | `conformity`, `dogma`, `questioning` | `conformity`, `rigidity`, `learning` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_06` | upright | `choice`, `union`, `values` | `choice`, `union`, `values` | map current→canonical; density 2–4; orientation-distinct |
-| `major_06` | reversed | `discord`, `indecision`, `misalignment` | `discord`, `indecision`, `imbalance` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_07` | upright | `movement`, `will`, `direction` | `direction`, `will` | map current→canonical; density 2–4; orientation-distinct |
-| `major_07` | reversed | `stall`, `drift`, `overcontrol` | `delay`, `scatter`, `control` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_08` | upright | `courage`, `compassion`, `restraint` | `courage`, `compassion`, `restraint` | map current→canonical; density 2–4; orientation-distinct |
-| `major_08` | reversed | `selfDoubt`, `suppression`, `strain` | `doubt`, `suppression`, `strain` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_09` | upright | `solitude`, `wisdom`, `inquiry` | `solitude`, `wisdom`, `inquiry` | map current→canonical; density 2–4; orientation-distinct |
-| `major_09` | reversed | `isolation`, `withdrawal`, `silence` | `isolation`, `withdrawal`, `silence` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_10` | upright | `cycles`, `change`, `timing` | `cycles`, `change`, `timing` | map current→canonical; density 2–4; orientation-distinct |
-| `major_10` | reversed | `resistance`, `delay`, `instability` | `resistance`, `delay`, `stability` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_11` | upright | `balance`, `truth`, `accountability` | `stability`, `truth`, `accountability` | map current→canonical; density 2–4; orientation-distinct |
-| `major_11` | reversed | `bias`, `denial`, `imbalance` | `bias`, `denial`, `imbalance` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_12` | upright | `surrender`, `perspective`, `pause` | `ending`, `perspective`, `pause` | map current→canonical; density 2–4; orientation-distinct |
-| `major_12` | reversed | `stagnation`, `resistance`, `sacrifice` | `stagnation`, `resistance`, `release` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_13` | upright | `transformation`, `release`, `ending` | `change`, `release`, `ending` | map current→canonical; density 2–4; orientation-distinct |
-| `major_13` | reversed | `resistance`, `stagnation`, `grief` | `resistance`, `stagnation`, `grief` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_14` | upright | `balance`, `integration`, `alchemy` | `stability`, `integration` | map current→canonical; density 2–4; orientation-distinct |
-| `major_14` | reversed | `imbalance`, `haste`, `extremes` | `imbalance`, `haste` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_15` | upright | `attachment`, `desire`, `bondage` | `attachment`, `desire`, `bondage` | map current→canonical; density 2–4; orientation-distinct |
-| `major_15` | reversed | `release`, `denial`, `compulsion` | `release`, `denial`, `control` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_16` | upright | `upheaval`, `truth`, `breakthrough` | `change`, `truth`, `threshold` | map current→canonical; density 2–4; orientation-distinct |
-| `major_16` | reversed | `resistance`, `instability`, `avoidance` | `resistance`, `stability`, `avoidance` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_17` | upright | `hope`, `guidance`, `renewal` | `hope`, `guidance`, `renewal` | map current→canonical; density 2–4; orientation-distinct |
-| `major_17` | reversed | `discouragement`, `doubt`, `disconnection` | `despair`, `doubt`, `isolation` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_18` | upright | `illusion`, `subconscious`, `uncertainty` | `illusion`, `mystery`, `uncertainty` | map current→canonical; density 2–4; orientation-distinct |
-| `major_18` | reversed | `confusion`, `projection`, `fear` | `confusion`, `projection`, `fear` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_19` | upright | `clarity`, `vitality`, `joy` | `clarity`, `vitality`, `joy` | map current→canonical; density 2–4; orientation-distinct |
-| `major_19` | reversed | `diminishedJoy`, `delay`, `overexposure` | `joy`, `delay`, `overflow` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_20` | upright | `awakening`, `accountability`, `renewal` | `awakening`, `accountability`, `renewal` | map current→canonical; density 2–4; orientation-distinct |
-| `major_20` | reversed | `selfJudgment`, `avoidance`, `doubt` | `judgment`, `avoidance`, `doubt` | map current→canonical; preserve transform content without duplicating transform enums |
-| `major_21` | upright | `completion`, `belonging`, `integration` | `completion`, `belonging`, `integration` | map current→canonical; density 2–4; orientation-distinct |
-| `major_21` | reversed | `incompletion`, `delay`, `disconnection` | `completion`, `delay`, `isolation` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_01` | upright | `firstSeed`, `matterInHand`, `plant` | `spark`, `resource`, `stewardship` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_01` | reversed | `rushedYield`, `emptyCount`, `unplanted` | `haste`, `scarcity`, `delay` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_02` | upright | `twoWeights`, `practicalBalance`, `juggle` | `imbalance`, `stability`, `scatter` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_02` | reversed | `scatter`, `indecision`, `overGrip` | `scatter`, `indecision`, `control` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_03` | upright | `sharedCraft`, `workshop`, `wovenWork` | `craft`, `belonging` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_03` | reversed | `visibilityRace`, `deniedShare`, `unwoven` | `display`, `withdrawal`, `instability` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_04` | upright | `closedHand`, `thresholdGuard`, `holding` | `scarcity`, `holding` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_04` | reversed | `lockedGrip`, `refusal`, `fearHold` | `control`, `resistance`, `fear` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_05` | upright | `outsideThreshold`, `feltScarcity`, `strain` | `holding`, `scarcity`, `strain` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_05` | reversed | `shame`, `unworthiness`, `closedHelp` | `shame`, `doubt`, `withdrawal` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_06` | upright | `giveReceive`, `weighedScales`, `share` | `reciprocity`, `fairness`, `belonging` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_06` | reversed | `mercyDisplay`, `loadedDebt`, `shameReceive` | `display`, `burden`, `shame` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_07` | upright | `notYetRipe`, `cultivation`, `patience` | `timing`, `stewardship`, `pause` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_07` | reversed | `frozenWait`, `prematurePull`, `blindDelay` | `coldness`, `haste`, `delay` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_08` | upright | `repeatingHand`, `mastery`, `discipline` | `cycles`, `mastery`, `discipline` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_08` | reversed | `mechanicalLoop`, `exhaustion`, `noAdvance` | `cycles`, `exhaustion`, `stagnation` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_09` | upright | `enoughness`, `ownLabor`, `sufficiency` | `enough`, `craft` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_09` | reversed | `shopWindow`, `shutSolitude`, `refuseShare` | `display`, `solitude`, `withdrawal` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_10` | upright | `lastingLineage`, `sharedStructure`, `roots` | `roots`, `structure` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_10` | reversed | `forcedRole`, `petrifiedRoots`, `lineagePressure` | `socialExpectation`, `rigidity` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_11` | upright | `studentHand`, `practicalCuriosity`, `matterMessenger` | `learning`, `curiosity`, `messenger` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_11` | reversed | `rushSell`, `shallowCopy`, `postponeLearn` | `haste`, `display`, `delay` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_12` | upright | `slowRoad`, `fieldTempo`, `steadfastness` | `pause`, `timing`, `stability` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_12` | reversed | `rigidity`, `fearOfSpeed`, `noTurn` | `rigidity`, `stability` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_13` | upright | `practicalCare`, `stewardship`, `fertileHand` | `nurture`, `stewardship` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_13` | reversed | `smotherControl`, `selfExhaust`, `overTake` | `control`, `exhaustion` | map current→canonical; preserve transform content without duplicating transform enums |
-| `pentacles_14` | upright | `rootedMeans`, `accountability`, `materialDirection` | `roots`, `accountability`, `direction` | map current→canonical; density 2–4; orientation-distinct |
-| `pentacles_14` | reversed | `rigidAuthority`, `pressure`, `castLoad` | `rigidity`, `socialExpectation`, `burden` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_01` | upright | `firstEdge`, `clearIdea`, `air` | `opening`, `clarity` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_01` | reversed | `harshWord`, `scatteredMind`, `cuttingToCut` | `harshSpeech`, `scatter` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_02` | upright | `stalemate`, `twoThoughts`, `closedEyes` | `stagnation`, `indecision`, `denial` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_02` | reversed | `decisionFlight`, `denial`, `freeze` | `escape`, `denial`, `coldness` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_03` | upright | `brokenWord`, `painfulClarity`, `heartEdge` | `truth`, `clarity`, `boundary` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_03` | reversed | `dramaticPain`, `blame`, `unclosed` | `grief`, `projection`, `closing` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_04` | upright | `rest`, `mindPause`, `sheath` | `pause`, `restraint` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_04` | reversed | `escapeSleep`, `defer`, `numbness` | `escape`, `delay`, `withdrawal` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_05` | upright | `hollowWin`, `warOfWords`, `hurting` | `illusion`, `harshSpeech`, `grief` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_05` | reversed | `humiliation`, `revenge`, `beingLeft` | `shame`, `anger`, `fear` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_06` | upright | `crossing`, `calmWater`, `carrying` | `threshold`, `flow`, `burden` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_06` | reversed | `escape`, `pastCargo`, `arrivalFear` | `escape`, `burden`, `fear` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_07` | upright | `hiding`, `strategy`, `unseenDraw` | `withdrawal`, `discernment`, `ending` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_07` | reversed | `theftFeeling`, `mistrust`, `lonePlan` | `fear`, `doubt`, `isolation` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_08` | upright | `tightness`, `boundMind`, `ownSword` | `strain`, `bondage`, `harshSpeech` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_08` | reversed | `victimStory`, `immobility`, `fearWeb` | `projection`, `stagnation`, `fear` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_09` | upright | `nightThought`, `mindLoad`, `worry` | `mindBurden`, `shadow` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_09` | reversed | `catastropheDream`, `insomniaIdentity`, `guilt` | `fear`, `mindBurden`, `burden` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_10` | upright | `mentalEnding`, `finishedWar`, `enough` | `ending`, `enough` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_10` | reversed | `disasterIdentity`, `notRising`, `allOverStory` | `despair`, `stagnation` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_11` | upright | `airMessenger`, `sharpStudent`, `question` | `messenger`, `learning`, `inquiry` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_11` | reversed | `gossip`, `hastyVerdict`, `notListening` | `harshSpeech`, `haste`, `notListening` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_12` | upright | `fastMind`, `wordHorse`, `forwardCut` | `haste`, `harshSpeech`, `clarity` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_12` | reversed | `thoughtlessSpeed`, `attackSpeech`, `notListening` | `haste`, `harshSpeech`, `notListening` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_13` | upright | `honestBoundary`, `sharpKindness`, `clearWord` | `boundary`, `restraint`, `communication` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_13` | reversed | `coldVerdict`, `distanceWeapon`, `bitterTongue` | `harshSpeech`, `coldness` | map current→canonical; preserve transform content without duplicating transform enums |
-| `swords_14` | upright | `principle`, `calmJudgement`, `mindSpine` | `principle`, `judgment` | map current→canonical; density 2–4; orientation-distinct |
-| `swords_14` | reversed | `rigidity`, `heartlessRule`, `distanceIdol` | `rigidity`, `coldness` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_01` | upright | `spark`, `intent`, `motion` | `spark`, `agency`, `direction` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_01` | reversed | `dulling`, `scatter`, `defer` | `withdrawal`, `scatter`, `delay` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_02` | upright | `twoPaths`, `waiting`, `horizon` | `choice`, `pause`, `perspective` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_02` | reversed | `indecision`, `hastyPick`, `apathy` | `indecision`, `haste`, `withdrawal` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_03` | upright | `growth`, `horizon`, `firstFruit` | `renewal`, `perspective`, `opening` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_03` | reversed | `impatience`, `scatter`, `boast` | `impatience`, `scatter`, `boast` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_04` | upright | `thresholdFeast`, `root`, `pause` | `holding`, `roots`, `pause` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_04` | reversed | `earlyFeast`, `scatter`, `unsettled` | `haste`, `scatter`, `instability` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_05` | upright | `trial`, `friction`, `honor` | `strain`, `discord`, `values` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_05` | reversed | `defeatStory`, `anger`, `givingUp` | `despair`, `anger` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_06` | upright | `crossing`, `notice`, `breath` | `threshold`, `inquiry` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_06` | reversed | `boast`, `stuckInPast`, `stage` | `boast`, `bondage`, `display` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_07` | upright | `stance`, `boundary`, `fireAlone` | `boundary`, `isolation` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_07` | reversed | `siegeFeeling`, `harshness`, `isolation` | `pressure`, `harshSpeech`, `isolation` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_08` | upright | `speed`, `news`, `flow` | `haste`, `messenger`, `flow` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_08` | reversed | `haste`, `scatter`, `impatience` | `haste`, `scatter`, `impatience` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_09` | upright | `lastFire`, `watch`, `endurance` | `ending`, `restraint` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_09` | reversed | `exhaustion`, `doubt`, `loneWar` | `exhaustion`, `doubt`, `isolation` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_10` | upright | `load`, `tooMuchFire`, `duty` | `burden`, `scatter`, `accountability` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_10` | reversed | `heroPlay`, `collapseFear`, `cannotDelegate` | `display`, `fear`, `control` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_11` | upright | `message`, `studentFire`, `curiosity` | `messenger`, `learning`, `curiosity` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_11` | reversed | `scatteredZeal`, `boast`, `notListening` | `scatter`, `boast`, `notListening` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_12` | upright | `journey`, `passion`, `forwardFire` | `threshold`, `desire`, `direction` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_12` | reversed | `haste`, `scatteredPassion`, `seekingBattle` | `haste`, `scatter`, `anger` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_13` | upright | `warmHouse`, `matureFire`, `invitation` | `nurture`, `mastery`, `opening` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_13` | reversed | `control`, `envy`, `dimming` | `control`, `attachment`, `withdrawal` | map current→canonical; preserve transform content without duplicating transform enums |
-| `wands_14` | upright | `directingFire`, `responsibleSpark`, `vision` | `direction`, `spark`, `perspective` | map current→canonical; density 2–4; orientation-distinct |
-| `wands_14` | reversed | `pressure`, `ego`, `notListening` | `externalDemand`, `boast`, `notListening` | map current→canonical; preserve transform content without duplicating transform enums |
+| Card | Ori | CURRENT | PROPOSED |
+|---|---|---|---|
+| `cups_01` | upright | `firstWater`, `heldCup`, `softOpening` | `opening`, `holding` |
+| `cups_01` | reversed | `overflow`, `closing`, `feelingFlee` | `overflow`, `closing`, `escape` |
+| `cups_02` | upright | `twoCups`, `reciprocity`, `offeredCup` | `intimacy`, `reciprocity`, `opening` |
+| `cups_02` | reversed | `imbalance`, `projection`, `hastyUnion` | `imbalance`, `projection`, `haste` |
+| `cups_03` | upright | `sharedTable`, `friendship`, `gathering` | `belonging`, `ending` |
+| `cups_03` | reversed | `surface`, `exclusion`, `noise` | `illusion`, `isolation`, `confusion` |
+| `cups_04` | upright | `stillCup`, `enough`, `inwardPause` | `pause`, `enough` |
+| `cups_04` | reversed | `ingratitude`, `escape`, `feelingBlind` | `discord`, `escape`, `confusion` |
+| `cups_05` | upright | `spilledCups`, `mourning`, `whatStands` | `overflow`, `grief`, `stability` |
+| `cups_05` | reversed | `onlyLoss`, `despair`, `denial` | `despair`, `denial` |
+| `cups_06` | upright | `oldCup`, `memory`, `simplicity` | `roots`, `clarity` |
+| `cups_06` | reversed | `pastLock`, `childRole`, `missingNow` | `bondage`, `socialExpectation`, `escape` |
+| `cups_07` | upright | `manyCups`, `options`, `touchOne` | `overflow`, `choice`, `focus` |
+| `cups_07` | reversed | `escapeDream`, `indecision`, `mirage` | `escape`, `indecision`, `illusion` |
+| `cups_08` | upright | `cupLeft`, `deeperSearch`, `turning` | `withdrawal`, `inquiry`, `change` |
+| `cups_08` | reversed | `burnLeave`, `escape`, `halfSearch` | `escape`, `inquiry` |
+| `cups_09` | upright | `fullCup`, `innerEnough`, `quietTaste` | `enough`, `joy` |
+| `cups_09` | reversed | `inflation`, `loneVictory`, `display` | `boast`, `isolation`, `display` |
+| `cups_10` | upright | `fullTable`, `sharedCircle`, `calmBelonging` | `belonging`, `union` |
+| `cups_10` | reversed | `idealStage`, `forcedJoy`, `hiddenCracks` | `illusion`, `display`, `denial` |
+| `cups_11` | upright | `waterMessenger`, `softCuriosity`, `feelingLanguage` | `messenger`, `curiosity`, `receptivity` |
+| `cups_11` | reversed | `overSensitivity`, `escapeDream`, `oracleFeeling` | `overflow`, `escape`, `illusion` |
+| `cups_12` | upright | `cupOnRoad`, `offer`, `flow` | `threshold`, `opening`, `flow` |
+| `cups_12` | reversed | `scatteredHeart`, `escapeRomance`, `flungOffer` | `scatter`, `escape`, `haste` |
+| `cups_13` | upright | `matureVessel`, `compassion`, `holding` | `stewardship`, `compassion`, `holding` |
+| `cups_13` | reversed | `overflow`, `noBoundary`, `rescuing` | `overflow`, `boundary`, `rescue` |
+| `cups_14` | upright | `steeringWater`, `measuredFlow`, `calmStance` | `direction`, `flow`, `restraint` |
+| `cups_14` | reversed | `coldness`, `suppression`, `frozenStance` | `coldness`, `suppression`, `rigidity` |
+| `major_00` | upright | `threshold`, `curiosity`, `freedom` | `threshold`, `curiosity`, `freedom` |
+| `major_00` | reversed | `haste`, `scatter`, `avoidance` | `haste`, `scatter`, `avoidance` |
+| `major_01` | upright | `craft`, `focus`, `agency` | `craft`, `focus`, `agency` |
+| `major_01` | reversed | `scatter`, `control`, `doubt` | `scatter`, `control`, `doubt` |
+| `major_02` | upright | `silence`, `intuition`, `mystery` | `silence`, `intuition`, `mystery` |
+| `major_02` | reversed | `secrecy`, `confusion`, `withdrawal` | `silence`, `confusion`, `withdrawal` |
+| `major_03` | upright | `nurture`, `abundance`, `creation` | `nurture`, `abundance`, `creation` |
+| `major_03` | reversed | `depletion`, `overcare`, `neglect` | `exhaustion`, `rescue`, `withdrawal` |
+| `major_04` | upright | `structure`, `authority`, `stability` | `structure`, `authority`, `stability` |
+| `major_04` | reversed | `rigidity`, `control`, `instability` | `rigidity`, `control`, `instability` |
+| `major_05` | upright | `teaching`, `tradition`, `values` | `teaching`, `tradition`, `values` |
+| `major_05` | reversed | `conformity`, `dogma`, `questioning` | `conformity`, `rigidity`, `learning` |
+| `major_06` | upright | `choice`, `union`, `values` | `choice`, `union`, `values` |
+| `major_06` | reversed | `discord`, `indecision`, `misalignment` | `discord`, `indecision`, `imbalance` |
+| `major_07` | upright | `movement`, `will`, `direction` | `momentum`, `will`, `direction` |
+| `major_07` | reversed | `stall`, `drift`, `overcontrol` | `delay`, `scatter`, `control` |
+| `major_08` | upright | `courage`, `compassion`, `restraint` | `courage`, `compassion`, `restraint` |
+| `major_08` | reversed | `selfDoubt`, `suppression`, `strain` | `doubt`, `suppression`, `strain` |
+| `major_09` | upright | `solitude`, `wisdom`, `inquiry` | `solitude`, `wisdom`, `inquiry` |
+| `major_09` | reversed | `isolation`, `withdrawal`, `silence` | `isolation`, `withdrawal`, `silence` |
+| `major_10` | upright | `cycles`, `change`, `timing` | `cycles`, `change`, `timing` |
+| `major_10` | reversed | `resistance`, `delay`, `instability` | `resistance`, `delay`, `instability` |
+| `major_11` | upright | `balance`, `truth`, `accountability` | `balance`, `truth`, `accountability` |
+| `major_11` | reversed | `bias`, `denial`, `imbalance` | `bias`, `denial`, `imbalance` |
+| `major_12` | upright | `surrender`, `perspective`, `pause` | `ending`, `perspective`, `pause` |
+| `major_12` | reversed | `stagnation`, `resistance`, `sacrifice` | `stagnation`, `resistance`, `release` |
+| `major_13` | upright | `transformation`, `release`, `ending` | `change`, `release`, `ending` |
+| `major_13` | reversed | `resistance`, `stagnation`, `grief` | `resistance`, `stagnation`, `grief` |
+| `major_14` | upright | `balance`, `integration`, `alchemy` | `balance`, `integration`, `restraint` |
+| `major_14` | reversed | `imbalance`, `haste`, `extremes` | `imbalance`, `haste`, `scatter` |
+| `major_15` | upright | `attachment`, `desire`, `bondage` | `attachment`, `desire`, `bondage` |
+| `major_15` | reversed | `release`, `denial`, `compulsion` | `release`, `denial`, `control` |
+| `major_16` | upright | `upheaval`, `truth`, `breakthrough` | `change`, `truth`, `threshold` |
+| `major_16` | reversed | `resistance`, `instability`, `avoidance` | `resistance`, `instability`, `avoidance` |
+| `major_17` | upright | `hope`, `guidance`, `renewal` | `hope`, `guidance`, `renewal` |
+| `major_17` | reversed | `discouragement`, `doubt`, `disconnection` | `despair`, `doubt`, `isolation` |
+| `major_18` | upright | `illusion`, `subconscious`, `uncertainty` | `illusion`, `mystery`, `uncertainty` |
+| `major_18` | reversed | `confusion`, `projection`, `fear` | `confusion`, `projection`, `fear` |
+| `major_19` | upright | `clarity`, `vitality`, `joy` | `clarity`, `vitality`, `joy` |
+| `major_19` | reversed | `diminishedJoy`, `delay`, `overexposure` | `withdrawal`, `delay`, `overflow` |
+| `major_20` | upright | `awakening`, `accountability`, `renewal` | `awakening`, `accountability`, `renewal` |
+| `major_20` | reversed | `selfJudgment`, `avoidance`, `doubt` | `judgment`, `avoidance`, `doubt` |
+| `major_21` | upright | `completion`, `belonging`, `integration` | `completion`, `belonging`, `integration` |
+| `major_21` | reversed | `incompletion`, `delay`, `disconnection` | `completion`, `delay`, `isolation` |
+| `pentacles_01` | upright | `firstSeed`, `matterInHand`, `plant` | `spark`, `resource`, `stewardship` |
+| `pentacles_01` | reversed | `rushedYield`, `emptyCount`, `unplanted` | `haste`, `scarcity`, `delay` |
+| `pentacles_02` | upright | `twoWeights`, `practicalBalance`, `juggle` | `coordination`, `balance`, `focus` |
+| `pentacles_02` | reversed | `scatter`, `indecision`, `overGrip` | `scatter`, `indecision`, `control` |
+| `pentacles_03` | upright | `sharedCraft`, `workshop`, `wovenWork` | `craft`, `belonging` |
+| `pentacles_03` | reversed | `visibilityRace`, `deniedShare`, `unwoven` | `display`, `withdrawal`, `instability` |
+| `pentacles_04` | upright | `closedHand`, `thresholdGuard`, `holding` | `scarcity`, `holding` |
+| `pentacles_04` | reversed | `lockedGrip`, `refusal`, `fearHold` | `control`, `resistance`, `fear` |
+| `pentacles_05` | upright | `outsideThreshold`, `feltScarcity`, `strain` | `holding`, `scarcity`, `strain` |
+| `pentacles_05` | reversed | `shame`, `unworthiness`, `closedHelp` | `shame`, `doubt`, `withdrawal` |
+| `pentacles_06` | upright | `giveReceive`, `weighedScales`, `share` | `reciprocity`, `fairness`, `belonging` |
+| `pentacles_06` | reversed | `mercyDisplay`, `loadedDebt`, `shameReceive` | `display`, `burden`, `shame` |
+| `pentacles_07` | upright | `notYetRipe`, `cultivation`, `patience` | `timing`, `stewardship`, `pause` |
+| `pentacles_07` | reversed | `frozenWait`, `prematurePull`, `blindDelay` | `coldness`, `haste`, `delay` |
+| `pentacles_08` | upright | `repeatingHand`, `mastery`, `discipline` | `cycles`, `mastery`, `discipline` |
+| `pentacles_08` | reversed | `mechanicalLoop`, `exhaustion`, `noAdvance` | `cycles`, `exhaustion`, `stagnation` |
+| `pentacles_09` | upright | `enoughness`, `ownLabor`, `sufficiency` | `enough`, `craft` |
+| `pentacles_09` | reversed | `shopWindow`, `shutSolitude`, `refuseShare` | `display`, `solitude`, `withdrawal` |
+| `pentacles_10` | upright | `lastingLineage`, `sharedStructure`, `roots` | `roots`, `structure` |
+| `pentacles_10` | reversed | `forcedRole`, `petrifiedRoots`, `lineagePressure` | `socialExpectation`, `rigidity` |
+| `pentacles_11` | upright | `studentHand`, `practicalCuriosity`, `matterMessenger` | `learning`, `curiosity`, `messenger` |
+| `pentacles_11` | reversed | `rushSell`, `shallowCopy`, `postponeLearn` | `haste`, `display`, `delay` |
+| `pentacles_12` | upright | `slowRoad`, `fieldTempo`, `steadfastness` | `pause`, `timing`, `stability` |
+| `pentacles_12` | reversed | `rigidity`, `fearOfSpeed`, `noTurn` | `rigidity`, `stability` |
+| `pentacles_13` | upright | `practicalCare`, `stewardship`, `fertileHand` | `nurture`, `stewardship` |
+| `pentacles_13` | reversed | `smotherControl`, `selfExhaust`, `overTake` | `control`, `exhaustion` |
+| `pentacles_14` | upright | `rootedMeans`, `accountability`, `materialDirection` | `roots`, `accountability`, `direction` |
+| `pentacles_14` | reversed | `rigidAuthority`, `pressure`, `castLoad` | `rigidity`, `socialExpectation`, `burden` |
+| `swords_01` | upright | `firstEdge`, `clearIdea`, `air` | `opening`, `clarity` |
+| `swords_01` | reversed | `harshWord`, `scatteredMind`, `cuttingToCut` | `harshSpeech`, `scatter` |
+| `swords_02` | upright | `stalemate`, `twoThoughts`, `closedEyes` | `stagnation`, `indecision`, `denial` |
+| `swords_02` | reversed | `decisionFlight`, `denial`, `freeze` | `escape`, `denial`, `coldness` |
+| `swords_03` | upright | `brokenWord`, `painfulClarity`, `heartEdge` | `truth`, `clarity`, `boundary` |
+| `swords_03` | reversed | `dramaticPain`, `blame`, `unclosed` | `grief`, `projection`, `closing` |
+| `swords_04` | upright | `rest`, `mindPause`, `sheath` | `pause`, `restraint` |
+| `swords_04` | reversed | `escapeSleep`, `defer`, `numbness` | `escape`, `delay`, `withdrawal` |
+| `swords_05` | upright | `hollowWin`, `warOfWords`, `hurting` | `illusion`, `harshSpeech`, `grief` |
+| `swords_05` | reversed | `humiliation`, `revenge`, `beingLeft` | `shame`, `anger`, `fear` |
+| `swords_06` | upright | `crossing`, `calmWater`, `carrying` | `threshold`, `flow`, `burden` |
+| `swords_06` | reversed | `escape`, `pastCargo`, `arrivalFear` | `escape`, `burden`, `fear` |
+| `swords_07` | upright | `hiding`, `strategy`, `unseenDraw` | `withdrawal`, `discernment`, `ending` |
+| `swords_07` | reversed | `theftFeeling`, `mistrust`, `lonePlan` | `fear`, `doubt`, `isolation` |
+| `swords_08` | upright | `tightness`, `boundMind`, `ownSword` | `strain`, `bondage`, `harshSpeech` |
+| `swords_08` | reversed | `victimStory`, `immobility`, `fearWeb` | `projection`, `stagnation`, `fear` |
+| `swords_09` | upright | `nightThought`, `mindLoad`, `worry` | `mindBurden`, `shadow` |
+| `swords_09` | reversed | `catastropheDream`, `insomniaIdentity`, `guilt` | `fear`, `mindBurden`, `burden` |
+| `swords_10` | upright | `mentalEnding`, `finishedWar`, `enough` | `ending`, `enough` |
+| `swords_10` | reversed | `disasterIdentity`, `notRising`, `allOverStory` | `despair`, `stagnation` |
+| `swords_11` | upright | `airMessenger`, `sharpStudent`, `question` | `messenger`, `learning`, `inquiry` |
+| `swords_11` | reversed | `gossip`, `hastyVerdict`, `notListening` | `harshSpeech`, `haste`, `notListening` |
+| `swords_12` | upright | `fastMind`, `wordHorse`, `forwardCut` | `momentum`, `communication`, `clarity` |
+| `swords_12` | reversed | `thoughtlessSpeed`, `attackSpeech`, `notListening` | `haste`, `harshSpeech`, `notListening` |
+| `swords_13` | upright | `honestBoundary`, `sharpKindness`, `clearWord` | `boundary`, `restraint`, `communication` |
+| `swords_13` | reversed | `coldVerdict`, `distanceWeapon`, `bitterTongue` | `harshSpeech`, `coldness` |
+| `swords_14` | upright | `principle`, `calmJudgement`, `mindSpine` | `principle`, `judgment` |
+| `swords_14` | reversed | `rigidity`, `heartlessRule`, `distanceIdol` | `rigidity`, `coldness` |
+| `wands_01` | upright | `spark`, `intent`, `motion` | `spark`, `agency`, `momentum` |
+| `wands_01` | reversed | `dulling`, `scatter`, `defer` | `withdrawal`, `scatter`, `delay` |
+| `wands_02` | upright | `twoPaths`, `waiting`, `horizon` | `choice`, `pause`, `perspective` |
+| `wands_02` | reversed | `indecision`, `hastyPick`, `apathy` | `indecision`, `haste`, `withdrawal` |
+| `wands_03` | upright | `growth`, `horizon`, `firstFruit` | `renewal`, `perspective`, `opening` |
+| `wands_03` | reversed | `impatience`, `scatter`, `boast` | `impatience`, `scatter`, `boast` |
+| `wands_04` | upright | `thresholdFeast`, `root`, `pause` | `holding`, `roots`, `pause` |
+| `wands_04` | reversed | `earlyFeast`, `scatter`, `unsettled` | `haste`, `scatter`, `instability` |
+| `wands_05` | upright | `trial`, `friction`, `honor` | `strain`, `discord`, `values` |
+| `wands_05` | reversed | `defeatStory`, `anger`, `givingUp` | `despair`, `anger` |
+| `wands_06` | upright | `crossing`, `notice`, `breath` | `threshold`, `inquiry` |
+| `wands_06` | reversed | `boast`, `stuckInPast`, `stage` | `boast`, `bondage`, `display` |
+| `wands_07` | upright | `stance`, `boundary`, `fireAlone` | `boundary`, `isolation` |
+| `wands_07` | reversed | `siegeFeeling`, `harshness`, `isolation` | `pressure`, `harshSpeech`, `isolation` |
+| `wands_08` | upright | `speed`, `news`, `flow` | `momentum`, `messenger`, `flow` |
+| `wands_08` | reversed | `haste`, `scatter`, `impatience` | `haste`, `scatter`, `impatience` |
+| `wands_09` | upright | `lastFire`, `watch`, `endurance` | `ending`, `restraint` |
+| `wands_09` | reversed | `exhaustion`, `doubt`, `loneWar` | `exhaustion`, `doubt`, `isolation` |
+| `wands_10` | upright | `load`, `tooMuchFire`, `duty` | `burden`, `scatter`, `accountability` |
+| `wands_10` | reversed | `heroPlay`, `collapseFear`, `cannotDelegate` | `display`, `fear`, `control` |
+| `wands_11` | upright | `message`, `studentFire`, `curiosity` | `messenger`, `learning`, `curiosity` |
+| `wands_11` | reversed | `scatteredZeal`, `boast`, `notListening` | `scatter`, `boast`, `notListening` |
+| `wands_12` | upright | `journey`, `passion`, `forwardFire` | `threshold`, `desire`, `direction` |
+| `wands_12` | reversed | `haste`, `scatteredPassion`, `seekingBattle` | `haste`, `scatter`, `anger` |
+| `wands_13` | upright | `warmHouse`, `matureFire`, `invitation` | `nurture`, `mastery`, `opening` |
+| `wands_13` | reversed | `control`, `envy`, `dimming` | `control`, `envy`, `withdrawal` |
+| `wands_14` | upright | `directingFire`, `responsibleSpark`, `vision` | `direction`, `spark`, `perspective` |
+| `wands_14` | reversed | `pressure`, `ego`, `notListening` | `externalDemand`, `boast`, `notListening` |
 
 
-## Appendix C — Current→canonical migration table
+## Appendix C — Current→canonical migration table (ACTIVE — 3C.5D.1)
 
 | CURRENT | CLASS | PROPOSED | NOTE |
 |---|---|---|---|
-| `abundance` | KEEP | `abundance` |  |
+| `abundance` | KEEP | `abundance` |  / polarity-checked |
 | `accountability` | KEEP | `accountability` |  |
-| `agency` | KEEP | `agency` |  |
+| `agency` | KEEP | `agency` |  / polarity-checked |
 | `air` | DROP-AS-DECORATIVE | — | elemental label redundant with suit |
-| `airMessenger` | MERGE | `messenger` | suit messenger → messenger |
-| `alchemy` | MERGE | `integration` | synonym merge |
-| `allOverStory` | MERGE | `despair` | synonym merge |
-| `anger` | KEEP | `anger` |  |
-| `apathy` | MERGE | `withdrawal` | synonym merge |
-| `arrivalFear` | MERGE | `fear` | synonym merge |
+| `airMessenger` | MERGE | `messenger` | suit messenger → messenger / polarity-checked |
+| `alchemy` | MERGE | `integration` | imagery merge to integration |
+| `allOverStory` | MERGE | `despair` | synonym merge / polarity-checked |
+| `anger` | KEEP | `anger` |  / polarity-checked |
+| `apathy` | MERGE | `withdrawal` | synonym merge / polarity-checked |
+| `arrivalFear` | MERGE | `fear` | synonym merge / polarity-checked |
 | `attachment` | KEEP | `attachment` |  |
-| `attackSpeech` | MERGE | `harshSpeech` | synonym merge |
-| `authority` | KEEP | `authority` |  |
-| `avoidance` | KEEP | `avoidance` |  |
-| `awakening` | KEEP | `awakening` |  |
-| `balance` | MERGE | `stability` | balance → stability family unless contrasting |
-| `beingLeft` | MERGE | `fear` | synonym merge |
-| `belonging` | KEEP | `belonging` |  |
+| `attackSpeech` | RENAME | `harshSpeech` | harmful speech |
+| `authority` | KEEP | `authority` |  / polarity-checked |
+| `avoidance` | KEEP | `avoidance` |  / polarity-checked |
+| `awakening` | KEEP | `awakening` |  / polarity-checked |
+| `balance` | KEEP | `balance` | KEEP distinct from stability |
+| `beingLeft` | MERGE | `fear` | synonym merge / polarity-checked |
+| `belonging` | KEEP | `belonging` |  / polarity-checked |
 | `bias` | KEEP | `bias` |  |
-| `bitterTongue` | MERGE | `harshSpeech` | synonym merge |
-| `blame` | RENAME | `projection` | heuristic rename blame→projection |
-| `blindDelay` | MERGE | `delay` | synonym merge |
-| `boast` | KEEP | `boast` |  |
-| `bondage` | KEEP | `bondage` |  |
-| `boundMind` | MERGE | `bondage` | synonym merge |
-| `boundary` | KEEP | `boundary` |  |
-| `breakthrough` | RENAME | `threshold` | crossing into new state |
+| `bitterTongue` | MERGE | `harshSpeech` | synonym merge / polarity-checked |
+| `blame` | RENAME | `projection` | heuristic rename blame→projection / polarity-checked |
+| `blindDelay` | MERGE | `delay` | synonym merge / polarity-checked |
+| `boast` | KEEP | `boast` |  / polarity-checked |
+| `bondage` | KEEP | `bondage` |  / polarity-checked |
+| `boundMind` | MERGE | `bondage` | synonym merge / polarity-checked |
+| `boundary` | KEEP | `boundary` |  / polarity-checked |
+| `breakthrough` | RENAME | `threshold` | crossing into new state / polarity-checked |
 | `breath` | DROP-AS-DECORATIVE | — | local imagery; no reusable theme signal |
-| `brokenWord` | MERGE | `truth` | broken word → truth violated; use truth |
-| `burnLeave` | MERGE | `escape` | synonym merge |
-| `calmBelonging` | MERGE | `belonging` | shared calm belonging collapses to belonging |
-| `calmJudgement` | MERGE | `judgment` | synonym merge |
-| `calmStance` | MERGE | `restraint` | synonym merge |
-| `calmWater` | MERGE | `flow` | calm water → emotional flow |
-| `cannotDelegate` | MERGE | `control` | synonym merge |
-| `carrying` | MERGE | `burden` | synonym merge |
-| `castLoad` | MERGE | `burden` | casting load onto others → burden misdirection; keep burden |
-| `catastropheDream` | MERGE | `fear` | catastrophe scenario → fear (symbolic) |
-| `change` | KEEP | `change` |  |
-| `childRole` | MERGE | `socialExpectation` | synonym merge |
-| `choice` | KEEP | `choice` |  |
+| `brokenWord` | MERGE | `truth` | broken word → truth violated; use truth / polarity-checked |
+| `burnLeave` | MERGE | `escape` | synonym merge / polarity-checked |
+| `calmBelonging` | MERGE | `belonging` | shared calm belonging collapses to belonging / polarity-checked |
+| `calmJudgement` | MERGE | `judgment` | synonym merge / polarity-checked |
+| `calmStance` | MERGE | `restraint` | synonym merge / polarity-checked |
+| `calmWater` | MERGE | `flow` | calm water → emotional flow / polarity-checked |
+| `cannotDelegate` | MERGE | `control` | synonym merge / polarity-checked |
+| `carrying` | MERGE | `burden` | synonym merge / polarity-checked |
+| `castLoad` | MERGE | `burden` | casting load onto others → burden misdirection; keep burden / polarity-checked |
+| `catastropheDream` | MERGE | `fear` | catastrophe scenario → fear (symbolic) / polarity-checked |
+| `change` | KEEP | `change` |  / polarity-checked |
+| `childRole` | MERGE | `socialExpectation` | synonym merge / polarity-checked |
+| `choice` | KEEP | `choice` |  / polarity-checked |
 | `clarity` | KEEP | `clarity` |  |
-| `clearIdea` | MERGE | `clarity` | synonym merge |
-| `clearWord` | MERGE | `communication` | synonym merge |
-| `closedEyes` | MERGE | `denial` | synonym merge |
-| `closedHand` | MERGE | `scarcity` | synonym merge |
-| `closedHelp` | MERGE | `withdrawal` | synonym merge |
-| `closing` | KEEP | `closing` |  |
-| `coldVerdict` | MERGE | `harshSpeech` | cold verdict speech → harshSpeech |
-| `coldness` | KEEP | `coldness` |  |
-| `collapseFear` | MERGE | `fear` | synonym merge |
-| `compassion` | KEEP | `compassion` |  |
-| `completion` | KEEP | `completion` |  |
-| `compulsion` | MERGE | `control` | compulsive grip — borderline |
-| `conformity` | KEEP | `conformity` |  |
-| `confusion` | KEEP | `confusion` |  |
+| `clearIdea` | MERGE | `clarity` | synonym merge / polarity-checked |
+| `clearWord` | MERGE | `communication` | synonym merge / polarity-checked |
+| `closedEyes` | MERGE | `denial` | synonym merge / polarity-checked |
+| `closedHand` | MERGE | `scarcity` | synonym merge / polarity-checked |
+| `closedHelp` | MERGE | `withdrawal` | synonym merge / polarity-checked |
+| `closing` | KEEP | `closing` |  / polarity-checked |
+| `coldVerdict` | MERGE | `harshSpeech` | cold verdict speech → harshSpeech / polarity-checked |
+| `coldness` | KEEP | `coldness` |  / polarity-checked |
+| `collapseFear` | MERGE | `fear` | synonym merge / polarity-checked |
+| `compassion` | KEEP | `compassion` |  / polarity-checked |
+| `completion` | KEEP | `completion` |  / polarity-checked |
+| `compulsion` | MERGE | `control` | compulsive grip — borderline / polarity-checked |
+| `conformity` | KEEP | `conformity` |  / polarity-checked |
+| `confusion` | KEEP | `confusion` |  / polarity-checked |
 | `control` | KEEP | `control` |  |
-| `courage` | KEEP | `courage` |  |
-| `craft` | KEEP | `craft` |  |
-| `creation` | KEEP | `creation` |  |
-| `crossing` | MERGE | `threshold` | synonym merge |
-| `cultivation` | MERGE | `stewardship` | synonym merge |
-| `cupLeft` | MERGE | `withdrawal` | synonym merge |
-| `cupOnRoad` | MERGE | `threshold` | synonym merge |
+| `courage` | KEEP | `courage` |  / polarity-checked |
+| `craft` | KEEP | `craft` |  / polarity-checked |
+| `creation` | KEEP | `creation` |  / polarity-checked |
+| `crossing` | MERGE | `threshold` | synonym merge / polarity-checked |
+| `cultivation` | MERGE | `stewardship` | synonym merge / polarity-checked |
+| `cupLeft` | MERGE | `withdrawal` | synonym merge / polarity-checked |
+| `cupOnRoad` | MERGE | `threshold` | synonym merge / polarity-checked |
 | `curiosity` | KEEP | `curiosity` |  |
-| `cuttingToCut` | MERGE | `harshSpeech` | synonym merge |
-| `cycles` | KEEP | `cycles` |  |
-| `decisionFlight` | MERGE | `escape` | synonym merge |
-| `deeperSearch` | MERGE | `inquiry` | synonym merge |
-| `defeatStory` | MERGE | `despair` | synonym merge |
-| `defer` | MERGE | `delay` | synonym merge |
-| `delay` | KEEP | `delay` |  |
-| `denial` | RENAME | `denial` | heuristic rename denial→denial |
-| `deniedShare` | MERGE | `withdrawal` | synonym merge |
-| `depletion` | MERGE | `exhaustion` | synonym merge |
-| `desire` | KEEP | `desire` |  |
-| `despair` | KEEP | `despair` |  |
-| `diminishedJoy` | MERGE | `joy` | note: reversed valence via orientation |
-| `dimming` | MERGE | `withdrawal` | synonym merge |
-| `directingFire` | MERGE | `direction` | synonym merge |
+| `cuttingToCut` | MERGE | `harshSpeech` | synonym merge / polarity-checked |
+| `cycles` | KEEP | `cycles` |  / polarity-checked |
+| `decisionFlight` | MERGE | `escape` | synonym merge / polarity-checked |
+| `deeperSearch` | MERGE | `inquiry` | synonym merge / polarity-checked |
+| `defeatStory` | MERGE | `despair` | synonym merge / polarity-checked |
+| `defer` | MERGE | `delay` | synonym merge / polarity-checked |
+| `delay` | KEEP | `delay` |  / polarity-checked |
+| `denial` | KEEP | `denial` |  |
+| `deniedShare` | MERGE | `withdrawal` | synonym merge / polarity-checked |
+| `depletion` | MERGE | `exhaustion` | synonym merge / polarity-checked |
+| `desire` | KEEP | `desire` |  / polarity-checked |
+| `despair` | KEEP | `despair` |  / polarity-checked |
+| `diminishedJoy` | RENAME | `withdrawal` | do not map to joy; diminished state → withdrawal/strain family |
+| `dimming` | RENAME | `withdrawal` | warmth dimming |
+| `directingFire` | MERGE | `direction` | synonym merge / polarity-checked |
 | `direction` | KEEP | `direction` |  |
-| `disasterIdentity` | MERGE | `despair` | synonym merge |
-| `discipline` | KEEP | `discipline` |  |
-| `disconnection` | MERGE | `isolation` | synonym merge |
-| `discord` | KEEP | `discord` |  |
-| `discouragement` | MERGE | `despair` | synonym merge |
+| `disasterIdentity` | MERGE | `despair` | synonym merge / polarity-checked |
+| `discipline` | KEEP | `discipline` |  / polarity-checked |
+| `disconnection` | MERGE | `isolation` | synonym merge / polarity-checked |
+| `discord` | KEEP | `discord` |  / polarity-checked |
+| `discouragement` | MERGE | `despair` | synonym merge / polarity-checked |
 | `display` | KEEP | `display` |  |
-| `distanceIdol` | MERGE | `coldness` | idolized distance → coldness |
-| `distanceWeapon` | MERGE | `coldness` | weaponized distance → coldness |
-| `dogma` | RENAME | `rigidity` | rigid belief frame |
-| `doubt` | KEEP | `doubt` |  |
-| `dramaticPain` | RENAME | `grief` | heightened pain display → grief register; review if display |
-| `drift` | RENAME | `scatter` | undirected drift |
-| `dulling` | RENAME | `withdrawal` | dulled response |
-| `duty` | RENAME | `accountability` | duty as accountable obligation |
-| `earlyFeast` | RENAME | `haste` | celebration before readiness |
-| `ego` | RENAME | `boast` | self-centering display |
-| `emptyCount` | RENAME | `scarcity` | counting emptiness |
-| `ending` | RENAME | `ending` | heuristic rename ending→ending |
-| `endurance` | RENAME | `ending` | heuristic rename endurance→ending |
-| `enough` | KEEP | `enough` |  |
-| `enoughness` | RENAME | `enough` | heuristic rename enoughness→enough |
-| `envy` | NEEDS-HUMAN-DECISION | `attachment` | Keep envy distinct? Default merge to attachment pending review |
-| `escape` | KEEP | `escape` |  |
-| `escapeDream` | MERGE | `escape` | dream-escape → escape |
-| `escapeRomance` | MERGE | `escape` | romance-as-escape → escape |
-| `escapeSleep` | RENAME | `escape` | heuristic rename escapeSleep→escape |
-| `exclusion` | RENAME | `isolation` | being shut out |
-| `exhaustion` | KEEP | `exhaustion` |  |
+| `distanceIdol` | MERGE | `coldness` | idolized distance → coldness / polarity-checked |
+| `distanceWeapon` | MERGE | `coldness` | weaponized distance → coldness / polarity-checked |
+| `dogma` | RENAME | `rigidity` | rigid belief frame / polarity-checked |
+| `doubt` | KEEP | `doubt` |  / polarity-checked |
+| `dramaticPain` | RENAME | `grief` | heightened pain display → grief register; review if display / polarity-checked |
+| `drift` | RENAME | `scatter` | undirected drift / polarity-checked |
+| `dulling` | RENAME | `withdrawal` | dulled response / polarity-checked |
+| `duty` | RENAME | `accountability` | duty as accountable obligation / polarity-checked |
+| `earlyFeast` | RENAME | `haste` | celebration before readiness / polarity-checked |
+| `ego` | RENAME | `boast` | self-centering display / polarity-checked |
+| `emptyCount` | RENAME | `scarcity` | counting emptiness / polarity-checked |
+| `ending` | RENAME | `ending` | heuristic rename ending→ending / polarity-checked |
+| `endurance` | RENAME | `ending` | heuristic rename endurance→ending / polarity-checked |
+| `enough` | KEEP | `enough` |  / polarity-checked |
+| `enoughness` | RENAME | `enough` | heuristic rename enoughness→enough / polarity-checked |
+| `envy` | KEEP | `envy` | KEEP distinct from attachment; symbolic only |
+| `escape` | KEEP | `escape` |  / polarity-checked |
+| `escapeDream` | MERGE | `escape` | dream-escape → escape / polarity-checked |
+| `escapeRomance` | MERGE | `escape` | romance-as-escape → escape / polarity-checked |
+| `escapeSleep` | RENAME | `escape` | heuristic rename escapeSleep→escape / polarity-checked |
+| `exclusion` | RENAME | `isolation` | being shut out / polarity-checked |
+| `exhaustion` | KEEP | `exhaustion` |  / polarity-checked |
 | `extremes` | RENAME | `imbalance` | polarized extremes |
-| `fastMind` | RENAME | `haste` | mind outrunning readiness |
-| `fear` | KEEP | `fear` |  |
-| `fearHold` | RENAME | `fear` | heuristic rename fearHold→fear |
-| `fearOfSpeed` | MERGE | `rigidity` | synonym merge |
-| `fearWeb` | RENAME | `fear` | heuristic rename fearWeb→fear |
-| `feelingBlind` | RENAME | `confusion` | unable to read feeling |
-| `feelingFlee` | MERGE | `escape` | feeling flees → escape |
-| `feelingLanguage` | MERGE | `receptivity` | synonym merge |
-| `feltScarcity` | RENAME | `scarcity` | heuristic rename feltScarcity→scarcity |
-| `fertileHand` | RENAME | `stewardship` | capable cultivating hand |
-| `fieldTempo` | RENAME | `timing` | pace of the field |
-| `finishedWar` | RENAME | `ending` | conflict concluded |
-| `fireAlone` | RENAME | `isolation` | drive without company |
-| `firstEdge` | RENAME | `opening` | first sharp beginning |
-| `firstFruit` | RENAME | `opening` | first yield |
-| `firstSeed` | RENAME | `spark` | first planted impulse |
-| `firstWater` | MERGE | `opening` | ace water → opening |
+| `fastMind` | RENAME | `momentum` | directed rapid thought ≠ haste |
+| `fear` | KEEP | `fear` |  / polarity-checked |
+| `fearHold` | RENAME | `fear` | heuristic rename fearHold→fear / polarity-checked |
+| `fearOfSpeed` | MERGE | `rigidity` | synonym merge / polarity-checked |
+| `fearWeb` | RENAME | `fear` | heuristic rename fearWeb→fear / polarity-checked |
+| `feelingBlind` | RENAME | `confusion` | unable to read feeling / polarity-checked |
+| `feelingFlee` | MERGE | `escape` | feeling flees → escape / polarity-checked |
+| `feelingLanguage` | MERGE | `receptivity` | synonym merge / polarity-checked |
+| `feltScarcity` | RENAME | `scarcity` | heuristic rename feltScarcity→scarcity / polarity-checked |
+| `fertileHand` | RENAME | `stewardship` | capable cultivating hand / polarity-checked |
+| `fieldTempo` | RENAME | `timing` | pace of the field / polarity-checked |
+| `finishedWar` | RENAME | `ending` | conflict concluded / polarity-checked |
+| `fireAlone` | RENAME | `isolation` | drive without company / polarity-checked |
+| `firstEdge` | RENAME | `opening` | first sharp beginning / polarity-checked |
+| `firstFruit` | RENAME | `opening` | first yield / polarity-checked |
+| `firstSeed` | RENAME | `spark` | first planted impulse / polarity-checked |
+| `firstWater` | MERGE | `opening` | ace water → opening / polarity-checked |
 | `flow` | KEEP | `flow` |  |
-| `flungOffer` | MERGE | `haste` | synonym merge |
-| `focus` | KEEP | `focus` |  |
-| `forcedJoy` | MERGE | `display` | forced joy → display |
-| `forcedRole` | MERGE | `socialExpectation` | synonym merge |
-| `forwardCut` | RENAME | `clarity` | cutting forward to clear |
-| `forwardFire` | RENAME | `direction` | fire aimed forward |
-| `freedom` | KEEP | `freedom` |  |
-| `freeze` | RENAME | `coldness` | heuristic rename freeze→coldness |
-| `friction` | RENAME | `discord` | relational rub |
-| `friendship` | RENAME | `ending` | heuristic rename friendship→ending |
-| `frozenStance` | MERGE | `rigidity` | synonym merge |
-| `frozenWait` | RENAME | `coldness` | heuristic rename frozenWait→coldness |
-| `fullCup` | RENAME | `enough` | cup already full |
-| `fullTable` | MERGE | `belonging` | table motif → belonging |
-| `gathering` | RENAME | `belonging` | people gathering |
-| `giveReceive` | RENAME | `reciprocity` | give and receive |
-| `givingUp` | RENAME | `despair` | ceding hope |
-| `gossip` | MERGE | `harshSpeech` | gossip as misdirected speech |
-| `grief` | KEEP | `grief` |  |
-| `growth` | RENAME | `renewal` | developmental growth |
-| `guidance` | KEEP | `guidance` |  |
-| `guilt` | MERGE | `burden` | private guilt-load → burden |
-| `halfSearch` | RENAME | `inquiry` | heuristic rename halfSearch→inquiry |
-| `harshWord` | RENAME | `harshSpeech` | heuristic rename harshWord→harshSpeech |
-| `harshness` | RENAME | `harshSpeech` | harsh tone |
+| `flungOffer` | MERGE | `haste` | synonym merge / polarity-checked |
+| `focus` | KEEP | `focus` |  / polarity-checked |
+| `forcedJoy` | MERGE | `display` | forced joy → display / polarity-checked |
+| `forcedRole` | MERGE | `socialExpectation` | synonym merge / polarity-checked |
+| `forwardCut` | RENAME | `clarity` | cutting forward to clear — constructive |
+| `forwardFire` | RENAME | `direction` | fire aimed forward / polarity-checked |
+| `freedom` | KEEP | `freedom` |  / polarity-checked |
+| `freeze` | RENAME | `coldness` | heuristic rename freeze→coldness / polarity-checked |
+| `friction` | RENAME | `discord` | relational rub / polarity-checked |
+| `friendship` | RENAME | `ending` | heuristic rename friendship→ending / polarity-checked |
+| `frozenStance` | MERGE | `rigidity` | synonym merge / polarity-checked |
+| `frozenWait` | RENAME | `coldness` | heuristic rename frozenWait→coldness / polarity-checked |
+| `fullCup` | RENAME | `enough` | cup already full / polarity-checked |
+| `fullTable` | MERGE | `belonging` | table motif → belonging / polarity-checked |
+| `gathering` | RENAME | `belonging` | people gathering / polarity-checked |
+| `giveReceive` | RENAME | `reciprocity` | give and receive / polarity-checked |
+| `givingUp` | RENAME | `despair` | ceding hope / polarity-checked |
+| `gossip` | MERGE | `harshSpeech` | gossip as misdirected speech / polarity-checked |
+| `grief` | KEEP | `grief` |  / polarity-checked |
+| `growth` | RENAME | `renewal` | developmental growth / polarity-checked |
+| `guidance` | KEEP | `guidance` |  / polarity-checked |
+| `guilt` | MERGE | `burden` | private guilt-load → burden / polarity-checked |
+| `halfSearch` | RENAME | `inquiry` | heuristic rename halfSearch→inquiry / polarity-checked |
+| `harshWord` | RENAME | `harshSpeech` | heuristic rename harshWord→harshSpeech / polarity-checked |
+| `harshness` | RENAME | `harshSpeech` | harsh tone / polarity-checked |
 | `haste` | KEEP | `haste` |  |
-| `hastyPick` | RENAME | `haste` | choosing too fast |
-| `hastyUnion` | RENAME | `union` | heuristic rename hastyUnion→union |
-| `hastyVerdict` | MERGE | `haste` | synonym merge |
-| `heartEdge` | RENAME | `boundary` | heart-aware edge |
-| `heartlessRule` | MERGE | `rigidity` | synonym merge |
-| `heldCup` | MERGE | `holding` | held cup → holding |
-| `heroPlay` | RENAME | `display` | heroic self-staging |
-| `hiddenCracks` | MERGE | `denial` | synonym merge |
-| `hiding` | RENAME | `withdrawal` | concealing self |
-| `holding` | KEEP | `holding` |  |
-| `hollowWin` | RENAME | `illusion` | victory without substance |
-| `honestBoundary` | MERGE | `boundary` | synonym merge |
-| `honor` | RENAME | `values` | honorable standing |
-| `hope` | KEEP | `hope` |  |
-| `horizon` | MERGE | `perspective` | synonym merge |
-| `humiliation` | RENAME | `shame` | needs lexicon shame |
-| `hurting` | RENAME | `grief` | being hurt |
-| `idealStage` | MERGE | `illusion` | staged belonging → illusion |
-| `illusion` | KEEP | `illusion` |  |
-| `imbalance` | KEEP | `imbalance` |  |
-| `immobility` | RENAME | `stagnation` | cannot move |
+| `hastyPick` | RENAME | `haste` | choosing too fast / polarity-checked |
+| `hastyUnion` | RENAME | `haste` | do not map to union; premature bonding is haste (+ intimacy via other ids) |
+| `hastyVerdict` | MERGE | `haste` | synonym merge / polarity-checked |
+| `heartEdge` | RENAME | `boundary` | heart-aware edge / polarity-checked |
+| `heartlessRule` | MERGE | `rigidity` | synonym merge / polarity-checked |
+| `heldCup` | MERGE | `holding` | held cup → holding / polarity-checked |
+| `heroPlay` | RENAME | `display` | heroic self-staging / polarity-checked |
+| `hiddenCracks` | MERGE | `denial` | synonym merge / polarity-checked |
+| `hiding` | RENAME | `withdrawal` | concealing self / polarity-checked |
+| `holding` | KEEP | `holding` |  / polarity-checked |
+| `hollowWin` | RENAME | `illusion` | victory without substance / polarity-checked |
+| `honestBoundary` | MERGE | `boundary` | synonym merge / polarity-checked |
+| `honor` | RENAME | `values` | honorable standing / polarity-checked |
+| `hope` | KEEP | `hope` |  / polarity-checked |
+| `horizon` | MERGE | `perspective` | synonym merge / polarity-checked |
+| `humiliation` | RENAME | `shame` | needs lexicon shame / polarity-checked |
+| `hurting` | RENAME | `grief` | being hurt / polarity-checked |
+| `idealStage` | MERGE | `illusion` | staged belonging → illusion / polarity-checked |
+| `illusion` | KEEP | `illusion` |  / polarity-checked |
+| `imbalance` | KEEP | `imbalance` | KEEP distinct from balance |
+| `immobility` | RENAME | `stagnation` | cannot move / polarity-checked |
 | `impatience` | KEEP | `impatience` |  |
-| `incompletion` | RENAME | `completion` | heuristic rename incompletion→completion |
+| `incompletion` | RENAME | `completion` | heuristic rename incompletion→completion / polarity-checked |
 | `indecision` | KEEP | `indecision` |  |
-| `inflation` | RENAME | `boast` | inflated self-image |
-| `ingratitude` | RENAME | `discord` | refusal of thanks |
-| `innerEnough` | RENAME | `enough` | heuristic rename innerEnough→enough |
+| `inflation` | RENAME | `boast` | inflated self-image / polarity-checked |
+| `ingratitude` | RENAME | `discord` | refusal of thanks / polarity-checked |
+| `innerEnough` | RENAME | `enough` | heuristic rename innerEnough→enough / polarity-checked |
 | `inquiry` | KEEP | `inquiry` |  |
-| `insomniaIdentity` | MERGE | `mindBurden` | identifying with sleepless worry → mindBurden |
-| `instability` | RENAME | `stability` | heuristic rename instability→stability |
+| `insomniaIdentity` | MERGE | `mindBurden` | identifying with sleepless worry → mindBurden / polarity-checked |
+| `instability` | KEEP | `instability` | KEEP distinct from stability — no antonym collapse |
 | `integration` | KEEP | `integration` |  |
-| `intent` | RENAME | `agency` | directed intention |
-| `intuition` | KEEP | `intuition` |  |
-| `invitation` | RENAME | `opening` | invite to begin |
-| `inwardPause` | RENAME | `pause` | heuristic rename inwardPause→pause |
-| `isolation` | KEEP | `isolation` |  |
-| `journey` | RENAME | `threshold` | path of passage |
+| `intent` | RENAME | `agency` | directed intention / polarity-checked |
+| `intuition` | KEEP | `intuition` |  / polarity-checked |
+| `invitation` | RENAME | `opening` |  |
+| `inwardPause` | RENAME | `pause` | heuristic rename inwardPause→pause / polarity-checked |
+| `isolation` | KEEP | `isolation` |  / polarity-checked |
+| `journey` | RENAME | `threshold` | path of passage / polarity-checked |
 | `joy` | KEEP | `joy` |  |
-| `juggle` | RENAME | `scatter` | too many held at once |
-| `lastFire` | RENAME | `ending` | final burn |
-| `lastingLineage` | MERGE | `roots` | synonym merge |
-| `lineagePressure` | MERGE | `socialExpectation` | synonym merge |
-| `load` | RENAME | `burden` | heuristic rename load→burden |
-| `loadedDebt` | RENAME | `burden` | heuristic rename loadedDebt→burden |
-| `lockedGrip` | RENAME | `control` | cannot release grip |
-| `lonePlan` | RENAME | `isolation` | planning alone |
-| `loneVictory` | RENAME | `isolation` | winning alone |
-| `loneWar` | RENAME | `isolation` | fighting alone |
-| `manyCups` | RENAME | `overflow` | too many cups |
+| `juggle` | RENAME | `coordination` | managing multiple demands upright; not scatter |
+| `lastFire` | RENAME | `ending` | final burn / polarity-checked |
+| `lastingLineage` | MERGE | `roots` | synonym merge / polarity-checked |
+| `lineagePressure` | MERGE | `socialExpectation` | synonym merge / polarity-checked |
+| `load` | RENAME | `burden` | heuristic rename load→burden / polarity-checked |
+| `loadedDebt` | RENAME | `burden` | heuristic rename loadedDebt→burden / polarity-checked |
+| `lockedGrip` | RENAME | `control` | cannot release grip / polarity-checked |
+| `lonePlan` | RENAME | `isolation` | planning alone / polarity-checked |
+| `loneVictory` | RENAME | `isolation` | winning alone / polarity-checked |
+| `loneWar` | RENAME | `isolation` | fighting alone / polarity-checked |
+| `manyCups` | RENAME | `overflow` | too many cups / polarity-checked |
 | `mastery` | KEEP | `mastery` |  |
-| `materialDirection` | RENAME | `direction` | heuristic rename materialDirection→direction |
-| `matterInHand` | RENAME | `resource` | concrete matter present |
-| `matterMessenger` | RENAME | `messenger` | heuristic rename matterMessenger→messenger |
-| `matureFire` | RENAME | `mastery` | seasoned fire |
-| `matureVessel` | RENAME | `stewardship` | seasoned container |
-| `measuredFlow` | RENAME | `flow` | heuristic rename measuredFlow→flow |
-| `mechanicalLoop` | RENAME | `cycles` | compulsive repetition |
-| `memory` | RENAME | `roots` | what is remembered |
-| `mentalEnding` | RENAME | `ending` | heuristic rename mentalEnding→ending |
-| `mercyDisplay` | RENAME | `display` | heuristic rename mercyDisplay→display |
-| `message` | MERGE | `messenger` | message role → messenger |
-| `mindLoad` | MERGE | `mindBurden` | synonym merge |
-| `mindPause` | RENAME | `pause` | heuristic rename mindPause→pause |
-| `mindSpine` | MERGE | `principle` | synonym merge |
-| `mirage` | RENAME | `illusion` | false appearance |
-| `misalignment` | RENAME | `imbalance` | parts not aligned |
-| `missingNow` | RENAME | `escape` | absent from present |
-| `mistrust` | RENAME | `doubt` | distrust |
-| `motion` | RENAME | `direction` | movement underway |
-| `mourning` | RENAME | `grief` | mourning |
-| `movement` | RENAME | `direction` | active movement |
-| `mystery` | KEEP | `mystery` |  |
-| `neglect` | RENAME | `withdrawal` | failing to tend |
+| `materialDirection` | RENAME | `direction` | heuristic rename materialDirection→direction / polarity-checked |
+| `matterInHand` | RENAME | `resource` | concrete matter present / polarity-checked |
+| `matterMessenger` | RENAME | `messenger` | heuristic rename matterMessenger→messenger / polarity-checked |
+| `matureFire` | RENAME | `mastery` |  |
+| `matureVessel` | RENAME | `stewardship` | seasoned container / polarity-checked |
+| `measuredFlow` | RENAME | `flow` | heuristic rename measuredFlow→flow / polarity-checked |
+| `mechanicalLoop` | RENAME | `cycles` | compulsive repetition / polarity-checked |
+| `memory` | RENAME | `roots` | what is remembered / polarity-checked |
+| `mentalEnding` | RENAME | `ending` | heuristic rename mentalEnding→ending / polarity-checked |
+| `mercyDisplay` | RENAME | `display` | heuristic rename mercyDisplay→display / polarity-checked |
+| `message` | MERGE | `messenger` | message role → messenger / polarity-checked |
+| `mindLoad` | MERGE | `mindBurden` | synonym merge / polarity-checked |
+| `mindPause` | RENAME | `pause` | heuristic rename mindPause→pause / polarity-checked |
+| `mindSpine` | MERGE | `principle` | synonym merge / polarity-checked |
+| `mirage` | RENAME | `illusion` | false appearance / polarity-checked |
+| `misalignment` | RENAME | `imbalance` | parts not aligned / polarity-checked |
+| `missingNow` | RENAME | `escape` | absent from present / polarity-checked |
+| `mistrust` | RENAME | `doubt` | distrust / polarity-checked |
+| `motion` | RENAME | `momentum` | active motion → momentum |
+| `mourning` | RENAME | `grief` | mourning / polarity-checked |
+| `movement` | RENAME | `momentum` | active movement → momentum when forward; review if static motion |
+| `mystery` | KEEP | `mystery` |  / polarity-checked |
+| `neglect` | RENAME | `withdrawal` | failing to tend / polarity-checked |
 | `news` | RENAME | `messenger` | brought news |
-| `nightThought` | MERGE | `mindBurden` | synonym merge |
-| `noAdvance` | RENAME | `stagnation` | cannot advance |
-| `noBoundary` | RENAME | `boundary` | heuristic rename noBoundary→boundary |
-| `noTurn` | RENAME | `rigidity` | will not turn |
-| `noise` | RENAME | `confusion` | mental noise |
-| `notListening` | MERGE | `notListening` | synonym merge |
-| `notRising` | RENAME | `stagnation` | fails to rise |
-| `notYetRipe` | RENAME | `timing` | not ready yet |
-| `notice` | RENAME | `inquiry` | noticing |
-| `numbness` | RENAME | `withdrawal` | feeling numbed |
+| `nightThought` | MERGE | `mindBurden` | synonym merge / polarity-checked |
+| `noAdvance` | RENAME | `stagnation` | cannot advance / polarity-checked |
+| `noBoundary` | RENAME | `boundary` | heuristic rename noBoundary→boundary / polarity-checked |
+| `noTurn` | RENAME | `rigidity` | will not turn / polarity-checked |
+| `noise` | RENAME | `confusion` | mental noise / polarity-checked |
+| `notListening` | KEEP | `notListening` |  |
+| `notRising` | RENAME | `stagnation` | fails to rise / polarity-checked |
+| `notYetRipe` | RENAME | `timing` | not ready yet / polarity-checked |
+| `notice` | RENAME | `inquiry` | noticing / polarity-checked |
+| `numbness` | RENAME | `withdrawal` | feeling numbed / polarity-checked |
 | `nurture` | KEEP | `nurture` |  |
-| `offer` | RENAME | `opening` | offering |
-| `offeredCup` | RENAME | `opening` | cup offered |
-| `oldCup` | RENAME | `roots` | past emotional vessel |
-| `onlyLoss` | RENAME | `despair` | loss-only narrative |
-| `options` | RENAME | `choice` | multiple options |
-| `oracleFeeling` | MERGE | `illusion` | treating feeling as oracle → illusion risk |
-| `outsideThreshold` | RENAME | `holding` | heuristic rename outsideThreshold→holding |
+| `offer` | RENAME | `opening` | offering / polarity-checked |
+| `offeredCup` | RENAME | `opening` | cup offered / polarity-checked |
+| `oldCup` | RENAME | `roots` | past emotional vessel / polarity-checked |
+| `onlyLoss` | RENAME | `despair` | loss-only narrative / polarity-checked |
+| `options` | RENAME | `choice` | multiple options / polarity-checked |
+| `oracleFeeling` | MERGE | `illusion` | treating feeling as oracle → illusion risk / polarity-checked |
+| `outsideThreshold` | RENAME | `holding` | heuristic rename outsideThreshold→holding / polarity-checked |
 | `overGrip` | RENAME | `control` | gripping too hard |
-| `overSensitivity` | MERGE | `overflow` | excess sensitivity → overflow register |
-| `overTake` | RENAME | `control` | taking over |
-| `overcare` | RENAME | `nurture` | heuristic rename overcare→nurture |
-| `overcontrol` | RENAME | `control` | heuristic rename overcontrol→control |
-| `overexposure` | RENAME | `overflow` | too much exposure |
-| `overflow` | KEEP | `overflow` |  |
-| `ownLabor` | RENAME | `craft` | heuristic rename ownLabor→craft |
-| `ownSword` | RENAME | `harshSpeech` | heuristic rename ownSword→harshSpeech |
-| `painfulClarity` | RENAME | `clarity` | heuristic rename painfulClarity→clarity |
-| `passion` | RENAME | `desire` | heated wanting |
-| `pastCargo` | RENAME | `burden` | past weight carried |
-| `pastLock` | RENAME | `bondage` | locked to past |
-| `patience` | RENAME | `pause` | patient waiting |
-| `pause` | KEEP | `pause` |  |
-| `perspective` | KEEP | `perspective` |  |
-| `petrifiedRoots` | MERGE | `rigidity` | roots turned stone → rigidity |
-| `plant` | RENAME | `stewardship` | planting |
-| `postponeLearn` | RENAME | `delay` | heuristic rename postponeLearn→delay |
-| `practicalBalance` | RENAME | `stability` | heuristic rename practicalBalance→stability |
-| `practicalCare` | RENAME | `nurture` | heuristic rename practicalCare→nurture |
-| `practicalCuriosity` | RENAME | `curiosity` | heuristic rename practicalCuriosity→curiosity |
-| `prematurePull` | RENAME | `haste` | pulling too soon |
-| `pressure` | SPLIT | `pressure`, `externalDemand`, `internalStrain`, `socialExpectation` | Specialize by card: lineage/role→socialExpectation; self-push→internalStrain; outer force→externalDemand |
-| `principle` | KEEP | `principle` |  |
-| `projection` | KEEP | `projection` |  |
-| `question` | MERGE | `inquiry` | question act → inquiry |
-| `questioning` | RENAME | `learning` | heuristic rename questioning→learning |
-| `quietTaste` | RENAME | `enough` | quiet sufficiency |
-| `reciprocity` | KEEP | `reciprocity` | mutual give-receive |
-| `refusal` | RENAME | `resistance` | refusing |
-| `refuseShare` | RENAME | `withdrawal` | refusing to share |
-| `release` | KEEP | `release` |  |
-| `renewal` | KEEP | `renewal` |  |
-| `repeatingHand` | RENAME | `cycles` | repeating action |
-| `rescuing` | MERGE | `rescue` | synonym merge |
-| `resistance` | KEEP | `resistance` |  |
-| `responsibleSpark` | RENAME | `spark` | heuristic rename responsibleSpark→spark |
-| `rest` | RENAME | `pause` | resting |
-| `restraint` | KEEP | `restraint` |  |
-| `revenge` | RENAME | `anger` | retaliatory heat |
-| `rigidAuthority` | MERGE | `rigidity` | synonym merge |
-| `rigidity` | KEEP | `rigidity` |  |
-| `root` | RENAME | `roots` | heuristic rename root→roots |
-| `rootedMeans` | RENAME | `roots` | heuristic rename rootedMeans→roots |
-| `roots` | KEEP | `roots` |  |
-| `rushSell` | RENAME | `haste` | heuristic rename rushSell→haste |
-| `rushedYield` | RENAME | `haste` | heuristic rename rushedYield→haste |
-| `sacrifice` | RENAME | `release` | giving up for path |
+| `overSensitivity` | MERGE | `overflow` | excess sensitivity → overflow register / polarity-checked |
+| `overTake` | RENAME | `control` | taking over / polarity-checked |
+| `overcare` | RENAME | `rescue` | do not map to nurture; overcare is rescue/control-adjacent |
+| `overcontrol` | RENAME | `control` | heuristic rename overcontrol→control / polarity-checked |
+| `overexposure` | RENAME | `overflow` | too much exposure / polarity-checked |
+| `overflow` | KEEP | `overflow` |  / polarity-checked |
+| `ownLabor` | RENAME | `craft` | heuristic rename ownLabor→craft / polarity-checked |
+| `ownSword` | RENAME | `harshSpeech` | heuristic rename ownSword→harshSpeech / polarity-checked |
+| `painfulClarity` | RENAME | `clarity` | heuristic rename painfulClarity→clarity / polarity-checked |
+| `passion` | RENAME | `desire` | heated wanting / polarity-checked |
+| `pastCargo` | RENAME | `burden` | past weight carried / polarity-checked |
+| `pastLock` | RENAME | `bondage` | locked to past / polarity-checked |
+| `patience` | RENAME | `pause` | patient waiting / polarity-checked |
+| `pause` | KEEP | `pause` |  / polarity-checked |
+| `perspective` | KEEP | `perspective` |  / polarity-checked |
+| `petrifiedRoots` | MERGE | `rigidity` | roots turned stone → rigidity / polarity-checked |
+| `plant` | RENAME | `stewardship` | planting / polarity-checked |
+| `postponeLearn` | RENAME | `delay` | heuristic rename postponeLearn→delay / polarity-checked |
+| `practicalBalance` | RENAME | `balance` | dynamic practical balance ≠ static stability |
+| `practicalCare` | RENAME | `nurture` | heuristic rename practicalCare→nurture / polarity-checked |
+| `practicalCuriosity` | RENAME | `curiosity` | heuristic rename practicalCuriosity→curiosity / polarity-checked |
+| `prematurePull` | RENAME | `haste` | pulling too soon / polarity-checked |
+| `pressure` | SPLIT | `pressure`, `externalDemand`, `internalStrain`, `socialExpectation` | Specialize only where prose clearly supports; else KEEP pressure |
+| `principle` | KEEP | `principle` |  / polarity-checked |
+| `projection` | KEEP | `projection` |  / polarity-checked |
+| `question` | MERGE | `inquiry` | question act → inquiry / polarity-checked |
+| `questioning` | RENAME | `learning` | heuristic rename questioning→learning / polarity-checked |
+| `quietTaste` | RENAME | `enough` | quiet sufficiency / polarity-checked |
+| `reciprocity` | KEEP | `reciprocity` | mutual give-receive / polarity-checked |
+| `refusal` | RENAME | `resistance` | refusing / polarity-checked |
+| `refuseShare` | RENAME | `withdrawal` | refusing to share / polarity-checked |
+| `release` | KEEP | `release` |  / polarity-checked |
+| `renewal` | KEEP | `renewal` |  / polarity-checked |
+| `repeatingHand` | RENAME | `cycles` | repeating action / polarity-checked |
+| `rescuing` | MERGE | `rescue` | synonym merge / polarity-checked |
+| `resistance` | KEEP | `resistance` |  / polarity-checked |
+| `responsibleSpark` | RENAME | `spark` | heuristic rename responsibleSpark→spark / polarity-checked |
+| `rest` | RENAME | `pause` | resting / polarity-checked |
+| `restraint` | KEEP | `restraint` |  / polarity-checked |
+| `revenge` | RENAME | `anger` | retaliatory heat / polarity-checked |
+| `rigidAuthority` | MERGE | `rigidity` | synonym merge / polarity-checked |
+| `rigidity` | KEEP | `rigidity` |  / polarity-checked |
+| `root` | RENAME | `roots` | heuristic rename root→roots / polarity-checked |
+| `rootedMeans` | RENAME | `roots` | heuristic rename rootedMeans→roots / polarity-checked |
+| `roots` | KEEP | `roots` |  / polarity-checked |
+| `rushSell` | RENAME | `haste` | heuristic rename rushSell→haste / polarity-checked |
+| `rushedYield` | RENAME | `haste` | heuristic rename rushedYield→haste / polarity-checked |
+| `sacrifice` | RENAME | `release` | giving up for path / polarity-checked |
 | `scatter` | KEEP | `scatter` |  |
-| `scatteredHeart` | RENAME | `scatter` | heuristic rename scatteredHeart→scatter |
-| `scatteredMind` | RENAME | `scatter` | heuristic rename scatteredMind→scatter |
-| `scatteredPassion` | MERGE | `scatter` | synonym merge |
-| `scatteredZeal` | MERGE | `scatter` | synonym merge |
-| `secrecy` | RENAME | `silence` | kept hidden |
-| `seekingBattle` | MERGE | `anger` | synonym merge |
-| `selfDoubt` | RENAME | `doubt` | heuristic rename selfDoubt→doubt |
-| `selfExhaust` | RENAME | `exhaustion` | heuristic rename selfExhaust→exhaustion |
-| `selfJudgment` | RENAME | `judgment` | heuristic rename selfJudgment→judgment |
-| `shallowCopy` | RENAME | `display` | imitation surface |
-| `shame` | KEEP | `shame` | painful self-regard |
-| `shameReceive` | RENAME | `shame` | receiving shame |
-| `share` | RENAME | `belonging` | sharing |
-| `sharedCircle` | MERGE | `belonging` | circle imagery → belonging |
-| `sharedCraft` | RENAME | `craft` | heuristic rename sharedCraft→craft |
-| `sharedStructure` | MERGE | `structure` | synonym merge |
-| `sharedTable` | RENAME | `belonging` | heuristic rename sharedTable→belonging |
-| `sharpKindness` | MERGE | `restraint` | kind sharpness → restraint |
-| `sharpStudent` | MERGE | `learning` | sharp student → learning |
-| `sheath` | RENAME | `restraint` | sheathing the blade |
-| `shopWindow` | RENAME | `display` | shown for looking |
-| `shutSolitude` | RENAME | `solitude` | heuristic rename shutSolitude→solitude |
-| `siegeFeeling` | RENAME | `pressure` | feeling besieged |
-| `silence` | KEEP | `silence` |  |
-| `simplicity` | RENAME | `clarity` | simple clarity |
-| `slowRoad` | RENAME | `pause` | slow road |
-| `smotherControl` | RENAME | `control` | heuristic rename smotherControl→control |
-| `softCuriosity` | MERGE | `curiosity` | synonym merge |
-| `softOpening` | MERGE | `opening` | soft opening → opening |
-| `solitude` | KEEP | `solitude` |  |
-| `spark` | KEEP | `spark` |  |
-| `speed` | RENAME | `haste` | speed as haste risk |
-| `spilledCups` | RENAME | `overflow` | cups spilled |
-| `stability` | KEEP | `stability` |  |
-| `stage` | RENAME | `display` | staged scene |
-| `stagnation` | KEEP | `stagnation` |  |
-| `stalemate` | RENAME | `stagnation` | no side advances |
-| `stall` | RENAME | `delay` | stalling |
-| `stance` | RENAME | `boundary` | taken stance |
-| `steadfastness` | RENAME | `stability` | holding steady |
-| `steeringWater` | RENAME | `direction` | steering feeling |
-| `stewardship` | KEEP | `stewardship` |  |
-| `stillCup` | RENAME | `pause` | cup held still |
-| `strain` | KEEP | `strain` |  |
-| `strategy` | RENAME | `discernment` | planned discernment |
-| `structure` | KEEP | `structure` |  |
-| `stuckInPast` | RENAME | `bondage` | stuck in past |
-| `studentFire` | MERGE | `learning` | page fire student → learning |
-| `studentHand` | RENAME | `learning` | heuristic rename studentHand→learning |
-| `subconscious` | RENAME | `mystery` | below awareness |
-| `sufficiency` | RENAME | `enough` | enoughness |
-| `suppression` | KEEP | `suppression` |  |
-| `surface` | RENAME | `illusion` | surface only |
-| `surrender` | RENAME | `ending` | heuristic rename surrender→ending |
-| `teaching` | KEEP | `teaching` |  |
-| `theftFeeling` | RENAME | `fear` | feeling robbed — symbolic not accusation |
-| `thoughtlessSpeed` | RENAME | `haste` | heuristic rename thoughtlessSpeed→haste |
-| `threshold` | KEEP | `threshold` |  |
-| `thresholdFeast` | RENAME | `holding` | heuristic rename thresholdFeast→holding |
-| `thresholdGuard` | RENAME | `holding` | heuristic rename thresholdGuard→holding |
-| `tightness` | RENAME | `strain` | tight strained hold |
-| `timing` | KEEP | `timing` |  |
-| `tooMuchFire` | RENAME | `scatter` | excess fire energy |
-| `touchOne` | RENAME | `focus` | touch one thing |
-| `tradition` | KEEP | `tradition` |  |
-| `transformation` | RENAME | `change` | transforming |
-| `trial` | RENAME | `strain` | being tested |
+| `scatteredHeart` | RENAME | `scatter` | heuristic rename scatteredHeart→scatter / polarity-checked |
+| `scatteredMind` | RENAME | `scatter` | heuristic rename scatteredMind→scatter / polarity-checked |
+| `scatteredPassion` | MERGE | `scatter` | synonym merge / polarity-checked |
+| `scatteredZeal` | MERGE | `scatter` | synonym merge / polarity-checked |
+| `secrecy` | RENAME | `silence` | kept hidden / polarity-checked |
+| `seekingBattle` | MERGE | `anger` | synonym merge / polarity-checked |
+| `selfDoubt` | RENAME | `doubt` | heuristic rename selfDoubt→doubt / polarity-checked |
+| `selfExhaust` | RENAME | `exhaustion` | heuristic rename selfExhaust→exhaustion / polarity-checked |
+| `selfJudgment` | RENAME | `judgment` | heuristic rename selfJudgment→judgment / polarity-checked |
+| `shallowCopy` | RENAME | `display` | imitation surface / polarity-checked |
+| `shame` | KEEP | `shame` | painful self-regard / polarity-checked |
+| `shameReceive` | RENAME | `shame` | receiving shame / polarity-checked |
+| `share` | RENAME | `belonging` | sharing / polarity-checked |
+| `sharedCircle` | MERGE | `belonging` | circle imagery → belonging / polarity-checked |
+| `sharedCraft` | RENAME | `craft` | heuristic rename sharedCraft→craft / polarity-checked |
+| `sharedStructure` | MERGE | `structure` | synonym merge / polarity-checked |
+| `sharedTable` | RENAME | `belonging` | heuristic rename sharedTable→belonging / polarity-checked |
+| `sharpKindness` | MERGE | `restraint` | kind sharpness → restraint / polarity-checked |
+| `sharpStudent` | MERGE | `learning` | sharp student → learning / polarity-checked |
+| `sheath` | RENAME | `restraint` | sheathing the blade / polarity-checked |
+| `shopWindow` | RENAME | `display` | shown for looking / polarity-checked |
+| `shutSolitude` | RENAME | `solitude` | heuristic rename shutSolitude→solitude / polarity-checked |
+| `siegeFeeling` | RENAME | `pressure` | feeling besieged / polarity-checked |
+| `silence` | KEEP | `silence` |  / polarity-checked |
+| `simplicity` | RENAME | `clarity` | simple clarity / polarity-checked |
+| `slowRoad` | RENAME | `pause` | slow road / polarity-checked |
+| `smotherControl` | RENAME | `control` | heuristic rename smotherControl→control / polarity-checked |
+| `softCuriosity` | MERGE | `curiosity` | synonym merge / polarity-checked |
+| `softOpening` | MERGE | `opening` | soft opening → opening / polarity-checked |
+| `solitude` | KEEP | `solitude` |  / polarity-checked |
+| `spark` | KEEP | `spark` |  / polarity-checked |
+| `speed` | RENAME | `momentum` | neutral rapid motion ≠ haste |
+| `spilledCups` | RENAME | `overflow` | cups spilled / polarity-checked |
+| `stability` | KEEP | `stability` | KEEP distinct from balance/instability |
+| `stage` | RENAME | `display` | staged scene / polarity-checked |
+| `stagnation` | KEEP | `stagnation` |  / polarity-checked |
+| `stalemate` | RENAME | `stagnation` | no side advances / polarity-checked |
+| `stall` | RENAME | `delay` | stalling / polarity-checked |
+| `stance` | RENAME | `boundary` | taken stance / polarity-checked |
+| `steadfastness` | RENAME | `stability` | holding steady / polarity-checked |
+| `steeringWater` | RENAME | `direction` | steering feeling / polarity-checked |
+| `stewardship` | KEEP | `stewardship` |  / polarity-checked |
+| `stillCup` | RENAME | `pause` | cup held still / polarity-checked |
+| `strain` | KEEP | `strain` |  / polarity-checked |
+| `strategy` | RENAME | `discernment` | planned discernment / polarity-checked |
+| `structure` | KEEP | `structure` |  / polarity-checked |
+| `stuckInPast` | RENAME | `bondage` | stuck in past / polarity-checked |
+| `studentFire` | MERGE | `learning` | page fire student → learning / polarity-checked |
+| `studentHand` | RENAME | `learning` | heuristic rename studentHand→learning / polarity-checked |
+| `subconscious` | RENAME | `mystery` | below awareness / polarity-checked |
+| `sufficiency` | RENAME | `enough` | enoughness / polarity-checked |
+| `suppression` | KEEP | `suppression` |  / polarity-checked |
+| `surface` | RENAME | `illusion` | surface only / polarity-checked |
+| `surrender` | RENAME | `ending` | heuristic rename surrender→ending / polarity-checked |
+| `teaching` | KEEP | `teaching` |  / polarity-checked |
+| `theftFeeling` | RENAME | `fear` | feeling robbed — symbolic not accusation / polarity-checked |
+| `thoughtlessSpeed` | RENAME | `haste` | reversed thoughtless speed = haste |
+| `threshold` | KEEP | `threshold` |  / polarity-checked |
+| `thresholdFeast` | RENAME | `holding` | heuristic rename thresholdFeast→holding / polarity-checked |
+| `thresholdGuard` | RENAME | `holding` | heuristic rename thresholdGuard→holding / polarity-checked |
+| `tightness` | RENAME | `strain` | tight strained hold / polarity-checked |
+| `timing` | KEEP | `timing` |  / polarity-checked |
+| `tooMuchFire` | RENAME | `scatter` | excess fire energy as scatter — VALID for excess contexts |
+| `touchOne` | RENAME | `focus` | touch one thing / polarity-checked |
+| `tradition` | KEEP | `tradition` |  / polarity-checked |
+| `transformation` | RENAME | `change` | transforming / polarity-checked |
+| `trial` | RENAME | `strain` | being tested / polarity-checked |
 | `truth` | KEEP | `truth` |  |
-| `turning` | RENAME | `change` | turning point |
-| `twoCups` | RENAME | `intimacy` | pair of cups |
-| `twoPaths` | RENAME | `choice` | forked path |
-| `twoThoughts` | RENAME | `indecision` | split thought |
-| `twoWeights` | RENAME | `imbalance` | uneven weights |
-| `uncertainty` | KEEP | `uncertainty` |  |
-| `unclosed` | RENAME | `closing` | heuristic rename unclosed→closing |
+| `turning` | RENAME | `change` | turning point / polarity-checked |
+| `twoCups` | RENAME | `intimacy` | pair of cups / polarity-checked |
+| `twoPaths` | RENAME | `choice` | forked path / polarity-checked |
+| `twoThoughts` | RENAME | `indecision` | split thought / polarity-checked |
+| `twoWeights` | RENAME | `coordination` | carrying two demands — not imbalance |
+| `uncertainty` | KEEP | `uncertainty` |  / polarity-checked |
+| `unclosed` | RENAME | `closing` | heuristic rename unclosed→closing / polarity-checked |
 | `union` | KEEP | `union` |  |
-| `unplanted` | RENAME | `delay` | not yet planted |
-| `unseenDraw` | RENAME | `ending` | heuristic rename unseenDraw→ending |
-| `unsettled` | RENAME | `instability` | not settled |
-| `unworthiness` | RENAME | `doubt` | sense of not deserving |
-| `unwoven` | RENAME | `instability` | coming apart |
-| `upheaval` | RENAME | `change` | sudden upheaval |
-| `values` | KEEP | `values` |  |
-| `victimStory` | RENAME | `projection` | story that assigns victimhood — soft |
-| `visibilityRace` | RENAME | `display` | racing to be seen |
-| `vision` | RENAME | `perspective` | seen future image — non-predictive |
-| `vitality` | KEEP | `vitality` |  |
-| `waiting` | RENAME | `pause` | waiting |
-| `warOfWords` | RENAME | `harshSpeech` | heuristic rename warOfWords→harshSpeech |
-| `warmHouse` | RENAME | `nurture` | warm household |
-| `watch` | RENAME | `restraint` | watching without acting |
-| `waterMessenger` | MERGE | `messenger` | suit messenger → messenger |
-| `weighedScales` | RENAME | `fairness` | scales weighed |
-| `whatStands` | RENAME | `stability` | what still stands |
-| `will` | KEEP | `will` |  |
-| `wisdom` | KEEP | `wisdom` |  |
+| `unplanted` | RENAME | `delay` | not yet planted / polarity-checked |
+| `unseenDraw` | RENAME | `ending` | heuristic rename unseenDraw→ending / polarity-checked |
+| `unsettled` | RENAME | `instability` | not settled / polarity-checked |
+| `unworthiness` | RENAME | `doubt` | sense of not deserving / polarity-checked |
+| `unwoven` | RENAME | `instability` | coming apart / polarity-checked |
+| `upheaval` | RENAME | `change` | sudden upheaval / polarity-checked |
+| `values` | KEEP | `values` |  / polarity-checked |
+| `victimStory` | RENAME | `projection` | story that assigns victimhood — soft / polarity-checked |
+| `visibilityRace` | RENAME | `display` | racing to be seen / polarity-checked |
+| `vision` | RENAME | `perspective` | seen future image — non-predictive / polarity-checked |
+| `vitality` | KEEP | `vitality` |  / polarity-checked |
+| `waiting` | RENAME | `pause` | waiting / polarity-checked |
+| `warOfWords` | RENAME | `harshSpeech` | heuristic rename warOfWords→harshSpeech / polarity-checked |
+| `warmHouse` | RENAME | `nurture` |  |
+| `watch` | RENAME | `restraint` | watching without acting / polarity-checked |
+| `waterMessenger` | MERGE | `messenger` | suit messenger → messenger / polarity-checked |
+| `weighedScales` | RENAME | `fairness` | scales weighed / polarity-checked |
+| `whatStands` | RENAME | `stability` | what still stands / polarity-checked |
+| `will` | KEEP | `will` |  / polarity-checked |
+| `wisdom` | KEEP | `wisdom` |  / polarity-checked |
 | `withdrawal` | KEEP | `withdrawal` |  |
-| `wordHorse` | RENAME | `harshSpeech` | heuristic rename wordHorse→harshSpeech |
-| `workshop` | RENAME | `craft` | heuristic rename workshop→craft |
-| `worry` | RENAME | `mindBurden` | heuristic rename worry→mindBurden |
-| `wovenWork` | RENAME | `craft` | heuristic rename wovenWork→craft |
+| `wordHorse` | RENAME | `communication` | speech in motion — not harshSpeech |
+| `workshop` | RENAME | `craft` | heuristic rename workshop→craft / polarity-checked |
+| `worry` | RENAME | `mindBurden` | heuristic rename worry→mindBurden / polarity-checked |
+| `wovenWork` | RENAME | `craft` | heuristic rename wovenWork→craft / polarity-checked |
 

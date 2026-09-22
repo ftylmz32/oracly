@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3C.5D FR-M04 keyword ontology design (no production keyword changes)
+**Updated:** 2026-09-23 — Tarot Phase 3C.5D.1 FR-M04 ontology semantic mapping repair (design only)
 
 ---
 
@@ -42,6 +42,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.5C task start | `4b1c7aecc8b9a77a0452a4a318ccb509b00d4c75` | FR-M01 / FR-M02 EN naturalness |
 | Phase 3C.5C end | `bc9ff060801d941c16ed32b32d8708177fa20c21` | FR-M01/M02 RESOLVED; FR-M04 still OPEN |
 | Phase 3C.5D task start | `bc9ff060801d941c16ed32b32d8708177fa20c21` | FR-M04 keyword ontology design |
+| Phase 3C.5D end | `9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b` | Ontology design complete; FR-M04 OPEN |
+| Phase 3C.5D.1 task start | `9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b` | FR-M04 semantic mapping repair |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -115,6 +117,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.5B — FR-M03 shadow vs reversed court separation | **COMPLETE** (FR-M03 + RT-M02 RESOLVED; readiness still **NO**) |
 | Phase 3C.5C — FR-M01 / FR-M02 EN naturalness | **COMPLETE** (FR-M01/M02 + RT-M03 minors-only; readiness still **NO** — FR-M04) |
 | Phase 3C.5D — FR-M04 keyword ontology design | **COMPLETE** (design only; FR-M04 **OPEN**; readiness **NO**) |
+| Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **COMPLETE** (plan repaired; FR-M04 **OPEN**; readiness **NO**) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -404,6 +407,21 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.5D.1
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (design repair) |
+| FR-M04 | **OPEN** — implementation pending |
+| Ontology plan | `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md` (**ACTIVE = 3C.5D.1**) |
+| Ambiguous mappings | **0** |
+| Semantic inversions after | **0** |
+| Plan approved for implementation | **YES** pending ChatGPT confirmation |
+| Production keywordIds changed | **NO** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** |
+
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
@@ -475,17 +493,14 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 **ChatGPT review before FR-M04 keyword ontology implementation.**
 
-Phase 3C.5D: **KEYWORD ONTOLOGY DESIGN COMPLETE** · FR-M04: **OPEN — implementation pending**.
+Phase 3C.5D.1: **ONTOLOGY PLAN SEMANTIC REPAIR COMPLETE** · FR-M04: **OPEN — implementation pending**.
 
-Plan: `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md`
+Ambiguous mappings: **0**.  
+Plan approved for implementation: **YES** pending ChatGPT confirmation of 3C.5D.1.
 
-Current baseline: unique **397** · singleton **352** (**88.66%**).  
-Projected ontology: lexicon **124** · projected singleton **~24.6%**.  
-Ambiguous: `envy` (+ pressure SPLIT / balance / delay dual-layer review notes).
-
-Still RESOLVED: FR-B01 · FR-M01 · FR-M02 · FR-M03 · RT-M01 · RT-M02 · RT-M03 (minors remain).
+Active plan: `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md`
 
 DECK READY FOR EVIDENCE ENGINE: **NO** · Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
 
-Do **not** implement keyword remaps, start Evidence Engine, Visual System, or Memory-Recurring until reviewed.
+Do **not** implement keyword remaps or start Evidence Engine until reviewed.
 Do **not** mark future items completed until verified.

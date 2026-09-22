@@ -505,6 +505,27 @@ Chronological project execution ledger.
 | DECK READY FOR EVIDENCE ENGINE | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3C.5D.1 — FR-M04 ONTOLOGY SEMANTIC MAPPING REPAIR
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (design repair) |
+| Kind | Semantic inversion / over-merge repair — **no production keywordIds** |
+| Start SHA | `9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b` |
+| Confirmed defects | speed→haste · pentacles_02 inversion · balance≠stability · instability≠stability · envy≠attachment · fastMind→haste · hastyUnion/diminishedJoy/overcare |
+| Decisions | envy KEEP · balance KEEP ≠ stability · instability KEEP ≠ stability · momentum added · inquiry≠curiosity · delay dual-layer conditional · pressure contextual only |
+| Pre projected singleton % | 24.58% (3C.5D) |
+| Post projected | defined **128** · used **122** · singleton **30** (**24.59%**) · assignments **439** |
+| Semantic inversion after | **0** |
+| Semantic loss after | **0** |
+| Orientation collapse after | **0** |
+| Ambiguous after | **0** |
+| Production source modified | **NO** |
+| FR-M04 | **OPEN** |
+| Plan approved for implementation | **YES** pending ChatGPT confirmation |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -533,7 +554,8 @@ Chronological project execution ledger.
 | PL-T3C.5B | Tarot Phase 3C.5B — FR-M03 shadow vs reversed court separation | **DONE** (FR-M03 + RT-M02 RESOLVED; readiness NO) |
 | PL-T3C.5C | Tarot Phase 3C.5C — FR-M01 / FR-M02 EN naturalness | **DONE** (FR-M01/M02 RESOLVED; RT-M03 minors-only; FR-M04 OPEN; readiness NO) |
 | PL-T3C.5D | Tarot Phase 3C.5D — FR-M04 keyword ontology design | **DONE** (design only; FR-M04 OPEN; readiness NO) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M01/M02/M03 + RT-M* RESOLVED; FR-M04 OPEN — ontology designed; Evidence Engine blocked) |
+| PL-T3C.5D.1 | Tarot Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **DONE** (plan repaired; ambiguous 0; FR-M04 OPEN; readiness NO) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M01/M02/M03 + RT-M* RESOLVED; FR-M04 OPEN — ontology designed+repaired; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

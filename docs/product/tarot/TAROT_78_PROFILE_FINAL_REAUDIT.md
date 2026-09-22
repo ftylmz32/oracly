@@ -586,3 +586,24 @@ Historical 3C.4 / 3C.5A / 3C.5B findings above are preserved; this section recor
 | Production source modified | **NO** |
 
 Historical findings above are preserved; this section records design only.
+
+---
+
+## Phase 3C.5D.1 — ontology plan semantic mapping repair
+
+| Field | Value |
+|---|---|
+| Phase | **3C.5D.1** |
+| Kind | DESIGN / MAPPING repair only — **no production keywordIds** |
+| Plan | `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md` (ACTIVE = 3C.5D.1) |
+| Confirmed defects repaired | speed→haste · twoWeights/practicalBalance inversion · balance≠stability · instability≠stability · envy≠attachment · fastMind→haste · hastyUnion/diminishedJoy/overcare collapses |
+| Semantic inversions after | **0** |
+| Semantic loss after | **0** |
+| Orientation collapse after | **0** |
+| Ambiguous mappings after | **0** |
+| Defined / used vocab | **128** / **122** |
+| Projected singleton % | **24.59%** |
+| FR-M04 | **OPEN** — implementation pending |
+| Ontology plan approved for implementation | **YES** pending ChatGPT confirmation of 3C.5D.1 |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Production source modified | **NO** |
