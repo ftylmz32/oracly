@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3B4 Pentacles profiles (78 / 78 semantic catalog)
+**Updated:** 2026-09-22 — Tarot Phase 3C 78-card cross-deck semantic red-team
 
 ---
 
@@ -21,6 +21,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3B3 end | `427b76bbebdc9a7f161869b9ac66e7c151fa5c95` | Swords profiles commit |
 | Phase 3B3.1 end | `2c5c6aa637ed5b5d9407f8e913d18fea543cd839` | Handoff project-memory restoration |
 | Phase 3B4 task start | `2c5c6aa637ed5b5d9407f8e913d18fea543cd839` | Pentacles start |
+| Phase 3B4 end (profiles) | `c2b5a6d8fa54fe17ba8c000b536d5e3f5a689f01` | 78/78 semantic catalog |
+| Phase 3C task start | `c2b5a6d8fa54fe17ba8c000b536d5e3f5a689f01` | Cross-deck red-team |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -83,6 +85,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3B3 — Swords Minor Narrative profiles | **COMPLETE** |
 | Phase 3B3.1 — CURRENT_HANDOFF project-memory restoration | **COMPLETE** (docs) |
 | Phase 3B4 — Pentacles Minor Narrative profiles | **COMPLETE** |
+| Phase 3C — 78-card cross-deck semantic red-team | **COMPLETE** (audit) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -134,11 +137,28 @@ Pre-existing local noise (do **not** stage/clean):
 | Canonical deck | Unchanged (78 / 22 / 56) |
 | Current Tarot user path | Unmodified |
 
+### Phase 3C
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (audit complete) |
+| Profiles reviewed | **78 / 78** |
+| Report | `docs/product/tarot/TAROT_78_PROFILE_RED_TEAM.md` |
+| BLOCKER | **0** |
+| MAJOR | **3** (RT-M01 cups_09/10 rel · RT-M02 shadow≈reversed · RT-M03 template monotony) |
+| MINOR | **6** |
+| INFO | **5** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** (unchanged) |
+
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
 - `lib/features/tarot/narrative/data/` — catalog + Major + Wands + Cups + Swords + Pentacles profiles
-- Tests: `test/features/tarot/narrative_domain/`
+- Tests: `test/features/tarot/narrative_domain/` (+ `red_team/`)
 
 ### Spec artifacts
 
@@ -147,6 +167,7 @@ Production surface:
 - `docs/product/tarot/NARRATIVE_TAROT_MIGRATION_PLAN.md`
 - `docs/product/tarot/NARRATIVE_TAROT_QUALITY_STANDARD.md`
 - `docs/product/tarot/TAROT_PHASE0_FORENSIC_BASELINE.md`
+- `docs/product/tarot/TAROT_78_PROFILE_RED_TEAM.md`
 
 ### Phase 2 artifacts
 
@@ -191,7 +212,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review and 78-card cross-deck semantic red-team before Narrative Evidence Engine.**
+**ChatGPT / product-owner review of Phase 3C red-team findings.**
 
-Do **not** start Evidence Engine / Visual System / Memory-Recurring until that review.
+Do **not** start Evidence Engine, profile remediation, Visual System, or Memory-Recurring until an explicit next prompt.
 Do **not** mark future items completed until verified.

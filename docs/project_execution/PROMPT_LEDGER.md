@@ -249,6 +249,21 @@ Chronological project execution ledger.
 | Backend modified | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3C — 78-CARD CROSS-DECK SEMANTIC RED-TEAM
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (audit) |
+| Kind | AUDIT + TEST-ONLY — no profile content changes |
+| Start SHA | `c2b5a6d8fa54fe17ba8c000b536d5e3f5a689f01` |
+| Profiles reviewed | **78 / 78** |
+| Report | `docs/product/tarot/TAROT_78_PROFILE_RED_TEAM.md` |
+| Findings | BLOCKER **0** · MAJOR **3** · MINOR **6** · INFO **5** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** |
+| Production profile / app source modified | **NO** |
+| Tests added | `test/features/tarot/narrative_domain/red_team/` |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -266,7 +281,8 @@ Chronological project execution ledger.
 | PL-T3B3 | Tarot Phase 3B3 — Swords Narrative profiles | **DONE** |
 | PL-T3B3.1 | Tarot Phase 3B3.1 — CURRENT_HANDOFF project-memory restoration | **DONE** |
 | PL-T3B4 | Tarot Phase 3B4 — Pentacles + 78 profile completeness | **DONE** |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (3A–3B4 profiles done; Evidence Engine not started) |
+| PL-T3C | Tarot Phase 3C — 78-card cross-deck semantic red-team | **DONE** (audit) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (profiles 78/78; Evidence Engine blocked pending MAJOR remediation) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
