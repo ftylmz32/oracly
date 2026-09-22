@@ -41,19 +41,19 @@ const kNarrativeWands03 = NarrativeCardProfile(
     'Продвижение может остановиться, рассеяться или выглядеть раздутым в чужих глазах.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda küçük bir ilerleme hissedilebilir; taç giydirmeden ufku birlikte tutmayı önerir.',
-    'A small advance may be felt in a bond; it favors holding the horizon together without crowning anyone.',
-    'В связи может ощущаться малое продвижение; карта предлагает держать горизонт вместе, никого не коронуя.',
+    'İki kişi arasındaki küçük bir ilerleme, kimseyi erken taçlandırmadan fark edilmeyi hak eder.',
+    'A small advance between two people is worth noticing without either one being crowned for it too soon.',
+    'Небольшое продвижение между двумя людьми стоит заметить, не коронуя за него никого раньше времени.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, erken zafer ilan etmek yerine görünür büyümeyi sürdüren adımlara bakar.',
-    'The choice looks to steps that sustain visible growth rather than declaring early victory.',
-    'Выбор смотрит на шаги, поддерживающие видимый рост, а не на раннее объявление победы.',
+    'Görünür büyümeyi sürdüren adımlar, burada erken bir zafer ilan etmekten daha değerlidir.',
+    'Steps that sustain visible growth matter more here than declaring an early victory.',
+    'Шаги, поддерживающие заметный рост, здесь важнее, чем раннее объявление победы.',
   ),
   actionDirection: L10nTriple(
-    'Ufka bakın, ilk büyümeyi fark edin; henüz kendinizi taçlandırmayın.',
-    'Look to the horizon, notice first growth; do not crown yourself yet.',
-    'Смотрите на горизонт, заметьте первый рост; ещё не коронуйте себя.',
+    'Ufuktaki ilk büyümeyi fark edin ve onu bir taç saymadan önce olgunlaşmasına izin verin.',
+    'Notice the first growth on the horizon and let it mature before treating it as a crown.',
+    'Заметьте первый рост на горизонте и дайте ему созреть, прежде чем считать его венцом.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

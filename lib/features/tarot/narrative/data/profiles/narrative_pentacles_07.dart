@@ -41,19 +41,19 @@ const kNarrativePentacles07 = NarrativeCardProfile(
     'Тревогу может вызывать напрасное ожидание или слишком ранний срыв.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda olgunlaşma süresi belirebilir; beklemeyi eylemsizlikten ayırmayı ister.',
-    'A ripening span may appear in a bond; it asks to separate waiting from inaction.',
-    'В связи может явиться срок созревания; карта просит отделить ожидание от бездействия.',
+    'İki kişi arasında bir olgunlaşma süresi uzayabilir; bilerek beklemek, hiçbir şey yapmamaktan çok farklı görünür.',
+    'A span of ripening can stretch out between two people, and actively waiting reads very differently from simply doing nothing.',
+    'Между двумя людьми может растянуться срок созревания, и осознанное ожидание выглядит совсем иначе, чем простое бездействие.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, sabrı yeniden değerlendirmekten ayırır; erken toplamayı da donuk bekleyişten ayırır.',
-    'The choice separates patience from reassessing; it also separates premature gathering from frozen waiting.',
-    'Выбор отделяет терпение от пересмотра; также отделяет преждевременный сбор от застывшего ожидания.',
+    'Burada sabır ve yeniden değerlendirme birbirine karşıt değildir; ne erken toplamak ne de donup beklemek ekine gerçekten hizmet eder.',
+    'Patience and reassessment are not opposites here, and neither premature gathering nor frozen waiting actually serves the crop.',
+    'Терпение и пересмотр здесь не противоречат друг другу, и ни преждевременный сбор, ни застывшее ожидание на самом деле не служат посеву.',
   ),
   actionDirection: L10nTriple(
-    'Beklemenin hâlâ hizmet edip etmediğini yoklayın; erken toplamayın, kör beklemeyin.',
-    'Check whether waiting still serves; do not harvest early, do not wait blindly.',
-    'Проверьте, служит ли ещё ожидание; не собирайте рано, не ждите вслепую.',
+    'Beklemenin hâlâ size hizmet edip etmediğini düzenli olarak kontrol edin; erken bir hasat ile gözü kapalı beklemek arasında bir yerde durarak.',
+    'Check regularly whether the waiting still serves you, staying somewhere between an early harvest and waiting with your eyes closed.',
+    'Регулярно проверяйте, служит ли вам ещё ожидание, оставаясь где-то между ранним сбором и ожиданием с закрытыми глазами.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

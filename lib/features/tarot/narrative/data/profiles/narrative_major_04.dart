@@ -46,9 +46,9 @@ const kNarrativeMajor04 = NarrativeCardProfile(
     'Карта дает связи надежность и ясность, предлагая обсуждать правила вместе.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, yetki sınırlarını, sorumlulukları ve uzun vadeli sonuçları belirginleştirmeyi gerektirir.',
-    'The decision benefits from clarifying authority, responsibilities, and long-term consequences.',
-    'Решению помогает ясное понимание полномочий, обязанностей и долгосрочных последствий.',
+    'Yetki sınırlarını, sorumlulukları ve uzun vadeli sonuçları netleştirmek, bu kararı gerçekten güçlendiren şeydir.',
+    'Clarifying authority, responsibilities, and long-term consequences is what actually strengthens this decision.',
+    'Ясное понимание полномочий, обязанностей и долгосрочных последствий — вот что на самом деле укрепляет это решение.',
   ),
   actionDirection: L10nTriple(
     'Temel kuralları yazın, gerçekçi sınırlar koyun ve gerektiğinde çerçeveyi gözden geçirin.',

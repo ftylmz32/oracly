@@ -46,9 +46,9 @@ const kNarrativeMajor10 = NarrativeCardProfile(
     'Карта показывает меняющийся ритм связи и советует не принимать временный этап за окончательный вывод.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, zamanlamayı okumayı ve değişebilecek unsurlar için esnek pay bırakmayı ister.',
-    'The decision asks for attention to timing and room for variables that may shift.',
-    'Решение требует учитывать время и оставлять пространство для меняющихся факторов.',
+    'Zamanlamayı doğru okumak ve değişebilecek unsurlara esnek pay bırakmak, burada sabit bir plandan daha önemlidir.',
+    'Attention to timing and room for shifting variables matter more here than any fixed plan.',
+    'Внимание к времени и пространство для меняющихся факторов значат здесь больше, чем любой жёсткий план.',
   ),
   actionDirection: L10nTriple(
     'Değişeni adlandırın, etki alanınızı seçin ve yeni veriye göre yaklaşımınızı güncelleyin.',

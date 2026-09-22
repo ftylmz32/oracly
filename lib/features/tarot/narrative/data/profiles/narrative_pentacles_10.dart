@@ -41,19 +41,19 @@ const kNarrativePentacles10 = NarrativeCardProfile(
     'Тревогу может вызывать отрыв, забвение или пленение структурой.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda ortak süreklilik belirebilir; alışverişi köklü yapıdan ayırmayı ister.',
-    'Shared continuity may appear in a bond; it asks to separate exchange from rooted structure.',
-    'В связи может явиться общая непрерывность; карта просит отделить обмен от укоренённой структуры.',
+    'İki kişiden de büyük bir süreklilik bir bağa yerleşebilir; bu, herhangi bir tek alışverişten çok, köklü bir yapıya yakındır.',
+    'A continuity larger than either person can settle into a bond, something closer to a rooted structure than to any single exchange.',
+    'В связь может укорениться непрерывность, большая, чем каждый из двоих, — она ближе к укоренённой структуре, чем к любому отдельному обмену.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, kişisel yeterlikten ayrı, neyin birlikte süreceğini netleştirir.',
-    'The choice clarifies what will last together, apart from personal sufficiency alone.',
-    'Выбор проясняет, что продлится вместе, отдельно от одной лишь личной достаточности.',
+    'Gerçekten birlikte sürecek olan, yalnızca bir kişiye yeterli gelenden ayrı olarak adlandırılmaya değer.',
+    'What will actually last together is worth naming separately from what feels sufficient to just one person.',
+    'То, что действительно продлится вместе, стоит назвать отдельно от того, что кажется достаточным лишь одному человеку.',
   ),
   actionDirection: L10nTriple(
-    'Hangi ortak yapının sürdüğünü görün; miras saymayın, kökleri adlandırın.',
-    'See which shared structure endures; do not count inheritance — name the roots.',
-    'Увидьте, какая общая структура длится; не считайте наследство — назовите корни.',
+    'Hangi ortak yapının gerçekten sürdüğünü görün ve bir miras hesaplamak yerine köklerini adlandırın.',
+    'See which shared structure is actually enduring, and name its roots rather than tallying up an inheritance.',
+    'Увидьте, какая общая структура на самом деле длится, и назовите её корни, вместо того чтобы подсчитывать наследство.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

@@ -41,19 +41,19 @@ const kNarrativeCups07 = NarrativeCardProfile(
     'Тревогу может вызывать выбор неверной чаши или невозможность коснуться ни одной.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda umut öteye yüklenebilir; düşü karşılıklı gerçekten ayırmayı ister.',
-    'Hope may be placed on the other; it asks to separate dream from mutual reality.',
-    'Надежда может быть возложена на другого; карта просит отделить мечту от взаимной реальности.',
+    'Umut bir başka kişiye ağır biçimde yaslandığında, kişisel bir düş, gerçekte olmadan çok önce karşılıklı bir gerçeklik gibi hissettirmeye başlayabilir.',
+    'When hope leans heavily on another person, a private dream can start to feel like mutual reality long before it actually is.',
+    'Когда надежда тяжело опирается на другого человека, личная мечта может начать ощущаться взаимной реальностью задолго до того, как ею действительно станет.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, tüm kadehleri seyretmek yerine su taşıyanı ayırt etmeye yaslanır.',
-    'The choice leans on telling which cup holds water, not on watching them all.',
-    'Выбор опирается на различение чаши с водой, а не на наблюдение за всеми.',
+    'Hangi kadehin gerçekten su taşıdığını ayırt etmek, hepsini birden seyretmekten daha değerlidir.',
+    'Telling which cup actually holds water matters more than watching all of them at once.',
+    'Понять, какая чаша действительно держит воду, важнее, чем разглядывать их все разом.',
   ),
   actionDirection: L10nTriple(
-    'Seçenekleri görün, bir kadehe dokunun; yalnızca izlemeyin.',
-    'See the options, touch one cup; do not only watch.',
-    'Увидьте варианты, коснитесь одной чаши; не только наблюдайте.',
+    'Önünüzdeki seçenekleri görün ve yalnızca uzaktan izlemek yerine bir kadehe dokunmanıza izin verin.',
+    'See the options laid out, and let yourself touch one cup instead of only watching from a distance.',
+    'Увидьте разложенные варианты и позвольте себе коснуться одной чаши, а не только наблюдать издалека.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

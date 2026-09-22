@@ -46,9 +46,9 @@ const kNarrativeMajor14 = NarrativeCardProfile(
     'Карта согласует разные темпы и помогает создать общий ритм без потери себя.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, tek hamle yerine küçük ayarların birleşen etkisini değerlendirmeyi gerektirir.',
-    'The choice favors evaluating the combined effect of small adjustments over one dramatic move.',
-    'Выбор предлагает оценить общий эффект малых изменений вместо одного резкого шага.',
+    'Birkaç küçük ayarın birleşen etkisi, burada tek bir dramatik hamleden daha değerlidir.',
+    'The combined effect of several small adjustments is worth more here than one dramatic move.',
+    'Совокупный эффект нескольких малых изменений значит здесь больше, чем один резкий шаг.',
   ),
   actionDirection: L10nTriple(
     'Oranı küçültün, bir değişkeni ayarlayın ve etkisini gözleyerek yeniden dengeleyin.',

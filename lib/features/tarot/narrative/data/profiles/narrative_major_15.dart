@@ -46,9 +46,9 @@ const kNarrativeMajor15 = NarrativeCardProfile(
     'Карта отделяет притяжение от обладания и ставит в центр согласие, границы и взаимную свободу.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, anlık ödülün yanında tekrar eden bedeli de açıkça hesaba katmalıdır.',
-    'The decision must account for recurring cost alongside immediate reward.',
-    'Решение должно учитывать повторяющуюся цену наряду с мгновенной выгодой.',
+    'Tekrar eden bir bedel, burada anlık ödül kadar ağırlığı hak eder.',
+    'A recurring cost deserves as much weight here as the immediate reward being offered.',
+    'Повторяющаяся цена заслуживает здесь не меньшего веса, чем мгновенная выгода.',
   ),
   actionDirection: L10nTriple(
     'Bağın nasıl sürdüğünü gözleyin, tetikleyiciyi adlandırın ve erişilebilir bir sınır koyun.',

@@ -41,19 +41,19 @@ const kNarrativeSwords04 = NarrativeCardProfile(
     'Тревогу может вызывать превращение паузы в вечный уход или мысль без отдыха.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda sessiz bir ara gerekebilir; kaybolmayı dinlenmeden ayırmayı ister.',
-    'A quiet interval may be needed in a bond; it asks to separate disappearing from rest.',
-    'В связи может быть нужен тихий промежуток; карта просит отделить исчезновение от отдыха.',
+    'Sessiz bir ara, iki kişinin tam da ihtiyacı olan şey olabilir; dinlenmek, birbirinden kaybolmakla aynı şey değildir.',
+    'A quiet interval can be exactly what two people need, and resting is not the same as disappearing from each other.',
+    'Тихий промежуток может быть именно тем, что нужно двоим, и отдых — не то же самое, что исчезновение друг для друга.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, gece kaygısından ayrı, bilinçli bir zihin molasına yaslanır.',
-    'The choice leans on a conscious mind-pause, apart from night worry.',
-    'Выбор опирается на сознательную паузу ума, отдельно от ночной тревоги.',
+    'Bilinçli bir zihin molası, burada gece kaygısından çıkan herhangi bir sonuçtan daha iyi işler.',
+    'A conscious pause of the mind serves better here than any conclusion reached out of night worry.',
+    'Сознательная пауза ума служит здесь лучше, чем любой вывод, сделанный из ночной тревоги.',
   ),
   actionDirection: L10nTriple(
-    'Kınına koyun; kaybolmayın.',
-    'Sheathe; do not disappear.',
-    'Вложите в ножны; не исчезайте.',
+    'Kılıcın kınında dinlenmesine izin verin, ama kaybolmak yerine ulaşılabilir kalın.',
+    'Let the sword rest in its sheath while you stay reachable rather than vanishing.',
+    'Позвольте мечу отдохнуть в ножнах, оставаясь при этом на связи, а не исчезая.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

@@ -41,19 +41,19 @@ const kNarrativeCups02 = NarrativeCardProfile(
     'Тревогу может вызывать односторонность, неверное прочтение или слишком быстрая связь.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda karşılıklılık yoklanır; sunuyu içme zorunluluğundan ayırmayı ister.',
-    'Reciprocity is tested in a bond; it asks to separate offer from obligation to drink.',
-    'В связи проверяется взаимность; карта просит отделить предложение от обязанности пить.',
+    'Karşılıklılık burada sınanır; bir teklif, içme zorunluluğundan farklı kalır.',
+    'Reciprocity gets tested here, and an offer stays different from an obligation to drink.',
+    'Здесь проверяется взаимность, и предложение остаётся не тем же самым, что обязанность выпить.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, acele birleşmeden önce iki tarafın da gerçekten sunduğunu karşılaştırmaya yaslanır.',
-    'The choice leans on comparing what each side truly offers before a hasty merge.',
-    'Выбор опирается на сравнение того, что реально предлагает каждая сторона, до поспешного слияния.',
+    'Her iki tarafın gerçekten ne sunduğu, aceleyle birleşmeden önce karşılaştırılmaya değer.',
+    'What each side truly offers is worth comparing before any hasty merge.',
+    'То, что действительно предлагает каждая сторона, стоит сравнить, прежде чем спешить со слиянием.',
   ),
   actionDirection: L10nTriple(
-    'Sunulan kadehi görün, karşılıklılığı karşılaştırın; henüz acele içmeyin.',
-    'See the offered cup, compare reciprocity; do not drink in haste yet.',
-    'Увидьте предложенную чашу, сравните взаимность; ещё не пейте второпях.',
+    'Sunulan kadehi görün ve içindeki karşılıklılığı, aceleyle içmeden önce tartın.',
+    'See the offered cup and weigh the reciprocity in it before drinking in haste.',
+    'Увидьте предложенную чашу и взвесьте заключённую в ней взаимность, прежде чем пить второпях.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

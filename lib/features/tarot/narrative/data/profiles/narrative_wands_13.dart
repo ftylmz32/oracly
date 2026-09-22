@@ -41,19 +41,19 @@ const kNarrativeWands13 = NarrativeCardProfile(
     'Тревогу может вызывать угасание, зависть или превращение тепла в давление.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda olgun bir sıcaklık barınabilir; daveti sahiplenmeden ayırmayı ister.',
-    'Mature warmth may dwell in a bond; it asks to separate invitation from possession.',
-    'В связи может жить зрелая теплота; карта просит отделить приглашение от присвоения.',
+    'Olgun bir sıcaklık bir bağın içinde yaşayabilir; bir davet, sahiplenmekten farklı kalır.',
+    'A mature warmth can live inside a bond, and an invitation stays different from a claim of ownership.',
+    'Зрелое тепло может жить внутри связи, и приглашение остаётся не тем же самым, что притязание на владение.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, sahne etkisi yerine ocağı sürdüren ölçülü bir sıcaklığı gözetir.',
-    'The choice favors measured warmth that sustains a hearth rather than stage effect.',
-    'Выбор хранит сдержанную теплоту, поддерживающую очаг, а не сценический эффект.',
+    'Ocağı canlı tutan ölçülü bir sıcaklık, seyirci için sahnelenen herhangi bir etkiden daha değerlidir.',
+    'A measured warmth that keeps the hearth alive matters more than any effect staged for an audience.',
+    'Сдержанное тепло, поддерживающее очаг живым, значит больше, чем любой эффект, разыгранный на публику.',
   ),
   actionDirection: L10nTriple(
-    'Ocağı canlı tutun, alanı koruyun; kimseyi içine kapatmayın.',
-    'Keep the hearth alive, protect the space; do not shut anyone inside it.',
-    'Держите очаг живым, берегите пространство; никого в него не запирайте.',
+    'Ocağı canlı tutun ve çevresindeki alanı koruyun; kapıyı kapatıp kimseyi içeri kilitlemek yerine açık bırakın.',
+    'Keep the hearth alive and protect the space around it, leaving the door open rather than shutting anyone inside.',
+    'Держите очаг живым и берегите пространство вокруг него, оставляя дверь открытой, а не запирая кого-то внутри.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

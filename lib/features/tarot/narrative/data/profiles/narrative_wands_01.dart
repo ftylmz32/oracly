@@ -46,14 +46,14 @@ const kNarrativeWands01 = NarrativeCardProfile(
     'Приносит в связь свежую смелость и предлагает проверять тепло, а не навязывать его.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, büyük vaat yerine küçük ve sürdürülebilir bir niyetle güçlenir.',
-    'The choice strengthens through a small, sustainable intent rather than a grand promise.',
-    'Выбор крепнет малым устойчивым намерением, а не громким обещанием.',
+    'Küçük ve sürdürülebilir bir niyet, burada büyük bir vaatten daha ağır basar.',
+    'A small, sustainable intent carries more weight here than a grand promise.',
+    'Небольшое, но стойкое намерение значит здесь больше, чем громкое обещание.',
   ),
   actionDirection: L10nTriple(
-    'Kıvılcığı fark edin, küçük tutun; söndürmeyin ve savurmayın.',
-    'Notice the spark, keep it small; do not snuff it, and do not fling it.',
-    'Заметьте искру, держите её малой; не гасите и не разбрасывайте.',
+    'Kıvılcımı boğmadan ya da fazlasını yüklemeden, küçük kalıp kendini kanıtlamasına izin verin.',
+    'Let the spark stay small and prove itself before you smother it or load it with more than it can hold.',
+    'Дайте искре остаться малой и проявить себя, не гася её и не перегружая большим, чем она способна выдержать.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

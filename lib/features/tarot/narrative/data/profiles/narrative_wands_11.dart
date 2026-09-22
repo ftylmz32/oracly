@@ -41,19 +41,19 @@ const kNarrativeWands11 = NarrativeCardProfile(
     'Тревогу может вызывать страх выглядеть незрелым, не быть принятым всерьёз или рассеяния пыла.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda taze, biraz acemi bir sıcaklık belirebilir; bilmişlik yerine soruyu önerir.',
-    'A fresh, slightly unripe warmth may appear in a bond; it favors a question over knowingness.',
-    'В связи может явиться свежая, чуть незрелая теплота; карта предлагает вопрос вместо всезнания.',
+    'İki kişi arasında taze, biraz ham bir sıcaklık ortaya çıkabilir; her şeyi biliyormuş gibi davranmaktansa gerçek bir soru sormak daha iyi işler.',
+    'A fresh, slightly unripe warmth can appear between two people, and a genuine question serves better than acting all-knowing.',
+    'Между людьми может появиться свежее, немного незрелое тепло; искренний вопрос работает лучше, чем поза всезнайки.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, her kıvılcığı kovalamak yerine öğrenilecek tek kapıyı netleştirir.',
-    'The choice clarifies one door worth learning rather than hunting sparks everywhere.',
-    'Выбор проясняет одну дверь для учения, вместо охоты за искрами всюду.',
+    'Gerçekten öğrenilmeye değer tek bir kapı, her yerde kıvılcım avlamaktan daha faydalıdır.',
+    'One door worth truly learning is more useful than hunting for sparks everywhere at once.',
+    'Одна дверь, которую действительно стоит изучить, полезнее, чем охота за искрами повсюду.',
   ),
   actionDirection: L10nTriple(
-    'Sorun, dinleyin; bilmişlik yapmayın.',
-    'Ask, listen; do not perform knowingness.',
-    'Спросите, слушайте; не играйте всезнайку.',
+    'Gerçek bir soru sorun ve dinleyin; merak, her şeyi biliyormuş gösterisinin yerini alsın.',
+    'Ask a real question and listen, letting curiosity replace the performance of already knowing.',
+    'Задайте настоящий вопрос и слушайте — пусть любопытство заменит собой позу всезнания.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

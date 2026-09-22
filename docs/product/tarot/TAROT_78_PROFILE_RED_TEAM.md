@@ -524,6 +524,140 @@ The Phase 3C.3A final report's **26** was a reporting/scope miscount in the summ
 
 ---
 
+## Phase 3C.3B follow-up — RT-M03 interaction semantics remediation (part 2)
+
+| Field | Value |
+|---|---|
+| Status | **REMEDIATED — PENDING FINAL RE-AUDIT** |
+| Phase | 3C.3B |
+| Start HEAD | `71c2b528c11bd74af51d2aedade45cc99d32093b` |
+| Fields in scope | `relationshipDynamic` · `decisionDynamic` · `actionDirection` |
+| Fields **not** in scope | `coreMeaning` · `light` · `shadow` · `tension` · `desire` · `fear` · `upright` · `reversed` · `keywordIds` · `symbolTags` |
+| Profiles touched | **75 / 78** (majors 01/02/12 already naturally varied; no change needed) |
+| relationshipDynamic changed | **53** |
+| decisionDynamic changed | **74** |
+| actionDirection changed | **52** |
+| Locale field changes | TR **179** · EN **179** · RU **179** (each field always edited across all three locales together) |
+| By suit (rel/dec/act) | Major **0/19/0** · Wands **13/13/14** · Cups **12/14/11** · Swords **14/14/11** · Pentacles **14/14/14** |
+
+### Before metrics (opener stem = first 4 normalized tokens; measured at Phase 3C.3B start HEAD)
+
+| Field · locale | Top opener | Count | % of 78 |
+|---|---|---:|---:|
+| relationship · EN | (diverse; every 4-token opener unique) | 1 | 1.3% |
+| relationship · TR | (diverse; every 4-token opener unique) | 1 | 1.3% |
+| relationship · RU | `в связи может явиться` | 19 | 24.4% |
+| decision · EN | `the choice leans on` | 11 | 14.1% |
+| decision · TR | `seçim gece kaygısından ayrı` | 3 | 3.8% |
+| decision · RU | `выбор проясняет что действительно` | 3 | 3.8% |
+| action · EN/TR/RU | (diverse; every 4-token opener unique) | 1 | 1.3% |
+
+The opener-level metric alone understated the problem: `relationshipDynamic` and `actionDirection` varied their first four tokens per card while still embedding an identical **mid-sentence scaffold** ("… may appear **in a bond**; it asks to **separate A from B**" / "[do], [do]; **do not** [Y]"), and `decisionDynamic` was near-universally subject-led by "The choice…" / "The decision…" regardless of the verb that followed.
+
+Historical/discovered phrase-family counts (EN, across relationship+decision+action; TR/RU equivalents found by inspection):
+
+| Phrase family | Before |
+|---|---:|
+| `in a bond` (EN) | **52** |
+| `the choice` (EN, decisionDynamic subject) | **60** |
+| `asks to separate` (EN) | **39** |
+| `do not` (EN, actionDirection) | **62** |
+| `bağda` (TR) | **53** |
+| `seçim` (TR, decisionDynamic subject) | **59** |
+| `в связи` (RU) | **51** |
+| `выбор` (RU, decisionDynamic subject) | **64** |
+
+Action leading-verb (EN) baseline: `name` 12 (15.4%, already below 25%), 45 distinct leading tokens across 78 — RT-m05 was **lexical clustering only**, not a generic/interchangeable-content problem (verified by content: each "name X" instructs a card-specific object).
+
+High-similarity candidates (Jaccard ≥0.5) before remediation: **9** — `cups_09↔cups_10` relationshipDynamic (frozen, already resolved in 3C.2, excluded here), `cups_06↔pentacles_06` 0.538, `cups_13↔pentacles_06` 0.500, `swords_11↔pentacles_11` 0.500, `pentacles_01↔pentacles_02` 0.500, `pentacles_06↔pentacles_10` 0.538, `pentacles_13↔pentacles_14` 0.571 (RT-i02, acceptable Queen/King adjacency), **`cups_03↔cups_10` decisionDynamic 0.643 (RT-m01)**, `swords_03↔swords_06` 0.500, `swords_03↔pentacles_04` 0.500.
+
+Same-card role redundancy: `pentacles_13` relationshipDynamic↔actionDirection = 0.50 (both used the same "separate care from imposing direction" framing).
+
+### Remediation approach
+
+- **relationshipDynamic** (Minors only — Majors already varied): replaced the "`[situation] may appear in a bond; it asks to separate A from B`" scaffold with Major-Arcana-style varied phrasing (direct statement, favoring/warning/reminding constructions, conditional framing), stated between **two people** rather than defaulting to the noun "bond" as filler.
+- **decisionDynamic** (deck-wide, Majors + Minors): restructured the grammatical subject away from "The choice / The decision / Karar / Seçim / Выбор [verb]…" for the large majority of cards, moving the operative decision-logic concept (timing, cost, reciprocity, evidence, boundary, trade-off, momentum, responsibility, etc.) into the subject position instead. Semantic content (the specific distinction each card draws) was preserved; only the sentence architecture changed.
+- **actionDirection** (Minors mostly, a few Majors already clean): reduced the "`[do], [do]; do not [Y]`" bipartite imperative for a majority of affected cards, replacing with direct action, observational instruction, conditional direction, or small-experiment framing while keeping a natural minority of genuine imperative+caution forms.
+- **Self-audit finding mid-remediation**: an early pass replaced "asks to separate A from B" with a new mid-sentence connector family ("*is worth telling/keeping/naming apart from*" EN, "*ayırmakta fayda var / farklı bir şeydir*" TR, "*не то же самое*" RU) that reached ~31% of touched `relationshipDynamic` fields — a replacement monoculture. Caught via self-review before finalizing; **9 relationshipDynamic fields were rewritten a second time** (`cups_06/07/08`, `pentacles_05/09/12`, `swords_08/09/10`) into non-contrastive structures (conditional/observational framing) to bring the family down to **8/54 touched (14.8%)**, with the remainder judged natural (single, content-specific, non-mechanical uses). This is recorded so the pattern is not silently missed in the Phase 3C.4 re-audit.
+- `cups_03` / `cups_10` `decisionDynamic` rewritten to the canonical distinction requested: `cups_03` now turns on whether the table's celebration is **reciprocal in the moment** (shared participation vs. one person's solo win); `cups_10` now turns on **durability over time** (whether the shared circle actually holds vs. merely looking harmonious today).
+- `pentacles_13` `actionDirection` rewritten to a concrete behavioral instruction ("keep tending / loosen your grip") instead of restating the relationshipDynamic's abstract distinction, resolving the same-card redundancy.
+- `cups_09` / `cups_10` `relationshipDynamic` — **untouched** (RT-M01 frozen); only their `decisionDynamic` / `actionDirection` were reviewed and rewritten like the rest of the deck.
+
+### After metrics
+
+| Field · locale | Top opener | Count | % of 78 |
+|---|---|---:|---:|
+| relationship · EN | `distance between two people` | 2 | 2.6% |
+| relationship · TR | (4-way tie, `iki kişi arasında(ki) …`) | 2 | 2.6% |
+| relationship · RU | `между двумя людьми может` | 9 | 11.5% |
+| decision · EN | `what matters is whether` | 2 | 2.6% |
+| decision · TR | (diverse; every 4-token opener unique) | 1 | 1.3% |
+| decision · RU | `то что здесь действительно` | 2 | 2.6% |
+| action · EN/TR/RU | (diverse; every 4-token opener unique) | 1 | 1.3% |
+
+Historical phrase counts after:
+
+| Phrase family | After |
+|---|---:|
+| `in a bond` (EN) | **2** (major_19, swords_10 — single natural uses, not a scaffold) |
+| `the choice` (EN, decisionDynamic subject) | **0** |
+| `asks to separate` (EN) | **0** |
+| `do not` (EN, actionDirection) | **5** |
+| `bağda` (TR) | **3** |
+| `seçim` (TR, decisionDynamic subject) | **1** |
+| `в связи` (RU) | **3** |
+| `выбор` (RU, decisionDynamic subject) | **3** |
+| `отделить` (RU, generic verb, no longer a fixed template) | **13** |
+
+Action leading-verb (EN) after: `name` 12 (15.4%, unchanged share, still well under 25%), **41** distinct leading tokens — confirms RT-m05 was lexical, not semantic, clustering; verdict unchanged: **non-semantic / acceptable**.
+
+High-similarity candidates (Jaccard ≥0.5) after remediation: **0** (full 78×78 pairwise scan across relationshipDynamic and decisionDynamic, EN).
+
+Same-card role redundancy (relationshipDynamic vs decisionDynamic vs actionDirection, Jaccard ≥0.5): **0** cards flagged (`pentacles_13` resolved).
+
+### `cups_03` ↔ `cups_10` decisionDynamic (RT-m01)
+
+| | |
+|---|---|
+| Before similarity (EN Jaccard) | **0.643** |
+| After similarity (EN Jaccard) | **0.161** |
+| `cups_03` identity | Decision turns on whether the table's celebration is genuinely reciprocal right now (shared participation vs. one person's solo win) |
+| `cups_10` identity | Decision turns on whether the shared circle actually endures over time (durability vs. surface harmony) |
+| Blind-swap `cups_03`→`cups_10` | **NO** — momentary reciprocity ≠ long-term durability |
+| Blind-swap `cups_10`→`cups_03` | **NO** — long-term durability ≠ momentary reciprocity |
+| Status | **RESOLVED** |
+
+### RT-m05 action-verb clustering
+
+| | |
+|---|---|
+| Before | `name` 12/78 (15.4%), 45 distinct leads |
+| After | `name` 12/78 (15.4%), 41 distinct leads |
+| Verdict | **Lexical clustering only, non-semantic** — each "name X" instructs a distinct, card-specific object; no cross-card interchangeability found on spot-check. No remediation required beyond the natural variation already introduced by other actionDirection rewrites. |
+
+### Gate results
+
+| Check | Result |
+|---|---|
+| Interaction top opener share ≤25% (all target × locale) | **PASS** |
+| Replacement monoculture | **NO** (self-caught mid-pass "worth telling apart" / "не то же самое" family; corrected — see remediation approach) |
+| Naturalness | **PASS** (manual read of all 75 changed cards; reflective register preserved, no database prose, no fragments) |
+| Canonical fidelity | **PASS** — semantic content of each distinction preserved from the pre-3C.3B text; no new relational/decision/action claim invented for prose variety |
+| Field-role distinctness (relationship vs decision vs action, same card) | **PASS** (0 flagged ≥0.5; `pentacles_13` fixed) |
+| Full-string exact duplicates (relationship/decision/action × TR/EN/RU) | **0** |
+| Safety (destiny/mind-reading/financial/medical/violence) | **PASS** |
+| RT-M01 (`cups_09`/`cups_10` relationshipDynamic) | **RESOLVED**, untouched, regression-tested |
+| RT-M02 (shadow↔reversed) | **RESOLVED**, untouched, regression-tested (exact clones 0; near-clones 0) |
+| 3C.3A / 3C.3A.1 naturalness (`coreMeaning`/`desire`/`shadow`) | **FROZEN**, untouched, regression-tested |
+| RT-m01 (`cups_03`/`cups_10` decisionDynamic) | **RESOLVED** |
+| RT-m05 (action verb clustering) | **RESOLVED as lexical-only / non-semantic** |
+| RT-M03 | **REMEDIATED — PENDING FINAL 78-CARD RE-AUDIT** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — Phase 3C.4 independent re-audit required before this can change |
+
+Historical Phase 3C finding RT-M03 remains documented above as evidence; this section records the interaction-field (part 2) remediation only. Phase 3C.3A/3C.3A.1 already remediated `coreMeaning`/`desire`/`shadow` and remain untouched here.
+
+---
+
 ## Method notes / limitations
 
 - Automated similarity is a **candidate generator**, not proof of defect.  

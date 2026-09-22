@@ -41,14 +41,14 @@ const kNarrativeSwords10 = NarrativeCardProfile(
     'Тревогу может вызывать невозможность встать снова или превращение конца в личность.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda tükenmiş bir dil belirebilir; zihin sonunu beden kehanetinden ayırmayı ister.',
-    'Exhausted language may appear in a bond; it asks to separate mind-ending from body prophecy.',
-    'В связи может явиться исчерпанный язык; карта просит отделить умственный конец от пророчества о теле.',
+    'Bir bağda tükenmiş bir konuşma biçimi ortaya çıkabilir; bu, bedenin değil yalnızca zihnin yorgunluğu yüzünden kesin gibi duyulur.',
+    'An exhausted way of talking can show up in a bond, sounding final only because the mind is tired, not because the body has spoken.',
+    'В связи может проявиться истощённая манера речи, звучащая как приговор лишь потому, что устал ум, а не потому, что заговорило тело.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, gece kaygısından ayrı, hangi düşünce döngüsünün bittiğini netleştirir.',
-    'The choice clarifies which thought-cycle is finished, apart from night worry.',
-    'Выбор проясняет, какой цикл мысли закончен, отдельно от ночной тревоги.',
+    'Hangi düşünce döngüsünün gerçekten bittiğini adlandırmak, gece kaygısının ona eklediklerinden daha önemlidir.',
+    'Naming which thought-cycle has actually finished matters more than whatever night worry adds to it.',
+    'Назвать, какой цикл мысли действительно завершён, важнее того, что добавляет к этому ночная тревога.',
   ),
   actionDirection: L10nTriple(
     'Yerde yatmayı bitirin; henüz dans etmek zorunda değilsiniz.',

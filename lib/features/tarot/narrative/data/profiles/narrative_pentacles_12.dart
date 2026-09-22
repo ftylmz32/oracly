@@ -41,19 +41,19 @@ const kNarrativePentacles12 = NarrativeCardProfile(
     'Тревогу может вызывать поломка пути или срыв от спешки.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda güvenilir tempo belirebilir; sebatı katılıktan ayırmayı ister.',
-    'A reliable tempo may appear in a bond; it asks to separate steadfastness from rigidity.',
-    'В связи может явиться надёжный темп; карта просит отделить стойкость от жёсткости.',
+    'Güvenilir ve istikrarlı bir tempo bir bağa yerleşebilir; gerçekten gerektiğinde eğilecek yeri bırakan bir sebatla.',
+    'A reliable, steady tempo can settle into a bond, staying steadfast in a way that still leaves room to bend when it truly matters.',
+    'Надёжный, ровный темп может установиться в связи — стойкость такого рода, что всё же оставляет место согнуться, когда это действительно нужно.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, merak denemesinden ayrı, hangi adımın sürdürüleceğini netleştirir.',
-    'The choice clarifies which step to keep, apart from a curiosity trial alone.',
-    'Выбор проясняет, какой шаг держать, отдельно от одного лишь испытания любопытства.',
+    'Hangi adımın gerçekten korunmaya değer olduğu, burada geçici bir merak denemesinden daha önemlidir.',
+    'Which step is actually worth keeping matters more here than any passing trial of curiosity.',
+    'Какой шаг действительно стоит сохранить, здесь важнее любого мимолётного испытания любопытства.',
   ),
   actionDirection: L10nTriple(
-    'Alan temposunda ilerleyin; katılığa düşmeyin, istikrarlı çabayı sürdürün.',
-    'Advance at field-tempo; do not harden into rigidity — continue steady effort.',
-    'Идите в темпе поля; не твердейте в жёсткость — продолжайте устойчивое усилие.',
+    'Tarlanın kendi temposunda ilerleyin; istikrarlı çabanın katılığa dönüşmeden sürmesine izin vererek.',
+    'Advance at the field\'s own tempo, letting steady effort continue without hardening into rigidity.',
+    'Двигайтесь в собственном темпе поля, позволяя устойчивому усилию продолжаться, не застывая в жёсткость.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

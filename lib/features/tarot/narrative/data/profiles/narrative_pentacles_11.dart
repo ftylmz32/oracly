@@ -41,19 +41,19 @@ const kNarrativePentacles11 = NarrativeCardProfile(
     'Тревогу может вызывать выглядеть новичком или учиться неверно.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda pratik merak kapı olabilir; tüccarlığı öğrenciden ayırmayı ister.',
-    'Practical curiosity may be a door in a bond; it asks to separate merchanting from the student.',
-    'Практическое любопытство может быть дверью в связи; карта просит отделить торговлю от ученика.',
+    'Pratik bir merak, iki kişi arasında bir kapı olabilir; kendini satmak ile sadece bir öğrenci olmak arasında gerçek bir fark vardır.',
+    'A practical curiosity can become a door between two people, and there is a real difference between selling oneself and simply being a student.',
+    'Практическое любопытство может стать дверью между двумя людьми, и есть настоящая разница между тем, чтобы себя продавать, и тем, чтобы просто быть учеником.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, sonuç satmadan önce neyin deneneceğini netleştirir.',
-    'The choice clarifies what to try before selling an outcome.',
-    'Выбор проясняет, что пробовать, прежде чем продавать исход.',
+    'Gerçekten denemeye değer olan, herhangi bir sonuç satılmadan önce ilgiyi hak eder.',
+    'What is actually worth trying deserves attention before any outcome gets sold.',
+    'То, что действительно стоит попробовать, заслуживает внимания раньше, чем какой-либо результат будет продан.',
   ),
   actionDirection: L10nTriple(
-    'Pratikle öğrenin; satıcı olmayın, küçük bir deneme yapın.',
-    'Learn by practice; do not play merchant — make one small trial.',
-    'Учитесь практикой; не играйте торговца — сделайте одно малое испытание.',
+    'Pratik yaparak öğrenin ve küçük bir deneme yapın; çok erken tüccar rolüne girmek yerine öğrenci kalarak.',
+    'Learn through practice and make one small trial, staying a student rather than playing merchant too soon.',
+    'Учитесь через практику и сделайте одно небольшое испытание, оставаясь учеником, а не играя слишком рано в торговца.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

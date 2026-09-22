@@ -46,9 +46,9 @@ const kNarrativeMajor00 = NarrativeCardProfile(
     'Карта приносит свежесть в связь, напоминая не относиться к близости легкомысленно.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, kusursuz güvence aramak yerine yeterli farkındalıkla denemeyi gerektirebilir.',
-    'The choice may call for an informed experiment rather than perfect reassurance.',
-    'Выбор может потребовать осознанной пробы, а не поиска безупречных гарантий.',
+    'Kusursuz bir güvence aramaktan çok, farkındalıkla yapılan bir deneme burada daha değerlidir.',
+    'An informed experiment counts here more than any guarantee of safety.',
+    'Осознанная проба значит здесь больше, чем поиск безупречных гарантий.',
   ),
   actionDirection: L10nTriple(
     'Küçük bir adım atın, çevrenizi gözleyin ve öğrendikçe yönünüzü ayarlayın.',

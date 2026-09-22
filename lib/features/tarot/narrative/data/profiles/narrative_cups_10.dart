@@ -46,14 +46,14 @@ const kNarrativeCups10 = NarrativeCardProfile(
     'Эмоциональное благополучие может удерживаться вместе в общем поле — культуре круга, где есть место больше чем одному.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, sahne dekoru yerine sofranın gerçekten taşıyıp taşımadığını yoklar.',
-    'The choice tests whether the table truly holds, rather than scenery.',
-    'Выбор проверяет, держит ли стол по-настоящему, а не декорации.',
+    'Önemli olan, bu ortak çemberin insanlarını zaman içinde gerçekten taşıyıp taşıyamayacağıdır, bugün yalnızca uyumlu görünüp görünmediği değil.',
+    'What matters is whether this shared circle can actually hold its people over time, not whether it merely looks harmonious today.',
+    'Важно, способен ли этот общий круг по-настоящему удерживать своих людей во времени, а не то, выглядит ли он гармоничным сегодня.',
   ),
   actionDirection: L10nTriple(
-    'Sofrayı kurun, çemberi koruyun; sahne dekoru yapmayın.',
-    'Set the table, protect the circle; do not stage scenery.',
-    'Накройте стол, берегите круг; не устраивайте сценических декораций.',
+    'Sofrayı kurun ve çemberi koruyun; sıcaklığın, o an için düzenlenmiş bir dekordan değil, kalıcı bir şeyden gelmesine izin verin.',
+    'Set the table and tend the circle, letting its warmth come from something lasting rather than from scenery arranged for the occasion.',
+    'Накройте стол и берегите круг, позволяя его теплу исходить из чего-то прочного, а не из декораций, устроенных ради случая.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

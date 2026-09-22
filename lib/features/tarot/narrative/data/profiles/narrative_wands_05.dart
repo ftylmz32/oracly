@@ -41,19 +41,19 @@ const kNarrativeWands05 = NarrativeCardProfile(
     'Тревогу может вызывать страх быть раздавленным, вспыхнуть гневом или читать каждый спор как личную войну.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda gerilim onur meselesine dönebilir; yarışmayı düşmanlığa çevirmemeyi ister.',
-    'Tension in a bond may become a matter of honor; it asks not to turn contest into enmity.',
-    'Напряжение в связи может стать делом чести; карта просит не превращать состязание во вражду.',
+    'İnsanlar arasındaki gerilim bir onur meselesine dönüşebilir; bir yarışmanın düşmanlığa dönüşmesi şart değildir.',
+    'Tension between people can turn into a matter of honor, and a contest need not curdle into enmity.',
+    'Напряжение между людьми может стать делом чести; состязание не обязано превращаться во вражду.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, kazanmak değil onuru ve sınavın gerçek konusunu ayırt etmeyi gerektirir.',
-    'The choice requires distinguishing honor and the real subject of the trial, not merely winning.',
-    'Выбор требует отличить честь и подлинный предмет испытания, а не просто победу.',
+    'Bu sınavda onur ve gerçek konu, yalnızca kazanmaktan daha önemlidir.',
+    'Honor and the real subject of this trial matter more here than simply winning.',
+    'Честь и подлинный предмет этого испытания значат здесь больше, чем просто победа.',
   ),
   actionDirection: L10nTriple(
-    'Onurunuzu koruyun, sürtünmeyi netleştirin; kimseyi yakmayın.',
-    'Protect your honor, clarify the friction; do not burn anyone.',
-    'Храните честь, проясните трение; никого не сжигайте.',
+    'Onurunuzu koruyun ve gerçek sürtüşmeyi, kimseyi yakmadan adlandırın.',
+    'Protect your honor and name the real friction without letting it burn anyone.',
+    'Берегите свою честь и назовите подлинное трение, никого им не обжигая.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

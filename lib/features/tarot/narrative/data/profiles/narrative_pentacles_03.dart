@@ -41,19 +41,19 @@ const kNarrativePentacles03 = NarrativeCardProfile(
     'Тревогу может вызывать остаться незамеченным или то, что труд сочтут ничем.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda ortak bir üretim alanı açılabilir; alkışı ortak emekten ayırmayı ister.',
-    'A shared making-space may open in a bond; it asks to separate applause from shared labor.',
-    'В связи может открыться общее пространство делания; карта просит отделить аплодисменты от общего труда.',
+    'İnsanlar arasında ortak bir üretim alanı açılabilir; çektiği alkış, onu kuran emekle aynı şey değildir.',
+    'A shared making-space can open between people, and the applause it draws is not the same thing as the labor that built it.',
+    'Между людьми может открыться общее пространство созидания, и вызванные аплодисменты — не то же самое, что построивший его труд.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, yalnız ustalığı değil, kiminle örülecek işi netleştirir.',
-    'The choice clarifies who the work will be woven with, not solo mastery alone.',
-    'Выбор проясняет, с кем сплетётся работа, а не только одинокое мастерство.',
+    'Bu işin kiminle örüleceği, burada tek başına ustalık kadar önemlidir.',
+    'Who this work gets woven with matters here as much as any solo mastery.',
+    'С кем сплетётся эта работа, важно здесь не меньше, чем одинокое мастерство.',
   ),
   actionDirection: L10nTriple(
-    'Kiminle ördüğünüzü görün; katkıyı adlandırın, alkışı beklemeyin.',
-    'See whom you are weaving with; name the contribution, do not wait for applause.',
-    'Увидьте, с кем вы плетёте; назовите вклад, не ждите аплодисментов.',
+    'Bunu kiminle ördüğünüzü görün ve katkılarını açıkça adlandırın; alkış beklemek yerine.',
+    'See who you are weaving this with and name their contribution plainly, rather than waiting around for applause.',
+    'Увидьте, с кем вы это плетёте, и прямо назовите их вклад, вместо того чтобы ждать аплодисментов.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

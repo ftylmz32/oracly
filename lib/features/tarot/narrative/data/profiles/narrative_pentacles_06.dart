@@ -41,19 +41,19 @@ const kNarrativePentacles06 = NarrativeCardProfile(
     'Тревогу может вызывать быть использованным, остаться в долгу или потерять способность давать.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda alışveriş belirebilir; yardımı borçtan ayırmayı ister.',
-    'Exchange may appear in a bond; it asks to separate help from debt.',
-    'В связи может явиться обмен; карта просит отделить помощь от долга.',
+    'İki kişi arasında bir yardım alışverişi hareket edebilir; onu sunmak, sessizce bir borca yazmaktan farklı bir şeydir.',
+    'An exchange of help can move between two people, and offering it stays a different thing from quietly billing it as debt.',
+    'Между двумя людьми может двигаться обмен помощью, и предложить её — не то же самое, что тихо записать её как долг.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, kim ne veriyor ve ne alıyor sorusunu merhamet tiyatrosundan ayırır.',
-    'The choice separates who gives and receives from a theatre of mercy.',
-    'Выбор отделяет вопрос, кто даёт и принимает, от театра милости.',
+    'Kimin gerçekten verdiği ve kimin aldığı konusunda dürüst olmak, burada merhamet üzerine kurulan herhangi bir gösteriden daha önemlidir.',
+    'Being honest about who actually gives and who receives matters more here than any theatre built around mercy.',
+    'Быть честным насчёт того, кто на самом деле даёт, а кто получает, здесь важнее любого театра, выстроенного вокруг милости.',
   ),
   actionDirection: L10nTriple(
-    'Alışverişi adlandırın; verin veya alın, borca çevirmeyin.',
-    'Name the exchange; give or receive — do not turn it into debt.',
-    'Назовите обмен; дайте или примите — не превращайте это в долг.',
+    'Gerçekte neyin alışverişte olduğunu adlandırın; vermenin ya da almanın bir hesap defterine dönüşmeden sade kalmasına izin verin.',
+    'Name what is actually being exchanged, and let giving or receiving stay simple rather than turning into a ledger.',
+    'Назовите, что на самом деле обменивается, и позвольте отдаче или получению остаться простыми, не превращаясь в бухгалтерию.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

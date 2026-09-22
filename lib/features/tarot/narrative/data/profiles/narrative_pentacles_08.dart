@@ -41,19 +41,19 @@ const kNarrativePentacles08 = NarrativeCardProfile(
     'Тревогу может вызывать недостаточность или то, что труд останется незамеченным.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda güvenilir pratik çaba belirebilir; tekrarı ortak üretmekten ayırmayı ister.',
-    'Reliable practical effort may appear in a bond; it asks to separate repetition from making together.',
-    'В связи может явиться надёжное практическое усилие; карта просит отделить повтор от совместного делания.',
+    'İki kişi arasında güvenilir, pratik bir çaba ortaya çıkabilir; aynı işi tek başına yapmak, gerçekten birlikte üretmekten farklı görünür.',
+    'A reliable, practical effort can show up between two people, and doing the same task alone reads differently from actually making something together.',
+    'Между двумя людьми может проявиться надёжное практическое усилие, и делать одно и то же в одиночку выглядит иначе, чем действительно создавать что-то вместе.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, beklemeyi bırakıp hangi hareketin bilinçle sürdürüleceğini netleştirir.',
-    'The choice clarifies which motion to continue with awareness, rather than waiting further.',
-    'Выбор проясняет, какое движение сознательно продолжать, а не ждать дальше.',
+    'Bir hareketi gerçek bir farkındalıkla sürdürmek, burada başlamak için daha fazla beklemekten daha iyi işler.',
+    'Continuing one motion with real awareness serves better here than waiting any longer to begin.',
+    'Продолжать одно движение с настоящей осознанностью здесь полезнее, чем ждать ещё дольше, прежде чем начать.',
   ),
   actionDirection: L10nTriple(
-    'Bilinçli pratiğe dönün; mekanik tekrara düşmeyin, disiplini sürdürün.',
-    'Return to deliberate practice; do not fall into mechanical repetition — continue the discipline.',
-    'Вернитесь к осознанной практике; не падайте в механический повтор — продолжайте дисциплину.',
+    'Bilinçli pratiğe geri dönün ve disiplini canlı tutun; onun tamamen mekanikleştiği anı gözleyerek.',
+    'Return to deliberate practice and keep the discipline alive, watching for the moment it turns purely mechanical.',
+    'Вернитесь к осознанной практике и держите дисциплину живой, отслеживая момент, когда она становится чисто механической.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

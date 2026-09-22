@@ -41,19 +41,19 @@ const kNarrativeCups06 = NarrativeCardProfile(
     'Тревогу может вызывать утрата прошлого или полное упущение настоящего.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda tanıdık bir yumuşaklık belirebilir; anıyı bugünkü alışverişten ayırmayı ister.',
-    'Familiar softness may appear in a bond; it asks to separate memory from today\'s exchange.',
-    'В связи может возникнуть знакомая мягкость; карта просит отделить память от сегодняшнего обмена.',
+    'Eski bir anı iki kişi arasındaki bir anı renklendirdiğinde, o sıcaklığın ne kadarının geçmişe değil bugüne ait olduğunu fark etmek yardımcı olur.',
+    'When old memory colors a moment between two people, it helps to notice how much of the warmth belongs to today rather than to the past.',
+    'Когда старая память окрашивает момент между двумя людьми, полезно заметить, сколько из этого тепла принадлежит сегодняшнему дню, а не прошлому.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, nostaljiyi şimdiki gerçek seçeneklerle karşılaştırarak netleşir.',
-    'The choice clarifies by comparing nostalgia with present real options.',
-    'Выбор проясняется сравнением ностальгии с нынешними реальными вариантами.',
+    'Nostaljiyi şu an mevcut gerçek seçeneklerle karşılaştırmak en net cevabı verir.',
+    'Comparing nostalgia against the real options available now brings the clearest answer.',
+    'Сравнение ностальгии с реально доступными сейчас вариантами даёт самый ясный ответ.',
   ),
   actionDirection: L10nTriple(
-    'Anıyı hatırlayın, yalınlığı koruyun; geçmişte kalmayın.',
-    'Remember the memory, protect simplicity; do not remain in the past.',
-    'Вспомните память, берегите простоту; не оставайтесь в прошлом.',
+    'Anının hatırlanmasına ve yalın kalmasına izin verin, sonra dikkatinizi geçmişte kalmak yerine bugüne döndürün.',
+    'Let the memory be remembered and kept simple, then return your attention to today rather than staying in the past.',
+    'Позвольте памяти быть вспомненной и остаться простой, а затем верните внимание к сегодняшнему дню, а не оставайтесь в прошлом.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

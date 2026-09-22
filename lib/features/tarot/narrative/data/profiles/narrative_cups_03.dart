@@ -41,19 +41,19 @@ const kNarrativeCups03 = NarrativeCardProfile(
     'Тревогу может вызывать исключённость, жизнь на поверхности или ощущение показной радости.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda paylaşım alanı açılabilir; her duyguyu tüketmeden sofrada oturmayı ister.',
-    'A sharing field may open in a bond; it asks to sit at the table without consuming every feeling.',
-    'В связи может открыться поле обмена; карта просит сидеть за столом, не исчерпывая каждое чувство.',
+    'Bu sofrada insanlar arasında bir paylaşım alanı açılabilir; odadaki her duyguyu tüketmeden bu alanın içinde oturmaya değer.',
+    'A field of sharing can open between people at this table, worth sitting inside without needing to consume every feeling in the room.',
+    'За этим столом между людьми может открыться поле обмена, в котором стоит просто находиться, не потребляя каждое чувство в комнате.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, yalnız zafer yerine ortak sofranın gerçekten taşıyıp taşımadığını yoklar.',
-    'The choice tests whether a shared table truly holds, rather than seeking lone triumph.',
-    'Выбор проверяет, держит ли общий стол по-настоящему, а не ищет одиночного триумфа.',
+    'Önemli olan, bu sofradaki herkesin ana gerçekten ortak katılıp katılmadığıdır, kutlamayı tek kişinin kendi zaferi gibi sahiplenmesi değil.',
+    'What matters is whether everyone at this table is actually sharing in the moment, rather than one person claiming the celebration as a solo win.',
+    'Важно, действительно ли все за этим столом разделяют момент, а не то, что один человек присваивает праздник себе как личную победу.',
   ),
   actionDirection: L10nTriple(
-    'Sofraya oturun, paylaşımı fark edin; her kadehi boşaltmayın.',
-    'Sit at the table, notice the sharing; do not empty every cup.',
-    'Сядьте за стол, заметьте обмен; не опустошайте каждую чашу.',
+    'Sofraya oturun ve çevrenizdeki paylaşımı fark edin; her kadehi boşaltmak yerine bazılarını dolu bırakın.',
+    'Sit at the table and notice the sharing around you, leaving some cups still full rather than emptying every one.',
+    'Сядьте за стол и заметьте обмен вокруг себя, оставляя часть чаш полными, а не опустошая каждую.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

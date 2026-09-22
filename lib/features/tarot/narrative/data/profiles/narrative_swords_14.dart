@@ -41,19 +41,19 @@ const kNarrativeSwords14 = NarrativeCardProfile(
     'Тревогу может вызывать давление принципа на человека или рассеяние хребта.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda ilke ve netlik öne çıkabilir; kontrolü sorumlu yargıdan ayırmayı ister.',
-    'Principle and clarity may come forward in a bond; it asks to separate control from accountable judgment.',
-    'В связи могут выйти принцип и ясность; карта просит отделить контроль от ответственного суждения.',
+    'Bir bağ içinde ilke ve netlik öne çıkabilir; hesap verebilir kalmak, kontrolü ele almakla aynı şey değildir.',
+    'Principle and clarity can come forward inside a bond, and staying accountable is not the same as taking control.',
+    'Внутри связи могут выйти на первый план принцип и ясность, и оставаться подотчётным — не то же самое, что брать контроль.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, hükümden önce yer bırakarak adil ölçüyü netleştirir.',
-    'The choice clarifies fair measure by leaving room before judgment.',
-    'Выбор проясняет справедливую меру, оставляя место до суждения.',
+    'Hükümden önce yer bırakmak, burada gerçekten adil bir ölçüyü ortaya çıkaran şeydir.',
+    'Leaving room before judgment is what actually produces a fair measure here.',
+    'Именно то, что оставлено место до суждения, и рождает здесь справедливую меру.',
   ),
   actionDirection: L10nTriple(
-    'İlkeyi tutun; kalbi dışarıda bırakmayın, hükümden önce yer bırakın.',
-    'Hold the principle; do not leave the heart outside — leave room before judgment.',
-    'Держите принцип; не оставляйте сердце вовне — оставьте место до суждения.',
+    'İlkeyi sıkıca tutun, ama kalbi de onun içinde tutun; herhangi bir hüküm inmeden önce yer bırakarak.',
+    'Hold the principle firmly while keeping the heart inside it, leaving room before any judgment lands.',
+    'Твёрдо держите принцип, но не оставляйте сердце снаружи — оставляйте место до того, как прозвучит суждение.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

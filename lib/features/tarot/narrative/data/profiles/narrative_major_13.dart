@@ -46,9 +46,9 @@ const kNarrativeMajor13 = NarrativeCardProfile(
     'Карта ставит под вопрос прежнюю форму связи и различает продолжение и уважительное завершение.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, artık canlı olmayanı açıkça tanıyıp gerekli kapanışı kabul etmeyi ister.',
-    'The decision asks for clear recognition of what is no longer alive and acceptance of closure.',
-    'Решение требует ясно увидеть утратившее жизнь и принять необходимость завершения.',
+    'Artık canlı olmayanı açıkça tanımak, burada gerekli kapanışa direnmekten daha önemlidir.',
+    'Clearly recognizing what is no longer alive matters more here than resisting the closure it calls for.',
+    'Ясно увидеть утратившее жизнь значит здесь больше, чем сопротивляться нужному завершению.',
   ),
   actionDirection: L10nTriple(
     'Neyin bittiğini adlandırın, geride kalan değeri alın ve fazlalığı serbest bırakın.',

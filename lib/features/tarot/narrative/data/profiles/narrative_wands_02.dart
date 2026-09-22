@@ -41,9 +41,9 @@ const kNarrativeWands02 = NarrativeCardProfile(
     'Тревогу может вызывать страх выбрать неверный путь или навечно остаться в ожидании.',
   ),
   relationshipDynamic: L10nTriple(
-    'İlişkide iki tempo çatışabilir; birini ezmeden ufku birlikte okumayı önerir.',
-    'Two tempos may clash in a bond; it favors reading the horizon together without crushing either.',
-    'В связи могут столкнуться два темпа; карта предлагает читать горизонт вместе, не давя ни один.',
+    'İki kişi burada farklı temposlarda ilerleyebilir; ufuk, bir tempo diğerini ezmesindense birlikte okunduğunda daha iyi görülür.',
+    'Two people may move at different tempos here; the horizon is read better together than by one pace overriding the other.',
+    'Здесь двое могут двигаться в разном темпе; горизонт лучше читается вместе, чем когда один темп подавляет другой.',
   ),
   decisionDynamic: L10nTriple(
     'Karar henüz zorunlu olmayabilir; seçenekleri karşılaştırmak acele yargıdan değerlidir.',
@@ -51,9 +51,9 @@ const kNarrativeWands02 = NarrativeCardProfile(
     'Решение ещё может быть необязательным; сравнение вариантов важнее поспешного приговора.',
   ),
   actionDirection: L10nTriple(
-    'Ufka bakın, iki yolu karşılaştırın; henüz atlamayın.',
-    'Look at the horizon, compare the two paths; do not leap yet.',
-    'Смотрите на горизонт, сравните два пути; ещё не прыгайте.',
+    'Ufka bakın ve ağırlığınızı birine vermeden önce iki yolu karşılaştırın.',
+    'Look at the horizon and compare the two paths before committing your weight to either one.',
+    'Посмотрите на горизонт и сравните два пути, прежде чем отдать вес одному из них.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

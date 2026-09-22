@@ -41,14 +41,14 @@ const kNarrativeSwords02 = NarrativeCardProfile(
     'Тревогу может вызывать выбор неверной стороны или вечный замок.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda bir durak belirebilir; seçim korkusunu görmeyi, vurmamayı ister.',
-    'A pause may appear in a bond; it asks to see fear of choosing without striking.',
-    'В связи может явиться пауза; карта просит видеть страх выбора, не нанося удара.',
+    'İki kişi arasındaki bir mola onurlandırılmaya değer olabilir; henüz harekete geçmeden seçim korkusunu fark edecek kadar.',
+    'A pause between two people can be worth honoring, long enough to notice the fear of choosing without acting on it yet.',
+    'Пауза между двумя людьми может заслуживать уважения — достаточно долгая, чтобы заметить страх выбора, ещё не действуя на его основе.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, acele hükmü erteleyerek iki seçeneği göz önünde tutmaya yaslanır.',
-    'The choice leans on holding both options in view while deferring a hasty verdict.',
-    'Выбор опирается на удержание обоих вариантов в виду, откладывая поспешный приговор.',
+    'Her iki seçeneği de göz önünde tutmak, burada aceleyle bir hükme varmaktan daha iyi işler.',
+    'Holding both options in view works better here than rushing toward a verdict.',
+    'Держать оба варианта в поле зрения здесь работает лучше, чем спешить с приговором.',
   ),
   actionDirection: L10nTriple(
     'Gözünüzü açın; henüz vurmak zorunda değilsiniz.',

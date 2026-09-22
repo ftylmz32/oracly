@@ -41,19 +41,19 @@ const kNarrativeSwords01 = NarrativeCardProfile(
     'Тревогу может вызывать ранение ясностью или рассеяние идеи.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda duru bir cümle gerekebilir; kesmeyi netlikten ayırmayı ister.',
-    'A clear sentence may be needed in a bond; it asks to separate cutting from clarity.',
-    'В связи может быть нужна ясная фраза; карта просит отделить ранение от ясности.',
+    'İki kişi arasında net bir cümle çok şey ifade edebilir; bir şeyi açıkça söylemek, onu keserek söylemekle aynı şey değildir.',
+    'A clear sentence can matter a great deal between two people, and saying something clearly is not the same as cutting with it.',
+    'Ясная фраза может значить многое между двумя людьми, и сказать что-то прямо — не то же самое, что сказать это раня.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, büyük savaş yerine küçük ve dürüst bir ayrımı netleştirir.',
-    'The choice clarifies a small honest distinction rather than a grand battle.',
-    'Выбор проясняет малое честное различие, а не великую битву.',
+    'Küçük ve dürüst bir ayrım, burada büyük bir savaş çıkarmaktan daha değerlidir.',
+    'A small, honest distinction is worth more here than staging a grand battle over it.',
+    'Небольшое честное различие значит здесь больше, чем устраивать из-за него большую битву.',
   ),
   actionDirection: L10nTriple(
-    'Varsayımı adlandırın; net olun, keserek konuşmayın.',
-    'Name the assumption; be clear, do not speak by cutting.',
-    'Назовите допущение; будьте ясны, не говорите, раня.',
+    'Varsayımı yüksek sesle adlandırın ve netliğinizin işi görmesine izin verin, sesinizdeki bir keskinliğin değil.',
+    'Name the assumption out loud and let your clarity do the work instead of an edge in your voice.',
+    'Назовите допущение вслух и позвольте ясности сделать своё дело, а не остроте в голосе.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

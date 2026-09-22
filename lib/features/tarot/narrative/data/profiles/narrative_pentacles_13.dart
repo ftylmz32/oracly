@@ -41,19 +41,19 @@ const kNarrativePentacles13 = NarrativeCardProfile(
     'Тревогу может вызывать остаться без ухода или недостаточно опекать.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda pratik gözetim belirebilir; bakımı yön dayatmaktan ayırmayı ister.',
-    'Practical stewardship may appear in a bond; it asks to separate care from imposing direction.',
-    'В связи может явиться практическое попечение; карта просит отделить заботу от навязывания направления.',
+    'Bir bağın içinde pratik bir gözetim türü gelişebilir; birine bakmak, onun yönünü belirlemekten farklı bir şeydir.',
+    'A practical kind of stewardship can grow inside a bond, where tending someone is different from steering their direction.',
+    'Внутри связи может расти практическая форма попечения, где заботиться о ком-то — не то же самое, что определять его направление.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, hesap vermekten ayrı, neyin beslenip korunacağını netleştirir.',
-    'The choice clarifies what to nourish and protect, apart from holding accountability alone.',
-    'Выбор проясняет, что питать и беречь, отдельно от одной лишь подотчётности.',
+    'Gerçekten beslenmesi ve korunması gereken şey, yalnızca hesap verebilirliği taşıyandan ayrı olarak adlandırılmaya değer.',
+    'What actually needs nourishing and protecting is worth naming apart from who simply holds accountability.',
+    'То, что действительно нуждается в питании и защите, стоит назвать отдельно от того, кто просто несёт подотчётность.',
   ),
   actionDirection: L10nTriple(
-    'Pratik bakımı sürdürün; boğmayın, vekilliği yön dayatmaktan ayırın.',
-    'Continue practical care; do not smother — separate stewardship from imposing direction.',
-    'Продолжайте практическую заботу; не удушайте — отделите попечение от навязывания направления.',
+    'Zaten büyümekte olanı beslemeyi sürdürün ve bakım kontrole benzemeye başladığı an tutuşunuzu gevşetin.',
+    'Keep tending what is already growing, and loosen your grip the moment care starts to feel like control.',
+    'Продолжайте ухаживать за тем, что уже растёт, и ослабляйте хватку в тот момент, когда забота начинает напоминать контроль.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

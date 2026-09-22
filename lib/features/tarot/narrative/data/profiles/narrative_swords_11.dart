@@ -41,19 +41,19 @@ const kNarrativeSwords11 = NarrativeCardProfile(
     'Тревогу может вызывать выглядеть глупо или ранение вопросом.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda soru sormak yumuşak bir kapı olabilir; hükmü meraktan ayırmayı ister.',
-    'Asking in a bond may be a gentle door; it asks to separate verdict from curiosity.',
-    'Спрашивать в связи может быть мягкой дверью; карта просит отделить приговор от любопытства.',
+    'İki kişi arasında sorulan bir soru, nazik bir kapı açabilir; yeter ki merak, bir hüküm vermekten ayrı kalsın.',
+    'A question asked between two people can open a gentle door, as long as curiosity stays apart from handing down a verdict.',
+    'Вопрос, заданный между двумя людьми, может открыть мягкую дверь — при условии, что любопытство остаётся отдельным от вынесения приговора.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, spekülasyondan ayrı, bilineni ve bilinmeyeni yoklamaya yaslanır.',
-    'The choice leans on testing known from unknown, apart from speculation.',
-    'Выбор опирается на проверку известного и неизвестного, отдельно от догадки.',
+    'Bilineni bilinmeyenden ayırmak, burada spekülasyonu izlemekten daha iyi işler.',
+    'Sorting the known from the unknown works better here than following speculation.',
+    'Отделить известное от неизвестного здесь полезнее, чем следовать догадкам.',
   ),
   actionDirection: L10nTriple(
-    'Sorun; mahkeme kurmayın, varsayımı yoklayın.',
-    'Ask; do not assemble a court — check the assumption.',
-    'Спросите; не собирайте суд — проверьте допущение.',
+    'Soruyu doğrudan sorun ve arkasındaki varsayımı kontrol edin; onun üzerine bir mahkeme kurmak yerine.',
+    'Ask the question directly and check the assumption behind it, rather than convening a court over it.',
+    'Задайте вопрос прямо и проверьте стоящее за ним допущение, вместо того чтобы созывать из-за этого суд.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

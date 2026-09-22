@@ -41,19 +41,19 @@ const kNarrativeWands12 = NarrativeCardProfile(
     'Тревогу может вызывать страх сгореть в пути, никуда не прибыть или просто бежать.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda coşku belirebilir; geçerken yakmadan ilerlemeyi önerir.',
-    'Ardor may appear in a bond; it favors going forward without burning as you pass.',
-    'В связи может явиться пыл; карта предлагает идти вперёд, не сжигая по пути.',
+    'İnsanlar arasında güçlü bir coşku yükselebilir; bu coşku, geçtiği yeri yakmadığında daha iyi yol alır.',
+    'A strong ardor can rise between people, and it travels better when it does not scorch what it passes.',
+    'Между людьми может подняться сильный пыл; он движется лучше, когда не обжигает то, мимо чего проходит.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, hareketi kaçıştan ayırır ve yönü net bir hedefe bağlar.',
-    'The choice separates motion from escape and binds heading to a clear aim.',
-    'Выбор отделяет движение от бегства и связывает курс с ясной целью.',
+    'Hareketi kaçıştan ayırmak değerlidir; bir yöne gitmek en iyi net bir hedefe bağlandığında işler.',
+    'Motion is worth telling apart from escape, and heading somewhere works best tied to a clear aim.',
+    'Стоит отличать движение от бегства; путь работает лучше всего, когда привязан к ясной цели.',
   ),
   actionDirection: L10nTriple(
-    'İlerleyin, yönü seçin; yakarak geçmeyin.',
-    'Go forward, choose a heading; do not pass by burning.',
-    'Идите вперёд, выберите курс; не проходите сжигая.',
+    'İleri gidin ve bir yön seçin; geride bıraktığınızı yakmadan geçin.',
+    'Go forward and choose a heading, moving through without scorching what you leave behind.',
+    'Идите вперёд и выберите курс, проходя мимо, не обжигая то, что оставляете позади.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

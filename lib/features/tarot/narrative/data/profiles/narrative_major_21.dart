@@ -46,9 +46,9 @@ const kNarrativeMajor21 = NarrativeCardProfile(
     'Карта чтит общий путь и сохраняет принадлежность, не заставляя завершенные циклы продолжаться.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, yeterli bütünlüğü tanımayı ve açık kalan küçük parçaları bilinçle kapatmayı ister.',
-    'The decision asks for recognizing sufficient wholeness and consciously closing minor loose ends.',
-    'Решение требует признать достаточную целостность и осознанно завершить оставшиеся мелочи.',
+    'Bunun yeterince bütün olduğunu kabul etmek ve kalan küçük parçaları bilinçle kapatmak, burada kusursuz bir bitişi kovalamaktan daha önemlidir.',
+    'Recognizing that this is whole enough, and consciously closing the remaining loose ends, matters more here than chasing a perfect finish.',
+    'Признать достаточную целостность и осознанно завершить оставшиеся мелочи значит здесь больше, чем гнаться за безупречным финалом.',
   ),
   actionDirection: L10nTriple(
     'Tamamlananı adlandırın, katkıları onurlandırın ve bir sonraki adım için alan boşaltın.',

@@ -46,9 +46,9 @@ const kNarrativeMajor20 = NarrativeCardProfile(
     'Карта проявляет прошлые поступки и поддерживает разговор об ответственности и восстановлении без обвинений.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, önceki dersleri inkâr etmeden bugünkü değerlerle yeni bir yanıt vermeyi ister.',
-    'The decision asks for a new response rooted in present values without denying earlier lessons.',
-    'Решение требует нового ответа из нынешних ценностей без отрицания прежних уроков.',
+    'Önceki dersleri inkâr etmeden bugünkü değerlerden doğan yeni bir yanıt, bu anın gerçekten istediği şeydir.',
+    'A new response rooted in present values, without denying earlier lessons, is what this moment actually calls for.',
+    'Новый ответ, рождённый из нынешних ценностей и не отрицающий прежние уроки, — вот чего на самом деле просит этот момент.',
   ),
   actionDirection: L10nTriple(
     'Geçmişten bir dersi seçin, payınızı açıkça kabul edin ve bugün farklı davranın.',

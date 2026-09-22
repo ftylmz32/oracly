@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-22 — Tarot Phase 3C.3A.1 RT-M03A naturalness repair
+**Updated:** 2026-09-23 — Tarot Phase 3C.3B RT-M03 interaction semantics remediation
 
 ---
 
@@ -31,6 +31,7 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.3A task start | `776f040778ed61a94cead565b60016f5c8dc0e61` | RT-M03 part 1 (core/desire/shadow) |
 | Phase 3C.3A end | `8e6eedb6cbae693a236c1273725d75fcec63937f` | RT-M03 part 1 diversity gates |
 | Phase 3C.3A.1 task start | `8e6eedb6cbae693a236c1273725d75fcec63937f` | RT-M03A naturalness repair |
+| Phase 3C.3B task start | `71c2b528c11bd74af51d2aedade45cc99d32093b` | RT-M03 interaction semantics (part 2) |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -98,6 +99,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **COMPLETE** |
 | Phase 3C.3A — RT-M03 core/desire/shadow template diversification | **COMPLETE** (RT-M03 still OPEN) |
 | Phase 3C.3A.1 — RT-M03A naturalness repair | **COMPLETE** (3C.3A naturalness FROZEN; RT-M03 still OPEN) |
+| Phase 3C.3B — RT-M03 relationship/decision/action interaction semantics | **COMPLETE** (RT-M03 REMEDIATED — PENDING FINAL RE-AUDIT) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -249,6 +251,34 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.3B
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Fields in scope | `relationshipDynamic` · `decisionDynamic` · `actionDirection` |
+| Profiles touched | **75 / 78** |
+| relationshipDynamic changed | **53** |
+| decisionDynamic changed | **74** |
+| actionDirection changed | **52** |
+| TR/EN/RU field changes | **179 / 179 / 179** |
+| Historical EN stems | `the choice` 60→0 · `asks to separate` 39→0 · `in a bond` 52→2 · `do not` 62→5 |
+| Self-caught replacement monoculture | "worth telling/keeping apart" / "не то же самое" family peaked ~31% of touched relationship fields mid-pass; corrected to 14.8% via a second rewrite pass on 9 cards |
+| High-similarity candidates (Jaccard ≥0.5) | 9→0 |
+| `cups_03`/`cups_10` decisionDynamic (RT-m01) | 0.643→0.161, **RESOLVED** |
+| `pentacles_13` same-card role redundancy | 0.50→0, **RESOLVED** |
+| RT-m05 action clustering | `name` 15.4% share both before/after — **lexical-only, non-semantic** |
+| RT-M01 | **RESOLVED** (untouched, regression-tested) |
+| RT-M02 | **RESOLVED** (untouched, regression-tested) |
+| RT-M03 | **REMEDIATED — PENDING FINAL RE-AUDIT** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — Phase 3C.4 independent re-audit required |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Tarot Visual System | **NOT IMPLEMENTED** |
+| V2 profile coverage | **78 / 78** |
+| Canonical deck | Unchanged |
+| Current Tarot user path | Unmodified |
+
 Production surface:
 
 - `lib/features/tarot/narrative/domain/` — models + validator + symbol tags
@@ -287,6 +317,7 @@ Production surface:
 | Flutter (Phase 3C.2 — PL-T3C.2) | 3719 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.3A — PL-T3C.3A) | 3725 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.3A.1 — PL-T3C.3A.1) | 3728 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3C.3B — PL-T3C.3B) | 3737 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -311,7 +342,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3C.3B.**
+**ChatGPT review before Phase 3C.4 final 78-card re-audit.**
 
-Do **not** start Phase 3C.3B, Evidence Engine, Visual System, or Memory-Recurring until an explicit next prompt.
+Do **not** start Phase 3C.4, Evidence Engine, Visual System, or Memory-Recurring until an explicit next prompt.
 Do **not** mark future items completed until verified.

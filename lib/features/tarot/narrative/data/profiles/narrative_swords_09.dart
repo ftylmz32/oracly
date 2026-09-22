@@ -41,19 +41,19 @@ const kNarrativeSwords09 = NarrativeCardProfile(
     'Тревогу может вызывать сбытие худшего сценария или мысль, что никогда не утихает.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda kaygı konuşmaları artabilir; korkuyu kanıttan ve kehanetten ayırmayı ister.',
-    'Anxious talk may increase in a bond; it asks to separate fear from evidence and prophecy.',
-    'В связи могут усилиться тревожные разговоры; карта просит отделить страх от свидетельства и пророчества.',
+    'İki kişi arasındaki kaygılı konuşmalar geceleri artabilir; korku, ne kanıtın ne de kehanetin hak ettiği kadar özgüvenle konuşurken.',
+    'Anxious talk between two people can increase at night, when fear speaks with more confidence than either evidence or prophecy has earned.',
+    'Тревожные разговоры между двумя людьми могут усиливаться ночью, когда страх говорит увереннее, чем заслужили и свидетельство, и пророчество.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, kın dinlenmesinden ayrı, gece büyüyen varsayımları gündüz yoklar.',
-    'The choice tests night-grown assumptions by day, apart from sheath-rest.',
-    'Выбор дневной проверкой испытывает ночные допущения, отдельно от отдыха в ножнах.',
+    'Gece boyunca büyüyen varsayımlar, güvenilmeden önce gün ışığında sınanmayı hak eder.',
+    'Assumptions that grew overnight deserve a daylight test before they are trusted.',
+    'Допущения, выросшие за ночь, заслуживают дневной проверки, прежде чем им можно доверять.',
   ),
   actionDirection: L10nTriple(
-    'Düşünceyi sayın; hepsine inanmayın, korkuyu kanıttan ayırın.',
-    'Count the thoughts; do not believe them all — separate fear from evidence.',
-    'Сочтите мысли; не верьте всем — отделите страх от свидетельства.',
+    'Gelen düşünceleri sayın, onları gerçek değil veri olarak ele alın; kanıtın korkudan daha ağır basmasına izin verin.',
+    'Count the thoughts as they come, treating them as data rather than facts, and let evidence carry more weight than fear.',
+    'Считайте приходящие мысли, относясь к ним как к данным, а не фактам, и дайте свидетельству перевесить страх.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

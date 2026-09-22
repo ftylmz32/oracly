@@ -41,19 +41,19 @@ const kNarrativeCups12 = NarrativeCardProfile(
     'Тревогу может вызывать отказ или рассеяние предложения.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda bir sunu hareketlenebilir; peşinden koşmayı karşılıklı akıştan ayırmayı ister.',
-    'An offer may move in a bond; it asks to separate chase from mutual flow.',
-    'В связи может прийти в движение предложение; карта просит отделить погоню от взаимного потока.',
+    'Bir teklif iki kişi arasında hareket edebilir; onun peşinden koşmak, iki tarafın da gerçekten paylaştığı bir akıştan farklı bir şeydir.',
+    'An offer can move between two people, and chasing it stays different from a flow that both sides actually share.',
+    'Предложение может задвигаться между двумя людьми, и погоня за ним — не то же самое, что поток, которым действительно делятся обе стороны.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, her kapıyı denemek yerine sununun nereye taşınacağını netleştirir.',
-    'The choice clarifies where the offer is carried, rather than trying every door.',
-    'Выбор проясняет, куда несут предложение, а не пробует каждую дверь.',
+    'Bu teklifin gerçekten nereye taşındığı, ulaşılabilen her kapıyı denemekten daha önemlidir.',
+    'Where this offer is actually being carried matters more than trying every door in reach.',
+    'Куда на самом деле несут это предложение, важнее, чем пробовать каждую доступную дверь.',
   ),
   actionDirection: L10nTriple(
-    'Sunuyu taşıyın, akışı seçin; her kapıyı çalmayın.',
-    'Carry the offer, choose the flow; do not knock every door.',
-    'Несите предложение, выберите поток; не стучите в каждую дверь.',
+    'Teklifi, geçtiğiniz her kapıyı çalmak yerine seçtiğiniz tek bir akışa doğru taşıyın.',
+    'Carry the offer toward one chosen flow rather than knocking on every door you pass.',
+    'Несите предложение к одному выбранному потоку, а не стучите в каждую дверь по пути.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

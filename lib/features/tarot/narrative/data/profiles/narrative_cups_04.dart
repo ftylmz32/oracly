@@ -41,19 +41,19 @@ const kNarrativeCups04 = NarrativeCardProfile(
     'Тревогу может вызывать упущенное уже предложенное или онемение.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda mesafe keskinleşebilir; yokluk sanmadan duraklamayı ayırmayı ister.',
-    'Distance may feel sharper in a bond; it asks to separate pause from assumed absence.',
-    'В связи дистанция может ощущаться острее; карта просит отделить паузу от принятого за отсутствие.',
+    'İki kişi arasındaki mesafe olduğundan keskin hissedilebilir; bir mola, gerçek bir yokluktan farklı kalır.',
+    'Distance between two people can feel sharper than it is, and a pause stays different from real absence.',
+    'Дистанция между двумя людьми может ощущаться острее, чем есть; пауза остаётся не тем же самым, что подлинное отсутствие.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, yeni aramadan önce eldekinin gerçekten görülüp görülmediğini yoklar.',
-    'The choice tests whether what is already here has truly been seen before seeking more.',
-    'Выбор проверяет, действительно ли увидено уже имеющееся, прежде чем искать новое.',
+    'Zaten burada olan şey, daha fazlası aranmadan önce gerçekten görülmeyi hak eder.',
+    'What is already here deserves to be truly seen before anything more is sought.',
+    'То, что уже есть, заслуживает быть по-настоящему увиденным, прежде чем искать больше.',
   ),
   actionDirection: L10nTriple(
-    'Öndeki kadehe bakın, yeteri fark edin; yorgunluğu yokluk sanmayın.',
-    'Look at the cup in front, notice enough; do not mistake weariness for absence.',
-    'Смотрите на чашу перед собой, заметьте достаточное; не принимайте усталость за отсутствие.',
+    'Önünüzdeki kadehe bakın ve yeterli olanı fark edin; yorgunluğu yoklukla karıştırmadan.',
+    'Look at the cup already in front of you and notice what is enough, without mistaking tiredness for absence.',
+    'Посмотрите на чашу перед собой и заметьте достаточное, не путая усталость с отсутствием.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

@@ -41,19 +41,19 @@ const kNarrativePentacles02 = NarrativeCardProfile(
     'Тревогу может вызывать падение одной стороны или сбой ритма.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda karşılıklı yük paylaşımı gerekebilir; kilitlenmeyi dengeden ayırmayı ister.',
-    'Shared load-carrying may be needed in a bond; it asks to separate locking from balance.',
-    'В связи может понадобиться делить нагрузку; карта просит отделить запирание от равновесия.',
+    'İki kişi ortak bir yükü sırayla taşımak zorunda kalabilir; burada sıkıca kavramak, gerçek dengeyi bulmaktan çok farklı görünür.',
+    'Two people may need to trade off carrying a shared load, where holding on too tightly reads very differently from finding real balance.',
+    'Двоим может понадобиться по очереди нести общую ношу, и крепко цепляться выглядит совсем иначе, чем найти настоящее равновесие.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, tek yolu zorlamak yerine iki ağırlığın tempo değişimini tartar.',
-    'The choice weighs tempo shifts between two weights rather than forcing one path.',
-    'Выбор взвешивает смену темпа между двумя тяжестями, а не навязывает один путь.',
+    'Bu iki talep arasında tempo değiştirmek, burada her şeyi tek bir yola zorlamaktan daha iyi işler.',
+    'Shifting tempo between these two demands works better here than forcing everything onto one path.',
+    'Смена темпа между этими двумя требованиями здесь работает лучше, чем принуждать всё к одному пути.',
   ),
   actionDirection: L10nTriple(
-    'Hangi kaynağın sırada olduğunu görün; ritmi koruyun, ikisini birden sıkmayın.',
-    'See which resource is next in turn; keep the rhythm, do not grip both at once.',
-    'Увидьте, какой ресурс следующий по очереди; держите ритм, не сжимайте оба сразу.',
+    'Sırada hangi kaynağın olduğunu görün ve ritmin onu taşımasına izin verin; iki elinizi birden doldurup sıkmak yerine.',
+    'See which resource is next in the turn and let the rhythm carry it, rather than gripping both hands full at once.',
+    'Увидьте, какой ресурс следующий по очереди, и позвольте ритму его нести, вместо того чтобы сжимать обе руки разом.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

@@ -41,19 +41,19 @@ const kNarrativePentacles01 = NarrativeCardProfile(
     'Тревогу может вызывать напрасное начало или то, что оно вовсе не взойдёт.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda ortak bir başlangıç gerekebilir; hasadı tohumdan ayırmayı ister.',
-    'A shared beginning may be needed in a bond; it asks to separate harvest from seed.',
-    'В связи может быть нужно общее начало; карта просит отделить урожай от семени.',
+    'İki kişi ortak bir başlangıcı birlikte ekebilir; burada gelecekteki hasadı, tohumun kendisinden ayrı tutmakta fayda var.',
+    'Two people can plant a shared beginning together, where the future harvest is worth setting aside from the seed itself.',
+    'Двое могут вместе посадить общее начало, и здесь будущий урожай стоит отделять от самого семени.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, sonucu saymak yerine neyin dikilebileceğini netleştirir.',
-    'The choice clarifies what can be planted rather than counting the outcome.',
-    'Выбор проясняет, что можно посадить, а не подсчитывает исход.',
+    'Şu an gerçekten dikilebilecek olan, henüz büyümemiş bir sonucu saymaktan daha önemlidir.',
+    'What can actually be planted right now matters more than counting an outcome that has not grown yet.',
+    'То, что реально можно посадить прямо сейчас, важнее подсчёта ещё не выросшего результата.',
   ),
   actionDirection: L10nTriple(
-    'Elinizdeki tohumu adlandırın; dikin, hasadı henüz saymayın.',
-    'Name the seed in hand; plant it, do not count the harvest yet.',
-    'Назовите семя в руке; посадите его, пока не считайте урожай.',
+    'Elinizde gerçekten tuttuğunuz tohumu adlandırın ve toprağa koyun; hasat sayımını sonraya bırakarak.',
+    'Name the seed you are actually holding and put it in the ground, leaving the harvest count for later.',
+    'Назовите семя, которое действительно держите в руке, и посадите его, оставив подсчёт урожая на потом.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

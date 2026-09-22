@@ -41,19 +41,19 @@ const kNarrativeCups13 = NarrativeCardProfile(
     'Тревогу может вызывать переполнение, утрата границы или утопление в чужом чувстве.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda tutan bir şefkat belirebilir; kurtarmayı tutmadan ayırmayı ister.',
-    'Holding compassion may appear in a bond; it asks to separate rescuing from holding.',
-    'В связи может возникнуть удерживающее сострадание; карта просит отделить спасательство от удержания.',
+    'İki kişi arasında tutan bir şefkat gelişebilir; birini tutmak, onu kurtarmaya çalışmaktan farklı bir şeydir.',
+    'A compassion that holds can grow between two people, and holding someone stays different from rescuing them.',
+    'Между двумя людьми может расти удерживающее сострадание, и удерживать кого-то — не то же самое, что его спасать.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, her acıyı üstlenmeden duygunun nerede tutulacağını ayırt eder.',
-    'The choice discerns where feeling is held without taking on every pain.',
-    'Выбор различает, где удерживается чувство, не принимая на себя каждую боль.',
+    'Duygunun nerede tutulabileceğini ayırt etmek, yoldan geçen her acıyı üstlenmekten daha değerlidir.',
+    'Discerning where feeling can be held matters more than taking on every pain that passes by.',
+    'Различить, где можно удержать чувство, важнее, чем брать на себя каждую проходящую боль.',
   ),
   actionDirection: L10nTriple(
-    'Tutun, şefkati koruyun; boğulmayın ve kurtarmayın.',
-    'Hold, protect compassion; do not drown, and do not rescue.',
-    'Удерживайте, берегите сострадание; не тоните и не спасайте.',
+    'Şefkatin sizden istediğini tutun, ama kendi zemininizi de koruyun; ne boğulun ne de kurtarmaya koşun.',
+    'Hold what compassion asks of you while keeping your own footing, neither drowning in it nor rushing to rescue.',
+    'Держите то, что просит от вас сострадание, но не теряйте собственную опору — не тоните и не бросайтесь спасать.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

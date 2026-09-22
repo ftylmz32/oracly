@@ -41,19 +41,19 @@ const kNarrativeWands04 = NarrativeCardProfile(
     'Тревогу может вызывать страх не укорениться, пустого праздника или превращения паузы в застой.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda sakin paylaşım belirebilir; eşiği kutlarken yolu bitmiş saymamayı hatırlatır.',
-    'Calm sharing may appear in a bond; it reminds that marking a threshold is not ending the road.',
-    'В связи может явиться спокойное разделение; карта напоминает: отметить порог — не значит закончить путь.',
+    'İnsanlar arasındaki sakin bir paylaşım fark edilmeyi hak eder; bu eşikte durmak yolun bittiği anlamına gelmez.',
+    'Calm sharing between people is worth marking, even though pausing at this threshold does not mean the road is finished.',
+    'Спокойное совместное переживание между людьми стоит отметить; остановка на этом пороге не значит, что путь окончен.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, bir aşamayı tanımak ile harekete devam etmek arasında denge arar.',
-    'The decision seeks balance between recognizing a stage and continuing motion.',
-    'Решение ищет баланс между признанием этапа и продолжением движения.',
+    'Bu anın gerektirdiği şey, aşamayı kabul etmek ile harekete devam etmek arasındaki dengedir.',
+    'Balance between recognizing this stage and continuing to move is what the moment calls for.',
+    'Момент требует равновесия между признанием этого этапа и продолжением движения.',
   ),
   actionDirection: L10nTriple(
-    'Anı işaretleyin, köklenmeye izin verin; henüz yol bitti demeyin.',
-    'Mark the moment, allow rooting; do not say the road is finished.',
-    'Отметьте миг, позвольте укоренению; не говорите, что путь кончен.',
+    'Bu anı işaretleyin ve köklenmesine izin verin; bir molayı yolun sonuyla karıştırmadan.',
+    'Mark this moment and let it take root, without mistaking a pause for the end of the road.',
+    'Отметьте этот миг и дайте ему укорениться, не путая паузу с концом пути.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

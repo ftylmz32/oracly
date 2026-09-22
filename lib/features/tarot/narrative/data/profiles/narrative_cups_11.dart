@@ -41,19 +41,19 @@ const kNarrativeCups11 = NarrativeCardProfile(
     'Тревогу может вызывать слишком сильное чувствование или неверное прочтение чувств.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda yumuşak bir merak belirebilir; her hissi kehanetten ayırmayı ister.',
-    'Soft curiosity may appear in a bond; it asks to separate each feeling from prophecy.',
-    'В связи может возникнуть мягкое любопытство; карта просит отделить каждое чувство от пророчества.',
+    'İnsanlar arasında yumuşak bir merak ortaya çıkabilir; her duygu, bir kehanet yerine kendi başına okunmaya değer.',
+    'A soft curiosity can appear between people, and each feeling is worth reading on its own rather than as prophecy.',
+    'Между людьми может появиться мягкое любопытство, и каждое чувство стоит читать само по себе, а не как пророчество.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, derin kesinlikte değil, öğrenilen duygusal dilin farkında olmaya yaslanır.',
-    'The choice leans on noticing learned emotional language, not on deep certainty.',
-    'Выбор опирается на замечание изучаемого языка чувств, а не на глубокую уверенность.',
+    'Hâlâ öğrenilmekte olan duygusal dili fark etmek, burada derin bir kesinliğe ulaşmaktan daha değerlidir.',
+    'Noticing the emotional language still being learned matters more here than reaching for deep certainty.',
+    'Замечать ещё изучаемый язык чувств здесь важнее, чем стремиться к глубокой уверенности.',
   ),
   actionDirection: L10nTriple(
-    'Yumuşakça hissedin, merakı koruyun; her duyguyu kehanet yapmayın.',
-    'Feel softly, protect curiosity; do not make every feeling an oracle.',
-    'Чувствуйте мягко, берегите любопытство; не делайте каждое чувство оракулом.',
+    'Kendinizi yumuşakça hissetmenize izin verin ve meraklı kalın; her duyguyu bir kehanet değil, bir bilgi olarak ele alın.',
+    'Let yourself feel softly and stay curious, treating each feeling as information rather than an oracle.',
+    'Позвольте себе чувствовать мягко и сохраняйте любопытство, воспринимая каждое чувство как сведение, а не как оракул.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

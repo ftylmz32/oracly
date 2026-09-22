@@ -41,19 +41,19 @@ const kNarrativeSwords06 = NarrativeCardProfile(
     'Тревогу может вызывать то, что проход — лишь бегство, или неприбытие.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda bir geçiş dönemi belirebilir; kaçışı taşırmadan ayırmayı ister.',
-    'A crossing period may appear in a bond; it asks to separate escape from carrying forward.',
-    'В связи может явиться период перехода; карта просит отделить бегство от несения вперёд.',
+    'İki kişi bir geçiş dönemini birlikte yaşayabilir; burada sadece kaçmak, bir şeyleri gerçekten ileri taşımaktan farklı görünür.',
+    'Two people can move through a crossing period together, where simply escaping looks different from actually carrying things forward.',
+    'Двое могут вместе пройти через период перехода, где простое бегство выглядит иначе, чем действительное движение вперёд.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, her yükü almak yerine neyin gerçekten taşınacağını netleştirir.',
-    'The choice clarifies what is truly carried rather than taking every load.',
-    'Выбор проясняет, что действительно несут, а не берёт каждую ношу.',
+    'Gerçekten taşınmaya değer olanı ayıklamak, elde olan her yükü almaktan daha önemlidir.',
+    'Sorting out what is actually worth carrying forward matters more than taking on every available load.',
+    'Разобраться, что действительно стоит нести вперёд, важнее, чем брать на себя любую доступную ношу.',
   ),
   actionDirection: L10nTriple(
-    'Taşıyın; bütün geçmişi tekneye yüklemeyin.',
-    'Carry; do not load the whole past into the boat.',
-    'Несите; не грузите всё прошлое в лодку.',
+    'Hâlâ işinize yarayanı taşıyın ve geçmişin geri kalanını tekneye yüklemek yerine kıyıda bırakın.',
+    'Carry what still serves you and leave the rest of the past on the shore rather than loading it into the boat.',
+    'Несите то, что всё ещё вам служит, а остальное прошлое оставьте на берегу, а не грузите в лодку.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

@@ -41,19 +41,19 @@ const kNarrativeWands08 = NarrativeCardProfile(
     'Тревогу может вызывать страх опоздать, упустить отверстие или не удержать поток.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda tempo artabilir; her hızın yakınlık olmadığını hatırlatır.',
-    'Tempo in a bond may rise; it reminds that not every speed is closeness.',
-    'Темп связи может вырасти; карта напоминает: не всякая скорость — близость.',
+    'İki kişi arasındaki tempo hızlanabilir; ama hız tek başına yakınlık anlamına gelmez.',
+    'The pace between two people can quicken, though speed on its own is not the same as closeness.',
+    'Темп между двумя людьми может ускориться, но скорость сама по себе — ещё не близость.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, her sinyale yetişmek yerine hangi okun gerçekten önemli olduğunu ayırır.',
-    'The choice separates which arrow truly matters rather than chasing every signal.',
-    'Выбор отделяет, какая стрела действительно важна, вместо погони за каждым сигналом.',
+    'Her sinyalin peşinden koşmak, hangi okun gerçekten önemli olduğunu ayırt etmek kadar işe yaramaz.',
+    'Chasing every signal helps less than telling which arrow actually matters.',
+    'Гнаться за каждым сигналом менее полезно, чем понять, какая стрела действительно важна.',
   ),
   actionDirection: L10nTriple(
-    'Akışa izin verin, önemli olanı seçin; her oku kovalamayın.',
-    'Allow the flow, choose what matters; do not chase every arrow.',
-    'Позвольте потоку, выберите важное; не гонитесь за каждой стрелой.',
+    'Akışın sürmesine izin verin ve havadaki her oku kovalamak yerine önemli olanı seçin.',
+    'Let the flow move, and pick out what matters instead of chasing every arrow in the air.',
+    'Позвольте потоку течь и выберите важное, вместо того чтобы гнаться за каждой стрелой в воздухе.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

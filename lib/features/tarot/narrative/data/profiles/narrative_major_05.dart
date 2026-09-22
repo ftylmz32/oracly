@@ -46,9 +46,9 @@ const kNarrativeMajor05 = NarrativeCardProfile(
     'Карта проявляет общие принципы и предлагает строить связь на взаимном смысле, а не шаблонах.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, alınan öğüdü kişisel deneyim ve güncel koşullarla sınamayı gerektirir.',
-    'The choice asks that received advice be tested against personal experience and present conditions.',
-    'Выбор требует проверить полученный совет личным опытом и нынешними обстоятельствами.',
+    'Dışarıdan alınan öğüt, kişisel deneyim ve güncel koşullarla sınanmayı hak eder.',
+    'Advice received from outside deserves to be tested against personal experience and present conditions.',
+    'Совет, полученный со стороны, заслуживает проверки личным опытом и нынешними обстоятельствами.',
   ),
   actionDirection: L10nTriple(
     'Kaynağı sorun, özü öğrenin ve size artık hizmet etmeyen biçimi nazikçe bırakın.',

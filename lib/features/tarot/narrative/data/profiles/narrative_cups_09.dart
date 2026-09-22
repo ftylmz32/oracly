@@ -46,14 +46,14 @@ const kNarrativeCups09 = NarrativeCardProfile(
     'Человек может принести в связь личную эмоциональную наполненность, не требуя, чтобы связь сама производила эту ценность.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, sahne etkisinden çok içerdeki gerçek doyumu yoklar.',
-    'The choice tests real inner satisfaction more than stage effect.',
-    'Выбор проверяет реальное внутреннее удовлетворение больше, чем сценический эффект.',
+    'Gerçek iç doyum, burada başkalarına gösterilmek için sahnelenen herhangi bir etkiden daha değerlidir.',
+    'Real inner satisfaction is worth more here than any effect staged for others to see.',
+    'Подлинное внутреннее удовлетворение значит здесь больше, чем любой эффект, разыгранный для чужих глаз.',
   ),
   actionDirection: L10nTriple(
-    'Dolu kadehi tadın, yeteri koruyun; sergilemeyin.',
-    'Taste the full cup, protect enough; do not display it.',
-    'Вкусите полную чашу, берегите достаточное; не выставляйте её напоказ.',
+    'Kadehin doluluğunu sessizce tadın ve bunun yetmesine izin verin; onu sergilenecek bir şeye dönüştürmeden.',
+    'Taste the fullness of the cup quietly and let that be enough, without turning it into something to display.',
+    'Тихо вкусите полноту чаши и позвольте этому быть достаточным, не превращая её в то, что нужно показывать.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

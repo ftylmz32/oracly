@@ -347,6 +347,39 @@ Chronological project execution ledger.
 | Full Flutter | **3728** passed · **0** failed · **15** skipped · **0** timed out |
 | Outcome | **PASS** |
 
+### PL-T3C.3B — RT-M03 INTERACTION SEMANTICS REMEDIATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | RT-M03 PART 2 — `relationshipDynamic` / `decisionDynamic` / `actionDirection` only |
+| Start SHA | `71c2b528c11bd74af51d2aedade45cc99d32093b` |
+| Profiles touched | **75** |
+| Fields changed | relationshipDynamic **53** · decisionDynamic **74** · actionDirection **52** |
+| Locales changed | TR **179** · EN **179** · RU **179** |
+| By suit (rel/dec/act) | Major 0/19/0 · Wands 13/13/14 · Cups 12/14/11 · Swords 14/14/11 · Pentacles 14/14/14 |
+| Baseline top openers | relationship.ru `в связи может явиться` 24.4% · decision.en `the choice leans on` 14.1% (mid-sentence scaffold masked by opener-only view) |
+| After top openers | relationship.ru `между двумя людьми может` 11.5% · decision.en `what matters is whether` 2.6% |
+| Historical EN stems before→after | `the choice` 60→0 · `asks to separate` 39→0 · `in a bond` 52→2 · `do not` 62→5 |
+| TR stems before→after | `bağda` 53→3 · `seçim` 59→1 |
+| RU stems before→after | `в связи` 51→3 · `выбор` 64→3 |
+| Self-caught replacement monoculture | "worth telling/keeping apart" / "не то же самое" family reached ~31% of touched relationshipDynamic mid-pass; corrected to 14.8% via second rewrite pass (9 cards) before finalizing |
+| High-similarity candidates (Jaccard ≥0.5) | 9→0 |
+| `cups_03`↔`cups_10` decisionDynamic (RT-m01) | 0.643→0.161 |
+| `pentacles_13` same-card role redundancy | 0.50→0 |
+| RT-m05 action clustering | `name` 15.4%→15.4% (unchanged share; confirmed lexical-only, non-semantic) |
+| Canonical fidelity | No new relational/decision/action claim invented; each card's existing distinction preserved through grammar restructuring |
+| Safety | **PASS** |
+| RT-M01 | **RESOLVED** (untouched, regression-tested) |
+| RT-M02 | **RESOLVED** (untouched, regression-tested) |
+| 3C.3A naturalness | **FROZEN** (untouched, regression-tested) |
+| RT-M03 | **REMEDIATED — PENDING FINAL RE-AUDIT** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — Phase 3C.4 required |
+| New tests | `narrative_red_team_rt_m03b_interaction_diversity_test.dart` (9 tests) |
+| Phase 2/2.1 | **27** passed · **0** failed (canonical target unchanged) |
+| Full Flutter | **3737** passed · **0** failed · **15** skipped · **0** timed out |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -369,7 +402,8 @@ Chronological project execution ledger.
 | PL-T3C.2 | Tarot Phase 3C.2 — RT-M01 Cups 09/10 relationship distinction | **DONE** |
 | PL-T3C.3A | Tarot Phase 3C.3A — RT-M03 core/desire/shadow diversification | **DONE** (RT-M03 still OPEN) |
 | PL-T3C.3A.1 | Tarot Phase 3C.3A.1 — RT-M03A naturalness repair | **DONE** (naturalness FROZEN; RT-M03 still OPEN) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M03 partially remediated/open; Evidence Engine blocked) |
+| PL-T3C.3B | Tarot Phase 3C.3B — RT-M03 relationship/decision/action interaction semantics | **DONE** (RT-M03 REMEDIATED — PENDING FINAL RE-AUDIT) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; RT-M03 remediated pending Phase 3C.4 re-audit; Evidence Engine blocked) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

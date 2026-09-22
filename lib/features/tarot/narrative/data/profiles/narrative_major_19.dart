@@ -46,9 +46,9 @@ const kNarrativeMajor19 = NarrativeCardProfile(
     'Карта создает тепло и прозрачность в связи, оставляя рядом с радостью место честной уязвимости.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, karmaşayı azaltan açık bilgiye ve yaşamı genişleten seçeneğe yönelir.',
-    'The decision leans toward clear information and the option that expands aliveness.',
-    'Решение склоняется к ясной информации и варианту, расширяющему чувство жизни.',
+    'Karmaşayı azaltan açık bilgi ve yaşamı gerçekten genişleten seçenek, burada temkinli bir varsayılandan daha ağır basar.',
+    'Clear information and whichever option truly expands aliveness carry more weight here than a cautious default.',
+    'Ясная информация и вариант, который действительно расширяет чувство жизни, здесь перевешивают осторожный вариант по умолчанию.',
   ),
   actionDirection: L10nTriple(
     'Açık olanı söyleyin, küçük başarıyı paylaşın ve enerjinizi gerçekten besleyene yöneltin.',

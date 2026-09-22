@@ -41,19 +41,19 @@ const kNarrativeWands09 = NarrativeCardProfile(
     'Тревогу может вызывать страх обвала, недоверия ко всем или утраты даже последней искры.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda yorgun bir sadakat belirebilir; nöbeti yalnız savaş saymamayı önerir.',
-    'Tired loyalty may appear in a bond; it asks not to treat watchfulness as lone war.',
-    'В связи может явиться усталая верность; карта предлагает не читать дозор как одинокую войну.',
+    'İnsanlar arasında yorgun bir sadakat belirebilir; tetikte kalmak, tek başına verilen bir savaş gibi hissettirmek zorunda değildir.',
+    'A tired kind of loyalty can show up between people, and staying watchful does not have to feel like a war fought alone.',
+    'Между людьми может проявиться усталая верность; бдительность не обязана ощущаться как война в одиночку.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, hâlâ korunması gereken ile bırakılabilecek yükü ayırt etmeyi ister.',
-    'The choice asks to distinguish what still needs guarding from load that can be set down.',
-    'Выбор просит отличить то, что ещё нужно охранять, от ноши, которую можно опустить.',
+    'Hâlâ korunması gereken ile artık bırakılabilecek yükü birbirinden ayırmak değerlidir.',
+    'What still needs guarding and what load can finally be set down are worth telling apart.',
+    'Стоит отличить то, что всё ещё нужно охранять, от ноши, которую уже можно опустить.',
   ),
   actionDirection: L10nTriple(
-    'Dinlenin, kalkanı koruyun; yalnız savaş ilan etmeyin.',
-    'Rest, keep the shield; do not declare a lone war.',
-    'Отдохните, сохраните щит; не объявляйте одинокую войну.',
+    'Kalkanı bırakmadan dinlenin ve bunun tek başına yürütülen bir savaş olmasına son verin.',
+    'Rest without dropping the shield, and let this stop being a war fought alone.',
+    'Отдохните, не выпуская щит из рук, и перестаньте вести эту войну в одиночку.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

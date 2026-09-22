@@ -41,19 +41,19 @@ const kNarrativeWands10 = NarrativeCardProfile(
     'Может явиться страх, что опустив одно, уронишь всё, или выглядеть недостаточным.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda tek kişinin taşıması yorucu olabilir; yükü kimliğe çevirmemeyi hatırlatır.',
-    'One person carrying a bond may tire; it reminds not to turn load into identity.',
-    'Когда связь несёт один, это утомляет; карта напоминает не превращать ношу в личность.',
+    'Bir bağın tüm ağırlığını tek kişi taşıdığında bu onu yıpratır; bu yük kişinin kimliğine dönüşmek zorunda değildir.',
+    'When one person carries the whole weight of a bond, it wears them down, and that load need not become who they are.',
+    'Когда всю тяжесть связи несёт один человек, это его изматывает, и эта ноша не обязана становиться его сутью.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, hangi değneğin gerçekten zorunlu olduğunu azaltarak netleştirir.',
-    'The choice clarifies which wand is truly required by reducing what is carried.',
-    'Выбор проясняет, какой жезл действительно обязателен, сокращая носимое.',
+    'Taşınanı azaltmak, hangi değneğin gerçekten gerekli olduğunu görünür kılar.',
+    'Reducing what is carried helps show which wand is truly required.',
+    'Уменьшение ноши помогает увидеть, какой жезл действительно необходим.',
   ),
   actionDirection: L10nTriple(
-    'Bir değneği bırakın, yükü azaltın; hepsini birden düşürmeyin.',
-    'Set one wand down, reduce the load; do not drop them all at once.',
-    'Опустите один жезл, уменьшите ношу; не бросайте все сразу.',
+    'Değnekleri birer birer bırakın ve yükün hepsi birden değil, kademeli olarak hafiflemesine izin verin.',
+    'Set one wand down at a time and let the load lighten gradually rather than all at once.',
+    'Опускайте жезлы по одному и позвольте ноше облегчаться постепенно, а не всей сразу.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

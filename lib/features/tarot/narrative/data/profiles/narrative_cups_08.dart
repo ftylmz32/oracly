@@ -41,19 +41,19 @@ const kNarrativeCups08 = NarrativeCardProfile(
     'Тревогу может вызывать неверный уход или невозможность вернуться.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda mesafe bilinçli bir ayrılışa kayabilir; yakmayı arayıştan ayırmayı ister.',
-    'Distance in a bond may become conscious leaving; it asks to separate burning from searching.',
-    'Дистанция в связи может стать сознательным уходом; карта просит отделить сожжение от поиска.',
+    'İki kişi arasındaki mesafe bilinçli bir ayrılışa dönüşebilir; böyle bir ayrılış, arkasında kalanı yakmak yerine dürüstçe daha fazlasını arar.',
+    'Distance between two people can turn into a conscious leaving, one that searches honestly for more instead of burning what is behind it.',
+    'Дистанция между людьми может стать осознанным уходом — таким, что честно ищет большего, вместо того чтобы сжигать оставленное позади.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, duraklamaktan farklı olarak aktif bir ayrılışın gerekip gerekmediğini yoklar.',
-    'The choice tests whether active leaving—not mere pause—is required.',
-    'Выбор проверяет, нужен ли активный уход — а не просто пауза.',
+    'Bu anın sınadığı şey, yalnızca bir mola değil, gerçekten aktif bir ayrılışın gerekip gerekmediğidir.',
+    'What this moment tests is whether an active leaving is actually required, rather than a mere pause.',
+    'Этот момент проверяет, действительно ли нужен активный уход, а не просто пауза.',
   ),
   actionDirection: L10nTriple(
-    'Geride bırakılanı fark edin, yönü seçin; yakarak gitmeyin.',
-    'Notice what is left behind, choose a heading; do not leave by burning.',
-    'Заметьте оставленное, выберите курс; не уходите сожжением.',
+    'Geride bıraktığınızı fark edin ve köprüyü yakmadan sizi ileri taşıyacak bir yön seçin.',
+    'Notice what you are leaving behind and choose a heading that carries you forward without burning the bridge.',
+    'Заметьте, что вы оставляете позади, и выберите курс, который несёт вас вперёд, не сжигая мост.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

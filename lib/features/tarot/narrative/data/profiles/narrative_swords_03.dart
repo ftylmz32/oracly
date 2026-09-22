@@ -41,19 +41,19 @@ const kNarrativeSwords03 = NarrativeCardProfile(
     'Тревогу может вызывать превращение боли в личность или рост ранящей правды.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda inciten bir gerçek konuşulabilir; suçlamayı adlandırmadan ayırmayı ister.',
-    'A hurting truth may be spoken in a bond; it asks to separate blame from naming.',
-    'В связи может быть сказана ранящая правда; карта просит отделить обвинение от называния.',
+    'İki kişi arasında inciten bir gerçek söylenebilir; olanı adlandırmak, suçlamakla aynı şey değildir.',
+    'A hurting truth can be spoken between two people, and naming what happened is not the same as assigning blame.',
+    'Между двумя людьми может прозвучать ранящая правда, и назвать случившееся — не то же самое, что обвинить.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, gösterişli acı yerine neyin gerçekten kırıldığını netleştirir.',
-    'The choice clarifies what is truly broken rather than theatrical pain.',
-    'Выбор проясняет, что действительно сломано, а не театральную боль.',
+    'Burada gerçekten kırılmış olan, acının herhangi bir gösterişli versiyonundan daha fazla ilgiyi hak eder.',
+    'What is actually broken here deserves more attention than any theatrical version of the pain.',
+    'То, что здесь действительно сломано, заслуживает больше внимания, чем любая театральная версия боли.',
   ),
   actionDirection: L10nTriple(
-    'Acıyı adlandırın; sahne yapmayın.',
-    'Name the pain; do not stage it.',
-    'Назовите боль; не ставьте её на сцену.',
+    'Acıyı sade biçimde adlandırın ve bu adlandırmanın yetmesine izin verin; onu bir gösteriye dönüştürmeden.',
+    'Name the pain plainly and let that naming be enough, without turning it into a performance.',
+    'Назовите боль просто и позвольте этому названию быть достаточным, не превращая его в представление.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

@@ -41,19 +41,19 @@ const kNarrativePentacles14 = NarrativeCardProfile(
     'Тревогу может вызывать потеря контроля или неспособность отчитаться.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda maddi yön belirebilir; hesap verebilirliği bakımdan ayırmayı ister.',
-    'Material direction may appear in a bond; it asks to separate accountability from care alone.',
-    'В связи может явиться вещественное направление; карта просит отделить подотчётность от одной лишь заботы.',
+    'Bir bağa maddi bir yön duygusu girebilir; hesap verebilir olmak, tek başına bakımdan daha fazlasını taşır.',
+    'A sense of material direction can enter a bond, where being accountable is worth more than care by itself.',
+    'В связь может войти чувство вещественного направления, где быть подотчётным значит больше, чем одна лишь забота.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, gözetimden ayrı, kimin neye hesap vereceğini netleştirir.',
-    'The choice clarifies who answers for what, apart from stewardship alone.',
-    'Выбор проясняет, кто за что отвечает, отдельно от одного лишь попечения.',
+    'Kimin gerçekten neyden sorumlu olduğunu adlandırmak, burada tek başına vekillikten daha önemlidir.',
+    'Naming who actually answers for what matters more here than stewardship on its own.',
+    'Назвать, кто на самом деле за что отвечает, здесь важнее одного лишь попечения.',
   ),
   actionDirection: L10nTriple(
-    'Sorumluluğu adlandırın; yön tutun, baskıyı otorite sanmayın.',
-    'Name the responsibility; hold direction, do not mistake pressure for authority.',
-    'Назовите ответственность; держите направление, не принимайте давление за власть.',
+    'Sorumluluğu açıkça adlandırın ve oradan yön tutun; baskının gerçek otoriteyle karıştırılmamasına dikkat ederek.',
+    'Name the responsibility clearly and hold direction from there, watching that pressure never gets mistaken for real authority.',
+    'Ясно назовите ответственность и держите направление, исходя из неё, следя, чтобы давление не приняли за настоящую власть.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

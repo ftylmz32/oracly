@@ -46,9 +46,9 @@ const kNarrativeMajor06 = NarrativeCardProfile(
     'Карта ставит в центр взаимность и честный выбор, не позволяя считать близость само собой разумеющейся.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, yalnız çekime değil davranışlarla doğrulanan ortak değerlere dayanmalıdır.',
-    'The decision should rest not only on attraction but on shared values confirmed by action.',
-    'Решение стоит основывать не только на притяжении, но и на общих ценностях, подтвержденных поступками.',
+    'Davranışlarla doğrulanan ortak değerler, burada çekim kadar ağırlığı hak eder.',
+    'Shared values confirmed by action deserve at least as much weight here as attraction.',
+    'Общие ценности, подтверждённые поступками, заслуживают здесь не меньшего веса, чем притяжение.',
   ),
   actionDirection: L10nTriple(
     'Sizin için vazgeçilmez olanı adlandırın ve seçiminizin onunla uyumunu gözleyin.',

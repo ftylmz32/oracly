@@ -41,19 +41,19 @@ const kNarrativeSwords05 = NarrativeCardProfile(
     'Тревогу может вызывать поражение, унижение или остаться одному.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda incitici bir haklılık belirebilir; düşman ilanını puan tutmaktan ayırmayı ister.',
-    'Hurting rightness may appear in a bond; it asks to separate declaring an enemy from keeping score.',
-    'В связи может явиться ранящая правота; карта просит отделить объявление врага от ведения счёта.',
+    'Haklı olmak bir bağı incitmeye başlayabilir; birini düşman ilan etmek, yalnızca puan tutmaktan çok farklı bir eylemdir.',
+    'Being right can start to hurt a bond, and calling someone an enemy is a very different act from simply keeping score.',
+    'Правота может начать ранить связь, и объявить кого-то врагом — совсем другое действие, чем просто вести счёт.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, zaferi değil, sözün bağa maliyetini tartmaya yaslanır.',
-    'The choice leans on weighing the cost of words to the bond, not on victory.',
-    'Выбор опирается на взвешивание цены слов для связи, а не на победу.',
+    'Bu sözlerin ilişkiye maliyeti, teknik olarak kimin kazandığından daha önemlidir.',
+    'What these words cost the relationship matters more here than who technically wins.',
+    'Цена этих слов для отношений значит здесь больше, чем то, кто формально победил.',
   ),
   actionDirection: L10nTriple(
-    'Tartışmayı duraklatın; kılıcı indirin, puan saymayın.',
-    'Pause the argument; lower the sword, do not keep score.',
-    'Приостановите спор; опустите меч, не ведите счёт.',
+    'Tartışmayı durdurun ve kılıcı indirin; puanın sayılmadan kalmasına izin verin.',
+    'Pause the argument and lower the sword, letting the score stay uncounted.',
+    'Приостановите спор и опустите меч, позволяя счёту остаться неподсчитанным.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

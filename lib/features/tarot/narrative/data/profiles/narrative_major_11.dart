@@ -46,9 +46,9 @@ const kNarrativeMajor11 = NarrativeCardProfile(
     'Карта проявляет взаимность и ответственность, оставляя место опыту обеих сторон.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, kanıtı varsayımdan ayırmayı ve sonuçları açıkça üstlenmeyi gerektirir.',
-    'The choice requires separating evidence from assumption and owning the consequences plainly.',
-    'Выбор требует отделить факты от предположений и открыто принять последствия.',
+    'Kanıtı varsayımdan ayırmak ve sonuçları açıkça üstlenmek, burada haklı görünmekten daha önemlidir.',
+    'Separating evidence from assumption, and owning the consequences plainly, matters more here than being seen as right.',
+    'Отделить факты от предположений и открыто принять последствия значит здесь больше, чем выглядеть правым.',
   ),
   actionDirection: L10nTriple(
     'Bilinenleri sıralayın, kendi payınızı kabul edin ve aynı ölçütü herkese uygulayın.',

@@ -46,9 +46,9 @@ const kNarrativeMajor09 = NarrativeCardProfile(
     'Карта просит пространства для размышления в отношениях и не принимать дистанцию за отвержение.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, dış onaydan önce kişisel ölçütlerin sessizce gözden geçirilmesini gerektirir.',
-    'The choice benefits from quietly reviewing personal criteria before seeking outside approval.',
-    'Выбору помогает тихая проверка личных критериев до поиска внешнего одобрения.',
+    'Kişisel ölçütlerin dış onaydan önce sessizce gözden geçirilmesi, burada gerçekten işe yarayan şeydir.',
+    'Quietly reviewing personal criteria before seeking outside approval is what actually helps here.',
+    'Тихая проверка личных критериев до поиска внешнего одобрения — вот что здесь действительно помогает.',
   ),
   actionDirection: L10nTriple(
     'Kısa bir yalnızlık alanı kurun, temel soruyu yazın ve cevabı zorlamayın.',

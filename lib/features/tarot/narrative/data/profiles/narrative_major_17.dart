@@ -46,9 +46,9 @@ const kNarrativeMajor17 = NarrativeCardProfile(
     'Карта приносит открытость и возможность восстановления, предлагая растить доверие малыми последовательными поступками.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, korkudan küçülmeden fakat mevcut kaynakları abartmadan bir yön seçmeyi destekler.',
-    'The choice supports direction without shrinking from fear or overstating available resources.',
-    'Выбор поддерживает движение без подчинения страху и без преувеличения доступных ресурсов.',
+    'Korkudan küçülmeden, ama eldeki kaynakları da abartmadan ilerlemek, burada en iyi işleyen şeydir.',
+    'Moving forward without shrinking from fear, or overstating what is actually available, is what serves best here.',
+    'Двигаться вперёд, не поддаваясь страху и не преувеличивая доступные ресурсы, — вот что здесь лучше всего работает.',
   ),
   actionDirection: L10nTriple(
     'Size iyi gelen kaynağı belirleyin, küçük bir bakım adımı seçin ve süreklilik kurun.',

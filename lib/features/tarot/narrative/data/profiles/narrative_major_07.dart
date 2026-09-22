@@ -46,9 +46,9 @@ const kNarrativeMajor07 = NarrativeCardProfile(
     'Карта придает связи направление и импульс, напоминая не выбирать общий путь в одиночку.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, hedefin netleşmesini ve çelişen önceliklerin yönetilebilir hale gelmesini ister.',
-    'The decision calls for a clear destination and manageable competing priorities.',
-    'Решение требует ясной цели и приведения противоречивых приоритетов в управляемый вид.',
+    'Net bir hedef ve yönetilebilir hale gelen öncelikler, burada salt hızdan daha önemlidir.',
+    'A clear destination and priorities that can actually be managed matter more here than sheer momentum.',
+    'Ясная цель и приоритеты, приведённые в управляемый вид, значат здесь больше, чем один лишь напор.',
   ),
   actionDirection: L10nTriple(
     'Rotayı belirleyin, dikkati dağıtan yükleri azaltın ve hızınızı koşullara göre ayarlayın.',

@@ -46,9 +46,9 @@ const kNarrativeMajor03 = NarrativeCardProfile(
     'Карта приносит в близость тепло и принятие, напоминая о взаимности заботы.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, yalnız verime değil uzun vadede neyin gerçekten gelişebileceğine bakar.',
-    'The choice considers not only output but what can genuinely flourish over time.',
-    'Выбор учитывает не только результат, но и то, что действительно сможет развиваться со временем.',
+    'Uzun vadede gerçekten gelişebilecek olan, burada yalnızca verimden daha fazlasını sayar.',
+    'What can genuinely flourish over time counts for more here than output alone.',
+    'То, что действительно сможет развиваться со временем, значит здесь больше, чем один лишь результат.',
   ),
   actionDirection: L10nTriple(
     'Beslemek istediğiniz şeyi seçin, düzenli ilgi verin ve kendi sınırlarınızı da koruyun.',

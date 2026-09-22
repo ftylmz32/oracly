@@ -41,19 +41,19 @@ const kNarrativePentacles04 = NarrativeCardProfile(
     'Тревогу может вызывать потеря, открытие или остаться без защиты.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda kaynak sınırı belirebilir; korumayı kilitlemekten ayırmayı ister.',
-    'A resource boundary may appear in a bond; it asks to separate protecting from locking.',
-    'В связи может явиться граница ресурса; карта просит отделить защиту от запирания.',
+    'İki kişi arasında kaynaklara dair bir sınır belirebilir; bir şeyi korumak, onu tamamen kilitlemekten farklı bir eylemdir.',
+    'A boundary around resources can show up between two people, and protecting something is a different act from locking it away entirely.',
+    'Между двумя людьми может появиться граница вокруг ресурсов, и защищать что-то — не то же самое, что полностью её запереть.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, her şeyi sıkmak yerine neyin gerçekten korunacağını netleştirir.',
-    'The choice clarifies what truly needs protecting rather than gripping everything.',
-    'Выбор проясняет, что действительно нужно беречь, а не сжимать всё.',
+    'Gerçekten korunması gerekeni adlandırmak, korkuyla her şeyi birden kavramaktan daha önemlidir.',
+    'Naming what genuinely needs protecting matters more than a fear-driven grip on everything at once.',
+    'Назвать то, что действительно нуждается в защите, важнее, чем судорожно хвататься за всё сразу.',
   ),
   actionDirection: L10nTriple(
-    'Neyi koruduğunuzu adlandırın; koruyun, kapıyı tamamen dondurmayın.',
-    'Name what you are protecting; protect it, do not freeze the door shut.',
-    'Назовите, что вы бережёте; берегите, но не замораживайте дверь наглухо.',
+    'Neyi koruduğunuzu adlandırın ve o belirli şeyi koruyun; ama kapının yeniden açılabilmesine izin vererek.',
+    'Name what you are protecting and guard that specific thing, while leaving the door able to open again.',
+    'Назовите то, что вы защищаете, и берегите именно это, оставляя дверь способной снова открыться.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

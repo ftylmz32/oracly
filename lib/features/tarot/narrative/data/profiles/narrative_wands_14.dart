@@ -41,19 +41,19 @@ const kNarrativeWands14 = NarrativeCardProfile(
     'Тревогу может вызывать утрата влияния, одиночество или превращение курса в давление.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda net bir yön teklifi belirebilir; teklifi dayatmadan ayırmayı ister.',
-    'A clear heading may be offered in a bond; it asks to separate offer from imposition.',
-    'В связи может быть предложен ясный курс; карта просит отделить предложение от навязывания.',
+    'Bir bağ içinde net bir yön teklif edilebilir; bir teklif, dayatılan bir şeyden farklı kalır.',
+    'A clear heading can be offered within a bond, and an offer stays different from something imposed.',
+    'Внутри связи может быть предложено ясное направление, и предложение остаётся не тем же самым, что навязывание.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, vizyonu hesap verebilir bir niyete bağlar ve dinlemeyi dışlamaz.',
-    'The choice binds vision to accountable intent and does not exclude listening.',
-    'Выбор связывает видение с ответственным намерением и не исключает слушания.',
+    'Vizyon, burada hesap verebilir bir niyete bağlı kaldığında ve dinlemeye yer bıraktığında değer taşır.',
+    'Vision matters here when it stays tied to accountable intent and room to keep listening.',
+    'Видение здесь имеет значение, если остаётся связанным с ответственным намерением и не исключает готовности слушать.',
   ),
   actionDirection: L10nTriple(
-    'Yön verin, sorumluluğu netleştirin; yakarak yönetmeyin.',
-    'Give heading, clarify responsibility; do not rule by burning.',
-    'Дайте курс, проясните ответственность; не правьте сжигая.',
+    'Net bir yön verin ve sorumluluğun nerede olduğunu adlandırın; başkalarını yakarak değil, yön göstererek liderlik edin.',
+    'Give a clear heading and name where responsibility sits, leading through direction rather than through burning others.',
+    'Дайте ясное направление и назовите, где лежит ответственность, — ведите через курс, а не через то, что обжигаете других.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

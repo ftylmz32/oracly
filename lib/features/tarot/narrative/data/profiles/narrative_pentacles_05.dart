@@ -41,19 +41,19 @@ const kNarrativePentacles05 = NarrativeCardProfile(
     'Тревогу может вызывать остаться незамеченным, быть отсечённым или нести в одиночку.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda destek zorluğu belirebilir; utancı dışarıda kalmış hissetmekten ayırmayı ister.',
-    'Difficulty of support may appear in a bond; it asks to separate shame from feeling shut out.',
-    'В связи может явиться трудность опоры; карта просит отделить стыд от ощущения отсечённости.',
+    'İki kişi arasında destek bulma zorluğu ortaya çıkabilir; ardından gelen utanç genellikle dışarıda bırakılmış olmanın sade gerçeğiyle pek ilgili değildir.',
+    'Trouble finding support can show up between two people, and the shame that follows often has little to do with the plain fact of being shut out.',
+    'Между двумя людьми может возникнуть трудность с поддержкой, и стыд, приходящий следом, часто мало связан с простым фактом оставленности снаружи.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, yokluğu ahlak yargısı yapmak yerine nerede destek kırıldığını netleştirir.',
-    'The choice clarifies where support broke rather than turning scarcity into a moral verdict.',
-    'Выбор проясняет, где сломалась опора, а не превращает нехватку в моральный приговор.',
+    'Desteğin tam olarak nerede kırıldığını bulmak, yoksunluğu birinin değeri hakkında bir hükme çevirmekten daha faydalıdır.',
+    'Finding exactly where support broke down helps more than turning scarcity into a verdict on someone\'s worth.',
+    'Найти, где именно сломалась опора, полезнее, чем превращать нехватку в приговор чьей-то ценности.',
   ),
   actionDirection: L10nTriple(
-    'Nerede dışarıda kaldığınızı adlandırın; değeri silmeyin, destek yolunu yoklayın.',
-    'Name where you stand outside; do not erase worth — check the path to support.',
-    'Назовите, где вы снаружи; не стирайте достоинство — проверьте путь к опоре.',
+    'Tam olarak nerede dışarıda durduğunuzu adlandırın ve değerinizi silmesine izin vermek yerine desteğe giden yolu kontrol edin.',
+    'Name exactly where you are standing outside, and check the path back to support instead of letting it erase your worth.',
+    'Назовите точно, где вы остаётесь снаружи, и проверьте путь обратно к поддержке, вместо того чтобы позволять этому стирать вашу ценность.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

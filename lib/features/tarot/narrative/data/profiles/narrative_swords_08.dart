@@ -41,14 +41,14 @@ const kNarrativeSwords08 = NarrativeCardProfile(
     'Тревогу может вызывать то, что двери действительно нет, или движение остаётся невозможным.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda çıkışsızlık hissedilebilir; kısıtı iki seçenek kilidinden ayırmayı ister.',
-    'No-exit may be felt in a bond; it asks to separate restriction from a two-choice lock.',
-    'В связи может ощущаться безвыходность; карта просит отделить ограничение от замка двух выборов.',
+    'Bir bağın içinde çıkışsızlık hissi doğabilir; gerçek kısıtlama, sonunda yalnızca iki anahtarlı bir kilitten daha küçük çıksa bile.',
+    'A sense of no-exit can be felt inside a bond, even when the real restriction turns out to be smaller than a lock with only two keys.',
+    'Внутри связи может ощущаться безвыходность, даже если настоящее ограничение в итоге окажется меньше, чем замок всего с двумя ключами.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, gece kaygısından ayrı, neyin gerçekten kısıtlandığını yoklar.',
-    'The choice tests what is actually constrained, apart from night worry.',
-    'Выбор проверяет, что действительно ограничено, отдельно от ночной тревоги.',
+    'Burada gerçekten kısıtlanmış olan, gece kaygısının ona eklediklerinden ayrı olarak sınanmaya değer.',
+    'What is actually constrained here is worth testing separately from whatever night worry has added to it.',
+    'То, что здесь действительно ограничено, стоит проверить отдельно от того, что добавила к этому ночная тревога.',
   ),
   actionDirection: L10nTriple(
     'Neyin gerçekten kısıtlandığını fark edin; henüz kesmek zorunda değilsiniz.',

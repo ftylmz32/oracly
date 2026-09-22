@@ -41,14 +41,14 @@ const kNarrativeCups05 = NarrativeCardProfile(
     'Тревогу может вызывать нескончаемая боль или исчезновение и того, что ещё осталось.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda kayıp keskin hissedilebilir; yas ile kalan bağın sayımını ayırmayı ister.',
-    'Loss may feel sharp in a bond; it asks to separate mourning from counting what bond remains.',
-    'В связи утрата может ощущаться остро; карта просит отделить скорбь от подсчёта оставшейся связи.',
+    'İki kişi arasındaki kayıp keskin hissedilebilir; yas tutmak, aralarında kalanı saymaktan farklı bir şeydir.',
+    'Loss between two people can feel sharp, and mourning stays different from counting what still remains between them.',
+    'Утрата между двумя людьми может ощущаться остро; скорбь остаётся не тем же самым, что подсчёт оставшегося между ними.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, yalnızca dökülene bakmadan ayakta kalanı da hesaba katar.',
-    'The choice accounts for what still stands, not only for what spilled.',
-    'Выбор учитывает ещё стоящее, а не только разлитое.',
+    'Ayakta kalan da, dökülen kadar hesaba katılmayı hak eder.',
+    'What still stands deserves as much accounting as what spilled.',
+    'То, что ещё стоит, заслуживает не меньшего учёта, чем то, что разлилось.',
   ),
   actionDirection: L10nTriple(
     'Döküleni görün, yas tutun; ayakta kalanı da sayın.',

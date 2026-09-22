@@ -41,19 +41,19 @@ const kNarrativeWands06 = NarrativeCardProfile(
     'Тревогу может вызывать страх остаться незамеченным, зависеть от аплодисментов или раздуть переход.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda yumuşama veya görünürlük belirebilir; alkış yerine karşılıklı fark etmeyi önerir.',
-    'Softening or visibility may appear in a bond; it favors mutual notice over applause.',
-    'В связи может явиться смягчение или видимость; карта предлагает взаимное замечание вместо аплодисментов.',
+    'İnsanlar arasında bir yumuşama ya da yeni bir görünürlük ortaya çıkabilir; karşılıklı fark ediş, alkıştan daha değerlidir.',
+    'A softening or a new visibility can surface between people, and mutual notice carries more than applause.',
+    'Между людьми может проявиться смягчение или новая видимость; взаимное внимание значит больше, чем аплодисменты.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, sahne kurmak yerine geçilen eşiğin gerçek değerini sadeleştirir.',
-    'The choice clarifies the real value of the crossed threshold rather than staging a show.',
-    'Выбор проясняет подлинную ценность перейденного порога, а не устраивает спектакль.',
+    'Geçilen bu eşiğin gerçek değeri, etrafında bir gösteri kurmaktan daha önemlidir.',
+    'The real value of this crossed threshold matters more than staging a show around it.',
+    'Подлинная ценность пройденного порога важнее, чем устраивать вокруг него представление.',
   ),
   actionDirection: L10nTriple(
-    'Geçtiğinizi fark edin, nefes alın; taht kurmayın.',
-    'Notice that you crossed, take a breath; do not build a throne.',
-    'Заметьте, что перешли, сделайте вдох; не стройте трон.',
+    'Geçtiğinizi fark edin, bir nefes alın ve anın bir tahta dönüşmeden sade kalmasına izin verin.',
+    'Notice that you crossed it, take a breath, and let the moment stay simple rather than becoming a throne.',
+    'Заметьте, что вы перешли порог, сделайте вдох и позвольте моменту остаться простым, не превращая его в трон.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

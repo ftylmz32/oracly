@@ -41,19 +41,19 @@ const kNarrativeCups01 = NarrativeCardProfile(
     'Тревогу может вызывать утрата чувства, переполнение или чрезмерный рост эмоции.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda taze bir açıklık belirebilir; sunuyu dayatmadan yoklamayı ister.',
-    'Fresh openness may appear in a bond; it asks to test the offer without imposing it.',
-    'В связи может возникнуть свежая открытость; карта просит проверять предложение, не навязывая его.',
+    'İki kişi arasında taze bir açıklık ortaya çıkabilir; bunu zorlamak yerine nazikçe yoklamak daha iyi olur.',
+    'A fresh openness can appear between two people, worth testing gently rather than pushed forward.',
+    'Между двумя людьми может возникнуть свежая открытость; её стоит мягко проверить, а не продвигать силой.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, büyük vaat yerine duyguyu henüz biçimlenmeden fark etmeye yaslanır.',
-    'The choice leans on noticing feeling before it is shaped, not on a grand promise.',
-    'Выбор опирается на замечание чувства до его формы, а не на громкое обещание.',
+    'Duyguyu henüz biçim almadan fark etmek, burada büyük bir vaatten daha değerlidir.',
+    'Noticing the feeling before it takes shape matters more here than any grand promise.',
+    'Заметить чувство до того, как оно оформится, значит здесь больше, чем любое громкое обещание.',
   ),
   actionDirection: L10nTriple(
-    'Kadehi fark edin ve tutun; herkese dökmeyin, kapatmayın.',
-    'Notice the cup and hold it; do not pour for everyone, and do not seal it shut.',
-    'Заметьте чашу и удержите её; не разливайте всем и не закрывайте наглухо.',
+    'Kadehi fark edin ve dengeli tutun; onu herkese dökmek ile sımsıkı kapatmak arasında bir yerde.',
+    'Notice the cup and hold it steady, somewhere between pouring it out for everyone and sealing it shut.',
+    'Заметьте чашу и держите её ровно — между тем, чтобы разлить её всем, и тем, чтобы наглухо закрыть.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

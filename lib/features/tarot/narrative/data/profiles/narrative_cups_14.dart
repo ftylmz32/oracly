@@ -41,19 +41,19 @@ const kNarrativeCups14 = NarrativeCardProfile(
     'Тревогу может вызывать утрата управления или вид холодности.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda ölçülü bir yön belirebilir; soğukluğu sorumluluktan ayırmayı ister.',
-    'Measured heading may appear in a bond; it asks to separate coldness from responsibility.',
-    'В связи может возникнуть сдержанный курс; карта просит отделить холодность от ответственности.',
+    'İki kişi arasında ölçülü bir yön duygusu ortaya çıkabilir; sorumlu kalmak, soğumakla aynı şey değildir.',
+    'A measured sense of direction can appear between two people, and staying responsible is not the same as turning cold.',
+    'Между двумя людьми может появиться сдержанное чувство направления, и оставаться ответственным — не то же самое, что становиться холодным.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, bastırmadan duygusal alanı sorumlulukla netleştirir.',
-    'The choice clarifies the emotional field with responsibility, without suppression.',
-    'Выбор проясняет эмоциональное поле с ответственностью, без подавления.',
+    'Duygusal alana sorumluluk getirmek, içinden geçeni bastırmaktan daha iyi işler.',
+    'Bringing responsibility to the emotional field works better than suppressing what moves through it.',
+    'Внести ответственность в эмоциональное поле работает лучше, чем подавлять то, что через него проходит.',
   ),
   actionDirection: L10nTriple(
-    'Yön verin, ölçüyü koruyun; dondurmayın ve bastırmayın.',
-    'Steer, protect measure; do not freeze, and do not suppress.',
-    'Направляйте, берегите меру; не замораживайте и не подавляйте.',
+    'Elinizi sabit tutarak yön verin; ölçünün donmaya ya da bastırmaya dönüşmeyeceği kadar sıcak kalın.',
+    'Steer with a steady hand, staying warm enough that measure never turns into freezing or suppression.',
+    'Направляйте твёрдой рукой, оставаясь достаточно тёплым, чтобы мера не превратилась в заморозку или подавление.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

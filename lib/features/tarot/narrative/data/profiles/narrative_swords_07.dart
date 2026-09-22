@@ -41,19 +41,19 @@ const kNarrativeSwords07 = NarrativeCardProfile(
     'Тревогу может вызывать ощущение введения в заблуждение или поломка своей стратегии.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda saklanan bir söz olabilir; şüpheyi hırsız ilanından ayırmayı ister.',
-    'A hidden word may sit in a bond; it asks to separate suspicion from declaring a thief.',
-    'В связи может сидеть скрытое слово; карта просит отделить подозрение от объявления вора.',
+    'Saklı bir söz bir bağın içinde sessizce durabilir; şüphelenmek, birini gerçekten hırsız ilan etmekten farklı bir şeydir.',
+    'A hidden word can sit quietly inside a bond, and suspicion stays a different thing from actually declaring someone a thief.',
+    'Скрытое слово может тихо лежать внутри связи, и подозрение — это не то же самое, что объявить кого-то вором.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, kesin hüküm yerine neyin görünmediğini yoklamaya yaslanır.',
-    'The choice leans on testing what is unseen rather than a fixed verdict.',
-    'Выбор опирается на проверку невидимого, а не на жёсткий приговор.',
+    'Hâlâ görünmeyeni sınamak, burada erkenden sabit bir hükme varmaktan daha iyi işler.',
+    'Testing what is still unseen serves better here than settling on a fixed verdict too soon.',
+    'Проверить ещё невидимое здесь полезнее, чем слишком рано остановиться на твёрдом приговоре.',
   ),
   actionDirection: L10nTriple(
-    'Gizleneni görün; hırsız ilan etmeyin, korkuyu kanıttan ayırın.',
-    'See what is hidden; do not declare a thief — separate fear from evidence.',
-    'Увидьте скрытое; не объявляйте вора — отделите страх от свидетельства.',
+    'Saklı olana bakın ve onu kanıt olarak tartın; bir hırsız adlandırmak isteyen korkudan ayrı tutarak.',
+    'Look at what is hidden and weigh it as evidence, keeping it apart from the fear that wants to name a thief.',
+    'Посмотрите на скрытое и взвесьте его как свидетельство, отдельно от страха, который хочет назвать вора.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

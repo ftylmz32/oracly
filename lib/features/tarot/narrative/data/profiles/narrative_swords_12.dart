@@ -41,19 +41,19 @@ const kNarrativeSwords12 = NarrativeCardProfile(
     'Тревогу может вызывать опоздание или то, что скорость трясёт связь.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda hızlı sözler belirebilir; dinlemeyi zorlamadan ayırmayı ister.',
-    'Quick words may appear in a bond; it asks to separate listening from forcing.',
-    'В связи могут явиться быстрые слова; карта просит отделить слушание от принуждения.',
+    'İki kişi arasında hızlı sözler uçuşabilir; gerçek dinlemek, bir noktayı zorla kabul ettirmekten farklı bir şeydir.',
+    'Quick words can fly between two people, and real listening stays a different thing from forcing a point through.',
+    'Между двумя людьми могут пролетать быстрые слова, и настоящее слушание — не то же самое, что продавливание своей точки зрения.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, ani hamleden önce yönü netleştirmeye yaslanır.',
-    'The choice leans on clarifying direction before a sudden move.',
-    'Выбор опирается на прояснение курса до внезапного хода.',
+    'Ani bir hamleden önce yönü netleştirmek, o hamlenin hızından daha fazlasını korur.',
+    'Clarifying direction before any sudden move saves more than the speed of that move itself.',
+    'Прояснить направление до внезапного хода сохраняет больше, чем скорость самого этого хода.',
   ),
   actionDirection: L10nTriple(
-    'Sürün; rastgele kesmeyin, tartışmadan önce yönü bırakın.',
-    'Ride; do not cut at random — leave room before judgment.',
-    'Скачите; не режьте наугад — оставьте место до суждения.',
+    'Gerekiyorsa hızlı ilerleyin, ama en yakındakini kesmek yerine hükümden önce yer bırakın.',
+    'Move at speed if you must, but leave room before judgment instead of cutting at whatever is nearest.',
+    'Двигайтесь быстро, если нужно, но оставьте место до суждения, вместо того чтобы резать первое попавшееся.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

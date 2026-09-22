@@ -41,19 +41,19 @@ const kNarrativeSwords13 = NarrativeCardProfile(
     'Тревогу может вызывать охлаждение, утрата границы или ранение правдой.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda dürüst bir sınır konuşulabilir; soğukluğu insanî netlikten ayırmayı ister.',
-    'An honest boundary may be spoken in a bond; it asks to separate coldness from humane clarity.',
-    'В связи может быть сказана честная граница; карта просит отделить холодность от человечной ясности.',
+    'Bir bağ içinde dürüst bir sınır dile getirilebilir; net kalmak, soğumayı gerektirmez.',
+    'An honest boundary can be spoken inside a bond, and staying clear does not require turning cold.',
+    'Внутри связи можно озвучить честную границу, и оставаться ясным не значит становиться холодным.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, utandırmadan adil ayırt etmeye yaslanır.',
-    'The choice leans on fair discernment without shaming.',
-    'Выбор опирается на честное различение без стыда.',
+    'Kimseyi utandırmadan sunulan adil bir ayırt etme, burada sert bir hükümden daha ağır basar.',
+    'Fair discernment, offered without shaming anyone, carries more weight here than a harsh verdict.',
+    'Честное различение, предложенное без стыда, значит здесь больше, чем суровый приговор.',
   ),
   actionDirection: L10nTriple(
-    'Sınırı dürüstçe belirtin; doğru söyleyin, keserek söylemeyin.',
-    'State the boundary honestly; speak truly, do not speak by cutting.',
-    'Скажите границу честно; говорите правду, не говорите, раня.',
+    'Sınırı dürüstçe belirtin ve ağırlığı gerçeğin taşımasına izin verin, söyleniş biçimindeki bir keskinliğin değil.',
+    'State the boundary honestly and let truth carry the weight, rather than an edge in how it is said.',
+    'Честно обозначьте границу и пусть вес несёт правда, а не резкость в том, как она сказана.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

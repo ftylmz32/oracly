@@ -41,19 +41,19 @@ const kNarrativePentacles09 = NarrativeCardProfile(
     'Тревогу может вызывать выглядеть недостаточным или остаться одному.',
   ),
   relationshipDynamic: L10nTriple(
-    'Bağda kişisel yeterlik alanı belirebilir; vitrini sükûnetten ayırmayı ister.',
-    'A field of personal sufficiency may appear in a bond; it asks to separate display from quiet.',
-    'В связи может явиться поле личной достаточности; карта просит отделить показ от покоя.',
+    'Kişisel bir yeterlik hissi bir bağa girebilir; en inandırıcı hâli, karşı taraf için bir gösteriye dönüşmek yerine sessiz kaldığı zamandır.',
+    'A sense of personal sufficiency can enter a bond, most convincingly when it stays quiet rather than turning into a display for the other person.',
+    'Чувство личной достаточности может войти в связь — убедительнее всего тогда, когда оно остаётся тихим, а не превращается в показ для другого человека.',
   ),
   decisionDynamic: L10nTriple(
-    'Seçim, ortak mirastan ayrı, kişinin kendi emeğinde neyin yeterli olduğunu netleştirir.',
-    'The choice clarifies what is enough in one\'s own labor, apart from shared legacy.',
-    'Выбор проясняет, чего достаточно в собственном труде, отдельно от общего наследия.',
+    'Kişinin kendi emeğinde neyin yeterli sayıldığı, ona bağlı ortak mirastan ayrı olarak adlandırılmaya değer.',
+    'What counts as enough in one\'s own labor is worth naming separately from any shared legacy attached to it.',
+    'То, что считается достаточным в собственном труде, стоит назвать отдельно от связанного с ним общего наследия.',
   ),
   actionDirection: L10nTriple(
-    'Nelerin yeterli olduğunu adlandırın; vitrin kurmayın, yeterliği hissedin.',
-    'Name what is already enough; do not build a shop window — feel the sufficiency.',
-    'Назовите, чего уже достаточно; не стройте витрину — почувствуйте достаточность.',
+    'Zaten yeterli olanı adlandırın ve onu sessizce hissetmenize izin verin; başkaları için bir vitrine dönüştürmeden.',
+    'Name what is already enough and let yourself feel it quietly, without turning it into a shop window for others.',
+    'Назовите то, чего уже достаточно, и позвольте себе тихо это почувствовать, не превращая это в витрину для других.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

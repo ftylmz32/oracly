@@ -46,9 +46,9 @@ const kNarrativeMajor18 = NarrativeCardProfile(
     'Карта усиливает проекции и неясность, предлагая прямой вопрос вместо угадывания намерений.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, sezgiyi not edip doğrulanabilir bilgiden ayrı tutmayı ve zaman tanımayı ister.',
-    'The decision asks that intuition be noted, separated from verifiable information, and given time.',
-    'Решение требует заметить интуицию, отделить ее от проверяемых данных и дать время.',
+    'Sezgi burada not edilmeyi, doğrulanabilir bilgiden ayrı tutulmayı ve güvenilmeden önce zaman tanınmayı hak eder.',
+    'Intuition deserves to be noted here, kept apart from verifiable information, and given time before it is trusted.',
+    'Интуиция заслуживает здесь быть замеченной, отделённой от проверяемых данных и получить время, прежде чем ей доверятся.',
   ),
   actionDirection: L10nTriple(
     'Varsayımı yazın, gerçeği doğrulayın ve yoğun duyguda kesin hükmü erteleyin.',

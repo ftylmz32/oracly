@@ -46,9 +46,9 @@ const kNarrativeMajor08 = NarrativeCardProfile(
     'Карта дает терпеливое доверие и направляет силу на безопасную близость, а не превосходство.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, en güçlü tepkinin değil en sakin cesaretin yön göstermesine ihtiyaç duyar.',
-    'The decision needs quiet courage, rather than the strongest reaction, to lead.',
-    'Решению нужен ориентир спокойной смелости, а не самой сильной реакции.',
+    'Burada yön gösteren şeyin en sakin cesaret olması, en güçlü tepkinin olmasından daha iyi işler.',
+    'Quiet courage serves better as a guide here than whatever reaction happens to be strongest.',
+    'Спокойная смелость служит здесь лучшим ориентиром, чем самая сильная реакция.',
   ),
   actionDirection: L10nTriple(
     'Tepkiyi yavaşlatın, duyguyu adlandırın ve gücünüzü ölçülü bir sınırda kullanın.',

@@ -41,19 +41,19 @@ const kNarrativeWands07 = NarrativeCardProfile(
     'Тревогу может вызывать одиночество, обвал границы или чтение каждого контакта как угрозы.',
   ),
   relationshipDynamic: L10nTriple(
-    'İlişkide kendini anlatma ihtiyacı artabilir; sınırı düşmanlık olmadan kurmayı ister.',
-    'A need to speak for oneself may rise in a bond; it asks for boundary without enmity.',
-    'В связи может усилиться нужда говорить за себя; карта просит границу без вражды.',
+    'İnsanlar arasında kendini savunma ihtiyacı yükselebilir; bir sınır, karşıdakini düşman görmeden de tutulabilir.',
+    'A need to speak for oneself can rise between people, and a boundary can be held without turning the other into an enemy.',
+    'Между людьми может возникнуть потребность отстоять себя; границу можно держать, не превращая другого во врага.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, korunacak gerçek sınırı belirginleştirir; her itirazı saldırı saymaz.',
-    'The decision clarifies which boundary truly needs guarding; not every push is an attack.',
-    'Решение проясняет, какую границу действительно нужно охранять; не каждый толчок — атака.',
+    'Her itiş bir saldırı değildir; önemli olan hangi sınırın gerçekten korunması gerektiğini adlandırmaktır.',
+    'Not every push is an attack, so what matters is naming which boundary truly needs guarding.',
+    'Не каждый толчок — атака; важно назвать, какую границу действительно нужно защищать.',
   ),
   actionDirection: L10nTriple(
-    'Yerinizi tutun, sınırı netleştirin; düşman üretmeyin.',
-    'Hold your ground, clarify the boundary; do not manufacture enemies.',
-    'Держите место, проясните границу; не производите врагов.',
+    'Yerinizde durun ve sınırı net biçimde adlandırın; anlaşmazlığı bir düşman listesine çevirmeden.',
+    'Hold your ground and name the boundary clearly, without turning disagreement into an enemy list.',
+    'Стойте на своём и ясно назовите границу, не превращая разногласие в список врагов.',
   ),
   upright: NarrativeOrientationProfile(
     expression: L10nTriple(

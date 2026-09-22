@@ -46,9 +46,9 @@ const kNarrativeMajor16 = NarrativeCardProfile(
     'Карта выявляет скрытую трещину и предлагает восстановить безопасность и честность до защиты позиций.',
   ),
   decisionDynamic: L10nTriple(
-    'Karar, çöken varsayımı kurtarmak yerine geride kalan sağlam unsurları belirlemelidir.',
-    'The decision should identify what remains sound rather than rescue a collapsed assumption.',
-    'Решение должно определить, что осталось надежным, вместо спасения разрушенного предположения.',
+    'Hâlâ sağlam kalanı belirlemek, burada çökmüş bir varsayımı kurtarmaya çalışmaktan daha önemlidir.',
+    'Identifying what still remains sound matters more here than rescuing an assumption that has already collapsed.',
+    'Определить, что осталось надёжным, значит здесь больше, чем спасать уже рухнувшее предположение.',
   ),
   actionDirection: L10nTriple(
     'Önce güvenliği sağlayın, hasarı adlandırın ve yalnız taşıyabilecek temeli yeniden kurun.',
