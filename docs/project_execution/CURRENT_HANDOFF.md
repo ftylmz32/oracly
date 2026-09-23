@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5.0.1 Signature Spread contract hardening
+**Updated:** 2026-09-23 — Tarot Phase 5A pure signature spread catalog
 
 ---
 
@@ -100,6 +100,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5.0 task start | `61134c811f9073d466cbc423a17692abaab76612` | Signature Spreads forensic + architecture lock |
 | Phase 5.0 end | `a590da5e39a9c84466237e3decc120f9197735f6` | docs PASS |
 | Phase 5.0.1 task start | `a590da5e39a9c84466237e3decc120f9197735f6` | Signature Spread contract hardening |
+| Phase 5.0.1 end | `c013dd1de183f1b224a01805f709705e5c3c1137` | docs PASS |
+| Phase 5A task start | `c013dd1de183f1b224a01805f709705e5c3c1137` | Pure SignatureSpread domain + launch catalog |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -202,6 +204,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4E re-audit — Final freeze gate | **COMPLETE / PASS** · Phase 4 **FROZEN** |
 | Phase 5.0 — Signature Spreads forensic + architecture lock | **COMPLETE / PASS** (docs-only) |
 | Phase 5.0.1 — Signature Spread contract hardening | **COMPLETE / PASS** (docs-only · ready for 5A) |
+| Phase 5A — Pure SignatureSpread domain + launch catalog | **COMPLETE / PASS** (shadow · Crossroads unreachable · TarotSpreadType unchanged) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -565,6 +568,19 @@ Pre-existing local noise (do **not** stage/clean):
 | Enum append | **deferred to 5D** · 5A must not touch `TarotSpreadType` |
 | Sequence | 5A domain → 5B projection → 5C l10n → 5D runtime → 5E shadow → 5F audit |
 | OPEN BLOCKER / MAJOR | **0** / **0** |
+
+### Phase 5A
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Package | `lib/features/tarot/signature_spreads/` |
+| Catalog count | **4** (Quick Insight · Timeline · Deep Field · Crossroads) |
+| Crossroads picker | **false** · `runtimeEnumName` inert |
+| `TarotSpreadType` | **UNCHANGED** |
+| Phase 3/4 production | **UNCHANGED** |
+| Edges / Phase 3 projection | **NOT** in 5A (deferred 5B) |
+| Live Narrative V2 | **NOT WIRED** |
 
 ### Phase 4D.1
 
@@ -1002,12 +1018,12 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 5A** — Pure SignatureSpreadDefinition domain + launch catalog (no `TarotSpreadType` changes · no live Narrative V2).
+**Phase 5B** — Signature → frozen SpreadSemanticDefinition projection + exact Crossroads edges (Phase 3 algorithms untouched).
 
-Phase 5.0.1: **PASS** · Phase 5.0: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED**.
+Phase 5A: **PASS** · Phase 5.0.1: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
 Do **not** wire live Tarot Narrative V2 path.
+Do **not** append `TarotSpreadType.crossroads` until Phase 5D.
 Do **not** reopen Phase 3 or Phase 4 production without a new approved phase.
-Do **not** append `TarotSpreadType.crossroads` in 5A.
