@@ -958,9 +958,25 @@ Chronological project execution ledger.
 | H19 | sessionId ASC + canonical payload tie-key |
 | Primary order | **UNCHANGED** |
 | Field merge / hashCode | **NO** / **NO** |
-| Phase 4 frozen | **NO** — 4E re-audit pending |
+| Phase 4 frozen | superseded by re-audit |
 | Live V2 / AI | **NOT WIRED** / **0** |
-| Outcome | **PASS** — ready for Phase 4E re-audit |
+| Outcome | **PASS** |
+
+### PL-T4E-RE — FINAL MEMORY + HISTORICAL RECURRENCE RE-AUDIT
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `32eb74f848cef75ceb0a0f9060c96182145b7ab0` |
+| Audit doc | `NARRATIVE_MEMORY_RECURRENCE_FINAL_REAUDIT.md` |
+| Original FAIL doc | `NARRATIVE_MEMORY_RECURRENCE_FINAL_AUDIT.md` (historical) |
+| BLOCKER / MAJOR | **0** / **0** |
+| H1–H19 | **19 / 19 PASS** |
+| Original H7 MAJOR | **CLOSED** |
+| Phase 4 frozen | **YES** |
+| Production changes in re-audit | **NONE** |
+| Live V2 / AI | **NOT WIRED** / **0** |
+| Outcome | **PASS** — Phase 4 FROZEN (not release-ready claim) |
 
 ---
 
@@ -1015,9 +1031,10 @@ Chronological project execution ledger.
 | PL-T4D.1 | Tarot Phase 4D.1 — Enrichment privacy contract hardening | **DONE** |
 | PL-T4E | Tarot Phase 4E — Independent Memory + Historical Recurrence audit | **FAIL** (H7 MAJOR · not frozen) |
 | PL-T4E.1 | Tarot Phase 4E.1 — H7 transitive physical-identity remediation | **PASS** · Phase 4 **NOT FROZEN** |
-| PL-T4E.1a | Tarot Phase 4E.1a — H19 exact-tie representative determinism | **PASS** · Phase 4 **NOT FROZEN** |
+| PL-T4E.1a | Tarot Phase 4E.1a — H19 exact-tie representative determinism | **PASS** |
+| PL-T4E-RE | Tarot Phase 4E re-audit — final freeze gate | **PASS** · Phase 4 **FROZEN** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D.1 DONE** · **4E FAIL** · **4E.1/4E.1a PASS** · not frozen |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

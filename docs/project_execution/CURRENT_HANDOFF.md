@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4E.1a H19 exact-tie determinism hardening
+**Updated:** 2026-09-23 — Tarot Phase 4E re-audit PASS · Phase 4 FROZEN
 
 ---
 
@@ -94,6 +94,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4E.1 task start | `1eb09c2cb343a1d58937aeccff05a35c0b3e2541` | H7 transitive physical-identity remediation |
 | Phase 4E.1 end | `6acb2b18f4c3cd29de2ed99e2f78ae688a24f00f` | H7 PASS |
 | Phase 4E.1a task start | `6acb2b18f4c3cd29de2ed99e2f78ae688a24f00f` | H19 exact-tie representative determinism |
+| Phase 4E.1a end | `32eb74f848cef75ceb0a0f9060c96182145b7ab0` | H19 PASS |
+| Phase 4E re-audit start | `32eb74f848cef75ceb0a0f9060c96182145b7ab0` | Final Memory + Historical Recurrence freeze gate |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -190,9 +192,10 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4C.2 — Strict live Tarot source aliases | **COMPLETE** |
 | Phase 4D — Request enricher + frozen historical corpus | **COMPLETE** |
 | Phase 4D.1 — Enrichment privacy contract hardening | **COMPLETE** |
-| Phase 4E — Independent Memory + Historical Recurrence audit | **COMPLETE / FAIL** (H7 MAJOR recorded) |
-| Phase 4E.1 — H7 transitive physical-identity remediation | **COMPLETE / PASS** · Phase 4 **NOT FROZEN** |
-| Phase 4E.1a — H19 exact-tie representative determinism | **COMPLETE / PASS** · Phase 4 **NOT FROZEN** |
+| Phase 4E — Independent Memory + Historical Recurrence audit | **COMPLETE / FAIL** (H7 MAJOR recorded · historical) |
+| Phase 4E.1 — H7 transitive physical-identity remediation | **COMPLETE / PASS** |
+| Phase 4E.1a — H19 exact-tie representative determinism | **COMPLETE / PASS** |
+| Phase 4E re-audit — Final freeze gate | **COMPLETE / PASS** · Phase 4 **FROZEN** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -502,8 +505,8 @@ Pre-existing local noise (do **not** stage/clean):
 | Status | **COMPLETE** / **PASS** (remediation) |
 | H7 fix | **IMPLEMENTED** — transitive alias component collapse (union-find) |
 | `samePhysicalIdentity` | **UNCHANGED** (pairwise) |
-| Phase 4 frozen | **NO** — 4E re-audit pending |
-| Phase 4E status | remains **FAIL** until re-audit |
+| Phase 4 frozen | **YES** (via 4E re-audit) |
+| Phase 4E status | historical **FAIL** · re-audit **PASS** |
 
 ### Phase 4E.1a
 
@@ -513,7 +516,21 @@ Pre-existing local noise (do **not** stage/clean):
 | H19 | **IMPLEMENTED** — sessionId ASC + canonical payload tie-break |
 | Primary order | **UNCHANGED** (`occurredAt` DESC, `readingId` ASC) |
 | Field merge | **NO** |
-| Phase 4 frozen | **NO** — 4E re-audit pending |
+| Phase 4 frozen | superseded by re-audit |
+
+### Phase 4E re-audit
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Audit doc | `docs/product/tarot/NARRATIVE_MEMORY_RECURRENCE_FINAL_REAUDIT.md` |
+| Original FAIL doc | `NARRATIVE_MEMORY_RECURRENCE_FINAL_AUDIT.md` (historical) |
+| BLOCKER / MAJOR | **0** / **0** |
+| H1–H19 | **19 / 19 PASS** |
+| Original H7 MAJOR | **CLOSED** |
+| Phase 4 frozen | **YES** |
+| Live Narrative V2 | **NOT WIRED** |
+| Runtime engine | **NOT USER-REACHABLE** |
 
 ### Phase 4D.1
 
@@ -951,11 +968,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 4E re-audit** (independent) after H7 + H19 hardening — do not freeze Phase 4 until re-audit PASS.
+**Phase 4 is FROZEN.** Do not reopen Memory + Historical Recurrence without a new approved phase.
 
-Phase 4E.1a: **PASS** · Phase 4E.1: **PASS** · Phase 4E: **FAIL** (historical) · Phase 4 **NOT FROZEN** · live V2 **NOT WIRED**.
+Next product work is **outside** live Narrative V2 wiring unless separately approved.
+
+Phase 4E re-audit: **PASS** · Phase 4: **FROZEN** · live V2: **NOT WIRED** · runtime engine: **NOT USER-REACHABLE**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** wire live Tarot Narrative V2 path.
-Do **not** mark Phase 4E PASS or Phase 4 frozen until re-audit.
+Do **not** wire live Tarot Narrative V2 path without a new approved phase.
+Do **not** claim App Store / release readiness from this freeze alone.
