@@ -519,7 +519,7 @@ Stop: privacy red-team PASS · **IMPLEMENTED**
 
 - `TarotNarrativeRequestEnricher.enrich(...)` — pure sync · card → theme → memory
 - Privacy short-circuit · Phase 3 identity preservation · exit referential validation
-- Frozen corpus `tarot_narrative_history_enrichment_v1.json` (52 scenarios · 44/44 classes)
+- Frozen corpus `tarot_narrative_history_enrichment_v1.json` (55 scenarios · 44/44 classes)
 - Storage→enricher shadow integration · delete/restart no-ghost
 - Stop: enrichment closed-universe PASS; Phase 3 relationships unchanged · **IMPLEMENTED**
 

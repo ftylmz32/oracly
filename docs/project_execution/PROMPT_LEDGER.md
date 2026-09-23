@@ -900,7 +900,7 @@ Chronological project execution ledger.
 | Engine order | card → theme → memory |
 | Privacy short-circuit | `omitReason=privacy` · empty recurrence |
 | Referential validation | exit `StateError('tarot narrative enrichment invalid')` |
-| Corpus scenarios | **52** · **44/44** classes |
+| Corpus scenarios | **55** · **44/44** classes |
 | Languages | TR/EN/RU ≥6 each |
 | Question kinds | open/guidance/relationship/decision ≥6 each |
 | Idempotence / privacy revocation | **PASS** |

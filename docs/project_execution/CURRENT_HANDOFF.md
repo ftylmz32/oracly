@@ -475,7 +475,7 @@ Pre-existing local noise (do **not** stage/clean):
 |---|---|
 | Status | **COMPLETE** / **PASS** |
 | Request enricher | **IMPLEMENTED** (pure sync · card → theme → memory) |
-| Historical corpus | **52** scenarios · **44/44** classes |
+| Historical corpus | **55** scenarios · **44/44** classes |
 | Privacy short-circuit | **IMPLEMENTED** (`omitReason=privacy`) |
 | Phase 3 fields | **PRESERVED** (identity pass-through) |
 | Storage adapters | **4C frozen** |

@@ -4265,6 +4265,192 @@
         ],
         "recurringThemes": []
       }
+    },
+    {
+      "id": "p4d_ctx_career_topic",
+      "baseScenarioId": "five_balance_imbalance_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "classes": [
+        "context_topic_match"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_career_1",
+            "occurredAt": "2026-09-10T12:00:00.000Z",
+            "spreadId": "single",
+            "topicId": "career",
+            "intentionSummary": "work path focus",
+            "cards": [
+              {
+                "canonicalCardId": "major_11",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "present",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_11",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "topic_match",
+            "occurrences": [
+              {
+                "readingId": "h_career_1",
+                "at": "2026-09-10T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "present",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": "work path focus"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_ctx_kind_decision",
+      "baseScenarioId": "three_clarity_confusion_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "classes": [
+        "context_kind_token"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_kind_d1",
+            "occurredAt": "2026-09-12T12:00:00.000Z",
+            "spreadId": "single",
+            "questionKind": "decision",
+            "intentionSummary": "Should we move to another city soon?",
+            "cards": [
+              {
+                "canonicalCardId": "swords_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "swords_01",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "kind_token",
+            "occurrences": [
+              {
+                "readingId": "h_kind_d1",
+                "at": "2026-09-12T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "past",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": "Should we move to another city soon?"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_ctx_kind_token_ru",
+      "baseScenarioId": "single_relationship_swords09r_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "classes": [
+        "context_kind_token"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_kind_1",
+            "occurredAt": "2026-09-12T12:00:00.000Z",
+            "spreadId": "single",
+            "questionKind": "relationship",
+            "intentionSummary": "наши отношения чувства между нами",
+            "cards": [
+              {
+                "canonicalCardId": "swords_09",
+                "isReversed": true,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "swords_09",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "kind_token",
+            "occurrences": [
+              {
+                "readingId": "h_kind_1",
+                "at": "2026-09-12T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": true,
+                "orientationKnown": true,
+                "intentionSummary": "наши отношения чувства между нами"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
     }
   ]
 }

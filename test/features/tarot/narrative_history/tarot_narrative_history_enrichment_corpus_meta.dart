@@ -92,10 +92,12 @@ void assertEnrichmentCorpusMeta(List<Map<String, dynamic>> scenarios) {
     final cards = (exp['recurringCards'] as List?) ?? const [];
     if (cards.isNotEmpty) withRecCard++;
     if (cards.length >= 2) with2RecCards++;
-    for (final c in cards) {
-      if ((c as Map)['contextsOverlap'] == true) ctxTrue++;
-      if (c['contextsOverlap'] == false) ctxFalse++;
-    }
+    final hasCtxTrue = cards.any((c) => (c as Map)['contextsOverlap'] == true);
+    final hasCtxFalse =
+        cards.isNotEmpty &&
+        cards.any((c) => (c as Map)['contextsOverlap'] == false);
+    if (hasCtxTrue) ctxTrue++;
+    if (hasCtxFalse) ctxFalse++;
     final themes = (exp['recurringThemes'] as List?) ?? const [];
     if (themes.isNotEmpty) withTheme++;
     for (final t in themes) {
