@@ -1,6 +1,7 @@
-/// Pair generation, theme finalization, ranking, evidence ids (3D.1C).
+/// Pair generation, theme finalization, ranking, evidence ids (3D.1C / 3D.1C.1).
 library;
 
+import 'narrative_evidence_error.dart';
 import 'narrative_question_grounding.dart';
 import 'narrative_relationship_candidate.dart';
 import 'narrative_relationship_context.dart';
@@ -14,12 +15,24 @@ import 'narrative_spread_semantics.dart';
 abstract final class NarrativeRelationshipSelector {
   NarrativeRelationshipSelector._();
 
+  static const maxCardsAbsolute = 10;
+
   static List<TarotNarrativeRelationshipEvidence> select({
     required List<NarrativeRelationshipCardContext> cards,
     required SpreadSemanticDefinition spread,
     required QuestionKind questionKind,
     int maxRelationships = NarrativeRelationshipRules.maxRelationshipsDefault,
   }) {
+    if (cards.length > maxCardsAbsolute) {
+      throw NarrativeEvidenceException(
+        NarrativeEvidenceErrorCode.cardCountMismatch,
+        message:
+            'prepared card count ${cards.length} exceeds absolute max '
+            '$maxCardsAbsolute',
+      );
+    }
+
+    final effectiveMax = _clampMaxRelationships(maxRelationships);
     final sorted = [...cards]..sort(NarrativeRelationshipRanking.cardOrder);
     final evaluations = <NarrativePairEvaluation>[];
     for (var i = 0; i < sorted.length; i++) {
@@ -45,7 +58,7 @@ abstract final class NarrativeRelationshipSelector {
     }
 
     candidates.sort(NarrativeRelationshipRanking.rankOrder);
-    final top = candidates.take(maxRelationships).toList();
+    final top = candidates.take(effectiveMax).toList();
     return [
       for (var i = 0; i < top.length; i++)
         TarotNarrativeRelationshipEvidence(
@@ -62,16 +75,31 @@ abstract final class NarrativeRelationshipSelector {
     ];
   }
 
+  /// Clamp requested max to absolute contract [0, 12].
+  static int _clampMaxRelationships(int requested) {
+    if (requested < 0) return 0;
+    if (requested > NarrativeRelationshipRules.maxRelationshipsDefault) {
+      return NarrativeRelationshipRules.maxRelationshipsDefault;
+    }
+    return requested;
+  }
+
   static NarrativeRelationshipCandidate? _finalize(
     NarrativePairEvaluation ev,
     NarrativePairEvaluation? themeWinner,
   ) {
-    RelationshipKind? kind = ev.higherPriorityKind;
+    RelationshipKind? kind;
     final tokens = <String>{...ev.provenanceTokens};
     final isThemeWinner =
         themeWinner != null &&
         NarrativeRelationshipRanking.samePair(ev, themeWinner);
 
+    // Non-theme kinds require normal admission (3D.1C.1).
+    if (ev.normalAdmitted && ev.higherPriorityKind != null) {
+      kind = ev.higherPriorityKind;
+    }
+
+    // Theme is the sole special admission exception.
     if (kind == null && isThemeWinner) {
       kind = RelationshipKind.themeRepetition;
       tokens.add('themeEcho');

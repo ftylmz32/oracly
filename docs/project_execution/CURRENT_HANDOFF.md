@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1C Deterministic Relationship Scorer + Selector
+**Updated:** 2026-09-23 — Tarot Phase 3D.1C.1 Selector Admission + Bounds + Court-Guard Hardening
 
 ---
 
@@ -62,6 +62,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1B.2 task start | `fc61bccc65f1bd523dbc3d753c5b74136586dcae` | Admission consistency repair |
 | Phase 3D.1B.2 end | `9d7b388e2ae3ec16a9c2b0ba5e72f6802c98b890` | Admission consistency repair |
 | Phase 3D.1C task start | `9d7b388e2ae3ec16a9c2b0ba5e72f6802c98b890` | Deterministic relationship scorer + selector |
+| Phase 3D.1C end | `bd5c9dcb9eabfa199eef737a66365a64c9d7b9bf` | Relationship scorer + selector |
+| Phase 3D.1C.1 task start | `bd5c9dcb9eabfa199eef737a66365a64c9d7b9bf` | Selector admission/bounds/court-guard hardening |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -145,6 +147,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1B.1 — Relationship scoring calibration | **COMPLETE** (docs + diagnostic; production scoring **NOT** implemented; OPEN 3D.1C decisions **0**) |
 | Phase 3D.1B.2 — Admission consistency repair | **COMPLETE** (FR-F01+canonical 0.90 → REJECT; thresholds unchanged) |
 | Phase 3D.1C — Deterministic Relationship Scorer + Selector | **COMPLETE** (scoring/admission/kinds/ranking/`rel_##`; builder **NOT** implemented) |
+| Phase 3D.1C.1 — Selector admission/bounds/court-guard hardening | **COMPLETE** (non-theme requires normalAdmitted; max 12/10; FR minor-only) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -433,6 +436,20 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1C.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Defect | Higher-priority kind bypassed `normalAdmitted` in selector `_finalize` |
+| Repair | Non-theme emit requires `normalAdmitted`; theme sole special admission |
+| Max relationships | Hard clamp requested max to **[0, 12]** |
+| Max cards | Absolute ceiling **10** → else `cardCountMismatch` |
+| FR court guards | Minor suits only — `OraclyTarotSuit.none` never true |
+| Scoring constants / kind precedence | **UNCHANGED** |
+| NarrativeEvidenceBuilder | **NOT IMPLEMENTED** |
+| User path | **UNCHANGED** |
+
 ### Phase 3D.1C
 
 | Field | Value |
@@ -679,7 +696,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 **ChatGPT review before Phase 3D.1D** (full `NarrativeEvidenceBuilder` + fixed corpus).
 
-Phase 3D.1C: **PASS** · Relationship scorer/selector **IMPLEMENTED** · Contradiction = kind/veto only (no −0.60) · FR caps only · Theme = current-spread selector · Top-12 `rel_##` · Builder **NOT** implemented · User path **UNCHANGED**.
+Phase 3D.1C.1: **PASS** · higher-priority admission bypass **FIXED** · theme exception preserved · maxRelationships hard cap **12** · max cards **10** · FR court guards minor-only · Builder **NOT** implemented · User path **UNCHANGED**.
 
 Do **not** start 3D.1D until reviewed.
 Do **not** mark future items completed until verified.

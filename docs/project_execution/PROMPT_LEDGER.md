@@ -722,6 +722,22 @@ Chronological project execution ledger.
 | Builder / user path / AI / memory | **NOT IMPLEMENTED** / **UNCHANGED** / **0** / **NONE** |
 | Outcome | **PASS** |
 
+### PL-T3D.1C.1 — RELATIONSHIP SELECTOR HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `bd5c9dcb9eabfa199eef737a66365a64c9d7b9bf` |
+| Defect | Selector emitted higherPriorityKind without `normalAdmitted` |
+| Repair | Non-theme kinds require admission; theme sole special path |
+| Bounds | maxRelationships clamp [0,12] · cards.length ≤10 else cardCountMismatch |
+| FR guards | Minor suits only (`none` excluded) |
+| Scoring / kind precedence | **UNCHANGED** |
+| Production | `narrative_relationship_selector.dart` · `narrative_relationship_guards.dart` |
+| Tests | admission_gate · bounds · FR major exclusion |
+| Builder / user path | **NOT IMPLEMENTED** / **UNCHANGED** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -760,6 +776,7 @@ Chronological project execution ledger.
 | PL-T3D.1B.1 | Tarot Phase 3D.1B.1 — Relationship scoring calibration | **DONE** (docs+diagnostic; OPEN 3D.1C decisions 0; scorer NOT IMPLEMENTED) |
 | PL-T3D.1B.2 | Tarot Phase 3D.1B.2 — Scoring admission consistency repair | **DONE** (0.90 REJECT; constants unchanged) |
 | PL-T3D.1C | Tarot Phase 3D.1C — Deterministic relationship scorer + selector | **DONE** (scorer+selector; builder NOT IMPLEMENTED) |
+| PL-T3D.1C.1 | Tarot Phase 3D.1C.1 — Relationship selector hardening | **DONE** (admission gate + bounds + FR minor-only) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (scorer DONE; builder pending 3D.1D) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |

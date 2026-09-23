@@ -278,4 +278,84 @@ void main() {
     expect(ev.normalAdmitted, isTrue);
     expect(ev.strength, lessThanOrEqualTo(0.45));
   });
+
+  test('FR-F01 major number 11 + minor Page: pageSuitGuard FALSE', () {
+    final major = NarrativeRelationshipCardContext(
+      canonicalCardId: 'major_11',
+      positionKey: 'self',
+      positionIndex: 6,
+      isReversed: false,
+      suit: OraclyTarotSuit.none,
+      number: OraclyTarotRanks.page,
+      keywordIds: const ['messenger', 'learning', 'curiosity'],
+      semanticChannel: NarrativeSemanticChannel.from(
+        keywordIds: const ['messenger', 'learning', 'curiosity'],
+        symbolTags: const [],
+      ),
+      transforms: const [],
+      relatedIds: const [],
+    );
+    final page = NarrativeRelationshipCardContext(
+      canonicalCardId: 'wands_11',
+      positionKey: 'outcome',
+      positionIndex: 9,
+      isReversed: false,
+      suit: OraclyTarotSuit.wands,
+      number: OraclyTarotRanks.page,
+      keywordIds: const ['messenger', 'learning', 'curiosity'],
+      semanticChannel: NarrativeSemanticChannel.from(
+        keywordIds: const ['messenger', 'learning', 'curiosity'],
+        symbolTags: const [],
+      ),
+      transforms: const [],
+      relatedIds: const [],
+    );
+    final ev = NarrativeRelationshipScorer.evaluate(
+      a: major,
+      b: page,
+      spread: ClassicalSpreadSemantics.byLegacyTypeName('celticCross'),
+      questionKind: QuestionKind.open,
+    );
+    expect(ev.pageSuitGuard, isFalse);
+  });
+
+  test('FR-F02 major 11 + major 12: courtRankGuard FALSE', () {
+    final a = NarrativeRelationshipCardContext(
+      canonicalCardId: 'major_11',
+      positionKey: 'self',
+      positionIndex: 6,
+      isReversed: true,
+      suit: OraclyTarotSuit.none,
+      number: OraclyTarotRanks.page,
+      keywordIds: const ['haste', 'harshSpeech', 'notListening'],
+      semanticChannel: NarrativeSemanticChannel.from(
+        keywordIds: const ['haste', 'harshSpeech', 'notListening'],
+        symbolTags: const [],
+      ),
+      transforms: const [],
+      relatedIds: const [],
+    );
+    final b = NarrativeRelationshipCardContext(
+      canonicalCardId: 'major_12',
+      positionKey: 'outcome',
+      positionIndex: 9,
+      isReversed: true,
+      suit: OraclyTarotSuit.none,
+      number: OraclyTarotRanks.knight,
+      keywordIds: const ['haste', 'harshSpeech', 'notListening'],
+      semanticChannel: NarrativeSemanticChannel.from(
+        keywordIds: const ['haste', 'harshSpeech', 'notListening'],
+        symbolTags: const [],
+      ),
+      transforms: const [],
+      relatedIds: const [],
+    );
+    final ev = NarrativeRelationshipScorer.evaluate(
+      a: a,
+      b: b,
+      spread: ClassicalSpreadSemantics.byLegacyTypeName('celticCross'),
+      questionKind: QuestionKind.open,
+    );
+    expect(ev.courtRankGuard, isFalse);
+  });
 }

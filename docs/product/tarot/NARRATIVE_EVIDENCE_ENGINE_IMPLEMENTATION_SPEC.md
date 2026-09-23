@@ -4,8 +4,9 @@
 **Phase 3D.0 start SHA:** e90a5109bbb75ce2c1247be686c9a149aa554846
 **Phase 3D.0.1 start SHA:** 18cfeea804cc415a8d064e2a3f9d89c611c8cb4d
 **Phase 3D.1B.1 calibration:** `docs/product/tarot/NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md`
-**Status:** **3D.1C COMPLETE** — deterministic relationship scorer + selector implemented (builder / user path still NOT wired)
-**Production scoring / builder:** **NOT IMPLEMENTED**
+**Status:** **3D.1C COMPLETE** (+ **3D.1C.1** admission/bounds/court-guard hardening) — deterministic relationship scorer + selector implemented (builder / user path still NOT wired)
+**Production scorer/selector:** **IMPLEMENTED**
+**NarrativeEvidenceBuilder:** **NOT IMPLEMENTED**
 
 Authority: NARRATIVE_TAROT_SPEC.md · NARRATIVE_TAROT_DATA_CONTRACT.md · TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md · NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md
 
@@ -707,6 +708,17 @@ Exact keyword/transform trigger sets: `NARRATIVE_RELATIONSHIP_SCORING_CALIBRATIO
 Production: `NarrativeRelationshipScorer` + `NarrativeRelationshipSelector` over prepared `NarrativeRelationshipCardContext` only.
 `NarrativeEvidenceBuilder` / raw-reading validation / request assembly / memory / user path: **NOT IMPLEMENTED**.
 Theme echo is current-spread selector logic only (pair + ≥3-card df≤6 cluster); max one `themeRepetition`; no reserved top-N slot.
+
+### Phase 3D.1C.1 selector admission lock
+
+Scorer may still classify `higherPriorityKind` for diagnostics when `normalAdmitted == false`.
+
+**Selector emission gate:**
+
+- Every **non-theme** kind (`contrast` · `conflict` · `causeEffect` · `blockage` · `softening` · `escalation` · `resolution` · `support` · `reinforcement`) requires `normalAdmitted == true` before emit.
+- **`themeRepetition` is the sole special admission exception** (selector-global theme rule).
+- Absolute bounds: `cards.length ≤ 10` (else `cardCountMismatch`); `maxRelationships` clamped to `[0, 12]`.
+- FR-F01/F02: minor suits only (`wands|cups|swords|pentacles`); `OraclyTarotSuit.none` (Major) never triggers court guards.
 
 ---
 

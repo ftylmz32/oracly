@@ -13,6 +13,7 @@ abstract final class NarrativeRelationshipGuards {
     NarrativeRelationshipCardContext a,
     NarrativeRelationshipCardContext b,
   ) {
+    if (!_isMinorSuit(a.suit) || !_isMinorSuit(b.suit)) return false;
     if (a.number != OraclyTarotRanks.page ||
         b.number != OraclyTarotRanks.page) {
       return false;
@@ -25,6 +26,7 @@ abstract final class NarrativeRelationshipGuards {
     NarrativeRelationshipCardContext a,
     NarrativeRelationshipCardContext b,
   ) {
+    if (!_isMinorSuit(a.suit) || !_isMinorSuit(b.suit)) return false;
     if (a.suit != b.suit) return false;
     final ranks = {a.number, b.number};
     if (!ranks.contains(OraclyTarotRanks.page) ||
@@ -34,6 +36,13 @@ abstract final class NarrativeRelationshipGuards {
     }
     return _keywordSetsEqual(a.keywordIds, b.keywordIds);
   }
+
+  /// FR-F01/F02 apply to minor courts only — never Major (`OraclyTarotSuit.none`).
+  static bool _isMinorSuit(OraclyTarotSuit suit) =>
+      suit == OraclyTarotSuit.wands ||
+      suit == OraclyTarotSuit.cups ||
+      suit == OraclyTarotSuit.swords ||
+      suit == OraclyTarotSuit.pentacles;
 
   static bool _keywordSetsEqual(List<String> a, List<String> b) {
     final ak = a.toSet();
