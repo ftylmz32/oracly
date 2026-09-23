@@ -16,6 +16,8 @@ void main() {
         'spreadMismatch',
         'invalidOntologyId',
         'duplicateEvidenceId',
+        'duplicateCardId',
+        'ritualCardMismatch',
       ]);
     });
 

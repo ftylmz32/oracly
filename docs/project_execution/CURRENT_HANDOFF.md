@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1C.1 Selector Admission + Bounds + Court-Guard Hardening
+**Updated:** 2026-09-23 — Tarot Phase 3D.1D Full NarrativeEvidenceBuilder + Frozen Real-Deck Corpus
 
 ---
 
@@ -64,6 +64,9 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1C task start | `9d7b388e2ae3ec16a9c2b0ba5e72f6802c98b890` | Deterministic relationship scorer + selector |
 | Phase 3D.1C end | `bd5c9dcb9eabfa199eef737a66365a64c9d7b9bf` | Relationship scorer + selector |
 | Phase 3D.1C.1 task start | `bd5c9dcb9eabfa199eef737a66365a64c9d7b9bf` | Selector admission/bounds/court-guard hardening |
+| Phase 3D.1C.1 end | `1e1abc0bdbf9525893b46bb213db0627cb39e1c5` | Admission + bounds + FR minor-only |
+| Phase 3D.1D task start | `1e1abc0bdbf9525893b46bb213db0627cb39e1c5` | Full NarrativeEvidenceBuilder + frozen corpus |
+| Phase 3D.1D end | `0a79dee4d5a5a0ba53af33749e7f8e870a2893b2` | Builder + frozen real-deck corpus |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -148,6 +151,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1B.2 — Admission consistency repair | **COMPLETE** (FR-F01+canonical 0.90 → REJECT; thresholds unchanged) |
 | Phase 3D.1C — Deterministic Relationship Scorer + Selector | **COMPLETE** (scoring/admission/kinds/ranking/`rel_##`; builder **NOT** implemented) |
 | Phase 3D.1C.1 — Selector admission/bounds/court-guard hardening | **COMPLETE** (non-theme requires normalAdmitted; max 12/10; FR minor-only) |
+| Phase 3D.1D — Full NarrativeEvidenceBuilder + frozen real-deck corpus | **COMPLETE** (builder + ≥40 corpus; memory/recurrence empty; user path unchanged) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -436,6 +440,26 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1D
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Builder | **IMPLEMENTED** — `NarrativeEvidenceBuilder.build` → closed `TarotNarrativeRequest` |
+| Input | `NarrativeEvidenceInput` / `NarrativeEvidenceCardInput` (no memory/history/AI fields) |
+| Language | `AppLocale.normalize` only → `tr` \| `en` \| `ru` |
+| Spreads | classical 5/5 via `ClassicalSpreadSemantics.byLegacyTypeName` |
+| Validation | card count · duplicate card · ritual↔canonical · deck/profile · positions · coverage · closed universe |
+| New error codes | `duplicateCardId` · `ritualCardMismatch` (11 codes total) |
+| Relationships | existing selector · max **12** · `rel_##` |
+| Memory | `TarotNarrativeMemoryEvidence.empty` only |
+| Recurrence | `recurringCards=[]` · `recurringThemes=[]` (themeRepetition ≠ historical) |
+| Bounds | RequestBounds.defaults **20 / 5 / 12 / 800 / 4** |
+| Corpus | `test/fixtures/tarot_narrative_evidence_v1.json` · **≥40** real-deck · frozen expectations |
+| Relationship kinds | **10 / 10** covered in corpus |
+| User path | **UNCHANGED** — no live importers outside evidence |
+| AI / Network / Persistence / History | **0** / **0** / **0** / **NONE** |
+
 ### Phase 3D.1C.1
 
 | Field | Value |
@@ -670,6 +694,7 @@ Production surface:
 | Flutter (Phase 3C.5E — PL-T3C.5E) | 3768 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3D.1A — PL-T3D.1A) | 3806 passed · 0 failed · 15 skipped · 0 timed out (+38 evidence domain) |
 | Flutter (Phase 3D.1B — PL-T3D.1B) | 3832 passed · 0 failed · 15 skipped · 0 timed out (+26 semantic signals) |
+| Flutter (Phase 3D.1D — PL-T3D.1D) | 3922 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -694,11 +719,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3D.1D** (full `NarrativeEvidenceBuilder` + fixed corpus).
+**ChatGPT review before Phase 3D.1E** (independent Evidence Engine audit).
 
-Phase 3D.1C.1: **PASS** · higher-priority admission bypass **FIXED** · theme exception preserved · maxRelationships hard cap **12** · max cards **10** · FR court guards minor-only · Builder **NOT** implemented · User path **UNCHANGED**.
+Phase 3D.1D: **PASS** · `NarrativeEvidenceBuilder` **IMPLEMENTED** · frozen real-deck corpus **≥40** · relationship kinds **10/10** · memory/recurrence **EMPTY** · AI **0** · user path **UNCHANGED**.
 
-Do **not** start 3D.1D until reviewed.
+Do **not** start 3D.1E until reviewed.
 Do **not** mark future items completed until verified.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

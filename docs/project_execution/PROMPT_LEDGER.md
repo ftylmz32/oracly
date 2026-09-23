@@ -738,6 +738,24 @@ Chronological project execution ledger.
 | Builder / user path | **NOT IMPLEMENTED** / **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T3D.1D — FULL NARRATIVE EVIDENCE BUILDER + FROZEN REAL-DECK CORPUS
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `1e1abc0bdbf9525893b46bb213db0627cb39e1c5` |
+| Production files | `narrative_evidence_input.dart` · `narrative_evidence_builder.dart` · `narrative_evidence_validation.dart` |
+| Error codes added | `duplicateCardId` · `ritualCardMismatch` (11 total) |
+| Validation | card count · duplicate card · ritual↔canonical · deck/profile · positions · coverage · closed universe |
+| Language | `AppLocale.normalize` only |
+| Spreads | 5/5 classical |
+| Relationships | selector reused · max 12 · scoring **NOT** reimplemented |
+| Memory / recurrence | empty only |
+| Corpus | `tarot_narrative_evidence_v1.json` · 46 scenarios · 10/10 kinds · frozen expectations |
+| 78 ritual bridge parity | tested |
+| User path / AI / history | **UNCHANGED** / **0** / **NONE** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -777,7 +795,8 @@ Chronological project execution ledger.
 | PL-T3D.1B.2 | Tarot Phase 3D.1B.2 — Scoring admission consistency repair | **DONE** (0.90 REJECT; constants unchanged) |
 | PL-T3D.1C | Tarot Phase 3D.1C — Deterministic relationship scorer + selector | **DONE** (scorer+selector; builder NOT IMPLEMENTED) |
 | PL-T3D.1C.1 | Tarot Phase 3D.1C.1 — Relationship selector hardening | **DONE** (admission gate + bounds + FR minor-only) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (scorer DONE; builder pending 3D.1D) |
+| PL-T3D.1D | Tarot Phase 3D.1D — Full NarrativeEvidenceBuilder + frozen real-deck corpus | **DONE** (builder + corpus; memory empty; user path unchanged) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (builder DONE; Phase 4+ pending) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

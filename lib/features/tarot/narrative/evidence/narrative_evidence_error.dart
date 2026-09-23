@@ -1,4 +1,4 @@
-/// Typed errors for Narrative Evidence (Phase 3D.1A).
+/// Typed errors for Narrative Evidence (Phase 3D.1A / 3D.1D).
 library;
 
 enum NarrativeEvidenceErrorCode {
@@ -11,6 +11,12 @@ enum NarrativeEvidenceErrorCode {
   spreadMismatch,
   invalidOntologyId,
   duplicateEvidenceId,
+
+  /// Same physical canonical card appears twice in one reading.
+  duplicateCardId,
+
+  /// Ritual id invalid or resolves to a different canonical card.
+  ritualCardMismatch,
 }
 
 class NarrativeEvidenceException implements Exception {

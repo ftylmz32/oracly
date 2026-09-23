@@ -876,9 +876,11 @@ No fragile wall-clock gates; assert structural bounds in tests.
 | `cardCountMismatch` | cards.length ≠ spread.expectedCount |
 | `unknownPositionKey` | key ∉ spread catalog |
 | `invalidOrientation` | missing upright/reversed profile slice |
-| `spreadMismatch` | unknown `TarotSpreadType` |
+| `spreadMismatch` | unknown `TarotSpreadType` / incomplete position coverage / position index mismatch / closed-universe card/position ref failure |
 | `invalidOntologyId` | keyword/tag not in ontology (should be impossible) |
 | `duplicateEvidenceId` | builder invariant broken |
+| `duplicateCardId` | same physical canonical card twice in current reading |
+| `ritualCardMismatch` | ritual id invalid or resolves to a different canonical card |
 
 **No silent partial success.** Builder errors do **not** trigger AI provider retries.
 
