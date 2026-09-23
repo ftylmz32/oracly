@@ -1,0 +1,1439 @@
+{
+  "version": 1,
+  "phase": "5E",
+  "scenarioCount": 16,
+  "launchSpreadCount": 4,
+  "crossroadsPhase3Support": false,
+  "crossroadsPhase4HistorySupport": false,
+  "liveNarrativeV2": false,
+  "note": "Literal frozen Signature shadow corpus. Do not regenerate in tests.",
+  "scenarios": [
+    {
+      "scenarioId": "qi_open_en_up",
+      "runtimeEnum": "single",
+      "languageCode": "en",
+      "question": null,
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.single",
+        "runtimeEnum": "single",
+        "languageNormalized": "en",
+        "questionKind": "open",
+        "cardCanonicalIds": [
+          "major_00"
+        ],
+        "reversalFlags": [
+          false
+        ],
+        "positionKeys": [
+          "sign"
+        ],
+        "roles": [
+          "signal"
+        ],
+        "interpretationOrder": [
+          0
+        ],
+        "signatureGeometryHook": "single",
+        "phase3Geometry": "singlePoint",
+        "edges": [],
+        "projectedRelationRowCount": 0,
+        "structuralFingerprint": "spreadId=classical.single\nversion=1\ngeometry=single\nphase3Geometry=singlePoint\narc=single_signal\nquestionKind=open\norder=0\ncard=sign:signal:major_00:false",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": false,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "qi_guidance_tr_rev",
+      "runtimeEnum": "single",
+      "languageCode": "tr",
+      "question": "Need guidance for my next step",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": true
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.single",
+        "runtimeEnum": "single",
+        "languageNormalized": "tr",
+        "questionKind": "guidance",
+        "cardCanonicalIds": [
+          "major_00"
+        ],
+        "reversalFlags": [
+          true
+        ],
+        "positionKeys": [
+          "sign"
+        ],
+        "roles": [
+          "signal"
+        ],
+        "interpretationOrder": [
+          0
+        ],
+        "signatureGeometryHook": "single",
+        "phase3Geometry": "singlePoint",
+        "edges": [],
+        "projectedRelationRowCount": 0,
+        "structuralFingerprint": "spreadId=classical.single\nversion=1\ngeometry=single\nphase3Geometry=singlePoint\narc=single_signal\nquestionKind=guidance\norder=0\ncard=sign:signal:major_00:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": false,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "qi_decision_reject",
+      "runtimeEnum": "single",
+      "languageCode": "en",
+      "question": "Should I accept this offer?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "failureCode": "unsupportedQuestionKind",
+        "phase3EvidenceStatus": "invalidInput",
+        "phase4HistoryStatus": "notRequested"
+      }
+    },
+    {
+      "scenarioId": "tl_open_en",
+      "runtimeEnum": "threeCard",
+      "languageCode": "en",
+      "question": null,
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": false
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.threeCard",
+        "runtimeEnum": "threeCard",
+        "languageNormalized": "en",
+        "questionKind": "open",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02"
+        ],
+        "reversalFlags": [
+          false,
+          false,
+          false
+        ],
+        "positionKeys": [
+          "past",
+          "present",
+          "future"
+        ],
+        "roles": [
+          "root",
+          "state",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2
+        ],
+        "signatureGeometryHook": "threeLinear",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "past",
+            "to": "present",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "present",
+            "to": "future",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "past",
+            "to": "future",
+            "directed": true,
+            "kind": "temporal"
+          }
+        ],
+        "projectedRelationRowCount": 3,
+        "structuralFingerprint": "spreadId=classical.threeCard\nversion=1\ngeometry=threeLinear\nphase3Geometry=linearRow\narc=timeline\nquestionKind=open\norder=0,1,2\ncard=past:root:major_00:false\ncard=present:state:major_01:false\ncard=future:direction:major_02:false\nedge=past>future:temporal:true\nedge=past>present:temporal:true\nedge=present>future:temporal:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00",
+          "major_01",
+          "major_02"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "tl_relationship_tr",
+      "runtimeEnum": "threeCard",
+      "languageCode": "tr",
+      "question": "How is this relationship evolving?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.threeCard",
+        "runtimeEnum": "threeCard",
+        "languageNormalized": "tr",
+        "questionKind": "relationship",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02"
+        ],
+        "reversalFlags": [
+          false,
+          true,
+          false
+        ],
+        "positionKeys": [
+          "past",
+          "present",
+          "future"
+        ],
+        "roles": [
+          "root",
+          "state",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2
+        ],
+        "signatureGeometryHook": "threeLinear",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "past",
+            "to": "present",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "present",
+            "to": "future",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "past",
+            "to": "future",
+            "directed": true,
+            "kind": "temporal"
+          }
+        ],
+        "projectedRelationRowCount": 3,
+        "structuralFingerprint": "spreadId=classical.threeCard\nversion=1\ngeometry=threeLinear\nphase3Geometry=linearRow\narc=timeline\nquestionKind=relationship\norder=0,1,2\ncard=past:root:major_00:false\ncard=present:state:major_01:true\ncard=future:direction:major_02:false\nedge=past>future:temporal:true\nedge=past>present:temporal:true\nedge=present>future:temporal:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00",
+          "major_01",
+          "major_02"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "tl_decision_ru",
+      "runtimeEnum": "threeCard",
+      "languageCode": "ru",
+      "question": "Should I accept this offer?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": true
+        },
+        {
+          "id": "major_01",
+          "reversed": false
+        },
+        {
+          "id": "major_02",
+          "reversed": true
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.threeCard",
+        "runtimeEnum": "threeCard",
+        "languageNormalized": "ru",
+        "questionKind": "decision",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02"
+        ],
+        "reversalFlags": [
+          true,
+          false,
+          true
+        ],
+        "positionKeys": [
+          "past",
+          "present",
+          "future"
+        ],
+        "roles": [
+          "root",
+          "state",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2
+        ],
+        "signatureGeometryHook": "threeLinear",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "past",
+            "to": "present",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "present",
+            "to": "future",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "past",
+            "to": "future",
+            "directed": true,
+            "kind": "temporal"
+          }
+        ],
+        "projectedRelationRowCount": 3,
+        "structuralFingerprint": "spreadId=classical.threeCard\nversion=1\ngeometry=threeLinear\nphase3Geometry=linearRow\narc=timeline\nquestionKind=decision\norder=0,1,2\ncard=past:root:major_00:true\ncard=present:state:major_01:false\ncard=future:direction:major_02:true\nedge=past>future:temporal:true\nedge=past>present:temporal:true\nedge=present>future:temporal:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00",
+          "major_01",
+          "major_02"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "df_open_en",
+      "distinctnessPair": "same_five_v1",
+      "runtimeEnum": "fiveCard",
+      "languageCode": "en",
+      "question": null,
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        },
+        {
+          "id": "major_03",
+          "reversed": true
+        },
+        {
+          "id": "major_04",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.fiveCard",
+        "runtimeEnum": "fiveCard",
+        "languageNormalized": "en",
+        "questionKind": "open",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "positionKeys": [
+          "situation",
+          "hidden_influence",
+          "challenge",
+          "strength",
+          "direction"
+        ],
+        "roles": [
+          "context",
+          "hiddenInfluence",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveLinear",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "situation",
+            "to": "direction",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "situation",
+            "to": "hidden_influence",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "situation",
+            "to": "challenge",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "challenge",
+            "to": "strength",
+            "directed": false,
+            "kind": "supportive"
+          },
+          {
+            "from": "strength",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          },
+          {
+            "from": "hidden_influence",
+            "to": "challenge",
+            "directed": false,
+            "kind": "pressure"
+          }
+        ],
+        "projectedRelationRowCount": 10,
+        "structuralFingerprint": "spreadId=classical.fiveCard\nversion=1\ngeometry=fiveLinear\nphase3Geometry=linearRow\narc=field\nquestionKind=open\norder=0,1,2,3,4\ncard=situation:context:major_00:false\ncard=hidden_influence:hiddenInfluence:major_01:true\ncard=challenge:challenge:major_02:false\ncard=strength:support:major_03:true\ncard=direction:direction:major_04:false\nedge=challenge>strength:supportive:false\nedge=hidden_influence>challenge:pressure:false\nedge=situation>challenge:opposition:false\nedge=situation>direction:temporal:true\nedge=situation>hidden_influence:pressure:false\nedge=strength>direction:supportive:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "df_guidance_tr_rev",
+      "runtimeEnum": "fiveCard",
+      "languageCode": "tr",
+      "question": "Need guidance for my next step",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": true
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        },
+        {
+          "id": "major_03",
+          "reversed": true
+        },
+        {
+          "id": "major_04",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.fiveCard",
+        "runtimeEnum": "fiveCard",
+        "languageNormalized": "tr",
+        "questionKind": "guidance",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          true,
+          true,
+          false,
+          true,
+          false
+        ],
+        "positionKeys": [
+          "situation",
+          "hidden_influence",
+          "challenge",
+          "strength",
+          "direction"
+        ],
+        "roles": [
+          "context",
+          "hiddenInfluence",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveLinear",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "situation",
+            "to": "direction",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "situation",
+            "to": "hidden_influence",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "situation",
+            "to": "challenge",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "challenge",
+            "to": "strength",
+            "directed": false,
+            "kind": "supportive"
+          },
+          {
+            "from": "strength",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          },
+          {
+            "from": "hidden_influence",
+            "to": "challenge",
+            "directed": false,
+            "kind": "pressure"
+          }
+        ],
+        "projectedRelationRowCount": 10,
+        "structuralFingerprint": "spreadId=classical.fiveCard\nversion=1\ngeometry=fiveLinear\nphase3Geometry=linearRow\narc=field\nquestionKind=guidance\norder=0,1,2,3,4\ncard=situation:context:major_00:true\ncard=hidden_influence:hiddenInfluence:major_01:true\ncard=challenge:challenge:major_02:false\ncard=strength:support:major_03:true\ncard=direction:direction:major_04:false\nedge=challenge>strength:supportive:false\nedge=hidden_influence>challenge:pressure:false\nedge=situation>challenge:opposition:false\nedge=situation>direction:temporal:true\nedge=situation>hidden_influence:pressure:false\nedge=strength>direction:supportive:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "df_relationship_ru",
+      "runtimeEnum": "fiveCard",
+      "languageCode": "ru",
+      "question": "How is this relationship evolving?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": false
+        },
+        {
+          "id": "major_02",
+          "reversed": true
+        },
+        {
+          "id": "major_03",
+          "reversed": false
+        },
+        {
+          "id": "major_04",
+          "reversed": true
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.fiveCard",
+        "runtimeEnum": "fiveCard",
+        "languageNormalized": "ru",
+        "questionKind": "relationship",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          false,
+          false,
+          true,
+          false,
+          true
+        ],
+        "positionKeys": [
+          "situation",
+          "hidden_influence",
+          "challenge",
+          "strength",
+          "direction"
+        ],
+        "roles": [
+          "context",
+          "hiddenInfluence",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveLinear",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "situation",
+            "to": "direction",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "situation",
+            "to": "hidden_influence",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "situation",
+            "to": "challenge",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "challenge",
+            "to": "strength",
+            "directed": false,
+            "kind": "supportive"
+          },
+          {
+            "from": "strength",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          },
+          {
+            "from": "hidden_influence",
+            "to": "challenge",
+            "directed": false,
+            "kind": "pressure"
+          }
+        ],
+        "projectedRelationRowCount": 10,
+        "structuralFingerprint": "spreadId=classical.fiveCard\nversion=1\ngeometry=fiveLinear\nphase3Geometry=linearRow\narc=field\nquestionKind=relationship\norder=0,1,2,3,4\ncard=situation:context:major_00:false\ncard=hidden_influence:hiddenInfluence:major_01:false\ncard=challenge:challenge:major_02:true\ncard=strength:support:major_03:false\ncard=direction:direction:major_04:true\nedge=challenge>strength:supportive:false\nedge=hidden_influence>challenge:pressure:false\nedge=situation>challenge:opposition:false\nedge=situation>direction:temporal:true\nedge=situation>hidden_influence:pressure:false\nedge=strength>direction:supportive:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "df_decision_en",
+      "runtimeEnum": "fiveCard",
+      "languageCode": "en",
+      "question": "Should I accept this offer?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": true
+        },
+        {
+          "id": "major_03",
+          "reversed": false
+        },
+        {
+          "id": "major_04",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "classical.fiveCard",
+        "runtimeEnum": "fiveCard",
+        "languageNormalized": "en",
+        "questionKind": "decision",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          false,
+          true,
+          true,
+          false,
+          false
+        ],
+        "positionKeys": [
+          "situation",
+          "hidden_influence",
+          "challenge",
+          "strength",
+          "direction"
+        ],
+        "roles": [
+          "context",
+          "hiddenInfluence",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveLinear",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "situation",
+            "to": "direction",
+            "directed": true,
+            "kind": "temporal"
+          },
+          {
+            "from": "situation",
+            "to": "hidden_influence",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "situation",
+            "to": "challenge",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "challenge",
+            "to": "strength",
+            "directed": false,
+            "kind": "supportive"
+          },
+          {
+            "from": "strength",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          },
+          {
+            "from": "hidden_influence",
+            "to": "challenge",
+            "directed": false,
+            "kind": "pressure"
+          }
+        ],
+        "projectedRelationRowCount": 10,
+        "structuralFingerprint": "spreadId=classical.fiveCard\nversion=1\ngeometry=fiveLinear\nphase3Geometry=linearRow\narc=field\nquestionKind=decision\norder=0,1,2,3,4\ncard=situation:context:major_00:false\ncard=hidden_influence:hiddenInfluence:major_01:true\ncard=challenge:challenge:major_02:true\ncard=strength:support:major_03:false\ncard=direction:direction:major_04:false\nedge=challenge>strength:supportive:false\nedge=hidden_influence>challenge:pressure:false\nedge=situation>challenge:opposition:false\nedge=situation>direction:temporal:true\nedge=situation>hidden_influence:pressure:false\nedge=strength>direction:supportive:true",
+        "phase3EvidenceStatus": "builtClassical",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": true,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": true,
+        "narrativeTarotVersion": 2,
+        "evidenceCardOrder": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "relationshipCount": 0,
+        "relationshipIds": [],
+        "relationshipKinds": [],
+        "relationshipPositionPairs": [],
+        "classicalRequestPresent": true,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "cr_decision_en",
+      "distinctnessPair": "same_five_v1",
+      "runtimeEnum": "crossroads",
+      "languageCode": "en",
+      "question": "Should I accept this offer?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        },
+        {
+          "id": "major_03",
+          "reversed": true
+        },
+        {
+          "id": "major_04",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "signature.crossroads",
+        "runtimeEnum": "crossroads",
+        "languageNormalized": "en",
+        "questionKind": "decision",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "positionKeys": [
+          "option_a",
+          "option_b",
+          "tension",
+          "counsel",
+          "direction"
+        ],
+        "roles": [
+          "direction",
+          "direction",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveDecision",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "option_a",
+            "to": "option_b",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "tension",
+            "to": "option_a",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "tension",
+            "to": "option_b",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "counsel",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          }
+        ],
+        "projectedRelationRowCount": 7,
+        "structuralFingerprint": "spreadId=signature.crossroads\nversion=1\ngeometry=fiveDecision\nphase3Geometry=linearRow\narc=crossroads\nquestionKind=decision\norder=0,1,2,3,4\ncard=option_a:direction:major_00:false\ncard=option_b:direction:major_01:true\ncard=tension:challenge:major_02:false\ncard=counsel:support:major_03:true\ncard=direction:direction:major_04:false\nedge=counsel>direction:supportive:true\nedge=option_a>option_b:opposition:false\nedge=tension>option_a:pressure:false\nedge=tension>option_b:pressure:false",
+        "phase3EvidenceStatus": "blockedUnsupportedSignatureSpread",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": false,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": false,
+        "classicalRequestPresent": false,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "cr_decision_tr_mixed",
+      "runtimeEnum": "crossroads",
+      "languageCode": "tr",
+      "question": "Should I accept this offer?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": true
+        },
+        {
+          "id": "major_01",
+          "reversed": false
+        },
+        {
+          "id": "major_02",
+          "reversed": true
+        },
+        {
+          "id": "major_03",
+          "reversed": false
+        },
+        {
+          "id": "major_04",
+          "reversed": true
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "signature.crossroads",
+        "runtimeEnum": "crossroads",
+        "languageNormalized": "tr",
+        "questionKind": "decision",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          true,
+          false,
+          true,
+          false,
+          true
+        ],
+        "positionKeys": [
+          "option_a",
+          "option_b",
+          "tension",
+          "counsel",
+          "direction"
+        ],
+        "roles": [
+          "direction",
+          "direction",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveDecision",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "option_a",
+            "to": "option_b",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "tension",
+            "to": "option_a",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "tension",
+            "to": "option_b",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "counsel",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          }
+        ],
+        "projectedRelationRowCount": 7,
+        "structuralFingerprint": "spreadId=signature.crossroads\nversion=1\ngeometry=fiveDecision\nphase3Geometry=linearRow\narc=crossroads\nquestionKind=decision\norder=0,1,2,3,4\ncard=option_a:direction:major_00:true\ncard=option_b:direction:major_01:false\ncard=tension:challenge:major_02:true\ncard=counsel:support:major_03:false\ncard=direction:direction:major_04:true\nedge=counsel>direction:supportive:true\nedge=option_a>option_b:opposition:false\nedge=tension>option_a:pressure:false\nedge=tension>option_b:pressure:false",
+        "phase3EvidenceStatus": "blockedUnsupportedSignatureSpread",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": false,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": false,
+        "classicalRequestPresent": false,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "cr_guidance_ru",
+      "runtimeEnum": "crossroads",
+      "languageCode": "ru",
+      "question": "Need guidance for my next step",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        },
+        {
+          "id": "major_03",
+          "reversed": true
+        },
+        {
+          "id": "major_04",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "signature.crossroads",
+        "runtimeEnum": "crossroads",
+        "languageNormalized": "ru",
+        "questionKind": "guidance",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "positionKeys": [
+          "option_a",
+          "option_b",
+          "tension",
+          "counsel",
+          "direction"
+        ],
+        "roles": [
+          "direction",
+          "direction",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveDecision",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "option_a",
+            "to": "option_b",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "tension",
+            "to": "option_a",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "tension",
+            "to": "option_b",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "counsel",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          }
+        ],
+        "projectedRelationRowCount": 7,
+        "structuralFingerprint": "spreadId=signature.crossroads\nversion=1\ngeometry=fiveDecision\nphase3Geometry=linearRow\narc=crossroads\nquestionKind=guidance\norder=0,1,2,3,4\ncard=option_a:direction:major_00:false\ncard=option_b:direction:major_01:true\ncard=tension:challenge:major_02:false\ncard=counsel:support:major_03:true\ncard=direction:direction:major_04:false\nedge=counsel>direction:supportive:true\nedge=option_a>option_b:opposition:false\nedge=tension>option_a:pressure:false\nedge=tension>option_b:pressure:false",
+        "phase3EvidenceStatus": "blockedUnsupportedSignatureSpread",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": false,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": false,
+        "classicalRequestPresent": false,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "cr_open_en",
+      "runtimeEnum": "crossroads",
+      "languageCode": "en",
+      "question": null,
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        },
+        {
+          "id": "major_03",
+          "reversed": true
+        },
+        {
+          "id": "major_04",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "spreadId": "signature.crossroads",
+        "runtimeEnum": "crossroads",
+        "languageNormalized": "en",
+        "questionKind": "open",
+        "cardCanonicalIds": [
+          "major_00",
+          "major_01",
+          "major_02",
+          "major_03",
+          "major_04"
+        ],
+        "reversalFlags": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        "positionKeys": [
+          "option_a",
+          "option_b",
+          "tension",
+          "counsel",
+          "direction"
+        ],
+        "roles": [
+          "direction",
+          "direction",
+          "challenge",
+          "support",
+          "direction"
+        ],
+        "interpretationOrder": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "signatureGeometryHook": "fiveDecision",
+        "phase3Geometry": "linearRow",
+        "edges": [
+          {
+            "from": "option_a",
+            "to": "option_b",
+            "directed": false,
+            "kind": "opposition"
+          },
+          {
+            "from": "tension",
+            "to": "option_a",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "tension",
+            "to": "option_b",
+            "directed": false,
+            "kind": "pressure"
+          },
+          {
+            "from": "counsel",
+            "to": "direction",
+            "directed": true,
+            "kind": "supportive"
+          }
+        ],
+        "projectedRelationRowCount": 7,
+        "structuralFingerprint": "spreadId=signature.crossroads\nversion=1\ngeometry=fiveDecision\nphase3Geometry=linearRow\narc=crossroads\nquestionKind=open\norder=0,1,2,3,4\ncard=option_a:direction:major_00:false\ncard=option_b:direction:major_01:true\ncard=tension:challenge:major_02:false\ncard=counsel:support:major_03:true\ncard=direction:direction:major_04:false\nedge=counsel>direction:supportive:true\nedge=option_a>option_b:opposition:false\nedge=tension>option_a:pressure:false\nedge=tension>option_b:pressure:false",
+        "phase3EvidenceStatus": "blockedUnsupportedSignatureSpread",
+        "phase4HistoryStatus": "notRequested",
+        "pickerOffered": false,
+        "structuralEdgeGraphAvailable": true,
+        "phase3EdgeAwareScoringAvailable": false,
+        "classicalRequestPresent": false,
+        "enrichedRequestPresent": false
+      }
+    },
+    {
+      "scenarioId": "cr_relationship_reject",
+      "runtimeEnum": "crossroads",
+      "languageCode": "en",
+      "question": "How is this relationship evolving?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        },
+        {
+          "id": "major_01",
+          "reversed": true
+        },
+        {
+          "id": "major_02",
+          "reversed": false
+        },
+        {
+          "id": "major_03",
+          "reversed": true
+        },
+        {
+          "id": "major_04",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "failureCode": "unsupportedQuestionKind",
+        "phase3EvidenceStatus": "invalidInput",
+        "phase4HistoryStatus": "notRequested"
+      }
+    },
+    {
+      "scenarioId": "qi_relationship_reject",
+      "runtimeEnum": "single",
+      "languageCode": "en",
+      "question": "How is this relationship evolving?",
+      "topic": null,
+      "drawn": [
+        {
+          "id": "major_00",
+          "reversed": false
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "failureCode": "unsupportedQuestionKind",
+        "phase3EvidenceStatus": "invalidInput",
+        "phase4HistoryStatus": "notRequested"
+      }
+    }
+  ]
+}

@@ -1075,6 +1075,20 @@ Chronological project execution ledger.
 | Spec stale edge contract | **FIXED** |
 | Outcome | **PASS** — ready for Phase 5E |
 
+### PL-T5E — SIGNATURE SHADOW INTEGRATION + FROZEN CORPUS
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `185f59dc94264995dc55c7b6c282db6ae9da8683` |
+| Shadow evaluator | pure · classical parity · Crossroads structural-only |
+| Corpus | **16** scenarios |
+| Phase 3/4 Crossroads | **BLOCKED** (no builder / enricher calls) |
+| User-path importers | **0** |
+| Picker / live V2 | **false** / **NOT WIRED** |
+| Phase 6 seam audit | **CREATED** |
+| Outcome | **PASS** — ready for Phase 5F |
+
 ---
 
 ## Planned (not started)
@@ -1137,9 +1151,10 @@ Chronological project execution ledger.
 | PL-T5C | Tarot Phase 5C — Signature localization + geometry contract | **PASS** |
 | PL-T5D | Tarot Phase 5D — Crossroads runtime + persistence dual-read | **PASS** |
 | PL-T5D.1 | Tarot Phase 5D.1 — Machine-id UI leak + localized history search | **PASS** |
+| PL-T5E | Tarot Phase 5E — Signature shadow integration + frozen corpus | **PASS** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
-| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0→5D.1 DONE** · 5E next |
+| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0→5E DONE** · 5F next |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |

@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/tarot/deck/oracly_tarot_bridge.dart';
 import 'package:oracly_new/features/tarot/deck/oracly_tarot_deck.dart';
-import 'package:oracly_new/features/tarot/deck/oracly_tarot_enums.dart';
 import 'package:oracly_new/features/tarot/narrative/data/narrative_tarot_profile_catalog.dart';
 import 'package:oracly_new/features/tarot/narrative/domain/reversed_transform_kind.dart';
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_classical_spread_catalog.dart';
@@ -426,6 +425,8 @@ void main() {
         if (f.path.contains('narrative${Platform.pathSeparator}evidence')) {
           continue;
         }
+        // Phase 5E audited classical bridge — Signature shadow only.
+        if (f.path.contains('signature_spreads')) continue;
         final src = f.readAsStringSync();
         if (src.contains('NarrativeEvidenceBuilder') ||
             src.contains('NarrativeRelationshipScorer') ||

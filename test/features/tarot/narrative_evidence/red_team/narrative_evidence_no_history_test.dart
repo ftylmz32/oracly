@@ -41,6 +41,8 @@ void main() {
       if (entity.path.contains('narrative${Platform.pathSeparator}evidence')) {
         continue;
       }
+      // Phase 5E audited classical bridge — Signature shadow only.
+      if (entity.path.contains('signature_spreads')) continue;
       final text = entity.readAsStringSync();
       if (text.contains('NarrativeEvidenceBuilder') ||
           text.contains('narrative_evidence_builder.dart')) {

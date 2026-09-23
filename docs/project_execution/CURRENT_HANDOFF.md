@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5D.1 machine-id UI/search remediation
+**Updated:** 2026-09-23 — Tarot Phase 5E Signature shadow integration + corpus
 
 ---
 
@@ -110,6 +110,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5D task start | `650ca746df0629a610033432641777caad91325e` | Crossroads runtime + persistence dual-read |
 | Phase 5D end | `a417fc7e1e99eaeaa2b0290fcb93c35ac04b629e` | machine-id write · dual-read · picker firewall |
 | Phase 5D.1 task start | `a417fc7e1e99eaeaa2b0290fcb93c35ac04b629e` | machine-id UI leak + localized history search |
+| Phase 5D.1 end | `185f59dc94264995dc55c7b6c282db6ae9da8683` | display/search remediation PASS |
+| Phase 5E task start | `185f59dc94264995dc55c7b6c282db6ae9da8683` | Signature shadow + frozen corpus |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -217,6 +219,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5C — Signature localization + geometry descriptor | **COMPLETE / PASS** (TR/EN/RU · Crossroads unreachable · live titles unchanged) |
 | Phase 5D — Crossroads runtime + persistence dual-read | **COMPLETE / PASS** (enum index 5 · machine-id write · legacy dual-read · picker firewall) |
 | Phase 5D.1 — Machine-id UI leak + localized history search | **COMPLETE / PASS** (display/search only · persistence unchanged · Phase 3/4 firewall tests) |
+| Phase 5E — Signature shadow integration + frozen corpus | **COMPLETE / PASS** (classical parity · Crossroads structural-only · Phase3/4 blocked · user-path importers 0) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -650,6 +653,22 @@ Pre-existing local noise (do **not** stage/clean):
 | Spec | Phase-5-owned edges · history recurrence **NOT LIVE** |
 | Crossroads picker | **false** |
 | Next | **Phase 5E** |
+
+### Phase 5E
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Shadow evaluator | **IMPLEMENTED** (pure · zero side effects) |
+| Shadow corpus | **16** scenarios · `tarot_signature_shadow_v1.json` |
+| Classical Phase 3/4 parity | **PASS** |
+| Crossroads structural shadow | **PASS** (4 edges · 7 relation rows) |
+| Crossroads Phase 3 evidence | **BLOCKED** |
+| Crossroads Phase 4 history | **BLOCKED** |
+| User-path shadow importers | **0** |
+| Picker / live V2 | **false** / **NOT WIRED** |
+| Phase 6 seam audit | `SIGNATURE_SPREADS_PHASE6_SEAM_AUDIT.md` |
+| Next | **Phase 5F** independent final audit |
 
 ### Phase 4D.1
 
@@ -1087,9 +1106,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 5E** — Signature shadow integration / audited scorer seam (still no live picker Crossroads).
+**Phase 5F** — Independent final Signature Spreads audit (freeze candidate).
 
-Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 5E: **PASS** · Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

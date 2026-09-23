@@ -314,7 +314,21 @@ Frozen Phase 4 production normalizers are **unchanged** and do **not** yet accep
 - Current classical history behavior for launch classical spreads is unchanged.  
 - **Crossroads history recurrence integration is NOT LIVE.**  
 - Picker disabled ⇒ no current user data loss for unreachable Crossroads sessions.  
-- **5E** audits / freezes the shadow seam; Phase 6 must **not** claim Crossroads recurrence until an explicit signature-history seam is integrated.
+- **5E** provides structural shadow + Phase 6 seam audit; Phase 6 must **not** claim Crossroads recurrence until an explicit signature-history seam is integrated.
+
+### 6.2 Shadow integration status (Phase 5E)
+
+| Surface | Crossroads |
+|---|---|
+| Structural shadow (projection · edges · fingerprint) | **SUPPORTED** |
+| Phase 3 NarrativeEvidenceBuilder | **UNSUPPORTED** (blocked · no fabricated request) |
+| Phase 3 Signature-edge scoring | **UNSUPPORTED** (edges not consumed) |
+| Phase 4 history enricher / recurrence | **UNSUPPORTED** |
+| Live Narrative V2 | **UNSUPPORTED** |
+| Live picker | **DISABLED** until later gate |
+
+Canonical Phase 6 seam list: `docs/product/tarot/SIGNATURE_SPREADS_PHASE6_SEAM_AUDIT.md`.  
+Phase 5 alone does **not** make Crossroads a live Narrative spread.
 
 ---
 
@@ -327,7 +341,7 @@ Frozen Phase 4 production normalizers are **unchanged** and do **not** yet accep
 | **5B** | Signature → frozen `SpreadSemanticDefinition` projection · exact 4 Crossroads edges · validation · frozen structural samples · Deep Field vs Crossroads distinctness | Phase 3 algorithm edits · picker · enum append |
 | **5C** | TR/EN/RU product copy · SignatureGeometryHook descriptors | enum append preferred deferred · Crossroads still unreachable · live V2 |
 | **5D** | After 5C keys exist: append `TarotSpreadType.crossroads(5)` at END · machine-id write · dual-read · soft unknown · positionKey reconstruct · Crossroads runtime bridge · picker still false | rename/reorder enums · live V2 |
-| **5E** | Shadow + frozen signature corpus · Crossroads picker disabled · regressions | live V2 |
+| **5E** | Shadow evaluator + frozen shadow corpus · classical Phase 3/4 parity · Crossroads **structural-only** (Phase 3 evidence **unsupported** · Phase 4 history **unsupported**) · picker still false · Phase 6 seam audit | live V2 · scorer fork · Crossroads as fiveCard |
 | **5F** | Independent final audit → Phase 5 freeze candidate | live V2 (Phase 6) |
 
 ---
