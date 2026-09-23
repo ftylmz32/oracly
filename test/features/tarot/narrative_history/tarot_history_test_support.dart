@@ -11,6 +11,7 @@ import 'package:oracly_new/features/tarot/narrative/evidence/narrative_memory_ev
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_profile_slice.dart';
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_question_grounding.dart';
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_request.dart';
+import 'package:oracly_new/features/tarot/narrative/history/tarot_connected_memory_models.dart';
 import 'package:oracly_new/features/tarot/narrative/history/tarot_historical_models.dart';
 
 final nowFixed = DateTime.utc(2026, 9, 23, 12);
@@ -117,3 +118,23 @@ TarotHistoricalReadingRecord histReading({
 String get major00 => kNarrativeMajor00.canonicalCardId;
 String get major01 => kNarrativeMajor01.canonicalCardId;
 String get major06 => kNarrativeMajor06.canonicalCardId;
+
+TarotConnectedMemoryRecord connectedMemory({
+  required String sourceId,
+  required TarotConnectedMemorySourceType sourceType,
+  required DateTime at,
+  String summary = 'shared loyalty partner reflection',
+  List<String> themeIds = const ['ilişki'],
+  double confidence = 0.8,
+  MemoryEvidenceEpistemic epistemic = MemoryEvidenceEpistemic.interpretation,
+}) {
+  return TarotConnectedMemoryRecord(
+    sourceId: sourceId,
+    sourceType: sourceType,
+    occurredAt: at,
+    summary: summary,
+    themeIds: themeIds,
+    confidence: confidence,
+    epistemic: epistemic,
+  );
+}

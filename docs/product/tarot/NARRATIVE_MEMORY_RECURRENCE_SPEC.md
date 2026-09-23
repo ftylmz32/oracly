@@ -19,6 +19,11 @@
 | H6 | Generic/sentinel topics never authorize `topic_match` (`isMeaningfulTopic`) |
 | H7 | Eligible history **dedupes physical reading identity** before scan bound |
 | H8 | Short alias `aşk` → `ilişki` supported; ASCII `ask` **excluded** (EN verb ambiguity) |
+| H9 | `included=true` → `omitReason='included'`; false → `no_history`/`empty`/`irrelevant`/`privacy`(4C only) |
+| H10 | Theme `supportingReadingIds` use typed refs `<sourceType>:<sourceId>` |
+| H11 | Support refs capped by `maxRecurringOccurrencesListed` (default 5) |
+| H12 | Free-text memory relevance requires ≥2 shared meaningful tokens |
+| H13 | Connected-memory dedupe by `(sourceType, sourceId)` before scoring |
 
 ---
 
@@ -321,17 +326,19 @@ Field: `TarotNarrativeMemoryEvidence`
 | `recentCardNames` | **always []** |
 | `recurringThemeLabels` | **always []** |
 
-### Memory model amendment (LOCKED — YES · deferred to **Phase 4B**)
+### Memory model amendment (LOCKED — YES · **Phase 4B IMPLEMENTED**)
 
-Phase **4B** (not 4A) extends `MemoryEvidenceEntry` (additive, backward-compatible constructors) with:
+Phase **4B** extends `MemoryEvidenceEntry` (additive, backward-compatible constructors) with:
 
-- `sourceType` (`OraclyReadingType` name string)  
+- `sourceType` (`TarotConnectedMemorySourceType` name string)  
 - `sourceId`  
 - `occurredAt`  
 - `confidence`  
-- `epistemic` (`interpretation` | `observation` | `fact` | `preference`)  
+- `epistemic` (`MemoryEvidenceEpistemic`)  
 
-Existing fields remain. Phase 3 empty shell unchanged until enrichment. Phase 4A does **not** modify `narrative_memory_evidence.dart`.
+`omitReason` when included: **`included`** (H9). Pure 4B never emits `privacy`.
+
+Existing fields remain. Phase 3 empty shell unchanged until enrichment.
 
 ### Entry bounds
 
@@ -471,9 +478,10 @@ Analytics/share: no private question dumps; no owner ids.
 
 ### 4B — Theme recurrence + memory relevance pure engines
 
-- Theme cross-type rule, map, relevance, memory ranking/chars  
-- Tests: 2-type min, irrelevant omit, 800 char, explicit recall  
-- Stop: pure engines PASS  
+- Production: connected-memory models/eligibility · theme engine · memory engine · recall · `MemoryEvidenceEntry` additive metadata  
+- Theme: ≥2 distinct source types · themeIds authority · `rec_theme_##` · typed support refs  
+- Memory: relevance/ranking/chars · `mem_##` · omitReason H9 · hints always []  
+- Stop: pure engines PASS · **IMPLEMENTED**
 
 ### 4C — Adapters + owner isolation + delete integrity
 

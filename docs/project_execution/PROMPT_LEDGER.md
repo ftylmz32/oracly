@@ -832,6 +832,21 @@ Chronological project execution ledger.
 | Storage / Phase 3 / user path | **NONE** / **UNTOUCHED** / **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T4B — CROSS-FEATURE THEME + MEMORY EVIDENCE PURE ENGINES
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `9985527c1b28ae05caec2efddaa0b0fd01a84be5` |
+| Connected memory model | TarotConnectedMemoryRecord + source types |
+| Eligibility | 90d · future reject · current tarot exclude · (type,id) dedupe |
+| Theme | ≥2 source types · themeIds authority · rec_theme_## · typed refs |
+| Memory | relevance · ranking · ≤4 · ≤220 · ≤800 · mem_## · epistemic |
+| omitReason | included / no_history / empty / irrelevant |
+| Storage / adapters / enricher | **NONE** |
+| User path | **UNCHANGED** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -877,8 +892,9 @@ Chronological project execution ledger.
 | PL-T4.0 | Tarot Phase 4.0 — Memory + Historical Recurrence forensic & spec | **DONE** (docs-only; OPEN 0; production NOT IMPLEMENTED) |
 | PL-T4A | Tarot Phase 4A — Normalized history + card recurrence pure engine | **DONE** (pure; storage/theme/memory/enricher NOT; user path unchanged) |
 | PL-T4A.1 | Tarot Phase 4A.1 — Historical recurrence identity + generic-topic + short-alias hardening | **DONE** |
+| PL-T4B | Tarot Phase 4B — Cross-feature theme + memory evidence pure engines | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A+4A.1 DONE** · 4B pending review |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4B DONE** · 4C pending review |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

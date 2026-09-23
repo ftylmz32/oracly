@@ -1,18 +1,30 @@
-/// Memory evidence shells — empty in Phase 3D.1 (Phase 4 fills later).
+/// Memory evidence shells — Phase 3 empty; Phase 4B fills entries.
 library;
 
 enum MemoryEvidenceKind { memorySummary, revisitExcerpt, revisitInstruction }
+
+enum MemoryEvidenceEpistemic { interpretation, observation, fact, preference }
 
 class MemoryEvidenceEntry {
   const MemoryEvidenceEntry({
     required this.evidenceRef,
     required this.kind,
     required this.contentForModel,
+    this.sourceType,
+    this.sourceId,
+    this.occurredAt,
+    this.confidence,
+    this.epistemic,
   });
 
   final String evidenceRef;
   final MemoryEvidenceKind kind;
   final String contentForModel;
+  final String? sourceType;
+  final String? sourceId;
+  final DateTime? occurredAt;
+  final double? confidence;
+  final MemoryEvidenceEpistemic? epistemic;
 }
 
 class TarotNarrativeMemoryEvidence {

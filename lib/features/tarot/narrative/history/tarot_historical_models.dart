@@ -1,8 +1,8 @@
-/// Normalized historical Tarot FACT models (Phase 4A).
-/// Storage-agnostic — adapters populate these in Phase 4C.
+/// Normalized historical Tarot FACT + connected-memory snapshot (Phase 4A/4B).
 library;
 
 import '../evidence/narrative_question_grounding.dart';
+import 'tarot_connected_memory_models.dart';
 
 class TarotHistoricalCardOccurrence {
   const TarotHistoricalCardOccurrence({
@@ -49,9 +49,14 @@ class TarotHistoricalReadingRecord {
 class TarotHistoricalSnapshot {
   TarotHistoricalSnapshot({
     required List<TarotHistoricalReadingRecord> tarotReadings,
+    List<TarotConnectedMemoryRecord> connectedMemories = const [],
   }) : tarotReadings = List<TarotHistoricalReadingRecord>.unmodifiable(
          tarotReadings,
+       ),
+       connectedMemories = List<TarotConnectedMemoryRecord>.unmodifiable(
+         connectedMemories,
        );
 
   final List<TarotHistoricalReadingRecord> tarotReadings;
+  final List<TarotConnectedMemoryRecord> connectedMemories;
 }
