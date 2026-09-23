@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4E.1 H7 transitive identity remediation
+**Updated:** 2026-09-23 — Tarot Phase 4E.1a H19 exact-tie determinism hardening
 
 ---
 
@@ -92,6 +92,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4E task start | `40182d177ca3bb895438218f672db06e9fcf88fe` | Independent Memory + Historical Recurrence audit |
 | Phase 4E end | `1eb09c2cb343a1d58937aeccff05a35c0b3e2541` | FAIL (H7 MAJOR) |
 | Phase 4E.1 task start | `1eb09c2cb343a1d58937aeccff05a35c0b3e2541` | H7 transitive physical-identity remediation |
+| Phase 4E.1 end | `6acb2b18f4c3cd29de2ed99e2f78ae688a24f00f` | H7 PASS |
+| Phase 4E.1a task start | `6acb2b18f4c3cd29de2ed99e2f78ae688a24f00f` | H19 exact-tie representative determinism |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -190,6 +192,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4D.1 — Enrichment privacy contract hardening | **COMPLETE** |
 | Phase 4E — Independent Memory + Historical Recurrence audit | **COMPLETE / FAIL** (H7 MAJOR recorded) |
 | Phase 4E.1 — H7 transitive physical-identity remediation | **COMPLETE / PASS** · Phase 4 **NOT FROZEN** |
+| Phase 4E.1a — H19 exact-tie representative determinism | **COMPLETE / PASS** · Phase 4 **NOT FROZEN** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -501,6 +504,16 @@ Pre-existing local noise (do **not** stage/clean):
 | `samePhysicalIdentity` | **UNCHANGED** (pairwise) |
 | Phase 4 frozen | **NO** — 4E re-audit pending |
 | Phase 4E status | remains **FAIL** until re-audit |
+
+### Phase 4E.1a
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| H19 | **IMPLEMENTED** — sessionId ASC + canonical payload tie-break |
+| Primary order | **UNCHANGED** (`occurredAt` DESC, `readingId` ASC) |
+| Field merge | **NO** |
+| Phase 4 frozen | **NO** — 4E re-audit pending |
 
 ### Phase 4D.1
 
@@ -938,9 +951,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 4E re-audit** (independent) after H7 remediation — do not freeze Phase 4 until re-audit PASS.
+**Phase 4E re-audit** (independent) after H7 + H19 hardening — do not freeze Phase 4 until re-audit PASS.
 
-Phase 4E.1: **PASS** · Phase 4E: **FAIL** (historical) · Phase 4 **NOT FROZEN** · Phase 4D.1 **PASS** · live V2 **NOT WIRED**.
+Phase 4E.1a: **PASS** · Phase 4E.1: **PASS** · Phase 4E: **FAIL** (historical) · Phase 4 **NOT FROZEN** · live V2 **NOT WIRED**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

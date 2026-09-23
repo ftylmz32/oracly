@@ -29,6 +29,7 @@
 | H16 | Historical `questionKind` / `intentionSummary` / `topicId` share the same effective session→ReadingModel fallback source |
 | H17 | Accepted session-backed Tarot live-source aliases are **only** `session.id` + linked `ReadingModel.id`. `linked.sessionId` never independently authorizes source existence |
 | H18 | Enrichment receives `currentOwnerId` and `privacyBlocked` **explicitly** — neither may be inferred from history; `privacyBlocked` has **no default**; `privacyBlocked=true` short-circuits all historical engines and yields `omitReason=privacy` |
+| H19 | When `occurredAt` and `readingId` are equal, eligibility/component representative selection uses deterministic additional tie-breakers (`sessionId` ASC, then canonical normalized payload) so equivalent input permutations cannot alter the retained historical payload. **No field merge.** Primary ordering (`occurredAt` DESC, `readingId` ASC) unchanged. |
 
 ---
 
@@ -178,8 +179,8 @@ Exclude: in-progress, abandoned, active-session-only, failed, quality_unavailabl
 
 1. Filter owner + completed + exclude current.
 2. UTC instants: require `occurredAt <= now` **and** `now.difference(occurredAt) <= Duration(days: 90)` (**inclusive exact 90 days**). **Future rows excluded** (H3 — no `abs`).
-3. Sort **newest first** by `occurredAt`, then `readingId` ascending.
-4. **Dedupe physical reading identity** (H7) — keep first (newest) row per identity; no field merge.
+3. Sort **newest first** by `occurredAt` DESC, then `readingId` ascending. When both are equal (H19): normalized `sessionId` ASC, then a deterministic canonical payload tie-key (`spreadId`, `questionKind`, `topicId`, `intentionSummary`, `interpretationSummary`, ordered card fields — **never** `ownerId`, `hashCode`, object identity, or clock).
+4. **Dedupe physical reading identity** (H7) — keep first (newest / H19-tied) row per **transitive** identity component; no field merge.
 5. Take at most **`RequestBounds.maxPriorReadingsScanned = 20`** distinct Tarot FACT records.
 
 **Physical identity (H7)** — duplicate if any of:
@@ -538,6 +539,17 @@ Stop: privacy red-team PASS · **IMPLEMENTED**
 
 - Mirror 3D.1E style audit  
 - Stop: READY FOR later user-path review (still shadow unless approved)  
+
+### 4E.1 — H7 transitive physical-identity remediation · **IMPLEMENTED / PASS**
+
+- Union-find connected-component collapse · pairwise `samePhysicalIdentity` unchanged
+- Stop: chained alias double-count closed · **IMPLEMENTED**
+
+### 4E.1a — H19 exact-tie representative determinism · **IMPLEMENTED / PASS**
+
+- Deterministic sessionId + canonical payload tie-break when `occurredAt` + `readingId` collide
+- Primary order unchanged · no field merge · no hashCode/object-id/clock
+- Stop: permutation-stable representatives · **IMPLEMENTED**
 
 ---
 

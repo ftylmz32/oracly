@@ -1,7 +1,8 @@
-/// Pure eligibility / lookback / identity dedupe (Phase 4A / 4A.1 / 4E.1).
+/// Pure eligibility / lookback / identity dedupe (Phase 4A / 4A.1 / 4E.1 / 4E.1a).
 library;
 
 import '../evidence/narrative_request.dart';
+import 'tarot_historical_eligibility_order.dart';
 import 'tarot_historical_models.dart';
 
 abstract final class TarotHistoricalEligibility {
@@ -27,7 +28,7 @@ abstract final class TarotHistoricalEligibility {
       if (!_withinLookback(r.occurredAt, nowUtc)) continue;
       filtered.add(r);
     }
-    filtered.sort(_compareNewestFirst);
+    filtered.sort(compareHistoricalNewestFirst);
     final deduped = _dedupePhysicalIdentity(filtered);
     final max = bounds.maxPriorReadingsScanned;
     if (max <= 0) return const [];
@@ -141,14 +142,5 @@ abstract final class TarotHistoricalEligibility {
     final occurredUtc = occurredAt.toUtc();
     if (occurredUtc.compareTo(nowUtc) > 0) return false;
     return nowUtc.difference(occurredUtc) <= lookback;
-  }
-
-  static int _compareNewestFirst(
-    TarotHistoricalReadingRecord a,
-    TarotHistoricalReadingRecord b,
-  ) {
-    final byTime = b.occurredAt.toUtc().compareTo(a.occurredAt.toUtc());
-    if (byTime != 0) return byTime;
-    return a.readingId.compareTo(b.readingId);
   }
 }

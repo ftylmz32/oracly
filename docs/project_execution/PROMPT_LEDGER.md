@@ -948,6 +948,20 @@ Chronological project execution ledger.
 | Live V2 / AI | **NOT WIRED** / **0** |
 | Outcome | **PASS** — ready for Phase 4E re-audit |
 
+### PL-T4E.1a — H19 EXACT-TIE REPRESENTATIVE DETERMINISM
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `6acb2b18f4c3cd29de2ed99e2f78ae688a24f00f` |
+| Production | eligibility order + `tarot_historical_eligibility_order.dart` |
+| H19 | sessionId ASC + canonical payload tie-key |
+| Primary order | **UNCHANGED** |
+| Field merge / hashCode | **NO** / **NO** |
+| Phase 4 frozen | **NO** — 4E re-audit pending |
+| Live V2 / AI | **NOT WIRED** / **0** |
+| Outcome | **PASS** — ready for Phase 4E re-audit |
+
 ---
 
 ## Planned (not started)
@@ -1001,8 +1015,9 @@ Chronological project execution ledger.
 | PL-T4D.1 | Tarot Phase 4D.1 — Enrichment privacy contract hardening | **DONE** |
 | PL-T4E | Tarot Phase 4E — Independent Memory + Historical Recurrence audit | **FAIL** (H7 MAJOR · not frozen) |
 | PL-T4E.1 | Tarot Phase 4E.1 — H7 transitive physical-identity remediation | **PASS** · Phase 4 **NOT FROZEN** |
+| PL-T4E.1a | Tarot Phase 4E.1a — H19 exact-tie representative determinism | **PASS** · Phase 4 **NOT FROZEN** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D.1 DONE** · **4E FAIL** · **4E.1 PASS** · not frozen |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D.1 DONE** · **4E FAIL** · **4E.1/4E.1a PASS** · not frozen |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
