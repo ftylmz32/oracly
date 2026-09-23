@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "phase": "5B",
+  "note": "Literal frozen signature projection corpus. Do not rewrite at runtime.",
+  "scenarios": [
+    {
+      "spreadId": "classical.single",
+      "runtimeEnumName": "single",
+      "projectedSpreadId": "classical.single",
+      "legacyTypeName": "single",
+      "cardCount": 1,
+      "positionKeys": ["sign"],
+      "indices": [0],
+      "roles": ["signal"],
+      "temporals": ["atemporal"],
+      "interpretationOrder": [0],
+      "signatureGeometryHook": "single",
+      "phase3Geometry": "singlePoint",
+      "lengthBand": "short",
+      "edges": [],
+      "projectedRelationRowCount": 0,
+      "offeredInLivePicker": true,
+      "supportedQuestionKinds": ["open", "guidance"],
+      "primaryQuestionKind": "open"
+    },
+    {
+      "spreadId": "classical.threeCard",
+      "runtimeEnumName": "threeCard",
+      "projectedSpreadId": "classical.threeCard",
+      "legacyTypeName": "threeCard",
+      "cardCount": 3,
+      "positionKeys": ["past", "present", "future"],
+      "indices": [0, 1, 2],
+      "roles": ["root", "state", "direction"],
+      "temporals": ["past", "present", "future"],
+      "interpretationOrder": [0, 1, 2],
+      "signatureGeometryHook": "threeLinear",
+      "phase3Geometry": "linearRow",
+      "lengthBand": "medium",
+      "edges": [
+        {
+          "from": "past",
+          "to": "present",
+          "directed": true,
+          "kind": "temporal"
+        },
+        {
+          "from": "present",
+          "to": "future",
+          "directed": true,
+          "kind": "temporal"
+        },
+        {
+          "from": "past",
+          "to": "future",
+          "directed": true,
+          "kind": "temporal"
+        }
+      ],
+      "projectedRelationRowCount": 3,
+      "offeredInLivePicker": true,
+      "supportedQuestionKinds": ["open", "guidance", "relationship", "decision"],
+      "primaryQuestionKind": "open"
+    },
+    {
+      "spreadId": "classical.fiveCard",
+      "runtimeEnumName": "fiveCard",
+      "projectedSpreadId": "classical.fiveCard",
+      "legacyTypeName": "fiveCard",
+      "cardCount": 5,
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "indices": [0, 1, 2, 3, 4],
+      "roles": [
+        "context",
+        "hiddenInfluence",
+        "challenge",
+        "support",
+        "direction"
+      ],
+      "temporals": [
+        "atemporal",
+        "atemporal",
+        "atemporal",
+        "atemporal",
+        "future"
+      ],
+      "interpretationOrder": [0, 1, 2, 3, 4],
+      "signatureGeometryHook": "fiveLinear",
+      "phase3Geometry": "linearRow",
+      "lengthBand": "full",
+      "edges": [
+        {
+          "from": "situation",
+          "to": "direction",
+          "directed": true,
+          "kind": "temporal"
+        },
+        {
+          "from": "situation",
+          "to": "hidden_influence",
+          "directed": false,
+          "kind": "pressure"
+        },
+        {
+          "from": "situation",
+          "to": "challenge",
+          "directed": false,
+          "kind": "opposition"
+        },
+        {
+          "from": "challenge",
+          "to": "strength",
+          "directed": false,
+          "kind": "supportive"
+        },
+        {
+          "from": "strength",
+          "to": "direction",
+          "directed": true,
+          "kind": "supportive"
+        },
+        {
+          "from": "hidden_influence",
+          "to": "challenge",
+          "directed": false,
+          "kind": "pressure"
+        }
+      ],
+      "projectedRelationRowCount": 10,
+      "offeredInLivePicker": true,
+      "supportedQuestionKinds": ["open", "guidance", "relationship", "decision"],
+      "primaryQuestionKind": "open"
+    },
+    {
+      "spreadId": "signature.crossroads",
+      "runtimeEnumName": "crossroads",
+      "projectedSpreadId": "signature.crossroads",
+      "legacyTypeName": "crossroads",
+      "cardCount": 5,
+      "positionKeys": [
+        "option_a",
+        "option_b",
+        "tension",
+        "counsel",
+        "direction"
+      ],
+      "indices": [0, 1, 2, 3, 4],
+      "roles": [
+        "direction",
+        "direction",
+        "challenge",
+        "support",
+        "direction"
+      ],
+      "temporals": [
+        "atemporal",
+        "atemporal",
+        "atemporal",
+        "atemporal",
+        "future"
+      ],
+      "interpretationOrder": [0, 1, 2, 3, 4],
+      "signatureGeometryHook": "fiveDecision",
+      "phase3Geometry": "linearRow",
+      "lengthBand": "full",
+      "edges": [
+        {
+          "from": "option_a",
+          "to": "option_b",
+          "directed": false,
+          "kind": "opposition"
+        },
+        {
+          "from": "tension",
+          "to": "option_a",
+          "directed": false,
+          "kind": "pressure"
+        },
+        {
+          "from": "tension",
+          "to": "option_b",
+          "directed": false,
+          "kind": "pressure"
+        },
+        {
+          "from": "counsel",
+          "to": "direction",
+          "directed": true,
+          "kind": "supportive"
+        }
+      ],
+      "projectedRelationRowCount": 7,
+      "offeredInLivePicker": false,
+      "supportedQuestionKinds": ["decision", "open", "guidance"],
+      "primaryQuestionKind": "decision",
+      "relationshipUnsupported": true
+    }
+  ]
+}

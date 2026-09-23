@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5A pure signature spread catalog
+**Updated:** 2026-09-23 — Tarot Phase 5B signature semantic projection
 
 ---
 
@@ -102,6 +102,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5.0.1 task start | `a590da5e39a9c84466237e3decc120f9197735f6` | Signature Spread contract hardening |
 | Phase 5.0.1 end | `c013dd1de183f1b224a01805f709705e5c3c1137` | docs PASS |
 | Phase 5A task start | `c013dd1de183f1b224a01805f709705e5c3c1137` | Pure SignatureSpread domain + launch catalog |
+| Phase 5A end | `07d02c099a5ba653d5e07a78b48f2f746c00ebed` | Catalog PASS |
+| Phase 5B task start | `07d02c099a5ba653d5e07a78b48f2f746c00ebed` | Signature → SpreadSemanticDefinition projection |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -205,6 +207,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5.0 — Signature Spreads forensic + architecture lock | **COMPLETE / PASS** (docs-only) |
 | Phase 5.0.1 — Signature Spread contract hardening | **COMPLETE / PASS** (docs-only · ready for 5A) |
 | Phase 5A — Pure SignatureSpread domain + launch catalog | **COMPLETE / PASS** (shadow · Crossroads unreachable · TarotSpreadType unchanged) |
+| Phase 5B — Signature semantic projection + Crossroads edges | **COMPLETE / PASS** (shadow · classical parity · Phase 3 scorer does not consume Phase 5 edges) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -581,6 +584,21 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3/4 production | **UNCHANGED** |
 | Edges / Phase 3 projection | **NOT** in 5A (deferred 5B) |
 | Live Narrative V2 | **NOT WIRED** |
+
+### Phase 5B
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Projector | `SignatureSpreadProjector` · classical via `ClassicalSpreadSemantics.bySpreadId` |
+| Crossroads edges | **4** Phase-5-owned · **7** projected relation rows |
+| Classical parity | single / threeCard / fiveCard · **ZERO** semantic drift |
+| Phase 3 global edge table | **UNMODIFIED** |
+| Phase 3 scorer consumes Phase 5 edges | **NO** (intentional · audited seam later) |
+| Crossroads EvidenceBuilder call | **NO** |
+| Live Narrative V2 | **NOT WIRED** |
+| Crossroads picker | **false** |
+| Next | **Phase 5C** |
 
 ### Phase 4D.1
 
@@ -1018,9 +1036,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 5B** — Signature → frozen SpreadSemanticDefinition projection + exact Crossroads edges (Phase 3 algorithms untouched).
+**Phase 5C** — Signature Spread localization / display keys (product copy; no live V2).
 
-Phase 5A: **PASS** · Phase 5.0.1: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false** · Phase 3 scorer does **not** consume Phase 5 edges.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
