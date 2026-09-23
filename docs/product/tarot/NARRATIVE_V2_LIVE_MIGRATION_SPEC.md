@@ -92,14 +92,16 @@ PositionEdgeProvider
   edgesFor(SpreadSemanticDefinition) → List<AuthoritativePositionEdge>
 ```
 
-| Provider | Behavior |
-|---|---|
-| `ClassicalSpreadSemanticResolver` | Exact current `ClassicalSpreadSemantics.byLegacyTypeName` |
-| `ClassicalPositionEdgeProvider` | Exact current `kAuthoritativePositionEdges` filter |
-| `SignatureSpreadSemanticResolver` | Phase 5 projection definitions |
-| `SignaturePositionEdgeProvider` | Phase 5 Signature edges (Crossroads 4) |
+| Provider | Behavior | 6A status |
+|---|---|---|
+| `ClassicalSpreadSemanticResolver` | Exact current `ClassicalSpreadSemantics.byLegacyTypeName` | **IMPLEMENTED** · parity PASS |
+| `ClassicalPositionEdgeProvider` | Exact current `kAuthoritativePositionEdges` filter | **IMPLEMENTED** · parity PASS |
+| `SignatureNarrativeSpreadResolver` | Phase 5 projection definitions (Crossroads only) | **IMPLEMENTED** · no live callers |
+| `SignatureNarrativeEdgeProvider` | Phase 5 Signature edges (Crossroads 4) | **IMPLEMENTED** · no live callers |
 
-`NarrativeEvidenceValidation.resolveSpread` and relationship pairing become **resolver/provider consumers**. Classical default must reproduce frozen classical shadow parity byte-for-byte on request identity fields.
+`NarrativeEvidenceValidation.resolveSpread` and relationship pairing/scorer/selector are **resolver/provider consumers** with Classical defaults. Default `NarrativeEvidenceBuilder.build` unchanged — Crossroads still fails closed. Classical frozen corpus parity required byte-for-byte.
+
+**Phase 6A (2026-09-23):** seam A/B infrastructure **PASS**. Seam C and 6G (full Crossroads Narrative) **NOT** implemented.
 
 ---
 
@@ -252,11 +254,15 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6A — Spread semantic + edge provider seams (Phase 3 reopen: narrow)
 
+- **Status:** **PASS** (2026-09-23) — Classical-preserving seams landed  
 - **Goal:** Classical resolver/provider parity; Signature provider plumbing without live calls  
-- **Reopen:** evidence validation resolveSpread + pairing edge source only  
-- **Tests:** classical request parity corpus; Signature Crossroads edges unit  
-- **Live impact:** NONE · Crossroads picker false  
-- **Rollback:** restore classical-only resolve  
+- **Reopen:** evidence validation resolveSpread + pairing/scorer/selector edge provider only  
+- **Added:** `narrative_spread_semantic_resolver.dart` · `narrative_position_edge_provider.dart` · Signature adapters  
+- **Tests:** classical parity · Signature Crossroads edges · provider propagation · Crossroads builder firewall  
+- **Live impact:** NONE · Crossroads picker false · default builder Crossroads still unsupported  
+- **Not done:** seam C · 6G full Crossroads Narrative · builder Signature wiring  
+- **Rollback:** restore classical-only resolve (defaults already Classical)  
+- **Next:** **Phase 6B**
 
 ### 6B — Signature history normalizer (Phase 4 reopen: narrow)
 
@@ -374,4 +380,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6.0.3 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation).
+**Phase 6B** — Signature history normalizer (Phase 4 reopen: narrow).
+
+Phase 6.0.3 independently verified before 6A. Phase 6A seam A/B **PASS**. Live Narrative V2 still **NOT WIRED**.

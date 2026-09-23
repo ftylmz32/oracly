@@ -423,9 +423,9 @@ So a safety-only local response could be charged as paid provider success, and `
 
 | ID | Status | Evidence |
 |---|---|---|
-| **A** | **STILL VALID** | `NarrativeEvidenceValidation.resolveSpread` → `ClassicalSpreadSemantics.byLegacyTypeName` only |
-| **B** | **STILL VALID** | Scorer/pairing uses `kAuthoritativePositionEdges`; Signature edges not consumed |
-| **C** | **STILL VALID** | Crossroads structural edges exist in Phase 5 projection; no Phase 3 scoring path |
+| **A** | **SEAM IMPLEMENTED (6A)** | `resolveSpread` → optional `NarrativeSpreadSemanticResolver` (default Classical); Signature adapter separate |
+| **B** | **SEAM IMPLEMENTED (6A)** | Pairing/scorer/selector → optional `NarrativePositionEdgeProvider` (default Classical); Signature adapter separate |
+| **C** | **STILL VALID** | Crossroads structural edges exist in Phase 5 projection; no Phase 3 full builder/scoring path yet |
 | **D** | **STILL VALID** | `classicalFromSpread` null/throws for non-classical (`crossroads`) |
 | **E** | **STILL VALID** | Same-spread-alone forbid remains Phase 4/5 contract |
 | **F** | **STILL VALID** | H7 identity — do not reopen casually |
@@ -436,7 +436,29 @@ So a safety-only local response could be charged as paid provider success, and `
 | **K** | **STILL VALID** | `offeredInLivePicker=false` |
 | **L** | **STILL VALID** | No release-readiness from Phase 5/6.0 alone |
 
-Refinements for Phase 6: A/B/D become **implementation seams** (not obsolete). None obsolete.
+Refinements for Phase 6: A/B implemented as Classical-default seams + Signature adapters (6A). Seam C / full Crossroads Narrative remain later (6G). None obsolete.
+
+---
+
+## 13.1 — Phase 6A implementation facts
+
+**Date:** 2026-09-23 · **Kind:** Phase 3 narrow reopen · Classical-preserving
+
+| Fact | Value |
+|---|---|
+| Spread resolver interface | `NarrativeSpreadSemanticResolver` + `ClassicalSpreadSemanticResolver` |
+| Position edge provider | `NarrativePositionEdgeProvider` + `ClassicalPositionEdgeProvider` |
+| Signature adapters | `SignatureNarrativeSpreadResolver` · `SignatureNarrativeEdgeProvider` (new files only) |
+| Classical edge counts | single 0 · three 3 · five 6 · seven 8 · celtic 12 · **total 29** |
+| Global edge table modified | **NO** |
+| Default builder Crossroads | **UNSUPPORTED** (fails closed · no fiveCard fallback) |
+| Phase3 → Signature imports | **NO** |
+| Signature provider live callers | **0** |
+| Phase 4 / Phase 5 SOT | **UNCHANGED** |
+| Live Narrative V2 | **NOT WIRED** |
+| Next | **Phase 6B** |
+
+6.0.3 independently verified before 6A.
 
 ---
 

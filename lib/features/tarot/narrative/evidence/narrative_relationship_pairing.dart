@@ -1,7 +1,7 @@
 /// Position edge lookup + pair left/right normalization helpers (3D.1C).
 library;
 
-import 'narrative_position_edges.dart';
+import 'narrative_position_edge_provider.dart';
 import 'narrative_relationship_context.dart';
 import 'narrative_spread_semantics.dart';
 
@@ -23,6 +23,8 @@ abstract final class NarrativeRelationshipPairing {
     required SpreadSemanticDefinition spread,
     required NarrativeRelationshipCardContext left,
     required NarrativeRelationshipCardContext right,
+    NarrativePositionEdgeProvider edgeProvider =
+        const ClassicalPositionEdgeProvider(),
   }) {
     final byKey = {for (final p in spread.positions) p.positionKey: p};
     final leftPos = byKey[left.positionKey];
@@ -32,8 +34,7 @@ abstract final class NarrativeRelationshipPairing {
     }
 
     AuthoritativePositionEdge? edge;
-    for (final e in kAuthoritativePositionEdges) {
-      if (e.legacyTypeName != spread.legacyTypeName) continue;
+    for (final e in edgeProvider.edgesFor(spread)) {
       final ab =
           e.fromPositionKey == left.positionKey &&
           e.toPositionKey == right.positionKey;

@@ -7,6 +7,7 @@ import 'narrative_relationship_candidate.dart';
 import 'narrative_relationship_context.dart';
 import 'narrative_relationship_evidence.dart';
 import 'narrative_relationship_kind_resolver.dart';
+import 'narrative_position_edge_provider.dart';
 import 'narrative_relationship_ranking.dart';
 import 'narrative_relationship_rules.dart';
 import 'narrative_relationship_scorer.dart';
@@ -22,6 +23,8 @@ abstract final class NarrativeRelationshipSelector {
     required SpreadSemanticDefinition spread,
     required QuestionKind questionKind,
     int maxRelationships = NarrativeRelationshipRules.maxRelationshipsDefault,
+    NarrativePositionEdgeProvider edgeProvider =
+        const ClassicalPositionEdgeProvider(),
   }) {
     if (cards.length > maxCardsAbsolute) {
       throw NarrativeEvidenceException(
@@ -43,6 +46,7 @@ abstract final class NarrativeRelationshipSelector {
             b: sorted[j],
             spread: spread,
             questionKind: questionKind,
+            edgeProvider: edgeProvider,
           ),
         );
       }

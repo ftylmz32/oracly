@@ -7,6 +7,7 @@ import 'narrative_relationship_candidate.dart';
 import 'narrative_relationship_context.dart';
 import 'narrative_relationship_guards.dart';
 import 'narrative_relationship_kind_resolver.dart';
+import 'narrative_position_edge_provider.dart';
 import 'narrative_relationship_pairing.dart';
 import 'narrative_relationship_signals.dart';
 import 'narrative_spread_semantics.dart';
@@ -19,12 +20,15 @@ abstract final class NarrativeRelationshipScorer {
     required NarrativeRelationshipCardContext b,
     required SpreadSemanticDefinition spread,
     required QuestionKind questionKind,
+    NarrativePositionEdgeProvider edgeProvider =
+        const ClassicalPositionEdgeProvider(),
   }) {
     final (left, right) = NarrativeRelationshipPairing.normalizePair(a, b);
     final pos = NarrativeRelationshipPairing.matchPositions(
       spread: spread,
       left: left,
       right: right,
+      edgeProvider: edgeProvider,
     );
     final s = NarrativeRelationshipSignalBundle.compute(
       left: left,

@@ -7,9 +7,9 @@ import '../../deck/oracly_tarot_deck.dart';
 import '../../domain/models/tarot_spread.dart';
 import '../data/narrative_tarot_profile_catalog.dart';
 import '../domain/narrative_card_profile.dart';
-import 'narrative_classical_spread_catalog.dart';
 import 'narrative_evidence_error.dart';
 import 'narrative_evidence_input.dart';
+import 'narrative_spread_semantic_resolver.dart';
 import 'narrative_spread_semantics.dart';
 
 class NarrativeEvidenceValidatedCard {
@@ -29,8 +29,12 @@ class NarrativeEvidenceValidatedCard {
 abstract final class NarrativeEvidenceValidation {
   NarrativeEvidenceValidation._();
 
-  static SpreadSemanticDefinition resolveSpread(TarotSpreadType type) {
-    return ClassicalSpreadSemantics.byLegacyTypeName(type.name);
+  static SpreadSemanticDefinition resolveSpread(
+    TarotSpreadType type, {
+    NarrativeSpreadSemanticResolver resolver =
+        const ClassicalSpreadSemanticResolver(),
+  }) {
+    return resolver.resolve(type);
   }
 
   static void requireCardCount(
