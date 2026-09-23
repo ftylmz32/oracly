@@ -223,10 +223,18 @@ void main() {
     );
     final f01Capped = math.min(f01KwNorm, 0.35);
     expect(f01Capped, 0.35);
-    // Identity-only: capped overlap alone < Standard 1.25 and < Canonical 1.0.
+    // Identity-only: capped overlap alone rejects all admission paths.
     expect(f01Capped, lessThan(1.0));
-    // With canonical +0.55: 0.90/3.5 ≈ 0.257 ≤ 0.45 strength cap.
-    expect((f01Capped + 0.55) / 3.5, lessThanOrEqualTo(0.45));
+    expect(f01Capped, lessThan(1.25));
+    // FR-F01 + canonical only: 0.90 < canonical threshold 1.0 → REJECT.
+    final f01PlusCanonical = f01Capped + 0.55;
+    expect(f01PlusCanonical, closeTo(0.90, 1e-12));
+    expect(f01PlusCanonical < 1.0, isTrue);
+    // SYNTHETIC guarded admit: + opposition 0.40 → S=1.30, strength ≤ 0.45.
+    final f01Guarded = f01PlusCanonical + 0.40;
+    expect(f01Guarded, closeTo(1.30, 1e-12));
+    expect(f01Guarded >= 1.0, isTrue);
+    expect(f01Guarded / 3.5, lessThanOrEqualTo(0.45));
 
     final f02KwNorm = normSharedKeywords(
       s11.reversed.keywordIds,
@@ -234,7 +242,15 @@ void main() {
     );
     final f02Capped = math.min(f02KwNorm, 0.35);
     expect(f02Capped, 0.35);
-    expect((f02Capped + 0.30) / 3.5, lessThanOrEqualTo(0.45));
+    // FR-F02 + supportive only: 0.65 < position-strong 1.0 → REJECT.
+    final f02PlusSupportive = f02Capped + 0.30;
+    expect(f02PlusSupportive, closeTo(0.65, 1e-12));
+    expect(f02PlusSupportive < 1.0, isTrue);
+    // SYNTHETIC guarded admit: + canonical + opposition.
+    final f02Guarded = f02Capped + 0.55 + 0.40;
+    expect(f02Guarded, closeTo(1.30, 1e-12));
+    expect(f02Guarded >= 1.0, isTrue);
+    expect(f02Guarded / 3.5, lessThanOrEqualTo(0.45));
 
     // Canonical inventory.
     var storedRefs = 0;

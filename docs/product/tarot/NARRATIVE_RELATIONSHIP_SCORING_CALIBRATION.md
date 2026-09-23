@@ -364,8 +364,10 @@ Family count from SEMANTIC alone ≤ 1; need another family; final strength ≤ 
 | Keyword-normalized overlap | **2.193** |
 | After FR cap | **0.35** |
 | Identity-only admission | **REJECT** (families≤1; S=0.35 < 1.25) |
-| + canonical 0.55 | S=**0.90** → strength **0.257** ≤ 0.45 |
-| Max with valid second family | **≤ 0.45 strength** |
+| + canonical 0.55 only | S=**0.90** → **REJECT** (canonical admission requires S≥1.0; 0.90 < 1.0) |
+| SYNTHETIC valid: +canonical 0.55 + opposition 0.40 | S=**1.30** → admit · strength **≈0.371** ≤ 0.45 |
+
+**3D.1B.2:** Pre-repair docs incorrectly labeled FR-F01+canonical (0.90) as admitted. Thresholds were never changed — only the example was wrong. The 1.30 case is **synthetic contract arithmetic** unless a production reading proves that exact signal combination.
 
 ### FR-F02 Swords Page/Knight reversed
 
@@ -374,7 +376,8 @@ Family count from SEMANTIC alone ≤ 1; need another family; final strength ≤ 
 | Keyword-normalized overlap | **1.973** |
 | After FR cap | **0.35** |
 | Identity-only | **REJECT** |
-| + supportive 0.30 | S=**0.65** → strength **0.186** ≤ 0.45 |
+| + supportive 0.30 | S=**0.65** → **REJECT** (position-strong requires S≥1.0) |
+| SYNTHETIC valid: +canonical 0.55 + opposition 0.40 | S=**1.30** → admit · strength **≈0.371** ≤ 0.45 |
 
 ---
 
@@ -405,9 +408,11 @@ Admission (unchanged thresholds; overlap scale fixed):
 | CONTEXTUAL only | 1 | 0.45 | NO | — | YES |
 | CONTEXTUAL + opposition | 2 | ≥0.85 | needs ≥1.0/1.25 | weak | YES |
 | FR-F01 identity only | ≤1 | 0.35 | **REJECT** | — | YES |
-| FR-F01 + canonical | 2 | 0.90 | YES canonical | 0.257 | YES |
+| FR-F01 + canonical only | 2 | 0.90 | **REJECT** (0.90 < 1.0) | — | YES |
+| FR-F01 + canonical + opposition (SYNTHETIC) | ≥2 | 1.30 | YES | ≈0.371 ≤0.45 | YES |
 | FR-F02 identity only | ≤1 | 0.35 | **REJECT** | — | YES |
-| FR-F02 + position | 2 | 0.65 | NO (<1.0) | — | YES (needs stronger 2nd) |
+| FR-F02 + supportive | 2 | 0.65 | **REJECT** (<1.0) | — | YES |
+| FR-F02 + canonical + opposition (SYNTHETIC) | ≥2 | 1.30 | YES | ≈0.371 ≤0.45 | YES |
 
 ---
 
@@ -417,12 +422,13 @@ Bands unchanged: weak `<0.40` · moderate `0.40–0.69` · strong `≥0.70`.
 
 | Band | Example | S_total | strength |
 |---|---|---:|---:|
-| **Weak** | FR-F01 + canonical | 0.90 | **0.257** |
-| **Weak** | 1 HF + canonical | ~1.15 | **~0.33** |
+| **Weak** | 1 HF + canonical | ~1.11–1.19 | **~0.32–0.34** |
 | **Moderate** | 2 specific + supportive | ~1.46+0.30=1.76 | **~0.50** |
 | **Moderate** | rare + HARD contrast | ~0.80+0.70=1.50 | **~0.43** |
 | **Strong** | 3 specific + HARD + temporal | ~2.29+0.70+0.35=3.34 | **~0.95** |
 | **Strong** | 2 specific + HARD + supportive | ~1.46+0.70+0.30=2.46 | **~0.70** |
+
+**3D.1B.2:** Removed incorrect weak example “FR-F01 + canonical → 0.90 / 0.257” — that combination is **not admitted**.
 
 Bands remain usable; not almost-all-strong.
 

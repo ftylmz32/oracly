@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1B.1 Relationship Scoring Calibration
+**Updated:** 2026-09-23 — Tarot Phase 3D.1B.2 Admission Consistency Repair
 
 ---
 
@@ -58,6 +58,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1B task start | `620dae768d104f7ed9b8368c6b2831cec55508c3` | Structured semantic signal layer |
 | Phase 3D.1B end | `9a20151986581d7ffcdb086112c3b4b802fde770` | Semantic signals |
 | Phase 3D.1B.1 task start | `9a20151986581d7ffcdb086112c3b4b802fde770` | Relationship scoring calibration |
+| Phase 3D.1B.1 end | `fc61bccc65f1bd523dbc3d753c5b74136586dcae` | Scoring calibration |
+| Phase 3D.1B.2 task start | `fc61bccc65f1bd523dbc3d753c5b74136586dcae` | Admission consistency repair |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -139,6 +141,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1A — Evidence Domain Foundation | **COMPLETE** (models + slice + grounding + classical catalog; scoring **NOT** implemented) |
 | Phase 3D.1B — Structured Semantic Signal Layer | **COMPLETE** (channel + DF + contrasts + transforms; scoring **NOT** implemented) |
 | Phase 3D.1B.1 — Relationship scoring calibration | **COMPLETE** (docs + diagnostic; production scoring **NOT** implemented; OPEN 3D.1C decisions **0**) |
+| Phase 3D.1B.2 — Admission consistency repair | **COMPLETE** (FR-F01+canonical 0.90 → REJECT; thresholds unchanged) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -427,6 +430,21 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1B.2
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Defect | FR-F01 + canonical S=0.90 incorrectly labeled admitted |
+| Correct result | **REJECT** (canonical threshold ≥1.0 unchanged) |
+| FR-F02 + supportive 0.65 | **REJECT** |
+| Synthetic guarded admit | 0.35+0.55+0.40=**1.30** · strength≈**0.371** ≤0.45 |
+| Weak-band example | 1 HF + canonical (~1.11–1.19) |
+| Scoring constants changed | **NO** |
+| Production source | **UNCHANGED** |
+| Open 3D.1C scoring decisions | **0** |
+| Spec ready for 3D.1C | **YES** |
+
 ### Phase 3D.1B.1
 
 | Field | Value |
@@ -443,7 +461,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Production scoring | **NOT IMPLEMENTED** |
 | Evidence builder | **NOT IMPLEMENTED** |
 | User path | **UNCHANGED** |
-| Spec ready for 3D.1C | **YES** |
+| Spec ready for 3D.1C | **YES** (after 3D.1B.2 admission example repair) |
 
 ### Phase 3D.1B
 
@@ -641,7 +659,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 **ChatGPT review before Phase 3D.1C implementation.**
 
-Phase 3D.1B.1: **PASS** · Raw IDF saturation **CONFIRMED** · Chosen overlap `Σ(w/6)` · OPEN 3D.1C scoring decisions **0** · Production scorer **NOT** implemented · User path **UNCHANGED**.
+Phase 3D.1B.2: **PASS** · FR-F01+canonical 0.90 → **REJECT** · thresholds unchanged · OPEN 3D.1C scoring decisions **0** · Production scorer **NOT** implemented.
 
 Do **not** start 3D.1C until reviewed.
 Do **not** mark future items completed until verified.

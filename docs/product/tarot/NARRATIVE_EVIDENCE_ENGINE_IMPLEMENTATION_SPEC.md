@@ -302,6 +302,8 @@ Applies to known case: `wands_11` upright ↔ `pentacles_11` upright.
 
 **3D.1B.1 clarification:** identity uses **`keywordIds`**, not full FR-F04 `semanticIds`. Production Pages share keywords but differ in symbolTags; full-Chan equality would incorrectly bypass the guard.
 
+**3D.1B.2 admission arithmetic:** FR-F01 capped overlap (0.35) + canonical (0.55) = **0.90 → REJECT** (canonical path requires S_total ≥ 1.0). A further independent signal (e.g. synthetic +opposition 0.40 → S=1.30) may admit with strength ≤ 0.45.
+
 ---
 
 ## 13 — FR-F02 Swords Page/Knight safeguard — LOCKED
@@ -313,6 +315,8 @@ If same suit **and** ranks are {page, knight} **and** orientation **`keywordIds`
 Applies to: `swords_11` reversed ↔ `swords_12` reversed.
 
 **Same keywordIds-identity clarification as §12.**
+
+**3D.1B.2:** FR-F02 capped + supportive (0.35+0.30=0.65) → **REJECT** (needs S≥1.0). Synthetic +canonical +opposition (1.30) may admit with strength ≤ 0.45.
 
 ---
 

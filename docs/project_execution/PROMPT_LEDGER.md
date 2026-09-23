@@ -689,6 +689,22 @@ Chronological project execution ledger.
 | Spec ready for 3D.1C | **YES** · OPEN decisions **0** |
 | Outcome | **PASS** |
 
+### PL-T3D.1B.2 — SCORING ADMISSION CONSISTENCY REPAIR
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | Docs + test-only — **no production scorer** |
+| Start SHA | `fc61bccc65f1bd523dbc3d753c5b74136586dcae` |
+| Incorrect example | FR-F01 + canonical S=0.90 labeled admitted (strength 0.257) |
+| Correct arithmetic | 0.90 < 1.0 → **REJECT** |
+| FR-F02 + supportive | 0.65 < 1.0 → **REJECT** |
+| Valid synthetic guarded | 0.35+0.55+0.40=**1.30** · strength≈**0.371** ≤0.45 |
+| Weak-band replacement | 1 HF + canonical (~1.11–1.19) |
+| Scoring constants changed | **NO** |
+| Production modified | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -725,6 +741,7 @@ Chronological project execution ledger.
 | PL-T3D.1A | Tarot Phase 3D.1A — Evidence Domain Foundation | **DONE** (models+catalog; scoring/builder NOT IMPLEMENTED) |
 | PL-T3D.1B | Tarot Phase 3D.1B — Structured Semantic Signal Layer | **DONE** (channel+DF+contrasts+transforms; scoring NOT IMPLEMENTED) |
 | PL-T3D.1B.1 | Tarot Phase 3D.1B.1 — Relationship scoring calibration | **DONE** (docs+diagnostic; OPEN 3D.1C decisions 0; scorer NOT IMPLEMENTED) |
+| PL-T3D.1B.2 | Tarot Phase 3D.1B.2 — Scoring admission consistency repair | **DONE** (0.90 REJECT; constants unchanged) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (signals+calibration READY; scoring/builder pending 3D.1C) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
