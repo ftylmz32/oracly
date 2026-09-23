@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3C.5E FR-M04 canonical keyword ontology implementation
+**Updated:** 2026-09-23 — Tarot Phase 3C.5F final keyword ontology + deck readiness audit
 
 ---
 
@@ -46,6 +46,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.5D.1 task start | `9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b` | FR-M04 semantic mapping repair |
 | Phase 3C.5D.1 end | `a0dbee280b0931469780ad5fbf567343397a80b5` | Ontology plan semantic repair |
 | Phase 3C.5E task start | `a0dbee280b0931469780ad5fbf567343397a80b5` | FR-M04 ontology implementation |
+| Phase 3C.5E end | `dca0cc197b7ea02f1715431de5edbfc655bc48a6` | Keyword ontology implemented |
+| Phase 3C.5F task start | `dca0cc197b7ea02f1715431de5edbfc655bc48a6` | Final ontology + readiness audit |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -120,8 +122,9 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.5C — FR-M01 / FR-M02 EN naturalness | **COMPLETE** (FR-M01/M02 + RT-M03 minors-only; readiness still **NO** — FR-M04) |
 | Phase 3C.5D — FR-M04 keyword ontology design | **COMPLETE** (design only; FR-M04 **OPEN**; readiness **NO**) |
 | Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **COMPLETE** (plan repaired; FR-M04 was OPEN) |
-| Phase 3C.5E — FR-M04 canonical keyword ontology implementation | **COMPLETE** (FR-M04 **REMEDIATED — PENDING 3C.5F**; readiness **NO**) |
-| Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
+| Phase 3C.5E — FR-M04 canonical keyword ontology implementation | **COMPLETE** (FR-M04 was REMEDIATED — PENDING 3C.5F) |
+| Phase 3C.5F — final keyword ontology + deck readiness audit | **COMPLETE** (FR-M04 **RESOLVED**; deck readiness **YES**) |
+| Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** — ready for ChatGPT review of implementation spec |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -410,12 +413,31 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.5F
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (independent audit) |
+| Profiles / orientations | **78 / 78** · **156 / 156** |
+| FR-M04 | **RESOLVED** |
+| BLOCKER / MAJOR / MINOR / INFO | **0 / 0 / 3 / 2** |
+| Semantic inversion / loss | **0 / 0** |
+| Engine-blocking false overlaps | **0** |
+| Unsupported keyword concepts | **0** |
+| Engine usage contract | **READY** |
+| DECK READY FOR EVIDENCE ENGINE | **YES** |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Visual System | **NOT IMPLEMENTED** |
+| Audit doc | `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md` |
+| Production modified | **NO** |
+
 ### Phase 3C.5E
 
 | Field | Value |
 |---|---|
 | Status | **PASS** (implementation) |
-| FR-M04 | **REMEDIATED — PENDING 3C.5F** |
+| FR-M04 | was **REMEDIATED — PENDING 3C.5F** (now RESOLVED via 3C.5F) |
 | Keyword ontology | **IMPLEMENTED** |
 | Ontology revision | **1** |
 | Defined / used ids | **128 / 122** |
@@ -423,7 +445,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Orientations mapped | **156 / 156** |
 | Appendix B fixture match | **156 / 156** |
 | Prose / transforms / symbolTags / profileRevision | **UNCHANGED** |
-| DECK READY FOR EVIDENCE ENGINE | **NO** — final independent 3C.5F audit required |
+| DECK READY FOR EVIDENCE ENGINE | was **NO** pending 3C.5F |
 | Narrative Evidence Engine | **NOT IMPLEMENTED** |
 | Runtime V2 | **NOT USER-REACHABLE** |
 | Visual System | **NOT IMPLEMENTED** |
@@ -514,13 +536,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3C.5F final ontology/readiness audit.**
+**ChatGPT review before Narrative Evidence Engine implementation specification.**
 
-Phase 3C.5E: **COMPLETE** · Keyword ontology: **IMPLEMENTED** (revision **1**) · Defined **128** · Used **122**.
+Phase 3C.5F: **PASS** · FR-M04: **RESOLVED** · DECK READY FOR EVIDENCE ENGINE: **YES**.
 
-FR-M04: **REMEDIATED — PENDING 3C.5F**.
+Ontology revision **1** · Defined **128** · Used **122** · BLOCKER **0** · MAJOR **0**.
 
-DECK READY FOR EVIDENCE ENGINE: **NO** — final independent audit required · Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
+Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
 
-Do **not** start Phase 3C.5F or Evidence Engine until reviewed.
+Do **not** start Evidence Engine coding until the implementation specification is reviewed.
 Do **not** mark future items completed until verified.

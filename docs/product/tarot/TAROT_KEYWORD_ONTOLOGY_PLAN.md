@@ -1212,3 +1212,15 @@ FR-M04 remains OPEN until a separate implementation task applies ids.
 
 Frozen fixture: 	est/fixtures/tarot_keyword_ontology_v1.json
 Regression tests: 	est/features/tarot/narrative_domain/narrative_keyword_ontology_v1_test.dart
+
+---
+
+## Phase 3C.5F — final ontology + deck readiness audit
+
+**Status:** PASS (audit)
+**Document:** docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md
+**FR-M04:** **RESOLVED**
+**DECK READY FOR EVIDENCE ENGINE:** **YES** (under Evidence Engine safeguards in the final audit)
+**Production modified during 3C.5F:** **NO**
+**Narrative Evidence Engine:** **NOT IMPLEMENTED**
+
