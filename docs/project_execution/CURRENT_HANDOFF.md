@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1D.1 Builder Error-Contract + Corpus Metric Hardening
+**Updated:** 2026-09-23 — Tarot Phase 3D.1E Final Independent Narrative Evidence Engine Audit
 
 ---
 
@@ -69,6 +69,7 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1D end | `dfba28d1c724a7d0c60aef56575b98186698d5d4` | Builder + frozen real-deck corpus |
 | Phase 3D.1D.1 task start | `ea6bd1230cb900f46b42d1793db3e21da7476833` | Builder error-contract + corpus metric hardening |
 | Phase 3D.1D.1 end | `c6503a24ff745958ad51fa6f1ff04a8c78136781` | Validation order + corpus metric lock |
+| Phase 3D.1E task start | `6b90f59b9c3827a9ddf38c9237b2c56bf2a931e2` | Final independent Evidence Engine audit |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -155,6 +156,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1C.1 — Selector admission/bounds/court-guard hardening | **COMPLETE** (non-theme requires normalAdmitted; max 12/10; FR minor-only) |
 | Phase 3D.1D — Full NarrativeEvidenceBuilder + frozen real-deck corpus | **COMPLETE** (builder + 46 corpus; memory/recurrence empty; user path unchanged) |
 | Phase 3D.1D.1 — Builder error-contract + corpus metric hardening | **COMPLETE** (`unknownCanonicalCardId` reachable; reversed scenarios **38**; fixture unchanged) |
+| Phase 3D.1E — Final independent Narrative Evidence Engine audit | **COMPLETE** (READY TO FREEZE **YES**; Phase 3 **COMPLETE**; BLOCKER 0 · MAJOR 0) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -443,6 +445,21 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1E
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Audit doc | `docs/product/tarot/NARRATIVE_EVIDENCE_ENGINE_FINAL_AUDIT.md` |
+| BLOCKER / MAJOR / MINOR / INFO | **0 / 0 / 1 / 3** |
+| Evidence Engine ready to freeze | **YES** |
+| Phase 3 | **COMPLETE** |
+| Builder / scorer / selector | **IMPLEMENTED** |
+| Corpus | **46** · reversed **38** · kinds **10/10** |
+| Memory / history | **NOT IMPLEMENTED** / **NONE** |
+| User path | **UNCHANGED** · V2 **NOT USER-REACHABLE** |
+| Production source modified | **NO** (audit docs + test-only) |
+
 ### Phase 3D.1D.1
 
 | Field | Value |
@@ -715,6 +732,7 @@ Production surface:
 | Flutter (Phase 3D.1B — PL-T3D.1B) | 3832 passed · 0 failed · 15 skipped · 0 timed out (+26 semantic signals) |
 | Flutter (Phase 3D.1D — PL-T3D.1D) | 3922 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3D.1D.1 — PL-T3D.1D.1) | 3923 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3D.1E — PL-T3D.1E) | 3944 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -739,11 +757,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3D.1E** (independent Evidence Engine audit).
+**ChatGPT review before Phase 4 Memory + Historical Recurrence specification.**
 
-Phase 3D.1D.1: **PASS** · `unknownCanonicalCardId` **DIRECTLY REACHABLE** · corpus reversed scenarios **38** (prior report 26 = miscount) · fixture **UNCHANGED** · user path **UNCHANGED**.
+Phase 3D.1E: **PASS** · Evidence Engine ready to freeze **YES** · Phase 3 **COMPLETE** · BLOCKER **0** · MAJOR **0** · user path **UNCHANGED**.
 
-Do **not** start 3D.1E until reviewed.
+Do **not** start Phase 4 until reviewed.
 Do **not** mark future items completed until verified.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
