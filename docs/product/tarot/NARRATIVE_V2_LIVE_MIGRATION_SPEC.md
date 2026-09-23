@@ -1,0 +1,324 @@
+# Narrative V2 — Live Migration Spec (Phase 6.0 Architecture Lock)
+
+**Phase:** 6.0 · **Kind:** SPEC / ARCHITECTURE LOCK · **Date:** 2026-09-23  
+**Baseline HEAD:** `4b56592bc9dc2fea9bb75416851844cc18731891`  
+**Companion audit:** `NARRATIVE_V2_LIVE_MIGRATION_SOURCE_AUDIT.md`  
+**Implementation in 6.0:** **FORBIDDEN**
+
+Phase 5 status: **RE-FROZEN** after independent 5F.1 verification.
+
+---
+
+## 1 — Non-negotiable invariants
+
+### Structural parity (classical live)
+
+Must not change without explicit approval:
+
+- Card identity · reversal · position · question · locale  
+- Charge semantics · retry fail-closed · history identity · owner/privacy  
+
+### Prose parity
+
+AI prose is **non-deterministic**. Phase 6 requires **structural / evidence / billing** parity — **not** byte-identical prose.
+
+### Billing
+
+- Provider failure before valid completion → **no spend**  
+- One reading → at most one successful charge  
+- Retry / cache must not double-charge  
+- Cancelled UI (`shouldCommit` false) must not commit  
+- V2 validation failure ≠ billable success  
+- Safety-only copy must not silently become a normal paid success without an explicit rule  
+
+**Commit boundary:** Narrative V2 validation + quality must complete **before** `markProviderOk` / `commit`.
+
+### Crossroads
+
+Picker remains **false** until Phase 6 final audit + Phase 7 visual + Phase 8 ritual E2E approval — even if internal Narrative can process Crossroads earlier.
+
+---
+
+## 2 — Prompt migration architecture (LOCKED)
+
+### Choice: **C — `NarrativeTarotPromptInput` + legacy adapter during migration**
+
+| Option | Verdict |
+|---|---|
+| A Replace `TarotPromptInput` entirely | Rejected — no rollback surface; couples classical cutover |
+| B Extend `TarotPromptInput` in place | Rejected — conflates free-form UI facts with evidence contract |
+| **C New Narrative input + legacy adapter** | **Accepted** |
+
+### Why C
+
+- Rollback: feature slice can keep legacy `AiInterpretationExecutor` payload builder  
+- Testability: serialize `TarotNarrativeRequest` → prompt payload in pure tests  
+- Privacy: evidence ids stay internal; only bounded prose/facts leave device  
+- Gradual: classical dual-run before cutover; Crossroads later  
+- Cache: new identity includes `narrativeTarotVersion`  
+- Honest about today: live path already **ignores** client PromptEngine assembly — migration owns the **proxy payload**, not only PromptEngine templates  
+
+### Serialization rules
+
+**Serialize to AI (machine facts → bounded text):**
+
+- language · question kind · spread semantic id + position roles  
+- cards (canonical id, ritual id optional internal, orientation, position key)  
+- supported relationships (kind + endpoints) when present  
+- recurring card/theme claims **only** when evidence lists them  
+- memory text within `RequestBounds.maxMemoryChars`  
+- uncertainty / safety rules  
+
+**Do NOT serialize:**
+
+- Raw owner ids / storage keys / source adapter internals  
+- Evidence provenance dumps / private question beyond sanitized ask  
+- Unsupported relationship speculation  
+- Signature shadow fingerprints as user copy  
+
+AI must **not** reinvent role · structure · relationship kind · recurrence · memory inclusion · owner identity.
+
+---
+
+## 3 — Phase 3 generalization design (LOCKED CONCEPT)
+
+Smallest seam — **no scorer/selector duplication · no mutable global edge injection · no Crossroads-as-fiveCard**:
+
+```
+SpreadSemanticResolver
+  resolve(TarotSpreadType | SignatureSpreadId) → SpreadSemanticDefinition
+
+PositionEdgeProvider
+  edgesFor(SpreadSemanticDefinition) → List<AuthoritativePositionEdge>
+```
+
+| Provider | Behavior |
+|---|---|
+| `ClassicalSpreadSemanticResolver` | Exact current `ClassicalSpreadSemantics.byLegacyTypeName` |
+| `ClassicalPositionEdgeProvider` | Exact current `kAuthoritativePositionEdges` filter |
+| `SignatureSpreadSemanticResolver` | Phase 5 projection definitions |
+| `SignaturePositionEdgeProvider` | Phase 5 Signature edges (Crossroads 4) |
+
+`NarrativeEvidenceValidation.resolveSpread` and relationship pairing become **resolver/provider consumers**. Classical default must reproduce frozen classical shadow parity byte-for-byte on request identity fields.
+
+---
+
+## 4 — Phase 4 Signature history design (LOCKED CONCEPT)
+
+```
+SignatureHistoryNormalizer
+  tryNormalize(persistedSpread / session) → SpreadSemanticDefinition?
+```
+
+- Classical path unchanged via existing `classicalFromSpread`  
+- Crossroads → `signature.crossroads` definition **without** mapping to fiveCard  
+- Preserve: owner isolation · source existence · H7 · H19 · delete/clear · privacyBlocked · `forbidSameSpreadAloneAuth=true`  
+
+Classical-only assumptions to reopen only in explicit slices: `classicalFromSpread` null for Crossroads; session normalize skip.
+
+---
+
+## 5 — Result contract architecture (LOCKED)
+
+### Choice: **Keep `InterpretationResult` as transport/UI bridge; add `NarrativeInterpretationValidation` before format**
+
+| Option | Verdict |
+|---|---|
+| Replace InterpretationResult immediately | Rejected — UI/journal/OR blast radius |
+| New Narrative result only (no bridge) | Rejected for classical cutover |
+| **Narrative-validated InterpretationResult (+ later section policy)** | **Accepted** |
+
+Near-term:
+
+1. Provider returns structured or markdown sections  
+2. Parse → `InterpretationResult`  
+3. **Narrative quality validator** (card/spread/relationship/memory gates)  
+4. Existing `AiOutputQualityTarot` still runs (must not reduce)  
+5. `InterpretationFormatter.toUiContent` unchanged initially  
+
+Later slice may introduce question-kind / spread-aware **optional** sections without forcing love/career/money for every kind — UI migration then.
+
+---
+
+## 6 — Structured provider output (LOCKED)
+
+**Required: YES** for Narrative cutover (prefer explicit schema over free-form markdown).
+
+Minimum schema concepts:
+
+- `summary` (required)  
+- `sections[]` with allowed kinds + max count + prose bounds  
+- optional life-area sections only when question/spread policy allows  
+- `closingMessage`  
+- locale  
+- **no** raw evidence ids in prose  
+
+If backend cannot enforce JSON schema yet: client strict parse + reject partial → fail-closed (no charge). Backend migration tracked as required for production cutover.
+
+**BACKEND CONTRACT CHANGE REQUIRED: YES** (payload + preferably response schema).
+
+**CACHE VERSIONING REQUIRED: YES** (`narrativeTarotVersion` + evidence fingerprint + locale + spread id).
+
+---
+
+## 7 — Dual-run / shadow strategy (LOCKED)
+
+1. **Deterministic harness first** — classical shadow Narrative request vs legacy ReadingContext facts (no provider cost).  
+2. **Offline corpus** — fixture Narrative requests → serializer snapshots.  
+3. **Provider shadow** — only in controlled non-user builds / capped QA; never double-charge; never dual-call on paid user path by default.  
+4. Live cutover only after classical structural gates + quality corpus pass.
+
+---
+
+## 8 — Safety path (LOCKED)
+
+- SensitiveTopicGate remains **before** Narrative build  
+- Safety copy bypasses Narrative V2  
+- Do not weaken detector  
+- Spec recommendation: treat safety-only results as **non-billable** (explicit check before `markProviderOk`) — implement in billing slice, not 6.0  
+
+---
+
+## 9 — AI Quality V2 acceptance (testable)
+
+Must pass existing `AiOutputQualityTarot` **plus**:
+
+- Every drawn card grounded in prose or structured refs  
+- Positions respected  
+- Relationships used only when evidence supports; never invent unsupported kinds  
+- Recurrence / memory claims only from included evidence  
+- No contradictory history  
+- No deterministic prophecy  
+- Question answered · locale correct · bounded verbosity  
+- No private evidence/source ids  
+- No canned local success in release  
+- Failures remain honest (null / typed error / no fake success)
+
+---
+
+## 10 — Phase 6 implementation sequence
+
+### 6A — Spread semantic + edge provider seams (Phase 3 reopen: narrow)
+
+- **Goal:** Classical resolver/provider parity; Signature provider plumbing without live calls  
+- **Reopen:** evidence validation resolveSpread + pairing edge source only  
+- **Tests:** classical request parity corpus; Signature Crossroads edges unit  
+- **Live impact:** NONE · Crossroads picker false  
+- **Rollback:** restore classical-only resolve  
+
+### 6B — Signature history normalizer (Phase 4 reopen: narrow)
+
+- **Goal:** Crossroads history normalize as `signature.crossroads`  
+- **Preserve:** H7/H19/privacy/owner/source/forbidSameSpreadAlone  
+- **Live impact:** NONE (still no live V2)  
+- **Rollback:** classicalFromSpread-only  
+
+### 6C — Narrative request → live serializer + cache identity
+
+- **Goal:** `NarrativeTarotPromptInput` / proxy payload serializer; cache key versioning  
+- **Live impact:** NONE until wired behind non-user harness  
+- **Tests:** serialization snapshots · privacy red-team  
+
+### 6D — Structured result parse + Narrative quality validator
+
+- **Goal:** Strict parse; Narrative gates; keep InterpretationResult bridge  
+- **Live impact:** NONE until cutover  
+- **Backend:** schema negotiation  
+
+### 6E — Classical dual-run harness + shadow corpus
+
+- **Goal:** Compare legacy Facts vs Narrative candidate structurally  
+- **Live impact:** NONE · no double charge  
+
+### 6F — Classical live cutover (single/three/five only)
+
+- **Goal:** Wired classical Narrative path under fail-closed + billing boundary  
+- **Crossroads picker:** still false  
+- **Rollback:** flag/code path back to legacy payload builder  
+
+### 6G — Crossroads internal Narrative support (still picker false)
+
+- **Goal:** Evidence + history + serializer for Crossroads internally  
+- **Picker:** false  
+
+### 6H — Phase 6 final audit
+
+- **Goal:** Independent freeze candidate for classical Narrative live; Crossroads still gated by 7/8  
+
+No slice combines scorer rewrite + history + live cutover + picker.
+
+---
+
+## 11 — Reopening rule
+
+Phase 3/4 edits **only** inside documented slices 6A/6B with:
+
+- exact files · invariant · parity tests · rollback  
+
+Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-owned until provider seam consumes them **by reference**.
+
+---
+
+## 12 — Red-team contracts (count = **28**)
+
+1. Classical spread semantic drift  
+2. Crossroads fake fiveCard fallback  
+3. Missing Signature edges  
+4. Duplicate scorer implementation  
+5. Memory hallucination  
+6. Recurrence without evidence  
+7. H7 regression  
+8. H19 nondeterminism  
+9. Owner/source leakage  
+10. Private text leakage  
+11. Prompt oversize  
+12. Stale cache after V2  
+13. Locale drift  
+14. Unsupported relationship Crossroads  
+15. Malformed structured result accepted  
+16. Partial structured result as success  
+17. Quality retry bypass  
+18. Local fallback in release  
+19. Provider failure charged  
+20. Double charge  
+21. Cached failure as success  
+22. Safety path charged improperly  
+23. Result UI crash on schema change  
+24. History save before valid result  
+25. OR context losing spread semantics  
+26. Raw evidence ids in prose  
+27. Crossroads picker premature  
+28. PromptEngine / proxy payload divergence (legacy adapter lies)
+
+---
+
+## 13 — Open decisions
+
+### OPEN BLOCKER DESIGN DECISIONS
+
+**0**
+
+### OPEN MAJOR DESIGN DECISIONS
+
+**0** — Prompt strategy C, result bridge, resolver/provider seams, dual-run order, structured output required, cache versioning required are locked above.
+
+### OPEN MINOR DESIGN DECISIONS
+
+1. Exact JSON schema field names for provider (negotiate with backend in 6D).  
+2. Whether safety-only `emergencyFallback` is explicitly non-billable via a content flag (recommended YES).  
+3. How soon UI drops forced love/career/money for non-life-area question kinds (after classical cutover).  
+
+---
+
+## 14 — Explicit non-claims
+
+- 6.0 does **not** wire live Narrative V2  
+- 6.0 does **not** enable Crossroads picker  
+- 6.0 does **not** modify production/tests/fixtures  
+- Phase 6 ≠ App Store / visual / ritual E2E readiness  
+
+---
+
+## 15 — Next
+
+**Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation), after this architecture lock is accepted.

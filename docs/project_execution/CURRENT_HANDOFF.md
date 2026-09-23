@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5F.1 post-audit hardening (M1/I1/I2) · pending independent re-freeze verification
+**Updated:** 2026-09-23 — Tarot Phase 6.0 Narrative V2 live migration forensic + architecture lock · Phase 5 RE-FROZEN after 5F.1
 
 ---
 
@@ -116,6 +116,9 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5F task start | `7e2e6e963caee375e59e1ff956c937d2d18383d8` | Independent final Signature Spreads audit |
 | Phase 5F end | `89dd4c526b0d96bb52666b64fa1485ecd3761d65` | audit PASS · Phase 5 FROZEN |
 | Phase 5F.1 task start | `89dd4c526b0d96bb52666b64fa1485ecd3761d65` | Post-audit M1/I1/I2 hardening |
+| Phase 5F.1 end | `4b56592bc9dc2fea9bb75416851844cc18731891` | hardening PASS |
+| Phase 5 independent re-freeze | `4b56592bc9dc2fea9bb75416851844cc18731891` | ChatGPT verified 5F.1 · Phase 5 RE-FROZEN |
+| Phase 6.0 task start | `4b56592bc9dc2fea9bb75416851844cc18731891` | Narrative V2 live migration forensic + architecture lock |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -225,7 +228,9 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5D.1 — Machine-id UI leak + localized history search | **COMPLETE / PASS** (display/search only · persistence unchanged · Phase 3/4 firewall tests) |
 | Phase 5E — Signature shadow integration + frozen corpus | **COMPLETE / PASS** (classical parity · Crossroads structural-only · Phase3/4 blocked · user-path importers 0) |
 | Phase 5F — Independent final Signature Spreads audit | **COMPLETE / PASS** · **Phase 5 FROZEN** (pre-5F.1) |
-| Phase 5F.1 — Post-audit contract + localization hardening | **COMPLETE / PASS (Cursor)** · `5F.1 HARDENING COMPLETE — PENDING INDEPENDENT RE-FREEZE VERIFICATION` |
+| Phase 5F.1 — Post-audit contract + localization hardening | **COMPLETE / PASS** · independently verified |
+| Phase 5 — Signature Spreads | **RE-FROZEN AFTER 5F.1 INDEPENDENT VERIFICATION** at `4b56592bc9dc2fea9bb75416851844cc18731891` |
+| Phase 6.0 — Narrative V2 live migration forensic + architecture lock | **COMPLETE / PASS** (docs-only) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -692,15 +697,27 @@ Pre-existing local noise (do **not** stage/clean):
 
 | Field | Value |
 |---|---|
-| Status | **COMPLETE** / **PASS** (Cursor) · **PENDING INDEPENDENT RE-FREEZE VERIFICATION** |
+| Status | **COMPLETE** / **PASS** · **INDEPENDENTLY VERIFIED** |
 | Kind | **NARROW REMEDIATION** (M1 / I1 / I2 only) |
-| M1 | **TARGETED** — `on NarrativeEvidenceException` only |
-| I1 | **TARGETED** — unknown → `tarot.home.title` |
-| I2 | **TARGETED** — privacy uses current-locale `TarotL10n` |
+| M1 / I1 / I2 | **RESOLVED** (ChatGPT independent verification) |
 | Phase 3 / 4 production | **UNCHANGED** |
 | Crossroads | shadow-only · picker **false** |
-| Phase 5 status | `5F.1 HARDENING COMPLETE — PENDING INDEPENDENT RE-FREEZE VERIFICATION` |
-| Next | **ChatGPT independent 5F.1 verification** before Phase 6 |
+| Phase 5 status | **RE-FROZEN AFTER 5F.1 INDEPENDENT VERIFICATION** |
+| Next | Phase 6.0 architecture lock (done) → **6A** |
+
+### Phase 6.0
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Kind | **AUDIT / SPEC ONLY** (no production/test/fixture edits) |
+| Phase 5 | **RE-FROZEN** after independent 5F.1 verification at `4b56592…` |
+| Source audit | `docs/product/tarot/NARRATIVE_V2_LIVE_MIGRATION_SOURCE_AUDIT.md` |
+| Migration spec | `docs/product/tarot/NARRATIVE_V2_LIVE_MIGRATION_SPEC.md` |
+| Live Narrative V2 | **NOT WIRED** |
+| Crossroads picker | **false** |
+| Prompt architecture | **C** — NarrativeTarotPromptInput + legacy adapter |
+| Next | **Phase 6A** — spread semantic + edge provider seams |
 
 ### Phase 4D.1
 
@@ -1138,13 +1155,12 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT independent Phase 5F.1 verification** before Phase 6.
+**Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation), after 6.0 architecture lock.
 
-Phase 5 status: `5F.1 HARDENING COMPLETE — PENDING INDEPENDENT RE-FREEZE VERIFICATION` · Phase 5F: **PASS** · Phase 5F.1: **PASS (Cursor)** · Phase 5E: **PASS** · Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 5: **RE-FROZEN** (independent 5F.1 at `4b56592…`) · Phase 6.0: **PASS** (docs-only) · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** wire live Tarot Narrative V2 path.
-Do **not** expose Crossroads in user pickers until a later approved phase.
-Do **not** reopen Phase 3 or Phase 4 production without a new approved phase.
-Do **not** begin Phase 6 until independent 5F.1 verification passes.
+Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
+Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.
+Do **not** reopen Phase 3 or Phase 4 production outside documented Phase 6 slices.
