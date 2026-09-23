@@ -202,3 +202,21 @@ Reason: **MAJOR** H7 physical-identity dedupe can retain multiple eligible rows 
 
 - `test/features/tarot/narrative_history/red_team/tarot_4e_h7_chained_alias_red_team_test.dart` — failing contract proof (kept intentionally)
 - This document
+
+---
+
+## Phase 4E.1 remediation note (appended — does not rewrite the FAIL)
+
+**Date:** 2026-09-23  
+**Start SHA:** `1eb09c2cb343a1d58937aeccff05a35c0b3e2541`
+
+H7 remediation implemented in Phase **4E.1**:
+
+- `TarotHistoricalEligibility._dedupePhysicalIdentity` now collapses **transitive** alias connected components via union-find over shared identity tokens (`readingId` / `sessionId` in one namespace).
+- `samePhysicalIdentity` pairwise semantics **unchanged** (A↛C may remain false).
+- Representative = newest row per component after the existing eligibility sort; **no field merge**.
+- Component construction uses only post-filter rows (rejected owner/current/time bridges cannot join components).
+
+The original Phase 4E FAIL above remains the historical audit record.
+
+**Phase 4 remains NOT FROZEN** until an independent Phase 4E **re-audit** PASSes.

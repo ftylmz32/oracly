@@ -1,4 +1,4 @@
-/// Pure eligibility / lookback / identity dedupe (Phase 4A / 4A.1).
+/// Pure eligibility / lookback / identity dedupe (Phase 4A / 4A.1 / 4E.1).
 library;
 
 import '../evidence/narrative_request.dart';
@@ -35,7 +35,7 @@ abstract final class TarotHistoricalEligibility {
     return List<TarotHistoricalReadingRecord>.unmodifiable(taken);
   }
 
-  /// H7 — session.id ↔ reading.sessionId ?? reading.id seam.
+  /// H7 — direct pairwise seam only (not transitive).
   static bool samePhysicalIdentity(
     TarotHistoricalReadingRecord a,
     TarotHistoricalReadingRecord b,
@@ -52,21 +52,62 @@ abstract final class TarotHistoricalEligibility {
     return false;
   }
 
+  /// Collapse transitive alias components; keep newest representative only.
   static List<TarotHistoricalReadingRecord> _dedupePhysicalIdentity(
     List<TarotHistoricalReadingRecord> sortedNewestFirst,
   ) {
-    final kept = <TarotHistoricalReadingRecord>[];
-    for (final r in sortedNewestFirst) {
-      var dup = false;
-      for (final k in kept) {
-        if (samePhysicalIdentity(k, r)) {
-          dup = true;
-          break;
+    final n = sortedNewestFirst.length;
+    if (n <= 1) {
+      return List<TarotHistoricalReadingRecord>.unmodifiable(sortedNewestFirst);
+    }
+
+    final parent = List<int>.generate(n, (i) => i);
+    int find(int i) {
+      while (parent[i] != i) {
+        parent[i] = parent[parent[i]];
+        i = parent[i];
+      }
+      return i;
+    }
+
+    void union(int a, int b) {
+      final ra = find(a);
+      final rb = find(b);
+      if (ra == rb) return;
+      if (ra < rb) {
+        parent[rb] = ra;
+      } else {
+        parent[ra] = rb;
+      }
+    }
+
+    final aliasOwner = <String, int>{};
+    for (var i = 0; i < n; i++) {
+      for (final token in _identityAliases(sortedNewestFirst[i])) {
+        final prev = aliasOwner[token];
+        if (prev == null) {
+          aliasOwner[token] = i;
+        } else {
+          union(prev, i);
         }
       }
-      if (!dup) kept.add(r);
     }
-    return kept;
+
+    final kept = <TarotHistoricalReadingRecord>[];
+    final seenRoot = <int>{};
+    for (var i = 0; i < n; i++) {
+      if (seenRoot.add(find(i))) kept.add(sortedNewestFirst[i]);
+    }
+    return List<TarotHistoricalReadingRecord>.unmodifiable(kept);
+  }
+
+  static Iterable<String> _identityAliases(
+    TarotHistoricalReadingRecord r,
+  ) sync* {
+    final rid = r.readingId.trim();
+    if (rid.isNotEmpty) yield rid;
+    final sid = r.sessionId?.trim() ?? '';
+    if (sid.isNotEmpty) yield sid;
   }
 
   static bool _structurallyValid(TarotHistoricalReadingRecord r) {
