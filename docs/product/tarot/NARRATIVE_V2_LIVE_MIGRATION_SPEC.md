@@ -175,7 +175,20 @@ If backend cannot enforce JSON schema yet: client strict parse + reject partial 
 - SensitiveTopicGate remains **before** Narrative build  
 - Safety copy bypasses Narrative V2  
 - Do not weaken detector  
-- Spec recommendation: treat safety-only results as **non-billable** (explicit check before `markProviderOk`) — implement in billing slice, not 6.0  
+
+### Delivery kind contract (LOCKED — Phase 6.0.1)
+
+`AiReadingContent.deliveryKind` / `TarotReadingDeliveryKind`:
+
+| Kind | Meaning | Bill | Journal / memory |
+|---|---|---|---|
+| `interpretation` | Normal AI / local interpretation | YES (after usable + commit) | YES |
+| `safety` | SensitiveTopicGate emergency copy | **NO** | **NO** |
+| `recovery` | Already-charged recovery fallback | **NO second charge** | YES |
+
+**YES — safety-only response is non-billable and non-journal.**
+
+Completion gate: after `_usable` + `shouldCommit`, inspect `deliveryKind` — `safety` / `recovery` return without `markProviderOk` / `commit`. Controller must not persist safety prose into `ReadingSession.interpretation`. ReadingScreen must not auto-journal or expose Save / Reflection / Ask Oracle / Share / Favorite for safety.
 
 ---
 
@@ -305,8 +318,9 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 ### OPEN MINOR DESIGN DECISIONS
 
 1. Exact JSON schema field names for provider (negotiate with backend in 6D).  
-2. Whether safety-only `emergencyFallback` is explicitly non-billable via a content flag (recommended YES).  
-3. How soon UI drops forced love/career/money for non-life-area question kinds (after classical cutover).  
+2. How soon UI drops forced love/career/money for non-life-area question kinds (after classical cutover).  
+
+~~Safety-only non-billable via content flag~~ → **LOCKED YES** in Phase 6.0.1 (`TarotReadingDeliveryKind.safety`).  
 
 ---
 
@@ -321,4 +335,4 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation), after this architecture lock is accepted.
+**Independent Phase 6.0.1 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation).

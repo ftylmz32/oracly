@@ -331,7 +331,40 @@ V2 likely needs: **client payload change** + **backend/provider prompt change**;
 - Returns `emergencyFallback`  
 - Completion may still see usable copy → **can charge** if treated as success  
 
-**Phase 6 safety rule (locked):** Safety responses **bypass Narrative V2**, must remain calm localized copy, and billing policy must treat safety-only responses as **non-billable provider success** (explicit gate before `markProviderOk`) — **open minor product confirmation** noted in spec; do not weaken detector.
+**Phase 6 safety rule (locked in 6.0 architecture):** Safety responses **bypass Narrative V2**, must remain calm localized copy, and billing policy must treat safety-only responses as **non-billable** (explicit gate before `markProviderOk`) — **open minor** at 6.0 close; do not weaken detector.
+
+---
+
+## 12.1 — Phase 6.0.1 Safety Billing Remediation
+
+**Kind:** PRODUCTION + TESTS + DOCS · **Date:** 2026-09-23  
+**Trigger:** Independent ChatGPT verification of Phase 6.0 found a **CURRENT LIVE** billing/product defect (not invented by 6.0 docs).
+
+### Independently confirmed root cause
+
+Live path:
+
+`ReadingScreen` → `TarotReadingCompletion.complete` → `resolveInterpretationContent` → `TarotInterpretationService.generateContent`
+
+Inside `generateContent`, `SensitiveTopicGate.maybeRespond` returned usable `emergencyFallback` **before** the engine. Completion only checked usability, then:
+
+`markProviderOk` → `commit`
+
+So a safety-only local response could be charged as paid provider success, and `ReadingScreen._persistToJournal` could save it as a normal Tarot `ReadingModel` / memory source.
+
+6.0 forensic **PASS** correctly mapped the call graph; it did **not** claim the live billing path already enforced non-billable safety. Post-audit independent review elevated this to **BLOCKER**.
+
+### Remediation (6.0.1)
+
+- Explicit `TarotReadingDeliveryKind` on `AiReadingContent` (`interpretation` / `safety` / `recovery`)
+- Safety gate returns `deliveryKind: safety`
+- Recovery fallback remains `deliveryKind: recovery` (no second charge; journal OK)
+- Completion skips `markProviderOk` / `commit` for safety and recovery
+- Controller does not persist safety prose into `ReadingSession.interpretation`
+- ReadingScreen: no auto-journal; Save / Reflection / Ask Oracle / Share / Favorite disabled for safety
+- Spec open minor “safety non-billable?” → **LOCKED YES**
+
+**Do not rewrite history claiming 6.0 never found the risk** — 6.0 documented the charge boundary and left the flag as open minor; 6.0.1 closes the live defect.
 
 ---
 

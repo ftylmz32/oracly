@@ -78,7 +78,11 @@ class TarotInterpretationService {
 
     final safety = SensitiveTopicGate.maybeRespond(session.intention.text);
     if (safety != null) {
-      return emergencyFallback(session, reason: safety);
+      return emergencyFallback(
+        session,
+        reason: safety,
+        deliveryKind: TarotReadingDeliveryKind.safety,
+      );
     }
 
     try {
@@ -223,6 +227,8 @@ class TarotInterpretationService {
   AiReadingContent emergencyFallback(
     ReadingSession session, {
     required String reason,
+    TarotReadingDeliveryKind deliveryKind =
+        TarotReadingDeliveryKind.recovery,
   }) {
     if (session.drawnCards.isEmpty) {
       return AiReadingContent(
@@ -240,6 +246,7 @@ class TarotInterpretationService {
         rarityColor: const Color(0x00000000),
         fullInterpretation: reason,
         spreadLabel: TarotL10n.spread(session.spread),
+        deliveryKind: deliveryKind,
       );
     }
 
@@ -282,6 +289,7 @@ class TarotInterpretationService {
       userQuestion: session.intention.text.trim().isEmpty
           ? null
           : session.intention.text.trim(),
+      deliveryKind: deliveryKind,
     );
   }
 

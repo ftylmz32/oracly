@@ -215,7 +215,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       return;
     }
     final latest = reading.session ?? session;
-    if (latest.interpretation != content.fullInterpretation) {
+    if (content.isJournalEligible &&
+        latest.interpretation != content.fullInterpretation) {
       await reading.updateSession(
         latest.copyWith(interpretation: content.fullInterpretation),
       );
@@ -229,7 +230,10 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     });
     OraclyFeedbackGate.playCue(OraclySoundCue.journeyComplete);
     _startRevealSequence();
-    _persistToJournal();
+    // Safety responses are visible help only — never auto-journal as a reading.
+    if (content.isJournalEligible) {
+      _persistToJournal();
+    }
   }
 
   void _startRevealSequence() {
@@ -326,6 +330,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     final session = reading.session;
     final content = _contentData;
     if (session == null || content == null) return;
+    // Defensive: safety delivery must never become a ReadingModel / memory source.
+    if (!content.isJournalEligible) return;
 
     ReadingSession completed;
     ReadingModel? saved;
@@ -417,6 +423,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   }
 
   Future<void> _saveReading() async {
+    if (_contentData?.isJournalEligible != true) return;
     await _persistToJournal(offerNote: true);
     if (!mounted || !_journalGate.completed) return;
     OraclySnackBar.success(context, SessionEndingCopy.saveConfirmation);
@@ -425,7 +432,9 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   FavoriteMoment? _tarotMomentDraft() {
     final session = TarotScope.of(context).reading.session;
     final content = _contentData;
-    if (session == null || content == null) return null;
+    if (session == null || content == null || !content.isJournalEligible) {
+      return null;
+    }
     final card = ReadingPremiumUtils.primaryCard(content);
     final primary = content.drawnCards.isEmpty
         ? null
@@ -526,7 +535,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     final reading = TarotScope.of(context).reading;
     final session = reading.session;
     final content = _contentData;
-    if (session == null || content == null) return;
+    if (session == null || content == null || content.isSafetyResponse) return;
 
     openOracleConversation(
       context,
@@ -717,28 +726,34 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                         onNewReading: _exiting
                                             ? null
                                             : _newReading,
-                                        onSave: _journalGate.completed
-                                            ? null
-                                            : _saveReading,
-                                        onAskOracle: _openOracleConversation,
-                                        onAddReflection: _journalGate.completed
-                                            ? _offerPersonalNote
+                                        onSave: contentData.isJournalEligible &&
+                                                !_journalGate.completed
+                                            ? _saveReading
                                             : null,
-                                        shareDiscovery:
-                                            DiscoveryShareBuilder.tarot(
-                                              theme:
-                                                  contentData.spreadLabel ??
-                                                  contentData.readingTheme,
-                                              cardName: contentData.cardName,
-                                              cardAsset: contentData.imageAsset,
-                                              isReversed:
-                                                  contentData.drawnCards.isEmpty
-                                                  ? false
-                                                  : contentData
-                                                        .drawnCards
-                                                        .first
-                                                        .isReversed,
-                                            ),
+                                        onAskOracle: contentData.isSafetyResponse
+                                            ? null
+                                            : _openOracleConversation,
+                                        onAddReflection:
+                                            contentData.isJournalEligible &&
+                                                    _journalGate.completed
+                                                ? _offerPersonalNote
+                                                : null,
+                                        shareDiscovery: contentData.isSafetyResponse
+                                            ? null
+                                            : DiscoveryShareBuilder.tarot(
+                                                theme:
+                                                    contentData.spreadLabel ??
+                                                    contentData.readingTheme,
+                                                cardName: contentData.cardName,
+                                                cardAsset: contentData.imageAsset,
+                                                isReversed:
+                                                    contentData.drawnCards.isEmpty
+                                                    ? false
+                                                    : contentData
+                                                          .drawnCards
+                                                          .first
+                                                          .isReversed,
+                                              ),
                                       ),
                                       if (draft != null && sectionMaster > 0.45)
                                         SaveFavoriteMomentLink(

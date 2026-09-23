@@ -255,11 +255,16 @@ class TarotReadingController extends TarotBaseController {
         if (_session?.id != current.id) {
           throw StateError('Reading session changed');
         }
-        _session = current.copyWith(
-          interpretation: content.fullInterpretation,
-          flowStep: ReadingFlowStep.reading,
-        );
-        await _persist();
+        // Safety copy is display-only — never store as completed interpretation.
+        if (content.isJournalEligible) {
+          _session = current.copyWith(
+            interpretation: content.fullInterpretation,
+            flowStep: ReadingFlowStep.reading,
+          );
+          await _persist();
+        } else {
+          _session = current.copyWith(flowStep: ReadingFlowStep.reading);
+        }
         return content;
       } finally {
         isLoading = false;

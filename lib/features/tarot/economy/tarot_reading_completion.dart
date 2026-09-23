@@ -25,7 +25,8 @@ class TarotReadingCompletion {
 
   static String get fallbackReason => TarotL10n.fallbackLoad;
 
-  /// Loads interpretation, then charges once. Provider failure is free.
+  /// Loads interpretation, then charges once for [interpretation] delivery.
+  /// Safety delivery is free. Provider failure before settle is free.
   /// Null → do not show a completed reading. [shouldCommit] false skips spend.
   Future<AiReadingContent?> complete(
     ReadingSession session, {
@@ -50,6 +51,7 @@ class TarotReadingCompletion {
         return _interpretation.emergencyFallback(
           session,
           reason: fallbackReason,
+          deliveryKind: TarotReadingDeliveryKind.recovery,
         );
       }
       return null;
@@ -59,11 +61,23 @@ class TarotReadingCompletion {
         return _interpretation.emergencyFallback(
           session,
           reason: ResilienceCopy.aiEmptyResponse,
+          deliveryKind: TarotReadingDeliveryKind.recovery,
         );
       }
       return null;
     }
     if (shouldCommit != null && !shouldCommit()) return null;
+
+    // Safety: visible help only — never mark provider OK or settle gems.
+    if (content.deliveryKind == TarotReadingDeliveryKind.safety) {
+      return content;
+    }
+
+    // Recovery: already-settled session — never double-charge.
+    if (content.deliveryKind == TarotReadingDeliveryKind.recovery) {
+      return content;
+    }
+
     await _charge.markProviderOk(session.id, spread: session.spread);
     if (!await _charge.commit(session.id, spread: session.spread)) {
       await _charge.abandon(session.id, spread: session.spread);

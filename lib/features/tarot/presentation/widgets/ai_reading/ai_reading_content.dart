@@ -7,6 +7,18 @@ import '../../../interpretation/models/interpretation_result.dart';
 import '../card_reveal/card_reveal_spread.dart';
 import '../../../domain/models/reading_session.dart';
 
+/// How a Tarot result reached the UI — billing and journal depend on this.
+enum TarotReadingDeliveryKind {
+  /// Normal AI / local interpretation — chargeable when paid.
+  interpretation,
+
+  /// Sensitive-topic safety copy — never bill, never journal as a reading.
+  safety,
+
+  /// Already-charged recovery fallback — no second charge; journal OK.
+  recovery,
+}
+
 /// Full reading sections for one tarot card.
 class AiReadingContent {
   const AiReadingContent({
@@ -30,6 +42,7 @@ class AiReadingContent {
     this.promptQuestion = '',
     this.userQuestion,
     this.interpretationSource = InterpretationSource.local,
+    this.deliveryKind = TarotReadingDeliveryKind.interpretation,
   });
 
   final String cardName;
@@ -52,9 +65,19 @@ class AiReadingContent {
   final String promptQuestion;
   final String? userQuestion;
   final InterpretationSource interpretationSource;
+  final TarotReadingDeliveryKind deliveryKind;
 
   bool get isAiInterpretation =>
       interpretationSource == InterpretationSource.ai;
+
+  bool get isSafetyResponse =>
+      deliveryKind == TarotReadingDeliveryKind.safety;
+
+  bool get isChargeEligible =>
+      deliveryKind == TarotReadingDeliveryKind.interpretation;
+
+  bool get isJournalEligible =>
+      deliveryKind != TarotReadingDeliveryKind.safety;
 }
 
 abstract final class AiReadingCatalogue {
