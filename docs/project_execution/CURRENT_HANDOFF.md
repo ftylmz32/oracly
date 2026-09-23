@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5B signature semantic projection
+**Updated:** 2026-09-23 — Tarot Phase 5C signature localization + geometry
 
 ---
 
@@ -104,6 +104,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5A task start | `c013dd1de183f1b224a01805f709705e5c3c1137` | Pure SignatureSpread domain + launch catalog |
 | Phase 5A end | `07d02c099a5ba653d5e07a78b48f2f746c00ebed` | Catalog PASS |
 | Phase 5B task start | `07d02c099a5ba653d5e07a78b48f2f746c00ebed` | Signature → SpreadSemanticDefinition projection |
+| Phase 5B end | `a590107f1ca184299dea29dc50429b94819febc3` | Projection PASS |
+| Phase 5C task start | `a590107f1ca184299dea29dc50429b94819febc3` | Localization + geometry descriptor |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -208,6 +210,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5.0.1 — Signature Spread contract hardening | **COMPLETE / PASS** (docs-only · ready for 5A) |
 | Phase 5A — Pure SignatureSpread domain + launch catalog | **COMPLETE / PASS** (shadow · Crossroads unreachable · TarotSpreadType unchanged) |
 | Phase 5B — Signature semantic projection + Crossroads edges | **COMPLETE / PASS** (shadow · classical parity · Phase 3 scorer does not consume Phase 5 edges) |
+| Phase 5C — Signature localization + geometry descriptor | **COMPLETE / PASS** (TR/EN/RU · Crossroads unreachable · live titles unchanged) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -599,6 +602,20 @@ Pre-existing local noise (do **not** stage/clean):
 | Live Narrative V2 | **NOT WIRED** |
 | Crossroads picker | **false** |
 | Next | **Phase 5C** |
+
+### Phase 5C
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Locales | TR · EN · RU complete for all 4 launch definitions |
+| Canonical aliases | `threeCard.blurb` / `fiveCard.blurb` · legacy parity PASS |
+| Crossroads copy | title · banner · blurb · purpose · 4 labels · 5 guides |
+| Geometry | `SignatureGeometryDescriptor` ×4 · Crossroads `decisionBranching=true` |
+| Live titles / legacy blurbs | **UNCHANGED** |
+| `TarotSpreadType` | **UNCHANGED** |
+| Crossroads picker | **false** |
+| Next | **Phase 5D** |
 
 ### Phase 4D.1
 
@@ -1036,9 +1053,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 5C** — Signature Spread localization / display keys (product copy; no live V2).
+**Phase 5D** — Runtime enum / session wiring for Crossroads (still gated; no premature picker).
 
-Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false** · Phase 3 scorer does **not** consume Phase 5 edges.
+Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

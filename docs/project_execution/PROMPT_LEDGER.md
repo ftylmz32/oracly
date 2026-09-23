@@ -1036,6 +1036,19 @@ Chronological project execution ledger.
 | Live V2 / picker | **NOT WIRED** / Crossroads **false** |
 | Outcome | **PASS** — ready for Phase 5C |
 
+### PL-T5C — SIGNATURE SPREAD LOCALIZATION + GEOMETRY CONTRACT
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `a590107f1ca184299dea29dc50429b94819febc3` |
+| Locales | TR · EN · RU complete |
+| Legacy blurb aliases | threeCard / fiveCard parity PASS |
+| Geometry descriptors | **4** · Crossroads `decisionBranching=true` |
+| Live titles / legacy blurbs | **UNCHANGED** |
+| `TarotSpreadType` / picker | **UNCHANGED** / Crossroads **false** |
+| Outcome | **PASS** — ready for Phase 5D |
+
 ---
 
 ## Planned (not started)
@@ -1095,9 +1108,10 @@ Chronological project execution ledger.
 | PL-T5.0.1 | Tarot Phase 5.0.1 — Signature Spread contract hardening | **PASS** (docs-only) |
 | PL-T5A | Tarot Phase 5A — Pure SignatureSpread domain + launch catalog | **PASS** |
 | PL-T5B | Tarot Phase 5B — Signature semantic projection + Crossroads edges | **PASS** |
+| PL-T5C | Tarot Phase 5C — Signature localization + geometry contract | **PASS** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
-| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0/5.0.1/5A/5B DONE** · 5C next |
+| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0/5.0.1/5A/5B/5C DONE** · 5D next |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |

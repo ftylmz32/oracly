@@ -69,6 +69,8 @@ import 'tables/table_tarot_intent.dart';
 import 'tables/table_tarot_minors.dart';
 import 'tables/table_tarot_oracle.dart';
 import 'tables/table_tarot_read.dart';
+import 'tables/table_tarot_signature.dart';
+import 'tables/table_tarot_signature_guides.dart';
 import 'tables/table_tarot_story.dart';
 import 'tables/table_theme_copy.dart';
 import 'tables/table_trust.dart';
@@ -100,6 +102,8 @@ abstract final class AppStringTables {
     ...kL10nTarot,
     ...kL10nTarotDestem,
     ...kL10nTarotFlow,
+    ...kL10nTarotSignature,
+    ...kL10nTarotSignatureGuides,
     ...kL10nTarotMinors,
     ...kL10nTarotRead,
     ...kL10nTarotOracle,
