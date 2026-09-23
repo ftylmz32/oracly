@@ -1060,6 +1060,19 @@ Chronological project execution ledger.
 | Legacy dual-read / soft-parse | **PASS** |
 | Picker firewall | Crossroads **unreachable** |
 | Phase 3/4 | **UNCHANGED** |
+| Outcome | **PASS** — ready for Phase 5D.1 |
+
+### PL-T5D.1 — MACHINE-ID UI LEAK + LOCALIZED HISTORY SEARCH
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `a417fc7e1e99eaeaa2b0290fcb93c35ac04b629e` |
+| Persistence rollback | **NO** |
+| Search | raw + `typeLabel` (journey / mapper / catalogue) |
+| SavedReadingParser | displayType = readingType ?? localized spread |
+| Phase 3/4 production | **UNCHANGED** |
+| Spec stale edge contract | **FIXED** |
 | Outcome | **PASS** — ready for Phase 5E |
 
 ---
@@ -1123,9 +1136,10 @@ Chronological project execution ledger.
 | PL-T5B | Tarot Phase 5B — Signature semantic projection + Crossroads edges | **PASS** |
 | PL-T5C | Tarot Phase 5C — Signature localization + geometry contract | **PASS** |
 | PL-T5D | Tarot Phase 5D — Crossroads runtime + persistence dual-read | **PASS** |
+| PL-T5D.1 | Tarot Phase 5D.1 — Machine-id UI leak + localized history search | **PASS** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
-| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0→5D DONE** · 5E next |
+| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0→5D.1 DONE** · 5E next |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |

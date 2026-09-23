@@ -122,8 +122,11 @@ Phase 3 geometry remains **non-scoring metadata**. Crossroads may project to `li
 
 `SignatureSpreadDefinition` **projects** into `SpreadSemanticDefinition`:
 
-- Do not fork scorer / selector / builder.  
-- New spreads register catalog projection + `kAuthoritativePositionEdges` rows (5B).  
+- Do not fork / copy scorer / selector / builder.  
+- Crossroads position edges are **Phase-5-owned** (shadow catalog / projection in 5B).  
+- Frozen `kAuthoritativePositionEdges` remains **unchanged** — Phase 5 does not register Crossroads rows there.  
+- Frozen Phase 3 scorer does **NOT** consume Phase 5 Crossroads edges.  
+- Audited scorer integration is deferred to a later explicit migration seam (not a silent fork).  
 - Reuse existing `PositionRole` values only.
 
 ### 1.5 Runtime enum timing (5.0.1 LOCK)
@@ -297,10 +300,21 @@ Keys include: titles · blurbs · purposes · position labels · guiding questio
 ## 6 — Evidence / recurrence policy (LOCKED)
 
 1. Project signature → `SpreadSemanticDefinition` without changing Phase 3 algorithms.  
-2. Register exact Crossroads edges (table above) in 5B.  
-3. Same cards in Deep Field vs Crossroads **must** produce structurally distinct evidence.  
+2. Register exact Crossroads edges (table above) in **Phase-5-owned** shadow tables in 5B — not in frozen `kAuthoritativePositionEdges`.  
+3. Same cards in Deep Field vs Crossroads **must** produce structurally distinct evidence (shadow projection).  
 4. `forbidSameSpreadAloneAuth = true` forever for launch catalog.  
 5. Crossroads memory posture stays **normal** until corpus evidence justifies change.
+
+### 6.1 Classical history adapters (verified · Phase 5D.1)
+
+Frozen Phase 4 production normalizers are **unchanged** and do **not** yet accept Crossroads:
+
+- `TarotHistoryCardNormalize.classicalFromSpread(...)` resolves via `ClassicalSpreadSemantics.byLegacyTypeName(type.name)`.  
+- Crossroads → `null` / skip (`skippedMalformed`) — **never** fabricated as `classical.fiveCard`.  
+- Current classical history behavior for launch classical spreads is unchanged.  
+- **Crossroads history recurrence integration is NOT LIVE.**  
+- Picker disabled ⇒ no current user data loss for unreachable Crossroads sessions.  
+- **5E** audits / freezes the shadow seam; Phase 6 must **not** claim Crossroads recurrence until an explicit signature-history seam is integrated.
 
 ---
 

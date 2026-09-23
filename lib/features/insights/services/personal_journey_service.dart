@@ -89,6 +89,7 @@ class PersonalJourneyService {
       if (q.isEmpty) return true;
       return e.cardName.toLowerCase().contains(q) ||
           e.spreadType.toLowerCase().contains(q) ||
+          e.typeLabel.toLowerCase().contains(q) ||
           (e.readingType?.toLowerCase().contains(q) ?? false) ||
           e.aiSummary.toLowerCase().contains(q) ||
           e.timelineSummary.toLowerCase().contains(q) ||

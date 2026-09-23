@@ -28,7 +28,12 @@ abstract final class SavedReadingParser {
       requestId: entry.id,
       sessionId: model?.sessionId ?? entry.id,
     );
-    final type = model?.readingType ?? entry.spreadType;
+    final persistedSpread = model?.spreadType ?? entry.spreadType;
+    final spreadLabel = TarotL10n.spreadFromStorage(persistedSpread);
+    final rawReadingType = (model?.readingType ?? entry.readingType)?.trim();
+    final readingType =
+        rawReadingType == null || rawReadingType.isEmpty ? null : rawReadingType;
+    final displayType = readingType ?? spreadLabel;
     final intention = ReadingQuestion.real(model?.intention);
     final snapshots = model?.cards ?? const <ReadingCardSnapshot>[];
     final drawn = snapshots.isNotEmpty
@@ -37,12 +42,21 @@ abstract final class SavedReadingParser {
     final cardsBody = _cardsBody(snapshots);
 
     if (parsed != null) {
-      return _fromResult(parsed, entry, type, cardsBody, intention, drawn);
+      return _fromResult(
+        parsed,
+        entry,
+        displayType,
+        spreadLabel,
+        readingType,
+        cardsBody,
+        intention,
+        drawn,
+      );
     }
 
     return AiReadingContent(
       cardName: entry.cardName,
-      tagline: type,
+      tagline: displayType,
       generalMeaning: raw,
       love: '',
       career: '',
@@ -55,10 +69,8 @@ abstract final class SavedReadingParser {
       rarityColor: AppColors.purpleLight,
       fullInterpretation: raw,
       cardReadings: cardsBody,
-      spreadLabel: TarotL10n.spreadFromStorage(
-        model?.spreadType ?? entry.spreadType,
-      ),
-      readingTheme: model?.readingType,
+      spreadLabel: spreadLabel,
+      readingTheme: readingType ?? spreadLabel,
       userQuestion: intention,
       promptQuestion: '',
       drawnCards: drawn,
@@ -68,14 +80,16 @@ abstract final class SavedReadingParser {
   static AiReadingContent _fromResult(
     InterpretationResult result,
     ReadingHistoryEntry entry,
-    String type,
+    String displayType,
+    String spreadLabel,
+    String? readingType,
     String cardsBody,
     String? intention,
     List<TarotDrawnCard> drawn,
   ) {
     return AiReadingContent(
       cardName: entry.cardName,
-      tagline: type,
+      tagline: displayType,
       generalMeaning: result.summary,
       love: result.love,
       career: result.career,
@@ -92,8 +106,8 @@ abstract final class SavedReadingParser {
       rarityColor: AppColors.purpleLight,
       fullInterpretation: result.rawText,
       cardReadings: result.health.trim().isNotEmpty ? result.health : cardsBody,
-      spreadLabel: TarotL10n.spreadFromStorage(entry.spreadType),
-      readingTheme: type,
+      spreadLabel: spreadLabel,
+      readingTheme: readingType ?? spreadLabel,
       userQuestion: intention,
       promptQuestion: result.warnings,
       interpretationSource: result.source,

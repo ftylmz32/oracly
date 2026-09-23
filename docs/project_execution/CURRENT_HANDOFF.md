@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5D Crossroads runtime + persistence dual-read
+**Updated:** 2026-09-23 — Tarot Phase 5D.1 machine-id UI/search remediation
 
 ---
 
@@ -108,6 +108,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5C task start | `a590107f1ca184299dea29dc50429b94819febc3` | Localization + geometry descriptor |
 | Phase 5C end | `650ca746df0629a610033432641777caad91325e` | L10n PASS |
 | Phase 5D task start | `650ca746df0629a610033432641777caad91325e` | Crossroads runtime + persistence dual-read |
+| Phase 5D end | `a417fc7e1e99eaeaa2b0290fcb93c35ac04b629e` | machine-id write · dual-read · picker firewall |
+| Phase 5D.1 task start | `a417fc7e1e99eaeaa2b0290fcb93c35ac04b629e` | machine-id UI leak + localized history search |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -214,6 +216,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5B — Signature semantic projection + Crossroads edges | **COMPLETE / PASS** (shadow · classical parity · Phase 3 scorer does not consume Phase 5 edges) |
 | Phase 5C — Signature localization + geometry descriptor | **COMPLETE / PASS** (TR/EN/RU · Crossroads unreachable · live titles unchanged) |
 | Phase 5D — Crossroads runtime + persistence dual-read | **COMPLETE / PASS** (enum index 5 · machine-id write · legacy dual-read · picker firewall) |
+| Phase 5D.1 — Machine-id UI leak + localized history search | **COMPLETE / PASS** (display/search only · persistence unchanged · Phase 3/4 firewall tests) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -633,6 +636,19 @@ Pre-existing local noise (do **not** stage/clean):
 | Picker firewall | entry/ritual/table · Crossroads **unreachable** |
 | Phase 3/4 | **UNCHANGED** |
 | Live Narrative V2 | **NOT WIRED** |
+| Next | **Phase 5D.1** (display/search remediation) |
+
+### Phase 5D.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Persistence | machine-id write **unchanged** (no rollback) |
+| Search | raw `spreadType` **OR** localized `typeLabel` |
+| Saved reading | tagline/theme never raw machine id |
+| Phase 3/4 production | **UNCHANGED** · firewall tests added |
+| Spec | Phase-5-owned edges · history recurrence **NOT LIVE** |
+| Crossroads picker | **false** |
 | Next | **Phase 5E** |
 
 ### Phase 4D.1
@@ -1073,7 +1089,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 **Phase 5E** — Signature shadow integration / audited scorer seam (still no live picker Crossroads).
 
-Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

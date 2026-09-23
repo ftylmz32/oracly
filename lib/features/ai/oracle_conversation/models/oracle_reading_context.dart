@@ -83,7 +83,9 @@ class OracleReadingContext {
       spreadLabel: TarotHistoryPrivacy.spreadTitle(reading.spreadType),
       deckId: reading.deckId,
       deckName: 'Rider-Waite',
-      readingTitle: names.length == 1 ? names.first : reading.spreadType,
+      readingTitle: names.length == 1
+          ? names.first
+          : TarotHistoryPrivacy.spreadTitle(reading.spreadType),
       cardsSummary: names.join(', '),
       interpretationSummary: TarotHistoryPrivacy.shortInsight(reading),
       userQuestion: TarotHistoryPrivacy.questionSummary(reading.intention),
