@@ -45,6 +45,7 @@ void assertThemeEchoNoHistory(DateTime now) {
     base: base,
     history: TarotHistoricalSnapshot(tarotReadings: const []),
     currentOwnerId: null,
+    privacyBlocked: false,
     now: now,
   );
   expect(out.recurringThemes, isEmpty);
@@ -63,6 +64,7 @@ void assertMutationRejected(DateTime now) {
     base: buildBaseFromPhase3(Map<String, dynamic>.from(p3)),
     history: snapshotFromJson(scenario['history'] as Map<String, dynamic>),
     currentOwnerId: null,
+    privacyBlocked: false,
     now: now,
   );
   expect(

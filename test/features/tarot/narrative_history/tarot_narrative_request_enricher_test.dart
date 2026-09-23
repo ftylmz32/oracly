@@ -19,6 +19,7 @@ void main() {
         base: base,
         history: history,
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       expect(identical(out.question, base.question), isTrue);
@@ -45,8 +46,8 @@ void main() {
         base: base,
         history: enricherRichHistory(base, now),
         currentOwnerId: null,
-        now: now,
         privacyBlocked: true,
+        now: now,
       );
       expect(out.memory.omitReason, 'privacy');
       expect(out.memory.included, isFalse);
@@ -63,6 +64,7 @@ void main() {
         base: base,
         history: TarotHistoricalSnapshot(tarotReadings: const []),
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       expect(out.memory.omitReason, 'no_history');
@@ -87,6 +89,7 @@ void main() {
         base: base,
         history: history,
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       expect(out.memory.priorReadingCount, 3);

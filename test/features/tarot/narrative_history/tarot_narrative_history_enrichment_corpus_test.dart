@@ -37,8 +37,8 @@ void main() {
         base: base,
         history: history,
         currentOwnerId: s['currentOwnerId'] as String?,
+        privacyBlocked: s['privacyBlocked'] as bool,
         now: now,
-        privacyBlocked: s['privacyBlocked'] as bool? ?? false,
       );
       expect(phase3Projection(out), before);
       expectPhase4Equal(
@@ -93,6 +93,7 @@ void main() {
         base: base,
         history: snapshotFromJson(hist),
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       ),
     );
@@ -101,6 +102,7 @@ void main() {
         base: base,
         history: snapshotFromJson(rev),
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       ),
     );
@@ -117,12 +119,14 @@ void main() {
       base: base,
       history: history,
       currentOwnerId: null,
+      privacyBlocked: false,
       now: now,
     );
     final twice = TarotNarrativeRequestEnricher.enrich(
       base: once,
       history: history,
       currentOwnerId: null,
+      privacyBlocked: false,
       now: now,
     );
     expectPhase4Equal(phase4Projection(once), phase4Projection(twice));
@@ -131,8 +135,8 @@ void main() {
       base: twice,
       history: history,
       currentOwnerId: null,
-      now: now,
       privacyBlocked: true,
+      now: now,
     );
     expect(revoked.memory.omitReason, 'privacy');
     expect(revoked.recurringCards, isEmpty);

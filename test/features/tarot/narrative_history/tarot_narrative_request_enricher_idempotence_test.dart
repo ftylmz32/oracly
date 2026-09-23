@@ -20,12 +20,14 @@ void main() {
         base: base,
         history: history,
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       final b = TarotNarrativeRequestEnricher.enrich(
         base: a,
         history: history,
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       expect(b.recurringCards.map((e) => e.evidenceId).toList(), [
@@ -47,6 +49,7 @@ void main() {
         base: base,
         history: history,
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       expect(enriched.recurringCards, isNotEmpty);
@@ -54,8 +57,8 @@ void main() {
         base: enriched,
         history: history,
         currentOwnerId: null,
-        now: now,
         privacyBlocked: true,
+        now: now,
       );
       expect(wiped.memory.omitReason, 'privacy');
       expect(wiped.recurringCards, isEmpty);
@@ -70,6 +73,7 @@ void main() {
         base: base,
         history: enricherRichHistory(base, now),
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       expect(
@@ -115,6 +119,7 @@ void main() {
         base: base,
         history: enricherRichHistory(base, now),
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       );
       expect(out.recurringCards.first.evidenceId, 'rec_card_01');

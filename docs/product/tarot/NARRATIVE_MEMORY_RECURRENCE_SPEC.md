@@ -28,6 +28,7 @@
 | H15 | Connected-memory deletion is typed by `(sourceType, sourceId)` via `removeBySourceAndType` |
 | H16 | Historical `questionKind` / `intentionSummary` / `topicId` share the same effective session→ReadingModel fallback source |
 | H17 | Accepted session-backed Tarot live-source aliases are **only** `session.id` + linked `ReadingModel.id`. `linked.sessionId` never independently authorizes source existence |
+| H18 | Enrichment receives `currentOwnerId` and `privacyBlocked` **explicitly** — neither may be inferred from history; `privacyBlocked` has **no default**; `privacyBlocked=true` short-circuits all historical engines and yields `omitReason=privacy` |
 
 ---
 
@@ -62,9 +63,13 @@ PURE engines:
 TarotNarrativeRequestEnricher.enrich(
   base: TarotNarrativeRequest,   // Phase 3 closed universe
   history: TarotHistoricalSnapshot,
+  currentOwnerId: String?,       // explicit — never inferred (H18)
+  privacyBlocked: bool,          // required — no default (H18)
   now: DateTime,                 // injected clock
 ) → TarotNarrativeRequest        // NEW closed request
 ```
+
+`privacyBlocked=true` short-circuits card/theme/memory engines and returns empty Phase 4 fields with `omitReason=privacy`. Owner id is never written onto the request.
 
 ### Enrichment mutates ONLY
 
@@ -522,6 +527,12 @@ Stop: privacy red-team PASS · **IMPLEMENTED**
 - Frozen corpus `tarot_narrative_history_enrichment_v1.json` (55 scenarios · 44/44 classes)
 - Storage→enricher shadow integration · delete/restart no-ghost
 - Stop: enrichment closed-universe PASS; Phase 3 relationships unchanged · **IMPLEMENTED**
+
+### 4D.1 — Enrichment privacy contract hardening · **IMPLEMENTED / PASS**
+
+- H18: `currentOwnerId` + `privacyBlocked` required · no defaults · no inference from history
+- Architecture signature matches production
+- Stop: privacy argument non-optional · **IMPLEMENTED**
 
 ### 4E — Independent red-team / final audit
 

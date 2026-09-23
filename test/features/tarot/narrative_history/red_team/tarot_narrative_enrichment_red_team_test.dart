@@ -51,14 +51,15 @@ void main() {
       base: baseRequest(),
       history: history,
       currentOwnerId: null,
+      privacyBlocked: false,
       now: now,
     );
     final wiped = TarotNarrativeRequestEnricher.enrich(
       base: enriched,
       history: history,
       currentOwnerId: null,
-      now: now,
       privacyBlocked: true,
+      now: now,
     );
     expect(wiped.recurringCards, isEmpty);
     expect(wiped.recurringThemes, isEmpty);
@@ -83,6 +84,7 @@ void main() {
         base: buildBaseFromPhase3(Map<String, dynamic>.from(p3)),
         history: snapshotFromJson(s['history'] as Map<String, dynamic>),
         currentOwnerId: s['currentOwnerId'] as String?,
+        privacyBlocked: false,
         now: now,
       );
       final ids = <String>{

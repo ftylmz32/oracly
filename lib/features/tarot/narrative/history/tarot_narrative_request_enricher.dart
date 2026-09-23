@@ -18,8 +18,8 @@ abstract final class TarotNarrativeRequestEnricher {
     required TarotNarrativeRequest base,
     required TarotHistoricalSnapshot history,
     required String? currentOwnerId,
+    required bool privacyBlocked,
     required DateTime now,
-    bool privacyBlocked = false,
   }) {
     if (privacyBlocked) {
       return TarotNarrativeRequest(

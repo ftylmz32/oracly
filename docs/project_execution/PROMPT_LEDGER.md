@@ -909,6 +909,19 @@ Chronological project execution ledger.
 | Live V2 / AI | **NOT WIRED** / **0** |
 | Outcome | **PASS** |
 
+### PL-T4D.1 — ENRICHMENT PRIVACY CONTRACT HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `55e284a193d994d1f1ffb3a44477104e57e09f7c` |
+| H18 | `currentOwnerId` + `privacyBlocked` required · no defaults · no inference |
+| Architecture signature | matches production |
+| Callers omitting `privacyBlocked` | **0** |
+| Frozen corpus expectations | **UNCHANGED** |
+| Live V2 / AI | **NOT WIRED** / **0** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -959,8 +972,9 @@ Chronological project execution ledger.
 | PL-T4C.1 | Tarot Phase 4C.1 — Owner-safe live source identity + typed deletion | **DONE** |
 | PL-T4C.2 | Tarot Phase 4C.2 — Strict live Tarot source aliases | **DONE** |
 | PL-T4D | Tarot Phase 4D — Request enricher + frozen historical corpus | **DONE** |
+| PL-T4D.1 | Tarot Phase 4D.1 — Enrichment privacy contract hardening | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D DONE** · 4E pending review |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D.1 DONE** · 4E pending |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

@@ -37,6 +37,7 @@ void main() {
       base: buildBaseFromPhase3(Map<String, dynamic>.from(relBase)),
       history: loaded.snapshot,
       currentOwnerId: 'A',
+      privacyBlocked: loaded.privacyBlocked,
       now: now,
     );
     expect(out.memory.included, isTrue);
@@ -58,8 +59,8 @@ void main() {
       base: buildBaseFromPhase3(Map<String, dynamic>.from(relBase)),
       history: loaded.snapshot,
       currentOwnerId: 'B',
-      now: now,
       privacyBlocked: loaded.privacyBlocked,
+      now: now,
     );
     expect(out.recurringCards, isEmpty);
     expect(out.recurringThemes, isEmpty);
@@ -79,6 +80,7 @@ void main() {
         base: base,
         history: snap,
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       ).recurringCards.map((e) => e.evidenceId),
       contains('rec_card_01'),
@@ -90,6 +92,7 @@ void main() {
         base: base,
         history: snap,
         currentOwnerId: null,
+        privacyBlocked: false,
         now: now,
       ).recurringCards,
       isEmpty,
@@ -107,6 +110,7 @@ void main() {
       base: buildBaseFromPhase3(Map<String, dynamic>.from(relBase)),
       history: (await h.loader().load(currentOwnerId: null)).snapshot,
       currentOwnerId: null,
+      privacyBlocked: false,
       now: now,
     );
     expect(out.recurringThemes, isEmpty);
@@ -127,6 +131,7 @@ void main() {
         LocalStorage(prefs),
       ).loader().load(currentOwnerId: null)).snapshot,
       currentOwnerId: null,
+      privacyBlocked: false,
       now: now,
     );
     expect(out.recurringCards, isEmpty);

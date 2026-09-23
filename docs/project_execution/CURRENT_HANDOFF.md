@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4D request enricher + frozen historical corpus
+**Updated:** 2026-09-23 — Tarot Phase 4D.1 enrichment privacy contract hardening
 
 ---
 
@@ -86,6 +86,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4C.2 task start | `dac943f11bf4c1a8ea3a53b3c67a10df043e3dc4` | Strict live Tarot source aliases |
 | Phase 4C.2 end | `4ff9441be9a8b508a38cc0dcaf1eed52c1a7a040` | H17 PASS |
 | Phase 4D task start | `4ff9441be9a8b508a38cc0dcaf1eed52c1a7a040` | Request enricher + frozen historical corpus |
+| Phase 4D end | `55e284a193d994d1f1ffb3a44477104e57e09f7c` | Enricher + corpus PASS |
+| Phase 4D.1 task start | `55e284a193d994d1f1ffb3a44477104e57e09f7c` | Privacy contract hardening (H18) |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -181,6 +183,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4C.1 — Owner-safe live source identity + typed deletion | **COMPLETE** |
 | Phase 4C.2 — Strict live Tarot source aliases | **COMPLETE** |
 | Phase 4D — Request enricher + frozen historical corpus | **COMPLETE** |
+| Phase 4D.1 — Enrichment privacy contract hardening | **COMPLETE** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -468,6 +471,16 @@ Pre-existing local noise (do **not** stage/clean):
 | Runtime V2 | **NOT USER-REACHABLE** |
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
+
+### Phase 4D.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| H18 | **IMPLEMENTED** (`privacyBlocked` + `currentOwnerId` required · no defaults · no inference) |
+| Privacy short-circuit | **UNCHANGED** (`omitReason=privacy`) |
+| Frozen corpus expectations | **UNCHANGED** |
+| Live Narrative V2 | **NOT WIRED** |
 
 ### Phase 4D
 
@@ -895,11 +908,10 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 4E** independent Memory + Historical Recurrence audit.
+**Phase 4E independent Memory + Historical Recurrence audit.**
 
-Phase 4D: **PASS** · Phase 4C.2 **PASS** · Phase 4C.1 **PASS** · Phase 4C **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **SHADOW** · live V2 **NOT WIRED** · AI **0**.
+Phase 4D.1: **PASS** · Phase 4D **PASS** · Phase 4C.2 **PASS** · Phase 4C.1 **PASS** · Phase 4C **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **SHADOW** (H18 privacy required) · live V2 **NOT WIRED** · AI **0**.
 
-Do **not** start 4E until reviewed.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
 Do **not** wire live Tarot Narrative V2 path.
