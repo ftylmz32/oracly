@@ -1,22 +1,30 @@
 # Narrative Evidence Engine — Implementation Specification
 
-**Active revision:** Phase **3D.0.1** contract hardening
+**Active revision:** Phase **3D.1B.1** scoring calibration (extends 3D.0.1 catalogs + 3D.1A/B signals)
 **Phase 3D.0 start SHA:** e90a5109bbb75ce2c1247be686c9a149aa554846
 **Phase 3D.0.1 start SHA:** 18cfeea804cc415a8d064e2a3f9d89c611c8cb4d
-**Status:** **READY FOR 3D.1A** (OPEN DECISIONS = 0)
-**Production code modified:** **NO**
-**Evidence Engine implemented:** **NO**
+**Phase 3D.1B.1 calibration:** `docs/product/tarot/NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md`
+**Status:** **READY FOR 3D.1C** (OPEN 3D.1C SCORING DECISIONS = 0)
+**Production scoring / builder:** **NOT IMPLEMENTED**
 
-Authority: NARRATIVE_TAROT_SPEC.md · NARRATIVE_TAROT_DATA_CONTRACT.md · TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md (3C.5F safeguards)
+Authority: NARRATIVE_TAROT_SPEC.md · NARRATIVE_TAROT_DATA_CONTRACT.md · TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md · NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md
 
-### Phase 3D.0.1 hardening (ACTIVE)
+### Phase 3D.0.1 hardening
 
 Resolved before coding:
 
 1. Complete classical spread + position + edge catalogs (no examples left)
 2. TarotNarrativeProfileSlice replaces illegal NarrativeCardProfile as request-side slice type
 
-Historical 3D.0 scoring/admission/safeguard decisions remain LOCKED unless superseded in §§17–20 below.
+### Phase 3D.1B.1 scoring calibration (ACTIVE for 3D.1C)
+
+Raw `Σ w(id)` overlap **REJECTED** (saturates `[0,3.5]`). Chosen overlap:
+
+`S_overlap = Σ (weight(id) / 6.0)` over FR-F04 `Chan∩`.
+
+Full locks: family count · tag-only · question · orientation · kind trigger sets · FR keywordIds identity — see calibration doc + §§10–15 / §21 / §29 below.
+
+Historical 3D.0 scoring/admission/safeguard decisions remain LOCKED unless superseded by 3D.1B.1.
 
 ---
 
@@ -225,23 +233,31 @@ Let:
 
 - `N = 156` (orientations in ontology revision 1)
 - `df(id)` = number of orientations containing `id` (frozen table derived from production catalog at ontologyRevision 1; ship as const map in `narrative_keyword_discrimination.dart`)
-- Weight:
+- Raw weight (discrimination primitive — **unchanged**):
 
 \[
 w(id) = \ln\frac{N+1}{df(id)+1} + 1
 \]
 
-Clamp: `w' = clamp(w, 1.0, 6.0)`.
+Clamp: `w_raw = clamp(w, 1.0, 6.0)`.
 
-**Overlap mass** between cards A,B:
+### Overlap contribution — ACTIVE 3D.1B.1 (supersedes raw Σ)
+
+**Historical 3D.0 proposal** `S_overlap = Σ w_raw` is **REJECTED**: exhaustive C(156,2) simulation showed single-id min ≈3.35 and 93% of overlapping pairs already ≥3.5 against `S_total` max 3.5.
+
+**Chosen formula:**
 
 \[
-S_{overlap} = \sum_{id \in Chan(A)\cap Chan(B)} w'(id)
+S_{overlap} = \sum_{id \in Chan(A)\cap Chan(B)} \frac{w_{raw}(id)}{6.0}
 \]
+
+Revision-1 normalized per-id range (used ids): **≈ 0.558 → 0.894**.
 
 **Rule:** a single shared id with `df ≥ 8` (scatter, haste, withdrawal, escape, isolation, control, delay, display, fear, …) **cannot** alone admit a relationship — even if `S_overlap` is nonzero.
 
 Ship frozen `df` map keyed by ontology revision; rebuild only when ontologyRevision bumps.
+
+Authority detail: `NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md`.
 
 ---
 
@@ -251,17 +267,31 @@ A pair **admits** iff **any** of:
 
 1. **Standard:** `independentFamilyCount ≥ 2` **AND** `S_total ≥ 1.25`
 2. **Canonical seed:** E true (mutual or one-way `relatedIds` contains the other) **AND** `independentFamilyCount ≥ 2` (E counts as one) **AND** `S_total ≥ 1.0`
-3. **Position-strong:** F edge present with kind affinity **AND** ≥1 of {A/B/C/D} **AND** `S_total ≥ 1.0`
+3. **Position-strong:** F edge present with kind affinity **AND** ≥1 of {A/B/D} **AND** `S_total ≥ 1.0`
 
-Where `S_total` = weighted sum of channel contributions (overlap, contrast, transform, canonical bonus, position bonus, question bonus) after contradiction penalties (§24).
+Where `S_total` = weighted sum of channel contributions (overlap, contrast, transform, canonical bonus, position bonus, question bonus) after contradiction penalties (§24). Tag-only and orientation contribute **0** numeric (3D.1B.1).
 
-**Never admit** on: one shared keyword only; FR-F01/F02 identical sets alone; HF-only single id.
+**Never admit** on: one shared keyword only; FR-F01/F02 keyword-identical sets alone; HF-only single id.
+
+### Independent family count (3D.1B.1 LOCKED)
+
+| Family | Counts when |
+|---|---|
+| SEMANTIC (A) | `S_overlap > 0` on FR-F04 `semanticIds` |
+| CONTRAST (B) | hard/contextual contrast hit |
+| TRANSFORM (D) | non-empty `effectiveSharedTransforms` |
+| CANONICAL (E) | undirected relatedIds |
+| POSITION (F) | authoritative edge |
+| ORIENTATION (G) | **never alone** (provenance only with B or D) |
+| QUESTION (H) | `S_question > 0` |
+
+Tag-only motif overlap: **0 family · 0 score** (provenance `symbolTag` only).
 
 ---
 
 ## 12 — FR-F01 Page safeguard — LOCKED
 
-If both cards are Pages (`rank == page` / id suffix `_11`) **and** `Chan(A) == Chan(B)` as sets **and** suits differ:
+If both cards are Pages (`rank == page` / id suffix `_11`) **and** orientation **`keywordIds` sets are equal** **and** suits differ:
 
 - Cap `S_overlap` contribution at **0.35**
 - Force `independentFamilyCount` from SemanticChannel alone to count as **at most 1**
@@ -270,15 +300,19 @@ If both cards are Pages (`rank == page` / id suffix `_11`) **and** `Chan(A) == C
 
 Applies to known case: `wands_11` upright ↔ `pentacles_11` upright.
 
+**3D.1B.1 clarification:** identity uses **`keywordIds`**, not full FR-F04 `semanticIds`. Production Pages share keywords but differ in symbolTags; full-Chan equality would incorrectly bypass the guard.
+
 ---
 
 ## 13 — FR-F02 Swords Page/Knight safeguard — LOCKED
 
-If same suit **and** ranks are {page, knight} **and** `Chan(A) == Chan(B)`:
+If same suit **and** ranks are {page, knight} **and** orientation **`keywordIds` sets are equal**:
 
 - Same caps as FR-F01 (overlap ≤0.35; channel family ≤1; need another family; strength ≤0.45)
 
 Applies to: `swords_11` reversed ↔ `swords_12` reversed.
+
+**Same keywordIds-identity clarification as §12.**
 
 ---
 
@@ -623,19 +657,21 @@ Source profile not mutated · correct orientation · exact optional matrix · no
 - Score each pair → kind resolve → filter by admission → rank → take top **`maxRelationships = 12`**
 - Assign `rel_01…` in final order
 
-### Score components (deterministic)
+### Score components (deterministic) — ACTIVE 3D.1B.1
 
 ```
 S_total =
-  S_overlap_weighted          // §10 on Chan∩
-+ S_contrast                  // HARD +0.70 / CONTEXTUAL +0.45 if pair hits map
-+ S_transform                 // §15
-+ S_canonical                 // +0.55 if E
-+ S_position                  // §18
-+ S_question                  // −0.15…+0.15
+  S_overlap                   // Σ (w_raw/6.0) on Chan∩  [NOT raw Σ w]
++ S_contrast                  // HARD +0.70 / CONTEXTUAL +0.45
++ S_transform                 // +0.15 × |effectiveShared| cap +0.30
++ S_canonical                 // +0.55 if E (undirected relatedIds)
++ S_position                  // §18 edge bonuses
++ S_question                  // 0 or +0.15 (§11 / calibration §8)
 − S_penalty_fr                // FR-F01/F02 caps already applied in overlap
 − S_contradiction             // if HARD CONTRAST and soft support lobbied: −0.60 to support pathway
 ```
+
+`S_tag_only = 0` · `S_orientation = 0` (3D.1B.1).
 
 Clamp `S_total` to `[0, 3.5]` then map to strength:
 
@@ -643,15 +679,19 @@ Clamp `S_total` to `[0, 3.5]` then map to strength:
 
 ### Kind resolution precedence
 
-1. If HARD CONTRAST or (CONTEXTUAL CONTRAST + opposition edge) ⇒ `contrast` or `conflict` (conflict if challenge/obstacle/pressure edge)
-2. Else if temporal edge + semantic ⇒ `causeEffect`
-3. Else if blockage semantics (delay/resistance/obstacle) ⇒ `blockage`
+1. If HARD CONTRAST or (CONTEXTUAL CONTRAST + opposition edge) ⇒ `contrast` or `conflict`
+   - `conflict` iff contrast condition AND (opposition edge incident to role ∈ {challenge, avoid} OR HARD contrast + pressure edge); else `contrast`
+2. Else if temporal edge + SEMANTIC ⇒ `causeEffect` (narrative flow; not literal causation)
+3. Else if blockage semantics (calibration §10) ⇒ `blockage`
 4. Else if softening semantics ⇒ `softening`
 5. Else if escalation semantics ⇒ `escalation`
 6. Else if resolution semantics + supportive edge ⇒ `resolution`
 7. Else if theme-echo rule (§29) ⇒ `themeRepetition`
-8. Else if E or strong overlap ⇒ `support` / `reinforcement` (reinforcement if ≥2 specific shared ids with mean w' ≥ 4.0)
+8. Else if E or strong overlap ⇒ `support` / `reinforcement`
+   - `reinforcement` iff ≥2 shared ids with `df < 8` AND mean **raw** `w_raw ≥ 4.0`; else `support`
 9. Else drop
+
+Exact keyword/transform trigger sets: `NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md` §10.
 
 ---
 
@@ -737,8 +777,10 @@ Emit at most **one** theme-echo relationship (or a dedicated optional list later
 
 **Admit theme echo iff:**
 
-- ≥2 cards share SemanticChannel id set intersection mass `S_overlap ≥ 2.0` using **non-HF-only** contribution: at least one shared id with `df < 8`
+- ≥2 cards share SemanticChannel id set intersection mass `S_overlap ≥ 2.0` (**normalized** §10 formula) using **non-HF-only** contribution: at least one shared id with `df < 8`
 - OR ≥3 cards each pairwise share the same specific id with `df ≤ 6`
+
+Under 3D.1B.1 normalization, `2.0` ≈ two–three strong semantic atoms (single-id max ≈0.89 cannot qualify).
 
 HF-only scatter/haste clusters **do not** create themeRepetition.
 

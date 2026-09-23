@@ -665,6 +665,30 @@ Chronological project execution ledger.
 | Scoring / builder / AI | **NOT IMPLEMENTED** / **0** |
 | Outcome | **PASS** |
 
+### PL-T3D.1B.1 — RELATIONSHIP SCORING CALIBRATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | Docs + test-only diagnostic — **no production scorer/builder** |
+| Start SHA | `9a20151986581d7ffcdb086112c3b4b802fde770` |
+| Raw weight range (used) | ≈ **3.348 → 5.363** (df=0 clamp 6.0) |
+| Orientation pairs | **12090** · overlap **2465** |
+| Raw saturation | **CONFIRMED** (single-id min 3.348; 93.35% raw ≥3.5) |
+| Chosen formula | `S_overlap = Σ (weight(id)/6.0)` |
+| Normalized id range | ≈ **0.558 → 0.894** |
+| Question rule | open/guidance **0**; relationship/decision **0/+0.15** with closed id sets |
+| Tag-only rule | **0** numeric (provenance only) |
+| Orientation rule | **0** score · **0** family alone |
+| Semantic trigger sets | blockage / softening / escalation / resolution locked |
+| FR-F01/F02 | keywordIds identity; capped 0.35; identity-only REJECT; max strength ≤0.45 |
+| Canonical inventory | refs **234** · unique **173** · mutual **61** · one-way **112** · invalid **0** |
+| Theme echo | keep **2.0** normalized; HF-only REJECT |
+| Strength bands | weak/moderate/strong examples provided |
+| Production modified | **NO** |
+| Spec ready for 3D.1C | **YES** · OPEN decisions **0** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -700,7 +724,8 @@ Chronological project execution ledger.
 | PL-T3D.0.1 | Tarot Phase 3D.0.1 — Evidence Engine spec contract hardening | **DONE** (spread+slice LOCKED; OPEN 0; ready for 3D.1A) |
 | PL-T3D.1A | Tarot Phase 3D.1A — Evidence Domain Foundation | **DONE** (models+catalog; scoring/builder NOT IMPLEMENTED) |
 | PL-T3D.1B | Tarot Phase 3D.1B — Structured Semantic Signal Layer | **DONE** (channel+DF+contrasts+transforms; scoring NOT IMPLEMENTED) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78 ready; Evidence domain+signals DONE; scoring/builder pending 3D.1C+) |
+| PL-T3D.1B.1 | Tarot Phase 3D.1B.1 — Relationship scoring calibration | **DONE** (docs+diagnostic; OPEN 3D.1C decisions 0; scorer NOT IMPLEMENTED) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (signals+calibration READY; scoring/builder pending 3D.1C) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

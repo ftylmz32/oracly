@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1B Structured Semantic Signal Layer
+**Updated:** 2026-09-23 — Tarot Phase 3D.1B.1 Relationship Scoring Calibration
 
 ---
 
@@ -56,6 +56,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1A task start | `379b68c0761443e641f4a8aa81c382fda0352fa4` | Evidence domain foundation |
 | Phase 3D.1A end | `620dae768d104f7ed9b8368c6b2831cec55508c3` | Evidence domain foundation |
 | Phase 3D.1B task start | `620dae768d104f7ed9b8368c6b2831cec55508c3` | Structured semantic signal layer |
+| Phase 3D.1B end | `9a20151986581d7ffcdb086112c3b4b802fde770` | Semantic signals |
+| Phase 3D.1B.1 task start | `9a20151986581d7ffcdb086112c3b4b802fde770` | Relationship scoring calibration |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -136,6 +138,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.0.1 — Evidence Engine spec contract hardening | **COMPLETE** (spread catalog + profile slice LOCKED; OPEN **0**) |
 | Phase 3D.1A — Evidence Domain Foundation | **COMPLETE** (models + slice + grounding + classical catalog; scoring **NOT** implemented) |
 | Phase 3D.1B — Structured Semantic Signal Layer | **COMPLETE** (channel + DF + contrasts + transforms; scoring **NOT** implemented) |
+| Phase 3D.1B.1 — Relationship scoring calibration | **COMPLETE** (docs + diagnostic; production scoring **NOT** implemented; OPEN 3D.1C decisions **0**) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -424,6 +427,24 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1B.1
+
+| Field | Value |
+|---|---|
+| Status | **PASS** — calibration complete · OPEN 3D.1C scoring decisions **0** |
+| Kind | Docs + optional test-only diagnostic — **no production scorer** |
+| Calibration doc | `docs/product/tarot/NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md` |
+| Raw IDF saturation | **CONFIRMED** (single-id min ≈3.35; 93% overlapping pairs raw ≥3.5) |
+| Chosen overlap | `Σ (weight(id)/6.0)` over Chan∩ |
+| Normalized id range | ≈ **0.558 → 0.894** (used) |
+| Theme echo threshold | **Keep 2.0** (normalized) |
+| Tag-only / orientation / question | 0 numeric · 0 alone · {0,+0.15} |
+| FR-F01/F02 identity | **`keywordIds` set equality** |
+| Production scoring | **NOT IMPLEMENTED** |
+| Evidence builder | **NOT IMPLEMENTED** |
+| User path | **UNCHANGED** |
+| Spec ready for 3D.1C | **YES** |
+
 ### Phase 3D.1B
 
 | Field | Value |
@@ -618,9 +639,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3D.1C.**
+**ChatGPT review before Phase 3D.1C implementation.**
 
-Phase 3D.1B: **COMPLETE** · Structured semantic signals · Scoring **NOT** implemented · FR-F01/F02 caps **NOT** implemented · Evidence builder **NOT** implemented · User path **UNCHANGED** · AI calls **0**.
+Phase 3D.1B.1: **PASS** · Raw IDF saturation **CONFIRMED** · Chosen overlap `Σ(w/6)` · OPEN 3D.1C scoring decisions **0** · Production scorer **NOT** implemented · User path **UNCHANGED**.
 
 Do **not** start 3D.1C until reviewed.
 Do **not** mark future items completed until verified.
