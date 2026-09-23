@@ -11,6 +11,7 @@ import '../../../components/tarot_loading.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../utils/reading_history_mapper.dart';
+import '../../../copy/tarot_l10n.dart';
 import 'tarot_home_ornaments.dart';
 import 'oracly_sacred_identity.dart';
 import 'tarot_home_section_primitives.dart';
@@ -82,7 +83,7 @@ class TarotContinueReadingSection extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final entry = recent[index];
                   return _RecentReadingCard(
-                    title: entry.spreadType,
+                    title: TarotL10n.spreadFromStorage(entry.spreadType),
                     cardName: entry.cardName,
                     timeAgo: entry.dateLabel,
                     icon: entry.moodIcon,

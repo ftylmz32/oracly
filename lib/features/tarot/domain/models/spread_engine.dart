@@ -17,6 +17,7 @@ abstract final class SpreadEngine {
       TarotSpreadType.fiveCard => kFiveCardSpread,
       TarotSpreadType.sevenCard => kSevenCardSpread,
       TarotSpreadType.celticCross => kCelticCrossSpread,
+      TarotSpreadType.crossroads => kCrossroadsSpread,
     };
   }
 

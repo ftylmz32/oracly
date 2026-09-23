@@ -3,6 +3,8 @@ library;
 
 import '../../../core/domain/models/reading.dart';
 import '../../discovery_share/services/discovery_share_sanitize.dart';
+import '../copy/tarot_l10n.dart';
+import '../domain/models/tarot_spread.dart';
 import '../reading/reading_question.dart';
 
 abstract final class TarotHistoryPrivacy {
@@ -30,6 +32,18 @@ abstract final class TarotHistoryPrivacy {
   }
 
   static String spreadTitle(String spreadType) {
+    final type = TarotSpreadType.fromPersisted(spreadType);
+    if (type != null) {
+      // Keep established journal short titles for classical; Crossroads uses l10n.
+      return switch (type) {
+        TarotSpreadType.single => '1 Kart Açılımı',
+        TarotSpreadType.threeCard => '3 Kart Açılımı',
+        TarotSpreadType.fiveCard => '5 Kart Açılımı',
+        TarotSpreadType.sevenCard => '7 Kart Açılımı',
+        TarotSpreadType.celticCross => 'Kelt Haçı',
+        TarotSpreadType.crossroads => TarotL10n.spreadReadingTitle(type),
+      };
+    }
     final raw = spreadType.trim();
     return switch (raw) {
       'Tek Kart' => '1 Kart Açılımı',

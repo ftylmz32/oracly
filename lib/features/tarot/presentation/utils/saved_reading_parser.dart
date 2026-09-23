@@ -6,6 +6,7 @@ import '../../../../core/domain/models/reading.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../content/tarot/data/tarot_content_catalogue.dart';
 import '../../copy/tarot_polish_copy.dart';
+import '../../copy/tarot_l10n.dart';
 import '../../domain/models/reading_session.dart';
 import '../../interpretation/formatters/interpretation_formatter.dart';
 import '../../interpretation/models/interpretation_result.dart';
@@ -54,7 +55,9 @@ abstract final class SavedReadingParser {
       rarityColor: AppColors.purpleLight,
       fullInterpretation: raw,
       cardReadings: cardsBody,
-      spreadLabel: model?.spreadType ?? entry.spreadType,
+      spreadLabel: TarotL10n.spreadFromStorage(
+        model?.spreadType ?? entry.spreadType,
+      ),
       readingTheme: model?.readingType,
       userQuestion: intention,
       promptQuestion: '',
@@ -89,7 +92,7 @@ abstract final class SavedReadingParser {
       rarityColor: AppColors.purpleLight,
       fullInterpretation: result.rawText,
       cardReadings: result.health.trim().isNotEmpty ? result.health : cardsBody,
-      spreadLabel: entry.spreadType,
+      spreadLabel: TarotL10n.spreadFromStorage(entry.spreadType),
       readingTheme: type,
       userQuestion: intention,
       promptQuestion: result.warnings,

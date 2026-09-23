@@ -22,6 +22,13 @@ import '../widgets/ritual_spread_choice_card.dart';
 class TarotRitualSpreadScreen extends ConsumerStatefulWidget {
   const TarotRitualSpreadScreen({super.key});
 
+  /// Explicit picker allowlist — Crossroads must never appear here.
+  static const offeredSpreads = [
+    TarotSpreadType.single,
+    TarotSpreadType.threeCard,
+    TarotSpreadType.fiveCard,
+  ];
+
   @override
   ConsumerState<TarotRitualSpreadScreen> createState() =>
       _TarotRitualSpreadScreenState();
@@ -31,11 +38,7 @@ class _TarotRitualSpreadScreenState
     extends ConsumerState<TarotRitualSpreadScreen> {
   TarotSpreadType? _selected;
 
-  static const _options = [
-    TarotSpreadType.single,
-    TarotSpreadType.threeCard,
-    TarotSpreadType.fiveCard,
-  ];
+  static const _options = TarotRitualSpreadScreen.offeredSpreads;
 
   Future<void> _confirm(TarotSpreadType spread) async {
     final allowed = GemSpendGuard.ensureAffordable(

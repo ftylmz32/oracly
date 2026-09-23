@@ -45,7 +45,10 @@ NarrativeEvidenceInput _reading({
 
 void main() {
   test('single / three / five / seven / celtic valid builds', () {
-    for (final type in TarotSpreadType.values) {
+    // Crossroads is runtime-capable but not Phase 3 Classical catalog — skip.
+    final classical = TarotSpreadType.values
+        .where((t) => t != TarotSpreadType.crossroads);
+    for (final type in classical) {
       final ids = OraclyTarotDeck.expectedIds.take(type.cardCount).toList();
       final req = NarrativeEvidenceBuilder.build(
         _reading(type: type, cards: [for (final id in ids) (id, false)]),

@@ -6,19 +6,33 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/l10n/l10n.dart';
 
 /// Supported spread types for the ritual flow.
+///
+/// Persistence machine id is [name]. Display title is [label] only.
+/// Crossroads is appended at index 5 — never reorder existing members.
 enum TarotSpreadType {
   single(1),
   threeCard(3),
   fiveCard(5),
   sevenCard(7),
-  celticCross(10);
+  celticCross(10),
+  crossroads(5);
 
   const TarotSpreadType(this.cardCount);
 
   final int cardCount;
 
-  /// Locale-aware display title (also used when persisting spreadType).
+  /// Locale-aware UI display title only — never use for persistence.
   String get label => OraclyL10n.t('tarot.spread.$name');
+
+  /// Stable persistence machine identifier ([name]).
+  String get persistenceId => name;
+
+  /// Dual-read persisted values: machine id, localized titles, hard aliases.
+  /// Never throws. Never defaults unknown to [single].
+  static TarotSpreadType? fromPersisted(String? raw) {
+    if (raw == null) return null;
+    return fromTitle(raw);
+  }
 
   static TarotSpreadType? fromTitle(String title) {
     final raw = title.trim();
@@ -59,6 +73,11 @@ enum TarotSpreadType {
       'kelt haçı' ||
       'кельтский крест' =>
         TarotSpreadType.celticCross,
+      'yol ayrımı' ||
+      'crossroads' ||
+      'перекрёсток' ||
+      'перекресток' =>
+        TarotSpreadType.crossroads,
       _ => null,
     };
   }

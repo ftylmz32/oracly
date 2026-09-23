@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/l10n/oracly_format.dart';
 import '../../../../core/domain/models/reading.dart';
+import '../../domain/models/tarot_spread.dart';
 import '../widgets/reading_history/reading_history_data.dart';
 
 abstract final class ReadingHistoryMapper {
@@ -41,24 +42,30 @@ abstract final class ReadingHistoryMapper {
     return type;
   }
 
-  static HistorySpreadFilter _filterForSpread(String spread) =>
-      switch (spread) {
-        'Tek Kart' => HistorySpreadFilter.single,
-        'Üç Kart' || 'Üç Kart Açılımı' => HistorySpreadFilter.three,
-        'Beş Kart' => HistorySpreadFilter.five,
-        'Yedi Kart' || 'Seven card' => HistorySpreadFilter.all,
-        'Celtic Cross' || 'Kelt Haçı' => HistorySpreadFilter.celtic,
-        _ => HistorySpreadFilter.all,
-      };
+  static HistorySpreadFilter _filterForSpread(String spread) {
+    final type = TarotSpreadType.fromPersisted(spread);
+    return switch (type) {
+      TarotSpreadType.single => HistorySpreadFilter.single,
+      TarotSpreadType.threeCard => HistorySpreadFilter.three,
+      TarotSpreadType.fiveCard || TarotSpreadType.crossroads =>
+        HistorySpreadFilter.five,
+      TarotSpreadType.celticCross => HistorySpreadFilter.celtic,
+      TarotSpreadType.sevenCard || null => HistorySpreadFilter.all,
+    };
+  }
 
-  static IconData _iconForSpread(String spread) => switch (spread) {
-        'Tek Kart' => Icons.filter_1_rounded,
-        'Üç Kart' || 'Üç Kart Açılımı' => Icons.filter_3_rounded,
-        'Beş Kart' => Icons.filter_5_rounded,
-        'Yedi Kart' || 'Seven card' => Icons.filter_7_rounded,
-        'Celtic Cross' || 'Kelt Haçı' => Icons.grid_view_rounded,
-        _ => Icons.auto_awesome_rounded,
-      };
+  static IconData _iconForSpread(String spread) {
+    final type = TarotSpreadType.fromPersisted(spread);
+    return switch (type) {
+      TarotSpreadType.single => Icons.filter_1_rounded,
+      TarotSpreadType.threeCard => Icons.filter_3_rounded,
+      TarotSpreadType.fiveCard || TarotSpreadType.crossroads =>
+        Icons.filter_5_rounded,
+      TarotSpreadType.sevenCard => Icons.filter_7_rounded,
+      TarotSpreadType.celticCross => Icons.grid_view_rounded,
+      null => Icons.auto_awesome_rounded,
+    };
+  }
 
   @Deprecated('Use PersonalJourneyService.filterEntries')
   static List<ReadingHistoryEntry> filterEntries(

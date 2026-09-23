@@ -33,6 +33,9 @@ class RitualSpreadChoiceCard extends StatelessWidget {
           OraclyL10n.t('tarot.spread.sevenCard.banner'),
         TarotSpreadType.celticCross =>
           OraclyL10n.t('tarot.spread.celticCross.banner'),
+        // Crossroads is picker-unreachable; keep exhaustiveness safe.
+        TarotSpreadType.crossroads =>
+          OraclyL10n.t('tarot.spread.crossroads.banner'),
       };
 
   String get _cardCountLabel => OraclyL10n

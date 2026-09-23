@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../copy/tarot_l10n.dart';
 import '../../models/tarot_card.dart';
+import 'reading_session_codec.dart';
 import 'tarot_spread.dart';
 
 enum ReadingSessionStatus { inProgress, completed }
@@ -164,35 +165,16 @@ class ReadingSession {
       };
 
   factory ReadingSession.fromJson(Map<String, dynamic> json) {
-    return ReadingSession(
-      id: json['id'] as String,
-      deckId: json['deckId'] as String? ?? 'rider-waite',
-      userId: json['userId'] as String?,
-      spread: TarotSpreadType.values.byName(json['spread'] as String),
-      intention: TarotIntention(
-        text: json['intention'] as String? ?? '',
-        topic: json['intentionTopic'] as String?,
-      ),
-      shuffleSeed: json['shuffleSeed'] as int? ?? 0,
-      startedAt: DateTime.tryParse(json['startedAt'] as String? ?? '') ??
-          DateTime.now(),
-      completedAt: json['completedAt'] != null
-          ? DateTime.tryParse(json['completedAt'] as String)
-          : null,
-      durationMs: json['durationMs'] as int?,
-      drawnCards: (json['drawnCards'] as List<dynamic>? ?? [])
-          .map((e) => TarotDrawnCard.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      interpretation: json['interpretation'] as String?,
-      status: ReadingSessionStatus.values.byName(
-        json['status'] as String? ?? 'inProgress',
-      ),
-      flowStep: ReadingFlowStep.values.byName(
-        json['flowStep'] as String? ?? 'deckSelection',
-      ),
-      currentPositionIndex: json['currentPositionIndex'] as int? ?? 0,
-    );
+    final session = tryFromJson(json);
+    if (session == null) {
+      throw FormatException('invalid ReadingSession json');
+    }
+    return session;
   }
+
+  /// Soft decode — unknown spread returns null (never fabricates single).
+  static ReadingSession? tryFromJson(Map<String, dynamic> json) =>
+      ReadingSessionCodec.tryFromJson(json);
 }
 
 Map<String, dynamic> _cardToJson(TarotCard card) => {

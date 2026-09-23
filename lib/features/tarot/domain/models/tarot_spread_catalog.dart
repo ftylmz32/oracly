@@ -4,6 +4,7 @@ library;
 import 'tarot_spread.dart';
 import 'tarot_spread_definition.dart';
 import 'tarot_spread_positions.dart';
+import 'tarot_spread_positions_crossroads.dart';
 
 const kSingleSpread = TarotSpreadDefinition(
   type: TarotSpreadType.single,
@@ -38,4 +39,11 @@ const kCelticCrossSpread = TarotSpreadDefinition(
   cardCount: 10,
   positions: kCelticCrossPositions,
   interpretationOrder: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+);
+
+const kCrossroadsSpread = TarotSpreadDefinition(
+  type: TarotSpreadType.crossroads,
+  cardCount: 5,
+  positions: kCrossroadsPositions,
+  interpretationOrder: [0, 1, 2, 3, 4],
 );

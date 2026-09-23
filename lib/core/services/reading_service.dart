@@ -90,7 +90,7 @@ class ReadingService {
           ? primary.card.name
           : '${session.spread.label} · ${primary.card.name}',
       cardImageAsset: primary.card.image,
-      spreadType: session.spread.label,
+      spreadType: session.spread.name,
       aiSummary: aiSummary,
       deckId: session.deckId,
       sessionId: session.id,
@@ -116,6 +116,7 @@ class ReadingService {
               cardImageAsset: d.card.image,
               positionIndex: d.positionIndex,
               positionLabel: d.positionLabel,
+              positionKey: d.positionKey,
               isReversed: d.isReversed,
             ),
           )

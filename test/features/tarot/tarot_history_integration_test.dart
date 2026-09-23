@@ -65,7 +65,7 @@ void main() {
     );
     expect(saved, isNotNull);
     expect(saved!.createdAt, isNotNull);
-    expect(saved.spreadType, 'Üç Kart');
+    expect(saved.spreadType, 'threeCard');
     expect(saved.cards.single.cardId, card.id);
     expect(saved.intention, isNot(contains('evimi beklemeli')));
     expect(saved.intention, contains('Bu kararı vermeli miyim'));

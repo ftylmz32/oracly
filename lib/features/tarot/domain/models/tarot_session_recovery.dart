@@ -13,7 +13,10 @@ abstract final class TarotSessionRecovery {
     try {
       final json = jsonDecode(raw);
       if (json is! Map<String, dynamic>) return null;
-      return prepare(ReadingSession.fromJson(json), activeOnly: activeOnly);
+      return prepare(
+        ReadingSession.tryFromJson(json),
+        activeOnly: activeOnly,
+      );
     } catch (_) {
       return null;
     }
