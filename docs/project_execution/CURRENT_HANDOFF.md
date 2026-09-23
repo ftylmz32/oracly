@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5E Signature shadow integration + corpus
+**Updated:** 2026-09-23 — Tarot Phase 5F independent Signature Spreads final audit · Phase 5 FROZEN
 
 ---
 
@@ -112,6 +112,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5D.1 task start | `a417fc7e1e99eaeaa2b0290fcb93c35ac04b629e` | machine-id UI leak + localized history search |
 | Phase 5D.1 end | `185f59dc94264995dc55c7b6c282db6ae9da8683` | display/search remediation PASS |
 | Phase 5E task start | `185f59dc94264995dc55c7b6c282db6ae9da8683` | Signature shadow + frozen corpus |
+| Phase 5E end | `7e2e6e963caee375e59e1ff956c937d2d18383d8` | shadow + corpus PASS |
+| Phase 5F task start | `7e2e6e963caee375e59e1ff956c937d2d18383d8` | Independent final Signature Spreads audit |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -220,6 +222,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5D — Crossroads runtime + persistence dual-read | **COMPLETE / PASS** (enum index 5 · machine-id write · legacy dual-read · picker firewall) |
 | Phase 5D.1 — Machine-id UI leak + localized history search | **COMPLETE / PASS** (display/search only · persistence unchanged · Phase 3/4 firewall tests) |
 | Phase 5E — Signature shadow integration + frozen corpus | **COMPLETE / PASS** (classical parity · Crossroads structural-only · Phase3/4 blocked · user-path importers 0) |
+| Phase 5F — Independent final Signature Spreads audit | **COMPLETE / PASS** · **Phase 5 FROZEN** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -670,6 +673,18 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 6 seam audit | `SIGNATURE_SPREADS_PHASE6_SEAM_AUDIT.md` |
 | Next | **Phase 5F** independent final audit |
 
+### Phase 5F
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Kind | **AUDIT-ONLY** (no production/test/fixture edits) |
+| BLOCKER / MAJOR | **0** / **0** |
+| Phase 5 | **FROZEN** |
+| Crossroads | shadow-only · picker **false** · live V2 **NOT WIRED** |
+| Final audit | `docs/product/tarot/SIGNATURE_SPREADS_FINAL_AUDIT.md` |
+| Next | **Phase 6** — AI Narrative result pipeline + migration |
+
 ### Phase 4D.1
 
 | Field | Value |
@@ -1106,9 +1121,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 5F** — Independent final Signature Spreads audit (freeze candidate).
+**Phase 6** — AI Narrative result pipeline + migration (Crossroads live Narrative still gated by Phase 6 seam audit).
 
-Phase 5E: **PASS** · Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 5: **FROZEN** · Phase 5F: **PASS** · Phase 5E: **PASS** · Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
