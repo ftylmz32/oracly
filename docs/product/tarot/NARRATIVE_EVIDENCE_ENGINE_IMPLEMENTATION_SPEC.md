@@ -884,11 +884,11 @@ No fragile wall-clock gates; assert structural bounds in tests.
 
 **Per-card validation order (3D.1D.1 — LOCKED):**
 
-1. duplicate canonical id  
-2. canonical deck lookup → `unknownCanonicalCardId`  
-3. profile lookup → `profileMissing`  
-4. ritual bridge + canonical parity → `ritualCardMismatch`  
-5. position key / index / coverage  
+1. duplicate canonical id
+2. canonical deck lookup → `unknownCanonicalCardId`
+3. profile lookup → `profileMissing`
+4. ritual bridge + canonical parity → `ritualCardMismatch`
+5. position key / index / coverage
 
 `unknownCanonicalCardId` and `ritualCardMismatch` are distinct facts and must not collapse.
 

@@ -68,6 +68,7 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1D task start | `1e1abc0bdbf9525893b46bb213db0627cb39e1c5` | Full NarrativeEvidenceBuilder + frozen corpus |
 | Phase 3D.1D end | `dfba28d1c724a7d0c60aef56575b98186698d5d4` | Builder + frozen real-deck corpus |
 | Phase 3D.1D.1 task start | `ea6bd1230cb900f46b42d1793db3e21da7476833` | Builder error-contract + corpus metric hardening |
+| Phase 3D.1D.1 end | `c6503a24ff745958ad51fa6f1ff04a8c78136781` | Validation order + corpus metric lock |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
