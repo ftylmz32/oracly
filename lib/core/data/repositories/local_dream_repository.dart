@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../../data/datasources/local_storage.dart';
 import '../../domain/models/dream_record.dart';
 import '../../domain/repositories/dream_repository.dart';
+import '../../memory/oracly_memory.dart';
 import '../../memory/oracly_memory_factory.dart';
 import '../../memory/oracly_memory_store.dart';
 
@@ -75,7 +76,7 @@ class LocalDreamRepository implements DreamRepository {
       all.where((e) => e.id != id).map((e) => jsonEncode(e.toJson())).toList(),
     );
     try {
-      await _memory?.removeBySource(id);
+      await _memory?.removeBySourceAndType(id, OraclyReadingType.dream);
     } catch (_) {
       // Source deletion must succeed even when the index is unavailable.
     }

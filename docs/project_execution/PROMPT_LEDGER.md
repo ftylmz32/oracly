@@ -864,6 +864,20 @@ Chronological project execution ledger.
 | Request enricher / live V2 | **NOT** / **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T4C.1 — OWNER-SAFE LIVE SOURCE IDENTITY + TYPED MEMORY DELETION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `2d9ef3b374221d2d0317ee80c1165d726bdd28e4` |
+| H14 | live Tarot ids from accepted adapter rows only |
+| H15 | `removeBySourceAndType` · feature-specific generic callers = 0 |
+| H16 | shared effective question/topic for kind+intention+topicId |
+| Cross-type same-id | Tarot/Coffee collision preserved both ways |
+| Discovery clear same-id SoulMate | preserved |
+| Request enricher / live V2 | **NOT** / **UNCHANGED** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -911,8 +925,9 @@ Chronological project execution ledger.
 | PL-T4A.1 | Tarot Phase 4A.1 — Historical recurrence identity + generic-topic + short-alias hardening | **DONE** |
 | PL-T4B | Tarot Phase 4B — Cross-feature theme + memory evidence pure engines | **DONE** |
 | PL-T4C | Tarot Phase 4C — Storage adapters + owner/delete integrity | **DONE** |
+| PL-T4C.1 | Tarot Phase 4C.1 — Owner-safe live source identity + typed deletion | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4C DONE** · 4D pending review |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4C.1 DONE** · 4D pending review |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

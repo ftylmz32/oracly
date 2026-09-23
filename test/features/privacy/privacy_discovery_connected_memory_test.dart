@@ -222,4 +222,50 @@ void main() {
       expect(hasSource(restarted, 'soulmate-keep-2'), isTrue);
     },
   );
+
+  test('Discovery clear same raw id — SoulMate survives Coffee wipe', () async {
+    final memory = OraclyMemoryStore(storage);
+    await CoffeeReadingStore(
+      storage,
+      memory: memory,
+    ).save(pdeCoffee('shared_id', 'Kahve'));
+    await memory.upsert(
+      OraclyMemory(
+        id: 'reading:soulmate:shared_id',
+        kind: OraclyMemoryKind.reading,
+        source: OraclyMemorySource(
+          id: 'shared_id',
+          type: OraclyReadingType.soulmate,
+          occurredAt: DateTime(2026, 3, 1),
+        ),
+        summary: _keepToken,
+      ),
+    );
+    // Authoritative SoulMate meta with same raw id as Coffee.
+    await storage.setString(
+      'soulmate_latest',
+      '{"id":"shared_id","createdAt":"2026-03-01T00:00:00.000Z",'
+          '"name":"N","birthDate":"2000-01-01T00:00:00.000Z",'
+          '"portraitPath":"/tmp/p.jpg","localeCode":"tr",'
+          '"parts":{"energy":"e","attraction":"a","dynamics":"d",'
+          '"feeling":"f","yourSide":"y","meeting":"","authoritative":true}}',
+    );
+
+    await service().clearDiscoveryHistory();
+
+    expect(CoffeeReadingStore(storage).all(), isEmpty);
+    expect(hasSource(OraclyMemoryStore(storage), 'shared_id'), isTrue);
+    final after = OraclyMemoryStore(storage).all();
+    expect(
+      after
+          .singleWhere((m) => m.source.type == OraclyReadingType.soulmate)
+          .summary,
+      _keepToken,
+    );
+    expect(
+      after.any((m) => m.source.type == OraclyReadingType.coffee),
+      isFalse,
+    );
+    expect(storage.getString('soulmate_latest'), isNotNull);
+  });
 }

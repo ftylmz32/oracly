@@ -1,6 +1,7 @@
 /// Couples Tarot journal + session + connected memory on single delete.
 library;
 
+import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../../../core/services/history_service.dart';
 import '../domain/models/reading_session.dart';
@@ -69,7 +70,7 @@ class TarotHistoryDeletionService {
     }
     for (final sourceId in sourceIds) {
       try {
-        await memory.removeBySource(sourceId);
+        await memory.removeBySourceAndType(sourceId, OraclyReadingType.tarot);
       } catch (_) {}
     }
 
@@ -105,7 +106,8 @@ class TarotHistoryDeletionService {
       }
     }
     for (final m in memories) {
-      if (sourceIds.contains(m.source.id)) {
+      if (m.source.type == OraclyReadingType.tarot &&
+          sourceIds.contains(m.source.id)) {
         throw StateError('tarot history deletion incomplete');
       }
     }

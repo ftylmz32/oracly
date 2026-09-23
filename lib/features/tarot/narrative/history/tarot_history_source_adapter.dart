@@ -22,6 +22,7 @@ class TarotHistorySourceAdapter {
   Future<
     ({
       List<TarotHistoricalReadingRecord> readings,
+      Set<String> liveTarotSourceIds,
       TarotHistoryNormalizeDiagnostics diagnostics,
     })
   >
@@ -29,6 +30,7 @@ class TarotHistorySourceAdapter {
     final models = await history.getAll();
     final sessions = await tarotRepository.loadAllSessions();
     final linkedIds = <String>{};
+    final liveTarotSourceIds = <String>{};
     final records = <TarotHistoricalReadingRecord>[];
     var diag = const TarotHistoryNormalizeDiagnostics();
 
@@ -45,7 +47,10 @@ class TarotHistorySourceAdapter {
       );
       diag = diag + result.diag;
       linkedIds.addAll(result.linkedReadingIds);
-      if (result.record != null) records.add(result.record!);
+      if (result.record != null) {
+        records.add(result.record!);
+        liveTarotSourceIds.addAll(result.liveSourceIds);
+      }
     }
 
     for (final model in models) {
@@ -56,7 +61,12 @@ class TarotHistorySourceAdapter {
         currentOwnerId: currentOwnerId,
       );
       diag = diag + result.diag;
-      if (result.record != null) records.add(result.record!);
+      if (result.record != null) {
+        records.add(result.record!);
+        if (model.id.trim().isNotEmpty) {
+          liveTarotSourceIds.add(model.id.trim());
+        }
+      }
     }
 
     records.sort((a, b) {
@@ -67,6 +77,7 @@ class TarotHistorySourceAdapter {
 
     return (
       readings: List<TarotHistoricalReadingRecord>.unmodifiable(records),
+      liveTarotSourceIds: Set<String>.unmodifiable(liveTarotSourceIds),
       diagnostics: diag,
     );
   }

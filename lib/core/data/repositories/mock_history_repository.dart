@@ -7,6 +7,7 @@ import '../../domain/models/reading.dart';
 import '../../domain/repositories/history_repository.dart';
 import '../../history/history_scale_policy.dart';
 import '../datasources/local_storage.dart';
+import '../../memory/oracly_memory.dart';
 import '../../memory/oracly_memory_factory.dart';
 import '../../memory/oracly_memory_store.dart';
 
@@ -86,7 +87,7 @@ class MockHistoryRepository implements HistoryRepository {
           .map((r) => jsonEncode(r.toJson()))
           .toList(),
     );
-    await _memory?.removeBySource(id);
+    await _memory?.removeBySourceAndType(id, OraclyReadingType.tarot);
   }
 
   @override
@@ -95,8 +96,7 @@ class MockHistoryRepository implements HistoryRepository {
   }
 
   Future<void> _clearAllLocked() async {
-    final ids = (await getReadings()).map((e) => e.id).toList();
     await _storage.setStringList(_key, []);
-    for (final id in ids) await _memory?.removeBySource(id);
+    await _memory?.removeByType(OraclyReadingType.tarot);
   }
 }

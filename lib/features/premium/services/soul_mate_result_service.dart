@@ -7,6 +7,7 @@ import 'dart:io';
 import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../data/soul_mate_interpretation_catalogue.dart';
@@ -135,7 +136,10 @@ class SoulMateResultService {
     await _storage.remove('soulmate_portrait_identity');
     if (prior != null) {
       try {
-        await _memory?.removeBySource(prior.id);
+        await _memory?.removeBySourceAndType(
+          prior.id,
+          OraclyReadingType.soulmate,
+        );
       } catch (_) {
         // Clearing the source must not depend on connected memory health.
       }

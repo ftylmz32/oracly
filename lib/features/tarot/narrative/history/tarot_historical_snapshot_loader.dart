@@ -67,8 +67,7 @@ class TarotHistoricalSnapshotLoader {
 
     final live = await TarotLiveSourceIndex.build(
       storage: storage,
-      history: history,
-      tarotRepository: tarotRepository,
+      tarotIds: historyResult.liveTarotSourceIds,
       dreams: dreams,
       birthCharts: birthCharts,
     );

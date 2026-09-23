@@ -2,6 +2,7 @@
 library;
 
 import '../../../core/domain/repositories/birth_chart_repository.dart';
+import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../data/birth_chart_record_mapper.dart';
@@ -105,7 +106,10 @@ class BirthChartExperienceService {
     await _repository.clearLatest();
     if (sourceId != null) {
       try {
-        await _memory?.removeBySource(sourceId);
+        await _memory?.removeBySourceAndType(
+          sourceId,
+          OraclyReadingType.birthChart,
+        );
       } catch (_) {
         // Connected memory is an optional index; source deletion still wins.
       }
@@ -181,7 +185,10 @@ class BirthChartExperienceService {
     }
     if (supersededSourceId != null && supersededSourceId != chart.id) {
       try {
-        await memory.removeBySource(supersededSourceId);
+        await memory.removeBySourceAndType(
+          supersededSourceId,
+          OraclyReadingType.birthChart,
+        );
       } catch (_) {}
     }
     try {

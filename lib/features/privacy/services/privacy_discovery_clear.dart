@@ -44,7 +44,10 @@ abstract final class PrivacyDiscoveryClear {
     await birthCharts.clearLatest();
     if (birthChartSourceId != null) {
       try {
-        await memory.removeBySource(birthChartSourceId);
+        await memory.removeBySourceAndType(
+          birthChartSourceId,
+          OraclyReadingType.birthChart,
+        );
       } catch (_) {
         // Clearing the source remains authoritative when the index is damaged.
       }

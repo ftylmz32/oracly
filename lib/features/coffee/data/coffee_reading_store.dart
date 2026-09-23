@@ -5,13 +5,14 @@ import 'dart:convert';
 
 import '../../../core/auth/owned_file_cleanup_journal.dart';
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../models/coffee_reading.dart';
 
 class CoffeeReadingStore {
   CoffeeReadingStore(this._storage, {OraclyMemoryStore? memory})
-      : _memory = memory;
+    : _memory = memory;
 
   static const key = 'coffee_readings';
 
@@ -68,14 +69,16 @@ class CoffeeReadingStore {
   Future<void> delete(String id) async {
     final ok = await _storage.setStringList(
       key,
-      all().where((e) => e.id != id)
-          .map((e) => jsonEncode(e.toJson())).toList(),
+      all()
+          .where((e) => e.id != id)
+          .map((e) => jsonEncode(e.toJson()))
+          .toList(),
     );
     if (!ok) {
       throw StateError('coffee reading metadata delete failed');
     }
     try {
-      await _memory?.removeBySource(id);
+      await _memory?.removeBySourceAndType(id, OraclyReadingType.coffee);
     } catch (_) {}
   }
 

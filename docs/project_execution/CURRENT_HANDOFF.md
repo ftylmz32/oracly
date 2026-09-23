@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4C storage adapters + delete integrity
+**Updated:** 2026-09-23 — Tarot Phase 4C.1 owner/source identity hardening
 
 ---
 
@@ -80,6 +80,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4B task start | `9985527c1b28ae05caec2efddaa0b0fd01a84be5` | Theme + memory pure engines |
 | Phase 4B end | `7cad2866dd22c0f8f684c530d6d82d90ede5b007` | Theme + memory pure PASS |
 | Phase 4C task start | `7cad2866dd22c0f8f684c530d6d82d90ede5b007` | Storage adapters + owner/delete integrity |
+| Phase 4C end | `2d9ef3b374221d2d0317ee80c1165d726bdd28e4` | Adapters + delete PASS |
+| Phase 4C.1 task start | `2d9ef3b374221d2d0317ee80c1165d726bdd28e4` | Owner-safe live ids + typed delete + grounding |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -172,6 +174,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4A.1 — Historical recurrence identity + generic-topic + short-alias hardening | **COMPLETE** |
 | Phase 4B — Cross-feature themes + pure memory evidence | **COMPLETE** |
 | Phase 4C — Storage adapters + owner/delete integrity | **COMPLETE** |
+| Phase 4C.1 — Owner-safe live source identity + typed deletion | **COMPLETE** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -459,6 +462,17 @@ Pre-existing local noise (do **not** stage/clean):
 | Runtime V2 | **NOT USER-REACHABLE** |
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
+
+### Phase 4C.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| H14 owner-safe live Tarot ids | **IMPLEMENTED** (accepted adapter rows only) |
+| H15 typed memory deletion | **IMPLEMENTED** (`removeBySourceAndType`) |
+| H16 question grounding fallback | **IMPLEMENTED** (shared effective ask/topic) |
+| Request enricher | **NOT IMPLEMENTED** |
+| Narrative V2 user path | **UNCHANGED** / **NOT WIRED** |
 
 ### Phase 4C
 
@@ -854,7 +868,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 **ChatGPT review before Phase 4D** (request enricher + frozen historical corpus).
 
-Phase 4C: **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **NOT** · user path **UNCHANGED** (delete privacy hardening only).
+Phase 4C.1: **PASS** · Phase 4C **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **NOT** · user path **UNCHANGED**.
 
 Do **not** start 4D until reviewed.
 Do **not** merge.

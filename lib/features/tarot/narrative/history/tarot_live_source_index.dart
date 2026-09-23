@@ -4,14 +4,11 @@ library;
 import '../../../../core/data/datasources/local_storage.dart';
 import '../../../../core/domain/repositories/birth_chart_repository.dart';
 import '../../../../core/domain/repositories/dream_repository.dart';
-import '../../../../core/services/history_service.dart';
 import '../../../birth_chart/data/birth_chart_record_mapper.dart';
 import '../../../birth_chart/services/birth_chart_persistence_validator.dart';
 import '../../../coffee/data/coffee_reading_store.dart';
 import '../../../palm/data/palm_reading_store.dart';
 import '../../../premium/data/soul_mate_result_store.dart';
-import '../../domain/models/reading_session.dart';
-import '../../domain/repositories/tarot_reading_repository.dart';
 import 'tarot_connected_memory_models.dart';
 
 class TarotLiveSourceIndex {
@@ -45,26 +42,13 @@ class TarotLiveSourceIndex {
     };
   }
 
+  /// [tarotIds] must come from accepted TarotHistorySourceAdapter rows only.
   static Future<TarotLiveSourceIndex> build({
     required LocalStorage storage,
-    required HistoryService history,
-    required TarotReadingRepository tarotRepository,
+    required Set<String> tarotIds,
     required DreamRepository dreams,
     required BirthChartRepository birthCharts,
   }) async {
-    final readings = await history.getAll();
-    final sessions = await tarotRepository.loadAllSessions();
-    final tarotIds = <String>{};
-    for (final r in readings) {
-      if (r.id.trim().isNotEmpty) tarotIds.add(r.id.trim());
-      final sid = r.sessionId?.trim();
-      if (sid != null && sid.isNotEmpty) tarotIds.add(sid);
-    }
-    for (final s in sessions) {
-      if (s.status != ReadingSessionStatus.completed) continue;
-      if (s.id.trim().isNotEmpty) tarotIds.add(s.id.trim());
-    }
-
     String? soulmateId;
     try {
       final meta = await SoulMateResultStore.readMeta(storage);

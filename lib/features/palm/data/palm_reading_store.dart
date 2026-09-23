@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import '../../../core/auth/owned_file_cleanup_journal.dart';
 import '../../../core/data/datasources/local_storage.dart';
+import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../models/palm_hand.dart';
@@ -80,7 +81,7 @@ class PalmReadingStore {
     }
     await PalmImageArchive.deleteIfOwned(existing?.imagePath);
     try {
-      await _memory?.removeBySource(id);
+      await _memory?.removeBySourceAndType(id, OraclyReadingType.palm);
     } catch (_) {}
   }
 

@@ -39,6 +39,7 @@ abstract final class TarotHistorySessionNormalize {
   static ({
     TarotHistoricalReadingRecord? record,
     Set<String> linkedReadingIds,
+    Set<String> liveSourceIds,
     TarotHistoryNormalizeDiagnostics diag,
   })
   normalize({
@@ -46,7 +47,6 @@ abstract final class TarotHistorySessionNormalize {
     required ReadingModel? linked,
     required String? currentOwnerId,
   }) {
-    var diag = const TarotHistoryNormalizeDiagnostics();
     final linkedIds = <String>{};
     if (linked != null) linkedIds.add(linked.id);
 
@@ -57,6 +57,7 @@ abstract final class TarotHistorySessionNormalize {
       return (
         record: null,
         linkedReadingIds: linkedIds,
+        liveSourceIds: const <String>{},
         diag: const TarotHistoryNormalizeDiagnostics(skippedOwnerMismatch: 1),
       );
     }
@@ -68,6 +69,7 @@ abstract final class TarotHistorySessionNormalize {
       return (
         record: null,
         linkedReadingIds: linkedIds,
+        liveSourceIds: const <String>{},
         diag: const TarotHistoryNormalizeDiagnostics(skippedMalformed: 1),
       );
     }
@@ -77,6 +79,7 @@ abstract final class TarotHistorySessionNormalize {
       return (
         record: null,
         linkedReadingIds: linkedIds,
+        liveSourceIds: const <String>{},
         diag: const TarotHistoryNormalizeDiagnostics(skippedOwnerMismatch: 1),
       );
     }
@@ -89,26 +92,33 @@ abstract final class TarotHistorySessionNormalize {
         ),
     ];
 
+    final sessionReal = ReadingQuestion.real(session.intention.text);
+    final linkedReal = ReadingQuestion.real(linked?.intention);
+    final effectiveQuestion = sessionReal ?? linkedReal;
+    final effectiveTopic =
+        _trimOrNull(session.intention.topic) ??
+        _trimOrNull(linked?.readingType);
+
     final grounded = NarrativeQuestionGrounding.from(
-      rawQuestion: session.intention.text,
-      topic: session.intention.topic,
+      rawQuestion: effectiveQuestion,
+      topic: effectiveTopic,
     );
-    var intention = TarotHistoricalText.sanitizeIntention(
-      ReadingQuestion.real(session.intention.text),
-    );
-    var topicId = _trimOrNull(session.intention.topic);
+    final intention = TarotHistoricalText.sanitizeIntention(effectiveQuestion);
+
     var interpretation = TarotHistoryCardNormalize.boundInterpretation(
       session.interpretation,
     );
-
     if (linked != null) {
-      intention ??= TarotHistoricalText.sanitizeIntention(
-        ReadingQuestion.real(linked.intention),
-      );
-      topicId ??= _trimOrNull(linked.readingType);
       interpretation ??= TarotHistoryCardNormalize.boundInterpretation(
         linked.aiSummary,
       );
+    }
+
+    final liveIds = <String>{session.id};
+    if (linked != null) {
+      liveIds.add(linked.id);
+      final sid = linked.sessionId?.trim();
+      if (sid != null && sid.isNotEmpty) liveIds.add(sid);
     }
 
     final occurred = (session.completedAt ?? session.startedAt).toUtc();
@@ -120,13 +130,14 @@ abstract final class TarotHistorySessionNormalize {
         occurredAt: occurred,
         spreadId: spread.spreadId,
         questionKind: grounded.kind,
-        topicId: topicId,
+        topicId: effectiveTopic,
         intentionSummary: intention,
         interpretationSummary: interpretation,
         cards: cards,
       ),
       linkedReadingIds: linkedIds,
-      diag: diag,
+      liveSourceIds: liveIds,
+      diag: const TarotHistoryNormalizeDiagnostics(),
     );
   }
 

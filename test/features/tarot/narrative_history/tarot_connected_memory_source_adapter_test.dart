@@ -9,6 +9,7 @@ import 'package:oracly_new/features/palm/data/palm_reading_store.dart';
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_memory_evidence.dart';
 import 'package:oracly_new/features/tarot/narrative/history/tarot_connected_memory_models.dart';
 import 'package:oracly_new/features/tarot/narrative/history/tarot_connected_memory_source_adapter.dart';
+import 'package:oracly_new/features/tarot/narrative/history/tarot_history_source_adapter.dart';
 import 'package:oracly_new/features/tarot/narrative/history/tarot_live_source_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,10 +27,13 @@ void main() {
   });
 
   Future<List<TarotConnectedMemoryRecord>> loadMem() async {
-    final live = await TarotLiveSourceIndex.build(
-      storage: h.storage,
+    final historyResult = await TarotHistorySourceAdapter(
       history: h.history,
       tarotRepository: h.tarot,
+    ).load(currentOwnerId: null);
+    final live = await TarotLiveSourceIndex.build(
+      storage: h.storage,
+      tarotIds: historyResult.liveTarotSourceIds,
       dreams: h.dreams,
       birthCharts: h.birthCharts,
     );
