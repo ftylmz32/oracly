@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups06 = NarrativeCardProfile(
   canonicalCardId: 'cups_06',
@@ -62,7 +63,7 @@ const kNarrativeCups06 = NarrativeCardProfile(
       'Мягкая память держит старую чашу на сегодняшнем столе, не затопляя настоящее.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['oldCup', 'memory', 'simplicity'],
+    keywordIds: [NarrativeKeywordIds.roots, NarrativeKeywordIds.clarity],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeCups06 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.delay,
     ],
-    keywordIds: ['pastLock', 'childRole', 'missingNow'],
+    keywordIds: [
+      NarrativeKeywordIds.bondage,
+      NarrativeKeywordIds.socialExpectation,
+      NarrativeKeywordIds.escape,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.cycles,

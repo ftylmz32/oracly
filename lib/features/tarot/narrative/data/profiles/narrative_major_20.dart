@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor20 = NarrativeCardProfile(
   canonicalCardId: 'major_20',
@@ -62,7 +63,11 @@ const kNarrativeMajor20 = NarrativeCardProfile(
       'Честное пробуждение превращает прошлое в источник обучения и обновления, а не приговора.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['awakening', 'accountability', 'renewal'],
+    keywordIds: [
+      NarrativeKeywordIds.awakening,
+      NarrativeKeywordIds.accountability,
+      NarrativeKeywordIds.renewal,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor20 = NarrativeCardProfile(
       ReversedTransformKind.delay,
       ReversedTransformKind.privateInternal,
     ],
-    keywordIds: ['selfJudgment', 'avoidance', 'doubt'],
+    keywordIds: [
+      NarrativeKeywordIds.judgment,
+      NarrativeKeywordIds.avoidance,
+      NarrativeKeywordIds.doubt,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.awakening,

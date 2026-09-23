@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords08 = NarrativeCardProfile(
   canonicalCardId: 'swords_08',
@@ -62,7 +63,11 @@ const kNarrativeSwords08 = NarrativeCardProfile(
       'Замеченная связь держит тесноту, не принимая её за внешнюю тюрьму.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['tightness', 'boundMind', 'ownSword'],
+    keywordIds: [
+      NarrativeKeywordIds.strain,
+      NarrativeKeywordIds.bondage,
+      NarrativeKeywordIds.harshSpeech,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeSwords08 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['victimStory', 'immobility', 'fearWeb'],
+    keywordIds: [
+      NarrativeKeywordIds.projection,
+      NarrativeKeywordIds.stagnation,
+      NarrativeKeywordIds.fear,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.bondage,

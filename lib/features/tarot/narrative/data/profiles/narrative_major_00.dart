@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor00 = NarrativeCardProfile(
   canonicalCardId: 'major_00',
@@ -62,7 +63,11 @@ const kNarrativeMajor00 = NarrativeCardProfile(
       'Открытость и гибкость поддерживают живую, но бережную встречу с неизвестным.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['threshold', 'curiosity', 'freedom'],
+    keywordIds: [
+      NarrativeKeywordIds.threshold,
+      NarrativeKeywordIds.curiosity,
+      NarrativeKeywordIds.freedom,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor00 = NarrativeCardProfile(
       ReversedTransformKind.avoidance,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['haste', 'scatter', 'avoidance'],
+    keywordIds: [
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.avoidance,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.threshold,

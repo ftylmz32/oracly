@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups02 = NarrativeCardProfile(
   canonicalCardId: 'cups_02',
@@ -62,7 +63,11 @@ const kNarrativeCups02 = NarrativeCardProfile(
       'Спокойная взаимность сводит две чаши, не форсируя слияние.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['twoCups', 'reciprocity', 'offeredCup'],
+    keywordIds: [
+      NarrativeKeywordIds.intimacy,
+      NarrativeKeywordIds.reciprocity,
+      NarrativeKeywordIds.opening,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeCups02 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['imbalance', 'projection', 'hastyUnion'],
+    keywordIds: [
+      NarrativeKeywordIds.imbalance,
+      NarrativeKeywordIds.projection,
+      NarrativeKeywordIds.haste,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.union,

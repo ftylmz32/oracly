@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups11 = NarrativeCardProfile(
   canonicalCardId: 'cups_11',
@@ -62,7 +63,11 @@ const kNarrativeCups11 = NarrativeCardProfile(
       'Учащееся любопытство держит посланника воды, не принимая его за глубокое море.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['waterMessenger', 'softCuriosity', 'feelingLanguage'],
+    keywordIds: [
+      NarrativeKeywordIds.messenger,
+      NarrativeKeywordIds.curiosity,
+      NarrativeKeywordIds.receptivity,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeCups11 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['overSensitivity', 'escapeDream', 'oracleFeeling'],
+    keywordIds: [
+      NarrativeKeywordIds.overflow,
+      NarrativeKeywordIds.escape,
+      NarrativeKeywordIds.illusion,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.curiosity,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor07 = NarrativeCardProfile(
   canonicalCardId: 'major_07',
@@ -62,7 +63,11 @@ const kNarrativeMajor07 = NarrativeCardProfile(
       'Собранная воля создает решительное и направленное движение без опоры на давление.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['movement', 'will', 'direction'],
+    keywordIds: [
+      NarrativeKeywordIds.momentum,
+      NarrativeKeywordIds.will,
+      NarrativeKeywordIds.direction,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor07 = NarrativeCardProfile(
       ReversedTransformKind.blockedExpression,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['stall', 'drift', 'overcontrol'],
+    keywordIds: [
+      NarrativeKeywordIds.delay,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.control,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.movement,

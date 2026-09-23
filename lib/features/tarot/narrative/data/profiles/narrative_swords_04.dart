@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords04 = NarrativeCardProfile(
   canonicalCardId: 'swords_04',
@@ -62,7 +63,7 @@ const kNarrativeSwords04 = NarrativeCardProfile(
       'Сдержанные ножны дают отдых уму, не объявляя войну оконченной.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['rest', 'mindPause', 'sheath'],
+    keywordIds: [NarrativeKeywordIds.pause, NarrativeKeywordIds.restraint],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +72,11 @@ const kNarrativeSwords04 = NarrativeCardProfile(
       'Пауза может избегать жизни как сон-бегство или откладывать возвращение, пока не осядет онемение.',
     ),
     transforms: [ReversedTransformKind.avoidance, ReversedTransformKind.delay],
-    keywordIds: ['escapeSleep', 'defer', 'numbness'],
+    keywordIds: [
+      NarrativeKeywordIds.escape,
+      NarrativeKeywordIds.delay,
+      NarrativeKeywordIds.withdrawal,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.pause,

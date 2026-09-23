@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups05 = NarrativeCardProfile(
   canonicalCardId: 'cups_05',
@@ -62,7 +63,11 @@ const kNarrativeCups05 = NarrativeCardProfile(
       'Честная скорбь чтит разлитое, оставляя видимым и стоящее.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['spilledCups', 'mourning', 'whatStands'],
+    keywordIds: [
+      NarrativeKeywordIds.overflow,
+      NarrativeKeywordIds.grief,
+      NarrativeKeywordIds.stability,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +76,7 @@ const kNarrativeCups05 = NarrativeCardProfile(
       'Взгляд может чрезмерно зафиксироваться на разлитом или избегать поворота к тому, что ещё стоит.',
     ),
     transforms: [ReversedTransformKind.excess, ReversedTransformKind.avoidance],
-    keywordIds: ['onlyLoss', 'despair', 'denial'],
+    keywordIds: [NarrativeKeywordIds.despair, NarrativeKeywordIds.denial],
   ),
   symbolTags: [
     NarrativeSymbolTags.grief,

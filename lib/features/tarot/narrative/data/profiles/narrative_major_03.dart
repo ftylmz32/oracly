@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor03 = NarrativeCardProfile(
   canonicalCardId: 'major_03',
@@ -62,7 +63,11 @@ const kNarrativeMajor03 = NarrativeCardProfile(
       'Щедрая и укорененная забота создает плодотворность, расширяющую жизнь без давления.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['nurture', 'abundance', 'creation'],
+    keywordIds: [
+      NarrativeKeywordIds.nurture,
+      NarrativeKeywordIds.abundance,
+      NarrativeKeywordIds.creation,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor03 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.deficiency,
     ],
-    keywordIds: ['depletion', 'overcare', 'neglect'],
+    keywordIds: [
+      NarrativeKeywordIds.exhaustion,
+      NarrativeKeywordIds.rescue,
+      NarrativeKeywordIds.withdrawal,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.nurture,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles08 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_08',
@@ -62,7 +63,11 @@ const kNarrativePentacles08 = NarrativeCardProfile(
       'Сознательный повтор отделяет мастерство от механической усталости.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['repeatingHand', 'mastery', 'discipline'],
+    keywordIds: [
+      NarrativeKeywordIds.cycles,
+      NarrativeKeywordIds.mastery,
+      NarrativeKeywordIds.discipline,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativePentacles08 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['mechanicalLoop', 'exhaustion', 'noAdvance'],
+    keywordIds: [
+      NarrativeKeywordIds.cycles,
+      NarrativeKeywordIds.exhaustion,
+      NarrativeKeywordIds.stagnation,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.craft,

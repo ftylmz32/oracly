@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles06 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_06',
@@ -62,7 +63,11 @@ const kNarrativePentacles06 = NarrativeCardProfile(
       'Взвешенный обмен держит помощь отдельно от показа и от долга.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['giveReceive', 'weighedScales', 'share'],
+    keywordIds: [
+      NarrativeKeywordIds.reciprocity,
+      NarrativeKeywordIds.fairness,
+      NarrativeKeywordIds.belonging,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativePentacles06 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['mercyDisplay', 'loadedDebt', 'shameReceive'],
+    keywordIds: [
+      NarrativeKeywordIds.display,
+      NarrativeKeywordIds.burden,
+      NarrativeKeywordIds.shame,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.balance,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor12 = NarrativeCardProfile(
   canonicalCardId: 'major_12',
@@ -62,7 +63,11 @@ const kNarrativeMajor12 = NarrativeCardProfile(
       'Осознанная пауза смягчает то, что не решалось усилием, благодаря иному взгляду.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['surrender', 'perspective', 'pause'],
+    keywordIds: [
+      NarrativeKeywordIds.ending,
+      NarrativeKeywordIds.perspective,
+      NarrativeKeywordIds.pause,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor12 = NarrativeCardProfile(
       ReversedTransformKind.delay,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['stagnation', 'resistance', 'sacrifice'],
+    keywordIds: [
+      NarrativeKeywordIds.stagnation,
+      NarrativeKeywordIds.resistance,
+      NarrativeKeywordIds.release,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.surrender,

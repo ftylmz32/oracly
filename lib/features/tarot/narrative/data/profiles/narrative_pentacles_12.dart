@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles12 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_12',
@@ -62,7 +63,11 @@ const kNarrativePentacles12 = NarrativeCardProfile(
       'Стойкий темп отделяет усилие от спешки и от жёсткости.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['slowRoad', 'fieldTempo', 'steadfastness'],
+    keywordIds: [
+      NarrativeKeywordIds.pause,
+      NarrativeKeywordIds.timing,
+      NarrativeKeywordIds.stability,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,7 @@ const kNarrativePentacles12 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['rigidity', 'fearOfSpeed', 'noTurn'],
+    keywordIds: [NarrativeKeywordIds.rigidity, NarrativeKeywordIds.stability],
   ),
   symbolTags: [
     NarrativeSymbolTags.endurance,

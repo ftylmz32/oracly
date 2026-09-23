@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor04 = NarrativeCardProfile(
   canonicalCardId: 'major_04',
@@ -62,7 +63,11 @@ const kNarrativeMajor04 = NarrativeCardProfile(
       'Зрелая власть создает безопасность последовательностью и ответственностью, а не давлением.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['structure', 'authority', 'stability'],
+    keywordIds: [
+      NarrativeKeywordIds.structure,
+      NarrativeKeywordIds.authority,
+      NarrativeKeywordIds.stability,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor04 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.deficiency,
     ],
-    keywordIds: ['rigidity', 'control', 'instability'],
+    keywordIds: [
+      NarrativeKeywordIds.rigidity,
+      NarrativeKeywordIds.control,
+      NarrativeKeywordIds.instability,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.structure,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords13 = NarrativeCardProfile(
   canonicalCardId: 'swords_13',
@@ -62,7 +63,11 @@ const kNarrativeSwords13 = NarrativeCardProfile(
       'Человечная ясность держит правду, не охлаждая её до холода.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['honestBoundary', 'sharpKindness', 'clearWord'],
+    keywordIds: [
+      NarrativeKeywordIds.boundary,
+      NarrativeKeywordIds.restraint,
+      NarrativeKeywordIds.communication,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,7 @@ const kNarrativeSwords13 = NarrativeCardProfile(
       ReversedTransformKind.deficiency,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['coldVerdict', 'distanceWeapon', 'bitterTongue'],
+    keywordIds: [NarrativeKeywordIds.harshSpeech, NarrativeKeywordIds.coldness],
   ),
   symbolTags: [
     NarrativeSymbolTags.clarity,

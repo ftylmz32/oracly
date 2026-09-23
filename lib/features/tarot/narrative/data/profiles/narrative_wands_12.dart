@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands12 = NarrativeCardProfile(
   canonicalCardId: 'wands_12',
@@ -62,7 +63,11 @@ const kNarrativeWands12 = NarrativeCardProfile(
       'Направленное движение превращает огонь в живой путь, не принимая его за дом.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['journey', 'passion', 'forwardFire'],
+    keywordIds: [
+      NarrativeKeywordIds.threshold,
+      NarrativeKeywordIds.desire,
+      NarrativeKeywordIds.direction,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands12 = NarrativeCardProfile(
       ReversedTransformKind.misdirection,
       ReversedTransformKind.avoidance,
     ],
-    keywordIds: ['haste', 'scatteredPassion', 'seekingBattle'],
+    keywordIds: [
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.anger,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.movement,

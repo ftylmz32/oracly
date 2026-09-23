@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords14 = NarrativeCardProfile(
   canonicalCardId: 'swords_14',
@@ -62,7 +63,7 @@ const kNarrativeSwords14 = NarrativeCardProfile(
       'Ответственный принцип держит хребет ума, не замораживая его холодом.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['principle', 'calmJudgement', 'mindSpine'],
+    keywordIds: [NarrativeKeywordIds.principle, NarrativeKeywordIds.judgment],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,7 @@ const kNarrativeSwords14 = NarrativeCardProfile(
       ReversedTransformKind.deficiency,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['rigidity', 'heartlessRule', 'distanceIdol'],
+    keywordIds: [NarrativeKeywordIds.rigidity, NarrativeKeywordIds.coldness],
   ),
   symbolTags: [
     NarrativeSymbolTags.accountability,

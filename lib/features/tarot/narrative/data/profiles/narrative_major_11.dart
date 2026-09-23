@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor11 = NarrativeCardProfile(
   canonicalCardId: 'major_11',
@@ -62,7 +63,11 @@ const kNarrativeMajor11 = NarrativeCardProfile(
       'Ясные критерии и честная ответственность делают возможной взвешенную оценку.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['balance', 'truth', 'accountability'],
+    keywordIds: [
+      NarrativeKeywordIds.balance,
+      NarrativeKeywordIds.truth,
+      NarrativeKeywordIds.accountability,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor11 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.avoidance,
     ],
-    keywordIds: ['bias', 'denial', 'imbalance'],
+    keywordIds: [
+      NarrativeKeywordIds.bias,
+      NarrativeKeywordIds.denial,
+      NarrativeKeywordIds.imbalance,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.balance,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups10 = NarrativeCardProfile(
   canonicalCardId: 'cups_10',
@@ -62,7 +63,7 @@ const kNarrativeCups10 = NarrativeCardProfile(
       'Спокойный круг держит полный стол без претензии на вечность.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['fullTable', 'sharedCircle', 'calmBelonging'],
+    keywordIds: [NarrativeKeywordIds.belonging, NarrativeKeywordIds.union],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeCups10 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['idealStage', 'forcedJoy', 'hiddenCracks'],
+    keywordIds: [
+      NarrativeKeywordIds.illusion,
+      NarrativeKeywordIds.display,
+      NarrativeKeywordIds.denial,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.belonging,

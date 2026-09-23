@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups14 = NarrativeCardProfile(
   canonicalCardId: 'cups_14',
@@ -62,7 +63,11 @@ const kNarrativeCups14 = NarrativeCardProfile(
       'Спокойная ответственность направляет воду с мерой, без холодности.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['steeringWater', 'measuredFlow', 'calmStance'],
+    keywordIds: [
+      NarrativeKeywordIds.direction,
+      NarrativeKeywordIds.flow,
+      NarrativeKeywordIds.restraint,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeCups14 = NarrativeCardProfile(
       ReversedTransformKind.blockedExpression,
       ReversedTransformKind.internalization,
     ],
-    keywordIds: ['coldness', 'suppression', 'frozenStance'],
+    keywordIds: [
+      NarrativeKeywordIds.coldness,
+      NarrativeKeywordIds.suppression,
+      NarrativeKeywordIds.rigidity,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.restraint,

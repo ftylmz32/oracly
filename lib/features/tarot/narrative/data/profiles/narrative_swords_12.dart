@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords12 = NarrativeCardProfile(
   canonicalCardId: 'swords_12',
@@ -62,7 +63,11 @@ const kNarrativeSwords12 = NarrativeCardProfile(
       'Направленная скорость несёт мысль без случайного резанья.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['fastMind', 'wordHorse', 'forwardCut'],
+    keywordIds: [
+      NarrativeKeywordIds.momentum,
+      NarrativeKeywordIds.communication,
+      NarrativeKeywordIds.clarity,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeSwords12 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['thoughtlessSpeed', 'attackSpeech', 'notListening'],
+    keywordIds: [
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.harshSpeech,
+      NarrativeKeywordIds.notListening,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.movement,

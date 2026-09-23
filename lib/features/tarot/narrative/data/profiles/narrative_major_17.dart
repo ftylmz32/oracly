@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor17 = NarrativeCardProfile(
   canonicalCardId: 'major_17',
@@ -62,7 +63,11 @@ const kNarrativeMajor17 = NarrativeCardProfile(
       'Тихая надежда питает открытость и обновление через реалистичное доверие.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['hope', 'guidance', 'renewal'],
+    keywordIds: [
+      NarrativeKeywordIds.hope,
+      NarrativeKeywordIds.guidance,
+      NarrativeKeywordIds.renewal,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor17 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['discouragement', 'doubt', 'disconnection'],
+    keywordIds: [
+      NarrativeKeywordIds.despair,
+      NarrativeKeywordIds.doubt,
+      NarrativeKeywordIds.isolation,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.hope,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor14 = NarrativeCardProfile(
   canonicalCardId: 'major_14',
@@ -62,7 +63,11 @@ const kNarrativeMajor14 = NarrativeCardProfile(
       'Терпеливое объединение создает спокойное и действенное сочетание разных сил.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['balance', 'integration', 'alchemy'],
+    keywordIds: [
+      NarrativeKeywordIds.balance,
+      NarrativeKeywordIds.integration,
+      NarrativeKeywordIds.restraint,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor14 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['imbalance', 'haste', 'extremes'],
+    keywordIds: [
+      NarrativeKeywordIds.imbalance,
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.scatter,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.balance,

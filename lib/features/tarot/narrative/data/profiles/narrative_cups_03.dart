@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups03 = NarrativeCardProfile(
   canonicalCardId: 'cups_03',
@@ -62,7 +63,7 @@ const kNarrativeCups03 = NarrativeCardProfile(
       'Искренний обмен собирает три чаши за столом без шума.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['sharedTable', 'friendship', 'gathering'],
+    keywordIds: [NarrativeKeywordIds.belonging, NarrativeKeywordIds.ending],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeCups03 = NarrativeCardProfile(
       ReversedTransformKind.deficiency,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['surface', 'exclusion', 'noise'],
+    keywordIds: [
+      NarrativeKeywordIds.illusion,
+      NarrativeKeywordIds.isolation,
+      NarrativeKeywordIds.confusion,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.belonging,

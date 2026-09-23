@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands05 = NarrativeCardProfile(
   canonicalCardId: 'wands_05',
@@ -62,7 +63,11 @@ const kNarrativeWands05 = NarrativeCardProfile(
       'Честное испытание проверяет и проясняет волю, не гася искру.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['trial', 'friction', 'honor'],
+    keywordIds: [
+      NarrativeKeywordIds.strain,
+      NarrativeKeywordIds.discord,
+      NarrativeKeywordIds.values,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,7 @@ const kNarrativeWands05 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['defeatStory', 'anger', 'givingUp'],
+    keywordIds: [NarrativeKeywordIds.despair, NarrativeKeywordIds.anger],
   ),
   symbolTags: [
     NarrativeSymbolTags.courage,

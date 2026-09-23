@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups09 = NarrativeCardProfile(
   canonicalCardId: 'cups_09',
@@ -62,7 +63,7 @@ const kNarrativeCups09 = NarrativeCardProfile(
       'Внутренняя достаточность держит полную чашу спокойной, не превращая её в сцену.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['fullCup', 'innerEnough', 'quietTaste'],
+    keywordIds: [NarrativeKeywordIds.enough, NarrativeKeywordIds.joy],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeCups09 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.privateInternal,
     ],
-    keywordIds: ['inflation', 'loneVictory', 'display'],
+    keywordIds: [
+      NarrativeKeywordIds.boast,
+      NarrativeKeywordIds.isolation,
+      NarrativeKeywordIds.display,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.joy,

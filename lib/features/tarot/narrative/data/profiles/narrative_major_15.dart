@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor15 = NarrativeCardProfile(
   canonicalCardId: 'major_15',
@@ -62,7 +63,11 @@ const kNarrativeMajor15 = NarrativeCardProfile(
       'Ясное признание привязанности дает шанс свободнее и ответственнее обращаться с желанием.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['attachment', 'desire', 'bondage'],
+    keywordIds: [
+      NarrativeKeywordIds.attachment,
+      NarrativeKeywordIds.desire,
+      NarrativeKeywordIds.bondage,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor15 = NarrativeCardProfile(
       ReversedTransformKind.release,
       ReversedTransformKind.internalization,
     ],
-    keywordIds: ['release', 'denial', 'compulsion'],
+    keywordIds: [
+      NarrativeKeywordIds.release,
+      NarrativeKeywordIds.denial,
+      NarrativeKeywordIds.control,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.attachment,

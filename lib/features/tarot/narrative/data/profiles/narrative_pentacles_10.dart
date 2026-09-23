@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles10 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_10',
@@ -62,7 +63,7 @@ const kNarrativePentacles10 = NarrativeCardProfile(
       'Укоренённая общая структура переживает личную достаточность и мгновенный обмен.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['lastingLineage', 'sharedStructure', 'roots'],
+    keywordIds: [NarrativeKeywordIds.roots, NarrativeKeywordIds.structure],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,10 @@ const kNarrativePentacles10 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['forcedRole', 'petrifiedRoots', 'lineagePressure'],
+    keywordIds: [
+      NarrativeKeywordIds.socialExpectation,
+      NarrativeKeywordIds.rigidity,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.belonging,

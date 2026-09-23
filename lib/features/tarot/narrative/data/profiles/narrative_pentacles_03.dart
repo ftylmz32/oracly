@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles03 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_03',
@@ -62,7 +63,7 @@ const kNarrativePentacles03 = NarrativeCardProfile(
       'Сплетённый труд держит общую мастерскую отдельно от аплодисментов.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['sharedCraft', 'workshop', 'wovenWork'],
+    keywordIds: [NarrativeKeywordIds.craft, NarrativeKeywordIds.belonging],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativePentacles03 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['visibilityRace', 'deniedShare', 'unwoven'],
+    keywordIds: [
+      NarrativeKeywordIds.display,
+      NarrativeKeywordIds.withdrawal,
+      NarrativeKeywordIds.instability,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.craft,

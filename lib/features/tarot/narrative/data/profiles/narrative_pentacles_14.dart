@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles14 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_14',
@@ -62,7 +63,11 @@ const kNarrativePentacles14 = NarrativeCardProfile(
       'Подотчётное направление отделяет вещество от давления и от запустения.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['rootedMeans', 'accountability', 'materialDirection'],
+    keywordIds: [
+      NarrativeKeywordIds.roots,
+      NarrativeKeywordIds.accountability,
+      NarrativeKeywordIds.direction,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativePentacles14 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['rigidAuthority', 'pressure', 'castLoad'],
+    keywordIds: [
+      NarrativeKeywordIds.rigidity,
+      NarrativeKeywordIds.socialExpectation,
+      NarrativeKeywordIds.burden,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.accountability,

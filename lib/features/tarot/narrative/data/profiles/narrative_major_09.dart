@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor09 = NarrativeCardProfile(
   canonicalCardId: 'major_09',
@@ -62,7 +63,11 @@ const kNarrativeMajor09 = NarrativeCardProfile(
       'Спокойное уединение приносит понимание и направление, позволяя опыту созреть.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['solitude', 'wisdom', 'inquiry'],
+    keywordIds: [
+      NarrativeKeywordIds.solitude,
+      NarrativeKeywordIds.wisdom,
+      NarrativeKeywordIds.inquiry,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor09 = NarrativeCardProfile(
       ReversedTransformKind.privateInternal,
       ReversedTransformKind.avoidance,
     ],
-    keywordIds: ['isolation', 'withdrawal', 'silence'],
+    keywordIds: [
+      NarrativeKeywordIds.isolation,
+      NarrativeKeywordIds.withdrawal,
+      NarrativeKeywordIds.silence,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.solitude,

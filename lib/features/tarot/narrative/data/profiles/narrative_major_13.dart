@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor13 = NarrativeCardProfile(
   canonicalCardId: 'major_13',
@@ -62,7 +63,11 @@ const kNarrativeMajor13 = NarrativeCardProfile(
       'Принятый конец позволяет преобразованию идти ясно и без лишнего груза.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['transformation', 'release', 'ending'],
+    keywordIds: [
+      NarrativeKeywordIds.change,
+      NarrativeKeywordIds.release,
+      NarrativeKeywordIds.ending,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor13 = NarrativeCardProfile(
       ReversedTransformKind.delay,
       ReversedTransformKind.internalization,
     ],
-    keywordIds: ['resistance', 'stagnation', 'grief'],
+    keywordIds: [
+      NarrativeKeywordIds.resistance,
+      NarrativeKeywordIds.stagnation,
+      NarrativeKeywordIds.grief,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.transformation,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups04 = NarrativeCardProfile(
   canonicalCardId: 'cups_04',
@@ -62,7 +63,7 @@ const kNarrativeCups04 = NarrativeCardProfile(
       'Обращённая внутрь поза усиливает видение чаши перед собой без спешки к новому.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['stillCup', 'enough', 'inwardPause'],
+    keywordIds: [NarrativeKeywordIds.pause, NarrativeKeywordIds.enough],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeCups04 = NarrativeCardProfile(
       ReversedTransformKind.avoidance,
       ReversedTransformKind.deficiency,
     ],
-    keywordIds: ['ingratitude', 'escape', 'feelingBlind'],
+    keywordIds: [
+      NarrativeKeywordIds.discord,
+      NarrativeKeywordIds.escape,
+      NarrativeKeywordIds.confusion,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.pause,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups07 = NarrativeCardProfile(
   canonicalCardId: 'cups_07',
@@ -62,7 +63,11 @@ const kNarrativeCups07 = NarrativeCardProfile(
       'Осознанное касание различает среди многих чаш ту, что держит воду.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['manyCups', 'options', 'touchOne'],
+    keywordIds: [
+      NarrativeKeywordIds.overflow,
+      NarrativeKeywordIds.choice,
+      NarrativeKeywordIds.focus,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeCups07 = NarrativeCardProfile(
       ReversedTransformKind.misdirection,
       ReversedTransformKind.delay,
     ],
-    keywordIds: ['escapeDream', 'indecision', 'mirage'],
+    keywordIds: [
+      NarrativeKeywordIds.escape,
+      NarrativeKeywordIds.indecision,
+      NarrativeKeywordIds.illusion,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.illusion,

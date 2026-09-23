@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands03 = NarrativeCardProfile(
   canonicalCardId: 'wands_03',
@@ -62,7 +63,11 @@ const kNarrativeWands03 = NarrativeCardProfile(
       'Терпеливое внимание держит первый видимый рост живым, не принимая его за урожай.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['growth', 'horizon', 'firstFruit'],
+    keywordIds: [
+      NarrativeKeywordIds.renewal,
+      NarrativeKeywordIds.perspective,
+      NarrativeKeywordIds.opening,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands03 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['impatience', 'scatter', 'boast'],
+    keywordIds: [
+      NarrativeKeywordIds.impatience,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.boast,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.hope,

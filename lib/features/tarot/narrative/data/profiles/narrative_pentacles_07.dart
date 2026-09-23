@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles07 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_07',
@@ -62,7 +63,11 @@ const kNarrativePentacles07 = NarrativeCardProfile(
       'Сознательное терпение отделяет посев от преждевременного сбора и от застывшего ожидания.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['notYetRipe', 'cultivation', 'patience'],
+    keywordIds: [
+      NarrativeKeywordIds.timing,
+      NarrativeKeywordIds.stewardship,
+      NarrativeKeywordIds.pause,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +76,11 @@ const kNarrativePentacles07 = NarrativeCardProfile(
       'Терпение может растянуться в отсрочку без пересмотра или избегать поля, не глядя — а иногда срывая рано, чтобы уйти от ожидания.',
     ),
     transforms: [ReversedTransformKind.delay, ReversedTransformKind.avoidance],
-    keywordIds: ['frozenWait', 'prematurePull', 'blindDelay'],
+    keywordIds: [
+      NarrativeKeywordIds.coldness,
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.delay,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.timing,

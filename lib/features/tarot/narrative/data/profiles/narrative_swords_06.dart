@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords06 = NarrativeCardProfile(
   canonicalCardId: 'swords_06',
@@ -62,7 +63,11 @@ const kNarrativeSwords06 = NarrativeCardProfile(
       'Спокойный переход двигает ум вперёд, не принимая его за гавань.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['crossing', 'calmWater', 'carrying'],
+    keywordIds: [
+      NarrativeKeywordIds.threshold,
+      NarrativeKeywordIds.flow,
+      NarrativeKeywordIds.burden,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeSwords06 = NarrativeCardProfile(
       ReversedTransformKind.avoidance,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['escape', 'pastCargo', 'arrivalFear'],
+    keywordIds: [
+      NarrativeKeywordIds.escape,
+      NarrativeKeywordIds.burden,
+      NarrativeKeywordIds.fear,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.movement,

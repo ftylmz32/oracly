@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands10 = NarrativeCardProfile(
   canonicalCardId: 'wands_10',
@@ -62,7 +63,11 @@ const kNarrativeWands10 = NarrativeCardProfile(
       'Ответственное ношение уравновешивает избыточный огонь, слушая язык плеч.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['load', 'tooMuchFire', 'duty'],
+    keywordIds: [
+      NarrativeKeywordIds.burden,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.accountability,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands10 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['heroPlay', 'collapseFear', 'cannotDelegate'],
+    keywordIds: [
+      NarrativeKeywordIds.display,
+      NarrativeKeywordIds.fear,
+      NarrativeKeywordIds.control,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.burden,

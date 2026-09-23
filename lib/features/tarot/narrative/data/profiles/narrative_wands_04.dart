@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands04 = NarrativeCardProfile(
   canonicalCardId: 'wands_04',
@@ -62,7 +63,11 @@ const kNarrativeWands04 = NarrativeCardProfile(
       'Укоренённый промежуток дыхания держит огонь у порога дома безопасным и делимым.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['thresholdFeast', 'root', 'pause'],
+    keywordIds: [
+      NarrativeKeywordIds.holding,
+      NarrativeKeywordIds.roots,
+      NarrativeKeywordIds.pause,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands04 = NarrativeCardProfile(
       ReversedTransformKind.delay,
       ReversedTransformKind.internalization,
     ],
-    keywordIds: ['earlyFeast', 'scatter', 'unsettled'],
+    keywordIds: [
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.instability,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.pause,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor05 = NarrativeCardProfile(
   canonicalCardId: 'major_05',
@@ -62,7 +63,11 @@ const kNarrativeMajor05 = NarrativeCardProfile(
       'Живая традиция может дать мудрость, направляющую опыт без его ограничения.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['teaching', 'tradition', 'values'],
+    keywordIds: [
+      NarrativeKeywordIds.teaching,
+      NarrativeKeywordIds.tradition,
+      NarrativeKeywordIds.values,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor05 = NarrativeCardProfile(
       ReversedTransformKind.privateInternal,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['conformity', 'dogma', 'questioning'],
+    keywordIds: [
+      NarrativeKeywordIds.conformity,
+      NarrativeKeywordIds.rigidity,
+      NarrativeKeywordIds.learning,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.teaching,

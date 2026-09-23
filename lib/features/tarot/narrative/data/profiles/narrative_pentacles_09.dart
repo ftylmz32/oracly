@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles09 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_09',
@@ -62,7 +63,7 @@ const kNarrativePentacles09 = NarrativeCardProfile(
       'Самостоятельная достаточность держит труд отдельно от показа.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['enoughness', 'ownLabor', 'sufficiency'],
+    keywordIds: [NarrativeKeywordIds.enough, NarrativeKeywordIds.craft],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativePentacles09 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.privateInternal,
     ],
-    keywordIds: ['shopWindow', 'shutSolitude', 'refuseShare'],
+    keywordIds: [
+      NarrativeKeywordIds.display,
+      NarrativeKeywordIds.solitude,
+      NarrativeKeywordIds.withdrawal,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.abundance,

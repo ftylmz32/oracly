@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands07 = NarrativeCardProfile(
   canonicalCardId: 'wands_07',
@@ -62,7 +63,7 @@ const kNarrativeWands07 = NarrativeCardProfile(
       'Огонь, удерживаемый с одной точки, охраняет границу, не изобретая осаду.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['stance', 'boundary', 'fireAlone'],
+    keywordIds: [NarrativeKeywordIds.boundary, NarrativeKeywordIds.isolation],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeWands07 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.privateInternal,
     ],
-    keywordIds: ['siegeFeeling', 'harshness', 'isolation'],
+    keywordIds: [
+      NarrativeKeywordIds.pressure,
+      NarrativeKeywordIds.harshSpeech,
+      NarrativeKeywordIds.isolation,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.restraint,

@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands06 = NarrativeCardProfile(
   canonicalCardId: 'wands_06',
@@ -62,7 +63,7 @@ const kNarrativeWands06 = NarrativeCardProfile(
       'Спокойное признание чтит огонь, перешедший порог, без победного излишества.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['crossing', 'notice', 'breath'],
+    keywordIds: [NarrativeKeywordIds.threshold, NarrativeKeywordIds.inquiry],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeWands06 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['boast', 'stuckInPast', 'stage'],
+    keywordIds: [
+      NarrativeKeywordIds.boast,
+      NarrativeKeywordIds.bondage,
+      NarrativeKeywordIds.display,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.recognition,

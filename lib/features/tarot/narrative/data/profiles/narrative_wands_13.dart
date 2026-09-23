@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands13 = NarrativeCardProfile(
   canonicalCardId: 'wands_13',
@@ -62,7 +63,11 @@ const kNarrativeWands13 = NarrativeCardProfile(
       'Зрелый домашний огонь держит и делит теплоту внутри, не превращая её в сцену.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['warmHouse', 'matureFire', 'invitation'],
+    keywordIds: [
+      NarrativeKeywordIds.nurture,
+      NarrativeKeywordIds.mastery,
+      NarrativeKeywordIds.opening,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands13 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['control', 'envy', 'dimming'],
+    keywordIds: [
+      NarrativeKeywordIds.control,
+      NarrativeKeywordIds.envy,
+      NarrativeKeywordIds.withdrawal,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.nurture,

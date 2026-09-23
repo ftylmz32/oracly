@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3C.5D.1 FR-M04 ontology semantic mapping repair (design only)
+**Updated:** 2026-09-23 — Tarot Phase 3C.5E FR-M04 canonical keyword ontology implementation
 
 ---
 
@@ -44,6 +44,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.5D task start | `bc9ff060801d941c16ed32b32d8708177fa20c21` | FR-M04 keyword ontology design |
 | Phase 3C.5D end | `9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b` | Ontology design complete; FR-M04 OPEN |
 | Phase 3C.5D.1 task start | `9b7086cc92709abe3d3aea11f1f6ee3b6ab34b8b` | FR-M04 semantic mapping repair |
+| Phase 3C.5D.1 end | `a0dbee280b0931469780ad5fbf567343397a80b5` | Ontology plan semantic repair |
+| Phase 3C.5E task start | `a0dbee280b0931469780ad5fbf567343397a80b5` | FR-M04 ontology implementation |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -117,7 +119,8 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.5B — FR-M03 shadow vs reversed court separation | **COMPLETE** (FR-M03 + RT-M02 RESOLVED; readiness still **NO**) |
 | Phase 3C.5C — FR-M01 / FR-M02 EN naturalness | **COMPLETE** (FR-M01/M02 + RT-M03 minors-only; readiness still **NO** — FR-M04) |
 | Phase 3C.5D — FR-M04 keyword ontology design | **COMPLETE** (design only; FR-M04 **OPEN**; readiness **NO**) |
-| Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **COMPLETE** (plan repaired; FR-M04 **OPEN**; readiness **NO**) |
+| Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **COMPLETE** (plan repaired; FR-M04 was OPEN) |
+| Phase 3C.5E — FR-M04 canonical keyword ontology implementation | **COMPLETE** (FR-M04 **REMEDIATED — PENDING 3C.5F**; readiness **NO**) |
 | Phase 3B+ — Narrative Evidence Engine | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
@@ -407,17 +410,35 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3C.5E
+
+| Field | Value |
+|---|---|
+| Status | **PASS** (implementation) |
+| FR-M04 | **REMEDIATED — PENDING 3C.5F** |
+| Keyword ontology | **IMPLEMENTED** |
+| Ontology revision | **1** |
+| Defined / used ids | **128 / 122** |
+| Assignments / singletons | **439 / 30 (24.59%)** |
+| Orientations mapped | **156 / 156** |
+| Appendix B fixture match | **156 / 156** |
+| Prose / transforms / symbolTags / profileRevision | **UNCHANGED** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — final independent 3C.5F audit required |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Runtime V2 | **NOT USER-REACHABLE** |
+| Visual System | **NOT IMPLEMENTED** |
+
 ### Phase 3C.5D.1
 
 | Field | Value |
 |---|---|
 | Status | **PASS** (design repair) |
-| FR-M04 | **OPEN** — implementation pending |
-| Ontology plan | `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md` (**ACTIVE = 3C.5D.1**) |
+| FR-M04 | was **OPEN** — implementation pending |
+| Ontology plan | `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md` (**ACTIVE = 3C.5D.1**, implemented in 3C.5E) |
 | Ambiguous mappings | **0** |
 | Semantic inversions after | **0** |
-| Plan approved for implementation | **YES** pending ChatGPT confirmation |
-| Production keywordIds changed | **NO** |
+| Plan approved for implementation | **YES** |
+| Production keywordIds changed | **NO** (design phase) |
 | DECK READY FOR EVIDENCE ENGINE | **NO** |
 | Narrative Evidence Engine | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
@@ -467,6 +488,8 @@ Production surface:
 | Flutter (Phase 3C.5B — PL-T3C.5B) | 3749 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.5C — PL-T3C.5C) | 3756 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3C.5D — PL-T3C.5D) | docs + diagnostic only; production source unmodified |
+| Flutter (Phase 3C.5D.1 — PL-T3C.5D.1) | docs only; production source unmodified |
+| Flutter (Phase 3C.5E — PL-T3C.5E) | 3768 passed · 0 failed · 15 skipped · 0 timed out |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -491,16 +514,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before FR-M04 keyword ontology implementation.**
+**ChatGPT review before Phase 3C.5F final ontology/readiness audit.**
 
-Phase 3C.5D.1: **ONTOLOGY PLAN SEMANTIC REPAIR COMPLETE** · FR-M04: **OPEN — implementation pending**.
+Phase 3C.5E: **COMPLETE** · Keyword ontology: **IMPLEMENTED** (revision **1**) · Defined **128** · Used **122**.
 
-Ambiguous mappings: **0**.  
-Plan approved for implementation: **YES** pending ChatGPT confirmation of 3C.5D.1.
+FR-M04: **REMEDIATED — PENDING 3C.5F**.
 
-Active plan: `docs/product/tarot/TAROT_KEYWORD_ONTOLOGY_PLAN.md`
+DECK READY FOR EVIDENCE ENGINE: **NO** — final independent audit required · Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
 
-DECK READY FOR EVIDENCE ENGINE: **NO** · Narrative Evidence Engine: **NOT IMPLEMENTED** · Runtime V2: **NOT USER-REACHABLE** · Visual System: **NOT IMPLEMENTED**.
-
-Do **not** implement keyword remaps or start Evidence Engine until reviewed.
+Do **not** start Phase 3C.5F or Evidence Engine until reviewed.
 Do **not** mark future items completed until verified.

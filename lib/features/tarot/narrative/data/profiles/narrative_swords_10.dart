@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords10 = NarrativeCardProfile(
   canonicalCardId: 'swords_10',
@@ -62,7 +63,7 @@ const kNarrativeSwords10 = NarrativeCardProfile(
       'Закрывающийся цикл ума завершается, не принимаясь за конец тела.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['mentalEnding', 'finishedWar', 'enough'],
+    keywordIds: [NarrativeKeywordIds.ending, NarrativeKeywordIds.enough],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,7 @@ const kNarrativeSwords10 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['disasterIdentity', 'notRising', 'allOverStory'],
+    keywordIds: [NarrativeKeywordIds.despair, NarrativeKeywordIds.stagnation],
   ),
   symbolTags: [
     NarrativeSymbolTags.ending,

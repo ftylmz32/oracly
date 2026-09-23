@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords05 = NarrativeCardProfile(
   canonicalCardId: 'swords_05',
@@ -62,7 +63,11 @@ const kNarrativeSwords05 = NarrativeCardProfile(
       'Опущенный меч отделяет пустую победу от цены отношений.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['hollowWin', 'warOfWords', 'hurting'],
+    keywordIds: [
+      NarrativeKeywordIds.illusion,
+      NarrativeKeywordIds.harshSpeech,
+      NarrativeKeywordIds.grief,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeSwords05 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['humiliation', 'revenge', 'beingLeft'],
+    keywordIds: [
+      NarrativeKeywordIds.shame,
+      NarrativeKeywordIds.anger,
+      NarrativeKeywordIds.fear,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.friction,

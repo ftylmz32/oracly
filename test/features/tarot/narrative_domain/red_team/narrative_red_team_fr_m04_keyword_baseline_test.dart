@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/tarot/narrative/data/narrative_tarot_profile_catalog.dart';
+import 'package:oracly_new/features/tarot/narrative/domain/narrative_keyword_ids.dart';
 
-/// Phase 3C.5D — FR-M04 current keyword baseline diagnostic (does NOT enforce ontology).
+/// Phase 3C.5E — FR-M04 ontology implemented; baseline now asserts canonical metrics.
 void main() {
-  test('FR-M04 diagnostic reports current keyword fragmentation baseline', () {
+  test('FR-M04 keyword ontology is implemented at revision 1', () {
     final freq = <String, int>{};
     var assignments = 0;
     for (final p in NarrativeTarotProfileCatalog.all) {
@@ -20,13 +21,12 @@ void main() {
     final singletons = freq.values.where((c) => c == 1).length;
     final singletonPct = 100.0 * singletons / unique;
 
-    // Reproducible CURRENT baseline (Phase 3C.5D inventory).
     expect(NarrativeTarotProfileCatalog.all.length, 78);
-    expect(assignments, 468);
-    expect(unique, 397);
-    expect(singletons, 352);
-    expect(singletonPct, closeTo(88.66, 0.05));
-
-    // FR-M04 remains open: do NOT assert proposed ontology metrics here.
+    expect(NarrativeKeywordIds.ontologyRevision, 1);
+    expect(NarrativeKeywordIds.all.length, 128);
+    expect(assignments, 439);
+    expect(unique, 122);
+    expect(singletons, 30);
+    expect(singletonPct, closeTo(24.59, 0.05));
   });
 }

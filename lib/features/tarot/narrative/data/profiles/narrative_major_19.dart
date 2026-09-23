@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor19 = NarrativeCardProfile(
   canonicalCardId: 'major_19',
@@ -62,7 +63,11 @@ const kNarrativeMajor19 = NarrativeCardProfile(
       'Простая ясность и жизненность поддерживают уверенное и открытое самовыражение.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['clarity', 'vitality', 'joy'],
+    keywordIds: [
+      NarrativeKeywordIds.clarity,
+      NarrativeKeywordIds.vitality,
+      NarrativeKeywordIds.joy,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor19 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['diminishedJoy', 'delay', 'overexposure'],
+    keywordIds: [
+      NarrativeKeywordIds.withdrawal,
+      NarrativeKeywordIds.delay,
+      NarrativeKeywordIds.overflow,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.clarity,

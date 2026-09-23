@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords02 = NarrativeCardProfile(
   canonicalCardId: 'swords_02',
@@ -62,7 +63,11 @@ const kNarrativeSwords02 = NarrativeCardProfile(
       'Поза с открытыми глазами держит два меча, не нанося удара.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['stalemate', 'twoThoughts', 'closedEyes'],
+    keywordIds: [
+      NarrativeKeywordIds.stagnation,
+      NarrativeKeywordIds.indecision,
+      NarrativeKeywordIds.denial,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +76,11 @@ const kNarrativeSwords02 = NarrativeCardProfile(
       'Поза может избегать решения через бегство или отрицание, или откладывать, пока заморозка не заменит выбор.',
     ),
     transforms: [ReversedTransformKind.avoidance, ReversedTransformKind.delay],
-    keywordIds: ['decisionFlight', 'denial', 'freeze'],
+    keywordIds: [
+      NarrativeKeywordIds.escape,
+      NarrativeKeywordIds.denial,
+      NarrativeKeywordIds.coldness,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.choice,

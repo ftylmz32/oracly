@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords09 = NarrativeCardProfile(
   canonicalCardId: 'swords_09',
@@ -62,7 +63,7 @@ const kNarrativeSwords09 = NarrativeCardProfile(
       'Сочтённая мысль держит ночную ношу, не принимая её за пророчество.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['nightThought', 'mindLoad', 'worry'],
+    keywordIds: [NarrativeKeywordIds.mindBurden, NarrativeKeywordIds.shadow],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeSwords09 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.internalization,
     ],
-    keywordIds: ['catastropheDream', 'insomniaIdentity', 'guilt'],
+    keywordIds: [
+      NarrativeKeywordIds.fear,
+      NarrativeKeywordIds.mindBurden,
+      NarrativeKeywordIds.burden,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.shadow,

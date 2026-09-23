@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords01 = NarrativeCardProfile(
   canonicalCardId: 'swords_01',
@@ -62,7 +63,7 @@ const kNarrativeSwords01 = NarrativeCardProfile(
       'Сдержанное остриё удерживает первую идею живой и управляемой.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['firstEdge', 'clearIdea', 'air'],
+    keywordIds: [NarrativeKeywordIds.opening, NarrativeKeywordIds.clarity],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,7 @@ const kNarrativeSwords01 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['harshWord', 'scatteredMind', 'cuttingToCut'],
+    keywordIds: [NarrativeKeywordIds.harshSpeech, NarrativeKeywordIds.scatter],
   ),
   symbolTags: [
     NarrativeSymbolTags.clarity,

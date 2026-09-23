@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords11 = NarrativeCardProfile(
   canonicalCardId: 'swords_11',
@@ -62,7 +63,11 @@ const kNarrativeSwords11 = NarrativeCardProfile(
       'Учащееся любопытство держит роль вестника, не принимая её за судью.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['airMessenger', 'sharpStudent', 'question'],
+    keywordIds: [
+      NarrativeKeywordIds.messenger,
+      NarrativeKeywordIds.learning,
+      NarrativeKeywordIds.inquiry,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeSwords11 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['gossip', 'hastyVerdict', 'notListening'],
+    keywordIds: [
+      NarrativeKeywordIds.harshSpeech,
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.notListening,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.curiosity,

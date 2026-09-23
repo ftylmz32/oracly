@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands08 = NarrativeCardProfile(
   canonicalCardId: 'wands_08',
@@ -62,7 +63,11 @@ const kNarrativeWands08 = NarrativeCardProfile(
       'Сдержанный поток продвигает стрелы в воздухе, не принимая их за прибытие.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['speed', 'news', 'flow'],
+    keywordIds: [
+      NarrativeKeywordIds.momentum,
+      NarrativeKeywordIds.messenger,
+      NarrativeKeywordIds.flow,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands08 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['haste', 'scatter', 'impatience'],
+    keywordIds: [
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.impatience,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.movement,

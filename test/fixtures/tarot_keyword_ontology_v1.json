@@ -1,0 +1,1385 @@
+{
+  "ontologyRevision": 1,
+  "authority": "Phase 3C.5D.1 Appendix B",
+  "definedVocabulary": 128,
+  "expectedUsedVocabulary": 122,
+  "expectedAssignments": 439,
+  "expectedSingletonIds": 30,
+  "rows": [
+    {
+      "canonicalCardId": "cups_01",
+      "orientation": "reversed",
+      "keywordIds": [
+        "overflow",
+        "closing",
+        "escape"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_01",
+      "orientation": "upright",
+      "keywordIds": [
+        "opening",
+        "holding"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_02",
+      "orientation": "reversed",
+      "keywordIds": [
+        "imbalance",
+        "projection",
+        "haste"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_02",
+      "orientation": "upright",
+      "keywordIds": [
+        "intimacy",
+        "reciprocity",
+        "opening"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_03",
+      "orientation": "reversed",
+      "keywordIds": [
+        "illusion",
+        "isolation",
+        "confusion"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_03",
+      "orientation": "upright",
+      "keywordIds": [
+        "belonging",
+        "ending"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_04",
+      "orientation": "reversed",
+      "keywordIds": [
+        "discord",
+        "escape",
+        "confusion"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_04",
+      "orientation": "upright",
+      "keywordIds": [
+        "pause",
+        "enough"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_05",
+      "orientation": "reversed",
+      "keywordIds": [
+        "despair",
+        "denial"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_05",
+      "orientation": "upright",
+      "keywordIds": [
+        "overflow",
+        "grief",
+        "stability"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_06",
+      "orientation": "reversed",
+      "keywordIds": [
+        "bondage",
+        "socialExpectation",
+        "escape"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_06",
+      "orientation": "upright",
+      "keywordIds": [
+        "roots",
+        "clarity"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_07",
+      "orientation": "reversed",
+      "keywordIds": [
+        "escape",
+        "indecision",
+        "illusion"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_07",
+      "orientation": "upright",
+      "keywordIds": [
+        "overflow",
+        "choice",
+        "focus"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_08",
+      "orientation": "reversed",
+      "keywordIds": [
+        "escape",
+        "inquiry"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_08",
+      "orientation": "upright",
+      "keywordIds": [
+        "withdrawal",
+        "inquiry",
+        "change"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_09",
+      "orientation": "reversed",
+      "keywordIds": [
+        "boast",
+        "isolation",
+        "display"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_09",
+      "orientation": "upright",
+      "keywordIds": [
+        "enough",
+        "joy"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_10",
+      "orientation": "reversed",
+      "keywordIds": [
+        "illusion",
+        "display",
+        "denial"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_10",
+      "orientation": "upright",
+      "keywordIds": [
+        "belonging",
+        "union"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_11",
+      "orientation": "reversed",
+      "keywordIds": [
+        "overflow",
+        "escape",
+        "illusion"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_11",
+      "orientation": "upright",
+      "keywordIds": [
+        "messenger",
+        "curiosity",
+        "receptivity"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_12",
+      "orientation": "reversed",
+      "keywordIds": [
+        "scatter",
+        "escape",
+        "haste"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_12",
+      "orientation": "upright",
+      "keywordIds": [
+        "threshold",
+        "opening",
+        "flow"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_13",
+      "orientation": "reversed",
+      "keywordIds": [
+        "overflow",
+        "boundary",
+        "rescue"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_13",
+      "orientation": "upright",
+      "keywordIds": [
+        "stewardship",
+        "compassion",
+        "holding"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_14",
+      "orientation": "reversed",
+      "keywordIds": [
+        "coldness",
+        "suppression",
+        "rigidity"
+      ]
+    },
+    {
+      "canonicalCardId": "cups_14",
+      "orientation": "upright",
+      "keywordIds": [
+        "direction",
+        "flow",
+        "restraint"
+      ]
+    },
+    {
+      "canonicalCardId": "major_00",
+      "orientation": "reversed",
+      "keywordIds": [
+        "haste",
+        "scatter",
+        "avoidance"
+      ]
+    },
+    {
+      "canonicalCardId": "major_00",
+      "orientation": "upright",
+      "keywordIds": [
+        "threshold",
+        "curiosity",
+        "freedom"
+      ]
+    },
+    {
+      "canonicalCardId": "major_01",
+      "orientation": "reversed",
+      "keywordIds": [
+        "scatter",
+        "control",
+        "doubt"
+      ]
+    },
+    {
+      "canonicalCardId": "major_01",
+      "orientation": "upright",
+      "keywordIds": [
+        "craft",
+        "focus",
+        "agency"
+      ]
+    },
+    {
+      "canonicalCardId": "major_02",
+      "orientation": "reversed",
+      "keywordIds": [
+        "silence",
+        "confusion",
+        "withdrawal"
+      ]
+    },
+    {
+      "canonicalCardId": "major_02",
+      "orientation": "upright",
+      "keywordIds": [
+        "silence",
+        "intuition",
+        "mystery"
+      ]
+    },
+    {
+      "canonicalCardId": "major_03",
+      "orientation": "reversed",
+      "keywordIds": [
+        "exhaustion",
+        "rescue",
+        "withdrawal"
+      ]
+    },
+    {
+      "canonicalCardId": "major_03",
+      "orientation": "upright",
+      "keywordIds": [
+        "nurture",
+        "abundance",
+        "creation"
+      ]
+    },
+    {
+      "canonicalCardId": "major_04",
+      "orientation": "reversed",
+      "keywordIds": [
+        "rigidity",
+        "control",
+        "instability"
+      ]
+    },
+    {
+      "canonicalCardId": "major_04",
+      "orientation": "upright",
+      "keywordIds": [
+        "structure",
+        "authority",
+        "stability"
+      ]
+    },
+    {
+      "canonicalCardId": "major_05",
+      "orientation": "reversed",
+      "keywordIds": [
+        "conformity",
+        "rigidity",
+        "learning"
+      ]
+    },
+    {
+      "canonicalCardId": "major_05",
+      "orientation": "upright",
+      "keywordIds": [
+        "teaching",
+        "tradition",
+        "values"
+      ]
+    },
+    {
+      "canonicalCardId": "major_06",
+      "orientation": "reversed",
+      "keywordIds": [
+        "discord",
+        "indecision",
+        "imbalance"
+      ]
+    },
+    {
+      "canonicalCardId": "major_06",
+      "orientation": "upright",
+      "keywordIds": [
+        "choice",
+        "union",
+        "values"
+      ]
+    },
+    {
+      "canonicalCardId": "major_07",
+      "orientation": "reversed",
+      "keywordIds": [
+        "delay",
+        "scatter",
+        "control"
+      ]
+    },
+    {
+      "canonicalCardId": "major_07",
+      "orientation": "upright",
+      "keywordIds": [
+        "momentum",
+        "will",
+        "direction"
+      ]
+    },
+    {
+      "canonicalCardId": "major_08",
+      "orientation": "reversed",
+      "keywordIds": [
+        "doubt",
+        "suppression",
+        "strain"
+      ]
+    },
+    {
+      "canonicalCardId": "major_08",
+      "orientation": "upright",
+      "keywordIds": [
+        "courage",
+        "compassion",
+        "restraint"
+      ]
+    },
+    {
+      "canonicalCardId": "major_09",
+      "orientation": "reversed",
+      "keywordIds": [
+        "isolation",
+        "withdrawal",
+        "silence"
+      ]
+    },
+    {
+      "canonicalCardId": "major_09",
+      "orientation": "upright",
+      "keywordIds": [
+        "solitude",
+        "wisdom",
+        "inquiry"
+      ]
+    },
+    {
+      "canonicalCardId": "major_10",
+      "orientation": "reversed",
+      "keywordIds": [
+        "resistance",
+        "delay",
+        "instability"
+      ]
+    },
+    {
+      "canonicalCardId": "major_10",
+      "orientation": "upright",
+      "keywordIds": [
+        "cycles",
+        "change",
+        "timing"
+      ]
+    },
+    {
+      "canonicalCardId": "major_11",
+      "orientation": "reversed",
+      "keywordIds": [
+        "bias",
+        "denial",
+        "imbalance"
+      ]
+    },
+    {
+      "canonicalCardId": "major_11",
+      "orientation": "upright",
+      "keywordIds": [
+        "balance",
+        "truth",
+        "accountability"
+      ]
+    },
+    {
+      "canonicalCardId": "major_12",
+      "orientation": "reversed",
+      "keywordIds": [
+        "stagnation",
+        "resistance",
+        "release"
+      ]
+    },
+    {
+      "canonicalCardId": "major_12",
+      "orientation": "upright",
+      "keywordIds": [
+        "ending",
+        "perspective",
+        "pause"
+      ]
+    },
+    {
+      "canonicalCardId": "major_13",
+      "orientation": "reversed",
+      "keywordIds": [
+        "resistance",
+        "stagnation",
+        "grief"
+      ]
+    },
+    {
+      "canonicalCardId": "major_13",
+      "orientation": "upright",
+      "keywordIds": [
+        "change",
+        "release",
+        "ending"
+      ]
+    },
+    {
+      "canonicalCardId": "major_14",
+      "orientation": "reversed",
+      "keywordIds": [
+        "imbalance",
+        "haste",
+        "scatter"
+      ]
+    },
+    {
+      "canonicalCardId": "major_14",
+      "orientation": "upright",
+      "keywordIds": [
+        "balance",
+        "integration",
+        "restraint"
+      ]
+    },
+    {
+      "canonicalCardId": "major_15",
+      "orientation": "reversed",
+      "keywordIds": [
+        "release",
+        "denial",
+        "control"
+      ]
+    },
+    {
+      "canonicalCardId": "major_15",
+      "orientation": "upright",
+      "keywordIds": [
+        "attachment",
+        "desire",
+        "bondage"
+      ]
+    },
+    {
+      "canonicalCardId": "major_16",
+      "orientation": "reversed",
+      "keywordIds": [
+        "resistance",
+        "instability",
+        "avoidance"
+      ]
+    },
+    {
+      "canonicalCardId": "major_16",
+      "orientation": "upright",
+      "keywordIds": [
+        "change",
+        "truth",
+        "threshold"
+      ]
+    },
+    {
+      "canonicalCardId": "major_17",
+      "orientation": "reversed",
+      "keywordIds": [
+        "despair",
+        "doubt",
+        "isolation"
+      ]
+    },
+    {
+      "canonicalCardId": "major_17",
+      "orientation": "upright",
+      "keywordIds": [
+        "hope",
+        "guidance",
+        "renewal"
+      ]
+    },
+    {
+      "canonicalCardId": "major_18",
+      "orientation": "reversed",
+      "keywordIds": [
+        "confusion",
+        "projection",
+        "fear"
+      ]
+    },
+    {
+      "canonicalCardId": "major_18",
+      "orientation": "upright",
+      "keywordIds": [
+        "illusion",
+        "mystery",
+        "uncertainty"
+      ]
+    },
+    {
+      "canonicalCardId": "major_19",
+      "orientation": "reversed",
+      "keywordIds": [
+        "withdrawal",
+        "delay",
+        "overflow"
+      ]
+    },
+    {
+      "canonicalCardId": "major_19",
+      "orientation": "upright",
+      "keywordIds": [
+        "clarity",
+        "vitality",
+        "joy"
+      ]
+    },
+    {
+      "canonicalCardId": "major_20",
+      "orientation": "reversed",
+      "keywordIds": [
+        "judgment",
+        "avoidance",
+        "doubt"
+      ]
+    },
+    {
+      "canonicalCardId": "major_20",
+      "orientation": "upright",
+      "keywordIds": [
+        "awakening",
+        "accountability",
+        "renewal"
+      ]
+    },
+    {
+      "canonicalCardId": "major_21",
+      "orientation": "reversed",
+      "keywordIds": [
+        "completion",
+        "delay",
+        "isolation"
+      ]
+    },
+    {
+      "canonicalCardId": "major_21",
+      "orientation": "upright",
+      "keywordIds": [
+        "completion",
+        "belonging",
+        "integration"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_01",
+      "orientation": "reversed",
+      "keywordIds": [
+        "haste",
+        "scarcity",
+        "delay"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_01",
+      "orientation": "upright",
+      "keywordIds": [
+        "spark",
+        "resource",
+        "stewardship"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_02",
+      "orientation": "reversed",
+      "keywordIds": [
+        "scatter",
+        "indecision",
+        "control"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_02",
+      "orientation": "upright",
+      "keywordIds": [
+        "coordination",
+        "balance",
+        "focus"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_03",
+      "orientation": "reversed",
+      "keywordIds": [
+        "display",
+        "withdrawal",
+        "instability"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_03",
+      "orientation": "upright",
+      "keywordIds": [
+        "craft",
+        "belonging"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_04",
+      "orientation": "reversed",
+      "keywordIds": [
+        "control",
+        "resistance",
+        "fear"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_04",
+      "orientation": "upright",
+      "keywordIds": [
+        "scarcity",
+        "holding"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_05",
+      "orientation": "reversed",
+      "keywordIds": [
+        "shame",
+        "doubt",
+        "withdrawal"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_05",
+      "orientation": "upright",
+      "keywordIds": [
+        "holding",
+        "scarcity",
+        "strain"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_06",
+      "orientation": "reversed",
+      "keywordIds": [
+        "display",
+        "burden",
+        "shame"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_06",
+      "orientation": "upright",
+      "keywordIds": [
+        "reciprocity",
+        "fairness",
+        "belonging"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_07",
+      "orientation": "reversed",
+      "keywordIds": [
+        "coldness",
+        "haste",
+        "delay"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_07",
+      "orientation": "upright",
+      "keywordIds": [
+        "timing",
+        "stewardship",
+        "pause"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_08",
+      "orientation": "reversed",
+      "keywordIds": [
+        "cycles",
+        "exhaustion",
+        "stagnation"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_08",
+      "orientation": "upright",
+      "keywordIds": [
+        "cycles",
+        "mastery",
+        "discipline"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_09",
+      "orientation": "reversed",
+      "keywordIds": [
+        "display",
+        "solitude",
+        "withdrawal"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_09",
+      "orientation": "upright",
+      "keywordIds": [
+        "enough",
+        "craft"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_10",
+      "orientation": "reversed",
+      "keywordIds": [
+        "socialExpectation",
+        "rigidity"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_10",
+      "orientation": "upright",
+      "keywordIds": [
+        "roots",
+        "structure"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_11",
+      "orientation": "reversed",
+      "keywordIds": [
+        "haste",
+        "display",
+        "delay"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_11",
+      "orientation": "upright",
+      "keywordIds": [
+        "learning",
+        "curiosity",
+        "messenger"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_12",
+      "orientation": "reversed",
+      "keywordIds": [
+        "rigidity",
+        "stability"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_12",
+      "orientation": "upright",
+      "keywordIds": [
+        "pause",
+        "timing",
+        "stability"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_13",
+      "orientation": "reversed",
+      "keywordIds": [
+        "control",
+        "exhaustion"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_13",
+      "orientation": "upright",
+      "keywordIds": [
+        "nurture",
+        "stewardship"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_14",
+      "orientation": "reversed",
+      "keywordIds": [
+        "rigidity",
+        "socialExpectation",
+        "burden"
+      ]
+    },
+    {
+      "canonicalCardId": "pentacles_14",
+      "orientation": "upright",
+      "keywordIds": [
+        "roots",
+        "accountability",
+        "direction"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_01",
+      "orientation": "reversed",
+      "keywordIds": [
+        "harshSpeech",
+        "scatter"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_01",
+      "orientation": "upright",
+      "keywordIds": [
+        "opening",
+        "clarity"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_02",
+      "orientation": "reversed",
+      "keywordIds": [
+        "escape",
+        "denial",
+        "coldness"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_02",
+      "orientation": "upright",
+      "keywordIds": [
+        "stagnation",
+        "indecision",
+        "denial"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_03",
+      "orientation": "reversed",
+      "keywordIds": [
+        "grief",
+        "projection",
+        "closing"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_03",
+      "orientation": "upright",
+      "keywordIds": [
+        "truth",
+        "clarity",
+        "boundary"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_04",
+      "orientation": "reversed",
+      "keywordIds": [
+        "escape",
+        "delay",
+        "withdrawal"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_04",
+      "orientation": "upright",
+      "keywordIds": [
+        "pause",
+        "restraint"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_05",
+      "orientation": "reversed",
+      "keywordIds": [
+        "shame",
+        "anger",
+        "fear"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_05",
+      "orientation": "upright",
+      "keywordIds": [
+        "illusion",
+        "harshSpeech",
+        "grief"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_06",
+      "orientation": "reversed",
+      "keywordIds": [
+        "escape",
+        "burden",
+        "fear"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_06",
+      "orientation": "upright",
+      "keywordIds": [
+        "threshold",
+        "flow",
+        "burden"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_07",
+      "orientation": "reversed",
+      "keywordIds": [
+        "fear",
+        "doubt",
+        "isolation"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_07",
+      "orientation": "upright",
+      "keywordIds": [
+        "withdrawal",
+        "discernment",
+        "ending"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_08",
+      "orientation": "reversed",
+      "keywordIds": [
+        "projection",
+        "stagnation",
+        "fear"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_08",
+      "orientation": "upright",
+      "keywordIds": [
+        "strain",
+        "bondage",
+        "harshSpeech"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_09",
+      "orientation": "reversed",
+      "keywordIds": [
+        "fear",
+        "mindBurden",
+        "burden"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_09",
+      "orientation": "upright",
+      "keywordIds": [
+        "mindBurden",
+        "shadow"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_10",
+      "orientation": "reversed",
+      "keywordIds": [
+        "despair",
+        "stagnation"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_10",
+      "orientation": "upright",
+      "keywordIds": [
+        "ending",
+        "enough"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_11",
+      "orientation": "reversed",
+      "keywordIds": [
+        "harshSpeech",
+        "haste",
+        "notListening"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_11",
+      "orientation": "upright",
+      "keywordIds": [
+        "messenger",
+        "learning",
+        "inquiry"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_12",
+      "orientation": "reversed",
+      "keywordIds": [
+        "haste",
+        "harshSpeech",
+        "notListening"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_12",
+      "orientation": "upright",
+      "keywordIds": [
+        "momentum",
+        "communication",
+        "clarity"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_13",
+      "orientation": "reversed",
+      "keywordIds": [
+        "harshSpeech",
+        "coldness"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_13",
+      "orientation": "upright",
+      "keywordIds": [
+        "boundary",
+        "restraint",
+        "communication"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_14",
+      "orientation": "reversed",
+      "keywordIds": [
+        "rigidity",
+        "coldness"
+      ]
+    },
+    {
+      "canonicalCardId": "swords_14",
+      "orientation": "upright",
+      "keywordIds": [
+        "principle",
+        "judgment"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_01",
+      "orientation": "reversed",
+      "keywordIds": [
+        "withdrawal",
+        "scatter",
+        "delay"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_01",
+      "orientation": "upright",
+      "keywordIds": [
+        "spark",
+        "agency",
+        "momentum"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_02",
+      "orientation": "reversed",
+      "keywordIds": [
+        "indecision",
+        "haste",
+        "withdrawal"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_02",
+      "orientation": "upright",
+      "keywordIds": [
+        "choice",
+        "pause",
+        "perspective"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_03",
+      "orientation": "reversed",
+      "keywordIds": [
+        "impatience",
+        "scatter",
+        "boast"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_03",
+      "orientation": "upright",
+      "keywordIds": [
+        "renewal",
+        "perspective",
+        "opening"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_04",
+      "orientation": "reversed",
+      "keywordIds": [
+        "haste",
+        "scatter",
+        "instability"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_04",
+      "orientation": "upright",
+      "keywordIds": [
+        "holding",
+        "roots",
+        "pause"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_05",
+      "orientation": "reversed",
+      "keywordIds": [
+        "despair",
+        "anger"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_05",
+      "orientation": "upright",
+      "keywordIds": [
+        "strain",
+        "discord",
+        "values"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_06",
+      "orientation": "reversed",
+      "keywordIds": [
+        "boast",
+        "bondage",
+        "display"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_06",
+      "orientation": "upright",
+      "keywordIds": [
+        "threshold",
+        "inquiry"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_07",
+      "orientation": "reversed",
+      "keywordIds": [
+        "pressure",
+        "harshSpeech",
+        "isolation"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_07",
+      "orientation": "upright",
+      "keywordIds": [
+        "boundary",
+        "isolation"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_08",
+      "orientation": "reversed",
+      "keywordIds": [
+        "haste",
+        "scatter",
+        "impatience"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_08",
+      "orientation": "upright",
+      "keywordIds": [
+        "momentum",
+        "messenger",
+        "flow"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_09",
+      "orientation": "reversed",
+      "keywordIds": [
+        "exhaustion",
+        "doubt",
+        "isolation"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_09",
+      "orientation": "upright",
+      "keywordIds": [
+        "ending",
+        "restraint"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_10",
+      "orientation": "reversed",
+      "keywordIds": [
+        "display",
+        "fear",
+        "control"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_10",
+      "orientation": "upright",
+      "keywordIds": [
+        "burden",
+        "scatter",
+        "accountability"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_11",
+      "orientation": "reversed",
+      "keywordIds": [
+        "scatter",
+        "boast",
+        "notListening"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_11",
+      "orientation": "upright",
+      "keywordIds": [
+        "messenger",
+        "learning",
+        "curiosity"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_12",
+      "orientation": "reversed",
+      "keywordIds": [
+        "haste",
+        "scatter",
+        "anger"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_12",
+      "orientation": "upright",
+      "keywordIds": [
+        "threshold",
+        "desire",
+        "direction"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_13",
+      "orientation": "reversed",
+      "keywordIds": [
+        "control",
+        "envy",
+        "withdrawal"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_13",
+      "orientation": "upright",
+      "keywordIds": [
+        "nurture",
+        "mastery",
+        "opening"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_14",
+      "orientation": "reversed",
+      "keywordIds": [
+        "externalDemand",
+        "boast",
+        "notListening"
+      ]
+    },
+    {
+      "canonicalCardId": "wands_14",
+      "orientation": "upright",
+      "keywordIds": [
+        "direction",
+        "spark",
+        "perspective"
+      ]
+    }
+  ]
+}

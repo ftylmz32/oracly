@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles05 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_05',
@@ -62,7 +63,11 @@ const kNarrativePentacles05 = NarrativeCardProfile(
       'Честное ощущение нехватки отделяет достоинство от положения за дверью.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['outsideThreshold', 'feltScarcity', 'strain'],
+    keywordIds: [
+      NarrativeKeywordIds.holding,
+      NarrativeKeywordIds.scarcity,
+      NarrativeKeywordIds.strain,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativePentacles05 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.avoidance,
     ],
-    keywordIds: ['shame', 'unworthiness', 'closedHelp'],
+    keywordIds: [
+      NarrativeKeywordIds.shame,
+      NarrativeKeywordIds.doubt,
+      NarrativeKeywordIds.withdrawal,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.threshold,

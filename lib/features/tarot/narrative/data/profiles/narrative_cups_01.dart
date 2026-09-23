@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups01 = NarrativeCardProfile(
   canonicalCardId: 'cups_01',
@@ -62,7 +63,7 @@ const kNarrativeCups01 = NarrativeCardProfile(
       'Сдержанное удержание делает первую воду живой и управляемой.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['firstWater', 'heldCup', 'softOpening'],
+    keywordIds: [NarrativeKeywordIds.opening, NarrativeKeywordIds.holding],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +72,11 @@ const kNarrativeCups01 = NarrativeCardProfile(
       'Первое чувство может стать переполнением, закрытием или избеганием чувства.',
     ),
     transforms: [ReversedTransformKind.excess, ReversedTransformKind.avoidance],
-    keywordIds: ['overflow', 'closing', 'feelingFlee'],
+    keywordIds: [
+      NarrativeKeywordIds.overflow,
+      NarrativeKeywordIds.closing,
+      NarrativeKeywordIds.escape,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.desire,

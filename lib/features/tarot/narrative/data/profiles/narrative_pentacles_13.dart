@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles13 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_13',
@@ -62,7 +63,7 @@ const kNarrativePentacles13 = NarrativeCardProfile(
       'Зрелое попечение держит заботу отдельно от отдачи приказов.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['practicalCare', 'stewardship', 'fertileHand'],
+    keywordIds: [NarrativeKeywordIds.nurture, NarrativeKeywordIds.stewardship],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,7 @@ const kNarrativePentacles13 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['smotherControl', 'selfExhaust', 'overTake'],
+    keywordIds: [NarrativeKeywordIds.control, NarrativeKeywordIds.exhaustion],
   ),
   symbolTags: [
     NarrativeSymbolTags.nurture,

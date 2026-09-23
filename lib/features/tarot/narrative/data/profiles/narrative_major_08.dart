@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor08 = NarrativeCardProfile(
   canonicalCardId: 'major_08',
@@ -62,7 +63,11 @@ const kNarrativeMajor08 = NarrativeCardProfile(
       'Смелость, направляемая состраданием, превращает напряжение в спокойную и стойкую силу.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['courage', 'compassion', 'restraint'],
+    keywordIds: [
+      NarrativeKeywordIds.courage,
+      NarrativeKeywordIds.compassion,
+      NarrativeKeywordIds.restraint,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor08 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.deficiency,
     ],
-    keywordIds: ['selfDoubt', 'suppression', 'strain'],
+    keywordIds: [
+      NarrativeKeywordIds.doubt,
+      NarrativeKeywordIds.suppression,
+      NarrativeKeywordIds.strain,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.courage,

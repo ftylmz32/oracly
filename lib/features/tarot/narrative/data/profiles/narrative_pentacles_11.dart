@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles11 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_11',
@@ -62,7 +63,11 @@ const kNarrativePentacles11 = NarrativeCardProfile(
       'Учащаяся рука держит роль вестника, не принимая её за торговца.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['studentHand', 'practicalCuriosity', 'matterMessenger'],
+    keywordIds: [
+      NarrativeKeywordIds.learning,
+      NarrativeKeywordIds.curiosity,
+      NarrativeKeywordIds.messenger,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativePentacles11 = NarrativeCardProfile(
       ReversedTransformKind.misdirection,
       ReversedTransformKind.avoidance,
     ],
-    keywordIds: ['rushSell', 'shallowCopy', 'postponeLearn'],
+    keywordIds: [
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.display,
+      NarrativeKeywordIds.delay,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.curiosity,

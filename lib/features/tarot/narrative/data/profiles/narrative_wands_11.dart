@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands11 = NarrativeCardProfile(
   canonicalCardId: 'wands_11',
@@ -62,7 +63,11 @@ const kNarrativeWands11 = NarrativeCardProfile(
       'Огонь вестника, открытый учению, несёт любопытство без притязания на мастерство.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['message', 'studentFire', 'curiosity'],
+    keywordIds: [
+      NarrativeKeywordIds.messenger,
+      NarrativeKeywordIds.learning,
+      NarrativeKeywordIds.curiosity,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands11 = NarrativeCardProfile(
       ReversedTransformKind.misdirection,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['scatteredZeal', 'boast', 'notListening'],
+    keywordIds: [
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.boast,
+      NarrativeKeywordIds.notListening,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.curiosity,

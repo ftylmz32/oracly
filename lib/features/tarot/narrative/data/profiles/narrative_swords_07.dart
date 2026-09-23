@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords07 = NarrativeCardProfile(
   canonicalCardId: 'swords_07',
@@ -62,7 +63,11 @@ const kNarrativeSwords07 = NarrativeCardProfile(
       'Увиденный след проясняет скрытое, не собирая приговор.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['hiding', 'strategy', 'unseenDraw'],
+    keywordIds: [
+      NarrativeKeywordIds.withdrawal,
+      NarrativeKeywordIds.discernment,
+      NarrativeKeywordIds.ending,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeSwords07 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.privateInternal,
     ],
-    keywordIds: ['theftFeeling', 'mistrust', 'lonePlan'],
+    keywordIds: [
+      NarrativeKeywordIds.fear,
+      NarrativeKeywordIds.doubt,
+      NarrativeKeywordIds.isolation,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.inquiry,

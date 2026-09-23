@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeSwords03 = NarrativeCardProfile(
   canonicalCardId: 'swords_03',
@@ -62,7 +63,11 @@ const kNarrativeSwords03 = NarrativeCardProfile(
       'Названная печаль несёт ясность без театра.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['brokenWord', 'painfulClarity', 'heartEdge'],
+    keywordIds: [
+      NarrativeKeywordIds.truth,
+      NarrativeKeywordIds.clarity,
+      NarrativeKeywordIds.boundary,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeSwords03 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['dramaticPain', 'blame', 'unclosed'],
+    keywordIds: [
+      NarrativeKeywordIds.grief,
+      NarrativeKeywordIds.projection,
+      NarrativeKeywordIds.closing,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.grief,

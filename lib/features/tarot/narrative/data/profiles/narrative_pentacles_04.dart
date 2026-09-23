@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles04 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_04',
@@ -62,7 +63,7 @@ const kNarrativePentacles04 = NarrativeCardProfile(
       'Сдержанная хватка бережёт порог, не становясь замком.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['closedHand', 'thresholdGuard', 'holding'],
+    keywordIds: [NarrativeKeywordIds.scarcity, NarrativeKeywordIds.holding],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +72,11 @@ const kNarrativePentacles04 = NarrativeCardProfile(
       'Удержание может раздуться в избыточное запирание и сжатие от страха или избегать обмена, держа руку закрытой.',
     ),
     transforms: [ReversedTransformKind.excess, ReversedTransformKind.avoidance],
-    keywordIds: ['lockedGrip', 'refusal', 'fearHold'],
+    keywordIds: [
+      NarrativeKeywordIds.control,
+      NarrativeKeywordIds.resistance,
+      NarrativeKeywordIds.fear,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.attachment,

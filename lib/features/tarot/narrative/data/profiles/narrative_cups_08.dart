@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups08 = NarrativeCardProfile(
   canonicalCardId: 'cups_08',
@@ -62,7 +63,11 @@ const kNarrativeCups08 = NarrativeCardProfile(
       'Сознательный уход поворачивает от чаши к более глубокому поиску без сожжения.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['cupLeft', 'deeperSearch', 'turning'],
+    keywordIds: [
+      NarrativeKeywordIds.withdrawal,
+      NarrativeKeywordIds.inquiry,
+      NarrativeKeywordIds.change,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,7 @@ const kNarrativeCups08 = NarrativeCardProfile(
       ReversedTransformKind.misdirection,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['burnLeave', 'escape', 'halfSearch'],
+    keywordIds: [NarrativeKeywordIds.escape, NarrativeKeywordIds.inquiry],
   ),
   symbolTags: [
     NarrativeSymbolTags.release,

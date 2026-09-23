@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups12 = NarrativeCardProfile(
   canonicalCardId: 'cups_12',
@@ -62,7 +63,11 @@ const kNarrativeCups12 = NarrativeCardProfile(
       'Предложение в пути держит чашу в потоке без рассеянной погони.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['cupOnRoad', 'offer', 'flow'],
+    keywordIds: [
+      NarrativeKeywordIds.threshold,
+      NarrativeKeywordIds.opening,
+      NarrativeKeywordIds.flow,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeCups12 = NarrativeCardProfile(
       ReversedTransformKind.misdirection,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['scatteredHeart', 'escapeRomance', 'flungOffer'],
+    keywordIds: [
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.escape,
+      NarrativeKeywordIds.haste,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.desire,

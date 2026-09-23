@@ -1181,3 +1181,34 @@ FR-M04 remains OPEN until a separate implementation task applies ids.
 | `worry` | RENAME | `mindBurden` | heuristic rename worry→mindBurden / polarity-checked |
 | `wovenWork` | RENAME | `craft` | heuristic rename wovenWork→craft / polarity-checked |
 
+---
+
+## Phase 3C.5E — ontology implementation
+
+**Status:** COMPLETE (implementation)
+**Authority:** Phase 3C.5D.1 Appendix B (per-orientation) + Appendix A (lexicon)
+**Start SHA:** a0dbee280b0931469780ad5fbf567343397a80b5
+
+| Field | Value |
+|---|---|
+| Ontology module | lib/features/tarot/narrative/domain/narrative_keyword_ids.dart |
+| Ontology revision | **1** (independent of profileRevision) |
+| Profiles touched | **78 / 78** |
+| Orientations mapped | **156 / 156** |
+| Defined canonical ids | **128** |
+| Used canonical ids | **122** |
+| Total assignments | **439** |
+| Singleton ids | **30** (**24.59%**) |
+| Avg upright / reversed | **2.76 / 2.87** |
+| Identical upright/reversed sets | **0** |
+| Orientations outside 2–4 | **0** |
+| Exact Appendix B fixture match | **156 / 156** |
+| Critical polarity gates | **PASS** |
+| Safety (unsafe ids) | **0** |
+| Prose / transforms / symbolTags / profileRevision | **UNCHANGED** |
+| FR-M04 | **REMEDIATED — PENDING 3C.5F** |
+| DECK READY FOR EVIDENCE ENGINE | **NO** — independent 3C.5F re-audit required |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+
+Frozen fixture: 	est/fixtures/tarot_keyword_ontology_v1.json
+Regression tests: 	est/features/tarot/narrative_domain/narrative_keyword_ontology_v1_test.dart

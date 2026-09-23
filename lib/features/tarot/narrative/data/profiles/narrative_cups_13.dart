@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeCups13 = NarrativeCardProfile(
   canonicalCardId: 'cups_13',
@@ -62,7 +63,11 @@ const kNarrativeCups13 = NarrativeCardProfile(
       'Зрелый сосуд несёт сострадание, удерживая чувство с границей, не тоня.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['matureVessel', 'compassion', 'holding'],
+    keywordIds: [
+      NarrativeKeywordIds.stewardship,
+      NarrativeKeywordIds.compassion,
+      NarrativeKeywordIds.holding,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeCups13 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.deficiency,
     ],
-    keywordIds: ['overflow', 'noBoundary', 'rescuing'],
+    keywordIds: [
+      NarrativeKeywordIds.overflow,
+      NarrativeKeywordIds.boundary,
+      NarrativeKeywordIds.rescue,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.compassion,

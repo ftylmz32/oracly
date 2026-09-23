@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor01 = NarrativeCardProfile(
   canonicalCardId: 'major_01',
@@ -62,7 +63,11 @@ const kNarrativeMajor01 = NarrativeCardProfile(
       'Когда навык согласуется с намерением, творческая сила проявляется предметно и ответственно.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['craft', 'focus', 'agency'],
+    keywordIds: [
+      NarrativeKeywordIds.craft,
+      NarrativeKeywordIds.focus,
+      NarrativeKeywordIds.agency,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor01 = NarrativeCardProfile(
       ReversedTransformKind.blockedExpression,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['scatter', 'control', 'doubt'],
+    keywordIds: [
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.control,
+      NarrativeKeywordIds.doubt,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.craft,

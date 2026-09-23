@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor10 = NarrativeCardProfile(
   canonicalCardId: 'major_10',
@@ -62,7 +63,11 @@ const kNarrativeMajor10 = NarrativeCardProfile(
       'Движение цикла открывает новый переход через гибкость и чувство времени.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['cycles', 'change', 'timing'],
+    keywordIds: [
+      NarrativeKeywordIds.cycles,
+      NarrativeKeywordIds.change,
+      NarrativeKeywordIds.timing,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +76,11 @@ const kNarrativeMajor10 = NarrativeCardProfile(
       'Перемены могут задержаться, цикл — продлиться из-за сопротивления, а движение — быть неверно понятым.',
     ),
     transforms: [ReversedTransformKind.delay, ReversedTransformKind.distortion],
-    keywordIds: ['resistance', 'delay', 'instability'],
+    keywordIds: [
+      NarrativeKeywordIds.resistance,
+      NarrativeKeywordIds.delay,
+      NarrativeKeywordIds.instability,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.cycles,

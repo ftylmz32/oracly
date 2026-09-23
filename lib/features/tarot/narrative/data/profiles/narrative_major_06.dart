@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor06 = NarrativeCardProfile(
   canonicalCardId: 'major_06',
@@ -62,7 +63,11 @@ const kNarrativeMajor06 = NarrativeCardProfile(
       'Добровольный и открытый союз приводит выбор и ценности к согласию.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['choice', 'union', 'values'],
+    keywordIds: [
+      NarrativeKeywordIds.choice,
+      NarrativeKeywordIds.union,
+      NarrativeKeywordIds.values,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor06 = NarrativeCardProfile(
       ReversedTransformKind.delay,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['discord', 'indecision', 'misalignment'],
+    keywordIds: [
+      NarrativeKeywordIds.discord,
+      NarrativeKeywordIds.indecision,
+      NarrativeKeywordIds.imbalance,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.choice,

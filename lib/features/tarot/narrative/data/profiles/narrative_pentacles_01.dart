@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles01 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_01',
@@ -62,7 +63,11 @@ const kNarrativePentacles01 = NarrativeCardProfile(
       'Сдержанная рука удерживает первое семя живым и управляемым.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['firstSeed', 'matterInHand', 'plant'],
+    keywordIds: [
+      NarrativeKeywordIds.spark,
+      NarrativeKeywordIds.resource,
+      NarrativeKeywordIds.stewardship,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +76,11 @@ const kNarrativePentacles01 = NarrativeCardProfile(
       'Семя может стать спешным результатом, пустым подсчётом или неначатием.',
     ),
     transforms: [ReversedTransformKind.excess, ReversedTransformKind.avoidance],
-    keywordIds: ['rushedYield', 'emptyCount', 'unplanted'],
+    keywordIds: [
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.scarcity,
+      NarrativeKeywordIds.delay,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.creation,

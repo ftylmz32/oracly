@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands09 = NarrativeCardProfile(
   canonicalCardId: 'wands_09',
@@ -62,7 +63,7 @@ const kNarrativeWands09 = NarrativeCardProfile(
       'Тихая стойкость держит последнюю искру на дозоре, не называя её концом.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['lastFire', 'watch', 'endurance'],
+    keywordIds: [NarrativeKeywordIds.ending, NarrativeKeywordIds.restraint],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +75,11 @@ const kNarrativeWands09 = NarrativeCardProfile(
       ReversedTransformKind.deficiency,
       ReversedTransformKind.internalization,
     ],
-    keywordIds: ['exhaustion', 'doubt', 'loneWar'],
+    keywordIds: [
+      NarrativeKeywordIds.exhaustion,
+      NarrativeKeywordIds.doubt,
+      NarrativeKeywordIds.isolation,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.endurance,

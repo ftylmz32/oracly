@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands14 = NarrativeCardProfile(
   canonicalCardId: 'wands_14',
@@ -62,7 +63,11 @@ const kNarrativeWands14 = NarrativeCardProfile(
       'Ответственное направление собирает огонь вовне в курс, предложенный без давления.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['directingFire', 'responsibleSpark', 'vision'],
+    keywordIds: [
+      NarrativeKeywordIds.direction,
+      NarrativeKeywordIds.spark,
+      NarrativeKeywordIds.perspective,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands14 = NarrativeCardProfile(
       ReversedTransformKind.excess,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['pressure', 'ego', 'notListening'],
+    keywordIds: [
+      NarrativeKeywordIds.externalDemand,
+      NarrativeKeywordIds.boast,
+      NarrativeKeywordIds.notListening,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.direction,

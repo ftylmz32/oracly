@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativePentacles02 = NarrativeCardProfile(
   canonicalCardId: 'pentacles_02',
@@ -62,7 +63,11 @@ const kNarrativePentacles02 = NarrativeCardProfile(
       'Живой ритм несёт две тяжести, не роняя их.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['twoWeights', 'practicalBalance', 'juggle'],
+    keywordIds: [
+      NarrativeKeywordIds.coordination,
+      NarrativeKeywordIds.balance,
+      NarrativeKeywordIds.focus,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativePentacles02 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.excess,
     ],
-    keywordIds: ['scatter', 'indecision', 'overGrip'],
+    keywordIds: [
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.indecision,
+      NarrativeKeywordIds.control,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.balance,

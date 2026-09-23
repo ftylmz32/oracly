@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands02 = NarrativeCardProfile(
   canonicalCardId: 'wands_02',
@@ -62,7 +63,11 @@ const kNarrativeWands02 = NarrativeCardProfile(
       'Спокойная поза усиливает осознанное ожидание, удерживая оба горизонта в поле зрения.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['twoPaths', 'waiting', 'horizon'],
+    keywordIds: [
+      NarrativeKeywordIds.choice,
+      NarrativeKeywordIds.pause,
+      NarrativeKeywordIds.perspective,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -71,7 +76,11 @@ const kNarrativeWands02 = NarrativeCardProfile(
       'Ожидание может стать нерешительностью, поспешным выбором или безразличием.',
     ),
     transforms: [ReversedTransformKind.avoidance, ReversedTransformKind.delay],
-    keywordIds: ['indecision', 'hastyPick', 'apathy'],
+    keywordIds: [
+      NarrativeKeywordIds.indecision,
+      NarrativeKeywordIds.haste,
+      NarrativeKeywordIds.withdrawal,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.choice,

@@ -607,3 +607,18 @@ Historical findings above are preserved; this section records design only.
 | Ontology plan approved for implementation | **YES** pending ChatGPT confirmation of 3C.5D.1 |
 | DECK READY FOR EVIDENCE ENGINE | **NO** |
 | Production source modified | **NO** |
+
+---
+
+## Phase 3C.5E — FR-M04 canonical keyword ontology implementation
+
+| Field | Value |
+|---|---|
+| Phase | **3C.5E** |
+| Authority | Phase **3C.5D.1** Appendix B |
+| Mapping implemented | **YES** — 78 profiles / 156 orientations |
+| Semantic inversion checks | **GREEN** (locked polarity regressions) |
+| FR-M04 | **REMEDIATED — PENDING 3C.5F** |
+| Deck readiness | **NO** — pending independent 3C.5F re-audit |
+| Narrative Evidence Engine | **NOT IMPLEMENTED** |
+| Prose / transforms / symbolTags | **UNCHANGED** |

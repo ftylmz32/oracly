@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor21 = NarrativeCardProfile(
   canonicalCardId: 'major_21',
@@ -62,7 +63,11 @@ const kNarrativeMajor21 = NarrativeCardProfile(
       'Целостный опыт соединяет достижение с принадлежностью и зрелым чувством завершения.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['completion', 'belonging', 'integration'],
+    keywordIds: [
+      NarrativeKeywordIds.completion,
+      NarrativeKeywordIds.belonging,
+      NarrativeKeywordIds.integration,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor21 = NarrativeCardProfile(
       ReversedTransformKind.delay,
       ReversedTransformKind.blockedExpression,
     ],
-    keywordIds: ['incompletion', 'delay', 'disconnection'],
+    keywordIds: [
+      NarrativeKeywordIds.completion,
+      NarrativeKeywordIds.delay,
+      NarrativeKeywordIds.isolation,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.completion,

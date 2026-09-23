@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor16 = NarrativeCardProfile(
   canonicalCardId: 'major_16',
@@ -62,7 +63,11 @@ const kNarrativeMajor16 = NarrativeCardProfile(
       'Потрясающая ясность разрушает ложную опору и начинает более честное восстановление.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['upheaval', 'truth', 'breakthrough'],
+    keywordIds: [
+      NarrativeKeywordIds.change,
+      NarrativeKeywordIds.truth,
+      NarrativeKeywordIds.threshold,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor16 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.avoidance,
     ],
-    keywordIds: ['resistance', 'instability', 'avoidance'],
+    keywordIds: [
+      NarrativeKeywordIds.resistance,
+      NarrativeKeywordIds.instability,
+      NarrativeKeywordIds.avoidance,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.upheaval,

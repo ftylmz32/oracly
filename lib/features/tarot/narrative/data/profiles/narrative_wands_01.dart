@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeWands01 = NarrativeCardProfile(
   canonicalCardId: 'wands_01',
@@ -62,7 +63,11 @@ const kNarrativeWands01 = NarrativeCardProfile(
       'Сдержанная воля удерживает несформированную искру живой и управляемой.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['spark', 'intent', 'motion'],
+    keywordIds: [
+      NarrativeKeywordIds.spark,
+      NarrativeKeywordIds.agency,
+      NarrativeKeywordIds.momentum,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeWands01 = NarrativeCardProfile(
       ReversedTransformKind.delay,
       ReversedTransformKind.misdirection,
     ],
-    keywordIds: ['dulling', 'scatter', 'defer'],
+    keywordIds: [
+      NarrativeKeywordIds.withdrawal,
+      NarrativeKeywordIds.scatter,
+      NarrativeKeywordIds.delay,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.creation,

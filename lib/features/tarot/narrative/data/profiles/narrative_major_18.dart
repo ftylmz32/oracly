@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor18 = NarrativeCardProfile(
   canonicalCardId: 'major_18',
@@ -62,7 +63,11 @@ const kNarrativeMajor18 = NarrativeCardProfile(
       'Внимание к неопределенности соединяет глубину интуиции с проверкой реальности.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['illusion', 'subconscious', 'uncertainty'],
+    keywordIds: [
+      NarrativeKeywordIds.illusion,
+      NarrativeKeywordIds.mystery,
+      NarrativeKeywordIds.uncertainty,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor18 = NarrativeCardProfile(
       ReversedTransformKind.distortion,
       ReversedTransformKind.privateInternal,
     ],
-    keywordIds: ['confusion', 'projection', 'fear'],
+    keywordIds: [
+      NarrativeKeywordIds.confusion,
+      NarrativeKeywordIds.projection,
+      NarrativeKeywordIds.fear,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.illusion,

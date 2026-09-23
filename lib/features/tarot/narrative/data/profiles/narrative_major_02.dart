@@ -7,6 +7,7 @@ import '../../domain/narrative_card_profile.dart';
 import '../../domain/narrative_orientation_profile.dart';
 import '../../domain/narrative_symbol_tags.dart';
 import '../../domain/reversed_transform_kind.dart';
+import '../../domain/narrative_keyword_ids.dart';
 
 const kNarrativeMajor02 = NarrativeCardProfile(
   canonicalCardId: 'major_02',
@@ -62,7 +63,11 @@ const kNarrativeMajor02 = NarrativeCardProfile(
       'Восприимчивая тишина углубляет интуицию, соединяя ее со спокойным наблюдением.',
     ),
     transforms: <ReversedTransformKind>[],
-    keywordIds: ['silence', 'intuition', 'mystery'],
+    keywordIds: [
+      NarrativeKeywordIds.silence,
+      NarrativeKeywordIds.intuition,
+      NarrativeKeywordIds.mystery,
+    ],
   ),
   reversed: NarrativeOrientationProfile(
     expression: L10nTriple(
@@ -74,7 +79,11 @@ const kNarrativeMajor02 = NarrativeCardProfile(
       ReversedTransformKind.internalization,
       ReversedTransformKind.distortion,
     ],
-    keywordIds: ['secrecy', 'confusion', 'withdrawal'],
+    keywordIds: [
+      NarrativeKeywordIds.silence,
+      NarrativeKeywordIds.confusion,
+      NarrativeKeywordIds.withdrawal,
+    ],
   ),
   symbolTags: [
     NarrativeSymbolTags.silence,
