@@ -511,14 +511,17 @@ Source-existence firewall (read-side):
 
 Delete coordinator: all user-facing single Tarot deletes route through `TarotHistoryDeletionService` (ReadingHistoryDetailScreen).
 
-Request enricher: **NOT IMPLEMENTED** (4D). Live Narrative V2: **UNCHANGED**.
+Request enricher: **IMPLEMENTED** (4D · shadow). Live Narrative V2: **UNCHANGED**.
 
 Stop: privacy red-team PASS · **IMPLEMENTED**
 
-### 4D — Request enricher + frozen historical corpus
+### 4D — Request enricher + frozen historical corpus · **IMPLEMENTED / PASS**
 
-- `enrich(...)` integration; fixture corpus (≥ classes in §23)  
-- Stop: enrichment closed-universe PASS; Phase 3 relationships unchanged  
+- `TarotNarrativeRequestEnricher.enrich(...)` — pure sync · card → theme → memory
+- Privacy short-circuit · Phase 3 identity preservation · exit referential validation
+- Frozen corpus `tarot_narrative_history_enrichment_v1.json` (52 scenarios · 44/44 classes)
+- Storage→enricher shadow integration · delete/restart no-ghost
+- Stop: enrichment closed-universe PASS; Phase 3 relationships unchanged · **IMPLEMENTED**
 
 ### 4E — Independent red-team / final audit
 

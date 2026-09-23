@@ -890,6 +890,25 @@ Chronological project execution ledger.
 | Request enricher / live V2 | **NOT** / **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T4D — REQUEST ENRICHER + FROZEN HISTORICAL CORPUS
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `4ff9441be9a8b508a38cc0dcaf1eed52c1a7a040` |
+| Enricher API | `TarotNarrativeRequestEnricher.enrich` (pure sync) |
+| Engine order | card → theme → memory |
+| Privacy short-circuit | `omitReason=privacy` · empty recurrence |
+| Referential validation | exit `StateError('tarot narrative enrichment invalid')` |
+| Corpus scenarios | **52** · **44/44** classes |
+| Languages | TR/EN/RU ≥6 each |
+| Question kinds | open/guidance/relationship/decision ≥6 each |
+| Idempotence / privacy revocation | **PASS** |
+| Storage→enricher shadow | **PASS** |
+| Delete/restart no-ghost | **PASS** |
+| Live V2 / AI | **NOT WIRED** / **0** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -939,8 +958,9 @@ Chronological project execution ledger.
 | PL-T4C | Tarot Phase 4C — Storage adapters + owner/delete integrity | **DONE** |
 | PL-T4C.1 | Tarot Phase 4C.1 — Owner-safe live source identity + typed deletion | **DONE** |
 | PL-T4C.2 | Tarot Phase 4C.2 — Strict live Tarot source aliases | **DONE** |
+| PL-T4D | Tarot Phase 4D — Request enricher + frozen historical corpus | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4C.2 DONE** · 4D pending review |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D DONE** · 4E pending review |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

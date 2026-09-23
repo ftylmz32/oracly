@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4C.2 strict live Tarot source aliases
+**Updated:** 2026-09-23 — Tarot Phase 4D request enricher + frozen historical corpus
 
 ---
 
@@ -84,6 +84,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4C.1 task start | `2d9ef3b374221d2d0317ee80c1165d726bdd28e4` | Owner-safe live ids + typed delete + grounding |
 | Phase 4C.1 end | `dac943f11bf4c1a8ea3a53b3c67a10df043e3dc4` | H14–H16 PASS |
 | Phase 4C.2 task start | `dac943f11bf4c1a8ea3a53b3c67a10df043e3dc4` | Strict live Tarot source aliases |
+| Phase 4C.2 end | `4ff9441be9a8b508a38cc0dcaf1eed52c1a7a040` | H17 PASS |
+| Phase 4D task start | `4ff9441be9a8b508a38cc0dcaf1eed52c1a7a040` | Request enricher + frozen historical corpus |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -178,6 +180,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4C — Storage adapters + owner/delete integrity | **COMPLETE** |
 | Phase 4C.1 — Owner-safe live source identity + typed deletion | **COMPLETE** |
 | Phase 4C.2 — Strict live Tarot source aliases | **COMPLETE** |
+| Phase 4D — Request enricher + frozen historical corpus | **COMPLETE** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -466,6 +469,19 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 4D
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Request enricher | **IMPLEMENTED** (pure sync · card → theme → memory) |
+| Historical corpus | **52** scenarios · **44/44** classes |
+| Privacy short-circuit | **IMPLEMENTED** (`omitReason=privacy`) |
+| Phase 3 fields | **PRESERVED** (identity pass-through) |
+| Storage adapters | **4C frozen** |
+| Live Narrative V2 | **NOT WIRED** |
+| AI | **0** |
+
 ### Phase 4C.2
 
 | Field | Value |
@@ -473,7 +489,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Status | **COMPLETE** / **PASS** |
 | H17 strict live aliases | **IMPLEMENTED** (session.id + linked ReadingModel.id only) |
 | linked.sessionId authority | **NO** |
-| Request enricher | **NOT IMPLEMENTED** |
+| Request enricher | **IMPLEMENTED** (4D — still shadow) |
 | Narrative V2 user path | **UNCHANGED** / **NOT WIRED** |
 
 ### Phase 4C.1
@@ -879,11 +895,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 4D** (request enricher + frozen historical corpus).
+**ChatGPT review before Phase 4E** independent Memory + Historical Recurrence audit.
 
-Phase 4C.2: **PASS** · Phase 4C.1 **PASS** · Phase 4C **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **NOT** · user path **UNCHANGED**.
+Phase 4D: **PASS** · Phase 4C.2 **PASS** · Phase 4C.1 **PASS** · Phase 4C **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **SHADOW** · live V2 **NOT WIRED** · AI **0**.
 
-Do **not** start 4D until reviewed.
+Do **not** start 4E until reviewed.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
 Do **not** wire live Tarot Narrative V2 path.

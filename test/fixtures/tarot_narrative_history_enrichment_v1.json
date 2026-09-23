@@ -1,0 +1,4270 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "tarot_narrative_history_enrichment_v1",
+  "phase": "4D",
+  "description": "Frozen TarotNarrativeRequestEnricher corpus. Expected via phase4Projection at author time.",
+  "now": "2026-09-23T12:00:00.000Z",
+  "scenarioCount": 52,
+  "scenarios": [
+    {
+      "id": "p4d_no_history",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "no_history",
+        "omit_no_history"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "no_history",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_privacy_rich_tr",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": true,
+      "questionRawOverlay": null,
+      "classes": [
+        "privacy_blocked_rich"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_priv_1",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_03",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_priv_2",
+            "occurredAt": "2026-09-18T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_03",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "present",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": [
+          {
+            "sourceId": "c_priv",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "partner loyalty relationship reflection",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "d_priv",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "summary": "partner loyalty relationship reflection",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "privacy",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_privacy_rich_en",
+      "baseScenarioId": "seven_stay_or_leave_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": true,
+      "questionRawOverlay": null,
+      "classes": [
+        "privacy_blocked_rich"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_pen_1",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "questionKind": "relationship",
+            "intentionSummary": "stay leave partner relationship",
+            "cards": [
+              {
+                "canonicalCardId": "major_06",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_pen_2",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "questionKind": "relationship",
+            "intentionSummary": "stay leave partner relationship",
+            "cards": [
+              {
+                "canonicalCardId": "major_06",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": [
+          {
+            "sourceId": "c_pen",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner stay leave",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "d_pen",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner stay leave",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "privacy",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_privacy_rich_ru",
+      "baseScenarioId": "five_conflict_exemplar_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": true,
+      "questionRawOverlay": null,
+      "classes": [
+        "privacy_blocked_rich"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_ru_1",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "fiveCard",
+            "questionKind": "relationship",
+            "cards": [
+              {
+                "canonicalCardId": "swords_05",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "situation",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": [
+          {
+            "sourceId": "c_ru",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "conflict tension relationship partner",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "d_ru",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "summary": "conflict tension relationship partner",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "privacy",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_one_prior",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "one_prior_same_card"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_one",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_one",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_multi_prior",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "same_card_multi_prior"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_m1",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_m2",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_m3",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 3,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 3,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_m1",
+                "at": "2026-09-22T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              },
+              {
+                "readingId": "h_m2",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              },
+              {
+                "readingId": "h_m3",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_gt5_prior",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "same_card_gt5"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_g1",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_g2",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_g3",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_g4",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_g5",
+            "occurredAt": "2026-09-18T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_g6",
+            "occurredAt": "2026-09-17T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 6,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 6,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_g1",
+                "at": "2026-09-22T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              },
+              {
+                "readingId": "h_g2",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              },
+              {
+                "readingId": "h_g3",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              },
+              {
+                "readingId": "h_g4",
+                "at": "2026-09-19T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              },
+              {
+                "readingId": "h_g5",
+                "at": "2026-09-18T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_outside_90d",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "same_card_outside_90d"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_old",
+            "occurredAt": "2026-06-24T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "no_history",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_future_row",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "future_tarot_row"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_fut",
+            "occurredAt": "2026-09-24T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "no_history",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_reading_excl",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "current_readingId_exclusion"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "fixture_reading_single_open_fool_en",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_ok",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_ok",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_session_excl",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "current_sessionId_exclusion"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "other_r",
+            "sessionId": "fixture_session_single_open_fool_en",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_ok2",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_ok2",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_physical_dedupe",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "physical_duplicate_dedupe"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "dup_a",
+            "sessionId": "shared_s",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "shared_s",
+            "sessionId": "shared_s",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "dup_a",
+                "at": "2026-09-22T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_missing_position_key",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "missing_positionKey_count_no_sample"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_npk",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": []
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_unknown_orientation",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "unknown_legacy_orientation"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_unk",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": false,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_unk",
+                "at": "2026-09-22T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": false,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_topic_match",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "context_topic_match",
+        "contextsOverlap_true"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_tm",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_03",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "cups_03",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "topic_match",
+            "occurrences": [
+              {
+                "readingId": "h_tm",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "past",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_kind_token",
+      "baseScenarioId": "single_relationship_swords09r_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "context_kind_token",
+        "contextsOverlap_true"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_kt",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "questionKind": "relationship",
+            "intentionSummary": "partner feeling relationship trust",
+            "cards": [
+              {
+                "canonicalCardId": "swords_09",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "swords_09",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_kt",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": "partner feeling relationship trust"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_keyword_map",
+      "baseScenarioId": "single_guidance_cups05r_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "context_keyword_map",
+        "contextsOverlap_true"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_kw",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "topicId": "grief",
+            "intentionSummary": "grief ending release despair denial",
+            "cards": [
+              {
+                "canonicalCardId": "cups_05",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "cups_05",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_kw",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": "grief ending release despair denial"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_context_false_card",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "same_card_alone_context_false",
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_cf",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "questionKind": "decision",
+            "topicId": "career",
+            "intentionSummary": "quit job career path",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_cf",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": "quit job career path"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_context_false_spread",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "same_spread_alone_context_false",
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_sp",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "questionKind": "decision",
+            "topicId": "career",
+            "intentionSummary": "quit job salary offer",
+            "cards": [
+              {
+                "canonicalCardId": "cups_03",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "cups_03",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_sp",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "past",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": "quit job salary offer"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_generic_topic_false",
+      "baseScenarioId": "single_generic_wands13r_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "generic_topic_context_false",
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_gt",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "questionKind": "guidance",
+            "topicId": "general",
+            "intentionSummary": "general guidance open path",
+            "cards": [
+              {
+                "canonicalCardId": "wands_13",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "wands_13",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_gt",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": "general guidance open path"
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_scan_cap",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "gt20_prior_scan_cap"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_cap1",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap2",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap3",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap4",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap5",
+            "occurredAt": "2026-09-18T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap6",
+            "occurredAt": "2026-09-17T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap7",
+            "occurredAt": "2026-09-16T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap8",
+            "occurredAt": "2026-09-15T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap9",
+            "occurredAt": "2026-09-14T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap10",
+            "occurredAt": "2026-09-13T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap11",
+            "occurredAt": "2026-09-12T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap12",
+            "occurredAt": "2026-09-11T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap13",
+            "occurredAt": "2026-09-10T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap14",
+            "occurredAt": "2026-09-09T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap15",
+            "occurredAt": "2026-09-08T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap16",
+            "occurredAt": "2026-09-07T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap17",
+            "occurredAt": "2026-09-06T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap18",
+            "occurredAt": "2026-09-05T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap19",
+            "occurredAt": "2026-09-04T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap20",
+            "occurredAt": "2026-09-03T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap21",
+            "occurredAt": "2026-09-02T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap22",
+            "occurredAt": "2026-09-01T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap23",
+            "occurredAt": "2026-08-31T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap24",
+            "occurredAt": "2026-08-30T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_cap25",
+            "occurredAt": "2026-08-29T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 20,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_two_tarot_mono",
+      "baseScenarioId": "single_relationship_swords09r_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "two_tarot_same_theme_no_historical_theme"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "t1",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner trust",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "t2",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner trust",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] relationship partner trust",
+              "sourceType": "tarot",
+              "sourceId": "t1",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] relationship partner trust",
+              "sourceType": "tarot",
+              "sourceId": "t2",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_tarot_coffee_theme",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "tarot_coffee_same_theme"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "tc_t",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner loyalty",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "tc_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner loyalty",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] relationship partner loyalty",
+              "sourceType": "tarot",
+              "sourceId": "tc_t",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty",
+              "sourceType": "coffee",
+              "sourceId": "tc_c",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "ilişki",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "tarot:tc_t",
+              "coffee:tc_c"
+            ],
+            "relatedCardIds": [
+              "cups_03",
+              "cups_10"
+            ],
+            "relevanceToCurrentAsk": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_coffee_dream_theme",
+      "baseScenarioId": "seven_stay_or_leave_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "coffee_dream_same_theme"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "cd_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "decision stay leave choice partner",
+            "themeIds": [
+              "karar"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "cd_d",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "decision stay leave choice partner",
+            "themeIds": [
+              "karar"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] decision stay leave choice partner",
+              "sourceType": "coffee",
+              "sourceId": "cd_c",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][dream] decision stay leave choice partner",
+              "sourceType": "dream",
+              "sourceId": "cd_d",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "karar",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "coffee:cd_c",
+              "dream:cd_d"
+            ],
+            "relatedCardIds": [
+              "swords_04",
+              "cups_07"
+            ],
+            "relevanceToCurrentAsk": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_same_id_two_types",
+      "baseScenarioId": "single_relationship_swords09r_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "same_raw_source_id_two_types"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "shared_x",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner trust loyalty",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "shared_x",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner trust loyalty",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] relationship partner trust loyalty",
+              "sourceType": "tarot",
+              "sourceId": "shared_x",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner trust loyalty",
+              "sourceType": "coffee",
+              "sourceId": "shared_x",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "ilişki",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "tarot:shared_x",
+              "coffee:shared_x"
+            ],
+            "relatedCardIds": [],
+            "relevanceToCurrentAsk": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_irrelevant_theme",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "irrelevant_cross_feature_theme",
+        "omit_irrelevant"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_ir",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": [
+          {
+            "sourceId": "ir_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "zzzz yyyy xxxx wwww",
+            "themeIds": [
+              "kariyer"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "ir_d",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "zzzz yyyy xxxx wwww",
+            "themeIds": [
+              "kariyer"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "irrelevant",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_gt4_themes",
+      "baseScenarioId": "single_decision_pentacles04r_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": "remember previous relationship karar değişim sınır kariyer iletişim partner",
+      "classes": [
+        "gt4_qualifying_themes"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "t_ilişki",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "c_ilişki",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "t_karar",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "karar"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "c_karar",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "karar"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "t_değişim",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "değişim"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "c_değişim",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "değişim"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "t_sınır",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "sınır"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "c_sınır",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "sınır"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "t_kariyer",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "kariyer"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "c_kariyer",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "kariyer"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "t_iletişim",
+            "sourceType": "tarot",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "iletişim"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "c_iletişim",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "decision partner relationship karar değişim",
+            "themeIds": [
+              "iletişim"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] decision partner relationship karar değişim",
+              "sourceType": "tarot",
+              "sourceId": "t_değişim",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] decision partner relationship karar değişim",
+              "sourceType": "tarot",
+              "sourceId": "t_iletişim",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_03",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] decision partner relationship karar değişim",
+              "sourceType": "tarot",
+              "sourceId": "t_ilişki",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_04",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][tarot] decision partner relationship karar değişim",
+              "sourceType": "tarot",
+              "sourceId": "t_karar",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "karar",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "tarot:t_karar",
+              "coffee:c_karar"
+            ],
+            "relatedCardIds": [],
+            "relevanceToCurrentAsk": 0.8
+          },
+          {
+            "evidenceId": "rec_theme_02",
+            "themeIdOrLabel": "değişim",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "tarot:t_değişim",
+              "coffee:c_değişim"
+            ],
+            "relatedCardIds": [],
+            "relevanceToCurrentAsk": 0.7
+          },
+          {
+            "evidenceId": "rec_theme_03",
+            "themeIdOrLabel": "iletişim",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "tarot:t_iletişim",
+              "coffee:c_iletişim"
+            ],
+            "relatedCardIds": [],
+            "relevanceToCurrentAsk": 0.7
+          },
+          {
+            "evidenceId": "rec_theme_04",
+            "themeIdOrLabel": "ilişki",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "tarot:t_ilişki",
+              "coffee:c_ilişki"
+            ],
+            "relatedCardIds": [],
+            "relevanceToCurrentAsk": 0.7
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_theme_echo_no_hist",
+      "baseScenarioId": "five_theme_repetition_exemplar_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "current_spread_theme_echo_no_history"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "no_history",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_mem_theme",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "memory_theme_relevance",
+        "omit_included"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "mt_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "fact"
+          },
+          {
+            "sourceId": "mt_d",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "preference"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[FACT][coffee] relationship partner loyalty trust",
+              "sourceType": "coffee",
+              "sourceId": "mt_c",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "fact"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[PREFERENCE][dream] relationship partner loyalty trust",
+              "sourceType": "dream",
+              "sourceId": "mt_d",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "preference"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "ilişki",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "coffee:mt_c",
+              "dream:mt_d"
+            ],
+            "relatedCardIds": [
+              "cups_03",
+              "cups_10"
+            ],
+            "relevanceToCurrentAsk": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_mem_two_token",
+      "baseScenarioId": "seven_stay_or_leave_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "memory_two_token_relevance"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "m2t",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "stay leave partner relationship choice",
+            "themeIds": [
+              "belirsizlik"
+            ],
+            "confidence": 0.8,
+            "epistemic": "observation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[OBSERVATION][coffee] stay leave partner relationship choice",
+              "sourceType": "coffee",
+              "sourceId": "m2t",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "observation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_mem_one_token",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "memory_one_token_reject",
+        "omit_irrelevant"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_m1",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": [
+          {
+            "sourceId": "m1t",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "zzzz",
+            "themeIds": [
+              "özgüven"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "irrelevant",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_mem_card_map",
+      "baseScenarioId": "single_guidance_cups05r_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "memory_card_map_relevance"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "mcm",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "grief ending release despair reflection",
+            "themeIds": [
+              "değişim"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "irrelevant",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_recall_tr",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": "Hatırla önceki ilişki yorumunu partner",
+      "classes": [
+        "explicit_recall_tr"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "rtr_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust",
+              "sourceType": "coffee",
+              "sourceId": "rtr_c",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_recall_en",
+      "baseScenarioId": "single_relationship_swords09r_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": "Remember previous reading about partner relationship trust",
+      "classes": [
+        "explicit_recall_en"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "ren_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner trust loyalty",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner trust loyalty",
+              "sourceType": "coffee",
+              "sourceId": "ren_c",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_recall_ru",
+      "baseScenarioId": "single_relationship_swords09r_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": "Помни раньше partner relationship trust",
+      "classes": [
+        "explicit_recall_ru"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "rru_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner trust loyalty",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner trust loyalty",
+              "sourceType": "coffee",
+              "sourceId": "rru_c",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_mem_gt220",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "memory_gt220_entry"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "long1",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word ",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "long2",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust mirror",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+              "sourceType": "coffee",
+              "sourceId": "long1",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][dream] relationship partner loyalty trust mirror",
+              "sourceType": "dream",
+              "sourceId": "long2",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "ilişki",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "coffee:long1",
+              "dream:long2"
+            ],
+            "relatedCardIds": [
+              "cups_03",
+              "cups_10"
+            ],
+            "relevanceToCurrentAsk": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_mem_gt800",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "memory_gt800_aggregate"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "bulk0",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "bulk1",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "bulk2",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "bulk3",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "bulk4",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-18T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "bulk5",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-17T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+              "sourceType": "coffee",
+              "sourceId": "bulk0",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][dream] relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+              "sourceType": "dream",
+              "sourceId": "bulk1",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_03",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoken",
+              "sourceType": "coffee",
+              "sourceId": "bulk2",
+              "occurredAt": "2026-09-20T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_04",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][dream] relationship partner loyalty trust shared tokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentokentoke",
+              "sourceType": "dream",
+              "sourceId": "bulk3",
+              "occurredAt": "2026-09-19T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "ilişki",
+            "supportCount": 6,
+            "supportingReadingIds": [
+              "coffee:bulk0",
+              "dream:bulk1",
+              "coffee:bulk2",
+              "dream:bulk3",
+              "coffee:bulk4"
+            ],
+            "relatedCardIds": [
+              "cups_03",
+              "cups_10"
+            ],
+            "relevanceToCurrentAsk": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_mem_max4",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "memory_max_4_entries"
+      ],
+      "history": {
+        "tarotReadings": [],
+        "connectedMemories": [
+          {
+            "sourceId": "m4_0",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust note 0",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "m4_1",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust note 1",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "m4_2",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust note 2",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "m4_3",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust note 3",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "m4_4",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-18T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust note 4",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "m4_5",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-17T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust note 5",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 0,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust note 0",
+              "sourceType": "coffee",
+              "sourceId": "m4_0",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust note 1",
+              "sourceType": "coffee",
+              "sourceId": "m4_1",
+              "occurredAt": "2026-09-21T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_03",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust note 2",
+              "sourceType": "coffee",
+              "sourceId": "m4_2",
+              "occurredAt": "2026-09-20T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_04",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust note 3",
+              "sourceType": "coffee",
+              "sourceId": "m4_3",
+              "occurredAt": "2026-09-19T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_omit_empty",
+      "baseScenarioId": "single_decision_pentacles04r_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "omit_empty"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_em",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "pentacles_04",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "pentacles_04",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_em",
+                "at": "2026-09-22T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_timestamp_tie",
+      "baseScenarioId": "single_open_fool_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "same_timestamp_tie"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "tie_b",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "tie_a",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 2,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 2,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "tie_a",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              },
+              {
+                "readingId": "tie_b",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_reorder_idempotent",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "input_reorder_determinism",
+        "re_enrichment_idempotence",
+        "privacy_revocation"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_ri1",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_03",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_ri2",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_09",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "present",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": [
+          {
+            "sourceId": "ri_c",
+            "sourceType": "coffee",
+            "occurredAt": "2026-09-22T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          },
+          {
+            "sourceId": "ri_d",
+            "sourceType": "dream",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "summary": "relationship partner loyalty trust",
+            "themeIds": [
+              "ilişki"
+            ],
+            "confidence": 0.8,
+            "epistemic": "interpretation"
+          }
+        ]
+      },
+      "expected": {
+        "memory": {
+          "included": true,
+          "omitReason": "included",
+          "priorReadingCount": 2,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": [
+            {
+              "evidenceRef": "mem_01",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][coffee] relationship partner loyalty trust",
+              "sourceType": "coffee",
+              "sourceId": "ri_c",
+              "occurredAt": "2026-09-22T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            },
+            {
+              "evidenceRef": "mem_02",
+              "kind": "memorySummary",
+              "contentForModel": "[INTERPRETATION][dream] relationship partner loyalty trust",
+              "sourceType": "dream",
+              "sourceId": "ri_d",
+              "occurredAt": "2026-09-20T12:00:00.000Z",
+              "confidence": 0.8,
+              "epistemic": "interpretation"
+            }
+          ]
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "cups_03",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "topic_match",
+            "occurrences": [
+              {
+                "readingId": "h_ri1",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "past",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          },
+          {
+            "evidenceId": "rec_card_02",
+            "canonicalCardId": "cups_09",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "topic_match",
+            "occurrences": [
+              {
+                "readingId": "h_ri2",
+                "at": "2026-09-19T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "present",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": [
+          {
+            "evidenceId": "rec_theme_01",
+            "themeIdOrLabel": "ilişki",
+            "supportCount": 2,
+            "supportingReadingIds": [
+              "coffee:ri_c",
+              "dream:ri_d"
+            ],
+            "relatedCardIds": [
+              "cups_03",
+              "cups_10"
+            ],
+            "relevanceToCurrentAsk": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "id": "p4d_multi_recur_cards",
+      "baseScenarioId": "three_belonging_isolation_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_true"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_mc1",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_03",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_mc2",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_09",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "present",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_mc3",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "cups_10",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "future",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 3,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "cups_03",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "topic_match",
+            "occurrences": [
+              {
+                "readingId": "h_mc1",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "past",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          },
+          {
+            "evidenceId": "rec_card_02",
+            "canonicalCardId": "cups_09",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "topic_match",
+            "occurrences": [
+              {
+                "readingId": "h_mc2",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "present",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          },
+          {
+            "evidenceId": "rec_card_03",
+            "canonicalCardId": "cups_10",
+            "occurrenceCount": 1,
+            "contextsOverlap": true,
+            "overlapSummaryKey": "topic_match",
+            "occurrences": [
+              {
+                "readingId": "h_mc3",
+                "at": "2026-09-19T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "future",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_career_ru",
+      "baseScenarioId": "five_balance_imbalance_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_car",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "fiveCard",
+            "questionKind": "decision",
+            "topicId": "finance",
+            "cards": [
+              {
+                "canonicalCardId": "pentacles_02",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "situation",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "pentacles_02",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_car",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "fiveCard",
+                "positionKey": "situation",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_celtic_work_ru",
+      "baseScenarioId": "celtic_work_ahead_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_cel",
+            "occurredAt": "2026-09-18T12:00:00.000Z",
+            "spreadId": "celticCross",
+            "questionKind": "guidance",
+            "topicId": "career",
+            "cards": [
+              {
+                "canonicalCardId": "wands_08",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "present",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_guidance_tr",
+      "baseScenarioId": "three_blockage_exemplar_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_gu",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "cards": [
+              {
+                "canonicalCardId": "wands_08",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_decision_en",
+      "baseScenarioId": "three_cause_effect_exemplar_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_de",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "cards": [
+              {
+                "canonicalCardId": "major_10",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_owner_a",
+      "baseScenarioId": "seven_career_path_tr",
+      "currentOwnerId": "owner_a",
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_own",
+            "ownerId": "owner_a",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "sevenCard",
+            "cards": [
+              {
+                "canonicalCardId": "pentacles_07",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_guidance_reinforcement_tr",
+      "baseScenarioId": "five_reinforcement_exemplar_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_p4d_guidance_reinforcement_tr",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_03",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_guidance_truth_ru",
+      "baseScenarioId": "three_truth_denial_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_false"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_p4d_guidance_truth_ru",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "single",
+            "cards": [
+              {
+                "canonicalCardId": "major_18",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "sign",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 1,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_18",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_p4d_guidance_truth_ru",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "single",
+                "positionKey": "sign",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_multi_five_conflict_ru",
+      "baseScenarioId": "five_conflict_exemplar_ru",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_true"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_fc1",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "fiveCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "major_00",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "situation",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_fc2",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "fiveCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "major_11",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "hidden_influence",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 2,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_00",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_fc1",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "fiveCard",
+                "positionKey": "situation",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          },
+          {
+            "evidenceId": "rec_card_02",
+            "canonicalCardId": "major_11",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_fc2",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "fiveCard",
+                "positionKey": "hidden_influence",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_multi_five_support_en",
+      "baseScenarioId": "five_support_exemplar_en",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_true"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_fs1",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "fiveCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "major_01",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "situation",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_fs2",
+            "occurredAt": "2026-09-19T12:00:00.000Z",
+            "spreadId": "fiveCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "major_04",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "hidden_influence",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 2,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_01",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_fs1",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "fiveCard",
+                "positionKey": "situation",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          },
+          {
+            "evidenceId": "rec_card_02",
+            "canonicalCardId": "major_04",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_fs2",
+                "at": "2026-09-19T12:00:00.000Z",
+                "spreadId": "fiveCard",
+                "positionKey": "hidden_influence",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    },
+    {
+      "id": "p4d_multi_attachment_tr",
+      "baseScenarioId": "three_attachment_fear_tr",
+      "currentOwnerId": null,
+      "now": "2026-09-23T12:00:00.000Z",
+      "privacyBlocked": false,
+      "questionRawOverlay": null,
+      "classes": [
+        "contextsOverlap_true"
+      ],
+      "history": {
+        "tarotReadings": [
+          {
+            "readingId": "h_at1",
+            "occurredAt": "2026-09-21T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "major_15",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "past",
+                "positionIndex": 0
+              }
+            ]
+          },
+          {
+            "readingId": "h_at2",
+            "occurredAt": "2026-09-20T12:00:00.000Z",
+            "spreadId": "threeCard",
+            "questionKind": "relationship",
+            "topicId": "love",
+            "cards": [
+              {
+                "canonicalCardId": "wands_10",
+                "isReversed": false,
+                "orientationKnown": true,
+                "positionKey": "present",
+                "positionIndex": 0
+              }
+            ]
+          }
+        ],
+        "connectedMemories": []
+      },
+      "expected": {
+        "memory": {
+          "included": false,
+          "omitReason": "empty",
+          "priorReadingCount": 2,
+          "recentCardNames": [],
+          "recurringThemeLabels": [],
+          "entries": []
+        },
+        "recurringCards": [
+          {
+            "evidenceId": "rec_card_01",
+            "canonicalCardId": "major_15",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_at1",
+                "at": "2026-09-21T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "past",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          },
+          {
+            "evidenceId": "rec_card_02",
+            "canonicalCardId": "wands_10",
+            "occurrenceCount": 1,
+            "contextsOverlap": false,
+            "overlapSummaryKey": null,
+            "occurrences": [
+              {
+                "readingId": "h_at2",
+                "at": "2026-09-20T12:00:00.000Z",
+                "spreadId": "threeCard",
+                "positionKey": "present",
+                "isReversed": false,
+                "orientationKnown": true,
+                "intentionSummary": null
+              }
+            ]
+          }
+        ],
+        "recurringThemes": []
+      }
+    }
+  ]
+}
