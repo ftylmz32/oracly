@@ -168,23 +168,52 @@ void main() {
       );
     });
 
-    test('Classical edge provider does not invent Crossroads rows', () {
-      final fake = SpreadSemanticDefinition(
-        spreadId: 'signature.crossroads',
-        legacyTypeName: 'crossroads',
-        cardCount: 5,
-        purposeKey: 'x',
-        positions: const [],
-        interpretationOrder: const [],
-        geometryHook: NarrativeGeometryHook.linearRow,
-        lengthBand: NarrativeLengthBand.full,
+    test('Classical edge provider rejects Crossroads fail-closed', () {
+      final projected = const SignatureNarrativeSpreadResolver().resolve(
+        TarotSpreadType.crossroads,
       );
-      final edges = const ClassicalPositionEdgeProvider().edgesFor(fake);
-      expect(edges, isEmpty);
+      expect(
+        () => const ClassicalPositionEdgeProvider().edgesFor(projected),
+        throwsA(isA<ArgumentError>()),
+      );
       expect(
         kAuthoritativePositionEdges
             .where((e) => e.legacyTypeName == 'crossroads'),
         isEmpty,
+      );
+    });
+
+    test('Classical edge provider rejects spoofed identities', () {
+      final three = ClassicalSpreadSemantics.byLegacyTypeName('threeCard');
+      expect(
+        () => const ClassicalPositionEdgeProvider().edgesFor(
+          SpreadSemanticDefinition(
+            spreadId: 'signature.fake',
+            legacyTypeName: 'threeCard',
+            cardCount: 3,
+            purposeKey: three.purposeKey,
+            positions: three.positions,
+            interpretationOrder: three.interpretationOrder,
+            geometryHook: three.geometryHook,
+            lengthBand: three.lengthBand,
+          ),
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(
+        () => const ClassicalPositionEdgeProvider().edgesFor(
+          SpreadSemanticDefinition(
+            spreadId: 'classical.threeCard',
+            legacyTypeName: 'threeCard',
+            cardCount: 5,
+            purposeKey: three.purposeKey,
+            positions: three.positions,
+            interpretationOrder: three.interpretationOrder,
+            geometryHook: three.geometryHook,
+            lengthBand: three.lengthBand,
+          ),
+        ),
+        throwsA(isA<ArgumentError>()),
       );
     });
 

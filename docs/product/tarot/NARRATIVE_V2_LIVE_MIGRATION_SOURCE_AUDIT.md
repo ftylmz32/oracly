@@ -456,9 +456,30 @@ Refinements for Phase 6: A/B implemented as Classical-default seams + Signature 
 | Signature provider live callers | **0** |
 | Phase 4 / Phase 5 SOT | **UNCHANGED** |
 | Live Narrative V2 | **NOT WIRED** |
-| Next | **Phase 6B** |
+| Next | **Phase 6A.1** then **Phase 6B** |
 
 6.0.3 independently verified before 6A.
+
+**Classical parity (6A):** **PASS** (independent ChatGPT verification confirmed).
+
+**Independent ChatGPT follow-up (post-6A):** Classical provider identity fail-closed defect — `edgesFor(signature.crossroads)` returned `[]` instead of rejecting incompatible spreads (indistinguishable from valid classical.single zero-edge).
+
+---
+
+## 13.2 — Phase 6A.1 provider identity hardening
+
+**Date:** 2026-09-23 · **Kind:** fail-closed provider compatibility
+
+| Fact | Value |
+|---|---|
+| Classical provider | Validates against `ClassicalSpreadSemantics.byLegacyTypeName` + spreadId/cardCount match |
+| Signature provider | Validates against projected Crossroads identity + position-key set |
+| Crossroads + Classical provider | **THROWS** (not empty) |
+| Spoofed identities | **THROWS** |
+| Default scorer/selector + Crossroads | **FAIL CLOSED** |
+| classical.single | still returns **0** edges (valid) |
+| Silent zero-edge Signature fallback | **NO** |
+| Next | Independent 6A.1 verification → **Phase 6B** |
 
 ---
 

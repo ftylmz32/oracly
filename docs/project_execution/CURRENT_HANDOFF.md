@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 6A Classical-preserving spread/edge seams · 6.0.3 independently verified · Phase 5 RE-FROZEN
+**Updated:** 2026-09-23 — Tarot Phase 6A.1 provider identity fail-closed · 6A Classical parity independently verified · Phase 5 RE-FROZEN
 
 ---
 
@@ -127,6 +127,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 6.0.3 task start | `b04296c77be79cc4dfee1eb96b809f78646f2234` | Safety preflight before affordability + retry firewall |
 | Phase 6.0.3 end | `b82e517edf035f3c80c17b84f53978408a73f078` | independently verified · gate for 6A |
 | Phase 6A task start | `b82e517edf035f3c80c17b84f53978408a73f078` | Classical-preserving spread + edge provider seams |
+| Phase 6A end | `0fbd5c2cb2fdee1fa474e10979d2e8d9b2177557` | Classical parity PASS · ChatGPT found provider identity defect |
+| Phase 6A.1 task start | `0fbd5c2cb2fdee1fa474e10979d2e8d9b2177557` | Provider/spread identity fail-closed hardening |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -728,13 +730,27 @@ Pre-existing local noise (do **not** stage/clean):
 | Live Narrative V2 | **NOT WIRED** |
 | Crossroads picker | **false** |
 | Prompt architecture | **C** — NarrativeTarotPromptInput + legacy adapter |
-| Next | **Phase 6A** (completed) → **Phase 6B** |
+| Next | **Phase 6A** (completed) → **6A.1** → **Phase 6B** |
+
+### Phase 6A.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** (pending independent ChatGPT verification) |
+| Kind | **PROVIDER IDENTITY FAIL-CLOSED HARDENING** |
+| Root cause | Classical provider returned `[]` for Signature Crossroads (silent) |
+| Classical provider | Validates catalog identity before edge filter |
+| Signature provider | Validates projected Crossroads identity + position keys |
+| Default scorer/selector + Crossroads | **FAIL CLOSED** |
+| classical.single zero edges | still valid |
+| Live Narrative V2 | **NOT WIRED** |
+| Next | Independent 6A.1 verification → **Phase 6B** |
 
 ### Phase 6A
 
 | Field | Value |
 |---|---|
-| Status | **COMPLETE** / **PASS** |
+| Status | **COMPLETE** / **PASS** (Classical parity independently verified; follow-up → 6A.1) |
 | Kind | **CLASSICAL-PRESERVING SPREAD + EDGE PROVIDER SEAMS** |
 | Phase 3 reopen | validation resolveSpread · pairing/scorer/selector edge provider |
 | Signature adapters | new files only · **0** live callers |
@@ -745,7 +761,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Crossroads picker | **false** |
 | Phase 4 / Phase 5 SOT | **UNCHANGED** |
 | Prior gate | 6.0.3 independently verified |
-| Next | **Phase 6B** |
+| Next | **6A.1** (completed) → independent verify → **6B** |
 
 ### Phase 6.0.3
 
@@ -758,7 +774,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Live Narrative V2 | **NOT WIRED** |
 | Crossroads picker | **false** |
 | Phase 3 / 4 / 5 production | **UNCHANGED** (pre-6A) |
-| Next | **6A** (completed) → **6B** |
+| Next | **6A** (completed) → **6A.1** → **6B** |
 
 ### Phase 6.0.2
 
@@ -1225,13 +1241,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 6B** — Signature history normalizer (Phase 4 reopen: narrow).
+**Independent Phase 6A.1 verification**, then **Phase 6B** — Signature history normalizer (Phase 4 reopen: narrow).
 
-Phase 6.0: **PASS** · Phase 6.0.1: **PASS** · Phase 6.0.2: **PASS** · Phase 6.0.3: **PASS** (independently verified before 6A) · Phase 6A: **PASS** (Classical seams + Signature adapters; default Crossroads unsupported) · Phase 5: **RE-FROZEN** · Phase 4: **FROZEN** · Phase 3: **narrow 6A reopen only** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0: **PASS** · Phase 6.0.1: **PASS** · Phase 6.0.2: **PASS** · Phase 6.0.3: **PASS** · Phase 6A: **PASS** (Classical parity independently verified) · Phase 6A.1: **PASS** (provider identity fail-closed — pending ChatGPT verify) · Phase 5: **RE-FROZEN** · Phase 4: **FROZEN** · Phase 3: **narrow 6A/6A.1 reopen only** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** begin Phase 6C+ until 6B PASS.
+Do **not** begin Phase 6B until 6A.1 is independently verified.
 Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.
 Do **not** reopen Phase 4 production outside documented Phase 6B.

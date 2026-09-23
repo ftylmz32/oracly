@@ -103,6 +103,13 @@ PositionEdgeProvider
 
 **Phase 6A (2026-09-23):** seam A/B infrastructure **PASS**. Seam C and 6G (full Crossroads Narrative) **NOT** implemented.
 
+**Phase 6A.1 (2026-09-23) — LOCKED fail-closed rule:**
+
+- Resolver/provider pair mismatch **must fail closed**.
+- **A Signature semantic definition may never be evaluated with the Classical edge provider.**
+- **A Classical semantic definition may never be evaluated with the Signature edge provider.**
+- Valid `classical.single` zero-edge remains allowed only after Classical identity is proven.
+
 ---
 
 ## 4 — Phase 4 Signature history design (LOCKED CONCEPT)
@@ -262,7 +269,16 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 - **Live impact:** NONE · Crossroads picker false · default builder Crossroads still unsupported  
 - **Not done:** seam C · 6G full Crossroads Narrative · builder Signature wiring  
 - **Rollback:** restore classical-only resolve (defaults already Classical)  
-- **Next:** **Phase 6B**
+- **Next:** **Phase 6A.1** (provider identity fail-closed)
+
+### 6A.1 — Provider/spread identity fail-closed hardening
+
+- **Status:** **PASS** (2026-09-23) — pending independent ChatGPT verification  
+- **Goal:** Classical/Signature edge providers reject mismatched spreads (no silent empty)  
+- **Production:** `ClassicalPositionEdgeProvider` · `SignatureNarrativeEdgeProvider` only  
+- **Rule:** Signature definition ↔ Classical provider and Classical definition ↔ Signature provider **must throw**  
+- **Live impact:** NONE  
+- **Next:** Independent verify → **Phase 6B**
 
 ### 6B — Signature history normalizer (Phase 4 reopen: narrow)
 
@@ -380,6 +396,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Phase 6B** — Signature history normalizer (Phase 4 reopen: narrow).
+**Independent Phase 6A.1 verification**, then **Phase 6B** — Signature history normalizer (Phase 4 reopen: narrow).
 
-Phase 6.0.3 independently verified before 6A. Phase 6A seam A/B **PASS**. Live Narrative V2 still **NOT WIRED**.
+Phase 6.0.3 independently verified before 6A. Phase 6A seam A/B **PASS**. Phase 6A.1 provider identity fail-closed **PASS** (pending independent verify). Live Narrative V2 still **NOT WIRED**.

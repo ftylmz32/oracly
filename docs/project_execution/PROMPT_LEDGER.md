@@ -1171,11 +1171,12 @@ Chronological project execution ledger.
 | PL-T6.0.1 | Tarot Phase 6.0.1 — Safety delivery non-billable / non-journal | **PASS** (billing/journal; follow-ups → 6.0.2) |
 | PL-T6.0.2 | Tarot Phase 6.0.2 — Safety purity + recovery authorization + delivery copy | **PASS** (B1/M1/M2; follow-ups → 6.0.3) |
 | PL-T6.0.3 | Tarot Phase 6.0.3 — Safety preflight before affordability + quality retry firewall | **PASS** (independently verified before 6A) |
-| PL-T6A | Tarot Phase 6A — Classical-preserving spread + edge provider seams | **PASS** |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN; 6A narrow reopen) |
+| PL-T6A | Tarot Phase 6A — Classical-preserving spread + edge provider seams | **PASS** (Classical parity verified; follow-up → 6A.1) |
+| PL-T6A.1 | Tarot Phase 6A.1 — Provider/spread identity fail-closed hardening | **PASS** (pending independent verify) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN; 6A/6A.1 narrow reopen) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | **RE-FROZEN** after 5F.1 independent verification |
-| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = Phase 6B** |
+| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6A.1 verify, then 6B** |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
 | PL-T9 | Tarot Phase 9 — red-team QA | PLANNED |
