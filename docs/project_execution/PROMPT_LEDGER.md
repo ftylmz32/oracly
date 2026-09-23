@@ -705,6 +705,23 @@ Chronological project execution ledger.
 | Production modified | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3D.1C — DETERMINISTIC RELATIONSHIP SCORER + SELECTOR
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `9d7b388e2ae3ec16a9c2b0ba5e72f6802c98b890` |
+| Production | NEW under `lib/features/tarot/narrative/evidence/` — context · rules · candidate · guards · pairing · signals · kind_resolver · ranking · scorer · selector |
+| Existing production modified | **NONE** (3D.1A/1B untouched this phase) |
+| Score formula | `clamp(Σ(w/6)+contrast+transform+canonical+position+question, 0, 3.5)` |
+| Numeric contradiction / FR penalty | **NONE** / **NONE** (FR = overlap≤0.35 + strength≤0.45) |
+| Admission | STANDARD ≥2 fam + S≥1.25 · CANONICAL E+≥2+S≥1.0 · POSITION-STRONG edge+{A/B/D}+S≥1.0 |
+| Kind resolution | precedence 1–9 · support/reinforcement SEMANTIC fallback · theme selector-global max 1 |
+| Top-N / ids | **12** · `rel_##` after rank |
+| Tests | scorer · kinds · selector · FR-F01/F02 · safety · determinism |
+| Builder / user path / AI / memory | **NOT IMPLEMENTED** / **UNCHANGED** / **0** / **NONE** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -742,7 +759,8 @@ Chronological project execution ledger.
 | PL-T3D.1B | Tarot Phase 3D.1B — Structured Semantic Signal Layer | **DONE** (channel+DF+contrasts+transforms; scoring NOT IMPLEMENTED) |
 | PL-T3D.1B.1 | Tarot Phase 3D.1B.1 — Relationship scoring calibration | **DONE** (docs+diagnostic; OPEN 3D.1C decisions 0; scorer NOT IMPLEMENTED) |
 | PL-T3D.1B.2 | Tarot Phase 3D.1B.2 — Scoring admission consistency repair | **DONE** (0.90 REJECT; constants unchanged) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (signals+calibration READY; scoring/builder pending 3D.1C) |
+| PL-T3D.1C | Tarot Phase 3D.1C — Deterministic relationship scorer + selector | **DONE** (scorer+selector; builder NOT IMPLEMENTED) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (scorer DONE; builder pending 3D.1D) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

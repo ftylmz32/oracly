@@ -4,7 +4,7 @@
 **Phase 3D.0 start SHA:** e90a5109bbb75ce2c1247be686c9a149aa554846
 **Phase 3D.0.1 start SHA:** 18cfeea804cc415a8d064e2a3f9d89c611c8cb4d
 **Phase 3D.1B.1 calibration:** `docs/product/tarot/NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md`
-**Status:** **READY FOR 3D.1C** (OPEN 3D.1C SCORING DECISIONS = 0)
+**Status:** **3D.1C COMPLETE** — deterministic relationship scorer + selector implemented (builder / user path still NOT wired)
 **Production scoring / builder:** **NOT IMPLEMENTED**
 
 Authority: NARRATIVE_TAROT_SPEC.md · NARRATIVE_TAROT_DATA_CONTRACT.md · TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md · NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md
@@ -664,38 +664,49 @@ Source profile not mutated · correct orientation · exact optional matrix · no
 ### Score components (deterministic) — ACTIVE 3D.1B.1
 
 ```
-S_total =
+S_total = clamp(
   S_overlap                   // Σ (w_raw/6.0) on Chan∩  [NOT raw Σ w]
-+ S_contrast                  // HARD +0.70 / CONTEXTUAL +0.45
++ S_contrast                  // HARD +0.70 / CONTEXTUAL +0.45 (max class once)
 + S_transform                 // +0.15 × |effectiveShared| cap +0.30
 + S_canonical                 // +0.55 if E (undirected relatedIds)
 + S_position                  // §18 edge bonuses
 + S_question                  // 0 or +0.15 (§11 / calibration §8)
-− S_penalty_fr                // FR-F01/F02 caps already applied in overlap
-− S_contradiction             // if HARD CONTRAST and soft support lobbied: −0.60 to support pathway
+, 0.0, 3.5)
 ```
 
-`S_tag_only = 0` · `S_orientation = 0` (3D.1B.1).
+**NO** numeric `S_penalty_fr` subtraction. FR-F01/F02 apply only:
+- `S_overlap = min(S_overlap, 0.35)` when guard active
+- `strength = min(S_total/3.5, 0.45)` when guard active
 
-Clamp `S_total` to `[0, 3.5]` then map to strength:
+**NO** numeric `S_contradiction` (−0.60). Contradiction is **kind/veto only**:
+HARD contrast or opposition-contrast condition ⇒ `contrast`/`conflict` wins; never `support`/`reinforcement`.
 
-`strength = clamp(S_total / 3.5, 0.0, 1.0)`
+`S_tag_only = 0` · `S_orientation = 0`.
+
+`strength = S_total / 3.5` (then FR strength cap if applicable).
 
 ### Kind resolution precedence
 
 1. If HARD CONTRAST or (CONTEXTUAL CONTRAST + opposition edge) ⇒ `contrast` or `conflict`
    - `conflict` iff contrast condition AND (opposition edge incident to role ∈ {challenge, avoid} OR HARD contrast + pressure edge); else `contrast`
-2. Else if temporal edge + SEMANTIC ⇒ `causeEffect` (narrative flow; not literal causation)
-3. Else if blockage semantics (calibration §10) ⇒ `blockage`
+2. Else if directed temporal edge + SEMANTIC ⇒ `causeEffect` (structural narrative ordering; not literal causation)
+3. Else if blockage trigger + ≥1 other independent family ⇒ `blockage`
 4. Else if softening semantics ⇒ `softening`
 5. Else if escalation semantics ⇒ `escalation`
 6. Else if resolution semantics + supportive edge ⇒ `resolution`
-7. Else if theme-echo rule (§29) ⇒ `themeRepetition`
-8. Else if E or strong overlap ⇒ `support` / `reinforcement`
-   - `reinforcement` iff ≥2 shared ids with `df < 8` AND mean **raw** `w_raw ≥ 4.0`; else `support`
+7. Else if theme-echo rule (§29) — **selector-global finalization** (at most one) ⇒ `themeRepetition`
+8. Else if `normalAdmitted` AND SEMANTIC family ⇒ `support` / `reinforcement`
+   - `reinforcement` iff ≥2 shared ids with `df < 8` AND mean **raw** `weight(id) ≥ 4.0` over those ids; else `support`
+   - No undefined “strong overlap”; no support fallback without SEMANTIC family
 9. Else drop
 
 Exact keyword/transform trigger sets: `NARRATIVE_RELATIONSHIP_SCORING_CALIBRATION.md` §10.
+
+### Phase 3D.1C implementation lock
+
+Production: `NarrativeRelationshipScorer` + `NarrativeRelationshipSelector` over prepared `NarrativeRelationshipCardContext` only.
+`NarrativeEvidenceBuilder` / raw-reading validation / request assembly / memory / user path: **NOT IMPLEMENTED**.
+Theme echo is current-spread selector logic only (pair + ≥3-card df≤6 cluster); max one `themeRepetition`; no reserved top-N slot.
 
 ---
 

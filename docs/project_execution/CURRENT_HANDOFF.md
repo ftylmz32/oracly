@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1B.2 Admission Consistency Repair
+**Updated:** 2026-09-23 — Tarot Phase 3D.1C Deterministic Relationship Scorer + Selector
 
 ---
 
@@ -60,6 +60,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1B.1 task start | `9a20151986581d7ffcdb086112c3b4b802fde770` | Relationship scoring calibration |
 | Phase 3D.1B.1 end | `fc61bccc65f1bd523dbc3d753c5b74136586dcae` | Scoring calibration |
 | Phase 3D.1B.2 task start | `fc61bccc65f1bd523dbc3d753c5b74136586dcae` | Admission consistency repair |
+| Phase 3D.1B.2 end | `9d7b388e2ae3ec16a9c2b0ba5e72f6802c98b890` | Admission consistency repair |
+| Phase 3D.1C task start | `9d7b388e2ae3ec16a9c2b0ba5e72f6802c98b890` | Deterministic relationship scorer + selector |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -142,6 +144,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1B — Structured Semantic Signal Layer | **COMPLETE** (channel + DF + contrasts + transforms; scoring **NOT** implemented) |
 | Phase 3D.1B.1 — Relationship scoring calibration | **COMPLETE** (docs + diagnostic; production scoring **NOT** implemented; OPEN 3D.1C decisions **0**) |
 | Phase 3D.1B.2 — Admission consistency repair | **COMPLETE** (FR-F01+canonical 0.90 → REJECT; thresholds unchanged) |
+| Phase 3D.1C — Deterministic Relationship Scorer + Selector | **COMPLETE** (scoring/admission/kinds/ranking/`rel_##`; builder **NOT** implemented) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -430,6 +433,23 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1C
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Scorer | **IMPLEMENTED** — `NarrativeRelationshipScorer` over prepared contexts |
+| Selector | **IMPLEMENTED** — C(n,2) · kind finalization · theme · top-12 · `rel_##` |
+| Overlap | `Σ(weight/6)` |
+| Contradiction | **kind/veto only** — **NO** numeric −0.60 |
+| FR-F01/F02 | overlap cap 0.35 · strength cap 0.45 — **NO** separate FR penalty |
+| Support fallback | `normalAdmitted` + SEMANTIC; reinforcement = ≥2 ids df<8 AND mean raw weight ≥4.0 |
+| Theme echo | current-spread selector only · max **1** · HF-only **REJECT** |
+| Top-N / evidence ids | **12** · `rel_01`…`rel_12` deterministic |
+| NarrativeEvidenceBuilder | **NOT IMPLEMENTED** |
+| User path | **UNCHANGED** |
+| AI / Memory / Network / Persistence | **0** / **NONE** / **0** / **0** |
+
 ### Phase 3D.1B.2
 
 | Field | Value |
@@ -657,11 +677,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3D.1C implementation.**
+**ChatGPT review before Phase 3D.1D** (full `NarrativeEvidenceBuilder` + fixed corpus).
 
-Phase 3D.1B.2: **PASS** · FR-F01+canonical 0.90 → **REJECT** · thresholds unchanged · OPEN 3D.1C scoring decisions **0** · Production scorer **NOT** implemented.
+Phase 3D.1C: **PASS** · Relationship scorer/selector **IMPLEMENTED** · Contradiction = kind/veto only (no −0.60) · FR caps only · Theme = current-spread selector · Top-12 `rel_##` · Builder **NOT** implemented · User path **UNCHANGED**.
 
-Do **not** start 3D.1C until reviewed.
+Do **not** start 3D.1D until reviewed.
 Do **not** mark future items completed until verified.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
