@@ -230,3 +230,21 @@ Unsupported persisted title · unknown spread id · cardCount mismatch · duplic
 
 - This document  
 - Spec: `SIGNATURE_SPREADS_SPEC.md`
+
+---
+
+## Phase 5.0.1 independent-review hardening note (appended)
+
+**Date:** 2026-09-23  
+**Start SHA:** `a590da5e39a9c84466237e3decc120f9197735f6`
+
+Independent ChatGPT review of Phase 5.0 accepted the direction and required contract hardening **before 5A**. Forensic facts above are **not rewritten**. Spec updates only:
+
+1. **Crossroads roles exact:** `option_a`/`option_b`/`direction` → `PositionRole.direction`; `tension` → `challenge`; `counsel` → `support`. No new Phase 3 roles.
+2. **Crossroads edges exact (4):** A↔B opposition; tension↔A/B pressure; counsel→direction supportive. No extra 5B edges.
+3. **QuestionKinds:** decision (primary) · open · guidance · **relationship unsupported**.
+4. **Geometry separation:** Phase 5 `SignatureGeometryHook` (incl. `fiveDecision`) · frozen `NarrativeGeometryHook` unmodified · Crossroads projects to `linearRow` for Phase 3 evidence.
+5. **Enum timing:** Phase **5A must not** modify `TarotSpreadType`; append `crossroads(5)` only in **5D** after TR/EN/RU keys exist.
+6. **Sequence reorder:** 5A domain/catalog → 5B projection/edges → 5C l10n/geometry → 5D runtime/persistence → 5E shadow corpus → 5F audit.
+
+Compatibility check vs frozen Phase 3: `PositionRole.direction|challenge|support` and `PositionEdgeKind.opposition|pressure|supportive` already exist and are consumed by the frozen kind resolver / scorer bonuses — no Phase 3 change required.

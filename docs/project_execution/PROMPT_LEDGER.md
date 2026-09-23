@@ -991,6 +991,22 @@ Chronological project execution ledger.
 | Phase 3/4 must change | **NO** / **NO** |
 | OPEN BLOCKER / MAJOR | **0** / **0** |
 | Live V2 | **NOT WIRED** |
+| Outcome | **PASS** — superseded active contract by 5.0.1 |
+
+### PL-T5.0.1 — SIGNATURE SPREAD CONTRACT HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `a590da5e39a9c84466237e3decc120f9197735f6` |
+| Crossroads roles | direction×3 · challenge · support (exact) |
+| Crossroads edges | **4** exact |
+| QuestionKinds | decision/open/guidance · relationship **NO** |
+| Geometry | `SignatureGeometryHook` · Phase 3 unmodified |
+| Enum append | **5D only** · 5A must not touch `TarotSpreadType` |
+| Sequence | 5A→5B→5C→5D→5E→5F (reordered) |
+| Production / tests | **NONE** / **NONE** |
+| OPEN BLOCKER / MAJOR | **0** / **0** |
 | Outcome | **PASS** — ready for Phase 5A |
 
 ---
@@ -1049,9 +1065,10 @@ Chronological project execution ledger.
 | PL-T4E.1a | Tarot Phase 4E.1a — H19 exact-tie representative determinism | **PASS** |
 | PL-T4E-RE | Tarot Phase 4E re-audit — final freeze gate | **PASS** · Phase 4 **FROZEN** |
 | PL-T5.0 | Tarot Phase 5.0 — Signature Spreads forensic + architecture lock | **PASS** (docs-only) |
+| PL-T5.0.1 | Tarot Phase 5.0.1 — Signature Spread contract hardening | **PASS** (docs-only) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
-| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0 DONE** · 5A next |
+| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0/5.0.1 DONE** · 5A next |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |

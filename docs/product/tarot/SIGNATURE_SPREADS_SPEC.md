@@ -1,12 +1,12 @@
-# Signature Spreads — Implementation Spec (Phase 5.0 LOCK)
+# Signature Spreads — Implementation Spec (Phase 5.0 + 5.0.1 LOCK)
 
-**Status:** DESIGN LOCKED — Phase 5.0 forensic complete  
+**Status:** DESIGN LOCKED — Phase 5.0 forensic + **5.0.1 contract hardening**  
 **Date:** 2026-09-23  
 **Companion audit:** `SIGNATURE_SPREADS_SOURCE_AUDIT.md`  
-**Phase 3:** FROZEN — do not modify scorer / selector / builder / profiles / ontology  
+**Phase 3:** FROZEN — do not modify scorer / selector / builder / profiles / ontology / `NarrativeGeometryHook`  
 **Phase 4:** FROZEN — do not modify eligibility / recurrence / enricher contracts  
 **Live Narrative V2:** NOT WIRED  
-**OPEN PHASE 5.0 DESIGN DECISIONS:** **0 BLOCKER · 0 MAJOR**
+**OPEN PHASE 5 DESIGN DECISIONS:** **0 BLOCKER · 0 MAJOR**
 
 ---
 
@@ -18,7 +18,9 @@
 4. Phase 4 recurrence remains card-based — **same spread alone never authorizes recurrence**.  
 5. Live user-path wiring of Narrative V2 is **out of Phase 5** (Phase 6+ separately approved).  
 6. Do not rename existing `TarotSpreadType` enum **names** or existing `classical.*` spreadIds.  
-7. Do not invent a giant spread library — launch set is small and premium.
+7. Do not invent a giant spread library — launch set is small and premium.  
+8. **Phase 5A MUST NOT modify `TarotSpreadType`.** Enum append for Crossroads is **5D only**, after TR/EN/RU keys exist.  
+9. **Do not add** `fiveDecision` (or any product geometry) to frozen `NarrativeGeometryHook`. Phase 5 owns `SignatureGeometryHook`.
 
 ---
 
@@ -28,157 +30,229 @@
 
 | Layer | Owns | Does not own |
 |---|---|---|
-| **A. Identity** | `spreadId`, `version`, `legacyTypeName`, `runtimeEnumName` | UI widgets |
-| **B. Product copy** | purpose, supported QuestionKinds, display keys | scoring math |
-| **C. Ritual** | `cardCount`, draw slots, completion gate | AI prose |
-| **D. Position semantics** | keys, roles, guidingQuestionKeys, weights | network |
-| **E. Narrative semantics** | interpretationOrder, arc, synthesis posture | persistence IO |
-| **F. Evidence semantics** | maps to frozen `SpreadSemanticDefinition` + authoritative edges | Phase 3 algorithm edits |
-| **G. Visual geometry** | `geometryHook`, layout contract | evidence scores |
-| **H. Availability** | offeredInPicker, premiumPolicy, feature flags | billing implementation |
+| **A. Identity** | `spreadId`, `version`, `runtimeEnumName` | UI widgets |
+| **B. Product copy** | purpose, QuestionKinds, display keys | scoring math |
+| **C. Ritual** | `cardCount`, draw slots | AI prose |
+| **D. Position semantics** | keys, roles, guidingQuestionKeys, labels | network |
+| **E. Narrative semantics** | interpretationOrder, arc, synthesis | persistence IO |
+| **F. Evidence semantics** | projection to frozen Phase 3 + edges | Phase 3 algorithm edits |
+| **G. Visual** | `SignatureGeometryHook`, lengthBand metadata | Phase 3 geometry enum |
+| **H. Availability** | offeredInLivePicker, premiumOnly | billing implementation |
 | **I. Localization** | all user strings via keys | hardcoded titles |
 
-### 1.2 Canonical model (implementation target)
+### 1.2 Canonical `SignatureSpreadDefinition` (exact field lock)
 
 ```text
 SignatureSpreadDefinition
-  identity:
-    spreadId            // e.g. classical.single | signature.crossroads
-    version             // int, bump on breaking semantic change
-    legacyTypeName      // TarotSpreadType.name when mapped
-    runtimeEnumName?    // null only for deferred non-enum signatures
-  product:
+  IDENTITY
+    spreadId              // classical.* | signature.*
+    version               // int >= 1
+    runtimeEnumName       // TarotSpreadType.name when bridged; metadata-only until 5D
+
+  PRODUCT
     purposeKey
-    supportedQuestionKinds[]   // open|guidance|relationship|decision
+    supportedQuestionKinds[]   // subset of open|guidance|relationship|decision
+    primaryQuestionKind        // MUST ∈ supportedQuestionKinds
     displayTitleKey
     displayBlurbKey
-    bannerKey?
-  ritual:
-    cardCount
-  positions[]:
-    positionKey
-    index
-    role                  // PositionRole (Phase 3 enum — reuse)
+    bannerKey?                 // optional
+
+  RITUAL
+    cardCount                  // > 0
+
+  POSITIONS[]                  // length == cardCount
+    positionKey                // non-empty, unique in spread
+    index                      // unique, contiguous 0..cardCount-1
+    role                       // existing PositionRole only — no new Phase 3 values
     guidingQuestionKey
     displayLabelKey
-  narrative:
-    interpretationOrder[] // indices
+
+  NARRATIVE
+    interpretationOrder[]      // length == cardCount; each index once
     dominantArcKey
-    synthesisStrategyKey  // e.g. single_signal | timeline | field | crossing
-    outcomeSlotKey?       // positionKey
-    adviceSlotKey?        // positionKey
-    uncertaintyPolicyKey  // forbids certainty / absolute future
-  evidence:
-    classicalSpreadId?    // when identity is classical.*
-    edgeTableId           // authoritative edges key = legacyTypeName
-  visual:
-    geometryHook          // NarrativeGeometryHook / product hook
-    lengthBand            // metadata for later prose — not scored
-  availability:
-    offeredInLivePicker   // bool
-    premiumOnly           // bool (default false for launch set)
-  recurrencePolicy:
-    allowHistoricalContextOverlap   // true (existing Phase 4 rules)
-    forbidSameSpreadAloneAuth       // ALWAYS true
-    memoryInclusionPosture          // normal | reduced | none
+    synthesisStrategyKey
+    outcomeSlotKey?            // must reference a positionKey when non-null
+    adviceSlotKey?             // must reference a positionKey when non-null
+    uncertaintyPolicyKey
+
+  EVIDENCE
+    projectionSpreadId         // frozen SpreadSemanticDefinition.spreadId target
+    edgeTableId                // authoritative edges key (legacyTypeName / runtimeEnumName)
+
+  VISUAL
+    signatureGeometryHook      // SignatureGeometryHook — Phase 5 ONLY
+    lengthBand                 // metadata for later prose — not scored
+
+  AVAILABILITY
+    offeredInLivePicker
+    premiumOnly
+
+  RECURRENCE
+    allowHistoricalContextOverlap
+    forbidSameSpreadAloneAuth  // MUST be true for launch catalog
+    memoryInclusionPosture     // normal | reduced | none
 ```
 
-**Rule:** Every field above has a named future consumer (ritual UI, evidence builder input, Phase 6 synthesizer, or Visual System). No speculative free-form blobs.
+No free-form / speculative fields.
 
-### 1.3 Mapping to frozen Phase 3
+### 1.3 Geometry type separation (5.0.1 LOCK)
 
-`SignatureSpreadDefinition` **projects** into `SpreadSemanticDefinition` for evidence:
+Frozen Phase 3:
 
-- Do not fork scorer/selector/builder.  
-- New spreads register: catalog entry + `kAuthoritativePositionEdges` rows.  
-- `purposeKey` / `guidingQuestionKey` / `geometryHook` / `lengthBand` remain non-scoring until a later approved consumer exists.
+```text
+NarrativeGeometryHook { singlePoint, linearRow, celticCross }
+```
 
-### 1.4 Mapping to runtime ritual
+Phase 5 product-owned (new in 5A — **not** Phase 3):
 
-Live ritual continues to use `TarotSpreadType` for draw/session until Phase 5C persistence hardening.
+```text
+SignatureGeometryHook { single, threeLinear, fiveLinear, fiveDecision }
+```
 
-Bridge: `legacyTypeName` ↔ `TarotSpreadType.name` ↔ `ClassicalSpreadSemantics.byLegacyTypeName`.
+| Signature product | SignatureGeometryHook | Phase 3 NarrativeGeometryHook projection |
+|---|---|---|
+| Quick Insight | `single` | `singlePoint` |
+| Timeline | `threeLinear` | `linearRow` |
+| Deep Field | `fiveLinear` | `linearRow` |
+| Crossroads | `fiveDecision` | `linearRow` |
+
+Phase 3 geometry remains **non-scoring metadata**. Crossroads may project to `linearRow` for frozen evidence while product/UI later uses `fiveDecision`.
+
+### 1.4 Mapping to frozen Phase 3
+
+`SignatureSpreadDefinition` **projects** into `SpreadSemanticDefinition`:
+
+- Do not fork scorer / selector / builder.  
+- New spreads register catalog projection + `kAuthoritativePositionEdges` rows (5B).  
+- Reuse existing `PositionRole` values only.
+
+### 1.5 Runtime enum timing (5.0.1 LOCK)
+
+| Phase | `TarotSpreadType` | Crossroads reachability |
+|---|---|---|
+| **5A** | **unchanged** | catalog metadata `runtimeEnumName: 'crossroads'` only · `offeredInLivePicker: false` |
+| **5B** | unchanged | shadow projection only |
+| **5C** | unchanged | l10n + product geometry · still unreachable |
+| **5D** | **append** `crossroads(5)` at **END** after TR/EN/RU keys exist | runtime bridge · picker still **false** |
+| **5E–5F** | as 5D | picker remains **false** through 5F |
+
+Reason: `TarotSpreadType.label` resolves `tarot.spread.$name` immediately — enum before l10n creates incomplete runtime surface.
 
 ---
 
-## 2 — Recommended launch set (LOCKED)
+## 2 — Launch catalog (LOCKED · deterministic order)
 
-**Count: 4 signature products** — three already live classical + one new decision signature.
-
-| # | Product name (EN) | Identity | Cards | Live picker (today → 5A) | Why distinct |
-|---|---|---|---|---|---|
-| 1 | **Quick Insight** | `classical.single` | 1 | already offered | Single signal; daily/first-session spine |
-| 2 | **Timeline** | `classical.threeCard` | 3 | already offered | Temporal arc past→present→direction |
-| 3 | **Deep Field** | `classical.fiveCard` | 5 | already offered | Situation / hidden / challenge / support / direction |
-| 4 | **Crossroads** | `signature.crossroads` | 5 | **new** (5A+) | Decision fork — option A / option B / tension / counsel / direction |
-
-**Explicitly deferred (not launch):**
-
-| Id | Reason |
-|---|---|
-| `classical.sevenCard` | Unoffered · preview clamp · weak product differentiation vs Deep Field |
-| `classical.celticCross` | Needs true geometry + a11y · high complexity · Visual System phase |
-| `signature.the_mirror` / `signature.between_us` (fixtures) | Spec-corpus only · may return in later signature pack after Crossroads ships |
+1. `classical.single` — **Quick Insight**  
+2. `classical.threeCard` — **Timeline**  
+3. `classical.fiveCard` — **Deep Field**  
+4. `signature.crossroads` — **Crossroads**
 
 ### 2.1 Quick Insight — `classical.single`
 
 | Field | Lock |
 |---|---|
-| Purpose | One clear reflective signal for the present stance |
-| Ideal question | “What should I notice right now?” |
-| QuestionKinds | open, guidance |
-| Positions | `sign` @0 · role `signal` |
-| Interpretation order | `[0]` |
-| Relations | none |
-| Arc | single_signal |
-| Depth | short |
-| Outcome/advice slots | `sign` dual-use (signal only — no prediction) |
+| version | 1 |
+| runtimeEnumName | `single` |
+| cardCount | 1 |
+| primaryQuestionKind | open |
+| supported | open, guidance |
+| positions | `sign`@0 · `PositionRole.signal` |
+| interpretationOrder | `[0]` |
+| SignatureGeometryHook | `single` |
+| Phase 3 geometry projection | `singlePoint` |
+| offeredInLivePicker | true (existing live) |
+| forbidSameSpreadAloneAuth | true |
+| memoryInclusionPosture | normal |
 
 ### 2.2 Timeline — `classical.threeCard`
 
 | Field | Lock |
 |---|---|
-| Purpose | How the situation moved and where attention opens next |
-| Ideal question | “How did I get here, and what opens next?” |
-| QuestionKinds | open, guidance, relationship, decision |
-| Positions | `past`@0 `root` · `present`@1 `state` · `future`@2 `direction` |
-| Interpretation order | `[0,1,2]` |
-| Relations | past→present temporal · present→future temporal |
-| Arc | timeline |
-| Depth | medium |
-| Uncertainty | `future` is **direction**, never prophecy |
+| version | 1 |
+| runtimeEnumName | `threeCard` |
+| cardCount | 3 |
+| primaryQuestionKind | open |
+| supported | open, guidance, relationship, decision |
+| positions | `past`@0 `root` · `present`@1 `state` · `future`@2 `direction` |
+| interpretationOrder | `[0,1,2]` |
+| SignatureGeometryHook | `threeLinear` |
+| Phase 3 geometry projection | `linearRow` |
+| offeredInLivePicker | true (existing live) |
+| forbidSameSpreadAloneAuth | true |
+| memoryInclusionPosture | normal |
+| Uncertainty | `future` = direction, never prophecy |
 
 ### 2.3 Deep Field — `classical.fiveCard`
 
 | Field | Lock |
 |---|---|
-| Purpose | Full-field reading of situation, pressure, resource, and direction |
-| Ideal question | “What is really happening beneath this?” |
-| QuestionKinds | open, guidance, relationship, decision |
-| Positions | `situation`@0 `context` · `hidden_influence`@1 · `challenge`@2 · `strength`@3 `support` · `direction`@4 |
-| Interpretation order | `[0,1,2,3,4]` |
-| Relations | situation↔challenge pressure · challenge↔strength opposition/support · strength→direction supportive |
-| Arc | field |
-| Depth | deep |
-| Advice slot | `strength` · Outcome/direction slot | `direction` |
+| version | 1 |
+| runtimeEnumName | `fiveCard` |
+| cardCount | 5 |
+| primaryQuestionKind | open |
+| supported | open, guidance, relationship, decision |
+| positions | `situation`@0 `context` · `hidden_influence`@1 `hiddenInfluence` · `challenge`@2 `challenge` · `strength`@3 `support` · `direction`@4 `direction` |
+| interpretationOrder | `[0,1,2,3,4]` |
+| adviceSlotKey | `strength` |
+| outcomeSlotKey | `direction` |
+| SignatureGeometryHook | `fiveLinear` |
+| Phase 3 geometry projection | `linearRow` |
+| offeredInLivePicker | true (existing live) |
+| forbidSameSpreadAloneAuth | true |
+| memoryInclusionPosture | normal |
 
-### 2.4 Crossroads — `signature.crossroads` (NEW)
+### 2.4 Crossroads — `signature.crossroads` (exact 5.0.1 lock)
 
 | Field | Lock |
 |---|---|
-| Purpose | Clarify a real choice without fabricating certainty |
-| Ideal question | “Which path deserves my next honest step?” |
-| QuestionKinds | **decision** (primary), open, guidance |
-| Cards | **5** |
-| Positions | `option_a`@0 · `option_b`@1 · `tension`@2 `challenge` · `counsel`@3 `support` · `direction`@4 |
-| Interpretation order | `[0,1,2,3,4]` |
-| Relations | option_a↔option_b opposition · tension↔both pressure · counsel→direction supportive |
-| Arc | crossroads |
-| Depth | deep |
-| Runtime mapping | **new** `TarotSpreadType.crossroads(5)` appended (never rename prior names) **or** interim bridge via fiveCard layout + distinct signature id in Narrative only until 5C — **LOCKED choice: append enum `crossroads` in 5A/5C together** |
-| Availability | offered after 5E shadow PASS; not before persistence machine-id |
+| version | **1** |
+| runtimeEnumName | `crossroads` (**metadata only until 5D**) |
+| cardCount | **5** |
+| primaryQuestionKind | **decision** |
+| supported | **decision · open · guidance** |
+| relationship | **UNSUPPORTED** — do not silently remap |
+| offeredInLivePicker | **false** through **5F** |
+| premiumOnly | false |
+| memoryInclusionPosture | **normal** initially — do not reduce before corpus evidence |
+| forbidSameSpreadAloneAuth | **true** |
+| allowHistoricalContextOverlap | **true** |
+| SignatureGeometryHook | **fiveDecision** |
+| Phase 3 geometry projection | **linearRow** |
+| interpretationOrder | `[0,1,2,3,4]` |
+| adviceSlotKey | `counsel` |
+| outcomeSlotKey | `direction` |
+| dominantArcKey | `crossroads` |
+| synthesisStrategyKey | `crossroads` |
+| uncertaintyPolicyKey | reflective next-step only — never deterministic future |
 
-**Why Crossroads exists:** Deep Field answers “what is happening”; Crossroads answers “which fork”. Same card count, **different roles/edges/arc** → different evidence structure.
+#### Crossroads positions (exact)
+
+| index | key | role |
+| ---: | --- | --- |
+| 0 | `option_a` | `PositionRole.direction` |
+| 1 | `option_b` | `PositionRole.direction` |
+| 2 | `tension` | `PositionRole.challenge` |
+| 3 | `counsel` | `PositionRole.support` |
+| 4 | `direction` | `PositionRole.direction` |
+
+Rationale: A/B are candidate paths (direction), not current-state context. A/B conflict is **edge-level** opposition, not role-level. Final `direction` is reflective orientation — not prophecy. **No new Phase 3 PositionRole values.**
+
+#### Crossroads edges (exact · Phase 5B · count = 4)
+
+| # | Endpoints | directed | edgeKind |
+|---|---|---|---|
+| 1 | `option_a` ↔ `option_b` | false | `opposition` |
+| 2 | `tension` ↔ `option_a` | false | `pressure` |
+| 3 | `tension` ↔ `option_b` | false | `pressure` |
+| 4 | `counsel` → `direction` | true | `supportive` |
+
+**No additional Crossroads edges in 5B** unless a later explicit phase changes this lock.
+
+Compatible with frozen Phase 3: opposition + challenge/avoid drives conflict kinds; pressure softens; supportive feeds resolution — all existing scorer paths.
+
+**Why Crossroads exists:** Deep Field = “what is happening”; Crossroads = “which fork”. Same card count, different roles/edges/arc → different evidence structure.
+
+**Deferred (not launch):** `classical.sevenCard`, `classical.celticCross`, fixture `signature.the_mirror` / `signature.between_us`.
 
 ---
 
@@ -196,127 +270,117 @@ Signature Spreads MUST NOT:
 8. Allow historical recurrence to override current spread structure  
 9. Expose evidence ids / owner / source ids to users  
 10. Require AI to invent structural meaning missing from the definition  
-
-Structural meaning = positions + order + edges + arc keys — deterministic.
+11. Silently reinterpret `relationship` questions as Crossroads  
 
 ---
 
-## 4 — Persistence compatibility (LOCKED)
-
-### 4.1 Write contract (Phase 5C)
+## 4 — Persistence compatibility (LOCKED · Phase 5D)
 
 | Store | Persist |
 |---|---|
-| `ReadingSession.spread` | continue enum `.name` |
-| `ReadingModel.spreadType` | persist **machine id** = enum `.name` (breaking change from locale label) |
-| Dual-read | `TarotSpreadType.fromTitle` remains for all legacy locale titles + aliases |
-| Narrative history | keep `classical.*` / future `signature.*` via adapters |
+| `ReadingSession.spread` | enum `.name` |
+| `ReadingModel.spreadType` | machine id = enum `.name` (dual-read legacy locale titles) |
+| Narrative history | `classical.*` / `signature.*` via adapters |
 
-### 4.2 Never rename
-
-- Existing enum names: `single`, `threeCard`, `fiveCard`, `sevenCard`, `celticCross`  
-- Existing classical spreadIds and position keys already emitted into history samples  
-
-### 4.3 Append rule
-
-New spreads **append** enum values only. No insert/reorder by renaming.
-
-### 4.4 Reopen
-
-History detail continues to show stored interpretation text. Spread title display uses dual-read parser. Card positionKeys reconstructed from index + definition when missing on journal snapshots.
+Never rename existing enum names. Append only. Soft/fail-closed unknown persisted values. Reconstruct missing journal `positionKey` from index + definition.
 
 ---
 
-## 5 — Localization contract (LOCKED)
+## 5 — Localization contract (LOCKED · Phase 5C)
 
-All product strings via keys:
+All product strings via keys · TR/EN/RU required before any offered picker / before Crossroads enum append (5D).
 
-- `tarot.spread.<name>` · `.banner` · `.blurb` · `.purpose`  
-- `tarot.pos.<positionKey>` · `tarot.spread.<name>.guide.<positionKey>`  
-- TR / EN / RU required before offeredInLivePicker=true  
-
-No hardcoded TR titles on live picker paths.
+Keys include: titles · blurbs · purposes · position labels · guiding questions.
 
 ---
 
-## 6 — Visual geometry contract (LOCKED)
-
-| Spread | Hook | Live layout requirement before offer |
-|---|---|---|
-| single | `single` | 1-slot center — already OK |
-| threeCard | `threeLinear` | 3-slot row — already OK |
-| fiveCard | `fiveLinear` | 5-slot row — already OK |
-| crossroads | `fiveDecision` | 5-slot with A/B visual grouping (5D/Visual) |
-| celticCross | `celticCross` | **deferred** until Visual System |
-
-Preview clamp ≤5 must not silently truncate an offered spread.
-
----
-
-## 7 — Evidence / recurrence policy (LOCKED)
+## 6 — Evidence / recurrence policy (LOCKED)
 
 1. Project signature → `SpreadSemanticDefinition` without changing Phase 3 algorithms.  
-2. Register edges in authoritative table keyed by `legacyTypeName`.  
-3. Same cards in different spreads **must** produce different position roles/edges → different relationship evidence structure.  
-4. Phase 4: `forbidSameSpreadAloneAuth = true` forever.  
-5. Memory posture default `normal`; Crossroads may use `reduced` if corpus proves noise (decide in 5E with evidence, not speculation).
+2. Register exact Crossroads edges (table above) in 5B.  
+3. Same cards in Deep Field vs Crossroads **must** produce structurally distinct evidence.  
+4. `forbidSameSpreadAloneAuth = true` forever for launch catalog.  
+5. Crossroads memory posture stays **normal** until corpus evidence justifies change.
 
 ---
 
-## 8 — Implementation sequence (LOCKED)
+## 7 — Implementation sequence (5.0.1 LOCKED)
 
-| Phase | Scope | Stop condition |
+| Phase | Scope | Forbidden |
 |---|---|---|
-| **5.0** | Forensic + architecture lock (this) | OPEN BLOCKER/MAJOR = 0 |
-| **5A** | `SignatureSpreadDefinition` domain + catalog for launch set (classical×3 + Crossroads skeleton) · runtime enum append for `crossroads` **without** live picker yet | Catalog tests green · Phase 3/4 untouched |
-| **5B** | Deterministic narrative plan projection → Phase 3 semantics + Crossroads edges · frozen evidence samples (shadow) | Same cards / different spreads differ structurally |
-| **5C** | Persistence machine-id write + dual-read · journal positionKey reconstruct · session soft-parse | Old reopen PASS · no enum rename |
-| **5D** | Localization + product copy TR/EN/RU · geometry hooks for launch set | No hardcoded live titles |
-| **5E** | Shadow integration + frozen signature corpus · picker still behind flag or off | Corpus PASS |
-| **5F** | Independent final audit | READY TO FREEZE Phase 5 catalog · still **no** live Narrative V2 |
-
-**Live Narrative V2 wiring = Phase 6 (separate approval).**  
-**Celtic / seven live offer = later pack after Visual System.**
+| **5.0 / 5.0.1** | Forensic + hardened contracts (docs) | production code |
+| **5A** | Pure `SignatureSpreadDefinition` + Phase 5-only enums (`SignatureGeometryHook`, …) + deterministic launch catalog with exact roles/kinds/arcs · Crossroads `runtimeEnumName` inert · `offeredInLivePicker=false` | `TarotSpreadType` changes · Phase 3/4 · picker · persistence · l10n · live V2 |
+| **5B** | Signature → frozen `SpreadSemanticDefinition` projection · exact 4 Crossroads edges · validation · frozen structural samples · Deep Field vs Crossroads distinctness | Phase 3 algorithm edits · picker · enum append |
+| **5C** | TR/EN/RU product copy · SignatureGeometryHook descriptors | enum append preferred deferred · Crossroads still unreachable · live V2 |
+| **5D** | After 5C keys exist: append `TarotSpreadType.crossroads(5)` at END · machine-id write · dual-read · soft unknown · positionKey reconstruct · Crossroads runtime bridge · picker still false | rename/reorder enums · live V2 |
+| **5E** | Shadow + frozen signature corpus · Crossroads picker disabled · regressions | live V2 |
+| **5F** | Independent final audit → Phase 5 freeze candidate | live V2 (Phase 6) |
 
 ---
 
-## 9 — Red-team contracts (BLOCKER-level for implementation)
+## 8 — Domain / catalog validation locks (5A+)
 
-Implementations MUST fail closed on:
+5A implements pure validation (no l10n/runtime IO):
+
+- spreadId non-empty + unique  
+- version ≥ 1  
+- cardCount > 0  
+- positions.length == cardCount  
+- position index unique + contiguous `0..cardCount-1`  
+- positionKey non-empty + unique  
+- interpretationOrder.length == cardCount · each index exactly once  
+- supportedQuestionKinds non-empty  
+- primaryQuestionKind ∈ supportedQuestionKinds  
+- outcomeSlotKey / adviceSlotKey reference real positions when non-null  
+- runtimeEnumName non-empty when supplied  
+- catalog spreadIds unique  
+- catalog runtimeEnumNames unique when non-null  
+- `forbidSameSpreadAloneAuth == true` for launch catalog  
+- deterministic catalog order  
+
+Later stages add: offered spread must have required l10n/geometry before `offeredInLivePicker=true`.
+
+---
+
+## 9 — Red-team contracts (BLOCKER-level)
 
 1. Unknown spread id / unparseable persisted title  
 2. cardCount ≠ drawn cards  
-3. Duplicate `positionIndex` or `positionKey` within a spread  
-4. Missing position for an index in interpretationOrder  
-5. interpretationOrder length ≠ cardCount or out-of-range indices  
-6. Relation edge referencing unknown positionKey  
-7. QuestionKind outside `supportedQuestionKinds` when strict mode enabled (Crossroads primary = decision)  
-8. Current cards empty / mismatched  
-9. Missing required l10n keys for offered spreads  
-10. History reopen crash on legacy locale titles  
-11. Same-spread-alone recurrence authorization  
-12. Non-deterministic catalog ordering  
-13. Evidence id / owner / source leakage into UI models  
-14. Certainty language in guiding questions / purpose copy  
-15. Offering celtic/seven before geometry + persistence ready  
+3. Duplicate positionIndex / positionKey  
+4. Missing position for interpretationOrder index  
+5. Bad interpretationOrder  
+6. Edge referencing unknown positionKey  
+7. QuestionKind outside supported (esp. relationship → Crossroads)  
+8. Current cards mismatched  
+9. Missing required l10n for offered spreads  
+10. History reopen crash on legacy titles  
+11. Same-spread-alone recurrence  
+12. Non-deterministic catalog order  
+13. Evidence/owner/source leakage  
+14. Certainty language in copy  
+15. Offering celtic/seven before geometry+persistence ready  
 16. Renaming existing enum names  
 17. Phase 3 scorer/selector/builder edits  
-18. Phase 4 eligibility/H7/H19 edits  
-19. Live Narrative V2 wire without Phase 6 approval  
-20. Preview clamp truncating an offered spread’s slots  
+18. Phase 4 H7/H19/eligibility edits  
+19. Live Narrative V2 without Phase 6 approval  
+20. Preview clamp truncating offered slots  
+21. `TarotSpreadType.crossroads` before TR/EN/RU keys  
+22. Adding product geometry to frozen `NarrativeGeometryHook`  
+23. Extra Crossroads edges beyond the locked 4 in 5B  
 
-**Red-team contracts count: 20**
+**Red-team contracts count: 23**
 
 ---
 
-## 10 — Acceptance for Phase 5A start
+## 10 — Acceptance for Phase 5A
 
 - [x] Source audit complete  
-- [x] Spec locked with OPEN BLOCKER/MAJOR = 0  
-- [x] Launch set = 4  
+- [x] 5.0.1 Crossroads roles / edges / QuestionKinds locked  
+- [x] SignatureGeometryHook separated from Phase 3  
+- [x] Enum append deferred to 5D  
+- [x] Implementation sequence reordered  
+- [x] OPEN BLOCKER/MAJOR = 0  
 - [x] Phase 3/4 must-change = NO  
-- [x] Live V2 remains NOT WIRED  
-- [x] Persistence dual-read strategy locked  
-- [x] Implementation sequence locked  
+- [x] Live V2 NOT WIRED  
 
 **READY FOR PHASE 5A: YES**
