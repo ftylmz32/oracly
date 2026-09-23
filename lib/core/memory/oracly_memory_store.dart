@@ -51,5 +51,14 @@ class OraclyMemoryStore {
         .toList(),
   );
 
+  /// Removes connected-memory rows whose source type matches [type] only.
+  Future<void> removeByType(OraclyReadingType type) => _storage.setStringList(
+    key,
+    all()
+        .where((e) => e.source.type != type)
+        .map((e) => jsonEncode(e.toJson()))
+        .toList(),
+  );
+
   Future<void> clear() => _storage.remove(key);
 }

@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4B theme + memory pure engines
+**Updated:** 2026-09-23 — Tarot Phase 4C storage adapters + delete integrity
 
 ---
 
@@ -78,6 +78,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4A.1 task start | `5d5cbd6e781800547dec933a06caf8a2c6e3c20b` | Identity + generic-topic + short-alias harden |
 | Phase 4A.1 end | `9985527c1b28ae05caec2efddaa0b0fd01a84be5` | Hardening PASS |
 | Phase 4B task start | `9985527c1b28ae05caec2efddaa0b0fd01a84be5` | Theme + memory pure engines |
+| Phase 4B end | `7cad2866dd22c0f8f684c530d6d82d90ede5b007` | Theme + memory pure PASS |
+| Phase 4C task start | `7cad2866dd22c0f8f684c530d6d82d90ede5b007` | Storage adapters + owner/delete integrity |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -169,6 +171,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4A — Normalized historical models + pure card recurrence | **COMPLETE** (pure engines; storage/theme/memory/enricher **NOT**; user path unchanged) |
 | Phase 4A.1 — Historical recurrence identity + generic-topic + short-alias hardening | **COMPLETE** |
 | Phase 4B — Cross-feature themes + pure memory evidence | **COMPLETE** |
+| Phase 4C — Storage adapters + owner/delete integrity | **COMPLETE** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -457,6 +460,21 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 4C
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Snapshot loader | **IMPLEMENTED** |
+| Owner isolation | **IMPLEMENTED** (`privacyBlocked` + empty on mismatch) |
+| Source existence firewall | **IMPLEMENTED** |
+| Tarot single delete coupling | **IMPLEMENTED** (`TarotHistoryDeletionService`) |
+| Discovery clear ghost protection | **IMPLEMENTED** (`removeByType` · not soulmate) |
+| Request enricher | **NOT IMPLEMENTED** |
+| Narrative V2 user path | **UNCHANGED** |
+| New persistence keys | **0** |
+| Network / AI | **0** / **0** |
+
 ### Phase 4B
 
 | Field | Value |
@@ -464,12 +482,12 @@ Pre-existing local noise (do **not** stage/clean):
 | Status | **COMPLETE** / **PASS** |
 | Theme recurrence | **IMPLEMENTED** (cross-feature ≥2 types) |
 | Memory evidence | **IMPLEMENTED** (pure · bounded · epistemic) |
-| Connected memory adapters | **NOT IMPLEMENTED** |
-| Owner/store isolation | **4C pending** |
-| Delete coupling | **4C pending** |
+| Connected memory adapters | **4C IMPLEMENTED** |
+| Owner/store isolation | **4C IMPLEMENTED** |
+| Delete coupling | **4C IMPLEMENTED** |
 | Request enricher | **NOT IMPLEMENTED** |
 | User path | **UNCHANGED** |
-| Storage / AI / Network | **NONE** / **0** / **0** |
+| Storage / AI / Network | **NONE** / **0** / **0** (pure engines) |
 
 ### Phase 4A.1
 
@@ -834,11 +852,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 4C** (storage adapters + owner/delete integrity).
+**ChatGPT review before Phase 4D** (request enricher + frozen historical corpus).
 
-Phase 4B: **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · adapters/enricher **NOT** · user path **UNCHANGED**.
+Phase 4C: **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **NOT** · user path **UNCHANGED** (delete privacy hardening only).
 
-Do **not** start 4C until reviewed.
+Do **not** start 4D until reviewed.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** wire live Tarot user path.
+Do **not** wire live Tarot Narrative V2 path.

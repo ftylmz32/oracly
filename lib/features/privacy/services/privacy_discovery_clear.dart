@@ -4,6 +4,7 @@ library;
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/data/repositories/local_dream_repository.dart';
 import '../../../core/domain/repositories/birth_chart_repository.dart';
+import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../../../core/services/history_service.dart';
 import '../../../features/coffee/data/coffee_reading_store.dart';
@@ -47,6 +48,20 @@ abstract final class PrivacyDiscoveryClear {
       } catch (_) {
         // Clearing the source remains authoritative when the index is damaged.
       }
+    }
+
+    // Orphan connected-memory type purge after authoritative sources cleared.
+    // SoulMate survives Discovery clear by product contract — do not purge.
+    for (final type in const [
+      OraclyReadingType.tarot,
+      OraclyReadingType.coffee,
+      OraclyReadingType.palm,
+      OraclyReadingType.dream,
+      OraclyReadingType.birthChart,
+    ]) {
+      try {
+        await memory.removeByType(type);
+      } catch (_) {}
     }
   }
 

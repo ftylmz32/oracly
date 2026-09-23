@@ -74,6 +74,8 @@ import '../../features/insights/services/personal_journey_service.dart';
 import '../../core/services/first_session_service.dart';
 import '../../core/first_session/first_session_intent.dart';
 import '../../features/premium/models/personalization_models.dart';
+import '../../features/tarot/data/repositories/tarot_reading_repository_impl.dart';
+import '../../features/tarot/history/tarot_history_deletion_service.dart';
 
 // ── Infrastructure ─────────────────────────────────────────────────
 
@@ -88,10 +90,7 @@ final tarotRepositoryProvider = Provider<TarotRepository>((ref) {
 
 final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
   final storage = ref.watch(localStorageProvider);
-  return MockHistoryRepository(
-    storage,
-    memory: OraclyMemoryStore(storage),
-  );
+  return MockHistoryRepository(storage, memory: OraclyMemoryStore(storage));
 });
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
@@ -339,6 +338,17 @@ final memoryServiceProvider = Provider<MemoryService>((ref) {
 final oraclyMemoryStoreProvider = Provider<OraclyMemoryStore>((ref) {
   return OraclyMemoryStore(ref.watch(localStorageProvider));
 });
+
+/// Couples Tarot journal + session + connected memory on user delete.
+final tarotHistoryDeletionServiceProvider =
+    Provider<TarotHistoryDeletionService>((ref) {
+      final storage = ref.watch(localStorageProvider);
+      return TarotHistoryDeletionService(
+        history: ref.watch(historyServiceProvider),
+        tarotRepository: TarotReadingRepositoryImpl.fromStorage(storage),
+        memory: OraclyMemoryStore(storage),
+      );
+    });
 
 final oraclyMemoryRetrieverProvider = Provider<OraclyMemoryRetriever>((ref) {
   return OraclyMemoryRetriever(ref.watch(oraclyMemoryStoreProvider));

@@ -847,6 +847,23 @@ Chronological project execution ledger.
 | User path | **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T4C — STORAGE ADAPTERS + OWNER/DELETE INTEGRITY
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `7cad2866dd22c0f8f684c530d6d82d90ede5b007` |
+| Tarot session adapter | ReadingSession FACT-primary |
+| ReadingModel | enrichment + legacy fallback |
+| Owner boundary | localOwnerId ↔ currentOwnerId · privacyBlocked |
+| Connected-memory adapter | OraclyMemory reading · themes pass-through |
+| Source-existence firewall | live store proof per type |
+| Single-delete coordinator | TarotHistoryDeletionService |
+| Clear type purge | removeByType (not soulmate) |
+| Restart tests | delete + discovery clear |
+| Request enricher / live V2 | **NOT** / **UNCHANGED** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -893,8 +910,9 @@ Chronological project execution ledger.
 | PL-T4A | Tarot Phase 4A — Normalized history + card recurrence pure engine | **DONE** (pure; storage/theme/memory/enricher NOT; user path unchanged) |
 | PL-T4A.1 | Tarot Phase 4A.1 — Historical recurrence identity + generic-topic + short-alias hardening | **DONE** |
 | PL-T4B | Tarot Phase 4B — Cross-feature theme + memory evidence pure engines | **DONE** |
+| PL-T4C | Tarot Phase 4C — Storage adapters + owner/delete integrity | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4B DONE** · 4C pending review |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4C DONE** · 4D pending review |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

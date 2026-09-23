@@ -170,4 +170,56 @@ void main() {
     expect(storage.getStringList('dream_records'), isEmpty);
     expect(hasSource(OraclyMemoryStore(storage), 'c-ok'), isFalse);
   });
+
+  test(
+    'orphan type purge clears tarot/coffee/palm/dream/birthChart memory',
+    () async {
+      final memory = OraclyMemoryStore(storage);
+      // Malformed sources + pre-existing connected memory ghosts.
+      await storage.setStringList(CoffeeReadingStore.key, const ['{bad']);
+      await storage.setStringList(PalmReadingStore.key, const ['not-json']);
+      await storage.setStringList('dream_records', const ['{bad']);
+      await storage.setStringList(TarotLocalDataSource.historyKey, const [
+        '{bad',
+      ]);
+
+      Future<void> seed(OraclyReadingType type, String id) => memory.upsert(
+        OraclyMemory(
+          id: 'reading:${type.name}:$id',
+          kind: OraclyMemoryKind.reading,
+          source: OraclyMemorySource(
+            id: id,
+            type: type,
+            occurredAt: DateTime(2026, 3, 1),
+          ),
+          summary: 'ghost',
+        ),
+      );
+
+      await seed(OraclyReadingType.tarot, 't-orphan');
+      await seed(OraclyReadingType.coffee, 'c-orphan');
+      await seed(OraclyReadingType.palm, 'p-orphan');
+      await seed(OraclyReadingType.dream, 'd-orphan');
+      await seed(OraclyReadingType.birthChart, 'bc-orphan');
+      await seed(OraclyReadingType.soulmate, 'soulmate-keep-2');
+
+      await service().clearDiscoveryHistory();
+
+      final after = OraclyMemoryStore(storage);
+      expect(hasSource(after, 't-orphan'), isFalse);
+      expect(hasSource(after, 'c-orphan'), isFalse);
+      expect(hasSource(after, 'p-orphan'), isFalse);
+      expect(hasSource(after, 'd-orphan'), isFalse);
+      expect(hasSource(after, 'bc-orphan'), isFalse);
+      expect(hasSource(after, 'soulmate-keep-2'), isTrue);
+      expect(storage.getStringList(CoffeeReadingStore.key), isEmpty);
+      expect(storage.getStringList(PalmReadingStore.key), isEmpty);
+      expect(storage.getStringList('dream_records'), isEmpty);
+      expect(storage.getStringList(TarotLocalDataSource.historyKey), isEmpty);
+
+      final restarted = OraclyMemoryStore(LocalStorage(prefs));
+      expect(hasSource(restarted, 't-orphan'), isFalse);
+      expect(hasSource(restarted, 'soulmate-keep-2'), isTrue);
+    },
+  );
 }

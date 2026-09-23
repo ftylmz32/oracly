@@ -483,12 +483,33 @@ Analytics/share: no private question dumps; no owner ids.
 - Memory: relevance/ranking/chars · `mem_##` · omitReason H9 · hints always []  
 - Stop: pure engines PASS · **IMPLEMENTED**
 
-### 4C — Adapters + owner isolation + delete integrity
+### 4C — Adapters + owner isolation + delete integrity · **IMPLEMENTED / PASS**
 
-- Session/ReadingModel/OraclyMemory adapters  
-- **Hard gate:** journal delete ↔ session delete ↔ memory remove  
-- Tests: owner A/B, delete/restart, clear category  
-- Stop: privacy red-team PASS  
+Production:
+
+- `TarotHistorySourceAdapter` — ReadingSession FACT-primary · ReadingModel enrichment/legacy
+- `TarotConnectedMemorySourceAdapter` — OraclyMemory reading kinds · themes pass-through
+- `TarotHistoricalSnapshotLoader` — owner boundary · live-source existence firewall
+- `TarotHistoryDeletionService` — journal ↔ session ↔ memory coupling
+- `OraclyMemoryStore.removeByType` · Discovery clear orphan type purge (not soulmate)
+
+Owner boundary:
+
+- `currentOwnerId` must equal `UserLocalDataIsolation.ownerKey` local owner (both null allowed)
+- mismatch → `privacyBlocked=true` · empty snapshot (no partial memory)
+
+Row policy: owner-bound excludes ownerless legacy; other owners excluded; linked owner conflict drops physical reading.
+
+Source-existence firewall (read-side):
+
+- tarot / coffee / palm / dream / soulmate (authoritative only) / birthChart (journey-ready)
+- stale OraclyMemory without live source → DROP
+
+Delete coordinator: all user-facing single Tarot deletes route through `TarotHistoryDeletionService` (ReadingHistoryDetailScreen).
+
+Request enricher: **NOT IMPLEMENTED** (4D). Live Narrative V2: **UNCHANGED**.
+
+Stop: privacy red-team PASS · **IMPLEMENTED**
 
 ### 4D — Request enricher + frozen historical corpus
 
@@ -538,9 +559,12 @@ no history · one prior same card · multi prior · outside 90d · current exclu
 | recentCardNames / recurringThemeLabels | LOCKED empty |
 | Memory model amendment | LOCKED YES (additive) · **4B** |
 | Enrichment architecture | LOCKED |
-| Delete coupling required in 4C | LOCKED |
+| Delete coupling required in 4C | LOCKED · **IMPLEMENTED** |
 | OPEN decisions | **0** |
 
 **Phase 4A: IMPLEMENTED** (pure card recurrence · no storage · no user path)
+**Phase 4A.1: IMPLEMENTED** (identity / generic-topic / aşk hardening)
+**Phase 4B: IMPLEMENTED** (theme + memory pure engines · no storage adapters)
+**Phase 4C: IMPLEMENTED** (storage adapters · owner isolation · source-existence · delete/clear integrity)
 
-**Do not start 4B until ChatGPT review. Do not merge. Do not wire user path.**
+**Do not start 4D until ChatGPT review. Do not merge. Do not wire user path.**

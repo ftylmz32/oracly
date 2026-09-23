@@ -10,6 +10,7 @@ import '../../../../core/navigation/oracly_page_transitions.dart';
 
 import '../../../../app/providers/app_providers.dart';
 import '../../../personal_discovery/services/personal_discovery_refresh.dart';
+import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/copy/transparency_copy.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/design_system/app_icons.dart';
@@ -21,6 +22,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/ui/oracly_dialog.dart';
+import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../art/tarot_major_card_art.dart';
 import '../../theme/tarot_tokens.dart';
 import '../utils/saved_reading_parser.dart';
@@ -34,10 +36,7 @@ import '../widgets/reading_history/reading_journal_reflection_card.dart';
 
 /// Opens a saved reading with smooth hero card transition.
 class ReadingHistoryDetailScreen extends ConsumerStatefulWidget {
-  const ReadingHistoryDetailScreen({
-    super.key,
-    required this.entry,
-  });
+  const ReadingHistoryDetailScreen({super.key, required this.entry});
 
   final ReadingHistoryEntry entry;
 
@@ -81,7 +80,9 @@ class _ReadingHistoryDetailScreenState
       cardName: widget.entry.cardName,
     );
     if (note == null) return;
-    await ref.read(readingServiceProvider).updatePersonalNote(
+    await ref
+        .read(readingServiceProvider)
+        .updatePersonalNote(
           readingId: widget.entry.id,
           note: note.isEmpty ? null : note,
         );
@@ -118,7 +119,16 @@ class _ReadingHistoryDetailScreenState
     );
     if (confirmed != true || !mounted) return;
 
-    await ref.read(historyServiceProvider).remove(widget.entry.id);
+    try {
+      await ref
+          .read(tarotHistoryDeletionServiceProvider)
+          .deleteReading(widget.entry.id);
+    } catch (_) {
+      if (!mounted) return;
+      OraclySnackBar.error(context, ResilienceCopy.temporaryFailure);
+      return;
+    }
+
     ref.invalidate(readingHistoryProvider);
     PersonalDiscoveryRefresh.invalidate(ref);
     if (!mounted) return;
@@ -220,8 +230,9 @@ class _ReadingHistoryDetailScreenState
                       );
                       return SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
-                        padding: TarotTokens.screenPaddingOf(context)
-                            .copyWith(top: 0),
+                        padding: TarotTokens.screenPaddingOf(
+                          context,
+                        ).copyWith(top: 0),
                         child: Center(
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(
@@ -230,7 +241,10 @@ class _ReadingHistoryDetailScreenState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                if (widget.entry.emotionalKeywords.isNotEmpty) ...[
+                                if (widget
+                                    .entry
+                                    .emotionalKeywords
+                                    .isNotEmpty) ...[
                                   ReadingJournalKeywordChips(
                                     keywords: widget.entry.emotionalKeywords,
                                   ),
@@ -256,7 +270,9 @@ class _ReadingHistoryDetailScreenState
                                       color: AppColors.textHint,
                                     ),
                                     label: Text(
-                                      OraclyL10n.t('tarot.history.delete_reflection'),
+                                      OraclyL10n.t(
+                                        'tarot.history.delete_reflection',
+                                      ),
                                       style: AppTextStyles.labelMedium.copyWith(
                                         color: AppColors.textHint,
                                       ),
@@ -281,9 +297,7 @@ class _ReadingHistoryDetailScreenState
   }
 }
 
-Route<T> historyDetailRoute<T>({
-  required ReadingHistoryEntry entry,
-}) {
+Route<T> historyDetailRoute<T>({required ReadingHistoryEntry entry}) {
   return OraclyPageTransitions.fade<T>(
     page: ReadingHistoryDetailScreen(entry: entry),
     settings: RouteSettings(name: '/tarot/history/${entry.id}'),
