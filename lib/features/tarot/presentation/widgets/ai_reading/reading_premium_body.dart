@@ -6,7 +6,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/insight_copy/widgets/insight_copy_link.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/oracly_quiet_motion.dart';
+import '../../../../../core/theme/reading_typography.dart';
 import '../../../theme/tarot_tokens.dart';
 import '../tarot_flow_progress.dart';
 import 'ai_reading_content.dart';
@@ -33,6 +36,13 @@ class ReadingPremiumBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (content.isSafetyResponse) {
+      return _SafetyReadingBody(
+        reason: content.generalMeaning,
+        exitProgress: exitProgress,
+      );
+    }
+
     Widget body = Padding(
       padding: TarotTokens.screenPadding.copyWith(top: 0, bottom: 0),
       child: Column(
@@ -75,5 +85,43 @@ class ReadingPremiumBody extends StatelessWidget {
       ),
       child: body,
     );
+  }
+}
+
+/// Localized safety reason only — no Tarot story / cards / insight copy.
+class _SafetyReadingBody extends StatelessWidget {
+  const _SafetyReadingBody({
+    required this.reason,
+    required this.exitProgress,
+  });
+
+  final String reason;
+  final double exitProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    final panel = Padding(
+      padding: TarotTokens.screenPadding.copyWith(top: 0, bottom: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const TarotFlowProgress(step: TarotRitualStep.reading),
+          Padding(
+            padding: EdgeInsets.only(
+              top: AppSpacing.lg,
+              bottom: AppSpacing.xl,
+            ),
+            child: Text(
+              reason,
+              style: ReadingTypography.body(
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (exitProgress <= 0.01) return panel;
+    return Opacity(opacity: 1 - exitProgress * 0.45, child: panel);
   }
 }

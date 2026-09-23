@@ -51,7 +51,6 @@ class TarotReadingCompletion {
         return _interpretation.emergencyFallback(
           session,
           reason: fallbackReason,
-          deliveryKind: TarotReadingDeliveryKind.recovery,
         );
       }
       return null;
@@ -61,7 +60,6 @@ class TarotReadingCompletion {
         return _interpretation.emergencyFallback(
           session,
           reason: ResilienceCopy.aiEmptyResponse,
-          deliveryKind: TarotReadingDeliveryKind.recovery,
         );
       }
       return null;
@@ -73,9 +71,10 @@ class TarotReadingCompletion {
       return content;
     }
 
-    // Recovery: already-settled session — never double-charge.
+    // Recovery is valid only for an already-settled paid reading.
     if (content.deliveryKind == TarotReadingDeliveryKind.recovery) {
-      return content;
+      if (_charge.alreadyCharged(session.id)) return content;
+      return null;
     }
 
     await _charge.markProviderOk(session.id, spread: session.spread);

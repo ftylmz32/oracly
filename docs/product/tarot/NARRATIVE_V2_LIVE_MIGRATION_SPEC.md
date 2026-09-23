@@ -176,19 +176,39 @@ If backend cannot enforce JSON schema yet: client strict parse + reject partial 
 - Safety copy bypasses Narrative V2  
 - Do not weaken detector  
 
-### Delivery kind contract (LOCKED — Phase 6.0.1)
+### Delivery kind contract (LOCKED — Phase 6.0.1 / 6.0.2)
 
 `AiReadingContent.deliveryKind` / `TarotReadingDeliveryKind`:
 
 | Kind | Meaning | Bill | Journal / memory |
 |---|---|---|---|
 | `interpretation` | Normal AI / local interpretation | YES (after usable + commit) | YES |
-| `safety` | SensitiveTopicGate emergency copy | **NO** | **NO** |
+| `safety` | SensitiveTopicGate **pure** safety copy | **NO** | **NO** |
 | `recovery` | Already-charged recovery fallback | **NO second charge** | YES |
 
 **YES — safety-only response is non-billable and non-journal.**
 
-Completion gate: after `_usable` + `shouldCommit`, inspect `deliveryKind` — `safety` / `recovery` return without `markProviderOk` / `commit`. Controller must not persist safety prose into `ReadingSession.interpretation`. ReadingScreen must not auto-journal or expose Save / Reflection / Ask Oracle / Share / Favorite for safety.
+#### Safety output (LOCKED — Phase 6.0.2)
+
+Safety is **pure safety content, not a Tarot interpretation**.
+
+- Built by dedicated `TarotInterpretationService.safetyResponse` — **not** `emergencyFallback`
+- `generalMeaning` / `fullInterpretation` = exact localized `SensitiveTopicGate` reason
+- No card-derived prose · empty life-area / lucky / cardReadings · `drawnCards = []`
+- UI: safety panel only — no story strip / cards / relations / detail layers / insight copy
+- No journey-complete cue · no reveal ceremony
+
+#### Recovery (LOCKED — Phase 6.0.2)
+
+Recovery is **valid only for an already-settled session** (`alreadyCharged(session.id)`).
+
+Uncharged `deliveryKind: recovery` → fail closed (`null`) — never charge, never convert to interpretation.
+
+#### Delivery kind survival (LOCKED — Phase 6.0.2)
+
+`deliveryKind` **must survive all content reconstruction** (e.g. `tarotContentWithSummary`).
+
+Completion gate: after `_usable` + `shouldCommit`, inspect `deliveryKind` — `safety` free; `recovery` only if settled; else `markProviderOk` → `commit`. Controller must not persist safety prose into `ReadingSession.interpretation`. ReadingScreen must not auto-journal or expose Save / Reflection / Ask Oracle / Share / Favorite for safety.
 
 ---
 
@@ -335,4 +355,4 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6.0.1 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation).
+**Independent Phase 6.0.2 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation).

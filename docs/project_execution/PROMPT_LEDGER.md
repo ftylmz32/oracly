@@ -1168,11 +1168,12 @@ Chronological project execution ledger.
 | PL-T5F | Tarot Phase 5F — Independent final Signature Spreads audit | **PASS** · Phase 5 **FROZEN** |
 | PL-T5F.1 | Tarot Phase 5F.1 — Post-audit contract + localization hardening (M1/I1/I2) | **PASS** · independently verified · Phase 5 **RE-FROZEN** |
 | PL-T6.0 | Tarot Phase 6.0 — Narrative V2 live migration forensic + architecture lock | **PASS** (docs-only) |
-| PL-T6.0.1 | Tarot Phase 6.0.1 — Safety delivery non-billable / non-journal | **PASS** (pending independent verify) |
+| PL-T6.0.1 | Tarot Phase 6.0.1 — Safety delivery non-billable / non-journal | **PASS** (billing/journal; follow-ups → 6.0.2) |
+| PL-T6.0.2 | Tarot Phase 6.0.2 — Safety purity + recovery authorization + delivery copy | **PASS** (pending independent verify) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | **RE-FROZEN** after 5F.1 independent verification |
-| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6.0.1 verify, then 6A** |
+| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6.0.2 verify, then 6A** |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
 | PL-T9 | Tarot Phase 9 — red-team QA | PLANNED |

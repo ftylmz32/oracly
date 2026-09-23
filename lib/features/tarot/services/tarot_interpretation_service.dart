@@ -78,11 +78,7 @@ class TarotInterpretationService {
 
     final safety = SensitiveTopicGate.maybeRespond(session.intention.text);
     if (safety != null) {
-      return emergencyFallback(
-        session,
-        reason: safety,
-        deliveryKind: TarotReadingDeliveryKind.safety,
-      );
+      return safetyResponse(session, reason: safety);
     }
 
     try {
@@ -223,12 +219,37 @@ class TarotInterpretationService {
     }
   }
 
-  /// Last-resort content built directly from drawn card metadata.
+  /// Pure SensitiveTopicGate copy — never card meaning, never billable.
+  AiReadingContent safetyResponse(
+    ReadingSession session, {
+    required String reason,
+  }) {
+    final title = TarotL10n.spread(session.spread);
+    return AiReadingContent(
+      cardName: title,
+      tagline: '',
+      generalMeaning: reason,
+      love: '',
+      career: '',
+      money: '',
+      spiritualGuidance: '',
+      luckyEnergy: '',
+      dailyAdvice: '',
+      closingMessage: '',
+      imageAsset: '',
+      rarityColor: const Color(0x00000000),
+      fullInterpretation: reason,
+      drawnCards: const [],
+      spreadLabel: title,
+      cardReadings: '',
+      deliveryKind: TarotReadingDeliveryKind.safety,
+    );
+  }
+
+  /// Already-paid recovery content built from drawn card metadata.
   AiReadingContent emergencyFallback(
     ReadingSession session, {
     required String reason,
-    TarotReadingDeliveryKind deliveryKind =
-        TarotReadingDeliveryKind.recovery,
   }) {
     if (session.drawnCards.isEmpty) {
       return AiReadingContent(
@@ -246,7 +267,7 @@ class TarotInterpretationService {
         rarityColor: const Color(0x00000000),
         fullInterpretation: reason,
         spreadLabel: TarotL10n.spread(session.spread),
-        deliveryKind: deliveryKind,
+        deliveryKind: TarotReadingDeliveryKind.recovery,
       );
     }
 
@@ -289,7 +310,7 @@ class TarotInterpretationService {
       userQuestion: session.intention.text.trim().isEmpty
           ? null
           : session.intention.text.trim(),
-      deliveryKind: deliveryKind,
+      deliveryKind: TarotReadingDeliveryKind.recovery,
     );
   }
 

@@ -228,8 +228,14 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       _loadError = null;
       _loading = false;
     });
-    OraclyFeedbackGate.playCue(OraclySoundCue.journeyComplete);
-    _startRevealSequence();
+    if (content.isSafetyResponse) {
+      // Safety is help, not a completed Tarot ceremony.
+      _intro.value = 1;
+      _content.value = 1;
+    } else {
+      OraclyFeedbackGate.playCue(OraclySoundCue.journeyComplete);
+      _startRevealSequence();
+    }
     // Safety responses are visible help only — never auto-journal as a reading.
     if (content.isJournalEligible) {
       _persistToJournal();

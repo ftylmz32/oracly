@@ -368,6 +368,32 @@ So a safety-only local response could be charged as paid provider success, and `
 
 ---
 
+## 12.2 — Phase 6.0.2 Independent Safety Purity Follow-up
+
+**Kind:** PRODUCTION + TESTS + DOCS · **Date:** 2026-09-23  
+**Trigger:** Independent ChatGPT verification of Phase 6.0.1 confirmed billing/journal fix, then found three follow-up defects.
+
+### Findings (post-6.0.1)
+
+| ID | Severity | Defect |
+|---|---|---|
+| **B1** | BLOCKER | Safety still used `emergencyFallback`, so `drawn.effectiveMeaning` polluted `generalMeaning` / life-area fields — fortune content despite free delivery |
+| **M1** | MAJOR | Completion returned any usable `deliveryKind: recovery` without `alreadyCharged` — payment bypass risk |
+| **M2** | MAJOR | `tarotContentWithSummary` dropped `deliveryKind` → silent reset to `interpretation` |
+
+### Remediation (6.0.2)
+
+- Dedicated `safetyResponse` builder — pure gate reason, empty card fields, no drawn cards
+- `ReadingPremiumBody` safety branch — reason only; no story/cards/insight stack
+- ReadingScreen skips journey-complete cue + reveal ceremony for safety
+- Recovery authorized only when `alreadyCharged(session.id)`; else fail closed
+- `tarotContentWithSummary` preserves `deliveryKind`
+- Spec locks: pure safety · settled-only recovery · delivery kind survives copies
+
+6.0.1 remains a correct billing/journal partial remediation; 6.0.2 closes purity + authorization + copy drift.
+
+---
+
 ## 13 — Crossroads seams A–L re-audit (independent)
 
 | ID | Status | Evidence |

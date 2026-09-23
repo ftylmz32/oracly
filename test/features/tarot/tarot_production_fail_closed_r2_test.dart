@@ -236,7 +236,7 @@ void main() {
   });
 
   group('G — sensitive topic safety fallback preserved', () {
-    test('crisis intention still returns emergency content', () async {
+    test('crisis intention still returns pure safety content', () async {
       const crisis = 'Kendimi öldürmek istiyorum';
       final safety = SensitiveTopicGate.maybeRespond(crisis);
       expect(safety, isNotNull);
@@ -247,9 +247,12 @@ void main() {
       final content = await service.generateContent(
         _session(intention: crisis),
       );
-      // Emergency path short-circuits before the failing executor.
-      expect(content.dailyAdvice, safety);
-      expect(content.generalMeaning.trim(), isNotEmpty);
+      // Safety path short-circuits before the failing executor.
+      expect(content.deliveryKind, TarotReadingDeliveryKind.safety);
+      expect(content.generalMeaning, safety);
+      expect(content.fullInterpretation, safety);
+      expect(content.dailyAdvice, isEmpty);
+      expect(content.drawnCards, isEmpty);
     });
   });
 }
