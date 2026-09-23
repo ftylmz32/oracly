@@ -27,6 +27,7 @@
 | H14 | Owner-safe Tarot live source ids come **only** from accepted TarotHistorySourceAdapter rows (never raw HistoryService/session rescan) |
 | H15 | Connected-memory deletion is typed by `(sourceType, sourceId)` via `removeBySourceAndType` |
 | H16 | Historical `questionKind` / `intentionSummary` / `topicId` share the same effective session→ReadingModel fallback source |
+| H17 | Accepted session-backed Tarot live-source aliases are **only** `session.id` + linked `ReadingModel.id`. `linked.sessionId` never independently authorizes source existence |
 
 ---
 
@@ -570,5 +571,6 @@ no history · one prior same card · multi prior · outside 90d · current exclu
 **Phase 4B: IMPLEMENTED** (theme + memory pure engines · no storage adapters)
 **Phase 4C: IMPLEMENTED** (storage adapters · owner isolation · source-existence · delete/clear integrity)
 **Phase 4C.1: IMPLEMENTED** (H14 owner-safe live Tarot ids · H15 typed memory delete · H16 question grounding fallback)
+**Phase 4C.2: IMPLEMENTED** (H17 strict live Tarot source aliases — no linked.sessionId authority)
 
 **Do not start 4D until ChatGPT review. Do not merge. Do not wire user path.**

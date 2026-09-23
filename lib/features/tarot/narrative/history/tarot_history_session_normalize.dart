@@ -114,12 +114,10 @@ abstract final class TarotHistorySessionNormalize {
       );
     }
 
+    // H17: only session.id + accepted linked ReadingModel.id authorize
+    // connected-memory live-source existence — never linked.sessionId alone.
     final liveIds = <String>{session.id};
-    if (linked != null) {
-      liveIds.add(linked.id);
-      final sid = linked.sessionId?.trim();
-      if (sid != null && sid.isNotEmpty) liveIds.add(sid);
-    }
+    if (linked != null) liveIds.add(linked.id);
 
     final occurred = (session.completedAt ?? session.startedAt).toUtc();
     return (

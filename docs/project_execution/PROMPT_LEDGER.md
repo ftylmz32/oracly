@@ -878,6 +878,18 @@ Chronological project execution ledger.
 | Request enricher / live V2 | **NOT** / **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T4C.2 — STRICT LIVE TAROT SOURCE ALIAS HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `dac943f11bf4c1a8ea3a53b3c67a10df043e3dc4` |
+| H17 | session.id + linked ReadingModel.id only |
+| linked.sessionId extra authority | **NO** |
+| Corrupt alias ghost memory | excluded |
+| Request enricher / live V2 | **NOT** / **UNCHANGED** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -926,8 +938,9 @@ Chronological project execution ledger.
 | PL-T4B | Tarot Phase 4B — Cross-feature theme + memory evidence pure engines | **DONE** |
 | PL-T4C | Tarot Phase 4C — Storage adapters + owner/delete integrity | **DONE** |
 | PL-T4C.1 | Tarot Phase 4C.1 — Owner-safe live source identity + typed deletion | **DONE** |
+| PL-T4C.2 | Tarot Phase 4C.2 — Strict live Tarot source aliases | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4C.1 DONE** · 4D pending review |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4C.2 DONE** · 4D pending review |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
