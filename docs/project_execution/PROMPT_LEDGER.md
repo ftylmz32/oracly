@@ -637,6 +637,34 @@ Chronological project execution ledger.
 | Scoring / builder / AI | **NOT IMPLEMENTED** / **0** |
 | Outcome | **PASS** |
 
+### PL-T3D.1B — STRUCTURED SEMANTIC SIGNAL LAYER
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | Semantic channel + discrimination + contrasts + transforms — **no scoring/builder** |
+| Start SHA | `620dae768d104f7ed9b8368c6b2831cec55508c3` |
+| Sentinel correction | Initial prompt contained stale haste df=14 sentinel from pre-final ontology projection. Execution correctly STOPPED before writes. ChatGPT review confirmed 3C.5F/current production authority: haste df=13. No ontology/profile change required. |
+| Production files created | 4 (`narrative_semantic_channel`, `narrative_keyword_discrimination`, `narrative_keyword_contrasts`, `narrative_transform_signals`) |
+| Existing production modified | **NONE** |
+| Tests created | 5 signal/channel/contrast/transform/audit |
+| FR-F04 overlap orientations | **64 / 156** |
+| DF map keys / orientations | **128** / **156** |
+| scatter / haste df | **14** / **13** |
+| HF threshold | **8** |
+| Contrast pairs | **11** HARD + **4** CONTEXTUAL = **15** |
+| Transform distribution | excess37 · distortion23 · misdirection18 · avoidance17 · internalization15 · delay14 · blockedExpression14 · deficiency9 · privateInternal8 · release1 |
+| Transform↔keyword exact-name | avoidance · delay · misdirection · release |
+| Narrative evidence tests | **64** passed · **0** failed |
+| Profile domain | **114** passed · **0** failed |
+| Phase 3C red-team | **29** passed · **0** failed |
+| Phase 2/2.1 | **27** passed · **0** failed |
+| R2/R2.1 | **13** passed · **0** failed |
+| Analyze | errors **0** · warnings **0** · new infos on 3D.1B surface **0** |
+| Full Flutter | **3832** passed · **0** failed · **15** skipped · **0** timed out |
+| Scoring / builder / AI | **NOT IMPLEMENTED** / **0** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -671,7 +699,8 @@ Chronological project execution ledger.
 | PL-T3D.0 | Tarot Phase 3D.0 — Narrative Evidence Engine implementation specification | **DONE** (base spec; active = 3D.0.1) |
 | PL-T3D.0.1 | Tarot Phase 3D.0.1 — Evidence Engine spec contract hardening | **DONE** (spread+slice LOCKED; OPEN 0; ready for 3D.1A) |
 | PL-T3D.1A | Tarot Phase 3D.1A — Evidence Domain Foundation | **DONE** (models+catalog; scoring/builder NOT IMPLEMENTED) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78 ready; Evidence domain 3D.1A DONE; scoring/builder pending 3D.1B+) |
+| PL-T3D.1B | Tarot Phase 3D.1B — Structured Semantic Signal Layer | **DONE** (channel+DF+contrasts+transforms; scoring NOT IMPLEMENTED) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78 ready; Evidence domain+signals DONE; scoring/builder pending 3D.1C+) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

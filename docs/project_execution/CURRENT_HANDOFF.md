@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1A Evidence Domain Foundation
+**Updated:** 2026-09-23 — Tarot Phase 3D.1B Structured Semantic Signal Layer
 
 ---
 
@@ -54,6 +54,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.0.1 task start | `18cfeea804cc415a8d064e2a3f9d89c611c8cb4d` | Spec contract hardening |
 | Phase 3D.0.1 end | `379b68c0761443e641f4a8aa81c382fda0352fa4` | Spread catalog + slice LOCKED |
 | Phase 3D.1A task start | `379b68c0761443e641f4a8aa81c382fda0352fa4` | Evidence domain foundation |
+| Phase 3D.1A end | `620dae768d104f7ed9b8368c6b2831cec55508c3` | Evidence domain foundation |
+| Phase 3D.1B task start | `620dae768d104f7ed9b8368c6b2831cec55508c3` | Structured semantic signal layer |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -133,6 +135,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.0 — Narrative Evidence Engine implementation specification | **COMPLETE** (superseded active contract by 3D.0.1) |
 | Phase 3D.0.1 — Evidence Engine spec contract hardening | **COMPLETE** (spread catalog + profile slice LOCKED; OPEN **0**) |
 | Phase 3D.1A — Evidence Domain Foundation | **COMPLETE** (models + slice + grounding + classical catalog; scoring **NOT** implemented) |
+| Phase 3D.1B — Structured Semantic Signal Layer | **COMPLETE** (channel + DF + contrasts + transforms; scoring **NOT** implemented) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -421,6 +424,24 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1B
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** |
+| Implemented | `NarrativeSemanticChannel` · FR-F04 dedupe · frozen ontology-rev1 DF map · keyword discrimination weights · explicit contrast table · transform signal/suppression helper |
+| Ontology revision / N / DF ids | **1** · **156** · **128** |
+| scatter / haste df | **14** / **13** (catalog truth; stale prompt 14 for haste WITHDRAWN) |
+| keyword∩symbolTag orientations | **64 / 156** |
+| Contrast pairs | **11** HARD + **4** CONTEXTUAL = **15** |
+| Scoring | **NOT IMPLEMENTED** |
+| FR-F01 / FR-F02 pair guards | **NOT IMPLEMENTED** — Phase 3D.1C |
+| Evidence builder | **NOT IMPLEMENTED** |
+| User path | **UNCHANGED** |
+| AI / Persistence | **0** / **0** |
+| Narrative evidence tests | **64** passed |
+| Full Flutter | **3832** passed · **0** failed · **15** skipped · **0** timed out |
+
 ### Phase 3D.1A
 
 | Field | Value |
@@ -438,7 +459,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Persistence | **0** |
 | Memory / recurrence providers | **NOT IMPLEMENTED** |
 | Production surface | `lib/features/tarot/narrative/evidence/` |
-| Tests | `test/features/tarot/narrative_evidence/` (**38** passed) |
+| Tests | `test/features/tarot/narrative_evidence/` (**38** passed at 3D.1A) |
 | Full Flutter | **3806** passed · **0** failed · **15** skipped · **0** timed out |
 
 ### Phase 3D.0.1
@@ -572,6 +593,7 @@ Production surface:
 | Flutter (Phase 3C.5D.1 — PL-T3C.5D.1) | docs only; production source unmodified |
 | Flutter (Phase 3C.5E — PL-T3C.5E) | 3768 passed · 0 failed · 15 skipped · 0 timed out |
 | Flutter (Phase 3D.1A — PL-T3D.1A) | 3806 passed · 0 failed · 15 skipped · 0 timed out (+38 evidence domain) |
+| Flutter (Phase 3D.1B — PL-T3D.1B) | 3832 passed · 0 failed · 15 skipped · 0 timed out (+26 semantic signals) |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -596,11 +618,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3D.1B.**
+**ChatGPT review before Phase 3D.1C.**
 
-Phase 3D.1A: **COMPLETE** · Evidence domain foundation · Scoring **NOT** implemented · Evidence builder **NOT** implemented · User path **UNCHANGED** · AI calls **0**.
+Phase 3D.1B: **COMPLETE** · Structured semantic signals · Scoring **NOT** implemented · FR-F01/F02 caps **NOT** implemented · Evidence builder **NOT** implemented · User path **UNCHANGED** · AI calls **0**.
 
-Do **not** start 3D.1B until reviewed.
+Do **not** start 3D.1C until reviewed.
 Do **not** mark future items completed until verified.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
