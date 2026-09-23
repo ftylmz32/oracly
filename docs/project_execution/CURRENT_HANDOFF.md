@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 6.0.2 safety purity + recovery authorization · 6.0.1 billing/journal fix · Phase 5 RE-FROZEN
+**Updated:** 2026-09-23 — Tarot Phase 6.0.3 safety preflight + quality retry firewall · 6.0.2 B1/M1/M2 closed · Phase 5 RE-FROZEN
 
 ---
 
@@ -123,6 +123,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 6.0.1 task start | `7affe63253fe4976d7c99f0071c53cd705755ecf` | Safety delivery non-billable / non-journal |
 | Phase 6.0.1 end | `52e2f0f8056c3005977bdd9c87bd96b4a27d388b` | billing/journal PASS · independent follow-up needed |
 | Phase 6.0.2 task start | `52e2f0f8056c3005977bdd9c87bd96b4a27d388b` | Safety purity + recovery auth + delivery copy |
+| Phase 6.0.2 end | `b04296c77be79cc4dfee1eb96b809f78646f2234` | B1/M1/M2 PASS · independent follow-up B2/M3 |
+| Phase 6.0.3 task start | `b04296c77be79cc4dfee1eb96b809f78646f2234` | Safety preflight before affordability + retry firewall |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -236,7 +238,8 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5 — Signature Spreads | **RE-FROZEN AFTER 5F.1 INDEPENDENT VERIFICATION** at `4b56592bc9dc2fea9bb75416851844cc18731891` |
 | Phase 6.0 — Narrative V2 live migration forensic + architecture lock | **COMPLETE / PASS** (docs-only) |
 | Phase 6.0.1 — Safety delivery non-billable / non-journal | **COMPLETE / PASS** (billing/journal) · independent review found B1/M1/M2 follow-ups |
-| Phase 6.0.2 — Safety purity + recovery authorization | **COMPLETE / PASS** (pending independent ChatGPT verification) |
+| Phase 6.0.2 — Safety purity + recovery authorization | **COMPLETE / PASS** (B1/M1/M2) · independent review found B2/M3 |
+| Phase 6.0.3 — Safety preflight + quality retry firewall | **COMPLETE / PASS** (pending independent ChatGPT verification) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -723,13 +726,26 @@ Pre-existing local noise (do **not** stage/clean):
 | Live Narrative V2 | **NOT WIRED** |
 | Crossroads picker | **false** |
 | Prompt architecture | **C** — NarrativeTarotPromptInput + legacy adapter |
-| Next | **Independent 6.0.2 verification**, then **Phase 6A** |
+| Next | **Independent 6.0.3 verification**, then **Phase 6A** |
+
+### Phase 6.0.3
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** (pending independent ChatGPT verification) |
+| Kind | **SAFETY PREFLIGHT + QUALITY/RETRY FIREWALL** |
+| B2 | Safety before `canAfford` · zero-balance safety OK · load not invoked |
+| M3 | Quality actions hidden · reinterpret never writes safety interpretation |
+| Live Narrative V2 | **NOT WIRED** |
+| Crossroads picker | **false** |
+| Phase 3 / 4 / 5 production | **UNCHANGED** |
+| Next | Independent 6.0.3 verification → **6A** |
 
 ### Phase 6.0.2
 
 | Field | Value |
 |---|---|
-| Status | **COMPLETE** / **PASS** (pending independent ChatGPT verification) |
+| Status | **COMPLETE** / **PASS** (B1/M1/M2) · independent review found B2/M3 → 6.0.3 |
 | Kind | **SAFETY PURITY + RECOVERY AUTHORIZATION + DELIVERY COPY** |
 | B1 | Pure `safetyResponse` — no card-derived prose / Tarot story UI |
 | M1 | Recovery requires `alreadyCharged` — else fail closed |
@@ -737,7 +753,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Live Narrative V2 | **NOT WIRED** |
 | Crossroads picker | **false** |
 | Phase 3 / 4 production | **UNCHANGED** |
-| Next | Independent 6.0.2 verification → **6A** |
+| Next | Follow-up **6.0.3** (completed) → independent verify → **6A** |
 
 ### Phase 6.0.1
 
@@ -1190,13 +1206,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent Phase 6.0.2 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams.
+**Independent Phase 6.0.3 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams.
 
-Phase 6.0: **PASS** (forensic) · Phase 6.0.1: **PASS** (billing/journal; follow-ups B1/M1/M2 found) · Phase 6.0.2: **PASS** (purity + recovery auth + delivery copy — pending ChatGPT verify) · Phase 5: **RE-FROZEN** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0: **PASS** · Phase 6.0.1: **PASS** (billing/journal) · Phase 6.0.2: **PASS** (B1/M1/M2; follow-ups B2/M3) · Phase 6.0.3: **PASS** (preflight + retry firewall — pending ChatGPT verify) · Phase 5: **RE-FROZEN** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** begin Phase 6A until 6.0.2 is independently verified.
+Do **not** begin Phase 6A until 6.0.3 is independently verified.
 Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.
 Do **not** reopen Phase 3 or Phase 4 production outside documented Phase 6 slices.

@@ -467,6 +467,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   }
 
   Future<bool> _reinterpretWithoutCharge() async {
+    if (_contentData?.isSafetyResponse == true) return false;
+
     final reading = TarotScope.of(context).reading;
     final session = reading.session;
     if (session == null) throw StateError('no session');
@@ -476,6 +478,16 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
         forceRefresh: true,
       );
       if (!mounted) return false;
+
+      // Safety is help, not a Tarot revision — never persist or version it.
+      if (content.isSafetyResponse) {
+        setState(() {
+          _contentData = content;
+          _loading = false;
+        });
+        return false;
+      }
+
       final summary = content.fullInterpretation ?? content.generalMeaning;
       final savedId = _savedReadingId;
       var changed = true;
@@ -774,11 +786,11 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                           reloadToken: _versionReloadToken,
                                           onSelect: _applyTarotVersion,
                                         ),
-                                      if (sectionMaster > 0.45)
-                                        ReadingQualityActions(
-                                          feature: QualityFeature.tarot,
-                                          retry: _reinterpretWithoutCharge,
-                                        ),
+                                      TarotReadingQualityActionsSlot(
+                                        content: contentData,
+                                        sectionMaster: sectionMaster,
+                                        retry: _reinterpretWithoutCharge,
+                                      ),
                                       SizedBox(
                                         height: AppLayout.scrollBottomInset(
                                           context,
@@ -800,6 +812,31 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Quality/retry slot for a finished Tarot reading — hidden for safety.
+class TarotReadingQualityActionsSlot extends StatelessWidget {
+  const TarotReadingQualityActionsSlot({
+    super.key,
+    required this.content,
+    required this.sectionMaster,
+    required this.retry,
+  });
+
+  final AiReadingContent content;
+  final double sectionMaster;
+  final Future<bool> Function() retry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (sectionMaster <= 0.45 || content.isSafetyResponse) {
+      return const SizedBox.shrink();
+    }
+    return ReadingQualityActions(
+      feature: QualityFeature.tarot,
+      retry: retry,
     );
   }
 }

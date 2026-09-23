@@ -26,7 +26,7 @@ class TarotReadingCompletion {
   static String get fallbackReason => TarotL10n.fallbackLoad;
 
   /// Loads interpretation, then charges once for [interpretation] delivery.
-  /// Safety delivery is free. Provider failure before settle is free.
+  /// Safety preflight is free and runs before affordability.
   /// Null → do not show a completed reading. [shouldCommit] false skips spend.
   Future<AiReadingContent?> complete(
     ReadingSession session, {
@@ -35,6 +35,11 @@ class TarotReadingCompletion {
     Duration timeout = loadTimeout,
   }) async {
     if (session.drawnCards.isEmpty) return null;
+
+    // Safety help must not depend on gems, wallet, or provider.
+    final safety = _interpretation.safetyResponseIfNeeded(session);
+    if (safety != null) return safety;
+
     if (!_charge.canAfford(session.spread, sessionId: session.id)) {
       return null;
     }
@@ -66,7 +71,7 @@ class TarotReadingCompletion {
     }
     if (shouldCommit != null && !shouldCommit()) return null;
 
-    // Safety: visible help only — never mark provider OK or settle gems.
+    // Safety via load path (defensive) — never mark provider OK or settle.
     if (content.deliveryKind == TarotReadingDeliveryKind.safety) {
       return content;
     }

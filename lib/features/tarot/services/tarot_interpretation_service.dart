@@ -68,17 +68,15 @@ class TarotInterpretationService {
       context = context.withJourneyHints(journeyHints);
     }
 
+    final safetyContent = safetyResponseIfNeeded(session);
+    if (safetyContent != null) return safetyContent;
+
     if (context.cards.isEmpty) {
       throw InterpretationException(
         type: InterpretationFailureType.emptyResponse,
         message: TarotL10n.fallbackCards,
         retryable: false,
       );
-    }
-
-    final safety = SensitiveTopicGate.maybeRespond(session.intention.text);
-    if (safety != null) {
-      return safetyResponse(session, reason: safety);
     }
 
     try {
@@ -217,6 +215,13 @@ class TarotInterpretationService {
         cause: cause,
       );
     }
+  }
+
+  /// Pure SensitiveTopicGate preflight — no engine, provider, or cache.
+  AiReadingContent? safetyResponseIfNeeded(ReadingSession session) {
+    final reason = SensitiveTopicGate.maybeRespond(session.intention.text);
+    if (reason == null) return null;
+    return safetyResponse(session, reason: reason);
   }
 
   /// Pure SensitiveTopicGate copy — never card meaning, never billable.

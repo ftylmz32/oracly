@@ -394,6 +394,31 @@ So a safety-only local response could be charged as paid provider success, and `
 
 ---
 
+## 12.3 — Phase 6.0.3 Independent Safety Preflight Follow-up
+
+**Kind:** PRODUCTION + TESTS + DOCS · **Date:** 2026-09-23  
+**Trigger:** Independent ChatGPT verification of Phase 6.0.2 confirmed B1/M1/M2 closed, then found two remaining live defects.
+
+### Findings (post-6.0.2)
+
+| ID | Severity | Defect |
+|---|---|---|
+| **B2** | BLOCKER | Safety still behind `_charge.canAfford` — zero-balance sensitive users got null / insufficient-gems instead of free safety |
+| **M3** | MAJOR | `ReadingQualityActions` still shown for safety; `_reinterpretWithoutCharge` wrote safety prose into `ReadingSession.interpretation` |
+
+### Remediation (6.0.3)
+
+- `safetyResponseIfNeeded` pure preflight; `generateContent` reuses it
+- Completion order: empty guard → safety preflight → affordability → load
+- Safety returns without invoking `load`
+- Quality actions slot hidden for safety
+- Defensive + post-resolve firewalls in `_reinterpretWithoutCharge`
+- Spec locks safety ordering and no-version/no-interpretation writes
+
+6.0.2 remains correct for B1/M1/M2; 6.0.3 closes affordability ordering + retry persistence.
+
+---
+
 ## 13 — Crossroads seams A–L re-audit (independent)
 
 | ID | Status | Evidence |

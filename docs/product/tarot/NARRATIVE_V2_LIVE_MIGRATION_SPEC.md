@@ -208,6 +208,25 @@ Uncharged `deliveryKind: recovery` → fail closed (`null`) — never charge, ne
 
 `deliveryKind` **must survive all content reconstruction** (e.g. `tarotContentWithSummary`).
 
+#### Safety ordering (LOCKED — Phase 6.0.3)
+
+```text
+empty/impossible session guard
+→ safety preflight (SensitiveTopicGate → safetyResponse)
+→ affordability
+→ paid interpretation load
+→ usability
+→ commit gate
+```
+
+Safety must **not** require gem balance. Preflight runs before `canAfford` and does **not** invoke `load`.
+
+#### Safety quality / reinterpret (LOCKED — Phase 6.0.3)
+
+- Quality/retry actions: **DISABLED** for safety  
+- Safety content: **never versioned**  
+- Safety session interpretation: **never written** (including reinterpret path)
+
 Completion gate: after `_usable` + `shouldCommit`, inspect `deliveryKind` — `safety` free; `recovery` only if settled; else `markProviderOk` → `commit`. Controller must not persist safety prose into `ReadingSession.interpretation`. ReadingScreen must not auto-journal or expose Save / Reflection / Ask Oracle / Share / Favorite for safety.
 
 ---
@@ -355,4 +374,4 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6.0.2 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation).
+**Independent Phase 6.0.3 verification**, then **Phase 6A** — Classical-preserving spread semantic + edge provider seams (implementation).
