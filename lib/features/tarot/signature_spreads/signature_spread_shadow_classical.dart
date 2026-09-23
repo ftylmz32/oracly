@@ -3,6 +3,7 @@ library;
 
 import '../domain/models/tarot_spread.dart';
 import '../narrative/evidence/narrative_evidence_builder.dart';
+import '../narrative/evidence/narrative_evidence_error.dart';
 import '../narrative/evidence/narrative_evidence_input.dart';
 import '../narrative/evidence/narrative_request.dart';
 import '../narrative/history/tarot_historical_models.dart';
@@ -59,7 +60,7 @@ abstract final class SignatureSpreadShadowClassical {
           ],
         ),
       );
-    } catch (_) {
+    } on NarrativeEvidenceException {
       return null;
     }
   }

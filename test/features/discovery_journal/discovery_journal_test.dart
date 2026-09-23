@@ -125,7 +125,7 @@ void main() {
     expect(items.first.title, 'Denizde yürüdüm');
     expect(
       items.firstWhere((e) => e.kind == DiscoveryJournalKind.tarot).title,
-      '1 Kart Açılımı',
+      'Tek Kart',
     );
     expect(
       items.firstWhere((e) => e.kind == DiscoveryJournalKind.tarot).dateLabel,
@@ -338,7 +338,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('1 Kart Açılımı'), findsOneWidget);
+    expect(find.text('Tek Kart'), findsOneWidget);
     expect(find.text('12 Ağustos'), findsOneWidget);
     expect(find.text('The Moon'), findsNothing);
     expect(find.text('Tarot'), findsOneWidget);

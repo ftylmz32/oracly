@@ -75,7 +75,7 @@ void main() {
 
     final row = DiscoveryJournalMap.reading(saved);
     expect(row.kind, DiscoveryJournalKind.tarot);
-    expect(row.title, '3 Kart Açılımı');
+    expect(row.title, 'Üç Kart');
     expect(row.dateLabel, OraclyFormat.dayMonth(saved.createdAt));
     expect(row.preview, isNotEmpty);
     expect(row.preview, isNot(contains('evimi beklemeli')));

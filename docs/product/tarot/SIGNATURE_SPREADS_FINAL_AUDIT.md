@@ -341,3 +341,39 @@ FULL suite: **4184 passed · 16 skipped · 0 failed**
 | `CURRENT_HANDOFF.md` | UPDATED (freeze record) |
 | `PROMPT_LEDGER.md` | UPDATED (PL-T5F) |
 | Production / tests / fixtures | **NONE** (audit-only) |
+
+---
+
+## Phase 5F.1 Post-Audit Hardening Addendum
+
+**Date:** 2026-09-23  
+**Kind:** NARROW REMEDIATION (post-5F freeze production hardening)  
+**START HEAD:** `89dd4c526b0d96bb52666b64fa1485ecd3761d65`  
+**Scope:** Close confirmed 5F findings M1 / I1 / I2 only. No Phase 6.
+
+### Finding status
+
+| ID | Finding | Status |
+|---|---|---|
+| M1 | Broad `catch (_)` in classical shadow evidence build | **RESOLVED** — catch narrowed to `on NarrativeEvidenceException` only |
+| I1 | Unknown persisted strings fall through to raw display | **RESOLVED** — `TarotL10n.spreadFromStorage` / `TarotHistoryPrivacy.spreadTitle` fail safe to `tarot.home.title` |
+| I2 | Classical journal/privacy spread titles hard-coded TR | **RESOLVED** — privacy delegates to current-locale `TarotL10n.spreadFromStorage` |
+| I3 | Analyze infos (199) pre-existing / non-failing | **UNCHANGED** (not targeted by 5F.1) |
+
+### Production files modified
+
+- `lib/features/tarot/signature_spreads/signature_spread_shadow_classical.dart`
+- `lib/features/tarot/history/tarot_history_privacy.dart`
+- `lib/features/tarot/copy/tarot_l10n.dart`
+
+### Frozen boundaries
+
+Phase 3 / Phase 4 production: **UNCHANGED**  
+`narrative/evidence/**` / `narrative/history/**` production: **NONE**  
+Crossroads: shadow-only · picker **false** · live V2 **NOT WIRED**
+
+### Phase 5 status after 5F.1
+
+`5F.1 HARDENING COMPLETE — PENDING INDEPENDENT RE-FREEZE VERIFICATION`
+
+Do **not** claim final refreeze on Cursor's own authority. Next: ChatGPT independent 5F.1 verification before Phase 6.

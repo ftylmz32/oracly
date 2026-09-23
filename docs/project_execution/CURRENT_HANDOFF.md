@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 5F independent Signature Spreads final audit · Phase 5 FROZEN
+**Updated:** 2026-09-23 — Tarot Phase 5F.1 post-audit hardening (M1/I1/I2) · pending independent re-freeze verification
 
 ---
 
@@ -114,6 +114,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 5E task start | `185f59dc94264995dc55c7b6c282db6ae9da8683` | Signature shadow + frozen corpus |
 | Phase 5E end | `7e2e6e963caee375e59e1ff956c937d2d18383d8` | shadow + corpus PASS |
 | Phase 5F task start | `7e2e6e963caee375e59e1ff956c937d2d18383d8` | Independent final Signature Spreads audit |
+| Phase 5F end | `89dd4c526b0d96bb52666b64fa1485ecd3761d65` | audit PASS · Phase 5 FROZEN |
+| Phase 5F.1 task start | `89dd4c526b0d96bb52666b64fa1485ecd3761d65` | Post-audit M1/I1/I2 hardening |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -222,7 +224,8 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 5D — Crossroads runtime + persistence dual-read | **COMPLETE / PASS** (enum index 5 · machine-id write · legacy dual-read · picker firewall) |
 | Phase 5D.1 — Machine-id UI leak + localized history search | **COMPLETE / PASS** (display/search only · persistence unchanged · Phase 3/4 firewall tests) |
 | Phase 5E — Signature shadow integration + frozen corpus | **COMPLETE / PASS** (classical parity · Crossroads structural-only · Phase3/4 blocked · user-path importers 0) |
-| Phase 5F — Independent final Signature Spreads audit | **COMPLETE / PASS** · **Phase 5 FROZEN** |
+| Phase 5F — Independent final Signature Spreads audit | **COMPLETE / PASS** · **Phase 5 FROZEN** (pre-5F.1) |
+| Phase 5F.1 — Post-audit contract + localization hardening | **COMPLETE / PASS (Cursor)** · `5F.1 HARDENING COMPLETE — PENDING INDEPENDENT RE-FREEZE VERIFICATION` |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -680,10 +683,24 @@ Pre-existing local noise (do **not** stage/clean):
 | Status | **COMPLETE** / **PASS** |
 | Kind | **AUDIT-ONLY** (no production/test/fixture edits) |
 | BLOCKER / MAJOR | **0** / **0** |
-| Phase 5 | **FROZEN** |
+| Phase 5 | **FROZEN** (pre-5F.1; hardening pending re-freeze) |
 | Crossroads | shadow-only · picker **false** · live V2 **NOT WIRED** |
 | Final audit | `docs/product/tarot/SIGNATURE_SPREADS_FINAL_AUDIT.md` |
-| Next | **Phase 6** — AI Narrative result pipeline + migration |
+| Next | **Phase 5F.1** post-audit hardening |
+
+### Phase 5F.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** (Cursor) · **PENDING INDEPENDENT RE-FREEZE VERIFICATION** |
+| Kind | **NARROW REMEDIATION** (M1 / I1 / I2 only) |
+| M1 | **TARGETED** — `on NarrativeEvidenceException` only |
+| I1 | **TARGETED** — unknown → `tarot.home.title` |
+| I2 | **TARGETED** — privacy uses current-locale `TarotL10n` |
+| Phase 3 / 4 production | **UNCHANGED** |
+| Crossroads | shadow-only · picker **false** |
+| Phase 5 status | `5F.1 HARDENING COMPLETE — PENDING INDEPENDENT RE-FREEZE VERIFICATION` |
+| Next | **ChatGPT independent 5F.1 verification** before Phase 6 |
 
 ### Phase 4D.1
 
@@ -1121,12 +1138,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 6** — AI Narrative result pipeline + migration (Crossroads live Narrative still gated by Phase 6 seam audit).
+**ChatGPT independent Phase 5F.1 verification** before Phase 6.
 
-Phase 5: **FROZEN** · Phase 5F: **PASS** · Phase 5E: **PASS** · Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 5 status: `5F.1 HARDENING COMPLETE — PENDING INDEPENDENT RE-FREEZE VERIFICATION` · Phase 5F: **PASS** · Phase 5F.1: **PASS (Cursor)** · Phase 5E: **PASS** · Phase 5D.1: **PASS** · Phase 5D: **PASS** · Phase 5C: **PASS** · Phase 5B: **PASS** · Phase 5A: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
 Do **not** wire live Tarot Narrative V2 path.
 Do **not** expose Crossroads in user pickers until a later approved phase.
 Do **not** reopen Phase 3 or Phase 4 production without a new approved phase.
+Do **not** begin Phase 6 until independent 5F.1 verification passes.

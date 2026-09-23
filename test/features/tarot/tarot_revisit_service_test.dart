@@ -39,7 +39,7 @@ void main() {
     ]);
     expect(context, isNotNull);
     expect(context!.topicLabel, isNotNull);
-    expect(context.spreadLabel, contains('3'));
+    expect(context.spreadLabel, 'Üç Kart');
   });
 
   test('fromHistory ignores same-day readings', () {

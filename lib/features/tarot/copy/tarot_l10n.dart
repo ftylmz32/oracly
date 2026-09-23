@@ -26,9 +26,14 @@ abstract final class TarotL10n {
   static String cardNameOf(TarotCard card) =>
       cardName(card.id, fallback: card.name);
 
+  /// Resolves a persisted machine id or legacy title to a current-locale label.
+  ///
+  /// Unknown / blank / corrupt values fail safe to the generic Tarot title —
+  /// never return the raw storage string to a user surface.
   static String spreadFromStorage(String raw) {
-    final type = TarotSpreadType.fromTitle(raw);
-    return type == null ? raw : spread(type);
+    final type = TarotSpreadType.fromPersisted(raw);
+    if (type != null) return spread(type);
+    return _t('tarot.home.title');
   }
 
   static String spread(TarotSpreadType type) => _t('tarot.spread.${type.name}');
