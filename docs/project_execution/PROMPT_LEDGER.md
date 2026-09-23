@@ -566,6 +566,26 @@ Chronological project execution ledger.
 | Production source modified | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3D.0 — NARRATIVE EVIDENCE ENGINE IMPLEMENTATION SPECIFICATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** — spec READY |
+| Kind | Design / forensic / contract only — **no production implementation** |
+| Start SHA | `e90a5109bbb75ce2c1247be686c9a149aa554846` |
+| Spec | `docs/product/tarot/NARRATIVE_EVIDENCE_ENGINE_IMPLEMENTATION_SPEC.md` |
+| Inventory | REUSE/ADAPT existing deck+profiles+spreads+ReadingAsk; CREATE evidence layer; DEFER memory/AI/visual |
+| Architecture | Facts → NarrativeEvidenceBuilder → TarotNarrativeRequest (closed universe) |
+| Signal channels | A–I with FR-F04 merge; multi-signal admission |
+| Scoring | IDF weights · contrast table · position edges · canonical relatedIds |
+| Safeguards | FR-F01/F02/F04 · HF alone reject · contradiction>overlap · no prose NLP |
+| Bounds | maxRelationships **12** · pairs ≤**45** · strength 0–1 |
+| Memory/recurrence | Empty placeholders only |
+| Open decisions | **0** |
+| Production source modified | **NO** |
+| Evidence Engine implemented | **NO** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -597,7 +617,9 @@ Chronological project execution ledger.
 | PL-T3C.5D.1 | Tarot Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **DONE** (plan repaired; ambiguous 0; FR-M04 was OPEN) |
 | PL-T3C.5E | Tarot Phase 3C.5E — FR-M04 canonical keyword ontology implementation | **DONE** (FR-M04 was REMEDIATED PENDING 3C.5F) |
 | PL-T3C.5F | Tarot Phase 3C.5F — final keyword ontology + deck readiness audit | **DONE** (FR-M04 RESOLVED; deck readiness YES) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR-B01/M01/M02/M03/M04 + RT-M* RESOLVED; Evidence Engine NOT STARTED — deck ready YES) |
+| PL-T3D.0 | Tarot Phase 3D.0 — Narrative Evidence Engine implementation specification | **DONE** (spec READY; engine NOT IMPLEMENTED) |
+| PL-T3D.1A | Tarot Phase 3D.1A — evidence models + spread/question facts | **NOT STARTED** |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR/RT RESOLVED; deck ready YES; Evidence Engine NOT IMPLEMENTED — spec READY) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
