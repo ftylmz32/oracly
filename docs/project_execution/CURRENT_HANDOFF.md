@@ -70,6 +70,7 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1D.1 task start | `ea6bd1230cb900f46b42d1793db3e21da7476833` | Builder error-contract + corpus metric hardening |
 | Phase 3D.1D.1 end | `c6503a24ff745958ad51fa6f1ff04a8c78136781` | Validation order + corpus metric lock |
 | Phase 3D.1E task start | `6b90f59b9c3827a9ddf38c9237b2c56bf2a931e2` | Final independent Evidence Engine audit |
+| Phase 3D.1E end | `8434b26e4bdc021b83ea2ae486db53c4204afa75` | Final audit PASS · ready to freeze YES |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
