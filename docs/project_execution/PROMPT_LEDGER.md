@@ -922,6 +922,19 @@ Chronological project execution ledger.
 | Live V2 / AI | **NOT WIRED** / **0** |
 | Outcome | **PASS** |
 
+### PL-T4E — INDEPENDENT MEMORY + HISTORICAL RECURRENCE FINAL AUDIT
+
+| Field | Value |
+|---|---|
+| Status | **FAIL** |
+| Start SHA | `40182d177ca3bb895438218f672db06e9fcf88fe` |
+| Audit doc | `NARRATIVE_MEMORY_RECURRENCE_FINAL_AUDIT.md` |
+| BLOCKER / MAJOR | **0** / **1** (H7 chained alias double-count) |
+| H1–H18 | **17/18** PASS |
+| Phase 4 frozen | **NO** |
+| Production changes in 4E | **NONE** |
+| Outcome | **FAIL** — remediate H7 then re-audit |
+
 ---
 
 ## Planned (not started)
@@ -973,8 +986,9 @@ Chronological project execution ledger.
 | PL-T4C.2 | Tarot Phase 4C.2 — Strict live Tarot source aliases | **DONE** |
 | PL-T4D | Tarot Phase 4D — Request enricher + frozen historical corpus | **DONE** |
 | PL-T4D.1 | Tarot Phase 4D.1 — Enrichment privacy contract hardening | **DONE** |
+| PL-T4E | Tarot Phase 4E — Independent Memory + Historical Recurrence audit | **FAIL** (H7 MAJOR · not frozen) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D.1 DONE** · 4E pending |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A–4D.1 DONE** · **4E FAIL** · not frozen |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

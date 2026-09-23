@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4D.1 enrichment privacy contract hardening
+**Updated:** 2026-09-23 — Tarot Phase 4E independent audit FAIL (H7 MAJOR)
 
 ---
 
@@ -88,6 +88,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4D task start | `4ff9441be9a8b508a38cc0dcaf1eed52c1a7a040` | Request enricher + frozen historical corpus |
 | Phase 4D end | `55e284a193d994d1f1ffb3a44477104e57e09f7c` | Enricher + corpus PASS |
 | Phase 4D.1 task start | `55e284a193d994d1f1ffb3a44477104e57e09f7c` | Privacy contract hardening (H18) |
+| Phase 4D.1 end | `40182d177ca3bb895438218f672db06e9fcf88fe` | H18 PASS |
+| Phase 4E task start | `40182d177ca3bb895438218f672db06e9fcf88fe` | Independent Memory + Historical Recurrence audit |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -184,6 +186,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4C.2 — Strict live Tarot source aliases | **COMPLETE** |
 | Phase 4D — Request enricher + frozen historical corpus | **COMPLETE** |
 | Phase 4D.1 — Enrichment privacy contract hardening | **COMPLETE** |
+| Phase 4E — Independent Memory + Historical Recurrence audit | **COMPLETE / FAIL** (H7 MAJOR — not frozen) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -471,6 +474,20 @@ Pre-existing local noise (do **not** stage/clean):
 | Runtime V2 | **NOT USER-REACHABLE** |
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
+
+### Phase 4E
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **FAIL** |
+| Audit doc | `docs/product/tarot/NARRATIVE_MEMORY_RECURRENCE_FINAL_AUDIT.md` |
+| BLOCKER | **0** |
+| MAJOR | **1** — H7 non-transitive physical-identity dedupe double-count |
+| MINOR | **2** |
+| INFO | **3** |
+| Phase 4 frozen | **NO** |
+| Proof test | `tarot_4e_h7_chained_alias_red_team_test.dart` (intentionally failing) |
+| Production fixed in 4E | **NO** (audit-only) |
 
 ### Phase 4D.1
 
@@ -908,10 +925,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 4E independent Memory + Historical Recurrence audit.**
+**Remediate H7 physical-identity dedupe** (transitive/component collapse of chained aliases), then re-run Phase 4E.
 
-Phase 4D.1: **PASS** · Phase 4D **PASS** · Phase 4C.2 **PASS** · Phase 4C.1 **PASS** · Phase 4C **PASS** · Phase 4B **PASS** · Phase 4A.1 **PASS** · Phase 4A **PASS** · Phase 3 **FROZEN** · request enricher **SHADOW** (H18 privacy required) · live V2 **NOT WIRED** · AI **0**.
+Phase 4E: **FAIL** · Phase 4 **NOT FROZEN** · Phase 4D.1 **PASS** · Phase 4D **PASS** · Phase 3 **FROZEN** · live V2 **NOT WIRED** · AI **0**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
 Do **not** wire live Tarot Narrative V2 path.
+Do **not** mark Phase 4 frozen until H7 MAJOR is closed and 4E re-audits PASS.
