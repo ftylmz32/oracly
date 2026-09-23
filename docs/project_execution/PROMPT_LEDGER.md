@@ -586,6 +586,29 @@ Chronological project execution ledger.
 | Evidence Engine implemented | **NO** |
 | Outcome | **PASS** |
 
+### PL-T3D.0.1 — EVIDENCE ENGINE SPEC CONTRACT HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | Docs-only — spread catalog + profile slice |
+| Start SHA | `18cfeea804cc415a8d064e2a3f9d89c611c8cb4d` |
+| Spread catalog complete | **YES** (5/5) |
+| Position rows | **26** |
+| Edge rows | **29** |
+| Temporal enum | past · present · future · atemporal |
+| Position weights | **all 1.0** |
+| Role/function | Identity lock (`PositionRole`) |
+| purposeKey | Machine `purpose.classical.*` |
+| displayLabelKey | `tarot.pos.<key>` |
+| geometry/length | Enums locked; geometry metadata-only |
+| Profile slice type | `TarotNarrativeProfileSlice` |
+| Question-slice matrix | open/guidance/relationship/decision locked |
+| Open decisions | **0** |
+| Production modified | **NO** |
+| Spec ready for 3D.1A | **YES** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)

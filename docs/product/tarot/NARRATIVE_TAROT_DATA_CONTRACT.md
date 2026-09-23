@@ -74,12 +74,16 @@ class SpreadSemanticDefinition {
   final String spreadId;                  // classical.* | signature.the_mirror | signature.between_us
   final String? legacyTypeName;           // TarotSpreadType.name when classical
   final int cardCount;
-  final String purposeKey;
+  final String purposeKey;                // machine token in 3D.1 (e.g. purpose.classical.threeCard)
   final List<SpreadPositionSemantic> positions;
   final List<int> interpretationOrder;
-  final NarrativeGeometryHook geometryHook;
-  final NarrativeLengthBand lengthBand;
+  final NarrativeGeometryHook geometryHook; // carried metadata; Phase 7 owns visuals
+  final NarrativeLengthBand lengthBand;     // Phase 6 prose policy; not scored in 3D.1
 }
+
+enum NarrativeGeometryHook { singlePoint, linearRow, celticCross }
+
+enum NarrativeLengthBand { short, medium, full, long }
 ```
 
 **Canonical signature ids (immutable once persisted):**
@@ -89,28 +93,41 @@ class SpreadSemanticDefinition {
 
 Underscore forms (`signature_the_mirror`) are **not** valid persisted ids.
 
+**Classical catalog (Phase 3D.1):** see `NARRATIVE_EVIDENCE_ENGINE_IMPLEMENTATION_SPEC.md` §17 — complete; not examples.
+
 ---
 
 ## 4. SpreadPositionSemantic
 
 ```dart
+enum TemporalOrientation { past, present, future, atemporal }
+
+/// Structural slot role. In 3D.1 classical spreads, narrativeFunction MUST equal role.
+enum PositionRole {
+  signal, context, root, state, challenge, hiddenInfluence, support,
+  direction, self, environment, hopeFear, outcome, question, avoid,
+}
+
 class SpreadPositionSemantic {
-  final String positionKey;
+  final String positionKey;                 // runtime key; do not rename
   final int index;
-  final String role;
-  final String guidingQuestionKey;
+  final PositionRole role;
+  final String guidingQuestionKey;          // machine token in 3D.1 (gq.classical.*)
   final TemporalOrientation temporal;
-  final String narrativeFunction;
-  final List<PositionRelationEdge> relationToOtherSlots;
-  final double weight;
-  final String displayLabelKey;
+  final PositionRole narrativeFunction;     // MUST == role in 3D.1 classical catalog
+  final List<PositionRelationEdge> relationToOtherSlots; // projection of authoritative edge table
+  final double weight;                      // 3D.1 classical: always 1.0
+  final String displayLabelKey;             // tarot.pos.<positionKey>
 }
 
 class PositionRelationEdge {
   final String otherPositionKey;
-  final String edgeKind;
+  final String edgeKind;                    // temporal|opposition|supportive|pressure|mirror
+  final bool directed;                      // if true: this position → other; if false: symmetric
 }
 ```
+
+Authoritative edge list: Evidence Engine Implementation Spec §17.4 (29 edges). No implementer-invented edges.
 
 ---
 
@@ -124,13 +141,46 @@ class TarotNarrativeCardEvidence {
   final String positionKey;
   final int positionIndex;
   final String displayName;
-  final NarrativeCardProfile profileSlice;
+  final TarotNarrativeProfileSlice profileSlice;
   final String imageAsset;
 }
 ```
 
 Facts: card, orientation, position — AI must not rewrite.
 
+### 5.1 TarotNarrativeProfileSlice (request-side; Phase 3D.0.1)
+
+**Not** a substitute for authored `NarrativeCardProfile`. Derived by the Evidence Builder from the catalog profile for the current draw + question kind.
+
+```dart
+class TarotNarrativeProfileSlice {
+  // REQUIRED base
+  final L10nTriple coreMeaning;
+  final L10nTriple orientationExpression; // exact drawn orientation only
+  final List<String> keywordIds;            // exact drawn orientation only
+  final List<String> symbolTags;            // card-level
+  final List<ReversedTransformKind> transforms; // upright=[]; reversed=actual
+
+  // OPTIONAL / question-emphasis (null when not selected)
+  final L10nTriple? light;
+  final L10nTriple? shadow;
+  final L10nTriple? tension;
+  final L10nTriple? desire;
+  final L10nTriple? fear;
+  final L10nTriple? relationshipDynamic;
+  final L10nTriple? decisionDynamic;
+  final L10nTriple? actionDirection;
+}
+```
+
+| QuestionKind | Optional fields present (others null) |
+|---|---|
+| `open` | light, shadow, tension |
+| `guidance` | light, shadow, tension, actionDirection |
+| `relationship` | relationshipDynamic, desire, fear, tension |
+| `decision` | decisionDynamic, actionDirection, tension, fear |
+
+Domain models retain `L10nTriple`. Phase 6 owns locale flattening for AI transport.
 ---
 
 ## 6. TarotNarrativeRelationshipEvidence

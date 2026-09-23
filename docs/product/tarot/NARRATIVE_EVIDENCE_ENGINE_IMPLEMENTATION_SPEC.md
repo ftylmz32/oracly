@@ -1,12 +1,22 @@
 # Narrative Evidence Engine — Implementation Specification
 
-**Phase:** 3D.0 (design / contract only)  
-**Start SHA:** `e90a5109bbb75ce2c1247be686c9a149aa554846`  
-**Status:** **READY FOR IMPLEMENTATION** (OPEN DECISIONS = 0)  
-**Production code modified in 3D.0:** **NO**  
-**Evidence Engine implemented:** **NO**  
+**Active revision:** Phase **3D.0.1** contract hardening
+**Phase 3D.0 start SHA:** e90a5109bbb75ce2c1247be686c9a149aa554846
+**Phase 3D.0.1 start SHA:** 18cfeea804cc415a8d064e2a3f9d89c611c8cb4d
+**Status:** **READY FOR 3D.1A** (OPEN DECISIONS = 0)
+**Production code modified:** **NO**
+**Evidence Engine implemented:** **NO**
 
-Authority: `NARRATIVE_TAROT_SPEC.md` · `NARRATIVE_TAROT_DATA_CONTRACT.md` · `TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md` (3C.5F safeguards)
+Authority: NARRATIVE_TAROT_SPEC.md · NARRATIVE_TAROT_DATA_CONTRACT.md · TAROT_KEYWORD_ONTOLOGY_FINAL_AUDIT.md (3C.5F safeguards)
+
+### Phase 3D.0.1 hardening (ACTIVE)
+
+Resolved before coding:
+
+1. Complete classical spread + position + edge catalogs (no examples left)
+2. TarotNarrativeProfileSlice replaces illegal NarrativeCardProfile as request-side slice type
+
+Historical 3D.0 scoring/admission/safeguard decisions remain LOCKED unless superseded in §§17–20 below.
 
 ---
 
@@ -239,8 +249,8 @@ Ship frozen `df` map keyed by ontology revision; rebuild only when ontologyRevis
 
 A pair **admits** iff **any** of:
 
-1. **Standard:** `independentFamilyCount ≥ 2` **AND** `S_total ≥ 1.25`  
-2. **Canonical seed:** E true (mutual or one-way `relatedIds` contains the other) **AND** `independentFamilyCount ≥ 2` (E counts as one) **AND** `S_total ≥ 1.0`  
+1. **Standard:** `independentFamilyCount ≥ 2` **AND** `S_total ≥ 1.25`
+2. **Canonical seed:** E true (mutual or one-way `relatedIds` contains the other) **AND** `independentFamilyCount ≥ 2` (E counts as one) **AND** `S_total ≥ 1.0`
 3. **Position-strong:** F edge present with kind affinity **AND** ≥1 of {A/B/C/D} **AND** `S_total ≥ 1.0`
 
 Where `S_total` = weighted sum of channel contributions (overlap, contrast, transform, canonical bonus, position bonus, question bonus) after contradiction penalties (§24).
@@ -325,48 +335,198 @@ Transforms contribute family D:
 
 ---
 
-## 17 — Position semantics — classical spreads in 3D.1
+## 17 — Position semantics — classical spreads in 3D.1 (ACTIVE — 3D.0.1)
 
-### Spreads REQUIRED in 3D.1 semantic catalog
+**Authority:** runtime keys from `tarot_spread_positions.dart` + `TarotSpreadType`.
+**No examples. No TBD. No implementer choice.**
 
-Reuse keys from `tarot_spread_positions.dart`:
+### 17.1 Closed enums
 
-| Spread id (`TarotSpreadType.name`) | Count | Position keys (order = interpretationOrder) |
-|---|---:|---|
-| `single` | 1 | `sign` |
-| `threeCard` | 3 | `past`, `present`, `future` |
-| `fiveCard` | 5 | `situation`, `hidden_influence`, `challenge`, `strength`, `direction` |
-| `sevenCard` | 7 | `question`, `current_energy`, `obstacle`, `hidden_factor`, `what_helps`, `what_to_avoid`, `direction` |
-| `celticCross` | 10 | `present`, `challenge`, `distant_past`, `recent_past`, `crown`, `near_future`, `self`, `environment`, `hopes`, `outcome` |
+```dart
+enum TemporalOrientation { past, present, future, atemporal }
 
-**Note:** Primary UI offers single/3/5 (+7 behind flag). Celtic is domain-complete; include in catalog so builder accepts all `TarotSpreadType` values without fake Signature spreads.
+/// Structural role of a slot. In 3D.1 classical catalog,
+/// narrativeFunction MUST equal role (identity lock — no dual unexplained strings).
+enum PositionRole {
+  signal,
+  context,
+  root,
+  state,
+  challenge,
+  hiddenInfluence,
+  support,
+  direction,
+  self,
+  environment,
+  hopeFear,
+  outcome,
+  question,
+  avoid,
+}
 
-### Position relation edges (deterministic catalog)
+typedef NarrativeFunction = PositionRole; // 3D.1 identity alias
 
-Define undirected/directed edges with types: `temporal`, `opposition`, `supportive`, `pressure`, `mirror`.
+enum NarrativeGeometryHook {
+  singlePoint,   // 1 card
+  linearRow,     // 3 / 5 / 7
+  celticCross,   // 10
+}
 
-**threeCard (examples):** past→present `temporal`; present→future `temporal`; past↔future weak `temporal`.
+/// Carried metadata for later AI length policy (Phase 6). Not scored in 3D.1.
+enum NarrativeLengthBand { short, medium, full, long }
+```
 
-**fiveCard:** challenge↔situation `opposition`; strength↔challenge `supportive`; hidden_influence↔situation `pressure`; direction←situation `temporal`.
+### 17.2 Spread catalog (5/5)
 
-**sevenCard:** obstacle↔current_energy `opposition`; what_helps↔obstacle `supportive`; what_to_avoid↔direction `pressure`; question↔current_energy `mirror`.
+| spreadId | legacyTypeName | cardCount | purposeKey | interpretationOrder | geometryHook | lengthBand |
+|---|---|---:|---|---|---|---|
+| `classical.single` | `single` | 1 | `purpose.classical.single` | `[0]` | `singlePoint` | `short` |
+| `classical.threeCard` | `threeCard` | 3 | `purpose.classical.threeCard` | `[0,1,2]` | `linearRow` | `medium` |
+| `classical.fiveCard` | `fiveCard` | 5 | `purpose.classical.fiveCard` | `[0,1,2,3,4]` | `linearRow` | `full` |
+| `classical.sevenCard` | `sevenCard` | 7 | `purpose.classical.sevenCard` | `[0,1,2,3,4,5,6]` | `linearRow` | `full` |
+| `classical.celticCross` | `celticCross` | 10 | `purpose.classical.celticCross` | `[0,1,2,3,4,5,6,7,8,9]` | `celticCross` | `long` |
 
-**celticCross:** present↔challenge `opposition`; distant_past/recent_past→present `temporal`; near_future←present `temporal`; self↔environment `mirror`; hopes↔outcome `pressure`; challenge↔outcome `pressure`.
+**purposeKey rule:** machine-only semantic token. No production l10n added in 3D.1. Phase 6/7 may localize later. Display titles continue to use existing `tarot.spread.<legacyTypeName>`.
 
-**single:** no pair edges (0 relationships unless impossible).
+**geometryHook:** carried domain metadata only — **0 widgets, 0 coordinates, 0 visual deps**. Phase 7 owns visuals.
 
-Exact edge table must be coded as data in `narrative_spread_semantics.dart` matching this spec (full enumerated list in implementation file; 3D.0 locks the model).
+**Signature spreads:** not in this catalog (Phase 5).
 
-**Signature Spreads:** architecture-ready later; **no** production catalog entries in 3D.1.
+### 17.3 Position catalog (26 rows)
+
+**Common locks for every row:**
+
+- `weight` = **1.0** (no authoritative numeric weights exist on `TarotPosition`)
+- `displayLabelKey` = `tarot.pos.<positionKey>` (verified runtime: `TarotPosition.label` / `TarotL10n.position`)
+- `guidingQuestionKey` = `gq.classical.<legacyTypeName>.<positionKey>` — **machine-only token**; no user-facing l10n in 3D.1 (Phase 6 may add copy)
+- `role` = `narrativeFunction` (identical enum value)
+- `relationToOtherSlots` = projection of §17.4 edges incident to this position (must match edge table)
+
+#### single (`classical.single`)
+
+| positionKey | index | role (= narrativeFunction) | temporal |
+|---|---:|---|---|
+| `sign` | 0 | `signal` | `atemporal` |
+
+#### threeCard
+
+| positionKey | index | role | temporal |
+|---|---:|---|---|
+| `past` | 0 | `root` | `past` |
+| `present` | 1 | `state` | `present` |
+| `future` | 2 | `direction` | `future` |
+
+#### fiveCard
+
+| positionKey | index | role | temporal |
+|---|---:|---|---|
+| `situation` | 0 | `context` | `atemporal` |
+| `hidden_influence` | 1 | `hiddenInfluence` | `atemporal` |
+| `challenge` | 2 | `challenge` | `atemporal` |
+| `strength` | 3 | `support` | `atemporal` |
+| `direction` | 4 | `direction` | `future` |
+
+#### sevenCard
+
+| positionKey | index | role | temporal |
+|---|---:|---|---|
+| `question` | 0 | `question` | `atemporal` |
+| `current_energy` | 1 | `state` | `present` |
+| `obstacle` | 2 | `challenge` | `atemporal` |
+| `hidden_factor` | 3 | `hiddenInfluence` | `atemporal` |
+| `what_helps` | 4 | `support` | `atemporal` |
+| `what_to_avoid` | 5 | `avoid` | `atemporal` |
+| `direction` | 6 | `direction` | `future` |
+
+#### celticCross
+
+| positionKey | index | role | temporal |
+|---|---:|---|---|
+| `present` | 0 | `state` | `present` |
+| `challenge` | 1 | `challenge` | `atemporal` |
+| `distant_past` | 2 | `root` | `past` |
+| `recent_past` | 3 | `root` | `past` |
+| `crown` | 4 | `direction` | `atemporal` |
+| `near_future` | 5 | `direction` | `future` |
+| `self` | 6 | `self` | `atemporal` |
+| `environment` | 7 | `environment` | `atemporal` |
+| `hopes` | 8 | `hopeFear` | `atemporal` |
+| `outcome` | 9 | `outcome` | `future` |
+
+**Temporal note:** `future` / `near_future` are positional narrative ordering only — **not** prediction certainty.
+
+### 17.4 Complete position edge table (authoritative)
+
+Edge kinds: `temporal` | `opposition` | `supportive` | `pressure` | `mirror`
+
+| # | spread (legacyTypeName) | fromPositionKey | toPositionKey | directed | edgeKind |
+|---:|---|---|---|---|---|
+| 1 | `threeCard` | `past` | `present` | YES | `temporal` |
+| 2 | `threeCard` | `present` | `future` | YES | `temporal` |
+| 3 | `threeCard` | `past` | `future` | YES | `temporal` |
+| 4 | `fiveCard` | `situation` | `direction` | YES | `temporal` |
+| 5 | `fiveCard` | `situation` | `hidden_influence` | NO | `pressure` |
+| 6 | `fiveCard` | `situation` | `challenge` | NO | `opposition` |
+| 7 | `fiveCard` | `challenge` | `strength` | NO | `supportive` |
+| 8 | `fiveCard` | `strength` | `direction` | YES | `supportive` |
+| 9 | `fiveCard` | `hidden_influence` | `challenge` | NO | `pressure` |
+| 10 | `sevenCard` | `question` | `current_energy` | NO | `mirror` |
+| 11 | `sevenCard` | `current_energy` | `obstacle` | NO | `opposition` |
+| 12 | `sevenCard` | `obstacle` | `what_helps` | NO | `supportive` |
+| 13 | `sevenCard` | `what_to_avoid` | `direction` | NO | `pressure` |
+| 14 | `sevenCard` | `hidden_factor` | `current_energy` | NO | `pressure` |
+| 15 | `sevenCard` | `question` | `direction` | YES | `temporal` |
+| 16 | `sevenCard` | `what_helps` | `direction` | YES | `supportive` |
+| 17 | `sevenCard` | `obstacle` | `what_to_avoid` | NO | `pressure` |
+| 18 | `celticCross` | `distant_past` | `recent_past` | YES | `temporal` |
+| 19 | `celticCross` | `recent_past` | `present` | YES | `temporal` |
+| 20 | `celticCross` | `distant_past` | `present` | YES | `temporal` |
+| 21 | `celticCross` | `present` | `near_future` | YES | `temporal` |
+| 22 | `celticCross` | `present` | `challenge` | NO | `opposition` |
+| 23 | `celticCross` | `self` | `environment` | NO | `mirror` |
+| 24 | `celticCross` | `present` | `self` | NO | `mirror` |
+| 25 | `celticCross` | `challenge` | `outcome` | NO | `pressure` |
+| 26 | `celticCross` | `hopes` | `outcome` | NO | `pressure` |
+| 27 | `celticCross` | `crown` | `outcome` | YES | `temporal` |
+| 28 | `celticCross` | `challenge` | `self` | NO | `pressure` |
+| 29 | `celticCross` | `near_future` | `outcome` | YES | `temporal` |
+
+`single`: **0** edges.
+
+**Edge count:** **29**
+**Ambiguous/example edges remaining:** **NO**
+
+**Sanity:** temporal edges encode narrative ordering, not guaranteed causation. `causeEffect` still requires §11 semantic family in addition to a temporal edge.
+
+### 17.5 Role model decision (LOCKED)
+
+- Engine uses **`PositionRole`** as the sole structural token.
+- Data-contract field `narrativeFunction` is retained for compatibility and **MUST equal `role`** for every classical 3D.1 position.
+- No second unexplained vocabulary.
 
 ---
 
-## 18 — Position weighting — LOCKED
+## 18 — Position weighting & edge bonuses — LOCKED (3D.0.1)
 
-- Position edge presence contributes family F with bonus by type: opposition `+0.40`, temporal `+0.35`, supportive `+0.30`, pressure `+0.35`, mirror `+0.25`
-- Kind resolution uses edge type (§7 / §21)
-- Interpretation order distance used in tie-break only: `abs(indexA-indexB)` ascending preferred for equal scores
-- Conflicting edges: opposition + supportive on same pair ⇒ prefer contrast/conflict over support unless canonical E strongly agrees with support **and** no HARD CONTRAST
+### Position.weight
+
+**ALL classical positions: `weight = 1.0`.**
+
+Rationale: no production numeric weights exist; relationship importance comes from typed edges + edge bonuses (avoids double-counting “challenge importance”).
+
+### Edge family F bonuses (unchanged from 3D.0)
+
+| edgeKind | bonus |
+|---|---:|
+| `opposition` | +0.40 |
+| `temporal` | +0.35 |
+| `supportive` | +0.30 |
+| `pressure` | +0.35 |
+| `mirror` | +0.25 |
+
+Kind resolution / contradiction rules in §7 / §21 / §24 unchanged.
+
+Interpretation-order distance remains tie-break only (§22).
 
 ---
 
@@ -374,14 +534,14 @@ Exact edge table must be coded as data in `narrative_spread_semantics.dart` matc
 
 Map existing `ReadingAsk.kind(raw)`:
 
-| `ReadingAskKind` | `QuestionKind` (new) |
+| `ReadingAskKind` | `QuestionKind` |
 |---|---|
 | `decision` | `decision` |
 | `relationship` | `relationship` |
 | `guidance` | `guidance` |
 | `other` | `open` |
 
-Optional `topic` from `TarotIntention.topic` / Epic031 (`love|career|daily|general|money|custom`) stored on `QuestionGrounding.topic` — **does not** invent card facts.
+Optional `topic` from `TarotIntention.topic` / Epic031 (`love|career|daily|general|money|custom`) on `QuestionGrounding.topic` — never invents card facts.
 
 `hasRealQuestion = ReadingQuestion.real(raw) != null`.
 
@@ -389,22 +549,69 @@ Question may reweight candidates (±0.15 max), never create relations alone.
 
 ---
 
-## 20 — Profile field emphasis (slice contract) — LOCKED
+## 20 — TarotNarrativeProfileSlice contract — LOCKED (3D.0.1)
 
-Each `TarotNarrativeCardEvidence` carries a **profileSlice** selecting which authored fields travel for later AI:
+### 20.1 Type decision
 
-| QuestionKind | Always include | Emphasize |
-|---|---|---|
-| `open` / `guidance` | coreMeaning, orientation.expression, keywordIds, symbolTags, transforms | tension, light, shadow |
-| `relationship` | same always | relationshipDynamic, desire, fear |
-| `decision` | same always | decisionDynamic, actionDirection, tension |
+`TarotNarrativeCardEvidence.profileSlice` is **`TarotNarrativeProfileSlice`**, **not** `NarrativeCardProfile`.
 
-Always include: `canonicalCardId`, orientation bool, positionKey/index, displayName, imageAsset ref, safety-safe metadata.
+- `NarrativeCardProfile` = complete authored source (catalog)
+- Builder **derives** a bounded request-side slice; **never mutates** the source profile
 
-Do **not** omit orientation expression. Do **not** score prose.
+### 20.2 Exact shape
+
+```dart
+class TarotNarrativeProfileSlice {
+  // REQUIRED base
+  final L10nTriple coreMeaning;
+  final L10nTriple orientationExpression; // exact drawn orientation only
+  final List<String> keywordIds;          // exact drawn orientation only
+  final List<String> symbolTags;          // card-level, unchanged
+  final List<ReversedTransformKind> transforms; // upright → []; reversed → actual
+
+  // OPTIONAL / question-emphasis (null when not selected)
+  final L10nTriple? light;
+  final L10nTriple? shadow;
+  final L10nTriple? tension;
+  final L10nTriple? desire;
+  final L10nTriple? fear;
+  final L10nTriple? relationshipDynamic;
+  final L10nTriple? decisionDynamic;
+  final L10nTriple? actionDirection;
+}
+```
+
+No `canonicalCardId` inside the slice (owned by card evidence).
+Domain models keep `L10nTriple`. Phase 6 owns locale flattening / AI serialization.
+
+### 20.3 Question → optional field matrix (EXACT)
+
+**Required base (all kinds):** `coreMeaning`, `orientationExpression`, `keywordIds`, `symbolTags`, `transforms`
+
+| QuestionKind | Optional fields present (others null) |
+|---|---|
+| `open` | `light`, `shadow`, `tension` |
+| `guidance` | `light`, `shadow`, `tension`, `actionDirection` |
+| `relationship` | `relationshipDynamic`, `desire`, `fear`, `tension` |
+| `decision` | `decisionDynamic`, `actionDirection`, `tension`, `fear` |
+
+**Why `fear` on decision:** avoidance/risk/hesitation context for later synthesis — **content only**; never scored via prose NLP.
+
+### 20.4 Orientation / keywords / transforms / tags
+
+| Field | Rule |
+|---|---|
+| `orientationExpression` | Exactly one: upright.expression XOR reversed.expression matching draw |
+| `keywordIds` | Exact drawn orientation set only |
+| `transforms` | upright → empty; reversed → that orientation’s transforms |
+| `symbolTags` | Card-level list unchanged |
+| Scoring | Never parses any L10nTriple prose |
+
+### 20.5 Integrity tests (future 3D.1)
+
+Source profile not mutated · correct orientation · exact optional matrix · non-selected null · keywords/transforms from drawn orientation · tags unchanged · no prose in scoring.
 
 ---
-
 ## 21 — Relationship candidate generation — LOCKED
 
 - Max cards: **10** (celticCross)
@@ -448,11 +655,11 @@ Clamp `S_total` to `[0, 3.5]` then map to strength:
 
 Sort admitted candidates by:
 
-1. `strength` descending  
-2. `abs(positionIndexA - positionIndexB)` ascending  
-3. `min(positionIndexA, positionIndexB)` ascending  
-4. `leftCanonicalId` lexicographic ascending  
-5. `rightCanonicalId` lexicographic ascending  
+1. `strength` descending
+2. `abs(positionIndexA - positionIndexB)` ascending
+3. `min(positionIndexA, positionIndexB)` ascending
+4. `leftCanonicalId` lexicographic ascending
+5. `rightCanonicalId` lexicographic ascending
 
 For each pair, normalize left/right so `left` is the lower `positionIndex`; if equal index (impossible), lower `canonicalCardId`.
 
@@ -462,22 +669,22 @@ No hash-map iteration order dependence: materialize pairs from cards sorted by `
 
 ## 23 — Relationship strength — LOCKED
 
-- Range: `0.0 … 1.0`  
-- Bands: weak `<0.40` · moderate `0.40–0.69` · strong `≥0.70`  
-- Admission uses §11 (`S_total`), not band alone  
+- Range: `0.0 … 1.0`
+- Bands: weak `<0.40` · moderate `0.40–0.69` · strong `≥0.70`
+- Admission uses §11 (`S_total`), not band alone
 - **Never** present as probability / “80% likely”
 
 ---
 
 ## 24 — Contradiction overrides overlap — LOCKED precedence
 
-1. HARD CONTRAST (B)  
-2. Explicit position opposition (F)  
-3. CONTEXTUAL CONTRAST  
-4. Canonical E agreeing with contrast reading  
-5. Specific keyword overlap (high w')  
-6. Generic / HF overlap  
-7. Transform-only similarity  
+1. HARD CONTRAST (B)
+2. Explicit position opposition (F)
+3. CONTEXTUAL CONTRAST
+4. Canonical E agreeing with contrast reading
+5. Specific keyword overlap (high w')
+6. Generic / HF overlap
+7. Transform-only similarity
 
 If (1) or (2) fire, do **not** emit `support`/`reinforcement` for that pair.
 
@@ -665,7 +872,7 @@ FR-F01 · FR-F02 · FR-F04 · one-keyword reject · HF-alone reject · contradic
 
 ## 38 — Fixed evidence corpus
 
-**Path:** `test/fixtures/tarot_narrative_evidence_v1.json`  
+**Path:** `test/fixtures/tarot_narrative_evidence_v1.json`
 
 **Minimum scenarios:** **40** covering single/3/5/7/10, question kinds, all RelationshipKinds Phase 3D.1 can emit, no-relation, FR-F01/F02/F04, safety, polarity, position contradictions.
 
@@ -736,7 +943,16 @@ All §40 items green; 3C.5F twelve safeguards enforced; FR-F01/F02/F04 tests gre
 | Tag dedupe | §9 | FR-F04 | channel | red-team |
 | Contrast | Explicit table §14 | No string antonyms | contrasts | polarity |
 | Canonical relations | relatedIds membership only | Actual API | E flag | unit |
-| Spreads in 3D.1 | All 5 TarotSpreadType | Domain complete | semantics | lookup |
+| Spreads in 3D.1 | All 5 with full §17 catalog | 3D.0.1 complete | semantics | lookup |
+| Position weights | All 1.0 | No production weights; avoid double-count with edges | positions | unit |
+| Role vs narrativeFunction | Identity lock (same enum value) | Remove dual unexplained strings | models | unit |
+| purposeKey | Machine token purpose.classical.* | No new l10n in 3D.1 | catalog | — |
+| guidingQuestionKey | Machine token gq.classical.* | No new l10n in 3D.1 | catalog | — |
+| displayLabelKey | 	arot.pos.<key> | Runtime verified | catalog | unit |
+| geometryHook | Enum carried metadata only | Phase 7 visual | catalog | — |
+| lengthBand | short/medium/full/long mapped | Phase 6 prose policy | catalog | — |
+| Edge table | 29 authoritative rows | No examples | edges | unit |
+| profileSlice type | TarotNarrativeProfileSlice | Cannot use full NarrativeCardProfile | models | slice tests |
 | Signature spreads | Defer Phase 5 | Scope | none | — |
 | Question kinds | Map ReadingAskKind | Exists | grounding | unit |
 | Strength range | 0–1 | Contract | map S_total | — |
@@ -760,8 +976,8 @@ All §40 items green; 3C.5F twelve safeguards enforced; FR-F01/F02/F04 tests gre
 | Position edge model | Typed edges catalog | Needed; positions exist, edges don't | CREATE | — |
 | Journey hints | Not read | Firewall | — | no_memory |
 
-**OPEN IMPLEMENTATION DECISIONS: 0**  
-**SPEC READY FOR IMPLEMENTATION: YES**
+**OPEN IMPLEMENTATION DECISIONS: 0**
+**SPEC READY FOR 3D.1A: YES**
 
 ---
 
@@ -769,7 +985,7 @@ All §40 items green; 3C.5F twelve safeguards enforced; FR-F01/F02/F04 tests gre
 
 ### Scope
 
-Create **models + question grounding + spread semantics + empty memory/recurrence shells + typed errors** only. No scoring yet.
+Create **models (incl. TarotNarrativeProfileSlice) + question grounding + complete §17 spread/position/edge catalogs + empty memory/recurrence shells + typed errors** only. No scoring yet.
 
 ### Allowed files (create)
 
@@ -785,10 +1001,10 @@ Create **models + question grounding + spread semantics + empty memory/recurrenc
 
 ### Gates
 
-- `flutter analyze` clean on new surface  
-- Unit tests for grounding + spread lookup + empty placeholders + errors  
-- `git diff` shows no unrelated production  
-- Full Flutter if any shared type touched  
+- `flutter analyze` clean on new surface
+- Unit tests for grounding + spread lookup + empty placeholders + errors
+- `git diff` shows no unrelated production
+- Full Flutter if any shared type touched
 
 ### Stop
 
@@ -798,12 +1014,13 @@ When 3D.1A tests green — **STOP**; do not start 3D.1B without review.
 
 ## Appendix A — Classical spreads summary
 
-`single` · `threeCard` · `fiveCard` · `sevenCard` · `celticCross`  
-(keys exactly as `tarot_spread_positions.dart`)
+See **§17** (ACTIVE 3D.0.1): 5 spreads · 26 position rows · 29 edges · weights all 1.0.
+Keys exactly as 	arot_spread_positions.dart.
+
 
 ## Appendix B — Question kinds summary
 
-`decision` · `relationship` · `guidance` · `open`  
+`decision` · `relationship` · `guidance` · `open`
 (from `ReadingAskKind`)
 
 ## Appendix C — Relationship kinds summary

@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.0 Narrative Evidence Engine implementation specification
+**Updated:** 2026-09-23 — Tarot Phase 3D.0.1 Evidence Engine spec contract hardening
 
 ---
 
@@ -50,6 +50,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3C.5F task start | `dca0cc197b7ea02f1715431de5edbfc655bc48a6` | Final ontology + readiness audit |
 | Phase 3C.5F end | `e90a5109bbb75ce2c1247be686c9a149aa554846` | Deck ready YES; FR-M04 RESOLVED |
 | Phase 3D.0 task start | `e90a5109bbb75ce2c1247be686c9a149aa554846` | Evidence Engine implementation spec |
+| Phase 3D.0 end | `18cfeea804cc415a8d064e2a3f9d89c611c8cb4d` | Spec READY; open decisions 0 |
+| Phase 3D.0.1 task start | `18cfeea804cc415a8d064e2a3f9d89c611c8cb4d` | Spec contract hardening |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -126,8 +128,9 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **COMPLETE** (plan repaired; FR-M04 was OPEN) |
 | Phase 3C.5E — FR-M04 canonical keyword ontology implementation | **COMPLETE** (FR-M04 was REMEDIATED — PENDING 3C.5F) |
 | Phase 3C.5F — final keyword ontology + deck readiness audit | **COMPLETE** (FR-M04 **RESOLVED**; deck readiness **YES**) |
-| Phase 3D.0 — Narrative Evidence Engine implementation specification | **COMPLETE** (spec READY; engine **NOT IMPLEMENTED**) |
-| Phase 3B+ / 3D.1 — Narrative Evidence Engine implementation | **NOT STARTED** |
+| Phase 3D.0 — Narrative Evidence Engine implementation specification | **COMPLETE** (superseded active contract by 3D.0.1) |
+| Phase 3D.0.1 — Evidence Engine spec contract hardening | **COMPLETE** (spread catalog + profile slice LOCKED; OPEN **0**) |
+| Phase 3D.1A — evidence models + spread/question facts | **NOT STARTED** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -416,15 +419,29 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.0.1
+
+| Field | Value |
+|---|---|
+| Status | **PASS** — contract hardening |
+| Resolved | Spread semantics completeness · `TarotNarrativeProfileSlice` architecture |
+| Spreads / positions / edges | **5 / 5** · **26** rows · **29** edges |
+| Position weights | **all 1.0** |
+| Open implementation decisions | **0** |
+| Spec ready for 3D.1A | **YES** |
+| Evidence Engine | **NOT IMPLEMENTED** |
+| Deck ready | **YES** |
+| Production modified | **NO** |
+
 ### Phase 3D.0
 
 | Field | Value |
 |---|---|
-| Status | **COMPLETE** — spec **READY FOR IMPLEMENTATION** |
+| Status | **COMPLETE** — base spec; active contract = **3D.0.1** |
 | Spec | `docs/product/tarot/NARRATIVE_EVIDENCE_ENGINE_IMPLEMENTATION_SPEC.md` |
 | Deck readiness | **YES** (from 3C.5F) |
 | Evidence Engine | **NOT IMPLEMENTED** |
-| Open implementation decisions | **0** |
+| Open implementation decisions | **0** (after 3D.0.1) |
 | Current user path | **UNCHANGED** |
 | AI calls | **0** |
 | Memory / recurrence | **DEFERRED Phase 4** |
@@ -558,11 +575,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 **ChatGPT review before Phase 3D.1A implementation.**
 
-Phase 3D.0: **COMPLETE** · Spec: `docs/product/tarot/NARRATIVE_EVIDENCE_ENGINE_IMPLEMENTATION_SPEC.md` · OPEN decisions: **0**.
+Phase 3D.0.1: **PASS** · Spread catalog complete · Profile slice = `TarotNarrativeProfileSlice` · OPEN decisions: **0**.
 
-DECK READY FOR EVIDENCE ENGINE: **YES** · Evidence Engine: **NOT IMPLEMENTED** · User path: **UNCHANGED**.
-
-Memory/recurrence: Phase 4 · Signature spreads: Phase 5 · AI narrative: Phase 6 · Visual: Phase 7.
+Evidence Engine: **NOT IMPLEMENTED** · User path: **UNCHANGED** · Deck ready: **YES**.
 
 Do **not** start 3D.1A coding until reviewed.
 Do **not** mark future items completed until verified.
