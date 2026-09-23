@@ -16,6 +16,9 @@
 | H3 | Future rows ineligible: require `occurredAt <= now` **and** age `<= Duration(days: 90)` (no `abs`) |
 | H4 | `occurrenceCount` = distinct eligible **prior readings** containing the card; per-reading duplicate card occurrences deduped |
 | H5 | `MemoryEvidenceEntry` additive metadata amendment **deferred to Phase 4B** (not 4A) |
+| H6 | Generic/sentinel topics never authorize `topic_match` (`isMeaningfulTopic`) |
+| H7 | Eligible history **dedupes physical reading identity** before scan bound |
+| H8 | Short alias `aşk` → `ilişki` supported; ASCII `ask` **excluded** (EN verb ambiguity) |
 
 ---
 
@@ -162,7 +165,17 @@ Exclude: in-progress, abandoned, active-session-only, failed, quality_unavailabl
 1. Filter owner + completed + exclude current.
 2. UTC instants: require `occurredAt <= now` **and** `now.difference(occurredAt) <= Duration(days: 90)` (**inclusive exact 90 days**). **Future rows excluded** (H3 — no `abs`).
 3. Sort **newest first** by `occurredAt`, then `readingId` ascending.
-4. Take at most **`RequestBounds.maxPriorReadingsScanned = 20`** Tarot FACT records.
+4. **Dedupe physical reading identity** (H7) — keep first (newest) row per identity; no field merge.
+5. Take at most **`RequestBounds.maxPriorReadingsScanned = 20`** distinct Tarot FACT records.
+
+**Physical identity (H7)** — duplicate if any of:
+
+- same non-empty `readingId`, OR
+- both non-empty `sessionId` equal, OR
+- one row’s `readingId` equals the other’s non-empty `sessionId`, OR
+- one row’s non-empty `sessionId` equals the other’s `readingId`
+
+(Reflects Phase 4.0 seam: `session.id ↔ reading.sessionId ?? reading.id`.)
 
 Timestamps treated as **UTC instants**. No calendar-local day boundaries. Pure engines receive injected `now` — **no `DateTime.now()` inside pure logic**.
 
@@ -194,12 +207,13 @@ After ranking: `rec_card_01` … opaque, request-scoped. No encoded user/card/so
 
 `true` iff **any** of:
 
-1. Exact normalized topic id match between current intention topic and historical topic (when both non-null), OR  
+1. Exact normalized **meaningful** topic id match (H6) between current intention topic and historical `topicId` — both non-null, non-empty, and **not** in the generic sentinel set (`general`, `genel`, `guidance`, `general guidance`, `genel rehberlik`, `open`, `other`, `общий`, `общее`, `общая опора`), OR  
 2. Same recoverable `QuestionKind` ∈ {relationship, decision} **and** ≥1 shared sanitized token (length ≥4) between current `question.rawText` and historical intentionSummary after TR/EN/RU stopword strip, OR  
-3. Shared `NarrativeKeywordIds` intersection size ≥1 between current profile-slice keywords (any current card) and historical intention tokens mapped via the frozen theme→keyword map (§12)  
+3. Shared `NarrativeKeywordIds` intersection size ≥1 between current profile-slice keywords (any current card) and historical intention/topic tokens mapped via the frozen theme→keyword map (§12). Short theme alias **`aşk` → `ilişki`** is explicitly supported (H8); ASCII **`ask` is not** a relationship alias.
 
 **False** if insufficient reliable context (safer).  
-Sole same-card / same-spread / generic tokens (`the`, `and`, `bir`, `ve`, …) → **false**.
+Sole same-card / same-spread / generic tokens (`the`, `and`, `bir`, `ve`, …) → **false**.  
+Generic topic sentinels alone → **false** (no fall-through to keyword_map unless another independent theme alias exists in intention text).
 
 `overlapSummaryKey`: machine key only, e.g. `topic_match` | `kind_token` | `keyword_map` | null.
 

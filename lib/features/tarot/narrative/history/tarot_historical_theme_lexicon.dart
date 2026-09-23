@@ -13,15 +13,12 @@ abstract final class TarotHistoricalThemeLexicon {
     String? topicId,
     String? intentionSummary,
   }) {
-    final tokens = <String>{
-      ...TarotHistoricalText.tokens(topicId),
-      ...TarotHistoricalText.tokens(intentionSummary),
-    };
     final themes = <String>{};
-    for (final t in tokens) {
-      final theme = TarotHistoricalThemeAliases.tokenToThemeId[t];
-      if (theme != null) themes.add(theme);
-    }
+    _addFromGenericTokens(themes, topicId);
+    _addFromGenericTokens(themes, intentionSummary);
+    _addShortAliases(themes, topicId);
+    _addShortAliases(themes, intentionSummary);
+
     // Exact theme-id as a whole normalized topic also counts.
     final topicNorm = TarotHistoricalText.normalizeTopic(topicId);
     if (topicNorm != null &&
@@ -29,6 +26,21 @@ abstract final class TarotHistoricalThemeLexicon {
       themes.add(topicNorm);
     }
     return themes;
+  }
+
+  static void _addFromGenericTokens(Set<String> themes, String? raw) {
+    for (final t in TarotHistoricalText.tokens(raw)) {
+      final theme = TarotHistoricalThemeAliases.tokenToThemeId[t];
+      if (theme != null) themes.add(theme);
+    }
+  }
+
+  /// Reviewed short aliases only (`aşk` → ilişki). Does not lower token floor.
+  static void _addShortAliases(Set<String> themes, String? raw) {
+    for (final t in TarotHistoricalText.allWordTokens(raw)) {
+      final theme = TarotHistoricalThemeAliases.shortTokenToThemeId[t];
+      if (theme != null) themes.add(theme);
+    }
   }
 
   static Set<String> keywordIdsForThemes(Iterable<String> themeIds) {

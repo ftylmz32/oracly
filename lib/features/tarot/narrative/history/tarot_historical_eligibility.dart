@@ -1,4 +1,4 @@
-/// Pure eligibility / lookback policy for historical Tarot FACT rows (Phase 4A).
+/// Pure eligibility / lookback / identity dedupe (Phase 4A / 4A.1).
 library;
 
 import '../evidence/narrative_request.dart';
@@ -9,7 +9,7 @@ abstract final class TarotHistoricalEligibility {
 
   static const lookback = Duration(days: 90);
 
-  /// Owner + current-exclusion + time filter → newest-first → scan bound.
+  /// Owner + current-exclusion + time → sort → physical dedupe → scan bound.
   static List<TarotHistoricalReadingRecord> eligibleTarotReadings({
     required List<TarotHistoricalReadingRecord> readings,
     required String currentReadingId,
@@ -28,10 +28,45 @@ abstract final class TarotHistoricalEligibility {
       filtered.add(r);
     }
     filtered.sort(_compareNewestFirst);
+    final deduped = _dedupePhysicalIdentity(filtered);
     final max = bounds.maxPriorReadingsScanned;
     if (max <= 0) return const [];
-    final taken = filtered.length <= max ? filtered : filtered.sublist(0, max);
+    final taken = deduped.length <= max ? deduped : deduped.sublist(0, max);
     return List<TarotHistoricalReadingRecord>.unmodifiable(taken);
+  }
+
+  /// H7 — session.id ↔ reading.sessionId ?? reading.id seam.
+  static bool samePhysicalIdentity(
+    TarotHistoricalReadingRecord a,
+    TarotHistoricalReadingRecord b,
+  ) {
+    final aR = a.readingId.trim();
+    final bR = b.readingId.trim();
+    final aS = a.sessionId?.trim() ?? '';
+    final bS = b.sessionId?.trim() ?? '';
+
+    if (aR.isNotEmpty && bR.isNotEmpty && aR == bR) return true;
+    if (aS.isNotEmpty && bS.isNotEmpty && aS == bS) return true;
+    if (aR.isNotEmpty && bS.isNotEmpty && aR == bS) return true;
+    if (bR.isNotEmpty && aS.isNotEmpty && bR == aS) return true;
+    return false;
+  }
+
+  static List<TarotHistoricalReadingRecord> _dedupePhysicalIdentity(
+    List<TarotHistoricalReadingRecord> sortedNewestFirst,
+  ) {
+    final kept = <TarotHistoricalReadingRecord>[];
+    for (final r in sortedNewestFirst) {
+      var dup = false;
+      for (final k in kept) {
+        if (samePhysicalIdentity(k, r)) {
+          dup = true;
+          break;
+        }
+      }
+      if (!dup) kept.add(r);
+    }
+    return kept;
   }
 
   static bool _structurallyValid(TarotHistoricalReadingRecord r) {

@@ -80,9 +80,10 @@ abstract final class TarotRecurrenceContext {
   };
 
   static bool _topicExact(String? currentTopic, String? historicalTopicId) {
-    final a = TarotHistoricalText.normalizeTopic(currentTopic);
-    final b = TarotHistoricalText.normalizeTopic(historicalTopicId);
-    if (a == null || b == null) return false;
+    if (!TarotHistoricalText.isMeaningfulTopic(currentTopic)) return false;
+    if (!TarotHistoricalText.isMeaningfulTopic(historicalTopicId)) return false;
+    final a = TarotHistoricalText.normalizeTopic(currentTopic)!;
+    final b = TarotHistoricalText.normalizeTopic(historicalTopicId)!;
     return a == b;
   }
 

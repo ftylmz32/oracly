@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4A historical card recurrence pure engine
+**Updated:** 2026-09-23 — Tarot Phase 4A.1 historical recurrence hardening
 
 ---
 
@@ -74,6 +74,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4.0 task start | `bfa64996d4934c0fe28c709376280a320fd570e1` | Memory + historical recurrence forensic/spec |
 | Phase 4.0 end | `98dd2f98d6105343876566d0c5bace9481a2be5b` | Spec PASS · production NOT IMPLEMENTED |
 | Phase 4A task start | `98dd2f98d6105343876566d0c5bace9481a2be5b` | Normalized history + card recurrence pure |
+| Phase 4A end | `5d5cbd6e781800547dec933a06caf8a2c6e3c20b` | Card recurrence pure PASS |
+| Phase 4A.1 task start | `5d5cbd6e781800547dec933a06caf8a2c6e3c20b` | Identity + generic-topic + short-alias harden |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -163,6 +165,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1E — Final independent Narrative Evidence Engine audit | **COMPLETE** (READY TO FREEZE **YES**; Phase 3 **COMPLETE**; BLOCKER 0 · MAJOR 0) |
 | Phase 4.0 — Memory + Historical Recurrence forensic/specification | **COMPLETE** (docs-only; OPEN decisions **0**; production **NOT** implemented) |
 | Phase 4A — Normalized historical models + pure card recurrence | **COMPLETE** (pure engines; storage/theme/memory/enricher **NOT**; user path unchanged) |
+| Phase 4A.1 — Historical recurrence identity + generic-topic + short-alias hardening | **COMPLETE** |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -451,6 +454,20 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 4A.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Generic topic false positive | **FIXED** (H6 sentinels) |
+| Physical-reading dedupe | **IMPLEMENTED** (H7 · before scan bound) |
+| Dedupe before scan bound | **YES** |
+| Short `aşk` | **SUPPORTED** → `ilişki` |
+| ASCII `ask` | **NOT** a relationship alias |
+| Storage | **NONE** |
+| Theme / memory / enricher | **NOT IMPLEMENTED** |
+| User path | **UNCHANGED** |
+
 ### Phase 4A
 
 | Field | Value |
@@ -466,7 +483,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Request enricher | **NOT IMPLEMENTED** |
 | Lookback | **90 days** inclusive · future rows **REJECT** |
 | Scan / samples | ≤20 / ≤5 |
-| occurrenceCount | distinct prior readings (H4) |
+| occurrenceCount | distinct prior readings (H4) · physical identity dedupe (H7) |
 | Evidence ids | `rec_card_##` |
 | User path | **UNCHANGED** |
 | AI / Network / Persistence | **0** / **0** / **0** |
@@ -802,7 +819,7 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 **ChatGPT review before Phase 4B** (cross-feature theme recurrence + memory evidence pure engines).
 
-Phase 4A: **PASS** · Phase 4.0 **PASS** · Phase 3 **FROZEN** · OPEN decisions **0** · storage/theme/memory/enricher **NOT** implemented · user path **UNCHANGED**.
+Phase 4A.1: **PASS** · Phase 4A **PASS** · Phase 4.0 **PASS** · Phase 3 **FROZEN** · OPEN decisions **0** · storage/theme/memory/enricher **NOT** implemented · user path **UNCHANGED**.
 
 Do **not** start 4B until reviewed.
 Do **not** merge.

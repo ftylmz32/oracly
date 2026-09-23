@@ -33,6 +33,30 @@ void main() {
         TarotHistoricalText.tokens('partner loyalty'),
         contains('loyalty'),
       );
+      expect(TarotHistoricalText.tokens('aşk'), isEmpty); // still min length 4
+    });
+
+    test('generic topic sentinels are not meaningful', () {
+      for (final t in [
+        'general',
+        'genel',
+        'guidance',
+        'general guidance',
+        'genel rehberlik',
+        'open',
+        'other',
+        'общий',
+        'общее',
+        'общая опора',
+        null,
+        '  ',
+      ]) {
+        expect(TarotHistoricalText.isMeaningfulTopic(t), isFalse, reason: '$t');
+      }
+      expect(TarotHistoricalText.isMeaningfulTopic('love'), isTrue);
+      expect(TarotHistoricalText.isMeaningfulTopic('relationship'), isTrue);
+      expect(TarotHistoricalText.isMeaningfulTopic('career'), isTrue);
+      expect(TarotHistoricalText.isMeaningfulTopic('ilişki'), isTrue);
     });
   });
 
@@ -43,6 +67,60 @@ void main() {
       positionKey: 'sign',
       positionIndex: 0,
     );
+
+    TarotRecurrenceContextMatch topicPair(String? cur, String? hist) {
+      final q = NarrativeQuestionGrounding.from(
+        rawQuestion: 'anything here long enough',
+        topic: cur,
+      );
+      final record = histReading(
+        readingId: 'h1',
+        at: nowFixed.subtract(const Duration(days: 1)),
+        topicId: hist,
+        cardId: major00,
+      );
+      return TarotRecurrenceContext.evaluate(
+        currentQuestion: q,
+        currentCards: [cardEvidence(kNarrativeMajor06, positionIndex: 0)],
+        historical: record,
+        matchedOccurrence: occ,
+      );
+    }
+
+    test('generic topics never authorize topic_match', () {
+      for (final pair in [
+        ['general', 'general'],
+        ['genel', 'genel'],
+        ['guidance', 'guidance'],
+        ['open', 'open'],
+      ]) {
+        final m = topicPair(pair[0], pair[1]);
+        expect(
+          m.summaryKey,
+          isNot(TarotRecurrenceContext.topicMatch),
+          reason: pair[0],
+        );
+        // general alone must not fall through to keyword_map
+        expect(m.overlaps, isFalse, reason: pair[0]);
+      }
+    });
+
+    test('meaningful exact topics → topic_match', () {
+      for (final pair in [
+        ['relationship', 'relationship'],
+        ['love', 'love'],
+        ['career', 'career'],
+        ['ilişki', 'ilişki'],
+      ]) {
+        final m = topicPair(pair[0], pair[1]);
+        expect(m.overlaps, isTrue, reason: pair[0]);
+        expect(
+          m.summaryKey,
+          TarotRecurrenceContext.topicMatch,
+          reason: pair[0],
+        );
+      }
+    });
 
     test('topic exact → topic_match', () {
       final q = NarrativeQuestionGrounding.from(
@@ -232,6 +310,47 @@ void main() {
         matchedOccurrence: occ,
       );
       expect(m.summaryKey, TarotRecurrenceContext.keywordMap);
+    });
+
+    test('short aşk alias → keyword_map; ASCII ask does not', () {
+      final cards = [cardEvidence(kNarrativeMajor06, positionIndex: 0)];
+      final q = NarrativeQuestionGrounding.from(rawQuestion: null);
+
+      for (final intention in ['Aşk konusunda ne yapmalıyım?', 'aşk']) {
+        final hist = histReading(
+          readingId: 'h1',
+          at: nowFixed.subtract(const Duration(days: 1)),
+          intentionSummary: intention,
+          cardId: major00,
+        );
+        final m = TarotRecurrenceContext.evaluate(
+          currentQuestion: q,
+          currentCards: cards,
+          historical: hist,
+          matchedOccurrence: occ,
+        );
+        expect(m.overlaps, isTrue, reason: intention);
+        expect(m.summaryKey, TarotRecurrenceContext.keywordMap);
+      }
+
+      for (final intention in [
+        'Should I ask what they want?',
+        'ask them tomorrow',
+      ]) {
+        final hist = histReading(
+          readingId: 'h1',
+          at: nowFixed.subtract(const Duration(days: 1)),
+          intentionSummary: intention,
+          cardId: major00,
+        );
+        final m = TarotRecurrenceContext.evaluate(
+          currentQuestion: q,
+          currentCards: cards,
+          historical: hist,
+          matchedOccurrence: occ,
+        );
+        expect(m.overlaps, isFalse, reason: intention);
+      }
     });
   });
 }

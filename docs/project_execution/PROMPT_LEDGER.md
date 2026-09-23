@@ -819,6 +819,19 @@ Chronological project execution ledger.
 | User path | **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T4A.1 — HISTORICAL RECURRENCE HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `5d5cbd6e781800547dec933a06caf8a2c6e3c20b` |
+| F4A-01 | generic topic sentinels never authorize topic_match |
+| F4A-02 | physical reading identity dedupe before maxPriorReadingsScanned |
+| F4A-03 | short `aşk` → ilişki; ASCII `ask` excluded |
+| Generic token min length | still **4** |
+| Storage / Phase 3 / user path | **NONE** / **UNTOUCHED** / **UNCHANGED** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -863,8 +876,9 @@ Chronological project execution ledger.
 | PL-T3D.1E | Tarot Phase 3D.1E — Final Narrative Evidence Engine audit | **DONE** (READY TO FREEZE YES; Phase 3 COMPLETE) |
 | PL-T4.0 | Tarot Phase 4.0 — Memory + Historical Recurrence forensic & spec | **DONE** (docs-only; OPEN 0; production NOT IMPLEMENTED) |
 | PL-T4A | Tarot Phase 4A — Normalized history + card recurrence pure engine | **DONE** (pure; storage/theme/memory/enricher NOT; user path unchanged) |
+| PL-T4A.1 | Tarot Phase 4A.1 — Historical recurrence identity + generic-topic + short-alias hardening | **DONE** |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A DONE** · 4B pending review |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A+4A.1 DONE** · 4B pending review |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |

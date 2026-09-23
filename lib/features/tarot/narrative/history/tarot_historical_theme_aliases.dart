@@ -1,8 +1,12 @@
-/// Exact token aliases → theme ids (TR/EN/RU). Phase 4A/4B shared.
+/// Exact token aliases → theme ids (TR/EN/RU). Phase 4A/4A.1 shared.
 library;
 
 abstract final class TarotHistoricalThemeAliases {
   TarotHistoricalThemeAliases._();
+
+  /// Reviewed short aliases (length < 4) allowed for theme extraction only.
+  /// ASCII `ask` is intentionally excluded (EN verb ambiguity).
+  static const Map<String, String> shortTokenToThemeId = {'aşk': 'ilişki'};
 
   /// Normalized token → theme id. Built once from frozen alias lists.
   static final Map<String, String> tokenToThemeId = _build();
@@ -23,7 +27,6 @@ abstract final class TarotHistoricalThemeAliases {
         'ilişki',
         'iliski',
         'aşk',
-        'ask',
         'partner',
         'relationship',
         'intimacy',
@@ -104,6 +107,8 @@ abstract final class TarotHistoricalThemeAliases {
         out[alias] = e.key;
       }
     }
+    // Short aliases also registered for documentation/lookup consistency.
+    out.addAll(shortTokenToThemeId);
     return Map.unmodifiable(out);
   }
 }
