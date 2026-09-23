@@ -756,6 +756,20 @@ Chronological project execution ledger.
 | User path / AI / history | **UNCHANGED** / **0** / **NONE** |
 | Outcome | **PASS** |
 
+### PL-T3D.1D.1 — BUILDER ERROR-CONTRACT + CORPUS METRIC HARDENING
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `ea6bd1230cb900f46b42d1793db3e21da7476833` |
+| Defect | `unknownCanonicalCardId` unreachable (ritual-before-deck); reversed report **26** miscount |
+| Repair | Validation order: duplicate → deck → profile → ritual → position |
+| Corpus | scenarios **46** · reversed **38** · fixture **UNCHANGED** |
+| Production | `narrative_evidence_validation.dart` only |
+| Scoring / selector | **UNCHANGED** |
+| User path / AI | **UNCHANGED** / **0** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -796,6 +810,7 @@ Chronological project execution ledger.
 | PL-T3D.1C | Tarot Phase 3D.1C — Deterministic relationship scorer + selector | **DONE** (scorer+selector; builder NOT IMPLEMENTED) |
 | PL-T3D.1C.1 | Tarot Phase 3D.1C.1 — Relationship selector hardening | **DONE** (admission gate + bounds + FR minor-only) |
 | PL-T3D.1D | Tarot Phase 3D.1D — Full NarrativeEvidenceBuilder + frozen real-deck corpus | **DONE** (builder + corpus; memory empty; user path unchanged) |
+| PL-T3D.1D.1 | Tarot Phase 3D.1D.1 — Builder error-contract + corpus metric hardening | **DONE** (canonical-first order; reversed=38 locked; fixture unchanged) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (builder DONE; Phase 4+ pending) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |

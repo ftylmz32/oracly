@@ -870,7 +870,7 @@ No fragile wall-clock gates; assert structural bounds in tests.
 
 | Code | When |
 |---|---|
-| `unknownCanonicalCardId` | id not in deck/catalog |
+| `unknownCanonicalCardId` | claimed canonical id not in `OraclyTarotDeck` |
 | `profileMissing` | `NarrativeTarotProfileCatalog.lookup` null |
 | `duplicatePositionKey` | two cards same positionKey |
 | `cardCountMismatch` | cards.length ≠ spread.expectedCount |
@@ -880,7 +880,17 @@ No fragile wall-clock gates; assert structural bounds in tests.
 | `invalidOntologyId` | keyword/tag not in ontology (should be impossible) |
 | `duplicateEvidenceId` | builder invariant broken |
 | `duplicateCardId` | same physical canonical card twice in current reading |
-| `ritualCardMismatch` | ritual id invalid or resolves to a different canonical card |
+| `ritualCardMismatch` | after a **valid** canonical id: ritual id invalid, or ritual resolves to a **different** canonical card |
+
+**Per-card validation order (3D.1D.1 — LOCKED):**
+
+1. duplicate canonical id  
+2. canonical deck lookup → `unknownCanonicalCardId`  
+3. profile lookup → `profileMissing`  
+4. ritual bridge + canonical parity → `ritualCardMismatch`  
+5. position key / index / coverage  
+
+`unknownCanonicalCardId` and `ritualCardMismatch` are distinct facts and must not collapse.
 
 **No silent partial success.** Builder errors do **not** trigger AI provider retries.
 

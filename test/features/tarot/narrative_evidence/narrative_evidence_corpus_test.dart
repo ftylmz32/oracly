@@ -16,7 +16,7 @@ void main() {
   final scenarios = (corpus['scenarios'] as List).cast<Map<String, dynamic>>();
 
   test('corpus size and real-deck integrity', () {
-    expect(scenarios.length, greaterThanOrEqualTo(40));
+    expect(scenarios.length, 46);
     for (final s in scenarios) {
       final input = inputFromScenario(s);
       for (final c in input.cards) {
@@ -35,7 +35,7 @@ void main() {
   test('spread / question / reversed distribution', () {
     final spreads = <String, int>{};
     final kinds = <String, int>{};
-    var reversedScenarios = 0;
+    var scenarioContainsReversedCount = 0;
     for (final s in scenarios) {
       final input = s['input'] as Map<String, dynamic>;
       final expected = s['expected'] as Map<String, dynamic>;
@@ -46,19 +46,21 @@ void main() {
       if ((input['cards'] as List).any(
         (c) => (c as Map)['isReversed'] == true,
       )) {
-        reversedScenarios++;
+        scenarioContainsReversedCount++;
       }
     }
-    expect(spreads['single'] ?? 0, greaterThanOrEqualTo(4));
-    expect(spreads['threeCard'] ?? 0, greaterThanOrEqualTo(8));
-    expect(spreads['fiveCard'] ?? 0, greaterThanOrEqualTo(8));
-    expect(spreads['sevenCard'] ?? 0, greaterThanOrEqualTo(8));
-    expect(spreads['celticCross'] ?? 0, greaterThanOrEqualTo(12));
-    expect(kinds['open'] ?? 0, greaterThanOrEqualTo(8));
-    expect(kinds['guidance'] ?? 0, greaterThanOrEqualTo(8));
-    expect(kinds['relationship'] ?? 0, greaterThanOrEqualTo(8));
-    expect(kinds['decision'] ?? 0, greaterThanOrEqualTo(8));
-    expect(reversedScenarios, greaterThanOrEqualTo(20));
+    // Frozen exact distributions (3D.1D fixture). Prior task report "26"
+    // reversed scenarios was a miscount; fixture truth is 38.
+    expect(spreads['single'], 5);
+    expect(spreads['threeCard'], 9);
+    expect(spreads['fiveCard'], 10);
+    expect(spreads['sevenCard'], 9);
+    expect(spreads['celticCross'], 13);
+    expect(kinds['open'], 11);
+    expect(kinds['guidance'], 11);
+    expect(kinds['relationship'], 12);
+    expect(kinds['decision'], 12);
+    expect(scenarioContainsReversedCount, 38);
   });
 
   test('every scenario matches frozen expected output', () {
@@ -129,7 +131,7 @@ void main() {
       final n = (s['expected'] as Map)['relationshipCount'] as int;
       return n == 0;
     }).length;
-    expect(sparse, greaterThanOrEqualTo(5));
+    expect(sparse, 9);
   });
 
   test('FR sentinels do not emit false strong page/court support', () {

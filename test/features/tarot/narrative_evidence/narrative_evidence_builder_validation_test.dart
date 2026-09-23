@@ -1,4 +1,4 @@
-/// Phase 3D.1D — NarrativeEvidenceBuilder validation failures.
+/// Phase 3D.1D / 3D.1D.1 — NarrativeEvidenceBuilder validation failures.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -78,7 +78,7 @@ void main() {
     );
   });
 
-  test('fake canonical with ritual 0 → ritualCardMismatch', () {
+  test('fake canonical with ritual 0 → unknownCanonicalCardId', () {
     expectCode(
       () => NarrativeEvidenceBuilder.build(
         NarrativeEvidenceInput(
@@ -97,7 +97,7 @@ void main() {
           ],
         ),
       ),
-      NarrativeEvidenceErrorCode.ritualCardMismatch,
+      NarrativeEvidenceErrorCode.unknownCanonicalCardId,
     );
   });
 
@@ -132,6 +132,18 @@ void main() {
       ),
       NarrativeEvidenceErrorCode.ritualCardMismatch,
     );
+  });
+
+  test('profileMissing remains a typed defensive code', () {
+    expect(
+      NarrativeEvidenceErrorCode.values,
+      contains(NarrativeEvidenceErrorCode.profileMissing),
+    );
+    const err = NarrativeEvidenceException(
+      NarrativeEvidenceErrorCode.profileMissing,
+      message: 'defensive invariant',
+    );
+    expect(err.code, NarrativeEvidenceErrorCode.profileMissing);
   });
 
   test('duplicate position key → duplicatePositionKey', () {
@@ -191,12 +203,13 @@ void main() {
     );
   });
 
-  test('incomplete coverage caught by count or spreadMismatch', () {
-    // 3 cards but wrong keys that still unique — use two past-equivalent via
-    // unknown already tested; here force coverage fail with valid keys but
-    // missing future replaced by duplicate prevented — use celtic with wrong set.
-    final celtic = ClassicalSpreadSemantics.byLegacyTypeName('celticCross');
-    expect(celtic.cardCount, 10);
-    expect(three.positions, hasLength(3));
+  test('exact count + unique valid keys ⇒ exact position-set coverage', () {
+    // Production keeps a defensive coverage check, but with a valid semantic
+    // catalog it is implied by: cardCount match + every key known + no
+    // duplicate keys. Do not invent broken catalog rows to force the branch.
+    final keys = three.positions.map((p) => p.positionKey).toSet();
+    expect(three.cardCount, keys.length);
+    expect(keys, hasLength(3));
+    expect(keys, containsAll(['past', 'present', 'future']));
   });
 }

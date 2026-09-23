@@ -58,19 +58,12 @@ abstract final class NarrativeEvidenceValidation {
     final validated = <NarrativeEvidenceValidatedCard>[];
 
     for (final card in input.cards) {
+      // Locked order (3D.1D.1): duplicate → deck → profile → ritual parity →
+      // position. Keeps unknownCanonicalCardId distinct from ritualCardMismatch.
       if (!seenCanonical.add(card.canonicalCardId)) {
         throw NarrativeEvidenceException(
           NarrativeEvidenceErrorCode.duplicateCardId,
           message: 'duplicate canonical ${card.canonicalCardId}',
-        );
-      }
-
-      final bridged = OraclyTarotBridge.byRitualId(card.ritualCardId);
-      if (bridged == null || bridged.id != card.canonicalCardId) {
-        throw NarrativeEvidenceException(
-          NarrativeEvidenceErrorCode.ritualCardMismatch,
-          message:
-              'ritual=${card.ritualCardId} canonical=${card.canonicalCardId}',
         );
       }
 
@@ -87,6 +80,15 @@ abstract final class NarrativeEvidenceValidation {
         throw NarrativeEvidenceException(
           NarrativeEvidenceErrorCode.profileMissing,
           message: card.canonicalCardId,
+        );
+      }
+
+      final bridged = OraclyTarotBridge.byRitualId(card.ritualCardId);
+      if (bridged == null || bridged.id != card.canonicalCardId) {
+        throw NarrativeEvidenceException(
+          NarrativeEvidenceErrorCode.ritualCardMismatch,
+          message:
+              'ritual=${card.ritualCardId} canonical=${card.canonicalCardId}',
         );
       }
 
