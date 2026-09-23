@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.0.1 Evidence Engine spec contract hardening
+**Updated:** 2026-09-23 — Tarot Phase 3D.1A Evidence Domain Foundation
 
 ---
 
@@ -52,6 +52,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.0 task start | `e90a5109bbb75ce2c1247be686c9a149aa554846` | Evidence Engine implementation spec |
 | Phase 3D.0 end | `18cfeea804cc415a8d064e2a3f9d89c611c8cb4d` | Spec READY; open decisions 0 |
 | Phase 3D.0.1 task start | `18cfeea804cc415a8d064e2a3f9d89c611c8cb4d` | Spec contract hardening |
+| Phase 3D.0.1 end | `379b68c0761443e641f4a8aa81c382fda0352fa4` | Spread catalog + slice LOCKED |
+| Phase 3D.1A task start | `379b68c0761443e641f4a8aa81c382fda0352fa4` | Evidence domain foundation |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -130,7 +132,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3C.5F — final keyword ontology + deck readiness audit | **COMPLETE** (FR-M04 **RESOLVED**; deck readiness **YES**) |
 | Phase 3D.0 — Narrative Evidence Engine implementation specification | **COMPLETE** (superseded active contract by 3D.0.1) |
 | Phase 3D.0.1 — Evidence Engine spec contract hardening | **COMPLETE** (spread catalog + profile slice LOCKED; OPEN **0**) |
-| Phase 3D.1A — evidence models + spread/question facts | **NOT STARTED** |
+| Phase 3D.1A — Evidence Domain Foundation | **COMPLETE** (models + slice + grounding + classical catalog; scoring **NOT** implemented) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -419,6 +421,26 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 3D.1A
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** |
+| Implemented | Evidence domain models · `TarotNarrativeProfileSlice` · question grounding · classical spread semantic catalog · typed errors · empty memory/recurrence shells · `RequestBounds` / `TarotNarrativeRequest` |
+| Spreads / positions | **5 / 5** · **26** |
+| Authoritative edges / projected | **29** · **45** (13 directed + 16×2) |
+| Position weights | **all 1.0** |
+| Scoring | **NOT IMPLEMENTED** |
+| Evidence builder | **NOT IMPLEMENTED** |
+| Relationship candidate generation | **NOT IMPLEMENTED** |
+| User path | **UNCHANGED** |
+| AI calls | **0** |
+| Persistence | **0** |
+| Memory / recurrence providers | **NOT IMPLEMENTED** |
+| Production surface | `lib/features/tarot/narrative/evidence/` |
+| Tests | `test/features/tarot/narrative_evidence/` (**38** passed) |
+| Full Flutter | **3806** passed · **0** failed · **15** skipped · **0** timed out |
+
 ### Phase 3D.0.1
 
 | Field | Value |
@@ -549,6 +571,7 @@ Production surface:
 | Flutter (Phase 3C.5D — PL-T3C.5D) | docs + diagnostic only; production source unmodified |
 | Flutter (Phase 3C.5D.1 — PL-T3C.5D.1) | docs only; production source unmodified |
 | Flutter (Phase 3C.5E — PL-T3C.5E) | 3768 passed · 0 failed · 15 skipped · 0 timed out |
+| Flutter (Phase 3D.1A — PL-T3D.1A) | 3806 passed · 0 failed · 15 skipped · 0 timed out (+38 evidence domain) |
 | Backend (known) | 658 passed · 0 failed · 1 skipped |
 
 ---
@@ -573,11 +596,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 3D.1A implementation.**
+**ChatGPT review before Phase 3D.1B.**
 
-Phase 3D.0.1: **PASS** · Spread catalog complete · Profile slice = `TarotNarrativeProfileSlice` · OPEN decisions: **0**.
+Phase 3D.1A: **COMPLETE** · Evidence domain foundation · Scoring **NOT** implemented · Evidence builder **NOT** implemented · User path **UNCHANGED** · AI calls **0**.
 
-Evidence Engine: **NOT IMPLEMENTED** · User path: **UNCHANGED** · Deck ready: **YES**.
-
-Do **not** start 3D.1A coding until reviewed.
+Do **not** start 3D.1B until reviewed.
 Do **not** mark future items completed until verified.
+Do **not** merge.
+Do **not** modify `release/ios-1.0` / Build 4.

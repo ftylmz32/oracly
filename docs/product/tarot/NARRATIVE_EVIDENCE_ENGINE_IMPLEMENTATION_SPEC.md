@@ -63,7 +63,7 @@ Builder does **not** write Tarot prose. It builds a closed, traceable evidence u
 | `RelationshipKind` | MISSING-CREATE | from data contract |
 | `QuestionGrounding` / `QuestionKind` | MISSING-CREATE | map from `ReadingAskKind` + topic |
 | `SpreadSemanticDefinition` / position edges | MISSING-CREATE | catalog over existing position keys |
-| `RequestBounds` | MISSING-CREATE | contract defaults |
+| `RequestBounds` | IMPLEMENTED (3D.1A) | 5 fields; defaults 20/5/12/800/4 |
 | Memory / recurring evidence | DEFERRED-LATER-PHASE | Phase 4 — empty shells only |
 | Signature spreads | DEFERRED-LATER-PHASE | Phase 5 |
 | AI synthesizer / quality validator | DEFERRED-LATER-PHASE | Phase 6 |
@@ -494,6 +494,10 @@ Edge kinds: `temporal` | `opposition` | `supportive` | `pressure` | `mirror`
 `single`: **0** edges.
 
 **Edge count:** **29**
+**Directed rows:** **13** (projected onto source position only — no fake reverse directed edge)
+**Undirected rows:** **16** (projected onto both endpoints with `directed:false`)
+**Projected relation entries:** **45** (= 13 + 16×2)
+**Edge kind type:** `PositionEdgeKind` enum (not free-form strings)
 **Ambiguous/example edges remaining:** **NO**
 
 **Sanity:** temporal edges encode narrative ordering, not guaranteed causation. `causeEffect` still requires §11 semantic family in addition to a temporal edge.
@@ -751,9 +755,11 @@ NarrativeEvidenceInput {
   sessionId, readingId, languageCode,
   questionRaw, intentionTopic?,
   spreadType,
-  List<{canonicalCardId, ritualCardId?, isReversed, positionKey, positionIndex}>,
+  List<{canonicalCardId, ritualCardId, isReversed, positionKey, positionIndex}>,
 }
 ```
+
+`ritualCardId` is **required** (non-null) on domain card evidence and builder input — matches ritual draw identity / OraclyTarotBridge.
 
 **Tests must prove:** no HistoryService, no JourneyPersonalizationHints read, no SharedPreferences, no recurring computation.
 

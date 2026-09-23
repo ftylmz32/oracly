@@ -609,6 +609,34 @@ Chronological project execution ledger.
 | Spec ready for 3D.1A | **YES** |
 | Outcome | **PASS** |
 
+### PL-T3D.1A — EVIDENCE DOMAIN FOUNDATION
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Kind | Domain models + classical spread catalog — **no scoring / builder / user path** |
+| Start SHA | `379b68c0761443e641f4a8aa81c382fda0352fa4` |
+| Production files created | 11 under `lib/features/tarot/narrative/evidence/` |
+| Existing production modified | **NONE** |
+| Tests created | 5 under `test/features/tarot/narrative_evidence/` |
+| Spread definitions | **5** |
+| Positions | **26** |
+| Authoritative edges | **29** (13 directed · 16 undirected) |
+| Projected relation entries | **45** |
+| Question mapper | `ReadingAsk` → `QuestionKind` + `ReadingQuestion.real` |
+| Profile slice matrix | open / guidance / relationship / decision |
+| RequestBounds | 20 / 5 / 12 / 800 / 4 (no 90-day field) |
+| Error enum | 9 codes + `NarrativeEvidenceException` |
+| Memory / recurrence firewall | empty shells only |
+| Narrative evidence tests | **38** passed · **0** failed |
+| Profile domain | **114** passed · **0** failed |
+| Phase 2/2.1 | **27** passed · **0** failed |
+| R2/R2.1 | **13** passed · **0** failed |
+| Analyze | errors **0** · warnings **0** · infos baseline · new infos on 3D.1A surface **0** |
+| Full Flutter | **3806** passed · **0** failed · **15** skipped · **0** timed out |
+| Scoring / builder / AI | **NOT IMPLEMENTED** / **0** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -640,9 +668,10 @@ Chronological project execution ledger.
 | PL-T3C.5D.1 | Tarot Phase 3C.5D.1 — FR-M04 ontology semantic mapping repair | **DONE** (plan repaired; ambiguous 0; FR-M04 was OPEN) |
 | PL-T3C.5E | Tarot Phase 3C.5E — FR-M04 canonical keyword ontology implementation | **DONE** (FR-M04 was REMEDIATED PENDING 3C.5F) |
 | PL-T3C.5F | Tarot Phase 3C.5F — final keyword ontology + deck readiness audit | **DONE** (FR-M04 RESOLVED; deck readiness YES) |
-| PL-T3D.0 | Tarot Phase 3D.0 — Narrative Evidence Engine implementation specification | **DONE** (spec READY; engine NOT IMPLEMENTED) |
-| PL-T3D.1A | Tarot Phase 3D.1A — evidence models + spread/question facts | **NOT STARTED** |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78; FR/RT RESOLVED; deck ready YES; Evidence Engine NOT IMPLEMENTED — spec READY) |
+| PL-T3D.0 | Tarot Phase 3D.0 — Narrative Evidence Engine implementation specification | **DONE** (base spec; active = 3D.0.1) |
+| PL-T3D.0.1 | Tarot Phase 3D.0.1 — Evidence Engine spec contract hardening | **DONE** (spread+slice LOCKED; OPEN 0; ready for 3D.1A) |
+| PL-T3D.1A | Tarot Phase 3D.1A — Evidence Domain Foundation | **DONE** (models+catalog; scoring/builder NOT IMPLEMENTED) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | PARTIAL (78/78 ready; Evidence domain 3D.1A DONE; scoring/builder pending 3D.1B+) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |

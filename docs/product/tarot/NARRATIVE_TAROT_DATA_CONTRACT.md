@@ -114,16 +114,21 @@ class SpreadPositionSemantic {
   final PositionRole role;
   final String guidingQuestionKey;          // machine token in 3D.1 (gq.classical.*)
   final TemporalOrientation temporal;
-  final PositionRole narrativeFunction;     // MUST == role in 3D.1 classical catalog
-  final List<PositionRelationEdge> relationToOtherSlots; // projection of authoritative edge table
+  PositionRole get narrativeFunction => role; // 3D.1A identity lock (getter)
+  final List<PositionRelationEdge> relationToOtherSlots; // projected from §17.4
   final double weight;                      // 3D.1 classical: always 1.0
   final String displayLabelKey;             // tarot.pos.<positionKey>
 }
 
+enum PositionEdgeKind { temporal, opposition, supportive, pressure, mirror }
+
 class PositionRelationEdge {
   final String otherPositionKey;
-  final String edgeKind;                    // temporal|opposition|supportive|pressure|mirror
-  final bool directed;                      // if true: this position → other; if false: symmetric
+  final PositionEdgeKind edgeKind;          // typed — never free-form strings
+  final bool directed;
+  // Directed A→B: only A receives the projected entry (directed:true).
+  // Undirected A↔B: both A and B receive projected entries (directed:false).
+  // 29 authoritative rows → 45 projected relation entries (13 directed + 16×2).
 }
 ```
 
@@ -322,13 +327,15 @@ class QuestionGrounding {
 }
 
 class RequestBounds {
-  final int maxPriorReadingsScanned;
-  final int maxRecurringOccurrencesListed;
-  final int maxRelationships;
-  final int maxMemoryChars;
-  final int maxThemeLabels;
+  final int maxPriorReadingsScanned;            // default 20
+  final int maxRecurringOccurrencesListed;      // default 5
+  final int maxRelationships;                   // default 12
+  final int maxMemoryChars;                     // default 800
+  final int maxThemeLabels;                     // default 4
 }
 ```
+
+**RequestBounds has exactly these 5 fields.** The **90-day recurrence lookback is not a RequestBounds field** — it is Phase 4 recurrence-provider policy only.
 
 The request is the **closed universe** of referenceable card ids, position keys, and evidence ids/refs for this synthesis.
 
@@ -337,11 +344,12 @@ The request is the **closed universe** of referenceable card ids, position keys,
 | Bound | Default |
 |---|---|
 | Prior readings scanned | 20 |
-| Recurrence lookback days | 90 |
 | Relationships sent to AI | top 12 by strength |
 | Memory summary chars | 800 |
 | Theme labels | 4 |
 | Recurring occurrence samples | 5 most recent |
+
+**Provider policy (not RequestBounds):** recurrence lookback days = 90 (Phase 4).
 
 **No unbounded prompt growth.**
 
