@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4.0 Memory + Historical Recurrence Spec (docs-only)
+**Updated:** 2026-09-23 — Tarot Phase 4A historical card recurrence pure engine
 
 ---
 
@@ -72,6 +72,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1E task start | `6b90f59b9c3827a9ddf38c9237b2c56bf2a931e2` | Final independent Evidence Engine audit |
 | Phase 3D.1E end | `8434b26e4bdc021b83ea2ae486db53c4204afa75` | Final audit PASS · ready to freeze YES |
 | Phase 4.0 task start | `bfa64996d4934c0fe28c709376280a320fd570e1` | Memory + historical recurrence forensic/spec |
+| Phase 4.0 end | `98dd2f98d6105343876566d0c5bace9481a2be5b` | Spec PASS · production NOT IMPLEMENTED |
+| Phase 4A task start | `98dd2f98d6105343876566d0c5bace9481a2be5b` | Normalized history + card recurrence pure |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -160,6 +162,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1D.1 — Builder error-contract + corpus metric hardening | **COMPLETE** (`unknownCanonicalCardId` reachable; reversed scenarios **38**; fixture unchanged) |
 | Phase 3D.1E — Final independent Narrative Evidence Engine audit | **COMPLETE** (READY TO FREEZE **YES**; Phase 3 **COMPLETE**; BLOCKER 0 · MAJOR 0) |
 | Phase 4.0 — Memory + Historical Recurrence forensic/specification | **COMPLETE** (docs-only; OPEN decisions **0**; production **NOT** implemented) |
+| Phase 4A — Normalized historical models + pure card recurrence | **COMPLETE** (pure engines; storage/theme/memory/enricher **NOT**; user path unchanged) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -448,6 +451,26 @@ Pre-existing local noise (do **not** stage/clean):
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
 
+### Phase 4A
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Phase 3 | **FROZEN** / **COMPLETE** |
+| Phase 3 MINOR-01 | **CARRIED** (not fixed) |
+| Production | historical models + eligibility + context + `TarotCardRecurrenceEngine` |
+| Existing model change | `RecurringOccurrence.orientationKnown` only |
+| Storage adapters | **NOT IMPLEMENTED** |
+| Theme recurrence | **NOT IMPLEMENTED** |
+| Memory evidence | **NOT IMPLEMENTED** (`MemoryEvidenceEntry` amendment → **4B**) |
+| Request enricher | **NOT IMPLEMENTED** |
+| Lookback | **90 days** inclusive · future rows **REJECT** |
+| Scan / samples | ≤20 / ≤5 |
+| occurrenceCount | distinct prior readings (H4) |
+| Evidence ids | `rec_card_##` |
+| User path | **UNCHANGED** |
+| AI / Network / Persistence | **0** / **0** / **0** |
+
 ### Phase 4.0
 
 | Field | Value |
@@ -455,7 +478,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Status | **COMPLETE** / **PASS** (docs-only) |
 | Phase 3 | **FROZEN** / **COMPLETE** |
 | Phase 3 MINOR-01 | **CARRIED** (not fixed) |
-| Production Phase 4 | **NOT IMPLEMENTED** |
+| Production Phase 4 | **NOT IMPLEMENTED** (4.0) · **4A pure engines IMPLEMENTED** |
 | Docs | `NARRATIVE_MEMORY_RECURRENCE_SOURCE_AUDIT.md` · `NARRATIVE_MEMORY_RECURRENCE_SPEC.md` |
 | Canonical Tarot history | **ReadingSession** (A) · ReadingModel enrichment |
 | Connected memory authority | **OraclyMemoryStore** |
@@ -777,11 +800,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 4A implementation** (normalized models + Tarot card recurrence pure engine).
+**ChatGPT review before Phase 4B** (cross-feature theme recurrence + memory evidence pure engines).
 
-Phase 4.0: **PASS** · Phase 3 **FROZEN** · OPEN decisions **0** · production Phase 4 **NOT** implemented · user path **UNCHANGED**.
+Phase 4A: **PASS** · Phase 4.0 **PASS** · Phase 3 **FROZEN** · OPEN decisions **0** · storage/theme/memory/enricher **NOT** implemented · user path **UNCHANGED**.
 
-Do **not** start 4A until reviewed.
+Do **not** start 4B until reviewed.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
 Do **not** wire live Tarot user path.

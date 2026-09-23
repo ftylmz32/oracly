@@ -1,4 +1,4 @@
-/// Recurrence evidence shells — never populated in Phase 3D.1.
+/// Recurrence evidence shells — Phase 3 empty; Phase 4A fills card recurrence.
 library;
 
 class RecurringOccurrence {
@@ -8,6 +8,7 @@ class RecurringOccurrence {
     required this.spreadId,
     required this.positionKey,
     required this.isReversed,
+    this.orientationKnown = true,
     this.intentionSummary,
   });
 
@@ -16,6 +17,10 @@ class RecurringOccurrence {
   final String spreadId;
   final String positionKey;
   final bool isReversed;
+
+  /// When false, [isReversed] is an inert sentinel and must not authorize
+  /// upright/reversed historical claims.
+  final bool orientationKnown;
   final String? intentionSummary;
 }
 

@@ -1,11 +1,21 @@
 # Narrative Memory + Historical Recurrence — Implementation Spec (Phase 4.0)
 
-**Status:** DESIGN LOCKED — Phase 4A ready after ChatGPT review  
-**Date:** 2026-09-23  
-**Companion forensic:** `NARRATIVE_MEMORY_RECURRENCE_SOURCE_AUDIT.md`  
-**Phase 3:** FROZEN — do not modify scorer / selector / builder / profiles  
+**Status:** DESIGN LOCKED — ChatGPT hardening applied · Phase 4A implemented (card recurrence pure)
+**Date:** 2026-09-23
+**Companion forensic:** `NARRATIVE_MEMORY_RECURRENCE_SOURCE_AUDIT.md`
+**Phase 3:** FROZEN — do not modify scorer / selector / builder / profiles
 
 **OPEN PHASE 4 IMPLEMENTATION DECISIONS: 0**
+
+### ChatGPT review hardening (locked overrides)
+
+| ID | Lock |
+|---|---|
+| H1 | `RecurringOccurrence.orientationKnown` (default `true`); unknown → `orientationKnown=false`, `isReversed=false` sentinel |
+| H2 | `TarotHistoricalReadingRecord.topicId` is an explicit structured field (never recovered from AI prose) |
+| H3 | Future rows ineligible: require `occurredAt <= now` **and** age `<= Duration(days: 90)` (no `abs`) |
+| H4 | `occurrenceCount` = distinct eligible **prior readings** containing the card; per-reading duplicate card occurrences deduped |
+| H5 | `MemoryEvidenceEntry` additive metadata amendment **deferred to Phase 4B** (not 4A) |
 
 ---
 
@@ -93,14 +103,15 @@ TarotHistoricalReadingRecord
   occurredAt: DateTime          // UTC instant
   spreadId: String              // classical machine id
   questionKind: QuestionKind?   // recoverable via ReadingAsk when text exists
+  topicId: String?              // structured machine topic (H2) — never from AI prose
   intentionSummary: String?     // sanitized, bounded
   cards: List<TarotHistoricalCardOccurrence>
   interpretationSummary: String?  // INTERPRETATION, optional
 
 TarotHistoricalCardOccurrence
   canonicalCardId: String
-  isReversed: bool              // if unknown → omit orientation-dependent claims; see §15
-  orientationKnown: bool
+  isReversed: bool              // factual iff orientationKnown; else inert sentinel
+  orientationKnown: bool        // H1 — default true on known rows
   positionKey: String?          // null if unrecovered
   positionIndex: int?
 ```
@@ -148,9 +159,9 @@ Exclude: in-progress, abandoned, active-session-only, failed, quality_unavailabl
 
 ## 7 — Lookback / scan bounds (LOCKED)
 
-1. Filter owner + completed + exclude current.  
-2. Instant age: `now.difference(occurredAt) <= Duration(days: 90)` (**inclusive ≤ 90 days**).  
-3. Sort **newest first** by `occurredAt`, then `readingId` ascending.  
+1. Filter owner + completed + exclude current.
+2. UTC instants: require `occurredAt <= now` **and** `now.difference(occurredAt) <= Duration(days: 90)` (**inclusive exact 90 days**). **Future rows excluded** (H3 — no `abs`).
+3. Sort **newest first** by `occurredAt`, then `readingId` ascending.
 4. Take at most **`RequestBounds.maxPriorReadingsScanned = 20`** Tarot FACT records.
 
 Timestamps treated as **UTC instants**. No calendar-local day boundaries. Pure engines receive injected `now` — **no `DateTime.now()` inside pure logic**.
@@ -161,11 +172,12 @@ Timestamps treated as **UTC instants**. No calendar-local day boundaries. Pure e
 
 Authority: `TarotRecurringCardEvidence` only.
 
-- Candidates = **current draw** canonical ids only.  
-- Recurring iff same `canonicalCardId` appears in ≥1 eligible **PRIOR** Tarot FACT occurrence.  
-- `occurrenceCount` = count of eligible **PRIOR** occurrences (**current not included**).  
-- `occurrences` = prior samples only, newest first, max **`maxRecurringOccurrencesListed = 5`**.  
-- Sample fields: `readingId`, `at`, `spreadId`, `positionKey` (required in sample — skip sample if positionKey unknown), `isReversed` (only if `orientationKnown`), `intentionSummary?`.
+- Candidates = **current draw** canonical ids only.
+- Recurring iff same `canonicalCardId` appears in ≥1 eligible **PRIOR** Tarot FACT reading.
+- `occurrenceCount` = number of **distinct eligible prior reading records** containing the card (H4; **current not included**).
+- Within one historical reading, duplicate same-card occurrences are **deduped** (lowest `positionIndex`, then `positionKey`, then `orientationKnown=true`, then `isReversed=false` tie-break).
+- `occurrences` = prior samples only, newest first, max **`maxRecurringOccurrencesListed = 5`**.
+- Sample fields: `readingId`, `at`, `spreadId`, `positionKey` (required in sample — skip sample if positionKey unknown), `isReversed` + `orientationKnown` (H1), `intentionSummary?`.
 
 ### Ranking (multi-card)
 
@@ -295,9 +307,9 @@ Field: `TarotNarrativeMemoryEvidence`
 | `recentCardNames` | **always []** |
 | `recurringThemeLabels` | **always []** |
 
-### Memory model amendment (LOCKED — YES)
+### Memory model amendment (LOCKED — YES · deferred to **Phase 4B**)
 
-Phase 4A **extends** `MemoryEvidenceEntry` (additive, backward-compatible constructors) with:
+Phase **4B** (not 4A) extends `MemoryEvidenceEntry` (additive, backward-compatible constructors) with:
 
 - `sourceType` (`OraclyReadingType` name string)  
 - `sourceId`  
@@ -305,7 +317,7 @@ Phase 4A **extends** `MemoryEvidenceEntry` (additive, backward-compatible constr
 - `confidence`  
 - `epistemic` (`interpretation` | `observation` | `fact` | `preference`)  
 
-Existing fields remain. Phase 3 empty shell unchanged until enrichment.
+Existing fields remain. Phase 3 empty shell unchanged until enrichment. Phase 4A does **not** modify `narrative_memory_evidence.dart`.
 
 ### Entry bounds
 
@@ -438,10 +450,10 @@ Analytics/share: no private question dumps; no owner ids.
 
 ### 4A — Normalized models + Tarot card recurrence pure engine
 
-- Production (later): historical models, card recurrence engine, evidence id assigner  
-- Depends: Phase 3 freeze  
-- Tests: recurrence count, exclusion, 90d, ranking, legacy omit  
-- Stop: card recurrence pure unit PASS  
+- Production: `lib/features/tarot/narrative/history/*` + `RecurringOccurrence.orientationKnown`
+- Depends: Phase 3 freeze
+- Tests: `test/features/tarot/narrative_history/`
+- Stop: card recurrence pure unit PASS · **IMPLEMENTED**
 
 ### 4B — Theme recurrence + memory relevance pure engines
 
@@ -502,11 +514,11 @@ no history · one prior same card · multi prior · outside 90d · current exclu
 | Cross-feature theme (≥2 types) | LOCKED |
 | Theme map / relevance | LOCKED |
 | recentCardNames / recurringThemeLabels | LOCKED empty |
-| Memory model amendment | LOCKED YES (additive) |
+| Memory model amendment | LOCKED YES (additive) · **4B** |
 | Enrichment architecture | LOCKED |
 | Delete coupling required in 4C | LOCKED |
 | OPEN decisions | **0** |
 
-**SPEC READY FOR 4A: YES** (after ChatGPT review)
+**Phase 4A: IMPLEMENTED** (pure card recurrence · no storage · no user path)
 
-**Do not start 4A until reviewed. Do not merge. Do not wire user path.**
+**Do not start 4B until ChatGPT review. Do not merge. Do not wire user path.**

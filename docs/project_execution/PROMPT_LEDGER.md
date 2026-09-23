@@ -801,6 +801,24 @@ Chronological project execution ledger.
 | Phase 3 | FROZEN · MINOR-01 carried |
 | Outcome | **PASS** |
 
+### PL-T4A — NORMALIZED HISTORY + TAROT CARD RECURRENCE PURE ENGINE
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `98dd2f98d6105343876566d0c5bace9481a2be5b` |
+| Production | `lib/features/tarot/narrative/history/*` |
+| Existing change | `RecurringOccurrence.orientationKnown` only |
+| Historical models | TarotHistorical* + Snapshot |
+| Eligibility | owner · current exclude · ≤90d · future reject · scan ≤20 |
+| Recurrence count | distinct prior readings · per-reading card dedupe |
+| Context | topic_match › kind_token › keyword_map (TR/EN/RU) |
+| Evidence ids | `rec_card_##` |
+| Phase 3 scorer/selector/builder | **UNTOUCHED** |
+| Storage / theme / memory / enricher | **NOT IMPLEMENTED** |
+| User path | **UNCHANGED** |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -844,8 +862,9 @@ Chronological project execution ledger.
 | PL-T3D.1D.1 | Tarot Phase 3D.1D.1 — Builder error-contract + corpus metric hardening | **DONE** (canonical-first order; reversed=38 locked; fixture unchanged) |
 | PL-T3D.1E | Tarot Phase 3D.1E — Final Narrative Evidence Engine audit | **DONE** (READY TO FREEZE YES; Phase 3 COMPLETE) |
 | PL-T4.0 | Tarot Phase 4.0 — Memory + Historical Recurrence forensic & spec | **DONE** (docs-only; OPEN 0; production NOT IMPLEMENTED) |
+| PL-T4A | Tarot Phase 4A — Normalized history + card recurrence pure engine | **DONE** (pure; storage/theme/memory/enricher NOT; user path unchanged) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | SPEC READY (4A pending review) |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | **4A DONE** · 4B pending review |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
