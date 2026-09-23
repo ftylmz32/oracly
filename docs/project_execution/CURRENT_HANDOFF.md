@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 4E re-audit PASS · Phase 4 FROZEN
+**Updated:** 2026-09-23 — Tarot Phase 5.0 Signature Spreads forensic + architecture lock
 
 ---
 
@@ -96,6 +96,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 4E.1a task start | `6acb2b18f4c3cd29de2ed99e2f78ae688a24f00f` | H19 exact-tie representative determinism |
 | Phase 4E.1a end | `32eb74f848cef75ceb0a0f9060c96182145b7ab0` | H19 PASS |
 | Phase 4E re-audit start | `32eb74f848cef75ceb0a0f9060c96182145b7ab0` | Final Memory + Historical Recurrence freeze gate |
+| Phase 4E re-audit end | `61134c811f9073d466cbc423a17692abaab76612` | Phase 4 FROZEN |
+| Phase 5.0 task start | `61134c811f9073d466cbc423a17692abaab76612` | Signature Spreads forensic + architecture lock |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -196,6 +198,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4E.1 — H7 transitive physical-identity remediation | **COMPLETE / PASS** |
 | Phase 4E.1a — H19 exact-tie representative determinism | **COMPLETE / PASS** |
 | Phase 4E re-audit — Final freeze gate | **COMPLETE / PASS** · Phase 4 **FROZEN** |
+| Phase 5.0 — Signature Spreads forensic + architecture lock | **COMPLETE / PASS** (docs-only · production **NOT** implemented) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -531,6 +534,20 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 4 frozen | **YES** |
 | Live Narrative V2 | **NOT WIRED** |
 | Runtime engine | **NOT USER-REACHABLE** |
+
+### Phase 5.0
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** |
+| Type | docs-only forensic + architecture lock |
+| Source audit | `docs/product/tarot/SIGNATURE_SPREADS_SOURCE_AUDIT.md` |
+| Spec | `docs/product/tarot/SIGNATURE_SPREADS_SPEC.md` |
+| Launch set | **4** (Quick Insight · Timeline · Deep Field · Crossroads) |
+| Production implemented | **NO** |
+| Phase 3/4 modified | **NO** |
+| OPEN BLOCKER / MAJOR | **0** / **0** |
+| Live Narrative V2 | **NOT WIRED** |
 
 ### Phase 4D.1
 
@@ -968,13 +985,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 4 is FROZEN.** Do not reopen Memory + Historical Recurrence without a new approved phase.
+**Phase 5A** — SignatureSpreadDefinition domain + catalog for the locked launch set (no live Narrative V2 wiring).
 
-Next product work is **outside** live Narrative V2 wiring unless separately approved.
-
-Phase 4E re-audit: **PASS** · Phase 4: **FROZEN** · live V2: **NOT WIRED** · runtime engine: **NOT USER-REACHABLE**.
+Phase 5.0: **PASS** · Phase 4: **FROZEN** · Phase 3: **FROZEN** · live V2: **NOT WIRED**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** wire live Tarot Narrative V2 path without a new approved phase.
-Do **not** claim App Store / release readiness from this freeze alone.
+Do **not** wire live Tarot Narrative V2 path.
+Do **not** reopen Phase 3 or Phase 4 production without a new approved phase.

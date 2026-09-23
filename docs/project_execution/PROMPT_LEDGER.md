@@ -978,6 +978,21 @@ Chronological project execution ledger.
 | Live V2 / AI | **NOT WIRED** / **0** |
 | Outcome | **PASS** — Phase 4 FROZEN (not release-ready claim) |
 
+### PL-T5.0 — SIGNATURE SPREADS FORENSIC + ARCHITECTURE LOCK
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `61134c811f9073d466cbc423a17692abaab76612` |
+| Source audit | `SIGNATURE_SPREADS_SOURCE_AUDIT.md` |
+| Spec | `SIGNATURE_SPREADS_SPEC.md` |
+| Launch set | **4** (Quick Insight · Timeline · Deep Field · Crossroads) |
+| Production / tests behavior | **NONE** / **NONE** |
+| Phase 3/4 must change | **NO** / **NO** |
+| OPEN BLOCKER / MAJOR | **0** / **0** |
+| Live V2 | **NOT WIRED** |
+| Outcome | **PASS** — ready for Phase 5A |
+
 ---
 
 ## Planned (not started)
@@ -1033,9 +1048,10 @@ Chronological project execution ledger.
 | PL-T4E.1 | Tarot Phase 4E.1 — H7 transitive physical-identity remediation | **PASS** · Phase 4 **NOT FROZEN** |
 | PL-T4E.1a | Tarot Phase 4E.1a — H19 exact-tie representative determinism | **PASS** |
 | PL-T4E-RE | Tarot Phase 4E re-audit — final freeze gate | **PASS** · Phase 4 **FROZEN** |
+| PL-T5.0 | Tarot Phase 5.0 — Signature Spreads forensic + architecture lock | **PASS** (docs-only) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (4E-RE PASS · live V2 NOT WIRED) |
-| PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
+| PL-T5 | Tarot Phase 5 — Signature Spreads | **5.0 DONE** · 5A next |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
