@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-23 — Tarot Phase 3D.1E Final Independent Narrative Evidence Engine Audit
+**Updated:** 2026-09-23 — Tarot Phase 4.0 Memory + Historical Recurrence Spec (docs-only)
 
 ---
 
@@ -71,6 +71,7 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 3D.1D.1 end | `c6503a24ff745958ad51fa6f1ff04a8c78136781` | Validation order + corpus metric lock |
 | Phase 3D.1E task start | `6b90f59b9c3827a9ddf38c9237b2c56bf2a931e2` | Final independent Evidence Engine audit |
 | Phase 3D.1E end | `8434b26e4bdc021b83ea2ae486db53c4204afa75` | Final audit PASS · ready to freeze YES |
+| Phase 4.0 task start | `bfa64996d4934c0fe28c709376280a320fd570e1` | Memory + historical recurrence forensic/spec |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -158,6 +159,7 @@ Pre-existing local noise (do **not** stage/clean):
 | Phase 3D.1D — Full NarrativeEvidenceBuilder + frozen real-deck corpus | **COMPLETE** (builder + 46 corpus; memory/recurrence empty; user path unchanged) |
 | Phase 3D.1D.1 — Builder error-contract + corpus metric hardening | **COMPLETE** (`unknownCanonicalCardId` reachable; reversed scenarios **38**; fixture unchanged) |
 | Phase 3D.1E — Final independent Narrative Evidence Engine audit | **COMPLETE** (READY TO FREEZE **YES**; Phase 3 **COMPLETE**; BLOCKER 0 · MAJOR 0) |
+| Phase 4.0 — Memory + Historical Recurrence forensic/specification | **COMPLETE** (docs-only; OPEN decisions **0**; production **NOT** implemented) |
 | Runtime Narrative Tarot Engine | **NOT IMPLEMENTED** / **NOT USER-REACHABLE** |
 | Tarot Visual System (locked goldens) | **NOT IMPLEMENTED** |
 
@@ -445,6 +447,23 @@ Pre-existing local noise (do **not** stage/clean):
 | Runtime V2 | **NOT USER-REACHABLE** |
 | Tarot Visual System | **NOT IMPLEMENTED** |
 | V2 profile coverage | **78 / 78** |
+
+### Phase 4.0
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** (docs-only) |
+| Phase 3 | **FROZEN** / **COMPLETE** |
+| Phase 3 MINOR-01 | **CARRIED** (not fixed) |
+| Production Phase 4 | **NOT IMPLEMENTED** |
+| Docs | `NARRATIVE_MEMORY_RECURRENCE_SOURCE_AUDIT.md` · `NARRATIVE_MEMORY_RECURRENCE_SPEC.md` |
+| Canonical Tarot history | **ReadingSession** (A) · ReadingModel enrichment |
+| Connected memory authority | **OraclyMemoryStore** |
+| Lookback | **90 days** (≤) · scan ≤20 |
+| Owner isolation | same owner; owner-bound excludes ownerless legacy |
+| Delete-source guarantee | design requires 4C journal↔session↔memory coupling |
+| Open Phase 4 decisions | **0** |
+| User path | **UNCHANGED** |
 
 ### Phase 3D.1E
 
@@ -758,11 +777,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**ChatGPT review before Phase 4 Memory + Historical Recurrence specification.**
+**ChatGPT review before Phase 4A implementation** (normalized models + Tarot card recurrence pure engine).
 
-Phase 3D.1E: **PASS** · Evidence Engine ready to freeze **YES** · Phase 3 **COMPLETE** · BLOCKER **0** · MAJOR **0** · user path **UNCHANGED**.
+Phase 4.0: **PASS** · Phase 3 **FROZEN** · OPEN decisions **0** · production Phase 4 **NOT** implemented · user path **UNCHANGED**.
 
-Do **not** start Phase 4 until reviewed.
-Do **not** mark future items completed until verified.
+Do **not** start 4A until reviewed.
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
+Do **not** wire live Tarot user path.

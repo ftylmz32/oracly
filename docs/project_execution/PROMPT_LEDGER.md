@@ -786,6 +786,21 @@ Chronological project execution ledger.
 | User path | **UNCHANGED** |
 | Outcome | **PASS** |
 
+### PL-T4.0 — MEMORY + HISTORICAL RECURRENCE FORENSIC & SPEC
+
+| Field | Value |
+|---|---|
+| Status | **PASS** |
+| Start SHA | `bfa64996d4934c0fe28c709376280a320fd570e1` |
+| Production modified | **NO** |
+| Docs | SOURCE_AUDIT + MEMORY_RECURRENCE_SPEC |
+| Canonical Tarot history | ReadingSession (A) |
+| Memory authority | OraclyMemoryStore |
+| Lookback / scan | 90d ≤ · max 20 |
+| Open decisions | **0** |
+| Phase 3 | FROZEN · MINOR-01 carried |
+| Outcome | **PASS** |
+
 ---
 
 ## Planned (not started)
@@ -828,8 +843,9 @@ Chronological project execution ledger.
 | PL-T3D.1D | Tarot Phase 3D.1D — Full NarrativeEvidenceBuilder + frozen real-deck corpus | **DONE** (builder + corpus; memory empty; user path unchanged) |
 | PL-T3D.1D.1 | Tarot Phase 3D.1D.1 — Builder error-contract + corpus metric hardening | **DONE** (canonical-first order; reversed=38 locked; fixture unchanged) |
 | PL-T3D.1E | Tarot Phase 3D.1E — Final Narrative Evidence Engine audit | **DONE** (READY TO FREEZE YES; Phase 3 COMPLETE) |
-| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (Phase 4+ pending) |
-| PL-T4 | Tarot Phase 4 — memory + recurring cards | PLANNED |
+| PL-T4.0 | Tarot Phase 4.0 — Memory + Historical Recurrence forensic & spec | **DONE** (docs-only; OPEN 0; production NOT IMPLEMENTED) |
+| PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN) |
+| PL-T4 | Tarot Phase 4 — memory + recurring cards | SPEC READY (4A pending review) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | PLANNED |
 | PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | PLANNED |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
