@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-25 — Tarot Phase 6E.8 explicit gpt-5.6-sol Narrative writer QA · writing pending independent ChatGPT review
+**Updated:** 2026-09-25 — Tarot Phase 6F Classical Narrative V2 live cutover · pending independent verification
 
 ---
 
@@ -1350,15 +1350,15 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT review of Phase 6E.8 Sol results** — then decide whether writing quality is frozen enough for 6F authorization.
+**Independent ChatGPT verification of Phase 6F** — Classical Narrative V2 live cutover.
 
-6E.8: **EXECUTED** · 6/6 structured · Call #1 Sol compatibility canary **PASS** · resolved model `gpt-5.6-sol` · reasoning `none` · agent does **not** claim writing-quality PASS · evidence `docs/product/tarot/NARRATIVE_PROVIDER_SHADOW_QA_6E8_SOL_V2.md`.
+6F: **IMPLEMENTED** · flag `tarot_narrative_v2` default true · single/three/five live · seven/celtic legacy · Crossroads picker false · frozen Sol writer locked-env fail-closed · **0** real provider calls · Cloud deploy **NO**.
 
-6E.6 previous-provider run remains the A/B baseline (exact model **unknown**). Do **not** falsely label 6E.6 as gpt-4o.
+6E.8 independent: provider quality **FROZEN** (`gpt-5.6-sol` / `none`).
 
-Do **not** begin **6F** until independent writing-quality PASS.
+Do **not** begin **6G** until independent 6F PASS. Picker remains false in 6G.
 
-Phase 6.0–6E.1: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **0/6 transport** · 6E.4.1: **PASS** · 6E.4.2: **6/6 structured** · 6E.5: **prompt refine** · 6E.6: **6/6 structured** (writing **NOT FROZEN**) · 6E.7: **model isolation** · 6E.8: **6/6 Sol structured** (writing pending ChatGPT) · live V2: **NOT WIRED**.
+Phase 6.0–6E.1: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **0/6 transport** · 6E.4.1: **PASS** · 6E.4.2: **6/6 structured** · 6E.5: **prompt refine** · 6E.6: **6/6 structured** · 6E.7: **model isolation** · 6E.8: **quality FROZEN** · 6F: **wired** (pending verify) · live Classical V2: **YES (flag)** · Crossroads: **NOT LIVE**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

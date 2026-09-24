@@ -198,6 +198,18 @@ abstract final class OpenAiPaidRequests {
     );
   }
 
+  /// Narrative V2 — backend-authoritative writer; no client model hint.
+  static AiProxyRequest tarotNarrative({
+    required Map<String, dynamic> payload,
+    required String fingerprint,
+  }) {
+    return AiProxyRequest(
+      operation: AiOperation.tarotReading,
+      idempotencyKey: PaidRequestIdempotency.resolve(fingerprint),
+      payload: payload,
+    );
+  }
+
   static AiProxyRequest soulMateDraw({
     required String name,
     required String birthDate,

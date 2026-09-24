@@ -3,6 +3,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/feature_flags/feature_flag_runtime.dart';
+import 'package:oracly_new/core/feature_flags/product_feature_flags.dart';
 import 'package:oracly_new/core/copy/resilience_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
@@ -45,7 +47,18 @@ import '../../support/fake_gem_authority.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() => OraclyL10n.bind('tr'));
+  setUp(() {
+    OraclyL10n.bind('tr');
+    // Legacy fail-closed suite — force Narrative V2 off so AI executor path runs.
+    FeatureFlagRuntime.refreshFromRemote({
+      ...ProductFeatureFlags.defaults(),
+      ProductFeatureFlags.tarotNarrativeV2.key: false,
+    });
+  });
+
+  tearDown(() {
+    FeatureFlagRuntime.refreshFromRemote(ProductFeatureFlags.defaults());
+  });
 
   group('A — configured production provider failure', () {
     test('throws InterpretationException — no local synthesis', () async {

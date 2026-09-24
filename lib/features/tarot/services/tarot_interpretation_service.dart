@@ -25,6 +25,8 @@ import '../../../core/copy/session_ending_copy.dart';
 import '../../../core/safety/sensitive_topic_gate.dart';
 import '../../content/tarot/data/tarot_card_gloss.dart';
 import '../../insights/services/reflective_intelligence.dart';
+import '../narrative/live/narrative_tarot_live_gate.dart';
+import '../narrative/live/narrative_tarot_live_interpreter.dart';
 import '../presentation/widgets/ai_reading/ai_reading_content.dart';
 import '../presentation/widgets/card_reveal/card_reveal_spread.dart';
 
@@ -34,8 +36,10 @@ class TarotInterpretationService {
     InterpretationCache? cache,
     InterpretationFormatter? formatter,
     bool? allowLocalFallback,
+    NarrativeTarotLiveInterpreter? narrativeInterpreter,
   }) : allowLocalFallback = allowLocalFallback ?? engine == null,
        _formatter = formatter ?? const InterpretationFormatter(),
+       _narrative = narrativeInterpreter,
        _engine =
            engine ??
            InterpretationEngineFactory.create(
@@ -53,6 +57,7 @@ class TarotInterpretationService {
 
   final InterpretationEngine _engine;
   final InterpretationFormatter _formatter;
+  final NarrativeTarotLiveInterpreter? _narrative;
 
   Future<AiReadingContent> generateContent(
     ReadingSession session, {
@@ -80,7 +85,8 @@ class TarotInterpretationService {
     }
 
     try {
-      final result = await _engine.interpret(
+      final result = await _loadInterpretation(
+        session: session,
         context: context,
         forceRefresh: forceRefresh,
       );
@@ -94,7 +100,8 @@ class TarotInterpretationService {
             attempt: 1,
           );
         }
-        final retry = await _engine.interpret(
+        final retry = await _loadInterpretation(
+          session: session,
           context: context,
           forceRefresh: true,
         );
@@ -119,13 +126,41 @@ class TarotInterpretationService {
     }
   }
 
+  /// Safety already handled by callers. Routes Narrative vs legacy.
+  Future<InterpretationResult> _loadInterpretation({
+    required ReadingSession session,
+    required ReadingContext context,
+    bool forceRefresh = false,
+  }) async {
+    if (NarrativeTarotLiveGate.shouldUseNarrative(session.spread)) {
+      final narrative = _narrative;
+      if (narrative == null) {
+        throw const InterpretationException(
+          type: InterpretationFailureType.retry,
+          message: 'Narrative V2 is enabled but not configured.',
+          retryable: false,
+        );
+      }
+      return narrative.interpret(
+        session: session,
+        languageCode: context.language,
+        forceRefresh: forceRefresh,
+      );
+    }
+    return _engine.interpret(
+      context: context,
+      forceRefresh: forceRefresh,
+    );
+  }
+
   Future<AiReadingContent> _retryOrFallback(
     ReadingSession session,
     ReadingContext context,
     Object error,
   ) async {
     try {
-      final result = await _engine.interpret(
+      final result = await _loadInterpretation(
+        session: session,
         context: context,
         forceRefresh: true,
       );
@@ -332,21 +367,38 @@ class TarotInterpretationService {
     if (journeyHints != null && !journeyHints.isEmpty) {
       context = context.withJourneyHints(journeyHints);
     }
-    return _engine
-        .interpret(context: context, forceRefresh: forceRefresh)
-        .then(ReflectiveIntelligence.guard);
+    return _loadInterpretation(
+      session: session,
+      context: context,
+      forceRefresh: forceRefresh,
+    ).then(ReflectiveIntelligence.guard);
   }
 
   Future<InterpretationResult> regenerate(ReadingSession session) {
     final context = ReadingContext.fromSession(session);
-    return _engine.regenerate(context);
+    return _loadInterpretation(
+      session: session,
+      context: context,
+      forceRefresh: true,
+    );
   }
 
+  /// Not on the live Narrative surface — no production callers.
+  /// Narrative-eligible sessions fail closed rather than silent legacy stream.
   Stream<InterpretationStreamEvent> generateStream(
     ReadingSession session, {
     String? language,
     bool forceRefresh = false,
   }) {
+    if (NarrativeTarotLiveGate.shouldUseNarrative(session.spread)) {
+      return Stream.error(
+        const InterpretationException(
+          type: InterpretationFailureType.retry,
+          message: 'Narrative V2 does not support streaming.',
+          retryable: false,
+        ),
+      );
+    }
     final context = ReadingContext.fromSession(
       session,
       language: language ?? OraclyL10n.code,
@@ -357,8 +409,17 @@ class TarotInterpretationService {
     );
   }
 
-  Future<void> invalidateCache(ReadingSession session) {
-    return _engine.invalidateCache(ReadingContext.fromSession(session));
+  Future<void> invalidateCache(ReadingSession session) async {
+    final context = ReadingContext.fromSession(session);
+    await _engine.invalidateCache(context);
+    final narrative = _narrative;
+    if (narrative != null &&
+        NarrativeTarotLiveGate.isLaunchSpread(session.spread)) {
+      await narrative.invalidate(
+        session: session,
+        languageCode: context.language,
+      );
+    }
   }
 }
 

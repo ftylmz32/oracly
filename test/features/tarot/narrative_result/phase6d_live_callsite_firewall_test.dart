@@ -20,7 +20,9 @@ void main() {
       final norm = f.path.replaceAll('\\', '/');
       if (norm.contains('/features/tarot/narrative/transport/') ||
           norm.contains('/features/tarot/narrative/result/') ||
-          norm.contains('/features/tarot/narrative/shadow/')) {
+          norm.contains('/features/tarot/narrative/shadow/') ||
+          // Phase 6F — `narrative/live/` is the only live owner of these APIs.
+          norm.contains('/features/tarot/narrative/live/')) {
         continue;
       }
       final text = f.readAsStringSync();

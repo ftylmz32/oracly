@@ -7,6 +7,7 @@ import '../interpretation/executors/interpretation_executor.dart';
 import '../interpretation/executors/local_interpretation_executor.dart';
 
 /// Local synthesis only when [OraclyAiService.allowsLocalFallback] is true.
+/// Narrative V2 routing lives in [TarotInterpretationService], not here.
 InterpretationExecutor tarotInterpretationExecutorFor(OraclyAiService ai) {
   if (!ai.isConfigured && ai.allowsLocalFallback) {
     return LocalInterpretationExecutor();

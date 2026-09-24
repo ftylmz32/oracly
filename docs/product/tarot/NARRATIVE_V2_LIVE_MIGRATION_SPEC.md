@@ -493,10 +493,20 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6F — Classical live cutover (single/three/five only)
 
-- **Goal:** Wired classical Narrative path under fail-closed + billing boundary  
-- **Blocked until:** Manifest V2 provider QA + independent writing-quality PASS (after 6E.8+)  
-- **Crossroads picker:** still false  
-- **Rollback:** flag/code path back to legacy payload builder  
+- **Status:** **IMPLEMENTED** (pending independent ChatGPT verification) · **REAL PROVIDER CALLS: 0**
+- **Flag:** `ProductFeatureFlags.tarotNarrativeV2` (`tarot_narrative_v2`) · default **true** · remote false → exact legacy rollback
+- **Live spreads:** single / threeCard / fiveCard only
+- **Legacy:** sevenCard / celticCross (flag irrelevant) · Crossroads never admitted
+- **Frozen writer (locked envs):** `gpt-5.6-sol` · `reasoning_effort=none` · missing/mismatch → `no_configuration` before provider
+- **Live package:** `lib/features/tarot/narrative/live/` (no `narrative/shadow/` imports)
+- **Request factory:** `NarrativeTarotLiveRequestFactory` · session/reading id = `session.id` · owner = `session.userId`
+- **History:** `TarotHistoricalSnapshotLoader` + `TarotNarrativeRequestEnricher` (Phase 4)
+- **Cache:** `NarrativeTarotCacheIdentity` only after parse + Narrative quality + bridge + formatter validate
+- **AI:** `OraclyNarrativeTarotAiService` + `OpenAiPaidRequests.tarotNarrative` (no client model hint)
+- **No legacy AI fallback** while flag ON for launch spreads
+- **Cloud deploy in 6F:** **NO**
+- **Crossroads picker:** still false
+- **Next:** Independent 6F verify → **6G** Crossroads internal Narrative (picker still false)
 
 ### 6G — Crossroads internal Narrative support (still picker false)
 

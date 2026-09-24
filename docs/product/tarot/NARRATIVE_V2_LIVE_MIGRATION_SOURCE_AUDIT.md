@@ -910,11 +910,45 @@ Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E6_V2.md` · `tarot_narrative_provider_
 
 ---
 
+## 13.21 — Phase 6E.8 explicit gpt-5.6-sol quality run
+
+**Date:** 2026-09-25 · **Kind:** controlled provider QA · **REAL COMPLETION CALLS: 6**
+
+| Fact | Value |
+|---|---|
+| Independent ChatGPT writing-quality verdict | **PASS / FROZEN** |
+| Frozen Narrative writer | `gpt-5.6-sol` |
+| Frozen reasoning | `none` |
+| Structural parity / Result V2 / schema / Q1–Q5 | **PASS** |
+| Evidence | `docs/product/tarot/NARRATIVE_PROVIDER_SHADOW_QA_6E8_SOL_V2.md` |
+| Live / 6F at 6E.8 end | **NO** (authorized next) |
+
+---
+
+## 13.22 — Phase 6F Classical Narrative V2 live cutover
+
+**Date:** 2026-09-25 · **Kind:** production wiring · **REAL PROVIDER CALLS: 0**
+
+| Fact | Value |
+|---|---|
+| Flag | `tarot_narrative_v2` default **true** |
+| Live spreads | single / three / five |
+| Legacy | seven / celtic · Crossroads excluded |
+| Frozen locked-env writer | `gpt-5.6-sol` + `none` fail-closed |
+| Shadow imported by live | **NO** |
+| Cloud deploy performed | **NO** |
+| 6G | **NO** |
+| Next | Independent ChatGPT 6F verification → **6G** (picker false) |
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  
 - Phase 3/4/5 production: **unchanged**  
 - Crossroads picker: **false** through Phase 6 until later approved gates (6 final + 7 visual + 8 E2E)
+
+> **Update (6F):** Classical single/three/five may use Narrative V2 when `tarot_narrative_v2` is enabled. Crossroads picker remains **false**.
 
 ---
 

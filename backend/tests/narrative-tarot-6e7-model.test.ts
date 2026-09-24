@@ -167,6 +167,9 @@ describe('Phase 6E.7 feature firewalls', () => {
       configuredNarrativeModel: 'gpt-5.6-sol',
       resolvedNarrativeModel: 'gpt-5.6-sol',
       narrativeReasoningEffort: 'none',
+      // Phase 6F froze the writer contract into the same QA metadata block.
+      frozenNarrativeWriterModel: 'gpt-5.6-sol',
+      frozenNarrativeReasoningEffort: 'none',
     });
     expect(JSON.stringify(meta)).not.toMatch(/sk-|API_KEY|Bearer/i);
   });

@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/data/datasources/local_storage.dart';
 import '../../ai/production/oracly_ai_providers.dart';
+import '../../ai/production/oracly_narrative_tarot_ai_service.dart';
 import '../../daily_ritual/services/daily_ritual_intent.dart';
 import '../art/tarot_image_budget.dart';
 import '../controllers/tarot_flow_controller.dart';
@@ -15,9 +16,11 @@ import '../controllers/tarot_reading_controller.dart';
 import '../data/repositories/tarot_reading_repository_impl.dart';
 import '../domain/models/reading_session.dart';
 import '../interpretation/services/interpretation_engine.dart';
+import '../narrative/live/narrative_tarot_live_interpreter.dart';
 import '../services/tarot_interpretation_service.dart';
 import '../shared/constants/tarot_routes.dart';
 import 'tarot_interpretation_wiring.dart';
+import 'tarot_narrative_history_provider.dart';
 import 'tarot_scope.dart';
 
 /// Root widget that wires tarot controllers for nested navigators.
@@ -64,10 +67,19 @@ class _TarotModuleRootState extends ConsumerState<TarotModuleRoot>
 
   TarotInterpretationService _buildInterpretationService() {
     final ai = ref.read(oraclyAiServiceProvider);
+    final cache = InMemoryInterpretationCache();
+    final narrative = ai is OraclyNarrativeTarotAiService
+        ? NarrativeTarotLiveInterpreter(
+            ai: ai as OraclyNarrativeTarotAiService,
+            historyLoader: ref.read(tarotHistoricalSnapshotLoaderProvider),
+            cache: cache,
+          )
+        : null;
     return TarotInterpretationService(
       allowLocalFallback: ai.allowsLocalFallback,
+      narrativeInterpreter: narrative,
       engine: InterpretationEngineFactory.create(
-        cache: InMemoryInterpretationCache(),
+        cache: cache,
         executor: tarotInterpretationExecutorFor(ai),
       ),
     );

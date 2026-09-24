@@ -14,6 +14,7 @@ import '../../../../core/personality/or_response_depth.dart';
 import '../models/dream_ai_analysis.dart';
 import '../models/palm_ai_analysis.dart';
 import '../oracly_ai_service.dart';
+import '../oracly_narrative_tarot_ai_service.dart';
 import '../transport/ai_transport.dart';
 import 'openai_image_analysis.dart';
 import 'openai_paid_requests.dart';
@@ -25,7 +26,8 @@ class OpenAiOraclyAiService
     implements
         OraclyAiService,
         OraclyStagedImageAiService,
-        OraclyEvidenceMemoryAiService {
+        OraclyEvidenceMemoryAiService,
+        OraclyNarrativeTarotAiService {
   OpenAiOraclyAiService({
     required this._config,
     required this._transport,
@@ -153,6 +155,26 @@ class OpenAiOraclyAiService
             ),
           ),
           _config.model,
+        );
+      },
+    );
+  }
+
+  @override
+  Future<AiOutcome<Map<String, dynamic>>> generateNarrativeTarotReading({
+    required Map<String, dynamic> payload,
+    required String fingerprint,
+  }) {
+    return _guard.runOutcome(
+      'tarot-narrative:$fingerprint',
+      kind: AiRequestKind.tarot,
+      fingerprint: fingerprint,
+      () async {
+        return _transport.execute(
+          OpenAiPaidRequests.tarotNarrative(
+            payload: payload,
+            fingerprint: fingerprint,
+          ),
         );
       },
     );

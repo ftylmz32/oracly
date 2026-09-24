@@ -13,6 +13,14 @@ abstract final class ProductFeatureFlags {
     defaultValue: true,
   );
 
+  /// Phase 6F — Classical single/three/five Narrative V2 live path.
+  /// Remote `false` restores legacy AI Tarot without migration.
+  static const tarotNarrativeV2 = FeatureFlagDefinition(
+    key: 'tarot_narrative_v2',
+    type: FeatureFlagType.boolean,
+    defaultValue: true,
+  );
+
   static const tarotAnimation = FeatureFlagDefinition(
     key: 'tarot_animation',
     type: FeatureFlagType.boolean,
@@ -46,6 +54,7 @@ abstract final class ProductFeatureFlags {
 
   static const catalog = <FeatureFlagDefinition>[
     tarot7Card,
+    tarotNarrativeV2,
     tarotAnimation,
     newOrVoice,
     coffeeResult,
