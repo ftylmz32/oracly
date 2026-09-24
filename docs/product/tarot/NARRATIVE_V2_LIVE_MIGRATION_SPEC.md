@@ -282,12 +282,20 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6B — Signature history normalizer (Phase 4 reopen: narrow)
 
-- **Status:** **PASS** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — functional behavior independently verified; follow-up → 6B.1  
 - **Goal:** Crossroads history normalize as `signature.crossroads`  
 - **Added:** `SignatureHistorySpreadNormalizer` · `supportedFromSpread` / `supportedFromPersisted`  
 - **Preserve:** H7/H19/privacy/owner/source/forbidSameSpreadAlone · `classicalFromSpread` Classical-only  
 - **Live impact:** NONE (still no live V2 · picker false · current Crossroads builder unsupported)  
 - **Rollback:** session/legacy resolve via `classicalFromSpread` / `classicalFromTitle` only  
+- **Next:** **Phase 6B.1**
+
+### 6B.1 — Signature history resolver unexpected-error hardening
+
+- **Status:** **PASS** (2026-09-24) — pending independent ChatGPT verification  
+- **Goal:** Remove broad catch that silently converted Crossroads resolver invariant failures into `skippedMalformed`  
+- **Production:** `signature_history_spread_normalizer.dart` only  
+- **LOCKED:** Malformed persisted spread data may fail closed. Internal Signature semantic-resolution invariant failures must not be silently converted into malformed-history skips.  
 - **Next:** Independent verify → **Phase 6C**
 
 ### 6C — Narrative request → live serializer + cache identity
@@ -399,6 +407,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6B verification**, then **Phase 6C** — Narrative request → live serializer + cache identity.
+**Independent Phase 6B.1 verification**, then **Phase 6C** — Narrative request → live serializer + cache identity.
 
-Phase 6A/6A.1 independently verified. Seam D (history) **IMPLEMENTED** in 6B. Seam C / 6G still later. Live Narrative V2 still **NOT WIRED**.
+Phase 6A/6A.1 independently verified. Phase 6B functional **PASS** (independently verified). Phase 6B.1 broad-catch removal **PASS** (pending verify). Live Narrative V2 still **NOT WIRED**.

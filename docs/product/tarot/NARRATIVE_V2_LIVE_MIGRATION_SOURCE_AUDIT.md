@@ -503,6 +503,25 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Crossroads picker | **false** |
 | Next | Independent 6B verification → **Phase 6C** |
 
+**Phase 6B functional behavior independently verified (ChatGPT).**
+
+**Independent follow-up:** broad `catch (_)` around Signature resolution silently converted invariant/programming failures into `null` / `skippedMalformed`.
+
+---
+
+## 13.4 — Phase 6B.1 Signature history resolver hardening
+
+**Date:** 2026-09-24 · **Kind:** fail-visible Crossroads resolution
+
+| Fact | Value |
+|---|---|
+| Broad catch removed | **YES** |
+| Crossroads internal resolution errors silently swallowed | **NO** |
+| Non-Signature `fromSpread` | still **null** (no throw) |
+| Unknown persisted data | still fail-closed as **null** |
+| Phase 4 production | **UNCHANGED** |
+| Next | Independent 6B.1 verification → **Phase 6C** |
+
 ---
 
 ## 14 — Live path firewall (6.0)

@@ -1173,11 +1173,12 @@ Chronological project execution ledger.
 | PL-T6.0.3 | Tarot Phase 6.0.3 — Safety preflight before affordability + quality retry firewall | **PASS** (independently verified before 6A) |
 | PL-T6A | Tarot Phase 6A — Classical-preserving spread + edge provider seams | **PASS** (Classical parity verified; follow-up → 6A.1) |
 | PL-T6A.1 | Tarot Phase 6A.1 — Provider/spread identity fail-closed hardening | **PASS** (independently verified) |
-| PL-T6B | Tarot Phase 6B — Signature history normalization / Crossroads FACT | **PASS** (pending independent verify) |
+| PL-T6B | Tarot Phase 6B — Signature history normalization / Crossroads FACT | **PASS** (independently verified; follow-up → 6B.1) |
+| PL-T6B.1 | Tarot Phase 6B.1 — Signature history resolver unexpected-error hardening | **PASS** (pending independent verify) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN; 6A/6A.1 narrow reopen) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (6B narrow reopen for history normalize) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | **RE-FROZEN** after 5F.1 independent verification |
-| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6B verify, then 6C** |
+| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6B.1 verify, then 6C** |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
 | PL-T9 | Tarot Phase 9 — red-team QA | PLANNED |
