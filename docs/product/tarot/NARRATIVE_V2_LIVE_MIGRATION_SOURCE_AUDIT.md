@@ -767,6 +767,27 @@ Independent ChatGPT verification of 6E.3 confirmed Result Contract V2, `memoryIn
 
 ---
 
+## 13.15 — Phase 6E.4 Controlled real-provider Manifest V2 shadow QA
+
+**Date:** 2026-09-24 · **Kind:** authorized real-provider QA · **6** calls used · **0** remaining
+
+| Fact | Value |
+|---|---|
+| QA RUN HEAD | `6e2fa96ab1ca0bfc48f2ac7a84a3a6557a7dee92` |
+| Manifest | V2 · 6 entries · unchanged |
+| Precall | **PASS** (6/6) |
+| Transport successes | **0 / 6** · all `provider_error` |
+| Backend structured / client / AiQuality | **0** |
+| Structured prose captured | **NONE** (typed failures only · not fabricated) |
+| Likely cause (unfixed in-run) | OpenAI strict schema reject — `uniqueItems` on `memoryIndices` |
+| Production modified during run | **NO** |
+| Live / 6F | **NO** |
+| Next | Schema remediation phase → **NEW** Manifest V2 authorization — NOT 6F |
+
+Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E4_V2.md` · `tarot_narrative_provider_shadow_results_6e4_v2.json`
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  

@@ -417,13 +417,21 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E.3.1 — Backend Narrative prose-quality fail-loud hardening
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent verification  
+- **Status:** **PASS** (independently verified)  
 - **LOCKED:**  
   - Expected provider prose-quality rejection → fail-closed `invalid_response`  
   - Unexpected quality-engine / programming error → **fail loud** (no broad catch)  
   - Pure detector `findDeterministicFuture` at parser boundary (not exception-as-control-flow)  
   - Pattern sets / Result Contract V2 / prompts / Flutter / Manifest V2 **unchanged**  
-- **Next:** Independent verify → **request NEW explicit authorization for Manifest V2 provider run** — **NOT 6F**
+
+### 6E.4 — Controlled real-provider Narrative shadow QA (Manifest V2)
+
+- **Status:** **EXECUTED** · **0/6 transport success** · authorization **exhausted**  
+- **LOCKED:**  
+  - Precall **PASS** · Result Contract V2 target · no production mid-run changes  
+  - Typed `provider_error` failures preserved · no fabricated structured results  
+  - Writing-quality review **blocked** until schema/transport remediation + NEW auth  
+- **Next:** Schema remediation (likely remove OpenAI-unsupported `uniqueItems`) → independent verify → **NEW Manifest V2 authorization** — **NOT 6F**
 
 ### 6F — Classical live cutover (single/three/five only)
 
