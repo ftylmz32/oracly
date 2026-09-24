@@ -71,7 +71,6 @@ abstract final class NarrativeTarotPromptMappers {
       rightPositionKey: r.rightPositionKey,
       kind: r.kind.name,
       strength: r.strength,
-      note: r.noteKeyOrText,
     );
   }
 

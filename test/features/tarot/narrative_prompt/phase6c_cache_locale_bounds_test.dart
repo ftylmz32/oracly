@@ -14,6 +14,7 @@ import 'package:oracly_new/features/tarot/narrative/evidence/narrative_request.d
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_spread_semantics.dart';
 import 'package:oracly_new/features/tarot/narrative/prompt/narrative_tarot_prompt_serializer.dart';
 
+import 'narrative_prompt_special_requests.dart';
 import 'narrative_prompt_test_support.dart';
 
 void main() {

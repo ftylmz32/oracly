@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 
 import '../evidence/narrative_request.dart';
 import 'narrative_tarot_prompt_canonical.dart';
+import 'narrative_tarot_prompt_evidence_parts.dart';
 import 'narrative_tarot_prompt_input.dart';
 import 'narrative_tarot_prompt_serializer.dart';
 
@@ -32,6 +33,25 @@ abstract final class NarrativeTarotCacheIdentity {
     required String sessionId,
     required String readingId,
   }) {
+    if (input.narrativeTarotVersion !=
+        TarotNarrativeRequest.currentNarrativeVersion) {
+      throw ArgumentError(
+        'cache narrativeTarotVersion ${input.narrativeTarotVersion} '
+        '!= ${TarotNarrativeRequest.currentNarrativeVersion}',
+      );
+    }
+    if (input.serializerVersion != NarrativeTarotPromptInput.kSerializerVersion) {
+      throw ArgumentError(
+        'cache serializerVersion ${input.serializerVersion} '
+        '!= ${NarrativeTarotPromptInput.kSerializerVersion}',
+      );
+    }
+    if (input.policy.version != NarrativePromptPolicy.v1.version) {
+      throw ArgumentError(
+        'cache policyVersion ${input.policy.version} '
+        '!= ${NarrativePromptPolicy.v1.version}',
+      );
+    }
     final envelope = {
       'narrativeTarotVersion': input.narrativeTarotVersion,
       'serializerVersion': input.serializerVersion,

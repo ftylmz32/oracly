@@ -1,14 +1,16 @@
 {
   "schemaVersion": 1,
   "fixtureId": "tarot_narrative_prompt_v1",
-  "phase": "6C",
+  "phase": "6C.1",
   "serializerVersion": 1,
   "policyVersion": "narrative_policy_v1",
   "cacheKeyPrefix": "narrative_tarot_v2_s1_",
   "notes": [
     "Frozen Phase 6C serialization + cache identity goldens.",
-    "Do not regenerate on test failure — review serializer version first.",
-    "signature_manual_spread_generic does NOT mean Crossroads builder support."
+    "6C.1: privacy sentinel uses threeCard correspondence-safe relationships;",
+    "6C.1: signature scenario uses real Phase 5 Crossroads 5-card projection;",
+    "6C.1: relationship note removed from model-facing DTO (v1).",
+    "Do not regenerate on test failure — review serializer version first."
   ],
   "scenarios": [
     {
@@ -591,30 +593,79 @@
     {
       "id": "privacy_sentinel_internal_ids",
       "description": "Internal provenance sentinels must not appear in modelInput",
-      "cacheKey": "narrative_tarot_v2_s1_378d1639572a6d205364b82d6379e332e5d5ffa26e2893f6301cf6d3d1cf0b56",
+      "cacheKey": "narrative_tarot_v2_s1_0dfe351ddf35313f2b3660bd91ef55221705b2ca1a950eb272559ab28a665ffd",
       "modelInput": {
         "cards": [
           {
-            "canonicalCardId": "major_00",
-            "coreMeaning": "Approaching a new threshold without certainty, yet with openness to learn.",
-            "displayName": "The Fool",
+            "canonicalCardId": "major_01",
+            "coreMeaning": "It reflects the capacity to direct intention, skill, and available tools into conscious work.",
+            "displayName": "The Magician",
             "isReversed": false,
             "keywordIds": [
-              "threshold",
-              "curiosity",
-              "freedom"
+              "craft",
+              "focus",
+              "agency"
             ],
-            "light": "Curiosity can make room for a fresh experience beyond familiar boundaries.",
-            "orientationExpression": "An open mind and flexibility support a lively yet measured encounter with the unknown.",
+            "light": "Focused ability can turn an abstract idea into a tangible beginning.",
+            "orientationExpression": "When skill aligns with intention, creative power moves in a concrete and responsible way.",
             "positionIndex": 0,
-            "positionKey": "sign",
-            "shadow": "The wish for freedom can become a scattered leap that overlooks consequences.",
+            "positionKey": "past",
+            "shadow": "The power to influence can be used for control or display rather than clarity.",
             "symbolTags": [
-              "threshold",
-              "curiosity",
-              "freedom"
+              "craft",
+              "focus",
+              "agency"
             ],
-            "tension": "The urge to move forward coexists with the need to test the ground.",
+            "tension": "There is tension between proving potential and practicing patient mastery.",
+            "transforms": []
+          },
+          {
+            "canonicalCardId": "major_06",
+            "coreMeaning": "Intimacy, aligned values, and bringing the whole self into a choice.",
+            "displayName": "The Lovers",
+            "isReversed": true,
+            "keywordIds": [
+              "discord",
+              "indecision",
+              "imbalance"
+            ],
+            "light": "An open bond can create mutual recognition and union without erasing difference.",
+            "orientationExpression": "Alignment may fracture, choice may be delayed, or connection may drift from inner integrity.",
+            "positionIndex": 1,
+            "positionKey": "present",
+            "shadow": "Attraction can lead to overlooking core differences or postponing a necessary choice.",
+            "symbolTags": [
+              "choice",
+              "union",
+              "values"
+            ],
+            "tension": "The desire for union meets the need to preserve personal integrity.",
+            "transforms": [
+              "delay",
+              "misdirection"
+            ]
+          },
+          {
+            "canonicalCardId": "major_11",
+            "coreMeaning": "It represents weighing facts carefully, recognizing consequences, and remaining accountable.",
+            "displayName": "Justice",
+            "isReversed": false,
+            "keywordIds": [
+              "balance",
+              "truth",
+              "accountability"
+            ],
+            "light": "Honest assessment can establish fair, consistent ground within a complex situation.",
+            "orientationExpression": "Clear standards and honest responsibility make a balanced evaluation possible.",
+            "positionIndex": 2,
+            "positionKey": "future",
+            "shadow": "The pursuit of correctness can become harsh judgment or a demand for perfection.",
+            "symbolTags": [
+              "balance",
+              "truth",
+              "accountability"
+            ],
+            "tension": "Balance must be found between objective standards and the nuances of human circumstances.",
             "transforms": []
           }
         ],
@@ -649,14 +700,14 @@
           "version": "narrative_policy_v1"
         },
         "question": {
-          "hasRealQuestion": false,
+          "hasRealQuestion": true,
           "kind": "open",
-          "text": null,
+          "text": "Tell me about this season of my life.",
           "topic": null
         },
         "recurringCards": [
           {
-            "canonicalCardId": "major_00",
+            "canonicalCardId": "major_01",
             "contextsOverlap": true,
             "occurrenceCount": 1,
             "occurrences": [
@@ -665,8 +716,8 @@
                 "isReversed": false,
                 "occurredAtUtc": "2026-08-01T10:00:00.000Z",
                 "orientationKnown": true,
-                "positionKey": "sign",
-                "spreadId": "classical.single"
+                "positionKey": "past",
+                "spreadId": "classical.threeCard"
               }
             ],
             "overlapSummaryKey": "overlap.threshold"
@@ -675,7 +726,7 @@
         "recurringThemes": [
           {
             "relatedCardIds": [
-              "major_00"
+              "major_01"
             ],
             "relevanceToCurrentAsk": 0.55,
             "supportCount": 2,
@@ -684,62 +735,174 @@
         ],
         "relationships": [
           {
-            "kind": "reinforcement",
-            "leftCardId": "major_00",
-            "leftPositionKey": "sign",
-            "note": "safe model note",
-            "rightCardId": "major_00",
-            "rightPositionKey": "sign",
-            "strength": 0.4
+            "kind": "contrast",
+            "leftCardId": "major_06",
+            "leftPositionKey": "present",
+            "rightCardId": "major_11",
+            "rightPositionKey": "future",
+            "strength": 0.4571428571428572
           }
         ],
         "serializerVersion": 1,
         "spread": {
-          "cardCount": 1,
-          "geometryHook": "singlePoint",
+          "cardCount": 3,
+          "geometryHook": "linearRow",
           "interpretationOrder": [
-            0
+            0,
+            1,
+            2
           ],
-          "lengthBand": "short",
+          "lengthBand": "medium",
           "positions": [
             {
               "index": 0,
-              "positionKey": "sign",
-              "role": "signal",
-              "temporal": "atemporal"
+              "positionKey": "past",
+              "role": "root",
+              "temporal": "past"
+            },
+            {
+              "index": 1,
+              "positionKey": "present",
+              "role": "state",
+              "temporal": "present"
+            },
+            {
+              "index": 2,
+              "positionKey": "future",
+              "role": "direction",
+              "temporal": "future"
             }
           ],
-          "spreadId": "classical.single"
+          "spreadId": "classical.threeCard"
         }
       }
     },
     {
       "id": "signature_manual_spread_generic",
-      "description": "Manually constructed Signature spread — NOT Crossroads builder support",
-      "cacheKey": "narrative_tarot_v2_s1_c8e0e1bab9f1f8aa77fe53fe2aaabf4e7db5ac42485b3c58cecba150819158e8",
+      "description": "TEST-ONLY valid Phase 5 Crossroads projection — NOT builder support",
+      "cacheKey": "narrative_tarot_v2_s1_866134cde68076027aa3101a210937816496404eed3e3a8ad1f038c2fcd84995",
       "modelInput": {
         "cards": [
           {
             "canonicalCardId": "major_00",
             "coreMeaning": "Approaching a new threshold without certainty, yet with openness to learn.",
-            "displayName": "The Fool",
-            "isReversed": false,
+            "desire": "One may long to meet oneself without the weight of old definitions.",
+            "displayName": "Шут",
+            "fear": "Beneath the fresh start may sit a concern about being unprepared or losing direction.",
+            "isReversed": true,
             "keywordIds": [
-              "threshold",
-              "curiosity",
-              "freedom"
+              "haste",
+              "scatter",
+              "avoidance"
             ],
-            "light": "Curiosity can make room for a fresh experience beyond familiar boundaries.",
-            "orientationExpression": "An open mind and flexibility support a lively yet measured encounter with the unknown.",
+            "orientationExpression": "Starting energy may lose direction through hesitation or an unconsidered rush.",
             "positionIndex": 0,
-            "positionKey": "question",
-            "shadow": "The wish for freedom can become a scattered leap that overlooks consequences.",
+            "positionKey": "option_a",
+            "relationshipDynamic": "It brings freshness to a bond while asking that intimacy not be treated lightly.",
             "symbolTags": [
               "threshold",
               "curiosity",
               "freedom"
             ],
             "tension": "The urge to move forward coexists with the need to test the ground.",
+            "transforms": [
+              "avoidance",
+              "misdirection"
+            ]
+          },
+          {
+            "canonicalCardId": "major_11",
+            "coreMeaning": "It represents weighing facts carefully, recognizing consequences, and remaining accountable.",
+            "desire": "A need for the situation to be seen clearly and effort treated fairly can become visible.",
+            "displayName": "Справедливость",
+            "fear": "Being misunderstood, facing an unfair outcome, or confronting one's part may feel difficult.",
+            "isReversed": false,
+            "keywordIds": [
+              "balance",
+              "truth",
+              "accountability"
+            ],
+            "orientationExpression": "Clear standards and honest responsibility make a balanced evaluation possible.",
+            "positionIndex": 1,
+            "positionKey": "option_b",
+            "relationshipDynamic": "It makes reciprocity and responsibility visible while allowing room for both experiences.",
+            "symbolTags": [
+              "balance",
+              "truth",
+              "accountability"
+            ],
+            "tension": "Balance must be found between objective standards and the nuances of human circumstances.",
+            "transforms": []
+          },
+          {
+            "canonicalCardId": "wands_01",
+            "coreMeaning": "A first spark of will not yet shaped, and the heat of a fresh beginning.",
+            "desire": "A longing to turn inner heat into a real beginning may surface.",
+            "displayName": "Туз Жезлов",
+            "fear": "There may be concern that the spark will dull or smother in excess flame.",
+            "isReversed": false,
+            "keywordIds": [
+              "spark",
+              "agency",
+              "momentum"
+            ],
+            "orientationExpression": "Measured will keeps an unshaped spark alive and workable.",
+            "positionIndex": 2,
+            "positionKey": "tension",
+            "relationshipDynamic": "It brings fresh courage to a bond while asking warmth to be tested, not imposed.",
+            "symbolTags": [
+              "creation",
+              "vitality",
+              "will"
+            ],
+            "tension": "The urge to act at once sits beside the need to protect the spark.",
+            "transforms": []
+          },
+          {
+            "canonicalCardId": "wands_12",
+            "coreMeaning": "Fire in motion; the destination is not yet home.",
+            "desire": "Turning restless heat into a meaningful road may become important.",
+            "displayName": "Рыцарь Жезлов",
+            "fear": "Burning on the road, arriving nowhere, or merely escaping may cause unease.",
+            "isReversed": false,
+            "keywordIds": [
+              "threshold",
+              "desire",
+              "direction"
+            ],
+            "orientationExpression": "Directed motion turns fire into lively travel without mistaking it for home.",
+            "positionIndex": 3,
+            "positionKey": "counsel",
+            "relationshipDynamic": "A strong ardor can rise between people, and it travels better when it does not scorch what it passes.",
+            "symbolTags": [
+              "movement",
+              "desire",
+              "direction"
+            ],
+            "tension": "Forward fire contends with remembering that taking root is another task.",
+            "transforms": []
+          },
+          {
+            "canonicalCardId": "cups_09",
+            "coreMeaning": "A full cup as personal enough, not staged happiness.",
+            "desire": "Calm emotional fullness within oneself may be what is sought.",
+            "displayName": "Девятка Кубков",
+            "fear": "Fullness vanishing, or looking like a lonely victory, may cause unease.",
+            "isReversed": false,
+            "keywordIds": [
+              "enough",
+              "joy"
+            ],
+            "orientationExpression": "Inner enough keeps the full cup calm without making a stage of it.",
+            "positionIndex": 4,
+            "positionKey": "direction",
+            "relationshipDynamic": "One may bring personal emotional contentment into connection without needing the bond to manufacture that worth.",
+            "symbolTags": [
+              "joy",
+              "abundance",
+              "solitude"
+            ],
+            "tension": "Protecting personal enough coexists with the need not to climb a sharing stage.",
             "transforms": []
           }
         ],
@@ -775,18 +938,46 @@
         "relationships": [],
         "serializerVersion": 1,
         "spread": {
-          "cardCount": 1,
-          "geometryHook": "singlePoint",
+          "cardCount": 5,
+          "geometryHook": "linearRow",
           "interpretationOrder": [
-            0
+            0,
+            1,
+            2,
+            3,
+            4
           ],
-          "lengthBand": "medium",
+          "lengthBand": "full",
           "positions": [
             {
               "index": 0,
-              "positionKey": "question",
-              "role": "question",
-              "temporal": "present"
+              "positionKey": "option_a",
+              "role": "direction",
+              "temporal": "atemporal"
+            },
+            {
+              "index": 1,
+              "positionKey": "option_b",
+              "role": "direction",
+              "temporal": "atemporal"
+            },
+            {
+              "index": 2,
+              "positionKey": "tension",
+              "role": "challenge",
+              "temporal": "atemporal"
+            },
+            {
+              "index": 3,
+              "positionKey": "counsel",
+              "role": "support",
+              "temporal": "atemporal"
+            },
+            {
+              "index": 4,
+              "positionKey": "direction",
+              "role": "direction",
+              "temporal": "future"
             }
           ],
           "spreadId": "signature.crossroads"

@@ -9,7 +9,6 @@ final class NarrativePromptRelationship {
     required this.rightPositionKey,
     required this.kind,
     required this.strength,
-    this.note,
   });
 
   final String leftCardId;
@@ -18,7 +17,6 @@ final class NarrativePromptRelationship {
   final String rightPositionKey;
   final String kind;
   final double strength;
-  final String? note;
 }
 
 final class NarrativePromptOccurrence {

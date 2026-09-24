@@ -300,7 +300,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6C — Narrative request → model-input serializer + cache identity
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified; follow-up → **6C.1**  
 - **Goal:** Pure `TarotNarrativeRequest` → `NarrativeTarotPromptInput`; canonical form; SHA-256 V2 cache identity  
 - **Package:** `lib/features/tarot/narrative/prompt/`  
 - **Serializer version:** `1` · **Policy:** `narrative_policy_v1`  
@@ -308,6 +308,20 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 - **Unchanged:** backend · `OraclyAiService` · `AiInterpretationExecutor` · `ReadingContext.cacheKey` · live proxy payload  
 - **OPEN MINOR (6D):** exact external backend JSON field names  
 - **Live Narrative V2:** still **NOT WIRED**  
+- **Next:** **Phase 6C.1**
+
+### 6C.1 — Narrative prompt structural integrity + version/locale fail-closed
+
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **LOCKED:**  
+  - `interpretationOrder` exact permutation of position indices  
+  - relationship card ↔ position correspondence; no self-pairs  
+  - current Narrative / serializer / policy versions validated (cache namespace cannot lie)  
+  - normalized supported locales only: `tr` / `en` / `ru`  
+  - v1 relationship `noteKeyOrText` **NOT** model-facing  
+  - excluded memory (`included=false`) cannot carry hidden entries  
+- **Serializer version remains 1** (pre-freeze hardening, not a schema bump)  
+- **Live call sites:** **0**  
 - **Next:** Independent verify → **Phase 6D**
 
 ### 6D — Structured result parse + Narrative quality validator
@@ -413,6 +427,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6C verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
+**Independent Phase 6C.1 verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
 
-Phase 6A / 6A.1 / 6B / 6B.1 independently verified. Phase 6C serializer + cache identity **IMPLEMENTED** (pending verify). Exact backend JSON field names still **OPEN MINOR** for 6D. Live Narrative V2 still **NOT WIRED**.
+Phase 6A / 6A.1 / 6B / 6B.1 / 6C independently verified. Phase 6C.1 structural hardening **IMPLEMENTED** (pending verify). Exact backend JSON field names still **OPEN MINOR** for 6D. Live Narrative V2 still **NOT WIRED**.

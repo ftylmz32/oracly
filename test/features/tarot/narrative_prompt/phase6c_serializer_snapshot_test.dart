@@ -11,6 +11,7 @@ import 'package:oracly_new/features/tarot/narrative/prompt/narrative_tarot_promp
 import 'package:oracly_new/features/tarot/narrative/prompt/narrative_tarot_prompt_input.dart';
 import 'package:oracly_new/features/tarot/narrative/prompt/narrative_tarot_prompt_serializer.dart';
 
+import 'narrative_prompt_special_requests.dart';
 import 'narrative_prompt_test_support.dart';
 
 void main() {

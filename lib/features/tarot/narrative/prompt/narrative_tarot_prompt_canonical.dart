@@ -46,7 +46,6 @@ abstract final class NarrativeTarotPromptCanonical {
             'rightPositionKey': r.rightPositionKey,
             'kind': r.kind,
             'strength': r.strength,
-            if (r.note != null) 'note': r.note,
           },
       ],
       'recurringCards': [

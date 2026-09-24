@@ -54,8 +54,7 @@ abstract final class NarrativeTarotPromptSerializer {
       for (final c in request.cards) c.positionIndex: c,
     };
     return [
-      for (final i in request.spread.interpretationOrder)
-        if (byIndex[i] != null) byIndex[i]!,
+      for (final i in request.spread.interpretationOrder) byIndex[i]!,
     ];
   }
 }

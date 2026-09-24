@@ -9,6 +9,7 @@ import 'package:oracly_new/features/tarot/narrative/evidence/narrative_relations
 import 'package:oracly_new/features/tarot/narrative/prompt/narrative_tarot_cache_identity.dart';
 import 'package:oracly_new/features/tarot/narrative/prompt/narrative_tarot_prompt_serializer.dart';
 
+import 'narrative_prompt_special_requests.dart';
 import 'narrative_prompt_test_support.dart';
 
 void main() {
@@ -27,6 +28,7 @@ void main() {
         'rec_theme_01',
         'SECRET_HINT_SHOULD_NOT_AUTHORIZE',
         'SECRET_THEME_HINT',
+        'SECRET_INTERNAL_RELATION_NOTE_6C1',
       ];
       for (final s in secrets) {
         expect(encoded.contains(s), isFalse, reason: s);

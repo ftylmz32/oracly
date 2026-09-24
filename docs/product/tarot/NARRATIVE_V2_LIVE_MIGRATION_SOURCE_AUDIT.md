@@ -545,6 +545,39 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Live Narrative V2 | **NOT WIRED** |
 | Next | Independent 6C verification → **Phase 6D** |
 
+**Phase 6C independently verified (ChatGPT) for privacy / SHA-256 / bounds / locales / live call sites = 0.**
+
+**Independent follow-up defects (not frozen):**
+
+| ID | Gap |
+|---|---|
+| M1 | `interpretationOrder` not required to be exact permutation → silent card omit/dup |
+| M2 | relationship card id vs position key correspondence not validated |
+| M3 | `keyForInput` accepted mismatched narrative/serializer/policy versions under v2/s1 prefix |
+| M4 | unsupported `languageCode` used TR fallback prose via `L10nTriple.of` |
+| M5 | uncontracted `noteKeyOrText` copied into model-facing relationship DTO |
+
+---
+
+## 13.6 — Phase 6C.1 Narrative prompt structural integrity hardening
+
+**Date:** 2026-09-24 · **Kind:** pre-freeze serializer contract fail-closed
+
+| Fact | Value |
+|---|---|
+| M1–M5 remediated | **YES** |
+| interpretationOrder | exact permutation of `0..cardCount-1` |
+| relationship correspondence | card ↔ position required; self-pairs rejected |
+| relationship note model-facing | **NO** (v1) |
+| supported locales | exact `tr` / `en` / `ru` only |
+| cache version namespace | narrative + serializer + policy validated before hash |
+| Signature fixture | real Phase 5 Crossroads 5-card projection (TEST-ONLY) |
+| False 1-card Crossroads fixture | **REMOVED** |
+| Cache goldens changed | `privacy_sentinel_internal_ids`, `signature_manual_spread_generic` (2/8) |
+| Serializer / policy version | still **1** / `narrative_policy_v1` |
+| Live call sites | **0** |
+| Next | Independent 6C.1 verification → **Phase 6D** |
+
 ---
 
 ## 14 — Live path firewall (6.0)

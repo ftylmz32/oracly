@@ -50,9 +50,11 @@ TarotNarrativeRequest copyRequest(
   List<TarotRecurringCardEvidence>? recurringCards,
   List<TarotRecurringThemeEvidence>? recurringThemes,
   RequestBounds? bounds,
+  int? narrativeTarotVersion,
 }) {
   return TarotNarrativeRequest(
-    narrativeTarotVersion: r.narrativeTarotVersion,
+    narrativeTarotVersion:
+        narrativeTarotVersion ?? r.narrativeTarotVersion,
     languageCode: languageCode ?? r.languageCode,
     sessionId: sessionId ?? r.sessionId,
     readingId: readingId ?? r.readingId,
@@ -78,123 +80,6 @@ TarotNarrativeRequest enrichedForSerialize() {
     currentOwnerId: null,
     privacyBlocked: false,
     now: nowFixed,
-  );
-}
-
-TarotNarrativeRequest privacySentinelRequest() {
-  final base = buildFromCorpusId('single_open_fool_en');
-  final card = base.cards.first;
-  final at = DateTime.utc(2026, 8, 1, 10);
-  return copyRequest(
-    base,
-    sessionId: 'scope_session_6c',
-    readingId: 'scope_reading_6c',
-    memory: TarotNarrativeMemoryEvidence(
-      included: true,
-      priorReadingCount: 1,
-      recentCardNames: const ['SECRET_HINT_SHOULD_NOT_AUTHORIZE'],
-      recurringThemeLabels: const ['SECRET_THEME_HINT'],
-      omitReason: 'included',
-      entries: [
-        MemoryEvidenceEntry(
-          evidenceRef: 'SECRET_EVIDENCE_6C',
-          kind: MemoryEvidenceKind.memorySummary,
-          contentForModel: 'A calm prior reflection about thresholds.',
-          sourceType: 'coffee',
-          sourceId: 'SECRET_SOURCE_6C',
-          occurredAt: at,
-          confidence: 0.7,
-          epistemic: MemoryEvidenceEpistemic.interpretation,
-        ),
-      ],
-    ),
-    recurringCards: [
-      TarotRecurringCardEvidence(
-        evidenceId: 'rec_card_01',
-        canonicalCardId: card.canonicalCardId,
-        occurrenceCount: 1,
-        contextsOverlap: true,
-        overlapSummaryKey: 'overlap.threshold',
-        occurrences: [
-          RecurringOccurrence(
-            readingId: 'SECRET_READING_ID_6C',
-            at: at,
-            spreadId: 'classical.single',
-            positionKey: 'sign',
-            isReversed: false,
-            orientationKnown: true,
-            intentionSummary: 'prior threshold visit',
-          ),
-        ],
-      ),
-    ],
-    recurringThemes: [
-      TarotRecurringThemeEvidence(
-        evidenceId: 'rec_theme_01',
-        themeIdOrLabel: 'threshold',
-        supportCount: 2,
-        supportingReadingIds: const ['SECRET_READING_ID_6C'],
-        relatedCardIds: [card.canonicalCardId],
-        relevanceToCurrentAsk: 0.55,
-      ),
-    ],
-    relationships: [
-      TarotNarrativeRelationshipEvidence(
-        evidenceId: 'rel_01',
-        leftCardId: card.canonicalCardId,
-        rightCardId: card.canonicalCardId,
-        leftPositionKey: 'sign',
-        rightPositionKey: 'sign',
-        kind: RelationshipKind.reinforcement,
-        provenance: 'SECRET_OWNER_6C',
-        strength: 0.4,
-        noteKeyOrText: 'safe model note',
-      ),
-    ],
-  );
-}
-
-TarotNarrativeRequest signatureManualRequest() {
-  final base = buildFromCorpusId('single_open_fool_en');
-  final card = base.cards.first;
-  final spread = SpreadSemanticDefinition(
-    spreadId: 'signature.crossroads',
-    legacyTypeName: 'crossroads',
-    cardCount: 1,
-    purposeKey: 'purpose.signature.crossroads',
-    positions: const [
-      SpreadPositionSemantic(
-        positionKey: 'question',
-        index: 0,
-        role: PositionRole.question,
-        guidingQuestionKey: 'gq.signature.crossroads.question',
-        temporal: TemporalOrientation.present,
-        relationToOtherSlots: [],
-        weight: 1,
-        displayLabelKey: 'label.signature.crossroads.question',
-      ),
-    ],
-    interpretationOrder: const [0],
-    geometryHook: NarrativeGeometryHook.singlePoint,
-    lengthBand: NarrativeLengthBand.medium,
-  );
-  return copyRequest(
-    base,
-    sessionId: 'sig_session',
-    readingId: 'sig_reading',
-    spread: spread,
-    cards: [
-      TarotNarrativeCardEvidence(
-        canonicalCardId: card.canonicalCardId,
-        ritualCardId: card.ritualCardId,
-        isReversed: card.isReversed,
-        positionKey: 'question',
-        positionIndex: 0,
-        displayName: card.displayName,
-        profileSlice: card.profileSlice,
-        imageAsset: card.imageAsset,
-      ),
-    ],
   );
 }
 
@@ -224,5 +109,21 @@ NarrativeEvidenceInput singleTrOpenInput() {
         positionIndex: 0,
       ),
     ],
+  );
+}
+
+SpreadSemanticDefinition withInterpretationOrder(
+  SpreadSemanticDefinition s,
+  List<int> order,
+) {
+  return SpreadSemanticDefinition(
+    spreadId: s.spreadId,
+    legacyTypeName: s.legacyTypeName,
+    cardCount: s.cardCount,
+    purposeKey: s.purposeKey,
+    positions: s.positions,
+    interpretationOrder: order,
+    geometryHook: s.geometryHook,
+    lengthBand: s.lengthBand,
   );
 }
