@@ -1186,10 +1186,11 @@ Chronological project execution ledger.
 | PL-T6E.3 | Tarot Phase 6E.3 — Result Contract V2 + provider quality remediation | **VERIFIED** structurally (ChatGPT); follow-up → 6E.3.1 |
 | PL-T6E.3.1 | Tarot Phase 6E.3.1 — Backend prose-quality fail-loud hardening | **PASS** (independently verified) |
 | PL-T6E.4 | Tarot Phase 6E.4 — Controlled real-provider Manifest V2 shadow QA | **EXECUTED** · 0/6 transport success · auth exhausted · NOT 6F |
+| PL-T6E.4.1 | Tarot Phase 6E.4.1 — OpenAI schema compat + provider error observability | **IMPLEMENTED** (pending independent verify; 0 provider calls) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN; 6A/6A.1 narrow reopen) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (6B narrow reopen for history normalize) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | **RE-FROZEN** after 5F.1 independent verification |
-| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = schema remediation for V2 provider accept → NEW Manifest V2 auth — NOT 6F** |
+| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6E.4.1 verify → repeat Manifest V2 (fresh cap 6) — NOT 6F** |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
 | PL-T9 | Tarot Phase 9 — red-team QA | PLANNED |

@@ -788,6 +788,27 @@ Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E4_V2.md` · `tarot_narrative_provider_
 
 ---
 
+## 13.16 — Phase 6E.4.1 OpenAI Structured Outputs schema compatibility + error observability
+
+**Date:** 2026-09-24 · **Kind:** offline remediation · **0** provider calls
+
+Independent root cause of 6E.4 (valid execution, failed before generation):
+
+| Fact | Value |
+|---|---|
+| Defect | Provider JSON Schema used `uniqueItems: true` on `memoryIndices` |
+| OpenAI Structured Outputs | `uniqueItems` **not** in supported array subset (`minItems`/`maxItems` are) |
+| Fix | Removed `uniqueItems` from provider schema; added `maxItems = maxMemoryEntries` |
+| Result Contract V2 semantics | **unchanged** — backend `parseMemory` + Flutter still reject duplicate / unsorted / global reuse |
+| Observability | Non-OK provider HTTP now keeps bounded `httpStatus` · `requestId` · `providerMessage` on `ProxyError.details` |
+| Client envelope | still `{ success:false, error:{ code } }` only — **no** providerMessage to Flutter |
+| Schema failures | classified `invalid_request` (e.g. `invalid_json_schema`) |
+| Historical 6E.4 / 6E.2 / Manifest V2 | **immutable** |
+| Live / 6F | **NO** |
+| Next | Independent 6E.4.1 verify → **repeat Manifest V2 provider shadow under standing continue instruction · fresh hard cap 6** — NOT 6F |
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  

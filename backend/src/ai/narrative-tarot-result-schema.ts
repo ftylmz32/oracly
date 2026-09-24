@@ -104,8 +104,11 @@ export const NARRATIVE_TAROT_RESULT_SCHEMA = {
           memoryIndices: {
             type: 'array',
             minItems: 1,
-            items: { type: 'integer', minimum: 0 },
-            uniqueItems: true,
+            maxItems: NARRATIVE_LIMITS.maxMemoryEntries,
+            items: {
+              type: 'integer',
+              minimum: 0,
+            },
           },
           text: textField(NARRATIVE_LIMITS.memoryInsight),
         },

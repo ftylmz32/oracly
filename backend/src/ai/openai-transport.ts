@@ -15,6 +15,38 @@ export type OpenAiCompleteOptions = {
   reasoningEffort?: 'none' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 };
 
+/** Pure chat-completions body builder (no network). Phase 6E.4.1. */
+export function buildChatCompletionBody(
+  options: OpenAiCompleteOptions,
+): Record<string, unknown> {
+  return {
+    model: options.model,
+    messages: options.messages,
+    ...(options.temperature !== undefined
+      ? { temperature: options.temperature }
+      : options.reasoningEffort
+        ? {}
+        : { temperature: 0.6 }),
+    ...(options.reasoningEffort
+      ? { reasoning_effort: options.reasoningEffort }
+      : {}),
+    ...(options.jsonSchema
+      ? {
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              name: options.jsonSchema.name,
+              strict: true,
+              schema: options.jsonSchema.schema,
+            },
+          },
+        }
+      : options.jsonMode
+        ? { response_format: { type: 'json_object' } }
+        : {}),
+  };
+}
+
 export class OpenAiTransport {
   constructor(
     private readonly config: AppConfig,
@@ -40,32 +72,7 @@ export class OpenAiTransport {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${this.config.openaiApiKey}`,
           },
-          body: JSON.stringify({
-            model: options.model,
-            messages: options.messages,
-            ...(options.temperature !== undefined
-              ? { temperature: options.temperature }
-              : options.reasoningEffort
-                ? {}
-                : { temperature: 0.6 }),
-            ...(options.reasoningEffort
-              ? { reasoning_effort: options.reasoningEffort }
-              : {}),
-            ...(options.jsonSchema
-              ? {
-                  response_format: {
-                    type: 'json_schema',
-                    json_schema: {
-                      name: options.jsonSchema.name,
-                      strict: true,
-                      schema: options.jsonSchema.schema,
-                    },
-                  },
-                }
-              : options.jsonMode
-                ? { response_format: { type: 'json_object' } }
-                : {}),
-          }),
+          body: JSON.stringify(buildChatCompletionBody(options)),
         },
       );
       if (response.status === 401 || response.status === 403) {
@@ -183,7 +190,7 @@ const MAX_RATE_LIMIT_HEADER_VALUE_LENGTH = 64;
 const MAX_RATE_LIMIT_HEADERS = 12;
 
 async function rateLimitDetails(response: Response): Promise<Record<string, unknown>> {
-  const details: Record<string, unknown> = {};
+  const details: Record<string, unknown> = { httpStatus: 429 };
 
   const retryAfterMs = parseRetryAfterMs(response.headers.get('retry-after'));
   if (retryAfterMs != null) details.retryAfterMs = retryAfterMs;
@@ -237,14 +244,21 @@ async function readProviderMessage(response: Response): Promise<string | undefin
     const body = (await response.json()) as {
       error?: { type?: unknown; code?: unknown; message?: unknown };
     };
-    const parts = [body.error?.type, body.error?.code, body.error?.message].filter(
-      (value): value is string => typeof value === 'string' && value.length > 0,
-    );
-    if (parts.length === 0) return undefined;
-    return redactSecrets(parts.join(' | ')).slice(0, MAX_PROVIDER_MESSAGE_LENGTH);
+    return formatProviderMessage(body.error);
   } catch {
     return undefined;
   }
+}
+
+function formatProviderMessage(
+  error: { type?: unknown; code?: unknown; message?: unknown } | undefined,
+): string | undefined {
+  if (!error) return undefined;
+  const parts = [error.type, error.code, error.message].filter(
+    (value): value is string => typeof value === 'string' && value.length > 0,
+  );
+  if (parts.length === 0) return undefined;
+  return redactSecrets(parts.join(' | ')).slice(0, MAX_PROVIDER_MESSAGE_LENGTH);
 }
 
 function redactSecrets(text: string): string {
@@ -264,36 +278,65 @@ function mapTransportError(error: unknown): ProxyError {
   return new ProxyError(ErrorCode.providerError);
 }
 
+function isStructuredSchemaFailure(
+  code: string,
+  type: string,
+  message: string,
+): boolean {
+  if (code.includes('invalid_json_schema')) return true;
+  if (message.includes('invalid_json_schema')) return true;
+  if (message.includes('invalid schema')) return true;
+  if (message.includes('unsupported schema')) return true;
+  if (message.includes('response_format schema')) return true;
+  if (message.includes('schema') && message.includes('not permitted')) return true;
+  if (type.includes('invalid_request') && message.includes('schema')) return true;
+  return false;
+}
+
 /** Map provider HTTP failures without leaking raw messages to clients. */
 async function mapHttpFailure(response: Response): Promise<ProxyError> {
+  const details: Record<string, unknown> = { httpStatus: response.status };
+  const requestId =
+    response.headers.get('x-request-id') ?? response.headers.get('request-id');
+  if (requestId) details.requestId = requestId.slice(0, 128);
+
+  let code = '';
+  let type = '';
+  let message = '';
   try {
     const body = (await response.json()) as {
       error?: { code?: unknown; message?: unknown; type?: unknown };
     };
-    const code = String(body.error?.code ?? '').toLowerCase();
-    const type = String(body.error?.type ?? '').toLowerCase();
-    const message = String(body.error?.message ?? '').toLowerCase();
-    if (
-      code.includes('moderation') ||
-      type.includes('moderation') ||
-      message.includes('moderation') ||
-      message.includes('safety system') ||
-      message.includes('content policy')
-    ) {
-      return new ProxyError(ErrorCode.moderationBlocked);
-    }
-    if (
-      response.status === 400 &&
-      (message.includes('unknown parameter') ||
-        message.includes('unsupported') ||
-        message.includes('model') ||
-        code.includes('invalid'))
-    ) {
-      // User-correctable / config errors — never auto-retry upstream.
-      return new ProxyError(ErrorCode.invalidRequest);
-    }
+    code = String(body.error?.code ?? '').toLowerCase();
+    type = String(body.error?.type ?? '').toLowerCase();
+    message = String(body.error?.message ?? '').toLowerCase();
+    const providerMessage = formatProviderMessage(body.error);
+    if (providerMessage) details.providerMessage = providerMessage;
   } catch {
-    /* body unreadable — generic provider error */
+    /* body unreadable — still return status + requestId */
   }
-  return new ProxyError(ErrorCode.providerError);
+
+  if (
+    code.includes('moderation') ||
+    type.includes('moderation') ||
+    message.includes('moderation') ||
+    message.includes('safety system') ||
+    message.includes('content policy')
+  ) {
+    return new ProxyError(ErrorCode.moderationBlocked, response.status, details);
+  }
+  if (isStructuredSchemaFailure(code, type, message)) {
+    return new ProxyError(ErrorCode.invalidRequest, response.status, details);
+  }
+  if (
+    response.status === 400 &&
+    (message.includes('unknown parameter') ||
+      message.includes('unsupported') ||
+      message.includes('model') ||
+      code.includes('invalid'))
+  ) {
+    // User-correctable / config errors — never auto-retry upstream.
+    return new ProxyError(ErrorCode.invalidRequest, response.status, details);
+  }
+  return new ProxyError(ErrorCode.providerError, response.status, details);
 }

@@ -430,8 +430,18 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 - **LOCKED:**  
   - Precall **PASS** · Result Contract V2 target · no production mid-run changes  
   - Typed `provider_error` failures preserved · no fabricated structured results  
-  - Writing-quality review **blocked** until schema/transport remediation + NEW auth  
-- **Next:** Schema remediation (likely remove OpenAI-unsupported `uniqueItems`) → independent verify → **NEW Manifest V2 authorization** — **NOT 6F**
+  - Root cause confirmed offline: OpenAI Structured Outputs rejects `uniqueItems`  
+
+### 6E.4.1 — Provider schema compatibility + error observability
+
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent verification  
+- **LOCKED:**  
+  - Provider schema = OpenAI-supported JSON Schema **subset** only  
+  - Authoritative uniqueness / sort / range / global non-reuse remain in **backend + Flutter** validators  
+  - Safe internal `ProxyError.details` (`httpStatus` · `requestId` · `providerMessage`) · client envelope code-only  
+  - Schema incompatibility → `invalid_request` · generic 5xx → `provider_error`  
+  - Historical 6E.4 evidence **immutable** · **0** provider calls this phase  
+- **Next:** Independent verify → **repeat Provider Shadow V2 (same Manifest V2) under standing continue instruction · fresh hard cap 6** — **NOT 6F**
 
 ### 6F — Classical live cutover (single/three/five only)
 

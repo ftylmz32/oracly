@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-24 — Tarot Phase 6E.4 Manifest V2 provider shadow (transport fail · 6/6) · 6E.3.1 fail-loud frozen
+**Updated:** 2026-09-24 — Tarot Phase 6E.4.1 provider schema compat + observability · 6E.4 evidence frozen
 
 ---
 
@@ -1350,18 +1350,16 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT review of Phase 6E.4 transport-failure evidence** (no prose captured).
+**Independent ChatGPT verification of Phase 6E.4.1** (provider schema compat + observability).
 
-Then: **remediation phase** for Result V2 OpenAI schema acceptance (likely `uniqueItems` on `memoryIndices`) — **NOT 6F**.
+Then, under the user's **standing instruction to continue**: **repeat Provider Shadow Manifest V2** (same manifest) with a **fresh hard cap of 6** real calls — **NOT 6F**.
 
-After schema fix + independent verify: **request NEW explicit authorization** for another Manifest V2 provider run (prior 6E.4 six-call auth **exhausted**).
-
-Phase 6.0–6E.1: **PASS** · 6E.2 execution: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **EXECUTED · 0/6 transport success** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0–6E.1: **PASS** · 6E.2 execution: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **EXECUTED · 0/6 transport** · 6E.4.1: **IMPLEMENTED** (pending verify) · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
 Do **not** begin Phase 6F.
-Do **not** reuse the exhausted 6E.4 six-call authorization.
-Do **not** claim provider quality from this run.
+Do **not** reuse the exhausted 6E.4 six-call authorization without a fresh cap.
+Do **not** claim provider writing quality until a successful structured-prose capture exists.
 Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.

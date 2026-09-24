@@ -41,11 +41,25 @@ function sanitizeFailure(err: unknown): Record<string, unknown> {
   const redacted = msg
     .replace(/Bearer\s+\S+/gi, 'Bearer [REDACTED]')
     .replace(/sk-[A-Za-z0-9_-]+/g, '[REDACTED_KEY]');
-  return {
+  const out: Record<string, unknown> = {
     type: err instanceof Error ? err.constructor.name : 'unknown',
     message: redacted.slice(0, 400),
-    code: err instanceof ProxyError ? err.code : undefined,
   };
+  if (err instanceof ProxyError) {
+    out.code = err.code;
+    out.httpStatus = err.httpStatus;
+    const d = err.details;
+    if (d && typeof d === 'object') {
+      const safe: Record<string, unknown> = {};
+      if (typeof d.requestId === 'string') safe.requestId = d.requestId.slice(0, 128);
+      if (typeof d.providerMessage === 'string') {
+        safe.providerMessage = d.providerMessage.slice(0, 300);
+      }
+      if (typeof d.httpStatus === 'number') safe.httpStatus = d.httpStatus;
+      if (Object.keys(safe).length > 0) out.details = safe;
+    }
+  }
+  return out;
 }
 
 async function main() {
