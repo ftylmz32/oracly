@@ -63,21 +63,25 @@ abstract final class NarrativeTarotShadowParity {
   }) {
     final nCards = narrative.cards;
     final lCards = legacy.cards;
-    var ritual = lCards.length == nCards.length;
-    var canonical = ritual;
-    var reversal = ritual;
-    var posIndex = ritual;
-    var posKey = ritual;
-    for (var i = 0; i < nCards.length && ritual; i++) {
-      final l = lCards[i];
-      final n = nCards[i];
-      ritual = ritual && l.cardId == n.ritualCardId;
-      canonical = canonical &&
-          OraclyTarotBridge.byRitualId(l.cardId)?.id == n.canonicalCardId &&
-          n.canonicalCardId == OraclyTarotBridge.byRitualId(n.ritualCardId)?.id;
-      reversal = reversal && l.isReversed == n.isReversed;
-      posIndex = posIndex && l.positionIndex == n.positionIndex;
-      posKey = posKey && l.positionKey == n.positionKey;
+    final sameLength = lCards.length == nCards.length;
+    var ritual = sameLength;
+    var canonical = sameLength;
+    var reversal = sameLength;
+    var posIndex = sameLength;
+    var posKey = sameLength;
+    if (sameLength) {
+      for (var i = 0; i < nCards.length; i++) {
+        final l = lCards[i];
+        final n = nCards[i];
+        ritual = ritual && l.cardId == n.ritualCardId;
+        canonical = canonical &&
+            OraclyTarotBridge.byRitualId(l.cardId)?.id == n.canonicalCardId &&
+            n.canonicalCardId ==
+                OraclyTarotBridge.byRitualId(n.ritualCardId)?.id;
+        reversal = reversal && l.isReversed == n.isReversed;
+        posIndex = posIndex && l.positionIndex == n.positionIndex;
+        posKey = posKey && l.positionKey == n.positionKey;
+      }
     }
     final hasQ = (legacy.userQuestion ?? '').trim().isNotEmpty;
     return NarrativeTarotShadowParityReport(
@@ -91,8 +95,7 @@ abstract final class NarrativeTarotShadowParity {
           NarrativeTarotShadowLaunch.narrativeSpreadId(sessionSpread) ==
               narrative.spread.spreadId &&
           legacy.spreadType == sessionSpread,
-      cardCount: lCards.length == nCards.length &&
-          nCards.length == narrative.spread.cardCount,
+      cardCount: sameLength && nCards.length == narrative.spread.cardCount,
       ritualCardId: ritual,
       canonicalCardId: canonical,
       reversal: reversal,

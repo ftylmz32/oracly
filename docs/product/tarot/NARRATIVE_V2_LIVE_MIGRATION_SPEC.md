@@ -371,17 +371,31 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E — Classical dual-run harness + shadow corpus
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified; follow-up → **6E.1**  
 - **Deterministic / offline portion:** Classical dual-run harness · 24/24 launch structural parity · 22/22 seven/celtic non-launch · offline result assessor · provider shadow manifest  
 - **Live impact:** NONE · no double charge · real provider calls **0**  
 - **Prose parity:** **NOT required** (shared reading facts only)  
+- **Orchestration:** Phase 5 Classical components by reference; live Classical migration question semantics are **not** restricted by Signature Quick Insight marketing gate  
+- **Independent follow-up:** M1 broad exception swallowing · M2 shallow wire immutability · M3 parity ritual early-exit → **6E.1**  
 - **LOCKED:** 6F live cutover requires:  
   1. 6E deterministic 24/24 structural parity  
   2. 6E offline result pipeline PASS  
   3. separate explicitly authorized controlled real-provider shadow evaluation (manifest max 6)  
   4. independent review of those provider outputs  
 - **Real provider quality claimed by 6E alone:** **NO**  
-- **Next:** Independent 6E verification → **controlled real-provider shadow evaluation before 6F**
+- **Next:** **Phase 6E.1**
+
+### 6E.1 — Shadow harness fail-loud + deep immutability + parity report accuracy
+
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **LOCKED:**  
+  - shadow harness unexpected invariant/programming errors fail loud  
+  - expected frozen-contract failures may map to `serializationFailed` only via known `ArgumentError`  
+  - shadow wire snapshot deep immutable  
+  - every parity dimension evaluated independently (no early-exit)  
+  - live Classical migration question semantics are not restricted by Signature product marketing gate  
+- **Production scope:** `narrative/shadow/**` only  
+- **Next:** Independent verify → **controlled real-provider Narrative shadow QA (max 6 authorized calls) — NOT 6F yet**
 
 ### 6F — Classical live cutover (single/three/five only)
 
@@ -476,6 +490,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6E verification**, then **controlled real-provider shadow evaluation before 6F cutover**.
+**Independent Phase 6E.1 verification**, then **controlled real-provider Narrative shadow QA — maximum six authorized calls — NOT 6F yet.**
 
-Phase 6A–6D.1 independently verified · Phase 6C/6D **FROZEN**. Phase 6E Classical dual-run + offline assessor **IMPLEMENTED** (pending verify). Real provider quality **NOT** evaluated. Live Narrative V2 still **NOT WIRED**.
+Phase 6A–6E independently verified · Phase 6C/6D **FROZEN**. Phase 6E.1 harness hardening **IMPLEMENTED** (pending verify). Real provider quality **NOT** evaluated. Live Narrative V2 still **NOT WIRED**.

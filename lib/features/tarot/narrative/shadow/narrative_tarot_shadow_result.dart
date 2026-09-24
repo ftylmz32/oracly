@@ -4,6 +4,7 @@ library;
 import '../../interpretation/models/reading_context.dart';
 import '../evidence/narrative_request.dart';
 import '../prompt/narrative_tarot_prompt_input.dart';
+import 'narrative_tarot_shadow_freeze.dart';
 import 'narrative_tarot_shadow_parity.dart';
 import 'narrative_tarot_shadow_status.dart';
 
@@ -21,9 +22,8 @@ class NarrativeTarotShadowResult {
     this.parity,
     this.structuralFingerprint,
     this.phase5FailureCode,
-  }) : wirePayload = wirePayload == null
-            ? null
-            : Map<String, Object?>.unmodifiable(wirePayload);
+  }) : wirePayload =
+            wirePayload == null ? null : deepFreezeWireMap(wirePayload);
 
   factory NarrativeTarotShadowResult.terminal({
     required NarrativeTarotShadowStatus status,

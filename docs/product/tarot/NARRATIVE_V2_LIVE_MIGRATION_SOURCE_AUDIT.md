@@ -664,6 +664,7 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Fact | Value |
 |---|---|
 | 6D / 6D.1 | Independently verified · **FROZEN** |
+| Status after ChatGPT verify | **NOT FROZEN** — M1 broad catch · M2 shallow wire freeze · M3 parity early-exit → **6E.1** |
 | Package | `lib/features/tarot/narrative/shadow/` (QA-only) |
 | Launch Classical set | `single` · `threeCard` · `fiveCard` only |
 | Launch corpus | **24/24 PASS** structural parity |
@@ -679,6 +680,24 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Live Narrative V2 / billing / cache writes | **NO** |
 | 6F authorized by 6E alone | **NO** — requires separate controlled real-provider shadow + independent review |
 | Next | Independent 6E verification → **controlled real-provider shadow evaluation before 6F** |
+
+---
+
+## 13.11 — Phase 6E.1 shadow harness fail-loud + deep immutability + parity accuracy
+
+**Date:** 2026-09-24 · **Kind:** QA harness hardening (shadow package only)
+
+| Fact | Value |
+|---|---|
+| 6E corpus / offline / firewall | Independently verified |
+| M1 remediated | **YES** — `on Object` removed; only `ArgumentError` → `serializationFailed` |
+| M2 remediated | **YES** — recursive deep-freeze of `wirePayload` |
+| M3 remediated | **YES** — parity card dimensions accumulate independently (no ritual early-exit) |
+| Unexpected programming errors | fail loud (not swallowed) |
+| Phase 5 orchestration | Classical components by reference; Quick Insight marketing Q-kind gate **not** applied to live Classical single migration |
+| Phase 5 production | **unchanged** |
+| Real provider calls | **0** |
+| Next | Independent 6E.1 verification → **controlled real-provider Narrative shadow QA (max 6) — NOT 6F** |
 
 ---
 

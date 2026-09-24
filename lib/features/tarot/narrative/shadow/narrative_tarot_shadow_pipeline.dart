@@ -1,6 +1,8 @@
 /// Phase 6E — candidate build + serialize after safety clear (pure).
 library;
 
+import 'package:flutter/foundation.dart';
+
 import '../../domain/models/reading_session.dart';
 import '../../domain/models/tarot_spread.dart';
 import '../../interpretation/models/reading_context.dart';
@@ -17,6 +19,22 @@ import 'narrative_tarot_shadow_status.dart';
 
 abstract final class NarrativeTarotShadowPipeline {
   NarrativeTarotShadowPipeline._();
+
+  /// Maps only known frozen-contract ArgumentError → serializationFailed.
+  /// Unexpected errors must propagate (fail loud).
+  @visibleForTesting
+  static NarrativeTarotShadowResult mapCaughtError(
+    Object error,
+    ReadingContext legacy,
+  ) {
+    if (error is ArgumentError) {
+      return NarrativeTarotShadowResult.terminal(
+        status: NarrativeTarotShadowStatus.serializationFailed,
+        legacyContext: legacy,
+      );
+    }
+    throw error;
+  }
 
   static NarrativeTarotShadowResult build({
     required ReadingSession session,
@@ -111,11 +129,8 @@ abstract final class NarrativeTarotShadowPipeline {
         parity: parity,
         structuralFingerprint: fingerprint,
       );
-    } on Object {
-      return NarrativeTarotShadowResult.terminal(
-        status: NarrativeTarotShadowStatus.serializationFailed,
-        legacyContext: legacy,
-      );
+    } on ArgumentError catch (e) {
+      return mapCaughtError(e, legacy);
     }
   }
 }

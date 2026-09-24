@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-24 — Tarot Phase 6E Classical dual-run shadow harness · 6D/6D.1 FROZEN · Phase 5 RE-FROZEN
+**Updated:** 2026-09-24 — Tarot Phase 6E.1 shadow QA harness hardening · 6E verified · 6D/6D.1 FROZEN
 
 ---
 
@@ -1350,9 +1350,9 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent Phase 6E verification**, then **controlled real-provider shadow evaluation before 6F cutover**.
+**Independent Phase 6E.1 verification**, then **controlled real-provider Narrative shadow QA — maximum six authorized calls — NOT 6F yet.**
 
-Phase 6.0–6.0.3: **PASS** · Phase 6A–6D.1: **PASS** (independently verified · 6C/6D **FROZEN**) · Phase 6E: **IMPLEMENTED** (pending ChatGPT verify) · Phase 5: **RE-FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0–6.0.3: **PASS** · Phase 6A–6E: **PASS** (independently verified · 6C/6D **FROZEN**) · Phase 6E.1: **IMPLEMENTED** (pending ChatGPT verify) · Phase 5: **RE-FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
