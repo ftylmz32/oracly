@@ -19,7 +19,8 @@ void main() {
       if (!f.path.endsWith('.dart')) continue;
       final norm = f.path.replaceAll('\\', '/');
       if (norm.contains('/features/tarot/narrative/transport/') ||
-          norm.contains('/features/tarot/narrative/result/')) {
+          norm.contains('/features/tarot/narrative/result/') ||
+          norm.contains('/features/tarot/narrative/shadow/')) {
         continue;
       }
       final text = f.readAsStringSync();

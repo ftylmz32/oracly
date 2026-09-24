@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "phase": "6E",
+  "description": "Approved future REAL-provider QA sample only. Maximum 6 calls per authorized run. 6E itself performs ZERO provider calls. Offline synthetic corpus does NOT prove provider writing quality.",
+  "maxProviderCallsPerAuthorizedRun": 6,
+  "realProviderCallsInPhase6E": 0,
+  "authorizationRequired": true,
+  "billingAllowed": false,
+  "historyJournalPersistenceAllowed": false,
+  "automaticRetryAllowed": false,
+  "entryCount": 6,
+  "entries": [
+    {
+      "manifestId": "psm_01_single_open_en",
+      "evidenceScenarioId": "single_open_fool_en",
+      "spreadType": "single",
+      "languageCode": "en",
+      "notes": "no-relationship open reading"
+    },
+    {
+      "manifestId": "psm_02_single_guidance_tr_reversed",
+      "evidenceScenarioId": "single_guidance_cups05r_tr",
+      "spreadType": "single",
+      "languageCode": "tr",
+      "notes": "TR reversed + real question"
+    },
+    {
+      "manifestId": "psm_03_single_relationship_ru",
+      "evidenceScenarioId": "single_relationship_swords09r_ru",
+      "spreadType": "single",
+      "languageCode": "ru",
+      "notes": "RU relationship"
+    },
+    {
+      "manifestId": "psm_04_three_contrast_en",
+      "evidenceScenarioId": "three_contrast_exemplar_en",
+      "spreadType": "threeCard",
+      "languageCode": "en",
+      "notes": "relationship-bearing threeCard"
+    },
+    {
+      "manifestId": "psm_05_five_conflict_ru",
+      "evidenceScenarioId": "five_conflict_exemplar_ru",
+      "spreadType": "fiveCard",
+      "languageCode": "ru",
+      "notes": "RU fiveCard with relationship evidence"
+    },
+    {
+      "manifestId": "psm_06_enriched_6c_prompt",
+      "promptFixtureScenarioId": "enriched_phase4_recurrence_memory",
+      "spreadType": "threeCard",
+      "languageCode": "en",
+      "notes": "frozen 6C enriched history prompt fixture reference"
+    }
+  ]
+}

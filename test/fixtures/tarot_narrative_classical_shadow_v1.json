@@ -1,0 +1,952 @@
+{
+  "version": 1,
+  "phase": "6E",
+  "description": "Frozen Classical dual-run migration facts. Structural only — no AI prose, no private ids. Prose parity is intentionally NOT required (legacy meanings ≠ Narrative Evidence profiles).",
+  "scenarioCount": 24,
+  "launchSpreads": [
+    "single",
+    "threeCard",
+    "fiveCard"
+  ],
+  "realProviderCalls": 0,
+  "scenarios": [
+    {
+      "scenarioId": "single_open_fool_en",
+      "spreadType": "single",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.single",
+      "questionKind": "open",
+      "hasRealQuestion": false,
+      "cardCount": 1,
+      "ritualCardIds": [
+        0
+      ],
+      "canonicalCardIds": [
+        "major_00"
+      ],
+      "reversed": [
+        false
+      ],
+      "positionIndices": [
+        0
+      ],
+      "positionKeys": [
+        "sign"
+      ],
+      "relationshipCount": 0,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_dfd65061ccc5cec0f124a8f1c641a57da29c4c85d8d1978e2caae4286ba9611f",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "single_guidance_cups05r_tr",
+      "spreadType": "single",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.single",
+      "questionKind": "guidance",
+      "hasRealQuestion": true,
+      "cardCount": 1,
+      "ritualCardIds": [
+        26
+      ],
+      "canonicalCardIds": [
+        "cups_05"
+      ],
+      "reversed": [
+        true
+      ],
+      "positionIndices": [
+        0
+      ],
+      "positionKeys": [
+        "sign"
+      ],
+      "relationshipCount": 0,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_b51b811b64ce40ae04c4ec020f80482acbba18c8d5830c96ceb1f2537ce04807",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "single_relationship_swords09r_ru",
+      "spreadType": "single",
+      "languageCode": "ru",
+      "narrativeSpreadId": "classical.single",
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "cardCount": 1,
+      "ritualCardIds": [
+        58
+      ],
+      "canonicalCardIds": [
+        "swords_09"
+      ],
+      "reversed": [
+        true
+      ],
+      "positionIndices": [
+        0
+      ],
+      "positionKeys": [
+        "sign"
+      ],
+      "relationshipCount": 0,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_38654f070a109aa5483aa7f5c13fae798d4600942571404c992bc965fd9cbfc3",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "single_decision_pentacles04r_en",
+      "spreadType": "single",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.single",
+      "questionKind": "decision",
+      "hasRealQuestion": true,
+      "cardCount": 1,
+      "ritualCardIds": [
+        39
+      ],
+      "canonicalCardIds": [
+        "pentacles_04"
+      ],
+      "reversed": [
+        true
+      ],
+      "positionIndices": [
+        0
+      ],
+      "positionKeys": [
+        "sign"
+      ],
+      "relationshipCount": 0,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_83f1d66f6241191e7dc4b1b61c472a12cdad88decce3e739fc55818e2b5a493c",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "single_generic_wands13r_tr",
+      "spreadType": "single",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.single",
+      "questionKind": "open",
+      "hasRealQuestion": false,
+      "cardCount": 1,
+      "ritualCardIds": [
+        76
+      ],
+      "canonicalCardIds": [
+        "wands_13"
+      ],
+      "reversed": [
+        true
+      ],
+      "positionIndices": [
+        0
+      ],
+      "positionKeys": [
+        "sign"
+      ],
+      "relationshipCount": 0,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_facf3a912aa9eb5b04c7d367e5846003452ee911e12e8776931ce0dc222b9bb8",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_contrast_exemplar_en",
+      "spreadType": "threeCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "open",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        1,
+        6,
+        11
+      ],
+      "canonicalCardIds": [
+        "major_01",
+        "major_06",
+        "major_11"
+      ],
+      "reversed": [
+        false,
+        true,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 1,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_f5115fd1f98105d04c4e535cd6bab2364a56df531ba0f2e2113178a93b87924e",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_cause_effect_exemplar_en",
+      "spreadType": "threeCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "guidance",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        0,
+        7,
+        14
+      ],
+      "canonicalCardIds": [
+        "major_00",
+        "major_07",
+        "major_14"
+      ],
+      "reversed": [
+        true,
+        false,
+        true
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 1,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_4350ca6f5a55e37cf9ed2fa395e274d6d9e3b4bd16bbd4ef5d5e8a9433960f9f",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_blockage_exemplar_tr",
+      "spreadType": "threeCard",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "decision",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        6,
+        13,
+        20
+      ],
+      "canonicalCardIds": [
+        "major_06",
+        "major_13",
+        "major_20"
+      ],
+      "reversed": [
+        true,
+        true,
+        true
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 1,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_c85580cfffd803dc81574462dd420bc7084de13a5a1678c6bb58c335f432ec9d",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_escalation_exemplar_ru",
+      "spreadType": "threeCard",
+      "languageCode": "ru",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        2,
+        3,
+        4
+      ],
+      "canonicalCardIds": [
+        "major_02",
+        "major_03",
+        "major_04"
+      ],
+      "reversed": [
+        true,
+        true,
+        true
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 1,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_36db884814a0a2db0a4e6a208873bb1e868fc7ffe0e52863e1032d394af939dd",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_clarity_confusion_en",
+      "spreadType": "threeCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "decision",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        50,
+        25,
+        19
+      ],
+      "canonicalCardIds": [
+        "swords_01",
+        "cups_04",
+        "major_19"
+      ],
+      "reversed": [
+        false,
+        true,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 3,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_a239bf2f8b1800d50ade3dca121d2bed2325a38857ca86565cc59580610c2a7b",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_belonging_isolation_tr",
+      "spreadType": "threeCard",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        24,
+        30,
+        31
+      ],
+      "canonicalCardIds": [
+        "cups_03",
+        "cups_09",
+        "cups_10"
+      ],
+      "reversed": [
+        false,
+        true,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 3,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_ef755b3f284c5e2610b3092887057f3b10e95a297edcd6bf1e05c3db66f5e043",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_truth_denial_ru",
+      "spreadType": "threeCard",
+      "languageCode": "ru",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "guidance",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        51,
+        52,
+        18
+      ],
+      "canonicalCardIds": [
+        "swords_02",
+        "swords_03",
+        "major_18"
+      ],
+      "reversed": [
+        true,
+        false,
+        true
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 3,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_6100989c325bba74c1a886b7d50d1d09f3b6a43703e3a100890ad8c00f81f98f",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_eights_open_en",
+      "spreadType": "threeCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "open",
+      "hasRealQuestion": false,
+      "cardCount": 3,
+      "ritualCardIds": [
+        71,
+        43,
+        29
+      ],
+      "canonicalCardIds": [
+        "wands_08",
+        "pentacles_08",
+        "cups_08"
+      ],
+      "reversed": [
+        false,
+        false,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 0,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_3b322ce2354ee96ea036b6cf7d9dcb702749b41180b7ad5eb1883bacb6f3b25e",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "three_attachment_fear_tr",
+      "spreadType": "threeCard",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.threeCard",
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "cardCount": 3,
+      "ritualCardIds": [
+        15,
+        73,
+        41
+      ],
+      "canonicalCardIds": [
+        "major_15",
+        "wands_10",
+        "pentacles_06"
+      ],
+      "reversed": [
+        false,
+        true,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2
+      ],
+      "positionKeys": [
+        "past",
+        "present",
+        "future"
+      ],
+      "relationshipCount": 1,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_5997cd3309f7ea97cf4ff4907825e3c031bb3e5218ace79110ada695d1dab079",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_support_exemplar_en",
+      "spreadType": "fiveCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "decision",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        1,
+        4,
+        7,
+        10,
+        13
+      ],
+      "canonicalCardIds": [
+        "major_01",
+        "major_04",
+        "major_07",
+        "major_10",
+        "major_13"
+      ],
+      "reversed": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 1,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_2e746779d617d050b267311d9f2852a78f171fff2db5cf5ec9476d52bf10994d",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_reinforcement_exemplar_tr",
+      "spreadType": "fiveCard",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "guidance",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        2,
+        7,
+        12,
+        17,
+        64
+      ],
+      "canonicalCardIds": [
+        "major_02",
+        "major_07",
+        "major_12",
+        "major_17",
+        "wands_01"
+      ],
+      "reversed": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 0,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_0e7965d7655194b4d31a5677a134ccd0e531ad7a72a9a1fc1834c21e4ee9113b",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_conflict_exemplar_ru",
+      "spreadType": "fiveCard",
+      "languageCode": "ru",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        0,
+        11,
+        64,
+        75,
+        30
+      ],
+      "canonicalCardIds": [
+        "major_00",
+        "major_11",
+        "wands_01",
+        "wands_12",
+        "cups_09"
+      ],
+      "reversed": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 1,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_de472d9df900d44fa3a5571676e9a35c8350b058394dde72a3dc5625a92148f0",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_resolution_exemplar_en",
+      "spreadType": "fiveCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "open",
+      "hasRealQuestion": false,
+      "cardCount": 5,
+      "ritualCardIds": [
+        0,
+        7,
+        14,
+        21,
+        70
+      ],
+      "canonicalCardIds": [
+        "major_00",
+        "major_07",
+        "major_14",
+        "major_21",
+        "wands_07"
+      ],
+      "reversed": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 2,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_32a63cbbab03a900cc1b10c02a2449d2a4e5f8f70e8e5695be1ff85ef4f3078f",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_softening_exemplar_tr",
+      "spreadType": "fiveCard",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "decision",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        1,
+        12,
+        65,
+        76,
+        31
+      ],
+      "canonicalCardIds": [
+        "major_01",
+        "major_12",
+        "wands_02",
+        "wands_13",
+        "cups_10"
+      ],
+      "reversed": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 2,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_0cd411d5a2442b3ac4b73b45d5698e98c9c447206663e27d26c3deb187002444",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_theme_repetition_exemplar_en",
+      "spreadType": "fiveCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        4,
+        7,
+        10,
+        13,
+        16
+      ],
+      "canonicalCardIds": [
+        "major_04",
+        "major_07",
+        "major_10",
+        "major_13",
+        "major_16"
+      ],
+      "reversed": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 2,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_779a6ba0e9b94012f728332d3e245a91676001966fca370027f41a49fdbea876",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_balance_imbalance_ru",
+      "spreadType": "fiveCard",
+      "languageCode": "ru",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "decision",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        11,
+        14,
+        37,
+        23,
+        6
+      ],
+      "canonicalCardIds": [
+        "major_11",
+        "major_14",
+        "pentacles_02",
+        "cups_02",
+        "major_06"
+      ],
+      "reversed": [
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 8,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_1a1cd48bcd5b596c3952179300960cb6a0299c340c28f76123afcf8743f5efb2",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_stability_instability_ru",
+      "spreadType": "fiveCard",
+      "languageCode": "ru",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "guidance",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        4,
+        47,
+        16,
+        38,
+        67
+      ],
+      "canonicalCardIds": [
+        "major_04",
+        "pentacles_12",
+        "major_16",
+        "pentacles_03",
+        "wands_04"
+      ],
+      "reversed": [
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 7,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_15dd7cedb3debad9d58158d27804a66b309d2f744a669ee42b047a3f4ef696a4",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_swords_fear_cluster_en",
+      "spreadType": "fiveCard",
+      "languageCode": "en",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "open",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        54,
+        56,
+        57,
+        9,
+        22
+      ],
+      "canonicalCardIds": [
+        "swords_05",
+        "swords_07",
+        "swords_08",
+        "major_09",
+        "cups_01"
+      ],
+      "reversed": [
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 3,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_6ea332491eed526ed600f27e628d9be9c843093df2c247572f02ee3f60c3611e",
+      "status": "pass"
+    },
+    {
+      "scenarioId": "five_partner_union_tr",
+      "spreadType": "fiveCard",
+      "languageCode": "tr",
+      "narrativeSpreadId": "classical.fiveCard",
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "cardCount": 5,
+      "ritualCardIds": [
+        23,
+        27,
+        6,
+        45,
+        66
+      ],
+      "canonicalCardIds": [
+        "cups_02",
+        "cups_06",
+        "major_06",
+        "pentacles_10",
+        "wands_03"
+      ],
+      "reversed": [
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      "positionIndices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "positionKeys": [
+        "situation",
+        "hidden_influence",
+        "challenge",
+        "strength",
+        "direction"
+      ],
+      "relationshipCount": 2,
+      "narrativeCacheKey": "narrative_tarot_v2_s1_741840cc75a8c8a9eccccbd3995b189adfcbdd3056fb96597eaf54fd5b617cb3",
+      "status": "pass"
+    }
+  ]
+}

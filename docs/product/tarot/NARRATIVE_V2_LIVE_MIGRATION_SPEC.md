@@ -358,7 +358,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6D.1 — Narrative backend input firewall + full semantic request fingerprint
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified · **FROZEN** with 6D  
 - **LOCKED:**  
   - backend is independent untrusted-client validation boundary  
   - complete V1 enum/value contract (spread/question/geometry/role/temporal/relationship/transform/memory)  
@@ -367,12 +367,21 @@ Must pass existing `AiOutputQualityTarot` **plus**:
   - raw private/user prose never appears in fingerprint string  
   - current `spread.spreadId` strict V1 machine ids; historical occurrence ids allow Phase 4 legacy aliases  
 - **Flutter production:** **unchanged**  
-- **Next:** Independent verify → **Phase 6E**
+- **Next:** **Phase 6E**
 
 ### 6E — Classical dual-run harness + shadow corpus
 
-- **Goal:** Compare legacy Facts vs Narrative candidate structurally  
-- **Live impact:** NONE · no double charge  
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Deterministic / offline portion:** Classical dual-run harness · 24/24 launch structural parity · 22/22 seven/celtic non-launch · offline result assessor · provider shadow manifest  
+- **Live impact:** NONE · no double charge · real provider calls **0**  
+- **Prose parity:** **NOT required** (shared reading facts only)  
+- **LOCKED:** 6F live cutover requires:  
+  1. 6E deterministic 24/24 structural parity  
+  2. 6E offline result pipeline PASS  
+  3. separate explicitly authorized controlled real-provider shadow evaluation (manifest max 6)  
+  4. independent review of those provider outputs  
+- **Real provider quality claimed by 6E alone:** **NO**  
+- **Next:** Independent 6E verification → **controlled real-provider shadow evaluation before 6F**
 
 ### 6F — Classical live cutover (single/three/five only)
 
@@ -467,6 +476,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6D.1 verification**, then **Phase 6E** — classical deterministic dual-run + controlled shadow corpus.
+**Independent Phase 6E verification**, then **controlled real-provider shadow evaluation before 6F cutover**.
 
-Phase 6A–6D independently verified · Phase 6C **FROZEN**. Phase 6D.1 inbound firewall + SHA-256 fingerprint **IMPLEMENTED** (pending verify). Live Narrative V2 still **NOT WIRED**.
+Phase 6A–6D.1 independently verified · Phase 6C/6D **FROZEN**. Phase 6E Classical dual-run + offline assessor **IMPLEMENTED** (pending verify). Real provider quality **NOT** evaluated. Live Narrative V2 still **NOT WIRED**.

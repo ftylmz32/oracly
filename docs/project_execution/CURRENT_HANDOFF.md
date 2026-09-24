@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-24 — Tarot Phase 6D.1 backend input firewall + semantic fingerprint · 6D verified · Phase 5 RE-FROZEN
+**Updated:** 2026-09-24 — Tarot Phase 6E Classical dual-run shadow harness · 6D/6D.1 FROZEN · Phase 5 RE-FROZEN
 
 ---
 
@@ -1350,12 +1350,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent Phase 6D.1 verification**, then **Phase 6E** — classical deterministic dual-run + controlled shadow corpus.
+**Independent Phase 6E verification**, then **controlled real-provider shadow evaluation before 6F cutover**.
 
-Phase 6.0–6.0.3: **PASS** · Phase 6A–6D: **PASS** (independently verified) · Phase 6C: **FROZEN** · Phase 6D.1: **IMPLEMENTED** (pending ChatGPT verify) · Phase 5: **RE-FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0–6.0.3: **PASS** · Phase 6A–6D.1: **PASS** (independently verified · 6C/6D **FROZEN**) · Phase 6E: **IMPLEMENTED** (pending ChatGPT verify) · Phase 5: **RE-FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** begin Phase 6E until 6D.1 is independently verified.
+Do **not** begin Phase 6F until controlled real-provider shadow QA + independent review complete.
+Do **not** claim provider quality from offline synthetic corpus alone.
 Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.

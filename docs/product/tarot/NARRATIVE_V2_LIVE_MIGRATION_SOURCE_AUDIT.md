@@ -652,7 +652,33 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Silent truncation | **NO** |
 | Flutter production | **unchanged** |
 | Live Narrative V2 | **NO** |
-| Next | Independent 6D.1 verification → **Phase 6E** |
+| Status | Independently verified · **FROZEN** |
+| Next | **Phase 6E** (complete — see 13.10) |
+
+---
+
+## 13.10 — Phase 6E Classical dual-run shadow harness
+
+**Date:** 2026-09-24 · **Kind:** deterministic migration shadow (no live cutover)
+
+| Fact | Value |
+|---|---|
+| 6D / 6D.1 | Independently verified · **FROZEN** |
+| Package | `lib/features/tarot/narrative/shadow/` (QA-only) |
+| Launch Classical set | `single` · `threeCard` · `fiveCard` only |
+| Launch corpus | **24/24 PASS** structural parity |
+| Non-launch seven/celtic | **22/22** `notLiveLaunchCandidate` |
+| Crossroads current reading | `notLiveLaunchCandidate` (6G) |
+| Narrative construction | Phase 5 Classical path by reference (`SignatureSpreadShadowValidation` + `SignatureSpreadShadowClassical` + fingerprint). Signature product question-kind marketing gate for Quick Insight is **not** applied — live Classical single accepts all ReadingAsk kinds (Phase 3 corpus). |
+| Legacy side | `ReadingContext.fromSession` facts only |
+| Prose parity | **NOT required** (legacy meanings ≠ Narrative Evidence profiles) |
+| Offline result assessor | parse → Narrative quality → bridge → ReflectiveIntelligence.guard → AiOutputQualityTarot |
+| Offline corpus | **24/24** plumbing PASS — does **NOT** claim provider writing quality |
+| Provider shadow manifest | `tarot_narrative_provider_shadow_manifest_v1.json` · **6** refs · max 6 calls/run |
+| Real provider calls in 6E | **0** |
+| Live Narrative V2 / billing / cache writes | **NO** |
+| 6F authorized by 6E alone | **NO** — requires separate controlled real-provider shadow + independent review |
+| Next | Independent 6E verification → **controlled real-provider shadow evaluation before 6F** |
 
 ---
 
