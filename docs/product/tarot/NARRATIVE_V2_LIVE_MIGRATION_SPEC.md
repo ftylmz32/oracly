@@ -442,18 +442,37 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E.4.2 — Clean Manifest V2 provider shadow rerun
 
-- **Status:** **EXECUTED** · **6/6** transport + structured Result V2 · writing quality **pending ChatGPT**  
+- **Status:** **EXECUTED** · **6/6** transport + structured Result V2 · writing quality **reviewed (NOT FROZEN)**  
 - **LOCKED:**  
   - Same Manifest V2 · fresh hard cap 6 · QA_RUN_HEAD `2799e9bf…`  
   - Historical 6E.4 artifacts **immutable** · new `*_6e42_*` fixtures only  
   - Call #6 `memoryIndices: [0,1]` · automated deterministic-future hits **0**  
+  - Independent ChatGPT: Q1/Q2 **RESOLVED**; Q3 repetition **CONFIRMED**; Q4/Q5 **PARTIAL**  
   - Agent **does not** claim writing-quality PASS  
-- **Next:** Independent ChatGPT writing-quality review → **6F only if PASS**
+
+### 6E.5 — Provider writing-quality prompt refinement (no real calls)
+
+- **Status:** **IMPLEMENTED** · awaiting independent ChatGPT verify → then **6E.6**  
+- **LOCKED — provider prose section responsibilities:**  
+  - **summary** = direct answer (~1 sentence); no “This reading highlights…” boilerplate  
+  - **cardReadings** = this card + position + orientation only  
+  - **synthesis** = combined tension / multi-card connection — not a summary rewrite  
+  - **relationshipInsights** = supplied card-to-card evidence only  
+  - **recurringCardInsights / recurringThemeInsights** = what recurrence/theme *adds*; frequency calibrated to occurrenceCount (count=2 → appeared twice / reappeared — not “persistent”)  
+  - **memoryInsights** = what prior context adds *today* (`memoryIndices` unchanged)  
+  - **lifeAreas / reflectionPrompt / dailyFocus** = omit (`[]` / null) when not uniquely useful  
+  - **advice** = one practical action (no reading summary first)  
+  - **closingMessage** = one specific thought — never generic blessing / “embrace the journey” filler  
+  - Single-card compression; safety ≠ evasion (symbolic answer still required); semantic/native rewrite  
+  - TR / RU idiomatic; EN anti-boilerplate  
+- **NOT changed:** Request Contract 1 · Result Contract 2 · schema · parser · transport · prophecy patterns · Flutter production  
+- **QA-only:** `tool/qa/narrative_section_distinctness.mjs` (lexical overlap diagnostics — **not** a production gate)  
+- **Next:** **6E.6** clean real-provider V2 quality rerun (new call authorization) — **NOT 6F**
 
 ### 6F — Classical live cutover (single/three/five only)
 
 - **Goal:** Wired classical Narrative path under fail-closed + billing boundary  
-- **Blocked until:** Manifest V2 provider QA + independent writing-quality PASS  
+- **Blocked until:** Manifest V2 provider QA + independent writing-quality PASS (after 6E.6)  
 - **Crossroads picker:** still false  
 - **Rollback:** flag/code path back to legacy payload builder  
 

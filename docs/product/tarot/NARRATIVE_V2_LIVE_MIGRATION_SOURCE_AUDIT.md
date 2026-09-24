@@ -831,6 +831,38 @@ Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E42_V2.md` · `tarot_narrative_provider
 
 ---
 
+## 13.18 — Independent ChatGPT review of 6E.4.2 + Phase 6E.5 writing-quality refinement
+
+**Date:** 2026-09-24 · **Kind:** independent prose review + prompt refinement · **REAL PROVIDER CALLS: 0**
+
+### Independent 6E.4.2 verdict (ChatGPT)
+
+| Gate | Verdict |
+|---|---|
+| Execution / transport / structured / client | **PASS** (6/6) |
+| Q1 deterministic future | **PASS / RESOLVED** (Call #4 modal: potential / possibility / could / achievable) |
+| Q2 memory provenance | **PASS / RESOLVED** (Call #6 `memoryIndices: [0,1]`) |
+| Q3 section repetition | **NOT resolved** — Calls **#3 / #4 / #6** high/review-worthy; #1/#2/#5 lower |
+| Q4 relationship epistemic / directness | **PARTIAL** — improved framing; Call **#5** needs more direct symbolic answer to “Что за чувства…” |
+| Q5 native language | **PARTIAL** — TR improved; RU still needs idiomatic refinement |
+| Provider writing quality | **NOT FROZEN** |
+
+### Phase 6E.5 production change
+
+| Fact | Value |
+|---|---|
+| Primary file | `backend/src/ai/narrative-tarot-prompt-rules.ts` |
+| Contracts / schema / parser / transport / prophecy patterns | **unchanged** |
+| Flutter production | **NONE** |
+| Real provider calls | **0** |
+| Production repetition regex gate | **NO** |
+| QA-only distinctness tool | `tool/qa/narrative_section_distinctness.mjs` |
+| Historical 6E.4.2 artifacts | **immutable** |
+| Live / 6F | **NO** |
+| Next | **Phase 6E.6** — clean real-provider V2 quality rerun (separate authorization) |
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  
