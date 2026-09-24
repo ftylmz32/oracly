@@ -312,7 +312,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6C.1 — Narrative prompt structural integrity + version/locale fail-closed
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified; follow-up → **6C.2**  
 - **LOCKED:**  
   - `interpretationOrder` exact permutation of position indices  
   - relationship card ↔ position correspondence; no self-pairs  
@@ -321,6 +321,22 @@ Must pass existing `AiOutputQualityTarot` **plus**:
   - v1 relationship `noteKeyOrText` **NOT** model-facing  
   - excluded memory (`included=false`) cannot carry hidden entries  
 - **Serializer version remains 1** (pre-freeze hardening, not a schema bump)  
+- **Live call sites:** **0**  
+- **Next:** **Phase 6C.2**
+
+### 6C.2 — Canonical bounds + model-facing scalar integrity + locale-consistent Signature fixture
+
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **LOCKED:**  
+  - request bounds may only tighten canonical `RequestBounds.defaults`  
+  - relationship strength finite `[0,1]`  
+  - theme relevance finite `[0,1]` · supportCount `≥ 2`  
+  - memory confidence finite `[0,1]` · empty included content rejected  
+  - recurrence/support/prior counts coherent and non-negative  
+  - accepted model numbers finite (no NaN/±Infinity)  
+  - TEST-ONLY Signature requests must be locale-consistent  
+  - production locale authority remains Narrative Evidence Builder / authored deck data  
+- **Serializer / policy version:** still **1** / `narrative_policy_v1`  
 - **Live call sites:** **0**  
 - **Next:** Independent verify → **Phase 6D**
 
@@ -427,6 +443,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6C.1 verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
+**Independent Phase 6C.2 verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
 
-Phase 6A / 6A.1 / 6B / 6B.1 / 6C independently verified. Phase 6C.1 structural hardening **IMPLEMENTED** (pending verify). Exact backend JSON field names still **OPEN MINOR** for 6D. Live Narrative V2 still **NOT WIRED**.
+Phase 6A / 6A.1 / 6B / 6B.1 / 6C / 6C.1 independently verified. Phase 6C.2 boundary scalars **IMPLEMENTED** (pending verify). Exact backend JSON field names still **OPEN MINOR** for 6D. Live Narrative V2 still **NOT WIRED**.

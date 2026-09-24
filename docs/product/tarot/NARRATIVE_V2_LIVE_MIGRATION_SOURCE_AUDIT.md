@@ -578,6 +578,37 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Live call sites | **0** |
 | Next | Independent 6C.1 verification → **Phase 6D** |
 
+**Phase 6C.1 M1–M5 independently verified (ChatGPT).**
+
+**Independent follow-up defects (not frozen):**
+
+| ID | Gap |
+|---|---|
+| M6 | TEST-ONLY Signature fixture mixed EN languageCode with RU `displayName` |
+| M7 | model-facing numeric scalars (strength/relevance/confidence/counts) unvalidated |
+| M8 | `request.bounds` could exceed `RequestBounds.defaults` and loosen prompt policy |
+
+---
+
+## 13.7 — Phase 6C.2 canonical bounds + scalar integrity + locale fixture
+
+**Date:** 2026-09-24 · **Kind:** pre-freeze serializer boundary hardening
+
+| Fact | Value |
+|---|---|
+| M6–M8 remediated | **YES** |
+| Request bounds | `0 ≤ bound ≤ RequestBounds.defaults` |
+| Relationship strength | finite `[0,1]` |
+| Theme relevance / memory confidence | finite `[0,1]` |
+| Recurrence coherence | `occurrenceCount > 0` and `≥ listed`; overlap/key locked |
+| Theme supportCount | `≥ 2` |
+| Signature fixture language | **EN** · `OraclyTarotDeck.name.of('en')` |
+| Mixed-locale Signature golden | **NO** |
+| Cache goldens changed | `signature_manual_spread_generic` (1/8) |
+| Serializer / policy version | still **1** / `narrative_policy_v1` |
+| Live call sites | **0** |
+| Next | Independent 6C.2 verification → **Phase 6D** |
+
 ---
 
 ## 14 — Live path firewall (6.0)

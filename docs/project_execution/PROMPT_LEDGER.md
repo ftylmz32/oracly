@@ -1176,11 +1176,12 @@ Chronological project execution ledger.
 | PL-T6B | Tarot Phase 6B — Signature history normalization / Crossroads FACT | **PASS** (independently verified; follow-up → 6B.1) |
 | PL-T6B.1 | Tarot Phase 6B.1 — Signature history resolver unexpected-error hardening | **PASS** (independently verified) |
 | PL-T6C | Tarot Phase 6C — Narrative prompt serializer + SHA-256 cache identity | **PASS** (independently verified; follow-up → 6C.1) |
-| PL-T6C.1 | Tarot Phase 6C.1 — Prompt structural integrity + version/locale fail-closed | **IMPLEMENTED** (pending independent verify) |
+| PL-T6C.1 | Tarot Phase 6C.1 — Prompt structural integrity + version/locale fail-closed | **PASS** (independently verified; follow-up → 6C.2) |
+| PL-T6C.2 | Tarot Phase 6C.2 — Canonical bounds + scalar integrity + locale fixture | **IMPLEMENTED** (pending independent verify) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN; 6A/6A.1 narrow reopen) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (6B narrow reopen for history normalize) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | **RE-FROZEN** after 5F.1 independent verification |
-| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6C.1 verify, then 6D** |
+| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6C.2 verify, then 6D** |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
 | PL-T9 | Tarot Phase 9 — red-team QA | PLANNED |

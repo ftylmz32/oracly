@@ -1,7 +1,9 @@
-/// Phase 6C.1 — spread / card / question structural checks.
+/// Phase 6C.1/6C.2 — spread / card / question structural checks.
 library;
 
+import '../../reading/reading_question.dart';
 import '../evidence/narrative_request.dart';
+import 'narrative_tarot_prompt_scalars.dart';
 
 abstract final class NarrativeTarotPromptStructureChecks {
   NarrativeTarotPromptStructureChecks._();
@@ -12,6 +14,11 @@ abstract final class NarrativeTarotPromptStructureChecks {
     if (q.hasRealQuestion) {
       if (raw == null || raw.isEmpty) {
         throw ArgumentError('hasRealQuestion true requires non-empty rawText');
+      }
+      if (raw.length > ReadingQuestion.maxLength) {
+        throw ArgumentError(
+          'question length ${raw.length} > ${ReadingQuestion.maxLength}',
+        );
       }
     } else if (q.rawText != null) {
       throw ArgumentError('hasRealQuestion false requires rawText null');
@@ -80,6 +87,12 @@ abstract final class NarrativeTarotPromptStructureChecks {
     final cardIds = <String>{};
 
     for (final c in request.cards) {
+      NarrativeTarotPromptScalars.requireNonBlank(
+        'canonicalCardId',
+        c.canonicalCardId,
+      );
+      NarrativeTarotPromptScalars.requireNonBlank('positionKey', c.positionKey);
+      NarrativeTarotPromptScalars.requireNonBlank('displayName', c.displayName);
       if (!seenKeys.add(c.positionKey)) {
         throw ArgumentError('duplicate card position ${c.positionKey}');
       }

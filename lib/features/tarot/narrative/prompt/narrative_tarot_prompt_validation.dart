@@ -1,7 +1,8 @@
-/// Phase 6C.1 — closed-world + bounds validation before serialization.
+/// Phase 6C.1/6C.2 — closed-world + bounds validation before serialization.
 library;
 
 import '../evidence/narrative_request.dart';
+import 'narrative_tarot_prompt_bounds_checks.dart';
 import 'narrative_tarot_prompt_evidence_checks.dart';
 import 'narrative_tarot_prompt_structure_checks.dart';
 
@@ -23,6 +24,8 @@ abstract final class NarrativeTarotPromptValidation {
         'unsupported languageCode ${request.languageCode}',
       );
     }
+    NarrativeTarotPromptBoundsChecks.readingIdentity(request);
+    NarrativeTarotPromptBoundsChecks.requestBounds(request);
     NarrativeTarotPromptStructureChecks.question(request);
     NarrativeTarotPromptStructureChecks.spread(request);
     NarrativeTarotPromptStructureChecks.cards(request);

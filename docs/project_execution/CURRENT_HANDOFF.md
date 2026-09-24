@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-24 — Tarot Phase 6C.1 prompt structural integrity hardening · 6C independently verified · Phase 5 RE-FROZEN
+**Updated:** 2026-09-24 — Tarot Phase 6C.2 prompt boundary scalars + locale fixture · 6C.1 independently verified · Phase 5 RE-FROZEN
 
 ---
 
@@ -137,6 +137,8 @@ Do **not** treat this file as a live pointer to the branch tip.
 | Phase 6C task start | `fc26e0fe50400cb2f80818e5e60b6b4c55a1059b` | Narrative prompt serializer + SHA-256 cache identity |
 | Phase 6C end | `10e63da369b91d608e0c80ada55a9919cc8f89ed` | independently verified · follow-up M1–M5 → 6C.1 |
 | Phase 6C.1 task start | `10e63da369b91d608e0c80ada55a9919cc8f89ed` | Prompt structural integrity + version/locale fail-closed |
+| Phase 6C.1 end | `11e826fd0f32e9f314bce5be9fd99989ef64d540` | independently verified · follow-up M6–M8 → 6C.2 |
+| Phase 6C.2 task start | `11e826fd0f32e9f314bce5be9fd99989ef64d540` | Canonical bounds + scalar integrity + locale fixture |
 | `release/ios-1.0` | `1b7151dca954f0cc25f39f815c0dacf0613a1164` | Build 4 — untouched |
 
 **The authoritative current branch tip must always be obtained from `git rev-parse HEAD` / origin branch tracking — not inferred from this document.**
@@ -740,23 +742,35 @@ Pre-existing local noise (do **not** stage/clean):
 | Prompt architecture | **C** — NarrativeTarotPromptInput + legacy adapter |
 | Next | **Phase 6A** (completed) → **6A.1** → **6B** → **6B.1** → **6C** |
 
-### Phase 6C.1
+### Phase 6C.2
 
 | Field | Value |
 |---|---|
 | Status | **COMPLETE** / **IMPLEMENTED** (pending independent ChatGPT verification) |
+| Kind | **CANONICAL BOUNDS + MODEL-FACING SCALAR INTEGRITY + LOCALE-CONSISTENT SIGNATURE FIXTURE** |
+| Remediated | M6 mixed-locale Signature fixture · M7 numeric scalars · M8 bounds bypass |
+| Serializer / policy version | still **1** / `narrative_policy_v1` |
+| Cache goldens changed | 1/8 (`signature_manual_spread_generic`) |
+| Live call sites | **0** |
+| Next | Independent 6C.2 verification → **Phase 6D** |
+
+### Phase 6C.1
+
+| Field | Value |
+|---|---|
+| Status | **COMPLETE** / **PASS** (independently verified; follow-up → 6C.2) |
 | Kind | **PROMPT STRUCTURAL INTEGRITY + VERSION/LOCALE FAIL-CLOSED** |
 | Remediated | M1 interpretationOrder · M2 relationship correspondence · M3 cache namespace · M4 locale · M5 note |
 | Serializer / policy version | still **1** / `narrative_policy_v1` |
 | Cache goldens changed | 2/8 (`privacy_sentinel_internal_ids`, `signature_manual_spread_generic`) |
 | Live call sites | **0** |
-| Next | Independent 6C.1 verification → **Phase 6D** |
+| Next | **6C.2** (completed) → independent verify → **6D** |
 
 ### Phase 6C
 
 | Field | Value |
 |---|---|
-| Status | **COMPLETE** / **PASS** (independently verified; follow-up → 6C.1) |
+| Status | **COMPLETE** / **PASS** (independently verified; follow-up → 6C.1 → 6C.2) |
 | Kind | **NARRATIVE PROMPT SERIALIZER + DETERMINISTIC V2 CACHE IDENTITY** |
 | Package | `lib/features/tarot/narrative/prompt/` |
 | Serializer version | **1** |
@@ -1307,12 +1321,12 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent Phase 6C.1 verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
+**Independent Phase 6C.2 verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
 
-Phase 6.0–6.0.3: **PASS** · Phase 6A: **PASS** · Phase 6A.1: **PASS** · Phase 6B: **PASS** · Phase 6B.1: **PASS** · Phase 6C: **PASS** (independently verified) · Phase 6C.1: **IMPLEMENTED** (pending ChatGPT verify) · Phase 5: **RE-FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0–6.0.3: **PASS** · Phase 6A: **PASS** · Phase 6A.1: **PASS** · Phase 6B: **PASS** · Phase 6B.1: **PASS** · Phase 6C: **PASS** · Phase 6C.1: **PASS** (independently verified) · Phase 6C.2: **IMPLEMENTED** (pending ChatGPT verify) · Phase 5: **RE-FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** begin Phase 6D until 6C.1 is independently verified.
+Do **not** begin Phase 6D until 6C.2 is independently verified.
 Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.

@@ -1,6 +1,7 @@
-/// Phase 6C.1 — privacy sentinel + Signature Crossroads test requests.
+/// Phase 6C.1/6C.2 — privacy sentinel + Signature Crossroads test requests.
 library;
 
+import 'package:oracly_new/features/tarot/deck/oracly_tarot_deck.dart';
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_card_evidence.dart';
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_memory_evidence.dart';
 import 'package:oracly_new/features/tarot/narrative/evidence/narrative_question_grounding.dart';
@@ -89,14 +90,20 @@ TarotNarrativeRequest privacySentinelRequest() {
 
 /// TEST-ONLY: valid five-card Crossroads projected semantics.
 /// Does NOT imply builder support or live Crossroads Narrative.
+/// languageCode and displayName/profile slices are consistently EN.
 TarotNarrativeRequest signatureManualRequest() {
+  const lang = 'en';
   final projected =
       SignatureSpreadProjector.project(kSignatureCrossroads).projected;
-  final five = buildFromCorpusId('five_conflict_exemplar_ru');
+  final five = buildFromCorpusId('five_support_exemplar_en');
   final cards = <TarotNarrativeCardEvidence>[];
   for (var i = 0; i < projected.positions.length; i++) {
     final pos = projected.positions[i];
     final src = five.cards[i];
+    final deck = OraclyTarotDeck.byId(src.canonicalCardId);
+    if (deck == null) {
+      throw StateError('missing deck card ${src.canonicalCardId}');
+    }
     cards.add(
       TarotNarrativeCardEvidence(
         canonicalCardId: src.canonicalCardId,
@@ -104,7 +111,7 @@ TarotNarrativeRequest signatureManualRequest() {
         isReversed: src.isReversed,
         positionKey: pos.positionKey,
         positionIndex: pos.index,
-        displayName: src.displayName,
+        displayName: deck.name.of(lang),
         profileSlice: src.profileSlice,
         imageAsset: src.imageAsset,
       ),
@@ -112,7 +119,7 @@ TarotNarrativeRequest signatureManualRequest() {
   }
   return TarotNarrativeRequest(
     narrativeTarotVersion: TarotNarrativeRequest.currentNarrativeVersion,
-    languageCode: 'en',
+    languageCode: lang,
     sessionId: 'sig_session',
     readingId: 'sig_reading',
     question: const QuestionGrounding(

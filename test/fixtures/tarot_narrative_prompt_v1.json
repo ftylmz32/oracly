@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureId": "tarot_narrative_prompt_v1",
-  "phase": "6C.1",
+  "phase": "6C.2",
   "serializerVersion": 1,
   "policyVersion": "narrative_policy_v1",
   "cacheKeyPrefix": "narrative_tarot_v2_s1_",
@@ -10,7 +10,8 @@
     "6C.1: privacy sentinel uses threeCard correspondence-safe relationships;",
     "6C.1: signature scenario uses real Phase 5 Crossroads 5-card projection;",
     "6C.1: relationship note removed from model-facing DTO (v1).",
-    "Do not regenerate on test failure — review serializer version first."
+    "Do not regenerate on test failure — review serializer version first.",
+    "6C.2: signature scenario locale-consistent EN via OraclyTarotDeck.name.of(en)."
   ],
   "scenarios": [
     {
@@ -779,130 +780,128 @@
     },
     {
       "id": "signature_manual_spread_generic",
-      "description": "TEST-ONLY valid Phase 5 Crossroads projection — NOT builder support",
-      "cacheKey": "narrative_tarot_v2_s1_866134cde68076027aa3101a210937816496404eed3e3a8ad1f038c2fcd84995",
+      "description": "TEST-ONLY valid Phase 5 Crossroads projection — locale-consistent EN",
+      "cacheKey": "narrative_tarot_v2_s1_0126acd574592d72a508cf195adf47f76fca136e229bbeb9b96541c09945321c",
       "modelInput": {
         "cards": [
           {
-            "canonicalCardId": "major_00",
-            "coreMeaning": "Approaching a new threshold without certainty, yet with openness to learn.",
-            "desire": "One may long to meet oneself without the weight of old definitions.",
-            "displayName": "Шут",
-            "fear": "Beneath the fresh start may sit a concern about being unprepared or losing direction.",
-            "isReversed": true,
+            "actionDirection": "Simplify your intention, choose one tool, and focus on work you can complete.",
+            "canonicalCardId": "major_01",
+            "coreMeaning": "It reflects the capacity to direct intention, skill, and available tools into conscious work.",
+            "decisionDynamic": "A decision gains strength when existing resources gather around a clear purpose.",
+            "displayName": "The Magician",
+            "fear": "A concern may arise about lacking tools or failing to use ability well.",
+            "isReversed": false,
             "keywordIds": [
-              "haste",
-              "scatter",
-              "avoidance"
+              "craft",
+              "focus",
+              "agency"
             ],
-            "orientationExpression": "Starting energy may lose direction through hesitation or an unconsidered rush.",
+            "orientationExpression": "When skill aligns with intention, creative power moves in a concrete and responsible way.",
             "positionIndex": 0,
             "positionKey": "option_a",
-            "relationshipDynamic": "It brings freshness to a bond while asking that intimacy not be treated lightly.",
             "symbolTags": [
-              "threshold",
-              "curiosity",
-              "freedom"
+              "craft",
+              "focus",
+              "agency"
             ],
-            "tension": "The urge to move forward coexists with the need to test the ground.",
-            "transforms": [
-              "avoidance",
-              "misdirection"
-            ]
+            "tension": "There is tension between proving potential and practicing patient mastery.",
+            "transforms": []
           },
           {
-            "canonicalCardId": "major_11",
-            "coreMeaning": "It represents weighing facts carefully, recognizing consequences, and remaining accountable.",
-            "desire": "A need for the situation to be seen clearly and effort treated fairly can become visible.",
-            "displayName": "Справедливость",
-            "fear": "Being misunderstood, facing an unfair outcome, or confronting one's part may feel difficult.",
+            "actionDirection": "Write down the essential rules, set realistic limits, and review the framework when needed.",
+            "canonicalCardId": "major_04",
+            "coreMeaning": "It represents building a dependable foundation through boundaries, order, and responsibility.",
+            "decisionDynamic": "Clarifying authority, responsibilities, and long-term consequences is what actually strengthens this decision.",
+            "displayName": "The Emperor",
+            "fear": "Disorder, loss of influence, or being overwhelmed by responsibility may feel threatening.",
             "isReversed": false,
             "keywordIds": [
-              "balance",
-              "truth",
-              "accountability"
+              "structure",
+              "authority",
+              "stability"
             ],
-            "orientationExpression": "Clear standards and honest responsibility make a balanced evaluation possible.",
+            "orientationExpression": "Mature authority creates safety through consistency and accountability rather than force.",
             "positionIndex": 1,
             "positionKey": "option_b",
-            "relationshipDynamic": "It makes reciprocity and responsibility visible while allowing room for both experiences.",
             "symbolTags": [
-              "balance",
-              "truth",
-              "accountability"
+              "structure",
+              "authority",
+              "stability"
             ],
-            "tension": "Balance must be found between objective standards and the nuances of human circumstances.",
+            "tension": "The wish to maintain control contends with the need to adapt to changing conditions.",
             "transforms": []
           },
           {
-            "canonicalCardId": "wands_01",
-            "coreMeaning": "A first spark of will not yet shaped, and the heat of a fresh beginning.",
-            "desire": "A longing to turn inner heat into a real beginning may surface.",
-            "displayName": "Туз Жезлов",
-            "fear": "There may be concern that the spark will dull or smother in excess flame.",
+            "actionDirection": "Set the route, reduce distracting burdens, and match your pace to conditions.",
+            "canonicalCardId": "major_07",
+            "coreMeaning": "It represents creating determined progress by bringing competing drives into one direction.",
+            "decisionDynamic": "A clear destination and priorities that can actually be managed matter more here than sheer momentum.",
+            "displayName": "The Chariot",
+            "fear": "Losing control, coming to a halt, or splitting between opposing forces may cause unease.",
             "isReversed": false,
             "keywordIds": [
-              "spark",
-              "agency",
-              "momentum"
+              "momentum",
+              "will",
+              "direction"
             ],
-            "orientationExpression": "Measured will keeps an unshaped spark alive and workable.",
+            "orientationExpression": "Gathered will creates decisive, directed movement without relying on force.",
             "positionIndex": 2,
             "positionKey": "tension",
-            "relationshipDynamic": "It brings fresh courage to a bond while asking warmth to be tested, not imposed.",
-            "symbolTags": [
-              "creation",
-              "vitality",
-              "will"
-            ],
-            "tension": "The urge to act at once sits beside the need to protect the spark.",
-            "transforms": []
-          },
-          {
-            "canonicalCardId": "wands_12",
-            "coreMeaning": "Fire in motion; the destination is not yet home.",
-            "desire": "Turning restless heat into a meaningful road may become important.",
-            "displayName": "Рыцарь Жезлов",
-            "fear": "Burning on the road, arriving nowhere, or merely escaping may cause unease.",
-            "isReversed": false,
-            "keywordIds": [
-              "threshold",
-              "desire",
-              "direction"
-            ],
-            "orientationExpression": "Directed motion turns fire into lively travel without mistaking it for home.",
-            "positionIndex": 3,
-            "positionKey": "counsel",
-            "relationshipDynamic": "A strong ardor can rise between people, and it travels better when it does not scorch what it passes.",
             "symbolTags": [
               "movement",
-              "desire",
+              "will",
               "direction"
             ],
-            "tension": "Forward fire contends with remembering that taking root is another task.",
+            "tension": "The drive to advance is tested by the need to coordinate inner conflict.",
             "transforms": []
           },
           {
-            "canonicalCardId": "cups_09",
-            "coreMeaning": "A full cup as personal enough, not staged happiness.",
-            "desire": "Calm emotional fullness within oneself may be what is sought.",
-            "displayName": "Девятка Кубков",
-            "fear": "Fullness vanishing, or looking like a lonely victory, may cause unease.",
+            "actionDirection": "Name what is changing, choose your sphere of influence, and update your approach with new information.",
+            "canonicalCardId": "major_10",
+            "coreMeaning": "It recalls the cyclical movement of conditions and that not everything is equally controllable.",
+            "decisionDynamic": "Attention to timing and room for shifting variables matter more here than any fixed plan.",
+            "displayName": "Wheel of Fortune",
+            "fear": "A sudden shift in balance or missing a useful moment may cause concern.",
             "isReversed": false,
             "keywordIds": [
-              "enough",
-              "joy"
+              "cycles",
+              "change",
+              "timing"
             ],
-            "orientationExpression": "Inner enough keeps the full cup calm without making a stage of it.",
+            "orientationExpression": "The movement of the cycle opens a new passage through adaptability and timing.",
+            "positionIndex": 3,
+            "positionKey": "counsel",
+            "symbolTags": [
+              "cycles",
+              "change",
+              "timing"
+            ],
+            "tension": "What we can influence meets the variability we must learn to accept.",
+            "transforms": []
+          },
+          {
+            "actionDirection": "Name what has ended, carry forward its value, and release the remainder.",
+            "canonicalCardId": "major_13",
+            "coreMeaning": "It represents transformation and new space created by releasing a form that has ended.",
+            "decisionDynamic": "Clearly recognizing what is no longer alive matters more here than resisting the closure it calls for.",
+            "displayName": "Death",
+            "fear": "The irreversibility of letting go or the emptiness afterward may feel unsettling.",
+            "isReversed": false,
+            "keywordIds": [
+              "change",
+              "release",
+              "ending"
+            ],
+            "orientationExpression": "An accepted ending allows transformation to proceed with clarity and simplicity.",
             "positionIndex": 4,
             "positionKey": "direction",
-            "relationshipDynamic": "One may bring personal emotional contentment into connection without needing the bond to manufacture that worth.",
             "symbolTags": [
-              "joy",
-              "abundance",
-              "solitude"
+              "transformation",
+              "release",
+              "ending"
             ],
-            "tension": "Protecting personal enough coexists with the need not to climb a sharing stage.",
+            "tension": "The wish to preserve the familiar faces the loss required by transformation.",
             "transforms": []
           }
         ],

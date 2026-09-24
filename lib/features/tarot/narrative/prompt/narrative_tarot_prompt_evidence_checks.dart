@@ -1,7 +1,9 @@
-/// Phase 6C.1 — relationship / recurrence / memory checks.
+/// Phase 6C.1/6C.2 — relationship / recurrence / memory checks.
 library;
 
 import '../evidence/narrative_request.dart';
+import 'narrative_tarot_prompt_memory_theme_checks.dart';
+import 'narrative_tarot_prompt_scalars.dart';
 
 abstract final class NarrativeTarotPromptEvidenceChecks {
   NarrativeTarotPromptEvidenceChecks._();
@@ -29,6 +31,10 @@ abstract final class NarrativeTarotPromptEvidenceChecks {
           right.canonicalCardId != r.rightCardId) {
         throw ArgumentError('relationship card/position correspondence failed');
       }
+      NarrativeTarotPromptScalars.requireUnit(
+        'relationship.strength',
+        r.strength,
+      );
     }
   }
 
@@ -42,9 +48,22 @@ abstract final class NarrativeTarotPromptEvidenceChecks {
       );
     }
     for (final rc in request.recurringCards) {
+      NarrativeTarotPromptScalars.requireNonBlank(
+        'recurring.canonicalCardId',
+        rc.canonicalCardId,
+      );
       if (!cardIds.contains(rc.canonicalCardId)) {
         throw ArgumentError(
           'recurring card ${rc.canonicalCardId} not in current cards',
+        );
+      }
+      if (rc.occurrenceCount <= 0) {
+        throw ArgumentError('occurrenceCount must be > 0');
+      }
+      if (rc.occurrenceCount < rc.occurrences.length) {
+        throw ArgumentError(
+          'occurrenceCount ${rc.occurrenceCount} < listed '
+          '${rc.occurrences.length}',
         );
       }
       if (rc.occurrences.length > bounds.maxRecurringOccurrencesListed) {
@@ -53,21 +72,30 @@ abstract final class NarrativeTarotPromptEvidenceChecks {
           '${bounds.maxRecurringOccurrencesListed}',
         );
       }
-    }
-    final mem = request.memory;
-    if (!mem.included && mem.entries.isNotEmpty) {
-      throw ArgumentError('excluded memory cannot carry entries');
-    }
-    if (mem.included) {
-      var chars = 0;
-      for (final e in mem.entries) {
-        chars += e.contentForModel.length;
-      }
-      if (chars > bounds.maxMemoryChars) {
+      if (rc.contextsOverlap) {
+        final key = rc.overlapSummaryKey?.trim();
+        if (key == null || key.isEmpty) {
+          throw ArgumentError(
+            'contextsOverlap true requires overlapSummaryKey',
+          );
+        }
+      } else if (rc.overlapSummaryKey != null) {
         throw ArgumentError(
-          'memory chars $chars > ${bounds.maxMemoryChars}',
+          'contextsOverlap false requires null overlapSummaryKey',
+        );
+      }
+      for (final o in rc.occurrences) {
+        NarrativeTarotPromptScalars.requireNonBlank(
+          'occurrence.spreadId',
+          o.spreadId,
+        );
+        NarrativeTarotPromptScalars.requireNonBlank(
+          'occurrence.positionKey',
+          o.positionKey,
         );
       }
     }
+    NarrativeTarotPromptMemoryThemeChecks.themes(request, cardIds);
+    NarrativeTarotPromptMemoryThemeChecks.memory(request);
   }
 }
