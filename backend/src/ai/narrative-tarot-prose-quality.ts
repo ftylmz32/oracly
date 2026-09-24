@@ -72,6 +72,7 @@ export function narrativeVisibleProse(result: {
   return parts.join('\n');
 }
 
+/** Pure detector — returns failure or null. Does not throw for expected hits. */
 export function findDeterministicFuture(
   text: string,
   language: string,
@@ -82,18 +83,4 @@ export function findDeterministicFuture(
     }
   }
   return null;
-}
-
-export function assertNarrativeProseQuality(
-  result: Parameters<typeof narrativeVisibleProse>[0] & {
-    languageCode: string;
-  },
-): void {
-  const hit = findDeterministicFuture(
-    narrativeVisibleProse(result),
-    result.languageCode,
-  );
-  if (hit) {
-    throw new Error(`narrative_prose_quality:${hit.code}`);
-  }
 }

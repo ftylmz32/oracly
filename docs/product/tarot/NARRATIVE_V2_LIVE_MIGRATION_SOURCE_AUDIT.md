@@ -749,6 +749,24 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 
 ---
 
+## 13.14 — Phase 6E.3.1 backend prose-quality fail-loud hardening
+
+**Date:** 2026-09-24 · **Kind:** narrow error-handling remediation · **0** provider calls
+
+Independent ChatGPT verification of 6E.3 confirmed Result Contract V2, `memoryIndices`, prompt rules, Call #4 detection, and live firewall — but found one follow-up:
+
+| Defect | Broad `try/catch` around `assertNarrativeProseQuality` in `narrative-tarot-result.ts` mapped **every** exception to `invalid_response`, including programming/invariant/`TypeError` failures |
+| Remediation | Parser uses pure `findDeterministicFuture(narrativeVisibleProse(result), language)` — non-null → `invalid_response`; unexpected detector throws **propagate** (fail loud) |
+| Pattern set | **unchanged** |
+| Result / request contracts | **unchanged** (Request 1 · Result 2) |
+| Prompt semantics | **unchanged** |
+| Flutter production | **unchanged** |
+| Manifest V2 / 6E.2 evidence | **unchanged** |
+| Live Narrative / 6F | **NO** |
+| Next | Independent 6E.3.1 verify → **request NEW authorization for Manifest V2 provider run** — NOT 6F |
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  

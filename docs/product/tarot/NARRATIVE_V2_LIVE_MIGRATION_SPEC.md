@@ -406,7 +406,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E.3 — Result Contract V2 + provider quality remediation
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent verification  
+- **Status:** **VERIFIED** structurally by ChatGPT · follow-up **6E.3.1** for fail-loud prose-quality catch  
 - **LOCKED:**  
   - Result Contract **Version 2** · schema `oracly_tarot_narrative_v2`  
   - `memoryIndices` (not `memoryIndex`) · sorted · unique · no global reuse  
@@ -414,6 +414,15 @@ Must pass existing `AiOutputQualityTarot` **plus**:
   - Prompt: future modality · no partner mind-reading · section jobs · optional lifeAreas · native TR/RU  
   - Historical 6E.2 artifacts immutable  
   - Manifest V2 prepared · **0** provider calls · prior six-call auth **exhausted**  
+
+### 6E.3.1 — Backend Narrative prose-quality fail-loud hardening
+
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent verification  
+- **LOCKED:**  
+  - Expected provider prose-quality rejection → fail-closed `invalid_response`  
+  - Unexpected quality-engine / programming error → **fail loud** (no broad catch)  
+  - Pure detector `findDeterministicFuture` at parser boundary (not exception-as-control-flow)  
+  - Pattern sets / Result Contract V2 / prompts / Flutter / Manifest V2 **unchanged**  
 - **Next:** Independent verify → **request NEW explicit authorization for Manifest V2 provider run** — **NOT 6F**
 
 ### 6F — Classical live cutover (single/three/five only)

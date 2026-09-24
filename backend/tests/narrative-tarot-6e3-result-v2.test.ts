@@ -17,10 +17,15 @@ import {
   narrativeSystemRules,
   resultContractDirective,
 } from '../src/ai/narrative-tarot-prompt-rules.js';
+import { ProxyError } from '../src/errors.js';
 
 const resultsPath = resolve(
   process.cwd(),
   '../test/fixtures/tarot_narrative_provider_shadow_results_6e2.json',
+);
+const resultParserPath = resolve(
+  process.cwd(),
+  'src/ai/narrative-tarot-result.ts',
 );
 
 function baseNarrative(overrides: Record<string, unknown> = {}) {
@@ -201,6 +206,41 @@ describe('6E.3 Result Contract V2', () => {
     const conditional =
       'The future may point toward a return to balance through honest assessment. Resolving present discord could open a fairer path.';
     expect(findDeterministicFuture(conditional, 'en')).toBeNull();
+  });
+
+  it('6E.3.1 — prose-quality stage uses pure detector; no broad catch', () => {
+    const src = readFileSync(resultParserPath, 'utf8');
+    expect(src).toMatch(/findDeterministicFuture\s*\(/);
+    expect(src).toMatch(/narrativeVisibleProse\s*\(/);
+    expect(src).not.toMatch(/assertNarrativeProseQuality/);
+    const stageStart = src.indexOf('assertTotalChars(result)');
+    const stageEnd = src.indexOf('return result;', stageStart);
+    expect(stageStart).toBeGreaterThan(-1);
+    expect(stageEnd).toBeGreaterThan(stageStart);
+    const stage = src.slice(stageStart, stageEnd);
+    expect(stage).not.toMatch(/catch\s*(\(|\{)/);
+    expect(stage).not.toMatch(/try\s*\{/);
+  });
+
+  it('6E.3.1 — deterministicFuture parse → invalid_response; unexpected errors not swallowed', () => {
+    const narrative = baseNarrative();
+    const prophetic = validResult(narrative);
+    prophetic.synthesis =
+      'The future promises a return to balance; resolving present discord will lead to fairer outcomes.';
+    try {
+      parseNarrativeTarotResult(JSON.stringify(prophetic), narrative as never);
+      expect(false).toBe(true);
+    } catch (e) {
+      expect(e).toBeInstanceOf(ProxyError);
+      expect((e as ProxyError).code).toBe('invalid_response');
+    }
+
+    const ok = validResult(narrative);
+    ok.synthesis =
+      'The future may point toward a return to balance through honest assessment.';
+    expect(
+      parseNarrativeTarotResult(JSON.stringify(ok), narrative as never).synthesis,
+    ).toContain('may point toward');
   });
 
   it('prompt rules cover future modality, mind-reading, memoryIndices, sections', () => {

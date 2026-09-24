@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-24 — Tarot Phase 6E.3 Result Contract V2 + provider quality remediation · 6E.2 evidence frozen
+**Updated:** 2026-09-24 — Tarot Phase 6E.3.1 prose-quality fail-loud · 6E.3 Result Contract V2 · 6E.2 evidence frozen
 
 ---
 
@@ -1350,11 +1350,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT verification of Phase 6E.3** (Result Contract V2 + prose/prompt remediation).
+**Independent ChatGPT verification of Phase 6E.3.1** (backend prose-quality fail-loud hardening).
 
 Then: **request NEW explicit authorization** for Provider Shadow Manifest V2 (max 6) — **NOT 6F yet.**
 
-Phase 6.0–6E.1: **PASS** · 6E.2 execution: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3: **IMPLEMENTED** (pending verify) · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0–6E.1: **PASS** · 6E.2 execution: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3 structural: **VERIFIED** · 6E.3.1: **IMPLEMENTED** (pending verify) · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

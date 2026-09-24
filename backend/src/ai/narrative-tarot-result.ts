@@ -7,7 +7,10 @@ import {
   NARRATIVE_LIMITS,
   NARRATIVE_RESULT_CONTRACT_VERSION,
 } from './narrative-tarot-limits.js';
-import { assertNarrativeProseQuality } from './narrative-tarot-prose-quality.js';
+import {
+  findDeterministicFuture,
+  narrativeVisibleProse,
+} from './narrative-tarot-prose-quality.js';
 
 export type NarrativeTarotResult = {
   contractVersion: 2;
@@ -138,9 +141,13 @@ export function parseNarrativeTarotResult(
     closingMessage,
   };
   assertTotalChars(result);
-  try {
-    assertNarrativeProseQuality(result);
-  } catch {
+  // Expected provider prose-quality rejection → invalid_response.
+  // Unexpected detector/programming errors must propagate (fail loud).
+  const proseFailure = findDeterministicFuture(
+    narrativeVisibleProse(result),
+    result.languageCode,
+  );
+  if (proseFailure !== null) {
     bad();
   }
   return result;
