@@ -1,0 +1,574 @@
+{
+  "qaRunHead": "2799e9bf518b2e1db6e9ce338643bffef8c4e632",
+  "manifestVersion": 2,
+  "resultContractVersion": 2,
+  "providerSchemaName": "oracly_tarot_narrative_v2",
+  "precallValidation": "PASS",
+  "schemaCompatibilityPrecall": "PASS",
+  "uniqueItemsInProviderSchema": false,
+  "sixOutboundBodiesOfflinePass": 6,
+  "precall": [
+    {
+      "manifestId": "psm_v2_01_single_open_en",
+      "ok": true,
+      "language": "en",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "The Fool",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true
+    },
+    {
+      "manifestId": "psm_v2_02_single_guidance_tr_reversed",
+      "ok": true,
+      "language": "tr",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "Kupa Beşlisi",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true
+    },
+    {
+      "manifestId": "psm_v2_03_single_relationship_ru",
+      "ok": true,
+      "language": "ru",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "Девятка Мечей",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true
+    },
+    {
+      "manifestId": "psm_v2_04_three_contrast_en",
+      "ok": true,
+      "language": "en",
+      "cardCount": 3,
+      "spreadId": "classical.threeCard",
+      "displayName": "The Magician",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true
+    },
+    {
+      "manifestId": "psm_v2_05_five_conflict_ru",
+      "ok": true,
+      "language": "ru",
+      "cardCount": 5,
+      "spreadId": "classical.fiveCard",
+      "displayName": "Шут",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true
+    },
+    {
+      "manifestId": "psm_v2_06_enriched_multi_memory_en",
+      "ok": true,
+      "language": "en",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "The Fool",
+      "memoryEntryCount": 2,
+      "outboundBodySchemaOk": true
+    }
+  ],
+  "authorizedCalls": 6,
+  "usedCalls": 6,
+  "remaining": 0,
+  "callCapExceeded": false,
+  "autoRetries": 0,
+  "billingTouched": false,
+  "persistenceWrites": 0,
+  "paidUserDualCalls": 0,
+  "gemDebits": 0,
+  "historyWrites": 0,
+  "journalWrites": 0,
+  "liveCacheWrites": 0,
+  "productionCodeModifiedDuringRun": false,
+  "calls": [
+    {
+      "manifestId": "psm_v2_01_single_open_en",
+      "callNumber": 1,
+      "languageCode": "en",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "The Fool",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "transportStatus": "ok",
+      "latencyMs": 2867,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERkDmWcCH0nCmbRL8VwdHDXByNest",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "en",
+        "summary": "The Fool card suggests embracing new experiences with an open mind and curiosity.",
+        "cardReadings": [
+          {
+            "cardId": "major_00",
+            "positionKey": "sign",
+            "text": "The Fool in the sign position indicates a time to embrace new beginnings with curiosity and openness, while being mindful of potential consequences."
+          }
+        ],
+        "synthesis": "The Fool reflects a tension between the desire to explore new opportunities and the need to remain aware of possible outcomes.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Consider stepping into new situations with a sense of wonder, but also take care to assess the risks involved.",
+        "reflectionPrompt": null,
+        "dailyFocus": null,
+        "closingMessage": "Embrace the journey ahead with curiosity, but remember to tread carefully."
+      },
+      "typedFailure": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.3333333333333333,
+        "synthesis_advice": 0.13333333333333333,
+        "advice_closing": 0.3,
+        "summary_closing": 0.3
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_02_single_guidance_tr_reversed",
+      "callNumber": 2,
+      "languageCode": "tr",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "Kupa Beşlisi",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "transportStatus": "ok",
+      "latencyMs": 2991,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERkDocQ6kKwl1mpX0HD3Ey9M7kshJ",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "tr",
+        "summary": "Bu dönem kayıplara odaklanma eğiliminiz olabilir, ancak ayakta kalanları da görmeniz önemlidir.",
+        "cardReadings": [
+          {
+            "cardId": "cups_05",
+            "positionKey": "sign",
+            "text": "Kupa Beşlisi kartı ters konumda, kayıplara odaklanma ve ayakta kalanları görmezden gelme eğilimini yansıtabilir."
+          }
+        ],
+        "synthesis": "İçsel bir gerilim yaşıyor olabilirsiniz; bir yandan kayıplarınızı onurlandırma ihtiyacı duyarken, diğer yandan hâlâ elinizde olanları fark etme gerekliliği var. Bu ikilem, yas tutma ve ileriye bakma arasında bir denge kurmayı zorlaştırabilir.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Bu dönemde, kayıplarınızın yasını tutarken, elinizde kalanların değerini de fark etmeye çalışın. Dengeli bir bakış açısı geliştirmek için her iki durumu da onurlandırın.",
+        "reflectionPrompt": null,
+        "dailyFocus": null,
+        "closingMessage": "Bu süreçte, geçmiş kayıplarınızı kabul etmek ve mevcut durumunuzu değerlendirmek, ileriye dönük daha sağlıklı bir adım atmanıza yardımcı olabilir."
+      },
+      "typedFailure": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.0,
+        "synthesis_advice": 0.15,
+        "advice_closing": 0.058823529411764705,
+        "summary_closing": 0.1
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_03_single_relationship_ru",
+      "callNumber": 3,
+      "languageCode": "ru",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "Девятка Мечей",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "transportStatus": "ok",
+      "latencyMs": 3355,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERkDsjlgY4bnzjvMhfcRwUMHQnsax",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "ru",
+        "summary": "Ваши отношения могут испытывать напряжение из-за тревожных мыслей и ночных страхов.",
+        "cardReadings": [
+          {
+            "cardId": "swords_09",
+            "positionKey": "sign",
+            "text": "Девятка Мечей в перевёрнутом положении указывает на усиление ночных тревог и внутренних страхов, что может отражаться на отношениях."
+          }
+        ],
+        "synthesis": "В ваших отношениях может присутствовать напряжение, вызванное избыточными тревожными мыслями, которые особенно усиливаются ночью. Это может создавать чувство неуверенности и беспокойства, даже если днём эти страхи кажутся менее реальными.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [
+          {
+            "kind": "love",
+            "text": "Тревожные мысли и страхи могут влиять на эмоциональную близость и доверие в отношениях."
+          }
+        ],
+        "advice": "Попробуйте открыто обсудить свои тревоги и страхи с партнёром, чтобы уменьшить их влияние на ваши отношения.",
+        "reflectionPrompt": "Какие ночные мысли чаще всего вызывают у вас беспокойство, и как вы можете их уменьшить?",
+        "dailyFocus": null,
+        "closingMessage": "Сосредоточьтесь на честных разговорах, чтобы уменьшить влияние страхов на ваши отношения."
+      },
+      "typedFailure": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "repetitive",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.1111111111111111,
+        "synthesis_advice": 0.08333333333333333,
+        "advice_closing": 0.5555555555555556,
+        "summary_closing": 0.3333333333333333
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_04_three_contrast_en",
+      "callNumber": 4,
+      "languageCode": "en",
+      "spreadId": "classical.threeCard",
+      "cardCount": 3,
+      "displayName": "The Magician",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "transportStatus": "ok",
+      "latencyMs": 4748,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERkDvl6B3tc5xlM7MPA6om9ZVhv2d",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "en",
+        "summary": "This season of your life is marked by a transition from focused intention to a period of indecision, with a future potential for achieving balance and accountability.",
+        "cardReadings": [
+          {
+            "cardId": "major_01",
+            "positionKey": "past",
+            "text": "In the past, The Magician suggests you have been harnessing your skills and intentions effectively, translating ideas into reality with focus and agency."
+          },
+          {
+            "cardId": "major_06",
+            "positionKey": "present",
+            "text": "Currently, The Lovers reversed reflects a state of discord and indecision, where alignment may have fractured, leading to a delay in making important choices."
+          },
+          {
+            "cardId": "major_11",
+            "positionKey": "future",
+            "text": "In the future, Justice points towards the possibility of achieving balance and truth, emphasizing the importance of accountability and fair judgment."
+          }
+        ],
+        "synthesis": "The transition from The Magician to The Lovers reversed highlights a shift from a period of focused creation to one of uncertainty and imbalance. This suggests a current struggle with maintaining alignment and making clear choices. The potential move towards Justice indicates an opportunity to restore balance and accountability, suggesting that clarity and fair assessment could emerge from this period of indecision.",
+        "relationshipInsights": [
+          {
+            "leftCardId": "major_06",
+            "rightCardId": "major_11",
+            "kind": "contrast",
+            "text": "The contrast between The Lovers reversed and Justice suggests a shift from current indecision and imbalance to a future where balance and accountability are achievable, indicating a potential resolution of current discord."
+          }
+        ],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Reflect on where decisions may be delayed or misaligned in your life and consider how you can bring more balance and accountability into these areas. This might involve reassessing your values and priorities to align more closely with your true intentions.",
+        "reflectionPrompt": "Where in your life are you experiencing hesitation or imbalance, and how might you begin to restore alignment?",
+        "dailyFocus": null,
+        "closingMessage": "Embrace the opportunity to find balance and clarity, allowing you to move forward with integrity and truth."
+      },
+      "typedFailure": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "repetitive",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.5789473684210527,
+        "synthesis_advice": 0.16129032258064516,
+        "advice_closing": 0.2857142857142857,
+        "summary_closing": 0.21428571428571427
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_05_five_conflict_ru",
+      "callNumber": 5,
+      "languageCode": "ru",
+      "spreadId": "classical.fiveCard",
+      "cardCount": 5,
+      "displayName": "Шут",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "transportStatus": "ok",
+      "latencyMs": 5130,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERkE0ExWZ383fdEn60LKqwUieOWgU",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "ru",
+        "summary": "В отношениях присутствует желание нового начала, но также необходимо учитывать ответственность и баланс.",
+        "cardReadings": [
+          {
+            "cardId": "major_00",
+            "positionKey": "situation",
+            "text": "Шут в перевёрнутом положении указывает на неуверенность в свежем начале и риск необдуманных действий."
+          },
+          {
+            "cardId": "major_11",
+            "positionKey": "hidden_influence",
+            "text": "Справедливость в прямом положении намекает на необходимость честной оценки и ответственности в отношениях."
+          },
+          {
+            "cardId": "wands_01",
+            "positionKey": "challenge",
+            "text": "Туз Жезлов говорит о необходимости сохранить мотивацию и энергию, не спеша с действиями."
+          },
+          {
+            "cardId": "wands_12",
+            "positionKey": "strength",
+            "text": "Рыцарь Жезлов символизирует энергию и движение вперёд, предлагая использовать пыл для прогресса."
+          },
+          {
+            "cardId": "cups_09",
+            "positionKey": "direction",
+            "text": "Девятка Кубков указывает на возможность достижения эмоциональной полноты и удовлетворения в будущем."
+          }
+        ],
+        "synthesis": "Ситуация требует осторожности и взвешенного подхода, так как стремление к новому может быть омрачено поспешностью. Справедливость призывает к честности и ответственности, в то время как Туз Жезлов предлагает сохранить мотивацию. Рыцарь Жезлов помогает направить энергию в конструктивное русло, а Девятка Кубков открывает путь к внутреннему удовлетворению.",
+        "relationshipInsights": [
+          {
+            "leftCardId": "major_00",
+            "rightCardId": "wands_01",
+            "kind": "conflict",
+            "text": "Шут в перевёрнутом положении и Туз Жезлов в конфликте указывают на напряжение между желанием начать что-то новое и необходимостью сдерживать энергию, чтобы не действовать поспешно."
+          }
+        ],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [
+          {
+            "kind": "love",
+            "text": "Расклад касается сферы отношений, где важно учитывать баланс между новыми начинаниями и ответственностью."
+          }
+        ],
+        "advice": "Попробуйте сбалансировать стремление к новому с необходимостью честной оценки текущей ситуации и ответственности.",
+        "reflectionPrompt": "Как вы можете привнести больше честности и ответственности в ваши отношения?",
+        "dailyFocus": "Сосредоточьтесь на честности и ответственности в отношениях.",
+        "closingMessage": "Помните, что новые начинания требуют как энергии, так и взвешенного подхода."
+      },
+      "typedFailure": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.0,
+        "synthesis_advice": 0.3,
+        "advice_closing": 0.0,
+        "summary_closing": 0.0
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_06_enriched_multi_memory_en",
+      "callNumber": 6,
+      "languageCode": "en",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "The Fool",
+      "memoryEntryCount": 2,
+      "memorySummariesForQa": [
+        {
+          "index": 0,
+          "kind": "memorySummary",
+          "sourceType": "coffee",
+          "contentForModel": "[INTERPRETATION][coffee] shared loyalty partner reflection coffee"
+        },
+        {
+          "index": 1,
+          "kind": "memorySummary",
+          "sourceType": "dream",
+          "contentForModel": "[INTERPRETATION][dream] shared loyalty partner reflection dream"
+        }
+      ],
+      "transportStatus": "ok",
+      "latencyMs": 3869,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERkE5aNapafYMDAs8FdIbyT8cG3kF",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "en",
+        "summary": "The Fool card suggests a new beginning with potential for growth in your relationship.",
+        "cardReadings": [
+          {
+            "cardId": "major_00",
+            "positionKey": "sign",
+            "text": "The Fool in this position suggests that you are at a threshold in your relationship, with the opportunity to embrace a new experience. It encourages openness to learning and exploring beyond familiar boundaries."
+          }
+        ],
+        "synthesis": "The Fool card highlights an internal tension between the desire for freedom and the need to be cautious about potential consequences. This reflects the uncertainty you may feel about staying in your relationship while also being open to the possibilities it presents.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [
+          {
+            "cardId": "major_00",
+            "text": "The recurring presence of The Fool card in your readings suggests a persistent theme of exploring new beginnings and possibilities in your relationship context."
+          }
+        ],
+        "recurringThemeInsights": [
+          {
+            "themeIdOrLabel": "ilişki",
+            "text": "The recurring theme of 'relationship' points to ongoing considerations about your partnership and its future."
+          }
+        ],
+        "memoryInsights": [
+          {
+            "memoryIndices": [
+              0,
+              1
+            ],
+            "text": "Your reflections on loyalty and partnership have been consistent themes in your past interpretations, indicating a deep consideration of these aspects in your relationship."
+          }
+        ],
+        "lifeAreas": [
+          {
+            "kind": "love",
+            "text": "This reading is primarily focused on your romantic relationship, suggesting an exploration of new dynamics and experiences."
+          }
+        ],
+        "advice": "Consider how you can balance your desire for freedom with the responsibilities and consequences of your choices in the relationship.",
+        "reflectionPrompt": "What new experiences or changes are you open to exploring in your relationship?",
+        "dailyFocus": null,
+        "closingMessage": "Embrace the potential for growth and new experiences in your relationship, while staying mindful of your goals and boundaries."
+      },
+      "typedFailure": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "repetitive",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.5833333333333334,
+        "synthesis_advice": 0.5625,
+        "advice_closing": 0.3333333333333333,
+        "summary_closing": 0.5833333333333334
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 1,
+        "indices": [
+          [
+            0,
+            1
+          ]
+        ],
+        "requestMemoryEntryCount": 2,
+        "summariesAdjacent": [
+          {
+            "index": 0,
+            "kind": "memorySummary",
+            "sourceType": "coffee",
+            "contentForModel": "[INTERPRETATION][coffee] shared loyalty partner reflection coffee"
+          },
+          {
+            "index": 1,
+            "kind": "memorySummary",
+            "sourceType": "dream",
+            "contentForModel": "[INTERPRETATION][dream] shared loyalty partner reflection dream"
+          }
+        ]
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    }
+  ],
+  "clientParserPasses": 6,
+  "narrativeQualityPasses": 6,
+  "aiOutputQualityPasses": 6,
+  "internalIdLeaksFound": false,
+  "transportSuccesses": 6,
+  "backendStructuredPasses": 6,
+  "backendQualityRejections": 0
+}

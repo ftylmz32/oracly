@@ -809,6 +809,28 @@ Independent root cause of 6E.4 (valid execution, failed before generation):
 
 ---
 
+## 13.17 — Phase 6E.4.2 Clean Manifest V2 provider shadow rerun
+
+**Date:** 2026-09-24 · **Kind:** authorized real-provider QA · **6** calls · Result Contract V2
+
+| Fact | Value |
+|---|---|
+| QA RUN HEAD | `2799e9bf518b2e1db6e9ce338643bffef8c4e632` |
+| Manifest V2 | unchanged |
+| Precall / schema compat / outbound bodies | **PASS** · `uniqueItems` absent |
+| Transport / backend structured | **6 / 6** |
+| Client parse / Narrative quality / AiOutputQuality | **6 / 6** |
+| Call #6 memoryIndices | `[0,1]` multi-memory synthesis |
+| Deterministic-future automated hits | **0** |
+| Historical 6E.4 artifacts | **immutable** |
+| Production during run | **NO** |
+| Live / 6F | **NO** |
+| Writing quality | **pending ChatGPT** · agent does **not** claim PASS |
+
+Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E42_V2.md` · `tarot_narrative_provider_shadow_results_6e42_v2.json`
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  

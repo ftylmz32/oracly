@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-24 — Tarot Phase 6E.4.1 provider schema compat + observability · 6E.4 evidence frozen
+**Updated:** 2026-09-24 — Tarot Phase 6E.4.2 clean Manifest V2 provider shadow (6/6 structured) · 6E.4.1 schema fix
 
 ---
 
@@ -1350,16 +1350,15 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT verification of Phase 6E.4.1** (provider schema compat + observability).
+**Independent ChatGPT writing-quality review of Phase 6E.4.2** captured Result Contract V2 prose.
 
-Then, under the user's **standing instruction to continue**: **repeat Provider Shadow Manifest V2** (same manifest) with a **fresh hard cap of 6** real calls — **NOT 6F**.
+Then decide whether Manifest V2 writing quality is production-ready for **6F** — do **not** wire live Narrative until that independent PASS.
 
-Phase 6.0–6E.1: **PASS** · 6E.2 execution: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **EXECUTED · 0/6 transport** · 6E.4.1: **IMPLEMENTED** (pending verify) · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Phase 6.0–6E.1: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **0/6 transport** · 6E.4.1: **PASS** · 6E.4.2: **6/6 structured capture** (writing quality pending ChatGPT) · live V2: **NOT WIRED**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** begin Phase 6F.
-Do **not** reuse the exhausted 6E.4 six-call authorization without a fresh cap.
-Do **not** claim provider writing quality until a successful structured-prose capture exists.
+Do **not** begin Phase 6F until independent writing-quality PASS.
+Do **not** claim provider quality PASS from agent automated gates alone.
 Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.

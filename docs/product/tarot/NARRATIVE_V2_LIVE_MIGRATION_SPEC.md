@@ -434,14 +434,21 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E.4.1 — Provider schema compatibility + error observability
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent verification  
+- **Status:** **PASS** (independently verified)  
 - **LOCKED:**  
   - Provider schema = OpenAI-supported JSON Schema **subset** only  
   - Authoritative uniqueness / sort / range / global non-reuse remain in **backend + Flutter** validators  
   - Safe internal `ProxyError.details` (`httpStatus` · `requestId` · `providerMessage`) · client envelope code-only  
-  - Schema incompatibility → `invalid_request` · generic 5xx → `provider_error`  
-  - Historical 6E.4 evidence **immutable** · **0** provider calls this phase  
-- **Next:** Independent verify → **repeat Provider Shadow V2 (same Manifest V2) under standing continue instruction · fresh hard cap 6** — **NOT 6F**
+
+### 6E.4.2 — Clean Manifest V2 provider shadow rerun
+
+- **Status:** **EXECUTED** · **6/6** transport + structured Result V2 · writing quality **pending ChatGPT**  
+- **LOCKED:**  
+  - Same Manifest V2 · fresh hard cap 6 · QA_RUN_HEAD `2799e9bf…`  
+  - Historical 6E.4 artifacts **immutable** · new `*_6e42_*` fixtures only  
+  - Call #6 `memoryIndices: [0,1]` · automated deterministic-future hits **0**  
+  - Agent **does not** claim writing-quality PASS  
+- **Next:** Independent ChatGPT writing-quality review → **6F only if PASS**
 
 ### 6F — Classical live cutover (single/three/five only)
 
