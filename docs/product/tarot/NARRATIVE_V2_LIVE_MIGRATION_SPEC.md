@@ -342,7 +342,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6D — Structured result parse + Narrative quality validator
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified; follow-up → **6D.1**  
 - **Request exact fields:** `mode` · `contractVersion` · `language` · `narrative` (`mode=narrative_v2`, `contractVersion=1`)  
 - **Narrative object:** Phase 6C canonical field names reused  
 - **Result contract version:** **1**  
@@ -352,8 +352,23 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 - **Backend modules:** `narrative-tarot-contract|prompts|result-schema|result` + narrow `validate-request` / `service` branch  
 - **Legacy path:** unchanged `{ text }`  
 - **Exact backend JSON field-name minor:** **RESOLVED**  
+- **Independent follow-up:** M1 shallow inbound validation · M2 weak Narrative fingerprint → **6D.1**  
 - **Open minor remaining:** life-area UI migration timing only  
+- **Next:** **Phase 6D.1**
+
+### 6D.1 — Narrative backend input firewall + full semantic request fingerprint
+
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **LOCKED:**  
+  - backend is independent untrusted-client validation boundary  
+  - complete V1 enum/value contract (spread/question/geometry/role/temporal/relationship/transform/memory)  
+  - max Narrative JSON **32,000** chars · no silent truncation/sanitization  
+  - Narrative duplicate identity = SHA-256 of canonical full validated wire semantics (`tarot-narrative:<hex>`)  
+  - raw private/user prose never appears in fingerprint string  
+  - current `spread.spreadId` strict V1 machine ids; historical occurrence ids allow Phase 4 legacy aliases  
+- **Flutter production:** **unchanged**  
 - **Next:** Independent verify → **Phase 6E**
+
 ### 6E — Classical dual-run harness + shadow corpus
 
 - **Goal:** Compare legacy Facts vs Narrative candidate structurally  
@@ -452,6 +467,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6D verification**, then **Phase 6E** — classical deterministic dual-run + controlled shadow corpus.
+**Independent Phase 6D.1 verification**, then **Phase 6E** — classical deterministic dual-run + controlled shadow corpus.
 
-Phase 6A / 6A.1 / 6B / 6B.1 / 6C / 6C.1 / 6C.2 independently verified · Phase 6C **FROZEN**. Phase 6D structured contract **IMPLEMENTED** (pending verify). Exact backend JSON field names **RESOLVED**. Live Narrative V2 still **NOT WIRED**.
+Phase 6A–6D independently verified · Phase 6C **FROZEN**. Phase 6D.1 inbound firewall + SHA-256 fingerprint **IMPLEMENTED** (pending verify). Live Narrative V2 still **NOT WIRED**.

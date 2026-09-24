@@ -1,15 +1,37 @@
-/** Phase 6D — strict Narrative V2 request wire validation (fail-closed). */
+/** Phase 6D.1 — strict Narrative V2 request wire validation (fail-closed). */
 import { ErrorCode, fail } from '../errors.js';
 import { asRecord } from './sanitize.js';
 import {
+  asEnumSet,
   NARRATIVE_CONTRACT_VERSION,
+  NARRATIVE_GEOMETRY_HOOKS,
+  NARRATIVE_LENGTH_BANDS,
   NARRATIVE_LIMITS,
   NARRATIVE_MODE,
   NARRATIVE_POLICY_RULES,
   NARRATIVE_POLICY_VERSION,
+  NARRATIVE_POSITION_ROLES,
+  NARRATIVE_QUESTION_KINDS,
   NARRATIVE_SERIALIZER_VERSION,
   NARRATIVE_TAROT_VERSION,
+  NARRATIVE_TEMPORALS,
 } from './narrative-tarot-limits.js';
+import {
+  isFiniteUnit,
+  optionalMemEpistemic,
+  optionalMemSource,
+  optionalString,
+  optionalUtcZ,
+  requireEnum,
+  requireMemKind,
+  requireRelKind,
+  requireOccurrenceSpreadId,
+  requireSpreadId,
+  requireString,
+  requireTokenList,
+  requireTransforms,
+  requireUtcZ,
+} from './narrative-tarot-contract-fields.js';
 
 export type NarrativeWireLanguage = 'tr' | 'en' | 'ru';
 
@@ -63,6 +85,23 @@ const FORBIDDEN = new Set([
   'note',
 ]);
 
+const Q_KINDS = asEnumSet(NARRATIVE_QUESTION_KINDS);
+const GEOMETRY = asEnumSet(NARRATIVE_GEOMETRY_HOOKS);
+const LENGTHS = asEnumSet(NARRATIVE_LENGTH_BANDS);
+const ROLES = asEnumSet(NARRATIVE_POSITION_ROLES);
+const TEMPORALS = asEnumSet(NARRATIVE_TEMPORALS);
+
+const OPTIONAL_CARD_TEXT = [
+  'light',
+  'shadow',
+  'tension',
+  'desire',
+  'fear',
+  'relationshipDynamic',
+  'decisionDynamic',
+  'actionDirection',
+] as const;
+
 function reject(): never {
   fail(ErrorCode.invalidRequest);
 }
@@ -86,14 +125,6 @@ function scanForbidden(value: unknown): void {
   }
 }
 
-function isFiniteUnit(n: unknown): n is number {
-  return typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 1;
-}
-
-function nonBlank(v: unknown): v is string {
-  return typeof v === 'string' && v.trim().length > 0;
-}
-
 function exactLang(v: unknown): NarrativeWireLanguage | null {
   return v === 'tr' || v === 'en' || v === 'ru' ? v : null;
 }
@@ -111,6 +142,8 @@ export function validateNarrativeTarotPayload(
   scanForbidden(narrativeRec);
   exactKeys(narrativeRec, NARRATIVE_KEYS);
   const narrative = parseNarrative(narrativeRec, language);
+  const jsonChars = JSON.stringify(narrative).length;
+  if (jsonChars > NARRATIVE_LIMITS.maxNarrativeJsonChars) reject();
   return {
     operation: 'tarot_reading',
     mode: 'narrative_v2',
@@ -132,26 +165,8 @@ function parseNarrative(
   const memory = asRecord(n.memory);
   const policy = asRecord(n.policy);
   if (!question || !spread || !memory || !policy) reject();
-  exactKeys(question, new Set(['text', 'topic', 'kind', 'hasRealQuestion']));
-  exactKeys(
-    spread,
-    new Set([
-      'spreadId',
-      'cardCount',
-      'geometryHook',
-      'lengthBand',
-      'interpretationOrder',
-      'positions',
-    ]),
-  );
-  exactKeys(memory, new Set(['included', 'priorReadingCount', 'entries']));
-  exactKeys(policy, new Set(['version', 'rules']));
-  if (policy.version !== NARRATIVE_POLICY_VERSION) reject();
-  if (!Array.isArray(policy.rules)) reject();
-  if (policy.rules.length !== NARRATIVE_POLICY_RULES.length) reject();
-  for (let i = 0; i < NARRATIVE_POLICY_RULES.length; i++) {
-    if (policy.rules[i] !== NARRATIVE_POLICY_RULES[i]) reject();
-  }
+  parseQuestion(question);
+  parsePolicy(policy);
   if (!Array.isArray(n.cards) || !Array.isArray(n.relationships)) reject();
   if (!Array.isArray(n.recurringCards) || !Array.isArray(n.recurringThemes)) {
     reject();
@@ -182,6 +197,28 @@ function parseNarrative(
   };
 }
 
+function parseQuestion(q: Record<string, unknown>): void {
+  exactKeys(q, new Set(['text', 'topic', 'kind', 'hasRealQuestion']));
+  requireEnum(reject, q.kind, Q_KINDS);
+  if (typeof q.hasRealQuestion !== 'boolean') reject();
+  if (q.hasRealQuestion) {
+    requireString(reject, q.text, NARRATIVE_LIMITS.maxQuestionChars, true);
+  } else if (q.text !== null) {
+    reject();
+  }
+  optionalString(reject, q.topic, NARRATIVE_LIMITS.maxTopicChars);
+}
+
+function parsePolicy(policy: Record<string, unknown>): void {
+  exactKeys(policy, new Set(['version', 'rules']));
+  if (policy.version !== NARRATIVE_POLICY_VERSION) reject();
+  if (!Array.isArray(policy.rules)) reject();
+  if (policy.rules.length !== NARRATIVE_POLICY_RULES.length) reject();
+  for (let i = 0; i < NARRATIVE_POLICY_RULES.length; i++) {
+    if (policy.rules[i] !== NARRATIVE_POLICY_RULES[i]) reject();
+  }
+}
+
 const CARD_KEYS = new Set([
   'canonicalCardId',
   'displayName',
@@ -193,76 +230,123 @@ const CARD_KEYS = new Set([
   'keywordIds',
   'symbolTags',
   'transforms',
-  'light',
-  'shadow',
-  'tension',
-  'desire',
-  'fear',
-  'relationshipDynamic',
-  'decisionDynamic',
-  'actionDirection',
+  ...OPTIONAL_CARD_TEXT,
 ]);
 
 function parseCard(raw: unknown): Record<string, unknown> {
   const c = asRecord(raw);
   if (!c) reject();
   exactKeys(c, CARD_KEYS);
-  if (!nonBlank(c.canonicalCardId) || !nonBlank(c.displayName)) reject();
-  if (!nonBlank(c.positionKey) || typeof c.positionIndex !== 'number') reject();
-  if (!Number.isInteger(c.positionIndex) || c.positionIndex < 0) reject();
+  requireString(reject, c.canonicalCardId, NARRATIVE_LIMITS.maxCardIdChars, true);
+  requireString(reject, c.displayName, NARRATIVE_LIMITS.maxDisplayNameChars, true);
+  requireString(reject, c.positionKey, NARRATIVE_LIMITS.maxPositionKeyChars, true);
+  if (typeof c.positionIndex !== 'number' || !Number.isInteger(c.positionIndex)) {
+    reject();
+  }
+  if (c.positionIndex < 0) reject();
   if (typeof c.isReversed !== 'boolean') reject();
+  requireString(reject, c.coreMeaning, NARRATIVE_LIMITS.maxCardTextChars, true);
+  requireString(
+    reject,
+    c.orientationExpression,
+    NARRATIVE_LIMITS.maxCardTextChars,
+    true,
+  );
+  requireTokenList(
+    reject,
+    c.keywordIds,
+    NARRATIVE_LIMITS.maxKeywordItems,
+    NARRATIVE_LIMITS.maxKeywordItemChars,
+  );
+  requireTokenList(
+    reject,
+    c.symbolTags,
+    NARRATIVE_LIMITS.maxKeywordItems,
+    NARRATIVE_LIMITS.maxKeywordItemChars,
+  );
+  requireTransforms(reject, c.transforms);
+  for (const key of OPTIONAL_CARD_TEXT) {
+    if (key in c) {
+      optionalString(reject, c[key], NARRATIVE_LIMITS.maxCardTextChars);
+    }
+  }
   return c;
 }
-
-const REL_KEYS = new Set([
-  'leftCardId',
-  'rightCardId',
-  'leftPositionKey',
-  'rightPositionKey',
-  'kind',
-  'strength',
-]);
 
 function parseRelationship(raw: unknown): Record<string, unknown> {
   const r = asRecord(raw);
   if (!r) reject();
-  exactKeys(r, REL_KEYS);
-  if (!nonBlank(r.leftCardId) || !nonBlank(r.rightCardId)) reject();
-  if (!nonBlank(r.leftPositionKey) || !nonBlank(r.rightPositionKey)) reject();
-  if (!nonBlank(r.kind) || !isFiniteUnit(r.strength)) reject();
+  exactKeys(
+    r,
+    new Set([
+      'leftCardId',
+      'rightCardId',
+      'leftPositionKey',
+      'rightPositionKey',
+      'kind',
+      'strength',
+    ]),
+  );
+  requireString(reject, r.leftCardId, NARRATIVE_LIMITS.maxCardIdChars, true);
+  requireString(reject, r.rightCardId, NARRATIVE_LIMITS.maxCardIdChars, true);
+  requireString(reject, r.leftPositionKey, NARRATIVE_LIMITS.maxPositionKeyChars, true);
+  requireString(reject, r.rightPositionKey, NARRATIVE_LIMITS.maxPositionKeyChars, true);
+  requireRelKind(reject, r.kind);
+  if (!isFiniteUnit(r.strength)) reject();
   if (r.leftCardId === r.rightCardId) reject();
   return r;
 }
 
-const OCC_KEYS = new Set([
-  'occurredAtUtc',
-  'spreadId',
-  'positionKey',
-  'orientationKnown',
-  'isReversed',
-  'intentionSummary',
-]);
-
-const REC_CARD_KEYS = new Set([
-  'canonicalCardId',
-  'occurrenceCount',
-  'contextsOverlap',
-  'overlapSummaryKey',
-  'occurrences',
-]);
+function parseOccurrence(raw: unknown): Record<string, unknown> {
+  const occ = asRecord(raw);
+  if (!occ) reject();
+  exactKeys(
+    occ,
+    new Set([
+      'occurredAtUtc',
+      'spreadId',
+      'positionKey',
+      'orientationKnown',
+      'isReversed',
+      'intentionSummary',
+    ]),
+  );
+  requireUtcZ(reject, occ.occurredAtUtc);
+  requireOccurrenceSpreadId(reject, occ.spreadId);
+  requireString(reject, occ.positionKey, NARRATIVE_LIMITS.maxPositionKeyChars, true);
+  if (typeof occ.orientationKnown !== 'boolean') reject();
+  if (occ.orientationKnown) {
+    if (typeof occ.isReversed !== 'boolean') reject();
+  } else if (occ.isReversed !== null) {
+    reject();
+  }
+  if ('intentionSummary' in occ) {
+    optionalString(reject, occ.intentionSummary, NARRATIVE_LIMITS.maxIntentionSummaryChars);
+  }
+  return occ;
+}
 
 function parseRecurringCard(raw: unknown): Record<string, unknown> {
   const r = asRecord(raw);
   if (!r) reject();
-  exactKeys(r, REC_CARD_KEYS);
-  if (!nonBlank(r.canonicalCardId)) reject();
+  exactKeys(
+    r,
+    new Set([
+      'canonicalCardId',
+      'occurrenceCount',
+      'contextsOverlap',
+      'overlapSummaryKey',
+      'occurrences',
+    ]),
+  );
+  requireString(reject, r.canonicalCardId, NARRATIVE_LIMITS.maxCardIdChars, true);
   if (typeof r.occurrenceCount !== 'number' || !Number.isInteger(r.occurrenceCount)) {
     reject();
   }
   if (r.occurrenceCount <= 0) reject();
   if (typeof r.contextsOverlap !== 'boolean') reject();
   if (r.contextsOverlap) {
-    if (!nonBlank(r.overlapSummaryKey)) reject();
+    requireString(reject, r.overlapSummaryKey, 120, true);
   } else if (r.overlapSummaryKey != null) {
     reject();
   }
@@ -271,40 +355,36 @@ function parseRecurringCard(raw: unknown): Record<string, unknown> {
     reject();
   }
   if (r.occurrenceCount < r.occurrences.length) reject();
-  for (const o of r.occurrences) {
-    const occ = asRecord(o);
-    if (!occ) reject();
-    exactKeys(occ, OCC_KEYS);
-    if (!nonBlank(occ.spreadId) || !nonBlank(occ.positionKey)) reject();
-    if (typeof occ.orientationKnown !== 'boolean') reject();
-  }
+  r.occurrences = r.occurrences.map(parseOccurrence);
   return r;
 }
-
-const THEME_KEYS = new Set([
-  'themeIdOrLabel',
-  'supportCount',
-  'relatedCardIds',
-  'relevanceToCurrentAsk',
-]);
 
 function parseTheme(raw: unknown): Record<string, unknown> {
   const t = asRecord(raw);
   if (!t) reject();
-  exactKeys(t, THEME_KEYS);
-  if (!nonBlank(t.themeIdOrLabel)) reject();
+  exactKeys(
+    t,
+    new Set([
+      'themeIdOrLabel',
+      'supportCount',
+      'relatedCardIds',
+      'relevanceToCurrentAsk',
+    ]),
+  );
+  requireString(reject, t.themeIdOrLabel, NARRATIVE_LIMITS.maxThemeLabelChars, true);
   if (typeof t.supportCount !== 'number' || !Number.isInteger(t.supportCount)) {
     reject();
   }
-  if (t.supportCount < 2) reject();
-  if (!isFiniteUnit(t.relevanceToCurrentAsk)) reject();
-  if (!Array.isArray(t.relatedCardIds)) reject();
-  const seen = new Set<string>();
-  for (const id of t.relatedCardIds) {
-    if (typeof id !== 'string' || id.trim() === '') reject();
-    if (seen.has(id)) reject();
-    seen.add(id);
+  if (t.supportCount < 2 || t.supportCount > NARRATIVE_LIMITS.maxThemeSupportCount) {
+    reject();
   }
+  if (!isFiniteUnit(t.relevanceToCurrentAsk)) reject();
+  requireTokenList(
+    reject,
+    t.relatedCardIds,
+    NARRATIVE_LIMITS.maxRelatedCardIds,
+    NARRATIVE_LIMITS.maxCardIdChars,
+  );
   return t;
 }
 
@@ -312,11 +392,26 @@ function validateSpreadAndCards(
   spread: Record<string, unknown>,
   cards: Record<string, unknown>[],
 ): void {
-  if (!nonBlank(spread.spreadId)) reject();
+  exactKeys(
+    spread,
+    new Set([
+      'spreadId',
+      'cardCount',
+      'geometryHook',
+      'lengthBand',
+      'interpretationOrder',
+      'positions',
+    ]),
+  );
+  requireSpreadId(reject, spread.spreadId);
+  requireEnum(reject, spread.geometryHook, GEOMETRY);
+  requireEnum(reject, spread.lengthBand, LENGTHS);
   if (typeof spread.cardCount !== 'number' || !Number.isInteger(spread.cardCount)) {
     reject();
   }
-  if (spread.cardCount <= 0) reject();
+  if (spread.cardCount < 1 || spread.cardCount > NARRATIVE_LIMITS.maxCardCount) {
+    reject();
+  }
   if (!Array.isArray(spread.positions) || !Array.isArray(spread.interpretationOrder)) {
     reject();
   }
@@ -328,10 +423,12 @@ function validateSpreadAndCards(
     const pos = asRecord(p);
     if (!pos) reject();
     exactKeys(pos, new Set(['positionKey', 'index', 'role', 'temporal']));
-    if (!nonBlank(pos.positionKey) || typeof pos.index !== 'number') reject();
-    if (!Number.isInteger(pos.index)) reject();
-    if (posKeys.has(pos.positionKey) || indices.has(pos.index)) reject();
-    posKeys.add(pos.positionKey);
+    requireString(reject, pos.positionKey, NARRATIVE_LIMITS.maxPositionKeyChars, true);
+    requireEnum(reject, pos.role, ROLES);
+    requireEnum(reject, pos.temporal, TEMPORALS);
+    if (typeof pos.index !== 'number' || !Number.isInteger(pos.index)) reject();
+    if (posKeys.has(pos.positionKey as string) || indices.has(pos.index)) reject();
+    posKeys.add(pos.positionKey as string);
     indices.add(pos.index);
   }
   for (let i = 0; i < spread.cardCount; i++) {
@@ -342,13 +439,16 @@ function validateSpreadAndCards(
   const orderSeen = new Set<number>();
   for (const idx of order) {
     if (typeof idx !== 'number' || !Number.isInteger(idx)) reject();
-    if (idx < 0 || idx >= spread.cardCount || orderSeen.has(idx)) reject();
+    if (idx < 0 || idx >= (spread.cardCount as number) || orderSeen.has(idx)) {
+      reject();
+    }
     orderSeen.add(idx);
   }
   const cardIds = new Set<string>();
   const cardPos = new Set<string>();
   const byPos = new Map<string, number>();
-  for (const pos of spread.positions as Record<string, unknown>[]) {
+  for (const p of spread.positions) {
+    const pos = p as Record<string, unknown>;
     byPos.set(String(pos.positionKey), pos.index as number);
   }
   for (const c of cards) {
@@ -382,11 +482,21 @@ function validateRecurrence(
   themes: Record<string, unknown>[],
 ): void {
   if (themes.length > NARRATIVE_LIMITS.maxThemeLabels) reject();
-  const current = new Set(cards.map((c) => String(c.canonicalCardId)));
-  for (const r of recurringCards) {
-    if (!current.has(String(r.canonicalCardId))) reject();
+  if (recurringCards.length > cards.length || recurringCards.length > 12) {
+    reject();
   }
+  const current = new Set(cards.map((c) => String(c.canonicalCardId)));
+  const seenRec = new Set<string>();
+  for (const r of recurringCards) {
+    const id = String(r.canonicalCardId);
+    if (!current.has(id) || seenRec.has(id)) reject();
+    seenRec.add(id);
+  }
+  const seenTheme = new Set<string>();
   for (const t of themes) {
+    const label = String(t.themeIdOrLabel);
+    if (seenTheme.has(label)) reject();
+    seenTheme.add(label);
     for (const id of t.relatedCardIds as string[]) {
       if (!current.has(id)) reject();
     }
@@ -394,6 +504,7 @@ function validateRecurrence(
 }
 
 function validateMemory(memory: Record<string, unknown>): void {
+  exactKeys(memory, new Set(['included', 'priorReadingCount', 'entries']));
   if (typeof memory.included !== 'boolean') reject();
   if (typeof memory.priorReadingCount !== 'number') reject();
   if (!Number.isInteger(memory.priorReadingCount)) reject();
@@ -402,6 +513,7 @@ function validateMemory(memory: Record<string, unknown>): void {
     reject();
   }
   if (!Array.isArray(memory.entries)) reject();
+  if (memory.entries.length > NARRATIVE_LIMITS.maxMemoryEntries) reject();
   if (!memory.included && memory.entries.length > 0) reject();
   let chars = 0;
   for (const e of memory.entries) {
@@ -418,7 +530,11 @@ function validateMemory(memory: Record<string, unknown>): void {
         'epistemic',
       ]),
     );
-    if (!nonBlank(entry.kind) || !nonBlank(entry.contentForModel)) reject();
+    requireMemKind(reject, entry.kind);
+    requireString(reject, entry.contentForModel, NARRATIVE_LIMITS.maxMemoryChars, true);
+    if ('sourceType' in entry) optionalMemSource(reject, entry.sourceType);
+    if ('occurredAtUtc' in entry) optionalUtcZ(reject, entry.occurredAtUtc);
+    if ('epistemic' in entry) optionalMemEpistemic(reject, entry.epistemic);
     if (entry.confidence != null && !isFiniteUnit(entry.confidence)) reject();
     chars += String(entry.contentForModel).length;
   }

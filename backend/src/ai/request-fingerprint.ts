@@ -1,6 +1,7 @@
 /** Compact fingerprints — never hash full image payloads. */
 import type { ValidatedRequest } from './validate-request.js';
 import { sanitizeText } from './sanitize.js';
+import { narrativeRequestFingerprint } from './narrative-tarot-canonical.js';
 
 export function fingerprintRequest(request: ValidatedRequest): string {
   switch (request.operation) {
@@ -23,11 +24,7 @@ export function fingerprintRequest(request: ValidatedRequest): string {
       return `soulmate-text:${sanitizeText(request.name).toLowerCase()}|${request.birthDate}|${request.gender ?? ''}|${sanitizeText(request.intention ?? '').toLowerCase()}|${request.identity?.nonce ?? ''}|${sanitizeText(request.memorySummary ?? '', 220).toLowerCase()}`;
     case 'tarot_reading':
       if (request.mode === 'narrative_v2') {
-        const cards = request.narrative.cards
-          .map((c) => String(c.canonicalCardId))
-          .join(',');
-        const spreadId = String(request.narrative.spread.spreadId ?? '');
-        return `tarot-narrative:${cards}|${spreadId}|${request.language}`;
+        return narrativeRequestFingerprint(request);
       }
       return `tarot:${request.cards.map((card) => card.name).join(',').toLowerCase()}|${sanitizeText(request.spreadLabel).toLowerCase()}|${sanitizeText(request.userQuestion ?? '').toLowerCase()}`;
     case 'tts':

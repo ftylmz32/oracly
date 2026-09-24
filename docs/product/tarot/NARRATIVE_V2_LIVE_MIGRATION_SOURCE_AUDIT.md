@@ -632,7 +632,27 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Live Narrative V2 wired | **NO** · call sites **0** |
 | Exact JSON field-name minor | **RESOLVED** |
 | Open minor remaining | life-area UI migration timing only |
-| Next | Independent 6D verification → **Phase 6E** |
+| Status after ChatGPT verify | **NOT FROZEN** — M1 shallow inbound validation · M2 weak Narrative fingerprint |
+| Next | **Phase 6D.1** |
+
+---
+
+## 13.9 — Phase 6D.1 backend input firewall + full semantic fingerprint
+
+**Date:** 2026-09-24 · **Kind:** untrusted-client inbound hardening (backend only)
+
+| Fact | Value |
+|---|---|
+| M1 remediated | **YES** — full enum/type/size/cross-field validation before provider |
+| M2 remediated | **YES** — `tarot-narrative:<sha256>` over canonical full validated wire |
+| Max Narrative JSON | **32000** chars (frozen 6C max observed **5385**) |
+| Frozen 6C scenarios accepted | **8/8** |
+| Current `spread.spreadId` | strict V1 machine ids only |
+| Historical occurrence `spreadId` | V1 ids + Phase 4 legacy aliases (`single`, …) |
+| Silent truncation | **NO** |
+| Flutter production | **unchanged** |
+| Live Narrative V2 | **NO** |
+| Next | Independent 6D.1 verification → **Phase 6E** |
 
 ---
 
