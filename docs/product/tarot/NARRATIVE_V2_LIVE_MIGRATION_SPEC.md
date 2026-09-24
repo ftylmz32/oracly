@@ -292,23 +292,29 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6B.1 — Signature history resolver unexpected-error hardening
 
-- **Status:** **PASS** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified  
 - **Goal:** Remove broad catch that silently converted Crossroads resolver invariant failures into `skippedMalformed`  
 - **Production:** `signature_history_spread_normalizer.dart` only  
 - **LOCKED:** Malformed persisted spread data may fail closed. Internal Signature semantic-resolution invariant failures must not be silently converted into malformed-history skips.  
-- **Next:** Independent verify → **Phase 6C**
+- **Next:** **Phase 6C**
 
-### 6C — Narrative request → live serializer + cache identity
+### 6C — Narrative request → model-input serializer + cache identity
 
-- **Goal:** `NarrativeTarotPromptInput` / proxy payload serializer; cache key versioning  
-- **Live impact:** NONE until wired behind non-user harness  
-- **Tests:** serialization snapshots · privacy red-team  
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Goal:** Pure `TarotNarrativeRequest` → `NarrativeTarotPromptInput`; canonical form; SHA-256 V2 cache identity  
+- **Package:** `lib/features/tarot/narrative/prompt/`  
+- **Serializer version:** `1` · **Policy:** `narrative_policy_v1`  
+- **Live call sites:** **0** (dormant)  
+- **Unchanged:** backend · `OraclyAiService` · `AiInterpretationExecutor` · `ReadingContext.cacheKey` · live proxy payload  
+- **OPEN MINOR (6D):** exact external backend JSON field names  
+- **Live Narrative V2:** still **NOT WIRED**  
+- **Next:** Independent verify → **Phase 6D**
 
 ### 6D — Structured result parse + Narrative quality validator
 
 - **Goal:** Strict parse; Narrative gates; keep InterpretationResult bridge  
 - **Live impact:** NONE until cutover  
-- **Backend:** schema negotiation  
+- **Backend:** schema negotiation / exact JSON field names  
 
 ### 6E — Classical dual-run harness + shadow corpus
 
@@ -407,6 +413,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6B.1 verification**, then **Phase 6C** — Narrative request → live serializer + cache identity.
+**Independent Phase 6C verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
 
-Phase 6A/6A.1 independently verified. Phase 6B functional **PASS** (independently verified). Phase 6B.1 broad-catch removal **PASS** (pending verify). Live Narrative V2 still **NOT WIRED**.
+Phase 6A / 6A.1 / 6B / 6B.1 independently verified. Phase 6C serializer + cache identity **IMPLEMENTED** (pending verify). Exact backend JSON field names still **OPEN MINOR** for 6D. Live Narrative V2 still **NOT WIRED**.

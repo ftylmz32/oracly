@@ -23,7 +23,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => OraclyL10n.bind('tr'));
 
-  final now = DateTime(2026, 8, 26, 12);
+  // Wall-clock relative so 30-day NextAction eligibility does not expire.
+  final now = DateTime.now();
 
   PersonalDiscoveryProfile evidenceProfile() =>
       PersonalDiscoveryProfileBuilder.from(

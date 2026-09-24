@@ -522,6 +522,29 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Phase 4 production | **UNCHANGED** |
 | Next | Independent 6B.1 verification → **Phase 6C** |
 
+**Phase 6B.1 independently verified (ChatGPT).**
+
+---
+
+## 13.5 — Phase 6C Narrative prompt serializer + cache identity
+
+**Date:** 2026-09-24 · **Kind:** dormant model-input infrastructure (no live wire)
+
+| Fact | Value |
+|---|---|
+| Internal DTO | `NarrativeTarotPromptInput` |
+| Serializer | pure `TarotNarrativeRequest` → DTO |
+| Serializer version | **1** |
+| Policy version | `narrative_policy_v1` |
+| Canonical | sorted-key nested map + stable JSON |
+| Cache identity | SHA-256 · `narrative_tarot_v2_s1_<hex>` |
+| Evidence / source / owner / session / reading ids model-facing | **NO** |
+| Live serializer call sites outside narrative | **0** |
+| Backend / AI service / executor / live cache | **UNCHANGED** |
+| Exact backend JSON field names | still **OPEN** for 6D |
+| Live Narrative V2 | **NOT WIRED** |
+| Next | Independent 6C verification → **Phase 6D** |
+
 ---
 
 ## 14 — Live path firewall (6.0)
