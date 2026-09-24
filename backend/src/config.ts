@@ -38,6 +38,14 @@ export type AppConfig = {
   openaiReadingWriterModel: string | null;
   /** Lowest reasoning effort accepted by gpt-5.6 family for reading stages. */
   openaiReadingReasoningEffort: 'none' | 'low' | 'medium';
+  /**
+   * Narrative Tarot V2 writer only (`tarot_reading` + `mode=narrative_v2`).
+   * Null when unset/blank/not allowlisted — falls back to `openaiModel`.
+   * Does not affect OR / Dream / legacy Tarot / Coffee / Palm.
+   */
+  openaiTarotNarrativeModel: string | null;
+  /** Narrative V2 reasoning effort when the resolved model supports it. Default none. */
+  openaiTarotNarrativeReasoningEffort: 'none' | 'low' | 'medium';
   authRequired: boolean;
   devAuthBypass: boolean;
   authMode: AuthMode;
@@ -186,6 +194,20 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     reasoningRaw === 'none' || reasoningRaw === 'medium'
       ? reasoningRaw
       : 'low';
+  const narrativeModelRaw = nonEmpty(env.OPENAI_TAROT_NARRATIVE_MODEL);
+  const openaiTarotNarrativeModel =
+    narrativeModelRaw && allowed.includes(narrativeModelRaw)
+      ? narrativeModelRaw
+      : null;
+  const narrativeReasoningRaw = (
+    env.OPENAI_TAROT_NARRATIVE_REASONING_EFFORT ?? 'none'
+  )
+    .trim()
+    .toLowerCase();
+  const openaiTarotNarrativeReasoningEffort =
+    narrativeReasoningRaw === 'low' || narrativeReasoningRaw === 'medium'
+      ? narrativeReasoningRaw
+      : 'none';
   const bypassRequested = parseBool(env.AI_DEV_AUTH_BYPASS, false);
   const authRequiredSetting = parseBool(env.AI_AUTH_REQUIRED, true);
   const jwtSecret = nonEmpty(env.AI_JWT_SECRET);
@@ -240,6 +262,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     openaiReadingVisionModel: readingVision,
     openaiReadingWriterModel: readingWriter,
     openaiReadingReasoningEffort,
+    openaiTarotNarrativeModel,
+    openaiTarotNarrativeReasoningEffort,
     authRequired,
     devAuthBypass,
     authMode: resolveAuthMode({

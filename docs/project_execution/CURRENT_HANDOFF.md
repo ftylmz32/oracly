@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-25 — Tarot Phase 6E.6 real-provider writing-quality validation (6/6 structured) · after 6E.5
+**Updated:** 2026-09-25 — Tarot Phase 6E.7 Narrative dedicated writer model isolation · 6E.6 writing NOT FROZEN
 
 ---
 
@@ -1350,11 +1350,15 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT writing-quality review of Phase 6E.6** captured Result Contract V2 prose (after 6E.5 prompt refinement).
+**Phase 6E.8** — same six Manifest V2 scenarios · same 6E.5 prompt · same Result Contract V2 · explicit `gpt-5.6-sol` · reasoning effort `none` · maximum 6 real calls · record resolved model.
 
-Then decide whether Manifest V2 writing quality is production-ready for **6F** — do **not** wire live Narrative until that independent PASS.
+6E.6 independent ChatGPT: writing quality **NOT FROZEN** (Q3/Q4/Q5 remain). Exact resolved model for 6E.6 was **not** captured.
 
-Phase 6.0–6E.1: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **0/6 transport** · 6E.4.1: **PASS** · 6E.4.2: **6/6 structured** (writing NOT FROZEN) · 6E.5: **prompt refine** · 6E.6: **6/6 structured capture** (writing pending ChatGPT) · live V2: **NOT WIRED**.
+6E.7: dedicated Narrative writer config isolated · **0** real provider calls · unset = zero live effect.
+
+Do **not** begin **6F** until after 6E.8 + independent writing-quality PASS.
+
+Phase 6.0–6E.1: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **0/6 transport** · 6E.4.1: **PASS** · 6E.4.2: **6/6 structured** · 6E.5: **prompt refine** · 6E.6: **6/6 structured** (writing **NOT FROZEN**) · 6E.7: **model isolation** · live V2: **NOT WIRED**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

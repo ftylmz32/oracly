@@ -470,18 +470,31 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E.6 — Real-provider writing-quality validation after 6E.5
 
-- **Status:** **EXECUTED** · **6/6** transport + structured Result V2 · writing quality **pending ChatGPT**  
+- **Status:** **EXECUTED** · **6/6** transport + structured Result V2 · writing quality **NOT FROZEN** (ChatGPT)  
 - **LOCKED:**  
   - QA_RUN_HEAD `8a33915e…` · Manifest V2 unchanged · hard cap 6 · no retries  
   - Historical 6E.4 / 6E.4.2 artifacts **immutable** · new `*_6e6_*` fixtures only  
   - Q1/Q2 remain RESOLVED · Call #6 `memoryIndices:[0,1]` · “appeared twice” calibration present  
+  - Exact resolved provider model **was not recorded** in 6E.6 artifacts  
   - Agent **does not** claim writing-quality PASS  
-- **Next:** Independent ChatGPT writing-quality review → **6F only if PASS**
+
+### 6E.7 — Dedicated Narrative Tarot writer model isolation
+
+- **Status:** **IMPLEMENTED** · **0** real provider calls  
+- **LOCKED:**  
+  - Optional `OPENAI_TAROT_NARRATIVE_MODEL` (must be in `OPENAI_ALLOWED_MODELS` or treated as unset)  
+  - Optional `OPENAI_TAROT_NARRATIVE_REASONING_EFFORT` (`none` \| `low` \| `medium`, default **none**)  
+  - Applies **only** to `tarot_reading` + `mode=narrative_v2`  
+  - Unset → functionally equivalent generic `OPENAI_MODEL` path  
+  - GPT-5.6 family: `reasoning_effort` · no temperature; gpt-4o fallback: temperature 0.55  
+  - Prompt rules / Result Contract V2 / schema / memory / prophecy **unchanged**  
+  - Safe QA metadata helper: configured/resolved Narrative model + reasoning effort  
+- **Next:** **6E.8** controlled six-case quality run with explicit `gpt-5.6-sol` · reasoning `none` — **NOT 6F**
 
 ### 6F — Classical live cutover (single/three/five only)
 
 - **Goal:** Wired classical Narrative path under fail-closed + billing boundary  
-- **Blocked until:** Manifest V2 provider QA + independent writing-quality PASS (after 6E.6)  
+- **Blocked until:** Manifest V2 provider QA + independent writing-quality PASS (after 6E.8+)  
 - **Crossroads picker:** still false  
 - **Rollback:** flag/code path back to legacy payload builder  
 

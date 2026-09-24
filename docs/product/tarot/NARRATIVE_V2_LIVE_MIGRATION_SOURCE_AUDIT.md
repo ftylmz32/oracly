@@ -888,6 +888,28 @@ Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E6_V2.md` · `tarot_narrative_provider_
 
 ---
 
+## 13.20 — Phase 6E.7 Narrative dedicated writer model isolation
+
+**Date:** 2026-09-25 · **Kind:** config + routing · **REAL PROVIDER CALLS: 0**
+
+| Fact | Value |
+|---|---|
+| 6E.6 writing quality | **NOT FROZEN** (independent ChatGPT) |
+| 6E.6 exact resolved provider model recorded | **NO** — cannot conclusively attribute prose to `gpt-4o` vs env override |
+| Repo generic model default | `OPENAI_MODEL` → `gpt-4o` |
+| New env | `OPENAI_TAROT_NARRATIVE_MODEL` · `OPENAI_TAROT_NARRATIVE_REASONING_EFFORT` (default **none**) |
+| Unset dedicated | Narrative uses existing generic resolved model (zero live effect) |
+| Allowlisted dedicated | Narrative V2 only (`tarot_reading` + `mode=narrative_v2`) |
+| Non-allowlisted dedicated | stored as **null** — no arbitrary model routing |
+| GPT-5.6 path | `reasoning_effort` sent · **temperature omitted** |
+| gpt-4o fallback | temperature **0.55** preserved · Narrative schema unchanged |
+| Legacy Tarot / chat / Coffee / Palm / Dream | **unaffected** |
+| Prompt / Result Contract / schema / memory / prophecy | **unchanged** |
+| Live / 6F | **NO** |
+| Next | **Phase 6E.8** — same Manifest V2 · same 6E.5 prompt · explicit `gpt-5.6-sol` · reasoning `none` · hard cap 6 |
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  
