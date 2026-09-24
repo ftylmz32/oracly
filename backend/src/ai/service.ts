@@ -30,6 +30,10 @@ import {
   soulmateInterpretationMessages,
 } from './soulmate-interpretation.js';
 import { tarotMessages } from './tarot-prompts.js';
+import { narrativeTarotMessages } from './narrative-tarot-prompts.js';
+import { NARRATIVE_SCHEMA_NAME } from './narrative-tarot-limits.js';
+import { NARRATIVE_TAROT_RESULT_SCHEMA } from './narrative-tarot-result-schema.js';
+import { parseNarrativeTarotResult } from './narrative-tarot-result.js';
 import { requestOpenAiSpeech } from './openai-speech.js';
 import type { ValidatedRequest } from './validate-request.js';
 import { ReadingPipeline } from './reading/pipeline.js';
@@ -357,6 +361,20 @@ export class AiProxyService {
     request: Extract<ValidatedRequest, { operation: 'tarot_reading' }>,
     model: string,
   ) {
+    if (request.mode === 'narrative_v2') {
+      const raw = extractChatText(
+        await this.transport.complete({
+          model,
+          messages: narrativeTarotMessages(request.narrative, request.language),
+          temperature: 0.55,
+          jsonSchema: {
+            name: NARRATIVE_SCHEMA_NAME,
+            schema: NARRATIVE_TAROT_RESULT_SCHEMA,
+          },
+        }),
+      );
+      return parseNarrativeTarotResult(raw, request.narrative);
+    }
     const text = extractChatText(
       await this.transport.complete({
         model,

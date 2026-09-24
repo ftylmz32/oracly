@@ -13,6 +13,10 @@ import { parseOrSpeechSpeed, type OrSpeechSpeed } from './or-speech-speed.js';
 import { parseTurns, type ChatTurn } from './parse-turns.js';
 import { asRecord, sanitizeText, stringList } from './sanitize.js';
 import type { SoulmateIdentity } from './soulmate-prompt.js';
+import {
+  validateNarrativeTarotPayload,
+  type NarrativeTarotValidated,
+} from './narrative-tarot-contract.js';
 
 type BaseRequest =
   | {
@@ -58,12 +62,14 @@ type BaseRequest =
     }
   | {
       operation: 'tarot_reading';
+      mode: 'legacy';
       cards: TarotCardInput[];
       spreadLabel: string;
       userQuestion?: string;
       readingTheme?: string;
       journeyHints?: TarotJourneyHints;
     }
+  | NarrativeTarotValidated
   | {
       operation: 'tts';
       text: string;
@@ -141,6 +147,18 @@ const CARD_MAX = 12;
 function validateTarot(
   payload: Record<string, unknown>,
 ): Extract<BaseRequest, { operation: 'tarot_reading' }> {
+  if (payload.mode === undefined || payload.mode === null) {
+    return validateLegacyTarot(payload);
+  }
+  if (payload.mode === 'narrative_v2') {
+    return validateNarrativeTarotPayload(payload);
+  }
+  fail(ErrorCode.invalidRequest);
+}
+
+function validateLegacyTarot(
+  payload: Record<string, unknown>,
+): Extract<BaseRequest, { operation: 'tarot_reading'; mode: 'legacy' }> {
   const rawCards = Array.isArray(payload.cards) ? payload.cards : [];
   const cards: TarotCardInput[] = [];
   for (const raw of rawCards.slice(0, CARD_MAX)) {
@@ -177,6 +195,7 @@ function validateTarot(
     : undefined;
   return {
     operation: 'tarot_reading',
+    mode: 'legacy',
     cards,
     spreadLabel,
     userQuestion: userQuestion || undefined,

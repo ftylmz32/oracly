@@ -607,7 +607,32 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 | Cache goldens changed | `signature_manual_spread_generic` (1/8) |
 | Serializer / policy version | still **1** / `narrative_policy_v1` |
 | Live call sites | **0** |
-| Next | Independent 6C.2 verification → **Phase 6D** |
+| Status | **6C.2 independently verified · Phase 6C FROZEN** |
+| Next | **Phase 6D** |
+
+---
+
+## 13.8 — Phase 6D Narrative V2 wire + structured result contract
+
+**Date:** 2026-09-24 · **Kind:** additive backend + dormant Flutter contracts (NOT live-wired)
+
+| Fact | Value |
+|---|---|
+| Request mode | `narrative_v2` under operation `tarot_reading` |
+| Request exact fields | `mode` · `contractVersion` · `language` · `narrative` |
+| Narrative fields | Phase 6C canonical names (reused; no second representation) |
+| Result contract version | **1** |
+| Result exact top-level fields | `contractVersion` · `languageCode` · `summary` · `cardReadings` · `synthesis` · `relationshipInsights` · `recurringCardInsights` · `recurringThemeInsights` · `memoryInsights` · `lifeAreas` · `advice` · `reflectionPrompt` · `dailyFocus` · `closingMessage` |
+| Provider schema | `oracly_tarot_narrative_v1` · `json_schema` · `strict: true` |
+| Free-form markdown Narrative | **NO** |
+| Backend evidence binding | **YES** |
+| Flutter wire / parser / quality / bridge | **YES** (dormant packages) |
+| `AiOutputQualityTarot` still required | **YES** |
+| Legacy `{ text }` path | **UNCHANGED** |
+| Live Narrative V2 wired | **NO** · call sites **0** |
+| Exact JSON field-name minor | **RESOLVED** |
+| Open minor remaining | life-area UI migration timing only |
+| Next | Independent 6D verification → **Phase 6E** |
 
 ---
 

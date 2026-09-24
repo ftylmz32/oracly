@@ -306,7 +306,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 - **Serializer version:** `1` · **Policy:** `narrative_policy_v1`  
 - **Live call sites:** **0** (dormant)  
 - **Unchanged:** backend · `OraclyAiService` · `AiInterpretationExecutor` · `ReadingContext.cacheKey` · live proxy payload  
-- **OPEN MINOR (6D):** exact external backend JSON field names  
+- **OPEN MINOR (resolved in 6D):** exact external backend JSON field names  
 - **Live Narrative V2:** still **NOT WIRED**  
 - **Next:** **Phase 6C.1**
 
@@ -326,7 +326,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6C.2 — Canonical bounds + model-facing scalar integrity + locale-consistent Signature fixture
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified · Phase 6C **FROZEN**  
 - **LOCKED:**  
   - request bounds may only tighten canonical `RequestBounds.defaults`  
   - relationship strength finite `[0,1]`  
@@ -338,14 +338,22 @@ Must pass existing `AiOutputQualityTarot` **plus**:
   - production locale authority remains Narrative Evidence Builder / authored deck data  
 - **Serializer / policy version:** still **1** / `narrative_policy_v1`  
 - **Live call sites:** **0**  
-- **Next:** Independent verify → **Phase 6D**
+- **Next:** **Phase 6D**
 
 ### 6D — Structured result parse + Narrative quality validator
 
-- **Goal:** Strict parse; Narrative gates; keep InterpretationResult bridge  
-- **Live impact:** NONE until cutover  
-- **Backend:** schema negotiation / exact JSON field names  
-
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Request exact fields:** `mode` · `contractVersion` · `language` · `narrative` (`mode=narrative_v2`, `contractVersion=1`)  
+- **Narrative object:** Phase 6C canonical field names reused  
+- **Result contract version:** **1**  
+- **Result exact top-level fields:** `contractVersion` · `languageCode` · `summary` · `cardReadings` · `synthesis` · `relationshipInsights` · `recurringCardInsights` · `recurringThemeInsights` · `memoryInsights` · `lifeAreas` · `advice` · `reflectionPrompt` · `dailyFocus` · `closingMessage`  
+- **Provider:** strict `json_schema` name `oracly_tarot_narrative_v1` · no free-form Narrative markdown  
+- **Flutter packages:** `narrative/transport/` · `narrative/result/` (dormant; live call sites **0**)  
+- **Backend modules:** `narrative-tarot-contract|prompts|result-schema|result` + narrow `validate-request` / `service` branch  
+- **Legacy path:** unchanged `{ text }`  
+- **Exact backend JSON field-name minor:** **RESOLVED**  
+- **Open minor remaining:** life-area UI migration timing only  
+- **Next:** Independent verify → **Phase 6E**
 ### 6E — Classical dual-run harness + shadow corpus
 
 - **Goal:** Compare legacy Facts vs Narrative candidate structurally  
@@ -425,8 +433,9 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ### OPEN MINOR DESIGN DECISIONS
 
-1. Exact JSON schema field names for provider (negotiate with backend in 6D).  
-2. How soon UI drops forced love/career/money for non-life-area question kinds (after classical cutover).  
+1. How soon UI drops forced love/career/money for non-life-area question kinds (after classical cutover).  
+
+~~Exact JSON schema field names~~ → **RESOLVED** in Phase 6D (request + result field names locked above).  
 
 ~~Safety-only non-billable via content flag~~ → **LOCKED YES** in Phase 6.0.1 (`TarotReadingDeliveryKind.safety`).  
 
@@ -443,6 +452,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6C.2 verification**, then **Phase 6D** — structured result parse + Narrative quality validator / backend contract.
+**Independent Phase 6D verification**, then **Phase 6E** — classical deterministic dual-run + controlled shadow corpus.
 
-Phase 6A / 6A.1 / 6B / 6B.1 / 6C / 6C.1 independently verified. Phase 6C.2 boundary scalars **IMPLEMENTED** (pending verify). Exact backend JSON field names still **OPEN MINOR** for 6D. Live Narrative V2 still **NOT WIRED**.
+Phase 6A / 6A.1 / 6B / 6B.1 / 6C / 6C.1 / 6C.2 independently verified · Phase 6C **FROZEN**. Phase 6D structured contract **IMPLEMENTED** (pending verify). Exact backend JSON field names **RESOLVED**. Live Narrative V2 still **NOT WIRED**.

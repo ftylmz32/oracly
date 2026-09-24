@@ -22,6 +22,13 @@ export function fingerprintRequest(request: ValidatedRequest): string {
     case 'soulmate_interpretation':
       return `soulmate-text:${sanitizeText(request.name).toLowerCase()}|${request.birthDate}|${request.gender ?? ''}|${sanitizeText(request.intention ?? '').toLowerCase()}|${request.identity?.nonce ?? ''}|${sanitizeText(request.memorySummary ?? '', 220).toLowerCase()}`;
     case 'tarot_reading':
+      if (request.mode === 'narrative_v2') {
+        const cards = request.narrative.cards
+          .map((c) => String(c.canonicalCardId))
+          .join(',');
+        const spreadId = String(request.narrative.spread.spreadId ?? '');
+        return `tarot-narrative:${cards}|${spreadId}|${request.language}`;
+      }
       return `tarot:${request.cards.map((card) => card.name).join(',').toLowerCase()}|${sanitizeText(request.spreadLabel).toLowerCase()}|${sanitizeText(request.userQuestion ?? '').toLowerCase()}`;
     case 'tts':
       return `tts:${sanitizeText(request.text).toLowerCase()}|${request.voiceId}|${request.speechSpeed}`;
