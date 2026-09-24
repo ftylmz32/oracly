@@ -1,0 +1,60 @@
+{
+  "version": 2,
+  "phase": "6E.3",
+  "description": "NEXT authorized REAL-provider QA sample only. Maximum 6 calls. Requires NEW explicit user authorization. Do not reuse 6E.2 six-call authorization. Result Contract V2 (oracly_tarot_narrative_v2). Zero calls in Phase 6E.3 itself.",
+  "maxProviderCallsPerAuthorizedRun": 6,
+  "realProviderCallsInPhase6E3": 0,
+  "resultContractVersion": 2,
+  "providerSchemaName": "oracly_tarot_narrative_v2",
+  "authorizationRequired": true,
+  "billingAllowed": false,
+  "historyJournalPersistenceAllowed": false,
+  "automaticRetryAllowed": false,
+  "entryCount": 6,
+  "entries": [
+    {
+      "manifestId": "psm_v2_01_single_open_en",
+      "evidenceScenarioId": "single_open_fool_en",
+      "spreadType": "single",
+      "languageCode": "en",
+      "notes": "no-relationship open; lifeAreas may be empty"
+    },
+    {
+      "manifestId": "psm_v2_02_single_guidance_tr_reversed",
+      "evidenceScenarioId": "single_guidance_cups05r_tr",
+      "spreadType": "single",
+      "languageCode": "tr",
+      "notes": "TR reversed + real guidance question"
+    },
+    {
+      "manifestId": "psm_v2_03_single_relationship_ru",
+      "evidenceScenarioId": "single_relationship_swords09r_ru",
+      "spreadType": "single",
+      "languageCode": "ru",
+      "notes": "RU relationship epistemic caution"
+    },
+    {
+      "manifestId": "psm_v2_04_three_contrast_en",
+      "evidenceScenarioId": "three_contrast_exemplar_en",
+      "spreadType": "threeCard",
+      "languageCode": "en",
+      "notes": "future-position + relationship evidence (contrast)"
+    },
+    {
+      "manifestId": "psm_v2_05_five_conflict_ru",
+      "evidenceScenarioId": "five_conflict_exemplar_ru",
+      "spreadType": "fiveCard",
+      "languageCode": "ru",
+      "notes": "RU fiveCard conflict evidence"
+    },
+    {
+      "manifestId": "psm_v2_06_enriched_multi_memory_en",
+      "buildMode": "phase4_enricher_rich_history",
+      "harness": "enrichedProviderQaRequest",
+      "baseEvidenceScenarioId": "single_open_fool_en",
+      "spreadType": "single",
+      "languageCode": "en",
+      "notes": "Corpus base (authoritative displayName) + enricherRichHistory with love/decision question overlay; multi-memory; recurrence; NOT frozen prompt displayName=major_00"
+    }
+  ]
+}

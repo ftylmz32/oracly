@@ -701,6 +701,54 @@ Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B histo
 
 ---
 
+## 13.12 — Phase 6E.2 controlled real-provider shadow (immutable evidence)
+
+**Date:** 2026-09-24 · **Kind:** authorized QA (max 6 real calls) · evidence frozen
+
+| Fact | Value |
+|---|---|
+| QA RUN HEAD | `3987f7a7851ba24b27ab58b36d3c0f2c3f04025b` |
+| Execution | **PASS** · used **6** · remaining **0** · no retries · no billing/persistence |
+| Structural / contract | **PASS** (backend + client parse + Narrative evidence + AiOutputQuality) |
+| Provider writing quality | **NOT PASS** (independent ChatGPT review) |
+| Immutable artifacts | `NARRATIVE_PROVIDER_SHADOW_QA_6E2.md` · `tarot_narrative_provider_shadow_results_6e2.json` · payloads · manifest **v1** |
+
+### Independent finding classes
+
+| ID | Class | Note |
+|---|---|---|
+| Q1 | Future certainty escaped automated gate | Call #4: “The future promises…” / “will lead to…” |
+| Q2 | `memoryIndex` cannot represent multi-memory synthesis | Call #6 prose combined coffee+dream under index 0 |
+| Q3 | Section repetition | summary/synthesis/advice/closing often restated |
+| Q4 | Relationship epistemic overstatement risk | question ≠ partner mental-state evidence |
+| Q5 | Native-language naturalness | TR/RU valid but sometimes stiff / translated-sounding |
+
+**Distinction locked:** automated structural/safety PASS ≠ human provider-quality PASS.
+
+---
+
+## 13.13 — Phase 6E.3 Result Contract V2 + provider quality remediation
+
+**Date:** 2026-09-24 · **Kind:** pre-live result contract + prompt/prose hardening · **0** provider calls
+
+| Fact | Value |
+|---|---|
+| Request wire | still `mode=narrative_v2` · `contractVersion=1` · Phase 6C frozen |
+| Result contract version | **2** |
+| Provider schema | `oracly_tarot_narrative_v2` |
+| Memory insight shape | `{ memoryIndices: int[], text }` · sorted · unique · globally non-reused |
+| Old `memoryIndex` | **rejected** (fail closed · no silent migration) |
+| Prose guard | `narrative_tarot_prose_quality` · `deterministicFuture` sentinels |
+| Captured Call #4 | **FAIL** under new guard (required) |
+| Prompt | future modality · no mind-reading · section jobs · optional lifeAreas · native TR/RU |
+| Manifest v2 | `tarot_narrative_provider_shadow_manifest_v2.json` · 6 entries · **0** calls until NEW authorization |
+| Enriched v2 case | `enrichedProviderQaRequest` (corpus displayName + enricherRichHistory) |
+| Historical 6E.2 evidence | **unchanged** |
+| Live Narrative / 6F | **NO** |
+| Next | Independent 6E.3 verify → **request NEW authorization for Manifest V2 provider run** — NOT 6F |
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  

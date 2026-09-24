@@ -174,7 +174,7 @@ describe('6D.1 Narrative semantic fingerprint', () => {
             {
               message: {
                 content: JSON.stringify({
-                  contractVersion: 1,
+                  contractVersion: 2,
                   languageCode: 'en',
                   summary: 'A calm reflective note about presence and choice xx',
                   cardReadings: (

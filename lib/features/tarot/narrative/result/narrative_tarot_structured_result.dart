@@ -48,12 +48,12 @@ final class NarrativeTarotRecurringThemeInsight {
 }
 
 final class NarrativeTarotMemoryInsight {
-  const NarrativeTarotMemoryInsight({
-    required this.memoryIndex,
+  NarrativeTarotMemoryInsight({
+    required List<int> memoryIndices,
     required this.text,
-  });
+  }) : memoryIndices = List<int>.unmodifiable(memoryIndices);
 
-  final int memoryIndex;
+  final List<int> memoryIndices;
   final String text;
 }
 

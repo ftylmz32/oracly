@@ -19,7 +19,7 @@ void main() {
       () => NarrativeTarotResultParser.parse(map),
       throwsA(isA<NarrativeTarotResultException>()),
     );
-    final map2 = validResultMap(request)..['contractVersion'] = 2;
+    final map2 = validResultMap(request)..['contractVersion'] = 3;
     expect(
       () => NarrativeTarotResultParser.parse(map2),
       throwsA(

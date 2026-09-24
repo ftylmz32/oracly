@@ -139,11 +139,15 @@ Classical-only assumptions to reopen only in explicit slices: `classicalFromSpre
 
 Near-term:
 
-1. Provider returns structured or markdown sections  
-2. Parse → `InterpretationResult`  
-3. **Narrative quality validator** (card/spread/relationship/memory gates)  
-4. Existing `AiOutputQualityTarot` still runs (must not reduce)  
-5. `InterpretationFormatter.toUiContent` unchanged initially  
+1. Provider returns structured Narrative Result Contract **V2**  
+2. Parse → Narrative quality (+ prose guard) → bridge → `InterpretationResult`  
+3. Existing `AiOutputQualityTarot` still runs (must not reduce)  
+4. `InterpretationFormatter.toUiContent` unchanged initially  
+
+**Result Contract Version = 2** (provider schema `oracly_tarot_narrative_v2`).  
+Request wire remains `contractVersion = 1` / Phase 6C frozen.
+
+**Automated structural/safety PASS ≠ human provider-writing-quality PASS.**
 
 Later slice may introduce question-kind / spread-aware **optional** sections without forcing love/career/money for every kind — UI migration then.
 
@@ -152,6 +156,9 @@ Later slice may introduce question-kind / spread-aware **optional** sections wit
 ## 6 — Structured provider output (LOCKED)
 
 **Required: YES** for Narrative cutover (prefer explicit schema over free-form markdown).
+
+Memory insight V2 exact keys: `memoryIndices` (non-empty sorted unique ints) + `text`.  
+Multi-memory synthesis must list every used index. Global index reuse across insights: rejected.
 
 Minimum schema concepts:
 
@@ -387,19 +394,32 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E.1 — Shadow harness fail-loud + deep immutability + parity report accuracy
 
-- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent ChatGPT verification  
+- **Status:** **PASS** (2026-09-24) — independently verified  
+- **Next:** **Phase 6E.2**
+
+### 6E.2 — Controlled real-provider Narrative shadow QA
+
+- **Status:** **EXECUTION PASS** · **PROVIDER WRITING QUALITY NOT PASS** (independent review)  
+- **Calls:** 6/6 · Result Contract **v1** evidence frozen  
+- **Findings:** Q1 future certainty · Q2 memoryIndex provenance gap · Q3 section repetition · Q4 relationship epistemic risk · Q5 native-language naturalness  
+- **Next:** **Phase 6E.3**
+
+### 6E.3 — Result Contract V2 + provider quality remediation
+
+- **Status:** **IMPLEMENTED** (2026-09-24) — pending independent verification  
 - **LOCKED:**  
-  - shadow harness unexpected invariant/programming errors fail loud  
-  - expected frozen-contract failures may map to `serializationFailed` only via known `ArgumentError`  
-  - shadow wire snapshot deep immutable  
-  - every parity dimension evaluated independently (no early-exit)  
-  - live Classical migration question semantics are not restricted by Signature product marketing gate  
-- **Production scope:** `narrative/shadow/**` only  
-- **Next:** Independent verify → **controlled real-provider Narrative shadow QA (max 6 authorized calls) — NOT 6F yet**
+  - Result Contract **Version 2** · schema `oracly_tarot_narrative_v2`  
+  - `memoryIndices` (not `memoryIndex`) · sorted · unique · no global reuse  
+  - Narrative prose guard rejects high-confidence deterministic future language  
+  - Prompt: future modality · no partner mind-reading · section jobs · optional lifeAreas · native TR/RU  
+  - Historical 6E.2 artifacts immutable  
+  - Manifest V2 prepared · **0** provider calls · prior six-call auth **exhausted**  
+- **Next:** Independent verify → **request NEW explicit authorization for Manifest V2 provider run** — **NOT 6F**
 
 ### 6F — Classical live cutover (single/three/five only)
 
 - **Goal:** Wired classical Narrative path under fail-closed + billing boundary  
+- **Blocked until:** Manifest V2 provider QA + independent writing-quality PASS  
 - **Crossroads picker:** still false  
 - **Rollback:** flag/code path back to legacy payload builder  
 

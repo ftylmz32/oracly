@@ -19,6 +19,6 @@ abstract final class NarrativeTarotResultBounds {
   static const totalVisible = 9000;
   static const maxLifeAreas = 4;
   static const lifeAreaKinds = {'love', 'career', 'money', 'spiritual'};
-  static const contractVersion = 1;
+  static const contractVersion = 2;
   static const locales = {'tr', 'en', 'ru'};
 }

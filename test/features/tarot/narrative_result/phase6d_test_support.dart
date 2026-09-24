@@ -15,7 +15,7 @@ String longProse([int min = 48]) {
 
 Map<String, dynamic> validResultMap(TarotNarrativeRequest request) {
   return <String, dynamic>{
-    'contractVersion': 1,
+    'contractVersion': 2,
     'languageCode': request.languageCode,
     'summary': longProse(80),
     'cardReadings': [
@@ -47,7 +47,10 @@ Map<String, dynamic> validResultMap(TarotNarrativeRequest request) {
     'memoryInsights':
         request.memory.included && request.memory.entries.isNotEmpty
             ? [
-                {'memoryIndex': 0, 'text': longProse(50)},
+                {
+                  'memoryIndices': [0],
+                  'text': longProse(50),
+                },
               ]
             : <Map<String, dynamic>>[],
     'lifeAreas': [

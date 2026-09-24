@@ -13,6 +13,7 @@ enum NarrativeTarotResultErrorKind {
   duplicate,
   privateIdentifier,
   quality,
+  deterministicFuture,
 }
 
 final class NarrativeTarotResultException implements Exception {

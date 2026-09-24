@@ -86,12 +86,19 @@ void validateMemory(
     qFail(NarrativeTarotResultErrorKind.memoryEvidence, 'excluded');
   }
   final max = request.memory.entries.length;
-  final seen = <int>{};
+  final global = <int>{};
   for (final m in result.memoryInsights) {
-    if (m.memoryIndex < 0 ||
-        m.memoryIndex >= max ||
-        !seen.add(m.memoryIndex)) {
-      qFail(NarrativeTarotResultErrorKind.memoryEvidence, '${m.memoryIndex}');
+    if (m.memoryIndices.isEmpty) {
+      qFail(NarrativeTarotResultErrorKind.memoryEvidence, 'empty');
+    }
+    for (var i = 0; i < m.memoryIndices.length; i++) {
+      final idx = m.memoryIndices[i];
+      if (idx < 0 || idx >= max || !global.add(idx)) {
+        qFail(NarrativeTarotResultErrorKind.memoryEvidence, '$idx');
+      }
+      if (i > 0 && idx <= m.memoryIndices[i - 1]) {
+        qFail(NarrativeTarotResultErrorKind.memoryEvidence, 'unsorted');
+      }
     }
   }
 }

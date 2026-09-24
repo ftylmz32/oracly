@@ -89,7 +89,10 @@ void main() {
 
     final fakeMem = Map<String, dynamic>.from(good);
     fakeMem['memoryInsights'] = [
-      {'memoryIndex': 0, 'text': longProse(50)},
+      {
+        'memoryIndices': [0],
+        'text': longProse(50),
+      },
     ];
     expectEvidenceFail(fakeMem);
 

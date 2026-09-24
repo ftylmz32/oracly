@@ -74,13 +74,26 @@ List<NarrativeTarotMemoryInsight> parseMemory(Object? raw) {
   return [
     for (final m in requireMapList(raw))
       () {
-        requireExactKeys(m, {'memoryIndex', 'text'});
-        final idx = m['memoryIndex'];
-        if (idx is! int || idx < 0) {
-          fail(NarrativeTarotResultErrorKind.schema, 'memoryIndex');
+        requireExactKeys(m, {'memoryIndices', 'text'});
+        final rawIdx = m['memoryIndices'];
+        if (rawIdx is! List || rawIdx.isEmpty) {
+          fail(NarrativeTarotResultErrorKind.schema, 'memoryIndices');
+        }
+        final indices = <int>[];
+        final local = <int>{};
+        for (final v in rawIdx) {
+          if (v is! int || v < 0 || !local.add(v)) {
+            fail(NarrativeTarotResultErrorKind.schema, 'memoryIndices');
+          }
+          indices.add(v);
+        }
+        for (var i = 1; i < indices.length; i++) {
+          if (indices[i] <= indices[i - 1]) {
+            fail(NarrativeTarotResultErrorKind.schema, 'unsorted');
+          }
         }
         return NarrativeTarotMemoryInsight(
-          memoryIndex: idx,
+          memoryIndices: indices,
           text: requireBounded(
             m['text'],
             NarrativeTarotResultBounds.memoryInsight,

@@ -50,7 +50,7 @@ function validResultFor(narrative: Record<string, unknown>) {
   }[];
   const memory = narrative.memory as { included: boolean; entries: unknown[] };
   return {
-    contractVersion: 1,
+    contractVersion: 2,
     languageCode: narrative.languageCode,
     summary: prose(80),
     cardReadings: cards.map((c) => ({
@@ -75,7 +75,7 @@ function validResultFor(narrative: Record<string, unknown>) {
     })),
     memoryInsights:
       memory.included && memory.entries.length > 0
-        ? [{ memoryIndex: 0, text: prose(50) }]
+        ? [{ memoryIndices: [0], text: prose(50) }]
         : [],
     lifeAreas: [{ kind: 'love', text: prose(50) }],
     advice: prose(50),
@@ -105,7 +105,7 @@ describe('narrative_v2 tarot contract', () => {
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().success).toBe(true);
-    expect(res.json().data.contractVersion).toBe(1);
+    expect(res.json().data.contractVersion).toBe(2);
     expect(res.json().data.text).toBeUndefined();
     expect(res.json().data.cardReadings).toHaveLength(3);
     expect(seenBody).toContain('"type":"json_schema"');

@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-24 — Tarot Phase 6E.2 controlled provider shadow QA captured · 6E.1 verified · 6D/6D.1 FROZEN
+**Updated:** 2026-09-24 — Tarot Phase 6E.3 Result Contract V2 + provider quality remediation · 6E.2 evidence frozen
 
 ---
 
@@ -1350,13 +1350,16 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT review of Phase 6E.2 provider prose** (`docs/product/tarot/NARRATIVE_PROVIDER_SHADOW_QA_6E2.md` + results fixture) — then provider-quality verdict — **NOT 6F yet.**
+**Independent ChatGPT verification of Phase 6E.3** (Result Contract V2 + prose/prompt remediation).
 
-Phase 6.0–6.0.3: **PASS** · Phase 6A–6E / 6E.1: **PASS** · Phase 6E.2 execution: **PASS** (6/6 calls · structural gates PASS · writing quality **not** claimed) · Phase 5: **RE-FROZEN** · live V2: **NOT WIRED** · Crossroads picker: **false**.
+Then: **request NEW explicit authorization** for Provider Shadow Manifest V2 (max 6) — **NOT 6F yet.**
+
+Phase 6.0–6E.1: **PASS** · 6E.2 execution: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3: **IMPLEMENTED** (pending verify) · live V2: **NOT WIRED** · Crossroads picker: **false**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** begin Phase 6F until independent provider writing-quality review completes.
+Do **not** begin Phase 6F.
+Do **not** reuse the exhausted 6E.2 six-call authorization.
 Do **not** claim provider quality from offline synthetic corpus alone.
 Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.

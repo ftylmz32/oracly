@@ -1,4 +1,4 @@
-/** Phase 6D — strict OpenAI JSON Schema for Narrative Tarot Result v1. */
+/** Phase 6E.3 — strict OpenAI JSON Schema for Narrative Tarot Result v2. */
 import {
   LIFE_AREA_KINDS,
   NARRATIVE_LIMITS,
@@ -99,9 +99,14 @@ export const NARRATIVE_TAROT_RESULT_SCHEMA = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['memoryIndex', 'text'],
+        required: ['memoryIndices', 'text'],
         properties: {
-          memoryIndex: { type: 'integer', minimum: 0 },
+          memoryIndices: {
+            type: 'array',
+            minItems: 1,
+            items: { type: 'integer', minimum: 0 },
+            uniqueItems: true,
+          },
           text: textField(NARRATIVE_LIMITS.memoryInsight),
         },
       },

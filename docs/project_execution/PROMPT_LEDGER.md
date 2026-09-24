@@ -1182,11 +1182,12 @@ Chronological project execution ledger.
 | PL-T6D.1 | Tarot Phase 6D.1 — Backend input firewall + full semantic fingerprint | **PASS** (independently verified · FROZEN with 6D) |
 | PL-T6E | Tarot Phase 6E — Classical dual-run shadow harness + offline assessor | **PASS** (independently verified; follow-up → 6E.1) |
 | PL-T6E.1 | Tarot Phase 6E.1 — Shadow fail-loud + deep immutability + parity accuracy | **PASS** (independently verified) |
-| PL-T6E.2 | Tarot Phase 6E.2 — Controlled real-provider Narrative shadow QA (max 6) | **EXECUTION PASS** (writing quality → ChatGPT review; not claimed) |
+| PL-T6E.2 | Tarot Phase 6E.2 — Controlled real-provider Narrative shadow QA (max 6) | **EXECUTION PASS** · writing quality **NOT PASS** (ChatGPT) |
+| PL-T6E.3 | Tarot Phase 6E.3 — Result Contract V2 + provider quality remediation | **IMPLEMENTED** (pending independent verify; 0 provider calls) |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN; 6A/6A.1 narrow reopen) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (6B narrow reopen for history normalize) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | **RE-FROZEN** after 5F.1 independent verification |
-| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = ChatGPT review of 6E.2 provider prose → quality verdict — NOT 6F** |
+| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent 6E.3 verify → NEW Manifest V2 provider auth — NOT 6F** |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
 | PL-T9 | Tarot Phase 9 — red-team QA | PLANNED |

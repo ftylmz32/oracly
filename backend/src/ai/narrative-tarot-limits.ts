@@ -5,8 +5,8 @@ export const NARRATIVE_TAROT_VERSION = 2;
 export const NARRATIVE_SERIALIZER_VERSION = 1;
 export const NARRATIVE_POLICY_VERSION = 'narrative_policy_v1';
 export const NARRATIVE_MODE = 'narrative_v2';
-export const NARRATIVE_RESULT_CONTRACT_VERSION = 1;
-export const NARRATIVE_SCHEMA_NAME = 'oracly_tarot_narrative_v1';
+export const NARRATIVE_RESULT_CONTRACT_VERSION = 2;
+export const NARRATIVE_SCHEMA_NAME = 'oracly_tarot_narrative_v2';
 
 export const NARRATIVE_POLICY_RULES = [
   'do_not_invent_cards',

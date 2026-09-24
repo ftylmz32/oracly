@@ -7,9 +7,10 @@ import {
   NARRATIVE_LIMITS,
   NARRATIVE_RESULT_CONTRACT_VERSION,
 } from './narrative-tarot-limits.js';
+import { assertNarrativeProseQuality } from './narrative-tarot-prose-quality.js';
 
 export type NarrativeTarotResult = {
-  contractVersion: 1;
+  contractVersion: 2;
   languageCode: 'tr' | 'en' | 'ru';
   summary: string;
   cardReadings: { cardId: string; positionKey: string; text: string }[];
@@ -22,7 +23,7 @@ export type NarrativeTarotResult = {
   }[];
   recurringCardInsights: { cardId: string; text: string }[];
   recurringThemeInsights: { themeIdOrLabel: string; text: string }[];
-  memoryInsights: { memoryIndex: number; text: string }[];
+  memoryInsights: { memoryIndices: number[]; text: string }[];
   lifeAreas: { kind: string; text: string }[];
   advice: string;
   reflectionPrompt: string | null;
@@ -121,7 +122,7 @@ export function parseNarrativeTarotResult(
   const lifeAreas = parseLifeAreas(root.lifeAreas);
 
   const result: NarrativeTarotResult = {
-    contractVersion: 1,
+    contractVersion: 2,
     languageCode: narrative.languageCode,
     summary,
     cardReadings,
@@ -137,6 +138,11 @@ export function parseNarrativeTarotResult(
     closingMessage,
   };
   assertTotalChars(result);
+  try {
+    assertNarrativeProseQuality(result);
+  } catch {
+    bad();
+  }
   return result;
 }
 
@@ -256,20 +262,28 @@ function parseMemory(
   const included = mem.included === true;
   const entries = Array.isArray(mem.entries) ? mem.entries : [];
   if (!included && raw.length > 0) bad();
-  const seen = new Set<number>();
+  const globalSeen = new Set<number>();
   const out: NarrativeTarotResult['memoryInsights'] = [];
   for (const item of raw) {
     const r = asRecord(item);
     if (!r) bad();
-    exactKeys(r, new Set(['memoryIndex', 'text']));
-    if (typeof r.memoryIndex !== 'number' || !Number.isInteger(r.memoryIndex)) {
-      bad();
+    exactKeys(r, new Set(['memoryIndices', 'text']));
+    if (!Array.isArray(r.memoryIndices) || r.memoryIndices.length === 0) bad();
+    const indices: number[] = [];
+    const localSeen = new Set<number>();
+    for (const rawIdx of r.memoryIndices) {
+      if (typeof rawIdx !== 'number' || !Number.isInteger(rawIdx)) bad();
+      if (rawIdx < 0 || rawIdx >= entries.length) bad();
+      if (localSeen.has(rawIdx) || globalSeen.has(rawIdx)) bad();
+      localSeen.add(rawIdx);
+      globalSeen.add(rawIdx);
+      indices.push(rawIdx);
     }
-    if (r.memoryIndex < 0 || r.memoryIndex >= entries.length) bad();
-    if (seen.has(r.memoryIndex)) bad();
-    seen.add(r.memoryIndex);
+    for (let i = 1; i < indices.length; i++) {
+      if (indices[i]! <= indices[i - 1]!) bad();
+    }
     out.push({
-      memoryIndex: r.memoryIndex,
+      memoryIndices: indices,
       text: nonEmpty(r.text, NARRATIVE_LIMITS.memoryInsight),
     });
   }
