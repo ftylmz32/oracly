@@ -1191,10 +1191,11 @@ Chronological project execution ledger.
 | PL-T6E.5 | Tarot Phase 6E.5 — Provider writing-quality prompt refinement | **IMPLEMENTED** · 0 real calls · section responsibilities locked · follow-up → 6E.6 |
 | PL-T6E.6 | Tarot Phase 6E.6 — Real-provider writing-quality validation after 6E.5 | **EXECUTED** · 6/6 structured · writing **NOT FROZEN** (ChatGPT) · model not recorded · NOT 6F |
 | PL-T6E.7 | Tarot Phase 6E.7 — Dedicated Narrative writer model isolation | **IMPLEMENTED** · 0 real calls · next → 6E.8 (`gpt-5.6-sol`) |
+| PL-T6E.8 | Tarot Phase 6E.8 — Explicit gpt-5.6-sol Narrative writer quality run | **EXECUTED** · 6/6 structured · canary PASS · writing pending ChatGPT · NOT 6F |
 | PL-T3 | Tarot Phase 3 — Semantic profiles + Narrative Evidence Engine | **DONE** (FROZEN; 6A/6A.1 narrow reopen) |
 | PL-T4 | Tarot Phase 4 — memory + recurring cards | **FROZEN** (6B narrow reopen for history normalize) |
 | PL-T5 | Tarot Phase 5 — Signature Spreads | **RE-FROZEN** after 5F.1 independent verification |
-| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = Phase 6E.8 explicit gpt-5.6-sol quality rerun → 6F only if PASS** |
+| PL-T6 | Tarot Phase 6 — AI Narrative result pipeline + migration | **NEXT = independent ChatGPT review of 6E.8 Sol → 6F only if PASS** |
 | PL-T7 | Tarot Phase 7 — Visual System + golden masters | PLANNED |
 | PL-T8 | Tarot Phase 8 — ritual E2E | PLANNED |
 | PL-T9 | Tarot Phase 9 — red-team QA | PLANNED |

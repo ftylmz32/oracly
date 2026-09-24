@@ -1,0 +1,602 @@
+{
+  "qaRunHead": "c342ab8f8813423cb162888f5089e6fabbf955a6",
+  "manifestVersion": 2,
+  "resultContractVersion": 2,
+  "providerSchemaName": "oracly_tarot_narrative_v2",
+  "modelMetadata": {
+    "configuredGenericModel": "gpt-4o",
+    "configuredNarrativeModel": "gpt-5.6-sol",
+    "resolvedNarrativeModel": "gpt-5.6-sol",
+    "narrativeReasoningEffort": "none"
+  },
+  "modelDiscovery": {
+    "attempted": true,
+    "available": true
+  },
+  "precallValidation": "PASS",
+  "schemaCompatibilityPrecall": "PASS",
+  "outboundBodyPrecall": "PASS",
+  "uniqueItemsInProviderSchema": false,
+  "sixOutboundBodiesOfflinePass": 6,
+  "precall": [
+    {
+      "manifestId": "psm_v2_01_single_open_en",
+      "ok": true,
+      "language": "en",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "The Fool",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true,
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none"
+    },
+    {
+      "manifestId": "psm_v2_02_single_guidance_tr_reversed",
+      "ok": true,
+      "language": "tr",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "Kupa Beşlisi",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true,
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none"
+    },
+    {
+      "manifestId": "psm_v2_03_single_relationship_ru",
+      "ok": true,
+      "language": "ru",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "Девятка Мечей",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true,
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none"
+    },
+    {
+      "manifestId": "psm_v2_04_three_contrast_en",
+      "ok": true,
+      "language": "en",
+      "cardCount": 3,
+      "spreadId": "classical.threeCard",
+      "displayName": "The Magician",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true,
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none"
+    },
+    {
+      "manifestId": "psm_v2_05_five_conflict_ru",
+      "ok": true,
+      "language": "ru",
+      "cardCount": 5,
+      "spreadId": "classical.fiveCard",
+      "displayName": "Шут",
+      "memoryEntryCount": 0,
+      "outboundBodySchemaOk": true,
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none"
+    },
+    {
+      "manifestId": "psm_v2_06_enriched_multi_memory_en",
+      "ok": true,
+      "language": "en",
+      "cardCount": 1,
+      "spreadId": "classical.single",
+      "displayName": "The Fool",
+      "memoryEntryCount": 2,
+      "outboundBodySchemaOk": true,
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none"
+    }
+  ],
+  "authorizedCalls": 6,
+  "usedCalls": 6,
+  "remaining": 0,
+  "callCapExceeded": false,
+  "autoRetries": 0,
+  "stopReason": null,
+  "call1CompatibilityCanary": "PASS",
+  "billingTouched": false,
+  "persistenceWrites": 0,
+  "paidUserDualCalls": 0,
+  "gemDebits": 0,
+  "historyWrites": 0,
+  "journalWrites": 0,
+  "liveCacheWrites": 0,
+  "productionCodeModifiedDuringRun": false,
+  "calls": [
+    {
+      "manifestId": "psm_v2_01_single_open_en",
+      "callNumber": 1,
+      "languageCode": "en",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "The Fool",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none",
+      "transportStatus": "ok",
+      "latencyMs": 4959,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERlf8QoV9xcJY8GCgjIbs692hp5r3",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "en",
+        "summary": "A fresh possibility may be worth exploring, provided curiosity is balanced with awareness of consequences.",
+        "cardReadings": [
+          {
+            "cardId": "major_00",
+            "positionKey": "sign",
+            "text": "Upright, The Fool signals a threshold where openness, flexibility, and a willingness to learn can carry you beyond familiar limits without requiring complete certainty."
+          }
+        ],
+        "synthesis": "The central tension is between taking a liberating first step and pausing long enough to test the ground.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Choose one small, reversible step that lets you explore without committing beyond what you currently know.",
+        "reflectionPrompt": "What becomes possible when you allow yourself not to have every answer yet?",
+        "dailyFocus": null,
+        "closingMessage": "You do not need a full map to examine the next step carefully."
+      },
+      "typedFailure": null,
+      "canaryCompatPass": true,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.0,
+        "synthesis_advice": 0.07142857142857142,
+        "advice_closing": 0.2,
+        "summary_closing": 0.0
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_02_single_guidance_tr_reversed",
+      "callNumber": 2,
+      "languageCode": "tr",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "Kupa Beşlisi",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none",
+      "transportStatus": "ok",
+      "latencyMs": 6053,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERlfCOdO9xtbqFfVn77DoedfDoHXw",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "tr",
+        "summary": "Bu dönemde, yaşadığınız kaybı inkâr etmeden kabul ederken bakışınızı yalnızca eksilene sabitlememeye dikkat edin.",
+        "cardReadings": [
+          {
+            "cardId": "cups_05",
+            "positionKey": "sign",
+            "text": "Ters Kupa Beşlisi, umutsuzluğa kapılmak ile acıdan kaçınmak arasında gidip gelme ihtimalini yansıtabilir; kaybın yasını tutarken hâlâ ayakta kalanları da fark etmeye çağırır."
+          }
+        ],
+        "synthesis": "Temel gerilim, acıyı onurlandırmakla hayatınızda hâlâ mevcut olanı görebilmek arasında duruyor.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Üzüntünüzü somut biçimde adlandırın; ardından hâlâ elinizde olan iki desteği, imkânı veya bağı yazın.",
+        "reflectionPrompt": "Kaybınıza bakmaktan mı, yoksa geride kalanı fark etmekten mi kaçınıyorsunuz?",
+        "dailyFocus": null,
+        "closingMessage": "Eksileni görmek, elde kalanın değerini silmek zorunda değil."
+      },
+      "typedFailure": null,
+      "canaryCompatPass": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.0,
+        "synthesis_advice": 0.0,
+        "advice_closing": 0.0,
+        "summary_closing": 0.0
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_03_single_relationship_ru",
+      "callNumber": 3,
+      "languageCode": "ru",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "Девятка Мечей",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none",
+      "transportStatus": "ok",
+      "latencyMs": 4667,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERlfIjwLmREfhsQ4yt1glze6iCWwm",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "ru",
+        "summary": "Сейчас отношения могут развиваться под давлением тревоги и худших сценариев, однако эти опасения не равны фактам или предсказанию будущего.",
+        "cardReadings": [
+          {
+            "cardId": "swords_09",
+            "positionKey": "sign",
+            "text": "Перевёрнутая Девятка Мечей в позиции знака отражает тревогу, уходящую внутрь: невысказанные страхи, чувство вины или ночные мысли могут становиться тяжелее реальной ситуации."
+          }
+        ],
+        "synthesis": "Главное напряжение — отнестись к беспокойству всерьёз, но не позволить ему определять смысл происходящего между вами.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Отделите наблюдаемые факты от предположений и, если решите поговорить, выберите спокойное время вместо момента, когда тревога особенно сильна.",
+        "reflectionPrompt": "Что в ваших переживаниях подтверждено событиями, а что возникло из страха перед худшим?",
+        "dailyFocus": null,
+        "closingMessage": "Ясность здесь начинается с различения реального сигнала и внутреннего шума."
+      },
+      "typedFailure": null,
+      "canaryCompatPass": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.0,
+        "synthesis_advice": 0.0,
+        "advice_closing": 0.0,
+        "summary_closing": 0.0
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_04_three_contrast_en",
+      "callNumber": 4,
+      "languageCode": "en",
+      "spreadId": "classical.threeCard",
+      "cardCount": 3,
+      "displayName": "The Magician",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none",
+      "transportStatus": "ok",
+      "latencyMs": 7746,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERlfN1heKA1fiqKb3lTfkantBjWSB",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "en",
+        "summary": "This season appears to be moving from proven capability through a present conflict of values toward a possible period of clearer choices and greater accountability.",
+        "cardReadings": [
+          {
+            "cardId": "major_01",
+            "positionKey": "past",
+            "text": "The Magician upright suggests that focused skill, intention, and resourcefulness helped shape the foundations of this season, though proving your potential may at times have competed with patient mastery."
+          },
+          {
+            "cardId": "major_06",
+            "positionKey": "present",
+            "text": "The Lovers reversed places the current emphasis on misalignment, indecision, or a choice that cannot remain postponed without compromising your integrity."
+          },
+          {
+            "cardId": "major_11",
+            "positionKey": "future",
+            "text": "Justice upright points toward a possible direction of honest evaluation, consistent standards, and responsibility for consequences, while cautioning against turning discernment into harsh judgment."
+          }
+        ],
+        "synthesis": "What began with agency now asks for alignment: ability alone cannot resolve a situation in which desire, connection, and personal values pull in different directions, so the next step may depend on a fair and unsentimental assessment.",
+        "relationshipInsights": [
+          {
+            "leftCardId": "major_06",
+            "rightCardId": "major_11",
+            "kind": "contrast",
+            "text": "The contrast between the reversed Lovers and Justice sets present uncertainty against a possible return to clarity: emotional or relational complexity may resist the very standards needed to make a balanced choice."
+          }
+        ],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Write down the choice you are avoiding, the values each option honors, and the consequences you are genuinely prepared to accept; then use that record rather than immediate attraction or discomfort as your guide.",
+        "reflectionPrompt": "Where are you trying to preserve connection at the cost of being fully honest with yourself?",
+        "dailyFocus": null,
+        "closingMessage": "Clarity does not require perfection; it requires a standard you can answer for."
+      },
+      "typedFailure": null,
+      "canaryCompatPass": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.10526315789473684,
+        "synthesis_advice": 0.1111111111111111,
+        "advice_closing": 0.09090909090909091,
+        "summary_closing": 0.0
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_05_five_conflict_ru",
+      "callNumber": 5,
+      "languageCode": "ru",
+      "spreadId": "classical.fiveCard",
+      "cardCount": 5,
+      "displayName": "Шут",
+      "memoryEntryCount": 0,
+      "memorySummariesForQa": [],
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none",
+      "transportStatus": "ok",
+      "latencyMs": 10076,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERlfVluhNB4oDllnpN8Hv983kHPrZ",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "ru",
+        "summary": "Между вами может быть живое влечение и эмоциональное тепло, но пока им недостаёт ясности, устойчивости и согласованной ответственности.",
+        "cardReadings": [
+          {
+            "cardId": "major_00",
+            "positionKey": "situation",
+            "text": "Перевёрнутый Шут описывает связь у нового порога, где интерес соседствует с колебаниями, поспешностью или избеганием определённости. Свежесть здесь есть, но легкомысленный шаг может сбить направление."
+          },
+          {
+            "cardId": "major_11",
+            "positionKey": "hidden_influence",
+            "text": "Скрытое влияние Справедливости — потребность честно назвать происходящее, учесть вклад обеих сторон и соотнести желания с последствиями. За чувствами может стоять вопрос взаимности и ответственности."
+          },
+          {
+            "cardId": "wands_01",
+            "positionKey": "challenge",
+            "text": "Туз Жезлов в позиции испытания отражает искру, притяжение и желание начать, которые легко либо форсировать, либо погасить. Задача — проверить это тепло в реальном взаимодействии, не навязывая его."
+          },
+          {
+            "cardId": "wands_12",
+            "positionKey": "strength",
+            "text": "Рыцарь Жезлов даёт смелость, страсть и импульс к сближению. Эта энергия поддерживает контакт, если движение имеет направление и сильный пыл не принимается за уже сложившуюся близость."
+          },
+          {
+            "cardId": "cups_09",
+            "positionKey": "direction",
+            "text": "Девятка Кубков намечает возможность более спокойной эмоциональной наполненности: каждый может входить в связь не из дефицита, а с опорой на собственную ценность. Это скорее приглашение к зрелому удовольствию от близости, чем обещание общего исхода."
+          }
+        ],
+        "synthesis": "В раскладе соединяются искра и сильное движение, однако их проверяет необходимость отличить краткий порыв от устойчивой близости и придать чувствам честную, взаимную форму.",
+        "relationshipInsights": [
+          {
+            "leftCardId": "major_00",
+            "rightCardId": "wands_01",
+            "kind": "conflict",
+            "text": "Между перевёрнутым Шутом и Тузом Жезлов возникает конфликт: желание начать может одновременно подталкивать к необдуманному шагу и требовать бережно сохранить ещё хрупкую искру."
+          }
+        ],
+        "recurringCardInsights": [],
+        "recurringThemeInsights": [],
+        "memoryInsights": [],
+        "lifeAreas": [],
+        "advice": "Спокойно обсудите, что каждый из вас считает близостью сейчас, и сопоставьте слова с реальными действиями, не ускоряя развитие связи.",
+        "reflectionPrompt": "Что в этом притяжении связано с подлинной взаимностью, а что — с надеждой, которую пока не подтверждает взаимодействие?",
+        "dailyFocus": "Отделять интенсивность момента от надёжности контакта.",
+        "closingMessage": "Искре легче стать теплом, когда ей не приходится заменять ясность."
+      },
+      "typedFailure": null,
+      "canaryCompatPass": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.0,
+        "synthesis_advice": 0.0,
+        "advice_closing": 0.0,
+        "summary_closing": 0.0
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 0,
+        "indices": [],
+        "requestMemoryEntryCount": 0,
+        "summariesAdjacent": []
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    },
+    {
+      "manifestId": "psm_v2_06_enriched_multi_memory_en",
+      "callNumber": 6,
+      "languageCode": "en",
+      "spreadId": "classical.single",
+      "cardCount": 1,
+      "displayName": "The Fool",
+      "memoryEntryCount": 2,
+      "memorySummariesForQa": [
+        {
+          "index": 0,
+          "kind": "memorySummary",
+          "sourceType": "coffee",
+          "contentForModel": "[INTERPRETATION][coffee] shared loyalty partner reflection coffee"
+        },
+        {
+          "index": 1,
+          "kind": "memorySummary",
+          "sourceType": "dream",
+          "contentForModel": "[INTERPRETATION][dream] shared loyalty partner reflection dream"
+        }
+      ],
+      "resolvedProviderModel": "gpt-5.6-sol",
+      "narrativeReasoningEffort": "none",
+      "transportStatus": "ok",
+      "latencyMs": 6963,
+      "httpStatus": null,
+      "providerRequestId": "chatcmpl-ERlfeP6biBOvHlRjRQlxQucpZ8Bgi",
+      "sanitizedProviderMessage": null,
+      "backendValid": true,
+      "backendQualityRejection": null,
+      "structuredResult": {
+        "contractVersion": 2,
+        "languageCode": "en",
+        "summary": "Rather than giving a simple yes or no, The Fool suggests staying only if the relationship still allows an honest fresh start without asking you to ignore the consequences.",
+        "cardReadings": [
+          {
+            "cardId": "major_00",
+            "positionKey": "sign",
+            "text": "Upright, The Fool marks a threshold: openness, curiosity, and freedom may renew what feels constrained, but an impulsive leap could overlook practical realities."
+          }
+        ],
+        "synthesis": "The central tension is between exploring what might be possible together and first checking whether the ground beneath that possibility is sound.",
+        "relationshipInsights": [],
+        "recurringCardInsights": [
+          {
+            "cardId": "major_00",
+            "text": "The Fool has appeared twice in closely related relationship questions, adding weight to the recurring choice between freedom, loyalty, and entering uncertain territory with awareness."
+          }
+        ],
+        "recurringThemeInsights": [
+          {
+            "themeIdOrLabel": "ilişki",
+            "text": "The relationship theme has surfaced twice, suggesting that this decision belongs to a broader reflection rather than a passing doubt."
+          }
+        ],
+        "memoryInsights": [
+          {
+            "memoryIndices": [
+              0,
+              1
+            ],
+            "text": "Earlier reflections also connected partnership with loyalty, so today’s question may be asking what commitment means when personal freedom and uncertainty are present."
+          }
+        ],
+        "lifeAreas": [],
+        "advice": "Before deciding, name the minimum conditions that would make a genuine fresh start possible, then compare them with what is actually available now.",
+        "reflectionPrompt": "Am I drawn to stay because there is real room for renewal, or because taking an unfamiliar step feels frightening?",
+        "dailyFocus": null,
+        "closingMessage": "A new beginning is meaningful only when it is entered with open eyes."
+      },
+      "typedFailure": null,
+      "canaryCompatPass": null,
+      "clientParsePass": true,
+      "narrativeQualityPass": true,
+      "aiOutputQualityPass": true,
+      "assessStatus": "pass",
+      "internalIdLeak": false,
+      "repetitionObservation": "distinct",
+      "repetitionOverlaps": {
+        "summary_synthesis": 0.05555555555555555,
+        "synthesis_advice": 0.2222222222222222,
+        "advice_closing": 0.1111111111111111,
+        "summary_closing": 0.1111111111111111
+      },
+      "memoryProvenanceNotes": {
+        "insightCount": 1,
+        "indices": [
+          [
+            0,
+            1
+          ]
+        ],
+        "requestMemoryEntryCount": 2,
+        "summariesAdjacent": [
+          {
+            "index": 0,
+            "kind": "memorySummary",
+            "sourceType": "coffee",
+            "contentForModel": "[INTERPRETATION][coffee] shared loyalty partner reflection coffee"
+          },
+          {
+            "index": 1,
+            "kind": "memorySummary",
+            "sourceType": "dream",
+            "contentForModel": "[INTERPRETATION][dream] shared loyalty partner reflection dream"
+          }
+        ]
+      },
+      "deterministicFutureFound": false,
+      "deterministicFuturePattern": null,
+      "mindReadingClaimFound": false,
+      "objectiveRelationshipClaimFound": false
+    }
+  ],
+  "clientParserPasses": 6,
+  "narrativeQualityPasses": 6,
+  "aiOutputQualityPasses": 6,
+  "internalIdLeaksFound": false,
+  "transportSuccesses": 6,
+  "backendStructuredPasses": 6,
+  "backendQualityRejections": 0
+}
