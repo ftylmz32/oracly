@@ -26,7 +26,7 @@ abstract final class TarotHistoryLegacyNormalize {
       );
     }
 
-    final spread = TarotHistoryCardNormalize.classicalFromTitle(
+    final spread = TarotHistoryCardNormalize.supportedFromPersisted(
       reading.spreadType,
     );
     if (spread == null) {

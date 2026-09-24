@@ -426,7 +426,7 @@ So a safety-only local response could be charged as paid provider success, and `
 | **A** | **SEAM IMPLEMENTED (6A)** | `resolveSpread` → optional `NarrativeSpreadSemanticResolver` (default Classical); Signature adapter separate |
 | **B** | **SEAM IMPLEMENTED (6A)** | Pairing/scorer/selector → optional `NarrativePositionEdgeProvider` (default Classical); Signature adapter separate |
 | **C** | **STILL VALID** | Crossroads structural edges exist in Phase 5 projection; no Phase 3 full builder/scoring path yet |
-| **D** | **STILL VALID** | `classicalFromSpread` null/throws for non-classical (`crossroads`) |
+| **D** | **SEAM IMPLEMENTED (6B)** | `classicalFromSpread(crossroads)` still null; `supportedFromSpread` → `signature.crossroads` historical FACT |
 | **E** | **STILL VALID** | Same-spread-alone forbid remains Phase 4/5 contract |
 | **F** | **STILL VALID** | H7 identity — do not reopen casually |
 | **G** | **STILL VALID** | H19 ordering — do not reopen casually |
@@ -436,7 +436,7 @@ So a safety-only local response could be charged as paid provider success, and `
 | **K** | **STILL VALID** | `offeredInLivePicker=false` |
 | **L** | **STILL VALID** | No release-readiness from Phase 5/6.0 alone |
 
-Refinements for Phase 6: A/B implemented as Classical-default seams + Signature adapters (6A). Seam C / full Crossroads Narrative remain later (6G). None obsolete.
+Refinements for Phase 6: A/B implemented (6A/6A.1). Seam D implemented (6B historical FACT). Seam C / full Crossroads Narrative remain later (6G). E–L preserved. None obsolete.
 
 ---
 
@@ -480,6 +480,28 @@ Refinements for Phase 6: A/B implemented as Classical-default seams + Signature 
 | classical.single | still returns **0** edges (valid) |
 | Silent zero-edge Signature fallback | **NO** |
 | Next | Independent 6A.1 verification → **Phase 6B** |
+
+**Phase 6A / 6A.1 independently verified (ChatGPT).**
+
+---
+
+## 13.3 — Phase 6B Signature historical normalizer
+
+**Date:** 2026-09-24 · **Kind:** Phase 4 narrow reopen · historical FACT only
+
+| Fact | Value |
+|---|---|
+| Adapter | `SignatureHistorySpreadNormalizer` (new) |
+| History helpers | `supportedFromSpread` · `supportedFromPersisted` |
+| `classicalFromSpread(crossroads)` | still **null** |
+| Crossroads historical `spreadId` | `signature.crossroads` |
+| fiveCard fabrication | **NO** |
+| H7 / H17 / H19 | **UNCHANGED** |
+| Same-spread-alone recurrence | **UNCHANGED** (still false) |
+| Current Crossroads builder | still **UNSUPPORTED** |
+| Live Narrative V2 | **NOT WIRED** |
+| Crossroads picker | **false** |
+| Next | Independent 6B verification → **Phase 6C** |
 
 ---
 

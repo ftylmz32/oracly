@@ -4,6 +4,7 @@ library;
 import '../../deck/oracly_tarot_bridge.dart';
 import '../../domain/models/reading_session.dart';
 import '../../domain/models/tarot_spread.dart';
+import '../../signature_spreads/signature_history_spread_normalizer.dart';
 import '../evidence/narrative_classical_spread_catalog.dart';
 import '../evidence/narrative_request.dart';
 import '../evidence/narrative_spread_semantics.dart';
@@ -25,6 +26,20 @@ abstract final class TarotHistoryCardNormalize {
     final type = TarotSpreadType.fromTitle(title);
     if (type == null) return null;
     return classicalFromSpread(type);
+  }
+
+  /// Classical first, then Signature history adapter (Phase 6B).
+  static SpreadSemanticDefinition? supportedFromSpread(TarotSpreadType type) {
+    final classical = classicalFromSpread(type);
+    if (classical != null) return classical;
+    return SignatureHistorySpreadNormalizer.fromSpread(type);
+  }
+
+  /// Persisted title/machine id → supported semantic definition.
+  static SpreadSemanticDefinition? supportedFromPersisted(String? raw) {
+    final type = TarotSpreadType.fromPersisted(raw);
+    if (type == null) return null;
+    return supportedFromSpread(type);
   }
 
   static int? validIndex(SpreadSemanticDefinition spread, int? index) {

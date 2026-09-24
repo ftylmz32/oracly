@@ -62,7 +62,7 @@ abstract final class TarotHistorySessionNormalize {
       );
     }
 
-    final spread = TarotHistoryCardNormalize.classicalFromSpread(
+    final spread = TarotHistoryCardNormalize.supportedFromSpread(
       session.spread,
     );
     if (spread == null) {

@@ -282,10 +282,13 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6B — Signature history normalizer (Phase 4 reopen: narrow)
 
+- **Status:** **PASS** (2026-09-24) — pending independent ChatGPT verification  
 - **Goal:** Crossroads history normalize as `signature.crossroads`  
-- **Preserve:** H7/H19/privacy/owner/source/forbidSameSpreadAlone  
-- **Live impact:** NONE (still no live V2)  
-- **Rollback:** classicalFromSpread-only  
+- **Added:** `SignatureHistorySpreadNormalizer` · `supportedFromSpread` / `supportedFromPersisted`  
+- **Preserve:** H7/H19/privacy/owner/source/forbidSameSpreadAlone · `classicalFromSpread` Classical-only  
+- **Live impact:** NONE (still no live V2 · picker false · current Crossroads builder unsupported)  
+- **Rollback:** session/legacy resolve via `classicalFromSpread` / `classicalFromTitle` only  
+- **Next:** Independent verify → **Phase 6C**
 
 ### 6C — Narrative request → live serializer + cache identity
 
@@ -396,6 +399,6 @@ Phase 5 catalog/product decisions remain frozen; Signature edges stay Phase-5-ow
 
 ## 15 — Next
 
-**Independent Phase 6A.1 verification**, then **Phase 6B** — Signature history normalizer (Phase 4 reopen: narrow).
+**Independent Phase 6B verification**, then **Phase 6C** — Narrative request → live serializer + cache identity.
 
-Phase 6.0.3 independently verified before 6A. Phase 6A seam A/B **PASS**. Phase 6A.1 provider identity fail-closed **PASS** (pending independent verify). Live Narrative V2 still **NOT WIRED**.
+Phase 6A/6A.1 independently verified. Seam D (history) **IMPLEMENTED** in 6B. Seam C / 6G still later. Live Narrative V2 still **NOT WIRED**.

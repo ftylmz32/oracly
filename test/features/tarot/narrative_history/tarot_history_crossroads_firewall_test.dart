@@ -1,4 +1,4 @@
-/// Phase 5D.1 — Crossroads is not normalized as classical fiveCard by Phase 4.
+/// Phase 5D.1 / 6B — Crossroads history as signature.crossroads; never fiveCard.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +22,8 @@ const _card = TarotCard(
   reversedMeaning: 'r',
   keywords: ['k'],
 );
+
+const _keys = ['option_a', 'option_b', 'tension', 'counsel', 'direction'];
 
 ReadingSession _crossroadsSession() {
   final at = DateTime.utc(2026, 9, 22, 12);
@@ -59,18 +61,32 @@ void main() {
     expect(five?.spreadId, 'classical.fiveCard');
   });
 
-  test('Crossroads session normalize skips — not classical.fiveCard', () {
+  test('supported history resolution returns signature.crossroads', () {
+    final s = TarotHistoryCardNormalize.supportedFromSpread(
+      TarotSpreadType.crossroads,
+    );
+    expect(s?.spreadId, 'signature.crossroads');
+    expect(s?.legacyTypeName, 'crossroads');
+    expect(s?.cardCount, 5);
+  });
+
+  test('Crossroads session normalizes as Signature — never fiveCard', () {
     final result = TarotHistorySessionNormalize.normalize(
       session: _crossroadsSession(),
       linked: null,
       currentOwnerId: null,
     );
-    expect(result.record, isNull);
-    expect(result.diag.skippedMalformed, 1);
-    expect(result.diag.skippedOwnerMismatch, 0);
+    expect(result.record, isNotNull);
+    expect(result.record!.spreadId, 'signature.crossroads');
+    expect(result.record!.spreadId, isNot('classical.fiveCard'));
+    expect(
+      result.record!.cards.map((c) => c.positionKey).toList(),
+      _keys,
+    );
+    expect(result.diag.skippedMalformed, 0);
   });
 
-  test('legacy ReadingModel crossroads skips — not classical.fiveCard', () {
+  test('legacy ReadingModel Crossroads normalizes as Signature', () {
     final result = TarotHistoryLegacyNormalize.normalize(
       reading: ReadingModel(
         id: 'legacy-cr',
@@ -93,7 +109,9 @@ void main() {
       ),
       currentOwnerId: null,
     );
-    expect(result.record, isNull);
-    expect(result.diag.skippedMalformed, 1);
+    expect(result.record, isNotNull);
+    expect(result.record!.spreadId, 'signature.crossroads');
+    expect(result.record!.spreadId, isNot('classical.fiveCard'));
+    expect(result.diag.skippedMalformed, 0);
   });
 }
