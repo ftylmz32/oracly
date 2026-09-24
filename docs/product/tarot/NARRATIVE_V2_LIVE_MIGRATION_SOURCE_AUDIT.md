@@ -825,7 +825,7 @@ Independent root cause of 6E.4 (valid execution, failed before generation):
 | Historical 6E.4 artifacts | **immutable** |
 | Production during run | **NO** |
 | Live / 6F | **NO** |
-| Writing quality | **pending ChatGPT** · agent does **not** claim PASS |
+| Writing quality | **reviewed (NOT FROZEN)** · agent does **not** claim PASS |
 
 Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E42_V2.md` · `tarot_narrative_provider_shadow_results_6e42_v2.json`
 
@@ -859,7 +859,32 @@ Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E42_V2.md` · `tarot_narrative_provider
 | QA-only distinctness tool | `tool/qa/narrative_section_distinctness.mjs` |
 | Historical 6E.4.2 artifacts | **immutable** |
 | Live / 6F | **NO** |
-| Next | **Phase 6E.6** — clean real-provider V2 quality rerun (separate authorization) |
+
+---
+
+## 13.19 — Phase 6E.6 real-provider writing-quality validation
+
+**Date:** 2026-09-25 · **Kind:** authorized real-provider QA · **6** calls · Result Contract V2 · after 6E.5 prompts
+
+| Fact | Value |
+|---|---|
+| QA RUN HEAD | `8a33915e0462438f21c3b74c0d6fd7f787c78730` |
+| Manifest V2 | unchanged (fair before/after vs 6E.4.2) |
+| Precall / schema compat / outbound bodies | **PASS** |
+| Transport / backend structured / client | **6 / 6** |
+| Q1 deterministic future | **still RESOLVED** (Call #4 modal) |
+| Q2 memory provenance | **still RESOLVED** (`memoryIndices: [0,1]`) |
+| Call #6 frequency language | “appeared twice” present |
+| Call #5 feelings directness | **improved** (symbolic emotional mix) |
+| Call #3 repetition / epistemic | **still review-worthy** (anxiety distributed; soft “Ваши отношения…”) |
+| Call #4 section repetition | **still review-worthy** (balance/accountability recycle) |
+| EN closings | still “Embrace…” patterns on #1/#4/#6 |
+| Historical 6E.4 / 6E.4.2 | **immutable** |
+| Production during run | **NO** |
+| Live / 6F | **NO** |
+| Writing quality | **pending ChatGPT** · agent does **not** claim PASS |
+
+Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E6_V2.md` · `tarot_narrative_provider_shadow_results_6e6_v2.json`
 
 ---
 

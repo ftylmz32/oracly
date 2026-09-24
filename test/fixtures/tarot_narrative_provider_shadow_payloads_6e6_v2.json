@@ -1,0 +1,894 @@
+{
+  "qaRunHead": "8a33915e0462438f21c3b74c0d6fd7f787c78730",
+  "manifestVersion": 2,
+  "manifestPath": "test/fixtures/tarot_narrative_provider_shadow_manifest_v2.json",
+  "resultContractVersion": 2,
+  "providerSchemaName": "oracly_tarot_narrative_v2",
+  "entryCount": 6,
+  "authorizedCallCap": 6,
+  "entries": [
+    {
+      "manifestId": "psm_v2_01_single_open_en",
+      "languageCode": "en",
+      "spreadType": "single",
+      "resolvedSpreadId": "classical.single",
+      "cardCount": 1,
+      "evidenceScenarioId": "single_open_fool_en",
+      "harness": null,
+      "displayName": "The Fool",
+      "memoryIncluded": false,
+      "memoryEntryCount": 0,
+      "recurringCardCount": 0,
+      "recurringThemeCount": 0,
+      "relationshipCount": 0,
+      "questionKind": "open",
+      "hasRealQuestion": false,
+      "questionText": null,
+      "resultContractTarget": 2,
+      "providerSchemaName": "oracly_tarot_narrative_v2",
+      "memorySummariesForQa": [],
+      "wirePayload": {
+        "mode": "narrative_v2",
+        "contractVersion": 1,
+        "language": "en",
+        "narrative": {
+          "cards": [
+            {
+              "canonicalCardId": "major_00",
+              "coreMeaning": "Approaching a new threshold without certainty, yet with openness to learn.",
+              "displayName": "The Fool",
+              "isReversed": false,
+              "keywordIds": [
+                "threshold",
+                "curiosity",
+                "freedom"
+              ],
+              "light": "Curiosity can make room for a fresh experience beyond familiar boundaries.",
+              "orientationExpression": "An open mind and flexibility support a lively yet measured encounter with the unknown.",
+              "positionIndex": 0,
+              "positionKey": "sign",
+              "shadow": "The wish for freedom can become a scattered leap that overlooks consequences.",
+              "symbolTags": [
+                "threshold",
+                "curiosity",
+                "freedom"
+              ],
+              "tension": "The urge to move forward coexists with the need to test the ground.",
+              "transforms": []
+            }
+          ],
+          "languageCode": "en",
+          "memory": {
+            "entries": [],
+            "included": false,
+            "priorReadingCount": 0
+          },
+          "narrativeTarotVersion": 2,
+          "policy": {
+            "rules": [
+              "do_not_invent_cards",
+              "do_not_invent_position_roles",
+              "do_not_invent_relationships",
+              "do_not_invent_recurrence",
+              "do_not_invent_memory_or_history",
+              "no_deterministic_prophecy",
+              "distinguish_evidence_from_reflective_guidance",
+              "answer_in_requested_language",
+              "do_not_expose_internal_identifiers"
+            ],
+            "version": "narrative_policy_v1"
+          },
+          "question": {
+            "hasRealQuestion": false,
+            "kind": "open",
+            "text": null,
+            "topic": null
+          },
+          "recurringCards": [],
+          "recurringThemes": [],
+          "relationships": [],
+          "serializerVersion": 1,
+          "spread": {
+            "cardCount": 1,
+            "geometryHook": "singlePoint",
+            "interpretationOrder": [
+              0
+            ],
+            "lengthBand": "short",
+            "positions": [
+              {
+                "index": 0,
+                "positionKey": "sign",
+                "role": "signal",
+                "temporal": "atemporal"
+              }
+            ],
+            "spreadId": "classical.single"
+          }
+        }
+      }
+    },
+    {
+      "manifestId": "psm_v2_02_single_guidance_tr_reversed",
+      "languageCode": "tr",
+      "spreadType": "single",
+      "resolvedSpreadId": "classical.single",
+      "cardCount": 1,
+      "evidenceScenarioId": "single_guidance_cups05r_tr",
+      "harness": null,
+      "displayName": "Kupa Beşlisi",
+      "memoryIncluded": false,
+      "memoryEntryCount": 0,
+      "recurringCardCount": 0,
+      "recurringThemeCount": 0,
+      "relationshipCount": 0,
+      "questionKind": "guidance",
+      "hasRealQuestion": true,
+      "questionText": "Bu dönemde neye dikkat etmeliyim?",
+      "resultContractTarget": 2,
+      "providerSchemaName": "oracly_tarot_narrative_v2",
+      "memorySummariesForQa": [],
+      "wirePayload": {
+        "mode": "narrative_v2",
+        "contractVersion": 1,
+        "language": "tr",
+        "narrative": {
+          "cards": [
+            {
+              "actionDirection": "Döküleni görün, yas tutun; ayakta kalanı da sayın.",
+              "canonicalCardId": "cups_05",
+              "coreMeaning": "Dökülen kadehler ile ayakta kalanları birlikte anlatır; kayıp ve yas alanıdır.",
+              "displayName": "Kupa Beşlisi",
+              "isReversed": true,
+              "keywordIds": [
+                "despair",
+                "denial"
+              ],
+              "light": "Yas tutulduğunda, dökülen görülür ve ayakta kalan da sayılabilir.",
+              "orientationExpression": "Bakış dökülene aşırı kilitlenebilir veya ayakta kalana dönmeyi inkâr ederek kaçınabilir.",
+              "positionIndex": 0,
+              "positionKey": "sign",
+              "shadow": "Bakış yalnızca kayba kilitlenebilir; umutsuzluk veya inkâr baskınlaşabilir.",
+              "symbolTags": [
+                "grief",
+                "ending",
+                "release"
+              ],
+              "tension": "Acıyı onurlandırma ihtiyacı ile ayakta kalanı da sayma gereği birlikte durur.",
+              "transforms": [
+                "excess",
+                "avoidance"
+              ]
+            }
+          ],
+          "languageCode": "tr",
+          "memory": {
+            "entries": [],
+            "included": false,
+            "priorReadingCount": 0
+          },
+          "narrativeTarotVersion": 2,
+          "policy": {
+            "rules": [
+              "do_not_invent_cards",
+              "do_not_invent_position_roles",
+              "do_not_invent_relationships",
+              "do_not_invent_recurrence",
+              "do_not_invent_memory_or_history",
+              "no_deterministic_prophecy",
+              "distinguish_evidence_from_reflective_guidance",
+              "answer_in_requested_language",
+              "do_not_expose_internal_identifiers"
+            ],
+            "version": "narrative_policy_v1"
+          },
+          "question": {
+            "hasRealQuestion": true,
+            "kind": "guidance",
+            "text": "Bu dönemde neye dikkat etmeliyim?",
+            "topic": null
+          },
+          "recurringCards": [],
+          "recurringThemes": [],
+          "relationships": [],
+          "serializerVersion": 1,
+          "spread": {
+            "cardCount": 1,
+            "geometryHook": "singlePoint",
+            "interpretationOrder": [
+              0
+            ],
+            "lengthBand": "short",
+            "positions": [
+              {
+                "index": 0,
+                "positionKey": "sign",
+                "role": "signal",
+                "temporal": "atemporal"
+              }
+            ],
+            "spreadId": "classical.single"
+          }
+        }
+      }
+    },
+    {
+      "manifestId": "psm_v2_03_single_relationship_ru",
+      "languageCode": "ru",
+      "spreadType": "single",
+      "resolvedSpreadId": "classical.single",
+      "cardCount": 1,
+      "evidenceScenarioId": "single_relationship_swords09r_ru",
+      "harness": null,
+      "displayName": "Девятка Мечей",
+      "memoryIncluded": false,
+      "memoryEntryCount": 0,
+      "recurringCardCount": 0,
+      "recurringThemeCount": 0,
+      "relationshipCount": 0,
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "questionText": "Как развиваются наши отношения?",
+      "resultContractTarget": 2,
+      "providerSchemaName": "oracly_tarot_narrative_v2",
+      "memorySummariesForQa": [],
+      "wirePayload": {
+        "mode": "narrative_v2",
+        "contractVersion": 1,
+        "language": "ru",
+        "narrative": {
+          "cards": [
+            {
+              "canonicalCardId": "swords_09",
+              "coreMeaning": "Говорит о мыслях, что множатся ночью; днём они могут быть менее реальны — не диагноз.",
+              "desire": "Может хотеться тихого утра после шума ночного ума.",
+              "displayName": "Девятка Мечей",
+              "fear": "Тревогу может вызывать сбытие худшего сценария или мысль, что никогда не утихает.",
+              "isReversed": true,
+              "keywordIds": [
+                "fear",
+                "mindBurden",
+                "burden"
+              ],
+              "orientationExpression": "Ночная мысль может перейти в избыточную мечту-катастрофу или уйти внутрь в личность бессонницы и частный груз вины.",
+              "positionIndex": 0,
+              "positionKey": "sign",
+              "relationshipDynamic": "Тревожные разговоры между двумя людьми могут усиливаться ночью, когда страх говорит увереннее, чем заслужили и свидетельство, и пророчество.",
+              "symbolTags": [
+                "shadow",
+                "silence",
+                "uncertainty"
+              ],
+              "tension": "Серьёзное отношение к тревоге соседствует с нуждой не считать её пророчеством.",
+              "transforms": [
+                "excess",
+                "internalization"
+              ]
+            }
+          ],
+          "languageCode": "ru",
+          "memory": {
+            "entries": [],
+            "included": false,
+            "priorReadingCount": 0
+          },
+          "narrativeTarotVersion": 2,
+          "policy": {
+            "rules": [
+              "do_not_invent_cards",
+              "do_not_invent_position_roles",
+              "do_not_invent_relationships",
+              "do_not_invent_recurrence",
+              "do_not_invent_memory_or_history",
+              "no_deterministic_prophecy",
+              "distinguish_evidence_from_reflective_guidance",
+              "answer_in_requested_language",
+              "do_not_expose_internal_identifiers"
+            ],
+            "version": "narrative_policy_v1"
+          },
+          "question": {
+            "hasRealQuestion": true,
+            "kind": "relationship",
+            "text": "Как развиваются наши отношения?",
+            "topic": null
+          },
+          "recurringCards": [],
+          "recurringThemes": [],
+          "relationships": [],
+          "serializerVersion": 1,
+          "spread": {
+            "cardCount": 1,
+            "geometryHook": "singlePoint",
+            "interpretationOrder": [
+              0
+            ],
+            "lengthBand": "short",
+            "positions": [
+              {
+                "index": 0,
+                "positionKey": "sign",
+                "role": "signal",
+                "temporal": "atemporal"
+              }
+            ],
+            "spreadId": "classical.single"
+          }
+        }
+      }
+    },
+    {
+      "manifestId": "psm_v2_04_three_contrast_en",
+      "languageCode": "en",
+      "spreadType": "threeCard",
+      "resolvedSpreadId": "classical.threeCard",
+      "cardCount": 3,
+      "evidenceScenarioId": "three_contrast_exemplar_en",
+      "harness": null,
+      "displayName": "The Magician",
+      "memoryIncluded": false,
+      "memoryEntryCount": 0,
+      "recurringCardCount": 0,
+      "recurringThemeCount": 0,
+      "relationshipCount": 1,
+      "questionKind": "open",
+      "hasRealQuestion": true,
+      "questionText": "Tell me about this season of my life.",
+      "resultContractTarget": 2,
+      "providerSchemaName": "oracly_tarot_narrative_v2",
+      "memorySummariesForQa": [],
+      "wirePayload": {
+        "mode": "narrative_v2",
+        "contractVersion": 1,
+        "language": "en",
+        "narrative": {
+          "cards": [
+            {
+              "canonicalCardId": "major_01",
+              "coreMeaning": "It reflects the capacity to direct intention, skill, and available tools into conscious work.",
+              "displayName": "The Magician",
+              "isReversed": false,
+              "keywordIds": [
+                "craft",
+                "focus",
+                "agency"
+              ],
+              "light": "Focused ability can turn an abstract idea into a tangible beginning.",
+              "orientationExpression": "When skill aligns with intention, creative power moves in a concrete and responsible way.",
+              "positionIndex": 0,
+              "positionKey": "past",
+              "shadow": "The power to influence can be used for control or display rather than clarity.",
+              "symbolTags": [
+                "craft",
+                "focus",
+                "agency"
+              ],
+              "tension": "There is tension between proving potential and practicing patient mastery.",
+              "transforms": []
+            },
+            {
+              "canonicalCardId": "major_06",
+              "coreMeaning": "Intimacy, aligned values, and bringing the whole self into a choice.",
+              "displayName": "The Lovers",
+              "isReversed": true,
+              "keywordIds": [
+                "discord",
+                "indecision",
+                "imbalance"
+              ],
+              "light": "An open bond can create mutual recognition and union without erasing difference.",
+              "orientationExpression": "Alignment may fracture, choice may be delayed, or connection may drift from inner integrity.",
+              "positionIndex": 1,
+              "positionKey": "present",
+              "shadow": "Attraction can lead to overlooking core differences or postponing a necessary choice.",
+              "symbolTags": [
+                "choice",
+                "union",
+                "values"
+              ],
+              "tension": "The desire for union meets the need to preserve personal integrity.",
+              "transforms": [
+                "delay",
+                "misdirection"
+              ]
+            },
+            {
+              "canonicalCardId": "major_11",
+              "coreMeaning": "It represents weighing facts carefully, recognizing consequences, and remaining accountable.",
+              "displayName": "Justice",
+              "isReversed": false,
+              "keywordIds": [
+                "balance",
+                "truth",
+                "accountability"
+              ],
+              "light": "Honest assessment can establish fair, consistent ground within a complex situation.",
+              "orientationExpression": "Clear standards and honest responsibility make a balanced evaluation possible.",
+              "positionIndex": 2,
+              "positionKey": "future",
+              "shadow": "The pursuit of correctness can become harsh judgment or a demand for perfection.",
+              "symbolTags": [
+                "balance",
+                "truth",
+                "accountability"
+              ],
+              "tension": "Balance must be found between objective standards and the nuances of human circumstances.",
+              "transforms": []
+            }
+          ],
+          "languageCode": "en",
+          "memory": {
+            "entries": [],
+            "included": false,
+            "priorReadingCount": 0
+          },
+          "narrativeTarotVersion": 2,
+          "policy": {
+            "rules": [
+              "do_not_invent_cards",
+              "do_not_invent_position_roles",
+              "do_not_invent_relationships",
+              "do_not_invent_recurrence",
+              "do_not_invent_memory_or_history",
+              "no_deterministic_prophecy",
+              "distinguish_evidence_from_reflective_guidance",
+              "answer_in_requested_language",
+              "do_not_expose_internal_identifiers"
+            ],
+            "version": "narrative_policy_v1"
+          },
+          "question": {
+            "hasRealQuestion": true,
+            "kind": "open",
+            "text": "Tell me about this season of my life.",
+            "topic": null
+          },
+          "recurringCards": [],
+          "recurringThemes": [],
+          "relationships": [
+            {
+              "kind": "contrast",
+              "leftCardId": "major_06",
+              "leftPositionKey": "present",
+              "rightCardId": "major_11",
+              "rightPositionKey": "future",
+              "strength": 0.4571428571428572
+            }
+          ],
+          "serializerVersion": 1,
+          "spread": {
+            "cardCount": 3,
+            "geometryHook": "linearRow",
+            "interpretationOrder": [
+              0,
+              1,
+              2
+            ],
+            "lengthBand": "medium",
+            "positions": [
+              {
+                "index": 0,
+                "positionKey": "past",
+                "role": "root",
+                "temporal": "past"
+              },
+              {
+                "index": 1,
+                "positionKey": "present",
+                "role": "state",
+                "temporal": "present"
+              },
+              {
+                "index": 2,
+                "positionKey": "future",
+                "role": "direction",
+                "temporal": "future"
+              }
+            ],
+            "spreadId": "classical.threeCard"
+          }
+        }
+      }
+    },
+    {
+      "manifestId": "psm_v2_05_five_conflict_ru",
+      "languageCode": "ru",
+      "spreadType": "fiveCard",
+      "resolvedSpreadId": "classical.fiveCard",
+      "cardCount": 5,
+      "evidenceScenarioId": "five_conflict_exemplar_ru",
+      "harness": null,
+      "displayName": "Шут",
+      "memoryIncluded": false,
+      "memoryEntryCount": 0,
+      "recurringCardCount": 0,
+      "recurringThemeCount": 0,
+      "relationshipCount": 1,
+      "questionKind": "relationship",
+      "hasRealQuestion": true,
+      "questionText": "Что за чувства между нами?",
+      "resultContractTarget": 2,
+      "providerSchemaName": "oracly_tarot_narrative_v2",
+      "memorySummariesForQa": [],
+      "wirePayload": {
+        "mode": "narrative_v2",
+        "contractVersion": 1,
+        "language": "ru",
+        "narrative": {
+          "cards": [
+            {
+              "canonicalCardId": "major_00",
+              "coreMeaning": "Эта карта говорит о приближении к новому порогу без уверенности, но с готовностью учиться.",
+              "desire": "Может возникнуть желание почувствовать себя без груза прежних определений.",
+              "displayName": "Шут",
+              "fear": "За свежим началом может скрываться тревога о неготовности или потере направления.",
+              "isReversed": true,
+              "keywordIds": [
+                "haste",
+                "scatter",
+                "avoidance"
+              ],
+              "orientationExpression": "Энергия начала может сбиться с пути из-за колебаний или необдуманной спешки.",
+              "positionIndex": 0,
+              "positionKey": "situation",
+              "relationshipDynamic": "Карта приносит свежесть в связь, напоминая не относиться к близости легкомысленно.",
+              "symbolTags": [
+                "threshold",
+                "curiosity",
+                "freedom"
+              ],
+              "tension": "Желание двигаться вперед соседствует с необходимостью проверить почву.",
+              "transforms": [
+                "avoidance",
+                "misdirection"
+              ]
+            },
+            {
+              "canonicalCardId": "major_11",
+              "coreMeaning": "Карта означает внимательное взвешивание фактов, признание последствий и ответственность.",
+              "desire": "Может хотеться ясного признания ситуации и справедливой оценки вложенного труда.",
+              "displayName": "Справедливость",
+              "fear": "Может пугать непонимание, несправедливый итог или встреча с собственной долей ответственности.",
+              "isReversed": false,
+              "keywordIds": [
+                "balance",
+                "truth",
+                "accountability"
+              ],
+              "orientationExpression": "Ясные критерии и честная ответственность делают возможной взвешенную оценку.",
+              "positionIndex": 1,
+              "positionKey": "hidden_influence",
+              "relationshipDynamic": "Карта проявляет взаимность и ответственность, оставляя место опыту обеих сторон.",
+              "symbolTags": [
+                "balance",
+                "truth",
+                "accountability"
+              ],
+              "tension": "Необходимо найти равновесие между объективными нормами и тонкостями человеческих обстоятельств.",
+              "transforms": []
+            },
+            {
+              "canonicalCardId": "wands_01",
+              "coreMeaning": "Говорит о первой искре ещё несформированной воли и тепле свежего начала.",
+              "desire": "Может хотеться превратить внутренний жар в настоящее начало.",
+              "displayName": "Туз Жезлов",
+              "fear": "Может тревожить, что искра угаснет или захлебнётся избыточным пламенем.",
+              "isReversed": false,
+              "keywordIds": [
+                "spark",
+                "agency",
+                "momentum"
+              ],
+              "orientationExpression": "Сдержанная воля удерживает несформированную искру живой и управляемой.",
+              "positionIndex": 2,
+              "positionKey": "challenge",
+              "relationshipDynamic": "Приносит в связь свежую смелость и предлагает проверять тепло, а не навязывать его.",
+              "symbolTags": [
+                "creation",
+                "vitality",
+                "will"
+              ],
+              "tension": "Желание сразу действовать соседствует с нуждой сберечь искру.",
+              "transforms": []
+            },
+            {
+              "canonicalCardId": "wands_12",
+              "coreMeaning": "Говорит об огне в движении; место прибытия ещё не дом.",
+              "desire": "Может хотеться превратить неспокойный жар в осмысленную дорогу.",
+              "displayName": "Рыцарь Жезлов",
+              "fear": "Тревогу может вызывать страх сгореть в пути, никуда не прибыть или просто бежать.",
+              "isReversed": false,
+              "keywordIds": [
+                "threshold",
+                "desire",
+                "direction"
+              ],
+              "orientationExpression": "Направленное движение превращает огонь в живой путь, не принимая его за дом.",
+              "positionIndex": 3,
+              "positionKey": "strength",
+              "relationshipDynamic": "Между людьми может подняться сильный пыл; он движется лучше, когда не обжигает то, мимо чего проходит.",
+              "symbolTags": [
+                "movement",
+                "desire",
+                "direction"
+              ],
+              "tension": "Огонь вперёд спорит с памятью о том, что укоренение — другое дело.",
+              "transforms": []
+            },
+            {
+              "canonicalCardId": "cups_09",
+              "coreMeaning": "Говорит о полной чаше как о личной достаточности, не о показном счастье.",
+              "desire": "Может хотеться спокойно вкусить эмоциональную полноту внутри себя.",
+              "displayName": "Девятка Кубков",
+              "fear": "Тревогу может вызывать исчезновение полноты или вид одиночной победы.",
+              "isReversed": false,
+              "keywordIds": [
+                "enough",
+                "joy"
+              ],
+              "orientationExpression": "Внутренняя достаточность держит полную чашу спокойной, не превращая её в сцену.",
+              "positionIndex": 4,
+              "positionKey": "direction",
+              "relationshipDynamic": "Человек может принести в связь личную эмоциональную наполненность, не требуя, чтобы связь сама производила эту ценность.",
+              "symbolTags": [
+                "joy",
+                "abundance",
+                "solitude"
+              ],
+              "tension": "Защита личной достаточности соседствует с нуждой не выходить на сцену обмена.",
+              "transforms": []
+            }
+          ],
+          "languageCode": "ru",
+          "memory": {
+            "entries": [],
+            "included": false,
+            "priorReadingCount": 0
+          },
+          "narrativeTarotVersion": 2,
+          "policy": {
+            "rules": [
+              "do_not_invent_cards",
+              "do_not_invent_position_roles",
+              "do_not_invent_relationships",
+              "do_not_invent_recurrence",
+              "do_not_invent_memory_or_history",
+              "no_deterministic_prophecy",
+              "distinguish_evidence_from_reflective_guidance",
+              "answer_in_requested_language",
+              "do_not_expose_internal_identifiers"
+            ],
+            "version": "narrative_policy_v1"
+          },
+          "question": {
+            "hasRealQuestion": true,
+            "kind": "relationship",
+            "text": "Что за чувства между нами?",
+            "topic": null
+          },
+          "recurringCards": [],
+          "recurringThemes": [],
+          "relationships": [
+            {
+              "kind": "conflict",
+              "leftCardId": "major_00",
+              "leftPositionKey": "situation",
+              "rightCardId": "wands_01",
+              "rightPositionKey": "challenge",
+              "strength": 0.39999999999999997
+            }
+          ],
+          "serializerVersion": 1,
+          "spread": {
+            "cardCount": 5,
+            "geometryHook": "linearRow",
+            "interpretationOrder": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "lengthBand": "full",
+            "positions": [
+              {
+                "index": 0,
+                "positionKey": "situation",
+                "role": "context",
+                "temporal": "atemporal"
+              },
+              {
+                "index": 1,
+                "positionKey": "hidden_influence",
+                "role": "hiddenInfluence",
+                "temporal": "atemporal"
+              },
+              {
+                "index": 2,
+                "positionKey": "challenge",
+                "role": "challenge",
+                "temporal": "atemporal"
+              },
+              {
+                "index": 3,
+                "positionKey": "strength",
+                "role": "support",
+                "temporal": "atemporal"
+              },
+              {
+                "index": 4,
+                "positionKey": "direction",
+                "role": "direction",
+                "temporal": "future"
+              }
+            ],
+            "spreadId": "classical.fiveCard"
+          }
+        }
+      }
+    },
+    {
+      "manifestId": "psm_v2_06_enriched_multi_memory_en",
+      "languageCode": "en",
+      "spreadType": "single",
+      "resolvedSpreadId": "classical.single",
+      "cardCount": 1,
+      "evidenceScenarioId": null,
+      "harness": "enrichedProviderQaRequest",
+      "displayName": "The Fool",
+      "memoryIncluded": true,
+      "memoryEntryCount": 2,
+      "recurringCardCount": 1,
+      "recurringThemeCount": 1,
+      "relationshipCount": 0,
+      "questionKind": "decision",
+      "hasRealQuestion": true,
+      "questionText": "Should I stay in this relationship?",
+      "resultContractTarget": 2,
+      "providerSchemaName": "oracly_tarot_narrative_v2",
+      "memorySummariesForQa": [
+        {
+          "index": 0,
+          "kind": "memorySummary",
+          "sourceType": "coffee",
+          "contentForModel": "[INTERPRETATION][coffee] shared loyalty partner reflection coffee"
+        },
+        {
+          "index": 1,
+          "kind": "memorySummary",
+          "sourceType": "dream",
+          "contentForModel": "[INTERPRETATION][dream] shared loyalty partner reflection dream"
+        }
+      ],
+      "wirePayload": {
+        "mode": "narrative_v2",
+        "contractVersion": 1,
+        "language": "en",
+        "narrative": {
+          "cards": [
+            {
+              "canonicalCardId": "major_00",
+              "coreMeaning": "Approaching a new threshold without certainty, yet with openness to learn.",
+              "displayName": "The Fool",
+              "isReversed": false,
+              "keywordIds": [
+                "threshold",
+                "curiosity",
+                "freedom"
+              ],
+              "light": "Curiosity can make room for a fresh experience beyond familiar boundaries.",
+              "orientationExpression": "An open mind and flexibility support a lively yet measured encounter with the unknown.",
+              "positionIndex": 0,
+              "positionKey": "sign",
+              "shadow": "The wish for freedom can become a scattered leap that overlooks consequences.",
+              "symbolTags": [
+                "threshold",
+                "curiosity",
+                "freedom"
+              ],
+              "tension": "The urge to move forward coexists with the need to test the ground.",
+              "transforms": []
+            }
+          ],
+          "languageCode": "en",
+          "memory": {
+            "entries": [
+              {
+                "confidence": 0.8,
+                "contentForModel": "[INTERPRETATION][coffee] shared loyalty partner reflection coffee",
+                "epistemic": "interpretation",
+                "kind": "memorySummary",
+                "occurredAtUtc": "2026-09-21T12:00:00.000Z",
+                "sourceType": "coffee"
+              },
+              {
+                "confidence": 0.8,
+                "contentForModel": "[INTERPRETATION][dream] shared loyalty partner reflection dream",
+                "epistemic": "interpretation",
+                "kind": "memorySummary",
+                "occurredAtUtc": "2026-09-19T12:00:00.000Z",
+                "sourceType": "dream"
+              }
+            ],
+            "included": true,
+            "priorReadingCount": 2
+          },
+          "narrativeTarotVersion": 2,
+          "policy": {
+            "rules": [
+              "do_not_invent_cards",
+              "do_not_invent_position_roles",
+              "do_not_invent_relationships",
+              "do_not_invent_recurrence",
+              "do_not_invent_memory_or_history",
+              "no_deterministic_prophecy",
+              "distinguish_evidence_from_reflective_guidance",
+              "answer_in_requested_language",
+              "do_not_expose_internal_identifiers"
+            ],
+            "version": "narrative_policy_v1"
+          },
+          "question": {
+            "hasRealQuestion": true,
+            "kind": "decision",
+            "text": "Should I stay in this relationship?",
+            "topic": "love"
+          },
+          "recurringCards": [
+            {
+              "canonicalCardId": "major_00",
+              "contextsOverlap": true,
+              "occurrenceCount": 2,
+              "occurrences": [
+                {
+                  "intentionSummary": "relationship loyalty partner stay",
+                  "isReversed": false,
+                  "occurredAtUtc": "2026-09-20T12:00:00.000Z",
+                  "orientationKnown": true,
+                  "positionKey": "sign",
+                  "spreadId": "single"
+                },
+                {
+                  "intentionSummary": "relationship loyalty partner stay",
+                  "isReversed": false,
+                  "occurredAtUtc": "2026-09-18T12:00:00.000Z",
+                  "orientationKnown": true,
+                  "positionKey": "sign",
+                  "spreadId": "single"
+                }
+              ],
+              "overlapSummaryKey": "topic_match"
+            }
+          ],
+          "recurringThemes": [
+            {
+              "relatedCardIds": [],
+              "relevanceToCurrentAsk": 0.7,
+              "supportCount": 2,
+              "themeIdOrLabel": "ilişki"
+            }
+          ],
+          "relationships": [],
+          "serializerVersion": 1,
+          "spread": {
+            "cardCount": 1,
+            "geometryHook": "singlePoint",
+            "interpretationOrder": [
+              0
+            ],
+            "lengthBand": "short",
+            "positions": [
+              {
+                "index": 0,
+                "positionKey": "sign",
+                "role": "signal",
+                "temporal": "atemporal"
+              }
+            ],
+            "spreadId": "classical.single"
+          }
+        }
+      }
+    }
+  ]
+}

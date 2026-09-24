@@ -452,7 +452,7 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6E.5 — Provider writing-quality prompt refinement (no real calls)
 
-- **Status:** **IMPLEMENTED** · awaiting independent ChatGPT verify → then **6E.6**  
+- **Status:** **IMPLEMENTED** · independently pending / precede 6E.6  
 - **LOCKED — provider prose section responsibilities:**  
   - **summary** = direct answer (~1 sentence); no “This reading highlights…” boilerplate  
   - **cardReadings** = this card + position + orientation only  
@@ -467,7 +467,16 @@ Must pass existing `AiOutputQualityTarot` **plus**:
   - TR / RU idiomatic; EN anti-boilerplate  
 - **NOT changed:** Request Contract 1 · Result Contract 2 · schema · parser · transport · prophecy patterns · Flutter production  
 - **QA-only:** `tool/qa/narrative_section_distinctness.mjs` (lexical overlap diagnostics — **not** a production gate)  
-- **Next:** **6E.6** clean real-provider V2 quality rerun (new call authorization) — **NOT 6F**
+
+### 6E.6 — Real-provider writing-quality validation after 6E.5
+
+- **Status:** **EXECUTED** · **6/6** transport + structured Result V2 · writing quality **pending ChatGPT**  
+- **LOCKED:**  
+  - QA_RUN_HEAD `8a33915e…` · Manifest V2 unchanged · hard cap 6 · no retries  
+  - Historical 6E.4 / 6E.4.2 artifacts **immutable** · new `*_6e6_*` fixtures only  
+  - Q1/Q2 remain RESOLVED · Call #6 `memoryIndices:[0,1]` · “appeared twice” calibration present  
+  - Agent **does not** claim writing-quality PASS  
+- **Next:** Independent ChatGPT writing-quality review → **6F only if PASS**
 
 ### 6F — Classical live cutover (single/three/five only)
 
