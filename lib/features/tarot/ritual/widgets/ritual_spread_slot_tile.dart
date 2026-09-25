@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../art/tarot_card_face_density.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
 import '../../theme/tarot_tokens.dart';
 import 'ritual_card_shell.dart';
@@ -25,7 +26,7 @@ class RitualSpreadSlotTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = (cardSize.width * 0.12).clamp(6.0, 12.0);
+    final radius = RitualCardMetrics.compactRadius(cardSize.width);
     Widget body = card != null
         ? RitualCardFace(
             label: card!.displayName,
@@ -33,6 +34,7 @@ class RitualSpreadSlotTile extends StatelessWidget {
             reversed: card!.isReversed,
             width: cardSize.width,
             height: cardSize.height,
+            density: TarotCardFaceDensity.compact,
           )
         : Container(
             width: cardSize.width,

@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../art/tarot_card_back_art.dart';
+import '../art/tarot_card_face_density.dart';
 import '../art/tarot_major_card_art.dart';
 
 class TarotCardShell extends StatelessWidget {
@@ -98,6 +99,7 @@ class TarotCardFace extends StatelessWidget {
     this.width = 110,
     this.height = 186,
     this.radius = 28,
+    this.density = TarotCardFaceDensity.full,
   });
 
   final String label;
@@ -105,20 +107,25 @@ class TarotCardFace extends StatelessWidget {
   final double width;
   final double height;
   final double radius;
+  final TarotCardFaceDensity density;
 
   @override
   Widget build(BuildContext context) {
+    final compact = density == TarotCardFaceDensity.compact;
     return TarotCardShell(
       width: width,
       height: height,
       radius: radius,
       faceUp: true,
-      thickGold: image != null,
+      thickGold: !compact && image != null,
+      glow: !compact,
       child: image != null
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(radius - 2),
+              borderRadius:
+                  BorderRadius.circular((radius - 2).clamp(2.0, radius)),
               child: TarotMajorCardArt(
                 imageAsset: image!,
+                showChrome: !compact,
                 fallback: _labelFallback(),
               ),
             )
@@ -135,7 +142,11 @@ class TarotCardFace extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 5,
           overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.title.copyWith(fontSize: 14, color: AppColors.goldLight, height: 1.25),
+          style: AppTextStyles.title.copyWith(
+            fontSize: 14,
+            color: AppColors.goldLight,
+            height: 1.25,
+          ),
         ),
       ),
     );
