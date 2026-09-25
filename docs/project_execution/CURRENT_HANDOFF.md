@@ -1350,13 +1350,11 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 6H — Phase 6 final freeze audit: PASS · Phase 6 FROZEN · Phase 7 READY.**
+**Phase 7A — Visual forensic baseline + golden architecture: IMPLEMENTED.**
 
-Crossroads remains **picker FALSE** / **not live** until Phase 7 visual + Phase 8 E2E gates.
+Phase 6 remains **FROZEN**. Crossroads remains **picker FALSE** / **not live**.
 
-Phase 6.0–6G: **PASS** · 6E.8 quality **FROZEN** · 6F Classical live **ON (flag)** · 6F.1 cache/retry **FROZEN** · 6G Crossroads internal **YES** · 6H freeze audit **PASS**.
-
-**Next:** Phase 7 — Visual System + golden masters (Crossroads still gated from public exposure).
+**Next:** **7B** — shared Tarot visual primitives / chrome consolidation (see `docs/product/tarot/TAROT_PHASE7_IMPLEMENTATION_SLICES.md`).
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
