@@ -10,6 +10,7 @@ import '../ai_request_fingerprint.dart';
 import '../contexts/reading_ai_context.dart';
 import '../transport/ai_operation.dart';
 import '../transport/ai_proxy_request.dart';
+import '../../../tarot/narrative/live/narrative_tarot_attempt.dart';
 import 'paid_request_idempotency.dart';
 
 abstract final class OpenAiPaidRequests {
@@ -199,13 +200,15 @@ abstract final class OpenAiPaidRequests {
   }
 
   /// Narrative V2 — backend-authoritative writer; no client model hint.
+  /// [attempt] is transport idempotency only (`:nv2:a1` / `:nv2:a2`).
   static AiProxyRequest tarotNarrative({
     required Map<String, dynamic> payload,
     required String fingerprint,
+    int attempt = 1,
   }) {
     return AiProxyRequest(
       operation: AiOperation.tarotReading,
-      idempotencyKey: PaidRequestIdempotency.resolve(fingerprint),
+      idempotencyKey: NarrativeTarotAttempt.idempotencyKey(fingerprint, attempt),
       payload: payload,
     );
   }

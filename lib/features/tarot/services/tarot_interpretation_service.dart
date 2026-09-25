@@ -29,6 +29,7 @@ import '../narrative/live/narrative_tarot_live_gate.dart';
 import '../narrative/live/narrative_tarot_live_interpreter.dart';
 import '../presentation/widgets/ai_reading/ai_reading_content.dart';
 import '../presentation/widgets/card_reveal/card_reveal_spread.dart';
+import 'tarot_narrative_quality_budget.dart';
 
 class TarotInterpretationService {
   TarotInterpretationService({
@@ -84,9 +85,22 @@ class TarotInterpretationService {
       );
     }
 
+    if (NarrativeTarotLiveGate.shouldUseNarrative(session.spread)) {
+      try {
+        return await _generateNarrativeContent(
+          session: session,
+          context: context,
+          forceRefresh: forceRefresh,
+        );
+      } on InterpretationException catch (error) {
+        return _fallbackOrFail(session, context, cause: error);
+      } catch (error) {
+        return _fallbackOrFail(session, context, cause: error);
+      }
+    }
+
     try {
-      final result = await _loadInterpretation(
-        session: session,
+      final result = await _engine.interpret(
         context: context,
         forceRefresh: forceRefresh,
       );
@@ -100,8 +114,7 @@ class TarotInterpretationService {
             attempt: 1,
           );
         }
-        final retry = await _loadInterpretation(
-          session: session,
+        final retry = await _engine.interpret(
           context: context,
           forceRefresh: true,
         );
@@ -126,27 +139,41 @@ class TarotInterpretationService {
     }
   }
 
-  /// Safety already handled by callers. Routes Narrative vs legacy.
+  Future<AiReadingContent> _generateNarrativeContent({
+    required ReadingSession session,
+    required ReadingContext context,
+    bool forceRefresh = false,
+  }) {
+    final narrative = _requireNarrative();
+    return TarotNarrativeQualityBudget.generateContent(
+      narrative: narrative,
+      session: session,
+      context: context,
+      formatter: _formatter,
+      forceRefresh: forceRefresh,
+      fallbackOrFail: ({required Object cause}) =>
+          _fallbackOrFail(session, context, cause: cause),
+    );
+  }
+
+  NarrativeTarotLiveInterpreter _requireNarrative() {
+    final narrative = _narrative;
+    if (narrative == null) {
+      throw const InterpretationException(
+        type: InterpretationFailureType.retry,
+        message: 'Narrative V2 is enabled but not configured.',
+        retryable: false,
+      );
+    }
+    return narrative;
+  }
+
+  /// Legacy engine load — Narrative never enters [_retryOrFallback].
   Future<InterpretationResult> _loadInterpretation({
     required ReadingSession session,
     required ReadingContext context,
     bool forceRefresh = false,
-  }) async {
-    if (NarrativeTarotLiveGate.shouldUseNarrative(session.spread)) {
-      final narrative = _narrative;
-      if (narrative == null) {
-        throw const InterpretationException(
-          type: InterpretationFailureType.retry,
-          message: 'Narrative V2 is enabled but not configured.',
-          retryable: false,
-        );
-      }
-      return narrative.interpret(
-        session: session,
-        languageCode: context.language,
-        forceRefresh: forceRefresh,
-      );
-    }
+  }) {
     return _engine.interpret(
       context: context,
       forceRefresh: forceRefresh,
@@ -359,7 +386,7 @@ class TarotInterpretationService {
     String? language,
     bool forceRefresh = false,
     JourneyPersonalizationHints? journeyHints,
-  }) {
+  }) async {
     var context = ReadingContext.fromSession(
       session,
       language: language ?? OraclyL10n.code,
@@ -367,15 +394,32 @@ class TarotInterpretationService {
     if (journeyHints != null && !journeyHints.isEmpty) {
       context = context.withJourneyHints(journeyHints);
     }
-    return _loadInterpretation(
+    if (NarrativeTarotLiveGate.shouldUseNarrative(session.spread)) {
+      return TarotNarrativeQualityBudget.generateResult(
+        narrative: _requireNarrative(),
+        session: session,
+        context: context,
+        forceRefresh: forceRefresh,
+      );
+    }
+    final result = await _loadInterpretation(
       session: session,
       context: context,
       forceRefresh: forceRefresh,
-    ).then(ReflectiveIntelligence.guard);
+    );
+    return ReflectiveIntelligence.guard(result);
   }
 
-  Future<InterpretationResult> regenerate(ReadingSession session) {
+  Future<InterpretationResult> regenerate(ReadingSession session) async {
     final context = ReadingContext.fromSession(session);
+    if (NarrativeTarotLiveGate.shouldUseNarrative(session.spread)) {
+      return TarotNarrativeQualityBudget.generateResult(
+        narrative: _requireNarrative(),
+        session: session,
+        context: context,
+        forceRefresh: true,
+      );
+    }
     return _loadInterpretation(
       session: session,
       context: context,

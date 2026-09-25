@@ -501,12 +501,14 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 - **Live package:** `lib/features/tarot/narrative/live/` (no `narrative/shadow/` imports)
 - **Request factory:** `NarrativeTarotLiveRequestFactory` · session/reading id = `session.id` · owner = `session.userId`
 - **History:** `TarotHistoricalSnapshotLoader` + `TarotNarrativeRequestEnricher` (Phase 4)
-- **Cache:** `NarrativeTarotCacheIdentity` only after parse + Narrative quality + bridge + formatter validate
+- **Cache:** `NarrativeTarotCacheIdentity` — fresh write **only** via `commitValidated` after Reflective + AiOutputQuality PASS (candidate boundary; not after formatter alone)
+- **Provider attempts:** max **2** (`TarotNarrativeQualityBudget`) · attempt-specific client guard + HTTP `:nv2:a1|:nv2:a2` · attempt metadata not model-facing
 - **AI:** `OraclyNarrativeTarotAiService` + `OpenAiPaidRequests.tarotNarrative` (no client model hint)
 - **No legacy AI fallback** while flag ON for launch spreads
 - **Cloud deploy in 6F:** **NO**
 - **Crossroads picker:** still false
-- **Next:** Independent 6F verify → **6G** Crossroads internal Narrative (picker still false)
+- **6F.1:** Independent M1/M2/M3 remediated — pending ChatGPT 6F.1 verify
+- **Next:** Independent **6F.1** verify → **6G** Crossroads internal Narrative (picker still false)
 
 ### 6G — Crossroads internal Narrative support (still picker false)
 

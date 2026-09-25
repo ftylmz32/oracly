@@ -27,6 +27,34 @@ List<Map<String, dynamic>> solCalls() => (loadSolResults()['calls'] as List)
     .map((e) => Map<String, dynamic>.from(e as Map))
     .toList();
 
+/// Clone a frozen Result V2 map so tests never mutate the fixture on disk.
+Map<String, dynamic> cloneSolStructured({int callIndex = 0}) =>
+    Map<String, dynamic>.from(
+      jsonDecode(jsonEncode(solCalls()[callIndex]['structuredResult']))
+          as Map,
+    );
+
+/// Three-card sol clone with empty optional insights (session has no history).
+Map<String, dynamic> cloneSolThreeForEmptySession() {
+  final clone = cloneSolStructured(callIndex: 3);
+  clone['relationshipInsights'] = <dynamic>[];
+  clone['recurringCardInsights'] = <dynamic>[];
+  clone['recurringThemeInsights'] = <dynamic>[];
+  clone['memoryInsights'] = <dynamic>[];
+  clone['lifeAreas'] = <dynamic>[];
+  return clone;
+}
+
+/// Structurally valid Result V2 that fails final AiOutputQualityTarot.
+Map<String, dynamic> qualityFailStructured({int callIndex = 0}) {
+  final clone = callIndex == 3
+      ? cloneSolThreeForEmptySession()
+      : cloneSolStructured(callIndex: callIndex);
+  clone['summary'] =
+      '${clone['summary']} I am a real human speaking as your doctor.';
+  return clone;
+}
+
 TarotHistoricalSnapshotLoadResult emptyHistoryLoad() =>
     TarotHistoricalSnapshotLoadResult(
       snapshot: TarotHistoricalSnapshot(tarotReadings: const []),
@@ -67,6 +95,7 @@ class ScriptedNarrativeAi implements OraclyNarrativeTarotAiService {
   final List<AiOutcome<Map<String, dynamic>>> _outcomes;
   final payloads = <Map<String, dynamic>>[];
   final fingerprints = <String>[];
+  final attempts = <int>[];
 
   int get callCount => payloads.length;
 
@@ -74,9 +103,11 @@ class ScriptedNarrativeAi implements OraclyNarrativeTarotAiService {
   Future<AiOutcome<Map<String, dynamic>>> generateNarrativeTarotReading({
     required Map<String, dynamic> payload,
     required String fingerprint,
+    int attempt = 1,
   }) async {
     payloads.add(payload);
     fingerprints.add(fingerprint);
+    attempts.add(attempt);
     final index = payloads.length - 1;
     return _outcomes[index < _outcomes.length ? index : _outcomes.length - 1];
   }
@@ -86,6 +117,7 @@ class ScriptedNarrativeAi implements OraclyNarrativeTarotAiService {
 class CountingInterpretationCache implements InterpretationCache {
   final _store = <String, InterpretationResult>{};
   final writes = <String>[];
+  final writtenResults = <InterpretationResult>[];
   int reads = 0;
 
   @override
@@ -97,6 +129,7 @@ class CountingInterpretationCache implements InterpretationCache {
   @override
   Future<void> set(String cacheKey, InterpretationResult result) async {
     writes.add(cacheKey);
+    writtenResults.add(result);
     _store[cacheKey] = result;
   }
 

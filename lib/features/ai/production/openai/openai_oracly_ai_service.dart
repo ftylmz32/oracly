@@ -16,6 +16,7 @@ import '../models/palm_ai_analysis.dart';
 import '../oracly_ai_service.dart';
 import '../oracly_narrative_tarot_ai_service.dart';
 import '../transport/ai_transport.dart';
+import '../../../tarot/narrative/live/narrative_tarot_attempt.dart';
 import 'openai_image_analysis.dart';
 import 'openai_paid_requests.dart';
 import 'openai_service_requests.dart';
@@ -164,16 +165,19 @@ class OpenAiOraclyAiService
   Future<AiOutcome<Map<String, dynamic>>> generateNarrativeTarotReading({
     required Map<String, dynamic> payload,
     required String fingerprint,
+    int attempt = 1,
   }) {
+    NarrativeTarotAttempt.assertValid(attempt);
     return _guard.runOutcome(
-      'tarot-narrative:$fingerprint',
+      NarrativeTarotAttempt.guardKey(fingerprint, attempt),
       kind: AiRequestKind.tarot,
-      fingerprint: fingerprint,
+      fingerprint: NarrativeTarotAttempt.guardFingerprint(fingerprint, attempt),
       () async {
         return _transport.execute(
           OpenAiPaidRequests.tarotNarrative(
             payload: payload,
             fingerprint: fingerprint,
+            attempt: attempt,
           ),
         );
       },

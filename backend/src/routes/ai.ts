@@ -23,6 +23,10 @@ import { createGlobalConcurrencyGate } from '../middleware/global-concurrency.js
 import { createGlobalRpmGate } from '../middleware/global-rpm.js';
 import { createIdentityRateLimit } from '../middleware/rate-limit.js';
 import { createResponseReplayRepository, type ResponseReplayRepository } from '../middleware/response-replay-repository.js';
+import {
+  narrativeDuplicateFingerprint,
+  requireNarrativeAttemptInLockedEnv,
+} from '../narrative-tarot-attempt.js';
 import { createSharedWindowStore, type SharedWindowStore } from '../rate-limit/shared-window-store.js';
 
 export type AiRouteOptions = {
@@ -100,6 +104,23 @@ export async function registerAiRoutes(
         const idemKey =
           parseIdempotencyKey(request.headers['idempotency-key']) ??
           (validated.operation === 'soulmate_draw' ? fingerprint : null);
+        // Phase 6F.1 — Narrative V2 attempt is transport-only (never semantic).
+        let duplicateFingerprint = fingerprint;
+        if (
+          validated.operation === 'tarot_reading' &&
+          validated.mode === 'narrative_v2'
+        ) {
+          const narrativeAttempt = requireNarrativeAttemptInLockedEnv(
+            config,
+            idemKey,
+          );
+          if (narrativeAttempt != null) {
+            duplicateFingerprint = narrativeDuplicateFingerprint(
+              fingerprint,
+              narrativeAttempt,
+            );
+          }
+        }
         let replayAttempt: string | null = null;
         if (idemKey) {
           const claim = await replay.claim(identity, idemKey);
@@ -110,7 +131,7 @@ export async function registerAiRoutes(
           if (claim.kind === 'in_progress') return reply.code(409).send(errorEnvelope(ErrorCode.rateLimited));
           replayAttempt = claim.attemptId;
         }
-        if (await rejectDuplicate(request, reply, validated.operation, fingerprint)) {
+        if (await rejectDuplicate(request, reply, validated.operation, duplicateFingerprint)) {
           return;
         }
         if (await rejectExpensive(request, reply, validated.operation)) {

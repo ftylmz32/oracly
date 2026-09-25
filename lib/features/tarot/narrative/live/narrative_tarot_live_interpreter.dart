@@ -1,4 +1,4 @@
-/// Phase 6F — live Narrative V2 interpreter (isolated from legacy free-form).
+/// Phase 6F — live Narrative V2 interpreter (cache commit after final quality).
 library;
 
 import '../../../ai/production/oracly_narrative_tarot_ai_service.dart';
@@ -13,9 +13,11 @@ import '../result/narrative_tarot_quality_validator.dart';
 import '../result/narrative_tarot_result_bridge.dart';
 import '../result/narrative_tarot_result_error.dart';
 import '../result/narrative_tarot_result_parser.dart';
+import 'narrative_tarot_attempt.dart';
+import 'narrative_tarot_live_candidate.dart';
 import 'narrative_tarot_live_request_factory.dart';
 
-/// Single-attempt Narrative provider path. Service layer owns quality retry.
+/// Returns candidates only — [commitValidated] owns the cache write.
 class NarrativeTarotLiveInterpreter {
   NarrativeTarotLiveInterpreter({
     required OraclyNarrativeTarotAiService ai,
@@ -35,11 +37,13 @@ class NarrativeTarotLiveInterpreter {
   final InterpretationFormatter _formatter;
   final DateTime Function() _clock;
 
-  Future<InterpretationResult> interpret({
+  Future<NarrativeTarotLiveCandidate> interpret({
     required ReadingSession session,
     required String languageCode,
     bool forceRefresh = false,
+    int attempt = 1,
   }) async {
+    NarrativeTarotAttempt.assertValid(attempt);
     final historyLoad = await _historyLoader.load(
       currentOwnerId: session.userId,
     );
@@ -52,12 +56,19 @@ class NarrativeTarotLiveInterpreter {
     final cacheKey = NarrativeTarotCacheIdentity.keyFor(built.request);
     if (!forceRefresh) {
       final cached = await _cache.get(cacheKey);
-      if (cached != null) return cached;
+      if (cached != null) {
+        return NarrativeTarotLiveCandidate(
+          result: cached,
+          cacheKey: cacheKey,
+          fromCache: true,
+        );
+      }
     }
 
     final outcome = await _ai.generateNarrativeTarotReading(
       payload: Map<String, dynamic>.from(built.wirePayload),
       fingerprint: cacheKey,
+      attempt: attempt,
     );
     if (outcome.isFailure) {
       throw InterpretationException(
@@ -66,18 +77,16 @@ class NarrativeTarotLiveInterpreter {
         retryable: true,
       );
     }
-    final raw = outcome.value!;
     try {
-      final structured = NarrativeTarotResultParser.parse(raw);
+      final structured = NarrativeTarotResultParser.parse(outcome.value!);
       NarrativeTarotQualityValidator.validate(
         request: built.request,
         result: structured,
       );
-      final requestId = 'narrative_${_clock().millisecondsSinceEpoch}';
       final bridged = NarrativeTarotResultBridge.toInterpretationResult(
         request: built.request,
         result: structured,
-        requestId: requestId,
+        requestId: 'narrative_${_clock().millisecondsSinceEpoch}',
         sessionId: session.id,
         generatedAt: _clock().toUtc(),
       );
@@ -85,19 +94,34 @@ class NarrativeTarotLiveInterpreter {
         throw const InterpretationException(
           type: InterpretationFailureType.invalidResponse,
           message: 'Narrative result failed formatter validation.',
+          retryable: true,
         );
       }
-      await _cache.set(cacheKey, bridged);
-      return bridged;
+      return NarrativeTarotLiveCandidate(
+        result: bridged,
+        cacheKey: cacheKey,
+        fromCache: false,
+      );
     } on NarrativeTarotResultException catch (e) {
       throw InterpretationException(
         type: InterpretationFailureType.invalidResponse,
         message: 'Narrative quality rejected: ${e.kind.name}',
         cause: e,
-        retryable: false,
+        retryable: true,
       );
     }
   }
+
+  /// Cache only the final Reflective + AiOutputQuality-approved result.
+  Future<void> commitValidated(
+    NarrativeTarotLiveCandidate candidate,
+    InterpretationResult finalResult,
+  ) async {
+    if (candidate.fromCache) return;
+    await _cache.set(candidate.cacheKey, finalResult);
+  }
+
+  Future<void> invalidateKey(String cacheKey) => _cache.invalidate(cacheKey);
 
   Future<void> invalidate({
     required ReadingSession session,

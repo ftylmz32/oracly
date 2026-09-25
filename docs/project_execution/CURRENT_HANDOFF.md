@@ -1,7 +1,7 @@
 # CURRENT HANDOFF
 
 **Living state — factual only**
-**Updated:** 2026-09-25 — Tarot Phase 6F Classical Narrative V2 live cutover · pending independent verification
+**Updated:** 2026-09-25 — Tarot Phase 6F.1 Narrative cache/retry hardening · pending independent verification
 
 ---
 
@@ -1350,19 +1350,16 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT verification of Phase 6F** — Classical Narrative V2 live cutover.
+**Independent ChatGPT verification of Phase 6F.1** — Narrative final-quality cache boundary + real two-attempt retry.
 
-6F: **IMPLEMENTED** · flag `tarot_narrative_v2` default true · single/three/five live · seven/celtic legacy · Crossroads picker false · frozen Sol writer locked-env fail-closed · **0** real provider calls · Cloud deploy **NO**.
+6F: Classical live wired · Independent review found **M1** (cache before final quality), **M2** (forceRefresh not genuine), **M3** (unbounded nested retry).
 
-6E.8 independent: provider quality **FROZEN** (`gpt-5.6-sol` / `none`).
+6F.1: **IMPLEMENTED** · candidate + `commitValidated` after Reflective+AiOutputQuality · max 2 provider attempts · attempt-specific guard/idempotency/duplicate · locked `a3` fail-closed · **0** real provider calls · **NOT 6G**.
 
-Do **not** begin **6G** until independent 6F PASS. Picker remains false in 6G.
+Do **not** begin **6G** until independent **6F.1** PASS. Picker remains false in 6G.
 
-Phase 6.0–6E.1: **PASS** · 6E.2 writing quality: **NOT PASS** · 6E.3/6E.3.1: **VERIFIED** · 6E.4: **0/6 transport** · 6E.4.1: **PASS** · 6E.4.2: **6/6 structured** · 6E.5: **prompt refine** · 6E.6: **6/6 structured** · 6E.7: **model isolation** · 6E.8: **quality FROZEN** · 6F: **wired** (pending verify) · live Classical V2: **YES (flag)** · Crossroads: **NOT LIVE**.
+Phase 6.0–6E.1: **PASS** · 6E.8: **quality FROZEN** · 6F: **wired** · 6F.1: **remediated** (pending verify) · live Classical V2: **YES (flag)** · Crossroads: **NOT LIVE**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** begin Phase 6F until independent writing-quality PASS.
-Do **not** claim provider quality PASS from agent automated gates alone.
-Do **not** wire live Tarot Narrative V2 path until an approved 6F cutover slice.
 Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.

@@ -942,6 +942,36 @@ Evidence: `NARRATIVE_PROVIDER_SHADOW_QA_6E6_V2.md` · `tarot_narrative_provider_
 
 ---
 
+## 13.23 — Phase 6F.1 Narrative final-quality cache + two-attempt retry
+
+**Date:** 2026-09-25 · **Kind:** remediation · **REAL PROVIDER CALLS: 0**
+
+Independent ChatGPT review of 6F found three live-path defects (not product-scope failures):
+
+| ID | Defect |
+|---|---|
+| **M1** | Cache write occurred after Narrative structural/formatter gates but **before** `ReflectiveIntelligence.guard` + `AiOutputQualityTarot` |
+| **M2** | `forceRefresh` quality retry was not a genuine second provider generation (same client `AiRequestGuard` fingerprint + same HTTP `Idempotency-Key` → backend response replay / duplicate body fingerprint) |
+| **M3** | Retry control flow could re-enter `_retryOrFallback` → unbounded nested `_loadInterpretation` (correctness depended on accidental rate limits) |
+
+### 6F.1 remediation
+
+| Lock | Behavior |
+|---|---|
+| Cache | Fresh Narrative results return `NarrativeTarotLiveCandidate`; `commitValidated` only after Reflective + AiOutputQuality PASS |
+| Attempt budget | `kMaxNarrativeProviderAttempts = 2` in `TarotNarrativeQualityBudget` — no nested legacy retry for Narrative |
+| Transport attempt | Capability `attempt: 1|2` — guard key `…:aN`, guard fp `…:narrative-attempt-N`, HTTP `Idempotency-Key` `<base>:nv2:aN` |
+| Backend | Duplicate-guard fingerprint attempt-aware; locked env rejects missing/`a3+` attempt suffix (`invalid_request`); response replay keys distinct per attempt |
+| Model-facing | Attempt **never** in request body / prompt / Result Contract / memory / semantic cache key |
+| Scope | Classical live only · seven/celtic unchanged · Crossroads not live · no 6G · prompt/schema/memory/Result Contract/frozen Sol unchanged |
+
+| Fact | Value |
+|---|---|
+| 6G | **NO** |
+| Next | Independent ChatGPT **6F.1** verification → then **6G** (picker false) |
+
+---
+
 ## 14 — Live path firewall (6.0)
 
 - No wiring · no flag · no picker · no provider/prompt/UI change  
