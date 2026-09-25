@@ -102,6 +102,13 @@ mixin TarotTableSceneActions on ConsumerState<TarotTableScene> {
     final ready = await ritual.settleAfterReveal(context);
     if (!mounted) return;
     if (ready) {
+      final count = spread?.cardCount ??
+          TarotScope.maybeOf(context)?.reading.session?.spread.cardCount ??
+          1;
+      // Multi-card: release actor ownership immediately (slots own faces).
+      if (count > 1) {
+        flightKey.currentState?.resetForNextDraw();
+      }
       setState(() {
         phase = TarotTablePhase.reading;
         focusCard = data;

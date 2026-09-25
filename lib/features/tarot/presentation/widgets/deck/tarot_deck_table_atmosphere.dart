@@ -1,7 +1,7 @@
 /// Luxurious table bed — velvet nap, candle wash, gold rim reflection.
+///
+/// Phase 7D: zero ImageFiltered / BackdropFilter — gradients + BoxShadow only.
 library;
-
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -33,58 +33,57 @@ class TarotDeckTableAtmosphere extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Deep contact shadow into the table.
-            ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 22, sigmaY: 16),
-              child: Container(
-                width: width * 0.92,
-                height: height * 0.72,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(99),
-                  color: Colors.black.withValues(alpha: 0.48 * a),
-                ),
+            // Deep contact shadow into the table (no ImageFilter blur).
+            Container(
+              width: width * 0.92,
+              height: height * 0.72,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(99),
+                color: Colors.black.withValues(alpha: 0.42 * a),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.38 * a),
+                    blurRadius: 28,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
             ),
-            // Velvet body — plum-obsidian nap.
-            ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 14, sigmaY: 11),
-              child: Container(
-                width: width,
-                height: height,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(90),
-                  gradient: RadialGradient(
-                    center: const Alignment(0, -0.12),
-                    radius: 0.98,
-                    colors: [
-                      const Color(0xFF3A142E).withValues(alpha: 0.62 * a),
-                      const Color(0xFF1A0A16).withValues(alpha: 0.78 * a),
-                      OraclySignaturePalette.obsidian.withValues(alpha: 0.55 * a),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.38, 0.72, 1.0],
-                  ),
+            // Velvet body — plum-obsidian nap via soft radial only.
+            Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(90),
+                gradient: RadialGradient(
+                  center: const Alignment(0, -0.12),
+                  radius: 0.98,
+                  colors: [
+                    const Color(0xFF3A142E).withValues(alpha: 0.62 * a),
+                    const Color(0xFF1A0A16).withValues(alpha: 0.78 * a),
+                    OraclySignaturePalette.obsidian.withValues(alpha: 0.55 * a),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.38, 0.72, 1.0],
                 ),
               ),
             ),
             // Candlelight spill — warm, low, from one side.
-            ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 28, sigmaY: 22),
-              child: Align(
-                alignment: candleBias,
-                child: Container(
-                  width: width * 0.55,
-                  height: height * 0.7,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        TarotTokens.tableCandleWarm.withValues(alpha: 0.14 * a),
-                        TarotTokens.tableCandleDeep.withValues(alpha: 0.07 * a),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.42, 1.0],
-                    ),
+            Align(
+              alignment: candleBias,
+              child: Container(
+                width: width * 0.55,
+                height: height * 0.7,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      TarotTokens.tableCandleWarm.withValues(alpha: 0.14 * a),
+                      TarotTokens.tableCandleDeep.withValues(alpha: 0.07 * a),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.42, 1.0],
                   ),
                 ),
               ),

@@ -14,6 +14,14 @@ abstract final class CardFlightMath {
   static const liftPx = 8.0;
   static const maxTiltRad = 8 * math.pi / 180;
 
+  /// Final single-card composition after a completed flight (t = 1, no target).
+  /// Reduced motion must land here — never an alternate like (0, −120).
+  static const singleSettledOffset = Offset(0, -36);
+
+  /// Semantic destination shared by normal and reduced-motion paths.
+  static Offset settledOffset(Offset? placeTarget) =>
+      placeTarget ?? singleSettledOffset;
+
   static CardFlightPhase phaseForProgress(double t) {
     if (t < 0.18) return CardFlightPhase.extracting;
     if (t < 0.42) return CardFlightPhase.centering;
@@ -42,7 +50,7 @@ abstract final class CardFlightMath {
         Curves.easeInOut.transform(((t - 0.72) / 0.28).clamp(0.0, 1.0));
     var o = Offset(base.dx * (1 - center), base.dy);
     o += Offset(0, -120 * extract);
-    o = Offset.lerp(o, const Offset(0, -36), center)!;
+    o = Offset.lerp(o, singleSettledOffset, center)!;
     if (placeTarget != null && placeT > 0) {
       o = Offset.lerp(o, placeTarget, placeT)!;
     }

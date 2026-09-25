@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
 import '../gestures/ritual_draw_gesture.dart';
 import 'card_flight_actor.dart';
+import 'card_flight_math.dart';
 import 'card_flight_phase.dart';
 
 mixin CardFlightActorActions on State<CardFlightActor>, TickerProvider {
@@ -57,9 +58,11 @@ mixin CardFlightActorActions on State<CardFlightActor>, TickerProvider {
     }
     face = data;
     if (widget.reducedMotion) {
+      // Same semantic destination as a completed flight — no alternate layout.
+      flight.value = 1;
       setState(() {
         phase = CardFlightPhase.placed;
-        drag = widget.placeTarget ?? const Offset(0, -120);
+        drag = CardFlightMath.settledOffset(widget.placeTarget);
       });
       widget.onFlightComplete(face!);
       return;

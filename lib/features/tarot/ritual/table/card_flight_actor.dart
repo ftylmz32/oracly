@@ -95,7 +95,12 @@ class CardFlightActorState extends State<CardFlightActor>
       placeTarget: widget.placeTarget,
     );
 
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      enabled: canDrag,
+      label: 'Draw card',
+      hint: 'Drag upward to draw',
+      child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onPanStart: canDrag ? (_) => onPanStart() : null,
       onPanUpdate: canDrag ? onPanUpdate : null,
@@ -129,6 +134,7 @@ class CardFlightActorState extends State<CardFlightActor>
           ),
         ),
       ),
+    ),
     );
   }
 }

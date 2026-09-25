@@ -11,9 +11,9 @@ import '../../../../core/theme/oracly_reduced_motion.dart';
 import '../../shared/tarot_scope.dart';
 import '../../theme/tarot_tokens.dart';
 import '../tarot_ritual_controller.dart';
-import '../tarot_ritual_stage.dart';
 import '../widgets/ritual_spread_slots.dart';
 import 'card_flight_actor.dart';
+import 'tarot_table_actor_ownership.dart';
 import 'tarot_table_background.dart';
 import 'tarot_table_deck_stage.dart';
 import 'tarot_table_hint.dart';
@@ -59,13 +59,13 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
     final spreadType =
         spread ?? TarotScope.maybeOf(context)?.reading.session?.spread;
     final total = spreadType?.cardCount ?? 1;
-    final showFlight = phase == TarotTablePhase.draw ||
-        phase == TarotTablePhase.reading ||
-        (_ritual.visual.stage == TarotRitualStage.draw ||
-            _ritual.visual.stage == TarotRitualStage.reveal ||
-            _ritual.visual.stage == TarotRitualStage.place);
+    final showFlight = TarotTableActorOwnership.ownsActiveCard(
+      phase: phase,
+      ritualStage: _ritual.visual.stage,
+      cardCount: total,
+      placedCount: _ritual.placed.length,
+    );
 
-    // Own Scaffold + SafeArea — persistent table keeps its own shell (7B A).
     return Scaffold(
       backgroundColor: TarotTokens.tableVoid,
       body: Stack(
