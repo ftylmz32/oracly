@@ -120,7 +120,7 @@ class _ReadingHistoryListCardState extends State<ReadingHistoryListCard> {
                                       SizedBox(width: AppSpacing.sm),
                                       Expanded(
                                         child: Text(
-                                          widget.entry.cardName,
+                                          widget.entry.displayTitle,
                                           style: AppTextStyles.labelLarge.copyWith(
                                             color: AppColors.goldLight,
                                             fontWeight: FontWeight.w700,
@@ -146,6 +146,18 @@ class _ReadingHistoryListCardState extends State<ReadingHistoryListCard> {
                                       color: AppColors.textHint,
                                     ),
                                   ),
+                                  if (widget.entry.primaryCardLabel !=
+                                      widget.entry.displayTitle) ...[
+                                    SizedBox(height: AppSpacing.xs),
+                                    Text(
+                                      widget.entry.primaryCardLabel,
+                                      style: AppTextStyles.labelMedium.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                   SizedBox(height: AppSpacing.xs),
                                   Text(
                                     widget.entry.typeLabel,

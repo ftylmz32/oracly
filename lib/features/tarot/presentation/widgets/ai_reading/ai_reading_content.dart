@@ -43,6 +43,7 @@ class AiReadingContent {
     this.userQuestion,
     this.interpretationSource = InterpretationSource.local,
     this.deliveryKind = TarotReadingDeliveryKind.interpretation,
+    this.sourceAttributionKnown = true,
   });
 
   final String cardName;
@@ -66,6 +67,9 @@ class AiReadingContent {
   final String? userQuestion;
   final InterpretationSource interpretationSource;
   final TarotReadingDeliveryKind deliveryKind;
+
+  /// False when history provenance is unknown — omit AI/local claim.
+  final bool sourceAttributionKnown;
 
   bool get isAiInterpretation =>
       interpretationSource == InterpretationSource.ai;

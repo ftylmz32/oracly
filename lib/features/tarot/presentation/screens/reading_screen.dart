@@ -36,6 +36,7 @@ import '../../theme/tarot_tokens.dart';
 import '../animations/tarot_transition.dart';
 import '../widgets/ai_reading/ai_reading_content.dart';
 import '../widgets/ai_reading/reading_premium_body.dart';
+import '../widgets/ai_reading/reading_result_mode.dart';
 import '../widgets/ai_reading/reading_background.dart';
 import '../widgets/ai_reading/reading_element_glow.dart';
 import '../widgets/ai_reading/reading_element_theme.dart';
@@ -349,6 +350,9 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
           .saveFromSession(
             session: completed,
             aiSummary: content.fullInterpretation ?? content.generalMeaning,
+            resultMode: ReadingResultModeResolver.of(completed.spread).name,
+            interpretationSource: content.interpretationSource.name,
+            deliveryKind: content.deliveryKind.name,
           );
       if (saved != null) {
         await ref

@@ -4,16 +4,16 @@ library;
 import '../../../../core/copy/session_ending_copy.dart';
 import '../../../../core/domain/models/reading.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../content/tarot/data/tarot_content_catalogue.dart';
-import '../../copy/tarot_polish_copy.dart';
 import '../../copy/tarot_l10n.dart';
-import '../../domain/models/reading_session.dart';
 import '../../interpretation/formatters/interpretation_formatter.dart';
 import '../../interpretation/models/interpretation_result.dart';
 import '../../reading/reading_question.dart';
 import '../widgets/ai_reading/ai_reading_content.dart';
 import '../widgets/reading_history/reading_history_data.dart';
+import 'saved_reading_card_blocks.dart';
+import 'saved_reading_content_factory.dart';
 import 'saved_reading_drawn_cards.dart';
+import 'saved_reading_provenance.dart';
 
 abstract final class SavedReadingParser {
   SavedReadingParser._();
@@ -23,10 +23,14 @@ abstract final class SavedReadingParser {
     ReadingModel? model,
   }) {
     final raw = (model?.aiSummary ?? entry.aiSummary).trim();
+    final knownSource = SavedReadingProvenance.parseSource(
+      model?.interpretationSource,
+    );
     final parsed = const InterpretationFormatter().parseRawResponse(
       rawText: raw,
       requestId: entry.id,
       sessionId: model?.sessionId ?? entry.id,
+      source: knownSource ?? InterpretationSource.local,
     );
     final persistedSpread = model?.spreadType ?? entry.spreadType;
     final spreadLabel = TarotL10n.spreadFromStorage(persistedSpread);
@@ -39,18 +43,21 @@ abstract final class SavedReadingParser {
     final drawn = snapshots.isNotEmpty
         ? SavedReadingDrawnCards.fromSnapshots(snapshots)
         : SavedReadingDrawnCards.fromEntry(entry);
-    final cardsBody = _cardsBody(snapshots);
+    final cardsBody = SavedReadingCardBlocks.cardsBody(snapshots);
+    final delivery = SavedReadingProvenance.parseDelivery(model?.deliveryKind);
 
     if (parsed != null) {
-      return _fromResult(
-        parsed,
-        entry,
-        displayType,
-        spreadLabel,
-        readingType,
-        cardsBody,
-        intention,
-        drawn,
+      return SavedReadingContentFactory.fromResult(
+        result: parsed,
+        entry: entry,
+        displayType: displayType,
+        spreadLabel: spreadLabel,
+        readingType: readingType,
+        cardsBody: cardsBody,
+        intention: intention,
+        drawn: drawn,
+        knownSource: knownSource,
+        deliveryKind: delivery,
       );
     }
 
@@ -74,68 +81,9 @@ abstract final class SavedReadingParser {
       userQuestion: intention,
       promptQuestion: '',
       drawnCards: drawn,
+      interpretationSource: knownSource ?? InterpretationSource.local,
+      deliveryKind: delivery ?? TarotReadingDeliveryKind.interpretation,
+      sourceAttributionKnown: knownSource != null,
     );
-  }
-
-  static AiReadingContent _fromResult(
-    InterpretationResult result,
-    ReadingHistoryEntry entry,
-    String displayType,
-    String spreadLabel,
-    String? readingType,
-    String cardsBody,
-    String? intention,
-    List<TarotDrawnCard> drawn,
-  ) {
-    return AiReadingContent(
-      cardName: entry.cardName,
-      tagline: displayType,
-      generalMeaning: result.summary,
-      love: result.love,
-      career: result.career,
-      money: result.money,
-      spiritualGuidance: result.spiritualGuidance,
-      luckyEnergy: result.luckyEnergy,
-      dailyAdvice: result.dailyFocus.isNotEmpty
-          ? result.dailyFocus
-          : result.advice,
-      closingMessage: result.closingMessage.isNotEmpty
-          ? result.closingMessage
-          : SessionEndingCopy.closingFallback,
-      imageAsset: entry.cardImageAsset,
-      rarityColor: AppColors.purpleLight,
-      fullInterpretation: result.rawText,
-      cardReadings: result.health.trim().isNotEmpty ? result.health : cardsBody,
-      spreadLabel: spreadLabel,
-      readingTheme: readingType ?? spreadLabel,
-      userQuestion: intention,
-      promptQuestion: result.warnings,
-      interpretationSource: result.source,
-      drawnCards: drawn,
-    );
-  }
-
-  static String _cardsBody(List<ReadingCardSnapshot> cards) {
-    if (cards.isEmpty) return '';
-    return [for (final card in cards) _snapshotBlock(card)].join('\n\n');
-  }
-
-  static String _snapshotBlock(ReadingCardSnapshot card) {
-    final orientation = card.isReversed ? 'Ters' : 'Düz';
-    final pos = card.positionLabel ?? TarotPolishCopy.cardField;
-    if (card.cardId <= 0) {
-      return '${TarotPolishCopy.cardField}: ${card.cardName} ($orientation)';
-    }
-    final content = TarotContentCatalogue.forPersistedCard(
-      cardId: card.cardId,
-      imageAsset: card.cardImageAsset,
-    );
-    final meaning =
-        card.isReversed ? content.reversedMeaning : content.uprightMeaning;
-    return '${TarotPolishCopy.cardField}: ${card.cardName}\n'
-        '${TarotPolishCopy.orientationLabel}: $orientation\n'
-        '${TarotPolishCopy.coreMeaning}: $meaning\n'
-        '${TarotPolishCopy.positionMeaning}: $pos konumunda '
-        '${card.cardName} bu basamağı daha net gösterir.';
   }
 }

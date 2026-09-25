@@ -1,49 +1,11 @@
 /// OR-1170 — Saved tarot reading model (supports multi-card sessions).
 library;
 
+import 'reading_card_snapshot.dart';
+import 'reading_model_json.dart';
 import 'ritual_journal_metadata.dart';
 
-class ReadingCardSnapshot {
-  const ReadingCardSnapshot({
-    required this.cardId,
-    required this.cardName,
-    required this.cardImageAsset,
-    required this.positionIndex,
-    this.positionLabel,
-    this.positionKey,
-    this.isReversed = false,
-  });
-
-  final int cardId;
-  final String cardName;
-  final String cardImageAsset;
-  final int positionIndex;
-  final String? positionLabel;
-  final String? positionKey;
-  final bool isReversed;
-
-  Map<String, dynamic> toJson() => {
-        'cardId': cardId,
-        'cardName': cardName,
-        'cardImageAsset': cardImageAsset,
-        'positionIndex': positionIndex,
-        'positionLabel': positionLabel,
-        if (positionKey != null) 'positionKey': positionKey,
-        'isReversed': isReversed,
-      };
-
-  factory ReadingCardSnapshot.fromJson(Map<String, dynamic> json) {
-    return ReadingCardSnapshot(
-      cardId: json['cardId'] as int? ?? 0,
-      cardName: json['cardName'] as String? ?? '',
-      cardImageAsset: json['cardImageAsset'] as String? ?? '',
-      positionIndex: json['positionIndex'] as int? ?? 0,
-      positionLabel: json['positionLabel'] as String?,
-      positionKey: json['positionKey'] as String?,
-      isReversed: json['isReversed'] as bool? ?? false,
-    );
-  }
-}
+export 'reading_card_snapshot.dart';
 
 class ReadingModel {
   const ReadingModel({
@@ -64,6 +26,9 @@ class ReadingModel {
     this.sessionId,
     this.userId,
     this.journal = const RitualJournalMetadata(),
+    this.resultMode,
+    this.interpretationSource,
+    this.deliveryKind,
   });
 
   final String id;
@@ -83,6 +48,15 @@ class ReadingModel {
   final String? sessionId;
   final String? userId;
   final RitualJournalMetadata journal;
+
+  /// Presentation mode at save (`narrativeV2` / `legacy`). Null = unknown.
+  final String? resultMode;
+
+  /// Source at save (`ai` / `local` / `cache`). Null = unknown — do not invent.
+  final String? interpretationSource;
+
+  /// Delivery at save (`interpretation` / `recovery`). Null = unknown.
+  final String? deliveryKind;
 
   /// Primary card orientation from the saved cards snapshot.
   /// Old readings without cards default upright (false).
@@ -125,53 +99,14 @@ class ReadingModel {
       sessionId: sessionId,
       userId: userId,
       journal: journal ?? this.journal,
+      resultMode: resultMode,
+      interpretationSource: interpretationSource,
+      deliveryKind: deliveryKind,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'cardId': cardId,
-        'cardIndex': cardIndex,
-        'cardName': cardName,
-        'cardImageAsset': cardImageAsset,
-        'spreadType': spreadType,
-        'aiSummary': aiSummary,
-        'createdAt': createdAt.toIso8601String(),
-        'deckId': deckId,
-        'cards': cards.map((c) => c.toJson()).toList(),
-        'intention': intention,
-        'readingType': readingType,
-        'shuffleSeed': shuffleSeed,
-        'durationMs': durationMs,
-        'sessionId': sessionId,
-        'userId': userId,
-        'journal': journal.toJson(),
-      };
+  Map<String, dynamic> toJson() => readingModelToJson(this);
 
-  factory ReadingModel.fromJson(Map<String, dynamic> json) {
-    return ReadingModel(
-      id: json['id'] as String,
-      cardId: json['cardId'] as int? ?? 0,
-      cardIndex: json['cardIndex'] as int? ?? 0,
-      cardName: json['cardName'] as String? ?? '',
-      cardImageAsset: json['cardImageAsset'] as String? ?? '',
-      spreadType: json['spreadType'] as String? ?? 'Tek Kart',
-      aiSummary: json['aiSummary'] as String? ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
-          DateTime.now(),
-      deckId: json['deckId'] as String? ?? 'rider-waite',
-      cards: (json['cards'] as List<dynamic>? ?? [])
-          .map((e) => ReadingCardSnapshot.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      intention: json['intention'] as String?,
-      readingType: json['readingType'] as String? ?? json['intention'] as String?,
-      shuffleSeed: json['shuffleSeed'] as int?,
-      durationMs: json['durationMs'] as int?,
-      sessionId: json['sessionId'] as String?,
-      userId: json['userId'] as String?,
-      journal: RitualJournalMetadata.fromJson(
-        json['journal'] as Map<String, dynamic>?,
-      ),
-    );
-  }
+  factory ReadingModel.fromJson(Map<String, dynamic> json) =>
+      readingModelFromJson(json);
 }

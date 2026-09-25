@@ -31,6 +31,9 @@ class ReadingService {
     String? sessionId,
     String? userId,
     RitualJournalMetadata? journal,
+    String? resultMode,
+    String? interpretationSource,
+    String? deliveryKind,
   }) async {
     final enriched = journal ??
         RitualJournalEnricher.enrich(
@@ -56,6 +59,9 @@ class ReadingService {
       sessionId: sessionId,
       userId: userId,
       journal: enriched,
+      resultMode: resultMode,
+      interpretationSource: interpretationSource,
+      deliveryKind: deliveryKind,
     );
     // Gathered BEFORE saving the incoming reading, so a genuinely NEW
     // reading is never mistaken for one of the pre-existing legacy ids it
@@ -79,6 +85,9 @@ class ReadingService {
     required ReadingSession session,
     required String aiSummary,
     String? existingNote,
+    String? resultMode,
+    String? interpretationSource,
+    String? deliveryKind,
   }) async {
     if (session.drawnCards.isEmpty) return null;
     final primary = session.drawnCards.first;
@@ -86,9 +95,7 @@ class ReadingService {
     return saveReading(
       cardIndex: primary.positionIndex,
       cardId: primary.card.id,
-      cardName: session.drawnCards.length == 1
-          ? primary.card.name
-          : '${session.spread.label} · ${primary.card.name}',
+      cardName: primary.card.name,
       cardImageAsset: primary.card.image,
       spreadType: session.spread.name,
       aiSummary: aiSummary,
@@ -102,6 +109,9 @@ class ReadingService {
       ),
       shuffleSeed: session.shuffleSeed,
       durationMs: session.durationMs,
+      resultMode: resultMode,
+      interpretationSource: interpretationSource,
+      deliveryKind: deliveryKind,
       journal: RitualJournalEnricher.enrich(
         aiSummary: aiSummary,
         cardName: primary.card.name,

@@ -33,6 +33,7 @@ class ReadingPremiumSections extends StatelessWidget {
     required this.ambientPhase,
     required this.exitProgress,
     this.spread,
+    this.modeOverride,
   });
 
   final AiReadingContent content;
@@ -40,11 +41,15 @@ class ReadingPremiumSections extends StatelessWidget {
   final double sectionMaster;
   final double ambientPhase;
   final double exitProgress;
+  final ReadingResultMode? modeOverride;
 
   @override
   Widget build(BuildContext context) {
     final narrative = ReadingNarrativeSelector.select(content);
-    final v2 = ReadingResultModeResolver.isNarrativeV2(spread);
+    final v2 = ReadingResultModeResolver.isNarrativeV2(
+      spread,
+      modeOverride: modeOverride,
+    );
     // Local adjacent prose is NOT verified Narrative Evidence — V2 omits it.
     final relations = v2 ? '' : ReadingStoryRelations.of(content);
     final dim = 1 - readingPremiumGuidanceDim(sectionMaster);
@@ -124,7 +129,9 @@ class ReadingPremiumSections extends StatelessWidget {
             const ReadingPremiumClosingBreath(),
             TransparencyFootnote(
               text: TarotPolishCopy.readingFootnote(
-                fromAi: content.isAiInterpretation,
+                fromAi: content.sourceAttributionKnown
+                    ? content.isAiInterpretation
+                    : null,
               ),
             ),
           ],

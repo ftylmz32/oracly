@@ -1,4 +1,4 @@
-/// Premium reading body: question → spread → narrative stack (Phase 7E).
+/// Premium reading body: question → spread → narrative stack (Phase 7E / 7F).
 library;
 
 import 'dart:ui';
@@ -17,6 +17,7 @@ import 'ai_reading_content.dart';
 import 'tarot_insight_copy.dart';
 import 'reading_premium_header.dart';
 import 'reading_premium_sections.dart';
+import 'reading_result_mode.dart';
 import 'reading_result_spread.dart';
 
 class ReadingPremiumBody extends StatelessWidget {
@@ -28,6 +29,8 @@ class ReadingPremiumBody extends StatelessWidget {
     required this.ambientPhase,
     this.spread,
     this.exitProgress = 0,
+    this.modeOverride,
+    this.showFlowProgress = true,
   });
 
   final AiReadingContent content;
@@ -37,12 +40,19 @@ class ReadingPremiumBody extends StatelessWidget {
   final double ambientPhase;
   final double exitProgress;
 
+  /// Persisted history mode — ignores live feature flag when set.
+  final ReadingResultMode? modeOverride;
+
+  /// Live ritual chrome. History reopen keeps this false.
+  final bool showFlowProgress;
+
   @override
   Widget build(BuildContext context) {
     if (content.isSafetyResponse) {
       return _SafetyReadingBody(
         reason: content.generalMeaning,
         exitProgress: exitProgress,
+        showFlowProgress: showFlowProgress,
       );
     }
 
@@ -51,7 +61,8 @@ class ReadingPremiumBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const TarotFlowProgress(step: TarotRitualStep.reading),
+          if (showFlowProgress)
+            const TarotFlowProgress(step: TarotRitualStep.reading),
           ReadingPremiumHeader(
             content: content,
             progress: sectionMaster,
@@ -72,6 +83,7 @@ class ReadingPremiumBody extends StatelessWidget {
               sectionMaster: sectionMaster,
               ambientPhase: ambientPhase,
               exitProgress: exitProgress,
+              modeOverride: modeOverride,
             ),
           ),
           SizedBox(height: TarotTokens.screenPadding.top),
@@ -98,10 +110,12 @@ class _SafetyReadingBody extends StatelessWidget {
   const _SafetyReadingBody({
     required this.reason,
     required this.exitProgress,
+    required this.showFlowProgress,
   });
 
   final String reason;
   final double exitProgress;
+  final bool showFlowProgress;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +124,8 @@ class _SafetyReadingBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const TarotFlowProgress(step: TarotRitualStep.reading),
+          if (showFlowProgress)
+            const TarotFlowProgress(step: TarotRitualStep.reading),
           Padding(
             padding: EdgeInsets.only(
               top: AppSpacing.lg,

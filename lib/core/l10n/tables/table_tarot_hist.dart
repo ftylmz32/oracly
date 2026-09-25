@@ -13,10 +13,20 @@ const kL10nTarotHist = <String, L10nTriple>{
     'Расклад из трёх карт',
   ),
   'tarot.hist.filter.five': L10nTriple('Beş Kart', 'Five Cards', 'Пять карт'),
+  'tarot.hist.filter.seven': L10nTriple(
+    'Yedi Kart',
+    'Seven Cards',
+    'Семь карт',
+  ),
   'tarot.hist.filter.celtic': L10nTriple(
     'Kelt Haçı',
     'Celtic Cross',
     'Кельтский крест',
+  ),
+  'tarot.hist.filter.crossroads': L10nTriple(
+    'Yol Ayrımı',
+    'Crossroads',
+    'Перекрёсток',
   ),
   'tarot.hist.notes': L10nTriple(
     'Yazılmış Düşünce',

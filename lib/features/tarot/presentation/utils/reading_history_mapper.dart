@@ -47,10 +47,11 @@ abstract final class ReadingHistoryMapper {
     return switch (type) {
       TarotSpreadType.single => HistorySpreadFilter.single,
       TarotSpreadType.threeCard => HistorySpreadFilter.three,
-      TarotSpreadType.fiveCard || TarotSpreadType.crossroads =>
-        HistorySpreadFilter.five,
+      TarotSpreadType.fiveCard => HistorySpreadFilter.five,
+      TarotSpreadType.sevenCard => HistorySpreadFilter.seven,
       TarotSpreadType.celticCross => HistorySpreadFilter.celtic,
-      TarotSpreadType.sevenCard || null => HistorySpreadFilter.all,
+      TarotSpreadType.crossroads => HistorySpreadFilter.crossroads,
+      null => HistorySpreadFilter.all,
     };
   }
 
@@ -59,10 +60,10 @@ abstract final class ReadingHistoryMapper {
     return switch (type) {
       TarotSpreadType.single => Icons.filter_1_rounded,
       TarotSpreadType.threeCard => Icons.filter_3_rounded,
-      TarotSpreadType.fiveCard || TarotSpreadType.crossroads =>
-        Icons.filter_5_rounded,
+      TarotSpreadType.fiveCard => Icons.filter_5_rounded,
       TarotSpreadType.sevenCard => Icons.filter_7_rounded,
       TarotSpreadType.celticCross => Icons.grid_view_rounded,
+      TarotSpreadType.crossroads => Icons.alt_route_rounded,
       null => Icons.auto_awesome_rounded,
     };
   }
@@ -83,6 +84,8 @@ abstract final class ReadingHistoryMapper {
       if (!matchesFilter) return false;
       if (q.isEmpty) return true;
       return e.cardName.toLowerCase().contains(q) ||
+          e.primaryCardLabel.toLowerCase().contains(q) ||
+          e.displayTitle.toLowerCase().contains(q) ||
           e.spreadType.toLowerCase().contains(q) ||
           e.typeLabel.toLowerCase().contains(q) ||
           (e.readingType?.toLowerCase().contains(q) ?? false) ||

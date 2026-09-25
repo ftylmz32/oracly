@@ -88,6 +88,8 @@ class PersonalJourneyService {
       if (!matchesFilter) return false;
       if (q.isEmpty) return true;
       return e.cardName.toLowerCase().contains(q) ||
+          e.primaryCardLabel.toLowerCase().contains(q) ||
+          e.displayTitle.toLowerCase().contains(q) ||
           e.spreadType.toLowerCase().contains(q) ||
           e.typeLabel.toLowerCase().contains(q) ||
           (e.readingType?.toLowerCase().contains(q) ?? false) ||

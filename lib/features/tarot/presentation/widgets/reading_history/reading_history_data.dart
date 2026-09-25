@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/l10n/oracly_format.dart';
 import '../../../copy/tarot_l10n.dart';
+import '../../../domain/models/tarot_spread.dart';
 
 /// Spread filter categories for the history journal.
 enum HistorySpreadFilter {
@@ -14,7 +15,9 @@ enum HistorySpreadFilter {
   single('Tek Kart'),
   three('Üç Kart Açılımı'),
   five('Beş Kart'),
-  celtic('Kelt Haçı');
+  seven('Yedi Kart'),
+  celtic('Kelt Haçı'),
+  crossroads('Yol Ayrımı');
 
   const HistorySpreadFilter(this.label);
   final String label;
@@ -70,6 +73,23 @@ class ReadingHistoryEntry {
     final type = readingType?.trim();
     if (type == null || type.isEmpty || type == spreadType) return spread;
     return '$type · $spread';
+  }
+
+  /// List primary title: card for single; spread identity for multi-card.
+  String get displayTitle {
+    final parsed = TarotSpreadType.fromPersisted(spreadType);
+    if (parsed != null && parsed.cardCount > 1) {
+      return TarotL10n.spreadFromStorage(spreadType);
+    }
+    return primaryCardLabel;
+  }
+
+  /// Primary card name — strips legacy "Spread · Card" composite titles.
+  String get primaryCardLabel {
+    const sep = ' · ';
+    final i = cardName.indexOf(sep);
+    if (i > 0) return cardName.substring(i + sep.length).trim();
+    return cardName;
   }
 
   String get timeLabel => OraclyFormat.time(date);
@@ -214,6 +234,8 @@ abstract final class ReadingHistoryCatalogue {
       if (!matchesFilter) return false;
       if (q.isEmpty) return true;
       return e.cardName.toLowerCase().contains(q) ||
+          e.primaryCardLabel.toLowerCase().contains(q) ||
+          e.displayTitle.toLowerCase().contains(q) ||
           e.spreadType.toLowerCase().contains(q) ||
           e.typeLabel.toLowerCase().contains(q) ||
           (e.readingType?.toLowerCase().contains(q) ?? false) ||

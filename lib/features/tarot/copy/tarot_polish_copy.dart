@@ -80,7 +80,8 @@ abstract final class TarotPolishCopy {
   static String get sourceLocal => _t('tarot.source_local');
   static String get sourceAi => _t('tarot.source_ai');
 
-  static String readingFootnote({required bool fromAi}) {
+  static String readingFootnote({bool? fromAi}) {
+    if (fromAi == null) return disclaimer;
     final source = fromAi ? sourceAi : sourceLocal;
     return '$source $disclaimer';
   }

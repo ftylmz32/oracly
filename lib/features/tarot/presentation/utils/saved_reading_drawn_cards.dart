@@ -12,11 +12,13 @@ abstract final class SavedReadingDrawnCards {
 
   static List<TarotDrawnCard> fromSnapshots(List<ReadingCardSnapshot> cards) {
     if (cards.isEmpty) return const [];
+    final ordered = [...cards]
+      ..sort((a, b) => a.positionIndex.compareTo(b.positionIndex));
     final byId = {
       for (final card in const DeckService().createDeck()) card.id: card,
     };
     return [
-      for (final snap in cards)
+      for (final snap in ordered)
         TarotDrawnCard(
           card: byId[snap.cardId] ??
               minimal(
@@ -27,6 +29,7 @@ abstract final class SavedReadingDrawnCards {
           positionIndex: snap.positionIndex,
           isReversed: snap.isReversed,
           positionLabel: snap.positionLabel,
+          positionKey: snap.positionKey,
         ),
     ];
   }
