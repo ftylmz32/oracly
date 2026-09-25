@@ -1,8 +1,6 @@
 /// OR-301+ — Premium footer: staggered buttons with tactile feedback.
 library;
 
-import 'dart:math' show pi, sin;
-
 import 'package:flutter/material.dart';
 
 import '../../../../../core/continuation/models/session_continuation.dart';
@@ -18,7 +16,6 @@ import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/reading_typography.dart';
-import '../../../../../core/theme/oracly_quiet_motion.dart';
 import 'reading_premium_animations.dart';
 import 'reading_premium_tap_button.dart';
 import 'reading_sacred_rhythm.dart';
@@ -53,31 +50,8 @@ class ReadingFooterActions extends StatefulWidget {
   State<ReadingFooterActions> createState() => _ReadingFooterActionsState();
 }
 
-class _ReadingFooterActionsState extends State<ReadingFooterActions>
-    with TickerProviderStateMixin {
-  late final AnimationController _pulse;
+class _ReadingFooterActionsState extends State<ReadingFooterActions> {
   bool _saveBusy = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3200),
-    );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    OraclyQuietMotion.ambient(context, _pulse);
-  }
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
-  }
 
   Future<void> _handleSave() async {
     if (_saveBusy || widget.onSave == null) return;
@@ -112,7 +86,6 @@ class _ReadingFooterActionsState extends State<ReadingFooterActions>
                     progress: askReveal,
                     exitProgress: widget.exitProgress,
                     child: _PrimaryAskButton(
-                      pulse: _pulse,
                       onPressed: widget.onAskOracle,
                     ),
                   ),
@@ -286,124 +259,80 @@ class _FooterStagger extends StatelessWidget {
   }
 }
 
-class _PrimaryAskButton extends StatefulWidget {
-  const _PrimaryAskButton({
-    required this.pulse,
-    this.onPressed,
-  });
+class _PrimaryAskButton extends StatelessWidget {
+  const _PrimaryAskButton({this.onPressed});
 
-  final AnimationController pulse;
   final VoidCallback? onPressed;
 
   @override
-  State<_PrimaryAskButton> createState() => _PrimaryAskButtonState();
-}
-
-class _PrimaryAskButtonState extends State<_PrimaryAskButton> {
-  @override
   Widget build(BuildContext context) {
+    const glow = 0.55;
     return OraclyPressable(
-      onTap: widget.onPressed,
+      onTap: onPressed,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: widget.pulse,
-        builder: (context, _) {
-          final glow = 0.5 + sin(widget.pulse.value * pi) * 0.18;
-          final shimmer = widget.pulse.value;
-          return DecoratedBox(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: AppRadius.lg,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.goldGlow.withValues(alpha: 0.10 + glow * 0.14),
+              blurRadius: 16 + glow * 8,
+              offset: const Offset(0, 3),
+            ),
+            BoxShadow(
+              color: AppColors.purpleGlow.withValues(alpha: 0.10 + glow * 0.08),
+              blurRadius: 12,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: AppRadius.lg,
+          child: Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 44),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
             decoration: BoxDecoration(
-              borderRadius: AppRadius.lg,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.goldGlow
-                      .withValues(alpha: 0.10 + glow * 0.14),
-                  blurRadius: 16 + glow * 8,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 3),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.lerp(
+                    const Color(0xFF9B6DFF),
+                    const Color(0xFFB794FF),
+                    glow,
+                  )!,
+                  const Color(0xFF6B3FA0),
+                  const Color(0xFF4A2578),
+                ],
+              ),
+              border: Border.all(
+                color: AppColors.gold.withValues(alpha: 0.4 + glow * 0.18),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 18,
+                  color: AppColors.goldLight.withValues(alpha: 0.95),
                 ),
-                BoxShadow(
-                  color: AppColors.purpleGlow
-                      .withValues(alpha: 0.10 + glow * 0.08),
-                  blurRadius: 12,
+                SizedBox(width: AppSpacing.sm),
+                Flexible(
+                  child: Text(
+                    TarotPolishCopy.orOpen,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    style: ReadingTypography.cta(color: AppColors.goldLight),
+                  ),
                 ),
               ],
             ),
-            child: ClipRRect(
-              borderRadius: AppRadius.lg,
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(minHeight: 44),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color.lerp(
-                            const Color(0xFF9B6DFF),
-                            const Color(0xFFB794FF),
-                            glow,
-                          )!,
-                          const Color(0xFF6B3FA0),
-                          const Color(0xFF4A2578),
-                        ],
-                      ),
-                      border: Border.all(
-                        color: AppColors.gold
-                            .withValues(alpha: 0.4 + glow * 0.18),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.auto_awesome_rounded,
-                          size: 18,
-                          color: AppColors.goldLight.withValues(alpha: 0.95),
-                        ),
-                        SizedBox(width: AppSpacing.sm),
-                        Flexible(
-                          child: Text(
-                            TarotPolishCopy.orOpen,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            style: ReadingTypography.cta(
-                              color: AppColors.goldLight,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: FractionallySizedBox(
-                        alignment: Alignment(-1 + shimmer * 2.2, 0),
-                        widthFactor: 0.4,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.white.withValues(alpha: 0.0),
-                                Colors.white.withValues(alpha: 0.12),
-                                Colors.white.withValues(alpha: 0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

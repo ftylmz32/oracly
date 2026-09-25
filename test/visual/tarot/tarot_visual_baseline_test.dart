@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/ai_reading_content.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_premium_body.dart';
 
@@ -33,6 +34,7 @@ void main() {
             cardCount: 1,
             question: 'What deserves my calm attention today?',
           ),
+          spread: TarotSpreadType.single,
         ),
       );
       expect(find.byType(ReadingPremiumBody), findsOneWidget);
@@ -54,6 +56,7 @@ void main() {
             cardCount: 3,
             question: 'Where am I between past and next step?',
           ),
+          spread: TarotSpreadType.threeCard,
         ),
       );
       expect(find.byType(ReadingPremiumBody), findsOneWidget);
@@ -75,6 +78,7 @@ void main() {
             cardCount: 5,
             question: 'What pattern is asking for honesty?',
           ),
+          spread: TarotSpreadType.fiveCard,
         ),
       );
       expect(find.byType(ReadingPremiumBody), findsOneWidget);
@@ -99,6 +103,7 @@ void main() {
             question: 'How do I carry this threshold with care?',
             narrative: long,
           ),
+          spread: TarotSpreadType.threeCard,
         ),
       );
       expect(find.byType(ReadingPremiumBody), findsOneWidget);

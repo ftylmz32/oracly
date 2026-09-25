@@ -17,11 +17,13 @@ class ReadingStoryStrip extends StatelessWidget {
     required this.content,
     required this.progress,
     this.exitProgress = 0,
+    this.showSpreadLabel = true,
   });
 
   final AiReadingContent content;
   final double progress;
   final double exitProgress;
+  final bool showSpreadLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class ReadingStoryStrip extends StatelessWidget {
         ),
         child: Column(
           children: [
-            if (spread.isNotEmpty)
+            if (showSpreadLabel && spread.isNotEmpty)
               Padding(
                 padding: EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Text(
@@ -58,9 +60,6 @@ class ReadingStoryStrip extends StatelessWidget {
                 ),
               )
             else
-              // Intrinsic height (not a fixed-height guess) so the strip
-              // never overflows when accessibility text scale grows the
-              // name/position labels inside each card tile.
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 physics: CraftsmanshipRhythm.scrollPhysics,

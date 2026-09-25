@@ -17,6 +17,7 @@ import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/readin
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_premium_scroll.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_reveal/card_reveal_spread.dart';
 import 'package:oracly_new/features/tarot/domain/models/reading_session.dart';
+import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _longLove = '''
@@ -129,6 +130,7 @@ Widget _resultTree(AiReadingContent content) {
         children: [
           ReadingPremiumBody(
             content: content,
+            spread: TarotSpreadType.threeCard,
             sectionMaster: 1,
             panelOpacity: 1,
             ambientPhase: 0,

@@ -1,4 +1,4 @@
-/// Question only — cards follow; spread name sits with the reveal strip.
+/// Header: spread eyebrow + question title (Phase 7E).
 library;
 
 import 'package:flutter/material.dart';
@@ -26,9 +26,13 @@ class ReadingPremiumHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final question = ReadingQuestion.real(content.userQuestion);
-    final fallback = (content.spreadLabel ?? content.cardName).trim();
-    final text = question ??
-        (fallback.isNotEmpty ? fallback : TarotPolishCopy.generalTitle);
+    final spread = (content.spreadLabel ?? '').trim();
+    final fallback = (content.cardName).trim();
+    final title = question ??
+        (spread.isNotEmpty
+            ? spread
+            : (fallback.isNotEmpty ? fallback : TarotPolishCopy.generalTitle));
+    final showEyebrow = question != null && spread.isNotEmpty;
     final appear = readingPremiumHeaderProgress(progress);
     final opacity = (appear * (1 - exitProgress)).clamp(0.0, 1.0);
 
@@ -43,12 +47,24 @@ class ReadingPremiumHeader extends StatelessWidget {
             AppSpacing.lg,
             CraftsmanshipRhythm.afterTitle,
           ),
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: question != null
-                ? ReadingTypography.title()
-                : ReadingTypography.sectionLabel(),
+          child: Column(
+            children: [
+              if (showEyebrow) ...[
+                Text(
+                  spread,
+                  textAlign: TextAlign.center,
+                  style: ReadingTypography.sectionLabel(fontSize: 10),
+                ),
+                SizedBox(height: AppSpacing.xs),
+              ],
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: question != null
+                    ? ReadingTypography.title()
+                    : ReadingTypography.sectionLabel(),
+              ),
+            ],
           ),
         ),
       ),

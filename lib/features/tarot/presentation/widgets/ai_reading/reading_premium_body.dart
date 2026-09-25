@@ -1,4 +1,4 @@
-/// Premium reading body: question → cards → story stack (actions follow).
+/// Premium reading body: question → spread → narrative stack (Phase 7E).
 library;
 
 import 'dart:ui';
@@ -10,13 +10,14 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/oracly_quiet_motion.dart';
 import '../../../../../core/theme/reading_typography.dart';
+import '../../../domain/models/tarot_spread.dart';
 import '../../../theme/tarot_tokens.dart';
 import '../tarot_flow_progress.dart';
 import 'ai_reading_content.dart';
 import 'tarot_insight_copy.dart';
 import 'reading_premium_header.dart';
 import 'reading_premium_sections.dart';
-import 'reading_story_strip.dart';
+import 'reading_result_spread.dart';
 
 class ReadingPremiumBody extends StatelessWidget {
   const ReadingPremiumBody({
@@ -25,10 +26,12 @@ class ReadingPremiumBody extends StatelessWidget {
     required this.sectionMaster,
     required this.panelOpacity,
     required this.ambientPhase,
+    this.spread,
     this.exitProgress = 0,
   });
 
   final AiReadingContent content;
+  final TarotSpreadType? spread;
   final double sectionMaster;
   final double panelOpacity;
   final double ambientPhase;
@@ -54,15 +57,18 @@ class ReadingPremiumBody extends StatelessWidget {
             progress: sectionMaster,
             exitProgress: exitProgress,
           ),
-          ReadingStoryStrip(
+          ReadingResultSpread(
             content: content,
+            spread: spread,
             progress: sectionMaster,
             exitProgress: exitProgress,
+            showSpreadLabel: false,
           ),
           Opacity(
             opacity: panelOpacity * (1 - exitProgress * 0.35),
             child: ReadingPremiumSections(
               content: content,
+              spread: spread,
               sectionMaster: sectionMaster,
               ambientPhase: ambientPhase,
               exitProgress: exitProgress,
@@ -74,7 +80,6 @@ class ReadingPremiumBody extends StatelessWidget {
       ),
     );
     if (exitProgress <= 0.01) return body;
-    // Soft exit — skip ImageFilter on HD+ (opacity already fades content).
     if (OraclyQuietMotion.constrained(context)) {
       return Opacity(opacity: 1 - exitProgress * 0.45, child: body);
     }
@@ -113,9 +118,7 @@ class _SafetyReadingBody extends StatelessWidget {
             ),
             child: Text(
               reason,
-              style: ReadingTypography.body(
-                color: AppColors.textPrimary,
-              ),
+              style: ReadingTypography.body(color: AppColors.textPrimary),
             ),
           ),
         ],

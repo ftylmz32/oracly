@@ -24,6 +24,7 @@ import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/readin
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_premium_body.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_premium_cards_block.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_premium_sections.dart';
+import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_result_spread.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_story_strip.dart';
 import 'package:oracly_new/features/tarot/services/tarot_interpretation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -188,6 +189,7 @@ void main() {
       expect(find.text(reason), findsOneWidget);
       expect(find.textContaining(_sentinel), findsNothing);
       expect(find.byType(ReadingStoryStrip), findsNothing);
+      expect(find.byType(ReadingResultSpread), findsNothing);
       expect(find.byType(ReadingPremiumSections), findsNothing);
       expect(find.byType(ReadingPremiumCardsBlock), findsNothing);
       expect(find.byType(ReadingDetailLayers), findsNothing);

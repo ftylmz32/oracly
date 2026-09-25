@@ -39,7 +39,6 @@ import '../widgets/ai_reading/reading_premium_body.dart';
 import '../widgets/ai_reading/reading_background.dart';
 import '../widgets/ai_reading/reading_element_glow.dart';
 import '../widgets/ai_reading/reading_element_theme.dart';
-import '../widgets/ai_reading/reading_floating_particles.dart';
 import '../widgets/ai_reading/reading_footer_actions.dart';
 import '../widgets/ai_reading/reading_intro_phase.dart';
 import '../widgets/ai_reading/reading_premium_scroll.dart';
@@ -604,6 +603,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     }
 
     final contentData = _contentData!;
+    final session = TarotScope.of(context).reading.session;
     final card = ReadingPremiumUtils.primaryCard(contentData);
     final elementTheme = ReadingElementTheme.fromCard(card);
 
@@ -643,10 +643,6 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                         theme: elementTheme,
                         phase: ambientT,
                         intensity: _panelOpacityFor(_content.value) * 0.82,
-                      ),
-                      ReadingFloatingParticles(
-                        phase: ambientT,
-                        intensity: livingIntensity,
                       ),
                     ],
                   );
@@ -729,6 +725,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                     children: [
                                       ReadingPremiumBody(
                                         content: contentData,
+                                        spread: session?.spread,
                                         sectionMaster: sectionMaster,
                                         panelOpacity: _panelOpacityFor(
                                           sectionMaster,

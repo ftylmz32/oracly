@@ -12,6 +12,7 @@ import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/theme/app_theme.dart';
+import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/ai_reading_content.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_footer_actions.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_premium_body.dart';
@@ -84,7 +85,10 @@ Future<void> tarotVisualPumpSettled(
   await tester.pump(const Duration(milliseconds: 16));
 }
 
-Widget tarotVisualResultTree(AiReadingContent content) {
+Widget tarotVisualResultTree(
+  AiReadingContent content, {
+  TarotSpreadType? spread,
+}) {
   return ReadingPremiumScrollView(
     padding: const EdgeInsets.only(bottom: 24),
     child: Align(
@@ -94,6 +98,7 @@ Widget tarotVisualResultTree(AiReadingContent content) {
         children: [
           ReadingPremiumBody(
             content: content,
+            spread: spread,
             sectionMaster: 1,
             panelOpacity: 1,
             ambientPhase: 0,
@@ -101,7 +106,7 @@ Widget tarotVisualResultTree(AiReadingContent content) {
           ReadingFooterActions(
             progress: 1,
             onNewReading: () {},
-            onAskOracle: () {},
+            onAskOracle: content.isSafetyResponse ? null : () {},
           ),
         ],
       ),
