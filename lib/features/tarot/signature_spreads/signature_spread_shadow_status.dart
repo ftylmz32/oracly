@@ -4,6 +4,7 @@ library;
 /// Outcome of attempting frozen Phase 3 NarrativeEvidenceBuilder.
 enum SignaturePhase3EvidenceStatus {
   builtClassical,
+  builtSignature,
   blockedUnsupportedSignatureSpread,
   invalidInput,
 }
@@ -12,6 +13,7 @@ enum SignaturePhase3EvidenceStatus {
 enum SignaturePhase4HistoryStatus {
   notRequested,
   enrichedClassical,
+  enrichedSignature,
   privacyBlocked,
   blockedUnsupportedSignatureSpread,
 }
@@ -40,4 +42,7 @@ enum SignaturePhase3EdgeConsumption {
 
   /// Signature edges exist but are not consumed by Phase 3 scorer.
   signatureEdgesNotConsumed,
+
+  /// Phase 6G — Signature edges consumed via SignatureNarrativeEdgeProvider.
+  signatureEdgesConsumed,
 }

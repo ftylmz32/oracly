@@ -31,12 +31,17 @@ class SignatureSpreadMigrationSeam {
   final bool liveNarrativeV2Supported;
   final bool pickerOffered;
 
-  /// `null` = classical N/A · `false` = Signature edges not consumed by scorer.
-  bool? get phase3SignatureEdgesConsumed =>
-      phase3EdgeConsumption ==
-              SignaturePhase3EdgeConsumption.classicalFrozenGlobal
-          ? null
-          : false;
+  /// `null` = classical N/A · `true`/`false` = Signature edge consumption.
+  bool? get phase3SignatureEdgesConsumed {
+    switch (phase3EdgeConsumption) {
+      case SignaturePhase3EdgeConsumption.classicalFrozenGlobal:
+        return null;
+      case SignaturePhase3EdgeConsumption.signatureEdgesConsumed:
+        return true;
+      case SignaturePhase3EdgeConsumption.signatureEdgesNotConsumed:
+        return false;
+    }
+  }
 
   static SignatureSpreadMigrationSeam forDefinition(
     SignatureSpreadDefinition definition,
@@ -48,11 +53,13 @@ class SignatureSpreadMigrationSeam {
       persistenceSupported: true,
       localizationSupported: true,
       structuralProjectionSupported: true,
-      phase3EvidenceSupported: !isCrossroads,
+      // Phase 6G: Crossroads Evidence + history supported internally.
+      phase3EvidenceSupported: true,
       phase3EdgeConsumption: isCrossroads
-          ? SignaturePhase3EdgeConsumption.signatureEdgesNotConsumed
+          ? SignaturePhase3EdgeConsumption.signatureEdgesConsumed
           : SignaturePhase3EdgeConsumption.classicalFrozenGlobal,
-      phase4HistorySupported: !isCrossroads,
+      phase4HistorySupported: true,
+      // Public live Narrative admission remains false for all Signature rows.
       liveNarrativeV2Supported: false,
       pickerOffered: definition.offeredInLivePicker,
     );

@@ -219,14 +219,14 @@ void main() {
 
     final root = {
       'version': 1,
-      'phase': '5E',
+      'phase': '6G',
       'scenarioCount': scenarios.length,
       'launchSpreadCount': 4,
-      'crossroadsPhase3Support': false,
-      'crossroadsPhase4HistorySupport': false,
+      'crossroadsPhase3Support': true,
+      'crossroadsPhase4HistorySupport': true,
       'liveNarrativeV2': false,
       'note':
-          'Literal frozen Signature shadow corpus. Do not regenerate in tests.',
+          'Phase 6G: Crossroads Evidence+history internal. Picker/live still false.',
       'scenarios': scenarios,
     };
     // ignore: avoid_print

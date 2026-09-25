@@ -355,7 +355,7 @@ void main() {
     });
   });
 
-  test('current Crossroads builder still unsupported', () {
+  test('default Classical builder still rejects Crossroads', () {
     expect(
       () => NarrativeEvidenceBuilder.build(
         NarrativeEvidenceInput(

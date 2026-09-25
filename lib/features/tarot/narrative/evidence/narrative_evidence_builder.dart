@@ -3,10 +3,11 @@ library;
 
 import '../../../../core/l10n/app_locale.dart';
 import 'narrative_card_evidence.dart';
-import 'narrative_evidence_error.dart';
+import 'narrative_evidence_closed_universe.dart';
 import 'narrative_evidence_input.dart';
 import 'narrative_evidence_validation.dart';
 import 'narrative_memory_evidence.dart';
+import 'narrative_position_edge_provider.dart';
 import 'narrative_profile_slice.dart';
 import 'narrative_question_grounding.dart';
 import 'narrative_recurrence_evidence.dart';
@@ -15,14 +16,27 @@ import 'narrative_relationship_evidence.dart';
 import 'narrative_relationship_selector.dart';
 import 'narrative_request.dart';
 import 'narrative_semantic_channel.dart';
-import 'narrative_spread_semantics.dart';
+import 'narrative_spread_semantic_resolver.dart';
 
 abstract final class NarrativeEvidenceBuilder {
   NarrativeEvidenceBuilder._();
 
-  static TarotNarrativeRequest build(NarrativeEvidenceInput input) {
+  /// Builds a closed [TarotNarrativeRequest].
+  ///
+  /// Defaults remain Classical. Pass Signature resolver + edge provider for
+  /// Crossroads (Phase 6G) — never coerces Crossroads through Classical.
+  static TarotNarrativeRequest build(
+    NarrativeEvidenceInput input, {
+    NarrativeSpreadSemanticResolver resolver =
+        const ClassicalSpreadSemanticResolver(),
+    NarrativePositionEdgeProvider edgeProvider =
+        const ClassicalPositionEdgeProvider(),
+  }) {
     final languageCode = AppLocale.normalize(input.languageCode);
-    final spread = NarrativeEvidenceValidation.resolveSpread(input.spreadType);
+    final spread = NarrativeEvidenceValidation.resolveSpread(
+      input.spreadType,
+      resolver: resolver,
+    );
     NarrativeEvidenceValidation.requireCardCount(input, spread);
     final validated = NarrativeEvidenceValidation.validateCards(
       input: input,
@@ -86,9 +100,10 @@ abstract final class NarrativeEvidenceBuilder {
       spread: spread,
       questionKind: question.kind,
       maxRelationships: RequestBounds.defaults.maxRelationships,
+      edgeProvider: edgeProvider,
     );
 
-    _assertClosedUniverse(
+    NarrativeEvidenceClosedUniverse.assertRelationships(
       cards: cards,
       relationships: relationships,
       spread: spread,
@@ -114,40 +129,5 @@ abstract final class NarrativeEvidenceBuilder {
       ),
       bounds: RequestBounds.defaults,
     );
-  }
-
-  static void _assertClosedUniverse({
-    required List<TarotNarrativeCardEvidence> cards,
-    required List<TarotNarrativeRelationshipEvidence> relationships,
-    required SpreadSemanticDefinition spread,
-  }) {
-    final cardIds = cards.map((c) => c.canonicalCardId).toSet();
-    final positionKeys = spread.positions.map((p) => p.positionKey).toSet();
-    final evidenceIds = <String>{};
-
-    if (relationships.length > RequestBounds.defaults.maxRelationships) {
-      throw NarrativeEvidenceException(
-        NarrativeEvidenceErrorCode.spreadMismatch,
-        message: 'relationship count ${relationships.length}',
-      );
-    }
-
-    for (final rel in relationships) {
-      if (rel.evidenceId.isEmpty || !evidenceIds.add(rel.evidenceId)) {
-        throw NarrativeEvidenceException(
-          NarrativeEvidenceErrorCode.duplicateEvidenceId,
-          message: rel.evidenceId,
-        );
-      }
-      if (!cardIds.contains(rel.leftCardId) ||
-          !cardIds.contains(rel.rightCardId) ||
-          !positionKeys.contains(rel.leftPositionKey) ||
-          !positionKeys.contains(rel.rightPositionKey)) {
-        throw const NarrativeEvidenceException(
-          NarrativeEvidenceErrorCode.spreadMismatch,
-          message: 'relationship outside closed universe',
-        );
-      }
-    }
   }
 }

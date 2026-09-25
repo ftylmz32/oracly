@@ -31,11 +31,11 @@ void main() {
     final scenarios = root['scenarios'] as List<dynamic>;
 
     expect(root['version'], 1);
-    expect(root['phase'], '5E');
+    expect(root['phase'], '6G');
     expect(root['scenarioCount'], scenarios.length);
     expect(root['launchSpreadCount'], 4);
-    expect(root['crossroadsPhase3Support'], isFalse);
-    expect(root['crossroadsPhase4HistorySupport'], isFalse);
+    expect(root['crossroadsPhase3Support'], isTrue);
+    expect(root['crossroadsPhase4HistorySupport'], isTrue);
     expect(root['liveNarrativeV2'], isFalse);
     expect(scenarios, hasLength(16));
 

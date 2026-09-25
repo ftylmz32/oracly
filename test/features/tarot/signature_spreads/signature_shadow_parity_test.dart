@@ -167,7 +167,7 @@ void main() {
     expect(direct.memory.omitReason, 'privacy');
   });
 
-  test('Crossroads never builds Phase3 or enriches Phase4', () {
+  test('Crossroads builds Signature Phase3 + Phase4 (picker still false)', () {
     final five = ids.take(5).map((id) => (id, false)).toList();
     final shadow = SignatureSpreadShadowEvaluator.evaluate(
       input: SignatureSpreadShadowInput(
@@ -184,16 +184,21 @@ void main() {
     expect(shadow.ok, isTrue);
     expect(
       shadow.phase3EvidenceStatus,
-      SignaturePhase3EvidenceStatus.blockedUnsupportedSignatureSpread,
+      SignaturePhase3EvidenceStatus.builtSignature,
     );
     expect(
       shadow.phase4HistoryStatus,
-      SignaturePhase4HistoryStatus.blockedUnsupportedSignatureSpread,
+      SignaturePhase4HistoryStatus.enrichedSignature,
     );
-    expect(shadow.classicalRequest, isNull);
-    expect(shadow.enrichedRequest, isNull);
+    expect(shadow.classicalRequest, isNotNull);
+    expect(shadow.enrichedRequest, isNotNull);
+    expect(shadow.classicalRequest!.spread.spreadId, 'signature.crossroads');
+    expect(
+      shadow.classicalRequest!.spread.spreadId,
+      isNot('classical.fiveCard'),
+    );
     expect(shadow.structuralEdgeGraphAvailable, isTrue);
-    expect(shadow.phase3EdgeAwareScoringAvailable, isFalse);
+    expect(shadow.phase3EdgeAwareScoringAvailable, isTrue);
     expect(shadow.projection!.edges, hasLength(4));
     expect(shadow.projection!.projectedRelationRowCount, 7);
     expect(shadow.definition!.spreadId, isNot('classical.fiveCard'));
@@ -207,10 +212,11 @@ void main() {
     expect(matrix[0].pickerOffered, isTrue);
     expect(matrix[0].liveNarrativeV2Supported, isFalse);
     expect(matrix[3].spreadId, 'signature.crossroads');
-    expect(matrix[3].phase3EvidenceSupported, isFalse);
-    expect(matrix[3].phase4HistorySupported, isFalse);
-    expect(matrix[3].phase3SignatureEdgesConsumed, isFalse);
+    expect(matrix[3].phase3EvidenceSupported, isTrue);
+    expect(matrix[3].phase4HistorySupported, isTrue);
+    expect(matrix[3].phase3SignatureEdgesConsumed, isTrue);
     expect(matrix[3].pickerOffered, isFalse);
+    expect(matrix[3].liveNarrativeV2Supported, isFalse);
   });
 
   test('determinism + input permutation', () {

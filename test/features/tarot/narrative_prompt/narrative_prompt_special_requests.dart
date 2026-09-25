@@ -88,8 +88,8 @@ TarotNarrativeRequest privacySentinelRequest() {
   );
 }
 
-/// TEST-ONLY: valid five-card Crossroads projected semantics.
-/// Does NOT imply builder support or live Crossroads Narrative.
+/// TEST-ONLY: five-card Crossroads projected semantics (manual or builder).
+/// Prefer Signature strategy via NarrativeEvidenceStrategyDispatch in Phase 6G.
 /// languageCode and displayName/profile slices are consistently EN.
 TarotNarrativeRequest signatureManualRequest() {
   const lang = 'en';

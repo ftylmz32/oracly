@@ -208,16 +208,20 @@ void main() {
         SignaturePhase3EvidenceStatus.invalidInput,
       );
 
-      // Crossroads never calls Phase 3 — structural shadow still succeeds.
+      // Phase 6G: Crossroads also goes through Phase 3 — duplicates fail closed.
       final crossroads = _eval(
         type: TarotSpreadType.crossroads,
         cards: [for (var i = 0; i < 5; i++) _c(ritual: 0, index: i)],
         question: 'Should I accept this offer?',
       );
-      expect(crossroads.ok, isTrue);
+      expect(crossroads.ok, isFalse);
+      expect(
+        crossroads.failureCode,
+        SignatureShadowFailureCode.evidenceBuildFailed,
+      );
       expect(
         crossroads.phase3EvidenceStatus,
-        SignaturePhase3EvidenceStatus.blockedUnsupportedSignatureSpread,
+        SignaturePhase3EvidenceStatus.invalidInput,
       );
     });
   });

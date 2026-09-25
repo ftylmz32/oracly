@@ -64,32 +64,11 @@ abstract final class SignatureSpreadShadowEvaluator {
       questionKind: grounded.kind,
     );
 
-    final classical = SignatureSpreadShadowClassical.isClassicalLaunch(
-      input.spreadType,
-    );
-    if (!classical) {
-      // Crossroads: structural projection only — never call Phase 3/4 engines.
-      return SignatureSpreadShadowResult.success(
-        definition: definition,
-        projection: projection,
-        cards: cards,
-        questionKind: grounded.kind,
-        languageCode: language,
-        structuralFingerprint: fingerprint,
-        phase3EvidenceStatus:
-            SignaturePhase3EvidenceStatus.blockedUnsupportedSignatureSpread,
-        phase4HistoryStatus: history == null
-            ? SignaturePhase4HistoryStatus.notRequested
-            : SignaturePhase4HistoryStatus.blockedUnsupportedSignatureSpread,
-        structuralEdgeGraphAvailable: true,
-        phase3EdgeAwareScoringAvailable: false,
-      );
-    }
-
     if (history != null && now == null) {
       return _fail(SignatureShadowFailureCode.missingNowForHistory);
     }
 
+    // Phase 6G: Crossroads uses Signature strategy; Classical uses Classical.
     final request = SignatureSpreadShadowClassical.buildEvidence(
       input: input,
       languageCode: language,

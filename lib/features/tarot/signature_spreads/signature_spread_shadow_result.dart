@@ -88,6 +88,6 @@ class SignatureSpreadShadowResult {
   /// Phase 5 structural edges available (Crossroads = yes).
   final bool structuralEdgeGraphAvailable;
 
-  /// Frozen Phase 3 scorer consumes those edges (Crossroads = never).
+  /// Phase 3 scorer consumes edges (Crossroads = true after Phase 6G).
   final bool phase3EdgeAwareScoringAvailable;
 }

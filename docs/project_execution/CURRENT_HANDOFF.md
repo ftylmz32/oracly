@@ -1350,15 +1350,13 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Independent ChatGPT verification of Phase 6F.1** — Narrative final-quality cache boundary + real two-attempt retry.
+**Phase 6G — Crossroads internal Narrative: IMPLEMENTED** · picker/live still false · **0** real provider calls.
 
-6F: Classical live wired · Independent review found **M1** (cache before final quality), **M2** (forceRefresh not genuine), **M3** (unbounded nested retry).
+6F.1: **FROZEN** · candidate + `commitValidated` after Reflective+AiOutputQuality · max 2 provider attempts · attempt-specific guard/idempotency/duplicate · locked `a3` fail-closed.
 
-6F.1: **IMPLEMENTED** · candidate + `commitValidated` after Reflective+AiOutputQuality · max 2 provider attempts · attempt-specific guard/idempotency/duplicate · locked `a3` fail-closed · **0** real provider calls · **NOT 6G**.
+**Next:** **6H** Phase 6 final audit (Classical live freeze candidate; Crossroads still gated by Phase 7/8).
 
-Do **not** begin **6G** until independent **6F.1** PASS. Picker remains false in 6G.
-
-Phase 6.0–6E.1: **PASS** · 6E.8: **quality FROZEN** · 6F: **wired** · 6F.1: **remediated** (pending verify) · live Classical V2: **YES (flag)** · Crossroads: **NOT LIVE**.
+Phase 6.0–6E.1: **PASS** · 6E.8: **quality FROZEN** · 6F: **wired** · 6F.1: **FROZEN** · 6G: **IMPLEMENTED (internal only)** · live Classical V2: **YES (flag)** · Crossroads: **NOT LIVE / picker FALSE**.
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.

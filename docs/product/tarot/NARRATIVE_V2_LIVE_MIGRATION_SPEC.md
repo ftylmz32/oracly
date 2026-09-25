@@ -507,13 +507,19 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 - **No legacy AI fallback** while flag ON for launch spreads
 - **Cloud deploy in 6F:** **NO**
 - **Crossroads picker:** still false
-- **6F.1:** Independent M1/M2/M3 remediated — pending ChatGPT 6F.1 verify
-- **Next:** Independent **6F.1** verify → **6G** Crossroads internal Narrative (picker still false)
+- **6F.1:** Independent M1/M2/M3 remediated — **FROZEN**
+- **6G:** Crossroads internal Narrative Evidence/history/serializer — **IMPLEMENTED** (picker/live still false)
+- **Next:** **6H** Phase 6 final audit
 
 ### 6G — Crossroads internal Narrative support (still picker false)
 
-- **Goal:** Evidence + history + serializer for Crossroads internally  
-- **Picker:** false  
+- **Status:** **IMPLEMENTED** (Phase 6G)
+- **Goal:** Evidence + history + serializer for Crossroads internally via Signature resolver/edge provider
+- **Semantic id:** `signature.crossroads` (never `classical.fiveCard`)
+- **Seam:** `NarrativeEvidenceStrategyDispatch` → `NarrativeEvidenceBuilder` optional resolver/edgeProvider
+- **Picker:** false · **Live launch admission:** false (Phase 7/8)
+- **Real provider calls:** 0
+- **Next:** **6H** Phase 6 final audit
 
 ### 6H — Phase 6 final audit
 
