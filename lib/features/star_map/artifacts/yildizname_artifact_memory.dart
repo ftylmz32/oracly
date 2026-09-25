@@ -1,20 +1,25 @@
 /// Recurring themes from Narrative V1 artifacts only.
+///
+/// Historical identity = resolved label → [YildiznameThemeIdentity.keyFor].
+/// Request-local `theme.N` refs are never compared across artifacts.
 library;
 
 import 'yildizname_artifact.dart';
 import 'yildizname_artifact_source.dart';
 import 'yildizname_narrative_payload.dart';
+import 'yildizname_theme_identity.dart';
 
 final class YildiznameRecurringTheme {
   const YildiznameRecurringTheme({
-    required this.themeRef,
+    required this.themeKey,
     required this.label,
     required this.supportCount,
     required this.sourceArtifactIds,
     required this.latestOccurredAt,
   });
 
-  final String themeRef;
+  /// Local history identity (`yth_…`) — not a provider themeRef.
+  final String themeKey;
   final String label;
   final int supportCount;
   final List<String> sourceArtifactIds;
@@ -26,13 +31,13 @@ final class YildiznameRecurringTheme {
 abstract final class YildiznameArtifactMemory {
   YildiznameArtifactMemory._();
 
-  /// Themes that appear in accepted result themeRefs across ≥2 artifacts.
+  /// Themes whose resolved labels appear in ≥2 distinct Narrative V1 artifacts.
   static List<YildiznameRecurringTheme> recurringThemes(
     Iterable<YildiznameArtifact> artifacts, {
     String? excludeSemanticFingerprint,
     Set<String>? existingIds,
   }) {
-    final byTheme = <String, _Acc>{};
+    final byKey = <String, _Acc>{};
     for (final a in artifacts) {
       if (a.source != YildiznameArtifactSource.narrativeV1) continue;
       if (existingIds != null && !existingIds.contains(a.id)) continue;
@@ -41,28 +46,33 @@ abstract final class YildiznameArtifactMemory {
           a.semanticFingerprint == excludeSemanticFingerprint) {
         continue;
       }
-      final refs = YildiznameNarrativePayload.acceptedThemeRefs(a.payload);
-      if (refs.isEmpty) continue;
-      final labels = _requestLabels(a.payload);
-      for (final ref in refs) {
-        final acc = byTheme.putIfAbsent(ref, () => _Acc(ref));
+      final accepted = YildiznameNarrativePayload.acceptedThemeRefs(a.payload);
+      if (accepted.isEmpty) continue;
+      final requestMap = _requestLabels(a.payload);
+      // One artifact contributes at most one support per canonical theme.
+      final seenKeys = <String>{};
+      for (final ref in accepted) {
+        final label = requestMap[ref];
+        if (label == null || label.trim().isEmpty) continue; // unknown ref
+        final key = YildiznameThemeIdentity.keyFor(label);
+        if (key.isEmpty) continue;
+        if (!seenKeys.add(key)) continue;
+        final acc = byKey.putIfAbsent(key, () => _Acc(key, label.trim()));
         if (acc.ids.add(a.id)) {
           acc.count += 1;
           if (a.createdAtUtc.isAfter(acc.latest)) {
             acc.latest = a.createdAtUtc;
           }
-          final label = labels[ref];
-          if (label != null && label.isNotEmpty) acc.label = label;
         }
       }
     }
     final out = <YildiznameRecurringTheme>[];
-    for (final acc in byTheme.values) {
+    for (final acc in byKey.values) {
       if (acc.count < 2) continue;
       out.add(
         YildiznameRecurringTheme(
-          themeRef: acc.themeRef,
-          label: acc.label.isEmpty ? acc.themeRef : acc.label,
+          themeKey: acc.themeKey,
+          label: acc.label,
           supportCount: acc.count,
           sourceArtifactIds: acc.ids.toList()..sort(),
           latestOccurredAt: acc.latest,
@@ -74,7 +84,7 @@ abstract final class YildiznameArtifactMemory {
       if (c != 0) return c;
       final t = b.latestOccurredAt.compareTo(a.latestOccurredAt);
       if (t != 0) return t;
-      return a.themeRef.compareTo(b.themeRef);
+      return a.themeKey.compareTo(b.themeKey);
     });
     return out;
   }
@@ -96,9 +106,9 @@ abstract final class YildiznameArtifactMemory {
 }
 
 class _Acc {
-  _Acc(this.themeRef);
-  final String themeRef;
-  String label = '';
+  _Acc(this.themeKey, this.label);
+  final String themeKey;
+  String label;
   int count = 0;
   DateTime latest = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
   final Set<String> ids = {};

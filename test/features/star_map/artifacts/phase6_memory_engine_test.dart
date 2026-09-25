@@ -36,7 +36,8 @@ void main() {
     );
 
     var recurring = YildiznameArtifactMemory.recurringThemes(await repo.getAll());
-    expect(recurring.single.themeRef, 'theme.x');
+    expect(recurring.single.label, 'X');
+    expect(recurring.single.themeKey.startsWith('yth_'), isTrue);
     expect(recurring.single.supportCount, 2);
 
     await repo.delete(a2.id);

@@ -36,7 +36,8 @@ void main() {
     }
     final recurring =
         YildiznameArtifactMemory.recurringThemes(await repo.getAll());
-    expect(recurring.map((e) => e.themeRef), isNot(contains('theme.x')));
-    expect(recurring.single.themeRef, 'theme.y');
+    expect(recurring.map((e) => e.label), isNot(contains('X')));
+    expect(recurring.single.label, 'Y');
+    expect(recurring.single.themeKey.startsWith('yth_'), isTrue);
   });
 }

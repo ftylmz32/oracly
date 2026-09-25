@@ -9,14 +9,14 @@ void main() {
   test('J merge X,Y history + Y,Z discovery → X,Y,Z', () {
     final history = [
       YildiznameRecurringTheme(
-        themeRef: 'theme.x',
+        themeKey: 'yth_xxxxxxxxxxxxxxxx',
         label: 'X',
         supportCount: 3,
         sourceArtifactIds: const ['a', 'b'],
         latestOccurredAt: DateTime.utc(2026, 1, 3),
       ),
       YildiznameRecurringTheme(
-        themeRef: 'theme.y',
+        themeKey: 'yth_yyyyyyyyyyyyyyyy',
         label: 'Y',
         supportCount: 2,
         sourceArtifactIds: const ['a', 'c'],

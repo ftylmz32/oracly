@@ -2,13 +2,14 @@
 library;
 
 import 'yildizname_artifact_memory.dart';
+import 'yildizname_theme_identity.dart';
 
 abstract final class YildiznameThemeMerge {
   YildiznameThemeMerge._();
 
   static const maxThemes = 3;
 
-  /// Prefer Yıldızname history; fill from discovery; case-insensitive dedupe.
+  /// Prefer Yıldızname history; fill from discovery; shared label normalize.
   static List<String> mergeLabels({
     required List<YildiznameRecurringTheme> artifactThemes,
     required List<String> personalDiscoveryLabels,
@@ -17,13 +18,12 @@ abstract final class YildiznameThemeMerge {
     final seen = <String>{};
 
     void add(String raw) {
-      final label = raw.trim();
-      if (label.isEmpty) return;
-      final key = label.toLowerCase();
-      if (seen.contains(key)) return;
+      final n = YildiznameThemeIdentity.normalize(raw);
+      if (n.isEmpty) return;
+      if (seen.contains(n)) return;
       if (out.length >= maxThemes) return;
-      seen.add(key);
-      out.add(label);
+      seen.add(n);
+      out.add(raw.trim().replaceAll(RegExp(r'\s+'), ' '));
     }
 
     final history = List<YildiznameRecurringTheme>.from(artifactThemes)
@@ -32,7 +32,7 @@ abstract final class YildiznameThemeMerge {
         if (c != 0) return c;
         final t = b.latestOccurredAt.compareTo(a.latestOccurredAt);
         if (t != 0) return t;
-        return a.label.toLowerCase().compareTo(b.label.toLowerCase());
+        return a.themeKey.compareTo(b.themeKey);
       });
     for (final t in history) {
       add(t.label);
