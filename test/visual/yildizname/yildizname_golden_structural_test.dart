@@ -1,4 +1,4 @@
-/// Phase 7A — viewport / structural invariants.
+/// Phase 7A — viewport / structural invariants (unscoped pre-7B chrome path).
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -26,7 +26,7 @@ void main() {
         tester,
         viewport: size,
         storage: storage,
-        child: StarMapReferenceResultScreen(
+        child: StarMapReferenceResultScreen.unscoped(
           title: 'Gökyüzü Mesajı',
           sections: yildiznameVisualLegacySections(),
         ),
@@ -45,7 +45,7 @@ void main() {
       viewport: yildiznameVisualTextScaleViewport,
       textScale: yildiznameVisualTextScale,
       storage: storage,
-      child: StarMapReferenceResultScreen(
+      child: StarMapReferenceResultScreen.unscoped(
         title: 'Yıldızname',
         sections: yildiznameVisualNarrativeReducedSections(),
       ),

@@ -44,11 +44,13 @@ abstract final class StarMapResultOpen {
         .push(
       MaterialPageRoute<void>(
         builder: (_) => StarMapReferenceResultScreen(
-          title: title,
-          sections: sections,
-          planets: planets,
-          artifactId: captured.artifactId,
-          artifactCreatedAt: captured.createdAt,
+          presentation: YildiznameResultPresentation.legacyLive(
+            title: title,
+            sections: sections,
+            planets: planets,
+            artifactId: captured.artifactId,
+            createdAtUtc: captured.createdAt,
+          ),
           readingContext: OracleReadingContextSources.starMap(
             sectionLabel: sectionLabel,
             reading: reading,

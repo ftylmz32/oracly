@@ -129,3 +129,11 @@ without a second visual language. Implement after 7A.
 4. Footer order: share → OR → favorite (target: OR → share → favorite)  
 5. Loading/error cinema unused  
 6. Hub status cannot express evidence tiers  
+
+---
+
+## Update — Phase 7B (blockers 1 and 2 closed)
+
+Blockers **1** (raw titles) and **2** (no scope/fidelity disclosure) are closed by Phase 7B: typed `YildiznameResultPresentation`,
+localized chrome, and a fail-closed scope note on the same canonical owner. Blockers 3–6 remain open for 7D/7E/7F and later.
+See `YILDIZNAME_PHASE7B_PRESENTATION_MODEL.md`.

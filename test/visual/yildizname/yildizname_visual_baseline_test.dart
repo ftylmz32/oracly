@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/features/star_map/artifacts/yildizname_artifact_presentation.dart';
 import 'package:oracly_new/features/star_map/copy/star_map_polish_copy.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_app_bar.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_chart.dart';
@@ -57,20 +58,30 @@ void main() {
     await yildiznameVisualMaybeCapture(tester, key, 'legacy_result');
   });
 
-  testWidgets('current narrative reduced exposes raw titles (blocker B1)',
+  testWidgets('B1 closed — Narrative adapter never exposes raw titles',
       (tester) async {
-    await yildiznameGoldenPumpResult(
-      tester,
-      title: 'Yıldızname',
-      sections: yildiznameVisualNarrativeReducedSections(),
-      artifactId: 'yid_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-      artifactCreatedAt: DateTime.utc(2026, 1, 10),
+    // 7A documented raw `summary` / `coreIdentity` / `reflection` / `closing`
+    // leaking from the adapter. 7B routes the SAME content through the typed
+    // production projection: chrome is localized, prose is untouched.
+    final artifact = yildiznameVisualNarrativeArtifact(
+      id: 'yid_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      full: false,
     );
-    // Documents CURRENT production adapter debt — fix in 7B, not 7A.
-    expect(find.text('summary'), findsOneWidget);
-    expect(find.text('coreIdentity'), findsOneWidget);
-    expect(find.text('reflection'), findsOneWidget);
-    expect(find.text('closing'), findsOneWidget);
+    await yildiznameGoldenPumpPresentation(
+      tester,
+      presentation: YildiznameArtifactPresentation.of(
+        artifact,
+        chromeLocale: 'tr',
+      ),
+    );
+    expect(find.text('summary'), findsNothing);
+    expect(find.text('coreIdentity'), findsNothing);
+    expect(find.text('reflection'), findsNothing);
+    expect(find.text('closing'), findsNothing);
+    expect(find.text('Özet'), findsOneWidget);
+    expect(find.text('Kimlik'), findsOneWidget);
+    expect(find.text('Üzerine düşün'), findsOneWidget);
+    expect(find.text('Kapanış'), findsOneWidget);
     expect(find.textContaining('reducedNatal'), findsNothing);
     expect(tester.takeException(), isNull);
   });

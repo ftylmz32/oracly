@@ -2,8 +2,13 @@
 library;
 
 import 'package:oracly_new/features/birth_chart/models/birth_profile.dart';
+import 'package:oracly_new/features/star_map/artifacts/yildizname_artifact.dart';
 import 'package:oracly_new/features/star_map/models/star_map_reading.dart';
+import 'package:oracly_new/features/star_map/narrative/request/yildizname_narrative_scope.dart';
+import 'package:oracly_new/features/star_map/narrative/result/yildizname_section_kind.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_result_section.dart';
+
+import '../../support/yildizname_result_fixtures.dart';
 
 /// Fixed birth profile for hub_with_birth goldens (no live astronomy paint).
 BirthProfile yildiznameVisualBirthProfile() => BirthProfile(
@@ -82,3 +87,40 @@ List<StarMapResultSection> yildiznameVisualNarrativeFullSections() => const [
         body: 'Arşiv kapanır; sen kendi ritmine dönersin.',
       ),
     ];
+
+/// Phase 7B — real sealed Narrative artifact carrying the SAME prose as the
+/// 7A `yildiznameVisualNarrative*Sections` fixtures, so the reopen delta
+/// against the 7A baseline is chrome only.
+YildiznameArtifact yildiznameVisualNarrativeArtifact({
+  required String id,
+  required bool full,
+}) =>
+    full
+        ? yildiznameFixtureNarrativeArtifact(
+            id: id,
+            scope: YildiznameNarrativeScope.full,
+            kinds: const [
+              YildiznameSectionKind.coreIdentity,
+              YildiznameSectionKind.emotionalWorld,
+              YildiznameSectionKind.anglesAndHouses,
+            ],
+            summary:
+                'Güneş, Ay ve Yükselen birlikte sabırlı bir kimlik ekseni kurar.',
+            sectionTexts: const [
+              'Doğum göğünde kimlik net ve sakin duruyor.',
+              'Duygusal dünya yumuşak bir ritme çağırıyor.',
+              'Açılar ve evler derinleşmeyi destekliyor.',
+            ],
+            reflection: 'Hangi katman sana en dürüst geliyor?',
+            closing: 'Arşiv kapanır; sen kendi ritmine dönersin.',
+            createdAtUtc: DateTime.utc(2026, 1, 11),
+          )
+        : yildiznameFixtureNarrativeArtifact(
+            id: id,
+            scope: YildiznameNarrativeScope.reduced,
+            kinds: const [YildiznameSectionKind.coreIdentity],
+            sectionTexts: const [
+              'Kimlik alanında sakin bir netlik aranıyor.',
+            ],
+            createdAtUtc: DateTime.utc(2026, 1, 10),
+          );

@@ -8,7 +8,6 @@ import 'package:crypto/crypto.dart';
 import '../narrative/request/yildizname_narrative_request.dart';
 import '../narrative/result/yildizname_narrative_section.dart';
 import '../narrative/result/yildizname_narrative_structured_result.dart';
-import '../narrative/result/yildizname_section_kind.dart';
 import 'yildizname_artifact_canonical.dart';
 
 abstract final class YildiznameNarrativePayload {
@@ -91,10 +90,5 @@ abstract final class YildiznameNarrativePayload {
       }
     }
     return refs;
-  }
-
-  static String sectionChromeTitle(String kindWire) {
-    final k = YildiznameSectionKind.tryParse(kindWire);
-    return k?.name ?? kindWire;
   }
 }
