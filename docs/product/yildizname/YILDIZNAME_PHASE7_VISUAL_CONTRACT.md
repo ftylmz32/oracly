@@ -162,3 +162,11 @@ See `YILDIZNAME_PHASE7A_VISUAL_FORENSIC_BASELINE.md` for hash table.
 ## Premium / gems
 
 Yıldızname remains free. No premium badge / gem cost / purchase CTA on feature surfaces.
+
+---
+
+## Update — Phase 7B.1 (LEGACY disclosure wording)
+
+The conceptual LEGACY row above (“Doğum tarihine göre sembolik yorum”) named a birth-date basis the legacy runtime cannot always prove.
+Phase 7B.1 supersedes it with generic, evidence-safe copy that names no birth date, Sun sign, birth time, birth place or natal precision.
+See `YILDIZNAME_PHASE7B_PRESENTATION_MODEL.md` (Phase 7B.1). Every other row is unchanged.

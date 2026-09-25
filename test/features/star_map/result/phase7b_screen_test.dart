@@ -198,7 +198,7 @@ void main() {
       ),
     );
     expect(find.byType(StarMapScopeNote), findsOneWidget);
-    expect(find.textContaining('Kesin bir gök haritası'), findsOneWidget);
+    expect(find.textContaining('Kesin bir doğum haritası'), findsOneWidget);
     expect(find.textContaining('Yükselen'), findsNothing);
     expect(find.byType(StarMapReferencePlanetCard), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -209,7 +209,7 @@ void main() {
   ) async {
     await yildiznameGoldenPumpLegacyArtifactReopen(tester);
     expect(find.byType(StarMapScopeNote), findsOneWidget);
-    expect(find.textContaining('sembolik bir yorum'), findsWidgets);
+    expect(find.textContaining('sembolik Yıldızname bağlamına'), findsWidgets);
     expect(find.text('Gökyüzü Mesajı'), findsWidgets);
     expect(find.byType(StarMapReferencePlanetCard), findsOneWidget);
     expect(find.textContaining('Yükselen'), findsNothing);

@@ -1,6 +1,6 @@
 # YILDIZNAME Phase 7B — Presentation Model · Truthful Scope Disclosure · Localized Chrome
 
-**Status:** IMPLEMENTED (closes verified debts **B1** and **B2** from Phase 7A)  
+**Status:** IMPLEMENTED (closes verified debts **B1** and **B2** from Phase 7A) · legacy copy corrected by **7B.1**  
 **Canonical result owner:** `StarMapReferenceResultScreen` (unchanged — still the only result screen)  
 **Artifact adapter:** `YildiznameArtifactPresentation` → typed `YildiznameResultPresentation`  
 **Not in this phase:** natal fact visual layer (7C), narrative hierarchy redesign (7D), footer reorder (7E), responsive polish (7F), golden master refresh (7G), live Narrative wiring (Phase 8).
@@ -80,7 +80,7 @@ and integrity are unchanged).
 
 | Resolution | Meaning (EN) |
 |---|---|
-| `legacy` | A symbolic interpretation based on the birth-date and Sun-sign level information available to this reading. It is not a precise sky-chart calculation. |
+| `legacy` | *(Phase 7B.1 — generic, evidence-safe; see below.)* A symbolic Yıldızname interpretation based only on the context available to this reading. It is not a precise natal-chart calculation. |
 | `reduced` | A personalized interpretation based on the birth details available. Because the birth time is not certain, time-dependent layers such as the Ascendant and houses are not included. |
 | `full` (every layer present) | A natal interpretation based on the birth details that were calculated. |
 | `full` (any layer absent) | Same, plus: *Only the layers that could actually be calculated were used.* |
@@ -142,3 +142,46 @@ Tests: `test/features/star_map/result/phase7b_{scope_resolver,presentation,scree
 (+ 7A harness adaptations described above).
 
 Backend / astronomy / Tarot / dependencies: **unchanged**.
+
+---
+
+## Phase 7B.1 — legacy scope disclosure truth (narrow remediation)
+
+**Defect.** 7B's legacy note positively named a birth date and a Sun sign as inputs
+(“…based on the birth-date and Sun-sign level information available to this reading”). The legacy runtime does
+not always prove either, so the copy could fabricate evidence:
+
+| Verified fact | Consequence |
+|---|---|
+| `StarMapReadingService.build(sunSign: null)` returns a valid, visible reading (`isPersonalized == false`, day-only salt, `signLabel == null`) | a live legacy reading can have **no Sun-sign evidence** |
+| `StarMapReferenceRoutes` accepts `BirthProfile? profile` | a live legacy reading can have **no birth-profile evidence** |
+| the planet catalogue is a general catalogue | it is **not** derived from a natal chart |
+| `StarMapLegacyResultCapture` persists title, sections, sectionKind, planets, dayKey — never `sunSignId` or birth data | a stored legacy artifact **cannot prove** a birth date or Sun sign |
+
+**Principle.** A disclosure never positively names evidence the presentation path cannot prove. “Available to this
+reading” does not rescue a preceding sentence that states a basis. False understatement beats fabricated evidence.
+
+**Fix (copy only).** LEGACY is now generic and fail-closed for *every* legacy path — live (no profile / no sun /
+sun known), planet catalogue, sky message, inner archive, stored artifact with or without `sunSignId`, and old
+artifacts missing optional fields. It names no birth date, Sun sign, birth time, birth place, or natal precision:
+
+| | LEGACY body |
+|---|---|
+| TR | Bu okuma için mevcut sembolik Yıldızname bağlamına dayanan bir yorum. Kesin bir doğum haritası hesabı değildir. |
+| EN | A symbolic Yıldızname interpretation based only on the context available to this reading. It is not a precise natal-chart calculation. |
+| RU | Символическое толкование Йылдызнаме, основанное только на контексте, доступном этому чтению. Это не точный расчёт натальной карты. |
+
+A stored `sunSignId` deliberately does **not** enrich the copy: the live path cannot match it, and the note must stay
+identical for the same reading class. Reopen reads STORED evidence only — never the current `BirthProfile`, so an old
+artifact never becomes “richer” because the user has a profile today (tested through the real reopen screen).
+
+**Unchanged.** Narrative resolver (`YildiznameScopeResolver`), REDUCED / FULL / partial-FULL copy (now pinned
+verbatim by test), artifact schema, stored prose / payload / `contentHash` (verified untouched after projection),
+`StarMapScopeNote`, all 7A masters, all Narrative 7B fixtures. No artifact migration. The firewall test now also
+forbids `birth_profile` / `birth_chart` imports on the presentation path.
+
+**Golden.** Only the phase-scoped `phase7b_artifact_legacy_reopen_390.png` was regenerated (its note text changed).
+7A masters and the two Narrative 7B fixtures are byte-identical (SHA-256 verified before/after).
+
+Tests: `test/features/star_map/result/phase7b1_legacy_truth_test.dart` (red-team written first; 19 of 26 failed on
+the pre-fix copy).

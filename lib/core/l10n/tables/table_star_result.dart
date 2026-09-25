@@ -77,9 +77,9 @@ const kL10nStarResult = <String, L10nTriple>{
     'На чём основано это толкование',
   ),
   'star.result.scope.legacy': L10nTriple(
-    'Bu okumada bulunan doğum tarihi ve Güneş burcu düzeyindeki bilgilere dayanan sembolik bir yorum. Kesin bir gök haritası hesabı değildir.',
-    'A symbolic interpretation based on the birth-date and Sun-sign level information available to this reading. It is not a precise sky-chart calculation.',
-    'Символическое толкование на основе даты рождения и уровня солнечного знака, доступных этому чтению. Это не точный расчёт небесной карты.',
+    'Bu okuma için mevcut sembolik Yıldızname bağlamına dayanan bir yorum. Kesin bir doğum haritası hesabı değildir.',
+    'A symbolic Yıldızname interpretation based only on the context available to this reading. It is not a precise natal-chart calculation.',
+    'Символическое толкование Йылдызнаме, основанное только на контексте, доступном этому чтению. Это не точный расчёт натальной карты.',
   ),
   'star.result.scope.reduced': L10nTriple(
     'Elde bulunan doğum bilgilerine göre kişiselleştirilmiş bir yorum. Doğum saati kesin olmadığı için Yükselen ve evler gibi saate bağlı katmanlar dahil edilmedi.',

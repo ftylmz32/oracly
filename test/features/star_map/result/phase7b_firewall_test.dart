@@ -99,34 +99,39 @@ void main() {
     }
   });
 
-  test('presentation path never imports provider / astronomy / network', () {
-    const forbidden = [
-      'astronomy',
-      'natal_chart_calculator',
-      '/ai/',
-      'narrative/live',
-      'proxy',
-      'http',
-      'openai',
-      'dart:io',
-      'gems',
-    ];
-    final imp = RegExp(r"import\s+'([^']+)'");
-    for (final path in _presentationPathFiles) {
-      for (final m in imp.allMatches(_code(path))) {
-        final target = m.group(1)!;
-        // Pure reading-context model already imported by the pre-7B screen.
-        if (target.endsWith('oracle_reading_context.dart')) continue;
-        for (final bad in forbidden) {
-          expect(
-            target.contains(bad),
-            isFalse,
-            reason: '$path imports "$target" (matches "$bad")',
-          );
+  test(
+    'presentation path never imports provider / astronomy / birth profile / network',
+    () {
+      const forbidden = [
+        'astronomy',
+        'natal_chart_calculator',
+        '/ai/',
+        'narrative/live',
+        'birth_profile',
+        'birth_chart',
+        'proxy',
+        'http',
+        'openai',
+        'dart:io',
+        'gems',
+      ];
+      final imp = RegExp(r"import\s+'([^']+)'");
+      for (final path in _presentationPathFiles) {
+        for (final m in imp.allMatches(_code(path))) {
+          final target = m.group(1)!;
+          // Pure reading-context model already imported by the pre-7B screen.
+          if (target.endsWith('oracle_reading_context.dart')) continue;
+          for (final bad in forbidden) {
+            expect(
+              target.contains(bad),
+              isFalse,
+              reason: '$path imports "$target" (matches "$bad")',
+            );
+          }
         }
       }
-    }
-  });
+    },
+  );
 
   test('widgets never parse artifact / request payloads', () {
     const needles = [

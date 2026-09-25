@@ -354,8 +354,8 @@ void main() {
       expect(p.sections.first.body, 'Bugün sakin bir nefes.');
       expect(p.planets.single.nameTr, 'Güneş');
       final d = p.scopeDisclosure!;
-      expect(d.body, contains('sembolik'));
-      expect(d.body, contains('Kesin bir gök haritası hesabı değildir'));
+      expect(d.body, contains('sembolik Yıldızname'));
+      expect(d.body, contains('Kesin bir doğum haritası hesabı değildir'));
       expect(d.evidence.hasAscendant, isFalse);
       expect(d.evidence.hasHouses, isFalse);
     });
