@@ -52,7 +52,7 @@ void main() {
                 draws++;
                 return sample();
               },
-              onFlightComplete: (_) {},
+              onFlightComplete: (_) async {},
             ),
           ),
         ),
@@ -91,7 +91,7 @@ void main() {
                 draws++;
                 return sample();
               },
-              onFlightComplete: (_) {},
+              onFlightComplete: (_) async {},
             ),
           ),
         ),
@@ -113,13 +113,17 @@ void main() {
   });
 
   test('reveal path does not pushReplacement ReadingScreen', () {
-    final text = File(
+    final state = File(
       'lib/features/tarot/ritual/table/tarot_table_scene_state.dart',
     ).readAsStringSync();
-    expect(text, contains('Navigator.of(context).push('));
-    expect(text.contains('.pushReplacement('), isFalse);
-    expect(text, contains('reading stays on table'));
-    expect(text, contains('TarotTablePhase.reading'));
+    final settle = File(
+      'lib/features/tarot/ritual/table/tarot_table_settle_actions.dart',
+    ).readAsStringSync();
+    expect(state, contains('Navigator.of(context).push('));
+    expect(state.contains('.pushReplacement('), isFalse);
+    expect(settle.contains('.pushReplacement('), isFalse);
+    expect(settle, contains('Awaitable settle boundary'));
+    expect(settle, contains('TarotTablePhase.reading'));
   });
 
   testWidgets('resetForNextDraw preserves State for 3-card continuity',
@@ -136,7 +140,7 @@ void main() {
               placeTarget: const Offset(-80, -200),
               onInteracted: () {},
               onRequestDraw: () async => sample(),
-              onFlightComplete: (_) {},
+              onFlightComplete: (_) async {},
             ),
           ),
         ),

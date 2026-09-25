@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
 import 'card_flight_actor_actions.dart';
 import 'card_flight_face.dart';
@@ -23,7 +24,7 @@ class CardFlightActor extends StatefulWidget {
 
   final bool enabled;
   final Future<RevealCardData?> Function() onRequestDraw;
-  final ValueChanged<RevealCardData> onFlightComplete;
+  final Future<void> Function(RevealCardData) onFlightComplete;
   final VoidCallback onInteracted;
   final ValueChanged<double>? onDragVisual;
   final Offset? placeTarget;
@@ -98,43 +99,43 @@ class CardFlightActorState extends State<CardFlightActor>
     return Semantics(
       button: true,
       enabled: canDrag,
-      label: 'Draw card',
-      hint: 'Drag upward to draw',
+      label: OraclyL10n.t('tarot.ritual.stage.draw'),
+      hint: OraclyL10n.t('tarot.ritual.draw_hint'),
       child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onPanStart: canDrag ? (_) => onPanStart() : null,
-      onPanUpdate: canDrag ? onPanUpdate : null,
-      onPanEnd: canDrag ? (_) => onPanEnd() : null,
-      onPanCancel: canDrag
-          ? () {
-              setState(() => phase = CardFlightPhase.onDeck);
-              snapBack();
-            }
-          : null,
-      child: Transform.translate(
-        offset: offset,
-        child: Transform.rotate(
-          angle: CardFlightMath.tilt(drag, phase),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: 0.35 + 0.25 * progress.clamp(0.0, 1.0),
+        behavior: HitTestBehavior.opaque,
+        onPanStart: canDrag ? (_) => onPanStart() : null,
+        onPanUpdate: canDrag ? onPanUpdate : null,
+        onPanEnd: canDrag ? (_) => onPanEnd() : null,
+        onPanCancel: canDrag
+            ? () {
+                setState(() => phase = CardFlightPhase.onDeck);
+                snapBack();
+              }
+            : null,
+        child: Transform.translate(
+          offset: offset,
+          child: Transform.rotate(
+            angle: CardFlightMath.tilt(drag, phase),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: 0.35 + 0.25 * progress.clamp(0.0, 1.0),
+                    ),
+                    blurRadius: 18 + 16 * progress.clamp(0.0, 1.0),
+                    offset: Offset(0, 8 + 10 * progress.clamp(0.0, 1.0)),
                   ),
-                  blurRadius: 18 + 16 * progress.clamp(0.0, 1.0),
-                  offset: Offset(0, 8 + 10 * progress.clamp(0.0, 1.0)),
-                ),
-              ],
-            ),
-            child: CardFlightFace(
-              flipProgress: CardFlightMath.flipProgress(_flight.value),
-              face: face,
+                ],
+              ),
+              child: CardFlightFace(
+                flipProgress: CardFlightMath.flipProgress(_flight.value),
+                face: face,
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 }

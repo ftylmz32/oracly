@@ -35,7 +35,7 @@ class TarotTableDeckStage extends StatelessWidget {
   final Offset? placeTarget;
   final VoidCallback onInteracted;
   final Future<RevealCardData?> Function() onRequestDraw;
-  final ValueChanged<RevealCardData> onFlightComplete;
+  final Future<void> Function(RevealCardData) onFlightComplete;
 
   @override
   Widget build(BuildContext context) {

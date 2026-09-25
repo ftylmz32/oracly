@@ -18,6 +18,7 @@ class TarotRitualController extends ChangeNotifier {
   bool domainShuffleDone = false;
   bool drawing = false;
   bool leaving = false;
+  bool settling = false;
 
   /// Visual id continuity: set before domain draw, keeps same widget tree.
   String? committedVisualId;
@@ -26,6 +27,9 @@ class TarotRitualController extends ChangeNotifier {
     visual = next;
     notifyListeners();
   }
+
+  /// Presentation bump for settle extension (protected notify boundary).
+  void notifyVisual() => notifyListeners();
 
   Future<void> bootstrap(BuildContext context) async {
     final reading = TarotScope.of(context).reading;
@@ -130,31 +134,5 @@ class TarotRitualController extends ChangeNotifier {
       drawing = false;
       notifyListeners();
     }
-  }
-
-  /// Returns true when all cards drawn / reading ready (on-table overlay).
-  Future<bool> settleAfterReveal(BuildContext context) async {
-    final card = active;
-    if (card == null) return false;
-    placed.add(card);
-    active = null;
-    committedVisualId = null;
-    visual = visual.copyWith(
-      stage: TarotRitualStage.place,
-      dragProgress: 0,
-      extractionProgress: 0,
-      flipProgress: 0,
-    );
-    notifyListeners();
-    final reading = TarotScope.of(context).reading;
-    await reading.advanceAfterReveal();
-    final session = reading.session;
-    if (session == null) return false;
-    if (session.flowStep == ReadingFlowStep.reading || session.allCardsDrawn) {
-      return true;
-    }
-    visual = visual.copyWith(stage: TarotRitualStage.draw);
-    notifyListeners();
-    return false;
   }
 }

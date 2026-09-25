@@ -64,14 +64,14 @@ mixin CardFlightActorActions on State<CardFlightActor>, TickerProvider {
         phase = CardFlightPhase.placed;
         drag = CardFlightMath.settledOffset(widget.placeTarget);
       });
-      widget.onFlightComplete(face!);
+      await widget.onFlightComplete(face!);
       return;
     }
     setState(() => phase = CardFlightPhase.extracting);
     await flight.forward(from: 0);
     if (!mounted) return;
     setState(() => phase = CardFlightPhase.placed);
-    widget.onFlightComplete(face!);
+    await widget.onFlightComplete(face!);
   }
 
   void resetForNextDraw() {

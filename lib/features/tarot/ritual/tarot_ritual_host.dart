@@ -10,8 +10,10 @@ import '../presentation/screens/reading_screen.dart';
 import '../presentation/widgets/card_reveal/card_reveal_spread.dart';
 import '../shared/constants/tarot_routes.dart';
 import '../shared/tarot_scope.dart';
+import 'ritual_settle_outcome.dart';
 import 'tarot_ritual_controller.dart';
 import 'tarot_ritual_scene.dart';
+import 'tarot_ritual_settle.dart';
 import 'tarot_ritual_stage.dart';
 
 class TarotRitualHost extends StatefulWidget {
@@ -80,20 +82,19 @@ class _TarotRitualHostState extends State<TarotRitualHost>
   Future<void> _settle() async {
     await Future<void>.delayed(const Duration(milliseconds: 360));
     if (!mounted) return;
-    final openReading = await _c.settleAfterReveal(context);
+    final outcome = await _c.settleAfterReveal(context);
     _extract.value = 0;
     _flip.value = 0;
     if (!mounted) return;
-    if (openReading) {
-      if (_c.leaving) return;
-      _c.leaving = true;
-      await Navigator.of(context).pushReplacement(
-        readingRitualRoute<void>(
-          page: const ReadingScreen(),
-          settings: const RouteSettings(name: TarotRoutes.reading),
-        ),
-      );
-    }
+    if (outcome != RitualSettleOutcome.readingReady) return;
+    if (_c.leaving) return;
+    _c.leaving = true;
+    await Navigator.of(context).pushReplacement(
+      readingRitualRoute<void>(
+        page: const ReadingScreen(),
+        settings: const RouteSettings(name: TarotRoutes.reading),
+      ),
+    );
   }
 
   @override

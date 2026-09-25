@@ -21,6 +21,7 @@ import 'tarot_table_intent_overlay.dart';
 import 'tarot_table_phase.dart';
 import 'tarot_table_reading_overlay.dart';
 import 'tarot_table_scene_state.dart';
+import 'tarot_table_settle_actions.dart';
 import 'tarot_table_spread_overlay.dart';
 
 class TarotTableScene extends ConsumerStatefulWidget {
@@ -31,7 +32,7 @@ class TarotTableScene extends ConsumerStatefulWidget {
 }
 
 class _TarotTableSceneState extends ConsumerState<TarotTableScene>
-    with TarotTableSceneActions {
+    with TarotTableSceneActions, TarotTableSettleActions {
   late final TarotRitualController _ritual;
   final GlobalKey<CardFlightActorState> _flightKey =
       GlobalKey<CardFlightActorState>();

@@ -1,4 +1,4 @@
-/// Phase 7D — actor ownership, duplication, reduced-motion, failed draw.
+﻿/// Phase 7D â€” actor ownership, duplication, reduced-motion, failed draw.
 library;
 
 import 'dart:io';
@@ -42,7 +42,7 @@ RevealCardData _sample(int id) {
   );
 }
 
-/// START HEAD showFlight — kept for regression proof only.
+/// START HEAD showFlight â€” kept for regression proof only.
 bool _legacyShowFlight(TarotTablePhase phase, TarotRitualStage stage) {
   return phase == TarotTablePhase.draw ||
       phase == TarotTablePhase.reading ||
@@ -63,7 +63,7 @@ void main() {
         ),
         isFalse,
       );
-      // START HEAD would still show flight — defect proof.
+      // START HEAD would still show flight â€” defect proof.
       expect(
         _legacyShowFlight(TarotTablePhase.reading, TarotRitualStage.place),
         isTrue,
@@ -131,7 +131,7 @@ void main() {
                 placeTarget: null,
                 onInteracted: () {},
                 onRequestDraw: () async => _sample(1),
-                onFlightComplete: (_) => completes++,
+                onFlightComplete: (_) async { completes++; },
               ),
             ),
           ),
@@ -181,7 +181,7 @@ void main() {
                     reducedMotion: true,
                     onInteracted: () {},
                     onRequestDraw: () async => _sample(99),
-                    onFlightComplete: (_) {},
+                    onFlightComplete: (_) async {},
                   ),
               ],
             ),
@@ -217,7 +217,7 @@ void main() {
                     enabled: false,
                     onInteracted: () {},
                     onRequestDraw: () async => _sample(99),
-                    onFlightComplete: (_) {},
+                    onFlightComplete: (_) async {},
                   ),
               ],
             ),
@@ -248,7 +248,7 @@ void main() {
                   draws++;
                   return null;
                 },
-                onFlightComplete: (_) => completes++,
+                onFlightComplete: (_) async { completes++; },
               ),
             ),
           ),
@@ -279,7 +279,7 @@ void main() {
                   draws++;
                   return _sample(7);
                 },
-                onFlightComplete: (_) => completes++,
+                onFlightComplete: (_) async { completes++; },
               ),
             ),
           ),
@@ -296,7 +296,7 @@ void main() {
       expect(key.currentState!.face, isNotNull);
     });
 
-    testWidgets('threeCard reduced: 3 commits → 3 draws → 3 completes',
+    testWidgets('threeCard reduced: 3 commits â†’ 3 draws â†’ 3 completes',
         (tester) async {
       final key = GlobalKey<CardFlightActorState>();
       var draws = 0;
@@ -318,7 +318,7 @@ void main() {
                     draws++;
                     return _sample(draws);
                   },
-                  onFlightComplete: (data) {
+                  onFlightComplete: (data) async {
                     completes++;
                     placed.add(data);
                     key.currentState?.resetForNextDraw();
@@ -352,7 +352,7 @@ void main() {
       expect(key.currentState!.phase, CardFlightPhase.onDeck);
     });
 
-    testWidgets('fiveCard reduced: 5 commits → 5 draws', (tester) async {
+    testWidgets('fiveCard reduced: 5 commits â†’ 5 draws', (tester) async {
       final key = GlobalKey<CardFlightActorState>();
       var draws = 0;
       var completes = 0;
@@ -370,7 +370,7 @@ void main() {
                   draws++;
                   return _sample(draws);
                 },
-                onFlightComplete: (_) {
+                onFlightComplete: (_) async {
                   completes++;
                   key.currentState?.resetForNextDraw();
                 },
