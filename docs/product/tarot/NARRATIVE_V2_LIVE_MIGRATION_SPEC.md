@@ -523,7 +523,11 @@ Must pass existing `AiOutputQualityTarot` **plus**:
 
 ### 6H — Phase 6 final audit
 
-- **Goal:** Independent freeze candidate for classical Narrative live; Crossroads still gated by 7/8  
+- **Status:** **PASS** (2026-09-25) · Phase 6 **FROZEN** · Phase 7 READY
+- **Goal:** Independent freeze candidate for classical Narrative live; Crossroads still gated by 7/8
+- **Real provider calls:** 0
+- **Crossroads:** internal Signature Narrative YES · picker/live NO
+- **Next:** Phase 7 Visual System (do not expose Crossroads)
 
 No slice combines scorer rewrite + history + live cutover + picker.
 

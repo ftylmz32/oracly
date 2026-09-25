@@ -1350,14 +1350,14 @@ These remain **NOT COMPLETE** unless later evidence proves otherwise.
 
 ## Next action
 
-**Phase 6G — Crossroads internal Narrative: IMPLEMENTED** · picker/live still false · **0** real provider calls.
+**Phase 6H — Phase 6 final freeze audit: PASS · Phase 6 FROZEN · Phase 7 READY.**
 
-6F.1: **FROZEN** · candidate + `commitValidated` after Reflective+AiOutputQuality · max 2 provider attempts · attempt-specific guard/idempotency/duplicate · locked `a3` fail-closed.
+Crossroads remains **picker FALSE** / **not live** until Phase 7 visual + Phase 8 E2E gates.
 
-**Next:** **6H** Phase 6 final audit (Classical live freeze candidate; Crossroads still gated by Phase 7/8).
+Phase 6.0–6G: **PASS** · 6E.8 quality **FROZEN** · 6F Classical live **ON (flag)** · 6F.1 cache/retry **FROZEN** · 6G Crossroads internal **YES** · 6H freeze audit **PASS**.
 
-Phase 6.0–6E.1: **PASS** · 6E.8: **quality FROZEN** · 6F: **wired** · 6F.1: **FROZEN** · 6G: **IMPLEMENTED (internal only)** · live Classical V2: **YES (flag)** · Crossroads: **NOT LIVE / picker FALSE**.
+**Next:** Phase 7 — Visual System + golden masters (Crossroads still gated from public exposure).
 
 Do **not** merge.
 Do **not** modify `release/ios-1.0` / Build 4.
-Do **not** expose Crossroads in user pickers until Phase 6 final + Phase 7 + Phase 8 gates.
+Do **not** expose Crossroads in user pickers until Phase 7 + Phase 8 gates.
