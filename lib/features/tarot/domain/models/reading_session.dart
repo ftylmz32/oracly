@@ -81,6 +81,10 @@ class ReadingSession {
     this.userId,
     this.drawnCards = const [],
     this.interpretation,
+    this.interpretationResultMode,
+    this.interpretationSource,
+    this.interpretationDeliveryKind,
+    this.interpretationLocale,
     this.completedAt,
     this.durationMs,
     this.status = ReadingSessionStatus.inProgress,
@@ -99,6 +103,14 @@ class ReadingSession {
   final int? durationMs;
   final List<TarotDrawnCard> drawnCards;
   final String? interpretation;
+
+  /// Durable presentation provenance for [interpretation] replay (Phase 8.1).
+  /// Strings only — never import presentation enums into this model.
+  final String? interpretationResultMode;
+  final String? interpretationSource;
+  final String? interpretationDeliveryKind;
+  final String? interpretationLocale;
+
   final ReadingSessionStatus status;
   final ReadingFlowStep flowStep;
   final int currentPositionIndex;
@@ -121,6 +133,10 @@ class ReadingSession {
     String? userId,
     List<TarotDrawnCard>? drawnCards,
     String? interpretation,
+    String? interpretationResultMode,
+    String? interpretationSource,
+    String? interpretationDeliveryKind,
+    String? interpretationLocale,
     DateTime? completedAt,
     int? durationMs,
     ReadingSessionStatus? status,
@@ -140,6 +156,12 @@ class ReadingSession {
       durationMs: durationMs ?? this.durationMs,
       drawnCards: drawnCards ?? this.drawnCards,
       interpretation: interpretation ?? this.interpretation,
+      interpretationResultMode:
+          interpretationResultMode ?? this.interpretationResultMode,
+      interpretationSource: interpretationSource ?? this.interpretationSource,
+      interpretationDeliveryKind:
+          interpretationDeliveryKind ?? this.interpretationDeliveryKind,
+      interpretationLocale: interpretationLocale ?? this.interpretationLocale,
       status: status ?? this.status,
       flowStep: flowStep ?? this.flowStep,
       currentPositionIndex: currentPositionIndex ?? this.currentPositionIndex,
@@ -159,6 +181,10 @@ class ReadingSession {
         'durationMs': durationMs,
         'drawnCards': drawnCards.map((c) => c.toJson()).toList(),
         'interpretation': interpretation,
+        'interpretationResultMode': interpretationResultMode,
+        'interpretationSource': interpretationSource,
+        'interpretationDeliveryKind': interpretationDeliveryKind,
+        'interpretationLocale': interpretationLocale,
         'status': status.name,
         'flowStep': flowStep.name,
         'currentPositionIndex': currentPositionIndex,

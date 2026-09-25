@@ -64,6 +64,9 @@ import '../../../../core/reading_version/services/reading_version_payload.dart';
 import '../../../../core/reading_version/widgets/reading_version_host.dart';
 import '../../../../core/memory/oracly_memory.dart';
 import '../../services/journal_persist_gate.dart';
+import '../../services/tarot_reading_load_path.dart';
+import '../../services/tarot_session_interpretation_replay.dart';
+import '../../../../core/l10n/l10n.dart';
 
 /// Cinematic interpretation — intro, staggered sections, premium actions.
 class ReadingScreen extends ConsumerStatefulWidget {
@@ -80,6 +83,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   late final AnimationController _exit;
   late final AnimationController _ambient;
   AiReadingContent? _contentData;
+  ReadingResultMode? _modeOverride;
   String? _loadError;
   bool _loading = true;
   bool _exiting = false;
@@ -171,21 +175,21 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     }
     AiReadingContent? content;
     String? loadError;
+    final charge = TarotReadingCharge(
+      walletService,
+      localStorage,
+      analytics: analytics,
+    );
     try {
-      content =
-          await TarotReadingCompletion(
-            charge: TarotReadingCharge(
-              walletService,
-              localStorage,
-              analytics: analytics,
-            ),
-          ).complete(
-            session,
-            load: () => reading.resolveInterpretationContent(
-              journeyHints: journeyHints,
-            ),
-            shouldCommit: () => mounted && token == _loadToken,
-          );
+      content = await TarotReadingLoadPath.resolve(
+        session: session,
+        charge: charge,
+        completion: TarotReadingCompletion(charge: charge),
+        generate: () => reading.resolveInterpretationContent(
+          journeyHints: journeyHints,
+        ),
+        shouldCommit: () => mounted && token == _loadToken,
+      );
     } on InterpretationException catch (e) {
       content = null;
       loadError = e.message;
@@ -215,16 +219,34 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       return;
     }
     final latest = reading.session ?? session;
-    if (content.isJournalEligible &&
-        latest.interpretation != content.fullInterpretation) {
+    if (content.isJournalEligible) {
+      final mode = latest.interpretationResultMode ??
+          ReadingResultModeResolver.of(latest.spread).name;
       await reading.updateSession(
-        latest.copyWith(interpretation: content.fullInterpretation),
+        latest.copyWith(
+          interpretation: content.fullInterpretation,
+          interpretationResultMode: mode,
+          interpretationSource: content.sourceAttributionKnown
+              ? content.interpretationSource.name
+              : latest.interpretationSource,
+          interpretationDeliveryKind: content.deliveryKind.name,
+          interpretationLocale:
+              latest.interpretationLocale ?? OraclyL10n.code,
+        ),
       );
     }
     // Paid content is persisted before UI gates — navigation must not drop it.
     if (!mounted || token != _loadToken) return;
+    final modeOverride = TarotSessionInterpretationReplay.hasPersistedBody(
+          reading.session ?? latest,
+        )
+        ? TarotSessionInterpretationReplay.resultModeOf(
+            reading.session ?? latest,
+          )
+        : null;
     setState(() {
       _contentData = content;
+      _modeOverride = modeOverride;
       _loadError = null;
       _loading = false;
     });
@@ -350,7 +372,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
           .saveFromSession(
             session: completed,
             aiSummary: content.fullInterpretation ?? content.generalMeaning,
-            resultMode: ReadingResultModeResolver.of(completed.spread).name,
+            resultMode: completed.interpretationResultMode ??
+                ReadingResultModeResolver.of(completed.spread).name,
             interpretationSource: content.interpretationSource.name,
             deliveryKind: content.deliveryKind.name,
           );
@@ -528,8 +551,10 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
         (reading.session ?? session).copyWith(interpretation: summary),
       );
       if (!mounted) return false;
+      final restored = reading.session ?? session;
       setState(() {
         _contentData = content;
+        _modeOverride = TarotSessionInterpretationReplay.resultModeOf(restored);
         _loading = false;
       });
       _content.value = 1;
@@ -730,6 +755,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                       ReadingPremiumBody(
                                         content: contentData,
                                         spread: session?.spread,
+                                        modeOverride: _modeOverride,
                                         sectionMaster: sectionMaster,
                                         panelOpacity: _panelOpacityFor(
                                           sectionMaster,

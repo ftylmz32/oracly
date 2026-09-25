@@ -34,6 +34,12 @@ abstract final class ReadingSessionCodec {
             .map((e) => TarotDrawnCard.fromJson(e as Map<String, dynamic>))
             .toList(),
         interpretation: json['interpretation'] as String?,
+        interpretationResultMode:
+            json['interpretationResultMode'] as String?,
+        interpretationSource: json['interpretationSource'] as String?,
+        interpretationDeliveryKind:
+            json['interpretationDeliveryKind'] as String?,
+        interpretationLocale: json['interpretationLocale'] as String?,
         status: ReadingSessionStatus.values.byName(
           json['status'] as String? ?? 'inProgress',
         ),

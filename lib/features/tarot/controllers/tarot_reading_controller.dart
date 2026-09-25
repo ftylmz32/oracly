@@ -13,6 +13,7 @@ import '../../insights/models/journey_personalization_hints.dart';
 import '../domain/models/tarot_position.dart';
 import '../domain/models/tarot_spread.dart';
 import '../domain/repositories/tarot_reading_repository.dart';
+import '../narrative/live/narrative_tarot_live_gate.dart';
 import '../presentation/widgets/ai_reading/ai_reading_content.dart';
 import '../services/tarot_interpretation_service.dart';
 import 'tarot_base_controller.dart';
@@ -36,11 +37,14 @@ class TarotReadingController extends TarotBaseController {
 
   ReadingSession? _session;
   bool _drawLocked = false;
+  /// True when durable draw state could not be reconciled after a persist fault.
+  bool _drawStateUncertain = false;
   Future<AiReadingContent>? _interpretationInflight;
   int _sessionSeq = 0;
 
   ReadingSession? get session => _session;
   TarotDeckController get deckController => _deckController;
+  bool get drawStateUncertain => _drawStateUncertain;
 
   Future<void> restoreActiveSession() async {
     final raw = await _repository.loadActiveSession();
@@ -69,6 +73,7 @@ class TarotReadingController extends TarotBaseController {
     await _repository.clearActiveSession();
     _session = null;
     _drawLocked = false;
+    _drawStateUncertain = false;
     _interpretationInflight = null;
     clearError();
     notifyListeners();
@@ -135,6 +140,9 @@ class TarotReadingController extends TarotBaseController {
     if (current == null) {
       throw StateError('No active reading session');
     }
+    if (_drawStateUncertain) {
+      throw StateError('Draw persistence state uncertain');
+    }
     if (_drawLocked) {
       throw StateError('Draw in progress');
     }
@@ -142,41 +150,148 @@ class TarotReadingController extends TarotBaseController {
       throw StateError('All cards already drawn');
     }
     _drawLocked = true;
+    var releaseLock = true;
     try {
+      final snapshot = current;
+      final snapshotIds =
+          snapshot.drawnCards.map((c) => c.card.id).toList(growable: false);
       final draw = fanIndex == null
           ? _deckController.drawNext()
           : _deckController.drawFromFan(fanIndex);
-      final drawn = _applyDraw(current, draw);
-      await _persist();
-      notifyListeners();
+      final drawn = _buildDrawnCard(snapshot, draw);
+      final candidate = _sessionWithDrawn(snapshot, drawn);
+      final committed = await _commitDrawCandidate(
+        snapshot: snapshot,
+        snapshotDrawnIds: snapshotIds,
+        candidate: candidate,
+      );
+      if (!committed) {
+        // Rolled back — surface as failure for ritual commitDraw.
+        throw StateError('persist_failed');
+      }
       return drawn;
+    } on StateError catch (e) {
+      if (e.message == 'Draw persistence state uncertain') {
+        releaseLock = false;
+      }
+      rethrow;
     } finally {
-      _drawLocked = false;
+      if (releaseLock) _drawLocked = false;
     }
   }
 
   /// OR AÇSIN — take the remaining spread cards from the shuffled pile.
   Future<void> drawAllRemaining() async {
-    var current = _session;
+    final current = _session;
     if (current == null) {
       throw StateError('No active reading session');
     }
+    if (_drawStateUncertain) {
+      throw StateError('Draw persistence state uncertain');
+    }
     if (_drawLocked) return;
     _drawLocked = true;
+    var releaseLock = true;
     try {
-      while (!current!.allCardsDrawn) {
-        _applyDraw(current, _deckController.drawNext());
-        current = _session!;
+      final snapshot = current;
+      final snapshotIds =
+          snapshot.drawnCards.map((c) => c.card.id).toList(growable: false);
+      var working = snapshot;
+      while (!working.allCardsDrawn) {
+        final draw = _deckController.drawNext();
+        final drawn = _buildDrawnCard(working, draw);
+        working = _sessionWithDrawn(working, drawn);
       }
-      _session = current.copyWith(
+      final candidate = working.copyWith(
         flowStep: ReadingFlowStep.reveal,
         currentPositionIndex: 0,
       );
-      await _persist();
-      notifyListeners();
+      final committed = await _commitDrawCandidate(
+        snapshot: snapshot,
+        snapshotDrawnIds: snapshotIds,
+        candidate: candidate,
+      );
+      if (!committed) {
+        throw StateError('persist_failed');
+      }
+    } on StateError catch (e) {
+      if (e.message == 'Draw persistence state uncertain') {
+        releaseLock = false;
+      }
+      rethrow;
     } finally {
-      _drawLocked = false;
+      if (releaseLock) _drawLocked = false;
     }
+  }
+
+  /// Persist [candidate] then assign `_session`. On failure, reconcile durable
+  /// state: commit if durable already has candidate, else full rollback.
+  /// Returns true when the draw is committed everywhere.
+  Future<bool> _commitDrawCandidate({
+    required ReadingSession snapshot,
+    required List<int> snapshotDrawnIds,
+    required ReadingSession candidate,
+  }) async {
+    try {
+      await _repository.saveSession(candidate);
+      _session = candidate;
+      notifyListeners();
+      return true;
+    } catch (_) {
+      ReadingSession? durable;
+      try {
+        durable = await _repository.loadActiveSession();
+      } catch (_) {
+        _drawStateUncertain = true;
+        throw StateError('Draw persistence state uncertain');
+      }
+      if (_sameDrawCommit(durable, candidate)) {
+        // Write-then-throw: durable already holds the candidate.
+        _session = candidate;
+        notifyListeners();
+        return true;
+      }
+      // Fail-before-write (or durable still pre-draw): restore deck + session.
+      _session = snapshot;
+      _deckController.restorePile(
+        deckId: snapshot.deckId,
+        seed: snapshot.shuffleSeed,
+        drawnCardIds: snapshotDrawnIds,
+      );
+      if (_needsDrawCompensation(durable, snapshot)) {
+        try {
+          await _repository.saveSession(snapshot);
+        } catch (_) {
+          _drawStateUncertain = true;
+          throw StateError('Draw persistence state uncertain');
+        }
+      }
+      return false;
+    }
+  }
+
+  static bool _sameDrawCommit(ReadingSession? durable, ReadingSession candidate) {
+    if (durable == null || durable.id != candidate.id) return false;
+    if (durable.drawnCards.length != candidate.drawnCards.length) return false;
+    for (var i = 0; i < durable.drawnCards.length; i++) {
+      if (durable.drawnCards[i].card.id != candidate.drawnCards[i].card.id) {
+        return false;
+      }
+      if (durable.drawnCards[i].isReversed !=
+          candidate.drawnCards[i].isReversed) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static bool _needsDrawCompensation(
+    ReadingSession? durable,
+    ReadingSession snapshot,
+  ) {
+    if (durable == null || durable.id != snapshot.id) return false;
+    if (durable.drawnCards.length == snapshot.drawnCards.length) return false;
+    return true;
   }
 
   Future<void> advanceAfterReveal() async {
@@ -208,7 +323,7 @@ class TarotReadingController extends TarotBaseController {
     }
   }
 
-  TarotDrawnCard _applyDraw(
+  TarotDrawnCard _buildDrawnCard(
     ReadingSession current,
     ({TarotCard card, bool isReversed}) draw,
   ) {
@@ -216,20 +331,24 @@ class TarotReadingController extends TarotBaseController {
       current.spread,
       current.drawnCards.length,
     );
-    final drawn = TarotDrawnCard(
+    return TarotDrawnCard(
       card: draw.card,
       positionIndex: current.drawnCards.length,
       isReversed: draw.isReversed,
       positionLabel: position?.label,
       positionKey: position?.key,
     );
+  }
 
-    _session = current.copyWith(
+  ReadingSession _sessionWithDrawn(
+    ReadingSession current,
+    TarotDrawnCard drawn,
+  ) {
+    return current.copyWith(
       drawnCards: [...current.drawnCards, drawn],
       flowStep: ReadingFlowStep.reveal,
       currentPositionIndex: current.drawnCards.length,
     );
-    return drawn;
   }
 
   Future<AiReadingContent> resolveInterpretationContent({
@@ -257,8 +376,15 @@ class TarotReadingController extends TarotBaseController {
         }
         // Safety copy is display-only — never store as completed interpretation.
         if (content.isJournalEligible) {
+          final mode = NarrativeTarotLiveGate.shouldUseNarrative(current.spread)
+              ? 'narrativeV2'
+              : 'legacy';
           _session = current.copyWith(
             interpretation: content.fullInterpretation,
+            interpretationResultMode: mode,
+            interpretationSource: content.interpretationSource.name,
+            interpretationDeliveryKind: content.deliveryKind.name,
+            interpretationLocale: OraclyL10n.code,
             flowStep: ReadingFlowStep.reading,
           );
           await _persist();
