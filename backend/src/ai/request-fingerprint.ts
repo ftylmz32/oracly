@@ -2,6 +2,7 @@
 import type { ValidatedRequest } from './validate-request.js';
 import { sanitizeText } from './sanitize.js';
 import { narrativeRequestFingerprint } from './narrative-tarot-canonical.js';
+import { yildiznameRequestFingerprint } from './narrative-yildizname-canonical.js';
 
 export function fingerprintRequest(request: ValidatedRequest): string {
   switch (request.operation) {
@@ -27,6 +28,8 @@ export function fingerprintRequest(request: ValidatedRequest): string {
         return narrativeRequestFingerprint(request);
       }
       return `tarot:${request.cards.map((card) => card.name).join(',').toLowerCase()}|${sanitizeText(request.spreadLabel).toLowerCase()}|${sanitizeText(request.userQuestion ?? '').toLowerCase()}`;
+    case 'yildizname_reading':
+      return yildiznameRequestFingerprint(request);
     case 'tts':
       return `tts:${sanitizeText(request.text).toLowerCase()}|${request.voiceId}|${request.speechSpeed}`;
   }

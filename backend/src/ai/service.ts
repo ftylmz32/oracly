@@ -33,6 +33,9 @@ import { tarotMessages } from './tarot-prompts.js';
 import { narrativeTarotMessages } from './narrative-tarot-prompts.js';
 import { buildNarrativeTarotCompleteOptions } from './narrative-tarot-model.js';
 import { parseNarrativeTarotResult } from './narrative-tarot-result.js';
+import { yildiznameNarrativeMessages } from './narrative-yildizname-prompts.js';
+import { buildYildiznameNarrativeCompleteOptions } from './narrative-yildizname-model.js';
+import { parseYildiznameNarrativeResult } from './narrative-yildizname-result.js';
 import { requestOpenAiSpeech } from './openai-speech.js';
 import type { ValidatedRequest } from './validate-request.js';
 import { ReadingPipeline } from './reading/pipeline.js';
@@ -120,6 +123,8 @@ export class AiProxyService {
         return this.soulmateInterpretation(request, model);
       case 'tarot_reading':
         return this.tarotReading(request, model);
+      case 'yildizname_reading':
+        return this.yildiznameReading(request, model);
       case 'tts':
         return this.tts(request);
     }
@@ -389,6 +394,22 @@ export class AiProxyService {
       }),
     );
     return { text };
+  }
+
+  private async yildiznameReading(
+    request: Extract<ValidatedRequest, { operation: 'yildizname_reading' }>,
+    model: string,
+  ) {
+    const raw = extractChatText(
+      await this.transport.complete(
+        buildYildiznameNarrativeCompleteOptions(
+          this.config,
+          model,
+          yildiznameNarrativeMessages(request.narrative, request.language),
+        ),
+      ),
+    );
+    return parseYildiznameNarrativeResult(raw, request.narrative);
   }
 
   private async tts(

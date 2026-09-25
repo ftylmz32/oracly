@@ -8,6 +8,7 @@ enum AiRequestKind {
   coffee,
   palm,
   tarot,
+  yildizname,
   soulmate,
   soulmateText,
   tts,
@@ -61,7 +62,10 @@ abstract final class AiRequestAbusePolicy {
   static AiAbuseLimits of(AiRequestKind kind) => switch (kind) {
         AiRequestKind.chat || AiRequestKind.oracle => chat,
         AiRequestKind.coffee || AiRequestKind.palm => vision,
-        AiRequestKind.dream || AiRequestKind.tarot => ritual,
+        AiRequestKind.dream ||
+        AiRequestKind.tarot ||
+        AiRequestKind.yildizname =>
+          ritual,
         AiRequestKind.soulmate => soulmate,
         AiRequestKind.soulmateText => chat,
         AiRequestKind.tts => tts,

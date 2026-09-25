@@ -52,6 +52,14 @@ abstract final class ProductFeatureFlags {
     defaultValue: true,
   );
 
+  /// Phase 5 — Yıldızname Narrative V1 engine (Phase 8 enables live path).
+  /// Default false keeps StarMapReadingService local archive as rollback.
+  static const yildiznameNarrativeV1 = FeatureFlagDefinition(
+    key: 'yildizname_narrative_v1',
+    type: FeatureFlagType.boolean,
+    defaultValue: false,
+  );
+
   static const catalog = <FeatureFlagDefinition>[
     tarot7Card,
     tarotNarrativeV2,
@@ -60,6 +68,7 @@ abstract final class ProductFeatureFlags {
     coffeeResult,
     astrologyVisual,
     newDailyEngine,
+    yildiznameNarrativeV1,
   ];
 
   static Map<String, bool> defaults() => {

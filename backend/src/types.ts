@@ -9,6 +9,7 @@ export type AiOperation =
   | 'soulmate_draw'
   | 'soulmate_interpretation'
   | 'tarot_reading'
+  | 'yildizname_reading'
   | 'tts';
 
 export const OPERATIONS: readonly AiOperation[] = [
@@ -20,6 +21,7 @@ export const OPERATIONS: readonly AiOperation[] = [
   'soulmate_draw',
   'soulmate_interpretation',
   'tarot_reading',
+  'yildizname_reading',
   'tts',
 ] as const;
 

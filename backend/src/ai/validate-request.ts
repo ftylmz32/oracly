@@ -17,6 +17,10 @@ import {
   validateNarrativeTarotPayload,
   type NarrativeTarotValidated,
 } from './narrative-tarot-contract.js';
+import {
+  validateYildiznameNarrativePayload,
+  type YildiznameNarrativeValidated,
+} from './narrative-yildizname-contract.js';
 
 type BaseRequest =
   | {
@@ -70,6 +74,7 @@ type BaseRequest =
       journeyHints?: TarotJourneyHints;
     }
   | NarrativeTarotValidated
+  | YildiznameNarrativeValidated
   | {
       operation: 'tts';
       text: string;
@@ -121,6 +126,8 @@ export function validateAiBody(body: unknown): ValidatedRequest {
       return { ...validateSoulMateInterpretation(payload), language };
     case 'tarot_reading':
       return { ...validateTarot(payload), language };
+    case 'yildizname_reading':
+      return { ...validateYildiznameNarrativePayload(payload), language };
     case 'tts':
       return { ...validateTts(payload), language };
   }

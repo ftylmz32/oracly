@@ -46,6 +46,14 @@ export type AppConfig = {
   openaiTarotNarrativeModel: string | null;
   /** Narrative V2 reasoning effort when the resolved model supports it. Default none. */
   openaiTarotNarrativeReasoningEffort: 'none' | 'low' | 'medium';
+  /**
+   * Yıldızname natal narrative writer only (`yildizname_reading`).
+   * Null when unset/blank/not allowlisted — falls back to `openaiModel`.
+   * Does not affect Tarot / OR / Dream / Coffee / Palm.
+   */
+  openaiYildiznameNarrativeModel: string | null;
+  /** Yıldızname reasoning effort when the resolved model supports it. Default none. */
+  openaiYildiznameNarrativeReasoningEffort: 'none' | 'low' | 'medium';
   authRequired: boolean;
   devAuthBypass: boolean;
   authMode: AuthMode;
@@ -208,6 +216,20 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     narrativeReasoningRaw === 'low' || narrativeReasoningRaw === 'medium'
       ? narrativeReasoningRaw
       : 'none';
+  const yildiznameModelRaw = nonEmpty(env.OPENAI_YILDIZNAME_NARRATIVE_MODEL);
+  const openaiYildiznameNarrativeModel =
+    yildiznameModelRaw && allowed.includes(yildiznameModelRaw)
+      ? yildiznameModelRaw
+      : null;
+  const yildiznameReasoningRaw = (
+    env.OPENAI_YILDIZNAME_NARRATIVE_REASONING_EFFORT ?? 'none'
+  )
+    .trim()
+    .toLowerCase();
+  const openaiYildiznameNarrativeReasoningEffort =
+    yildiznameReasoningRaw === 'low' || yildiznameReasoningRaw === 'medium'
+      ? yildiznameReasoningRaw
+      : 'none';
   const bypassRequested = parseBool(env.AI_DEV_AUTH_BYPASS, false);
   const authRequiredSetting = parseBool(env.AI_AUTH_REQUIRED, true);
   const jwtSecret = nonEmpty(env.AI_JWT_SECRET);
@@ -264,6 +286,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     openaiReadingReasoningEffort,
     openaiTarotNarrativeModel,
     openaiTarotNarrativeReasoningEffort,
+    openaiYildiznameNarrativeModel,
+    openaiYildiznameNarrativeReasoningEffort,
     authRequired,
     devAuthBypass,
     authMode: resolveAuthMode({

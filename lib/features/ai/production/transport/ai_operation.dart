@@ -10,6 +10,7 @@ enum AiOperation {
   soulmateDraw,
   soulmateInterpretation,
   tarotReading,
+  yildiznameReading,
   tts,
 }
 
@@ -23,6 +24,7 @@ extension AiOperationWire on AiOperation {
         AiOperation.soulmateDraw => 'soulmate_draw',
         AiOperation.soulmateInterpretation => 'soulmate_interpretation',
         AiOperation.tarotReading => 'tarot_reading',
+        AiOperation.yildiznameReading => 'yildizname_reading',
         AiOperation.tts => 'tts',
       };
 }

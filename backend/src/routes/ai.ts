@@ -27,6 +27,10 @@ import {
   narrativeDuplicateFingerprint,
   requireNarrativeAttemptInLockedEnv,
 } from '../narrative-tarot-attempt.js';
+import {
+  requireYildiznameAttemptInLockedEnv,
+  yildiznameDuplicateFingerprint,
+} from '../narrative-yildizname-attempt.js';
 import { createSharedWindowStore, type SharedWindowStore } from '../rate-limit/shared-window-store.js';
 
 export type AiRouteOptions = {
@@ -118,6 +122,18 @@ export async function registerAiRoutes(
             duplicateFingerprint = narrativeDuplicateFingerprint(
               fingerprint,
               narrativeAttempt,
+            );
+          }
+        }
+        if (validated.operation === 'yildizname_reading') {
+          const yildiznameAttempt = requireYildiznameAttemptInLockedEnv(
+            config,
+            idemKey,
+          );
+          if (yildiznameAttempt != null) {
+            duplicateFingerprint = yildiznameDuplicateFingerprint(
+              fingerprint,
+              yildiznameAttempt,
             );
           }
         }

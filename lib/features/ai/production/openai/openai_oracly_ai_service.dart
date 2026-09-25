@@ -15,8 +15,10 @@ import '../models/dream_ai_analysis.dart';
 import '../models/palm_ai_analysis.dart';
 import '../oracly_ai_service.dart';
 import '../oracly_narrative_tarot_ai_service.dart';
+import '../oracly_narrative_yildizname_ai_service.dart';
 import '../transport/ai_transport.dart';
 import '../../../tarot/narrative/live/narrative_tarot_attempt.dart';
+import '../../../star_map/narrative/live/yildizname_narrative_attempt.dart';
 import 'openai_image_analysis.dart';
 import 'openai_paid_requests.dart';
 import 'openai_service_requests.dart';
@@ -28,7 +30,8 @@ class OpenAiOraclyAiService
         OraclyAiService,
         OraclyStagedImageAiService,
         OraclyEvidenceMemoryAiService,
-        OraclyNarrativeTarotAiService {
+        OraclyNarrativeTarotAiService,
+        OraclyNarrativeYildiznameAiService {
   OpenAiOraclyAiService({
     required this._config,
     required this._transport,
@@ -175,6 +178,30 @@ class OpenAiOraclyAiService
       () async {
         return _transport.execute(
           OpenAiPaidRequests.tarotNarrative(
+            payload: payload,
+            fingerprint: fingerprint,
+            attempt: attempt,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Future<AiOutcome<Map<String, dynamic>>> generateNarrativeYildiznameReading({
+    required Map<String, dynamic> payload,
+    required String fingerprint,
+    int attempt = 1,
+  }) {
+    YildiznameNarrativeAttempt.assertValid(attempt);
+    return _guard.runOutcome(
+      YildiznameNarrativeAttempt.guardKey(fingerprint, attempt),
+      kind: AiRequestKind.yildizname,
+      fingerprint:
+          YildiznameNarrativeAttempt.guardFingerprint(fingerprint, attempt),
+      () async {
+        return _transport.execute(
+          OpenAiPaidRequests.yildiznameNarrative(
             payload: payload,
             fingerprint: fingerprint,
             attempt: attempt,

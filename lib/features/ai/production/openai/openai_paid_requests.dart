@@ -11,6 +11,7 @@ import '../contexts/reading_ai_context.dart';
 import '../transport/ai_operation.dart';
 import '../transport/ai_proxy_request.dart';
 import '../../../tarot/narrative/live/narrative_tarot_attempt.dart';
+import '../../../star_map/narrative/live/yildizname_narrative_attempt.dart';
 import 'paid_request_idempotency.dart';
 
 abstract final class OpenAiPaidRequests {
@@ -209,6 +210,21 @@ abstract final class OpenAiPaidRequests {
     return AiProxyRequest(
       operation: AiOperation.tarotReading,
       idempotencyKey: NarrativeTarotAttempt.idempotencyKey(fingerprint, attempt),
+      payload: payload,
+    );
+  }
+
+  /// Yıldızname Narrative V1 — backend-authoritative writer; no client model hint.
+  /// [attempt] is transport idempotency only (`:yv1:a1` / `:yv1:a2`).
+  static AiProxyRequest yildiznameNarrative({
+    required Map<String, dynamic> payload,
+    required String fingerprint,
+    int attempt = 1,
+  }) {
+    return AiProxyRequest(
+      operation: AiOperation.yildiznameReading,
+      idempotencyKey:
+          YildiznameNarrativeAttempt.idempotencyKey(fingerprint, attempt),
       payload: payload,
     );
   }

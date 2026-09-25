@@ -53,6 +53,10 @@ class DirectOpenAiTransport implements AiTransport {
       AiOperation.tarotReading => Future.value(
           AiOutcome.failure(AiFailure.noConfiguration()),
         ),
+      // Yıldızname Narrative V1 is proxy-only — fail closed on direct transport.
+      AiOperation.yildiznameReading => Future.value(
+          AiOutcome.failure(AiFailure.noConfiguration()),
+        ),
       AiOperation.tts => _openAi.speech(
           text: payload['text'] as String? ?? '',
           personality: payload['personality'] as String? ?? 'mystical',

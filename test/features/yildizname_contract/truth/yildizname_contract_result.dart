@@ -8,6 +8,8 @@ class ContractGateResult {
   const ContractGateResult.fail(this.reason) : kind = ContractGateResultKind.fail;
   const ContractGateResult.knownGap(this.reason)
       : kind = ContractGateResultKind.knownGap;
+  const ContractGateResult.closed(this.reason)
+      : kind = ContractGateResultKind.pass;
 
   final ContractGateResultKind kind;
   final String? reason;
@@ -31,18 +33,21 @@ abstract final class YildiznameKnownGaps {
   static const objectHashFavorite = ContractGateResult.knownGap(
     'Phase 6: favorite id uses Object.hash(title, insight)',
   );
-  static const noProductionSafetyGate = ContractGateResult.knownGap(
-    'Phase 5: no Yıldızname-specific production safety gate',
-  );
-  static const noInterpretationCraft = ContractGateResult.knownGap(
-    'Phase 5: professional interpretation / groundedness / quality gate',
+
+  /// CLOSED Phase 5 — YıldıznameNarrativeQualityValidator safety gate.
+  static const noProductionSafetyGate = ContractGateResult.closed(
+    'CLOSED Phase 5: Yıldızname-specific production safety gate',
   );
 
+  /// CLOSED Phase 5 — interpretation / groundedness / quality engine.
+  static const noInterpretationCraft = ContractGateResult.closed(
+    'CLOSED Phase 5: professional interpretation / groundedness / quality gate',
+  );
+
+  /// Open gaps only — Phase 5 entries removed from the live ledger.
   static const all = <ContractGateResult>[
     ownerlessBirthKey,
     noFrozenArtifact,
     objectHashFavorite,
-    noProductionSafetyGate,
-    noInterpretationCraft,
   ];
 }
