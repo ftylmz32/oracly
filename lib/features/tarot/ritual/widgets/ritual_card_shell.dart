@@ -1,17 +1,20 @@
 /// Canonical ritual card size + clip for Oracly card-back / face.
+///
+/// Phase 7B: physicality sourced from [TarotTokens] ritual card tokens.
 library;
 
 import "package:flutter/material.dart";
 
 import "../../art/tarot_card_back_art.dart";
+import "../../theme/tarot_tokens.dart";
 import "../../widgets/tarot_card_shell.dart";
 
 abstract final class RitualCardMetrics {
   RitualCardMetrics._();
 
-  static const width = 132.0;
-  static const height = 222.0;
-  static const radius = 18.0;
+  static const width = TarotTokens.ritualCardWidth;
+  static const height = TarotTokens.ritualCardHeight;
+  static const radius = TarotTokens.ritualCardRadius;
 }
 
 class RitualCardBack extends StatelessWidget {

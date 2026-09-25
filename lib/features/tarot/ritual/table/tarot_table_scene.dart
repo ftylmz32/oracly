@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/oracly_reduced_motion.dart';
 import '../../shared/tarot_scope.dart';
+import '../../theme/tarot_tokens.dart';
 import '../tarot_ritual_controller.dart';
 import '../tarot_ritual_stage.dart';
 import '../widgets/ritual_spread_slots.dart';
@@ -64,8 +65,9 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
             _ritual.visual.stage == TarotRitualStage.reveal ||
             _ritual.visual.stage == TarotRitualStage.place);
 
+    // Own Scaffold + SafeArea — persistent table keeps its own shell (7B A).
     return Scaffold(
-      backgroundColor: const Color(0xFF05030A),
+      backgroundColor: TarotTokens.tableVoid,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -76,12 +78,12 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
               builder: (context, _) {
                 return Column(
                   children: [
-                    const SizedBox(height: 8),
+                    const SizedBox(height: TarotTokens.tableTitleTopGap),
                     Text(
                       'Tarot',
                       style: AppTextStyles.titleMedium.copyWith(
                         color: AppColors.gold.withValues(alpha: 0.9),
-                        letterSpacing: 2.2,
+                        letterSpacing: TarotTokens.tableTitleTracking,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -123,7 +125,9 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
                     ),
                     if (phase == TarotTablePhase.draw)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 18),
+                        padding: const EdgeInsets.only(
+                          bottom: TarotTokens.tableHintBottomInset,
+                        ),
                         child: TarotTableHint(visible: hintVisible),
                       ),
                     if (phase == TarotTablePhase.reading && focusCard != null)

@@ -1,4 +1,9 @@
-/// OR-1000 — Shared screen shell for all Tarot presentation screens.
+/// OR-1000 — Shared screen shell for secondary / foundation Tarot screens.
+///
+/// Phase 7B decision A: NOT the live table shell.
+/// Live path (`TarotTableScene`) owns its own Scaffold + SafeArea +
+/// [TarotTableBackground]. Do not migrate the persistent table through this
+/// wrapper. Keep for secondary/legacy presentation only.
 library;
 
 import 'package:flutter/material.dart';

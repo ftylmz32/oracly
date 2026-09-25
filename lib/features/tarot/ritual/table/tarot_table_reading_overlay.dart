@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/oracly_button.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
+import '../../theme/tarot_tokens.dart';
 
 class TarotTableReadingOverlay extends StatelessWidget {
   const TarotTableReadingOverlay({
@@ -33,7 +34,7 @@ class TarotTableReadingOverlay extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
-        color: const Color(0xFF0A0714).withValues(alpha: 0.88),
+        color: TarotTokens.tableReadingPlate.withValues(alpha: 0.88),
         border: Border(
           top: BorderSide(color: AppColors.gold.withValues(alpha: 0.28)),
         ),

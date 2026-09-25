@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/oracly_brand_signature.dart';
+import '../../../theme/tarot_tokens.dart';
 
 /// Soft oval cloth under a resting or fanned deck. Ignore-pointer only.
 class TarotDeckTableAtmosphere extends StatelessWidget {
@@ -78,8 +79,8 @@ class TarotDeckTableAtmosphere extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFFE8C872).withValues(alpha: 0.14 * a),
-                        const Color(0xFFC48A3A).withValues(alpha: 0.07 * a),
+                        TarotTokens.tableCandleWarm.withValues(alpha: 0.14 * a),
+                        TarotTokens.tableCandleDeep.withValues(alpha: 0.07 * a),
                         Colors.transparent,
                       ],
                       stops: const [0.0, 0.42, 1.0],

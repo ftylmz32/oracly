@@ -1,4 +1,8 @@
 /// OR-1000 — Cinematic tarot background layer.
+///
+/// Phase 7B quarantine: DEAD / UNREACHABLE from the live table spine
+/// (`TarotHomeScreen` → `TarotTableScene`). Canonical live background is
+/// [TarotTableBackground]. Do not import this into live production chrome.
 library;
 
 import 'package:flutter/material.dart';

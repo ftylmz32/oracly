@@ -4,44 +4,13 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../core/l10n/l10n.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/accessibility/oracly_a11y.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/oracly_brand_signature.dart';
+import 'tarot_table_intent_catalogue.dart';
+import 'tarot_table_intent_chip.dart';
 
-class TableIntentOption {
-  const TableIntentOption({
-    required this.id,
-    required this.icon,
-  });
-
-  final String id;
-  final IconData icon;
-
-  String get title => TableIntentCatalogue.title(id);
-}
-
-abstract final class TableIntentCatalogue {
-  TableIntentCatalogue._();
-
-  static const options = [
-    TableIntentOption(id: 'love', icon: Icons.favorite_rounded),
-    TableIntentOption(id: 'career', icon: Icons.work_outline_rounded),
-    TableIntentOption(id: 'future', icon: Icons.auto_awesome_rounded),
-    TableIntentOption(id: 'inner', icon: Icons.nightlight_round),
-    TableIntentOption(id: 'custom', icon: Icons.edit_outlined),
-  ];
-
-  static String title(String id) => switch (id) {
-        'love' => OraclyL10n.t('tarot.love'),
-        'career' => OraclyL10n.t('tarot.career'),
-        'future' => OraclyL10n.t('tarot.intent.chip.future'),
-        'inner' => OraclyL10n.t('tarot.intent.chip.inner'),
-        'custom' => OraclyL10n.t('tarot.intent.chip.custom'),
-        _ => id,
-      };
-}
+export 'tarot_table_intent_catalogue.dart';
 
 class TarotTableIntentOverlay extends StatelessWidget {
   const TarotTableIntentOverlay({
@@ -66,7 +35,7 @@ class TarotTableIntentOverlay extends StatelessWidget {
         child: IgnorePointer(
           ignoring: receded,
           child: SizedBox(
-            height: 44,
+            height: OraclyA11y.minTouchTarget,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -74,10 +43,9 @@ class TarotTableIntentOverlay extends StatelessWidget {
               separatorBuilder: (context, index) => const SizedBox(width: 8),
               itemBuilder: (context, i) {
                 final o = TableIntentCatalogue.options[i];
-                final selected = selectedId == o.id;
-                return _Chip(
+                return TarotTableIntentChip(
                   option: o,
-                  selected: selected,
+                  selected: selectedId == o.id,
                   onTap: () {
                     HapticFeedback.selectionClick();
                     onSelected(o.id);
@@ -86,60 +54,6 @@ class TarotTableIntentOverlay extends StatelessWidget {
               },
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.option,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final TableIntentOption option;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: OraclySignatureMotion.press,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          color: selected
-              ? const Color(0xFF2A1847).withValues(alpha: 0.85)
-              : const Color(0xFF0C0916).withValues(alpha: 0.72),
-          border: Border.all(
-            color: AppColors.gold.withValues(alpha: selected ? 0.7 : 0.28),
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF9B6DFF).withValues(alpha: 0.28),
-                    blurRadius: 14,
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(option.icon, size: 14, color: AppColors.gold),
-            const SizedBox(width: 6),
-            Text(
-              option.title,
-              style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textPrimary,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
         ),
       ),
     );
