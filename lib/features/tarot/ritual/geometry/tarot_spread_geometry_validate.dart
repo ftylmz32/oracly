@@ -58,14 +58,22 @@ abstract final class TarotSpreadGeometryValidate {
   }
 
   static void _assertNoDuplicateCenters(TarotSpreadGeometrySpec spec) {
-    final seen = <String>{};
+    final seen = <String, int>{};
     for (final slot in spec.slots) {
       final key =
           '${slot.nx.toStringAsFixed(3)},${slot.ny.toStringAsFixed(3)}';
-      if (!seen.add(key)) {
-        throw StateError(
-          'Duplicate normalized position $key in ${spec.spread.name}',
-        );
+      final prior = seen[key];
+      if (prior != null) {
+        final ok = spec.kind == TarotSpreadVisualKind.celticCross &&
+            ((prior == 0 && slot.index == 1) ||
+                (prior == 1 && slot.index == 0));
+        if (!ok) {
+          throw StateError(
+            'Duplicate normalized position $key in ${spec.spread.name}',
+          );
+        }
+      } else {
+        seen[key] = slot.index;
       }
     }
   }

@@ -1,4 +1,4 @@
-/// Settled placement slots — geometry-aware (Phase 7C).
+/// Settled placement slots — geometry-aware (Phase 7C / 7C.1).
 library;
 
 import 'package:flutter/material.dart';
@@ -42,6 +42,7 @@ class RitualSpreadSlots extends StatelessWidget {
           fieldWidth: width,
           fieldHeight: fieldH,
         );
+        final tileSize = TarotSpreadSettledProjection.tileSizeFor(cardSize);
         return SizedBox(
           width: width,
           height: fieldH,
@@ -54,6 +55,7 @@ class RitualSpreadSlots extends StatelessWidget {
                   slotIndex: slot.index,
                   field: field,
                   cardSize: cardSize,
+                  tileSize: tileSize,
                 ),
             ],
           ),
@@ -67,18 +69,18 @@ class RitualSpreadSlots extends StatelessWidget {
     required int slotIndex,
     required Size field,
     required Size cardSize,
+    required Size tileSize,
   }) {
     final slot = spec.slotAt(slotIndex);
-    final center = TarotSpreadSettledProjection.centerOf(slot, field);
+    final rect =
+        TarotSpreadSettledProjection.rectFor(slot, field, tileSize);
     final pos = SpreadEngine.positionAt(spread, slotIndex)!;
     final card = slotIndex < placed.length ? placed[slotIndex] : null;
-    final tileW = cardSize.width;
-    final tileH = cardSize.height + 18;
     return Positioned(
-      left: center.dx - tileW / 2,
-      top: center.dy - tileH / 2,
-      width: tileW,
-      height: tileH,
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
       child: RitualSpreadSlotTile(
         label: pos.label,
         card: card,

@@ -1,4 +1,7 @@
-/// Phase 7C — project normalized slots into settled / flight coordinate spaces.
+/// Phase 7C.1 — project normalized slots into settled / flight spaces.
+///
+/// Settled projection accounts for the **rendered tile extent** so Positioned
+/// cards cannot silently clip under [Clip.hardEdge].
 library;
 
 import 'dart:ui';
@@ -8,20 +11,23 @@ import 'tarot_spread_geometry_slot.dart';
 import 'tarot_spread_geometry_spec.dart';
 import 'tarot_spread_visual_kind.dart';
 
-/// Settled-area projection (LayoutBuilder field → screen Offset).
+/// Settled-area projection (LayoutBuilder field → screen Rect / Offset).
 abstract final class TarotSpreadSettledProjection {
   TarotSpreadSettledProjection._();
+
+  /// Label + gap above the card face inside [RitualSpreadSlotTile].
+  static const labelChromeAllowance = 18.0;
 
   static double fieldHeightFor(TarotSpreadVisualKind kind, double width) {
     final h = switch (kind) {
       TarotSpreadVisualKind.single => 0.0,
-      TarotSpreadVisualKind.threeLinear => width * 0.40,
-      TarotSpreadVisualKind.fiveLinear => width * 0.36,
-      TarotSpreadVisualKind.fiveDecision => width * 0.52,
-      TarotSpreadVisualKind.seven => width * 0.50,
-      TarotSpreadVisualKind.celticCross => width * 0.56,
+      TarotSpreadVisualKind.threeLinear => width * 0.42,
+      TarotSpreadVisualKind.fiveLinear => width * 0.38,
+      TarotSpreadVisualKind.fiveDecision => width * 0.60,
+      TarotSpreadVisualKind.seven => width * 0.56,
+      TarotSpreadVisualKind.celticCross => width * 0.72,
     };
-    return h.clamp(96.0, 210.0);
+    return h.clamp(110.0, 260.0);
   }
 
   static Size cardSizeFor({
@@ -33,30 +39,68 @@ abstract final class TarotSpreadSettledProjection {
       TarotSpreadVisualKind.single => 1.0,
       TarotSpreadVisualKind.threeLinear => 3.15,
       TarotSpreadVisualKind.fiveLinear => 5.25,
-      TarotSpreadVisualKind.fiveDecision => 2.35,
-      TarotSpreadVisualKind.seven => 4.2,
-      TarotSpreadVisualKind.celticCross => 3.8,
+      TarotSpreadVisualKind.fiveDecision => 2.45,
+      TarotSpreadVisualKind.seven => 4.3,
+      TarotSpreadVisualKind.celticCross => 4.2,
     };
-    final maxW = (fieldWidth / cols).clamp(34.0, 72.0);
-    final maxH = (fieldHeight * 0.58).clamp(56.0, 120.0);
-    var w = maxW;
+    // Cap tile height by kind density so extent-aware centers cannot collide.
+    final maxTileFrac = switch (kind) {
+      TarotSpreadVisualKind.single => 0.72,
+      TarotSpreadVisualKind.threeLinear => 0.70,
+      TarotSpreadVisualKind.fiveLinear => 0.68,
+      TarotSpreadVisualKind.fiveDecision => 0.32,
+      TarotSpreadVisualKind.seven => 0.33,
+      TarotSpreadVisualKind.celticCross => 0.16,
+    };
+    final maxTileW = (fieldWidth / cols).clamp(28.0, 72.0);
+    final maxTileH = (fieldHeight * maxTileFrac).clamp(48.0, 140.0);
+    final maxCardH = (maxTileH - labelChromeAllowance).clamp(30.0, 120.0);
+    var w = maxTileW;
     var h = w / TarotTokens.ritualCardAspectRatio;
-    if (h > maxH) {
-      h = maxH;
+    if (h > maxCardH) {
+      h = maxCardH;
       w = h * TarotTokens.ritualCardAspectRatio;
     }
     return Size(w, h);
   }
 
+  /// Deterministic settled render extent (card + label chrome).
+  static Size tileSizeFor(Size cardSize) => Size(
+        cardSize.width,
+        cardSize.height + labelChromeAllowance,
+      );
+
+  /// Center of the rendered tile — span is field minus tile extent.
   static Offset centerOf(
     TarotSpreadGeometrySlot slot,
     Size field,
+    Size tileSize,
   ) {
     final cx = field.width * 0.5;
     final cy = field.height * 0.5;
-    final halfW = field.width * 0.42;
-    final halfH = field.height * 0.38;
-    return Offset(cx + slot.nx * halfW, cy + slot.ny * halfH);
+    final usableHalfW = (field.width - tileSize.width) / 2;
+    final usableHalfH = (field.height - tileSize.height) / 2;
+    if (usableHalfW <= 0 || usableHalfH <= 0) {
+      return Offset(cx, cy);
+    }
+    return Offset(
+      cx + slot.nx * usableHalfW,
+      cy + slot.ny * usableHalfH,
+    );
+  }
+
+  /// Full rendered tile rect in field coordinates.
+  static Rect rectFor(
+    TarotSpreadGeometrySlot slot,
+    Size field,
+    Size tileSize,
+  ) {
+    final c = centerOf(slot, field, tileSize);
+    return Rect.fromCenter(
+      center: c,
+      width: tileSize.width,
+      height: tileSize.height,
+    );
   }
 }
 
@@ -64,13 +108,8 @@ abstract final class TarotSpreadSettledProjection {
 abstract final class TarotSpreadFlightProjection {
   TarotSpreadFlightProjection._();
 
-  /// Lateral span of the flight placement field (logical px).
   static const halfWidth = 100.0;
-
-  /// Vertical nuance from [TarotSpreadGeometrySlot.ny].
   static const halfHeight = 36.0;
-
-  /// Base lift above the deck center (CardFlightActor space).
   static const lift = -200.0;
 
   static Offset targetFor(TarotSpreadGeometrySlot slot) {

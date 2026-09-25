@@ -52,15 +52,15 @@ abstract final class TarotSpreadGeometryLayouts {
   /// Celtic cross + staff (presentation-only; not live-wired).
   static const celticCross = [
     TarotSpreadLayoutPoint(0, 0), // present
-    TarotSpreadLayoutPoint(0.04, 0.04, _crossRad), // challenge (cross)
+    TarotSpreadLayoutPoint(0, 0, _crossRad), // challenge (intentional cross)
     TarotSpreadLayoutPoint(0, 0.55), // distant_past
     TarotSpreadLayoutPoint(-0.55, 0), // recent_past
     TarotSpreadLayoutPoint(0, -0.55), // crown
     TarotSpreadLayoutPoint(0.55, 0), // near_future
-    TarotSpreadLayoutPoint(0.92, 0.62), // self
-    TarotSpreadLayoutPoint(0.92, 0.22), // environment
-    TarotSpreadLayoutPoint(0.92, -0.22), // hopes
-    TarotSpreadLayoutPoint(0.92, -0.62), // outcome
+    TarotSpreadLayoutPoint(0.92, 0.88), // self
+    TarotSpreadLayoutPoint(0.92, 0.32), // environment
+    TarotSpreadLayoutPoint(0.92, -0.32), // hopes
+    TarotSpreadLayoutPoint(0.92, -0.88), // outcome
   ];
 
   static List<TarotSpreadLayoutPoint> pointsFor(TarotSpreadVisualKind kind) {

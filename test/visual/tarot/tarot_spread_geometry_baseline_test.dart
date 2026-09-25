@@ -1,4 +1,4 @@
-/// Phase 7C — settled spread geometry structural baselines.
+/// Phase 7C / 7C.1 — settled spread geometry structural baselines.
 library;
 
 import 'package:flutter/material.dart';
@@ -8,13 +8,15 @@ import 'package:oracly_new/core/theme/app_theme.dart';
 import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_reveal/card_reveal_spread.dart';
 import 'package:oracly_new/features/tarot/ritual/geometry/tarot_spread_geometry_projection.dart';
+import 'package:oracly_new/features/tarot/ritual/geometry/tarot_spread_geometry_projection_validate.dart';
+import 'package:oracly_new/features/tarot/ritual/geometry/tarot_spread_geometry_resolver.dart';
 import 'package:oracly_new/features/tarot/ritual/geometry/tarot_spread_visual_kind.dart';
 import 'package:oracly_new/features/tarot/ritual/widgets/ritual_spread_slots.dart';
 import 'package:oracly_new/features/tarot/ritual/widgets/ritual_spread_slot_tile.dart';
 import 'package:oracly_new/features/tarot/theme/tarot_tokens.dart';
 
-import 'tarot_visual_harness.dart';
 import '../../features/tarot/narrative_shadow/narrative_shadow_test_support.dart';
+import 'tarot_visual_harness.dart';
 
 RevealCardData _card(int i) {
   final c = ritualCard(i);
@@ -64,7 +66,17 @@ void main() {
     await tester.pump();
   }
 
+  void assertProjectedContained(TarotSpreadType type, double width) {
+    final spec = TarotSpreadGeometryResolver.resolve(type);
+    TarotSpreadGeometryProjectionValidate.assertContained(spec, width);
+    TarotSpreadGeometryProjectionValidate.assertNoUnintendedOverlap(
+      spec,
+      width,
+    );
+  }
+
   for (final size in tarotVisualViewports) {
+    final w = size.width;
     testWidgets(
       'threeCard complete @ ${size.width.toInt()}x${size.height.toInt()}',
       (tester) async {
@@ -74,9 +86,9 @@ void main() {
           spread: TarotSpreadType.threeCard,
           placed: [_card(0), _card(1), _card(2)],
         );
-        expect(find.byType(RitualSpreadSlots), findsOneWidget);
         expect(find.byType(RitualSpreadSlotTile), findsNWidgets(3));
         expect(tester.takeException(), isNull);
+        assertProjectedContained(TarotSpreadType.threeCard, w - 32);
       },
     );
 
@@ -91,20 +103,25 @@ void main() {
         );
         expect(find.byType(RitualSpreadSlotTile), findsNWidgets(5));
         expect(tester.takeException(), isNull);
+        assertProjectedContained(TarotSpreadType.fiveCard, w - 32);
+      },
+    );
+
+    testWidgets(
+      'fiveDecision/crossroads @ ${size.width.toInt()}x${size.height.toInt()}',
+      (tester) async {
+        await pumpSlots(
+          tester,
+          viewport: size,
+          spread: TarotSpreadType.crossroads,
+          placed: [for (var i = 0; i < 5; i++) _card(i)],
+        );
+        expect(find.byType(RitualSpreadSlotTile), findsNWidgets(5));
+        expect(tester.takeException(), isNull);
+        assertProjectedContained(TarotSpreadType.crossroads, w - 32);
       },
     );
   }
-
-  testWidgets('fiveDecision internal complete @ 390x844', (tester) async {
-    await pumpSlots(
-      tester,
-      viewport: tarotVisualCanonicalViewport,
-      spread: TarotSpreadType.crossroads,
-      placed: [for (var i = 0; i < 5; i++) _card(i)],
-    );
-    expect(find.byType(RitualSpreadSlotTile), findsNWidgets(5));
-    expect(tester.takeException(), isNull);
-  });
 
   testWidgets('threeCard partial settled shows empty plates', (tester) async {
     await pumpSlots(
@@ -125,7 +142,6 @@ void main() {
       placed: [_card(0)],
     );
     expect(find.byType(RitualSpreadSlotTile), findsNothing);
-    expect(find.byType(SizedBox), findsWidgets);
   });
 
   test('settled card size preserves ritual aspect ratio', () {
