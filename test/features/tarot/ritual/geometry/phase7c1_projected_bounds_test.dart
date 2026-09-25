@@ -30,7 +30,6 @@ void main() {
       () {
         // Exact class of defect on 66fa914: centerOf ignored tile height.
         const width = 390.0;
-        final kind = TarotSpreadVisualKind.fiveDecision;
         // Pre-7C.1 fieldHeight formula for fiveDecision.
         final fieldH = (width * 0.52).clamp(96.0, 210.0);
         final field = Size(width, fieldH);
