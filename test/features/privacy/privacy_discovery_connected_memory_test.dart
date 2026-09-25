@@ -3,7 +3,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/core/data/repositories/local_dream_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/intelligence/data/personal_memory_store.dart';
@@ -21,6 +20,7 @@ import 'package:oracly_new/features/tarot/data/datasources/tarot_local_datasourc
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../personal_discovery/pde_test_fixtures.dart';
+import '../birth_chart/evidence/test_birth_owner.dart';
 
 const _keepToken = 'KEEP_SOULMATE_MEMORY_TOKEN_ZZ';
 
@@ -41,7 +41,7 @@ void main() {
         LocalFavoriteMomentsRepository(storage),
       ),
       personalMemory: PersonalMemoryService(PersonalMemoryStore(storage)),
-      birthCharts: LocalBirthChartRepository(storage),
+      birthCharts: testBirthChartRepo(storage),
       storage: storage,
     );
   }

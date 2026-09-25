@@ -1,12 +1,10 @@
 /// Yıldızname V1 — birth info source, honest labels, OR context, persist.
 library;
 
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context_sources.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/services/oracle_followup_copy.dart';
 import 'package:oracly_new/features/birth_chart/copy/birth_chart_copy.dart';
@@ -19,6 +17,7 @@ import 'package:oracly_new/features/star_map/services/star_map_reading_service.d
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
+import '../birth_chart/evidence/test_birth_owner.dart';
 
 BirthProfile get _profile => BirthProfile(
       birthDate: DateTime(1995, 8, 15),
@@ -62,9 +61,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
     final chart = const NatalChartCalculator().calculate(_profile);
-    await storage.setString(
-      'birth_chart_latest',
-      jsonEncode(BirthChartRecordMapper.toRecord(chart).toJson()),
+    await testBirthChartRepo(storage).save(
+      BirthChartRecordMapper.toRecord(chart),
     );
 
     await tester.pumpWidget(
@@ -86,7 +84,7 @@ void main() {
     expect(find.textContaining('Aslan'), findsWidgets);
     expect(find.text('İstanbul'), findsOneWidget);
 
-    final repo = LocalBirthChartRepository(storage);
+    final repo = testBirthChartRepo(storage);
     final reopened = BirthChartRecordMapper.fromRecord(
       (await repo.getLatest())!,
     );
@@ -100,7 +98,7 @@ void main() {
     final storage = await LocalStorage.open();
     expect(storage.getString('birth_chart_latest'), isNull);
 
-    await LocalBirthChartRepository(storage).save(
+    await testBirthChartRepo(storage).save(
       BirthChartRecordMapper.toRecord(
         const NatalChartCalculator().calculate(_profile),
       ),

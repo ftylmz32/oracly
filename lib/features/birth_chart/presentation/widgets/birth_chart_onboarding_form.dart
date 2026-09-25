@@ -11,6 +11,7 @@ import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/widgets/oracly_button.dart';
 import '../../copy/birth_chart_copy.dart';
 import 'birth_chart_field_button.dart';
+import 'birth_chart_onboarding_place_section.dart';
 import 'birth_chart_review_card.dart';
 import 'birth_chart_time_choice_row.dart';
 
@@ -28,6 +29,8 @@ class BirthChartOnboardingForm extends StatelessWidget {
     required this.timeKnown,
     required this.onTimeKnown,
     required this.onTimeUnknown,
+    this.onSkipPlace,
+    this.placeSkipped = false,
     this.showTimeField = false,
     this.timeNote,
     this.showReview = false,
@@ -42,6 +45,8 @@ class BirthChartOnboardingForm extends StatelessWidget {
   final VoidCallback onPickDate;
   final VoidCallback onPickTime;
   final VoidCallback onPickPlace;
+  final VoidCallback? onSkipPlace;
+  final bool placeSkipped;
   final VoidCallback onSubmit;
   final bool? timeKnown;
   final VoidCallback onTimeKnown;
@@ -106,16 +111,11 @@ class BirthChartOnboardingForm extends StatelessWidget {
             Text(timeNote!, style: OraclyChrome.bodySecondary(size: 11)),
           ],
           SizedBox(height: AppSpacing.s8),
-          BirthChartFieldButton(
-            label: BirthChartCopy.birthPlaceLabel,
-            value: placeLabel,
-            onTap: onPickPlace,
-            muted: placeLabel == BirthChartCopy.birthPlaceHint,
-          ),
-          SizedBox(height: AppSpacing.s4),
-          Text(
-            BirthChartCopy.placeImportance,
-            style: OraclyChrome.bodySecondary(size: 11),
+          BirthChartOnboardingPlaceSection(
+            placeLabel: placeLabel,
+            onPickPlace: onPickPlace,
+            onSkipPlace: onSkipPlace,
+            placeSkipped: placeSkipped,
           ),
           if (showReview) ...[
             SizedBox(height: AppSpacing.s16),

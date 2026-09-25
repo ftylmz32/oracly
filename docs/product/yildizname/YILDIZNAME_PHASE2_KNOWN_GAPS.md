@@ -9,14 +9,14 @@ Production currently lacks several Phase 1 end-state capabilities. Phase 2 **mus
 
 | Gap | Current fact | Owner phase |
 |-----|--------------|-------------|
-| Ownerless birth storage | `birth_chart_latest` is a single unowned key (`LocalBirthChartRepository`) | Phase 3 / 6 |
+| ~~Ownerless birth storage~~ | **CLOSED Phase 3** — `BirthChartRecord.ownerId` + owner-aware repo (key still single-slot; Phase 6 adds multi-artifact) | Phase 3 ✓ / Phase 6 remains for artifacts |
 | No frozen artifact | Daily leaf / reading not immutable snapshot | Phase 6 |
 | `Object.hash` favorite identity | `star-${Object.hash(title, insight)}` in star-map reference result | Phase 6 |
-| No Evidence Acquisition Loop | No E0→E4 guided completeness product | Phase 3 |
+| ~~No Evidence Acquisition Loop~~ | **CLOSED Phase 3** — classifier + acquisition plan + place-unknown ask-once | Phase 3 ✓ |
 | No real ephemeris | `NatalChartCalculator` = tropical sun sign only | Phase 4 |
 | No production safety gate | Yıldızname-specific narrative safety not wired | Phase 5 |
 | No structured future natal model | Full natal facts / houses / aspects not in production model | Phase 4 / 5 |
-| Presentation of reduced/full disclosure | UI chrome for scope disclosure | Phase 7 |
+| Presentation of reduced/full disclosure | Minimal scope notes in Phase 3; final chrome | Phase 7 |
 
 ## Phase ownership map
 

@@ -1,25 +1,11 @@
 /// Birth-city catalogue — 81 Turkish provinces. Coordinates for place, not sky math.
 library;
 
+export 'birth_chart_city.dart';
+
+import 'birth_chart_city.dart';
 import 'birth_chart_city_labels.dart';
-
-class BirthChartCity {
-  const BirthChartCity({
-    required this.id,
-    required this.nameTr,
-    required this.latitude,
-    required this.longitude,
-  });
-
-  final String id;
-  final String nameTr;
-  final double latitude;
-  final double longitude;
-
-  /// Locale-aware picker / profile label.
-  String label({String? languageCode}) =>
-      BirthChartCityLabels.of(id, nameTr, languageCode: languageCode);
-}
+import 'birth_chart_legacy_cities.dart';
 
 abstract final class BirthChartCities {
   BirthChartCities._();
@@ -111,20 +97,22 @@ abstract final class BirthChartCities {
     BirthChartCity(id: 'zonguldak', nameTr: 'Zonguldak', latitude: 41.46, longitude: 31.80),
   ];
 
-  /// Prior international picks — resolve old profiles, not shown in the list.
-  static const List<BirthChartCity> _legacy = [
-    BirthChartCity(id: 'berlin', nameTr: 'Berlin', latitude: 52.52, longitude: 13.40),
-    BirthChartCity(id: 'london', nameTr: 'Londra', latitude: 51.51, longitude: -0.13),
-    BirthChartCity(id: 'paris', nameTr: 'Paris', latitude: 48.86, longitude: 2.35),
-    BirthChartCity(id: 'vienna', nameTr: 'Viyana', latitude: 48.21, longitude: 16.37),
-    BirthChartCity(id: 'newyork', nameTr: 'New York', latitude: 40.71, longitude: -74.01),
-  ];
+  static List<BirthChartCity> get catalogue =>
+      [...all, ...BirthChartLegacyCities.all];
 
   static BirthChartCity? byName(String? name) {
     final needle = fold(name ?? '');
     if (needle.isEmpty) return null;
-    for (final city in [...all, ..._legacy]) {
+    for (final city in catalogue) {
       if (fold(city.nameTr) == needle || city.id == needle) return city;
+    }
+    return null;
+  }
+
+  static BirthChartCity? byId(String? id) {
+    if (id == null || id.trim().isEmpty) return null;
+    for (final city in catalogue) {
+      if (city.id == id) return city;
     }
     return null;
   }

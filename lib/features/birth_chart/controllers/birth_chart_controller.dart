@@ -3,12 +3,17 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/data/repositories/local_birth_chart_repository.dart';
 import '../copy/birth_chart_copy.dart';
+import '../evidence/birth_evidence.dart';
+import '../evidence/birth_evidence_classifier.dart';
+import '../evidence/birth_evidence_completeness.dart';
 import '../models/birth_chart.dart';
 import '../models/birth_profile.dart';
 import '../services/birth_chart_experience_service.dart';
 import '../services/birth_chart_persistence_validator.dart';
 import 'birth_chart_phase.dart';
+import 'birth_chart_session.dart';
 
 export 'birth_chart_phase.dart';
 
@@ -16,66 +21,45 @@ class BirthChartController extends ChangeNotifier {
   BirthChartController(this._service);
 
   final BirthChartExperienceService _service;
+  final _s = BirthChartSession();
 
-  BirthChartPhase _phase = BirthChartPhase.onboarding;
-  BirthChart? _chart;
-  String? _errorMessage;
-  BirthProfile? _lastProfile;
-  BirthProfile? _onboardingProfileHint;
-  String? _statusMessage;
-  var _isInitializing = true;
-  var _editing = false;
+  BirthChartPhase get phase => _s.phase;
+  BirthChart? get chart => _s.chart;
+  String? get errorMessage => _s.errorMessage;
+  BirthProfile? get onboardingProfileHint => _s.onboardingProfileHint;
+  String? get statusMessage => _s.statusMessage;
+  bool get isInitializing => _s.isInitializing;
+  bool get isEditing => _s.editing;
+  bool get hasRenderableJourney => _s.hasRenderableJourney;
 
-  BirthChartPhase get phase => _phase;
-  BirthChart? get chart => _chart;
-  String? get errorMessage => _errorMessage;
-  BirthProfile? get onboardingProfileHint => _onboardingProfileHint;
-  String? get statusMessage => _statusMessage;
-  bool get isInitializing => _isInitializing;
-  bool get isEditing => _editing;
-
-  bool get hasRenderableJourney =>
-      _chart != null && BirthChartPersistenceValidator.isJourneyReady(_chart!);
+  BirthEvidenceCompleteness? get evidenceCompleteness {
+    final p = _s.activeProfile;
+    if (p == null) return null;
+    return BirthEvidenceClassifier.classify(BirthEvidence.fromProfile(p));
+  }
 
   Future<void> loadSaved() async {
-    if (_phase == BirthChartPhase.generating) return;
+    if (_s.phase == BirthChartPhase.generating) return;
     try {
       final result = await _service.loadSaved();
-      if (_phase == BirthChartPhase.generating) return;
-      switch (result.status) {
-        case BirthChartLoadStatus.none:
-          break;
-        case BirthChartLoadStatus.loaded:
-          final chart = result.chart;
-          if (chart != null) {
-            _chart = chart;
-            _lastProfile = chart.profile;
-            _editing = false;
-            _phase = BirthChartPhase.journey;
-          }
-        case BirthChartLoadStatus.clearedCorrupt:
-          _applyOnboardingHint(result.profileHint);
-          _statusMessage = BirthChartCopy.corruptDataCleared;
-      }
+      if (_s.phase != BirthChartPhase.generating) _s.applyLoadResult(result);
+    } on BirthChartOwnerUnavailableException {
+      _s.markOwnerUnavailable();
     } catch (_) {
-      if (_phase != BirthChartPhase.generating) {
-        await _service.clearSavedData();
-        _errorMessage = BirthChartCopy.recoverFailed;
-        _phase = BirthChartPhase.error;
-      }
+      await _clearOrOwnerGuard();
     } finally {
-      _isInitializing = false;
+      _s.isInitializing = false;
       notifyListeners();
     }
   }
 
   Future<void> generate(BirthProfile profile) async {
-    _lastProfile = profile;
-    _onboardingProfileHint = profile;
-    _statusMessage = null;
-    _editing = false;
-    _phase = BirthChartPhase.generating;
-    _errorMessage = null;
+    _s.lastProfile = profile;
+    _s.onboardingProfileHint = profile;
+    _s.statusMessage = null;
+    _s.editing = false;
+    _s.phase = BirthChartPhase.generating;
+    _s.errorMessage = null;
     notifyListeners();
     await Future<void>.delayed(const Duration(milliseconds: 420));
     try {
@@ -83,71 +67,77 @@ class BirthChartController extends ChangeNotifier {
       if (!BirthChartPersistenceValidator.isJourneyReady(result.chart)) {
         throw StateError('Birth chart insights missing after generation');
       }
-      _chart = result.chart;
-      _phase = BirthChartPhase.journey;
+      _s.chart = result.chart;
+      _s.phase = BirthChartPhase.journey;
+    } on BirthChartOwnerUnavailableException {
+      _s.markOwnerUnavailable();
     } catch (_) {
-      _phase = BirthChartPhase.error;
-      _errorMessage = BirthChartCopy.generateFailed;
+      _s.phase = BirthChartPhase.error;
+      _s.errorMessage = BirthChartCopy.generateFailed;
     }
     notifyListeners();
   }
 
   void beginEdit() {
-    _applyOnboardingHint(_chart?.profile ?? _lastProfile);
-    _editing = true;
-    _phase = BirthChartPhase.onboarding;
-    _statusMessage = null;
+    _s.applyOnboardingHint(_s.chart?.profile ?? _s.lastProfile);
+    _s.editing = true;
+    _s.phase = BirthChartPhase.onboarding;
+    _s.statusMessage = null;
     notifyListeners();
   }
 
   void cancelEdit() {
-    _editing = false;
-    if (_chart != null &&
-        BirthChartPersistenceValidator.isJourneyReady(_chart!)) {
-      _phase = BirthChartPhase.journey;
+    _s.editing = false;
+    if (_s.chart != null &&
+        BirthChartPersistenceValidator.isJourneyReady(_s.chart!)) {
+      _s.phase = BirthChartPhase.journey;
     }
     notifyListeners();
   }
 
   Future<void> recoverJourney() async {
-    final profile = _chart?.profile ?? _lastProfile;
+    final profile = _s.chart?.profile ?? _s.lastProfile;
     if (profile == null) {
       await restartOnboarding();
-      return;
+    } else {
+      await generate(profile);
     }
-    await generate(profile);
   }
 
   Future<void> regenerateFromSavedProfile() async {
-    final profile = _chart?.profile ?? _lastProfile ?? _onboardingProfileHint;
+    final profile = _s.activeProfile;
     if (profile == null) {
       await restartOnboarding();
-      return;
+    } else {
+      await generate(profile);
     }
-    await generate(profile);
   }
 
   Future<void> clearSavedAndRestart({BirthProfile? profileHint}) async {
-    final hint =
-        profileHint ?? _chart?.profile ?? _lastProfile ?? _onboardingProfileHint;
-    await _service.clearSavedData();
-    _chart = null;
-    _editing = false;
-    _errorMessage = null;
-    _phase = BirthChartPhase.onboarding;
-    _applyOnboardingHint(hint);
-    _statusMessage = BirthChartCopy.savedDataCleared;
+    final hint = profileHint ?? _s.activeProfile;
+    try {
+      await _service.clearSavedData();
+    } on BirthChartOwnerUnavailableException {
+      _s.markOwnerUnavailable();
+      notifyListeners();
+      return;
+    }
+    _s.resetOnboarding(hint: hint, status: BirthChartCopy.savedDataCleared);
     notifyListeners();
   }
 
   Future<void> restartOnboarding() => clearSavedAndRestart();
+  void consumeStatusMessage() => _s.statusMessage = null;
 
-  void consumeStatusMessage() => _statusMessage = null;
-
-  void _applyOnboardingHint(BirthProfile? profile) {
-    if (profile != null) {
-      _onboardingProfileHint = profile;
-      _lastProfile = profile;
+  Future<void> _clearOrOwnerGuard() async {
+    if (_s.phase == BirthChartPhase.generating) return;
+    try {
+      await _service.clearSavedData();
+    } on BirthChartOwnerUnavailableException {
+      _s.markOwnerUnavailable();
+      return;
     }
+    _s.errorMessage = BirthChartCopy.recoverFailed;
+    _s.phase = BirthChartPhase.error;
   }
 }

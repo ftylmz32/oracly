@@ -10,7 +10,6 @@ import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_ai_conversation_repository.dart';
 import 'package:oracly_new/core/data/repositories/local_astrology_repository.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/core/data/repositories/local_dream_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
@@ -57,6 +56,7 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../support/fake_gem_authority.dart';
+import '../../features/birth_chart/evidence/test_birth_owner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -145,7 +145,7 @@ void main() {
 
   test('corrupt birth chart and surface memory load safely', () async {
     await storage.setString('birth_chart_latest', '{not-json');
-    expect(await LocalBirthChartRepository(storage).getLatest(), isNull);
+    expect(await testBirthChartRepo(storage).getLatest(), isNull);
 
     await storage.setStringList(DiscoverySurfaceMemory.key, [
       'broken',
@@ -392,7 +392,7 @@ void main() {
     await PrivacyDiscoveryClear.run(
       storage: storage,
       history: HistoryService(MockHistoryRepository(storage)),
-      birthCharts: LocalBirthChartRepository(storage),
+      birthCharts: testBirthChartRepo(storage),
     );
 
     expect(storage.getStringList(TarotLocalDataSource.historyKey), isEmpty);

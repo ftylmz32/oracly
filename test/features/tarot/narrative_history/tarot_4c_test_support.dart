@@ -179,9 +179,15 @@ BirthChart journeyReadyChart(String id) {
 }
 
 Future<void> saveJourneyChart(LocalStorage storage, String id) async {
-  await LocalBirthChartRepository(
-    storage,
-  ).save(BirthChartRecordMapper.toRecord(journeyReadyChart(id)));
+  // Do not seed ownerKey — null currentOwnerId + set local owner privacyBlocks.
+  final owner = storage.getString(UserLocalDataIsolation.ownerKey);
+  final record = BirthChartRecordMapper.toRecord(journeyReadyChart(id));
+  final stamped =
+      (owner == null || owner.isEmpty) ? record : record.copyWith(ownerId: owner);
+  await storage.setString(
+    LocalBirthChartRepository.storageKey,
+    jsonEncode(stamped.toJson()),
+  );
 }
 
 class Phase4cHarness {
@@ -189,8 +195,7 @@ class Phase4cHarness {
     : readings = MockHistoryRepository(storage),
       tarot = TarotReadingRepositoryImpl.fromStorage(storage),
       memory = OraclyMemoryStore(storage),
-      dreams = LocalDreamRepository(storage),
-      birthCharts = LocalBirthChartRepository(storage) {
+      dreams = LocalDreamRepository(storage) {
     history = HistoryService(readings);
   }
 
@@ -200,7 +205,12 @@ class Phase4cHarness {
   final TarotReadingRepositoryImpl tarot;
   final OraclyMemoryStore memory;
   final LocalDreamRepository dreams;
-  final LocalBirthChartRepository birthCharts;
+
+  /// Binds to the current canonical owner key (may be null).
+  LocalBirthChartRepository get birthCharts => LocalBirthChartRepository(
+        storage,
+        ownerId: storage.getString(UserLocalDataIsolation.ownerKey),
+      );
 
   TarotHistoricalSnapshotLoader loader() => TarotHistoricalSnapshotLoader(
     storage: storage,

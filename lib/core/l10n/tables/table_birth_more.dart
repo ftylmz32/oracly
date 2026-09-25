@@ -147,6 +147,36 @@ const kL10nBirthMore = <String, L10nTriple>{
   'birth.big_three': L10nTriple('Büyük Üçlü', 'The big three', 'Большая тройка'),
   'birth.core': L10nTriple('Temel kişilik', 'Core personality', 'Основной характер'),
   'birth.life': L10nTriple('Yaşam temaları', 'Life themes', 'Темы жизни'),
+  'birth.place_unknown': L10nTriple(
+    'Doğum yerimi bilmiyorum',
+    'I do not know my birth place',
+    'Я не знаю место рождения',
+  ),
+  'birth.place_unknown_action': L10nTriple(
+    'Yeri atla',
+    'Skip place',
+    'Пропустить место',
+  ),
+  'birth.place_unknown_value': L10nTriple(
+    'Yer bilinmiyor',
+    'Place unknown',
+    'Место неизвестно',
+  ),
+  'birth.scope_reduced': L10nTriple(
+    'Eksik doğum bilgisi nedeniyle yorum kapsamı sınırlıdır.',
+    'With incomplete birth details, the reading scope stays limited.',
+    'Из‑за неполных данных рождения охват чтения ограничен.',
+  ),
+  'birth.scope_evidence_full_calc_pending': L10nTriple(
+    'Doğum bilgilerin tamam; tam gökyüzü hesabı henüz bağlı değil.',
+    'Your birth details are complete; full sky calculation is not connected yet.',
+    'Данные рождения полные; полный расчёт неба пока не подключён.',
+  ),
+  'birth.owner_unavailable': L10nTriple(
+    'Hesap henüz hazır değil. Doğum haritanı şimdilik açamıyoruz.',
+    'Your account is not ready yet. We cannot open the birth chart for now.',
+    'Аккаунт ещё не готов. Карту рождения пока открыть нельзя.',
+  ),
   'preview.astro_detail': L10nTriple(
     'Bu bir yansıma, hüküm değil. Yerel Güneş burcu kataloğundan okunuyor — canlı ephemeris değil.',
     'This is a reflection, not a verdict. It is read from a local sun-sign catalogue — not a live ephemeris.',

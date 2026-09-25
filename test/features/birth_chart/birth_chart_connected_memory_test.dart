@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/core/memory/oracly_memory.dart';
 import 'package:oracly_new/core/memory/oracly_memory_retriever.dart';
 import 'package:oracly_new/core/memory/oracly_memory_store.dart';
@@ -12,6 +11,7 @@ import 'package:oracly_new/features/birth_chart/services/birth_chart_experience_
 import 'package:oracly_new/features/birth_chart/services/chart_insight_generator.dart';
 import 'package:oracly_new/features/content/astrology/data/astrology_content_catalogue.dart';
 import 'package:oracly_new/features/star_map/services/star_map_reading_service.dart';
+import 'evidence/test_birth_owner.dart';
 
 class _IncompleteInsights extends ChartInsightGenerator {
   const _IncompleteInsights();
@@ -54,7 +54,7 @@ void main() {
       'incomplete interpretation is neither persisted nor indexed',
       () async {
         final storage = LocalStorage.ephemeral();
-        final repository = LocalBirthChartRepository(storage);
+        final repository = testBirthChartRepo(storage);
         final memory = OraclyMemoryStore(storage);
         final service = BirthChartExperienceService(
           repository: repository,
@@ -74,7 +74,7 @@ void main() {
 
     test('completed interpretation writes bounded attributed memory', () async {
       final storage = LocalStorage.ephemeral();
-      final repository = LocalBirthChartRepository(storage);
+      final repository = testBirthChartRepo(storage);
       final memory = OraclyMemoryStore(storage);
       final result = await BirthChartExperienceService(
         repository: repository,
@@ -92,7 +92,7 @@ void main() {
 
     test('memory failure cannot suppress completed chart', () async {
       final storage = LocalStorage.ephemeral();
-      final repository = LocalBirthChartRepository(storage);
+      final repository = testBirthChartRepo(storage);
       final result = await BirthChartExperienceService(
         repository: repository,
         memory: _ThrowingMemoryStore(),
@@ -108,7 +108,7 @@ void main() {
         final storage = LocalStorage.ephemeral();
         final memory = OraclyMemoryStore(storage);
         final service = BirthChartExperienceService(
-          repository: LocalBirthChartRepository(storage),
+          repository: testBirthChartRepo(storage),
           memory: memory,
         );
         await memory.upsert(_unrelated(DateTime(2026, 9, 9)));
@@ -133,7 +133,7 @@ void main() {
         final storage = LocalStorage.ephemeral();
         final memory = OraclyMemoryStore(storage);
         final service = BirthChartExperienceService(
-          repository: LocalBirthChartRepository(storage),
+          repository: testBirthChartRepo(storage),
           memory: memory,
         );
         await memory.upsert(_unrelated(DateTime(2026, 9, 9)));
@@ -158,7 +158,7 @@ void main() {
       'existing completed source is backfilled on load after upgrade',
       () async {
         final storage = LocalStorage.ephemeral();
-        final repository = LocalBirthChartRepository(storage);
+        final repository = testBirthChartRepo(storage);
         final original = await BirthChartExperienceService(
           repository: repository,
         ).generate(_profile(1995, 8, 15));

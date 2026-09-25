@@ -4,12 +4,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/features/birth_chart/data/birth_chart_cities.dart';
 import 'package:oracly_new/features/birth_chart/models/birth_profile.dart';
 import 'package:oracly_new/features/birth_chart/presentation/widgets/birth_chart_city_picker.dart';
 import 'package:oracly_new/features/birth_chart/services/birth_chart_experience_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../birth_chart/evidence/test_birth_owner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +51,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
     final service = BirthChartExperienceService(
-      repository: LocalBirthChartRepository(storage),
+      repository: testBirthChartRepo(storage),
     );
     final city = BirthChartCities.byName('Kahramanmaraş')!;
     await service.generate(

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/features/birth_chart/controllers/birth_chart_controller.dart';
 import 'package:oracly_new/features/birth_chart/copy/birth_chart_copy.dart';
 import 'package:oracly_new/features/birth_chart/data/birth_chart_record_mapper.dart';
@@ -8,12 +7,13 @@ import 'package:oracly_new/features/birth_chart/models/birth_profile.dart';
 import 'package:oracly_new/features/birth_chart/services/birth_chart_experience_service.dart';
 import 'package:oracly_new/features/birth_chart/services/natal_chart_calculator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'evidence/test_birth_owner.dart';
 
 Future<({LocalStorage storage, BirthChartExperienceService service})>
     _createService() async {
   SharedPreferences.setMockInitialValues({});
   final storage = await LocalStorage.open();
-  final repository = LocalBirthChartRepository(storage);
+  final repository = testBirthChartRepo(storage);
   final service = BirthChartExperienceService(repository: repository);
   return (storage: storage, service: service);
 }
@@ -33,7 +33,7 @@ void main() {
       );
       expect(incomplete.insights, isEmpty);
 
-      final repository = LocalBirthChartRepository(env.storage);
+      final repository = testBirthChartRepo(env.storage);
       await repository.save(BirthChartRecordMapper.toRecord(incomplete));
 
       final result = await env.service.loadSaved();
@@ -84,7 +84,7 @@ void main() {
           birthTimeKnown: false,
         ),
       );
-      final repository = LocalBirthChartRepository(env.storage);
+      final repository = testBirthChartRepo(env.storage);
       await repository.save(BirthChartRecordMapper.toRecord(incomplete));
 
       final controller = BirthChartController(env.service);
@@ -104,7 +104,7 @@ void main() {
           birthTimeKnown: false,
         ),
       );
-      final repository = LocalBirthChartRepository(env.storage);
+      final repository = testBirthChartRepo(env.storage);
       await repository.save(BirthChartRecordMapper.toRecord(incomplete));
 
       final controller = BirthChartController(env.service);

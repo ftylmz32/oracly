@@ -3,13 +3,13 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/features/birth_chart/data/birth_chart_cities.dart';
 import 'package:oracly_new/features/birth_chart/data/birth_chart_record_mapper.dart';
 import 'package:oracly_new/features/birth_chart/models/birth_profile.dart';
 import 'package:oracly_new/features/birth_chart/models/zodiac_sign_id.dart';
 import 'package:oracly_new/features/birth_chart/services/birth_chart_experience_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'evidence/test_birth_owner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +26,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
     final service = BirthChartExperienceService(
-      repository: LocalBirthChartRepository(storage),
+      repository: testBirthChartRepo(storage),
     );
 
     final generated = await service.generate(
@@ -49,7 +49,7 @@ void main() {
     expect(loaded.chart?.profile.hasKnownTime, isTrue);
     expect(
       BirthChartRecordMapper.fromRecord(
-        (await LocalBirthChartRepository(storage).getLatest())!,
+        (await testBirthChartRepo(storage).getLatest())!,
       ).sun.sign,
       ZodiacSignId.leo,
     );
@@ -59,7 +59,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
     final service = BirthChartExperienceService(
-      repository: LocalBirthChartRepository(storage),
+      repository: testBirthChartRepo(storage),
     );
 
     final generated = await service.generate(

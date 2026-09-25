@@ -3,7 +3,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/intelligence/data/personal_memory_store.dart';
 import 'package:oracly_new/core/services/history_service.dart';
@@ -14,6 +13,7 @@ import 'package:oracly_new/core/intelligence/services/personal_memory_service.da
 import 'package:oracly_new/features/privacy/services/privacy_control_service.dart';
 import 'package:oracly_new/features/tarot/data/datasources/tarot_local_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../birth_chart/evidence/test_birth_owner.dart';
 
 void main() {
   late LocalStorage storage;
@@ -28,7 +28,7 @@ void main() {
       history: HistoryService(MockHistoryRepository(storage)),
       favorites: FavoriteMomentsService(LocalFavoriteMomentsRepository(storage)),
       personalMemory: personalMemory,
-      birthCharts: LocalBirthChartRepository(storage),
+      birthCharts: testBirthChartRepo(storage),
       storage: storage,
     );
   }

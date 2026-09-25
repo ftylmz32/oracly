@@ -8,7 +8,6 @@ import 'package:oracly_new/core/auth/owned_file_cleanup_journal.dart';
 import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/intelligence/data/personal_memory_store.dart';
 import 'package:oracly_new/core/intelligence/services/personal_memory_service.dart';
@@ -35,6 +34,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../support/false_return_local_storage.dart';
+import '../birth_chart/evidence/test_birth_owner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -111,7 +111,7 @@ void main() {
           LocalFavoriteMomentsRepository(storage),
         ),
         personalMemory: PersonalMemoryService(PersonalMemoryStore(storage)),
-        birthCharts: LocalBirthChartRepository(storage),
+        birthCharts: testBirthChartRepo(storage),
         storage: storage,
       );
 
@@ -273,7 +273,7 @@ void main() {
     await PrivacyDiscoveryClear.run(
       storage: storage,
       history: HistoryService(MockHistoryRepository(storage)),
-      birthCharts: LocalBirthChartRepository(storage),
+      birthCharts: testBirthChartRepo(storage),
     );
 
     expect(CoffeeReadingStore(storage).all(), isEmpty);

@@ -82,4 +82,11 @@ abstract final class BirthChartCopy {
   static String get bigThreeTitle => _t('birth.big_three');
   static String get corePersonalityTitle => _t('birth.core');
   static String get lifeThemesTitle => _t('birth.life');
+  static String get placeUnknown => _t('birth.place_unknown');
+  static String get placeUnknownAction => _t('birth.place_unknown_action');
+  static String get placeUnknownValue => _t('birth.place_unknown_value');
+  static String get scopeReduced => _t('birth.scope_reduced');
+  static String get scopeEvidenceFullCalcPending =>
+      _t('birth.scope_evidence_full_calc_pending');
+  static String get ownerUnavailable => _t('birth.owner_unavailable');
 }

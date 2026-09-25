@@ -14,6 +14,7 @@ import '../auth/firebase/live_firebase_auth_gateway.dart';
 import '../auth/secure_token_manager.dart';
 import '../auth/session_manager.dart';
 import '../auth/token_manager.dart';
+import '../auth/user_local_data_isolation.dart';
 import '../data/datasources/local_storage.dart';
 import '../data/repositories/local_ai_conversation_repository.dart';
 import '../data/repositories/local_birth_chart_repository.dart';
@@ -228,8 +229,20 @@ final dreamRepositoryProvider = Provider<DreamRepository>((ref) {
   return LocalDreamRepository(storage, memory: OraclyMemoryStore(storage));
 });
 
+/// Tick that bumps when [UserLocalDataIsolation.accountSwitchEpoch] changes.
+final localDataOwnerEpochProvider = Provider<int>((ref) {
+  final listenable = UserLocalDataIsolation.accountSwitchEpoch;
+  void listener() => ref.invalidateSelf();
+  listenable.addListener(listener);
+  ref.onDispose(() => listenable.removeListener(listener));
+  return listenable.value;
+});
+
 final birthChartRepositoryProvider = Provider<BirthChartRepository>((ref) {
-  return LocalBirthChartRepository(ref.watch(localStorageProvider));
+  ref.watch(localDataOwnerEpochProvider);
+  final storage = ref.watch(localStorageProvider);
+  final ownerId = storage.getString(UserLocalDataIsolation.ownerKey);
+  return LocalBirthChartRepository(storage, ownerId: ownerId);
 });
 
 final astrologyRepositoryProvider = Provider<AstrologyRepository>((ref) {

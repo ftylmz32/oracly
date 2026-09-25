@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
-import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../features/ai/oracle_conversation/models/oracle_reading_context_sources.dart';
@@ -17,7 +16,9 @@ import '../../models/chart_insight.dart';
 import '../../services/chart_insight_locale.dart';
 import 'birth_chart_identity_card.dart';
 import 'birth_chart_placement_card.dart';
+import 'birth_chart_result_ask.dart';
 import 'birth_chart_result_lists.dart';
+import 'birth_chart_scope_note.dart';
 
 class BirthChartResultView extends StatelessWidget {
   const BirthChartResultView({
@@ -84,6 +85,8 @@ class BirthChartResultView extends StatelessWidget {
             SizedBox(height: OraclyChrome.sectionGap),
             const BirthChartEphemerisNote(),
           ],
+          SizedBox(height: AppSpacing.s8),
+          BirthChartScopeNote(profile: chart.profile),
           SizedBox(height: OraclyChrome.sectionGap),
           Text(
             closingMessage ?? BirthChartCopy.closingNote,
@@ -100,31 +103,10 @@ class BirthChartResultView extends StatelessWidget {
               summary: summary,
               strongThemes: strong,
               notableThemes: notable,
-              placements: showNatal
-                  ? [
-                      if (chart.moon != null)
-                        ChartInsightLocale.fill('birth.placement.moon', {
-                          'sign': ChartInsightLocale.signName(
-                            chart.moon!.sign,
-                          ),
-                        }),
-                      if (chart.rising != null)
-                        ChartInsightLocale.fill('birth.placement.rising', {
-                          'sign': ChartInsightLocale.signName(
-                            chart.rising!.sign,
-                          ),
-                        }),
-                      ...chart.planets.map(
-                        (p) => ChartInsightLocale.fill(
-                          'birth.placement.planet',
-                          {
-                            'planet': p.id.labeled(OraclyL10n.code),
-                            'sign': ChartInsightLocale.signName(p.sign),
-                          },
-                        ),
-                      ),
-                    ]
-                  : const [],
+              placements: BirthChartResultAsk.placements(
+                chart,
+                showNatal: showNatal,
+              ),
             ),
           ),
           if (onUpdateInfo != null) ...[

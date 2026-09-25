@@ -1,70 +1,56 @@
 /// Birth chart orchestrator — persist profile, calculate via port, interpret.
 library;
 
+import '../../../core/data/repositories/local_birth_chart_repository.dart';
+import '../../../core/domain/models/birth_chart_record.dart';
 import '../../../core/domain/repositories/birth_chart_repository.dart';
 import '../../../core/memory/oracly_memory.dart';
-import '../../../core/memory/oracly_memory_factory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
 import '../data/birth_chart_record_mapper.dart';
 import '../models/birth_chart.dart';
 import '../models/birth_profile.dart';
+import 'birth_chart_experience_persist.dart';
+import 'birth_chart_load_result.dart';
 import 'birth_chart_persistence_validator.dart';
 import 'chart_calculation_port.dart';
 import 'chart_insight_generator.dart';
 import 'natal_chart_calculator.dart';
 
-class BirthChartExperienceResult {
-  const BirthChartExperienceResult({required this.chart});
-
-  final BirthChart chart;
-}
-
-enum BirthChartLoadStatus { none, loaded, clearedCorrupt }
-
-class BirthChartLoadResult {
-  const BirthChartLoadResult._({
-    required this.status,
-    this.chart,
-    this.profileHint,
-  });
-
-  const BirthChartLoadResult.none() : this._(status: BirthChartLoadStatus.none);
-
-  const BirthChartLoadResult.loaded(BirthChart chart)
-    : this._(status: BirthChartLoadStatus.loaded, chart: chart);
-
-  const BirthChartLoadResult.clearedCorrupt({BirthProfile? profileHint})
-    : this._(
-        status: BirthChartLoadStatus.clearedCorrupt,
-        profileHint: profileHint,
-      );
-
-  final BirthChartLoadStatus status;
-  final BirthChart? chart;
-  final BirthProfile? profileHint;
-}
+export 'birth_chart_load_result.dart';
 
 class BirthChartExperienceService {
   BirthChartExperienceService({
-    required this._repository,
+    required BirthChartRepository repository,
     ChartCalculationPort? calculator,
     ChartInsightGenerator? insightGenerator,
-    this._memory,
-  }) : _calculator = calculator ?? const NatalChartCalculator(),
-       _insights = insightGenerator ?? const ChartInsightGenerator();
+    OraclyMemoryStore? memory,
+  }) : _repository = repository,
+       _memory = memory,
+       _persist = BirthChartExperiencePersist(
+         repository: repository,
+         calculator: calculator ?? const NatalChartCalculator(),
+         insights: insightGenerator ?? const ChartInsightGenerator(),
+         memory: memory,
+       ),
+       _calculator = calculator ?? const NatalChartCalculator();
 
   final BirthChartRepository _repository;
-  final ChartCalculationPort _calculator;
-  final ChartInsightGenerator _insights;
   final OraclyMemoryStore? _memory;
+  final BirthChartExperiencePersist _persist;
+  final ChartCalculationPort _calculator;
 
   Future<BirthChartExperienceResult> generate(BirthProfile profile) async {
-    final chart = await _buildAndSave(profile);
+    final chart = await _persist.buildAndSave(profile);
     return BirthChartExperienceResult(chart: chart);
   }
 
   Future<BirthChartLoadResult> loadSaved() async {
-    final record = await _repository.getLatest();
+    BirthChartRecord? record;
+    try {
+      record = await _repository.getLatest();
+    } on BirthChartOwnerUnavailableException {
+      return const BirthChartLoadResult.ownerUnavailable();
+    }
     if (record == null) return const BirthChartLoadResult.none();
 
     BirthChart chart;
@@ -76,11 +62,12 @@ class BirthChartExperienceService {
     }
 
     try {
-      if (_needsRebuild(chart)) {
-        chart = await _buildAndSave(chart.profile);
-      } else if (!BirthChartPersistenceValidator.isJourneyReady(chart)) {
-        chart = await _buildAndSave(chart.profile);
+      if (_needsRebuild(chart) ||
+          !BirthChartPersistenceValidator.isJourneyReady(chart)) {
+        chart = await _persist.buildAndSave(chart.profile);
       }
+    } on BirthChartOwnerUnavailableException {
+      return const BirthChartLoadResult.ownerUnavailable();
     } catch (_) {
       final profile = chart.profile;
       await clearSavedData();
@@ -93,8 +80,7 @@ class BirthChartExperienceService {
       return BirthChartLoadResult.clearedCorrupt(profileHint: profile);
     }
 
-    await _writeMemory(chart);
-
+    await _persist.writeMemory(chart);
     return BirthChartLoadResult.loaded(chart);
   }
 
@@ -102,6 +88,8 @@ class BirthChartExperienceService {
     String? sourceId;
     try {
       sourceId = (await _repository.getLatest())?.id;
+    } on BirthChartOwnerUnavailableException {
+      rethrow;
     } catch (_) {}
     await _repository.clearLatest();
     if (sourceId != null) {
@@ -110,9 +98,7 @@ class BirthChartExperienceService {
           sourceId,
           OraclyReadingType.birthChart,
         );
-      } catch (_) {
-        // Connected memory is an optional index; source deletion still wins.
-      }
+      } catch (_) {}
     }
   }
 
@@ -124,10 +110,10 @@ class BirthChartExperienceService {
   Future<BirthChart> ensureChartReady(BirthChart chart) async {
     if (BirthChartPersistenceValidator.isJourneyReady(chart) &&
         !_needsRebuild(chart)) {
-      await _writeMemory(chart);
+      await _persist.writeMemory(chart);
       return chart;
     }
-    return _buildAndSave(chart.profile);
+    return _persist.buildAndSave(chart.profile);
   }
 
   bool _needsRebuild(BirthChart chart) {
@@ -139,62 +125,5 @@ class BirthChartExperienceService {
         chart.planets.isNotEmpty ||
         chart.houses.isNotEmpty ||
         chart.aspects.isNotEmpty;
-  }
-
-  Future<BirthChart> _buildAndSave(BirthProfile profile) async {
-    String? previousSourceId;
-    try {
-      previousSourceId = (await _repository.getLatest())?.id;
-    } catch (_) {}
-    var chart = _calculator.calculate(profile);
-    final insights = _insights.generate(chart);
-    final themes = _insights.lifeThemes(chart);
-    chart = BirthChart(
-      id: chart.id,
-      profile: chart.profile,
-      sun: chart.sun,
-      moon: chart.hasFullNatal ? chart.moon : null,
-      rising: chart.hasFullNatal ? chart.rising : null,
-      planets: chart.hasFullNatal ? chart.planets : const [],
-      houses: chart.hasFullNatal ? chart.houses : const [],
-      aspects: chart.hasFullNatal ? chart.aspects : const [],
-      elementBalance: chart.elementBalance,
-      dominantEnergy: chart.dominantEnergy,
-      lifeThemes: themes,
-      insights: insights,
-      generatedAt: chart.generatedAt,
-      precision: chart.precision,
-      fidelity: chart.fidelity,
-    );
-    if (!BirthChartPersistenceValidator.isJourneyReady(chart)) {
-      throw StateError('Birth chart interpretation is incomplete');
-    }
-    await _repository.save(BirthChartRecordMapper.toRecord(chart));
-    await _writeMemory(chart, supersededSourceId: previousSourceId);
-    return chart;
-  }
-
-  Future<void> _writeMemory(
-    BirthChart chart, {
-    String? supersededSourceId,
-  }) async {
-    final memory = _memory;
-    if (memory == null ||
-        !BirthChartPersistenceValidator.isJourneyReady(chart)) {
-      return;
-    }
-    if (supersededSourceId != null && supersededSourceId != chart.id) {
-      try {
-        await memory.removeBySourceAndType(
-          supersededSourceId,
-          OraclyReadingType.birthChart,
-        );
-      } catch (_) {}
-    }
-    try {
-      await memory.upsert(OraclyMemoryFactory.birthChart(chart));
-    } catch (_) {
-      // Result persistence is authoritative and must remain available.
-    }
   }
 }

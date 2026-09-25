@@ -1,9 +1,7 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/core/data/repositories/local_birth_chart_repository.dart';
 import 'package:oracly_new/core/l10n/oracly_format.dart';
 import 'package:oracly_new/features/birth_chart/copy/birth_chart_copy.dart';
 import 'package:oracly_new/features/birth_chart/data/birth_chart_record_mapper.dart';
@@ -14,6 +12,7 @@ import 'package:oracly_new/features/birth_chart/services/natal_chart_calculator.
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../test_helpers/provider_scope_harness.dart';
+import 'evidence/test_birth_owner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -111,9 +110,8 @@ void main() {
         birthTimeKnown: true,
       ),
     );
-    await storage.setString(
-      'birth_chart_latest',
-      jsonEncode(BirthChartRecordMapper.toRecord(incomplete).toJson()),
+    await testBirthChartRepo(storage).save(
+      BirthChartRecordMapper.toRecord(incomplete),
     );
 
     await tester.pumpWidget(
@@ -144,7 +142,7 @@ void main() {
     await setPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
-    final repository = LocalBirthChartRepository(storage);
+    final repository = testBirthChartRepo(storage);
     final incomplete = const NatalChartCalculator().calculate(
       BirthProfile(
         birthDate: DateTime(1990, 3, 25),

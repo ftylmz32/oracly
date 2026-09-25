@@ -22,7 +22,7 @@ final discoveryJournalEntriesProvider =
   final coffee = ref.watch(coffeeReadingStoreProvider).all();
   final palm = ref.watch(palmReadingStoreProvider).all();
   final astrology = await ref.watch(astrologyRepositoryProvider).getHistory();
-  final starChart = await ref.watch(birthChartRepositoryProvider).getLatest();
+  final starChart = await _safeBirthChart(ref);
   final daily = DailyReturnStore(ref.watch(localStorageProvider)).snapshots(
     DateTime.now(),
   );
@@ -48,6 +48,14 @@ Future<dynamic> _soulMate(Ref ref) async {
     final loaded =
         await ref.watch(soulMateResultServiceProvider).latestWithPortrait();
     return loaded?.meta;
+  } catch (_) {
+    return null;
+  }
+}
+
+Future<dynamic> _safeBirthChart(Ref ref) async {
+  try {
+    return await ref.watch(birthChartRepositoryProvider).getLatest();
   } catch (_) {
     return null;
   }

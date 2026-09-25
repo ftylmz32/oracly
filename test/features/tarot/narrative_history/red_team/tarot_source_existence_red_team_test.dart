@@ -12,6 +12,7 @@ import 'package:oracly_new/features/palm/data/palm_reading_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../personal_discovery/pde_test_fixtures.dart';
+import '../../../birth_chart/evidence/test_birth_owner.dart';
 import '../tarot_4c_test_support.dart';
 
 void main() {
@@ -43,7 +44,12 @@ void main() {
     }
     expect(await memIds(), isEmpty);
 
-    await h.tarot.saveSession(completedSession(id: 't-live'));
+    // Resolve local owner before creating legitimate live sources.
+    await setOwner(h.storage, 'test-owner-a');
+
+    await h.tarot.saveSession(
+      completedSession(id: 't-live', userId: 'test-owner-a'),
+    );
     await h.memory.upsert(
       readingMemory(sourceId: 't-live', type: OraclyReadingType.tarot),
     );
@@ -68,14 +74,18 @@ void main() {
       readingMemory(sourceId: 'bc-live', type: OraclyReadingType.birthChart),
     );
 
-    expect(await memIds(), {
-      't-live',
-      'c-live',
-      'p-live',
-      'd-live',
-      'sm-live',
-      'bc-live',
-    });
+    final live = await h.loader().load(currentOwnerId: 'test-owner-a');
+    expect(
+      live.snapshot.connectedMemories.map((e) => e.sourceId).toSet(),
+      {
+        't-live',
+        'c-live',
+        'p-live',
+        'd-live',
+        'sm-live',
+        'bc-live',
+      },
+    );
   });
 
   test('portrait-only soulmate excluded', () async {
@@ -94,7 +104,9 @@ void main() {
         birthTimeKnown: false,
       ),
     );
-    await h.birthCharts.save(BirthChartRecordMapper.toRecord(incomplete));
+    await testBirthChartRepo(h.storage).save(
+      BirthChartRecordMapper.toRecord(incomplete),
+    );
     await h.memory.upsert(
       readingMemory(
         sourceId: incomplete.id,

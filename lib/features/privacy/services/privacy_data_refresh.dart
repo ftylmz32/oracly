@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers/app_providers.dart';
 import '../../../core/revisit/providers/discovery_revisit_provider.dart';
 import '../../../screens/profile/data/profile_photo_store.dart';
+import '../../birth_chart/providers/birth_information_provider.dart';
 import '../../companion/providers/companion_providers.dart';
 import '../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../gems/providers/gem_providers.dart';
@@ -50,6 +51,8 @@ abstract final class PrivacyDataRefresh {
     ref.invalidate(livingExperienceProvider);
     ref.invalidate(gemWalletProvider);
     ref.invalidate(gemStarterGrantProvider);
+    ref.invalidate(birthChartRepositoryProvider);
+    ref.invalidate(birthInformationProvider);
     ref.read(profilePhotoEpochProvider.notifier).state++;
     _reloadCompanion(ref);
   }

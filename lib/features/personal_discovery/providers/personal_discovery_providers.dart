@@ -4,6 +4,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/domain/models/birth_chart_record.dart';
 import '../../birth_chart/providers/birth_information_provider.dart';
 import '../../coffee/providers/coffee_providers.dart';
 import '../../daily_message/data/daily_return_store.dart';
@@ -36,7 +37,12 @@ final personalDiscoveryProfileProvider =
   final coffee = ref.watch(coffeeReadingStoreProvider).all();
   final palm = ref.watch(palmReadingStoreProvider).all();
   final astrology = await ref.watch(astrologyRepositoryProvider).getHistory();
-  final starChart = await ref.watch(birthChartRepositoryProvider).getLatest();
+  BirthChartRecord? starChart;
+  try {
+    starChart = await ref.watch(birthChartRepositoryProvider).getLatest();
+  } catch (_) {
+    starChart = null;
+  }
   final daily = DailyReturnStore(ref.watch(localStorageProvider)).snapshots(
     DateTime.now(),
   );

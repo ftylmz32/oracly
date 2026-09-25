@@ -122,6 +122,7 @@ void main() {
     );
     expect(await loadMem(), isEmpty);
 
+    await setOwner(h.storage, 'test-owner-a');
     await saveJourneyChart(h.storage, 'bc1');
     expect((await loadMem()).single.sourceId, 'bc1');
   });
