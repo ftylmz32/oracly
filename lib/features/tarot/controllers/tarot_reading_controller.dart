@@ -1,6 +1,8 @@
 /// OR-1170 — Tarot reading session controller.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../core/copy/resilience_copy.dart';
@@ -39,12 +41,18 @@ class TarotReadingController extends TarotBaseController {
   bool _drawLocked = false;
   /// True when durable draw state could not be reconciled after a persist fault.
   bool _drawStateUncertain = false;
+  /// Invalidates in-flight draw ownership on abandon/reset.
+  int _lifecycleEpoch = 0;
+  /// Completes when the current draw transaction finishes (success or fail).
+  Future<void>? _activeDrawQuiesce;
   Future<AiReadingContent>? _interpretationInflight;
   int _sessionSeq = 0;
 
   ReadingSession? get session => _session;
   TarotDeckController get deckController => _deckController;
   bool get drawStateUncertain => _drawStateUncertain;
+
+  bool _ownsEpoch(int epoch) => epoch == _lifecycleEpoch;
 
   Future<void> restoreActiveSession() async {
     final raw = await _repository.loadActiveSession();
@@ -69,7 +77,17 @@ class TarotReadingController extends TarotBaseController {
 
   /// Drop a prior in-progress session so a new ritual cannot collide with
   /// restore / daily-draw races on a stale active document.
+  ///
+  /// Invalidates draw ownership first, waits for any in-flight draw persist to
+  /// quiesce, then clears durable active so a stale save cannot resurrect it.
   Future<void> abandonActiveForNewStart() async {
+    _lifecycleEpoch++;
+    final pending = _activeDrawQuiesce;
+    if (pending != null) {
+      try {
+        await pending;
+      } catch (_) {}
+    }
     await _repository.clearActiveSession();
     _session = null;
     _drawLocked = false;
@@ -150,6 +168,9 @@ class TarotReadingController extends TarotBaseController {
       throw StateError('All cards already drawn');
     }
     _drawLocked = true;
+    final epoch = _lifecycleEpoch;
+    final quiesce = Completer<void>();
+    _activeDrawQuiesce = quiesce.future;
     var releaseLock = true;
     try {
       final snapshot = current;
@@ -164,19 +185,28 @@ class TarotReadingController extends TarotBaseController {
         snapshot: snapshot,
         snapshotDrawnIds: snapshotIds,
         candidate: candidate,
+        epoch: epoch,
       );
+      if (!_ownsEpoch(epoch)) {
+        throw StateError('draw_stale');
+      }
       if (!committed) {
-        // Rolled back — surface as failure for ritual commitDraw.
         throw StateError('persist_failed');
       }
       return drawn;
     } on StateError catch (e) {
-      if (e.message == 'Draw persistence state uncertain') {
+      if (e.message == 'Draw persistence state uncertain' ||
+          e.message == 'draw_stale') {
+        // Uncertain: keep lock. Stale: abandon/reset owns lock cleanup.
         releaseLock = false;
       }
       rethrow;
     } finally {
-      if (releaseLock) _drawLocked = false;
+      if (releaseLock && _ownsEpoch(epoch)) _drawLocked = false;
+      if (!quiesce.isCompleted) quiesce.complete();
+      if (identical(_activeDrawQuiesce, quiesce.future)) {
+        _activeDrawQuiesce = null;
+      }
     }
   }
 
@@ -191,6 +221,9 @@ class TarotReadingController extends TarotBaseController {
     }
     if (_drawLocked) return;
     _drawLocked = true;
+    final epoch = _lifecycleEpoch;
+    final quiesce = Completer<void>();
+    _activeDrawQuiesce = quiesce.future;
     var releaseLock = true;
     try {
       final snapshot = current;
@@ -210,64 +243,107 @@ class TarotReadingController extends TarotBaseController {
         snapshot: snapshot,
         snapshotDrawnIds: snapshotIds,
         candidate: candidate,
+        epoch: epoch,
       );
+      if (!_ownsEpoch(epoch)) {
+        throw StateError('draw_stale');
+      }
       if (!committed) {
         throw StateError('persist_failed');
       }
     } on StateError catch (e) {
-      if (e.message == 'Draw persistence state uncertain') {
+      if (e.message == 'Draw persistence state uncertain' ||
+          e.message == 'draw_stale') {
         releaseLock = false;
       }
       rethrow;
     } finally {
-      if (releaseLock) _drawLocked = false;
+      if (releaseLock && _ownsEpoch(epoch)) _drawLocked = false;
+      if (!quiesce.isCompleted) quiesce.complete();
+      if (identical(_activeDrawQuiesce, quiesce.future)) {
+        _activeDrawQuiesce = null;
+      }
     }
   }
 
-  /// Persist [candidate] then assign `_session`. On failure, reconcile durable
-  /// state: commit if durable already has candidate, else full rollback.
-  /// Returns true when the draw is committed everywhere.
+  /// Persist [candidate] then assign `_session` when lifecycle still owns [epoch].
+  /// On save failure: restore local snapshot first, then durable read-back.
   Future<bool> _commitDrawCandidate({
     required ReadingSession snapshot,
     required List<int> snapshotDrawnIds,
     required ReadingSession candidate,
+    required int epoch,
   }) async {
     try {
       await _repository.saveSession(candidate);
+      if (!_ownsEpoch(epoch)) return false;
       _session = candidate;
       notifyListeners();
       return true;
     } catch (_) {
+      // P1-A: local known-good before any durable probe.
+      _restoreLocalSnapshot(snapshot, snapshotDrawnIds);
+      if (!_ownsEpoch(epoch)) return false;
+
       ReadingSession? durable;
       try {
         durable = await _repository.loadActiveSession();
       } catch (_) {
+        if (!_ownsEpoch(epoch)) return false;
         _drawStateUncertain = true;
         throw StateError('Draw persistence state uncertain');
       }
+      if (!_ownsEpoch(epoch)) return false;
+
       if (_sameDrawCommit(durable, candidate)) {
-        // Write-then-throw: durable already holds the candidate.
-        _session = candidate;
+        // WRITE-THEN-THROW: durable has candidate; re-apply locally.
+        _restoreLocalCandidate(candidate);
         notifyListeners();
         return true;
       }
-      // Fail-before-write (or durable still pre-draw): restore deck + session.
-      _session = snapshot;
-      _deckController.restorePile(
-        deckId: snapshot.deckId,
-        seed: snapshot.shuffleSeed,
-        drawnCardIds: snapshotDrawnIds,
-      );
+
+      // Fail-before-write / durable still pre-draw — already at snapshot.
       if (_needsDrawCompensation(durable, snapshot)) {
+        if (!_ownsEpoch(epoch)) return false;
         try {
           await _repository.saveSession(snapshot);
         } catch (_) {
+          if (!_ownsEpoch(epoch)) return false;
           _drawStateUncertain = true;
           throw StateError('Draw persistence state uncertain');
         }
+        if (!_ownsEpoch(epoch)) return false;
+      } else if (durable != null &&
+          durable.id == snapshot.id &&
+          !_sameDrawCommit(durable, snapshot)) {
+        // Divergent durable that is neither snapshot nor candidate.
+        _drawStateUncertain = true;
+        throw StateError('Draw persistence state uncertain');
       }
       return false;
     }
+  }
+
+  void _restoreLocalSnapshot(
+    ReadingSession snapshot,
+    List<int> snapshotDrawnIds,
+  ) {
+    _session = snapshot;
+    _deckController.restorePile(
+      deckId: snapshot.deckId,
+      seed: snapshot.shuffleSeed,
+      drawnCardIds: snapshotDrawnIds,
+    );
+  }
+
+  void _restoreLocalCandidate(ReadingSession candidate) {
+    _session = candidate;
+    _deckController.restorePile(
+      deckId: candidate.deckId,
+      seed: candidate.shuffleSeed,
+      drawnCardIds:
+          candidate.drawnCards.map((c) => c.card.id).toList(growable: false),
+    );
   }
 
   static bool _sameDrawCommit(ReadingSession? durable, ReadingSession candidate) {
@@ -445,9 +521,15 @@ class TarotReadingController extends TarotBaseController {
     notifyListeners();
   }
 
+  /// Local-only reset. Invalidates in-flight draw ownership; does not clear
+  /// durable storage — use [abandonActiveForNewStart] for that.
   void resetSession() {
+    _lifecycleEpoch++;
     _session = null;
     _deckController.resetPile();
+    _drawLocked = false;
+    _drawStateUncertain = false;
+    _interpretationInflight = null;
     notifyListeners();
   }
 
@@ -469,6 +551,10 @@ class TarotReadingController extends TarotBaseController {
 
   @override
   void dispose() {
+    _lifecycleEpoch++;
+    _drawLocked = false;
+    _drawStateUncertain = false;
+    _interpretationInflight = null;
     _deckController.dispose();
     super.dispose();
   }

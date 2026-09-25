@@ -1,6 +1,8 @@
 /// Phase 8 — Counting repo + draw/settle fault injection (test-only).
 library;
 
+import 'dart:async';
+
 import 'package:oracly_new/features/tarot/domain/models/reading_session.dart';
 import 'package:oracly_new/features/tarot/domain/repositories/tarot_reading_repository.dart';
 
@@ -26,7 +28,12 @@ class Phase8FailingRepo implements TarotReadingRepository {
   Duration? delaySaves;
   int saveCount = 0;
   int loadActiveCount = 0;
+  int clearActiveCount = 0;
   bool failNextLoadActive = false;
+
+  /// When set, each save awaits [saveGate] release after signaling [saveStarted].
+  Completer<void>? saveGate;
+  Completer<void>? saveStarted;
 
   Phase8SaveFault _nextFault() {
     if (faultQueue.isNotEmpty) return faultQueue.removeAt(0);
@@ -39,6 +46,14 @@ class Phase8FailingRepo implements TarotReadingRepository {
 
   @override
   Future<void> saveSession(ReadingSession session) async {
+    final started = saveStarted;
+    final gate = saveGate;
+    if (started != null && !started.isCompleted) {
+      started.complete();
+    }
+    if (gate != null) {
+      await gate.future;
+    }
     if (delaySaves != null) await Future<void>.delayed(delaySaves!);
     final fault = _nextFault();
     switch (fault) {
@@ -56,7 +71,10 @@ class Phase8FailingRepo implements TarotReadingRepository {
   }
 
   @override
-  Future<void> clearActiveSession() => _inner.clearActiveSession();
+  Future<void> clearActiveSession() async {
+    clearActiveCount++;
+    await _inner.clearActiveSession();
+  }
 
   @override
   Future<void> deleteSession(String id) => _inner.deleteSession(id);
