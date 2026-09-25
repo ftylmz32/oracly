@@ -26,12 +26,18 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
     required this.sections,
     this.planets = const [],
     this.readingContext,
+    this.artifactId,
+    this.artifactCreatedAt,
   });
 
   final String title;
   final List<StarMapResultSection> sections;
   final List<StarMapPlanetInfluence> planets;
   final OracleReadingContext? readingContext;
+
+  /// Durable Yıldızname artifact id (`yid_…`). Null → favorite unavailable.
+  final String? artifactId;
+  final DateTime? artifactCreatedAt;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,8 +46,6 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
         : sections.first.body.trim().isNotEmpty
             ? sections.first.body
             : sections.first.title;
-    // Content-stable key — never DateTime.now() (that minted a new favorite id daily).
-    final refKey = 'star-${Object.hash(title, insight)}';
     return OraclyScaffold(
       safeArea: false,
       backgroundOverlay: const StarMapReferenceAtmosphere(
@@ -86,7 +90,8 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
                             sections: sections,
                             planets: planets,
                             insight: insight,
-                            refKey: refKey,
+                            artifactId: artifactId,
+                            artifactCreatedAt: artifactCreatedAt,
                             readingContext: readingContext,
                           ),
                         ],

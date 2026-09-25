@@ -55,11 +55,12 @@ void main() {
   });
 
   group('known gaps', () {
-    test('birth_chart_latest ownerless key is known gap — not suite fail', () {
+    test('ownerless birth multi-artifact gap CLOSED by Phase 3/6', () {
       final gap = YildiznameKnownGaps.ownerlessBirthKey;
-      expect(gap.isKnownGap, isTrue);
+      expect(gap.isPass, isTrue);
+      expect(gap.isKnownGap, isFalse);
       expect(gap.isFail, isFalse);
-      expect(gap.reason, contains('birth_chart_latest'));
+      expect(gap.reason, contains('CLOSED'));
     });
   });
 }

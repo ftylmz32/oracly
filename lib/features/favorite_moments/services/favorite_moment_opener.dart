@@ -4,23 +4,18 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/providers/app_providers.dart';
-import '../../../core/domain/models/reading.dart';
 import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../../core/navigation/oracly_page_transitions.dart';
-import '../../../shared/ui/oracly_snackbar.dart';
+import '../../../app/providers/app_providers.dart';
 import '../../coffee/presentation/reference/coffee_reference_screen.dart';
 import '../../coffee/providers/coffee_providers.dart';
 import '../../dream/data/dream_record_mapper.dart';
 import '../../dream/providers/dream_providers.dart';
 import '../../palm/providers/palm_providers.dart';
 import '../../palm/presentation/palm_reference_screen.dart';
-import '../../tarot/presentation/screens/reading_history_detail_screen.dart';
-import '../../tarot/presentation/utils/reading_history_mapper.dart';
-import '../copy/favorite_moments_copy.dart';
 import '../models/favorite_moment.dart';
-import '../presentation/screens/favorite_moment_snapshot_screen.dart';
-import 'favorite_moment_snapshot.dart';
+import 'favorite_moment_open_helpers.dart';
+import 'favorite_moment_star_map_open.dart';
 
 abstract final class FavoriteMomentOpener {
   FavoriteMomentOpener._();
@@ -32,7 +27,7 @@ abstract final class FavoriteMomentOpener {
   ) async {
     switch (moment.source) {
       case FavoriteMomentSource.tarot:
-        await _openTarot(context, ref, moment);
+        await FavoriteMomentOpenHelpers.openTarot(context, ref, moment);
       case FavoriteMomentSource.coffee:
         await _openCoffee(context, ref, moment);
       case FavoriteMomentSource.palm:
@@ -44,7 +39,7 @@ abstract final class FavoriteMomentOpener {
       case FavoriteMomentSource.dailyMessage:
         OraclyNavigationService.openDailyMessage(context);
       case FavoriteMomentSource.starMap:
-        OraclyNavigationService.openStarMap(context);
+        await FavoriteMomentStarMapOpen.open(context, ref, moment);
       case FavoriteMomentSource.astrology:
         OraclyNavigationService.openAstrology(context);
     }
@@ -64,7 +59,7 @@ abstract final class FavoriteMomentOpener {
       );
       return;
     }
-    await _openFallback(context, moment);
+    await FavoriteMomentOpenHelpers.openFallback(context, moment);
   }
 
   static Future<void> _openPalm(
@@ -81,7 +76,7 @@ abstract final class FavoriteMomentOpener {
       );
       return;
     }
-    await _openFallback(context, moment);
+    await FavoriteMomentOpenHelpers.openFallback(context, moment);
   }
 
   static Future<void> _openDream(
@@ -89,7 +84,8 @@ abstract final class FavoriteMomentOpener {
     WidgetRef ref,
     FavoriteMoment moment,
   ) async {
-    final record = await ref.read(dreamRepositoryProvider).getById(moment.sourceRef);
+    final record =
+        await ref.read(dreamRepositoryProvider).getById(moment.sourceRef);
     if (record != null) {
       ref
           .read(dreamAnalysisControllerProvider)
@@ -99,56 +95,6 @@ abstract final class FavoriteMomentOpener {
       return;
     }
     if (!context.mounted) return;
-    await _openFallback(context, moment);
-  }
-
-  static Future<void> _openTarot(
-    BuildContext context,
-    WidgetRef ref,
-    FavoriteMoment moment,
-  ) async {
-    final readings = await ref.read(historyServiceProvider).getAll();
-    ReadingModel? match;
-    for (final reading in readings) {
-      if (reading.id == moment.sourceRef || reading.sessionId == moment.sourceRef) {
-        match = reading;
-        break;
-      }
-    }
-    if (match != null && context.mounted) {
-      await Navigator.of(context).push(
-        historyDetailRoute(entry: ReadingHistoryMapper.fromModel(match)),
-      );
-      return;
-    }
-    final entry = FavoriteMomentSnapshot.tarotHistoryEntry(moment);
-    if (entry != null && context.mounted) {
-      await Navigator.of(context).push(historyDetailRoute(entry: entry));
-      return;
-    }
-    if (!context.mounted) return;
-    _showUnavailable(context);
-  }
-
-  static Future<void> _openFallback(
-    BuildContext context,
-    FavoriteMoment moment,
-  ) async {
-    if (!FavoriteMomentSnapshot.canShowFallback(moment)) {
-      _showUnavailable(context);
-      return;
-    }
-    await Navigator.of(context).push(
-      OraclyPageTransitions.fade(
-        page: FavoriteMomentSnapshotScreen(moment: moment),
-      ),
-    );
-  }
-
-  static void _showUnavailable(BuildContext context) {
-    OraclySnackBar.show(
-      context,
-      message: FavoriteMomentsCopy.sourceUnavailable,
-    );
+    await FavoriteMomentOpenHelpers.openFallback(context, moment);
   }
 }

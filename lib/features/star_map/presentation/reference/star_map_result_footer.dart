@@ -16,6 +16,7 @@ import '../../../../features/ai/oracle_conversation/models/oracle_reading_contex
 import '../../../../features/ai/oracle_conversation/widgets/or_ask_button.dart';
 import '../../../../features/discovery_share/services/discovery_share_builder.dart';
 import '../../../../features/discovery_share/widgets/discovery_share_action.dart';
+import '../../../favorite_moments/copy/favorite_moments_copy.dart';
 import '../../../favorite_moments/presentation/widgets/save_favorite_moment_link.dart';
 import '../../../favorite_moments/services/favorite_moment_factory.dart';
 import '../../../reading_feedback/presentation/widgets/reading_quality_actions.dart';
@@ -31,7 +32,8 @@ class StarMapResultFooter extends StatelessWidget {
     required this.sections,
     required this.planets,
     required this.insight,
-    required this.refKey,
+    this.artifactId,
+    this.artifactCreatedAt,
     this.readingContext,
   });
 
@@ -39,12 +41,14 @@ class StarMapResultFooter extends StatelessWidget {
   final List<StarMapResultSection> sections;
   final List<StarMapPlanetInfluence> planets;
   final String insight;
-  final String refKey;
+  final String? artifactId;
+  final DateTime? artifactCreatedAt;
   final OracleReadingContext? readingContext;
 
   @override
   Widget build(BuildContext context) {
     final palette = AppColors.of(context);
+    final id = artifactId?.trim();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -101,14 +105,26 @@ class StarMapResultFooter extends StatelessWidget {
           ],
           orAlreadyOffered: readingContext != null,
         ),
-        SaveFavoriteMomentLink(
-          draft: FavoriteMomentFactory.starMap(
-            ref: refKey,
-            at: DateTime.now(),
-            title: title,
-            insight: insight,
+        if (id != null && id.isNotEmpty)
+          SaveFavoriteMomentLink(
+            draft: FavoriteMomentFactory.starMapArtifact(
+              artifactId: id,
+              at: artifactCreatedAt ?? DateTime.now().toUtc(),
+              title: title,
+              insight: insight,
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              FavoriteMomentsCopy.sourceUnavailable,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.caption.copyWith(
+                color: palette.textSecondary.withValues(alpha: 0.72),
+              ),
+            ),
           ),
-        ),
         ReadingQualityActions(feature: QualityFeature.starMap),
       ],
     );

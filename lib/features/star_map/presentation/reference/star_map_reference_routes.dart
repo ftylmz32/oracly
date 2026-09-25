@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
-
-import '../../../../features/ai/oracle_conversation/models/oracle_reading_context_sources.dart';
 import '../../../../features/birth_chart/models/birth_profile.dart';
 import '../../../../features/birth_chart/presentation/screens/birth_chart_screen.dart';
+import '../../artifacts/yildizname_legacy_section_kind.dart';
 import '../../copy/star_map_polish_copy.dart';
 import '../../models/star_map_reading.dart';
 import '../../services/star_map_personalization.dart';
 import 'star_map_reference_result_screen.dart';
+import 'star_map_result_open.dart';
 
 abstract final class StarMapReferenceRoutes {
   StarMapReferenceRoutes._();
@@ -66,6 +66,7 @@ abstract final class StarMapReferenceRoutes {
       reading: reading,
       profile: profile,
       sectionLabel: StarMapPolishCopy.skyMessageTitle,
+      sectionKind: YildiznameLegacySectionKind.skyMessage,
     );
   }
 
@@ -81,6 +82,7 @@ abstract final class StarMapReferenceRoutes {
       reading: reading,
       profile: profile,
       sectionLabel: StarMapPolishCopy.karmicTitle,
+      sectionKind: YildiznameLegacySectionKind.innerArchive,
     );
   }
 
@@ -102,6 +104,7 @@ abstract final class StarMapReferenceRoutes {
       reading: reading,
       profile: profile,
       sectionLabel: StarMapPolishCopy.planetsTitle,
+      sectionKind: YildiznameLegacySectionKind.planetCatalogue,
     );
   }
 
@@ -111,34 +114,22 @@ abstract final class StarMapReferenceRoutes {
     required List<StarMapResultSection> sections,
     required StarMapReading reading,
     required String sectionLabel,
+    required YildiznameLegacySectionKind sectionKind,
     BirthProfile? profile,
     List<StarMapPlanetInfluence> planets = const [],
   }) {
     if (_navigating) return;
     _navigating = true;
-    ProviderScope.containerOf(context, listen: false)
-        .read(analyticsServiceProvider)
-        .logStarMapCompleted();
-    Navigator.of(context)
-        .push(
-      MaterialPageRoute<void>(
-        builder: (_) => StarMapReferenceResultScreen(
-          title: title,
-          sections: sections,
-          planets: planets,
-          readingContext: OracleReadingContextSources.starMap(
-            sectionLabel: sectionLabel,
-            reading: reading,
-            profile: profile,
-            sectionLines: [
-              for (final section in sections)
-                if (section.body.trim().isNotEmpty)
-                  '${section.title}: ${section.body}',
-            ],
-          ),
-        ),
-      ),
-    )
-        .whenComplete(() => _navigating = false);
+    StarMapResultOpen.push(
+      context,
+      title: title,
+      sections: sections,
+      reading: reading,
+      sectionLabel: sectionLabel,
+      sectionKind: sectionKind,
+      profile: profile,
+      planets: planets,
+      onComplete: () => _navigating = false,
+    );
   }
 }

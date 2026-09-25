@@ -10,9 +10,11 @@ import '../../coffee/models/coffee_reading.dart';
 import '../../daily_message/models/daily_message.dart';
 import '../../palm/models/palm_reading.dart';
 import '../../premium/models/soul_mate_saved_result.dart';
+import '../../star_map/artifacts/yildizname_artifact.dart';
 import '../models/discovery_journal_entry.dart';
 import '../models/discovery_journal_range.dart';
 import 'discovery_journal_map.dart';
+import 'discovery_journal_map_star_map.dart';
 
 abstract final class DiscoveryJournalAggregator {
   DiscoveryJournalAggregator._();
@@ -25,6 +27,7 @@ abstract final class DiscoveryJournalAggregator {
     List<PalmReading> palm = const [],
     List<AstrologyRecord> astrology = const [],
     BirthChartRecord? starChart,
+    List<YildiznameArtifact> starMapArtifacts = const [],
     List<DailyMessage> daily = const [],
     SoulMateSavedResult? soulMate,
   }) {
@@ -37,7 +40,10 @@ abstract final class DiscoveryJournalAggregator {
       ...conversations.where(_hasMessages).map(DiscoveryJournalMap.conversation),
       ...palm.map(DiscoveryJournalMap.palm),
       ...astrology.map(DiscoveryJournalMap.astrology),
-      if (starChart != null) DiscoveryJournalMap.starMap(starChart),
+      if (starMapArtifacts.isNotEmpty)
+        ...starMapArtifacts.map(DiscoveryJournalMapStarMap.artifact)
+      else if (starChart != null)
+        DiscoveryJournalMap.starMap(starChart),
       ...daily.map(DiscoveryJournalMap.daily),
       ?soulMateEntry,
     ];

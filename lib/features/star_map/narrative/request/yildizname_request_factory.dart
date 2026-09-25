@@ -2,6 +2,8 @@
 library;
 
 import '../../../birth_chart/astronomy/natal_chart_evidence.dart';
+import '../../artifacts/yildizname_artifact_memory.dart';
+import '../../artifacts/yildizname_theme_merge.dart';
 import 'yildizname_narrative_request.dart';
 import 'yildizname_narrative_scope.dart';
 import 'yildizname_request_extras.dart';
@@ -14,12 +16,17 @@ abstract final class YildiznameRequestFactory {
     required NatalChartEvidence evidence,
     required String languageCode,
     List<String>? observedRecurringLabels,
+    List<YildiznameRecurringTheme>? artifactRecurringThemes,
   }) {
     final scope =
         YildiznameNarrativeScopeMap.fromFidelity(evidence.fidelity);
     final houseSystem = scope == YildiznameNarrativeScope.full
         ? evidence.houseSystem.name
         : null;
+    final merged = YildiznameThemeMerge.mergeLabels(
+      artifactThemes: artifactRecurringThemes ?? const [],
+      personalDiscoveryLabels: observedRecurringLabels ?? const [],
+    );
     return YildiznameNarrativeRequest(
       languageCode: languageCode,
       scope: scope,
@@ -31,7 +38,7 @@ abstract final class YildiznameRequestFactory {
       houses: YildiznameRequestFactBuilder.houses(evidence, scope),
       aspects: YildiznameRequestFactBuilder.aspects(evidence, scope),
       balances: YildiznameRequestExtras.balances(evidence, scope),
-      discoveryThemes: YildiznameRequestExtras.themes(observedRecurringLabels),
+      discoveryThemes: YildiznameRequestExtras.themes(merged),
       omittedLayers: YildiznameRequestExtras.omittedLayers(evidence, scope),
     );
   }

@@ -26,6 +26,7 @@ import '../../features/premium/services/soul_mate_generation_session.dart';
 import '../../features/reading_feedback/data/reading_feedback_store.dart';
 import '../../features/reading_operation/services/reading_pending_operation_store.dart';
 import '../../features/share_reopen/services/share_ownership_store.dart';
+import '../../features/star_map/artifacts/local_yildizname_artifact_repository.dart';
 import '../../features/tarot/data/datasources/tarot_local_datasource.dart';
 import '../../features/tarot/revisit/tarot_revisit_intent_store.dart';
 import '../../features/privacy/services/discovery_owned_image_wipe.dart';
@@ -112,6 +113,10 @@ abstract final class UserLocalDataWipe {
     await step('astrology_history', () => clearList('astrology_history'));
     await step('ai_conversations', () => clearList('ai_conversations'));
     await step('birth_chart_latest', () => removeKey('birth_chart_latest'));
+    await step(
+      'yildizname_artifacts_v1',
+      () => removeKey(LocalYildiznameArtifactRepository.storageKey),
+    );
     await step(
       LocalFavoriteMomentsRepository.key,
       () => removeKey(LocalFavoriteMomentsRepository.key),

@@ -7,7 +7,10 @@ import '../../astrology/models/astrology_daily_reading.dart';
 import '../../coffee/models/coffee_reading.dart';
 import '../../palm/models/palm_reading.dart';
 import '../../daily_message/models/daily_message.dart';
+import '../../star_map/artifacts/yildizname_artifact.dart';
 import '../models/favorite_moment.dart';
+import 'favorite_moment_astrology.dart';
+import 'favorite_moment_star_map.dart';
 import 'favorite_moment_tarot.dart';
 import 'favorite_moment_text.dart';
 
@@ -34,38 +37,34 @@ abstract final class FavoriteMomentFactory {
         isReversed: isReversed,
       );
 
-  static FavoriteMoment coffee(CoffeeReading reading) {
-    return FavoriteMoment(
-      id: '${FavoriteMomentSource.coffee.name}:${reading.id}',
-      source: FavoriteMomentSource.coffee,
-      sourceRef: reading.id,
-      savedAt: DateTime.now(),
-      occurredAt: reading.createdAt,
-      quote: FavoriteMomentText.firstNonEmpty([
-        reading.takeaway,
-        reading.overall,
-        reading.nearFuture,
-      ]),
-      visualAsset: reading.imagePath,
-      visualLabel: reading.symbols.isEmpty ? null : reading.symbols.first.name,
-    );
-  }
+  static FavoriteMoment coffee(CoffeeReading reading) => FavoriteMoment(
+        id: '${FavoriteMomentSource.coffee.name}:${reading.id}',
+        source: FavoriteMomentSource.coffee,
+        sourceRef: reading.id,
+        savedAt: DateTime.now(),
+        occurredAt: reading.createdAt,
+        quote: FavoriteMomentText.firstNonEmpty([
+          reading.takeaway,
+          reading.overall,
+          reading.nearFuture,
+        ]),
+        visualAsset: reading.imagePath,
+        visualLabel: reading.symbols.isEmpty ? null : reading.symbols.first.name,
+      );
 
-  static FavoriteMoment palm(PalmReading reading) {
-    return FavoriteMoment(
-      id: '${FavoriteMomentSource.palm.name}:${reading.id}',
-      source: FavoriteMomentSource.palm,
-      sourceRef: reading.id,
-      savedAt: DateTime.now(),
-      occurredAt: reading.createdAt,
-      quote: FavoriteMomentText.firstNonEmpty([
-        reading.overall,
-        ...reading.themes,
-      ]),
-      visualAsset: reading.imagePath,
-      visualLabel: reading.symbols.isEmpty ? null : reading.symbols.first,
-    );
-  }
+  static FavoriteMoment palm(PalmReading reading) => FavoriteMoment(
+        id: '${FavoriteMomentSource.palm.name}:${reading.id}',
+        source: FavoriteMomentSource.palm,
+        sourceRef: reading.id,
+        savedAt: DateTime.now(),
+        occurredAt: reading.createdAt,
+        quote: FavoriteMomentText.firstNonEmpty([
+          reading.overall,
+          ...reading.themes,
+        ]),
+        visualAsset: reading.imagePath,
+        visualLabel: reading.symbols.isEmpty ? null : reading.symbols.first,
+      );
 
   static FavoriteMoment dream({
     required String id,
@@ -112,37 +111,40 @@ abstract final class FavoriteMomentFactory {
     required DateTime at,
     required String title,
     required String insight,
-  }) {
-    return FavoriteMoment(
-      id: '${FavoriteMomentSource.starMap.name}:$ref',
-      source: FavoriteMomentSource.starMap,
-      sourceRef: ref,
-      savedAt: DateTime.now(),
-      occurredAt: at,
-      quote: FavoriteMomentText.clip(insight),
-      visualLabel: title,
-    );
-  }
+  }) =>
+      FavoriteMomentStarMap.fromLeaf(
+        ref: ref,
+        at: at,
+        title: title,
+        insight: insight,
+      );
+
+  static FavoriteMoment starMapArtifact({
+    required String artifactId,
+    required DateTime at,
+    required String title,
+    required String insight,
+  }) =>
+      FavoriteMomentStarMap.artifact(
+        artifactId: artifactId,
+        at: at,
+        title: title,
+        insight: insight,
+      );
+
+  static FavoriteMoment starMapFromArtifact(YildiznameArtifact artifact) =>
+      FavoriteMomentStarMap.fromArtifact(artifact);
 
   static FavoriteMoment astrology({
     required String signId,
     required DateTime at,
     required String signLabel,
     required AstrologyDailyReading reading,
-  }) {
-    final ref = '$signId-${at.year}-${at.month}-${at.day}';
-    return FavoriteMoment(
-      id: '${FavoriteMomentSource.astrology.name}:$ref',
-      source: FavoriteMomentSource.astrology,
-      sourceRef: ref,
-      savedAt: DateTime.now(),
-      occurredAt: at,
-      quote: FavoriteMomentText.firstNonEmpty([
-        reading.overall,
-        reading.advice,
-        reading.innerTheme,
-      ]),
-      visualLabel: signLabel,
-    );
-  }
+  }) =>
+      FavoriteMomentAstrology.fromDaily(
+        signId: signId,
+        at: at,
+        signLabel: signLabel,
+        reading: reading,
+      );
 }

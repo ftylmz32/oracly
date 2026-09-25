@@ -6,17 +6,18 @@ import '../../../core/domain/models/birth_chart_record.dart';
 import '../../../core/domain/models/conversation_record.dart';
 import '../../../core/domain/models/dream_record.dart';
 import '../../../core/domain/models/reading.dart';
-import '../../birth_chart/data/birth_chart_record_mapper.dart';
 import '../../coffee/models/coffee_reading.dart';
 import '../../daily_message/models/daily_message.dart';
 import '../../palm/models/palm_reading.dart';
 import '../../premium/models/soul_mate_saved_result.dart';
 import '../../premium/services/soul_mate_journal_link.dart';
 import '../../personal_discovery/services/personal_theme_extractor.dart';
+import '../../star_map/artifacts/yildizname_artifact.dart';
 import '../../tarot/history/tarot_history_privacy.dart';
 import '../copy/discovery_journal_copy.dart';
 import '../models/discovery_journal_entry.dart';
 import '../models/discovery_journal_kind.dart';
+import 'discovery_journal_map_star_map.dart';
 
 abstract final class DiscoveryJournalMap {
   DiscoveryJournalMap._();
@@ -101,21 +102,10 @@ abstract final class DiscoveryJournalMap {
     );
   }
 
-  static DiscoveryJournalEntry starMap(BirthChartRecord record) {
-    String preview = '';
-    try {
-      final chart = BirthChartRecordMapper.fromRecord(record);
-      preview = chart.sun.sign.labelTr;
-    } catch (_) {}
-    return DiscoveryJournalEntry(
-      id: record.id,
-      kind: DiscoveryJournalKind.starMap,
-      date: record.updatedAt ?? record.createdAt,
-      title: DiscoveryJournalCopy.starTitle,
-      preview: preview,
-      themes: _themes([preview]),
-    );
-  }
+  static DiscoveryJournalEntry starMap(BirthChartRecord record) =>
+      DiscoveryJournalMapStarMap.birthChart(record);
+  static DiscoveryJournalEntry starMapArtifact(YildiznameArtifact artifact) =>
+      DiscoveryJournalMapStarMap.artifact(artifact);
 
   static DiscoveryJournalEntry? soulMate(SoulMateSavedResult saved) {
     if (!SoulMateJournalLink.isComplete(saved)) return null;
@@ -129,18 +119,17 @@ abstract final class DiscoveryJournalMap {
     );
   }
 
-  static DiscoveryJournalEntry daily(DailyMessage message) {
-    return DiscoveryJournalEntry(
-      id: 'daily_${message.dateKey}',
-      kind: DiscoveryJournalKind.dailyMessage,
-      date: message.day,
-      title: message.theme?.trim().isNotEmpty == true
-          ? message.theme!.trim()
-          : DiscoveryJournalCopy.dailyFallback,
-      preview: _clip(message.text, ''),
-      themes: _themes([message.text, message.theme ?? '']),
-    );
-  }
+  static DiscoveryJournalEntry daily(DailyMessage message) =>
+      DiscoveryJournalEntry(
+        id: 'daily_${message.dateKey}',
+        kind: DiscoveryJournalKind.dailyMessage,
+        date: message.day,
+        title: message.theme?.trim().isNotEmpty == true
+            ? message.theme!.trim()
+            : DiscoveryJournalCopy.dailyFallback,
+        preview: _clip(message.text, ''),
+        themes: _themes([message.text, message.theme ?? '']),
+      );
 
   static List<String> _themes(Iterable<String> texts) {
     final found = <String>{};

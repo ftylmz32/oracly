@@ -9,6 +9,9 @@ import '../../daily_message/data/daily_return_store.dart';
 import '../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../palm/providers/palm_providers.dart';
 import '../../premium/providers/soul_mate_saved_provider.dart';
+import '../../star_map/artifacts/yildizname_artifact.dart';
+import '../../star_map/artifacts/yildizname_artifact_exceptions.dart';
+import '../../star_map/artifacts/yildizname_artifact_providers.dart';
 import '../models/discovery_journal_entry.dart';
 import '../services/discovery_journal_aggregator.dart';
 import '../services/discovery_journal_saved.dart';
@@ -23,6 +26,7 @@ final discoveryJournalEntriesProvider =
   final palm = ref.watch(palmReadingStoreProvider).all();
   final astrology = await ref.watch(astrologyRepositoryProvider).getHistory();
   final starChart = await _safeBirthChart(ref);
+  final starMapArtifacts = await _safeArtifacts(ref);
   final daily = DailyReturnStore(ref.watch(localStorageProvider)).snapshots(
     DateTime.now(),
   );
@@ -37,6 +41,7 @@ final discoveryJournalEntriesProvider =
     palm: palm,
     astrology: astrology,
     starChart: starChart,
+    starMapArtifacts: starMapArtifacts,
     daily: daily,
     soulMate: soulMate,
   );
@@ -58,5 +63,15 @@ Future<dynamic> _safeBirthChart(Ref ref) async {
     return await ref.watch(birthChartRepositoryProvider).getLatest();
   } catch (_) {
     return null;
+  }
+}
+
+Future<List<YildiznameArtifact>> _safeArtifacts(Ref ref) async {
+  try {
+    return await ref.watch(yildiznameArtifactRepositoryProvider).getAll();
+  } on YildiznameArtifactOwnerUnavailableException {
+    return const [];
+  } catch (_) {
+    return const [];
   }
 }

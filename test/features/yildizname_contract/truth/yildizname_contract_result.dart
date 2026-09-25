@@ -23,15 +23,19 @@ class ContractGateResult {
 abstract final class YildiznameKnownGaps {
   YildiznameKnownGaps._();
 
-  static const ownerlessBirthKey = ContractGateResult.knownGap(
-    'Phase 6: birth_chart_latest still single-slot; multi-artifact owner memory pending '
-    '(Phase 3 owner-safe input foundation is in place)',
+  /// CLOSED Phase 3+6 — owner-safe birth slot + multi-artifact Yıldızname history.
+  static const ownerlessBirthKey = ContractGateResult.closed(
+    'CLOSED Phase 3/6: BirthChartRecord.ownerId + yildizname_artifacts_v1 multi-artifact history',
   );
-  static const noFrozenArtifact = ContractGateResult.knownGap(
-    'Phase 6: daily leaf / reading not frozen as immutable artifact',
+
+  /// CLOSED Phase 6 — immutable Yıldızname artifacts.
+  static const noFrozenArtifact = ContractGateResult.closed(
+    'CLOSED Phase 6: daily leaf / reading frozen as immutable artifact',
   );
-  static const objectHashFavorite = ContractGateResult.knownGap(
-    'Phase 6: favorite id uses Object.hash(title, insight)',
+
+  /// CLOSED Phase 6 — durable artifact id favorites (no Object.hash).
+  static const objectHashFavorite = ContractGateResult.closed(
+    'CLOSED Phase 6: favorite id uses durable artifact id (not Object.hash)',
   );
 
   /// CLOSED Phase 5 — YıldıznameNarrativeQualityValidator safety gate.
@@ -44,10 +48,13 @@ abstract final class YildiznameKnownGaps {
     'CLOSED Phase 5: professional interpretation / groundedness / quality gate',
   );
 
-  /// Open gaps only — Phase 5 entries removed from the live ledger.
+  /// Phase 7 — final result architecture / scope disclosure chrome.
+  static const presentationChrome = ContractGateResult.knownGap(
+    'Phase 7: final result architecture / scope-fidelity disclosure UI',
+  );
+
+  /// Open gaps only — Phase 7 presentation remains.
   static const all = <ContractGateResult>[
-    ownerlessBirthKey,
-    noFrozenArtifact,
-    objectHashFavorite,
+    presentationChrome,
   ];
 }
