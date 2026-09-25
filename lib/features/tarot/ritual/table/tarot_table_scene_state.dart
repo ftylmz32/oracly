@@ -12,6 +12,8 @@ import '../../presentation/screens/reading_screen.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
 import '../../shared/constants/tarot_routes.dart';
 import '../../shared/tarot_scope.dart';
+import '../geometry/tarot_spread_geometry_projection.dart';
+import '../geometry/tarot_spread_geometry_resolver.dart';
 import '../tarot_ritual_controller.dart';
 import 'card_flight_actor.dart';
 import 'tarot_table_custom_intent.dart';
@@ -111,16 +113,19 @@ mixin TarotTableSceneActions on ConsumerState<TarotTableScene> {
     setState(() {});
   }
 
-  Offset? placeTargetFor(int totalSlots) {
-    if (totalSlots <= 1) return null;
-    final index = ritual.placed.length; // next slot
-    final spacing = 82.0;
-    final origin = -((totalSlots - 1) * spacing) / 2;
-    return Offset(origin + index * spacing, -210);
+  Offset? placeTargetFor(TarotSpreadType? spreadType) {
+    final type = spreadType ??
+        spread ??
+        TarotScope.maybeOf(context)?.reading.session?.spread;
+    if (type == null || type.cardCount <= 1) return null;
+    final spec = TarotSpreadGeometryResolver.resolve(type);
+    return TarotSpreadFlightProjection.nextTarget(
+      spec: spec,
+      nextIndex: ritual.placed.length,
+    );
   }
 
   void deepen() {
-    // Explicit expand only — never automatic route replacement on reveal.
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         settings: const RouteSettings(name: TarotRoutes.reading),

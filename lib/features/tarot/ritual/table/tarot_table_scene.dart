@@ -56,9 +56,9 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
 
   @override
   Widget build(BuildContext context) {
-    final total =
-        TarotScope.maybeOf(context)?.reading.session?.spread.cardCount ??
-            (spread?.cardCount ?? 1);
+    final spreadType =
+        spread ?? TarotScope.maybeOf(context)?.reading.session?.spread;
+    final total = spreadType?.cardCount ?? 1;
     final showFlight = phase == TarotTablePhase.draw ||
         phase == TarotTablePhase.reading ||
         (_ritual.visual.stage == TarotRitualStage.draw ||
@@ -99,11 +99,13 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
                         onSelected: onSpread,
                       ),
                     ],
-                    if (total > 1 && _ritual.placed.isNotEmpty) ...[
+                    if (total > 1 &&
+                        spreadType != null &&
+                        _ritual.placed.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.md),
                       RitualSpreadSlots(
                         placed: _ritual.placed,
-                        totalSlots: total,
+                        spread: spreadType,
                       ),
                     ],
                     Expanded(
@@ -116,7 +118,7 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
                             phase != TarotTablePhase.spread &&
                             phase != TarotTablePhase.preparing,
                         reducedMotion: OraclyReducedMotion.of(context),
-                        placeTarget: placeTargetFor(total),
+                        placeTarget: placeTargetFor(spreadType),
                         onInteracted: () =>
                             setState(() => hintVisible = false),
                         onRequestDraw: requestDraw,

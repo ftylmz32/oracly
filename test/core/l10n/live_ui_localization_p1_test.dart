@@ -4,12 +4,12 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/dream/copy/dream_copy.dart';
+import 'package:oracly_new/features/tarot/domain/models/spread_engine.dart';
 import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_detail/card_detail_catalogue.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_detail/card_detail_locale.dart';
 import 'package:oracly_new/features/tarot/ritual/tarot_ritual_copy.dart';
 import 'package:oracly_new/features/tarot/ritual/tarot_ritual_stage.dart';
-import 'package:oracly_new/features/tarot/ritual/widgets/ritual_spread_slots.dart';
 
 void main() {
   tearDown(() => OraclyL10n.bind(AppLocale.tr));
@@ -49,7 +49,12 @@ void main() {
         contains('karıştır'),
       );
       expect(TarotSpreadType.threeCard.label, 'Üç Kart');
-      expect(RitualSpreadSlots.labels3, ['GEÇMİŞ', 'ŞİMDİ', 'GELECEK']);
+      expect(
+        SpreadEngine.positionsFor(TarotSpreadType.threeCard)
+            .map((p) => p.label)
+            .toList(),
+        ['Geçmiş', 'Şimdi', 'Gelecek'],
+      );
       expect(OraclyL10n.t(L10nKeys.confirm), 'Onayla');
       expect(OraclyL10n.t(L10nKeys.back), 'Geri');
       expect(OraclyL10n.t('ritual.thought.title'), 'Bugün için bir düşünce');
@@ -70,7 +75,12 @@ void main() {
       expect(OraclyL10n.t('journal.reflection_prompt'), isNot(contains('senin')));
       expect(TarotRitualCopy.prompt(TarotRitualStage.draw), isNot(contains('çek')));
       expect(TarotSpreadType.single.label, 'One Card');
-      expect(RitualSpreadSlots.labels3, ['PAST', 'NOW', 'AHEAD']);
+      expect(
+        SpreadEngine.positionsFor(TarotSpreadType.threeCard)
+            .map((p) => p.label)
+            .toList(),
+        ['Past', 'Present', 'Future'],
+      );
       expect(OraclyL10n.t('ritual.thought.later'), 'Maybe later');
       expect(OraclyL10n.t('oracle.header.current'), 'Current reading');
       expect(
@@ -96,7 +106,12 @@ void main() {
       expect(OraclyL10n.t(L10nKeys.confirm), 'Подтвердить');
       expect(OraclyL10n.t('tarot.card.meta.zodiac'), 'Знак');
       expect(TarotSpreadType.single.label, 'Одна карта');
-      expect(RitualSpreadSlots.labels3, ['ПРОШЛОЕ', 'СЕЙЧАС', 'БУДУЩЕЕ']);
+      expect(
+        SpreadEngine.positionsFor(TarotSpreadType.threeCard)
+            .map((p) => p.label)
+            .toList(),
+        ['Прошлое', 'Сейчас', 'Будущее'],
+      );
       expect(OraclyL10n.t('ritual.thought.title'), 'Мысль на сегодня');
       expect(
         CardDetailLocale.keywords(

@@ -2,10 +2,11 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
+import 'package:oracly_new/features/tarot/ritual/geometry/tarot_spread_geometry_resolver.dart';
 import 'package:oracly_new/features/tarot/ritual/gestures/ritual_draw_gesture.dart';
 import 'package:oracly_new/features/tarot/ritual/table/card_flight_actor.dart';
 import 'package:oracly_new/features/tarot/ritual/table/card_flight_math.dart';
-import 'package:oracly_new/features/tarot/ritual/widgets/ritual_spread_slots.dart';
 
 void main() {
   test('commit threshold remains ~96px', () {
@@ -18,7 +19,12 @@ void main() {
     expect(CardFlightMath.liftPx, CardFlightActorState.liftPx);
   });
 
-  test('3-card slot labels order is past-present-future', () {
-    expect(RitualSpreadSlots.labels3, ['GEÇMİŞ', 'ŞİMDİ', 'GELECEK']);
+  test('3-card geometry keys are past-present-future', () {
+    final spec =
+        TarotSpreadGeometryResolver.resolve(TarotSpreadType.threeCard);
+    expect(
+      spec.slots.map((s) => s.positionKey).toList(),
+      ['past', 'present', 'future'],
+    );
   });
 }

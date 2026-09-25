@@ -35,8 +35,9 @@ class TarotRitualScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = controller;
-    final total =
-        TarotScope.of(context).reading.session?.spread.cardCount ?? 1;
+    final sessionSpread =
+        TarotScope.of(context).reading.session?.spread;
+    final total = sessionSpread?.cardCount ?? 1;
 
     return AnimatedBuilder(
       animation: Listenable.merge([extract, flip, c]),
@@ -52,8 +53,8 @@ class TarotRitualScene extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            if (total > 1) ...[
-              RitualSpreadSlots(placed: c.placed, totalSlots: total),
+            if (sessionSpread != null && total > 1) ...[
+              RitualSpreadSlots(placed: c.placed, spread: sessionSpread),
               const SizedBox(height: 24),
             ],
             Expanded(
