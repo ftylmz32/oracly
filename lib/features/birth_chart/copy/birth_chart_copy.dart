@@ -88,5 +88,6 @@ abstract final class BirthChartCopy {
   static String get scopeReduced => _t('birth.scope_reduced');
   static String get scopeEvidenceFullCalcPending =>
       _t('birth.scope_evidence_full_calc_pending');
+  static String get scopeFullNatal => _t('birth.scope_full_natal');
   static String get ownerUnavailable => _t('birth.owner_unavailable');
 }

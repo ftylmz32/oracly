@@ -15,13 +15,14 @@ import 'truth/yildizname_interval.dart';
 import 'truth/yildizname_truth_oracle.dart';
 
 void main() {
-  test('all 8 categories PENDING_AUTHORITY', () {
+  test('Phase 4 categories are authoritative; none invented', () {
     expect(AstronomicalFixtureManifest.categories, hasLength(8));
     for (final c in AstronomicalFixtureManifest.categories) {
-      expect(c.authority, FixtureAuthority.pendingAuthority);
+      expect(c.authority, FixtureAuthority.authoritative);
       expect(c.requiredFields, contains('source'));
       expect(c.requiredFields, contains('expectedValues'));
     }
+    expect(AstronomicalFixtureManifest.inventedAuthoritativeValues, isFalse);
   });
 
   test('inventedAuthoritativeValues is false', () {

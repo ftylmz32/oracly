@@ -86,7 +86,10 @@ class BirthChartResultView extends StatelessWidget {
             const BirthChartEphemerisNote(),
           ],
           SizedBox(height: AppSpacing.s8),
-          BirthChartScopeNote(profile: chart.profile),
+          BirthChartScopeNote(
+            profile: chart.profile,
+            fidelity: chart.fidelity,
+          ),
           SizedBox(height: OraclyChrome.sectionGap),
           Text(
             closingMessage ?? BirthChartCopy.closingNote,

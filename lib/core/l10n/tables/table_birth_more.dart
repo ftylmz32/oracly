@@ -172,6 +172,11 @@ const kL10nBirthMore = <String, L10nTriple>{
     'Your birth details are complete; full sky calculation is not connected yet.',
     'Данные рождения полные; полный расчёт неба пока не подключён.',
   ),
+  'birth.scope_full_natal': L10nTriple(
+    'Doğum bilgilerinle yerel ephemeris hesabı yapıldı. Bu bir yansıma aracıdır — kehanet değil.',
+    'A local ephemeris calculation was made from your birth details. This is a reflection tool — not prophecy.',
+    'По вашим данным рождения выполнен локальный эфемеридный расчёт. Это инструмент рефлексии — не пророчество.',
+  ),
   'birth.owner_unavailable': L10nTriple(
     'Hesap henüz hazır değil. Doğum haritanı şimdilik açamıyoruz.',
     'Your account is not ready yet. We cannot open the birth chart for now.',

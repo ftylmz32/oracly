@@ -1,6 +1,7 @@
-/// SPRINT-002 — Yıldızname chart model (sun-sign until full natal exists).
+/// SPRINT-002 — Yıldızname chart model (+ Phase 4 structured evidence).
 library;
 
+import '../astronomy/natal_chart_evidence.dart';
 import 'aspect.dart';
 import 'birth_profile.dart';
 import 'chart_insight.dart';
@@ -31,8 +32,10 @@ class BirthChart {
     required this.generatedAt,
     this.moon,
     this.rising,
+    this.midheaven,
     this.precision = ChartPrecision.partialNoTime,
     this.fidelity = ChartCalculationFidelity.tropicalSunSign,
+    this.natalEvidence,
   });
 
   final String id;
@@ -40,6 +43,7 @@ class BirthChart {
   final Planet sun;
   final Planet? moon;
   final Planet? rising;
+  final Planet? midheaven;
   final List<Planet> planets;
   final List<House> houses;
   final List<Aspect> aspects;
@@ -50,9 +54,13 @@ class BirthChart {
   final DateTime generatedAt;
   final ChartPrecision precision;
   final ChartCalculationFidelity fidelity;
+  final NatalChartEvidence? natalEvidence;
 
   bool get hasFullNatal =>
       fidelity == ChartCalculationFidelity.fullNatalEphemeris;
+
+  bool get hasReducedNatal =>
+      fidelity == ChartCalculationFidelity.reducedNatal;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -60,6 +68,7 @@ class BirthChart {
         'sun': sun.toJson(),
         if (moon != null) 'moon': moon!.toJson(),
         if (rising != null) 'rising': rising!.toJson(),
+        if (midheaven != null) 'midheaven': midheaven!.toJson(),
         'planets': planets.map((p) => p.toJson()).toList(),
         'houses': houses.map((h) => h.toJson()).toList(),
         'aspects': aspects.map((a) => a.toJson()).toList(),
@@ -70,6 +79,7 @@ class BirthChart {
         'generatedAt': generatedAt.toIso8601String(),
         'precision': precision.name,
         'fidelity': fidelity.name,
+        if (natalEvidence != null) 'natalEvidence': natalEvidence!.toJson(),
       };
 
   factory BirthChart.fromJson(Map<String, dynamic> json) {
@@ -82,6 +92,9 @@ class BirthChart {
           : null,
       rising: json['rising'] != null
           ? Planet.fromJson(json['rising'] as Map<String, dynamic>)
+          : null,
+      midheaven: json['midheaven'] != null
+          ? Planet.fromJson(json['midheaven'] as Map<String, dynamic>)
           : null,
       planets: (json['planets'] as List<dynamic>? ?? const [])
           .map((e) => Planet.fromJson(e as Map<String, dynamic>))
@@ -112,28 +125,12 @@ class BirthChart {
         json['fidelity'] as String? ??
             ChartCalculationFidelity.tropicalSunSign.name,
       ),
+      natalEvidence: json['natalEvidence'] != null
+          ? NatalChartEvidence.fromJson(
+              json['natalEvidence'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 }
 
-/// Future-ready hooks for transits and forecasts.
-class ChartForecastContext {
-  const ChartForecastContext({
-    required this.chart,
-    required this.asOf,
-  });
-
-  final BirthChart chart;
-  final DateTime asOf;
-}
-
-abstract class TransitCalculationPort {
-  Future<List<Aspect>> dailyTransits({
-    required BirthChart chart,
-    required DateTime date,
-  });
-}
-
-abstract class LunarPhasePort {
-  String phaseLabel({required DateTime date});
-}

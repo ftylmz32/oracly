@@ -9,6 +9,7 @@ import '../../../core/memory/oracly_memory_store.dart';
 import '../data/birth_chart_record_mapper.dart';
 import '../models/birth_chart.dart';
 import '../models/birth_profile.dart';
+import '../models/chart_fidelity.dart';
 import 'birth_chart_persistence_validator.dart';
 import 'chart_calculation_port.dart';
 import 'chart_insight_generator.dart';
@@ -36,15 +37,17 @@ class BirthChartExperiencePersist {
     var chart = _calculator.calculate(profile);
     final insights = _insights.generate(chart);
     final themes = _insights.lifeThemes(chart);
+    final full = chart.fidelity == ChartCalculationFidelity.fullNatalEphemeris;
     chart = BirthChart(
       id: chart.id,
       profile: chart.profile,
       sun: chart.sun,
-      moon: chart.hasFullNatal ? chart.moon : null,
-      rising: chart.hasFullNatal ? chart.rising : null,
-      planets: chart.hasFullNatal ? chart.planets : const [],
-      houses: chart.hasFullNatal ? chart.houses : const [],
-      aspects: chart.hasFullNatal ? chart.aspects : const [],
+      moon: full ? chart.moon : null,
+      rising: full ? chart.rising : null,
+      midheaven: full ? chart.midheaven : null,
+      planets: full ? chart.planets : const [],
+      houses: full ? chart.houses : const [],
+      aspects: full ? chart.aspects : const [],
       elementBalance: chart.elementBalance,
       dominantEnergy: chart.dominantEnergy,
       lifeThemes: themes,
@@ -52,6 +55,7 @@ class BirthChartExperiencePersist {
       generatedAt: chart.generatedAt,
       precision: chart.precision,
       fidelity: chart.fidelity,
+      natalEvidence: chart.natalEvidence,
     );
     if (!BirthChartPersistenceValidator.isJourneyReady(chart)) {
       throw StateError('Birth chart interpretation is incomplete');

@@ -81,6 +81,7 @@ enum PlanetId {
   sun('Güneş'),
   moon('Ay'),
   ascendant('Yükselen'),
+  midheaven('Gökyüzü Ortası'),
   mercury('Merkür'),
   venus('Venüs'),
   mars('Mars'),

@@ -18,6 +18,12 @@ class NatalChartCalculator implements ChartCalculationPort {
       ChartCalculationFidelity.tropicalSunSign;
 
   @override
+  ChartCalculationFidelity fidelityFor(BirthProfile profile) => fidelity;
+
+  @override
+  String get calculationVersion => 'legacy-tropical-v0';
+
+  @override
   BirthChart calculate(BirthProfile profile) {
     final sunSign = ZodiacSignId.fromDate(profile.birthDate);
     final element = _elementOf(sunSign);

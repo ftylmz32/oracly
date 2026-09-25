@@ -22,7 +22,8 @@ abstract final class YildiznameKnownGaps {
   YildiznameKnownGaps._();
 
   static const ownerlessBirthKey = ContractGateResult.knownGap(
-    'Phase 3/6: birth_chart_latest is not owner-keyed',
+    'Phase 6: birth_chart_latest still single-slot; multi-artifact owner memory pending '
+    '(Phase 3 owner-safe input foundation is in place)',
   );
   static const noFrozenArtifact = ContractGateResult.knownGap(
     'Phase 6: daily leaf / reading not frozen as immutable artifact',
@@ -30,26 +31,18 @@ abstract final class YildiznameKnownGaps {
   static const objectHashFavorite = ContractGateResult.knownGap(
     'Phase 6: favorite id uses Object.hash(title, insight)',
   );
-  static const noEvidenceLoop = ContractGateResult.knownGap(
-    'Phase 3: Evidence Acquisition Loop not implemented',
-  );
-  static const noEphemeris = ContractGateResult.knownGap(
-    'Phase 4: no real ephemeris engine',
-  );
   static const noProductionSafetyGate = ContractGateResult.knownGap(
     'Phase 5: no Yıldızname-specific production safety gate',
   );
-  static const noStructuredNatalModel = ContractGateResult.knownGap(
-    'Phase 4/5: future structured natal model not in production',
+  static const noInterpretationCraft = ContractGateResult.knownGap(
+    'Phase 5: professional interpretation / groundedness / quality gate',
   );
 
   static const all = <ContractGateResult>[
     ownerlessBirthKey,
     noFrozenArtifact,
     objectHashFavorite,
-    noEvidenceLoop,
-    noEphemeris,
     noProductionSafetyGate,
-    noStructuredNatalModel,
+    noInterpretationCraft,
   ];
 }

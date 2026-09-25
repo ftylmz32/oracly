@@ -40,7 +40,7 @@ class LocalNotificationPort implements OraclyNotificationPort {
       ),
     );
     await _plugin.initialize(
-      init,
+      settings: init,
       onDidReceiveNotificationResponse: _onNotificationTap,
       onDidReceiveBackgroundNotificationResponse: oraclyNotificationTapBackground,
     );
@@ -90,13 +90,13 @@ class LocalNotificationPort implements OraclyNotificationPort {
   ) async {
     try {
       await initialize();
-      await _plugin.cancel(_id);
+      await _plugin.cancel(id: _id);
       await _plugin.zonedSchedule(
-        _id,
-        payload.title,
-        payload.body,
-        _nextDaily(),
-        const NotificationDetails(
+        id: _id,
+        title: payload.title,
+        body: payload.body,
+        scheduledDate: _nextDaily(),
+        notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             _channel,
             'ORACLY',
@@ -116,8 +116,6 @@ class LocalNotificationPort implements OraclyNotificationPort {
       );
       return OraclyApplyOutcome.success;
     } catch (e) {
-      // Always logged (not assert-gated) so a release-build scheduling
-      // failure still leaves a diagnosable trace instead of vanishing.
       debugPrint('[ORACLY] scheduleDaily failed: $e');
       return OraclyApplyOutcome.failure;
     }
@@ -126,7 +124,7 @@ class LocalNotificationPort implements OraclyNotificationPort {
   @override
   Future<OraclyApplyOutcome> cancelAll() async {
     try {
-      await _plugin.cancel(_id);
+      await _plugin.cancel(id: _id);
       await _plugin.cancelAll();
       return OraclyApplyOutcome.success;
     } catch (e) {

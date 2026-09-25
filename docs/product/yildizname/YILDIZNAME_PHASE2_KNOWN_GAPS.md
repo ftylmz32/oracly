@@ -13,10 +13,10 @@ Production currently lacks several Phase 1 end-state capabilities. Phase 2 **mus
 | No frozen artifact | Daily leaf / reading not immutable snapshot | Phase 6 |
 | `Object.hash` favorite identity | `star-${Object.hash(title, insight)}` in star-map reference result | Phase 6 |
 | ~~No Evidence Acquisition Loop~~ | **CLOSED Phase 3** — classifier + acquisition plan + place-unknown ask-once | Phase 3 ✓ |
-| No real ephemeris | `NatalChartCalculator` = tropical sun sign only | Phase 4 |
+| ~~No real ephemeris~~ | **CLOSED Phase 4** — `astronomia` + evidence-aware natal (`reducedNatal` / `fullNatalEphemeris`) | Phase 4 ✓ |
 | No production safety gate | Yıldızname-specific narrative safety not wired | Phase 5 |
-| No structured future natal model | Full natal facts / houses / aspects not in production model | Phase 4 / 5 |
-| Presentation of reduced/full disclosure | Minimal scope notes in Phase 3; final chrome | Phase 7 |
+| ~~No structured future natal model~~ | **CLOSED Phase 4** — `NatalChartEvidence` structured placements/angles/houses/aspects | Phase 4 ✓ / Phase 5 interpretation remains |
+| Presentation of reduced/full disclosure | Minimal scope notes in Phase 3/4; final chrome | Phase 7 |
 
 ## Phase ownership map
 

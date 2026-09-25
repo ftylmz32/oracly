@@ -235,7 +235,7 @@ void main() {
         final scheduleBody = source.substring(
           source.indexOf('Future<OraclyApplyOutcome> scheduleDaily'),
         );
-        final cancelIndex = scheduleBody.indexOf('_plugin.cancel(_id)');
+        final cancelIndex = scheduleBody.indexOf('_plugin.cancel(id: _id)');
         final zonedScheduleIndex = scheduleBody.indexOf('_plugin.zonedSchedule(');
         expect(cancelIndex, greaterThan(-1));
         expect(zonedScheduleIndex, greaterThan(cancelIndex));

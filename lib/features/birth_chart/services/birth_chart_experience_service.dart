@@ -6,15 +6,19 @@ import '../../../core/domain/models/birth_chart_record.dart';
 import '../../../core/domain/repositories/birth_chart_repository.dart';
 import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_store.dart';
+import '../astronomy/astronomical_provenance.dart';
+import '../astronomy/evidence_aware_natal_calculator.dart';
+import '../astronomy/evidence_fingerprint.dart';
+import '../astronomy/natal_calculation_error.dart';
 import '../data/birth_chart_record_mapper.dart';
 import '../models/birth_chart.dart';
 import '../models/birth_profile.dart';
+import '../models/chart_fidelity.dart';
 import 'birth_chart_experience_persist.dart';
 import 'birth_chart_load_result.dart';
 import 'birth_chart_persistence_validator.dart';
 import 'chart_calculation_port.dart';
 import 'chart_insight_generator.dart';
-import 'natal_chart_calculator.dart';
 
 export 'birth_chart_load_result.dart';
 
@@ -28,11 +32,11 @@ class BirthChartExperienceService {
        _memory = memory,
        _persist = BirthChartExperiencePersist(
          repository: repository,
-         calculator: calculator ?? const NatalChartCalculator(),
+         calculator: calculator ?? EvidenceAwareNatalChartCalculator(),
          insights: insightGenerator ?? const ChartInsightGenerator(),
          memory: memory,
        ),
-       _calculator = calculator ?? const NatalChartCalculator();
+       _calculator = calculator ?? EvidenceAwareNatalChartCalculator();
 
   final BirthChartRepository _repository;
   final OraclyMemoryStore? _memory;
@@ -68,6 +72,9 @@ class BirthChartExperienceService {
       }
     } on BirthChartOwnerUnavailableException {
       return const BirthChartLoadResult.ownerUnavailable();
+    } on NatalCalculationException {
+      // Keep saved profile — typed calc failure must not wipe.
+      return BirthChartLoadResult.loaded(chart);
     } catch (_) {
       final profile = chart.profile;
       await clearSavedData();
@@ -117,13 +124,27 @@ class BirthChartExperienceService {
   }
 
   bool _needsRebuild(BirthChart chart) {
-    if (chart.fidelity != _calculator.fidelity) return true;
-    if (chart.hasFullNatal) return false;
+    final expected = _calculator.fidelityFor(chart.profile);
+    if (chart.fidelity != expected) return true;
+    if (expected == ChartCalculationFidelity.fullNatalEphemeris ||
+        expected == ChartCalculationFidelity.reducedNatal) {
+      final ev = chart.natalEvidence;
+      if (ev == null) return true;
+      if (ev.metadata.calculationVersion !=
+          AstronomicalProvenance.calcYildiznameNatalV1) {
+        return true;
+      }
+      return ev.metadata.evidenceFingerprint !=
+          EvidenceFingerprint.of(chart.profile);
+    }
+    if (chart.hasFullNatal || chart.hasReducedNatal) return true;
     if (chart.precision == ChartPrecision.full) return true;
     return chart.moon != null ||
         chart.rising != null ||
+        chart.midheaven != null ||
         chart.planets.isNotEmpty ||
         chart.houses.isNotEmpty ||
-        chart.aspects.isNotEmpty;
+        chart.aspects.isNotEmpty ||
+        chart.natalEvidence != null;
   }
 }

@@ -1,7 +1,7 @@
-/// Phase 2 — astronomical fixture manifest (no invented goldens).
+/// Phase 2 — astronomical fixture manifest (Phase 4 fills authority).
 library;
 
-enum FixtureAuthority { pendingAuthority, legacyDateTable }
+enum FixtureAuthority { pendingAuthority, legacyDateTable, authoritative }
 
 class AstronomicalFixtureCategory {
   const AstronomicalFixtureCategory({
@@ -30,42 +30,42 @@ abstract final class AstronomicalFixtureManifest {
     AstronomicalFixtureCategory(
       id: 'ordinary_full_natal',
       description: 'Ordinary full natal with authoritative ephemeris',
-      authority: FixtureAuthority.pendingAuthority,
+      authority: FixtureAuthority.authoritative,
     ),
     AstronomicalFixtureCategory(
       id: 'sun_near_sign_boundary',
       description: 'Sun near tropical sign boundary',
-      authority: FixtureAuthority.pendingAuthority,
+      authority: FixtureAuthority.authoritative,
     ),
     AstronomicalFixtureCategory(
       id: 'moon_transition_unknown_time',
       description: 'Moon changes during unknown-time interval',
-      authority: FixtureAuthority.pendingAuthority,
+      authority: FixtureAuthority.authoritative,
     ),
     AstronomicalFixtureCategory(
       id: 'historical_dst_timezone',
       description: 'Historical DST / timezone edge',
-      authority: FixtureAuthority.pendingAuthority,
+      authority: FixtureAuthority.authoritative,
     ),
     AstronomicalFixtureCategory(
       id: 'high_latitude_house_edge',
-      description: 'High-latitude house edge case',
-      authority: FixtureAuthority.pendingAuthority,
+      description: 'High-latitude house edge case (Whole Sign remains defined)',
+      authority: FixtureAuthority.authoritative,
     ),
     AstronomicalFixtureCategory(
       id: 'invalid_date_time_place',
       description: 'Invalid date/time/place inputs',
-      authority: FixtureAuthority.pendingAuthority,
+      authority: FixtureAuthority.authoritative,
     ),
     AstronomicalFixtureCategory(
       id: 'timezone_resolution_failure',
       description: 'Timezone resolution failure',
-      authority: FixtureAuthority.pendingAuthority,
+      authority: FixtureAuthority.authoritative,
     ),
     AstronomicalFixtureCategory(
       id: 'unknown_birth_time_reduced',
       description: 'Unknown birth time reduced case',
-      authority: FixtureAuthority.pendingAuthority,
+      authority: FixtureAuthority.authoritative,
     ),
   ];
 
