@@ -47,6 +47,26 @@ Future<void> yildiznamePhase7bGoldenExpect(
   );
 }
 
+/// Phase 7C expected-delta fixtures — phase-scoped, NEVER the 7A masters and
+/// never a rewrite of the 7B fixtures. The final master refresh is Phase 7G.
+const yildiznamePhase7cGoldenDir = 'test/goldens/yildizname/phase7c';
+
+String yildiznamePhase7cGoldenPath(String name) =>
+    '../../goldens/yildizname/phase7c/$name.png';
+
+Future<void> yildiznamePhase7cGoldenExpect(
+  WidgetTester tester,
+  GlobalKey key,
+  String name,
+) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+  await expectLater(
+    find.byKey(key),
+    matchesGoldenFile(yildiznamePhase7cGoldenPath(name)),
+  );
+}
+
 Future<void> yildiznameGoldenExpect(
   WidgetTester tester,
   GlobalKey key,

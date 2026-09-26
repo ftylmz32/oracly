@@ -1,8 +1,10 @@
 /// Phase 7B — phase-scoped expected-delta goldens @ 390×844.
 ///
 /// These capture the PRODUCTION typed-presentation path (localized chrome +
-/// scope note). The frozen 7A masters are unchanged; the comprehensive master
-/// refresh + hash freeze belongs to Phase 7G.
+/// scope note) as it stood at 7B — WITHOUT the Phase 7C fact layer
+/// (`withoutFactSnapshot()`), so the 7B fixtures stay honest and unchanged; 7C
+/// has its own phase-scoped fixtures. The frozen 7A masters are unchanged; the
+/// comprehensive master refresh + hash freeze belongs to Phase 7G.
 library;
 
 import 'dart:io';
@@ -44,7 +46,7 @@ void main() {
           full: false,
         ),
         chromeLocale: 'tr',
-      ),
+      ).withoutFactSnapshot(),
     );
     await yildiznamePhase7bGoldenExpect(
       tester,
@@ -62,7 +64,7 @@ void main() {
           full: true,
         ),
         chromeLocale: 'tr',
-      ),
+      ).withoutFactSnapshot(),
     );
     await yildiznamePhase7bGoldenExpect(
       tester,

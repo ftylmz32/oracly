@@ -33,7 +33,126 @@ const _balances = [
   ),
 ];
 
+/// Phase 7C — the remaining planets of a complete natal chart.
+const _richPlacements = [
+  YildiznamePlacementFact(
+    factRef: 'placement.mercury',
+    body: 'mercury',
+    sign: 'virgo',
+    certainty: 'exact',
+    degreeWithinSign: 14.7,
+    retrograde: true,
+    house: 11,
+  ),
+  YildiznamePlacementFact(
+    factRef: 'placement.venus',
+    body: 'venus',
+    sign: 'libra',
+    certainty: 'exact',
+    degreeWithinSign: 3.9,
+    retrograde: false,
+    house: 12,
+  ),
+  YildiznamePlacementFact(
+    factRef: 'placement.mars',
+    body: 'mars',
+    sign: 'aries',
+    certainty: 'exact',
+    degreeWithinSign: 27.2,
+    retrograde: false,
+    house: 5,
+  ),
+  YildiznamePlacementFact(
+    factRef: 'placement.jupiter',
+    body: 'jupiter',
+    sign: 'sagittarius',
+    certainty: 'exact',
+    degreeWithinSign: 8.5,
+    retrograde: true,
+    house: 2,
+  ),
+  YildiznamePlacementFact(
+    factRef: 'placement.saturn',
+    body: 'saturn',
+    sign: 'capricorn',
+    certainty: 'exact',
+    degreeWithinSign: 0.0,
+    retrograde: false,
+    house: 3,
+  ),
+  YildiznamePlacementFact(
+    factRef: 'placement.uranus',
+    body: 'uranus',
+    sign: 'aquarius',
+    certainty: 'exact',
+    degreeWithinSign: 29.9,
+    retrograde: false,
+    house: 4,
+  ),
+  YildiznamePlacementFact(
+    factRef: 'placement.neptune',
+    body: 'neptune',
+    sign: 'pisces',
+    certainty: 'exact',
+    degreeWithinSign: 12.0,
+    retrograde: false,
+    house: 4,
+  ),
+  YildiznamePlacementFact(
+    factRef: 'placement.pluto',
+    body: 'pluto',
+    sign: 'scorpio',
+    certainty: 'exact',
+    degreeWithinSign: 21.3,
+    retrograde: true,
+    house: 1,
+  ),
+];
+
+/// Phase 7C — six aspects (one more than the display cap), so ordering by orb
+/// and the cap are both exercised.
+const _richAspects = [
+  YildiznameAspectFact(
+    factRef: 'aspect.mercury.venus.conjunction',
+    bodyA: 'mercury',
+    bodyB: 'venus',
+    type: 'conjunction',
+    orb: 0.8,
+  ),
+  YildiznameAspectFact(
+    factRef: 'aspect.sun.mars.square',
+    bodyA: 'sun',
+    bodyB: 'mars',
+    type: 'square',
+    orb: 4.5,
+  ),
+  YildiznameAspectFact(
+    factRef: 'aspect.moon.saturn.opposition',
+    bodyA: 'moon',
+    bodyB: 'saturn',
+    type: 'opposition',
+    orb: 1.2,
+  ),
+  YildiznameAspectFact(
+    factRef: 'aspect.venus.jupiter.sextile',
+    bodyA: 'venus',
+    bodyB: 'jupiter',
+    type: 'sextile',
+    orb: 3.3,
+  ),
+  YildiznameAspectFact(
+    factRef: 'aspect.mars.pluto.trine',
+    bodyA: 'mars',
+    bodyB: 'pluto',
+    type: 'trine',
+    orb: 5.0,
+  ),
+];
+
 /// Request shaped like the real factory output for [scope].
+///
+/// [rich] (FULL only) adds every remaining planet and extra aspects — the
+/// Phase 7C "complete chart" evidence.
 ///
 /// For FULL, [ascendant] / [midheaven] / [houses] / [aspects] toggle whether
 /// that layer is present; absent layers are listed in `omittedLayers` exactly
@@ -45,6 +164,7 @@ YildiznameNarrativeRequest yildiznameFixtureRequest({
   bool midheaven = true,
   bool houses = true,
   bool aspects = true,
+  bool rich = false,
   String languageCode = 'tr',
 }) {
   switch (scope) {
@@ -119,8 +239,8 @@ YildiznameNarrativeRequest yildiznameFixtureRequest({
         fidelity: fidelity ?? 'fullNatalEphemeris',
         houseSystem: 'wholeSign',
         calculationVersion: 'calc-fixture',
-        placements: const [
-          YildiznamePlacementFact(
+        placements: [
+          const YildiznamePlacementFact(
             factRef: 'placement.sun',
             body: 'sun',
             sign: 'leo',
@@ -129,7 +249,7 @@ YildiznameNarrativeRequest yildiznameFixtureRequest({
             retrograde: false,
             house: 10,
           ),
-          YildiznamePlacementFact(
+          const YildiznamePlacementFact(
             factRef: 'placement.moon',
             body: 'moon',
             sign: 'taurus',
@@ -138,6 +258,7 @@ YildiznameNarrativeRequest yildiznameFixtureRequest({
             retrograde: false,
             house: 7,
           ),
+          if (rich) ..._richPlacements,
         ],
         angles: [
           if (ascendant)
@@ -177,6 +298,7 @@ YildiznameNarrativeRequest yildiznameFixtureRequest({
               type: 'trine',
               orb: 2.1,
             ),
+          if (aspects && rich) ..._richAspects,
         ],
         balances: _balances,
         discoveryThemes: const [],
@@ -236,6 +358,7 @@ YildiznameArtifact yildiznameFixtureNarrativeArtifact({
   bool midheaven = true,
   bool houses = true,
   bool aspects = true,
+  bool rich = false,
   String languageCode = 'tr',
   String summary = 'Güneş Leo konumunda sabırlı bir odak taşır.',
   List<String>? sectionTexts,
@@ -249,6 +372,7 @@ YildiznameArtifact yildiznameFixtureNarrativeArtifact({
     midheaven: midheaven,
     houses: houses,
     aspects: aspects,
+    rich: rich,
     languageCode: languageCode,
   );
   final result = yildiznameFixtureResult(

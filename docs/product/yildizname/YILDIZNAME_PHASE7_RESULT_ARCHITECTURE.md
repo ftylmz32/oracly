@@ -112,7 +112,7 @@ without a second visual language. Implement after 7A.
 |-------|--------|
 | **7A** | Forensic baseline · contract · golden harness (this doc set) |
 | **7B** | Presentation model · scope disclosure chrome · localized section titles |
-| **7C** | Natal fact visual layer (priority matrix) |
+| **7C** | Natal fact visual layer (priority matrix) — IMPLEMENTED, see `YILDIZNAME_PHASE7C_FACT_SNAPSHOT.md` |
 | **7D** | Narrative hierarchy · chapters · memory |
 | **7E** | Live/artifact parity · footer/actions |
 | **7F** | Responsive / a11y polish |

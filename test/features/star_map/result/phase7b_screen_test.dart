@@ -108,7 +108,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('B — full artifact: general full note, no fact cards yet', (
+  testWidgets('B — full artifact: general full note, no planet cards', (
     tester,
   ) async {
     await _pumpReopen(
@@ -134,9 +134,9 @@ void main() {
     ]) {
       expect(find.text(t), findsOneWidget, reason: t);
     }
-    // 7C has not landed: no fact cards, no planet cards, no degrees.
+    // Legacy planet-catalogue cards never appear on a Narrative result (the
+    // Phase 7C fact plate is a separate, stored-request layer).
     expect(find.byType(StarMapReferencePlanetCard), findsNothing);
-    expect(find.textContaining('°'), findsNothing);
     _expectNoRaw(tester);
     expect(tester.takeException(), isNull);
   });

@@ -168,9 +168,11 @@ abstract final class YildiznameScopeResolver {
 
   static List<Map<String, dynamic>> _maps(Object? raw) {
     if (raw is! List) return const [];
+    // A non-string-keyed entry is malformed evidence: skipped, never thrown on.
     return [
       for (final e in raw)
-        if (e is Map) Map<String, dynamic>.from(e),
+        if (e is Map && e.keys.every((k) => k is String))
+          Map<String, dynamic>.from(e),
     ];
   }
 

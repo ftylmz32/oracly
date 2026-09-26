@@ -12,6 +12,7 @@ import '../narrative/request/yildizname_narrative_scope.dart';
 import '../narrative/result/yildizname_narrative_structured_result.dart';
 import '../narrative/result/yildizname_section_kind.dart';
 import '../presentation/reference/star_map_result_section.dart';
+import '../result/yildizname_fact_projector.dart';
 import '../result/yildizname_result_chrome.dart';
 import '../result/yildizname_result_presentation.dart';
 import '../result/yildizname_result_types.dart';
@@ -130,6 +131,13 @@ abstract final class YildiznameArtifactPresentation {
       artifactId: artifactId,
       createdAtUtc: createdAtUtc,
       chromeLanguage: lang,
+      // Stored request only, capped by the resolved scope — never the current
+      // profile, a recalculation, or the prose.
+      factSnapshot: YildiznameFactProjector.project(
+        resolved: resolved,
+        request: request,
+        languageCode: lang,
+      ),
     );
   }
 

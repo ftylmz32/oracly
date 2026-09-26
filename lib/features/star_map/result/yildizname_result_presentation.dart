@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/star_map_reading.dart';
 import '../presentation/reference/star_map_result_section.dart';
+import 'yildizname_fact_snapshot.dart';
 import 'yildizname_result_chrome.dart';
 import 'yildizname_result_types.dart';
 import 'yildizname_scope_resolver.dart';
@@ -68,6 +69,7 @@ final class YildiznameResultPresentation {
     this.artifactId,
     this.createdAtUtc,
     this.chromeLanguage,
+    this.factSnapshot = YildiznameFactSnapshot.empty,
   });
 
   /// Live legacy result — symbolic Sun-sign level material only.
@@ -141,7 +143,26 @@ final class YildiznameResultPresentation {
   /// Language the chrome was resolved in (prose keeps its stored language).
   final String? chromeLanguage;
 
+  /// Truthful natal facts projected from the STORED request, up to the
+  /// resolved scope. Empty for legacy results and unproven evidence.
+  final YildiznameFactSnapshot factSnapshot;
+
   bool get isHistoricalArtifact => source.isArtifact;
+
+  /// Same presentation without the fact layer — the Phase 7B contract shape,
+  /// kept so the phase-scoped 7B baselines stay comparable.
+  YildiznameResultPresentation withoutFactSnapshot() =>
+      YildiznameResultPresentation(
+        source: source,
+        scope: scope,
+        title: title,
+        sections: sections,
+        planets: planets,
+        scopeDisclosure: scopeDisclosure,
+        artifactId: artifactId,
+        createdAtUtc: createdAtUtc,
+        chromeLanguage: chromeLanguage,
+      );
 
   @override
   bool operator ==(Object other) {
@@ -153,6 +174,7 @@ final class YildiznameResultPresentation {
         other.artifactId != artifactId ||
         other.createdAtUtc != createdAtUtc ||
         other.chromeLanguage != chromeLanguage ||
+        other.factSnapshot != factSnapshot ||
         !listEquals(other.sections, sections) ||
         other.planets.length != planets.length) {
       return false;
@@ -179,6 +201,7 @@ final class YildiznameResultPresentation {
     artifactId,
     createdAtUtc,
     chromeLanguage,
+    factSnapshot,
     Object.hashAll(sections),
     planets.length,
   );

@@ -60,6 +60,7 @@ import 'tables/table_sky_more.dart';
 import 'tables/table_sky_read.dart';
 import 'tables/table_soulmate.dart';
 import 'tables/table_star_archive.dart';
+import 'tables/table_star_facts.dart';
 import 'tables/table_star_result.dart';
 import 'tables/table_star_voice.dart';
 import 'tables/table_tarot.dart';
@@ -98,6 +99,7 @@ abstract final class AppStringTables {
     ...kL10nStarVoice,
     ...kL10nStarArchive,
     ...kL10nStarResult,
+    ...kL10nStarFacts,
     ...kL10nCompanion,
     ...kL10nAstrology,
     ...kL10nZodiac,

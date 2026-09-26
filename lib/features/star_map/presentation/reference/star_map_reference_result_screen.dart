@@ -17,6 +17,7 @@ import '../../result/yildizname_result_types.dart';
 import 'star_map_reference_app_bar.dart';
 import 'star_map_reference_atmosphere.dart';
 import 'star_map_reference_planet_card.dart';
+import 'star_map_fact_snapshot_plate.dart';
 import 'star_map_reference_tokens.dart';
 import 'star_map_result_footer.dart';
 import 'star_map_result_section.dart';
@@ -108,6 +109,10 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
                         children: [
                           if (disclosure != null)
                             StarMapScopeNote(disclosure: disclosure),
+                          if (presentation.factSnapshot.isNotEmpty)
+                            StarMapFactSnapshotPlate(
+                              snapshot: presentation.factSnapshot,
+                            ),
                           for (var i = 0; i < sections.length; i++)
                             StarMapResultSectionCard(
                               section: sections[i],
