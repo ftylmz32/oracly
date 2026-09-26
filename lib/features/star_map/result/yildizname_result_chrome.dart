@@ -71,6 +71,14 @@ abstract final class YildiznameResultChrome {
   static String scopeKicker([String? languageCode]) =>
       _t('star.result.scope.kicker', language(languageCode));
 
+  /// Continuity archive heading — chrome only.
+  static String continuityHeading([String? languageCode]) =>
+      _t('star.result.continuity.heading', language(languageCode));
+
+  /// Continuity supporting sentence — chrome only; never invents dates/counts.
+  static String continuityBody([String? languageCode]) =>
+      _t('star.result.continuity.body', language(languageCode));
+
   /// What the reading rests on — never lists a layer the evidence lacks, and
   /// FULL never promises every possible layer.
   static String scopeBody(

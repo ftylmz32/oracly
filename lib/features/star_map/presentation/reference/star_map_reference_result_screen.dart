@@ -13,16 +13,11 @@ import '../../../../shared/widgets/oracly_adaptive_scroll_view.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../models/star_map_reading.dart';
 import '../../result/yildizname_result_presentation.dart';
-import '../../result/yildizname_result_types.dart';
 import 'star_map_reference_app_bar.dart';
 import 'star_map_reference_atmosphere.dart';
-import 'star_map_reference_planet_card.dart';
-import 'star_map_fact_snapshot_plate.dart';
 import 'star_map_reference_tokens.dart';
-import 'star_map_result_footer.dart';
+import 'star_map_result_body_children.dart';
 import 'star_map_result_section.dart';
-import 'star_map_result_section_card.dart';
-import 'star_map_scope_note.dart';
 
 export '../../result/yildizname_result_presentation.dart';
 export '../../result/yildizname_result_types.dart';
@@ -63,14 +58,6 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final title = presentation.title;
     final sections = presentation.sections;
-    final planets = presentation.planets;
-    final disclosure = presentation.scopeDisclosure;
-    final hasSummary = sections.any(
-      (s) => s.role == YildiznameSectionRole.summary,
-    );
-    bool isHero(int i) =>
-        sections[i].role == YildiznameSectionRole.summary ||
-        (!hasSummary && i == 0);
     final insight = sections.isEmpty
         ? title
         : sections.first.body.trim().isNotEmpty
@@ -106,32 +93,11 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
                     child: OraclyAdaptiveScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (disclosure != null)
-                            StarMapScopeNote(disclosure: disclosure),
-                          if (presentation.factSnapshot.isNotEmpty)
-                            StarMapFactSnapshotPlate(
-                              snapshot: presentation.factSnapshot,
-                            ),
-                          for (var i = 0; i < sections.length; i++)
-                            StarMapResultSectionCard(
-                              section: sections[i],
-                              hero: isHero(i),
-                              index: i,
-                              showSeparator: i > 0,
-                            ),
-                          for (final planet in planets)
-                            StarMapReferencePlanetCard(planet: planet),
-                          StarMapResultFooter(
-                            title: title,
-                            sections: sections,
-                            planets: planets,
-                            insight: insight,
-                            artifactId: presentation.artifactId,
-                            artifactCreatedAt: presentation.createdAtUtc,
-                            readingContext: readingContext,
-                          ),
-                        ],
+                        children: StarMapResultBodyChildren.build(
+                          presentation: presentation,
+                          readingContext: readingContext,
+                          insight: insight,
+                        ),
                       ),
                     ),
                   ),

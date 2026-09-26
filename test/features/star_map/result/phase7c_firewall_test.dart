@@ -161,32 +161,38 @@ void main() {
   );
 
   test(
-    'the canonical screen renders the plate but never builds facts itself',
+    'visual order: scope note → facts → sections → continuity → footer',
     () {
-      final code = _code(_screen);
-      expect(code.contains('YildiznameFactProjector'), isFalse);
-      expect(code.contains('YildiznameNarrativePayload'), isFalse);
-      expect(code.contains('StarMapFactSnapshotPlate('), isTrue);
-      expect(
-        code.contains('presentation.factSnapshot'),
-        isTrue,
-        reason: 'the plate reads the typed presentation, nothing else',
+      final code = _code(
+        '$_referenceDir/star_map_result_body_children.dart',
       );
+      final note = code.indexOf('StarMapScopeNote(');
+      final plate = code.indexOf('StarMapFactSnapshotPlate(');
+      final chapters = code.indexOf('for (var i = 0; i < chapters.length');
+      final continuity = code.indexOf('StarMapContinuityEcho(');
+      final reflections = code.indexOf('for (final s in reflections)');
+      final footer = code.indexOf('StarMapResultFooter(');
+      expect(note, greaterThan(0));
+      expect(plate, greaterThan(note));
+      expect(chapters, greaterThan(plate));
+      expect(continuity, greaterThan(chapters));
+      expect(reflections, greaterThan(continuity));
+      expect(footer, greaterThan(reflections));
     },
   );
 
   test(
-    'visual order in the screen: scope note → facts → sections → footer',
+    'the canonical screen renders body children from typed presentation',
     () {
       final code = _code(_screen);
-      final note = code.indexOf('StarMapScopeNote(');
-      final plate = code.indexOf('StarMapFactSnapshotPlate(');
-      final sections = code.indexOf('StarMapResultSectionCard(');
-      final footer = code.indexOf('StarMapResultFooter(');
-      expect(note, greaterThan(0));
-      expect(plate, greaterThan(note));
-      expect(sections, greaterThan(plate));
-      expect(footer, greaterThan(sections));
+      expect(code.contains('YildiznameFactProjector'), isFalse);
+      expect(code.contains('YildiznameNarrativePayload'), isFalse);
+      expect(code.contains('StarMapResultBodyChildren.build'), isTrue);
+      expect(
+        code.contains('presentation'),
+        isTrue,
+        reason: 'screen still owns the typed presentation',
+      );
     },
   );
 

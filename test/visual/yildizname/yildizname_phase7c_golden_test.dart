@@ -1,9 +1,9 @@
 /// Phase 7C — phase-scoped expected-delta goldens.
 ///
-/// These capture the PRODUCTION typed-presentation path WITH the truthful fact
-/// snapshot. The frozen 7A masters and the 7B fixtures are untouched (7B keeps
-/// its fixtures through `withoutFactSnapshot()`); the comprehensive master
-/// refresh + hash freeze belongs to Phase 7G.
+/// These capture the PRODUCTION fact snapshot with Phase 7C section chrome
+/// frozen via `withoutRoleHierarchy()` (pre-7D reflection/closing lanes).
+/// The frozen 7A masters and the 7B fixtures are untouched; Phase 7D owns
+/// hierarchy + continuity fixtures. Master refresh = Phase 7G.
 library;
 
 import 'dart:io';
@@ -40,31 +40,32 @@ YildiznameResultPresentation _full({
   bool aspects = true,
   String summary = _summary,
   String id = 'yid_dddddddddddddddddddddddddddddddd',
-}) => YildiznameArtifactPresentation.of(
-  yildiznameFixtureNarrativeArtifact(
-    id: id,
-    scope: YildiznameNarrativeScope.full,
-    rich: rich,
-    ascendant: ascendant,
-    houses: houses,
-    aspects: aspects,
-    kinds: const [
-      YildiznameSectionKind.coreIdentity,
-      YildiznameSectionKind.emotionalWorld,
-      YildiznameSectionKind.anglesAndHouses,
-    ],
-    summary: summary,
-    sectionTexts: const [
-      'Doğum göğünde kimlik net ve sakin duruyor.',
-      'Duygusal dünya yumuşak bir ritme çağırıyor.',
-      'Açılar ve evler derinleşmeyi destekliyor.',
-    ],
-    reflection: 'Hangi katman sana en dürüst geliyor?',
-    closing: 'Arşiv kapanır; sen kendi ritmine dönersin.',
-    createdAtUtc: DateTime.utc(2026, 1, 11),
-  ),
-  chromeLocale: 'tr',
-);
+}) =>
+    YildiznameArtifactPresentation.of(
+      yildiznameFixtureNarrativeArtifact(
+        id: id,
+        scope: YildiznameNarrativeScope.full,
+        rich: rich,
+        ascendant: ascendant,
+        houses: houses,
+        aspects: aspects,
+        kinds: const [
+          YildiznameSectionKind.coreIdentity,
+          YildiznameSectionKind.emotionalWorld,
+          YildiznameSectionKind.anglesAndHouses,
+        ],
+        summary: summary,
+        sectionTexts: const [
+          'Doğum göğünde kimlik net ve sakin duruyor.',
+          'Duygusal dünya yumuşak bir ritme çağırıyor.',
+          'Açılar ve evler derinleşmeyi destekliyor.',
+        ],
+        reflection: 'Hangi katman sana en dürüst geliyor?',
+        closing: 'Arşiv kapanır; sen kendi ritmine dönersin.',
+        createdAtUtc: DateTime.utc(2026, 1, 11),
+      ),
+      chromeLocale: 'tr',
+    ).withoutRoleHierarchy();
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -82,7 +83,7 @@ void main() {
           full: false,
         ),
         chromeLocale: 'tr',
-      ),
+      ).withoutRoleHierarchy(),
     );
     await yildiznamePhase7cGoldenExpect(
       tester,

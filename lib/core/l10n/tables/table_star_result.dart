@@ -76,6 +76,16 @@ const kL10nStarResult = <String, L10nTriple>{
     'What this reading rests on',
     'На чём основано это толкование',
   ),
+  'star.result.continuity.heading': L10nTriple(
+    'Arşiv yankısı',
+    'Archive echo',
+    'Эхо архива',
+  ),
+  'star.result.continuity.body': L10nTriple(
+    'Bu temalar önceki Yıldızname okumalarında da tekrar etmişti.',
+    'These themes have also returned in earlier Yıldızname readings.',
+    'Эти темы уже возвращались в прежних чтениях Йылдызнаме.',
+  ),
   'star.result.scope.legacy': L10nTriple(
     'Bu okuma için mevcut sembolik Yıldızname bağlamına dayanan bir yorum. Kesin bir doğum haritası hesabı değildir.',
     'A symbolic Yıldızname interpretation based only on the context available to this reading. It is not a precise natal-chart calculation.',
