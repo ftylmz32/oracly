@@ -78,6 +78,7 @@ Future<void> yildiznameVisualPumpSettled(
   double textScale = 1.0,
   GlobalKey? captureKey,
   List<Override>? overrides,
+  List<String> precacheAssets = const [],
 }) async {
   await yildiznameVisualLoadGoldenFonts();
   await tester.binding.setSurfaceSize(viewport);
@@ -109,6 +110,15 @@ Future<void> yildiznameVisualPumpSettled(
     ),
   );
   await tester.pump();
+  if (precacheAssets.isNotEmpty) {
+    await tester.runAsync(() async {
+      final context = tester.element(find.byType(MaterialApp));
+      for (final path in precacheAssets) {
+        await precacheImage(AssetImage(path), context);
+      }
+    });
+    await tester.pump();
+  }
   await tester.pump(const Duration(milliseconds: 16));
   await tester.pump(const Duration(milliseconds: 50));
 }

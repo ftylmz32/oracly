@@ -121,6 +121,25 @@ Future<void> yildiznamePhase7fGoldenExpect(
   );
 }
 
+/// Phase 7G final production masters — NEVER the 7A–7F forensic inventories.
+const yildiznamePhase7gGoldenDir = 'test/goldens/yildizname/phase7g';
+
+String yildiznamePhase7gGoldenPath(String name) =>
+    '../../goldens/yildizname/phase7g/$name.png';
+
+Future<void> yildiznamePhase7gGoldenExpect(
+  WidgetTester tester,
+  GlobalKey key,
+  String name,
+) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+  await expectLater(
+    find.byKey(key),
+    matchesGoldenFile(yildiznamePhase7gGoldenPath(name)),
+  );
+}
+
 Future<void> yildiznameGoldenExpect(
   WidgetTester tester,
   GlobalKey key,
