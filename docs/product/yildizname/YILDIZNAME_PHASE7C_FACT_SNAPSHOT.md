@@ -91,11 +91,26 @@ level; that resolution is respected, so it yields no snapshot.
 ### Fail-closed rules (every fact)
 
 Dropped when: the body / sign / aspect / kind is unknown or not a `String`; certainty is missing, unknown,
-`ambiguous`, `unavailable` or `unsupported`; a body is stated twice (contradictory); a `factRef` names a different
-body/angle than the fact; an angle's `kind` and `factRef` disagree; an aspect names an undisplayed body, the same
-body twice, an invalid orb (NaN / negative / non-number), or duplicates another aspect pair; a balance is stated
-twice, has malformed counts, an unknown dominant, a non-maximum dominant, or a **tied** maximum (the request builder
-breaks ties silently and “dominant” over a tie would be a false claim).
+`ambiguous`, `unavailable` or `unsupported`; a body is stated twice (contradictory); a placement `factRef` is
+missing, non-string, or is not **exactly** `placement.<body>`; an angle is missing `kind` or `factRef`, or they
+disagree / are unknown (both sides are required — never inferred); an aspect `factRef` is missing, non-string, or
+is not **exactly** `aspect.<bodyA>.<bodyB>.<type>` for the stored raw fields; an aspect names an undisplayed body,
+the same body twice, or an invalid orb (NaN / negative / non-number); a balance is stated twice, has malformed
+counts, an unknown dominant, a non-maximum dominant, or a **tied** maximum (the request builder breaks ties
+silently and “dominant” over a tie would be a false claim).
+
+### Duplicate aspects (Phase 7C.1)
+
+Aspects are grouped by a **canonical** key after identity validation:
+
+`rank(bodyA′) | rank(bodyB′) | type` where bodies are ordered by fixed subject rank.
+
+| Case | Policy |
+|------|--------|
+| Identical copies (same canonical bodies, type, finite orb; each row has its own matching raw factRef) | Collapse to **one** deterministic candidate |
+| Conflicting evidence for the same key (e.g. different orbs) | **Drop the entire canonical aspect** — do not choose first / last / min / max orb |
+
+False understatement is preferred over invented certainty. Request-array order never decides which orb wins or which aspects enter the top-5 cap.
 
 Malformed containers (a non-list array, non-map entries, missing arrays) project to nothing and never throw.
 

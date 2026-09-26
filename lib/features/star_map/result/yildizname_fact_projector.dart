@@ -156,16 +156,19 @@ abstract final class YildiznameFactProjector {
     return out;
   }
 
-  /// Angle identity from `kind` and the `angle.<kind>` factRef; if the two
-  /// disagree the fact is contradictory and identifies as nothing.
+  /// Angle identity requires BOTH `kind` and `factRef`, and they must agree.
+  /// Never infer one side from the other.
   static YildiznameFactSubject? _angleSubject(Map<String, dynamic> fact) {
     final byKind = YildiznameFactChrome.angleOf(fact['kind']);
     final ref = fact['factRef'];
-    final byRef = ref is String && ref.startsWith('angle.')
-        ? YildiznameFactChrome.angleOf(ref.substring('angle.'.length))
-        : null;
-    if (byKind != null && byRef != null && byKind != byRef) return null;
-    return byKind ?? byRef;
+    if (byKind == null || ref is! String) return null;
+    final expected = switch (byKind) {
+      YildiznameFactSubject.ascendant => 'angle.ascendant',
+      YildiznameFactSubject.midheaven => 'angle.midheaven',
+      _ => null,
+    };
+    if (expected == null || ref != expected) return null;
+    return byKind;
   }
 
   // -- aspects (FULL only) ----------------------------------------------------
@@ -175,23 +178,23 @@ abstract final class YildiznameFactProjector {
     Set<YildiznameFactSubject> displayedBodies,
     String lang,
   ) {
-    final rows =
-        <
-          ({int a, int b, int type, double orb, YildiznameDisplayAspect view})
-        >[];
-    final seen = <String>{};
+    // Group by canonical pair+type FIRST — never first-wins while walking.
+    final groups = <String, _AspectGroup>{};
     for (final m in _maps(request['aspects'])) {
-      final a = YildiznameFactChrome.bodyOf(m['bodyA']);
-      final b = YildiznameFactChrome.bodyOf(m['bodyB']);
+      final rawA = m['bodyA'];
+      final rawB = m['bodyB'];
       final type = m['type'];
       final orb = m['orb'];
+      final a = YildiznameFactChrome.bodyOf(rawA);
+      final b = YildiznameFactChrome.bodyOf(rawB);
       if (a == null || b == null || a == b) continue;
-      // Both bodies must themselves be trusted, displayed facts.
       if (!displayedBodies.contains(a) || !displayedBodies.contains(b)) {
         continue;
       }
-      if (!YildiznameFactChrome.isAspect(type)) continue;
+      if (type is! String || !YildiznameFactChrome.isAspect(type)) continue;
       if (orb is! num || !orb.isFinite || orb < 0) continue;
+      // factRef must match the RAW stored body order + type exactly.
+      if (!_aspectRefMatches(m['factRef'], rawA, rawB, type)) continue;
 
       final ra = YildiznameFactChrome.rankOf(a);
       final rb = YildiznameFactChrome.rankOf(b);
@@ -200,18 +203,29 @@ abstract final class YildiznameFactProjector {
       final key =
           '${YildiznameFactChrome.rankOf(first)}'
           '|${YildiznameFactChrome.rankOf(second)}|$type';
-      if (!seen.add(key)) continue;
-      rows.add((
-        a: YildiznameFactChrome.rankOf(first),
-        b: YildiznameFactChrome.rankOf(second),
-        type: YildiznameFactChrome.aspectOrder(type as String),
-        orb: orb.toDouble(),
-        view: YildiznameDisplayAspect(
-          first: YildiznameFactChrome.subjectLabel(first, lang),
-          second: YildiznameFactChrome.subjectLabel(second, lang),
-          type: YildiznameFactChrome.aspectLabel(type, lang),
+      final group = groups.putIfAbsent(
+        key,
+        () => _AspectGroup(
+          a: YildiznameFactChrome.rankOf(first),
+          b: YildiznameFactChrome.rankOf(second),
+          type: YildiznameFactChrome.aspectOrder(type),
+          view: YildiznameDisplayAspect(
+            first: YildiznameFactChrome.subjectLabel(first, lang),
+            second: YildiznameFactChrome.subjectLabel(second, lang),
+            type: YildiznameFactChrome.aspectLabel(type, lang),
+          ),
         ),
-      ));
+      );
+      group.orbs.add(orb.toDouble());
+    }
+
+    final rows = <_AspectGroup>[];
+    for (final g in groups.values) {
+      // Identical orbs → one candidate. Conflicting orbs → drop the group.
+      final firstOrb = g.orbs.first;
+      if (!g.orbs.every((o) => o == firstOrb)) continue;
+      g.orb = firstOrb;
+      rows.add(g);
     }
     rows.sort((x, y) {
       final byOrb = x.orb.compareTo(y.orb);
@@ -299,11 +313,22 @@ abstract final class YildiznameFactProjector {
     return n >= 1 && n <= 12 ? n : null;
   }
 
-  /// A `<prefix>.<body>` factRef that names a DIFFERENT body contradicts the
-  /// fact; other reference styles are not judged.
+  /// Placement identity requires EXACT `placement.<body>` — never permissive.
   static bool _refMatches(Object? ref, String prefix, Object? body) {
-    if (ref is! String || !ref.startsWith('$prefix.')) return true;
-    return ref.substring(prefix.length + 1) == body;
+    if (ref is! String || body is! String) return false;
+    return ref == '$prefix.$body';
+  }
+
+  /// Aspect identity requires EXACT `aspect.<bodyA>.<bodyB>.<type>` for the
+  /// stored raw fields (before pair normalization).
+  static bool _aspectRefMatches(
+    Object? ref,
+    Object? bodyA,
+    Object? bodyB,
+    String type,
+  ) {
+    if (ref is! String || bodyA is! String || bodyB is! String) return false;
+    return ref == 'aspect.$bodyA.$bodyB.$type';
   }
 
   static List<Map<String, dynamic>> _maps(Object? raw) {
@@ -316,4 +341,21 @@ abstract final class YildiznameFactProjector {
           Map<String, dynamic>.from(e),
     ];
   }
+}
+
+/// Mutable accumulator for one canonical aspect group (pair + type).
+final class _AspectGroup {
+  _AspectGroup({
+    required this.a,
+    required this.b,
+    required this.type,
+    required this.view,
+  });
+
+  final int a;
+  final int b;
+  final int type;
+  final YildiznameDisplayAspect view;
+  final List<double> orbs = [];
+  double orb = 0;
 }
