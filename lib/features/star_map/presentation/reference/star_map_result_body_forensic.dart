@@ -3,7 +3,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../features/ai/oracle_conversation/models/oracle_reading_context.dart';
 import '../../result/yildizname_result_presentation.dart';
 import '../../result/yildizname_result_types.dart';
 import 'star_map_fact_snapshot_plate.dart';
@@ -17,8 +16,6 @@ abstract final class StarMapResultBodyForensic {
 
   static List<Widget> build({
     required YildiznameResultPresentation presentation,
-    required OracleReadingContext? readingContext,
-    required String insight,
   }) {
     final sections = presentation.sections;
     final hasSummary =
@@ -43,17 +40,10 @@ abstract final class StarMapResultBodyForensic {
     for (final planet in presentation.planets) {
       out.add(StarMapReferencePlanetCard(planet: planet));
     }
-    out.add(
-      StarMapResultFooter(
-        title: presentation.title,
-        sections: sections,
-        planets: presentation.planets,
-        insight: insight,
-        artifactId: presentation.artifactId,
-        artifactCreatedAt: presentation.createdAtUtc,
-        readingContext: readingContext,
-      ),
-    );
+    out.add(StarMapResultFooter(
+      actions: presentation.actions,
+      forensicLegacyActionOrder: presentation.forensicLegacyActionOrder,
+    ));
     return out;
   }
 }

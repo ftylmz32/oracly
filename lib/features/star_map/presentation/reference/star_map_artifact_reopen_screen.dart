@@ -1,8 +1,7 @@
 /// Exact Yıldızname artifact reopen — stored prose + typed presentation only.
 ///
-/// Same canonical result screen as a live reading. No provider call, no
-/// astronomy, no birth data. Continuity is projected from owner-safe history
-/// when available; history failure never blocks the reading.
+/// Continuity uses owner-safe history; actions use the artifact alone and never
+/// wait on history load.
 library;
 
 import 'package:flutter/material.dart';
@@ -15,6 +14,7 @@ import '../../artifacts/yildizname_artifact_presentation.dart';
 import '../../artifacts/yildizname_artifact_providers.dart';
 import '../../result/yildizname_continuity_presentation.dart';
 import '../../result/yildizname_continuity_projector.dart';
+import '../../result/yildizname_result_actions_builder.dart';
 import 'star_map_reference_result_screen.dart';
 
 class StarMapArtifactReopenScreen extends ConsumerWidget {
@@ -24,7 +24,6 @@ class StarMapArtifactReopenScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Subscribe to locale: chrome follows the app language, prose never does.
     final chromeLocale = OraclyL10n.depend(context);
     final base = YildiznameArtifactPresentation.of(
       artifact,
@@ -40,10 +39,13 @@ class StarMapArtifactReopenScreen extends ConsumerWidget {
       loading: () => YildiznameContinuityPresentation.empty,
       error: (_, _) => YildiznameContinuityPresentation.empty,
     );
-    return StarMapReferenceResultScreen(
-      presentation: base.withContinuity(continuity),
-      // Prose-only OR context — never birth date/place/time.
-      readingContext: YildiznameArtifactOrContext.build(artifact),
+    final withContinuity = base.withContinuity(continuity);
+    final presentation = withContinuity.withActions(
+      YildiznameResultActionsBuilder.build(
+        presentation: withContinuity,
+        orContext: YildiznameArtifactOrContext.build(artifact),
+      ),
     );
+    return StarMapReferenceResultScreen(presentation: presentation);
   }
 }

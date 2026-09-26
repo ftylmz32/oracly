@@ -13,6 +13,7 @@ import '../narrative/result/yildizname_narrative_structured_result.dart';
 import '../narrative/result/yildizname_section_kind.dart';
 import '../presentation/reference/star_map_result_section.dart';
 import '../result/yildizname_fact_projector.dart';
+import '../result/yildizname_result_actions_builder.dart';
 import '../result/yildizname_result_chrome.dart';
 import '../result/yildizname_result_presentation.dart';
 import '../result/yildizname_result_types.dart';
@@ -35,16 +36,18 @@ abstract final class YildiznameArtifactPresentation {
   }) {
     final lang = YildiznameResultChrome.language(chromeLocale);
     if (artifact.source == YildiznameArtifactSource.legacyLocal) {
-      return _legacyArtifact(artifact, lang);
+      return _withActions(_legacyArtifact(artifact, lang));
     }
-    return _narrative(
-      source: YildiznameResultSource.narrativeArtifact,
-      payload: artifact.payload,
-      artifactScope: artifact.scope,
-      artifactFidelity: artifact.fidelity,
-      artifactId: artifact.id,
-      createdAtUtc: artifact.createdAtUtc,
-      lang: lang,
+    return _withActions(
+      _narrative(
+        source: YildiznameResultSource.narrativeArtifact,
+        payload: artifact.payload,
+        artifactScope: artifact.scope,
+        artifactFidelity: artifact.fidelity,
+        artifactId: artifact.id,
+        createdAtUtc: artifact.createdAtUtc,
+        lang: lang,
+      ),
     );
   }
 
@@ -57,19 +60,28 @@ abstract final class YildiznameArtifactPresentation {
     DateTime? createdAtUtc,
     String? chromeLocale,
   }) {
-    return _narrative(
-      source: YildiznameResultSource.narrativeLive,
-      payload: YildiznameNarrativePayload.build(
-        request: request,
-        result: result,
+    return _withActions(
+      _narrative(
+        source: YildiznameResultSource.narrativeLive,
+        payload: YildiznameNarrativePayload.build(
+          request: request,
+          result: result,
+        ),
+        artifactScope: request.scope.wireName,
+        artifactFidelity: request.fidelity,
+        artifactId: artifactId,
+        createdAtUtc: createdAtUtc,
+        lang: YildiznameResultChrome.language(chromeLocale),
       ),
-      artifactScope: request.scope.wireName,
-      artifactFidelity: request.fidelity,
-      artifactId: artifactId,
-      createdAtUtc: createdAtUtc,
-      lang: YildiznameResultChrome.language(chromeLocale),
     );
   }
+
+  static YildiznameResultPresentation _withActions(
+    YildiznameResultPresentation base,
+  ) =>
+      base.withActions(
+        YildiznameResultActionsBuilder.build(presentation: base),
+      );
 
   static YildiznameResultPresentation _legacyArtifact(
     YildiznameArtifact artifact,

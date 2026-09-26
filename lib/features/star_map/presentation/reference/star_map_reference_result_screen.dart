@@ -12,6 +12,7 @@ import '../../../../features/ai/oracle_conversation/models/oracle_reading_contex
 import '../../../../shared/widgets/oracly_adaptive_scroll_view.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../models/star_map_reading.dart';
+import '../../result/yildizname_result_actions_builder.dart';
 import '../../result/yildizname_result_presentation.dart';
 import 'star_map_reference_app_bar.dart';
 import 'star_map_reference_atmosphere.dart';
@@ -27,42 +28,56 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
   const StarMapReferenceResultScreen({
     super.key,
     required this.presentation,
-    this.readingContext,
   });
 
-  /// Pre-typed compatibility entry: display-ready strings, no scope claim.
-  ///
-  /// Test-only — it keeps the frozen Phase 7A pixel baselines exercising the
-  /// shared chrome. Production callers must pass a typed presentation.
+  /// Test-only unscoped entry for frozen Phase 7A baselines.
   @visibleForTesting
   StarMapReferenceResultScreen.unscoped({
     super.key,
     required String title,
     required List<StarMapResultSection> sections,
     List<StarMapPlanetInfluence> planets = const [],
-    this.readingContext,
+    OracleReadingContext? readingContext,
     String? artifactId,
     DateTime? artifactCreatedAt,
-  }) : presentation = YildiznameResultPresentation.unscoped(
+  }) : presentation = _unscopedWithOptionalOr(
          title: title,
          sections: sections,
          planets: planets,
          artifactId: artifactId,
-         createdAtUtc: artifactCreatedAt,
+         artifactCreatedAt: artifactCreatedAt,
+         readingContext: readingContext,
        );
 
   final YildiznameResultPresentation presentation;
-  final OracleReadingContext? readingContext;
+
+  static YildiznameResultPresentation _unscopedWithOptionalOr({
+    required String title,
+    required List<StarMapResultSection> sections,
+    required List<StarMapPlanetInfluence> planets,
+    String? artifactId,
+    DateTime? artifactCreatedAt,
+    OracleReadingContext? readingContext,
+  }) {
+    final base = YildiznameResultPresentation.unscoped(
+      title: title,
+      sections: sections,
+      planets: planets,
+      artifactId: artifactId,
+      createdAtUtc: artifactCreatedAt,
+    );
+    if (readingContext == null) return base;
+    return base.withActions(
+      YildiznameResultActionsBuilder.build(
+        presentation: base,
+        orContext: readingContext,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final title = presentation.title;
-    final sections = presentation.sections;
-    final insight = sections.isEmpty
-        ? title
-        : sections.first.body.trim().isNotEmpty
-        ? sections.first.body
-        : sections.first.title;
     return OraclyScaffold(
       safeArea: false,
       backgroundOverlay: const StarMapReferenceAtmosphere(
@@ -95,8 +110,6 @@ class StarMapReferenceResultScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: StarMapResultBodyChildren.build(
                           presentation: presentation,
-                          readingContext: readingContext,
-                          insight: insight,
                         ),
                       ),
                     ),

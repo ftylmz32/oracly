@@ -3,6 +3,7 @@ library;
 
 import '../models/star_map_reading.dart';
 import '../presentation/reference/star_map_result_section.dart';
+import 'yildizname_result_actions_builder.dart';
 import 'yildizname_result_chrome.dart';
 import 'yildizname_result_presentation.dart';
 import 'yildizname_result_types.dart';
@@ -20,7 +21,7 @@ abstract final class YildiznameResultPresentationBuild {
     String? chromeLanguage,
   }) {
     final lang = YildiznameResultChrome.language(chromeLanguage);
-    return YildiznameResultPresentation(
+    final base = YildiznameResultPresentation(
       source: YildiznameResultSource.legacyLive,
       scope: YildiznameResultScope.legacy,
       title: title,
@@ -34,6 +35,9 @@ abstract final class YildiznameResultPresentationBuild {
       createdAtUtc: createdAtUtc,
       chromeLanguage: lang,
     );
+    return base.withActions(
+      YildiznameResultActionsBuilder.build(presentation: base),
+    );
   }
 
   static YildiznameResultPresentation unscoped({
@@ -42,14 +46,19 @@ abstract final class YildiznameResultPresentationBuild {
     List<StarMapPlanetInfluence> planets = const [],
     String? artifactId,
     DateTime? createdAtUtc,
-  }) =>
-      YildiznameResultPresentation(
-        source: YildiznameResultSource.legacyLive,
-        scope: YildiznameResultScope.legacy,
-        title: title,
-        sections: List.unmodifiable(sections),
-        planets: List.unmodifiable(planets),
-        artifactId: artifactId,
-        createdAtUtc: createdAtUtc,
-      );
+  }) {
+    final base = YildiznameResultPresentation(
+      source: YildiznameResultSource.legacyLive,
+      scope: YildiznameResultScope.legacy,
+      title: title,
+      sections: List.unmodifiable(sections),
+      planets: List.unmodifiable(planets),
+      artifactId: artifactId,
+      createdAtUtc: createdAtUtc,
+      forensicLegacyActionOrder: true,
+    );
+    return base.withActions(
+      YildiznameResultActionsBuilder.build(presentation: base),
+    );
+  }
 }

@@ -42,4 +42,20 @@ void main() {
     }
     expect(hits, isEmpty, reason: 'forensic true set outside presentation: $hits');
   });
+
+  test('forensicLegacyActionOrder true only in presentation factories', () {
+    final hits = <String>[];
+    for (final f in Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))) {
+      final path = f.path.replaceAll('\\', '/');
+      final text = f.readAsStringSync();
+      if (!text.contains('forensicLegacyActionOrder: true')) continue;
+      if (path.endsWith('yildizname_result_presentation.dart')) continue;
+      if (path.endsWith('yildizname_result_presentation_build.dart')) continue;
+      hits.add(path);
+    }
+    expect(hits, isEmpty, reason: 'forensic action order set outside: $hits');
+  });
 }

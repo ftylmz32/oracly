@@ -9,6 +9,7 @@ import '../../../../features/ai/oracle_conversation/models/oracle_reading_contex
 import '../../../../features/birth_chart/models/birth_profile.dart';
 import '../../artifacts/yildizname_legacy_section_kind.dart';
 import '../../models/star_map_reading.dart';
+import '../../result/yildizname_result_actions_builder.dart';
 import 'star_map_legacy_result_capture.dart';
 import 'star_map_reference_result_screen.dart';
 
@@ -40,30 +41,36 @@ abstract final class StarMapResultOpen {
       onComplete();
       return;
     }
+    final base = YildiznameResultPresentation.legacyLive(
+      title: title,
+      sections: sections,
+      planets: planets,
+      artifactId: captured.artifactId,
+      createdAtUtc: captured.createdAt,
+    );
+    final orContext = OracleReadingContextSources.starMap(
+      sectionLabel: sectionLabel,
+      reading: reading,
+      profile: profile,
+      sectionLines: [
+        for (final section in sections)
+          if (section.body.trim().isNotEmpty)
+            '${section.title}: ${section.body}',
+      ],
+    );
+    final presentation = base.withActions(
+      YildiznameResultActionsBuilder.build(
+        presentation: base,
+        orContext: orContext,
+      ),
+    );
     await Navigator.of(context)
         .push(
-      MaterialPageRoute<void>(
-        builder: (_) => StarMapReferenceResultScreen(
-          presentation: YildiznameResultPresentation.legacyLive(
-            title: title,
-            sections: sections,
-            planets: planets,
-            artifactId: captured.artifactId,
-            createdAtUtc: captured.createdAt,
+          MaterialPageRoute<void>(
+            builder: (_) =>
+                StarMapReferenceResultScreen(presentation: presentation),
           ),
-          readingContext: OracleReadingContextSources.starMap(
-            sectionLabel: sectionLabel,
-            reading: reading,
-            profile: profile,
-            sectionLines: [
-              for (final section in sections)
-                if (section.body.trim().isNotEmpty)
-                  '${section.title}: ${section.body}',
-            ],
-          ),
-        ),
-      ),
-    )
+        )
         .whenComplete(onComplete);
   }
 }

@@ -11,10 +11,10 @@ import 'package:oracly_new/features/birth_chart/services/natal_chart_calculator.
 import 'package:oracly_new/features/star_map/artifacts/yildizname_artifact.dart';
 import 'package:oracly_new/features/star_map/artifacts/yildizname_artifact_factory.dart';
 import 'package:oracly_new/features/star_map/artifacts/yildizname_artifact_or_context.dart';
+import 'package:oracly_new/features/star_map/artifacts/yildizname_artifact_presentation.dart';
 import 'package:oracly_new/features/star_map/artifacts/yildizname_legacy_payload.dart';
 import 'package:oracly_new/features/star_map/artifacts/yildizname_legacy_section_kind.dart';
 import 'package:oracly_new/features/star_map/models/star_map_reading.dart';
-import 'package:oracly_new/features/star_map/presentation/reference/star_map_artifact_reopen_screen.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_result_screen.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_screen.dart';
 
@@ -82,6 +82,24 @@ Future<void> yildiznamePhase7dGoldenExpect(
   await expectLater(
     find.byKey(key),
     matchesGoldenFile(yildiznamePhase7dGoldenPath(name)),
+  );
+}
+
+const yildiznamePhase7eGoldenDir = 'test/goldens/yildizname/phase7e';
+
+String yildiznamePhase7eGoldenPath(String name) =>
+    '../../goldens/yildizname/phase7e/$name.png';
+
+Future<void> yildiznamePhase7eGoldenExpect(
+  WidgetTester tester,
+  GlobalKey key,
+  String name,
+) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+  await expectLater(
+    find.byKey(key),
+    matchesGoldenFile(yildiznamePhase7eGoldenPath(name)),
   );
 }
 
@@ -199,13 +217,21 @@ Future<GlobalKey> yildiznameGoldenPumpLegacyArtifact(
   return key;
 }
 
-/// Phase 7B production legacy reopen — typed presentation + scope note.
+/// Phase 7B/7C legacy reopen chrome — typed presentation with OR context,
+/// forensic-frozen to pre-7E footer order so phase fixtures stay untouched.
 Future<GlobalKey> yildiznameGoldenPumpLegacyArtifactReopen(
   WidgetTester tester, {
   Size viewport = yildiznameVisualCanonicalViewport,
   double textScale = 1.0,
 }) async {
   final storage = await yildiznameVisualOpenStorage();
+  final artifact = yildiznameGoldenLegacyArtifact();
+  final presentation = YildiznameArtifactPresentation.of(
+    artifact,
+    chromeLocale: 'tr',
+  ).withForensicActionOrder().withBuiltActions(
+        orContext: YildiznameArtifactOrContext.build(artifact),
+      );
   final key = GlobalKey();
   await yildiznameVisualPumpSettled(
     tester,
@@ -213,7 +239,7 @@ Future<GlobalKey> yildiznameGoldenPumpLegacyArtifactReopen(
     textScale: textScale,
     storage: storage,
     captureKey: key,
-    child: StarMapArtifactReopenScreen(artifact: yildiznameGoldenLegacyArtifact()),
+    child: StarMapReferenceResultScreen(presentation: presentation),
   );
   return key;
 }
