@@ -1,6 +1,14 @@
 /// Pure continuity projector — Phase 6 memory ∩ current accepted themes.
 ///
 /// Never treats stored `discoveryThemes` alone as recurrence proof.
+///
+/// Identity / owner fail-closed rules (Phase 7D.1):
+/// - Current artifact ID is always stripped from history before Phase 6.
+/// - Current must have a non-empty semanticFingerprint; otherwise EMPTY
+///   (without operation identity we cannot prove another ID is not the
+///   same logical reading).
+/// - Current ownerId must be non-blank; history is filtered to same owner
+///   (trim-only, matching repository semantics) before Phase 6.
 library;
 
 import '../artifacts/yildizname_artifact.dart';
@@ -17,7 +25,7 @@ abstract final class YildiznameContinuityProjector {
   /// Editorial cap — restrained archive echo, never a timeline.
   static const int maxThemes = 3;
 
-  /// [history] must already be owner-safe. Returns [empty] when evidence fails.
+  /// Returns [empty] when evidence fails closed. Does not mutate inputs.
   static YildiznameContinuityPresentation project({
     required YildiznameArtifact current,
     required Iterable<YildiznameArtifact> history,
@@ -26,12 +34,25 @@ abstract final class YildiznameContinuityProjector {
     if (current.source != YildiznameArtifactSource.narrativeV1) {
       return YildiznameContinuityPresentation.empty;
     }
+    final owner = current.ownerId.trim();
+    if (owner.isEmpty) return YildiznameContinuityPresentation.empty;
+
+    // Without a durable semantic operation id, another stored row could be
+    // the same reading under a different artifact id — refuse continuity.
+    final semantic = (current.semanticFingerprint ?? '').trim();
+    if (semantic.isEmpty) return YildiznameContinuityPresentation.empty;
+
     final currentKeys = _currentAcceptedKeys(current.payload);
     if (currentKeys.isEmpty) return YildiznameContinuityPresentation.empty;
 
+    final candidates = <YildiznameArtifact>[
+      for (final a in history)
+        if (a.id != current.id && a.ownerId.trim() == owner) a,
+    ];
+
     final prior = YildiznameArtifactMemory.recurringThemes(
-      history,
-      excludeSemanticFingerprint: current.semanticFingerprint,
+      candidates,
+      excludeSemanticFingerprint: semantic,
     );
     if (prior.isEmpty) return YildiznameContinuityPresentation.empty;
 
@@ -69,7 +90,7 @@ abstract final class YildiznameContinuityProjector {
     final keys = <String>{};
     for (final ref in accepted) {
       final label = refToLabel[ref];
-      if (label == null || label.trim().isEmpty) continue; // unknown ref
+      if (label == null || label.trim().isEmpty) continue;
       final key = YildiznameThemeIdentity.keyFor(label);
       if (key.isNotEmpty) keys.add(key);
     }
