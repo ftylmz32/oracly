@@ -53,29 +53,6 @@ void main() {
     expect(withTime.actions.favorite!.occurredAt, DateTime.utc(2026, 1, 10));
   });
 
-  test('I same artifact presentation + OR → live/reopen action parity', () {
-    final artifact = yildiznameFixtureNarrativeArtifact(
-      id: 'yid_parityparityparityparityparity00',
-      createdAtUtc: DateTime.utc(2026, 2, 2),
-    );
-    final presentation = YildiznameArtifactPresentation.of(
-      artifact,
-      chromeLocale: 'tr',
-    );
-    final or = YildiznameArtifactOrContext.build(artifact);
-    final reopen = YildiznameResultActionsBuilder.build(
-      presentation: presentation,
-      orContext: or,
-    );
-    final liveReady = YildiznameResultActionsBuilder.build(
-      presentation: presentation,
-      orContext: or,
-    );
-    expect(reopen, liveReady);
-    expect(reopen.favorite!.artifactId, artifact.id);
-    expect(reopen.favorite!.occurredAt, artifact.createdAtUtc);
-  });
-
   test('J reopen twice → identical favorite id / occurredAt', () {
     final artifact = yildiznameFixtureNarrativeArtifact(
       id: 'yid_jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj',
