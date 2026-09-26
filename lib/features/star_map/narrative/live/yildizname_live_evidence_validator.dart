@@ -1,4 +1,4 @@
-/// Phase 8A.1 — pure authoritative evidence provenance coherence checks.
+/// Phase 8A.1/8A.2 — pure authoritative evidence provenance + shape preflight.
 library;
 
 import '../../../birth_chart/astronomy/astronomia_ephemeris_adapter.dart';
@@ -6,12 +6,14 @@ import '../../../birth_chart/astronomy/astronomical_fact_certainty.dart';
 import '../../../birth_chart/astronomy/astronomical_provenance.dart';
 import '../../../birth_chart/astronomy/birth_timezone_database.dart';
 import '../../../birth_chart/astronomy/evidence_fingerprint.dart';
+import '../../../birth_chart/astronomy/natal_body.dart';
 import '../../../birth_chart/astronomy/natal_chart_evidence.dart';
 import '../../../birth_chart/astronomy/natal_house_system.dart';
 import '../../../birth_chart/astronomy/natal_placement.dart';
 import '../../../birth_chart/models/birth_chart.dart';
 import '../../../birth_chart/models/chart_fidelity.dart';
 import 'yildizname_live_evidence_fact_check.dart';
+import 'yildizname_live_evidence_shape.dart';
 
 /// Fail-closed local preflight — no provider, no astronomy recompute.
 abstract final class YildiznameLiveEvidenceValidator {
@@ -26,7 +28,10 @@ abstract final class YildiznameLiveEvidenceValidator {
     if (!_metadataMatchesContract(chart, evidence)) return false;
     if (!_birthInstantMatches(evidence)) return false;
     if (!_reducedStructureOk(evidence)) return false;
-    return YildiznameLiveEvidenceFactCheck.factsMatchMetadata(evidence);
+    if (!YildiznameLiveEvidenceFactCheck.factsMatchMetadata(evidence)) {
+      return false;
+    }
+    return YildiznameLiveEvidenceShape.isStructurallySound(evidence);
   }
 
   static bool _metadataMatchesContract(
@@ -67,8 +72,8 @@ abstract final class YildiznameLiveEvidenceValidator {
       final iso = meta.utcInstantIso?.trim() ?? '';
       if (iso.isEmpty) return false;
       try {
-        DateTime.parse(iso);
-        return true;
+        final parsed = DateTime.parse(iso);
+        return parsed.isUtc;
       } catch (_) {
         return false;
       }
@@ -82,6 +87,7 @@ abstract final class YildiznameLiveEvidenceValidator {
     }
     if (evidence.ascendant != null || evidence.midheaven != null) return false;
     if (evidence.houses.isNotEmpty || evidence.aspects.isNotEmpty) return false;
+    if (evidence.placements.length != NatalBody.values.length) return false;
     for (final p in evidence.placements) {
       if (!_reducedPlacementOk(p)) return false;
     }
@@ -103,7 +109,6 @@ abstract final class YildiznameLiveEvidenceValidator {
       if (hasExact) return false;
       return p.sign == null;
     }
-    // Reduced must not claim exact / unknown certainty layers.
     return false;
   }
 }

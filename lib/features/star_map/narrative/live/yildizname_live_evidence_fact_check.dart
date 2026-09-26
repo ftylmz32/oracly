@@ -1,4 +1,4 @@
-/// Phase 8A.1 — fact-level provenance must match evidence metadata envelope.
+/// Phase 8A.1/8A.2 — fact-level provenance must match evidence metadata envelope.
 library;
 
 import '../../../birth_chart/astronomy/astronomical_provenance.dart';
@@ -20,9 +20,7 @@ abstract final class YildiznameLiveEvidenceFactCheck {
     if (mc != null && !_matches(meta, mc.provenance)) return false;
     for (final h in evidence.houses) {
       if (h.system != NatalHouseSystem.wholeSign) return false;
-      if (!_matches(meta, h.provenance, requireHouseSystem: true)) {
-        return false;
-      }
+      if (!_matches(meta, h.provenance)) return false;
     }
     for (final a in evidence.aspects) {
       if (!_matches(meta, a.provenance)) return false;
@@ -32,9 +30,8 @@ abstract final class YildiznameLiveEvidenceFactCheck {
 
   static bool _matches(
     NatalCalculationMetadata meta,
-    AstronomicalProvenance p, {
-    bool requireHouseSystem = false,
-  }) {
+    AstronomicalProvenance p,
+  ) {
     if (p.engineId != meta.engineId) return false;
     if (p.engineVersion != meta.engineVersion) return false;
     if (p.calculationVersion != meta.calculationVersion) return false;
@@ -42,9 +39,9 @@ abstract final class YildiznameLiveEvidenceFactCheck {
     if (p.zodiacSystem != meta.zodiacSystem) return false;
     if (p.coordinateConvention != meta.coordinateConvention) return false;
     if (p.timezoneDatabase != meta.timezoneDatabase) return false;
-    if (requireHouseSystem || p.houseSystem != null) {
-      if (p.houseSystem != meta.houseSystem.name) return false;
-    }
+    // Phase 4 producers always stamp wholeSign — null is corrupt.
+    if (p.houseSystem != meta.houseSystem.name) return false;
+    if (p.houseSystem != NatalHouseSystem.wholeSign.name) return false;
     return true;
   }
 }
