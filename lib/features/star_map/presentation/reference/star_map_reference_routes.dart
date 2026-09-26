@@ -11,6 +11,7 @@ import '../../artifacts/yildizname_legacy_section_kind.dart';
 import '../../copy/star_map_polish_copy.dart';
 import '../../models/star_map_reading.dart';
 import '../../services/star_map_personalization.dart';
+import 'star_map_primary_leaf_open.dart';
 import 'star_map_reference_result_screen.dart';
 import 'star_map_result_open.dart';
 
@@ -38,6 +39,22 @@ abstract final class StarMapReferenceRoutes {
     } finally {
       _navigating = false;
     }
+  }
+
+  /// Primary archive leaf — flag-aware Narrative vs legacy sky message.
+  static Future<void> openPrimaryArchiveLeaf(
+    BuildContext context,
+    StarMapReading reading, {
+    BirthProfile? profile,
+  }) {
+    return StarMapPrimaryLeafOpen.open(
+      context: context,
+      reading: reading,
+      profile: profile,
+      isNavigating: () => _navigating,
+      setNavigating: (v) => _navigating = v,
+      openLegacySky: openSkyMessage,
+    );
   }
 
   static void openSkyMessage(

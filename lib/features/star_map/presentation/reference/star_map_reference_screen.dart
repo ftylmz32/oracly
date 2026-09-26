@@ -23,7 +23,10 @@ import 'star_map_reference_tokens.dart';
 
 /// Entry point for the Yıldızname / star map feature.
 class StarMapReferenceScreen extends ConsumerWidget {
-  const StarMapReferenceScreen({super.key});
+  const StarMapReferenceScreen({super.key, this.now});
+
+  /// Optional calendar day for the hub reading (tests pin Phase 7G freeze day).
+  final DateTime? now;
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -43,6 +46,7 @@ class StarMapReferenceScreen extends ConsumerWidget {
     );
     final sunSign = ref.watch(savedSunSignProvider);
     final reading = StarMapReadingService.build(
+      now: now,
       sunSign: sunSign,
       discovery: discovery,
     );
@@ -98,7 +102,7 @@ class StarMapReferenceScreen extends ConsumerWidget {
                               onReturn: refresh,
                             ),
                             onOpenLeaf: () =>
-                                StarMapReferenceRoutes.openSkyMessage(
+                                StarMapReferenceRoutes.openPrimaryArchiveLeaf(
                               context,
                               reading,
                               profile: profile,

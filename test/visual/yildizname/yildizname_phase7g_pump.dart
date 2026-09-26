@@ -62,7 +62,9 @@ Future<GlobalKey> phase7gPumpHub(
     storage: storage,
     captureKey: key,
     precacheAssets: phase7gPrecacheAssets,
-    child: const StarMapReferenceScreen(),
+    child: StarMapReferenceScreen(
+      now: DateTime.utc(2026, 9, 26),
+    ),
   );
   await tester.pump(const Duration(milliseconds: 300));
   return key;

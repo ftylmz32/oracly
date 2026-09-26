@@ -175,7 +175,9 @@ Future<GlobalKey> yildiznameGoldenPumpHub(
     viewport: yildiznameVisualCanonicalViewport,
     storage: storage,
     captureKey: key,
-    child: const StarMapReferenceScreen(),
+    child: StarMapReferenceScreen(
+      now: DateTime.utc(2026, 9, 26),
+    ),
   );
   await tester.pump(const Duration(milliseconds: 300));
   return key;
