@@ -2,9 +2,6 @@
 library;
 
 import '../../../../core/l10n/app_locale.dart';
-import '../../../birth_chart/astronomy/astronomical_provenance.dart';
-import '../../../birth_chart/astronomy/evidence_fingerprint.dart';
-import '../../../birth_chart/astronomy/natal_chart_evidence.dart';
 import '../../../birth_chart/models/birth_chart.dart';
 import '../../../birth_chart/models/chart_fidelity.dart';
 import '../../artifacts/yildizname_artifact.dart';
@@ -12,6 +9,7 @@ import '../../artifacts/yildizname_artifact_memory.dart';
 import '../request/yildizname_narrative_scope.dart';
 import '../request/yildizname_request_factory.dart';
 import '../request/yildizname_request_fingerprint.dart';
+import 'yildizname_live_evidence_validator.dart';
 import 'yildizname_live_plan.dart';
 
 /// Builds a typed [YildiznameLivePlan] from authoritative local inputs only.
@@ -38,7 +36,7 @@ abstract final class YildiznameLivePlanBuilder {
     if (owner.isEmpty) return YildiznameLivePlan.ownerUnavailable();
 
     final evidence = chart!.natalEvidence!;
-    if (!_evidenceCoherent(chart, evidence)) {
+    if (!YildiznameLiveEvidenceValidator.isCoherent(chart, evidence)) {
       return YildiznameLivePlan.invalidEvidence();
     }
 
@@ -83,22 +81,5 @@ abstract final class YildiznameLivePlanBuilder {
         chart.fidelity == ChartCalculationFidelity.fullNatalEphemeris;
   }
 
-  static bool _evidenceCoherent(
-    BirthChart chart,
-    NatalChartEvidence evidence,
-  ) {
-    if (chart.fidelity != evidence.fidelity) return false;
-    if (evidence.fidelity != ChartCalculationFidelity.reducedNatal &&
-        evidence.fidelity != ChartCalculationFidelity.fullNatalEphemeris) {
-      return false;
-    }
-    final meta = evidence.metadata;
-    if (meta.calculationVersion !=
-        AstronomicalProvenance.calcYildiznameNatalV1) {
-      return false;
-    }
-    final stored = meta.evidenceFingerprint.trim();
-    if (stored.isEmpty) return false;
-    return stored == EvidenceFingerprint.of(chart.profile);
-  }
 }
+
