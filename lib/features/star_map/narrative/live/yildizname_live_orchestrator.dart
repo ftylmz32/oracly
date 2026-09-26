@@ -9,10 +9,12 @@ import 'yildizname_live_persist.dart';
 import 'yildizname_live_plan.dart';
 import 'yildizname_live_preflight.dart';
 import 'yildizname_pending_narrative_completion.dart';
+import 'yildizname_prepared_live_execution.dart';
 
 export 'yildizname_live_error_copy.dart';
 export 'yildizname_live_execution.dart';
 export 'yildizname_pending_narrative_completion.dart';
+export 'yildizname_prepared_live_execution.dart';
 
 /// Coordinates frozen Phase 8A plan → live service → durable artifact → presentation.
 final class YildiznameLiveOrchestrator {
@@ -30,34 +32,47 @@ final class YildiznameLiveOrchestrator {
 
   bool get isBusy => _busy;
 
-  /// Local eligibility only — no provider. Avoids Narrative cinema for legacy.
-  Future<YildiznameLivePlan> preflight({required String languageCode}) async {
-    if (!_deps.flagEnabled()) return YildiznameLivePlan.legacyLocal();
-    final expected = YildiznameLiveOwnerSnapshot.capture(_deps.storage);
-    return (await _preflight.plan(
-      expected: expected,
+  /// Captures owner + epoch ONCE and binds it to the local plan. No provider.
+  Future<YildiznamePreparedLiveExecution> prepare({
+    required String languageCode,
+  }) async {
+    final snapshot = YildiznameLiveOwnerSnapshot.capture(_deps.storage);
+    final plan = _deps.flagEnabled()
+        ? (await _preflight.plan(
+            expected: snapshot,
+            languageCode: languageCode,
+          )).plan
+        : YildiznameLivePlan.legacyLocal();
+    return YildiznamePreparedLiveExecution(
+      ownerSnapshot: snapshot,
       languageCode: languageCode,
-    )).plan;
+      plan: plan,
+    );
   }
 
+  /// Compatibility projection of [prepare].
+  Future<YildiznameLivePlan> preflight({required String languageCode}) async =>
+      (await prepare(languageCode: languageCode)).plan;
+
+  /// Fresh transaction: [prepare] → [executePrepared] (single path).
   Future<YildiznameLiveExecution> execute({
     required String languageCode,
     bool forceRefresh = false,
-  }) async {
-    if (_busy) {
-      return YildiznameLiveExecution.failure(
-        YildiznameLiveExecutionKind.generationFailed,
-      );
-    }
-    _busy = true;
-    try {
-      return await _run(
-        languageCode: languageCode,
-        forceRefresh: forceRefresh,
-      );
-    } finally {
-      _busy = false;
-    }
+  }) {
+    return _guarded(() async {
+      final prepared = await prepare(languageCode: languageCode);
+      return _runPrepared(prepared, forceRefresh: forceRefresh);
+    });
+  }
+
+  /// Runs a prepared transaction under ITS snapshot — never a recaptured one.
+  Future<YildiznameLiveExecution> executePrepared(
+    YildiznamePreparedLiveExecution prepared, {
+    bool forceRefresh = false,
+  }) {
+    return _guarded(
+      () => _runPrepared(prepared, forceRefresh: forceRefresh),
+    );
   }
 
   Future<YildiznameLiveExecution> retryPersistence(
@@ -78,43 +93,52 @@ final class YildiznameLiveOrchestrator {
     }
   }
 
-  Future<YildiznameLiveExecution> _run({
-    required String languageCode,
+  Future<YildiznameLiveExecution> _guarded(
+    Future<YildiznameLiveExecution> Function() run,
+  ) async {
+    if (_busy) {
+      return YildiznameLiveExecution.failure(
+        YildiznameLiveExecutionKind.generationFailed,
+      );
+    }
+    _busy = true;
+    try {
+      return await run();
+    } finally {
+      _busy = false;
+    }
+  }
+
+  Future<YildiznameLiveExecution> _runPrepared(
+    YildiznamePreparedLiveExecution prepared, {
     required bool forceRefresh,
   }) async {
-    if (!_deps.flagEnabled()) return YildiznameLiveExecution.legacyLocal();
-    final expected = YildiznameLiveOwnerSnapshot.capture(_deps.storage);
-    if (!expected.isValid) {
-      return YildiznameLiveExecution.failure(
-        YildiznameLiveExecutionKind.ownerUnavailable,
-      );
+    final plan = prepared.plan;
+    switch (plan.kind) {
+      case YildiznameLivePlanKind.legacyLocal:
+        return YildiznameLiveExecution.legacyLocal();
+      case YildiznameLivePlanKind.ownerUnavailable:
+        return _fail(YildiznameLiveExecutionKind.ownerUnavailable);
+      case YildiznameLivePlanKind.invalidEvidence:
+        return _fail(YildiznameLiveExecutionKind.invalidEvidence);
+      case YildiznameLivePlanKind.narrativeReduced:
+      case YildiznameLivePlanKind.narrativeFull:
+        break;
     }
-    final planned = await _preflight.plan(
-      expected: expected,
-      languageCode: languageCode,
-    );
-    final plan = planned.plan;
-    if (plan.kind == YildiznameLivePlanKind.legacyLocal) {
-      return YildiznameLiveExecution.legacyLocal();
+    if (!prepared.ownerSnapshot.isValid) {
+      return _fail(YildiznameLiveExecutionKind.ownerUnavailable);
     }
-    if (plan.kind == YildiznameLivePlanKind.ownerUnavailable) {
-      return YildiznameLiveExecution.failure(
-        YildiznameLiveExecutionKind.ownerUnavailable,
-      );
-    }
-    if (plan.kind == YildiznameLivePlanKind.invalidEvidence) {
-      return YildiznameLiveExecution.failure(
-        YildiznameLiveExecutionKind.invalidEvidence,
-      );
-    }
-    if (!plan.isNarrativeEligible || plan.request == null) {
-      return YildiznameLiveExecution.legacyLocal();
+    if (plan.request == null) {
+      return _fail(YildiznameLiveExecutionKind.invalidEvidence);
     }
     return _generate.run(
-      expected: expected,
+      expected: prepared.ownerSnapshot,
       plan: plan,
-      languageCode: languageCode,
+      languageCode: prepared.languageCode,
       forceRefresh: forceRefresh,
     );
   }
+
+  static YildiznameLiveExecution _fail(YildiznameLiveExecutionKind kind) =>
+      YildiznameLiveExecution.failure(kind);
 }

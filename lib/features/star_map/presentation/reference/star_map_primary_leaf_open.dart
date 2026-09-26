@@ -8,7 +8,6 @@ import '../../../../core/l10n/l10n.dart';
 import '../../../../features/birth_chart/models/birth_profile.dart';
 import '../../models/star_map_reading.dart';
 import '../../narrative/live/yildizname_live_orchestrator_providers.dart';
-import '../../narrative/live/yildizname_live_plan.dart';
 import '../../narrative/live/yildizname_narrative_live_gate.dart';
 import 'star_map_narrative_live_screen.dart';
 
@@ -21,6 +20,8 @@ typedef StarMapLegacySkyOpener = void Function(
 abstract final class StarMapPrimaryLeafOpen {
   StarMapPrimaryLeafOpen._();
 
+  /// Only a prepared `legacyLocal` plan routes to the legacy sky leaf.
+  /// Typed preparation failures stay failures inside the Narrative host.
   static Future<void> open({
     required BuildContext context,
     required StarMapReading reading,
@@ -38,17 +39,17 @@ abstract final class StarMapPrimaryLeafOpen {
     try {
       final orch = ProviderScope.containerOf(context, listen: false)
           .read(yildiznameLiveOrchestratorProvider);
-      final plan = await orch.preflight(languageCode: OraclyL10n.depend(context));
+      final prepared =
+          await orch.prepare(languageCode: OraclyL10n.depend(context));
       if (!context.mounted) return;
-      if (plan.kind == YildiznameLivePlanKind.legacyLocal ||
-          !plan.isNarrativeEligible) {
+      if (prepared.isLegacy) {
         setNavigating(false);
         openLegacySky(context, reading, profile: profile);
         return;
       }
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => const StarMapNarrativeLiveScreen(),
+          builder: (_) => StarMapNarrativeLiveScreen(prepared: prepared),
         ),
       );
     } finally {

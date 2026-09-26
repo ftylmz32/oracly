@@ -52,28 +52,57 @@ class Phase8bFailingCompletion extends YildiznameNarrativeCompletionService {
   }
 }
 
+/// Counted fake generate — optionally fails the first [failFirst] calls.
+class Phase8bGen {
+  Phase8bGen({this.failFirst = 0});
+
+  final int failFirst;
+  int calls = 0;
+
+  Future<YildiznameNarrativeStructuredResult> call({
+    required YildiznameNarrativeRequest request,
+    bool forceRefresh = false,
+  }) async {
+    calls++;
+    if (calls <= failFirst) throw StateError('gen_fail');
+    return YildiznameResultParser.parse(phase8bApprovedPayload(request));
+  }
+}
+
 YildiznameLiveOrchestrator phase8bOrchestrator({
   required LocalStorage storage,
   required BirthChart? chart,
   bool flag = true,
+  bool Function()? flagReader,
   DateTime? now,
   YildiznameNarrativeCompletionService? completion,
   YildiznameNarrativeGenerate? generate,
   FakeYildiznameAi? ai,
   int Function()? providerCalls,
+  String? repoOwner,
+  void Function()? onLoadChart,
+  void Function()? onRepair,
+  BirthChart? Function()? chartReader,
 }) {
-  final owner = storage.getString(UserLocalDataIsolation.ownerKey);
+  final owner =
+      repoOwner ?? storage.getString(UserLocalDataIsolation.ownerKey);
   final repo = LocalYildiznameArtifactRepository(storage, ownerId: owner);
   final fake = ai;
   var calls = 0;
   return YildiznameLiveOrchestrator(
     YildiznameLiveOrchestratorDeps(
       storage: storage,
-      loadChart: () async => chart,
-      repairChart: (c) async => c,
+      loadChart: () async {
+        onLoadChart?.call();
+        return chartReader != null ? chartReader() : chart;
+      },
+      repairChart: (c) async {
+        onRepair?.call();
+        return c;
+      },
       artifacts: repo,
       completion: completion ?? YildiznameNarrativeCompletionService(repo),
-      flagEnabled: () => flag,
+      flagEnabled: flagReader ?? () => flag,
       nowUtc: () => now ?? DateTime.utc(2026, 9, 26, 12),
       narrativeAi: fake,
       liveService: fake == null

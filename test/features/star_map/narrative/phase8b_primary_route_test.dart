@@ -9,9 +9,11 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/birth_chart/astronomy/birth_timezone_database.dart';
 import 'package:oracly_new/features/star_map/models/star_map_reading.dart';
 import 'package:oracly_new/features/star_map/narrative/live/yildizname_live_orchestrator_providers.dart';
+import 'package:oracly_new/features/star_map/presentation/reference/star_map_error_state.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_narrative_live_screen.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_primary_leaf_open.dart';
 
+import 'phase8b1_route_support.dart';
 import 'phase8b_test_support.dart';
 
 const _reading = StarMapReading(
@@ -100,6 +102,25 @@ void main() {
     expect(legacy, 1);
     expect(navigating, isFalse);
     expect(find.byType(StarMapNarrativeLiveScreen), findsNothing);
+  });
+
+  testWidgets('8B.1 flag true + owner unavailable → host, never legacy',
+      (tester) async {
+    yildiznameNarrativeFlagOverride(true);
+    final storage = phase8bStorage(owner: '');
+    final gen = Phase8bGen();
+    final orch = phase8bOrchestrator(
+      storage: storage,
+      chart: phase8bE4(),
+      generate: gen.call,
+    );
+    final ctx = await phase8b1PumpHub(tester, storage: storage, orch: orch);
+    final nav = Phase8b1Nav()..tap(ctx);
+    await phase8b1Advance(tester);
+    expect(nav.legacy, 0);
+    expect(gen.calls, 0);
+    expect(find.byType(StarMapNarrativeLiveScreen), findsOneWidget);
+    expect(find.byType(StarMapErrorState), findsOneWidget);
   });
 
   testWidgets('double tap while navigating → single open', (tester) async {
