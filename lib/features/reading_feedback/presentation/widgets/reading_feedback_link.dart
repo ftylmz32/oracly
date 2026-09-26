@@ -27,20 +27,19 @@ class ReadingFeedbackLink extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Align(
       alignment: align,
-      child: Semantics(
-        button: true,
+      child: OraclyPressable(
         label: ReadingFeedbackCopy.action,
-        child: OraclyPressable(
-          onTap: () => ReadingFeedbackOpener.open(
-            context,
-            ref,
-            feature: feature,
-            retry: retry,
-          ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        onTap: () => ReadingFeedbackOpener.open(
+          context,
+          ref,
+          feature: feature,
+          retry: retry,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: ExcludeSemantics(
               child: Text(
                 ReadingFeedbackCopy.action,
                 style: ReadingTypography.footnote(

@@ -29,6 +29,7 @@ class StarMapResultClosing extends StatelessWidget {
         ),
         child: Semantics(
           container: true,
+          explicitChildNodes: true,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

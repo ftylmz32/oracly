@@ -26,8 +26,10 @@ class OraclyAppBarTitle extends StatelessWidget {
       return Semantics(
         header: true,
         label: title,
-        child: Center(
-          child: FittedBox(fit: BoxFit.scaleDown, child: custom),
+        child: ExcludeSemantics(
+          child: Center(
+            child: FittedBox(fit: BoxFit.scaleDown, child: custom),
+          ),
         ),
       );
     }

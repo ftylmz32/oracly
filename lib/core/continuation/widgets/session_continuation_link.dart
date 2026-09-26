@@ -44,20 +44,19 @@ class SessionContinuationLink extends ConsumerWidget {
     if (item == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.s8, bottom: AppSpacing.s8),
-      child: Semantics(
-        button: true,
+      child: OraclyPressable(
         label: item.line,
-        child: OraclyPressable(
-          onTap: () => SessionContinuationOpener.open(
-            context,
-            item,
-            storage: ref.read(localStorageProvider),
-            oracleContext: oracleContext,
-          ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Align(
-              alignment: Alignment.center,
+        onTap: () => SessionContinuationOpener.open(
+          context,
+          item,
+          storage: ref.read(localStorageProvider),
+          oracleContext: oracleContext,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Align(
+            alignment: Alignment.center,
+            child: ExcludeSemantics(
               child: Text(
                 item.line,
                 textAlign: TextAlign.center,

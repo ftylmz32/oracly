@@ -33,17 +33,16 @@ class SaveFavoriteMomentLink extends ConsumerWidget {
       alignment: align,
       widthFactor: 1,
       heightFactor: 1,
-      child: Semantics(
-        button: true,
+      child: OraclyPressable(
         label: label,
-        child: OraclyPressable(
-          onTap: saved
-              ? () => _unsave(context, ref)
-              : () => _save(context, ref),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        onTap: saved
+            ? () => _unsave(context, ref)
+            : () => _save(context, ref),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: ExcludeSemantics(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

@@ -32,6 +32,7 @@ class StarMapContinuityEcho extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
             child: Semantics(
               container: true,
+              explicitChildNodes: true,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

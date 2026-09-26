@@ -27,15 +27,14 @@ class ReadingPositiveLink extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Align(
       alignment: align,
-      child: Semantics(
-        button: true,
+      child: OraclyPressable(
         label: ReadingFeedbackCopy.positive,
-        child: OraclyPressable(
-          onTap: () => _send(context, ref),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        onTap: () => _send(context, ref),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: ExcludeSemantics(
               child: Text(
                 ReadingFeedbackCopy.positive,
                 style: ReadingTypography.footnote(

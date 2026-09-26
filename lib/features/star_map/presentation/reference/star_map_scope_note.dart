@@ -22,6 +22,7 @@ class StarMapScopeNote extends StatelessWidget {
       padding: EdgeInsets.only(bottom: AppSpacing.md),
       child: Semantics(
         container: true,
+        explicitChildNodes: true,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,

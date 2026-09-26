@@ -116,13 +116,15 @@ class _OraclyGoldButtonState extends State<OraclyGoldButton> {
                 const SizedBox(width: 8),
               ],
               Flexible(
-                child: Text(
-                  widget.label,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: OraclyChrome.ctaLabel(size: 15).copyWith(
-                    color: OraclyChrome.midnight,
+                child: ExcludeSemantics(
+                  child: Text(
+                    widget.label,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: OraclyChrome.ctaLabel(size: 15).copyWith(
+                      color: OraclyChrome.midnight,
+                    ),
                   ),
                 ),
               ),

@@ -22,13 +22,12 @@ class DiscoveryShareAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Center(
-      child: Semantics(
-        button: true,
+      child: OraclyPressable(
         label: DiscoveryShareCopy.share,
-        child: OraclyPressable(
-          onTap: () => invokeDiscoveryShare(context, discovery),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+        onTap: () => invokeDiscoveryShare(context, discovery),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+          child: ExcludeSemantics(
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
