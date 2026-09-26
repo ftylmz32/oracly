@@ -29,7 +29,8 @@ class ChamberReadingLane extends StatelessWidget {
     if (body.trim().isEmpty) return const SizedBox.shrink();
     assert(maxLines == null || maxLines! > 0);
     return OraclySoftReveal(
-      delay: Duration(milliseconds: 70 + index * 40),
+      // Cap stagger so many chapters do not wait seconds to appear.
+      delay: Duration(milliseconds: 70 + (index.clamp(0, 3) * 40)),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -27,12 +27,15 @@ class ChamberStoryPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: ReadingTypography.sectionLabel(
-              color: OraclyChrome.goldPrimary.withValues(alpha: 0.96),
-              fontSize: 13,
+          Semantics(
+            header: true,
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: ReadingTypography.sectionLabel(
+                color: OraclyChrome.goldPrimary.withValues(alpha: 0.96),
+                fontSize: 13,
+              ),
             ),
           ),
           if (subtitle != null && subtitle!.trim().isNotEmpty) ...[

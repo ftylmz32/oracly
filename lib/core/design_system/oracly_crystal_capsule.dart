@@ -70,7 +70,9 @@ class OraclyCrystalCapsule extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 72),
+                  // Keep capsule ≤ header side slot so OraclyAppBar FittedBox
+                  // does not scale the interactive hit region below 44×44.
+                  constraints: const BoxConstraints(maxWidth: 44),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,

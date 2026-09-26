@@ -350,6 +350,7 @@ class _Deeper extends StatelessWidget {
                           TextSpan(text: ' — ${a.type}', style: muted),
                         ],
                       ),
+                      softWrap: true,
                     ),
                   ),
                 ),

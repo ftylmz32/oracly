@@ -103,6 +103,24 @@ Future<void> yildiznamePhase7eGoldenExpect(
   );
 }
 
+const yildiznamePhase7fGoldenDir = 'test/goldens/yildizname/phase7f';
+
+String yildiznamePhase7fGoldenPath(String name) =>
+    '../../goldens/yildizname/phase7f/$name.png';
+
+Future<void> yildiznamePhase7fGoldenExpect(
+  WidgetTester tester,
+  GlobalKey key,
+  String name,
+) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+  await expectLater(
+    find.byKey(key),
+    matchesGoldenFile(yildiznamePhase7fGoldenPath(name)),
+  );
+}
+
 Future<void> yildiznameGoldenExpect(
   WidgetTester tester,
   GlobalKey key,

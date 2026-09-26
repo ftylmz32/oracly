@@ -57,10 +57,13 @@ class _ReadingExpandSectionState extends State<ReadingExpandSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if ((widget.title ?? '').trim().isNotEmpty) ...[
-            Text(
-              widget.title!.trim(),
-              style: ReadingTypography.sectionLabel(
-                color: OraclyChrome.goldLight.withValues(alpha: 0.90),
+            Semantics(
+              header: true,
+              child: Text(
+                widget.title!.trim(),
+                style: ReadingTypography.sectionLabel(
+                  color: OraclyChrome.goldLight.withValues(alpha: 0.90),
+                ),
               ),
             ),
             SizedBox(height: CraftsmanshipRhythm.afterTitle + AppSpacing.xs),
@@ -112,14 +115,17 @@ class _Continue extends StatelessWidget {
   Widget build(BuildContext context) {
     return OraclyPressable(
       onTap: onTap,
+      label: ReadingUxCopy.continueReading,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 44),
+        constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Text(
-            ReadingUxCopy.continueReading,
-            style: ReadingTypography.footnote(
-              color: OraclyChrome.goldLight.withValues(alpha: 0.88),
+          child: ExcludeSemantics(
+            child: Text(
+              ReadingUxCopy.continueReading,
+              style: ReadingTypography.footnote(
+                color: OraclyChrome.goldLight.withValues(alpha: 0.88),
+              ),
             ),
           ),
         ),
