@@ -83,6 +83,7 @@ YildiznameLiveOrchestrator phase8bOrchestrator({
   void Function()? onLoadChart,
   void Function()? onRepair,
   BirthChart? Function()? chartReader,
+  void Function()? onPersisted,
 }) {
   final owner =
       repoOwner ?? storage.getString(UserLocalDataIsolation.ownerKey);
@@ -120,6 +121,7 @@ YildiznameLiveOrchestrator phase8bOrchestrator({
       readProviderCallCount: providerCalls ??
           () => fake?.calls.length ?? calls,
       personalDiscoveryLabels: () async => const [],
+      onArtifactPersisted: onPersisted,
     ),
   );
 }

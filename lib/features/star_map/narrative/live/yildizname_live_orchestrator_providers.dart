@@ -44,9 +44,17 @@ final yildiznameLiveOrchestratorProvider =
           return const <String>[];
         }
       },
+      onArtifactPersisted: yildiznameArtifactPersistedHook(ref),
     ),
   );
 });
+
+/// Canonical artifact-history refresh after a verified durable save.
+/// Goes through the container so a rebuilt orchestrator `ref` cannot block it.
+YildiznameArtifactPersisted yildiznameArtifactPersistedHook(Ref ref) {
+  final container = ref.container;
+  return () => container.invalidate(yildiznameArtifactHistoryProvider);
+}
 
 /// Test helper — force remote-style flag value without changing defaults map.
 void yildiznameNarrativeFlagOverride(bool enabled) {

@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
 import '../../../../core/l10n/l10n.dart';
-import '../../artifacts/yildizname_artifact_providers.dart';
 import '../../narrative/live/yildizname_live_error_copy.dart';
 import '../../narrative/live/yildizname_live_execution.dart';
 import '../../narrative/live/yildizname_live_orchestrator_providers.dart';
@@ -18,6 +17,8 @@ import 'star_map_reference_result_screen.dart';
 
 enum _Phase { loading, error, ready }
 
+/// Leaving the route abandons the UI, not an already-started provider call:
+/// that transaction may still persist, but this host never reacts to it.
 class StarMapNarrativeLiveScreen extends ConsumerStatefulWidget {
   const StarMapNarrativeLiveScreen({super.key, this.prepared});
 
@@ -36,8 +37,13 @@ class _StarMapNarrativeLiveScreenState
   YildiznamePendingNarrativeCompletion? _pending;
   YildiznameResultPresentation? _presentation;
   YildiznamePreparedLiveExecution? _initial;
+  ModalRoute<Object?>? _route;
   bool _loggedCompletion = false;
   bool _running = false;
+
+  /// False once disposed or once the hosting route has been popped (the
+  /// State stays mounted through the exit transition).
+  bool get _live => mounted && (_route?.isActive ?? true);
 
   @override
   void initState() {
@@ -46,7 +52,14 @@ class _StarMapNarrativeLiveScreenState
     WidgetsBinding.instance.addPostFrameCallback((_) => _runFresh());
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+  }
+
   Future<void> _runFresh() async {
+    if (!_live) return;
     setState(() {
       _phase = _Phase.loading;
       _errorKind = null;
@@ -59,12 +72,12 @@ class _StarMapNarrativeLiveScreenState
     final exec = prepared != null
         ? await orch.executePrepared(prepared)
         : await orch.execute(languageCode: OraclyL10n.depend(context));
-    if (!mounted) return;
+    if (!_live) return;
     _apply(exec);
   }
 
   Future<void> _onRetry() async {
-    if (_running) return;
+    if (_running || !_live) return;
     _running = true;
     try {
       final pending = _pending;
@@ -72,7 +85,7 @@ class _StarMapNarrativeLiveScreenState
         setState(() => _phase = _Phase.loading);
         final orch = ref.read(yildiznameLiveOrchestratorProvider);
         final exec = await orch.retryPersistence(pending);
-        if (!mounted) return;
+        if (!_live) return;
         _apply(exec);
         return;
       }
@@ -84,7 +97,6 @@ class _StarMapNarrativeLiveScreenState
 
   void _apply(YildiznameLiveExecution exec) {
     if (exec.isReady && exec.presentation != null) {
-      ref.invalidate(yildiznameArtifactHistoryProvider);
       if (!_loggedCompletion) {
         _loggedCompletion = true;
         ref.read(analyticsServiceProvider).logStarMapCompleted();

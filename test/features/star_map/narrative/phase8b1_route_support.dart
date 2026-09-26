@@ -42,8 +42,10 @@ class Phase8b1Nav {
   bool navigating = false;
   int legacy = 0;
   Future<void>? route;
+  bool routeDone = false;
 
   void tap(BuildContext context) {
+    routeDone = false;
     route = StarMapPrimaryLeafOpen.open(
       context: context,
       reading: phase8b1Reading,
@@ -51,7 +53,7 @@ class Phase8b1Nav {
       setNavigating: (v) => navigating = v,
       openLegacySky: (_, _, {profile}) => legacy++,
     );
-    unawaited(route);
+    unawaited(route!.whenComplete(() => routeDone = true));
   }
 }
 

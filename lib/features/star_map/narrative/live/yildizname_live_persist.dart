@@ -67,6 +67,10 @@ final class YildiznameLivePersist {
       );
     }
 
+    try {
+      _deps.onArtifactPersisted?.call();
+    } catch (_) {}
+
     List<YildiznameArtifact> history = const [];
     try {
       history = await _deps.artifacts.getAll();

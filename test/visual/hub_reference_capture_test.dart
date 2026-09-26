@@ -23,30 +23,44 @@ import 'package:oracly_new/features/coffee/services/coffee_analysis_port.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Tracked captures under `design/runtime/` are refreshed only on request
+/// (`ORACLY_WRITE_RUNTIME_CAPTURES=1`); routine test runs write to temp.
+Directory _captureDir() {
+  if (Platform.environment['ORACLY_WRITE_RUNTIME_CAPTURES'] == '1') {
+    return Directory('design/runtime');
+  }
+  return Directory(
+    '${Directory.systemTemp.path}${Platform.pathSeparator}oracly_runtime',
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('capture hub runtimes at 390x844', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
-    final dir = Directory('design/runtime');
+    final dir = _captureDir();
     if (!dir.existsSync()) dir.createSync(recursive: true);
 
     await _shot(
       tester,
       storage,
+      dir,
       'coffee_runtime',
       const CoffeeReferenceScreen(),
     );
     await _shot(
       tester,
       storage,
+      dir,
       'astrology_runtime',
       const AstrologyReferenceScreen(),
     );
     await _shot(
       tester,
       storage,
+      dir,
       'yildizname_runtime',
       const StarMapReferenceScreen(),
     );
@@ -56,6 +70,7 @@ void main() {
 Future<void> _shot(
   WidgetTester tester,
   LocalStorage storage,
+  Directory dir,
   String name,
   Widget home,
 ) async {
@@ -105,7 +120,7 @@ Future<void> _shot(
         key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final image = await boundary.toImage(pixelRatio: 2);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    File('design/runtime/$name.png')
+    File('${dir.path}${Platform.pathSeparator}$name.png')
         .writeAsBytesSync(bytes!.buffer.asUint8List());
   });
 }

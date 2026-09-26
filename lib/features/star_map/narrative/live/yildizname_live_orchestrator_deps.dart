@@ -15,6 +15,7 @@ typedef YildiznameFlagReader = bool Function();
 typedef YildiznamePersonalDiscoveryLabels = Future<List<String>> Function();
 typedef YildiznameChartLoader = Future<BirthChart?> Function();
 typedef YildiznameChartRepair = Future<BirthChart> Function(BirthChart chart);
+typedef YildiznameArtifactPersisted = void Function();
 typedef YildiznameNarrativeGenerate = Future<YildiznameNarrativeStructuredResult>
     Function({
   required YildiznameNarrativeRequest request,
@@ -34,6 +35,7 @@ final class YildiznameLiveOrchestratorDeps {
     this.liveService,
     this.generateOverride,
     this.personalDiscoveryLabels,
+    this.onArtifactPersisted,
     this.readProviderCallCount = _zero,
   });
 
@@ -48,6 +50,10 @@ final class YildiznameLiveOrchestratorDeps {
   final YildiznameNarrativeLiveService? liveService;
   final YildiznameNarrativeGenerate? generateOverride;
   final YildiznamePersonalDiscoveryLabels? personalDiscoveryLabels;
+
+  /// Fires only after a durable save passed the post-save owner/epoch check,
+  /// whether or not any screen is still showing the transaction.
+  final YildiznameArtifactPersisted? onArtifactPersisted;
   final int Function() readProviderCallCount;
 
   static int _zero() => 0;
