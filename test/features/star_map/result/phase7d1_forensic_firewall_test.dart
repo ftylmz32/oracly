@@ -38,6 +38,9 @@ void main() {
       final text = f.readAsStringSync();
       if (!text.contains('forensicFlatSections: true')) continue;
       if (path.endsWith('yildizname_result_presentation.dart')) continue;
+      if (path.endsWith('yildizname_result_presentation_forensic.dart')) {
+        continue;
+      }
       hits.add(path);
     }
     expect(hits, isEmpty, reason: 'forensic true set outside presentation: $hits');
@@ -54,6 +57,9 @@ void main() {
       if (!text.contains('forensicLegacyActionOrder: true')) continue;
       if (path.endsWith('yildizname_result_presentation.dart')) continue;
       if (path.endsWith('yildizname_result_presentation_build.dart')) continue;
+      if (path.endsWith('yildizname_result_presentation_forensic.dart')) {
+        continue;
+      }
       hits.add(path);
     }
     expect(hits, isEmpty, reason: 'forensic action order set outside: $hits');

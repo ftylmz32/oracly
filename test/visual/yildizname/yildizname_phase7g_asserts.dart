@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/favorite_moments/copy/favorite_moments_copy.dart';
 import 'package:oracly_new/features/favorite_moments/presentation/widgets/save_favorite_moment_link.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_fact_snapshot_plate.dart';
+import 'package:oracly_new/features/star_map/presentation/reference/star_map_historical_status.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_result_screen.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_scope_note.dart';
 
@@ -31,9 +32,14 @@ void phase7gAssertNarrativeSurface(
   WidgetTester tester, {
   required bool expectFacts,
   required bool expectFavorite,
+  required bool expectHistorical,
 }) {
   expect(find.byType(StarMapReferenceResultScreen), findsOneWidget);
   expect(find.byType(StarMapScopeNote), findsOneWidget);
+  expect(
+    find.byType(StarMapHistoricalStatus),
+    expectHistorical ? findsOneWidget : findsNothing,
+  );
   if (expectFacts) {
     expect(find.byType(StarMapFactSnapshotPlate), findsOneWidget);
   }

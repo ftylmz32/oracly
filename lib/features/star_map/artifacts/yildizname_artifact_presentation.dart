@@ -23,6 +23,8 @@ import 'yildizname_artifact_source.dart';
 import 'yildizname_legacy_payload.dart';
 import 'yildizname_narrative_payload.dart';
 
+export '../result/yildizname_result_presentation.dart';
+
 abstract final class YildiznameArtifactPresentation {
   YildiznameArtifactPresentation._();
 

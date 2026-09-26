@@ -9,15 +9,19 @@ import '../models/star_map_reading.dart';
 import '../presentation/reference/star_map_result_section.dart';
 import 'yildizname_continuity_presentation.dart';
 import 'yildizname_fact_snapshot.dart';
+import 'yildizname_historical_status.dart';
 import 'yildizname_result_actions.dart';
 import 'yildizname_result_actions_builder.dart';
 import 'yildizname_result_presentation_build.dart';
 import 'yildizname_result_types.dart';
 import 'yildizname_scope_disclosure.dart';
 
+export 'yildizname_historical_status.dart';
 export 'yildizname_scope_disclosure.dart';
 
 part 'yildizname_result_presentation_eq.dart';
+part 'yildizname_result_presentation_copy.dart';
+part 'yildizname_result_presentation_forensic.dart';
 
 @immutable
 final class YildiznameResultPresentation {
@@ -35,6 +39,7 @@ final class YildiznameResultPresentation {
     this.continuity = YildiznameContinuityPresentation.empty,
     this.forensicFlatSections = false,
     this.forensicLegacyActionOrder = false,
+    this.forensicHideHistoricalStatus = false,
     YildiznameResultActions? actions,
   }) : actions = actions ?? YildiznameResultActions.empty;
 
@@ -86,67 +91,23 @@ final class YildiznameResultPresentation {
 
   /// Test-only: pre-7E footer order for frozen 7A–7C goldens.
   final bool forensicLegacyActionOrder;
+
+  /// Test-only: hide historical chrome so frozen 7A–7F goldens stay byte-stable.
+  @visibleForTesting
+  final bool forensicHideHistoricalStatus;
   final YildiznameResultActions actions;
+
   bool get isHistoricalArtifact => source.isArtifact;
 
-  YildiznameResultPresentation withoutFactSnapshot() => _copy(
-        factSnapshot: YildiznameFactSnapshot.empty,
-      );
-
-  YildiznameResultPresentation withoutRoleHierarchy() => _copy(
-        continuity: YildiznameContinuityPresentation.empty,
-        forensicFlatSections: true,
-        forensicLegacyActionOrder: true,
-      );
-
-  /// Freeze pre-7E footer order without flattening body chrome.
-  YildiznameResultPresentation withForensicActionOrder() => _copy(
-        forensicLegacyActionOrder: true,
-      );
-
-  YildiznameResultPresentation withContinuity(
-    YildiznameContinuityPresentation value,
-  ) =>
-      _copy(continuity: value);
-
-  YildiznameResultPresentation withActions(YildiznameResultActions value) =>
-      _copy(actions: value);
-
-  /// Attach actions derived from this presentation (+ optional OR context).
-  YildiznameResultPresentation withBuiltActions({
-    OracleReadingContext? orContext,
-  }) =>
-      withActions(
-        YildiznameResultActionsBuilder.build(
-          presentation: this,
-          orContext: orContext,
-        ),
-      );
-
-  YildiznameResultPresentation _copy({
-    YildiznameFactSnapshot? factSnapshot,
-    YildiznameContinuityPresentation? continuity,
-    bool? forensicFlatSections,
-    bool? forensicLegacyActionOrder,
-    YildiznameResultActions? actions,
-  }) =>
-      YildiznameResultPresentation(
-        source: source,
-        scope: scope,
-        title: title,
-        sections: sections,
-        planets: planets,
-        scopeDisclosure: scopeDisclosure,
-        artifactId: artifactId,
-        createdAtUtc: createdAtUtc,
-        chromeLanguage: chromeLanguage,
-        factSnapshot: factSnapshot ?? this.factSnapshot,
-        continuity: continuity ?? this.continuity,
-        forensicFlatSections: forensicFlatSections ?? this.forensicFlatSections,
-        forensicLegacyActionOrder:
-            forensicLegacyActionOrder ?? this.forensicLegacyActionOrder,
-        actions: actions ?? this.actions,
-      );
+  /// Display-ready historical reopen chrome — null for live / fail-closed.
+  YildiznameHistoricalStatus? get historicalStatus {
+    if (forensicHideHistoricalStatus) return null;
+    return YildiznameHistoricalStatus.tryOf(
+      source: source,
+      createdAtUtc: createdAtUtc,
+      languageCode: chromeLanguage,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>

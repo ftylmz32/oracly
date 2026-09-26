@@ -296,7 +296,10 @@ Future<GlobalKey> yildiznameGoldenPumpPresentation(
     textScale: textScale,
     storage: storage,
     captureKey: key,
-    child: StarMapReferenceResultScreen(presentation: presentation),
+    child: StarMapReferenceResultScreen(
+      // Frozen 7B–7F goldens predate historical reopen chrome.
+      presentation: presentation.withForensicHideHistoricalStatus(),
+    ),
   );
   return key;
 }

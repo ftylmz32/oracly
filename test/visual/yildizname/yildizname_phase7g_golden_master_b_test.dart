@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/favorite_moments/presentation/widgets/save_favorite_moment_link.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_continuity_echo.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_fact_snapshot_plate.dart';
+import 'package:oracly_new/features/star_map/presentation/reference/star_map_historical_status.dart';
 
 import 'yildizname_phase7g_capture.dart';
 import 'yildizname_phase7g_fixtures.dart';
@@ -33,6 +34,7 @@ void main() {
           tester,
           expectFacts: true,
           expectFavorite: true,
+          expectHistorical: true,
         );
       },
     );
@@ -51,6 +53,7 @@ void main() {
       ),
       assertAfter: () {
         expect(find.byType(StarMapFactSnapshotPlate), findsOneWidget);
+        expect(find.byType(StarMapHistoricalStatus), findsOneWidget);
         phase7gAssertNoRawIds(tester);
       },
     );
@@ -71,6 +74,7 @@ void main() {
       ),
       assertAfter: () {
         expect(find.byType(StarMapContinuityEcho), findsOneWidget);
+        expect(find.byType(StarMapHistoricalStatus), findsOneWidget);
         phase7gAssertNoRawIds(tester);
       },
     );
@@ -91,6 +95,7 @@ void main() {
           tester,
           expectFacts: true,
           expectFavorite: true,
+          expectHistorical: false,
         );
       },
     );
@@ -108,6 +113,7 @@ void main() {
       ),
       assertAfter: () {
         expect(find.byType(SaveFavoriteMomentLink), findsOneWidget);
+        expect(find.byType(StarMapHistoricalStatus), findsOneWidget);
         phase7gAssertNoRawIds(tester);
       },
     );

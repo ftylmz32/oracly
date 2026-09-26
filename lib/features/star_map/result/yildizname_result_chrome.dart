@@ -71,6 +71,10 @@ abstract final class YildiznameResultChrome {
   static String scopeKicker([String? languageCode]) =>
       _t('star.result.scope.kicker', language(languageCode));
 
+  /// Artifact reopen provenance label — never used for live readings.
+  static String historicalLabel([String? languageCode]) =>
+      _t('star.result.historical.label', language(languageCode));
+
   /// Continuity archive heading — chrome only.
   static String continuityHeading([String? languageCode]) =>
       _t('star.result.continuity.heading', language(languageCode));

@@ -76,6 +76,11 @@ const kL10nStarResult = <String, L10nTriple>{
     'What this reading rests on',
     'На чём основано это толкование',
   ),
+  'star.result.historical.label': L10nTriple(
+    'Kayıtlı yorum',
+    'Saved reading',
+    'Сохранённое толкование',
+  ),
   'star.result.continuity.heading': L10nTriple(
     'Arşiv yankısı',
     'Archive echo',

@@ -8,6 +8,7 @@ import 'package:oracly_new/features/favorite_moments/presentation/widgets/save_f
 import 'package:oracly_new/features/star_map/narrative/request/yildizname_narrative_scope.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_continuity_echo.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_fact_snapshot_plate.dart';
+import 'package:oracly_new/features/star_map/presentation/reference/star_map_historical_status.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_result_screen.dart';
 
 import 'yildizname_phase7g_capture.dart';
@@ -50,6 +51,7 @@ void main() {
       assertAfter: () {
         expect(find.byType(OrAskButton), findsOneWidget);
         expect(find.byType(SaveFavoriteMomentLink), findsOneWidget);
+        expect(find.byType(StarMapHistoricalStatus), findsNothing);
         expect(find.byType(StarMapFactSnapshotPlate), findsNothing);
         expect(find.text(FavoriteMomentsCopy.sourceUnavailable), findsNothing);
         phase7gAssertNoRawIds(tester);
@@ -68,6 +70,7 @@ void main() {
       assertAfter: () {
         expect(find.byType(OrAskButton), findsOneWidget);
         expect(find.byType(SaveFavoriteMomentLink), findsNothing);
+        expect(find.byType(StarMapHistoricalStatus), findsNothing);
         expect(find.text(FavoriteMomentsCopy.sourceUnavailable), findsNothing);
       },
     );
@@ -85,6 +88,7 @@ void main() {
       assertAfter: () {
         expect(find.byType(StarMapReferenceResultScreen), findsOneWidget);
         expect(find.byType(SaveFavoriteMomentLink), findsOneWidget);
+        expect(find.byType(StarMapHistoricalStatus), findsOneWidget);
         phase7gAssertNoRawIds(tester);
       },
     );
@@ -109,6 +113,7 @@ void main() {
           tester,
           expectFacts: true,
           expectFavorite: true,
+          expectHistorical: true,
         );
       },
     );

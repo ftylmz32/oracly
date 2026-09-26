@@ -105,6 +105,15 @@ Future<GlobalKey> phase7gPumpPresentation(
     expect(echo, findsOneWidget);
     await tester.ensureVisible(echo);
     await tester.pumpAndSettle();
+    // Return to top so historical provenance stays in the frozen viewport.
+    final scrollable = find.byType(Scrollable);
+    if (scrollable.evaluate().isNotEmpty) {
+      tester
+          .state<ScrollableState>(scrollable.first)
+          .position
+          .jumpTo(0);
+      await tester.pumpAndSettle();
+    }
   }
   return key;
 }

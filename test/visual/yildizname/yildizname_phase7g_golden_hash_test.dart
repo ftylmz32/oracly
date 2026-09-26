@@ -1,4 +1,4 @@
-/// Phase 7G — SHA-256 inventory + negative control (test-only).
+/// Phase 7G — SHA-256 inventory with exact filename→hash binding.
 library;
 
 import 'dart:io';
@@ -8,9 +8,14 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'yildizname_golden_harness.dart';
+import 'yildizname_phase7g_manifest.dart';
 import 'yildizname_phase7g_names.dart';
 
 void main() {
+  final manifestFile = File(
+    'docs/product/yildizname/YILDIZNAME_PHASE7G_GOLDEN_MANIFEST.md',
+  );
+
   test('A every declared Phase 7G PNG exists', () {
     for (final name in yildiznamePhase7gGoldenMasterNames) {
       final path = '$yildiznamePhase7gGoldenDir/$name.png';
@@ -32,27 +37,35 @@ void main() {
     expect(pngs, expected);
   });
 
-  test('C each PNG SHA-256 exists in Phase 7G manifest', () {
-    final manifest = File(
-      'docs/product/yildizname/YILDIZNAME_PHASE7G_GOLDEN_MANIFEST.md',
+  test('C/D exact filename→SHA-256 binding for all 17 masters', () {
+    expect(manifestFile.existsSync(), isTrue);
+    final map = yildiznamePhase7gParseManifestHashes(
+      manifestFile.readAsStringSync(),
     );
-    expect(manifest.existsSync(), isTrue);
-    final text = manifest.readAsStringSync();
+    expect(map.length, 17);
+    expect(
+      map.keys.toSet(),
+      yildiznamePhase7gGoldenMasterNames.map((n) => '$n.png').toSet(),
+    );
     for (final name in yildiznamePhase7gGoldenMasterNames) {
-      final path = '$yildiznamePhase7gGoldenDir/$name.png';
-      final hash = yildiznameGoldenSha256(path);
+      final file = '$name.png';
+      final actual =
+          yildiznameGoldenSha256('$yildiznamePhase7gGoldenDir/$file');
       expect(
-        text.contains(hash),
+        map[file],
+        actual,
+        reason: '$file manifest hash must equal file bytes',
+      );
+      expect(
+        RegExp(r'^[0-9a-f]{64}$').hasMatch(actual),
         isTrue,
-        reason: '$name.png hash $hash missing from manifest',
+        reason: '$file hash not full 64-hex',
       );
     }
   });
 
   test('D manifest declares correct PNG/hash count', () {
-    final text = File(
-      'docs/product/yildizname/YILDIZNAME_PHASE7G_GOLDEN_MANIFEST.md',
-    ).readAsStringSync();
+    final text = manifestFile.readAsStringSync();
     expect(text.contains('**PNG count:** 17'), isTrue);
     expect(text.contains('**Hash count:** 17'), isTrue);
     expect(yildiznamePhase7gGoldenMasterNames, hasLength(17));
@@ -76,10 +89,30 @@ void main() {
     final bad = sha256.convert(flipped).toString();
     final good = yildiznameGoldenSha256(path);
     expect(bad, isNot(good));
-    final manifest = File(
-      'docs/product/yildizname/YILDIZNAME_PHASE7G_GOLDEN_MANIFEST.md',
-    ).readAsStringSync();
-    expect(manifest.contains(bad), isFalse);
-    expect(manifest.contains(good), isTrue);
+    final map = yildiznamePhase7gParseManifestHashes(
+      manifestFile.readAsStringSync(),
+    );
+    expect(map.values.contains(bad), isFalse);
+    expect(map.values.contains(good), isTrue);
+  });
+
+  test('swapped filename hashes rejected by exact binding', () {
+    final map = yildiznamePhase7gParseManifestHashes(
+      manifestFile.readAsStringSync(),
+    );
+    final a = 'final_hub_empty_390.png';
+    final b = 'final_hub_with_birth_390.png';
+    final swapped = Map<String, String>.from(map);
+    final tmp = swapped[a]!;
+    swapped[a] = swapped[b]!;
+    swapped[b] = tmp;
+    expect(swapped[a], isNot(map[a]));
+    final actualA =
+        yildiznameGoldenSha256('$yildiznamePhase7gGoldenDir/$a');
+    expect(
+      swapped[a] == actualA,
+      isFalse,
+      reason: 'swapped hub empty hash must not equal actual file',
+    );
   });
 }

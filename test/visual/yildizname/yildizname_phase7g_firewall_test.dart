@@ -18,13 +18,16 @@ void main() {
       'test/visual/yildizname/yildizname_phase7g_pump.dart',
       'test/visual/yildizname/yildizname_phase7g_names.dart',
       'test/visual/yildizname/yildizname_phase7g_golden_hash_test.dart',
+      'test/visual/yildizname/yildizname_phase7g_manifest.dart',
     ];
     const forbidden = [
       '.unscoped',
       '.withoutRoleHierarchy',
       '.withForensicActionOrder',
+      '.withForensicHideHistoricalStatus',
       'forensicFlatSections',
       'forensicLegacyActionOrder',
+      'forensicHideHistoricalStatus',
       'withoutFactSnapshot',
     ];
     for (final path in files) {

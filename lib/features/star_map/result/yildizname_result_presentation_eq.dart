@@ -16,6 +16,7 @@ bool _presentationEquals(
       a.continuity != b.continuity ||
       a.forensicFlatSections != b.forensicFlatSections ||
       a.forensicLegacyActionOrder != b.forensicLegacyActionOrder ||
+      a.forensicHideHistoricalStatus != b.forensicHideHistoricalStatus ||
       a.actions != b.actions ||
       !listEquals(a.sections, b.sections) ||
       a.planets.length != b.planets.length) {
@@ -46,6 +47,7 @@ int _presentationHash(YildiznameResultPresentation p) => Object.hash(
   p.continuity,
   p.forensicFlatSections,
   p.forensicLegacyActionOrder,
+  p.forensicHideHistoricalStatus,
   p.actions,
   Object.hashAll(p.sections),
   p.planets.length,

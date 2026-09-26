@@ -7,6 +7,7 @@ import '../../result/yildizname_result_presentation.dart';
 import '../../result/yildizname_result_types.dart';
 import 'star_map_continuity_echo.dart';
 import 'star_map_fact_snapshot_plate.dart';
+import 'star_map_historical_status.dart';
 import 'star_map_reference_planet_card.dart';
 import 'star_map_result_body_forensic.dart';
 import 'star_map_result_footer.dart';
@@ -46,6 +47,10 @@ abstract final class StarMapResultBodyChildren {
       shown = true;
     }
 
+    final historical = presentation.historicalStatus;
+    if (historical != null) {
+      out.add(StarMapHistoricalStatus(status: historical));
+    }
     final disclosure = presentation.scopeDisclosure;
     if (disclosure != null) out.add(StarMapScopeNote(disclosure: disclosure));
     if (presentation.factSnapshot.isNotEmpty) {

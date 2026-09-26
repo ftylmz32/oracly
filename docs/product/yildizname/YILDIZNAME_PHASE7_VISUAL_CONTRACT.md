@@ -170,3 +170,12 @@ Yıldızname remains free. No premium badge / gem cost / purchase CTA on feature
 The conceptual LEGACY row above (“Doğum tarihine göre sembolik yorum”) named a birth-date basis the legacy runtime cannot always prove.
 Phase 7B.1 supersedes it with generic, evidence-safe copy that names no birth date, Sun sign, birth time, birth place or natal precision.
 See `YILDIZNAME_PHASE7B_PRESENTATION_MODEL.md` (Phase 7B.1). Every other row is unchanged.
+
+---
+
+## Update — Phase 7G.1 (historical artifact state)
+
+Phase 7A B4 (“No artifact ‘Kayıtlı yorum’ status chrome”) is closed without rewriting the forensic baseline.
+Canonical body order now renders source-based historical provenance above scope for `legacyArtifact` / `narrativeArtifact` only (`YildiznameHistoricalStatus` + `StarMapHistoricalStatus`).
+Live sources never show it — even when durable `artifactId` / `createdAtUtc` exist.
+See `YILDIZNAME_PHASE7G1_HISTORICAL_STATE.md`.
