@@ -35,7 +35,7 @@ abstract final class OpenAiPaidRequests {
         'emotions': context.emotions,
         if (context.memorySummary?.trim().isNotEmpty == true)
           'memorySummary': PromptSanitizer.sanitize(context.memorySummary!),
-        ..._language,
+        'language': AppLocale.normalize(context.language ?? OraclyL10n.code),
       },
     );
   }

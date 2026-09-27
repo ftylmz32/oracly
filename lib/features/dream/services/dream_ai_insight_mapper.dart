@@ -1,4 +1,4 @@
-/// Maps validated dream AI onto the five grounded beats.
+/// Maps provider dream AI onto grounded beats with per-section provenance.
 library;
 
 import '../../ai/production/models/dream_ai_analysis.dart';
@@ -14,11 +14,13 @@ abstract final class DreamAiInsightMapper {
     required DreamAiAnalysis analysis,
     required Dream dream,
     required DreamUnderstanding understanding,
+    required String language,
     DreamPatternMatch? pattern,
   }) {
     return DreamAnalysisComposer.compose(
       dream: dream,
       understanding: understanding,
+      language: language,
       pattern: pattern,
       ai: analysis,
     );

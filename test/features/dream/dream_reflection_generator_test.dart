@@ -26,6 +26,7 @@ void main() {
     final insights = const DreamReflectionGenerator().generate(
       dream: dream,
       understanding: understanding,
+      language: 'tr',
     );
 
     expect(

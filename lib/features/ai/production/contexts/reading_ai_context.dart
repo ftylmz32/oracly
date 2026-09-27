@@ -45,6 +45,7 @@ final class DreamAiContext extends ReadingAiContext {
     this.emotionalTheme,
     this.fullInterpretation,
     this.memorySummary,
+    this.language,
   });
 
   final String narrative;
@@ -54,6 +55,10 @@ final class DreamAiContext extends ReadingAiContext {
   final String? emotionalTheme;
   final String? fullInterpretation;
   final String? memorySummary;
+
+  /// Operation language captured before the request (`tr` / `en` / `ru`);
+  /// null falls back to the app locale at send time.
+  final String? language;
 
   @override
   String get kindId => 'dream';

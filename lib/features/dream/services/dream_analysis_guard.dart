@@ -3,10 +3,12 @@ library;
 
 import '../../../core/copy/fortune_voice.dart';
 import '../../../core/reading/human_reader.dart';
+import '../../../core/reading/ai_output_quality_context.dart';
 import '../../../core/reading/ai_output_quality_gate.dart';
 import '../../../core/reading/ai_output_quality_kind.dart';
 import '../../content/dream/data/dream_symbol_catalogue.dart';
 import 'dream_analysis_facts.dart';
+import 'dream_grounding_words.dart';
 
 abstract final class DreamAnalysisGuard {
   DreamAnalysisGuard._();
@@ -20,6 +22,12 @@ abstract final class DreamAnalysisGuard {
     'rüya tabiri',
     'tabirname',
     ' = ',
+    'meaning:',
+    'symbolizes',
+    'dream dictionary',
+    'значение:',
+    'символизирует',
+    'сонник',
   ];
 
   static bool looksDictionary(String text) {
@@ -37,6 +45,7 @@ abstract final class DreamAnalysisGuard {
     if (!AiOutputQualityGate.validate(
       trimmed,
       kind: AiOutputQualityKind.dream,
+      context: AiOutputQualityContext(localeCode: facts.language),
     ).isAcceptable) {
       return false;
     }
@@ -66,7 +75,6 @@ abstract final class DreamAnalysisGuard {
   }
 
   static bool _touchesTold(String text, DreamAnalysisFacts facts) {
-    final lower = text.toLowerCase();
     for (final token in [
       facts.image,
       facts.companion,
@@ -75,37 +83,30 @@ abstract final class DreamAnalysisGuard {
       facts.emotion,
       facts.tag,
     ]) {
-      if (token != null && lower.contains(token.toLowerCase())) return true;
+      if (token != null && DreamGroundingWords.mentions(text, token)) {
+        return true;
+      }
     }
-    // A paraphrase of the told narrative should still count as grounded, so
-    // check overlap against every significant word the user actually wrote,
-    // not just one arbitrarily-picked word from a single scene fragment.
-    final toldWords = _significantWords(facts.told);
+    // A paraphrase of the told narrative still counts as grounded, so check
+    // every significant word the user wrote — TR, EN and RU alike.
+    final toldWords = DreamGroundingWords.significant(facts.told);
     if (toldWords.isEmpty) return false;
-    return _significantWords(text).any(toldWords.contains);
+    return DreamGroundingWords.overlaps(
+      DreamGroundingWords.significant(text),
+      toldWords,
+    );
   }
 
-  static const _connectorWords = {
-    'bir', 'bu', 'şu', 'ile', 'için', 'ama', 'gibi', 'olan', 've', 'de', 'da',
-    'çok', 'daha', 'her', 'ben', 'sen', 'biz', 'siz', 'onlar', 'kadar', 'sonra',
-  };
-
-  static Set<String> _significantWords(String value) => value
-      .toLowerCase()
-      .replaceAll(RegExp(r'[^a-z0-9çğıöşü]+'), ' ')
-      .split(' ')
-      .where((w) => w.length >= 4 && !_connectorWords.contains(w))
-      .toSet();
-
+  /// Catalogue images exist in Turkish and English only. Russian prose is
+  /// never matched here; it stays bound by the narrative grounding above.
   static bool _inventsImage(String text, DreamAnalysisFacts facts) {
-    final lower = text.toLowerCase();
-    final told = facts.told.toLowerCase();
     for (final item in DreamSymbolCatalogue.all) {
-      final tr = item.tokenTr.toLowerCase();
-      final en = item.token.toLowerCase();
-      final inText = lower.contains(tr) || lower.contains(en);
+      final inText = DreamGroundingWords.mentions(text, item.tokenTr) ||
+          DreamGroundingWords.mentions(text, item.token, english: true);
       if (!inText) continue;
-      if (told.contains(tr) || told.contains(en)) continue;
+      final told = DreamGroundingWords.mentions(facts.told, item.tokenTr) ||
+          DreamGroundingWords.mentions(facts.told, item.token, english: true);
+      if (told) continue;
       return true;
     }
     return false;

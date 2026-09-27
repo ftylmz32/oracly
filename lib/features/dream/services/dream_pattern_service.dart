@@ -89,6 +89,7 @@ class DreamPatternService {
     return DreamInsight(
       kind: DreamInsightKind.personalConnection,
       title: 'Önceki rüyalarla bağ',
+      source: DreamInsightSource.local,
       body: DreamAnalysisBeats.you(
         facts: facts,
         date: formatDate(match.previousDreamDate),

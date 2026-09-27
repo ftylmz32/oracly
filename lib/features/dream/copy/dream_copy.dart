@@ -3,6 +3,8 @@ library;
 
 import '../../../core/copy/preview_capability_copy.dart';
 import '../../../core/l10n/l10n.dart';
+import '../models/dream_insight.dart';
+import '../models/dream_provenance.dart';
 
 abstract final class DreamCopy {
   DreamCopy._();
@@ -94,11 +96,36 @@ abstract final class DreamCopy {
   static String get disclaimer => _t('dream.disclaimer');
   static String get sourceLocal => _t('dream.source_local');
   static String get sourceAi => _t('dream.source_ai');
+  static String get sourceMixed => _t('dream.source_mixed');
+  static String get sourceSaved => _t('dream.source_saved');
 
-  static String readingFootnote({required bool fromAi}) {
-    final source = fromAi ? sourceAi : sourceLocal;
+  /// One result-level disclosure — never a per-section badge.
+  static String readingFootnote(DreamProvenance provenance) {
+    final source = switch (provenance) {
+      DreamProvenance.aiOnly => sourceAi,
+      DreamProvenance.mixed => sourceMixed,
+      DreamProvenance.localOnly => sourceLocal,
+      DreamProvenance.legacyUnknown => sourceSaved,
+    };
     return '$source $disclaimer';
   }
+
+  static const _sectionKeys = {
+    DreamInsightKind.summary: 'dream.summary',
+    DreamInsightKind.symbols: 'dream.symbols_title',
+    DreamInsightKind.emotionalMeaning: 'dream.emotion',
+    DreamInsightKind.mainInterpretation: 'dream.interpretation',
+    DreamInsightKind.personalConnection: 'dream.life',
+    DreamInsightKind.themes: 'dream.symbols',
+    DreamInsightKind.closingTakeaway: 'dream.ask',
+  };
+
+  /// Section title in the operation's captured language.
+  static String sectionTitle(DreamInsightKind kind, String languageCode) =>
+      OraclyL10n.t(
+        _sectionKeys[kind] ?? 'dream.summary',
+        languageCode: languageCode,
+      );
 
   static String get analysisFailed => _t('dream.failed');
   static String get retry => _t('dream.retry');

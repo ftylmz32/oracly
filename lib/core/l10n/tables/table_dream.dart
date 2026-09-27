@@ -202,11 +202,25 @@ const kL10nDream = <String, L10nTriple>{
     'Это символическое толкование.',
   ),
   'dream.source_local': L10nTriple(
-    'Sembol katalog yorumu.',
-    'Catalogue symbol reading.',
-    'Каталожное чтение символов.',
+    'Anlattıklarından cihazında oluşturulan yorum.',
+    'Reading composed on your device from what you told.',
+    'Толкование, составленное на устройстве по твоему рассказу.',
   ),
-  'dream.source_ai': L10nTriple('OR yorumu.', 'OR reading.', 'Толкование OR.'),
+  'dream.source_ai': L10nTriple(
+    'OR yorumu — yapay zekâ ile yazıldı.',
+    'OR reading — written with AI.',
+    'Толкование OR — написано с помощью ИИ.',
+  ),
+  'dream.source_mixed': L10nTriple(
+    'OR yorumu — bazı bölümler yapay zekâ ile, bazıları anlattıklarından cihazında yazıldı.',
+    'OR reading — some sections written with AI, others composed on your device from what you told.',
+    'Толкование OR — часть разделов написана с помощью ИИ, часть составлена на устройстве по твоему рассказу.',
+  ),
+  'dream.source_saved': L10nTriple(
+    'Kayıtlı yorum.',
+    'Saved reading.',
+    'Сохранённое толкование.',
+  ),
   'dream.failed': L10nTriple(
     'Yorum bu sefer tutmadı. Bir daha deneyelim.',
     "The reading did not land this time. Let's try again.",

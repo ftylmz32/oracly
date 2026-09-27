@@ -133,13 +133,17 @@ abstract final class DreamReadingPresentation {
     ];
   }
 
-  static String? _bodyOf(Dream? dream, DreamInsightKind kind) {
+  /// First non-empty insight of [kind] — the one every reader block shows.
+  static DreamInsight? insightOf(Dream? dream, DreamInsightKind kind) {
     if (dream == null) return null;
     for (final insight in dream.insights) {
       if (insight.kind == kind && insight.body.trim().isNotEmpty) {
-        return insight.body.trim();
+        return insight;
       }
     }
     return null;
   }
+
+  static String? _bodyOf(Dream? dream, DreamInsightKind kind) =>
+      insightOf(dream, kind)?.body.trim();
 }

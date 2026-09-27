@@ -101,6 +101,7 @@ void main() {
         insights: DreamAnalysisComposer.compose(
           dream: current,
           understanding: understanding,
+          language: 'tr',
           pattern: match,
         ),
       ),
@@ -125,6 +126,7 @@ void main() {
         insights: DreamAnalysisComposer.compose(
           dream: dream,
           understanding: understanding,
+          language: 'tr',
           ai: const DreamAiAnalysis(
             summary: 'Yılan = dönüşüm.',
             symbols: ['yılan'],
@@ -224,6 +226,7 @@ String _read(
       insights: DreamAnalysisComposer.compose(
         dream: dream,
         understanding: understanding,
+        language: 'tr',
       ),
     ),
   );

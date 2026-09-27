@@ -233,13 +233,15 @@ export function palmBody(image = fakeJpeg()): Record<string, unknown> {
   };
 }
 
+// Legacy Turkish keys on purpose: the parser must keep accepting them.
 export const dreamJson = JSON.stringify({
-  ozet: 'Ruya sakin bir gecis hissi tasiyor.',
+  ozet: 'Ruya, evden sessizce gecen bir yilanla sakin bir gecis hissi tasiyor.',
   semboller: ['yilan'],
-  duygusalTema: 'Belirsizlik ve yenilenme.',
-  yorum: 'Yilan burada tehdit degil, bir donusum izi olabilir.',
-  gunlukYansi: 'Bugun acele etmeden bir adim geri durmak iyi gelir.',
-  sonuc: 'Bu ruya bir uyari degil, bir davettir.',
+  duygusalTema: 'Belirsizlik ile sakinlik ayni anda duruyor.',
+  yorum:
+    'Yilanin evden sessizce gecip gitmesi, tanidik bir alandan bir seyin gurultusuz ayrildigini dusunduruyor; burada tehdit degil, fark edilmeden olan bir gecis var.',
+  gunlukYansi: 'Bugun acele etmeden, sessizce uzaklasan bir seyi fark etmek iyi gelebilir.',
+  sonuc: 'Senin hayatinda sessizce gecip giden sey ne olabilir?',
 });
 
 export const coffeeJson = JSON.stringify({

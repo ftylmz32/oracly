@@ -7,6 +7,8 @@ import { OpenAiTransport } from './openai-transport.js';
 import { ReadingOperationError } from '../reading/operation-service.js';
 import type { ReadingStagedImageService } from '../reading/operation-staged-image-service.js';
 import { extractChatText, parseDreamData } from './parse-provider.js';
+import { evaluateDreamQuality } from './dream-quality.js';
+import { sanitizeText, stringList } from './sanitize.js';
 import {
   chatMessages,
   dreamMessages,
@@ -187,7 +189,15 @@ export class AiProxyService {
       jsonMode: true,
       messages: dreamMessages(request.payload, request.language),
     });
-    return parseDreamData(raw);
+    const data = parseDreamData(raw);
+    const rejected = evaluateDreamQuality(data, {
+      narrative: sanitizeText(request.payload.narrative),
+      symbols: stringList(request.payload.symbols),
+      emotions: stringList(request.payload.emotions),
+      language: request.language,
+    });
+    if (rejected) fail(ErrorCode.invalidResponse);
+    return data;
   }
 
   private async coffee(

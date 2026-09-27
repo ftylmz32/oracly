@@ -101,6 +101,7 @@ void main() {
       understanding: DreamUnderstandingService().build(
         narrative: 'Ruyamda uzun bir yilan evden gecti.',
       ),
+      language: 'tr',
     );
     expect(insights.map((i) => i.kind), containsAll([
       DreamInsightKind.summary,

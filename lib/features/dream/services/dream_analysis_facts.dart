@@ -1,6 +1,7 @@
 /// Observed dream facts — told text only, never a life story.
 library;
 
+import '../../../core/l10n/app_locale.dart';
 import '../models/dream.dart';
 import '../models/dream_relationship.dart';
 import '../models/dream_symbol.dart';
@@ -16,6 +17,7 @@ class DreamAnalysisFacts {
     this.person,
     this.tag,
     this.detail,
+    this.language = AppLocale.tr,
   });
 
   final String told;
@@ -28,12 +30,17 @@ class DreamAnalysisFacts {
   final String? tag;
   final String? detail;
 
+  /// Operation language captured once before the request — guard and local
+  /// beats read this, never the live app locale.
+  final String language;
+
   bool get isEmpty => told.isEmpty;
 
   static DreamAnalysisFacts from({
     required String narrative,
     required DreamUnderstanding understanding,
     List<String> tags = const [],
+    String language = AppLocale.tr,
   }) {
     final told = narrative.trim().replaceAll(RegExp(r'\s+'), ' ');
     final lower = told.toLowerCase();
@@ -65,6 +72,7 @@ class DreamAnalysisFacts {
       person: person,
       tag: tag,
       detail: detail,
+      language: AppLocale.normalize(language),
     );
   }
 

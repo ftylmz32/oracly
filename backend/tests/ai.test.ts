@@ -29,7 +29,7 @@ describe('ai complete', () => {
     const user = String(
       dreamMessages({ narrative: 'Sessiz bir bahçede altın bir kapı gördüm.' })[1]?.content,
     );
-    expect(user).toContain('gunlukYansi (boş bırakma;');
+    expect(user).toContain('dailyLifeReflection (boş bırakma;');
     expect(user).toContain('yalnızca rüya anlatısına dayanan');
     expect(user).toContain('kişisel gerçek uydurma');
     expect(user).not.toContain('yoksa boş bırak');
@@ -54,7 +54,7 @@ describe('ai complete', () => {
       dreamMessages({ narrative: 'Karanlık bir ormanda yalnız yürüyordum.' })[1]?.content,
     );
     expect(user).toContain(
-      'duygusalTema (rüyanın genel duygusal atmosferi; anlatı cümlelerini olduğu gibi tekrarlama;',
+      'emotionalTheme (rüyanın genel duygusal atmosferi; anlatı cümlelerini olduğu gibi tekrarlama;',
     );
     expect(user).toContain('birden fazla/karışık duygudan söz edebilirsin');
   });

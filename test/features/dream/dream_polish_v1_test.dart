@@ -37,6 +37,7 @@ void main() {
       insights: const DreamReflectionGenerator().generate(
         dream: dream,
         understanding: understanding,
+        language: 'tr',
       ),
     );
   }

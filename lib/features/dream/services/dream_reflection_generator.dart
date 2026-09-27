@@ -1,4 +1,4 @@
-/// Local reflective copy — five beats, question last.
+/// Local reflective copy — five beats, question last. Every section `local`.
 library;
 
 import '../models/dream.dart';
@@ -12,11 +12,13 @@ class DreamReflectionGenerator {
   List<DreamInsight> generate({
     required Dream dream,
     required DreamUnderstanding understanding,
+    required String language,
     DreamPatternMatch? pattern,
   }) {
     return DreamAnalysisComposer.compose(
       dream: dream,
       understanding: understanding,
+      language: language,
       pattern: pattern,
     );
   }

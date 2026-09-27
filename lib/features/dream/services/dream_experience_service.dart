@@ -1,6 +1,7 @@
 /// Dream journey — local symbols always; live AI or typed error, never fake.
 library;
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/reading_version/services/reading_version_service.dart';
 import '../../../core/domain/repositories/dream_repository.dart';
 import '../../../core/memory/oracly_memory_retriever.dart';
@@ -109,6 +110,7 @@ class DreamExperienceService {
     Dream seed, {
     required bool isRevision,
   }) async {
+    final language = AppLocale.normalize(OraclyL10n.code);
     final understanding = _understanding.build(
       narrative: seed.narrative,
       selectedEmotions: seed.selectedEmotions,
@@ -128,6 +130,7 @@ class DreamExperienceService {
     final analyzed = await _insights.build(
       dream: dream,
       understanding: understanding,
+      language: language,
       pattern: pattern,
     );
     return _commit.commit(

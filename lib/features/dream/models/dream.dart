@@ -70,6 +70,10 @@ class Dream {
   final DreamUnderstanding? understanding;
   final List<DreamInsight> insights;
   final bool voiceTranscriptPending;
+
+  /// Compatibility flag: at least one accepted section came from AI. It never
+  /// means every visible section is AI — per-section truth lives on
+  /// [DreamInsight.source].
   final bool fromAi;
 
   bool get isAnalyzed => understanding != null;

@@ -112,6 +112,7 @@ BlindSample _dream(String narrative, {List<DreamEmotion> emotions = const []}) {
       insights: DreamAnalysisComposer.compose(
         dream: dream,
         understanding: understanding,
+        language: 'tr',
       ),
     ),
   );

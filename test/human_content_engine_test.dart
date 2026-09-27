@@ -78,6 +78,7 @@ void main() {
       insights: const DreamReflectionGenerator().generate(
         dream: dream,
         understanding: understanding,
+        language: 'tr',
       ),
     );
     final palm = PalmFortuneComposer.compose(

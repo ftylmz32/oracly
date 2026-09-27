@@ -15,6 +15,7 @@ import '../../controllers/dream_analysis_controller.dart';
 import '../../copy/dream_copy.dart';
 import '../../models/dream.dart';
 import '../../services/dream_reading_presentation.dart';
+import '../../services/dream_reading_provenance.dart';
 import 'dream_reference_app_bar.dart';
 import 'dream_reference_result_actions.dart';
 import 'dream_reference_tokens.dart';
@@ -125,7 +126,7 @@ class _DreamReferenceResultViewState
         Padding(
           padding: EdgeInsets.only(bottom: AppSpacing.sm),
           child: Text(
-            DreamCopy.readingFootnote(fromAi: dream.fromAi),
+            DreamCopy.readingFootnote(DreamReadingProvenance.of(dream)),
             textAlign: TextAlign.center,
             style: ReadingTypography.footnote(),
           ),

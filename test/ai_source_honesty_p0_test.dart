@@ -18,7 +18,9 @@ import 'package:oracly_new/features/coffee/services/unavailable_coffee_analysis.
 import 'package:oracly_new/features/companion/services/companion_ai_bridge.dart';
 import 'package:oracly_new/features/dream/copy/dream_copy.dart';
 import 'package:oracly_new/features/dream/models/dream.dart';
+import 'package:oracly_new/features/dream/models/dream_provenance.dart';
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
+import 'package:oracly_new/features/dream/services/dream_reading_provenance.dart';
 import 'package:oracly_new/features/star_map/copy/star_map_polish_copy.dart';
 import 'package:oracly_new/features/tarot/copy/tarot_polish_copy.dart';
 import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
@@ -60,16 +62,13 @@ void main() {
       narrative: 'Rüyamda uzun bir yılan evden geçti ve sessizce gitti.',
     );
     expect(local.dream.fromAi, isFalse);
-    expect(
-      DreamCopy.readingFootnote(fromAi: false),
-      startsWith(DreamCopy.sourceLocal),
+    final localFootnote = DreamCopy.readingFootnote(
+      DreamReadingProvenance.of(local.dream),
     );
+    expect(localFootnote, startsWith(DreamCopy.sourceLocal));
+    expect(localFootnote.toLowerCase(), isNot(contains('yapay zek')));
     expect(
-      DreamCopy.readingFootnote(fromAi: false).toLowerCase(),
-      isNot(contains('yapay zek')),
-    );
-    expect(
-      DreamCopy.readingFootnote(fromAi: true),
+      DreamCopy.readingFootnote(DreamProvenance.aiOnly),
       startsWith(DreamCopy.sourceAi),
     );
 
@@ -172,7 +171,9 @@ void main() {
     ).analyze(narrative: 'Rüyamda sessiz bir ev ve açık bir pencere vardı.');
     expect(dream.dream.fromAi, isFalse);
     expect(
-      DreamCopy.readingFootnote(fromAi: dream.dream.fromAi).toLowerCase(),
+      DreamCopy.readingFootnote(
+        DreamReadingProvenance.of(dream.dream),
+      ).toLowerCase(),
       isNot(contains('yapay zek')),
     );
   });

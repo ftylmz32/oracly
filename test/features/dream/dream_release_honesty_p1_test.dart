@@ -15,6 +15,9 @@ import 'package:oracly_new/features/ai/production/oracly_ai_service.dart';
 import 'package:oracly_new/features/ai/production/unconfigured_oracly_ai_service.dart';
 import 'package:oracly_new/features/dream/copy/dream_copy.dart';
 import 'package:oracly_new/features/dream/data/dream_record_mapper.dart';
+import 'package:oracly_new/features/dream/models/dream_insight.dart';
+import 'package:oracly_new/features/dream/models/dream_provenance.dart';
+import 'package:oracly_new/features/dream/services/dream_reading_provenance.dart';
 import 'package:oracly_new/features/dream/presentation/reference/dream_reference_intro.dart';
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
 
@@ -67,13 +70,14 @@ void main() {
     expect(result.dream.fromAi, isFalse);
     expect(result.dream.insights, isNotEmpty);
     expect(
-      DreamCopy.readingFootnote(fromAi: result.dream.fromAi),
-      startsWith(DreamCopy.sourceLocal),
+      result.dream.insights.map((i) => i.source).toSet(),
+      {DreamInsightSource.local},
     );
-    expect(
-      DreamCopy.readingFootnote(fromAi: false).toLowerCase(),
-      isNot(contains('yapay zek')),
+    final footnote = DreamCopy.readingFootnote(
+      DreamReadingProvenance.of(result.dream),
     );
+    expect(footnote, startsWith(DreamCopy.sourceLocal));
+    expect(footnote.toLowerCase(), isNot(contains('yapay zek')));
   });
 
   test('production without proxy fails closed with no fake result', () async {
@@ -110,12 +114,26 @@ void main() {
       result.dream.insights.map((i) => i.body),
       contains(LiveDreamAiStub.interpretation),
     );
+    final interpretation = result.dream.insights.firstWhere(
+      (i) => i.body == LiveDreamAiStub.interpretation,
+    );
+    expect(interpretation.source, DreamInsightSource.ai);
+    // The stub's short summary/closing fail the guard and are replaced
+    // locally, so the honest disclosure is mixed — never AI-only.
     expect(
-      DreamCopy.readingFootnote(fromAi: result.dream.fromAi),
-      startsWith(DreamCopy.sourceAi),
+      DreamReadingProvenance.of(result.dream),
+      DreamProvenance.mixed,
+    );
+    expect(
+      DreamCopy.readingFootnote(DreamReadingProvenance.of(result.dream)),
+      startsWith(DreamCopy.sourceMixed),
     );
     final restored = DreamRecordMapper.fromRecord((await repo.getAll()).single);
     expect(restored.fromAi, isTrue);
+    expect(
+      DreamReadingProvenance.of(restored),
+      DreamProvenance.mixed,
+    );
     expect(
       restored.insights.map((i) => i.body),
       contains(LiveDreamAiStub.interpretation),

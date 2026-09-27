@@ -70,6 +70,7 @@ void main() {
       final insights = DreamAnalysisComposer.compose(
         dream: dream,
         understanding: understanding,
+        language: 'tr',
         ai: ai,
       );
       final kinds = insights.map((e) => e.kind).toList();

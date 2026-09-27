@@ -11,6 +11,7 @@ import '../models/dream.dart';
 import 'dream_ai_insight_mapper.dart';
 import 'dream_context_enricher.dart';
 import 'dream_pattern_service.dart';
+import 'dream_reading_provenance.dart';
 import 'dream_reflection_generator.dart';
 
 class DreamInsightBuilder {
@@ -24,9 +25,12 @@ class DreamInsightBuilder {
   final DreamReflectionGenerator _reflection;
   final OraclyMemoryRetriever? _memory;
 
+  /// [language] is the operation language captured before the request; the
+  /// provider payload, guard and composition all use it.
   Future<Dream> build({
     required Dream dream,
     required DreamUnderstanding understanding,
+    required String language,
     DreamPatternMatch? pattern,
   }) async {
     if (ai.isConfigured) {
@@ -39,19 +43,24 @@ class DreamInsightBuilder {
           symbols: understanding.symbols.map((s) => s.label).toList(),
           emotions: understanding.emotions,
           memorySummary: _memorySummary(dream),
+          language: language,
         ),
       );
-      return dream.copyWith(
-        fromAi: true,
-        insights: outcome.when(
-          success: (analysis) => DreamAiInsightMapper.map(
-            analysis: analysis,
-            dream: dream,
-            understanding: understanding,
-            pattern: pattern,
-          ),
-          error: (failure) => throw AiRequestException(failure),
+      final insights = outcome.when(
+        success: (analysis) => DreamAiInsightMapper.map(
+          analysis: analysis,
+          dream: dream,
+          understanding: understanding,
+          language: language,
+          pattern: pattern,
         ),
+        error: (failure) => throw AiRequestException(failure),
+      );
+      // Provider success alone is not AI provenance: only sections that
+      // survived the guard count.
+      return dream.copyWith(
+        fromAi: DreamReadingProvenance.hasAcceptedAi(insights),
+        insights: insights,
       );
     }
     if (ai.allowsLocalFallback) {
@@ -60,6 +69,7 @@ class DreamInsightBuilder {
         insights: _reflection.generate(
           dream: dream,
           understanding: understanding,
+          language: language,
           pattern: pattern,
         ),
       );
