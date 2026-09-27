@@ -12,6 +12,8 @@
 /// (on-device: a frozen UI), whereas this class is as fast as plain ASCII.
 library;
 
+import 'yildizname_lexical_suffixes.dart';
+
 abstract final class YildiznameLexicalToken {
   YildiznameLexicalToken._();
 
@@ -110,6 +112,30 @@ abstract final class YildiznameLexicalToken {
     final alt = endings.map(RegExp.escape).join('|');
     return '${start(token)}(?:$alt)?(?!$_word)';
   }
+
+  /// An aspect-word occurrence (`kare`, `karesi`, `trines`, `квадрате`) — a
+  /// real word, never the tail of `doctrine` or the head of `kareli` /
+  /// `тринадцать`. Russian stems take a closed noun/adjective ending.
+  static String aspect(String token) {
+    if (_cyrillic.hasMatch(token)) {
+      final alt = YildiznameLexicalSuffixes.aspectCyrillic.join('|');
+      return '${start(token)}ь?(?:$alt)?(?!$_word)';
+    }
+    final alt =
+        YildiznameLexicalSuffixes.aspectLatin.map(RegExp.escape).join('|');
+    return '${start(token)}(?:(?:$alt)(?:$alt)?)?(?!$_word)';
+  }
+
+  /// One of the aspect [tokens], each a genuine word occurrence.
+  static String anyAspect(List<String> tokens) =>
+      '(?:${tokens.map(aspect).join('|')})';
+
+  /// A house word after a house number: `evde` / `evindeki`, `house(s)`,
+  /// `доме` — never `evre`, `evren`, `evet`, `household`.
+  static String house() => '(?:'
+      '${_withEndings('ev', YildiznameLexicalSuffixes.houseEv)}|'
+      '${_withEndings('house', const ['s'])}|'
+      '${whole('доме')})';
 
   /// Compiles a pattern built from the helpers above (ignore case).
   static RegExp compile(String source) => RegExp(source, caseSensitive: false);

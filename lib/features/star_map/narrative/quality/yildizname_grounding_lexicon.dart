@@ -44,7 +44,7 @@ abstract final class YildiznameGroundingLexicon {
 
   static const aspectWords = <String, List<String>>{
     'conjunction': ['kavuşum', 'kavusum', 'conjunction', 'соединен'],
-    'sextile': ['sekstil', 'sextile', 'секстиль'],
+    'sextile': ['sekstil', 'sextile', 'секстил'],
     'square': ['kare', 'square', 'квадрат'],
     'trine': ['üçgen', 'ucgen', 'trine', 'трин'],
     'opposition': ['karşıt', 'karsit', 'opposition', 'оппозиц'],

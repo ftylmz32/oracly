@@ -78,7 +78,9 @@ abstract final class YildiznameQualityBodyGrounding {
     } else if (body == 'midheaven') {
       final mc = YildiznameLexicalToken.whole('mc');
       final mid = YildiznameLexicalToken.start('midheaven');
-      final sky = YildiznameLexicalToken.start('gökyüzü');
+      // The whole name `gökyüzü ortası` (inflected: `ortasında`), never bare
+      // `gökyüzü` — `Gökyüzünde Aslan …` ("in the sky") is not a Midheaven.
+      final sky = '${YildiznameLexicalToken.start('gökyüzü')}\\s+ortas';
       forms
         ..add('(?:$mid|$mc|$sky).{0,12}$se')
         ..add('$se\\s+(?:$mid|$mc)');

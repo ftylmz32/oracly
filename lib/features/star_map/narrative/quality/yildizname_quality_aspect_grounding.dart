@@ -4,38 +4,25 @@ library;
 import '../request/yildizname_narrative_request.dart';
 import '../result/yildizname_result_error.dart';
 import 'yildizname_grounding_lexicon.dart';
+import 'yildizname_lexical_token.dart';
+import 'yildizname_pair_aspect_matcher.dart';
 
 abstract final class YildiznameQualityAspectGrounding {
   YildiznameQualityAspectGrounding._();
 
-  static final _pairAspect = RegExp(
-    r'(sun|moon|mercury|venus|mars|jupiter|saturn|uranus|neptune|pluto|'
-    r'güneş|gunes|ay|merkür|merkur|venüs|jüpiter|satürn|uranüs|neptün|plüton|'
-    r'солнц\w*|лун\w*|меркур\w*|венер\w*|марс\w*|юпитер\w*|сатурн\w*)'
-    r'\s*[–\-—]\s*'
-    r'(sun|moon|mercury|venus|mars|jupiter|saturn|uranus|neptune|pluto|'
-    r'güneş|gunes|ay|merkür|merkur|venüs|jüpiter|satürn|uranüs|neptün|plüton|'
-    r'солнц\w*|лун\w*|меркур\w*|венер\w*|марс\w*|юпитер\w*|сатурн\w*)'
-    r'.{0,20}'
-    r'(conjunction|sextile|square|trine|opposition|'
-    r'kavuşum|kavusum|sekstil|kare|üçgen|ucgen|karşıt|karsit|'
-    r'соединен\w*|секстиль|квадрат|трин\w*|оппозиц\w*)',
-    caseSensitive: false,
+  /// `<n>. ev` / `<n> house` / `<n> доме` — the house word is a real word
+  /// (`evde`, `evindeki`), never `evre` / `evren` / `evet`. Compiled once.
+  static final _houseClaim = YildiznameLexicalToken.compile(
+    '(\\d+)\\s*\\.?\\s*${YildiznameLexicalToken.house()}',
   );
 
-  static void validateHouses(
-    YildiznameNarrativeRequest request,
-    String prose,
-  ) {
+  static void validateHouses(YildiznameNarrativeRequest request, String raw) {
+    final prose = YildiznameLexicalToken.normalizeProse(raw);
     final houseByBody = <String, int>{
       for (final p in request.placements)
         if (p.house != null) p.body: p.house!,
     };
-    final re = RegExp(
-      r'(\d+)\s*(?:\.?\s*)?(?:ev|house|доме)',
-      caseSensitive: false,
-    );
-    for (final m in re.allMatches(prose)) {
+    for (final m in _houseClaim.allMatches(prose)) {
       final n = int.tryParse(m.group(1) ?? '');
       if (n == null) continue;
       final start = (m.start - 40).clamp(0, prose.length);
@@ -64,12 +51,8 @@ abstract final class YildiznameQualityAspectGrounding {
         '${a.bodyB}|${a.bodyA}|${a.type}',
       },
     };
-    for (final m in _pairAspect.allMatches(prose)) {
-      final a = _canonBody(m.group(1)!);
-      final b = _canonBody(m.group(2)!);
-      final type = _canonType(m.group(3)!);
-      if (a == null || b == null || type == null) continue;
-      final key = '$a|$b|$type';
+    for (final claim in YildiznamePairAspectMatcher.claims(prose)) {
+      final key = '${claim.bodyA}|${claim.bodyB}|${claim.type}';
       if (!known.contains(key)) {
         throw YildiznameResultException(
           YildiznameResultErrorKind.grounding,
@@ -77,25 +60,5 @@ abstract final class YildiznameQualityAspectGrounding {
         );
       }
     }
-  }
-
-  static String? _canonBody(String raw) {
-    final t = raw.toLowerCase();
-    for (final e in YildiznameGroundingLexicon.bodies.entries) {
-      if (e.key == 'ascendant' || e.key == 'midheaven') continue;
-      for (final tok in e.value) {
-        final tip = tok.trim();
-        if (tip.isNotEmpty && t.contains(tip)) return e.key;
-      }
-    }
-    return null;
-  }
-
-  static String? _canonType(String raw) {
-    final t = raw.toLowerCase();
-    for (final e in YildiznameGroundingLexicon.aspectWords.entries) {
-      if (e.value.any((w) => t.contains(w))) return e.key;
-    }
-    return null;
   }
 }
