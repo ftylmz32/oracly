@@ -10,14 +10,11 @@ abstract final class YildiznameQualityBodyGrounding {
   YildiznameQualityBodyGrounding._();
 
   /// ONE consolidated pattern per (body, sign), compiled once and reused for
-  /// every validation. (Compiling thousands of per-token patterns on each call
-  /// froze the UI for ~50 s on a phone.)
+  /// every validation. (Compiling thousands of per-token patterns on each
+  /// call froze the UI for ~50 s on a phone — see Phase 8C.2b.)
   static final _claims = <String, RegExp>{};
 
-  static void validate(
-    YildiznameNarrativeRequest request,
-    String rawProse,
-  ) {
+  static void validate(YildiznameNarrativeRequest request, String rawProse) {
     final prose = YildiznameLexicalToken.normalizeProse(rawProse);
     final byBody = <String, String>{
       for (final p in request.placements) p.body: p.sign,
@@ -49,8 +46,9 @@ abstract final class YildiznameQualityBodyGrounding {
       _claims.putIfAbsent('$body|$signKey', () => _build(body, signKey));
 
   static RegExp _build(String body, String signKey) {
-    // Body: a word START (inflection may follow). Sign: a WHOLE word.
-    final be = YildiznameLexicalToken.anyStart(
+    // Body: a genuine word occurrence (never a mere prefix of a longer,
+    // unrelated word). Sign: a WHOLE word.
+    final be = YildiznameLexicalToken.anyBody(
       YildiznameGroundingLexicon.bodies[body]!,
     );
     final se = YildiznameLexicalToken.anySign(

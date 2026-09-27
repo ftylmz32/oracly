@@ -58,10 +58,7 @@ abstract final class YildiznameResultParseParts {
     }
     final t = v.trim();
     if (t.length < min || t.length > max) {
-      throw YildiznameResultException(
-        YildiznameResultErrorKind.bounds,
-        key,
-      );
+      throw YildiznameResultException(YildiznameResultErrorKind.bounds, key);
     }
     return t;
   }
@@ -77,10 +74,11 @@ abstract final class YildiznameResultParseParts {
     return requireString(map, key, min: 1, max: max);
   }
 
-  static List<String> requireStringList(
-    Map<String, dynamic> map,
-    String key,
-  ) {
+  /// Backend enforces `factRefs` and `themeRefs` with SEPARATE count and
+  /// per-string-length ceilings (`maxFactRefsPerBlock`/`maxFactRefChars` vs
+  /// `maxThemeRefsPerBlock`/`maxThemeRefChars`); [key] selects the matching
+  /// pair so the two can never be collapsed into one incompatible limit.
+  static List<String> requireStringList(Map<String, dynamic> map, String key) {
     final v = map[key];
     if (v is! List) {
       throw YildiznameResultException(
@@ -88,26 +86,26 @@ abstract final class YildiznameResultParseParts {
         'type:$key',
       );
     }
-    if (v.length > kYildiznameMaxRefsPerBlock) {
-      throw YildiznameResultException(
-        YildiznameResultErrorKind.bounds,
-        key,
-      );
+    final maxCount = key == 'themeRefs'
+        ? kYildiznameMaxThemeRefsPerBlock
+        : kYildiznameMaxFactRefsPerBlock;
+    final maxChars = key == 'themeRefs'
+        ? kYildiznameMaxThemeRefChars
+        : kYildiznameMaxFactRefChars;
+    if (v.length > maxCount) {
+      throw YildiznameResultException(YildiznameResultErrorKind.bounds, key);
     }
     final out = <String>[];
     final seen = <String>{};
     for (final e in v) {
-      if (e is! String || e.isEmpty || e.length > kYildiznameMaxFactRefChars) {
+      if (e is! String || e.isEmpty || e.length > maxChars) {
         throw YildiznameResultException(
           YildiznameResultErrorKind.schema,
           'ref:$key',
         );
       }
       if (!seen.add(e)) {
-        throw YildiznameResultException(
-          YildiznameResultErrorKind.duplicate,
-          e,
-        );
+        throw YildiznameResultException(YildiznameResultErrorKind.duplicate, e);
       }
       out.add(e);
     }

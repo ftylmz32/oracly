@@ -1,7 +1,6 @@
 /// Balances, themes, omitted layers for Narrative request factory.
 library;
 
-import '../../../birth_chart/astronomy/astronomical_fact_certainty.dart';
 import '../../../birth_chart/astronomy/natal_chart_evidence.dart';
 import '../../../birth_chart/models/chart_fidelity.dart';
 import '../versions.dart';
@@ -34,9 +33,7 @@ abstract final class YildiznameRequestExtras {
       YildiznameBalanceFact(
         factRef: 'balance.modalities',
         kind: 'modalities',
-        counts: {
-          for (final e in mod.entries) e.key.name: e.value,
-        },
+        counts: {for (final e in mod.entries) e.key.name: e.value},
         dominant: _dominantModality(mod),
       ),
     ];
@@ -97,12 +94,17 @@ abstract final class YildiznameRequestExtras {
         'aspects',
         'retrograde',
       ]);
-      for (final p in evidence.placements) {
-        if (p.certainty == AstronomicalFactCertainty.ambiguous ||
-            p.certainty == AstronomicalFactCertainty.unavailable) {
-          out.add('ambiguous.${p.body.name}');
-        }
-      }
+      // A per-placement ambiguous/unavailable drop (e.g. an interval-unstable
+      // Moon) used to be recorded as a synthetic 'ambiguous.<body>' entry —
+      // a value the frozen backend enum (moon/exactDegrees/.../<body name>)
+      // does not recognize, so the wire request was rejected outright. It is
+      // not recorded at all now: the dropped placement's absence from
+      // `placements` already says everything truthfully, no consumer ever
+      // read the marker's content, and a bare body name (the only
+      // backend-valid alternative) would wrongly collide with the resolver's
+      // separate legacy-detection heuristic below, which reads bare 'moon'
+      // to mean "this omittedLayers list looks like a whole LEGACY build",
+      // not "one placement in an otherwise-reduced reading was ambiguous".
       return out;
     }
     if (evidence.ascendant == null) out.add('ascendant');

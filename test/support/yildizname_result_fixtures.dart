@@ -234,7 +234,6 @@ YildiznameNarrativeRequest yildiznameFixtureRequest({
           'houses',
           'aspects',
           'retrograde',
-          'ambiguous.moon',
         ],
       );
     case YildiznameNarrativeScope.full:

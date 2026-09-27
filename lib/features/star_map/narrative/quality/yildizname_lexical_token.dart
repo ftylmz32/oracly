@@ -50,9 +50,69 @@ abstract final class YildiznameLexicalToken {
   static String anySign(List<String> tokens) =>
       '(?:${tokens.map(sign).join('|')})';
 
+  /// `ay` (Moon, TR) collides with real Turkish words that merely START with
+  /// the same two letters once any suffix is allowed (`ayrıca`, `ayrıntı`,
+  /// `ayrı`). It gets this curated, closed set of legitimate continuations —
+  /// the same ones the old dedicated Moon matcher used — instead of every
+  /// Turkish case suffix. (`in` is deliberately excluded: `ayin` — rite,
+  /// ceremony — is a real unrelated word.)
+  static const _ayEndings = ['ı', 'ın', 'a', 'da', 'dan'];
+
+  /// `sun` (Sun, EN) collides with common Turkish verb forms (`sunum`,
+  /// `sunucu`, `sunuş`, `sunmak` — to present/offer), so it is matched as a
+  /// WHOLE word only; English possessive (`Sun's`) already ends the word at
+  /// the apostrophe, which is not a word character.
+  static const _sunToken = 'sun';
+
+  /// General Turkish case suffixes (genitive / dative / locative / ablative,
+  /// with and without the buffer consonant) legitimately attached to a body
+  /// name written without an apostrophe (`Güneşin`, `Merkürün`). Longer body
+  /// names are unambiguous enough that this closed set cannot form another
+  /// real word — unlike `ay` / `sun` above, which get their own narrow lists.
+  static const _bodyCaseSuffixes = [
+    'ın',
+    'in',
+    'un',
+    'ün',
+    'ı',
+    'i',
+    'u',
+    'ü',
+    'a',
+    'e',
+    'da',
+    'de',
+    'ta',
+    'te',
+    'dan',
+    'den',
+    'tan',
+    'ten',
+  ];
+
+  /// A celestial-body-name occurrence — a real word, never a mere prefix of
+  /// a longer, unrelated word (`ay` in `ayrıca`, `sun` in `sunucu`). Cyrillic
+  /// stems reuse [sign]'s case-ending handling; Latin names get a closed set
+  /// of legitimate suffixes (or none, for the two collision-prone tokens).
+  static String body(String token) {
+    if (_cyrillic.hasMatch(token)) return sign(token);
+    final low = token.toLowerCase();
+    if (low == 'ay') return _withEndings(token, _ayEndings);
+    if (low == _sunToken) return whole(token);
+    return _withEndings(token, _bodyCaseSuffixes);
+  }
+
+  /// One of the body [tokens], each a genuine word occurrence.
+  static String anyBody(List<String> tokens) =>
+      '(?:${tokens.map(body).join('|')})';
+
+  static String _withEndings(String token, List<String> endings) {
+    final alt = endings.map(RegExp.escape).join('|');
+    return '${start(token)}(?:$alt)?(?!$_word)';
+  }
+
   /// Compiles a pattern built from the helpers above (ignore case).
-  static RegExp compile(String source) =>
-      RegExp(source, caseSensitive: false);
+  static RegExp compile(String source) => RegExp(source, caseSensitive: false);
 
   /// On some runtimes (JavaScript-backed builds) `toLowerCase()` turns Turkish
   /// `İ` into `i` + U+0307 (combining dot), which would split `İkizler` in two.

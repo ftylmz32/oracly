@@ -17,8 +17,10 @@ void main() {
   tearDown(() => FeatureFlagRuntime.refreshFromRemote(const {}));
 
   test('yildiznameNarrativeV1 defaults false and is catalogued', () {
-    expect(ProductFeatureFlags.yildiznameNarrativeV1.key,
-        'yildizname_narrative_v1');
+    expect(
+      ProductFeatureFlags.yildiznameNarrativeV1.key,
+      'yildizname_narrative_v1',
+    );
     expect(ProductFeatureFlags.yildiznameNarrativeV1.defaultValue, isFalse);
     expect(ProductFeatureFlags.defaults()['yildizname_narrative_v1'], isFalse);
     expect(
@@ -63,16 +65,15 @@ void main() {
     final req = YildiznameRequestFactory.fromEvidence(
       evidence: NarrativeEvidenceFixtures.reducedAmbiguousMoon(),
       languageCode: 'tr',
-      observedRecurringLabels: const [
-        'sabır',
-        'derinlik',
-        'sınır',
-        'fazla',
-      ],
+      observedRecurringLabels: const ['sabır', 'derinlik', 'sınır', 'fazla'],
     );
     expect(req.placements.any((p) => p.body == 'moon'), isFalse);
     expect(req.discoveryThemes, hasLength(3));
-    expect(req.omittedLayers.any((l) => l.contains('ambiguous.moon')), isTrue);
+    // The dropped Moon is not separately recorded in omittedLayers — its
+    // absence from `placements` already says everything truthfully, and a
+    // synthetic 'ambiguous.moon' marker is not a value the frozen backend
+    // enum accepts (see YildiznameRequestExtras.omittedLayers).
+    expect(req.omittedLayers.any((l) => l.contains('ambiguous')), isFalse);
 
     final json = jsonEncode(req.toProviderJson());
     for (final leak in const [

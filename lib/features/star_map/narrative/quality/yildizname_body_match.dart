@@ -1,21 +1,23 @@
-/// Whole-word-ish body presence helper (avoids `ay` matching `may`).
+/// Whole-word-ish body presence helper (avoids `ay` matching inside a
+/// longer, unrelated word — see [YildiznameLexicalToken.body]).
 library;
+
+import 'yildizname_lexical_token.dart';
 
 abstract final class YildiznameBodyMatch {
   YildiznameBodyMatch._();
 
-  static final _moon = RegExp(
-    r'(?:^|[^a-zA-Zа-яА-ЯёЁ])(?:moon|лун\w*|ay(?:ı|ın|a|da|dan)?|Ay)(?=$|[^a-zA-Zа-яА-ЯёЁ])',
-  );
+  /// One compiled, cached pattern per body — reused across every house/aspect
+  /// grounding check (never recompiled per call; see Phase 8C.2b).
+  static final _cache = <String, RegExp>{};
 
   static bool has(String prose, String body, List<String> tokens) {
-    if (body == 'moon') return _moon.hasMatch(prose);
-    final padded = ' ${prose.toLowerCase()} ';
-    for (final t in tokens) {
-      final tip = t.trim().toLowerCase();
-      if (tip.isEmpty) continue;
-      if (padded.contains(tip)) return true;
-    }
-    return false;
+    final re = _cache.putIfAbsent(
+      body,
+      () => YildiznameLexicalToken.compile(
+        YildiznameLexicalToken.anyBody(tokens),
+      ),
+    );
+    return re.hasMatch(YildiznameLexicalToken.normalizeProse(prose));
   }
 }
