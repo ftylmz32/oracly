@@ -9,6 +9,8 @@ import '../../ai/production/ai_failure.dart';
 import '../../ai/production/ai_request_exception.dart';
 import '../../ai/production/contexts/reading_ai_context.dart';
 import '../../ai/production/oracly_ai_service.dart';
+import '../safety/dream_output_safety.dart';
+import '../safety/dream_safety_policy.dart';
 
 class OpenAiDreamAnalysis implements DreamAIRepository {
   OpenAiDreamAnalysis({required this._ai});
@@ -23,6 +25,7 @@ class OpenAiDreamAnalysis implements DreamAIRepository {
     if (!_ai.isConfigured) {
       throw AiRequestException(AiFailure.noConfiguration());
     }
+    DreamSafetyPolicy.ensureSafe(narrative: prompt.dreamText);
     final outcome = await _ai.analyzeDream(
       DreamAiContext(
         narrative: prompt.dreamText,
@@ -32,6 +35,9 @@ class OpenAiDreamAnalysis implements DreamAIRepository {
     );
     return outcome.when(
       success: (analysis) {
+        if (DreamOutputSafety.isUnsafe(analysis)) {
+          throw AiRequestException(AiFailure.invalidResponse());
+        }
         final text = [
           analysis.summary,
           analysis.interpretation,

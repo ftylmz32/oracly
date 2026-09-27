@@ -20,6 +20,8 @@ export const DREAM_JSON_KEYS = [
 
 type DreamPromptCopy = {
   system: string;
+  /** Phase 3 safety clauses — every normal request, same single call. */
+  safety: string;
   lead: string;
   symbols: string;
   emotions: string;
@@ -42,6 +44,12 @@ const TR: DreamPromptCopy = {
     'Anlatıda doğrudan belirtilen bir duygu durumu varsa (özellikle "korkmadım", "kaygılı değildim" gibi olumsuzlanmış ifadeler), bunu atmosferden çıkarılan tahminden önce yansıt ve onunla çelişme; anlatının belirtmediği bir duyguyu (ör. anlatılmayan bir yalnızlık) ekleme. ' +
     '"Yeni bir fırsat", "yeni başlangıç", "güzel haberler geliyor", "değişim geliyor", "hedeflerine ulaşacaksın" gibi kalıp ifadeleri yalnızca anlatı açıkça destekliyorsa kullan. ' +
     'Yanıtı yalnızca JSON ver.',
+  safety:
+    'Güvenlik: Rüya; dış dünyadaki bir tehdidin, gözetimin, cinin, ruhun, uzaylının, devletin ya da gizli bir gücün kanıtı değildir; böyle bir inancı doğrulama veya güçlendirme. ' +
+    'Teşhis koyma; psikolojik ya da tıbbi bir durum ima etme. ' +
+    'Anlatılmayan bir travmayı çıkarsama; yaşanmış bir travma için kişiyi suçlama, istismarı kader, karma ya da ders olarak sunma. ' +
+    'Kendine zarar vermeyi asla teşvik etme; ilacı bırakmayı ya da yardım almaktan kaçınmayı önerme. ' +
+    'Rüyadaki ölüm imgesi bir kehanet değildir. Sembolik okumalar temkinli kalsın.',
   lead:
     'Bu rüyayı yorumla. Rüya sözlüğü yazma. Teşhis koyma. Kesin konuşma. ' +
     'JSON: summary (rüyanın ana hissi; metni kopyalama), ' +
@@ -78,6 +86,12 @@ const EN: DreamPromptCopy = {
     'If the narrative states a feeling directly (especially negated ones such as "I was not afraid"), reflect it before any inferred atmosphere and never contradict it; do not add a feeling the narrative does not state. ' +
     'Use stock phrases such as "a new opportunity", "a new beginning", "good news is coming" or "change is coming" only when the narrative clearly supports them. ' +
     'Reply with JSON only.',
+  safety:
+    'Safety: a dream is not evidence of an external threat, surveillance, spirit, alien, government or hidden force; never confirm or reinforce such a belief. ' +
+    'Do not diagnose or imply a psychological or medical condition. ' +
+    'Do not infer trauma the dreamer did not state; never blame someone for a trauma or frame abuse as destiny, karma or a lesson. ' +
+    'Never encourage self-harm; never advise stopping medication or avoiding care. ' +
+    'Death imagery in a dream is not a prediction. Keep symbolic readings tentative.',
   lead:
     'Read this dream. No dream dictionary. No diagnosis. No certainty. ' +
     'JSON: summary (the main feeling of the dream; do not copy the text), ' +
@@ -112,6 +126,12 @@ const RU: DreamPromptCopy = {
     'Если в рассказе прямо названо чувство (особенно с отрицанием, например «мне не было страшно»), отрази его раньше предполагаемой атмосферы и не противоречь ему; не добавляй чувство, которого в рассказе нет. ' +
     'Шаблонные фразы вроде «новая возможность», «новое начало», «скоро хорошие новости» или «грядут перемены» используй, только если рассказ это явно поддерживает. ' +
     'Отвечай только JSON.',
+  safety:
+    'Безопасность: сон не является доказательством внешней угрозы, слежки, духов, инопланетян, государства или скрытой силы; никогда не подтверждай и не усиливай такое убеждение. ' +
+    'Не ставь диагнозов и не намекай на психологическое или медицинское состояние. ' +
+    'Не додумывай травму, о которой человек не говорил; никогда не обвиняй человека в пережитой травме и не представляй насилие как судьбу, карму или урок. ' +
+    'Никогда не поощряй самоповреждение; никогда не советуй бросать лекарства или избегать помощи. ' +
+    'Образ смерти во сне — не предсказание. Символические прочтения остаются осторожными.',
   lead:
     'Истолкуй этот сон. Без сонника. Без диагнозов. Без уверенных утверждений. ' +
     'JSON: summary (главное чувство сна; не копируй текст), ' +
@@ -153,7 +173,7 @@ export function dreamMessages(
   const memory = sanitizeText(payload.memorySummary, 220);
   const history = memory ? `\n\n${copy.memory}\n${memory}` : '';
   return [
-    { role: 'system', content: `${copy.system} ${responseLanguageDirective(language)}` },
+    { role: 'system', content: `${copy.system} ${copy.safety} ${responseLanguageDirective(language)}` },
     {
       role: 'user',
       content: `${copy.lead}\n\n${narrative}${extras ? `\n\n${extras}` : ''}${history}`,

@@ -7,6 +7,8 @@ import '../../ai/production/ai_failure.dart';
 import '../../ai/production/ai_request_exception.dart';
 import '../../ai/production/oracly_ai_service.dart';
 import '../models/dream.dart';
+import '../safety/dream_output_safety.dart';
+import '../safety/dream_safety_policy.dart';
 import 'dream_ai_insight_mapper.dart';
 import 'dream_pattern_service.dart';
 import 'dream_provider_evidence.dart';
@@ -42,13 +44,20 @@ class DreamInsightBuilder {
         ),
       );
       final insights = outcome.when(
-        success: (analysis) => DreamAiInsightMapper.map(
-          analysis: analysis,
-          dream: dream,
-          understanding: understanding,
-          language: language,
-          pattern: pattern,
-        ),
+        success: (analysis) {
+          // Unsafe provider prose is never shown, mapped or stored, and
+          // never retried.
+          if (DreamOutputSafety.isUnsafe(analysis)) {
+            throw AiRequestException(AiFailure.invalidResponse());
+          }
+          return DreamAiInsightMapper.map(
+            analysis: analysis,
+            dream: dream,
+            understanding: understanding,
+            language: language,
+            pattern: pattern,
+          );
+        },
         error: (failure) => throw AiRequestException(failure),
       );
       // Provider success alone is not AI provenance: only sections that
@@ -81,10 +90,12 @@ class DreamInsightBuilder {
       ...dream.tags.map((tag) => tag.trim()).where((tag) => tag.isNotEmpty),
     ].join(' ');
     try {
-      return _memory?.forInterpretation(
+      final memory = _memory?.forInterpretation(
         query: query,
         currentType: OraclyReadingType.dream,
       );
+      // Sensitive history is left out of the request, never deleted.
+      return DreamSafetyPolicy.isSensitiveMemory(memory) ? null : memory;
     } catch (_) {
       // Connected memory enriches one existing call; it is never required.
       return null;

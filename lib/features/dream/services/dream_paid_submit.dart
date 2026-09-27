@@ -15,6 +15,7 @@ import '../controllers/dream_analysis_controller.dart';
 import '../economy/dream_economy.dart';
 import '../models/dream_emotion.dart';
 import '../models/dream_entry_selection.dart';
+import '../safety/dream_safety_policy.dart';
 import 'dream_attempt_store.dart';
 
 abstract final class DreamPaidSubmit {
@@ -32,6 +33,17 @@ abstract final class DreamPaidSubmit {
     DreamEntrySelection? entry,
   }) async {
     if (_running || !context.mounted) return;
+    // Safety first: a concern stops here — no attempt id, no Gem operation,
+    // no provider call, no storage. Same result at any balance.
+    final concern = DreamSafetyPolicy.forDream(
+      narrative: narrative,
+      entry: entry,
+      tags: tags,
+    );
+    if (concern != null) {
+      controller.presentSafety(concern, narrative: narrative);
+      return;
+    }
     _running = true;
     try {
       // Capture provider-backed objects before the long AI request. The

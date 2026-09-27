@@ -4,6 +4,7 @@ import {
   parseIdempotencyKey,
 } from '../ai/request-fingerprint.js';
 import { dreamReplayKey } from '../ai/dream-request-identity.js';
+import { assertDreamInputSafe } from '../ai/dream-safety.js';
 import type { AiProxyService } from '../ai/service.js';
 import { asRecord } from '../ai/sanitize.js';
 import { validateAiBody } from '../ai/validate-request.js';
@@ -138,6 +139,11 @@ export async function registerAiRoutes(
             );
           }
         }
+        // Dream Phase 3: safety wins over replay — checked before any claim,
+        // cached body, duplicate gate or provider call.
+        if (validated.operation === 'dream_analysis') {
+          assertDreamInputSafe(validated.payload);
+        }
         // Dream: a completed response replays only for the same semantic
         // request (language, narrative, symbols, emotions, memory).
         const replayKey =
@@ -222,7 +228,8 @@ export async function registerAiRoutes(
           status,
           errorCode: code,
           imagePayloadPresent,
-          providerResponsePresent: code !== ErrorCode.invalidRequest,
+          providerResponsePresent:
+            code !== ErrorCode.invalidRequest && code !== ErrorCode.dreamSafetyBlocked,
           parsedOk: false,
           bindFailure: diagnostic.bindFailure,
           priorViolation: diagnostic.priorViolation,

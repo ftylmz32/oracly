@@ -15,6 +15,7 @@ import 'dream_reference_error_view.dart';
 import 'dream_reference_loading_view.dart';
 import 'dream_reference_recording_view.dart';
 import 'dream_reference_result_view.dart';
+import 'dream_reference_safety_view.dart';
 import 'dream_reference_voice_review_view.dart';
 
 class DreamReferenceSessionBody extends StatelessWidget {
@@ -85,6 +86,15 @@ class DreamReferenceSessionBody extends StatelessWidget {
           message: analysis.errorMessage ?? DreamCopy.analysisFailed,
           onRetry: onAnalysisRetry,
           onBack: onAnalysisBack,
+        ),
+      DreamJourneyPhase.safety => DreamReferenceSafetyView(
+          key: const ValueKey('safety'),
+          presentation: analysis.safety!,
+          onEdit: () {
+            analysis.reset();
+            onCompose();
+          },
+          onNewDream: onNewDream,
         ),
       DreamJourneyPhase.entry => _voiceOrEntry(),
     };

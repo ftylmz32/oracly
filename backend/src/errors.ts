@@ -20,6 +20,8 @@ export const ErrorCode = {
   network: 'network',
   providerError: 'provider_error',
   moderationBlocked: 'moderation_blocked',
+  /** Dream Phase 3: the dreamer's words need safety guidance, not a reading. */
+  dreamSafetyBlocked: 'dream_safety_blocked',
   imageAnalysisUnavailable: 'image_analysis_unavailable',
   /** Writer/repair failed deterministic human-quality / evidence binding. */
   qualityUnavailable: 'quality_unavailable',

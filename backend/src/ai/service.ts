@@ -8,6 +8,12 @@ import { ReadingOperationError } from '../reading/operation-service.js';
 import type { ReadingStagedImageService } from '../reading/operation-staged-image-service.js';
 import { extractChatText, parseDreamData } from './parse-provider.js';
 import { evaluateDreamQuality } from './dream-quality.js';
+import {
+  assertDreamInputSafe,
+  dreamOutputFields,
+  dreamOutputViolation,
+  isSensitiveDreamMemory,
+} from './dream-safety.js';
 import { sanitizeText, stringList } from './sanitize.js';
 import {
   chatMessages,
@@ -184,12 +190,22 @@ export class AiProxyService {
     request: Extract<ValidatedRequest, { operation: 'dream_analysis' }>,
     model: string,
   ) {
+    // Phase 3: independent of the route — a direct call is gated too.
+    assertDreamInputSafe(request.payload);
+    const memory = sanitizeText(request.payload.memorySummary, 220);
+    const payload = isSensitiveDreamMemory(memory)
+      ? { ...request.payload, memorySummary: undefined }
+      : request.payload;
     const raw = await this.transport.complete({
       model,
       jsonMode: true,
-      messages: dreamMessages(request.payload, request.language),
+      messages: dreamMessages(payload, request.language),
     });
     const data = parseDreamData(raw);
+    // Unsafe prose fails closed: no success body, no retry, no second call.
+    if (dreamOutputViolation(dreamOutputFields(data)) !== null) {
+      fail(ErrorCode.invalidResponse, 200, { stage: 'dream_output_safety' });
+    }
     const rejected = evaluateDreamQuality(data, {
       narrative: sanitizeText(request.payload.narrative),
       symbols: stringList(request.payload.symbols),

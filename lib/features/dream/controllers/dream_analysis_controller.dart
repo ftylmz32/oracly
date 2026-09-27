@@ -7,8 +7,12 @@ import 'package:flutter/foundation.dart';
 
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
+import '../../../core/l10n/l10n.dart';
 import '../models/dream_entry_selection.dart';
+import '../safety/dream_safety_concern.dart';
+import '../safety/dream_safety_presentation.dart';
 import '../services/dream_experience_service.dart';
+import '../services/dream_narrative_language.dart';
 import '../services/dream_owner_guard.dart';
 import 'dream_analysis_failure.dart';
 
@@ -18,6 +22,9 @@ enum DreamJourneyPhase {
   reflecting,
   complete,
   error,
+
+  /// Local safety guidance — not a reading, never saved or versioned.
+  safety,
 }
 
 class DreamAnalysisController extends ChangeNotifier {
@@ -34,6 +41,7 @@ class DreamAnalysisController extends ChangeNotifier {
   DreamJourneyPhase _phase = DreamJourneyPhase.entry;
   Dream? _dream;
   String? _errorMessage;
+  DreamSafetyPresentation? _safety;
   List<Dream> _history = const [];
   bool _versionAdded = false;
   int _versionReloadToken = 0;
@@ -59,6 +67,7 @@ class DreamAnalysisController extends ChangeNotifier {
   DreamJourneyPhase get phase => _phase;
   Dream? get dream => _dream;
   String? get errorMessage => _errorMessage;
+  DreamSafetyPresentation? get safety => _safety;
   List<Dream> get history => _history;
   bool get lastVersionAdded => _versionAdded;
   int get versionReloadToken => _versionReloadToken;
@@ -88,6 +97,7 @@ class DreamAnalysisController extends ChangeNotifier {
     final token = ++_generation;
     _phase = DreamJourneyPhase.organizing;
     _errorMessage = null;
+    _safety = null;
     _safeNotify();
 
     await Future<void>.delayed(_organizingDelay);
@@ -110,7 +120,11 @@ class DreamAnalysisController extends ChangeNotifier {
     } catch (error) {
       if (_stale(token)) return;
       if (error is DreamOwnerChangedException) return _returnToEntry(token);
-      _fail('analyze', error);
+      if (error is DreamSafetyException) {
+        _enterSafety(error.concern, narrative);
+      } else {
+        _fail('analyze', error);
+      }
     }
     _safeNotify();
   }
@@ -139,12 +153,36 @@ class DreamAnalysisController extends ChangeNotifier {
     } catch (error) {
       if (_stale(token)) return;
       if (error is DreamOwnerChangedException) return _returnToEntry(token);
-      _fail('reinterpret', error);
+      if (error is DreamSafetyException) {
+        _enterSafety(error.concern, current.narrative);
+      } else {
+        _fail('reinterpret', error);
+      }
     }
     _safeNotify();
-    if (!_stale(token) && _phase != DreamJourneyPhase.complete) {
+    if (!_stale(token) && _phase == DreamJourneyPhase.error) {
       throw StateError('dream reinterpret failed');
     }
+  }
+
+  /// Local safety guidance instead of a reading: nothing was attempted,
+  /// charged, sent or stored for it.
+  void presentSafety(DreamSafetyConcern concern, {required String narrative}) {
+    if (_disposed || _busy) return;
+    _generation++;
+    _enterSafety(concern, narrative);
+    _safeNotify();
+  }
+
+  void _enterSafety(DreamSafetyConcern concern, String narrative) {
+    _safety = DreamSafetyPresentation(
+      concern: concern,
+      language: DreamNarrativeLanguage.forOperation(narrative, OraclyL10n.code),
+    );
+    _dream = null;
+    _errorMessage = null;
+    _versionAdded = false;
+    _phase = DreamJourneyPhase.safety;
   }
 
   /// Shows the stored copy of [dream] only after it resolves in the current
@@ -161,6 +199,7 @@ class DreamAnalysisController extends ChangeNotifier {
     if (stored == null) return _returnToEntry(token);
     _dream = stored;
     _errorMessage = null;
+    _safety = null;
     _phase = DreamJourneyPhase.complete;
     _safeNotify();
   }
@@ -169,6 +208,7 @@ class DreamAnalysisController extends ChangeNotifier {
     _phase = DreamJourneyPhase.entry;
     _dream = null;
     _errorMessage = null;
+    _safety = null;
     _history = const [];
     _safeNotify();
     await _loadHistoryFor(token);
@@ -185,6 +225,7 @@ class DreamAnalysisController extends ChangeNotifier {
     _phase = DreamJourneyPhase.entry;
     _dream = null;
     _errorMessage = null;
+    _safety = null;
     _safeNotify();
   }
 }

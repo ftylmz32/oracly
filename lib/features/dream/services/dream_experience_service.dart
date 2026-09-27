@@ -12,6 +12,7 @@ import '../data/dream_record_mapper.dart';
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
 import '../models/dream_entry_selection.dart';
+import '../safety/dream_safety_policy.dart';
 import 'dream_experience_commit.dart';
 import 'dream_insight_builder.dart';
 import 'dream_narrative_language.dart';
@@ -62,6 +63,7 @@ class DreamExperienceService {
     List<String> tags = const [],
     DreamEntrySelection? entry,
   }) async {
+    DreamSafetyPolicy.ensureSafe(narrative: narrative, entry: entry, tags: tags);
     final snapshot = _captureOwner();
     return _run(
       snapshot,
@@ -86,6 +88,13 @@ class DreamExperienceService {
       throw const DreamOwnerChangedException();
     }
     final source = DreamRecordMapper.fromRecord(stored);
+    // A legacy record saved before Phase 3 is re-checked; the stored copy is
+    // never mutated and no version is added.
+    DreamSafetyPolicy.ensureSafe(
+      narrative: source.narrative,
+      entry: source.entry,
+      tags: source.tags,
+    );
     return _run(
       snapshot,
       Dream(
