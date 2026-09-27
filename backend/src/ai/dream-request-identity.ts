@@ -42,10 +42,20 @@ export function dreamRequestFingerprint(request: DreamIdentityInput): string {
 }
 
 /**
+ * Writer revision of the accepted Dream response contract. A response
+ * stored under an earlier writer (accepted by an older, weaker gate) is
+ * never replayed under this one. Bump only when acceptance changes what a
+ * success body may contain; the semantic fingerprint (duplicate and
+ * billing identity) is deliberately not affected.
+ */
+export const DREAM_WRITER_REVISION = '4b';
+
+/**
  * Replay slot for a Dream request: the client key alone is never enough —
- * a completed response is only replayed for the same semantic request.
+ * a completed response is only replayed for the same semantic request and
+ * the same writer revision.
  */
 export function dreamReplayKey(idempotencyKey: string, fingerprint: string): string {
   const digest = createHash('sha256').update(fingerprint).digest('hex').slice(0, 32);
-  return `${idempotencyKey}|dream-sem:${digest}`;
+  return `${idempotencyKey}|dream-sem:${DREAM_WRITER_REVISION}:${digest}`;
 }

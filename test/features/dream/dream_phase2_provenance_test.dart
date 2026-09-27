@@ -4,7 +4,7 @@ library;
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:oracly_new/core/reading_version/services/reading_version_payload.dart';
+import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart';
 import 'package:oracly_new/features/ai/production/unconfigured_oracly_ai_service.dart';
 import 'package:oracly_new/features/ai/production/oracly_ai_service.dart';
 import 'package:oracly_new/features/dream/copy/dream_copy.dart';
@@ -28,6 +28,26 @@ Future<Dream> _analyze(OraclyAiService ai, [MemDreamRepository? repo]) async {
   return result.dream;
 }
 
+/// Every required section accepted; no provider symbols (composed locally).
+final _symbolsLocal = DreamAiAnalysis(
+  summary: phase2AllAccepted.summary,
+  symbols: const [],
+  emotionalTheme: phase2AllAccepted.emotionalTheme,
+  interpretation: phase2AllAccepted.interpretation,
+  dailyLifeReflection: phase2AllAccepted.dailyLifeReflection,
+  conclusion: phase2AllAccepted.conclusion,
+);
+
+/// Everything accepted except an unrelated daily reflection.
+final _reflectionRejected = DreamAiAnalysis(
+  summary: phase2AllAccepted.summary,
+  symbols: phase2AllAccepted.symbols,
+  emotionalTheme: phase2AllAccepted.emotionalTheme,
+  interpretation: phase2AllAccepted.interpretation,
+  dailyLifeReflection: 'Bugün uzak bir limanda gemileri izlemek iyi gelebilir.',
+  conclusion: phase2AllAccepted.conclusion,
+);
+
 Map<String, dynamic> _roundTrip(Map<String, dynamic> json) =>
     jsonDecode(jsonEncode(json)) as Map<String, dynamic>;
 
@@ -46,24 +66,31 @@ void main() {
     expect(themes, everyElement(DreamInsightSource.local));
   });
 
-  test('B — some sections replaced locally: fromAi, mixed', () async {
-    final dream = await _analyze(const LiveDreamAiStub());
+  test('B — optional symbols composed locally: fromAi, mixed', () async {
+    final dream = await _analyze(ScriptedDreamAi(_symbolsLocal));
     expect(dream.fromAi, isTrue);
     expect(DreamReadingProvenance.of(dream), DreamProvenance.mixed);
+    final symbols =
+        dream.insights.singleWhere((i) => i.kind == DreamInsightKind.symbols);
+    expect(symbols.source, DreamInsightSource.local);
   });
 
-  test('C — every provider section rejected: not fromAi, local only', () async {
-    final dream = await _analyze(ScriptedDreamAi(phase2AllRejected));
-    expect(dream.fromAi, isFalse);
-    expect(
-      dream.insights.map((i) => i.source).toSet(),
-      {DreamInsightSource.local},
-    );
-    expect(
-      dream.insights.map((i) => i.kind),
-      isNot(contains(DreamInsightKind.mainInterpretation)),
-    );
-    expect(DreamReadingProvenance.of(dream), DreamProvenance.localOnly);
+  // Phase 4B: a required section replaced locally used to ship as "mixed";
+  // it is now an invalid response and nothing is stored.
+  for (final (name, reply) in [
+    ('B2 — one required section rejected', _reflectionRejected),
+    ('C — every provider section rejected', phase2AllRejected),
+  ]) {
+    test('$name: invalid response, nothing stored', () async {
+      final repo = MemDreamRepository();
+      final ai = ScriptedDreamAi(reply);
+      await expectLater(_analyze(ai, repo), throwsInvalidDreamResponse);
+      expect(ai.contexts, hasLength(1));
+      expect(await repo.getAll(), isEmpty);
+    });
+  }
+
+  test('local-only footnote never claims AI', () {
     expect(
       DreamCopy.readingFootnote(DreamProvenance.localOnly),
       isNot(contains('yapay zek')),
@@ -109,53 +136,12 @@ void main() {
 
   test('source survives JSON, record persistence and reopen', () async {
     final repo = MemDreamRepository();
-    final dream = await _analyze(const LiveDreamAiStub(), repo);
+    final dream = await _analyze(ScriptedDreamAi(_symbolsLocal), repo);
     final sources = dream.insights.map((i) => i.source).toList();
     final decoded = Dream.fromJson(_roundTrip(dream.toJson()));
     expect(decoded.insights.map((i) => i.source), sources);
     final reopened = DreamRecordMapper.fromRecord((await repo.getAll()).single);
     expect(reopened.insights.map((i) => i.source), sources);
     expect(DreamReadingProvenance.of(reopened), DreamProvenance.mixed);
-  });
-
-  test('source survives version payload append and selection', () async {
-    final older = await _analyze(const LiveDreamAiStub());
-    final newer = await _analyze(ScriptedDreamAi(phase2AllRejected));
-    final payloads = [
-      _roundTrip(ReadingVersionPayload.dream(older, 'a')),
-      _roundTrip(ReadingVersionPayload.dream(newer, 'b')),
-    ];
-    final selectedOld = ReadingVersionPayload.applyDream(newer, payloads[0])!;
-    final selectedNew = ReadingVersionPayload.applyDream(older, payloads[1])!;
-    expect(DreamReadingProvenance.of(selectedOld), DreamProvenance.mixed);
-    expect(DreamReadingProvenance.of(selectedNew), DreamProvenance.localOnly);
-    expect(
-      selectedOld.insights.map((i) => i.source),
-      older.insights.map((i) => i.source),
-    );
-  });
-
-  test('legacy version payload decodes neutrally', () {
-    final legacy = ReadingVersionPayload.applyDream(null, {
-      'analysis': 'Eski',
-      'payload': {
-        'id': 'dream_old_version',
-        'narrative': phase2Narrative,
-        'recordedAt': DateTime(2025, 6, 1).toIso8601String(),
-        'fromAi': true,
-        'insights': [
-          {'kind': 'summary', 'body': 'Eski özet metni.'},
-        ],
-      },
-    })!;
-    expect(DreamReadingProvenance.of(legacy), DreamProvenance.legacyUnknown);
-    expect(DreamReadingProvenance.hasAcceptedAi(legacy.insights), isFalse);
-  });
-
-  test('unknown source values decode as legacy, never AI', () {
-    expect(DreamInsightSource.fromJson('AI'), DreamInsightSource.legacyUnknown);
-    expect(DreamInsightSource.fromJson(null), DreamInsightSource.legacyUnknown);
-    expect(DreamInsightSource.fromJson(1), DreamInsightSource.legacyUnknown);
-    expect(DreamInsightSource.fromJson('ai'), DreamInsightSource.ai);
   });
 }

@@ -85,7 +85,7 @@ void main() {
         summary: summary,
         themes: const ['decision', 'communication'],
       ));
-      final ai = ScriptedDreamAi(phase2AllAccepted);
+      final ai = ScriptedDreamAi.grounded();
       await DreamExperienceService(
         repository: MemDreamRepository(),
         owner: testDreamOwner(),

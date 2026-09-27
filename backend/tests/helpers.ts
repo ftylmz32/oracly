@@ -237,7 +237,7 @@ export function palmBody(image = fakeJpeg()): Record<string, unknown> {
 export const dreamJson = JSON.stringify({
   ozet: 'Ruya, evden sessizce gecen bir yilanla sakin bir gecis hissi tasiyor.',
   semboller: ['yilan'],
-  duygusalTema: 'Belirsizlik ile sakinlik ayni anda duruyor.',
+  duygusalTema: 'Yilanin sessizce gidisinde belirsizlik ile sakinlik ayni anda duruyor.',
   yorum:
     'Yilanin evden sessizce gecip gitmesi, tanidik bir alandan bir seyin gurultusuz ayrildigini dusunduruyor; burada tehdit degil, fark edilmeden olan bir gecis var.',
   gunlukYansi: 'Bugun acele etmeden, sessizce uzaklasan bir seyi fark etmek iyi gelebilir.',

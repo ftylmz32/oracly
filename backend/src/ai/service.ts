@@ -7,9 +7,8 @@ import { OpenAiTransport } from './openai-transport.js';
 import { ReadingOperationError } from '../reading/operation-service.js';
 import type { ReadingStagedImageService } from '../reading/operation-staged-image-service.js';
 import { extractChatText, parseDreamData } from './parse-provider.js';
-import { evaluateDreamQuality } from './dream-quality.js';
+import { dreamAcceptanceFailure } from './dream-acceptance.js';
 import type { DreamHistoryItem } from './dream-history.js';
-import { dreamHistoryClaimViolation } from './dream-history-quality.js';
 import {
   assertDreamInputSafe,
   dreamOutputFields,
@@ -208,19 +207,15 @@ export class AiProxyService {
     if (dreamOutputViolation(dreamOutputFields(data)) !== null) {
       fail(ErrorCode.invalidResponse, 200, { stage: 'dream_output_safety' });
     }
-    const narrative = sanitizeText(request.payload.narrative);
-    const rejected =
-      evaluateDreamQuality(data, {
-        narrative,
-        symbols: stringList(request.payload.symbols),
-        emotions: stringList(request.payload.emotions),
-        language: request.language,
-      }) ??
-      dreamHistoryClaimViolation(data, {
-        narrative,
-        history: request.payload.history as DreamHistoryItem[] | undefined,
-        language: request.language,
-      });
+    const rejected = dreamAcceptanceFailure(data, {
+      narrative: sanitizeText(request.payload.narrative),
+      symbols: stringList(request.payload.symbols),
+      emotions: stringList(request.payload.emotions),
+      language: request.language,
+      history: request.payload.history as DreamHistoryItem[] | undefined,
+      // The filtered value: a sensitive memory was already dropped above.
+      memorySummary: sanitizeText(payload.memorySummary, 220) || undefined,
+    });
     if (rejected) fail(ErrorCode.invalidResponse);
     return data;
   }

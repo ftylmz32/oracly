@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
+import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart';
 import 'package:oracly_new/features/dream/data/dream_record_mapper.dart';
 import 'package:oracly_new/features/dream/models/dream.dart';
 import 'package:oracly_new/features/dream/models/dream_entry_context.dart';
@@ -28,10 +29,19 @@ void main() {
   tearDown(() => OraclyL10n.bind('tr'));
 
   test('"Ev · Ev" — an item filling image and place is shown once', () async {
+    // No provider symbols, so the symbols line is composed locally while the
+    // required premium sections stay accepted AI.
     final result = await DreamExperienceService(
       repository: MemDreamRepository(),
       owner: testDreamOwner(),
-      ai: ScriptedDreamAi(phase2AllRejected),
+      ai: ScriptedDreamAi(DreamAiAnalysis(
+        summary: phase2AllAccepted.summary,
+        symbols: const [],
+        emotionalTheme: phase2AllAccepted.emotionalTheme,
+        interpretation: phase2AllAccepted.interpretation,
+        dailyLifeReflection: phase2AllAccepted.dailyLifeReflection,
+        conclusion: phase2AllAccepted.conclusion,
+      )),
     ).analyze(narrative: phase2Narrative);
     final symbols = result.dream.insights
         .singleWhere((i) => i.kind == DreamInsightKind.symbols)

@@ -11,6 +11,7 @@ import '../models/dream.dart';
 import '../safety/dream_output_safety.dart';
 import '../safety/dream_safety_policy.dart';
 import 'dream_ai_insight_mapper.dart';
+import 'dream_premium_delivery_quality.dart';
 import 'dream_provider_evidence.dart';
 import 'dream_reading_provenance.dart';
 import 'dream_reflection_generator.dart';
@@ -35,12 +36,13 @@ class DreamInsightBuilder {
     DreamHistoryContext history = DreamHistoryContext.empty,
   }) async {
     if (ai.isConfigured) {
+      final memorySummary = _memorySummary(dream);
       final outcome = await ai.analyzeDream(
         DreamProviderEvidence.context(
           dream: dream,
           understanding: understanding,
           language: language,
-          memorySummary: _memorySummary(dream),
+          memorySummary: memorySummary,
           history: history,
         ),
       );
@@ -56,12 +58,16 @@ class DreamInsightBuilder {
             dream: dream,
             understanding: understanding,
             language: language,
+            memorySummary: memorySummary,
           );
         },
         error: (failure) => throw AiRequestException(failure),
       );
-      // Provider success alone is not AI provenance: only sections that
-      // survived the guard count.
+      // A partial delivery is not quietly completed with local text: it is
+      // an invalid response, before anything is stored.
+      if (!DreamPremiumDeliveryQuality.accepts(insights)) {
+        throw AiRequestException(AiFailure.invalidResponse());
+      }
       return dream.copyWith(
         fromAi: DreamReadingProvenance.hasAcceptedAi(insights),
         insights: insights,

@@ -8,7 +8,6 @@ import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart';
 import 'package:oracly_new/features/ai/production/openai/openai_paid_requests.dart';
 import 'package:oracly_new/features/dream/copy/dream_copy.dart';
-import 'package:oracly_new/features/dream/models/dream_insight.dart';
 import 'package:oracly_new/features/dream/models/dream_provenance.dart';
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
 import 'package:oracly_new/features/dream/services/dream_narrative_language.dart';
@@ -99,19 +98,23 @@ void main() {
       expect(DreamReadingProvenance.of(result.dream), DreamProvenance.aiOnly);
     });
 
-    test('$name: unrelated prose rejected, sections stay local', () async {
-      final (result, ai) = await _run(told, phase2AllRejected, app: app);
-      _expectOperation(result, ai, operation);
-      expect(
-        DreamReadingProvenance.of(result.dream),
-        DreamProvenance.localOnly,
+    // Phase 4B: unrelated prose is an invalid response in the operation
+    // language — never a locally completed reading.
+    test('$name: unrelated prose fails closed after one call', () async {
+      final ai = ScriptedDreamAi(phase2AllRejected);
+      OraclyL10n.bind(app);
+      final repo = MemDreamRepository();
+      await expectLater(
+        DreamExperienceService(repository: repo, owner: testDreamOwner(), ai: ai)
+            .analyze(narrative: told),
+        throwsInvalidDreamResponse,
       );
-      final bodies = result.dream.insights.map((i) => i.body).join(' ');
-      expect(bodies, isNot(contains('fener')));
+      expect(ai.contexts.single.language, operation);
+      expect(await repo.getAll(), isEmpty);
     });
   }
 
-  test('invented image is rejected in a cross-language operation', () async {
+  test('invented image fails closed in a cross-language operation', () async {
     final invented = DreamAiAnalysis(
       summary: _enReply.summary,
       symbols: _enReply.symbols,
@@ -121,14 +124,10 @@ void main() {
       dailyLifeReflection: _enReply.dailyLifeReflection,
       conclusion: _enReply.conclusion,
     );
-    final (result, ai) = await _run(_enTold, invented, app: 'tr');
-    _expectOperation(result, ai, 'en');
-    final main = result.dream.insights
-        .where((i) => i.kind == DreamInsightKind.mainInterpretation);
-    expect(main, isEmpty);
-    expect(result.dream.insights.map((i) => i.body).join(' '),
-        isNot(contains('snake')));
-    expect(DreamReadingProvenance.of(result.dream), DreamProvenance.aiOnly);
+    await expectLater(
+      _run(_enTold, invented, app: 'tr'),
+      throwsInvalidDreamResponse,
+    );
   });
 
   group('narrative language detection', () {

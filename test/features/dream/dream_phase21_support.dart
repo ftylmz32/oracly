@@ -35,7 +35,7 @@ Future<(DreamAiContext, MemDreamRepository, DreamExperienceService)> send(
   ScriptedDreamAi? ai,
 }) async {
   OraclyL10n.bind(app);
-  final scripted = ai ?? ScriptedDreamAi(phase2AllRejected);
+  final scripted = ai ?? ScriptedDreamAi.grounded();
   final repo = MemDreamRepository();
   final service = DreamExperienceService(
     repository: repo,

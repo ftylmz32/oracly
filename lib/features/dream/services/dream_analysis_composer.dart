@@ -24,6 +24,7 @@ abstract final class DreamAnalysisComposer {
     required DreamUnderstanding understanding,
     required String language,
     DreamAiAnalysis? ai,
+    String? memorySummary,
   }) {
     final facts = DreamAnalysisFacts.from(
       narrative: dream.narrative,
@@ -34,7 +35,7 @@ abstract final class DreamAnalysisComposer {
     final seed = Object.hash(dream.id, facts.scene, facts.image).abs();
     final beats = <DreamInsightKind, _Beat>{
       DreamInsightKind.summary: _first(
-        [ai?.summary, ai?.emotionalTheme],
+        [ai?.summary],
         facts,
         () => DreamAnalysisBeats.feeling(facts, seed),
       ),
@@ -53,7 +54,7 @@ abstract final class DreamAnalysisComposer {
       // never competes with this beat.
       DreamInsightKind.personalConnection: _first(
         [ai?.dailyLifeReflection],
-        facts,
+        facts.withContext(memorySummary),
         () => DreamAnalysisBeats.you(facts),
       ),
       DreamInsightKind.themes: _local(

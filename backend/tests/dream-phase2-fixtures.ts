@@ -6,7 +6,7 @@ export const trNarrative = 'Ruyamda uzun bir yilan evden gecti ve sessizce gitti
 export const trGood: DreamData = {
   summary: 'Ruya, evden sessizce gecen bir yilanla sakin bir gecis hissi tasiyor.',
   symbols: ['yilan'],
-  emotionalTheme: 'Belirsizlik ile sakinlik ayni anda duruyor.',
+  emotionalTheme: 'Yilanin sessizce gidisinde belirsizlik ile sakinlik ayni anda duruyor.',
   interpretation:
     'Yilanin evden sessizce gecip gitmesi, tanidik bir alandan bir seyin gurultusuz ayrildigini dusunduruyor; burada tehdit degil, fark edilmeden olan bir gecis var.',
   dailyLifeReflection: 'Bugun acele etmeden, sessizce uzaklasan bir seyi fark etmek iyi gelebilir.',

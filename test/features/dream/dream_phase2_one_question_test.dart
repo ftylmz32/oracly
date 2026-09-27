@@ -1,10 +1,13 @@
 /// Dream Phase 2 — the closing carries exactly one open question.
 /// None or two-plus is rejected (never trimmed into one); `?` elsewhere in
-/// the reading never affects the closing.
+/// the reading never affects the client closing (the backend Phase 4B gate
+/// rejects it before delivery).
 library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
+import 'package:oracly_new/features/ai/production/ai_failure.dart';
+import 'package:oracly_new/features/ai/production/ai_request_exception.dart';
 import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart';
 import 'package:oracly_new/features/dream/models/dream_insight.dart';
 import 'package:oracly_new/features/dream/services/dream_analysis_facts.dart';
@@ -102,16 +105,21 @@ void main() {
       expect(DreamAnalysisGuard.questionMarks(closing.body), 1);
     });
 
+    // Phase 4B: the closing is a required premium section — a rejected one
+    // is an invalid response, never replaced by a local question.
     for (final bad in [
       'Açık pencereden içeri bir esinti giriyor, sessiz ev bekliyor.',
       'Pencere neden açıktı? Sessiz evde kim vardı?',
     ]) {
-      test('rejected closing falls back to one local question: $bad',
-          () async {
-        final closing = await _closing(bad);
-        expect(closing.source, DreamInsightSource.local);
-        expect(closing.body, isNot(bad));
-        expect(DreamAnalysisGuard.questionMarks(closing.body), 1);
+      test('rejected closing fails closed: $bad', () async {
+        await expectLater(
+          _closing(bad),
+          throwsA(isA<AiRequestException>().having(
+            (e) => e.failure.kind,
+            'kind',
+            AiFailureKind.invalidResponse,
+          )),
+        );
       });
     }
   });

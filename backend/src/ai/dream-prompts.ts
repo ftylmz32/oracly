@@ -1,6 +1,7 @@
 import type { OpenAiMessage } from '../types.js';
 import { responseLanguageDirective, type AppLanguage } from './app-language.js';
 import { dreamHistorySection, type DreamHistoryItem } from './dream-history.js';
+import { DREAM_FIELD_ROLES } from './dream-prompt-roles.js';
 import { sanitizeText, stringList } from './sanitize.js';
 
 /**
@@ -201,7 +202,7 @@ export function dreamMessages(
   return [
     {
       role: 'system',
-      content: `${copy.system} ${copy.safety} ${copy.history} ${responseLanguageDirective(language)}`,
+      content: `${copy.system} ${copy.safety} ${copy.history} ${DREAM_FIELD_ROLES[language]} ${responseLanguageDirective(language)}`,
     },
     {
       role: 'user',

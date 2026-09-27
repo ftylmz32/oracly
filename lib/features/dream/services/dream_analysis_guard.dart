@@ -10,6 +10,7 @@ import '../../../core/reading/ai_output_quality_kind.dart';
 import '../../content/dream/data/dream_symbol_catalogue.dart';
 import 'dream_analysis_facts.dart';
 import 'dream_grounding_words.dart';
+import 'dream_stated_feeling.dart';
 
 abstract final class DreamAnalysisGuard {
   DreamAnalysisGuard._();
@@ -128,6 +129,7 @@ abstract final class DreamAnalysisGuard {
       if (DreamGroundingWords.mentions(facts.told, token, facts.language)) {
         continue;
       }
+      if (DreamStatedFeeling.tells(item.id, facts.told)) continue;
       return true;
     }
     return false;

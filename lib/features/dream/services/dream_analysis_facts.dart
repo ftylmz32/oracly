@@ -36,6 +36,26 @@ class DreamAnalysisFacts {
 
   bool get isEmpty => told.isEmpty;
 
+  /// These facts with [context] — the safe connected memory actually sent
+  /// with the request — also counted as told. Only the daily reflection
+  /// may lean on it; every other section stays bound to the Dream.
+  DreamAnalysisFacts withContext(String? context) {
+    final extra = context?.trim() ?? '';
+    if (extra.isEmpty) return this;
+    return DreamAnalysisFacts(
+      told: '$told $extra',
+      scene: scene,
+      emotion: emotion,
+      image: image,
+      companion: companion,
+      place: place,
+      person: person,
+      tag: tag,
+      detail: detail,
+      language: language,
+    );
+  }
+
   static DreamAnalysisFacts from({
     required String narrative,
     required DreamUnderstanding understanding,

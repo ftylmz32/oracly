@@ -33,7 +33,7 @@ class _CountingRepo extends MemDreamRepository {
 /// Fails its first [failures] calls, as a timed-out paid attempt would —
 /// nothing is saved, so the retry sees the same history.
 class _FailingFirstAi extends ScriptedDreamAi {
-  _FailingFirstAi({required this.failures}) : super(phase2AllAccepted);
+  _FailingFirstAi({required this.failures}) : super.grounded();
 
   final int failures;
 
@@ -59,7 +59,7 @@ void main() {
 
   setUp(() {
     repo = _CountingRepo();
-    ai = ScriptedDreamAi(phase2AllAccepted);
+    ai = ScriptedDreamAi.grounded();
     service = DreamExperienceService(
       repository: repo,
       owner: testDreamOwner(),

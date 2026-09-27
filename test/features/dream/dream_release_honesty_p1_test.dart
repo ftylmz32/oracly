@@ -22,6 +22,7 @@ import 'package:oracly_new/features/dream/presentation/reference/dream_reference
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
 
 import 'dream_honesty_fakes.dart';
+import 'dream_phase2_support.dart';
 import '../../support/dream_test_owner.dart';
 
 const _narrative = 'Rüyamda sessiz bir ev ve açık bir pencere vardı.';
@@ -103,36 +104,33 @@ void main() {
     );
     expect(prodProxy.isConfigured, isTrue);
     expect(prodProxy.allowsLocalFallback, isFalse);
+    // Phase 4B: a live reading ships only when every required section is
+    // accepted AI, so the honest disclosure is AI — never silently mixed.
     final repo = MemDreamRepository();
     final result = await DreamExperienceService(
       repository: repo,
       owner: testDreamOwner(),
-      ai: const LiveDreamAiStub(),
+      ai: ScriptedDreamAi(phase2AllAccepted),
     ).analyze(narrative: _narrative);
     expect(result.dream.fromAi, isTrue);
-    expect(
-      result.dream.insights.map((i) => i.body),
-      contains(LiveDreamAiStub.interpretation),
-    );
     final interpretation = result.dream.insights.firstWhere(
-      (i) => i.body == LiveDreamAiStub.interpretation,
+      (i) => i.kind == DreamInsightKind.mainInterpretation,
     );
+    expect(interpretation.body, LiveDreamAiStub.interpretation);
     expect(interpretation.source, DreamInsightSource.ai);
-    // The stub's short summary/closing fail the guard and are replaced
-    // locally, so the honest disclosure is mixed — never AI-only.
     expect(
       DreamReadingProvenance.of(result.dream),
-      DreamProvenance.mixed,
+      DreamProvenance.aiOnly,
     );
     expect(
       DreamCopy.readingFootnote(DreamReadingProvenance.of(result.dream)),
-      startsWith(DreamCopy.sourceMixed),
+      startsWith(DreamCopy.sourceAi),
     );
     final restored = DreamRecordMapper.fromRecord((await repo.getAll()).single);
     expect(restored.fromAi, isTrue);
     expect(
       DreamReadingProvenance.of(restored),
-      DreamProvenance.mixed,
+      DreamProvenance.aiOnly,
     );
     expect(
       restored.insights.map((i) => i.body),

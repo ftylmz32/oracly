@@ -4,15 +4,15 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
+import 'package:oracly_new/features/ai/production/ai_failure.dart';
+import 'package:oracly_new/features/ai/production/ai_request_exception.dart';
 import 'package:oracly_new/features/ai/production/contexts/reading_ai_context.dart';
 import 'package:oracly_new/features/ai/production/dream_request_identity.dart';
 import 'package:oracly_new/features/dream/models/dream.dart';
 import 'package:oracly_new/features/dream/models/dream_emotion.dart';
 import 'package:oracly_new/features/dream/models/dream_entry_context.dart';
-import 'package:oracly_new/features/dream/models/dream_provenance.dart';
 import 'package:oracly_new/features/dream/models/dream_symbol.dart';
 import 'package:oracly_new/features/dream/services/dream_provider_evidence.dart';
-import 'package:oracly_new/features/dream/services/dream_reading_provenance.dart';
 import 'package:oracly_new/features/gems/services/paid_ai_operation_binder.dart';
 
 import 'dream_phase21_support.dart';
@@ -104,15 +104,19 @@ void main() {
     expect(keys[2], isNot(keys[0]));
   });
 
+  // Phase 4B: an ungrounded reply is an invalid response — it is no longer
+  // stored as a local-only reading.
   test('unknown language → app language; ungrounded reply fails closed',
       () async {
     final ai = ScriptedDreamAi(phase2AllRejected);
-    final (context, repo, _) =
-        await send('Mira, Leo, 12:30.', app: 'ru', ai: ai);
-    expect(context.language, 'ru');
-    final stored = (await repo.getAll()).single;
-    final dream = Dream.fromJson(Map<String, dynamic>.from(stored.payload!));
-    expect(dream.fromAi, isFalse);
-    expect(DreamReadingProvenance.of(dream), DreamProvenance.localOnly);
+    await expectLater(
+      send('Mira, Leo, 12:30.', app: 'ru', ai: ai),
+      throwsA(isA<AiRequestException>().having(
+        (e) => e.failure.kind,
+        'kind',
+        AiFailureKind.invalidResponse,
+      )),
+    );
+    expect(ai.contexts.single.language, 'ru');
   });
 }

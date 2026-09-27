@@ -14,6 +14,8 @@ import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart'
 import 'package:oracly_new/features/ai/production/models/palm_ai_analysis.dart';
 import 'package:oracly_new/features/ai/production/oracly_ai_service.dart';
 
+import 'dream_grounded_reply.dart';
+
 class LiveDreamAiStub implements OraclyAiService {
   const LiveDreamAiStub();
 
@@ -39,18 +41,11 @@ class LiveDreamAiStub implements OraclyAiService {
   }) async =>
       AiOutcome.failure(AiFailure.noConfiguration());
 
+  /// A complete, grounded reply (Phase 4B: a partial one is an invalid
+  /// response, never silently completed on device).
   @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) async {
-    return AiOutcome.success(
-      const DreamAiAnalysis(
-        summary: 'Sakin bir ev imgesi.',
-        symbols: ['Ev', 'Pencere'],
-        emotionalTheme: 'Dinginlik.',
-        interpretation: interpretation,
-        dailyLifeReflection: 'Bir pencereye yaklaşmak yeterli olabilir.',
-        conclusion: 'Bugün bir nefes ara.',
-      ),
-    );
+    return AiOutcome.success(groundedDreamReply(context));
   }
 
   @override

@@ -34,7 +34,7 @@ const MIN_CHARS: Array<[keyof DreamData, number]> = [
   ['conclusion', 16],
 ];
 
-const STOP = new Set([
+export const STOP = new Set([
   // tr (folded)
   'icin', 'gibi', 'olan', 'daha', 'kadar', 'sonra', 'onlar', 'bunu', 'senin',
   'sana', 'seni', 'bana', 'beni', 'olarak', 'olabilir', 'belki', 'degil',
@@ -111,15 +111,15 @@ export function evaluateDreamQuality(
 /** Lowercase + fold Turkish letters and ё so spelling variants compare. */
 export const foldDream = asciiFold;
 
-function tokens(s: string): string[] {
+export function tokens(s: string): string[] {
   return foldDream(s).split(/[^a-z0-9\u00e0-\u00ff\u0430-\u044f]+/).filter(Boolean);
 }
 
-function isDreamWord(w: string): boolean {
+export function isDreamWord(w: string): boolean {
   return /^(ruya|dream|сновид)/.test(w) || ['сон', 'сне', 'сна', 'сну', 'снов', 'сном', 'снах'].includes(w);
 }
 
-function significant(s: string): Set<string> {
+export function significant(s: string): Set<string> {
   return new Set(tokens(s).filter((w) => w.length >= 3 && !STOP.has(w) && !isDreamWord(w)));
 }
 
@@ -132,7 +132,7 @@ function symbolWords(symbol: string, language: AppLanguage): string[] {
 }
 
 /** GENERAL grounding — see dream-lexical `sameWord`. */
-function overlaps(text: Set<string>, evidence: Set<string>, language: AppLanguage): boolean {
+export function overlaps(text: Set<string>, evidence: Set<string>, language: AppLanguage): boolean {
   for (const w of text) {
     for (const e of evidence) if (sameWord(w, e, language)) return true;
   }

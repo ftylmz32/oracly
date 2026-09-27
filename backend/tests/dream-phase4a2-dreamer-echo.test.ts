@@ -125,8 +125,10 @@ describe('Dream Phase 4A.2 — route red team', () => {
     tr: { narrative: `${trNarrative} Evin kapısı açıktı. Bu rüyayı tekrar tekrar görüyorum.`, language: 'tr', history: [kapi] },
   };
 
+  // Phase 4B: a served reflection must also belong to this Dream, so the EN
+  // echo carries one Dream-grounded sentence; the history property is unchanged.
   it.each([
-    ['en', enGood, 'Rainbow keeps coming back in your dreams.', 'This seems to be a recurring dream.'],
+    ['en', enGood, 'Rainbow keeps coming back in your dreams.', 'Soft rain may be worth noticing today. This seems to be a recurring dream.'],
     ['tr', trGood, 'Kapıcı rüyalarında tekrar ediyor.', 'Bu rüyanın tekrar ettiği anlaşılıyor.'],
   ] as const)('%s: invented subject rejected once; generic echo served', async (lang, good, invented, generic) => {
     const payload = { ...payloads[lang], symbols: [], emotions: [] };

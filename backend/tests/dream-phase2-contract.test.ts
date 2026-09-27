@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { responseLanguageDirective, type AppLanguage } from '../src/ai/app-language.js';
+import { dreamAcceptanceFailure } from '../src/ai/dream-acceptance.js';
 import { DREAM_JSON_KEYS } from '../src/ai/dream-prompts.js';
 import {
   evaluateDreamQuality,
@@ -122,9 +123,12 @@ describe('Dream Phase 2 — backend quality gate', () => {
     expect(evaluateDreamQuality(ruTwo, input(ruNarrative, 'ru'))).toBe('conclusion_not_question');
     const wide = { ...enGood, conclusion: 'What would you want to find behind the red door？' };
     expect(evaluateDreamQuality(wide, input(enNarrative, 'en'))).toBeNull();
-    // A question mark in another section never counts against the conclusion.
+    // Phase 4B (intentional change): the Phase 2 gate alone still judges only
+    // the conclusion, but the served contract allows exactly one question —
+    // in the conclusion — so a `?` elsewhere is now rejected.
     const elsewhere = { ...trGood, summary: `${trGood.summary} Neden?` };
     expect(evaluateDreamQuality(elsewhere, input(trNarrative, 'tr', ['yilan']))).toBeNull();
+    expect(dreamAcceptanceFailure(elsewhere, input(trNarrative, 'tr', ['yilan']))).toBe('extra_question');
     for (const [good, narrative, lang] of [
       [trGood, trNarrative, 'tr'],
       [enGood, enNarrative, 'en'],

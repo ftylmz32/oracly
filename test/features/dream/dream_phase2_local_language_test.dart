@@ -1,6 +1,7 @@
-/// Dream Phase 2 — local replacements speak the operation language.
-/// Every AI field is rejected; the reading is on-device text only, and
-/// EN / RU sections never carry Turkish scaffolding or Turkish labels.
+/// Dream Phase 2 — local readings speak the operation language.
+/// The development local fallback composes on-device text only, and EN / RU
+/// sections never carry Turkish scaffolding or Turkish labels. (Phase 4B: a
+/// configured provider reply is never completed with this text.)
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -22,12 +23,23 @@ const _ruTold =
 
 const _fearful = [DreamEmotion(id: DreamEmotionId.fearful)];
 
+/// Development build: no provider, explicit local fallback.
+class _DevLocalAi extends LiveDreamAiStub {
+  const _DevLocalAi();
+
+  @override
+  bool get isConfigured => false;
+
+  @override
+  bool get allowsLocalFallback => true;
+}
+
 Future<List<DreamInsight>> _localReading(String told, String app) async {
   OraclyL10n.bind(app);
   final result = await DreamExperienceService(
     repository: MemDreamRepository(),
     owner: testDreamOwner(),
-    ai: ScriptedDreamAi(phase2AllRejected),
+    ai: const _DevLocalAi(),
   ).analyze(narrative: told, selectedEmotions: _fearful);
   expect(DreamReadingProvenance.of(result.dream), DreamProvenance.localOnly);
   expect(

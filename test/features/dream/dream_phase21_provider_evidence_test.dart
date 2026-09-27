@@ -91,7 +91,7 @@ void main() {
 
   test('reinterpret reuses the stored entry in the narrative language',
       () async {
-    final ai = ScriptedDreamAi(phase2AllRejected);
+    final ai = ScriptedDreamAi.grounded();
     final (_, _, service) = await send(
       trTold,
       app: 'en',
@@ -115,7 +115,7 @@ void main() {
   test('no context → no heading; lexicon feeling kept only where written',
       () async {
     OraclyL10n.bind('en');
-    final ai = ScriptedDreamAi(phase2AllRejected);
+    final ai = ScriptedDreamAi.grounded();
     await DreamExperienceService(
       repository: MemDreamRepository(),
       owner: testDreamOwner(),

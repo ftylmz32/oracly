@@ -1,0 +1,122 @@
+[
+  {
+    "id": "tr-rich-negated-fear",
+    "language": "tr",
+    "narrative": "Rüyamda eski bir köprünün üzerinde yürüyordum. Köprünün altından bulanık bir nehir akıyordu ve karşı kıyıda bir fener yanıyordu. Hiç korkmadım, sadece merak ettim.",
+    "data": {
+      "summary": "Rüya, bulanık bir akışın üstünde korkusuz ve meraklı bir geçişin hissini taşıyor.",
+      "symbols": ["köprü", "nehir", "fener"],
+      "emotionalTheme": "Korkunun yokluğunda merak ağır basıyor; akıntı bulanık olsa da bakış meraklı kalıyor.",
+      "interpretation": "Köprü, bulanık nehrin üstünde seni bir kıyıdan ötekine taşıyan bir bağ gibi duruyor; karşı kıyıdaki fener ise o bulanıklığı yok saymadan yönünü gösteriyor. Altta akan belirsizlik, yukarıdaki yürüyüşü korkuya değil merak dolu bir dikkate çeviriyor olabilir.",
+      "dailyLifeReflection": "Bugün netleşmemiş bir konunun üstünden geçerken karşı kıyıdaki fener gibi küçük bir işarete bakmak iyi gelebilir.",
+      "conclusion": "Karşı kıyıdaki fener sana hangi yönü hatırlatıyor olabilir?"
+    }
+  },
+  {
+    "id": "tr-sparse-door",
+    "language": "tr",
+    "narrative": "Rüyamda kapalı bir kapı gördüm.",
+    "data": {
+      "summary": "Rüya, kapalı bir kapının önünde duran sessiz bir bekleyişi anlatıyor.",
+      "symbols": ["kapı"],
+      "emotionalTheme": "Belirsiz, beklemeye yakın ama telaşsız bir ton; kapı henüz açılmamış.",
+      "interpretation": "Kapalı kapı, bir şeyin henüz sana açılmadığını değil, belki de açılma zamanını senin seçebileceğini düşündürüyor; rüya kapının ardını göstermediği için bu okuma yalnızca bir olasılık olarak kalıyor.",
+      "dailyLifeReflection": "Bugün önünde kapalı duran bir kapıyı zorlamadan, yalnızca orada olduğunu fark etmek yeterli olabilir.",
+      "conclusion": "O kapının ardında ne olmasını isterdin?"
+    }
+  },
+  {
+    "id": "tr-work-supported-memory",
+    "language": "tr",
+    "narrative": "Rüyamda iş yerimdeki masamda oturuyordum ama masanın üstü kumla doluydu. Patronum içeri girdi, ben kumu avuçlarımla temizlemeye çalıştım. Biraz tedirgindim.",
+    "memorySummary": "Yakın bir okumada düzen ihtiyacı ve yoğun bir dönem konuşulmuştu.",
+    "data": {
+      "summary": "Rüya, düzenli olması beklenen bir masada biriken kumla gelen hafif bir tedirginliği taşıyor.",
+      "symbols": ["masa", "kum", "patron"],
+      "emotionalTheme": "Hafif bir tedirginlik var; büyük bir dehşet değil, yetişmeye çalışan bir telaş.",
+      "interpretation": "İş yerindeki masanın kumla dolması, düzen beklenen bir alanın kayıp giden bir şeyle kaplandığını düşündürüyor; patronun içeri girdiği anda kumu avuçlarınla temizlemeye çalışman, bu dağınıklığı görünmeden toparlama isteğiyle birleşiyor olabilir.",
+      "dailyLifeReflection": "Bağlamda anılan düzen ihtiyacı masadaki kumla da yankılanıyor; bugün küçük bir alanı acele etmeden toparlamak iyi gelebilir.",
+      "conclusion": "Masadaki kumu temizlerken en çok neyi korumak istiyordun?"
+    }
+  },
+  {
+    "id": "en-rich-negated-fear",
+    "language": "en",
+    "narrative": "I was climbing a spiral staircase inside a lighthouse. The lamp at the top was dark, and waves hit the rocks below. I wasn't scared, just tired.",
+    "data": {
+      "summary": "The dream carries a tired but steady climb toward a lamp that has gone dark.",
+      "symbols": ["lighthouse", "spiral staircase", "waves"],
+      "emotionalTheme": "Tiredness without fear; the climb feels heavy rather than threatening.",
+      "interpretation": "Climbing the spiral staircase toward a dark lamp turns effort into a question of purpose: the lighthouse is meant to guide others, yet its lamp is out while the waves keep striking the rocks below. Your tiredness sits between those two details, as if the climb continues even though the signal at the top is not yet lit.",
+      "dailyLifeReflection": "Today you might notice one effort you keep climbing through even while the lamp at its top feels dark, and give it a moment of rest.",
+      "conclusion": "What would you hope to see if the lamp at the top of the lighthouse came on?"
+    }
+  },
+  {
+    "id": "en-sparse-horse",
+    "language": "en",
+    "narrative": "I dreamed of a white horse standing still.",
+    "data": {
+      "summary": "A quiet, suspended image: a white horse holding perfectly still.",
+      "symbols": ["white horse"],
+      "emotionalTheme": "A hushed, watchful quiet around the standing horse, with no feeling named.",
+      "interpretation": "The white horse standing still holds strength in pause: an animal made for movement chooses not to move, which may point to strength that is present but waiting for a reason to go.",
+      "dailyLifeReflection": "Today it may help to notice where you are standing still like that white horse, strong but unhurried.",
+      "conclusion": "What would need to happen for the white horse to start moving?"
+    }
+  },
+  {
+    "id": "en-partner-supported-memory",
+    "language": "en",
+    "narrative": "My partner and I were packing boxes in an empty apartment, but every box I closed opened again. I felt frustrated and a little sad.",
+    "memorySummary": "A recent reading touched on a move and on making space for something new.",
+    "data": {
+      "summary": "The dream holds the frustration of trying to close things that will not stay shut in a space that is already empty.",
+      "symbols": ["boxes", "empty apartment"],
+      "emotionalTheme": "Frustration with a quiet thread of sadness running underneath it.",
+      "interpretation": "Packing boxes with your partner in an empty apartment suggests a shared transition, yet each box that springs open leaves the packing unfinished; the emptiness of the apartment and the boxes that refuse to stay closed seem to pull in opposite directions, which may be where the frustration and sadness gather.",
+      "dailyLifeReflection": "With the move mentioned in your recent context, it may help today to close one small box, literal or not, and let it stay closed.",
+      "conclusion": "Which box would you most want to stay closed, and what is inside it?"
+    }
+  },
+  {
+    "id": "ru-rich-negated-fear",
+    "language": "ru",
+    "narrative": "Мне снилось, что я плыла на маленькой лодке по ночному озеру. Над водой висела огромная луна, а на берегу горел костёр. Мне не было страшно, было спокойно.",
+    "data": {
+      "summary": "Сон держит тихое, спокойное скольжение по тёмной воде к тёплому огню на берегу.",
+      "symbols": ["лодка", "озеро", "луна", "костёр"],
+      "emotionalTheme": "Спокойствие без страха, с мягким вниманием к огню впереди.",
+      "interpretation": "Маленькая лодка на ночном озере кажется хрупкой, но огромная луна над водой и костёр на берегу дают два разных света: один далёкий и холодный, другой близкий и тёплый. Твоё спокойствие между ними может говорить о том, что путь к теплу уже ощущается безопасным.",
+      "dailyLifeReflection": "Сегодня можно заметить, что в твоём дне похоже на костёр на берегу — близкое тепло, к которому хочется плыть.",
+      "conclusion": "Что ты хотела бы найти у костра на берегу, когда лодка причалит?"
+    }
+  },
+  {
+    "id": "ru-sparse-station",
+    "language": "ru",
+    "narrative": "Мне снился пустой вокзал.",
+    "data": {
+      "summary": "Сон оставляет образ пустого вокзала и паузы перед чем-то неназванным.",
+      "symbols": ["вокзал"],
+      "emotionalTheme": "Тихое ожидание на пустом вокзале, где чувства прямо не названы.",
+      "interpretation": "Пустой вокзал — место, где обычно много движения, но здесь никого нет; это может говорить о паузе между отъездом и прибытием, когда направление ещё не выбрано.",
+      "dailyLifeReflection": "Сегодня можно немного постоять на таком же пустом вокзале, не торопясь выбирать направление.",
+      "conclusion": "Куда бы ты хотела отправиться с этого пустого вокзала?"
+    }
+  },
+  {
+    "id": "ru-family-supported-memory",
+    "language": "ru",
+    "narrative": "Во сне мама звала меня из сада, но я не могла найти калитку. Я ходила вдоль забора и чувствовала тревогу.",
+    "memorySummary": "Недавнее чтение касалось границ и поиска выхода.",
+    "data": {
+      "summary": "Сон передаёт тревожный поиск калитки на пути к знакомому голосу из сада.",
+      "symbols": ["калитка", "забор", "сад"],
+      "emotionalTheme": "Тревога поиска, в которой зов звучит ближе, чем путь к нему.",
+      "interpretation": "Мама зовёт из сада, а калитки не видно: голос близко, но граница забора разделяет вас. Хождение вдоль забора соединяет эту близость с тревогой — будто путь есть, но ещё не найден, и именно это напряжение держит сон.",
+      "dailyLifeReflection": "Недавний разговор о границах перекликается с этим забором; сегодня можно поискать одну маленькую калитку в том, что кажется закрытым.",
+      "conclusion": "Что могло бы помочь тебе найти калитку в этом заборе?"
+    }
+  }
+]
