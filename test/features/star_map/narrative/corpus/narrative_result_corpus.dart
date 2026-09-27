@@ -48,15 +48,9 @@ abstract final class NarrativeResultCorpus {
             'themeRefs': <String>[],
           },
         ],
-        'reflectionPrompt': _block(
-          'Hangi alışkanlığın seni yavaş ama emin adımlarla besliyor?',
-          facts: ['placement.sun'],
-        ),
-        'closingMessage': _block(
-          'Bu kısa okuma sınırlı kanıtla yazıldı; yine de kendi ritmini '
+        'reflectionPrompt': 'Hangi alışkanlığın seni yavaş ama emin adımlarla besliyor?',
+        'closingMessage': 'Bu kısa okuma sınırlı kanıtla yazıldı; yine de kendi ritmini '
           'dinlemek için yeterli bir durak olabilir.',
-          facts: ['placement.sun'],
-        ),
       };
 
   static Map<String, dynamic> reducedEn() => {
@@ -94,14 +88,8 @@ abstract final class NarrativeResultCorpus {
             'themeRefs': <String>[],
           },
         ],
-        'reflectionPrompt': _block(
-          'Where do steadiness and emotional honesty ask for the same care?',
-          facts: ['placement.sun', 'placement.moon'],
-        ),
-        'closingMessage': _block(
-          'This reduced reading stays within interval-safe facts only.',
-          facts: ['placement.sun'],
-        ),
+        'reflectionPrompt': 'Where do steadiness and emotional honesty ask for the same care?',
+        'closingMessage': 'This reduced reading stays within interval-safe facts only.',
       };
 
   static Map<String, dynamic> fullEn() => NarrativeFullCorpus.en();

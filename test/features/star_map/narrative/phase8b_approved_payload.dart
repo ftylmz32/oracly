@@ -106,13 +106,7 @@ Map<String, dynamic> phase8bApprovedPayload(YildiznameNarrativeRequest request) 
       facts: [sun.factRef, second.factRef],
     ),
     'sections': sections,
-    'reflectionPrompt': _block(
-      'Where do steadiness and emotional honesty ask for the same care today?',
-      facts: [sun.factRef, second.factRef],
-    ),
-    'closingMessage': _block(
-      'This reading stays within the facts you offered and leaves room for your own sense.',
-      facts: [sun.factRef],
-    ),
+    'reflectionPrompt': 'Where do steadiness and emotional honesty ask for the same care today?',
+    'closingMessage': 'This reading stays within the facts you offered and leaves room for your own sense.',
   };
 }

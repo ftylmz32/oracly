@@ -1,4 +1,6 @@
-/// Immutable structured Narrative V1 result.
+/// Immutable structured Narrative V1 result — the FROZEN Phase 5 shape:
+/// `summary` and `sections` are evidence-bearing blocks; `reflectionPrompt`
+/// (nullable) and `closingMessage` are plain strings that own no refs.
 library;
 
 import '../request/yildizname_narrative_scope.dart';
@@ -20,13 +22,13 @@ final class YildiznameNarrativeStructuredResult {
   final YildiznameNarrativeScope scope;
   final YildiznameNarrativeBlock summary;
   final List<YildiznameNarrativeSection> sections;
-  final YildiznameNarrativeBlock reflectionPrompt;
-  final YildiznameNarrativeBlock closingMessage;
+  /// `null` when the writer chose no reflection prompt.
+  final String? reflectionPrompt;
+  final String closingMessage;
 
+  /// Refs come ONLY from the blocks that own them (summary + sections).
   Iterable<String> get allFactRefs sync* {
     yield* summary.factRefs;
-    yield* reflectionPrompt.factRefs;
-    yield* closingMessage.factRefs;
     for (final s in sections) {
       yield* s.factRefs;
     }
@@ -34,21 +36,21 @@ final class YildiznameNarrativeStructuredResult {
 
   Iterable<String> get allThemeRefs sync* {
     yield* summary.themeRefs;
-    yield* reflectionPrompt.themeRefs;
-    yield* closingMessage.themeRefs;
     for (final s in sections) {
       yield* s.themeRefs;
     }
   }
 
   String get visibleProse {
-    final b = StringBuffer()
-      ..writeln(summary.text)
-      ..writeln(reflectionPrompt.text)
-      ..writeln(closingMessage.text);
+    final b = StringBuffer()..writeln(summary.text);
     for (final s in sections) {
       b.writeln(s.text);
     }
+    final reflection = reflectionPrompt;
+    if (reflection != null && reflection.trim().isNotEmpty) {
+      b.writeln(reflection);
+    }
+    b.writeln(closingMessage);
     return b.toString();
   }
 }

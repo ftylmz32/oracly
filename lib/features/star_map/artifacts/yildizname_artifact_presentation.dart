@@ -175,6 +175,26 @@ abstract final class YildiznameArtifactPresentation {
       );
     }
 
+    // Reflection / closing are plain strings in the frozen contract (canonical
+    // new artifacts). A historical internal artifact written in the old
+    // client-only block shape is DISPLAY-read by its `text` only: nothing is
+    // migrated, its hash is untouched, and its old refs gain no authority.
+    void prose(Object? raw, YildiznameSectionRole role) {
+      final text = switch (raw) {
+        final String s => s,
+        final Map m => m['text'] is String ? m['text'] as String : '',
+        _ => '',
+      };
+      if (text.trim().isEmpty) return;
+      out.add(
+        StarMapResultSection(
+          title: YildiznameResultChrome.roleTitle(role, lang),
+          body: text,
+          role: role,
+        ),
+      );
+    }
+
     block(result['summary'], YildiznameSectionRole.summary);
     final rawSections = result['sections'];
     if (rawSections is List) {
@@ -194,8 +214,8 @@ abstract final class YildiznameArtifactPresentation {
         );
       }
     }
-    block(result['reflectionPrompt'], YildiznameSectionRole.reflection);
-    block(result['closingMessage'], YildiznameSectionRole.closing);
+    prose(result['reflectionPrompt'], YildiznameSectionRole.reflection);
+    prose(result['closingMessage'], YildiznameSectionRole.closing);
     return out;
   }
 

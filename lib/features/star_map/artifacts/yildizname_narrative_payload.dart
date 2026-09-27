@@ -39,8 +39,9 @@ abstract final class YildiznameNarrativePayload {
               'themeRefs': List<String>.from(s.themeRefs),
             },
         ],
-        'reflectionPrompt': _block(r.reflectionPrompt),
-        'closingMessage': _block(r.closingMessage),
+        // Frozen contract shape: string|null + string, never evidence blocks.
+        'reflectionPrompt': r.reflectionPrompt,
+        'closingMessage': r.closingMessage,
       };
 
   static Map<String, dynamic> _block(YildiznameNarrativeBlock b) => {
@@ -80,9 +81,9 @@ abstract final class YildiznameNarrativePayload {
       }
     }
 
+    // Only summary + sections own refs. Reflection / closing carry none, and a
+    // historical block-shaped value gains no evidence authority here.
     take(result['summary']);
-    take(result['reflectionPrompt']);
-    take(result['closingMessage']);
     final sections = result['sections'];
     if (sections is List) {
       for (final s in sections) {

@@ -66,6 +66,17 @@ abstract final class YildiznameResultParseParts {
     return t;
   }
 
+  /// Frozen `reflectionPrompt`: `null` OR a non-empty bounded string.
+  /// A block/map is NOT the provider contract and is rejected.
+  static String? optionalString(
+    Map<String, dynamic> map,
+    String key, {
+    required int max,
+  }) {
+    if (map[key] == null) return null;
+    return requireString(map, key, min: 1, max: max);
+  }
+
   static List<String> requireStringList(
     Map<String, dynamic> map,
     String key,

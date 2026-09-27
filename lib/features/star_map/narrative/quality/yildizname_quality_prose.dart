@@ -58,7 +58,7 @@ abstract final class YildiznameQualityProse {
   static void _rejectRepetition(YildiznameNarrativeStructuredResult result) {
     final texts = <String>[
       result.summary.text.trim().toLowerCase(),
-      result.closingMessage.text.trim().toLowerCase(),
+      result.closingMessage.trim().toLowerCase(),
       for (final s in result.sections) s.text.trim().toLowerCase(),
     ];
     final seen = <String>{};
@@ -72,7 +72,7 @@ abstract final class YildiznameQualityProse {
       }
     }
     if (result.summary.text.trim().toLowerCase() ==
-        result.closingMessage.text.trim().toLowerCase()) {
+        result.closingMessage.trim().toLowerCase()) {
       throw YildiznameResultException(
         YildiznameResultErrorKind.prose,
         'summaryEqualsClosing',

@@ -67,10 +67,7 @@ Map<String, dynamic> narrativeFullMap({
         'themeRefs': <String>[],
       },
     ],
-    'reflectionPrompt': block(
-      reflect,
-      facts: ['placement.sun', 'placement.moon'],
-    ),
-    'closingMessage': block(close, facts: ['placement.sun']),
+    'reflectionPrompt': reflect,
+    'closingMessage': close,
   };
 }

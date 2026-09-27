@@ -350,8 +350,8 @@ YildiznameNarrativeStructuredResult yildiznameFixtureResult({
           themeRefs: const [],
         ),
     ],
-    reflectionPrompt: block(reflection),
-    closingMessage: block(closing),
+    reflectionPrompt: reflection,
+    closingMessage: closing,
   );
 }
 

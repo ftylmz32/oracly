@@ -97,15 +97,18 @@ abstract final class YildiznameResultParser {
         maxText: kYildiznameMaxSummaryChars,
       ),
       sections: sections,
-      reflectionPrompt: YildiznameResultParseParts.parseBlock(
-        data['reflectionPrompt'],
-        minText: 10,
-        maxText: kYildiznameMaxReflectionChars,
+      // Frozen contract: plain strings that own no refs (backend
+      // `parseYildiznameNarrativeResult`: nullable / non-empty).
+      reflectionPrompt: YildiznameResultParseParts.optionalString(
+        data,
+        'reflectionPrompt',
+        max: kYildiznameMaxReflectionChars,
       ),
-      closingMessage: YildiznameResultParseParts.parseBlock(
-        data['closingMessage'],
-        minText: 10,
-        maxText: kYildiznameMaxClosingChars,
+      closingMessage: YildiznameResultParseParts.requireString(
+        data,
+        'closingMessage',
+        min: 1,
+        max: kYildiznameMaxClosingChars,
       ),
     );
   }

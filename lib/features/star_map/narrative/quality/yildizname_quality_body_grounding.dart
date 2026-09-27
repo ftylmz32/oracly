@@ -4,6 +4,7 @@ library;
 import '../request/yildizname_narrative_request.dart';
 import '../result/yildizname_result_error.dart';
 import 'yildizname_grounding_lexicon.dart';
+import 'yildizname_lexical_token.dart';
 
 abstract final class YildiznameQualityBodyGrounding {
   YildiznameQualityBodyGrounding._();
@@ -12,8 +13,9 @@ abstract final class YildiznameQualityBodyGrounding {
 
   static void validate(
     YildiznameNarrativeRequest request,
-    String prose,
+    String rawProse,
   ) {
+    final prose = YildiznameLexicalToken.normalizeProse(rawProse);
     final byBody = <String, String>{
       for (final p in request.placements) p.body: p.sign,
     };
@@ -51,13 +53,14 @@ abstract final class YildiznameQualityBodyGrounding {
   ) {
     for (final b in bodyTokens) {
       for (final s in signTokens) {
-        final be = RegExp.escape(b);
-        final se = RegExp.escape(s);
+        // Body: a word START (inflection may follow). Sign: a WHOLE word.
+        final be = YildiznameLexicalToken.start(b);
+        final se = YildiznameLexicalToken.sign(s);
         final patterns = [
-          RegExp('$be\\s+(?:in|в)\\s+$se', caseSensitive: false),
-          RegExp('$be\\s+$se(?:\'d[ae]|\'t[ae])?', caseSensitive: false),
-          RegExp('$be.{0,6}$se\\s*burcunda', caseSensitive: false),
-          RegExp('$se\\s+$be', caseSensitive: false),
+          YildiznameLexicalToken.compile('$be\\s+(?:in|в)\\s+$se'),
+          YildiznameLexicalToken.compile('$be\\s+$se'),
+          YildiznameLexicalToken.compile('$be.{0,6}$se\\s*burcunda'),
+          YildiznameLexicalToken.compile('$se\\s+$be'),
         ];
         if (patterns.any((re) => re.hasMatch(prose))) return true;
       }
@@ -72,19 +75,29 @@ abstract final class YildiznameQualityBodyGrounding {
     List<String> signTokens,
   ) {
     for (final s in signTokens) {
-      final se = RegExp.escape(s);
+      final se = YildiznameLexicalToken.sign(s);
       final RegExp rising;
       if (bodyKey == 'ascendant') {
-        rising = RegExp(
-          '$se\\s+(?:rising|yükselen|yukselen)|'
-          '(?:ascendant|асцендент|yükselen|yukselen).{0,12}$se',
-          caseSensitive: false,
+        final after = YildiznameLexicalToken.anyStart(const [
+          'rising',
+          'yükselen',
+          'yukselen',
+        ]);
+        final before = YildiznameLexicalToken.anyStart(const [
+          'ascendant',
+          'асцендент',
+          'yükselen',
+          'yukselen',
+        ]);
+        rising = YildiznameLexicalToken.compile(
+          '$se\\s+$after|$before.{0,12}$se',
         );
       } else {
-        rising = RegExp(
-          '(?:midheaven|\\bmc\\b|gökyüzü).{0,12}$se|'
-          '$se\\s+(?:midheaven|\\bmc\\b)',
-          caseSensitive: false,
+        final mc = YildiznameLexicalToken.whole('mc');
+        final mid = YildiznameLexicalToken.start('midheaven');
+        final sky = YildiznameLexicalToken.start('gökyüzü');
+        rising = YildiznameLexicalToken.compile(
+          '(?:$mid|$mc|$sky).{0,12}$se|$se\\s+(?:$mid|$mc)',
         );
       }
       if (rising.hasMatch(prose)) return true;

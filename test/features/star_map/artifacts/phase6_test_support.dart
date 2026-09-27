@@ -86,16 +86,8 @@ YildiznameNarrativeStructuredResult sampleResult({
         themeRefs: themeRefs,
       ),
     ],
-    reflectionPrompt: YildiznameNarrativeBlock(
-      text: 'Bugün hangi odak sana daha dürüst geliyor?',
-      factRefs: const [],
-      themeRefs: const [],
-    ),
-    closingMessage: YildiznameNarrativeBlock(
-      text: 'Yavaşça kendi ritmine dön.',
-      factRefs: const [],
-      themeRefs: const [],
-    ),
+    reflectionPrompt: 'Bugün hangi odak sana daha dürüst geliyor?',
+    closingMessage: 'Yavaşça kendi ritmine dön.',
   );
 }
 

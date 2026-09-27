@@ -432,8 +432,8 @@ void main() {
       final expected = <String>[
         result['summary']['text'] as String,
         for (final s in result['sections'] as List) s['text'] as String,
-        result['reflectionPrompt']['text'] as String,
-        result['closingMessage']['text'] as String,
+        result['reflectionPrompt'] as String,
+        result['closingMessage'] as String,
       ];
       for (final locale in _locales) {
         final p = YildiznameArtifactPresentation.of(
