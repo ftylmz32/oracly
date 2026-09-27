@@ -3,11 +3,12 @@
  * dreamer's history. Runs after the Phase 2 quality gate; never relaxes it.
  *
  * Per sentence of the prose fields:
- *  - history_unsupported: a recurrence/prior-dream claim that neither names
- *    a supplied history item in the same sentence nor only echoes what a
- *    dreamer recurrence sentence itself says (Phase 4A.2, see
+ *  - history_unsupported: a recurrence/prior-dream claim carried by no single
+ *    evidence source — neither one named supplied history item (with no
+ *    words borrowed from other evidence) nor one dreamer recurrence sentence
+ *    that grounds all its content words (Phases 4A.2/4A.3, see
  *    dream-history-echo.ts); or stored-record wording ("saved dreams",
- *    "we have seen") without a named supplied item. Naming is strict
+ *    "we have seen") not carried by a named supplied item. Naming is strict
  *    (`sameStrict`: same word or a real inflection; "rainbow" never names
  *    "rain", "kapıcı" never names "kapı").
  *  - history_absolute: "always / every time / all your dreams" inflation.
@@ -19,7 +20,7 @@
  */
 import type { AppLanguage } from './app-language.js';
 import type { DreamHistoryItem } from './dream-history.js';
-import { echoesDreamer, SAVED_HISTORY } from './dream-history-echo.js';
+import { anchoredByItem, echoesDreamer, type Evidence, SAVED_HISTORY } from './dream-history-echo.js';
 import { lightFold, sameStrict } from './dream-lexical.js';
 import type { DreamData } from './parse-provider.js';
 
@@ -40,7 +41,7 @@ const rx = (alts: string[]) => new RegExp(`(?<![\\p{L}\\p{N}])(?:${alts.join('|'
 
 const CLAIM = rx([
   String.raw`recur\p{L}*`,
-  String.raw`(?:previous|past|earlier|prior|other|former|older) dreams?`,
+  String.raw`(?:previous|past|earlier|prior|other|former|older|recent) dreams?`,
   String.raw`(?:appeared|appears|showed up|shown up|came up|come up|turned up) (?:in your dreams )?before`,
   String.raw`again and again`,
   String.raw`keeps? (?:coming back|returning|reappearing|appearing|showing up|turning up)`,
@@ -57,9 +58,10 @@ const CLAIM = rx([
   String.raw`defalarca`,
   String.raw`dönüp dolaş\p{L}*`,
   String.raw`yine karşına`,
-  String.raw`rüyalar\p{L}* (?:gel|gir|dön)\p{L}*`,
+  String.raw`rüyalar\p{L}* (?:tekrar |yine )?(?:gel|gir|dön)\p{L}*`,
   String.raw`повторя\p{L}*`,
   String.raw`снова и снова`,
+  String.raw`(?:снова|опять) (?:снит|снят|снил|снишь)\p{L}*`,
   String.raw`(?:прошл|предыдущ|прежн|други|ранн)\p{L}* сн\p{L}*`,
   String.raw`в который раз`,
   String.raw`уже (?:снил|снят|снит|появлял|встречал)\p{L}*`,
@@ -153,10 +155,12 @@ function itemStems(item: DreamHistoryItem): string[] {
 
 const SENTENCES = /[.!?…;\n]+/u;
 
-/** Words of the dreamer's own recurrence sentences only; null when there is none. */
-function dreamerRecurrenceWords(narrative: string): string[] | null {
-  const segments = narrative.split(SENTENCES).filter((segment) => hits(CLAIM, segment).length > 0);
-  return segments.length ? segments.flatMap(wordsOf) : null;
+/** One word list per dreamer sentence that itself states recurrence; never pooled. */
+function dreamerRecurrenceSegments(narrative: string): Evidence[] {
+  return narrative
+    .split(SENTENCES)
+    .filter((segment) => hits(CLAIM, segment).length > 0)
+    .map(wordsOf);
 }
 
 function countValue(raw: string): number {
@@ -169,7 +173,8 @@ export function dreamHistoryClaimViolation(
 ): DreamHistoryClaimFailure | null {
   const history = input.history ?? [];
   const narrative = lightFold(input.narrative);
-  const dreamerWords = dreamerRecurrenceWords(narrative);
+  const segments = dreamerRecurrenceSegments(narrative);
+  const itemWords = history.map(itemStems);
   const allowed = new Set(history.flatMap((i) => [i.priorCount, i.priorCount + 1]));
   const prose = [data.summary, data.emotionalTheme, data.interpretation, data.dailyLifeReflection, data.conclusion];
   for (const field of prose) {
@@ -189,11 +194,15 @@ export function dreamHistoryClaimViolation(
       const counts = [...hits(DREAM_COUNT, s), ...(claim || named.length ? hits(TIMES_COUNT, s) : [])];
       const invented = counts.filter((m) => !narrative.includes(m[0]));
       if (invented.some((m) => !allowed.has(countValue(m[1]!)))) return 'history_count';
-      if (named.length) continue;
-      if (hits(SAVED_HISTORY, s).length) return 'history_unsupported';
-      if (!claim) continue;
-      const echoed = dreamerWords && echoesDreamer(wordsOf(s.replace(CLAIM, ' ')), dreamerWords, input.language);
-      if (!echoed) return 'history_unsupported';
+      const saved = hits(SAVED_HISTORY, s).length > 0;
+      if (!claim && !saved) continue;
+      const words = wordsOf(s.replace(CLAIM, ' ').replace(SAVED_HISTORY, ' '));
+      const viaHistory = history.some((item, i) => {
+        if (!named.includes(item)) return false;
+        const others = [...segments, ...itemWords.filter((_, j) => j !== i)];
+        return anchoredByItem(words, itemWords[i]!, others, input.language);
+      });
+      if (!viaHistory && (saved || !echoesDreamer(words, segments, input.language))) return 'history_unsupported';
     }
   }
   return null;

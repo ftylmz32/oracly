@@ -85,6 +85,21 @@ Consequences:
 
 Absolute, count, date and fate rules apply to echoes unchanged.
 
+### Phase 4A.3 — one evidence source per claim
+
+Evidence is kept as separate sources: one word list for each dreamer sentence that states recurrence, and one for each supplied history item. Sources are never pooled.
+
+- **Dreamer echo.** A single recurrence sentence must ground every content word. Take "I keep dreaming of a red door. The sea keeps returning." It supports "the red door keeps returning" and "the sea keeps returning". It does not support "the red sea" or "the sea door".
+- **Saved history.** The named item anchors the claim. No other content word in the sentence may come from a different source, meaning another recurrence sentence or another supplied item. History `door` plus "I keep dreaming of a red room" never yields "the red door keeps returning". A word that belongs to no evidence source is not borrowed evidence, so commentary around a named item still passes ("Kapıda beklemek önceki rüyalarında da vardı").
+- **Stored-record wording** ("saved dreams") must be carried by the saved-history route alone.
+
+Known fail-closed limits:
+
+- A sentence that names two supplied items is rejected, because separate sentences are the supported form.
+- Clauses split by commas are not separated; only sentence boundaries split evidence.
+
+New claim phrasings: "recent dreams", TR "rüyalarıma tekrar / yine geliyor", RU "снова / опять снится".
+
 ## Visible section
 
 `DreamInsightKind.recurringPattern` is a local, deterministic insight. Its

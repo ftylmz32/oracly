@@ -1,11 +1,15 @@
 /**
- * Dream Phase 4A.2 — what a dreamer's own recurrence statement establishes.
+ * Dream Phase 4A.2 / 4A.3 — what one piece of recurrence evidence establishes.
  *
  * A dreamer sentence that says something recurs is evidence only for the
  * words in that sentence. A provider echo may repeat those words (strictly,
  * via `sameStrict`) and generic recurrence wording, nothing else: a generic
  * "this dream keeps coming back" authorizes only a generic echo. There is
  * no coreference inference; an unlinkable subject fails closed.
+ *
+ * Evidence sources are never combined: one recurrence sentence, or one
+ * supplied history item, must carry the claim. "Red" from one sentence and
+ * "sea" from another (or from a history item) never make a "red sea".
  */
 import type { AppLanguage } from './app-language.js';
 import { sameStrict } from './dream-lexical.js';
@@ -63,16 +67,36 @@ const GENERIC_STEM = new RegExp(
   'u',
 );
 
+/** Numbers are owned by the count gate, which runs first. */
 export function isGenericWord(word: string): boolean {
-  return GENERIC.has(word) || GENERIC_STEM.test(word);
+  return GENERIC.has(word) || GENERIC_STEM.test(word) || /^\p{N}+$/u.test(word);
 }
 
+/** The words of one evidence source: a dreamer recurrence sentence or a history item. */
+export type Evidence = readonly string[];
+
 const bound = (a: string, b: string, language: AppLanguage) => sameStrict(a, b, language) || sameStrict(b, a, language);
+const within = (word: string, source: Evidence, language: AppLanguage) => source.some((d) => bound(d, word, language));
 
 /**
- * True when every content word of a provider claim (claim wording already
- * removed) is generic or strictly one of the dreamer's recurrence words.
+ * True when ONE dreamer recurrence sentence grounds every content word of a
+ * provider claim (claim wording already removed); sentences are never pooled.
  */
-export function echoesDreamer(providerWords: string[], dreamerWords: string[], language: AppLanguage): boolean {
-  return providerWords.every((w) => isGenericWord(w) || dreamerWords.some((d) => bound(d, w, language)));
+export function echoesDreamer(providerWords: string[], segments: readonly Evidence[], language: AppLanguage): boolean {
+  return segments.some((segment) => providerWords.every((w) => isGenericWord(w) || within(w, segment, language)));
+}
+
+/**
+ * True when a named history item carries the claim alone: no content word
+ * outside the item is borrowed from another evidence source.
+ */
+export function anchoredByItem(
+  providerWords: string[],
+  item: Evidence,
+  others: readonly Evidence[],
+  language: AppLanguage,
+): boolean {
+  return providerWords.every(
+    (w) => isGenericWord(w) || within(w, item, language) || !others.some((o) => within(w, o, language)),
+  );
 }
