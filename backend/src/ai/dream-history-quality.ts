@@ -3,11 +3,13 @@
  * dreamer's history. Runs after the Phase 2 quality gate; never relaxes it.
  *
  * Per sentence of the prose fields:
- *  - history_unsupported: a recurrence/prior-dream claim that does not name
- *    a supplied history item in the same sentence. Naming is strict
+ *  - history_unsupported: a recurrence/prior-dream claim that neither names
+ *    a supplied history item in the same sentence nor only echoes what a
+ *    dreamer recurrence sentence itself says (Phase 4A.2, see
+ *    dream-history-echo.ts); or stored-record wording ("saved dreams",
+ *    "we have seen") without a named supplied item. Naming is strict
  *    (`sameStrict`: same word or a real inflection; "rainbow" never names
- *    "rain", "kapıcı" never names "kapı"). A dreamer who wrote that the
- *    dream recurs may be echoed.
+ *    "rain", "kapıcı" never names "kapı").
  *  - history_absolute: "always / every time / all your dreams" inflation.
  *  - history_count: a dream count that is neither supplied nor told by the
  *    dreamer, or "many dreams / many times" about dreaming.
@@ -17,6 +19,7 @@
  */
 import type { AppLanguage } from './app-language.js';
 import type { DreamHistoryItem } from './dream-history.js';
+import { echoesDreamer, SAVED_HISTORY } from './dream-history-echo.js';
 import { lightFold, sameStrict } from './dream-lexical.js';
 import type { DreamData } from './parse-provider.js';
 
@@ -40,7 +43,8 @@ const CLAIM = rx([
   String.raw`(?:previous|past|earlier|prior|other|former|older) dreams?`,
   String.raw`(?:appeared|appears|showed up|shown up|came up|come up|turned up) (?:in your dreams )?before`,
   String.raw`again and again`,
-  String.raw`keeps? (?:coming back|returning|reappearing|showing up|turning up)`,
+  String.raw`keeps? (?:coming back|returning|reappearing|appearing|showing up|turning up)`,
+  String.raw`(?:returns?|returned|comes back|came back|reappears?|reappeared) (?:again )?(?:in|to|into) (?:your |my |the |these )?dreams?`,
   String.raw`(?:often|frequently|repeatedly|keep) dream\p{L}*`,
   String.raw`dream(?:t|ed)? (?:of|about) (?:it|this|that|them) before`,
   String.raw`tekrarla\p{L}*`,
@@ -53,12 +57,14 @@ const CLAIM = rx([
   String.raw`defalarca`,
   String.raw`dönüp dolaş\p{L}*`,
   String.raw`yine karşına`,
+  String.raw`rüyalar\p{L}* (?:gel|gir|dön)\p{L}*`,
   String.raw`повторя\p{L}*`,
   String.raw`снова и снова`,
   String.raw`(?:прошл|предыдущ|прежн|други|ранн)\p{L}* сн\p{L}*`,
   String.raw`в который раз`,
   String.raw`уже (?:снил|снят|снит|появлял|встречал)\p{L}*`,
   String.raw`часто (?:снит|снят|вид)\p{L}*`,
+  String.raw`(?:приходит|возвращается) (?:в|во) (?:твои |ваши )?сн\p{L}*`,
 ]);
 
 const ABSOLUTE = rx([
@@ -145,6 +151,14 @@ function itemStems(item: DreamHistoryItem): string[] {
   return ENTRY_WORDS[item.key] ?? wordsOf(item.label).filter((w) => w.length >= 2 && !LABEL_STOP.has(w));
 }
 
+const SENTENCES = /[.!?…;\n]+/u;
+
+/** Words of the dreamer's own recurrence sentences only; null when there is none. */
+function dreamerRecurrenceWords(narrative: string): string[] | null {
+  const segments = narrative.split(SENTENCES).filter((segment) => hits(CLAIM, segment).length > 0);
+  return segments.length ? segments.flatMap(wordsOf) : null;
+}
+
 function countValue(raw: string): number {
   return /^\d+$/.test(raw) ? Number(raw) : (WORD_VALUES[raw] ?? -1);
 }
@@ -155,14 +169,14 @@ export function dreamHistoryClaimViolation(
 ): DreamHistoryClaimFailure | null {
   const history = input.history ?? [];
   const narrative = lightFold(input.narrative);
-  const dreamerClaims = hits(CLAIM, narrative).length > 0;
+  const dreamerWords = dreamerRecurrenceWords(narrative);
   const allowed = new Set(history.flatMap((i) => [i.priorCount, i.priorCount + 1]));
   const prose = [data.summary, data.emotionalTheme, data.interpretation, data.dailyLifeReflection, data.conclusion];
   for (const field of prose) {
     for (const date of lightFold(field).match(DATE) ?? []) {
       if (!narrative.includes(date)) return 'history_date';
     }
-    for (const raw of lightFold(field).split(/[.!?…;\n]+/u)) {
+    for (const raw of lightFold(field).split(SENTENCES)) {
       const s = raw.trim();
       if (!s) continue;
       const claim = hits(CLAIM, s).length > 0;
@@ -175,7 +189,11 @@ export function dreamHistoryClaimViolation(
       const counts = [...hits(DREAM_COUNT, s), ...(claim || named.length ? hits(TIMES_COUNT, s) : [])];
       const invented = counts.filter((m) => !narrative.includes(m[0]));
       if (invented.some((m) => !allowed.has(countValue(m[1]!)))) return 'history_count';
-      if (claim && !dreamerClaims && !named.length) return 'history_unsupported';
+      if (named.length) continue;
+      if (hits(SAVED_HISTORY, s).length) return 'history_unsupported';
+      if (!claim) continue;
+      const echoed = dreamerWords && echoesDreamer(wordsOf(s.replace(CLAIM, ' ')), dreamerWords, input.language);
+      if (!echoed) return 'history_unsupported';
     }
   }
   return null;

@@ -68,6 +68,23 @@ A provider sentence about prior dreams is accepted only when it names a supplied
 
 With history supplied, a claim that names no supplied item ("this image has appeared in your earlier dreams") is also rejected. The provider cannot bootstrap its own evidence. Phase 2 general grounding (`sameWord`) is unchanged.
 
+### Phase 4A.2 — grounded dreamer echo
+
+A provider claim about prior or recurring dreams passes through exactly one of two evidence paths:
+
+- **Saved history.** The sentence names a supplied item (strict, as above).
+- **Dreamer echo.** The current narrative has a sentence that itself states a recurrence. Only the words of such sentences are evidence. After the claim wording is removed, every remaining word of the provider sentence must be generic or strictly match (`sameStrict`) a word of those dreamer sentences. Generic words are function words, dream nouns ("dream / rüya / сон"), and recurrence or reporting verbs (`dream-history-echo.ts`).
+
+Consequences:
+
+- A generic "I keep having this dream" authorizes only a generic echo ("This seems to be a recurring dream"). It never authorizes "the rainbow keeps coming back".
+- A specific "I keep dreaming of the red door" authorizes "the red door keeps returning", but not the rainbow and not the doorway.
+- A noun from another narrative sentence ("I saw a rainbow. This dream keeps recurring.") is not linked. There is no coreference inference, and the claim fails closed.
+
+**Source truth.** User-reported recurrence is not ORACLY-recorded recurrence. Stored-record wording is `history_unsupported` unless the sentence names a supplied item. Examples: "saved / recorded dreams", "your dream records", "we / ORACLY have seen", "kayıtlı rüyalar", "сохранённые сны". "You said this dream repeats" stays allowed.
+
+Absolute, count, date and fate rules apply to echoes unchanged.
+
 ## Visible section
 
 `DreamInsightKind.recurringPattern` is a local, deterministic insight. Its

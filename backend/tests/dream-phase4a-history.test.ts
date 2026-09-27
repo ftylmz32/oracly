@@ -159,8 +159,8 @@ describe('Dream Phase 4A — provider history claims (synthetic fixtures)', () =
   });
 
   it('echoes the dreamer: their own recurrence and counts are not invented', () => {
-    const told = `${enNarrative} I keep dreaming of it again and again; I knocked three times.`;
-    expect(check(en('The recurring red door feels calm.'), told, 'en')).toBeNull();
+    const told = `${enNarrative} I keep dreaming of the red door again and again; I knocked three times.`;
+    expect(check(en('The red door seems to be recurring.'), told, 'en')).toBeNull();
     expect(check(en('You knocked on the red door three times.'), told, 'en', [door])).toBeNull();
   });
 

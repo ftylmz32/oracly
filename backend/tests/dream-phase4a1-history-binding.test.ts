@@ -79,10 +79,12 @@ describe('Dream Phase 4A.1 — real inflections still bind', () => {
     expect(check(language, sentence, [history])).toBeNull();
   });
 
-  it('the dreamer-echo contract is unchanged', () => {
+  it('a generic dreamer recurrence statement never authorizes an invented subject (4A.2)', () => {
     const told = `${enNarrative} I keep dreaming of it again and again.`;
     const data = { ...enGood, dailyLifeReflection: 'The rainbow keeps coming back in your dreams.' };
-    expect(dreamHistoryClaimViolation(data, { narrative: told, history: [rain], language: 'en' })).toBeNull();
+    expect(dreamHistoryClaimViolation(data, { narrative: told, history: [rain], language: 'en' })).toBe(
+      'history_unsupported',
+    );
   });
 });
 
