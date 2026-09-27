@@ -1,0 +1,1540 @@
+{
+  "schema": "oracly.dream.phase4c.client-replay/v1",
+  "source": "docs/product/dream/evals/DREAM_PHASE4C_LIVE_RUN_20260928.json",
+  "replays": [
+    {
+      "runId": "tr-memory",
+      "clientLanguage": "tr",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-history",
+      "clientLanguage": "ru",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    }
+  ],
+  "diagnosticRejectedReplays": [
+    {
+      "runId": "tr-negated-fear",
+      "clientLanguage": "tr",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-mixed-emotion",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Rüya, sevincin ve hüznün iç içe geçtiği karmaşık duygusal bir atmosferi yansıtıyor."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Geçmişteki anıların ve duygusal bağların, bugünkü yaşamında nasıl bir yer tuttuğunu düşünebilirsin. Belki de geçmişin tanıdık unsurlarıyla olan bu güçlü bağ, şu anki hayatında neyin eksik veya farklı olduğunu anlamana yardımcı olabilir."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-sparse",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Rüya, belirsizlik veya güvensizlik hisleriyle dolu olabilir, ancak aynı zamanda bir merak duygusu da barındırıyor."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Belki de hayatında uzun süredir ihmal ettiğin veya unuttuğun bir konuya yeniden göz atmanın zamanı gelmiştir. Bu, eski bir ilgi alanı, bir ilişki ya da bir yetenek olabilir."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-surreal",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Rüya, şaşkınlık ya da korku olmadan, doğal bir akış içinde gerçekleşen sıra dışı bir deneyimi yansıtıyor."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Hayatında zamanın nasıl geçtiğine ve bu süreçte kendini nasıl ifade ettiğine dikkat etmek, belki de değişken durumlar karşısında daha esnek olmayı öğrenmek için bir fırsat sunabilir."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-domain-work",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Rüyada belirgin bir korku ya da panik hissedilmemiş, ancak gerçek hayatta hissedilen gerginlik rüyaya yansımış olabilir."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Toplantı odasındaki sessizlik ve boş slaytlar, gerçek hayattaki sunum için duyulan gerginliği ve hazırlık eksikliği korkusunu simgeliyor olabilir. Sessizlik, çevrenin beklentisi veya baskısı altında hissettiğin bir durumu yansıtabilir. Boş slaytlar ise, belki de zihinsel olarak hazır hissetmediğin bir duruma işaret ediyor."
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-no-domain",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "personalConnection",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Günlük yaşamında dikkatini çekmeye çalışan ve tam olarak anlamlandıramadığın bir durum ya da duygu olabilir. Bu rüya, bu belirsizliği anlamak için kendine biraz zaman ayırman gerektiğini hatırlatabilir."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-history",
+      "clientLanguage": "tr",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-negated-fear",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "a sense of curiosity and calmness despite the unknown"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-mixed-emotion",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "A mix of relief, happiness, and heaviness, with laughter intertwining with tears."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "This dream may invite a reflection on how you balance joy and sadness in moments of reconnection or transition. It might be worth considering how you manage the emotions tied to past relationships and changes in your life."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-sparse",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "The dream carries a sense of stillness and perhaps isolation, yet it is not overtly negative or fearful."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "This dream might gently nudge you to consider moments in your life where something vibrant or promising stands out amidst simplicity or solitude. It can be a reminder to notice what brings color or excitement to your everyday surroundings."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-surreal",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 2,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "A sense of curiosity and playfulness in a topsy-turvy scenario."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "In waking life, there may be situations where things feel out of order or unconventional, yet this dream reflects a playful acceptance of such moments. Embracing the unexpected and finding joy in the unusual could bring a refreshing perspective to everyday challenges."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "What might you discover if you approach an unexpected situation with a sense of playfulness and curiosity?"
+        }
+      }
+    },
+    {
+      "runId": "en-domain-partner",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "A mix of cooperation and uncertainty; the dreamer is not afraid but experiences doubt."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-no-domain",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Curiosity mixed with a sense of unease."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-memory",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "calm and unhurried decision-making in uncertainty"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-history",
+      "clientLanguage": "en",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-negated-fear",
+      "clientLanguage": "ru",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-mixed-emotion",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "personalConnection",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Этот сон может напомнить о важности настоящих связей и о том, как прошлое формирует наше восприятие настоящего. Возможно, это приглашение задуматься о том, что из прошлого стоит сохранить, а что оставить в прошлом."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-sparse",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "summary",
+      "requiredAiSections": 1,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Чувство легкости и простоты."
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Сон не вызывает тревоги, а скорее оставляет ощущение чистоты и лёгкости."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Такой сон может вдохновить на поиск простоты и ясности в повседневной жизни, возможно, в виде упрощения каких-то дел или отношений."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Как вы можете привнести больше лёгкости и простоты в свою жизнь?"
+        }
+      }
+    },
+    {
+      "runId": "ru-surreal",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "summary",
+      "requiredAiSections": 1,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Сон полон фантастических и причудливых образов, вызывающих удивление и легкое восхищение."
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Сон вызывает чувство удивления и лёгкой радости от необычных и фантастических событий."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Этот сон может побуждать задуматься о том, как часто мы позволяем себе мечтать и воспринимать мир с детским удивлением. Может быть, стоит уделить время для фантазий и поиска вдохновения в неожиданных местах."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Какое место в твоей жизни занимает фантазия и как она влияет на твоё восприятие реальности?"
+        }
+      }
+    },
+    {
+      "runId": "ru-domain-family",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "summary",
+      "requiredAiSections": 2,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Сон о семейной встрече с ощущением дистанции и желания общения."
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Чувство неустойчивости и дистанции, но без страха."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": null,
+          "layer": "DreamAnalysisGuard.dictionary",
+          "rewrite": "rejected",
+          "original": "Сон, где стулья сами отодвигаются от стола, может отражать чувство дистанции или неустойчивости в семейных отношениях, особенно учитывая ваше желание наладить контакт с сестрой. В то время как стол символизирует попытку соединения, отодвигающиеся стулья усложняют это стремление, подчеркивая существующий разрыв."
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-no-domain",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 2,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Чувство одиночества и ожидания, но без ощущения страха."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Этот сон может навести на размышления о том, есть ли в твоей жизни моменты, когда ты чувствуешь, что ждешь перемен или событий, которые никак не наступают. Возможно, это также повод задуматься о том, как восприятие времени влияет на твои ожидания."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Как ты обычно справляешься с ситуациями ожидания в своей жизни?"
+        }
+      }
+    },
+    {
+      "runId": "ru-memory",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 2,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Спокойствие и отсутствие спешки в выборе пути."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Этот сон может напоминать тебе о важности неспешного подхода к принятию решений. Возможно, в реальной жизни ты сталкиваешься с ситуацией, где требуется время для обдумывания, и это нормально — не спеши и позволь себе тщательно взвесить все за и против."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Какой путь кажется тебе более привлекательным или комфортным в данный момент, даже если ты пока не готова сделать выбор?"
+        }
+      }
+    },
+    {
+      "runId": "tr-negated-fear#r2",
+      "clientLanguage": "tr",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-mixed-emotion#r2",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "personalConnection",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Geçmişin değerli anıları, bugünkü duygularımızı derinleştirebilir. Belki de bu rüya, hayatında bir denge kurarken geçmişteki güzel anılardan güç almanın önemini hatırlatıyor."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-no-domain#r2",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Belirsizlik ve hafif bir huzursuzluk, ama korku yok."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Hayatında belirsiz veya çözülememiş bir konu olabilir mi? Belki de bu rüya, bu konuyla yüzleşmek veya üzerine düşünmek için bir davet olabilir."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "tr-history#r2",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.tooShort",
+          "rewrite": "rejected",
+          "original": "Huzur ve dinginlik."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-negated-fear#r2",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Despite the darkness and unknown, there is an unexpected sense of calm and curiosity."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "en-mixed-emotion#r2",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 2,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "A mix of happiness and heaviness, with laughter and tears coexisting."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Reconnecting with someone from your past can bring a wave of emotions, both joyful and sorrowful. It might be worth considering how these feelings of relief and heaviness reflect your current relationships or situations where you experience similar mixed emotions."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "What does this mix of laughter and tears reveal about your feelings towards past connections or current changes in your life?"
+        }
+      }
+    },
+    {
+      "runId": "en-no-domain#r2",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "summary",
+      "requiredAiSections": 2,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "The dream revolves around an unexpected and puzzling discovery."
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "The dream is marked by curiosity and a sense of mystery, without fear."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "What expectations or mysteries in your life currently feel like they are leading you on an extended journey?"
+        }
+      }
+    },
+    {
+      "runId": "en-history#r2",
+      "clientLanguage": "en",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "calmness and tranquility"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-negated-fear#r2",
+      "clientLanguage": "ru",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-mixed-emotion#r2",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "summary",
+      "requiredAiSections": 3,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Возвращение в знакомое место с чувством ностальгии и одиночества."
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": null,
+          "layer": "DreamAnalysisGuard.dictionary",
+          "rewrite": "rejected",
+          "original": "Возвращение в старую школу, где коридоры залиты солнечным светом, создаёт ощущение тепла и уюта, однако их пустота напоминает о том, что прошлое не вернуть. Узнавание дверей символизирует связь с прошлыми воспоминаниями, но осознание того, что никто не ждёт, подчёркивает чувство утраты и одиночества."
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "runId": "ru-no-domain#r2",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "emotionalMeaning",
+      "requiredAiSections": 2,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Одиночество и ожидание, без страха."
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": null,
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Иногда в жизни мы можем чувствовать, что ждём чего-то важного, но время, кажется, идёт в обратном направлении. Может быть полезным подумать о том, как мы воспринимаем ожидание и что можем сделать, чтобы уменьшить чувство одиночества в такие моменты."
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Как ты относишься к ожиданию в реальной жизни?"
+        }
+      }
+    },
+    {
+      "runId": "ru-history#r2",
+      "clientLanguage": "ru",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "closingTakeaway",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "local",
+          "layer": "DreamAnalysisGuard.inventedImageOrUngrounded",
+          "rewrite": "rejected",
+          "original": "Как ты находишь покой в своей повседневной жизни?"
+        }
+      }
+    }
+  ]
+}

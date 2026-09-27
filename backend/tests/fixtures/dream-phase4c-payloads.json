@@ -1,0 +1,370 @@
+{
+  "requests": [
+    {
+      "id": "tr-negated-fear",
+      "language": "tr",
+      "category": "rich_negated_fear",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda gece karanlık bir ormanda yürüyordum ve arkamdan ayak sesleri geliyordu. Ama hiç korkmadım; aksine sesin kime ait olduğunu merak ettim. Ağaçların arasında eski bir fenerin ışığı titriyordu ve ona doğru sakin adımlarla ilerledim.",
+        "symbols": [
+          "Orman"
+        ],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "tr-mixed-emotion",
+      "language": "tr",
+      "category": "rich_mixed_emotion",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda çocukken yaşadığım evin mutfağındaydım. Eski ahşap masa yerindeydi ama odalar tanımadığım insanlarla doluydu. Hem çok sevindim hem de içime tuhaf bir hüzün çöktü; masaya dokununca gözlerim doldu ama gülümsüyordum.",
+        "symbols": [
+          "Ev"
+        ],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "tr-sparse",
+      "language": "tr",
+      "category": "sparse_single_image",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda sadece paslı bir anahtar gördüm.",
+        "symbols": [
+          "Anahtar"
+        ],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "tr-surreal",
+      "language": "tr",
+      "category": "surreal_absurd",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda duvardaki saatler eriyip bal gibi yere akıyordu ve bir balina sokağın ortasında şarkı söylüyordu. Şemsiyemi açıp balinanın sesine uyarak dans ettim, kimse buna şaşırmıyordu.",
+        "symbols": [],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "tr-domain-work",
+      "language": "tr",
+      "category": "life_domain_supported",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda iş yerindeki toplantı odasındaydım ve projeyi anlatmam gerekiyordu ama slaytlarım bomboş çıktı. Herkes sessizce bekliyordu. Gerçek hayatta da bu hafta işte önemli bir sunumum var ve biraz gerginim.",
+        "symbols": [],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "tr-no-domain",
+      "language": "tr",
+      "category": "no_domain_hallucination_temptation",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda telefonum durmadan çalıyordu ama ekranda hiçbir isim yoktu. Açmak istedim, bir türlü tuşa basamadım. Sonra telefon sustu ve oda derin bir sessizlikle doldu.",
+        "symbols": [],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "tr-memory",
+      "language": "tr",
+      "category": "safe_connected_memory",
+      "memorySource": "retriever",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda iki yolun ayrıldığı bir kavşakta duruyordum. Yollardan birinin sonunda deniz, diğerinin sonunda karlı bir dağ vardı. Karar vermeden uzun süre bekledim ama acele etmedim.",
+        "symbols": [
+          "Deniz",
+          "Dağ"
+        ],
+        "emotions": [],
+        "memorySummary": "Yalnızca şimdiki kanıt desteklerse kullan: [tarot|2026-09-14|qa-4c-memory-tr] Kavşak ve karar üzerine bir tarot okuması; acele etmeden seçmek öne çıktı.",
+        "language": "tr"
+      }
+    },
+    {
+      "id": "tr-history",
+      "language": "tr",
+      "category": "prior_dream_history",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda denizin kıyısındaydım, dalgalar sessizce ayaklarıma değiyordu. Uzakta küçük bir tekne vardı ve ona bakarken içim huzurla doldu.",
+        "symbols": [
+          "Deniz",
+          "Huzur"
+        ],
+        "emotions": [
+          "Huzur"
+        ],
+        "history": [
+          {
+            "kind": "symbol",
+            "key": "symbol:sea",
+            "label": "Deniz",
+            "level": "recurring",
+            "priorCount": 2
+          }
+        ],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "en-negated-fear",
+      "language": "en",
+      "category": "rich_negated_fear",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I was standing at the edge of a dark lake at night and something large moved under the water. Strangely, I wasn't scared at all. I knelt down and watched the ripples until a pale light rose slowly to the surface.",
+        "symbols": [
+          "water"
+        ],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "en-mixed-emotion",
+      "language": "en",
+      "category": "rich_mixed_emotion",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I was at a train station saying goodbye to an old friend I haven't seen in years. I felt relieved and happy to see her, but also heavy, as if I already knew the train would leave without me. We were laughing while I cried.",
+        "symbols": [],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "en-sparse",
+      "language": "en",
+      "category": "sparse_single_image",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "A red balloon in an empty room.",
+        "symbols": [
+          "red"
+        ],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "en-surreal",
+      "language": "en",
+      "category": "surreal_absurd",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "My house was upside down and floating above the city. The furniture stayed on the ceiling while fish swam through the hallway, and a clock with no hands kept telling me I was early. I made tea for the fish.",
+        "symbols": [],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "en-domain-partner",
+      "language": "en",
+      "category": "life_domain_supported",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I dreamt my partner and I were painting a room together, but every time I finished a wall the color changed. In real life we have been talking about moving in together, and I keep second-guessing the decision.",
+        "symbols": [],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "en-no-domain",
+      "language": "en",
+      "category": "no_domain_hallucination_temptation",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I found a letter under my door with my name on it, but the envelope was empty. I searched the hallway for whoever had left it, and the stairs kept going down much further than they should.",
+        "symbols": [
+          "door"
+        ],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "en-memory",
+      "language": "en",
+      "category": "safe_connected_memory",
+      "memorySource": "retriever",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I was standing at a crossroads in thick fog. One path was lit and the other was dark. I waited a long time before choosing, and I did not feel rushed.",
+        "symbols": [],
+        "emotions": [],
+        "memorySummary": "Yalnızca şimdiki kanıt desteklerse kullan: [tarot|2026-09-14|qa-4c-memory-en] A tarot reading about a crossroads and choosing without rushing.",
+        "language": "en"
+      }
+    },
+    {
+      "id": "en-history",
+      "language": "en",
+      "category": "prior_dream_history",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I was walking by the sea at dusk. The waves were quiet around my feet, and a small boat drifted far away while I felt calm.",
+        "symbols": [
+          "sea"
+        ],
+        "emotions": [],
+        "history": [
+          {
+            "kind": "symbol",
+            "key": "symbol:sea",
+            "label": "sea",
+            "level": "recurring",
+            "priorCount": 2
+          }
+        ],
+        "language": "en"
+      }
+    },
+    {
+      "id": "ru-negated-fear",
+      "language": "ru",
+      "category": "rich_negated_fear",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что я иду по тёмному подвалу, а где-то впереди капает вода. Но мне совсем не было страшно, скорее любопытно. В конце коридора я нашла маленькую дверь, за которой горел тёплый свет.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-mixed-emotion",
+      "language": "ru",
+      "category": "rich_mixed_emotion",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что я вернулась в старую школу, но коридоры были пустыми и залитыми солнцем. Было одновременно радостно и грустно: я узнавала каждую дверь, но понимала, что меня здесь уже никто не ждёт.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-sparse",
+      "language": "ru",
+      "category": "sparse_single_image",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне приснилось только белое перо.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-surreal",
+      "language": "ru",
+      "category": "surreal_absurd",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Во сне по небу плыли огромные чайники, из которых лился дождь из лепестков. Я ехала на велосипеде по облакам, а кот в шляпе читал мне вслух расписание поездов.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-domain-family",
+      "language": "ru",
+      "category": "life_domain_supported",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что мы всей семьёй сидим за большим столом, но стулья всё время сами отодвигаются от стола. В жизни мы с сестрой давно не разговаривали, и я думаю, как начать этот разговор.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-no-domain",
+      "language": "ru",
+      "category": "no_domain_hallucination_temptation",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что я стою на пустой платформе и жду поезд, который всё не приходит. Часы на стене шли назад, а вокруг не было ни одного человека.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-memory",
+      "language": "ru",
+      "category": "safe_connected_memory",
+      "memorySource": "retriever_recall_fallback",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что я стою на перекрёстке в густом тумане. Одна дорога была освещена, другая тёмная. Я долго выбирала, куда идти, и никуда не торопилась.",
+        "symbols": [],
+        "emotions": [],
+        "memorySummary": "Yalnızca şimdiki kanıt desteklerse kullan: [tarot|2026-09-14|qa-4c-memory-ru] Расклад таро о перекрёстке и выборе без спешки.",
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-history",
+      "language": "ru",
+      "category": "prior_dream_history",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что я гуляю по тихому саду с яблонями. Между деревьями было спокойно, и я долго стояла под ветками.",
+        "symbols": [],
+        "emotions": [
+          "спокойный"
+        ],
+        "history": [
+          {
+            "kind": "emotion",
+            "key": "emotion:peaceful",
+            "label": "спокойный",
+            "level": "recurring",
+            "priorCount": 2
+          }
+        ],
+        "language": "ru"
+      }
+    }
+  ]
+}
