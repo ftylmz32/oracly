@@ -3,9 +3,11 @@
  * dreamer's history. Runs after the Phase 2 quality gate; never relaxes it.
  *
  * Per sentence of the prose fields:
- *  - history_unsupported: a recurrence/prior-dream claim with no supplied
- *    history, or naming a response symbol the history does not hold. A
- *    dreamer who wrote that the dream recurs may be echoed.
+ *  - history_unsupported: a recurrence/prior-dream claim that does not name
+ *    a supplied history item in the same sentence. Naming is strict
+ *    (`sameStrict`: same word or a real inflection; "rainbow" never names
+ *    "rain", "kapıcı" never names "kapı"). A dreamer who wrote that the
+ *    dream recurs may be echoed.
  *  - history_absolute: "always / every time / all your dreams" inflation.
  *  - history_count: a dream count that is neither supplied nor told by the
  *    dreamer, or "many dreams / many times" about dreaming.
@@ -15,7 +17,7 @@
  */
 import type { AppLanguage } from './app-language.js';
 import type { DreamHistoryItem } from './dream-history.js';
-import { asciiFold, lightFold, sameStrict } from './dream-lexical.js';
+import { lightFold, sameStrict } from './dream-lexical.js';
 import type { DreamData } from './parse-provider.js';
 
 export type DreamHistoryClaimFailure =
@@ -133,16 +135,10 @@ function negated(text: string, start: number, end: number): boolean {
   return wordsOf(text.slice(end)).slice(0, 3).some((w) => POST_NEGATORS.has(w));
 }
 
-function sameish(a: string, b: string, language: AppLanguage): boolean {
-  if (sameStrict(a, b, language)) return true;
-  const x = asciiFold(a);
-  const y = asciiFold(b);
-  return x.length >= 4 && y.length >= 4 && (x.startsWith(y) || y.startsWith(x));
-}
-
+/** STRICT binding: the same word or a real inflection of it — never a longer word sharing a prefix. */
 function names(segment: string, stems: string[], language: AppLanguage): boolean {
   const told = wordsOf(segment);
-  return stems.some((s) => told.some((w) => sameish(s, w, language)));
+  return stems.some((s) => told.some((w) => sameStrict(s, w, language)));
 }
 
 function itemStems(item: DreamHistoryItem): string[] {
@@ -161,7 +157,6 @@ export function dreamHistoryClaimViolation(
   const narrative = lightFold(input.narrative);
   const dreamerClaims = hits(CLAIM, narrative).length > 0;
   const allowed = new Set(history.flatMap((i) => [i.priorCount, i.priorCount + 1]));
-  const symbolStems = data.symbols.flatMap(wordsOf).filter((w) => w.length >= 3);
   const prose = [data.summary, data.emotionalTheme, data.interpretation, data.dailyLifeReflection, data.conclusion];
   for (const field of prose) {
     for (const date of lightFold(field).match(DATE) ?? []) {
@@ -180,12 +175,7 @@ export function dreamHistoryClaimViolation(
       const counts = [...hits(DREAM_COUNT, s), ...(claim || named.length ? hits(TIMES_COUNT, s) : [])];
       const invented = counts.filter((m) => !narrative.includes(m[0]));
       if (invented.some((m) => !allowed.has(countValue(m[1]!)))) return 'history_count';
-      if (!claim || dreamerClaims || named.length) continue;
-      if (!history.length) return 'history_unsupported';
-      const otherSymbol = symbolStems.some(
-        (w) => names(s, [w], input.language) && !history.some((i) => names(w, itemStems(i), input.language)),
-      );
-      if (otherSymbol) return 'history_unsupported';
+      if (claim && !dreamerClaims && !named.length) return 'history_unsupported';
     }
   }
   return null;

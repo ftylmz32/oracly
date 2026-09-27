@@ -47,13 +47,26 @@ which never includes Dream memories for a Dream request.
 - **Prompt.** A separate section: TR "Önceki rüya örüntüleri", EN "Prior dream patterns", RU "Повторяющиеся элементы прошлых снов". The rules are always present. Use history only when it relates to this dream directly. Recurrence is descriptive, not predictive: never invent a reason, never frame it as a diagnosis or fate, and never attribute it to a real event. No "always", at most one or two links, and ignore history that adds nothing. No counts or dates.
 - **Output schema.** Unchanged (Phase 2 canonical keys).
 - **Claim gate.** `dreamHistoryClaimViolation` runs after the unchanged Phase 2 quality gate and returns one of these codes:
-  - `history_unsupported`: a recurrence claim without history, or one naming a symbol the history does not hold.
+  - `history_unsupported`: a recurrence claim that does not name a supplied history item in the same sentence (Phase 4A.1, below).
   - `history_absolute`: "always" or "all your dreams" inflation.
   - `history_count`: a count that is neither supplied nor told by the dreamer.
   - `history_fate`: recurrence framed as fate or trauma.
   - `history_date`: a date the narrative does not contain.
 
   Negated claims and the dreamer's own recurrence statements pass. A rejection is `invalid_response` after exactly one provider call.
+
+### Phase 4A.1 — strict claim binding
+
+A provider sentence about prior dreams is accepted only when it names a supplied history item. Naming uses the frozen strict matcher `sameStrict` (the same word, or a real inflection in the request language) plus the fixed entry-chip aliases. There is no prefix fallback:
+
+| History | Accepted | Rejected (`history_unsupported`) |
+|---|---|---|
+| rain | rain, rains | rainbow |
+| door | door, doors | doorway |
+| kapı | kapı, kapıda, kapıyı, kapının | kapıcı |
+| deniz | deniz, denizde, denize, denizin | denizci |
+
+With history supplied, a claim that names no supplied item ("this image has appeared in your earlier dreams") is also rejected. The provider cannot bootstrap its own evidence. Phase 2 general grounding (`sameWord`) is unchanged.
 
 ## Visible section
 
