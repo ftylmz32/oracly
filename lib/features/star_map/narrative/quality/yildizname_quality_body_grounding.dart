@@ -9,7 +9,10 @@ import 'yildizname_lexical_token.dart';
 abstract final class YildiznameQualityBodyGrounding {
   YildiznameQualityBodyGrounding._();
 
-  static const _angles = {'ascendant', 'midheaven'};
+  /// ONE consolidated pattern per (body, sign), compiled once and reused for
+  /// every validation. (Compiling thousands of per-token patterns on each call
+  /// froze the UI for ~50 s on a phone.)
+  static final _claims = <String, RegExp>{};
 
   static void validate(
     YildiznameNarrativeRequest request,
@@ -22,86 +25,66 @@ abstract final class YildiznameQualityBodyGrounding {
     for (final a in request.angles) {
       byBody[a.kind] = a.sign;
     }
-    for (final bodyEntry in YildiznameGroundingLexicon.bodies.entries) {
-      final body = bodyEntry.key;
-      for (final signEntry in YildiznameGroundingLexicon.signs.entries) {
-        final hit = _angles.contains(body)
-            ? _angleClaim(prose, body, bodyEntry.value, signEntry.value)
-            : _planetClaim(prose, bodyEntry.value, signEntry.value);
-        if (!hit) continue;
+    for (final body in YildiznameGroundingLexicon.bodies.keys) {
+      for (final signKey in YildiznameGroundingLexicon.signs.keys) {
+        if (!_claim(body, signKey).hasMatch(prose)) continue;
         final expected = byBody[body];
         if (expected == null) {
           throw YildiznameResultException(
             YildiznameResultErrorKind.grounding,
-            '$body unavailable (${signEntry.key})',
+            '$body unavailable ($signKey)',
           );
         }
-        if (expected != signEntry.key) {
+        if (expected != signKey) {
           throw YildiznameResultException(
             YildiznameResultErrorKind.grounding,
-            '$body expected $expected got ${signEntry.key}',
+            '$body expected $expected got $signKey',
           );
         }
       }
     }
   }
 
-  static bool _planetClaim(
-    String prose,
-    List<String> bodyTokens,
-    List<String> signTokens,
-  ) {
-    for (final b in bodyTokens) {
-      for (final s in signTokens) {
-        // Body: a word START (inflection may follow). Sign: a WHOLE word.
-        final be = YildiznameLexicalToken.start(b);
-        final se = YildiznameLexicalToken.sign(s);
-        final patterns = [
-          YildiznameLexicalToken.compile('$be\\s+(?:in|в)\\s+$se'),
-          YildiznameLexicalToken.compile('$be\\s+$se'),
-          YildiznameLexicalToken.compile('$be.{0,6}$se\\s*burcunda'),
-          YildiznameLexicalToken.compile('$se\\s+$be'),
-        ];
-        if (patterns.any((re) => re.hasMatch(prose))) return true;
-      }
-    }
-    return false;
-  }
+  static RegExp _claim(String body, String signKey) =>
+      _claims.putIfAbsent('$body|$signKey', () => _build(body, signKey));
 
-  static bool _angleClaim(
-    String prose,
-    String bodyKey,
-    List<String> bodyTokens,
-    List<String> signTokens,
-  ) {
-    for (final s in signTokens) {
-      final se = YildiznameLexicalToken.sign(s);
-      final RegExp rising;
-      if (bodyKey == 'ascendant') {
-        final after = YildiznameLexicalToken.anyStart(const [
-          'rising',
-          'yükselen',
-          'yukselen',
-        ]);
-        final before = YildiznameLexicalToken.anyStart(const [
-          'ascendant',
-          'асцендент',
-          'yükselen',
-          'yukselen',
-        ]);
-        rising = YildiznameLexicalToken.compile(
-          '$se\\s+$after|$before.{0,12}$se',
-        );
-      } else {
-        final mc = YildiznameLexicalToken.whole('mc');
-        final mid = YildiznameLexicalToken.start('midheaven');
-        final sky = YildiznameLexicalToken.start('gökyüzü');
-        rising = YildiznameLexicalToken.compile(
-          '(?:$mid|$mc|$sky).{0,12}$se|$se\\s+(?:$mid|$mc)',
-        );
-      }
-      if (rising.hasMatch(prose)) return true;
+  static RegExp _build(String body, String signKey) {
+    // Body: a word START (inflection may follow). Sign: a WHOLE word.
+    final be = YildiznameLexicalToken.anyStart(
+      YildiznameGroundingLexicon.bodies[body]!,
+    );
+    final se = YildiznameLexicalToken.anySign(
+      YildiznameGroundingLexicon.signs[signKey]!,
+    );
+    final forms = <String>[
+      '$be\\s+(?:in|в)\\s+$se',
+      '$be\\s+$se',
+      '$be.{0,6}$se\\s*burcunda',
+      '$se\\s+$be',
+    ];
+    if (body == 'ascendant') {
+      final after = YildiznameLexicalToken.anyStart(const [
+        'rising',
+        'yükselen',
+        'yukselen',
+      ]);
+      final before = YildiznameLexicalToken.anyStart(const [
+        'ascendant',
+        'асцендент',
+        'yükselen',
+        'yukselen',
+      ]);
+      forms
+        ..add('$se\\s+$after')
+        ..add('$before.{0,12}$se');
+    } else if (body == 'midheaven') {
+      final mc = YildiznameLexicalToken.whole('mc');
+      final mid = YildiznameLexicalToken.start('midheaven');
+      final sky = YildiznameLexicalToken.start('gökyüzü');
+      forms
+        ..add('(?:$mid|$mc|$sky).{0,12}$se')
+        ..add('$se\\s+(?:$mid|$mc)');
     }
-    return _planetClaim(prose, bodyTokens, signTokens);
+    return YildiznameLexicalToken.compile(forms.map((f) => '(?:$f)').join('|'));
   }
 }

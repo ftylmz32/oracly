@@ -310,6 +310,28 @@ void main() {
     });
   });
 
+  group('performance guard', () {
+    test('grounding does not recompile patterns per call (UI-thread safe)', () {
+      // A ~4 KB reading. Recompiling thousands of Unicode patterns on every
+      // validation once cost ~10 s per call on a PC and froze a phone for ~50 s.
+      final prose = List.generate(
+        40,
+        (_) =>
+            'Terazi yükselen, dünyaya bakışında uyum arar. Güneş Aslan burcunda '
+            'parlar; yayın ve yaygın etkiler koçluk gibi destek olur.',
+      ).join(' ');
+      final sw = Stopwatch()..start();
+      for (var i = 0; i < 3; i++) {
+        expect(() => _check(prose), returnsNormally);
+      }
+      expect(
+        sw.elapsedMilliseconds,
+        lessThan(3000),
+        reason: 'three grounding passes took ${sw.elapsedMilliseconds} ms',
+      );
+    });
+  });
+
   group('the full grounding stage (visible prose) agrees', () {
     YildiznameNarrativeStructuredResult result(String summary) =>
         YildiznameNarrativeStructuredResult(

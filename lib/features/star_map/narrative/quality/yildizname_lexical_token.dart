@@ -3,18 +3,22 @@
 /// Body and sign tokens used to be spliced into regexes as raw substrings, so
 /// the Turkish sign token `yay` (Sagittarius) matched inside `dünyaya` (to the
 /// world), and a correct "Terazi yükselen, dünyaya …" was rejected as a wrong
-/// Ascendant. A token must now be a real word occurrence. Boundaries are
-/// Unicode-aware — `\p{L}` covers Turkish `ğüşıöç İ` and Cyrillic — so an
-/// ASCII-only `\b` cannot create new Turkish / Russian false positives.
+/// Ascendant. A token must now be a real word occurrence.
+///
+/// The word-character class is EXPLICIT (Latin incl. Turkish `çğıöşü İ`,
+/// Cyrillic, digits, combining marks) — an ASCII-only `\b` would treat Turkish
+/// and Russian letters as boundaries. It is deliberately NOT `\p{L}` with the
+/// `unicode` flag: compiling those patterns on every validation cost ~10 s
+/// (on-device: a frozen UI), whereas this class is as fast as plain ASCII.
 library;
 
 abstract final class YildiznameLexicalToken {
   YildiznameLexicalToken._();
 
-  /// Any Unicode letter, combining mark or digit (plus `_`).
-  static const _word = r'[\p{L}\p{M}\p{N}_]';
+  /// Letters / digits / `_` / combining marks of the supported languages.
+  static const _word = r'[0-9A-Za-z_\u00C0-\u024F\u0300-\u036F\u0400-\u04FF]';
 
-  static final _cyrillic = RegExp(r'[Ѐ-ӿ]');
+  static final _cyrillic = RegExp(r'[\u0400-\u04FF]');
 
   /// Russian case endings that legitimately follow a sign stem
   /// (Скорпион-е, Скорпион-ом, Рак-а). Latin (TR / EN) names take none:
@@ -42,12 +46,16 @@ abstract final class YildiznameLexicalToken {
     return '${start(token)}$ending(?!$_word)';
   }
 
-  /// Compiles a pattern built from the helpers above (Unicode + ignore case).
+  /// One of the sign [tokens], each a whole word.
+  static String anySign(List<String> tokens) =>
+      '(?:${tokens.map(sign).join('|')})';
+
+  /// Compiles a pattern built from the helpers above (ignore case).
   static RegExp compile(String source) =>
-      RegExp(source, caseSensitive: false, unicode: true);
+      RegExp(source, caseSensitive: false);
 
   /// On some runtimes (JavaScript-backed builds) `toLowerCase()` turns Turkish
   /// `İ` into `i` + U+0307 (combining dot), which would split `İkizler` in two.
   /// Drop the mark so the token matches on every runtime.
-  static String normalizeProse(String prose) => prose.replaceAll('̇', '');
+  static String normalizeProse(String prose) => prose.replaceAll('\u0307', '');
 }

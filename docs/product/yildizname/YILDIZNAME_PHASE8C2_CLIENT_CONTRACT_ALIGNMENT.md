@@ -44,7 +44,8 @@ Sagittarius token `yay` matched inside `dünyaya`, failing a correct "Terazi yü
 
 One shared helper, `YildiznameLexicalToken`, now builds every body/sign pattern:
 
-- **Unicode-aware boundaries** (`\p{L}\p{M}\p{N}`), not ASCII `\b` — Turkish `ğüşıöç İ` and Cyrillic are letters.
+- **Explicit Turkish / Latin / Cyrillic word class** (Latin incl. `ğüşıöç İ`, Cyrillic, digits, combining marks),
+  not ASCII `\b`. (The first version used `\p{L}` with the `unicode` flag; see *Performance* below.)
 - **Sign** = a WHOLE word: `yay` ≠ `dünyaya` / `yayın` / `yaygın` / `kayayı`, `koç` ≠ `koçluk`, `leo` ≠ `Leonardo`.
   Apostrophe forms (`Aslan'da`, `Yay’da`) are word ends. Cyrillic stems keep a case-ending tail
   (`Скорпион-е`, `-ом`), so Russian claims stay detectable; `лев` ≠ `левый`.
@@ -53,6 +54,14 @@ One shared helper, `YildiznameLexicalToken`, now builds every body/sign pattern:
 - `İ` is normalised for runtimes that lowercase it to `i` + U+0307.
 
 Wrong-sign detection is preserved (tested TR / EN / RU, both claim orders, planet + angle claims).
+
+### Performance (found on the phone, fixed)
+
+The first version of this fix compiled thousands of Unicode / lookbehind patterns on EVERY validation: the client
+quality gate went from ~100 ms to ~9.7 s on a PC and froze the UI for ~50 s on the physical device (the result appeared
+about a minute after the provider answered). Fixed with an explicit letter class (no `unicode` flag) and ONE
+consolidated pattern per (body, sign), compiled once and cached. Validation of the real responses is back to
+~90-200 ms. A guard test fails if per-call recompilation ever returns.
 
 ### Observations, not changed
 
