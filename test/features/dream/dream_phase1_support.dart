@@ -20,6 +20,7 @@ import 'package:oracly_new/features/dream/services/dream_experience_service.dart
 import 'package:oracly_new/features/dream/services/dream_owner_guard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/false_return_local_storage.dart';
 import '../../support/test_path_provider.dart';
 import 'dream_honesty_fakes.dart';
 
@@ -60,19 +61,26 @@ class HeldDreamAi extends LiveDreamAiStub {
 class DreamPhase1Env {
   DreamPhase1Env._(this.storage, this.ai);
 
+  /// [faultable] backs the env with a [FalseReturnLocalStorage] ([faults]).
   static Future<DreamPhase1Env> open({
     String owner = 'owner-a',
     HeldDreamAi? ai,
+    bool faultable = false,
   }) async {
     SharedPreferences.setMockInitialValues({
       UserLocalDataIsolation.ownerKey: owner,
     });
     await installTestPathProvider('oracly-dream-p1-');
-    return DreamPhase1Env._(await LocalStorage.open(), ai ?? HeldDreamAi());
+    final storage = faultable
+        ? FalseReturnLocalStorage(await SharedPreferences.getInstance())
+        : await LocalStorage.open();
+    return DreamPhase1Env._(storage, ai ?? HeldDreamAi());
   }
 
   final LocalStorage storage;
   final HeldDreamAi ai;
+
+  FalseReturnLocalStorage get faults => storage as FalseReturnLocalStorage;
 
   late final memory = OraclyMemoryStore(storage);
   late final repo = LocalDreamRepository(storage, memory: memory);

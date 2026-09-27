@@ -28,7 +28,7 @@ abstract final class PrivacyDiscoveryClear {
     final dreamDurable = await PrivacyDreamClear.run(storage, memory);
 
     // Malformed/unparseable legacy rows survive typed delete — force empty.
-    await storage.setStringList('dream_records', const []);
+    // Dream records are owned (and durability-checked) by PrivacyDreamClear.
     await storage.setStringList(CoffeeReadingStore.key, const []);
     await storage.setStringList(PalmReadingStore.key, const []);
 
@@ -55,11 +55,11 @@ abstract final class PrivacyDiscoveryClear {
 
     // Orphan connected-memory type purge after authoritative sources cleared.
     // SoulMate survives Discovery clear by product contract — do not purge.
+    // Dream memory is purged strictly by PrivacyDreamClear above.
     for (final type in const [
       OraclyReadingType.tarot,
       OraclyReadingType.coffee,
       OraclyReadingType.palm,
-      OraclyReadingType.dream,
       OraclyReadingType.birthChart,
     ]) {
       try {

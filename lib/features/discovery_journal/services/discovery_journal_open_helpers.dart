@@ -39,7 +39,7 @@ abstract final class DiscoveryJournalOpenHelpers {
       );
       return;
     }
-    ref
+    await ref
         .read(dreamAnalysisControllerProvider)
         .openSaved(DreamRecordMapper.fromRecord(record));
     if (!context.mounted) return;

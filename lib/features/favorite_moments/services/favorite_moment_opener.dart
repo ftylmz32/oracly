@@ -87,7 +87,7 @@ abstract final class FavoriteMomentOpener {
     final record =
         await ref.read(dreamRepositoryProvider).getById(moment.sourceRef);
     if (record != null) {
-      ref
+      await ref
           .read(dreamAnalysisControllerProvider)
           .openSaved(DreamRecordMapper.fromRecord(record));
       if (!context.mounted) return;

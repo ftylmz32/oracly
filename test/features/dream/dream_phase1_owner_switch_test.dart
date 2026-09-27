@@ -44,8 +44,7 @@ void main() {
     final controller = container.read(dreamAnalysisControllerProvider);
     await controller.loadHistory();
     expect(controller.history, hasLength(1));
-    controller.openSaved(controller.history.single);
-    await _settle();
+    await controller.openSaved(controller.history.single);
     expect(controller.phase, DreamJourneyPhase.complete);
     return controller;
   }
@@ -68,7 +67,7 @@ void main() {
     expectSafeEntry(b);
     // The disposed A controller cannot be revived to show A's result.
     final staleDream = a.dream!;
-    a.openSaved(staleDream);
+    await a.openSaved(staleDream);
     expect(container.read(dreamAnalysisControllerProvider).dream, isNull);
   });
 
@@ -94,7 +93,9 @@ void main() {
     await env.switchTo('owner-b');
     final before = env.persistedDreamState();
     final b = container.read(dreamAnalysisControllerProvider);
-    b.openSaved(staleA);
+    final opening = b.openSaved(staleA);
+    expect(b.dream, isNull);
+    await opening;
     await _settle();
 
     expectSafeEntry(b);
@@ -116,8 +117,8 @@ void main() {
     );
 
     final b = container.read(dreamAnalysisControllerProvider);
-    b.openSaved(staleA);
-    await b.reinterpret();
+    await b.openSaved(staleA);
+    await expectLater(b.reinterpret(), throwsStateError);
     await _settle();
 
     expect(env.ai.calls, 0);

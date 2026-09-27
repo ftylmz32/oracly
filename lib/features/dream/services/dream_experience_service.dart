@@ -95,9 +95,15 @@ class DreamExperienceService {
     );
   }
 
-  /// True when [dreamId] resolves in the current owner's Dream storage.
-  Future<bool> isCurrentOwnerDream(String dreamId) async =>
-      _owner.capture().isValid && await repository.getById(dreamId) != null;
+  /// The stored Dream for [dreamId], or null unless the same owner snapshot
+  /// held across the lookup. A caller-supplied body is never evidence.
+  Future<Dream?> loadOwnedDream(String dreamId) async {
+    final snapshot = _owner.capture();
+    if (!snapshot.isValid) return null;
+    final stored = await repository.getById(dreamId);
+    if (stored == null || !_owner.stillValid(snapshot)) return null;
+    return DreamRecordMapper.fromRecord(stored);
+  }
 
   DreamOwnerSnapshot _captureOwner() {
     final snapshot = _owner.capture();

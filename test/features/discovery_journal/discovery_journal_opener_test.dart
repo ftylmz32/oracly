@@ -60,7 +60,9 @@ void main() {
       );
       await LocalDreamRepository(storage)
           .save(DreamRecordMapper.toRecord(staleDream));
-      capturedRef.read(dreamAnalysisControllerProvider).openSaved(staleDream);
+      await capturedRef
+          .read(dreamAnalysisControllerProvider)
+          .openSaved(staleDream);
       await tester.pump();
 
       // Tap a journal entry whose id no longer resolves (deleted / drifted).

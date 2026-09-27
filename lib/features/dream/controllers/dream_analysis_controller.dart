@@ -144,25 +144,22 @@ class DreamAnalysisController extends ChangeNotifier {
     }
   }
 
-  /// Shows [dream] only while it still resolves in the current owner's
-  /// storage — a stale object from a prior owner or a clear is dropped.
-  void openSaved(Dream dream) {
+  /// Shows the stored copy of [dream] only after it resolves in the current
+  /// owner's storage. Until then nothing about it is visible; a stale object
+  /// from a prior owner or a clear returns to entry instead.
+  Future<void> openSaved(Dream dream) async {
     if (_disposed) return;
     final token = ++_generation;
-    _dream = dream;
+    Dream? stored;
+    try {
+      stored = await _service.loadOwnedDream(dream.id);
+    } catch (_) {}
+    if (_stale(token)) return;
+    if (stored == null) return _returnToEntry(token);
+    _dream = stored;
     _errorMessage = null;
     _phase = DreamJourneyPhase.complete;
     _safeNotify();
-    unawaited(_verifyOwned(dream.id, token));
-  }
-
-  Future<void> _verifyOwned(String id, int token) async {
-    var owned = false;
-    try {
-      owned = await _service.isCurrentOwnerDream(id);
-    } catch (_) {}
-    if (owned || _stale(token)) return;
-    await _returnToEntry(token);
   }
 
   Future<void> _returnToEntry(int token) async {

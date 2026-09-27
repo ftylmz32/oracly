@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
+import 'package:oracly_new/core/memory/oracly_memory_store.dart';
 import 'package:oracly_new/core/reading_version/models/reading_version_kind.dart';
 import 'package:oracly_new/core/reading_version/services/reading_version_store.dart';
 import 'package:oracly_new/core/services/history_service.dart';
@@ -53,6 +54,62 @@ void _expectNoDreamState(DreamPhase1Env env) {
   expect(env.storage.getString(DreamAttemptStore.key), isNull);
 }
 
+/// Pumps a harness with a Dream result open; returns its [WidgetRef].
+Future<WidgetRef> _pumpWithOpenResult(
+  WidgetTester tester,
+  DreamPhase1Env env,
+) async {
+  late WidgetRef ref;
+  await tester.pumpWidget(
+    buildProviderScopeHarness(
+      storage: env.storage,
+      overrides: [oraclyAiServiceProvider.overrideWithValue(env.ai)],
+      child: MaterialApp(
+        home: Consumer(
+          builder: (context, r, _) {
+            ref = r;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    ),
+  );
+  final before = ref.read(dreamAnalysisControllerProvider);
+  await tester.runAsync(before.loadHistory);
+  expect(before.history, hasLength(2));
+  await tester.runAsync(() => before.openSaved(before.history.first));
+  expect(before.phase, DreamJourneyPhase.complete);
+  await tester.pump();
+  return ref;
+}
+
+/// The UI path: clear, then always refresh (the actions section does this
+/// in `finally`), then reload history as the rebuilt controller does.
+Future<DreamAnalysisController> _clearAndRefresh(
+  WidgetTester tester,
+  WidgetRef ref,
+  DreamPhase1Env env,
+) async {
+  final before = ref.read(dreamAnalysisControllerProvider);
+  await tester.runAsync(() async {
+    try {
+      await PrivacyDiscoveryClear.run(
+        storage: env.storage,
+        history: HistoryService(MockHistoryRepository(env.storage)),
+        birthCharts: testBirthChartRepo(env.storage, ownerId: 'owner-a'),
+      );
+    } on StateError catch (_) {}
+  });
+  PrivacyDataRefresh.afterDiscoveryHistoryClear(ref);
+  final after = ref.read(dreamAnalysisControllerProvider);
+  await tester.runAsync(after.loadHistory);
+  expect(identical(before, after), isFalse);
+  expect(after.history, isEmpty);
+  expect(after.dream, isNull);
+  expect(after.phase, DreamJourneyPhase.entry);
+  return after;
+}
+
 void main() {
   testWidgets('E: discovery clear removes all Dream state and refreshes the '
       'controller without restart', (tester) async {
@@ -62,46 +119,31 @@ void main() {
       await _seedDreamState(env);
     });
 
-    late WidgetRef ref;
-    await tester.pumpWidget(
-      buildProviderScopeHarness(
-        storage: env.storage,
-        overrides: [oraclyAiServiceProvider.overrideWithValue(env.ai)],
-        child: MaterialApp(
-          home: Consumer(
-            builder: (context, r, _) {
-              ref = r;
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      ),
-    );
-    final before = ref.read(dreamAnalysisControllerProvider);
-    await tester.runAsync(before.loadHistory);
-    expect(before.history, hasLength(2));
-    before.openSaved(before.history.first);
-    await tester.pump();
-
-    await tester.runAsync(
-      () => PrivacyDiscoveryClear.run(
-        storage: env.storage,
-        history: HistoryService(MockHistoryRepository(env.storage)),
-        birthCharts: testBirthChartRepo(env.storage, ownerId: 'owner-a'),
-      ),
-    );
-    PrivacyDataRefresh.afterDiscoveryHistoryClear(ref);
-    final after = ref.read(dreamAnalysisControllerProvider);
-    await tester.runAsync(after.loadHistory);
+    final ref = await _pumpWithOpenResult(tester, env);
+    await _clearAndRefresh(tester, ref, env);
 
     _expectNoDreamState(env);
     final store = ReadingVersionStore(env.storage);
     expect(store.byRootId('coffee_keep'), isNotNull);
     expect(store.byRootId('tarot_keep'), isNotNull);
-    expect(identical(before, after), isFalse);
-    expect(after.history, isEmpty);
-    expect(after.dream, isNull);
-    expect(after.phase, DreamJourneyPhase.entry);
+  });
+
+  testWidgets('E: a partial Dream clear still leaves the UI at safe entry',
+      (tester) async {
+    late DreamPhase1Env env;
+    await tester.runAsync(() async {
+      env = await DreamPhase1Env.open(faultable: true);
+      await _seedDreamState(env);
+    });
+    final ref = await _pumpWithOpenResult(tester, env);
+    env.faults.falseReturnRemoveKeys.add(DreamAttemptStore.key);
+    env.faults.falseReturnKeys.add(OraclyMemoryStore.key);
+
+    await _clearAndRefresh(tester, ref, env);
+
+    expect(env.storage.getString(DreamAttemptStore.key), isNotNull);
+    expect(env.dreamMemoryCount, 2);
+    expect(env.recordCount, 0);
   });
 
   test('E: an analysis in flight during a Dream clear cannot re-persist',
