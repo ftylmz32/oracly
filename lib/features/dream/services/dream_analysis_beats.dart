@@ -110,11 +110,21 @@ abstract final class DreamAnalysisBeats {
     return _sentence(out.replaceAll(RegExp(r'\s{2,}'), ' ').trim(), facts);
   }
 
-  /// EN / RU slots carry the dreamer's own lowercase word, so a template
-  /// that opens with one still starts a sentence. Turkish labels are already
-  /// cased (and Turkish i/İ casing is not the default mapping).
+  /// Slots can carry a lowercase word (the dreamer's own, or a softened
+  /// feeling), so a template that opens with one still starts a sentence.
+  /// Turkish maps i → İ and ı → I, never the default i → I; a softened "İ"
+  /// arrives as i + U+0307, whose dot is already carried by İ.
   static String _sentence(String text, DreamAnalysisFacts facts) {
-    if (text.isEmpty || facts.language == AppLocale.tr) return text;
-    return text[0].toUpperCase() + text.substring(1);
+    if (text.isEmpty) return text;
+    final first = text[0];
+    var rest = text.substring(1);
+    if (facts.language != AppLocale.tr) return first.toUpperCase() + rest;
+    if (first == 'i' && rest.startsWith('\u0307')) rest = rest.substring(1);
+    final upper = switch (first) {
+      'i' => 'İ',
+      'ı' => 'I',
+      _ => first.toUpperCase(),
+    };
+    return upper + rest;
   }
 }

@@ -102,10 +102,12 @@ abstract final class DreamAnalysisComposer {
       final accepted = DreamAnalysisGuard.polish(joined, facts);
       if (accepted != null) return _ai(accepted);
     }
+    // One observed item can fill several slots (the image "Ev" is also the
+    // place "Ev"); identical items are shown once.
+    final seen = <String>{};
     final parts = <String>[
-      if (facts.image != null) facts.image!,
-      if (facts.companion != null) facts.companion!,
-      if (facts.place != null) facts.place!,
+      for (final part in [facts.image, facts.companion, facts.place])
+        if (part != null && seen.add(part.trim().toLowerCase())) part,
     ];
     final local = parts.isNotEmpty
         ? parts.take(4).join(' · ')

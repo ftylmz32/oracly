@@ -2,6 +2,7 @@
 library;
 
 import 'dream_emotion.dart';
+import 'dream_entry_selection.dart';
 import 'dream_insight.dart';
 import 'dream_relationship.dart';
 import 'dream_symbol.dart';
@@ -55,6 +56,7 @@ class Dream {
     required this.narrative,
     required this.recordedAt,
     this.tags = const [],
+    this.entry,
     this.selectedEmotions = const [],
     this.understanding,
     this.insights = const [],
@@ -66,6 +68,10 @@ class Dream {
   final String narrative;
   final DateTime recordedAt;
   final List<String> tags;
+
+  /// Structured entry context behind [tags]; null for records saved before
+  /// it existed (their [tags] are then the only context, used as stored).
+  final DreamEntrySelection? entry;
   final List<DreamEmotion> selectedEmotions;
   final DreamUnderstanding? understanding;
   final List<DreamInsight> insights;
@@ -83,6 +89,7 @@ class Dream {
         'narrative': narrative,
         'recordedAt': recordedAt.toIso8601String(),
         'tags': tags,
+        if (entry != null && !entry!.isEmpty) 'entryContext': entry!.toJson(),
         'selectedEmotions': selectedEmotions.map((e) => e.toJson()).toList(),
         if (understanding != null) 'understanding': understanding!.toJson(),
         'insights': insights.map((i) => i.toJson()).toList(),
@@ -96,6 +103,11 @@ class Dream {
       narrative: json['narrative'] as String,
       recordedAt: DateTime.parse(json['recordedAt'] as String),
       tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? const [],
+      entry: json['entryContext'] is Map
+          ? DreamEntrySelection.fromJson(
+              Map<String, dynamic>.from(json['entryContext'] as Map),
+            )
+          : null,
       selectedEmotions: (json['selectedEmotions'] as List<dynamic>?)
               ?.map((e) => DreamEmotion.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -124,6 +136,7 @@ class Dream {
       narrative: narrative,
       recordedAt: recordedAt,
       tags: tags,
+      entry: entry,
       selectedEmotions: selectedEmotions,
       understanding: understanding ?? this.understanding,
       insights: insights ?? this.insights,

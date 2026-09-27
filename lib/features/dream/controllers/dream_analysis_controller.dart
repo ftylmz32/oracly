@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
+import '../models/dream_entry_selection.dart';
 import '../services/dream_experience_service.dart';
 import '../services/dream_owner_guard.dart';
 import 'dream_analysis_failure.dart';
@@ -81,6 +82,7 @@ class DreamAnalysisController extends ChangeNotifier {
     required String narrative,
     List<DreamEmotion> emotions = const [],
     List<String> tags = const [],
+    DreamEntrySelection? entry,
   }) async {
     if (_disposed || _busy) return;
     final token = ++_generation;
@@ -99,6 +101,7 @@ class DreamAnalysisController extends ChangeNotifier {
         narrative: narrative,
         selectedEmotions: emotions,
         tags: tags,
+        entry: entry,
       );
       if (_stale(token)) return;
       _dream = result.dream;

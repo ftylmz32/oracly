@@ -1,4 +1,5 @@
-/// Dream local scaffolding joins + feeling words - TR / EN / RU. Catalog.
+/// Dream scaffolding joins, provider context heading + feeling words -
+/// TR / EN / RU. Catalog.
 library;
 
 import '../l10n_triple.dart';
@@ -23,6 +24,11 @@ const kL10nDreamReadJoin = <String, L10nTriple>{
     'bu sahne',
     'this scene',
     'эта сцена',
+  ),
+  'dream.read.join.context_heading': L10nTriple(
+    '[Bağlam]',
+    '[Context]',
+    '[Контекст]',
   ),
   'dream.read.feeling_word.peaceful': L10nTriple('Huzurlu', 'peaceful', 'спокойный'),
   'dream.read.feeling_word.anxious': L10nTriple('Kaygılı', 'nervous', 'тревожный'),

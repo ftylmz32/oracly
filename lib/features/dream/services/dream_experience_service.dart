@@ -11,6 +11,7 @@ import '../../ai/production/oracly_ai_service.dart';
 import '../data/dream_record_mapper.dart';
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
+import '../models/dream_entry_selection.dart';
 import 'dream_experience_commit.dart';
 import 'dream_insight_builder.dart';
 import 'dream_narrative_language.dart';
@@ -59,6 +60,7 @@ class DreamExperienceService {
     required String narrative,
     List<DreamEmotion> selectedEmotions = const [],
     List<String> tags = const [],
+    DreamEntrySelection? entry,
   }) async {
     final snapshot = _captureOwner();
     return _run(
@@ -68,6 +70,7 @@ class DreamExperienceService {
         narrative: narrative,
         recordedAt: DateTime.now(),
         tags: tags,
+        entry: entry,
         selectedEmotions: selectedEmotions,
       ),
       isRevision: false,
@@ -90,6 +93,7 @@ class DreamExperienceService {
         narrative: source.narrative,
         recordedAt: source.recordedAt,
         tags: source.tags,
+        entry: source.entry,
         selectedEmotions: source.selectedEmotions,
       ),
       isRevision: true,

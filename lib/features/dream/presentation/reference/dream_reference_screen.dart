@@ -16,6 +16,7 @@ import '../../controllers/dream_analysis_controller.dart';
 import '../../copy/dream_copy.dart';
 import '../../models/dream_emotion.dart';
 import '../../models/dream_entry_context.dart';
+import '../../models/dream_entry_selection.dart';
 import '../../providers/dream_providers.dart';
 import '../../services/dream_paid_submit.dart';
 import '../../../quality_loop/providers/quality_loop_providers.dart';
@@ -74,6 +75,10 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
       narrative: text,
       emotions: _buildEmotions(),
       tags: _buildTags(),
+      entry: DreamEntrySelection.of(
+        chips: _selectedChips,
+        guided: _guidedAnswers,
+      ),
     );
   }
 

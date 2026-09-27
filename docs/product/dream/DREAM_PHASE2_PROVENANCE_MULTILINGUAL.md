@@ -8,6 +8,7 @@
 | Real provider calls | 0 (all tests use stubs / fixtures) |
 | Safety | **Not frozen.** Phase 3 still required. |
 | Final audit | Remediation on top of `a64c8962`: semantic request identity, narrative-language contract, localized local scaffolding, exactly one closing question (sections below marked **Final audit**). |
+| Phase 2.1 | On top of `52602375`: provider-facing evidence in the operation language; TR local-copy nits closed (section **Phase 2.1**). |
 
 ## The defect
 
@@ -113,6 +114,26 @@ Before this audit the client coalesced every Dream on the constant key `'dream'`
 - `dreamRequestFingerprint` (`dream:v2:<sha256>`) canonicalizes the same fields the prompt uses; it drives the duplicate guard.
 - `/v1/ai/complete` binds the replay record to `<Idempotency-Key>|dream-sem:<digest>`. The same raw key with a different language, emotion or symbol set is a new execution; an exact retry replays with no provider call.
 
+## Provider evidence language (Phase 2.1)
+
+Before 2.1 the request could carry Turkish or app-language ORACLY-owned values in an EN/RU operation: emotion chips as `labelTr` ("Korkulu"), catalogue symbols as their Turkish label ("Kapı" for a dreamer who wrote "door"), and entry chips / guided-question labels / `[Context]` in the app language.
+
+`DreamProviderEvidence` (`lib/features/dream/services/dream_provider_evidence.dart`) is now the single boundary: dream + understanding + operation language → `DreamAiContext`. `DreamInsightBuilder` calls it; `OpenAiPaidRequests` only serializes it; `DreamRequestIdentity`, the backend fingerprint and the replay key all derive from that same context.
+
+| Evidence | TR | EN | RU |
+|---|---|---|---|
+| Emotion chip (from `DreamEmotionId`) | `labelTr` (unchanged) | `dream.read.feeling_word.<id>` ("fearful") | same key ("испуганный") |
+| Narrative feeling words | only if written | only if written as a word | only if written |
+| Symbols | catalogue label only when the Turkish word was written | English token only when written as a word ("door", "sea") | none — no Russian catalogue is claimed |
+| Context heading | `[Bağlam]` | `[Context]` | `[Контекст]` |
+| Entry chips / guided labels | `dream.chip_*` / `dream.guided_*` rendered in the operation language | same | same |
+| Guided answers, narrative, memory | verbatim (existing trim / control-char sanitizer only) | verbatim | verbatim |
+
+- **Structured entry context:** `DreamEntrySelection` (chip ids + raw guided answers) travels next to the display tags from the entry screen through `DreamPaidSubmit` → controller → `DreamExperienceService`. It is persisted additively as `entryContext` in the Dream JSON payload, so reinterpret rebuilds the same provider context. Display tags and the entry UI are unchanged; localized display text is never parsed back into ids.
+- **Legacy records** (no `entryContext`): their stored tags are sent as historical text under the localized heading, like memory — not translated, not parsed.
+- **Backend:** no production change. `dreamMessages` already prints the client's evidence under TR/EN/RU headings; `backend/tests/dream-phase21-prompt-evidence.test.ts` proves one language per operation for ORACLY-owned text.
+- Persisted `DreamEmotion` ids, `DreamEmotionId` and on-device `DreamUnderstanding` are unchanged.
+
 ## Exactly one open question (Final audit)
 
 The closing must contain exactly one `?` (`？` accepted). Zero is rejected; two or more is rejected, never trimmed into one. A question mark in another section never affects the closing. Client: `DreamAnalysisGuard.conclusion`. Backend: `isSingleQuestion` in `dream-quality.ts`.
@@ -124,7 +145,8 @@ Local replacements keep the dreamer's observed words and localize only the glue 
 - EN/RU never carry "içinde", "ve", "bu sahne" or the Turkish-only sentence split; each language has its own lead-in and pause rules.
 - EN/RU images use the dreamer's own word, never the Turkish catalogue label; places and relationships come from Turkish-only lexicons and are used only for TR (EN "every" no longer yields "Ev").
 - Feeling chips are localized (`dream.read.feeling_word.*`); EN/RU template fills open with a capital letter; RU feeling templates agree with a masculine noun.
-- TR output is unchanged.
+- TR output is unchanged, except the two Phase 2.1 fixes below.
+- **Phase 2.1:** an observed item filling several local slots is shown once ("Ev · Ev" → "Ev"; only identical normalized items). TR template fills now open with a capital using Turkish rules (i → İ, ı → I, a softened İ's combining dot is not doubled).
 
 ## Client grounding (TR / EN / RU)
 
@@ -185,6 +207,7 @@ The Dream prompt lives in `backend/src/ai/dream-prompts.ts`. `prompts.ts` re-exp
 - `backend/tests/dream-phase2-request-identity.test.ts` (Final audit) covers:
   - The fingerprint matrix: exact retry, TR/EN, EN/RU, emotions, symbols, memory, tags, cosmetic casing/whitespace.
   - App-route replay under one base key: TR then EN is a new execution, exact retries replay with zero extra provider calls, a changed emotion or symbol is a new execution.
+- `backend/tests/dream-phase21-prompt-evidence.test.ts` (Phase 2.1): `dreamMessages` for TR/EN/RU payloads carries ORACLY-owned evidence and headings in one language.
 - `backend/tests/dream-phase2-fixtures.ts` holds the synthetic fixtures.
 - `backend/tests/ai.test.ts` has updated key expectations. The shared `dreamJson` fixture is now substantive and keeps the legacy Turkish keys.
 
@@ -202,6 +225,10 @@ The Dream prompt lives in `backend/src/ai/dream-prompts.ts`. `prompts.ts` re-exp
   - `dream_phase2_cross_language_test.dart`: TR+EN app, EN+TR app, RU+EN app (operation, prompt, titles, provenance), unrelated and invented-image rejection, detection fallback.
   - `dream_phase2_local_language_test.dart`: all-rejected local readings in TR/EN/RU without Turkish scaffolding.
   - `dream_phase2_one_question_test.dart`: 0 / 1 / 2 questions in TR/EN/RU and in the composed closing.
+- Phase 2.1 (real service path → `OpenAiPaidRequests.dream`):
+  - `dream_phase21_provider_evidence_test.dart`: EN narrative + TR app, RU narrative + EN app, TR narrative + EN app; guided answer byte-faithful; reinterpret from storage; legacy tags.
+  - `dream_phase21_identity_test.dart`: identity after the evidence fix (exact, cosmetic, language, emotion, chip, guided answer, symbol evidence), paid binder, unknown-language fail-closed.
+  - `dream_phase21_local_copy_test.dart`: "Ev · Ev", Turkish sentence start, `entryContext` round trip.
 
 **Phase 1 regression:** the owner-switch, ABA, stale reinterpret, in-flight, discovery-clear and attempt-privacy tests stay green.
 
@@ -221,11 +248,13 @@ Phase 2 adds no crisis handling. Dream Phase 3 must still handle:
 - File sizes:
   - `dream_analysis_facts.dart` is about 115 lines (language pieces moved to `dream_analysis_fact_parts.dart`).
   - `dream_copy.dart` is about 140 lines.
-  - The oversized controller and screen were not grown.
-- Final audit observations (not changed):
-  - Emotion chips reach the provider payload as their Turkish labels (`labelTr`) in every language; the prompt still receives them as observed chips.
-  - The unknown-language edge above can fail closed for short or mixed narratives.
-  - TR local text can repeat an image that is also the place ("Ev · Ev") and one TR feeling template opens lowercase; both predate Phase 2 and TR output was intentionally left unchanged.
+  - The already-oversized controller, entry screen and experience service grew only by the Phase 2.1 `entry` pass-through (2–5 lines each); no logic was added to them.
+- Final audit observations:
+  - Turkish emotion labels in the provider payload — closed in Phase 2.1.
+  - "Ev · Ev" and the lowercase TR opening — closed in Phase 2.1.
+  - The unknown-language edge above can fail closed for short or mixed narratives (accepted contract; tested).
+- Phase 2.1 residual: records saved before `entryContext` existed send their stored tags as saved (historical text in the language of that time).
+- Dream memory retrieval builds its local query from display labels; it only selects history and never reaches the provider as ORACLY-owned evidence.
 
 ## Remaining Phase 3 blockers
 

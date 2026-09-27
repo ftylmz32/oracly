@@ -5,12 +5,11 @@ import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_retriever.dart';
 import '../../ai/production/ai_failure.dart';
 import '../../ai/production/ai_request_exception.dart';
-import '../../ai/production/contexts/reading_ai_context.dart';
 import '../../ai/production/oracly_ai_service.dart';
 import '../models/dream.dart';
 import 'dream_ai_insight_mapper.dart';
-import 'dream_context_enricher.dart';
 import 'dream_pattern_service.dart';
+import 'dream_provider_evidence.dart';
 import 'dream_reading_provenance.dart';
 import 'dream_reflection_generator.dart';
 
@@ -35,15 +34,11 @@ class DreamInsightBuilder {
   }) async {
     if (ai.isConfigured) {
       final outcome = await ai.analyzeDream(
-        DreamAiContext(
-          narrative: DreamContextEnricher.narrativeForAi(
-            narrative: dream.narrative,
-            tags: dream.tags,
-          ),
-          symbols: understanding.symbols.map((s) => s.label).toList(),
-          emotions: understanding.emotions,
-          memorySummary: _memorySummary(dream),
+        DreamProviderEvidence.context(
+          dream: dream,
+          understanding: understanding,
           language: language,
+          memorySummary: _memorySummary(dream),
         ),
       );
       final insights = outcome.when(

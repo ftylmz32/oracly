@@ -14,6 +14,7 @@ import '../../personal_discovery/services/personal_discovery_refresh.dart';
 import '../controllers/dream_analysis_controller.dart';
 import '../economy/dream_economy.dart';
 import '../models/dream_emotion.dart';
+import '../models/dream_entry_selection.dart';
 import 'dream_attempt_store.dart';
 
 abstract final class DreamPaidSubmit {
@@ -28,6 +29,7 @@ abstract final class DreamPaidSubmit {
     required String narrative,
     required List<DreamEmotion> emotions,
     required List<String> tags,
+    DreamEntrySelection? entry,
   }) async {
     if (_running || !context.mounted) return;
     _running = true;
@@ -61,6 +63,7 @@ abstract final class DreamPaidSubmit {
           narrative: narrative,
           emotions: emotions,
           tags: tags,
+          entry: entry,
         );
       });
       if (controller.phase == DreamJourneyPhase.complete) {
