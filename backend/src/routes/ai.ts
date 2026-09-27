@@ -3,6 +3,7 @@ import {
   fingerprintRequest,
   parseIdempotencyKey,
 } from '../ai/request-fingerprint.js';
+import { dreamReplayKey } from '../ai/dream-request-identity.js';
 import type { AiProxyService } from '../ai/service.js';
 import { asRecord } from '../ai/sanitize.js';
 import { validateAiBody } from '../ai/validate-request.js';
@@ -137,9 +138,15 @@ export async function registerAiRoutes(
             );
           }
         }
+        // Dream: a completed response replays only for the same semantic
+        // request (language, narrative, symbols, emotions, memory).
+        const replayKey =
+          idemKey && validated.operation === 'dream_analysis'
+            ? dreamReplayKey(idemKey, fingerprint)
+            : idemKey;
         let replayAttempt: string | null = null;
-        if (idemKey) {
-          const claim = await replay.claim(identity, idemKey);
+        if (replayKey) {
+          const claim = await replay.claim(identity, replayKey);
           if (claim.kind === 'completed') {
             reply.header('content-type', claim.entry.contentType);
             return reply.code(claim.entry.status).send(claim.entry.body);
@@ -177,7 +184,7 @@ export async function registerAiRoutes(
         };
 
         const result = await run();
-        if (idemKey && replayAttempt) await replay.complete(identity, idemKey, replayAttempt, {
+        if (replayKey && replayAttempt) await replay.complete(identity, replayKey, replayAttempt, {
           status: result.status, body: result.body, contentType: 'application/json',
         });
 

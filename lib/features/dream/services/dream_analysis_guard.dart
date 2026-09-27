@@ -61,11 +61,25 @@ abstract final class DreamAnalysisGuard {
     return guarded;
   }
 
+  static final _questionMark = RegExp('[?？]');
+
+  static int questionMarks(String text) =>
+      _questionMark.allMatches(text).length;
+
+  /// The closing contract: exactly one open question (TR / EN / RU all use
+  /// `?`). None, or two and more, is rejected — never trimmed into one.
+  static String? conclusion(String? text, DreamAnalysisFacts facts) {
+    if (text == null || questionMarks(text) != 1) return null;
+    final polished = polish(text, facts);
+    if (polished != null && questionMarks(polished) == 1) return polished;
+    return oneQuestion(text, facts);
+  }
+
   static String? oneQuestion(String? text, DreamAnalysisFacts facts) {
     if (text == null) return null;
     final guarded = HumanReader.guard(text.trim());
-    if (!guarded.contains('?')) return null;
-    final q = guarded.split('?').first.trim();
+    if (!guarded.contains(_questionMark)) return null;
+    final q = guarded.split(_questionMark).first.trim();
     if (q.isEmpty) return null;
     final ask = '$q?';
     if (looksDictionary(ask) || FortuneVoice.claimsMedical(ask)) return null;

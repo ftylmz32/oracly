@@ -78,14 +78,14 @@ export function evaluateDreamQuality(
   ];
   if (hasNearDuplicate(sections)) return 'duplicate_sections';
   if (sections.some((s) => DICTIONARY.test(s))) return 'dictionary_style';
-  if (!isQuestion(data.conclusion)) return 'conclusion_not_question';
+  if (!isSingleQuestion(data.conclusion)) return 'conclusion_not_question';
   const prose = sections.join(' ');
   if (!languageMatches(prose, input.language)) return 'language_mismatch';
   if ((prose.match(GENERIC) ?? []).length >= 2) return 'generic_boilerplate';
-  // Lexical grounding only holds when the dreamer wrote in the response
-  // language; a cross-language narrative is left to the client guard.
-  const told = narrativeLanguage(input.narrative);
-  if (told === 'unknown' ? input.language === 'ru' : told !== input.language) return null;
+  // Grounding is lexical and applies to every request. The client asks for
+  // the narrative's own language when it can identify it, so input and
+  // output share words; a cross-language response must still share real
+  // evidence (names, told words) or it fails closed.
   const evidence = significant(
     [input.narrative, ...input.symbols, ...input.emotions].join(' '),
   );
@@ -165,9 +165,9 @@ function hasNearDuplicate(sections: string[]): boolean {
   return false;
 }
 
-function isQuestion(s: string): boolean {
-  const marks = (s.match(/[?？]/g) ?? []).length;
-  return marks >= 1 && marks <= 2;
+/** The conclusion is exactly one open question (TR / EN / RU all use `?`). */
+export function isSingleQuestion(s: string): boolean {
+  return (s.match(/[?？]/g) ?? []).length === 1;
 }
 
 function scriptShare(s: string): { cyr: number; lat: number } {
@@ -195,16 +195,4 @@ export function languageMatches(prose: string, language: AppLanguage): boolean {
   const en = markerHits(prose, EN_MARKERS);
   if (language === 'en') return !(tr >= 4 && tr > en * 2);
   return !(en >= 4 && en > tr * 2);
-}
-
-/** Best-effort narrative language for the grounding precondition. */
-export function narrativeLanguage(narrative: string): AppLanguage | 'unknown' {
-  const { cyr, lat } = scriptShare(narrative);
-  if (cyr + lat === 0) return 'unknown';
-  if (cyr / (cyr + lat) >= 0.5) return 'ru';
-  const tr = markerHits(narrative, TR_MARKERS) + (/[çğıöşüİ]/i.test(narrative) ? 2 : 0);
-  const en = markerHits(narrative, EN_MARKERS);
-  if (tr > en) return 'tr';
-  if (en > tr) return 'en';
-  return 'unknown';
 }

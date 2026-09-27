@@ -3,8 +3,8 @@ import { responseLanguageDirective, type AppLanguage } from '../src/ai/app-langu
 import { DREAM_JSON_KEYS } from '../src/ai/dream-prompts.js';
 import {
   evaluateDreamQuality,
+  isSingleQuestion,
   languageMatches,
-  narrativeLanguage,
   sameStem,
 } from '../src/ai/dream-quality.js';
 import { parseDreamData } from '../src/ai/parse-provider.js';
@@ -111,9 +111,29 @@ describe('Dream Phase 2 — backend quality gate', () => {
     ).toBe('dictionary_style');
   });
 
-  it('requires the conclusion to be an open question', () => {
+  it('requires the conclusion to be exactly one open question', () => {
     const closed = { ...trGood, conclusion: 'Bu ruya bir uyari degil, bir davettir.' };
     expect(evaluateDreamQuality(closed, input(trNarrative, 'tr'))).toBe('conclusion_not_question');
+    const two = { ...trGood, conclusion: 'Yilan evden neden gecti? Sen ne hissettin?' };
+    expect(evaluateDreamQuality(two, input(trNarrative, 'tr'))).toBe('conclusion_not_question');
+    const enTwo = { ...enGood, conclusion: 'What was behind the red door? And the beach?' };
+    expect(evaluateDreamQuality(enTwo, input(enNarrative, 'en'))).toBe('conclusion_not_question');
+    const ruTwo = { ...ruGood, conclusion: `${ruGood.conclusion} А окно?` };
+    expect(evaluateDreamQuality(ruTwo, input(ruNarrative, 'ru'))).toBe('conclusion_not_question');
+    const wide = { ...enGood, conclusion: 'What would you want to find behind the red door？' };
+    expect(evaluateDreamQuality(wide, input(enNarrative, 'en'))).toBeNull();
+    // A question mark in another section never counts against the conclusion.
+    const elsewhere = { ...trGood, summary: `${trGood.summary} Neden?` };
+    expect(evaluateDreamQuality(elsewhere, input(trNarrative, 'tr', ['yilan']))).toBeNull();
+    for (const [good, narrative, lang] of [
+      [trGood, trNarrative, 'tr'],
+      [enGood, enNarrative, 'en'],
+      [ruGood, ruNarrative, 'ru'],
+    ] as const) {
+      const symbols = lang === 'tr' ? ['yilan'] : [];
+      expect(evaluateDreamQuality(good, input(narrative, lang, symbols))).toBeNull();
+      expect(isSingleQuestion(good.conclusion)).toBe(true);
+    }
   });
 
   it('rejects output that ignores the requested language', () => {
@@ -123,11 +143,13 @@ describe('Dream Phase 2 — backend quality gate', () => {
     expect(evaluateDreamQuality(ruGood, input(trNarrative, 'tr'))).toBe('language_mismatch');
   });
 
-  it('skips lexical grounding only for a cross-language narrative', () => {
-    expect(narrativeLanguage(trNarrative)).toBe('tr');
-    expect(narrativeLanguage(enNarrative)).toBe('en');
-    expect(narrativeLanguage(ruNarrative)).toBe('ru');
-    expect(evaluateDreamQuality(enUnrelated, input(trNarrative, 'en'))).toBeNull();
+  it('grounds every request lexically — cross-language never bypasses it', () => {
+    expect(evaluateDreamQuality(enUnrelated, input(trNarrative, 'en'))).toBe('ungrounded');
+    expect(evaluateDreamQuality(enUnrelated, input(ruNarrative, 'en'))).toBe('ungrounded');
+    expect(evaluateDreamQuality(ruUnrelated, input(enNarrative, 'ru'))).toBe('ungrounded');
+    expect(
+      evaluateDreamQuality({ ...enGood, symbols: ['snake'] }, input(`${trNarrative} red door beach`, 'en')),
+    ).toBe('invented_symbol');
   });
 
   it('tokenizes Cyrillic (including ё) with inflection-tolerant stems', () => {

@@ -135,7 +135,8 @@ void main() {
       expect(request.payload['language'], 'tr');
     });
 
-    test('request language comes from the context; fingerprint unchanged', () {
+    test('request language comes from the context and is part of identity',
+        () {
       OraclyL10n.bind('tr');
       const ru = DreamAiContext(narrative: _ruTold, language: 'ru');
       const en = DreamAiContext(narrative: _ruTold, language: 'en');
@@ -148,7 +149,7 @@ void main() {
         OpenAiPaidRequests.dream(model: 'm', context: unset).payload['language'],
         'tr',
       );
-      expect(ruReq.idempotencyKey, enReq.idempotencyKey);
+      expect(ruReq.idempotencyKey, isNot(enReq.idempotencyKey));
     });
   });
 

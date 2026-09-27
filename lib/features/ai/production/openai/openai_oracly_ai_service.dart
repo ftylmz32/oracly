@@ -7,6 +7,7 @@ import '../ai_request_fingerprint.dart';
 import '../ai_request_guard.dart';
 import '../ai_runtime_config.dart';
 import '../contexts/reading_ai_context.dart';
+import '../dream_request_identity.dart';
 import '../models/chat_ai_reply.dart';
 import '../models/coffee_ai_analysis.dart';
 import '../models/conversation_turn.dart';
@@ -213,13 +214,13 @@ class OpenAiOraclyAiService
 
   @override
   Future<AiOutcome<DreamAiAnalysis>> analyzeDream(DreamAiContext context) {
+    // Only an exact semantic retry may coalesce; different language, symbols,
+    // emotions, memory or narrative always issue their own request.
+    final fingerprint = DreamRequestIdentity.fingerprint(context);
     return _guard.runOutcome(
-      'dream',
+      fingerprint,
       kind: AiRequestKind.dream,
-      fingerprint: AiRequestFingerprint.text(
-        'dream',
-        '${context.narrative}|${context.memorySummary ?? ''}',
-      ),
+      fingerprint: fingerprint,
       () async {
         return OpenAiServiceResults.dream(
           await _transport.execute(

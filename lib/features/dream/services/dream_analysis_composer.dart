@@ -128,8 +128,7 @@ abstract final class DreamAnalysisComposer {
     DreamAiAnalysis? ai,
     int seed,
   ) {
-    final accepted = DreamAnalysisGuard.polish(ai?.conclusion, facts) ??
-        DreamAnalysisGuard.oneQuestion(ai?.conclusion, facts);
+    final accepted = DreamAnalysisGuard.conclusion(ai?.conclusion, facts);
     if (accepted != null) return _ai(accepted);
     return _local(HumanReader.guard(DreamAnalysisBeats.ask(facts, seed)));
   }

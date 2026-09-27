@@ -1,6 +1,7 @@
 /** Compact fingerprints — never hash full image payloads. */
 import type { ValidatedRequest } from './validate-request.js';
 import { sanitizeText } from './sanitize.js';
+import { dreamRequestFingerprint } from './dream-request-identity.js';
 import { narrativeRequestFingerprint } from './narrative-tarot-canonical.js';
 import { yildiznameRequestFingerprint } from './narrative-yildizname-canonical.js';
 
@@ -10,11 +11,8 @@ export function fingerprintRequest(request: ValidatedRequest): string {
       return `chat:${sanitizeText(request.userMessage).toLowerCase()}`;
     case 'oracle':
       return `oracle:${request.kind}:${sanitizeText(request.userMessage).toLowerCase()}`;
-    case 'dream_analysis': {
-      const narrative = sanitizeText(request.payload.narrative).toLowerCase();
-      const memory = sanitizeText(request.payload.memorySummary, 220).toLowerCase();
-      return `dream:${narrative}|${memory}`;
-    }
+    case 'dream_analysis':
+      return dreamRequestFingerprint(request);
     case 'coffee_analysis':
       return imageFp('coffee', request.payload);
     case 'palm_analysis':

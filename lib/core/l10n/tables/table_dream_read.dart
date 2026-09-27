@@ -17,12 +17,12 @@ const kL10nDreamRead = <String, L10nTriple>{
   'dream.read.feeling.emotion.1': L10nTriple(
     '{emotion} bir ton, {scene} sahnesinin kenarında duruyor.',
     'A {emotion} tone sits at the edge of {scene}.',
-    '{emotion} тон стоит у края сцены: {scene}.',
+    'У края сцены стоит {emotion} тон: {scene}.',
   ),
   'dream.read.feeling.emotion.2': L10nTriple(
     'İlk duran his {emotion}; sahne kendini ispatlamaya çalışmıyor.',
     'The first feeling is {emotion}; the scene is not trying to prove itself.',
-    'Первое чувство — {emotion}; сцена не пытается себя доказать.',
+    'Первым встаёт {emotion} тон; сцена не пытается себя доказать.',
   ),
   'dream.read.feeling.scene.0': L10nTriple(
     'Adlandırılmış bir duygu yok; duran şey {scene} sahnesinin kendisi.',

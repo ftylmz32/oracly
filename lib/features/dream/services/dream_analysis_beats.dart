@@ -79,7 +79,9 @@ abstract final class DreamAnalysisBeats {
     if (tag == null) return '';
     return _fill(facts, 'dream.read.you.tag', {
       'tag': tag,
-      'image': facts.image ?? facts.detail ?? 'bu sahne',
+      'image': facts.image ??
+          facts.detail ??
+          _t(facts, 'dream.read.join.scene_fallback'),
     });
   }
 
@@ -105,6 +107,14 @@ abstract final class DreamAnalysisBeats {
     for (final entry in vars.entries) {
       out = out.replaceAll('{${entry.key}}', entry.value);
     }
-    return out.replaceAll(RegExp(r'\s{2,}'), ' ').trim();
+    return _sentence(out.replaceAll(RegExp(r'\s{2,}'), ' ').trim(), facts);
+  }
+
+  /// EN / RU slots carry the dreamer's own lowercase word, so a template
+  /// that opens with one still starts a sentence. Turkish labels are already
+  /// cased (and Turkish i/İ casing is not the default mapping).
+  static String _sentence(String text, DreamAnalysisFacts facts) {
+    if (text.isEmpty || facts.language == AppLocale.tr) return text;
+    return text[0].toUpperCase() + text.substring(1);
   }
 }

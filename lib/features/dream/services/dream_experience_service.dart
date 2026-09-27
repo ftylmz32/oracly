@@ -13,6 +13,7 @@ import '../models/dream.dart';
 import '../models/dream_emotion.dart';
 import 'dream_experience_commit.dart';
 import 'dream_insight_builder.dart';
+import 'dream_narrative_language.dart';
 import 'dream_owner_guard.dart';
 import 'dream_pattern_service.dart';
 import 'dream_reflection_generator.dart';
@@ -116,7 +117,8 @@ class DreamExperienceService {
     Dream seed, {
     required bool isRevision,
   }) async {
-    final language = AppLocale.normalize(OraclyL10n.code);
+    final language =
+        DreamNarrativeLanguage.forOperation(seed.narrative, OraclyL10n.code);
     final understanding = _understanding.build(
       narrative: seed.narrative,
       selectedEmotions: seed.selectedEmotions,

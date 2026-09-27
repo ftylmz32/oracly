@@ -18,6 +18,7 @@ import 'tables/table_daily_ritual.dart';
 import 'tables/table_dream.dart';
 import 'tables/table_dream_more.dart';
 import 'tables/table_dream_read.dart';
+import 'tables/table_dream_read_join.dart';
 import 'tables/table_economy.dart';
 import 'tables/table_explore.dart';
 import 'tables/table_features.dart';
@@ -141,6 +142,7 @@ abstract final class AppStringTables {
     ...kL10nDream,
     ...kL10nDreamMore,
     ...kL10nDreamRead,
+    ...kL10nDreamReadJoin,
     ...kL10nBirth,
     ...kL10nBirthMore,
     ...kL10nBirthInsight,

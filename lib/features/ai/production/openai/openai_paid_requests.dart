@@ -8,6 +8,7 @@ import '../../../../core/l10n/l10n.dart';
 import '../../../reading_operation/services/reading_operation_context.dart';
 import '../ai_request_fingerprint.dart';
 import '../contexts/reading_ai_context.dart';
+import '../dream_request_identity.dart';
 import '../transport/ai_operation.dart';
 import '../transport/ai_proxy_request.dart';
 import '../../../tarot/narrative/live/narrative_tarot_attempt.dart';
@@ -21,14 +22,11 @@ abstract final class OpenAiPaidRequests {
     required String model,
     required DreamAiContext context,
   }) {
-    final fp = AiRequestFingerprint.text(
-      'dream',
-      '${context.narrative}|${context.memorySummary ?? ''}',
-    );
+    final fp = DreamRequestIdentity.fingerprint(context);
     return AiProxyRequest(
       operation: AiOperation.dreamAnalysis,
       model: model,
-      idempotencyKey: PaidRequestIdempotency.resolve(fp),
+      idempotencyKey: DreamRequestIdentity.idempotencyKey(fp),
       payload: {
         'narrative': PromptSanitizer.sanitize(context.narrative),
         'symbols': context.symbols,

@@ -7,6 +7,7 @@
 | Branch | `fix/final-product-remediation-20260922` |
 | Real provider calls | 0 (all tests use stubs / fixtures) |
 | Safety | **Not frozen.** Phase 3 still required. |
+| Final audit | Remediation on top of `a64c8962`: semantic request identity, narrative-language contract, localized local scaffolding, exactly one closing question (sections below marked **Final audit**). |
 
 ## The defect
 
@@ -41,7 +42,7 @@
 | mainInterpretation | `interpretation` | **omitted**, never replaced |
 | personalConnection | `dailyLifeReflection` | local "you" beat |
 | themes | — | always local |
-| closingTakeaway | `conclusion` (polished, or its first question) | local ask beat |
+| closingTakeaway | `conclusion` with exactly one question mark | local ask beat |
 
 When no AI section is accepted, every section is `local`, and there is no interpretation section.
 
@@ -69,13 +70,61 @@ When no AI section is accepted, every section is `local`, and there is no interp
 
 ## Language snapshot
 
-- **Capture point:** `DreamExperienceService._run` captures `AppLocale.normalize(OraclyL10n.code)` once, before understanding and before the request.
+- **Capture point:** `DreamExperienceService._run` captures one operation language, before understanding and before the request: `DreamNarrativeLanguage.forOperation(narrative, OraclyL10n.code)`.
 - **Where it flows:**
   - `DreamAnalysisFacts.language` drives the guard's quality context, the local beats and the section titles.
   - `DreamAiContext.language` feeds the `OpenAiPaidRequests.dream` payload.
 - **Locale race:** changing the locale mid-flight does not change the request, the guard or the titles (see the test).
-- **Fingerprint and idempotency:** unchanged. Language is not part of the fingerprint.
 - **Dev path:** the dev-only direct `DreamPromptBuilder` path is unchanged.
+
+### Cross-language contract (Final audit)
+
+**The reading follows the narrative's language; the app language is only the fallback.** Grounding on both sides is lexical, so a reading can only be proven grounded when it shares words with what the dreamer wrote. Writing it in the narrative's language is the one contract that is truthful and fail-closed without translation.
+
+`DreamNarrativeLanguage.detect` (`lib/features/dream/services/dream_narrative_language.dart`) is deterministic and has no network or model:
+
+- Cyrillic letters are at least half of all letters → `ru`.
+- Otherwise Latin text is scored: TR = Turkish function words + words containing a Turkish-only letter; EN = English function words.
+- A language wins only with more than twice the other's score. A tie, a close call or no letters is "unknown" → the app language.
+
+| Narrative | App | Operation / prompt / titles |
+|---|---|---|
+| TR | EN | `tr` |
+| EN | TR | `en` |
+| RU | EN | `ru` |
+| unknown (names, numbers, mixed) | any | app language |
+
+- The backend gate grounds **every** request lexically (the old cross-language skip is removed). Unrelated prose in any language is `invalid_response`; an invented symbol is still rejected.
+- **Unknown-language edge:** when detection falls back to the app language and the narrative is in another language, grounding can fail closed (`invalid_response` / local sections). It never passes ungrounded prose.
+
+## Request identity (Final audit)
+
+Before this audit the client coalesced every Dream on the constant key `'dream'`, the provider idempotency key ignored language, and the backend replayed any response stored under the same raw Idempotency-Key. So a TR reading could be returned for an EN request under one paid operation.
+
+**Client** — `DreamRequestIdentity` (`lib/features/ai/production/dream_request_identity.dart`):
+
+- Fingerprint `dream:v1:<sha256>` of: language (normalized like the payload), narrative (sanitized like the payload), symbols, emotions, memory summary. Tags are folded into the narrative by `DreamContextEnricher`, so tag edits change it too.
+- Normalization: trim, lowercase, collapse whitespace runs; symbols and emotions are de-duplicated and sorted (they are sets in the prompt). Only casing / whitespace / set-order edits are an exact retry.
+- The fingerprint is the `AiRequestGuard` coalesce key **and** its duplicate fingerprint. Abuse limits (duplicate window, burst cap) are unchanged.
+- Provider idempotency key: `dream-<32 hex>`; inside a paid operation `<billing op id>:ds-<32 hex>`. The billing operation id itself is untouched, so paid settlement identity is unchanged.
+
+**Backend** — `backend/src/ai/dream-request-identity.ts`:
+
+- `dreamRequestFingerprint` (`dream:v2:<sha256>`) canonicalizes the same fields the prompt uses; it drives the duplicate guard.
+- `/v1/ai/complete` binds the replay record to `<Idempotency-Key>|dream-sem:<digest>`. The same raw key with a different language, emotion or symbol set is a new execution; an exact retry replays with no provider call.
+
+## Exactly one open question (Final audit)
+
+The closing must contain exactly one `?` (`？` accepted). Zero is rejected; two or more is rejected, never trimmed into one. A question mark in another section never affects the closing. Client: `DreamAnalysisGuard.conclusion`. Backend: `isSingleQuestion` in `dream-quality.ts`.
+
+## Local scaffolding (Final audit)
+
+Local replacements keep the dreamer's observed words and localize only the glue (`DreamAnalysisFactParts`, `kL10nDreamReadJoin`):
+
+- EN/RU never carry "içinde", "ve", "bu sahne" or the Turkish-only sentence split; each language has its own lead-in and pause rules.
+- EN/RU images use the dreamer's own word, never the Turkish catalogue label; places and relationships come from Turkish-only lexicons and are used only for TR (EN "every" no longer yields "Ev").
+- Feeling chips are localized (`dream.read.feeling_word.*`); EN/RU template fills open with a capital letter; RU feeling templates agree with a masculine noun.
+- TR output is unchanged.
 
 ## Client grounding (TR / EN / RU)
 
@@ -110,13 +159,13 @@ The Dream prompt lives in `backend/src/ai/dream-prompts.ts`. `prompts.ts` re-exp
 | Required sections | minimum characters: summary 20, emotionalTheme 16, interpretation 60, dailyLifeReflection 30, conclusion 16 |
 | Distinctness | no identical sections, and token-set overlap below 0.8 (for sets of 3 or more words) |
 | Dictionary | no `X = Y`, "Anlam:", "meaning:", "значение:", "temsil eder", "symbolizes", "сонник", … |
-| Question | the conclusion contains 1–2 question marks |
+| Question | the conclusion contains exactly one question mark |
 | Language | ru needs at least 50% Cyrillic letters; tr/en allow at most 20% Cyrillic; function-word dominance is checked between tr and en |
 | Genericity | two or more boilerplate tropes (new beginning / good news / change is coming …, TR/EN/RU) |
 | Symbol invention | every output symbol shares a stem with the narrative or the supplied symbols |
 | Grounding | the interpretation, plus at least one of summary, daily reflection or conclusion, shares a stem with the evidence |
 
-**When symbol and grounding checks apply:** only when the narrative is written in the requested language. If the narrative language is unknown, they apply unless the request is Russian. A cross-language narrative is left to the client guard.
+**When symbol and grounding checks apply:** always (Final audit). Grounding is lexical; the client sends the narrative's own language, so a truthful reading shares words with the narrative. Semantic (translation-level) grounding coverage is **not** claimed.
 
 **On failure:**
 - The gate returns the typed `invalid_response`.
@@ -133,6 +182,9 @@ The Dream prompt lives in `backend/src/ai/dream-prompts.ts`. `prompts.ts` re-exp
   - Acceptance of grounded TR/EN/RU fixtures and rejection of unrelated prose.
   - Rejection of invented symbols, thin, duplicated, generic and dictionary output, non-question conclusions and language mismatches.
   - An app-route `invalid_response` with a single call, and EN/RU end-to-end success.
+- `backend/tests/dream-phase2-request-identity.test.ts` (Final audit) covers:
+  - The fingerprint matrix: exact retry, TR/EN, EN/RU, emotions, symbols, memory, tags, cosmetic casing/whitespace.
+  - App-route replay under one base key: TR then EN is a new execution, exact retries replay with zero extra provider calls, a changed emotion or symbol is a new execution.
 - `backend/tests/dream-phase2-fixtures.ts` holds the synthetic fixtures.
 - `backend/tests/ai.test.ts` has updated key expectations. The shared `dreamJson` fixture is now substantive and keeps the legacy Turkish keys.
 
@@ -143,8 +195,13 @@ The Dream prompt lives in `backend/src/ai/dream-prompts.ts`. `prompts.ts` re-exp
 - `test/features/dream/dream_phase2_multilingual_test.dart` covers:
   - TR/EN/RU grounding and the whole-word catalogue check.
   - The Cyrillic `ё` tokenizer.
-  - The locale race, request language and unchanged fingerprint.
+  - The locale race, and request language as part of identity.
   - The localized footnote, and OR context without enum names.
+- Final audit:
+  - `dream_phase2_request_identity_test.dart`: identity matrix A–H, paid binder prefix, semantic guard coalescing.
+  - `dream_phase2_cross_language_test.dart`: TR+EN app, EN+TR app, RU+EN app (operation, prompt, titles, provenance), unrelated and invented-image rejection, detection fallback.
+  - `dream_phase2_local_language_test.dart`: all-rejected local readings in TR/EN/RU without Turkish scaffolding.
+  - `dream_phase2_one_question_test.dart`: 0 / 1 / 2 questions in TR/EN/RU and in the composed closing.
 
 **Phase 1 regression:** the owner-switch, ABA, stale reinterpret, in-flight, discovery-clear and attempt-privacy tests stay green.
 
@@ -162,9 +219,13 @@ Phase 2 adds no crisis handling. Dream Phase 3 must still handle:
 - The residual account-wipe race documented in Phase 1 is unchanged and is not newly reachable.
 - The original-version save order is carried as debt.
 - File sizes:
-  - `dream_analysis_facts.dart` is about 175 lines.
+  - `dream_analysis_facts.dart` is about 115 lines (language pieces moved to `dream_analysis_fact_parts.dart`).
   - `dream_copy.dart` is about 140 lines.
   - The oversized controller and screen were not grown.
+- Final audit observations (not changed):
+  - Emotion chips reach the provider payload as their Turkish labels (`labelTr`) in every language; the prompt still receives them as observed chips.
+  - The unknown-language edge above can fail closed for short or mixed narratives.
+  - TR local text can repeat an image that is also the place ("Ev · Ev") and one TR feeling template opens lowercase; both predate Phase 2 and TR output was intentionally left unchanged.
 
 ## Remaining Phase 3 blockers
 
