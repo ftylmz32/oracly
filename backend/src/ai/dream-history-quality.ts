@@ -3,12 +3,13 @@
  * dreamer's history. Runs after the Phase 2 quality gate; never relaxes it.
  *
  * Per sentence of the prose fields:
- *  - history_unsupported: a recurrence/prior-dream claim carried by no single
- *    evidence source — neither one named supplied history item (with no
- *    words borrowed from other evidence) nor one dreamer recurrence sentence
- *    that grounds all its content words (Phases 4A.2/4A.3, see
- *    dream-history-echo.ts); or stored-record wording ("saved dreams",
- *    "we have seen") not carried by a named supplied item. Naming is strict
+ *  - history_unsupported: a recurrence/prior-dream claim (or a supplied
+ *    history count) carried by no single evidence source — neither one named
+ *    supplied history item whose own words are every content word (Phase
+ *    4A.4) nor one dreamer recurrence sentence that grounds all its content
+ *    words (Phases 4A.2/4A.3, see dream-history-echo.ts); or stored-record
+ *    wording ("saved dreams", "we have seen") not carried by a named supplied
+ *    item. Naming is strict
  *    (`sameStrict`: same word or a real inflection; "rainbow" never names
  *    "rain", "kapıcı" never names "kapı").
  *  - history_absolute: "always / every time / all your dreams" inflation.
@@ -163,6 +164,11 @@ function dreamerRecurrenceSegments(narrative: string): Evidence[] {
     .map(wordsOf);
 }
 
+/** Drops the numbers of count phrases; the count gate has already judged them. */
+function withoutCounts(sentence: string): string {
+  return [DREAM_COUNT, TIMES_COUNT].reduce((s, p) => s.replace(p, (m, n: string) => m.replace(n, ' ')), sentence);
+}
+
 function countValue(raw: string): number {
   return /^\d+$/.test(raw) ? Number(raw) : (WORD_VALUES[raw] ?? -1);
 }
@@ -195,13 +201,11 @@ export function dreamHistoryClaimViolation(
       const invented = counts.filter((m) => !narrative.includes(m[0]));
       if (invented.some((m) => !allowed.has(countValue(m[1]!)))) return 'history_count';
       const saved = hits(SAVED_HISTORY, s).length > 0;
-      if (!claim && !saved) continue;
-      const words = wordsOf(s.replace(CLAIM, ' ').replace(SAVED_HISTORY, ' '));
-      const viaHistory = history.some((item, i) => {
-        if (!named.includes(item)) return false;
-        const others = [...segments, ...itemWords.filter((_, j) => j !== i)];
-        return anchoredByItem(words, itemWords[i]!, others, input.language);
-      });
+      if (!claim && !saved && !invented.length) continue;
+      const words = wordsOf(withoutCounts(s).replace(CLAIM, ' ').replace(SAVED_HISTORY, ' '));
+      const viaHistory = history.some(
+        (item, i) => named.includes(item) && anchoredByItem(words, itemWords[i]!, input.language),
+      );
       if (!viaHistory && (saved || !echoesDreamer(words, segments, input.language))) return 'history_unsupported';
     }
   }

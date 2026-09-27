@@ -65,18 +65,28 @@ describe('Dream Phase 4A.1 — real inflections still bind', () => {
     ['en', 'Doors have appeared before.', door],
     ['en', 'Fears have appeared in earlier dreams.', fear],
     ['tr', 'Kapı önceki rüyalarında da vardı.', kapi],
-    ['tr', 'Kapıda beklemek önceki rüyalarında da vardı.', kapi],
     ['tr', 'Kapıyı önceki rüyalarında da görmüştün.', kapi],
     ['tr', 'Kapının tekrar etmesi dikkat çekici olabilir.', kapi],
     ['tr', 'Deniz önceki rüyalarında da vardı.', deniz],
+    ['tr', 'Denizi önceki rüyalarında da görmüştün.', deniz],
+    ['tr', 'Denizin daha önce de görünmüş olması dikkat çekici olabilir.', deniz],
+    ['ru', 'Окно уже встречалось в прошлых снах.', okno],
+    ['ru', 'Окна уже встречались в прошлых снах.', okno],
+    ['ru', 'Ты уже видел окно в прошлых снах.', okno],
+  ] as const)('%s: "%s" passes', (language, sentence, history) => {
+    expect(check(language, sentence, [history])).toBeNull();
+  });
+
+  // Contract correction (Phase 4A.4): these were accepted in 4A.1, but the item
+  // attests only the noun, never the action, sound or light added around it.
+  it.each([
+    ['tr', 'Kapıda beklemek önceki rüyalarında da vardı.', kapi],
     ['tr', 'Denizde yürümek önceki rüyalarında da vardı.', deniz],
     ['tr', 'Denize bakmak önceki rüyalarında da vardı.', deniz],
     ['tr', 'Denizin sesi önceki rüyalarında da vardı.', deniz],
-    ['ru', 'Окно уже встречалось в прошлых снах.', okno],
-    ['ru', 'Окна уже встречались в прошлых снах.', okno],
     ['ru', 'Свет в окне уже встречался в прошлых снах.', okno],
-  ] as const)('%s: "%s" passes', (language, sentence, history) => {
-    expect(check(language, sentence, [history])).toBeNull();
+  ] as const)('%s: "%s" adds unattested history → history_unsupported (4A.4)', (language, sentence, history) => {
+    expect(check(language, sentence, [history])).toBe('history_unsupported');
   });
 
   it('a generic dreamer recurrence statement never authorizes an invented subject (4A.2)', () => {

@@ -10,6 +10,8 @@
  * Evidence sources are never combined: one recurrence sentence, or one
  * supplied history item, must carry the claim. "Red" from one sentence and
  * "sea" from another (or from a history item) never make a "red sea".
+ * A history item attests only its own words (Phase 4A.4): no attribute the
+ * provider adds, even one seen in the current dream, becomes history.
  */
 import type { AppLanguage } from './app-language.js';
 import { sameStrict } from './dream-lexical.js';
@@ -41,17 +43,19 @@ const GENERIC = new Set([
   'image', 'scene', 'same', 'similar', 'familiar', 'kind', 'one', 'like', 'just', 'keep', 'keeps', 'kept',
   'come', 'comes', 'coming', 'came', 'back', 'show', 'shows', 'showing', 'up', 'before', 'earlier',
   'previous', 'past', 'prior', 'other', 'time', 'times', 'pattern', 'theme', 'element', 'thread',
+  'see', 'sees', 'saw', 'seen',
   // tr
   'bu', 'şu', 'o', 'bir', 've', 'da', 'de', 'ki', 'mi', 'gibi', 'ile', 'için', 'çok', 'daha', 'önce', 'yine',
   'hâlâ', 'hala', 'sen', 'senin', 'sana', 'seni', 'ben', 'benim', 'imge', 'sahne', 'öğe', 'unsur', 'tema',
   'iz', 'olabilir', 'olarak', 'olan', 'oluyor', 'var', 'vardı', 'sık', 'kez', 'kere', 'defa', 'aynı',
-  'benzer', 'tanıdık', 'eden', 'ediyor', 'ettiği', 'etmesi', 'geliyor', 'giriyor', 'dönüyor',
+  'benzer', 'tanıdık', 'eden', 'ediyor', 'ettiği', 'etmesi', 'geliyor', 'giriyor', 'dönüyor', 'olması',
+  'dikkat', 'çekici',
   // ru
   'это', 'этот', 'эта', 'эти', 'этого', 'этом', 'тот', 'он', 'она', 'оно', 'и', 'а', 'но', 'в', 'во', 'на',
   'с', 'со', 'к', 'по', 'из', 'у', 'о', 'об', 'уже', 'опять', 'еще', 'ты', 'тебе', 'тебя', 'твой', 'твои',
   'твоих', 'твоем', 'вы', 'вам', 'ваш', 'ваших', 'я', 'мне', 'мой', 'образ', 'сцена', 'элемент', 'деталь',
   'видимо', 'может', 'возможно', 'будто', 'как', 'что', 'раз', 'такой', 'знакомый', 'часто', 'иногда',
-  'быть', 'был', 'была', 'было', 'были', 'есть', 'является',
+  'быть', 'был', 'была', 'было', 'были', 'есть', 'является', 'видел', 'видела', 'видели', 'видишь',
 ]);
 
 /** Dream nouns and recurrence / reporting verb families in any inflection. */
@@ -59,7 +63,7 @@ const GENERIC_STEM = new RegExp(
   '^(?:' +
     [
       'dream', 'rüya', 'recur', 'return', 'repeat', 'reappear', 'appear', 'seem', 'describ', 'mention',
-      'tekrar', 'yinelen', 'anlaşıl', 'görün', 'gözük', 'söyl', 'anlat', 'bahs',
+      'tekrar', 'yinelen', 'anlaşıl', 'görün', 'gözük', 'gör(?:dü|müş|ül|üyor)', 'söyl', 'anlat', 'bahs',
       'сон$', 'сн(?:а|е|у|ом|ы|ов|ам|ами|ах)$', 'снов', 'снит', 'снил', 'снят', 'снишь',
       'повтор', 'возвращ', 'приход', 'появл', 'встречал', 'встречает', 'кажет', 'похож', 'говор', 'описыва', 'рассказ',
     ].join('|') +
@@ -67,9 +71,8 @@ const GENERIC_STEM = new RegExp(
   'u',
 );
 
-/** Numbers are owned by the count gate, which runs first. */
 export function isGenericWord(word: string): boolean {
-  return GENERIC.has(word) || GENERIC_STEM.test(word) || /^\p{N}+$/u.test(word);
+  return GENERIC.has(word) || GENERIC_STEM.test(word);
 }
 
 /** The words of one evidence source: a dreamer recurrence sentence or a history item. */
@@ -87,16 +90,10 @@ export function echoesDreamer(providerWords: string[], segments: readonly Eviden
 }
 
 /**
- * True when a named history item carries the claim alone: no content word
- * outside the item is borrowed from another evidence source.
+ * True when ONE history item carries the claim exactly: every content word
+ * belongs to that item. History "door" never attests "red door", "waiting
+ * at the door" or "the door at the station".
  */
-export function anchoredByItem(
-  providerWords: string[],
-  item: Evidence,
-  others: readonly Evidence[],
-  language: AppLanguage,
-): boolean {
-  return providerWords.every(
-    (w) => isGenericWord(w) || within(w, item, language) || !others.some((o) => within(w, o, language)),
-  );
+export function anchoredByItem(providerWords: string[], item: Evidence, language: AppLanguage): boolean {
+  return providerWords.every((w) => isGenericWord(w) || within(w, item, language));
 }

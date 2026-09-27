@@ -90,7 +90,7 @@ Absolute, count, date and fate rules apply to echoes unchanged.
 Evidence is kept as separate sources: one word list for each dreamer sentence that states recurrence, and one for each supplied history item. Sources are never pooled.
 
 - **Dreamer echo.** A single recurrence sentence must ground every content word. Take "I keep dreaming of a red door. The sea keeps returning." It supports "the red door keeps returning" and "the sea keeps returning". It does not support "the red sea" or "the sea door".
-- **Saved history.** The named item anchors the claim. No other content word in the sentence may come from a different source, meaning another recurrence sentence or another supplied item. History `door` plus "I keep dreaming of a red room" never yields "the red door keeps returning". A word that belongs to no evidence source is not borrowed evidence, so commentary around a named item still passes ("Kapıda beklemek önceki rüyalarında da vardı").
+- **Saved history.** The named item anchors the claim. No other content word in the sentence may come from a different source, meaning another recurrence sentence or another supplied item. History `door` plus "I keep dreaming of a red room" never yields "the red door keeps returning". Phase 4A.4 later made this path exact; see below.
 - **Stored-record wording** ("saved dreams") must be carried by the saved-history route alone.
 
 Known fail-closed limits:
@@ -99,6 +99,29 @@ Known fail-closed limits:
 - Clauses split by commas are not separated; only sentence boundaries split evidence.
 
 New claim phrasings: "recent dreams", TR "rüyalarıma tekrar / yine geliyor", RU "снова / опять снится".
+
+### Phase 4A.4 — exact saved-history attribution
+
+A saved-history claim must be carried by one supplied item, and every content word must belong to that same item (`sameStrict`, or the item's explicit aliases). The words that don't need to bind are:
+
+- the claim wording itself
+- stored-record wording
+- the numbers of count phrases the count gate has already judged
+- a narrow generic set: function words, hedges ("seems", "dikkat çekici olabilir"), reporting and perception verbs ("said", "seen", "görmüştün", "видел"), recurrence verbs and dream nouns
+
+There is no exception for novel commentary words.
+
+- History `door` attests "the door has appeared before" and "doors have appeared before". It never attests "the red door", "the wooden door", "waiting at the door", "the door at the station" or "two doors".
+- A multiword item ("train station") may use all of its own words, and nothing more ("the dark train station" is rejected).
+- Two items never compose: items `door` and `red` do not attest "the red door".
+- **The current dream never rewrites history.** "I saw a red door" plus history `door` does not attest "the red door has appeared in earlier dreams". Keep the two facts in separate sentences: "The door has appeared before; in this dream it is red."
+- An allowed history count that the narrative doesn't contain makes the sentence a history claim ("The red door has appeared 3 times" is rejected).
+- Each sentence is judged on its own; an attribute stated in one field is not history in another.
+- The dreamer-echo path is unchanged. "I keep dreaming of a red door" still supports "the red door keeps returning", with or without history.
+
+**Contract correction.** Phase 4A.1 accepted "Kapıda beklemek…", "Denizde yürümek…", "Denize bakmak…", "Denizin sesi…" and "Свет в окне…" as inflected bindings. They add an action, sound or light that the item does not attest, and are now `history_unsupported`. Inflection coverage moved to sentences that mention only the item ("Kapıyı…", "Denizi…", "Ты уже видел окно…").
+
+The TR, EN and RU prompts now say to refer to the past only through the listed element itself, and to describe this dream's detail in a separate sentence.
 
 ## Visible section
 

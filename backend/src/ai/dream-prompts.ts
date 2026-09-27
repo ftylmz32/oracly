@@ -57,6 +57,8 @@ const TR: DreamPromptCopy = {
     'Önceki rüyalar: yalnızca "Önceki rüya örüntüleri" bölümünde verilen öğeler için geçmişe bağ kur; bölüm yoksa "tekrar eden", "önceki rüyaların", "sık sık" gibi geçmiş iddiaları yazma. ' +
     'Geçmiş bilgisini yalnızca bu rüyayla doğrudan ilişkiliyse ve gerçekten değer katıyorsa kullan; en fazla bir ya da iki bağ kur, değer katmıyorsa yok say. ' +
     'Tekrar betimleyicidir, kehanet değildir: neden tekrar ettiğine dair sebep uydurma; tekrarı teşhise ya da kadere çevirme; gerçek bir olayın buna yol açtığını söyleme; "hep", "her zaman", "her seferinde" deme. ' +
+    'Geçmişe yalnızca listelenen öğenin kendisiyle atıf yap: o birleşim tek bir öğe olarak listelenmedikçe sıfat, eylem, mekân, renk, durum ya da ilişki ekleyip bu zenginleştirilmiş hâlin daha önce görüldüğünü ima etme ' +
+    '(listede "kapı" varsa "kapı daha önce de görünmüştü" yaz, "kırmızı kapı daha önce de görünmüştü" yazma; bu rüyadaki ayrıntıyı ayrı bir cümlede anlat). ' +
     'Sayı ya da tarih yazma.',
   lead:
     'Bu rüyayı yorumla. Rüya sözlüğü yazma. Teşhis koyma. Kesin konuşma. ' +
@@ -104,6 +106,8 @@ const EN: DreamPromptCopy = {
     'Prior dreams: link to the past only for items listed under "Prior dream patterns"; if that section is absent, never claim history such as "recurring", "your previous dreams" or "you often dream". ' +
     'Use history only when it directly relates to this dream and genuinely adds value; make at most one or two links, and ignore it if it adds nothing. ' +
     'Recurrence is descriptive, not predictive: never invent a reason why something recurs; never turn it into a diagnosis or fate; never claim a real-life event caused it; never say "always", "every time" or "this always happens". ' +
+    'Refer to the past only through the listed element itself: never add an adjective, action, setting, color, state or relationship and imply that richer combination appeared before, unless that exact combination is one listed item ' +
+    '(listed "door": write "the door has appeared before", not "the red door has appeared before"; describe this dream\'s detail in a separate sentence). ' +
     'Do not write counts or dates.',
   lead:
     'Read this dream. No dream dictionary. No diagnosis. No certainty. ' +
@@ -149,6 +153,8 @@ const RU: DreamPromptCopy = {
     'Прошлые сны: связывай с прошлым только элементы из раздела «Повторяющиеся элементы прошлых снов»; если его нет, не утверждай ничего вроде «повторяется», «в прошлых снах» или «тебе часто снится». ' +
     'Используй историю, только если она прямо связана с этим сном и действительно что-то добавляет; не больше одной-двух связей, иначе игнорируй её. ' +
     'Повторение описательно, а не предсказательно: не придумывай, почему что-то повторяется; не превращай повторение в диагноз или судьбу; не утверждай, что его вызвало реальное событие; не говори «всегда», «каждый раз» или «так бывает всегда». ' +
+    'Связывай с прошлым только сам указанный элемент: не добавляй признак, действие, место, цвет, состояние или связь, намекая, что именно такое сочетание уже встречалось, если это сочетание не указано одним элементом ' +
+    '(указано «дверь»: пиши «дверь уже встречалась», а не «красная дверь уже встречалась»; деталь этого сна опиши отдельным предложением). ' +
     'Не пиши чисел и дат.',
   lead:
     'Истолкуй этот сон. Без сонника. Без диагнозов. Без уверенных утверждений. ' +
