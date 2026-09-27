@@ -126,6 +126,7 @@ class DreamExperienceService {
     final understanding = _understanding.build(
       narrative: seed.narrative,
       selectedEmotions: seed.selectedEmotions,
+      language: language,
     );
     final dream = seed.copyWith(understanding: understanding);
 

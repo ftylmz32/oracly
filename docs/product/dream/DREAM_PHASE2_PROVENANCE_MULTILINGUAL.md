@@ -229,8 +229,50 @@ The Dream prompt lives in `backend/src/ai/dream-prompts.ts`. `prompts.ts` re-exp
   - `dream_phase21_provider_evidence_test.dart`: EN narrative + TR app, RU narrative + EN app, TR narrative + EN app; guided answer byte-faithful; reinterpret from storage; legacy tags.
   - `dream_phase21_identity_test.dart`: identity after the evidence fix (exact, cosmetic, language, emotion, chip, guided answer, symbol evidence), paid binder, unknown-language fail-closed.
   - `dream_phase21_local_copy_test.dart`: "Ev · Ev", Turkish sentence start, `entryContext` round trip.
+- Phase 2.2 (lexical evidence):
+  - `test/core/text/turkish_lexical_matcher_test.dart`: look-alikes rejected, supported inflections accepted, numerals, clause-final "yedi".
+  - `dream_phase22_understanding_test.dart`: the real `DreamUnderstandingService.build` in TR/EN/RU; no false symbol, place, person or feeling.
+  - `dream_phase22_evidence_guard_test.dart`: provider payload through `DreamExperienceService`; identity; guard red team (`_inventsImage`, `_touchesTold`, `sameWord`).
+  - `backend/tests/dream-phase22-lexical-evidence.test.ts`: `invented_symbol` and `ungrounded` red team; grammar pairs.
 
 **Phase 1 regression:** the owner-switch, ABA, stale reinterpret, in-flight, discovery-clear and attempt-privacy tests stay green.
+
+## Phase 2.2 — lexical evidence boundary
+
+Before 2.2, four client matchers accepted a token at a word start followed by any letters, and both `sameStem` rules accepted short shared prefixes. So "sunum" produced Su, "yedim" produced Yedi, "evren" produced Ev, "ateş" produced At, "reduce" produced red and "season" produced sea. These false hits became symbols, places, provider evidence and guard passes.
+
+**One Turkish matcher.** `lib/core/text/turkish_lexical_matcher.dart` + `turkish_inflection.dart` is the only Turkish evidence matcher. The understanding service, lexicon calculator, fact parts, guard and provider evidence all use it. A token counts only when both hold:
+- It starts a real word (Unicode letter check).
+- It stands alone or is followed by a supported inflection, also after an apostrophe ("Ay'ı").
+
+Details:
+- **Inflections:** harmony-agnostic plural, possessive, case, "-ki" and the y-copula ("Evdeydim").
+- **Stem changes:** consonant softening for nouns of two or more vowels ("köpeği") and a short vowel-drop table ("şehre").
+- **Never accepted:** derivation ("evli", "huzursuz", "kuşku", "denizli").
+- **Lowercasing:** Turkish I→ı, İ→i, and `ı` stays distinct from `i`, so "ışın" is not `iş`.
+- **Numerals take case endings only:** "yediyi" and "yedide" count; "yedim", "yedin", "yedik" and "yediler" do not.
+- **Clause-final verb homograph:** bare "yedi" at a clause end ("yemek yedi.", "yedi ve") is the verb "ate", not the numeral.
+- **`altın`:** counts only bare or plural, because "altında" means "under it".
+- **Cost:** tables are expanded once and matching is a bounded parse of a short tail. A 4.2 KB narrative takes about 2.8 ms per understanding + facts + guard pass in test mode.
+
+**Language gating.** `DreamUnderstandingService.build(language:)` reads the Turkish lexicons only for a Turkish dream, English catalogue tokens only for an English dream, and nothing lexical for Russian. `DreamExperienceService` passes the operation language; a null language (older callers) reads both, strictly. This closes "at night" producing the Turkish `at` as an English provider symbol.
+
+**Strict vs general.**
+
+| | Where | Rule |
+|---|---|---|
+| STRICT | client image and observed-symbol evidence (`DreamGroundingWords.mentions`), backend `invented_symbol` (`sameStrict`) | The same word or its inflection in the request language: TR grammar above, EN -s/-es/-ed/-ing (with e-drop), RU case endings on a stem of three or more letters. No prefix tolerance. |
+| GENERAL | client `_touchesTold` (`sameWord`), backend `ungrounded` (`sameWord`) | STRICT, or two words of six or more letters sharing six leading letters (paraphrase). |
+
+More detail on each side:
+- **Backend strict:** compares light-folded words, so `ş` stays distinct ("şu" is not `su`), and two-letter symbols are now checked ("Su", "Ay"). A narrative word typed in plain ASCII also meets the ASCII-folded symbol ("kapiyi" matches Kapı).
+- **Backend general:** stays ASCII-folded.
+- **Unchanged backend gates:** language, dictionary, genericity, distinctness, single-question and thin-section.
+
+**Accepted recall losses (documented, not collisions):**
+- Derived or verbal forms ("korkuyordum", "huzurlu", "güneşli") no longer yield the noun.
+- The client does not accept a Turkish 2sg possessive after a vowel ("kedin").
+- The long-stem rule no longer links five-letter words.
 
 ## Safety — explicitly NOT frozen
 

@@ -1,6 +1,7 @@
 /// OR-1140 — Dream token categorization calculator.
 library;
 
+import '../../../core/text/turkish_lexical_matcher.dart';
 import '../core/oracle_engine_type.dart';
 import '../models/dream_reading.dart';
 
@@ -25,14 +26,16 @@ class LexiconDreamSymbolCalculator implements DreamSymbolCalculator {
     DreamSymbolCategory.symbols: {'ay', 'güneş', 'yıldız'},
   };
 
+  /// Lexicon tokens told as Turkish words — the token itself or a supported
+  /// inflection ("atı", "suyun"), never another word ("ateş", "sunum").
   @override
   List<DreamSymbolMatch> categorize(String rawText) {
-    final lower = rawText.toLowerCase();
+    final text = TurkishLexicalMatcher.normalize(rawText);
     final matches = <DreamSymbolMatch>[];
 
     for (final entry in _lexicon.entries) {
       for (final token in entry.value) {
-        if (_hasWord(lower, token)) {
+        if (TurkishLexicalMatcher.occursIn(text, token)) {
           matches.add(
             DreamSymbolMatch(
               token: token,
@@ -45,23 +48,4 @@ class LexiconDreamSymbolCalculator implements DreamSymbolCalculator {
     }
     return matches;
   }
-
-  /// True if [token] occurs in [text] at a real word start -- e.g. "tren"
-  /// matches inside "trenin"/"treni" (Turkish inflects by suffixing only),
-  /// but "at" does not match inside "saat" and "ay" does not match inside
-  /// "ray"/"raylar", because a genuine match can never have a letter
-  /// immediately before it.
-  static bool _hasWord(String text, String token) {
-    if (token.isEmpty) return false;
-    var index = text.indexOf(token);
-    while (index != -1) {
-      final before = index == 0 ? null : text[index - 1];
-      if (before == null || !_isTurkishLetter(before)) return true;
-      index = text.indexOf(token, index + 1);
-    }
-    return false;
-  }
-
-  static bool _isTurkishLetter(String char) =>
-      RegExp(r'[a-zçğıöşü]', unicode: true).hasMatch(char);
 }

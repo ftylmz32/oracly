@@ -1,4 +1,5 @@
 import type { AppLanguage } from './app-language.js';
+import { asciiFold, lightFold, sameStrict, sameWord, SHORT_STOP, toldWords } from './dream-lexical.js';
 import type { DreamData } from './parse-provider.js';
 
 /**
@@ -90,12 +91,16 @@ export function evaluateDreamQuality(
     [input.narrative, ...input.symbols, ...input.emotions].join(' '),
   );
   if (evidence.size === 0) return null;
-  const narrativeWords = significant([input.narrative, ...input.symbols].join(' '));
+  // Symbols are evidence claims: STRICT word forms only (see dream-lexical).
+  const told = toldWords(input.narrative, input.symbols, input.language);
   for (const symbol of data.symbols) {
-    const words = significant(symbol);
-    if (words.size && !overlaps(words, narrativeWords)) return 'invented_symbol';
+    const words = symbolWords(symbol, input.language);
+    if (!words.length) continue;
+    if (!words.some((w) => [...told].some((t) => sameStrict(w, t, input.language)))) {
+      return 'invented_symbol';
+    }
   }
-  const grounded = (s: string) => overlaps(significant(s), evidence);
+  const grounded = (s: string) => overlaps(significant(s), evidence, input.language);
   if (!grounded(data.interpretation)) return 'ungrounded';
   if (![data.summary, data.dailyLifeReflection, data.conclusion].some(grounded)) {
     return 'ungrounded';
@@ -104,19 +109,7 @@ export function evaluateDreamQuality(
 }
 
 /** Lowercase + fold Turkish letters and ё so spelling variants compare. */
-export function foldDream(s: string): string {
-  return s
-    .normalize('NFC')
-    .toLowerCase()
-    .replace(/\u0307/g, '')
-    .replace(/ı/g, 'i')
-    .replace(/ğ/g, 'g')
-    .replace(/ü/g, 'u')
-    .replace(/ş/g, 's')
-    .replace(/ö/g, 'o')
-    .replace(/ç/g, 'c')
-    .replace(/ё/g, 'е');
-}
+export const foldDream = asciiFold;
 
 function tokens(s: string): string[] {
   return foldDream(s).split(/[^a-z0-9\u00e0-\u00ff\u0430-\u044f]+/).filter(Boolean);
@@ -130,21 +123,18 @@ function significant(s: string): Set<string> {
   return new Set(tokens(s).filter((w) => w.length >= 3 && !STOP.has(w) && !isDreamWord(w)));
 }
 
-/**
- * Same word up to an inflectional ending: a 3-letter word must prefix the
- * other; longer words share their first min(5, shorter − 1) letters.
- */
-export function sameStem(a: string, b: string): boolean {
-  if (a === b) return true;
-  const shorter = Math.min(a.length, b.length);
-  if (shorter < 3) return false;
-  const need = shorter === 3 ? 3 : Math.min(5, shorter - 1);
-  return a.slice(0, need) === b.slice(0, need);
+/** Light-folded symbol words of two or more letters that carry meaning. */
+function symbolWords(symbol: string, language: AppLanguage): string[] {
+  return (lightFold(symbol).match(/[\p{L}\p{N}]+/gu) ?? []).filter((w) => {
+    const a = asciiFold(w);
+    return w.length >= 2 && !STOP.has(a) && !isDreamWord(a) && !SHORT_STOP[language].has(w);
+  });
 }
 
-function overlaps(text: Set<string>, evidence: Set<string>): boolean {
+/** GENERAL grounding — see dream-lexical `sameWord`. */
+function overlaps(text: Set<string>, evidence: Set<string>, language: AppLanguage): boolean {
   for (const w of text) {
-    for (const e of evidence) if (sameStem(w, e)) return true;
+    for (const e of evidence) if (sameWord(w, e, language)) return true;
   }
   return false;
 }

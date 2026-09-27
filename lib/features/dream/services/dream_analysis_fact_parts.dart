@@ -29,17 +29,10 @@ abstract final class DreamAnalysisFactParts {
     AppLocale.ru: RegExp(r',| и | но | а | когда | потом '),
   };
 
-  /// Whether [value] occurs in [lower] as the dreamer's own word. Turkish
-  /// inflects by suffixing, so a word start is enough there; EN/RU need the
-  /// word itself (EN allows a plural), so "every" never yields "ev".
-  static bool observed(String lower, String value, String language) {
-    if (language == AppLocale.tr) return hasWord(lower, value.toLowerCase());
-    return DreamGroundingWords.mentions(
-      lower,
-      value,
-      english: language == AppLocale.en,
-    );
-  }
+  /// Whether [value] occurs in [lower] as the dreamer's own word, in the
+  /// operation language's word forms only ("evde" yes, "evren" no).
+  static bool observed(String lower, String value, String language) =>
+      DreamGroundingWords.mentions(lower, value, language);
 
   /// The image as told. TR keeps the catalogue label; EN/RU show the word
   /// the dreamer used, never a Turkish label they did not write.
@@ -104,22 +97,6 @@ abstract final class DreamAnalysisFactParts {
     }
     return image ?? person ?? place ?? (scene.isNotEmpty ? scene : null);
   }
-
-  /// True if [token] starts a word in [text] — "tren" in "trenin", but not
-  /// "at" in "saat": a genuine match never has a letter right before it.
-  static bool hasWord(String text, String token) {
-    if (token.isEmpty) return false;
-    var index = text.indexOf(token);
-    while (index != -1) {
-      final before = index == 0 ? null : text[index - 1];
-      if (before == null || !_isTurkishLetter(before)) return true;
-      index = text.indexOf(token, index + 1);
-    }
-    return false;
-  }
-
-  static bool _isTurkishLetter(String char) =>
-      RegExp(r'[a-zçğıöşü]', unicode: true).hasMatch(char);
 
   static String _trimEdge(String text) {
     var out = text.trim();

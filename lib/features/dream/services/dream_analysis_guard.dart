@@ -2,6 +2,7 @@
 library;
 
 import '../../../core/copy/fortune_voice.dart';
+import '../../../core/l10n/app_locale.dart';
 import '../../../core/reading/human_reader.dart';
 import '../../../core/reading/ai_output_quality_context.dart';
 import '../../../core/reading/ai_output_quality_gate.dart';
@@ -97,7 +98,8 @@ abstract final class DreamAnalysisGuard {
       facts.emotion,
       facts.tag,
     ]) {
-      if (token != null && DreamGroundingWords.mentions(text, token)) {
+      if (token != null &&
+          DreamGroundingWords.mentions(text, token, facts.language)) {
         return true;
       }
     }
@@ -108,19 +110,24 @@ abstract final class DreamAnalysisGuard {
     return DreamGroundingWords.overlaps(
       DreamGroundingWords.significant(text),
       toldWords,
+      facts.language,
     );
   }
 
-  /// Catalogue images exist in Turkish and English only. Russian prose is
-  /// never matched here; it stays bound by the narrative grounding above.
+  /// Catalogue images exist in Turkish and English only, each checked in
+  /// its own word forms. Russian prose is never matched here; it stays
+  /// bound by the narrative grounding above.
   static bool _inventsImage(String text, DreamAnalysisFacts facts) {
+    if (facts.language == AppLocale.ru) return false;
+    final english = facts.language == AppLocale.en;
     for (final item in DreamSymbolCatalogue.all) {
-      final inText = DreamGroundingWords.mentions(text, item.tokenTr) ||
-          DreamGroundingWords.mentions(text, item.token, english: true);
-      if (!inText) continue;
-      final told = DreamGroundingWords.mentions(facts.told, item.tokenTr) ||
-          DreamGroundingWords.mentions(facts.told, item.token, english: true);
-      if (told) continue;
+      final token = english ? item.token : item.tokenTr;
+      if (!DreamGroundingWords.mentions(text, token, facts.language)) {
+        continue;
+      }
+      if (DreamGroundingWords.mentions(facts.told, token, facts.language)) {
+        continue;
+      }
       return true;
     }
     return false;

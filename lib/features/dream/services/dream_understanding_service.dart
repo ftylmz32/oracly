@@ -1,6 +1,8 @@
 /// SPRINT-001 — Phase 2: organize dream without interpreting.
 library;
 
+import '../../../core/l10n/app_locale.dart';
+import '../../../core/text/turkish_lexical_matcher.dart';
 import '../../../features/content/dream/data/dream_symbol_catalogue.dart';
 import '../../../features/content/dream/models/dream_symbol_content.dart'
     as content;
@@ -11,6 +13,7 @@ import '../models/dream.dart';
 import '../models/dream_emotion.dart';
 import '../models/dream_relationship.dart';
 import '../models/dream_symbol.dart';
+import 'dream_grounding_words.dart';
 
 class DreamUnderstandingService {
   DreamUnderstandingService({
@@ -51,17 +54,29 @@ class DreamUnderstandingService {
     'uçak': 'Uçak',
   };
 
+  /// The lexicons are Turkish and the catalogue is Turkish + English; each
+  /// is read only in its own language's word forms, and only for a dream
+  /// told in that [language] (Russian has none). A null [language] — older
+  /// callers without an operation — reads both.
   DreamUnderstanding build({
     required String narrative,
     List<DreamEmotion> selectedEmotions = const [],
+    String? language,
   }) {
-    final lower = narrative.toLowerCase();
-    final lexiconMatches = _calculator.categorize(narrative);
-    final catalogueMatches = _matchCatalogue(lower);
+    final turkish = language == null || language == AppLocale.tr;
+    final english = language == null || language == AppLocale.en;
+    final text = TurkishLexicalMatcher.normalize(narrative);
+    final lexiconMatches = turkish
+        ? _calculator.categorize(narrative)
+        : const <DreamSymbolMatch>[];
+    final catalogueMatches =
+        _matchCatalogue(narrative, text, turkish: turkish, english: english);
     final symbols = _mergeSymbols(lexiconMatches, catalogueMatches);
-    final locations = _extractLocations(lower);
-    final relationships = _extractRelationships(lower);
-    final recurring = _recurringTokens(lower);
+    final locations = turkish ? _extractLocations(text) : const <String>[];
+    final relationships = turkish
+        ? _extractRelationships(text)
+        : const <DreamRelationship>[];
+    final recurring = _recurringTokens(narrative.toLowerCase());
     final emotions = _mergeEmotions(selectedEmotions, lexiconMatches);
 
     final summary = _buildSummary(
@@ -81,11 +96,22 @@ class DreamUnderstandingService {
     );
   }
 
-  List<content.DreamSymbolContent> _matchCatalogue(String lower) {
+  List<content.DreamSymbolContent> _matchCatalogue(
+    String narrative,
+    String text, {
+    required bool turkish,
+    required bool english,
+  }) {
     final hits = <content.DreamSymbolContent>[];
     for (final item in DreamSymbolCatalogue.all) {
-      if (_hasWord(lower, item.tokenTr.toLowerCase()) ||
-          _hasWord(lower, item.token.toLowerCase())) {
+      final tr = TurkishLexicalMatcher.normalize(item.tokenTr);
+      if ((turkish && TurkishLexicalMatcher.occursIn(text, tr)) ||
+          (english &&
+              DreamGroundingWords.mentions(
+                narrative,
+                item.token,
+                AppLocale.en,
+              ))) {
         hits.add(item);
       }
     }
@@ -124,42 +150,16 @@ class DreamUnderstandingService {
       ..sort((a, b) => b.confidence.compareTo(a.confidence));
   }
 
-  List<String> _extractLocations(String lower) {
-    final found = <String>[];
-    for (final entry in _locationTokens.entries) {
-      if (_hasWord(lower, entry.key)) found.add(entry.value);
-    }
-    return found;
-  }
+  List<String> _extractLocations(String text) => [
+        for (final entry in _locationTokens.entries)
+          if (TurkishLexicalMatcher.occursIn(text, entry.key)) entry.value,
+      ];
 
-  List<DreamRelationship> _extractRelationships(String lower) {
-    final found = <DreamRelationship>[];
-    for (final entry in _relationshipTokens.entries) {
-      if (_hasWord(lower, entry.key)) {
-        found.add(DreamRelationship(label: entry.value, role: entry.value));
-      }
-    }
-    return found;
-  }
-
-  /// True if [token] occurs in [text] at a real word start -- e.g. "tren"
-  /// matches inside "trenin"/"treni" (Turkish inflects by suffixing only),
-  /// but "ev" does not match inside "sevgi" and "eş" does not match inside
-  /// "ateş", because a genuine match can never have a letter immediately
-  /// before it.
-  static bool _hasWord(String text, String token) {
-    if (token.isEmpty) return false;
-    var index = text.indexOf(token);
-    while (index != -1) {
-      final before = index == 0 ? null : text[index - 1];
-      if (before == null || !_isTurkishLetter(before)) return true;
-      index = text.indexOf(token, index + 1);
-    }
-    return false;
-  }
-
-  static bool _isTurkishLetter(String char) =>
-      RegExp(r'[a-zçğıöşü]', unicode: true).hasMatch(char);
+  List<DreamRelationship> _extractRelationships(String text) => [
+        for (final entry in _relationshipTokens.entries)
+          if (TurkishLexicalMatcher.occursIn(text, entry.key))
+            DreamRelationship(label: entry.value, role: entry.value),
+      ];
 
   List<String> _recurringTokens(String lower) {
     final words = lower

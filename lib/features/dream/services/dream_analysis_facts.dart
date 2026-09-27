@@ -44,21 +44,20 @@ class DreamAnalysisFacts {
   }) {
     final lang = AppLocale.normalize(language);
     final told = narrative.trim().replaceAll(RegExp(r'\s+'), ' ');
-    final lower = told.toLowerCase();
     final images = [
       for (final symbol in understanding.symbols)
-        ?DreamAnalysisFactParts.image(lower, symbol, lang),
+        ?DreamAnalysisFactParts.image(told, symbol, lang),
     ];
     final lexicon = DreamAnalysisFactParts.usesTurkishLexicon(lang);
     final place =
-        lexicon ? _firstWhere(understanding.locations, lower) : null;
+        lexicon ? _firstWhere(understanding.locations, told) : null;
     final person =
-        lexicon ? _firstPerson(understanding.relationships, lower) : null;
+        lexicon ? _firstPerson(understanding.relationships, told) : null;
     final emotion = understanding.emotions.isEmpty
         ? null
         : DreamAnalysisFactParts.feeling(
             understanding.emotions.first,
-            lower,
+            told,
             lang,
           );
     final tag = tags.where((t) => t.trim().isNotEmpty).firstOrNull;
@@ -85,11 +84,10 @@ class DreamAnalysisFacts {
     );
   }
 
-  static String? _firstWhere(List<String> values, String lower) {
+  static String? _firstWhere(List<String> values, String told) {
     for (final value in values) {
       if (value.trim().isEmpty) continue;
-      if (_hasWord(lower, value.toLowerCase()) ||
-          _hasWord(lower, value.toLowerCase().split(' ').first)) {
+      if (_hasWord(told, value) || _hasWord(told, value.split(' ').first)) {
         return value;
       }
     }
@@ -98,12 +96,12 @@ class DreamAnalysisFacts {
 
   static String? _firstPerson(
     List<DreamRelationship> people,
-    String lower,
+    String told,
   ) {
     for (final person in people) {
       final label = person.label.trim();
       if (label.isEmpty) continue;
-      if (_hasWord(lower, label.toLowerCase())) return label;
+      if (_hasWord(told, label)) return label;
     }
     return people
         .map((p) => p.label.trim())
@@ -112,5 +110,5 @@ class DreamAnalysisFacts {
   }
 
   static bool _hasWord(String text, String token) =>
-      DreamAnalysisFactParts.hasWord(text, token);
+      DreamAnalysisFactParts.observed(text, token, AppLocale.tr);
 }

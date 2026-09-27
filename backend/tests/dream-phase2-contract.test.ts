@@ -5,8 +5,8 @@ import {
   evaluateDreamQuality,
   isSingleQuestion,
   languageMatches,
-  sameStem,
 } from '../src/ai/dream-quality.js';
+import { sameWord } from '../src/ai/dream-lexical.js';
 import { parseDreamData } from '../src/ai/parse-provider.js';
 import { dreamMessages } from '../src/ai/prompts.js';
 import { readingStageStore } from '../src/ai/reading/stage-cache.js';
@@ -153,9 +153,9 @@ describe('Dream Phase 2 — backend quality gate', () => {
   });
 
   it('tokenizes Cyrillic (including ё) with inflection-tolerant stems', () => {
-    expect(sameStem('окно', 'окну')).toBe(true);
-    expect(sameStem('лес', 'лесу')).toBe(true);
-    expect(sameStem('маяк', 'окно')).toBe(false);
+    expect(sameWord('окно', 'окну', 'ru')).toBe(true);
+    expect(sameWord('лес', 'лесу', 'ru')).toBe(true);
+    expect(sameWord('маяк', 'окно', 'ru')).toBe(false);
     expect(languageMatches('Тёплый свет в окне старого дома.', 'ru')).toBe(true);
     expect(languageMatches('Warm light in the window.', 'ru')).toBe(false);
   });
