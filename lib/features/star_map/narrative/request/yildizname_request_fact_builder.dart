@@ -126,6 +126,7 @@ abstract final class YildiznameRequestFactBuilder {
           bodyB: a.bodyB.name,
           type: a.type.name,
           orb: a.orb,
+          certainty: a.certainty.name,
         ),
     ];
   }

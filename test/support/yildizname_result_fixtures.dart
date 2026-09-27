@@ -118,6 +118,7 @@ const _richAspects = [
     bodyB: 'venus',
     type: 'conjunction',
     orb: 0.8,
+    certainty: 'exact',
   ),
   YildiznameAspectFact(
     factRef: 'aspect.sun.mars.square',
@@ -125,6 +126,7 @@ const _richAspects = [
     bodyB: 'mars',
     type: 'square',
     orb: 4.5,
+    certainty: 'exact',
   ),
   YildiznameAspectFact(
     factRef: 'aspect.moon.saturn.opposition',
@@ -132,6 +134,7 @@ const _richAspects = [
     bodyB: 'saturn',
     type: 'opposition',
     orb: 1.2,
+    certainty: 'exact',
   ),
   YildiznameAspectFact(
     factRef: 'aspect.venus.jupiter.sextile',
@@ -139,6 +142,7 @@ const _richAspects = [
     bodyB: 'jupiter',
     type: 'sextile',
     orb: 3.3,
+    certainty: 'exact',
   ),
   YildiznameAspectFact(
     factRef: 'aspect.mars.pluto.trine',
@@ -146,6 +150,7 @@ const _richAspects = [
     bodyB: 'pluto',
     type: 'trine',
     orb: 5.0,
+    certainty: 'exact',
   ),
 ];
 
@@ -297,6 +302,7 @@ YildiznameNarrativeRequest yildiznameFixtureRequest({
               bodyB: 'moon',
               type: 'trine',
               orb: 2.1,
+              certainty: 'exact',
             ),
           if (aspects && rich) ..._richAspects,
         ],
