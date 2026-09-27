@@ -8,6 +8,7 @@ import {
 import { parseAppLanguage, type AppLanguage } from './app-language.js';
 import { parsePersonality, type ChatPersonality } from './chat-style.js';
 import { parseDepth, parseSpoken, type ChatDepth } from './chat-depth.js';
+import { parseDreamHistory } from './dream-history.js';
 import { parseOrVoiceId, type OrVoiceId } from './or-voice.js';
 import { parseOrSpeechSpeed, type OrSpeechSpeed } from './or-speech-speed.js';
 import { parseTurns, type ChatTurn } from './parse-turns.js';
@@ -343,6 +344,7 @@ function validateDream(payload: Record<string, unknown>): Extract<BaseRequest, {
       ...payload,
       narrative,
       memorySummary: sanitizeText(payload.memorySummary, 220) || undefined,
+      history: parseDreamHistory(payload.history),
     },
   };
 }

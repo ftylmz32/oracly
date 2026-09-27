@@ -6,11 +6,11 @@ import '../../../core/memory/oracly_memory_retriever.dart';
 import '../../ai/production/ai_failure.dart';
 import '../../ai/production/ai_request_exception.dart';
 import '../../ai/production/oracly_ai_service.dart';
+import '../history/dream_history_evidence.dart';
 import '../models/dream.dart';
 import '../safety/dream_output_safety.dart';
 import '../safety/dream_safety_policy.dart';
 import 'dream_ai_insight_mapper.dart';
-import 'dream_pattern_service.dart';
 import 'dream_provider_evidence.dart';
 import 'dream_reading_provenance.dart';
 import 'dream_reflection_generator.dart';
@@ -32,7 +32,7 @@ class DreamInsightBuilder {
     required Dream dream,
     required DreamUnderstanding understanding,
     required String language,
-    DreamPatternMatch? pattern,
+    DreamHistoryContext history = DreamHistoryContext.empty,
   }) async {
     if (ai.isConfigured) {
       final outcome = await ai.analyzeDream(
@@ -41,6 +41,7 @@ class DreamInsightBuilder {
           understanding: understanding,
           language: language,
           memorySummary: _memorySummary(dream),
+          history: history,
         ),
       );
       final insights = outcome.when(
@@ -55,7 +56,6 @@ class DreamInsightBuilder {
             dream: dream,
             understanding: understanding,
             language: language,
-            pattern: pattern,
           );
         },
         error: (failure) => throw AiRequestException(failure),
@@ -74,7 +74,6 @@ class DreamInsightBuilder {
           dream: dream,
           understanding: understanding,
           language: language,
-          pattern: pattern,
         ),
       );
     }

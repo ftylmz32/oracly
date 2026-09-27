@@ -5,6 +5,9 @@
 /// whitespace runs collapsed; symbols and emotions normalized the same way,
 /// de-duplicated and sorted (they are sets in the prompt). Tags are already
 /// folded into the narrative by `DreamContextEnricher`, so they count too.
+/// Phase 4A prior-Dream history joins the canonical form only when present,
+/// in prompt order, so a no-history request keeps its earlier identity and
+/// any material history change is a different request.
 /// Casing and whitespace-only edits are an exact retry; anything else is a
 /// different request and never shares a coalesce, duplicate or replay key.
 library;
@@ -34,6 +37,8 @@ abstract final class DreamRequestIdentity {
       'symbols': _set(context.symbols),
       'emotions': _set(context.emotions),
       'memory': _text(memory),
+      if (context.history.isNotEmpty)
+        'history': [for (final item in context.history) _historyItem(item)],
     });
     return '$_prefix${sha256.convert(utf8.encode(canonical))}';
   }
@@ -48,6 +53,14 @@ abstract final class DreamRequestIdentity {
     final binder = PaidAiOperationBinder.idempotencyKey;
     return binder == null ? 'dream-$digest' : '$binder:ds-$digest';
   }
+
+  static String _historyItem(Map<String, Object> item) => [
+        item['kind'],
+        item['key'],
+        _text('${item['label'] ?? ''}'),
+        item['level'],
+        item['priorCount'],
+      ].join('|');
 
   static String _text(String value) =>
       value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');

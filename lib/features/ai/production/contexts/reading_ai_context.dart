@@ -45,6 +45,7 @@ final class DreamAiContext extends ReadingAiContext {
     this.emotionalTheme,
     this.fullInterpretation,
     this.memorySummary,
+    this.history = const [],
     this.language,
   });
 
@@ -55,6 +56,11 @@ final class DreamAiContext extends ReadingAiContext {
   final String? emotionalTheme;
   final String? fullInterpretation;
   final String? memorySummary;
+
+  /// Dream Phase 4A prior-Dream evidence, wire-shaped (`kind`, `key`,
+  /// `label`, `level`, `priorCount`), strongest first. Separate from the
+  /// cross-feature [memorySummary]; never carries prior narratives.
+  final List<Map<String, Object>> history;
 
   /// Operation language captured before the request (`tr` / `en` / `ru`);
   /// null falls back to the app locale at send time.

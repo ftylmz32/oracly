@@ -1,7 +1,6 @@
 /// Dream journey — local symbols always; live AI or typed error, never fake.
 library;
 
-import '../../../core/l10n/l10n.dart';
 import '../../../core/reading_version/services/reading_version_service.dart';
 import '../../../core/domain/repositories/dream_repository.dart';
 import '../../../core/memory/oracly_memory_retriever.dart';
@@ -9,15 +8,15 @@ import '../../ai/production/ai_failure.dart';
 import '../../ai/production/ai_request_exception.dart';
 import '../../ai/production/oracly_ai_service.dart';
 import '../data/dream_record_mapper.dart';
+import '../history/dream_history_insight.dart';
+import '../history/dream_history_reader.dart';
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
 import '../models/dream_entry_selection.dart';
 import '../safety/dream_safety_policy.dart';
 import 'dream_experience_commit.dart';
 import 'dream_insight_builder.dart';
-import 'dream_narrative_language.dart';
 import 'dream_owner_guard.dart';
-import 'dream_pattern_service.dart';
 import 'dream_reflection_generator.dart';
 import 'dream_understanding_service.dart';
 
@@ -29,13 +28,12 @@ class DreamExperienceService {
     required this.ai,
     required DreamOwnerGuard owner,
     DreamUnderstandingService? understandingService,
-    DreamPatternService? patternService,
     DreamReflectionGenerator? reflectionGenerator,
     ReadingVersionService? versions,
     OraclyMemoryRetriever? memory,
   })  : _owner = owner,
         _understanding = understandingService ?? DreamUnderstandingService(),
-        _patterns = patternService ?? const DreamPatternService(),
+        _history = DreamHistoryReader(repository: repository, owner: owner),
         _insights = DreamInsightBuilder(
           ai: ai,
           reflection: reflectionGenerator ?? const DreamReflectionGenerator(),
@@ -51,7 +49,7 @@ class DreamExperienceService {
   final OraclyAiService ai;
   final DreamOwnerGuard _owner;
   final DreamUnderstandingService _understanding;
-  final DreamPatternService _patterns;
+  final DreamHistoryReader _history;
   final DreamInsightBuilder _insights;
   final DreamExperienceCommit _commit;
 
@@ -81,6 +79,7 @@ class DreamExperienceService {
 
   /// Re-reads [current] from the current owner's storage — an in-memory
   /// dream from a prior owner (or one already cleared) is never sent.
+  /// History is rebuilt from the repository as it is now.
   Future<DreamExperienceResult> reinterpret(Dream current) async {
     final snapshot = _captureOwner();
     final stored = await repository.getById(current.id);
@@ -109,15 +108,10 @@ class DreamExperienceService {
     );
   }
 
-  /// The stored Dream for [dreamId], or null unless the same owner snapshot
-  /// held across the lookup. A caller-supplied body is never evidence.
-  Future<Dream?> loadOwnedDream(String dreamId) async {
-    final snapshot = _owner.capture();
-    if (!snapshot.isValid) return null;
-    final stored = await repository.getById(dreamId);
-    if (stored == null || !_owner.stillValid(snapshot)) return null;
-    return DreamRecordMapper.fromRecord(stored);
-  }
+  /// The stored Dream for [dreamId] (with its live recurring section), or
+  /// null unless the same owner snapshot held. A caller-supplied body is
+  /// never evidence.
+  Future<Dream?> loadOwnedDream(String dreamId) => _history.loadOwned(dreamId);
 
   DreamOwnerSnapshot _captureOwner() {
     final snapshot = _owner.capture();
@@ -130,35 +124,32 @@ class DreamExperienceService {
     Dream seed, {
     required bool isRevision,
   }) async {
-    final language =
-        DreamNarrativeLanguage.forOperation(seed.narrative, OraclyL10n.code);
+    final language = DreamHistoryReader.languageOf(seed);
     final understanding = _understanding.build(
       narrative: seed.narrative,
       selectedEmotions: seed.selectedEmotions,
       language: language,
     );
     final dream = seed.copyWith(understanding: understanding);
-
-    final priorRecords = await repository.getAll();
-    final priorDreams = priorRecords
-        .map(DreamRecordMapper.fromRecord)
-        .where((d) => d.isAnalyzed)
-        .toList();
-    final pattern = _patterns.findConnection(
+    final history = await _history.read(
+      snapshot: snapshot,
       current: dream,
-      previousDreams: priorDreams,
+      language: language,
     );
-
     final analyzed = await _insights.build(
       dream: dream,
       understanding: understanding,
       language: language,
-      pattern: pattern,
+      history: history,
     );
-    return _commit.commit(
+    final result = await _commit.commit(
       dream: analyzed,
       snapshot: snapshot,
       isRevision: isRevision,
+    );
+    return DreamExperienceResult(
+      dream: DreamHistoryInsight.attach(result.dream, history, language),
+      versionAdded: result.versionAdded,
     );
   }
 

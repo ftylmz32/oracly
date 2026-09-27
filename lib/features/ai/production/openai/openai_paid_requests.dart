@@ -33,6 +33,7 @@ abstract final class OpenAiPaidRequests {
         'emotions': context.emotions,
         if (context.memorySummary?.trim().isNotEmpty == true)
           'memorySummary': PromptSanitizer.sanitize(context.memorySummary!),
+        if (context.history.isNotEmpty) 'history': context.history,
         'language': AppLocale.normalize(context.language ?? OraclyL10n.code),
       },
     );

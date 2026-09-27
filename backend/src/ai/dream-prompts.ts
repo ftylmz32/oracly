@@ -1,5 +1,6 @@
 import type { OpenAiMessage } from '../types.js';
 import { responseLanguageDirective, type AppLanguage } from './app-language.js';
+import { dreamHistorySection, type DreamHistoryItem } from './dream-history.js';
 import { sanitizeText, stringList } from './sanitize.js';
 
 /**
@@ -22,6 +23,8 @@ type DreamPromptCopy = {
   system: string;
   /** Phase 3 safety clauses — every normal request, same single call. */
   safety: string;
+  /** Phase 4A prior-dream rules — always present, history or not. */
+  history: string;
   lead: string;
   symbols: string;
   emotions: string;
@@ -50,6 +53,11 @@ const TR: DreamPromptCopy = {
     'Anlatılmayan bir travmayı çıkarsama; yaşanmış bir travma için kişiyi suçlama, istismarı kader, karma ya da ders olarak sunma. ' +
     'Kendine zarar vermeyi asla teşvik etme; ilacı bırakmayı ya da yardım almaktan kaçınmayı önerme. ' +
     'Rüyadaki ölüm imgesi bir kehanet değildir. Sembolik okumalar temkinli kalsın.',
+  history:
+    'Önceki rüyalar: yalnızca "Önceki rüya örüntüleri" bölümünde verilen öğeler için geçmişe bağ kur; bölüm yoksa "tekrar eden", "önceki rüyaların", "sık sık" gibi geçmiş iddiaları yazma. ' +
+    'Geçmiş bilgisini yalnızca bu rüyayla doğrudan ilişkiliyse ve gerçekten değer katıyorsa kullan; en fazla bir ya da iki bağ kur, değer katmıyorsa yok say. ' +
+    'Tekrar betimleyicidir, kehanet değildir: neden tekrar ettiğine dair sebep uydurma; tekrarı teşhise ya da kadere çevirme; gerçek bir olayın buna yol açtığını söyleme; "hep", "her zaman", "her seferinde" deme. ' +
+    'Sayı ya da tarih yazma.',
   lead:
     'Bu rüyayı yorumla. Rüya sözlüğü yazma. Teşhis koyma. Kesin konuşma. ' +
     'JSON: summary (rüyanın ana hissi; metni kopyalama), ' +
@@ -92,6 +100,11 @@ const EN: DreamPromptCopy = {
     'Do not infer trauma the dreamer did not state; never blame someone for a trauma or frame abuse as destiny, karma or a lesson. ' +
     'Never encourage self-harm; never advise stopping medication or avoiding care. ' +
     'Death imagery in a dream is not a prediction. Keep symbolic readings tentative.',
+  history:
+    'Prior dreams: link to the past only for items listed under "Prior dream patterns"; if that section is absent, never claim history such as "recurring", "your previous dreams" or "you often dream". ' +
+    'Use history only when it directly relates to this dream and genuinely adds value; make at most one or two links, and ignore it if it adds nothing. ' +
+    'Recurrence is descriptive, not predictive: never invent a reason why something recurs; never turn it into a diagnosis or fate; never claim a real-life event caused it; never say "always", "every time" or "this always happens". ' +
+    'Do not write counts or dates.',
   lead:
     'Read this dream. No dream dictionary. No diagnosis. No certainty. ' +
     'JSON: summary (the main feeling of the dream; do not copy the text), ' +
@@ -132,6 +145,11 @@ const RU: DreamPromptCopy = {
     'Не додумывай травму, о которой человек не говорил; никогда не обвиняй человека в пережитой травме и не представляй насилие как судьбу, карму или урок. ' +
     'Никогда не поощряй самоповреждение; никогда не советуй бросать лекарства или избегать помощи. ' +
     'Образ смерти во сне — не предсказание. Символические прочтения остаются осторожными.',
+  history:
+    'Прошлые сны: связывай с прошлым только элементы из раздела «Повторяющиеся элементы прошлых снов»; если его нет, не утверждай ничего вроде «повторяется», «в прошлых снах» или «тебе часто снится». ' +
+    'Используй историю, только если она прямо связана с этим сном и действительно что-то добавляет; не больше одной-двух связей, иначе игнорируй её. ' +
+    'Повторение описательно, а не предсказательно: не придумывай, почему что-то повторяется; не превращай повторение в диагноз или судьбу; не утверждай, что его вызвало реальное событие; не говори «всегда», «каждый раз» или «так бывает всегда». ' +
+    'Не пиши чисел и дат.',
   lead:
     'Истолкуй этот сон. Без сонника. Без диагнозов. Без уверенных утверждений. ' +
     'JSON: summary (главное чувство сна; не копируй текст), ' +
@@ -171,12 +189,17 @@ export function dreamMessages(
     .filter(Boolean)
     .join('\n');
   const memory = sanitizeText(payload.memorySummary, 220);
-  const history = memory ? `\n\n${copy.memory}\n${memory}` : '';
+  const connected = memory ? `\n\n${copy.memory}\n${memory}` : '';
+  const priorSection = dreamHistorySection(payload.history as DreamHistoryItem[] | undefined, language);
+  const prior = priorSection ? `\n\n${priorSection}` : '';
   return [
-    { role: 'system', content: `${copy.system} ${copy.safety} ${responseLanguageDirective(language)}` },
+    {
+      role: 'system',
+      content: `${copy.system} ${copy.safety} ${copy.history} ${responseLanguageDirective(language)}`,
+    },
     {
       role: 'user',
-      content: `${copy.lead}\n\n${narrative}${extras ? `\n\n${extras}` : ''}${history}`,
+      content: `${copy.lead}\n\n${narrative}${extras ? `\n\n${extras}` : ''}${prior}${connected}`,
     },
   ];
 }

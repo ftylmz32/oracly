@@ -2,7 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/dream/models/dream.dart';
 import 'package:oracly_new/features/dream/models/dream_emotion.dart';
 import 'package:oracly_new/features/dream/models/dream_symbol.dart';
-import 'package:oracly_new/features/dream/services/dream_pattern_service.dart';
+import 'package:oracly_new/features/dream/history/dream_history_builder.dart';
+import 'package:oracly_new/features/dream/history/dream_history_evidence.dart';
 import 'package:oracly_new/features/dream/services/dream_understanding_service.dart';
 
 void main() {
@@ -80,10 +81,8 @@ void main() {
     });
   });
 
-  group('DreamPatternService', () {
-    const patterns = DreamPatternService();
-
-    test('returns null when no genuine overlap', () {
+  group('DreamHistoryBuilder', () {
+    test('is empty when no prior dream exists', () {
       final current = Dream(
         id: 'a',
         narrative: 'uçtum',
@@ -99,12 +98,16 @@ void main() {
       );
 
       expect(
-        patterns.findConnection(current: current, previousDreams: const []),
-        isNull,
+        DreamHistoryBuilder.build(
+          current: current,
+          saved: const [],
+          language: 'tr',
+        ).isEmpty,
+        isTrue,
       );
     });
 
-    test('finds connection with two shared symbols', () {
+    test('one prior dream sharing two symbols is seen before', () {
       final priorWithSymbols = Dream(
         id: 'old',
         narrative: 'deniz kedisi',
@@ -144,13 +147,17 @@ void main() {
         ),
       );
 
-      final match = patterns.findConnection(
+      final history = DreamHistoryBuilder.build(
         current: currentWithSymbols,
-        previousDreams: [priorWithSymbols],
+        saved: [priorWithSymbols],
+        language: 'tr',
       );
 
-      expect(match, isNotNull);
-      expect(match!.sharedSymbols.length, greaterThanOrEqualTo(2));
+      expect(history.evidence, hasLength(2));
+      expect(
+        history.evidence.map((e) => e.level),
+        everyElement(DreamRecurrenceLevel.seenBefore),
+      );
     });
   });
 }

@@ -13,6 +13,9 @@ enum DreamInsightKind {
   reflection,
   possibility,
   closingTakeaway,
+
+  /// Prior-Dream evidence (Phase 4A) — local, recomputed, never persisted.
+  recurringPattern,
 }
 
 /// Who wrote a section. Records saved before sections carried a source

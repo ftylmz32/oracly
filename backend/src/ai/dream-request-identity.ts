@@ -8,9 +8,14 @@
  * different request: it never shares the duplicate fingerprint or a
  * response-replay slot with the earlier one, even under the same
  * client Idempotency-Key.
+ *
+ * Phase 4A: validated prior-Dream history joins the canonical form only when
+ * present (in prompt order), so a no-history request keeps its identity and
+ * a material history change never shares a replay slot.
  */
 import { createHash } from 'node:crypto';
 import type { AppLanguage } from './app-language.js';
+import { dreamHistoryIdentity, type DreamHistoryItem } from './dream-history.js';
 import { sanitizeText, stringList } from './sanitize.js';
 
 type DreamIdentityInput = {
@@ -24,12 +29,14 @@ const normSet = (value: unknown): string[] =>
   [...new Set(stringList(value).map(norm).filter(Boolean))].sort();
 
 export function dreamRequestFingerprint(request: DreamIdentityInput): string {
+  const history = dreamHistoryIdentity(request.payload.history as DreamHistoryItem[] | undefined);
   const canonical = JSON.stringify({
     language: request.language,
     narrative: norm(sanitizeText(request.payload.narrative)),
     symbols: normSet(request.payload.symbols),
     emotions: normSet(request.payload.emotions),
     memory: norm(sanitizeText(request.payload.memorySummary, 220)),
+    ...(history.length ? { history } : {}),
   });
   return `dream:v2:${createHash('sha256').update(canonical).digest('hex')}`;
 }

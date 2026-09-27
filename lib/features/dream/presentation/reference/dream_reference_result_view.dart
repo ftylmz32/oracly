@@ -20,6 +20,7 @@ import 'dream_reference_app_bar.dart';
 import 'dream_reference_result_actions.dart';
 import 'dream_reference_tokens.dart';
 import 'dream_result_emotional_section.dart';
+import 'dream_result_history_card.dart';
 import 'dream_result_premium_card.dart';
 import 'dream_result_reflection_card.dart';
 import 'dream_result_reference_actions.dart';
@@ -99,6 +100,7 @@ class _DreamReferenceResultViewState
           ),
         DreamResultSymbolsSection(rows: symbols),
         DreamResultEmotionalSection(body: emotional, tags: tags),
+        DreamResultHistoryCard(dream: dream),
         DreamResultReflectionCard(
           quote: reflection ?? DreamCopy.reflectionGeneric,
         ),

@@ -11,6 +11,7 @@ library;
 
 import '../../../core/l10n/l10n.dart';
 import '../../ai/production/contexts/reading_ai_context.dart';
+import '../history/dream_history_evidence.dart';
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
 import 'dream_analysis_fact_parts.dart';
@@ -24,6 +25,7 @@ abstract final class DreamProviderEvidence {
     required DreamUnderstanding understanding,
     required String language,
     String? memorySummary,
+    DreamHistoryContext history = DreamHistoryContext.empty,
   }) {
     return DreamAiContext(
       narrative: DreamContextEnricher.narrativeForAi(
@@ -34,6 +36,7 @@ abstract final class DreamProviderEvidence {
       symbols: symbols(dream.narrative, understanding, language),
       emotions: emotions(dream, understanding, language),
       memorySummary: memorySummary,
+      history: history.toPayload(),
       language: language,
     );
   }

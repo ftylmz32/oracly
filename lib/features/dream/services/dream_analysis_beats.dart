@@ -64,17 +64,7 @@ abstract final class DreamAnalysisBeats {
     });
   }
 
-  static String you({
-    required DreamAnalysisFacts facts,
-    required String? date,
-    required List<String> sharedSymbols,
-  }) {
-    if (date != null && sharedSymbols.isNotEmpty) {
-      return _fill(facts, 'dream.read.you.pattern', {
-        'date': date,
-        'symbols': sharedSymbols.join(', '),
-      });
-    }
+  static String you(DreamAnalysisFacts facts) {
     final tag = facts.tag;
     if (tag == null) return '';
     return _fill(facts, 'dream.read.you.tag', {

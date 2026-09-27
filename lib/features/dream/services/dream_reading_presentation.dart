@@ -34,6 +34,7 @@ abstract final class DreamReadingPresentation {
     DreamInsightKind.emotionalMeaning,
     DreamInsightKind.mainInterpretation,
     DreamInsightKind.personalConnection,
+    DreamInsightKind.recurringPattern,
     DreamInsightKind.themes,
     DreamInsightKind.closingTakeaway,
   ];

@@ -13,7 +13,6 @@ import '../models/dream_insight.dart';
 import 'dream_analysis_beats.dart';
 import 'dream_analysis_facts.dart';
 import 'dream_analysis_guard.dart';
-import 'dream_pattern_service.dart';
 
 typedef _Beat = ({String body, DreamInsightSource source});
 
@@ -24,7 +23,6 @@ abstract final class DreamAnalysisComposer {
     required Dream dream,
     required DreamUnderstanding understanding,
     required String language,
-    DreamPatternMatch? pattern,
     DreamAiAnalysis? ai,
   }) {
     final facts = DreamAnalysisFacts.from(
@@ -51,10 +49,12 @@ abstract final class DreamAnalysisComposer {
         facts,
         () => '',
       ),
+      // Prior-Dream history is its own section (DreamHistoryInsight); it
+      // never competes with this beat.
       DreamInsightKind.personalConnection: _first(
         [ai?.dailyLifeReflection],
         facts,
-        () => _you(facts, pattern),
+        () => DreamAnalysisBeats.you(facts),
       ),
       DreamInsightKind.themes: _local(
         HumanReader.guard(DreamAnalysisBeats.detail(facts, seed)),
@@ -113,16 +113,6 @@ abstract final class DreamAnalysisComposer {
         ? parts.take(4).join(' · ')
         : DreamAnalysisBeats.detail(facts, seed);
     return _local(HumanReader.guard(local));
-  }
-
-  static String _you(DreamAnalysisFacts facts, DreamPatternMatch? pattern) {
-    return DreamAnalysisBeats.you(
-      facts: facts,
-      date: pattern == null
-          ? null
-          : DreamPatternService.formatDate(pattern.previousDreamDate),
-      sharedSymbols: pattern?.sharedSymbols ?? const [],
-    );
   }
 
   static _Beat _closing(

@@ -79,11 +79,6 @@ const kL10nDreamRead = <String, L10nTriple>{
     'The scene sits in fog. {scene} does not shout like a sign; it can be thought of as a half-finished trace.',
     'Сцена стоит в тумане. {scene} не кричит как знак; её можно мыслить как недописанный след.',
   ),
-  'dream.read.you.pattern': L10nTriple(
-    '{date} tarihli rüyanda da {symbols} birlikte duruyordu. Aynı imgelerin dönmesi, zihnin hâlâ o temada dolaştığını düşündürebilir.',
-    'In the dream from {date}, {symbols} sat together too. Their return can suggest the mind is still walking that theme.',
-    'В сне от {date} тоже стояли вместе {symbols}. Их возвращение может намекать, что ум всё ещё ходит вокруг этой темы.',
-  ),
   'dream.read.you.tag': L10nTriple(
     'Bunu {tag} diye işaretledin. Rüyadaki {image} o dosyanın kenarında duruyor; tek başına bir hayat hikâyesi değil.',
     'You marked this as {tag}. {image} in the dream sits at the edge of that file; it is not a life story on its own.',

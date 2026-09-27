@@ -8,12 +8,13 @@ import 'package:oracly_new/core/reading/human_reader.dart';
 import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart';
 import 'package:oracly_new/features/ai/production/openai/dream_prompt_style.dart';
 import 'package:oracly_new/features/dream/copy/dream_copy.dart';
+import 'package:oracly_new/features/dream/history/dream_history_builder.dart';
+import 'package:oracly_new/features/dream/history/dream_history_insight.dart';
 import 'package:oracly_new/features/dream/models/dream.dart';
 import 'package:oracly_new/features/dream/models/dream_emotion.dart';
 import 'package:oracly_new/features/dream/services/dream_analysis_composer.dart';
 import 'package:oracly_new/features/dream/services/dream_analysis_facts.dart';
 import 'package:oracly_new/features/dream/services/dream_analysis_guard.dart';
-import 'package:oracly_new/features/dream/services/dream_pattern_service.dart';
 import 'package:oracly_new/features/dream/services/dream_reading_presentation.dart';
 import 'package:oracly_new/features/dream/services/dream_understanding_service.dart';
 
@@ -68,7 +69,7 @@ void main() {
     _quality(reading);
   });
 
-  test('personal connection appears only with a real prior pattern', () {
+  test('prior-dream section appears only with real prior evidence', () {
     final understanding = DreamUnderstandingService().build(
       narrative: 'Kedimle denizin kenarında yürüdüm.',
     );
@@ -91,25 +92,27 @@ void main() {
         summary: '',
       ),
     );
-    final match = const DreamPatternService().findConnection(
+    final history = DreamHistoryBuilder.build(
       current: current,
-      previousDreams: [prior],
+      saved: [prior],
+      language: 'tr',
     );
-    expect(match, isNotNull);
-    final withPattern = DreamReadingPresentation.interpretation(
-      current.copyWith(
-        insights: DreamAnalysisComposer.compose(
-          dream: current,
-          understanding: understanding,
-          language: 'tr',
-          pattern: match,
-        ),
+    expect(history.isEmpty, isFalse);
+    final composed = current.copyWith(
+      insights: DreamAnalysisComposer.compose(
+        dream: current,
+        understanding: understanding,
+        language: 'tr',
       ),
     );
+    final withHistory = DreamReadingPresentation.interpretation(
+      DreamHistoryInsight.attach(composed, history, 'tr'),
+    );
     final without = _read('Kedimle denizin kenarında yürüdüm.');
-    expect(withPattern, contains(DreamCopy.lifeReflectionTitle));
-    expect(withPattern, isNot(contains(prior.narrative)));
-    expect(without, isNot(contains(DreamCopy.lifeReflectionTitle)));
+    final title = OraclyL10n.t('dream.history.title.seen');
+    expect(withHistory, contains(title));
+    expect(withHistory, isNot(contains(prior.narrative)));
+    expect(without, isNot(contains(title)));
   });
 
   test('rejected AI dictionary and invented symbols stay local', () {
