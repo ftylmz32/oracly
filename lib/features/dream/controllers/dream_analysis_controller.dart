@@ -1,14 +1,15 @@
 /// SPRINT-001 — Dream journey state machine.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
-import '../../../core/logging/analysis_debug_log.dart';
-import '../../ai/production/ai_request_exception.dart';
-import '../copy/dream_copy.dart';
 import '../models/dream.dart';
 import '../models/dream_emotion.dart';
 import '../services/dream_experience_service.dart';
+import '../services/dream_owner_guard.dart';
+import 'dream_analysis_failure.dart';
 
 enum DreamJourneyPhase {
   entry,
@@ -48,6 +49,12 @@ class DreamAnalysisController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _stale(int token) => _disposed || token != _generation;
+
+  bool get _busy =>
+      _phase == DreamJourneyPhase.organizing ||
+      _phase == DreamJourneyPhase.reflecting;
+
   DreamJourneyPhase get phase => _phase;
   Dream? get dream => _dream;
   String? get errorMessage => _errorMessage;
@@ -61,17 +68,11 @@ class DreamAnalysisController extends ChangeNotifier {
     _safeNotify();
   }
 
-  Future<void> loadHistory() async {
-    final token = _generation;
-    final history = await _service.loadHistory();
-    if (_disposed || token != _generation) return;
-    _history = history;
-    _safeNotify();
-  }
+  Future<void> loadHistory() => _loadHistoryFor(_generation);
 
   Future<void> _loadHistoryFor(int token) async {
     final history = await _service.loadHistory();
-    if (_disposed || token != _generation) return;
+    if (_stale(token)) return;
     _history = history;
     _safeNotify();
   }
@@ -81,18 +82,14 @@ class DreamAnalysisController extends ChangeNotifier {
     List<DreamEmotion> emotions = const [],
     List<String> tags = const [],
   }) async {
-    if (_disposed ||
-        _phase == DreamJourneyPhase.organizing ||
-        _phase == DreamJourneyPhase.reflecting) {
-      return;
-    }
+    if (_disposed || _busy) return;
     final token = ++_generation;
     _phase = DreamJourneyPhase.organizing;
     _errorMessage = null;
     _safeNotify();
 
     await Future<void>.delayed(_organizingDelay);
-    if (_disposed || token != _generation) return;
+    if (_stale(token)) return;
 
     _phase = DreamJourneyPhase.reflecting;
     _safeNotify();
@@ -103,38 +100,20 @@ class DreamAnalysisController extends ChangeNotifier {
         selectedEmotions: emotions,
         tags: tags,
       );
-      if (_disposed || token != _generation) return;
+      if (_stale(token)) return;
       _dream = result.dream;
       _phase = DreamJourneyPhase.complete;
       await _loadHistoryFor(token);
-    } on AiRequestException catch (e) {
-      if (_disposed || token != _generation) return;
-      logAnalysisFailure(
-        feature: 'DreamAnalysis',
-        stage: 'analyze',
-        kind: e.failure.kind.name,
-      );
-      _phase = DreamJourneyPhase.error;
-      _errorMessage = e.userMessage;
     } catch (error) {
-      if (_disposed || token != _generation) return;
-      logAnalysisFailure(
-        feature: 'DreamAnalysis',
-        stage: 'analyze',
-        error: error,
-      );
-      _phase = DreamJourneyPhase.error;
-      _errorMessage = DreamCopy.analysisFailed;
+      if (_stale(token)) return;
+      if (error is DreamOwnerChangedException) return _returnToEntry(token);
+      _fail('analyze', error);
     }
     _safeNotify();
   }
 
   Future<void> reinterpret() async {
-    if (_disposed ||
-        _phase == DreamJourneyPhase.organizing ||
-        _phase == DreamJourneyPhase.reflecting) {
-      return;
-    }
+    if (_disposed || _busy) return;
     final current = _dream;
     if (current == null) {
       throw StateError('dream reinterpret failed');
@@ -145,49 +124,59 @@ class DreamAnalysisController extends ChangeNotifier {
     _safeNotify();
     try {
       final result = await _service.reinterpret(current);
-      if (_disposed || token != _generation) return;
+      if (_stale(token)) return;
       _versionAdded = result.versionAdded;
       if (result.versionAdded) {
         _dream = result.dream;
         _versionReloadToken++;
         await _loadHistoryFor(token);
-        if (_disposed || token != _generation) return;
+        if (_stale(token)) return;
       }
       _phase = DreamJourneyPhase.complete;
-    } on AiRequestException catch (e) {
-      if (_disposed || token != _generation) return;
-      logAnalysisFailure(
-        feature: 'DreamAnalysis',
-        stage: 'reinterpret',
-        kind: e.failure.kind.name,
-      );
-      _phase = DreamJourneyPhase.error;
-      _errorMessage = e.userMessage;
     } catch (error) {
-      if (_disposed || token != _generation) return;
-      logAnalysisFailure(
-        feature: 'DreamAnalysis',
-        stage: 'reinterpret',
-        error: error,
-      );
-      _phase = DreamJourneyPhase.error;
-      _errorMessage = DreamCopy.analysisFailed;
+      if (_stale(token)) return;
+      if (error is DreamOwnerChangedException) return _returnToEntry(token);
+      _fail('reinterpret', error);
     }
     _safeNotify();
-    if (!_disposed &&
-        token == _generation &&
-        _phase != DreamJourneyPhase.complete) {
+    if (!_stale(token) && _phase != DreamJourneyPhase.complete) {
       throw StateError('dream reinterpret failed');
     }
   }
 
+  /// Shows [dream] only while it still resolves in the current owner's
+  /// storage — a stale object from a prior owner or a clear is dropped.
   void openSaved(Dream dream) {
     if (_disposed) return;
-    _generation++;
+    final token = ++_generation;
     _dream = dream;
     _errorMessage = null;
     _phase = DreamJourneyPhase.complete;
     _safeNotify();
+    unawaited(_verifyOwned(dream.id, token));
+  }
+
+  Future<void> _verifyOwned(String id, int token) async {
+    var owned = false;
+    try {
+      owned = await _service.isCurrentOwnerDream(id);
+    } catch (_) {}
+    if (owned || _stale(token)) return;
+    await _returnToEntry(token);
+  }
+
+  Future<void> _returnToEntry(int token) async {
+    _phase = DreamJourneyPhase.entry;
+    _dream = null;
+    _errorMessage = null;
+    _history = const [];
+    _safeNotify();
+    await _loadHistoryFor(token);
+  }
+
+  void _fail(String stage, Object error) {
+    _errorMessage = DreamAnalysisFailure.messageFor(stage, error);
+    _phase = DreamJourneyPhase.error;
   }
 
   void reset() {

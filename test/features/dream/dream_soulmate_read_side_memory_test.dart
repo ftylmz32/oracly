@@ -17,6 +17,7 @@ import 'package:oracly_new/features/premium/services/soul_mate_draw_port.dart';
 import 'package:oracly_new/features/premium/services/soul_mate_result_service.dart';
 
 import 'dream_honesty_fakes.dart';
+import '../../support/dream_test_owner.dart';
 
 class _CapturingDreamAi extends LiveDreamAiStub {
   DreamAiContext? context;
@@ -82,6 +83,7 @@ void main() {
 
         await DreamExperienceService(
           repository: MemDreamRepository(),
+          owner: testDreamOwner(),
           ai: ai,
           memory: OraclyMemoryRetriever(memory),
         ).analyze(
@@ -111,6 +113,7 @@ void main() {
         final unrelatedAi = _CapturingDreamAi();
         await DreamExperienceService(
           repository: MemDreamRepository(),
+          owner: testDreamOwner(),
           ai: unrelatedAi,
           memory: OraclyMemoryRetriever(memory),
         ).analyze(narrative: 'A quiet house was surrounded by warm firelight.');
@@ -119,6 +122,7 @@ void main() {
         final shortAi = _CapturingDreamAi();
         await DreamExperienceService(
           repository: MemDreamRepository(),
+          owner: testDreamOwner(),
           ai: shortAi,
           memory: OraclyMemoryRetriever(memory),
         ).analyze(narrative: 'house');
@@ -127,6 +131,7 @@ void main() {
         final failingAi = _CapturingDreamAi();
         final result = await DreamExperienceService(
           repository: MemDreamRepository(),
+          owner: testDreamOwner(),
           ai: failingAi,
           memory: OraclyMemoryRetriever(OraclyMemoryStore(_ThrowingStorage())),
         ).analyze(narrative: 'I had to communicate a difficult decision.');
@@ -147,6 +152,7 @@ void main() {
 
         final result = await DreamExperienceService(
           repository: repository,
+          owner: testDreamOwner(),
           ai: _CapturingDreamAi(),
         ).analyze(narrative: 'A quiet window opened into a familiar room.');
 

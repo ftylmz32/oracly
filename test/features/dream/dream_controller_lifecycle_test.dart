@@ -9,6 +9,7 @@ import 'package:oracly_new/features/ai/production/models/dream_ai_analysis.dart'
 import 'package:oracly_new/features/ai/production/oracly_ai_service.dart';
 import 'package:oracly_new/features/dream/controllers/dream_analysis_controller.dart';
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
+import '../../support/dream_test_owner.dart';
 
 class _MemoryDreamRepository implements DreamRepository {
   final List<DreamRecord> records = <DreamRecord>[];
@@ -75,6 +76,7 @@ void main() {
     final controller = DreamAnalysisController(
       DreamExperienceService(
         repository: _MemoryDreamRepository(),
+        owner: testDreamOwner(),
         ai: ai,
       ),
       organizingDelay: const Duration(milliseconds: 1),
@@ -92,6 +94,7 @@ void main() {
     final controller = DreamAnalysisController(
       DreamExperienceService(
         repository: _MemoryDreamRepository(),
+        owner: testDreamOwner(),
         ai: ai,
       ),
       organizingDelay: Duration.zero,

@@ -19,6 +19,7 @@ import 'package:oracly_new/features/dream/presentation/reference/dream_reference
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
 
 import 'dream_honesty_fakes.dart';
+import '../../support/dream_test_owner.dart';
 
 const _narrative = 'Rüyamda sessiz bir ev ve açık bir pencere vardı.';
 
@@ -60,6 +61,7 @@ void main() {
   test('dev local fallback is catalogue, not AI', () async {
     final result = await DreamExperienceService(
       repository: MemDreamRepository(),
+      owner: testDreamOwner(),
       ai: const UnconfiguredOraclyAiService(allowsLocalFallback: true),
     ).analyze(narrative: _narrative);
     expect(result.dream.fromAi, isFalse);
@@ -82,6 +84,7 @@ void main() {
     await expectLater(
       DreamExperienceService(
         repository: repo,
+        owner: testDreamOwner(),
         ai: const UnconfiguredOraclyAiService(),
       ).analyze(narrative: _narrative),
       throwsA(isA<AiRequestException>()),
@@ -99,6 +102,7 @@ void main() {
     final repo = MemDreamRepository();
     final result = await DreamExperienceService(
       repository: repo,
+      owner: testDreamOwner(),
       ai: const LiveDreamAiStub(),
     ).analyze(narrative: _narrative);
     expect(result.dream.fromAi, isTrue);

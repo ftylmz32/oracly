@@ -36,9 +36,16 @@ class PrivacyControlActionsSection extends ConsumerWidget {
               title: PrivacyControlCopy.confirmHistoryTitle,
               message: PrivacyControlCopy.confirmHistoryBody,
               action: (ref) async {
-                await ref.read(privacyControlServiceProvider).clearDiscoveryHistory();
-                PrivacyDataRefresh.afterDiscoveryHistoryClear(ref);
-                ref.invalidate(privacyControlSnapshotProvider);
+                try {
+                  await ref
+                      .read(privacyControlServiceProvider)
+                      .clearDiscoveryHistory();
+                } finally {
+                  // Even a partial clear already removed rows — never leave
+                  // in-memory state showing them.
+                  PrivacyDataRefresh.afterDiscoveryHistoryClear(ref);
+                  ref.invalidate(privacyControlSnapshotProvider);
+                }
               },
               success: PrivacyControlCopy.successHistory,
             ),

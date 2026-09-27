@@ -15,6 +15,8 @@ class ReadingVersionService {
 
   ReadingVersionGroup? groupFor(String rootId) => _store.byRootId(rootId);
 
+  Future<void> removeRoot(String rootId) => _store.removeRoot(rootId);
+
   Future<ReadingVersionGroup> seedOriginal({
     required String rootId,
     required ReadingVersionKind kind,

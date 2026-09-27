@@ -8,6 +8,7 @@ import '../../../core/revisit/providers/discovery_revisit_provider.dart';
 import '../../../screens/profile/data/profile_photo_store.dart';
 import '../../birth_chart/providers/birth_information_provider.dart';
 import '../../companion/providers/companion_providers.dart';
+import '../../dream/providers/dream_providers.dart';
 import '../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../gems/providers/gem_providers.dart';
 import '../../personal_discovery/providers/personal_discovery_providers.dart';
@@ -19,6 +20,7 @@ abstract final class PrivacyDataRefresh {
 
   static void afterDiscoveryHistoryClear(WidgetRef ref) {
     ref.invalidate(readingHistoryProvider);
+    ref.invalidate(dreamAnalysisControllerProvider);
     PersonalDiscoveryRefresh.invalidate(ref);
     ref.invalidate(discoveryRevisitOfferProvider);
     ref.invalidate(livingExperienceProvider);
@@ -44,6 +46,7 @@ abstract final class PrivacyDataRefresh {
     // R3 — rebuild PremiumStatusController so in-memory Premium cannot leak
     // across identities after disk wipe. New controller loads independently.
     ref.invalidate(premiumStatusProvider);
+    ref.invalidate(dreamAnalysisControllerProvider);
     PersonalDiscoveryRefresh.invalidate(ref);
     ref.invalidate(discoveryRevisitOfferProvider);
     ref.invalidate(discoverySurfaceMemoryProvider);

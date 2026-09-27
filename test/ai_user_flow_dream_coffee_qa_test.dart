@@ -25,6 +25,7 @@ import 'package:oracly_new/features/dream/services/dream_experience_service.dart
 import 'package:oracly_new/features/dream/services/dream_understanding_service.dart';
 
 import 'support/ai_e2e_probe.dart';
+import 'support/dream_test_owner.dart';
 
 bool get _live => Platform.environment['ORACLY_E2E'] == '1';
 
@@ -39,7 +40,11 @@ void main() {
     final probe = AiE2eProbe();
     final repo = _MemDreams();
     final controller = DreamAnalysisController(
-      DreamExperienceService(repository: repo, ai: e2eLiveAi(probe)),
+      DreamExperienceService(
+        repository: repo,
+        owner: testDreamOwner(),
+        ai: e2eLiveAi(probe),
+      ),
     );
     await controller.loadHistory();
     expect(controller.history, isEmpty);

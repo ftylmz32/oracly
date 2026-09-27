@@ -24,6 +24,7 @@ import 'package:oracly_new/features/dream/services/dream_experience_service.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dream_honesty_fakes.dart' show MemDreamRepository;
+import '../../support/dream_test_owner.dart';
 
 const _longSummary = '''
 Rüyanda beliren koridor, bilinçaltının seni yüzleşmeye hazır olmadığın '''
@@ -136,6 +137,7 @@ class _FixedDreamController extends DreamAnalysisController {
       : super(
           DreamExperienceService(
             repository: MemDreamRepository(),
+            owner: testDreamOwner(),
             ai: const UnconfiguredOraclyAiService(allowsLocalFallback: true),
           ),
         );

@@ -28,6 +28,7 @@ import 'package:oracly_new/features/tarot/interpretation/models/interpretation_r
 import 'package:oracly_new/features/tarot/interpretation/models/reading_context.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/card_detail/card_detail_ai_insight.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/deck_selection/deck_selection_data.dart';
+import 'support/dream_test_owner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,7 @@ void main() {
     const localAi = UnconfiguredOraclyAiService(allowsLocalFallback: true);
     final local = await DreamExperienceService(
       repository: _MemDreams(),
+      owner: testDreamOwner(),
       ai: localAi,
     ).analyze(
       narrative: 'Rüyamda uzun bir yılan evden geçti ve sessizce gitti.',
@@ -73,7 +75,11 @@ void main() {
 
     const prodAi = UnconfiguredOraclyAiService();
     await expectLater(
-      DreamExperienceService(repository: _MemDreams(), ai: prodAi).analyze(
+      DreamExperienceService(
+        repository: _MemDreams(),
+        owner: testDreamOwner(),
+        ai: prodAi,
+      ).analyze(
         narrative: 'Rüyamda uzun bir yılan evden geçti ve sessizce gitti.',
       ),
       throwsA(isA<AiRequestException>()),
@@ -161,6 +167,7 @@ void main() {
     );
     final dream = await DreamExperienceService(
       repository: _MemDreams(),
+      owner: testDreamOwner(),
       ai: ai,
     ).analyze(narrative: 'Rüyamda sessiz bir ev ve açık bir pencere vardı.');
     expect(dream.dream.fromAi, isFalse);

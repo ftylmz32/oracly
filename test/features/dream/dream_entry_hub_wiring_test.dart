@@ -17,6 +17,7 @@ import 'package:oracly_new/features/dream/presentation/reference/dream_reference
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
 import 'package:oracly_new/features/dream/services/dream_voice_input_port.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/dream_test_owner.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,7 @@ void main() {
     final analysis = DreamAnalysisController(
       DreamExperienceService(
         repository: LocalDreamRepository(storage),
+        owner: testDreamOwner(),
         ai: const UnconfiguredOraclyAiService(),
       ),
     );

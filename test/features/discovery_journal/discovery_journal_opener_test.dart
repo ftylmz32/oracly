@@ -5,11 +5,14 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/data/repositories/local_dream_repository.dart';
 import 'package:oracly_new/features/coffee/presentation/reference/coffee_reference_screen.dart';
 import 'package:oracly_new/features/discovery_journal/models/discovery_journal_entry.dart';
 import 'package:oracly_new/features/discovery_journal/models/discovery_journal_kind.dart';
 import 'package:oracly_new/features/discovery_journal/services/discovery_journal_opener.dart';
+import 'package:oracly_new/features/dream/data/dream_record_mapper.dart';
 import 'package:oracly_new/features/dream/models/dream.dart';
 import 'package:oracly_new/features/dream/providers/dream_providers.dart';
 import 'package:oracly_new/features/favorite_moments/copy/favorite_moments_copy.dart';
@@ -23,7 +26,9 @@ void main() {
     'opening a dream journal entry with no matching record shows honest '
     'unavailable copy instead of the previously-analyzed dream',
     (tester) async {
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({
+        UserLocalDataIsolation.ownerKey: 'owner-a',
+      });
       final storage = await LocalStorage.open();
 
       late WidgetRef capturedRef;
@@ -46,13 +51,17 @@ void main() {
       await tester.pump();
 
       // Simulate a dream already analyzed earlier in this app session —
-      // the controller is a long-lived singleton, not scoped to a screen.
+      // the controller outlives the screen. It is persisted for the current
+      // owner, since openSaved only keeps dreams that still resolve there.
       final staleDream = Dream(
         id: 'dream_stale',
         narrative: 'Eski bir rüya',
         recordedAt: DateTime(2024, 1, 1),
       );
+      await LocalDreamRepository(storage)
+          .save(DreamRecordMapper.toRecord(staleDream));
       capturedRef.read(dreamAnalysisControllerProvider).openSaved(staleDream);
+      await tester.pump();
 
       // Tap a journal entry whose id no longer resolves (deleted / drifted).
       await DiscoveryJournalOpener.open(

@@ -23,6 +23,7 @@ import 'package:oracly_new/features/ai/production/unconfigured_oracly_ai_service
 import 'package:oracly_new/features/companion/services/companion_ai_bridge.dart';
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
 import 'support/test_app_check_token.dart';
+import 'support/dream_test_owner.dart';
 
 const _prodProxy = 'https://api.oracly.app/v1/ai/complete';
 const _lanProxy = 'http://192.168.1.20:8787/v1/ai/complete';
@@ -63,7 +64,11 @@ void main() {
       throwsA(_noConfig),
     );
     await expectLater(
-      DreamExperienceService(repository: _MemDreams(), ai: ai).analyze(
+      DreamExperienceService(
+        repository: _MemDreams(),
+        owner: testDreamOwner(),
+        ai: ai,
+      ).analyze(
         narrative: 'Rüyamda uzun bir yılan evden geçti.',
       ),
       throwsA(_noConfig),
@@ -83,6 +88,7 @@ void main() {
     expect(oracle.trim(), isNotEmpty);
     final dream = await DreamExperienceService(
       repository: _MemDreams(),
+      owner: testDreamOwner(),
       ai: ai,
     ).analyze(narrative: 'Rüyamda uzun bir yılan evden geçti.');
     expect(dream.dream.insights, isNotEmpty);

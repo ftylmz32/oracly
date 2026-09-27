@@ -36,6 +36,7 @@ import 'package:oracly_new/features/coffee/copy/coffee_copy.dart';
 import 'package:oracly_new/features/coffee/data/coffee_reading_parser.dart';
 import 'package:oracly_new/features/coffee/models/coffee_reading.dart';
 import 'package:oracly_new/features/dream/services/dream_experience_service.dart';
+import 'support/dream_test_owner.dart';
 
 void main() {
   test('typed failures stay Turkish and never include secrets', () {
@@ -215,6 +216,7 @@ void main() {
       () async {
     final local = DreamExperienceService(
       repository: _MemDreams(),
+      owner: testDreamOwner(),
       ai: const UnconfiguredOraclyAiService(allowsLocalFallback: true),
     );
     final result = await local.analyze(narrative: 'Rüyamda uzun bir yılan evden geçti.');
@@ -223,6 +225,7 @@ void main() {
 
     final failing = DreamExperienceService(
       repository: _MemDreams(),
+      owner: testDreamOwner(),
       ai: _FailingAi(),
     );
     expect(failing.aiAvailable, isTrue);

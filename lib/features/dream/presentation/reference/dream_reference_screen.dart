@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../core/providers/backend_providers.dart'
+    show localDataOwnerEpochProvider;
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/ui/oracly_permission_dialog.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
@@ -120,6 +122,20 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
     });
   }
 
+  /// A mounted screen must not carry the prior owner's typed narrative.
+  void _clearForOwnerChange() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(dreamVoiceControllerProvider).reset();
+      _narrativeController.clear();
+      setState(() {
+        _composing = false;
+        _selectedChips.clear();
+        _guidedAnswers.clear();
+      });
+    });
+  }
+
   void _toggleChip(DreamEntryChipId chip) {
     setState(() {
       if (_selectedChips.contains(chip)) {
@@ -138,6 +154,7 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
   Widget build(BuildContext context) {
     final analysis = ref.watch(dreamAnalysisControllerProvider);
     final voice = ref.watch(dreamVoiceControllerProvider);
+    ref.listen(localDataOwnerEpochProvider, (_, _) => _clearForOwnerChange());
     ref.listen(dreamVoiceControllerProvider, (previous, next) {
       if (next.phase == DreamVoicePhase.transcribed &&
           _narrativeController.text != next.transcript) {
