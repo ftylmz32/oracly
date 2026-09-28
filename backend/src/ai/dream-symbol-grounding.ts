@@ -14,7 +14,8 @@ import type { DreamData } from './parse-provider.js';
  *
  * Filtering never hides a prose hallucination: a removed item that a prose
  * section itself names — and that is not merely another form of a told word
- * ("crying" for "cried", "sessizlik" for "sessizce") — rejects the reading.
+ * ("crying" for "cried", "sessizlik" for "sessizce", see `derivationRoot`) —
+ * rejects the reading.
  */
 export type SymbolGroundingInput = {
   narrative: string;
@@ -41,16 +42,37 @@ export function groundDreamSymbols(data: DreamData, input: SymbolGroundingInput)
 }
 
 const words = (s: string) => lightFold(s).match(/[\p{L}\p{N}]+/gu) ?? [];
-const enRoot = (w: string) => w.replace(/(?:ing|ed|es|s)$/u, '').replace(/i$/u, 'y');
 
-/** Another form of a told word: general match, a shared 4-letter lead, or English y/ie. */
+/**
+ * Safe derivation (Phase 4C.1a): one recognised complete suffix is stripped
+ * from an ASCII-folded whole word, leaving a root of a minimum length. Never
+ * a shared prefix, so door/doorway, water/waterfall, rain/rainbow,
+ * fear/fearless, kapı/kapıcı, deniz/denizci, вода/водопад stay distinct.
+ * - en: `-ness` on a 4+ root not ending in i (dark/darkness); verb endings
+ *   -ing/-ed/-es/-s with i→y on a 3+ root (cried/crying/cries → cry).
+ * - tr: adverb -ca/-ce and noun -lik/-luk on a 4+ root (sessizce/sessizlik).
+ * - ru: adjective endings and the abstract noun -ота on a 4+ root
+ *   (пустой/пустота, тёмный/темнота).
+ */
+function derivationRoot(word: string, language: AppLanguage): string | null {
+  if (language === 'en') {
+    const ness = /^([a-z]{4,})ness$/u.exec(word);
+    if (ness && !ness[1]!.endsWith('i')) return ness[1]!;
+    const root = word.replace(/(?:ing|ed|es|s)$/u, '').replace(/i$/u, 'y');
+    return root.length >= 3 ? root : null;
+  }
+  const rule = language === 'tr' ? /^([a-z]{4,})(?:ca|ce|lik|luk)$/u : /^([а-я]{4,})(?:ый|ий|ой|ая|яя|ое|ее|ые|ие|ота)$/u;
+  return rule.exec(word)?.[1] ?? null;
+}
+
+const rootOf = (word: string, language: AppLanguage) => derivationRoot(word, language) ?? word;
+
+/** Another form of a told word: the general `sameWord` match, or the same safe-derivation root. */
 function looselyTold(word: string, told: Set<string>, language: AppLanguage): boolean {
   const a = asciiFold(word);
   return [...told].some((t) => {
     const b = asciiFold(t);
-    if (sameWord(a, b, language)) return true;
-    if (a.length >= 4 && b.length >= 4 && a.slice(0, 4) === b.slice(0, 4)) return true;
-    return language === 'en' && enRoot(a).length >= 3 && enRoot(a) === enRoot(b);
+    return sameWord(a, b, language) || rootOf(a, language) === rootOf(b, language);
   });
 }
 

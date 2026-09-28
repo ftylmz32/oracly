@@ -123,6 +123,27 @@ appears in prose rejects as `invented_symbol` (no hiding a prose
 hallucination). An empty array is allowed; the client falls back to its local
 symbol section.
 
+#### 2.1a Safe derivation, not shared prefixes (Phase 4C.1a)
+
+The first 4C.1 leak check treated a removed item as harmless when it shared
+its first four letters with a told word. That re-opened prefix collisions:
+told "door", provider `doorway`, prose "The doorway on the beach…" passed.
+The prefix rule is removed. A removed word is another form of a told word
+only when the existing `sameWord` accepts it, or both complete words reduce
+to the same root by one recognised suffix (`derivationRoot`):
+
+| Language | Recognised suffix | Min root | Passes | Still leaks |
+|---|---|---|---|---|
+| en | `-ness` (root not ending in i); `-ing/-ed/-es/-s` with i→y | 4 / 3 | dark ↔ darkness, cried ↔ crying | door → doorway, water → waterfall, rain → rainbow, fear → fearless |
+| tr | adverb `-ca/-ce`, noun `-lık/-lik/-luk/-lük` | 4 | sessizce ↔ sessizlik | kapı → kapıcı, deniz → denizci |
+| ru | adjective endings, abstract noun `-ота` | 4 | пустой ↔ пустота | стол → столица, красный → красота, вода → водопад, дверь → дворец |
+
+This allowance only decides whether a removed item named in prose is a leak.
+The array itself stays strict (`sameStrict`): `darkness` for a told "dark
+lake" is still removed, while "The darkness beside the lake…" in prose is
+accepted. The offline reclassification re-derived unchanged (36 runs, 7 PASS,
+no verdict moved). Restoring the prefix rule fails 10 tests.
+
 ### 2.2 Russian memory retrieval (`oracly_memory_retriever.dart`)
 
 The retriever tokenizer was Latin/Turkish-only, so a Cyrillic Dream never
