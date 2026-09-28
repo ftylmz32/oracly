@@ -6,6 +6,7 @@ import {
   FROZEN_EVIDENCE, PHASE4C2_ARTIFACT_PATH, validatePhase4c2Artifact, type Phase4c2Artifact,
 } from '../scripts/dream-phase4c2/artifact.js';
 import { buildPhase4c2Matrix, loadPhase4c2Requests } from '../scripts/dream-phase4c2/matrix.js';
+import { jsonDrift } from '../scripts/dream-phase4c2a/drift.js';
 
 const artifact = JSON.parse(readFileSync(PHASE4C2_ARTIFACT_PATH, 'utf8')) as Phase4c2Artifact;
 const replays = loadClientReplays();
@@ -49,9 +50,28 @@ describe('Phase 4C.2 model comparison artifact', () => {
     for (const r of artifact.attempts.filter((x) => x.backendFinal !== 'PASS')) expect(r.clientResult).toBe('NOT_DELIVERED');
   });
 
-  it('the analysis is deterministic from the live attempts and the client replay', () => {
+  // The 4C.2 artifact is frozen evidence; its mechanical observations use the
+  // production gates. The only permitted drift is what the 4C.2a calibration
+  // closed: TR korkutmuyor, RU не вызывает испуга, EN `without`, TR ilişkin.
+  it('the analysis re-derives from the live attempts up to the named 4C.2a drift', () => {
     const { analysis: _a, ...live } = artifact;
-    expect(JSON.stringify(withAnalysis(live as Phase4c2Artifact, replays))).toBe(JSON.stringify(artifact));
+    const now = JSON.parse(JSON.stringify(withAnalysis(live as Phase4c2Artifact, replays)));
+    const mech = '$.analysis.perModel';
+    expect(jsonDrift(artifact, now)).toEqual([
+      { path: `${mech}.gpt-6-sol.mechanical.emotionContradictions.0`, frozen: 'tr-negated-fear::gpt-6-sol', now: 'ru-negated-fear::gpt-6-sol' },
+      { path: `${mech}.gpt-6-sol.mechanical.emotionContradictions.1`, frozen: 'ru-negated-fear::gpt-6-sol', now: undefined },
+      { path: `${mech}.gpt-6-sol.mechanical.emotionContradictions.2`, frozen: 'en-mixed-emotion::gpt-6-sol', now: undefined },
+      { path: `${mech}.gpt-6-astra.mechanical.emotionContradictions.1`, frozen: 'ru-negated-fear::gpt-6-astra', now: undefined },
+      { path: `${mech}.gpt-6-astra.mechanical.unsupportedDomain.0`, frozen: { runId: 'tr-domain-work::gpt-6-astra', domain: 'relationship' }, now: undefined },
+      { path: '$.analysis.perAttempt.1.emotionContradiction.emotionalTheme', frozen: true, now: false },
+      { path: '$.analysis.perAttempt.6.emotionContradiction.emotionalTheme', frozen: true, now: false },
+      { path: '$.analysis.perAttempt.10.emotionContradiction.emotionalTheme', frozen: true, now: false },
+      { path: '$.analysis.perAttempt.13.addressedDomain', frozen: 'relationship', now: null },
+      { path: '$.analysis.perAttempt.13.unsupportedDomain', frozen: 'relationship', now: null },
+      { path: '$.analysis.emotionFidelity.1.contradiction.emotionalTheme', frozen: true, now: false },
+      { path: '$.analysis.emotionFidelity.6.contradiction.emotionalTheme', frozen: true, now: false },
+      { path: '$.analysis.emotionFidelity.10.contradiction.emotionalTheme', frozen: true, now: false },
+    ]);
   });
 
   it('every attempt reached the provider with one HTTP 200 and computable cost', () => {

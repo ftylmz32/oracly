@@ -86,7 +86,8 @@ abstract final class DreamAnalysisComposer {
     DreamGuardRole role = DreamGuardRole.dream,
   }) {
     for (final candidate in candidates) {
-      final accepted = DreamAnalysisGuard.polish(candidate, facts, role: role);
+      final accepted = DreamAnalysisGuard.polish(candidate, facts,
+          role: role, source: DreamGuardSource.providerAi);
       if (accepted != null) return _ai(accepted);
     }
     final text = local();
@@ -105,7 +106,8 @@ abstract final class DreamAnalysisComposer {
         const <String>[];
     if (named.isNotEmpty) {
       final joined = named.take(5).join(' · ');
-      final accepted = DreamAnalysisGuard.polish(joined, facts);
+      final accepted = DreamAnalysisGuard.polish(joined, facts,
+          source: DreamGuardSource.providerAi);
       if (accepted != null) return _ai(accepted);
     }
     // One observed item can fill several slots (the image "Ev" is also the
@@ -126,7 +128,8 @@ abstract final class DreamAnalysisComposer {
     DreamAiAnalysis? ai,
     int seed,
   ) {
-    final accepted = DreamAnalysisGuard.conclusion(ai?.conclusion, facts);
+    final accepted = DreamAnalysisGuard.conclusion(ai?.conclusion, facts,
+        source: DreamGuardSource.providerAi);
     if (accepted != null) return _ai(accepted);
     return _local(HumanReader.guard(DreamAnalysisBeats.ask(facts, seed)));
   }

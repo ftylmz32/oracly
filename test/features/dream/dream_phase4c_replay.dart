@@ -34,7 +34,7 @@ const _fields = <String, DreamInsightKind>{
 };
 
 /// The first client layer that refuses [original]; null when the guard
-/// would speak it.
+/// would speak it. Replayed bodies are provider AI (no local style layer).
 String? rejectionLayer(String original, DreamAnalysisFacts facts,
     {bool closing = false, DreamGuardRole role = DreamGuardRole.dream}) {
   if (closing && DreamAnalysisGuard.questionMarks(original) != 1) {
@@ -47,14 +47,14 @@ String? rejectionLayer(String original, DreamAnalysisFacts facts,
   }
   if (FortuneVoice.claimsMedical(text)) return 'FortuneVoice.claimsMedical';
   if (FortuneVoice.claimsCertainty(text)) return 'FortuneVoice.claimsCertainty';
-  if (HumanReader.looksGeneric(text)) return 'HumanReader.looksGeneric';
   final gate = AiOutputQualityGate.validate(
     text,
     kind: AiOutputQualityKind.dream,
     context: AiOutputQualityContext(localeCode: facts.language),
   );
   if (!gate.isAcceptable) return 'AiOutputQualityGate.${gate.category?.name}';
-  if (!DreamAnalysisGuard.isSpeakable(text, facts, role: role)) {
+  if (!DreamAnalysisGuard.isSpeakable(text, facts,
+      role: role, source: DreamGuardSource.providerAi)) {
     return 'DreamAnalysisGuard.inventedImageOrUngrounded';
   }
   return null;

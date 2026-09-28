@@ -43,6 +43,7 @@ export type DreamHistoryClaimInput = {
 const rx = (alts: string[]) => new RegExp(`(?<![\\p{L}\\p{N}])(?:${alts.join('|')})`, 'gu');
 
 const CLAIM = rx([
+  String.raw`recurr\p{L}* (?:presence|appearance|return) of`,
   String.raw`recur\p{L}*`,
   String.raw`(?:previous|past|earlier|prior|other|former|older|recent) dreams?`,
   String.raw`(?:appeared|appears|showed up|shown up|came up|come up|turned up) (?:in your dreams )?before`,
@@ -207,6 +208,14 @@ export function dreamHistoryClaimViolation(
   const segments = dreamerRecurrenceSegments(narrative);
   const itemWords = history.map(itemStems);
   const allowed = new Set(history.flatMap((i) => [i.priorCount, i.priorCount + 1]));
+  const bound = (unit: string) => {
+    const words = claimWords(unit);
+    return history.some(
+      (item, i) =>
+        namesItem(unit, item, input.language) &&
+        anchoredByItem(words.filter((w) => !feelsItem(w, item)), itemWords[i]!, input.language),
+    );
+  };
   const prose = [data.summary, data.emotionalTheme, data.interpretation, data.dailyLifeReflection, data.conclusion];
   for (const field of prose) {
     for (const date of lightFold(field).match(DATE) ?? []) {
@@ -228,15 +237,9 @@ export function dreamHistoryClaimViolation(
       const saved = hits(SAVED_HISTORY, s).length > 0;
       if (!claim && !saved && !invented.length) continue;
       // Stored-record wording and invented counts keep whole-sentence scope.
-      const units = claim && !saved && !invented.length ? claimUnits(s, input.language, unitTools) : [s];
+      const units = claim && !saved && !invented.length ? claimUnits(s, input.language, { ...unitTools, bound }) : [s];
       for (const unit of units) {
-        const words = claimWords(unit);
-        const viaHistory = history.some(
-          (item, i) =>
-            namesItem(unit, item, input.language) &&
-            anchoredByItem(words.filter((w) => !feelsItem(w, item)), itemWords[i]!, input.language),
-        );
-        if (!viaHistory && (saved || !echoesDreamer(words, segments, input.language))) return 'history_unsupported';
+        if (!bound(unit) && (saved || !echoesDreamer(claimWords(unit), segments, input.language))) return 'history_unsupported';
       }
     }
   }

@@ -2,19 +2,17 @@
 library;
 
 import '../../../core/copy/fortune_voice.dart';
-import '../../../core/l10n/app_locale.dart';
 import '../../../core/reading/human_reader.dart';
 import '../../../core/reading/ai_output_quality_context.dart';
 import '../../../core/reading/ai_output_quality_gate.dart';
 import '../../../core/reading/ai_output_quality_kind.dart';
-import '../../content/dream/data/dream_symbol_catalogue.dart';
 import 'dream_analysis_facts.dart';
 import 'dream_grounding_words.dart';
+import 'dream_guard_context.dart';
+import 'dream_invented_image.dart';
 import 'dream_stated_feeling.dart';
 
-/// Every role stays bound to the Dream; only the emotional theme may instead
-/// honour a feeling the dreamer stated (backend role-grounding parity).
-enum DreamGuardRole { dream, emotionalTheme }
+export 'dream_guard_context.dart';
 
 abstract final class DreamAnalysisGuard {
   DreamAnalysisGuard._();
@@ -42,13 +40,16 @@ abstract final class DreamAnalysisGuard {
   }
 
   static bool isSpeakable(String text, DreamAnalysisFacts facts,
-      {DreamGuardRole role = DreamGuardRole.dream}) {
+      {DreamGuardRole role = DreamGuardRole.dream,
+      DreamGuardSource source = DreamGuardSource.local}) {
     final trimmed = text.trim();
     if (trimmed.length < 24) return false;
     if (looksDictionary(trimmed)) return false;
     if (FortuneVoice.claimsMedical(trimmed)) return false;
     if (FortuneVoice.claimsCertainty(trimmed)) return false;
-    if (HumanReader.looksGeneric(trimmed)) return false;
+    if (source == DreamGuardSource.local && HumanReader.looksGeneric(trimmed)) {
+      return false;
+    }
     if (!AiOutputQualityGate.validate(
       trimmed,
       kind: AiOutputQualityKind.dream,
@@ -56,7 +57,7 @@ abstract final class DreamAnalysisGuard {
     ).isAcceptable) {
       return false;
     }
-    if (_inventsImage(trimmed, facts)) return false;
+    if (DreamInventedImage.invents(trimmed, facts)) return false;
     if (facts.told.isNotEmpty &&
         !_touchesTold(trimmed, facts) &&
         !(role == DreamGuardRole.emotionalTheme &&
@@ -68,10 +69,11 @@ abstract final class DreamAnalysisGuard {
   }
 
   static String? polish(String? text, DreamAnalysisFacts facts,
-      {DreamGuardRole role = DreamGuardRole.dream}) {
+      {DreamGuardRole role = DreamGuardRole.dream,
+      DreamGuardSource source = DreamGuardSource.local}) {
     if (text == null) return null;
     final guarded = HumanReader.guard(FortuneVoice.scrub(text));
-    if (!isSpeakable(guarded, facts, role: role)) return null;
+    if (!isSpeakable(guarded, facts, role: role, source: source)) return null;
     return guarded;
   }
 
@@ -82,9 +84,10 @@ abstract final class DreamAnalysisGuard {
 
   /// The closing contract: exactly one open question (TR / EN / RU all use
   /// `?`). None, or two and more, is rejected — never trimmed into one.
-  static String? conclusion(String? text, DreamAnalysisFacts facts) {
+  static String? conclusion(String? text, DreamAnalysisFacts facts,
+      {DreamGuardSource source = DreamGuardSource.local}) {
     if (text == null || questionMarks(text) != 1) return null;
-    final polished = polish(text, facts);
+    final polished = polish(text, facts, source: source);
     if (polished != null && questionMarks(polished) == 1) return polished;
     return oneQuestion(text, facts);
   }
@@ -125,25 +128,5 @@ abstract final class DreamAnalysisGuard {
       toldWords,
       facts.language,
     );
-  }
-
-  /// Catalogue images exist in Turkish and English only, each checked in
-  /// its own word forms. Russian prose is never matched here; it stays
-  /// bound by the narrative grounding above.
-  static bool _inventsImage(String text, DreamAnalysisFacts facts) {
-    if (facts.language == AppLocale.ru) return false;
-    final english = facts.language == AppLocale.en;
-    for (final item in DreamSymbolCatalogue.all) {
-      final token = english ? item.token : item.tokenTr;
-      if (!DreamGroundingWords.mentions(text, token, facts.language)) {
-        continue;
-      }
-      if (DreamGroundingWords.mentions(facts.told, token, facts.language)) {
-        continue;
-      }
-      if (DreamStatedFeeling.tells(item.id, facts.told)) continue;
-      return true;
-    }
-    return false;
   }
 }

@@ -1,3 +1,4 @@
+import { LEXICON, WORD_NEGATED, type DreamEmotion } from './dream-emotion-lexicon.js';
 import { lightFold } from './dream-lexical.js';
 
 /**
@@ -8,36 +9,12 @@ import { lightFold } from './dream-lexical.js';
  * A feeling another feeling "prevails over" ("любопытство преобладает над
  * страхом") is subordinated: neither affirmed nor negated.
  */
-export type DreamEmotion =
-  | 'fear' | 'anxiety' | 'calm' | 'joy' | 'sadness' | 'curiosity' | 'relief' | 'heaviness';
+export type { DreamEmotion } from './dream-emotion-lexicon.js';
 
 type Stance = { affirmed: boolean; negated: boolean };
 
-const LEXICON: Array<[DreamEmotion, RegExp]> = [
-  ['fear', /^(?:afraid|unafraid|fear\p{L}*|scared|scary|frighten\p{L}*|terrif\p{L}*|terror|panic\p{L}*|dread\p{L}*|kork\p{L}*|dehşet\p{L}*|panik\p{L}*|страх\p{L}*|страш\p{L}*|бесстраш\p{L}*|боял\p{L}*|боюсь|боится|бояться|испуг\p{L}*|испуга\p{L}*|ужас\p{L}*)$/u],
-  ['anxiety', /^(?:anxi\p{L}*|worr\p{L}*|nervous\p{L}*|uneas\p{L}*|tense|tension|kaygı\p{L}*|endişe\p{L}*|tedirgin\p{L}*|gergin\p{L}*|huzursuz\p{L}*|тревог\p{L}*|тревож\p{L}*|беспоко\p{L}*|волновал\p{L}*|волнуюсь|волнение\p{L}*|взволнова\p{L}*|нервн\p{L}*)$/u],
-  ['calm', /^(?:calm\p{L}*|peace\p{L}*|seren\p{L}*|relax\p{L}*|tranquil\p{L}*|sakin\p{L}*|huzur\p{L}*|dingin\p{L}*|rahat\p{L}*|спокой\p{L}*|неспокой\p{L}*|умиротвор\p{L}*|безмятеж\p{L}*)$/u],
-  ['joy', /^(?:happy|happier|happiest|happily|happiness|unhappy|joy\p{L}*|glad\p{L}*|delight\p{L}*|cheerful\p{L}*|mutlu\p{L}*|sevin\p{L}*|neşe\p{L}*|радост\p{L}*|безрадост\p{L}*|радова\p{L}*|счастл\p{L}*|счасть\p{L}*|весел\p{L}*)$/u],
-  ['sadness', /^(?:sad|sadly|sadness|unhapp\p{L}*|sorrow\p{L}*|grief|griev\p{L}*|melanchol\p{L}*|üzgün\p{L}*|üzüntü\p{L}*|üzül\p{L}*|hüzün\p{L}*|hüzn\p{L}*|keder\p{L}*|mutsuz\p{L}*|грус\p{L}*|печал\p{L}*|тоск\p{L}*)$/u],
-  ['curiosity', /^(?:curio\p{L}*|merak\p{L}*|любопыт\p{L}*)$/u],
-  ['relief', /^(?:relie(?:f|fs|ved|ve|ves|ving)|ferahla\p{L}*|rahatlad\p{L}*|rahatlam\p{L}*|облегчен\p{L}*)$/u],
-  ['heaviness', /^(?:heavy|heavier|heaviness|heavily|ağırlık\p{L}*|тяжест\p{L}*|тяжел\p{L}*|тяжко)$/u],
-];
-
-/** The word itself carries the negation (fearless, korkmadım, kaygısız, бесстрашно). */
-const WORD_NEGATED: Array<[DreamEmotion, RegExp]> = [
-  ['fear', /^(?:unafraid|fearless\p{L}*|korkusuz\p{L}*|бесстраш\p{L}*)$|^korkm[aeıiuü](?:[dyzmn]|$)/u],
-  ['anxiety', /^(?:kaygısız\p{L}*|endişesiz\p{L}*)$|^(?:kaygılan|endişelen)m[aeıiuü](?:[dyzmn]|$)/u],
-  ['calm', /^(?:huzursuz\p{L}*|rahatsız\p{L}*|неспокой\p{L}*|restless)$|^(?:sakinleş|rahatla)m[aeıiuü](?:[dyzmn]|$)/u],
-  ['joy', /^(?:unhappy|joyless|neşesiz\p{L}*|безрадост\p{L}*)$|^sevinm[aeıiuü](?:[dyzmn]|$)/u],
-  ['sadness', /^üzülm[aeıiuü](?:[dyzmn]|$)/u],
-  ['curiosity', /^(?:incurious|meraksız\p{L}*)$/u],
-  ['relief', /^rahatlam[aeıiuü](?:[dyzmn]|$)/u],
-  ['heaviness', /^$/u],
-];
-
 const PRE = new Set([
-  'not', 'no', 'never', 'without', 'nor', 'neither', 'absence', 'lack', 'lacking',
+  'not', 'no', 'never', 'nor', 'neither', 'absence', 'lack', 'lacking',
   'free', 'than', 'instead', 'hardly', 'nothing', 'none',
   'не', 'ни', 'нет', 'без', 'вместо', 'никакого', 'никакой', 'никакая', 'никаких',
   'ничуть', 'нисколько', 'чем',
@@ -46,8 +23,13 @@ const EN_COPULA = new Set(['was', 'is', 'were', 'are', 'felt', 'seemed', 'stayed
 const EN_ABSENT = new Set(['absent', 'missing', 'gone', 'lacking', 'nowhere', 'free']);
 const TR_FILLER = new Set(['hiç', 'da', 'de', 'bile', 'asla', 'pek', 'hissi', 'duygusu']);
 const TR_POST =
-  /^(?:değil\p{L}*|yok\p{L}*|uzak\p{L}*|yerine|hisset(?:me[dyzmn]|miyor)\p{L}*|hissedil(?:me[dyzmn]|miyor)\p{L}*|duy(?:ma[dyzmn]|muyor)\p{L}*|duyul(?:ma[dyzmn]|muyor)\p{L}*|et(?:me[dyzmn]|miyor)\p{L}*|ol(?:ma[dyzmn]|muyor)\p{L}*|yaşa(?:ma[dyzmn]|mıyor)\p{L}*)$/u;
+  /^(?:değil\p{L}*|yok\p{L}*|uzak\p{L}*|yerine|hisset(?:me[dyzmn]|miyor)\p{L}*|hissedil(?:me[dyzmn]|miyor)\p{L}*|duy(?:ma[dyzmn]|muyor)\p{L}*|duyul(?:ma[dyzmn]|muyor)\p{L}*|et(?:me[dyzmn]|miyor)\p{L}*|ol(?:ma[dyzmn]|muyor)\p{L}*|yaşa(?:ma[dyzmn]|mıyor)\p{L}*|dönüş(?:me[dyzmn]|müyor)\p{L}*)$/u;
 const RU_AFTER_NE = /^(?:было|был|была|ощущ\p{L}*|чувств\p{L}*|испыт\p{L}*|возник\p{L}*|появ\p{L}*)$/u;
+/** "не вызывает (у тебя) испуга": negation bound to this verb, never to a long clause. */
+const RU_CAUSE = /^(?:вызыва\p{L}*|вызвал\p{L}*|вызов(?:ет|ут)|вызвать)$/u;
+const RU_CAUSE_GAP = new Set(['у', 'тебя', 'меня', 'нас', 'вас', 'него', 'нее', 'них', 'особого', 'малейшего']);
+/** "without (any) fear": `without` negates only the feeling it governs. */
+const EN_WITHOUT_GAP = new Set(['any', 'much', 'a', 'the', 'slightest', 'real']);
 /** "absence of fear": a Russian absence noun directly before the feeling. */
 const RU_ABSENCE = /^отсутств\p{L}*$/u;
 /** "X prevails over / outweighs fear": the feeling after it is subordinated. */
@@ -66,11 +48,21 @@ function clauses(text: string): string[][] {
   return out.filter((c) => c.length);
 }
 
+/** Index of the word before [i] once up to [max] [gap] words are skipped. */
+function headBefore(c: string[], i: number, gap: Set<string>, max: number): number {
+  let k = i - 1;
+  while (k >= 0 && i - 1 - k < max && gap.has(c[k]!)) k--;
+  return k;
+}
+
 function negatedInClause(c: string[], i: number): boolean {
   for (let k = Math.max(0, i - 3); k < i; k++) {
     if (PRE.has(c[k]!) || c[k]!.endsWith("n't")) return true;
   }
   if (i > 0 && RU_ABSENCE.test(c[i - 1]!)) return true;
+  if (c[headBefore(c, i, EN_WITHOUT_GAP, 2)] === 'without') return true;
+  const cause = headBefore(c, i, RU_CAUSE_GAP, 3);
+  if (cause > 0 && RU_CAUSE.test(c[cause]!) && c[cause - 1] === 'не') return true;
   const [a, b] = [c[i + 1], c[i + 2]];
   if (c.slice(i + 1, i + 4).some((w) => EN_ABSENT.has(w))) return true;
   if (a && EN_COPULA.has(a) && b && (b === 'not' || b === 'never' || EN_ABSENT.has(b))) return true;

@@ -1,0 +1,834 @@
+{
+  "schema": "oracly.dream.phase4c2a.offline-reclassification/v1",
+  "source": {
+    "artifact": "DREAM_PHASE4C2_MODEL_AB_20260928.json",
+    "artifactSha256": "b7f431bf4087048df408e98a518558c93a7853afba66c1b810216e9609aa8d8d",
+    "clientReplay": "DREAM_PHASE4C2_CLIENT_REPLAY_20260928.json",
+    "clientReplaySha256": "188dacfa643b33c6bc102f199b37b41a435afab56c8c41b79b9cf98fe4286b73",
+    "rawProviderTextSha256": "71e5f3c6883699e8d275548dc3a31a481bb53834d721c2249a2980d978b90b1a"
+  },
+  "method": {
+    "providerCalls": 0,
+    "writerRevision": "4c1 (unchanged)",
+    "productionModelChanged": false,
+    "pipeline": "parse → output safety (raw body) → symbol filtering + prose leak → Phase 2 → Phase 4A → Phase 4B (sanitized body) → client offline delivery",
+    "old": "the frozen 4C.2 backend verdict and client replay",
+    "newClient": "Phase 4C.2a client replay (source-aware Dream guard) of the sanitized body for new backend PASS attempts; NOT_DELIVERED otherwise",
+    "changeReason": "the 4C.2a fix owning the old first failure; provider_ai_style_guard when only the client verdict moved; unchanged otherwise",
+    "important": "Counts are gate outcomes, not the semantic ranking. The model choice rests on the independent semantic review (DREAM_PHASE4C2_INDEPENDENT_REVIEW_20260928.json). No target pass count was set."
+  },
+  "summary": {
+    "note": "Counts are gate outcomes, not the semantic ranking.",
+    "attempts": 27,
+    "changed": 8,
+    "reasons": {
+      "en_without_scope": 1,
+      "history_claim_scope": 2,
+      "provider_ai_style_guard": 1,
+      "ru_cause_negation": 1,
+      "ru_mobile_vowel_inflection": 1,
+      "tr_fear_negation": 1,
+      "tr_ilişkin_postposition": 1,
+      "unchanged": 19
+    },
+    "perModel": {
+      "gpt-4o": {
+        "attempts": 9,
+        "oldBackendPass": 0,
+        "newBackendPass": 1,
+        "oldClientPass": 0,
+        "newClientPass": 1
+      },
+      "gpt-6-sol": {
+        "attempts": 9,
+        "oldBackendPass": 6,
+        "newBackendPass": 7,
+        "oldClientPass": 6,
+        "newClientPass": 7
+      },
+      "gpt-6-astra": {
+        "attempts": 9,
+        "oldBackendPass": 5,
+        "newBackendPass": 8,
+        "oldClientPass": 4,
+        "newClientPass": 8
+      }
+    },
+    "newBackendPassClientFail": []
+  },
+  "attempts": [
+    {
+      "attemptId": "tr-negated-fear::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "tr-negated-fear",
+      "language": "tr",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "parse_failed",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "parse_failed",
+      "oldFilteredSymbols": [],
+      "newFilteredSymbols": [],
+      "newDiagnostic": null,
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "tr-negated-fear::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "tr-negated-fear",
+      "language": "tr",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "ayak sesleri",
+        "eski bir fenerin ışığı"
+      ],
+      "newFilteredSymbols": [
+        "ayak sesleri",
+        "eski bir fenerin ışığı"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "tr_fear_negation"
+    },
+    {
+      "attemptId": "tr-negated-fear::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "tr-negated-fear",
+      "language": "tr",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "emotion_contradiction",
+      "oldFilteredSymbols": [
+        "ayak sesleri",
+        "eski bir fenerin ışığı"
+      ],
+      "newFilteredSymbols": [
+        "ayak sesleri",
+        "eski bir fenerin ışığı"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "emotion_contradiction"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "en-negated-fear::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "en-negated-fear",
+      "language": "en",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "water",
+        "ripples",
+        "pale light"
+      ],
+      "newFilteredSymbols": [
+        "water",
+        "ripples",
+        "pale light"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "en-negated-fear::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "en-negated-fear",
+      "language": "en",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "a dark lake",
+        "water",
+        "ripples",
+        "a pale light"
+      ],
+      "newFilteredSymbols": [
+        "a dark lake",
+        "water",
+        "ripples",
+        "a pale light"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "en-negated-fear::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "en-negated-fear",
+      "language": "en",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "generic_reflection",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "generic_reflection",
+      "oldFilteredSymbols": [
+        "dark lake",
+        "something large",
+        "ripples",
+        "pale light"
+      ],
+      "newFilteredSymbols": [
+        "dark lake",
+        "something large",
+        "ripples",
+        "pale light"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "generic_reflection"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "ru-negated-fear::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "ru-negated-fear",
+      "language": "ru",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "тёмному подвалу",
+        "маленькую дверь",
+        "тёплый свет"
+      ],
+      "newFilteredSymbols": [
+        "тёмному подвалу",
+        "маленькую дверь",
+        "тёплый свет"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "ru_cause_negation"
+    },
+    {
+      "attemptId": "ru-negated-fear::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "ru-negated-fear",
+      "language": "ru",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "dictionary_style",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "dictionary_style",
+      "oldFilteredSymbols": [
+        "тёмный подвал",
+        "капает вода",
+        "маленькая дверь",
+        "тёплый свет"
+      ],
+      "newFilteredSymbols": [
+        "тёмный подвал",
+        "капает вода",
+        "маленькая дверь",
+        "тёплый свет"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "dictionary_style",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "ru-negated-fear::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "ru-negated-fear",
+      "language": "ru",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "emotion_contradiction",
+      "oldFilteredSymbols": [
+        "тёмному подвалу",
+        "капает вода",
+        "маленькую дверь",
+        "тёплый свет"
+      ],
+      "newFilteredSymbols": [
+        "тёмному подвалу",
+        "капает вода",
+        "маленькую дверь",
+        "тёплый свет"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "emotion_contradiction"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "en-mixed-emotion::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "en-mixed-emotion",
+      "language": "en",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "plot_recap",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "plot_recap",
+      "oldFilteredSymbols": [
+        "train station",
+        "old friend"
+      ],
+      "newFilteredSymbols": [
+        "train station",
+        "old friend"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "plot_recap"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "en-mixed-emotion::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "en-mixed-emotion",
+      "language": "en",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "oldFilteredSymbols": [
+        "train station",
+        "old friend",
+        "train"
+      ],
+      "newFilteredSymbols": [
+        "train station",
+        "old friend",
+        "train"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "ungrounded_section"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "en_without_scope"
+    },
+    {
+      "attemptId": "en-mixed-emotion::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "en-mixed-emotion",
+      "language": "en",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "train station",
+        "old friend",
+        "train"
+      ],
+      "newFilteredSymbols": [
+        "train station",
+        "old friend",
+        "train"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "tr-domain-work::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "tr-domain-work",
+      "language": "tr",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "toplantı odası",
+        "slaytlarım"
+      ],
+      "newFilteredSymbols": [
+        "toplantı odası",
+        "slaytlarım"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "tr-domain-work::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "tr-domain-work",
+      "language": "tr",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "unsupported_personal_fact",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "iş yerindeki toplantı odası",
+        "slaytlarım"
+      ],
+      "newFilteredSymbols": [
+        "iş yerindeki toplantı odası",
+        "slaytlarım"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "tr_ilişkin_postposition"
+    },
+    {
+      "attemptId": "tr-domain-work::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "tr-domain-work",
+      "language": "tr",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "thin_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "thin_section",
+      "oldFilteredSymbols": [
+        "toplantı odası",
+        "bomboş slaytlar"
+      ],
+      "newFilteredSymbols": [
+        "toplantı odası",
+        "bomboş slaytlar"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "thin_section",
+        "phase4A": "PASS",
+        "phase4B": "thin_section"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "ru-domain-family::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "ru-domain-family",
+      "language": "ru",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "большим столом",
+        "стулья"
+      ],
+      "newFilteredSymbols": [
+        "большим столом",
+        "стулья"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "ru-domain-family::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "ru-domain-family",
+      "language": "ru",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "oldFilteredSymbols": [
+        "большой стол",
+        "стулья"
+      ],
+      "newFilteredSymbols": [
+        "большой стол",
+        "стулья"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "ungrounded_section"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "ru-domain-family::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "ru-domain-family",
+      "language": "ru",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "большим столом",
+        "стулья"
+      ],
+      "newFilteredSymbols": [
+        "большим столом",
+        "стулья"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "ru-memory::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "ru-memory",
+      "language": "ru",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "oldFilteredSymbols": [
+        "густой туман",
+        "освещена",
+        "тёмная"
+      ],
+      "newFilteredSymbols": [
+        "перекрёсток",
+        "густой туман",
+        "освещена",
+        "тёмная"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "ungrounded_section"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "ru_mobile_vowel_inflection"
+    },
+    {
+      "attemptId": "ru-memory::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "ru-memory",
+      "language": "ru",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "перекрёстке",
+        "густом тумане",
+        "дорога"
+      ],
+      "newFilteredSymbols": [
+        "перекрёстке",
+        "густом тумане",
+        "дорога"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "ru-memory::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "ru-memory",
+      "language": "ru",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "на перекрёстке",
+        "в густом тумане",
+        "Одна дорога"
+      ],
+      "newFilteredSymbols": [
+        "на перекрёстке",
+        "в густом тумане",
+        "Одна дорога"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "en-history::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "en-history",
+      "language": "en",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "sea",
+        "waves",
+        "small boat"
+      ],
+      "newFilteredSymbols": [
+        "sea",
+        "waves",
+        "small boat"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "en-history::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "en-history",
+      "language": "en",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "history_unsupported",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "sea",
+        "waves",
+        "a small boat"
+      ],
+      "newFilteredSymbols": [
+        "sea",
+        "waves",
+        "a small boat"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "history_claim_scope"
+    },
+    {
+      "attemptId": "en-history::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "en-history",
+      "language": "en",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "history_unsupported",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "sea",
+        "waves",
+        "small boat"
+      ],
+      "newFilteredSymbols": [
+        "sea",
+        "waves",
+        "small boat"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "history_claim_scope"
+    },
+    {
+      "attemptId": "tr-history::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "caseId": "tr-history",
+      "language": "tr",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "dalgalar",
+        "küçük bir tekne"
+      ],
+      "newFilteredSymbols": [
+        "dalgalar",
+        "küçük bir tekne"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "FAIL_DELIVERY",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "provider_ai_style_guard"
+    },
+    {
+      "attemptId": "tr-history::gpt-4o",
+      "model": "gpt-4o",
+      "caseId": "tr-history",
+      "language": "tr",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "parse_failed",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "parse_failed",
+      "oldFilteredSymbols": [],
+      "newFilteredSymbols": [],
+      "newDiagnostic": null,
+      "oldClientResult": "NOT_DELIVERED",
+      "newClientResult": "NOT_DELIVERED",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    },
+    {
+      "attemptId": "tr-history::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "caseId": "tr-history",
+      "language": "tr",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": null,
+      "newBackendFinal": "PASS",
+      "newFirstFailure": null,
+      "oldFilteredSymbols": [
+        "dalgalar",
+        "ayaklarıma",
+        "küçük bir tekne"
+      ],
+      "newFilteredSymbols": [
+        "dalgalar",
+        "ayaklarıma",
+        "küçük bir tekne"
+      ],
+      "newDiagnostic": {
+        "symbols": "PASS",
+        "phase2": "PASS",
+        "phase4A": "PASS",
+        "phase4B": "PASS"
+      },
+      "oldClientResult": "PASS",
+      "newClientResult": "PASS",
+      "newClientGap": null,
+      "changeReason": "unchanged"
+    }
+  ]
+}

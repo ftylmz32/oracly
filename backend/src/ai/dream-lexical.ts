@@ -1,4 +1,5 @@
 import type { AppLanguage } from './app-language.js';
+import { russianSame } from './dream-russian-inflection.js';
 
 /**
  * Dream word forms — mirrors the client's TurkishLexicalMatcher and
@@ -146,17 +147,6 @@ function englishBase(w: string): string {
     }
   }
   return base.length >= 4 && base.endsWith('e') ? base.slice(0, -1) : base;
-}
-
-const RU_ENDINGS = new Set(['', 'а', 'я', 'о', 'е', 'ы', 'и', 'у', 'ю', 'ь', 'й', 'ой', 'ей', 'ом', 'ем', 'ам', 'ям', 'ах', 'ях', 'ов', 'ев', 'ью', 'ую', 'юю', 'ая', 'яя', 'ое', 'ее', 'ые', 'ие', 'ий', 'ый', 'ого', 'его', 'ому', 'ему', 'ым', 'им', 'ых', 'их', 'ыми', 'ими', 'ами', 'ями']);
-
-function russianSame(a: string, b: string): boolean {
-  let common = 0;
-  while (common < Math.min(a.length, b.length) && a[common] === b[common]) common++;
-  for (let k = common; k >= 3; k--) {
-    if (RU_ENDINGS.has(a.slice(k)) && RU_ENDINGS.has(b.slice(k))) return true;
-  }
-  return false;
 }
 
 function inflected(a: string, b: string, language: AppLanguage, ascii: boolean): boolean {

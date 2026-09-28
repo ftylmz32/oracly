@@ -66,7 +66,6 @@ describe('4C.1 finding 6 — provider symbol arrays are filtered, not fatal', ()
     'en-mixed-emotion#r2': [['train station', 'old friend', 'train', 'laughing'], ['crying']],
     'ru-no-domain': [['платформа', 'поезд', 'часы'], ['пустота']],
     'ru-no-domain#r2': [['платформа', 'поезд', 'часы'], ['пустота']],
-    'ru-memory': [['туман', 'освещённая дорога', 'тёмная дорога'], ['перекрёсток']],
   };
   it.each(Object.keys(expected))('%s: strict-label item removed, no prose leak, never invented_symbol', (id) => {
     const r = frozen(id);
@@ -75,6 +74,14 @@ describe('4C.1 finding 6 — provider symbol arrays are filtered, not fatal', ()
     const grounded = groundDreamSymbols(r.stages.parsed, input);
     expect([grounded.data.symbols, grounded.removed]).toEqual(expected[id]);
     expect(leakedSymbol(grounded.removed, grounded.data, input)).toBeNull();
+    expect(acceptDreamData(r.stages.parsed, input).failure).not.toBe('invented_symbol');
+  });
+
+  it('ru-memory: "перекрёсток" is told as "перекрёстке" and kept since 4C.2a (mobile vowel)', () => {
+    const r = frozen('ru-memory');
+    const input = frozenInput(r);
+    const grounded = groundDreamSymbols(r.stages.parsed, input);
+    expect([grounded.data.symbols, grounded.removed]).toEqual([['перекрёсток', 'туман', 'освещённая дорога', 'тёмная дорога'], []]);
     expect(acceptDreamData(r.stages.parsed, input).failure).not.toBe('invented_symbol');
   });
 });

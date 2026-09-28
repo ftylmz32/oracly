@@ -1,6 +1,8 @@
 # Dream Phase 4C.2 — Live Model A/B Quality Evaluation
 
-**MODEL WINNER: PENDING INDEPENDENT REVIEW**
+**INDEPENDENT SEMANTIC VERDICT: gpt-6-astra (production candidate) · runner-up gpt-6-sol · gpt-4o not selected** (see §10). The production model is unchanged.
+
+Sections 1–9 are the frozen 4C.2 evidence record as captured. §10 records the independent review, and §11 records the Phase 4C.2a offline gate calibration.
 
 This phase captures evidence only. It compares `gpt-4o`, `gpt-6-sol` and `gpt-6-astra` on the frozen Phase 4C.1 Dream writer (revision `4c1`) and acceptance contract. No prompt, gate, client guard, transport or production model setting changed. Nothing was deployed, and no model was used to score another.
 
@@ -148,7 +150,7 @@ Latency was measured from a development machine. Prompt caching made later same-
 - **Invented concrete scene content (prose-only limit, Phase 4C.1b).** The gates judge prose, so an invented scene item without a catalogue anchor can pass. Every attempt therefore carries `inventedConcreteSceneContent: "PENDING_INDEPENDENT_REVIEW"` with an empty `inventedConcreteSceneItems`, for a human reviewer to fill in.
 - One sample per model per case: no repeat variance, no significance.
 - Gate verdicts are the frozen 4C.1 contract. The quoted emotion, symbol and client-guard disagreements above may reflect gate behaviour rather than model quality.
-- Nothing here selects a model. The production model stays `gpt-4o` until an independent review decides.
+- The gate outcomes above do not select a model; the independent review in §10 does. The production model stays `gpt-4o` until a separate binding step.
 
 ## 9. Reproduce (no provider call)
 
@@ -158,3 +160,83 @@ flutter test test/features/dream/dream_phase4c2_payload_test.dart test/features/
 ```
 
 The live runner (`PHASE4C2_LIVE=1 … scripts/dream-phase4c2/run-live.ts`) refuses to run while the artifact exists.
+
+## 10. INDEPENDENT SEMANTIC VERDICT
+
+- Review: `docs/product/dream/evals/DREAM_PHASE4C2_INDEPENDENT_REVIEW_20260928.json`
+- The observations were supplied by an independent reviewer. No model was called to produce, score or rewrite them.
+
+**Claim, scoped to this corpus only:** On the frozen ORACLY Dream Phase 4C.2 corpus under writer revision 4c1, independent semantic review selects gpt-6-astra as the production candidate. This is not a general claim about the models.
+
+| Role | Model |
+|---|---|
+| Selected production candidate | gpt-6-astra |
+| Runner-up | gpt-6-sol |
+| Not selected | gpt-4o |
+
+**Why gpt-6-astra.**
+
+- It gave the strongest nuanced treatment across the nine-case corpus.
+- It was particularly strong on EN mixed emotion, RU negated fear, RU choice/memory and EN historical personalization.
+- It uses current details relationally rather than as dictionary mappings.
+- It preserved uncertainty well.
+- It had no clear invented concrete scene content.
+- Its use of history in EN history was more valuable than Sol's.
+
+**gpt-6-sol.** Very strong, more concise and cheaper: an excellent fallback or cost-optimized candidate. It sometimes underused optional history and personalization. One live RU summary subtly framed curiosity as stronger than fear, although the dreamer reported no fear. The backend still rejects that summary ("сильнее страха").
+
+**Why not gpt-4o.** Generic and dictionary tendencies, weak reflections and one invented physical action. It gave two one-word `emotionalTheme` responses, and its premium feel is materially weaker.
+
+**Invented concrete scene content (bounded review).**
+
+- `tr-negated-fear::gpt-4o` is **PRESENT**: "ayak seslerini merakla takip ettim" (physical_action). The narrative says the dreamer heard footsteps behind them and walked toward the lantern. It never says they followed the footsteps.
+- The other 26 attempts are **NONE**. NONE means no clear unsupported concrete object, person, animal, place, setting, physical action or visual attribute was found in this bounded review. It does not mean every interpretation is perfect.
+
+**Cost and latency.** These are context, not a quality score; the selection is premium-quality-first.
+
+- gpt-6-sol: $0.069656 in total, about 12.0 s mean latency.
+- gpt-6-astra: $0.245824 in total, about 12.3 s mean latency.
+
+The selection becomes actionable only after the gate and client false positives found in these live outputs are closed (§11). Binding the production model is a separate, later step.
+
+## 11. Phase 4C.2a — live gate calibration (offline, 0 provider calls)
+
+The 27 live outputs and the 4C.2 client replay are immutable. They were re-run offline through the calibrated gates. The writer prompt (revision `4c1`) and the production model are unchanged.
+
+- Reclassification: `docs/product/dream/evals/DREAM_PHASE4C2A_OFFLINE_RECLASSIFICATION_20260928.json` (`backend/scripts/dream-phase4c2a/`)
+- Client replay: `docs/product/dream/evals/DREAM_PHASE4C2A_CLIENT_REPLAY_20260928.json`
+
+| Fix | Closed false positive | Still rejected |
+|---|---|---|
+| TR fear negation | "korkutmuyor / korkutmadı / korkutmaz / korkutmayan", "korkuya dönüşmediğini" deny fear | "korkutuyor / korkuttu / korkutucu / korkutmaya" |
+| RU bounded cause negation | "не вызывает (у тебя) испуга" | "вызывает у тебя испуг"; `не` never negates a later feeling in a long clause |
+| EN `without` | "without fear", "without any anxiety" | "without you feels heavy" affirms heaviness |
+| History scope | "The sea has appeared before, though that alone does not establish a shared meaning."; "The recurring presence of the sea might reflect…" | "The red sea has appeared before…", "The sea has appeared before, red and stormy.", "The stormy sea, which has appeared before…", "The door keeps returning, red and heavy." |
+| RU mobile vowel | перекрёсток ↔ перекрёстке | перекрёстный, цвета ≠ цветок, плато ≠ платок |
+| TR "ilişkin" (regarding) | "sunuma ilişkin gerginliğin", "anlatmaya ilişkin kaygın" | "senin ilişkin", "ilişkini", "ilişkinde", sentence-initial "İlişkin…", "sevgilin", "evliliğin" |
+| Client source-aware guard | Provider-AI sections are not hard-rejected by `HumanReader.looksGeneric` alone | Medical, certainty, dictionary, `AiOutputQualityGate`, invented catalogue image, Dream grounding, emotion-role grounding, one-question closing. Local text keeps the generic guard. |
+
+The history scope fix adds two narrow English boundaries:
+
+- A final though/although/but/however clause with its own subject and no past or comparative wording ends the claim.
+- may/might/could + suggest/reflect/indicate ends the claim, but only after a subject already strictly bound to a supplied history item.
+
+The parser minimum (8 characters) is unchanged, so gpt-4o's one-word themes ("merak", "Huzur") stay rejected.
+
+**Gate outcomes after calibration (per model /9).** These counts are gate outcomes, not the semantic ranking.
+
+| Model | Backend PASS 4C.2 → 4C.2a | Client PASS 4C.2 → 4C.2a |
+|---|---|---|
+| gpt-6-astra | 5 → 8 | 4 → 8 |
+| gpt-6-sol | 6 → 7 | 6 → 7 |
+| gpt-4o | 0 → 1 | 0 → 1 |
+
+Rejections that remain:
+
+- tr-negated-fear · astra: "korkudan çok merakla" is comparative wording, not an explicit negation.
+- ru-negated-fear · sol: "сильнее страха", which matches the reviewer's criticism.
+- en-mixed-emotion · sol: `ungrounded_section` after the `without` fix.
+- ru-memory · gpt-4o: `ungrounded_section` after the symbol fix.
+- gpt-4o, otherwise: two parse failures (the one-word themes), plus `generic_reflection`, `dictionary_style`, `plot_recap`, `thin_section` and `ungrounded_section` (ru-domain-family).
+
+Frozen-evidence tests still read the frozen files and permit only the drift named above.

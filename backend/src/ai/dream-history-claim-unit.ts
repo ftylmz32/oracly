@@ -15,6 +15,14 @@ import type { AppLanguage } from './app-language.js';
  *  - Turkish nominalized subject clause ending the claim chunk ("Denizin
  *    tekrarlayan bir motif olması, belki de…"): unit = the sentence up to
  *    and including that chunk.
+ *  - English contrastive commentary (Phase 4C.2a): a final chunk opening a
+ *    new clause with though / although / but / however + its own subject,
+ *    with no past or comparative wording ("The sea has appeared before,
+ *    though that alone does not establish a shared meaning").
+ *  - English cautious predicate (Phase 4C.2a): may / might / could +
+ *    suggest / reflect / indicate after a subject already strictly bound
+ *    to one supplied history item ("The recurring presence of the sea might
+ *    reflect…"): unit = that subject.
  * Every other claim keeps whole-sentence scope, so "The door keeps coming
  * back, red and heavy" still attributes "red" and "heavy" to history.
  */
@@ -23,10 +31,29 @@ export type ClaimUnitTools = {
   isClaim: (chunk: string) => boolean;
   /** Content words of [chunk] once claim wording and generic words are removed. */
   content: (chunk: string) => string[];
+  /** True when every content word of [segment] is carried by one supplied history item. */
+  bound: (segment: string) => boolean;
 };
 
 const CHUNK = /\s*(?:[,()[\]:]|\s[-—–]\s|[—–])\s*/u;
 const TR_NOMINAL = /\p{L}+m[ae]s[ıi]$/u;
+const EN_CONTRAST = /^(?:though|although|but|however) (?:that|this|it|its|these|those|they|you|your|what|there|whether|how)\b/u;
+const EN_PAST_OR_COMPARED = /\b(?:was|were|had|used|then|earlier|previously|before|last|again|still|anymore|longer|more|less|than|always|never|time|times)\b/u;
+const EN_CAUTIOUS = / (?:may|might|could) (?:suggest|reflect|indicate)\p{L}*/u;
+
+function englishUnit(chunks: string[], i: number, tools: ClaimUnitTools): string | null {
+  const chunk = chunks[i]!;
+  const cautious = EN_CAUTIOUS.exec(chunk);
+  if (cautious) {
+    const subject = [...chunks.slice(0, i), chunk.slice(0, cautious.index)].join(' ');
+    return tools.isClaim(chunk.slice(0, cautious.index)) && tools.bound(subject) ? subject : null;
+  }
+  const next = chunks[i + 1];
+  if (i + 1 === chunks.length - 1 && next && EN_CONTRAST.test(next) && !EN_PAST_OR_COMPARED.test(next)) {
+    return chunks.slice(0, i + 1).join(' ');
+  }
+  return null;
+}
 
 export function claimUnits(sentence: string, language: AppLanguage, tools: ClaimUnitTools): string[] {
   const chunks = sentence.split(CHUNK).map((c) => c.trim()).filter(Boolean);
@@ -42,7 +69,8 @@ export function claimUnits(sentence: string, language: AppLanguage, tools: Claim
       units.push(chunks.slice(0, i + 1).join(' '));
       return;
     }
-    units.push(sentence);
+    const english = language === 'en' ? englishUnit(chunks, i, tools) : null;
+    units.push(english ?? sentence);
   });
   return units.length ? units : [sentence];
 }

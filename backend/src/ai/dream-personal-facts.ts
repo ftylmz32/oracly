@@ -20,8 +20,10 @@ const FAMILY = /^(?:family|families|familial|mother\p{L}*|father\p{L}*|mom|mum|d
 const ROMANTIC = /^(?:partner\p{L}*|boyfriend\p{L}*|girlfriend\p{L}*|husband\p{L}*|wife|spouse\p{L}*|marriage\p{L}*|romanc\p{L}*|romantic\p{L}*|sevgili\p{L}*|evlilik\p{L}*|evliliğ\p{L}*|romantik\p{L}*|eşin\p{L}*|kocan\p{L}*|партнер\p{L}*|муж|мужа|мужу|мужем|муже|жена|жены|жене|жену|женой|брак\p{L}*|романтич\p{L}*|любовн\p{L}*)$/u;
 const RELATION = /^(?:relationships?|ilişki\p{L}*|отношени(?:я|ях|ями|й))$/u;
 const FRIEND = /^(?:friend\p{L}*|arkadaş\p{L}*|dost\p{L}*|друг|друга|другу|другом|друзья\p{L}*|друзей|подруг\p{L}*)$/u;
-/** A bare possessive singular relationship reads as romantic ("your relationship", "ilişkin"). */
-const ROMANTIC_POSSESSIVE = /^(?:ilişkin|ilişkiniz)$/u;
+/** A possessive singular relationship reads as romantic ("your relationship", "ilişkini"). */
+const ROMANTIC_POSSESSIVE = /^ilişkin(?:|i|e|de|den|le|iz\p{L}*)$/u;
+/** Unambiguous second-person forms; bare "ilişkin" is also the postposition "regarding". */
+const TR_RELATION_ADDRESS = /^ilişkin(?:i|e|de|den|le|iz)\p{L}*$/u;
 const EN_POSSESSIVE = new Set(['your', 'my']);
 const RU_POSSESSIVE = new Set(['твои', 'ваши', 'твоих', 'ваших', 'твоими', 'вашими']);
 
@@ -48,10 +50,24 @@ const ADDRESS = new Set([
 ]);
 /** Turkish second-person forms: possessive domain nouns and verb endings. */
 const TR_ADDRESS =
-  /^(?:ailen|annen|baban|kardeşin|işin|işyerin|kariyerin|patronun|ilişkin|sevgilin|eşin|evliliğin|paran|borcun|borçların|maaşın|okulun|sınavın|sağlığın|hastalığın|çocukluğun)\p{L}*$|\p{L}{3,}(?:s[ıiuü]n|s[ıiuü]n[ıiuü]z)$/u;
+  /^(?:ailen|annen|baban|kardeşin|işin|işyerin|kariyerin|patronun|sevgilin|eşin|evliliğin|paran|borcun|borçların|maaşın|okulun|sınavın|sağlığın|hastalığın|çocukluğun)\p{L}*$|\p{L}{3,}(?:s[ıiuü]n|s[ıiuü]n[ıiuü]z)$/u;
 
 function words(text: string): string[] {
   return lightFold(text.replace(/[’`]/g, "'")).match(/[\p{L}']+/gu) ?? [];
+}
+
+/**
+ * "ilişkin" names your relationship only when it cannot be the postposition
+ * "regarding" (which always follows its complement): "senin ilişkin", or
+ * opening the sentence. "sunuma ilişkin gerginliğin" is not a relationship.
+ */
+function bareRelation(ws: string[], i: number): boolean {
+  return ws[i] === 'ilişkin' && (i === 0 || ws[i - 1] === 'senin');
+}
+
+function addresses(ws: string[]): boolean {
+  return ws.some((w, i) =>
+    ADDRESS.has(w) || TR_ADDRESS.test(w) || TR_RELATION_ADDRESS.test(w) || bareRelation(ws, i));
 }
 
 function relationDomain(ws: string[], i: number): PersonalDomain {
@@ -68,7 +84,7 @@ function domainsOf(ws: string[]): Set<PersonalDomain> {
   const out = new Set<PersonalDomain>();
   ws.forEach((w, i) => {
     if (w === 'work' && EN_WORK_OWNER.has(ws[i - 1] ?? '')) out.add('work');
-    if (RELATION.test(w)) out.add(relationDomain(ws, i));
+    if (RELATION.test(w) && (w !== 'ilişkin' || bareRelation(ws, i))) out.add(relationDomain(ws, i));
     for (const [domain, pattern] of DOMAINS) if (pattern.test(w)) out.add(domain);
   });
   return out;
@@ -94,7 +110,7 @@ export function unsupportedPersonalDomain(
   for (const section of prose) {
     for (const sentence of section.split(/[.!?…;]+/u)) {
       const ws = words(sentence);
-      if (!ws.some((w) => ADDRESS.has(w) || TR_ADDRESS.test(w))) continue;
+      if (!addresses(ws)) continue;
       for (const domain of domainsOf(ws)) if (!supported.has(domain)) return domain;
     }
   }

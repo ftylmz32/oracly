@@ -1,0 +1,224 @@
+{
+  "schema": "oracly.dream.phase4c2.independent-review/v1",
+  "reviewedAt": "2026-09-28",
+  "source": {
+    "artifact": "DREAM_PHASE4C2_MODEL_AB_20260928.json",
+    "artifactSha256": "b7f431bf4087048df408e98a518558c93a7853afba66c1b810216e9609aa8d8d"
+  },
+  "reviewer": "Independent semantic review supplied with the Phase 4C.2a directive. No model was called to produce, score or rewrite these observations.",
+  "corpus": "The frozen ORACLY Dream Phase 4C.2 corpus: 9 cases × 3 models, one sample each, writer revision 4c1.",
+  "inventedSceneScope": "PRESENT marks a clear unsupported concrete object, person, animal, place, setting, physical action or visual attribute. NONE means no such item was found in this bounded review; it does not mean every interpretation is perfect.",
+  "verdict": {
+    "selectedProductionCandidate": "gpt-6-astra",
+    "runnerUp": "gpt-6-sol",
+    "notSelected": [
+      "gpt-4o"
+    ],
+    "claim": "On the frozen ORACLY Dream Phase 4C.2 corpus under writer revision 4c1, independent semantic review selects gpt-6-astra as the production candidate.",
+    "generalClaim": false,
+    "productionModelChanged": false,
+    "actionableAfter": "Phase 4C.2a closes the gate and client false positives found in the live outputs."
+  },
+  "models": {
+    "gpt-6-astra": [
+      "Strongest nuanced treatment across the nine-case corpus.",
+      "Particularly strong on EN mixed emotion, RU negated fear, RU choice/memory and EN historical personalization.",
+      "Uses current details relationally rather than as dictionary mapping.",
+      "Preserved uncertainty well.",
+      "No clear invented concrete scene content.",
+      "History use more valuable than Sol in EN history."
+    ],
+    "gpt-6-sol": [
+      "Very strong, more concise and cheaper: an excellent fallback / cost-optimized candidate.",
+      "Sometimes underused optional history / personalization.",
+      "One live RU summary subtly framed curiosity as stronger than fear although the dreamer reported no fear."
+    ],
+    "gpt-4o": [
+      "Generic / dictionary tendencies and weak reflections.",
+      "One invented physical action (tr-negated-fear).",
+      "Two one-word emotionalTheme responses.",
+      "Materially weaker premium feel."
+    ]
+  },
+  "costContext": {
+    "note": "Cost is not a quality score; the selection is premium-quality-first.",
+    "gpt-6-sol": {
+      "totalUsd": 0.069656,
+      "meanLatencyMs": 12037
+    },
+    "gpt-6-astra": {
+      "totalUsd": 0.245824,
+      "meanLatencyMs": 12310
+    }
+  },
+  "attempts": [
+    {
+      "attemptId": "tr-negated-fear::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "PRESENT",
+      "inventedConcreteSceneItems": [
+        {
+          "item": "ayak seslerini merakla takip ettim",
+          "type": "physical_action",
+          "reason": "The narrative says the dreamer heard footsteps behind them and walked toward the lantern; it never says they followed the footsteps."
+        }
+      ]
+    },
+    {
+      "attemptId": "tr-negated-fear::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "tr-negated-fear::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-negated-fear::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-negated-fear::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-negated-fear::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-negated-fear::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-negated-fear::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-negated-fear::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-mixed-emotion::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-mixed-emotion::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-mixed-emotion::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "tr-domain-work::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "tr-domain-work::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "tr-domain-work::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-domain-family::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-domain-family::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-domain-family::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-memory::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-memory::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "ru-memory::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-history::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-history::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "en-history::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "tr-history::gpt-6-astra",
+      "model": "gpt-6-astra",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "tr-history::gpt-4o",
+      "model": "gpt-4o",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    },
+    {
+      "attemptId": "tr-history::gpt-6-sol",
+      "model": "gpt-6-sol",
+      "inventedConcreteSceneContent": "NONE",
+      "inventedConcreteSceneItems": []
+    }
+  ]
+}
