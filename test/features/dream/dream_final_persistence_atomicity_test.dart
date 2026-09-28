@@ -41,24 +41,43 @@ void main() {
   });
 
   for (final mode in ['false', 'throw']) {
-    test('a version root write ($mode) after the record reverts the record', () async {
+    test('a version root write ($mode) never lets the record be written', () async {
       final env = await faultable();
       (mode == 'false' ? env.faults.falseReturnKeys : env.faults.throwingKeys)
           .add(ReadingVersionStore.key);
       await expectLater(env.service().analyze(narrative: phase1NarrativeA), throwsA(anything));
       expect(env.recordCount, 0, reason: 'no orphan record behind an error');
       expect(env.dreamMemoryCount, 0, reason: 'no orphan connected memory');
+      expect(env.faults.attempts, isNot(contains('dream_records')));
+    });
+
+    test('retry after version-root recovery ($mode) leaves exactly one record',
+        () async {
+      final env = await faultable();
+      final keys =
+          mode == 'false' ? env.faults.falseReturnKeys : env.faults.throwingKeys;
+      keys.add(ReadingVersionStore.key);
+      await expectLater(env.service().analyze(narrative: phase1NarrativeA), throwsA(anything));
+      expect(env.dreamMemoryCount, 0);
+      keys.clear();
+      await env.service().analyze(narrative: phase1NarrativeA);
+      expect(env.recordCount, 1);
+      expect(env.dreamMemoryCount, 1);
     });
   }
 
-  test('retry after a partial failure leaves exactly one record', () async {
+  test('a record write failing after the root removes the root', () async {
     final env = await faultable();
-    env.faults.throwingKeys.add(ReadingVersionStore.key);
-    await expectLater(env.service().analyze(narrative: phase1NarrativeA), throwsA(anything));
-    env.faults.throwingKeys.clear();
-    await env.service().analyze(narrative: phase1NarrativeA);
-    expect(env.recordCount, 1);
-    expect(env.dreamMemoryCount, 1);
+    env.faults.throwingKeys.add('dream_records');
+    final controller = DreamAnalysisController(env.service(), organizingDelay: Duration.zero);
+    await controller.submit(narrative: phase1NarrativeA);
+    expect(controller.phase, DreamJourneyPhase.error);
+    expect(controller.dream, isNull);
+    expect(env.recordCount, 0);
+    expect(env.dreamMemoryCount, 0);
+    expect(env.faults.attempts, contains(ReadingVersionStore.key));
+    expect(env.versionsRaw ?? '', isNot(contains('"kind":"dream"')));
+    controller.dispose();
   });
 
   test('the controller shows an error, never a result, on a partial write', () async {

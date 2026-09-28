@@ -39,9 +39,10 @@ and a fake provider.
 8. **Client acceptance.** Output safety, the evidence guard and the premium delivery
    contract (summary, emotionalMeaning, mainInterpretation, personalConnection,
    closingTakeaway) run **before** any write. A failure here is a typed `invalidResponse`.
-9. **Commit** (`DreamExperienceCommit`). It re-checks the owner, then saves the record plus
-   connected memory, seeds the version root, re-checks the owner again, and returns the
-   result.
+9. **Commit** (`DreamExperienceCommit`). A new Dream is written **record-last**: owner
+   check → version root → owner check → record + connected memory → owner check → result.
+   The record is the last write, so a failed or raced version root never produces a visible
+   Dream. A reinterpret keeps its order: version appended → record rewritten.
 10. **Result** (`DreamReferenceResultView`). It shows summary, meaning, symbols, emotional
     card, history, reflection, **Save to journal** and **Reinterpret**, the version host, a
     footnote, then **OR ask**, **Save & close** (pop) and **New dream**.
@@ -88,7 +89,7 @@ and a fake provider.
 | 17 | Reinterpretation | **Defect D3 fixed.** After a failed reinterpret, Retry started a *new analysis* of the write-field text, minting a second Dream id (a duplicate with the wrong identity), and Back dropped to the hub. | `dream_final_reinterpret_test` |
 | 18 | History UI | Covered. | `dream_history_v1_test`, `dream_phase4a_presentation_test` |
 | 19 | Connected memory | Covered. | `dream_soulmate_read_side_memory_test`, `dream_phase3_output_memory_test` |
-| 20 | Persistence atomicity | **Defects D1 and D2 fixed.** | `dream_final_persistence_atomicity_test` |
+| 20 | Persistence atomicity | **Defects D1 and D2 fixed; D2 hardened in Final Audit.1.** A new Dream is record-last, so a version-root failure means `repository.save` never runs (0 records even when rollback delete would also fail). This is ordering, not a transaction. | `dream_final_audit1_commit_order_test`, `dream_final_persistence_atomicity_test` |
 | 21 | Cold start | History reloads from storage per controller; reopen by id only. | `dream_phase1_*`, `dream_final_journey_test` A |
 | 22 | Rapid actions | Double submit, leave mid-run, clear in flight, owner switch in flight. | final tests above, `dream_phase1_inflight_test` |
 | 23 | Release honesty | Covered. | `dream_release_honesty_p1_test` |
@@ -118,7 +119,7 @@ and a fake provider.
 | # | Fix (narrow) | Files | Pre-fix proof |
 |---|---|---|---|
 | D1 | `setStringList(...).requireDurable(key)` in `save` and `delete` | `local_dream_repository.dart` | "a record write that resolves false…" failed (resolved as success); the controller test showed `complete` |
-| D2 | A new Dream is all-or-nothing: record plus version-root failure runs the existing revert and rethrows (policy 4) | `dream_experience_commit.dart` | record / memory counts 1 instead of 0; retry produced 2 records |
+| D2 | **Final Audit.1:** a new Dream is committed record-last (version root → owner check → record + memory → owner check). The first version (revert after record-first) still depended on a rollback delete succeeding: if the root write failed *and* the delete failed, a visible record stayed and retry duplicated it. Now the record is never written unless the root is durable and the owner still holds. A failed record write deletes it and removes the root best-effort. | `dream_experience_commit.dart` | record / memory counts 1 instead of 0; retry produced 2 records; commit-level fake (save succeeds, root throws, delete throws) left an orphan and failed the record-first order (mutation M1) |
 | D3 | The controller records a failed reinterpret (`reinterpretFailed`). Retry calls `reinterpret()`; Back calls `returnToReading()` | `dream_analysis_controller.dart`, `dream_reference_screen.dart` | a new Dream id was minted; phase went to `entry` on Back |
 | D4 | Screen `dispose` schedules `releaseSession()`, which resets only settled phases; a running analysis is kept | same two files | result, error and safety views were found on re-entry |
 | D5 | The screen clears its local draft when `DreamOwnerGuard.clearGeneration` advances (same path as an owner change) | `dream_owner_guard.dart` (read-only getter), `dream_reference_screen.dart` | the cleared narrative text was found after the clear |
@@ -128,6 +129,15 @@ eval artifact was changed.
 
 ## KNOWN LIMITATIONS
 
+- **Hidden version-root orphan (storage recovery).** Two cases can leave a Dream version root
+  with no record behind:
+  - the new-Dream record write fails *and* the best-effort `removeRoot` also fails;
+  - the root write reports failure but its in-process cache kept the row.
+
+  The root is keyed by an id that no record, history list, journal or UI references. It is
+  invisible and is removed by privacy clear or account wipe. **No failed new Dream leaves a
+  user-visible Dream record.** This is ordering plus best-effort cleanup, not a storage
+  transaction.
 - **A failed revision save.** A reinterpret whose record save fails *after* the version
   chain accepted the revision leaves that revision in the chain; the user sees an error.
   `ReadingVersionService` has no single-revision removal, and adding one would touch every
@@ -175,5 +185,5 @@ eval artifact was changed.
 
 No old large file was refactored; additions to `dream_reference_screen.dart` and
 `dream_analysis_controller.dart` are minimal lines inside existing files. All new tests
-live under `test/features/dream/dream_final_*` and
+live under `test/features/dream/dream_final_*` (including `dream_final_audit1_commit_order_test`) and
 `backend/tests/dream-final-client-flow.test.ts`.

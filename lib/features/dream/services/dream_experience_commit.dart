@@ -25,9 +25,12 @@ class DreamExperienceResult {
 ///    this operation's Dream id is reverted (record + its connected memory
 ///    via [DreamRepository.delete], and its version root) — ids are minted
 ///    per operation, so no other owner's rows can match.
-/// 4. A new Dream is all-or-nothing: if the record or its version root is
-///    not durable, the same revert runs and the failure is rethrown — an
-///    error is never left with an orphan record a retry would duplicate.
+/// 4. A new Dream is written record-last: version root → owner check →
+///    record (+ connected memory) → owner check. A failed or raced root
+///    never lets the record be written, so no rollback is needed to keep a
+///    failed Dream invisible. A failed record write deletes it and removes
+///    the root best-effort; if that cleanup also fails, only a hidden
+///    version root can remain — never a visible Dream record.
 class DreamExperienceCommit {
   const DreamExperienceCommit({
     required this.repository,
@@ -67,18 +70,31 @@ class DreamExperienceCommit {
       }
     }
 
-    try {
+    if (isRevision) {
       await repository.save(record);
-      if (!isRevision && versions != null) {
-        await versions.seedOriginal(
-          rootId: dream.id,
-          kind: ReadingVersionKind.dream,
-          data: payload,
-        );
+    } else {
+      if (versions != null) {
+        try {
+          await versions.seedOriginal(
+            rootId: dream.id,
+            kind: ReadingVersionKind.dream,
+            data: payload,
+          );
+        } catch (_) {
+          await _removeRoot(dream.id);
+          rethrow;
+        }
+        if (!owner.stillValid(snapshot)) {
+          await _removeRoot(dream.id);
+          throw const DreamOwnerChangedException();
+        }
       }
-    } catch (_) {
-      if (!isRevision) await _revert(dream.id);
-      rethrow;
+      try {
+        await repository.save(record);
+      } catch (_) {
+        await _revert(dream.id);
+        rethrow;
+      }
     }
 
     if (!owner.stillValid(snapshot)) {
@@ -92,6 +108,10 @@ class DreamExperienceCommit {
     try {
       await repository.delete(id);
     } catch (_) {}
+    await _removeRoot(id);
+  }
+
+  Future<void> _removeRoot(String id) async {
     try {
       await _versions?.removeRoot(id);
     } catch (_) {}
