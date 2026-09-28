@@ -1,5 +1,5 @@
 import type { AppLanguage } from './app-language.js';
-import { asciiFold, lightFold, sameStrict, sameWord, toldWords } from './dream-lexical.js';
+import { asciiFold, lightFold, sameStrict, toldWords } from './dream-lexical.js';
 import { significant, symbolWords } from './dream-quality.js';
 import type { DreamData } from './parse-provider.js';
 
@@ -67,13 +67,15 @@ function derivationRoot(word: string, language: AppLanguage): string | null {
 
 const rootOf = (word: string, language: AppLanguage) => derivationRoot(word, language) ?? word;
 
-/** Another form of a told word: the general `sameWord` match, or the same safe-derivation root. */
+/**
+ * Another form of a told word: the same word or a grammatical inflection
+ * (`sameStrict`), or the same safe-derivation root. Deliberately not the
+ * general prose matcher `sameWord`, whose shared six-letter lead would let
+ * candlestick pass for candle or windowsill for window.
+ */
 function looselyTold(word: string, told: Set<string>, language: AppLanguage): boolean {
-  const a = asciiFold(word);
-  return [...told].some((t) => {
-    const b = asciiFold(t);
-    return sameWord(a, b, language) || rootOf(a, language) === rootOf(b, language);
-  });
+  const root = rootOf(asciiFold(word), language);
+  return [...told].some((t) => sameStrict(word, t, language) || root === rootOf(asciiFold(t), language));
 }
 
 /** The first removed symbol that the prose itself names as an image. */

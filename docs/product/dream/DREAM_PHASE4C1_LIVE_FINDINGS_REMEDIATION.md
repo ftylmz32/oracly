@@ -128,9 +128,10 @@ symbol section.
 The first 4C.1 leak check treated a removed item as harmless when it shared
 its first four letters with a told word. That re-opened prefix collisions:
 told "door", provider `doorway`, prose "The doorway on the beach…" passed.
-The prefix rule is removed. A removed word is another form of a told word
-only when the existing `sameWord` accepts it, or both complete words reduce
-to the same root by one recognised suffix (`derivationRoot`):
+The prefix rule is removed. Since Phase 4C.1b a removed word is another form
+of a told word only when `sameStrict` accepts it (same word or a grammatical
+inflection), or both complete words reduce to the same root by one
+recognised suffix (`derivationRoot`):
 
 | Language | Recognised suffix | Min root | Passes | Still leaks |
 |---|---|---|---|---|
@@ -143,6 +144,30 @@ The array itself stays strict (`sameStrict`): `darkness` for a told "dark
 lake" is still removed, while "The darkness beside the lake…" in prose is
 accepted. The offline reclassification re-derived unchanged (36 runs, 7 PASS,
 no verdict moved). Restoring the prefix rule fails 10 tests.
+
+#### 2.1b The leak gate no longer uses `sameWord` (Phase 4C.1b)
+
+4C.1a still accepted the general Phase 2 prose matcher `sameWord`, whose
+shared six-letter lead let candle → candlestick, station → stationary,
+window → windowsill and forest → forestry pass as "the same word". The leak
+gate now uses only the rule above. `sameWord` itself is unchanged and still
+relates those pairs for general prose grounding (pinned by test). Offline
+reclassification unchanged; restoring `sameWord` in the leak matcher fails 7
+tests.
+
+#### 2.1c Known limit — invented images in prose only
+
+The leak gate only sees images the provider also put in its `symbols` array.
+An invented, non-catalogue concrete image that appears **only** in prose
+(told "candle on the table", prose "A silver staircase rises behind the
+candle…") can still ground through the told words and pass. This is not
+solved and is not claimed to be: interpretation legitimately introduces
+abstract words the dream never used (contrast, distance, tension,
+stillness), and there is no reliable multilingual concrete-noun parser in
+this pipeline, so a deterministic novel-noun rule would reject valid
+readings. The writer prompt already forbids adding any image, symbol or
+feeling not in the text (TR / EN / RU); the remaining risk is model
+compliance, measured by the mandatory 4C.2 review field below.
 
 ### 2.2 Russian memory retrieval (`oracly_memory_retriever.dart`)
 
@@ -218,3 +243,12 @@ were gate false positives. No target pass rate was set.
   wrapper and overwrite guard as 4C; new artifact file, never the 4C files.
 - **Verdict:** backend stages + client replay per run, then independent human
   review; no pass-rate target.
+- **Mandatory review field — `inventedConcreteSceneContent`:** `NONE` or
+  `PRESENT`, recorded for **every** candidate response before any model
+  verdict. When `PRESENT`, list each exact unsupported object, person,
+  animal, place, setting, physical action or visual attribute the model
+  introduced as if it existed in the dream. This is separate from
+  symbol-array filtering, personal-biography hallucination and symbolic
+  interpretation. Example (dream: door + beach): "The door creates a sense of
+  distance." is symbolic commentary (`NONE`); "A black horse stands beside
+  the door." is invented concrete scene content (`PRESENT`: black horse).
