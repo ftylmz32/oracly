@@ -25,13 +25,20 @@ const KEYS = [
   'OPENAI_TIMEOUT_SECONDS',
 ] as const;
 
-/** `echo "KEY: value"` lines of the deploy env file, for [KEYS] only. */
+/**
+ * G2B0: the deploy script's env block moved from `--env-vars-file` (replace
+ * semantics, one `echo "KEY: value"` line per key) to `--update-env-vars`
+ * (merge semantics, so an update can never silently delete an existing key
+ * the script doesn't list) — one `ENV_UPDATES+="@KEY=value"` fragment per
+ * key, `@`-delimited because `OPENAI_ALLOWED_MODELS`'s own value contains
+ * commas. [KEYS] only.
+ */
 export function deployedOpenAiEnv(script = readFileSync(DEPLOY_SCRIPT, 'utf8')): Record<string, string> {
   const env: Record<string, string> = {};
   for (const key of KEYS) {
-    const match = script.match(new RegExp(`echo "${key}: (.+)"\\s*$`, 'm'));
+    const match = script.match(new RegExp(`[@^]${key}=([^"@]+)`));
     if (!match) throw new Error(`deploy script has no ${key}`);
-    env[key] = match[1].replace(/^\\"|\\"$/g, '').trim();
+    env[key] = match[1].trim();
   }
   return env;
 }

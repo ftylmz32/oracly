@@ -29,12 +29,13 @@ describe.each(['production', 'staging'])('Dream Phase 4C.3 — red team (%s)', (
 describe('Dream Phase 4C.3 — generic resolution stays generic', () => {
   const locked = configWith({ APP_ENV: 'production', ...ASTRA });
 
-  it('deploy keeps OPENAI_MODEL gpt-4o and the gpt-4o / gpt-4o-mini allowlist', () => {
+  it('deploy keeps OPENAI_MODEL gpt-4o and the allowlist generic (no Astra)', () => {
     const env = deployedOpenAiEnv();
     expect(env.OPENAI_MODEL).toBe('gpt-4o');
-    expect(env.OPENAI_ALLOWED_MODELS).toBe('gpt-4o,gpt-4o-mini');
+    expect(env.OPENAI_ALLOWED_MODELS).toBe('gpt-4o,gpt-4o-mini,gpt-5.6-sol');
+    expect(env.OPENAI_ALLOWED_MODELS).not.toContain('astra');
     expect(locked.openaiModel).toBe('gpt-4o');
-    expect(locked.openaiAllowedModels).toEqual(['gpt-4o', 'gpt-4o-mini']);
+    expect(locked.openaiAllowedModels).toEqual(['gpt-4o', 'gpt-4o-mini', 'gpt-5.6-sol']);
   });
 
   it('Astra is not client-selectable for generic features', () => {

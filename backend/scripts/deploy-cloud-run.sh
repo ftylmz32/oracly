@@ -52,37 +52,48 @@ docker build -t "$IMAGE" "$BACKEND_DIR"
 echo "Pushing image…"
 docker push "$IMAGE"
 
-# Commas in values (OPENAI_ALLOWED_MODELS) break --set-env-vars; use a file instead.
-ENV_FILE="$(mktemp)"
-cleanup() { rm -f "$ENV_FILE"; }
-trap cleanup EXIT
-
-{
-  echo "NODE_ENV: production"
-  echo "APP_ENV: production"
-  echo "HOST: \"0.0.0.0\""
-  echo "OPENAI_BASE_URL: https://api.openai.com/v1"
-  echo "OPENAI_MODEL: gpt-4o"
-  echo "OPENAI_ALLOWED_MODELS: \"gpt-4o,gpt-4o-mini\""
-  echo "OPENAI_DREAM_MODEL: gpt-6-astra"
-  echo "OPENAI_DREAM_REASONING_EFFORT: medium"
-  echo "OPENAI_VISION: \"true\""
-  echo "OPENAI_IMAGE_MODEL: gpt-image-2"
-  echo "OPENAI_IMAGE_SIZE: 1024x1536"
-  echo "OPENAI_IMAGE_QUALITY: high"
-  echo "OPENAI_TIMEOUT_SECONDS: \"45\""
-  echo "OPENAI_IMAGE_TIMEOUT_SECONDS: \"120\""
-  echo "FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}"
-  echo "AI_AUTH_REQUIRED: \"true\""
-  echo "AI_DEV_AUTH_BYPASS: \"false\""
-  echo "AI_APP_CHECK_BYPASS: \"false\""
-  if [[ -n "$FIREBASE_PROJECT_NUMBER" ]]; then
-    echo "FIREBASE_PROJECT_NUMBER: \"${FIREBASE_PROJECT_NUMBER}\""
-  fi
-  if [[ -n "$FIREBASE_APP_CHECK_APP_IDS" ]]; then
-    echo "FIREBASE_APP_CHECK_APP_IDS: \"${FIREBASE_APP_CHECK_APP_IDS}\""
-  fi
-} >"$ENV_FILE"
+# G2B0 fix: --env-vars-file / --set-env-vars REPLACE the ENTIRE environment,
+# which would silently delete reading-durability, billing/Apple IAP and
+# review-access keys this script never lists (all live on the current
+# 100%-traffic revision today). --update-env-vars only touches the keys
+# named below and leaves every other existing key on the service exactly as
+# it is — the only mechanism here that cannot regress into a destructive
+# update. It also now binds every frozen model contract this script omitted
+# (Coffee/Palm reading vision+writer+reasoning, Tarot Narrative V2, Yıldızname
+# Narrative) and adds gpt-5.6-sol to the allowed-models list; Dream's binding
+# was already present. A comma-escape delimiter (`gcloud topic escaping`) is
+# required because OPENAI_ALLOWED_MODELS' own value contains commas.
+ENV_UPDATES="^@^NODE_ENV=production"
+ENV_UPDATES+="@APP_ENV=production"
+ENV_UPDATES+="@HOST=0.0.0.0"
+ENV_UPDATES+="@OPENAI_BASE_URL=https://api.openai.com/v1"
+ENV_UPDATES+="@OPENAI_MODEL=gpt-4o"
+ENV_UPDATES+="@OPENAI_ALLOWED_MODELS=gpt-4o,gpt-4o-mini,gpt-5.6-sol"
+ENV_UPDATES+="@OPENAI_VISION=true"
+ENV_UPDATES+="@OPENAI_IMAGE_MODEL=gpt-image-2"
+ENV_UPDATES+="@OPENAI_IMAGE_SIZE=1024x1536"
+ENV_UPDATES+="@OPENAI_IMAGE_QUALITY=high"
+ENV_UPDATES+="@OPENAI_TIMEOUT_SECONDS=45"
+ENV_UPDATES+="@OPENAI_IMAGE_TIMEOUT_SECONDS=120"
+ENV_UPDATES+="@OPENAI_READING_VISION_MODEL=gpt-5.6-sol"
+ENV_UPDATES+="@OPENAI_READING_WRITER_MODEL=gpt-5.6-sol"
+ENV_UPDATES+="@OPENAI_READING_REASONING_EFFORT=low"
+ENV_UPDATES+="@OPENAI_TAROT_NARRATIVE_MODEL=gpt-5.6-sol"
+ENV_UPDATES+="@OPENAI_TAROT_NARRATIVE_REASONING_EFFORT=none"
+ENV_UPDATES+="@OPENAI_YILDIZNAME_NARRATIVE_MODEL=gpt-5.6-sol"
+ENV_UPDATES+="@OPENAI_YILDIZNAME_NARRATIVE_REASONING_EFFORT=none"
+ENV_UPDATES+="@OPENAI_DREAM_MODEL=gpt-6-astra"
+ENV_UPDATES+="@OPENAI_DREAM_REASONING_EFFORT=medium"
+ENV_UPDATES+="@AI_AUTH_REQUIRED=true"
+ENV_UPDATES+="@AI_DEV_AUTH_BYPASS=false"
+ENV_UPDATES+="@AI_APP_CHECK_BYPASS=false"
+ENV_UPDATES+="@FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}"
+if [[ -n "$FIREBASE_PROJECT_NUMBER" ]]; then
+  ENV_UPDATES+="@FIREBASE_PROJECT_NUMBER=${FIREBASE_PROJECT_NUMBER}"
+fi
+if [[ -n "$FIREBASE_APP_CHECK_APP_IDS" ]]; then
+  ENV_UPDATES+="@FIREBASE_APP_CHECK_APP_IDS=${FIREBASE_APP_CHECK_APP_IDS}"
+fi
 
 SERVICE_EXISTS=false
 if gcloud run services describe "$SERVICE" \
@@ -106,8 +117,8 @@ DEPLOY_ARGS=(
   --max-instances=1
   --timeout=180
   --cpu-boost
-  --env-vars-file="$ENV_FILE"
-  --set-secrets="OPENAI_API_KEY=${SECRET_NAME}:latest"
+  --update-env-vars="$ENV_UPDATES"
+  --update-secrets="OPENAI_API_KEY=${SECRET_NAME}:latest"
   --quiet
 )
 

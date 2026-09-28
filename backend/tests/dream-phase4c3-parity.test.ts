@@ -50,7 +50,7 @@ describe('Dream Phase 4C.3 — production config QA reader', () => {
       configuredGenericModel: 'gpt-4o',
       configuredDreamModel: 'gpt-6-astra',
       configuredDreamReasoningEffort: 'medium',
-      allowedModels: ['gpt-4o', 'gpt-4o-mini'],
+      allowedModels: ['gpt-4o', 'gpt-4o-mini', 'gpt-5.6-sol'],
       resolvedModel: 'gpt-6-astra',
       reasoningEffort: 'medium',
       temperature: null,
