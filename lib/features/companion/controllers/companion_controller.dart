@@ -181,9 +181,11 @@ class CompanionController extends ChangeNotifier {
     _safeNotify();
   }
 
-  /// A different owner: no reading handoff and no reply from a turn still
-  /// in flight may carry over into the next account's chamber.
+  /// A different owner: no reading handoff — pending in the process-wide
+  /// buffer or already applied — and no reply from a turn still in flight
+  /// may carry over into the next account's chamber.
   Future<void> resetForAccountSwitch() {
+    OrChatHandoffBuffer.clear();
     _pendingHandoff = null;
     _readingContext = null;
     _sendGeneration++;

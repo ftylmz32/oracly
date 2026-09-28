@@ -192,7 +192,7 @@ G1 tests live in `test/general_audit/g1/`. Every defect below went failing regre
 | **G1-D13** | OR | The free first-reading deepen wasn't spent when the reading context was cleared during the reply, or when the reply showed but saving it locally failed. Either way the user got a second free turn. | The deepen is spent against the context the question was asked under, as soon as a usable reply is on screen. | `g1_or_access_test` |
 | **G1-D14** | OR | A quality re-generation reused the turn's idempotency key. The server's 10-minute replay cache would return the very reply the quality gate had just rejected, so the retry was wasted and ended in "unavailable". | Each re-generation runs under its own key derived from the turn key. A user retry of the same failed turn still reuses the turn key. | `g1_or_retry_persistence_test` |
 | **G1-D15** | OR | Text compose trusted a cached Premium flag. OR text is not billed on the server, so after a mid-session lapse the chat kept answering until something else refreshed entitlement. | A text send re-checks Premium (`ensureFresh`) before a paid turn; the one free first-reading deepen still works. Voice already re-checked. | `g1_or_premium_lapse_test` |
-| **G1-D16** | Cross-feature | On account switch the reading sender stayed bound to owner A. It fails closed for anyone else, so owner B's Coffee, Palm, SoulMate and wallet calls all looked like a dead network. OR also kept A's reading handoff, and a reply still in flight could land in B's chamber. | `afterAccountSwitch` rebuilds the sender (and with it every reading controller and the wallet) and calls `CompanionController.resetForAccountSwitch`. | `g1_owner_switch_cross_feature_test`, `g1_or_handoff_test` |
+| **G1-D16** | Cross-feature | On account switch the reading sender stayed bound to owner A. It fails closed for anyone else, so owner B's Coffee, Palm, SoulMate and wallet calls all looked like a dead network. OR also kept A's reading handoff, and a reply still in flight could land in B's chamber. | `afterAccountSwitch` rebuilds the sender (and with it every reading controller and the wallet) and calls `CompanionController.resetForAccountSwitch`. **Hardened in Audit.1 (§9.12):** the reset also clears the process-wide `OrChatHandoffBuffer`, and an OR reply that returns after the owner changed is never written to local storage. | `g1_owner_switch_cross_feature_test`, `g1_or_handoff_test`, `g1_or_account_switch_persistence_test`, `g1_or_account_switch_journey_test` |
 | **G1-D17** | Astrology | Any finished reading refreshes the shared profile, which replaced the whole Astrology hub with the loading view. | A background refresh keeps showing the profile already known. The first load and a profile failure behave as before. | `g1_astrology_flow_test` |
 
 G1 also tried to make "Clear discovery history" remove Coffee, Palm and Tarot reinterpret version chains. The frozen Dream suite pins the opposite contract (`dream_phase1_clear_durability_test` and `dream_phase1_privacy_clear_test` expect those chains to survive a Discovery clear), so the change was reverted. It's recorded in §9.9 instead.
@@ -247,7 +247,8 @@ G1 also tried to make "Clear discovery history" remove Coffee, Palm and Tarot re
 | Voice | Premium only, re-checked with `ensureFresh`; the free deepen never unlocks voice. | `companion_voice_conversation_access_test` |
 | Send, retry, double send | One operation id per send intent, reused by retry, with one request for a double tap. Quality re-generation uses its own key (G1-D14). | `or_persist_reliability_d2_test`, `g1_or_retry_persistence_test` |
 | Fallback | No fake assistant text. An exhausted quality gate becomes an honest invalid-response failure. | `companion_ai_bridge.dart`, `g1_or_access_test` |
-| Handoff and fresh context | Typed handoff; fresh entry clears it; an account switch clears it and drops a reply still in flight (G1-D16). | `g1_or_handoff_test`, G0 `or_fresh_entry_clears_handoff_test` |
+| Handoff and fresh context | Typed handoff; fresh entry clears it. An account switch clears the applied context and the pending static buffer, drops a reply still in flight from the screen, and refuses to write it to storage (G1-D16, Audit.1). | `g1_or_handoff_test`, `g1_owner_switch_cross_feature_test`, `g1_or_account_switch_journey_test`, G0 `or_fresh_entry_clears_handoff_test` |
+| Owner-bound persistence | Every conversation write of a send is checked against the owner captured when the send started (§9.12). | `g1_or_account_switch_persistence_test` |
 | Persistence | A local save failure keeps the reply visible and offers a retry that doesn't call the provider again. | `or_persist_reliability_d2_test` |
 
 ### 9.6 Astrology
@@ -264,7 +265,7 @@ G1 also tried to make "Clear discovery history" remove Coffee, Palm and Tarot re
 
 | Seam | Verdict | Evidence |
 |---|---|---|
-| Owner switch A → B → A | The local wipe removes owner A's key families (G0). G1 adds a rebuilt sender and a reset OR (G1-D16). | `g1_owner_switch_cross_feature_test`, G0 `general_owner_isolation_smoke_test` |
+| Owner switch A → B → A | The local wipe removes owner A's key families (G0). G1 adds a rebuilt sender and a reset OR (G1-D16); Audit.1 adds the static handoff clear and owner-bound OR persistence (§9.12). | `g1_owner_switch_cross_feature_test`, `g1_or_account_switch_journey_test`, G0 `general_owner_isolation_smoke_test` |
 | Failure, exit, return | Leaving a wait never cancels the server operation. Returning observes the same operation; nothing is submitted twice. | `soul_mate_durable_test`, `g1_palm_entry_recovery_test`, `test/features/coffee` |
 | System back | The G0 regression (`general_navigation_stack_test`, `general_shell_navigation_test`) passes unchanged on the G1 code. | §9.11 |
 | Shared error state | The G0 regression (`general_error_state_accessibility_test`) passes unchanged. | §9.11 |
@@ -282,7 +283,6 @@ Wiring a delete button to these would leave data behind, which is worse than not
 
 - **SoulMate review access vs the server.** Review access is stateless on the backend (a hash compare), and the durable SoulMate guard reads only purchase bindings. A reviewer using review access, with no purchase, is refused by the server for a new draw. Fixing it needs a backend design and a deploy. Until then, reviewers can use a sandbox purchase.
 - **Stale `/active` pointer.** The backend never clears a feature's active-operation pointer, so recovery can keep reporting a finished operation. The client handles it correctly; it's a backend cleanup item (P3).
-- **OR reply persisted after an account switch.** The in-memory state is dropped (G1-D16), but the service may still write a reply that was already in flight to local storage.
 - **OR voice.** Text-to-speech can continue briefly after leaving the chamber, and disposing the voice-turn controller while a turn is active is not proven on a device.
 - **Coffee V2.** It polls the feature's active pointer rather than the record's own operation id, and its final review is silent if `begin` fails. Its gate providers are cached for the session, and a `setSlot` `StateError` is not handled.
 - **Palm photo archive.** Under server completion, the Palm photo is not archived locally.
@@ -325,3 +325,54 @@ Everything above is proven with fakes. None of it proves live quality, and none 
 | Full backend (`npx vitest run`) | 1652 passed, 1 skipped |
 | `flutter analyze` | 0 errors, 0 warnings, 218 infos (unchanged from G0) |
 | TSC (`npx tsc --noEmit -p .`) | clean |
+
+### 9.12 G1 Audit.1 — OR account-switch persistence and pending handoff
+
+Base `2d16e8aa69fddac6ebb8f538103e0828241907b3`. Independent verification found one owner-isolation seam left inside G1-D16, with two forms. Both are closed.
+
+**A. A pending handoff survived the switch.** `OrChatHandoffBuffer` is process-wide. The G1 reset cleared the controller's applied context but not this buffer, so a handoff owner A had offered, but that no OR screen had taken yet, could be taken by owner B's chamber (`CompanionReferenceScreen` takes it on open). Now `CompanionController.resetForAccountSwitch()` clears the buffer itself. All four `PrivacyDataRefresh.afterAccountSwitch` callers (the switch epoch listener, sign-out cleanup, deletion confirm and the deletion pending screen) therefore get it, and none of them can forget it.
+
+**B. An in-flight reply could be written back after the wipe.** `CompanionExperienceService.send()` saves the finished conversation itself before returning to the controller, and the conversation store is shared, not owner-bound. The G1 generation bump only kept the reply off the screen. A reply returning after the wipe had cleared `ai_conversations` would write owner A's messages back for owner B to load.
+
+The fix is `CompanionOwnerGuard` (`lib/features/companion/services/companion_owner_guard.dart`) at the service boundary:
+
+- **Snapshot.** `send()` captures a `CompanionOwnerSnapshot` when the send starts. It holds the live authenticated uid (the Firebase gateway's current user, falling back to `AuthService.currentUserId`, the same rule the reading sender uses), the committed local owner (`UserLocalDataIsolation.ownerKey`), the account-switch epoch, and whether the account-deletion gate allows owner-bound work.
+- **Writable only when settled.** The snapshot is writable only when auth and the local owner agree, the deletion gate is clear, and identity could be read. During a switch, Firebase is already the next owner while the local owner is still the previous one, so that wipe window is never writable. Watching the epoch alone would miss it, because the epoch bumps only after the wipe has finished and the new owner is committed.
+- **Re-checked before every write.** The snapshot is checked again right before the user-turn write and right before the assistant write, and it must still equal the current capture. So an old owner-A send is refused in every later state: auth B with local A (wipe running), auth B with local B (switch done), and A→B→A (the epoch differs).
+- **Standalone saves.** Persistence retry, fresh start and abandon go through `persistConversation`, which requires a settled owner at call time.
+- **No owner.** When nobody is signed in and no owner has been committed, the data stays device-local. That's the existing boot contract: `UserLocalDataIsolation` adopts pre-owner data for the first owner. A no-owner snapshot is invalid as soon as any owner appears.
+- **What a refused send does.** It throws a typed, retryable `authPending` failure and writes nothing. If the switch refresh has already reset the controller, the controller drops it silently, so B sees no A reply and no unrelated error. If the refusal lands in the wipe window, before the reset, the old session shows the calm auth-pending message, and the reset replaces it moments later.
+- **Wiring.** Production wires the guard in `companionExperienceServiceProvider`. It reads auth and storage at every check rather than capturing them, because the controller keeps one service for its whole lifetime.
+
+This is a guard, not a database transaction. What remains:
+
+- **The guard and the write are not atomic.** The final check runs immediately before the repository call, with no provider or network await in between. `LocalAiConversationRepository.save` is a read-modify-write of the `ai_conversations` list with one internal microtask boundary (`await getAll()`) before the list is set. A switch starts with a Firebase auth event, and the wipe's earlier steps each wait on platform storage. So reaching the `ai_conversations` step inside that single microtask gap isn't a realistic ordering, but no lock excludes it.
+- **The OR surfaced-theme record** (`discoverySurfaceMemory`, written by the profile-observation hook while the prompt is built) is not bound to the send snapshot. It stores a theme name and a time, not conversation text.
+- **Session bootstrap** (`CompanionSessionBootstrap.loadOrCreate`) can still write a welcome-only conversation without the guard. It contains no user content.
+
+Mutation proof. Each mutation was applied to the production file, run, and then restored byte-for-byte (hash checked); no mutation was committed.
+
+| Mutation | Result |
+|---|---|
+| M1: remove `OrChatHandoffBuffer.clear()` from `resetForAccountSwitch` | Killed. The static-buffer test and the journey test fail. |
+| M2: remove the owner check before the assistant write | Killed. The wipe-window, completed-switch and journey tests fail, because A's text is written back. |
+| M3: guard ignores live auth (local owner + epoch only) | Killed. The wipe-window test and the guard unit test fail. |
+
+Verification (Audit.1):
+
+| Suite | Result |
+|---|---|
+| Audit.1 focused (persistence, journey, cross-feature switch, G1 handoff) | 9 passed |
+| G1 (`test/general_audit/g1`) | 50 passed (44 + 6 Audit.1) |
+| G0 + G1 (`test/general_audit`) | 108 passed |
+| OR (`test/features/companion`) | 460 passed, 1 skipped |
+| Privacy · auth isolation (`test/core/auth`) · Reading Operations | 33 · 258 · 69 passed |
+| Premium (+ purchase honesty) · Gems | 291 · 92 passed |
+| Coffee · Palm · SoulMate · Astrology | 215 · 87 · 126 · 24 passed |
+| Dream · Tarot · Yıldızname (frozen) | 493 + 2 skipped · 1457 + 1 skipped · 871 passed |
+| Full Flutter | 6250 passed, 16 skipped, 0 failed |
+| Full backend | 1652 passed, 1 skipped |
+| `flutter analyze` | 0 errors, 0 warnings, 218 infos (unchanged) |
+| TSC | clean |
+
+No provider calls, store transactions or deploys; no AI model or prompt changed. The Discovery-clear reinterpret-chain contract (§9.9) and the Journal delete deferral (§9.8) are unchanged.

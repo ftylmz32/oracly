@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
 import '../../../core/personality/or_personality.dart';
+import '../../../core/providers/backend_providers.dart'
+    show firebaseAuthGatewayProvider;
 import '../../../core/personality/or_response_depth.dart';
 import '../../premium/models/personalization_models.dart';
 import 'companion_voice_turn_binding.dart';
@@ -19,6 +21,7 @@ import '../controllers/companion_voice_turn_controller.dart';
 import '../models/or_chat_output_mode.dart';
 import '../services/companion_experience_service.dart';
 import '../services/companion_memory_service.dart';
+import '../services/companion_owner_guard.dart';
 import '../services/companion_speech_voice_input.dart';
 import '../services/companion_voice_input_port.dart';
 
@@ -86,6 +89,16 @@ final companionExperienceServiceProvider = Provider<CompanionExperienceService>(
   (ref) {
     return CompanionExperienceService(
       conversationRepository: ref.watch(aiConversationRepositoryProvider),
+      // Read at every check, never captured: the controller keeps this
+      // service for its lifetime, across auth readiness and account switches.
+      ownerGuard: CompanionOwnerGuard.fromStorage(
+        ref.watch(localStorageProvider),
+        liveOwnerId: () {
+          final live = ref.read(firebaseAuthGatewayProvider)?.currentUser?.uid;
+          if (live != null && live.trim().isNotEmpty) return live;
+          return ref.read(authServiceProvider).currentUserId;
+        },
+      ),
       intelligence: ref.watch(intelligenceLayerServiceProvider),
       memoryService: ref.watch(companionMemoryServiceProvider),
       dailyRitual: ref.watch(dailyRitualServiceProvider),

@@ -1,6 +1,8 @@
 /// G1 — OR (Companion) controller over a scripted AI and in-memory thread.
 library;
 
+import 'dart:async';
+
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/domain/models/conversation_record.dart';
@@ -26,15 +28,23 @@ import 'package:oracly_new/features/companion/models/conversation.dart';
 import 'package:oracly_new/features/companion/models/or_chat_output_mode.dart';
 import 'package:oracly_new/features/companion/services/companion_experience_service.dart';
 import 'package:oracly_new/features/companion/services/companion_memory_service.dart';
+import 'package:oracly_new/features/companion/services/companion_owner_guard.dart';
 import 'package:oracly_new/features/companion/services/or_operation_id.dart';
 import 'package:oracly_new/services/memory_service.dart';
 
 /// Replies in order (the last one repeats); '' fails the quality gate.
 class G1ScriptedAi implements OraclyAiService {
-  G1ScriptedAi({this.replies = const ['A calm, grounded reply.'], this.delay});
+  G1ScriptedAi({
+    this.replies = const ['A calm, grounded reply.'],
+    this.delay,
+    this.hold,
+  });
 
   final List<String> replies;
   final Duration? delay;
+
+  /// While set and pending, the provider reply is held in flight.
+  Completer<void>? hold;
   final operationIds = <String?>[];
 
   int get calls => operationIds.length;
@@ -59,6 +69,8 @@ class G1ScriptedAi implements OraclyAiService {
     operationIds.add(OrOperationId.current);
     final reply = replies[(calls - 1).clamp(0, replies.length - 1)];
     if (delay != null) await Future<void>.delayed(delay!);
+    final held = hold;
+    if (held != null) await held.future;
     return AiOutcome.success(ChatAiReply(text: reply));
   }
 
@@ -142,10 +154,23 @@ const g1FirstTarot = OracleReadingContext(
   sourceLabel: 'Tarot',
 );
 
+const g1CoffeeOwnerA = OracleReadingContext(
+  sessionId: 'coffee-owner-a',
+  spreadLabel: 'Coffee',
+  deckId: 'coffee',
+  deckName: 'Coffee',
+  readingTitle: 'OWNER A COFFEE READING',
+  cardsSummary: 'OWNER A COFFEE SYMBOLS',
+  interpretationSummary: 'OWNER A PRIVATE COFFEE INTERPRETATION',
+  kind: OracleReadingKind.coffee,
+  sourceLabel: 'Coffee',
+);
+
 CompanionController g1Companion({
   required G1ScriptedAi ai,
-  required G1ThreadRepo repo,
+  required AiConversationRepository repo,
   LocalStorage? storage,
+  CompanionOwnerGuard? ownerGuard,
 }) {
   final intelligence = IntelligenceLayerService(
     LocalIntelligenceRepository(
@@ -162,6 +187,7 @@ CompanionController g1Companion({
       memoryService:
           CompanionMemoryService(MemoryService(LocalStorage.ephemeral())),
       ai: ai,
+      ownerGuard: ownerGuard,
     ),
     CompanionOutputController(
       persistMode: (_) async {},

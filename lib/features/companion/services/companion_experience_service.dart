@@ -27,6 +27,7 @@ import 'companion_ai_bridge.dart';
 import 'companion_context_builder.dart';
 import 'companion_live_reply.dart';
 import 'companion_memory_service.dart';
+import 'companion_owner_guard.dart';
 import 'companion_responder.dart';
 import 'companion_session_bootstrap.dart';
 import 'or_response_finalize.dart';
@@ -48,7 +49,9 @@ class CompanionExperienceService {
     Future<String?> Function()? personality,
     Future<String?> Function()? observationLine,
     Future<({OrResponseDepth depth, bool spoken})> Function()? lengthPrefs,
+    CompanionOwnerGuard? ownerGuard,
   }) : _conversations = conversationRepository,
+       _owner = ownerGuard,
        _contextBuilder =
            contextBuilder ??
            CompanionContextBuilder(
@@ -71,6 +74,9 @@ class CompanionExperienceService {
        _connectedMemory = connectedMemory;
 
   final AiConversationRepository _conversations;
+
+  /// Null only where no account owner exists (isolated tests).
+  final CompanionOwnerGuard? _owner;
   final CompanionContextBuilder _contextBuilder;
   final CompanionLiveReply _live;
   final CompanionMemoryService _memory;
@@ -102,9 +108,11 @@ class CompanionExperienceService {
     required InsightRequest request,
     OracleReadingContext? readingContext,
   }) async {
+    final owner = _owner?.capture();
+    _requireOwner(owner, stage: 'user');
     // Best-effort user-turn save before generation — never blocks the provider.
     try {
-      await persistConversation(conversation);
+      await _save(conversation);
       logOrPersist(stage: 'user', ok: true);
     } catch (error) {
       logOrPersist(
@@ -159,8 +167,11 @@ class CompanionExperienceService {
       updatedAt: now,
     );
 
+    // The owner may have switched while the provider was answering; this
+    // reply then belongs to nobody on this device and is dropped unseen.
+    _requireOwner(owner, stage: 'assistant');
     try {
-      await persistConversation(withReply);
+      await _save(withReply);
       logOrPersist(stage: 'assistant', ok: true);
       return CompanionSendResult(
         conversation: withReply,
@@ -193,7 +204,19 @@ class CompanionExperienceService {
 
   /// Idempotent upsert of an existing conversation (persistence retry).
   Future<void> persistConversation(Conversation conversation) async {
-    await _conversations.save(CompanionRecordMapper.toRecord(conversation));
+    _requireOwner(_owner?.capture(), stage: 'retry');
+    await _save(conversation);
+  }
+
+  Future<void> _save(Conversation conversation) =>
+      _conversations.save(CompanionRecordMapper.toRecord(conversation));
+
+  /// Throws a retryable auth-pending failure when [owner] is no longer the
+  /// settled owner. The controller drops it silently if its turn was reset.
+  void _requireOwner(CompanionOwnerSnapshot? owner, {required String stage}) {
+    if (owner == null || _owner!.stillValid(owner)) return;
+    logOrPersist(stage: stage, ok: false, errorType: 'owner_changed');
+    throw AiRequestException(AiFailure.authPending());
   }
 
   Future<void> saveUserMemory({
