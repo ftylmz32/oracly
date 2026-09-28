@@ -1,0 +1,74 @@
+{
+  "observedAtUtc": "2026-09-28T23:25:41Z",
+  "projectId": "oracly-7f613",
+  "region": "europe-west1",
+  "service": "oracly-api",
+  "trafficRevision": "oracly-api-00052-zqd",
+  "trafficPercent": 100,
+  "revisionCreatedAt": "2026-09-18T17:10:46.998812Z",
+  "revisionImageDigest": "sha256:c32ffe488aa9421c571de8d3d1421feaff310a607053455b7dad412528e2cb9e",
+  "revisionSourceCommitLabel": null,
+  "revisionLabels": {
+    "cloud.googleapis.com/location": "europe-west1",
+    "serving.knative.dev/configuration": "oracly-api",
+    "serving.knative.dev/configurationGeneration": "52",
+    "serving.knative.dev/route": "oracly-api",
+    "serving.knative.dev/service": "oracly-api"
+  },
+  "artifactRegistryMatchingTags": [
+    {
+      "tag": "apple-iap-roots-9f37cff1",
+      "digest": "sha256:c32ffe488aa9421c571de8d3d1421feaff310a607053455b7dad412528e2cb9e"
+    }
+  ],
+  "resolvedCommit": "9f37cff166867da5cf4e62a34d4f531a8a04c774",
+  "resolvedCommitSubject": "Ship Apple PKI root certificates in the backend image",
+  "resolvedCommitDate": "2026-09-17T15:04:47+03:00",
+  "resolutionBasis": "exact image digest matched commit-named Artifact Registry tag",
+  "resolutionIsSignedProvenance": false,
+  "resolvedCommitExistsInGit": true,
+  "resolvedCommitIsAncestorOfHead": true,
+  "candidateRevision": {
+    "name": "oracly-api-y8c1-169c514a",
+    "tag": "y8c1-169c514a",
+    "trafficPercent": 0,
+    "sourceCommitLabel": "169c514a1f51e42cab84d26d075199ffe130fc6d"
+  },
+  "health": {
+    "httpStatus": 200,
+    "body": { "status": "ok" }
+  },
+  "ready": {
+    "httpStatus": 200,
+    "body": {
+      "status": "ready",
+      "capabilities": {
+        "alive": true,
+        "authenticationConfigured": true,
+        "appCheckConfigured": true,
+        "textProviderConfigured": true,
+        "visionConfigured": true,
+        "imageGenerationConfigured": true,
+        "readingStagingConfigured": true,
+        "readingDurabilityConfigured": true,
+        "billingGoogleConfigured": true,
+        "billingAppleConfigured": true
+      }
+    }
+  },
+  "verificationCommandsUsed": [
+    "gcloud run services describe oracly-api --project oracly-7f613 --region europe-west1 --format=json",
+    "gcloud run revisions describe oracly-api-00052-zqd --project oracly-7f613 --region europe-west1 --format=json",
+    "gcloud artifacts docker tags list europe-west1-docker.pkg.dev/oracly-7f613/cloud-run-source-deploy/oracly-api --project oracly-7f613",
+    "git cat-file -t 9f37cff1",
+    "git merge-base --is-ancestor 9f37cff1 HEAD",
+    "curl https://<configured-production-origin>/health",
+    "curl https://<configured-production-origin>/ready"
+  ],
+  "driftSinceG2A1": false,
+  "providerCalls": 0,
+  "deploys": 0,
+  "trafficMutations": 0,
+  "storeTransactions": 0,
+  "secretManagerValuesRead": 0
+}

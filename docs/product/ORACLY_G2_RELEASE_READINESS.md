@@ -220,10 +220,13 @@ Two things it does **not** prove:
    real network round-trip against the real replay cache can prove the new
    key doesn't collide.
 
-**Verdict: FRESH CALL(S) REQUIRED** — one real chat turn against the deployed
-production origin, and one real duplicate-submission round-trip to prove the
-replay-cache key scheme behaves as designed in production (see §15 for the
-exact minimal shape).
+**Verdict: FRESH CALL(S) REQUIRED — two real, independent provider executions**
+(corrected in G2A.2, §20): one against the BASE turn's idempotency key, one
+against the quality-regeneration turn's distinct `.q2.`-derived key. Both must
+reach the provider — neither may be satisfied by a cache hit, since a cache
+hit would prove nothing about whether the two keys collide. See §20 for the
+exact required shape and why an earlier draft of this section wrongly allowed
+the second execution to be "a cache hit."
 
 ---
 
@@ -411,17 +414,25 @@ validate current code and are not counted as current evidence.
 
 ## 15. G2B minimal live-call plan
 
+**Superseded by §19 (G2A.1, call count and targets) and §20 (G2A.2, OR
+semantics).** Left below for the historical record only — two corrections:
+the call target must be a G2B0 candidate, not `00052-zqd` (§19), and OR's
+second call is a required independent provider execution, never a cache hit
+(§20; the "may resolve as a cache-hit" sentence in the OR row below was wrong
+and is corrected there).
+
 | Feature | Calls | Why current evidence is insufficient | Requires |
 |---|---|---|---|
 | Coffee | 1 | Writer prompt rewritten (`4078de99`) after the only real evidence was captured | image fixture, Firebase auth, App Check, deployed backend, provider |
 | Palm | 1 | Same rewrite, same gap | image fixture, Firebase auth, App Check, deployed backend, provider |
 | SoulMate | 1 | Entire prompt pipeline + response contract (`identity`) rewritten since capture | Firebase auth, App Check, deployed backend, provider (image gen), **real Premium entitlement** (sandbox purchase — review access does not work here, §9) |
-| OR | 2 | (a) no evidence exists against the deployed production origin, only a local proxy; (b) G1-D14's idempotency key is untested against the real Firestore replay cache | Firebase auth, App Check, deployed backend, provider. Call (b) may resolve as a cache-hit rather than a second real provider call if the design works — budget for 2 requests, expect ≤2 actual provider calls |
+| OR | 2 | (a) no evidence exists against the deployed production origin, only a local proxy; (b) G1-D14's idempotency key is untested against the real Firestore replay cache | Firebase auth, App Check, deployed backend, provider. ~~Call (b) may resolve as a cache-hit rather than a second real provider call~~ **— WRONG, corrected in §20: both calls must be independent real provider executions; a cache hit would prove nothing about key collision.** |
 | Dream | **0 — blocked on deploy** | The frozen writer isn't deployed (§5); a live call today would test unknown legacy code, not the current contract. Deploy is the prerequisite, not a call | — |
 | Tarot | 1 | 2026-09-06 evidence used `gpt-4o`, predating the writer-prompt rewrite already live in the current production build | Firebase auth, App Check, deployed backend, provider |
 | Yıldızname | 0 | Already proven live for the exact frozen commit via the tagged candidate; feature flag defaults off, so nothing in this release depends on fresh evidence | — |
 
-**TOTAL: 6 real provider calls** (Coffee 1, Palm 1, SoulMate 1, OR 2, Tarot 1),
+**TOTAL: 6 real provider calls (superseded — see §19 for the corrected total
+of 7)** (Coffee 1, Palm 1, SoulMate 1, OR 2, Tarot 1),
 plus one prerequisite backend deploy (Dream) before any Dream call would be
 meaningful.
 
@@ -682,10 +693,12 @@ POST-CANDIDATE (after G2B0):
   SoulMate   1   (§6 — stale prompt/identity evidence; BLOCKED until a real
                   sandbox/test Premium entitlement exists for the test
                   identity — do not call this executable before then)
-  OR         2   (§7 — one real turn against the candidate; one duplicate-
-                  submission round to prove the replay-cache key doesn't
-                  collide — may resolve as 1 actual provider call if replay
-                  correctly serves the second from cache)
+  OR         2   (§7, corrected in §20 — two INDEPENDENT real provider
+                  executions against the candidate: one on the base turn's
+                  idempotency key, one on the quality-regeneration turn's
+                  distinct `.q2.`-derived key. Both must reach the provider;
+                  neither may be a cache hit, or the collision test proves
+                  nothing. See §20.)
   Dream      1   (§C — now meaningful only once the candidate carries the
                   frozen gpt-6-astra/medium binding)
   Tarot      1   (§B — now meaningful only once the candidate carries the
@@ -716,3 +729,112 @@ revision).
 No production code was changed in G2A.1. No defect was found in current
 source — every gap found is deployment staleness, which is exactly what this
 phase exists to surface before any release ships.
+
+**Raw evidence artifact (G2A.2):** the Cloud Run → image digest → Artifact
+Registry tag → source commit mapping above is pinned as a sanitized,
+independently-checkable JSON file at
+`docs/product/g2/evidence/G2A2_DEPLOYED_BACKEND_SOURCE_EVIDENCE.json`, so a
+reviewer on GitHub can verify the exact digest/tag/commit correspondence
+without re-running `gcloud`. It carries no secrets — only the revision name,
+traffic percent, creation time, image digest, the matching tag, the resolved
+commit, and the same `/health`/`/ready` bodies already shown above. A repeat
+observation taken while writing this (2026-09-28T23:25:41Z) found **zero
+drift** from the observation above: same revision, same 100% traffic, same
+image digest, same tag match, same `/health`/`/ready` responses.
+
+---
+
+## 20. G2A.2 — OR live-proof semantics correction
+
+§7's and §19.J's wording ("call (b) may resolve as a cache-hit... if the
+design works") was wrong and is corrected here. A cache hit on the second
+request would prove the replay cache works — it says nothing about whether
+the *new* `.q2.`-derived quality-regeneration key collides with the *base*
+turn's key, which is the actual thing G1-D14 needs proven. Terminology from
+here on distinguishes an **HTTP request** (a call to `/v1/ai/complete`) from a
+**provider execution** (that request actually reaching OpenAI, not served
+from the Firestore replay cache).
+
+**The required post-candidate OR proof is exactly two independent provider
+executions:**
+
+- **Provider execution #1 — base turn.** One controlled real turn sent
+  against the tagged candidate, using its own (base) idempotency key. The
+  provider **must** execute — this is a fresh key with nothing cached yet, so
+  there is no cache-hit possibility here regardless.
+- **Provider execution #2 — quality regeneration.** A quality-regeneration of
+  that same turn, sent under its distinct `.q2.`-derived idempotency key (the
+  G1-D14 fix). The provider **must independently execute again** — if this
+  request instead returned a cache hit against execution #1's cached entry,
+  that would mean the keys collided, i.e. G1-D14 failed. A cache hit here is
+  not an acceptable outcome; it is the failure mode this test exists to catch.
+
+Both are counted in the 7-call budget as OR's 2 executions. Neither may be
+skipped, and neither may be satisfied by a cache hit.
+
+**Optional replay check (not one of the 7 executions).** After execution #1
+or #2 has completed, an additional HTTP request may be sent reusing that
+*same, already-completed* idempotency key, solely to prove the replay cache
+itself works as designed. Expected outcome: a cache hit, 0 additional
+provider executions. This is a separate, optional proof of the *replay*
+mechanism, distinct from the *collision* proof above, and does not add to the
+call budget.
+
+**Corrected post-candidate minimum real provider executions:**
+
+```
+Coffee     1
+Palm       1
+SoulMate   1   (blocked until a real sandbox/test Premium entitlement exists)
+OR         2   (both independent executions — base key, then distinct .q2. key)
+Dream      1
+Tarot      1
+Yıldızname 0
+TOTAL      7
+```
+
+This is the same total as §19.J (7) — only OR's internal semantics were
+wrong, not the count. §19.J and §15 are corrected above with pointers to this
+section; the number itself does not change.
+
+---
+
+## 21. G2A.2 — Static reconfirmation (documentation only, no code changed)
+
+Independently re-verified in this phase, by exact git object identity
+(`git rev-parse <commit>:<path>`, not date comparison), against the resolved
+deployed commit `9f37cff166867da5cf4e62a34d4f531a8a04c774` and current HEAD:
+
+| Claim | Result |
+|---|---|
+| `backend/src/reading` tree identical (deployed commit vs HEAD) | **IDENTICAL** — same tree SHA `9a93cc4e…` both sides |
+| `backend/src/billing` tree identical | **IDENTICAL** — same tree SHA `4bdec111…` both sides |
+| `backend/src/middleware` tree identical | **IDENTICAL** — same tree SHA `354cde88…` both sides |
+| `backend/src/ai/reading/writer-prompts.ts` blob identical (Coffee/Palm) | **IDENTICAL** — same blob SHA `de485806…` both sides |
+| `backend/src/ai/reading/pipeline.ts` blob identical (Coffee/Palm) | **IDENTICAL** — same blob SHA `fc3da331…` both sides |
+| `soulmate-prompt.ts` / `soulmate-portrait-prompt-builder.ts` / `soulmate-visual-profile.ts` / `soulmate-portrait-identity.ts` blobs identical | **IDENTICAL** — each pair matches exactly |
+| Narrative Tarot backend contract (`narrative-tarot-contract.ts`) absent from resolved deployed commit | **CONFIRMED ABSENT** — `git cat-file -e 9f37cff1:...` fails (path does not exist at that commit) |
+| Dream Phase 2–4C files (e.g. `dream-safety.ts`) absent from resolved deployed commit | **CONFIRMED ABSENT** — same check, fails |
+| `ProductFeatureFlags.tarotNarrativeV2` default | **TRUE** — `lib/core/feature_flags/product_feature_flags.dart:21` |
+| Current Narrative Tarot wire payload includes `mode=narrative_v2` | **CONFIRMED** — `NarrativeTarotWireContract.mode = 'narrative_v2'`, sent as the `mode` field in `payloadFor()` (`lib/features/tarot/narrative/transport/narrative_tarot_wire_contract.dart:11,17`) |
+| All `backend/src/ai/narrative-yildizname-*.ts` blobs identical between candidate commit `169c514a1f51e42cab84d26d075199ffe130fc6d` and HEAD | **IDENTICAL** — `git ls-tree` diff of both trees for that filename pattern is empty |
+| `ProductFeatureFlags.yildiznameNarrativeV1` default | **FALSE** — `lib/core/feature_flags/product_feature_flags.dart:60` |
+
+No source was modified to produce this table. All twelve rows are direct git
+object/source observations.
+
+---
+
+## 22. G2A.2 test-claim honesty
+
+The 25-test result cited in G2A.1 (§19.B, "TARGETED PARITY TESTS") —
+`narrative-tarot-6d1-contract.test.ts`, `narrative-tarot-6d1-fingerprint.test.ts`,
+`narrative-tarot-6f1-attempt.test.ts`, `narrative-tarot.test.ts`,
+`tarot-reading.test.ts`, 25 passed — was run once, in the G2A.1 phase of this
+same session, and is **not re-run in G2A.2**. It is labeled here as
+**PREVIOUSLY RUN (this session, G2A.1)**, not independently re-verified in
+this phase. No test rerun was required or performed for this phase's
+evidence/docs-only changes.
+
+No real provider calls, deploys, traffic mutations, store transactions,
+device runs, or Secret Manager reads were made in G2A.2.
