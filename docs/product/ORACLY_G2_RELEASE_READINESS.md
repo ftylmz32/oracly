@@ -1,7 +1,16 @@
 # ORACLY — G2 Release Readiness Evidence Map
 
-Phase **G2A — Controlled live quality / release readiness preflight**
+Phase **G2A — Controlled live quality / release readiness preflight**, extended by
+**G2A.1 — Deployed backend compatibility closure** (§19)
 Branch `fix/final-product-remediation-20260922` · Base `bcfab51a6dc9e03accb3f19f6d778a7ddc8b7f5d`
+
+**G2A.1 correction, read this first:** independent verification found that G2A's
+Tarot classification (§8, §15, §16 below) was insufficient — it treated Tarot as
+only a stale-live-evidence problem. §19 proves it is actually a **deploy-compatibility
+blocker**: the traffic-serving revision cannot correctly process the current
+Flutter client's default request shape at all. The original §8/§15/§16 text is
+left intact below for the record; §19 is the corrected, authoritative
+classification for Tarot and for every other feature's deploy compatibility.
 
 G0, G1, Dream, Tarot, Yıldızname and the Coffee/Palm/SoulMate/OR/Astrology shared
 seams are FINAL FROZEN. This phase does not reopen any of that. It answers one
@@ -42,7 +51,7 @@ describe` calls (list/describe only — no `deploy`, no `update-traffic`, no
 | Release runtime config (reject localhost/LAN/HTTP/placeholder) | PROVEN-CODE | `ReleaseEndpointPolicy` tests across 5 files (§3) |
 | Production origin configured, non-placeholder, HTTPS | PROVEN-CODE + PROVEN-LIVE | `tool/dart_defines.production.json` present; `/health`+`/ready` = 200 (§4) |
 | Production backend alive/ready | PROVEN-LIVE | `/ready` capabilities all `true` (§4) |
-| Dream frozen writer (`gpt-6-astra`/medium/`4c3-astra`) deployed | **OPEN-LIVE → BACKEND DEPLOY** | Self-admitted not deployed; revision predates the binding file by 10 days (§5) |
+| Dream frozen writer (`gpt-6-astra`/medium/`4c3-astra`) deployed | **OPEN-LIVE → BACKEND DEPLOY** | Self-admitted not deployed; revision predates the binding file by 10 days (§5). G2A.1 (§19) confirms the gap is the entire Dream Phase 2–4C engine, not just the writer constant |
 | Coffee live interpretation quality (current prompt) | **OPEN-LIVE** | Real evidence exists but predates a full writer-prompt rewrite (§6) |
 | Palm live interpretation quality (current prompt) | **OPEN-LIVE** | Same rewrite, same gap (§6) |
 | SoulMate live portrait quality (current prompt/response contract) | **OPEN-LIVE** | Prompt pipeline + response shape (`identity`) rewritten since capture (§6) |
@@ -50,7 +59,8 @@ describe` calls (list/describe only — no `deploy`, no `update-traffic`, no
 | SoulMate review-access backend gap | **GAP, NON-BLOCKING (process)** | Confirmed by code read: no review-access bypass exists (§9) |
 | OR real reply + context retention | PROVEN-LIVE (local proxy only) | `or_real_gate_live_chat_test.dart`, gated, targets local dev proxy not deployed Cloud Run (§7) |
 | OR idempotency vs real Firestore replay cache (G1-D14) | **OPEN-LIVE** | Never exercised against the real `response-replay-repository` (§7) |
-| Tarot live interpretation quality (current prompt) | **OPEN-LIVE** | 2026-09-06 evidence (`gpt-4o`) predates the writer-prompt rewrite that IS in the current production build (§8) |
+| Tarot live interpretation quality (current prompt) | **OPEN-LIVE** — superseded, see below | 2026-09-06 evidence (`gpt-4o`) predates the writer-prompt rewrite (§8) |
+| **Tarot Narrative V2 ↔ traffic revision (corrected in G2A.1)** | **DEPLOY-COMPATIBILITY BLOCKER — INCOMPATIBLE** | Deployed revision's `validateTarot` has no `mode` field at all; `narrative-tarot-contract.ts`/writer/result-parser don't exist in it (§19) |
 | Yıldızname Narrative V1 correctness for the frozen commit | PROVEN-LIVE (candidate, not production traffic) | Physical-device E2E in Phase 8C against tagged candidate `oracly-api-y8c1-169c514a`, 0 backend source diff vs frozen (§8) |
 | Yıldızname Narrative V1 serving real production traffic | OPEN-EXTERNAL (deploy/promote decision) | Still 0% traffic; NON-BLOCKING because the client flag defaults `false` (§8) |
 | Stale `/active` pointer | NON-BLOCKING CLEANUP | Owner+type-scoped; self-corrects; no cross-owner leak (§10) |
@@ -473,3 +483,236 @@ re-run):
 | `test/general_audit/` (G0+G1 regression reference) | pass (unchanged from prior audit) |
 
 No real provider calls. No store transactions. Not deployed.
+
+---
+
+## 19. G2A.1 — Deployed backend compatibility closure
+
+Independent verification found that §8's Tarot classification understated the
+problem: it treated Tarot as stale *live-quality evidence* when current source
+shows a *deploy-compatibility* question — can the traffic-serving revision even
+execute the current wire contract at all — that must be answered before any
+G2B provider call is useful. This section answers it for every live feature,
+by exact commit ancestry (`git merge-base --is-ancestor`), not date comparison
+alone. Read-only throughout: `gcloud run/artifacts/builds` describe/list only,
+git history, and the two already-run zero-cost `/health`+`/ready` checks.
+Nothing new was deployed, mutated, called, or purchased.
+
+### A. Deployed source truth
+
+`gcloud run revisions describe oracly-api-00052-zqd` carries no
+`source_commit` label (unlike the Yıldızname candidate). But its image digest
+— `sha256:c32ffe488aa9421c571de8d3d1421feaff310a607053455b7dad412528e2cb9e` —
+was found, via `gcloud artifacts docker tags list`, to be the **exact** digest
+of the tag `apple-iap-roots-9f37cff1` in the same Artifact Registry repo. That
+short hash resolves to a real commit in this repo:
+
+```
+SOURCE COMMIT: 9f37cff166867da5cf4e62a34d4f531a8a04c774
+  "Ship Apple PKI root certificates in the backend image"
+  2026-09-17 15:04:47 +0300
+IMAGE DIGEST: sha256:c32ff...b9e39 (full digest in repo evidence, not reprinted here)
+CREATED: 2026-09-18T17:10:46Z
+100% TRAFFIC: YES
+```
+
+This is an exact-digest match to a commit-named tag, not a signed provenance
+attestation (`slsa_build_level: unknown` on the image) — strong, but stated
+as inference, not cryptographic proof. `git merge-base --is-ancestor
+9f37cff1 HEAD` confirms it is a real ancestor of the current branch tip. All
+compatibility findings below compare **HEAD vs `9f37cff1`** using
+`git diff`/`git log 9f37cff1..HEAD`, which is exact regardless of commit
+dates.
+
+### B. Tarot — INCOMPATIBLE (confirmed, not inferred)
+
+`git log 9f37cff1..HEAD -- backend/src` shows 9 Tarot-narrative commits
+postdate the deployed source, ending in `3488248c` ("cut classical readings to
+narrative v2") and `c342ab8f` ("isolate narrative writer model"), both
+2026-09-25 — 8 days after the deploy. The diff for `validate-request.ts`
+proves the shape of the gap directly:
+
+```ts
+// HEAD — does not exist at 9f37cff1:
+function validateTarot(payload) {
+  if (payload.mode === undefined || payload.mode === null) {
+    return validateLegacyTarot(payload);
+  }
+  if (payload.mode === 'narrative_v2') {
+    return validateNarrativeTarotPayload(payload);   // ← this whole function is new
+  }
+  fail(ErrorCode.invalidRequest);
+}
+```
+
+At `9f37cff1`, `validateTarot` has no `mode` branch at all — it unconditionally
+reads `payload.cards`/`spreadLabel` (today's `validateLegacyTarot`).
+`narrative-tarot-contract.ts`, `narrative-tarot-model.ts` (the dedicated
+`gpt-5.6-sol`/reasoning-`none` resolver), `narrative-tarot-result.ts` (the
+narrative result parser), `narrative-tarot-prompts.ts`, and the Phase 6F.1
+attempt-aware transport wiring in `narrative-tarot-attempt.ts`/`routes/ai.ts`
+are **all** part of the 52-file diff — none exist in the deployed image.
+
+| Component | 00052 | Introduced |
+|---|---|---|
+| `mode` field recognition in `validateTarot` | ABSENT | — (new in HEAD) |
+| `narrative-tarot-contract.ts` (`validateNarrativeTarotPayload`) | ABSENT | between 9f37cff1 and HEAD |
+| `narrative-tarot-model.ts` (frozen `gpt-5.6-sol`/reasoning `none`) | ABSENT | `c342ab8f`, 2026-09-25 |
+| `narrative-tarot-result.ts` (result parser) | ABSENT | between 9f37cff1 and HEAD |
+| `narrative-tarot-prompts.ts` / prompt rules | ABSENT | between 9f37cff1 and HEAD |
+| Attempt-aware transport (`narrative-tarot-attempt.ts`, `ai.ts` dispatch) | ABSENT | between 9f37cff1 and HEAD |
+| Legacy Tarot path (`mode` unset → `validateLegacyTarot`) | PRESENT | unchanged since 9f37cff1 |
+
+Client source: `ProductFeatureFlags.tarotNarrativeV2` defaults `true`, and the
+live request path (`NarrativeTarotLiveRequestFactory` → `NarrativeTarotWireContract`
+→ `generateNarrativeTarotReading`) always sends `mode: 'narrative_v2'`. The
+deployed validator has no code path that recognizes that field — it would
+either reject the request as malformed (if the new payload shape lacks the
+old `cards` array the legacy validator expects) or, worse, silently process
+it as a near-empty legacy reading. Neither is a working Tarot reading.
+
+**TAROT NARRATIVE V2 ↔ TRAFFIC REVISION: INCOMPATIBLE.**
+**TAROT DEPLOY BLOCKER: YES.** A live call against `00052-zqd` today would not
+be release evidence — it would just demonstrate the incompatibility. This
+supersedes §8/§15/§16's "1 fresh call" framing for Tarot: the correct first
+action is a candidate deploy (§I below), not a call against current traffic.
+
+### C. Dream — confirmed, and the gap is larger than §5 stated
+
+15 Dream commits (`50eebc5e` … `fc06a744`) postdate `9f37cff1` — not just the
+frozen-writer binding, but the entire Phase 2–4C engine: multilingual request
+identity, the Phase 3 safety firewall (`dream-safety.ts`, `assertDreamInputSafe`),
+symbol/lexical-collision closure, history-claim grounding, premium narrative
+quality, and the live-gate calibration itself. `service.ts`'s `dream()` method
+at `9f37cff1` is a bare `transport.complete({model, jsonMode:true, messages:
+dreamMessages(...)})` with no safety gate, no acceptance filter, no writer
+binding — categorically different code from HEAD's version. **DEPLOY
+REQUIRED** (confirmed, deeper than §5 alone showed). No call made; none
+proposed here.
+
+### D/E/F/G/H. Coffee, Palm, SoulMate, OR, billing, reading-operations — COMPATIBLE
+
+`git diff --name-only 9f37cff1 HEAD -- backend/src` returns exactly 52 files —
+all Dream-, Tarot-narrative-, or Yıldızname-specific, plus 9 shared files
+(`ai/service.ts`, `ai/validate-request.ts`, `ai/openai-transport.ts`,
+`ai/prompts.ts`, `ai/request-fingerprint.ts`, `config.ts`, `errors.ts`,
+`routes/ai.ts`, `types.ts`, `routes/account-deletion.ts`). Reading each shared
+diff line-by-line:
+
+- **`routes/ai.ts`**: every new block is gated on `operation === 'tarot_reading'
+  && mode === 'narrative_v2'`, `operation === 'yildizname_reading'`, or
+  `operation === 'dream_analysis'`. The base dispatch/replay path every other
+  operation uses is untouched.
+- **`ai/service.ts`**: adds `yildiznameReading()` and a `mode === 'narrative_v2'`
+  branch inside `tarotReading()`; `coffee()`, `palm()`, `soulmateDraw()`,
+  `soulmateInterpretation()`, and the legacy Tarot branch are byte-for-byte
+  unchanged.
+- **`ai/validate-request.ts`**: the only operation-type changes are the new
+  Tarot `mode` branch and the new `yildizname_reading` case; `validateDream`
+  gained one field (`history`) — Dream-only, moot since Dream isn't deployed
+  regardless.
+- **`ai/request-fingerprint.ts`**: `coffee_analysis`/`palm_analysis`/
+  `soulmate_draw`/`soulmate_interpretation`/legacy `tarot_reading`/`tts` cases
+  are untouched; only `dream_analysis` (refactored to a helper, same behavior)
+  and two new cases (`narrative_v2`, `yildizname_reading`) changed.
+- **`ai/openai-transport.ts`**: request-body construction (`buildChatCompletionBody`)
+  is an extraction, not a behavior change — same fields, same call sites.
+  Error-mapping (`mapHttpFailure`) gained more precise classification and
+  non-secret diagnostic fields (`httpStatus`, `requestId`, `providerMessage`)
+  but the success path and existing error codes for Coffee/Palm/SoulMate/OR
+  are unaffected.
+- **`ai/prompts.ts`**: `dreamMessages`/`DREAM_SYSTEM` moved to `dream-prompts.ts`
+  (re-exported) — Dream-only; `coffeeMessages` and everything below is
+  unchanged.
+- **`config.ts`**: only adds new keys (`openaiTarotNarrativeModel`,
+  `openaiYildiznameNarrativeModel`, `openaiDreamModel`, and their reasoning
+  counterparts) — nothing existing changed shape.
+- **`errors.ts`** / **`types.ts`**: additive only (`dreamSafetyBlocked` error
+  code, `yildizname_reading` operation).
+- **`routes/account-deletion.ts`**: now requires an `expectedTargetUid` body
+  field as an anti-race check (unrelated to the six features audited here;
+  noted for completeness, not scored as a blocker in this phase).
+
+No file under `backend/src/reading/`, `backend/src/billing/`, or
+`backend/src/middleware/` (staged images, active pointer, claim/result,
+acceleration, `response-replay-repository.ts`, purchase-binding persistence)
+appears anywhere in the 52-file diff — **all of it is byte-identical between
+the deployed commit and HEAD.** Commit `4078de99` (2026-09-15, the Coffee/
+Palm/SoulMate writer-prompt rewrite §6 already found) is confirmed an
+ancestor of `9f37cff1` (2026-09-17) — so the deployed revision already runs
+the *current* Coffee/Palm/SoulMate prompts. §6's "stale evidence" finding
+stands (the evidence predates the prompt), but it is a live-quality gap, not
+a deploy-compatibility one.
+
+| Feature | CURRENT CLIENT ↔ 00052 | Basis |
+|---|---|---|
+| Coffee | **COMPATIBLE** | prompt + wire path untouched since 9f37cff1; evidence still stale (§6) for quality only |
+| Palm | **COMPATIBLE** | same |
+| SoulMate (durable op, portrait pipeline, `identity` response shape) | **COMPATIBLE** | `soulmate-*.ts` untouched since 9f37cff1 (post-4078de99); evidence still stale (§6) for quality only |
+| OR (chat/oracle transport, response-replay repository, auth/App Check) | **COMPATIBLE** | untouched since 9f37cff1; G1-D14's idempotency-key scheme is a client-side string the server hashes opaquely — no server-side awareness needed, so it is compatible but its *correctness* is still unproven live (§7) |
+| Billing (`/v1/billing/verify`, `purchaseBindings` fields: `productId`/`status`/`kind`/`expiryAtMs`/`verifiedAtMs`) | **COMPATIBLE** | zero files under `backend/src/billing/` changed since 9f37cff1 |
+| Reading operations (waiting/processing/ready/failed, staged images, active pointer, exact-operation recovery, result fetch, acceleration quote/claim) | **COMPATIBLE** | zero files under `backend/src/reading/` changed since 9f37cff1 |
+
+### I. Correct next sequence — G2B0 before G2B
+
+Because Tarot (a default-on, non-optional live feature) is deploy-incompatible,
+and Dream and Yıldızname require code absent from traffic, **no G2B provider
+call should be spent against `oracly-api-00052-zqd`.** The correct sequence:
+
+**G2B0 (not performed here — classification only):** deploy the current
+backend source as a **0%-traffic tagged candidate** (the same pattern already
+used for the Yıldızname candidate `y8c1-169c514a`). No traffic-percent change.
+Then re-run the zero-cost `/health` and `/ready` checks against the candidate's
+own tagged URL, and read back its safe (non-secret) config/model metadata the
+same way §A did for `00052`. Only after that passes does G2B spend any real
+provider call — all against the **candidate**, not `00052` — for every feature,
+including Coffee/Palm/SoulMate/OR, so every piece of live evidence in this
+release comes from one consistent, current source tree. Production traffic
+promotion is then a separate, later, explicit decision — not implied by
+running G2B against the candidate.
+
+### J. Revised live-call budget
+
+```
+PRE-DEPLOY (against 00052-zqd): 0
+
+POST-CANDIDATE (after G2B0):
+  Coffee     1   (§6 — stale writer-prompt evidence)
+  Palm       1   (§6 — same)
+  SoulMate   1   (§6 — stale prompt/identity evidence; BLOCKED until a real
+                  sandbox/test Premium entitlement exists for the test
+                  identity — do not call this executable before then)
+  OR         2   (§7 — one real turn against the candidate; one duplicate-
+                  submission round to prove the replay-cache key doesn't
+                  collide — may resolve as 1 actual provider call if replay
+                  correctly serves the second from cache)
+  Dream      1   (§C — now meaningful only once the candidate carries the
+                  frozen gpt-6-astra/medium binding)
+  Tarot      1   (§B — now meaningful only once the candidate carries the
+                  Narrative V2 contract)
+  Yıldızname 0   (already proven live against 169c514a, itself an ancestor
+                  of HEAD with zero further Yıldızname backend changes since —
+                  confirmed by `git log 169c514a..HEAD -- backend/src/ai/
+                  narrative-yildizname-*.ts`, empty)
+
+TOTAL: 7
+```
+
+### K. Corrected release blocker classification
+
+| Blocker | Class | Status |
+|---|---|---|
+| Tarot Narrative V2 cannot run on traffic revision | **DEPLOY-COMPATIBILITY BLOCKER** | Confirmed §B — supersedes §16's "live-quality" framing |
+| Dream engine (not just the writer) absent from traffic revision | **DEPLOY-COMPATIBILITY BLOCKER** | Confirmed §C — deeper than §5/§16 stated |
+| Yıldızname engine absent from traffic revision | **DEPLOY-COMPATIBILITY BLOCKER (non-blocking for this release)** | Confirmed §A; non-blocking only because the client flag defaults off |
+| Coffee/Palm/SoulMate/OR live-quality evidence stale | **LIVE-QUALITY EVIDENCE BLOCKER** (not a compatibility problem) | Confirmed compatible §D–H; §6/§7 quality gap stands |
+| Everything else in §16 (store, device, iOS build, review-access, stale pointer) | unchanged | See §16 |
+
+A stale-quality call must never be spent against a backend already known to
+be running the wrong contract — this is why Tarot/Dream/Yıldızname move to
+G2B0 (deploy-candidate) rather than G2B (call the current 100%-traffic
+revision).
+
+No production code was changed in G2A.1. No defect was found in current
+source — every gap found is deployment staleness, which is exactly what this
+phase exists to surface before any release ships.
