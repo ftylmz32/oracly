@@ -2,6 +2,7 @@
 library;
 
 import '../../../core/copy/ai_source_copy.dart';
+import '../../../core/data/repositories/local_ai_conversation_repository.dart';
 import '../../../core/domain/repositories/ai_conversation_repository.dart';
 import '../../../core/domain/repositories/user_repository.dart';
 import '../../../core/intelligence/services/intelligence_layer_service.dart';
@@ -112,7 +113,7 @@ class CompanionExperienceService {
     _requireOwner(owner, stage: 'user');
     // Best-effort user-turn save before generation — never blocks the provider.
     try {
-      await _save(conversation);
+      await _save(conversation, owner);
       logOrPersist(stage: 'user', ok: true);
     } catch (error) {
       logOrPersist(
@@ -169,9 +170,12 @@ class CompanionExperienceService {
 
     // The owner may have switched while the provider was answering; this
     // reply then belongs to nobody on this device and is dropped unseen.
+    // _save re-checks the same snapshot a second time, immediately before
+    // the physical write starts, in case the owner moves during the
+    // repository's own read.
     _requireOwner(owner, stage: 'assistant');
     try {
-      await _save(withReply);
+      await _save(withReply, owner);
       logOrPersist(stage: 'assistant', ok: true);
       return CompanionSendResult(
         conversation: withReply,
@@ -204,12 +208,33 @@ class CompanionExperienceService {
 
   /// Idempotent upsert of an existing conversation (persistence retry).
   Future<void> persistConversation(Conversation conversation) async {
-    _requireOwner(_owner?.capture(), stage: 'retry');
-    await _save(conversation);
+    final owner = _owner?.capture();
+    _requireOwner(owner, stage: 'retry');
+    await _save(conversation, owner);
   }
 
-  Future<void> _save(Conversation conversation) =>
-      _conversations.save(CompanionRecordMapper.toRecord(conversation));
+  /// The one durable conversation write boundary for OR. Against
+  /// [LocalAiConversationRepository] this re-checks [owner] a second time,
+  /// after the repository has loaded the current list and immediately
+  /// before it calls the storage write — closing the gap [_requireOwner]
+  /// cannot see from outside the repository. This is a guard, not a
+  /// database transaction: the physical `SharedPreferences` write itself is
+  /// never made atomic with auth state, only checked as late as possible
+  /// before it starts.
+  Future<void> _save(Conversation conversation, CompanionOwnerSnapshot? owner) {
+    final record = CompanionRecordMapper.toRecord(conversation);
+    final repo = _conversations;
+    bool canWrite() => owner == null || _owner!.stillValid(owner);
+    if (repo is LocalAiConversationRepository) {
+      return repo.saveGuarded(record, canWrite: canWrite);
+    }
+    if (!canWrite()) {
+      throw StateError(
+        'Owner changed before the conversation write; not saved.',
+      );
+    }
+    return repo.save(record);
+  }
 
   /// Throws a retryable auth-pending failure when [owner] is no longer the
   /// settled owner. The controller drops it silently if its turn was reset.

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../../data/datasources/local_storage.dart';
+import '../../data/datasources/storage_result.dart';
 import '../../domain/models/conversation_record.dart';
 import '../../domain/repositories/ai_conversation_repository.dart';
 
@@ -18,6 +19,13 @@ class LocalAiConversationRepository implements AiConversationRepository {
 
   /// Quarantined corrupt row count for the last [getAll] (tests / diagnostics).
   int lastQuarantinedRows = 0;
+
+  /// Test-only: awaited once after [getAll] resolves inside [saveGuarded],
+  /// before the final [canWrite] check and the write it guards. Lets a test
+  /// interleave a real account switch inside that exact gap. Always `null`
+  /// in production.
+  @visibleForTesting
+  Future<void> Function()? debugPauseAfterRead;
 
   @override
   Future<List<ConversationRecord>> getAll() async {
@@ -67,25 +75,48 @@ class LocalAiConversationRepository implements AiConversationRepository {
   @override
   Future<void> save(ConversationRecord record) async {
     final all = await getAll();
-    final updated = [
+    await _writeAll([
       for (final r in all)
         if (r.id != record.id) r,
       record,
-    ];
-    await _storage.setStringList(
-      _key,
-      updated.map((e) => jsonEncode(e.toJson())).toList(),
-    );
+    ]);
+  }
+
+  /// Same write as [save], except the write only proceeds if [canWrite]
+  /// still holds once the current list has finished loading — checked
+  /// immediately before the write starts, with nothing else awaited in
+  /// between. [save] has the same `getAll`-then-write gap but no way to
+  /// re-validate ownership inside it; production OR sends call this instead
+  /// so a reply that arrives after the owner changed mid-gap is never
+  /// written for the wrong owner.
+  Future<void> saveGuarded(
+    ConversationRecord record, {
+    required bool Function() canWrite,
+  }) async {
+    final all = await getAll();
+    final pause = debugPauseAfterRead;
+    if (pause != null) await pause();
+    if (!canWrite()) {
+      throw StateError(
+        'Owner changed before the conversation write; not saved.',
+      );
+    }
+    await _writeAll([
+      for (final r in all)
+        if (r.id != record.id) r,
+      record,
+    ]);
   }
 
   @override
   Future<void> delete(String id) async {
     final all = await getAll();
-    await _storage.setStringList(
-      _key,
-      all.where((e) => e.id != id).map((e) => jsonEncode(e.toJson())).toList(),
-    );
+    await _writeAll(all.where((e) => e.id != id).toList());
   }
+
+  Future<void> _writeAll(List<ConversationRecord> records) => _storage
+      .setStringList(_key, records.map((e) => jsonEncode(e.toJson())).toList())
+      .requireDurable(_key);
 
   @override
   Future<void> sync() async {}

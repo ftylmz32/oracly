@@ -344,9 +344,8 @@ The fix is `CompanionOwnerGuard` (`lib/features/companion/services/companion_own
 - **What a refused send does.** It throws a typed, retryable `authPending` failure and writes nothing. If the switch refresh has already reset the controller, the controller drops it silently, so B sees no A reply and no unrelated error. If the refusal lands in the wipe window, before the reset, the old session shows the calm auth-pending message, and the reset replaces it moments later.
 - **Wiring.** Production wires the guard in `companionExperienceServiceProvider`. It reads auth and storage at every check rather than capturing them, because the controller keeps one service for its whole lifetime.
 
-This is a guard, not a database transaction. What remains:
+This is a guard, not a database transaction. The service-boundary check and the repository's own internal read-then-write gap left one further seam, closed in Audit.2 (§9.13). What remains:
 
-- **The guard and the write are not atomic.** The final check runs immediately before the repository call, with no provider or network await in between. `LocalAiConversationRepository.save` is a read-modify-write of the `ai_conversations` list with one internal microtask boundary (`await getAll()`) before the list is set. A switch starts with a Firebase auth event, and the wipe's earlier steps each wait on platform storage. So reaching the `ai_conversations` step inside that single microtask gap isn't a realistic ordering, but no lock excludes it.
 - **The OR surfaced-theme record** (`discoverySurfaceMemory`, written by the profile-observation hook while the prompt is built) is not bound to the send snapshot. It stores a theme name and a time, not conversation text.
 - **Session bootstrap** (`CompanionSessionBootstrap.loadOrCreate`) can still write a welcome-only conversation without the guard. It contains no user content.
 
@@ -376,3 +375,44 @@ Verification (Audit.1):
 | TSC | clean |
 
 No provider calls, store transactions or deploys; no AI model or prompt changed. The Discovery-clear reinterpret-chain contract (§9.9) and the Journal delete deferral (§9.8) are unchanged.
+
+### 9.13 G1 Audit.2 — Owner-safe durable OR conversation writes
+
+Base `ccc01f41cf932fb72664ef9e6eaf8cb1f1f1153f` (Audit.1, frozen). Independent verification found two residual defects inside the gap Audit.1 (§9.12) had already named as open. Both are closed.
+
+**A. The guard's re-check and the repository's write weren't at the same point.** `CompanionOwnerGuard` re-checked the send's owner snapshot right before calling `_save`, but `LocalAiConversationRepository.save` then did its own `await getAll()` — a real microtask yield — before calling `setStringList`. An owner change landing inside that one gap, after the service-level check had already passed, would still reach the write.
+
+**B. `setStringList` returning `false` was read as success.** `LocalStorage.setStringList` returns `Future<bool>` and can resolve `false` without throwing — the exact contract `storage_result.dart`'s `requireDurable` extension exists for, already used by `LocalDreamRepository` and others. `LocalAiConversationRepository.save` and `.delete` awaited it and discarded the result, so a real write failure looked identical to a successful one, and `CompanionExperienceService.send()` had no way to know its `persisted: true` was false.
+
+The fix stays inside the same two files:
+
+- **`LocalAiConversationRepository.saveGuarded`** (new). The same read-modify-write as `save`, except the `canWrite` callback it's given is checked immediately after `getAll()` resolves and immediately before the write starts, with nothing else awaited in that gap. `save` and `delete` keep their existing shape; only `saveGuarded` re-validates ownership, because only the OR path needs a check inside the repository itself.
+- **`CompanionExperienceService._save`** is now the one write boundary for every conversation mutation — the user-turn save, the assistant-reply save, and `persistConversation`'s retry / fresh-start / abandon callers all go through it. It calls `saveGuarded` when the concrete repository is `LocalAiConversationRepository` (always true in production), passing `() => owner == null || guard.stillValid(owner)` as `canWrite`. A repository without that internal gap (isolated-test fakes) gets the same check run immediately before its plain `save` instead, since there's no repository-internal read to guard.
+- **`_writeAll`** (new, shared by `save`, `delete` and `saveGuarded`) applies `.requireDurable(_key)` to every write, so a `false` return throws instead of being discarded. `send()`'s existing try/catch around each save already treats a thrown error as a persistence failure and never reports `persisted: true` on that path — it just wasn't reachable before, because the boolean was never checked.
+
+This is still a guard, not a database transaction, and Audit.1's honesty about that stands unchanged: the physical `SharedPreferences` write is never made atomic with auth state, only checked as late as Dart's single-threaded event loop allows — immediately before the call that starts the write, with no unrelated await in between. What Audit.1 named as open beyond the closed gap — the OR surfaced-theme record and session-bootstrap's unguarded welcome-only write (§9.12) — are unchanged and still true.
+
+Mutation proof. Each mutation was applied to `local_ai_conversation_repository.dart`, run against `test/general_audit/g1/g1_audit2_or_write_guard_test.dart`, and then restored byte-for-byte (`cmp` checked); no mutation was committed.
+
+| Mutation | Result |
+|---|---|
+| M1: `saveGuarded` checks `canWrite` before `getAll()` instead of after it | Killed. All three race tests fail — the stale write survives whatever changed during the read. |
+| M2: `_writeAll` ignores the `setStringList` boolean | Killed. All four false-return tests fail — a refused write is reported as a success. |
+| M3: `saveGuarded` drops the final `canWrite` check entirely | Killed. The wipe-window race test (and the other two) fail — an owner change mid-read no longer blocks the write. |
+
+Verification (Audit.2):
+
+| Suite | Result |
+|---|---|
+| Audit.2 (`g1_audit2_or_write_guard_test.dart`) | 8 passed |
+| G1 (`test/general_audit/g1`) | 58 passed (50 + 8 Audit.2) |
+| G0 + G1 (`test/general_audit`) | 116 passed |
+| OR (`test/features/companion`) | 460 passed, 1 skipped |
+| Auth isolation (`test/core/auth`) · Privacy (`test/features/privacy`) | 258 · 33 passed |
+| Dream · Tarot · Yıldızname (frozen) | unchanged (folded into the full run below) |
+| Full Flutter | 6258 passed, 16 skipped, 0 failed (Audit.1's 6250 + 8 Audit.2) |
+| Full backend | 1652 passed, 1 skipped, 0 failed |
+| `flutter analyze` | 0 errors, 0 warnings, 218 infos (unchanged) |
+| TSC | clean |
+
+No provider calls, store transactions or deploys; no AI model or prompt changed.
