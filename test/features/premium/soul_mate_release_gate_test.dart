@@ -606,11 +606,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     expect(interpretation.calls, 2);
 
-    // Bound spent — a further tap must not call the port again.
-    await tester.scrollUntilVisible(find.text(SoulMateCopy.retry), 120);
-    await tester.tap(find.text(SoulMateCopy.retry));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 200));
+    // Bound spent — no third attempt, and no dead Retry left on screen.
+    expect(find.text(SoulMateCopy.interpretationFailed), findsOneWidget);
+    expect(find.text(SoulMateCopy.retry), findsNothing);
     expect(interpretation.calls, 2, reason: 'bounded — no third attempt');
   });
 }

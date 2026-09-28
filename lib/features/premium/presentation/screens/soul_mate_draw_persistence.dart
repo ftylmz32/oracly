@@ -41,10 +41,12 @@ abstract final class SoulMateDrawPersistence {
     if (loaded == null) return null;
     final meta = loaded.meta;
     return SoulMateRestoredState(
+      // Tagged so an interpretation repair upserts this same Journal row
+      // instead of minting a second one.
       result: SoulMateDrawResult.success(
         imageBytes: loaded.bytes,
         identity: meta.identity,
-      ),
+      ).tagged(meta.id),
       savedId: meta.id,
       name: meta.name,
       intention: meta.intention ?? '',

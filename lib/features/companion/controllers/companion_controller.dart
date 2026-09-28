@@ -12,6 +12,7 @@ import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/services/analytics_service.dart';
 import '../../../core/telemetry/crash_telemetry_service.dart';
 import '../copy/companion_copy.dart';
+import '../models/companion_send_result.dart';
 import '../models/companion_state.dart';
 import '../models/conversation.dart';
 import '../models/reflection_context.dart';
@@ -180,6 +181,16 @@ class CompanionController extends ChangeNotifier {
     _safeNotify();
   }
 
+  /// A different owner: no reading handoff and no reply from a turn still
+  /// in flight may carry over into the next account's chamber.
+  Future<void> resetForAccountSwitch() {
+    _pendingHandoff = null;
+    _readingContext = null;
+    _sendGeneration++;
+    _failureOrigin = _FailureOrigin.none;
+    return reloadFromStorage();
+  }
+
   /// Drops active feature reading context; keeps the thread.
   void clearReadingContext() {
     _pendingHandoff = null;
@@ -210,6 +221,19 @@ class CompanionController extends ChangeNotifier {
     _pendingHandoff = context;
     _readingContext = context;
     _mergeHandoff(context);
+  }
+
+  /// One-shot deepen: only after a real usable assistant reply.
+  Future<void> _consumeDeepenIfUsable(
+    CompanionSendResult result,
+    OracleReadingContext? sentContext,
+  ) async {
+    final storage = _storage;
+    if (storage == null || !result.fromAi) return;
+    if (result.response.body.trim().isEmpty) return;
+    if (await FirstReadingOrDeepen.consumeIfActive(storage, sentContext)) {
+      _safeNotify();
+    }
   }
 
   void _mergeHandoff(OracleReadingContext context) {
@@ -397,13 +421,18 @@ class CompanionController extends ChangeNotifier {
     final started = DateTime.now();
     _analytics?.logOrMessageSent(length: trimmed.length);
 
+    final sentReadingContext = _readingContext;
     try {
       final result = await _service.send(
         conversation: withUser,
         context: context,
         request: CompanionInsightClassify.fromText(trimmed),
-        readingContext: _readingContext,
+        readingContext: sentReadingContext,
       );
+      if (_disposed || token != _sendGeneration) return;
+      // The reply is on screen either way, so the one free deepen is spent
+      // for the context it was asked under -- even if saving locally fails.
+      await _consumeDeepenIfUsable(result, sentReadingContext);
       if (_disposed || token != _sendGeneration) return;
       _analytics?.logOrResponseReceived(
         fromAi: result.fromAi,
@@ -444,17 +473,6 @@ class CompanionController extends ChangeNotifier {
         linkStatus: CompanionLinkStatus.online,
       );
       _safeNotify();
-      // One-shot deepen: only after a real usable assistant reply.
-      final storage = _storage;
-      final body = result.response.body.trim();
-      if (storage != null && result.fromAi && body.isNotEmpty) {
-        final consumed = await FirstReadingOrDeepen.consumeIfActive(
-          storage,
-          _readingContext,
-        );
-        if (consumed) _safeNotify();
-      }
-      if (_disposed || token != _sendGeneration) return;
       try {
         await _output.speakIfVoice(result.response.body);
       } catch (_) {}

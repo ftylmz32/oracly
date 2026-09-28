@@ -70,9 +70,11 @@ class CoffeeV2FlowController extends ChangeNotifier {
   String? accelerationError;
   int? accelerationCost;
   String? _accelerationPriceToken;
+  String? _accelerationQuotedFor;
   Timer? _resumeTimer;
   int _generation = 0;
   int _readyMisses = 0;
+  bool _resultUnfetched = false;
 
   @override
   void dispose() {
@@ -101,6 +103,13 @@ class CoffeeV2FlowController extends ChangeNotifier {
         (slot) => record.slots[slot]?.stageState == CoffeeV2StageState.staged,
       );
 
+  /// Upload data is released only once the operation settled (result
+  /// restored or terminal failure). Such a session can never re-stage, so
+  /// it must be observed again, not retried as an interrupted upload.
+  bool get _terminalHandoffPending =>
+      record.isActive &&
+      coffeeV2CanonicalSlotOrder.every((slot) => record.slots[slot]?.asset == null);
+
   CoffeeV2FlowStage get stage {
     if (!_recovered) return CoffeeV2FlowStage.booting;
     if (!available) return CoffeeV2FlowStage.unavailable;
@@ -110,7 +119,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
       return CoffeeV2FlowStage.activeObserving;
     }
     if (record.isActive) {
-      return _allSlotsStaged
+      return _allSlotsStaged || _terminalHandoffPending
           ? CoffeeV2FlowStage.activeObserving
           : CoffeeV2FlowStage.activeStaging;
     }
@@ -156,9 +165,16 @@ class CoffeeV2FlowController extends ChangeNotifier {
         _notify();
         return;
       }
+      // The user deleted the restored reading (e.g. Privacy clear); never
+      // fetch it back from the server.
+      await submission!.acknowledgeTerminalHandoff();
+      if (_disposed) return;
+      _introDismissed = false;
+      _notify();
+      return;
     }
     if (record.isActive) {
-      if (_allSlotsStaged) {
+      if (_allSlotsStaged || _terminalHandoffPending) {
         _startObserving();
       } else {
         // An ACTIVE submission that never finished staging (app killed
@@ -296,6 +312,16 @@ class CoffeeV2FlowController extends ChangeNotifier {
   /// record has already been cleared — reset this controller's own
   /// ephemeral state so the flow lands back on Intro for a fresh draft.
   void resetToFreshDraft() {
+    if (_resultUnfetched) {
+      // The server finished this reading; only fetching it failed. Retry
+      // must fetch it again, never acknowledge it away.
+      _resultUnfetched = false;
+      observeError = null;
+      _readyMisses = 0;
+      _notify();
+      _startObserving();
+      return;
+    }
     unawaited(_acknowledgeAndReset());
   }
 
@@ -341,12 +367,17 @@ class CoffeeV2FlowController extends ChangeNotifier {
               ? null
               : await flow!.fetchCompletedResult(operationId);
           if (completed != null) {
-            reading = await experience.restoreCompleted(
-              resultId: completed.resultId,
-              persistedAt: completed.persistedAt,
-              result: completed.result,
-            );
-            _readyMisses = 0;
+            try {
+              reading = await experience.restoreCompleted(
+                resultId: completed.resultId,
+                persistedAt: completed.persistedAt,
+                result: completed.result,
+              );
+              _readyMisses = 0;
+            } catch (_) {
+              // Counted as a miss below; never a frozen spinner.
+            }
+            if (_disposed || token != _generation) return;
           }
         }
         final restored = reading;
@@ -354,7 +385,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
           _readyMisses += 1;
           if (_readyMisses >= 10) {
             observeError = ReadingLiveCopy.failed;
-            await submission?.onTerminalFailure();
+            _resultUnfetched = true;
             _notify();
             return;
           }
@@ -380,7 +411,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
       case ReadingLiveKind.processing:
         _scheduleServerPoll(token: token);
       case ReadingLiveKind.idle:
-        break;
+        if (state.unreachable) _scheduleServerPoll(token: token);
     }
     _notify();
   }
@@ -412,13 +443,23 @@ class CoffeeV2FlowController extends ChangeNotifier {
     final quote = await flow!.quoteAcceleration(operationId);
     if (_disposed || liveState?.snapshot?.operationId != operationId) return;
     if (quote == null) return;
+    _accelerationQuotedFor = operationId;
     accelerationCost = quote.canonicalCost;
     _accelerationPriceToken = quote.priceToken;
     _notify();
   }
 
-  bool get canAccelerate =>
-      liveState?.kind == ReadingLiveKind.waiting && !accelerating;
+  /// Requires a server quote for THIS operation: without its price token the
+  /// server would charge whatever it currently costs, unseen by the user.
+  bool get canAccelerate {
+    final operationId = liveState?.snapshot?.operationId;
+    return liveState?.kind == ReadingLiveKind.waiting &&
+        !accelerating &&
+        operationId != null &&
+        _accelerationQuotedFor == operationId &&
+        accelerationCost != null &&
+        _accelerationPriceToken != null;
+  }
 
   Future<void> accelerateWaiting() async {
     if (!canAccelerate || flow == null) return;

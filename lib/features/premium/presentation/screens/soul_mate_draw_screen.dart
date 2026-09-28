@@ -182,6 +182,15 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   /// poll; every other kind stops polling.
   Future<void> _applyDurable(SoulMateDurableOutcome outcome) async {
     if (!mounted) return;
+    if (outcome.unreachable && (_busy || _targetOperationId != null)) {
+      setState(() {
+        _busy = true;
+        _statusMessage = SoulMateCopy.drawing;
+        _activeSince ??= DateTime.now();
+      });
+      _scheduleDurablePoll();
+      return;
+    }
     _staleLegacy = false;
     switch (outcome.kind) {
       case SoulMateDurableKind.ready:
@@ -313,13 +322,23 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     final request = _lastRequest ?? _requestFromForm();
     final result = _result;
     if (request == null || result == null || !result.hasPortrait) return;
-    if (!_orchestrator.canRetryInterpretation) return;
-    if (mounted) {
-      setState(() {
-        _interpretationBusy = true;
-        _interpretationFailed = false;
-      });
+    if (_interpretationBusy || !_orchestrator.canRetryInterpretation) return;
+    setState(() {
+      _interpretationBusy = true;
+      _interpretationFailed = false;
+    });
+    // A repair is a new paid interpretation: saved portraits stay readable
+    // after a lapse, but generating more needs Premium now.
+    if (!await SoulMateDevAccess.allowsFresh(context)) {
+      if (mounted) {
+        setState(() {
+          _interpretationBusy = false;
+          _interpretationFailed = true;
+        });
+      }
+      return;
     }
+    if (!mounted) return;
     final interpretation = await _orchestrator.retryInterpretation(
       ref: ref,
       request: request,
@@ -366,11 +385,14 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
       OraclySnackBar.show(context, message: error);
       return;
     }
-    // R3 — never trust a stale Premium badge for a paid durable submission.
-    if (!await SoulMateDevAccess.allowsFresh(context)) return;
-    if (!mounted) return;
     _drawLock = true;
     try {
+      // R3 — never trust a stale Premium badge for a paid durable submission.
+      if (!await SoulMateDevAccess.allowsFresh(context)) return;
+      if (!mounted) return;
+      // A new submission is observed through the feature pointer; a
+      // deep-link target would keep reporting the old operation.
+      _targetOperationId = null;
       // A stale-legacy operation (SMD1 §11) must always retry with a
       // brand-new operation — `_retry()` resets `_freshNext` before
       // calling here, so `_staleLegacy` is captured first, independently
@@ -463,7 +485,9 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
               interpretation: _interpretation,
               interpretationBusy: _interpretationBusy,
               interpretationFailed: _interpretationFailed,
-              onRetryInterpretation: _retryInterpretation,
+              onRetryInterpretation: _orchestrator.canRetryInterpretation
+                  ? _retryInterpretation
+                  : null,
               activeSince: _activeSince,
             ),
     );

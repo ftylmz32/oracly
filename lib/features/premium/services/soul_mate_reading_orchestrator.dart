@@ -515,6 +515,12 @@ class SoulMateReadingOrchestrator {
       return const SoulMateDurableOutcome(kind: SoulMateDurableKind.none);
     }
     final state = await runner.flow.recover(ReadingType.soulmate);
+    if (state.unreachable) {
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.none,
+        unreachable: true,
+      );
+    }
     final snapshot = state.snapshot;
     // `/v1/reading-flow/active` returns whatever operation is active
     // REGARDLESS of executionMode — it is the exact same endpoint
@@ -569,6 +575,12 @@ class SoulMateReadingOrchestrator {
       );
     }
     final state = await runner.flow.recoverOperation(normalized);
+    if (state.unreachable) {
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.unavailable,
+        unreachable: true,
+      );
+    }
     final snapshot = state.snapshot;
     if (snapshot == null ||
         snapshot.readingType != ReadingType.soulmate ||
@@ -715,9 +727,14 @@ class SoulMateDurableOutcome {
     this.savedId,
     this.activeSince,
     this.failureCode = ReadingFailureCode.unknown,
+    this.unreachable = false,
   });
 
   final SoulMateDurableKind kind;
+
+  /// The server could not answer (transport, 429, 5xx): [kind] says nothing
+  /// about the operation itself, so an observer must keep observing.
+  final bool unreachable;
   final SoulMateDrawResult? draw;
   final SoulMateReadingParts? interpretation;
   final String? savedId;

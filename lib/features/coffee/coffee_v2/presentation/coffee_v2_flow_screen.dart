@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/design_system/chamber_waiting_stage.dart';
 import '../../../../shared/navigation/oracly_navigation.dart';
+import '../../../personal_discovery/services/personal_discovery_refresh.dart';
 import '../../copy/coffee_copy.dart';
 import '../../presentation/reference/coffee_error_view.dart';
 import '../../presentation/reference/coffee_landing_chamber.dart';
@@ -28,8 +29,15 @@ import 'coffee_v2_intro_view.dart';
 import 'coffee_v2_preview_view.dart';
 import 'coffee_v2_step_view.dart';
 
-class CoffeeV2FlowScreen extends ConsumerWidget {
+class CoffeeV2FlowScreen extends ConsumerStatefulWidget {
   const CoffeeV2FlowScreen({super.key});
+
+  @override
+  ConsumerState<CoffeeV2FlowScreen> createState() => _CoffeeV2FlowScreenState();
+}
+
+class _CoffeeV2FlowScreenState extends ConsumerState<CoffeeV2FlowScreen> {
+  String? _journalRefreshedFor;
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -40,8 +48,15 @@ class CoffeeV2FlowScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final controller = ref.watch(coffeeV2FlowControllerProvider);
+    ref.listen(coffeeV2FlowControllerProvider, (_, next) {
+      final shownId = next.reading?.id;
+      if (shownId != null && shownId != _journalRefreshedFor) {
+        _journalRefreshedFor = shownId;
+        PersonalDiscoveryRefresh.invalidate(ref);
+      }
+    });
     return CoffeeLandingChamber(
       onBack: () => _handleBack(context),
       child: switch (controller.stage) {

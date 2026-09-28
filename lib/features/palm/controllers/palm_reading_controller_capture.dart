@@ -52,7 +52,25 @@ mixin PalmReadingCapture on ChangeNotifier {
 
   /// Server-quoted Gem cost for THIS operation. Null until fetched (or if
   /// the fetch fails) -- never a locally invented fallback number.
-  int? get accelerationCost => _accelerationCost;
+  int? get accelerationCost => quotedForCurrent ? _accelerationCost : null;
+
+  /// Reinterpret versions the current reading inside its own pipeline run;
+  /// a server-owned operation would produce a separate reading instead and
+  /// leave this screen waiting on nothing.
+  bool get canReinterpret {
+    final live = _live;
+    return _image != null && live != null && !live.serverOwnedCompletion;
+  }
+
+  /// Without this operation's price token the server would charge whatever
+  /// it currently costs, unseen by the user.
+  bool get quotedForCurrent {
+    final operationId = liveState?.snapshot?.operationId;
+    return operationId != null &&
+        _accelerationCostFor == operationId &&
+        _accelerationCost != null &&
+        _accelerationPriceToken != null;
+  }
 
   Future<void> refreshAccelerationCost(
     ReadingFeatureRunner live,

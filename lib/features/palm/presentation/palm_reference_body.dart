@@ -67,7 +67,7 @@ class PalmReferenceBody extends ConsumerWidget {
         // could have silently replaced valid backend text.
         reading: controller.reading!,
         onNewPalm: controller.backToEntry,
-        onReinterpret: controller.image == null
+        onReinterpret: !controller.canReinterpret
             ? null
             : () async {
                 await controller.reinterpret();

@@ -11,7 +11,7 @@ Evidence comes from repo code and tests only. No provider, OpenAI, Cloud Run, Fi
 
 The audited base is `e71f9376`. The G0 commit that adds this document changes only the shared defects listed in §4, and no product surface.
 
-Source of truth: `OraclyFeatureRegistry` (`lib/core/features/oracly_feature_registry.dart`), pinned by `test/general_audit/general_route_matrix_test.dart`.
+Source of truth: `OraclyFeatureRegistry` (`lib/core/modules/oracly_feature_registry.dart`), pinned by `test/general_audit/general_route_matrix_test.dart`.
 
 | Status | Count | Features |
 |---|---|---|
@@ -153,7 +153,7 @@ One backend run failed a single timing-sensitive Tarot test (`narrative-tarot-6d
 - `lib/shared/navigation/oracly_navigation.dart` exceeds 150 lines. It was already over the limit before G0 (175 lines); the fix brings it to 188. A split is left for a dedicated shell refactor so the defect fix stays narrow.
 - Three G0 test files (route matrix, shell navigation, premium matrix) run 162–175 lines. That follows the existing test convention (341 of 1023 test files exceed 150); all production files touched in G0 other than the shell stay within 150.
 - The legacy reserved widgets remain as unreachable dead code, pinned by a source scan.
-- Per-entry journal delete for non-Tarot kinds (P1-JOURNAL-DELETE) is deferred to G1.
+- Per-entry journal delete for non-Tarot kinds (P1-JOURNAL-DELETE) was deferred to G1; G1 decides it in §9.8.
 
 ## 8. External actions and post-deploy / device checks
 
@@ -162,3 +162,166 @@ One backend run failed a single timing-sensitive Tarot test (`narrative-tarot-6d
 - **Backend:** deploy the Dream writer binding; verify `/health`, `/ready` and a fail-closed Dream request.
 - **Legal:** confirm the hosted privacy, terms and data-deletion pages.
 - **Device:** Android system back from each chamber (G0-D5), and warm share links from a messenger while the app runs (G0-D1). Also a TalkBack / VoiceOver pass and the TECNO matrix.
+
+---
+
+## 9. G1 — LIVE FEATURE PRODUCT SEAMS
+
+Base `1fcd3da17dc512f74d8fd12615dfcd5886341680` (G0, frozen). Scope: Coffee, Palm, SoulMate, OR and Astrology, from entry to completion, failure, retry, reopen and account switch, plus their seams with Premium, Gems, the Discovery Journal, saved results, Reading Operations, navigation and privacy.
+
+Evidence comes from code and tests with fakes only: an in-memory reading backend, a transport that drops calls the way a dead network does, synthetic images, synthetic entitlements and local storage. There were no provider, OpenAI or image-generation calls, no store transactions and no deploys, and no AI prompt or model changed. Dream, Tarot and Yıldızname internals were not touched, and their suites are run as frozen regressions.
+
+G1 tests live in `test/general_audit/g1/`. Every defect below went failing regression → narrow fix → green, and each regression was also run against the `HEAD` version of the production files to confirm it fails there.
+
+### 9.1 Defects found and fixed
+
+| ID | Feature | Defect (what the user saw) | Fix | Regression |
+|---|---|---|---|---|
+| **G1-D1** | Coffee (legacy + V2), Palm, SoulMate | A dropped network call, a 429 or a 5xx while waiting was read as "no operation". Coffee and Palm stopped polling and left the user on a spinner nothing would ever update; SoulMate stopped polling while still showing "drawing", and an exact (deep-linked) SoulMate showed "unavailable". | `ReadingLiveState.unreachable` separates "the server couldn't answer" from "the operation is gone". Every observer keeps polling on it. | `g1_coffee_entry_recovery_test`, `g1_palm_entry_recovery_test`, `g1_soulmate_durable_recovery_test` |
+| **G1-D2** | Coffee (legacy + V2), Palm | A ready operation whose result couldn't be fetched yet, or whose payload failed to parse, froze the wait. | The fetch is retried on the next poll. After 10 misses, Coffee V2 shows its failure state with a working Retry. A Palm payload that can't be read becomes an honest error. | same files, plus `g1_coffee_v2_recovery_test` |
+| **G1-D3** | Coffee legacy, Palm | Exact recovery of an operation that no longer exists, or that belongs to the other feature, left an unrelated saved reading on screen. | A missing or foreign target settles back to a fresh entry, or keeps observing if an analysis is already running. | `g1_coffee_entry_recovery_test`, `g1_palm_entry_recovery_test` |
+| **G1-D4** | Coffee V2 | A failed reading whose photos had been released reopened as an endless "preparing" spinner. A restored result the user had deleted was fetched back from the server. | The terminal failure is handed off as a failure. The deleted-result branch acknowledges the operation instead of re-fetching it. | `g1_coffee_v2_recovery_test` |
+| **G1-D5** | Palm | A poll that was already scheduled when the user left the wait could pull them back into it. | The poll carries the controller generation and drops itself if the user has moved on. | `g1_palm_entry_recovery_test` |
+| **G1-D6** | Coffee (legacy + V2), Palm | The speed-up button was active before any price had been quoted for the current operation, so a tap could charge an amount the user never saw. | `canAccelerate` and the shown cost require a server quote for the current operation. The Gem cost stays server-quoted only; nothing is hardcoded. | `g1_coffee_acceleration_test`, `g1_palm_acceleration_test`, `acceleration_controller_wiring_test` |
+| **G1-D7** | Coffee (legacy + V2), Palm | A finished reading never refreshed the Discovery Journal. The listener compared the previous and next values of one `ChangeNotifier`, which are the same instance, so it never fired. | Each screen remembers the last reading id it refreshed for and refreshes when a new one is shown. | `g1_coffee_journal_test`, `g1_palm_journal_test` |
+| **G1-D8** | Coffee legacy, Palm | "Reinterpret" was offered in production, but production completes readings on the server and the button called a client analysis path that always fails. That's a dead affordance. | `canReinterpret` hides the action when completion is server-owned. | `g1_coffee_journal_test`, `g1_palm_journal_test` |
+| **G1-D9** | SoulMate | After Premium lapsed, a saved portrait's "retry interpretation" still generated a new paid interpretation. | The repair re-checks Premium with `allowsFresh`. The saved portrait stays readable. | `g1_soulmate_entitlement_test` |
+| **G1-D10** | SoulMate | Two taps during a slow Premium check submitted two draws. | The draw lock is taken before the entitlement await. | `g1_soulmate_entitlement_test` |
+| **G1-D11** | SoulMate | After opening a deep-linked result and tapping Redraw, polling kept watching the old operation and showed the old portrait again. | A new submission stops observing the deep-link target. | `g1_soulmate_durable_recovery_test` |
+| **G1-D12** | SoulMate | Repairing the interpretation of a restored portrait created a second Journal row, and the Retry button stayed on screen after the two allowed attempts were spent. | The restored result carries its saved id, so the repair updates the same row; Retry is hidden once no attempt remains. | `g1_soulmate_entitlement_test`, `soul_mate_release_gate_test` #18 |
+| **G1-D13** | OR | The free first-reading deepen wasn't spent when the reading context was cleared during the reply, or when the reply showed but saving it locally failed. Either way the user got a second free turn. | The deepen is spent against the context the question was asked under, as soon as a usable reply is on screen. | `g1_or_access_test` |
+| **G1-D14** | OR | A quality re-generation reused the turn's idempotency key. The server's 10-minute replay cache would return the very reply the quality gate had just rejected, so the retry was wasted and ended in "unavailable". | Each re-generation runs under its own key derived from the turn key. A user retry of the same failed turn still reuses the turn key. | `g1_or_retry_persistence_test` |
+| **G1-D15** | OR | Text compose trusted a cached Premium flag. OR text is not billed on the server, so after a mid-session lapse the chat kept answering until something else refreshed entitlement. | A text send re-checks Premium (`ensureFresh`) before a paid turn; the one free first-reading deepen still works. Voice already re-checked. | `g1_or_premium_lapse_test` |
+| **G1-D16** | Cross-feature | On account switch the reading sender stayed bound to owner A. It fails closed for anyone else, so owner B's Coffee, Palm, SoulMate and wallet calls all looked like a dead network. OR also kept A's reading handoff, and a reply still in flight could land in B's chamber. | `afterAccountSwitch` rebuilds the sender (and with it every reading controller and the wallet) and calls `CompanionController.resetForAccountSwitch`. | `g1_owner_switch_cross_feature_test`, `g1_or_handoff_test` |
+| **G1-D17** | Astrology | Any finished reading refreshes the shared profile, which replaced the whole Astrology hub with the loading view. | A background refresh keeps showing the profile already known. The first load and a profile failure behave as before. | `g1_astrology_flow_test` |
+
+G1 also tried to make "Clear discovery history" remove Coffee, Palm and Tarot reinterpret version chains. The frozen Dream suite pins the opposite contract (`dream_phase1_clear_durability_test` and `dream_phase1_privacy_clear_test` expect those chains to survive a Discovery clear), so the change was reverted. It's recorded in §9.9 instead.
+
+### 9.2 Coffee
+
+| Seam | Verdict | Evidence |
+|---|---|---|
+| Journey | Entry goes through `CoffeeV2EntryGate`; the legacy controller is still used for saved readings and recovery. Capture → wait → server processing → ready or failed, all polled from the server. | `test/features/coffee` |
+| Economy | The base reading is free: `CoffeeEconomy.analysisCost == null`. The optional speed-up is a server-quoted Gem price, shown only after a quote for the current operation (G1-D6). A double tap charges once (`acceleration_controller_wiring_test`). | `g1_coffee_acceleration_test` |
+| Entitlement | Not Premium-gated. | G0 `general_premium_gate_matrix_test` |
+| Persistence | Server-owned completion → local store → Journal refresh (G1-D7). | `g1_coffee_journal_test` |
+| Recovery | Exact recovery by operation id, cold recovery through `/active`, a wrong-type (Palm) id rejected, outages and unfetched results retried (G1-D1–D4). | `g1_coffee_entry_recovery_test`, `g1_coffee_v2_recovery_test` |
+| Journal | Reopen by id; a missing source shows calm "unavailable" and pushes nothing. | `discovery_journal_opener_test` |
+| Owner isolation | Wiped on account switch; the rebuilt sender binds to the new owner (G1-D16). | `g1_owner_switch_cross_feature_test`, G0 `general_owner_isolation_smoke_test` |
+| OR handoff | "Ask OR" passes a typed Coffee context; OR fresh entry clears it. | `or_typed_handoff_ask_oracle_test`, G0 `or_fresh_entry_clears_handoff_test` |
+| Reinterpret | Not reachable in production, and hidden there (G1-D8). | `g1_coffee_journal_test` |
+
+### 9.3 Palm
+
+| Seam | Verdict | Evidence |
+|---|---|---|
+| Journey | Choose a hand → photo intake → wait → processing → ready or failed. The chosen hand survives recovery. | `test/features/palm`, `g1_palm_entry_recovery_test` |
+| Economy | The base reading is free: `PalmEconomy.analysisCost == null`. The speed-up is server-quoted and shown only after a quote (G1-D6). | `g1_palm_acceleration_test` |
+| Entitlement | Not Premium-gated. | G0 `general_premium_gate_matrix_test` |
+| Persistence and Journal | Saved on completion; the Journal refreshes (G1-D7); a missing source shows "unavailable". | `g1_palm_journal_test`, `discovery_journal_opener_test` |
+| Recovery | Exact, cold and wrong-type (Coffee) handling; outages and unfetched results retried; leaving the wait is respected (G1-D1–D5). | `g1_palm_entry_recovery_test` |
+| Owner isolation | Same as Coffee (G1-D16). | `g1_owner_switch_cross_feature_test` |
+| Reinterpret | Not reachable in production, and hidden there (G1-D8). | `g1_palm_journal_test` |
+
+### 9.4 SoulMate
+
+| Seam | Verdict | Evidence |
+|---|---|---|
+| Free preview | A non-Premium user sees an honest locked preview, not the draw form. | `soul_mate_release_gate_test` #1 |
+| Free generation bypass | Blocked. Draw and interpretation repair both re-check Premium with `allowsFresh` (G1-D9, G1-D10); the direct route is self-gated. | `g1_soulmate_entitlement_test`, G0 §3 #9 |
+| Economy | Premium only, no Gem price: `SoulMateEconomy.drawCost == null`. | `g1_soulmate_entitlement_test` |
+| Durable operation | The client only creates the operation and saves its input, then observes. Portrait, interpretation and persistence happen server-side. | `soul_mate_durable_test` |
+| Recovery | Exact target, a foreign active operation ignored for an exact target, cold recovery, outages keep observing (G1-D1), redraw after a deep link (G1-D11). A legacy stuck operation shows a controlled retry that starts a new durable operation. | `soul_mate_durable_test`, `g1_soulmate_durable_recovery_test` |
+| Portrait ready, interpretation failed | Only reachable for older saved local entries. The portrait shows; repair is bounded at 2 attempts, updates the same row, and leaves no dead Retry (G1-D12). | `soul_mate_release_gate_test` #18, `g1_soulmate_entitlement_test` |
+| Premium lapse | A saved portrait stays readable. Redraw and repair need Premium again. | `g1_soulmate_entitlement_test` |
+| Journal | Reopens only when the saved record matches, has an authoritative interpretation and has portrait bytes. | `soul_mate_journal_test` |
+
+### 9.5 OR
+
+| Seam | Verdict | Evidence |
+|---|---|---|
+| Free chamber | Opens for everyone; free users see the gate when they compose. | `companion_or_conversation_access_test` |
+| Free compose bypass | Blocked. Text needs Premium or the one matching first-reading deepen, and now re-checks a stale Premium flag (G1-D15). | `g1_or_premium_lapse_test` |
+| First-reading deepen | One free text turn for the first-session Tarot reading. Spent after a usable reply for that context, including when saving fails or the context is cleared (G1-D13). Not spent by an unusable reply. | `first_reading_or_deepen_test`, `g1_or_access_test` |
+| Premium text, review access | Allowed; `isPremium` includes an active reviewer grant. | `review_access_gate_test` |
+| Voice | Premium only, re-checked with `ensureFresh`; the free deepen never unlocks voice. | `companion_voice_conversation_access_test` |
+| Send, retry, double send | One operation id per send intent, reused by retry, with one request for a double tap. Quality re-generation uses its own key (G1-D14). | `or_persist_reliability_d2_test`, `g1_or_retry_persistence_test` |
+| Fallback | No fake assistant text. An exhausted quality gate becomes an honest invalid-response failure. | `companion_ai_bridge.dart`, `g1_or_access_test` |
+| Handoff and fresh context | Typed handoff; fresh entry clears it; an account switch clears it and drops a reply still in flight (G1-D16). | `g1_or_handoff_test`, G0 `or_fresh_entry_clears_handoff_test` |
+| Persistence | A local save failure keeps the reply visible and offers a retry that doesn't call the provider again. | `or_persist_reliability_d2_test` |
+
+### 9.6 Astrology
+
+| Seam | Verdict | Evidence |
+|---|---|---|
+| Sign restore, corrupt sign, select | The selected sign restores. An unknown stored id falls back to the default sign (Aries) and the hub still renders; this was already correct, and G1 adds coverage rather than a fix. | `astrology_persistence_test`, `g1_astrology_flow_test` |
+| Profile failure | Non-blocking: the local sun-sign reading always shows. | `g1_astrology_flow_test` |
+| Profile refresh | Keeps the hub on screen (G1-D17). A first load that stalls offers Retry after the failsafe window. | `g1_astrology_flow_test`, `astrology_reference_loading_retry_test` |
+| Detail routing | Opens the detail reading for the selected sign; Yıldızname never opens Astrology. | `astrology_reference_layout_test`, G0 `general_route_matrix_test` |
+| Journal | Astrology creates no Journal entries. `LocalAstrologyRepository.save` has no callers, so there is nothing to reopen and nothing to delete. The selected sign is device-scoped and is wiped on account switch. | code |
+
+### 9.7 Cross-feature seams
+
+| Seam | Verdict | Evidence |
+|---|---|---|
+| Owner switch A → B → A | The local wipe removes owner A's key families (G0). G1 adds a rebuilt sender and a reset OR (G1-D16). | `g1_owner_switch_cross_feature_test`, G0 `general_owner_isolation_smoke_test` |
+| Failure, exit, return | Leaving a wait never cancels the server operation. Returning observes the same operation; nothing is submitted twice. | `soul_mate_durable_test`, `g1_palm_entry_recovery_test`, `test/features/coffee` |
+| System back | The G0 regression (`general_navigation_stack_test`, `general_shell_navigation_test`) passes unchanged on the G1 code. | §9.11 |
+| Shared error state | The G0 regression (`general_error_state_accessibility_test`) passes unchanged. | §9.11 |
+
+### 9.8 Journal per-entry delete (old P1-JOURNAL-DELETE)
+
+Decision: **SAFELY DEFERRED** (non-blocking). The Journal has no delete UI, and there is no narrow, complete canonical per-entry delete to wire:
+
+- The Coffee store delete doesn't remove the archived image, the reinterpret version root or a favorite. The Palm store delete misses the version root and a favorite.
+- The Tarot delete lives in the frozen Reading History detail screen. Dream delete needs the frozen Dream owner guard. `SoulMateResultService.clear()` is not wired to any UI.
+
+Wiring a delete button to these would leave data behind, which is worse than not offering one. The user is never blocked from deleting: the Privacy center clears each area, and account deletion wipes everything. A per-entry delete needs complete per-feature deletes first.
+
+### 9.9 Known limitations (G1)
+
+- **SoulMate review access vs the server.** Review access is stateless on the backend (a hash compare), and the durable SoulMate guard reads only purchase bindings. A reviewer using review access, with no purchase, is refused by the server for a new draw. Fixing it needs a backend design and a deploy. Until then, reviewers can use a sandbox purchase.
+- **Stale `/active` pointer.** The backend never clears a feature's active-operation pointer, so recovery can keep reporting a finished operation. The client handles it correctly; it's a backend cleanup item (P3).
+- **OR reply persisted after an account switch.** The in-memory state is dropped (G1-D16), but the service may still write a reply that was already in flight to local storage.
+- **OR voice.** Text-to-speech can continue briefly after leaving the chamber, and disposing the voice-turn controller while a turn is active is not proven on a device.
+- **Coffee V2.** It polls the feature's active pointer rather than the record's own operation id, and its final review is silent if `begin` fails. Its gate providers are cached for the session, and a `setSlot` `StateError` is not handled.
+- **Palm photo archive.** Under server completion, the Palm photo is not archived locally.
+- **Discovery clear keeps reinterpret version chains** for Coffee, Palm and Tarot. That's the contract pinned by the frozen Dream suite. The text is unreachable in the UI, because its reading records are gone, and account deletion removes it. Removing it needs a product decision and a matching update to those frozen pins.
+- **Astrology.** The hub waits for the first profile load before showing (it has a failsafe Retry). Astrology creates no Journal entries.
+- **Journal owner filtering.** The Journal doesn't filter by owner itself; it relies on the account-switch wipe.
+- **Coffee legacy.** An error-snackbar branch compares a notifier with itself and never fires; errors show inline, so nothing is lost.
+- **File size.** The production files touched here that exceed 150 lines were already over the limit before G1 (for example `coffee_reading_controller.dart`, `companion_controller.dart`, `soul_mate_draw_screen.dart`, `palm_reading_controller_capture.dart`). Splitting them is left to dedicated refactors so each fix stays narrow. Two G1 support files (`g1_soulmate_support.dart`, `g1_or_support.dart`) and `g1_support.dart` also exceed 150 lines, following the existing test convention.
+
+### 9.10 Not proven live / external
+
+Everything above is proven with fakes. None of it proves live quality, and none of it is marked green for live:
+
+- The real provider, meaning Coffee, Palm and SoulMate output quality and OR reply quality.
+- The real server replay cache and duplicate-gate timing against a real network.
+- Real store purchase, restore and lapse, and review access on a store build.
+- Device behavior: system back, backgrounding during a wait, push-notification deep links into an exact operation, the microphone and text-to-speech.
+
+### 9.11 Verification (G1)
+
+| Suite | Result |
+|---|---|
+| G1 (`test/general_audit/g1`) | 44 passed. 30 of them were first shown failing against `HEAD` production files. |
+| G0 + G1 (`test/general_audit`) | 102 passed |
+| Coffee (`test/features/coffee`) | 215 passed |
+| Palm (`test/features/palm`) | 87 passed |
+| SoulMate (`soul_mate_*` + `e3e_soulmate_live_portrait` + `soul_mate_experience_final`) | 126 passed |
+| Premium (`test/features/premium` + purchase honesty) | 291 passed |
+| OR (`test/features/companion`) | 460 passed, 1 skipped |
+| Astrology (`test/features/astrology` + percentage honesty) | 24 passed |
+| Gems (`test/features/gems`) | 92 passed |
+| Journal, Favorites, Personal Discovery | 139 passed |
+| Reading Operations (`test/features/reading_operation`) | 69 passed |
+| Privacy (`test/features/privacy`) | 33 passed |
+| Navigation (`test/core/navigation`) | 4 passed |
+| Dream (frozen) | 493 passed, 2 skipped |
+| Tarot (frozen) | 1457 passed, 1 skipped |
+| Yıldızname (frozen) | 871 passed |
+| Full Flutter | 6244 passed, 16 skipped, 0 failed (G0: 6200 + 44 G1) |
+| Full backend (`npx vitest run`) | 1652 passed, 1 skipped |
+| `flutter analyze` | 0 errors, 0 warnings, 218 infos (unchanged from G0) |
+| TSC (`npx tsc --noEmit -p .`) | clean |

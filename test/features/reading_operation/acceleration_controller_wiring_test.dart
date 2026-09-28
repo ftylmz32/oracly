@@ -72,6 +72,9 @@ void main() {
     );
     addTearDown(controller.dispose);
     await controller.recoverActive();
+    // No price shown yet -- the CTA must not charge an unseen amount.
+    expect(controller.canAccelerate, isFalse);
+    await Future<void>.delayed(Duration.zero);
     expect(controller.canAccelerate, isTrue);
     final first = controller.accelerateWaiting();
     final duplicate = controller.accelerateWaiting();
@@ -102,6 +105,7 @@ void main() {
     );
     addTearDown(controller.dispose);
     await controller.recoverActive();
+    await Future<void>.delayed(Duration.zero);
     await controller.accelerateWaiting();
     expect(controller.liveState?.kind, ReadingLiveKind.waiting);
     expect(analysis.calls, 0);
@@ -129,6 +133,8 @@ void main() {
     );
     addTearDown(controller.dispose);
     await controller.recoverActive();
+    expect(controller.canAccelerate, isFalse);
+    await Future<void>.delayed(Duration.zero);
     expect(controller.accelerationError, isNull);
     await controller.accelerateWaiting();
     // Operation stays valid and waiting -- not failed, not a fake success.
@@ -154,6 +160,7 @@ void main() {
     );
     addTearDown(controller.dispose);
     await controller.recoverActive();
+    await Future<void>.delayed(Duration.zero);
     final first = controller.accelerateWaiting();
     final duplicate = controller.accelerateWaiting();
     await Future<void>.delayed(Duration.zero);

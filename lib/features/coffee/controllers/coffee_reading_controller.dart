@@ -93,13 +93,25 @@ class CoffeeReadingController extends ChangeNotifier {
   CoffeeImageInputPort get images => _images;
   bool get analysisAvailable => _experience.analysisAvailable;
   bool get accelerating => _accelerating;
+  /// Requires a server quote for THIS operation: without its price token the
+  /// server would charge whatever it currently costs, unseen by the user.
   bool get canAccelerate =>
-      liveState?.kind == ReadingLiveKind.waiting && !_accelerating;
+      liveState?.kind == ReadingLiveKind.waiting &&
+      !_accelerating &&
+      _quotedForCurrent;
   String? get accelerationError => _accelerationError;
 
   /// Server-quoted Gem cost for THIS operation. Null until fetched (or if
   /// the fetch fails) -- never a locally invented fallback number.
-  int? get accelerationCost => _accelerationCost;
+  int? get accelerationCost => _quotedForCurrent ? _accelerationCost : null;
+
+  bool get _quotedForCurrent {
+    final operationId = liveState?.snapshot?.operationId;
+    return operationId != null &&
+        _accelerationCostFor == operationId &&
+        _accelerationCost != null &&
+        _accelerationPriceToken != null;
+  }
 
   Future<void> _refreshAccelerationCost(
     ReadingFeatureRunner live,
@@ -303,16 +315,18 @@ class CoffeeReadingController extends ChangeNotifier {
             _reading = saved;
             _phase = CoffeePhase.result;
           } else if (resultId != null) {
-            final completed = await live.flow.fetchCompletedResult(
+            final restored = await _fetchAndRestore(
+              live,
               state.snapshot!.operationId,
             );
-            if (completed != null) {
-              _reading = await _experience.restoreCompleted(
-                resultId: completed.resultId,
-                persistedAt: completed.persistedAt,
-                result: completed.result,
-              );
+            if (_disposed || token != _generation) return;
+            if (restored != null) {
+              _reading = restored;
               _phase = CoffeePhase.result;
+            } else {
+              // The poll timer is already cancelled: re-poll, or the wait
+              // screen stays up with nothing left to end it.
+              _scheduleServerPoll(token: token, live: live);
             }
           }
         }
@@ -344,6 +358,7 @@ class CoffeeReadingController extends ChangeNotifier {
         _scheduleServerPoll(token: token, live: live);
       case ReadingLiveKind.idle:
         _phase = CoffeePhase.analyzing;
+        if (state.unreachable) _scheduleServerPoll(token: token, live: live);
     }
     _safeNotify();
   }
@@ -457,8 +472,19 @@ class CoffeeReadingController extends ChangeNotifier {
   }) async {
     final state = await live.flow.recoverOperation(operationId);
     if (_disposed || token != _generation) return;
+    if (state.unreachable) {
+      _scheduleTargetOperationPoll(
+        token: token,
+        live: live,
+        operationId: operationId,
+      );
+      return;
+    }
     final snapshot = state.snapshot;
-    if (snapshot == null || snapshot.readingType != ReadingType.coffee) return;
+    if (snapshot == null || snapshot.readingType != ReadingType.coffee) {
+      _settleMissingTarget(token: token, live: live);
+      return;
+    }
 
     liveState = state;
     switch (state.kind) {
@@ -477,20 +503,25 @@ class CoffeeReadingController extends ChangeNotifier {
           liveState = state;
           return;
         }
-        final completed = await live.flow.fetchCompletedResult(operationId);
-        if (_disposed || token != _generation || completed == null) return;
-        final restored = await _experience.restoreCompleted(
-          resultId: completed.resultId,
-          persistedAt: completed.persistedAt,
-          result: completed.result,
-        );
+        final restored = await _fetchAndRestore(live, operationId);
         if (_disposed || token != _generation) return;
+        if (restored == null) {
+          _scheduleTargetOperationPoll(
+            token: token,
+            live: live,
+            operationId: operationId,
+          );
+          return;
+        }
         openSaved(restored);
         liveState = state;
       case ReadingLiveKind.waiting:
       case ReadingLiveKind.processing:
         _phase = CoffeePhase.analyzing;
         _error = null;
+        if (state.kind == ReadingLiveKind.waiting) {
+          unawaited(_refreshAccelerationCost(live, operationId));
+        }
         _scheduleTargetOperationPoll(
           token: token,
           live: live,
@@ -503,6 +534,44 @@ class CoffeeReadingController extends ChangeNotifier {
         _safeNotify();
       case ReadingLiveKind.idle:
         break;
+    }
+  }
+
+  /// The requested operation is gone, foreign or not Coffee. Never leave an
+  /// unrelated reading on screen, and never strand an analysis whose own
+  /// polling this recovery attempt superseded.
+  void _settleMissingTarget({
+    required int token,
+    required ReadingFeatureRunner live,
+  }) {
+    switch (_phase) {
+      case CoffeePhase.result:
+      case CoffeePhase.error:
+        backToEntry();
+      case CoffeePhase.analyzing:
+        _scheduleServerPoll(token: token, live: live);
+      case CoffeePhase.entry:
+      case CoffeePhase.capture:
+        break;
+    }
+  }
+
+  /// Null when the result is not fetchable yet or its payload cannot be
+  /// saved -- both retryable, neither worth an unhandled exception.
+  Future<CoffeeReading?> _fetchAndRestore(
+    ReadingFeatureRunner live,
+    String operationId,
+  ) async {
+    final completed = await live.flow.fetchCompletedResult(operationId);
+    if (completed == null || _disposed) return null;
+    try {
+      return await _experience.restoreCompleted(
+        resultId: completed.resultId,
+        persistedAt: completed.persistedAt,
+        result: completed.result,
+      );
+    } catch (_) {
+      return null;
     }
   }
 
@@ -554,17 +623,12 @@ class CoffeeReadingController extends ChangeNotifier {
           openSaved(saved);
         } else {
           final operationId = state.snapshot?.operationId;
-          final completed = operationId == null
+          final restored = operationId == null
               ? null
-              : await live.flow.fetchCompletedResult(operationId);
-          if (completed != null) {
-            openSaved(
-              await _experience.restoreCompleted(
-                resultId: completed.resultId,
-                persistedAt: completed.persistedAt,
-                result: completed.result,
-              ),
-            );
+              : await _fetchAndRestore(live, operationId);
+          if (_disposed || token != _generation) return;
+          if (restored != null) {
+            openSaved(restored);
           } else {
             _safeNotify();
           }
@@ -668,6 +732,14 @@ class CoffeeReadingController extends ChangeNotifier {
       return;
     }
     await _analyzeLive();
+  }
+
+  /// Reinterpret versions the current reading inside its own pipeline run;
+  /// a server-owned operation would produce a separate reading instead and
+  /// leave this screen waiting on nothing.
+  bool get canReinterpret {
+    final live = _live;
+    return _image != null && live != null && !live.serverOwnedCompletion;
   }
 
   Future<void> reinterpret() async {

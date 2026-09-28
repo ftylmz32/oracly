@@ -50,6 +50,7 @@ class PalmReferenceScreen extends ConsumerStatefulWidget {
 
 class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
   bool _starting = false;
+  String? _journalRefreshedFor;
 
   @override
   void initState() {
@@ -166,6 +167,15 @@ class _PalmReferenceScreenState extends ConsumerState<PalmReferenceScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = ref.watch(palmReadingControllerProvider);
+    // Server-owned completion lands after _analyze returns, so the Journal
+    // refresh follows the result itself.
+    ref.listen(palmReadingControllerProvider, (_, next) {
+      final shownId = next.phase == PalmPhase.result ? next.reading?.id : null;
+      if (shownId != null && shownId != _journalRefreshedFor) {
+        _journalRefreshedFor = shownId;
+        PersonalDiscoveryRefresh.invalidate(ref);
+      }
+    });
     return QualityLoopGate(
       feature: QualityFeature.palm,
       child: PopScope(

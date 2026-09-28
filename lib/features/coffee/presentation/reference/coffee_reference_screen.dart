@@ -48,6 +48,7 @@ class CoffeeReferenceScreen extends ConsumerStatefulWidget {
 
 class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
   bool _starting = false;
+  String? _journalRefreshedFor;
 
   @override
   void initState() {
@@ -172,10 +173,13 @@ class _CoffeeReferenceScreenState extends ConsumerState<CoffeeReferenceScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = ref.watch(coffeeReadingControllerProvider);
+    // prev and next are the same ChangeNotifier, so transitions must be
+    // tracked here rather than compared.
     ref.listen(coffeeReadingControllerProvider, (prev, next) {
-      if (prev?.phase != CoffeePhase.result &&
-          next.phase == CoffeePhase.result &&
-          next.reading != null) {
+      final shownId =
+          next.phase == CoffeePhase.result ? next.reading?.id : null;
+      if (shownId != null && shownId != _journalRefreshedFor) {
+        _journalRefreshedFor = shownId;
         PersonalDiscoveryRefresh.invalidate(ref);
       }
       final message = next.errorMessage;

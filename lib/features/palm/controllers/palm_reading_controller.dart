@@ -48,7 +48,9 @@ class PalmReadingController extends ChangeNotifier
   }
 
   bool get canAccelerate =>
-      liveState?.kind == ReadingLiveKind.waiting && !_accelerating;
+      liveState?.kind == ReadingLiveKind.waiting &&
+      !_accelerating &&
+      quotedForCurrent;
   bool get accelerating => _accelerating;
   String? get accelerationError => _accelerationError;
 
@@ -184,8 +186,19 @@ class PalmReadingController extends ChangeNotifier
   }) async {
     final state = await live.flow.recoverOperation(operationId);
     if (_disposed || token != _generation) return;
+    if (state.unreachable) {
+      _scheduleTargetOperationPoll(
+        token: token,
+        live: live,
+        operationId: operationId,
+      );
+      return;
+    }
     final snapshot = state.snapshot;
-    if (snapshot == null || snapshot.readingType != ReadingType.palm) return;
+    if (snapshot == null || snapshot.readingType != ReadingType.palm) {
+      _settleMissingTarget(live);
+      return;
+    }
 
     liveState = state;
     switch (state.kind) {
@@ -200,12 +213,23 @@ class PalmReadingController extends ChangeNotifier
           openSaved(saved);
           return;
         }
-        await _restoreServerCompleted(state, live);
+        if (!await _restoreServerCompleted(state, live) &&
+            !_disposed &&
+            token == _generation) {
+          _scheduleTargetOperationPoll(
+            token: token,
+            live: live,
+            operationId: operationId,
+          );
+        }
       case ReadingLiveKind.waiting:
       case ReadingLiveKind.processing:
         _phase = PalmPhase.analyzing;
         _error = null;
         _lastError = null;
+        if (state.kind == ReadingLiveKind.waiting) {
+          unawaited(refreshAccelerationCost(live, operationId));
+        }
         _scheduleTargetOperationPoll(
           token: token,
           live: live,
@@ -221,6 +245,22 @@ class PalmReadingController extends ChangeNotifier
         _phase = PalmPhase.error;
         safeNotify();
       case ReadingLiveKind.idle:
+        break;
+    }
+  }
+
+  /// The requested operation is gone, foreign or not Palm. Never leave an
+  /// unrelated reading on screen, and never strand an analysis whose own
+  /// polling this recovery attempt superseded.
+  void _settleMissingTarget(ReadingFeatureRunner live) {
+    switch (_phase) {
+      case PalmPhase.result:
+      case PalmPhase.error:
+        backToEntry();
+      case PalmPhase.analyzing:
+        _scheduleServerPoll(live);
+      case PalmPhase.entry:
+      case PalmPhase.capture:
         break;
     }
   }

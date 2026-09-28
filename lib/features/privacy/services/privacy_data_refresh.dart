@@ -14,6 +14,7 @@ import '../../gems/providers/gem_providers.dart';
 import '../../personal_discovery/providers/personal_discovery_providers.dart';
 import '../../personal_discovery/services/personal_discovery_refresh.dart';
 import '../../premium/providers/premium_providers.dart';
+import '../../reading_operation/providers/reading_live_provider.dart';
 
 abstract final class PrivacyDataRefresh {
   PrivacyDataRefresh._();
@@ -56,8 +57,11 @@ abstract final class PrivacyDataRefresh {
     ref.invalidate(gemStarterGrantProvider);
     ref.invalidate(birthChartRepositoryProvider);
     ref.invalidate(birthInformationProvider);
+    // The sender binds to its first owner and fails closed for anyone else;
+    // rebuilding it also rebuilds every reading controller and the wallet.
+    ref.invalidate(readingOperationSenderProvider);
     ref.read(profilePhotoEpochProvider.notifier).state++;
-    _reloadCompanion(ref);
+    ref.read(companionControllerProvider).resetForAccountSwitch();
   }
 
   static void _reloadCompanion(WidgetRef ref) {

@@ -68,7 +68,7 @@ class CoffeeReferenceBody extends ConsumerWidget {
         // could have silently replaced valid backend text.
         reading: controller.reading!,
         onNewCup: controller.backToEntry,
-        onReinterpret: controller.image == null
+        onReinterpret: !controller.canReinterpret
             ? null
             : () async {
                 await controller.reinterpret();

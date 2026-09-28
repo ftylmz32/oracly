@@ -89,8 +89,9 @@ class ReadingAccelerationClient {
   }
 
   /// Read-only -- no idempotency key, no body, cannot debit. Safe to call
-  /// repeatedly (e.g. every time the waiting screen appears) and safe to
-  /// ignore a null/failed result, since it never gates the actual charge.
+  /// repeatedly (e.g. every time the waiting screen appears). A null result
+  /// keeps the speed-up offer hidden: a charge always carries the price
+  /// token of a quote the user actually saw.
   Future<ReadingAccelerationQuote?> quoteAcceleration({
     required String operationId,
   }) async {

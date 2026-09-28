@@ -78,12 +78,13 @@ Future<void> sendCompanionComposer({
   required VoidCallback onScrolled,
 }) async {
   final session = ref.read(companionControllerProvider);
-  if (!CompanionOrConversationAccess.ensure(
+  if (!await CompanionOrConversationAccess.ensureFresh(
     context,
     readingContext: session.readingContext,
   )) {
     return;
   }
+  if (!context.mounted) return;
   final voice = ref.read(companionVoiceControllerProvider);
   if (voice.isActive) await voice.stop();
   if (!context.mounted) return;

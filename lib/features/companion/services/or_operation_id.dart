@@ -25,6 +25,18 @@ abstract final class OrOperationId {
     );
   }
 
+  /// Runs a quality re-generation under its own key. Reusing the turn key
+  /// would make the server replay the very response the gate just rejected.
+  static Future<T> runQualityAttempt<T>(
+    int attempt,
+    Future<T> Function() body,
+  ) {
+    final turn = current;
+    if (attempt <= 1 || turn == null) return body();
+    final nonce = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
+    return run('$turn.q$attempt.$nonce', body);
+  }
+
   static String? pendingId(AIMessage? message) {
     if (message == null || !message.isUser) return null;
     if (message.metadata[stateKey] != pending) return null;

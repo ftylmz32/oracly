@@ -52,6 +52,16 @@ class ReadingLiveState {
   final int? httpStatus;
   final String? backendCode;
 
+  /// Idle only because the server could not answer (transport, 429, 5xx) —
+  /// not because the operation is gone. Callers keep observing; settling
+  /// here would strand the user on a spinner nothing ever re-polls.
+  bool get unreachable {
+    final status = httpStatus;
+    return kind == ReadingLiveKind.idle &&
+        failureStage != null &&
+        (status == null || status == 429 || status >= 500);
+  }
+
   Duration displayRemaining(Duration elapsedSinceSync) {
     final snap = snapshot;
     if (snap == null) return Duration.zero;
@@ -111,9 +121,17 @@ class ReadingLiveFlow {
       '/v1/reading-flow/active?readingType=${readingType.name}',
       null,
     );
-    final data = wire?.json?['data'];
+    if (wire == null || wire.statusCode == 429 || wire.statusCode >= 500) {
+      return ReadingLiveState(
+        kind: ReadingLiveKind.idle,
+        snapshot: null,
+        failureStage: 'recover',
+        httpStatus: wire?.statusCode,
+      );
+    }
+    final data = wire.json?['data'];
     final operation = data is Map ? data['operation'] : null;
-    if (wire == null || operation is! Map) {
+    if (operation is! Map) {
       return const ReadingLiveState(kind: ReadingLiveKind.idle, snapshot: null);
     }
     final parsed = _operations.parsePublic(

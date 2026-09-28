@@ -14,6 +14,7 @@ import '../../ai/production/models/conversation_turn.dart';
 import '../../ai/production/oracly_ai_service.dart';
 import 'companion_thread_memory.dart';
 import 'contextual_followup_policy.dart';
+import 'or_operation_id.dart';
 import 'or_response_finalize.dart';
 
 class CompanionAiBridge {
@@ -66,7 +67,7 @@ class CompanionAiBridge {
           spoken: spoken,
           priorAssistant: thread.lastAssistant,
         ),
-        generate: (attempt) async {
+        generate: (attempt) => OrOperationId.runQualityAttempt(attempt, () async {
           final outcome = readingContext != null
               ? await _ai.askOracle(
                   context: OracleContextMapper.fromOracle(readingContext),
@@ -92,7 +93,7 @@ class CompanionAiBridge {
             success: (reply) => reply.text,
             error: (failure) => throw AiRequestException(failure),
           );
-        },
+        }),
       );
       final trimmed = text.trim();
       if (trimmed.isEmpty) {

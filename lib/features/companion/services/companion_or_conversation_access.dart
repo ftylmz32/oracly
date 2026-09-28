@@ -51,6 +51,19 @@ abstract final class CompanionOrConversationAccess {
     return false;
   }
 
+  /// Text send: OR text is not billed server-side, so a Premium badge that
+  /// may have lapsed is re-checked before the turn instead of trusted.
+  static Future<bool> ensureFresh(
+    BuildContext context, {
+    OracleReadingContext? readingContext,
+  }) async {
+    if (await PremiumAccess.ensureFresh(context, promptIfInactive: false)) {
+      return true;
+    }
+    if (!context.mounted) return false;
+    return ensure(context, readingContext: readingContext);
+  }
+
   /// Mic / voice always require Premium — never the free deepen.
   static Future<bool> ensurePremiumFresh(BuildContext context) async {
     if (!await PremiumAccess.ensureFresh(context, promptIfInactive: false)) {

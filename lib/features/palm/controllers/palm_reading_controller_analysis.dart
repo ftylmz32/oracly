@@ -129,7 +129,15 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
             _image = exists ? CoffeeImagePick(path: path, mimeType: 'image/jpeg') : null;
             _phase = PalmPhase.result;
           } else {
-            unawaited(_restoreServerCompleted(state, live));
+            // The poll timer is already cancelled: an unfetched result must
+            // re-poll, or the wait screen stays at 00:00 with no way out.
+            unawaited(
+              _restoreServerCompleted(state, live).then((restored) {
+                if (!restored && !_disposed && token == _generation) {
+                  _scheduleServerPoll(live);
+                }
+              }),
+            );
           }
         }
       case ReadingLiveKind.failed:
@@ -162,18 +170,20 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
         _scheduleServerPoll(live);
       case ReadingLiveKind.idle:
         _phase = PalmPhase.analyzing;
+        if (state.unreachable) _scheduleServerPoll(live);
     }
     safeNotify();
   }
 
   void _scheduleServerPoll(ReadingFeatureRunner live) {
     _resumeTimer?.cancel();
+    final token = _generation;
     _resumeTimer = Timer(const Duration(seconds: 3), () => unawaited(() async {
-      if (_disposed) return;
+      if (_disposed || token != _generation) return;
       final state = await live.flow.recover(ReadingType.palm);
-      if (_disposed) return;
+      if (_disposed || token != _generation) return;
       _applyAnalyzeSnapshot(
-        token: _generation,
+        token: token,
         live: live,
         source: state.snapshot?.operationId ?? '',
         fallbackImagePath: '',
@@ -184,30 +194,47 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     }()));
   }
 
-  Future<void> _restoreServerCompleted(
+  /// False only when the result could not be fetched yet (retryable).
+  Future<bool> _restoreServerCompleted(
     ReadingLiveState state,
     ReadingFeatureRunner live,
   ) async {
     final operationId = state.snapshot?.operationId;
-    if (operationId == null) return;
+    if (operationId == null) return true;
     final completed = await live.flow.fetchCompletedResult(operationId);
-    if (completed == null || _disposed) return;
+    if (_disposed) return true;
+    if (completed == null) return false;
     final hand = completed.result['_handSide'] == PalmHand.left.name
         ? PalmHand.left
         : PalmHand.right;
-    final reading = await _experience.restoreCompleted(
-      resultId: completed.resultId,
-      persistedAt: completed.persistedAt,
-      hand: hand,
-      result: completed.result,
-    );
-    if (_disposed) return;
+    final PalmReading reading;
+    try {
+      reading = await _experience.restoreCompleted(
+        resultId: completed.resultId,
+        persistedAt: completed.persistedAt,
+        hand: hand,
+        result: completed.result,
+      );
+    } catch (error) {
+      if (_disposed) return true;
+      // Unreadable payload or a failed save: an honest error beats a frozen
+      // wait screen.
+      _setAnalysisError(
+        'restore',
+        PalmAnalysisError(PalmAnalysisErrorKind.unknown, ReadingLiveCopy.failed),
+        error,
+      );
+      safeNotify();
+      return true;
+    }
+    if (_disposed) return true;
     _reading = reading;
     _image = null;
     _error = null;
     _lastError = null;
     _phase = PalmPhase.result;
     safeNotify();
+    return true;
   }
 
   void _scheduleResume({
