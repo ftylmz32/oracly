@@ -43,19 +43,20 @@ const GENERIC = new Set([
   'image', 'scene', 'same', 'similar', 'familiar', 'kind', 'one', 'like', 'just', 'keep', 'keeps', 'kept',
   'come', 'comes', 'coming', 'came', 'back', 'show', 'shows', 'showing', 'up', 'before', 'earlier',
   'previous', 'past', 'prior', 'other', 'time', 'times', 'pattern', 'theme', 'element', 'thread',
-  'see', 'sees', 'saw', 'seen',
+  'see', 'sees', 'saw', 'seen', 'symbol', 'symbols', 'motif', 'motifs', 'who',
   // tr
   'bu', 'şu', 'o', 'bir', 've', 'da', 'de', 'ki', 'mi', 'gibi', 'ile', 'için', 'çok', 'daha', 'önce', 'yine',
   'hâlâ', 'hala', 'sen', 'senin', 'sana', 'seni', 'ben', 'benim', 'imge', 'sahne', 'öğe', 'unsur', 'tema',
   'iz', 'olabilir', 'olarak', 'olan', 'oluyor', 'var', 'vardı', 'sık', 'kez', 'kere', 'defa', 'aynı',
   'benzer', 'tanıdık', 'eden', 'ediyor', 'ettiği', 'etmesi', 'geliyor', 'giriyor', 'dönüyor', 'olması',
-  'dikkat', 'çekici',
+  'dikkat', 'çekici', 'motif', 'motifi', 'sembol', 'sembolü',
   // ru
   'это', 'этот', 'эта', 'эти', 'этого', 'этом', 'тот', 'он', 'она', 'оно', 'и', 'а', 'но', 'в', 'во', 'на',
   'с', 'со', 'к', 'по', 'из', 'у', 'о', 'об', 'уже', 'опять', 'еще', 'ты', 'тебе', 'тебя', 'твой', 'твои',
   'твоих', 'твоем', 'вы', 'вам', 'ваш', 'ваших', 'я', 'мне', 'мой', 'образ', 'сцена', 'элемент', 'деталь',
   'видимо', 'может', 'возможно', 'будто', 'как', 'что', 'раз', 'такой', 'знакомый', 'часто', 'иногда',
   'быть', 'был', 'была', 'было', 'были', 'есть', 'является', 'видел', 'видела', 'видели', 'видишь',
+  'который', 'которая', 'которое', 'которые', 'символ', 'символом', 'мотив', 'мотивом',
 ]);
 
 /** Dream nouns and recurrence / reporting verb families in any inflection. */

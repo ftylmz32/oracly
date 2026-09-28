@@ -12,6 +12,10 @@ import 'dream_analysis_facts.dart';
 import 'dream_grounding_words.dart';
 import 'dream_stated_feeling.dart';
 
+/// Every role stays bound to the Dream; only the emotional theme may instead
+/// honour a feeling the dreamer stated (backend role-grounding parity).
+enum DreamGuardRole { dream, emotionalTheme }
+
 abstract final class DreamAnalysisGuard {
   DreamAnalysisGuard._();
 
@@ -37,7 +41,8 @@ abstract final class DreamAnalysisGuard {
     return dictionary.any(lower.contains);
   }
 
-  static bool isSpeakable(String text, DreamAnalysisFacts facts) {
+  static bool isSpeakable(String text, DreamAnalysisFacts facts,
+      {DreamGuardRole role = DreamGuardRole.dream}) {
     final trimmed = text.trim();
     if (trimmed.length < 24) return false;
     if (looksDictionary(trimmed)) return false;
@@ -52,14 +57,21 @@ abstract final class DreamAnalysisGuard {
       return false;
     }
     if (_inventsImage(trimmed, facts)) return false;
-    if (facts.told.isNotEmpty && !_touchesTold(trimmed, facts)) return false;
+    if (facts.told.isNotEmpty &&
+        !_touchesTold(trimmed, facts) &&
+        !(role == DreamGuardRole.emotionalTheme &&
+            DreamStatedFeeling.shares(
+                trimmed, '${facts.told} ${facts.feelings}'))) {
+      return false;
+    }
     return true;
   }
 
-  static String? polish(String? text, DreamAnalysisFacts facts) {
+  static String? polish(String? text, DreamAnalysisFacts facts,
+      {DreamGuardRole role = DreamGuardRole.dream}) {
     if (text == null) return null;
     final guarded = HumanReader.guard(FortuneVoice.scrub(text));
-    if (!isSpeakable(guarded, facts)) return null;
+    if (!isSpeakable(guarded, facts, role: role)) return null;
     return guarded;
   }
 

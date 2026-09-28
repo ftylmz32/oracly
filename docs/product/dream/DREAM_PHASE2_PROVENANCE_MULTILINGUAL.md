@@ -95,7 +95,7 @@ When no AI section is accepted, every section is `local`, and there is no interp
 | RU | EN | `ru` |
 | unknown (names, numbers, mixed) | any | app language |
 
-- The backend gate grounds **every** request lexically (the old cross-language skip is removed). Unrelated prose in any language is `invalid_response`; an invented symbol is still rejected.
+- The backend gate grounds **every** request lexically (the old cross-language skip is removed). Unrelated prose in any language is `invalid_response`; an invented symbol is still rejected. *(Since Phase 4C.1 an invented item is removed from the `symbols` array after raw output safety; the reading is rejected only when the removed item also appears in prose — see `DREAM_PHASE4C1_LIVE_FINDINGS_REMEDIATION.md`.)*
 - **Unknown-language edge:** when detection falls back to the app language and the narrative is in another language, grounding can fail closed (`invalid_response` / local sections). It never passes ungrounded prose.
 
 ## Request identity (Final audit)

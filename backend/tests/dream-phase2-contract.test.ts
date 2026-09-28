@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { responseLanguageDirective, type AppLanguage } from '../src/ai/app-language.js';
-import { dreamAcceptanceFailure } from '../src/ai/dream-acceptance.js';
+import { acceptDreamData, dreamAcceptanceFailure } from '../src/ai/dream-acceptance.js';
+import { groundDreamSymbols } from '../src/ai/dream-symbol-grounding.js';
 import { DREAM_JSON_KEYS } from '../src/ai/dream-prompts.js';
 import {
   evaluateDreamQuality,
@@ -80,13 +81,20 @@ describe('Dream Phase 2 — backend quality gate', () => {
     expect(evaluateDreamQuality(ruUnrelated, input(ruNarrative, 'ru'))).toBe('ungrounded');
   });
 
-  it('rejects invented symbols', () => {
+  it('Phase 4C.1: an invented provider symbol is removed, never leaked; invented in prose it rejects', () => {
+    // The Phase 2 strict check still flags the raw item on its own ...
     expect(evaluateDreamQuality({ ...enGood, symbols: ['snake'] }, input(enNarrative, 'en'))).toBe(
       'invented_symbol',
     );
-    expect(evaluateDreamQuality({ ...ruGood, symbols: ['змея'] }, input(ruNarrative, 'ru'))).toBe(
-      'invented_symbol',
-    );
+    // ... but acceptance filters the optional array first: item removed, reading kept.
+    const en = acceptDreamData({ ...enGood, symbols: [...enGood.symbols, 'snake'] }, input(enNarrative, 'en'));
+    expect(en.failure).toBeNull();
+    expect(en.data?.symbols).toEqual(enGood.symbols);
+    const ru = groundDreamSymbols({ ...ruGood, symbols: [...ruGood.symbols, 'змея'] }, input(ruNarrative, 'ru'));
+    expect(ru.data.symbols).toEqual(ruGood.symbols);
+    expect(ru.removed).toEqual(['змея']);
+    const prose = { ...enGood, symbols: ['owl'], interpretation: `${enGood.interpretation} An owl watches from the sand.` };
+    expect(dreamAcceptanceFailure(prose, input(enNarrative, 'en'))).toBe('invented_symbol');
   });
 
   it('rejects thin, duplicated, generic and dictionary output', () => {

@@ -46,9 +46,10 @@ export function dreamRequestFingerprint(request: DreamIdentityInput): string {
  * stored under an earlier writer (accepted by an older, weaker gate) is
  * never replayed under this one. Bump only when acceptance changes what a
  * success body may contain; the semantic fingerprint (duplicate and
- * billing identity) is deliberately not affected.
+ * billing identity) is deliberately not affected. '4c1': the Phase 4C.1
+ * writer prompt, sanitized symbols and corrected gates.
  */
-export const DREAM_WRITER_REVISION = '4b';
+export const DREAM_WRITER_REVISION = '4c1';
 
 /**
  * Replay slot for a Dream request: the client key alone is never enough —

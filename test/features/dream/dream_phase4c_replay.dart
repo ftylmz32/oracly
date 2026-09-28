@@ -19,6 +19,7 @@ import 'package:oracly_new/features/dream/services/dream_analysis_facts.dart';
 import 'package:oracly_new/features/dream/services/dream_analysis_guard.dart';
 import 'package:oracly_new/features/dream/services/dream_narrative_language.dart';
 import 'package:oracly_new/features/dream/services/dream_premium_delivery_quality.dart';
+import 'package:oracly_new/features/dream/services/dream_provider_evidence.dart';
 import 'package:oracly_new/features/dream/services/dream_reading_provenance.dart';
 import 'package:oracly_new/features/dream/services/dream_understanding_service.dart';
 
@@ -35,7 +36,7 @@ const _fields = <String, DreamInsightKind>{
 /// The first client layer that refuses [original]; null when the guard
 /// would speak it.
 String? rejectionLayer(String original, DreamAnalysisFacts facts,
-    {bool closing = false}) {
+    {bool closing = false, DreamGuardRole role = DreamGuardRole.dream}) {
   if (closing && DreamAnalysisGuard.questionMarks(original) != 1) {
     return 'DreamAnalysisGuard.questionCount';
   }
@@ -53,7 +54,7 @@ String? rejectionLayer(String original, DreamAnalysisFacts facts,
     context: AiOutputQualityContext(localeCode: facts.language),
   );
   if (!gate.isAcceptable) return 'AiOutputQualityGate.${gate.category?.name}';
-  if (!DreamAnalysisGuard.isSpeakable(text, facts)) {
+  if (!DreamAnalysisGuard.isSpeakable(text, facts, role: role)) {
     return 'DreamAnalysisGuard.inventedImageOrUngrounded';
   }
   return null;
@@ -99,6 +100,8 @@ Map<String, dynamic> replayClient({
     narrative: narrative,
     understanding: understanding,
     tags: const [],
+    statedFeelings:
+        DreamProviderEvidence.emotions(dream, understanding, language),
     language: language,
   );
   final gap = DreamPremiumDeliveryQuality.firstGap(insights);
@@ -120,6 +123,9 @@ Map<String, dynamic> replayClient({
                   ? facts.withContext(memorySummary)
                   : facts,
               closing: kind == DreamInsightKind.closingTakeaway,
+              role: kind == DreamInsightKind.emotionalMeaning
+                  ? DreamGuardRole.emotionalTheme
+                  : DreamGuardRole.dream,
             ),
       'rewrite': rewrite,
       if (rewrite != 'unchanged') 'original': original,

@@ -1,0 +1,995 @@
+{
+  "schema": "oracly.dream.phase4c1.offline-reclassification/v1",
+  "source": {
+    "artifact": "DREAM_PHASE4C_LIVE_RUN_20260928.json",
+    "artifactSha256": "ff69f9776b0f5168effbb68b514cb32497298d280d52a4660a1d658f5a09cd16",
+    "clientReplay": "DREAM_PHASE4C_CLIENT_REPLAY_20260928.json",
+    "clientReplaySha256": "4e3d1b629f44fa63b1c68d65e6ff5ba63e0f9acddc16e2f9aaefbf08531c5035",
+    "rawProviderTextSha256": "19be483302393755a9a8b7e24664ae5be3f37c4c89be7b9bd56f211b7bf21b6c"
+  },
+  "method": {
+    "providerCalls": 0,
+    "pipeline": "parse → output safety (raw body, raw symbols) → symbol filtering + prose leak → Phase 2 → Phase 4A → Phase 4B (sanitized body)",
+    "historyOld": "frozen 4C diagnostic Phase 4A verdict",
+    "historyNew": "Phase 4A on the sanitized body, evaluated independently",
+    "emotionOld": "emotion_contradiction when the frozen 4C diagnostic Phase 4B verdict was emotion_contradiction, else NOT_FLAGGED",
+    "emotionNew": "per-section contradiction (emotionalTheme, summary) on the sanitized body",
+    "clientOld": "frozen 4C client replay for old backend PASS runs; NOT_DELIVERED otherwise",
+    "clientNew": "Phase 4C.1 client replay of the sanitized body for new backend PASS runs; NOT_DELIVERED otherwise",
+    "changeReason": "the 4C.1 fix that removed the old first failure; unchanged when the verdict and first failure are the same",
+    "important": "The new pass count is not proof of writer quality: every body came from the old 4b gpt-4o prompt. It only shows which rejections were gate false positives. No target pass rate was set."
+  },
+  "summary": {
+    "original": 36,
+    "oldBackendPass": 2,
+    "newOfflineBackendPass": 7,
+    "oldToNewChanged": 15,
+    "newRejections": {
+      "outputSafety": 0,
+      "symbols": 0,
+      "phase2": 4,
+      "phase4A": 0,
+      "phase4B": 25
+    },
+    "newBackendPassClientPass": 7,
+    "newBackendPassClientFail": 0,
+    "changeReasons": {
+      "emotion_negation_contract": 3,
+      "unchanged": 21,
+      "symbol_array_filtered": 7,
+      "recap_detector": 1,
+      "history_claim_unit": 4
+    }
+  },
+  "runs": [
+    {
+      "runId": "tr-negated-fear",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": "PASS",
+      "newFailureStage": null,
+      "rawSymbols": [
+        "Orman",
+        "Ayak sesleri",
+        "Fener"
+      ],
+      "filteredSymbols": [
+        "Orman",
+        "Ayak sesleri",
+        "Fener"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "emotion_contradiction",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "PASS",
+      "changed": "YES",
+      "changeReason": "emotion_negation_contract"
+    },
+    {
+      "runId": "tr-mixed-emotion",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_image",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "invented_image",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "Ev",
+        "Masa"
+      ],
+      "filteredSymbols": [
+        "Ev",
+        "Masa"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-sparse",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "Anahtar"
+      ],
+      "filteredSymbols": [
+        "Anahtar"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-surreal",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_image",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "invented_image",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "duvardaki saatler",
+        "bal",
+        "balina",
+        "şemsiye",
+        "dans"
+      ],
+      "filteredSymbols": [
+        "duvardaki saatler",
+        "bal",
+        "balina",
+        "şemsiye",
+        "dans"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-domain-work",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "invented_image",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "toplantı odası",
+        "slaytlar",
+        "sessizlik"
+      ],
+      "filteredSymbols": [
+        "toplantı odası",
+        "slaytlar"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "symbol_array_filtered"
+    },
+    {
+      "runId": "tr-no-domain",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "generic_reflection",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "generic_reflection",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "telefon",
+        "sessizlik",
+        "tuş"
+      ],
+      "filteredSymbols": [
+        "telefon",
+        "sessizlik",
+        "tuş"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-memory",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": "PASS",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": "PASS",
+      "newFailureStage": null,
+      "rawSymbols": [
+        "Deniz",
+        "Dağ"
+      ],
+      "filteredSymbols": [
+        "Deniz",
+        "Dağ"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "PASS",
+      "clientNew": "PASS",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-history",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "weak_conclusion",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "weak_conclusion",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "Deniz",
+        "Tekne"
+      ],
+      "filteredSymbols": [
+        "Deniz",
+        "Tekne"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "en-negated-fear",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "lake",
+        "darkness",
+        "ripples",
+        "pale light"
+      ],
+      "filteredSymbols": [
+        "lake",
+        "ripples",
+        "pale light"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "symbol_array_filtered"
+    },
+    {
+      "runId": "en-mixed-emotion",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "plot_recap",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "generic_reflection",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "train station",
+        "old friend",
+        "train"
+      ],
+      "filteredSymbols": [
+        "train station",
+        "old friend",
+        "train"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "recap_detector"
+    },
+    {
+      "runId": "en-sparse",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "red balloon",
+        "empty room"
+      ],
+      "filteredSymbols": [
+        "red balloon",
+        "empty room"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "en-surreal",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "upside down house",
+        "floating",
+        "furniture on the ceiling",
+        "fish",
+        "clock with no hands",
+        "tea"
+      ],
+      "filteredSymbols": [
+        "upside down house",
+        "floating",
+        "furniture on the ceiling",
+        "fish",
+        "clock with no hands",
+        "tea"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "en-domain-partner",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "painting",
+        "room",
+        "walls",
+        "color"
+      ],
+      "filteredSymbols": [
+        "painting",
+        "room",
+        "walls",
+        "color"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "en-no-domain",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "door"
+      ],
+      "filteredSymbols": [
+        "door"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "en-memory",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded_section",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "crossroads",
+        "fog",
+        "lit path",
+        "dark path"
+      ],
+      "filteredSymbols": [
+        "crossroads",
+        "fog",
+        "lit path",
+        "dark path"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "en-history",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "history_unsupported",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": "PASS",
+      "newFailureStage": null,
+      "rawSymbols": [
+        "sea",
+        "waves",
+        "boat"
+      ],
+      "filteredSymbols": [
+        "sea",
+        "waves",
+        "boat"
+      ],
+      "historyOld": "history_unsupported",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "PASS",
+      "changed": "YES",
+      "changeReason": "history_claim_unit"
+    },
+    {
+      "runId": "ru-negated-fear",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": "PASS",
+      "newFailureStage": null,
+      "rawSymbols": [
+        "тёмный подвал",
+        "вода",
+        "маленькая дверь",
+        "тёплый свет"
+      ],
+      "filteredSymbols": [
+        "тёмный подвал",
+        "вода",
+        "маленькая дверь",
+        "тёплый свет"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "emotion_contradiction",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "PASS",
+      "changed": "YES",
+      "changeReason": "emotion_negation_contract"
+    },
+    {
+      "runId": "ru-mixed-emotion",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "generic_reflection",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "generic_reflection",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "старая школа",
+        "пустые коридоры",
+        "солнце",
+        "двери"
+      ],
+      "filteredSymbols": [
+        "старая школа",
+        "пустые коридоры",
+        "солнце",
+        "двери"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "ru-sparse",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded",
+      "newFailureStage": "phase2",
+      "rawSymbols": [
+        "белое перо"
+      ],
+      "filteredSymbols": [
+        "белое перо"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "ru-surreal",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "ungrounded",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded",
+      "newFailureStage": "phase2",
+      "rawSymbols": [
+        "огромные чайники",
+        "дождь из лепестков",
+        "велосипед",
+        "облака",
+        "кот в шляпе",
+        "расписание поездов"
+      ],
+      "filteredSymbols": [
+        "огромные чайники",
+        "дождь из лепестков",
+        "велосипед",
+        "облака",
+        "кот в шляпе",
+        "расписание поездов"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "ru-domain-family",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "dictionary_style",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "dictionary_style",
+      "newFailureStage": "phase2",
+      "rawSymbols": [
+        "семья",
+        "большой стол",
+        "стулья",
+        "сестра"
+      ],
+      "filteredSymbols": [
+        "семья",
+        "большой стол",
+        "стулья",
+        "сестра"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "ru-no-domain",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "платформа",
+        "поезд",
+        "часы",
+        "пустота"
+      ],
+      "filteredSymbols": [
+        "платформа",
+        "поезд",
+        "часы"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "symbol_array_filtered"
+    },
+    {
+      "runId": "ru-memory",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "перекрёсток",
+        "туман",
+        "освещённая дорога",
+        "тёмная дорога"
+      ],
+      "filteredSymbols": [
+        "туман",
+        "освещённая дорога",
+        "тёмная дорога"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "symbol_array_filtered"
+    },
+    {
+      "runId": "ru-history",
+      "oldBackendFinal": "PASS",
+      "oldFirstFailure": "PASS",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": "PASS",
+      "newFailureStage": null,
+      "rawSymbols": [
+        "сад",
+        "яблони",
+        "ветки"
+      ],
+      "filteredSymbols": [
+        "сад",
+        "яблони",
+        "ветки"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "PASS",
+      "clientNew": "PASS",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-negated-fear#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_image",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "invented_image",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "Orman",
+        "Ayak sesleri",
+        "Fener"
+      ],
+      "filteredSymbols": [
+        "Orman",
+        "Ayak sesleri",
+        "Fener"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-mixed-emotion#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "generic_reflection",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "generic_reflection",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "Ev",
+        "Masa",
+        "Tanımadık insanlar"
+      ],
+      "filteredSymbols": [
+        "Ev",
+        "Masa",
+        "Tanımadık insanlar"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-no-domain#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "extra_question",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "extra_question",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "telefon",
+        "sessizlik"
+      ],
+      "filteredSymbols": [
+        "telefon",
+        "sessizlik"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "tr-history#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "history_unsupported",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "thin_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "Deniz",
+        "Huzur",
+        "Tekne"
+      ],
+      "filteredSymbols": [
+        "Deniz",
+        "Huzur",
+        "Tekne"
+      ],
+      "historyOld": "history_unsupported",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "history_claim_unit"
+    },
+    {
+      "runId": "en-negated-fear#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "lake",
+        "darkness",
+        "something large",
+        "ripples",
+        "pale light"
+      ],
+      "filteredSymbols": [
+        "lake",
+        "something large",
+        "ripples",
+        "pale light"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "symbol_array_filtered"
+    },
+    {
+      "runId": "en-mixed-emotion#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "generic_reflection",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "train station",
+        "old friend",
+        "train",
+        "laughing",
+        "crying"
+      ],
+      "filteredSymbols": [
+        "train station",
+        "old friend",
+        "train",
+        "laughing"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "symbol_array_filtered"
+    },
+    {
+      "runId": "en-no-domain#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "extra_question",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "extra_question",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "door"
+      ],
+      "filteredSymbols": [
+        "door"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "en-history#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "history_unsupported",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": "PASS",
+      "newFailureStage": null,
+      "rawSymbols": [
+        "sea",
+        "boat",
+        "waves"
+      ],
+      "filteredSymbols": [
+        "sea",
+        "boat",
+        "waves"
+      ],
+      "historyOld": "history_unsupported",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "PASS",
+      "changed": "YES",
+      "changeReason": "history_claim_unit"
+    },
+    {
+      "runId": "ru-negated-fear#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "emotion_contradiction",
+      "newBackendFinal": "PASS",
+      "newFirstFailure": "PASS",
+      "newFailureStage": null,
+      "rawSymbols": [
+        "тёмный подвал",
+        "капает вода",
+        "маленькая дверь",
+        "тёплый свет"
+      ],
+      "filteredSymbols": [
+        "тёмный подвал",
+        "капает вода",
+        "маленькая дверь",
+        "тёплый свет"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "emotion_contradiction",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "PASS",
+      "changed": "YES",
+      "changeReason": "emotion_negation_contract"
+    },
+    {
+      "runId": "ru-mixed-emotion#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "dictionary_style",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "dictionary_style",
+      "newFailureStage": "phase2",
+      "rawSymbols": [
+        "старая школа",
+        "пустые коридоры",
+        "залитые солнцем",
+        "двери"
+      ],
+      "filteredSymbols": [
+        "старая школа",
+        "пустые коридоры",
+        "залитые солнцем",
+        "двери"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "NO",
+      "changeReason": "unchanged"
+    },
+    {
+      "runId": "ru-no-domain#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "invented_symbol",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "ungrounded_section",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "платформа",
+        "поезд",
+        "часы",
+        "пустота"
+      ],
+      "filteredSymbols": [
+        "платформа",
+        "поезд",
+        "часы"
+      ],
+      "historyOld": "PASS",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "symbol_array_filtered"
+    },
+    {
+      "runId": "ru-history#r2",
+      "oldBackendFinal": "REJECT",
+      "oldFirstFailure": "history_unsupported",
+      "newBackendFinal": "REJECT",
+      "newFirstFailure": "weak_conclusion",
+      "newFailureStage": "phase4B",
+      "rawSymbols": [
+        "сад",
+        "яблони",
+        "ветки"
+      ],
+      "filteredSymbols": [
+        "сад",
+        "яблони",
+        "ветки"
+      ],
+      "historyOld": "history_unsupported",
+      "historyNew": "PASS",
+      "emotionOld": "NOT_FLAGGED",
+      "emotionNew": "PASS",
+      "clientOld": "NOT_DELIVERED",
+      "clientNew": "NOT_DELIVERED",
+      "changed": "YES",
+      "changeReason": "history_claim_unit"
+    }
+  ]
+}

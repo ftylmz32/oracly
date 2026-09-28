@@ -17,10 +17,15 @@ class DreamAnalysisFacts {
     this.person,
     this.tag,
     this.detail,
+    this.feelings = '',
     this.language = AppLocale.tr,
   });
 
   final String told;
+
+  /// The stated feeling words the request carried (chips and narrative
+  /// feeling words) — evidence for the emotional theme only.
+  final String feelings;
   final String scene;
   final String? emotion;
   final String? image;
@@ -52,6 +57,7 @@ class DreamAnalysisFacts {
       person: person,
       tag: tag,
       detail: detail,
+      feelings: feelings,
       language: language,
     );
   }
@@ -60,6 +66,7 @@ class DreamAnalysisFacts {
     required String narrative,
     required DreamUnderstanding understanding,
     List<String> tags = const [],
+    List<String> statedFeelings = const [],
     String language = AppLocale.tr,
   }) {
     final lang = AppLocale.normalize(language);
@@ -100,6 +107,7 @@ class DreamAnalysisFacts {
         person: person,
         scene: scene,
       ),
+      feelings: statedFeelings.join(' '),
       language: lang,
     );
   }

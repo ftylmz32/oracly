@@ -1,6 +1,6 @@
 // Dream Phase 4C — every backend-PASS live body replayed offline through the
-// production client pipeline (no provider call). `PHASE4C_WRITE_CLIENT=1`
-// writes the replay artifact; otherwise the committed one must match.
+// production client pipeline (no provider call). The committed replay is the
+// frozen 4C evidence; the 4C.1 replay lives in its own artifact.
 import 'dart:convert';
 import 'dart:io';
 
@@ -76,19 +76,32 @@ void main() {
             memorySummary: run['memorySummary'] as String?,
           ),
     ];
-    final encoded = '${const JsonEncoder.withIndent('  ').convert({
-          'schema': 'oracly.dream.phase4c.client-replay/v1',
-          'source': _artifact,
-          'replays': replay((run) => run['backendFinal'] == 'PASS'),
-          // Diagnostic only: bodies the backend refused never reach a
-          // client; this measures where the two guards disagree.
-          'diagnosticRejectedReplays':
-              replay((run) => run['backendFinal'] == 'REJECT'),
-        })}\n';
-    final out = File(_replay);
-    if (Platform.environment['PHASE4C_WRITE_CLIENT'] == '1') {
-      out.writeAsStringSync(encoded);
+    // The 4C replay is frozen evidence: it is only read, never rewritten.
+    final frozen = jsonDecode(File(_replay).readAsStringSync()) as Map;
+    expect(frozen['schema'], 'oracly.dream.phase4c.client-replay/v1');
+    expect(jsonEncode(frozen['replays']),
+        jsonEncode(replay((run) => run['backendFinal'] == 'PASS')));
+    // Diagnostic only: bodies the backend refused never reach a client. The
+    // one 4C.1 client change is emotionalTheme role grounding, so the only
+    // permitted drift is an emotionalTheme field moving local → ai.
+    final now = {
+      for (final r in replay((run) => run['backendFinal'] == 'REJECT'))
+        r['runId']: r,
+    };
+    final before = (frozen['diagnosticRejectedReplays'] as List).cast<Map>();
+    expect(before.map((r) => r['runId']).toList(), now.keys.toList());
+    for (final old in before) {
+      final next = now[old['runId']]!;
+      final oldFields = old['fields'] as Map;
+      final nextFields = next['fields'] as Map;
+      for (final field in oldFields.keys) {
+        if (jsonEncode(oldFields[field]) == jsonEncode(nextFields[field])) {
+          continue;
+        }
+        expect(field, 'emotionalTheme', reason: '${old['runId']}');
+        expect((oldFields[field] as Map)['source'], 'local');
+        expect((nextFields[field] as Map)['source'], 'ai');
+      }
     }
-    expect(out.readAsStringSync().replaceAll('\r\n', '\n'), encoded);
   });
 }

@@ -7,7 +7,7 @@ import { OpenAiTransport } from './openai-transport.js';
 import { ReadingOperationError } from '../reading/operation-service.js';
 import type { ReadingStagedImageService } from '../reading/operation-staged-image-service.js';
 import { extractChatText, parseDreamData } from './parse-provider.js';
-import { dreamAcceptanceFailure } from './dream-acceptance.js';
+import { acceptDreamData } from './dream-acceptance.js';
 import type { DreamHistoryItem } from './dream-history.js';
 import {
   assertDreamInputSafe,
@@ -207,7 +207,9 @@ export class AiProxyService {
     if (dreamOutputViolation(dreamOutputFields(data)) !== null) {
       fail(ErrorCode.invalidResponse, 200, { stage: 'dream_output_safety' });
     }
-    const rejected = dreamAcceptanceFailure(data, {
+    // Raw symbols were judged by output safety above; only the sanitized
+    // body (ungrounded provider symbols removed) is ever returned.
+    const accepted = acceptDreamData(data, {
       narrative: sanitizeText(request.payload.narrative),
       symbols: stringList(request.payload.symbols),
       emotions: stringList(request.payload.emotions),
@@ -216,8 +218,8 @@ export class AiProxyService {
       // The filtered value: a sensitive memory was already dropped above.
       memorySummary: sanitizeText(payload.memorySummary, 220) || undefined,
     });
-    if (rejected) fail(ErrorCode.invalidResponse);
-    return data;
+    if (!accepted.data) fail(ErrorCode.invalidResponse);
+    return accepted.data;
   }
 
   private async coffee(

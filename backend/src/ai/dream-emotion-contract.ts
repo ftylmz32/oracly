@@ -5,8 +5,11 @@ import { lightFold } from './dream-lexical.js';
  * A response contradicts the dreamer when it affirms a feeling the
  * narrative only negated ("I was not afraid" → "a deep fear"), or negates
  * a feeling the narrative only affirmed. Unknown feelings are ignored.
+ * A feeling another feeling "prevails over" ("любопытство преобладает над
+ * страхом") is subordinated: neither affirmed nor negated.
  */
-export type DreamEmotion = 'fear' | 'anxiety' | 'calm' | 'joy' | 'sadness' | 'curiosity';
+export type DreamEmotion =
+  | 'fear' | 'anxiety' | 'calm' | 'joy' | 'sadness' | 'curiosity' | 'relief' | 'heaviness';
 
 type Stance = { affirmed: boolean; negated: boolean };
 
@@ -17,6 +20,8 @@ const LEXICON: Array<[DreamEmotion, RegExp]> = [
   ['joy', /^(?:happy|happier|happiest|happily|happiness|unhappy|joy\p{L}*|glad\p{L}*|delight\p{L}*|cheerful\p{L}*|mutlu\p{L}*|sevin\p{L}*|neşe\p{L}*|радост\p{L}*|безрадост\p{L}*|радова\p{L}*|счастл\p{L}*|счасть\p{L}*|весел\p{L}*)$/u],
   ['sadness', /^(?:sad|sadly|sadness|unhapp\p{L}*|sorrow\p{L}*|grief|griev\p{L}*|melanchol\p{L}*|üzgün\p{L}*|üzüntü\p{L}*|üzül\p{L}*|hüzün\p{L}*|hüzn\p{L}*|keder\p{L}*|mutsuz\p{L}*|грус\p{L}*|печал\p{L}*|тоск\p{L}*)$/u],
   ['curiosity', /^(?:curio\p{L}*|merak\p{L}*|любопыт\p{L}*)$/u],
+  ['relief', /^(?:relie(?:f|fs|ved|ve|ves|ving)|ferahla\p{L}*|rahatlad\p{L}*|rahatlam\p{L}*|облегчен\p{L}*)$/u],
+  ['heaviness', /^(?:heavy|heavier|heaviness|heavily|ağırlık\p{L}*|тяжест\p{L}*|тяжел\p{L}*|тяжко)$/u],
 ];
 
 /** The word itself carries the negation (fearless, korkmadım, kaygısız, бесстрашно). */
@@ -27,6 +32,8 @@ const WORD_NEGATED: Array<[DreamEmotion, RegExp]> = [
   ['joy', /^(?:unhappy|joyless|neşesiz\p{L}*|безрадост\p{L}*)$|^sevinm[aeıiuü](?:[dyzmn]|$)/u],
   ['sadness', /^üzülm[aeıiuü](?:[dyzmn]|$)/u],
   ['curiosity', /^(?:incurious|meraksız\p{L}*)$/u],
+  ['relief', /^rahatlam[aeıiuü](?:[dyzmn]|$)/u],
+  ['heaviness', /^$/u],
 ];
 
 const PRE = new Set([
@@ -37,10 +44,16 @@ const PRE = new Set([
 ]);
 const EN_COPULA = new Set(['was', 'is', 'were', 'are', 'felt', 'seemed', 'stayed']);
 const EN_ABSENT = new Set(['absent', 'missing', 'gone', 'lacking', 'nowhere', 'free']);
-const TR_FILLER = new Set(['hiç', 'da', 'de', 'bile', 'asla', 'pek']);
+const TR_FILLER = new Set(['hiç', 'da', 'de', 'bile', 'asla', 'pek', 'hissi', 'duygusu']);
 const TR_POST =
-  /^(?:değil\p{L}*|yok\p{L}*|uzak\p{L}*|yerine|hisset(?:me[dyzmn]|miyor)\p{L}*|duy(?:ma[dyzmn]|muyor)\p{L}*|et(?:me[dyzmn]|miyor)\p{L}*|ol(?:ma[dyzmn]|muyor)\p{L}*|yaşa(?:ma[dyzmn]|mıyor)\p{L}*)$/u;
+  /^(?:değil\p{L}*|yok\p{L}*|uzak\p{L}*|yerine|hisset(?:me[dyzmn]|miyor)\p{L}*|hissedil(?:me[dyzmn]|miyor)\p{L}*|duy(?:ma[dyzmn]|muyor)\p{L}*|duyul(?:ma[dyzmn]|muyor)\p{L}*|et(?:me[dyzmn]|miyor)\p{L}*|ol(?:ma[dyzmn]|muyor)\p{L}*|yaşa(?:ma[dyzmn]|mıyor)\p{L}*)$/u;
 const RU_AFTER_NE = /^(?:было|был|была|ощущ\p{L}*|чувств\p{L}*|испыт\p{L}*|возник\p{L}*|появ\p{L}*)$/u;
+/** "absence of fear": a Russian absence noun directly before the feeling. */
+const RU_ABSENCE = /^отсутств\p{L}*$/u;
+/** "X prevails over / outweighs fear": the feeling after it is subordinated. */
+const OVER = new Set(['над', 'over']);
+const PREVAILS = /^(?:преоблада\p{L}*|перевешива\p{L}*|берет|брало|сильнее|prevail\p{L}*|dominat\p{L}*|wins|won|triumph\p{L}*)$/u;
+const OUTWEIGHS = /^outweigh\p{L}*$/u;
 const CONTRAST = new Set(['but', 'yet', 'although', 'though', 'however', 'whereas', 'ama', 'fakat', 'ancak', 'но', 'однако', 'а']);
 
 function clauses(text: string): string[][] {
@@ -57,6 +70,7 @@ function negatedInClause(c: string[], i: number): boolean {
   for (let k = Math.max(0, i - 3); k < i; k++) {
     if (PRE.has(c[k]!) || c[k]!.endsWith("n't")) return true;
   }
+  if (i > 0 && RU_ABSENCE.test(c[i - 1]!)) return true;
   const [a, b] = [c[i + 1], c[i + 2]];
   if (c.slice(i + 1, i + 4).some((w) => EN_ABSENT.has(w))) return true;
   if (a && EN_COPULA.has(a) && b && (b === 'not' || b === 'never' || EN_ABSENT.has(b))) return true;
@@ -67,12 +81,26 @@ function negatedInClause(c: string[], i: number): boolean {
   return a === 'не' && !!b && RU_AFTER_NE.test(b);
 }
 
+function subordinated(c: string[], i: number): boolean {
+  const before = c[i - 1];
+  if (before && OUTWEIGHS.test(before)) return true;
+  if (!before || !OVER.has(before)) return false;
+  return c.slice(Math.max(0, i - 4), i - 1).some((w) => PREVAILS.test(w));
+}
+
+/** The canonical feeling a single (light-folded) word affirms, if any ("неспокойный" affirms none). */
+export function affirmedEmotionOf(word: string): DreamEmotion | null {
+  const hit = LEXICON.find(([, p]) => p.test(word))?.[0];
+  if (!hit || WORD_NEGATED.find(([e]) => e === hit)![1].test(word)) return null;
+  return hit;
+}
+
 export function emotionStances(text: string): Map<DreamEmotion, Stance> {
   const out = new Map<DreamEmotion, Stance>();
   for (const c of clauses(text)) {
     c.forEach((w, i) => {
       for (const [emotion, pattern] of LEXICON) {
-        if (!pattern.test(w)) continue;
+        if (!pattern.test(w) || subordinated(c, i)) continue;
         const own = WORD_NEGATED.find(([e]) => e === emotion)![1].test(w);
         const negated = own || negatedInClause(c, i);
         const s = out.get(emotion) ?? { affirmed: false, negated: false };
@@ -94,6 +122,21 @@ export function contradictsEmotion(told: string, claims: string): boolean {
     if (!s) continue;
     if (s.negated && !s.affirmed && c.affirmed) return true;
     if (s.affirmed && !s.negated && c.negated && !c.affirmed) return true;
+  }
+  return false;
+}
+
+/**
+ * Emotional-theme role grounding: [claims] names at least one feeling the
+ * dreamer stated with the same stance (affirmed, or negated). "Relief" is
+ * grounded by "I felt relieved"; "isolation" by nothing unless told.
+ */
+export function honoursStatedEmotion(told: string, claims: string): boolean {
+  const said = emotionStances(told);
+  for (const [emotion, c] of emotionStances(claims)) {
+    const s = said.get(emotion);
+    if (!s) continue;
+    if ((c.affirmed && s.affirmed) || (c.negated && s.negated)) return true;
   }
   return false;
 }

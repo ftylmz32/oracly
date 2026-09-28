@@ -155,9 +155,14 @@ class OraclyMemoryRetriever {
     ].any(t.contains);
   }
 
+  /// Latin, Turkish and Cyrillic letters (ё folded to е) and digits — the
+  /// three reading languages; explicit ranges, no Unicode classes.
+  static final _nonWord = RegExp(r'[^a-z0-9çğıöşüа-я]+');
+
   static Set<String> _tokens(String value) => value
       .toLowerCase()
-      .replaceAll(RegExp(r'[^a-z0-9çğıöşü]+'), ' ')
+      .replaceAll('ё', 'е')
+      .replaceAll(_nonWord, ' ')
       .split(' ')
       .where((e) => e.length >= 3 && !_stop.contains(e))
       .toSet();
@@ -174,5 +179,7 @@ class OraclyMemoryRetriever {
     'the',
     'and',
     'from',
+    'что', 'как', 'это', 'был', 'была', 'было', 'были', 'мне', 'меня', 'все',
+    'или', 'для', 'так', 'его', 'она', 'они', 'там', 'где', 'уже',
   };
 }

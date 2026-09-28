@@ -21,7 +21,9 @@
  */
 import type { AppLanguage } from './app-language.js';
 import type { DreamHistoryItem } from './dream-history.js';
-import { anchoredByItem, echoesDreamer, type Evidence, SAVED_HISTORY } from './dream-history-echo.js';
+import { claimUnits } from './dream-history-claim-unit.js';
+import { anchoredByItem, echoesDreamer, type Evidence, isGenericWord, SAVED_HISTORY } from './dream-history-echo.js';
+import { affirmedEmotionOf, type DreamEmotion } from './dream-emotion-contract.js';
 import { lightFold, sameStrict } from './dream-lexical.js';
 import type { DreamData } from './parse-provider.js';
 
@@ -55,8 +57,9 @@ const CLAIM = rx([
   String.raw`(?:önceki|geçmiş|eski|diğer|başka) rüya\p{L}*`,
   String.raw`daha önce(?:ki)? (?:de )?(?:bir )?rüya\p{L}*`,
   String.raw`daha önce de`,
-  String.raw`sık sık`,
-  String.raw`defalarca`,
+  // A bare frequency adverb is about dreams only before an appearance verb
+  // or a dream word ("sık sık karşına çıkıyor"); "sık sık arandığını" is not.
+  String.raw`(?:sık sık|defalarca) (?:\p{L}+ )?(?:gör|çık|gel|gir|belir|rüya|karşı|düş)\p{L}*`,
   String.raw`dönüp dolaş\p{L}*`,
   String.raw`yine karşına`,
   String.raw`rüyalar\p{L}* (?:tekrar |yine )?(?:gel|gir|dön)\p{L}*`,
@@ -150,6 +153,18 @@ function names(segment: string, stems: string[], language: AppLanguage): boolean
   return stems.some((s) => told.some((w) => sameStrict(s, w, language)));
 }
 
+/** A feeling item is also named by any affirmed form of its canonical feeling ("спокойствие" for peaceful). */
+const ITEM_EMOTION: Record<string, DreamEmotion> = {
+  'emotion:peaceful': 'calm', 'emotion:anxious': 'anxiety', 'emotion:curious': 'curiosity',
+  'emotion:fearful': 'fear', 'emotion:joyful': 'joy', 'emotion:melancholic': 'sadness',
+};
+const feelsItem = (word: string, item: DreamHistoryItem) =>
+  !!ITEM_EMOTION[item.key] && affirmedEmotionOf(word) === ITEM_EMOTION[item.key];
+
+function namesItem(segment: string, item: DreamHistoryItem, language: AppLanguage): boolean {
+  return names(segment, itemStems(item), language) || wordsOf(segment).some((w) => feelsItem(w, item));
+}
+
 function itemStems(item: DreamHistoryItem): string[] {
   return ENTRY_WORDS[item.key] ?? wordsOf(item.label).filter((w) => w.length >= 2 && !LABEL_STOP.has(w));
 }
@@ -168,6 +183,16 @@ function dreamerRecurrenceSegments(narrative: string): Evidence[] {
 function withoutCounts(sentence: string): string {
   return [DREAM_COUNT, TIMES_COUNT].reduce((s, p) => s.replace(p, (m, n: string) => m.replace(n, ' ')), sentence);
 }
+
+/** A unit's words once claim, stored-record and count wording are removed. */
+function claimWords(unit: string): string[] {
+  return wordsOf(withoutCounts(unit).replace(CLAIM, ' ').replace(SAVED_HISTORY, ' '));
+}
+
+const unitTools = {
+  isClaim: (chunk: string) => hits(CLAIM, lightFold(chunk)).length > 0,
+  content: (chunk: string) => claimWords(chunk).filter((w) => !isGenericWord(w)),
+};
 
 function countValue(raw: string): number {
   return /^\d+$/.test(raw) ? Number(raw) : (WORD_VALUES[raw] ?? -1);
@@ -202,11 +227,17 @@ export function dreamHistoryClaimViolation(
       if (invented.some((m) => !allowed.has(countValue(m[1]!)))) return 'history_count';
       const saved = hits(SAVED_HISTORY, s).length > 0;
       if (!claim && !saved && !invented.length) continue;
-      const words = wordsOf(withoutCounts(s).replace(CLAIM, ' ').replace(SAVED_HISTORY, ' '));
-      const viaHistory = history.some(
-        (item, i) => named.includes(item) && anchoredByItem(words, itemWords[i]!, input.language),
-      );
-      if (!viaHistory && (saved || !echoesDreamer(words, segments, input.language))) return 'history_unsupported';
+      // Stored-record wording and invented counts keep whole-sentence scope.
+      const units = claim && !saved && !invented.length ? claimUnits(s, input.language, unitTools) : [s];
+      for (const unit of units) {
+        const words = claimWords(unit);
+        const viaHistory = history.some(
+          (item, i) =>
+            namesItem(unit, item, input.language) &&
+            anchoredByItem(words.filter((w) => !feelsItem(w, item)), itemWords[i]!, input.language),
+        );
+        if (!viaHistory && (saved || !echoesDreamer(words, segments, input.language))) return 'history_unsupported';
+      }
     }
   }
   return null;

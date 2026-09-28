@@ -124,7 +124,7 @@ export function significant(s: string): Set<string> {
 }
 
 /** Light-folded symbol words of two or more letters that carry meaning. */
-function symbolWords(symbol: string, language: AppLanguage): string[] {
+export function symbolWords(symbol: string, language: AppLanguage): string[] {
   return (lightFold(symbol).match(/[\p{L}\p{N}]+/gu) ?? []).filter((w) => {
     const a = asciiFold(w);
     return w.length >= 2 && !STOP.has(a) && !isDreamWord(a) && !SHORT_STOP[language].has(w);

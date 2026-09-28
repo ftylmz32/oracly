@@ -89,26 +89,12 @@ Future<({DreamAiContext context, String memorySource})> clientContext(
     // Only the outgoing request is needed; the scripted reply is irrelevant.
   }
   final sent = ai.contexts.single;
-  if (memory == null || sent.memorySummary != null) {
-    return (context: sent, memorySource: memory == null ? 'none' : 'retriever');
-  }
-  // The retriever's query tokens are Latin-only, so a Cyrillic dream never
-  // matches; its own recall path formats the same memory row instead.
-  final recalled = memory.forInterpretation(
-    query: 'remember',
-    currentType: OraclyReadingType.dream,
-  );
-  return (
-    context: DreamAiContext(
-      narrative: sent.narrative,
-      symbols: sent.symbols,
-      emotions: sent.emotions,
-      memorySummary: recalled,
-      history: sent.history,
-      language: sent.language,
-    ),
-    memorySource: 'retriever_recall_fallback',
-  );
+  final source = memory == null
+      ? 'none'
+      : sent.memorySummary == null
+          ? 'not_retrieved'
+          : 'retriever';
+  return (context: sent, memorySource: source);
 }
 
 /// Wire payload + model exactly as `OpenAiPaidRequests.dream` builds them.

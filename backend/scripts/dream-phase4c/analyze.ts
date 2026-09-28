@@ -86,6 +86,9 @@ export function withAnalysis(artifact: Phase4cArtifact, all: Replays): Phase4cAr
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const artifact = JSON.parse(readFileSync(PHASE4C_ARTIFACT_PATH, 'utf8')) as Phase4cArtifact;
+  if (artifact.observations) {
+    throw new Error('the Phase 4C live artifact is frozen evidence; 4C.1 writes its own reclassification');
+  }
   const next = withAnalysis(artifact, loadReplays());
   const errors = validatePhase4cArtifact(next);
   if (errors.length) throw new Error(`schema: ${errors.join('; ')}`);

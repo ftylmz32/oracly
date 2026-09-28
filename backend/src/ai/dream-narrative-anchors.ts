@@ -14,9 +14,18 @@ export const RICH_MIN_WORDS = 5;
 export const RICH_MIN_CLUSTERS = 3;
 export const RICH_MIN_TOUCHED = 2;
 
-/** Summary near-verbatim copy: share of summary tokens inside shared trigrams. */
+/**
+ * Summary near-verbatim copy (Phase 4C.1): the share of summary tokens
+ * inside shared trigrams reaches RECAP_MAX_SHARE AND the copy is either one
+ * contiguous run of RECAP_MIN_RUN tokens or RECAP_MIN_COPIED copied
+ * content words. A compressed line that reuses "train station" and "old
+ * friend" is not a recap; a sentence lifted from the narrative, or a
+ * scene-by-scene retelling, is.
+ */
 export const RECAP_MAX_SHARE = 0.6;
 export const RECAP_MIN_TOKENS = 6;
+export const RECAP_MIN_RUN = 6;
+export const RECAP_MIN_COPIED = 6;
 
 const ANCHOR_STOP = new Set([
   'not', 'felt', 'feel', 'saw', 'see', 'seen', 'her', 'his', 'him', 'she', 'had',
@@ -70,16 +79,31 @@ export function touchedClusters(narrative: string, text: string, language: AppLa
   return touched.length ? clusterCount(touched, segs) : 0;
 }
 
-export function recapShare(narrative: string, summary: string): number {
+type RecapCopy = { share: number; run: number; copied: number };
+
+function recapCopy(narrative: string, summary: string): RecapCopy {
   const person = (w: string) => PERSON[w] ?? w;
   const n = tokens(narrative).map(person);
   const s = tokens(summary).map(person);
-  if (s.length < RECAP_MIN_TOKENS) return 0;
+  if (s.length < RECAP_MIN_TOKENS) return { share: 0, run: 0, copied: 0 };
   const grams = new Set<string>();
   for (let i = 0; i + 2 < n.length; i++) grams.add(n.slice(i, i + 3).join(' '));
   const covered = new Array<boolean>(s.length).fill(false);
   for (let i = 0; i + 2 < s.length; i++) {
     if (grams.has(s.slice(i, i + 3).join(' '))) covered[i] = covered[i + 1] = covered[i + 2] = true;
   }
-  return covered.filter(Boolean).length / s.length;
+  let run = 0;
+  let current = 0;
+  for (const c of covered) run = Math.max(run, (current = c ? current + 1 : 0));
+  const copied = new Set(s.filter((w, i) => covered[i] && isAnchor(w))).size;
+  return { share: covered.filter(Boolean).length / s.length, run, copied };
+}
+
+export function recapShare(narrative: string, summary: string): number {
+  return recapCopy(narrative, summary).share;
+}
+
+export function isPlotRecap(narrative: string, summary: string): boolean {
+  const { share, run, copied } = recapCopy(narrative, summary);
+  return share >= RECAP_MAX_SHARE && (run >= RECAP_MIN_RUN || copied >= RECAP_MIN_COPIED);
 }

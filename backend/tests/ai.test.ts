@@ -25,14 +25,17 @@ import { dreamMessages } from '../src/ai/prompts.js';
 describe('ai complete', () => {
   beforeEach(() => readingStageStore.clear());
 
+  // Since Dream Phase 4C.1 each field rule is stated once, in the system
+  // field-rules block; the user lead only names the fields.
   it('requires grounded non-empty Dream daily reflection without personal history', () => {
-    const user = String(
-      dreamMessages({ narrative: 'Sessiz bir bahçede altın bir kapı gördüm.' })[1]?.content,
-    );
-    expect(user).toContain('dailyLifeReflection (boş bırakma;');
-    expect(user).toContain('yalnızca rüya anlatısına dayanan');
-    expect(user).toContain('kişisel gerçek uydurma');
-    expect(user).not.toContain('yoksa boş bırak');
+    const [sys, usr] = dreamMessages({ narrative: 'Sessiz bir bahçede altın bir kapı gördüm.' });
+    const system = String(sys?.content);
+    const user = String(usr?.content);
+    expect(user).toContain('dailyLifeReflection (boş bırakma)');
+    expect(system).toContain('dailyLifeReflection: bu rüyanın bir somut ayrıntısını');
+    expect(system).toContain('kişisel bağlam uydurma');
+    expect(system).toContain('uyanık hayata dair bir sorun uydurma');
+    expect(`${system} ${user}`).not.toContain('yoksa boş bırak');
   });
   it('requires relational symbol reasoning and discourages generic tropes in Dream prompts', () => {
     // Regression for a real production quality defect: the model defaulted to
@@ -43,20 +46,18 @@ describe('ai complete', () => {
       narrative: 'Eski bir evin bahçesindeydim, gökyüzü çok açıktı ve altın bir kapı gördüm.',
     });
     const system = String(messages[0]?.content);
-    const user = String(messages[1]?.content);
-    expect(system).toContain('ayrıntı arasındaki ilişkiyi kur');
+    expect(system).toContain('ilişkisel bir köprü kur');
     expect(system).toContain('yalnızca anlatı açıkça destekliyorsa kullan');
-    expect(user).toContain('en az iki somut ayrıntıyı birbirine bağlayan');
-    expect(user).toContain('kalıp ve genel ifadelerden kaçın');
+    expect(system).toContain('en az iki somut ayrıntı kullan');
+    expect(system).toContain('otomatik okumalar yapma');
+    expect(system).toContain('genel tavsiye verme');
   });
   it('requires the Dream emotional field to describe atmosphere, not restate the narrative verbatim', () => {
-    const user = String(
-      dreamMessages({ narrative: 'Karanlık bir ormanda yalnız yürüyordum.' })[1]?.content,
+    const system = String(
+      dreamMessages({ narrative: 'Karanlık bir ormanda yalnız yürüyordum.' })[0]?.content,
     );
-    expect(user).toContain(
-      'emotionalTheme (rüyanın genel duygusal atmosferi; anlatı cümlelerini olduğu gibi tekrarlama;',
-    );
-    expect(user).toContain('birden fazla/karışık duygudan söz edebilirsin');
+    expect(system).toContain('anlatı cümlelerini olduğu gibi tekrarlama');
+    expect(system).toContain('karışık duyguları ve bir duygunun yokluğunu söylendiği gibi koru');
   });
   it('requires explicitly stated (including negated) emotion to outrank inferred atmosphere', () => {
     // Regression for a real production quality defect: a live dream where
@@ -67,20 +68,16 @@ describe('ai complete', () => {
       narrative: 'Tren istasyonundaydım, korkmuyordum ama bir şeyi kaçırıyormuşum gibi hafif bir aciliyet hissi vardı.',
     });
     const system = String(messages[0]?.content);
-    const user = String(messages[1]?.content);
-    expect(system).toContain('olumsuzlanmış ifadeler');
-    expect(system).toContain('atmosferden çıkarılan tahminden önce yansıt');
-    expect(system).toContain('anlatının belirtmediği bir duyguyu');
-    expect(user).toContain('olumsuzlanmış olsa bile');
-    expect(user).toContain('anlatının belirtmediği bir duygu uydurma');
+    expect(system).toContain('belirtilen duygulara, olumsuzlanmış olanlar dahil, sadık kal');
+    expect(system).toContain('"korkmadım" dendiyse korkuyu varmış gibi yazma');
+    expect(system).toContain('anlatılmayan duygu uydurma');
+    expect(system).toContain('Metinde olmayan imge, sembol ya da duygu ekleme');
   });
   it('requires the interpretation to show how one detail changes another, not just co-mention them', () => {
     const system = String(dreamMessages({ narrative: 'Bir kapı ve bir ışık gördüm.' })[0]?.content);
-    const user = String(dreamMessages({ narrative: 'Bir kapı ve bir ışık gördüm.' })[1]?.content);
     expect(system).toContain('yalnızca yan yana anmak yetmez');
-    expect(system).toContain('anlamını nasıl değiştirdiğini');
-    expect(user).toContain('anlamını nasıl değiştirdiğini');
-    expect(user).toContain('anlatılan duygusal ipuçlarını yoruma katıştır');
+    expect(system).toContain('bir somut ayrıntının diğerini nasıl değiştirdiğini');
+    expect(system).toContain('anlatılan duygusal ipuçlarını yoruma katıştır');
   });
   it('returns no_configuration when OPENAI_API_KEY is missing', async () => {
     const app = await testApp(

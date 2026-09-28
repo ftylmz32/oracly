@@ -13,6 +13,7 @@ import '../models/dream_insight.dart';
 import 'dream_analysis_beats.dart';
 import 'dream_analysis_facts.dart';
 import 'dream_analysis_guard.dart';
+import 'dream_provider_evidence.dart';
 
 typedef _Beat = ({String body, DreamInsightSource source});
 
@@ -30,6 +31,8 @@ abstract final class DreamAnalysisComposer {
       narrative: dream.narrative,
       understanding: understanding,
       tags: dream.tags,
+      statedFeelings:
+          DreamProviderEvidence.emotions(dream, understanding, language),
       language: language,
     );
     final seed = Object.hash(dream.id, facts.scene, facts.image).abs();
@@ -44,6 +47,7 @@ abstract final class DreamAnalysisComposer {
         [ai?.emotionalTheme],
         facts,
         () => DreamAnalysisBeats.feeling(facts, seed),
+        role: DreamGuardRole.emotionalTheme,
       ),
       DreamInsightKind.mainInterpretation: _first(
         [ai?.interpretation],
@@ -78,10 +82,11 @@ abstract final class DreamAnalysisComposer {
   static _Beat _first(
     List<String?> candidates,
     DreamAnalysisFacts facts,
-    String Function() local,
-  ) {
+    String Function() local, {
+    DreamGuardRole role = DreamGuardRole.dream,
+  }) {
     for (final candidate in candidates) {
-      final accepted = DreamAnalysisGuard.polish(candidate, facts);
+      final accepted = DreamAnalysisGuard.polish(candidate, facts, role: role);
       if (accepted != null) return _ai(accepted);
     }
     final text = local();

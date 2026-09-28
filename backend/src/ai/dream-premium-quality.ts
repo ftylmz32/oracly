@@ -1,7 +1,7 @@
 import { inventsCatalogueImage, touchesTold } from './dream-client-parity.js';
 import { lightFold } from './dream-lexical.js';
-import { contradictsEmotion } from './dream-emotion-contract.js';
-import { isRichNarrative, RECAP_MAX_SHARE, recapShare, RICH_MIN_TOUCHED, touchedClusters } from './dream-narrative-anchors.js';
+import { contradictsEmotion, honoursStatedEmotion } from './dream-emotion-contract.js';
+import { isPlotRecap, isRichNarrative, RICH_MIN_TOUCHED, touchedClusters } from './dream-narrative-anchors.js';
 import { unsupportedPersonalDomain } from './dream-personal-facts.js';
 import type { DreamQualityInput } from './dream-quality.js';
 import type { DreamData } from './parse-provider.js';
@@ -81,7 +81,7 @@ export function evaluateDreamPremiumQuality(
   if (prose.some((s) => s.trim().length < PREMIUM_MIN_CHARS)) return 'thin_section';
   if (prose.slice(0, 4).some((s) => /[?？]/.test(s))) return 'extra_question';
   if (!symbolListOk(data.symbols)) return 'symbol_list';
-  if (recapShare(input.narrative, summary) >= RECAP_MAX_SHARE) return 'plot_recap';
+  if (isPlotRecap(input.narrative, summary)) return 'plot_recap';
   const feelings = [input.narrative, ...input.emotions].join('. ');
   // Per section: one section affirming a feeling must not mask another denying it.
   if ([emotionalTheme, summary].some((s) => contradictsEmotion(feelings, s))) return 'emotion_contradiction';
@@ -96,7 +96,9 @@ export function evaluateDreamPremiumQuality(
   const observed = [...input.symbols, ...input.emotions];
   const told = narrative.trim() ? narrative : observed.join(' ');
   const grounded = (s: string, evidence = told) => !evidence.trim() || touchesTold(s, evidence, observed, language);
-  if (![summary, emotionalTheme, interpretation].every((s) => grounded(s))) return 'ungrounded_section';
+  // Role grounding: the emotional theme may instead honour a stated feeling.
+  const themeGrounded = grounded(emotionalTheme) || honoursStatedEmotion(feelings, emotionalTheme);
+  if (![summary, interpretation].every((s) => grounded(s)) || !themeGrounded) return 'ungrounded_section';
   if (isRichNarrative(narrative) && touchedClusters(narrative, interpretation, language) < RICH_MIN_TOUCHED) {
     return 'weak_interpretation';
   }
