@@ -1,0 +1,470 @@
+{
+  "schema": "oracly.dream.phase4c2.client-replay/v1",
+  "source": "docs/product/dream/evals/DREAM_PHASE4C2_MODEL_AB_20260928.json",
+  "bodies": "live 4C.2 parsed body with the backend-filtered symbols",
+  "replays": [
+    {
+      "candidateModel": "gpt-6-sol",
+      "runId": "en-negated-fear::gpt-6-sol",
+      "clientLanguage": "en",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-astra",
+      "runId": "en-negated-fear::gpt-6-astra",
+      "clientLanguage": "en",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-astra",
+      "runId": "en-mixed-emotion::gpt-6-astra",
+      "clientLanguage": "en",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-sol",
+      "runId": "tr-domain-work::gpt-6-sol",
+      "clientLanguage": "tr",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-astra",
+      "runId": "ru-domain-family::gpt-6-astra",
+      "clientLanguage": "ru",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-sol",
+      "runId": "ru-domain-family::gpt-6-sol",
+      "clientLanguage": "ru",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "local",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-sol",
+      "runId": "ru-memory::gpt-6-sol",
+      "clientLanguage": "ru",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-astra",
+      "runId": "ru-memory::gpt-6-astra",
+      "clientLanguage": "ru",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-sol",
+      "runId": "en-history::gpt-6-sol",
+      "clientLanguage": "en",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-astra",
+      "runId": "tr-history::gpt-6-astra",
+      "clientLanguage": "tr",
+      "clientResult": "FAIL_DELIVERY",
+      "clientGap": "mainInterpretation",
+      "requiredAiSections": 4,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": null,
+          "layer": "HumanReader.looksGeneric",
+          "rewrite": "rejected",
+          "original": "Dalgaların sessizce ayaklarına değmesi, uzaktaki tekneyi izleyişine yakından hissedilen bir temas katıyor. Böylece teknenin uzaklığı, bulunduğun kıyıyla bağını kesmeden huzurla bakabildiğin bir mesafe olarak okunabilir; sahnede ona ulaşmaktan çok, olduğu yerden bakmanın kendisi öne çıkıyor."
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    },
+    {
+      "candidateModel": "gpt-6-sol",
+      "runId": "tr-history::gpt-6-sol",
+      "clientLanguage": "tr",
+      "clientResult": "PASS",
+      "clientGap": null,
+      "requiredAiSections": 5,
+      "fromAi": true,
+      "symbolsSource": "ai",
+      "fields": {
+        "summary": {
+          "section": "summary",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "emotionalTheme": {
+          "section": "emotionalMeaning",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "interpretation": {
+          "section": "mainInterpretation",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "dailyLifeReflection": {
+          "section": "personalConnection",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        },
+        "conclusion": {
+          "section": "closingTakeaway",
+          "source": "ai",
+          "layer": null,
+          "rewrite": "unchanged"
+        }
+      }
+    }
+  ]
+}

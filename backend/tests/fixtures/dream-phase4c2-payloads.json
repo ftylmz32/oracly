@@ -1,0 +1,153 @@
+{
+  "schema": "oracly.dream.phase4c2.payloads/v1",
+  "source": "test/features/dream/dream_phase4c2_payload_test.dart",
+  "requests": [
+    {
+      "id": "tr-negated-fear",
+      "language": "tr",
+      "category": "rich_negated_fear",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda gece karanlık bir ormanda yürüyordum ve arkamdan ayak sesleri geliyordu. Ama hiç korkmadım; aksine sesin kime ait olduğunu merak ettim. Ağaçların arasında eski bir fenerin ışığı titriyordu ve ona doğru sakin adımlarla ilerledim.",
+        "symbols": [
+          "Orman"
+        ],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "en-negated-fear",
+      "language": "en",
+      "category": "rich_negated_fear",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I was standing at the edge of a dark lake at night and something large moved under the water. Strangely, I wasn't scared at all. I knelt down and watched the ripples until a pale light rose slowly to the surface.",
+        "symbols": [
+          "water"
+        ],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "ru-negated-fear",
+      "language": "ru",
+      "category": "rich_negated_fear",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что я иду по тёмному подвалу, а где-то впереди капает вода. Но мне совсем не было страшно, скорее любопытно. В конце коридора я нашла маленькую дверь, за которой горел тёплый свет.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "en-mixed-emotion",
+      "language": "en",
+      "category": "rich_mixed_emotion",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I was at a train station saying goodbye to an old friend I haven't seen in years. I felt relieved and happy to see her, but also heavy, as if I already knew the train would leave without me. We were laughing while I cried.",
+        "symbols": [],
+        "emotions": [],
+        "language": "en"
+      }
+    },
+    {
+      "id": "tr-domain-work",
+      "language": "tr",
+      "category": "life_domain_supported",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda iş yerindeki toplantı odasındaydım ve projeyi anlatmam gerekiyordu ama slaytlarım bomboş çıktı. Herkes sessizce bekliyordu. Gerçek hayatta da bu hafta işte önemli bir sunumum var ve biraz gerginim.",
+        "symbols": [],
+        "emotions": [],
+        "language": "tr"
+      }
+    },
+    {
+      "id": "ru-domain-family",
+      "language": "ru",
+      "category": "life_domain_supported",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что мы всей семьёй сидим за большим столом, но стулья всё время сами отодвигаются от стола. В жизни мы с сестрой давно не разговаривали, и я думаю, как начать этот разговор.",
+        "symbols": [],
+        "emotions": [],
+        "language": "ru"
+      }
+    },
+    {
+      "id": "ru-memory",
+      "language": "ru",
+      "category": "safe_connected_memory",
+      "memorySource": "retriever",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Мне снилось, что я стою на перекрёстке в густом тумане. Одна дорога была освещена, другая тёмная. Я долго выбирала, куда идти, и никуда не торопилась.",
+        "symbols": [],
+        "emotions": [],
+        "memorySummary": "Yalnızca şimdiki kanıt desteklerse kullan: [tarot|2026-09-14|qa-4c-memory-ru] Расклад таро о перекрёстке и выборе без спешки.",
+        "language": "ru"
+      }
+    },
+    {
+      "id": "en-history",
+      "language": "en",
+      "category": "prior_dream_history",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "I was walking by the sea at dusk. The waves were quiet around my feet, and a small boat drifted far away while I felt calm.",
+        "symbols": [
+          "sea"
+        ],
+        "emotions": [],
+        "history": [
+          {
+            "kind": "symbol",
+            "key": "symbol:sea",
+            "label": "sea",
+            "level": "recurring",
+            "priorCount": 2
+          }
+        ],
+        "language": "en"
+      }
+    },
+    {
+      "id": "tr-history",
+      "language": "tr",
+      "category": "prior_dream_history",
+      "memorySource": "none",
+      "model": "gpt-4o",
+      "payload": {
+        "narrative": "Rüyamda denizin kıyısındaydım, dalgalar sessizce ayaklarıma değiyordu. Uzakta küçük bir tekne vardı ve ona bakarken içim huzurla doldu.",
+        "symbols": [
+          "Deniz",
+          "Huzur"
+        ],
+        "emotions": [
+          "Huzur"
+        ],
+        "history": [
+          {
+            "kind": "symbol",
+            "key": "symbol:sea",
+            "label": "Deniz",
+            "level": "recurring",
+            "priorCount": 2
+          }
+        ],
+        "language": "tr"
+      }
+    }
+  ]
+}
