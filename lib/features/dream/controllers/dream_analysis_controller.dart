@@ -45,6 +45,7 @@ class DreamAnalysisController extends ChangeNotifier {
   List<Dream> _history = const [];
   bool _versionAdded = false;
   int _versionReloadToken = 0;
+  bool _reinterpretFailed = false;
 
   @override
   void dispose() {
@@ -71,6 +72,11 @@ class DreamAnalysisController extends ChangeNotifier {
   List<Dream> get history => _history;
   bool get lastVersionAdded => _versionAdded;
   int get versionReloadToken => _versionReloadToken;
+
+  /// The error came from reinterpreting [dream], which is still retained:
+  /// retry reinterprets it again, back returns to it.
+  bool get reinterpretFailed =>
+      _reinterpretFailed && _phase == DreamJourneyPhase.error && _dream != null;
 
   @visibleForTesting
   void seedHistoryForTest(List<Dream> dreams) {
@@ -216,12 +222,31 @@ class DreamAnalysisController extends ChangeNotifier {
 
   void _fail(String stage, Object error) {
     _errorMessage = DreamAnalysisFailure.messageFor(stage, error);
+    _reinterpretFailed = stage == 'reinterpret';
     _phase = DreamJourneyPhase.error;
+  }
+
+  /// Back from a failed reinterpret: the reading it started from, unchanged.
+  void returnToReading() {
+    if (_disposed || !reinterpretFailed) return;
+    _generation++;
+    _reinterpretFailed = false;
+    _errorMessage = null;
+    _phase = DreamJourneyPhase.complete;
+    _safeNotify();
+  }
+
+  /// The screen was left. A finished session (result, error or safety) must
+  /// not greet the next visit; an analysis still running is kept.
+  void releaseSession() {
+    if (_disposed || _busy || _phase == DreamJourneyPhase.entry) return;
+    reset();
   }
 
   void reset() {
     if (_disposed) return;
     _generation++;
+    _reinterpretFailed = false;
     _phase = DreamJourneyPhase.entry;
     _dream = null;
     _errorMessage = null;

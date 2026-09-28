@@ -18,6 +18,7 @@ import '../../models/dream_emotion.dart';
 import '../../models/dream_entry_context.dart';
 import '../../models/dream_entry_selection.dart';
 import '../../providers/dream_providers.dart';
+import '../../services/dream_owner_guard.dart';
 import '../../services/dream_paid_submit.dart';
 import '../../../quality_loop/providers/quality_loop_providers.dart';
 import '../../../quality_loop/widgets/quality_loop_gate.dart';
@@ -39,9 +40,13 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
   final _selectedChips = <DreamEntryChipId>{};
   final _guidedAnswers = <DreamGuidedQuestionId, String>{};
   bool _composing = false;
+  DreamAnalysisController? _analysis;
+  int _clearGeneration = DreamOwnerGuard.clearGeneration;
 
   @override
   void dispose() {
+    final analysis = _analysis;
+    if (analysis != null) scheduleMicrotask(analysis.releaseSession);
     _narrativeController.dispose();
     super.dispose();
   }
@@ -127,7 +132,8 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
     });
   }
 
-  /// A mounted screen must not carry the prior owner's typed narrative.
+  /// A mounted screen must not carry the prior owner's typed narrative, nor
+  /// a narrative whose Dream data was just cleared.
   void _clearForOwnerChange() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -158,6 +164,11 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
   @override
   Widget build(BuildContext context) {
     final analysis = ref.watch(dreamAnalysisControllerProvider);
+    _analysis = analysis;
+    if (_clearGeneration != DreamOwnerGuard.clearGeneration) {
+      _clearGeneration = DreamOwnerGuard.clearGeneration;
+      _clearForOwnerChange();
+    }
     final voice = ref.watch(dreamVoiceControllerProvider);
     ref.listen(localDataOwnerEpochProvider, (_, _) => _clearForOwnerChange());
     ref.listen(dreamVoiceControllerProvider, (previous, next) {
@@ -200,10 +211,15 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
             onVoiceBack: voice.reset,
             onNewDream: () => _reset(analysis),
             onAnalysisRetry: () {
+              if (analysis.reinterpretFailed) {
+                unawaited(analysis.reinterpret().catchError((Object _) {}));
+                return;
+              }
               setState(() => _composing = true);
               _submit(analysis);
             },
             onAnalysisBack: () {
+              if (analysis.reinterpretFailed) return analysis.returnToReading();
               analysis.reset();
               setState(() => _composing = false);
             },

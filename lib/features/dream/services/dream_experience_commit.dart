@@ -25,6 +25,9 @@ class DreamExperienceResult {
 ///    this operation's Dream id is reverted (record + its connected memory
 ///    via [DreamRepository.delete], and its version root) — ids are minted
 ///    per operation, so no other owner's rows can match.
+/// 4. A new Dream is all-or-nothing: if the record or its version root is
+///    not durable, the same revert runs and the failure is rethrown — an
+///    error is never left with an orphan record a retry would duplicate.
 class DreamExperienceCommit {
   const DreamExperienceCommit({
     required this.repository,
@@ -64,13 +67,18 @@ class DreamExperienceCommit {
       }
     }
 
-    await repository.save(record);
-    if (!isRevision && versions != null) {
-      await versions.seedOriginal(
-        rootId: dream.id,
-        kind: ReadingVersionKind.dream,
-        data: payload,
-      );
+    try {
+      await repository.save(record);
+      if (!isRevision && versions != null) {
+        await versions.seedOriginal(
+          rootId: dream.id,
+          kind: ReadingVersionKind.dream,
+          data: payload,
+        );
+      }
+    } catch (_) {
+      if (!isRevision) await _revert(dream.id);
+      rethrow;
     }
 
     if (!owner.stillValid(snapshot)) {

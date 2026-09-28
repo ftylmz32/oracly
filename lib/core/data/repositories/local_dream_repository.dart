@@ -4,6 +4,7 @@ library;
 import 'dart:convert';
 
 import '../../data/datasources/local_storage.dart';
+import '../../data/datasources/storage_result.dart';
 import '../../domain/models/dream_record.dart';
 import '../../domain/repositories/dream_repository.dart';
 import '../../memory/oracly_memory.dart';
@@ -57,10 +58,9 @@ class LocalDreamRepository implements DreamRepository {
         if (r.id != record.id) r,
       record,
     ];
-    await _storage.setStringList(
-      _key,
-      updated.map((e) => jsonEncode(e.toJson())).toList(),
-    );
+    await _storage
+        .setStringList(_key, updated.map((e) => jsonEncode(e.toJson())).toList())
+        .requireDurable(_key);
     try {
       await _memory?.upsert(OraclyMemoryFactory.dream(record));
     } catch (_) {
@@ -71,10 +71,12 @@ class LocalDreamRepository implements DreamRepository {
   @override
   Future<void> delete(String id) async {
     final all = await getAll();
-    await _storage.setStringList(
-      _key,
-      all.where((e) => e.id != id).map((e) => jsonEncode(e.toJson())).toList(),
-    );
+    await _storage
+        .setStringList(
+          _key,
+          all.where((e) => e.id != id).map((e) => jsonEncode(e.toJson())).toList(),
+        )
+        .requireDurable(_key);
     try {
       await _memory?.removeBySourceAndType(id, OraclyReadingType.dream);
     } catch (_) {

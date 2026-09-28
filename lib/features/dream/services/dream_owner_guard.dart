@@ -61,6 +61,8 @@ class DreamOwnerGuard {
   /// flight for the same owner cannot re-persist cleared Dream data.
   static void markCleared() => _clearGeneration++;
 
+  static int get clearGeneration => _clearGeneration;
+
   DreamOwnerSnapshot capture() => DreamOwnerSnapshot(
         ownerId: _ownerId()?.trim() ?? '',
         epoch: UserLocalDataIsolation.accountSwitchEpoch.value,
