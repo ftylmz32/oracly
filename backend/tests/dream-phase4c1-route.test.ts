@@ -91,12 +91,13 @@ class SpyReplay implements ResponseReplayRepository {
   }
 }
 
-describe('Dream Phase 4C.1 — writer revision 4c1', () => {
+// The revision itself moved to '4c3-astra' in Phase 4C.3 (pinned there).
+describe('Dream Phase 4C.1 — writer revision bump', () => {
   it('bumps only the replay slot; the semantic / billing fingerprint is unchanged', () => {
-    expect(DREAM_WRITER_REVISION).toBe('4c1');
+    expect(DREAM_WRITER_REVISION).not.toBe('4b');
     const fp = dreamRequestFingerprint({ payload: { narrative: 'a red door' }, language: 'en' });
     expect(fp).toBe('dream:v2:3d2e95d2851234367b93574161fdcf6522cc4b24b6f2c71cd6d51fd0fc0fdfc7');
-    expect(dreamReplayKey('k', fp)).toMatch(/^k\|dream-sem:4c1:[0-9a-f]{32}$/);
+    expect(dreamReplayKey('k', fp)).toMatch(new RegExp(`^k\\|dream-sem:${DREAM_WRITER_REVISION}:[0-9a-f]{32}$`));
   });
 
   it('never replays a 4b body; an exact 4c1 retry replays without a second call', async () => {

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { CANDIDATES } from './candidates.js';
 import { PHASE4C2_CASES, PHASE4C2_MAX_CALLS, rotation } from './matrix.js';
 import { PENDING_REVIEW, type Phase4c2Record } from './record.js';
+import { PHASE4C2_WRITER_REVISION } from './record-type.js';
 
 export const PHASE4C2_SCHEMA = 'oracly.dream.phase4c2.model-ab/v1';
 const doc = (name: string) => fileURLToPath(new URL(`../../../docs/product/dream/evals/${name}`, import.meta.url));
@@ -48,7 +49,7 @@ export function validatePhase4c2Artifact(a: Phase4c2Artifact): string[] {
     const at = `${r.attemptId}`;
     need(r.attemptId === expected[i] && r.order === i + 1, `${at}: order`);
     need(CANDIDATES.some((c) => c.id === r.candidateModel && c.model === r.requestedModel), `${at}: model`);
-    need(r.writerRevision === '4c1', `${at}: writer revision`);
+    need(r.writerRevision === PHASE4C2_WRITER_REVISION, `${at}: writer revision`);
     need(r.endpoint === 'https://api.openai.com/v1/chat/completions', `${at}: endpoint`);
     need((r.parameters.responseFormat as { type?: string } | null)?.type === 'json_object', `${at}: json mode`);
     const reasoning = r.candidateModel !== 'gpt-4o';

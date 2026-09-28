@@ -5,6 +5,9 @@ import {
 
 export type AppEnv = 'development' | 'staging' | 'production';
 
+export const REASONING_EFFORTS = ['none', 'low', 'medium', 'high', 'xhigh', 'max'] as const;
+export type ReasoningEffort = (typeof REASONING_EFFORTS)[number];
+
 export type AuthMode =
   | 'bypass'
   | 'hs256'
@@ -54,6 +57,14 @@ export type AppConfig = {
   openaiYildiznameNarrativeModel: string | null;
   /** Yıldızname reasoning effort when the resolved model supports it. Default none. */
   openaiYildiznameNarrativeReasoningEffort: 'none' | 'low' | 'medium';
+  /**
+   * Dream writer only (`dream_analysis`), server-owned. Kept exactly as
+   * configured — never allowlist-filtered or substituted — so a typo stays
+   * observable; locked envs require the frozen writer (`dream-writer-model.ts`).
+   */
+  openaiDreamModel: string | null;
+  /** Dream reasoning effort; null when unset or not a known level. */
+  openaiDreamReasoningEffort: ReasoningEffort | null;
   authRequired: boolean;
   devAuthBypass: boolean;
   authMode: AuthMode;
@@ -230,6 +241,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     yildiznameReasoningRaw === 'low' || yildiznameReasoningRaw === 'medium'
       ? yildiznameReasoningRaw
       : 'none';
+  const dreamReasoningRaw = nonEmpty(env.OPENAI_DREAM_REASONING_EFFORT)?.toLowerCase();
+  const openaiDreamReasoningEffort =
+    REASONING_EFFORTS.find((level) => level === dreamReasoningRaw) ?? null;
   const bypassRequested = parseBool(env.AI_DEV_AUTH_BYPASS, false);
   const authRequiredSetting = parseBool(env.AI_AUTH_REQUIRED, true);
   const jwtSecret = nonEmpty(env.AI_JWT_SECRET);
@@ -288,6 +302,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     openaiTarotNarrativeReasoningEffort,
     openaiYildiznameNarrativeModel,
     openaiYildiznameNarrativeReasoningEffort,
+    openaiDreamModel: nonEmpty(env.OPENAI_DREAM_MODEL),
+    openaiDreamReasoningEffort,
     authRequired,
     devAuthBypass,
     authMode: resolveAuthMode({

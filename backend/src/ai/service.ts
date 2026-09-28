@@ -8,6 +8,7 @@ import { ReadingOperationError } from '../reading/operation-service.js';
 import type { ReadingStagedImageService } from '../reading/operation-staged-image-service.js';
 import { extractChatText, parseDreamData } from './parse-provider.js';
 import { acceptDreamData } from './dream-acceptance.js';
+import { buildDreamCompleteOptions } from './dream-writer-model.js';
 import type { DreamHistoryItem } from './dream-history.js';
 import {
   assertDreamInputSafe,
@@ -121,7 +122,7 @@ export class AiProxyService {
       case 'oracle':
         return this.oracle(request, model);
       case 'dream_analysis':
-        return this.dream(request, model);
+        return this.dream(request);
       case 'coffee_analysis':
         return this.coffee(request, ctx);
       case 'palm_analysis':
@@ -187,21 +188,17 @@ export class AiProxyService {
     return { text };
   }
 
-  private async dream(
-    request: Extract<ValidatedRequest, { operation: 'dream_analysis' }>,
-    model: string,
-  ) {
+  private async dream(request: Extract<ValidatedRequest, { operation: 'dream_analysis' }>) {
     // Phase 3: independent of the route — a direct call is gated too.
     assertDreamInputSafe(request.payload);
     const memory = sanitizeText(request.payload.memorySummary, 220);
     const payload = isSensitiveDreamMemory(memory)
       ? { ...request.payload, memorySummary: undefined }
       : request.payload;
-    const raw = await this.transport.complete({
-      model,
-      jsonMode: true,
-      messages: dreamMessages(payload, request.language),
-    });
+    // Phase 4C.3: server-owned writer; the client model hint is never used.
+    const raw = await this.transport.complete(
+      buildDreamCompleteOptions(this.config, dreamMessages(payload, request.language)),
+    );
     const data = parseDreamData(raw);
     // Unsafe prose fails closed: no success body, no retry, no second call.
     if (dreamOutputViolation(dreamOutputFields(data)) !== null) {

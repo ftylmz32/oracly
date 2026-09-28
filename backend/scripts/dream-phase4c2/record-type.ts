@@ -10,6 +10,8 @@ import type { Phase4c2Stages } from './stages.js';
 export type WireFacts = { bodyKeys: string[]; serviceTier: string | null };
 export type BackendFinal = 'PASS' | 'REJECT' | 'TRANSPORT_ERROR' | 'PARAMETER_ERROR';
 export const PENDING_REVIEW = 'PENDING_INDEPENDENT_REVIEW' as const;
+/** The A/B compared models under the 4C.1 writer prompt; production moved on in 4C.3. */
+export const PHASE4C2_WRITER_REVISION = '4c1' as const;
 
 export type Phase4c2Record = Omit<Phase4c2Attempt, 'payload' | 'candidate'> & {
   candidateModel: CandidateId;

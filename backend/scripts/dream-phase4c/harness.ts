@@ -8,7 +8,8 @@ import type { AppLanguage } from '../../src/ai/app-language.js';
 import { DREAM_WRITER_REVISION } from '../../src/ai/dream-request-identity.js';
 import { AiProxyService } from '../../src/ai/service.js';
 import { validateAiBody, type ValidatedRequest } from '../../src/ai/validate-request.js';
-import { resolveModel, type AppConfig } from '../../src/config.js';
+import { resolveDreamWriterModel } from '../../src/ai/dream-writer-model.js';
+import type { AppConfig } from '../../src/config.js';
 import { ErrorCode, ProxyError } from '../../src/errors.js';
 import type { OpenAiFetch } from '../../src/types.js';
 import { budgetFetch, Phase4cBudgetExceeded, type ProviderCapture } from './budget-fetch.js';
@@ -91,7 +92,7 @@ async function runOne(
     emotions: payload.emotions ?? [],
     memorySummary: typeof payload.memorySummary === 'string' ? payload.memorySummary : null,
     history: payload.history ?? null,
-    resolvedModel: resolveModel(config, run.clientModelHint),
+    resolvedModel: resolveDreamWriterModel(config),
     writerRevision: DREAM_WRITER_REVISION,
     providerCallOccurred: called,
     latencyMs: capture?.latencyMs ?? null,

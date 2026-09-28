@@ -5,7 +5,6 @@
  * as infrastructure outcomes, never as model quality.
  */
 import type { AppLanguage } from '../../src/ai/app-language.js';
-import { DREAM_WRITER_REVISION } from '../../src/ai/dream-request-identity.js';
 import { OpenAiTransport } from '../../src/ai/openai-transport.js';
 import { validateAiBody, type ValidatedRequest } from '../../src/ai/validate-request.js';
 import type { AppConfig } from '../../src/config.js';
@@ -16,6 +15,7 @@ import { memorySent, runDreamCandidate } from './adapter.js';
 import { candidate as candidateOf } from './candidates.js';
 import { PHASE4C2_MAX_CALLS, type Phase4c2Attempt } from './matrix.js';
 import { buildRecord, type Phase4c2Record, type WireFacts } from './record.js';
+import { PHASE4C2_WRITER_REVISION } from './record-type.js';
 import { classifyPhase4c2 } from './stages.js';
 
 /** Non-secret wire facts: request body keys and the response service tier. */
@@ -78,7 +78,7 @@ export async function runPhase4c2(options: {
         attempt,
         payload: request.payload,
         memorySummarySent: memorySent(request.payload),
-        writerRevision: DREAM_WRITER_REVISION,
+        writerRevision: PHASE4C2_WRITER_REVISION,
         capture,
         wire: wire.take(),
         stages: raw === null ? null : classifyPhase4c2(raw, request.payload, language),

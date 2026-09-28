@@ -94,7 +94,8 @@ describe('Phase 4C budget and transport', () => {
     for (const banned of [SECRET, 'Bearer', 'Authorization', 'authorization']) expect(stored).not.toContain(banned);
     const r = records[0];
     expect(r.rawProviderText).toBe(reply());
-    expect(r.provider?.request).toMatchObject({ model: 'gpt-4o', temperature: 0.6, responseFormat: { type: 'json_object' } });
+    expect(r.provider?.request).toMatchObject({ model: 'gpt-6-astra', temperature: null, reasoningEffort: 'medium' });
+    expect(r.resolvedModel).toBe('gpt-6-astra');
     expect(r.provider?.providerModel).toBe('fake-model');
   });
 });
@@ -151,12 +152,12 @@ describe('Phase 4C config and artifact', () => {
     expect(readEnvFileValue(path, 'MISSING')).toBeUndefined();
   });
 
-  it('config comes from the deploy env, with the transport defaults', () => {
+  it('config comes from the deploy env: server-owned Dream writer, generic model untouched', () => {
     const env = deployedOpenAiEnv();
-    const d = describeDreamConfig(config, config.openaiModel);
-    expect(d.resolvedModel).toBe(env.OPENAI_MODEL);
+    const d = describeDreamConfig(config);
+    expect(d).toMatchObject({ configuredGenericModel: env.OPENAI_MODEL, resolvedModel: env.OPENAI_DREAM_MODEL });
     expect(d.timeoutMs).toBe(Number(env.OPENAI_TIMEOUT_SECONDS) * 1000);
-    expect(d).toMatchObject({ temperature: 0.6, reasoningEffort: null, responseFormat: { type: 'json_object' }, transportRetries: 0 });
+    expect(d).toMatchObject({ temperature: null, reasoningEffort: 'medium', responseFormat: { type: 'json_object' }, transportRetries: 0 });
     expect(JSON.stringify(d)).not.toContain(SECRET);
   });
 
@@ -165,7 +166,7 @@ describe('Phase 4C config and artifact', () => {
     records[1].repeatOf = en.id;
     const artifact: Phase4cArtifact = {
       schema: PHASE4C_SCHEMA, capturedAt: 'now', startHead: 'a'.repeat(40), productionSourceClean: true,
-      config: describeDreamConfig(config, 'gpt-4o'), budget: { max: 36, used: calls, retries: 0, judgeCalls: 0 }, runs: records,
+      config: describeDreamConfig(config), budget: { max: 36, used: calls, retries: 0, judgeCalls: 0 }, runs: records,
     };
     expect(validatePhase4cArtifact(artifact)).toEqual([]);
     expect(validatePhase4cArtifact({ ...artifact, config: { k: `Bearer ${SECRET}` } })).toContain('secret-like text in metadata');

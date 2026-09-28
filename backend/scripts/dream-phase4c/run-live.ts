@@ -13,7 +13,6 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveModel } from '../../src/config.js';
 import { PHASE4C_SCHEMA, validatePhase4cArtifact, type Phase4cArtifact } from './artifact.js';
 import { runPhase4c } from './harness.js';
 import { buildPhase4cMatrix, loadPhase4cInputs, PHASE4C_MAX_CALLS } from './matrix.js';
@@ -52,7 +51,7 @@ async function main() {
     capturedAt: new Date().toISOString(),
     startHead: git('rev-parse', 'HEAD'),
     productionSourceClean: true,
-    config: { clientModelHint: hint, ...describeDreamConfig(config, resolveModel(config, hint)) },
+    config: { clientModelHint: hint, ...describeDreamConfig(config) },
     budget: { max: PHASE4C_MAX_CALLS, used: 0, retries: 0, judgeCalls: 0 },
     runs: [],
   };

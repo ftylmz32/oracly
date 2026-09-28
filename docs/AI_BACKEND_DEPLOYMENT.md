@@ -173,7 +173,9 @@ Image `HEALTHCHECK` probes `/health` (liveness). Route traffic with `/ready`.
 | `HOST` | optional | no | Default `0.0.0.0` in production |
 | `OPENAI_API_KEY` | yes | **yes** | Server secret only. Never Flutter / dart-define / assets |
 | `FIREBASE_PROJECT_ID` | yes (simplest path) | no | `oracly-7f613` — public project id |
-| `OPENAI_MODEL` | recommended | no | Default `gpt-4o` (legacy Tarot / OR / Dream) |
+| `OPENAI_MODEL` | recommended | no | Default `gpt-4o` (legacy Tarot / OR; Dream only in development without `OPENAI_DREAM_MODEL`) |
+| `OPENAI_DREAM_MODEL` | required for Dream in staging/production | no | Must be exactly `gpt-6-astra`. Server-owned: not in `OPENAI_ALLOWED_MODELS`, never chosen by the client. Missing/mismatch → Dream fail-closed (`no_configuration`) before provider |
+| `OPENAI_DREAM_REASONING_EFFORT` | required for Dream in staging/production | no | Must be `medium`; missing/other value fails closed in locked envs |
 | `OPENAI_ALLOWED_MODELS` | required for Narrative V2 | no | Must include `gpt-5.6-sol` before Narrative live traffic |
 | `OPENAI_TAROT_NARRATIVE_MODEL` | required for Narrative V2 in staging/production | no | Must be exactly `gpt-5.6-sol`. Missing/mismatch → locked-env Narrative fail-closed (`no_configuration`) before provider |
 | `OPENAI_TAROT_NARRATIVE_REASONING_EFFORT` | required for Narrative V2 in staging/production | no | Must be `none`. Default in code is `none`; wrong value fails closed in locked envs |

@@ -9,25 +9,41 @@ import {
 } from '../scripts/dream-phase4c2/artifact.js';
 import { candidate, estimateCostUsd } from '../scripts/dream-phase4c2/candidates.js';
 import { buildPhase4c2Matrix, loadPhase4c2Requests } from '../scripts/dream-phase4c2/matrix.js';
+import { loadConfig } from '../src/config.js';
+import { deployedOpenAiEnv } from '../scripts/dream-phase4c/production-config.js';
 import { completion, FAKE_KEY, fakeConfig, fakeFetch, frozenRaw } from './dream-phase4c2-support.js';
 
 const attempts = buildPhase4c2Matrix(loadPhase4c2Requests());
 const trFear = attempts.filter((a) => a.caseId === 'tr-negated-fear');
 
-async function production(raw: string) {
+async function production(raw: string, config = fakeConfig()) {
   const fake = fakeFetch((body) => completion(String(body.model), raw));
-  const service = new AiProxyService(fakeConfig(), fake.fetch);
+  const service = new AiProxyService(config, fake.fetch);
   const request = validated(trFear[0]);
   const outcome = await service.handle(request, 'gpt-4o').then(() => 'PASS', (e: { code?: string }) => e.code);
   return { body: fake.sent[0].body, outcome };
 }
 
+/** Pre-4C.3 Dream body: no dedicated writer, generic gpt-4o (development only). */
+const genericDevConfig = () =>
+  loadConfig({ ...deployedOpenAiEnv(), APP_ENV: 'development', OPENAI_DREAM_MODEL: '', OPENAI_DREAM_REASONING_EFFORT: '', OPENAI_API_KEY: FAKE_KEY });
+
+async function adapterBody(model: string) {
+  const fake = fakeFetch((body) => completion(String(body.model), frozenRaw('tr-negated-fear')));
+  await runPhase4c2({ attempts: trFear.filter((a) => a.candidate === model), config: fakeConfig(), fetch: fake.fetch });
+  return JSON.stringify(fake.sent[0].body);
+}
+
 describe('Phase 4C.2 adapter mirrors AiProxyService.dream', () => {
-  it('sends the production gpt-4o body byte for byte', async () => {
+  it('the Astra candidate sends the 4C.3 production body byte for byte', async () => {
     const prod = await production(frozenRaw('tr-negated-fear'));
-    const fake = fakeFetch((body) => completion(String(body.model), frozenRaw('tr-negated-fear')));
-    await runPhase4c2({ attempts: trFear.slice(0, 1), config: fakeConfig(), fetch: fake.fetch });
-    expect(JSON.stringify(fake.sent[0].body)).toBe(JSON.stringify(prod.body));
+    expect(await adapterBody('gpt-6-astra')).toBe(JSON.stringify(prod.body));
+  });
+
+  it('the gpt-4o candidate sends the pre-4C.3 generic body byte for byte', async () => {
+    const prod = await production(frozenRaw('tr-negated-fear'), genericDevConfig());
+    expect(prod.body.model).toBe('gpt-4o');
+    expect(await adapterBody('gpt-4o')).toBe(JSON.stringify(prod.body));
   });
 
   it.each([

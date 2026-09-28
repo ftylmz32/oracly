@@ -64,6 +64,8 @@ trap cleanup EXIT
   echo "OPENAI_BASE_URL: https://api.openai.com/v1"
   echo "OPENAI_MODEL: gpt-4o"
   echo "OPENAI_ALLOWED_MODELS: \"gpt-4o,gpt-4o-mini\""
+  echo "OPENAI_DREAM_MODEL: gpt-6-astra"
+  echo "OPENAI_DREAM_REASONING_EFFORT: medium"
   echo "OPENAI_VISION: \"true\""
   echo "OPENAI_IMAGE_MODEL: gpt-image-2"
   echo "OPENAI_IMAGE_SIZE: 1024x1536"

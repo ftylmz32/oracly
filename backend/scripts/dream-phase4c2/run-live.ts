@@ -47,7 +47,7 @@ async function main() {
   for (const a of attempts) assertDreamInputSafe(validated(a).payload);
   const frozenBefore = hashes();
   const config = phase4cConfig(apiKey);
-  const production = describeDreamConfig(config, config.openaiModel);
+  const production = describeDreamConfig(config);
   const artifact: Phase4c2Artifact = {
     schema: PHASE4C2_SCHEMA,
     capturedAt: new Date().toISOString(),
@@ -59,7 +59,7 @@ async function main() {
       endpoint: production.endpoint,
       timeoutMs: production.timeoutMs,
       transportRetries: 0,
-      productionModelUnchanged: { configuredModel: production.configuredModel, allowedModels: production.allowedModels },
+      productionModelUnchanged: { configuredModel: production.configuredGenericModel, allowedModels: production.allowedModels },
       candidates: CANDIDATES.map((c) => {
         const { messages: _m, ...body } = buildChatCompletionBody(completeOptions(c, []));
         return { id: c.id, body, pricing: c.pricing };

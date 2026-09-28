@@ -44,12 +44,13 @@ export function dreamRequestFingerprint(request: DreamIdentityInput): string {
 /**
  * Writer revision of the accepted Dream response contract. A response
  * stored under an earlier writer (accepted by an older, weaker gate) is
- * never replayed under this one. Bump only when acceptance changes what a
- * success body may contain; the semantic fingerprint (duplicate and
- * billing identity) is deliberately not affected. '4c1': the Phase 4C.1
- * writer prompt, sanitized symbols and corrected gates.
+ * never replayed under this one. Bump only when acceptance or the writer
+ * changes what a success body may contain; the semantic fingerprint
+ * (duplicate and billing identity) is deliberately not affected. '4c1': the
+ * Phase 4C.1 writer prompt, sanitized symbols and corrected gates.
+ * '4c3-astra': the same prompt, written by the frozen Astra writer.
  */
-export const DREAM_WRITER_REVISION = '4c1';
+export const DREAM_WRITER_REVISION = '4c3-astra';
 
 /**
  * Replay slot for a Dream request: the client key alone is never enough —
