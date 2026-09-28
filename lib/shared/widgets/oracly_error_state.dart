@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/accessibility/oracly_a11y.dart';
 import '../../core/copy/resilience_copy.dart';
 import '../../core/design_system/async_state/oracly_async_emblem.dart';
 import '../../core/design_system/loading_cinema/oracly_loading_kind.dart';
@@ -78,13 +79,22 @@ class OraclyErrorState extends StatelessWidget {
         ),
         if (onRetry != null) ...[
           SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
+          // One node: the button's own text would otherwise repeat the label.
           Semantics(
             button: true,
             label: retry,
-            child: PremiumButton(
-              label: retry,
-              onPressed: onRetry,
-              variant: PremiumButtonVariant.primary,
+            onTap: onRetry,
+            excludeSemantics: true,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: OraclyA11y.minTouchTarget,
+                minHeight: OraclyA11y.minTouchTarget,
+              ),
+              child: PremiumButton(
+                label: retry,
+                onPressed: onRetry,
+                variant: PremiumButtonVariant.primary,
+              ),
             ),
           ),
         ],

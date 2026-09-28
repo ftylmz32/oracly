@@ -65,6 +65,15 @@ Missing / localhost / LAN / plain HTTP values are **rejected** in release (fail 
 | `ORACLY_TERMS_OF_USE_URL` | Public HTTPS terms |
 | `ORACLY_DATA_DELETION_URL` | Public HTTPS data deletion instructions |
 
+### `ORACLY_AI_MODEL` is not the Dream writer
+
+`ORACLY_AI_MODEL` is only the generic client model hint (default `gpt-4o`).
+Dream analysis never follows it: the backend owns a frozen Dream writer
+(`gpt-6-astra`, reasoning `medium`, revision `4c3-astra` —
+`backend/src/ai/dream-writer-model.ts`) and fails closed with
+`no_configuration` in locked environments if that binding is absent. Do not
+change `ORACLY_AI_MODEL` to "match" Dream.
+
 ## Debug-only (never in store builds)
 
 | Key | Notes |

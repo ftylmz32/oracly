@@ -17,7 +17,7 @@ Do **not** claim COMPLETE. Real-money / license-test purchase was **not** run.
 | Live screen | `PremiumReferenceScreen` (`lib/features/premium/presentation/reference/`) |
 | Service | `PremiumService` + `PremiumStatusController` |
 | Port | `StorePremiumPurchase` (mobile) / `UnavailablePremiumPurchase` (tests / desktop / empty catalog) |
-| Product IDs (canonical) | `app.oracly.premium.monthly` · `yearly` · `lifetime` via `PremiumStoreCatalog` |
+| Product IDs (canonical) | `app.oracly.premium.monthly` · `yearly` · `lifetime` via `PremiumStoreCatalog` — Android sells all three; iOS sells monthly + yearly only (`PremiumPlanAvailability`, G0 2026-09-28) |
 | Prices | Store-supplied only — never hardcoded TL |
 | Entitlement | `PremiumEntitlementState` — UI cannot invent membership |
 | Debug | `PremiumDevOverride` / `SoulMateDevAccess` — **debug only**; never release entitlement |

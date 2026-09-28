@@ -62,6 +62,7 @@ abstract final class ReleaseEndpointPolicy {
       releaseLocked: releaseLocked,
     );
     if (!locked) return trimmed;
+    if (!_isPublicDnsName(_hostOf(trimmed))) return null;
     if (isLoopbackUrl(trimmed)) return null;
     if (isPrivateOrLanUrl(trimmed)) return null;
     if (!isHttpsUrl(trimmed)) return null;
@@ -71,6 +72,12 @@ abstract final class ReleaseEndpointPolicy {
     }
     return trimmed;
   }
+
+  /// Uri.parse percent-encodes template hosts such as `<REQUIRED_REAL_HOST>`
+  /// instead of throwing, so only a dotted DNS name counts as public.
+  static bool _isPublicDnsName(String? host) =>
+      host != null &&
+      RegExp(r'^[a-z0-9-]+(\.[a-z0-9-]+)+$').hasMatch(host);
 
   static String? _hostOf(String? raw) {
     final trimmed = raw?.trim() ?? '';

@@ -4,11 +4,14 @@
 
 ## Product IDs (must match store consoles)
 
-| Plan | Product ID | Type |
-|------|------------|------|
-| Monthly | `app.oracly.premium.monthly` | Auto-renewing subscription |
-| Yearly | `app.oracly.premium.yearly` | Auto-renewing subscription |
-| Lifetime | `app.oracly.premium.lifetime` | Non-consumable |
+| Plan | Product ID | Type | Platforms |
+|------|------------|------|-----------|
+| Monthly | `app.oracly.premium.monthly` | Auto-renewing subscription | Android · iOS |
+| Yearly | `app.oracly.premium.yearly` | Auto-renewing subscription | Android · iOS |
+| Lifetime | `app.oracly.premium.lifetime` | Non-consumable | **Android only** |
+
+Platform truth lives in `PremiumPlanAvailability`: on iOS the app queries only monthly + yearly,
+never shows lifetime, and normalizes a stale lifetime selection to yearly.
 
 Application id: `app.oracly`
 
@@ -23,7 +26,7 @@ Application id: `app.oracly`
 ## iOS (App Store)
 
 1. App Store Connect → app with matching bundle id
-2. Create the same product IDs (Subscriptions + Non-Consumable)
+2. Create the monthly and yearly subscription IDs only — do **not** create lifetime on iOS
 3. StoreKit capability on the Runner target
 4. Sandbox Apple ID for device testing
 

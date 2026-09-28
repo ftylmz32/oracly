@@ -8,16 +8,18 @@ abstract final class AiErrorSanitizer {
   AiErrorSanitizer._();
 
   static final _secret = RegExp(
-    r'(sk-[A-Za-z0-9_-]+|api[_-]?key\s*[:=]\s*\S+)',
+    r'(sk-[A-Za-z0-9_-]+|\bapi[\s_-]?key\b|\bbearer\b|\bauthorization\b|'
+    r'\beyJ[A-Za-z0-9_-]{8,}\.)',
     caseSensitive: false,
   );
 
   static final _technical = RegExp(
-    r'(https?://|\bhttp\s*[:=]?\s*\d{3}\b|\bstatus\b|\bexception\b|'
+    r'(https?://|\bhttp\s*[:=]?\s*\d{3}\b|\bstatus\b|\b\w*exception\b|'
     r'\bstack(\s*trace)?\b|\.dart\b|\bopenai\b|\banthropic\b|\bfirebase\b|'
     r'\bgpt-|\bsocketexception\b|\bdioexception\b|\bxmlhttprequest\b|'
     r'\bprovider_error\b|\binternal_error\b|\binternal operation\b|'
-    r'\bproxy\b|\btimeout exception\b)',
+    r'\bproxy\b|\btimeout exception\b|\bjson\b|\bunexpected token\b|'
+    r'\bcloud\s*run\b|\.run\.app\b)',
     caseSensitive: false,
   );
 

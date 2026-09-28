@@ -117,6 +117,15 @@ class _OraclyAppShellState extends ConsumerState<OraclyAppShell> {
     return true;
   }
 
+  bool _builtCanPop = true;
+
+  /// Tab stacks change without rebuilding the shell, so [PopScope.canPop]
+  /// must follow them — otherwise system back exits from a pushed chamber.
+  bool _onTabStackChanged(NavigationNotification _) {
+    if (mounted && _allowRootPop() != _builtCanPop) setState(() {});
+    return false;
+  }
+
   Future<void> _handleBack() async {
     final navigator = _navigatorKeys[_currentIndex].currentState;
     if (navigator != null && navigator.canPop()) {
@@ -139,34 +148,38 @@ class _OraclyAppShellState extends ConsumerState<OraclyAppShell> {
       );
     });
     ref.watch(appLocaleProvider);
+    _builtCanPop = _allowRootPop();
 
     return OraclyNavigationScope(
       currentIndex: _currentIndex,
       switchToTab: _onDestinationSelected,
       child: PopScope(
-        canPop: _allowRootPop(),
+        canPop: _builtCanPop,
         onPopInvokedWithResult: (didPop, _) {
           if (didPop) return;
           unawaited(_handleBack());
         },
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          extendBody: true,
-          body: Stack(
-            fit: StackFit.expand,
-            children: [
-              for (var i = 0; i < _roots.length; i++)
-                OraclyTabPane(
-                  active: _currentIndex == i,
-                  navigatorKey: _navigatorKeys[i],
-                  root: _roots[i],
-                  personality: OraclyTab.fromIndex(i).chamberPersonality,
-                ),
-            ],
-          ),
-          bottomNavigationBar: OraclyBottomBar(
-            currentIndex: _currentIndex,
-            onDestinationSelected: _onDestinationSelected,
+        child: NotificationListener<NavigationNotification>(
+          onNotification: _onTabStackChanged,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBody: true,
+            body: Stack(
+              fit: StackFit.expand,
+              children: [
+                for (var i = 0; i < _roots.length; i++)
+                  OraclyTabPane(
+                    active: _currentIndex == i,
+                    navigatorKey: _navigatorKeys[i],
+                    root: _roots[i],
+                    personality: OraclyTab.fromIndex(i).chamberPersonality,
+                  ),
+              ],
+            ),
+            bottomNavigationBar: OraclyBottomBar(
+              currentIndex: _currentIndex,
+              onDestinationSelected: _onDestinationSelected,
+            ),
           ),
         ),
       ),

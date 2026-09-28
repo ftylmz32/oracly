@@ -39,65 +39,65 @@ class OraclyApp extends ConsumerWidget {
     final locale = ref.watch(appLocaleProvider);
     OraclyL10n.bind(locale.languageCode);
     final themeMode = ref.watch(appThemeModeProvider);
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      navigatorKey: oraclyNavigatorKey,
-      title: 'Oracly',
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: themeMode,
-      locale: AppLocale.materialLocale(locale.languageCode),
-      supportedLocales: const [Locale('tr'), Locale('en'), Locale('ru')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      // Splash (home) always owns the true first screen: the platform's
-      // defaultRouteName (e.g. a cold-launch deep link) is NOT necessarily
-      // "/" — Flutter's default initial-route generation would otherwise
-      // resolve that name via onGenerateRoute as the very FIRST route,
-      // bypassing Splash and the deletion gate entirely. main.dart already
-      // captures defaultRouteName into ShareLinkInbox before runApp, and
-      // SplashScreen replays it (share links, the /chat shortcut) only
-      // after the gate resolves — forcing "/" here is what makes that the
-      // only path.
-      initialRoute: OraclyRoutes.splash,
-      onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
-      onUnknownRoute: (settings) {
-        final destination = AccountDeletionGateDestinations.current;
-        if (destination == AccountDeletionGateDestination.unresolved) {
+    return ShareLinkHost(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        navigatorKey: oraclyNavigatorKey,
+        title: 'Oracly',
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeMode,
+        locale: AppLocale.materialLocale(locale.languageCode),
+        supportedLocales: const [Locale('tr'), Locale('en'), Locale('ru')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        // Splash (home) always owns the true first screen: the platform's
+        // defaultRouteName (e.g. a cold-launch deep link) is NOT necessarily
+        // "/" — Flutter's default initial-route generation would otherwise
+        // resolve that name via onGenerateRoute as the very FIRST route,
+        // bypassing Splash and the deletion gate entirely. main.dart already
+        // captures defaultRouteName into ShareLinkInbox before runApp, and
+        // SplashScreen replays it (share links, the /chat shortcut) only
+        // after the gate resolves — forcing "/" here is what makes that the
+        // only path.
+        initialRoute: OraclyRoutes.splash,
+        onGenerateRoute: OraclyRouteGenerator.onGenerateRoute,
+        onUnknownRoute: (settings) {
+          final destination = AccountDeletionGateDestinations.current;
+          if (destination == AccountDeletionGateDestination.unresolved) {
+            return OraclyPageTransitions.fade(
+              page: DeferredGateRouteHost(originalSettings: settings),
+              settings: settings,
+            );
+          }
+          final gateOverride = screenForGateDestination(destination);
+          if (gateOverride != null) {
+            return OraclyPageTransitions.fade(page: gateOverride);
+          }
           return OraclyPageTransitions.fade(
-            page: DeferredGateRouteHost(originalSettings: settings),
-            settings: settings,
+            page: const OraclyAppShell(),
           );
-        }
-        final gateOverride = screenForGateDestination(destination);
-        if (gateOverride != null) {
-          return OraclyPageTransitions.fade(page: gateOverride);
-        }
-        return OraclyPageTransitions.fade(
-          page: const OraclyAppShell(),
-        );
-      },
-      builder: (context, child) {
-        final media = MediaQuery.of(context);
-        final isLight = Theme.of(context).brightness == Brightness.light;
-        return OraclyLocaleScope(
-          code: locale.languageCode,
-          child: AnnotatedRegion<SystemUiOverlayStyle>(
-            value: (isLight
-                    ? SystemUiOverlayStyle.dark
-                    : SystemUiOverlayStyle.light)
-                .copyWith(
-              statusBarColor: AppColors.transparent,
-              statusBarIconBrightness:
-                  isLight ? Brightness.dark : Brightness.light,
-              statusBarBrightness:
-                  isLight ? Brightness.light : Brightness.dark,
-            ),
-            child: AccountSwitchRefreshHost(
-              child: ShareLinkHost(
+        },
+        builder: (context, child) {
+          final media = MediaQuery.of(context);
+          final isLight = Theme.of(context).brightness == Brightness.light;
+          return OraclyLocaleScope(
+            code: locale.languageCode,
+            child: AnnotatedRegion<SystemUiOverlayStyle>(
+              value: (isLight
+                      ? SystemUiOverlayStyle.dark
+                      : SystemUiOverlayStyle.light)
+                  .copyWith(
+                statusBarColor: AppColors.transparent,
+                statusBarIconBrightness:
+                    isLight ? Brightness.dark : Brightness.light,
+                statusBarBrightness:
+                    isLight ? Brightness.light : Brightness.dark,
+              ),
+              child: AccountSwitchRefreshHost(
                 child: MediaQuery(
                   data: media.copyWith(
                     textScaler: OraclyA11y.clampAppTextScaler(media.textScaler),
@@ -106,10 +106,10 @@ class OraclyApp extends ConsumerWidget {
                 ),
               ),
             ),
-          ),
-        );
-      },
-      home: const SplashScreen(),
+          );
+        },
+        home: const SplashScreen(),
+      ),
     );
   }
 }

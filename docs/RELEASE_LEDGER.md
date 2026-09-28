@@ -73,7 +73,7 @@ This is the Phase R0 release-control baseline. It records verified state without
 
 - **READY BUT NOT PROMOTED** — Flutter and backend request contracts agree: required `platform` (`android` or `ios`), `productId`, and `purchaseToken`; optional `transactionId`.
 - **READY BUT NOT PROMOTED** — Backend implements server-side Google Play and Apple verification, known-product checks, entitlement status/expiry handling, and purchase-token/account binding. Tests/fixtures alone are not treated as production verification.
-- **VERIFIED COMPLETE** — Code catalog IDs align: `app.oracly.premium.monthly`, `app.oracly.premium.yearly`, and `app.oracly.premium.lifetime`.
+- **VERIFIED COMPLETE** — Code catalog IDs align: `app.oracly.premium.monthly`, `app.oracly.premium.yearly`, and `app.oracly.premium.lifetime`. (G0 2026-09-28: lifetime is Android-only; iOS queries and shows monthly + yearly only via `PremiumPlanAvailability`.)
 - **BLOCKED** — The production Flutter billing URL is still a placeholder and inspected Cloud Run environment names did not establish Play/Apple billing credentials/configuration.
 - **EXTERNAL ACTION REQUIRED** — Create/verify products, prices, agreements, tax/banking, service credentials/API access, and tester availability in Google Play Console and App Store Connect.
 - **UNKNOWN — NEEDS VERIFICATION** — No real sandbox purchase/restore/renewal/cancel/refund lifecycle is evidenced against the final candidate.
