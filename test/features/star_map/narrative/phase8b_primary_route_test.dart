@@ -43,52 +43,20 @@ void main() {
   setUpAll(BirthTimezoneDatabase.ensureInitialized);
   tearDown(yildiznameNarrativeFlagReset);
 
-  testWidgets('A flag false → legacy opener, no Narrative screen',
-      (tester) async {
-    yildiznameNarrativeFlagReset();
+  testWidgets('A flag false → legacy opener, no Narrative screen', (
+    tester,
+  ) async {
+    yildiznameNarrativeFlagOverride(false);
     var legacy = 0;
     var navigating = false;
     late BuildContext ctx;
     await tester.pumpWidget(
       MaterialApp(
-        home: Builder(builder: (c) {
-          ctx = c;
-          return const SizedBox.shrink();
-        }),
-      ),
-    );
-    await StarMapPrimaryLeafOpen.open(
-      context: ctx,
-      reading: _reading,
-      isNavigating: () => navigating,
-      setNavigating: (v) => navigating = v,
-      openLegacySky: (_, _, {profile}) => legacy++,
-    );
-    expect(legacy, 1);
-    expect(navigating, isFalse);
-    expect(find.byType(StarMapNarrativeLiveScreen), findsNothing);
-  });
-
-  testWidgets('B/C flag true + E1 → legacy, provider 0, no Narrative screen',
-      (tester) async {
-    yildiznameNarrativeFlagOverride(true);
-    final storage = LocalStorage.ephemeral({
-      UserLocalDataIsolation.ownerKey: 'owner-a',
-    });
-    final orch = phase8bOrchestrator(storage: storage, chart: phase8bE1());
-    var legacy = 0;
-    var navigating = false;
-    late BuildContext ctx;
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          yildiznameLiveOrchestratorProvider.overrideWithValue(orch),
-        ],
-        child: MaterialApp(
-          home: Builder(builder: (c) {
+        home: Builder(
+          builder: (c) {
             ctx = c;
             return const SizedBox.shrink();
-          }),
+          },
         ),
       ),
     );
@@ -104,8 +72,45 @@ void main() {
     expect(find.byType(StarMapNarrativeLiveScreen), findsNothing);
   });
 
-  testWidgets('8B.1 flag true + owner unavailable → host, never legacy',
-      (tester) async {
+  testWidgets('B/C flag true + E1 → legacy, provider 0, no Narrative screen', (
+    tester,
+  ) async {
+    yildiznameNarrativeFlagOverride(true);
+    final storage = LocalStorage.ephemeral({
+      UserLocalDataIsolation.ownerKey: 'owner-a',
+    });
+    final orch = phase8bOrchestrator(storage: storage, chart: phase8bE1());
+    var legacy = 0;
+    var navigating = false;
+    late BuildContext ctx;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [yildiznameLiveOrchestratorProvider.overrideWithValue(orch)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (c) {
+              ctx = c;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+    await StarMapPrimaryLeafOpen.open(
+      context: ctx,
+      reading: _reading,
+      isNavigating: () => navigating,
+      setNavigating: (v) => navigating = v,
+      openLegacySky: (_, _, {profile}) => legacy++,
+    );
+    expect(legacy, 1);
+    expect(navigating, isFalse);
+    expect(find.byType(StarMapNarrativeLiveScreen), findsNothing);
+  });
+
+  testWidgets('8B.1 flag true + owner unavailable → host, never legacy', (
+    tester,
+  ) async {
     yildiznameNarrativeFlagOverride(true);
     final storage = phase8bStorage(owner: '');
     final gen = Phase8bGen();
@@ -124,28 +129,30 @@ void main() {
   });
 
   testWidgets('double tap while navigating → single open', (tester) async {
-    yildiznameNarrativeFlagReset();
+    yildiznameNarrativeFlagOverride(false);
     var legacy = 0;
     var navigating = false;
     late BuildContext ctx;
     await tester.pumpWidget(
       MaterialApp(
-        home: Builder(builder: (c) {
-          ctx = c;
-          return const SizedBox.shrink();
-        }),
+        home: Builder(
+          builder: (c) {
+            ctx = c;
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
     Future<void> tap() => StarMapPrimaryLeafOpen.open(
-          context: ctx,
-          reading: _reading,
-          isNavigating: () => navigating,
-          setNavigating: (v) => navigating = v,
-          openLegacySky: (_, _, {profile}) {
-            legacy++;
-            navigating = true;
-          },
-        );
+      context: ctx,
+      reading: _reading,
+      isNavigating: () => navigating,
+      setNavigating: (v) => navigating = v,
+      openLegacySky: (_, _, {profile}) {
+        legacy++;
+        navigating = true;
+      },
+    );
     await Future.wait([tap(), tap()]);
     expect(legacy, 1);
   });

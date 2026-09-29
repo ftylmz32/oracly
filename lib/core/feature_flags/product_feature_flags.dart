@@ -52,12 +52,11 @@ abstract final class ProductFeatureFlags {
     defaultValue: true,
   );
 
-  /// Phase 5 — Yıldızname Narrative V1 engine (Phase 8 enables live path).
-  /// Default false keeps StarMapReadingService local archive as rollback.
+  /// Shipping Narrative V1. Remote `false` restores the local archive.
   static const yildiznameNarrativeV1 = FeatureFlagDefinition(
     key: 'yildizname_narrative_v1',
     type: FeatureFlagType.boolean,
-    defaultValue: false,
+    defaultValue: true,
   );
 
   static const catalog = <FeatureFlagDefinition>[
@@ -72,8 +71,8 @@ abstract final class ProductFeatureFlags {
   ];
 
   static Map<String, bool> defaults() => {
-        for (final flag in catalog) flag.key: flag.defaultValue,
-      };
+    for (final flag in catalog) flag.key: flag.defaultValue,
+  };
 
   static FeatureFlagDefinition? definitionFor(String key) {
     for (final flag in catalog) {

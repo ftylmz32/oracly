@@ -20,8 +20,9 @@ void main() {
   setUp(() => yildiznameNarrativeFlagOverride(true));
   tearDown(yildiznameNarrativeFlagReset);
 
-  testWidgets('F owner unavailable → error host, legacy 0, provider 0',
-      (tester) async {
+  testWidgets('F owner unavailable → error host, legacy 0, provider 0', (
+    tester,
+  ) async {
     final storage = phase8bStorage(owner: '');
     final gen = Phase8bGen();
     final orch = phase8bOrchestrator(
@@ -42,14 +43,14 @@ void main() {
     expect(gen.calls, 0);
     expect(nav.navigating, isTrue);
 
-    Navigator.of(tester.element(find.byType(StarMapNarrativeLiveScreen)))
-        .pop();
+    Navigator.of(tester.element(find.byType(StarMapNarrativeLiveScreen))).pop();
     await phase8b1Advance(tester, frames: 6);
     expect(nav.navigating, isFalse);
   });
 
-  testWidgets('G invalid evidence after one repair → error, legacy 0',
-      (tester) async {
+  testWidgets('G invalid evidence after one repair → error, legacy 0', (
+    tester,
+  ) async {
     final storage = phase8bStorage();
     final gen = Phase8bGen();
     var repairs = 0;
@@ -72,8 +73,9 @@ void main() {
     expect(repairs, 1);
   });
 
-  testWidgets('B/C flag true + E1/E3 → legacy, no host, provider 0',
-      (tester) async {
+  testWidgets('B/C flag true + E1/E3 → legacy, no host, provider 0', (
+    tester,
+  ) async {
     for (final chart in [phase8bE1(), phase8bE3()]) {
       final storage = phase8bStorage();
       final gen = Phase8bGen();
@@ -93,7 +95,7 @@ void main() {
   });
 
   testWidgets('A flag false + E4 → legacy, provider 0', (tester) async {
-    yildiznameNarrativeFlagReset();
+    yildiznameNarrativeFlagOverride(false);
     final storage = phase8bStorage();
     final gen = Phase8bGen();
     var loads = 0;

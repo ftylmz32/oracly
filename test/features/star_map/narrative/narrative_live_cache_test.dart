@@ -2,6 +2,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/feature_flags/feature_flag_runtime.dart';
+import 'package:oracly_new/core/feature_flags/product_feature_flags.dart';
 import 'package:oracly_new/features/ai/production/ai_outcome.dart';
 import 'package:oracly_new/features/star_map/narrative/live/yildizname_narrative_live_failure.dart';
 import 'package:oracly_new/features/star_map/narrative/live/yildizname_narrative_live_service.dart';
@@ -21,25 +23,31 @@ void main() {
     bad['extra'] = true;
     expect(
       () => YildiznameResultParser.parse(bad),
-      throwsA(isA<YildiznameResultException>().having(
-        (e) => e.kind,
-        'kind',
-        YildiznameResultErrorKind.unknownKey,
-      )),
+      throwsA(
+        isA<YildiznameResultException>().having(
+          (e) => e.kind,
+          'kind',
+          YildiznameResultErrorKind.unknownKey,
+        ),
+      ),
     );
     final kind = Map<String, dynamic>.from(NarrativeResultCorpus.legacyTr());
     final sections = List<Map<String, dynamic>>.from(
-      (kind['sections'] as List).map((e) => Map<String, dynamic>.from(e as Map)),
+      (kind['sections'] as List).map(
+        (e) => Map<String, dynamic>.from(e as Map),
+      ),
     );
     sections[0] = {...sections[0], 'kind': 'not_a_kind'};
     kind['sections'] = sections;
     expect(
       () => YildiznameResultParser.parse(kind),
-      throwsA(isA<YildiznameResultException>().having(
-        (e) => e.kind,
-        'kind',
-        YildiznameResultErrorKind.unknownKind,
-      )),
+      throwsA(
+        isA<YildiznameResultException>().having(
+          (e) => e.kind,
+          'kind',
+          YildiznameResultErrorKind.unknownKind,
+        ),
+      ),
     );
   });
 
@@ -58,26 +66,29 @@ void main() {
   });
 
   test('flag-disabled live path fails closed', () async {
+    FeatureFlagRuntime.refreshFromRemote({
+      ProductFeatureFlags.yildiznameNarrativeV1.key: false,
+    });
     final request = YildiznameRequestFactory.fromEvidence(
       evidence: NarrativeEvidenceFixtures.legacySun(),
       languageCode: 'tr',
     );
     final service = YildiznameNarrativeLiveService(
-      ai: FakeYildiznameAi(({
-        required payload,
-        required fingerprint,
-        required attempt,
-      }) async =>
-          AiOutcome.success(NarrativeResultCorpus.legacyTr())),
+      ai: FakeYildiznameAi(
+        ({required payload, required fingerprint, required attempt}) async =>
+            AiOutcome.success(NarrativeResultCorpus.legacyTr()),
+      ),
       enforceFlag: true,
     );
     await expectLater(
       service.generate(request: request),
-      throwsA(isA<YildiznameLiveFailure>().having(
-        (e) => e.kind,
-        'kind',
-        YildiznameLiveFailureKind.flagDisabled,
-      )),
+      throwsA(
+        isA<YildiznameLiveFailure>().having(
+          (e) => e.kind,
+          'kind',
+          YildiznameLiveFailureKind.flagDisabled,
+        ),
+      ),
     );
   });
 }

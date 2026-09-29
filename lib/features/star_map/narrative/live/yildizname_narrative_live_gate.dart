@@ -1,4 +1,5 @@
-/// Feature-flag gate for Yıldızname Narrative V1 (default false).
+/// Feature-flag gate for Yıldızname Narrative V1.
+/// Shipping default is on. Remote false restores the local archive.
 library;
 
 import '../../../../core/feature_flags/feature_flag_runtime.dart';
@@ -8,6 +9,6 @@ abstract final class YildiznameNarrativeLiveGate {
   YildiznameNarrativeLiveGate._();
 
   static bool get isEnabled => FeatureFlagRuntime.isEnabled(
-        ProductFeatureFlags.yildiznameNarrativeV1.key,
-      );
+    ProductFeatureFlags.yildiznameNarrativeV1.key,
+  );
 }

@@ -16,18 +16,18 @@ import 'fixtures/narrative_evidence_fixtures.dart';
 void main() {
   tearDown(() => FeatureFlagRuntime.refreshFromRemote(const {}));
 
-  test('yildiznameNarrativeV1 defaults false and is catalogued', () {
+  test('yildiznameNarrativeV1 ships enabled and stays catalogued', () {
     expect(
       ProductFeatureFlags.yildiznameNarrativeV1.key,
       'yildizname_narrative_v1',
     );
-    expect(ProductFeatureFlags.yildiznameNarrativeV1.defaultValue, isFalse);
-    expect(ProductFeatureFlags.defaults()['yildizname_narrative_v1'], isFalse);
+    expect(ProductFeatureFlags.yildiznameNarrativeV1.defaultValue, isTrue);
+    expect(ProductFeatureFlags.defaults()['yildizname_narrative_v1'], isTrue);
     expect(
       ProductFeatureFlags.definitionFor('yildizname_narrative_v1'),
       same(ProductFeatureFlags.yildiznameNarrativeV1),
     );
-    expect(YildiznameNarrativeLiveGate.isEnabled, isFalse);
+    expect(YildiznameNarrativeLiveGate.isEnabled, isTrue);
   });
 
   test('factory maps fidelities to scopes', () {
