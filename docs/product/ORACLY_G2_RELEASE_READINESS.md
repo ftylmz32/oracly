@@ -906,3 +906,85 @@ quality is NOT proven** — that is the next, not-yet-started phase.
 
 Real provider executions: 0. Store transactions: 0. Production traffic
 mutations: 0. Production runtime source (`backend/src`) unchanged.
+
+---
+
+## 24. G2B — budget terminology correction and live provider evidence
+
+G2A.2 §20 counted **7 provider executions**. That number mixed a top-level
+feature with the provider stages inside it. From G2B onward the authoritative
+accounting uses three different words:
+
+| Term | Meaning |
+|---|---|
+| **Feature operation** | One user-facing reading or controlled turn the product owner asked for |
+| **HTTP request** | One call to a backend route |
+| **Raw provider execution** | One completion that actually reaches the model provider, not a cache replay |
+
+This is an evidence-terminology correction. It is not a product defect.
+
+**Coffee and Palm.** The current pipeline is an observer completion, then a
+writer completion, then a repair completion only when the binding gate rejects
+the writer. A fresh reading is therefore **2 or 3 raw provider executions**.
+The client may use more than one HTTP request (observe, then write). Repair,
+when it happens, is inside the write request and is not a separate HTTP call.
+If logs do not show whether repair ran, the honest count is the range **2–3**,
+not an invented exact number.
+
+**Dream.** One provider completion, then parse, output safety, and acceptance.
+No automatic second provider call. **Exactly 1** raw provider execution.
+
+**Tarot Narrative V2.** Attempt 1 is normally one provider execution. Attempt 2
+exists only for a legitimate retryable provider or quality failure, and the
+idempotency key carries `:nv2:a2`. **1 or 2** raw provider executions. No
+attempt 3.
+
+**OR (G1-D14).** Exactly two independent executions: the base turn key, then
+`OrOperationId.runQualityAttempt(2)` (`<turn>.q2.<nonce>`). A cache hit on the
+second key is a failure of the proof.
+
+**Yıldızname.** 0 in this slice. Frozen narrative blobs stay as they are.
+
+**SoulMate.** Not in this slice.
+
+**Pre-SoulMate raw provider budget:** minimum **8** (Coffee 2, Palm 2, Dream 1,
+Tarot 1, OR 2), maximum **11** (Coffee 3, Palm 3, Dream 1, Tarot 2, OR 2).
+Hard cap **11**.
+
+### Live run against `oracly-api-00085-hef` (2026-09-29)
+
+Candidate only. Production `oracly-api-00052-zqd` stayed at 100%. Candidate
+traffic stayed at 0%. Image digest unchanged
+(`sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc`).
+`/health` and `/ready` were 200 before and after.
+
+Auth was the physical device's existing Firebase anonymous session, with a
+real App Check token from the Android debug provider (Play Integrity returned
+no token on this sideload). No auth bypass and no placeholder tokens.
+
+Durable Coffee/Palm staging was **not** used. The candidate's
+`READING_TASK_TARGET_URL` is the stable production host, so a staged operation
+would have scheduled the worker there. Coffee and Palm used the current
+observe/write client contract on the candidate `/v1/ai/complete` URL only.
+The derived reading origin host matched the candidate tag.
+
+| Operation | Feature ops | Raw provider executions | Result |
+|---|---|---|---|
+| Coffee | 1 | 2–3 (observe + write HTTP 200; repair not logged) | Client parser and composer accepted |
+| Palm | 1 | 1 (observer only) | Observer `bindFailure=unusable`; writer not called |
+| Dream | 1 | 1 | `invalid_response`; client parser rejected; no second call |
+| Tarot Narrative V2 | 1 reading, attempt 1 only | 1 | Result V2 parser, quality validator, and Flutter quality gate accepted |
+| OR | 2 | 2 | Base key and `.q2.` key both executed; reply hashes differ; no cache collision |
+| Yıldızname | 0 | 0 | `narrative-yildizname-*.ts` blobs still match `169c514a` |
+| SoulMate | 0 | 0 | Deferred |
+
+Provable raw executions: **7–8**. Hard cap was not exceeded. No local fallback.
+No raw provider error was shown as user copy. No store transaction. No new
+deploy. No production source change.
+
+Full sanitized record:
+`docs/product/g2/evidence/G2B_LIVE_PROVIDER_EVIDENCE.json`.
+
+**G2B pre-SoulMate verdict: FAIL.** Coffee, Tarot, and OR passed. Palm and
+Dream did not clear the current acceptance gates. SoulMate remains a separate
+sandbox-entitlement closure. Do not promote this candidate.

@@ -1,0 +1,377 @@
+{
+  "candidateHost": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+  "candidateRevision": "oracly-api-00085-hef",
+  "candidateTag": "g2b0-aa735bcb7a1b",
+  "imageDigest": "sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+  "durableWorkerUsed": false,
+  "durableWorkerSkippedReason": "candidate READING_TASK_TARGET_URL is the stable production host; staging would schedule a worker there",
+  "preflight": {
+    "utc": "2026-09-29T10:46:37.971098Z",
+    "proxyHost": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+    "derivedReadingOriginHost": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+    "originMatchesCandidate": true,
+    "allowsLocalFallback": false,
+    "visionAvailable": true,
+    "signedIn": true,
+    "anonymousAuth": true,
+    "realFirebaseAuth": true,
+    "realAppCheck": true,
+    "appCheckDebugProvider": true
+  },
+  "coffee": {
+    "utc": "2026-09-29T10:46:37.975530Z",
+    "fixture": "tool/matrix_evidence/test_coffee_cup.jpg",
+    "imageSha256": "aa54659184532cc8ad0a3ba7e04a365b8af17c5deaffe885c604aada56ecec0d",
+    "imageBytes": 32483,
+    "personalization": "none",
+    "memorySummary": null,
+    "http": [
+      {
+        "utc": "2026-09-29T10:46:50.774628Z",
+        "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+        "path": "/v1/ai/complete",
+        "operation": "coffee_analysis",
+        "readingPhase": "observe",
+        "idempotencyKey": "or-2ca6b0d7:observe",
+        "httpStatus": 200,
+        "successEnvelope": true,
+        "backendErrorCode": null
+      },
+      {
+        "utc": "2026-09-29T10:47:03.060733Z",
+        "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+        "path": "/v1/ai/complete",
+        "operation": "coffee_analysis",
+        "readingPhase": "write",
+        "idempotencyKey": "or-2ca6b0d7:write",
+        "httpStatus": 200,
+        "successEnvelope": true,
+        "backendErrorCode": null
+      }
+    ],
+    "readingPhases": [
+      "observe",
+      "write"
+    ],
+    "httpRequests": 2,
+    "providerExecutionsProvableLowerBound": 2,
+    "repairDirectlyProven": false,
+    "rawProviderErrorExposed": false,
+    "parserAccepted": true,
+    "clientComposerAccepted": true,
+    "summary": "Fincanın dibindeki çok sayıda küçük iz, tek bir büyük mesele yerine zihnini meşgul eden ufak ayrıntıların biriktiğini düşündürüyor. Bunların neredeyse bütün alana yayılması, dikkatinin gün içinde farklı konular arasında bölünebildiğine işaret ediyor. Alt kısımda belirginleşen yoğ",
+    "summarySha256": "0731ebdc470f9fe1e1eaff967ba80b881982f91291f90a135966a52e3b0dec3e",
+    "takeawaySha256": "e78cf091527d3856a56193232be1b1569bfeb5cde8a0a91afa407942b50ae8a8",
+    "visualSha256": "05d8142ded2f3410422bdc8bc8c86521a7c729b3a0ce8f2d98035a9a71ac0527",
+    "clientFailureKind": null,
+    "providerExecutionRange": "2-3",
+    "feature": "coffee"
+  },
+  "palm": {
+    "utc": "2026-09-29T10:47:03.076100Z",
+    "fixture": "test/features/palm/fixtures/palm_sample.jpg",
+    "imageSha256": "a2c70e569e3a81248e1e050a837d24b646d086a530e6e657a4dace6a17b9068f",
+    "imageBytes": 45029,
+    "personalization": "none",
+    "memorySummary": null,
+    "http": [
+      {
+        "utc": "2026-09-29T10:47:07.051334Z",
+        "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+        "path": "/v1/ai/complete",
+        "operation": "palm_analysis",
+        "readingPhase": "observe",
+        "idempotencyKey": "or-3597d2d2:observe",
+        "httpStatus": 200,
+        "successEnvelope": false,
+        "backendErrorCode": "invalid_image"
+      }
+    ],
+    "readingPhases": [
+      "observe"
+    ],
+    "httpRequests": 1,
+    "providerExecutionsProvableLowerBound": 1,
+    "repairDirectlyProven": false,
+    "rawProviderErrorExposed": false,
+    "trustedHandSide": null,
+    "handWireValue": "unspecified",
+    "handMetadata": "fixture has no documented side; unspecified normalizes to null",
+    "parserAccepted": false,
+    "clientFailureKind": "invalidResponse",
+    "providerExecutionRange": "1",
+    "feature": "palm"
+  },
+  "dream": {
+    "utc": "2026-09-29T10:47:07.060215Z",
+    "corpusCase": "tr-negated-fear",
+    "memorySent": false,
+    "historySent": false,
+    "http": [
+      {
+        "utc": "2026-09-29T10:47:23.845115Z",
+        "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+        "path": "/v1/ai/complete",
+        "operation": "dream_analysis",
+        "readingPhase": null,
+        "idempotencyKey": "dream-3b7e51ac80fc9f66f38451d61500fd20",
+        "httpStatus": 200,
+        "successEnvelope": false,
+        "backendErrorCode": "invalid_response"
+      }
+    ],
+    "rawProviderExecutions": 1,
+    "parserAccepted": false,
+    "clientFailureKind": "invalidResponse",
+    "rawProviderErrorExposed": false
+  },
+  "tarot": {
+    "passed": true,
+    "attempts": [
+      {
+        "attempt": 1,
+        "utc": "2026-09-29T10:47:23.850185Z",
+        "idempotencySuffix": ":nv2:a1",
+        "idempotencySuffixPresent": true,
+        "spread": "classical.threeCard",
+        "cards": [
+          "major_00",
+          "major_01",
+          "major_02"
+        ],
+        "historyAttached": false,
+        "http": [
+          {
+            "utc": "2026-09-29T10:47:33.474452Z",
+            "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+            "path": "/v1/ai/complete",
+            "operation": "tarot_reading",
+            "readingPhase": null,
+            "idempotencyKey": "or-215df5bb:nv2:a1",
+            "httpStatus": 200,
+            "successEnvelope": true,
+            "backendErrorCode": null
+          }
+        ],
+        "providerExecutions": 1,
+        "resultV2Parser": "accepted",
+        "narrativeQualityValidator": "accepted",
+        "formatterAccepted": true,
+        "reflectiveGuardApplied": true,
+        "aiOutputQualityTarot": true,
+        "summary": "Geçmişteki cesur açıklık, bugün bilinçli bir üretme gücüne dönüşürken yakın yönelim, acele sonuçlardan çok sessiz gözlem ve sezgiye yer bırakmayı öneriyor. Past · Deli Deli, geçmişte sonucu tam bilmeden yeni bir eşiğe yaklaşmış olabileceğinizi anlatır; merak ve özgürlük yer bırak",
+        "summarySha256": "3f4996449527180dc1ba8e36b9bc7a913541f54d5e105aae9fd838b42ef2575e",
+        "rawProviderErrorExposed": false
+      }
+    ],
+    "providerExecutions": 1
+  },
+  "or": {
+    "base": {
+      "utc": "2026-09-29T10:47:33.502304Z",
+      "idempotencyKey": "g2b-d14-controlled-turn",
+      "headerMatchedZoneKey": true,
+      "http": [
+        {
+          "utc": "2026-09-29T10:47:36.135044Z",
+          "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+          "path": "/v1/ai/complete",
+          "operation": "chat",
+          "readingPhase": null,
+          "idempotencyKey": "g2b-d14-controlled-turn",
+          "httpStatus": 200,
+          "successEnvelope": true,
+          "backendErrorCode": null
+        }
+      ],
+      "providerExecutions": 1,
+      "parserAccepted": true,
+      "summary": "Sessiz bir akşamı tamamlayan unsurlar kişisel tercihlere göre değişebilir, ama genel olarak düşündüğümüzde bir fincan sıcak çay veya kahve, hoş bir kitap veya film, hafif bir müzik ya da sevdiğiniz birinin sohbeti bu huzurlu anı pekiştirebilir. Doğal kokulu bir mum yakmak veya ha",
+      "summarySha256": "e69e08431960aa064d1baf1f7ed3617ed2f1010da20a9c77486171269b439ac7",
+      "rawProviderErrorExposed": false,
+      "clientFailureKind": null
+    },
+    "q2": {
+      "utc": "2026-09-29T10:47:36.137490Z",
+      "idempotencyKey": "g2b-d14-controlled-turn.q2.hmqqiczi9p",
+      "headerMatchedZoneKey": true,
+      "http": [
+        {
+          "utc": "2026-09-29T10:47:39.002650Z",
+          "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+          "path": "/v1/ai/complete",
+          "operation": "chat",
+          "readingPhase": null,
+          "idempotencyKey": "g2b-d14-controlled-turn.q2.hmqqiczi9p",
+          "httpStatus": 200,
+          "successEnvelope": true,
+          "backendErrorCode": null
+        }
+      ],
+      "providerExecutions": 1,
+      "parserAccepted": true,
+      "summary": "Sessiz bir akşamı kısa bir yürüyüşün ardından tamamlamak için birkaç şey önerebilirim. Sevdiğin bir kitabı eline alarak birkaç sayfa okumak, zihnini dinlendirebilir. Hafif bir müzik açmak, ortamın atmosferini yumuşatabilir. Sıcak bir içecek hazırlayıp, bir fincan çay ya da kahve ",
+      "summarySha256": "757f67491d83e98c662c50449e6dff80f3198638199aad3009964f0f63f3f321",
+      "rawProviderErrorExposed": false,
+      "clientFailureKind": null
+    },
+    "keysDistinct": true,
+    "q2MatchesContract": true,
+    "q2CollidedWithBaseCache": false,
+    "rawProviderExecutions": 2
+  },
+  "http": [
+    {
+      "utc": "2026-09-29T10:46:50.774628Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "coffee_analysis",
+      "readingPhase": "observe",
+      "idempotencyKey": "or-2ca6b0d7:observe",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    },
+    {
+      "utc": "2026-09-29T10:47:03.060733Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "coffee_analysis",
+      "readingPhase": "write",
+      "idempotencyKey": "or-2ca6b0d7:write",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    },
+    {
+      "utc": "2026-09-29T10:47:07.051334Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "palm_analysis",
+      "readingPhase": "observe",
+      "idempotencyKey": "or-3597d2d2:observe",
+      "httpStatus": 200,
+      "successEnvelope": false,
+      "backendErrorCode": "invalid_image"
+    },
+    {
+      "utc": "2026-09-29T10:47:23.845115Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "dream_analysis",
+      "readingPhase": null,
+      "idempotencyKey": "dream-3b7e51ac80fc9f66f38451d61500fd20",
+      "httpStatus": 200,
+      "successEnvelope": false,
+      "backendErrorCode": "invalid_response"
+    },
+    {
+      "utc": "2026-09-29T10:47:33.474452Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "tarot_reading",
+      "readingPhase": null,
+      "idempotencyKey": "or-215df5bb:nv2:a1",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    },
+    {
+      "utc": "2026-09-29T10:47:36.135044Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "chat",
+      "readingPhase": null,
+      "idempotencyKey": "g2b-d14-controlled-turn",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    },
+    {
+      "utc": "2026-09-29T10:47:39.002650Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "chat",
+      "readingPhase": null,
+      "idempotencyKey": "g2b-d14-controlled-turn.q2.hmqqiczi9p",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    }
+  ],
+  "finishedUtc": "2026-09-29T10:47:39.004889Z",
+  "verdict": "FAIL",
+  "failReasons": [
+    "palm observer rejected the fixture as unusable; writer was not called",
+    "dream returned invalid_response; client parser did not accept"
+  ],
+  "logCorrelation": {
+    "palm": {
+      "errorCode": "invalid_image",
+      "diagnosticStage": "observer",
+      "bindFailure": "unusable",
+      "parsedOk": false,
+      "writerReached": false,
+      "repairReached": false,
+      "rawProviderExecutions": 1
+    },
+    "dream": {
+      "errorCode": "invalid_response",
+      "parsedOk": false,
+      "diagnosticStageLogged": false,
+      "rawProviderExecutions": 1,
+      "automaticRetry": false
+    },
+    "coffee": {
+      "observeParsedOk": true,
+      "writeParsedOk": true,
+      "bindFailureLogged": false,
+      "repairDirectlyProven": false,
+      "rawProviderExecutions": "2-3"
+    },
+    "tarot": {
+      "parsedOk": true,
+      "attempt2": false,
+      "rawProviderExecutions": 1
+    },
+    "or": {
+      "bothParsedOk": true,
+      "keysDistinct": true,
+      "replyHashesDistinct": true,
+      "q2CollidedWithBaseCache": false,
+      "rawProviderExecutions": 2
+    }
+  },
+  "budget": {
+    "featureOperations": {
+      "coffee": 1,
+      "palm": 1,
+      "dream": 1,
+      "tarotTopLevel": 1,
+      "tarotAttempts": 1,
+      "or": 2,
+      "yildizname": 0,
+      "soulmate": 0
+    },
+    "rawProviderExecutionsProvable": "7-8",
+    "hardCap": 11,
+    "hardCapExceeded": false,
+    "note": "Coffee write may include an unlogged repair. Palm stopped after the observer."
+  },
+  "auth": {
+    "path": "physical Android app.oracly upgraded in place; Firebase anonymous session already on device",
+    "realFirebaseAuth": true,
+    "realAppCheck": true,
+    "appCheckMode": "Android debug provider via ORACLY_APP_CHECK_DEBUG_PROVIDER; Play Integrity returned no token on this sideload",
+    "bypassUsed": false
+  },
+  "yildiznameBlobsUnchangedVs169c514a": true,
+  "postRun": {
+    "productionRevision": "oracly-api-00052-zqd",
+    "productionTrafficPercent": 100,
+    "candidateRevision": "oracly-api-00085-hef",
+    "candidateTrafficPercent": 0,
+    "health": 200,
+    "ready": 200
+  }
+}
