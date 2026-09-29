@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
+import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
@@ -32,6 +33,7 @@ class _FakeReviewAccessService implements ReviewAccessService {
 }
 
 void main() {
+  setUp(() => OraclyL10n.bind('en'));
   TestWidgetsFlutterBinding.ensureInitialized();
 
   Future<ProviderContainer> buildContainer() async {

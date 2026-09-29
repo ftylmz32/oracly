@@ -346,4 +346,54 @@ const kL10nPremium = <String, L10nTriple>{
     'One-time payment · lasting access',
     'Разовый платёж · постоянный доступ',
   ),
+  'premium.review_access': L10nTriple(
+    'İnceleme erişimi',
+    'Review access',
+    'Доступ для проверки',
+  ),
+  'premium.review_access_body': L10nTriple(
+    'Yalnızca Google Play ve App Store incelemeleri içindir. İnceleme notlarındaki kodu girerek bu inceleme için Premium alanları açabilirsin.',
+    'For Google Play and App Store reviewers only. Enter the code from the review notes to unlock Premium areas for this review.',
+    'Только для проверки в Google Play и App Store. Введи код из заметок проверки, чтобы открыть области Премиума для этой проверки.',
+  ),
+  'premium.review_access_label': L10nTriple(
+    'İnceleme erişim kodu',
+    'Review access code',
+    'Код доступа для проверки',
+  ),
+  'premium.review_access_empty': L10nTriple(
+    'İnceleme notlarındaki erişim kodunu gir.',
+    'Enter the access code from the review instructions.',
+    'Введи код доступа из инструкций проверки.',
+  ),
+  'premium.review_access_granted_body': L10nTriple(
+    'Erişim açıldı. Premium alanlar bu inceleme için hazır.',
+    'Access granted. Premium areas are now unlocked for review.',
+    'Доступ открыт. Области Премиума готовы для этой проверки.',
+  ),
+  'premium.review_access_invalid': L10nTriple(
+    'Bu kod şu anda geçerli değil.',
+    'This code is not valid right now.',
+    'Этот код сейчас недействителен.',
+  ),
+  'premium.review_access_retry': L10nTriple(
+    'Bu kodu kontrol etmek için sunucuya ulaşılamadı. Bağlantını kontrol edip yeniden dene.',
+    'Could not reach the server to check this code. Check your connection and try again.',
+    'Не удалось связаться с сервером, чтобы проверить этот код. Проверь подключение и попробуй снова.',
+  ),
+  'premium.review_access_checking': L10nTriple(
+    'Kontrol ediliyor…',
+    'Checking…',
+    'Проверяем…',
+  ),
+  'premium.review_access_granted_action': L10nTriple(
+    'Erişim açıldı',
+    'Access granted',
+    'Доступ открыт',
+  ),
+  'premium.review_access_activate': L10nTriple(
+    'Etkinleştir',
+    'Activate',
+    'Активировать',
+  ),
 };

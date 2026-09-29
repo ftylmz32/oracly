@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 
+import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/data/datasources/storage_result.dart';
 import '../models/gem_transaction.dart';
@@ -67,28 +68,36 @@ class GemWalletStore {
     await _storage.setInt(balanceKey, nextBalance);
   }
 
-  Future<void> cacheServerBalance(int balance, {String? ownerId}) async {
-    final owner = ownerId?.trim();
-    final normalized = balance < 0 ? 0 : balance;
-    if (owner == null || owner.isEmpty) {
-      // Compatibility for isolated legacy/test services. Production wallet
-      // providers always supply an authenticated owner.
+  Future<void> cacheServerBalance(
+    int balance, {
+    String? ownerId,
+    bool Function()? stillOwner,
+  }) {
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      if (stillOwner != null && !stillOwner()) return;
+      final owner = ownerId?.trim();
+      final normalized = balance < 0 ? 0 : balance;
+      if (owner == null || owner.isEmpty) {
+        await _storage
+            .setInt(serverBalanceCacheKey, normalized)
+            .requireDurable(serverBalanceCacheKey);
+        return;
+      }
+      if (stillOwner != null && !stillOwner()) return;
+      await _storage
+          .remove(serverBalanceCacheKey)
+          .requireDurable(serverBalanceCacheKey);
+      if (stillOwner != null && !stillOwner()) return;
+      await _storage
+          .setString(serverBalanceOwnerKey, owner)
+          .requireDurable(serverBalanceOwnerKey);
+      if (stillOwner != null && !stillOwner()) {
+        await _storage.remove(serverBalanceOwnerKey);
+        return;
+      }
       await _storage
           .setInt(serverBalanceCacheKey, normalized)
           .requireDurable(serverBalanceCacheKey);
-      return;
-    }
-    // Remove first AND prove that removal was durable before changing owner.
-    // If a false-returning remove were ignored, the old owner's balance could
-    // remain while the owner key flips to the new uid — a cross-account leak.
-    await _storage
-        .remove(serverBalanceCacheKey)
-        .requireDurable(serverBalanceCacheKey);
-    await _storage
-        .setString(serverBalanceOwnerKey, owner)
-        .requireDurable(serverBalanceOwnerKey);
-    await _storage
-        .setInt(serverBalanceCacheKey, normalized)
-        .requireDurable(serverBalanceCacheKey);
+    });
   }
 }

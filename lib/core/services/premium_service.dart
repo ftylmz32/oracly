@@ -14,6 +14,7 @@ import '../../features/premium/services/premium_purchase_port.dart';
 import '../../features/premium/services/review_access_service.dart';
 import '../../features/premium/services/unavailable_premium_purchase.dart';
 import '../auth/account_deletion_pending_state.dart';
+import '../auth/user_local_data_isolation.dart';
 import '../data/repositories/review_access_repository.dart';
 import '../domain/models/premium_plan.dart';
 import '../domain/repositories/premium_repository.dart';
@@ -47,28 +48,27 @@ class PremiumService {
   PremiumEntitlementVerifier get verifier => _verifier;
   bool get purchaseConfigured => _purchase.isConfigured;
   bool get canAttemptRestore => _purchase.canAttemptRestore;
-  bool get isActiveNow =>
-      AccountDeletionPendingState.allowsOwnerBoundExperience
-          ? _premium.isActiveNow
-          : false;
+  bool get isActiveNow => AccountDeletionPendingState.allowsOwnerBoundExperience
+      ? _premium.isActiveNow
+      : false;
   bool get wasAuthoritativelyVerified => _premium.wasAuthoritativelyVerified;
-  bool get ownerAccessReady =>
-      _premium is PremiumOwnerBoundary
-          ? (_premium as PremiumOwnerBoundary).ownerAccessReady
-          : true;
+  bool get ownerAccessReady => _premium is PremiumOwnerBoundary
+      ? (_premium as PremiumOwnerBoundary).ownerAccessReady
+      : true;
 
   Future<bool> isActive() async {
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return false;
     return _premium.isPremiumActive();
   }
+
   Future<PremiumPlanKind?> activePlan() => _premium.activePlan();
 
   PremiumGrantPolicy get _grants => PremiumGrantPolicy(
-        premium: _premium,
-        user: _user,
-        verifier: _verifier,
-        forceReleaseMode: forceReleaseMode,
-      );
+    premium: _premium,
+    user: _user,
+    verifier: _verifier,
+    forceReleaseMode: forceReleaseMode,
+  );
 
   Future<void> preparePurchase() async {
     await _purchase.prepare();
@@ -100,9 +100,7 @@ class PremiumService {
     return _grants.applyStoreOutcome(await _purchase.restore());
   }
 
-  Future<PremiumReconcileSnapshot> reconcile({
-    bool forceReleaseMode = false,
-  }) {
+  Future<PremiumReconcileSnapshot> reconcile({bool forceReleaseMode = false}) {
     return PremiumEntitlementReconciler(
       premium: _premium,
       purchaseConfigured: purchaseConfigured,
@@ -135,7 +133,11 @@ class PremiumService {
     final result = await service.activate(code);
     if (result.granted) return true;
     if (!result.definitive) return true;
-    await repo.clear();
+    if (!_reviewOwnerReady) return true;
+    await UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      if (!_reviewOwnerReady) return;
+      await repo.clear();
+    });
     return false;
   }
 
@@ -156,7 +158,15 @@ class PremiumService {
     }
     final result = await service.activate(code);
     if (!result.granted) return result;
-    final persisted = await repo.markGranted(code);
+    if (!_reviewOwnerReady) {
+      return ReviewAccessResult.denied('owner_changed', definitive: false);
+    }
+    final persisted = await UserLocalDataIsolation.runOwnerScopedMutation(
+      () async {
+        if (!_reviewOwnerReady) return false;
+        return repo.markGranted(code);
+      },
+    );
     if (!persisted) {
       return ReviewAccessResult.denied(
         'local_persist_failed',
@@ -164,6 +174,14 @@ class PremiumService {
       );
     }
     return result;
+  }
+
+  bool get _reviewOwnerReady {
+    final premium = _premium;
+    if (premium is PremiumOwnerBoundary) {
+      return (premium as PremiumOwnerBoundary).ownerAccessReady;
+    }
+    return true;
   }
 
   /// Convenience wrapper over [activateReviewAccessResult] for callers that

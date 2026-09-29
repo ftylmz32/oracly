@@ -73,13 +73,16 @@ class DailyRewardsTodayCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (!claimed)
-                OraclyGoldButton(
-                  label: DailyRewardsCopy.claimShort,
-                  onPressed: busy ? null : onClaim,
-                ),
             ],
           ),
+          if (!claimed) ...[
+            const SizedBox(height: 12),
+            OraclyGoldButton(
+              expanded: true,
+              label: DailyRewardsCopy.claimShort,
+              onPressed: busy ? null : onClaim,
+            ),
+          ],
           if (claimed) ...[
             const SizedBox(height: 10),
             Text(

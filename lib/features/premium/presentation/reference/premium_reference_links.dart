@@ -54,7 +54,7 @@ class PremiumReferenceLinks extends StatelessWidget {
           ),
         ),
         _Link(
-          label: 'Review access',
+          label: OraclyL10n.t('premium.review_access'),
           onTap: () => ReviewAccessSheet.show(context),
         ),
       ],

@@ -5,17 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
-import '../../../../core/audio/oracly_feedback_gate.dart';
-import '../../../../core/audio/oracly_sound_chamber.dart';
+import '../../../../core/auth/user_local_data_isolation.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
 import '../../../../core/navigation/oracly_page_transitions.dart';
-import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../models/premium_purchase_result.dart';
 import '../../providers/premium_providers.dart';
 import 'premium_reference_app_bar.dart';
 import 'premium_reference_atmosphere.dart';
 import 'premium_reference_body.dart';
+import 'premium_reference_outcome.dart';
 import 'premium_reference_tokens.dart';
 
 class PremiumReferenceScreen extends ConsumerStatefulWidget {
@@ -28,6 +27,8 @@ class PremiumReferenceScreen extends ConsumerStatefulWidget {
 
 class _PremiumReferenceScreenState
     extends ConsumerState<PremiumReferenceScreen> {
+  int _purchaseEpoch = 0;
+
   @override
   void initState() {
     super.initState();
@@ -38,8 +39,12 @@ class _PremiumReferenceScreenState
   }
 
   Future<void> _purchase() async {
+    _purchaseEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
     final analytics = ref.read(analyticsServiceProvider);
-    analytics.logOperation(operation: 'premium_purchase_started', success: true);
+    analytics.logOperation(
+      operation: 'premium_purchase_started',
+      success: true,
+    );
     analytics.logOperation(
       operation: 'premium_plan_selected',
       success: true,
@@ -49,10 +54,10 @@ class _PremiumReferenceScreenState
   }
 
   Future<void> _restore() async {
-    ref.read(analyticsServiceProvider).logOperation(
-          operation: 'premium_restore_started',
-          success: true,
-        );
+    _purchaseEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
+    ref
+        .read(analyticsServiceProvider)
+        .logOperation(operation: 'premium_restore_started', success: true);
     await _finish(
       await ref.read(premiumStatusProvider).restore(),
       restore: true,
@@ -64,45 +69,10 @@ class _PremiumReferenceScreenState
     bool restore = false,
   }) async {
     if (!mounted) return;
-    final analytics = ref.read(analyticsServiceProvider);
-    ref.invalidate(premiumActiveProvider);
-    ref.invalidate(userProfileProvider);
-    if (result.granted) {
-      analytics.logPremiumActivated(result.plan?.name ?? 'unknown');
-      analytics.logOperation(
-        operation:
-            restore ? 'premium_restore_completed' : 'premium_purchase_completed',
-        success: true,
-      );
-      OraclyFeedbackGate.playCue(OraclySoundCue.premiumPurchase);
-      OraclySnackBar.success(context, result.message);
+    if (UserLocalDataIsolation.accountSwitchEpoch.value != _purchaseEpoch) {
       return;
     }
-    final cancelled = result.outcome == PremiumPurchaseOutcome.cancelled;
-    final pending = result.outcome == PremiumPurchaseOutcome.pending;
-    final noneFound = result.outcome == PremiumPurchaseOutcome.noneFound;
-    final unverified = result.outcome == PremiumPurchaseOutcome.unverified;
-    final soft = cancelled || pending || noneFound;
-    analytics.logOperation(
-      operation: restore
-          ? 'premium_restore_completed'
-          : cancelled
-              ? 'premium_purchase_cancelled'
-              : 'premium_purchase_failed',
-      success: soft,
-      errorCategory: result.outcome.name,
-    );
-    // Unverified is not success — store may have billed but entitlement
-    // was not confirmed. Never celebrate it as activation.
-    if (unverified) {
-      OraclySnackBar.error(context, result.message);
-      return;
-    }
-    if (soft) {
-      OraclySnackBar.success(context, result.message);
-      return;
-    }
-    OraclySnackBar.error(context, result.message);
+    await finishPremiumReferenceOutcome(ref, context, result, restore: restore);
   }
 
   @override

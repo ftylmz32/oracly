@@ -11,6 +11,7 @@ import '../../birth_chart/providers/birth_information_provider.dart';
 import '../../companion/providers/companion_providers.dart';
 import '../../dream/providers/dream_providers.dart';
 import '../../favorite_moments/providers/favorite_moments_providers.dart';
+import '../../daily_rewards/providers/daily_rewards_providers.dart';
 import '../../gems/providers/gem_providers.dart';
 import '../../personal_discovery/providers/personal_discovery_providers.dart';
 import '../../personal_discovery/services/personal_discovery_refresh.dart';
@@ -57,6 +58,7 @@ abstract final class PrivacyDataRefresh {
     ref.invalidate(livingExperienceProvider);
     ref.invalidate(gemWalletProvider);
     ref.invalidate(gemStarterGrantProvider);
+    ref.invalidate(dailyRewardsServiceProvider);
     ref.invalidate(birthChartRepositoryProvider);
     ref.invalidate(birthInformationProvider);
     // The sender binds to its first owner and fails closed for anyone else;

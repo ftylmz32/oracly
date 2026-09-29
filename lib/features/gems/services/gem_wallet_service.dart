@@ -40,8 +40,7 @@ class GemWalletService {
   int get balance => cachedBalance ?? 0;
   bool get canHydrate =>
       _gateway != null &&
-      (!_requireOwner ||
-          (ownerId?.isNotEmpty == true && _ownerIsCurrent));
+      (!_requireOwner || (ownerId?.isNotEmpty == true && _ownerIsCurrent));
   List<GemTransaction> get history => _store.history();
 
   bool canSpend(int amount) =>
@@ -87,7 +86,11 @@ class GemWalletService {
     if (!_ownerIsCurrent) {
       throw const GemSpendException('owner_changed');
     }
-    await _store.cacheServerBalance(balance, ownerId: ownerId);
+    await _store.cacheServerBalance(
+      balance,
+      ownerId: ownerId,
+      stillOwner: () => _ownerIsCurrent,
+    );
     if (!_ownerIsCurrent) {
       _stale = true;
       throw const GemSpendException('owner_changed');
@@ -132,7 +135,11 @@ class GemWalletService {
     if (!_ownerIsCurrent) {
       throw const GemSpendException('owner_changed');
     }
-    await _store.cacheServerBalance(result.balance, ownerId: ownerId);
+    await _store.cacheServerBalance(
+      result.balance,
+      ownerId: ownerId,
+      stillOwner: () => _ownerIsCurrent,
+    );
     if (!_ownerIsCurrent) {
       _stale = true;
       throw const GemSpendException('owner_changed');

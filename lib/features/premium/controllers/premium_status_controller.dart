@@ -25,6 +25,18 @@ class PremiumStatusController extends ChangeNotifier {
   PremiumPlanKind? _activePlan;
   List<PremiumPlanModel> _plans = const [];
   bool _reviewAccessActive = false;
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  void _publish() {
+    if (_disposed) return;
+    notifyListeners();
+  }
 
   /// R3.1 — definitive-only freshness window (see [PremiumReconcileFreshness]).
   @visibleForTesting
@@ -97,7 +109,7 @@ class PremiumStatusController extends ChangeNotifier {
       _fail(PremiumPurchaseResult.failed().message);
       _loaded = true;
     }
-    notifyListeners();
+    _publish();
   }
 
   Future<void> refresh() => load();
@@ -112,7 +124,7 @@ class PremiumStatusController extends ChangeNotifier {
     if (isFresh) return;
     if (_freshness.isRetryThrottled(_now())) return;
     await _guardedReconcile(keepActiveWhileRefreshing: true);
-    notifyListeners();
+    _publish();
   }
 
   /// R3.1 — bypass definitive freshness + retry throttle after a definite
@@ -124,7 +136,7 @@ class PremiumStatusController extends ChangeNotifier {
       return;
     }
     await _guardedReconcile(keepActiveWhileRefreshing: true);
-    notifyListeners();
+    _publish();
   }
 
   /// R3 — single-flight: concurrent callers share one in-flight reconcile.
@@ -147,7 +159,7 @@ class PremiumStatusController extends ChangeNotifier {
     if (isPremium || busy) return;
     if (!PremiumPlanAvailability.isPurchasable(kind)) return;
     _selectedPlan = kind;
-    notifyListeners();
+    _publish();
   }
 
   Future<PremiumPurchaseResult> purchase() async {
@@ -162,7 +174,7 @@ class PremiumStatusController extends ChangeNotifier {
     final plan = PremiumPlanAvailability.normalizeSelection(_selectedPlan);
     if (plan != _selectedPlan) {
       _selectedPlan = plan;
-      notifyListeners();
+      _publish();
     }
     if (!PremiumPlanAvailability.isPurchasable(plan)) {
       return PremiumPurchaseResult.unavailable();
@@ -235,7 +247,7 @@ class PremiumStatusController extends ChangeNotifier {
     final result = await _service.activateReviewAccessResult(code);
     if (result.granted) {
       _reviewAccessActive = true;
-      notifyListeners();
+      _publish();
     }
     return result;
   }
@@ -270,18 +282,18 @@ class PremiumStatusController extends ChangeNotifier {
         await _guardedReconcile(keepActiveWhileRefreshing: false);
         _entitlementMessage = result.message;
     }
-    notifyListeners();
+    _publish();
   }
 
   void _set(PremiumEntitlementState next, [String? message]) {
     _entitlement = next;
     _entitlementMessage = message;
-    notifyListeners();
+    _publish();
   }
 
   void _fail(String message) {
     _entitlement = PremiumEntitlementState.error;
     _entitlementMessage = message;
-    notifyListeners();
+    _publish();
   }
 }

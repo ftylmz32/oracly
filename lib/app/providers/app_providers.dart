@@ -103,16 +103,21 @@ final premiumRepositoryProvider = Provider<PremiumRepository>((ref) {
   // Watch auth user so the repository boundary is rebuilt promptly on a
   // Firebase identity change, before any application session is published.
   ref.watch(backend.firebaseAuthUserProvider);
+  ref.watch(backend.localDataOwnerEpochProvider);
+  // Bound to the owner this repository was created for. A later identity
+  // where live uid and local owner merely match must not re-authorize it.
+  final capturedOwner = gateway?.currentUser?.uid.trim();
   return MockPremiumRepository(
     storage,
     secureStorage: ref.watch(backend.secureStorageProvider),
     ownerAccessAllowed: () {
-      final liveUid = gateway?.currentUser?.uid;
-      final localUid = storage.getString(UserLocalDataIsolation.ownerKey);
-      return liveUid != null &&
-          liveUid.isNotEmpty &&
-          localUid != null &&
-          localUid == liveUid;
+      final captured = capturedOwner;
+      if (captured == null || captured.isEmpty) return false;
+      final liveUid = gateway?.currentUser?.uid.trim();
+      final localUid = storage
+          .getString(UserLocalDataIsolation.ownerKey)
+          ?.trim();
+      return liveUid == captured && localUid == captured;
     },
   );
 });

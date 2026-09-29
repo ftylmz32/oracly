@@ -6,7 +6,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/auth/user_local_data_isolation.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/ui/oracly_bottom_sheet.dart';
@@ -19,7 +21,7 @@ abstract final class ReviewAccessSheet {
   static Future<void> show(BuildContext context) {
     return OraclyBottomSheet.show<void>(
       context,
-      title: 'Review access',
+      title: OraclyL10n.t('premium.review_access'),
       child: const ReviewAccessBody(),
     );
   }
@@ -50,10 +52,11 @@ class _ReviewAccessBodyState extends ConsumerState<ReviewAccessBody> {
     if (code.isEmpty) {
       setState(() {
         _status = _Status.failure;
-        _message = 'Enter the access code from the review instructions.';
+        _message = OraclyL10n.t('premium.review_access_empty');
       });
       return;
     }
+    final epoch = UserLocalDataIsolation.accountSwitchEpoch.value;
     setState(() {
       _status = _Status.submitting;
       _message = null;
@@ -61,15 +64,16 @@ class _ReviewAccessBodyState extends ConsumerState<ReviewAccessBody> {
     final result = await ref
         .read(premiumStatusProvider)
         .activateReviewAccessResult(code);
-    if (!mounted) return;
+    if (!mounted || epoch != UserLocalDataIsolation.accountSwitchEpoch.value) {
+      return;
+    }
     setState(() {
       _status = result.granted ? _Status.success : _Status.failure;
       _message = result.granted
-          ? 'Access granted. Premium areas are now unlocked for review.'
+          ? OraclyL10n.t('premium.review_access_granted_body')
           : (result.definitive
-              ? 'This code is not valid right now.'
-              : "Couldn't reach the server to check this code. Check your "
-                  'connection and try again.');
+                ? OraclyL10n.t('premium.review_access_invalid')
+                : OraclyL10n.t('premium.review_access_retry'));
     });
   }
 
@@ -83,9 +87,7 @@ class _ReviewAccessBodyState extends ConsumerState<ReviewAccessBody> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'For Google Play / App Store reviewers only. Enter the access '
-            'code provided in the review notes to unlock Premium areas for '
-            'this review.',
+            OraclyL10n.t('premium.review_access_body'),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: OraclyChrome.cream.withValues(alpha: 0.78),
@@ -98,9 +100,9 @@ class _ReviewAccessBodyState extends ConsumerState<ReviewAccessBody> {
             enabled: !busy && _status != _Status.success,
             autocorrect: false,
             textCapitalization: TextCapitalization.none,
-            decoration: const InputDecoration(
-              labelText: 'Review access code',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: OraclyL10n.t('premium.review_access_label'),
+              border: const OutlineInputBorder(),
             ),
             onSubmitted: (_) => _activate(),
           ),
@@ -119,8 +121,10 @@ class _ReviewAccessBodyState extends ConsumerState<ReviewAccessBody> {
           SizedBox(height: AppSpacing.md),
           TarotEpic031PrimaryButton(
             label: busy
-                ? 'Checking…'
-                : (_status == _Status.success ? 'Access granted' : 'Activate'),
+                ? OraclyL10n.t('premium.review_access_checking')
+                : (_status == _Status.success
+                      ? OraclyL10n.t('premium.review_access_granted_action')
+                      : OraclyL10n.t('premium.review_access_activate')),
             onPressed: (busy || _status == _Status.success) ? null : _activate,
           ),
         ],

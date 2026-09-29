@@ -16,6 +16,7 @@ import '../../features/premium/models/premium_purchase_result.dart';
 import '../../features/premium/models/premium_verify_result.dart';
 import '../../features/premium/services/premium_dev_override.dart';
 import '../../features/premium/services/premium_entitlement_verifier.dart';
+import '../auth/user_local_data_isolation.dart';
 import '../domain/models/premium_plan.dart';
 import '../domain/repositories/premium_repository.dart';
 import '../domain/repositories/user_repository.dart';
@@ -26,10 +27,10 @@ class PremiumGrantPolicy {
     required UserRepository user,
     required PremiumEntitlementVerifier verifier,
     required bool forceReleaseMode,
-  })  : _premium = premium,
-        _user = user,
-        _verifier = verifier,
-        _forceReleaseMode = forceReleaseMode;
+  }) : _premium = premium,
+       _user = user,
+       _verifier = verifier,
+       _forceReleaseMode = forceReleaseMode;
 
   final PremiumRepository _premium;
   final UserRepository _user;
@@ -51,8 +52,12 @@ class PremiumGrantPolicy {
     final verify = await _runVerify(creds);
 
     if (verify.isActive) {
-      await grant(plan, authoritative: true, credentials: creds);
-      return result;
+      final committed = await grant(
+        plan,
+        authoritative: true,
+        credentials: creds,
+      );
+      return committed ? result : PremiumPurchaseResult.unverified();
     }
 
     if (verify.status == PremiumVerifyStatus.pending) {
@@ -62,11 +67,13 @@ class PremiumGrantPolicy {
     // No remote provider: local cache always returns unverified.
     if (verify.status == PremiumVerifyStatus.unverified &&
         !_verifier.isRemoteVerifierConfigured) {
-      if (!kReleaseMode &&
-          !_forceReleaseMode &&
-          PremiumDevOverride.isActive) {
-        await grant(plan, authoritative: false, credentials: creds);
-        return result;
+      if (!kReleaseMode && !_forceReleaseMode && PremiumDevOverride.isActive) {
+        final committed = await grant(
+          plan,
+          authoritative: false,
+          credentials: creds,
+        );
+        return committed ? result : PremiumPurchaseResult.unverified();
       }
       return PremiumPurchaseResult.unverified();
     }
@@ -88,24 +95,38 @@ class PremiumGrantPolicy {
     );
   }
 
-  Future<void> grant(
+  bool get _ownerReady {
+    final premium = _premium;
+    if (premium is PremiumOwnerBoundary) {
+      return (premium as PremiumOwnerBoundary).ownerAccessReady;
+    }
+    return true;
+  }
+
+  /// Local commit only. Store verification stays outside this gate.
+  /// Returns false when the captured owner is no longer current.
+  Future<bool> grant(
     PremiumPlanKind plan, {
     required bool authoritative,
     PremiumPurchaseCredentials? credentials,
-  }) async {
-    // A verified store grant is not locally committed until its proof is
-    // durable. Otherwise a credential write failure could leave active=true
-    // for the live session yet make restart unverifiable.
-    if (credentials != null) {
-      await _premium.savePurchaseCredentials(credentials);
-    }
-    await _premium.activatePlan(plan, authoritative: authoritative);
-    // Profile flag mirrors local access. Authoritative proof is separate
-    // (wasAuthoritativelyVerified) — never overwrite access with false here.
-    final profile = await _user.getProfile();
-    await _user.saveProfile(profile.copyWith(isPremium: true));
-    if (authoritative) {
-      await _user.unlockAchievement('first_premium');
-    }
+  }) {
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      if (!_ownerReady) return false;
+      // A verified store grant is not locally committed until its proof is
+      // durable. Otherwise a credential write failure could leave active=true
+      // for the live session yet make restart unverifiable.
+      if (credentials != null) {
+        await _premium.savePurchaseCredentials(credentials);
+      }
+      await _premium.activatePlan(plan, authoritative: authoritative);
+      // Profile flag mirrors local access. Authoritative proof is separate
+      // (wasAuthoritativelyVerified) — never overwrite access with false here.
+      final profile = await _user.getProfile();
+      await _user.saveProfile(profile.copyWith(isPremium: true));
+      if (authoritative) {
+        await _user.unlockAchievement('first_premium');
+      }
+      return true;
+    });
   }
 }
