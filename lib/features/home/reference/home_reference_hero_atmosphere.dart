@@ -5,94 +5,104 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/design_system/oracly_chrome.dart';
+import '../../../core/design_system/app_colors.dart';
+import '../theme/home_ritual_visuals.dart';
 
 class HomeReferenceHeroAtmosphere extends StatelessWidget {
-  const HomeReferenceHeroAtmosphere({super.key, required this.t});
+  const HomeReferenceHeroAtmosphere({
+    super.key,
+    required this.t,
+    required this.visual,
+  });
 
   final double t;
+  final HomeRitualVisual visual;
 
   @override
   Widget build(BuildContext context) {
     final wave = math.sin(t * math.pi * 2);
-    final violet = 0.10 + wave.abs() * 0.045;
-    final cx = 0.55 + wave * 0.04;
-    final cy = -0.20 + math.cos(t * math.pi * 2) * 0.03;
-    final gold = 0.035 + wave.abs() * 0.02;
+    final gold = (visual.goldAlpha + wave.abs() * 0.02).clamp(0.0, 0.55);
+    final violet = (visual.violetAlpha + wave.abs() * 0.015).clamp(0.0, 0.55);
+    final center = Alignment(
+      visual.lightCenter.x + wave * 0.04,
+      visual.lightCenter.y + math.cos(t * math.pi * 2) * 0.02,
+    );
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment(cx, cy),
-              radius: 1.15,
-              colors: [
-                OraclyChrome.violet.withValues(alpha: violet),
-                OraclyChrome.midnight.withValues(alpha: 0.0),
-              ],
-              stops: const [0.0, 1.0],
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  visual.skyTop.withValues(alpha: visual.luminanceAlpha),
+                  AppColors.amberSoft.withValues(alpha: visual.warmAlpha * 0.35),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.38, 0.76],
+              ),
             ),
           ),
-        ),
-        // Slow cosmic shimmer — never over the face plane.
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment(0.72 + wave * 0.05, -0.35),
-              radius: 0.55,
-              colors: [
-                OraclyChrome.goldLight.withValues(alpha: gold),
-                Colors.transparent,
-              ],
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: center,
+                radius: 1.05,
+                colors: [
+                  AppColors.goldLight.withValues(alpha: gold),
+                  AppColors.midnightNavy.withValues(alpha: visual.coolAlpha),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.42, 1.0],
+              ),
             ),
           ),
-        ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                OraclyChrome.midnight.withValues(alpha: 0.22),
-                Colors.transparent,
-                OraclyChrome.midnight.withValues(alpha: 0.38),
-              ],
-              stops: const [0.0, 0.45, 1.0],
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(0.2, -0.85),
+                radius: 0.85,
+                colors: [
+                  AppColors.accentPink.withValues(alpha: visual.roseAlpha),
+                  AppColors.primaryPurple.withValues(alpha: violet * 0.45),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.4, 1.0],
+              ),
             ),
           ),
-        ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment.center,
-              radius: 1.05,
-              colors: [
-                Colors.transparent,
-                OraclyChrome.midnight.withValues(alpha: 0.35),
-              ],
-              stops: const [0.62, 1.0],
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  visual.textScrim,
+                  visual.textScrim.withValues(alpha: 0.78),
+                  visual.skyBottom.withValues(alpha: visual.nightDepthAlpha * 0.4),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.26, 0.48, 0.78],
+              ),
             ),
           ),
-        ),
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                Color(0xE605030C),
-                Color(0x990A0618),
-                Color(0x4D140A28),
-                Color(0x14080514),
-                Color(0x00000000),
-              ],
-              stops: [0.0, 0.22, 0.42, 0.62, 0.82],
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                radius: 1.05,
+                colors: [
+                  Colors.transparent,
+                  AppColors.nearBlack.withValues(alpha: visual.vignetteAlpha),
+                ],
+                stops: const [0.58, 1.0],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

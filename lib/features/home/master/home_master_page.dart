@@ -9,6 +9,7 @@ import '../../../core/design_system/app_layout.dart';
 import '../../../core/design_system/app_spacing.dart';
 import '../../../core/universe/oracly_universe_layer.dart';
 import '../../../shared/widgets/oracly_scaffold.dart';
+import '../theme/home_ritual_atmosphere.dart';
 import 'home_master_body.dart';
 
 /// Presentation root: cinematic preferred composition; natural scroll when
@@ -25,6 +26,7 @@ class HomeMasterPage extends StatelessWidget {
       child: OraclyScaffold(
         safeArea: false,
         usePremiumBackground: true,
+        backgroundOverlay: const HomeRitualAtmosphere(),
         child: SafeArea(
           bottom: false,
           child: Padding(
