@@ -28,7 +28,12 @@ void main() {
   });
 
   testWidgets('phase7b_artifact_legacy_reopen_390', (tester) async {
-    final key = await yildiznameGoldenPumpLegacyArtifactReopen(tester);
+    // This master was frozen as the first frame in the file, before the
+    // archive image resolved. Later 7C reopen uses the warmed archive.
+    final key = await yildiznameGoldenPumpLegacyArtifactReopen(
+      tester,
+      precacheArchive: false,
+    );
     await yildiznamePhase7bGoldenExpect(
       tester,
       key,

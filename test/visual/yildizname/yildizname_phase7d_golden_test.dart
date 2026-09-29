@@ -32,29 +32,29 @@ YildiznameResultPresentation _full({
   List<String>? sectionTexts,
   String reflection = 'Hangi katman sana en dürüst geliyor?',
   String closing = 'Arşiv kapanır; sen kendi ritmine dönersin.',
-}) =>
-    YildiznameArtifactPresentation.of(
-      yildiznameFixtureNarrativeArtifact(
-        scope: YildiznameNarrativeScope.full,
-        rich: true,
-        kinds: const [
-          YildiznameSectionKind.coreIdentity,
-          YildiznameSectionKind.emotionalWorld,
-          YildiznameSectionKind.anglesAndHouses,
+}) => YildiznameArtifactPresentation.of(
+  yildiznameFixtureNarrativeArtifact(
+    scope: YildiznameNarrativeScope.full,
+    rich: true,
+    kinds: const [
+      YildiznameSectionKind.coreIdentity,
+      YildiznameSectionKind.emotionalWorld,
+      YildiznameSectionKind.anglesAndHouses,
+    ],
+    summary: summary,
+    sectionTexts:
+        sectionTexts ??
+        const [
+          'Doğum göğünde kimlik net ve sakin duruyor.',
+          'Duygusal dünya yumuşak bir ritme çağırıyor.',
+          'Açılar ve evler derinleşmeyi destekliyor.',
         ],
-        summary: summary,
-        sectionTexts: sectionTexts ??
-            const [
-              'Doğum göğünde kimlik net ve sakin duruyor.',
-              'Duygusal dünya yumuşak bir ritme çağırıyor.',
-              'Açılar ve evler derinleşmeyi destekliyor.',
-            ],
-        reflection: reflection,
-        closing: closing,
-        createdAtUtc: DateTime.utc(2026, 1, 11),
-      ),
-      chromeLocale: 'tr',
-    );
+    reflection: reflection,
+    closing: closing,
+    createdAtUtc: DateTime.utc(2026, 1, 11),
+  ),
+  chromeLocale: 'tr',
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -64,8 +64,10 @@ void main() {
   });
 
   testWidgets('phase7d_narrative_full_hierarchy_390', (tester) async {
+    // Frozen as this file's first frame, before the archive image resolved.
     final key = await yildiznameGoldenPumpPresentation(
       tester,
+      precacheArchive: false,
       presentation: _full(),
     );
     await yildiznamePhase7dGoldenExpect(
@@ -81,8 +83,7 @@ void main() {
       presentation: _full().withContinuity(
         const YildiznameContinuityPresentation(
           heading: 'Arşiv yankısı',
-          body:
-              'Bu temalar önceki Yıldızname okumalarında da tekrar etmişti.',
+          body: 'Bu temalar önceki Yıldızname okumalarında da tekrar etmişti.',
           labels: ['Sabır', 'Kariyer'],
         ),
       ),
@@ -152,11 +153,8 @@ void main() {
       presentation: _full().withContinuity(
         const YildiznameContinuityPresentation(
           heading: 'Arşiv yankısı',
-          body:
-              'Bu temalar önceki Yıldızname okumalarında da tekrar etmişti.',
-          labels: [
-            'Çok uzun bir tema etiketi sabır ve kariyer arasında',
-          ],
+          body: 'Bu temalar önceki Yıldızname okumalarında da tekrar etmişti.',
+          labels: ['Çok uzun bir tema etiketi sabır ve kariyer arasında'],
         ),
       ),
       viewport: const Size(360, 800),

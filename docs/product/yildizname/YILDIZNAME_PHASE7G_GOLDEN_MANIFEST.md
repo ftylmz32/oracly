@@ -40,9 +40,9 @@ Never use `--update-goldens` to silence a regression. Normal CI never passes `--
 |---|---|---|---|---|---|
 | `final_hub_empty_390.png` | hub | empty | 390×844 | A1 entry without birth | `d959dfe58b325d4d3bfc48c2b8919f459b5e5329f010cbf820fa320f83a473d9` |
 | `final_hub_with_birth_390.png` | hub | birth ready | 390×844 | A2 entry with birth | `848a96083095989f92f80cd46f9cc57a9a0ff0b9b02133c733079d491c582c5d` |
-| `final_legacy_live_all_actions_390.png` | legacy live | durable + OR | 390×844 | B1 production actions | `c0b609ea9df081e71d94328c105266ca663eb0543fa6f6615d48588e5b5bc5e6` |
+| `final_legacy_live_all_actions_390.png` | legacy live | durable + OR | 390×844 | B1 production actions | `ba3c76198b8716200f249e07cb3d6f095cf95a6797a0ac71f2f191082253d428` |
 | `final_legacy_live_capture_failure_390.png` | legacy live | soft fail | 390×844 | B2 no Favorite | `2e3229e44388b4041e4b401fa9ebc43c2cb19563d784c93301df20ab81fda003` |
-| `final_legacy_artifact_reopen_390.png` | legacy artifact | reopen | 390×844 | B3 historical + reopen | `1c7a8303b692ac1bceb1d046e35ffd0c7e87be4638e7ae0954027d3b3f472714` |
+| `final_legacy_artifact_reopen_390.png` | legacy artifact | reopen | 390×844 | B3 historical + reopen | `dafb73b6397caf742e6b421d3f57eff1af4c0b0a62db45c8d8a0aa9151c61247` |
 | `final_narrative_reduced_artifact_390.png` | narrative | REDUCED | 390×844 | C1 reduced artifact | `1649942aa3844459be87032ca75826420bb3d679c54a4d987c8fa4337f8182e3` |
 | `final_narrative_reduced_continuity_390.png` | narrative | REDUCED + echo | 390×844 | C2 continuity | `80085dbaaa4d00ce362d2284c5dd222d66cd9b820e056b7905e8ca6bf52530cb` |
 | `final_narrative_full_rich_390.png` | narrative | FULL rich | 390×844 | D1 primary master | `f58b793569b2a06bbfa494fdbdeead9791cef30c67b06dafaca512f6778c6314` |
@@ -78,4 +78,15 @@ None after Phase 7G.1. Live and artifact reopen hashes intentionally differ.
 - `yildizname_phase7g_golden_master_b_test.dart` — D/E  
 - `yildizname_phase7g_golden_master_c_test.dart` — F/G  
 - `yildizname_phase7g_golden_hash_test.dart` — exact filename→SHA-256 + negative controls  
-- `yildizname_phase7g_firewall_test.dart` — no forensic bypass APIs  
+- `yildizname_phase7g_firewall_test.dart` — no forensic bypass APIs
+
+## P4E.4 shared-component delta
+
+P4E.4 intentional post-freeze shared-component visual delta: SaveFavoriteMomentLink production layout changed Row → Wrap during P4C for responsive/large-text behavior.
+
+Historical 7A–7F forensic masters remain unchanged.
+
+Only these two final-production masters were refreshed:
+
+- `final_legacy_live_all_actions_390.png` `c0b609ea9df081e71d94328c105266ca663eb0543fa6f6615d48588e5b5bc5e6` → `ba3c76198b8716200f249e07cb3d6f095cf95a6797a0ac71f2f191082253d428`
+- `final_legacy_artifact_reopen_390.png` `1c7a8303b692ac1bceb1d046e35ffd0c7e87be4638e7ae0954027d3b3f472714` → `dafb73b6397caf742e6b421d3f57eff1af4c0b0a62db45c8d8a0aa9151c61247`

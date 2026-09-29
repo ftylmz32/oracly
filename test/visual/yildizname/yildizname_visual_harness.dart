@@ -9,6 +9,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/constants/app_assets.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/core/theme/app_theme.dart';
@@ -31,6 +32,9 @@ const yildiznameVisualTextScale = 1.3;
 
 const yildiznameVisualGoldenFontFamily = 'YildiznameGoldenRoboto';
 
+const yildiznameGoldenPrecacheAssets = <String>[
+  AppAssets.yildiznameArchiveBg, AppAssets.yildiznameHero,
+];
 bool _fontsLoaded = false;
 
 Future<void> yildiznameVisualLoadGoldenFonts() async {
@@ -50,9 +54,12 @@ Future<void> yildiznameVisualLoadGoldenFonts() async {
 ThemeData _goldenTheme() {
   final base = AppTheme.darkTheme;
   return base.copyWith(
-    textTheme: base.textTheme.apply(fontFamily: yildiznameVisualGoldenFontFamily),
-    primaryTextTheme:
-        base.primaryTextTheme.apply(fontFamily: yildiznameVisualGoldenFontFamily),
+    textTheme: base.textTheme.apply(
+      fontFamily: yildiznameVisualGoldenFontFamily,
+    ),
+    primaryTextTheme: base.primaryTextTheme.apply(
+      fontFamily: yildiznameVisualGoldenFontFamily,
+    ),
   );
 }
 
@@ -114,6 +121,7 @@ Future<void> yildiznameVisualPumpSettled(
     await tester.runAsync(() async {
       final context = tester.element(find.byType(MaterialApp));
       for (final path in precacheAssets) {
+        imageCache.evict(AssetImage(path));
         await precacheImage(AssetImage(path), context);
       }
     });

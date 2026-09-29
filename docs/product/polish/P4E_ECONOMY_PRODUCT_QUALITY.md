@@ -113,3 +113,47 @@ Skips are existing gates: `ORACLY_E2E=1`, the release-manifest test, and the loc
 The 7 failures are Yıldızname golden pixel diffs on the pre-existing dirty star-map worktree. They were not caused by this gate, and that worktree was not edited or staged. Because those failures remain on the working tree, P4E is not final frozen.
 
 `flutter analyze --no-fatal-infos`: 0 errors, 0 warnings, 212 pre-existing infos.
+
+## P4E.4 — YILDIZNAME DETERMINISTIC GOLDEN CLOSURE
+
+Start HEAD `e39f9003a7c2760583bf33c470415f297cc7aac0`.
+
+### P4C Row → Wrap provenance
+
+Commit `7ab1bf3075b45eeb49c9c66445243166c7953748` changed `SaveFavoriteMomentLink` from `Row` plus `SizedBox(width: 6)` to `Wrap` (`alignment: center`, `spacing: 6`) so the favorite action stays usable at small widths and large text. Live production stays on that wrap.
+
+### Favorite pixel bound
+
+On production Wrap, the seven Yıldızname goldens differed by 656 or 659 pixels. The changed pixels sat in the favorite action (bookmark icon and “Bu anı kaydet”), x = 144..249.
+
+Historical 7A–7F masters now render that action through a test-only `forensicLegacyRow` path and pass unchanged. The two final-production 7G masters that use the live footer were refreshed. Each differs by exactly 659 pixels, all inside x = 144..249:
+
+- `final_legacy_live_all_actions_390.png` bbox (144,692)–(249,708)
+- `final_legacy_artifact_reopen_390.png` bbox (144,717)–(249,733)
+
+No pixel outside that band. No background, scope, fact, status, order, or other typography delta.
+
+### Test-order image cache
+
+Phase 7G pumps already precached `AppAssets.yildiznameArchiveBg` and `AppAssets.yildiznameHero`. The 7A–7C pumps did not. An isolated `--name` run therefore captured a cold archive frame (about 96–99% of the frame). The same test passed in file order because a predecessor had warmed `ImageCache`.
+
+Historical pumps now precache those two assets before capture. Masters that were frozen as the cold first frame of their file, and all of Phase 7F, opt out so their existing PNGs stay valid. Isolated and file-order runs agree. Matcher tolerance is unchanged.
+
+### Forensic layout
+
+`SaveFavoriteMomentLink.forensicLegacyRow` defaults to false. Production uses Wrap. The forensic footer requests the pre-P4C Row. The production footer does not. Save, unsave, label, tap, semantics, and the 44px target are the same for both layouts. Production action order is unchanged: OR → Share → Favorite → Copy → Continue → Feedback. Forensic order is unchanged: Copy → Share → OR → Continue → Favorite → Feedback.
+
+### Hashes
+
+- `final_legacy_live_all_actions_390.png` `c0b609ea9df081e71d94328c105266ca663eb0543fa6f6615d48588e5b5bc5e6` → `ba3c76198b8716200f249e07cb3d6f095cf95a6797a0ac71f2f191082253d428`
+- `final_legacy_artifact_reopen_390.png` `1c7a8303b692ac1bceb1d046e35ffd0c7e87be4638e7ae0954027d3b3f472714` → `dafb73b6397caf742e6b421d3f57eff1af4c0b0a62db45c8d8a0aa9151c61247`
+
+The other 15 Phase 7G hashes are unchanged. Historical 7A–7F PNG inventories are unchanged. Phase 7H claims are unchanged.
+
+### Regression
+
+- Yıldızname visual directory: 79 passed, 0 failed, twice (file order), plus isolated cold runs of the previously order-sensitive historical tests.
+- `test/features/star_map`: 792 passed, 0 failed.
+- P4C favorite, P4E premium / gems / daily rewards / owner switch, P4D, P4D.2, P4C.1, user-data isolation, Tarot autosave, Palm server-owned completion, and full Palm: 218 passed, 0 failed in one invocation.
+- Full `flutter test` on a detached tree of this change, with the same gitignored local fixtures the primary checkout uses (`tool/dart_defines.production.json`, `tool/e3e_private`, Firebase config files): 6391 passed, 16 skipped, 0 failed.
+- `flutter analyze --no-fatal-infos`: 0 errors, 0 warnings, 212 infos.

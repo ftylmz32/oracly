@@ -45,7 +45,10 @@ abstract final class StarMapResultFooterForensic {
         orAlreadyOffered: actions.hasOr,
       ),
       if (actions.hasFavorite)
-        SaveFavoriteMomentLink(draft: actions.favorite!.toMoment())
+        SaveFavoriteMomentLink(
+          draft: actions.favorite!.toMoment(),
+          forensicLegacyRow: true,
+        )
       else
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),

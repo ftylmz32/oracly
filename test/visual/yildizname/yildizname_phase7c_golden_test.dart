@@ -40,32 +40,31 @@ YildiznameResultPresentation _full({
   bool aspects = true,
   String summary = _summary,
   String id = 'yid_dddddddddddddddddddddddddddddddd',
-}) =>
-    YildiznameArtifactPresentation.of(
-      yildiznameFixtureNarrativeArtifact(
-        id: id,
-        scope: YildiznameNarrativeScope.full,
-        rich: rich,
-        ascendant: ascendant,
-        houses: houses,
-        aspects: aspects,
-        kinds: const [
-          YildiznameSectionKind.coreIdentity,
-          YildiznameSectionKind.emotionalWorld,
-          YildiznameSectionKind.anglesAndHouses,
-        ],
-        summary: summary,
-        sectionTexts: const [
-          'Doğum göğünde kimlik net ve sakin duruyor.',
-          'Duygusal dünya yumuşak bir ritme çağırıyor.',
-          'Açılar ve evler derinleşmeyi destekliyor.',
-        ],
-        reflection: 'Hangi katman sana en dürüst geliyor?',
-        closing: 'Arşiv kapanır; sen kendi ritmine dönersin.',
-        createdAtUtc: DateTime.utc(2026, 1, 11),
-      ),
-      chromeLocale: 'tr',
-    ).withoutRoleHierarchy();
+}) => YildiznameArtifactPresentation.of(
+  yildiznameFixtureNarrativeArtifact(
+    id: id,
+    scope: YildiznameNarrativeScope.full,
+    rich: rich,
+    ascendant: ascendant,
+    houses: houses,
+    aspects: aspects,
+    kinds: const [
+      YildiznameSectionKind.coreIdentity,
+      YildiznameSectionKind.emotionalWorld,
+      YildiznameSectionKind.anglesAndHouses,
+    ],
+    summary: summary,
+    sectionTexts: const [
+      'Doğum göğünde kimlik net ve sakin duruyor.',
+      'Duygusal dünya yumuşak bir ritme çağırıyor.',
+      'Açılar ve evler derinleşmeyi destekliyor.',
+    ],
+    reflection: 'Hangi katman sana en dürüst geliyor?',
+    closing: 'Arşiv kapanır; sen kendi ritmine dönersin.',
+    createdAtUtc: DateTime.utc(2026, 1, 11),
+  ),
+  chromeLocale: 'tr',
+).withoutRoleHierarchy();
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -75,8 +74,10 @@ void main() {
   });
 
   testWidgets('phase7c_narrative_reduced_facts_390', (tester) async {
+    // Frozen as this file's first frame, before the archive image resolved.
     final key = await yildiznameGoldenPumpPresentation(
       tester,
+      precacheArchive: false,
       presentation: YildiznameArtifactPresentation.of(
         yildiznameVisualNarrativeArtifact(
           id: 'yid_cccccccccccccccccccccccccccccccc',

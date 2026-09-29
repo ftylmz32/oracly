@@ -161,13 +161,16 @@ String yildiznameGoldenSha256(String relativePath) {
 Future<GlobalKey> yildiznameGoldenPumpHub(
   WidgetTester tester, {
   required bool withBirth,
+  bool precacheArchive = true,
 }) async {
   final storage = await yildiznameVisualOpenStorage();
   if (withBirth) {
-    final chart =
-        const NatalChartCalculator().calculate(yildiznameVisualBirthProfile());
-    await testBirthChartRepo(storage)
-        .save(BirthChartRecordMapper.toRecord(chart));
+    final chart = const NatalChartCalculator().calculate(
+      yildiznameVisualBirthProfile(),
+    );
+    await testBirthChartRepo(
+      storage,
+    ).save(BirthChartRecordMapper.toRecord(chart));
   }
   final key = GlobalKey();
   await yildiznameVisualPumpSettled(
@@ -175,9 +178,8 @@ Future<GlobalKey> yildiznameGoldenPumpHub(
     viewport: yildiznameVisualCanonicalViewport,
     storage: storage,
     captureKey: key,
-    child: StarMapReferenceScreen(
-      now: DateTime.utc(2026, 9, 26),
-    ),
+    precacheAssets: precacheArchive ? yildiznameGoldenPrecacheAssets : const [],
+    child: StarMapReferenceScreen(now: DateTime.utc(2026, 9, 26)),
   );
   await tester.pump(const Duration(milliseconds: 300));
   return key;
@@ -195,6 +197,7 @@ Future<GlobalKey> yildiznameGoldenPumpResult(
   List<StarMapPlanetInfluence> planets = const [],
   String? artifactId,
   DateTime? artifactCreatedAt,
+  bool precacheArchive = true,
 }) async {
   final storage = await yildiznameVisualOpenStorage();
   final key = GlobalKey();
@@ -203,6 +206,7 @@ Future<GlobalKey> yildiznameGoldenPumpResult(
     viewport: yildiznameVisualCanonicalViewport,
     storage: storage,
     captureKey: key,
+    precacheAssets: precacheArchive ? yildiznameGoldenPrecacheAssets : const [],
     child: StarMapReferenceResultScreen.unscoped(
       title: title,
       sections: sections,
@@ -234,8 +238,9 @@ YildiznameArtifact yildiznameGoldenLegacyArtifact() =>
 /// exact pre-7B reopen output. Production reopen (typed presentation + scope
 /// note) is covered by [yildiznameGoldenPumpLegacyArtifactReopen].
 Future<GlobalKey> yildiznameGoldenPumpLegacyArtifact(
-  WidgetTester tester,
-) async {
+  WidgetTester tester, {
+  bool precacheArchive = true,
+}) async {
   final storage = await yildiznameVisualOpenStorage();
   final artifact = yildiznameGoldenLegacyArtifact();
   final key = GlobalKey();
@@ -244,6 +249,7 @@ Future<GlobalKey> yildiznameGoldenPumpLegacyArtifact(
     viewport: yildiznameVisualCanonicalViewport,
     storage: storage,
     captureKey: key,
+    precacheAssets: precacheArchive ? yildiznameGoldenPrecacheAssets : const [],
     child: StarMapReferenceResultScreen.unscoped(
       title: YildiznameLegacyPayload.titleOf(artifact.payload) ?? '',
       sections: YildiznameLegacyPayload.sectionsOf(artifact.payload),
@@ -262,13 +268,15 @@ Future<GlobalKey> yildiznameGoldenPumpLegacyArtifactReopen(
   WidgetTester tester, {
   Size viewport = yildiznameVisualCanonicalViewport,
   double textScale = 1.0,
+  bool precacheArchive = true,
 }) async {
   final storage = await yildiznameVisualOpenStorage();
   final artifact = yildiznameGoldenLegacyArtifact();
-  final presentation = YildiznameArtifactPresentation.of(
-    artifact,
-    chromeLocale: 'tr',
-  ).withForensicActionOrder().withBuiltActions(
+  final presentation =
+      YildiznameArtifactPresentation.of(
+        artifact,
+        chromeLocale: 'tr',
+      ).withForensicActionOrder().withBuiltActions(
         orContext: YildiznameArtifactOrContext.build(artifact),
       );
   final key = GlobalKey();
@@ -278,6 +286,7 @@ Future<GlobalKey> yildiznameGoldenPumpLegacyArtifactReopen(
     textScale: textScale,
     storage: storage,
     captureKey: key,
+    precacheAssets: precacheArchive ? yildiznameGoldenPrecacheAssets : const [],
     child: StarMapReferenceResultScreen(presentation: presentation),
   );
   return key;
@@ -289,6 +298,7 @@ Future<GlobalKey> yildiznameGoldenPumpPresentation(
   required YildiznameResultPresentation presentation,
   Size viewport = yildiznameVisualCanonicalViewport,
   double textScale = 1.0,
+  bool precacheArchive = true,
 }) async {
   final storage = await yildiznameVisualOpenStorage();
   final key = GlobalKey();
@@ -298,6 +308,7 @@ Future<GlobalKey> yildiznameGoldenPumpPresentation(
     textScale: textScale,
     storage: storage,
     captureKey: key,
+    precacheAssets: precacheArchive ? yildiznameGoldenPrecacheAssets : const [],
     child: StarMapReferenceResultScreen(
       // Frozen 7B–7F goldens predate historical reopen chrome.
       presentation: presentation.withForensicHideHistoricalStatus(),

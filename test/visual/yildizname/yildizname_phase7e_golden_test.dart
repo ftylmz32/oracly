@@ -33,10 +33,14 @@ void main() {
     final artifact = yildiznameFixtureNarrativeArtifact(
       createdAtUtc: DateTime.utc(2026, 1, 11),
     );
-    final base =
-        YildiznameArtifactPresentation.of(artifact, chromeLocale: 'tr');
+    final base = YildiznameArtifactPresentation.of(
+      artifact,
+      chromeLocale: 'tr',
+    );
+    // Frozen as this file's first frame, before the archive image resolved.
     final key = await yildiznameGoldenPumpPresentation(
       tester,
+      precacheArchive: false,
       presentation: base.withActions(
         YildiznameResultActionsBuilder.build(
           presentation: base,
@@ -89,8 +93,10 @@ void main() {
     final artifact = yildiznameFixtureNarrativeArtifact(
       createdAtUtc: DateTime.utc(2026, 1, 11),
     );
-    final base =
-        YildiznameArtifactPresentation.of(artifact, chromeLocale: 'tr');
+    final base = YildiznameArtifactPresentation.of(
+      artifact,
+      chromeLocale: 'tr',
+    );
     final key = await yildiznameGoldenPumpPresentation(
       tester,
       viewport: const Size(320, 568),
@@ -112,8 +118,10 @@ void main() {
     final artifact = yildiznameFixtureNarrativeArtifact(
       createdAtUtc: DateTime.utc(2026, 1, 11),
     );
-    final base =
-        YildiznameArtifactPresentation.of(artifact, chromeLocale: 'tr');
+    final base = YildiznameArtifactPresentation.of(
+      artifact,
+      chromeLocale: 'tr',
+    );
     final key = await yildiznameGoldenPumpPresentation(
       tester,
       viewport: const Size(360, 800),

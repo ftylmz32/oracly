@@ -35,6 +35,7 @@ Future<void> _pump(
   String chromeLocale = 'tr',
   String languageCode = 'tr',
   bool openDeeper = false,
+  bool precacheArchive = false,
   String summary = 'Güneş Leo konumunda sabırlı bir odak taşır.',
 }) async {
   final artifact = yildiznameFixtureNarrativeArtifact(
@@ -60,6 +61,7 @@ Future<void> _pump(
     presentation: presentation,
     viewport: viewport,
     textScale: textScale,
+    precacheArchive: precacheArchive,
   );
   if (openDeeper) {
     final toggle = find.byKey(const ValueKey('starFactMoreToggle'));
@@ -165,4 +167,3 @@ void main() {
     expect(yildiznamePhase7fGoldenNames, hasLength(8));
   });
 }
-

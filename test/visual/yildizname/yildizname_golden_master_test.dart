@@ -14,7 +14,12 @@ void main() {
   });
 
   testWidgets('hub_empty_390', (tester) async {
-    final key = await yildiznameGoldenPumpHub(tester, withBirth: false);
+    // Frozen as this file's first frame, before the archive image resolved.
+    final key = await yildiznameGoldenPumpHub(
+      tester,
+      withBirth: false,
+      precacheArchive: false,
+    );
     await yildiznameGoldenExpect(tester, key, 'hub_empty_390');
   });
 
@@ -47,7 +52,10 @@ void main() {
       artifactCreatedAt: DateTime.utc(2026, 1, 10),
     );
     await yildiznameGoldenExpect(
-        tester, key, 'artifact_narrative_reduced_current_390');
+      tester,
+      key,
+      'artifact_narrative_reduced_current_390',
+    );
   });
 
   testWidgets('artifact_narrative_full_current_390', (tester) async {
@@ -59,7 +67,10 @@ void main() {
       artifactCreatedAt: DateTime.utc(2026, 1, 11),
     );
     await yildiznameGoldenExpect(
-        tester, key, 'artifact_narrative_full_current_390');
+      tester,
+      key,
+      'artifact_narrative_full_current_390',
+    );
   });
 
   /// Negative-control twin — same chrome path as legacy_result; hash locked.
@@ -71,6 +82,9 @@ void main() {
       planets: yildiznameVisualLegacyPlanets(),
     );
     await yildiznameGoldenExpect(
-        tester, key, 'firewall_result_chrome_control_390');
+      tester,
+      key,
+      'firewall_result_chrome_control_390',
+    );
   });
 }
