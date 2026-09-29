@@ -18,11 +18,18 @@ Provider, model, prompts, quality, depth, safety, retry budget, turn idempotency
 
 Review access uses the same `loaded` / `isPremium` gate as commerce Premium. `isPremium` already includes an active reviewer grant. This phase did not call `POST /v1/review-access/activate`. `review_access_gate_test` still passes.
 
+## P4A.1 — Palm structured handoff
+
+Confirmed in-scope handoff defect, fixed in P4A.1.
+
+`OracleReadingContextSources.palm()` writes `fullInterpretation` with the current localized Palm titles (`KALP`, `ZİHİN`, `YAŞAM`, `YÖN`, `EN ÖNEMLİ İŞARET`, `GÜÇLÜ TEMALAR`, and the English and Russian equivalents). `OracleContextMapper._palm()` still searched the old title-case Turkish prefixes (`Kalp:`, `Temalar:`, and the rest). The result stayed a `PalmAiContext`, but takeaway, heart, head, life, fate, and themes were empty. Carrying the text only inside `fullInterpretation` did not preserve the typed fields.
+
+The mapper now reads those fields from the current `palm.*_title` labels in Turkish, English, and Russian. A context built in one language still maps after the bind changes. Palm UI, Palm generation, and the `OracleReadingContext` payload were not changed.
+
 ## Investigated, not changed
 
 - Fresh `/chat` clear, typed handoff buffer, first-reading deepen consumption, send/retry, persistence retry, thread scroll, regenerate, microphone permission, and TTS engine stay on their existing contracts. The listed companion and G1 OR suites were re-run.
 - Failure copy for offline and local save still uses `CompanionCopy.offline` and `CompanionCopy.saveFailed`.
-- `or_typed_handoff_ask_oracle_test` “palm mapper produces PalmAiContext not Coffee” fails on its own: `OracleContextMapper._palm` still splits themes on `Temalar:`, while `palm.themes_title` is `GÜÇLÜ TEMALAR` / `STRONG THEMES` / `СИЛЬНЫЕ ТЕМЫ`. `fullInterpretation` still carries the line. The other tests in that file passed. This phase did not change the mapper or Palm copy, because that would reopen Palm and the oracle context parse used for the provider.
 
 ## Frozen
 

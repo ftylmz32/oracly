@@ -12,6 +12,7 @@ import 'package:oracly_new/core/intelligence/data/local_intelligence_repository.
 import 'package:oracly_new/core/intelligence/data/ritual_history_reader.dart';
 import 'package:oracly_new/core/intelligence/services/intelligence_layer_service.dart';
 import 'package:oracly_new/core/personality/or_response_depth.dart';
+import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/ai/domain/models/ai_message.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context_sources.dart';
@@ -67,33 +68,69 @@ void main() {
   });
 
   test('palm mapper produces PalmAiContext not Coffee', () {
-    final ctx = OracleReadingContextSources.palm(
-      PalmReading(
-        id: 'p1',
-        createdAt: DateTime(2026, 8, 9),
-        hand: PalmHand.right,
-        overall: 'Avucta sakin bir hat.',
-        heartLine: 'Yumusak bir egri.',
-        headLine: 'Net bir cizgi.',
-        lifeLine: 'Derin bir yay.',
-        fateLine: 'Ince bir yon.',
-        takeaway: 'Sakin kal.',
-        symbols: const ['yildiz'],
-        themes: const ['yakinlik', 'denge'],
-      ),
+    const sentinels = (
+      session: 'palm-session-sentinel',
+      overall: 'OVERALL-SENTINEL',
+      heart: 'HEART-SENTINEL',
+      head: 'HEAD-SENTINEL',
+      life: 'LIFE-SENTINEL',
+      fate: 'FATE-SENTINEL',
+      takeaway: 'TAKEAWAY-SENTINEL',
+      symbol: 'SYMBOL-SENTINEL',
+      theme: 'THEME-SENTINEL',
     );
-    final ai = OracleContextMapper.fromOracle(ctx);
-    expect(ai, isA<PalmAiContext>());
-    expect(ai.kindId, 'palm');
-    final palm = ai as PalmAiContext;
-    expect(palm.sessionId, 'p1');
-    expect(palm.overall, contains('sakin'));
-    expect(palm.handLabel, isNotEmpty);
-    expect(palm.symbols, contains('yildiz'));
-    expect(palm.themes, contains('yakinlik'));
-    expect(palm.takeaway, contains('Sakin'));
-    expect(palm.heartLine, contains('Yumusak'));
-    expect(palm, isNot(isA<CoffeeAiContext>()));
+    final reading = PalmReading(
+      id: sentinels.session,
+      createdAt: DateTime(2026, 8, 9),
+      hand: PalmHand.right,
+      overall: sentinels.overall,
+      heartLine: sentinels.heart,
+      headLine: sentinels.head,
+      lifeLine: sentinels.life,
+      fateLine: sentinels.fate,
+      takeaway: sentinels.takeaway,
+      symbols: [sentinels.symbol],
+      themes: [sentinels.theme],
+    );
+
+    for (final code in ['tr', 'en', 'ru']) {
+      OraclyL10n.bind(code);
+      final ctx = OracleReadingContextSources.palm(reading);
+      final ai = OracleContextMapper.fromOracle(ctx);
+      expect(ai, isA<PalmAiContext>(), reason: code);
+      expect(ai, isNot(isA<CoffeeAiContext>()), reason: code);
+      final palm = ai as PalmAiContext;
+      expect(palm.sessionId, sentinels.session, reason: code);
+      expect(palm.handLabel, isNotEmpty, reason: code);
+      expect(palm.overall, sentinels.overall, reason: code);
+      expect(palm.symbols, [sentinels.symbol], reason: code);
+      expect(palm.themes, [sentinels.theme], reason: code);
+      expect(palm.takeaway, sentinels.takeaway, reason: code);
+      expect(palm.heartLine, sentinels.heart, reason: code);
+      expect(palm.headLine, sentinels.head, reason: code);
+      expect(palm.lifeLine, sentinels.life, reason: code);
+      expect(palm.fateLine, sentinels.fate, reason: code);
+      expect(
+        palm.fullInterpretation,
+        contains(sentinels.overall),
+        reason: code,
+      );
+      expect(palm.fullInterpretation, contains(sentinels.heart), reason: code);
+      expect(palm.fullInterpretation, contains(sentinels.theme), reason: code);
+    }
+
+    OraclyL10n.bind('tr');
+    final built = OracleReadingContextSources.palm(reading);
+    OraclyL10n.bind('en');
+    final shifted = OracleContextMapper.fromOracle(built) as PalmAiContext;
+    expect(shifted.heartLine, sentinels.heart);
+    expect(shifted.headLine, sentinels.head);
+    expect(shifted.lifeLine, sentinels.life);
+    expect(shifted.fateLine, sentinels.fate);
+    expect(shifted.takeaway, sentinels.takeaway);
+    expect(shifted.themes, [sentinels.theme]);
+    expect(shifted, isNot(isA<CoffeeAiContext>()));
+    OraclyL10n.bind('tr');
   });
 
   test('typed context reaches askOracle on the live bridge', () async {

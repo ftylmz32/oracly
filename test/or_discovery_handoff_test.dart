@@ -22,7 +22,7 @@ void main() {
     expect(ctx.kind, OracleReadingKind.palm);
     expect(ctx.sourceLabel, contains('El'));
     expect(ctx.interpretationSummary, contains('sakin'));
-    expect(ctx.fullInterpretation, contains('Kalp:'));
+    expect(ctx.fullInterpretation, contains('KALP:'));
     expect(ctx.fullInterpretation, contains('yildiz'));
   });
 
