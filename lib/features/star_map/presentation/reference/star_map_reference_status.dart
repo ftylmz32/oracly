@@ -15,11 +15,13 @@ class StarMapReferenceStatus extends StatelessWidget {
     super.key,
     required this.hasBirthInfo,
     required this.onPrimary,
+    this.birthPending = false,
     this.cityName,
   });
 
   final bool hasBirthInfo;
   final VoidCallback onPrimary;
+  final bool birthPending;
   final String? cityName;
 
   @override
@@ -38,7 +40,7 @@ class StarMapReferenceStatus extends StatelessWidget {
             height: 1.36,
           ),
         ),
-        if (hasBirthInfo) ...[
+        if (hasBirthInfo && !birthPending) ...[
           SizedBox(height: AppSpacing.s4),
           Text(
             StarMapPolishCopy.chartReady,
@@ -62,13 +64,15 @@ class StarMapReferenceStatus extends StatelessWidget {
             ),
           ),
         ],
-        SizedBox(height: AppSpacing.s8),
-        StarMapReferenceCta(
-          label: hasBirthInfo
-              ? StarMapPolishCopy.viewChart
-              : StarMapPolishCopy.enterBirthInfo,
-          onPressed: onPrimary,
-        ),
+        if (!birthPending) ...[
+          SizedBox(height: AppSpacing.s8),
+          StarMapReferenceCta(
+            label: hasBirthInfo
+                ? StarMapPolishCopy.viewChart
+                : StarMapPolishCopy.enterBirthInfo,
+            onPressed: onPrimary,
+          ),
+        ],
       ],
     );
   }

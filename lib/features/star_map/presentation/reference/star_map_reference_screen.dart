@@ -38,9 +38,10 @@ class StarMapReferenceScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(
-      birthInformationProvider.select((async) => async.valueOrNull),
-    );
+    final birth = ref.watch(birthInformationProvider);
+    // First load has no value yet. A refresh keeps the profile already known.
+    final birthPending = birth.isLoading && !birth.hasValue;
+    final profile = birth.valueOrNull;
     final discovery = ref.watch(
       personalDiscoveryProfileProvider.select((async) => async.valueOrNull),
     );
@@ -55,69 +56,71 @@ class StarMapReferenceScreen extends ConsumerWidget {
       feature: QualityFeature.starMap,
       startOnInit: true,
       child: OraclyScaffold(
-      safeArea: false,
-      backgroundOverlay: const StarMapReferenceAtmosphere(
-        child: SizedBox.shrink(),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            StarMapReferenceTokens.screenHorizontal,
-            StarMapReferenceTokens.screenTop,
-            StarMapReferenceTokens.screenHorizontal,
-            AppLayout.scrollBottomInset(context),
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxWidth: AppLayout.maxContentWidth),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  StarMapReferenceAppBar(onBack: () => _handleBack(context)),
-                  SizedBox(height: StarMapReferenceTokens.headerToChart),
-                  ChamberHeaderLead(text: StarMapPolishCopy.leadLine),
-                  SizedBox(height: StarMapReferenceTokens.leadToHero),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final chart = StarMapReferenceTokens.chartDiameterFor(
-                          maxHeight: constraints.maxHeight,
-                          contentWidth: constraints.maxWidth,
-                        );
-                        void refresh() =>
-                            ref.invalidate(birthInformationProvider);
-                        return OraclyAdaptiveScrollView(
-                          child: StarMapReferenceHubBody(
-                            chart: chart,
-                            hasBirth: profile != null,
-                            cityName: profile?.birthPlace,
-                            reading: reading,
-                            profile: profile,
-                            onRefresh: refresh,
-                            onBirth: () =>
-                                StarMapReferenceRoutes.openBirthChart(
-                              context,
-                              onReturn: refresh,
-                            ),
-                            onOpenLeaf: () =>
-                                StarMapReferenceRoutes.openPrimaryArchiveLeaf(
-                              context,
-                              reading,
+        safeArea: false,
+        backgroundOverlay: const StarMapReferenceAtmosphere(
+          child: SizedBox.shrink(),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              StarMapReferenceTokens.screenHorizontal,
+              StarMapReferenceTokens.screenTop,
+              StarMapReferenceTokens.screenHorizontal,
+              AppLayout.scrollBottomInset(context),
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppLayout.maxContentWidth,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    StarMapReferenceAppBar(onBack: () => _handleBack(context)),
+                    SizedBox(height: StarMapReferenceTokens.headerToChart),
+                    ChamberHeaderLead(text: StarMapPolishCopy.leadLine),
+                    SizedBox(height: StarMapReferenceTokens.leadToHero),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final chart = StarMapReferenceTokens.chartDiameterFor(
+                            maxHeight: constraints.maxHeight,
+                            contentWidth: constraints.maxWidth,
+                          );
+                          void refresh() =>
+                              ref.invalidate(birthInformationProvider);
+                          return OraclyAdaptiveScrollView(
+                            child: StarMapReferenceHubBody(
+                              chart: chart,
+                              hasBirth: profile != null,
+                              birthPending: birthPending,
+                              cityName: profile?.birthPlace,
+                              reading: reading,
                               profile: profile,
+                              onRefresh: refresh,
+                              onBirth: () =>
+                                  StarMapReferenceRoutes.openBirthChart(
+                                    context,
+                                    onReturn: refresh,
+                                  ),
+                              onOpenLeaf: () =>
+                                  StarMapReferenceRoutes.openPrimaryArchiveLeaf(
+                                    context,
+                                    reading,
+                                    profile: profile,
+                                  ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
       ),
     );
   }

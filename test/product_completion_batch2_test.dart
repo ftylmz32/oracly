@@ -27,7 +27,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Gems canonical identity', () {
-    testWidgets('OraclyGemFacet renders canonical OraclyGemIcon', (tester) async {
+    testWidgets('OraclyGemFacet renders canonical OraclyGemIcon', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: OraclyGemFacet(size: 24))),
       );
@@ -40,7 +42,9 @@ void main() {
       await tester.pumpWidget(
         buildProviderScopeHarness(
           storage: storage,
-          child: const MaterialApp(home: Scaffold(body: OraclyLiveGemCapsule())),
+          child: const MaterialApp(
+            home: Scaffold(body: OraclyLiveGemCapsule()),
+          ),
         ),
       );
       await tester.pump();
@@ -93,7 +97,11 @@ void main() {
 
     test('validation requires date', () {
       expect(
-        BirthChartOnboardingActions.validate(date: null, timeKnown: false, time: null),
+        BirthChartOnboardingActions.validate(
+          date: null,
+          timeKnown: false,
+          time: null,
+        ),
         BirthChartCopy.birthDateRequired,
       );
     });
@@ -160,8 +168,9 @@ void main() {
         birthPlace: 'Ankara',
         birthTimeKnown: false,
       );
+      OraclyL10n.bind('tr');
       final line = OracleReadingContextNatal.birthLine(unknown);
-      expect(line, contains('25.3.1990'));
+      expect(line, contains(OraclyFormat.dateCompact(unknown.birthDate)));
       expect(line, contains('Ankara'));
       expect(line, isNot(contains(':')));
 

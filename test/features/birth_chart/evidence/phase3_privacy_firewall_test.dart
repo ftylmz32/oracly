@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context_natal.dart';
 import 'package:oracly_new/features/birth_chart/data/birth_chart_cities.dart';
 import 'package:oracly_new/features/birth_chart/evidence/birth_timezone_status.dart';
@@ -22,8 +23,9 @@ void main() {
   );
 
   test('Task 63 birthLine keeps date/time/place only', () {
+    OraclyL10n.bind('tr');
     final line = OracleReadingContextNatal.birthLine(profile);
-    expect(line, contains('25.3.1990'));
+    expect(line, contains(OraclyFormat.dateCompact(profile.birthDate)));
     expect(line, contains('09:15'));
     expect(line, contains('İstanbul'));
     expect(line, isNot(contains('latitude')));

@@ -143,8 +143,7 @@ abstract final class OracleReadingContextNatal {
   static String birthLine(BirthProfile profile) {
     // Oracle firewall: date / time / place name only — never lat/lon,
     // timezoneId, birthPlaceId, or ownerId.
-    final date =
-        '${profile.birthDate.day}.${profile.birthDate.month}.${profile.birthDate.year}';
+    final date = OraclyFormat.dateCompact(profile.birthDate);
     final parts = <String>[date];
     if (profile.hasKnownTime) {
       parts.add(

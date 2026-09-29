@@ -17,6 +17,7 @@ class StarMapReferenceHubBody extends StatelessWidget {
     super.key,
     required this.chart,
     required this.hasBirth,
+    this.birthPending = false,
     required this.onBirth,
     required this.onOpenLeaf,
     required this.reading,
@@ -27,6 +28,7 @@ class StarMapReferenceHubBody extends StatelessWidget {
 
   final double chart;
   final bool hasBirth;
+  final bool birthPending;
   final VoidCallback onBirth;
   final VoidCallback onOpenLeaf;
   final StarMapReading reading;
@@ -54,6 +56,7 @@ class StarMapReferenceHubBody extends StatelessWidget {
         SizedBox(height: StarMapReferenceTokens.statusToMenus),
         StarMapReferenceStatus(
           hasBirthInfo: hasBirth,
+          birthPending: birthPending,
           cityName: cityName,
           onPrimary: hasBirth ? onOpenLeaf : onBirth,
         ),
