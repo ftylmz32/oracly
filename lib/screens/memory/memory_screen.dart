@@ -17,6 +17,7 @@ import '../../services/memory_service.dart';
 
 import '../../core/constants/app_assets.dart';
 import '../../shared/ui/oracly_dialog.dart';
+import '../../shared/ui/oracly_snackbar.dart';
 import '../../shared/widgets/oracly_empty_state.dart';
 import '../../shared/widgets/oracly_gold_button.dart';
 
@@ -31,24 +32,14 @@ import '../../core/theme/craftsmanship_rhythm.dart';
 import '../../shared/widgets/oracly_entrance.dart';
 import '../../shared/widgets/oracly_scaffold.dart';
 
-
-
 class MemoryScreen extends ConsumerStatefulWidget {
-
   const MemoryScreen({super.key});
 
-
-
   @override
-
   ConsumerState<MemoryScreen> createState() => _MemoryScreenState();
-
 }
 
-
-
 class _MemoryScreenState extends ConsumerState<MemoryScreen> {
-
   // Canonical injected instance — never construct MemoryService() directly
   // here (that would bypass the shared LocalStorage boundary).
   MemoryService get _memoryService => ref.read(memoryServiceProvider);
@@ -59,63 +50,40 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
 
   String? _loadError;
 
-
-
   @override
-
   void initState() {
-
     super.initState();
 
     _loadMemories();
-
   }
 
-
-
   Future<void> _loadMemories() async {
-
     setState(() {
-
       _isLoading = true;
 
       _loadError = null;
-
     });
 
-
-
     try {
-
       final memories = await _memoryService.getAdvancedMemories();
 
       if (!mounted) return;
 
       setState(() {
-
         _memories = memories;
 
         _isLoading = false;
-
       });
-
     } catch (_) {
-
       if (!mounted) return;
 
       setState(() {
-
         _isLoading = false;
 
         _loadError = ResilienceCopy.genericLoadFailed;
-
       });
-
     }
-
   }
-
-
 
   Future<void> _deleteMemory(MemoryItem memory) async {
     final confirm = await OraclyDialog.confirm(
@@ -127,8 +95,12 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
       destructive: true,
     );
     if (confirm != true) return;
-    await _memoryService.removeMemory(memory.content);
-    _loadMemories();
+    final removed = await _memoryService.removeMemory(memory.content);
+    if (!mounted) return;
+    if (!removed) {
+      OraclySnackBar.show(context, message: ResilienceCopy.genericLoadFailed);
+    }
+    await _loadMemories();
   }
 
   Future<void> _editMemory(MemoryItem memory) async {
@@ -140,9 +112,13 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
       confirmLabel: OraclyL10n.t(L10nKeys.save),
       cancelLabel: OraclyL10n.t('trust.delete_cancel'),
     );
-    if (updated == null || updated.isEmpty || updated == memory.content) return;
-    await _memoryService.removeMemory(memory.content);
-    await _memoryService.addAdvancedMemory(
+    if (updated == null ||
+        updated.trim().isEmpty ||
+        updated == memory.content) {
+      return;
+    }
+    final saved = await _memoryService.updateMemory(
+      memory,
       MemoryItem(
         category: memory.category,
         content: updated,
@@ -150,67 +126,47 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
         createdAt: memory.createdAt,
       ),
     );
-    _loadMemories();
+    if (!mounted) return;
+    if (!saved) {
+      OraclySnackBar.show(context, message: ResilienceCopy.genericLoadFailed);
+    }
+    await _loadMemories();
   }
 
-
-
   IconData _categoryIcon(String category) {
-
     switch (category) {
-
       case 'goal':
-
         return Icons.flag_rounded;
 
       case 'interest':
-
         return Icons.favorite_rounded;
 
       case 'job':
-
         return Icons.work_rounded;
 
       case 'technology':
-
         return Icons.computer_rounded;
 
       default:
-
         return Icons.psychology_rounded;
-
     }
-
   }
 
-
-
   Color _importanceColor(String importance) {
-
     switch (importance) {
-
       case 'high':
-
         return AppColors.danger;
 
       case 'medium':
-
         return AppColors.gold;
 
       default:
-
         return AppColors.textSecondary;
-
     }
-
   }
 
-
-
   @override
-
   Widget build(BuildContext context) {
-
     return OraclyScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -224,94 +180,65 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
           children: [
             OraclyEntrance(
               child: OraclyGlassCard(
+                padding: AppSpacing.card,
 
-              padding: AppSpacing.card,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-              child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const OraclyIcon(Icons.psychology_rounded, size: 20),
 
-                crossAxisAlignment: CrossAxisAlignment.start,
+                        SizedBox(width: AppSpacing.sm + AppSpacing.xs),
 
-                children: [
+                        Text(
+                          OraclyL10n.t('memory.title'),
+                          style: AppTextStyles.title,
+                        ),
+                      ],
+                    ),
 
-                  Row(
+                    SizedBox(height: AppSpacing.sm),
 
-                    children: [
+                    Text(
+                      _isLoading
+                          ? OraclyL10n.t('resilience.generic_loading')
+                          : OraclyL10n.t(
+                              'memory.count',
+                            ).replaceAll('{n}', '${_memories.length}'),
 
-                      const OraclyIcon(Icons.psychology_rounded, size: 20),
-
-                      SizedBox(width: AppSpacing.sm + AppSpacing.xs),
-
-                      Text(OraclyL10n.t('memory.title'), style: AppTextStyles.title),
-
-                    ],
-
-                  ),
-
-                  SizedBox(height: AppSpacing.sm),
-
-                  Text(
-
-                    _isLoading
-
-                        ? OraclyL10n.t('resilience.generic_loading')
-
-                        : OraclyL10n.t('memory.count').replaceAll(
-                            '{n}',
-                            '${_memories.length}',
-                          ),
-
-                    style: AppTextStyles.subtitle.copyWith(fontSize: 14),
-
-                  ),
-
-                ],
-
+                      style: AppTextStyles.subtitle.copyWith(fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
-
-            ),
-
             ),
             SizedBox(height: AppSpacing.md),
-            Expanded(
-              child: _buildBody(),
-            ),
+            Expanded(child: _buildBody()),
           ],
         ),
       ),
     );
-
   }
 
-
-
   Widget _buildBody() {
-
     if (_isLoading) {
-
       return OraclySkeletonLoader(message: ResilienceCopy.memoryLoading);
-
     }
 
-
-
     if (_loadError != null) {
-
       return Center(
-
         child: Column(
-
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-
             Text(
-
               _loadError!,
 
               textAlign: TextAlign.center,
 
               style: AppTextStyles.subtitle,
-
             ),
 
             SizedBox(height: AppSpacing.md),
@@ -319,19 +246,12 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
               label: ResilienceCopy.retryAction,
               onPressed: _loadMemories,
             ),
-
           ],
-
         ),
-
       );
-
     }
 
-
-
     if (_memories.isEmpty) {
-
       return OraclyEmptyState(
         imageAsset: AppAssets.heroOrbPremium,
         title: ResilienceCopy.memoryEmptyTitle,
@@ -341,12 +261,8 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
         ctaLabel: OraclyL10n.t('memory.talk'),
 
         onCta: () => OraclyNavigationService.openChat(context),
-
       );
-
     }
-
-
 
     return ListView.builder(
       physics: CraftsmanshipRhythm.scrollPhysics,
@@ -356,85 +272,59 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
         return OraclyEntrance.staggered(
           index: index,
           child: Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.sm + AppSpacing.xs),
 
-          padding: EdgeInsets.only(bottom: AppSpacing.sm + AppSpacing.xs),
-
-          child: OraclyGlassCard(
-
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
-            ),
-
-            borderRadius: AppRadius.xl,
-
-            child: ListTile(
-
-              leading: CircleAvatar(
-
-                backgroundColor: AppColors.card,
-
-                child: OraclyIcon(_categoryIcon(memory.category), size: 18),
-
+            child: OraclyGlassCard(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
               ),
 
-              title: Text(
+              borderRadius: AppRadius.xl,
 
-                memory.content,
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.card,
 
-                style: AppTextStyles.body.copyWith(fontSize: 15),
-
-              ),
-
-              subtitle: Text(
-
-                '${OraclyL10n.t('memory.cat.${memory.category}')} • ${OraclyL10n.t('memory.imp.${memory.importance}')}',
-
-                style: AppTextStyles.small.copyWith(
-
-                  color: _importanceColor(memory.importance),
-
+                  child: OraclyIcon(_categoryIcon(memory.category), size: 18),
                 ),
 
-              ),
+                title: Text(
+                  memory.content,
 
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Semantics(
-                    button: true,
-                    label: OraclyL10n.t('memory.edit'),
-                    child: OraclyHeaderAction(
+                  style: AppTextStyles.body.copyWith(fontSize: 15),
+                ),
+
+                subtitle: Text(
+                  '${OraclyL10n.t('memory.cat.${memory.category}')} • ${OraclyL10n.t('memory.imp.${memory.importance}')}',
+
+                  style: AppTextStyles.small.copyWith(
+                    color: _importanceColor(memory.importance),
+                  ),
+                ),
+
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    OraclyHeaderAction(
                       icon: Icons.edit_outlined,
                       label: OraclyL10n.t('memory.edit'),
-                      size: 36,
                       iconSize: 18,
                       onTap: () => _editMemory(memory),
                     ),
-                  ),
-                  Semantics(
-                    button: true,
-                    label: OraclyL10n.t('memory.delete'),
-                    child: OraclyHeaderAction(
+                    OraclyHeaderAction(
                       icon: Icons.delete_outline,
                       label: OraclyL10n.t('memory.delete'),
-                      size: 36,
                       iconSize: 18,
                       onTap: () => _deleteMemory(memory),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-
             ),
-
           ),
-        ),
         );
       },
     );
-
   }
-
 }
-

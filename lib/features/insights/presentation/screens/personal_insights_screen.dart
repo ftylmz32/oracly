@@ -38,7 +38,8 @@ class PersonalInsightsScreen extends ConsumerStatefulWidget {
       _PersonalInsightsScreenState();
 }
 
-class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen> {
+class _PersonalInsightsScreenState
+    extends ConsumerState<PersonalInsightsScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = ref.watch(personalInsightsControllerProvider);
@@ -77,39 +78,42 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
     );
   }
 
-  Widget _body(PersonalInsightsState state, PersonalInsightsController controller) {
+  Widget _body(
+    PersonalInsightsState state,
+    PersonalInsightsController controller,
+  ) {
     return switch (state.phase) {
       PersonalInsightsPhase.loading => const OraclyCinematicLoading(
-          key: ValueKey('loading'),
-          compact: true,
-        ),
+        key: ValueKey('loading'),
+        compact: true,
+      ),
       PersonalInsightsPhase.empty => const InsightsEmptyState(
-          key: ValueKey('empty'),
-        ),
+        key: ValueKey('empty'),
+      ),
       PersonalInsightsPhase.error => Center(
-          key: const ValueKey('error'),
-          child: Padding(
-            padding: AppSpacing.screen,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  AiErrorSanitizer.guard(
-                    state.error,
-                    fallback: ResilienceCopy.genericLoadFailed,
-                  ),
-                  textAlign: TextAlign.center,
-                  style: ReadingTypography.body(),
+        key: const ValueKey('error'),
+        child: Padding(
+          padding: AppSpacing.screen,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                AiErrorSanitizer.guard(
+                  state.error,
+                  fallback: ResilienceCopy.genericLoadFailed,
                 ),
-                SizedBox(height: AppSpacing.lg),
-                OraclyGoldButton(
-                  label: OraclyL10n.t('insights.retry'),
-                  onPressed: controller.load,
-                ),
-              ],
-            ),
+                textAlign: TextAlign.center,
+                style: ReadingTypography.body(),
+              ),
+              SizedBox(height: AppSpacing.lg),
+              OraclyGoldButton(
+                label: OraclyL10n.t('insights.retry'),
+                onPressed: controller.load,
+              ),
+            ],
           ),
         ),
+      ),
       PersonalInsightsPhase.ready => _letterContent(state, controller),
     };
   }
@@ -125,10 +129,7 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
       key: const ValueKey('ready'),
       padding: AppSpacing.screen,
       children: [
-        Text(
-          summary.salutation,
-          style: ReadingTypography.opening(),
-        ),
+        Text(summary.salutation, style: ReadingTypography.opening()),
         if (summary.growthSnapshot != null) ...[
           SizedBox(height: AppSpacing.xl),
           Text(
@@ -167,9 +168,7 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
           SizedBox(height: AppSpacing.xl),
           Text(
             summary.closingNote!,
-            style: ReadingTypography.reflection(
-              color: AppColors.textMuted,
-            ),
+            style: ReadingTypography.reflection(color: AppColors.textMuted),
           ),
         ],
         SizedBox(height: AppSpacing.lg),
@@ -192,7 +191,12 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
             onTap: () async {
               Navigator.pop(context);
               await controller.regenerate();
-              if (!context.mounted) return;
+              if (!mounted) return;
+              final phase = controller.state.phase;
+              if (phase != PersonalInsightsPhase.ready &&
+                  phase != PersonalInsightsPhase.empty) {
+                return;
+              }
               OraclySnackBar.show(
                 context,
                 message: PersonalInsightsCopy.regeneratedConfirmation,
@@ -205,8 +209,12 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
             onTap: () async {
               Navigator.pop(context);
               final text = controller.exportText();
-              await Clipboard.setData(ClipboardData(text: text));
-              if (!context.mounted) return;
+              try {
+                await Clipboard.setData(ClipboardData(text: text));
+              } catch (_) {
+                return;
+              }
+              if (!mounted) return;
               OraclySnackBar.show(
                 context,
                 message: PersonalInsightsCopy.exportedConfirmation,
@@ -230,8 +238,8 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
             label: PersonalInsightsCopy.hideAction,
             onTap: () async {
               Navigator.pop(context);
-              await controller.hideInsight(id);
-              if (!context.mounted) return;
+              final saved = await controller.hideInsight(id);
+              if (!mounted || !saved) return;
               OraclySnackBar.show(
                 context,
                 message: PersonalInsightsCopy.hiddenConfirmation,
@@ -253,8 +261,8 @@ class _PersonalInsightsScreenState extends ConsumerState<PersonalInsightsScreen>
                 destructive: true,
               );
               if (confirmed == true) {
-                await controller.deleteInsight(id);
-                if (!context.mounted) return;
+                final saved = await controller.deleteInsight(id);
+                if (!mounted || !saved) return;
                 OraclySnackBar.show(
                   context,
                   message: PersonalInsightsCopy.deletedConfirmation,

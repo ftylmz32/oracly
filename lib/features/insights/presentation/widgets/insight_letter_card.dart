@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/reading_typography.dart';
+import '../../copy/personal_insights_copy.dart';
 import '../../models/insight.dart';
 import '../../models/insight_category.dart';
 
@@ -50,7 +51,7 @@ class InsightLetterCard extends StatelessWidget {
                   ),
                   OraclyHeaderAction(
                     icon: Icons.more_horiz_rounded,
-                    label: 'Daha fazla',
+                    label: PersonalInsightsCopy.moreAction,
                     size: 32,
                     iconSize: 18,
                     onTap: onMore,
@@ -66,10 +67,7 @@ class InsightLetterCard extends StatelessWidget {
                 ),
               ),
               SizedBox(height: AppSpacing.sm),
-              Text(
-                insight.body,
-                style: ReadingTypography.reflection(),
-              ),
+              Text(insight.body, style: ReadingTypography.reflection()),
             ],
           ),
         ),

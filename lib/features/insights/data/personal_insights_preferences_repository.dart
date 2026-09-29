@@ -38,10 +38,10 @@ class PersonalInsightsPreferencesRepository {
     );
   }
 
-  Future<void> hide(String insightId) async {
+  Future<bool> hide(String insightId) async {
     final prefs = await load();
     final next = {...prefs.hiddenIds, insightId};
-    await _storage.setStringList(_hiddenKey, next.toList());
+    return _storage.setStringList(_hiddenKey, next.toList());
   }
 
   Future<void> unhide(String insightId) async {
@@ -50,12 +50,19 @@ class PersonalInsightsPreferencesRepository {
     await _storage.setStringList(_hiddenKey, next.toList());
   }
 
-  Future<void> delete(String insightId) async {
+  Future<bool> delete(String insightId) async {
     final prefs = await load();
     final hidden = {...prefs.hiddenIds}..remove(insightId);
     final deleted = {...prefs.deletedIds, insightId};
-    await _storage.setStringList(_hiddenKey, hidden.toList());
-    await _storage.setStringList(_deletedKey, deleted.toList());
+    final deletedOk = await _storage.setStringList(
+      _deletedKey,
+      deleted.toList(),
+    );
+    if (!deletedOk) return false;
+    final hiddenOk = await _storage.setStringList(_hiddenKey, hidden.toList());
+    if (hiddenOk) return true;
+    await _storage.setStringList(_deletedKey, prefs.deletedIds.toList());
+    return false;
   }
 
   Future<void> clearHidden() async {

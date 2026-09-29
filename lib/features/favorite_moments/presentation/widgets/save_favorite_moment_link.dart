@@ -27,24 +27,23 @@ class SaveFavoriteMomentLink extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final saved = ref.watch(favoriteMomentSavedProvider(draft.id));
-    final label =
-        saved ? FavoriteMomentsCopy.unsave : FavoriteMomentsCopy.save;
+    final label = saved ? FavoriteMomentsCopy.unsave : FavoriteMomentsCopy.save;
     return Align(
       alignment: align,
       widthFactor: 1,
       heightFactor: 1,
       child: OraclyPressable(
         label: label,
-        onTap: saved
-            ? () => _unsave(context, ref)
-            : () => _save(context, ref),
+        onTap: saved ? () => _unsave(context, ref) : () => _save(context, ref),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: ExcludeSemantics(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 6,
                 children: [
                   Icon(
                     saved
@@ -55,7 +54,6 @@ class SaveFavoriteMomentLink extends ConsumerWidget {
                       alpha: saved ? 0.92 : 0.78,
                     ),
                   ),
-                  const SizedBox(width: 6),
                   Text(
                     label,
                     style: ReadingTypography.footnote(

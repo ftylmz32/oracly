@@ -25,4 +25,7 @@ abstract final class PersonalInsightsCopy {
   static String get exportedConfirmation => _t('insights.exported');
   static String get deletePrompt => _t('insights.delete_prompt');
   static String get exportHeader => _t('insights.export_header');
+  static String get exportGrowth => _t('insights.export_growth');
+  static String get patternsHeading => _t('insights.patterns');
+  static String get moreAction => _t('insights.more');
 }

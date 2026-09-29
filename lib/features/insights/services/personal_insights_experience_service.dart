@@ -54,9 +54,9 @@ class PersonalInsightsExperienceService {
     );
   }
 
-  Future<void> hideInsight(String id) => _preferences.hide(id);
+  Future<bool> hideInsight(String id) => _preferences.hide(id);
 
-  Future<void> deleteInsight(String id) => _preferences.delete(id);
+  Future<bool> deleteInsight(String id) => _preferences.delete(id);
 
   String exportAsText(InsightReflectionSummary summary) {
     final buffer = StringBuffer()
@@ -68,7 +68,7 @@ class PersonalInsightsExperienceService {
     final growth = summary.growthSnapshot;
     if (growth != null && growth.narrative.trim().isNotEmpty) {
       buffer
-        ..writeln('— Büyüme —')
+        ..writeln('— ${PersonalInsightsCopy.exportGrowth} —')
         ..writeln(growth.narrative)
         ..writeln();
     }
@@ -81,7 +81,7 @@ class PersonalInsightsExperienceService {
     }
 
     if (summary.patterns.isNotEmpty) {
-      buffer.writeln('— Desenler —');
+      buffer.writeln('— ${PersonalInsightsCopy.patternsHeading} —');
       for (final pattern in summary.patterns) {
         buffer.writeln('• ${pattern.label}: ${pattern.observation}');
       }

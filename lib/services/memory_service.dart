@@ -39,10 +39,28 @@ class MemoryService {
     await _saveMemories(memories);
   }
 
-  // Hafızaları kaydet
-  Future<void> _saveMemories(List<MemoryItem> memories) async {
+  /// Replaces one row in a single write. A failed write leaves [previous].
+  Future<bool> updateMemory(MemoryItem previous, MemoryItem next) async {
+    final memories = await getAdvancedMemories();
+    final index = memories.indexWhere(
+      (item) => item.content == previous.content,
+    );
+    if (index < 0) return false;
+    final nextKey = next.content.toLowerCase().trim();
+    if (nextKey.isEmpty) return false;
+    final duplicate = memories.asMap().entries.any(
+      (entry) =>
+          entry.key != index &&
+          entry.value.content.toLowerCase().trim() == nextKey,
+    );
+    if (duplicate) return false;
+    memories[index] = next;
+    return _saveMemories(memories);
+  }
+
+  Future<bool> _saveMemories(List<MemoryItem> memories) {
     final encoded = memories.map((e) => jsonEncode(e.toJson())).toList();
-    await _storage.setStringList(_memoryKey, encoded);
+    return _storage.setStringList(_memoryKey, encoded);
   }
 
   // Gelişmiş hafızaları getir — bozuk/eski satırlar atılmaz, ham metin
@@ -90,11 +108,15 @@ class MemoryService {
     );
   }
 
-  // Tek hafıza silme
-  Future<void> removeMemory(String memory) async {
+  /// Removes one row. `false` means storage still holds [memory].
+  Future<bool> removeMemory(String memory) async {
     final memories = await getAdvancedMemories();
-    memories.removeWhere((item) => item.content == memory);
-    await _saveMemories(memories);
+    final next = [
+      for (final item in memories)
+        if (item.content != memory) item,
+    ];
+    if (next.length == memories.length) return false;
+    return _saveMemories(next);
   }
 
   // Tüm hafızayı temizle

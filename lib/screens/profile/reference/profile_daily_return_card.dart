@@ -11,11 +11,11 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/reading_typography.dart';
 import '../../../features/daily_message/copy/daily_message_copy.dart';
 import '../../../features/daily_message/data/daily_return_store.dart';
-import '../../../features/daily_message/models/daily_return_action.dart';
 import '../../../features/daily_message/presentation/widgets/daily_message_moon.dart';
+import '../../../features/daily_message/services/daily_message_action.dart';
+import '../../../features/daily_message/services/daily_message_readiness.dart';
 import '../../../features/daily_message/services/daily_message_session.dart';
 import '../../../features/personal_discovery/providers/personal_discovery_providers.dart';
-import '../../../features/personal_discovery/models/discovery_recommended_feature.dart';
 import 'profile_reference_card_shell.dart';
 
 class ProfileDailyReturnCard extends ConsumerStatefulWidget {
@@ -30,38 +30,33 @@ class _ProfileDailyReturnCardState
     extends ConsumerState<ProfileDailyReturnCard> {
   bool _recorded = false;
 
-  DailyReturnAction _actionFor(
-    DiscoveryRecommendedFeature feature,
-    DailyReturnAction fallback,
-  ) {
-    return switch (feature) {
-      DiscoveryRecommendedFeature.companion => DailyReturnAction.talkToOr,
-      DiscoveryRecommendedFeature.dream => DailyReturnAction.tellDream,
-      DiscoveryRecommendedFeature.tarot => DailyReturnAction.askTarot,
-      DiscoveryRecommendedFeature.starMap => DailyReturnAction.exploreStarMap,
-      DiscoveryRecommendedFeature.coffee => DailyReturnAction.readCoffee,
-      DiscoveryRecommendedFeature.palm => DailyReturnAction.readPalm,
-      DiscoveryRecommendedFeature.astrology => DailyReturnAction.readAstrology,
-      DiscoveryRecommendedFeature.dailyMessage => fallback,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final palette = AppColors.of(context);
     final storage = ref.watch(localStorageProvider);
-    final message = DailyMessageSession.resolve(
-      store: DailyReturnStore(storage),
-      day: DateTime.now(),
-      profileName: ref.watch(userProfileProvider).value?.name,
-      discovery: ref.watch(personalDiscoveryProfileProvider).valueOrNull,
-      recent: ref.watch(discoverySurfaceMemoryProvider).all(),
+    final profile = ref.watch(userProfileProvider);
+    final discovery = ref.watch(personalDiscoveryProfileProvider);
+    final settings = ref.watch(settingsProvider);
+    final day = DateTime.now();
+    final store = DailyReturnStore(storage);
+    final cached = store.readToday(day);
+    final settled = DailyMessageReadiness.all(
+      profile: profile,
+      discovery: discovery,
+      settings: settings,
     );
-    final recommendation = ref.watch(discoveryRecommendationProvider);
-    final ctaAction = _actionFor(recommendation.feature, message.action);
-    if (!_recorded) {
+    final message = DailyMessageSession.resolve(
+      store: store,
+      day: day,
+      profileName: profile.value?.name,
+      discovery: discovery.valueOrNull,
+      recent: ref.watch(discoverySurfaceMemoryProvider).all(),
+      personality: settings.value?.aiPersonality,
+    );
+    if ((cached != null || settled) && !_recorded) {
       _recorded = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         DailyMessageSession.persist(
           store: DailyReturnStore(storage),
           memory: ref.read(discoverySurfaceMemoryProvider),
@@ -69,6 +64,11 @@ class _ProfileDailyReturnCardState
         );
       });
     }
+    final recommendation = ref.watch(discoveryRecommendationProvider);
+    final discoverySettled = DailyMessageReadiness.settled(discovery);
+    final ctaAction = discoverySettled
+        ? dailyReturnActionFor(recommendation.feature, message.action)
+        : message.action;
     return Semantics(
       button: true,
       label: DailyMessageCopy.prompt,

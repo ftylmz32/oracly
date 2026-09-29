@@ -67,14 +67,18 @@ class PersonalInsightsController extends ChangeNotifier {
 
   Future<void> regenerate() => load();
 
-  Future<void> hideInsight(String id) async {
-    await _service.hideInsight(id);
+  Future<bool> hideInsight(String id) async {
+    final saved = await _service.hideInsight(id);
+    if (!saved) return false;
     await load();
+    return _state.phase != PersonalInsightsPhase.error;
   }
 
-  Future<void> deleteInsight(String id) async {
-    await _service.deleteInsight(id);
+  Future<bool> deleteInsight(String id) async {
+    final saved = await _service.deleteInsight(id);
+    if (!saved) return false;
     await load();
+    return _state.phase != PersonalInsightsPhase.error;
   }
 
   String exportText() {
