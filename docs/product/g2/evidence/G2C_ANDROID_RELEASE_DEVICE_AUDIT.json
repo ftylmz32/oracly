@@ -1,0 +1,258 @@
+{
+  "phase": "G2C",
+  "utc": "2026-09-29T12:15:00Z",
+  "startSource": "e920da1a7ef0184a1576e540b0d7b8548d876835",
+  "branch": "fix/final-product-remediation-20260922",
+  "verdict": "PASS",
+  "androidReleaseReady": true,
+  "providerExecutions": 0,
+  "storeTransactions": 0,
+  "deploys": 0,
+  "trafficMutations": 0,
+  "productionCodeChanged": false,
+  "artifact": {
+    "buildSuccess": true,
+    "builtFromCommit": "e920da1a7ef0184a1576e540b0d7b8548d876835",
+    "dirtyWorktreeExcluded": true,
+    "aabPath": "build/app/outputs/bundle/release/app-release.aab",
+    "aabSizeBytes": 121756641,
+    "aabSha256": "1f08494a85df1deacdadf8a4021140e3ea2161b409aef1ade6a61fa19d3fd41",
+    "apkPath": "build/app/outputs/flutter-apk/app-release.apk",
+    "apkSizeBytes": 123351764,
+    "apkSha256": "ccc7dee474d5e8ec5ab97fbbef4f9642d0e538249ed78af1109e1b29df7119e5",
+    "builtAtUtc": "2026-09-29T11:53:06Z",
+    "versionName": "1.0.0",
+    "versionCode": 26091306,
+    "signingVerification": "jarsigner jar verified; apksigner verify succeeded",
+    "certSha256": "e789561fac940d252442f98e1d6c7dba4eefc0bb361f17cffff54309d6007ad5",
+    "debugCertificate": false,
+    "manifest": {
+      "package": "app.oracly",
+      "minSdk": 24,
+      "targetSdk": 36,
+      "debuggable": false,
+      "usesCleartextTraffic": false,
+      "billing": true,
+      "cameraOptional": true,
+      "microphoneOptional": true,
+      "recordAudioPresent": true,
+      "storagePermissions": false,
+      "adId": false,
+      "adServices": false
+    },
+    "r8Minify": true,
+    "shrinkResources": true,
+    "runtimeHosts": {
+      "ai": "oracly-api-uya7zqzwra-ew.a.run.app",
+      "billing": "oracly-api-uya7zqzwra-ew.a.run.app",
+      "candidateTagEmbedded": false
+    },
+    "legalUrlsPresent": {
+      "privacy": true,
+      "terms": true,
+      "dataDeletion": true
+    },
+    "secretPatternInvestigation": "sk- hits are redaction patterns in the app snapshot. OPENAI_API_KEY= is a commented empty example line. No PEM and no candidate-tag host."
+  },
+  "version": {
+    "repoVersionName": "1.0.0",
+    "repoVersionCode": 26091306,
+    "highestKnownPlayVersionCode": "UNKNOWN",
+    "uploadVersionCodeValid": "UNKNOWN",
+    "versionCodeBlocker": false
+  },
+  "device": {
+    "model": "TECNO KN8",
+    "android": "16",
+    "api": 36,
+    "screen": "720x1576",
+    "density": 280,
+    "package": "app.oracly",
+    "installedVersionName": "1.0.0",
+    "installedVersionCode": 26092906,
+    "sameUploadCertificateAsReleaseArtifact": true,
+    "replacedInstallation": false,
+    "routeMatrix": {
+      "home": "PASS",
+      "or": "PASS",
+      "coffee": "PASS",
+      "palm": "PASS",
+      "astrology": "PASS",
+      "yildizname": "PASS",
+      "tarot": "PASS",
+      "dream": "PASS",
+      "premium": "PASS",
+      "soulMateSaved": "PASS",
+      "profile": "PASS",
+      "settings": "PASS"
+    },
+    "androidBack": "PASS",
+    "crashes": "none",
+    "overflows": "none",
+    "anr": "one input-dispatch timeout during rapid automation after Tarot; process restarted without clearing data",
+    "cameraIntent": "in-app chamber camera after the system permission controller",
+    "cameraCancelReturn": "PASS",
+    "photoPicker": "com.google.android.photopicker for palm and coffee",
+    "photoPickerCancelReturn": "PASS",
+    "shareSheet": "PASS",
+    "sharePayloadSafe": true,
+    "externalMessageSent": false,
+    "deepLinkRoute": "PASS",
+    "deepLinkNote": "oracly://share with an invalid token cold-starts Home and does not crash. Exact operation completion is FCM data only.",
+    "fcmDelivery": "NOT_REPROVEN",
+    "microphone": "PASS",
+    "microphoneProviderCalls": 0,
+    "tts": "settings preview started; screen survived background and resume",
+    "backgroundForeground": "PASS",
+    "backgroundDuringActiveProviderWait": "NOT_REPROVEN",
+    "talkBackInstalled": true,
+    "talkBackRealDevice": "NOT_REPROVEN",
+    "talkBackNote": "Service enabled. First-run tutorial covered the app. Prior accessibility settings restored.",
+    "accessibilitySettingsRestored": true,
+    "rotation": "hierarchy stayed rotation 0; user_rotation restored to 0",
+    "fontScale": "unchanged at 1.0"
+  },
+  "store": {
+    "reference": "docs/product/g2/evidence/G2BSM_STORE_SOULMATE_CLOSURE.json",
+    "newTransaction": false,
+    "readiness": "PROVEN-STORE + PROVEN-DEVICE"
+  },
+  "tests": {
+    "failed": 0,
+    "passed": 56,
+    "files": [
+      "test/android_release_hardening_test.dart",
+      "test/android_release_manifest_test.dart",
+      "test/android_release_bundle_manifest_test.dart",
+      "test/ai_production_release_config_test.dart",
+      "test/a1b_release_endpoint_contract_test.dart",
+      "test/core/config/environment_config_release_lock_test.dart",
+      "test/core/config/oracly_runtime_config_test.dart",
+      "test/core/security/tls_security_contract_r6_test.dart",
+      "test/core/legal/legal_policy_readiness_test.dart",
+      "test/general_audit/general_runtime_honesty_test.dart"
+    ]
+  },
+  "remainingBlockers": [
+    {
+      "item": "live provider evidence",
+      "category": "CLOSED",
+      "reason": "Frozen through G2B-SM. This phase made no provider call.",
+      "action": "Do not rerun."
+    },
+    {
+      "item": "Android store",
+      "category": "CLOSED",
+      "reason": "G2B-SM license-test monthly purchase, verify, and restart remain the store proof.",
+      "action": "Do not purchase again for this audit."
+    },
+    {
+      "item": "Android release artifact",
+      "category": "CLOSED",
+      "reason": "Signed AAB and APK built from the committed source and verified.",
+      "action": "Keep the artifacts out of git."
+    },
+    {
+      "item": "Android signing",
+      "category": "CLOSED",
+      "reason": "Upload keystore present. Release config has no debug fallback. Certificate is not the debug certificate.",
+      "action": "Do not replace the upload key."
+    },
+    {
+      "item": "versionCode upload eligibility",
+      "category": "NON-BLOCKING",
+      "reason": "Repo versionCode is 26091306. No trustworthy Play Console versionCode is recorded, so upload validity is unknown.",
+      "action": "Read the Play Console versionCode before the next upload. Do not guess a bump."
+    },
+    {
+      "item": "public legal URLs",
+      "category": "CLOSED",
+      "reason": "Privacy, terms, and data-deletion HTTPS URLs are configured and returned HTTP 200.",
+      "action": "None."
+    },
+    {
+      "item": "TECNO navigation",
+      "category": "CLOSED",
+      "reason": "Requested chambers opened and Android back returned. One automation ANR had no Flutter crash.",
+      "action": "None for release packaging."
+    },
+    {
+      "item": "camera and photo picker",
+      "category": "CLOSED",
+      "reason": "Palm and Coffee reached the system permission or photo-picker boundary and returned without analysis.",
+      "action": "None."
+    },
+    {
+      "item": "sharesheet",
+      "category": "CLOSED",
+      "reason": "Android share sheet opened from the saved SoulMate result. No message was sent.",
+      "action": "None."
+    },
+    {
+      "item": "deep-link route",
+      "category": "CLOSED",
+      "reason": "Registered oracly://share view opens the app. An invalid token does not leave Home.",
+      "action": "None."
+    },
+    {
+      "item": "actual FCM delivery",
+      "category": "NON-BLOCKING",
+      "reason": "Exact operation completion is delivered as FCM data, not a view intent. No push was sent.",
+      "action": "Do not fake a push."
+    },
+    {
+      "item": "microphone",
+      "category": "CLOSED",
+      "reason": "Dream voice reached the listening state and was cancelled before analysis.",
+      "action": "None."
+    },
+    {
+      "item": "TTS lifecycle",
+      "category": "CLOSED",
+      "reason": "Settings voice preview was started. Background and resume kept the settings screen. Audio quality was not judged.",
+      "action": "None."
+    },
+    {
+      "item": "background during provider wait",
+      "category": "NON-BLOCKING",
+      "reason": "No active provider operation existed, and none was started.",
+      "action": "Do not spend a provider call to close this."
+    },
+    {
+      "item": "TalkBack",
+      "category": "NON-BLOCKING",
+      "reason": "TalkBack is installed and could be enabled. The first-run tutorial blocked an in-app pass. Accessibility settings were restored.",
+      "action": "A later human pass can finish the tutorial. Widget semantics tests remain the code evidence."
+    },
+    {
+      "item": "iOS archive and signing",
+      "category": "IOS-EXTERNAL",
+      "reason": "This audit ran on Windows. No iOS archive was produced.",
+      "action": "Build the archive on a Mac signing host."
+    },
+    {
+      "item": "iOS sandbox purchase and restore",
+      "category": "IOS-EXTERNAL",
+      "reason": "No iOS device or App Store sandbox session was available.",
+      "action": "Run sandbox purchase and restore on a signed iOS build."
+    },
+    {
+      "item": "VoiceOver",
+      "category": "IOS-EXTERNAL",
+      "reason": "No iOS device was available.",
+      "action": "Run VoiceOver on device after the iOS archive exists."
+    },
+    {
+      "item": "production backend promotion",
+      "category": "PROMOTION-PENDING",
+      "reason": "Production remains oracly-api-00052-zqd at 100%. G2C did not change traffic.",
+      "action": "Promote only in a later authorized phase, after the version-code check."
+    },
+    {
+      "item": "Yildizname flag-off candidate state",
+      "category": "PROMOTION-PENDING",
+      "reason": "Frozen Yildizname evidence stands. This phase did not change flags or traffic.",
+      "action": "Leave the candidate at 0% until a promotion phase."
+    }
+  ]
+}

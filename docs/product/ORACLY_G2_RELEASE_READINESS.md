@@ -1096,3 +1096,69 @@ Sanitized record:
 `docs/product/g2/evidence/G2BSM_STORE_SOULMATE_CLOSURE.json`.
 
 **G2B-SM verdict: PASS.** Do not promote this candidate.
+
+---
+
+## 27. G2C — Android release artifact and TECNO audit
+
+G2C spent no provider calls, no store transactions, and made no Cloud Run
+change. Historical device smokes are not current blockers:
+
+| Old smoke | Status |
+|---|---|
+| `tool/device_premium_gate/PREMIUM27_SMOKE.json` | SUPERSEDED BY G2B-SM |
+| `tool/device_soulmate_gate/SOULMATE21_SMOKE.json` | SUPERSEDED BY G2B-SM |
+| `tool/device_palm_gate/PALM20_SMOKE.json` | Provider quality SUPERSEDED BY G2B.1. Camera OS path closed in G2C. |
+| `tool/device_coffee_gate/COFFEE20_SMOKE.json` | Provider quality SUPERSEDED BY G2B. Camera and photo picker closed in G2C. |
+| `tool/device_yildizname_gate/YILDIZNAME22_SMOKE.json` | Historical UI note. Does not reopen frozen Yıldızname evidence. |
+
+The production define file already pointed at the stable service
+`oracly-api-uya7zqzwra-ew.a.run.app` for AI and billing. Legal URLs are the
+public GitHub documents and returned HTTP 200. Release signing uses the
+upload keystore. There is no debug-signing fallback. R8 minify and resource
+shrinking are on.
+
+Built from committed source `e920da1a` (the dirty worktree was not compiled
+in):
+
+| Artifact | Size | SHA-256 |
+|---|---|---|
+| `app-release.aab` | 121,756,641 | `1f08494a85df1deacdadf8a4021140e3ea2161b409aef1ade6a61fa19d3fd41` |
+| `app-release.apk` | 123,351,764 | `ccc7dee474d5e8ec5ab97fbbef4f9642d0e538249ed78af1109e1b29df7119e5` |
+
+Both signatures verify. Certificate SHA-256
+`e789561fac940d252442f98e1d6c7dba4eefc0bb361f17cffff54309d6007ad5`
+is the upload certificate, not the Android debug certificate. The merged
+manifest is `app.oracly` `1.0.0` / `26091306`, minSdk 24, targetSdk 36,
+not debuggable, no cleartext, billing present, camera and microphone
+optional, no storage or advertising-id permissions. Repo versionCode
+`26091306` has no trustworthy Play Console counterpart in the repo, so
+upload eligibility stays unknown. It was not bumped.
+
+The TECNO installation was left in place (`1.0.0` / `26092906`, same upload
+certificate). Navigation covered Home, OR, Coffee, Palm, Astrology,
+Yıldızname, Tarot, Dream, Premium, the saved SoulMate result, Profile, and
+Settings. Android back returned. One input-timeout ANR occurred during rapid
+automation after Tarot; there was no Flutter crash and no overflow. The
+process was restarted without clearing data. The saved SoulMate result
+reopened from the journal.
+
+Palm and Coffee reached the real camera permission boundary and the in-app
+chamber camera, then returned without an analysis submit. Both photo pickers
+opened and were cancelled. The SoulMate share sheet opened with a public
+caption and share link; nothing was sent. An invalid `oracly://share` view
+opened the app and stayed on Home. Exact-operation completion remains an FCM
+data route and was not re-delivered. Dream microphone reached “Dinliyorum”
+and was cancelled. Settings voice preview was started, then the app was
+backgrounded and resumed on the same screen. TalkBack is installed; its
+first-run tutorial blocked an in-app screen-reader pass, and the previous
+accessibility settings were restored. The phone stayed portrait when a
+rotation was requested, then the setting was restored.
+
+**Android store readiness: PROVEN-STORE + PROVEN-DEVICE**, by G2B-SM.
+**G2C verdict: PASS.** Android release ready: yes. No Android-blocking item
+remains. iOS archive, sandbox purchase, and VoiceOver stay IOS-EXTERNAL.
+Production traffic was not promoted.
+
+Sanitized record:
+`docs/product/g2/evidence/G2C_ANDROID_RELEASE_DEVICE_AUDIT.json`.
