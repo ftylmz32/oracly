@@ -39,6 +39,8 @@ class CoffeeLoadingView extends StatelessWidget {
     final path = imagePath;
     final hasCup = path != null && File(path).existsSync();
     return ReadingWaitScreen(
+      headline: message,
+      detail: subtitle,
       liveState: liveState,
       hero: hasCup
           ? CoffeeCupWait(message: '', path: path, fixedHeight: 140)

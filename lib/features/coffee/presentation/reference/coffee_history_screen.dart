@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/l10n/oracly_format.dart';
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/loading_cinema/oracly_loading_kind.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
@@ -96,8 +97,7 @@ class _HistoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date =
-        '${reading.createdAt.day}.${reading.createdAt.month}.${reading.createdAt.year}';
+    final date = OraclyFormat.dateCompact(reading.createdAt);
     return OraclyGlassCard(
       onTap: onTap,
       premium: true,

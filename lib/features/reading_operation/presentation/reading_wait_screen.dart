@@ -25,6 +25,8 @@ class ReadingWaitScreen extends StatelessWidget {
     this.accelerating = false,
     this.accelerationError,
     this.accelerationCost,
+    this.headline,
+    this.detail,
   });
 
   /// The current server-synced operation state. Null before the operation
@@ -42,6 +44,12 @@ class ReadingWaitScreen extends StatelessWidget {
   /// Server-quoted Gem cost for the CTA label -- null shows the plain
   /// (no-number) label until the quote arrives; never invented locally.
   final int? accelerationCost;
+
+  /// Feature identity. Null keeps the shared reading headline.
+  final String? headline;
+
+  /// Feature identity. Null keeps the shared reading subtitle.
+  final String? detail;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +74,7 @@ class ReadingWaitScreen extends StatelessWidget {
           children: [
             if (hero != null) ...[hero!, SizedBox(height: AppSpacing.s24)],
             Text(
-              ReadingLiveCopy.headline,
+              headline ?? ReadingLiveCopy.headline,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: AppTypography.displayFontFamily,
@@ -78,7 +86,7 @@ class ReadingWaitScreen extends StatelessWidget {
             ),
             SizedBox(height: AppSpacing.s8),
             Text(
-              ReadingLiveCopy.subtitle,
+              detail ?? ReadingLiveCopy.subtitle,
               textAlign: TextAlign.center,
               style: ReadingTypography.footnote(
                 color: OraclyChrome.cream.withValues(alpha: 0.72),

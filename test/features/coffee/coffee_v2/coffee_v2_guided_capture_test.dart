@@ -32,6 +32,7 @@ import 'package:oracly_new/features/coffee/coffee_v2/presentation/coffee_v2_thum
 import 'package:oracly_new/features/coffee/coffee_v2/providers/coffee_v2_providers.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_submission_store.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_checksum.dart';
+import 'package:oracly_new/features/coffee/copy/coffee_copy.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
 import 'package:oracly_new/features/coffee/models/coffee_reading.dart';
 import 'package:oracly_new/features/coffee/providers/coffee_providers.dart';
@@ -790,7 +791,8 @@ void main() {
 
         expect(recordOf(tester).operationId, operationIdAfterFailure);
         expect(backend.operationCount, 1);
-        expect(find.text(ReadingLiveCopy.headline), findsOneWidget);
+        expect(find.text(CoffeeCopy.analyzingSubtitle), findsOneWidget);
+        expect(find.text(ReadingLiveCopy.headline), findsNothing);
       },
     );
   });

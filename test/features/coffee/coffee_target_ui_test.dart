@@ -70,14 +70,16 @@ void main() {
   });
 
   testWidgets('loading and error states stay visible', (tester) async {
+    final message = CoffeeCopy.analyzing;
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: CoffeeLoadingView(message: CoffeeCopy.analyzing),
+          body: CoffeeLoadingView(message: message),
         ),
       ),
     );
-    expect(find.text(ReadingLiveCopy.headline), findsOneWidget);
+    expect(find.text(message), findsOneWidget);
+    expect(find.text(ReadingLiveCopy.headline), findsNothing);
 
     await tester.pumpWidget(
       MaterialApp(

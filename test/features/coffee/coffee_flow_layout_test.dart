@@ -138,16 +138,18 @@ void main() {
   });
 
   testWidgets('waiting screen copy appears while analyzing', (tester) async {
-    // The waiting screen now shows its own fixed countdown-screen headline
-    // rather than the per-call message/subtitle passed in.
+    final message = CoffeeCopy.analyzing;
+    const subtitle = 'Looking at your real cup photo — no hurry.';
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: CoffeeLoadingView(message: CoffeeCopy.analyzing),
+          body: CoffeeLoadingView(message: message, subtitle: subtitle),
         ),
       ),
     );
-    expect(find.text(ReadingLiveCopy.headline), findsOneWidget);
+    expect(find.text(message), findsOneWidget);
+    expect(find.text(subtitle), findsOneWidget);
+    expect(find.text(ReadingLiveCopy.headline), findsNothing);
   });
 
   testWidgets('back from capture returns to landing', (tester) async {
