@@ -68,38 +68,39 @@ class _AstrologyReferenceScreenState
     if (_openingDetail) return;
     _openingDetail = true;
     ref.read(analyticsServiceProvider).logAstrologyCompleted();
-    final sign = AstrologyContentCatalogue.signById(_selectedId) ??
+    final sign =
+        AstrologyContentCatalogue.signById(_selectedId) ??
         AstrologyContentCatalogue.signs.first;
     final profile = ref.read(personalDiscoveryProfileProvider).valueOrNull;
     Navigator.of(context)
         .push(
-      MaterialPageRoute<void>(
-        builder: (_) => AstrologyReferenceDetailScreen(
-          sign: sign,
-          reading: AstrologyDailyReadingService.build(sign, profile: profile),
-          themeLabels: profile?.personalizationThemes ?? const <String>[],
-        ),
-      ),
-    )
+          MaterialPageRoute<void>(
+            builder: (_) => AstrologyReferenceDetailScreen(
+              sign: sign,
+              reading: AstrologyDailyReadingService.build(
+                sign,
+                profile: profile,
+              ),
+              themeLabels: profile?.personalizationThemes ?? const <String>[],
+            ),
+          ),
+        )
         .whenComplete(() {
-      _openingDetail = false;
-    });
+          _openingDetail = false;
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     final signs = AstrologyContentCatalogue.signs;
-    final selected = AstrologyContentCatalogue.signById(_selectedId) ??
-        signs.first;
+    final selected =
+        AstrologyContentCatalogue.signById(_selectedId) ?? signs.first;
     final profileAsync = ref.watch(personalDiscoveryProfileProvider);
     final profile = profileAsync.valueOrNull;
     final themeLabels = profile?.personalizationThemes ?? const <String>[];
-    // Profile personalizes themes only — never block the local hub on error,
-    // and a background refresh keeps showing the profile already known.
-    final isLoading = _restoringSign ||
-        (profileAsync.isLoading &&
-            !profileAsync.hasValue &&
-            !profileAsync.hasError);
+    // Sign restore is the only gate. Profile themes arrive later and
+    // must not hold a local sun-sign reading behind a spinner.
+    final isLoading = _restoringSign;
     final reading = AstrologyDailyReadingService.build(
       selected,
       profile: profile,
@@ -109,21 +110,18 @@ class _AstrologyReferenceScreenState
       feature: QualityFeature.astrology,
       startOnInit: true,
       child: AstrologyReferenceScreenView(
-      signs: signs,
-      selectedId: _selectedId,
-      selected: selected,
-      reading: reading,
-      themeLabels: themeLabels,
-      isLoading: isLoading,
-      onBack: _handleBack,
-      onSelected: (id) {
-        _selectSign(id);
-      },
-      onDetail: _openDetailReading,
-      onRetry: profileAsync.isLoading
-          ? () => ref.invalidate(personalDiscoveryProfileProvider)
-          : null,
-    ),
+        signs: signs,
+        selectedId: _selectedId,
+        selected: selected,
+        reading: reading,
+        themeLabels: themeLabels,
+        isLoading: isLoading,
+        onBack: _handleBack,
+        onSelected: (id) {
+          _selectSign(id);
+        },
+        onDetail: _openDetailReading,
+      ),
     );
   }
 }

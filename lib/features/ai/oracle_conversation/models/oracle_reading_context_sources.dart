@@ -21,7 +21,8 @@ extension OracleReadingContextSources on OracleReadingContext {
     final full = [
       if (reading.visualObservation.trim().isNotEmpty)
         'Görülen: ${clip(reading.visualObservation, 160)}',
-      if (reading.overall.trim().isNotEmpty) 'Genel: ${clip(reading.overall, 280)}',
+      if (reading.overall.trim().isNotEmpty)
+        'Genel: ${clip(reading.overall, 280)}',
       if (symbols.isNotEmpty) 'İzler: ${symbols.join(', ')}',
       if (reading.love.trim().isNotEmpty) 'Aşk: ${clip(reading.love, 140)}',
       if (reading.career.trim().isNotEmpty)
@@ -29,7 +30,8 @@ extension OracleReadingContextSources on OracleReadingContext {
       if (reading.money.trim().isNotEmpty) 'Para: ${clip(reading.money, 140)}',
       if (reading.nearFuture.trim().isNotEmpty)
         'Yön: ${clip(reading.nearFuture, 140)}',
-      if (reading.takeaway.trim().isNotEmpty) 'Dikkat: ${clip(reading.takeaway, 160)}',
+      if (reading.takeaway.trim().isNotEmpty)
+        'Dikkat: ${clip(reading.takeaway, 160)}',
     ].where((e) => e.trim().isNotEmpty).join('\n\n');
     return OracleReadingContext(
       sessionId: reading.id,
@@ -39,8 +41,9 @@ extension OracleReadingContextSources on OracleReadingContext {
       deckId: 'coffee',
       deckName: 'Kahve Falı',
       readingTitle: 'Fincan yorumu',
-      cardsSummary:
-          symbols.isEmpty ? clip(reading.overall, 120) : symbols.join(', '),
+      cardsSummary: symbols.isEmpty
+          ? clip(reading.overall, 120)
+          : symbols.join(', '),
       interpretationSummary: clip(reading.overall),
       fullInterpretation: full,
       cardNames: symbols,
@@ -79,8 +82,9 @@ extension OracleReadingContextSources on OracleReadingContext {
       deckId: 'palm',
       deckName: chamber,
       readingTitle: PalmCopy.screenTitle,
-      cardsSummary:
-          symbols.isEmpty ? clip(reading.overall, 120) : symbols.join(', '),
+      cardsSummary: symbols.isEmpty
+          ? clip(reading.overall, 120)
+          : symbols.join(', '),
       interpretationSummary: clip(reading.overall),
       fullInterpretation: full,
       cardNames: symbols,
@@ -186,7 +190,7 @@ extension OracleReadingContextSources on OracleReadingContext {
     required String id,
     required String signLabel,
     required String daily,
-    String readingType = 'Günlük',
+    String? readingType,
     String? personality,
     String? love,
     String? career,
@@ -196,35 +200,33 @@ extension OracleReadingContextSources on OracleReadingContext {
     String? advice,
     String? opportunity,
     String? caution,
-  }) =>
-      OracleReadingContextNatal.astrology(
-        id: id,
-        signLabel: signLabel,
-        daily: daily,
-        readingType: readingType,
-        personality: personality,
-        love: love,
-        career: career,
-        money: money,
-        energy: energy,
-        emotion: emotion,
-        advice: advice,
-        opportunity: opportunity,
-        caution: caution,
-      );
+  }) => OracleReadingContextNatal.astrology(
+    id: id,
+    signLabel: signLabel,
+    daily: daily,
+    readingType: readingType,
+    personality: personality,
+    love: love,
+    career: career,
+    money: money,
+    energy: energy,
+    emotion: emotion,
+    advice: advice,
+    opportunity: opportunity,
+    caution: caution,
+  );
 
   static OracleReadingContext starMap({
     required String sectionLabel,
     required StarMapReading reading,
     BirthProfile? profile,
     List<String> sectionLines = const [],
-  }) =>
-      OracleReadingContextNatal.starMap(
-        sectionLabel: sectionLabel,
-        reading: reading,
-        profile: profile,
-        sectionLines: sectionLines,
-      );
+  }) => OracleReadingContextNatal.starMap(
+    sectionLabel: sectionLabel,
+    reading: reading,
+    profile: profile,
+    sectionLines: sectionLines,
+  );
 
   static OracleReadingContext birthChart({
     required String id,
@@ -235,17 +237,16 @@ extension OracleReadingContextSources on OracleReadingContext {
     String? strongThemes,
     String? notableThemes,
     List<String> placements = const [],
-  }) =>
-      OracleReadingContextNatal.birthChart(
-        id: id,
-        sunLabel: sunLabel,
-        interpretation: interpretation,
-        profile: profile,
-        summary: summary,
-        strongThemes: strongThemes,
-        notableThemes: notableThemes,
-        placements: placements,
-      );
+  }) => OracleReadingContextNatal.birthChart(
+    id: id,
+    sunLabel: sunLabel,
+    interpretation: interpretation,
+    profile: profile,
+    summary: summary,
+    strongThemes: strongThemes,
+    notableThemes: notableThemes,
+    placements: placements,
+  );
 
   /// Soul Mate portrait — compact symbolic concept for OR (never raw image/prompt).
   static OracleReadingContext soulMate({

@@ -58,31 +58,15 @@ const kL10nAstrology = <String, L10nTriple>{
   'astro.lane_love': L10nTriple('YAKINLIK', 'CLOSENESS', 'БЛИЗОСТЬ'),
   'astro.lane_work': L10nTriple('YÖN', 'DIRECTION', 'НАПРАВЛЕНИЕ'),
   'astro.lane_inner': L10nTriple('İÇERİDE', 'WITHIN', 'ВНУТРИ'),
-  'astro.report_theme': L10nTriple(
-    'GÖZLEM',
-    'OBSERVATION',
-    'НАБЛЮДЕНИЕ',
-  ),
+  'astro.report_theme': L10nTriple('GÖZLEM', 'OBSERVATION', 'НАБЛЮДЕНИЕ'),
   'astro.report_message': L10nTriple(
     'NE ANLAMA GELİYOR',
     'WHAT IT MEANS',
     'ЧТО ЭТО ЗНАЧИТ',
   ),
-  'astro.report_attention': L10nTriple(
-    'NÜANS',
-    'NUANCE',
-    'НЮАНС',
-  ),
-  'astro.report_next': L10nTriple(
-    'YANSIMA',
-    'REFLECTION',
-    'ОТРАЖЕНИЕ',
-  ),
-  'astro.report_depths': L10nTriple(
-    'DERİNLİKLER',
-    'DEPTHS',
-    'ГЛУБИНЫ',
-  ),
+  'astro.report_attention': L10nTriple('NÜANS', 'NUANCE', 'НЮАНС'),
+  'astro.report_next': L10nTriple('YANSIMA', 'REFLECTION', 'ОТРАЖЕНИЕ'),
+  'astro.report_depths': L10nTriple('DERİNLİKLER', 'DEPTHS', 'ГЛУБИНЫ'),
   'star.preview': L10nTriple('Önizleme', 'Preview', 'Предпросмотр'),
   'star.lead': L10nTriple(
     'Arşivindeki yaprak\nsenin hakkında hangi hikâyeyi tutuyor?',
@@ -114,11 +98,7 @@ const kL10nAstrology = <String, L10nTriple>{
     'THE RECENT CHAPTER',
     'ИСТОРИЯ ПОСЛЕДНЕГО ПЕРИОДА',
   ),
-  'star.story_title': L10nTriple(
-    'Yaprak',
-    'Leaf',
-    'Лист',
-  ),
+  'star.story_title': L10nTriple('Yaprak', 'Leaf', 'Лист'),
   'star.journey_title': L10nTriple(
     'SON DÖNEMİN HİKÂYESİ',
     'THE RECENT CHAPTER',
@@ -304,7 +284,18 @@ const kL10nAstrology = <String, L10nTriple>{
     'Star map · {section}',
     'Звёздная карта · {section}',
   ),
-  'star.handoff.deck_name': L10nTriple('Yıldızname', 'Star map', 'Звёздная карта'),
+  'star.handoff.deck_name': L10nTriple(
+    'Yıldızname',
+    'Star map',
+    'Звёздная карта',
+  ),
+  'astro.or.daily': L10nTriple('Günlük', 'Daily', 'Ежедневно'),
+  'astro.or.sign': L10nTriple('Burç: {sign}', 'Sign: {sign}', 'Знак: {sign}'),
+  'astro.or.source': L10nTriple(
+    'Kaynak: yerel Güneş burcu kataloğu · {kind}',
+    'Source: local sun-sign catalogue · {kind}',
+    'Источник: местный каталог солнечного знака · {kind}',
+  ),
   'astro.app_bar': L10nTriple('ASTROLOJİ', 'ASTROLOGY', 'АСТРОЛОГИЯ'),
   'star.app_bar': L10nTriple('YILDIZNAME', 'YILDIZNAME', 'ЙЫЛДЫЗНАМЕ'),
 };

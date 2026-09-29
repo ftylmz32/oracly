@@ -13,7 +13,7 @@ abstract final class OracleReadingContextNatal {
     required String id,
     required String signLabel,
     required String daily,
-    String readingType = 'Günlük',
+    String? readingType,
     String? personality,
     String? love,
     String? career,
@@ -25,23 +25,29 @@ abstract final class OracleReadingContextNatal {
     String? caution,
   }) {
     // Compact handoff — observation + one nuance; no full catalogue dump.
+    final kind = (readingType ?? '').trim().isEmpty
+        ? OraclyL10n.t('astro.or.daily')
+        : readingType!.trim();
+    final chamber = OraclyL10n.t('home.discovery.astrology.title');
     final nuance = (advice ?? personality ?? '').trim();
     final full = [
-      'Burç: $signLabel',
-      'Kaynak: yerel Güneş burcu kataloğu · $readingType',
+      OraclyL10n.t('astro.or.sign').replaceAll('{sign}', signLabel),
+      OraclyL10n.t('astro.or.source').replaceAll('{kind}', kind),
       daily.trim(),
       if (nuance.isNotEmpty)
-        nuance.length > 220 ? '${nuance.substring(0, 220).trimRight()}…' : nuance,
+        nuance.length > 220
+            ? '${nuance.substring(0, 220).trimRight()}…'
+            : nuance,
     ].join('\n\n');
     return OracleReadingContext(
       sessionId: id,
       kind: OracleReadingKind.astrology,
-      sourceLabel: 'Astroloji',
+      sourceLabel: chamber,
       spreadLabel: signLabel,
       deckId: 'astrology',
-      deckName: 'Burç Yorumu',
+      deckName: chamber,
       readingTitle: signLabel,
-      cardsSummary: '$signLabel · $readingType',
+      cardsSummary: '$signLabel · $kind',
       interpretationSummary: daily,
       fullInterpretation: full,
     );
@@ -58,8 +64,9 @@ abstract final class OracleReadingContextNatal {
         : birthLine(profile);
     final sun = reading.sunLabel == null
         ? OraclyL10n.t('star.handoff.general_catalog')
-        : OraclyL10n.t('star.handoff.sun_from_date')
-            .replaceAll('{sign}', reading.sunLabel!);
+        : OraclyL10n.t(
+            'star.handoff.sun_from_date',
+          ).replaceAll('{sign}', reading.sunLabel!);
     // Compact story handoff — opened section first; never dump whole archive.
     String clip(String raw, [int max = 280]) {
       final t = raw.trim();
@@ -72,24 +79,25 @@ abstract final class OracleReadingContextNatal {
         if (line.trim().isNotEmpty) clip(line, 220),
     ];
     final interpretation = [
-      OraclyL10n.t('star.handoff.source')
-          .replaceAll('{section}', sectionLabel),
-      if (opened.isNotEmpty) ...opened.take(3) else clip(reading.overview.mainMessage),
+      OraclyL10n.t('star.handoff.source').replaceAll('{section}', sectionLabel),
+      if (opened.isNotEmpty)
+        ...opened.take(3)
+      else
+        clip(reading.overview.mainMessage),
     ].join('\n\n');
     return OracleReadingContext(
       sessionId: 'star_map_$sectionLabel',
       kind: OracleReadingKind.starMap,
-      sourceLabel: OraclyL10n.t('star.handoff.source_label')
-          .replaceAll('{section}', sectionLabel),
+      sourceLabel: OraclyL10n.t(
+        'star.handoff.source_label',
+      ).replaceAll('{section}', sectionLabel),
       spreadLabel: sectionLabel,
       deckId: 'star-map',
       deckName: OraclyL10n.t('star.handoff.deck_name'),
       readingTitle: sectionLabel,
       cardsSummary: '$birth · $sun',
       interpretationSummary: clip(
-        opened.isNotEmpty
-            ? opened.first
-            : reading.overview.mainMessage,
+        opened.isNotEmpty ? opened.first : reading.overview.mainMessage,
         180,
       ),
       fullInterpretation: interpretation,
@@ -111,7 +119,8 @@ abstract final class OracleReadingContextNatal {
       'Güneş: $sunLabel',
       'Doğum: $birth',
       if ((summary ?? '').trim().isNotEmpty) 'Özet: $summary',
-      if ((strongThemes ?? '').trim().isNotEmpty) 'Güçlü temalar: $strongThemes',
+      if ((strongThemes ?? '').trim().isNotEmpty)
+        'Güçlü temalar: $strongThemes',
       if ((notableThemes ?? '').trim().isNotEmpty)
         'Dikkat çeken: $notableThemes',
       'Yorum: $interpretation',
