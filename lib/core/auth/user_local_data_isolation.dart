@@ -10,11 +10,10 @@ import '../storage/secure_storage.dart';
 import 'user_local_data_isolation_result.dart';
 import 'user_local_data_wipe.dart';
 
+part 'owner_scoped_mutation.dart';
+
 class UserLocalDataIsolation {
-  UserLocalDataIsolation(
-    this._storage, {
-    required this.secureStorage,
-  });
+  UserLocalDataIsolation(this._storage, {required this.secureStorage});
 
   static const ownerKey = 'or_local_data_owner_uid';
 
@@ -92,7 +91,15 @@ class UserLocalDataIsolation {
     return result;
   }
 
-  Future<UserLocalDataIsolationResult> _transition(String uid) async {
+  /// Serializes this transition with [runOwnerScopedMutation].
+  /// Instance single-flight and the per-instance queue stay as they are;
+  /// this gate only keeps an owner-sensitive write from landing inside
+  /// another owner's committed storage.
+  Future<UserLocalDataIsolationResult> _transition(String uid) {
+    return _executeOwnerScopedMutation(() => _applyTransition(uid));
+  }
+
+  Future<UserLocalDataIsolationResult> _applyTransition(String uid) async {
     final previous = _storage.getString(ownerKey);
     if (previous == uid) {
       return UserLocalDataIsolationResult.noSwitchNeeded();
@@ -122,6 +129,16 @@ class UserLocalDataIsolation {
     }
     accountSwitchEpoch.value++;
     return UserLocalDataIsolationResult.switched();
+  }
+
+  /// Callers waiting to enter [runOwnerScopedMutation], not yet inside it.
+  static int get queuedOwnerMutations => _queuedOwnerMutations;
+
+  /// Owner-sensitive work that must not overlap [onSignedIn]'s wipe,
+  /// owner commit, or epoch bump. [body] re-checks owner identity after
+  /// it actually holds the gate.
+  static Future<T> runOwnerScopedMutation<T>(Future<T> Function() body) {
+    return _executeOwnerScopedMutation(body);
   }
 
   String? get localOwnerId => _storage.getString(ownerKey);

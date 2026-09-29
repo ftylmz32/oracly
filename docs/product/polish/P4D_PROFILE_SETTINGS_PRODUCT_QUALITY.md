@@ -63,3 +63,24 @@ P4D's other fixes stay as the accepted base. This repair starts from `88866ae83f
 - A rename is held after `profile_name` is written. A real `UserLocalDataIsolation.onSignedIn` then wipes owner A and commits owner B. When the held rename resumes, B storage has no owner A name, `user_name`, job, interests, goals, streak, readings, spiritual level, favorite deck, or achievements. The notifier does not publish the in-flight name.
 - Owner B's legitimate name `Alex` remains `Alex` when owner A's held rename to `Alex` resumes.
 - A false `profile_name` write, a false `user_name` write, and a thrown `user_name` write leave both keys on the previous name. The Profile screen shows the existing failure copy. An unchanged name performs no durable write.
+
+## P4D.2 — PROFILE RENAME / ACCOUNT SWITCH ATOMICITY
+
+Independent verification after P4D.1 found one remaining race. `stillOwner()` ran before and after each awaited storage call. A `setString` future could be in flight, with the value not stored yet, while `onSignedIn` finished the wipe and committed owner B. Releasing that future then wrote owner A's name into B. The P4D.1 hold sat after the value was already stored, so it did not show this.
+
+This repair starts from `4ca6d959b30a057e26ead3d548b15cb67c320511`. The narrow rename and `requireDurable` behavior stay.
+
+### Repair
+
+`UserLocalDataIsolation.runOwnerScopedMutation` is the same gate `onSignedIn` uses for its wipe, owner commit, and epoch bump. Profile rename enters that gate and reads the captured owner epoch again before any name write. The instance single-flight queue is unchanged. A waiting switch cannot pass an active rename, and a rename that enters after B is committed writes nothing. Rollback of a failed second key stays inside the gate, so it cannot repair owner B's storage.
+
+### Evidence
+
+Before the gate, a `profile_name` future and a `user_name` future held before mutation both left `A-RENAMED` in B after a real `onSignedIn('owner-b')`.
+
+After the gate:
+
+- Rename holds `profile_name` before mutation. The switch stays queued and owner A remains current until the write is released. The switch then wipes. B has no A name.
+- The same hold on `user_name` cannot land `A-RENAMED` after B commits.
+- A switch that already holds the gate leaves a queued rename with zero name writes. Owner B's legitimate `Alex` stays `Alex`.
+- False and thrown name writes still fail, and a failed second key still restores the previous pair for the same owner.

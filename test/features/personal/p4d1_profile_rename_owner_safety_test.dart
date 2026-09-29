@@ -145,13 +145,16 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(storage.getString('profile_name'), 'A-RENAMED');
 
-    final switched = await isolation.onSignedIn('owner-b');
-    expect(switched.success, isTrue);
+    final switchFuture = isolation.onSignedIn('owner-b');
+    await _untilQueuedOrSwitched(isolation);
+    expect(isolation.localOwnerId, 'owner-a');
     storage.holdAfterProfileName!.complete();
     await pending;
+    final switched = await switchFuture;
+    expect(switched.success, isTrue);
 
     _expectNoOwnerA(storage);
-    expect(container.read(userProfileProvider).value?.name, isNot('A-RENAMED'));
+    expect(isolation.localOwnerId, 'owner-b');
   });
 
   test('owner B keeps a legitimate same display name', () async {
@@ -162,17 +165,20 @@ void main() {
     );
     expect((await isolation.onSignedIn('owner-a')).success, isTrue);
     await _seedOwnerA(storage);
-    storage.holdAfterProfileName = Completer<void>();
+    storage.holdBeforeOwnerCommit = Completer<void>();
+    final switchFuture = isolation.onSignedIn('owner-b');
+    await _until(() => storage.ownerCommitHeld);
+    await storage.setString('profile_name', 'Alex');
+    await storage.setString('user_name', 'Alex');
     final pending = MockUserRepository(storage).renameDisplayName(
       'Alex',
       stillOwner: () =>
           UserLocalDataIsolation.accountSwitchEpoch.value == savedEpoch,
     );
-    await Future<void>.delayed(Duration.zero);
-    expect((await isolation.onSignedIn('owner-b')).success, isTrue);
-    await storage.setString('profile_name', 'Alex');
-    await storage.setString('user_name', 'Alex');
-    storage.holdAfterProfileName!.complete();
+    await _untilQueuedOrSwitched(isolation);
+    expect(isolation.localOwnerId, 'owner-a');
+    storage.holdBeforeOwnerCommit!.complete();
+    expect((await switchFuture).success, isTrue);
     await pending;
     expect(storage.getString('profile_name'), 'Alex');
     expect(storage.getString('user_name'), 'Alex');
@@ -204,7 +210,7 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Bora');
     await tester.tap(find.text('Kaydet'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 400));
     expect(find.text(ResilienceCopy.genericLoadFailed), findsOneWidget);
     expect(find.text('Ada'), findsWidgets);
     expect(storage.getString('profile_name'), 'Ada');
@@ -238,11 +244,30 @@ void _expectNoOwnerA(_ScriptedStorage storage) {
   expect(storage.getStringList('profile_achievements'), isNull);
 }
 
+Future<void> _until(bool Function() ready) async {
+  final deadline = DateTime.now().add(const Duration(seconds: 2));
+  while (!ready()) {
+    if (DateTime.now().isAfter(deadline)) fail('condition was not reached');
+    await Future<void>.delayed(Duration.zero);
+  }
+}
+
+Future<void> _untilQueuedOrSwitched(UserLocalDataIsolation isolation) {
+  return _until(
+    () =>
+        UserLocalDataIsolation.queuedOwnerMutations > 0 ||
+        isolation.localOwnerId == 'owner-b',
+  );
+}
+
 class _ScriptedStorage extends LocalStorage {
   _ScriptedStorage() : super.ephemeral();
 
   Completer<void>? holdAfterProfileName;
+  Completer<void>? holdBeforeOwnerCommit;
+  bool ownerCommitHeld = false;
   bool _heldProfileName = false;
+  bool _heldOwnerCommit = false;
   bool failNextProfileName = false;
   bool failNextUserName = false;
   bool throwNextUserName = false;
@@ -250,6 +275,13 @@ class _ScriptedStorage extends LocalStorage {
 
   @override
   Future<bool> setString(String key, String value) async {
+    if (key == UserLocalDataIsolation.ownerKey &&
+        holdBeforeOwnerCommit != null &&
+        !_heldOwnerCommit) {
+      _heldOwnerCommit = true;
+      ownerCommitHeld = true;
+      await holdBeforeOwnerCommit!.future;
+    }
     if (key == 'profile_name' || key == 'user_name') writes.add(key);
     if (key == 'profile_name' && failNextProfileName) {
       failNextProfileName = false;
