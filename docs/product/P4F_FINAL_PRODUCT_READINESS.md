@@ -233,10 +233,10 @@ Invalidated seam: Yıldızname primary leaf. G2C observed the flag-off local arc
 
 ## 12. Final test evidence
 
-Candidate tree (this commit's code, before the markdown file):
+Run on committed app source `284ca6bc` (HEAD `304b9fa1` is the same Dart plus this document):
 
-- `flutter test`: 6391 passed, 16 skipped, 0 failed. Completed.
-- `flutter analyze --no-fatal-infos`: 0 errors, 0 warnings, 212 infos.
+- `flutter test`: 6392 passed, 15 skipped, 0 failed. Completed. Exit 0.
+- `flutter analyze --no-fatal-infos`: 0 errors, 0 warnings, 212 infos. Exit 0.
 - Backend `vitest run`: 1661 passed, 1 skipped, 0 failed after the frozen JSON was read as the git blob. First Windows checkout run failed 3 hash checks on CRLF expansion only.
 - Backend `tsc -p tsconfig.json --noEmit`: exit 0.
 
