@@ -76,6 +76,9 @@ abstract final class DreamCopy {
   static String get voiceEmpty => _t('dream.voice_empty');
   static String get beginAnalysis => _t('dream.begin');
   static String get saveAndClose => _t('dream.save_close');
+
+  /// Result is already stored. This action only leaves the screen.
+  static String get closeReading => _t('a11y.close');
   static String get newDream => _t('dream.new');
   static String get phaseUnderstanding => _t('dream.summary');
   static String get phaseUnderstandingSubtitle => _t('dream.phase_sum_sub');

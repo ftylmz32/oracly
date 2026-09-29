@@ -75,7 +75,7 @@ class DreamReferenceResultActions extends ConsumerWidget {
           orAlreadyOffered: current != null && analysis.trim().isNotEmpty,
         ),
         OraclyButton(
-          text: DreamCopy.saveAndClose,
+          text: DreamCopy.closeReading,
           isExpanded: true,
           onPressed: () => Navigator.of(context).pop(),
         ),

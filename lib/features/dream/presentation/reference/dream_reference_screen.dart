@@ -23,7 +23,7 @@ import '../../services/dream_paid_submit.dart';
 import '../../../quality_loop/providers/quality_loop_providers.dart';
 import '../../../quality_loop/widgets/quality_loop_gate.dart';
 import '../../../../core/quality/quality_feature.dart';
-import '../../voice/dream_voice_phase.dart';
+import '../../voice/dream_voice_draft.dart';
 import 'dream_reference_atmosphere.dart';
 import 'dream_reference_session_body.dart';
 
@@ -122,13 +122,18 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
   void _editDream(DreamAnalysisController controller) {
     final dream = controller.dream;
     if (dream == null) return;
+    final entry = dream.entry;
     _narrativeController.text = dream.narrative;
     unawaited(DreamPaidSubmit.clearAttempt(ref));
     controller.reset();
     setState(() {
       _composing = true;
-      _selectedChips.clear();
-      _guidedAnswers.clear();
+      if (entry == null) {
+        _selectedChips.clear();
+        _guidedAnswers.clear();
+      } else {
+        entry.applyTo(chips: _selectedChips, guided: _guidedAnswers);
+      }
     });
   }
 
@@ -172,10 +177,11 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
     final voice = ref.watch(dreamVoiceControllerProvider);
     ref.listen(localDataOwnerEpochProvider, (_, _) => _clearForOwnerChange());
     ref.listen(dreamVoiceControllerProvider, (previous, next) {
-      if (next.phase == DreamVoicePhase.transcribed &&
-          _narrativeController.text != next.transcript) {
-        _narrativeController.text = next.transcript;
-      }
+      DreamVoiceDraft.onPhase(
+        narrative: _narrativeController,
+        from: previous?.phase,
+        next: next,
+      );
     });
 
     return QualityLoopGate(
@@ -200,15 +206,16 @@ class _DreamReferenceScreenState extends ConsumerState<DreamReferenceScreen> {
             onSubmit: () => _submit(analysis),
             onEditDream: () => _editDream(analysis),
             onStopVoice: voice.stop,
-            onListenAgain: () {
-              _narrativeController.clear();
-              OraclyPermissionDialog.microphone(context).then((allowed) {
-                if (allowed == true) voice.listenAgain();
-              });
-            },
+            onListenAgain: () => DreamVoiceDraft.listenAgain(
+              askMicrophone: () => OraclyPermissionDialog.microphone(context),
+              voice: voice,
+            ),
             onAnalyzeVoice: () => _submit(analysis),
             onVoiceRetry: _retryVoice,
-            onVoiceBack: voice.reset,
+            onVoiceBack: () => DreamVoiceDraft.abandon(
+              narrative: _narrativeController,
+              voice: voice,
+            ),
             onNewDream: () => _reset(analysis),
             onAnalysisRetry: () {
               if (analysis.reinterpretFailed) {

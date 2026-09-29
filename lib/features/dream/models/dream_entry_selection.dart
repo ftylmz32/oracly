@@ -36,6 +36,20 @@ class DreamEntrySelection {
 
   bool get isEmpty => chips.isEmpty && guided.isEmpty;
 
+  /// Puts a stored entry back on the compose form. Unknown ids were already
+  /// dropped by [fromJson].
+  void applyTo({
+    required Set<DreamEntryChipId> chips,
+    required Map<DreamGuidedQuestionId, String> guided,
+  }) {
+    chips
+      ..clear()
+      ..addAll(this.chips);
+    guided
+      ..clear()
+      ..addAll(this.guided);
+  }
+
   Map<String, dynamic> toJson() => {
         'chips': [for (final c in chips) c.name],
         'guided': {for (final e in guided.entries) e.key.name: e.value},
