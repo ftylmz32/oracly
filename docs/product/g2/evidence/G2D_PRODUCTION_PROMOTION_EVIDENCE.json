@@ -1,0 +1,144 @@
+{
+  "phase": "G2D",
+  "utc": "2026-09-29T12:29:32Z",
+  "startHead": "e06383135b75b57e3a9e34271e7d9f17407458a1",
+  "branch": "fix/final-product-remediation-20260922",
+  "verdict": "PASS",
+  "before": {
+    "service": "oracly-api",
+    "project": "oracly-7f613",
+    "region": "europe-west1",
+    "stableServiceUrl": "https://oracly-api-uya7zqzwra-ew.a.run.app",
+    "productionRevision": "oracly-api-00052-zqd",
+    "productionTraffic": "100%",
+    "oracly-api-00085-hef": "0%",
+    "oracly-api-00086-koy": "0%",
+    "imageDigestPresent": "sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+    "drift": false
+  },
+  "rollbackSnapshot": {
+    "preparedBeforeCutover": true,
+    "restoreCommand": "gcloud run services update-traffic oracly-api --project=oracly-7f613 --region=europe-west1 --to-revisions=oracly-api-00052-zqd=100",
+    "revisionRetained": "oracly-api-00052-zqd",
+    "secretValuesRead": 0
+  },
+  "finalCandidate": {
+    "revision": "oracly-api-00087-hut",
+    "tag": "release-aa735bcb7a1b",
+    "taggedUrl": "https://release-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+    "image": "europe-west1-docker.pkg.dev/oracly-7f613/oracly/oracly-api@sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+    "imageDigest": "sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+    "imageSourceCommit": "aa735bcb7a1be89cffb62d77537b50c896eb1b2c",
+    "releaseRepoHead": "e06383135b75b57e3a9e34271e7d9f17407458a1",
+    "labels": {
+      "source_commit": "aa735bcb7a1be89cffb62d77537b50c896eb1b2c",
+      "release_head": "e06383135b75b57e3a9e34271e7d9f17407458a1",
+      "oracly_phase": "g2d"
+    },
+    "workerTarget": "https://oracly-api-uya7zqzwra-ew.a.run.app/internal/reading-tasks/process",
+    "oidcAudience": "https://oracly-api-uya7zqzwra-ew.a.run.app",
+    "workerQueue": "reading-operations",
+    "workerLocation": "europe-west1",
+    "workerServiceAccount": "oracly-api-runtime@oracly-7f613.iam.gserviceaccount.com",
+    "stagingBucket": "oracly-7f613-reading-staging-ew1",
+    "safeConfig": {
+      "OPENAI_MODEL": "gpt-4o",
+      "OPENAI_ALLOWED_MODELS": "gpt-4o,gpt-4o-mini,gpt-5.6-sol",
+      "OPENAI_READING_VISION_MODEL": "gpt-5.6-sol",
+      "OPENAI_READING_WRITER_MODEL": "gpt-5.6-sol",
+      "OPENAI_READING_REASONING_EFFORT": "low",
+      "OPENAI_TAROT_NARRATIVE_MODEL": "gpt-5.6-sol",
+      "OPENAI_TAROT_NARRATIVE_REASONING_EFFORT": "none",
+      "OPENAI_YILDIZNAME_NARRATIVE_MODEL": "gpt-5.6-sol",
+      "OPENAI_YILDIZNAME_NARRATIVE_REASONING_EFFORT": "none",
+      "OPENAI_DREAM_MODEL": "gpt-6-astra",
+      "OPENAI_DREAM_REASONING_EFFORT": "medium",
+      "OPENAI_IMAGE_MODEL": "gpt-image-2",
+      "OPENAI_IMAGE_SIZE": "1024x1536",
+      "OPENAI_IMAGE_QUALITY": "high",
+      "AI_AUTH_REQUIRED": "true",
+      "AI_DEV_AUTH_BYPASS": "false",
+      "AI_APP_CHECK_BYPASS": "false",
+      "READING_WORKER_STOP_AFTER_STAGED": "false",
+      "GOOGLE_PLAY_USE_ADC": "true",
+      "billingGoogleConfigured": true,
+      "billingAppleConfigured": true
+    },
+    "secretReferences": {
+      "OPENAI_API_KEY": "SECRET_REF present, value never read",
+      "APPLE_IAP_PRIVATE_KEY": "SECRET_REF present, value never read"
+    },
+    "digestEqualsG2B0": true,
+    "digestEqualsG2BSM": true,
+    "runtimeDifferenceFromG2BSM": "READING_TASK_TARGET_URL only: stable service URL, not the g2bsm tag URL",
+    "health": { "httpStatus": 200, "body": { "status": "ok" } },
+    "ready": {
+      "httpStatus": 200,
+      "capabilitiesAllRequiredTrue": true
+    },
+    "securityProbes": {
+      "aiCompleteUnauthenticated": {
+        "bodyShape": "operation=chat, no credentials",
+        "httpStatus": 401,
+        "code": "unauthorized"
+      },
+      "aiCompleteEmptyBody": {
+        "httpStatus": 200,
+        "code": "invalid_request",
+        "note": "Schema rejection runs before auth. No provider call."
+      },
+      "billingVerifyUnauthenticated": { "httpStatus": 401, "code": "unauthorized" },
+      "workerProcessWithoutOidc": { "httpStatus": 401, "code": "unauthorized" }
+    }
+  },
+  "cutover": {
+    "type": "ATOMIC_100",
+    "timestampUtc": "2026-09-29T12:29:32Z",
+    "trafficMutationCount": 1,
+    "trafficImmediatelyAfter": {
+      "oracly-api-00087-hut": "100%",
+      "oracly-api-00052-zqd": "0%",
+      "oracly-api-00085-hef": "0%",
+      "oracly-api-00086-koy": "0%"
+    },
+    "oldRevisionDeleted": false,
+    "canarySplit": false
+  },
+  "post": {
+    "stableHealth": { "httpStatus": 200, "body": { "status": "ok" } },
+    "stableReady": { "httpStatus": 200, "capabilitiesAllRequiredTrue": true },
+    "unauthAiProbe": { "httpStatus": 401, "code": "unauthorized" },
+    "unauthBillingProbe": { "httpStatus": 401, "code": "unauthorized" },
+    "finalTrafficMapping": {
+      "oracly-api-00087-hut": "100%",
+      "oracly-api-00052-zqd": "0%",
+      "oracly-api-00085-hef": "0%",
+      "oracly-api-00086-koy": "0%"
+    },
+    "revisionServingProof": "Post-cutover /health, /ready, and unauthenticated probes appear in logs for oracly-api-00087-hut only.",
+    "boundedLogVerdict": "PASS. Startup probe succeeded. No 5xx, uncaught exception, readiness failure, secret resolution failure, or billing initialization failure on the final revision. Expected 401 probes are not failures. One audit ERROR is the rejected pre-deploy label command; it created no revision."
+  },
+  "rollback": {
+    "required": "NO",
+    "executed": "NO"
+  },
+  "providerExecutions": 0,
+  "storeTransactions": 0,
+  "imageGenerations": 0,
+  "newDeploys": 1,
+  "productionCodeChanged": false,
+  "imageRebuilt": false,
+  "yildizname": {
+    "backendDeployment": "CLOSED",
+    "clientFlag": "yildizname_narrative_v1",
+    "clientActivation": "NON-BLOCKING / FLAG-OFF",
+    "flagTurnedOn": false
+  },
+  "androidRelease": {
+    "version": "1.0.0+26092907",
+    "aabSha256": "ed35ed57dec7cad86233c76a64dffdf2decc3729f9915450433f4c6be081bd2d",
+    "apkSha256": "a5ee537423171939bfedd682769f3a64dc933c71c56cd46cebb97a6fc5a4d53e",
+    "rebuildRequired": false
+  },
+  "secretValuesExposed": 0
+}

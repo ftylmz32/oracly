@@ -1191,3 +1191,48 @@ state: `26092907 > 26091501`. It is also newer than the TECNO QA build.
 
 Sanitized record:
 `docs/product/g2/evidence/G2C1_ANDROID_VERSION_CLOSURE.json`.
+
+---
+
+## 29. G2D — production backend promotion
+
+This section supersedes earlier statements that production still serves
+`oracly-api-00052-zqd`, that Tarot / Dream / Coffee / Palm / SoulMate / OR
+are blocked on a backend deploy, and that Yıldızname remains a 0% candidate.
+Those sections stay as the historical record.
+
+G2D promoted one new revision from the already-built immutable image. The
+image was not rebuilt. No production source, Android artifact, or pubspec
+changed. Provider executions and store transactions stayed at 0.
+
+| Item | Result |
+|---|---|
+| Production revision | `oracly-api-00087-hut` at 100% |
+| Previous production | `oracly-api-00052-zqd` at 0%, retained for rollback |
+| G2B0 `00085` and G2B-SM `00086` | remain 0%; `00086` was not promoted |
+| Image digest | `sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc` |
+| Image source commit | `aa735bcb7a1be89cffb62d77537b50c896eb1b2c` |
+| Release repo head | `e06383135b75b57e3a9e34271e7d9f17407458a1` |
+| Worker target | stable service URL |
+| Cutover | one atomic 100% switch; no canary split |
+| Rollback | not required, not executed |
+| Stable `/health` and `/ready` | 200, required capabilities true |
+| Unauthenticated AI and billing | 401 |
+
+**CLOSED:** production backend promotion; Tarot, Dream, and Yıldızname
+backend deployment; Coffee/Palm, SoulMate, and OR current backend;
+Android backend/API release compatibility. The Android release
+`1.0.0+26092907` already points at the stable host.
+
+Yıldızname client flag `yildizname_narrative_v1` stays default false.
+That activation is non-blocking.
+
+**Remaining external:** iOS archive/signing, iOS sandbox purchase/restore,
+VoiceOver.
+
+**Remaining non-blocking:** FCM delivery not freshly reproven; background
+during an active provider wait not freshly reproven; TalkBack human
+in-app pass; Yıldızname client flag remains off.
+
+Sanitized record:
+`docs/product/g2/evidence/G2D_PRODUCTION_PROMOTION_EVIDENCE.json`.
