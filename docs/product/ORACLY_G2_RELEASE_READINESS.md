@@ -1048,3 +1048,51 @@ Sanitized record:
 **G2B pre-SoulMate verdict: PASS.** Coffee, Tarot, OR, Dream, and Palm live
 evidence may be frozen. Do not promote this candidate. SoulMate is the next
 separate sandbox-entitlement closure.
+
+---
+
+## 26. G2B-SM — license-test Premium and candidate-only SoulMate
+
+G2B0 (`oracly-api-00085-hef`) still points `READING_TASK_TARGET_URL` at the
+stable production host. SoulMate was not run there. A new 0% revision was
+created from the same immutable image, changing only the worker target so
+the durable task returns to its own tag.
+
+| | |
+|---|---|
+| Revision | `oracly-api-00086-koy` |
+| Tag | `g2bsm-aa735bcb7a1b` |
+| Traffic | 0% |
+| Image digest | `sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc` |
+| Source commit label | `aa735bcb7a1be89cffb62d77537b50c896eb1b2c` |
+| Worker target | `https://g2bsm-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app/internal/reading-tasks/process` |
+| OIDC audience | unchanged stable service URL `https://oracly-api-uya7zqzwra-ew.a.run.app` |
+
+Production `oracly-api-00052-zqd` stayed at 100%. The old G2B0 candidate
+stayed at 0%. `/health` and `/ready` on the new tag were 200.
+
+The device build was an in-place upgrade of `app.oracly` with
+`APP_ENV=staging`, the G2B-SM proxy and billing URLs, and the App Check
+debug provider. `ORACLY_DEV_PREMIUM` was absent. Review access was not used.
+
+Play Billing returned all three catalog products. Restore found no existing
+entitlement. One Google Play license-test monthly purchase was completed
+after the sheet showed “Test kartı, her zaman onaylanır” and stated that no
+payment would be taken. Candidate `billing_verify` returned
+`subscription_active`. After a force-stop, Premium was still active. No
+second store transaction occurred.
+
+One durable SoulMate operation used the QA identity “QA Fixture C”, birth
+date 1996-06-15, feminine, empty intention. Every worker event for that
+operation, including OIDC verification, the entitlement-gated portrait, and
+the interpretation, is on `oracly-api-00086-koy`. Production did not process
+it. Portrait provider executions: 1 (`gpt-image-2`, configured 1024×1536,
+high). Interpretation provider executions: 1 (resolved `gpt-4o`). The result
+rendered and, after another force-stop, reopened with no new provider call.
+
+Raw provider executions in this phase: **2**. Hard cap 8 was not exceeded.
+
+Sanitized record:
+`docs/product/g2/evidence/G2BSM_STORE_SOULMATE_CLOSURE.json`.
+
+**G2B-SM verdict: PASS.** Do not promote this candidate.

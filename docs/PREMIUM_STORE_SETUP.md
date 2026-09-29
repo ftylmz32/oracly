@@ -21,7 +21,7 @@ Application id: `app.oracly`
 2. Create the three product IDs above
 3. Activate products; use license testers for test purchases
 4. Upload a build that includes `com.android.vending.BILLING` (already in AndroidManifest)
-5. Install from Play (internal testing track) — sideloaded APKs cannot complete real billing
+5. Prefer installing from the Play internal testing track when validating distribution. A Play Console license tester can also complete a license-test purchase on a sideloaded build, including a debug-signed build, when the package name matches `app.oracly`, the app exists in Play, and the products are published. That path is for license-test purchases. It is not a claim that a sideloaded build can take a real-money charge.
 
 ## iOS (App Store)
 

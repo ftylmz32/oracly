@@ -1,0 +1,113 @@
+{
+  "phase": "G2B-SM",
+  "verdict": "PASS",
+  "utc": "2026-09-29T11:35:36Z",
+  "candidate": {
+    "revision": "oracly-api-00086-koy",
+    "tag": "g2bsm-aa735bcb7a1b",
+    "trafficPercent": 0,
+    "image": "europe-west1-docker.pkg.dev/oracly-7f613/oracly/oracly-api@sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+    "sourceCommit": "aa735bcb7a1be89cffb62d77537b50c896eb1b2c",
+    "readingTaskTargetHost": "g2bsm-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+    "readingTaskTargetPath": "/internal/reading-tasks/process",
+    "readingTaskAudience": "https://oracly-api-uya7zqzwra-ew.a.run.app",
+    "oidcVerified": true,
+    "oidcAudienceMatchesStableService": true,
+    "productionWorkerTouchedOperation": false
+  },
+  "traffic": {
+    "beforeAndAfter": {
+      "oracly-api-00052-zqd": 100,
+      "oracly-api-00085-hef": 0,
+      "oracly-api-00086-koy": 0
+    }
+  },
+  "device": {
+    "package": "app.oracly",
+    "inPlaceInstall": true,
+    "appEnv": "staging",
+    "devPremiumOverride": false,
+    "reviewAccessUsedForEntitlement": false,
+    "appCheck": "real token via Android debug provider"
+  },
+  "store": {
+    "playBillingAvailable": true,
+    "catalog": {
+      "app.oracly.premium.monthly": "₺179,99",
+      "app.oracly.premium.yearly": "₺1.199,99",
+      "app.oracly.premium.lifetime": "₺2.999,99"
+    },
+    "restoreAttemptedBeforePurchase": true,
+    "existingEntitlementRestored": false,
+    "newLicenseTestPurchase": true,
+    "testPurchaseUiConfirmed": true,
+    "testPurchaseMarkers": [
+      "Test kartı, her zaman onaylanır",
+      "Bu bir test aboneliğidir. Bunun için sizden ödeme alınmayacaktır."
+    ],
+    "realMoneyCharged": false,
+    "newStoreTestTransactions": 1,
+    "productId": "app.oracly.premium.monthly",
+    "candidateBillingVerify": {
+      "httpStatus": 200,
+      "reason": "subscription_active",
+      "revision": "oracly-api-00086-koy"
+    },
+    "entitlementActiveAfterRestart": true,
+    "duplicateCharge": false
+  },
+  "soulmate": {
+    "topLevelOperations": 1,
+    "input": {
+      "name": "QA Fixture C",
+      "birthDate": "1996-06-15",
+      "gender": "feminine",
+      "intention": ""
+    },
+    "operationId": "d02977d0d49cd3ece5afd744cab29726",
+    "workerRevision": "oracly-api-00086-koy",
+    "entitlementDenied": false,
+    "events": [
+      "reading_task_oidc_verified",
+      "reading_task_claim_acquired",
+      "provider_started portrait",
+      "provider_completed portrait",
+      "soulmate_portrait_persist_completed",
+      "provider_started interpretation",
+      "provider_completed interpretation",
+      "result_persist_completed"
+    ],
+    "portrait": {
+      "model": "gpt-image-2",
+      "configuredSize": "1024x1536",
+      "configuredQuality": "high",
+      "rawProviderExecutions": 1,
+      "clientDecodedAndRendered": true,
+      "byteSha256": "not present in safe logs; private bytes were not extracted"
+    },
+    "interpretation": {
+      "model": "gpt-4o",
+      "modelResolution": "worker passed no model hint; resolveModel uses OPENAI_MODEL",
+      "rawProviderExecutions": 1,
+      "serverGate": "PASS",
+      "clientGate": "PASS",
+      "visibleSections": [
+        "BU PORTREDE İLK DİKKATİMİ ÇEKEN",
+        "SENİ NEDEN ÇEKEBİLİR?",
+        "YANINDA NASIL DURABİLİR",
+        "KARŞILAŞMA ENERJİSİ",
+        "SANA NASIL BİR HİSSETTİREBİLİR?"
+      ]
+    },
+    "reopen": {
+      "sameResult": true,
+      "newOperation": false,
+      "newProviderExecutions": 0
+    }
+  },
+  "budget": {
+    "newRawProviderExecutions": 2,
+    "hardCap": 8,
+    "hardCapExceeded": false
+  }
+}
