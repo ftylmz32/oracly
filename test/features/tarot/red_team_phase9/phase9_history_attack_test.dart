@@ -42,6 +42,15 @@ class _StubUser implements UserRepository {
   Future<void> ensureReadingCompletionMigration(List<String> ids) async {}
   @override
   Future<bool> recordReadingCompletion(String readingId) async => true;
+
+  @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    throw UnsupportedError('renameDisplayName');
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

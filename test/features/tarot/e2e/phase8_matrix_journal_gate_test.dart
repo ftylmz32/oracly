@@ -42,6 +42,15 @@ class _StubUser implements UserRepository {
   Future<void> ensureReadingCompletionMigration(List<String> ids) async {}
   @override
   Future<bool> recordReadingCompletion(String readingId) async => true;
+
+  @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    throw UnsupportedError('renameDisplayName');
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -49,55 +58,57 @@ class _StubUser implements UserRepository {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('JOURNAL race auto+manual — one artifact via JournalPersistGate',
-      () async {
-    final world = await TarotE2eWorld.create();
-    final ai = ScriptedNarrativeAi([
-      AiOutcome.success(cloneSolThreeForEmptySession()),
-    ]);
-    final interp = world.interpretation(ai, world.newCache());
-    final ctrl = world.controller(interp);
-    final session = threeContrastSession(id: 'e2e_journal_race');
-    await ctrl.updateSession(
-      session.copyWith(
-        status: ReadingSessionStatus.inProgress,
-        flowStep: ReadingFlowStep.reading,
-      ),
-    );
-    final live = await world.completeViaController(ctrl, interp);
-    final completed = await ctrl.completeSession();
-    final history = _MemHistory();
-    final service = ReadingService(history, _StubUser());
-    final gate = JournalPersistGate();
-    final started = Completer<void>();
-    final release = Completer<void>();
-    var saves = 0;
-
-    Future<void> body() async {
-      started.complete();
-      await release.future;
-      saves++;
-      await service.saveFromSession(
-        session: completed,
-        aiSummary: live!.fullInterpretation!,
-        resultMode: 'narrativeV2',
-        interpretationSource: live.interpretationSource.name,
-        deliveryKind: live.deliveryKind.name,
+  test(
+    'JOURNAL race auto+manual — one artifact via JournalPersistGate',
+    () async {
+      final world = await TarotE2eWorld.create();
+      final ai = ScriptedNarrativeAi([
+        AiOutcome.success(cloneSolThreeForEmptySession()),
+      ]);
+      final interp = world.interpretation(ai, world.newCache());
+      final ctrl = world.controller(interp);
+      final session = threeContrastSession(id: 'e2e_journal_race');
+      await ctrl.updateSession(
+        session.copyWith(
+          status: ReadingSessionStatus.inProgress,
+          flowStep: ReadingFlowStep.reading,
+        ),
       );
-      gate.completed = true;
-    }
+      final live = await world.completeViaController(ctrl, interp);
+      final completed = await ctrl.completeSession();
+      final history = _MemHistory();
+      final service = ReadingService(history, _StubUser());
+      final gate = JournalPersistGate();
+      final started = Completer<void>();
+      final release = Completer<void>();
+      var saves = 0;
 
-    final auto = gate.run(body: body);
-    await started.future;
-    final manual = gate.run(body: body, offerNote: true);
-    release.complete();
-    await Future.wait([auto, manual]);
-    expect(saves, 1);
-    expect(history.readings, hasLength(1));
-    expect(ai.callCount, 1);
-    expect(world.charge.alreadyCharged(session.id), isTrue);
-    ctrl.dispose();
-  });
+      Future<void> body() async {
+        started.complete();
+        await release.future;
+        saves++;
+        await service.saveFromSession(
+          session: completed,
+          aiSummary: live!.fullInterpretation!,
+          resultMode: 'narrativeV2',
+          interpretationSource: live.interpretationSource.name,
+          deliveryKind: live.deliveryKind.name,
+        );
+        gate.completed = true;
+      }
+
+      final auto = gate.run(body: body);
+      await started.future;
+      final manual = gate.run(body: body, offerNote: true);
+      release.complete();
+      await Future.wait([auto, manual]);
+      expect(saves, 1);
+      expect(history.readings, hasLength(1));
+      expect(ai.callCount, 1);
+      expect(world.charge.alreadyCharged(session.id), isTrue);
+      ctrl.dispose();
+    },
+  );
 
   test('JOURNAL durable fail + retry — provider 0 extra charge 0', () async {
     final world = await TarotE2eWorld.create();

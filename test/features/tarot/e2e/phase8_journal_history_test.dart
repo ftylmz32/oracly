@@ -49,6 +49,14 @@ class _StubUser implements UserRepository {
   Future<bool> recordReadingCompletion(String readingId) async => true;
 
   @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    throw UnsupportedError('renameDisplayName');
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -80,7 +88,8 @@ void main() {
     final saved = await service.saveFromSession(
       session: completed,
       aiSummary: fingerprint,
-      resultMode: completed.interpretationResultMode ??
+      resultMode:
+          completed.interpretationResultMode ??
           ReadingResultModeResolver.of(completed.spread).name,
       interpretationSource: live.interpretationSource.name,
       deliveryKind: live.deliveryKind.name,

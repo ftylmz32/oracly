@@ -22,10 +22,12 @@ class _MemHistory implements HistoryRepository {
     readings.removeWhere((r) => r.id == reading.id);
     readings.add(reading);
   }
+
   @override
   Future<void> deleteReading(String id) async {
     readings.removeWhere((r) => r.id == id || r.sessionId == id);
   }
+
   @override
   Future<void> clearAll() async => readings.clear();
 }
@@ -38,6 +40,14 @@ class _StubUser implements UserRepository {
 
   @override
   Future<bool> recordReadingCompletion(String readingId) async => true;
+
+  @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    throw UnsupportedError('renameDisplayName');
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

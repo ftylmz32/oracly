@@ -69,3 +69,47 @@ Red-team coverage:
 - mounted Daily Rewards clears A's claimed state on the epoch
 - daily claim response after A→B does not mark B or increment B's streak
 - in-memory claimed day does not follow the new owner
+
+## P4E.1 — GLOBAL REGRESSION GATE CLOSURE
+
+Start HEAD `73a6a6f1764301a57ef07c93675b7e0e3de8f6c1`. P4E economy behavior was not redesigned.
+
+### UserRepository compile regression
+
+P4D.1 added `UserRepository.renameDisplayName` with a concrete body. Dart `implements` does not inherit that body. The full suite stopped compiling at `_FlakyUserRepository` in `test/features/tarot/tarot_reading_autosave_reliability_test.dart`.
+
+Every `implements UserRepository` type was scanned:
+
+- `MockUserRepository` already implements the method. Production contract unchanged.
+- `_FlakyUserRepository` now delegates to the wrapped repository.
+- Seven `_StubUser` fakes have no backing repository. They now throw `UnsupportedError('renameDisplayName')`, matching the interface default. They previously compiled only because `noSuchMethod` hid the missing member.
+
+Tarot production was not changed. The autosave file passes (23 tests).
+
+### Palm
+
+File: `test/features/reading_operation/server_owned_completion_client_test.dart`.
+
+Test: `(E) LIVE INCIDENT REGRESSION -- Palm`.
+
+Assertion: `expect(restarted.phase, PalmPhase.result)` observed `PalmPhase.error`.
+
+Log: `[PalmAnalysis] stage=restore kind=unknown failed`.
+
+The server-owned payload was `{overall, takeaway}` with no `_handSide`. `PalmHand.fromWire` returned null, and `_restoreServerCompleted` fail-closed with `hand_side_missing`. That is the frozen missing-hand rule. Classification: test fixture contract drift. Reproduced alone before the fixture change. The fixture now includes `'_handSide': 'right'`. Palm production was not changed.
+
+After the fixture change: the isolated test passes, the file passes (5), and `test/features/palm` passes (93), including missing-hand fail-closed and exact-operation recovery.
+
+### Home badge assertions
+
+Completing the suite also failed two Home tests that expected one widget with text `Yeni`. No `HomeReferenceModuleSpec` sets `isNew` after `898ca41f`. Those expectations now use `findsNothing`. Home production was not changed.
+
+### Full suite
+
+Completed. 6379 passed, 16 skipped, 7 failed.
+
+Skips are existing gates: `ORACLY_E2E=1`, the release-manifest test, and the local shadow-corpus dump.
+
+The 7 failures are Yıldızname golden pixel diffs on the pre-existing dirty star-map worktree. They were not caused by this gate, and that worktree was not edited or staged. Because those failures remain on the working tree, P4E is not final frozen.
+
+`flutter analyze --no-fatal-infos`: 0 errors, 0 warnings, 212 pre-existing infos.

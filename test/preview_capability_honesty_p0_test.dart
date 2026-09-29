@@ -144,7 +144,7 @@ void main() {
 
     // Dream / Astrology / Yıldızname are LIVE — no Preview badges on Home.
     expect(find.text(PreviewCapabilityCopy.badge), findsNothing);
-    expect(find.text('Yeni'), findsOneWidget);
+    expect(find.text('Yeni'), findsNothing);
     expect(find.text('Kahve Falı'), findsOneWidget);
     expect(find.textContaining('El'), findsWidgets);
     expect(find.text('Tarot'), findsOneWidget);

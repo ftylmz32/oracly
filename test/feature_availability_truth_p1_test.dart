@@ -91,7 +91,7 @@ void main() {
     );
     expect(OraclyFeatureRegistry.byId(OraclyFeatureId.starMap)!.isLive, isTrue);
     expect(find.text(PreviewCapabilityCopy.badge), findsNothing);
-    expect(find.text('Yeni'), findsOneWidget);
+    expect(find.text('Yeni'), findsNothing);
   });
 
   testWidgets('Explore presentation matches registry for audited modules', (

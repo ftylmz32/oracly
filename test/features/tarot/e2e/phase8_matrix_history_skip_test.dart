@@ -43,6 +43,15 @@ class _StubUser implements UserRepository {
   Future<void> ensureReadingCompletionMigration(List<String> ids) async {}
   @override
   Future<bool> recordReadingCompletion(String readingId) async => true;
+
+  @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    throw UnsupportedError('renameDisplayName');
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -53,50 +62,53 @@ void main() {
   // CONCURRENT resolveInterpretationContent — covered in phase8_new_session_test.
   // SKIP duplicate here.
 
-  test('HISTORY ROUNDTRIP — mapper + parser fields; reopen provider=0',
-      () async {
-    final world = await TarotE2eWorld.create();
-    final ai = ScriptedNarrativeAi([
-      AiOutcome.success(cloneSolThreeForEmptySession()),
-    ]);
-    final interp = world.interpretation(ai, world.newCache());
-    final ctrl = world.controller(interp);
-    final session = threeContrastSession(id: 'e2e_hist_roundtrip');
-    await ctrl.updateSession(
-      session.copyWith(
-        status: ReadingSessionStatus.inProgress,
-        flowStep: ReadingFlowStep.reading,
-      ),
-    );
-    final live = await world.completeViaController(ctrl, interp);
-    final completed = await ctrl.completeSession();
-    final fingerprint = live!.fullInterpretation!;
-    final saved = await ReadingService(_MemHistory(), _StubUser()).saveFromSession(
-      session: completed,
-      aiSummary: fingerprint,
-      resultMode: completed.interpretationResultMode ?? 'narrativeV2',
-      interpretationSource: live.interpretationSource.name,
-      deliveryKind: live.deliveryKind.name,
-    );
-    expect(saved, isNotNull);
-    final entry = ReadingHistoryMapper.fromModel(saved!);
-    expect(entry.id, saved.id);
-    expect(entry.filter, HistorySpreadFilter.three);
-    expect(entry.aiSummary, fingerprint);
-    expect(entry.cardName, isNotEmpty);
-    expect(saved.cards, hasLength(3));
-    expect(saved.sessionId ?? saved.id, session.id);
-    expect(saved.resultMode, 'narrativeV2');
-    expect(saved.deliveryKind, 'interpretation');
+  test(
+    'HISTORY ROUNDTRIP — mapper + parser fields; reopen provider=0',
+    () async {
+      final world = await TarotE2eWorld.create();
+      final ai = ScriptedNarrativeAi([
+        AiOutcome.success(cloneSolThreeForEmptySession()),
+      ]);
+      final interp = world.interpretation(ai, world.newCache());
+      final ctrl = world.controller(interp);
+      final session = threeContrastSession(id: 'e2e_hist_roundtrip');
+      await ctrl.updateSession(
+        session.copyWith(
+          status: ReadingSessionStatus.inProgress,
+          flowStep: ReadingFlowStep.reading,
+        ),
+      );
+      final live = await world.completeViaController(ctrl, interp);
+      final completed = await ctrl.completeSession();
+      final fingerprint = live!.fullInterpretation!;
+      final saved = await ReadingService(_MemHistory(), _StubUser())
+          .saveFromSession(
+            session: completed,
+            aiSummary: fingerprint,
+            resultMode: completed.interpretationResultMode ?? 'narrativeV2',
+            interpretationSource: live.interpretationSource.name,
+            deliveryKind: live.deliveryKind.name,
+          );
+      expect(saved, isNotNull);
+      final entry = ReadingHistoryMapper.fromModel(saved!);
+      expect(entry.id, saved.id);
+      expect(entry.filter, HistorySpreadFilter.three);
+      expect(entry.aiSummary, fingerprint);
+      expect(entry.cardName, isNotEmpty);
+      expect(saved.cards, hasLength(3));
+      expect(saved.sessionId ?? saved.id, session.id);
+      expect(saved.resultMode, 'narrativeV2');
+      expect(saved.deliveryKind, 'interpretation');
 
-    final reopenAi = ScriptedNarrativeAi([
-      AiOutcome.success(cloneSolThreeForEmptySession()),
-    ]);
-    final reopened = SavedReadingParser.toContent(entry: entry, model: saved);
-    expect(reopened.drawnCards, hasLength(3));
-    expect(reopened.deliveryKind, TarotReadingDeliveryKind.interpretation);
-    expect(reopenAi.callCount, 0);
-    expect(world.charge.alreadyCharged(session.id), isTrue);
-    ctrl.dispose();
-  });
+      final reopenAi = ScriptedNarrativeAi([
+        AiOutcome.success(cloneSolThreeForEmptySession()),
+      ]);
+      final reopened = SavedReadingParser.toContent(entry: entry, model: saved);
+      expect(reopened.drawnCards, hasLength(3));
+      expect(reopened.deliveryKind, TarotReadingDeliveryKind.interpretation);
+      expect(reopenAi.callCount, 0);
+      expect(world.charge.alreadyCharged(session.id), isTrue);
+      ctrl.dispose();
+    },
+  );
 }

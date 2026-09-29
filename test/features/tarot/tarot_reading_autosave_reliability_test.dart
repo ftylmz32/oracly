@@ -107,8 +107,7 @@ class _FlakyUserRepository implements UserRepository {
   @override
   Future<void> ensureReadingCompletionMigration(
     List<String> existingHistoryIds,
-  ) =>
-      _real.ensureReadingCompletionMigration(existingHistoryIds);
+  ) => _real.ensureReadingCompletionMigration(existingHistoryIds);
 
   @override
   Future<UserProfileModel> getProfile() => _real.getProfile();
@@ -125,20 +124,26 @@ class _FlakyUserRepository implements UserRepository {
 
   @override
   Future<void> incrementStreak() => _real.incrementStreak();
+
+  @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) => _real.renameDisplayName(name, stillOwner: stillOwner);
 }
 
 /// Builds a stand-alone [ReadingModel] as if it were written directly by
 /// the pre-ledger app version — used to prepopulate History with "legacy"
 /// rows that predate recordReadingCompletion ever existing.
 ReadingModel _legacyReading(String id) => ReadingModel(
-      id: id,
-      cardId: 0,
-      cardName: 'The Fool',
-      cardImageAsset: 'assets/fool.png',
-      spreadType: 'single',
-      aiSummary: 'legacy summary for $id',
-      createdAt: DateTime(2025, 1, 1),
-    );
+  id: id,
+  cardId: 0,
+  cardName: 'The Fool',
+  cardImageAsset: 'assets/fool.png',
+  spreadType: 'single',
+  aiSummary: 'legacy summary for $id',
+  createdAt: DateTime(2025, 1, 1),
+);
 
 /// Fails one specific numbered durable write (1-based, counting setInt AND
 /// setStringList calls together, in the order they actually happen) then
@@ -147,7 +152,7 @@ ReadingModel _legacyReading(String id) => ReadingModel(
 /// one a simulated process crash lands on.
 class _FlakyLocalStorage extends LocalStorage {
   _FlakyLocalStorage(SharedPreferences prefs, {this.failAtWriteIndex})
-      : super(prefs);
+    : super(prefs);
 
   final int? failAtWriteIndex;
   int writeCount = 0;
@@ -231,7 +236,10 @@ ReadingSession _session({String id = 'autosave-1'}) {
     id: id,
     deckId: 'classic',
     spread: TarotSpreadType.single,
-    intention: const TarotIntention(text: 'Bugün ne beklemeliyim?', topic: 'general'),
+    intention: const TarotIntention(
+      text: 'Bugün ne beklemeliyim?',
+      topic: 'general',
+    ),
     shuffleSeed: 7,
     startedAt: DateTime(2026, 9, 7),
     drawnCards: [
@@ -273,20 +281,23 @@ void main() {
     users = MockUserRepository(storage);
   });
 
-  test('A: a successful save is real — the reading is retrievable afterwards', () async {
-    final service = ReadingService(realHistory, users);
-    final session = _session();
+  test(
+    'A: a successful save is real — the reading is retrievable afterwards',
+    () async {
+      final service = ReadingService(realHistory, users);
+      final session = _session();
 
-    final saved = await service.saveFromSession(
-      session: session,
-      aiSummary: 'Bugün sakin bir netlik var.',
-    );
+      final saved = await service.saveFromSession(
+        session: session,
+        aiSummary: 'Bugün sakin bir netlik var.',
+      );
 
-    expect(saved, isNotNull);
-    final all = await realHistory.getReadings();
-    expect(all.map((r) => r.id), contains(saved!.id));
-    expect(saved.id, session.id);
-  });
+      expect(saved, isNotNull);
+      final all = await realHistory.getReadings();
+      expect(all.map((r) => r.id), contains(saved!.id));
+      expect(saved.id, session.id);
+    },
+  );
 
   test(
     'B/F: a thrown persistence failure never escapes as an unhandled async error',
@@ -296,13 +307,10 @@ void main() {
       final session = _session();
 
       Object? unhandled;
-      await runZonedGuarded(
-        () async {
-          final ok = await _persistLikeReadingScreen(service, session);
-          expect(ok, isFalse, reason: 'the simulated failure should surface');
-        },
-        (error, stack) => unhandled = error,
-      );
+      await runZonedGuarded(() async {
+        final ok = await _persistLikeReadingScreen(service, session);
+        expect(ok, isFalse, reason: 'the simulated failure should surface');
+      }, (error, stack) => unhandled = error);
 
       // Nothing escaped the zone — the failure was fully contained.
       expect(unhandled, isNull);
@@ -355,8 +363,7 @@ void main() {
   });
 
   group('P0: reading count idempotency (recordReadingCompletion)', () {
-    test(
-        'same stable session saved 3x sequentially -> history has exactly '
+    test('same stable session saved 3x sequentially -> history has exactly '
         'one entry, totalReadings advances by exactly one', () async {
       final service = ReadingService(realHistory, users);
       final session = _session();
@@ -370,8 +377,7 @@ void main() {
       expect(profile.totalReadings, 1);
     });
 
-    test(
-        'two concurrent saves for the SAME session contribute to '
+    test('two concurrent saves for the SAME session contribute to '
         'totalReadings exactly once', () async {
       final service = ReadingService(realHistory, users);
       final session = _session();
@@ -386,8 +392,7 @@ void main() {
       expect(profile.totalReadings, 1);
     });
 
-    test(
-        'a process restart (fresh repository instances over the SAME '
+    test('a process restart (fresh repository instances over the SAME '
         'durable storage) replaying the same session still contributes '
         'only once', () async {
       final serviceA = ReadingService(realHistory, users);
@@ -407,24 +412,25 @@ void main() {
       expect(profile.totalReadings, 1);
     });
 
-    test('two distinct sessions each contribute their own +1 (total 2)',
-        () async {
-      final service = ReadingService(realHistory, users);
-      await service.saveFromSession(
-        session: _session(id: 'distinct-1'),
-        aiSummary: 'a',
-      );
-      await service.saveFromSession(
-        session: _session(id: 'distinct-2'),
-        aiSummary: 'b',
-      );
-
-      final profile = await users.getProfile();
-      expect(profile.totalReadings, 2);
-    });
-
     test(
-        'a legacy totalReadings value (from before this ledger existed) is '
+      'two distinct sessions each contribute their own +1 (total 2)',
+      () async {
+        final service = ReadingService(realHistory, users);
+        await service.saveFromSession(
+          session: _session(id: 'distinct-1'),
+          aiSummary: 'a',
+        );
+        await service.saveFromSession(
+          session: _session(id: 'distinct-2'),
+          aiSummary: 'b',
+        );
+
+        final profile = await users.getProfile();
+        expect(profile.totalReadings, 2);
+      },
+    );
+
+    test('a legacy totalReadings value (from before this ledger existed) is '
         'preserved as a floor — never reset or decreased', () async {
       // Simulates a user who already had 15 readings recorded under the
       // old unconditional-increment mechanism, before recordReadingCompletion
@@ -453,40 +459,40 @@ void main() {
     });
 
     test(
-        'history-level partial failure: the count is never touched until '
-        'history genuinely succeeds, and retry converges to exactly one',
-        () async {
-      final flakyHistory = _FlakyHistoryRepository(
-        realHistory,
-        failFirstNCalls: 1,
-      );
-      final service = ReadingService(flakyHistory, users);
-      final session = _session();
+      'history-level partial failure: the count is never touched until '
+      'history genuinely succeeds, and retry converges to exactly one',
+      () async {
+        final flakyHistory = _FlakyHistoryRepository(
+          realHistory,
+          failFirstNCalls: 1,
+        );
+        final service = ReadingService(flakyHistory, users);
+        final session = _session();
 
-      final firstAttempt = await _persistLikeReadingScreen(service, session);
-      expect(firstAttempt, isFalse);
-      expect(
-        (await users.getProfile()).totalReadings,
-        0,
-        reason: 'history never saved, so the count must not have moved',
-      );
+        final firstAttempt = await _persistLikeReadingScreen(service, session);
+        expect(firstAttempt, isFalse);
+        expect(
+          (await users.getProfile()).totalReadings,
+          0,
+          reason: 'history never saved, so the count must not have moved',
+        );
 
-      final retry = await _persistLikeReadingScreen(service, session);
-      expect(retry, isTrue);
-      expect((await users.getProfile()).totalReadings, 1);
+        final retry = await _persistLikeReadingScreen(service, session);
+        expect(retry, isTrue);
+        expect((await users.getProfile()).totalReadings, 1);
 
-      final again = await _persistLikeReadingScreen(service, session);
-      expect(again, isTrue);
-      expect(
-        (await users.getProfile()).totalReadings,
-        1,
-        reason: 'idempotent re-save must not add a second contribution',
-      );
-      expect(await realHistory.getReadings(), hasLength(1));
-    });
+        final again = await _persistLikeReadingScreen(service, session);
+        expect(again, isTrue);
+        expect(
+          (await users.getProfile()).totalReadings,
+          1,
+          reason: 'idempotent re-save must not add a second contribution',
+        );
+        expect(await realHistory.getReadings(), hasLength(1));
+      },
+    );
 
-    test(
-        'ledger-level partial failure: history already succeeded but the '
+    test('ledger-level partial failure: history already succeeded but the '
         'count write itself fails once — retry converges to exactly one '
         'contribution, history is never duplicated', () async {
       final flakyUsers = _FlakyUserRepository(users, failFirstNCalls: 1);
@@ -511,8 +517,7 @@ void main() {
       expect((await users.getProfile()).totalReadings, 1);
     });
 
-    test(
-        'achievement boundaries cannot be inflated by retries of the same '
+    test('achievement boundaries cannot be inflated by retries of the same '
         'session', () async {
       final service = ReadingService(realHistory, users);
       final session = _session();
@@ -533,8 +538,7 @@ void main() {
 
   group('P0: legacy reading-count migration '
       '(ensureReadingCompletionMigration)', () {
-    test(
-        'A: a legacy history row already represented by the old counter, '
+    test('A: a legacy history row already represented by the old counter, '
         'when replayed, contributes +0 — not a second +1', () async {
       await storage.setInt('profile_readings', 15);
       await realHistory.saveReading(_legacyReading('legacy-session-1'));
@@ -552,10 +556,7 @@ void main() {
       // storage, replaying the same legacy id again.
       final restartedHistory = MockHistoryRepository(storage);
       final restartedUsers = MockUserRepository(storage);
-      final restartedService = ReadingService(
-        restartedHistory,
-        restartedUsers,
-      );
+      final restartedService = ReadingService(restartedHistory, restartedUsers);
       await restartedService.saveFromSession(
         session: _session(id: 'legacy-session-1'),
         aiSummary: 'replayed again after restart',
@@ -565,8 +566,7 @@ void main() {
       expect((await restartedUsers.getProfile()).totalReadings, 15);
     });
 
-    test(
-        'B: legacy total (15) with 10 retained legacy ids — migration '
+    test('B: legacy total (15) with 10 retained legacy ids — migration '
         'preserves 15, replaying all 10 keeps 15, one genuinely new '
         'reading makes it 16 and stays 16 on repeat', () async {
       await storage.setInt('profile_readings', 15);
@@ -585,7 +585,10 @@ void main() {
       expect((await users.getProfile()).totalReadings, 15);
 
       for (final id in legacyIds) {
-        await service.saveFromSession(session: _session(id: id), aiSummary: 'replay');
+        await service.saveFromSession(
+          session: _session(id: id),
+          aiSummary: 'replay',
+        );
       }
       expect(await realHistory.getReadings(), hasLength(10));
       expect((await users.getProfile()).totalReadings, 15);
@@ -608,8 +611,7 @@ void main() {
       expect((await users.getProfile()).totalReadings, 16);
     });
 
-    test(
-        'C: legacy total (100) with only 25 retained ids (history retention '
+    test('C: legacy total (100) with only 25 retained ids (history retention '
         'trimmed the rest) — migration preserves 100, replaying retained '
         'legacy ids keeps 100, a new reading makes it 101', () async {
       await storage.setInt('profile_readings', 100);
@@ -620,7 +622,10 @@ void main() {
 
       final service = ReadingService(realHistory, users);
       for (final id in retainedIds) {
-        await service.saveFromSession(session: _session(id: id), aiSummary: 'replay');
+        await service.saveFromSession(
+          session: _session(id: id),
+          aiSummary: 'replay',
+        );
       }
       expect((await users.getProfile()).totalReadings, 100);
 
@@ -631,8 +636,7 @@ void main() {
       expect((await users.getProfile()).totalReadings, 101);
     });
 
-    test(
-        'D: an inconsistent legacy fixture (counter=5, but History retains '
+    test('D: an inconsistent legacy fixture (counter=5, but History retains '
         '8 unique ids) never decreases the total, never double-counts the '
         '8 known ids, and documents the exact resulting total as '
         'max(counter, knownIds) = 8', () async {
@@ -653,12 +657,16 @@ void main() {
       expect((await users.getProfile()).totalReadings, 8);
 
       for (final id in inconsistentIds) {
-        await service.saveFromSession(session: _session(id: id), aiSummary: 'replay');
+        await service.saveFromSession(
+          session: _session(id: id),
+          aiSummary: 'replay',
+        );
       }
       expect(
         (await users.getProfile()).totalReadings,
         8,
-        reason: 'replaying any of the 8 known ids must never add to the '
+        reason:
+            'replaying any of the 8 known ids must never add to the '
             'total — the policy already counted them all once',
       );
 
@@ -669,11 +677,9 @@ void main() {
       expect((await users.getProfile()).totalReadings, 9);
     });
 
-    test(
-        'E: two concurrent saves during the very first migration '
+    test('E: two concurrent saves during the very first migration '
         'activation, with an existing legacy baseline, execute safely — '
-        'no duplicate contribution, correct history, correct total',
-        () async {
+        'no duplicate contribution, correct history, correct total', () async {
       await storage.setInt('profile_readings', 15);
       final service = ReadingService(realHistory, users);
 
@@ -692,8 +698,7 @@ void main() {
       expect((await users.getProfile()).totalReadings, 17);
     });
 
-    test(
-        'F: migration interrupted at either of its own two durable-write '
+    test('F: migration interrupted at either of its own two durable-write '
         'boundaries (ledger, then baseline) converges to exactly the same '
         'result as an uninterrupted migration once retried after a '
         'restart', () async {
@@ -705,14 +710,17 @@ void main() {
         // must not consume the flaky write budget the assertions below
         // target specifically at migration's own two writes.
         final setupStorage = LocalStorage(prefs);
-        await MockHistoryRepository(setupStorage).saveReading(
-          _legacyReading('legacy-f-1'),
-        );
-        await MockHistoryRepository(setupStorage).saveReading(
-          _legacyReading('legacy-f-2'),
-        );
+        await MockHistoryRepository(
+          setupStorage,
+        ).saveReading(_legacyReading('legacy-f-1'));
+        await MockHistoryRepository(
+          setupStorage,
+        ).saveReading(_legacyReading('legacy-f-2'));
 
-        final flakyStorage = _FlakyLocalStorage(prefs, failAtWriteIndex: failAt);
+        final flakyStorage = _FlakyLocalStorage(
+          prefs,
+          failAtWriteIndex: failAt,
+        );
         final flakyHistory = MockHistoryRepository(flakyStorage);
         final flakyUsers = MockUserRepository(flakyStorage);
         final service = ReadingService(flakyHistory, flakyUsers);
@@ -760,7 +768,8 @@ void main() {
         expect(
           (await restartedUsers.getProfile()).totalReadings,
           16,
-          reason: 'failAt=$failAt: 15 legacy (unchanged) + 1 new — the same '
+          reason:
+              'failAt=$failAt: 15 legacy (unchanged) + 1 new — the same '
               'result an uninterrupted migration would have produced',
         );
       }
@@ -769,8 +778,7 @@ void main() {
 
   group('P0: Tarot journal commit point (history+count+version = durable '
       'core; analytics = best-effort)', () {
-    test(
-        'production-facing: history, count, and version seed all succeed '
+    test('production-facing: history, count, and version seed all succeed '
         'together -> commit reports complete exactly once', () async {
       final service = ReadingService(realHistory, users);
       final versionService = ReadingVersionService(
@@ -793,8 +801,7 @@ void main() {
       expect(analyticsCalls, 1);
     });
 
-    test(
-        'version-seed failure: history+count already durably saved, but '
+    test('version-seed failure: history+count already durably saved, but '
         'the commit is reported NOT complete — retry converges without '
         'duplicating history, count, or the version seed', () async {
       final flakyStore = _FlakyVersionStore(storage, failFirstNCalls: 1);
@@ -841,8 +848,7 @@ void main() {
       expect(versionService.groupFor(session.id)!.entries, hasLength(1));
     });
 
-    test(
-        'reading_screen.dart sets the journal gate completed ONLY AFTER '
+    test('reading_screen.dart sets the journal gate completed ONLY AFTER '
         'both the save and the version seed, and analytics/invalidation '
         'are wrapped so they can never flip that outcome '
         '(regression lock against reintroducing the P0 contradictory-state '
@@ -863,14 +869,19 @@ void main() {
       expect(
         completedIndex,
         greaterThan(seedIndex),
-        reason: 'the gate must never report complete before the version '
+        reason:
+            'the gate must never report complete before the version '
             'seed (part of the durable core) has actually succeeded',
       );
 
       final analyticsIndex = method.indexOf('logReadingCompleted(');
-      expect(analyticsIndex, greaterThan(completedIndex),
-          reason: 'analytics must run only after the durable commit point, '
-              'never gate it');
+      expect(
+        analyticsIndex,
+        greaterThan(completedIndex),
+        reason:
+            'analytics must run only after the durable commit point, '
+            'never gate it',
+      );
       // Analytics failing must be swallowed locally, not merged into the
       // same catch that flips _journalPersistFailed.
       final analyticsRegion = method.substring(analyticsIndex);
@@ -878,36 +889,34 @@ void main() {
       expect(
         analyticsRegion.indexOf('_journalPersistFailed = true'),
         -1,
-        reason: 'a best-effort analytics failure must never re-arm the '
+        reason:
+            'a best-effort analytics failure must never re-arm the '
             'save-failed banner',
       );
     });
   });
 
-  test(
-    'reading_screen.dart actually contains the honest failure/retry wiring '
-    '(regression lock against silently reverting to an unguarded call)',
-    () {
-      final source = File(
-        'lib/features/tarot/presentation/screens/reading_screen.dart',
-      ).readAsStringSync();
+  test('reading_screen.dart actually contains the honest failure/retry wiring '
+      '(regression lock against silently reverting to an unguarded call)', () {
+    final source = File(
+      'lib/features/tarot/presentation/screens/reading_screen.dart',
+    ).readAsStringSync();
 
-      final method = source.substring(
-        source.indexOf('Future<void> _persistToJournal('),
-        source.indexOf('Future<void> _offerPersonalNote('),
-      );
+    final method = source.substring(
+      source.indexOf('Future<void> _persistToJournal('),
+      source.indexOf('Future<void> _offerPersonalNote('),
+    );
 
-      expect(method, contains('try {'));
-      expect(method, contains('} catch (e) {'));
-      expect(method, contains('_journalPersistFailed = true'));
-      expect(method, contains('_showJournalPersistFailedFeedback()'));
+    expect(method, contains('try {'));
+    expect(method, contains('} catch (e) {'));
+    expect(method, contains('_journalPersistFailed = true'));
+    expect(method, contains('_showJournalPersistFailedFeedback()'));
 
-      expect(source, contains('ResilienceCopy.readingSaveFailed'));
-      expect(source, contains('ResilienceCopy.retryAction'));
-      expect(source, contains('SnackBarAction('));
-      // The auto-save call itself stays unawaited (must not delay/lose the
-      // already-rendered interpretation), but is now internally safe.
-      expect(source, contains('_persistToJournal();'));
-    },
-  );
+    expect(source, contains('ResilienceCopy.readingSaveFailed'));
+    expect(source, contains('ResilienceCopy.retryAction'));
+    expect(source, contains('SnackBarAction('));
+    // The auto-save call itself stays unawaited (must not delay/lose the
+    // already-rendered interpretation), but is now internally safe.
+    expect(source, contains('_persistToJournal();'));
+  });
 }

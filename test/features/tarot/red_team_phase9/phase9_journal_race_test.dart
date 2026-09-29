@@ -42,6 +42,15 @@ class _StubUser implements UserRepository {
   Future<void> ensureReadingCompletionMigration(List<String> ids) async {}
   @override
   Future<bool> recordReadingCompletion(String readingId) async => true;
+
+  @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    throw UnsupportedError('renameDisplayName');
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -89,9 +98,13 @@ void main() {
 
     final auto = gate.run(body: body);
     await started.future;
-    final manual = gate.run(body: body, offerNote: true, onOfferNote: () async {
-      notes++;
-    });
+    final manual = gate.run(
+      body: body,
+      offerNote: true,
+      onOfferNote: () async {
+        notes++;
+      },
+    );
     final fav = gate.run(body: body, offerNote: true);
     release.complete();
     await Future.wait([auto, manual, fav]);
@@ -108,24 +121,30 @@ void main() {
     final release = Completer<void>();
     var attempts = 0;
 
-    final first = gate.run(body: () async {
-      started.complete();
-      await release.future;
-      attempts++;
-      // Fail after "write" — completed stays false.
-    });
+    final first = gate.run(
+      body: () async {
+        started.complete();
+        await release.future;
+        attempts++;
+        // Fail after "write" — completed stays false.
+      },
+    );
     await started.future;
-    final waiter = gate.run(body: () async {
-      attempts++;
-      gate.completed = true;
-    });
+    final waiter = gate.run(
+      body: () async {
+        attempts++;
+        gate.completed = true;
+      },
+    );
     release.complete();
     await first;
     expect(gate.completed, isFalse);
-    await gate.run(body: () async {
-      attempts++;
-      gate.completed = true;
-    });
+    await gate.run(
+      body: () async {
+        attempts++;
+        gate.completed = true;
+      },
+    );
     await waiter;
     expect(gate.completed, isTrue);
     expect(attempts, greaterThanOrEqualTo(2));
