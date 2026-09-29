@@ -244,9 +244,30 @@ Skips are the existing `ORACLY_E2E=1`, release-manifest, and shadow-corpus gates
 
 ## 13. Release artifact
 
-Built from the final commit of this phase. Not uploaded.
+Built from `284ca6bc76882185ce4dcb0c93449de398d38468`. Not uploaded.  
+A local, uncommitted `kotlin.incremental=false` was required to finish the Windows Kotlin compile. It is not in the commit. It does not change app source.
 
-Recorded in the commit message trail only after the build. See the P4F report for versionName, versionCode, signing, `debuggable`, and certificate. The previous AAB `1.0.0+26092907` from G2C is not this commit's artifact.
+| Artifact | SHA-256 | Size |
+|---|---|---|
+| `app-release.aab` | `b94cc9cdd5666ac1df516ded75c12f58269feb42cc51092fdcf847672c51bc6b` | 121728423 |
+| `app-release.apk` | `c9398f23ffe19b29077cabacbfd5d1cc784866907c1fd33ef7635e3bcd5fba3d` | 123196749 |
+
+- package `app.oracly`
+- versionName `1.0.0`
+- versionCode `26092907`
+- targetSdk `36`
+- minSdk `24`
+- `android:debuggable` absent (release false)
+- `android:usesCleartextTraffic` absent (cleartext false on target 36)
+- signer DN `CN=Fatih Taha Yılmaz, OU=Oracly, O=Oracly, L=Isparta, ST=Isparta, C=TR`
+- certificate SHA-256 `e789561fac940d252442f98e1d6c7dba4eefc0bb361f17cffff54309d6007ad5`
+- not the Android debug certificate
+- production host `oracly-api-uya7zqzwra-ew.a.run.app` is in the binary
+- `REPLACE_WITH` is absent
+- `candidate` hits are source identifiers, not a Cloud Run revision tag
+- `localhost` hits are engine/XMP strings, not the API host
+
+The G2C AAB is not this commit's artifact.
 
 ## 14. External tasks after product readiness
 
