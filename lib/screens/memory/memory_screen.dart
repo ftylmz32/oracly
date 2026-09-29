@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers/app_providers.dart';
+import '../../core/auth/user_local_data_isolation.dart';
+import '../../core/providers/backend_providers.dart' as backend;
 import '../../core/copy/resilience_copy.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/copy/transparency_copy.dart';
@@ -50,6 +52,10 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
 
   String? _loadError;
 
+  int _shownEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
+
+  int _loadTicket = 0;
+
   @override
   void initState() {
     super.initState();
@@ -57,17 +63,33 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
     _loadMemories();
   }
 
-  Future<void> _loadMemories() async {
-    setState(() {
-      _isLoading = true;
-
-      _loadError = null;
+  void _noteEpoch(int epoch) {
+    if (epoch == _shownEpoch) return;
+    _shownEpoch = epoch;
+    _loadTicket++;
+    _memories = const [];
+    _isLoading = true;
+    _loadError = null;
+    final ticket = _loadTicket;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadMemories(ticket);
     });
+  }
+
+  Future<void> _loadMemories([int? ticket]) async {
+    final current = ticket ?? ++_loadTicket;
+    if (ticket == null) {
+      setState(() {
+        _isLoading = true;
+        _loadError = null;
+      });
+    }
 
     try {
       final memories = await _memoryService.getAdvancedMemories();
 
-      if (!mounted) return;
+      if (!mounted || current != _loadTicket) return;
 
       setState(() {
         _memories = memories;
@@ -75,7 +97,7 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
         _isLoading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || current != _loadTicket) return;
 
       setState(() {
         _isLoading = false;
@@ -167,6 +189,7 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _noteEpoch(ref.watch(backend.localDataOwnerEpochProvider));
     return OraclyScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,

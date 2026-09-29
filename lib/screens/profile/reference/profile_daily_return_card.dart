@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/auth/user_local_data_isolation.dart';
+import '../../../core/providers/backend_providers.dart' as backend;
 import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -29,9 +31,15 @@ class ProfileDailyReturnCard extends ConsumerStatefulWidget {
 class _ProfileDailyReturnCardState
     extends ConsumerState<ProfileDailyReturnCard> {
   bool _recorded = false;
+  int _boundEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
 
   @override
   Widget build(BuildContext context) {
+    final epoch = ref.watch(backend.localDataOwnerEpochProvider);
+    if (_boundEpoch != epoch) {
+      _boundEpoch = epoch;
+      _recorded = false;
+    }
     final palette = AppColors.of(context);
     final storage = ref.watch(localStorageProvider);
     final profile = ref.watch(userProfileProvider);
@@ -45,28 +53,36 @@ class _ProfileDailyReturnCardState
       discovery: discovery,
       settings: settings,
     );
-    final message = DailyMessageSession.resolve(
-      store: store,
-      day: day,
-      profileName: profile.value?.name,
-      discovery: discovery.valueOrNull,
-      recent: ref.watch(discoverySurfaceMemoryProvider).all(),
-      personality: settings.value?.aiPersonality,
-    );
-    if ((cached != null || settled) && !_recorded) {
+    final ready = cached != null || settled;
+    final message = ready
+        ? DailyMessageSession.resolve(
+            store: store,
+            day: day,
+            profileName: profile.value?.name,
+            discovery: discovery.valueOrNull,
+            recent: ref.watch(discoverySurfaceMemoryProvider).all(),
+            personality: settings.value?.aiPersonality,
+          )
+        : null;
+    if (message != null && !_recorded) {
       _recorded = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        DailyMessageSession.persist(
+      final captured = _boundEpoch;
+      DailyMessageSession.persistAfterFrame(
+        ownerEpoch: captured,
+        isMounted: () => mounted,
+        write: () => DailyMessageSession.persist(
           store: DailyReturnStore(storage),
           memory: ref.read(discoverySurfaceMemoryProvider),
           message: message,
-        );
-      });
+          ownerEpoch: captured,
+        ),
+      );
     }
     final recommendation = ref.watch(discoveryRecommendationProvider);
     final discoverySettled = DailyMessageReadiness.settled(discovery);
-    final ctaAction = discoverySettled
+    final ctaAction = message == null
+        ? null
+        : discoverySettled
         ? dailyReturnActionFor(recommendation.feature, message.action)
         : message.action;
     return Semantics(
@@ -95,18 +111,20 @@ class _ProfileDailyReturnCardState
               ),
               SizedBox(height: AppSpacing.sm),
               Text(
-                message.text,
+                message?.text ?? '',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: ReadingTypography.body(color: palette.textSecondary),
               ),
-              SizedBox(height: AppSpacing.s8),
-              Text(
-                DailyMessageCopy.action(ctaAction),
-                style: ReadingTypography.bodyCore(
-                  color: palette.goldLight.withValues(alpha: 0.92),
+              if (ctaAction != null) ...[
+                SizedBox(height: AppSpacing.s8),
+                Text(
+                  DailyMessageCopy.action(ctaAction),
+                  style: ReadingTypography.bodyCore(
+                    color: palette.goldLight.withValues(alpha: 0.92),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

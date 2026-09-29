@@ -5,12 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
-import '../../../core/design_system/oracly_chrome.dart';
+import '../../../core/auth/user_local_data_isolation.dart';
+import '../../../core/providers/backend_providers.dart' as backend;
 import '../../../core/navigation/oracly_navigation_service.dart';
-import '../../../core/theme/craftsmanship_rhythm.dart';
-import '../../../core/theme/reading_typography.dart';
-import '../../../shared/widgets/oracly_pressable.dart';
-import '../../daily_message/copy/daily_message_copy.dart';
+import 'home_daily_message_teaser_body.dart';
 import '../../daily_message/data/daily_return_store.dart';
 import '../../daily_message/models/daily_message.dart';
 import '../../daily_message/services/daily_message_session.dart';
@@ -30,6 +28,7 @@ class HomeDailyMessageTeaser extends ConsumerStatefulWidget {
 class _HomeDailyMessageTeaserState
     extends ConsumerState<HomeDailyMessageTeaser> {
   bool _recorded = false;
+  int _boundEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
 
   DailyMessage? _resolveOrNull({
     required String? profileName,
@@ -54,21 +53,31 @@ class _HomeDailyMessageTeaserState
   void _persistOnce(DailyMessage message) {
     if (_recorded) return;
     _recorded = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      try {
-        final storage = ref.read(localStorageProvider);
-        DailyMessageSession.persist(
-          store: DailyReturnStore(storage),
-          memory: ref.read(discoverySurfaceMemoryProvider),
-          message: message,
-        );
-      } catch (_) {}
-    });
+    final epoch = _boundEpoch;
+    DailyMessageSession.persistAfterFrame(
+      ownerEpoch: epoch,
+      isMounted: () => mounted,
+      write: () async {
+        try {
+          final storage = ref.read(localStorageProvider);
+          await DailyMessageSession.persist(
+            store: DailyReturnStore(storage),
+            memory: ref.read(discoverySurfaceMemoryProvider),
+            message: message,
+            ownerEpoch: epoch,
+          );
+        } catch (_) {}
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final epoch = ref.watch(backend.localDataOwnerEpochProvider);
+    if (_boundEpoch != epoch) {
+      _boundEpoch = epoch;
+      _recorded = false;
+    }
     final profileAsync = ref.watch(userProfileProvider);
     final settingsAsync = ref.watch(settingsProvider);
     final discoveryAsync = ref.watch(personalDiscoveryProfileProvider);
@@ -91,56 +100,9 @@ class _HomeDailyMessageTeaserState
     }
     _persistOnce(message);
 
-    return Semantics(
-      button: true,
-      label: '${DailyMessageCopy.prompt}. $text',
-      child: OraclyPressable(
-        onTap: () => OraclyNavigationService.openDailyMessage(context),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(2, 10, 2, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      DailyMessageCopy.prompt,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          ReadingTypography.eyebrow(
-                            color: OraclyChrome.goldLight.withValues(
-                              alpha: 0.90,
-                            ),
-                            fontSize: 11,
-                          ).copyWith(
-                            letterSpacing:
-                                CraftsmanshipRhythm.sectionLabelTracking + 0.2,
-                          ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: OraclyChrome.goldLight.withValues(alpha: 0.72),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Text(
-                text,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: ReadingTypography.bodyCore(
-                  color: OraclyChrome.cream.withValues(alpha: 0.88),
-                ).copyWith(fontSize: 13.5, height: 1.38),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return HomeDailyMessageTeaserBody(
+      text: text,
+      onTap: () => OraclyNavigationService.openDailyMessage(context),
     );
   }
 }

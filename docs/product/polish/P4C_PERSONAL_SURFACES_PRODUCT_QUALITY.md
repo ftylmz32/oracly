@@ -34,3 +34,33 @@ Branch: `fix/final-product-remediation-20260922`
 Focused suites passed, including the held-loading daily snapshot, regenerate/hide honesty, memory durability, existing daily/return/handoff tests, `personal_insights_test`, and `memory_service_test`.
 
 `flutter analyze --no-fatal-infos` on the changed Dart files: no warnings. Two pre-existing infos remain on the insights experience constructor.
+
+## P4C.1 — Account switch live-state isolation
+
+Start: `7ab1bf3075b45eeb49c9c66445243166c7953748`
+
+The P4C wipe coverage is unchanged. This pass is the mounted UI after a completed switch: wipe, owner commit, then `UserLocalDataIsolation.accountSwitchEpoch`.
+
+### Confirmed
+
+| Surface | Before | After |
+| --- | --- | --- |
+| Memory | An open list kept Owner A's rows in `_memories`. A load that finished after the switch could write those rows back. | The epoch clears the list in the same build and reloads from `MemoryService`. A result started under the previous epoch cannot call `setState`. |
+| Daily Message | `_recorded` stayed true, so B's snapshot was never stored from that screen. A post-frame callback could also write A's resolved message into B's empty store. | The epoch clears `_recorded`. A callback captures the epoch it was scheduled under and does not call `persist` after the switch. |
+| Profile daily card | Same `_recorded` and post-frame write. | Same epoch gate. A cached B snapshot still shows while profile and discovery are unresolved. |
+| Personal Insights | The open letter is a `ChangeNotifier` the account-switch host does not own. A's summary stayed on screen, and a late `load()` could publish it again. | The controller listens to the same epoch, starts a new load, and drops a result whose ticket is no longer current. Dispose does not notify. |
+| Daily personalization | Riverpod 2.6 keeps the previous `AsyncValue` while `invalidate` reloads (`isRefreshing` / `isReloading`, `hasValue` still true). Readiness treated that as settled, so A's name and discovery could be frozen as B's day. | Readiness is false while a previous value is only being retained. A finished value or a terminal error is still settled. |
+
+Home's daily teaser uses the same post-frame gate so a callback scheduled for A cannot write after the epoch changes.
+
+### Not changed
+
+Memory `updateMemory`, insights regenerate/hide/delete honesty, reflection algorithms, storage key names, the wipe key list, auth ordering, OR, billing, backend.
+
+### Proof
+
+`test/features/personal/p4c1_account_switch_live_state_test.dart`
+
+Mounted switches call `UserLocalDataIsolation.onSignedIn` after the image archive can resolve, then the epoch bumps. The daily stale-write case bumps that epoch after the wipe keys are cleared and before the already scheduled callback runs. Invalidating profile, discovery, and settings is the same personalization refresh `AccountSwitchRefreshHost` performs. The widget tests do not boot gem or OR hydration.
+
+P4C daily, insights, and memory suites, the home teaser tests, and `user_data_isolation_test` passed after the change.

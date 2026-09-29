@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
+import '../../../../core/auth/user_local_data_isolation.dart';
+import '../../../../core/providers/backend_providers.dart' as backend;
 import '../../../../core/data/datasources/local_storage.dart';
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/oracly_app_bar.dart';
@@ -35,23 +37,36 @@ class DailyMessageScreen extends ConsumerStatefulWidget {
 
 class _DailyMessageScreenState extends ConsumerState<DailyMessageScreen> {
   bool _recorded = false;
+  int _boundEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
 
   void _persistOnce(LocalStorage storage, DailyMessage message) {
     if (_recorded) return;
     _recorded = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      DailyMessageSession.persist(
-        store: DailyReturnStore(storage),
-        memory: ref.read(discoverySurfaceMemoryProvider),
-        message: message,
-      );
-      PersonalDiscoveryRefresh.invalidate(ref);
-    });
+    final epoch = _boundEpoch;
+    DailyMessageSession.persistAfterFrame(
+      ownerEpoch: epoch,
+      isMounted: () => mounted,
+      write: () async {
+        await DailyMessageSession.persist(
+          store: DailyReturnStore(storage),
+          memory: ref.read(discoverySurfaceMemoryProvider),
+          message: message,
+          ownerEpoch: epoch,
+        );
+        if (!mounted) return;
+        if (UserLocalDataIsolation.accountSwitchEpoch.value != epoch) return;
+        PersonalDiscoveryRefresh.invalidate(ref);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final epoch = ref.watch(backend.localDataOwnerEpochProvider);
+    if (_boundEpoch != epoch) {
+      _boundEpoch = epoch;
+      _recorded = false;
+    }
     final storage = ref.watch(localStorageProvider);
     final profile = ref.watch(userProfileProvider);
     final discovery = ref.watch(personalDiscoveryProfileProvider);

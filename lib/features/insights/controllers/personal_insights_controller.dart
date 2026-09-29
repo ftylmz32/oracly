@@ -42,27 +42,49 @@ class PersonalInsightsController extends ChangeNotifier {
   PersonalInsightsState _state = const PersonalInsightsState();
   PersonalInsightsState get state => _state;
 
-  Future<void> load() async {
-    _state = _state.copyWith(phase: PersonalInsightsPhase.loading, error: null);
+  int _ticket = 0;
+  bool _disposed = false;
+
+  bool _current(int ticket) => !_disposed && ticket == _ticket;
+
+  void _publish(PersonalInsightsState next) {
+    if (_disposed) return;
+    _state = next;
     notifyListeners();
+  }
+
+  Future<void> load() async {
+    final ticket = ++_ticket;
+    _publish(const PersonalInsightsState());
 
     try {
       final raw = await _service.generate();
+      if (!_current(ticket)) return;
       final filtered = await _service.applyPrivacyFilters(raw);
+      if (!_current(ticket)) return;
       final phase = filtered.hasContent
           ? PersonalInsightsPhase.ready
           : PersonalInsightsPhase.empty;
-      _state = _state.copyWith(phase: phase, summary: filtered);
+      _publish(PersonalInsightsState(phase: phase, summary: filtered));
     } catch (e) {
-      _state = _state.copyWith(
-        phase: PersonalInsightsPhase.error,
-        error: AiErrorSanitizer.publicMessage(
-          error: e,
-          fallback: ResilienceCopy.genericLoadFailed,
+      if (!_current(ticket)) return;
+      _publish(
+        PersonalInsightsState(
+          phase: PersonalInsightsPhase.error,
+          error: AiErrorSanitizer.publicMessage(
+            error: e,
+            fallback: ResilienceCopy.genericLoadFailed,
+          ),
         ),
       );
     }
-    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _ticket++;
+    super.dispose();
   }
 
   Future<void> regenerate() => load();
