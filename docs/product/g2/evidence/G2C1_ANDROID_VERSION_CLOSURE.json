@@ -1,0 +1,37 @@
+{
+  "phase": "G2C.1",
+  "utc": "2026-09-29T12:21:00Z",
+  "startHead": "cffa166fd991f3cbea55758b7bfa7f2eec61b487",
+  "oldRepoVersion": "1.0.0+26091306",
+  "confirmedPlay": "1.0.0+26091501",
+  "currentTecno": "1.0.0+26092906",
+  "newRepo": "1.0.0+26092907",
+  "derivation": "max(confirmed Play 26091501, TECNO QA 26092906) + 1",
+  "currentLivePlayQuery": "NOT_AVAILABLE",
+  "uploadMonotonicAgainstConfirmedPlay": true,
+  "newerThanTecnoQa": true,
+  "artifact": {
+    "aabSizeBytes": 121756639,
+    "aabSha256": "ed35ed57dec7cad86233c76a64dffdf2decc3729f9915450433f4c6be081bd2d",
+    "apkSizeBytes": 123351764,
+    "apkSha256": "a5ee537423171939bfedd682769f3a64dc933c71c56cd46cebb97a6fc5a4d53e",
+    "signingCertSha256": "e789561fac940d252442f98e1d6c7dba4eefc0bb361f17cffff54309d6007ad5",
+    "signingCertUnchanged": true,
+    "aabSignature": "jar verified",
+    "apkSignature": "apksigner verified",
+    "package": "app.oracly",
+    "versionName": "1.0.0",
+    "versionCode": 26092907,
+    "runtimeHostsUnchanged": {
+      "ai": "oracly-api-uya7zqzwra-ew.a.run.app",
+      "billing": "oracly-api-uya7zqzwra-ew.a.run.app"
+    }
+  },
+  "testsPassed": 30,
+  "testsFailed": 0,
+  "providerExecutions": 0,
+  "storeTransactions": 0,
+  "deploys": 0,
+  "trafficMutations": 0,
+  "deviceInstalls": 0
+}

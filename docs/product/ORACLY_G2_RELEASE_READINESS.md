@@ -1162,3 +1162,32 @@ Production traffic was not promoted.
 
 Sanitized record:
 `docs/product/g2/evidence/G2C_ANDROID_RELEASE_DEVICE_AUDIT.json`.
+
+---
+
+## 28. G2C.1 — Android release version-code closure
+
+G2C classified Play upload eligibility as unknown because no Play Console
+versionCode was in the repo. Earlier verified Internal Testing evidence
+establishes an active release at `1.0.0` / `26091501`. The TECNO QA
+installation is `1.0.0` / `26092906`. The repo value `26091306` is older
+than both, so it cannot be the next upload.
+
+The release number was advanced deterministically:
+
+`max(26091501, 26092906) + 1 = 26092907`
+
+`pubspec.yaml` is now `1.0.0+26092907`. versionName stayed `1.0.0`. No
+feature or runtime source changed. A new signed AAB and APK were rebuilt
+from that number with the existing production defines. Both carry package
+`app.oracly`, versionName `1.0.0`, and versionCode `26092907`. The upload
+certificate is unchanged. The merged manifest stays hardened. Targeted
+release tests passed with 0 failures. No live Play Console query was made.
+No provider call, store transaction, device install, deploy, or traffic
+change occurred.
+
+versionCode upload eligibility is **CLOSED** against the confirmed Play
+state: `26092907 > 26091501`. It is also newer than the TECNO QA build.
+
+Sanitized record:
+`docs/product/g2/evidence/G2C1_ANDROID_VERSION_CLOSURE.json`.
