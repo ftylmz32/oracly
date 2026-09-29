@@ -1,8 +1,10 @@
 /// OR'a Sor context builders for non-tarot readings.
 library;
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../birth_chart/models/birth_profile.dart';
 import '../../../coffee/models/coffee_reading.dart';
+import '../../../palm/copy/palm_copy.dart';
 import '../../../palm/models/palm_reading.dart';
 import '../../../star_map/models/star_map_reading.dart';
 import '../services/oracle_reading_context_text.dart';
@@ -49,27 +51,34 @@ extension OracleReadingContextSources on OracleReadingContext {
     final symbols = reading.symbols.take(6).toList();
     String clip(String raw, [int max = 220]) =>
         OracleReadingContextText.shortSummary(raw, maxLen: max);
+    final handLabel = reading.hand.label;
+    final chamber = OraclyL10n.t('home.discovery.palm.title');
     final full = [
-      'El: ${reading.hand.label}',
-      if (reading.overall.trim().isNotEmpty) 'Genel: ${clip(reading.overall, 280)}',
-      if (reading.heartLine.trim().isNotEmpty) 'Kalp: ${clip(reading.heartLine, 120)}',
-      if (reading.headLine.trim().isNotEmpty) 'Zihin: ${clip(reading.headLine, 120)}',
-      if (reading.lifeLine.trim().isNotEmpty) 'Yaşam: ${clip(reading.lifeLine, 120)}',
-      if (reading.fateLine.trim().isNotEmpty) 'Yön: ${clip(reading.fateLine, 120)}',
-      if (symbols.isNotEmpty) 'İzler: ${symbols.join(', ')}',
+      handLabel,
+      if (reading.overall.trim().isNotEmpty)
+        '${PalmCopy.overallTitle}: ${clip(reading.overall, 280)}',
+      if (reading.heartLine.trim().isNotEmpty)
+        '${PalmCopy.heartTitle}: ${clip(reading.heartLine, 120)}',
+      if (reading.headLine.trim().isNotEmpty)
+        '${PalmCopy.headTitle}: ${clip(reading.headLine, 120)}',
+      if (reading.lifeLine.trim().isNotEmpty)
+        '${PalmCopy.lifeTitle}: ${clip(reading.lifeLine, 120)}',
+      if (reading.fateLine.trim().isNotEmpty)
+        '${PalmCopy.fateTitle}: ${clip(reading.fateLine, 120)}',
+      if (symbols.isNotEmpty) '${PalmCopy.symbolsTitle}: ${symbols.join(', ')}',
       if (reading.themes.isNotEmpty)
-        'Temalar: ${reading.themes.take(4).join(', ')}',
+        '${PalmCopy.themesTitle}: ${reading.themes.take(4).join(', ')}',
       if (reading.takeaway.trim().isNotEmpty)
-        'En önemli işaret: ${clip(reading.takeaway, 160)}',
+        '${PalmCopy.takeawayTitle}: ${clip(reading.takeaway, 160)}',
     ].where((e) => e.trim().isNotEmpty).join('\n\n');
     return OracleReadingContext(
       sessionId: reading.id,
       kind: OracleReadingKind.palm,
-      sourceLabel: 'El Falı',
-      spreadLabel: reading.hand.label,
+      sourceLabel: chamber,
+      spreadLabel: handLabel,
       deckId: 'palm',
-      deckName: 'El Falı',
-      readingTitle: 'El yorumu',
+      deckName: chamber,
+      readingTitle: PalmCopy.screenTitle,
       cardsSummary:
           symbols.isEmpty ? clip(reading.overall, 120) : symbols.join(', '),
       interpretationSummary: clip(reading.overall),

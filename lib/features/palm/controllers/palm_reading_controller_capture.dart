@@ -114,12 +114,19 @@ mixin PalmReadingCapture on ChangeNotifier {
 
   void backToEntry() {
     _generation++;
+    _resumeTimer?.cancel();
     _phase = PalmPhase.entry;
     _image = null;
     _reading = null;
     _error = null;
     _lastError = null;
     _qualityHint = null;
+    liveState = null;
+    _accelerating = false;
+    _accelerationError = null;
+    _accelerationCost = null;
+    _accelerationCostFor = null;
+    _accelerationPriceToken = null;
     safeNotify();
   }
 

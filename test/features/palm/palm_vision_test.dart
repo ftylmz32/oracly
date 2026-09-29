@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/ai/production/ai_failure.dart';
 import 'package:oracly_new/features/ai/production/ai_outcome.dart';
 import 'package:oracly_new/features/ai/production/openai/openai_service_requests.dart';
@@ -104,6 +105,8 @@ void main() {
     );
     expect(const UnavailablePalmAnalysis().isAvailable, isFalse);
     expect(PalmCopy.disclaimer.toLowerCase(), contains('sembolik'));
-    expect(PalmHand.right.label, 'Sağ el');
+    OraclyL10n.bind('tr');
+    expect(PalmHand.right.label, PalmCopy.rightHand);
+    expect(PalmHand.right.name, 'right');
   });
 }

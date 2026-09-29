@@ -37,6 +37,8 @@ class PalmLoadingView extends StatelessWidget {
     final path = imagePath;
     final hasHand = path != null && File(path).existsSync();
     return ReadingWaitScreen(
+      headline: message,
+      detail: subtitle,
       liveState: liveState,
       hero: hasHand
           ? SizedBox(

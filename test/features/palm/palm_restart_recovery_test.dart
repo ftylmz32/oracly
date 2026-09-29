@@ -280,4 +280,68 @@ test(
       expect(sharedPendingStore.load(ReadingType.palm), isNull);
     },
   );
+
+  test('a missing server hand side does not become the right hand', () async {
+    final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+    final runner = fakeImmediateReadingFeatureRunner(
+      backend: backend,
+      serverOwnedCompletion: true,
+    );
+    final target = await runner.flow.begin(
+      readingType: ReadingType.palm,
+      sourceRequestId: 'missing-hand-palm',
+    );
+    final targetId = target.snapshot!.operationId;
+    backend.completeServerSide(
+      targetId,
+      resultId: 'palm_missing_hand',
+      result: const {
+        'overall': 'no hand side',
+        'takeaway': 'done',
+      },
+    );
+    final controller = PalmReadingController(
+      experience: PalmExperienceService(
+        store: sharedReadingStore,
+        analysis: _TrackingAnalysis(),
+      ),
+      images: _FakeImages(fixturePath),
+      live: runner,
+      pendingStore: sharedPendingStore,
+    );
+    addTearDown(controller.dispose);
+    await controller.recoverOperation(targetId);
+    expect(controller.phase, PalmPhase.error);
+    expect(controller.reading, isNull);
+  });
+
+  test('new palm clears the previous wait and acceleration state', () async {
+    final backend = FakeReadingOperationBackend(immediatelyEligible: false);
+    final controller = PalmReadingController(
+      experience: PalmExperienceService(
+        store: sharedReadingStore,
+        analysis: _TrackingAnalysis(),
+        persistImage: ({required readingId, required sourcePath}) async =>
+            sourcePath,
+      ),
+      images: _FakeImages(fixturePath),
+      live: fakeImmediateReadingFeatureRunner(backend: backend),
+      pendingStore: sharedPendingStore,
+    );
+    addTearDown(controller.dispose);
+    controller.startCapture();
+    controller.selectHand(PalmHand.left);
+    await controller.pickGallery();
+    await controller.analyze();
+    expect(controller.phase, PalmPhase.analyzing);
+    expect(controller.liveState, isNotNull);
+    controller.backToEntry();
+    expect(controller.phase, PalmPhase.entry);
+    expect(controller.image, isNull);
+    expect(controller.reading, isNull);
+    expect(controller.liveState, isNull);
+    expect(controller.accelerationError, isNull);
+    expect(controller.accelerationCost, isNull);
+    expect(controller.hand, PalmHand.left);
+  });
 }

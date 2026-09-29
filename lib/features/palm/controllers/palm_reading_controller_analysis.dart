@@ -204,9 +204,20 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
     final completed = await live.flow.fetchCompletedResult(operationId);
     if (_disposed) return true;
     if (completed == null) return false;
-    final hand = completed.result['_handSide'] == PalmHand.left.name
-        ? PalmHand.left
-        : PalmHand.right;
+    final hand = PalmHand.fromWire(completed.result['_handSide']);
+    if (hand == null) {
+      if (_disposed) return true;
+      _setAnalysisError(
+        'restore',
+        PalmAnalysisError(
+          PalmAnalysisErrorKind.unknown,
+          ReadingLiveCopy.failed,
+        ),
+        'hand_side_missing',
+      );
+      safeNotify();
+      return true;
+    }
     final PalmReading reading;
     try {
       reading = await _experience.restoreCompleted(
