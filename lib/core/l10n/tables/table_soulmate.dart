@@ -300,4 +300,20 @@ const kL10nSoulMate = <String, L10nTriple>{
     'Generated symbolic portrait',
     'Созданный символический портрет',
   ),
+  'soulmate.or.chamber': L10nTriple('Ruh Eşi', 'Soulmate', 'Родственная душа'),
+  'soulmate.or.portrait': L10nTriple(
+    'Sembolik portre',
+    'Symbolic portrait',
+    'Символический портрет',
+  ),
+  'soulmate.or.name_label': L10nTriple(
+    'İsim ilhamı',
+    'Name inspiration',
+    'Имя-вдохновение',
+  ),
+  'soulmate.or.source': L10nTriple(
+    'Kaynak: sembolik Ruh Eşi portresi — yaratıcı yansıma, kesin kimlik değil',
+    'Source: a symbolic Soulmate portrait — a creative reflection, not a definite identity',
+    'Источник: символический портрет родственной души — творческое отражение, не определённая личность',
+  ),
 };

@@ -46,8 +46,7 @@ class SoulMateDrawResultView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isPremium = ref.watch(premiumStatusProvider).isPremium;
-    final canShare =
-        isPremium || SoulMateDevAccess.allowsTestAccess;
+    final canShare = isPremium || SoulMateDevAccess.allowsTestAccess;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,14 +96,7 @@ class SoulMateDrawResultView extends ConsumerWidget {
         OraclySoftReveal(
           delay: AppMotionDuration.normal,
           child: SoulMateResultEpilogue(
-            parts: parts ??
-                const SoulMateReadingParts(
-                  energy: '',
-                  attraction: '',
-                  dynamics: '',
-                  feeling: '',
-                  yourSide: '',
-                ),
+            parts: parts,
             name: name,
             savedId: savedId,
             onRedraw: onRedraw,

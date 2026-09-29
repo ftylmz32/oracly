@@ -262,20 +262,23 @@ extension OracleReadingContextSources on OracleReadingContext {
     }
 
     final summary = clip(interpretation, 200);
+    final chamber = OraclyL10n.t('soulmate.or.chamber');
+    final portrait = OraclyL10n.t('soulmate.or.portrait');
+    final nameLabel = OraclyL10n.t('soulmate.or.name_label');
     final full = [
-      'Kaynak: sembolik Ruh Eşi portresi — yaratıcı yansıma, kesin kimlik değil',
-      if (who.isNotEmpty) 'İsim ilhamı: $who',
+      OraclyL10n.t('soulmate.or.source'),
+      if (who.isNotEmpty) '$nameLabel: $who',
       summary,
     ].join('\n\n');
     return OracleReadingContext(
       sessionId: id,
       kind: OracleReadingKind.soulMate,
-      sourceLabel: 'Ruh Eşi',
-      spreadLabel: 'Sembolik portre',
+      sourceLabel: chamber,
+      spreadLabel: portrait,
       deckId: 'soulmate',
-      deckName: 'Ruh Eşi',
-      readingTitle: who.isEmpty ? 'Sembolik portre' : who,
-      cardsSummary: who.isEmpty ? 'Sembolik portre' : who,
+      deckName: chamber,
+      readingTitle: who.isEmpty ? portrait : who,
+      cardsSummary: who.isEmpty ? portrait : who,
       interpretationSummary: summary,
       fullInterpretation: full,
     );

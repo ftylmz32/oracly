@@ -25,6 +25,7 @@ import 'soul_mate_draw_finish.dart';
 import 'soul_mate_birth_picker.dart';
 import 'soul_mate_draw_body.dart';
 import 'soul_mate_draw_persistence.dart';
+import 'soul_mate_draw_opening.dart';
 import 'soul_mate_draw_preview.dart';
 import 'soul_mate_draw_shell.dart';
 
@@ -60,14 +61,20 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   bool _staleLegacy = false;
   DateTime? _activeSince;
   String? _targetOperationId;
+  bool _opening = true;
 
   @override
   void initState() {
     super.initState();
     final target = widget.operationId?.trim();
-    _targetOperationId =
-        target == null || target.isEmpty ? null : target;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _resumeOrRestore());
+    _targetOperationId = target == null || target.isEmpty ? null : target;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _resumeOrRestore();
+      } finally {
+        if (mounted) setState(() => _opening = false);
+      }
+    });
   }
 
   @override
@@ -222,8 +229,9 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
         final entitlementDenied = outcome.failureCode.isEntitlementDenial;
         var stillPremium = true;
         if (entitlementDenied) {
-          stillPremium =
-              await PremiumAccess.healAfterEntitlementDenial(context);
+          stillPremium = await PremiumAccess.healAfterEntitlementDenial(
+            context,
+          );
           if (!mounted) return;
         }
         setState(() {
@@ -305,7 +313,10 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     setState(() => _birth = picked);
   }
 
-  void _redraw() {
+  Future<void> _redraw() async {
+    // Keep the saved portrait until a fresh draw is actually allowed.
+    if (!await SoulMateDevAccess.allowsFresh(context)) return;
+    if (!mounted) return;
     _freshNext = true;
     setState(() {
       _result = null;
@@ -464,9 +475,14 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     final locked = !SoulMateDevAccess.allows(context);
     // Saved portraits remain readable after entitlement lapses — Premium
     // gates only fresh draw/redraw (allowsFresh on those actions).
-    final showLockedPreview = locked && _result == null;
+    // While the first restore is still unread, a null result is unknown,
+    // not "no portrait", so the unlock preview must wait.
+    final showLockedPreview = locked && _result == null && !_opening && !_busy;
+    final showOpening = _opening && _result == null && !_busy;
     return SoulMateDrawShell(
-      body: showLockedPreview
+      body: showOpening
+          ? const SoulMateDrawOpening()
+          : showLockedPreview
           ? const SoulMateDrawPreview()
           : SoulMateDrawBody(
               nameController: _name,

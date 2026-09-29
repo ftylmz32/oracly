@@ -24,18 +24,26 @@ class SoulMateResultEpilogue extends StatelessWidget {
     this.savedId,
   });
 
-  final SoulMateReadingParts parts;
+  final SoulMateReadingParts? parts;
   final VoidCallback onRedraw;
   final String name;
   final String? savedId;
 
   @override
   Widget build(BuildContext context) {
-    final oracle = OracleReadingContextSources.soulMate(
-      id: savedId == null ? 'soulmate_${parts.joined.hashCode}' : 'soulmate_$savedId',
-      interpretation: parts.joined,
-      name: name,
-    );
+    final reading = parts;
+    final oracle =
+        reading != null &&
+            reading.authoritative &&
+            reading.joined.trim().isNotEmpty
+        ? OracleReadingContextSources.soulMate(
+            id: savedId == null
+                ? 'soulmate_${reading.joined.hashCode}'
+                : 'soulmate_$savedId',
+            interpretation: reading.joined,
+            name: name,
+          )
+        : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -57,12 +65,14 @@ class SoulMateResultEpilogue extends StatelessWidget {
           ),
         ),
         SizedBox(height: AppSpacing.md),
-        OrAskButton(readingContext: oracle),
-        SessionContinuationLink(
-          source: SessionContinuationSource.soulMate,
-          orAlreadyOffered: true,
-          oracleContext: oracle,
-        ),
+        if (oracle != null) ...[
+          OrAskButton(readingContext: oracle),
+          SessionContinuationLink(
+            source: SessionContinuationSource.soulMate,
+            orAlreadyOffered: true,
+            oracleContext: oracle,
+          ),
+        ],
         SizedBox(height: AppSpacing.sm),
         TarotEpic031PrimaryButton(
           label: SoulMateCopy.redrawCta,
