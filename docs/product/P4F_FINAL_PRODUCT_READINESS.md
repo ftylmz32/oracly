@@ -290,3 +290,62 @@ These are platform checks. They are not open product blockers.
 - OR: YES
 - Astrology: YES
 - Yıldızname: YES
+
+
+## P4F.1 — Release Build Reproducibility
+
+P4F product certification is unchanged.
+
+The P4F Android artifacts were produced only after an uncommitted kotlin.incremental=false on Windows. Committed ndroid/gradle.properties did not contain that property.
+
+Clean checkout of 8118523ddf058f504129ab32a34f900f1cd8ca4a at D:\oracly-p4f1-release-clean:
+
+- HEAD matched.
+- git status --porcelain, git diff, and git diff --cached were empty before gitignored release inputs were copied.
+- Copied inputs, names only: ndroid/key.properties, 	ool/dart_defines.production.json, ndroid/app/google-services.json. The upload keystore path in key.properties already existed. No tracked file changed.
+
+Committed-config release AAB, three attempts, all FAIL:
+
+- first build
+- retry after stopping the Gradle daemon and deleting the disposable uild/ directory
+- retry with a fresh GRADLE_USER_HOME
+
+Failure: Kotlin Could not close incremental caches while compiling plugin compileReleaseKotlin tasks. Suppressed cause: IllegalArgumentException: this and base files have different roots between D:\oracly-p4f1-release-clean and C:\PubCache. Classification: Kotlin incremental compiler defect on a cross-drive Windows layout. Not a product, manifest, signing, or backend defect.
+
+Same checkout with a temporary, uncommitted kotlin.incremental=false: AAB PASS, APK PASS.
+
+That property changes the Kotlin compile strategy only. It does not change package, version, manifest flags, product source, runtime configuration, signing, or backend.
+
+Committed in d24d260a4151af8d127e9a4caaa642e08fca9fe:
+
+`
+# Required for deterministic Windows release compilation.
+kotlin.incremental=false
+`
+
+Final clean worktree D:\oracly-p4f1-final was checked out from that commit with worktree core.autocrlf=false and core.eol=lf. Before the build, tracked status was empty and both diffs were empty. The same three gitignored release inputs were copied. No further Gradle edit.
+
+Final release build from that committed config:
+
+| Artifact | SHA-256 | Size |
+|---|---|---|
+| pp-release.aab | 1d04a1bd953d46d99dddf147e0d7b7872d4e9a99509a4eee1fde2d43792e9391 | 121728801 |
+| pp-release.apk | 5b11930c90452aaba3b0e60ad0dbfbeebf9b86463726e58846bb683ea3b176e4 | 123196705 |
+
+- package pp.oracly
+- versionName 1.0.0
+- versionCode 26092907
+- targetSdk 36
+- ndroid:debuggable absent
+- ndroid:usesCleartextTraffic absent
+- certificate SHA-256 e789561fac940d252442f98e1d6c7dba4eefc0bb361f17cffff54309d6007ad5
+- production host present
+- oracly-api-000 absent
+- REPLACE_WITH absent
+- private-key blocks and keystore passwords absent
+
+After that build, git diff and git diff --cached were empty and git status --porcelain had no tracked entries.
+
+lutter test on this config: 6392 passed, 15 skipped, 0 failed. A first run failed 12 tests only because gitignored 	ool/e3e_private/ and ios/Runner/GoogleService-Info.plist were not in the fresh worktree. Those files were supplied and not committed. lutter analyze --no-fatal-infos: 0 errors, 0 warnings, 212 infos.
+
+No product behavior changed.
