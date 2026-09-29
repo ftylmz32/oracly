@@ -9,6 +9,7 @@ import '../../domain/models/achievement.dart';
 import '../../domain/models/user_profile.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/local_storage.dart';
+import 'profile_display_name.dart';
 
 class MockUserRepository implements UserRepository {
   MockUserRepository(this._storage);
@@ -116,6 +117,20 @@ class MockUserRepository implements UserRepository {
     await _storage.setStringList(
       _achievementsKey,
       profile.unlockedAchievementKeys,
+    );
+  }
+
+  @override
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    return renameProfileDisplayName(
+      _storage,
+      name: name,
+      profileNameKey: _nameKey,
+      userNameKey: 'user_name',
+      stillOwner: stillOwner,
     );
   }
 

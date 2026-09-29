@@ -45,3 +45,21 @@ Device `settings_*` values are not wiped.
 ## Not reopened
 
 P4C daily / insights / memory contracts, OR conversation, Premium verifier, billing, owner-wipe architecture, auth architecture, backend.
+
+## P4D.1 — OWNER-SAFE DURABLE PROFILE RENAME
+
+Independent verification after the first P4D report found the rename race still open. The epoch check above called `saveProfile`. That method writes `profile_name`, `user_name`, job, interests, goals, streak, readings, spiritual level, favorite deck, and achievements in sequence, and it ignores a `LocalStorage` result of `false`. Clearing the name when the stored string matched the attempt could keep those leaked fields, and it could erase a later owner's legitimate name when the strings were the same.
+
+P4D's other fixes stay as the accepted base. This repair starts from `88866ae83fbfa9422826dfb1a52ad3d9f3d6e7e6`.
+
+### Repair
+
+- A rename calls `renameDisplayName`. It writes only `profile_name` and `user_name`.
+- `stillOwner` is read immediately before each of those writes and before any rollback. After the owner epoch moves, the operation stops. It does not treat a matching name string as proof of ownership.
+- `false` and thrown name writes fail through `requireDurable`. While the same owner is still current, a failed second write restores the previous name pair so the two keys do not stay split. Profile still shows `ResilienceCopy.genericLoadFailed`. A successful rename refreshes only when the epoch is unchanged.
+
+### Evidence
+
+- A rename is held after `profile_name` is written. A real `UserLocalDataIsolation.onSignedIn` then wipes owner A and commits owner B. When the held rename resumes, B storage has no owner A name, `user_name`, job, interests, goals, streak, readings, spiritual level, favorite deck, or achievements. The notifier does not publish the in-flight name.
+- Owner B's legitimate name `Alex` remains `Alex` when owner A's held rename to `Alex` resumes.
+- A false `profile_name` write, a false `user_name` write, and a thrown `user_name` write leave both keys on the previous name. The Profile screen shows the existing failure copy. An unchanged name performs no durable write.

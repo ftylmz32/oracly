@@ -7,6 +7,16 @@ import '../models/user_profile.dart';
 abstract class UserRepository {
   Future<UserProfileModel> getProfile();
   Future<void> saveProfile(UserProfileModel profile);
+
+  /// Changes only the display name. Production storage overrides this.
+  /// A false [stillOwner] must stop the operation before the next mutation.
+  Future<void> renameDisplayName(
+    String name, {
+    required bool Function() stillOwner,
+  }) {
+    throw UnsupportedError('renameDisplayName');
+  }
+
   Future<List<AchievementModel>> getAchievements();
   Future<void> unlockAchievement(String key);
   Future<void> incrementStreak();
