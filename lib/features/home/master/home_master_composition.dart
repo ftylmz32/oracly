@@ -16,15 +16,22 @@ final class HomeMasterComposition {
   final HomeViewportLayout layout;
   final bool requiresScroll;
 
+  /// Continue button plus its gap. Used only for the scroll decision.
+  static const continueSlot = 72.0;
+
+  /// Evidence card ceiling, including an optional archive or Premium note.
+  static const nextActionSlot = 260.0;
+
   /// Preferred cinematic sizes always. Scroll only when content exceeds height.
   static HomeMasterComposition resolve({
     required double bodyHeight,
     required double navClearance,
     double screenHeightHint = 800,
     double textScale = 1.0,
+    double extraContentHeight = 0,
   }) {
     final layout = HomeViewportLayout.resolve(screenHeightHint);
-    final preferred = layout.preferredContentHeight;
+    final preferred = layout.preferredContentHeight + extraContentHeight;
     final available = bodyHeight.isFinite
         ? (bodyHeight - navClearance).clamp(0.0, bodyHeight)
         : preferred;

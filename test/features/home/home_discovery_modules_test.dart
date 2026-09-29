@@ -36,7 +36,7 @@ void main() {
     final dream = HomeReferenceModules.dreamExtension;
     expect(dream.id, OraclyFeatureId.dream);
     expect(dream.visual, HomeModuleVisual.dream);
-    expect(dream.isNew, isTrue);
+    expect(dream.isNew, isFalse);
     expect(HomeDiscoveryCopy.title(dream.id), 'Rüya Analizi');
   });
 }

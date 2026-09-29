@@ -101,9 +101,11 @@ class HomeReferenceOrFlagship extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      HomeReferenceOrFlagshipCta(
-                        label: cta,
-                        onTap: () => _open(context),
+                      ExcludeSemantics(
+                        child: HomeReferenceOrFlagshipCta(
+                          label: cta,
+                          onTap: () => _open(context),
+                        ),
                       ),
                     ],
                   ),

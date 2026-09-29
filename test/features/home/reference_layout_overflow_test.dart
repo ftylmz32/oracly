@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/design_system/app_layout.dart';
 import 'package:oracly_new/features/astrology/presentation/reference/astrology_reference_stat_row.dart';
 import 'package:oracly_new/features/home/reference/home_reference_header.dart';
@@ -74,7 +75,9 @@ void main() {
         expect(find.text('Tarot'), findsOneWidget);
         expect(find.text('Ruh Eşi'), findsOneWidget);
         expect(find.text('Rüya Analizi'), findsOneWidget);
-        expect(find.text("Premium'a Geç"), findsWidgets);
+        expect(find.text(PremiumCopy.loadingBody), findsWidgets);
+        expect(find.text(PremiumCopy.ctaBusy), findsWidgets);
+        expect(find.text(PremiumCopy.ctaJoin), findsNothing);
         expect(find.text('Merhaba,'), findsOneWidget);
         expect(
           find.textContaining('Bugün senin için'),

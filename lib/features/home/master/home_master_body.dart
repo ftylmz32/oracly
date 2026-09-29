@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/experience/providers/continue_where_you_left_off_provider.dart';
 import '../../../core/experience/widgets/continue_where_you_left_off_button.dart';
+import '../../oracle_core/providers/oracle_core_providers.dart';
 import '../reference/home_reference_scope.dart';
 import 'home_master_bottom_inset.dart';
 import 'home_master_composition.dart';
@@ -27,6 +28,13 @@ class HomeMasterBody extends ConsumerWidget {
     final resumeTarget = ref.watch(
       continueWhereYouLeftOffProvider.select((async) => async.valueOrNull),
     );
+    final nextAction = ref.watch(oracleNextActionProvider);
+    final extra = (resumeTarget != null
+            ? HomeMasterComposition.continueSlot
+            : 0.0) +
+        (nextAction != null && nextAction.hasEvidence
+            ? HomeMasterComposition.nextActionSlot
+            : 0.0);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -37,6 +45,7 @@ class HomeMasterBody extends ConsumerWidget {
           navClearance: bottomInset,
           screenHeightHint: media.size.height,
           textScale: media.textScaler.scale(1),
+          extraContentHeight: extra,
         );
         final layout = composition.layout;
 

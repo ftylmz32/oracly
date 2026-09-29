@@ -39,8 +39,11 @@ class HomeReferencePremiumCard extends ConsumerWidget {
     final pad =
         layout?.premiumPadding ?? const EdgeInsets.fromLTRB(12, 8, 10, 8);
     final crown = layout?.premiumCrownSize ?? 34;
-    final cta =
-        status.isPremium ? PremiumCopy.ctaActive : PremiumCopy.ctaJoin;
+    final cta = !status.loaded
+        ? PremiumCopy.ctaBusy
+        : status.isPremium
+            ? PremiumCopy.ctaActive
+            : PremiumCopy.ctaJoin;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -127,9 +130,11 @@ class HomeReferencePremiumCard extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        HomeReferencePremiumCta(
-                          label: cta,
-                          onTap: () => _handleTap(context),
+                        ExcludeSemantics(
+                          child: HomeReferencePremiumCta(
+                            label: cta,
+                            onTap: () => _handleTap(context),
+                          ),
                         ),
                       ],
                     ),

@@ -39,6 +39,5 @@ abstract final class HomeReferenceModules {
   static const HomeReferenceModuleSpec dreamExtension = HomeReferenceModuleSpec(
     id: OraclyFeatureId.dream,
     visual: HomeModuleVisual.dream,
-    isNew: true,
   );
 }

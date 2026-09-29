@@ -24,6 +24,14 @@ abstract final class HomeReferencePremiumCopy {
   static HomeReferencePremiumBannerState resolve(
     PremiumStatusController status,
   ) {
+    if (!status.loaded) {
+      return HomeReferencePremiumBannerState(
+        title: PremiumCopy.homeBannerTitle,
+        body: PremiumCopy.loadingBody,
+        glowStrength: 0.8,
+        maxBodyLines: 2,
+      );
+    }
     if (status.isPremium) {
       return HomeReferencePremiumBannerState(
         title: PremiumCopy.ctaActive,
