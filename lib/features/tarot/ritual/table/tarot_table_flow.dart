@@ -8,6 +8,7 @@ import '../../../../app/providers/app_providers.dart';
 import '../../../ai/oracle_conversation/models/oracle_reading_context.dart';
 import '../../domain/models/reading_session.dart';
 import '../../domain/models/tarot_spread.dart';
+import '../../copy/tarot_l10n.dart';
 import '../../presentation/screens/deck_selection_start.dart';
 import '../../presentation/widgets/card_reveal/card_reveal_spread.dart';
 import '../../presentation/widgets/deck_selection/deck_selection_data.dart';
@@ -59,7 +60,7 @@ abstract final class TarotTableFlow {
       sessionId: session.id,
       spreadLabel: session.spread.label,
       deckId: session.deckId,
-      deckName: 'Rider-Waite',
+      deckName: TarotL10n.deckName,
       readingTitle: focus.displayName,
       cardsSummary: session.drawnCards.map((d) => d.localizedName).join(' · '),
       interpretationSummary: short,

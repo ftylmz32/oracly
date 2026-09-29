@@ -4,9 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/oracly_reduced_motion.dart';
 import '../../shared/tarot_scope.dart';
 import '../../theme/tarot_tokens.dart';
@@ -79,14 +77,7 @@ class _TarotTableSceneState extends ConsumerState<TarotTableScene>
               builder: (context, _) {
                 return Column(
                   children: [
-                    const SizedBox(height: TarotTokens.tableTitleTopGap),
-                    Text(
-                      'Tarot',
-                      style: AppTextStyles.titleMedium.copyWith(
-                        color: AppColors.gold.withValues(alpha: 0.9),
-                        letterSpacing: TarotTokens.tableTitleTracking,
-                      ),
-                    ),
+                    const TarotTableTitle(),
                     const SizedBox(height: AppSpacing.md),
                     TarotTableIntentOverlay(
                       selectedId: intentId,

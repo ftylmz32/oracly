@@ -32,14 +32,18 @@ abstract final class OracleReadingContextText {
       'career' || 'kariyer' || 'work' => OraclyL10n.t('tarot.career'),
       'daily' || 'günlük' || 'gunluk' => OraclyL10n.t('tarot.daily'),
       'general' || 'genel' => OraclyL10n.t('tarot.general'),
+      'future' || 'gelecek' => OraclyL10n.t('tarot.intent.chip.future'),
+      'inner' => OraclyL10n.t('tarot.intent.chip.inner'),
+      'custom' => OraclyL10n.t('tarot.intent.chip.custom'),
       _ => raw!.trim(),
     };
   }
 
   static String tarotSourceLabel({String? topic}) {
+    final title = OraclyL10n.t('home.discovery.tarot.title');
     final label = topicLabel(topic);
-    if (label == null || label.isEmpty) return 'Tarot';
-    return 'Tarot · $label';
+    if (label == null || label.isEmpty) return title;
+    return '$title · $label';
   }
 
   static String _cardLine(TarotDrawnCard drawn) {

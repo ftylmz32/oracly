@@ -99,6 +99,7 @@ class CardFlightActorState extends State<CardFlightActor>
     return Semantics(
       button: true,
       enabled: canDrag,
+      excludeSemantics: true,
       label: OraclyL10n.t('tarot.ritual.stage.draw'),
       hint: OraclyL10n.t('tarot.ritual.draw_hint'),
       child: GestureDetector(

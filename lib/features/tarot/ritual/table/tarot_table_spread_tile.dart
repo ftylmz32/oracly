@@ -29,6 +29,7 @@ class TarotTableSpreadTile extends StatelessWidget {
       button: true,
       selected: selected,
       label: title,
+      excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
         child: ConstrainedBox(

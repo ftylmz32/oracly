@@ -55,6 +55,11 @@ abstract final class TarotL10n {
   static String orientation({required bool reversed}) =>
       reversed ? _t('tarot.reversed') : _t('tarot.upright');
 
+  /// Short chamber title. TR/EN stay "Tarot"; RU is "Таро".
+  static String get chamberTitle => _t('home.discovery.tarot.title');
+
+  static String get homeTitle => _t('tarot.home.title');
+
   static String get deckName => _t('tarot.deck.classic');
 
   static String get deckDescription => _t('tarot.deck.classic.desc');

@@ -49,7 +49,7 @@ class OracleReadingContext {
   factory OracleReadingContext.fromSession({
     required ReadingSession session,
     required AiReadingContent content,
-    String deckName = 'Rider-Waite',
+    String? deckName,
   }) {
     final cardsSummary = OracleReadingContextText.cardsSummaryFor(session);
     final question = session.intention.text.trim();
@@ -59,7 +59,7 @@ class OracleReadingContext {
       sessionId: session.id,
       spreadLabel: session.spread.label,
       deckId: session.deckId,
-      deckName: deckName,
+      deckName: _deckLabel(deckName),
       readingTitle: content.cardName,
       cardsSummary: cardsSummary,
       interpretationSummary: summary,
@@ -82,7 +82,7 @@ class OracleReadingContext {
       sessionId: reading.id,
       spreadLabel: TarotHistoryPrivacy.spreadTitle(reading.spreadType),
       deckId: reading.deckId,
-      deckName: 'Rider-Waite',
+      deckName: TarotL10n.deckName,
       readingTitle: names.length == 1
           ? names.first
           : TarotHistoryPrivacy.spreadTitle(reading.spreadType),
@@ -99,7 +99,7 @@ class OracleReadingContext {
   factory OracleReadingContext.fromInterpretation({
     required ReadingSession session,
     required InterpretationResult result,
-    String deckName = 'Rider-Waite',
+    String? deckName,
   }) {
     final cardsSummary = OracleReadingContextText.cardsSummaryFor(session);
     final question = session.intention.text.trim();
@@ -107,7 +107,7 @@ class OracleReadingContext {
       sessionId: session.id,
       spreadLabel: session.spread.label,
       deckId: session.deckId,
-      deckName: deckName,
+      deckName: _deckLabel(deckName),
       readingTitle: session.drawnCards.length == 1
           ? session.drawnCards.first.localizedName
           : TarotL10n.spreadReadingTitle(session.spread),
@@ -145,8 +145,8 @@ class OracleReadingContext {
       sessionId: metadata['sessionId'] ?? '',
       spreadLabel: metadata['spreadLabel'] ?? '',
       deckId: metadata['deckId'] ?? 'rider-waite',
-      deckName: metadata['deckName'] ?? 'Rider-Waite',
-      readingTitle: metadata['readingTitle'] ?? 'Tarot Açılımı',
+      deckName: _deckLabel(metadata['deckName']),
+      readingTitle: metadata['readingTitle'] ?? TarotL10n.homeTitle,
       cardsSummary: metadata['cardsSummary'] ?? '',
       interpretationSummary: metadata['interpretationSummary'] ?? '',
       userQuestion: metadata['userQuestion'],
@@ -163,6 +163,12 @@ class OracleReadingContext {
       kind: _kindFrom(metadata['kind']),
       sourceLabel: metadata['sourceLabel'] ?? '',
     );
+  }
+
+  static String _deckLabel(String? raw) {
+    final text = raw?.trim() ?? '';
+    if (text.isEmpty) return TarotL10n.deckName;
+    return text;
   }
 
   static OracleReadingKind _kindFrom(String? name) {
