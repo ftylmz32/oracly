@@ -14,16 +14,17 @@ import '../../../ai/production/ai_failure.dart';
 import '../../copy/companion_copy.dart';
 import '../../models/or_chat_output_mode.dart';
 import '../../providers/companion_providers.dart';
+import '../../services/companion_voice_conversation_access.dart';
 import '../../../premium/providers/premium_providers.dart';
 import 'companion_or_menu_row.dart';
 import 'companion_reference_actions.dart';
 
 Future<void> showCompanionOrMenu(
-  BuildContext context, {
+  BuildContext hostContext, {
   VoidCallback? onPremiumTap,
 }) {
   return showModalBottomSheet<void>(
-    context: context,
+    context: hostContext,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     builder: (sheetContext) {
@@ -89,9 +90,10 @@ Future<void> showCompanionOrMenu(
                             }
                           },
                         ),
-                        if ((controller.state.conversation?.messages
-                                    .any((m) => m.isUser) ??
-                                false))
+                        if ((controller.state.conversation?.messages.any(
+                              (m) => m.isUser,
+                            ) ??
+                            false))
                           CompanionOrMenuRow(
                             label: CompanionCopy.saveToMemory,
                             icon: Icons.bookmark_add_outlined,
@@ -107,14 +109,23 @@ Future<void> showCompanionOrMenu(
                           label: CompanionCopy.outputConversation,
                           icon: Icons.record_voice_over_outlined,
                           onTap: () {
+                            final output = ref.read(
+                              companionOutputControllerProvider,
+                            );
+                            final turningOn =
+                                output.mode != OrChatOutputMode.conversation;
                             Navigator.pop(sheetContext);
-                            final output =
-                                ref.read(companionOutputControllerProvider);
-                            final next = output.mode ==
-                                    OrChatOutputMode.conversation
-                                ? OrChatOutputMode.text
-                                : OrChatOutputMode.conversation;
-                            output.setMode(next);
+                            if (turningOn &&
+                                !CompanionVoiceConversationAccess.ensure(
+                                  hostContext,
+                                )) {
+                              return;
+                            }
+                            output.setMode(
+                              turningOn
+                                  ? OrChatOutputMode.conversation
+                                  : OrChatOutputMode.text,
+                            );
                           },
                         ),
                         if (hasReading)
@@ -138,9 +149,9 @@ Future<void> showCompanionOrMenu(
                             onTap: () {
                               Navigator.pop(sheetContext);
                               (onPremiumTap ??
-                                      () => OraclyNavigationService.openPremium(
-                                            context,
-                                          ))();
+                                  () => OraclyNavigationService.openPremium(
+                                    context,
+                                  ))();
                             },
                           ),
                         CompanionOrMenuRow(

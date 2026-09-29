@@ -102,6 +102,7 @@ class CompanionReferenceOrShell extends StatelessWidget {
             onSelected: onSelected,
             name: name,
             personality: personality,
+            showFreePreview: session.showPreview,
           ),
         ),
         if (session.canCompose)

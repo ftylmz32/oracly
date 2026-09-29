@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/ui/oracly_snackbar.dart';
 import '../../copy/companion_copy.dart';
 import '../../models/or_chat_output_mode.dart';
+import '../../../premium/providers/premium_providers.dart';
 import '../../providers/companion_providers.dart';
 import '../../services/companion_voice_conversation_access.dart';
 
@@ -32,6 +33,10 @@ class _CompanionReferenceConversationGuardState
 
   Future<void> _sync() async {
     if (!mounted || _demoting) return;
+    final status = ref.read(premiumStatusProvider);
+    // The first frames report inactive before load. Do not demote a stored
+    // Conversation mode until that read has actually finished.
+    if (!status.loaded) return;
     final output = ref.read(companionOutputControllerProvider);
     if (!output.isConversation) return;
     if (CompanionVoiceConversationAccess.isAllowed(context)) return;
@@ -51,6 +56,9 @@ class _CompanionReferenceConversationGuardState
       if (next.isConversation) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
       }
+    });
+    ref.listen(premiumStatusProvider, (_, _) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
     });
     return widget.child;
   }

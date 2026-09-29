@@ -21,6 +21,11 @@ abstract final class OrSessionResolver {
     bool busy = false,
     bool networkRetry = false,
     bool contextualDeepenAllowed = false,
+
+    /// False only while Premium status has not finished its first read.
+    /// Unknown must not look like a free paywall or an active composer.
+    bool entitlementKnown = true,
+
     /// Commerce entitlement OR an active reviewer grant. Defaults to
     /// [entitlement]'s own commerce-only flag when not supplied, so every
     /// existing caller keeps its exact prior behavior. Callers with a live
@@ -28,6 +33,15 @@ abstract final class OrSessionResolver {
     /// review access must unlock composing the same way Premium does.
     bool? premiumUnlocked,
   }) {
+    if (!entitlementKnown) {
+      return const OrSessionPresentation(
+        state: OrSessionState.reconnecting,
+        canCompose: false,
+        canUseMic: false,
+        showPreview: false,
+        showPaywallDock: false,
+      );
+    }
     final unlocked = premiumUnlocked ?? entitlement.allowsPremiumFeatures;
     // A lingering commerce pending/restoring state must never block someone
     // who already has an effective Premium unlock (real entitlement or

@@ -28,6 +28,7 @@ class CompanionReferenceOrBody extends ConsumerWidget {
     required this.onSelected,
     required this.name,
     required this.personality,
+    this.showFreePreview = true,
   });
 
   final bool canChat;
@@ -43,10 +44,16 @@ class CompanionReferenceOrBody extends ConsumerWidget {
   final String name;
   final String personality;
 
+  /// Free preview is only honest once inactivity is known.
+  final bool showFreePreview;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!canChat && (start || messages.isEmpty)) {
+    if (!canChat && showFreePreview && (start || messages.isEmpty)) {
       return CompanionReferenceOrPremiumPreview(personality: personality);
+    }
+    if (!canChat && (start || messages.isEmpty)) {
+      return const SizedBox.shrink();
     }
     if (start || (bootstrapping && messages.isEmpty)) {
       final reading = controller.readingContext;

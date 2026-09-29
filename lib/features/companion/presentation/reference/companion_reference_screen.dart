@@ -101,9 +101,11 @@ class _CompanionReferenceScreenState
     final voiceMode = output.isVoice;
     final voiceUnavailable = output.voiceUnavailable;
     final entitlement = CompanionOrConversationAccess.watch(ref);
+    final premiumStatus = ref.watch(premiumStatusProvider);
     // Commerce entitlement OR an active reviewer grant — review access must
-    // unlock composing the same way real Premium does.
-    final premiumUnlocked = ref.watch(premiumStatusProvider).isPremium;
+    // unlock composing the same way real Premium does. Until the first read
+    // finishes, isPremium is still the inactive default.
+    final premiumUnlocked = premiumStatus.isPremium;
     final state = controller.state;
     final busy = state.isBusy || state.phase == CompanionPhase.thinking;
     final bootstrapping = state.phase == CompanionPhase.initializing;
@@ -127,6 +129,7 @@ class _CompanionReferenceScreenState
       networkRetry: controller.isNetworkRetrying,
       contextualDeepenAllowed: deepen,
       premiumUnlocked: premiumUnlocked,
+      entitlementKnown: premiumStatus.loaded,
     );
     final presence = CompanionOrPresenceResolve.from(
       phase: state.phase,
