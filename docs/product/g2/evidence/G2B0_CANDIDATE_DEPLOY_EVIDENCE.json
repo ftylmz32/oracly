@@ -1,0 +1,103 @@
+{
+  "observedAtUtc": "2026-09-29T00:05:31Z",
+  "startHead": "996b07b443016f272bf53d9856763892d09aae89",
+  "deploySourceHead": "aa735bcb7a1be89cffb62d77537b50c896eb1b2c",
+  "deploySourceHeadCommitSubject": "fix(deploy): bind frozen release candidate models",
+  "buildMethod": "gcloud builds submit (Cloud Build) from a clean `git archive <deploySourceHead> -- backend` export, not the live working tree, which held unrelated pre-existing uncommitted changes under backend/",
+  "cloudBuildId": "43b08112-7c1a-45d4-b447-20889882f90e",
+  "candidateImageUri": "europe-west1-docker.pkg.dev/oracly-7f613/oracly/oracly-api:g2b0-aa735bcb7a1b",
+  "candidateImageDigest": "sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+  "candidateRevision": "oracly-api-00085-hef",
+  "candidateTag": "g2b0-aa735bcb7a1b",
+  "candidateTaggedUrl": "https://g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+  "candidateRevisionCreatedAt": "2026-09-29T00:03:08.488593Z",
+  "sourceCommitLabelOnRevision": "169c514a1f51e42cab84d26d075199ffe130fc6d",
+  "sourceCommitLabelIsAccurate": false,
+  "sourceCommitLabelNote": "Cloud Run inherited this label from the prior latest-revision template (the Yıldızname candidate) because this deploy did not pass --update-labels. Revisions cannot be re-labeled after creation (gcloud run revisions has no update command) and no second candidate revision was created to fix a label. The authoritative source is the image-digest match below, independently produced by this deploy's own build+push, not a label.",
+  "deployMechanismChange": "Switched deploy-cloud-run.sh from --env-vars-file/--set-secrets (replace semantics) to --update-env-vars/--update-secrets (merge semantics) so existing keys the script never lists cannot be silently deleted.",
+  "trafficBefore": [
+    { "revision": "oracly-api-00052-zqd", "percent": 100 },
+    { "revision": "oracly-api-y8c1-169c514a", "tag": "y8c1-169c514a", "percent": 0 }
+  ],
+  "trafficAfter": [
+    { "revision": "oracly-api-00052-zqd", "percent": 100 },
+    { "revision": "oracly-api-00085-hef", "tag": "g2b0-aa735bcb7a1b", "percent": 0 },
+    { "revision": "oracly-api-y8c1-169c514a", "tag": "y8c1-169c514a", "percent": 0 }
+  ],
+  "productionRevisionStill100Percent": true,
+  "candidateTrafficIsZeroPercent": true,
+  "health": {
+    "httpStatus": 200,
+    "body": { "status": "ok" }
+  },
+  "ready": {
+    "httpStatus": 200,
+    "body": {
+      "status": "ready",
+      "capabilities": {
+        "alive": true,
+        "authenticationConfigured": true,
+        "appCheckConfigured": true,
+        "textProviderConfigured": true,
+        "visionConfigured": true,
+        "imageGenerationConfigured": true,
+        "readingStagingConfigured": true,
+        "readingDurabilityConfigured": true,
+        "billingGoogleConfigured": true,
+        "billingAppleConfigured": true
+      }
+    }
+  },
+  "frozenModelConfigReadback": {
+    "APP_ENV": "production",
+    "OPENAI_MODEL": "gpt-4o",
+    "OPENAI_ALLOWED_MODELS": "gpt-4o,gpt-4o-mini,gpt-5.6-sol",
+    "OPENAI_READING_VISION_MODEL": "gpt-5.6-sol",
+    "OPENAI_READING_WRITER_MODEL": "gpt-5.6-sol",
+    "OPENAI_READING_REASONING_EFFORT": "low",
+    "OPENAI_TAROT_NARRATIVE_MODEL": "gpt-5.6-sol",
+    "OPENAI_TAROT_NARRATIVE_REASONING_EFFORT": "none",
+    "OPENAI_YILDIZNAME_NARRATIVE_MODEL": "gpt-5.6-sol",
+    "OPENAI_YILDIZNAME_NARRATIVE_REASONING_EFFORT": "none",
+    "OPENAI_DREAM_MODEL": "gpt-6-astra",
+    "OPENAI_DREAM_REASONING_EFFORT": "medium",
+    "AI_AUTH_REQUIRED": "true",
+    "AI_DEV_AUTH_BYPASS": "false",
+    "AI_APP_CHECK_BYPASS": "false",
+    "READING_WORKER_STOP_AFTER_STAGED": "false"
+  },
+  "requiredDurabilityConfigPresenceBooleans": {
+    "READING_STAGING_BUCKET": true,
+    "READING_TASK_QUEUE": true,
+    "READING_TASK_LOCATION": true,
+    "READING_TASK_TARGET_URL": true,
+    "READING_TASK_SERVICE_ACCOUNT": true,
+    "READING_TASK_AUDIENCE": true,
+    "GOOGLE_PLAY_USE_ADC": true,
+    "APPLE_BUNDLE_ID": true,
+    "APPLE_APP_APPLE_ID": true,
+    "APPLE_IAP_ISSUER_ID": true,
+    "APPLE_IAP_KEY_ID": true,
+    "APPLE_IAP_ENVIRONMENT": true,
+    "APPLE_ROOT_CA_DIR": true,
+    "REVIEW_ACCESS_CODE_HASH": true
+  },
+  "secretReferencePresence": {
+    "OPENAI_API_KEY": "SECRET_REF present, value never read",
+    "APPLE_IAP_PRIVATE_KEY": "SECRET_REF present, value never read, preserved automatically by merge semantics (not touched by this deploy at all)"
+  },
+  "unauthenticatedProbe": {
+    "method": "POST",
+    "path": "/v1/ai/complete",
+    "body": "{\"operation\":\"chat\",\"payload\":{\"userMessage\":\"probe - no auth, must be rejected before provider\"}}",
+    "httpStatus": 401,
+    "responseBody": { "success": false, "error": { "code": "unauthorized" } },
+    "rejectedBeforeProvider": true
+  },
+  "providerExecutions": 0,
+  "storeTransactions": 0,
+  "productionTrafficMutations": 0,
+  "productionCodeChanged": false,
+  "deploymentToolingChanged": true,
+  "secretValuesExposed": 0
+}

@@ -838,3 +838,71 @@ evidence/docs-only changes.
 
 No real provider calls, deploys, traffic mutations, store transactions,
 device runs, or Secret Manager reads were made in G2A.2.
+
+---
+
+## 23. G2B0 — current backend deployed as a 0%-traffic tagged candidate
+
+User-authorized deploy. Full evidence:
+`docs/product/g2/evidence/G2B0_CANDIDATE_DEPLOY_EVIDENCE.json`.
+
+**Deploy-tooling defect fixed first.** `backend/scripts/deploy-cloud-run.sh`
+was missing all six frozen model bindings (Coffee/Palm reading vision/writer/
+reasoning, Tarot Narrative V2, Yıldızname narrative — Dream's was already
+present) and used replace-semantics flags (`--env-vars-file`/`--set-secrets`)
+that would have silently deleted reading-durability, billing/Apple IAP and
+review-access configuration on the next real update, since the script never
+lists them. Fixed to `--update-env-vars`/`--update-secrets` (merge semantics)
+plus the six bindings, committed as `aa735bcb7a1be89cffb62d77537b50c896eb1b2c`
+("fix(deploy): bind frozen release candidate models") with a new deterministic
+regression (`backend/tests/deploy-cloud-run-contract.test.ts`) and two
+existing Dream Phase 4C.3 tests updated for the intentional allowlist
+addition. Full backend suite 1661 passed/1 skipped/0 failed; TSC clean.
+
+**Build.** Local Docker Desktop's daemon was not running in this environment,
+so the image was built via `gcloud builds submit` (Cloud Build) — a
+mechanism already established in this project's own build history — from a
+`git archive aa735bcb… -- backend` export into a clean scratch directory,
+**not** the live working tree (which holds ~700+ files of unrelated
+pre-existing uncommitted changes under `backend/`). This guarantees no
+uncommitted source entered the image. Build `43b08112-7c1a-45d4-b447-20889882f90e`,
+pushed to `europe-west1-docker.pkg.dev/oracly-7f613/oracly/oracly-api:g2b0-aa735bcb7a1b`,
+digest `sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc`.
+
+**Deploy.** One `gcloud run deploy --no-traffic --tag=g2b0-aa735bcb7a1b`
+against that exact image, reusing the existing runtime service account,
+resource limits (1 CPU/1Gi/concurrency 20/timeout 180s/min 0/max 1) and
+ingress, merging in only the frozen-model env keys. Result: new revision
+`oracly-api-00085-hef`, 0% traffic. `oracly-api-00052-zqd` (production)
+verified still 100% both immediately after deploy and again after all
+candidate checks — no traffic mutation occurred anywhere.
+
+**Validation, against the candidate's own tagged URL only:**
+
+| Check | Result |
+|---|---|
+| `/health` | 200, `{"status":"ok"}` |
+| `/ready` | 200, all capabilities `true` — **including `readingDurabilityConfigured` and `billingAppleConfigured`**, proving the merge-semantics fix preserved everything the old replace-semantics mechanism would have deleted |
+| Frozen model readback | All 6 bindings present with the exact required values (Coffee/Palm `gpt-5.6-sol`/`low`; Tarot `gpt-5.6-sol`/`none`; Yıldızname `gpt-5.6-sol`/`none`; Dream `gpt-6-astra`/`medium`); allowlist now `gpt-4o,gpt-4o-mini,gpt-5.6-sol` |
+| Durability/billing/review-access keys | All 14 pre-existing non-secret keys still present (bucket, task queue, target URL, audience, service account, Apple IAP fields, review-access hash) |
+| Secret references | `OPENAI_API_KEY` and `APPLE_IAP_PRIVATE_KEY` both still secret-backed; neither value was ever read; `APPLE_IAP_PRIVATE_KEY` was never even touched by this deploy (merge semantics) |
+| Unauthenticated probe | `POST /v1/ai/complete` with no auth → `401 {"success":false,"error":{"code":"unauthorized"}}` — rejected before any provider call |
+
+**Known gap, disclosed honestly:** the revision's `source_commit` *label*
+reads `169c514a1f51e42cab84d26d075199ffe130fc6d` (the prior Yıldızname
+candidate's label) because this deploy didn't pass `--update-labels` and
+Cloud Run inherited it from the previous latest-revision template. Cloud Run
+revisions have no update/patch command (`gcloud run revisions` offers only
+`delete`/`describe`/`list`), so this cannot be corrected without creating a
+second candidate revision — which would violate "exactly one candidate
+revision deployed." The label is therefore **known-stale and not trusted**;
+the authoritative source identity is the image digest this deploy's own
+build+push produced (`sha256:e35475…c4cfc`), which the revision readback
+above confirms is exactly what's running.
+
+**This proves deploy-time compatibility only.** No provider was called
+(other than the 401-rejected probe, which never reached one). **G2B live
+quality is NOT proven** — that is the next, not-yet-started phase.
+
+Real provider executions: 0. Store transactions: 0. Production traffic
+mutations: 0. Production runtime source (`backend/src`) unchanged.
