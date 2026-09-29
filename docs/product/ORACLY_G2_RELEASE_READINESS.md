@@ -988,3 +988,63 @@ Full sanitized record:
 **G2B pre-SoulMate verdict: FAIL.** Coffee, Tarot, and OR passed. Palm and
 Dream did not clear the current acceptance gates. SoulMate remains a separate
 sandbox-entitlement closure. Do not promote this candidate.
+
+---
+
+## 25. G2B.1 — Palm and Dream live-evidence closure
+
+The G2B failure record above stays. The two failures do not mean the same thing.
+
+**Dream.** The single live case was `tr-negated-fear` on `gpt-6-astra`. Frozen
+corpus evidence already rejects that pair for `emotion_contradiction`
+(`DREAM_PHASE4C2_MODEL_AB.md`, and the Phase 4C.2a reclassification, where it
+remains Astra's remaining reject). The live `invalid_response` matches that
+known result. It was a QA case-selection error, not a new runtime defect.
+Dream production code was not changed.
+
+**Palm.** `palm_sample.jpg` and `palm.jpg` are the same blob
+(`56289c378daaba77034418eafe205e7c02d0460c`). The observer rejected it as
+unusable (`bindFailure=unusable`). That is the current image-quality gate.
+The same image was not sent again, and the gate was not weakened.
+
+### G2B.1 live run (2026-09-29)
+
+Same candidate, still at 0% traffic. Production `oracly-api-00052-zqd` stayed
+at 100%. Digest unchanged. `/health` and `/ready` were 200 before and after.
+Coffee, Tarot, OR, and Yıldızname were not called again.
+
+**Dream case `tr-history`.** One provider execution. The request was built
+with `DreamProviderEvidence.context` plus `DreamHistoryBuilder` from the
+corpus priors only: symbols `Deniz` / `Huzur`, emotion `Huzur`, history
+`symbol:sea` recurring, prior count 2, no memory summary. HTTP 200 success.
+Candidate logs: `parsedOk=true`, no failure stage. A success body is returned
+only after parse, output safety, Phase 2, Phase 4A, and Phase 4B. The client
+output-safety check and premium-delivery check both passed. No second call.
+
+**Palm source.** `tool/e3e_private/fixtures/e3f/palm_e3f.jpg`
+(sha256 `8dd1661e946b4005b8b8d05614362c5f5ef61302989955aaa0f4f81256be6714`),
+763×1200. Provenance documents one open right palm. It is not the rejected
+fixture. The current client image heuristic did not hard-fail. Wire hand was
+`right`. Observe and write both returned HTTP 200 with `parsedOk=true`. The
+client parser and composer accepted the reading. Repair was not logged, so
+the raw count is **2–3**.
+
+| Slice | Feature ops | New raw provider executions | Result |
+|---|---|---|---|
+| Dream `tr-history` | 1 | 1 | PASS |
+| Palm E3F right hand | 1 | 2–3 | PASS |
+| Coffee, Tarot, OR, Yıldızname | reused | 0 | prior PASS kept |
+
+New G2B.1 raw executions: **3–4**. Phase hard cap 4 was not exceeded.
+Prior G2B range remains **7–8**. Cumulative range: **10–12**.
+
+No local fallback. No raw provider error in user copy. No deploy, traffic
+change, store transaction, or SoulMate call. Production source unchanged.
+
+Sanitized record:
+`docs/product/g2/evidence/G2B1_PALM_DREAM_CLOSURE.json`.
+
+**G2B.1 verdict: PASS.**
+**G2B pre-SoulMate verdict: PASS.** Coffee, Tarot, OR, Dream, and Palm live
+evidence may be frozen. Do not promote this candidate. SoulMate is the next
+separate sandbox-entitlement closure.

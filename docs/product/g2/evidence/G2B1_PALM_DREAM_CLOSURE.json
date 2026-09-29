@@ -1,0 +1,301 @@
+{
+  "candidateHost": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+  "candidateRevision": "oracly-api-00085-hef",
+  "candidateTag": "g2b0-aa735bcb7a1b",
+  "imageDigest": "sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+  "durableWorkerUsed": false,
+  "durableWorkerSkippedReason": "candidate READING_TASK_TARGET_URL is the stable production host; staging would schedule a worker there",
+  "preflight": {
+    "utc": "2026-09-29T11:05:01.890762Z",
+    "proxyHost": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+    "derivedReadingOriginHost": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+    "originMatchesCandidate": true,
+    "allowsLocalFallback": false,
+    "visionAvailable": true,
+    "signedIn": true,
+    "anonymousAuth": true,
+    "realFirebaseAuth": true,
+    "realAppCheck": true,
+    "appCheckDebugProvider": true
+  },
+  "palmPrecheck": {
+    "source": "tool/e3e_private/fixtures/e3f/palm_e3f.jpg",
+    "sha256": "8dd1661e946b4005b8b8d05614362c5f5ef61302989955aaa0f4f81256be6714",
+    "bytes": 125947,
+    "documentedHandSide": "right",
+    "heuristicOk": true,
+    "heuristicMessage": null
+  },
+  "palm": {
+    "utc": "2026-09-29T11:05:01.950567Z",
+    "fixture": "tool/e3e_private/fixtures/e3f/palm_e3f.jpg",
+    "imageSha256": "8dd1661e946b4005b8b8d05614362c5f5ef61302989955aaa0f4f81256be6714",
+    "imageBytes": 125947,
+    "personalization": "none",
+    "memorySummary": null,
+    "http": [
+      {
+        "utc": "2026-09-29T11:05:12.909973Z",
+        "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+        "path": "/v1/ai/complete",
+        "operation": "palm_analysis",
+        "readingPhase": "observe",
+        "requestMeta": {
+          "hand": "right",
+          "byteLength": 125947,
+          "mimeType": "image/jpeg",
+          "readingPhase": "observe",
+          "imagePresent": true
+        },
+        "idempotencyKey": "or-103f440e:observe",
+        "httpStatus": 200,
+        "successEnvelope": true,
+        "backendErrorCode": null
+      },
+      {
+        "utc": "2026-09-29T11:05:43.218423Z",
+        "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+        "path": "/v1/ai/complete",
+        "operation": "palm_analysis",
+        "readingPhase": "write",
+        "requestMeta": {
+          "hand": "right",
+          "byteLength": null,
+          "mimeType": "image/jpeg",
+          "readingPhase": "write",
+          "imagePresent": false
+        },
+        "idempotencyKey": "or-103f440e:write",
+        "httpStatus": 200,
+        "successEnvelope": true,
+        "backendErrorCode": null
+      }
+    ],
+    "readingPhases": [
+      "observe",
+      "write"
+    ],
+    "httpRequests": 2,
+    "providerExecutionsProvableLowerBound": 2,
+    "repairDirectlyProven": false,
+    "rawProviderErrorExposed": false,
+    "trustedHandSide": "right",
+    "handWireValue": "right",
+    "handMetadata": "E3F provenance: Wikimedia File:Right Hand Palm.png, one open right palm",
+    "parserAccepted": true,
+    "clientComposerAccepted": true,
+    "modelHandField": "PalmReading requires an enum; it is not a trusted-side claim",
+    "proseMentionsLeftOrRight": false,
+    "summary": "Yeni bir yön seçerken önce mevcut koşulları ve yakın çevrenin etkisini hesaba katıyor, ardından kendi değerlendirmene dayanarak bağımsızlaşıyorsun. Bu nedenle kararların ani kopuşlardan çok, içeride olgunlaşan ve zamanla netleşen geçişler şeklinde gelişebilir.",
+    "summarySha256": "fb91990d059a45013a2cd12d8fa6bfccc975e9e8dc1b0879a0a329358cb4a0a0",
+    "clientFailureKind": null,
+    "providerExecutionRange": "2-3",
+    "feature": "palm"
+  },
+  "dream": {
+    "utc": "2026-09-29T11:05:43.244957Z",
+    "corpusCase": "tr-history",
+    "payloadBuilder": "DreamProviderEvidence.context",
+    "memorySent": false,
+    "historySent": true,
+    "history": [
+      {
+        "kind": "symbol",
+        "key": "symbol:sea",
+        "label": "Deniz",
+        "level": "recurring",
+        "priorCount": 2
+      }
+    ],
+    "symbols": [
+      "Deniz",
+      "Huzur"
+    ],
+    "emotions": [
+      "Huzur"
+    ],
+    "language": "tr",
+    "http": [
+      {
+        "utc": "2026-09-29T11:05:53.355580Z",
+        "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+        "path": "/v1/ai/complete",
+        "operation": "dream_analysis",
+        "readingPhase": null,
+        "requestMeta": {
+          "language": "tr",
+          "symbols": [
+            "Deniz",
+            "Huzur"
+          ],
+          "emotions": [
+            "Huzur"
+          ],
+          "history": [
+            {
+              "kind": "symbol",
+              "key": "symbol:sea",
+              "label": "Deniz",
+              "level": "recurring",
+              "priorCount": 2
+            }
+          ],
+          "narrativeLength": 135,
+          "memorySummaryPresent": false
+        },
+        "idempotencyKey": "dream-a5de6593b002c443a2d1b88ab876b2e5",
+        "httpStatus": 200,
+        "successEnvelope": true,
+        "backendErrorCode": null
+      }
+    ],
+    "rawProviderExecutions": 1,
+    "parserAccepted": true,
+    "outputSafety": "PASS",
+    "phase4bClient": "PASS",
+    "clientAcceptance": "PASS",
+    "fromAi": true,
+    "summarySha256": "bfc5ec2bfe4fd124cbfcd351c6d35c12d0e1b7d71b7e1bd2c46e8d83517d9a1a",
+    "summary": "Rüya, kıyıda durup uzağa bakarken hissedilen sakin bir huzuru taşıyor.",
+    "rawProviderErrorExposed": false
+  },
+  "http": [
+    {
+      "utc": "2026-09-29T11:05:12.909973Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "palm_analysis",
+      "readingPhase": "observe",
+      "requestMeta": {
+        "hand": "right",
+        "byteLength": 125947,
+        "mimeType": "image/jpeg",
+        "readingPhase": "observe",
+        "imagePresent": true
+      },
+      "idempotencyKey": "or-103f440e:observe",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    },
+    {
+      "utc": "2026-09-29T11:05:43.218423Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "palm_analysis",
+      "readingPhase": "write",
+      "requestMeta": {
+        "hand": "right",
+        "byteLength": null,
+        "mimeType": "image/jpeg",
+        "readingPhase": "write",
+        "imagePresent": false
+      },
+      "idempotencyKey": "or-103f440e:write",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    },
+    {
+      "utc": "2026-09-29T11:05:53.355580Z",
+      "host": "g2b0-aa735bcb7a1b---oracly-api-uya7zqzwra-ew.a.run.app",
+      "path": "/v1/ai/complete",
+      "operation": "dream_analysis",
+      "readingPhase": null,
+      "requestMeta": {
+        "language": "tr",
+        "symbols": [
+          "Deniz",
+          "Huzur"
+        ],
+        "emotions": [
+          "Huzur"
+        ],
+        "history": [
+          {
+            "kind": "symbol",
+            "key": "symbol:sea",
+            "label": "Deniz",
+            "level": "recurring",
+            "priorCount": 2
+          }
+        ],
+        "narrativeLength": 135,
+        "memorySummaryPresent": false
+      },
+      "idempotencyKey": "dream-a5de6593b002c443a2d1b88ab876b2e5",
+      "httpStatus": 200,
+      "successEnvelope": true,
+      "backendErrorCode": null
+    }
+  ],
+  "finishedUtc": "2026-09-29T11:05:53.394728Z",
+  "phase": "G2B.1",
+  "verdict": "PASS",
+  "g2bPreSoulmate": "PASS",
+  "reusedWithoutRerun": [
+    "coffee",
+    "tarot",
+    "or",
+    "yildizname"
+  ],
+  "palmInput": {
+    "oldImageSha256": "a2c70e569e3a81248e1e050a837d24b646d086a530e6e657a4dace6a17b9068f",
+    "oldGitBlob": "56289c378daaba77034418eafe205e7c02d0460c",
+    "oldImageRetried": false,
+    "newSource": "tool/e3e_private/fixtures/e3f/palm_e3f.jpg",
+    "provenance": "tool/e3e_private/fixtures/e3f/PROVENANCE.md documents one open right palm",
+    "handSide": "right",
+    "localPrecheck": "PASS",
+    "dimensions": "763x1200"
+  },
+  "dreamClosure": {
+    "previousCase": "tr-negated-fear",
+    "previousCaseKnownAstraReject": true,
+    "newCase": "tr-history",
+    "serverSuccessImplies": [
+      "parse",
+      "output_safety",
+      "phase2",
+      "phase4a",
+      "phase4b"
+    ],
+    "note": "A success body is returned only after acceptDreamData. The route does not echo the passing sub-stage. Client output safety and premium delivery were checked on the parsed body."
+  },
+  "logs": {
+    "palmObserve": {
+      "status": 200,
+      "parsedOk": true,
+      "bindFailure": null
+    },
+    "palmWrite": {
+      "status": 200,
+      "parsedOk": true,
+      "bindFailure": null
+    },
+    "dream": {
+      "status": 200,
+      "parsedOk": true,
+      "diagnosticStage": null
+    },
+    "repairDirectlyProven": false
+  },
+  "budget": {
+    "priorG2bRawRange": "7-8",
+    "newG2b1RawRange": "3-4",
+    "newDream": 1,
+    "newPalm": "2-3",
+    "cumulativeRawRange": "10-12",
+    "g2b1HardCap": 4,
+    "g2b1HardCapExceeded": false
+  },
+  "postRun": {
+    "productionRevision": "oracly-api-00052-zqd",
+    "productionTrafficPercent": 100,
+    "candidateRevision": "oracly-api-00085-hef",
+    "candidateTrafficPercent": 0,
+    "digest": "sha256:e35475982cea3cc8a527df1cc81a812f5621bff752966fe39b19d676eefc4cfc",
+    "health": 200,
+    "ready": 200
+  }
+}
