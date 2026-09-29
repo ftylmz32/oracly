@@ -18,25 +18,46 @@ import '../../../../shared/widgets/oracly_cinematic_loading.dart';
 import '../../../../shared/widgets/oracly_error_state.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../copy/discovery_journal_copy.dart';
+import '../../models/discovery_journal_entry.dart';
 import '../../providers/discovery_journal_providers.dart';
 import '../widgets/discovery_journal_atmosphere.dart';
 import '../widgets/discovery_journal_empty.dart';
 import '../widgets/discovery_journal_timeline.dart';
 
-class DiscoveryJournalScreen extends ConsumerWidget {
+class DiscoveryJournalScreen extends ConsumerStatefulWidget {
   const DiscoveryJournalScreen({super.key});
 
-  String? _consumeFocusTheme(WidgetRef ref) {
-    final storage = ref.read(localStorageProvider);
-    return SessionContinuationFocusStore(storage)
+  @override
+  ConsumerState<DiscoveryJournalScreen> createState() =>
+      _DiscoveryJournalScreenState();
+}
+
+class _DiscoveryJournalScreenState
+    extends ConsumerState<DiscoveryJournalScreen> {
+  String? _focusTheme;
+  bool _focusHeld = false;
+
+  /// One-shot focus is cleared on read. Wait until a timeline can use it.
+  /// A focus for another chamber stays stored.
+  String? _focusForTimeline(List<DiscoveryJournalEntry> items) {
+    if (_focusHeld) return _focusTheme;
+    if (items.isEmpty) return null;
+    final store = SessionContinuationFocusStore(ref.read(localStorageProvider));
+    final pending = store.peek();
+    if (pending != null &&
+        pending.target != SessionContinuationTarget.discoveryJournal) {
+      return null;
+    }
+    _focusHeld = true;
+    _focusTheme = store
         .consumeFor(SessionContinuationTarget.discoveryJournal)
         ?.theme;
+    return _focusTheme;
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final async = ref.watch(discoveryJournalEntriesProvider);
-    final focusTheme = _consumeFocusTheme(ref);
     return OraclyScaffold(
       safeArea: false,
       usePremiumBackground: false,
@@ -90,7 +111,7 @@ class DiscoveryJournalScreen extends ConsumerWidget {
                     ? const DiscoveryJournalEmpty()
                     : DiscoveryJournalTimeline(
                         items: items,
-                        focusTheme: focusTheme,
+                        focusTheme: _focusForTimeline(items),
                       ),
               ),
             ),
