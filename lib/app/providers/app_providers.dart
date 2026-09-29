@@ -456,9 +456,18 @@ class UserProfileNotifier extends AsyncNotifier<UserProfileModel> {
   }
 
   Future<void> saveName(String name) async {
+    final epoch = UserLocalDataIsolation.accountSwitchEpoch.value;
     final repo = ref.read(userRepositoryProvider);
     final current = state.value ?? const UserProfileModel();
+    if (UserLocalDataIsolation.accountSwitchEpoch.value != epoch) return;
     await repo.saveProfile(current.copyWith(name: name));
+    if (UserLocalDataIsolation.accountSwitchEpoch.value != epoch) {
+      final latest = await repo.getProfile();
+      if (latest.name == name) {
+        await repo.saveProfile(latest.copyWith(name: ''));
+      }
+      return;
+    }
     await refresh();
   }
 }

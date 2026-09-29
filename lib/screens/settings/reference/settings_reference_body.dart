@@ -26,6 +26,7 @@ class SettingsReferenceBody extends StatelessWidget {
     required this.languageCode,
     required this.profileName,
     required this.profilePremium,
+    required this.premiumKnown,
     this.profilePhoto,
     required this.onSave,
   });
@@ -35,6 +36,7 @@ class SettingsReferenceBody extends StatelessWidget {
   final String languageCode;
   final String profileName;
   final bool profilePremium;
+  final bool premiumKnown;
   final ImageProvider? profilePhoto;
   final Future<void> Function(
     PersonalizationSettings Function(PersonalizationSettings),
@@ -76,9 +78,10 @@ class SettingsReferenceBody extends StatelessWidget {
                 SettingsReferenceProfileSummary(
                   name: profileName,
                   isPremium: profilePremium,
+                  premiumKnown: premiumKnown,
                   photo: profilePhoto,
                   subtitle: OraclyL10n.t(
-                    profilePremium
+                    premiumKnown && profilePremium
                         ? L10nKeys.profilePremiumActive
                         : L10nKeys.profileManage,
                     languageCode: languageCode,

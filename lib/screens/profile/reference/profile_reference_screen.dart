@@ -42,8 +42,14 @@ class _ProfileReferenceScreenState
       initial: current,
       confirmLabel: ProfileCopy.saveLabel,
     );
-    if (name != null && name.trim().isNotEmpty) {
-      await ref.read(userProfileProvider.notifier).saveName(name.trim());
+    if (name == null) return;
+    final trimmed = name.trim();
+    if (trimmed.isEmpty || trimmed == current.trim()) return;
+    try {
+      await ref.read(userProfileProvider.notifier).saveName(trimmed);
+    } catch (_) {
+      if (!context.mounted) return;
+      OraclySnackBar.show(context, message: ResilienceCopy.genericLoadFailed);
     }
   }
 
@@ -106,6 +112,8 @@ class _ProfileReferenceScreenState
         child: SizedBox.shrink(),
       ),
       child: profileAsync.when(
+        skipLoadingOnReload: false,
+        skipLoadingOnRefresh: false,
         loading: () => SafeArea(
           child: OraclySkeletonLoader(message: ResilienceCopy.profileLoading),
         ),

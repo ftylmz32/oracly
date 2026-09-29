@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/copy/resilience_copy.dart';
 import '../../../core/notifications/oracly_notification_providers.dart';
 import '../../../core/runtime/oracly_apply_outcome.dart';
@@ -20,16 +21,18 @@ typedef SettingsLoaded =
 Future<void> loadSettingsReference({
   required WidgetRef ref,
   required BuildContext context,
-  required bool mounted,
+  required bool Function() isMounted,
   required bool hasLoadedOnce,
   required SettingsLoaded onLoaded,
   required VoidCallback onFirstFailure,
   required VoidCallback onCachedFailure,
 }) async {
+  final epoch = UserLocalDataIsolation.accountSwitchEpoch.value;
   try {
     final s = await ref.read(settingsServiceProvider).load();
     final profile = await ref.read(userRepositoryProvider).getProfile();
-    if (!mounted) return;
+    if (!isMounted()) return;
+    if (UserLocalDataIsolation.accountSwitchEpoch.value != epoch) return;
     onLoaded(settings: s, profileName: profile.name);
     // Passive re-sync on screen load — never corrupts the visible setting
     // state and never spams a snackbar, but a real failure is still logged
@@ -45,9 +48,11 @@ Future<void> loadSettingsReference({
       debugPrint('[ORACLY] settings-load notification re-sync threw: $e');
     }
   } catch (_) {
-    if (!mounted) return;
+    if (!isMounted()) return;
+    if (UserLocalDataIsolation.accountSwitchEpoch.value != epoch) return;
     if (hasLoadedOnce) {
       onCachedFailure();
+      if (!context.mounted) return;
       OraclySnackBar.show(context, message: ResilienceCopy.settingsLoadFailed);
     } else {
       onFirstFailure();

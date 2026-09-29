@@ -38,7 +38,8 @@ class ProfileReferenceBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final discoveryAsync = ref.watch(personalDiscoveryProfileProvider);
     final hasHistory = discoveryAsync.valueOrNull?.hasHistory ?? false;
-    final resumeTarget = ref.watch(continueWhereYouLeftOffProvider).valueOrNull;
+    final resumeAsync = ref.watch(continueWhereYouLeftOffProvider);
+    final resumeTarget = resumeAsync.isLoading ? null : resumeAsync.valueOrNull;
 
     return SafeArea(
       bottom: false,

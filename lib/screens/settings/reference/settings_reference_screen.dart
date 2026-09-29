@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/providers/backend_providers.dart' as backend;
 import '../../../core/notifications/oracly_notification_providers.dart';
 import '../../../core/copy/resilience_copy.dart';
 import '../../../core/runtime/oracly_apply_outcome.dart';
@@ -36,6 +37,8 @@ class _SettingsReferenceScreenState
   bool _hasLoadedOnce = false;
   String _profileName = '';
   Future<void> _write = Future.value();
+  int _editGeneration = 0;
+  int _settledGeneration = 0;
 
   @override
   void initState() {
@@ -53,7 +56,7 @@ class _SettingsReferenceScreenState
     await loadSettingsReference(
       ref: ref,
       context: context,
-      mounted: mounted,
+      isMounted: () => mounted,
       hasLoadedOnce: _hasLoadedOnce,
       onLoaded: ({required settings, required profileName}) {
         setState(() {
@@ -74,41 +77,45 @@ class _SettingsReferenceScreenState
 
   Future<void> _save(PersonalizationSettings updated) {
     final previousNotify = _settings.notificationsEnabled;
-    final notifyIntentChanged =
-        updated.notificationsEnabled != previousNotify;
-    _settings = updated;
+    final notifyIntentChanged = updated.notificationsEnabled != previousNotify;
+    final generation = ++_editGeneration;
+    final intent = updated;
+    _settings = intent;
     if (mounted) setState(() {});
     _write = _write.then((_) async {
-      if (!mounted) return;
+      if (!mounted || generation != _editGeneration) return;
       try {
         final audioResult = await ref
             .read(settingsProvider.notifier)
-            .saveSettings(_settings);
-        if (mounted && audioResult.settings != _settings) {
-          // The requested effect could not really apply (e.g. ambient
-          // music could not start) — reflect the corrected, honest state.
-          setState(() => _settings = audioResult.settings);
+            .saveSettings(intent);
+        if (!mounted || generation != _editGeneration) return;
+        var visible = intent;
+        if (audioResult.settings != intent) {
+          visible = audioResult.settings;
+          setState(() => _settings = visible);
         }
-        if (!mounted) return;
 
         var notifyFailed = false;
         final notifyOutcome = await ref
             .read(oraclyNotificationCoordinatorProvider)
-            .sync(_settings);
+            .sync(visible);
+        if (!mounted || generation != _editGeneration) return;
         // Only roll back the notifications flag when THIS save changed it.
         // Ambient/sound/language saves must not invert an unrelated toggle.
         if (notifyOutcome.isFailure && notifyIntentChanged) {
           notifyFailed = true;
-          final corrected = _settings.copyWith(
+          final corrected = visible.copyWith(
             notificationsEnabled: previousNotify,
           );
           await ref.read(settingsProvider.notifier).saveSettings(corrected);
-          if (mounted) setState(() => _settings = corrected);
+          if (!mounted || generation != _editGeneration) return;
+          visible = corrected;
+          setState(() => _settings = corrected);
         } else if (notifyOutcome.isFailure) {
           notifyFailed = true;
         }
 
-        if (!mounted) return;
+        _settledGeneration = generation;
         if (audioResult.hasFailure) {
           OraclySnackBar.show(
             context,
@@ -121,7 +128,7 @@ class _SettingsReferenceScreenState
           );
         }
       } catch (_) {
-        if (!mounted) return;
+        if (!mounted || generation != _editGeneration) return;
         OraclySnackBar.show(
           context,
           message: ResilienceCopy.settingsSaveFailed,
@@ -136,11 +143,17 @@ class _SettingsReferenceScreenState
     ref.listen(settingsProvider, (previous, next) {
       final data = next.valueOrNull;
       if (data == null || !mounted || _loadFailed) return;
+      if (_editGeneration != _settledGeneration) return;
       setState(() {
         _settings = data;
         _loading = false;
         _hasLoadedOnce = true;
       });
+    });
+    ref.listen<int>(backend.localDataOwnerEpochProvider, (previous, next) {
+      if (!mounted || previous == next) return;
+      setState(() => _profileName = '');
+      _load();
     });
     ref.watch(appLocaleProvider);
     ref.watch(appThemeModeProvider);
@@ -174,6 +187,7 @@ class _SettingsReferenceScreenState
               languageCode: lang,
               profileName: _profileName,
               profilePremium: premiumStatus.isPremium,
+              premiumKnown: premiumStatus.loaded,
               profilePhoto: ref.watch(profilePhotoProvider),
               onRetry: _load,
               onSave: (patch) => _save(patch(_settings)),

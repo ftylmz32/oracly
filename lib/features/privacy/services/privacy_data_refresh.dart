@@ -4,6 +4,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
+import '../../../core/experience/providers/continue_where_you_left_off_provider.dart';
 import '../../../core/revisit/providers/discovery_revisit_provider.dart';
 import '../../../screens/profile/data/profile_photo_store.dart';
 import '../../birth_chart/providers/birth_information_provider.dart';
@@ -41,6 +42,7 @@ abstract final class PrivacyDataRefresh {
   /// Full local wipe on auth account switch — no ghost profile/history/gems.
   static void afterAccountSwitch(WidgetRef ref) {
     ref.invalidate(userProfileProvider);
+    ref.invalidate(continueWhereYouLeftOffProvider);
     ref.invalidate(readingHistoryProvider);
     ref.invalidate(settingsProvider);
     ref.invalidate(premiumActiveProvider);

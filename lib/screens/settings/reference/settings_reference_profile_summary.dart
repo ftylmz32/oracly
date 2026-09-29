@@ -16,6 +16,7 @@ class SettingsReferenceProfileSummary extends StatelessWidget {
     super.key,
     required this.name,
     required this.isPremium,
+    required this.premiumKnown,
     required this.subtitle,
     required this.emptyName,
     this.languageCode = 'tr',
@@ -25,6 +26,7 @@ class SettingsReferenceProfileSummary extends StatelessWidget {
 
   final String name;
   final bool isPremium;
+  final bool premiumKnown;
   final String subtitle;
   final String emptyName;
   final String languageCode;
@@ -68,13 +70,15 @@ class SettingsReferenceProfileSummary extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: SettingsMembershipBadge(
-                        isPremium: isPremium,
-                        languageCode: languageCode,
+                    if (premiumKnown) ...[
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: SettingsMembershipBadge(
+                          isPremium: isPremium,
+                          languageCode: languageCode,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),

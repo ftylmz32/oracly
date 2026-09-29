@@ -17,6 +17,7 @@ class SettingsReferenceContent extends StatelessWidget {
     required this.languageCode,
     required this.profileName,
     required this.profilePremium,
+    required this.premiumKnown,
     required this.profilePhoto,
     required this.onRetry,
     required this.onSave,
@@ -28,6 +29,7 @@ class SettingsReferenceContent extends StatelessWidget {
   final String languageCode;
   final String profileName;
   final bool profilePremium;
+  final bool premiumKnown;
   final ImageProvider? profilePhoto;
   final VoidCallback onRetry;
   final Future<void> Function(
@@ -50,6 +52,7 @@ class SettingsReferenceContent extends StatelessWidget {
       languageCode: languageCode,
       profileName: profileName,
       profilePremium: profilePremium,
+      premiumKnown: premiumKnown,
       profilePhoto: profilePhoto,
       onSave: onSave,
     );
