@@ -21,6 +21,14 @@ FIREBASE_PROJECT_ID="${FIREBASE_PROJECT_ID:-oracly-7f613}"
 FIREBASE_PROJECT_NUMBER="${FIREBASE_PROJECT_NUMBER:-1075374196330}"
 EXPECTED_FIREBASE_APP_CHECK_APP_IDS="1:1075374196330:android:200bc15b1e43a8a2ef2c13,1:1075374196330:ios:5b526f23f001847eef2c13"
 FIREBASE_APP_CHECK_APP_IDS="${FIREBASE_APP_CHECK_APP_IDS:-$EXPECTED_FIREBASE_APP_CHECK_APP_IDS}"
+BACKEND_DIR="${BACKEND_DIR:-.}"
+# Revision lineage labels, stamped on every deploy with --update-labels. Cloud
+# Run copies labels from the previous revision template, so omitting them
+# would silently label a new image with an old commit. SOURCE_COMMIT and
+# RELEASE_HEAD default from the checkout being built (resolved below);
+# ORACLY_PHASE defaults to a generic value. A variable that is set but empty
+# is rejected, never defaulted.
+ORACLY_PHASE="${ORACLY_PHASE-manual-deploy}"
 
 fail() { echo "deploy-cloud-run FAIL: $*" >&2; exit 1; }
 
@@ -32,6 +40,24 @@ fail() { echo "deploy-cloud-run FAIL: $*" >&2; exit 1; }
 [[ "$FIREBASE_APP_CHECK_APP_IDS" == "$EXPECTED_FIREBASE_APP_CHECK_APP_IDS" ]] || fail "Firebase App Check allowlist must be exactly the verified app.oracly Android and iOS apps"
 [[ -n "${OPENAI_API_KEY_PLAINTEXT:-}" ]] && fail "Do not pass OPENAI_API_KEY_PLAINTEXT; use Secret Manager"
 [[ -n "${OPENAI_API_KEY:-}" ]] && fail "Do not export OPENAI_API_KEY into deploy; use Secret Manager"
+
+# Lineage must describe exactly the checkout being built — validated before
+# any gcloud call, docker build, push or deploy. Never taken from a live
+# revision, an existing label or a deployed image.
+command -v git >/dev/null || fail "git missing (needed to stamp source_commit)"
+CHECKOUT_COMMIT="$(git -C "$BACKEND_DIR" rev-parse --verify 'HEAD^{commit}' 2>/dev/null)" \
+  || fail "Cannot resolve the git HEAD of $BACKEND_DIR"
+SOURCE_COMMIT="${SOURCE_COMMIT-$CHECKOUT_COMMIT}"
+RELEASE_HEAD="${RELEASE_HEAD-$SOURCE_COMMIT}"
+[[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || fail "SOURCE_COMMIT must be a full 40-character lowercase git SHA"
+[[ "$SOURCE_COMMIT" == "$CHECKOUT_COMMIT" ]] || fail "SOURCE_COMMIT does not match the checkout being built ($CHECKOUT_COMMIT)"
+[[ "$RELEASE_HEAD" =~ ^[0-9a-f]{40}$ ]] || fail "RELEASE_HEAD must be a full 40-character lowercase git SHA"
+[[ "$ORACLY_PHASE" =~ ^[a-z0-9-]{1,63}$ ]] || fail "ORACLY_PHASE must be 1-63 characters of lowercase letters, digits or hyphens"
+BACKEND_STATUS="$(git -C "$BACKEND_DIR" status --porcelain -- . 2>/dev/null)" \
+  || fail "Cannot read git status of $BACKEND_DIR"
+[[ -z "$BACKEND_STATUS" ]] || fail "Uncommitted or untracked changes under $BACKEND_DIR; the image would not match SOURCE_COMMIT"
+echo "Lineage: source_commit=${SOURCE_COMMIT} release_head=${RELEASE_HEAD} oracly_phase=${ORACLY_PHASE}"
+
 command -v gcloud >/dev/null || fail "gcloud CLI missing"
 command -v docker >/dev/null || fail "docker missing"
 
@@ -43,7 +69,6 @@ if ! gcloud iam service-accounts describe "$RUNTIME_SA" --project="$PROJECT_ID" 
   fail "Runtime service account missing: oracly-api-runtime (do not fall back to default compute SA)"
 fi
 
-BACKEND_DIR="${BACKEND_DIR:-.}"
 [[ -f "$BACKEND_DIR/Dockerfile" ]] || fail "Run from backend/ or set BACKEND_DIR"
 [[ -f "$BACKEND_DIR/package-lock.json" ]] || fail "package-lock.json required for reproducible builds"
 
@@ -120,6 +145,8 @@ DEPLOY_ARGS=(
   --cpu-boost
   --update-env-vars="$ENV_UPDATES"
   --update-secrets="OPENAI_API_KEY=${SECRET_NAME}:latest"
+  # Merge semantics: only these three labels change; all others are kept.
+  --update-labels="source_commit=${SOURCE_COMMIT},release_head=${RELEASE_HEAD},oracly_phase=${ORACLY_PHASE}"
   --quiet
 )
 
