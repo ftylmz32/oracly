@@ -95,6 +95,17 @@ class PremiumGrantPolicy {
     );
   }
 
+  static bool _sameCredentials(
+    PremiumPurchaseCredentials? saved,
+    PremiumPurchaseCredentials next,
+  ) {
+    return saved != null &&
+        saved.platform == next.platform &&
+        saved.productId == next.productId &&
+        saved.purchaseToken == next.purchaseToken &&
+        saved.transactionId == next.transactionId;
+  }
+
   bool get _ownerReady {
     final premium = _premium;
     if (premium is PremiumOwnerBoundary) {
@@ -114,8 +125,15 @@ class PremiumGrantPolicy {
       if (!_ownerReady) return false;
       // A verified store grant is not locally committed until its proof is
       // durable. Otherwise a credential write failure could leave active=true
-      // for the live session yet make restart unverifiable.
-      if (credentials != null) {
+      // for the live session yet make restart unverifiable. The store path
+      // already saved this exact proof before completing the transaction;
+      // rewriting it could only destroy that copy on a storage failure. A
+      // failed read throws here, so nothing is activated.
+      if (credentials != null &&
+          !_sameCredentials(
+            await _premium.readPurchaseCredentials(),
+            credentials,
+          )) {
         await _premium.savePurchaseCredentials(credentials);
       }
       await _premium.activatePlan(plan, authoritative: authoritative);

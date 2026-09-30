@@ -17,6 +17,7 @@ import 'package:oracly_new/core/data/repositories/mock_premium_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_user_repository.dart';
 import 'package:oracly_new/core/domain/models/premium_plan.dart';
 import 'package:oracly_new/core/services/premium_entitlement_reconciler.dart';
+import 'package:oracly_new/core/services/premium_grant_policy.dart';
 import 'package:oracly_new/core/services/premium_service.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/core/storage/secure_storage.dart';
@@ -131,6 +132,52 @@ const _monthly = PremiumPurchaseCredentials(
 );
 
 Future<void> _flush() => Future<void>.delayed(Duration.zero);
+
+/// Durable first credential save succeeds; any later product-id write fails,
+/// which makes MockPremiumRepository roll back (remove) the saved metadata.
+class _SecondProductWriteFails extends LocalStorage {
+  _SecondProductWriteFails() : super.ephemeral();
+
+  int productWrites = 0;
+
+  @override
+  Future<bool> setString(String key, String value) async {
+    if (key == MockPremiumRepository.productIdKey && ++productWrites >= 2) {
+      return false;
+    }
+    return super.setString(key, value);
+  }
+}
+
+/// Records the order of credential saves and plan activations.
+class _OrderedRepository extends MockPremiumRepository {
+  _OrderedRepository(super.storage, {super.secureStorage});
+
+  final List<String> calls = [];
+
+  @override
+  Future<void> savePurchaseCredentials(PremiumPurchaseCredentials c) async {
+    calls.add('save');
+    await super.savePurchaseCredentials(c);
+  }
+
+  @override
+  Future<void> activatePlan(
+    PremiumPlanKind plan, {
+    bool authoritative = false,
+  }) async {
+    calls.add('activate');
+    await super.activatePlan(plan, authoritative: authoritative);
+  }
+}
+
+class _UnreadableCredentialsRepository extends MockPremiumRepository {
+  _UnreadableCredentialsRepository(super.storage, {super.secureStorage});
+
+  @override
+  Future<PremiumPurchaseCredentials?> readPurchaseCredentials() async =>
+      throw StateError('secure storage unavailable');
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -376,6 +423,235 @@ void main() {
       await future;
 
       expect(persists, 0);
+    });
+  });
+
+  group('terminal events finish only when re-verifiable', () {
+    test('A1: empty verification data -> not persisted, not completed, not '
+        'granted', () async {
+      final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
+      addTearDown(iap.dispose);
+      var persists = 0;
+      final port = StorePremiumPurchase(
+        client: iap,
+        persistRetryCredentials: (_) async => persists++,
+      );
+      await port.prepare();
+      final future = port.purchase(PremiumPlanKind.monthly);
+      iap.emit([_event(PremiumStoreCatalog.monthlyId, token: '')]);
+      final result = await future;
+
+      expect(result.outcome, PremiumPurchaseOutcome.unverified);
+      expect(result.granted, isFalse);
+      expect(persists, 0);
+      expect(iap.completeCalls, 0);
+      expect(await repo.isPremiumActive(), isFalse);
+    });
+
+    test('A2: empty token then valid redelivery -> persisted, completed once, '
+        'verifiable', () async {
+      final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
+      addTearDown(iap.dispose);
+      final port = createStorePremiumPurchase(() => repo, client: iap);
+      await port.prepare();
+      final first = port.purchase(PremiumPlanKind.monthly);
+      iap.emit([_event(PremiumStoreCatalog.monthlyId, token: '')]);
+      expect((await first).granted, isFalse);
+      expect(iap.completeCalls, 0);
+
+      iap.emit([_event(PremiumStoreCatalog.monthlyId, token: 'real-token')]);
+      await _flush();
+
+      expect(iap.completeCalls, 1);
+      expect((await repo.readPurchaseCredentials())?.purchaseToken, 'real-token');
+      final snap = await reconcilerFor(
+        _ScriptedVerifier([PremiumVerifyResult.active('ok')]),
+      ).reconcile();
+      expect(snap.entitlement, PremiumEntitlementState.active);
+    });
+
+    test('A3: iOS lifetime terminal event -> not persisted, not completed, '
+        'not granted', () async {
+      final original = debugDefaultTargetPlatformOverride;
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = original);
+      final iap = _FakeIap();
+      addTearDown(iap.dispose);
+      var persists = 0;
+      final port = StorePremiumPurchase(
+        client: iap,
+        persistRetryCredentials: (_) async => persists++,
+      );
+      await port.prepare();
+      final future = port.restore();
+      iap.emit([
+        _event(PremiumStoreCatalog.lifetimeId, status: PurchaseStatus.restored),
+      ]);
+      final result = await future;
+
+      expect(result.granted, isFalse);
+      expect(persists, 0);
+      expect(iap.completeCalls, 0);
+      expect(await port.consumeUnsolicitedGrant(), isNull);
+    });
+
+    for (final plan in [PremiumPlanKind.monthly, PremiumPlanKind.yearly]) {
+      test('A4: valid ${plan.name} -> persist then complete, exactly once',
+          () async {
+        final id = PremiumStoreCatalog.idFor(plan);
+        final iap = _FakeIap(products: [_product(id)]);
+        addTearDown(iap.dispose);
+        final port = StorePremiumPurchase(
+          client: iap,
+          persistRetryCredentials: (creds) async {
+            iap.order.add('persist');
+            await repo.savePurchaseCredentials(creds);
+          },
+        );
+        await port.prepare();
+        final future = port.purchase(plan);
+        iap.emit([_event(id)]);
+        final result = await future;
+
+        expect(result.granted, isTrue);
+        expect(iap.order, ['persist', 'complete']);
+        expect(await repo.isPremiumActive(), isFalse);
+      });
+    }
+
+    test('Android lifetime terminal event is still persisted and completed',
+        () async {
+      final iap = _FakeIap(products: [_product(PremiumStoreCatalog.lifetimeId)]);
+      addTearDown(iap.dispose);
+      final port = createStorePremiumPurchase(() => repo, client: iap);
+      await port.prepare();
+      final future = port.purchase(PremiumPlanKind.lifetime);
+      iap.emit([_event(PremiumStoreCatalog.lifetimeId, token: 'life-token')]);
+
+      expect((await future).granted, isTrue);
+      expect(iap.completeCalls, 1);
+      expect((await repo.readPurchaseCredentials())?.purchaseToken, 'life-token');
+    });
+  });
+
+  group('authoritative grant never rewrites the durable proof', () {
+    test('B: matching saved proof is not rewritten; a failing second write '
+        'cannot destroy it', () async {
+      final failing = _SecondProductWriteFails();
+      final durable = MockPremiumRepository(
+        failing,
+        secureStorage: InMemorySecureStorage(),
+      );
+      final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
+      addTearDown(iap.dispose);
+      final service = PremiumService(
+        durable,
+        MockUserRepository(failing),
+        createStorePremiumPurchase(() => durable, client: iap),
+        _ScriptedVerifier([PremiumVerifyResult.active('subscription_active')]),
+      )..forceReleaseMode = true;
+      await service.preparePurchase();
+
+      final purchase = service.purchase(PremiumPlanKind.monthly);
+      iap.emit([_event(PremiumStoreCatalog.monthlyId, token: 'paid-token')]);
+      final result = await purchase;
+
+      expect(failing.productWrites, 1);
+      expect(result.granted, isTrue);
+      expect(iap.completeCalls, 1);
+      expect(await durable.isPremiumActive(), isTrue);
+      expect(durable.wasAuthoritativelyVerified, isTrue);
+      expect(
+        (await durable.readPurchaseCredentials())?.purchaseToken,
+        'paid-token',
+      );
+    });
+
+    PremiumGrantPolicy policyFor(MockPremiumRepository premium) =>
+        PremiumGrantPolicy(
+          premium: premium,
+          user: MockUserRepository(storage),
+          verifier: _ScriptedVerifier([PremiumVerifyResult.active('ok')]),
+          forceReleaseMode: true,
+        );
+
+    test('matching saved proof -> activation without a credential write',
+        () async {
+      final ordered = _OrderedRepository(storage, secureStorage: secure);
+      await ordered.savePurchaseCredentials(_monthly);
+      ordered.calls.clear();
+
+      final committed = await policyFor(ordered).grant(
+        PremiumPlanKind.monthly,
+        authoritative: true,
+        credentials: _monthly,
+      );
+
+      expect(committed, isTrue);
+      expect(ordered.calls, ['activate']);
+    });
+
+    test('different saved proof -> new proof saved BEFORE activation',
+        () async {
+      final ordered = _OrderedRepository(storage, secureStorage: secure);
+      await ordered.savePurchaseCredentials(_monthly);
+      ordered.calls.clear();
+      const renewed = PremiumPurchaseCredentials(
+        platform: 'android',
+        productId: PremiumStoreCatalog.yearlyId,
+        purchaseToken: 'yearly-token',
+        transactionId: 'yearly-txn',
+      );
+
+      await policyFor(ordered).grant(
+        PremiumPlanKind.yearly,
+        authoritative: true,
+        credentials: renewed,
+      );
+
+      expect(ordered.calls, ['save', 'activate']);
+      expect(
+        (await ordered.readPurchaseCredentials())?.purchaseToken,
+        'yearly-token',
+      );
+    });
+
+    test('no saved proof -> saved BEFORE activation', () async {
+      final ordered = _OrderedRepository(storage, secureStorage: secure);
+
+      await policyFor(ordered).grant(
+        PremiumPlanKind.monthly,
+        authoritative: true,
+        credentials: _monthly,
+      );
+
+      expect(ordered.calls, ['save', 'activate']);
+    });
+
+    test('unreadable saved proof -> fails closed, nothing activated', () async {
+      final unreadable = _UnreadableCredentialsRepository(
+        storage,
+        secureStorage: secure,
+      );
+
+      await expectLater(
+        policyFor(unreadable).grant(
+          PremiumPlanKind.monthly,
+          authoritative: true,
+          credentials: _monthly,
+        ),
+        throwsStateError,
+      );
+      expect(await unreadable.isPremiumActive(), isFalse);
+    });
+
+    test('store grant without credentials stays unverified', () async {
+      final result = await policyFor(repo).applyStoreOutcome(
+        PremiumPurchaseResult.granted(PremiumPlanKind.monthly),
+      );
+
+      expect(result.outcome, PremiumPurchaseOutcome.unverified);
+      expect(await repo.isPremiumActive(), isFalse);
     });
   });
 

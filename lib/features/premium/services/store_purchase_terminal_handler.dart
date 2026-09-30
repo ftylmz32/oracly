@@ -45,15 +45,37 @@ abstract final class StorePurchaseTerminalHandler {
       );
       return null; // leave pending for store redelivery / Restore
     }
+    // Beyond this point the transaction is finished only when it can be
+    // re-verified later: a plan this platform sells, complete proof, and
+    // (in production wiring) that proof durably saved. Anything else stays
+    // unfinished for store redelivery and is reported honestly, never granted.
+    if (!PremiumPlanAvailability.isPurchasable(kind)) {
+      StorePurchaseStreamDiagnostics.logDropped(
+        reason: 'platform_plan_not_purchasable',
+        status: purchase.status,
+        recognized: true,
+        expected: expected,
+        actual: kind,
+      );
+      return PremiumPurchaseResult.unverified();
+    }
     final creds = PremiumPurchaseCredentials(
       platform: defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
       productId: purchase.productID,
       purchaseToken: purchase.verificationData.serverVerificationData,
       transactionId: purchase.purchaseID,
     );
-    if (persistRetryCredentials != null &&
-        creds.isComplete &&
-        PremiumPlanAvailability.isPurchasable(kind)) {
+    if (!creds.isComplete) {
+      StorePurchaseStreamDiagnostics.logDropped(
+        reason: 'incomplete_credentials',
+        status: purchase.status,
+        recognized: true,
+        expected: expected,
+        actual: kind,
+      );
+      return PremiumPurchaseResult.unverified();
+    }
+    if (persistRetryCredentials != null) {
       try {
         await persistRetryCredentials(creds);
       } catch (_) {
