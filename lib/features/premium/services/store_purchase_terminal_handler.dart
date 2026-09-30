@@ -10,7 +10,8 @@ import '../models/premium_purchase_result.dart';
 import 'premium_plan_availability.dart';
 import 'store_purchase_stream_diagnostics.dart';
 
-/// PART 4B REPAIR B — durable UNVERIFIED retry material (never grants Premium).
+/// Durable UNVERIFIED recovery material (never grants Premium). Must throw
+/// when nothing durable was written, so the transaction is not finished.
 typedef PersistRetryCredentials =
     Future<void> Function(PremiumPurchaseCredentials credentials);
 
@@ -50,10 +51,25 @@ abstract final class StorePurchaseTerminalHandler {
       purchaseToken: purchase.verificationData.serverVerificationData,
       transactionId: purchase.purchaseID,
     );
-    if (creds.isComplete && PremiumPlanAvailability.isPurchasable(kind)) {
+    if (persistRetryCredentials != null &&
+        creds.isComplete &&
+        PremiumPlanAvailability.isPurchasable(kind)) {
       try {
-        await persistRetryCredentials?.call(creds);
-      } catch (_) {}
+        await persistRetryCredentials(creds);
+      } catch (_) {
+        // No durable recovery material: finishing the transaction now could
+        // strand a paid purchase if the backend verify then fails, because
+        // the store stops redelivering completed transactions. Leave it
+        // unfinished for redelivery and report it honestly, never granted.
+        StorePurchaseStreamDiagnostics.logDropped(
+          reason: 'recovery_persist_failed',
+          status: purchase.status,
+          recognized: true,
+          expected: expected,
+          actual: kind,
+        );
+        return PremiumPurchaseResult.unverified();
+      }
     }
     if (purchase.pendingCompletePurchase) {
       await completePurchase(purchase);

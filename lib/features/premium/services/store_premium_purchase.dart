@@ -38,6 +38,11 @@ class StorePremiumPurchase implements PremiumPurchasePort {
   /// so direct constructions keep working; production wiring always
   /// supplies it (premium_purchase_port_provider).
   final PersistRetryCredentials? _persistRetryCredentials;
+
+  /// Whether terminal events are persisted before store completion.
+  @visibleForTesting
+  bool get persistsRecovery => _persistRetryCredentials != null;
+
   final StorePremiumPurchaseSession _session = StorePremiumPurchaseSession();
   StreamSubscription<List<PurchaseDetails>>? _sub;
 

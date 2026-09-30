@@ -287,19 +287,74 @@ void main() {
       expect(await repo.isPremiumActive(), isFalse);
     });
 
-    test('a failing recovery write never blocks store completion', () async {
+    test('failed recovery write leaves the store transaction unfinished; a '
+        'later redelivery completes normally', () async {
       final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
       addTearDown(iap.dispose);
+      var diskFull = true;
       final port = StorePremiumPurchase(
         client: iap,
-        persistRetryCredentials: (_) async => throw StateError('disk full'),
+        persistRetryCredentials: (creds) async {
+          if (diskFull) throw StateError('disk full');
+          await repo.savePurchaseCredentials(creds);
+        },
       );
       await port.prepare();
       final future = port.purchase(PremiumPlanKind.monthly);
       iap.emit([_event(PremiumStoreCatalog.monthlyId)]);
+      final result = await future;
 
-      expect((await future).granted, isTrue);
+      expect(result.outcome, PremiumPurchaseOutcome.unverified);
+      expect(result.granted, isFalse);
+      expect(iap.completeCalls, 0);
+      expect(await repo.readPurchaseCredentials(), isNull);
+      expect(await repo.isPremiumActive(), isFalse);
+
+      // The store redelivers the unfinished transaction; storage recovered.
+      diskFull = false;
+      iap.emit([_event(PremiumStoreCatalog.monthlyId)]);
+      await _flush();
+
       expect(iap.completeCalls, 1);
+      expect((await repo.readPurchaseCredentials())?.purchaseToken, 'store-token');
+      expect((await port.consumeUnsolicitedGrant())?.granted, isTrue);
+      expect(await repo.isPremiumActive(), isFalse);
+    });
+
+    test('production wiring always supplies durable recovery persistence',
+        () async {
+      final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
+      addTearDown(iap.dispose);
+      final port = createStorePremiumPurchase(() => repo, client: iap);
+      expect(port.persistsRecovery, isTrue);
+
+      await port.prepare();
+      final future = port.purchase(PremiumPlanKind.monthly);
+      iap.emit([_event(PremiumStoreCatalog.monthlyId, token: 'wired-token')]);
+      await future;
+
+      expect(iap.completeCalls, 1);
+      expect((await repo.readPurchaseCredentials())?.purchaseToken, 'wired-token');
+    });
+
+    test('non-isolated owner at persistence time -> no completion, no grant',
+        () async {
+      final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
+      addTearDown(iap.dispose);
+      final blocked = MockPremiumRepository(
+        storage,
+        secureStorage: secure,
+        ownerAccessAllowed: () => false,
+      );
+      final port = createStorePremiumPurchase(() => blocked, client: iap);
+      await port.prepare();
+      final future = port.purchase(PremiumPlanKind.monthly);
+      iap.emit([_event(PremiumStoreCatalog.monthlyId)]);
+      final result = await future;
+
+      expect(result.granted, isFalse);
+      expect(iap.completeCalls, 0);
+      expect(await repo.readPurchaseCredentials(), isNull);
     });
 
     test('iOS lifetime is never persisted as recovery material', () async {
@@ -415,6 +470,110 @@ void main() {
     });
   });
 
+  group('saved recovery does not require store availability', () {
+    PremiumEntitlementReconciler storeless(PremiumEntitlementVerifier v) =>
+        PremiumEntitlementReconciler(
+          premium: repo,
+          purchaseConfigured: false,
+          canAttemptRestore: false,
+          verifier: v,
+          forceReleaseMode: true,
+        );
+
+    test('saved credentials + no store + backend active -> authoritative '
+        'active', () async {
+      await repo.savePurchaseCredentials(_monthly);
+      final verifier = _ScriptedVerifier([PremiumVerifyResult.active('ok')]);
+      final snap = await storeless(verifier).reconcile();
+
+      expect(snap.entitlement, PremiumEntitlementState.active);
+      expect(verifier.tokensSeen, ['orphaned-token']);
+      expect(await repo.isPremiumActive(), isTrue);
+      expect(repo.wasAuthoritativelyVerified, isTrue);
+    });
+
+    test('saved credentials + no store + backend transient -> no grant, '
+        'credentials kept, not definitive', () async {
+      await repo.savePurchaseCredentials(_monthly);
+      final snap = await storeless(
+        _ScriptedVerifier([PremiumVerifyResult.error('http_503')]),
+      ).reconcile();
+
+      expect(snap.entitlement, PremiumEntitlementState.inactive);
+      expect(snap.definitive, isFalse);
+      expect(await repo.isPremiumActive(), isFalse);
+      expect(await repo.readPurchaseCredentials(), isNotNull);
+    });
+
+    test('no saved credentials + no store -> unavailable, no verify',
+        () async {
+      final verifier = _ScriptedVerifier([PremiumVerifyResult.active('ok')]);
+      final snap = await storeless(verifier).reconcile();
+
+      expect(snap.entitlement, PremiumEntitlementState.unavailable);
+      expect(verifier.calls, 0);
+    });
+
+    test('unrecognized saved product + no store -> unavailable, no verify',
+        () async {
+      await repo.savePurchaseCredentials(
+        const PremiumPurchaseCredentials(
+          platform: 'android',
+          productId: 'app.oracly.premium.retired',
+          purchaseToken: 'retired-token',
+        ),
+      );
+      final verifier = _ScriptedVerifier([PremiumVerifyResult.active('ok')]);
+      final snap = await storeless(verifier).reconcile();
+
+      expect(snap.entitlement, PremiumEntitlementState.unavailable);
+      expect(verifier.calls, 0);
+    });
+
+    test('stale local flag + no store keeps existing unavailable behaviour',
+        () async {
+      await repo.savePurchaseCredentials(_monthly);
+      await repo.activatePlan(PremiumPlanKind.monthly);
+      final verifier = _ScriptedVerifier([PremiumVerifyResult.active('ok')]);
+      final snap = await storeless(verifier).reconcile();
+
+      expect(snap.entitlement, PremiumEntitlementState.unavailable);
+      expect(verifier.calls, 0);
+    });
+  });
+
+  group('duplicate delivery through the full service', () {
+    test('duplicate terminal events end in one consistent grant', () async {
+      final iap = _FakeIap(products: [_product(PremiumStoreCatalog.monthlyId)]);
+      addTearDown(iap.dispose);
+      final verifier = _ScriptedVerifier([PremiumVerifyResult.active('ok')]);
+      final port = createStorePremiumPurchase(() => repo, client: iap);
+      final service = PremiumService(
+        repo,
+        MockUserRepository(storage),
+        port,
+        verifier,
+      )..forceReleaseMode = true;
+      await service.preparePurchase();
+
+      final purchase = service.purchase(PremiumPlanKind.monthly);
+      iap.emit([
+        _event(PremiumStoreCatalog.monthlyId, token: 'dup-token'),
+        _event(PremiumStoreCatalog.monthlyId, token: 'dup-token'),
+      ]);
+      expect((await purchase).granted, isTrue);
+      await _flush();
+      // The trailing duplicate is re-verified on the next prepare.
+      await service.preparePurchase();
+
+      expect(await repo.isPremiumActive(), isTrue);
+      expect(await repo.activePlan(), PremiumPlanKind.monthly);
+      expect(repo.wasAuthoritativelyVerified, isTrue);
+      expect(verifier.tokensSeen.toSet(), {'dup-token'});
+      expect(await port.consumeUnsolicitedGrant(), isNull);
+    });
+  });
+
   group('definitive vs non-definitive backend verdicts', () {
     for (final result in [
       PremiumVerifyResult.error('network_or_parse'),
@@ -461,9 +620,13 @@ void main() {
           ownerAccessAllowed: allowed,
         );
 
-    test('recovery write for a non-isolated owner writes nothing', () async {
+    test('recovery write for a non-isolated owner fails and writes nothing',
+        () async {
       final notReady = ownerBound(() => false);
-      await persistPurchaseRecovery(() => notReady, _monthly);
+      await expectLater(
+        persistPurchaseRecovery(() => notReady, _monthly),
+        throwsStateError,
+      );
       expect(await repo.readPurchaseCredentials(), isNull);
     });
 

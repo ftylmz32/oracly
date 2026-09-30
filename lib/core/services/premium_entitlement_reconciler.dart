@@ -52,6 +52,13 @@ class PremiumEntitlementReconciler {
     }
 
     if (!purchaseConfigured && !canAttemptRestore) {
+      // Saved recovery credentials are verified by the backend, not the
+      // store, so a missing store connection must not strand a paid
+      // purchase. Store availability decides only when nothing is saved.
+      if (!await premium.isPremiumActive()) {
+        final recovered = await _recoverFromSavedCredentials();
+        if (recovered != null) return recovered;
+      }
       return const PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.unavailable,
       );
@@ -78,7 +85,10 @@ class PremiumEntitlementReconciler {
     // recovery credentials whose first backend verify never succeeded
     // (transient failure, app killed, response lost). Their presence proves
     // nothing — only a fresh backend verify can grant.
-    return _recoverFromSavedCredentials();
+    return await _recoverFromSavedCredentials() ??
+        const PremiumReconcileSnapshot(
+          entitlement: PremiumEntitlementState.inactive,
+        );
   }
 
   /// Backend reasons that prove THIS token can never verify. Everything else
@@ -95,19 +105,13 @@ class PremiumEntitlementReconciler {
     'purchase_bound_to_other_account',
   };
 
-  Future<PremiumReconcileSnapshot> _recoverFromSavedCredentials() async {
+  /// Null when there is no usable recovery material (none saved, owner not
+  /// isolated, incomplete, or a product this build does not recognize).
+  Future<PremiumReconcileSnapshot?> _recoverFromSavedCredentials() async {
     final creds = await premium.readPurchaseCredentials();
-    if (creds == null || !creds.isComplete) {
-      return const PremiumReconcileSnapshot(
-        entitlement: PremiumEntitlementState.inactive,
-      );
-    }
+    if (creds == null || !creds.isComplete) return null;
     final kind = PremiumStoreCatalog.kindFor(creds.productId);
-    if (kind == null) {
-      return const PremiumReconcileSnapshot(
-        entitlement: PremiumEntitlementState.inactive,
-      );
-    }
+    if (kind == null) return null;
 
     final result = await verifier.verify(
       platform: creds.platform,
