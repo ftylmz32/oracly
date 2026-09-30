@@ -27,6 +27,9 @@ import 'package:oracly_new/features/gems/controllers/gem_wallet_controller.dart'
 import 'package:oracly_new/features/gems/data/gem_wallet_store.dart';
 import 'package:oracly_new/features/gems/providers/gem_providers.dart';
 import 'package:oracly_new/features/gems/services/gem_wallet_bootstrap.dart';
+import 'package:oracly_new/features/gems/services/gem_wallet_gateway.dart';
+import 'package:oracly_new/features/gems/services/gem_wallet_owner_bootstrap.dart';
+import 'package:oracly_new/features/gems/services/gem_wallet_service.dart';
 import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
 
@@ -144,7 +147,7 @@ void main() {
   late _Readiness readiness;
   late LocalStorage storage;
   late ProviderContainer container;
-  late ProviderSubscription<GemWalletController> keepAlive;
+  ProviderSubscription<GemWalletController>? keepAlive;
 
   setUp(() {
     AccountDeletionPendingState.markClear();
@@ -166,7 +169,8 @@ void main() {
   });
 
   tearDown(() {
-    keepAlive.close();
+    keepAlive?.close();
+    keepAlive = null;
     container.dispose();
     GemWalletBootstrap.debugEnsureReadyOverride = null;
   });
@@ -294,4 +298,63 @@ void main() {
       expect(b.authoritative, isTrue);
     },
   );
+
+  test('current bootstrap survives more than three same-owner lock turnovers '
+      'and still hydrates (no join-count liveness hole)', () async {
+    const turnovers = 5;
+    final coordinator = container.read(gemWalletHydrationCoordinatorProvider);
+    final wallet = GemWalletService(
+      GemWalletStore(storage),
+      ownerId: 'uid-a',
+      requireOwner: true,
+      gateway: GemWalletGateway(server.send),
+    );
+    final current = GemWalletController(wallet);
+    gateway.restore('uid-a');
+    readiness.holdFirst = false;
+
+    // A same-owner contender already holds the lock.
+    expect(coordinator.beginBootstrap('uid-a'), isTrue);
+    final outcome = bootstrapGemWalletOwner(
+      ownerId: 'uid-a',
+      controller: current,
+      wallet: wallet,
+      coordinator: coordinator,
+      config: _prod,
+      auth: MockAuthService(),
+      accessToken: _Tokens().getAccessToken,
+      ensureStarter: () async {},
+      isOwnerCurrent: () => true,
+    );
+
+    // Each holder releases and a new same-owner contender claims in the
+    // same synchronous turn, so the waiter always observes the release
+    // but finds the lock re-taken when its continuation runs.
+    for (var i = 0; i < turnovers; i++) {
+      await _settle();
+      expect(readiness.calls, 0, reason: 'no work while the lock is held');
+      expect(server.balanceGets, isEmpty);
+      coordinator.endBootstrap('uid-a');
+      expect(coordinator.beginBootstrap('uid-a'), isTrue);
+    }
+    await _settle();
+    coordinator.endBootstrap('uid-a');
+
+    final result = await outcome;
+    await _settle();
+    expect(
+      result,
+      GemWalletOwnerBootstrapOutcome.completed,
+      reason:
+          'balanceGets=${server.balanceGets.length} '
+          'authoritative=${current.authoritative} '
+          'formatted=${current.formatted}',
+    );
+    expect(readiness.calls, 1);
+    expect(readiness.peakConcurrent, 1);
+    expect(server.balanceGets, ['uid-a']);
+    expect(server.peakConcurrentGets, 1);
+    expect(current.authoritative, isTrue);
+    expect(current.formatted, '7');
+  });
 }
