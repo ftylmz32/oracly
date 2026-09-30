@@ -19,7 +19,8 @@ NO_TRAFFIC="${NO_TRAFFIC:-true}"
 REVISION_TAG="${REVISION_TAG:-staging}"
 FIREBASE_PROJECT_ID="${FIREBASE_PROJECT_ID:-oracly-7f613}"
 FIREBASE_PROJECT_NUMBER="${FIREBASE_PROJECT_NUMBER:-1075374196330}"
-FIREBASE_APP_CHECK_APP_IDS="${FIREBASE_APP_CHECK_APP_IDS:-1:1075374196330:android:200bc15b1e43a8a2ef2c13}"
+EXPECTED_FIREBASE_APP_CHECK_APP_IDS="1:1075374196330:android:200bc15b1e43a8a2ef2c13,1:1075374196330:ios:5b526f23f001847eef2c13"
+FIREBASE_APP_CHECK_APP_IDS="${FIREBASE_APP_CHECK_APP_IDS:-$EXPECTED_FIREBASE_APP_CHECK_APP_IDS}"
 
 fail() { echo "deploy-cloud-run FAIL: $*" >&2; exit 1; }
 
@@ -28,7 +29,7 @@ fail() { echo "deploy-cloud-run FAIL: $*" >&2; exit 1; }
 [[ -z "$FIREBASE_PROJECT_ID" ]] && fail "FIREBASE_PROJECT_ID required"
 [[ "$FIREBASE_PROJECT_ID" == "oracly-7f613" ]] || fail "Unexpected Firebase project ID"
 [[ "$FIREBASE_PROJECT_NUMBER" == "1075374196330" ]] || fail "Firebase project number contradicts Oracly client configuration"
-[[ "$FIREBASE_APP_CHECK_APP_IDS" == "1:1075374196330:android:200bc15b1e43a8a2ef2c13" ]] || fail "Firebase App Check allowlist must contain only the verified app.oracly Android app"
+[[ "$FIREBASE_APP_CHECK_APP_IDS" == "$EXPECTED_FIREBASE_APP_CHECK_APP_IDS" ]] || fail "Firebase App Check allowlist must be exactly the verified app.oracly Android and iOS apps"
 [[ -n "${OPENAI_API_KEY_PLAINTEXT:-}" ]] && fail "Do not pass OPENAI_API_KEY_PLAINTEXT; use Secret Manager"
 [[ -n "${OPENAI_API_KEY:-}" ]] && fail "Do not export OPENAI_API_KEY into deploy; use Secret Manager"
 command -v gcloud >/dev/null || fail "gcloud CLI missing"

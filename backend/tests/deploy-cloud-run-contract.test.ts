@@ -71,3 +71,59 @@ describe('deploy-cloud-run.sh contract', () => {
     expect(script).toMatch(/Never echo secrets/);
   });
 });
+
+/**
+ * iOS Build 6 regression — a deploy enforcing an Android-only App Check
+ * allowlist made the verifier reject every valid app.oracly iOS token (401 on
+ * all protected routes) while Android kept working. The production allowlist
+ * is exactly the two registered app.oracly Firebase apps.
+ */
+describe('deploy-cloud-run.sh App Check allowlist', () => {
+  const ANDROID_APP_ID = '1:1075374196330:android:200bc15b1e43a8a2ef2c13';
+  const IOS_APP_ID = '1:1075374196330:ios:5b526f23f001847eef2c13';
+  const lines = script.split(/\r?\n/);
+
+  it('contains the exact Android and iOS app.oracly Firebase App IDs', () => {
+    expect(script).toContain(ANDROID_APP_ID);
+    expect(script).toContain(IOS_APP_ID);
+  });
+
+  it('pins the canonical allowlist to exactly Android then iOS', () => {
+    expect(lines).toContain(
+      `EXPECTED_FIREBASE_APP_CHECK_APP_IDS="${ANDROID_APP_ID},${IOS_APP_ID}"`,
+    );
+  });
+
+  it('defaults FIREBASE_APP_CHECK_APP_IDS to the canonical value', () => {
+    expect(lines).toContain(
+      'FIREBASE_APP_CHECK_APP_IDS="${FIREBASE_APP_CHECK_APP_IDS:-$EXPECTED_FIREBASE_APP_CHECK_APP_IDS}"',
+    );
+  });
+
+  it('fails the deploy unless the allowlist equals the canonical value', () => {
+    expect(lines).toContain(
+      '[[ "$FIREBASE_APP_CHECK_APP_IDS" == "$EXPECTED_FIREBASE_APP_CHECK_APP_IDS" ]] || fail "Firebase App Check allowlist must be exactly the verified app.oracly Android and iOS apps"',
+    );
+  });
+
+  it('no longer treats an Android-only allowlist as the accepted state', () => {
+    expect(script).not.toContain('only the verified app.oracly Android app');
+    expect(script).not.toContain(
+      `[[ "$FIREBASE_APP_CHECK_APP_IDS" == "${ANDROID_APP_ID}" ]]`,
+    );
+    expect(script).not.toContain(
+      `FIREBASE_APP_CHECK_APP_IDS:-${ANDROID_APP_ID}}`,
+    );
+  });
+
+  it('keeps App Check enforced and binds the allowlist via merge semantics', () => {
+    expect(script).toContain('ENV_UPDATES+="@AI_APP_CHECK_BYPASS=false"');
+    expect(script).not.toMatch(/AI_APP_CHECK_BYPASS=true/);
+    expect(script).toContain(
+      'ENV_UPDATES+="@FIREBASE_APP_CHECK_APP_IDS=${FIREBASE_APP_CHECK_APP_IDS}"',
+    );
+    expect(script).toMatch(/--update-env-vars="\$ENV_UPDATES"/);
+    expect(script).not.toMatch(/--set-env-vars=/);
+    expect(script).not.toMatch(/--env-vars-file=/);
+  });
+});
