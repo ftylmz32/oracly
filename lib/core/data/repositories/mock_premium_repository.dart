@@ -225,6 +225,24 @@ class MockPremiumRepository implements PremiumRepository, PremiumOwnerBoundary {
   }
 
   @override
+  Future<void> clearPurchaseCredentials() async {
+    _requireOwnerAccess();
+    // Metadata first: without platform/productId no credential set is
+    // discoverable, even if a secure delete below fails.
+    await _storage.remove(platformKey).requireDurable(platformKey);
+    await _storage.remove(productIdKey).requireDurable(productIdKey);
+    _credentialCache = null;
+    _credentialsLoaded = true;
+    await _secure.delete(PremiumCredentialKeys.purchaseToken);
+    await _secure.delete(PremiumCredentialKeys.transactionId);
+    for (final key in legacyCredentialPrefKeys) {
+      try {
+        await _storage.remove(key);
+      } catch (_) {}
+    }
+  }
+
+  @override
   Future<PremiumPurchaseCredentials?> readPurchaseCredentials() async {
     if (!_ownerAllowed) return null;
     final platform = _storage.getString(platformKey);

@@ -7,6 +7,8 @@ import '../../features/premium/models/premium_entitlement_state.dart';
 import '../../features/premium/models/premium_verify_result.dart';
 import '../../features/premium/services/premium_dev_override.dart';
 import '../../features/premium/services/premium_entitlement_verifier.dart';
+import '../../features/premium/services/premium_store_catalog.dart';
+import '../auth/user_local_data_isolation.dart';
 import '../domain/repositories/premium_repository.dart';
 
 class PremiumReconcileSnapshot {
@@ -72,9 +74,107 @@ class PremiumEntitlementReconciler {
       );
     }
 
-    return const PremiumReconcileSnapshot(
-      entitlement: PremiumEntitlementState.inactive,
+    // Not locally active, but a store-acknowledged purchase may have left
+    // recovery credentials whose first backend verify never succeeded
+    // (transient failure, app killed, response lost). Their presence proves
+    // nothing — only a fresh backend verify can grant.
+    return _recoverFromSavedCredentials();
+  }
+
+  /// Backend reasons that prove THIS token can never verify. Everything else
+  /// that is not active (auth_required at cold start, provider not
+  /// configured, transaction_not_found while Apple settles, ambiguous or
+  /// unknown states) keeps the recovery material for a later reconcile.
+  static const _unusableCredentialReasons = <String>{
+    'unknown_product',
+    'platform_product_mismatch',
+    'bundle_mismatch',
+    'product_mismatch',
+    'jws_invalid',
+    'receipt_no_transaction_id',
+    'purchase_bound_to_other_account',
+  };
+
+  Future<PremiumReconcileSnapshot> _recoverFromSavedCredentials() async {
+    final creds = await premium.readPurchaseCredentials();
+    if (creds == null || !creds.isComplete) {
+      return const PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.inactive,
+      );
+    }
+    final kind = PremiumStoreCatalog.kindFor(creds.productId);
+    if (kind == null) {
+      return const PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.inactive,
+      );
+    }
+
+    final result = await verifier.verify(
+      platform: creds.platform,
+      productId: creds.productId,
+      purchaseToken: creds.purchaseToken,
+      transactionId: creds.transactionId,
     );
+
+    if (result.isActive) {
+      // Same owner gate as PremiumGrantPolicy.grant: the owner may have
+      // switched while verify was in flight.
+      final committed = await UserLocalDataIsolation.runOwnerScopedMutation(
+        () async {
+          if (!_ownerReady) return false;
+          await premium.activatePlan(kind, authoritative: true);
+          return true;
+        },
+      );
+      if (!committed) {
+        return const PremiumReconcileSnapshot(
+          entitlement: PremiumEntitlementState.inactive,
+          message: 'owner_changed',
+          definitive: false,
+        );
+      }
+      return const PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.active,
+      );
+    }
+
+    if (result.status == PremiumVerifyStatus.pending) {
+      return PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.pending,
+        message: result.reason,
+      );
+    }
+
+    final unusable =
+        result.status == PremiumVerifyStatus.expired ||
+        result.status == PremiumVerifyStatus.inactive ||
+        (result.status == PremiumVerifyStatus.unverified &&
+            _unusableCredentialReasons.contains(result.reason));
+    if (!unusable) {
+      // Never grant, never retire; freshness throttles the next attempt.
+      return PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.inactive,
+        message: result.reason,
+        definitive: false,
+      );
+    }
+
+    await UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      if (!_ownerReady) return;
+      await premium.clearPurchaseCredentials();
+    });
+    return PremiumReconcileSnapshot(
+      entitlement: PremiumEntitlementState.inactive,
+      message: result.reason,
+    );
+  }
+
+  bool get _ownerReady {
+    final repository = premium;
+    if (repository is PremiumOwnerBoundary) {
+      return (repository as PremiumOwnerBoundary).ownerAccessReady;
+    }
+    return true;
   }
 
   Future<PremiumReconcileSnapshot> _refreshVerified() async {

@@ -3,13 +3,14 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../../core/domain/models/premium_plan.dart';
-import '../models/premium_purchase_credentials.dart';
 import '../models/premium_purchase_result.dart';
 import 'premium_store_catalog.dart';
+import 'store_purchase_terminal_handler.dart';
+
+export 'store_purchase_terminal_handler.dart' show PersistRetryCredentials;
 
 class StorePremiumPurchaseSession {
   Completer<PremiumPurchaseResult>? _wait;
@@ -58,22 +59,23 @@ class StorePremiumPurchaseSession {
 
   Future<void> onPurchases(
     List<PurchaseDetails> purchases,
-    Future<void> Function(PurchaseDetails purchase) completePurchase,
-  ) async {
+    Future<void> Function(PurchaseDetails purchase) completePurchase, {
+    PersistRetryCredentials? persistRetryCredentials,
+  }) async {
     if (purchases.isEmpty && _restore) {
       _complete(PremiumPurchaseResult.noneFound());
       return;
     }
     for (final purchase in purchases) {
-      await _handle(purchase, completePurchase);
+      await _handle(purchase, completePurchase, persistRetryCredentials);
     }
   }
 
   Future<void> _handle(
     PurchaseDetails purchase,
     Future<void> Function(PurchaseDetails purchase) completePurchase,
+    PersistRetryCredentials? persistRetryCredentials,
   ) async {
-    final kind = PremiumStoreCatalog.kindFor(purchase.productID);
     switch (purchase.status) {
       case PurchaseStatus.pending:
         // Keep waiting for a terminal status; UI stays busy.
@@ -86,28 +88,18 @@ class StorePremiumPurchaseSession {
         return;
       case PurchaseStatus.purchased:
       case PurchaseStatus.restored:
-        if (kind == null) {
-          _complete(PremiumPurchaseResult.failed());
-          return;
-        }
-        if (_expected != null && kind != _expected) return;
-        if (purchase.pendingCompletePurchase) {
-          await completePurchase(purchase);
-        }
-        final creds = PremiumPurchaseCredentials(
-          platform: defaultTargetPlatform == TargetPlatform.iOS
-              ? 'ios'
-              : 'android',
-          productId: purchase.productID,
-          purchaseToken: purchase.verificationData.serverVerificationData,
-          transactionId: purchase.purchaseID,
+        // Recovery credentials are persisted BEFORE completePurchase, so a
+        // store-acknowledged purchase stays re-verifiable even if the first
+        // backend verify fails or the app dies before it returns.
+        final result = await StorePurchaseTerminalHandler.apply(
+          purchase: purchase,
+          kind: PremiumStoreCatalog.kindFor(purchase.productID),
+          expected: _expected,
+          restore: _restore,
+          persistRetryCredentials: persistRetryCredentials,
+          completePurchase: completePurchase,
         );
-        _complete(
-          _restore || purchase.status == PurchaseStatus.restored
-              ? PremiumPurchaseResult.restored(kind, credentials: creds)
-              : PremiumPurchaseResult.granted(kind, credentials: creds),
-        );
-        return;
+        if (result != null) _complete(result);
     }
   }
 

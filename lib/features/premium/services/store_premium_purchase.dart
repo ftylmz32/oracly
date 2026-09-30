@@ -15,8 +15,13 @@ import 'store_iap_client.dart';
 import 'store_premium_purchase_session.dart';
 
 class StorePremiumPurchase implements PremiumPurchasePort {
-  StorePremiumPurchase({InAppPurchase? iap, StoreIapClient? client})
-    : _iap = client ?? PluginStoreIapClient(iap);
+  StorePremiumPurchase({
+    InAppPurchase? iap,
+    StoreIapClient? client,
+    PersistRetryCredentials? persistRetryCredentials,
+  }) : _iap = client ?? PluginStoreIapClient(iap),
+       // ignore: prefer_initializing_formals
+       _persistRetryCredentials = persistRetryCredentials;
 
   /// A cold App Store/Play Billing connection on a fresh install can miss
   /// the first product query entirely (the storefront handshake itself is
@@ -28,6 +33,11 @@ class StorePremiumPurchase implements PremiumPurchasePort {
   static const catalogRetryDelay = Duration(milliseconds: 300);
 
   final StoreIapClient _iap;
+
+  /// Durable, UNVERIFIED recovery store for terminal store events. Optional
+  /// so direct constructions keep working; production wiring always
+  /// supplies it (premium_purchase_port_provider).
+  final PersistRetryCredentials? _persistRetryCredentials;
   final StorePremiumPurchaseSession _session = StorePremiumPurchaseSession();
   StreamSubscription<List<PurchaseDetails>>? _sub;
 
@@ -159,7 +169,11 @@ class StorePremiumPurchase implements PremiumPurchasePort {
 
   void _listen() {
     _sub ??= _iap.purchaseStream.listen(
-      (purchases) => _session.onPurchases(purchases, _iap.completePurchase),
+      (purchases) => _session.onPurchases(
+        purchases,
+        _iap.completePurchase,
+        persistRetryCredentials: _persistRetryCredentials,
+      ),
       onError: (_) => _session.fail(),
     );
   }

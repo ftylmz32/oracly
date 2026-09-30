@@ -244,12 +244,14 @@ describe('billing verify google', () => {
 
 describe('billing verify apple', () => {
   it('maps SK2 / status outcomes', async () => {
+    // No 'lifetime_owned' case: iOS never sells lifetime, and verify.ts
+    // rejects iOS + LIFETIME before the provider is reached (see
+    // 'billing verify platform product policy').
     const cases = [
       billingResult('active', 'subscription_active'),
       billingResult('active', 'grace_period'),
       billingResult('expired', 'subscription_expired'),
       billingResult('inactive', 'revoked'),
-      billingResult('active', 'lifetime_owned'),
       billingResult('unverified', 'jws_invalid'),
       billingResult('unverified', 'bundle_mismatch'),
       billingResult('unverified', 'product_mismatch'),
@@ -264,7 +266,7 @@ describe('billing verify apple', () => {
       });
       const res = await post(app, {
         platform: 'ios',
-        productId: result.reason === 'lifetime_owned' ? LIFETIME : MONTHLY,
+        productId: MONTHLY,
         purchaseToken: 'a.b.c',
       });
       expect(res.json().status).toBe(result.status);
@@ -404,17 +406,27 @@ describe('billing verify apple', () => {
       extractReceiptTransactionId: () => 'txn-from-receipt',
       getTransactionInfo: async () => ({
         bundleId: 'app.oracly',
-        productId: LIFETIME,
+        productId: MONTHLY,
         transactionId: 'txn-from-receipt',
+        expiresDate: Date.now() + 86_400_000,
+      }),
+      getSubscriptionStatuses: async () => ({
+        statuses: [
+          {
+            status: Status.ACTIVE,
+            productId: MONTHLY,
+            expiresDate: Date.now() + 86_400_000,
+          },
+        ],
       }),
     });
     const result = await verifier.verify({
       platform: 'ios',
-      productId: LIFETIME,
+      productId: MONTHLY,
       purchaseToken: 'MIISreceiptNotJws',
     });
     expect(result.status).toBe('active');
-    expect(result.reason).toBe('lifetime_owned');
+    expect(result.reason).toBe('subscription_active');
   });
 
   it('apple unit: malformed SK1 receipt never active', async () => {
@@ -464,14 +476,23 @@ describe('billing verify apple', () => {
         }
         return {
           bundleId: 'app.oracly',
-          productId: LIFETIME,
+          productId: MONTHLY,
           transactionId: 'txn-1',
         };
       },
+      getSubscriptionStatuses: async () => ({
+        statuses: [
+          {
+            status: Status.ACTIVE,
+            productId: MONTHLY,
+            expiresDate: Date.now() + 86_400_000,
+          },
+        ],
+      }),
     });
     const result = await verifier.verify({
       platform: 'ios',
-      productId: LIFETIME,
+      productId: MONTHLY,
       purchaseToken: 'MIISreceipt',
     });
     expect(seen).toEqual([Environment.PRODUCTION, Environment.SANDBOX]);
@@ -1526,5 +1547,231 @@ describe('billing verify fail-closed auth', () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().status).toBe('active');
     await app.close();
+  });
+});
+
+// Premium purchase integrity — server-side platform/product policy. The
+// catalog is the only authority: iOS never sells lifetime, so an iOS verify
+// for lifetime (stale or modified client) must be rejected before any
+// store provider call, entitlement grant or purchaseBinding claim.
+describe('billing verify platform product policy', () => {
+  const authedConfig = () =>
+    testConfig({
+      AI_DEV_AUTH_BYPASS: 'false',
+      AI_AUTH_REQUIRED: 'true',
+      AI_JWT_SECRET: 'policy-test-secret',
+      AI_JWT_ISSUER: 'https://issuer.example',
+      AI_JWT_AUDIENCE: 'oracly-ai',
+      FIREBASE_PROJECT_ID: '',
+      AI_JWKS_URL: '',
+    });
+
+  const bearer = (sub: string) =>
+    `Bearer ${signHs256('policy-test-secret', {
+      sub,
+      iss: 'https://issuer.example',
+      aud: 'oracly-ai',
+    })}`;
+
+  const allowed: Array<[string, string]> = [
+    ['android', MONTHLY],
+    ['android', YEARLY],
+    ['android', LIFETIME],
+    ['ios', MONTHLY],
+    ['ios', YEARLY],
+  ];
+
+  for (const [platform, productId] of allowed) {
+    it(`${platform} ${productId} reaches the provider and verifies active`, async () => {
+      let calls = 0;
+      const provider = mockVerifier(async () => {
+        calls++;
+        return billingResult('active');
+      });
+      const app = await testApp(billingTestConfig(), undefined, {
+        billing: platform === 'ios' ? { apple: provider } : { google: provider },
+      });
+      const res = await post(app, { platform, productId, purchaseToken: 'tok' });
+      expect(res.json().status).toBe('active');
+      expect(calls).toBe(1);
+      await app.close();
+    });
+  }
+
+  it('ios lifetime is rejected before either provider is called', async () => {
+    let calls = 0;
+    const grant = mockVerifier(async () => {
+      calls++;
+      return billingResult('active', 'lifetime_owned');
+    });
+    const app = await testApp(billingTestConfig(), undefined, {
+      billing: { apple: grant, google: grant },
+    });
+    const res = await post(app, {
+      platform: 'ios',
+      productId: LIFETIME,
+      purchaseToken: 'header.payload.sig',
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({
+      status: 'unverified',
+      reason: 'platform_product_mismatch',
+    });
+    expect(calls).toBe(0);
+    await app.close();
+  });
+
+  it('ios lifetime never creates or claims a purchaseBinding', async () => {
+    const { InMemoryEntitlementRepository, purchaseBindingKey } = await import(
+      '../src/billing/entitlement-repository.js'
+    );
+    const repository = new InMemoryEntitlementRepository();
+    const app = await testApp(authedConfig(), undefined, {
+      billing: {
+        apple: mockVerifier(async () => billingResult('active', 'lifetime_owned')),
+      },
+      entitlementRepository: repository,
+    });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/billing/verify',
+      headers: {
+        authorization: bearer('user-policy'),
+        'content-type': 'application/json',
+      },
+      payload: {
+        platform: 'ios',
+        productId: LIFETIME,
+        purchaseToken: 'ios-lifetime-token',
+      },
+    });
+    expect(res.json()).toEqual({
+      status: 'unverified',
+      reason: 'platform_product_mismatch',
+    });
+    expect(
+      await repository.peekOwner(purchaseBindingKey('ios', 'ios-lifetime-token')),
+    ).toBeNull();
+    await app.close();
+  });
+
+  it('unknown product is rejected on both platforms before any provider call', async () => {
+    let calls = 0;
+    const grant = mockVerifier(async () => {
+      calls++;
+      return billingResult('active');
+    });
+    const app = await testApp(billingTestConfig(), undefined, {
+      billing: { apple: grant, google: grant },
+    });
+    for (const platform of ['ios', 'android']) {
+      const res = await post(app, {
+        platform,
+        productId: 'app.oracly.premium.forever',
+        purchaseToken: 'tok',
+      });
+      expect(res.json()).toEqual({ status: 'unverified', reason: 'unknown_product' });
+    }
+    expect(calls).toBe(0);
+    await app.close();
+  });
+
+  it('ownership binding is unchanged for an allowed ios subscription', async () => {
+    const { InMemoryEntitlementRepository, purchaseBindingKey } = await import(
+      '../src/billing/entitlement-repository.js'
+    );
+    const repository = new InMemoryEntitlementRepository();
+    const app = await testApp(authedConfig(), undefined, {
+      billing: { apple: mockVerifier(async () => billingResult('active')) },
+      entitlementRepository: repository,
+    });
+    const payload = {
+      platform: 'ios',
+      productId: YEARLY,
+      purchaseToken: 'ios-yearly-token',
+    };
+    const verifyAs = (sub: string) =>
+      app.inject({
+        method: 'POST',
+        url: '/v1/billing/verify',
+        headers: { authorization: bearer(sub), 'content-type': 'application/json' },
+        payload,
+      });
+    expect((await verifyAs('owner-a')).json().status).toBe('active');
+    expect(
+      await repository.peekOwner(purchaseBindingKey('ios', 'ios-yearly-token')),
+    ).not.toBeNull();
+    expect((await verifyAs('owner-b')).json()).toEqual({
+      status: 'unverified',
+      reason: 'purchase_bound_to_other_account',
+    });
+    await app.close();
+  });
+
+  it('transient provider failure on an allowed product stays fail-closed', async () => {
+    const { InMemoryEntitlementRepository, purchaseBindingKey } = await import(
+      '../src/billing/entitlement-repository.js'
+    );
+    const repository = new InMemoryEntitlementRepository();
+    const app = await testApp(authedConfig(), undefined, {
+      billing: {
+        apple: mockVerifier(async () => billingResult('error', 'provider_unavailable')),
+        google: mockVerifier(async () => {
+          throw new Error('network down');
+        }),
+      },
+      entitlementRepository: repository,
+    });
+    for (const [platform, productId] of [
+      ['ios', MONTHLY],
+      ['android', LIFETIME],
+    ]) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/v1/billing/verify',
+        headers: {
+          authorization: bearer('user-transient'),
+          'content-type': 'application/json',
+        },
+        payload: { platform, productId, purchaseToken: `${platform}-transient` },
+      });
+      expect(res.json().status).not.toBe('active');
+      expect(
+        await repository.peekOwner(purchaseBindingKey(platform, `${platform}-transient`)),
+      ).toBeNull();
+    }
+    await app.close();
+  });
+
+  it('apple verifier rejects ios lifetime itself before any Apple API work', async () => {
+    const { createAppleStoreVerifier } = await import('../src/billing/apple-store.js');
+    let appleCalled = false;
+    const verifier = createAppleStoreVerifier({
+      bundleId: 'app.oracly',
+      appAppleId: 1,
+      issuerId: 'issuer',
+      keyId: 'key',
+      privateKey: 'pem',
+      rootCertificates: [Buffer.from('cert')],
+      preferEnvironment: 'Production',
+      // A genuinely signed lifetime transaction would otherwise reach the
+      // `kind === 'lifetime'` grant branch.
+      verifyJws: async () => {
+        appleCalled = true;
+        return {
+          bundleId: 'app.oracly',
+          productId: LIFETIME,
+          originalTransactionId: 'orig-lifetime-1',
+          transactionId: 'txn-lifetime-1',
+        };
+      },
+    });
+    const result = await verifier.verify({
+      platform: 'ios',
+      productId: LIFETIME,
+      purchaseToken: 'header.payload.sig',
+    });
+    expect(result).toEqual({ status: 'unverified', reason: 'platform_product_mismatch' });
+    expect(appleCalled).toBe(false);
   });
 });

@@ -200,5 +200,8 @@ class _CountingPremiumRepository implements PremiumRepository {
       _inner.readPurchaseCredentials();
 
   @override
+  Future<void> clearPurchaseCredentials() => _inner.clearPurchaseCredentials();
+
+  @override
   Future<List<PremiumPlanModel>> getPlans() => _inner.getPlans();
 }

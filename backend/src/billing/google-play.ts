@@ -1,7 +1,7 @@
 /** Google Play Developer API entitlement verification. */
 
 import { GoogleAuth, type JWTInput } from 'google-auth-library';
-import { isKnownProduct, productKind } from './catalog.js';
+import { isKnownProduct, isProductAllowedForPlatform, productKind } from './catalog.js';
 import {
   billingResult,
   type BillingVerifyRequest,
@@ -69,6 +69,13 @@ export function createGooglePlayVerifier(
       }
       if (!isKnownProduct(request.productId)) {
         return billingResult('unverified', 'unknown_product');
+      }
+      // PART 4B REPAIR A — defense-in-depth mirror of verify.ts's central
+      // gate (Android currently allows every known product, so this is a
+      // no-op today; it future-proofs against a later Android-restricted
+      // product the same way the Apple side is now protected).
+      if (!isProductAllowedForPlatform(request.productId, request.platform)) {
+        return billingResult('unverified', 'platform_product_mismatch');
       }
       const kind = productKind(request.productId)!;
       try {

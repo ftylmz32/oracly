@@ -2,7 +2,7 @@
 
 import type { AppConfig } from '../config.js';
 import { createAppleStoreVerifier } from './apple-store.js';
-import { isKnownProduct } from './catalog.js';
+import { isKnownProduct, isProductAllowedForPlatform } from './catalog.js';
 import { createGooglePlayVerifier } from './google-play.js';
 import {
   billingResult,
@@ -44,6 +44,13 @@ export async function verifyPurchase(
 ): Promise<BillingVerifyResult> {
   if (!isKnownProduct(request.productId)) {
     return billingResult('unverified', 'unknown_product');
+  }
+  // PART 4B REPAIR A — the single authoritative platform/product gate.
+  // Rejected here, before any provider call, so an iOS request for a
+  // platform-restricted product (e.g. lifetime) never reaches Apple at
+  // all, never mind gets evaluated against a real signed transaction.
+  if (!isProductAllowedForPlatform(request.productId, request.platform)) {
+    return billingResult('unverified', 'platform_product_mismatch');
   }
   if (request.platform === 'android') {
     if (!providers.google.configured) {

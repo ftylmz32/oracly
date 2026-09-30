@@ -28,12 +28,21 @@ abstract class PremiumRepository {
   /// Clears local Premium access without inventing a store revoke.
   Future<void> clearLocalPremiumAccess();
 
+  /// Durable store-purchase proof. Also used as UNVERIFIED recovery material
+  /// before backend verification completes: saving never grants Premium —
+  /// [isPremiumActive] and [wasAuthoritativelyVerified] change only through
+  /// [activatePlan] / [clearLocalPremiumAccess].
   Future<void> savePurchaseCredentials(PremiumPurchaseCredentials credentials);
 
   /// Async: a fresh instance's secure-storage-backed cache may not be warm
   /// yet (see [MockPremiumRepository.warmCredentialCache]) — callers must
   /// never treat "not loaded yet" as "does not exist".
   Future<PremiumPurchaseCredentials?> readPurchaseCredentials();
+
+  /// Retires recovery material only after the backend DEFINITIVELY proved it
+  /// unusable. Never for a transient or ambiguous result. Never touches
+  /// [isPremiumActive] / [wasAuthoritativelyVerified].
+  Future<void> clearPurchaseCredentials();
 
   Future<List<PremiumPlanModel>> getPlans();
 }

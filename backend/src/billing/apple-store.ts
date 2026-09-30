@@ -9,7 +9,7 @@ import {
   Status,
   type JWSTransactionDecodedPayload,
 } from '@apple/app-store-server-library';
-import { isKnownProduct, productKind } from './catalog.js';
+import { isKnownProduct, isProductAllowedForPlatform, productKind } from './catalog.js';
 import {
   billingResult,
   type BillingVerifyRequest,
@@ -77,6 +77,13 @@ export function createAppleStoreVerifier(
       }
       if (!isKnownProduct(request.productId)) {
         return billingResult('unverified', 'unknown_product');
+      }
+      // PART 4B REPAIR A — defense-in-depth mirror of verify.ts's central
+      // gate: even if this verifier were ever invoked directly, iOS can
+      // never be evaluated for a platform-restricted product (e.g.
+      // lifetime), no matter how a genuine Apple signature might exist.
+      if (!isProductAllowedForPlatform(request.productId, request.platform)) {
+        return billingResult('unverified', 'platform_product_mismatch');
       }
       try {
         if (looksLikeJws(request.purchaseToken)) {
