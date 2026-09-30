@@ -17,6 +17,11 @@ import '../../ai/production/transport/ai_token_reader.dart';
 abstract final class GemWalletBootstrap {
   GemWalletBootstrap._();
 
+  /// Test seam: replaces the Firebase/App Check readiness chain so wallet
+  /// lifecycle races can be paused deterministically. Always null in production.
+  @visibleForTesting
+  static Future<bool> Function()? debugEnsureReadyOverride;
+
   static Future<bool> ensureReady({
     required AiRuntimeConfig config,
     required AuthService auth,
@@ -24,6 +29,8 @@ abstract final class GemWalletBootstrap {
     AiTokenReader? appCheckToken,
     FirebaseAuthGateway? liveGateway,
   }) async {
+    final override = debugEnsureReadyOverride;
+    if (override != null) return override();
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) {
       print('[GemWallet] deletion gate not clear — skip bootstrap');
       return false;

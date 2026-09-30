@@ -1,16 +1,29 @@
 /// Auth-driven gem wallet hydration with cold-start retries.
 library;
 
+import 'dart:async';
+
 import '../controllers/gem_wallet_controller.dart';
 
 /// One auth-driven refresh per owner and ProviderContainer.
 class GemWalletHydrationCoordinator {
   final Map<String, Future<bool>> _inFlight = {};
-  final Set<String> _bootstrapInFlight = {};
+  final Map<String, Completer<void>> _bootstrapInFlight = {};
 
-  bool beginBootstrap(String ownerId) => _bootstrapInFlight.add(ownerId);
+  bool beginBootstrap(String ownerId) {
+    if (_bootstrapInFlight.containsKey(ownerId)) return false;
+    _bootstrapInFlight[ownerId] = Completer<void>();
+    return true;
+  }
 
-  void endBootstrap(String ownerId) => _bootstrapInFlight.remove(ownerId);
+  void endBootstrap(String ownerId) =>
+      _bootstrapInFlight.remove(ownerId)?.complete();
+
+  /// Completes once the same-owner bootstrap holding the lock (if any)
+  /// releases it. Lets a controller that arrived while a predecessor was in
+  /// flight take over instead of being left unhydrated.
+  Future<void> bootstrapReleased(String ownerId) =>
+      _bootstrapInFlight[ownerId]?.future ?? Future<void>.value();
 
   Future<void> hydrate(String ownerId, GemWalletController controller) async {
     final active = _inFlight[ownerId];

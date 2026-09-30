@@ -11,6 +11,9 @@ import 'gem_wallet_bootstrap.dart';
 import 'gem_wallet_hydration.dart';
 import 'gem_wallet_service.dart';
 
+/// Bound on how many same-owner predecessors a bootstrap will wait behind.
+const _maxBootstrapJoins = 3;
+
 enum GemWalletOwnerBootstrapOutcome {
   completed,
   deferredNotReady,
@@ -31,9 +34,20 @@ Future<GemWalletOwnerBootstrapOutcome> bootstrapGemWalletOwner({
   required Future<void> Function() ensureStarter,
   required bool Function() isOwnerCurrent,
 }) async {
-  if (!coordinator.beginBootstrap(ownerId)) {
-    return GemWalletOwnerBootstrapOutcome.alreadyInFlight;
+  var claimed = coordinator.beginBootstrap(ownerId);
+  // A same-owner predecessor (typically the provider this one replaced on an
+  // auth-event rebuild) may still hold the lock. If it ends stale it hydrates
+  // nobody, so wait for its release and take over rather than giving up.
+  // Work stays serialized: only the lock holder ever reaches the network.
+  for (var joins = 0; !claimed && joins < _maxBootstrapJoins; joins++) {
+    await coordinator.bootstrapReleased(ownerId);
+    if (!isOwnerCurrent()) return GemWalletOwnerBootstrapOutcome.staleOwner;
+    if (controller.authoritative) {
+      return GemWalletOwnerBootstrapOutcome.completed;
+    }
+    claimed = coordinator.beginBootstrap(ownerId);
   }
+  if (!claimed) return GemWalletOwnerBootstrapOutcome.alreadyInFlight;
   try {
     // The provider that launched this work may already have been replaced by
     // an auth-owner change. Never let an old owner task touch network/cache.
