@@ -2,11 +2,16 @@
 ///
 /// Holds categories only — never a push token, payload body, theme label or
 /// account identifier — so it is safe to log and to show in diagnostics.
+///
+/// Failures are owned by a domain (permission, schedule, push, test). A
+/// domain's failure is cleared only when that same domain becomes healthy,
+/// so a recovered subsystem never erases a still-current unrelated failure.
 library;
 
 import 'package:flutter/foundation.dart';
 
 import 'notification_permission.dart';
+import 'notification_timezone.dart';
 
 enum PushRegistrationState {
   /// Nothing attempted yet in this process.
@@ -41,17 +46,23 @@ enum LocalScheduleState {
   failed,
 }
 
+enum NotificationFailureDomain { permission, schedule, push, test }
+
 enum NotificationFailureCategory {
-  permissionDenied,
-  permissionPermanentlyDenied,
-  permissionUnavailable,
-  scheduleFailed,
-  scheduleNotConfirmed,
-  cancelFailed,
-  testDeliveryFailed,
-  tokenUnavailable,
-  registrationNotConfigured,
-  registrationFailed,
+  permissionDenied(NotificationFailureDomain.permission),
+  permissionPermanentlyDenied(NotificationFailureDomain.permission),
+  permissionUnavailable(NotificationFailureDomain.permission),
+  scheduleFailed(NotificationFailureDomain.schedule),
+  scheduleNotConfirmed(NotificationFailureDomain.schedule),
+  cancelFailed(NotificationFailureDomain.schedule),
+  tokenUnavailable(NotificationFailureDomain.push),
+  registrationNotConfigured(NotificationFailureDomain.push),
+  registrationFailed(NotificationFailureDomain.push),
+  testDeliveryFailed(NotificationFailureDomain.test);
+
+  const NotificationFailureCategory(this.domain);
+
+  final NotificationFailureDomain domain;
 }
 
 @immutable
@@ -61,7 +72,8 @@ class NotificationDeliveryState {
     this.preferenceEnabled,
     this.push = PushRegistrationState.unknown,
     this.schedule = LocalScheduleState.unknown,
-    this.lastFailure,
+    this.timezone,
+    this.activeFailures = const [],
   });
 
   /// Null until the OS has been asked in this process.
@@ -71,7 +83,23 @@ class NotificationDeliveryState {
   final bool? preferenceEnabled;
   final PushRegistrationState push;
   final LocalScheduleState schedule;
-  final NotificationFailureCategory? lastFailure;
+
+  /// Null until the scheduling zone was resolved.
+  final NotificationTimezoneSource? timezone;
+
+  /// At most one current failure per domain, oldest first.
+  final List<NotificationFailureCategory> activeFailures;
+
+  /// Most recent failure that is still current, if any.
+  NotificationFailureCategory? get lastFailure =>
+      activeFailures.isEmpty ? null : activeFailures.last;
+
+  NotificationFailureCategory? failureIn(NotificationFailureDomain domain) {
+    for (final failure in activeFailures) {
+      if (failure.domain == domain) return failure;
+    }
+    return null;
+  }
 
   /// True only when every local-delivery precondition is proven.
   bool get localDeliveryReady =>
@@ -79,22 +107,41 @@ class NotificationDeliveryState {
       preferenceEnabled == true &&
       schedule == LocalScheduleState.scheduled;
 
-  NotificationDeliveryState copyWith({
+  NotificationDeliveryState _with({
     NotificationPermissionStatus? permission,
     bool? preferenceEnabled,
     PushRegistrationState? push,
     LocalScheduleState? schedule,
-    NotificationFailureCategory? lastFailure,
-    bool clearFailure = false,
+    NotificationTimezoneSource? timezone,
+    List<NotificationFailureCategory>? activeFailures,
   }) {
     return NotificationDeliveryState(
       permission: permission ?? this.permission,
       preferenceEnabled: preferenceEnabled ?? this.preferenceEnabled,
       push: push ?? this.push,
       schedule: schedule ?? this.schedule,
-      lastFailure: clearFailure ? null : (lastFailure ?? this.lastFailure),
+      timezone: timezone ?? this.timezone,
+      activeFailures: activeFailures ?? this.activeFailures,
     );
   }
+
+  /// Replaces the failure of [failure]'s domain (newest last).
+  NotificationDeliveryState _fail(NotificationFailureCategory failure) =>
+      _with(
+        activeFailures: List.unmodifiable([
+          for (final f in activeFailures)
+            if (f.domain != failure.domain) f,
+          failure,
+        ]),
+      );
+
+  /// Clears only [domain]'s failure.
+  NotificationDeliveryState _heal(NotificationFailureDomain domain) => _with(
+    activeFailures: List.unmodifiable([
+      for (final f in activeFailures)
+        if (f.domain != domain) f,
+    ]),
+  );
 
   /// Category-only snapshot for logs/diagnostics.
   Map<String, String> toDiagnostics() => {
@@ -104,7 +151,11 @@ class NotificationDeliveryState {
         : (preferenceEnabled! ? 'on' : 'off'),
     'push': push.name,
     'schedule': schedule.name,
+    'timezone': timezone?.name ?? 'unknown',
     'lastFailure': lastFailure?.name ?? 'none',
+    'activeFailures': activeFailures.isEmpty
+        ? 'none'
+        : activeFailures.map((f) => f.name).join(','),
   };
 
   @override
@@ -114,11 +165,18 @@ class NotificationDeliveryState {
       other.preferenceEnabled == preferenceEnabled &&
       other.push == push &&
       other.schedule == schedule &&
-      other.lastFailure == lastFailure;
+      other.timezone == timezone &&
+      listEquals(other.activeFailures, activeFailures);
 
   @override
-  int get hashCode =>
-      Object.hash(permission, preferenceEnabled, push, schedule, lastFailure);
+  int get hashCode => Object.hash(
+    permission,
+    preferenceEnabled,
+    push,
+    schedule,
+    timezone,
+    Object.hashAll(activeFailures),
+  );
 
   @override
   String toString() => 'NotificationDeliveryState(${toDiagnostics()})';
@@ -152,44 +210,103 @@ abstract final class NotificationDeliveryStatus {
     };
   }
 
+  /// A real OS read. Deliverable clears a stale permission failure
+  /// (including permanentlyDenied → granted after the user changed Settings).
   static void recordPermission(NotificationPermissionStatus status) {
     final failure = failureFor(status);
+    final next = _state.value._with(permission: status);
     _state.value = failure == null
-        ? _state.value.copyWith(permission: status)
-        : _state.value.copyWith(permission: status, lastFailure: failure);
+        ? next._heal(NotificationFailureDomain.permission)
+        : next._fail(failure);
   }
 
   static void recordPreference(bool enabled) {
-    _state.value = _state.value.copyWith(preferenceEnabled: enabled);
+    _state.value = _state.value._with(preferenceEnabled: enabled);
   }
 
+  static void recordTimezone(NotificationTimezoneSource source) {
+    _state.value = _state.value._with(timezone: source);
+  }
+
+  /// [failure] must belong to the schedule domain. A failed schedule without
+  /// an explicit category keeps a more precise current one, else records
+  /// [NotificationFailureCategory.scheduleFailed]. scheduled/disabled are
+  /// healthy and clear the schedule domain.
   static void recordSchedule(
     LocalScheduleState schedule, {
     NotificationFailureCategory? failure,
   }) {
-    _state.value = _state.value.copyWith(
-      schedule: schedule,
-      lastFailure: failure,
+    assert(
+      failure == null || failure.domain == NotificationFailureDomain.schedule,
     );
+    final next = _state.value._with(schedule: schedule);
+    if (schedule == LocalScheduleState.failed) {
+      final category =
+          failure ??
+          next.failureIn(NotificationFailureDomain.schedule) ??
+          NotificationFailureCategory.scheduleFailed;
+      _state.value = next._fail(category);
+    } else if (schedule == LocalScheduleState.unknown) {
+      _state.value = next;
+    } else {
+      _state.value = next._heal(NotificationFailureDomain.schedule);
+    }
   }
 
+  /// [failure] must belong to the push domain. registered/noOwner clear it.
   static void recordPush(
     PushRegistrationState push, {
     NotificationFailureCategory? failure,
   }) {
-    _state.value = _state.value.copyWith(push: push, lastFailure: failure);
+    assert(failure == null || failure.domain == NotificationFailureDomain.push);
+    final next = _state.value._with(push: push);
+    switch (push) {
+      case PushRegistrationState.registered:
+      case PushRegistrationState.noOwner:
+        _state.value = next._heal(NotificationFailureDomain.push);
+      case PushRegistrationState.unknown:
+        _state.value = next;
+      case PushRegistrationState.tokenUnavailable:
+      case PushRegistrationState.notConfigured:
+      case PushRegistrationState.failed:
+        _state.value = next._fail(
+          failure ??
+              switch (push) {
+                PushRegistrationState.tokenUnavailable =>
+                  NotificationFailureCategory.tokenUnavailable,
+                PushRegistrationState.notConfigured =>
+                  NotificationFailureCategory.registrationNotConfigured,
+                _ => NotificationFailureCategory.registrationFailed,
+              },
+        );
+    }
+  }
+
+  static void recordTestDelivery({required bool delivered}) {
+    _state.value = delivered
+        ? _state.value._heal(NotificationFailureDomain.test)
+        : _state.value._fail(NotificationFailureCategory.testDeliveryFailed);
   }
 
   static void recordFailure(NotificationFailureCategory failure) {
-    _state.value = _state.value.copyWith(lastFailure: failure);
+    _state.value = _state.value._fail(failure);
   }
 
-  /// Account boundary (sign-out, switch, deletion): owner-bound facts are
-  /// dropped. OS permission is device-wide and stays.
+  /// Account boundary (sign-out, switch, deletion): owner-bound facts and
+  /// their failures are dropped. OS permission and the timezone are
+  /// device-wide and stay, with their current permission failure.
   static void resetForOwnerBoundary() {
+    final current = _state.value;
+    final permissionFailure = current.failureIn(
+      NotificationFailureDomain.permission,
+    );
     _state.value = NotificationDeliveryState(
-      permission: _state.value.permission,
+      permission: current.permission,
       push: PushRegistrationState.noOwner,
+      timezone: current.timezone,
+      activeFailures: permissionFailure == null
+          ? const []
+          : List.unmodifiable([permissionFailure]),
     );
   }
 

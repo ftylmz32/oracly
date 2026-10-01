@@ -13,13 +13,14 @@ import '../navigation/oracly_navigator_key.dart';
 import '../navigation/oracly_routes.dart';
 import '../providers/backend_providers.dart';
 import 'notification_delivery_state.dart';
+import 'oracly_notification_providers.dart';
 import '../../shared/navigation/oracly_shell_bridge.dart';
 
 /// Injectable messaging surface for unit tests (no Firebase platform).
 @visibleForTesting
+/// Deliberately has no permission-request method: app launch must never show
+/// the notification permission prompt. The Settings opt-in is its only owner.
 abstract class ReadingPushMessaging {
-  Future<void> requestPermission();
-
   /// iOS shows an FCM push that arrives while ORACLY is open only when these
   /// options are set; the default is to present nothing.
   Future<void> setForegroundPresentation();
@@ -60,8 +61,8 @@ abstract final class ReadingPushBootstrap {
         await _installWith(messaging, container);
         return;
       }
+      await _readPermissionWithoutPrompt(container);
       final firebase = FirebaseMessaging.instance;
-      await firebase.requestPermission(alert: true, badge: true, sound: true);
       await firebase.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
@@ -99,7 +100,7 @@ abstract final class ReadingPushBootstrap {
     ReadingPushMessaging messaging,
     ProviderContainer container,
   ) async {
-    await messaging.requestPermission();
+    await _readPermissionWithoutPrompt(container);
     await messaging.setForegroundPresentation();
     final token = await messaging.getToken();
     await _registerOrRecord(container, token);
@@ -116,6 +117,21 @@ abstract final class ReadingPushBootstrap {
     if (initial != null) {
       _openReading(initial, expectedOwner: listenerOwner);
     }
+  }
+
+  /// Records the current OS permission without ever prompting. A denied or
+  /// undetermined permission does not stop token registration: both
+  /// platforms issue push tokens without it, and the backend send is simply
+  /// not displayed until the user opts in from Settings.
+  static Future<void> _readPermissionWithoutPrompt(
+    ProviderContainer container,
+  ) async {
+    try {
+      final status = await container
+          .read(oraclyNotificationPortProvider)
+          .permissionStatus();
+      NotificationDeliveryStatus.recordPermission(status);
+    } catch (_) {}
   }
 
   static Future<void> _registerOrRecord(

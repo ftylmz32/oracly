@@ -45,12 +45,11 @@ class OraclyNotificationTestSender {
       };
     }
     final outcome = await port.showTest(title: title, body: body);
-    if (outcome.isFailure) {
-      NotificationDeliveryStatus.recordFailure(
-        NotificationFailureCategory.testDeliveryFailed,
-      );
-      return NotificationTestResult.deliveryFailed;
-    }
-    return NotificationTestResult.sent;
+    NotificationDeliveryStatus.recordTestDelivery(
+      delivered: outcome.isSuccess,
+    );
+    return outcome.isSuccess
+        ? NotificationTestResult.sent
+        : NotificationTestResult.deliveryFailed;
   }
 }

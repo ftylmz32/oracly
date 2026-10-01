@@ -117,6 +117,41 @@ void main() {
       expect(await port().scheduleDaily(_daily), OraclyApplyOutcome.failure);
     });
 
+    test('the device IANA zone is what the native scheduler receives', () async {
+      final p = LocalNotificationPort(
+        plugin: FlutterLocalNotificationsPlugin(),
+        permissions: _FixedPermissions(NotificationPermissionStatus.granted),
+        deviceTimezone: () async => 'America/New_York',
+      );
+      expect(await p.scheduleDaily(_daily), OraclyApplyOutcome.success);
+      final args =
+          calls.firstWhere((c) => c.method == 'zonedSchedule').arguments as Map;
+      expect(args['timeZoneName'], 'America/New_York');
+      expect(p.timezoneForTest?.isExactDeviceZone, isTrue);
+      expect(
+        NotificationDeliveryStatus.current.timezone,
+        NotificationTimezoneSource.device,
+      );
+    });
+
+    test('no device zone: schedules on the product default, recorded as a '
+        'fallback rather than a device zone', () async {
+      final p = LocalNotificationPort(
+        plugin: FlutterLocalNotificationsPlugin(),
+        permissions: _FixedPermissions(NotificationPermissionStatus.granted),
+        deviceTimezone: () async => null,
+      );
+      await p.scheduleDaily(_daily);
+      final args =
+          calls.firstWhere((c) => c.method == 'zonedSchedule').arguments as Map;
+      expect(args['timeZoneName'], NotificationTimezone.defaultZone);
+      expect(p.timezoneForTest?.isExactDeviceZone, isFalse);
+      expect(
+        NotificationDeliveryStatus.current.toDiagnostics()['timezone'],
+        'fallback',
+      );
+    });
+
     test('Settings test posts one visible high-importance notification', () async {
       final outcome = await port().showTest(title: 'ORACLY', body: 'test');
       expect(outcome, OraclyApplyOutcome.success);
@@ -174,7 +209,9 @@ void main() {
       final state = NotificationDeliveryStatus.current;
       expect(state.preferenceEnabled, isTrue);
       expect(state.schedule, LocalScheduleState.scheduled);
-      expect(state.permission, isNull, reason: 'memory port does not record');
+      expect(state.permission, NotificationPermissionStatus.granted);
+      expect(state.localDeliveryReady, isTrue);
+      expect(state.lastFailure, isNull);
     });
 
     test('enabled but OS-blocked keeps the slot and reports failure', () async {
@@ -231,7 +268,9 @@ void main() {
         'preference',
         'push',
         'schedule',
+        'timezone',
         'lastFailure',
+        'activeFailures',
       });
       expect(diagnostics['push'], 'registered');
     });
@@ -252,39 +291,68 @@ void main() {
     });
   });
 
-  group('timezone', () {
+  group('device timezone', () {
     setUpAll(tzdata.initializeTimeZones);
-    final now = DateTime.utc(2026, 10, 1, 9);
 
-    test('a real IANA device zone is used as-is', () {
-      final location = NotificationTimezone.resolve(
-        deviceZoneName: 'Europe/Berlin',
-        deviceOffset: const Duration(hours: 2),
-        nowUtc: now,
-      );
-      expect(location.name, 'Europe/Berlin');
+    test('the device IANA zone is used and marked exact', () {
+      final resolved = NotificationTimezone.resolve('America/New_York');
+      expect(resolved.location.name, 'America/New_York');
+      expect(resolved.isExactDeviceZone, isTrue);
     });
 
-    test('an abbreviation at the Istanbul offset keeps Europe/Istanbul', () {
-      final location = NotificationTimezone.resolve(
-        deviceZoneName: '+03',
-        deviceOffset: const Duration(hours: 3),
-        nowUtc: now,
-      );
-      expect(location.name, 'Europe/Istanbul');
+    test('missing or unknown device zone falls back, never claimed exact', () {
+      for (final input in [null, '', '  ', 'GMT+03:00', 'TRT', 'Not/AZone']) {
+        final resolved = NotificationTimezone.resolve(input);
+        expect(resolved.location.name, NotificationTimezone.defaultZone);
+        expect(resolved.isExactDeviceZone, isFalse, reason: '$input');
+        expect(resolved.source, NotificationTimezoneSource.fallback);
+      }
     });
 
-    test('another offset no longer schedules on Istanbul time', () {
-      final location = NotificationTimezone.resolve(
-        deviceZoneName: 'IST',
-        deviceOffset: const Duration(hours: 5, minutes: 30),
-        nowUtc: now,
-      );
-      expect(location.name, isNot('Europe/Istanbul'));
+    test('ambiguous offset: zones equal today diverge after DST — so no '
+        'offset guess is ever used', () {
+      final berlin = tz.getLocation('Europe/Berlin');
+      final joburg = tz.getLocation('Africa/Johannesburg');
+      final summer = DateTime.utc(2026, 10, 1).millisecondsSinceEpoch;
+      final winter = DateTime.utc(2026, 11, 1).millisecondsSinceEpoch;
+      // Same +02:00 today…
       expect(
-        location.timeZone(now.millisecondsSinceEpoch).offset,
-        const Duration(hours: 5, minutes: 30),
+        berlin.timeZone(summer).offset,
+        joburg.timeZone(summer).offset,
       );
+      // …different after 25 Oct 2026: a guess from today's offset would put
+      // a Berlin user's daily invitation an hour off all winter.
+      expect(berlin.timeZone(winter).offset, const Duration(hours: 1));
+      expect(joburg.timeZone(winter).offset, const Duration(hours: 2));
+      expect(
+        NotificationTimezone.resolve('Europe/Berlin').location.name,
+        'Europe/Berlin',
+      );
+    });
+
+    test('DST end (25 Oct 2026): next slot stays at 10:00 local wall time', () {
+      final berlin = tz.getLocation('Europe/Berlin');
+      final next = NotificationTimezone.nextDaily(
+        berlin,
+        10,
+        now: DateTime.utc(2026, 10, 24, 12),
+      );
+      expect(next.day, 25);
+      expect(next.hour, 10);
+      expect(next.timeZoneOffset, const Duration(hours: 1));
+      expect(next.toUtc().hour, 9);
+    });
+
+    test('DST start (29 Mar 2026): next slot stays at 10:00 local wall time', () {
+      final berlin = tz.getLocation('Europe/Berlin');
+      final next = NotificationTimezone.nextDaily(
+        berlin,
+        10,
+        now: DateTime.utc(2026, 3, 28, 12),
+      );
+      expect(next.day, 29);
+      expect(next.hour, 10);
+      expect(next.timeZoneOffset, const Duration(hours: 2));
     });
 
     test('next daily slot is strictly in the future at the planned hour', () {
@@ -303,6 +371,123 @@ void main() {
       );
       expect(after.day, 2);
       expect(after.hour, 10);
+    });
+  });
+
+  group('stale failure transitions (failure domains)', () {
+    NotificationFailureCategory? last() =>
+        NotificationDeliveryStatus.current.lastFailure;
+
+    test('1. registrationFailed → registered clears the push failure', () {
+      NotificationDeliveryStatus.recordPush(PushRegistrationState.failed);
+      expect(last(), NotificationFailureCategory.registrationFailed);
+      NotificationDeliveryStatus.recordPush(PushRegistrationState.registered);
+      expect(last(), isNull);
+    });
+
+    test('2. tokenUnavailable → registered clears the token failure', () {
+      NotificationDeliveryStatus.recordPush(
+        PushRegistrationState.tokenUnavailable,
+      );
+      expect(last(), NotificationFailureCategory.tokenUnavailable);
+      NotificationDeliveryStatus.recordPush(PushRegistrationState.registered);
+      expect(last(), isNull);
+    });
+
+    test('3. scheduleFailed → scheduled clears the schedule failure', () {
+      NotificationDeliveryStatus.recordSchedule(LocalScheduleState.failed);
+      expect(last(), NotificationFailureCategory.scheduleFailed);
+      NotificationDeliveryStatus.recordSchedule(LocalScheduleState.scheduled);
+      expect(last(), isNull);
+    });
+
+    test('4. scheduleNotConfirmed → scheduled clears it (and a generic '
+        'failed report does not overwrite the precise category)', () {
+      NotificationDeliveryStatus.recordFailure(
+        NotificationFailureCategory.scheduleNotConfirmed,
+      );
+      NotificationDeliveryStatus.recordSchedule(LocalScheduleState.failed);
+      expect(last(), NotificationFailureCategory.scheduleNotConfirmed);
+      NotificationDeliveryStatus.recordSchedule(LocalScheduleState.scheduled);
+      expect(last(), isNull);
+    });
+
+    test('5. permissionDenied → granted clears the permission failure', () {
+      NotificationDeliveryStatus.recordPermission(
+        NotificationPermissionStatus.denied,
+      );
+      expect(last(), NotificationFailureCategory.permissionDenied);
+      NotificationDeliveryStatus.recordPermission(
+        NotificationPermissionStatus.granted,
+      );
+      expect(last(), isNull);
+    });
+
+    test('6. permanentlyDenied → granted (OS Settings changed) clears it', () {
+      NotificationDeliveryStatus.recordPermission(
+        NotificationPermissionStatus.permanentlyDenied,
+      );
+      expect(last(), NotificationFailureCategory.permissionPermanentlyDenied);
+      NotificationDeliveryStatus.recordPermission(
+        NotificationPermissionStatus.granted,
+      );
+      expect(last(), isNull);
+      expect(
+        NotificationDeliveryStatus.current.permission,
+        NotificationPermissionStatus.granted,
+      );
+    });
+
+    test('7. testDeliveryFailed → successful test clears the test failure', () {
+      NotificationDeliveryStatus.recordTestDelivery(delivered: false);
+      expect(last(), NotificationFailureCategory.testDeliveryFailed);
+      NotificationDeliveryStatus.recordTestDelivery(delivered: true);
+      expect(last(), isNull);
+    });
+
+    test('a recovered domain never erases an unrelated current failure', () {
+      NotificationDeliveryStatus.recordPermission(
+        NotificationPermissionStatus.denied,
+      );
+      NotificationDeliveryStatus.recordPush(PushRegistrationState.failed);
+      NotificationDeliveryStatus.recordSchedule(LocalScheduleState.failed);
+
+      NotificationDeliveryStatus.recordPush(PushRegistrationState.registered);
+      NotificationDeliveryStatus.recordTestDelivery(delivered: true);
+      final state = NotificationDeliveryStatus.current;
+      expect(state.activeFailures, [
+        NotificationFailureCategory.permissionDenied,
+        NotificationFailureCategory.scheduleFailed,
+      ]);
+      expect(state.lastFailure, NotificationFailureCategory.scheduleFailed);
+
+      NotificationDeliveryStatus.recordSchedule(LocalScheduleState.scheduled);
+      expect(
+        NotificationDeliveryStatus.current.lastFailure,
+        NotificationFailureCategory.permissionDenied,
+        reason: 'permission is still denied — must stay visible',
+      );
+    });
+
+    test('one failure per domain: a newer failure replaces the older one', () {
+      NotificationDeliveryStatus.recordPush(
+        PushRegistrationState.tokenUnavailable,
+      );
+      NotificationDeliveryStatus.recordPush(PushRegistrationState.failed);
+      expect(NotificationDeliveryStatus.current.activeFailures, [
+        NotificationFailureCategory.registrationFailed,
+      ]);
+    });
+
+    test('owner boundary keeps the device permission failure only', () {
+      NotificationDeliveryStatus.recordPermission(
+        NotificationPermissionStatus.permanentlyDenied,
+      );
+      NotificationDeliveryStatus.recordPush(PushRegistrationState.failed);
+      NotificationDeliveryStatus.resetForOwnerBoundary();
+      expect(NotificationDeliveryStatus.current.activeFailures, [
+        NotificationFailureCategory.permissionPermanentlyDenied,
+      ]);
     });
   });
 

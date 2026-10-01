@@ -1,10 +1,14 @@
 /// Authoritative OS notification permission — one answer for iOS and Android.
 ///
-/// iOS never goes through `permission_handler` here: without the
-/// `PERMISSION_NOTIFICATIONS=1` Podfile macro its notification strategy is
-/// compiled out and it reports `denied`/`permanentlyDenied` for every user,
-/// even after they tapped Allow. The plugin that actually posts the
-/// notification is the source of truth instead.
+/// On iOS the plugin that posts ORACLY's local notifications
+/// (flutter_local_notifications) is also the single source of truth for its
+/// authorization: one prompt, one read, and it distinguishes provisional
+/// delivery. The previous code asked two plugins and required both to agree,
+/// so a disagreement between them could only ever turn a deliverable state
+/// into "denied". (permission_handler's iOS notification support is compiled
+/// in for this Swift Package Manager build — PERMISSION_NOTIFICATIONS
+/// defaults to 1 in permission_handler_apple 9.5.0 — so this is a design
+/// choice, not a workaround for a missing macro.)
 library;
 
 import 'package:flutter/foundation.dart';

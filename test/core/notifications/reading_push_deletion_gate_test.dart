@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/auth/account_deletion_pending_state.dart';
+import 'package:oracly_new/core/notifications/memory_notification_port.dart';
+import 'package:oracly_new/core/notifications/oracly_notification_providers.dart';
 import 'package:oracly_new/core/notifications/reading_push_bootstrap.dart';
 import 'package:oracly_new/features/reading_operation/providers/reading_live_provider.dart';
 
@@ -21,10 +23,12 @@ void main() {
   late _FakeMessaging messaging;
   late List<String> posts;
   late ProviderContainer container;
+  late MemoryNotificationPort port;
 
   setUp(() {
     AccountDeletionPendingState.markClear();
     messaging = _FakeMessaging();
+    port = MemoryNotificationPort();
     ReadingPushBootstrap.messagingForTest = messaging;
     ReadingPushBootstrap.installedOwnerIdForTest = 'uid-a';
     posts = <String>[];
@@ -36,6 +40,7 @@ void main() {
             return null;
           },
         ),
+        oraclyNotificationPortProvider.overrideWithValue(port),
       ],
     );
   });
@@ -50,7 +55,7 @@ void main() {
   test('blocked install: no permission, token, or registration', () async {
     AccountDeletionPendingState.markBlocked();
     await ReadingPushBootstrap.install(container);
-    expect(messaging.permissionRequests, 0);
+    expect(port.permissionRequests, 0);
     expect(messaging.tokenFetches, 0);
     expect(posts, isEmpty);
   });
@@ -58,15 +63,15 @@ void main() {
   test('storageUnavailable install: no Firebase work', () async {
     AccountDeletionPendingState.markStorageUnavailable();
     await ReadingPushBootstrap.install(container);
-    expect(messaging.permissionRequests, 0);
+    expect(port.permissionRequests, 0);
     expect(messaging.tokenFetches, 0);
     expect(posts, isEmpty);
   });
 
-  test('clear install registers token', () async {
+  test('clear install registers token without prompting', () async {
     messaging.token = 'tok-new';
     await ReadingPushBootstrap.install(container);
-    expect(messaging.permissionRequests, 1);
+    expect(port.permissionRequests, 0);
     expect(messaging.tokenFetches, 1);
     expect(posts, ['POST /v1/reading-notifications/token tok-new']);
   });
@@ -306,14 +311,8 @@ class _FakeMessaging implements ReadingPushMessaging {
   final _opened = StreamController<RemoteMessage>.broadcast();
   String? token;
   RemoteMessage? initial;
-  int permissionRequests = 0;
   int tokenFetches = 0;
   int openedListeners = 0;
-
-  @override
-  Future<void> requestPermission() async {
-    permissionRequests++;
-  }
 
   int foregroundPresentationCalls = 0;
 
