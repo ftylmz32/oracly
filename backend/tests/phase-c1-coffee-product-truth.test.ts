@@ -81,7 +81,9 @@ describe('PHASE C1 — new GOOD Coffee fixtures are fortune-teller prose', () =>
       const p = coffeeVoiceProfile(interpretation(f.narrative));
       expect(p.coachKinds).toBe(0);
       expect(p.labLedSections).toBe(0);
-      expect(p.lifeKinds).toBeGreaterThanOrEqual(4);
+      // C1.1: no minimum number of life events; only a cap on stacking them.
+      const signs = f.observation.evidence.filter((e) => e.resemblance).length;
+      expect(p.eventDomains).toBeLessThanOrEqual(2 + signs);
     });
   }
 });

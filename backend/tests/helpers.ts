@@ -252,7 +252,7 @@ export const dreamJson = JSON.stringify({
 export const coffeeFortuneSections = {
   visualObservation: 'Fincanin ortasinda kulba yakin, demligi andiran toplu bir telve var; dibi acik kalmis, agzin kenarindan da ince bir yol geciyor.',
   overall: 'Fincaninda demlige benzeyen bir sekil var ve kulba yakin duruyor. Demlik muhabbet demektir, kulp da ev; yakinda evinde cay demlenip uzun uzun sohbet edilecek kalabalik bir aksam gorunuyor. Belki uzun zamandir gormedigin biri cikagelir, belki de bir akraba ziyareti olur. Dibin acik olmasi da o aksamin icini ferahlatacagini, aklindaki bir konunun o sofrada tatliya baglanacagini soyluyor.',
-  nearFuture: 'Agzin kenarindan gecen ince yol, bir haberin yolda oldugunu gosteriyor. Onumuzdeki gunlerde bekledigin bir telefon ya da mesaj gelebilir; icinde para ya da isle ilgili sevindirici bir sey var gibi.',
+  nearFuture: 'Agzin kenarindan gecen ince yol, bir haberin yolda oldugunu gosteriyor. Onumuzdeki gunlerde bekledigin bir telefon ya da mesaj gelebilir; uzun zamandir bekledigin bir haber olabilir.',
   takeaway: 'Fincanin dibi acik, kismetin kapali degil. O sofrada konusulacaklar, aklini kurcalayan meseleyi sandigindan cabuk yoluna koyacak.',
 };
 

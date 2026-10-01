@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1-good-fortune-teller",
+  "source": "phase-c1.1-good-grounded-fortune-teller",
   "observation": {
     "usable": true,
     "reason": "",
@@ -46,7 +46,7 @@
       ]
     },
     "overall": {
-      "text": "Bir derdin var, ama etrafı açık. Dipteki toplu telveyi saran o halka, bu sıkıntının seni dört bir yandan kuşatmadığını, bir çıkışı olduğunu söylüyor. Büyük ihtimalle ev içinde ya da aile arasında konuşulmayı bekleyen bir mesele bu; kimse ilk adımı atmadığı için uzayıp gidiyor. Fincan, konuyu ilk açanın sen değil, evden başka biri olacağını gösteriyor; o konuşmadan sonra ortalık yumuşar.",
+      "text": "Fincanın dibine telve çökmüş; belli ki bir süredir kafanı kurcalayan bir derdin var. Ama etrafı açık bir halkayla çevrilmiş. Bu, seni dört bir yandan saran bir sıkıntı değil demek; bir çıkışı var ve o çıkış sandığından yakın. Falcılar dibi böyle açık kalan fincan için \"dert var ama kalıcı değil\" der.",
       "evidenceIds": [
         "e1"
       ]
@@ -64,13 +64,13 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Fincanın üst tarafı sakin, fazla kalabalık yok. Önümüzdeki günler gürültüsüz geçecek gibi; belki uzun süredir görmediğin biriyle kısa bir karşılaşma olur, ufak ama içini ısıtan cinsten.",
+      "text": "Fincanın üst tarafı sakin, kalabalık bir şey yok. Önümüzdeki günlerde seni yoracak büyük bir hareket görünmüyor; ortalık biraz durulacak gibi.",
       "evidenceIds": [
         "e3"
       ]
     },
     "takeaway": {
-      "text": "Aşağıdan yukarı çıkan o ince yollar en sevindirici kısım: işler yavaş yavaş yukarı doğru gidiyor. Bir süre önce hevesle başlayıp yarım bıraktığın bir işin ya da planın yeniden canlanması fincanda var gibi.",
+      "text": "Alttan yukarı çıkan o ince yollar en sevindirici kısım: işler yavaş yavaş yukarı gidiyor. O dert de olduğu yerde kalmayacak, adım adım hafifleyecek gibi.",
       "evidenceIds": [
         "e2"
       ]

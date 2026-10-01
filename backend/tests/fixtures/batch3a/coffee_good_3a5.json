@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1-good-fortune-teller",
+  "source": "phase-c1.1-good-grounded-fortune-teller",
   "personalization": {
     "firstName": "Fatih"
   },
@@ -57,7 +57,7 @@
       ]
     },
     "overall": {
-      "text": "Son zamanlarda biraz yorgun düşmüşsün gibi; fincanın dibi dolu, belli ki bir süredir omuzlarında taşıdığın bir iş var. Ama dibi çevreleyen o halka güzel haber: bu iş seninle kalmayacak. Yakınlarından biri, belki de hiç beklemediğin biri, elini taşın altına koymaya hazır. Bu yardım para ya da laf olarak değil, düpedüz iş olarak gelecek; sen istemeden önce o kişi kapında olabilir.",
+      "text": "Fincanın dibi dolu; omuzlarında bir süredir taşıdığın bir iş var, belli ki biraz yorulmuşsun. Ama dibi çevreleyen o açık halka güzel haber: bu iş seni içine kapatmıyor, kenarından bir çıkış var. Fincan, bu yorgunluğun uzun sürmeyeceğini ve işin sandığından önce toparlanacağını söylüyor.",
       "evidenceIds": [
         "e1"
       ]
@@ -75,14 +75,14 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Fincanın ağzı ferah, kulp tarafında da ufak kıpırtılar var. Kulp ev demektir; önümüzdeki günlerde evine bir misafir gelebilir ya da kapını çalan biri güzel bir haberle girebilir. Ufak bir kutlama, bir sofra muhabbeti bile çıkabilir bundan.",
+      "text": "Kulp tarafında ufak kıpırtılar var; kulp ev demektir. Önümüzdeki günlerde evinde ya da yakın çevrende küçük bir hareketlilik olacak gibi. Fincanın ağzı da temiz, yani yakın zamanda canını sıkacak bir şey görünmüyor.",
       "evidenceIds": [
         "e3",
         "e4"
       ]
     },
     "takeaway": {
-      "text": "Dipten yukarı doğru yükselen o ince çizgiler fincanın en umutlu yeri. Bir süredir yerinde sayan bir beklentinin, özellikle parayla ilgili bir konunun yavaş yavaş açılacağını söylüyor; yakında ufak da olsa bir kazanç eline geçebilir. Elindeki işi yarıda bırakma; o kazanç tam da bu işin içinden çıkacak gibi.",
+      "text": "Dipten yukarı doğru çıkan o ince çizgiler fincanın en umutlu yeri: o yorgunluk olduğu yerde kalmıyor, iş yavaş yavaş yukarı gidiyor. Fincan, bu işin sonunda emeğinin karşılığını göreceğini söylüyor; acele etmene gerek yok, kendiliğinden yoluna girecek.",
       "evidenceIds": [
         "e2"
       ]

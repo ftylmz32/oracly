@@ -71,9 +71,9 @@ export type HumanQualityFailure =
    */
   | 'coaching_voice'
   /**
-   * PHASE C1 (coffee only): the reading never lands on a concrete human-life
-   * development (a person, news, a visit, money, a plan, a road) — it stays
-   * abstract from start to finish.
+   * PHASE C1 (coffee only): floating abstraction — the reading mentions
+   * neither the cup's signs nor anything in the person's life. (C1.1: this
+   * is NOT a minimum-events rule; one sign and its meaning is enough.)
    */
   | 'abstract_reading'
   /**
@@ -81,7 +81,13 @@ export type HumanQualityFailure =
    * clarity, tempo, decision, threshold/change) is spread across most
    * sections — semantic soup, not distinct fortune content.
    */
-  | 'abstract_soup';
+  | 'abstract_soup'
+  /**
+   * PHASE C1.1 (coffee only): more unrelated predicted-event domains
+   * (visitor, news, travel, gathering, money, work, love) than the
+   * observer's resemblance-bearing signs can carry — invention, not reading.
+   */
+  | 'event_pile';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -96,6 +102,11 @@ export type CoffeeQualityInput = {
   hasMemoryContext?: boolean;
   /** Supplied recurring-theme labels — supporting context, not the subject. */
   relevantThemes?: string[];
+  /**
+   * PHASE C1.1: observer evidence items carrying a resemblance. Caps how
+   * many unrelated event domains a reading may stack; omitted = no cap.
+   */
+  groundedSigns?: number;
 };
 
 export type PalmQualityInput = {
@@ -140,6 +151,9 @@ const GENERIC_CLOSING =
 const INFERRED_HAND =
   /\b(sag|sol) (el|avuc|avu[cç])\b|\b(right|left) (hand|palm)\b|\bsingle right hand\b|\bsingle left hand\b/i;
 
+
+const COFFEE_MIN_INTERPRETATION_WORDS = 70;
+const COFFEE_MIN_LEAD_WORDS = 50;
 
 const GENERIC_COFFEE =
   /^(this cup (shows|reveals) (energy|potential)\.?|fincan enerji tasiyor\.?|analysis complete\.?)$/i;
@@ -251,7 +265,9 @@ export function evaluateCoffeeQuality(
     return 'generic_closing';
   }
   if (observation.length < 40 || overall.length < 80) return 'too_short';
-  if (wordCount(overall + ' ' + observation) < 70) return 'too_short';
+  // PHASE C1.1: 50, not 70 — the old floor forced a long overall even on a
+  // thin cup, i.e. padding or invented content.
+  if (wordCount(overall + ' ' + observation) < COFFEE_MIN_LEAD_WORDS) return 'too_short';
   if (
     crossSectionRepetition([
       observation,
@@ -275,12 +291,14 @@ export function evaluateCoffeeQuality(
   if (boilerplateClosingQuestion(overall, takeaway)) {
     return 'closing_question_habit';
   }
+  // PHASE C1.1: 70, not 100 — a sparse cup must be allowed a short, quiet
+  // reading (overall + takeaway) without padding or inventing events.
   if (
     wordCount(
       [overall, takeaway, input.love, input.career, input.money, input.nearFuture].join(
         ' ',
       ),
-    ) < 100
+    ) < COFFEE_MIN_INTERPRETATION_WORDS
   ) {
     return 'too_short';
   }
@@ -325,7 +343,7 @@ export function evaluateCoffeeQuality(
   const locale = localeMarkerFailure(blob, input.language);
   if (locale) return locale;
   if (input.language === 'en' || input.language === 'ru') return null;
-  return coffeeVoiceFailure(interpretation);
+  return coffeeVoiceFailure(interpretation, input.groundedSigns);
 }
 
 // ---------------------------------------------------------------------------
@@ -376,10 +394,10 @@ const COFFEE_LIFE_KINDS: RegExp[] = [
   /\bbiri(si|nin|ni|ne|yle|nden|leri)?\b|birileri/,
   /haber|mesaj|telefon|arama|mujde|mektup|dedikodu|soz (ver|kes)/,
   /\byol(a|da|u|un|culuk|lar)?\b|seyahat|tasin|ziyaret|gelis|gidis|kapini cal/,
-  /dugun|nisan|kutlama|toplanti|sofra|bulus|karsilas|gorusme|davet|kalabalik/,
+  /\bdugun|\bnisan|kutlama|toplanti|sofra|bulus|karsilas|gorusme|davet|kalabalik/,
   /\bpara|kazanc|odeme|alacak|borc|hediye|alisveris|maas|kira|evrak|imza|sinav|mulakat|teklif|\bis (yeri|degis|gorus)/,
   /\bev(in|e|de|den|le|iniz)?\b|evine|evinde|evden/,
-  /kismet|nazar|kiskan|\bsir(r)?|surpriz|sevin|yuzunu guldur|keyif/,
+  /kismet|nazar|kiskan|\bsirr?(in|i|ini)?\b|surpriz|sevin|yuzunu guldur|keyif/,
   /\bask|gonul|sevdig/,
   /\bplan/,
   /konusma|sohbet/,
@@ -406,12 +424,39 @@ function kindHits(text: string, kinds: RegExp[]): number {
   return kinds.filter((kind) => kind.test(text)).length;
 }
 
+/**
+ * PHASE C1.1: the falcı's own anchors — the cup and its signs in plain
+ * words. A sparse reading that stays with these is grounded even when it
+ * names no life event at all; prose with neither these nor any life
+ * content is floating abstraction.
+ */
+const COFFEE_SIGN =
+  /telve|fincan|\bdib|\bagz|kulb|kulp|\bkus\b|kusu|\bkuslar|\byol(lar|u|un)?\b|balik|yuzuk|halka|kalp|agac|\bdag\b|anahtar|merdiven|\bgoz\b|yilan|\bat\b|kopek|kedi|kelebek|cicek|\bay\b|yildiz|gunes|harf|demlik|gemi|kopru|\btac\b|\bmum\b|cizgi|sekil/;
+
+/**
+ * PHASE C1.1: distinct predicted-event domains. Used only to stop a
+ * reading from STACKING unrelated predictions on generic residue — never
+ * as a minimum. Home/close circle is deliberately not a domain: it is the
+ * traditional reading of the handle side, a place, not an extra event.
+ */
+const COFFEE_EVENT_DOMAINS: RegExp[] = [
+  /misafir|ziyaret|cikagel|kapini cal|kapina gel/,
+  /haber|mesaj|telefon|mujde|mektup/,
+  /yolculuk|seyahat|tasin|yola cik/,
+  /\bdugun|\bnisan|kutlama|sofra|davet|toplanti|kalabalik bir aksam/,
+  /\bpara|kazanc|odeme|alacak|borc|maas|kira|hediye/,
+  /teklif|mulakat|terfi|is degis|is gorus|yeni bir is/,
+  /\bask\b|\bask(in|a|i|ta)\b|gonul|sevgili|evlilik/,
+];
+
 export type CoffeeVoiceProfile = {
   sentences: number;
   labSentences: number;
   labLedSections: number;
   coachKinds: number;
   lifeKinds: number;
+  signKinds: number;
+  eventDomains: number;
   soupFamilies: number;
 };
 
@@ -431,6 +476,8 @@ export function coffeeVoiceProfile(sections: string[]): CoffeeVoiceProfile {
     labLedSections,
     coachKinds: kindHits(all, COFFEE_COACH_KINDS),
     lifeKinds: kindHits(all, COFFEE_LIFE_KINDS),
+    signKinds: COFFEE_SIGN.test(all) ? 1 : 0,
+    eventDomains: kindHits(all, COFFEE_EVENT_DOMAINS),
     soupFamilies,
   };
 }
@@ -438,20 +485,35 @@ export function coffeeVoiceProfile(sections: string[]): CoffeeVoiceProfile {
 /**
  * Structural fortune-teller voice gate for the Coffee interpretation
  * sections (never visualObservation, which is the caption).
+ *
+ * PHASE C1.1: every rule here judges STYLE. None of them can be escaped by
+ * adding predicted events, and none of them requires a minimum number of
+ * events — a sparse cup may give a short, quiet reading with one
+ * development, or none beyond the sign itself.
+ *
+ * `groundedSigns` (optional) is the number of observer evidence items that
+ * carry a resemblance. When supplied, a reading may not stack more
+ * unrelated event domains than those signs can carry.
  */
-export function coffeeVoiceFailure(sections: string[]): HumanQualityFailure | null {
+export function coffeeVoiceFailure(
+  sections: string[],
+  groundedSigns?: number,
+): HumanQualityFailure | null {
   const p = coffeeVoiceProfile(sections);
   if (p.sentences === 0) return null;
   // Vision report: most sentences narrate residue physics, or several
   // sections open by describing residue before saying anything human.
   if (p.labSentences >= 3 && p.labSentences / p.sentences > 0.34) return 'observation_heavy';
   if (p.labLedSections >= 2) return 'observation_heavy';
-  // Therapist / coach: the register is self-help, and it outweighs the
-  // concrete fortune content.
-  if (p.coachKinds >= 6) return 'coaching_voice';
-  if (p.coachKinds >= 3 && p.coachKinds > p.lifeKinds) return 'coaching_voice';
+  // Therapist / coach: three or more distinct self-help kinds. Independent
+  // of how many events the reading predicts.
+  if (p.coachKinds >= 3) return 'coaching_voice';
   if (p.soupFamilies >= 1) return 'abstract_soup';
-  if (p.lifeKinds < 2) return 'abstract_reading';
+  // Floating abstraction: neither the cup's signs nor anything in the
+  // person's life — only moods and "this period" talk.
+  if (p.signKinds === 0 && p.lifeKinds === 0) return 'abstract_reading';
+  // Event pile: generic residue turned into visitor + money + job + love.
+  if (groundedSigns !== undefined && p.eventDomains > 2 + groundedSigns) return 'event_pile';
   return null;
 }
 

@@ -223,7 +223,7 @@ export function bindCoffeeNarrative(
   ];
   const bind = bindSections(allSections, known, obs.evidence);
   if (bind) return bind;
-  const quality = coffeeQualityFailure(narrative, language, personalization);
+  const quality = coffeeQualityFailure(narrative, language, personalization, obs.evidence);
   if (quality) return mapQuality(quality);
   if (
     coffeeEvidenceConcentration(
@@ -249,6 +249,7 @@ export function coffeeQualityFailure(
   narrative: CoffeeNarrative,
   language: AppLanguage = 'tr',
   personalization?: ReadingPersonalization,
+  evidence?: ReadingEvidenceItem[],
 ): HumanQualityFailure | null {
   return evaluateCoffeeQuality({
     visualObservation: narrative.visualObservation.text,
@@ -261,6 +262,7 @@ export function coffeeQualityFailure(
     language,
     hasMemoryContext: Boolean(personalization?.memorySummary),
     relevantThemes: personalization?.relevantThemes,
+    groundedSigns: evidence?.filter((e) => Boolean(e.resemblance?.trim())).length,
   });
 }
 

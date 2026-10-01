@@ -586,7 +586,7 @@ export class ReadingPipeline {
                   )
                 : violation === 'human_quality'
                   ? coffeeVoiceRepairFocus(
-                      coffeeQualityFailure(rejected, ctx.language, ctx.personalization),
+                      coffeeQualityFailure(rejected, ctx.language, ctx.personalization, obs.evidence),
                     )
                   : undefined,
           }),

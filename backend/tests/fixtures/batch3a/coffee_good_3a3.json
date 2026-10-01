@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1-good-fortune-teller",
+  "source": "phase-c1.1-good-grounded-fortune-teller",
   "personalization": {
     "firstName": "Fatih",
     "relevantThemes": [
@@ -51,7 +51,7 @@
       ]
     },
     "overall": {
-      "text": "Fatih, iki taraf arasında kalmışsın gibi görünüyor. Telvenin dipten iki yana birden tırmanması, aynı konuda iki ayrı kişinin ya da iki ayrı teklifin sana uzandığını düşündürüyor. Biri daha tanıdık, öbürü daha cesaret isteyen bir yol gibi. Fincanın üstünün ferah olması iyiye işaret: bu iş seni sıkıntıya sokmadan bir yere bağlanacak gibi. Kimse seni sıkıştırmıyor, acelen de yok; doğru kişi kendini birkaç gün içinde belli edecek.",
+      "text": "Fatih, fincanın dibi dolu; bir süredir üstünde durduğun, aklından çıkmayan bir mesele var. Ama telve olduğu yerde kalmamış, iki yandan yukarı tırmanmış — bu iş yerinde saymıyor, yavaş yavaş yukarı çıkıyor, yani çözülmeye doğru gidiyor. Fincanın üstünün ferah olması da sonunun seni üzecek bir yere varmadığını söylüyor.",
       "evidenceIds": [
         "e1"
       ]
@@ -69,13 +69,13 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Ortadaki ufak serpintiler peş peşe gelecek küçük haberlere benziyor. Bir telefon, bir mesaj, araya giren bir ziyaret; hepsi bu meseleye biraz daha ışık tutacak. Önümüzdeki günlerde kulağına gelen lafları dikkatle dinle, içlerinden biri tam aradığın cevabı taşıyabilir.",
+      "text": "Ortadaki ufak serpintiler bu konuyla ilgili ufak ufak gelecek laflara benziyor. Tek bir büyük haber değil; kulağına parça parça gelecek, sonunda birbirini tamamlayacak şeyler.",
       "evidenceIds": [
         "e2"
       ]
     },
     "takeaway": {
-      "text": "Kulba doğru dönen o kıvrık şekil, işin sonunda evinin tarafına, kendi yakınlarına doğru döneceğini söylüyor. Yani son sözü bir yabancı değil, sana yakın biri söyletecek; o kişinin ağzından çıkacak tek bir laf her şeyi yerine oturtabilir.",
+      "text": "Kulba doğru dönen o kıvrık şekil işin sonunun evine, yakın çevrene döndüğünü gösteriyor. Son sözü dışarıdan biri değil, kendi yakınların söyleyecek gibi.",
       "evidenceIds": [
         "e1",
         "e3"

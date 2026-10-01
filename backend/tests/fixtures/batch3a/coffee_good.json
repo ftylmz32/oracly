@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1-good-fortune-teller",
+  "source": "phase-c1.1-good-grounded-fortune-teller",
   "observation": {
     "usable": true,
     "reason": "",
@@ -47,7 +47,7 @@
       ]
     },
     "overall": {
-      "text": "Bir süredir içinde tuttuğun, kimseye tam açmadığın bir mesele var gibi. Telvenin kulba doğru toplanması, bu işin evine ya da sana çok yakın birine dokunduğunu düşündürüyor. Ama fincanın dibi açık; bu da sandığın kadar düğümlü bir şey olmadığını, çözümün de kendi çevrende olduğunu söylüyor. Bu meseleyi kafanda büyütme; fincan, sen ağzını açmadan önce karşı tarafın sana yaklaşacağını söylüyor.",
+      "text": "Bir süredir içinde tuttuğun, kimseye tam açmadığın bir mesele var gibi. Telve kulba doğru toplanmış; kulp ev demektir, yani bu iş evine ya da sana çok yakın birine dokunuyor. Ama fincanın dibi açık: sandığın kadar düğümlü bir şey değil bu, çözümü de uzakta değil, kendi çevrende.",
       "evidenceIds": [
         "e1",
         "e2"
@@ -58,23 +58,21 @@
       "evidenceIds": []
     },
     "career": {
-      "text": "İş tarafında da bir kıpırtı var. Kulba uzanan o telve, tanıdık birinin aracılığıyla gelecek bir teklife benziyor; ilk duyduğunda küçük görünebilir ama getirisi sandığından iyi olabilir.",
-      "evidenceIds": [
-        "e1"
-      ]
+      "text": "",
+      "evidenceIds": []
     },
     "money": {
       "text": "",
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Ağzın yanındaki o küçük kuş kanatlarını açmış. Kuş eskilerden beri haber diye okunur; kanadı açık olduğuna göre bu haber pek uzakta değil gibi. Önümüzdeki günlerde beklediğin bir mesaj ya da telefon gelebilir, büyük ihtimalle de yüzünü güldürecek türden.",
+      "text": "Ağzın yanındaki o küçük kuş kanatlarını açmış. Kuş eskilerden beri haber diye okunur; ağza bu kadar yakın durduğuna göre bu haber pek uzakta değil gibi. Önümüzdeki günlerde beklediğin bir mesaj gelebilir, büyük ihtimalle de yüzünü güldürecek türden.",
       "evidenceIds": [
         "e3"
       ]
     },
     "takeaway": {
-      "text": "Bu fincanın sevindiren yanı dibinin açık olması: kapanmış bir kısmet yok. Kuşun getireceği haberle birlikte aklını kurcalayan o mesele de kendiliğinden yoluna girebilir.",
+      "text": "Dibin açık olması kısmetinin kapalı olmadığını gösteriyor. O kuşun getireceği haber, aklını kurcalayan bu meseleyi de yoluna koyabilir gibi.",
       "evidenceIds": [
         "e2",
         "e3"
