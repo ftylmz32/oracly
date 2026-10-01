@@ -1,0 +1,82 @@
+{
+  "source": "phase-c1.2-real-provider:case4:ROAD / PATH",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_508952dd48644927a56424e09c7a9168",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A long thin line of grounds winding from the lower wall up toward the rim.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": "may resemble a winding road or path"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A small dense cluster at the base where the line begins.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "rim",
+        "description": "A clean open band just below the rim where the line ends.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibinden başlayıp ağız kenarına doğru dolanarak çıkan ince, uzun bir yol görünüyor. Yolun başladığı yerde telve küçükçe toplanmış; vardığı yer ise temiz.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Senin falında bir süredir olduğu yerde duran, kolay ilerlemeyen bir konu var. Başlangıcındaki toplu telve, bu işin ilk başta seni epey uğraştırdığını söylüyor; fakat yol yukarı çıktıkça mesele hareket kazanmış. Düz bir gidiş değil bu, arada yön değiştiren bir plan ya da birkaç kez ertelenmiş bir konuşma gibi. Yine de fincan, bu konunun dipte kalmayacağını söylüyor. Ağza kadar ulaşan yol, beklediğin gelişmenin sana yaklaşmakta olduğuna işaret eder. Özellikle sonucu başkasının sözüne veya cevabına bağlı bir iş varsa, artık sessizlik bozulacak gibi görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Yolun sonunda fincanın ağzına yakın temiz bir yer var; falcılar bunu işin önünün kapanmaması diye okur. Yani gelecek cevap her ayrıntıyı bir anda çözmese bile seni beklemede tutan kısmı bitirebilir. Fincanın kapanışı ferah: dolambaçlı giden mesele, sonunda daha rahat konuşulacak bir yere varıyor gibi.",
+      "evidenceIds": [
+        "e3"
+      ]
+    }
+  }
+}

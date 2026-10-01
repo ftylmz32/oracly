@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1.1-good-grounded-fortune-teller",
+  "source": "phase-c1.3-good-sign-led",
   "observation": {
     "usable": true,
     "reason": "",
@@ -47,10 +47,10 @@
       ]
     },
     "overall": {
-      "text": "Bir süredir içinde tuttuğun, kimseye tam açmadığın bir mesele var gibi. Telve kulba doğru toplanmış; kulp ev demektir, yani bu iş evine ya da sana çok yakın birine dokunuyor. Ama fincanın dibi açık: sandığın kadar düğümlü bir şey değil bu, çözümü de uzakta değil, kendi çevrende.",
+      "text": "Fincanın ağzına bu kadar yakın kanat açmış bir kuş, haberin yolda olduğunu gösterir. Bu fincanda en canlı duran şey o: bir mesaj, bir duyum, belki de kimsenin sana henüz söylemediği bir bilgi. Telvenin kulba doğru toplanmasına bakılırsa bu haber uzaktan değil, evin içinden ya da yakın çevrenden çıkacak gibi.",
       "evidenceIds": [
         "e1",
-        "e2"
+        "e3"
       ]
     },
     "love": {
@@ -66,15 +66,14 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Ağzın yanındaki o küçük kuş kanatlarını açmış. Kuş eskilerden beri haber diye okunur; ağza bu kadar yakın durduğuna göre bu haber pek uzakta değil gibi. Önümüzdeki günlerde beklediğin bir mesaj gelebilir, büyük ihtimalle de yüzünü güldürecek türden.",
+      "text": "Fincanın dibi açık kalmış; yolunu kesen bir engel görünmüyor. Haber geldiğinde elin kolun bağlı olmayacak, ne yapacağını kendin seçebileceksin.",
       "evidenceIds": [
-        "e3"
+        "e2"
       ]
     },
     "takeaway": {
-      "text": "Dibin açık olması kısmetinin kapalı olmadığını gösteriyor. O kuşun getireceği haber, aklını kurcalayan bu meseleyi de yoluna koyabilir gibi.",
+      "text": "Yalnız kuş biraz silik duruyor; haberin ne yönde olduğunu fincan tam göstermiyor. Sevindirir mi, düşündürür mü, onu gelince göreceksin.",
       "evidenceIds": [
-        "e2",
         "e3"
       ]
     }

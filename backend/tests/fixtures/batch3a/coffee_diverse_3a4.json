@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1.1-good-grounded-fortune-teller",
+  "source": "phase-c1.3-good-sign-led",
   "observation": {
     "usable": true,
     "reason": "",
@@ -46,7 +46,7 @@
       ]
     },
     "overall": {
-      "text": "Fincanın dibine telve çökmüş; belli ki bir süredir kafanı kurcalayan bir derdin var. Ama etrafı açık bir halkayla çevrilmiş. Bu, seni dört bir yandan saran bir sıkıntı değil demek; bir çıkışı var ve o çıkış sandığından yakın. Falcılar dibi böyle açık kalan fincan için \"dert var ama kalıcı değil\" der.",
+      "text": "Telve dibe çökmüş, ama dört bir yanı kapalı değil; etrafında açık bir halka kalmış. Böyle bir dip, üstüne çok gelinmiş ama içine kapanmamış bir hâli anlatır: ağır ama boğucu değil. Hayatında şu an en çok yer kaplayan şey de buna benziyor; ağır ama kenarları açık.",
       "evidenceIds": [
         "e1"
       ]
@@ -64,13 +64,13 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Fincanın üst tarafı sakin, kalabalık bir şey yok. Önümüzdeki günlerde seni yoracak büyük bir hareket görünmüyor; ortalık biraz durulacak gibi.",
+      "text": "Fincanın üst tarafı neredeyse boş. Yakın günler için fazla bir şey göstermiyor; ne bir haber ne bir hareket var, dışarıdan gelecek bir şey görünmüyor.",
       "evidenceIds": [
         "e3"
       ]
     },
     "takeaway": {
-      "text": "Alttan yukarı çıkan o ince yollar en sevindirici kısım: işler yavaş yavaş yukarı gidiyor. O dert de olduğu yerde kalmayacak, adım adım hafifleyecek gibi.",
+      "text": "Alttan yukarı çıkan o ince yollar ise başka bir şey anlatıyor: dipteki ağırlıktan bir şeyler yukarı sızmaya başlamış. Henüz bir yere varmış değiller ve nereye uzanacakları belli değil, ama durmuş da değiller.",
       "evidenceIds": [
         "e2"
       ]

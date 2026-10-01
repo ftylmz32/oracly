@@ -50,6 +50,7 @@ import type {
   PalmObservation,
 } from './types.js';
 import {
+  coffeeEmptyRequiredFocus,
   coffeeVoiceRepairFocus,
   coffeeWriterSystem,
   coffeeWriterUser,
@@ -588,7 +589,9 @@ export class ReadingPipeline {
                   ? coffeeVoiceRepairFocus(
                       coffeeQualityFailure(rejected, ctx.language, ctx.personalization, obs.evidence),
                     )
-                  : undefined,
+                  : violation === 'empty_required'
+                    ? coffeeEmptyRequiredFocus(rejected)
+                    : undefined,
           }),
         },
       ],

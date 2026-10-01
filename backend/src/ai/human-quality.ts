@@ -87,7 +87,13 @@ export type HumanQualityFailure =
    * (visitor, news, travel, gathering, money, work, love) than the
    * observer's resemblance-bearing signs can carry — invention, not reading.
    */
-  | 'event_pile';
+  | 'event_pile'
+  /**
+   * PHASE C1.3 (coffee only): the reading is carried by a generic wrapper —
+   * an unnamed long-standing issue, generic issue nouns, or a default
+   * talk-and-relief arc the evidence does not afford — not by the cup.
+   */
+  | 'generic_wrapper';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -107,6 +113,12 @@ export type CoffeeQualityInput = {
    * many unrelated event domains a reading may stack; omitted = no cap.
    */
   groundedSigns?: number;
+  /**
+   * PHASE C1.3: whether any observer evidence affords communication (bird,
+   * figure, dots...). When false, a talk-and-relief arc is a generic
+   * wrapper; omitted = that rule is skipped.
+   */
+  communicationAffordance?: boolean;
 };
 
 export type PalmQualityInput = {
@@ -343,7 +355,7 @@ export function evaluateCoffeeQuality(
   const locale = localeMarkerFailure(blob, input.language);
   if (locale) return locale;
   if (input.language === 'en' || input.language === 'ru') return null;
-  return coffeeVoiceFailure(interpretation, input.groundedSigns);
+  return coffeeVoiceFailure(interpretation, input.groundedSigns, input.communicationAffordance);
 }
 
 // ---------------------------------------------------------------------------
@@ -498,6 +510,7 @@ export function coffeeVoiceProfile(sections: string[]): CoffeeVoiceProfile {
 export function coffeeVoiceFailure(
   sections: string[],
   groundedSigns?: number,
+  communication?: boolean,
 ): HumanQualityFailure | null {
   const p = coffeeVoiceProfile(sections);
   if (p.sentences === 0) return null;
@@ -514,7 +527,71 @@ export function coffeeVoiceFailure(
   if (p.signKinds === 0 && p.lifeKinds === 0) return 'abstract_reading';
   // Event pile: generic residue turned into visitor + money + job + love.
   if (groundedSigns !== undefined && p.eventDomains > 2 + groundedSigns) return 'event_pile';
+  // Generic wrapper: the reading's identity is carried by a vague issue
+  // instead of this cup's signs (real C1.2 QA: 6/6 readings).
+  if (coffeeGenericWrapper(sections, communication)) return 'generic_wrapper';
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// PHASE C1.3 — generic narrative wrapper. Real provider QA showed every cup
+// narrated as "an unnamed long-standing matter → a conversation → relief",
+// with the actual sign hung on that frame. Structural, not a phrase list:
+// one "konu" or "mesele" is normal Turkish; the wrapper is a vague issue
+// leading the reading, generic issue nouns carrying it, or a talk-and-relief
+// arc on a cup whose evidence affords no communication at all.
+// ---------------------------------------------------------------------------
+
+/** Unnamed issue nouns ("konuşma" is deliberately excluded). */
+const COFFEE_GENERIC_ISSUE = /\bmesele\w*|\bkonu(nun|yu|da|ya|dan|n|su|sunu|sunun)?\b/g;
+
+/** A stalled / long-standing / still-pending framing. */
+const COFFEE_STALL =
+  /bir suredir|uzun suredir|epeydir|bir zamandir|kapanmayan|kapanmamis|ilerlemeyen|ilerlemiyor|oldugu yerde duran|ayni yerde duran|cozulmemis|yarim kal|bekleyen|beklenen/;
+
+/** Talk as the vehicle of the story. */
+const COFFEE_CONVERSATION = /konusma|konusul|sohbet|dillendir|cevap|yanit/;
+
+/** The habitual "it will ease / work out" close. */
+const COFFEE_RESOLUTION =
+  /ferah|tatliya bagla|yoluna gir|cozul|rahatla|hafifle|havada kalmayacak|sonuca bagla/;
+
+export type CoffeeWrapperProfile = {
+  genericIssues: number;
+  genericOpening: boolean;
+  conversationSections: number;
+  resolution: boolean;
+};
+
+export function coffeeWrapperProfile(sections: string[]): CoffeeWrapperProfile {
+  const body = filled(sections).map(foldTr);
+  const all = body.join(' ');
+  const opening = sentencesOf(body[0] ?? '')[0] ?? '';
+  return {
+    genericIssues: (all.match(COFFEE_GENERIC_ISSUE) ?? []).length,
+    genericOpening:
+      new RegExp(COFFEE_GENERIC_ISSUE.source).test(opening) && COFFEE_STALL.test(opening),
+    conversationSections: body.filter((s) => COFFEE_CONVERSATION.test(s)).length,
+    resolution: COFFEE_RESOLUTION.test(all),
+  };
+}
+
+/**
+ * `sections[0]` must be overall. `communication` is the evidence-derived
+ * affordance (undefined when evidence is not available: the arc rule is
+ * then skipped, the text-only rules still apply).
+ */
+export function coffeeGenericWrapper(sections: string[], communication?: boolean): boolean {
+  const w = coffeeWrapperProfile(sections);
+  // The reading opens on an unnamed, stalled issue ("bir süredir … kapanmayan
+  // bir mesele") instead of on what this cup shows.
+  if (w.genericOpening) return true;
+  // Generic issue nouns carry the reading rather than the cup's signs.
+  if (w.genericIssues >= 4) return true;
+  // Default talk-and-relief arc on a cup with nothing that affords talk.
+  if (communication === false && w.conversationSections >= 1 && w.resolution) return true;
+  if (communication === false && w.conversationSections >= 2) return true;
+  return false;
 }
 
 export function evaluatePalmQuality(

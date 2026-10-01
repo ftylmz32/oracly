@@ -1,0 +1,82 @@
+{
+  "source": "phase-c1.2-real-provider:case5:HANDLE-SIDE / HOME",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_52414611b2bd401f8ccaee7f20fff7e2",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "handle_side",
+        "description": "Dense grounds gathered along the wall on the handle side.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A light, even coating of grounds at the base.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "Sparse marks on the upper wall opposite the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Telve daha çok kulp tarafında toplanmış. Fincanın dibi hafif, karşı taraftaki işaretler ise az görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Bu fincanın sözü ev ve yakın çevre üzerine. Bir süredir aileden ya da çok yakınından biriyle konuşulmayı bekleyen bir konu var gibi; büyük bir kopuş değil, daha çok herkesin bildiği ama tam dillendirmediği bir mesele. Dışarıdan gelen bir etki güçlü görünmüyor. Konunun yine kendi aranızda konuşularak tatlıya bağlanması daha baskın.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Fincanın dibinin hafif kalması güzel; derler ki böyle dip, uzayan bir meselenin korkulduğu kadar büyümeyeceğini ve sonunda ferahlık vereceğini söyler. Yani fincan kapanışını sıkıntıyla değil, rahat bir haberle yapmış.",
+      "evidenceIds": [
+        "e2"
+      ]
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "source": "phase-c1.2-real-provider:case6:RICH TWO-SIGN CUP",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_015ba2d64d224962b0611cbaf04c2bdb",
+  "personalization": {
+    "firstName": "Fatih"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "rim",
+        "description": "A small elongated shape near the rim with a tapered tail.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a fish"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Two thin lines leaving the base and diverging in different directions up the wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble two diverging paths"
+      },
+      {
+        "id": "e3",
+        "region": "handle_side",
+        "description": "A small cluster of grounds near the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Ağız kenarında balığı andıran küçük bir şekil var. Dipten yükselen iki ince yol ayrı yönlere uzanıyor; kulp tarafında da küçük bir telve topluluğu görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Fatih, önünde iki ayrı seçenek beliriyor gibi. Biri daha alışıldık ve güvenli, diğeri ise yönünü biraz değiştirecek bir ihtimal taşıyor. Bu konu bir süredir aklında olabilir; fincan, kararın uzak olmadığını ama iki seçeneğin de son ana kadar masada kalacağını söylüyor.",
+      "evidenceIds": [
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "Ağız kenarındaki balık küçük ama güzel bir kısmet işaretidir derler. Yakın zamanda eline geçecek bir ödeme, ufak bir kazanç ya da maddi bakımdan sevindirecek bir haber görünüyor. Büyük bir servetten çok, tam gerektiği sırada yüzünü güldüren bir pay gibi.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "nearFuture": {
+      "text": "Kulp tarafındaki işaret, evin ya da yakın çevrenle ilgili kısa bir konuşmayı gösteriyor. Bekleyen küçük bir mesele aileden veya çok yakınından biriyle konuşulup tatlıya bağlanabilir; konu büyümeden kendi içinde çözülüyor gibi.",
+      "evidenceIds": [
+        "e3"
+      ]
+    },
+    "takeaway": {
+      "text": "",
+      "evidenceIds": []
+    }
+  }
+}

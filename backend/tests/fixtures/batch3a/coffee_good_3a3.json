@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1.1-good-grounded-fortune-teller",
+  "source": "phase-c1.3-good-sign-led",
   "personalization": {
     "firstName": "Fatih",
     "relevantThemes": [
@@ -51,7 +51,7 @@
       ]
     },
     "overall": {
-      "text": "Fatih, fincanın dibi dolu; bir süredir üstünde durduğun, aklından çıkmayan bir mesele var. Ama telve olduğu yerde kalmamış, iki yandan yukarı tırmanmış — bu iş yerinde saymıyor, yavaş yavaş yukarı çıkıyor, yani çözülmeye doğru gidiyor. Fincanın üstünün ferah olması da sonunun seni üzecek bir yere varmadığını söylüyor.",
+      "text": "Fatih, telve dipte birikmiş ama orada kalmamış; iki yandan birden yukarı tırmanmış. Dipte ağır bir telve var, ama durgun değil; iki ayrı yöne birden çekiştiriliyor gibi. Bir yanın bildiğin yere, öbür yanın yeni bir yere uzanıyor ve ikisi de aynı hızla çıkıyor, biri öbürünü geçmiş değil.",
       "evidenceIds": [
         "e1"
       ]
@@ -69,13 +69,13 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Ortadaki ufak serpintiler bu konuyla ilgili ufak ufak gelecek laflara benziyor. Tek bir büyük haber değil; kulağına parça parça gelecek, sonunda birbirini tamamlayacak şeyler.",
+      "text": "Ortadaki ufak serpintiler toplanmamış, dağınık duruyor. Önümüzdeki günler tek bir büyük gelişmeden çok ufak tefek, birbirinden kopuk şeylerle geçecek gibi; hiçbiri tek başına belirleyici değil.",
       "evidenceIds": [
         "e2"
       ]
     },
     "takeaway": {
-      "text": "Kulba doğru dönen o kıvrık şekil işin sonunun evine, yakın çevrene döndüğünü gösteriyor. Son sözü dışarıdan biri değil, kendi yakınların söyleyecek gibi.",
+      "text": "Kulba doğru dönen kıvrık şekil, iki taraftan birinin eve, yakınlarına doğru büküldüğünü gösteriyor. Hangisi olduğunu fincan saklıyor; ama ağır basan taraf, eve yakın olan taraf gibi duruyor.",
       "evidenceIds": [
         "e1",
         "e3"

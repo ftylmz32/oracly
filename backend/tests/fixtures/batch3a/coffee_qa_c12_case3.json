@@ -1,0 +1,85 @@
+{
+  "source": "phase-c1.2-real-provider:case3:RING-LIKE SIGN",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_5477e186b8554105911c520be2c8c1df",
+  "personalization": {
+    "firstName": "Elif"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A small closed loop formed by grounds on the middle wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a ring"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Dense grounds gathered at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "A few sparse dots on the upper inner surface.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Telve fincanın dibinde belirgin biçimde toplanmış. Fincanın ortasında küçük, kapalı bir halka; ağız tarafında da birkaç nokta görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Elif, bir süredir kapanmayan, üzerinde epey konuşulmuş ya da konuşulması beklenen bir mesele var gibi. Fincanın dibindeki telve bu konunun hâlâ gündeminde olduğunu söylüyor; fakat ortadaki halka işi dağılmaktan çok bir sonuca bağlıyor. Bu halka yüzükten ziyade bir söz, anlaşma veya “tamam, böyle yapalım” denecek bir uzlaşma gibi duruyor. Yakın çevrenden biriyle ertelenmiş bir konuşmanın sonunda ortak bir noktaya varmanız mümkün görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Ağız kenarına yakın küçük noktalar, çok uzakta olmayan ufak haberleri gösterir derler. Tek ve büyük bir gelişmeden çok, peş peşe gelecek kısa mesajlar ya da küçük bilgilendirmeler var gibi. Bunlardan biri, bekleyen o konuşmanın zamanını veya şeklini belirleyebilir.",
+      "evidenceIds": [
+        "e3"
+      ]
+    },
+    "takeaway": {
+      "text": "",
+      "evidenceIds": []
+    }
+  }
+}

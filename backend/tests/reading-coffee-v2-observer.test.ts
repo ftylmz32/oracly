@@ -114,22 +114,19 @@ const GOOD_NARRATIVE = {
     evidenceIds: ['e1', 'e2', 'e3'],
   },
   overall: {
-    text: 'Bir süredir içinde tuttuğun, kimseye tam açmadığın bir mesele var gibi. Telvenin kulba doğru toplanması, bu işin evine ya da sana çok yakın birine dokunduğunu düşündürüyor. Ama fincanın dibi açık; bu da sandığın kadar düğümlü bir şey olmadığını, çözümün de kendi çevrende olduğunu söylüyor. Bu meseleyi kafanda büyütme; fincan, sen ağzını açmadan önce karşı tarafın sana yaklaşacağını söylüyor.',
-    evidenceIds: ['e1', 'e2'],
+    text: 'Fincanın ağzına bu kadar yakın kanat açmış bir kuş, haberin yolda olduğunu gösterir. Bu fincanda en canlı duran şey o: bir mesaj, bir duyum, belki de kimsenin sana henüz söylemediği bir bilgi. Telvenin kulba doğru toplanmasına bakılırsa bu haber uzaktan değil, evin içinden ya da yakın çevrenden çıkacak gibi.',
+    evidenceIds: ['e1', 'e3'],
   },
   love: { text: '', evidenceIds: [] },
-  career: {
-    text: 'İş tarafında da bir kıpırtı var. Kulba uzanan o telve, tanıdık birinin aracılığıyla gelecek bir teklife benziyor; ilk duyduğunda küçük görünebilir ama getirisi sandığından iyi olabilir.',
-    evidenceIds: ['e1'],
-  },
+  career: { text: '', evidenceIds: [] },
   money: { text: '', evidenceIds: [] },
   nearFuture: {
-    text: 'Ağzın yanındaki o küçük kuş kanatlarını açmış. Kuş eskilerden beri haber diye okunur; kanadı açık olduğuna göre bu haber pek uzakta değil gibi. Önümüzdeki günlerde beklediğin bir mesaj ya da telefon gelebilir, büyük ihtimalle de yüzünü güldürecek türden.',
-    evidenceIds: ['e3'],
+    text: 'Fincanın dibi açık kalmış; yolunu kesen bir engel görünmüyor. Haber geldiğinde elin kolun bağlı olmayacak, ne yapacağını kendin seçebileceksin.',
+    evidenceIds: ['e2'],
   },
   takeaway: {
-    text: 'Bu fincanın sevindiren yanı dibinin açık olması: kapanmış bir kısmet yok. Kuşun getireceği haberle birlikte aklını kurcalayan o mesele de kendiliğinden yoluna girebilir.',
-    evidenceIds: ['e2', 'e3'],
+    text: 'Yalnız kuş biraz silik duruyor; haberin ne yönde olduğunu fincan tam göstermiyor. Sevindirir mi, düşündürür mü, onu gelince göreceksin.',
+    evidenceIds: ['e3'],
   },
 };
 

@@ -22,6 +22,22 @@ export function coffeeEvidenceCluster(item: ReadingEvidenceItem): string {
   return foldTr(item.region) || item.id;
 }
 
+/**
+ * PHASE C1.3: does any observer evidence afford communication / social
+ * talk (news, messages, a conversation)? Derived from the observer's own
+ * English description/resemblance — birds, figures, faces, letter-like
+ * shapes, dots/specks (traditionally small news), teapot/table (company).
+ * Internal only; never surfaces in the public result.
+ */
+const COMMUNICATION_AFFORDANCE =
+  /\b(birds?|letters?|envelopes?|mouths?|lips|ears?|phones?|persons?|figures?|faces?|people|crowds?|dots?|specks?|speckles?|teapots?|kettles?|tables?)\b/;
+
+export function coffeeCommunicationAffordance(evidence: ReadingEvidenceItem[]): boolean {
+  return evidence.some((item) =>
+    COMMUNICATION_AFFORDANCE.test(`${item.description} ${item.resemblance ?? ''}`.toLowerCase()),
+  );
+}
+
 function filledMeaning(sections: CoffeeMeaningSections): NarrativeSection[] {
   return [sections.overall, sections.nearFuture, sections.takeaway].filter(
     (section) => section.text.trim().length > 0,

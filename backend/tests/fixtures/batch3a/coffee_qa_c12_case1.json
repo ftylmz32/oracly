@@ -1,5 +1,8 @@
 {
-  "source": "phase-c1.3-good-sparse",
+  "source": "phase-c1.2-real-provider:case1:SPARSE / NO RESEMBLANCE",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_3ba57d1f11e94b2580f97da73d1b6e6f",
   "observation": {
     "usable": true,
     "reason": "",
@@ -14,7 +17,7 @@
       {
         "id": "e1",
         "region": "base",
-        "description": "A dense mass of grounds settled at the base.",
+        "description": "A dense mass of grounds settled evenly at the base.",
         "confidence": "high",
         "visibility": "clear",
         "resemblance": null
@@ -29,7 +32,7 @@
       },
       {
         "id": "e3",
-        "region": "upper",
+        "region": "upper_wall",
         "description": "The upper inner surface and rim are mostly clean.",
         "confidence": "medium",
         "visibility": "clear",
@@ -39,17 +42,17 @@
   },
   "narrative": {
     "visualObservation": {
-      "text": "Telve fincanın dibine çökmüş, üst tarafı ise neredeyse temiz kalmış.",
+      "text": "Telve fincanın dibinde belirgin biçimde toplanmış. Aşağıdan yukarı çıkan birkaç ince yol var; ağız kenarı ise oldukça ferah görünüyor.",
       "evidenceIds": [
         "e1",
+        "e2",
         "e3"
       ]
     },
     "overall": {
-      "text": "Telve dibe çökmüş ve orada kalmış; fincan pek kıpırdamamış. Böyle fincanın sözü azdır. Hayatında şu sıralar yerinden oynamayan, olduğu gibi duran bir düzen var gibi; ne iyiye ne kötüye dönmüş, sadece sabit. Fincanın üstü temiz, yani bu düzeni dışarıdan bozmaya gelen bir şey de görünmüyor.",
+      "text": "Fincanın dibi, bir süredir aynı yerde duran ve kolayca kapanmayan tek bir meseleye işaret ediyor. Bu konu aklını sık sık meşgul etmiş gibi; fakat fincan bunu dağınık değil, tek parça gösteriyor. Yani mesele dallanıp budaklanmaktan çok, bir sonuca bağlanmayı bekliyor.",
       "evidenceIds": [
-        "e1",
-        "e3"
+        "e1"
       ]
     },
     "love": {
@@ -65,14 +68,15 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "",
-      "evidenceIds": []
+      "text": "Yukarı doğru uzanan ince yollar, bekleyen konuda ufak bir hareket başlayacağını söylüyor. Önce kısa bir konuşma ya da küçük bir gelişme gelebilir; ardından işin önü daha rahat görünüyor. Ağız kenarının temiz oluşuna bakılırsa bu hareket uzak zamanda değil, yakın günlerde kendini belli edebilir.",
+      "evidenceIds": [
+        "e2",
+        "e3"
+      ]
     },
     "takeaway": {
-      "text": "Dipten yukarı birkaç silik çizgi kıpırdamış ama yol olacak kadar belirgin değiller. Bir şeyler yerinden oynamak istiyor gibi; adı daha konmamış, ne zaman olacağını da fincan göstermiyor.",
-      "evidenceIds": [
-        "e2"
-      ]
+      "text": "",
+      "evidenceIds": []
     }
   }
 }

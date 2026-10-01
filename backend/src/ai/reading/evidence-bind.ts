@@ -7,7 +7,10 @@ import {
   evaluatePalmQuality,
   type HumanQualityFailure,
 } from '../human-quality.js';
-import { coffeeEvidenceConcentration } from './coffee-diversity.js';
+import {
+  coffeeCommunicationAffordance,
+  coffeeEvidenceConcentration,
+} from './coffee-diversity.js';
 import {
   isCoffeeV2SourceSlot,
   type CoffeeNarrative,
@@ -263,6 +266,7 @@ export function coffeeQualityFailure(
     hasMemoryContext: Boolean(personalization?.memorySummary),
     relevantThemes: personalization?.relevantThemes,
     groundedSigns: evidence?.filter((e) => Boolean(e.resemblance?.trim())).length,
+    communicationAffordance: evidence ? coffeeCommunicationAffordance(evidence) : undefined,
   });
 }
 
