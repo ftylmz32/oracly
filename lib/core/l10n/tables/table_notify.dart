@@ -47,4 +47,34 @@ const kL10nNotify = <String, L10nTriple>{
   ),
   'notif.permission_yes': L10nTriple('İzin Ver', 'Allow', 'Разрешить'),
   'notif.permission_later': L10nTriple('Şimdi değil', 'Not now', 'Не сейчас'),
+  'notif.permission_unavailable_body': L10nTriple(
+    'Bildirim izni şu anda okunamadı. Lütfen tekrar dene.',
+    'Notification permission could not be read right now. Please try again.',
+    'Сейчас не удалось проверить разрешение на уведомления. Попробуй ещё раз.',
+  ),
+  'notif.test_title': L10nTriple(
+    'Test bildirimi gönder',
+    'Send a test notification',
+    'Отправить тестовое уведомление',
+  ),
+  'notif.test_subtitle': L10nTriple(
+    'Bildirimlerin bu cihazda göründüğünü kontrol et.',
+    'Check that notifications appear on this device.',
+    'Проверь, что уведомления появляются на этом устройстве.',
+  ),
+  'notif.test_body': L10nTriple(
+    'Bildirimler bu cihazda çalışıyor.',
+    'Notifications are working on this device.',
+    'Уведомления на этом устройстве работают.',
+  ),
+  'notif.test_sent': L10nTriple(
+    'Test bildirimi gönderildi.',
+    'Test notification sent.',
+    'Тестовое уведомление отправлено.',
+  ),
+  'notif.test_failed': L10nTriple(
+    'Test bildirimi gösterilemedi. Lütfen tekrar dene.',
+    'The test notification could not be shown. Please try again.',
+    'Не удалось показать тестовое уведомление. Попробуй ещё раз.',
+  ),
 };

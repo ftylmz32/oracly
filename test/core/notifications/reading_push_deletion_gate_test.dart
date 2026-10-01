@@ -315,6 +315,13 @@ class _FakeMessaging implements ReadingPushMessaging {
     permissionRequests++;
   }
 
+  int foregroundPresentationCalls = 0;
+
+  @override
+  Future<void> setForegroundPresentation() async {
+    foregroundPresentationCalls++;
+  }
+
   @override
   Future<String?> getToken() async {
     tokenFetches++;

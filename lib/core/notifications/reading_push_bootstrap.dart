@@ -12,12 +12,17 @@ import '../auth/account_deletion_pending_state.dart';
 import '../navigation/oracly_navigator_key.dart';
 import '../navigation/oracly_routes.dart';
 import '../providers/backend_providers.dart';
+import 'notification_delivery_state.dart';
 import '../../shared/navigation/oracly_shell_bridge.dart';
 
 /// Injectable messaging surface for unit tests (no Firebase platform).
 @visibleForTesting
 abstract class ReadingPushMessaging {
   Future<void> requestPermission();
+
+  /// iOS shows an FCM push that arrives while ORACLY is open only when these
+  /// options are set; the default is to present nothing.
+  Future<void> setForegroundPresentation();
   Future<String?> getToken();
   Stream<String> get onTokenRefresh;
   Stream<RemoteMessage> get onMessageOpenedApp;
@@ -57,8 +62,13 @@ abstract final class ReadingPushBootstrap {
       }
       final firebase = FirebaseMessaging.instance;
       await firebase.requestPermission(alert: true, badge: true, sound: true);
+      await firebase.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
       final token = await firebase.getToken();
-      if (token != null) await _register(container, token);
+      await _registerOrRecord(container, token);
       await _refresh?.cancel();
       _refresh = firebase.onTokenRefresh.listen(
         (value) => unawaited(_register(container, value)),
@@ -74,7 +84,14 @@ abstract final class ReadingPushBootstrap {
       }
     } catch (_) {
       // Missing/stale token, denied permission, or platform failure is never
-      // allowed to affect the reading lifecycle.
+      // allowed to affect the reading lifecycle — but it is not success.
+      if (NotificationDeliveryStatus.current.push !=
+          PushRegistrationState.registered) {
+        NotificationDeliveryStatus.recordPush(
+          PushRegistrationState.failed,
+          failure: NotificationFailureCategory.registrationFailed,
+        );
+      }
     }
   }
 
@@ -83,8 +100,9 @@ abstract final class ReadingPushBootstrap {
     ProviderContainer container,
   ) async {
     await messaging.requestPermission();
+    await messaging.setForegroundPresentation();
     final token = await messaging.getToken();
-    if (token != null) await _register(container, token);
+    await _registerOrRecord(container, token);
     await _refresh?.cancel();
     _refresh = messaging.onTokenRefresh.listen(
       (value) => unawaited(_register(container, value)),
@@ -100,14 +118,56 @@ abstract final class ReadingPushBootstrap {
     }
   }
 
+  static Future<void> _registerOrRecord(
+    ProviderContainer container,
+    String? token,
+  ) async {
+    if (token == null || token.isEmpty) {
+      NotificationDeliveryStatus.recordPush(
+        PushRegistrationState.tokenUnavailable,
+        failure: NotificationFailureCategory.tokenUnavailable,
+      );
+      return;
+    }
+    await _register(container, token);
+  }
+
+  /// Records the real backend answer. The token value itself is never
+  /// stored in the delivery state or logged.
   static Future<void> _register(
     ProviderContainer container,
     String token,
   ) async {
     if (!AccountDeletionPendingState.allowsOwnerBoundExperience) return;
     final send = container.read(readingOperationSenderProvider);
-    if (send == null) return;
-    await send('POST', '/v1/reading-notifications/token', {'token': token});
+    if (send == null) {
+      NotificationDeliveryStatus.recordPush(
+        PushRegistrationState.notConfigured,
+        failure: NotificationFailureCategory.registrationNotConfigured,
+      );
+      return;
+    }
+    try {
+      final wire = await send(
+        'POST',
+        '/v1/reading-notifications/token',
+        {'token': token},
+      );
+      final status = wire?.statusCode;
+      if (status != null && status >= 200 && status < 300) {
+        NotificationDeliveryStatus.recordPush(PushRegistrationState.registered);
+      } else {
+        NotificationDeliveryStatus.recordPush(
+          PushRegistrationState.failed,
+          failure: NotificationFailureCategory.registrationFailed,
+        );
+      }
+    } catch (_) {
+      NotificationDeliveryStatus.recordPush(
+        PushRegistrationState.failed,
+        failure: NotificationFailureCategory.registrationFailed,
+      );
+    }
   }
 
   static void _openReading(
@@ -200,6 +260,7 @@ abstract final class ReadingPushBootstrap {
   /// queued completion before local/provider cleanup proceeds.
   static Future<void> clearOwnerBinding() async {
     _bindOwner(null);
+    NotificationDeliveryStatus.resetForOwnerBoundary();
     await _refresh?.cancel();
     await _opened?.cancel();
     _refresh = null;
