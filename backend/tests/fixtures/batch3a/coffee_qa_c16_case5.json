@@ -1,0 +1,83 @@
+{
+  "source": "phase-c1.6-real-provider:case5:HANDLE/HOME",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_0cc0a7282b5d40628537b5d6b15deee3",
+  "humanProductJudgement": "WEAK",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "handle_side",
+        "description": "Dense grounds gathered along the wall on the handle side.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A light, even coating of grounds at the base.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "Sparse marks on the upper wall opposite the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Telve en çok kulp tarafında toplanmış. Fincanın dibi hafifçe kaplı; karşı tarafta ise yalnızca birkaç küçük şekil var.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Ev ve yakın çevren şu ara hayatının merkezine oturmuş görünüyor. Kulp tarafındaki telve, dışarıdaki büyük gelişmelerden çok aile içinde süren bir uğraşı anlatır; evle ilgili bir sorumluluk ya da yakınlarından birinin hali seni meşgul ediyor olabilir. Fakat burada sert bir kopuş veya hızlı bir hareket yok. Daha çok aynı çevrede kalan, henüz kesin bir sonuca varmayan bir durum var.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Fincanın dibindeki sakin görünüm, bu ev içi uğraşın hemen büyümeyeceğini söylüyor. Bir süre daha olduğu yerde durabilir; yani fincan burada acele bir sonuç vermiyor.",
+      "evidenceIds": [
+        "e2"
+      ]
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "source": "phase-c1.6-real-provider:case6:TWO-SIGN",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_a15602a831e241dda4c60746bdf1931d",
+  "humanProductJudgement": "PASS",
+  "personalization": {
+    "firstName": "Fatih"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "rim",
+        "description": "A small elongated shape near the rim with a tapered tail.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a fish"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Two thin lines leaving the base and diverging in different directions up the wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble two diverging paths"
+      },
+      {
+        "id": "e3",
+        "region": "handle_side",
+        "description": "A small cluster of grounds near the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın ağız kenarında kuyruğu incelen küçük bir balık şekli var. Dipten yukarı doğru ayrılan iki ince yol ve kulp tarafında küçük bir telve topluluğu görülüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Kısmetin fincanın ağzına kadar gelmiş, Fatih. Balığa benzeyen bu şekil, yakın zamanda eline geçebilecek küçük ama sevindiren bir kazancı ya da değerli bir fırsatı anlatır. Büyük bir servetten çok, tam gerektiği anda gelen işe yarar bir pay gibi. Kulp tarafındaki işaret de bunun evle veya yakın çevrenden biriyle bağlantılı olabileceğini söylüyor; belki ev için yapılacak bir ödeme, belki aile içinden gelecek bir katkı. Bu kısmet tek başına durmuyor, ardından hareket getiriyor.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Dipten ayrılan iki yol, önüne iki ayrı seçenek gelebileceğini anlatıyor. Biri daha doğrudan ve kısa, diğeri seni alıştığın düzenin dışına çıkaracak kadar farklı görünüyor. Bunlar aynı anda ilerlemeyecek; fincan, birini seçince ötekinin usulca kapanabileceğini düşündürüyor. Karar hemen değil ama çok uzak da değil.",
+      "evidenceIds": [
+        "e2"
+      ]
+    },
+    "takeaway": {
+      "text": "Kulp tarafındaki küçük işaretin bir başka sözü daha var: Bu gelişmede son sözü yabancılar değil, seni yakından tanıyan biri etkileyebilir. Sessiz duran ama hesabı iyi bilen birinin payı olacak gibi.",
+      "evidenceIds": [
+        "e3"
+      ]
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "source": "phase-c1.6-real-provider:case2:BIRD",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_5a678bc0997b46539be26d4fa956a232",
+  "humanProductJudgement": "PASS",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "rim",
+        "description": "A small compact mark just below the rim with two short strokes spreading outward.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": "may resemble a small bird with open wings"
+      },
+      {
+        "id": "e2",
+        "region": "middle_wall",
+        "description": "Light, diffuse scattering of grounds across the middle wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "base",
+        "description": "A moderately dense patch of grounds at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın ağzına yakın yerde kanatlarını açmış küçük bir kuşu andıran şekil var. Dipte telve belirgin biçimde toplanmış, orta kısımda ise küçük parçalar dağılmış duruyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Yakın zamanda kısa ve doğrudan bir haber alacak gibisin. Bu, uzaktan gelen büyük bir duyurudan çok sana çabucak ulaşan bir mesaj ya da cevap gibi duruyor. Kuşun iki yana açılan kanatları, bu haberin ardından hareket başlayacağını; bekleyen bir işin yeniden gündeme geleceğini anlatıyor. Yalnız fincanın dibi dolu kaldığı için haber her şeyi bir anda sonuçlandırmayabilir. Önce gelişme gelir, asıl sonuç biraz daha içeride duruyor.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Kuş ağız kenarına çok yakın; yani duyacağın şey uzak zamana ait görünmüyor. Dipte kalan telve de bunun tek parçada değil, devamı olan bir gelişme olabileceğini söylüyor.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    }
+  }
+}

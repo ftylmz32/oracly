@@ -1,0 +1,90 @@
+{
+  "source": "phase-c1.6-real-provider:case3:RING",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_9198e3fa663a44c0b5e4738445b2396b",
+  "humanProductJudgement": "WEAK",
+  "personalization": {
+    "firstName": "Elif"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A small closed loop formed by grounds on the middle wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a ring"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Dense grounds gathered at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "A few sparse dots on the upper inner surface.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibinde telve belirgin biçimde toplanmış; orta bölümde küçük, kapalı bir halka var. Ağız tarafına yakın birkaç nokta seçiliyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Ortadaki halka, Elif, bir bağın ya da şartları konuşulacak bir anlaşmanın çevresinde dönüldüğünü anlatıyor. Bu romantik bir söz de olabilir, iki kişi arasındaki ciddi bir mutabakat da; fincan hangisi olduğunu kesin ayırmıyor. Dibin dolu kalması, bu bağın hafife alınmadığını fakat hemen sonuçlanmayacağını söylüyor. Taraflardan biri işi sağlam tutmak, kolay söz vermemek niyetinde gibi.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Ağız kenarındaki küçük noktalar, yakında gelecek kısa bir haberleşmeye benziyor. Uzun uzun konuşmaktan çok, peş peşe birkaç cümle ya da kısa mesajlar var. Bu temas, halkanın temsil ettiği bağın hâlâ canlı olduğunu belli edebilir; ama son sözü tek başına getirmeyebilir.",
+      "evidenceIds": [
+        "e3",
+        "e1"
+      ]
+    },
+    "takeaway": {
+      "text": "Halkanın kapalı oluşu önemli: burada yarım bırakılıp unutulan bir şeyden çok, şartları tamamlanmak istenen bir bağ var. Dibindeki telve de bunun ciddi, biraz ağır ilerleyen tarafını saklıyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    }
+  }
+}

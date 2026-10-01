@@ -1,0 +1,85 @@
+{
+  "source": "phase-c1.6-real-provider:case7:HOLDOUT A — KEY",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_9656701ad78a4a4d8f3979af2fc9b1c4",
+  "humanProductJudgement": "PASS",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A small elongated shape with a rounded loop at one end and two short notches at the other.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a key"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Grounds settled thickly at the base with a slightly lighter centre.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "Thin uneven streaks running sideways across the upper wall.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın ortasında anahtarı andıran küçük, uzunca bir şekil var. Dipte telve koyu durmuş; tam ortasında daha aydınlık bir bölüm seçiliyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "overall": {
+      "text": "Bir anahtar çıkmış sana; kilitli duran bir yere erişim, elde edilecek bir imkân ya da tam yerine oturan bir çözüm gibi. Bu, büyük ve gösterişli bir gelişmeden çok, sana özel bir fırsata benziyor. Fincanın dibi hâlâ ağır; yani iş hemen olup bitmiş sayılmaz. Fakat ortadaki aydınlık, uğraştığın şeyin içinde kullanılabilir bir çıkış bulunduğunu söylüyor. Anahtarın dişleri de ayrıntıya dikkat çekiyor: uygun şart oluştuğunda ilerleme var, ama her seçenek aynı kapıya uymayacak.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Fincanın ağız tarafına yakın, yana doğru giden ince yollar kısa süre içinde ufak bir hareketliliğe işaret ediyor. Tek bir büyük sıçrama değil; peş peşe gelecek küçük gelişmeler var gibi. Bunlardan biri, anahtarın temsil ettiği imkâna yaklaşmanı sağlayabilir.",
+      "evidenceIds": [
+        "e3",
+        "e1"
+      ]
+    },
+    "takeaway": {
+      "text": "Anahtarın bir ucundaki halka, bu imkânın tek başına kalmayacağını; bir bağ, anlaşma ya da sana uzatılan bir erişimle anlam kazanacağını düşündürüyor. Henüz kapının kendisi görünmüyor, ama anahtar sende gibi.",
+      "evidenceIds": [
+        "e1"
+      ]
+    }
+  }
+}

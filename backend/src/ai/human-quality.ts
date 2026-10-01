@@ -104,7 +104,12 @@ export type HumanQualityFailure =
    * PHASE C1.5 (coffee only): delivery built on formula — repeated
    * "not X but Y" turns, or a hedge verb carrying nearly every sentence.
    */
-  | 'formulaic_voice';
+  | 'formulaic_voice'
+  /**
+   * PHASE C1.7 (coffee only): the reading is built from caution — most
+   * sentences say what is NOT happening and it closes on "not yet".
+   */
+  | 'caution_voice';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -322,7 +327,10 @@ export function evaluateCoffeeQuality(
   // section must be substantive on its own instead.
   if (wordCount(overall) < COFFEE_MIN_OVERALL_WORDS) return 'too_short';
   if (takeaway && wordCount(takeaway) < COFFEE_MIN_TAKEAWAY_WORDS) return 'too_short';
-  if (repeatKeyIdea(joinSections(input), ['bulusma', 'baslangic', 'bir araya'])) {
+  // PHASE C1.7: the stock idea is "yeni (bir) başlangıç" filler, not the
+  // ordinary noun — a road reading legitimately says where the road starts
+  // ("başlangıcı", "başlangıç noktası") several times.
+  if (repeatKeyIdea(joinSections(input), ['bulusma', 'yeni (bir )?baslangic', 'bir araya'])) {
     return 'repeated_stock';
   }
   if (repeatKeyIdea(overall + ' ' + takeaway, ['bulusma', 'sicak'])) {
@@ -360,6 +368,7 @@ export function evaluateCoffeeQuality(
   if (ideaClusterRepeats(interpretation)) return 'section_redundancy';
   if (coffeeInsightCollapse(overall, input.nearFuture, takeaway)) return 'section_redundancy';
   if (coffeeSemanticCollapse(overall, input.nearFuture, takeaway)) return 'insight_collapse';
+  if (coffeeTakeawayEcho(overall, takeaway)) return 'section_redundancy';
   const locale = localeMarkerFailure(blob, input.language);
   if (locale) return locale;
   if (input.language === 'en' || input.language === 'ru') return null;
@@ -578,6 +587,17 @@ const COFFEE_ANALYST_KINDS: RegExp[] = [
 const COFFEE_HEDGE =
   /(gosteriyor|dusunduruyor|isaret ediyor|soyluyor|anlatiyor|gorunuyor|cagristiriyor|isaret eder|gosterir)\b/;
 
+/**
+ * PHASE C1.7: a caution-led sentence says what is NOT happening — negation,
+ * "rather than" contrasts, not-yet / not-immediate markers, negative verbs.
+ * Normal once; the defect is a reading BUILT from them.
+ */
+const COFFEE_CAUTION =
+  /\bdegil\b|\w+(dan|den|tan|ten) (cok|ziyade)\b|\byerine\b|\bhenuz\b|\bhemen\b|acele|\bsimdilik\b|\bbir sure daha\b|\w+(mi|mu)yor\b|\w+m(a|e)y(acak|ecek|abilir|ebilir)\w*|\bgorunmuyor|\byok\b/;
+
+/** A "not yet / still waiting / not finished" close. */
+const COFFEE_NOT_YET = /henuz|hemen|acele|bir sure daha|oldugu yerde|simdilik|sonuclanmay|kesinlesm|bekle/;
+
 export type CoffeeRegisterProfile = {
   metaOpener: boolean;
   contrasts: number;
@@ -586,6 +606,14 @@ export type CoffeeRegisterProfile = {
   sentences: number;
   /** analystKinds + contrast scaffolding + meta-opener + hedge narration */
   score: number;
+  /** PHASE C1.7: sentences led by negation / not-yet / rather-than. */
+  cautionSentences: number;
+  /** PHASE C1.7: filled sections where caution leads at least half the sentences. */
+  cautionSections: number;
+  /** PHASE C1.7: filled interpretation sections. */
+  sections: number;
+  /** PHASE C1.7: the reading's last sentence is a not-yet / negated close. */
+  notYetClose: boolean;
 };
 
 export function coffeeRegisterProfile(sections: string[]): CoffeeRegisterProfile {
@@ -597,6 +625,11 @@ export function coffeeRegisterProfile(sections: string[]): CoffeeRegisterProfile
   const analystKinds = kindHits(all, COFFEE_ANALYST_KINDS);
   const hedgeSentences = sentences.filter((s) => COFFEE_HEDGE.test(s)).length;
   const hedgeHeavy = sentences.length >= 5 && hedgeSentences / sentences.length >= 0.6;
+  const cautionSections = body.filter((s) => {
+    const ss = sentencesOf(s);
+    return ss.length > 0 && ss.filter((x) => COFFEE_CAUTION.test(x)).length / ss.length >= 0.5;
+  }).length;
+  const last = sentencesOf(body[body.length - 1] ?? '').pop() ?? '';
   return {
     metaOpener,
     contrasts,
@@ -604,6 +637,10 @@ export function coffeeRegisterProfile(sections: string[]): CoffeeRegisterProfile
     hedgeSentences,
     sentences: sentences.length,
     score: analystKinds + (contrasts >= 3 ? 1 : 0) + (metaOpener ? 1 : 0) + (hedgeHeavy ? 1 : 0),
+    cautionSentences: sentences.filter((s) => COFFEE_CAUTION.test(s)).length,
+    cautionSections,
+    sections: body.length,
+    notYetClose: COFFEE_NOT_YET.test(last) || COFFEE_CAUTION.test(last),
   };
 }
 
@@ -618,7 +655,52 @@ export function coffeeRegisterFailure(sections: string[]): HumanQualityFailure |
   // hedge verb carries nearly every sentence.
   if (r.contrasts >= 5) return 'formulaic_voice';
   if (r.sentences >= 6 && r.hedgeSentences / r.sentences >= 0.75) return 'formulaic_voice';
+  // PHASE C1.7: caution carries the structure — most sentences say what is
+  // NOT happening, caution leads at least two-thirds of the sections, and
+  // the reading closes on "not yet". All three together; any one is normal.
+  if (
+    r.sentences >= 5 &&
+    r.cautionSentences / r.sentences >= 0.6 &&
+    r.cautionSections * 3 >= r.sections * 2 &&
+    r.notYetClose
+  ) {
+    return 'caution_voice';
+  }
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// PHASE C1.7 — takeaway echo. On a low-evidence cup the takeaway may cite
+// the same evidence as overall, but it must add a distinct nuance. Real C1.6
+// HOLDOUT B restated overall's "tek başına kalan bir pürüz" as its takeaway.
+// The existing collapse checks need three filled meaning sections or
+// distinct clusters, so a two-section echo slipped through. Signal: the
+// takeaway reuses two or more of overall's content-word pairs (i.e. the
+// same multi-word description of the same thing), not merely shared nouns.
+// ---------------------------------------------------------------------------
+
+const ECHO_STOP = new Set([
+  'bir', 'bu', 've', 'da', 'de', 'ile', 'cok', 'gibi', 'daha', 'icin', 'ama', 'ise',
+  'the', 'and', 'of', 'a', 'to', 'in', 'is', 'that',
+]);
+
+function contentPairs(text: string): Set<string> {
+  const words = foldTr(text)
+    .split(/[^a-z]+/)
+    .filter((w) => w.length >= 3 && !ECHO_STOP.has(w));
+  const pairs = new Set<string>();
+  for (let i = 0; i + 1 < words.length; i++) pairs.add(`${words[i].slice(0, 5)} ${words[i + 1].slice(0, 5)}`);
+  return pairs;
+}
+
+export function coffeeTakeawayEchoPairs(overall: string, takeaway: string): string[] {
+  if (!overall.trim() || !takeaway.trim()) return [];
+  const fromOverall = contentPairs(overall);
+  return [...contentPairs(takeaway)].filter((pair) => fromOverall.has(pair));
+}
+
+export function coffeeTakeawayEcho(overall: string, takeaway: string): boolean {
+  return coffeeTakeawayEchoPairs(overall, takeaway).length >= 2;
 }
 
 // ---------------------------------------------------------------------------

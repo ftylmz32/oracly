@@ -60,13 +60,24 @@ export function coffeeEvidenceCluster(item: ReadingEvidenceItem): string {
  * details, not news. A bird next to dots still affords news — because of
  * the bird.
  */
-const COMMUNICATION_AFFORDANCE =
-  /\b(birds?|letters?|envelopes?|mouths?|lips|ears?|phones?|persons?|figures?|faces?|people|crowds?|teapots?|kettles?|tables?)\b/;
+const COMMUNICATION_SIGN =
+  /\b(birds?|letters?|envelopes?|phones?|persons?|figures?|faces?|people|crowds?|teapots?|kettles?|tables?)\b/;
+
+/**
+ * PHASE C1.7: mouth / lips / ears are also cup-part words ("the mouth of
+ * the cup", "the ear of the cup"). They afford communication only as an
+ * observed RESEMBLANCE (e.g. "may resemble human lips"), never from the
+ * description text, and never when the phrase is about the cup itself.
+ */
+const HUMAN_MOUTH_RESEMBLANCE = /\b(mouths?|lips|ears?)\b/;
+const CUP_PART_PHRASE = /\b(mouths?|lips|ears?) of the (cup|mug)\b/;
 
 export function coffeeCommunicationAffordance(evidence: ReadingEvidenceItem[]): boolean {
-  return evidence.some((item) =>
-    COMMUNICATION_AFFORDANCE.test(`${item.description} ${item.resemblance ?? ''}`.toLowerCase()),
-  );
+  return evidence.some((item) => {
+    const resemblance = (item.resemblance ?? '').toLowerCase();
+    if (COMMUNICATION_SIGN.test(`${item.description} ${resemblance}`.toLowerCase())) return true;
+    return HUMAN_MOUTH_RESEMBLANCE.test(resemblance) && !CUP_PART_PHRASE.test(resemblance);
+  });
 }
 
 function filledMeaning(sections: CoffeeMeaningSections): NarrativeSection[] {

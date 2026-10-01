@@ -1,0 +1,88 @@
+{
+  "source": "phase-c1.6-real-provider:case4:ROAD",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_fadda71ec4a34609b00a0cc9ee86c9d1",
+  "humanProductJudgement": "PASS",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A long thin line of grounds winding from the lower wall up toward the rim.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": "may resemble a winding road or path"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A small dense cluster at the base where the line begins.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "rim",
+        "description": "A clean open band just below the rim where the line ends.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibinden başlayıp ağız kenarına kadar kıvrılarak çıkan ince bir yol var. Başlangıcında küçük, koyu bir telve parçası; sonunda ise temiz bir boşluk görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Önünde dümdüz değil, birkaç dönüşü olan bir yol görünüyor. Bu, tek hamlede olup bitecek bir değişiklikten çok, adım adım ilerleyen bir planı anlatır; yolculuk, taşınma ya da bulunduğun yerden başka bir yere uzanan bir gelişme olabilir. Başlangıcının fincanın dibindeki küçük koyu şekle dayanması, seni harekete geçiren sebebin belirgin ve tek olduğunu söylüyor. Yol yukarı kadar kesilmeden ulaştığı için de bu niyet havada kalmıyor; ağır ağır ilerliyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Yolun fincanın ağzına yaklaşması, hareketin uzak zamana ait olmadığını söyler. Sonundaki temiz kısım, vardığın yerde önünün daha geniş olabileceğini gösteriyor; fakat kıvrımlar nedeniyle gelişmeler tek bir doğrultuda ilerlemeyebilir. Ufak bir yön değişikliği bu yolun doğal parçası gibi.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "takeaway": {
+      "text": "Dibindeki küçük şekil, bütün bu hareketin büyük bir kalabalıktan değil, tek bir güçlü sebepten doğduğunu anlatıyor. Yolun asıl sırrı da burada: başlangıç noktası küçük, uzandığı yer hayli geniş.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    }
+  }
+}

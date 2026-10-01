@@ -1,0 +1,85 @@
+{
+  "source": "phase-c1.6-real-provider:case1:SPARSE",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_cecdcd18b7014a5284bf3c10575dcd57",
+  "humanProductJudgement": "WEAK",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "base",
+        "description": "A dense mass of grounds settled evenly at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "lower_wall",
+        "description": "A few faint marks rising from the lower inner surface.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "The upper inner surface and rim are mostly clean.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Telve fincanın dibinde düzgün ve kapalı bir tabaka halinde toplanmış. Alt kısımdan yukarı uzanan birkaç silik yol var; ağız kenarı ise oldukça temiz.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Dibin bu kadar kapalı durması, acele sonuç vermeyen ve henüz olduğu yerde duran bir sürece benziyor. Dağınık değil; tek bir noktada toplanmış. Yani hayatında birçok ayrı gelişmeden çok, sonucunu beklediğin tek bir şey ağırlığını koruyor. Şimdilik dışarı taşmış ya da kesinleşmiş görünmüyor.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Aşağıdan yukarı çıkan o silik yollar, bu durgunluğun içinde küçük bir hareketin başladığını söylüyor. Fincanın ağzı temiz kaldığı için yakın zamanda kalabalık ve karmaşık gelişmelerden çok, sade ilerleyen tek bir adım var gibi. Büyük bir sıçrama değil; belli belirsiz başlayan bir ilerleme.",
+      "evidenceIds": [
+        "e2",
+        "e3"
+      ]
+    },
+    "takeaway": {
+      "text": "Dibindeki şeklin düzgünlüğü önemli: bekleyen şey dağılmıyor, biçimini koruyor. Sonucu açıkta olsa da gelişme rastgele değil.",
+      "evidenceIds": [
+        "e1"
+      ]
+    }
+  }
+}
