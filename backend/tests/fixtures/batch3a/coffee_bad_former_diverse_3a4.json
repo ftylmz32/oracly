@@ -1,5 +1,5 @@
 {
-  "source": "phase-c1-good-fortune-teller",
+  "source": "phase-c1-former-approved:coffee_diverse_3a4",
   "observation": {
     "usable": true,
     "reason": "",
@@ -39,14 +39,14 @@
   },
   "narrative": {
     "visualObservation": {
-      "text": "Telve dipte toplanmış, etrafını açık bir halka sarmış; alttan yukarı doğru da ince yollar çıkıyor.",
+      "text": "Fincanın dibindeki yoğun tortu, çevresindeki açık kavisle duruyor; alt iç yüzeyden yükselen izler de seçiliyor.",
       "evidenceIds": [
         "e1",
         "e2"
       ]
     },
     "overall": {
-      "text": "Bir derdin var, ama etrafı açık. Dipteki toplu telveyi saran o halka, bu sıkıntının seni dört bir yandan kuşatmadığını, bir çıkışı olduğunu söylüyor. Büyük ihtimalle ev içinde ya da aile arasında konuşulmayı bekleyen bir mesele bu; kimse ilk adımı atmadığı için uzayıp gidiyor. Fincan, konuyu ilk açanın sen değil, evden başka biri olacağını gösteriyor; o konuşmadan sonra ortalık yumuşar.",
+      "text": "Fatih, bu fincanda iki ayri baglilik ayni anda duruyor gibi. Dipteki agirlik henuz dagilmamis; cevresindeki acik hat ise o yukun tasinabilecegi bir pay birakiyor. Kapatmadan once koymak istedigin sinir, aceleden cok aitlik sorusu gibi duruyor. Yakin olanlarin beklentisi ile kendi yerin henuz ayni sey degil. Bu, bir seyi hemen sonuclandirmaktan cok, kime ait oldugunu henuz ayirmadan durdugun bir esik. Burada zorlanan sey hiz degil, bagliligin iki ayri yuzunu ayni anda tutabilmek.",
       "evidenceIds": [
         "e1"
       ]
@@ -64,14 +64,15 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Fincanın üst tarafı sakin, fazla kalabalık yok. Önümüzdeki günler gürültüsüz geçecek gibi; belki uzun süredir görmediğin biriyle kısa bir karşılaşma olur, ufak ama içini ısıtan cinsten.",
+      "text": "Ust ic yuzeyde izlerin seyrelmesi, yakin donemde tek bir buyuk haberden cok kisa konusmalar ve parca bilgilerle netlesmeye isaret ediyor. Bu, disaridan gelecek hazir bir cevap degil; seslerin sirayla gelecegi bir aralik. Bu donemde kendini yukseltmekten cok, kimin neyi netlestirdigini dinlemek daha cok ise yarayabilir. Kucuk temaslar, bu donemin asil dili gibi duruyor.",
       "evidenceIds": [
         "e3"
       ]
     },
     "takeaway": {
-      "text": "Aşağıdan yukarı çıkan o ince yollar en sevindirici kısım: işler yavaş yavaş yukarı doğru gidiyor. Bir süre önce hevesle başlayıp yarım bıraktığın bir işin ya da planın yeniden canlanması fincanda var gibi.",
+      "text": "Kulp tarafina dogru uzanan kavis, son sozun cevrendeki beklentiden cok kendi gundelik ritmine yaslanmasi gerektigini soyluyor. Yukselen izler, bu ritmin bir anda degil, kucuk temaslarla olustugunu dusunduruyor. Bu fincanin somut ipucu, tempo senden geldiginde cevrenin sesini ikinci planda birakabilmek ve gun icindeki nefesini kaybetmemek.",
       "evidenceIds": [
+        "e1",
         "e2"
       ]
     }

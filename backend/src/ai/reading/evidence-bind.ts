@@ -223,18 +223,7 @@ export function bindCoffeeNarrative(
   ];
   const bind = bindSections(allSections, known, obs.evidence);
   if (bind) return bind;
-  const quality = evaluateCoffeeQuality({
-    visualObservation: narrative.visualObservation.text,
-    overall: narrative.overall.text,
-    love: narrative.love.text,
-    career: narrative.career.text,
-    money: narrative.money.text,
-    nearFuture: narrative.nearFuture.text,
-    takeaway: narrative.takeaway.text,
-    language,
-    hasMemoryContext: Boolean(personalization?.memorySummary),
-    relevantThemes: personalization?.relevantThemes,
-  });
+  const quality = coffeeQualityFailure(narrative, language, personalization);
   if (quality) return mapQuality(quality);
   if (
     coffeeEvidenceConcentration(
@@ -249,6 +238,30 @@ export function bindCoffeeNarrative(
     return 'insight_collapse';
   }
   return null;
+}
+
+/**
+ * The un-mapped Coffee quality code behind a `human_quality` bind failure.
+ * Internal only (repair guidance); the transport still reports the mapped
+ * BindFailure, so the public error contract is unchanged.
+ */
+export function coffeeQualityFailure(
+  narrative: CoffeeNarrative,
+  language: AppLanguage = 'tr',
+  personalization?: ReadingPersonalization,
+): HumanQualityFailure | null {
+  return evaluateCoffeeQuality({
+    visualObservation: narrative.visualObservation.text,
+    overall: narrative.overall.text,
+    love: narrative.love.text,
+    career: narrative.career.text,
+    money: narrative.money.text,
+    nearFuture: narrative.nearFuture.text,
+    takeaway: narrative.takeaway.text,
+    language,
+    hasMemoryContext: Boolean(personalization?.memorySummary),
+    relevantThemes: personalization?.relevantThemes,
+  });
 }
 
 export function bindPalmNarrative(

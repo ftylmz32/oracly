@@ -17,6 +17,7 @@ import {
   adaptCoffeeV2ForWriter,
   bindCoffeeNarrative,
   bindPalmNarrative,
+  coffeeQualityFailure,
   narrativeFail,
   observationFail,
   toPublicCoffee,
@@ -49,6 +50,7 @@ import type {
   PalmObservation,
 } from './types.js';
 import {
+  coffeeVoiceRepairFocus,
   coffeeWriterSystem,
   coffeeWriterUser,
   palmWriterSystem,
@@ -582,7 +584,11 @@ export class ReadingPipeline {
                     },
                     obs.evidence,
                   )
-                : undefined,
+                : violation === 'human_quality'
+                  ? coffeeVoiceRepairFocus(
+                      coffeeQualityFailure(rejected, ctx.language, ctx.personalization),
+                    )
+                  : undefined,
           }),
         },
       ],

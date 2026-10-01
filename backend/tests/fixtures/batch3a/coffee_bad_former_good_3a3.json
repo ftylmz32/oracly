@@ -1,11 +1,5 @@
 {
-  "source": "phase-c1-good-fortune-teller",
-  "personalization": {
-    "firstName": "Fatih",
-    "relevantThemes": [
-      "karar verme"
-    ]
-  },
+  "source": "phase-c1-former-approved:coffee_good_3a3",
   "observation": {
     "usable": true,
     "reason": "",
@@ -43,15 +37,21 @@
       }
     ]
   },
+  "personalization": {
+    "firstName": "Fatih",
+    "relevantThemes": [
+      "karar verme"
+    ]
+  },
   "narrative": {
     "visualObservation": {
-      "text": "Telve dipte toplanmış ve iki yandan yukarı tırmanmış; fincanın üstü ise ferah kalmış.",
+      "text": "Fincanın dibindeki yoğun tortu, alt iç yüzeye doğru iki yandan uzanırken üst bölüm daha açık ve ferah görünüyor.",
       "evidenceIds": [
         "e1"
       ]
     },
     "overall": {
-      "text": "Fatih, iki taraf arasında kalmışsın gibi görünüyor. Telvenin dipten iki yana birden tırmanması, aynı konuda iki ayrı kişinin ya da iki ayrı teklifin sana uzandığını düşündürüyor. Biri daha tanıdık, öbürü daha cesaret isteyen bir yol gibi. Fincanın üstünün ferah olması iyiye işaret: bu iş seni sıkıntıya sokmadan bir yere bağlanacak gibi. Kimse seni sıkıştırmıyor, acelen de yok; doğru kişi kendini birkaç gün içinde belli edecek.",
+      "text": "Fatih, bu fincanda agirlik henuz dagilmamis; ust taraf ise o yukun tasinabilecegi bir aciklik birakiyor. Iki yana uzanan tortu, meselenin tek bir kaynaktan degil, iki farkli bagliliktan beslendigini dusunduruyor. Kapatmadan once koymak istedigin sinir, aceleden cok aitlik sorusu gibi duruyor. Ustteki ferahlik ise hemen kapanmasi gereken bir seyden cok, henuz adlandirilmamis bir pay birakmak istegini cagristiriyor.",
       "evidenceIds": [
         "e1"
       ]
@@ -69,13 +69,13 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Ortadaki ufak serpintiler peş peşe gelecek küçük haberlere benziyor. Bir telefon, bir mesaj, araya giren bir ziyaret; hepsi bu meseleye biraz daha ışık tutacak. Önümüzdeki günlerde kulağına gelen lafları dikkatle dinle, içlerinden biri tam aradığın cevabı taşıyabilir.",
+      "text": "Orta yuzeydeki kucuk izler, tek bir buyuk haberden cok pes pese gelecek kisa konusmalar ve parca bilgilerle netlesmeye isaret ediyor. Bu, disaridan gelecek hazir bir cevap degil; ayrintilarin kendiliginden seyrelebilecegi bir aralik. Bu donemde sesini yukseltmekten cok, kimin neyi netlestirdigini dinlemek daha cok ise yarayabilir.",
       "evidenceIds": [
         "e2"
       ]
     },
     "takeaway": {
-      "text": "Kulba doğru dönen o kıvrık şekil, işin sonunda evinin tarafına, kendi yakınlarına doğru döneceğini söylüyor. Yani son sözü bir yabancı değil, sana yakın biri söyletecek; o kişinin ağzından çıkacak tek bir laf her şeyi yerine oturtabilir.",
+      "text": "Kulp tarafina donen kivrim, son sozun cevrendeki beklentiden cok kendi gundelik ritmine yaslanmasi gerektigini soyluyor. Bu fincanin somut ipucu, yukun hangisinin sana ait oldugunu ayirmak ve gerisini ikinci planda birakabilmek. Agirlik ile ferahligin ayni anda durmasi, bitirmekten once nefes alabildigin bir yer oldugunu anlatiyor.",
       "evidenceIds": [
         "e1",
         "e3"

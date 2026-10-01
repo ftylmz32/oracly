@@ -25,8 +25,8 @@ describe('coffee vision empty-response fixes', () => {
     ]);
     expect(text).toContain('genelYorum');
     const parsed = parseCoffeeData(text);
-    expect(parsed.visualObservation).toContain('Agiz');
-    expect(parsed.overall).toContain('yogun kume');
+    expect(parsed.visualObservation).toContain('telve');
+    expect(parsed.overall).toContain('demlige');
     expect(parsed.takeaway.length).toBeGreaterThan(20);
   });
 
@@ -66,8 +66,8 @@ describe('coffee vision empty-response fixes', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.overall).toContain('yogun kume');
-    expect(res.json().data.visualObservation).toContain('Agiz');
+    expect(res.json().data.overall).toContain('demlige');
+    expect(res.json().data.visualObservation).toContain('telve');
     await app.close();
   });
 });

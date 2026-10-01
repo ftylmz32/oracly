@@ -63,7 +63,25 @@ export type HumanQualityFailure =
    * BATCH 3A.3: a palm major-line's length/direction/depth/curve/continuity
    * is narrated again in overall and takeaway after its own line section.
    */
-  | 'evidence_reuse';
+  | 'evidence_reuse'
+  /**
+   * PHASE C1 (coffee only): the reading speaks in a therapy / coaching /
+   * mindfulness register (inner weight, boundaries, rhythm, priorities,
+   * "the takeaway this cup leaves you") instead of a fortune teller's voice.
+   */
+  | 'coaching_voice'
+  /**
+   * PHASE C1 (coffee only): the reading never lands on a concrete human-life
+   * development (a person, news, a visit, money, a plan, a road) — it stays
+   * abstract from start to finish.
+   */
+  | 'abstract_reading'
+  /**
+   * PHASE C1 (coffee only): one abstract theme family (burden, boundary,
+   * clarity, tempo, decision, threshold/change) is spread across most
+   * sections — semantic soup, not distinct fortune content.
+   */
+  | 'abstract_soup';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -186,12 +204,29 @@ const SCHEMA_JARGON =
  * into the same sentence or paragraph as its meaning, so this only
  * flags a section that is observation from end to end.
  */
-function isBareObservationSection(text: string, obsVocab: RegExp[]): boolean {
+function isBareObservationSection(
+  text: string,
+  obsVocab: RegExp[],
+  isMeaningful: (folded: string) => boolean = (t) => MEANING_MARKER.test(t),
+): boolean {
   const t = foldTr(text.trim());
   if (!t) return false;
   const hasObsVocab = obsVocab.some((re) => re.test(t));
   if (!hasObsVocab) return false;
-  return !MEANING_MARKER.test(t);
+  return !isMeaningful(t);
+}
+
+/**
+ * PHASE C1: Coffee's own "this section means something" test. Abstract
+ * nouns (karar, dönem, tempo, ritim, yön, ihtimal, yaklaşım...) no longer
+ * qualify prose as interpretation on their own; a hedge/fortune connective
+ * or a concrete human-life development does.
+ */
+const COFFEE_MEANING_CONNECTIVE =
+  /gibi|olabilir|olasi|cagristir|isaret ed|hissettir|dusundur|soyluy|gosteriy|demektir|diye okunur|anlamina|means|suggests that|points toward|likely|означает|подсказывает/;
+
+function coffeeSectionMeaningful(folded: string): boolean {
+  return COFFEE_MEANING_CONNECTIVE.test(folded) || kindHits(folded, COFFEE_LIFE_KINDS) > 0;
 }
 
 const PALM_ATTR =
@@ -267,7 +302,9 @@ export function evaluateCoffeeQuality(
   const interpretationSections = [overall, input.love, input.career, input.money, input.nearFuture, takeaway]
     .filter((s) => s.trim().length > 0);
   const obsVocab = [COFFEE_REGION, COFFEE_DENSITY, COFFEE_SHAPE, OBSERVATION_VERB];
-  const bareSections = interpretationSections.filter((s) => isBareObservationSection(s, obsVocab));
+  const bareSections = interpretationSections.filter((s) =>
+    isBareObservationSection(s, obsVocab, coffeeSectionMeaningful),
+  );
   if (bareSections.length >= 2) return 'observation_heavy';
   if (observation.length > 320 && bareSections.length >= 1) return 'observation_heavy';
   if (CERTAINTY.test(foldTr(blob))) return 'unsupported_certainty';
@@ -285,7 +322,137 @@ export function evaluateCoffeeQuality(
   if (ideaClusterRepeats(interpretation)) return 'section_redundancy';
   if (coffeeInsightCollapse(overall, input.nearFuture, takeaway)) return 'section_redundancy';
   if (coffeeSemanticCollapse(overall, input.nearFuture, takeaway)) return 'insight_collapse';
-  return localeMarkerFailure(blob, input.language);
+  const locale = localeMarkerFailure(blob, input.language);
+  if (locale) return locale;
+  if (input.language === 'en' || input.language === 'ru') return null;
+  return coffeeVoiceFailure(interpretation);
+}
+
+// ---------------------------------------------------------------------------
+// PHASE C1 — Coffee fortune-teller voice (Turkish). Coffee only; Palm never
+// calls into this section. Category lexicons, not sentence blacklists: each
+// entry is one *kind* of language, and a reading fails only when a kind
+// dominates, never on a single word.
+// ---------------------------------------------------------------------------
+
+/**
+ * Residue-physics / vision-report vocabulary. A fortune teller names what
+ * she sees in plain words ("telve dibe çökmüş", "bir kuş var"); a report
+ * talks about density, thinning, surfaces, curves and open areas.
+ */
+const COFFEE_LAB =
+  /yogunlu[gk]|yogun (tortu|kume|telve|iz|alan|birikinti|kisim|bolge)|seyrel|seyrek|birikinti|tortu|\bkume|\bdoku|ic yuzey|yuzey(de|in|deki|e)\b|kavis|kivrim|\bbant|acik (bir )?(alan|hat|bolge)|koyu (bir )?(alan|bolge|leke)|\biz(ler|leri|lerin|ler)?\b|hizada|ayni hiza|egim/;
+
+/** Therapy / coaching / mindfulness register — one regex per kind. */
+const COFFEE_COACH_KINDS: RegExp[] = [
+  /ic (agirlik|yuk|ses|dunya|huzur|denge)/,
+  /zihn(in|inde|ini|inin)|zihinsel/,
+  /sinir(ini|larini|ina|lar)? (koy|koru|cek|ciz|belirle)|sinirini|kendi sinirin/,
+  /kisisel (bir )?alan|kendi alan|kendine (bir )?alan/,
+  /ritm|ritim|tempo/,
+  /oncelik/,
+  /netlestir|netlik|berraklik|netles/,
+  /sadelestir|sadeles/,
+  /geride birak|akisina birak|akisa birak/,
+  /olculu|dengele/,
+  /farkindalik|fark etmek|farkina var|fark edebil/,
+  /nefes al|nefesini|nefes alacag/,
+  /kontrol (altinda|etme|arzu)/,
+  /aitlik|ait oldug|baglilig/,
+  /\besik/,
+  /gerilim|sikisiklik|sikisma/,
+  /kendi adim|kendi yerin|kendi gun|gundelik duzen|gun dilim/,
+  /isine yarayabilir|somut ipucu|esas mesaj|asil mesaj|biraktigi (asil |esas )?mesaj|sundugu .{0,24}ipucu|hatirlatiyor|davet ediyor/,
+  /yuk(un|unu|u)? (bosalt|tasi|hafiflet)|yukunu|agirlik yap|bir agirlik/,
+  /kendini (dinle|koru|ifade)|kendine (iyi bak|zaman)/,
+  /icsel|duygusal yuk/,
+  /\bsurec/,
+  /ayakta kal|yer degistir|ikinci planda/,
+];
+
+/** Concrete human-life developments — one regex per kind. */
+const COFFEE_LIFE_KINDS: RegExp[] = [
+  /\b(anne|baba|kardes|abla|abi|teyze|hala|dayi|amca|esin|sevgili|arkadas|komsu|akraba|misafir|kadin|erkek|tanidik|patron|mudur|cocug|kayinvalide|yenge|ev halk|aile)/,
+  /\bbiri(si|nin|ni|ne|yle|nden|leri)?\b|birileri/,
+  /haber|mesaj|telefon|arama|mujde|mektup|dedikodu|soz (ver|kes)/,
+  /\byol(a|da|u|un|culuk|lar)?\b|seyahat|tasin|ziyaret|gelis|gidis|kapini cal/,
+  /dugun|nisan|kutlama|toplanti|sofra|bulus|karsilas|gorusme|davet|kalabalik/,
+  /\bpara|kazanc|odeme|alacak|borc|hediye|alisveris|maas|kira|evrak|imza|sinav|mulakat|teklif|\bis (yeri|degis|gorus)/,
+  /\bev(in|e|de|den|le|iniz)?\b|evine|evinde|evden/,
+  /kismet|nazar|kiskan|\bsir(r)?|surpriz|sevin|yuzunu guldur|keyif/,
+  /\bask|gonul|sevdig/,
+  /\bplan/,
+  /konusma|sohbet/,
+];
+
+/** Abstract theme families that turn into soup when they fill every section. */
+const COFFEE_ABSTRACT_FAMILIES: RegExp[] = [
+  /\byuk|agirlik/,
+  /sinir|kendi alan|kisisel alan|koruma/,
+  /netles|netlik|berrak|aciklik/,
+  /ritm|ritim|tempo|nefes/,
+  /karar|secim|tercih|secenek/,
+  /degisim|donusum|\besik|kayma|yer degis/,
+];
+
+function sentencesOf(text: string): string[] {
+  return text
+    .split(/(?<=[.!?;])\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+function kindHits(text: string, kinds: RegExp[]): number {
+  return kinds.filter((kind) => kind.test(text)).length;
+}
+
+export type CoffeeVoiceProfile = {
+  sentences: number;
+  labSentences: number;
+  labLedSections: number;
+  coachKinds: number;
+  lifeKinds: number;
+  soupFamilies: number;
+};
+
+/** Exposed for tests/QA: the raw counts behind coffeeVoiceFailure. */
+export function coffeeVoiceProfile(sections: string[]): CoffeeVoiceProfile {
+  const body = filled(sections).map(foldTr);
+  const all = body.join(' ');
+  const sentences = body.flatMap(sentencesOf);
+  const labSentences = sentences.filter((s) => COFFEE_LAB.test(s)).length;
+  const labLedSections = body.filter((s) => COFFEE_LAB.test(sentencesOf(s)[0] ?? '')).length;
+  const soupFamilies = COFFEE_ABSTRACT_FAMILIES.filter(
+    (family) => body.length >= 3 && body.filter((s) => family.test(s)).length >= 3,
+  ).length;
+  return {
+    sentences: sentences.length,
+    labSentences,
+    labLedSections,
+    coachKinds: kindHits(all, COFFEE_COACH_KINDS),
+    lifeKinds: kindHits(all, COFFEE_LIFE_KINDS),
+    soupFamilies,
+  };
+}
+
+/**
+ * Structural fortune-teller voice gate for the Coffee interpretation
+ * sections (never visualObservation, which is the caption).
+ */
+export function coffeeVoiceFailure(sections: string[]): HumanQualityFailure | null {
+  const p = coffeeVoiceProfile(sections);
+  if (p.sentences === 0) return null;
+  // Vision report: most sentences narrate residue physics, or several
+  // sections open by describing residue before saying anything human.
+  if (p.labSentences >= 3 && p.labSentences / p.sentences > 0.34) return 'observation_heavy';
+  if (p.labLedSections >= 2) return 'observation_heavy';
+  // Therapist / coach: the register is self-help, and it outweighs the
+  // concrete fortune content.
+  if (p.coachKinds >= 6) return 'coaching_voice';
+  if (p.coachKinds >= 3 && p.coachKinds > p.lifeKinds) return 'coaching_voice';
+  if (p.soupFamilies >= 1) return 'abstract_soup';
+  if (p.lifeKinds < 2) return 'abstract_reading';
+  return null;
 }
 
 export function evaluatePalmQuality(

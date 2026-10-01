@@ -110,26 +110,26 @@ function goodV2Observation(
 /** A real, known-good narrative (mirrors tests/fixtures/batch3a/coffee_good.json). */
 const GOOD_NARRATIVE = {
   visualObservation: {
-    text: 'Ortada belirgin bir küme, dipte ise daha açık bir alan göze çarpıyor; ağza yakın ince bir iz de seçiliyor.',
+    text: 'Fincanın ortasında kulba doğru uzanan toplu bir telve var, dibi ise açık kalmış. Ağza yakın yerde kanat açmış küçük bir kuşu andıran bir şekil seçiliyor.',
     evidenceIds: ['e1', 'e2', 'e3'],
   },
   overall: {
-    text: 'Bu kümenin dipteki açıklıkla yan yana durması, uzun süredir ertelediğin bir kararın nihayet yerini bulmaya başladığını düşündürüyor. Ortadaki yoğunluk geçmiş bir yükün henüz tam çözülmediğine, dipteki ferahlık ise bu yükün yavaşça hafifleyeceğine işaret ediyor gibi. Kenardaki ince iz ise küçük, belki beklenmedik bir haberin bu sürece eşlik edebileceğini çağrıştırıyor; kesin bir olay değil, yalnızca bir olasılık.',
-    evidenceIds: ['e1', 'e2', 'e3'],
+    text: 'Bir süredir içinde tuttuğun, kimseye tam açmadığın bir mesele var gibi. Telvenin kulba doğru toplanması, bu işin evine ya da sana çok yakın birine dokunduğunu düşündürüyor. Ama fincanın dibi açık; bu da sandığın kadar düğümlü bir şey olmadığını, çözümün de kendi çevrende olduğunu söylüyor. Bu meseleyi kafanda büyütme; fincan, sen ağzını açmadan önce karşı tarafın sana yaklaşacağını söylüyor.',
+    evidenceIds: ['e1', 'e2'],
   },
   love: { text: '', evidenceIds: [] },
   career: {
-    text: 'Aynı örüntü iş hayatına da yansıyabilir: biriken bir sorumluluğun ardından biraz nefes alacağın bir aralık doğabilir; bu dönemi zorlamadan kabul etmek işine yarayabilir.',
-    evidenceIds: ['e1', 'e2'],
+    text: 'İş tarafında da bir kıpırtı var. Kulba uzanan o telve, tanıdık birinin aracılığıyla gelecek bir teklife benziyor; ilk duyduğunda küçük görünebilir ama getirisi sandığından iyi olabilir.',
+    evidenceIds: ['e1'],
   },
   money: { text: '', evidenceIds: [] },
   nearFuture: {
-    text: 'Önümüzdeki günlerde bu ertelenen konuda küçük ama gerçek bir adımın atılma ihtimali var; belki bir mesaj, belki kısa bir konuşma bu süreci hızlandırabilir.',
+    text: 'Ağzın yanındaki o küçük kuş kanatlarını açmış. Kuş eskilerden beri haber diye okunur; kanadı açık olduğuna göre bu haber pek uzakta değil gibi. Önümüzdeki günlerde beklediğin bir mesaj ya da telefon gelebilir, büyük ihtimalle de yüzünü güldürecek türden.',
     evidenceIds: ['e3'],
   },
   takeaway: {
-    text: 'Yoğunluk ile açıklığın yan yana durması aslında basit bir şey anlatıyor: bir şey kapanmadan önce hafiflemeye başlar. Bu hafiflemeyi fark etmek, bu fincanın sunduğu en sakin ipucu.',
-    evidenceIds: ['e1', 'e2'],
+    text: 'Bu fincanın sevindiren yanı dibinin açık olması: kapanmış bir kısmet yok. Kuşun getireceği haberle birlikte aklını kurcalayan o mesele de kendiliğinden yoluna girebilir.',
+    evidenceIds: ['e2', 'e3'],
   },
 };
 
