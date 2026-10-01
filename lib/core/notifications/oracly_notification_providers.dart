@@ -10,7 +10,7 @@ import 'oracly_notification_coordinator.dart';
 import 'oracly_notification_port.dart';
 
 final oraclyNotificationPortProvider = Provider<OraclyNotificationPort>((ref) {
-  return LocalNotificationPort();
+  return LocalNotificationPort.shared;
 });
 
 final oraclyNotificationCoordinatorProvider =

@@ -8,6 +8,7 @@ import '../data/repositories/review_access_repository.dart';
 import '../continuation/services/session_continuation_focus_store.dart';
 import '../intelligence/data/intelligence_index_store.dart';
 import '../intelligence/data/personal_memory_store.dart';
+import '../notifications/notification_owner_cleanup.dart';
 import '../reading_version/services/reading_version_store.dart';
 import '../storage/secure_storage.dart';
 import '../../features/astrology/data/astrology_preferences_store.dart';
@@ -255,6 +256,9 @@ abstract final class UserLocalDataWipe {
     for (final prefix in UserLocalDataWipeKeys.prefixedUser) {
       await stepKeys(() => _clearPrefixed(storage, prefix));
     }
+    // OS-held schedules are account-scoped too: the previous owner's daily
+    // invitation must not keep firing for the next owner.
+    await step('local_notifications', NotificationOwnerCleanup.run);
 
     return UserLocalDataWipeResult(failedOperations: failed);
   }
