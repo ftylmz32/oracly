@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import UserNotifications
+import firebase_messaging
 import flutter_local_notifications
 
 @main
@@ -9,12 +10,20 @@ import flutter_local_notifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // Must be set before launch finishes: iOS only forwards foreground
-    // presentation and notification taps to this delegate, and
-    // FlutterAppDelegate relays them to flutter_local_notifications and
-    // firebase_messaging. Without it a notification arriving while ORACLY is
-    // open is never shown and local taps never reach Dart.
+    // UIScene registers plugins after this method returns, but Apple requires
+    // the notification-center delegate to be set before it does.
+    //
+    // FlutterAppDelegate must own the delegate: it relays foreground
+    // presentation and taps to every plugin registered with
+    // addApplicationDelegate. flutter_local_notifications only receives
+    // callbacks that way (it never becomes the delegate itself).
     UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+    // Order matters. firebase_messaging 16.6.0 keeps an existing delegate
+    // that conforms to FlutterAppLifeCycleProvider (FlutterAppDelegate) and
+    // receives the relayed calls instead; its UIScene cold-start tap comes
+    // from scene:willConnectToSession:options:. Called first, it would take
+    // the delegate itself and could not forward local-notification taps.
+    FLTFirebaseMessagingPlugin.configureNotificationCenterDelegate()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

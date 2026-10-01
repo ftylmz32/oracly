@@ -47,8 +47,8 @@ class _SettingsReferenceNotificationsState
     if (enabled) {
       final allowed = await OraclyPermissionDialog.notifications(context);
       if (allowed != true || !mounted) return;
-      // The OS answer is authoritative (iOS never routes through
-      // permission_handler, whose notification strategy is compiled out).
+      // The only user-facing notification permission request in the app.
+      // The OS answer is authoritative (see notification_permission.dart).
       final status = await ref
           .read(oraclyNotificationPortProvider)
           .requestPermission();

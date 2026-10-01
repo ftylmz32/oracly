@@ -44,26 +44,18 @@ class OraclyNotificationCoordinator {
 
     final permission = await port.permissionStatus();
     final scheduled = await port.scheduleDaily(payload);
+    // Same OS read the port may already have recorded; recording it here
+    // keeps the permission domain correct for every port implementation.
+    NotificationDeliveryStatus.recordPermission(permission);
     if (scheduled.isFailure) {
-      final alreadyPrecise =
-          NotificationDeliveryStatus.current.lastFailure ==
-          NotificationFailureCategory.scheduleNotConfirmed;
-      NotificationDeliveryStatus.recordSchedule(
-        LocalScheduleState.failed,
-        failure: alreadyPrecise
-            ? null
-            : NotificationFailureCategory.scheduleFailed,
-      );
+      // Keeps a more precise current category (e.g. scheduleNotConfirmed).
+      NotificationDeliveryStatus.recordSchedule(LocalScheduleState.failed);
       return OraclyApplyOutcome.failure;
     }
     NotificationDeliveryStatus.recordSchedule(LocalScheduleState.scheduled);
-    if (!permission.canDeliver) {
-      NotificationDeliveryStatus.recordFailure(
-        NotificationDeliveryStatus.failureFor(permission)!,
-      );
-      return OraclyApplyOutcome.failure;
-    }
-    return OraclyApplyOutcome.success;
+    return permission.canDeliver
+        ? OraclyApplyOutcome.success
+        : OraclyApplyOutcome.failure;
   }
 
   Future<OraclyApplyOutcome> _cancel(LocalScheduleState after) async {

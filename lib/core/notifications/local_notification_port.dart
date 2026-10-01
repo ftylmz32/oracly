@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -20,8 +21,19 @@ class LocalNotificationPort implements OraclyNotificationPort {
   LocalNotificationPort({
     FlutterLocalNotificationsPlugin? plugin,
     NotificationPermissionPlatform? permissions,
+    Future<String?> Function()? deviceTimezone,
   }) : _plugin = plugin ?? FlutterLocalNotificationsPlugin(),
-       _permissionsOverride = permissions;
+       _permissionsOverride = permissions,
+       _deviceTimezone = deviceTimezone ?? _readDeviceTimezone;
+
+  static Future<String?> _readDeviceTimezone() async {
+    try {
+      return (await FlutterTimezone.getLocalTimezone()).identifier;
+    } catch (e) {
+      debugPrint('[ORACLY] device timezone unavailable: $e');
+      return null;
+    }
+  }
 
   /// One plugin binding per process: the provider and the account-boundary
   /// cleanup must cancel/schedule through the same instance.
@@ -41,10 +53,15 @@ class LocalNotificationPort implements OraclyNotificationPort {
 
   final FlutterLocalNotificationsPlugin _plugin;
   final NotificationPermissionPlatform? _permissionsOverride;
+  final Future<String?> Function() _deviceTimezone;
   late final NotificationPermissionPlatform _permissions =
       _permissionsOverride ?? DeviceNotificationPermissionPlatform(_plugin);
   bool _ready = false;
   tz.Location? _location;
+
+  /// How the scheduling zone was obtained — null until initialized.
+  @visibleForTesting
+  ResolvedNotificationTimezone? timezoneForTest;
 
   static const _darwinVisible = DarwinNotificationDetails(
     presentAlert: true,
@@ -58,16 +75,10 @@ class LocalNotificationPort implements OraclyNotificationPort {
   Future<void> initialize() async {
     if (_ready) return;
     tzdata.initializeTimeZones();
-    final now = DateTime.now();
-    try {
-      _location = NotificationTimezone.resolve(
-        deviceZoneName: now.timeZoneName,
-        deviceOffset: now.timeZoneOffset,
-        nowUtc: now.toUtc(),
-      );
-    } catch (_) {
-      _location = tz.getLocation(NotificationTimezone.defaultZone);
-    }
+    final resolved = NotificationTimezone.resolve(await _deviceTimezone());
+    timezoneForTest = resolved;
+    _location = resolved.location;
+    NotificationDeliveryStatus.recordTimezone(resolved.source);
     tz.setLocalLocation(_location!);
     const init = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),

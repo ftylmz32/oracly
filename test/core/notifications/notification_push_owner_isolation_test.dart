@@ -13,7 +13,9 @@ import 'package:oracly_new/core/auth/sign_out_local_cleanup.dart';
 import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/notifications/memory_notification_port.dart';
 import 'package:oracly_new/core/notifications/notification_delivery_state.dart';
+import 'package:oracly_new/core/notifications/oracly_notification_providers.dart';
 import 'package:oracly_new/core/notifications/notification_owner_cleanup.dart';
 import 'package:oracly_new/core/notifications/notification_permission.dart';
 import 'package:oracly_new/core/notifications/oracly_notification_kind.dart';
@@ -51,8 +53,6 @@ class _Messaging implements ReadingPushMessaging {
   int foreground = 0;
 
   @override
-  Future<void> requestPermission() async {}
-  @override
   Future<void> setForegroundPresentation() async => foreground++;
   @override
   Future<String?> getToken() async => token;
@@ -80,12 +80,16 @@ void main() {
     late List<String> posts;
     late int status;
     late bool throws;
+    late MemoryNotificationPort port;
 
     setUp(() {
       messaging = _Messaging();
       posts = [];
       status = 200;
       throws = false;
+      port = MemoryNotificationPort()
+        ..permissionOverride = NotificationPermissionStatus.notDetermined
+        ..statusAfterRequest = NotificationPermissionStatus.granted;
       ReadingPushBootstrap.messagingForTest = messaging;
       ReadingPushBootstrap.installedOwnerIdForTest = 'uid-a';
     });
@@ -107,11 +111,56 @@ void main() {
                   }
                 : null,
           ),
+          oraclyNotificationPortProvider.overrideWithValue(port),
         ],
       );
       addTearDown(c.dispose);
       return c;
     }
+
+    test('COLD-START PERMISSION REQUEST COUNT = 0 across every outcome', () async {
+      for (final setup in <void Function()>[
+        () => messaging.token = 'tok-ok',
+        () {
+          messaging.token = 'tok-err';
+          status = 500;
+        },
+        () => messaging.token = null,
+      ]) {
+        setup();
+        await ReadingPushBootstrap.install(container());
+      }
+      expect(port.permissionRequests, 0);
+      // The state is still read (without a prompt) so it is observable.
+      expect(
+        NotificationDeliveryStatus.current.permission,
+        NotificationPermissionStatus.notDetermined,
+      );
+    });
+
+    test('undetermined permission does not block token registration', () async {
+      messaging.token = 'tok-before-opt-in';
+      await ReadingPushBootstrap.install(container());
+      expect(port.permissionRequests, 0);
+      expect(posts, ['/v1/reading-notifications/token tok-before-opt-in']);
+    });
+
+    test('startup code contains no notification permission request', () {
+      final bootstrap = File(
+        'lib/core/notifications/reading_push_bootstrap.dart',
+      ).readAsStringSync();
+      expect(bootstrap, isNot(contains('requestPermission(')));
+      expect(bootstrap, contains('setForegroundNotificationPresentationOptions('));
+      for (final path in [
+        'lib/main.dart',
+        'lib/screens/splash/splash_boot.dart',
+        'lib/core/auth/account_deletion_owner_bootstrap.dart',
+      ]) {
+        final source = File(path).readAsStringSync();
+        expect(source, isNot(contains('requestPermission(')), reason: path);
+        expect(source, isNot(contains('Permission.notification.request')), reason: path);
+      }
+    });
 
     test('install enables iOS foreground presentation', () async {
       messaging.token = 'tok';

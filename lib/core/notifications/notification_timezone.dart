@@ -1,58 +1,62 @@
-/// Device-local timezone for the daily notification, without a native plugin.
+/// Device-local IANA timezone for the daily notification.
 ///
-/// The previous code always used Europe/Istanbul, so a device elsewhere got
-/// the daily invitation at the wrong local hour. The schedule is re-applied
-/// on every start, so a zone that only matches the current offset (e.g.
-/// across a DST change) self-corrects on the next launch.
+/// The device's own zone id (Android ZoneId.systemDefault, iOS
+/// NSTimeZone.localTimeZone, via flutter_timezone) is the only source treated
+/// as exact. A UTC-offset match is deliberately NOT used: many zones share an
+/// offset today and diverge at the next DST change (e.g. Europe/Berlin and
+/// Africa/Johannesburg are both +02:00 in summer, but not in winter). When the
+/// device id is unavailable or unknown, ORACLY's product default zone is used
+/// and the result is marked as a fallback — never presented as the device's.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:timezone/timezone.dart' as tz;
+
+enum NotificationTimezoneSource {
+  /// The device reported a valid IANA zone.
+  device,
+
+  /// The device zone was unavailable or unknown — product default used.
+  fallback,
+}
+
+@immutable
+class ResolvedNotificationTimezone {
+  const ResolvedNotificationTimezone(this.location, this.source);
+
+  final tz.Location location;
+  final NotificationTimezoneSource source;
+
+  bool get isExactDeviceZone => source == NotificationTimezoneSource.device;
+}
 
 abstract final class NotificationTimezone {
   NotificationTimezone._();
 
   static const defaultZone = 'Europe/Istanbul';
 
-  /// Picks the IANA location to schedule in. Order:
-  /// 1. the device-reported zone name when it is a real IANA name,
-  /// 2. Europe/Istanbul when its current offset equals the device offset,
-  /// 3. the first IANA location (sorted, deterministic) with that offset,
-  /// 4. Europe/Istanbul as a last resort.
   /// Requires the timezone database to be initialized.
-  static tz.Location resolve({
-    required String deviceZoneName,
-    required Duration deviceOffset,
-    required DateTime nowUtc,
-  }) {
-    final named = _tryLocation(deviceZoneName.trim());
-    if (named != null && _offsetAt(named, nowUtc) == deviceOffset) {
-      return named;
+  static ResolvedNotificationTimezone resolve(String? deviceIanaZone) {
+    final name = deviceIanaZone?.trim() ?? '';
+    if (name.isNotEmpty) {
+      try {
+        return ResolvedNotificationTimezone(
+          tz.getLocation(name),
+          NotificationTimezoneSource.device,
+        );
+      } catch (_) {
+        // Unknown to this tz database version — fall through to fallback.
+      }
     }
-    final istanbul = tz.getLocation(defaultZone);
-    if (_offsetAt(istanbul, nowUtc) == deviceOffset) return istanbul;
-
-    final names = tz.timeZoneDatabase.locations.keys.toList()..sort();
-    for (final name in names) {
-      final location = tz.timeZoneDatabase.locations[name]!;
-      if (_offsetAt(location, nowUtc) == deviceOffset) return location;
-    }
-    return istanbul;
+    return ResolvedNotificationTimezone(
+      tz.getLocation(defaultZone),
+      NotificationTimezoneSource.fallback,
+    );
   }
 
-  static tz.Location? _tryLocation(String name) {
-    if (name.isEmpty || !name.contains('/')) return null;
-    try {
-      return tz.getLocation(name);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  static Duration _offsetAt(tz.Location location, DateTime nowUtc) {
-    return location.timeZone(nowUtc.millisecondsSinceEpoch).offset;
-  }
-
-  /// Next occurrence of [hour]:00 in [location], strictly after [now].
+  /// Next occurrence of [hour]:00 wall-clock time in [location], strictly
+  /// after [now]. Built from wall-clock fields, so it stays at [hour] local
+  /// time across DST transitions.
   static tz.TZDateTime nextDaily(tz.Location location, int hour, {DateTime? now}) {
     final current = tz.TZDateTime.from(now ?? DateTime.now(), location);
     var next = tz.TZDateTime(
@@ -62,7 +66,15 @@ abstract final class NotificationTimezone {
       current.day,
       hour,
     );
-    if (!next.isAfter(current)) next = next.add(const Duration(days: 1));
+    if (!next.isAfter(current)) {
+      next = tz.TZDateTime(
+        location,
+        current.year,
+        current.month,
+        current.day + 1,
+        hour,
+      );
+    }
     return next;
   }
 }
