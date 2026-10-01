@@ -12,13 +12,39 @@ export type CoffeeMeaningSections = {
   takeaway: NarrativeSection;
 };
 
+/**
+ * Canonical region families, matched on whole TOKENS only. PHASE C1.5:
+ * the previous substring test over region+description made English
+ * "cl-ust-er" match Turkish "ust", and let "…up toward the rim" turn a
+ * base/body item into "upper".
+ */
+const REGION_FAMILIES: ReadonlyArray<readonly [string, ReadonlySet<string>]> = [
+  ['handle', new Set(['handle', 'kulp', 'kulb'])],
+  ['upper', new Set(['upper', 'rim', 'lip', 'top', 'mouth', 'agiz', 'ust'])],
+  ['base', new Set(['base', 'bottom', 'floor', 'dip', 'taban'])],
+  ['body', new Set(['middle', 'mid', 'lower', 'wall', 'body', 'side', 'orta', 'alt'])],
+];
+
+function tokens(text: string): string[] {
+  return foldTr(text).split(/[^a-z0-9]+/).filter(Boolean);
+}
+
 /** Region families from observer metadata — not Turkish prose. */
 export function coffeeEvidenceCluster(item: ReadingEvidenceItem): string {
-  const blob = foldTr(`${item.region} ${item.description}`);
-  if (/handle|kulp/.test(blob)) return 'handle';
-  if (/upper|rim|agiz|lip|ust/.test(blob)) return 'upper';
-  if (/lower|mid|wall|orta|alt/.test(blob)) return 'body';
-  if (/base|bottom|dip|floor/.test(blob)) return 'base';
+  // 1) The structured region is authoritative; family precedence decides
+  //    compound regions (handle_side -> handle, upper_wall -> upper).
+  const regionTokens = new Set(tokens(item.region));
+  for (const [family, words] of REGION_FAMILIES) {
+    if ([...regionTokens].some((t) => words.has(t))) return family;
+  }
+  // 2) Fallback only when the region is unusable: the EARLIEST region word
+  //    in the description is the item's origin; a later "toward the rim"
+  //    is a direction, not where the item sits.
+  for (const t of tokens(item.description)) {
+    for (const [family, words] of REGION_FAMILIES) {
+      if (words.has(t)) return family;
+    }
+  }
   return foldTr(item.region) || item.id;
 }
 
@@ -26,11 +52,16 @@ export function coffeeEvidenceCluster(item: ReadingEvidenceItem): string {
  * PHASE C1.3: does any observer evidence afford communication / social
  * talk (news, messages, a conversation)? Derived from the observer's own
  * English description/resemblance — birds, figures, faces, letter-like
- * shapes, dots/specks (traditionally small news), teapot/table (company).
- * Internal only; never surfaces in the public result.
+ * shapes, teapot/table (company). Internal only; never surfaces publicly.
+ *
+ * PHASE C1.5: dots / specks / speckles are NOT a communication sign on
+ * their own. Real QA showed them used as an easy excuse for "short
+ * messages in a row"; alone they afford multiplicity or scattered small
+ * details, not news. A bird next to dots still affords news — because of
+ * the bird.
  */
 const COMMUNICATION_AFFORDANCE =
-  /\b(birds?|letters?|envelopes?|mouths?|lips|ears?|phones?|persons?|figures?|faces?|people|crowds?|dots?|specks?|speckles?|teapots?|kettles?|tables?)\b/;
+  /\b(birds?|letters?|envelopes?|mouths?|lips|ears?|phones?|persons?|figures?|faces?|people|crowds?|teapots?|kettles?|tables?)\b/;
 
 export function coffeeCommunicationAffordance(evidence: ReadingEvidenceItem[]): boolean {
   return evidence.some((item) =>

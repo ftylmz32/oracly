@@ -1,0 +1,83 @@
+{
+  "source": "phase-c1.4-real-provider:case2:BIRD",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_9a9cf7746a174ae1b1ac255281fab339",
+  "productJudgement": "PASS",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "rim",
+        "description": "A small compact mark just below the rim with two short strokes spreading outward.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": "may resemble a small bird with open wings"
+      },
+      {
+        "id": "e2",
+        "region": "middle_wall",
+        "description": "Light, diffuse scattering of grounds across the middle wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "base",
+        "description": "A moderately dense patch of grounds at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Ağız kenarının hemen altında kanatlarını açmış küçük bir kuş şekli var. Dipte koyu bir telve parçası dururken fincanın ortasına ince ince noktalar yayılmış.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Bu fincanın başrolünde haber var. Kuşun ağız kenarına yakın oluşu, sana ulaşması çok gecikmeyecek bir mesajı ya da duyumu gösteriyor gibi. Yalnız dipteki koyu telve, bu haberin mevcut durumu hemen değiştirmeyeceğini söylüyor; önce bilgi geliyor, asıl hareket biraz daha ağır ilerliyor.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Ortaya yayılan küçük noktalar, gelecek haberin tek cümlelik olmayacağını düşündürüyor. Peşinden birkaç ayrıntı daha duyabilirsin; ilk söylenenle son şekli aynı olmayabilir.",
+      "evidenceIds": [
+        "e2"
+      ]
+    }
+  }
+}

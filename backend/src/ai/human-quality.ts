@@ -93,7 +93,18 @@ export type HumanQualityFailure =
    * an unnamed long-standing issue, generic issue nouns, or a default
    * talk-and-relief arc the evidence does not afford — not by the cup.
    */
-  | 'generic_wrapper';
+  | 'generic_wrapper'
+  /**
+   * PHASE C1.5 (coffee only): detached analyst / horoscope register —
+   * abstract state nouns, meta classification, contrast scaffolding and
+   * hedge narration accumulating — instead of a falcı reading.
+   */
+  | 'analyst_voice'
+  /**
+   * PHASE C1.5 (coffee only): delivery built on formula — repeated
+   * "not X but Y" turns, or a hedge verb carrying nearly every sentence.
+   */
+  | 'formulaic_voice';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -164,8 +175,10 @@ const INFERRED_HAND =
   /\b(sag|sol) (el|avuc|avu[cç])\b|\b(right|left) (hand|palm)\b|\bsingle right hand\b|\bsingle left hand\b/i;
 
 
-const COFFEE_MIN_INTERPRETATION_WORDS = 70;
 const COFFEE_MIN_LEAD_WORDS = 50;
+/** PHASE C1.5: per-section substance (replaces the aggregate word quota). */
+const COFFEE_MIN_OVERALL_WORDS = 30;
+const COFFEE_MIN_TAKEAWAY_WORDS = 10;
 
 const GENERIC_COFFEE =
   /^(this cup (shows|reveals) (energy|potential)\.?|fincan enerji tasiyor\.?|analysis complete\.?)$/i;
@@ -303,17 +316,12 @@ export function evaluateCoffeeQuality(
   if (boilerplateClosingQuestion(overall, takeaway)) {
     return 'closing_question_habit';
   }
-  // PHASE C1.1: 70, not 100 — a sparse cup must be allowed a short, quiet
-  // reading (overall + takeaway) without padding or inventing events.
-  if (
-    wordCount(
-      [overall, takeaway, input.love, input.career, input.money, input.nearFuture].join(
-        ' ',
-      ),
-    ) < COFFEE_MIN_INTERPRETATION_WORDS
-  ) {
-    return 'too_short';
-  }
+  // PHASE C1.5: section substance, not an aggregate quota. The old total
+  // (100 -> 70 words) rejected a concise, high-quality real reading at 62
+  // words; a total only rewards padding. Each required interpretation
+  // section must be substantive on its own instead.
+  if (wordCount(overall) < COFFEE_MIN_OVERALL_WORDS) return 'too_short';
+  if (takeaway && wordCount(takeaway) < COFFEE_MIN_TAKEAWAY_WORDS) return 'too_short';
   if (repeatKeyIdea(joinSections(input), ['bulusma', 'baslangic', 'bir araya'])) {
     return 'repeated_stock';
   }
@@ -530,6 +538,86 @@ export function coffeeVoiceFailure(
   // Generic wrapper: the reading's identity is carried by a vague issue
   // instead of this cup's signs (real C1.2 QA: 6/6 readings).
   if (coffeeGenericWrapper(sections, communication)) return 'generic_wrapper';
+  return coffeeRegisterFailure(sections);
+}
+
+// ---------------------------------------------------------------------------
+// PHASE C1.5 — delivery form. Real C1.4 QA: stories became evidence-specific
+// but the DELIVERY templated — a meta-opener announcing the cup's "main
+// word", "not X but Y" scaffolding, and a detached analyst register
+// ("baskın görünüyor", "mevcut düzen", "şartları belli", "dışarıdan
+// müdahale"). Every signal here is ordinary Turkish once; only an
+// accumulation fails. Calibrated on the six real C1.4 outputs: the two
+// product-WEAK readings score 8–10, the four product-PASS readings 3–4,
+// every GOOD fixture ≤ 3.
+// ---------------------------------------------------------------------------
+
+/** Announcing the lane instead of reading: "Bu fincanın ana sözü …". */
+const COFFEE_META_OPENER =
+  /^(\w+, )?(bu )?fincanin (ana |asil |en belirgin |en baskin )?(sozu|hali|temasi|basrolunde|tarafi|meselesi|konusu)\b/;
+
+/** "X'ten çok Y", "X'ten ziyade Y", "A yerine B", "X değil, Y". */
+const COFFEE_CONTRAST = /\w+(dan|den|tan|ten) (cok|ziyade)\b|\w+ yerine\b|\bdegil[,;]/g;
+
+/** Detached analyst / horoscope register — one regex per kind. */
+const COFFEE_ANALYST_KINDS: RegExp[] = [
+  /baskin (gorun|ol)/,
+  /\bseyir/,
+  /mevcut (duzen|durum)/,
+  /sartlar(i)? (belli|belirle)/,
+  /mudahale/,
+  /\bduzen(i|in|e|de)?\b/,
+  /yerlesik/,
+  /\bdonem(de|i|in)?\b/,
+  /\bdurum(u|un|da|a)?\b/,
+  /yer degistir|kolay (kolay )?(oynama|degis)/,
+  /\bgelisme/,
+];
+
+/** Interpretive hedge predicates (normal in moderation). */
+const COFFEE_HEDGE =
+  /(gosteriyor|dusunduruyor|isaret ediyor|soyluyor|anlatiyor|gorunuyor|cagristiriyor|isaret eder|gosterir)\b/;
+
+export type CoffeeRegisterProfile = {
+  metaOpener: boolean;
+  contrasts: number;
+  analystKinds: number;
+  hedgeSentences: number;
+  sentences: number;
+  /** analystKinds + contrast scaffolding + meta-opener + hedge narration */
+  score: number;
+};
+
+export function coffeeRegisterProfile(sections: string[]): CoffeeRegisterProfile {
+  const body = filled(sections).map(foldTr);
+  const all = body.join(' ');
+  const sentences = body.flatMap(sentencesOf);
+  const metaOpener = COFFEE_META_OPENER.test(sentencesOf(body[0] ?? '')[0] ?? '');
+  const contrasts = (all.match(COFFEE_CONTRAST) ?? []).length;
+  const analystKinds = kindHits(all, COFFEE_ANALYST_KINDS);
+  const hedgeSentences = sentences.filter((s) => COFFEE_HEDGE.test(s)).length;
+  const hedgeHeavy = sentences.length >= 5 && hedgeSentences / sentences.length >= 0.6;
+  return {
+    metaOpener,
+    contrasts,
+    analystKinds,
+    hedgeSentences,
+    sentences: sentences.length,
+    score: analystKinds + (contrasts >= 3 ? 1 : 0) + (metaOpener ? 1 : 0) + (hedgeHeavy ? 1 : 0),
+  };
+}
+
+/** `sections[0]` must be overall. */
+export function coffeeRegisterFailure(sections: string[]): HumanQualityFailure | null {
+  const r = coffeeRegisterProfile(sections);
+  if (r.sentences === 0) return null;
+  // Analyst / horoscope register: several detached-register kinds stacked
+  // with the formulaic devices around them.
+  if (r.score >= 6) return 'analyst_voice';
+  // Pure scaffolding: the reading is built on "not X but Y" turns, or a
+  // hedge verb carries nearly every sentence.
+  if (r.contrasts >= 5) return 'formulaic_voice';
+  if (r.sentences >= 6 && r.hedgeSentences / r.sentences >= 0.75) return 'formulaic_voice';
   return null;
 }
 

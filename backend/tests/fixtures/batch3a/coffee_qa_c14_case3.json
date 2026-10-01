@@ -1,0 +1,90 @@
+{
+  "source": "phase-c1.4-real-provider:case3:RING",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_7db3eb6ab3414f068b603b12f276fd3f",
+  "productJudgement": "PASS",
+  "personalization": {
+    "firstName": "Elif"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A small closed loop formed by grounds on the middle wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a ring"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Dense grounds gathered at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "A few sparse dots on the upper inner surface.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın ortasında yüzüğü andıran küçük, kapalı bir şekil var. Dipte telve belirgin biçimde toplanmış; ağız tarafında ise birkaç küçük nokta görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Yüzük gibi duran işaret, hayatında adı konmaya yaklaşan bir bağa ya da şartları belirlenen bir anlaşmaya işaret ediyor. Bu illa aşk olmak zorunda değil; iki kişi arasında verilen söz, kabul edilen bir teklif veya artık değişmesi kolay görünmeyen bir düzen de olabilir. Fincanın dibi bu işin hafifçe geçip gitmeyeceğini söylüyor. Burada ciddi, kalıcı olmaya aday bir tutum var; fakat ilerleyişi ağır olabilir.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Ağız tarafındaki küçük noktalar, yakında peş peşe gelecek kısa haberleri gösteriyor gibi. Tek bir büyük duyurudan çok, birkaç mesajın birbirini tamamlaması söz konusu; yüzük işaretinin ne anlama geldiği de bu haberlerle daha görünür olabilir.",
+      "evidenceIds": [
+        "e3",
+        "e1"
+      ]
+    },
+    "takeaway": {
+      "text": "Kapalı halka, yarım kalmış bir niyetten çok tamamlanmış şartları anlatıyor. Dipteki telve ise bu bağın kolayca fikir değiştirilecek cinsten olmadığını ekliyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    }
+  }
+}

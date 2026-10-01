@@ -1,0 +1,86 @@
+{
+  "source": "phase-c1.4-real-provider:case6:TWO-SIGN",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_d477bb3f5d4c46689b087c6c213f77ec",
+  "productJudgement": "PASS",
+  "personalization": {
+    "firstName": "Fatih"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "rim",
+        "description": "A small elongated shape near the rim with a tapered tail.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a fish"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Two thin lines leaving the base and diverging in different directions up the wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble two diverging paths"
+      },
+      {
+        "id": "e3",
+        "region": "handle_side",
+        "description": "A small cluster of grounds near the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "İlk bakışta ağız kenarında balığı andıran küçük, uzun bir şekil görünüyor. Dipten çıkan iki ince yol da ayrı yönlere uzanıyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "overall": {
+      "text": "Fatih, fincanın en belirgin tarafı iki ayrı yola ayrılan plan. Önünde birbirinden farklı iki seçenek görünüyor; bunlardan biri alıştığın düzeni sürdürürken diğeri seni başka bir yöne taşıyabilir. Yollar ince ama kesilmemiş, yani ikisi de mümkün görünüyor. Bu fincan aceleyle verilmiş bir karardan çok, hangi tarafa hareket edeceğinin belli olacağı bir dönemi anlatıyor.",
+      "evidenceIds": [
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "Ağız kenarındaki balık benzeri işaret, yakın zamanda eline geçebilecek küçük ama sevindiren bir kısmeti gösteriyor. Bu büyük bir servetten ziyade beklenen bir ödeme, ek kazanç ya da masrafı hafifletecek bir para olabilir. Şeklin fincanın ağzına yakın oluşu, bunun uzak görünmediğini düşündürüyor.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Kulp tarafındaki küçük telve topluluğu, seçeceğin yön üzerinde evden ya da yakın çevrenden birinin etkisi olabileceğini söylüyor. Son söz yine sende, ama bu seçim yalnızca seni ilgilendirmeyecek gibi.",
+      "evidenceIds": [
+        "e3"
+      ]
+    }
+  }
+}

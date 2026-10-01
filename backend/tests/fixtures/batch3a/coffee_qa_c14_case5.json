@@ -1,0 +1,84 @@
+{
+  "source": "phase-c1.4-real-provider:case5:HANDLE/HOME",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_cea2c07992eb403e8297b1cf79cfa932",
+  "productJudgement": "WEAK",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "handle_side",
+        "description": "Dense grounds gathered along the wall on the handle side.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A light, even coating of grounds at the base.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "Sparse marks on the upper wall opposite the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Telve en çok kulp tarafında toplanmış. Fincanın dibinde ince, düzgün bir tabaka; karşı tarafta ise birkaç küçük şekil görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Bu fincanın sözü evden ve yakın çevrenden geliyor. Kulp tarafındaki belirgin telve, uzakta gelişen olaylardan çok günlük hayatına doğrudan dokunan insanları öne çıkarıyor. Aileden biri, aynı evi paylaştığın biri ya da çok sık görüştüğün bir kişiyle bağlantılı durumlar bu dönemde daha baskın görünüyor. Dış taraf ise oldukça sessiz; kalabalık gelişmelerden ziyade kendi çevrende süren, kolay kolay yer değiştirmeyen bir düzen var.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Fincanın dibindeki sakin görünüm, ani bir sarsıntıdan çok mevcut düzenin korunacağını düşündürüyor. Şimdilik fincanın ağırlığı dışarıda değil, ev halkında ve tanıdık yüzlerde.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    }
+  }
+}

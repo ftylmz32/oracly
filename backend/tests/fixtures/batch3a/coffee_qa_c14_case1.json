@@ -1,0 +1,84 @@
+{
+  "source": "phase-c1.4-real-provider:case1:SPARSE",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_ceb82fbd041f4ec19a1e94fbfb6d53d4",
+  "productJudgement": "WEAK",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "base",
+        "description": "A dense mass of grounds settled evenly at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "lower_wall",
+        "description": "A few faint marks rising from the lower inner surface.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper_wall",
+        "description": "The upper inner surface and rim are mostly clean.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Telve fincanın dibinde düzgün ve ağır bir tabaka gibi durmuş. Yukarı çıkan birkaç silik yol var; ağız kenarıysa oldukça temiz.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Bu fincanın ana hali sessiz ve yerleşik. Hayatında şu anda hızla yön değiştiren bir gelişmeden çok, şartları belli olmuş ve bulunduğu yerde duran bir düzen görünüyor. Dibin eşit kapanması, dışarıdan gelecek müdahaleyle kolay oynamayan ve aceleye gelmeyen bir durumu anlatıyor. İnce yollar ise bu durgunluğun bütünüyle kapalı olmadığını; küçük bir hareketin başladığını fakat henüz belirgin bir yön kazanmadığını düşündürüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Ağız kenarının temiz kalması, yakın günlerde kalabalık ya da gürültülü bir gelişmeden çok sakin bir seyir gösteriyor. Büyük bir sıçrama değil, usul usul yükselen küçük bir hareket var.",
+      "evidenceIds": [
+        "e2",
+        "e3"
+      ]
+    }
+  }
+}
