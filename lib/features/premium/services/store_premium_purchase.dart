@@ -1,20 +1,21 @@
 /// Real Play Billing / StoreKit purchase port via in_app_purchase.
 library;
 
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../../core/domain/models/premium_plan.dart';
 import '../models/premium_purchase_result.dart';
+import '../models/store_catalog_snapshot.dart';
 import 'premium_plan_availability.dart';
 import 'premium_purchase_port.dart';
 import 'premium_store_catalog.dart';
+import 'store_catalog_query.dart';
 import 'store_iap_client.dart';
 import 'store_premium_purchase_session.dart';
 
-class StorePremiumPurchase implements PremiumPurchasePort {
+class StorePremiumPurchase
+    implements PremiumPurchasePort, StoreCatalogDiagnosticsSource {
   StorePremiumPurchase({
     InAppPurchase? iap,
     StoreIapClient? client,
@@ -22,15 +23,6 @@ class StorePremiumPurchase implements PremiumPurchasePort {
   }) : _iap = client ?? PluginStoreIapClient(iap),
        // ignore: prefer_initializing_formals
        _persistRetryCredentials = persistRetryCredentials;
-
-  /// A cold App Store/Play Billing connection on a fresh install can miss
-  /// the first product query entirely (the storefront handshake itself is
-  /// still warming up) even though the very next attempt, moments later,
-  /// succeeds. Retrying once here means a transient first-run hiccup no
-  /// longer permanently strands the Premium screen in its "unavailable"
-  /// state until the user notices and manually retries.
-  @visibleForTesting
-  static const catalogRetryDelay = Duration(milliseconds: 300);
 
   final StoreIapClient _iap;
 
@@ -44,14 +36,14 @@ class StorePremiumPurchase implements PremiumPurchasePort {
   bool get persistsRecovery => _persistRetryCredentials != null;
 
   final StorePremiumPurchaseSession _session = StorePremiumPurchaseSession();
-  StreamSubscription<List<PurchaseDetails>>? _sub;
 
   /// True when the IAP plugin/store reports available (restore may proceed).
   bool _storeAvailable = false;
 
-  /// True when at least one catalog product loaded (purchase may proceed).
+  /// True when at least one requested product loaded (purchase may proceed).
   bool _configured = false;
   final Map<String, ProductDetails> _products = {};
+  StoreCatalogSnapshot? _catalogSnapshot;
 
   @override
   bool get isConfigured => _configured;
@@ -60,50 +52,39 @@ class StorePremiumPurchase implements PremiumPurchasePort {
   @override
   bool get canAttemptRestore => _storeAvailable;
 
-  @visibleForTesting
-  bool get storeAvailableForRestore => _storeAvailable;
+  @override
+  StoreCatalogSnapshot? get catalogSnapshot => _catalogSnapshot;
 
+  /// Non-null only for products the store actually returned.
   @override
   String? priceLabel(PremiumPlanKind plan) =>
       _products[PremiumStoreCatalog.idFor(plan)]?.price;
 
-  Future<void> dispose() async {
-    await _sub?.cancel();
-    _sub = null;
-  }
+  Future<void> dispose() => _session.cancel();
 
   @override
   Future<void> prepare() async {
     try {
-      final available = await _iap.isAvailable().timeout(
-        const Duration(seconds: 2),
-        onTimeout: () => false,
+      final load = await StoreCatalogQuery.load(
+        _iap,
+        PremiumPlanAvailability.storeQueryIds(),
+        onAvailable: _listen,
       );
-      _storeAvailable = available;
-      if (!available) {
-        _configured = false;
-        _products.clear();
-        return;
-      }
-      _listen();
-      final queryIds = PremiumPlanAvailability.storeQueryIds();
-      var response = await _queryCatalog(queryIds);
-      if (response.productDetails.isEmpty) {
-        // Full miss on the first attempt — retry once after a short delay
-        // before accepting "no products" as the real answer, since a cold
-        // storefront connection can miss the very first query.
-        await Future<void>.delayed(catalogRetryDelay);
-        response = await _queryCatalog(queryIds);
-      }
+      _storeAvailable = load.storeAvailable;
+      _catalogSnapshot = load.snapshot;
       _products
         ..clear()
-        ..addEntries(response.productDetails.map((p) => MapEntry(p.id, p)));
-      _configured = _products.isNotEmpty;
-    } catch (_) {
+        ..addEntries(load.products.map((p) => MapEntry(p.id, p)));
+    } catch (error) {
       _storeAvailable = false;
-      _configured = false;
       _products.clear();
+      _catalogSnapshot = StoreCatalogSnapshot(
+        at: DateTime.now().toUtc(),
+        storeAvailable: false,
+        availabilityExceptionType: StoreCatalogSnapshot.exceptionType(error),
+      );
     }
+    _configured = _products.isNotEmpty;
   }
 
   @override
@@ -153,35 +134,7 @@ class StorePremiumPurchase implements PremiumPurchasePort {
     return _session.takeUnsolicitedGrant();
   }
 
-  Future<ProductDetailsResponse> _queryCatalog(Set<String> queryIds) async {
-    try {
-      return await _iap.queryProductDetails(queryIds).timeout(
-        const Duration(seconds: 8),
-        onTimeout: () => ProductDetailsResponse(
-          productDetails: const [],
-          notFoundIDs: queryIds.toList(),
-        ),
-      );
-    } catch (_) {
-      // Catalogue failure must not block restore of already-owned purchases
-      // — the caller treats this exactly like an empty/not-found response.
-      return ProductDetailsResponse(
-        productDetails: const [],
-        notFoundIDs: queryIds.toList(),
-      );
-    }
-  }
-
-  void _listen() {
-    _sub ??= _iap.purchaseStream.listen(
-      (purchases) => _session.onPurchases(
-        purchases,
-        _iap.completePurchase,
-        persistRetryCredentials: _persistRetryCredentials,
-      ),
-      onError: (_) => _session.fail(),
-    );
-  }
+  void _listen() => _session.listen(_iap, _persistRetryCredentials);
 
   static bool get supportedPlatform {
     if (kIsWeb) return false;

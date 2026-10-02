@@ -8,16 +8,41 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import '../../../core/domain/models/premium_plan.dart';
 import '../models/premium_purchase_result.dart';
 import 'premium_store_catalog.dart';
+import 'store_iap_client.dart';
+import 'store_purchase_stream_diagnostics.dart';
 import 'store_purchase_terminal_handler.dart';
 
 export 'store_purchase_terminal_handler.dart' show PersistRetryCredentials;
 
 class StorePremiumPurchaseSession {
+  StreamSubscription<List<PurchaseDetails>>? _sub;
   Completer<PremiumPurchaseResult>? _wait;
   PremiumPlanKind? _expected;
   bool _restore = false;
   bool _busy = false;
   PremiumPurchaseResult? _unsolicitedGrant;
+
+  /// Attaches the single purchase-stream listener (idempotent).
+  void listen(StoreIapClient iap, PersistRetryCredentials? persist) {
+    if (_sub != null) return;
+    StorePurchaseStreamDiagnostics.recordListenerAttached();
+    _sub = iap.purchaseStream.listen(
+      (purchases) => onPurchases(
+        purchases,
+        iap.completePurchase,
+        persistRetryCredentials: persist,
+      ),
+      onError: (Object error) {
+        StorePurchaseStreamDiagnostics.recordStreamError(error);
+        fail();
+      },
+    );
+  }
+
+  Future<void> cancel() async {
+    await _sub?.cancel();
+    _sub = null;
+  }
 
   bool begin({PremiumPlanKind? expected, bool restore = false}) {
     if (_busy) return false;
@@ -62,11 +87,13 @@ class StorePremiumPurchaseSession {
     Future<void> Function(PurchaseDetails purchase) completePurchase, {
     PersistRetryCredentials? persistRetryCredentials,
   }) async {
+    if (purchases.isEmpty) StorePurchaseStreamDiagnostics.recordEmptyBatch();
     if (purchases.isEmpty && _restore) {
       _complete(PremiumPurchaseResult.noneFound());
       return;
     }
     for (final purchase in purchases) {
+      StorePurchaseStreamDiagnostics.recordPurchase(purchase);
       await _handle(purchase, completePurchase, persistRetryCredentials);
     }
   }

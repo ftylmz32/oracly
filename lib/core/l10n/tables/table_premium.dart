@@ -254,6 +254,26 @@ const kL10nPremium = <String, L10nTriple>{
     'Try the store again',
     'Попробовать магазин снова',
   ),
+  'premium.cta_checking_store': L10nTriple(
+    'Mağaza kontrol ediliyor…',
+    'Checking the store…',
+    'Проверяем магазин…',
+  ),
+  'premium.store_diagnostics_title': L10nTriple(
+    'Mağaza tanılaması',
+    'Store diagnostics',
+    'Диагностика магазина',
+  ),
+  'premium.store_diagnostics_copy': L10nTriple(
+    'Tanılamayı kopyala',
+    'Copy diagnostics',
+    'Скопировать диагностику',
+  ),
+  'premium.store_diagnostics_copied': L10nTriple(
+    'Tanılama kopyalandı.',
+    'Diagnostics copied.',
+    'Диагностика скопирована.',
+  ),
   'premium.loading_body': L10nTriple(
     'Mağaza durumu kontrol ediliyor…',
     'Checking store status…',

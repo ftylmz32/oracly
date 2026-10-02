@@ -77,6 +77,13 @@ abstract final class PremiumCopy {
   static String get ctaUnavailable => _t('premium.cta_unavailable');
   static String get ctaHint => _t('premium.cta_hint');
   static String get ctaRetryStore => _t('premium.cta_retry_store');
+  static String get ctaCheckingStore => _t('premium.cta_checking_store');
+  static String get storeDiagnosticsTitle =>
+      _t('premium.store_diagnostics_title');
+  static String get storeDiagnosticsCopy =>
+      _t('premium.store_diagnostics_copy');
+  static String get storeDiagnosticsCopied =>
+      _t('premium.store_diagnostics_copied');
   static String get ctaHintConfigured => _t('premium.cta_hint_configured');
   static String get loadingBody => _t('premium.loading_body');
   static String get errorRetry => _t('premium.error_retry');

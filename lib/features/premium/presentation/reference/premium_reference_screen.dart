@@ -16,6 +16,7 @@ import 'premium_reference_atmosphere.dart';
 import 'premium_reference_body.dart';
 import 'premium_reference_outcome.dart';
 import 'premium_reference_tokens.dart';
+import 'premium_store_diagnostics_sheet.dart';
 
 class PremiumReferenceScreen extends ConsumerStatefulWidget {
   const PremiumReferenceScreen({super.key});
@@ -105,7 +106,11 @@ class _PremiumReferenceScreenState
                 status: status,
                 onPurchase: _purchase,
                 onRestore: _restore,
-                onRetryStore: () => ref.read(premiumStatusProvider).load(),
+                onRetryStore: () => ref.read(premiumStatusProvider).retryStore(),
+                onStoreDiagnostics: () => showPremiumStoreDiagnostics(
+                  context,
+                  ref.read(premiumPurchasePortProvider),
+                ),
               ),
             ),
           ],

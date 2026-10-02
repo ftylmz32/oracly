@@ -90,7 +90,9 @@ workflows:
             "ORACLY_AI_IMAGE_TIMEOUT_SECONDS": "120",
             "ORACLY_PRIVACY_POLICY_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/privacy-policy.md",
             "ORACLY_TERMS_OF_USE_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/terms-of-use.md",
-            "ORACLY_DATA_DELETION_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/data-deletion.md"
+            "ORACLY_DATA_DELETION_URL": "https://github.com/ftylmz32/oracly/blob/main/docs/data-deletion.md",
+            "ORACLY_APP_VERSION": "1.0.0",
+            "ORACLY_BUILD_NUMBER": "10"
           }
           EOF
           echo "Created tool/dart_defines.production.json"
@@ -198,7 +200,7 @@ workflows:
           flutter build ipa --release \
             --dart-define-from-file=tool/dart_defines.production.json \
             --build-name=1.0 \
-            --build-number=9 \
+            --build-number=10 \
             --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:

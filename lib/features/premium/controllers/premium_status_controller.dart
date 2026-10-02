@@ -94,13 +94,17 @@ class PremiumStatusController extends ChangeNotifier {
     try {
       await _service.preparePurchase();
       _activePlan = await _service.activePlan();
-      _plans = PremiumPlanAvailability.visiblePlans(await _service.getPlans());
+      _plans = PremiumPlanAvailability.offeredPlans(
+        await _service.getPlans(),
+        storeReturned: _service.storeReturned,
+      );
       if (_activePlan != null &&
           PremiumPlanAvailability.isPurchasable(_activePlan!)) {
         _selectedPlan = _activePlan!;
       } else {
-        _selectedPlan = PremiumPlanAvailability.normalizeSelection(
+        _selectedPlan = PremiumPlanAvailability.preferredSelection(
           _selectedPlan,
+          _plans,
         );
       }
       await _guardedReconcile(keepActiveWhileRefreshing: true);
@@ -157,9 +161,28 @@ class PremiumStatusController extends ChangeNotifier {
 
   void selectPlan(PremiumPlanKind kind) {
     if (isPremium || busy) return;
-    if (!PremiumPlanAvailability.isPurchasable(kind)) return;
+    if (!PremiumPlanAvailability.isOffered(kind, _plans)) return;
     _selectedPlan = kind;
     _publish();
+  }
+
+  bool _checkingStore = false;
+
+  /// True while a user-initiated store re-check runs (repeat taps ignored).
+  bool get checkingStore => _checkingStore;
+
+  /// Store sells at least one plan to this device right now.
+  bool get storeOffersPlans => purchaseConfigured && _plans.isNotEmpty;
+
+  /// Single-flight store re-check behind the unavailable panel's Retry.
+  Future<void> retryStore() {
+    if (_checkingStore) return _loadInFlight ?? Future.value();
+    _checkingStore = true;
+    _publish();
+    return load().whenComplete(() {
+      _checkingStore = false;
+      _publish();
+    });
   }
 
   Future<PremiumPurchaseResult> purchase() async {
@@ -171,12 +194,15 @@ class PremiumStatusController extends ChangeNotifier {
     if (!_entitlement.canStartPurchase) {
       return PremiumPurchaseResult.unavailable();
     }
-    final plan = PremiumPlanAvailability.normalizeSelection(_selectedPlan);
+    final plan = PremiumPlanAvailability.preferredSelection(
+      _selectedPlan,
+      _plans,
+    );
     if (plan != _selectedPlan) {
       _selectedPlan = plan;
       _publish();
     }
-    if (!PremiumPlanAvailability.isPurchasable(plan)) {
+    if (!PremiumPlanAvailability.isOffered(plan, _plans)) {
       return PremiumPurchaseResult.unavailable();
     }
     _set(

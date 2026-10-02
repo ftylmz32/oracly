@@ -1,6 +1,7 @@
 /// Calm chamber plaque when store purchase is not open — never a fake buy.
 library;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/accessibility/oracly_a11y.dart';
@@ -12,15 +13,44 @@ import '../../../../shared/widgets/oracly_pressable.dart';
 import 'premium_reference_tokens.dart';
 
 class PremiumReferenceCtaUnavailable extends StatelessWidget {
-  const PremiumReferenceCtaUnavailable({super.key, this.onRetry});
+  const PremiumReferenceCtaUnavailable({
+    super.key,
+    this.onRetry,
+    this.checking = false,
+    this.onDiagnostics,
+  });
 
   final VoidCallback? onRetry;
 
+  /// Store re-check in flight — Retry is replaced by an announced status.
+  final bool checking;
+
+  /// Hidden support gate: ~2 s long press, no visible or semantic affordance.
+  final VoidCallback? onDiagnostics;
+
   static const _velvet = Color(0xFF1A100C);
   static const _ink = Color(0xFF0A0608);
+  static const diagnosticsHold = Duration(seconds: 2);
 
   @override
   Widget build(BuildContext context) {
+    final panel = _panel();
+    final open = onDiagnostics;
+    if (open == null) return panel;
+    return RawGestureDetector(
+      excludeFromSemantics: true,
+      gestures: {
+        LongPressGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+              () => LongPressGestureRecognizer(duration: diagnosticsHold),
+              (r) => r.onLongPress = open,
+            ),
+      },
+      child: panel,
+    );
+  }
+
+  Widget _panel() {
     return Semantics(
       button: false,
       label: PremiumCopy.ctaUnavailable,
@@ -77,7 +107,19 @@ class PremiumReferenceCtaUnavailable extends StatelessWidget {
                   color: OraclyA11y.creamHint(OraclyChrome.cream),
                 ),
               ),
-              if (onRetry != null) ...[
+              if (checking) ...[
+                const SizedBox(height: 14),
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    PremiumCopy.ctaCheckingStore,
+                    textAlign: TextAlign.center,
+                    style: ReadingTypography.metadata(
+                      color: OraclyA11y.creamHint(OraclyChrome.cream),
+                    ),
+                  ),
+                ),
+              ] else if (onRetry != null) ...[
                 const SizedBox(height: 14),
                 OraclyPressable(
                   onTap: onRetry,

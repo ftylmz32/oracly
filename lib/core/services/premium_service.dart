@@ -92,6 +92,10 @@ class PremiumService {
     ];
   }
 
+  /// The store port exposes a price only for products it actually returned.
+  bool storeReturned(PremiumPlanKind kind) =>
+      _purchase.isConfigured && _purchase.priceLabel(kind) != null;
+
   Future<PremiumPurchaseResult> purchase(PremiumPlanKind plan) async {
     return _grants.applyStoreOutcome(await _purchase.purchase(plan));
   }

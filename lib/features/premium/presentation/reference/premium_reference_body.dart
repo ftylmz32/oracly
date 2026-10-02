@@ -3,23 +3,15 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/copy/premium_copy.dart';
-import '../../../../core/copy/premium_entitlement_message.dart';
 import '../../../../core/design_system/app_layout.dart';
-import '../../../../core/design_system/oracly_chrome.dart';
-import '../../../../core/theme/reading_typography.dart';
-import '../../../../shared/widgets/oracly_pressable.dart';
 import '../../controllers/premium_status_controller.dart';
-import '../../models/premium_entitlement_state.dart';
 import 'premium_reference_benefits_section.dart';
-import 'premium_reference_cta.dart';
-import 'premium_reference_cta_unavailable.dart';
 import 'premium_reference_experiences_section.dart';
 import 'premium_reference_gem_note.dart';
 import 'premium_reference_hero_card.dart';
 import 'premium_legal_disclosure.dart';
 import 'premium_reference_links.dart';
-import 'premium_reference_plans_section.dart';
+import 'premium_reference_store_section.dart';
 import 'premium_reference_tokens.dart';
 import 'premium_reference_value_section.dart';
 
@@ -30,16 +22,17 @@ class PremiumReferenceBody extends StatelessWidget {
     required this.onPurchase,
     required this.onRestore,
     required this.onRetryStore,
+    this.onStoreDiagnostics,
   });
 
   final PremiumStatusController status;
   final VoidCallback onPurchase;
   final VoidCallback onRestore;
   final VoidCallback onRetryStore;
+  final VoidCallback? onStoreDiagnostics;
 
   @override
   Widget build(BuildContext context) {
-    final showStore = status.purchaseConfigured && !status.isPremium;
     return ListView(
       physics: const ClampingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(
@@ -67,96 +60,13 @@ class PremiumReferenceBody extends StatelessWidget {
                 SizedBox(height: PremiumReferenceTokens.benefitsToPlans),
                 const PremiumReferenceGemNote(),
                 SizedBox(height: PremiumReferenceTokens.benefitsToPlans),
-                if (!status.loaded)
-                  Text(
-                    PremiumCopy.loadingBody,
-                    textAlign: TextAlign.center,
-                    style: ReadingTypography.secondary(
-                      color: OraclyChrome.cream.withValues(alpha: 0.7),
-                    ),
-                  )
-                else if (status.entitlement ==
-                    PremiumEntitlementState.error) ...[
-                  Text(
-                    PremiumEntitlementMessage.forReason(
-                      status.entitlementMessage,
-                      fallback: PremiumCopy.purchaseFailed,
-                    ),
-                    textAlign: TextAlign.center,
-                    style: ReadingTypography.body(
-                      color: OraclyChrome.cream.withValues(alpha: 0.86),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  OraclyPressable(
-                    onTap: onRetryStore,
-                    child: Text(
-                      PremiumCopy.errorRetry,
-                      textAlign: TextAlign.center,
-                      style: ReadingTypography.metadata(
-                        color: OraclyChrome.goldLight.withValues(alpha: 0.8),
-                      ).copyWith(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ] else if (showStore) ...[
-                  PremiumReferencePlansSection(
-                    plans: status.plans,
-                    selected: status.selectedPlan,
-                    onSelected: status.selectPlan,
-                  ),
-                  SizedBox(height: PremiumReferenceTokens.plansToCta),
-                  PremiumReferenceCta(
-                    isPremium: false,
-                    busy: status.busy,
-                    purchaseConfigured: true,
-                    onActivate: onPurchase,
-                    onRestore: onRestore,
-                  ),
-                ] else if (status.isPremium)
-                  const PremiumReferenceCta(isPremium: true)
-                else if (status.entitlement ==
-                    PremiumEntitlementState.unverified) ...[
-                  Text(
-                    PremiumEntitlementMessage.forReason(
-                      status.entitlementMessage,
-                      fallback: PremiumCopy.entitlementUnverified,
-                    ),
-                    textAlign: TextAlign.center,
-                    style: ReadingTypography.body(
-                      color: OraclyChrome.cream.withValues(alpha: 0.86),
-                    ),
-                  ),
-                  SizedBox(height: PremiumReferenceTokens.plansToCta),
-                  if (status.purchaseConfigured)
-                    PremiumReferenceCta(
-                      isPremium: false,
-                      busy: status.busy,
-                      purchaseConfigured: true,
-                      onActivate: onPurchase,
-                      onRestore: onRestore,
-                    )
-                  else if (status.canAttemptRestore)
-                    PremiumReferenceCta(
-                      isPremium: false,
-                      busy: status.busy,
-                      purchaseConfigured: true,
-                      onActivate: null,
-                      onRestore: onRestore,
-                      onRetryStore: onRetryStore,
-                    )
-                  else
-                    PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
-                ] else if (status.canAttemptRestore)
-                  PremiumReferenceCta(
-                    isPremium: false,
-                    busy: status.busy,
-                    purchaseConfigured: true,
-                    onActivate: null,
-                    onRestore: onRestore,
-                    onRetryStore: onRetryStore,
-                  )
-                else
-                  PremiumReferenceCtaUnavailable(onRetry: onRetryStore),
+                PremiumReferenceStoreSection(
+                  status: status,
+                  onPurchase: onPurchase,
+                  onRestore: onRestore,
+                  onRetryStore: onRetryStore,
+                  onStoreDiagnostics: onStoreDiagnostics,
+                ),
                 if (status.loaded) ...[
                   SizedBox(height: PremiumReferenceTokens.plansToCta),
                   PremiumLegalDisclosure(
