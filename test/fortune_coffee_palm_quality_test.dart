@@ -13,7 +13,6 @@ import 'package:oracly_new/features/coffee/services/coffee_fortune_composer.dart
 import 'package:oracly_new/features/palm/models/palm_hand.dart';
 import 'package:oracly_new/features/palm/models/palm_reading.dart';
 import 'package:oracly_new/features/palm/services/palm_fortune_composer.dart';
-import 'package:oracly_new/features/palm/services/palm_fortune_narration.dart';
 
 void main() {
   setUp(() => OraclyL10n.bind('tr'));
@@ -89,10 +88,6 @@ void main() {
     expect(composed.lifeLine.toLowerCase(), isNot(contains('hastalık')));
     expect(FortuneVoice.claimsMedical(composed.fullText), isFalse);
     expect(FortuneVoice.claimsCertainty(composed.fullText), isFalse);
-    final spoken = PalmFortuneNarration.body(composed);
-    expect(spoken, contains(composed.overall));
-    expect(spoken, contains(composed.heartLine));
-    expect(spoken, isNot(contains('\n\n\n')));
   });
 
   test('prompt asks for traditional grounded coffee prose', () {

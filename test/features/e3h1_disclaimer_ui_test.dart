@@ -56,7 +56,8 @@ void main() {
     await tester.binding.setSurfaceSize(null);
   });
 
-  testWidgets('Palm result shows fixed disclaimer once', (tester) async {
+  testWidgets('Palm result shows exactly one provenance/safety note',
+      (tester) async {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
     await tester.binding.setSurfaceSize(const Size(390, 844));
@@ -85,11 +86,13 @@ void main() {
       ),
     );
     await tester.pump();
-    final palmDisc = find.text(PalmCopy.disclaimer);
-    await tester.scrollUntilVisible(palmDisc, 200);
+    final palmNote = find.text(PalmCopy.sourceNote);
+    await tester.scrollUntilVisible(palmNote, 200);
     await tester.pump();
-    expect(palmDisc, findsOneWidget);
-    expect(PalmCopy.disclaimer.toLowerCase(), contains('sembolik'));
+    expect(palmNote, findsOneWidget);
+    expect(find.text(PalmCopy.disclaimer, skipOffstage: false), findsNothing);
+    expect(PalmCopy.sourceNote.toLowerCase(), contains('sembolik'));
+    expect(PalmCopy.sourceNote.toLowerCase(), contains('teşhis'));
     await tester.binding.setSurfaceSize(null);
   });
 }

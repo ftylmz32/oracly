@@ -1,0 +1,63 @@
+{
+  "kind": "real_provider_output",
+  "evidenceClass": "A",
+  "id": "Batch 3A.4",
+  "capturedAt": "2026-09-08",
+  "pipeline": "two-stage observe/write (live provider)",
+  "personalization": {
+    "firstName": "Fatih"
+  },
+  "trustedHandSide": "right",
+  "humanVerdict": "FAIL",
+  "humanDefects": [
+    "each line lane opens with report geometry; dictionary voice \"karşılık gelir\", \"ilişkilendirilir\", \"bağlanabilir\"",
+    "switches between second and third person (\"ilerleyebilir\", \"alıştığı\", \"tartması\")",
+    "takeaway presumes a long-held attachment and invents another person (\"Karşı taraf\")",
+    "takeaway coaches with a deterministic outcome (\"açıkça adlandırman ... sağlar\")"
+  ],
+  "verdictIsQualityGate": false,
+  "note": "Human verdict is truth metadata, not a gate. Frozen so synthetic GOOD examples cannot stand in for the real product.",
+  "backend": {
+    "visualObservation": "Sağ avuç içi açık ve ana çizgiler okunabilir durumda; başparmak çevresiyle avucun orta ve üst bölümleri belirginleşiyor.",
+    "overall": "Fatih, bu avuçta öne çıkan bütünlük; düşüncelerini bağımsızca şekillendirirken ilişkilerde ve günlük düzende istikrar arayan bir yapıya işaret ediyor. Kolay etkilenmekten çok kendi içinde tartarak ilerleyebilir; bir şeye gerçekten değer verdiğinde ise geçici tepkiler yerine süreklilik göstermesi daha belirleyicidir.",
+    "lifeLine": "Yaşam çizgisi uzun, belirgin bir kavisle başparmak tabanını dolaşıyor ve alt avuca ilerlerken büyük ölçüde kesintisiz kalıyor. Bu yapı, alıştığı insanları ve düzenleri sahiplenen, zorluk karşısında çabuk vazgeçmeyen bir karakterle ilişkilendirilir. Güvenli bir temel kurduğunda sabırla devam etmesi, geçici heveslerden çok kalıcı bağlılıklara değer verdiğini düşündürüyor.",
+    "headLine": "Baş çizgisi başparmakla işaret parmağı arasına yakın başlayıp avucun dışına doğru çapraz ilerliyor; hafifçe aşağı kıvrılan, belirgin ve çoğunlukla kesintisiz bir hat taşıyor. Bu, pratik değerlendirmeyi sezgisel çağrışımlarla birleştirebilen bir düşünme tarzına karşılık gelir. Bir meseleyi yüzeyde bırakmadan zihninde işlemeye yatkın; kendi sonucuna varmak için alan bulduğunda daha net ve yaratıcı olabilir.",
+    "heartLine": "Kalp çizgisi avucun dışından içeri uzanan, hafif yukarı kıvrımlı; sığ, ince tanımlı ve merkez yönünde yer yer silikleşen bir çizgi. Duyguların gösterişli biçimde değil, daha ölçülü ve seçici ifade edilmesine bağlanabilir. İlişkilerde sözcüklerden önce tutarlılığı tartması ve hassasiyetini yalnızca güvendiği kişilere göstermesi olasıdır; belirsizlikte ise hislerini içinde tutabilir.",
+    "fateLine": "",
+    "takeaway": "Senin için asıl dikkat noktası, uzun süre bağlı kalmanın duygularını zaten belli ettiğini varsaymamak olabilir. Karşı taraf yalnızca sakin tavrını görüyorsa, zihninde kesinleşmiş bir bağlılığı fark etmeyebilir; bu nedenle değer verdiğin kişiye bağlılığını açıkça adlandırman, davranışlarınla niyetinin aynı biçimde anlaşılmasını sağlar."
+  },
+  "rendered": {
+    "default": [
+      "SAĞ EL",
+      "SENİN ELİNİN HİKÂYESİ",
+      "Fatih, bu avuçta öne çıkan bütünlük; düşüncelerini bağımsızca şekillendirirken ilişkilerde ve günlük düzende istikrar arayan bir yapıya işaret ediyor. Kolay etkilenmekten çok kendi içinde tartarak ilerleyebilir; bir şeye gerçekten değer verdiğinde ise geçici tepkiler yerine süreklilik göstermesi daha belirleyicidir.",
+      "KALP",
+      "Kalp çizgisi avucun dışından içeri uzanan, hafif yukarı kıvrımlı; sığ, ince tanımlı ve merkez yönünde yer yer silikleşen bir çizgi. Duyguların gösterişli biçimde değil, daha ölçülü ve seçici ifade edilmesine bağlanabilir.",
+      "Devamını oku",
+      "ZİHİN",
+      "Baş çizgisi başparmakla işaret parmağı arasına yakın başlayıp avucun dışına doğru çapraz ilerliyor; hafifçe aşağı kıvrılan, belirgin ve çoğunlukla kesintisiz bir hat taşıyor. Bu, pratik değerlendirmeyi sezgisel çağrışımlarla birleştirebilen bir düşünme tarzına karşılık gelir.",
+      "Devamını oku",
+      "YAŞAM",
+      "Yaşam çizgisi uzun, belirgin bir kavisle başparmak tabanını dolaşıyor ve alt avuca ilerlerken büyük ölçüde kesintisiz kalıyor. Bu yapı, alıştığı insanları ve düzenleri sahiplenen, zorluk karşısında çabuk vazgeçmeyen bir karakterle ilişkilendirilir.",
+      "Devamını oku",
+      "EN ÖNEMLİ İŞARET",
+      "Senin için asıl dikkat noktası, uzun süre bağlı kalmanın duygularını zaten belli ettiğini varsaymamak olabilir. Karşı taraf yalnızca sakin tavrını görüyorsa, zihninde kesinleşmiş bir bağlılığı fark etmeyebilir; bu nedenle değer verdiğin kişiye bağlılığını açıkça adlandırman, davranışlarınla niyetinin aynı biçimde anlaşılmasını sağlar."
+    ],
+    "expanded": [
+      "SAĞ EL",
+      "SENİN ELİNİN HİKÂYESİ",
+      "Fatih, bu avuçta öne çıkan bütünlük; düşüncelerini bağımsızca şekillendirirken ilişkilerde ve günlük düzende istikrar arayan bir yapıya işaret ediyor. Kolay etkilenmekten çok kendi içinde tartarak ilerleyebilir; bir şeye gerçekten değer verdiğinde ise geçici tepkiler yerine süreklilik göstermesi daha belirleyicidir.",
+      "KALP",
+      "Kalp çizgisi avucun dışından içeri uzanan, hafif yukarı kıvrımlı; sığ, ince tanımlı ve merkez yönünde yer yer silikleşen bir çizgi. Duyguların gösterişli biçimde değil, daha ölçülü ve seçici ifade edilmesine bağlanabilir.",
+      "İlişkilerde sözcüklerden önce tutarlılığı tartması ve hassasiyetini yalnızca güvendiği kişilere göstermesi olasıdır; belirsizlikte ise hislerini içinde tutabilir.",
+      "ZİHİN",
+      "Baş çizgisi başparmakla işaret parmağı arasına yakın başlayıp avucun dışına doğru çapraz ilerliyor; hafifçe aşağı kıvrılan, belirgin ve çoğunlukla kesintisiz bir hat taşıyor. Bu, pratik değerlendirmeyi sezgisel çağrışımlarla birleştirebilen bir düşünme tarzına karşılık gelir.",
+      "Bir meseleyi yüzeyde bırakmadan zihninde işlemeye yatkın; kendi sonucuna varmak için alan bulduğunda daha net ve yaratıcı olabilir.",
+      "YAŞAM",
+      "Yaşam çizgisi uzun, belirgin bir kavisle başparmak tabanını dolaşıyor ve alt avuca ilerlerken büyük ölçüde kesintisiz kalıyor. Bu yapı, alıştığı insanları ve düzenleri sahiplenen, zorluk karşısında çabuk vazgeçmeyen bir karakterle ilişkilendirilir.",
+      "Güvenli bir temel kurduğunda sabırla devam etmesi, geçici heveslerden çok kalıcı bağlılıklara değer verdiğini düşündürüyor.",
+      "EN ÖNEMLİ İŞARET",
+      "Senin için asıl dikkat noktası, uzun süre bağlı kalmanın duygularını zaten belli ettiğini varsaymamak olabilir. Karşı taraf yalnızca sakin tavrını görüyorsa, zihninde kesinleşmiş bir bağlılığı fark etmeyebilir; bu nedenle değer verdiğin kişiye bağlılığını açıkça adlandırman, davranışlarınla niyetinin aynı biçimde anlaşılmasını sağlar."
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "kind": "real_provider_output",
+  "evidenceClass": "A",
+  "id": "E3H.1",
+  "capturedAt": "2026-09-03",
+  "pipeline": "two-stage observe/write (live provider)",
+  "personalization": null,
+  "trustedHandSide": "right",
+  "humanVerdict": "WEAK",
+  "humanDefects": [
+    "dictionary voice: \"bağdaştırılır\", \"okunur\", \"ilişkilendirilebilir\", \"öne çıkarıyor\"",
+    "every lane restates measured / think-before-deciding / continuity",
+    "takeaway opens by re-listing line geometry (report voice)"
+  ],
+  "verdictIsQualityGate": false,
+  "note": "Human verdict is truth metadata, not a gate. Frozen so synthetic GOOD examples cannot stand in for the real product.",
+  "backend": {
+    "visualObservation": "Sağ avuç içinde üç ana çizgi seçiliyor. Orta bölümdeki çizgi belirgin ve kesintisiz; başparmak çevresindeki uzun kavis alt avuca kadar izlenebiliyor. Üst çizgi daha hafif görünürken başparmak yastığı ve alt orta bölgede ince, kesişen ikincil çizgiler dikkat çekiyor.",
+    "overall": "Ana çizgilerin yerleşimi, düşüncelerle duyguları birbirine karıştırmadan değerlendirme eğilimini anlatıyor. İnce yan çizgilerin çokluğu ise ayrıntıları kolay fark eden, yaşananları zihninde birkaç yönden ele alan bir karaktere yakışıyor. Bu yapı, önemli konularda hızlı tepki vermektense meseleyi içten içe işleyip netleştirmeyi tercih edebileceğini söylüyor.",
+    "lifeLine": "Başparmak tabanını genişçe dolaşan uzun ve büyük ölçüde kesintisiz yaşam çizgisi, alıştığın insanlara, yerlere ve düzene bağlılık temasını öne çıkarıyor. Kavisinin alt avuca yönelmesi, deneyimleri zamana yayarak benimseyen; değişim yaşasa bile kendi sürekliliğini korumaya çalışan bir tarafla ilişkilendirilebilir.",
+    "headLine": "Avucun ortasını aşağı eğimli biçimde geçen belirgin baş çizgisi, pratik düşüncenin hayal gücü ve sezgisel çağrışımlarla birlikte çalıştığını anlatır. Çizginin sürekliliği, bir konu gerçekten ilgini çektiğinde uzun süre odakta kalabilmeye; yumuşak kavsi ise tek bir katı yönteme bağlı kalmadan farklı olasılıkları değerlendirmeye yatkınlıkla okunur.",
+    "heartLine": "Parmak diplerinin altındaki kalp çizgisinin daha hafif ve yer yer belirsiz oluşu, duyguları hemen sergilemek yerine güven oluştukça açma eğilimiyle bağdaştırılır. Sığ kavsi, ilişkilerde dramatik çıkışlardan çok tutarlılık ve anlaşılır davranışlar arayabileceğini düşündürüyor. Çizginin baş çizgisinden ayrı ilerlemesi, hislerin güçlü olsa da karar anında düşünmeye ayrıca alan bıraktığını anlatıyor.",
+    "fateLine": "",
+    "takeaway": "En belirgin iki dayanak, ortadaki kesintisiz ve aşağı eğimli baş çizgisi ile başparmak çevresinde uzanan yaşam çizgisi. Birlikte, seçenekleri ayrıntılı tartan ama karar verdiğinde kendi çizgisini koruyan bir tutum anlatıyor; ilişkilerdeyse aceleden çok zamanla oluşan güven sana daha uygun görünüyor."
+  },
+  "rendered": {
+    "default": [
+      "SAĞ EL",
+      "SENİN ELİNİN HİKÂYESİ",
+      "Ana çizgilerin yerleşimi, düşüncelerle duyguları birbirine karıştırmadan değerlendirme eğilimini anlatıyor. İnce yan çizgilerin çokluğu ise ayrıntıları kolay fark eden, yaşananları zihninde birkaç yönden ele alan bir karaktere yakışıyor.",
+      "Bu yapı, önemli konularda hızlı tepki vermektense meseleyi içten içe işleyip netleştirmeyi tercih edebileceğini söylüyor.",
+      "KALP",
+      "Parmak diplerinin altındaki kalp çizgisinin daha hafif ve yer yer belirsiz oluşu, duyguları hemen sergilemek yerine güven oluştukça açma eğilimiyle bağdaştırılır. Sığ kavsi, ilişkilerde dramatik çıkışlardan çok tutarlılık ve anlaşılır davranışlar arayabileceğini düşündürüyor.",
+      "Devamını oku",
+      "ZİHİN",
+      "Avucun ortasını aşağı eğimli biçimde geçen belirgin baş çizgisi, pratik düşüncenin hayal gücü ve sezgisel çağrışımlarla birlikte çalıştığını anlatır. Çizginin sürekliliği, bir konu gerçekten ilgini çektiğinde uzun süre odakta kalabilmeye; yumuşak kavsi ise tek bir katı yönteme bağlı kalmadan farklı olasılıkları değerlendirmeye yatkınlıkla okunur.",
+      "YAŞAM",
+      "Başparmak tabanını genişçe dolaşan uzun ve büyük ölçüde kesintisiz yaşam çizgisi, alıştığın insanlara, yerlere ve düzene bağlılık temasını öne çıkarıyor. Kavisinin alt avuca yönelmesi, deneyimleri zamana yayarak benimseyen; değişim yaşasa bile kendi sürekliliğini korumaya çalışan bir tarafla ilişkilendirilebilir.",
+      "EN ÖNEMLİ İŞARET",
+      "En belirgin iki dayanak, ortadaki kesintisiz ve aşağı eğimli baş çizgisi ile başparmak çevresinde uzanan yaşam çizgisi. Birlikte, seçenekleri ayrıntılı tartan ama karar verdiğinde kendi çizgisini koruyan bir tutum anlatıyor; ilişkilerdeyse aceleden çok zamanla oluşan güven sana daha uygun görünüyor."
+    ],
+    "expanded": [
+      "SAĞ EL",
+      "SENİN ELİNİN HİKÂYESİ",
+      "Ana çizgilerin yerleşimi, düşüncelerle duyguları birbirine karıştırmadan değerlendirme eğilimini anlatıyor. İnce yan çizgilerin çokluğu ise ayrıntıları kolay fark eden, yaşananları zihninde birkaç yönden ele alan bir karaktere yakışıyor.",
+      "Bu yapı, önemli konularda hızlı tepki vermektense meseleyi içten içe işleyip netleştirmeyi tercih edebileceğini söylüyor.",
+      "KALP",
+      "Parmak diplerinin altındaki kalp çizgisinin daha hafif ve yer yer belirsiz oluşu, duyguları hemen sergilemek yerine güven oluştukça açma eğilimiyle bağdaştırılır. Sığ kavsi, ilişkilerde dramatik çıkışlardan çok tutarlılık ve anlaşılır davranışlar arayabileceğini düşündürüyor.",
+      "Çizginin baş çizgisinden ayrı ilerlemesi, hislerin güçlü olsa da karar anında düşünmeye ayrıca alan bıraktığını anlatıyor.",
+      "ZİHİN",
+      "Avucun ortasını aşağı eğimli biçimde geçen belirgin baş çizgisi, pratik düşüncenin hayal gücü ve sezgisel çağrışımlarla birlikte çalıştığını anlatır. Çizginin sürekliliği, bir konu gerçekten ilgini çektiğinde uzun süre odakta kalabilmeye; yumuşak kavsi ise tek bir katı yönteme bağlı kalmadan farklı olasılıkları değerlendirmeye yatkınlıkla okunur.",
+      "YAŞAM",
+      "Başparmak tabanını genişçe dolaşan uzun ve büyük ölçüde kesintisiz yaşam çizgisi, alıştığın insanlara, yerlere ve düzene bağlılık temasını öne çıkarıyor. Kavisinin alt avuca yönelmesi, deneyimleri zamana yayarak benimseyen; değişim yaşasa bile kendi sürekliliğini korumaya çalışan bir tarafla ilişkilendirilebilir.",
+      "EN ÖNEMLİ İŞARET",
+      "En belirgin iki dayanak, ortadaki kesintisiz ve aşağı eğimli baş çizgisi ile başparmak çevresinde uzanan yaşam çizgisi. Birlikte, seçenekleri ayrıntılı tartan ama karar verdiğinde kendi çizgisini koruyan bir tutum anlatıyor; ilişkilerdeyse aceleden çok zamanla oluşan güven sana daha uygun görünüyor."
+    ]
+  }
+}

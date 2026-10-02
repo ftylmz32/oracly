@@ -7,8 +7,6 @@ import 'package:oracly_new/features/ai/production/openai/palm_prompt_style.dart'
 import 'package:oracly_new/features/palm/models/palm_hand.dart';
 import 'package:oracly_new/features/palm/models/palm_reading.dart';
 import 'package:oracly_new/features/palm/services/palm_fortune_composer.dart';
-import 'package:oracly_new/features/palm/services/palm_fortune_narration.dart';
-
 import 'palm_fortune_engine_hands.dart';
 
 void main() {
@@ -42,27 +40,22 @@ void main() {
     },
   );
 
-  test(
-    'a valid backend overall still narrates cleanly through PalmFortuneNarration',
-    () {
-      final reading = PalmFortuneComposer.compose(
-        PalmReading(
-          id: 'valid',
-          createdAt: DateTime(2026, 8, 18),
-          hand: PalmHand.right,
-          overall:
-              'Bu avuçta kararlar genelde sessizce, uzun bir düşünme '
-              'süresinin ardından alınıyor gibi görünüyor; hızlı '
-              'davranmak yerine oturup tartmayı tercih eden bir yapı bu.',
-          heartLine: 'Kalp çizgisi belirgin.',
-        ),
-      )!;
-      expect(reading.heartLine, contains('belirgin'));
-      final spoken = PalmFortuneNarration.body(reading);
-      expect(spoken, contains(reading.overall));
-      expect(spoken, isNot(contains('Kalp = aşk')));
-    },
-  );
+  test('a valid backend overall composes and keeps the observed line', () {
+    final reading = PalmFortuneComposer.compose(
+      PalmReading(
+        id: 'valid',
+        createdAt: DateTime(2026, 8, 18),
+        hand: PalmHand.right,
+        overall:
+            'Bu avuçta kararlar genelde sessizce, uzun bir düşünme '
+            'süresinin ardından alınıyor gibi görünüyor; hızlı '
+            'davranmak yerine oturup tartmayı tercih eden bir yapı bu.',
+        heartLine: 'Kalp çizgisi belirgin.',
+      ),
+    )!;
+    expect(reading.heartLine, contains('belirgin'));
+    expect(reading.fullText, isNot(contains('Kalp = aşk')));
+  });
 
   test('prompt asks for a grounded palm story', () {
     expect(PalmPromptStyle.system, contains('Tek hikâye'));

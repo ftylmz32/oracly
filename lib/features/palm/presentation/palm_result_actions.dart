@@ -60,14 +60,6 @@ class PalmResultActions extends StatelessWidget {
         ),
         SizedBox(height: AppSpacing.sm),
         Text(
-          PalmCopy.disclaimer,
-          textAlign: TextAlign.center,
-          style: ReadingTypography.footnote(
-            color: PalmTokens.cream.withValues(alpha: 0.62),
-          ),
-        ),
-        SizedBox(height: AppSpacing.sm),
-        Text(
           SessionEndingCopy.footerWhisper,
           textAlign: TextAlign.center,
           style: ReadingTypography.micro(

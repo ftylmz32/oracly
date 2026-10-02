@@ -156,10 +156,8 @@ void main() {
     expect(find.text(PalmCopy.symbolsTitle), findsOneWidget);
     expect(find.textContaining('Avuç açık ve sakin duruyor.'), findsOneWidget);
     expect(find.textContaining('Kalp çizgisi yakınlık temasını taşıyor.'), findsOneWidget);
-    expect(
-      find.text(PalmCopy.disclaimer, skipOffstage: false),
-      findsOneWidget,
-    );
+    expect(find.text(PalmCopy.sourceNote, skipOffstage: false), findsOneWidget);
+    expect(find.text(PalmCopy.disclaimer, skipOffstage: false), findsNothing);
   });
 
   testWidgets('empty palm asides stay out of the reading', (tester) async {
@@ -194,10 +192,8 @@ void main() {
     expect(find.text(PalmCopy.fateTitle), findsNothing);
     expect(find.text(PalmCopy.symbolsTitle), findsNothing);
     expect(find.textContaining('Sadece genel yapı geldi.'), findsOneWidget);
-    expect(
-      find.text(PalmCopy.disclaimer, skipOffstage: false),
-      findsOneWidget,
-    );
+    expect(find.text(PalmCopy.sourceNote, skipOffstage: false), findsOneWidget);
+    expect(find.text(PalmCopy.disclaimer, skipOffstage: false), findsNothing);
   });
 
   const viewports = <Size>[

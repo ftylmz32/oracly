@@ -41,7 +41,6 @@ import 'tables/table_or_living.dart';
 import 'tables/table_or_menu.dart';
 import 'tables/table_or_voice.dart';
 import 'tables/table_palm.dart';
-import 'tables/table_palm_read.dart';
 import 'tables/table_premium.dart';
 import 'tables/table_privacy_control.dart';
 import 'tables/table_profile.dart';
@@ -92,7 +91,6 @@ abstract final class AppStringTables {
     ...kL10nOrCore,
     ...kL10nOrLiving,
     ...kL10nPalm,
-    ...kL10nPalmRead,
     ...kL10nPremium,
     ...kL10nPrivacyControl,
     ...kL10nQualityLoop,
