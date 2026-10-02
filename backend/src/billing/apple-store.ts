@@ -7,6 +7,8 @@ import {
   ReceiptUtility,
   SignedDataVerifier,
   Status,
+  VerificationException,
+  VerificationStatus,
   type JWSTransactionDecodedPayload,
 } from '@apple/app-store-server-library';
 import { isKnownProduct, isProductAllowedForPlatform, productKind } from './catalog.js';
@@ -293,16 +295,11 @@ async function decodeJwsWithFallback(
       return { status: 'ok', payload, environment };
     } catch (error) {
       last = mapVerifyError(error);
-      if (last.reason === 'jws_invalid' || last.reason === 'bundle_mismatch') {
-        // try next environment for env mismatch; signature failures stay fail-closed
-        if (last.reason === 'jws_invalid' && order.indexOf(environment) === 0) {
-          continue;
-        }
-        if (isEnvMismatch(error)) continue;
+      // Only a proven environment mismatch may try the other environment;
+      // bundle, signature, retryable and unknown failures stay fail-closed.
+      if (last.reason !== 'environment_mismatch') {
         return { status: 'fail', result: last };
       }
-      if (isEnvMismatch(error)) continue;
-      return { status: 'fail', result: last };
     }
   }
   return { status: 'fail', result: last };
@@ -483,7 +480,50 @@ function normalizePem(key: string): string {
   return key.includes('\\n') ? key.replace(/\\n/g, '\n') : key;
 }
 
+/**
+ * Apple's `VerificationException` has an empty message and carries its reason
+ * in `status`, so a structured status is authoritative whenever present. An
+ * unrecognized structured status fails closed; the message mapper only serves
+ * legacy errors that carry no numeric status.
+ */
 function mapVerifyError(error: unknown): BillingVerifyResult {
+  const status = structuredVerificationStatus(error);
+  if (status === 'absent') return mapVerifyErrorMessage(error);
+  switch (status) {
+    case VerificationStatus.INVALID_ENVIRONMENT:
+      return billingResult('unverified', 'environment_mismatch');
+    case VerificationStatus.INVALID_APP_IDENTIFIER:
+      return billingResult('unverified', 'bundle_mismatch');
+    case VerificationStatus.VERIFICATION_FAILURE:
+    case VerificationStatus.INVALID_CHAIN_LENGTH:
+    case VerificationStatus.INVALID_CERTIFICATE:
+    case VerificationStatus.FAILURE:
+      return billingResult('unverified', 'jws_invalid');
+    case VerificationStatus.RETRYABLE_VERIFICATION_FAILURE:
+    case VerificationStatus.OK:
+    default:
+      return billingResult('error', 'provider_unavailable');
+  }
+}
+
+function structuredVerificationStatus(
+  error: unknown,
+): VerificationStatus | 'unknown' | 'absent' {
+  const status =
+    error instanceof VerificationException
+      ? error.status
+      : (error as { status?: unknown } | null)?.status;
+  if (typeof status !== 'number') {
+    return error instanceof VerificationException ? 'unknown' : 'absent';
+  }
+  return isVerificationStatus(status) ? status : 'unknown';
+}
+
+function isVerificationStatus(value: number): value is VerificationStatus {
+  return Number.isInteger(value) && typeof VerificationStatus[value] === 'string';
+}
+
+function mapVerifyErrorMessage(error: unknown): BillingVerifyResult {
   const message = String((error as { message?: string })?.message ?? error);
   if (/MISSING_APP_APPLE_ID/i.test(message)) {
     return billingResult('error', 'missing_app_apple_id');
@@ -498,11 +538,6 @@ function mapVerifyError(error: unknown): BillingVerifyResult {
     return billingResult('unverified', 'jws_invalid');
   }
   return billingResult('error', 'provider_unavailable');
-}
-
-function isEnvMismatch(error: unknown): boolean {
-  const message = String((error as { message?: string })?.message ?? error);
-  return /INVALID_ENVIRONMENT/i.test(message);
 }
 
 function isTxnNotFound(error: unknown): boolean {
