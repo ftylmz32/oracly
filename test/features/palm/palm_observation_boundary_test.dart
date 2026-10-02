@@ -6,25 +6,46 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/palm/data/palm_observation.dart';
 
 void main() {
-  group('absent marker "yok" is a whole word', () {
-    test('standalone and punctuated "yok" match', () {
-      expect(PalmObservation.hasTerm('yok', 'yok'), isTrue);
-      expect(PalmObservation.hasTerm('yok.', 'yok'), isTrue);
-      expect(PalmObservation.hasTerm('Belirgin bir kırık YOK.', 'yok'), isTrue);
-      expect(PalmObservation.missing('Yön çizgisi yok.'), isTrue);
-    });
+  group('missing() means the line itself is unavailable', () {
+    const absentLines = [
+      'Yok.',
+      'yok',
+      'Çizgi yok.',
+      'Kalp çizgisi yok.',
+      'Yön çizgisi burada yok.',
+      'Bu çizgi görünmüyor.',
+      'Çizgi görülemiyor.',
+      'Çizgi seçilemiyor.',
+      'Line not visible.',
+      'Too faint to identify the line.',
+    ];
+    for (final text in absentLines) {
+      test('absent: "$text"', () {
+        expect(PalmObservation.missing(text), isTrue);
+      });
+    }
 
-    test('"yokluğundan" never matches "yok"', () {
-      expect(PalmObservation.hasTerm('yokluğundan', 'yok'), isFalse);
-      expect(PalmObservation.hasTerm('ayok yokç', 'yok'), isFalse);
-      expect(
-        PalmObservation.missing(
-          'Sığ çizgi, duyguların yokluğundan çok ölçülü ifade edilmesine '
+    const presentLines = [
+      'Yaşam çizgisi uzun bir yay çiziyor; kopukluk yok.',
+      'Baş çizgisinde kesinti yok, avucu boydan boya geçiyor.',
+      'Belirgin bir kırılma yok.',
+      'Dallanma yok.',
+      'Çizgide boşluk yok.',
+      'Kalp çizgisinin yokluğundan söz edilemez.',
+      'Sığ çizgi, duyguların yokluğundan çok ölçülü ifade edilmesine '
           'karşılık gelir.',
-        ),
-        isFalse,
-      );
-    });
+      'Kalp çizgisi net; yukarı doğru hiçbir dallanma yok.',
+    ];
+    for (final text in presentLines) {
+      test('present (a property is denied, not the line): "$text"', () {
+        expect(PalmObservation.missing(text), isFalse);
+        // "dallanma" is separately a textbook term; that rule, not absence,
+        // decides whether such a sentence is shown.
+        if (!PalmObservation.hasTerm(text, 'dallanma')) {
+          expect(PalmObservation.line(text), isNotEmpty);
+        }
+      });
+    }
   });
 
   group('textbook term "ölüm" starts at a token boundary', () {

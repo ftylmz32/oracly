@@ -90,6 +90,17 @@ void main() {
     }
   });
 
+  testWidgets('a denied property ("kopukluk yok") never hides the lane',
+      (tester) async {
+    const life = 'Yaşam çizgisi başparmak tabanını geniş bir yayla dolaşıyor; '
+        'kopukluk yok.';
+    final reading = composeLive(_batch3a4With({'lifeLine': life}))!;
+    expect(reading.lifeLine, life);
+    await pumpSections(tester, reading);
+    expect(find.text(PalmCopy.lifeTitle), findsOneWidget);
+    expect(find.text(life), findsOneWidget);
+  });
+
   testWidgets('D: "Bu ayrım" never renders alone after "dallanma" is removed',
       (tester) async {
     final reading = composeLive(_batch3a4With({

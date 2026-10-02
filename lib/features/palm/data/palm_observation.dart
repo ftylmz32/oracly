@@ -8,20 +8,25 @@ import '../models/palm_reading.dart';
 abstract final class PalmObservation {
   PalmObservation._();
 
+  /// Explicit visibility phrases: the line itself could not be read.
   static const absent = [
     'görünmüyor',
     'görünmez',
     'görülemiyor',
     'seçilemiyor',
-    'yok',
     'not visible',
     'не видн',
     'too faint',
   ];
 
-  /// Terms that must also end at a token boundary ("yok" ≠ "yokluğundan").
-  /// Every other term may carry Turkish suffixes ("ölümü", "hastalığı").
-  static const wholeWord = {'yok'};
+  /// "yok" marks the line absent only when the line is its subject
+  /// ("Kalp çizgisi yok."); "kopukluk yok" denies a property instead.
+  static final _lineAbsent = RegExp(
+    r'(?<![\p{L}\p{M}\p{N}])çizgi(?:si|ler|leri)?\s+'
+    r'(?:(?:burada|avuçta|elde)\s+)?yok(?![\p{L}\p{M}\p{N}])',
+    unicode: true,
+  );
+  static final _clauseBreak = RegExp(r'[.!?;:,\n]');
 
   static const textbook = [
     'temsil eder',
@@ -87,24 +92,29 @@ abstract final class PalmObservation {
     return text;
   }
 
-  static bool missing(String text) =>
-      text.trim().isEmpty || absent.any((term) => hasTerm(text, term));
+  static bool missing(String text) {
+    if (text.trim().isEmpty) return true;
+    if (absent.any((term) => hasTerm(text, term))) return true;
+    final folded = _fold(text);
+    if (_lineAbsent.hasMatch(folded)) return true;
+    return folded.split(_clauseBreak).any((clause) => clause.trim() == 'yok');
+  }
 
   static List<String> marks(Iterable<String> names) => [
         for (final name in names)
           if (name.trim().isNotEmpty) name.trim(),
       ];
 
-  /// True when [term] starts at a token boundary in [text]; [wholeWord]
-  /// terms must end at one too. Unicode-aware, unlike ASCII `\b`.
+  /// True when [term] starts at a token boundary in [text]; Turkish
+  /// suffixes may follow ("ölümü"). Unicode-aware, unlike ASCII `\b`.
   static bool hasTerm(String text, String term) {
-    final pattern = _patterns.putIfAbsent(term, () {
-      final tail = wholeWord.contains(term) ? r'(?![\p{L}\p{M}\p{N}])' : '';
-      return RegExp(
-        '(?<![\\p{L}\\p{M}\\p{N}])${RegExp.escape(term)}$tail',
+    final pattern = _patterns.putIfAbsent(
+      term,
+      () => RegExp(
+        '(?<![\\p{L}\\p{M}\\p{N}])${RegExp.escape(term)}',
         unicode: true,
-      );
-    });
+      ),
+    );
     return pattern.hasMatch(_fold(text));
   }
 
