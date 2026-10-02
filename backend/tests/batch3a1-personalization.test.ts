@@ -111,8 +111,11 @@ describe('BATCH 3A.1 — no personalization still produces a valid contract', ()
     expect(bindCoffeeNarrative(goodCoffeeNarrative, coffeeObs, 'tr', undefined)).toBeNull();
   });
 
-  it('palm narrative binds successfully with zero personalization', () => {
-    expect(bindPalmNarrative(goodPalmNarrative, palmObs, 'tr', false)).toBeNull();
+  it('palm verdict does not depend on personalization being present', () => {
+    const none = bindPalmNarrative(goodPalmNarrative, palmObs, 'tr', false);
+    expect(none).toBe(bindPalmNarrative(goodPalmNarrative, palmObs, 'tr', false, { firstName: 'Kaya' }));
+    // Synthetic pre-guardrail fixture: its takeaway re-walks overall.
+    expect(none).toBe('section_redundancy');
   });
 });
 

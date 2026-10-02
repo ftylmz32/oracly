@@ -3,6 +3,8 @@
  * Strengthened in E3G for grounding, specificity, and anti-boilerplate.
  */
 
+import { palmClaimFailure, palmVoiceFailure } from './palm-quality-guards.js';
+
 export type HumanQualityFailure =
   | 'empty'
   | 'too_short'
@@ -63,7 +65,17 @@ export type HumanQualityFailure =
    * BATCH 3A.3: a palm major-line's length/direction/depth/curve/continuity
    * is narrated again in overall and takeaway after its own line section.
    */
-  | 'evidence_reuse';
+  | 'evidence_reuse'
+  /** Palm: reference-book attribution ("ilişkilendirilir", "karşılık gelir"). */
+  | 'dictionary_voice'
+  /** Palm: an invented other person, or what someone else sees/thinks/feels. */
+  | 'unsupported_other_person'
+  /** Palm: an invented present or past circumstance (a decision, a wait, an attachment). */
+  | 'presumed_user_state'
+  /** Palm: commands, advice, or homework instead of a reading. */
+  | 'coaching_voice'
+  /** Palm: a second-person reading that profiles the person in third person. */
+  | 'person_switch';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -93,6 +105,8 @@ export type PalmQualityInput = {
   trustedHandSide?: boolean;
   /** True only when personalization.memorySummary was actually supplied. */
   hasMemoryContext?: boolean;
+  /** True when personalization supplied an intention or memorySummary. */
+  hasStatedContext?: boolean;
   /** Supplied recurring-theme labels — supporting context, not the subject. */
   relevantThemes?: string[];
 };
@@ -333,6 +347,8 @@ export function evaluatePalmQuality(
   // stock-cliché fixture is never masked by a style verdict instead.
   if (CERTAINTY.test(foldTr(blob))) return 'unsupported_certainty';
   if (MEDICAL.test(foldTr(blob))) return 'prohibited_claim';
+  const claim = palmClaimFailure(foldTr(blob));
+  if (claim) return claim;
   if (!input.hasMemoryContext && FAKE_MEMORY_CLAIM.test(foldTr(blob))) {
     return 'fake_memory';
   }
@@ -355,6 +371,19 @@ export function evaluatePalmQuality(
   if (themeDominates(input.relevantThemes, palmRead)) return 'theme_domination';
   if (palmLineAttributeReuse(input)) return 'evidence_reuse';
   if (ideaClusterRepeats(palmRead)) return 'section_redundancy';
+  if (palmTakeawayRestatesGeometry(input)) return 'section_redundancy';
+  const voice = palmVoiceFailure(
+    {
+      overall: foldTr(overall),
+      lifeLine: foldTr(input.lifeLine),
+      headLine: foldTr(input.headLine),
+      heartLine: foldTr(input.heartLine),
+      fateLine: foldTr(input.fateLine),
+      takeaway: foldTr(takeaway),
+    },
+    Boolean(input.hasStatedContext || input.hasMemoryContext),
+  );
+  if (voice) return voice;
   return localeMarkerFailure(blob, input.language);
 }
 
@@ -601,7 +630,7 @@ export function ideaClusterRepeats(sections: string[]): boolean {
 }
 
 const PALM_LINE_SPECS: Array<{ name: RegExp; text: (input: PalmQualityInput) => string }> = [
-  { name: /zihin|kafa ciz|head line/, text: (i) => i.headLine },
+  { name: /zihin|kafa ciz|bas ciz|head line/, text: (i) => i.headLine },
   { name: /yasam ciz|life line/, text: (i) => i.lifeLine },
   { name: /kalp ciz|heart line/, text: (i) => i.heartLine },
   { name: /kader ciz|fate line/, text: (i) => i.fateLine },
@@ -639,6 +668,18 @@ export function palmLineAttributeReuse(input: PalmQualityInput): boolean {
     if (restated >= 2) return true;
   }
   return false;
+}
+
+/** The takeaway names a line and re-describes two or more of its own attributes. */
+export function palmTakeawayRestatesGeometry(input: PalmQualityInput): boolean {
+  const takeaway = foldTr(input.takeaway);
+  if (!takeaway.trim()) return false;
+  return PALM_LINE_SPECS.some((spec) => {
+    const line = spec.text(input).trim();
+    if (!line || !spec.name.test(takeaway)) return false;
+    const lineMorph = morphSet(line);
+    return [...morphSet(takeaway)].filter((m) => lineMorph.has(m)).length >= 2;
+  });
 }
 
 /** Unicode-safe Turkish fold: diacritics → ASCII so patterns stay stable. */

@@ -100,12 +100,13 @@ describe('BATCH 3A.3 — same evidence and theme can still pass when additive', 
     })).toBeNull();
   });
 
-  it('GOOD palm does not restate head-line morphology in both synthesis sections', () => {
-    expect(evaluatePalmQuality(palmInput(palm.narrative))).toBeNull();
+  it('pre-guardrail GOOD palm does not restate head-line morphology, but keeps textbook voice', () => {
+    expect(palmLineAttributeReuse(palmInput(palm.narrative))).toBe(false);
+    expect(evaluatePalmQuality(palmInput(palm.narrative))).toBe('dictionary_voice');
     expect(bindPalmNarrative(palm.narrative, palm.observation, 'tr', true, {
       firstName: 'Fatih',
       relevantThemes: theme,
-    })).toBeNull();
+    })).toBe('dictionary_voice');
   });
 
   it('writer contract treats theme as optional lens and bans stock closings', () => {

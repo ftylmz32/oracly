@@ -20,7 +20,13 @@ import {
   toPublicCoffee,
   toPublicPalm,
 } from '../src/ai/reading/evidence-bind.js';
-import { evaluateCoffeeQuality, evaluatePalmQuality } from '../src/ai/human-quality.js';
+import {
+  evaluateCoffeeQuality,
+  evaluatePalmQuality,
+  foldTr,
+  palmLineAttributeReuse,
+} from '../src/ai/human-quality.js';
+import { takeawayEchoesOverall } from '../src/ai/palm-quality-guards.js';
 import type {
   CoffeeNarrative,
   CoffeeObservation,
@@ -139,9 +145,12 @@ describe('BATCH 3A — Coffee quality gate', () => {
 describe('BATCH 3A — Palm quality gate', () => {
   const good = loadPalm('palm_good');
 
-  it('GOOD: grounded palm evidence transformed into nuanced interpretation is accepted', () => {
-    expect(evaluatePalmQuality(palmQualityInput(good.narrative))).toBeNull();
-    expect(bindPalmNarrative(good.narrative, good.observation, 'tr', false)).toBeNull();
+  it('pre-guardrail GOOD: grounded and interpretive, but its takeaway re-walks overall', () => {
+    const input = palmQualityInput(good.narrative);
+    expect(palmLineAttributeReuse(input)).toBe(false);
+    expect(takeawayEchoesOverall(foldTr(input.overall), foldTr(input.takeaway))).toBe(true);
+    expect(evaluatePalmQuality(input)).toBe('section_redundancy');
+    expect(bindPalmNarrative(good.narrative, good.observation, 'tr', false)).toBe('section_redundancy');
   });
 
   it('BAD 1: line-description-heavy output ("heart line is...", "the line is long") is rejected', () => {
@@ -158,10 +167,9 @@ describe('BATCH 3A — Palm quality gate', () => {
 
   it('BAD 3: unsupported deterministic claim (lifespan/death) is rejected', () => {
     const bad = loadPalm('palm_bad_unsafe_claim');
-    expect(['unsupported_certainty', 'prohibited_claim']).toContain(
-      evaluatePalmQuality(palmQualityInput(bad.narrative)),
-    );
-    expect(bindPalmNarrative(bad.narrative, bad.observation, 'tr', false)).toBe('human_quality');
+    const verdict = evaluatePalmQuality(palmQualityInput(bad.narrative));
+    expect(['unsupported_certainty', 'prohibited_claim']).toContain(verdict);
+    expect(bindPalmNarrative(bad.narrative, bad.observation, 'tr', false)).toBe(verdict);
   });
 
   it('repetition (a palm line section restated elsewhere) is rejected', () => {

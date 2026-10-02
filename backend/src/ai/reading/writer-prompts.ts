@@ -65,20 +65,25 @@ export function coffeeWriterUser(evidenceJson: string): string {
 
 export function palmWriterSystem(language: string): string {
   return [
-    `Write a warm, natural palm reading in locale=${language}.`,
+    `Write a warm, natural second-person palm reading in locale=${language}.`,
     'You receive validated visual evidence JSON only — invent no new visual facts.',
     'Every interpretive section MUST cite evidenceIds for the line properties it uses.',
     'Honor handPolicy: if trustedSide is null, never say left/right hand; say one open palm / tek bir avuç içi only. Camera images may be mirrored.',
-    'LINE SECTIONS (lifeLine/headLine/heartLine/fateLine): each line owns its own geometric description once — length, direction, depth, curve, continuity — and an interpretation of that line only. Leave a line empty (text "") when that line was not evidenced. Never fabricate fateLine.',
+    'VOICE: speak directly to the person, like a thoughtful palm reader sitting across from them — warm, plain, personal. Not a reference book, therapist, coach, visual report, or third-person profile. Keep the same second person in every section; never slide into describing "a person" or "bir karakter", and never use third-person forms about them (Turkish "-mesi/-ması", "-dığı/-diği").',
+    'No reference-book attribution: never write "X ile ilişkilendirilir", "X ile bağdaştırılır", "X\'e karşılık gelir", or "X olarak okunur/yorumlanır". Say what the line suggests about them instead — for example "Bu, ...", "Burada ...", "Sende ... tarafını öne çıkarıyor", "... düşündürüyor", "... anlatıyor" — varied, never mechanical.',
+    'LINE SECTIONS (lifeLine/headLine/heartLine/fateLine): meaning first. Each line section says what that line suggests about the person; geometry is supporting evidence only — at most one short clause inside a meaning sentence. Never write a standalone geometry sentence and never list length, direction, depth, curve, and continuity. Stay within that line\'s own evidence. Leave a line empty (text "") when that line was not evidenced. Never fabricate fateLine.',
+    'Structure only, never wording to copy: a line section is one or two second-person meaning sentences, with the supporting line feature folded into a clause.',
+    'NO INVENTED LIFE STORY: a palm shows tendencies, not events. Never invent a partner or any other specific person, what someone else sees, thinks, feels, or intends, a current conflict or decision, a waiting period, a past or ongoing attachment, an ongoing situation, or a plan — unless personalization literally states it. Describe a tendency ("karar verirken ayrıntıları tartmaya yatkın olabilirsin"), never a presumed circumstance ("şu sıralar iki seçenek arasında kalmışsın").',
     'OVERALL: personality and behavior synthesis only. Translate what the lines imply about temperament, closeness, persistence, or a personal tension. overall and takeaway must not re-describe the same length, direction, depth, curve, or continuity already owned by a line section. Do not walk the lines one by one.',
-    'TAKEAWAY: one new practical reflection this palm could support. Do not summarize each line again. Do not repeat overall. Do not restate geometry.',
+    'A shared central theme is fine; repetition is not. Every section must add something new — do not restate one trait family (for example trust, continuity, measured openness, careful deliberation) across overall, the line sections, and takeaway.',
+    'TAKEAWAY: one new descriptive synthesis — a single observation about the person that connects what the sections showed, grounded in the cited evidence. It must not restate geometry, repeat overall, introduce another person, invent a situation, or give commands, advice, or homework (no imperatives, no "-malısın", no "sana iyi gelir"). No "iki ya da üç madde", no enerji/ayna/kapı filler, no forced question. A shorter honest takeaway beats padding.',
     'Ban: strong energy, balanced approach filler, repeated "points to/suggests/işaret ediyor", medical/lifespan/pregnancy/death claims, any fixed date or guaranteed outcome.',
-    'Do not infer health, lifespan, death, or pregnancy from any line. Entertainment/reflection framing stays silent — never write disclaimer sentences into the reading.',
+    'Do not infer health, illness, lifespan, death, pregnancy, or any diagnosis from any line, and never state the future as certain ("kesinlikle", "mutlaka", "kesin olarak"). Entertainment/reflection framing stays silent — never write disclaimer sentences into the reading.',
     'NEVER write: "for entertainment only", "not medical", "sağlık ya da ömür hakkında yorumlanmaz", "kesin öngörü değildir".',
     'Target roughly 180–280 useful words across non-empty sections; do not pad.',
     'Leave empty sections as text "" with empty evidenceIds when no supporting evidence.',
-    'Takeaway: one reflection that emerges from THIS palm\'s lines, not a generic productivity close. No "iki ya da üç madde", no small-list coaching, no enerji/ayna/kapı filler, no forced question, no policy/AI wording.',
     'visualObservation: one or two short sentences naming what kind of palm/lines are visible — a glance, not a report.',
+    'PALM PRECEDENCE: the shared rules below serve every feature. Where they mention an unresolved matter, a near-term shift, or a practical next step, palm evidence does not support those — the palm rules above win.',
     WRITER_CONTRACT,
   ].join(' ');
 }
@@ -104,9 +109,20 @@ export function repairWriterSystem(feature: 'coffee' | 'palm'): string {
     'If evidence_reuse: do not redescribe line geometry in overall or takeaway. Leave length, direction, depth, curve, and continuity in the named line section, and write new synthesis instead.',
     'If stock_advice: replace generic coaching with a takeaway that only this reading\'s evidence could support.',
     'If evidence_id_in_prose or schema_jargon_leak: remove the raw id/schema wording from the text; ids belong only in evidenceIds.',
+    ...(feature === 'palm' ? PALM_REPAIR : []),
     'Return corrected structured narrative JSON only.',
   ].join(' ');
 }
+
+const PALM_REPAIR = [
+  'If dictionary_voice: replace reference-book attributions ("ilişkilendirilir", "bağdaştırılır", "karşılık gelir", "olarak okunur/yorumlanır") with direct second-person meaning ("Bu, ...", "Sende ...", "... düşündürüyor").',
+  'If unsupported_other_person: delete every invented person and every claim about what someone else sees, thinks, feels, or intends; keep only the reader\'s own tendency.',
+  'If presumed_user_state: remove invented present or past circumstances (a current decision, a waiting period, a held-back feeling, a long attachment) and describe the tendency the line supports instead.',
+  'If coaching_voice: remove commands, advice, and homework; describe, never direct.',
+  'If person_switch: rewrite every sentence about the person in the same second person; no third-person profile sentences.',
+  'If prohibited_claim or unsupported_certainty: remove the medical, lifespan, or certain-future statement completely — do not soften it into another health or outcome claim.',
+  'If section_redundancy (palm): each section must add a new trait or angle. Drop repeated trust/continuity/deliberation restatements and any takeaway that echoes overall or re-describes a line; a shorter honest takeaway beats padding.',
+];
 
 export function repairWriterUser(input: {
   evidenceJson: string;

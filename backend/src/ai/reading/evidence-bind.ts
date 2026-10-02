@@ -39,8 +39,25 @@ export type BindFailure =
   | 'insight_collapse'
   | 'stock_advice'
   | 'evidence_reuse'
+  | PalmNamedFailure
   /** A real internal evidence id literally appeared inside prose text. */
   | 'evidence_id_in_prose';
+
+/** Palm gate codes forwarded by name so repair can target the defect. */
+const PALM_NAMED_FAILURES = [
+  'dictionary_voice',
+  'unsupported_other_person',
+  'presumed_user_state',
+  'coaching_voice',
+  'person_switch',
+  'prohibited_claim',
+  'unsupported_certainty',
+] as const;
+type PalmNamedFailure = (typeof PALM_NAMED_FAILURES)[number];
+
+function isPalmNamedFailure(code: string): code is PalmNamedFailure {
+  return (PALM_NAMED_FAILURES as readonly string[]).includes(code);
+}
 
 const FORTUNE_LEAK =
   /gelecek|kehanet|kaderin|you will meet|destiny awaits|fal olarak|yorumu:/i;
@@ -284,9 +301,12 @@ export function bindPalmNarrative(
     language,
     trustedHandSide,
     hasMemoryContext: Boolean(personalization?.memorySummary),
+    hasStatedContext: Boolean(
+      personalization?.intention?.trim() || personalization?.memorySummary?.trim(),
+    ),
     relevantThemes: personalization?.relevantThemes,
   });
-  if (quality) return mapQuality(quality);
+  if (quality) return isPalmNamedFailure(quality) ? quality : mapQuality(quality);
   return null;
 }
 
@@ -355,7 +375,8 @@ export function narrativeFail(
     code === 'insight_collapse' ||
     code === 'stock_advice' ||
     code === 'evidence_reuse' ||
-    code === 'evidence_id_in_prose'
+    code === 'evidence_id_in_prose' ||
+    isPalmNamedFailure(code)
   ) {
     fail(ErrorCode.qualityUnavailable, 200, { bindFailure: code, ...details });
   }

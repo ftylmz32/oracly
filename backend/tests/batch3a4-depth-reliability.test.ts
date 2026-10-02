@@ -8,6 +8,8 @@ import {
   coffeeInsightCollapse,
   evaluateCoffeeQuality,
   evaluatePalmQuality,
+  palmLineAttributeReuse,
+  palmTakeawayRestatesGeometry,
 } from '../src/ai/human-quality.js';
 import { bindCoffeeNarrative, bindPalmNarrative } from '../src/ai/reading/evidence-bind.js';
 import {
@@ -61,7 +63,7 @@ describe('BATCH 3A.4 — palm contract and targeted repair', () => {
   it('line geometry stays in line sections; synthesis does not restate it', () => {
     const good = load('palm_good_3a3');
     const n = good.narrative as PalmNarrative;
-    expect(evaluatePalmQuality({
+    const input = {
       visualObservation: n.visualObservation.text,
       overall: n.overall.text,
       lifeLine: n.lifeLine.text,
@@ -69,12 +71,16 @@ describe('BATCH 3A.4 — palm contract and targeted repair', () => {
       heartLine: n.heartLine.text,
       fateLine: n.fateLine.text,
       takeaway: n.takeaway.text,
-      language: 'tr',
+      language: 'tr' as const,
       trustedHandSide: true,
-    })).toBeNull();
+    };
+    expect(palmLineAttributeReuse(input)).toBe(false);
+    expect(palmTakeawayRestatesGeometry(input)).toBe(false);
+    // Synthetic pre-guardrail fixture: its life line keeps textbook voice.
+    expect(evaluatePalmQuality(input)).toBe('dictionary_voice');
     expect(bindPalmNarrative(n, good.observation, 'tr', true, {
       firstName: 'Fatih',
-    })).toBeNull();
+    })).toBe('dictionary_voice');
   });
 
   it('repair guidance for evidence_reuse names the structural fix', () => {
