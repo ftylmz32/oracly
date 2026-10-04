@@ -534,6 +534,12 @@ class SoulMateReadingOrchestrator {
         unreachable: true,
       );
     }
+    if (state.authRejected) {
+      return const SoulMateDurableOutcome(
+        kind: SoulMateDurableKind.none,
+        authRejected: true,
+      );
+    }
     final snapshot = state.snapshot;
     // `/v1/reading-flow/active` returns whatever operation is active
     // REGARDLESS of executionMode — it is the exact same endpoint
@@ -741,9 +747,15 @@ class SoulMateDurableOutcome {
     this.activeSince,
     this.failureCode = ReadingFailureCode.unknown,
     this.unreachable = false,
+    this.authRejected = false,
   });
 
   final SoulMateDurableKind kind;
+
+  /// The server rejected authentication (HTTP 401): [kind] says nothing
+  /// about the operation, but the rejection may be permanent — an observer
+  /// may only retry a bounded number of times.
+  final bool authRejected;
 
   /// The server could not answer (transport, 429, 5xx): [kind] says nothing
   /// about the operation itself, so an observer must keep observing.

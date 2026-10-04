@@ -63,6 +63,12 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   String? _targetOperationId;
   bool _opening = true;
 
+  /// Consecutive HTTP 401 polls tolerated while observing an operation —
+  /// same budget as the network RetryInterceptor (3 attempts).
+  static const _maxAuthRetries = 3;
+  int _authRetries = 0;
+  String? _authRetryOwner;
+
   @override
   void initState() {
     super.initState();
@@ -200,6 +206,30 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
   /// poll; every other kind stops polling.
   Future<void> _applyDurable(SoulMateDurableOutcome outcome) async {
     if (!mounted) return;
+    if (outcome.authRejected && _busy) {
+      // A 401 says nothing about the operation: keep observing the SAME one
+      // (token refresh), but bounded — it may be permanent — and only for
+      // the owner that started observing.
+      final owner = SoulMateDrawAction.ownerOf(ref);
+      _authRetryOwner ??= owner;
+      if (_authRetryOwner == owner && _authRetries < _maxAuthRetries) {
+        _authRetries++;
+        _scheduleDurablePoll();
+        return;
+      }
+      final ownerChanged = _authRetryOwner != owner;
+      _authRetries = 0;
+      _authRetryOwner = null;
+      _pollTimer?.cancel();
+      setState(() {
+        _activeSince = null;
+        _busy = false;
+        _statusMessage = ownerChanged ? null : SoulMateCopy.failureTemporary;
+      });
+      return;
+    }
+    _authRetries = 0;
+    _authRetryOwner = null;
     if (outcome.unreachable && (_busy || _targetOperationId != null)) {
       setState(() {
         _busy = true;

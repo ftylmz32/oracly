@@ -62,6 +62,14 @@ class ReadingLiveState {
         (status == null || status == 429 || status >= 500);
   }
 
+  /// Idle only because the server rejected authentication (HTTP 401) — not
+  /// an operation verdict. Deliberately NOT [unreachable]: a 401 may be
+  /// permanent, so only callers that bound their retries opt in.
+  bool get authRejected =>
+      kind == ReadingLiveKind.idle &&
+      failureStage != null &&
+      httpStatus == 401;
+
   Duration displayRemaining(Duration elapsedSinceSync) {
     final snap = snapshot;
     if (snap == null) return Duration.zero;
@@ -127,6 +135,14 @@ class ReadingLiveFlow {
         snapshot: null,
         failureStage: 'recover',
         httpStatus: wire?.statusCode,
+      );
+    }
+    if (wire.statusCode == 401) {
+      return const ReadingLiveState(
+        kind: ReadingLiveKind.idle,
+        snapshot: null,
+        failureStage: 'recover',
+        httpStatus: 401,
       );
     }
     final data = wire.json?['data'];
