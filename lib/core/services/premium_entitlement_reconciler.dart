@@ -105,6 +105,14 @@ class PremiumEntitlementReconciler {
     'purchase_bound_to_other_account',
   };
 
+  /// Unverified reasons where our own verification infrastructure, not the
+  /// store, failed (own-backend 401; no store credentials deployed). Apple /
+  /// Google never judged the purchase, so an already-verified grant is kept.
+  static const _verificationUnavailableReasons = <String>{
+    'auth_required',
+    'provider_not_configured',
+  };
+
   /// Null when there is no usable recovery material (none saved, owner not
   /// isolated, incomplete, or a product this build does not recognize).
   Future<PremiumReconcileSnapshot?> _recoverFromSavedCredentials() async {
@@ -234,6 +242,17 @@ class PremiumEntitlementReconciler {
       // normally. A never-verified user never reaches this branch at all
       // (see `reconcile()`), so this cannot fabricate Premium for anyone.
       // R3.1 — definitive:false so freshness is not advanced.
+      return PremiumReconcileSnapshot(
+        entitlement: PremiumEntitlementState.active,
+        message: result.reason,
+        definitive: false,
+      );
+    }
+
+    if (result.status == PremiumVerifyStatus.unverified &&
+        _verificationUnavailableReasons.contains(result.reason)) {
+      // Same contract as the transient error branch above: keep the proven
+      // grant, non-definitive so freshness stays retryable.
       return PremiumReconcileSnapshot(
         entitlement: PremiumEntitlementState.active,
         message: result.reason,
