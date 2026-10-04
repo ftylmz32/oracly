@@ -681,7 +681,9 @@ void main() {
       iap.emit([_event(PremiumStoreCatalog.monthlyId, token: 'paid-token')]);
       final first = await purchase;
 
-      expect(first.outcome, PremiumPurchaseOutcome.unverified);
+      // WAVE 1.2 contract: a transient verify failure after a store charge is
+      // retryable (`pending`), never a definitive `unverified` rejection.
+      expect(first.outcome, PremiumPurchaseOutcome.pending);
       expect(await repo.isPremiumActive(), isFalse);
       expect((await repo.readPurchaseCredentials())?.purchaseToken, 'paid-token');
 

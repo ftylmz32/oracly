@@ -209,6 +209,9 @@ class PremiumStatusController extends ChangeNotifier {
       PremiumEntitlementState.pending,
       PremiumPurchaseResult.pending().message,
     );
+    // A store transaction makes the pre-purchase verdict stale — it must
+    // never keep ensureFresh() from re-verifying the new purchase proof.
+    _freshness.invalidateDefinitive();
     try {
       final result = await _service.purchase(plan);
       await _settle(result);
@@ -232,6 +235,7 @@ class PremiumStatusController extends ChangeNotifier {
       PremiumEntitlementState.restoring,
       PremiumPurchaseResult.pending().message,
     );
+    _freshness.invalidateDefinitive();
     try {
       final result = await _service.restore();
       await _settle(result);

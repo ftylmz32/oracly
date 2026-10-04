@@ -64,6 +64,14 @@ class PremiumGrantPolicy {
       return PremiumPurchaseResult.pending();
     }
 
+    // Transient verify failure (network, parse, 5xx) after the store already
+    // charged: the proof is durable (saved by the store path) and only the
+    // server confirmation is outstanding. Never close this as an unverified
+    // purchase — `pending` makes the controller reconcile the saved proof.
+    if (verify.status == PremiumVerifyStatus.error) {
+      return PremiumPurchaseResult.pending();
+    }
+
     // No remote provider: local cache always returns unverified.
     if (verify.status == PremiumVerifyStatus.unverified &&
         !_verifier.isRemoteVerifierConfigured) {
