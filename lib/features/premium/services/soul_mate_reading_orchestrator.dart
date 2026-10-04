@@ -384,8 +384,21 @@ class SoulMateReadingOrchestrator {
     final runner = ref.read(readingFeatureRunnerProvider);
     if (runner == null) return const SoulMateRecoveryState.idle();
     final state = await runner.flow.recover(ReadingType.soulmate);
+    final snapshot = state.snapshot;
+    // The same endpoint also returns this build's DURABLE operations (e.g.
+    // when an earlier recoverDurable call was unreachable). Those are owned
+    // by the durable worker and must never be treated as a stuck legacy one.
+    if (snapshot != null &&
+        snapshot.durable &&
+        (state.kind == ReadingLiveKind.waiting ||
+            state.kind == ReadingLiveKind.processing)) {
+      return SoulMateRecoveryState.durableActive(
+        snapshot.operationId,
+        snapshot.createdAt,
+      );
+    }
     if (state.kind == ReadingLiveKind.processing) {
-      return SoulMateRecoveryState.processing(state.snapshot?.operationId);
+      return SoulMateRecoveryState.processing(snapshot?.operationId);
     }
     if (state.kind == ReadingLiveKind.failed) {
       return const SoulMateRecoveryState.failed();
@@ -748,13 +761,20 @@ class SoulMateDurableOutcome {
 }
 
 class SoulMateRecoveryState {
-  const SoulMateRecoveryState._(this.kind, [this.operationId]);
+  const SoulMateRecoveryState._(this.kind, [this.operationId, this.activeSince]);
   const SoulMateRecoveryState.idle() : this._(SoulMateRecoveryKind.idle);
   const SoulMateRecoveryState.processing([String? operationId])
     : this._(SoulMateRecoveryKind.processing, operationId);
+  const SoulMateRecoveryState.durableActive(
+    String operationId,
+    DateTime? activeSince,
+  ) : this._(SoulMateRecoveryKind.durableActive, operationId, activeSince);
   const SoulMateRecoveryState.failed() : this._(SoulMateRecoveryKind.failed);
 
   final SoulMateRecoveryKind kind;
+
+  /// Server creation time of a [SoulMateRecoveryKind.durableActive] operation.
+  final DateTime? activeSince;
 
   /// The stale legacy operation's id, when known — used only to look up
   /// its already-saved structured input so a controlled retry can refill
@@ -762,4 +782,13 @@ class SoulMateRecoveryState {
   final String? operationId;
 }
 
-enum SoulMateRecoveryKind { idle, processing, failed }
+enum SoulMateRecoveryKind {
+  idle,
+
+  /// A LEGACY (non-durable) operation stuck in processing.
+  processing,
+
+  /// A durable operation still waiting/processing — keep observing it.
+  durableActive,
+  failed,
+}

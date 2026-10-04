@@ -143,6 +143,17 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
     // is deliberately NOT the same as the durable `active` branch above:
     // it must never show an indefinite spinner or auto-call a provider.
     final recovery = await SoulMateReadingOrchestrator.recoverActive(ref);
+    if (recovery.kind == SoulMateRecoveryKind.durableActive) {
+      // The durable check above was unreachable; this is the same durable
+      // operation, not a stale legacy one — resume observing it.
+      await _applyDurable(
+        SoulMateDurableOutcome(
+          kind: SoulMateDurableKind.active,
+          activeSince: recovery.activeSince,
+        ),
+      );
+      return;
+    }
     if (recovery.kind == SoulMateRecoveryKind.processing) {
       if (!mounted) return;
       // The error/retry state hides the form entirely (see
