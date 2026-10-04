@@ -40,7 +40,10 @@ class TarotReadingCompletion {
     final safety = _interpretation.safetyResponseIfNeeded(session);
     if (safety != null) return safety;
 
-    if (!_charge.canAfford(session.spread, sessionId: session.id)) {
+    // An unaffordable reading may still be one the server already charged
+    // (lost settle response): only a server-confirmed replay lets it through.
+    if (!_charge.canAfford(session.spread, sessionId: session.id) &&
+        !await _charge.recoverSettlement(session.id, spread: session.spread)) {
       return null;
     }
     AiReadingContent content;

@@ -43,6 +43,28 @@ class TarotReadingCharge {
     return _wallet.canSpend(cost);
   }
 
+  /// Same-reading recovery when the wallet can no longer afford [sessionId]:
+  /// a payment record for THIS reading exists but is not settled locally
+  /// (e.g. the settle response was lost, then the attempt was abandoned).
+  /// Replays the server's idempotent settle for the same operation id. Never
+  /// grants locally — true only when the server confirms the settlement.
+  Future<bool> recoverSettlement(
+    String sessionId, {
+    required TarotSpreadType spread,
+  }) async {
+    final cost = TarotEconomy.costFor(spread);
+    if (cost == null || cost <= 0) return false;
+    final op = _ops.store.byId(_opId(sessionId));
+    if (op == null || op.feature != PaidAiFeature.tarot || !op.isBillable) {
+      return false;
+    }
+    try {
+      return await _ops.settle(op);
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Provider produced usable content — persist before settle for resume.
   Future<void> markProviderOk(
     String sessionId, {
