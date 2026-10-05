@@ -20,6 +20,7 @@ import { readingStageStore } from '../src/ai/reading/stage-cache.js';
 import {
   authHeader,
   coffeeBody,
+  coffeeFortuneSections,
   coffeeObserverJson,
   coffeeWriterJson,
   openaiReadingSequence,
@@ -86,7 +87,18 @@ describe('E3H.1 language immersion polish', () => {
         'Yogun kume ile acik dip yan yana: once neyin doldugunu, sonra nereye yer actigini fark etmek yeterli. Orta yuzeydeki birikim ile dibin acikligi birlikte duruyor; tempo farkini sakince okumak bu falin somut hediyesidir.',
       language: 'tr' as const,
     };
-    expect(evaluateCoffeeQuality(grounded)).toBeNull();
+    // PHASE C1: correct Turkish region words alone no longer make a residue
+    // report with a mindfulness close acceptable.
+    expect(evaluateCoffeeQuality(grounded)).not.toBeNull();
+    const fortune = {
+      ...coffeeFortuneSections,
+      love: '',
+      career: '',
+      money: '',
+      language: 'tr' as const,
+    };
+    expect(fortune.overall).toMatch(/kulba|dibin/);
+    expect(evaluateCoffeeQuality(fortune)).toBeNull();
   });
 
   it('maps coffee regions to Turkish vocabulary for writer handoff', () => {
@@ -197,6 +209,16 @@ describe('E3H.1 language immersion polish', () => {
         money: '',
         nearFuture: '',
         takeaway: 'Yogun kume ile acik dip yan yana: once neyin doldugunu fark etmek yeterli. Orta yuzeydeki birikim ile dibin acikligi birlikte duruyor; tempo farkini sakince okumak bu falin somut hediyesidir.',
+        language: 'tr',
+      }),
+    ).not.toBeNull(); // PHASE C1: residue report + mindfulness close is no longer "grounded takeaway"
+
+    expect(
+      evaluateCoffeeQuality({
+        ...coffeeFortuneSections,
+        love: '',
+        career: '',
+        money: '',
         language: 'tr',
       }),
     ).toBeNull();

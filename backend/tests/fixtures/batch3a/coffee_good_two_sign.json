@@ -1,0 +1,84 @@
+{
+  "source": "phase-c1.3-good-two-sign (evidence of C1.2 real case6, narrative differentiated)",
+  "personalization": {
+    "firstName": "Fatih"
+  },
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "rim",
+        "description": "A small elongated shape near the rim with a tapered tail.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble a fish"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "Two thin lines leaving the base and diverging in different directions up the wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": "may resemble two diverging paths"
+      },
+      {
+        "id": "e3",
+        "region": "handle_side",
+        "description": "A small cluster of grounds near the handle.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Ağız kenarında balığı andıran küçük bir şekil var. Dipten yükselen iki ince yol ayrı yönlere uzanıyor; kulp tarafında da küçük bir telve topluluğu görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Fatih, dipten çıkan iki ince yol ayrı yönlere gidiyor. Önünde iki seçenek var gibi: biri bildiğin, alıştığın yoldan devam ediyor, öbürü yönünü değiştiriyor. İkisi de aynı yerden çıkıyor, yani ikisi de senin elinde; fincan hangisinin daha uzağa gittiğini göstermiyor.",
+      "evidenceIds": [
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "Ağız kenarındaki balık küçük ama güzel bir kısmettir derler. Yakın zamanda maddi karşılığı olan ufak bir kısmet eline geçebilir; büyük bir servet değil, vaktinde gelen bir pay.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Kulbun yanındaki küçük telve, iki yoldan birinin eve doğru kıvrıldığını düşündürüyor. Seçerken evinin, yakınlarının hesabı da işin içine girecek; yalnızca kendine göre seçemeyeceğin bir dönemeç bu.",
+      "evidenceIds": [
+        "e2",
+        "e3"
+      ]
+    }
+  }
+}

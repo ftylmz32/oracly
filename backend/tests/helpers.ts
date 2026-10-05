@@ -246,17 +246,26 @@ export const dreamJson = JSON.stringify({
   sonuc: 'Senin hayatinda sessizce gecip giden sey ne olabilir?',
 });
 
+/**
+ * PHASE C1: fortune-teller register (ASCII-folded, like the other helper
+ * prose). The pre-C1 helper text was a residue report with a mindfulness
+ * close and is now rejected by the Coffee voice gate.
+ */
+export const coffeeFortuneSections = {
+  visualObservation: 'Fincanin ortasinda kulba yakin, demligi andiran toplu bir telve var; dibi acik kalmis, agzin kenarindan da ince bir yol geciyor.',
+  overall: 'Fincaninda demlige benzeyen bir sekil var ve kulba yakin duruyor. Demlik muhabbet demektir, kulp da ev; yakinda evinde cay demlenip uzun uzun sohbet edilecek kalabalik bir aksam gorunuyor. Belki uzun zamandir gormedigin biri cikagelir, belki de bir akraba ziyareti olur. Dibin acik olmasi da o aksamin icini ferahlatacagini, aklindaki bir konunun o sofrada tatliya baglanacagini soyluyor.',
+  nearFuture: 'Agzin kenarindan gecen ince yol, bir haberin yolda oldugunu gosteriyor. Onumuzdeki gunlerde sana kisa bir mesaj ulasacak; yolda olan haber pek gecikmeyecek gibi.',
+  takeaway: 'Fincanin dibi acik, kismetin kapali degil. Acik dip o aksamin ferah gececegini, sofradan herkesin yuzu gulerek kalkacagini soyluyor.',
+};
+
 export const coffeeJson = JSON.stringify({
-  gorselTespit:
-    'Agiz kenarinda ince bir telve izi, orta duvarda daha yogun bir kume ve dipte acik bir alan duruyor. Kume kenari kulpa dogru hafif egimli; dipteki aciklikla yan yana duruyorlar. Ust duvarda seyrek bir iz seridi de gorunuyor.',
-  genelYorum:
-    'Orta duvardaki yogun kume ile dipteki acik alan yan yana okununca, bir toplanma izinin yaninda bir ferahlama alani gibi duruyor. Bu ikisini birlikte dusunmek, kalabalik bir gundemden sonra nefes alacak bir aralik birakma olasiligini cagristirabilir. Agizdaki ince izler henuz netlesmemis bir temasin kiyisina benziyor; kesin bir haber gibi degil. Ustteki seyrek serit ise ayni hikayenin daha hafif bir devamini ima edebilir. Bu fincanda temponun degistigini fark etmek, falin sundugu en sakin yansima olabilir; bir kehanet degil, izlerin yan yana durusuna yaklasik bir okuma.',
+  gorselTespit: coffeeFortuneSections.visualObservation,
+  genelYorum: coffeeFortuneSections.overall,
   ask: '',
   kariyer: '',
   maddiDurum: '',
-  yakinDonem: '',
-  sonuc:
-    'Yogun kume ile acik dip yan yana: once neyin doldugunu, sonra nereye yer actigini fark etmek yeterli. Tempo farkini hissetmek bu falin sakin hediyesidir.',
+  yakinDonem: coffeeFortuneSections.nearFuture,
+  sonuc: coffeeFortuneSections.takeaway,
   semboller: [{ ad: 'Kus', anlam: 'Haber', yorum: 'Hafif bir haber hissi.' }],
 });
 
@@ -291,18 +300,20 @@ export const coffeeObserverJson = JSON.stringify({
   evidence: [
     { id: 'e1', region: 'middle_wall', description: 'Dense residue cluster on the middle wall near the handle side.', confidence: 'high', visibility: 'clear', resemblance: 'may resemble a teapot' },
     { id: 'e2', region: 'base', description: 'Open clearer area at the base beside the dense cluster.', confidence: 'high', visibility: 'clear', resemblance: null },
-    { id: 'e3', region: 'rim', description: 'Thin residue trail along the rim with lighter density than the middle cluster.', confidence: 'medium', visibility: 'partial', resemblance: null },
+    // Story-first closure: the narrative reads this trail as a road ("ince bir yol")
+    // carrying news; context alone may not promote news, so the evidence says so.
+    { id: 'e3', region: 'rim', description: 'Thin residue trail along the rim with lighter density than the middle cluster.', confidence: 'medium', visibility: 'partial', resemblance: 'may resemble a thin road' },
   ],
 });
 
 export const coffeeWriterJson = JSON.stringify({
-  visualObservation: { text: 'Agiz kenarinda ince bir telve izi, orta duvarda daha yogun bir kume ve dipte acik bir alan duruyor. Kume kenari kulpa dogru hafif egimli; dipteki aciklikla yan yana duruyorlar. Ust duvarda seyrek bir iz seridi de gorunuyor.', evidenceIds: ['e1','e2','e3'] },
-  overall: { text: 'Orta duvardaki yogun kume ile dipteki acik alan yan yana okununca, bir toplanma izinin yaninda bir ferahlama alani gibi duruyor. Bu ikisini birlikte dusunmek, kalabalik bir gundemden sonra nefes alacak bir aralik birakma olasiligini cagristirabilir. Agizdaki ince izler henuz netlesmemis bir temasin kiyisina benziyor; kesin bir haber gibi degil. Ustteki seyrek serit ise ayni hikayenin daha hafif bir devamini ima edebilir. Bu fincanda temponun degistigini fark etmek, falin sundugu en sakin yansima olabilir; bir kehanet degil, izlerin yan yana durusuna yaklasik bir okuma.', evidenceIds: ['e1','e2','e3'] },
+  visualObservation: { text: coffeeFortuneSections.visualObservation, evidenceIds: ['e1','e2','e3'] },
+  overall: { text: coffeeFortuneSections.overall, evidenceIds: ['e1','e2'] },
   love: { text: '', evidenceIds: [] },
   career: { text: '', evidenceIds: [] },
   money: { text: '', evidenceIds: [] },
-  nearFuture: { text: '', evidenceIds: [] },
-  takeaway: { text: 'Yogun kume ile acik dip yan yana: once neyin doldugunu, sonra nereye yer actigini fark etmek yeterli. Tempo farkini hissetmek bu falin sakin hediyesidir.', evidenceIds: ['e1','e2'] },
+  nearFuture: { text: coffeeFortuneSections.nearFuture, evidenceIds: ['e3'] },
+  takeaway: { text: coffeeFortuneSections.takeaway, evidenceIds: ['e2'] },
 });
 
 export const palmObserverJson = JSON.stringify({

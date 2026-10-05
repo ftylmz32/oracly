@@ -110,26 +110,23 @@ function goodV2Observation(
 /** A real, known-good narrative (mirrors tests/fixtures/batch3a/coffee_good.json). */
 const GOOD_NARRATIVE = {
   visualObservation: {
-    text: 'Ortada belirgin bir küme, dipte ise daha açık bir alan göze çarpıyor; ağza yakın ince bir iz de seçiliyor.',
+    text: 'Fincanın ortasında kulba doğru uzanan toplu bir telve var, dibi ise açık kalmış. Ağza yakın yerde kanat açmış küçük bir kuşu andıran bir şekil seçiliyor.',
     evidenceIds: ['e1', 'e2', 'e3'],
   },
   overall: {
-    text: 'Bu kümenin dipteki açıklıkla yan yana durması, uzun süredir ertelediğin bir kararın nihayet yerini bulmaya başladığını düşündürüyor. Ortadaki yoğunluk geçmiş bir yükün henüz tam çözülmediğine, dipteki ferahlık ise bu yükün yavaşça hafifleyeceğine işaret ediyor gibi. Kenardaki ince iz ise küçük, belki beklenmedik bir haberin bu sürece eşlik edebileceğini çağrıştırıyor; kesin bir olay değil, yalnızca bir olasılık.',
-    evidenceIds: ['e1', 'e2', 'e3'],
+    text: 'Fincanın ağzına bu kadar yakın kanat açmış bir kuş, haberin yolda olduğunu gösterir. Bu fincanda en canlı duran şey o: bir mesaj, bir duyum, belki de kimsenin sana henüz söylemediği bir bilgi. Telvenin kulba doğru toplanmasına bakılırsa bu haber uzaktan değil, evin içinden ya da yakın çevrenden çıkacak gibi.',
+    evidenceIds: ['e1', 'e3'],
   },
   love: { text: '', evidenceIds: [] },
-  career: {
-    text: 'Aynı örüntü iş hayatına da yansıyabilir: biriken bir sorumluluğun ardından biraz nefes alacağın bir aralık doğabilir; bu dönemi zorlamadan kabul etmek işine yarayabilir.',
-    evidenceIds: ['e1', 'e2'],
-  },
+  career: { text: '', evidenceIds: [] },
   money: { text: '', evidenceIds: [] },
   nearFuture: {
-    text: 'Önümüzdeki günlerde bu ertelenen konuda küçük ama gerçek bir adımın atılma ihtimali var; belki bir mesaj, belki kısa bir konuşma bu süreci hızlandırabilir.',
-    evidenceIds: ['e3'],
+    text: 'Fincanın dibi açık kalmış; yolunu kesen bir engel görünmüyor. Haber geldiğinde elin kolun bağlı olmayacak, ne yapacağını kendin seçebileceksin.',
+    evidenceIds: ['e2'],
   },
   takeaway: {
-    text: 'Yoğunluk ile açıklığın yan yana durması aslında basit bir şey anlatıyor: bir şey kapanmadan önce hafiflemeye başlar. Bu hafiflemeyi fark etmek, bu fincanın sunduğu en sakin ipucu.',
-    evidenceIds: ['e1', 'e2'],
+    text: 'Yalnız kuş biraz silik duruyor; haberin ne yönde olduğunu fincan tam göstermiyor. Sevindirir mi, düşündürür mü, onu gelince göreceksin.',
+    evidenceIds: ['e3'],
   },
 };
 
@@ -176,9 +173,14 @@ function recordingFetch(observation: CoffeeV2Observation) {
                         dorsal: false,
                       },
                 evidence: [
-                  { id: 'e1', region: 'r1', description: 'A visible mark, clearly placed.', confidence: 'high', visibility: 'clear', resemblance: null },
+                  // Coffee: GOOD_NARRATIVE places the news at home ("evin içinden ya da yakın
+                  // çevrenden"), which needs a handle-side cue. Palm is unchanged.
+                  { id: 'e1', region: 'r1', description: schemaName === 'coffee_observation' ? 'A visible mark, clearly placed toward the handle side.' : 'A visible mark, clearly placed.', confidence: 'high', visibility: 'clear', resemblance: null },
                   { id: 'e2', region: 'r2', description: 'A second visible mark, distinct from the first.', confidence: 'high', visibility: 'clear', resemblance: null },
-                  { id: 'e3', region: 'r3', description: 'A third visible mark, in a different region.', confidence: 'medium', visibility: 'partial', resemblance: null },
+                  // Coffee: GOOD_NARRATIVE reads a bird (news); context-only
+                  // evidence may not carry news, so the fake legacy observer
+                  // reports the bird it describes. Palm is unchanged.
+                  { id: 'e3', region: 'r3', description: 'A third visible mark, in a different region.', confidence: 'medium', visibility: 'partial', resemblance: schemaName === 'coffee_observation' ? 'may resemble a small bird in flight' : null },
                 ],
               }),
             },

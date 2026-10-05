@@ -52,9 +52,10 @@ describe('BATCH 3A.4 — coffee diversity', () => {
     })).toBeNull();
   });
 
-  it('writer asks for additive coffee insights and a short caption', () => {
+  it('writer asks for one coherent story (not paraphrased sections) and a short caption', () => {
     const prompt = coffeeWriterSystem('tr');
-    expect(prompt).toContain('ADDITIVE insights');
+    // Story-first: sections are facets of ONE fortune — still never paraphrases.
+    expect(prompt).toContain('never three unrelated insights and never three paraphrases of one idea');
     expect(prompt).toContain('short secondary caption');
   });
 });

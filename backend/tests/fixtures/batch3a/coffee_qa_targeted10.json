@@ -1,0 +1,497 @@
+{
+  "source": "real targeted10 (gpt-5.6-sol, low, 2026-10-02) — delivered outputs before absence/context-event/geometry checks",
+  "cases": {
+    "case2": {
+      "label": "BIRD",
+      "evidence": [
+        {
+          "id": "e1",
+          "region": "rim",
+          "description": "A small compact mark just below the rim with two short strokes spreading outward.",
+          "confidence": "medium",
+          "visibility": "partial",
+          "resemblance": "may resemble a small bird with open wings"
+        },
+        {
+          "id": "e2",
+          "region": "middle_wall",
+          "description": "Light, diffuse scattering of grounds across the middle wall.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e3",
+          "region": "base",
+          "description": "A moderately dense patch of grounds at the base.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        }
+      ],
+      "narrative": {
+        "visualObservation": {
+          "text": "Ağız kenarının hemen altında kanatlarını açmış küçük bir kuşu andıran işaret var. Telve ortada hafifçe dağılmış, dipte toplanmış.",
+          "evidenceIds": [
+            "e1",
+            "e2",
+            "e3"
+          ]
+        },
+        "overall": {
+          "text": "Sana doğru gelen kısa ama dikkat çekici bir haber görünüyor. Bu, duyup geçeceğin türden değil; gününün akışını değiştirecek ve ilgini belli bir yöne çevirecek. Kuşun kanatları iki yana açık olduğundan, haber geldiği yerde kalmayıp devamında yeni bir gelişme doğuracak.",
+          "evidenceIds": [
+            "e1"
+          ]
+        },
+        "love": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "career": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "money": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "nearFuture": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "takeaway": {
+          "text": "Kuşun fincanın ağzına yakın durması, bu haberin yakın zamanda sana ulaşacağını fısıldıyor.",
+          "evidenceIds": [
+            "e1"
+          ]
+        }
+      }
+    },
+    "case4": {
+      "label": "ROAD",
+      "evidence": [
+        {
+          "id": "e1",
+          "region": "middle_wall",
+          "description": "A long thin line of grounds winding from the lower wall up toward the rim.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": "may resemble a winding road or path"
+        },
+        {
+          "id": "e2",
+          "region": "base",
+          "description": "A small dense cluster at the base where the line begins.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e3",
+          "region": "rim",
+          "description": "A clean open band just below the rim where the line ends.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        }
+      ],
+      "narrative": {
+        "visualObservation": {
+          "text": "Fincanın dibinden yukarı doğru kıvrılarak çıkan ince, uzun bir yol var. Başladığı yerde telve küçükçe toplanmış.",
+          "evidenceIds": [
+            "e1",
+            "e2"
+          ]
+        },
+        "overall": {
+          "text": "Önünde dümdüz değil, yön değiştirerek ilerleyen bir süreç var. Yolun kopmadan yukarı çıkması güzel; gelişmeler seni adım adım başka bir noktaya taşıyacak. Aradaki kıvrımlar karar değişikliğinden çok, şartlara göre yön bulduğunu anlatıyor. Sonunda yol fincanın ağzına kadar ulaşıyor; yani bu gidişat havada kalmıyor, yakın zamanda görünür bir aşamaya geliyor. Acele bir sıçrama değil ama ilerleyen ve nereye vardığını gösterecek bir yol bu.",
+          "evidenceIds": [
+            "e1"
+          ]
+        },
+        "love": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "career": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "money": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "nearFuture": {
+          "text": "Yolun ağız kenarına varması, bu gelişmenin uzak olmadığını söylüyor. Çok geçmeden yönünü belli eden somut bir adım görebilirsin.",
+          "evidenceIds": [
+            "e1"
+          ]
+        },
+        "takeaway": {
+          "text": "Ağız kenarındaki temiz açıklık, yolun sonunda önünün açıldığını ve kısmetinin rahatça sana ulaşacağını anlatıyor.",
+          "evidenceIds": [
+            "e3"
+          ]
+        }
+      }
+    },
+    "case5": {
+      "label": "HANDLE/HOME",
+      "evidence": [
+        {
+          "id": "e1",
+          "region": "handle_side",
+          "description": "Dense grounds gathered along the wall on the handle side.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e2",
+          "region": "base",
+          "description": "A light, even coating of grounds at the base.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e3",
+          "region": "upper_wall",
+          "description": "Sparse marks on the upper wall opposite the handle.",
+          "confidence": "medium",
+          "visibility": "partial",
+          "resemblance": null
+        }
+      ],
+      "narrative": {
+        "visualObservation": {
+          "text": "Telve en çok kulp tarafında toplanmış. Dipte ince bir tabaka, karşı üst tarafta ise birkaç küçük işaret var.",
+          "evidenceIds": [
+            "e1",
+            "e2",
+            "e3"
+          ]
+        },
+        "overall": {
+          "text": "Gündelik hayatının çevresinde birkaç ufak ayrıntı yan yana duruyor. Bunlar tek bir büyük gelişmeye bağlanmaktan çok, gün içinde ayrı ayrı ilgileneceğin küçük uğraşları anlatıyor. Fincanda belirgin bir figür çıkmadığı için hikâye fazla dallanmıyor; yakınındaki düzen ve tanıdık çevre önde kalıyor.",
+          "evidenceIds": [
+            "e3"
+          ]
+        },
+        "love": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "career": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "money": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "nearFuture": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "takeaway": {
+          "text": "Kulp tarafındaki telve, yakın zamanda odağının evin ve en yakınlarının çevresinde kalacağını anlatıyor.",
+          "evidenceIds": [
+            "e1"
+          ]
+        }
+      }
+    },
+    "case8": {
+      "label": "HOLDOUT BRIDGE",
+      "evidence": [
+        {
+          "id": "e1",
+          "region": "middle_wall",
+          "description": "An arched band of grounds spanning from one side of the middle wall across to the other side.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": "may resemble a small bridge"
+        },
+        {
+          "id": "e2",
+          "region": "lower_wall",
+          "description": "A dense patch of grounds on the lower wall where the arch starts.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e3",
+          "region": "handle_side",
+          "description": "Lighter residue on the far side near the handle where the arch comes down.",
+          "confidence": "medium",
+          "visibility": "partial",
+          "resemblance": null
+        }
+      ],
+      "narrative": {
+        "visualObservation": {
+          "text": "Fincanın ortasında bir yandan öbür yana uzanan, küçük bir köprüyü andıran telve var. Köprünün bir ayağı aşağıda belirgin, diğer ayağı kulp tarafına iniyor.",
+          "evidenceIds": [
+            "e1",
+            "e2",
+            "e3"
+          ]
+        },
+        "overall": {
+          "text": "İki ayrı taraf arasında doğrudan bir bağ kuruluyor. Köprünün karşıya kadar uzanması, bu bağlantının havada kalmayacağını; seni öteki tarafa ulaştıran somut bir gelişmeye dönüşeceğini anlatıyor. Aradaki bağı sen tek başına taşımıyorsun, iki tarafı da tutan bir geçiş var. Böyle köprüler, ayrı duranların aynı noktada buluşmasına ve aradaki ilişkinin kullanılabilir bir hale gelmesine gelir derler.",
+          "evidenceIds": [
+            "e1"
+          ]
+        },
+        "love": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "career": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "money": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "nearFuture": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "takeaway": {
+          "text": "Köprünün kulp tarafına inmesi önemli: kurulacak bağın ucu evine ve en yakın çevrene dokunuyor.",
+          "evidenceIds": [
+            "e1",
+            "e3"
+          ]
+        }
+      }
+    },
+    "case9": {
+      "label": "HOLDOUT DOTS + CUP-MOUTH",
+      "evidence": [
+        {
+          "id": "e1",
+          "region": "rim",
+          "description": "A thin clean band just below the mouth of the cup.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e2",
+          "region": "upper_wall",
+          "description": "Many small scattered dots and specks across the upper wall.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e3",
+          "region": "base",
+          "description": "A moderately dense layer of grounds at the base.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        }
+      ],
+      "narrative": {
+        "visualObservation": {
+          "text": "Ağız kenarının hemen altında ince ve temiz bir şerit var. Yukarıda küçük telve noktaları dağılmış; dipte telve daha toplu duruyor.",
+          "evidenceIds": [
+            "e1",
+            "e2",
+            "e3"
+          ]
+        },
+        "overall": {
+          "text": "Önüne birkaç küçük gelişme düşüyor; büyük bir olaydan çok, ayrı ayrı ilgini çekecek ayrıntılar bunlar. Günlerin kısa uğraşlarla dolacak ama hepsi kendi çapında kalıyor. Fincanda belirgin bir figür olmadığı için burada güçlü bir haber, yolculuk ya da büyük bir buluşma sözü yok; görünen, günlük hayatına serpişen ufak hareketlilik.",
+          "evidenceIds": [
+            "e2"
+          ]
+        },
+        "love": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "career": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "money": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "nearFuture": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "takeaway": {
+          "text": "Ağız kenarındaki temiz şerit, yakın günlerinde bu küçük gelişmelerin arasında sana boş vakit kalacağını anlatıyor.",
+          "evidenceIds": [
+            "e1"
+          ]
+        }
+      }
+    },
+    "case10": {
+      "label": "HOLDOUT LOW-SYMBOL",
+      "evidence": [
+        {
+          "id": "e1",
+          "region": "lower_wall",
+          "description": "A dark compact patch of grounds on one side of the lower wall.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e2",
+          "region": "middle_wall",
+          "description": "A second, lighter patch on the opposite side of the middle wall, separate from the first.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e3",
+          "region": "middle_wall",
+          "description": "A single thin diagonal mark running upward between the two patches.",
+          "confidence": "medium",
+          "visibility": "partial",
+          "resemblance": null
+        },
+        {
+          "id": "e4",
+          "region": "base",
+          "description": "A wide clean area at the base with almost no grounds.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        }
+      ],
+      "narrative": {
+        "visualObservation": {
+          "text": "Telve iki ayrı tarafta toplanmış; aralarında yukarı uzanan ince, çapraz bir çizgi var. Fincanın dibi ise genişçe temiz kalmış.",
+          "evidenceIds": [
+            "e1",
+            "e2",
+            "e3",
+            "e4"
+          ]
+        },
+        "overall": {
+          "text": "Ayrı duran iki taraf arasında ince bir bağlantı kuruluyor. Çizginin çapraz yükselmesi, bu bağın doğrudan değil, yön değiştirerek karşı tarafa ulaşacağını anlatıyor. Burada büyük bir sıçrama yok; fakat birbirinden bağımsız görünen iki gelişme artık birbirine dokunacak. Birindeki hareket, ötekinin yönünü de belirleyecek.",
+          "evidenceIds": [
+            "e2",
+            "e3"
+          ]
+        },
+        "love": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "career": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "money": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "nearFuture": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "takeaway": {
+          "text": "Fincanın temiz dibi, bu ince bağlantının yanında sana açık bir kısmet payı bırakıyor.",
+          "evidenceIds": [
+            "e4"
+          ]
+        }
+      }
+    },
+    "case12": {
+      "label": "FRESH TOPOLOGY / NO SIGN",
+      "evidence": [
+        {
+          "id": "e1",
+          "region": "handle_side",
+          "description": "A medium patch of grounds right next to the handle.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e2",
+          "region": "rim",
+          "description": "A small group of grounds on the rim on the side opposite the handle.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e3",
+          "region": "upper_wall",
+          "description": "A thin curved line running along the upper wall from the handle-side patch toward the opposite group, stopping a little short of it.",
+          "confidence": "medium",
+          "visibility": "clear",
+          "resemblance": null
+        },
+        {
+          "id": "e4",
+          "region": "middle_wall",
+          "description": "A clear, almost empty band across the middle wall.",
+          "confidence": "high",
+          "visibility": "clear",
+          "resemblance": null
+        }
+      ],
+      "narrative": {
+        "visualObservation": {
+          "text": "Telve kulp yanında toplanmış; buradan karşı ağız kenarındaki küçük telveye doğru ince bir yol uzanıyor.",
+          "evidenceIds": [
+            "e1",
+            "e2",
+            "e3"
+          ]
+        },
+        "overall": {
+          "text": "Ev ve sana en yakın kişiler çevresinde başlayan bir gelişme, bulunduğu yerden dışarıya doğru uzanıyor. İnce yol yukarıdan ilerlediği için bunun kapalı bir çevrede kalmayacağını, başka bir noktaya bağlanmak üzere yön aldığını görüyorum. Fincanın ortasındaki temiz bölümde araya giren başka bir işaret yok; gelişme kendi doğrultusunda ilerliyor.",
+          "evidenceIds": [
+            "e1",
+            "e3",
+            "e4"
+          ]
+        },
+        "love": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "career": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "money": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "nearFuture": {
+          "text": "",
+          "evidenceIds": []
+        },
+        "takeaway": {
+          "text": "Yol karşı taraftaki telveye az kala duruyor; yönü belli, son bağlantısı açık kalıyor.",
+          "evidenceIds": [
+            "e2",
+            "e3"
+          ]
+        }
+      }
+    }
+  }
+}

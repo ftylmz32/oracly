@@ -9,6 +9,7 @@ import { palmSystem, palmUserLead } from '../src/ai/palm-style.js';
 import { parseCoffeeData } from '../src/ai/parse-provider.js';
 import { parsePalmData } from '../src/ai/parse-palm.js';
 import { ProxyError } from '../src/errors.js';
+import { coffeeFortuneSections } from './helpers.js';
 
 const coffeeNeg = JSON.parse(
   readFileSync('./tests/fixtures/e3g/e3f_coffee_negative.json', 'utf8'),
@@ -17,7 +18,8 @@ const palmNeg = JSON.parse(
   readFileSync('./tests/fixtures/e3g/e3f_palm_negative.json', 'utf8'),
 );
 
-const goodCoffee = {
+/** PHASE C1: the pre-C1 "good" sample — lab + mindfulness voice, now rejected. */
+const formerGoodCoffee = {
   visualObservation:
     'Agiz kenarinda ince bir telve izi, orta duvarda daha yogun bir kume ve dipte acik bir alan duruyor. Kume kenari kulpa dogru hafif egimli; dipteki aciklikla yan yana duruyorlar. Ust duvarda seyrek bir iz seridi de gorunuyor.',
   overall:
@@ -28,6 +30,14 @@ const goodCoffee = {
   nearFuture: '',
   takeaway:
     'Yogun kume ile acik dip yan yana: once neyin doldugunu, sonra nereye yer actigini fark etmek yeterli. Tempo farkini hissetmek, falin sundugu en sakin hediyedir.',
+  language: 'tr' as const,
+};
+
+const goodCoffee = {
+  ...coffeeFortuneSections,
+  love: '',
+  career: '',
+  money: '',
   language: 'tr' as const,
 };
 
@@ -57,6 +67,9 @@ describe('E3G human quality regression', () => {
   });
   it('accepts grounded natural coffee', () => {
     expect(evaluateCoffeeQuality(goodCoffee)).toBeNull();
+  });
+  it('PHASE C1: rejects the former lab/mindfulness "good" coffee sample', () => {
+    expect(evaluateCoffeeQuality(formerGoodCoffee)).not.toBeNull();
   });
   it('accepts grounded natural palm', () => {
     expect(evaluatePalmQuality(goodPalm)).toBeNull();

@@ -1,4 +1,11 @@
 {
+  "source": "phase-c1.3-good-sign-led",
+  "personalization": {
+    "firstName": "Fatih",
+    "relevantThemes": [
+      "karar verme"
+    ]
+  },
   "observation": {
     "usable": true,
     "reason": "",
@@ -36,21 +43,15 @@
       }
     ]
   },
-  "personalization": {
-    "firstName": "Fatih",
-    "relevantThemes": [
-      "karar verme"
-    ]
-  },
   "narrative": {
     "visualObservation": {
-      "text": "Fincanın dibindeki yoğun tortu, alt iç yüzeye doğru iki yandan uzanırken üst bölüm daha açık ve ferah görünüyor.",
+      "text": "Telve dipte toplanmış ve iki yandan yukarı tırmanmış; fincanın üstü ise ferah kalmış.",
       "evidenceIds": [
         "e1"
       ]
     },
     "overall": {
-      "text": "Fatih, bu fincanda agirlik henuz dagilmamis; ust taraf ise o yukun tasinabilecegi bir aciklik birakiyor. Iki yana uzanan tortu, meselenin tek bir kaynaktan degil, iki farkli bagliliktan beslendigini dusunduruyor. Kapatmadan once koymak istedigin sinir, aceleden cok aitlik sorusu gibi duruyor. Ustteki ferahlik ise hemen kapanmasi gereken bir seyden cok, henuz adlandirilmamis bir pay birakmak istegini cagristiriyor.",
+      "text": "Fatih, telve dipte birikmiş ama orada kalmamış; iki yandan birden yukarı tırmanmış. Dipte ağır bir telve var, ama durgun değil; iki ayrı yöne birden çekiştiriliyor gibi. Bir yanın bildiğin yere, öbür yanın yeni bir yere uzanıyor ve ikisi de aynı hızla çıkıyor, biri öbürünü geçmiş değil.",
       "evidenceIds": [
         "e1"
       ]
@@ -68,13 +69,13 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Orta yuzeydeki kucuk izler, tek bir buyuk haberden cok pes pese gelecek kisa konusmalar ve parca bilgilerle netlesmeye isaret ediyor. Bu, disaridan gelecek hazir bir cevap degil; ayrintilarin kendiliginden seyrelebilecegi bir aralik. Bu donemde sesini yukseltmekten cok, kimin neyi netlestirdigini dinlemek daha cok ise yarayabilir.",
+      "text": "Ortadaki ufak serpintiler toplanmamış, dağınık duruyor. Önümüzdeki günler tek bir büyük gelişmeden çok ufak tefek, birbirinden kopuk şeylerle geçecek gibi; hiçbiri tek başına belirleyici değil.",
       "evidenceIds": [
         "e2"
       ]
     },
     "takeaway": {
-      "text": "Kulp tarafina donen kivrim, son sozun cevrendeki beklentiden cok kendi gundelik ritmine yaslanmasi gerektigini soyluyor. Bu fincanin somut ipucu, yukun hangisinin sana ait oldugunu ayirmak ve gerisini ikinci planda birakabilmek. Agirlik ile ferahligin ayni anda durmasi, bitirmekten once nefes alabildigin bir yer oldugunu anlatiyor.",
+      "text": "Kulba doğru dönen kıvrık şekil, iki taraftan birinin eve, yakınlarına doğru büküldüğünü gösteriyor. Hangisi olduğunu fincan saklıyor; ama ağır basan taraf, eve yakın olan taraf gibi duruyor.",
       "evidenceIds": [
         "e1",
         "e3"

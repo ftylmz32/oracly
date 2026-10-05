@@ -153,7 +153,7 @@ describe('E3H two-stage reading pipeline', () => {
 
   it('observe-to-writer seam exposes themes before accepting bounded memory', async () => {
     const observer = JSON.parse(coffeeObserverJson);
-    observer.evidence[0].description = 'Two clear residue paths split like a crossroads decision.';
+    observer.evidence[0].description = 'Two clear residue paths split like a crossroads decision, near the handle side.';
     const app = await testApp(
       testConfig(),
       openaiReadingSequence(JSON.stringify(observer), coffeeWriterJson),

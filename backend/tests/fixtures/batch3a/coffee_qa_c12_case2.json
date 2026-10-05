@@ -1,0 +1,83 @@
+{
+  "source": "phase-c1.2-real-provider:case2:BIRD NEAR RIM",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_5e91b2c932754ee691537e243562d14a",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "rim",
+        "description": "A small compact mark just below the rim with two short strokes spreading outward.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": "may resemble a small bird with open wings"
+      },
+      {
+        "id": "e2",
+        "region": "middle_wall",
+        "description": "Light, diffuse scattering of grounds across the middle wall.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "base",
+        "description": "A moderately dense patch of grounds at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibinde belirgin bir telve parçası var; ağız kenarının hemen altında da kanatlarını açmış küçük bir kuşu andıran şekil görünüyor.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Bir süredir aklında duran, kolayca kapanmayan bir mesele var gibi. Dibin tuttuğu konu ciddi ama fincanın ortasına doğru dağılan küçük işaretler, bunun tek hamlede değil, parça parça çözülmeye başladığını söylüyor. Özellikle yarım kalmış bir konuşmanın devamı gelecek gibi duruyor.",
+      "evidenceIds": [
+        "e2",
+        "e3"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Ağız kenarındaki kuş, yakın zamanda gelecek bir haber derler. Kısa ve doğrudan bir mesaj olabilir; beklediğin konuyu hareketlendirecek, fakat ilk anda bütün cevabı vermeyecek gibi. Ardından ikinci bir konuşma ya da küçük bir açıklama görünüyor.",
+      "evidenceIds": [
+        "e1"
+      ]
+    },
+    "takeaway": {
+      "text": "Fincanın dibi tamamen kapanmamış; ağır duran meseleye rağmen sonunda ferahlayacağın bir pay var. Bu iş uzasa da havada kalmayacak gibi görünüyor.",
+      "evidenceIds": [
+        "e3"
+      ]
+    }
+  }
+}

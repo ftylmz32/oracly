@@ -1,0 +1,86 @@
+{
+  "source": "phase-c1.6-real-provider:case8:HOLDOUT B — GEOMETRIC / LOW-SYMBOL",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_2810bfc350f2467e81c53575ddb68f8a",
+  "humanProductJudgement": "WEAK",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "lower_wall",
+        "description": "A separated dark patch of grounds on the lower wall, standing apart from the rest of the residue.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A broad, almost clean open area across most of the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "middle_wall",
+        "description": "A single straight line running diagonally across the middle wall toward the handle.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibi büyük ölçüde temiz; alt tarafta tek başına duran koyu bir telve parçası var. Ortadan kulp tarafına doğru uzanan düz bir yol da seçiliyor.",
+      "evidenceIds": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Dibin böyle geniş ve temiz kalması, önünde sıkışık olmayan bir dönem olduğunu söylüyor. Kısmetin kapalı görünmüyor; özellikle seni oyalayan şeylerin arasından rahat geçebileceğin bir pay var. Alt tarafta ayrı duran parça ise hayatının tamamına yayılmış bir sıkıntıdan çok, tek başına kalan bir pürüzü anlatıyor. Yani her şey birbirine karışmış değil; yalnızca bir nokta hâlâ olduğu yerde duruyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Ortadan kulp tarafına giden düz yol, yakında evle ya da yakın çevrenle bağlantılı bir hareketi gösteriyor. Bu kısa bir gidip gelme, eve gelecek biri ya da aile içinde yapılacak somut bir düzenleme olabilir. Yol düz olduğu için fazla dolambaç görünmüyor.",
+      "evidenceIds": [
+        "e3"
+      ]
+    },
+    "takeaway": {
+      "text": "Tek başına kalan o küçük koyuluk, bir pürüzün büyümekten çok kendi yerinde kaldığını anlatıyor. Fincanın geri kalanı ona eşlik etmiyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    }
+  }
+}

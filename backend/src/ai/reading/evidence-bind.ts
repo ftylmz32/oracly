@@ -3,11 +3,25 @@
 import { ErrorCode, fail } from '../../errors.js';
 import type { AppLanguage } from '../app-language.js';
 import {
+  coffeeHomeDomainClaim,
+  coffeeOtherAgency,
+  coffeePresumedUserState,
+  coffeeUnsupportedExistingFact,
+  coffeeUnsupportedSourceCausation,
   evaluateCoffeeQuality,
   evaluatePalmQuality,
   type HumanQualityFailure,
 } from '../human-quality.js';
-import { coffeeEvidenceConcentration } from './coffee-diversity.js';
+import {
+  coffeeCommunicationAffordance,
+  coffeeContextEventPromotion,
+  coffeeContextOnlyTakeaway,
+  coffeeEvidenceConcentration,
+  coffeeNarrativelySparse,
+  coffeeSparseContextAnchored,
+  coffeePlainLineRelocation,
+  coffeeSingleSemanticAnchorRoots,
+} from './coffee-diversity.js';
 import {
   isCoffeeV2SourceSlot,
   type CoffeeNarrative,
@@ -240,18 +254,7 @@ export function bindCoffeeNarrative(
   ];
   const bind = bindSections(allSections, known, obs.evidence);
   if (bind) return bind;
-  const quality = evaluateCoffeeQuality({
-    visualObservation: narrative.visualObservation.text,
-    overall: narrative.overall.text,
-    love: narrative.love.text,
-    career: narrative.career.text,
-    money: narrative.money.text,
-    nearFuture: narrative.nearFuture.text,
-    takeaway: narrative.takeaway.text,
-    language,
-    hasMemoryContext: Boolean(personalization?.memorySummary),
-    relevantThemes: personalization?.relevantThemes,
-  });
+  const quality = coffeeQualityFailure(narrative, language, personalization, obs.evidence);
   if (quality) return mapQuality(quality);
   if (
     coffeeEvidenceConcentration(
@@ -264,6 +267,104 @@ export function bindCoffeeNarrative(
     )
   ) {
     return 'insight_collapse';
+  }
+  if (coffeeContextOnlyTakeaway(narrative.takeaway, obs.evidence)) return 'insight_collapse';
+  return null;
+}
+
+/**
+ * Story-first closure: does anything legitimately place this reading at
+ * home? A handle-side evidence item (region or description), or supplied
+ * personalization (intention / themes / memory) that is itself about home
+ * or family.
+ */
+export function coffeeHomeAffordance(
+  evidence: ReadingEvidenceItem[],
+  personalization?: ReadingPersonalization,
+): boolean {
+  if (evidence.some((item) => /\bhandle\b/i.test(`${item.region.replace(/_/g, ' ')} ${item.description}`))) return true;
+  const supplied = [personalization?.intention, personalization?.memorySummary, ...(personalization?.relevantThemes ?? [])]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase('tr');
+  return /\b(ev|evim|evimiz|aile|ailem|annem|babam|kardeş|home|family)\w*/.test(supplied);
+}
+
+/**
+ * The un-mapped Coffee quality code behind a `human_quality` bind failure.
+ * Internal only (repair guidance); the transport still reports the mapped
+ * BindFailure, so the public error contract is unchanged.
+ */
+export function coffeeQualityFailure(
+  narrative: CoffeeNarrative,
+  language: AppLanguage = 'tr',
+  personalization?: ReadingPersonalization,
+  evidence?: ReadingEvidenceItem[],
+): HumanQualityFailure | null {
+  const quality = evaluateCoffeeQuality({
+    visualObservation: narrative.visualObservation.text,
+    overall: narrative.overall.text,
+    love: narrative.love.text,
+    career: narrative.career.text,
+    money: narrative.money.text,
+    nearFuture: narrative.nearFuture.text,
+    takeaway: narrative.takeaway.text,
+    language,
+    hasMemoryContext: Boolean(personalization?.memorySummary),
+    hasIntention: Boolean(personalization?.intention),
+    relevantThemes: personalization?.relevantThemes,
+    groundedSigns: evidence?.filter((e) => Boolean(e.resemblance?.trim())).length,
+    communicationAffordance: evidence ? coffeeCommunicationAffordance(evidence) : undefined,
+    singleSemanticAnchorRoots: evidence ? coffeeSingleSemanticAnchorRoots(evidence) : undefined,
+    narrativelySparse: evidence ? coffeeNarrativelySparse(evidence) : undefined,
+    sparseContextAnchored: evidence
+      ? coffeeSparseContextAnchored(
+          [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway],
+          evidence,
+        )
+      : undefined,
+  });
+  if (quality) return quality;
+  const meaningTexts = [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway].map((s) => s.text);
+  // Personalization-aware (evidence path only; the legacy single-call parser
+  // is unaffected): the person's expectation / wish / prior thought presumed.
+  if (
+    (language === 'tr' || language === undefined) &&
+    !personalization?.memorySummary &&
+    !personalization?.intention &&
+    coffeePresumedUserState(meaningTexts)
+  ) {
+    return 'presumed_user_state';
+  }
+  const turkish = language === 'tr' || language === undefined;
+  if (turkish && !personalization?.memorySummary && !personalization?.intention && coffeeUnsupportedExistingFact(meaningTexts)) {
+    return 'unsupported_existing_fact';
+  }
+  if (turkish && !personalization?.memorySummary && !personalization?.intention && coffeeUnsupportedSourceCausation(meaningTexts)) {
+    return 'unsupported_source_causation';
+  }
+  // A specific other person's attitude / decision / intention / action.
+  if (turkish && !personalization?.memorySummary && !personalization?.intention && coffeeOtherAgency(meaningTexts)) {
+    return 'unsupported_other_agency';
+  }
+  // Home / close circle needs a home affordance: a handle-side cue in the
+  // evidence, or personalization that is itself about home / family.
+  if (turkish && evidence && !coffeeHomeAffordance(evidence, personalization) && coffeeHomeDomainClaim(meaningTexts)) {
+    return 'unsupported_home_domain';
+  }
+  if (evidence && turkish && coffeePlainLineRelocation(meaningTexts, evidence)) {
+    return 'plain_line_relocation';
+  }
+  // Evidence-aware (needs per-section evidenceIds): context promoted to events.
+  if (
+    evidence &&
+    (language === 'tr' || language === undefined) &&
+    coffeeContextEventPromotion(
+      [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway],
+      evidence,
+    )
+  ) {
+    return 'context_event';
   }
   return null;
 }

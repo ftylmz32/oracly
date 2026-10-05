@@ -1,0 +1,78 @@
+{
+  "source": "phase-c1.3-good-sparse",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "base",
+        "description": "A dense mass of grounds settled at the base.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e2",
+        "region": "lower_wall",
+        "description": "A few faint marks rising from the lower inner surface.",
+        "confidence": "medium",
+        "visibility": "partial",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "upper",
+        "description": "The upper inner surface and rim are mostly clean.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Telve fincanın dibine çökmüş, üst tarafı ise neredeyse temiz kalmış.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "overall": {
+      "text": "Telve dibe çökmüş, fincanın üst tarafı ise tertemiz kalmış. Ağızdaki bu temizlik önünün açık olduğunu söylüyor; gelecek olana yer var. Şu an gürültülü bir hareket yok, ama ağız tarafı açık durduğu için yakın günlerde hayatına girecek yeni bir şeye kapı aralık duruyor.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "takeaway": {
+      "text": "Dipten yukarı birkaç silik çizgi kıpırdamış ama yol olacak kadar belirgin değiller. Bir şeyler yerinden oynamak istiyor gibi; adı daha konmamış, ne zaman olacağını da fincan göstermiyor.",
+      "evidenceIds": [
+        "e2"
+      ]
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "source": "phase-c1.4-real-provider:case4:ROAD",
+  "model": "gpt-5.6-sol",
+  "reasoningEffort": "low",
+  "requestId": "req_b3533b815bd54a7386458668dc222de1",
+  "productJudgement": "PASS",
+  "observation": {
+    "usable": true,
+    "reason": "",
+    "checks": {
+      "cupInteriorVisible": true,
+      "adequateFocusLight": true,
+      "residueVisible": true,
+      "milkFoamObstruction": false,
+      "usefulRegionsVisible": true
+    },
+    "evidence": [
+      {
+        "id": "e1",
+        "region": "middle_wall",
+        "description": "A long thin line of grounds winding from the lower wall up toward the rim.",
+        "confidence": "high",
+        "visibility": "clear",
+        "resemblance": "may resemble a winding road or path"
+      },
+      {
+        "id": "e2",
+        "region": "base",
+        "description": "A small dense cluster at the base where the line begins.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      },
+      {
+        "id": "e3",
+        "region": "rim",
+        "description": "A clean open band just below the rim where the line ends.",
+        "confidence": "medium",
+        "visibility": "clear",
+        "resemblance": null
+      }
+    ]
+  },
+  "narrative": {
+    "visualObservation": {
+      "text": "Fincanın dibinden başlayıp ağız kenarına doğru kıvrılarak uzanan ince bir yol görünüyor. Başlangıç noktasında telve küçük ve belirgin bir şekil oluşturmuş.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "overall": {
+      "text": "Bu fincanın ana sözü hareket. Yolun dipten başlayıp yukarı kadar çıkması, yerinden kolay oynamayan bir planın artık ilerleme ihtimali taşıdığını gösteriyor. Fakat dümdüz gitmiyor; arada yön değişiklikleri, küçük gecikmeler ya da dolambaçlı bir güzergâh var. Bu, kısa bir yolculuk olabileceği gibi bulunduğun yerle başka bir yer arasında gidip gelmeni gerektiren bir gelişme de olabilir. Başlangıcının fincanın dibinde güçlü durması, bunun geçici bir heves değil, dayanağı olan bir plan olduğunu düşündürüyor.",
+      "evidenceIds": [
+        "e1",
+        "e2"
+      ]
+    },
+    "love": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "career": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "money": {
+      "text": "",
+      "evidenceIds": []
+    },
+    "nearFuture": {
+      "text": "Yolun ağız kenarındaki temiz bölüme ulaşması, hareketin uzak bir zamana kalmadığını söylüyor. İlk kısmı dolambaçlı olsa da son bölüm daha engelsiz görünüyor; gidiş yönü belirginleşebilir.",
+      "evidenceIds": [
+        "e1",
+        "e3"
+      ]
+    },
+    "takeaway": {
+      "text": "Buradaki ince yol tek hamlede değil, birkaç dönüşle ilerliyor. Yani fincan sana varıştan çok güzergâhın değişebileceğini fısıldıyor; hedef aynı kalsa da nasıl gideceğin farklılaşabilir.",
+      "evidenceIds": [
+        "e1"
+      ]
+    }
+  }
+}

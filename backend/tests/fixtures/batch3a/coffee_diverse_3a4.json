@@ -1,4 +1,5 @@
 {
+  "source": "phase-c1.3-good-sign-led",
   "observation": {
     "usable": true,
     "reason": "",
@@ -38,14 +39,14 @@
   },
   "narrative": {
     "visualObservation": {
-      "text": "Fincanın dibindeki yoğun tortu, çevresindeki açık kavisle duruyor; alt iç yüzeyden yükselen izler de seçiliyor.",
+      "text": "Telve dipte toplanmış, etrafını açık bir halka sarmış; alttan yukarı doğru da ince yollar çıkıyor.",
       "evidenceIds": [
         "e1",
         "e2"
       ]
     },
     "overall": {
-      "text": "Fatih, bu fincanda iki ayri baglilik ayni anda duruyor gibi. Dipteki agirlik henuz dagilmamis; cevresindeki acik hat ise o yukun tasinabilecegi bir pay birakiyor. Kapatmadan once koymak istedigin sinir, aceleden cok aitlik sorusu gibi duruyor. Yakin olanlarin beklentisi ile kendi yerin henuz ayni sey degil. Bu, bir seyi hemen sonuclandirmaktan cok, kime ait oldugunu henuz ayirmadan durdugun bir esik. Burada zorlanan sey hiz degil, bagliligin iki ayri yuzunu ayni anda tutabilmek.",
+      "text": "Telve dibe çökmüş, ama dört bir yanı kapalı değil; etrafında açık bir halka kalmış. Böyle bir dip, üstüne çok gelinmiş ama içine kapanmamış bir hâli anlatır: ağır ama boğucu değil. Hayatında şu an en çok yer kaplayan şey de buna benziyor; ağır ama kenarları açık.",
       "evidenceIds": [
         "e1"
       ]
@@ -63,15 +64,14 @@
       "evidenceIds": []
     },
     "nearFuture": {
-      "text": "Ust ic yuzeyde izlerin seyrelmesi, yakin donemde tek bir buyuk haberden cok kisa konusmalar ve parca bilgilerle netlesmeye isaret ediyor. Bu, disaridan gelecek hazir bir cevap degil; seslerin sirayla gelecegi bir aralik. Bu donemde kendini yukseltmekten cok, kimin neyi netlestirdigini dinlemek daha cok ise yarayabilir. Kucuk temaslar, bu donemin asil dili gibi duruyor.",
+      "text": "Fincanın üst tarafı neredeyse boş. Yakın günler için fazla bir şey göstermiyor; ne bir haber ne bir hareket var, dışarıdan gelecek bir şey görünmüyor.",
       "evidenceIds": [
         "e3"
       ]
     },
     "takeaway": {
-      "text": "Kulp tarafina dogru uzanan kavis, son sozun cevrendeki beklentiden cok kendi gundelik ritmine yaslanmasi gerektigini soyluyor. Yukselen izler, bu ritmin bir anda degil, kucuk temaslarla olustugunu dusunduruyor. Bu fincanin somut ipucu, tempo senden geldiginde cevrenin sesini ikinci planda birakabilmek ve gun icindeki nefesini kaybetmemek.",
+      "text": "Alttan yukarı çıkan o ince yollar ise başka bir şey anlatıyor: dipteki ağırlıktan bir şeyler yukarı sızmaya başlamış. Henüz bir yere varmış değiller ve nereye uzanacakları belli değil, ama durmuş da değiller.",
       "evidenceIds": [
-        "e1",
         "e2"
       ]
     }

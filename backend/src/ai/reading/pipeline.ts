@@ -61,7 +61,7 @@ import {
   buildPalmWriterPacket,
   normalizeTrustedHand,
 } from './locale-vocab.js';
-import { coffeeRepairFocus } from './coffee-diversity.js';
+import { coffeeRepairGuidance } from './coffee-repair-guidance.js';
 import { personalizationFromUnknown } from './personalization.js';
 import type { ReadingPersonalization } from './types.js';
 
@@ -572,17 +572,15 @@ export class ReadingPipeline {
             evidenceJson: JSON.stringify(buildCoffeeWriterPacket(obs, ctx.language, ctx.personalization)),
             rejectedJson: JSON.stringify(rejected),
             violations: [violation],
-            guidance:
-              violation === 'insight_collapse' || violation === 'section_redundancy'
-                ? coffeeRepairFocus(
-                    {
-                      overall: rejected.overall,
-                      nearFuture: rejected.nearFuture,
-                      takeaway: rejected.takeaway,
-                    },
-                    obs.evidence,
-                  )
-                : undefined,
+            // Primary violation unchanged; secondary deterministic Coffee
+            // defects (menu, invented plan) ride along as guidance only.
+            guidance: coffeeRepairGuidance(
+              violation,
+              rejected,
+              obs.evidence,
+              ctx.language,
+              ctx.personalization,
+            ),
           }),
         },
       ],
