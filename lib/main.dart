@@ -12,6 +12,8 @@ import 'core/auth/account_deletion_pending_state.dart';
 import 'core/auth/firebase/firebase_app_check_bootstrap.dart';
 import 'core/auth/firebase/firebase_auth_bootstrap.dart';
 import 'core/config/app_config.dart';
+import 'core/config/oracly_runtime_config.dart';
+import 'core/config/release_startup_gate.dart';
 import 'core/data/datasources/local_storage.dart';
 import 'core/l10n/oracly_format.dart';
 import 'core/platform/oracly_phone_orientation.dart';
@@ -35,6 +37,16 @@ void main() {
       try {
         await dotenv.load(fileName: '.env.example', isOptional: true);
       } catch (_) {}
+    }
+
+    // A production release missing its mandatory endpoints must not start
+    // the product at all (no providers, storage or Firebase).
+    final blocked = ReleaseStartupGate.blockedRoot(
+      OraclyRuntimeConfig.resolve(),
+    );
+    if (blocked != null) {
+      runApp(blocked);
+      return;
     }
 
     final storage = LocalStorage.ephemeral();
