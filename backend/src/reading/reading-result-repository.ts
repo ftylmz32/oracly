@@ -1,6 +1,7 @@
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import { Timestamp } from '@google-cloud/firestore';
 import type { ReadingGenerationTrace } from './provider-stage-repository.js';
+import { assertNoDeletionBarrier } from '../account/deletion-barrier.js';
 
 const RESULTS = 'readingOperationResults';
 
@@ -44,6 +45,9 @@ export class ReadingResultRepository {
   async persistOnce(record: ReadingOperationResult): Promise<ReadingOperationResult> {
     const ref = this.firestore.collection(RESULTS).doc(record.operationId);
     return this.firestore.runTransaction(async (tx) => {
+      // WAVE 3.2 — a deleted / deleting owner never gets a result created
+      // (or replayed); first-writer idempotency below is unchanged otherwise.
+      await assertNoDeletionBarrier(tx, this.firestore, record.ownerUserId);
       const existing = parseResult((await tx.get(ref)).data());
       if (existing) return existing;
       tx.set(ref, { ...record, expiresAt: Timestamp.fromMillis(record.persistedAtMs + 30 * 86_400_000) });

@@ -18,7 +18,10 @@ import {
 import type { ProviderStageRepository } from './provider-stage-repository.js';
 import type { ReadingGenerationTrace } from './provider-stage-repository.js';
 
-export type ReadingProcessOutcome = 'completed' | 'noop' | 'staged_ok' | 'failed';
+/** `owner_deleted` (WAVE 3.2) — the owner's account-deletion barrier refused a
+ * worker write. Terminal and successful from the task queue's point of view:
+ * no retry, no failFinal/refund, no completion. */
+export type ReadingProcessOutcome = 'completed' | 'noop' | 'staged_ok' | 'failed' | 'owner_deleted';
 
 export interface ReadingCompletionNotifier {
   notifyCompleted(input: {

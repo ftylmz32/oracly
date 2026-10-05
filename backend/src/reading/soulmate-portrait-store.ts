@@ -16,6 +16,11 @@ import { createHash } from 'node:crypto';
 import type { SoulmateIdentity } from '../ai/soulmate-prompt.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { ReadingStagedObjectStore } from './staged-object-store.js';
+import {
+  AccountDeletedError,
+  assertNoDeletionBarrier,
+  hasDeletionBarrier,
+} from '../account/deletion-barrier.js';
 
 const METADATA_COLLECTION = 'readingSoulmatePortraits';
 export const SOULMATE_PORTRAIT_RETENTION_MS = 30 * 86_400_000;
@@ -90,22 +95,42 @@ export class GcsSoulmatePortraitStore implements SoulmatePortraitStore {
       input.ownerUserId,
       extFor(input.contentType),
     );
+    // WAVE 3.2 — the GCS upload cannot join a transaction, so the deletion
+    // barrier is checked twice: before the upload (no object for an owner
+    // already being deleted) and again inside the metadata transaction. If
+    // deletion started in between, the sweep's metadata query could not have
+    // seen this object, so it is removed here instead of being orphaned.
+    if (await hasDeletionBarrier(this.firestore, input.ownerUserId)) {
+      throw new AccountDeletedError();
+    }
     await this.objects.put(path, input.bytes, input.contentType);
     const sha256 = createHash('sha256').update(input.bytes).digest('hex');
     const nowMs = Date.now();
-    await this.firestore.runTransaction(async (tx) => {
-      tx.set(this.metaRef(input.operationId), {
-        operationId: input.operationId,
-        ownerUserId: input.ownerUserId,
-        objectPath: path,
-        contentType: input.contentType,
-        byteSize: input.bytes.length,
-        sha256,
-        identity: input.identity,
-        createdAtMs: nowMs,
-        expiresAt: Timestamp.fromMillis(nowMs + SOULMATE_PORTRAIT_RETENTION_MS),
+    try {
+      await this.firestore.runTransaction(async (tx) => {
+        await assertNoDeletionBarrier(tx, this.firestore, input.ownerUserId);
+        tx.set(this.metaRef(input.operationId), {
+          operationId: input.operationId,
+          ownerUserId: input.ownerUserId,
+          objectPath: path,
+          contentType: input.contentType,
+          byteSize: input.bytes.length,
+          sha256,
+          identity: input.identity,
+          createdAtMs: nowMs,
+          expiresAt: Timestamp.fromMillis(nowMs + SOULMATE_PORTRAIT_RETENTION_MS),
+        });
       });
-    });
+    } catch (error) {
+      if (!(error instanceof AccountDeletedError)) throw error;
+      try {
+        await this.objects.delete(path);
+      } catch (cleanupError) {
+        // Surfaced (typed flag + cause), never silently dropped.
+        throw new AccountDeletedError(true, cleanupError);
+      }
+      throw error;
+    }
   }
 
   async get(operationId: string, ownerUserId: string): Promise<SoulmatePortrait | null> {

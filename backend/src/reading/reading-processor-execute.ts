@@ -15,6 +15,7 @@ import {
   wrapStageError,
   type WorkerStageLogger,
 } from './reading-worker-telemetry.js';
+import { findAccountDeletedError } from '../account/deletion-barrier.js';
 
 type ClaimedOp = {
   operationId: string;
@@ -44,7 +45,7 @@ export async function executeClaimedReading(input: {
   stopAfterStaged: boolean;
   providerStages?: ProviderStageRepository;
   generationTrace?: ReadingGenerationTrace;
-}): Promise<'completed' | 'staged_ok' | 'failed'> {
+}): Promise<'completed' | 'staged_ok' | 'failed' | 'owner_deleted'> {
   const { operation, log } = input;
   const feature = operation.readingType;
   const operationId = operation.operationId;
@@ -248,6 +249,19 @@ export async function executeClaimedReading(input: {
     await cleanupAfterSuccess();
     return 'completed';
   } catch (error) {
+    // WAVE 3.2 — the owner is deleted / being deleted: stop here. The
+    // operation itself is (or is about to be) swept, so there is no claim
+    // to release, nothing to fail/refund and nothing to complete.
+    const deleted = findAccountDeletedError(error);
+    if (deleted) {
+      log.info({
+        event: 'account_deletion_barrier_rejected',
+        operationId,
+        feature,
+        orphanCleanupFailed: deleted.orphanCleanupFailed,
+      });
+      return 'owner_deleted';
+    }
     try {
       await input.flow.releaseClaim(operation.ownerUserId, operationId);
     } catch {

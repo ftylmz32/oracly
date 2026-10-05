@@ -1,6 +1,7 @@
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import { Timestamp } from '@google-cloud/firestore';
 import { systemClock, toEpochMs, type ServerClock } from './clock.js';
+import { assertNoDeletionBarrier } from '../account/deletion-barrier.js';
 
 export type ReadingGenerationTrace = {
   pipelineVersion: string;
@@ -162,6 +163,9 @@ export class FirestoreProviderStageRepository implements ProviderStageRepository
   async claimAttempt(id: string, ownerUserId: string, generationTrace?: ReadingGenerationTrace): Promise<ProviderStageClaim> {
     const ref = this.ref(id);
     return this.firestore.runTransaction(async tx => {
+      // WAVE 3.2 — the gate in front of every paid provider call: a deleted /
+      // deleting owner never gets a checkpoint, so never gets a call.
+      await assertNoDeletionBarrier(tx, this.firestore, ownerUserId);
       const current = await tx.get(ref); const data = current.data();
       if (data?.state === 'provider_completed' || data?.state === 'persisted') return { state: data.state, output: data.output as Record<string, unknown> | undefined, generationTrace: parseTrace(data.generationTrace), initiate: false };
       if (data?.state === 'provider_outcome_unknown') return { state: 'provider_outcome_unknown', generationTrace: parseTrace(data.generationTrace), initiate: false };
@@ -228,6 +232,7 @@ export class FirestoreProviderStageRepository implements ProviderStageRepository
   }
   async markInFlight(id: string, ownerUserId: string): Promise<void> {
     await this.firestore.runTransaction(async tx => {
+      await assertNoDeletionBarrier(tx, this.firestore, ownerUserId);
       const ref = this.ref(id); const current = await tx.get(ref);
       if (current.data()?.state === 'provider_completed' || current.data()?.state === 'persisted') return;
       tx.set(ref, { operationId: id, ownerUserId, state: 'in_flight', updatedAtMs: Date.now() });
@@ -236,6 +241,11 @@ export class FirestoreProviderStageRepository implements ProviderStageRepository
   async markCompleted(id: string, ownerUserId: string, output: Record<string, unknown>): Promise<void> {
     assertCompactProviderCheckpoint(output);
     await this.firestore.runTransaction(async tx => {
+      // WAVE 3.2 — this blind set is what re-created a swept checkpoint.
+      // markPersisted / markOutcomeUnknown / markRejected need no barrier:
+      // they only ever update a document that already exists, and any
+      // document existing when the barrier commits is removed by the sweep.
+      await assertNoDeletionBarrier(tx, this.firestore, ownerUserId);
       const ref = this.ref(id); const current = await tx.get(ref); const now = Date.now();
       tx.set(ref, { ...current.data(), operationId: id, ownerUserId, state: 'provider_completed', output, updatedAtMs: now, expiresAt: Timestamp.fromMillis(now + 30 * 86_400_000) });
     });

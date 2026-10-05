@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { Firestore, FieldValue, Timestamp } from '@google-cloud/firestore';
 import { Storage } from '@google-cloud/storage';
 import type { AppConfig } from '../config.js';
+import { ACCOUNT_DELETION_RECEIPTS, accountDeletionReceiptId } from './deletion-barrier.js';
 
 export type DeletionReceipt = {
   receiptId: string;
@@ -29,7 +30,11 @@ const DELETE_COLLECTIONS = [
 ] as const;
 
 /** Production deletion is retry-safe: every delete is idempotent and the receipt
- * is written only after content cleanup and purchase-binding anonymization finish. */
+ * becomes `accepted` only after content cleanup and purchase-binding
+ * anonymization finish. WAVE 3.2 — the SAME receipt document is first written
+ * as a `deleting` barrier (no TTL) before any destructive operation, so a
+ * worker still in flight for this identity can never re-create owner-scoped
+ * state during or after the sweep (see `deletion-barrier.ts`). */
 export class FirestoreAccountDeletionRepository implements AccountDeletionRepository {
   constructor(
     private readonly firestore: Firestore,
@@ -38,11 +43,21 @@ export class FirestoreAccountDeletionRepository implements AccountDeletionReposi
   ) {}
 
   async deleteForIdentity(identityKey: string): Promise<DeletionReceipt> {
-    const receiptId = digest(`account-delete\0${identityKey}`);
-    const receiptRef = this.firestore.collection('accountDeletionReceipts').doc(receiptId);
+    const receiptId = accountDeletionReceiptId(identityKey);
+    const receiptRef = this.firestore.collection(ACCOUNT_DELETION_RECEIPTS).doc(receiptId);
     const existing = await receiptRef.get();
     if (existing.exists && existing.data()?.status === 'accepted') {
       return existing.data() as DeletionReceipt;
+    }
+    // Barrier first: committed before the first destructive operation and
+    // never removed by the sweep. A retry after a partial run finds the
+    // `deleting` barrier already in place and simply resumes the sweep.
+    if (!existing.exists) {
+      await receiptRef.set({
+        receiptId,
+        status: 'deleting',
+        deletionStartedAt: new Date().toISOString(),
+      });
     }
 
     let deletedDocuments = 0;

@@ -34,6 +34,7 @@ import {
   type WorkerStageLogger,
 } from './reading-worker-telemetry.js';
 import { classifyProviderFailure } from './soulmate-provider-failure.js';
+import { findAccountDeletedError } from '../account/deletion-barrier.js';
 
 /** SM-RL1 §3 — conservative default; no existing project standard found. */
 const SOULMATE_PORTRAIT_MAX_ATTEMPTS = 3;
@@ -114,7 +115,7 @@ export async function executeClaimedSoulmateReading(input: {
   /** SM-RL2 §3 — for the `provider_rate_limited` observability log only;
    * never affects behavior. */
   imageModel?: string;
-}): Promise<'completed' | 'failed'> {
+}): Promise<'completed' | 'failed' | 'owner_deleted'> {
   const { operation, log } = input;
   const operationId = operation.operationId;
   try {
@@ -274,6 +275,18 @@ export async function executeClaimedSoulmateReading(input: {
     }
     return 'completed';
   } catch (error) {
+    // WAVE 3.2 — see reading-processor-execute.ts: deleted / deleting owner
+    // is terminal, with no release, no failFinal/refund, no completion.
+    const deleted = findAccountDeletedError(error);
+    if (deleted) {
+      log.info({
+        event: 'account_deletion_barrier_rejected',
+        operationId,
+        feature: FEATURE,
+        orphanCleanupFailed: deleted.orphanCleanupFailed,
+      });
+      return 'owner_deleted';
+    }
     try {
       await input.flow.releaseClaim(operation.ownerUserId, operationId);
     } catch {
