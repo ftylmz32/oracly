@@ -22,6 +22,7 @@ export const PHASE4C2A_ARTIFACT_PATH = doc('DREAM_PHASE4C2A_OFFLINE_RECLASSIFICA
 export const PHASE4C2A_CLIENT_REPLAY_PATH = doc('DREAM_PHASE4C2A_CLIENT_REPLAY_20260928.json');
 
 export const sha256 = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
+export const evidenceSha256 = (text: string) => sha256(text.replace(/\r\n?/g, '\n'));
 
 function clientVerdicts(): Map<string, ClientVerdict> | null {
   if (!existsSync(PHASE4C2A_CLIENT_REPLAY_PATH)) return null;
@@ -40,9 +41,9 @@ export function buildPhase4c2aReclassification() {
     schema: PHASE4C2A_SCHEMA,
     source: {
       artifact: basename(PHASE4C2_ARTIFACT_PATH),
-      artifactSha256: sha256(frozenText),
+      artifactSha256: evidenceSha256(frozenText),
       clientReplay: basename(PHASE4C2_CLIENT_REPLAY_PATH),
-      clientReplaySha256: sha256(replayText),
+      clientReplaySha256: evidenceSha256(replayText),
       rawProviderTextSha256: sha256(records.map((r) => r.rawProviderText ?? '').join('\u0000')),
     },
     method: {

@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { FROZEN_EVIDENCE, PHASE4C2_ARTIFACT_PATH, PHASE4C2_CLIENT_REPLAY_PATH } from '../scripts/dream-phase4c2/artifact.js';
 import { PHASE4C1_CLIENT_REPLAY_PATH } from '../scripts/dream-phase4c1/artifact.js';
-import { buildPhase4c2aReclassification, PHASE4C2A_ARTIFACT_PATH, sha256 } from '../scripts/dream-phase4c2a/artifact.js';
+import { buildPhase4c2aReclassification, evidenceSha256, PHASE4C2A_ARTIFACT_PATH, sha256 } from '../scripts/dream-phase4c2a/artifact.js';
 
 const text = readFileSync(PHASE4C2A_ARTIFACT_PATH, 'utf8');
 const committed = JSON.parse(text) as ReturnType<typeof buildPhase4c2aReclassification>;
@@ -31,8 +31,8 @@ describe('Phase 4C.2a offline reclassification', () => {
   });
 
   it('reads the frozen evidence unchanged', () => {
-    expect(committed.source.artifactSha256).toBe(sha256(frozenText));
-    expect(committed.source.clientReplaySha256).toBe(sha256(readFileSync(PHASE4C2_CLIENT_REPLAY_PATH, 'utf8')));
+    expect(committed.source.artifactSha256).toBe(evidenceSha256(frozenText));
+    expect(committed.source.clientReplaySha256).toBe(evidenceSha256(readFileSync(PHASE4C2_CLIENT_REPLAY_PATH, 'utf8')));
     const raw = (JSON.parse(frozenText).attempts as Array<{ rawProviderText: string | null }>)
       .map((r) => r.rawProviderText ?? '').join('\u0000');
     expect(committed.source.rawProviderTextSha256).toBe(sha256(raw));
