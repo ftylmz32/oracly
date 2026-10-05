@@ -25,12 +25,14 @@ import {
   resolveWaitMs,
   type WaitPolicy,
 } from './wait-policy.js';
+import { ReadingAdmissionDenied } from './reading-admission.js';
 
 export type ServiceErrorCode =
   | 'not_found'
   | 'forbidden'
   | 'conflict'
   | 'invalid'
+  | 'rate_limited'
   | 'unavailable';
 
 export class ReadingOperationError extends Error {
@@ -86,6 +88,9 @@ export class ReadingOperationService {
       return stored.record;
     } catch (error) {
       if (error instanceof ReadingOperationError) throw error;
+      if (error instanceof ReadingAdmissionDenied) {
+        throw new ReadingOperationError('rate_limited', error);
+      }
       if (error instanceof ReadingStorageUnavailable) {
         throw new ReadingOperationError('unavailable');
       }

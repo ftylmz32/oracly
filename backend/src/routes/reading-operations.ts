@@ -188,6 +188,9 @@ function sendServiceError(reply: FastifyReply, error: unknown) {
     if (error.code === 'unavailable') {
       return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
     }
+    if (error.code === 'rate_limited') {
+      return reply.code(429).send(errorEnvelope(ErrorCode.rateLimited));
+    }
     return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
   }
   return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));

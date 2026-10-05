@@ -43,6 +43,7 @@ export async function testApp(
     readingOperationInputRepository?: import('../src/reading/operation-input-repository.js').ReadingOperationInputRepository;
     rewardedAds?: import('../src/server.js').BuildOptions['rewardedAds'];
     readingStagedImageRepository?: import('../src/reading/operation-staged-image-repository.js').ReadingStagedImageRepository;
+    readingTaskScheduler?: import('../src/reading/reading-task-scheduler.js').ReadingTaskScheduler;
     sharedWindowStore?: import('../src/rate-limit/shared-window-store.js').SharedWindowStore;
     accountDeletionRepository?: import('../src/account/account-deletion.js').AccountDeletionRepository;
     responseReplayRepository?: import('../src/middleware/response-replay-repository.js').ResponseReplayRepository;
@@ -63,6 +64,7 @@ export async function testApp(
     readingOperationInputRepository: options.readingOperationInputRepository,
     rewardedAds: options.rewardedAds,
     readingStagedImageRepository: options.readingStagedImageRepository,
+    readingTaskScheduler: options.readingTaskScheduler,
     sharedWindowStore: options.sharedWindowStore ?? new MemorySharedWindowStore(),
     accountDeletionRepository: options.accountDeletionRepository,
     responseReplayRepository: options.responseReplayRepository ?? new FirestoreResponseReplayRepository(new MemoryDocumentStore()),

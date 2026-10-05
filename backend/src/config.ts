@@ -76,6 +76,11 @@ export type AppConfig = {
   rateLimitWindowMs: number;
   expensiveRateMax: number;
   maxConcurrent: number;
+  /** Max waiting/processing reading operations owned by one identity. */
+  readingActiveMaxPerIdentity: number;
+  /** New distinct reading creates permitted per owner/window. */
+  readingCreateRateMax: number;
+  readingCreateRateWindowMs: number;
   /** Process-wide AI requests per minute (all subjects). Single instance only. */
   globalAiRpm: number;
   /** Process-wide concurrent AI requests (all subjects). Single instance only. */
@@ -321,6 +326,19 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     rateLimitWindowMs: clampInt(env.AI_RATE_LIMIT_WINDOW_MS, 900_000, 1000, 86_400_000),
     expensiveRateMax: clampInt(env.AI_EXPENSIVE_RATE_MAX, 10, 1, 100),
     maxConcurrent: clampInt(env.AI_MAX_CONCURRENT, 2, 1, 20),
+    readingActiveMaxPerIdentity: clampInt(env.READING_ACTIVE_OPERATION_MAX, 6, 1, 50),
+    readingCreateRateMax: clampInt(
+      env.READING_CREATE_RATE_MAX ?? env.AI_EXPENSIVE_RATE_MAX,
+      10,
+      1,
+      100,
+    ),
+    readingCreateRateWindowMs: clampInt(
+      env.READING_CREATE_RATE_WINDOW_MS ?? env.AI_RATE_LIMIT_WINDOW_MS,
+      900_000,
+      1000,
+      86_400_000,
+    ),
     globalAiRpm: clampInt(
       env.AI_GLOBAL_RPM ?? env.ORACLY_GLOBAL_AI_RPM,
       60,

@@ -12,6 +12,15 @@ import {
   toStoredDocument,
   type ReadingOperationRecord,
 } from './operation-model.js';
+import {
+  DEFAULT_READING_ADMISSION_LIMITS,
+  ReadingAdmissionDenied,
+  admitNewReadingInTx,
+  readingAdmissionLimitsFromConfig,
+  readingAdmissionRefs,
+  releaseActiveReadingInTx,
+  type ReadingAdmissionLimits,
+} from './reading-admission.js';
 
 const OPERATIONS = 'readingOperations';
 const KEYS = 'readingOperationKeys';
@@ -48,7 +57,10 @@ export interface ReadingOperationRepository {
 export class FirestoreReadingOperationRepository
   implements ReadingOperationRepository
 {
-  constructor(private readonly firestore: FirestoreLike) {}
+  constructor(
+    private readonly firestore: FirestoreLike,
+    private readonly admissionLimits: ReadingAdmissionLimits = DEFAULT_READING_ADMISSION_LIMITS,
+  ) {}
 
   async createIfAbsent(
     record: ReadingOperationRecord,
@@ -71,6 +83,22 @@ export class FirestoreReadingOperationRepository
           if (!parsed) throw new ReadingStorageUnavailable();
           return { created: false, record: parsed };
         }
+        const refs = readingAdmissionRefs(
+          this.firestore,
+          record.ownerUserId,
+          this.admissionLimits.createRateWindowMs,
+          record.createdAtMs,
+        );
+        const admissionSnap = await tx.get(refs.admission);
+        const rateSnap = await tx.get(refs.rate);
+        admitNewReadingInTx(tx, {
+          ownerUserId: record.ownerUserId,
+          nowMs: record.createdAtMs,
+          limits: this.admissionLimits,
+          admissionSnap,
+          rateSnap,
+          refs,
+        });
         tx.set(opRef, toStoredDocument(record));
         tx.set(keyRef, {
           operationId: record.operationId,
@@ -81,7 +109,7 @@ export class FirestoreReadingOperationRepository
         return { created: true, record };
       });
     } catch (error) {
-      if (error instanceof ReadingStorageUnavailable) throw error;
+      if (error instanceof ReadingStorageUnavailable || error instanceof ReadingAdmissionDenied) throw error;
       throw new ReadingStorageUnavailable();
     }
   }
@@ -118,6 +146,16 @@ export class FirestoreReadingOperationRepository
         }
         if (next.ownerUserId !== ownerUserId) {
           throw new ReadingStorageUnavailable();
+        }
+        if (isActive(current) && !isActive(next)) {
+          const refs = readingAdmissionRefs(
+            this.firestore,
+            ownerUserId,
+            this.admissionLimits.createRateWindowMs,
+            next.updatedAtMs,
+          );
+          const admissionSnap = await tx.get(refs.admission);
+          releaseActiveReadingInTx(tx, next.updatedAtMs, admissionSnap, refs.admission);
         }
         tx.set(ref, toStoredDocument(next));
         return next;
@@ -158,10 +196,17 @@ export function createReadingOperationRepository(
       projectId: config.firebaseProjectId,
       databaseId: config.firestoreDatabaseId,
     });
-    return new FirestoreReadingOperationRepository(sharedFirestore);
+    return new FirestoreReadingOperationRepository(
+      sharedFirestore,
+      readingAdmissionLimitsFromConfig(config),
+    );
   } catch {
     return new FailClosedReadingOperationRepository();
   }
+}
+
+function isActive(record: ReadingOperationRecord): boolean {
+  return record.status === 'waiting' || record.status === 'processing';
 }
 
 export function idempotencyKeyFor(input: {
