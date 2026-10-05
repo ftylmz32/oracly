@@ -14,6 +14,8 @@ import '../services/openai_palm_analysis.dart';
 import '../services/palm_analysis_port.dart';
 import '../services/palm_experience_service.dart';
 import '../../../core/memory/oracly_memory.dart';
+import '../../../core/providers/backend_providers.dart'
+    show localDataOwnerEpochProvider;
 import '../../gems/providers/gem_providers.dart';
 
 final palmReadingStoreProvider = Provider<PalmReadingStore>((ref) {
@@ -51,6 +53,8 @@ final palmExperienceServiceProvider = Provider<PalmExperienceService>((ref) {
 /// autoDispose was dropping mid-flight success (phase never reached result).
 final palmReadingControllerProvider =
     ChangeNotifierProvider<PalmReadingController>((ref) {
+      // Rebuild for a new account even when the reading sender stays null.
+      ref.watch(localDataOwnerEpochProvider);
       final controller = PalmReadingController(
         experience: ref.watch(palmExperienceServiceProvider),
         images: ref.watch(coffeeImageInputProvider),

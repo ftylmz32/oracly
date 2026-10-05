@@ -6,8 +6,8 @@
 /// UserLocalDataIsolation.onSignedIn (wipe + owner commit + epoch).
 ///
 /// A configured app (valid proxy) builds a NEW sender closure on every
-/// rebuild; the harness models that. Without a proxy the sender is null and
-/// the rebuild does not propagate — see the skipped latent case at the end.
+/// rebuild; the harness models that. The controllers also watch the owner
+/// epoch directly, so the no-proxy (null sender) case is guarded at the end.
 library;
 
 import 'package:flutter/material.dart';
@@ -191,7 +191,8 @@ void main() {
   });
 
   testWidgets(
-    'LATENT (no proxy configured): A open readings survive the switch',
+    'no proxy configured (null sender): user B still never sees user A open '
+    'readings',
     (tester) async {
       await signIn(tester, 'user-a');
       await tester.pumpWidget(app(proxyConfigured: false));
@@ -199,13 +200,9 @@ void main() {
 
       await signIn(tester, 'user-b');
 
+      // Regression guard for the WAVE 2.7 finding: the null sender does not
+      // change on a switch, so only the owner-epoch watch rebuilds these.
       expect(find.text('palm=none coffee=none'), findsOneWidget);
     },
-    skip: true, // WAVE 2.7 finding: with a null sender (no/invalid proxy)
-    // invalidating readingOperationSenderProvider rebuilds to the same null,
-    // so the runner and the Palm/Coffee controllers are NOT rebuilt and user
-    // B still sees user A's open readings. Not reachable in a correctly
-    // configured release (valid proxy => fresh sender closure). Unskip when
-    // the controllers get an explicit account-switch reset.
   );
 }

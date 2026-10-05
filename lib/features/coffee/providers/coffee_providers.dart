@@ -15,6 +15,8 @@ import '../services/image_picker_coffee_input.dart';
 import '../services/openai_coffee_analysis.dart';
 import '../../reading_operation/providers/reading_live_provider.dart';
 import '../../../core/memory/oracly_memory.dart';
+import '../../../core/providers/backend_providers.dart'
+    show localDataOwnerEpochProvider;
 import '../../gems/providers/gem_providers.dart';
 
 final coffeeReadingStoreProvider = Provider<CoffeeReadingStore>((ref) {
@@ -58,6 +60,8 @@ final coffeeExperienceServiceProvider = Provider<CoffeeExperienceService>((ref) 
 /// autoDispose was dropping mid-flight success (phase never reached result).
 final coffeeReadingControllerProvider =
     ChangeNotifierProvider<CoffeeReadingController>((ref) {
+  // Rebuild for a new account even when the reading sender stays null.
+  ref.watch(localDataOwnerEpochProvider);
   final controller = CoffeeReadingController(
     experience: ref.watch(coffeeExperienceServiceProvider),
     images: ref.watch(coffeeImageInputProvider),
