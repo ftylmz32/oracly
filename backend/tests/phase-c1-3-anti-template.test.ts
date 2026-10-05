@@ -286,8 +286,8 @@ describe('C1.3 — earlier protections preserved', () => {
     expect(coffeeVoiceFailure(pile, 0, coffeeCommunicationAffordance(sparse.observation.evidence))).toBe('event_pile');
   });
 
-  it('Palm prompts are byte-identical to Build 9 and the public Coffee contract is unchanged', () => {
-    expect(sha(palmWriterSystem('tr'))).toBe('6baea20276276349ed9434ea6691a3edec1ec3b904fc2e85d1119a8b49d8e951');
+  it('Palm prompts match Wave 4.3 and the public Coffee contract is unchanged', () => {
+    expect(sha(palmWriterSystem('tr'))).toBe('936ce247f105af55fe5719bfef944fc03af0d96303150cb13985a653288c1a6a');
     expect(sha(repairWriterSystem('palm'))).toBe('0f3f764b3f78ae2988b09c76a67bb045689d9aa740a66d79fc426a0f66740387');
     const schema = COFFEE_WRITER_SCHEMA as { required?: string[] };
     expect([...(schema.required ?? [])].sort()).toEqual(

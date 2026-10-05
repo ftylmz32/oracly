@@ -216,11 +216,11 @@ describe('PHASE C1 — writer and repair prompts', () => {
 });
 
 describe('PHASE C1 — Palm parity and contract stability', () => {
-  it('Palm writer/repair prompts are byte-identical to the Build 9 baseline', () => {
-    // sha256 captured from the current release Palm contract (9673e3f4).
-    expect(sha(palmWriterSystem('tr'))).toBe('6baea20276276349ed9434ea6691a3edec1ec3b904fc2e85d1119a8b49d8e951');
-    expect(sha(palmWriterSystem('en'))).toBe('bdf6ef83887a205b95b06e3e4eed05990e5406de192e6d056c00517aa7e2f3ba');
-    expect(sha(palmWriterSystem('ru'))).toBe('8efce9cbf4728ee7803d9e5ced4973a2588abf515ba25a8299af5ca9b564aabf');
+  it('Palm writer/repair prompts match the Wave 4.3 release candidate', () => {
+    // Writer sha256 captured after the Wave 4.3 Palm-only semantic correction.
+    expect(sha(palmWriterSystem('tr'))).toBe('936ce247f105af55fe5719bfef944fc03af0d96303150cb13985a653288c1a6a');
+    expect(sha(palmWriterSystem('en'))).toBe('fb5568973aebac7a26e264a2d41f1900599ca663451defc0ef1f778a2fc14722');
+    expect(sha(palmWriterSystem('ru'))).toBe('3abbd45a48f2c7b1ccb63ab3534f7b0202e611ec4bc220ab18fcc70ef1f6d465');
     expect(sha(palmWriterUser('{}'))).toBe('101c7c16178b6ed63387f1016834f92a409ce3556df8bad8a56ac71488e42d3c');
     expect(sha(repairWriterSystem('palm'))).toBe('0f3f764b3f78ae2988b09c76a67bb045689d9aa740a66d79fc426a0f66740387');
   });

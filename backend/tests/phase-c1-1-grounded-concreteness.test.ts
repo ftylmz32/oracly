@@ -205,8 +205,8 @@ describe('C1.1 — writer prompt prefers one grounded story', () => {
 });
 
 describe('C1.1 — Palm parity and public contract', () => {
-  it('Palm prompts still match the current release baseline byte-for-byte', () => {
-    expect(sha(palmWriterSystem('tr'))).toBe('6baea20276276349ed9434ea6691a3edec1ec3b904fc2e85d1119a8b49d8e951');
+  it('Palm prompts match the Wave 4.3 release candidate byte-for-byte', () => {
+    expect(sha(palmWriterSystem('tr'))).toBe('936ce247f105af55fe5719bfef944fc03af0d96303150cb13985a653288c1a6a');
     expect(sha(repairWriterSystem('palm'))).toBe('0f3f764b3f78ae2988b09c76a67bb045689d9aa740a66d79fc426a0f66740387');
   });
 

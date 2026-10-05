@@ -10,6 +10,14 @@ const palm = palmWriterSystem('tr');
 const repair = repairWriterSystem('palm');
 
 describe('Palm writer contract', () => {
+  it('builds one cross-line portrait with distinct section jobs', () => {
+    const prompt = palmWriterSystem('tr');
+    expect(prompt).toContain('BUILD ONE PALM PORTRAIT BEFORE WRITING');
+    expect(prompt).toContain('Do not give every line the same cautious, stable, thoughtful personality claim');
+    expect(prompt).toContain('do not write four independent mini-readings');
+    expect(prompt).toContain('RESERVE THE SYNTHESIS');
+  });
+
   it('no longer asks each line to own its geometric description', () => {
     expect(palm).not.toContain('owns its own geometric description');
     expect(palm).not.toContain('practical reflection');
