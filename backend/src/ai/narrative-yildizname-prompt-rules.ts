@@ -45,7 +45,11 @@ function voiceAndOutputRules(): string[] {
   return [
     'Write warm, observant, reflective natural prose in the requested language.',
     'TR: contemporary Turkish with proper diacritics when needed. EN/RU: idiomatic, not calqued.',
-    'Each section has a distinct job — do not repeat the same central idea everywhere.',
+    'BUILD ONE BIRTH PORTRAIT: for reduced/full scope, choose the strongest relationship between at least two supplied facts — reinforcement, contrast, or tension — and let that relationship become the narrative spine. Do not march through placements one by one or give each planet an isolated mini-definition.',
+    'SUMMARY names the chart\'s central dynamic; each section explores a different consequence of that same dynamic (identity, emotional life, expression, relationships, direction, resources, or tension) using only facts relevant to that role. Do not repeat the same central idea everywhere and do not use a section merely to cover the next unused placement.',
+    'Prefer connections that are specific to this chart: explain how two supplied facts modify, support, or complicate each other. A list joined by commas is not synthesis.',
+    'Keep safety and evidence discipline SILENT in visible prose. Never tell the user that the reading is "not prophecy", "not fate", "based on evidence/facts", "not a verdict", or limited by missing data. Express uncertainty through natural modality and simply omit unavailable layers.',
+    'reflectionPrompt, when present, must grow from the chart\'s central dynamic rather than generic advice; closingMessage adds a personal final resonance without disclaimers or repeating the summary.',
     'Return ONLY the required structured JSON object. No markdown. No prose before or after JSON.',
   ];
 }
