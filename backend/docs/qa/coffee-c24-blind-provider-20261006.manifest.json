@@ -1,0 +1,172 @@
+{
+  "phase": "C2.4 BLIND REAL-PROVIDER QUALITY",
+  "createdAt": "2026-10-06",
+  "commit": "d42eb6d5cb6736271159a317144b2f7a2e8c24be",
+  "branch": "fix/coffee-c21-private-meaning-handoff-20261006",
+  "language": "tr",
+  "personalization": null,
+  "checks": {
+    "cupInteriorVisible": true,
+    "adequateFocusLight": true,
+    "residueVisible": true,
+    "milkFoamObstruction": false,
+    "usefulRegionsVisible": true
+  },
+  "cases": [
+    {
+      "id": "C01",
+      "target": "communication",
+      "evidence": [
+        { "id": "c01-signal", "region": "middle_wall", "description": "A neat tapered imprint with two lifted side strokes.", "resemblance": "could resemble a messenger bird", "confidence": "high", "visibility": "clear" },
+        { "id": "c01-base", "region": "base", "description": "A soft granular veil rests away from the main imprint.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c01-speck", "region": "lower_wall", "description": "A pale isolated fleck has no stable outline.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["communication"],
+      "expectedPlan": { "specificity": "single", "lead": "communication", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C02",
+      "target": "opportunity",
+      "evidence": [
+        { "id": "c02-opening", "region": "middle_wall", "description": "A slim oval impression ends in a tiny split tail.", "resemblance": "could resemble a small fish", "confidence": "high", "visibility": "clear" },
+        { "id": "c02-grain", "region": "base", "description": "Scattered fine grains lie beneath the distinct impression.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c02-smudge", "region": "lower_wall", "description": "A weak smudge fades before forming a recognizable boundary.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["opportunity"],
+      "expectedPlan": { "specificity": "single", "lead": "opportunity", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C03",
+      "target": "bond",
+      "evidence": [
+        { "id": "c03-link", "region": "middle_wall", "description": "A compact closed loop remains evenly defined on every side.", "resemblance": "could resemble a simple ring", "confidence": "high", "visibility": "clear" },
+        { "id": "c03-dust", "region": "base", "description": "A thin dusting occupies a separate patch below.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c03-mark", "region": "lower_wall", "description": "One blurred mark is only partly visible.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["bond"],
+      "expectedPlan": { "specificity": "single", "lead": "bond", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C04",
+      "target": "emotional_relevance",
+      "evidence": [
+        { "id": "c04-feeling", "region": "middle_wall", "description": "Two balanced rounded lobes meet at one narrow point.", "resemblance": "could resemble a heart", "confidence": "high", "visibility": "clear" },
+        { "id": "c04-film", "region": "base", "description": "A faint matte film covers a small separate area.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c04-fleck", "region": "lower_wall", "description": "An indistinct fleck is interrupted by glare.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["emotional_relevance"],
+      "expectedPlan": { "specificity": "single", "lead": "emotional_relevance", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C05",
+      "target": "solution",
+      "evidence": [
+        { "id": "c05-answer", "region": "middle_wall", "description": "A straight narrow shaft ends in one notched compact head.", "resemblance": "could resemble an old key", "confidence": "high", "visibility": "clear" },
+        { "id": "c05-settle", "region": "base", "description": "Loose sediment settles in a shallow unrelated patch.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c05-trace", "region": "lower_wall", "description": "A short hazy trace cannot be followed confidently.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["solution"],
+      "expectedPlan": { "specificity": "single", "lead": "solution", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C06",
+      "target": "movement",
+      "evidence": [
+        { "id": "c06-motion", "region": "middle_wall", "description": "A continuous narrow course bends twice while crossing the wall.", "resemblance": "could resemble a winding path", "confidence": "high", "visibility": "clear" },
+        { "id": "c06-dots", "region": "base", "description": "Several weak dots remain detached from the continuous course.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c06-haze", "region": "lower_wall", "description": "A hazy patch has no readable direction.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["movement"],
+      "expectedPlan": { "specificity": "single", "lead": "movement", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C07",
+      "target": "handle_side_sparse_context",
+      "evidence": [
+        { "id": "c07-near", "region": "handle_side", "description": "A modest clear cluster sits close to the handle with no recognizable figure.", "resemblance": null, "confidence": "high", "visibility": "clear" },
+        { "id": "c07-low", "region": "base", "description": "A few light grains are spread thinly across the base.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c07-unclear", "region": "middle_wall", "description": "A partial stain is too blurred to classify.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["home_close_circle"],
+      "expectedPlan": { "specificity": "sparse", "lead": "home_close_circle", "supporting": [], "authorizedContexts": ["home_close_circle"], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C08",
+      "target": "communication_plus_movement",
+      "evidence": [
+        { "id": "c08-word", "region": "middle_wall", "description": "A sharp central body carries two short raised strokes.", "resemblance": "could resemble a bird carrying news", "confidence": "high", "visibility": "clear" },
+        { "id": "c08-shift", "region": "lower_wall", "description": "A long unbroken course arcs sideways before rising.", "resemblance": "could resemble a route", "confidence": "high", "visibility": "clear" },
+        { "id": "c08-noise", "region": "base", "description": "A weak separate blot has no dependable shape.", "resemblance": null, "confidence": "low", "visibility": "clear" }
+      ],
+      "expectedFamilies": ["communication", "movement"],
+      "expectedPlan": { "specificity": "multi", "lead": "communication", "supporting": [{ "family": "movement", "relation": "co_occurring" }], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C09",
+      "target": "opportunity_plus_emotional",
+      "evidence": [
+        { "id": "c09-chance", "region": "middle_wall", "description": "A narrow oval body has a pointed head and divided tail.", "resemblance": "could resemble a fish in profile", "confidence": "high", "visibility": "clear" },
+        { "id": "c09-heart", "region": "lower_wall", "description": "A symmetrical double curve closes at a single lower point.", "resemblance": "could resemble a heart", "confidence": "high", "visibility": "clear" },
+        { "id": "c09-muted", "region": "base", "description": "A dull granular patch remains visually weak.", "resemblance": null, "confidence": "low", "visibility": "clear" }
+      ],
+      "expectedFamilies": ["opportunity", "emotional_relevance"],
+      "expectedPlan": { "specificity": "multi", "lead": "opportunity", "supporting": [{ "family": "emotional_relevance", "relation": "co_occurring" }], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C10",
+      "target": "solution_plus_movement_plus_communication",
+      "evidence": [
+        { "id": "c10-solve", "region": "middle_wall", "description": "A firm stem finishes in a squared head with two tiny teeth.", "resemblance": "could resemble a key", "confidence": "high", "visibility": "clear" },
+        { "id": "c10-move", "region": "lower_wall", "description": "A clear continuous course turns around the central deposit.", "resemblance": "could resemble a curved road", "confidence": "high", "visibility": "clear" },
+        { "id": "c10-tell", "region": "middle_wall", "description": "A separate pointed body has two fine outward wings.", "resemblance": "could resemble a bird", "confidence": "high", "visibility": "clear" }
+      ],
+      "expectedFamilies": ["solution", "movement", "communication"],
+      "expectedPlan": { "specificity": "multi", "lead": "solution", "supporting": [{ "family": "communication", "relation": "co_occurring" }, { "family": "movement", "relation": "co_occurring" }], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C11",
+      "target": "choice",
+      "evidence": [
+        { "id": "c11-choice", "region": "middle_wall", "description": "One strong trace divides cleanly into two balanced branches.", "resemblance": "could resemble a crossroads", "confidence": "high", "visibility": "clear" },
+        { "id": "c11-ground", "region": "base", "description": "A weak flat residue field sits below the division.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c11-blur", "region": "lower_wall", "description": "A nearby fragment is too blurred for comparison.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["choice"],
+      "expectedPlan": { "specificity": "single", "lead": "choice", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C12",
+      "target": "growth",
+      "evidence": [
+        { "id": "c12-grow", "region": "middle_wall", "description": "A vertical trunk-like form opens into several upward-reaching limbs.", "resemblance": "could resemble a tree", "confidence": "high", "visibility": "clear" },
+        { "id": "c12-bed", "region": "base", "description": "A light sediment bed remains separate from the upright form.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c12-shadow", "region": "lower_wall", "description": "A dim shadow has no consistent edge.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["growth"],
+      "expectedPlan": { "specificity": "single", "lead": "growth", "supporting": [], "authorizedContexts": [], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    },
+    {
+      "id": "C13",
+      "target": "unknown_only_no_provider_call",
+      "evidence": [
+        { "id": "c13-unknown", "region": "middle_wall", "description": "A broad shallow dome rests above one short vertical stroke.", "resemblance": "could resemble an umbrella", "confidence": "high", "visibility": "clear" },
+        { "id": "c13-noise", "region": "base", "description": "Several tiny grains have no collective structure.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c13-fade", "region": "lower_wall", "description": "A fading stain cannot be resolved into a form.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": [],
+      "expectedOutcome": { "status": "insufficient_semantic_signal", "reason": "no_safe_semantic_facets" },
+      "expectedProviderCalls": 0
+    },
+    {
+      "id": "C14",
+      "target": "sparse_supported_context",
+      "evidence": [
+        { "id": "c14-close", "region": "handle_side", "description": "One small well-lit deposit rests beside the handle without a stable likeness.", "resemblance": null, "confidence": "medium", "visibility": "clear" },
+        { "id": "c14-thin", "region": "base", "description": "The base holds only a very thin scatter of grounds.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c14-veil", "region": "lower_wall", "description": "A barely visible veil is too uncertain to interpret.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "expectedFamilies": ["home_close_circle"],
+      "expectedPlan": { "specificity": "sparse", "lead": "home_close_circle", "supporting": [], "authorizedContexts": ["home_close_circle"], "authorizedTiming": "unspecified", "authorizedSections": ["visualObservation", "overall", "takeaway"] }
+    }
+  ]
+}
