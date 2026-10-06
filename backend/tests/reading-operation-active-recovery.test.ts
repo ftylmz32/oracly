@@ -94,7 +94,7 @@ describe('server.ts wiring: create -> active recovery, through real HTTP', () =>
         method: 'POST',
         url: '/v1/reading-operations',
         headers: headers(),
-        payload: { readingType: 'coffee', sourceRequestId: 'recovery-src-01', intention: 'Önümüzdeki dönem genel olarak' },
+        payload: { readingType: 'coffee', sourceRequestId: 'recovery-src-01' },
       });
       expect(created.statusCode).toBe(200);
       const operationId = created.json().data.operationId as string;
@@ -160,7 +160,7 @@ describe('server.ts wiring: create -> active recovery, through real HTTP', () =>
       method: 'POST',
       url: '/v1/reading-operations',
       headers: headers('user-a'),
-      payload: { readingType: 'coffee', sourceRequestId: 'recovery-src-03', intention: 'Önümüzdeki dönem genel olarak' },
+      payload: { readingType: 'coffee', sourceRequestId: 'recovery-src-03' },
     });
 
     const active = await app.inject({

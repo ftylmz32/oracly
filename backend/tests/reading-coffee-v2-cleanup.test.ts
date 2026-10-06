@@ -47,7 +47,6 @@ async function coffeeOp(h: ReturnType<typeof harness>, owner = 'owner-a') {
   return h.operations.create({
     ownerUserId: owner,
     readingType: 'coffee',
-    coffeeIntention: 'Önümüzdeki dönem genel olarak',
     sourceRequestId: `req-v2-cleanup-${owner}-${Math.random().toString(36).slice(2)}`,
   });
 }
@@ -185,7 +184,7 @@ describe('Full lifecycle — cleanup timing via the real durable processor (fake
 
   it('Y (processor-level) success deletes all three V2 slots at the same lifecycle point legacy staging is cleaned', async () => {
     const h = processorHarness();
-    const op = await h.operations.create({ ownerUserId: h.owner, readingType: 'coffee', sourceRequestId: 'coffee-v2-cleanup-y', coffeeIntention: 'Önümüzdeki dönem genel olarak' });
+    const op = await h.operations.create({ ownerUserId: h.owner, readingType: 'coffee', sourceRequestId: 'coffee-v2-cleanup-y', coffeeInputContract: 'trusted_intention_v1', coffeeIntention: 'Önümüzdeki dönem genel olarak' });
     await h.flow.remember(op);
     await stageSlot(h, op.operationId, 'cup_primary', fakeJpeg(9000), h.owner);
     await stageSlot(h, op.operationId, 'cup_secondary', fakeJpeg(9100), h.owner);
@@ -211,7 +210,7 @@ describe('Full lifecycle — cleanup timing via the real durable processor (fake
   it('Z a retryable processing error deletes NONE of the staged V2 assets', async () => {
     const h = processorHarness();
     h.setProviderFailure(true);
-    const op = await h.operations.create({ ownerUserId: h.owner, readingType: 'coffee', sourceRequestId: 'coffee-v2-cleanup-z', coffeeIntention: 'Önümüzdeki dönem genel olarak' });
+    const op = await h.operations.create({ ownerUserId: h.owner, readingType: 'coffee', sourceRequestId: 'coffee-v2-cleanup-z' });
     await h.flow.remember(op);
     await stageSlot(h, op.operationId, 'cup_primary', fakeJpeg(9000), h.owner);
     await stageSlot(h, op.operationId, 'cup_secondary', fakeJpeg(9100), h.owner);
@@ -226,12 +225,36 @@ describe('Full lifecycle — cleanup timing via the real durable processor (fake
     // still there for a subsequent successful attempt.
     h.setProviderFailure(false);
     expect(await h.processor.process(op.operationId)).toBe('completed');
+    expect((h.providerRequest()?.payload as Record<string, unknown>)).not.toHaveProperty('personalization');
     expect(h.objects.objects.size).toBe(0);
+  });
+
+  it('marked Coffee V2 with missing persisted intention fails closed before provider execution', async () => {
+    const h = processorHarness();
+    const op = await h.operations.create({
+      ownerUserId: h.owner,
+      readingType: 'coffee',
+      sourceRequestId: 'coffee-v2-marked-corrupt',
+    });
+    await h.operationRepository.mutate(op.operationId, h.owner, (current) => ({
+      ...current,
+      coffeeInputContract: 'trusted_intention_v1',
+      coffeeIntention: null,
+    }));
+    await h.flow.remember((await h.operationRepository.getById(op.operationId))!);
+    await stageSlot(h, op.operationId, 'cup_primary', fakeJpeg(9000), h.owner);
+    await stageSlot(h, op.operationId, 'cup_secondary', fakeJpeg(9100), h.owner);
+    await stageSlot(h, op.operationId, 'saucer', fakeJpeg(9200), h.owner);
+    h.clock.ms = op.readyAtMs;
+
+    await expect(h.processor.process(op.operationId)).rejects.toMatchObject({ retryable: true });
+    expect(h.providerCalls()).toBe(0);
+    expect(h.objects.objects.size).toBe(3);
   });
 
   it('partial upload: an incomplete V2 set is never cleaned up merely because one slot is temporarily missing', async () => {
     const h = processorHarness();
-    const op = await h.operations.create({ ownerUserId: h.owner, readingType: 'coffee', sourceRequestId: 'coffee-v2-cleanup-partial', coffeeIntention: 'Önümüzdeki dönem genel olarak' });
+    const op = await h.operations.create({ ownerUserId: h.owner, readingType: 'coffee', sourceRequestId: 'coffee-v2-cleanup-partial', coffeeInputContract: 'trusted_intention_v1', coffeeIntention: 'Önümüzdeki dönem genel olarak' });
     await h.flow.remember(op);
     await stageSlot(h, op.operationId, 'cup_primary', fakeJpeg(9000), h.owner);
     h.clock.ms = op.readyAtMs;

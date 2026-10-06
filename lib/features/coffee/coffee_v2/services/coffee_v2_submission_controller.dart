@@ -215,6 +215,7 @@ class CoffeeV2SubmissionController {
       readingType: ReadingType.coffee,
       sourceRequestId: durableSourceRequestId,
       intention: intention,
+      coffeeInputContract: coffeeV2InputContract,
     );
     final snapshot = begun.snapshot;
     if (snapshot == null) return CoffeeV2SubmissionOutcome.retryableFailure;

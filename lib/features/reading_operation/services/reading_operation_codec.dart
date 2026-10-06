@@ -61,6 +61,7 @@ class ReadingOperationCodec {
     String language = 'tr',
     String? executionMode,
     String? intention,
+    String? coffeeInputContract,
   }) {
     return {
       'readingType': readingTypeWire(readingType),
@@ -69,6 +70,8 @@ class ReadingOperationCodec {
       if (executionMode != null) 'executionMode': executionMode,
       if (readingType == ReadingType.coffee && intention != null)
         'intention': intention,
+      if (readingType == ReadingType.coffee && coffeeInputContract != null)
+        'coffeeInputContract': coffeeInputContract,
     };
   }
 

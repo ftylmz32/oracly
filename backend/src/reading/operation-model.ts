@@ -39,6 +39,14 @@ export const SCHEMA_VERSION = 1;
 export const EXECUTION_MODES = ['durable'] as const;
 export type ExecutionMode = (typeof EXECUTION_MODES)[number];
 
+export const COFFEE_INPUT_CONTRACTS = ['trusted_intention_v1'] as const;
+export type CoffeeInputContract = (typeof COFFEE_INPUT_CONTRACTS)[number];
+
+export function isCoffeeInputContract(value: unknown): value is CoffeeInputContract {
+  return typeof value === 'string' &&
+    (COFFEE_INPUT_CONTRACTS as readonly string[]).includes(value);
+}
+
 export function isExecutionMode(value: unknown): value is ExecutionMode {
   return (
     typeof value === 'string' &&
@@ -70,6 +78,8 @@ export type ReadingOperationRecord = {
   executionMode: ExecutionMode | null;
   /** C2.7B — immutable trusted context for durable Coffee V2 only. */
   coffeeIntention: string | null;
+  /** C2.7B.1 — explicit opt-in; null preserves every legacy Coffee contract. */
+  coffeeInputContract: CoffeeInputContract | null;
 };
 
 export type PublicOperationStatus = {
@@ -150,6 +160,7 @@ export function toStoredDocument(
     executionStartedAtMs: record.executionStartedAtMs,
     executionMode: record.executionMode,
     coffeeIntention: record.coffeeIntention,
+    coffeeInputContract: record.coffeeInputContract,
     ...(retentionMs == null ? {} : { expiresAt: Timestamp.fromMillis(record.updatedAtMs + retentionMs) }),
   };
 }
@@ -169,6 +180,11 @@ export function parseStoredRecord(
     : sanitizeCoffeeIntention(data.coffeeIntention);
   if (data.coffeeIntention != null && !coffeeIntention) return null;
   if (data.readingType !== 'coffee' && coffeeIntention != null) return null;
+  const coffeeInputContract = data.coffeeInputContract == null
+    ? null
+    : isCoffeeInputContract(data.coffeeInputContract) ? data.coffeeInputContract : null;
+  if (data.coffeeInputContract != null && !coffeeInputContract) return null;
+  if (data.readingType !== 'coffee' && coffeeInputContract != null) return null;
   const language = data.language == null
     ? LEGACY_READING_LANGUAGE
     : isReadingLanguage(data.language) ? data.language : null;
@@ -205,6 +221,7 @@ export function parseStoredRecord(
     // parses to null, i.e. legacy, never durable by accident.
     executionMode: isExecutionMode(data.executionMode) ? data.executionMode : null,
     coffeeIntention,
+    coffeeInputContract,
   };
 }
 

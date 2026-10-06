@@ -144,6 +144,7 @@ export class ReadingProcessor {
         readingType: operation.readingType,
         language: operation.language,
         coffeeIntention: operation.coffeeIntention,
+        coffeeInputContract: operation.coffeeInputContract,
       },
       log,
       stagedRepository: this.stagedRepository,

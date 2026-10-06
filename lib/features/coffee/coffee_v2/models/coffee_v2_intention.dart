@@ -1,6 +1,7 @@
 library;
 
 const int coffeeV2IntentionMaxLength = 200;
+const String coffeeV2InputContract = 'trusted_intention_v1';
 
 enum CoffeeV2IntentionChoice { general, love, career, money, person, other }
 

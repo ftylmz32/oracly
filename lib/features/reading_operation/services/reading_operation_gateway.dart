@@ -36,6 +36,7 @@ class ReadingOperationGateway {
     String language = 'tr',
     String? executionMode,
     String? intention,
+    String? coffeeInputContract,
   }) {
     return _exchange(
       'POST',
@@ -46,6 +47,7 @@ class ReadingOperationGateway {
         language: language,
         executionMode: executionMode,
         intention: intention,
+        coffeeInputContract: coffeeInputContract,
       ),
     );
   }

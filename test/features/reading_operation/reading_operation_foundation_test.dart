@@ -159,12 +159,14 @@ void main() {
           readingType: ReadingType.coffee,
           sourceRequestId: 'coffee-intent-01',
           intention: 'Maddi durumum hakkında',
+          coffeeInputContract: 'trusted_intention_v1',
         ),
         {
           'readingType': 'coffee',
           'sourceRequestId': 'coffee-intent-01',
           'language': 'tr',
           'intention': 'Maddi durumum hakkında',
+          'coffeeInputContract': 'trusted_intention_v1',
         },
       );
       expect(

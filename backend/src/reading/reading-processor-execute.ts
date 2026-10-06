@@ -7,7 +7,7 @@ import type { ReadingStagedImageService } from './operation-staged-image-service
 import type { ReadingFlow } from './reading-flow.js';
 import type { ReadingCompletionNotifier } from './reading-processor.js';
 import type { ReadingResultRepository } from './reading-result-repository.js';
-import type { ReadingLanguage } from './operation-model.js';
+import type { CoffeeInputContract, ReadingLanguage } from './operation-model.js';
 import type { ProviderStageRepository } from './provider-stage-repository.js';
 import type { ReadingGenerationTrace } from './provider-stage-repository.js';
 import {
@@ -23,6 +23,7 @@ type ClaimedOp = {
   readingType: 'coffee' | 'palm';
   language: ReadingLanguage;
   coffeeIntention: string | null;
+  coffeeInputContract: CoffeeInputContract | null;
 };
 
 type AiHandle = {
@@ -91,12 +92,14 @@ export async function executeClaimedReading(input: {
       // No mimeType/hand needed here — the Coffee V2 analysis handler
       // re-derives everything it needs from operationId via the SAME
       // staging service, exactly like the legacy handler already does.
-      if (!operation.coffeeIntention) {
+      if (operation.coffeeInputContract && !operation.coffeeIntention) {
         throw wrapStageError('staged_fetch_started', feature, new Error('coffee_intention_unavailable'), true);
       }
       providerPayload = {
         operationId,
-        personalization: { intention: operation.coffeeIntention },
+        ...(operation.coffeeInputContract
+          ? { personalization: { intention: operation.coffeeIntention } }
+          : {}),
       };
       cleanupAfterSuccess = () =>
         input.stagedImages.deleteCoffeeV2Slots({
@@ -137,6 +140,12 @@ export async function executeClaimedReading(input: {
         mimeType: staged.contentType,
         ...(feature === 'palm' ? { hand: staged.handSide ?? 'right' } : {}),
       };
+      if (feature === 'coffee' && operation.coffeeInputContract) {
+        if (!operation.coffeeIntention) {
+          throw wrapStageError('staged_fetch_started', feature, new Error('coffee_intention_unavailable'), true);
+        }
+        providerPayload.personalization = { intention: operation.coffeeIntention };
+      }
       if (feature === 'palm') resultExtra = { _handSide: staged.handSide ?? 'right' };
       cleanupAfterSuccess = () =>
         input.stagedImages.delete({ ownerUserId: operation.ownerUserId, operationId });

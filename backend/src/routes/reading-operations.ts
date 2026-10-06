@@ -15,11 +15,13 @@ import { systemClock, type ServerClock } from '../reading/clock.js';
 import { toEpochMs } from '../reading/clock.js';
 import {
   isExecutionMode,
+  isCoffeeInputContract,
   isReadingType,
   isReadingLanguage,
   parseSourceRequestId,
   toPublicStatus,
   type ExecutionMode,
+  type CoffeeInputContract,
 } from '../reading/operation-model.js';
 import {
   createReadingOperationRepository,
@@ -94,6 +96,7 @@ export async function registerReadingOperationRoutes(
           language: parsed.language,
           executionMode: parsed.executionMode,
           coffeeIntention: parsed.coffeeIntention,
+          coffeeInputContract: parsed.coffeeInputContract,
         });
         await options.flow?.remember(record);
         logSafe(request.log, 'info', 'reading_operation_created', {
@@ -147,6 +150,7 @@ function parseCreateBody(body: unknown):
       language: 'tr' | 'en' | 'ru';
       executionMode?: ExecutionMode;
       coffeeIntention?: string;
+      coffeeInputContract?: CoffeeInputContract;
     }
   | { ok: false } {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -159,13 +163,18 @@ function parseCreateBody(body: unknown):
     }
   }
   if (!isReadingType(record.readingType)) return { ok: false };
-  const coffeeIntention = record.readingType === 'coffee'
-    ? sanitizeCoffeeIntention(record.intention)
+  const hasIntention = Object.prototype.hasOwnProperty.call(record, 'intention');
+  const hasCoffeeContract = Object.prototype.hasOwnProperty.call(record, 'coffeeInputContract');
+  const coffeeInputContract = isCoffeeInputContract(record.coffeeInputContract)
+    ? record.coffeeInputContract
     : undefined;
-  if (record.readingType === 'coffee' && !coffeeIntention) return { ok: false };
-  if (record.readingType !== 'coffee' && Object.prototype.hasOwnProperty.call(record, 'intention')) {
+  if (hasCoffeeContract && (record.readingType !== 'coffee' || !coffeeInputContract)) return { ok: false };
+  if (record.readingType !== 'coffee' && hasIntention) {
     return { ok: false };
   }
+  if (record.readingType === 'coffee' && hasIntention !== hasCoffeeContract) return { ok: false };
+  const coffeeIntention = coffeeInputContract ? sanitizeCoffeeIntention(record.intention) : undefined;
+  if (coffeeInputContract && !coffeeIntention) return { ok: false };
   // Backward compatibility for already-released clients predating R4.
   // New R4 clients always submit a validated locale.
   const language = record.language == null ? 'tr' : record.language;
@@ -188,6 +197,7 @@ function parseCreateBody(body: unknown):
     language,
     executionMode: isExecutionMode(record.executionMode) ? record.executionMode : undefined,
     coffeeIntention: coffeeIntention ?? undefined,
+    coffeeInputContract,
   };
 }
 

@@ -11,6 +11,7 @@ import {
   isOperationId,
   parseResultId,
   type ExecutionMode,
+  type CoffeeInputContract,
   type FailureCode,
   type ReadingOperationRecord, type ReadingLanguage,
   type ReadingType,
@@ -58,11 +59,14 @@ export class ReadingOperationService {
     language?: ReadingLanguage;
     executionMode?: ExecutionMode;
     coffeeIntention?: string;
+    coffeeInputContract?: CoffeeInputContract;
   }): Promise<ReadingOperationRecord> {
-    const coffeeIntention = input.readingType === 'coffee' && input.coffeeIntention != null
+    const markedCoffee = input.readingType === 'coffee' && input.coffeeInputContract != null;
+    const coffeeIntention = markedCoffee && input.coffeeIntention != null
       ? sanitizeCoffeeIntention(input.coffeeIntention)
       : null;
-    if (input.readingType === 'coffee' && input.coffeeIntention != null && !coffeeIntention) {
+    if ((input.coffeeInputContract != null || input.coffeeIntention != null) &&
+        (!markedCoffee || !coffeeIntention)) {
       throw new ReadingOperationError('invalid');
     }
     const nowMs = toEpochMs(this.clock.now());
@@ -85,6 +89,7 @@ export class ReadingOperationService {
       executionStartedAtMs: null,
       executionMode: input.executionMode ?? null,
       coffeeIntention,
+      coffeeInputContract: markedCoffee ? input.coffeeInputContract! : null,
     };
     try {
       const stored = await this.repository.createIfAbsent(
@@ -96,7 +101,8 @@ export class ReadingOperationService {
       }
       if (
         input.readingType === 'coffee' &&
-        stored.record.coffeeIntention !== coffeeIntention
+        (stored.record.coffeeIntention !== coffeeIntention ||
+          stored.record.coffeeInputContract !== (markedCoffee ? input.coffeeInputContract! : null))
       ) {
         throw new ReadingOperationError('conflict');
       }

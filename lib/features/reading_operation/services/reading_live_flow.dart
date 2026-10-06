@@ -106,6 +106,7 @@ class ReadingLiveFlow {
     required String sourceRequestId,
     String? executionMode,
     String? intention,
+    String? coffeeInputContract,
   }) async {
     final created = await _operations.create(
       readingType: readingType,
@@ -113,6 +114,7 @@ class ReadingLiveFlow {
       language: OraclyL10n.code,
       executionMode: executionMode,
       intention: intention,
+      coffeeInputContract: coffeeInputContract,
     );
     if (created.snapshot == null) {
       return ReadingLiveState(

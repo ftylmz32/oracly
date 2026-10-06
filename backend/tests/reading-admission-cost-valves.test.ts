@@ -110,9 +110,6 @@ async function harness(limits: ReadingAdmissionLimits = DEFAULT_READING_ADMISSIO
       payload: {
         readingType,
         sourceRequestId,
-        ...(readingType === 'coffee'
-          ? { intention: 'Önümüzdeki dönem genel olarak' }
-          : {}),
       },
     });
   }
