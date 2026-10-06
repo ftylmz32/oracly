@@ -152,6 +152,7 @@ void main() {
       await controller.confirmSlot(entry.key);
     }
     transport.failSlotsOnce.add(failSlot);
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     await controller.beginSubmission('src-restart');
     return controller;
   }
@@ -266,6 +267,7 @@ void main() {
         await controller.setSlot(entry.key, CoffeeImagePick(path: entry.value));
         await controller.confirmSlot(entry.key);
       }
+      await controller.setIntention('Önümüzdeki dönem genel olarak');
       await controller.beginSubmission('src-an');
       final tempFiles = coffeeV2CanonicalSlotOrder
           .map((slot) => controller.assetFor(slot)!.path)
@@ -336,6 +338,7 @@ void main() {
 
       // beginSubmission performs two critical writes: sourceRequestId BEFORE
       // create, then operationId AFTER create. Fail only the second one.
+      await controller.setIntention('Önümüzdeki dönem genel olarak');
       durable.failAt = durable.setStringAttempts + 2;
       await expectLater(
         controller.beginSubmission('src-aq-stable'),
@@ -349,7 +352,9 @@ void main() {
       final restarted = buildController();
       await restarted.recoverDraftOrSubmission();
       expect(restarted.record.sourceRequestId, 'src-aq-stable');
-      final outcome = await restarted.beginSubmission('src-aq-must-not-replace');
+      final outcome = await restarted.beginSubmission(
+        'src-aq-must-not-replace',
+      );
 
       expect(outcome, CoffeeV2SubmissionOutcome.completedStaging);
       expect(backend.operationCount, 1);

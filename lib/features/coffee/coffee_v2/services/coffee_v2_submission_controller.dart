@@ -19,6 +19,7 @@ import '../../../reading_operation/services/reading_staged_image_gateway.dart';
 import '../../../ai/production/transport/image_normalizer.dart';
 import '../../models/coffee_image_pick.dart';
 import '../models/coffee_v2_photo_asset.dart';
+import '../models/coffee_v2_intention.dart';
 import '../models/coffee_v2_photo_slot.dart';
 import '../models/coffee_v2_stage_state.dart';
 import '../models/coffee_v2_submission_record.dart';
@@ -109,6 +110,13 @@ class CoffeeV2SubmissionController {
   /// True only while still in DRAFT and every gate in spec §8 is satisfied.
   bool get allThreeReady => _record.isDraft && validationIssue == null;
 
+  Future<bool> setIntention(String? value) async {
+    _requireDraft();
+    final canonical = canonicalCoffeeV2Intention(value);
+    await _commitRecord(_record.copyWith(intention: canonical));
+    return canonical != null;
+  }
+
   Future<CoffeeV2SlotSelectionResult> setSlot(
     CoffeeV2PhotoSlot slot,
     CoffeeImagePick picked,
@@ -182,6 +190,10 @@ class CoffeeV2SubmissionController {
     if (validationIssue != null) {
       return CoffeeV2SubmissionOutcome.blockedByValidation;
     }
+    final intention = canonicalCoffeeV2Intention(_record.intention);
+    if (intention == null) {
+      return CoffeeV2SubmissionOutcome.blockedByValidation;
+    }
 
     // Persist idempotency identity BEFORE creating anything server-side.
     // If the app dies after create succeeds but before operationId binding
@@ -190,8 +202,8 @@ class CoffeeV2SubmissionController {
     final persistedSource = _record.sourceRequestId?.trim();
     final durableSourceRequestId =
         persistedSource != null && persistedSource.isNotEmpty
-            ? persistedSource
-            : sourceRequestId;
+        ? persistedSource
+        : sourceRequestId;
     if (persistedSource == null || persistedSource.isEmpty) {
       await _commitRecord(
         _record.copyWith(sourceRequestId: durableSourceRequestId),
@@ -202,6 +214,7 @@ class CoffeeV2SubmissionController {
     final begun = await flow.begin(
       readingType: ReadingType.coffee,
       sourceRequestId: durableSourceRequestId,
+      intention: intention,
     );
     final snapshot = begun.snapshot;
     if (snapshot == null) return CoffeeV2SubmissionOutcome.retryableFailure;

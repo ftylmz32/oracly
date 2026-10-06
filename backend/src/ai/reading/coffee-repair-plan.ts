@@ -1,4 +1,5 @@
 import type { CoffeeNarrative } from './types.js';
+import type { AppLanguage } from '../app-language.js';
 import type {
   CoffeeForbiddenAssumption,
   CoffeePropositionKind,
@@ -14,6 +15,7 @@ export type CoffeeRepairDefect =
 
 export type CoffeeRepairPlan = {
   version: 2;
+  locale: AppLanguage;
   violation: string;
   storyPlan: CoffeeStoryPlanV2;
   requiredSections: ['visualObservation', 'overall', 'takeaway'];
@@ -79,7 +81,20 @@ export function buildCoffeeRepairPlan(
   narrative: CoffeeNarrative,
   violation: string,
   storyPlan: CoffeeStoryPlanV2,
-): CoffeeRepairPlan {
+  locale: AppLanguage,
+): CoffeeRepairPlan;
+/** Frozen pre-C2.7B corpus compatibility; production must supply locale. */
+export function buildCoffeeRepairPlan(
+  narrative: CoffeeNarrative,
+  violation: string,
+  storyPlan: CoffeeStoryPlanV2,
+): Omit<CoffeeRepairPlan, 'locale'>;
+export function buildCoffeeRepairPlan(
+  narrative: CoffeeNarrative,
+  violation: string,
+  storyPlan: CoffeeStoryPlanV2,
+  locale?: AppLanguage,
+): CoffeeRepairPlan | Omit<CoffeeRepairPlan, 'locale'> {
   const overallWords = words(narrative.overall.text);
   const takeawayWords = words(narrative.takeaway.text);
   const sectionDeficits = [
@@ -104,6 +119,7 @@ export function buildCoffeeRepairPlan(
   const propositions = [storyPlan.lead, ...storyPlan.supporting];
   return {
     version: 2,
+    ...(locale ? { locale } : {}),
     violation,
     storyPlan,
     requiredSections: ['visualObservation', 'overall', 'takeaway'],

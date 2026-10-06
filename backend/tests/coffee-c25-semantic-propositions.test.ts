@@ -122,6 +122,36 @@ describe('C2.5 grounded Coffee semantic propositions', () => {
     expect(result.storyPlan.authorizedSections).not.toContain('love');
   });
 
+  it.each([
+    ['Aşk ve ilişkilerim hakkında', 'love'],
+    ['İşim ve kariyerim hakkında', 'career'],
+    ['Maddi durumum hakkında', 'money'],
+  ] as const)('C2.7B trusted intention %s opens only %s', (intention, section) => {
+    const result = buildCoffeeWriterPacketV2(obs(item('e1', 'bird'), item('e2', 'road')), 'tr', { intention });
+    if ('status' in result) throw new Error('expected ready');
+    expect(result.storyPlan.authorizedSections).toContain(section);
+    expect(result.personalization).toEqual({ intention });
+  });
+
+  it('C2.7B general intention opens no optional domain', () => {
+    const result = buildCoffeeWriterPacketV2(obs(item('e1', 'bird'), item('e2', 'road')), 'tr', {
+      intention: 'Önümüzdeki dönem genel olarak',
+    });
+    if ('status' in result) throw new Error('expected ready');
+    expect(result.storyPlan.authorizedSections).not.toEqual(expect.arrayContaining(['love', 'career', 'money']));
+  });
+
+  it('C2.7B person intention opens the subject lane but preserves relationship, reciprocity and agency bans', () => {
+    const result = buildCoffeeWriterPacketV2(obs(item('e1', 'ring'), item('e2', 'heart')), 'tr', {
+      intention: 'Aklımdaki kişiyle ilgili',
+    });
+    if ('status' in result) throw new Error('expected ready');
+    expect(result.storyPlan.authorizedSections).toContain('love');
+    expect(result.storyPlan.claimEnvelope.forbiddenAssumptions).toEqual(expect.arrayContaining([
+      'existing_relationship', 'reciprocal_feeling', 'specific_other_person',
+    ]));
+  });
+
   it('C10 gives one synthesis task rather than a sequence of components', () => {
     const packet = ready(item('e1', 'key'), item('e2', 'road'), item('e3', 'bird'));
     expect(packet.storyPlan.lead.kind).toBe('resolution_availability');

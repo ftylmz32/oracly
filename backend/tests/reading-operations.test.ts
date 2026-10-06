@@ -76,7 +76,14 @@ async function createOp(
     method: 'POST',
     url: '/v1/reading-operations',
     headers: headers(sub),
-    payload: { readingType, sourceRequestId, ...extra },
+    payload: {
+      readingType,
+      sourceRequestId,
+      ...(readingType === 'coffee'
+        ? { intention: 'Önümüzdeki dönem genel olarak' }
+        : {}),
+      ...extra,
+    },
   });
 }
 
@@ -199,6 +206,7 @@ describe('reading operations', () => {
       },
       payload: {
         readingType: 'coffee',
+        intention: 'Önümüzdeki dönem genel olarak',
         sourceRequestId: 'clock-key-01',
       },
     });
@@ -239,6 +247,7 @@ describe('reading operations', () => {
     const created = await service.create({
       ownerUserId: owner,
       readingType: 'coffee',
+      intention: 'Önümüzdeki dönem genel olarak',
       sourceRequestId: 'attach-key1',
     });
     const ready = await service.attachResult({
@@ -327,6 +336,7 @@ describe('reading operations', () => {
     ).create({
       ownerUserId: identityKeyFromSubject('user-a'),
       readingType: 'coffee',
+      intention: 'Önümüzdeki dönem genel olarak',
       sourceRequestId: 'accel-key-01',
     });
     const app = await testApp(
@@ -396,17 +406,61 @@ describe('reading operations', () => {
       method: 'POST',
       url: '/v1/reading-operations',
       headers: { ...appCheckHeader('good-token'), 'content-type': 'application/json' },
-      payload: { readingType: 'coffee', sourceRequestId: SOURCE },
+      payload: { readingType: 'coffee', sourceRequestId: SOURCE, intention: 'Önümüzdeki dönem genel olarak' },
     });
     expect(noAuth.statusCode).toBe(401);
     const noCheck = await app.inject({
       method: 'POST',
       url: '/v1/reading-operations',
       headers: authHeader(signHs256(SECRET, { sub: 'user-a' })),
-      payload: { readingType: 'coffee', sourceRequestId: SOURCE },
+      payload: { readingType: 'coffee', sourceRequestId: SOURCE, intention: 'Önümüzdeki dönem genel olarak' },
     });
     expect(noCheck.statusCode).toBe(401);
     expect(noCheck.json().error.code).toBe('app_check_required');
+    await app.close();
+  });
+
+  it('requires and canonically persists bounded Coffee intention only', async () => {
+    const { app, repository } = await appFor();
+    const missing = await app.inject({
+      method: 'POST', url: '/v1/reading-operations', headers: headers(),
+      payload: { readingType: 'coffee', sourceRequestId: 'intent-missing-01' },
+    });
+    expect(missing.statusCode).toBe(400);
+    for (const intention of ['   ', '<b>aşk</b>', `ok${String.fromCharCode(7)}`, 'x'.repeat(201)]) {
+      const rejected = await app.inject({
+        method: 'POST', url: '/v1/reading-operations', headers: headers(),
+        payload: { readingType: 'coffee', sourceRequestId: 'intent-invalid-01', intention },
+      });
+      expect(rejected.statusCode).toBe(400);
+    }
+    const created = await createOp(app, 'coffee', 'intent-canonical-01', 'user-a', {
+      intention: '  Maddi durumum hakkında  ',
+    });
+    expect(created.statusCode).toBe(200);
+    const stored = await repository.getById(created.json().data.operationId);
+    expect(stored?.coffeeIntention).toBe('Maddi durumum hakkında');
+    expect(created.json().data).not.toHaveProperty('coffeeIntention');
+    expect(created.json().data).not.toHaveProperty('intention');
+    await app.close();
+  });
+
+  it('keeps Coffee intention immutable across idempotent create retries', async () => {
+    const { app, repository } = await appFor();
+    const first = await createOp(app, 'coffee', 'intent-idempotent-01', 'user-a', {
+      intention: 'Aşk ve ilişkilerim hakkında',
+    });
+    const same = await createOp(app, 'coffee', 'intent-idempotent-01', 'user-a', {
+      intention: ' Aşk ve ilişkilerim hakkında ',
+    });
+    const conflict = await createOp(app, 'coffee', 'intent-idempotent-01', 'user-a', {
+      intention: 'İşim ve kariyerim hakkında',
+    });
+    expect(same.statusCode).toBe(200);
+    expect(same.json().data.operationId).toBe(first.json().data.operationId);
+    expect(conflict.statusCode).toBe(400);
+    const stored = await repository.getById(first.json().data.operationId);
+    expect(stored?.coffeeIntention).toBe('Aşk ve ilişkilerim hakkında');
     await app.close();
   });
 });

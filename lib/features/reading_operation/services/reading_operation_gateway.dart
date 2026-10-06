@@ -35,6 +35,7 @@ class ReadingOperationGateway {
     required String sourceRequestId,
     String language = 'tr',
     String? executionMode,
+    String? intention,
   }) {
     return _exchange(
       'POST',
@@ -44,6 +45,7 @@ class ReadingOperationGateway {
         sourceRequestId: sourceRequestId,
         language: language,
         executionMode: executionMode,
+        intention: intention,
       ),
     );
   }

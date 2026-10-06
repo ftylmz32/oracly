@@ -26,6 +26,7 @@ import {
   type WaitPolicy,
 } from './wait-policy.js';
 import { ReadingAdmissionDenied } from './reading-admission.js';
+import { sanitizeCoffeeIntention } from './coffee-intention.js';
 
 export type ServiceErrorCode =
   | 'not_found'
@@ -56,7 +57,14 @@ export class ReadingOperationService {
     sourceRequestId: string;
     language?: ReadingLanguage;
     executionMode?: ExecutionMode;
+    coffeeIntention?: string;
   }): Promise<ReadingOperationRecord> {
+    const coffeeIntention = input.readingType === 'coffee' && input.coffeeIntention != null
+      ? sanitizeCoffeeIntention(input.coffeeIntention)
+      : null;
+    if (input.readingType === 'coffee' && input.coffeeIntention != null && !coffeeIntention) {
+      throw new ReadingOperationError('invalid');
+    }
     const nowMs = toEpochMs(this.clock.now());
     const readyAtMs = nowMs + resolveWaitMs(input.readingType, this.policy);
     const record: ReadingOperationRecord = {
@@ -76,6 +84,7 @@ export class ReadingOperationService {
       gemDebitId: null,
       executionStartedAtMs: null,
       executionMode: input.executionMode ?? null,
+      coffeeIntention,
     };
     try {
       const stored = await this.repository.createIfAbsent(
@@ -84,6 +93,12 @@ export class ReadingOperationService {
       );
       if (stored.record.ownerUserId !== input.ownerUserId) {
         throw new ReadingOperationError('forbidden');
+      }
+      if (
+        input.readingType === 'coffee' &&
+        stored.record.coffeeIntention !== coffeeIntention
+      ) {
+        throw new ReadingOperationError('conflict');
       }
       return stored.record;
     } catch (error) {

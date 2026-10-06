@@ -1,4 +1,5 @@
 import { Timestamp } from '@google-cloud/firestore';
+import { sanitizeCoffeeIntention } from './coffee-intention.js';
 
 export const READING_TYPES = ['coffee', 'palm', 'soulmate'] as const;
 export type ReadingType = (typeof READING_TYPES)[number];
@@ -67,6 +68,8 @@ export type ReadingOperationRecord = {
   executionStartedAtMs: number | null;
   /** SMD1 — undefined/null means legacy (client-driven). */
   executionMode: ExecutionMode | null;
+  /** C2.7B — immutable trusted context for durable Coffee V2 only. */
+  coffeeIntention: string | null;
 };
 
 export type PublicOperationStatus = {
@@ -146,6 +149,7 @@ export function toStoredDocument(
     gemDebitId: record.gemDebitId,
     executionStartedAtMs: record.executionStartedAtMs,
     executionMode: record.executionMode,
+    coffeeIntention: record.coffeeIntention,
     ...(retentionMs == null ? {} : { expiresAt: Timestamp.fromMillis(record.updatedAtMs + retentionMs) }),
   };
 }
@@ -160,6 +164,11 @@ export function parseStoredRecord(
     return null;
   }
   if (!isReadingType(data.readingType)) return null;
+  const coffeeIntention = data.coffeeIntention == null
+    ? null
+    : sanitizeCoffeeIntention(data.coffeeIntention);
+  if (data.coffeeIntention != null && !coffeeIntention) return null;
+  if (data.readingType !== 'coffee' && coffeeIntention != null) return null;
   const language = data.language == null
     ? LEGACY_READING_LANGUAGE
     : isReadingLanguage(data.language) ? data.language : null;
@@ -195,6 +204,7 @@ export function parseStoredRecord(
     // Absent on every pre-SMD1 (including all historical Soulmate) record —
     // parses to null, i.e. legacy, never durable by accident.
     executionMode: isExecutionMode(data.executionMode) ? data.executionMode : null,
+    coffeeIntention,
   };
 }
 

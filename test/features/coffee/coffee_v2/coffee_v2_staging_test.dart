@@ -78,24 +78,35 @@ void main() {
 
   test('S — one and only one ReadingOperation is created', () async {
     final controller = await readyToSubmit();
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     await controller.beginSubmission('src-s');
     expect(backend.operationCount, 1);
   });
 
-  test('T — stage calls occur exactly cup_primary, cup_secondary, saucer', () async {
-    final controller = await readyToSubmit();
-    await controller.beginSubmission('src-t');
-    expect(transport.slotCallOrder, ['cup_primary', 'cup_secondary', 'saucer']);
-  });
+  test(
+    'T — stage calls occur exactly cup_primary, cup_secondary, saucer',
+    () async {
+      final controller = await readyToSubmit();
+      await controller.setIntention('Önümüzdeki dönem genel olarak');
+      await controller.beginSubmission('src-t');
+      expect(transport.slotCallOrder, [
+        'cup_primary',
+        'cup_secondary',
+        'saucer',
+      ]);
+    },
+  );
 
   test('U — stage calls are sequential, never concurrent', () async {
     final controller = await readyToSubmit();
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     await controller.beginSubmission('src-u');
     expect(transport.maxConcurrentObserved, 1);
   });
 
   test('V — each request sends its correct slot', () async {
     final controller = await readyToSubmit();
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     await controller.beginSubmission('src-v');
     expect(transport.stageCallCountBySlot['cup_primary'], 1);
     expect(transport.stageCallCountBySlot['cup_secondary'], 1);
@@ -110,7 +121,9 @@ void main() {
         capturedBody = body;
         return const ReadingOperationWire(
           statusCode: 200,
-          json: {'data': {'staged': true}},
+          json: {
+            'data': {'staged': true},
+          },
         );
       });
 
@@ -170,6 +183,7 @@ void main() {
     final controller = await readyToSubmit();
     transport.failSlotsOnce.add('cup_secondary');
 
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     final outcome = await controller.beginSubmission('src-y');
 
     expect(outcome, CoffeeV2SubmissionOutcome.retryableFailure);
@@ -180,6 +194,7 @@ void main() {
   test('Z — retry resumes from #2 using SAME operationId', () async {
     final controller = await readyToSubmit();
     transport.failSlotsOnce.add('cup_secondary');
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     await controller.beginSubmission('src-z');
     final operationIdAfterFailure = controller.record.operationId;
 
@@ -200,6 +215,7 @@ void main() {
     final controller = await readyToSubmit();
     transport.failSlotsOnce.add('saucer');
 
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     final outcome = await controller.beginSubmission('src-aa');
 
     expect(outcome, CoffeeV2SubmissionOutcome.retryableFailure);
@@ -212,6 +228,7 @@ void main() {
   test('AB — retry resumes #3 using SAME operationId', () async {
     final controller = await readyToSubmit();
     transport.failSlotsOnce.add('saucer');
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     await controller.beginSubmission('src-ab');
     final operationIdAfterFailure = controller.record.operationId;
 

@@ -60,12 +60,15 @@ class ReadingOperationCodec {
     required String sourceRequestId,
     String language = 'tr',
     String? executionMode,
+    String? intention,
   }) {
     return {
       'readingType': readingTypeWire(readingType),
       'sourceRequestId': sourceRequestId,
       'language': language,
       if (executionMode != null) 'executionMode': executionMode,
+      if (readingType == ReadingType.coffee && intention != null)
+        'intention': intention,
     };
   }
 

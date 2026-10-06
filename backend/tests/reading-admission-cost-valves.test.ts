@@ -107,7 +107,13 @@ async function harness(limits: ReadingAdmissionLimits = DEFAULT_READING_ADMISSIO
       method: 'POST',
       url: '/v1/reading-operations',
       headers: headers(subject),
-      payload: { readingType, sourceRequestId },
+      payload: {
+        readingType,
+        sourceRequestId,
+        ...(readingType === 'coffee'
+          ? { intention: 'Önümüzdeki dönem genel olarak' }
+          : {}),
+      },
     });
   }
 

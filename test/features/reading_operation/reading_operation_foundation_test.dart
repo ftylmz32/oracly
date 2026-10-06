@@ -69,19 +69,22 @@ void main() {
       isNull,
     );
     expect(
-      codec.parse({
-        'operationId': 'c' * 32,
-        'readingType': 'soulmate',
-        'status': 'failed',
-        'createdAt': '2026-09-08T00:00:00.000Z',
-        'readyAt': '2026-09-08T02:00:00.000Z',
-        'serverNow': '2026-09-08T02:00:00.000Z',
-        'waitFinished': true,
-        'remainingMs': 0,
-        'resultReady': false,
-        'resultId': null,
-        'failureCode': 'unavailable',
-      })?.failureCode.name,
+      codec
+          .parse({
+            'operationId': 'c' * 32,
+            'readingType': 'soulmate',
+            'status': 'failed',
+            'createdAt': '2026-09-08T00:00:00.000Z',
+            'readyAt': '2026-09-08T02:00:00.000Z',
+            'serverNow': '2026-09-08T02:00:00.000Z',
+            'waitFinished': true,
+            'remainingMs': 0,
+            'resultReady': false,
+            'resultId': null,
+            'failureCode': 'unavailable',
+          })
+          ?.failureCode
+          .name,
       'unavailable',
     );
     expect(
@@ -102,46 +105,80 @@ void main() {
     );
   });
 
-  test('gateway create and fetch do not treat transport loss as failed', () async {
-    final gateway = ReadingOperationGateway(
-      send: (method, path, body) async {
-        if (method == 'POST') {
-          expect(body, {
-            'readingType': 'soulmate',
-            'sourceRequestId': 'source-req1',
-            'language': 'tr',
-          });
-          expect(body!.containsKey('readyAt'), isFalse);
-          return ReadingOperationWire(
-            statusCode: 200,
-            json: {
-              'success': true,
-              'data': {
-                'operationId': 'd' * 32,
-                'readingType': 'soulmate',
-                'status': 'waiting',
-                'createdAt': '2026-09-08T00:00:00.000Z',
-                'readyAt': '2026-09-08T08:00:00.000Z',
-                'serverNow': '2026-09-08T00:00:00.000Z',
-                'waitFinished': false,
-                'remainingMs': 28800000,
-                'resultReady': false,
-                'resultId': null,
+  test(
+    'gateway create and fetch do not treat transport loss as failed',
+    () async {
+      final gateway = ReadingOperationGateway(
+        send: (method, path, body) async {
+          if (method == 'POST') {
+            expect(body, {
+              'readingType': 'soulmate',
+              'sourceRequestId': 'source-req1',
+              'language': 'tr',
+            });
+            expect(body!.containsKey('readyAt'), isFalse);
+            return ReadingOperationWire(
+              statusCode: 200,
+              json: {
+                'success': true,
+                'data': {
+                  'operationId': 'd' * 32,
+                  'readingType': 'soulmate',
+                  'status': 'waiting',
+                  'createdAt': '2026-09-08T00:00:00.000Z',
+                  'readyAt': '2026-09-08T08:00:00.000Z',
+                  'serverNow': '2026-09-08T00:00:00.000Z',
+                  'waitFinished': false,
+                  'remainingMs': 28800000,
+                  'resultReady': false,
+                  'resultId': null,
+                },
               },
-            },
-          );
-        }
-        return const ReadingOperationWire(statusCode: 503, json: null);
-      },
-    );
-    final created = await gateway.create(
-      readingType: ReadingType.soulmate,
-      sourceRequestId: 'source-req1',
-    );
-    expect(created.snapshot?.status, ReadingOperationStatus.waiting);
-    expect(created.isTransportFailure, isFalse);
-    final fetched = await gateway.fetch('d' * 32);
-    expect(fetched.isTransportFailure, isTrue);
-    expect(fetched.snapshot, isNull);
-  });
+            );
+          }
+          return const ReadingOperationWire(statusCode: 503, json: null);
+        },
+      );
+      final created = await gateway.create(
+        readingType: ReadingType.soulmate,
+        sourceRequestId: 'source-req1',
+      );
+      expect(created.snapshot?.status, ReadingOperationStatus.waiting);
+      expect(created.isTransportFailure, isFalse);
+      final fetched = await gateway.fetch('d' * 32);
+      expect(fetched.isTransportFailure, isTrue);
+      expect(fetched.snapshot, isNull);
+    },
+  );
+
+  test(
+    'C2.7B create body carries intention for Coffee and leaves Palm unchanged',
+    () {
+      expect(
+        codec.createBody(
+          readingType: ReadingType.coffee,
+          sourceRequestId: 'coffee-intent-01',
+          intention: 'Maddi durumum hakkında',
+        ),
+        {
+          'readingType': 'coffee',
+          'sourceRequestId': 'coffee-intent-01',
+          'language': 'tr',
+          'intention': 'Maddi durumum hakkında',
+        },
+      );
+      expect(
+        codec.createBody(
+          readingType: ReadingType.palm,
+          sourceRequestId: 'palm-unchanged-01',
+          intention: 'ignored',
+        ),
+        {
+          'readingType': 'palm',
+          'sourceRequestId': 'palm-unchanged-01',
+          'language': 'tr',
+        },
+      );
+    },
+  );
 }

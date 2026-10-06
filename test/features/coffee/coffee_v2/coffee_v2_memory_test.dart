@@ -89,6 +89,7 @@ void main() {
     'AD/AE/AF — strict load-then-stage-then-next-load ordering per slot',
     () async {
       final controller = await readyToSubmit();
+      await controller.setIntention('Önümüzdeki dönem genel olarak');
       await controller.beginSubmission('src-mem');
 
       // Loader/stage entries record the normalized working-file basename
@@ -98,8 +99,8 @@ void main() {
           controller.assetFor(slot)!.path.split(Platform.pathSeparator).last;
 
       int loadIndex(CoffeeV2PhotoSlot slot) => chronology.indexWhere(
-            (e) => e.startsWith('load:') && e.contains(basenameFor(slot)),
-          );
+        (e) => e.startsWith('load:') && e.contains(basenameFor(slot)),
+      );
       int stageIndex(CoffeeV2PhotoSlot slot) =>
           chronology.indexOf('stage:${slot.wireValue}');
 
@@ -132,10 +133,16 @@ void main() {
       // holding all three images' bytes at once as fields/locals.
       expect(source.contains('List<Uint8List>'), isFalse);
       expect(source.contains('List<List<int>>'), isFalse);
-      expect(RegExp(r'Map<[^>]*,\s*(Uint8List|List<int>)>').hasMatch(source), isFalse);
+      expect(
+        RegExp(r'Map<[^>]*,\s*(Uint8List|List<int>)>').hasMatch(source),
+        isFalse,
+      );
       // The only byte-holding local is the single per-iteration `bytes`
       // variable inside the sequential staging loop.
-      expect(RegExp(r'final bytes = await byteLoader\.loadBytes').hasMatch(source), isTrue);
+      expect(
+        RegExp(r'final bytes = await byteLoader\.loadBytes').hasMatch(source),
+        isTrue,
+      );
     },
   );
 }

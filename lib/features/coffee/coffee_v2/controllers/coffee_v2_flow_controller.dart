@@ -32,6 +32,7 @@ import '../../models/coffee_image_pick.dart';
 import '../../models/coffee_reading.dart';
 import '../../services/coffee_experience_service.dart';
 import '../models/coffee_v2_flow_stage.dart';
+import '../models/coffee_v2_intention.dart';
 import '../models/coffee_v2_photo_slot.dart';
 import '../models/coffee_v2_stage_state.dart';
 import '../models/coffee_v2_submission_record.dart';
@@ -96,6 +97,22 @@ class CoffeeV2FlowController extends ChangeNotifier {
   CoffeeV2PhotoSlot? get previewCandidateSlot => _previewCandidateSlot;
 
   CoffeeV2SubmissionRecord get record => submission!.record;
+  bool get hasValidIntention =>
+      canonicalCoffeeV2Intention(record.intention) != null;
+
+  Future<void> selectIntention(CoffeeV2IntentionChoice choice) async {
+    if (choice == CoffeeV2IntentionChoice.other) {
+      await submission?.setIntention(null);
+    } else {
+      await submission?.setIntention(choice.intention);
+    }
+    _notify();
+  }
+
+  Future<void> setCustomIntention(String value) async {
+    await submission?.setIntention(value);
+    _notify();
+  }
 
   bool get _allSlotsStaged =>
       record.isActive &&
@@ -108,7 +125,9 @@ class CoffeeV2FlowController extends ChangeNotifier {
   /// it must be observed again, not retried as an interrupted upload.
   bool get _terminalHandoffPending =>
       record.isActive &&
-      coffeeV2CanonicalSlotOrder.every((slot) => record.slots[slot]?.asset == null);
+      coffeeV2CanonicalSlotOrder.every(
+        (slot) => record.slots[slot]?.asset == null,
+      );
 
   CoffeeV2FlowStage get stage {
     if (!_recovered) return CoffeeV2FlowStage.booting;
@@ -257,11 +276,13 @@ class CoffeeV2FlowController extends ChangeNotifier {
 
   Future<void> beginSubmission() async {
     final sub = submission;
-    if (sub == null || sub.validationIssue != null) return;
+    if (sub == null || sub.validationIssue != null || !hasValidIntention)
+      return;
     _stagingInFlight = true;
     stagingRetryable = false;
     _notify();
-    _sourceRequestId ??= record.sourceRequestId ??
+    _sourceRequestId ??=
+        record.sourceRequestId ??
         'coffee-v2-${DateTime.now().microsecondsSinceEpoch}';
     try {
       final outcome = await sub.beginSubmission(_sourceRequestId!);

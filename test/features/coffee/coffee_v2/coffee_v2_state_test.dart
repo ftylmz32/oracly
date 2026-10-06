@@ -75,10 +75,13 @@ void main() {
     );
     expect(result.isSuccess, isTrue);
     final asset = result.asset!;
-    expect(
-      asset.toJson().keys.toSet(),
-      {'slot', 'path', 'mimeType', 'sha256', 'sizeBytes'},
-    );
+    expect(asset.toJson().keys.toSet(), {
+      'slot',
+      'path',
+      'mimeType',
+      'sha256',
+      'sizeBytes',
+    });
   });
 
   test(
@@ -109,23 +112,38 @@ void main() {
     },
   );
 
-  test('D — photo selection does not automatically create an operation', () async {
-    final controller = buildController();
-    final primary = await writeJpeg('primary.jpg', totalSize: 9001);
-    final secondary = await writeJpeg('secondary.jpg', totalSize: 9101);
-    final saucer = await writeJpeg('saucer.jpg', totalSize: 9201);
+  test(
+    'D — photo selection does not automatically create an operation',
+    () async {
+      final controller = buildController();
+      final primary = await writeJpeg('primary.jpg', totalSize: 9001);
+      final secondary = await writeJpeg('secondary.jpg', totalSize: 9101);
+      final saucer = await writeJpeg('saucer.jpg', totalSize: 9201);
 
-    await controller.setSlot(CoffeeV2PhotoSlot.cupPrimary, CoffeeImagePick(path: primary));
-    await controller.setSlot(CoffeeV2PhotoSlot.cupSecondary, CoffeeImagePick(path: secondary));
-    await controller.setSlot(CoffeeV2PhotoSlot.saucer, CoffeeImagePick(path: saucer));
+      await controller.setSlot(
+        CoffeeV2PhotoSlot.cupPrimary,
+        CoffeeImagePick(path: primary),
+      );
+      await controller.setSlot(
+        CoffeeV2PhotoSlot.cupSecondary,
+        CoffeeImagePick(path: secondary),
+      );
+      await controller.setSlot(
+        CoffeeV2PhotoSlot.saucer,
+        CoffeeImagePick(path: saucer),
+      );
 
-    expect(backend.operationCount, 0);
-  });
+      expect(backend.operationCount, 0);
+    },
+  );
 
   test('E — 1 confirmed slot cannot submit', () async {
     final controller = buildController();
     final primary = await writeJpeg('primary.jpg', totalSize: 9001);
-    await controller.setSlot(CoffeeV2PhotoSlot.cupPrimary, CoffeeImagePick(path: primary));
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.cupPrimary,
+      CoffeeImagePick(path: primary),
+    );
     await controller.confirmSlot(CoffeeV2PhotoSlot.cupPrimary);
 
     final outcome = await controller.beginSubmission('src-e');
@@ -137,9 +155,15 @@ void main() {
     final controller = buildController();
     final primary = await writeJpeg('primary.jpg', totalSize: 9001);
     final secondary = await writeJpeg('secondary.jpg', totalSize: 9101);
-    await controller.setSlot(CoffeeV2PhotoSlot.cupPrimary, CoffeeImagePick(path: primary));
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.cupPrimary,
+      CoffeeImagePick(path: primary),
+    );
     await controller.confirmSlot(CoffeeV2PhotoSlot.cupPrimary);
-    await controller.setSlot(CoffeeV2PhotoSlot.cupSecondary, CoffeeImagePick(path: secondary));
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.cupSecondary,
+      CoffeeImagePick(path: secondary),
+    );
     await controller.confirmSlot(CoffeeV2PhotoSlot.cupSecondary);
 
     final outcome = await controller.beginSubmission('src-f');
@@ -147,57 +171,137 @@ void main() {
     expect(backend.operationCount, 0);
   });
 
-  test('G — 3 confirmed valid distinct slots makes submission eligible', () async {
-    final controller = buildController();
-    final primary = await writeJpeg('primary.jpg', totalSize: 9001);
-    final secondary = await writeJpeg('secondary.jpg', totalSize: 9101);
-    final saucer = await writeJpeg('saucer.jpg', totalSize: 9201);
-    for (final entry in {
-      CoffeeV2PhotoSlot.cupPrimary: primary,
-      CoffeeV2PhotoSlot.cupSecondary: secondary,
-      CoffeeV2PhotoSlot.saucer: saucer,
-    }.entries) {
-      await controller.setSlot(entry.key, CoffeeImagePick(path: entry.value));
-      await controller.confirmSlot(entry.key);
-    }
+  test(
+    'G — 3 confirmed valid distinct slots makes submission eligible',
+    () async {
+      final controller = buildController();
+      final primary = await writeJpeg('primary.jpg', totalSize: 9001);
+      final secondary = await writeJpeg('secondary.jpg', totalSize: 9101);
+      final saucer = await writeJpeg('saucer.jpg', totalSize: 9201);
+      for (final entry in {
+        CoffeeV2PhotoSlot.cupPrimary: primary,
+        CoffeeV2PhotoSlot.cupSecondary: secondary,
+        CoffeeV2PhotoSlot.saucer: saucer,
+      }.entries) {
+        await controller.setSlot(entry.key, CoffeeImagePick(path: entry.value));
+        await controller.confirmSlot(entry.key);
+      }
 
-    expect(controller.allThreeReady, isTrue);
-    final outcome = await controller.beginSubmission('src-g');
-    expect(outcome, CoffeeV2SubmissionOutcome.completedStaging);
-    expect(backend.operationCount, 1);
-  });
+      expect(controller.allThreeReady, isTrue);
+      await controller.setIntention('Önümüzdeki dönem genel olarak');
+      final outcome = await controller.beginSubmission('src-g');
+      expect(outcome, CoffeeV2SubmissionOutcome.completedStaging);
+      expect(backend.operationCount, 1);
+    },
+  );
 
   test('H — replacing one DRAFT slot changes only that slot', () async {
     final controller = buildController();
     final primary = await writeJpeg('primary.jpg', totalSize: 9001);
     final secondary = await writeJpeg('secondary.jpg', totalSize: 9101);
     final saucer = await writeJpeg('saucer.jpg', totalSize: 9201);
-    await controller.setSlot(CoffeeV2PhotoSlot.cupPrimary, CoffeeImagePick(path: primary));
-    await controller.setSlot(CoffeeV2PhotoSlot.cupSecondary, CoffeeImagePick(path: secondary));
-    await controller.setSlot(CoffeeV2PhotoSlot.saucer, CoffeeImagePick(path: saucer));
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.cupPrimary,
+      CoffeeImagePick(path: primary),
+    );
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.cupSecondary,
+      CoffeeImagePick(path: secondary),
+    );
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.saucer,
+      CoffeeImagePick(path: saucer),
+    );
     final primaryBefore = controller.assetFor(CoffeeV2PhotoSlot.cupPrimary);
     final secondaryBefore = controller.assetFor(CoffeeV2PhotoSlot.cupSecondary);
     final saucerBefore = controller.assetFor(CoffeeV2PhotoSlot.saucer);
 
-    final replacementPath = await writeJpeg('primary_retake.jpg', totalSize: 9301);
+    final replacementPath = await writeJpeg(
+      'primary_retake.jpg',
+      totalSize: 9301,
+    );
     await controller.replaceSlot(
       CoffeeV2PhotoSlot.cupPrimary,
       CoffeeImagePick(path: replacementPath),
     );
 
-    expect(controller.assetFor(CoffeeV2PhotoSlot.cupPrimary)!.sha256, isNot(primaryBefore!.sha256));
-    expect(controller.assetFor(CoffeeV2PhotoSlot.cupSecondary), secondaryBefore);
+    expect(
+      controller.assetFor(CoffeeV2PhotoSlot.cupPrimary)!.sha256,
+      isNot(primaryBefore!.sha256),
+    );
+    expect(
+      controller.assetFor(CoffeeV2PhotoSlot.cupSecondary),
+      secondaryBefore,
+    );
     expect(controller.assetFor(CoffeeV2PhotoSlot.saucer), saucerBefore);
   });
+
+  test(
+    'C2.7B — invalid intention never creates an operation or starts staging',
+    () async {
+      final controller = buildController();
+      final paths = <CoffeeV2PhotoSlot, String>{
+        CoffeeV2PhotoSlot.cupPrimary: await writeJpeg(
+          'intent-primary.jpg',
+          totalSize: 9001,
+        ),
+        CoffeeV2PhotoSlot.cupSecondary: await writeJpeg(
+          'intent-secondary.jpg',
+          totalSize: 9101,
+        ),
+        CoffeeV2PhotoSlot.saucer: await writeJpeg(
+          'intent-saucer.jpg',
+          totalSize: 9201,
+        ),
+      };
+      for (final entry in paths.entries) {
+        await controller.setSlot(entry.key, CoffeeImagePick(path: entry.value));
+        await controller.confirmSlot(entry.key);
+      }
+      for (final invalid in <String?>[
+        null,
+        '',
+        '   ',
+        List.filled(201, 'x').join(),
+        '<b>niyet</b>',
+      ]) {
+        await controller.setIntention(invalid);
+        expect(
+          await controller.beginSubmission('src-intention-gate'),
+          CoffeeV2SubmissionOutcome.blockedByValidation,
+        );
+        expect(backend.operationCount, 0);
+      }
+      expect(
+        await controller.setIntention('  Maddi durumum hakkında  '),
+        isTrue,
+      );
+      expect(controller.record.intention, 'Maddi durumum hakkında');
+      expect(
+        await controller.beginSubmission('src-intention-gate'),
+        CoffeeV2SubmissionOutcome.completedStaging,
+      );
+      expect(backend.operationCount, 1);
+    },
+  );
 
   test('I — clearing one DRAFT slot changes only that slot', () async {
     final controller = buildController();
     final primary = await writeJpeg('primary.jpg', totalSize: 9001);
     final secondary = await writeJpeg('secondary.jpg', totalSize: 9101);
     final saucer = await writeJpeg('saucer.jpg', totalSize: 9201);
-    await controller.setSlot(CoffeeV2PhotoSlot.cupPrimary, CoffeeImagePick(path: primary));
-    await controller.setSlot(CoffeeV2PhotoSlot.cupSecondary, CoffeeImagePick(path: secondary));
-    await controller.setSlot(CoffeeV2PhotoSlot.saucer, CoffeeImagePick(path: saucer));
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.cupPrimary,
+      CoffeeImagePick(path: primary),
+    );
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.cupSecondary,
+      CoffeeImagePick(path: secondary),
+    );
+    await controller.setSlot(
+      CoffeeV2PhotoSlot.saucer,
+      CoffeeImagePick(path: saucer),
+    );
 
     await controller.clearSlot(CoffeeV2PhotoSlot.cupSecondary);
 
@@ -219,16 +323,24 @@ void main() {
       await controller.setSlot(entry.key, CoffeeImagePick(path: entry.value));
       await controller.confirmSlot(entry.key);
     }
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     await controller.beginSubmission('src-j');
     expect(controller.record.isActive, isTrue);
 
     final anotherPath = await writeJpeg('another.jpg', totalSize: 9401);
     await expectLater(
-      controller.setSlot(CoffeeV2PhotoSlot.cupPrimary, CoffeeImagePick(path: anotherPath)),
+      controller.setSlot(
+        CoffeeV2PhotoSlot.cupPrimary,
+        CoffeeImagePick(path: anotherPath),
+      ),
       throwsStateError,
     );
     await expectLater(
       controller.clearSlot(CoffeeV2PhotoSlot.saucer),
+      throwsStateError,
+    );
+    await expectLater(
+      controller.setIntention('İşim ve kariyerim hakkında'),
       throwsStateError,
     );
   });

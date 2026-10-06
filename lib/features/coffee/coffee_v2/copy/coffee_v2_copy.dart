@@ -44,6 +44,10 @@ abstract final class CoffeeV2Copy {
       'İstersen herhangi birini değiştirebilirsin.';
   static const reviewChange = 'Değiştir';
   static const reviewCta = '3 Fotoğrafı İncele';
+  static const intentionTitle = 'Falına hangi niyetle bakalım?';
+  static const intentionBody =
+      'Niyetin, falının gerçekten merak ettiğin konuya odaklanmasına yardımcı olur.';
+  static const intentionHint = 'Kısa niyetini yaz';
 
   static const duplicateSecondaryMessage =
       'Bu fotoğraf ilk fotoğrafla aynı.\n'
@@ -64,20 +68,20 @@ abstract final class CoffeeV2Copy {
   static const stagingRetry = 'Tekrar dene';
 
   static int stepNumber(CoffeeV2PhotoSlot slot) => switch (slot) {
-        CoffeeV2PhotoSlot.cupPrimary => 1,
-        CoffeeV2PhotoSlot.cupSecondary => 2,
-        CoffeeV2PhotoSlot.saucer => 3,
-      };
+    CoffeeV2PhotoSlot.cupPrimary => 1,
+    CoffeeV2PhotoSlot.cupSecondary => 2,
+    CoffeeV2PhotoSlot.saucer => 3,
+  };
 
   static String titleFor(CoffeeV2PhotoSlot slot) => switch (slot) {
-        CoffeeV2PhotoSlot.cupPrimary => stepTitlePrimary,
-        CoffeeV2PhotoSlot.cupSecondary => stepTitleSecondary,
-        CoffeeV2PhotoSlot.saucer => stepTitleSaucer,
-      };
+    CoffeeV2PhotoSlot.cupPrimary => stepTitlePrimary,
+    CoffeeV2PhotoSlot.cupSecondary => stepTitleSecondary,
+    CoffeeV2PhotoSlot.saucer => stepTitleSaucer,
+  };
 
   static String instructionFor(CoffeeV2PhotoSlot slot) => switch (slot) {
-        CoffeeV2PhotoSlot.cupPrimary => stepInstructionPrimary,
-        CoffeeV2PhotoSlot.cupSecondary => stepInstructionSecondary,
-        CoffeeV2PhotoSlot.saucer => stepInstructionSaucer,
-      };
+    CoffeeV2PhotoSlot.cupPrimary => stepInstructionPrimary,
+    CoffeeV2PhotoSlot.cupSecondary => stepInstructionSecondary,
+    CoffeeV2PhotoSlot.saucer => stepInstructionSaucer,
+  };
 }

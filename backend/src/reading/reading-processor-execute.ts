@@ -22,6 +22,7 @@ type ClaimedOp = {
   ownerUserId: string;
   readingType: 'coffee' | 'palm';
   language: ReadingLanguage;
+  coffeeIntention: string | null;
 };
 
 type AiHandle = {
@@ -90,7 +91,13 @@ export async function executeClaimedReading(input: {
       // No mimeType/hand needed here — the Coffee V2 analysis handler
       // re-derives everything it needs from operationId via the SAME
       // staging service, exactly like the legacy handler already does.
-      providerPayload = { operationId };
+      if (!operation.coffeeIntention) {
+        throw wrapStageError('staged_fetch_started', feature, new Error('coffee_intention_unavailable'), true);
+      }
+      providerPayload = {
+        operationId,
+        personalization: { intention: operation.coffeeIntention },
+      };
       cleanupAfterSuccess = () =>
         input.stagedImages.deleteCoffeeV2Slots({
           ownerUserId: operation.ownerUserId,

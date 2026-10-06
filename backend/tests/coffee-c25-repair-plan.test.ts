@@ -31,13 +31,23 @@ const rejected = (overall: string, takeaway: string, extras: Partial<Record<'lov
 describe('C2.5 structured Coffee Repair Plan V2', () => {
   it('reports exact too_short section deficits without rejected text', () => {
     const narrative = rejected('Bir iki üç dört beş.', 'Bir iki üç.');
-    const plan = buildCoffeeRepairPlan(narrative, 'too_short', packet().storyPlan);
+    const plan = buildCoffeeRepairPlan(narrative, 'too_short', packet().storyPlan, 'tr');
+    expect(plan.locale).toBe('tr');
     expect(plan.defect.kind).toBe('structural_deficit');
     expect(plan.sectionDeficits).toEqual([
       { section: 'overall', minimumWords: 40, actualWords: 5, additionalWordsNeeded: 35, needsAdditionalGroundedDevelopment: true },
       { section: 'takeaway', minimumWords: 10, actualWords: 3, additionalWordsNeeded: 7, needsAdditionalGroundedDevelopment: true },
     ]);
     expect(JSON.stringify(plan)).not.toContain(narrative.overall.text);
+  });
+
+  it('preserves explicit TR and EN locales without forwarding rejected prose', () => {
+    const narrative = rejected('Kısa anlam.', 'Kısa sonuç.');
+    const tr = buildCoffeeRepairPlan(narrative, 'too_short', packet().storyPlan, 'tr');
+    const en = buildCoffeeRepairPlan(narrative, 'too_short', packet().storyPlan, 'en');
+    expect(JSON.parse(JSON.stringify(tr)).locale).toBe('tr');
+    expect(JSON.parse(JSON.stringify(en)).locale).toBe('en');
+    expect(JSON.stringify(en)).not.toContain(narrative.overall.text);
   });
 
   it('identifies every unauthorized section that repair must clear', () => {
@@ -96,6 +106,9 @@ describe('C2.5 structured Coffee Repair Plan V2', () => {
 
   it('keeps the one-repair contract and complete required schema instruction explicit', () => {
     const prompt = repairWriterSystem('coffee');
+    expect(repairWriterSystem('coffee', 'tr')).toContain('TARGET LOCALE IS tr');
+    expect(repairWriterSystem('coffee', 'en')).toContain('TARGET LOCALE IS en');
+    expect(prompt).toContain('ALL user-visible narrative text MUST be written only in this exact supplied locale');
     expect(prompt).toContain('PRIVATE STRUCTURED REPAIR PLAN');
     expect(prompt).toContain('sectionDeficits');
     expect(prompt).toContain('Return every schema field');
@@ -124,7 +137,9 @@ describe('C2.5 structured Coffee Repair Plan V2', () => {
     )).rejects.toBeDefined();
     expect(requests).toHaveLength(2);
     const messages = requests[1].messages as Array<{ role: string; content: unknown }>;
-    const repairRequest = JSON.stringify(messages.find((message) => message.role === 'user')?.content);
+    const repairRequest = String(messages.find((message) => message.role === 'user')?.content);
+    expect(repairRequest).toContain('"locale":"tr"');
+    expect(messages.find((message) => message.role === 'system')?.content).toContain('TARGET LOCALE IS tr');
     expect(repairRequest).toContain('sectionDeficits');
     expect(repairRequest).toContain('requiredPropositionCoverage');
     expect(repairRequest).not.toContain(failed.overall.text);

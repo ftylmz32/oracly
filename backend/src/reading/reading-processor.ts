@@ -143,6 +143,7 @@ export class ReadingProcessor {
         ownerUserId: operation.ownerUserId,
         readingType: operation.readingType,
         language: operation.language,
+        coffeeIntention: operation.coffeeIntention,
       },
       log,
       stagedRepository: this.stagedRepository,

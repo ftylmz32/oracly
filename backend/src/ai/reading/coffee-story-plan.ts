@@ -145,6 +145,10 @@ function personalizationSections(personalization?: ReadingPersonalization): Coff
   const words = new Set(supplied.match(/\p{L}+/gu) ?? []);
   const hasAny = (allowed: string[]) => allowed.some((word) => words.has(word));
   if (hasAny(['aşk', 'aşkım', 'aşkı', 'ilişki', 'ilişkim', 'ilişkimi', 'ilişkimde', 'partner', 'partnerim', 'love', 'relationship'])) sections.push('love');
+  // The explicit product choice is trusted person/relationship subject
+  // context only. It opens the LOVE lane but does not relax any claim about
+  // an existing bond, reciprocity, feelings, union, or the other person's agency.
+  if (supplied.includes('aklımdaki kişiyle ilgili')) sections.push('love');
   if (hasAny(['kariyer', 'kariyerim', 'kariyerimde', 'iş', 'işim', 'işimde', 'işimi', 'meslek', 'mesleğim', 'career', 'job', 'work'])) sections.push('career');
   if (hasAny(['para', 'param', 'parasal', 'kazanç', 'kazancım', 'maddi', 'money', 'finance'])) sections.push('money');
   return sections;

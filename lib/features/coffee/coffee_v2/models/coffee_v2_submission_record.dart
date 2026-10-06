@@ -54,6 +54,7 @@ class CoffeeV2SubmissionRecord {
     this.ownerId,
     this.operationId,
     this.sourceRequestId,
+    this.intention,
     this.resultId,
     this.resultPendingAcknowledgement = false,
   });
@@ -62,6 +63,7 @@ class CoffeeV2SubmissionRecord {
   final String? ownerId;
   final String? operationId;
   final String? sourceRequestId;
+  final String? intention;
   final String? resultId;
   final bool resultPendingAcknowledgement;
   final Map<CoffeeV2PhotoSlot, CoffeeV2SlotRecord> slots;
@@ -80,6 +82,7 @@ class CoffeeV2SubmissionRecord {
     Object? ownerId = _unset,
     Object? operationId = _unset,
     Object? sourceRequestId = _unset,
+    Object? intention = _unset,
     Object? resultId = _unset,
     bool? resultPendingAcknowledgement,
     Map<CoffeeV2PhotoSlot, CoffeeV2SlotRecord>? slots,
@@ -92,6 +95,7 @@ class CoffeeV2SubmissionRecord {
       sourceRequestId: sourceRequestId == _unset
           ? this.sourceRequestId
           : sourceRequestId as String?,
+      intention: intention == _unset ? this.intention : intention as String?,
       resultId: resultId == _unset ? this.resultId : resultId as String?,
       resultPendingAcknowledgement:
           resultPendingAcknowledgement ?? this.resultPendingAcknowledgement,
@@ -103,6 +107,7 @@ class CoffeeV2SubmissionRecord {
     if (ownerId != null) 'ownerId': ownerId,
     if (operationId != null) 'operationId': operationId,
     if (sourceRequestId != null) 'sourceRequestId': sourceRequestId,
+    if (intention != null) 'intention': intention,
     if (resultId != null) 'resultId': resultId,
     'resultPendingAcknowledgement': resultPendingAcknowledgement,
     'slots': {
@@ -122,6 +127,7 @@ class CoffeeV2SubmissionRecord {
     final operationId = json['operationId'];
     final sourceRequestId = json['sourceRequestId'];
     final ownerId = json['ownerId'];
+    final intention = json['intention'];
     final resultId = json['resultId'];
     return CoffeeV2SubmissionRecord(
       ownerId: ownerId is String && ownerId.isNotEmpty ? ownerId : null,
@@ -131,6 +137,7 @@ class CoffeeV2SubmissionRecord {
       sourceRequestId: sourceRequestId is String && sourceRequestId.isNotEmpty
           ? sourceRequestId
           : null,
+      intention: intention is String && intention.isNotEmpty ? intention : null,
       resultId: resultId is String && resultId.isNotEmpty ? resultId : null,
       resultPendingAcknowledgement:
           json['resultPendingAcknowledgement'] == true,

@@ -586,11 +586,11 @@ export class ReadingPipeline {
           packet.storyPlan,
         ) ?? violation)
       : violation;
-    const repairPlan = buildCoffeeRepairPlan(rejected, repairViolation, packet.storyPlan);
+    const repairPlan = buildCoffeeRepairPlan(rejected, repairViolation, packet.storyPlan, ctx.language);
     const raw = await this.transport.complete({
       model,
       messages: [
-        { role: 'system', content: repairWriterSystem('coffee') },
+        { role: 'system', content: repairWriterSystem('coffee', ctx.language) },
         {
           role: 'user',
           content: repairWriterUser({

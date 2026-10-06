@@ -26,7 +26,10 @@ class ReadingCompletedResult {
 }
 
 class ReadingSoulmatePortrait {
-  const ReadingSoulmatePortrait({required this.mimeType, required this.imageBase64});
+  const ReadingSoulmatePortrait({
+    required this.mimeType,
+    required this.imageBase64,
+  });
   final String mimeType;
   final String imageBase64;
 }
@@ -66,9 +69,7 @@ class ReadingLiveState {
   /// an operation verdict. Deliberately NOT [unreachable]: a 401 may be
   /// permanent, so only callers that bound their retries opt in.
   bool get authRejected =>
-      kind == ReadingLiveKind.idle &&
-      failureStage != null &&
-      httpStatus == 401;
+      kind == ReadingLiveKind.idle && failureStage != null && httpStatus == 401;
 
   Duration displayRemaining(Duration elapsedSinceSync) {
     final snap = snapshot;
@@ -104,12 +105,14 @@ class ReadingLiveFlow {
     required ReadingType readingType,
     required String sourceRequestId,
     String? executionMode,
+    String? intention,
   }) async {
     final created = await _operations.create(
       readingType: readingType,
       sourceRequestId: sourceRequestId,
       language: OraclyL10n.code,
       executionMode: executionMode,
+      intention: intention,
     );
     if (created.snapshot == null) {
       return ReadingLiveState(
@@ -268,7 +271,10 @@ class ReadingLiveFlow {
     final mimeType = data['mimeType'];
     final imageBase64 = data['imageBase64'];
     if (mimeType is! String || imageBase64 is! String) return null;
-    return ReadingSoulmatePortrait(mimeType: mimeType, imageBase64: imageBase64);
+    return ReadingSoulmatePortrait(
+      mimeType: mimeType,
+      imageBase64: imageBase64,
+    );
   }
 
   Future<void> complete({

@@ -14,6 +14,7 @@ import '../controllers/coffee_v2_flow_controller.dart';
 import '../../presentation/reference/coffee_reference_tokens.dart';
 import '../copy/coffee_v2_copy.dart';
 import '../models/coffee_v2_photo_slot.dart';
+import '../models/coffee_v2_intention.dart';
 import 'coffee_v2_thumbnail.dart';
 
 class CoffeeV2FinalReviewView extends StatelessWidget {
@@ -52,10 +53,49 @@ class CoffeeV2FinalReviewView extends StatelessWidget {
             SizedBox(height: AppSpacing.s12),
           ],
           SizedBox(height: AppSpacing.s12),
+          Text(
+            CoffeeV2Copy.intentionTitle,
+            textAlign: TextAlign.center,
+            style: ReadingTypography.label(),
+          ),
+          SizedBox(height: AppSpacing.s8),
+          Text(
+            CoffeeV2Copy.intentionBody,
+            textAlign: TextAlign.center,
+            style: ReadingTypography.secondary(),
+          ),
+          SizedBox(height: AppSpacing.s12),
+          Wrap(
+            spacing: AppSpacing.s8,
+            runSpacing: AppSpacing.s8,
+            alignment: WrapAlignment.center,
+            children: [
+              for (final choice in CoffeeV2IntentionChoice.values)
+                ChoiceChip(
+                  label: Text(choice.label),
+                  selected:
+                      choice.intention != null &&
+                      controller.record.intention == choice.intention,
+                  onSelected: (_) => controller.selectIntention(choice),
+                ),
+            ],
+          ),
+          SizedBox(height: AppSpacing.s12),
+          TextField(
+            key: const Key('coffee-v2-custom-intention'),
+            maxLength: coffeeV2IntentionMaxLength,
+            onChanged: controller.setCustomIntention,
+            decoration: const InputDecoration(
+              hintText: CoffeeV2Copy.intentionHint,
+              counterText: '',
+            ),
+          ),
+          SizedBox(height: AppSpacing.s12),
           OraclyGoldButton(
             label: CoffeeV2Copy.reviewCta,
             expanded: true,
-            onPressed: controller.stagingInFlight
+            onPressed:
+                controller.stagingInFlight || !controller.hasValidIntention
                 ? null
                 : controller.beginSubmission,
           ),

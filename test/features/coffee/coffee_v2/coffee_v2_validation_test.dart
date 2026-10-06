@@ -199,6 +199,7 @@ void main() {
 
     expect(controller.hasDuplicate, isFalse);
     expect(controller.validationIssue, isNull);
+    await controller.setIntention('Önümüzdeki dönem genel olarak');
     final outcome = await controller.beginSubmission('src-r');
     expect(outcome, CoffeeV2SubmissionOutcome.completedStaging);
     expect(backend.operationCount, 1);

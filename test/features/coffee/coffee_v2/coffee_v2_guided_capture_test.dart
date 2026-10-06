@@ -22,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/shared/widgets/oracly_gold_button.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/copy/coffee_v2_copy.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_photo_asset.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_photo_slot.dart';
@@ -509,8 +510,23 @@ void main() {
       tester,
     ) async {
       await reachFinalReview(tester);
+      await tester.ensureVisible(find.text('Genel'));
+      await tester.tap(find.text('Genel'));
+      await tester.pump();
+      await tester.ensureVisible(find.text(CoffeeV2Copy.reviewCta));
       await tapAndDrain(tester, find.text(CoffeeV2Copy.reviewCta));
       expect(backend.operationCount, 1);
+    });
+
+    testWidgets('C2.7B — missing intention keeps the operation CTA disabled', (
+      tester,
+    ) async {
+      await reachFinalReview(tester);
+      final button = tester.widget<OraclyGoldButton>(
+        find.widgetWithText(OraclyGoldButton, CoffeeV2Copy.reviewCta),
+      );
+      expect(button.onPressed, isNull);
+      expect(backend.operationCount, 0);
     });
   });
 
@@ -778,6 +794,10 @@ void main() {
         );
         transport.failSlotsOnce.add('cup_primary');
 
+        await tester.ensureVisible(find.text('Genel'));
+        await tester.tap(find.text('Genel'));
+        await tester.pump();
+        await tester.ensureVisible(find.text(CoffeeV2Copy.reviewCta));
         await tapAndDrain(tester, find.text(CoffeeV2Copy.reviewCta));
 
         expect(find.text(CoffeeV2Copy.stagingConnectionLost), findsOneWidget);

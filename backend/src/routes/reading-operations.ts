@@ -31,6 +31,7 @@ import {
 } from '../reading/operation-service.js';
 import { provisionalWaitPolicy, type WaitPolicy } from '../reading/wait-policy.js';
 import type { ReadingFlow } from '../reading/reading-flow.js';
+import { sanitizeCoffeeIntention } from '../reading/coffee-intention.js';
 
 const FORBIDDEN_BODY_KEYS = [
   'readyAt',
@@ -92,6 +93,7 @@ export async function registerReadingOperationRoutes(
           sourceRequestId: parsed.sourceRequestId,
           language: parsed.language,
           executionMode: parsed.executionMode,
+          coffeeIntention: parsed.coffeeIntention,
         });
         await options.flow?.remember(record);
         logSafe(request.log, 'info', 'reading_operation_created', {
@@ -144,6 +146,7 @@ function parseCreateBody(body: unknown):
       sourceRequestId: string;
       language: 'tr' | 'en' | 'ru';
       executionMode?: ExecutionMode;
+      coffeeIntention?: string;
     }
   | { ok: false } {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -156,6 +159,13 @@ function parseCreateBody(body: unknown):
     }
   }
   if (!isReadingType(record.readingType)) return { ok: false };
+  const coffeeIntention = record.readingType === 'coffee'
+    ? sanitizeCoffeeIntention(record.intention)
+    : undefined;
+  if (record.readingType === 'coffee' && !coffeeIntention) return { ok: false };
+  if (record.readingType !== 'coffee' && Object.prototype.hasOwnProperty.call(record, 'intention')) {
+    return { ok: false };
+  }
   // Backward compatibility for already-released clients predating R4.
   // New R4 clients always submit a validated locale.
   const language = record.language == null ? 'tr' : record.language;
@@ -177,6 +187,7 @@ function parseCreateBody(body: unknown):
     sourceRequestId,
     language,
     executionMode: isExecutionMode(record.executionMode) ? record.executionMode : undefined,
+    coffeeIntention: coffeeIntention ?? undefined,
   };
 }
 

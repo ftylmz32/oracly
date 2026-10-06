@@ -131,9 +131,10 @@ export function palmWriterUser(evidenceJson: string): string {
   ].join('\n');
 }
 
-export function repairWriterSystem(feature: 'coffee' | 'palm'): string {
+export function repairWriterSystem(feature: 'coffee' | 'palm', locale: 'tr' | 'en' | 'ru' = 'tr'): string {
   if (feature === 'coffee') {
     return [
+      `TARGET LOCALE IS ${locale}. ALL user-visible narrative text MUST be written only in this exact supplied locale.`,
       'Write a fresh complete Coffee narrative using only the supplied PRIVATE STRUCTURED REPAIR PLAN derived from PRIVATE GROUNDED MEANING FACETS, its machine proposition plan, evidenceIds, structural deficits, claim envelope, and violation code. The rejected narrative is deliberately unavailable.',
       'Preserve every valid grounded meaning carried by the plan while changing the failed delivery.',
       'Return every schema field. visualObservation, overall, and takeaway MUST each contain non-empty text with valid evidenceIds. Unsupported optional sections MUST contain text "" and evidenceIds [].',

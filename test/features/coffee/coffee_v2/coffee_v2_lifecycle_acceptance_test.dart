@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/controllers/coffee_v2_flow_controller.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_flow_stage.dart';
+import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_intention.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_photo_slot.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_stage_state.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/models/coffee_v2_submission_record.dart';
@@ -142,6 +143,7 @@ void main() {
       await controller.boot();
       controller.dismissIntro();
       await addThree(controller);
+      await controller.selectIntention(CoffeeV2IntentionChoice.general);
       expect(controller.stage, CoffeeV2FlowStage.finalReview);
 
       await controller.beginSubmission();
