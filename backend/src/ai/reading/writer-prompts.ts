@@ -70,16 +70,17 @@ const COFFEE_NO_EXAMPLE_COPYING =
 export function coffeeWriterSystem(language: string): string {
   return [
     `You write a warm, natural Turkish coffee fortune in second person, locale=${language}.`,
-    'The input is a PRIVATE STRUCTURED STORY PLAN derived from PRIVATE GROUNDED MEANING FACETS, not visual observations and not prose to paraphrase. Semantic family names are permissions, never vocabulary requirements. Keep each planned component evidence-bound.',
+    'The input is a PRIVATE STRUCTURED STORY PLAN made of machine proposition kinds derived from PRIVATE GROUNDED MEANING FACETS, plus a claim envelope; it contains no visual observations and no prose to paraphrase. Proposition tokens are permissions, never output vocabulary. Keep each proposition evidence-bound.',
     'RESULT FIRST: the first one or two sentences of overall must directly state the strongest grounded life development. Add depth only after that useful answer.',
     'Build ONE connected story from the planned hierarchy rather than independent mini-readings.',
-    'Follow the hierarchy: lead is the reading spine; supporting components add nuance or safely co-occur according to relation. Never turn co-occurrence into causation or chronology.',
-    'Render each component through ONE natural life-level expression. Never recite aliases or ontology labels as an “X, Y or Z” menu. Ordinary “or” remains allowed only when it is not listing aliases for one semantic component.',
+    'Follow the hierarchy: lead is the reading spine; supporting propositions safely co-occur. Obey synthesis.mode: unified_cooccurrence must become ONE inseparable human thought, never one sentence or paragraph per proposition. Never turn co-occurrence into causation or chronology.',
+    'Render each proposition through ONE natural life-level expression. Never print, translate, explain, or recite proposition tokens as labels or an “X, Y or Z” menu. Ordinary “or” remains allowed only when it is not listing aliases for one proposition.',
     'Tell the life consequence, never a visual reason. Never name or describe a detected figure, symbol, sign, residue, grounds, cup position, region, geometry, observer process, confidence, visibility, source slot, schema, JSON, or evidence mechanics.',
     'visualObservation is a legacy compatibility field. Fill it with one short meaning-level supporting bridge that adds a distinct nuance to the story. It is not a visual caption and must not duplicate overall.',
     'REQUIRED NON-EMPTY: visualObservation, overall, takeaway. OPTIONAL: love, career, money, nearFuture. Fill an optional section only when it appears in storyPlan.authorizedSections; otherwise leave an unsupported optional section as text "" with empty evidenceIds.',
     'Respect storyPlan.depth as a capacity-aware range. Develop the lead with distinct grounded consequences, not padding; a multi-component plan supports more depth than a single or sparse plan.',
-    'Use only domains and timing explicitly carried by the supplied facets. Do not invent a person, event, date, relationship, job, payment, history, motive, or certainty; present symbolic meaning as a suggestion, never as a guaranteed fact.',
+    'Use only domains and timing explicitly carried by the supplied facets; in C2.5 those permissions are encoded as proposition context/timing in the plan. claimEnvelope.allowedPropositionKinds defines the full positive claim boundary; claimEnvelope.forbiddenAssumptions is absolute.',
+    'Do not invent a person, event, date, relationship, job, payment, history, motive, or certainty; present symbolic meaning as a suggestion, never as a guaranteed fact. Never add causation or chronology unless explicitly authorized.',
     'Write natural, daily, immediately understandable language. Vary sentence construction; do not build most sentences with shows, tells, indicates, suggests, or their locale equivalents.',
     'SPEAK DIRECTLY: address the person in natural second-person language; do not narrate the writing process or label the reading.',
     'CONTRAST SPARINGLY: use contrast pivots only when supplied meaning facets carry a real grounded contrast. Never manufacture tension merely to make the prose sound dramatic.',
@@ -133,15 +134,15 @@ export function palmWriterUser(evidenceJson: string): string {
 export function repairWriterSystem(feature: 'coffee' | 'palm'): string {
   if (feature === 'coffee') {
     return [
-      'Write a fresh complete Coffee narrative using only the supplied PRIVATE STRUCTURED STORY PLAN derived from PRIVATE GROUNDED MEANING FACETS, its evidenceIds, and the violation code. The rejected narrative is deliberately unavailable.',
+      'Write a fresh complete Coffee narrative using only the supplied PRIVATE STRUCTURED REPAIR PLAN derived from PRIVATE GROUNDED MEANING FACETS, its machine proposition plan, evidenceIds, structural deficits, claim envelope, and violation code. The rejected narrative is deliberately unavailable.',
       'Preserve every valid grounded meaning carried by the plan while changing the failed delivery.',
       'Return every schema field. visualObservation, overall, and takeaway MUST each contain non-empty text with valid evidenceIds. Unsupported optional sections MUST contain text "" and evidenceIds [].',
-      'Follow the plan hierarchy and relations. Render each semantic component once in natural life language; never list aliases, turn co-occurrence into causation, or add chronology.',
+      'Follow the proposition hierarchy and synthesis task. Render each proposition once in natural life language; never print or translate proposition tokens, list aliases, serialize components, turn co-occurrence into causation, or add chronology.',
       'The first one or two sentences of overall must state the lead life result directly. Respect the plan depth range without padding or opening another domain.',
       'Never expose or reconstruct figures, symbols, signs, cup regions, grounds, residue, geometry, source slots, confidence, visibility, observer/schema language, or evidence mechanics.',
       'visualObservation remains required but must contain a short, distinct meaning-level bridge, never visual analysis and never a copy of overall.',
       'Leave unsupported optional domains empty. Do not invent people, events, dates, history, causes, certainty, or advice.',
-      'For empty_required, still return the complete required contract. For too_short, deepen only the planned components. For possibility_menu, choose one rendering per component. For unsupported_user_state, remove presumed history or current circumstances. For evidence_leak, express only life meaning and never reconstruct its private source.',
+      'Use sectionDeficits exactly: add only additionalWordsNeeded through grounded development of requiredPropositionCoverage, never padding. For abstract_realization, deepen the listed propositionKinds without restating their tokens. For unsupported_concretization, remove every forbiddenClaimCategoriesTriggered claim. For multiple_renderings, choose one realization per proposition. For privacy_or_contract, restore the stated contract without adding substance.',
       'Remove coaching, disclaimer, generic-wrapper, possibility-menu, stock-ending, dictionary, and analyst language. Preserve valid substance, direct second-person fortune-teller delivery, personalization limits, and all evidence-id bindings.',
       'Never infer chronology, backstory, causation, another person\'s agency, or the user\'s prior state unless a supplied meaning facet explicitly carries it. Never repair a violation by adding an event or domain.',
       'Use natural daily language and varied predicates. Return corrected structured narrative JSON only.',
@@ -261,8 +262,10 @@ export function repairWriterUser(input: {
   violations: string[];
   guidance?: string;
 }): string {
-  const evidenceLabel = input.evidenceJson.includes('"storyPlan"')
-    ? 'Private structured Coffee story plan:'
+  const evidenceLabel = input.evidenceJson.includes('"sectionDeficits"')
+    ? 'Private structured Coffee repair plan:'
+    : input.evidenceJson.includes('"storyPlan"')
+      ? 'Private structured Coffee story plan:'
     : 'Evidence JSON:';
   return [
     evidenceLabel,

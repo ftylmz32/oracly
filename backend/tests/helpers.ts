@@ -298,7 +298,7 @@ export const coffeeObserverJson = JSON.stringify({
     usefulRegionsVisible: true,
   },
   evidence: [
-    { id: 'e1', region: 'middle_wall', description: 'Dense residue cluster on the middle wall near the handle side.', confidence: 'high', visibility: 'clear', resemblance: 'may resemble a teapot' },
+    { id: 'e1', region: 'handle_side', description: 'Dense residue cluster beside the handle.', confidence: 'high', visibility: 'clear', resemblance: 'may resemble a teapot' },
     { id: 'e2', region: 'base', description: 'Open clearer area at the base beside the dense cluster.', confidence: 'high', visibility: 'clear', resemblance: null },
     // Story-first closure: the narrative reads this trail as a road ("ince bir yol")
     // carrying news; context alone may not promote news, so the evidence says so.
@@ -319,11 +319,11 @@ export const coffeeWriterJson = JSON.stringify({
 /** C2.1 writer fixture: public prose contains meanings only, never observer mechanics. */
 export const coffeeMeaningWriterJson = JSON.stringify({
   visualObservation: {
-    text: 'Ev ve yakın çevrende yeni bir hareket alanı oluşuyor; bu canlılık günlük düzenine de doğrudan yansıyor.',
-    evidenceIds: ['e1'],
+    text: 'İçine sinen taraf, yakınındaki düzenle farklı yönün ortak karşılığını belirginleştirebilir.',
+    evidenceIds: ['e1', 'e3'],
   },
   overall: {
-    text: 'Ev ve yakın çevreni ilgilendiren bir gelişme kısa zamanda hareket kazanıyor. Yönü belirginleştikçe önünde yeni bir açılım oluşacak ve günlük düzeninde hissedilir bir değişim başlayacak. Bu ilerleyiş, beklemeden kendi doğal akışı içinde güçlenecek.',
+    text: 'Yakın çevrende değerlendirmeye değer bir gelişme beliriyor; bu gelişme alışılmış akışa farklı bir yön katabilecek gerçek bir imkân taşıyor. Seni yalnızca sonucu değil, gündelik düzeninde bıraktığı karşılık da ilgilendirebilir. Kesinleşmiş bir sonuçtan çok, yakın olanla değişime açık tarafın aynı anda yer bulması dikkat çekiyor.',
     evidenceIds: ['e1', 'e3'],
   },
   love: { text: '', evidenceIds: [] },
@@ -331,8 +331,8 @@ export const coffeeMeaningWriterJson = JSON.stringify({
   money: { text: '', evidenceIds: [] },
   nearFuture: { text: '', evidenceIds: [] },
   takeaway: {
-    text: 'Bu açılımın etkisi en çok yakın çevrendeki dengede kısa sürede hissedilecek.',
-    evidenceIds: ['e1'],
+    text: 'Yakınındaki düzenle farklı yönün ortak karşılığı artık daha kolay anlaşılabilir.',
+    evidenceIds: ['e1', 'e3'],
   },
 });
 

@@ -66,8 +66,8 @@ describe('coffee vision empty-response fixes', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.overall).toContain('yakın çevreni ilgilendiren bir gelişme');
-    expect(res.json().data.visualObservation).toContain('yakın çevrende');
+    expect(res.json().data.overall).toContain('Yakın çevrende değerlendirmeye değer bir gelişme');
+    expect(res.json().data.visualObservation).toContain('yakınındaki düzenle');
     await app.close();
   });
 });

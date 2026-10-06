@@ -268,7 +268,7 @@ describe('ai complete', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.visualObservation).toContain('yakın çevrende');
+    expect(res.json().data.visualObservation).toContain('yakınındaki düzenle');
     expect(res.json().data.overall).toBeTruthy();
     expect(Array.isArray(res.json().data.symbols)).toBe(true);
     await app.close();

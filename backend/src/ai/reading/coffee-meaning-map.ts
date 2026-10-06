@@ -6,10 +6,15 @@ import type {
 } from './types.js';
 import {
   buildCoffeeWriterPacket as buildStoryPacket,
+  buildCoffeeWriterPacketV2 as buildStoryPacketV2,
   planCoffeeStory,
+  planCoffeeStoryV2,
+  type CoffeeStoryPlanningResultV2,
+  type CoffeeWriterPacketV2,
   type CoffeeStoryPlanningResult,
   type CoffeeWriterPacket,
 } from './coffee-story-plan.js';
+import { mapCoffeePropositions } from './coffee-semantic-propositions.js';
 
 export type CoffeeMeaningFamily =
   | 'communication'
@@ -103,4 +108,16 @@ export function buildCoffeeWriterPacket(
   const planned = planCoffeeStory(mapCoffeeMeanings(obs), personalization);
   if (planned.status !== 'ready') return planned;
   return buildStoryPacket(language, planned.plan, personalization);
+}
+
+/** Production C2.5 handoff. The legacy builder above remains for frozen corpus reproduction. */
+export function buildCoffeeWriterPacketV2(
+  obs: CoffeeObservation,
+  language: AppLanguage,
+  personalization?: ReadingPersonalization,
+): CoffeeWriterPacketV2 | Exclude<CoffeeStoryPlanningResultV2, { status: 'ready' }> {
+  const propositions = mapCoffeePropositions(mapCoffeeMeanings(obs, language));
+  const planned = planCoffeeStoryV2(propositions, personalization);
+  if (planned.status !== 'ready') return planned;
+  return buildStoryPacketV2(language, planned.plan, personalization);
 }

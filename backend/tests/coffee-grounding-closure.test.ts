@@ -42,12 +42,21 @@ const sections = (n: CoffeeNarrative) => [n.overall, n.love, n.career, n.money, 
 
 /** Runs one Coffee reading through the production ReadingPipeline with a fake provider. */
 async function runPipeline(evidence: ReadingEvidenceItem[], writer: CoffeeNarrative, repair: CoffeeNarrative) {
+  const firstSemantic = evidence.find((item) => item.resemblance);
+  const eligibleEvidence = firstSemantic
+    ? [...evidence, {
+        ...firstSemantic,
+        id: 'c25-independent-support',
+        region: 'upper_wall',
+        description: 'A second independently visible form supports the same private meaning.',
+      }]
+    : evidence;
   const calls: Array<{ kind: string; user: string }> = [];
   const fetchFn = (async (_url: string, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body));
     const reply = (content: string) =>
       new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 });
-    if (body.response_format?.json_schema?.name === 'coffee_observation') return reply(JSON.stringify(observation(evidence)));
+    if (body.response_format?.json_schema?.name === 'coffee_observation') return reply(JSON.stringify(observation(eligibleEvidence)));
     const system = body.messages[0].content;
     const kind = system === coffeeWriterSystem('tr') ? 'writer' : system === repairWriterSystem('coffee') ? 'repair' : 'other';
     calls.push({ kind, user: body.messages[1].content });
@@ -71,11 +80,11 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
   const BIRD10 = t10.cases.case2;
   const meaningRepair: CoffeeNarrative = {
     visualObservation: {
-      text: 'Yakın zamanda sana ulaşacak belirgin bir iletişim gelişmesi öne çıkıyor.',
+      text: 'Sana yönelen açık sözler, günlük akışında yeni bir temas noktası oluşturabilir.',
       evidenceIds: ['e1'],
     },
     overall: {
-      text: 'Sana ulaşacak belirgin bir haber günlük akışında hareket yaratacak. Bu iletişim kısa ve doğrudan gelecek; taşıdığı ana fikir dikkatini hemen kendine çekecek. Ardından önündeki gelişmenin hangi yönde ilerleyeceği daha açık hâle gelecek.',
+      text: 'Sana ulaşan doğrudan bir ifade, günlük akışında yeni bir temas noktası oluşturabilir. Taşıdığı ana fikir kolay anlaşılırken, senin karşılığın da konuşmanın yönünü doğal biçimde belirleyebilir ve belirsizliği büyütmeden anlamlı bir alışverişe yer açabilir.',
       evidenceIds: ['e1'],
     },
     love: { text: '', evidenceIds: [] },
@@ -83,7 +92,7 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
     money: { text: '', evidenceIds: [] },
     nearFuture: { text: '', evidenceIds: [] },
     takeaway: {
-      text: 'Yakın zamanda gelen bu haber, önündeki gelişmenin yönünü açıkça belirginleştirecek.',
+      text: 'Bu açık alışveriş, söylenenle anlaşılan arasındaki mesafeyi doğal biçimde azaltabilir.',
       evidenceIds: ['e1'],
     },
   };
@@ -101,8 +110,9 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
     expect(calls.map((c) => c.kind)).toEqual(['writer', 'repair']);
     expect(calls[1].user).toContain('Violation codes: dictionary_voice');
     expect(coffeeVoiceRepairFocus('dictionary_voice')).toContain('symbol-dictionary form');
-    expect(calls[1].user).toContain('Private structured Coffee story plan:');
-    expect(calls[1].user).toContain('"family":"communication"');
+    expect(calls[1].user).toContain('Private structured Coffee repair plan:');
+    expect(calls[1].user).toContain('"kind":"exchange_emergence"');
+    expect(calls[1].user).not.toContain('"family"');
     expect(calls[1].user).not.toContain('"region"');
     expect(calls[1].user).not.toContain('"description"');
     expect(calls[1].user).not.toContain('"resemblance"');

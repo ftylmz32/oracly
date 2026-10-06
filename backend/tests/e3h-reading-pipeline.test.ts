@@ -147,7 +147,7 @@ describe('E3H two-stage reading pipeline', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.visualObservation).toContain('yakın çevrende');
+    expect(res.json().data.visualObservation).toContain('yakınındaki düzenle');
     expect(res.json().data.evidenceIds).toBeUndefined();
     expect(res.json().data._e3h).toBeUndefined();
     await app.close();

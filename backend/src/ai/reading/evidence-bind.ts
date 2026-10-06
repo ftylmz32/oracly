@@ -14,7 +14,8 @@ import {
   type HumanQualityFailure,
 } from '../human-quality.js';
 import { mapCoffeeMeanings } from './coffee-meaning-map.js';
-import type { CoffeeStoryPlan } from './coffee-story-plan.js';
+import type { CoffeeAnyStoryPlan, CoffeeStoryPlanV2 } from './coffee-story-plan.js';
+import { coffeeClaimEnvelopeFailure } from './coffee-claim-envelope.js';
 import {
   coffeeCommunicationAffordance,
   coffeeContextEventPromotion,
@@ -236,7 +237,7 @@ export function bindCoffeeNarrative(
   obs: CoffeeObservation,
   language: AppLanguage = 'tr',
   personalization?: ReadingPersonalization,
-  storyPlan?: CoffeeStoryPlan,
+  storyPlan?: CoffeeAnyStoryPlan,
 ): BindFailure | null {
   const known = new Set(obs.evidence.map((e) => e.id));
   const required: NarrativeSection[] = [
@@ -305,7 +306,7 @@ export function coffeeQualityFailure(
   language: AppLanguage = 'tr',
   personalization?: ReadingPersonalization,
   evidence?: ReadingEvidenceItem[],
-  storyPlan?: CoffeeStoryPlan,
+  storyPlan?: CoffeeAnyStoryPlan,
 ): HumanQualityFailure | null {
   const quality = evaluateCoffeeQuality({
     visualObservation: narrative.visualObservation.text,
@@ -346,6 +347,10 @@ export function coffeeQualityFailure(
       : undefined,
   });
   if (quality) return quality;
+  if (storyPlan && 'version' in storyPlan && storyPlan.version === 2) {
+    const claimFailure = coffeeClaimEnvelopeFailure(narrative, storyPlan as CoffeeStoryPlanV2);
+    if (claimFailure) return claimFailure;
+  }
   if (storyPlan && coffeePlanDepthFailure(narrative, storyPlan)) return 'too_short';
   const meaningTexts = [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway].map((s) => s.text);
   // Personalization-aware (evidence path only; the legacy single-call parser
@@ -408,7 +413,7 @@ export function coffeeQualityFailure(
   return null;
 }
 
-export function coffeePlanDepthFailure(narrative: CoffeeNarrative, plan: CoffeeStoryPlan): boolean {
+export function coffeePlanDepthFailure(narrative: CoffeeNarrative, plan: CoffeeAnyStoryPlan): boolean {
   const words = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
   return words(narrative.overall.text) < plan.depth.overallWords.min
     || words(narrative.takeaway.text) < plan.depth.takeawayWords.min;
@@ -416,7 +421,7 @@ export function coffeePlanDepthFailure(narrative: CoffeeNarrative, plan: CoffeeS
 
 export function coffeeUnauthorizedSection(
   narrative: CoffeeNarrative,
-  plan: CoffeeStoryPlan,
+  plan: CoffeeAnyStoryPlan,
 ): boolean {
   const authorized = new Set(plan.authorizedSections);
   return (['love', 'career', 'money', 'nearFuture'] as const).some(

@@ -61,8 +61,9 @@ import {
   buildPalmWriterPacket,
   normalizeTrustedHand,
 } from './locale-vocab.js';
-import { buildCoffeeWriterPacket } from './coffee-meaning-map.js';
-import type { CoffeeWriterPacket } from './coffee-story-plan.js';
+import { buildCoffeeWriterPacketV2 } from './coffee-meaning-map.js';
+import type { CoffeeWriterPacketV2 } from './coffee-story-plan.js';
+import { buildCoffeeRepairPlan } from './coffee-repair-plan.js';
 import { personalizationFromUnknown } from './personalization.js';
 import type { ReadingPersonalization } from './types.js';
 
@@ -482,9 +483,12 @@ export class ReadingPipeline {
     stages: Array<{ stage: string; cached: boolean; violation?: string }>,
   ): Promise<
     | { status: 'reading'; narrative: CoffeeNarrative }
-    | { status: 'insufficient_semantic_signal'; reason: 'no_safe_semantic_facets' }
+    | {
+        status: 'insufficient_semantic_signal';
+        reason: 'no_safe_semantic_facets' | 'insufficient_semantic_capacity';
+      }
   > {
-    const packet = buildCoffeeWriterPacket(obs, ctx.language, ctx.personalization);
+    const packet = buildCoffeeWriterPacketV2(obs, ctx.language, ctx.personalization);
     if ('status' in packet) return packet;
     const evidenceJson = JSON.stringify(packet);
     const cached = readingStageStore.get<CoffeeNarrative>(
@@ -562,7 +566,7 @@ export class ReadingPipeline {
 
   private async repairCoffee(
     obs: CoffeeObservation,
-    packet: CoffeeWriterPacket,
+    packet: CoffeeWriterPacketV2,
     violation: BindFailure,
     ctx: ReadingPipelineContext,
     model: string,
@@ -572,6 +576,17 @@ export class ReadingPipeline {
       narrativeFail(violation, { stage: 'repair_already_used' });
     }
     readingStageStore.markRepairUsed(ctx.identity, ctx.parentKey);
+    const rejected = readingStageStore.get<CoffeeNarrative>(ctx.identity, ctx.parentKey, 'coffee_writer')!;
+    const repairViolation = violation === 'human_quality'
+      ? (coffeeQualityFailure(
+          rejected,
+          ctx.language,
+          ctx.personalization,
+          obs.evidence,
+          packet.storyPlan,
+        ) ?? violation)
+      : violation;
+    const repairPlan = buildCoffeeRepairPlan(rejected, repairViolation, packet.storyPlan);
     const raw = await this.transport.complete({
       model,
       messages: [
@@ -579,20 +594,8 @@ export class ReadingPipeline {
         {
           role: 'user',
           content: repairWriterUser({
-            evidenceJson: JSON.stringify(packet),
-            violations: [
-              violation === 'human_quality'
-                ? (coffeeQualityFailure(
-                    // The rejected prose is used only inside the private deterministic gate.
-                    // It is never serialized into the repair request.
-                    readingStageStore.get<CoffeeNarrative>(ctx.identity, ctx.parentKey, 'coffee_writer')!,
-                    ctx.language,
-                    ctx.personalization,
-                    obs.evidence,
-                    packet.storyPlan,
-                  ) ?? violation)
-                : violation,
-            ],
+            evidenceJson: JSON.stringify(repairPlan),
+            violations: [repairViolation],
           }),
         },
       ],

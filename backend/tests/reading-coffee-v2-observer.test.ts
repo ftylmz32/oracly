@@ -77,7 +77,7 @@ function goodV2Observation(
     evidence: [
       {
         id: 'e1',
-        region: 'middle_wall',
+        region: 'handle_side',
         description: 'Dense residue cluster near the middle wall, slightly elongated toward the handle side.',
         confidence: 'high',
         visibility: 'clear',
@@ -110,19 +110,19 @@ function goodV2Observation(
 /** C2.1-safe deterministic writer output: meaning only, no private visuals. */
 const GOOD_NARRATIVE = {
   visualObservation: {
-    text: 'Yakınındaki iletişim hareketi, günlük akışına kısa sürede yeni bir canlılık katacak.',
-    evidenceIds: ['e3'],
+    text: 'Çevrendeki tanıdık hava, gelişmenin sessiz arka planını oluşturuyor.',
+    evidenceIds: ['e1'],
   },
   overall: {
-    text: 'Yakın zamanda sana ulaşacak bir haber, önündeki sürece yeni bir yön verecek. Bu gelişme belirsiz kalan bir noktayı anlaşılır hale getirirken hareket alanını da genişletecek; etkisi tek bir anda kalmayıp sonraki adımlarına doğal biçimde yansıyacak.',
-    evidenceIds: ['e3'],
+    text: 'Yakın çevrende kurulan açık bir söz alışverişi, sana en yakın alanın havasını daha anlaşılır kılabilir. Söylenenlerin doğrudanlığı ile gündelik bağların taşıdığı yakınlık yan yana duruyor; bu birleşim tek bir kişiye rol vermeden, çevrendeki temasların daha sade ve karşılığı olan bir biçim kazanabileceğini düşündürüyor.',
+    evidenceIds: ['e1', 'e3'],
   },
   love: { text: '', evidenceIds: [] },
   career: { text: '', evidenceIds: [] },
   money: { text: '', evidenceIds: [] },
   nearFuture: { text: '', evidenceIds: [] },
   takeaway: {
-    text: 'İletişim netleştikçe önündeki gelişmenin gerçek ağırlığı da daha kolay anlaşılacak.',
+    text: 'Açıkça söylenenler, anlaşılma payını büyütüp temaslarına daha yalın bir nitelik katabilir.',
     evidenceIds: ['e3'],
   },
 };
