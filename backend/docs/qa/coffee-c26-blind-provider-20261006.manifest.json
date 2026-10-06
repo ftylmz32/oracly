@@ -1,0 +1,277 @@
+{
+  "phase": "C2.6 BLIND REAL-PROVIDER PROPOSITION CORPUS",
+  "createdAt": "2026-10-06",
+  "architectureHead": "487d3a7c49f05ef12f4b606fb5e4fc7fe3cc9058",
+  "branch": "fix/coffee-c21-private-meaning-handoff-20261006",
+  "language": "tr",
+  "personalization": null,
+  "providerConfig": {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "temperature": "omitted"
+  },
+  "checks": {
+    "cupInteriorVisible": true,
+    "adequateFocusLight": true,
+    "residueVisible": true,
+    "milkFoamObstruction": false,
+    "usefulRegionsVisible": true
+  },
+  "cases": [
+    {
+      "id": "C01",
+      "target": "communication_repeated_support",
+      "evidence": [
+        { "id": "c26-c01-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "A compact tapered deposit has two short lifted edges.", "resemblance": "may resemble a small carrier bird", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c01-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A separate narrow mark has a pointed body and two balanced side strokes.", "resemblance": "may resemble a folded letter", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c01-neutral", "observationSource": "saucer", "region": "base", "description": "A faint granular patch has no stable outline.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Distinct accepted marks from cup_primary and cup_secondary independently resemble different communication symbols.",
+      "expectedFacets": ["communication", "communication"],
+      "expectedPropositions": ["exchange_emergence"],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "awaited_topic"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C02",
+      "target": "opportunity_repeated_support",
+      "evidence": [
+        { "id": "c26-c02-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "A slim oval imprint ends in a fine divided tip.", "resemblance": "may resemble a small fish", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c02-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "An isolated curved body has a distinct head and narrow tail.", "resemblance": "may resemble another fish seen from above", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c02-neutral", "observationSource": "saucer", "region": "base", "description": "A dim scatter remains too weak to classify.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Two spatially separate accepted fish-like marks from different cup views independently support the same permission.",
+      "expectedFacets": ["opportunity", "opportunity"],
+      "expectedPropositions": ["opening_availability"],
+      "expectedCapacity": "modest",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "prior_stagnation"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C03",
+      "target": "bond_repeated_support",
+      "evidence": [
+        { "id": "c26-c03-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "A small closed loop remains evenly defined around its centre.", "resemblance": "may resemble a plain ring", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c03-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A separate circular trace closes without a visible break.", "resemblance": "may resemble a second ring", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c03-neutral", "observationSource": "saucer", "region": "base", "description": "Loose grains form no readable boundary.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Separate closed-loop observations from different cup views each independently support continuity/connection.",
+      "expectedFacets": ["bond", "bond"],
+      "expectedPropositions": ["connection_continuity"],
+      "expectedCapacity": "modest",
+      "expectedLead": "connection_continuity",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "existing_relationship", "reciprocal_feeling"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C04",
+      "target": "emotional_relevance_repeated_support",
+      "evidence": [
+        { "id": "c26-c04-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "Two rounded arcs meet at one clean lower point.", "resemblance": "may resemble a simple heart", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c04-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A detached paired curve narrows into a single tip.", "resemblance": "may resemble another heart", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c04-neutral", "observationSource": "saucer", "region": "base", "description": "A pale residue film is visually indeterminate.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Two detached accepted heart-like impressions from different views independently support felt significance.",
+      "expectedFacets": ["emotional_relevance", "emotional_relevance"],
+      "expectedPropositions": ["felt_significance"],
+      "expectedCapacity": "modest",
+      "expectedLead": "felt_significance",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "existing_relationship", "reciprocal_feeling"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C05",
+      "target": "solution_repeated_support",
+      "evidence": [
+        { "id": "c26-c05-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "A straight stem ends in a compact notched head.", "resemblance": "may resemble a small key", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c05-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A separate narrow shaft finishes with two short teeth.", "resemblance": "may resemble an old-fashioned key", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c05-neutral", "observationSource": "saucer", "region": "base", "description": "A soft blurred deposit carries no stable form.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Distinct key-like marks in separate cup views independently authorize resolution availability.",
+      "expectedFacets": ["solution", "solution"],
+      "expectedPropositions": ["resolution_availability"],
+      "expectedCapacity": "modest",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "prior_problem"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C06",
+      "target": "movement_repeated_support",
+      "evidence": [
+        { "id": "c26-c06-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "A continuous narrow trace changes direction across the wall.", "resemblance": "may resemble a winding path", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c06-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A detached long curve runs steadily around a separate deposit.", "resemblance": "may resemble a route", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c06-neutral", "observationSource": "saucer", "region": "base", "description": "Several faint dots remain unrelated and unclear.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Two unconnected route-like traces from different views independently support directional change.",
+      "expectedFacets": ["movement", "movement"],
+      "expectedPropositions": ["directional_change"],
+      "expectedCapacity": "modest",
+      "expectedLead": "directional_change",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "prior_stagnation", "travel", "relocation"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C07",
+      "target": "home_context_only",
+      "evidence": [
+        { "id": "c26-c07-handle", "observationSource": "cup_primary", "region": "handle_side", "description": "A clear compact cluster sits beside the handle without a stable likeness.", "resemblance": null, "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c07-neutral-a", "observationSource": "cup_secondary", "region": "base", "description": "A thin scatter has no collective shape.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c26-c07-neutral-b", "observationSource": "saucer", "region": "lower_wall", "description": "A partial stain is interrupted by glare.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Not applicable; this is intentionally context-only.",
+      "expectedFacets": ["home_close_circle"],
+      "expectedPropositions": ["proximate_context"],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": { "status": "insufficient_semantic_signal", "reason": "insufficient_semantic_capacity" },
+      "expectedProviderPolicy": { "writerEligible": false, "maxWriterCalls": 0, "maxRepairCalls": 0 }
+    },
+    {
+      "id": "C08",
+      "target": "communication_plus_movement",
+      "evidence": [
+        { "id": "c26-c08-exchange", "observationSource": "cup_primary", "region": "middle_wall", "description": "A pointed central shape carries two short raised sides.", "resemblance": "may resemble a bird", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c08-direction", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A separate continuous line bends once and continues upward.", "resemblance": "may resemble a path", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c08-neutral", "observationSource": "saucer", "region": "base", "description": "A weak detached blot has no dependable contour.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Different accepted observations support distinct proposition kinds.",
+      "expectedFacets": ["communication", "movement"],
+      "expectedPropositions": ["exchange_emergence", "directional_change"],
+      "expectedCapacity": "rich",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": ["directional_change"],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "awaited_topic", "prior_stagnation", "travel", "relocation"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C09",
+      "target": "opportunity_plus_emotional_relevance",
+      "evidence": [
+        { "id": "c26-c09-opening", "observationSource": "cup_primary", "region": "middle_wall", "description": "A small streamlined oval has a narrow divided tail.", "resemblance": "may resemble a fish", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c09-feeling", "observationSource": "cup_secondary", "region": "lower_wall", "description": "Two balanced curves meet in one lower point.", "resemblance": "may resemble a heart", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c09-neutral", "observationSource": "saucer", "region": "base", "description": "A dull granular patch remains indistinct.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Separate observations support two different propositions without decision, money, or romance context.",
+      "expectedFacets": ["opportunity", "emotional_relevance"],
+      "expectedPropositions": ["opening_availability", "felt_significance"],
+      "expectedCapacity": "rich",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": ["felt_significance"],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "prior_stagnation", "existing_relationship", "reciprocal_feeling"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C10",
+      "target": "solution_plus_communication_plus_movement",
+      "evidence": [
+        { "id": "c26-c10-resolution", "observationSource": "cup_primary", "region": "middle_wall", "description": "A firm narrow stem ends in a small toothed head.", "resemblance": "may resemble a key", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c10-exchange", "observationSource": "cup_secondary", "region": "middle_wall", "description": "A detached pointed body has two fine outward strokes.", "resemblance": "may resemble a bird", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c10-direction", "observationSource": "saucer", "region": "lower_wall", "description": "A long clear trace curves around the central residue.", "resemblance": "may resemble a road", "confidence": "high", "visibility": "clear" }
+      ],
+      "independenceProof": "Three separate accepted observations from three sources support three distinct proposition kinds.",
+      "expectedFacets": ["solution", "communication", "movement"],
+      "expectedPropositions": ["resolution_availability", "exchange_emergence", "directional_change"],
+      "expectedCapacity": "rich",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": ["exchange_emergence", "directional_change"],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "prior_problem", "awaited_topic", "prior_stagnation", "travel", "relocation"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C11",
+      "target": "choice_repeated_support",
+      "evidence": [
+        { "id": "c26-c11-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "One strong trace separates into two balanced branches.", "resemblance": "may resemble a forked line", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c11-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A detached stem divides cleanly into two directions.", "resemblance": "may resemble a crossroads", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c11-neutral", "observationSource": "saucer", "region": "base", "description": "A shallow residue bed has no directional form.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Two distinct divided traces from separate views independently support alternative distinction.",
+      "expectedFacets": ["choice", "choice"],
+      "expectedPropositions": ["alternative_distinction"],
+      "expectedCapacity": "modest",
+      "expectedLead": "alternative_distinction",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C12",
+      "target": "growth_repeated_support",
+      "evidence": [
+        { "id": "c26-c12-primary", "observationSource": "cup_primary", "region": "middle_wall", "description": "An upright central mark opens into several fine upper limbs.", "resemblance": "may resemble a young tree", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c12-secondary", "observationSource": "cup_secondary", "region": "lower_wall", "description": "A separate vertical form spreads into a small crown.", "resemblance": "may resemble a branching tree", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c12-neutral", "observationSource": "saucer", "region": "base", "description": "A dim shadow lacks a consistent edge.", "resemblance": null, "confidence": "low", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Two separate tree-like forms from different views independently support gradual expansion.",
+      "expectedFacets": ["growth", "growth"],
+      "expectedPropositions": ["gradual_expansion"],
+      "expectedCapacity": "modest",
+      "expectedLead": "gradual_expansion",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": ["visualObservation", "overall", "takeaway"],
+      "expectedForbiddenAssumptions": ["specific_other_person", "current_job_issue", "money_event", "family_event", "current_major_decision", "options_assumption", "guaranteed_outcome", "chronology", "causation", "advice", "prior_stagnation"],
+      "expectedProviderPolicy": { "writerEligible": true, "maxWriterCalls": 1, "maxRepairCalls": 1 }
+    },
+    {
+      "id": "C13",
+      "target": "unknown_only",
+      "evidence": [
+        { "id": "c26-c13-unknown", "observationSource": "cup_primary", "region": "middle_wall", "description": "A broad shallow dome stands above three short vertical strokes.", "resemblance": "may resemble a small pavilion", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c13-neutral-a", "observationSource": "cup_secondary", "region": "base", "description": "Fine grains remain scattered without structure.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c26-c13-neutral-b", "observationSource": "saucer", "region": "lower_wall", "description": "A fading stain cannot be resolved.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Not applicable; the only clear resemblance has no supported semantic mapping.",
+      "expectedFacets": [],
+      "expectedPropositions": [],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": { "status": "insufficient_semantic_signal", "reason": "no_safe_semantic_facets" },
+      "expectedProviderPolicy": { "writerEligible": false, "maxWriterCalls": 0, "maxRepairCalls": 0 }
+    },
+    {
+      "id": "C14",
+      "target": "single_non_home_thin_support",
+      "evidence": [
+        { "id": "c26-c14-single", "observationSource": "cup_secondary", "region": "middle_wall", "description": "One isolated tapered shape has two small raised edges.", "resemblance": "may resemble a bird", "confidence": "high", "visibility": "clear" },
+        { "id": "c26-c14-neutral-a", "observationSource": "cup_primary", "region": "base", "description": "A thin dusting stays visually weak.", "resemblance": null, "confidence": "low", "visibility": "clear" },
+        { "id": "c26-c14-neutral-b", "observationSource": "saucer", "region": "lower_wall", "description": "A pale fleck is partly obscured.", "resemblance": null, "confidence": "medium", "visibility": "uncertain" }
+      ],
+      "independenceProof": "Intentionally only one accepted non-home support item; it must not be artificially strengthened.",
+      "expectedFacets": ["communication"],
+      "expectedPropositions": ["exchange_emergence"],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": { "status": "insufficient_semantic_signal", "reason": "insufficient_semantic_capacity" },
+      "expectedProviderPolicy": { "writerEligible": false, "maxWriterCalls": 0, "maxRepairCalls": 0 }
+    }
+  ]
+}
