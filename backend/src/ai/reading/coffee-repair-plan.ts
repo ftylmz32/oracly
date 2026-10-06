@@ -5,12 +5,14 @@ import type {
   CoffeePropositionKind,
 } from './coffee-semantic-propositions.js';
 import type { CoffeePublicSection, CoffeeStoryPlanV2 } from './coffee-story-plan.js';
+import { coffeeLengthDeficits, type CoffeeLengthDeficit } from './coffee-length-contract.js';
 
 export type CoffeeRepairDefect =
   | 'structural_deficit'
   | 'abstract_realization'
   | 'unsupported_concretization'
   | 'multiple_renderings'
+  | 'synthesis_redundancy'
   | 'privacy_or_contract';
 
 export type CoffeeRepairPlan = {
@@ -26,6 +28,7 @@ export type CoffeeRepairPlan = {
     additionalWordsNeeded: number;
     needsAdditionalGroundedDevelopment: boolean;
   }>;
+  lengthDeficits?: CoffeeLengthDeficit[];
   unauthorizedSectionsToClear: CoffeePublicSection[];
   forbiddenClaimCategoriesTriggered: CoffeeForbiddenAssumption[];
   defect: {
@@ -48,11 +51,15 @@ function defectKind(violation: string): CoffeeRepairDefect {
     || violation === 'unsupported_existing_fact'
     || violation === 'unsupported_other_agency'
     || violation === 'unsupported_source_causation'
+    || violation === 'unsupported_chronology'
     || violation === 'context_event'
   ) {
     return 'unsupported_concretization';
   }
   if (violation === 'possibility_menu') return 'multiple_renderings';
+  if (violation === 'section_redundancy' || violation === 'insight_collapse' || violation === 'component_serialization') {
+    return 'synthesis_redundancy';
+  }
   return 'privacy_or_contract';
 }
 
@@ -68,6 +75,8 @@ function triggeredClaims(
         ? ['specific_other_person', 'reciprocal_feeling']
         : violation === 'unsupported_source_causation'
           ? ['causation']
+          : violation === 'unsupported_chronology'
+            ? ['chronology']
           : violation === 'context_event'
             ? ['family_event', 'chronology']
             : violation === 'unsupported_certainty'
@@ -124,6 +133,9 @@ export function buildCoffeeRepairPlan(
     storyPlan,
     requiredSections: ['visualObservation', 'overall', 'takeaway'],
     sectionDeficits,
+    ...(violation === 'too_short'
+      ? { lengthDeficits: coffeeLengthDeficits(narrative, { storyPlan }) }
+      : {}),
     unauthorizedSectionsToClear,
     forbiddenClaimCategoriesTriggered: triggeredClaims(violation, storyPlan),
     defect: {

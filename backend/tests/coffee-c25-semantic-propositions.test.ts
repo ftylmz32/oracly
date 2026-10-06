@@ -189,6 +189,22 @@ describe('C2.5 grounded Coffee semantic propositions', () => {
     )).toBe('unsupported_source_causation');
   });
 
+  it('rejects expanded unsupported causal connectors', () => {
+    const packet = ready(item('e1', 'bird'), item('e2', 'road'));
+    expect(coffeeClaimEnvelopeFailure(
+      narrative('İletişim bir yön değişimini tetikleyecek; bu nedenle hareket alanı genişleyecek.'),
+      packet.storyPlan,
+    )).toBe('unsupported_source_causation');
+  });
+
+  it('rejects unsupported chronology with its exact diagnostic', () => {
+    const packet = ready(item('e1', 'key'), item('e2', 'road'));
+    expect(coffeeClaimEnvelopeFailure(
+      narrative('İlk olarak netlik beliriyor; ardından hareket başka bir yöne açılıyor.'),
+      packet.storyPlan,
+    )).toBe('unsupported_chronology');
+  });
+
   it('C09 rejects the blind-corpus decision/options framing', () => {
     const packet = ready(item('e1', 'fish'), item('e2', 'heart'));
     expect(coffeeClaimEnvelopeFailure(
@@ -202,7 +218,15 @@ describe('C2.5 grounded Coffee semantic propositions', () => {
     expect(coffeeClaimEnvelopeFailure(
       narrative('Çözüm öne çıkıyor. İletişim hayatında belirleyici oluyor. Hareket alanı belirginleşiyor.'),
       packet.storyPlan,
-    )).toBe('abstract_reading');
+    )).toBe('component_serialization');
+  });
+
+  it('C10 accepts a genuinely unified realization that co-occurs in each sentence', () => {
+    const packet = ready(item('e1', 'key'), item('e2', 'bird'), item('e3', 'road'));
+    expect(coffeeClaimEnvelopeFailure(
+      narrative('Çözüm alanı iletişimle birlikte yön değiştiren tek bir hareket olarak beliriyor. Bu çözüm ve iletişim aynı hareketin içinde birbirini tamamlıyor.'),
+      packet.storyPlan,
+    )).toBeNull();
   });
 
   it.each([

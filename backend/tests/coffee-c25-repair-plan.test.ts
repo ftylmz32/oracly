@@ -38,6 +38,11 @@ describe('C2.5 structured Coffee Repair Plan V2', () => {
       { section: 'overall', minimumWords: 40, actualWords: 5, additionalWordsNeeded: 35, needsAdditionalGroundedDevelopment: true },
       { section: 'takeaway', minimumWords: 10, actualWords: 3, additionalWordsNeeded: 7, needsAdditionalGroundedDevelopment: true },
     ]);
+    expect(plan.lengthDeficits).toEqual(expect.arrayContaining([
+      expect.objectContaining({ target: 'lead', unit: 'words', minimum: 42 }),
+      expect.objectContaining({ target: 'overall', unit: 'words', minimum: 40, actual: 5, additionalNeeded: 35 }),
+      expect.objectContaining({ target: 'takeaway', unit: 'words', minimum: 10, actual: 3, additionalNeeded: 7 }),
+    ]));
     expect(JSON.stringify(plan)).not.toContain(narrative.overall.text);
   });
 
@@ -80,6 +85,38 @@ describe('C2.5 structured Coffee Repair Plan V2', () => {
     const plan = buildCoffeeRepairPlan(rejected('Haber ya da mesaj gelebilir.', 'Bir gelişme var.'), 'possibility_menu', packet().storyPlan);
     expect(plan.defect.kind).toBe('multiple_renderings');
     expect(plan.requiredPropositionCoverage).toEqual(['exchange_emergence', 'directional_change']);
+  });
+
+  it('gives section redundancy a dedicated synthesis repair operation', () => {
+    const plan = buildCoffeeRepairPlan(rejected(
+      'Aynı anlam farklı sözlerle birkaç kez yeniden anlatılıyor ve bölümler yeni bir içgörü eklemiyor.',
+      'Aynı anlam yeniden söyleniyor.',
+    ), 'section_redundancy', packet().storyPlan, 'tr');
+    expect(plan.defect).toEqual({ kind: 'synthesis_redundancy', propositionKinds: [] });
+    expect(plan).not.toHaveProperty('lengthDeficits');
+  });
+
+  it('reports an actionable observation or combined-lead deficit even when section word floors pass', () => {
+    const narrative = rejected(
+      Array.from({ length: 40 }, (_, i) => `anlam${i}`).join(' '),
+      'Bu sonuç gündelik yaşamında kendine özgü ve sakin bir karşılık bulabilir.',
+    );
+    narrative.visualObservation.text = 'Kısa.';
+    const plan = buildCoffeeRepairPlan(narrative, 'too_short', packet().storyPlan, 'tr');
+    expect(plan.sectionDeficits).toEqual([]);
+    expect(plan.lengthDeficits).toEqual([
+      { target: 'visualObservation', unit: 'characters', minimum: 40, actual: 5, additionalNeeded: 35 },
+      { target: 'lead', unit: 'words', minimum: 42, actual: 41, additionalNeeded: 1 },
+    ]);
+  });
+
+  it.each([
+    ['unsupported_source_causation', 'causation'],
+    ['unsupported_chronology', 'chronology'],
+  ] as const)('%s repair names the exact forbidden relation', (violation, relation) => {
+    const plan = buildCoffeeRepairPlan(rejected('Yeterli ana anlatım burada korunuyor.', 'Yeterli sonuç burada korunuyor.'), violation, packet().storyPlan, 'tr');
+    expect(plan.defect.kind).toBe('unsupported_concretization');
+    expect(plan.forbiddenClaimCategoriesTriggered).toContain(relation);
   });
 
   it('contains only safe plan metadata and evidence IDs, never raw evidence or rejected prose', () => {

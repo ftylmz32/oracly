@@ -4,6 +4,7 @@
  */
 
 import { palmClaimFailure, palmVoiceFailure } from './palm-quality-guards.js';
+import { coffeeLengthDeficits } from './reading/coffee-length-contract.js';
 
 export type HumanQualityFailure =
   | 'empty'
@@ -76,6 +77,8 @@ export type HumanQualityFailure =
   | 'presumed_user_state'
   | 'unsupported_existing_fact'
   | 'unsupported_source_causation'
+  | 'unsupported_chronology'
+  | 'component_serialization'
   /** Palm: commands, advice, or homework instead of a reading. */
   | 'coaching_voice'
   /** Palm: a second-person reading that profiles the person in third person. */
@@ -339,11 +342,17 @@ export function evaluateCoffeeQuality(
   if (GENERIC_CLOSING.test(foldTr(takeaway)) || GENERIC_CLOSING.test(foldTr(overall))) {
     return 'generic_closing';
   }
-  if (observation.length < 40 || overall.length < 80) return 'too_short';
+  const lengthDeficits = coffeeLengthDeficits({
+    visualObservation: { text: observation, evidenceIds: [] },
+    overall: { text: overall, evidenceIds: [] },
+    takeaway: { text: takeaway, evidenceIds: [] },
+  }, { narrativelySparse: input.narrativelySparse });
+  if (lengthDeficits.some((deficit) =>
+    deficit.target === 'visualObservation'
+    || deficit.target === 'lead'
+    || deficit.unit === 'characters')) return 'too_short';
   // PHASE C1.1: 50, not 70 — the old floor forced a long overall even on a
   // thin cup, i.e. padding or invented content.
-  const leadFloor = input.narrativelySparse ? COFFEE_MIN_LEAD_WORDS_SPARSE : COFFEE_MIN_LEAD_WORDS;
-  if (wordCount(overall + ' ' + observation) < leadFloor) return 'too_short';
   if (
     crossSectionRepetition([
       observation,
@@ -367,14 +376,11 @@ export function evaluateCoffeeQuality(
   if (boilerplateClosingQuestion(overall, takeaway)) {
     return 'closing_question_habit';
   }
+  if (lengthDeficits.some((deficit) => deficit.unit === 'words')) return 'too_short';
   // PHASE C1.5: section substance, not an aggregate quota. The old total
   // (100 -> 70 words) rejected a concise, high-quality real reading at 62
   // words; a total only rewards padding. Each required interpretation
   // section must be substantive on its own instead.
-  const overallFloor = input.narrativelySparse ? COFFEE_MIN_OVERALL_WORDS_SPARSE : COFFEE_MIN_OVERALL_WORDS;
-  const takeawayFloor = input.narrativelySparse ? COFFEE_MIN_TAKEAWAY_WORDS_SPARSE : COFFEE_MIN_TAKEAWAY_WORDS;
-  if (wordCount(overall) < overallFloor) return 'too_short';
-  if (takeaway && wordCount(takeaway) < takeawayFloor) return 'too_short';
   // PHASE C1.7: the stock idea is "yeni (bir) başlangıç" filler, not the
   // ordinary noun — a road reading legitimately says where the road starts
   // ("başlangıcı", "başlangıç noktası") several times.

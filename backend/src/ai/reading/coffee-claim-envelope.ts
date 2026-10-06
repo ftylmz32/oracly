@@ -20,6 +20,19 @@ const ABSTRACT_RESTATEMENT: Record<CoffeePropositionKind, RegExp> = {
   proximate_context: /(ev ve yakın çevre|evin ve yakın çevren).*(öne çık|belirgin|ağırlık)|ana vurgu.*(ev|yakın çevre)/,
 };
 
+const COMPONENT_MENTION: Record<CoffeePropositionKind, RegExp> = {
+  exchange_emergence: /iletişim|konuşma|haber|mesaj/,
+  opening_availability: /fırsat|açılım|imkân|imkan/,
+  connection_continuity: /bağ|bağlantı|devamlılık/,
+  felt_significance: /duygu|duygusal|his/,
+  resolution_availability: /çözüm|netlik|açıklık/,
+  directional_change: /hareket|ilerleme|yön değişimi/,
+  alternative_distinction: /seçim|seçenek|alternatif|tercih/,
+  gradual_expansion: /büyüme|gelişme|genişleme/,
+  social_presence: /sosyal|çevre|kişi/,
+  proximate_context: /ev|yakın çevre|yakın halka/,
+};
+
 export function coffeeClaimEnvelopeFailure(
   narrative: CoffeeNarrative,
   plan: CoffeeStoryPlanV2,
@@ -62,11 +75,11 @@ export function coffeeClaimEnvelopeFailure(
   if (forbidden.has('family_event') && /ziyaretçi|misafir|aile içinde .*olacak|evde .*yaşanacak/.test(text)) {
     return 'context_event';
   }
-  if (forbidden.has('causation') && /(?:iletişim|konuşma|haber).{0,35}(sağlayacak|yol açacak|neden olacak)|böylece/.test(text)) {
+  if (forbidden.has('causation') && /(?:iletişim|konuşma|haber|mesaj|çözüm|netlik|hareket|fırsat).{0,45}(sağlayacak|yol açacak|neden olacak|tetikleyecek|doğuracak|beraberinde getirecek)|\b(böylece|bu nedenle|bu yüzden|dolayısıyla|sayesinde|sonucunda)\b/.test(text)) {
     return 'unsupported_source_causation';
   }
-  if (forbidden.has('chronology') && /önce .{1,50} sonra|ardından|sonrasında/.test(text)) {
-    return 'unsupported_source_causation';
+  if (forbidden.has('chronology') && /önce\b.{1,70}\bsonra|ilk olarak|ardından|akabinde|devamında|sonrasında|daha sonra|bir sonraki adımda/.test(text)) {
+    return 'unsupported_chronology';
   }
   if (forbidden.has('guaranteed_outcome') && /kesinlikle|mutlaka|olacak\b|yapacaksın\b|edeceksin\b/.test(text)) {
     return 'unsupported_certainty';
@@ -76,12 +89,14 @@ export function coffeeClaimEnvelopeFailure(
   }
 
   const kinds = [plan.lead.kind, ...plan.supporting.map((item) => item.kind)];
-  if (kinds.some((kind) => ABSTRACT_RESTATEMENT[kind].test(text))) return 'abstract_reading';
-
   if (plan.synthesis.mode === 'unified_cooccurrence') {
     const sentences = fold(narrative.overall.text).split(/[.!?]+/u).filter((sentence) => sentence.trim());
-    const independentlyLabelled = kinds.filter((kind) => sentences.some((sentence) => ABSTRACT_RESTATEMENT[kind].test(sentence)));
-    if (independentlyLabelled.length >= 2) return 'abstract_reading';
+    const singleComponentSentences = sentences
+      .map((sentence) => kinds.filter((kind) => COMPONENT_MENTION[kind].test(sentence)))
+      .filter((mentioned) => mentioned.length === 1)
+      .map(([kind]) => kind);
+    if (new Set(singleComponentSentences).size >= 2) return 'component_serialization';
   }
+  if (kinds.some((kind) => ABSTRACT_RESTATEMENT[kind].test(text))) return 'abstract_reading';
   return null;
 }

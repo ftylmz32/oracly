@@ -112,7 +112,7 @@ describe('one Coffee repair request carries every detected defect (real pipeline
     const repairUser = calls[1].user;
     expect(repairUser).toContain('Violation codes: section_redundancy');
     expect(repairUser).toContain('Private structured Coffee repair plan:');
-    expect(repairUser).toContain('"defect":{"kind":"privacy_or_contract"');
+    expect(repairUser).toContain('"defect":{"kind":"synthesis_redundancy"');
     expect(repairUser).toContain('"requiredPropositionCoverage":["exchange_emergence"]');
     expect(repairUser).not.toContain('Rejected narrative JSON:');
     expect(repairUser).not.toContain('"region"');
