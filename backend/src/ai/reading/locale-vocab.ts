@@ -2,7 +2,6 @@
 
 import type { AppLanguage } from '../app-language.js';
 import type {
-  CoffeeObservation,
   PalmObservation,
   ReadingEvidenceItem,
   ReadingPersonalization,
@@ -86,30 +85,7 @@ export type WriterEvidencePacket = {
   personalization?: ReadingPersonalization;
 };
 
-export function buildCoffeeWriterPacket(
-  obs: CoffeeObservation,
-  language: AppLanguage,
-  personalization?: ReadingPersonalization,
-): WriterEvidencePacket {
-  const vocab: Record<string, string> = {};
-  const evidence = obs.evidence.map((e) => {
-    const regionLabel = coffeeRegionLabel(e.region, language);
-    vocab[e.region] = regionLabel;
-    return { ...e, regionLabel };
-  });
-  return {
-    locale: language,
-    handPolicy: {
-      trustedSide: null,
-      rule: 'not_applicable_for_coffee',
-    },
-    regionVocabulary: vocab,
-    evidence,
-    usable: obs.usable,
-    checks: obs.checks as unknown as Record<string, boolean>,
-    ...(personalization ? { personalization } : {}),
-  };
-}
+export { buildCoffeeWriterPacket } from './coffee-meaning-map.js';
 
 export function buildPalmWriterPacket(
   obs: PalmObservation,

@@ -9,7 +9,7 @@ void main() {
   setUp(() => OraclyL10n.bind('tr'));
 
   testWidgets(
-    'BATCH 3A.3: paid coffee lead is meaning; cup caption is supporting; empty lanes stay hidden',
+    'C2.1: overall is first and visualObservation is not rendered',
     (tester) async {
       const observation =
           'Fincanın dibindeki yoğun tortu, alt iç yüzeye doğru iki yandan uzanıyor.';
@@ -35,9 +35,8 @@ void main() {
         ),
       );
 
-      final meaning = tester.getTopLeft(find.text(overall));
-      final caption = tester.getTopLeft(find.text(observation));
-      expect(meaning.dy, lessThan(caption.dy));
+      expect(find.text(overall), findsOneWidget);
+      expect(find.text(observation), findsNothing);
       expect(find.text(CoffeeCopy.loveTitle), findsNothing);
       expect(find.text(CoffeeCopy.careerTitle), findsNothing);
       expect(find.text(CoffeeCopy.moneyTitle), findsNothing);
@@ -45,7 +44,7 @@ void main() {
   );
 
   testWidgets(
-    'BATCH 3A.5: caption stays secondary and unsupported lanes stay hidden',
+    'C2.1: compatibility caption remains hidden with unsupported lanes',
     (tester) async {
       const overall =
           'Dipte toplanan yoğunluk, henüz dağılmamış bir iç ağırlığa işaret ediyor.';
@@ -71,9 +70,8 @@ void main() {
         ),
       );
 
-      final meaning = tester.getTopLeft(find.text(overall));
-      final seen = tester.getTopLeft(find.text(caption));
-      expect(meaning.dy, lessThan(seen.dy));
+      expect(find.text(overall), findsOneWidget);
+      expect(find.text(caption), findsNothing);
       expect(find.text(CoffeeCopy.loveTitle), findsNothing);
       expect(find.text(CoffeeCopy.careerTitle), findsNothing);
       expect(find.text(CoffeeCopy.moneyTitle), findsNothing);

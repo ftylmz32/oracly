@@ -107,25 +107,22 @@ function goodV2Observation(
   };
 }
 
-/** A real, known-good narrative (mirrors tests/fixtures/batch3a/coffee_good.json). */
+/** C2.1-safe deterministic writer output: meaning only, no private visuals. */
 const GOOD_NARRATIVE = {
   visualObservation: {
-    text: 'Fincanın ortasında kulba doğru uzanan toplu bir telve var, dibi ise açık kalmış. Ağza yakın yerde kanat açmış küçük bir kuşu andıran bir şekil seçiliyor.',
-    evidenceIds: ['e1', 'e2', 'e3'],
+    text: 'Yakınındaki iletişim hareketi, günlük akışına kısa sürede yeni bir canlılık katacak.',
+    evidenceIds: ['e3'],
   },
   overall: {
-    text: 'Fincanın ağzına bu kadar yakın kanat açmış bir kuş, haberin yolda olduğunu gösterir. Bu fincanda en canlı duran şey o: bir mesaj, bir duyum, belki de kimsenin sana henüz söylemediği bir bilgi. Telvenin kulba doğru toplanmasına bakılırsa bu haber uzaktan değil, evin içinden ya da yakın çevrenden çıkacak gibi.',
-    evidenceIds: ['e1', 'e3'],
+    text: 'Yakın zamanda sana ulaşacak bir haber, önündeki sürece yeni bir yön verecek. Bu gelişme belirsiz kalan bir noktayı anlaşılır hale getirirken hareket alanını da genişletecek; etkisi tek bir anda kalmayıp sonraki adımlarına doğal biçimde yansıyacak.',
+    evidenceIds: ['e3'],
   },
   love: { text: '', evidenceIds: [] },
   career: { text: '', evidenceIds: [] },
   money: { text: '', evidenceIds: [] },
-  nearFuture: {
-    text: 'Fincanın dibi açık kalmış; yolunu kesen bir engel görünmüyor. Haber geldiğinde elin kolun bağlı olmayacak, ne yapacağını kendin seçebileceksin.',
-    evidenceIds: ['e2'],
-  },
+  nearFuture: { text: '', evidenceIds: [] },
   takeaway: {
-    text: 'Yalnız kuş biraz silik duruyor; haberin ne yönde olduğunu fincan tam göstermiyor. Sevindirir mi, düşündürür mü, onu gelince göreceksin.',
+    text: 'İletişim netleştikçe önündeki gelişmenin gerçek ağırlığı da daha kolay anlaşılacak.',
     evidenceIds: ['e3'],
   },
 };

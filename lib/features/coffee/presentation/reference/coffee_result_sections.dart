@@ -28,12 +28,6 @@ class CoffeeResultSections extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final overall = FortuneVoice.scrub(reading.overall);
-    final seen = FortuneVoice.scrub(reading.visualObservation);
-    final showSeen = seen.length >= 24 &&
-        (overall.isEmpty ||
-            !overall.toLowerCase().contains(
-                  seen.toLowerCase().substring(0, seen.length < 18 ? seen.length : 18),
-                ));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -43,10 +37,6 @@ class CoffeeResultSections extends StatelessWidget {
           hero: true,
           body: overall.isEmpty ? CoffeeCopy.disclaimer : overall,
         ),
-        if (showSeen) ...[
-          SizedBox(height: CraftsmanshipRhythm.betweenSections),
-          ChamberNarrativeBlock(body: seen),
-        ],
         CoffeeResultObservations(
           symbols: reading.symbols,
           markKeys: markKeys,

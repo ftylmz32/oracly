@@ -69,6 +69,21 @@ const COFFEE_NO_EXAMPLE_COPYING =
  */
 export function coffeeWriterSystem(language: string): string {
   return [
+    `You write a warm, natural Turkish coffee fortune in second person, locale=${language}.`,
+    'The input contains PRIVATE GROUNDED MEANING FACETS, not visual observations. Treat each facet as an allowed life implication and keep its evidenceIds attached to every section that uses it.',
+    'RESULT FIRST: the first one or two sentences of overall must directly state the strongest grounded life development. Add depth only after that useful answer.',
+    'Build ONE connected story from compatible facets. Do not enumerate facets and do not give each facet a separate mini-reading.',
+    'Tell the life consequence, never a visual reason. Never name or describe a detected figure, symbol, sign, residue, grounds, cup position, region, geometry, observer process, confidence, visibility, source slot, schema, JSON, or evidence mechanics.',
+    'visualObservation is a legacy compatibility field. Fill it with one short meaning-level supporting bridge that adds a distinct nuance to the story. It is not a visual caption and must not duplicate overall.',
+    'REQUIRED NON-EMPTY: visualObservation, overall, takeaway. OPTIONAL: love, career, money, nearFuture; leave an unsupported optional section as text "" with empty evidenceIds.',
+    'Use only domains and timing explicitly carried by the supplied facets. Do not invent a person, event, date, relationship, job, payment, history, motive, or certainty.',
+    'Write natural, daily, immediately understandable language. Vary sentence construction; do not build most sentences with shows, tells, indicates, suggests, or their locale equivalents.',
+    'No symbol dictionary, analysis language, advice, coaching, disclaimer, generic wrapper, possibility menu, or stock happy ending.',
+    'Personalization is optional silent context. Never invent missing personalization and never print internal field names.',
+    'Reply with structured JSON only.',
+  ].join(' ');
+  /* istanbul ignore next -- unreachable legacy prompt retained temporarily for source history. */
+  return [
     `You are a skilled, warm, entertaining Turkish coffee fortune teller (falcı) reading this person's cup aloud to them. Write in second person, locale=${language}.`,
     'You receive validated visual evidence JSON only — invent no new visual facts.',
     'VOICE: natural spoken language, the way a gifted falcı talks at the kitchen table — conversational, concrete, warm, a little playful, curiosity-producing. Mix short and medium sentences. Not literary, not poetic for its own sake, not an essay.',
@@ -134,7 +149,7 @@ export function coffeeWriterSystem(language: string): string {
 
 export function coffeeWriterUser(evidenceJson: string): string {
   return [
-    'Validated coffee evidence JSON follows. Write the reading JSON.',
+    'Validated private Coffee meaning facets follow. Write the connected coffee reading JSON.',
     evidenceJson,
   ].join('\n');
 }
@@ -174,6 +189,17 @@ export function palmWriterUser(evidenceJson: string): string {
 }
 
 export function repairWriterSystem(feature: 'coffee' | 'palm'): string {
+  if (feature === 'coffee') {
+    return [
+      'Repair a rejected Coffee narrative using only the supplied PRIVATE GROUNDED MEANING FACETS and their evidenceIds.',
+      'Preserve every valid grounded meaning. Fix only the listed violations and keep evidenceIds accurate.',
+      'The first one or two sentences of overall must state the strongest life result directly; connect compatible facets into one story.',
+      'Never expose or reconstruct figures, symbols, signs, cup regions, grounds, residue, geometry, source slots, confidence, visibility, observer/schema language, or evidence mechanics.',
+      'visualObservation remains required but must contain a short, distinct meaning-level bridge, never visual analysis and never a copy of overall.',
+      'Leave unsupported optional domains empty. Do not invent people, events, dates, history, causes, certainty, or advice.',
+      'Use natural daily language and varied predicates. Return corrected structured narrative JSON only.',
+    ].join(' ');
+  }
   return [
     `Repair a rejected ${feature} narrative. Image is NOT available.`,
     'Use the same validated evidence JSON. Fix only the listed violation codes.',
@@ -187,8 +213,7 @@ export function repairWriterSystem(feature: 'coffee' | 'palm'): string {
     'If evidence_reuse: do not redescribe line geometry in overall or takeaway. Leave length, direction, depth, curve, and continuity in the named line section, and write new synthesis instead.',
     'If stock_advice: replace generic coaching with a takeaway that only this reading\'s evidence could support.',
     'If evidence_id_in_prose or schema_jargon_leak: remove the raw id/schema wording from the text; ids belong only in evidenceIds.',
-    ...(feature === 'palm' ? PALM_REPAIR : []),
-    ...(feature === 'coffee' ? COFFEE_REPAIR_VOICE : []),
+    ...PALM_REPAIR,
     'Return corrected structured narrative JSON only.',
   ].join(' ');
 }
@@ -304,8 +329,11 @@ export function repairWriterUser(input: {
   violations: string[];
   guidance?: string;
 }): string {
+  const evidenceLabel = input.evidenceJson.includes('"facets"')
+    ? 'Private grounded meaning facets:'
+    : 'Evidence JSON:';
   return [
-    'Evidence JSON:',
+    evidenceLabel,
     input.evidenceJson,
     'Rejected narrative JSON:',
     input.rejectedJson,

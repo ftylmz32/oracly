@@ -31,6 +31,8 @@ export type HumanQualityFailure =
    * is unaffected — see evidence-bind.ts's bindSections.
    */
   | 'observation_heavy'
+  /** Coffee: private visual evidence or evidence mechanics reached public prose. */
+  | 'evidence_leak'
   /** Internal pipeline/schema vocabulary leaked into user-facing prose. */
   | 'schema_jargon_leak'
   /**
@@ -442,6 +444,38 @@ export function evaluateCoffeeQuality(
   if (coffeeContextSequence(interpretation)) return 'context_sequence';
   if (coffeeAdviceVoice(interpretation)) return 'advice_voice';
   return null;
+}
+
+/**
+ * Coffee-only public privacy boundary. It rejects visual-analysis grammar,
+ * not ordinary life words that may also name a traditional sign.
+ */
+export function coffeePublicEvidenceLeak(
+  sections: string[],
+  resemblanceNames: string[] = [],
+): boolean {
+  const text = foldTr(sections.filter(Boolean).join(' '));
+  if (!text) return false;
+  const structural = [
+    /\b(bu|su)\s+(sembol|figur|isaret)\b/,
+    /\b\S+\s+(sembolu|figuru|isareti)\b/,
+    /\b(fincan|kupa)(in|da|daki|nin)?\b[^.!?]{0,80}\b(gordum|goruyorum|goruluyor|var|cikmis|belirmis)\b/,
+    /\b[a-z]+\s+cikmis\b/,
+    /\b(telve|tortu|kahve kalintisi|residue|coffee grounds)\b/,
+    /\b(agiz kenari|ust ic yuzey|orta ic yuzey|alt ic yuzey|fincanin dibi|kulp tarafi|cup rim|upper inner wall|middle inner wall|lower inner wall|cup base|handle side)\b/,
+    /\b(gorsel analiz|bilgisayarli gor[uü]|computer vision|observer|source ?slot|region ?label|region ?vocabulary|confidence|visibility|evidence ?ids?|schema|json)\b/,
+  ];
+  if (structural.some((rule) => rule.test(text))) return true;
+
+  for (const raw of resemblanceNames) {
+    const name = foldTr(raw.trim()).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (!name) continue;
+    const exposed = new RegExp(
+      `(?:fincan(?:da|in)?[^.!?]{0,50})?\\b${name}\\b[^.!?]{0,30}\\b(?:figur|sembol|isaret|sekil|cikmis|goruluyor|gordum|var)\\b`,
+    );
+    if (exposed.test(text)) return true;
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------

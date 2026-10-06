@@ -57,11 +57,10 @@ import {
   repairWriterUser,
 } from './writer-prompts.js';
 import {
-  buildCoffeeWriterPacket,
   buildPalmWriterPacket,
   normalizeTrustedHand,
 } from './locale-vocab.js';
-import { coffeeRepairGuidance } from './coffee-repair-guidance.js';
+import { buildCoffeeWriterPacket } from './coffee-meaning-map.js';
 import { personalizationFromUnknown } from './personalization.js';
 import type { ReadingPersonalization } from './types.js';
 
@@ -572,15 +571,6 @@ export class ReadingPipeline {
             evidenceJson: JSON.stringify(buildCoffeeWriterPacket(obs, ctx.language, ctx.personalization)),
             rejectedJson: JSON.stringify(rejected),
             violations: [violation],
-            // Primary violation unchanged; secondary deterministic Coffee
-            // defects (menu, invented plan) ride along as guidance only.
-            guidance: coffeeRepairGuidance(
-              violation,
-              rejected,
-              obs.evidence,
-              ctx.language,
-              ctx.personalization,
-            ),
           }),
         },
       ],

@@ -8,10 +8,12 @@ import {
   coffeePresumedUserState,
   coffeeUnsupportedExistingFact,
   coffeeUnsupportedSourceCausation,
+  coffeePublicEvidenceLeak,
   evaluateCoffeeQuality,
   evaluatePalmQuality,
   type HumanQualityFailure,
 } from '../human-quality.js';
+import { mapCoffeeMeanings } from './coffee-meaning-map.js';
 import {
   coffeeCommunicationAffordance,
   coffeeContextEventPromotion,
@@ -53,6 +55,7 @@ export type BindFailure =
   | 'insight_collapse'
   | 'stock_advice'
   | 'evidence_reuse'
+  | 'evidence_leak'
   | PalmNamedFailure
   /** A real internal evidence id literally appeared inside prose text. */
   | 'evidence_id_in_prose';
@@ -131,15 +134,12 @@ export function acceptCoffeeV2Observation(
 }
 
 /**
- * Adapts an already-accepted CoffeeV2Observation into the exact shape the
- * existing, unmodified Coffee writer (`runCoffeeWriter` /
- * `buildCoffeeWriterPacket` / `bindCoffeeNarrative`) already consumes.
- * Those functions read only `.evidence` at runtime (never `.checks`) --
- * `checks` below exists purely to satisfy `CoffeeObservation`'s type with a
- * faithful summary, not a re-run of the V2 gate (already passed). Each
- * evidence item's `sourceSlot` rides through structurally unchanged, so the
- * writer prompt sees it in the evidence JSON without any writer/prompt
- * change at all.
+ * Keeps an already-accepted CoffeeV2Observation in the internal grounding
+ * shape used by binding and quality checks. Raw evidence (including each
+ * sourceSlot) remains intact here, but `buildCoffeeWriterPacket` maps it to
+ * private meaning facets and never forwards this observation to the writer.
+ * `checks` is only the faithful V2 quality summary required by the internal
+ * CoffeeObservation contract; it does not re-run the V2 gate.
  */
 export function adaptCoffeeV2ForWriter(obs: CoffeeV2Observation): CoffeeObservation {
   const { cupPrimary, cupSecondary, saucer } = obs.photoChecks;
@@ -212,6 +212,7 @@ function normalizeRegion(s: string): string {
 }
 
 function mapQuality(q: HumanQualityFailure): BindFailure {
+  if (q === 'evidence_leak') return 'evidence_leak';
   if (q === 'locale_leak') return 'locale_leak';
   if (q === 'embedded_disclaimer') return 'embedded_disclaimer';
   if (q === 'generic_closing') return 'generic_closing';
@@ -313,7 +314,22 @@ export function coffeeQualityFailure(
     hasMemoryContext: Boolean(personalization?.memorySummary),
     hasIntention: Boolean(personalization?.intention),
     relevantThemes: personalization?.relevantThemes,
-    groundedSigns: evidence?.filter((e) => Boolean(e.resemblance?.trim())).length,
+    groundedSigns: evidence
+      ? mapCoffeeMeanings(
+          {
+            usable: true,
+            checks: {
+              cupInteriorVisible: true,
+              adequateFocusLight: true,
+              residueVisible: true,
+              milkFoamObstruction: false,
+              usefulRegionsVisible: true,
+            },
+            evidence,
+          },
+          language,
+        ).length
+      : undefined,
     communicationAffordance: evidence ? coffeeCommunicationAffordance(evidence) : undefined,
     singleSemanticAnchorRoots: evidence ? coffeeSingleSemanticAnchorRoots(evidence) : undefined,
     narrativelySparse: evidence ? coffeeNarrativelySparse(evidence) : undefined,
@@ -325,6 +341,24 @@ export function coffeeQualityFailure(
       : undefined,
   });
   if (quality) return quality;
+  if (
+    coffeePublicEvidenceLeak(
+      [
+        narrative.visualObservation.text,
+        narrative.overall.text,
+        narrative.love.text,
+        narrative.career.text,
+        narrative.money.text,
+        narrative.nearFuture.text,
+        narrative.takeaway.text,
+      ],
+      evidence
+        ?.map((item) => item.resemblance?.trim())
+        .filter((value): value is string => Boolean(value)),
+    )
+  ) {
+    return 'evidence_leak';
+  }
   const meaningTexts = [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway].map((s) => s.text);
   // Personalization-aware (evidence path only; the legacy single-call parser
   // is unaffected): the person's expectation / wish / prior thought presumed.
@@ -476,6 +510,7 @@ export function narrativeFail(
     code === 'insight_collapse' ||
     code === 'stock_advice' ||
     code === 'evidence_reuse' ||
+    code === 'evidence_leak' ||
     code === 'evidence_id_in_prose' ||
     isPalmNamedFailure(code)
   ) {
