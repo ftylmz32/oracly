@@ -341,24 +341,6 @@ export function coffeeQualityFailure(
       : undefined,
   });
   if (quality) return quality;
-  if (
-    coffeePublicEvidenceLeak(
-      [
-        narrative.visualObservation.text,
-        narrative.overall.text,
-        narrative.love.text,
-        narrative.career.text,
-        narrative.money.text,
-        narrative.nearFuture.text,
-        narrative.takeaway.text,
-      ],
-      evidence
-        ?.map((item) => item.resemblance?.trim())
-        .filter((value): value is string => Boolean(value)),
-    )
-  ) {
-    return 'evidence_leak';
-  }
   const meaningTexts = [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway].map((s) => s.text);
   // Personalization-aware (evidence path only; the legacy single-call parser
   // is unaffected): the person's expectation / wish / prior thought presumed.
@@ -399,6 +381,16 @@ export function coffeeQualityFailure(
     )
   ) {
     return 'context_event';
+  }
+  if (
+    coffeePublicEvidenceLeak(
+      [narrative.visualObservation.text, ...meaningTexts],
+      evidence
+        ?.map((item) => item.resemblance?.trim())
+        .filter((value): value is string => Boolean(value)),
+    )
+  ) {
+    return 'evidence_leak';
   }
   return null;
 }

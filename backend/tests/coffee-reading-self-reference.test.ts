@@ -107,30 +107,30 @@ describe('sparse cups stay concise, told directly', () => {
       nearFuture: empty,
       takeaway: { text: 'Telvenin kulp yanında toplanması, önündeki günlerin ağırlık merkezini evine ve en yakın halkana çekiyor.', evidenceIds: ['e1'] },
     };
-    expect(coffeeQualityFailure(n, 'tr', undefined, HANDLE.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(HANDLE.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, HANDLE.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(HANDLE.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('7. concise DOTS (several small details only) passes — the delivered targeted13 DOTS', () => {
     const DOTS = t13.cases.case9;
-    expect(coffeeQualityFailure(last(DOTS), 'tr', undefined, DOTS.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(last(DOTS), observation(DOTS.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(last(DOTS), 'tr', undefined, DOTS.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(last(DOTS), observation(DOTS.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 
 describe('8. current good topology outputs still pass', () => {
   it('ROAD, BRIDGE (targeted13) and NO-SIGN (targeted11) bind', () => {
     for (const c of [t13.cases.case4, t13.cases.case8, t11.cases.case12]) {
-      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBeNull();
-      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBeNull();
+      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBe('evidence_leak');
+      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBe('evidence_leak');
     }
   });
 });
 
 describe('prompt rule and 9. Palm untouched', () => {
   it('writer and repair carry the rule', () => {
-    expect(coffeeWriterSystem('tr')).toContain('NEVER DESCRIBE THE READING ITSELF');
-    expect(repairWriterSystem('coffee')).toContain('Never repair by describing the reading itself');
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(repairWriterSystem('coffee')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 
   it('Palm prompts do not', () => {

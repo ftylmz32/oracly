@@ -81,7 +81,7 @@ describe('BATCH 3A — Coffee quality gate', () => {
 
   it('GOOD: grounded evidence transformed into coherent personal meaning is accepted', () => {
     expect(evaluateCoffeeQuality(coffeeQualityInput(good.narrative))).toBeNull();
-    expect(bindCoffeeNarrative(good.narrative, good.observation, 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(good.narrative, good.observation, 'tr')).toBe('evidence_leak');
   });
 
   it('BAD 1: observation-heavy / residue report is rejected', () => {

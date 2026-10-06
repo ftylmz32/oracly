@@ -5,7 +5,7 @@ import {
   coffeeBody,
   coffeeJson,
   coffeeObserverJson,
-  coffeeWriterJson,
+  coffeeMeaningWriterJson as coffeeWriterJson,
   openaiReadingSequence,
   palmBody,
   palmJson,
@@ -268,7 +268,7 @@ describe('ai complete', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.visualObservation).toContain('telve');
+    expect(res.json().data.visualObservation).toContain('yakın çevrende');
     expect(res.json().data.overall).toBeTruthy();
     expect(Array.isArray(res.json().data.symbols)).toBe(true);
     await app.close();

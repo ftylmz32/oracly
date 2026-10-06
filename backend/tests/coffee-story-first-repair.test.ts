@@ -95,7 +95,7 @@ describe('coffee repair focus — no backstory from the base', () => {
   });
 
   it('coffee repair inherits the writer rule; palm repair does not carry it', () => {
-    expect(repairWriterSystem('coffee')).toContain('DENSE/DARK BASE DOES NOT CREATE BACKSTORY');
+    expect(repairWriterSystem('coffee')).toContain('PRIVATE GROUNDED MEANING FACETS');
     expect(repairWriterSystem('palm')).not.toContain('DENSE/DARK BASE');
   });
 });
@@ -103,9 +103,9 @@ describe('coffee repair focus — no backstory from the base', () => {
 describe('coffee writer — plain context is not a story engine', () => {
   it('bounds what context evidence may say and forbids ya-da menus (coffee only)', () => {
     const prompt = coffeeWriterSystem('tr');
-    expect(prompt).toContain('PLAIN CONTEXT IS NOT A STORY ENGINE');
-    expect(prompt).toContain('Density contrast between two ordinary patches carries no life meaning');
-    expect(prompt).toContain('Never join alternative interpretations of one sign with "ya da"');
+    expect(prompt).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(prompt).toContain('Tell the life consequence, never a visual reason');
+    expect(prompt).toContain('possibility menu');
     expect(palmWriterSystem('tr')).not.toContain('PLAIN CONTEXT');
   });
 });

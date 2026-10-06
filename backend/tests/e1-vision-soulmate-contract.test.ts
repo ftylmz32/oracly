@@ -13,7 +13,7 @@ import {
   coffeeBody,
   coffeeJson,
   coffeeObserverJson,
-  coffeeWriterJson,
+  coffeeMeaningWriterJson as coffeeWriterJson,
   openaiReadingSequence,
   fakeJpeg,
   jsonResponse,

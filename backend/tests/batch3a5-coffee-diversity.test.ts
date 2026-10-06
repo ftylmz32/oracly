@@ -57,7 +57,7 @@ describe("BATCH 3A.5 — coffee distinct insights", () => {
   it("accepts additive insights on the same observer evidence", () => {
     const good = load("coffee_good_3a5");
     expect(evaluateCoffeeQuality(coffeeInput(good.narrative))).toBeNull();
-    expect(bindCoffeeNarrative(good.narrative, good.observation, "tr", { firstName: "Fatih" })).toBeNull();
+    expect(bindCoffeeNarrative(good.narrative, good.observation, "tr", { firstName: "Fatih" })).toBe('evidence_leak');
     expect(good.narrative.overall.text.includes("Fatih")).toBe(false);
   });
 
@@ -69,7 +69,7 @@ describe("BATCH 3A.5 — coffee distinct insights", () => {
     expect(n.overall.evidenceIds).toEqual(["e1"]);
     expect(n.takeaway.evidenceIds).toEqual(["e1"]);
     expect(coffeeEvidenceConcentration(n, good.observation.evidence)).toBe(false);
-    expect(bindCoffeeNarrative(n, good.observation, "tr")).toBeNull();
+    expect(bindCoffeeNarrative(n, good.observation, "tr")).toBe('evidence_leak');
   });
 
   it("does not force extra lanes when observer evidence is thin", () => {
@@ -104,7 +104,7 @@ describe("BATCH 3A.5 — coffee distinct insights", () => {
       nearFuture: { text: "", evidenceIds: [] },
       takeaway: { text: base.takeaway.text, evidenceIds: ["e1"] },
     } satisfies CoffeeNarrative;
-    expect(bindCoffeeNarrative(shared, thin, "tr")).toBeNull();
+    expect(bindCoffeeNarrative(shared, thin, "tr")).toBe('evidence_leak');
 
     const stretched: CoffeeNarrative = {
       ...shared,
@@ -122,16 +122,16 @@ describe("BATCH 3A.5 — coffee distinct insights", () => {
     expect(focus).toContain("unused grounded evidence");
     expect(focus).toMatch(/upper|handle|base/);
     expect(focus).toContain("Do not return to speaking");
-    expect(repairWriterSystem("coffee")).toContain("If insight_collapse");
+    expect(repairWriterSystem("coffee")).toContain('PRIVATE GROUNDED MEANING FACETS');
     expect(repairWriterUser({
       evidenceJson: "{}",
       rejectedJson: "{}",
       violations: ["insight_collapse"],
       guidance: focus,
     })).toContain("Repair focus:");
-    expect(coffeeWriterSystem("tr")).toContain("OVERALL:");
-    expect(coffeeWriterSystem("tr")).toContain("NEAR FUTURE:");
-    expect(coffeeWriterSystem("tr")).toContain("Do not insert firstName");
-    expect(coffeeWriterSystem("tr")).toContain("short secondary caption");
+    expect(coffeeWriterSystem("tr")).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(coffeeWriterSystem("tr")).toContain("Build ONE connected story");
+    expect(coffeeWriterSystem("tr")).toContain("Never invent missing personalization");
+    expect(coffeeWriterSystem("tr")).toContain("one short meaning-level supporting bridge that adds a distinct nuance");
   });
 });

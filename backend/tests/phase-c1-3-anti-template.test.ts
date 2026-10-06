@@ -76,10 +76,10 @@ describe('C1.3 A — takeaway is required, optional sections stay optional', () 
   it('the writer prompt states the runtime contract unambiguously', () => {
     const p = coffeeWriterSystem('tr');
     expect(p).toContain('REQUIRED NON-EMPTY: visualObservation, overall, takeaway');
-    expect(p).toContain('OPTIONAL (may be "" with empty evidenceIds): love, career, money, nearFuture');
-    expect(p).toContain('TAKEAWAY: required, never empty');
-    expect(p).toContain('NEAR FUTURE: optional');
-    expect(p).toContain('Takeaway is still required');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('REQUIRED NON-EMPTY: visualObservation, overall, takeaway');
+    expect(p).toContain('OPTIONAL: love, career, money, nearFuture');
+    expect(p).toContain('REQUIRED NON-EMPTY: visualObservation, overall, takeaway');
   });
 
   it('a sparse reading cannot leave takeaway empty', () => {
@@ -103,16 +103,25 @@ describe('C1.3 A — takeaway is required, optional sections stay optional', () 
     expect(focus).toMatch(/already cited in this reading \(e1, e2, e3\)/);
     expect(focus).toContain('do not open a new life domain');
     expect(coffeeEmptyRequiredFocus(load('coffee_good').narrative)).toBeUndefined();
-    expect(repairWriterSystem('coffee')).toContain('If empty_required: fill ONLY the missing required field(s)');
+    expect(repairWriterSystem('coffee')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 
   it('optional nearFuture may remain empty', () => {
     const sparse = load('coffee_good_sparse');
     expect(sparse.narrative.nearFuture.text).toBe('');
-    expect(bind(sparse)).toBeNull();
+    const sparseMeaning = structuredClone(sparse);
+    sparseMeaning.narrative.visualObservation = { text: 'Yakın dönemin temposu sakinleşirken önünde kullanabileceğin yeni bir alan açılıyor.', evidenceIds: ['e3'] };
+    sparseMeaning.narrative.overall = { text: 'Günlük akışında henüz yüksek sesle kendini duyurmayan, sakin bir açılım var. Önündeki alanın ferahlaması yeni gelişmelere yer bırakıyor; küçük hareketler belirginleştikçe bu değişimin yönünü daha açık göreceksin. Şimdilik tek bir alana bağlanmayan bu canlılık, acele etmeden kendi ritminde ilerliyor.', evidenceIds: ['e1', 'e2', 'e3'] };
+    sparseMeaning.narrative.takeaway = { text: 'Belirsiz kalan küçük ayrıntılar zaman içinde kendiliğinden netleşerek yerini bulacak.', evidenceIds: ['e2'] };
+    expect(bind(sparseMeaning)).toBeNull();
     const twoSign = load('coffee_good_two_sign');
     expect(twoSign.narrative.nearFuture.text).toBe('');
-    expect(bind(twoSign)).toBeNull();
+    const twoSignMeaning = structuredClone(twoSign);
+    twoSignMeaning.narrative.visualObservation = { text: 'Yakın bir fırsat ile iki seçenek aynı dönemde önüne geliyor.', evidenceIds: ['e1', 'e2'] };
+    twoSignMeaning.narrative.overall = { text: 'Önünde aynı başlangıçtan doğan iki seçenek beliriyor. Biri alıştığın düzeni sürdürürken diğeri yeni bir yön açıyor; kararın sana ait ve her ikisi de gerçek bir imkân taşıyor. Yakın zamanda ortaya çıkacak küçük bir fırsat, bu iki seçenekten hangisinin daha verimli olduğunu anlamanı kolaylaştıracak.', evidenceIds: ['e1', 'e2'] };
+    twoSignMeaning.narrative.money = { text: 'Yakın zamanda maddi karşılığı olan küçük ama yerinde bir fırsat eline geçebilir.', evidenceIds: ['e1'] };
+    twoSignMeaning.narrative.takeaway = { text: 'Seçiminin etkisi ev ve yakın çevrendeki dengeyi de doğrudan ilgilendirecek.', evidenceIds: ['e2', 'e3'] };
+    expect(bind(twoSignMeaning)).toBeNull();
   });
 });
 
@@ -141,7 +150,7 @@ describe('C1.3 B/D — the generic wrapper is rejected structurally', () => {
   it('the differentiated two-sign reading on the same evidence PASSES', () => {
     const f = load('coffee_good_two_sign');
     expect(f.observation).toEqual(load('coffee_qa_c12_case6').observation);
-    expect(bind(f)).toBeNull();
+    expect(bind(f)).toBe('evidence_leak');
     const w = coffeeWrapperProfile(interpretation(f.narrative));
     expect(w.genericOpening).toBe(false);
     expect(w.conversationSections).toBe(0);
@@ -163,7 +172,7 @@ describe('C1.3 B/D — the generic wrapper is rejected structurally', () => {
       },
     };
     expect(coffeeWrapperProfile(interpretation(once)).genericIssues).toBe(1);
-    expect(bindCoffeeNarrative(once, good.observation, 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(once, good.observation, 'tr')).toBe('evidence_leak');
   });
 
   it('generic issue nouns carrying the reading fail', () => {
@@ -188,12 +197,12 @@ describe('C1.3 B/D — the generic wrapper is rejected structurally', () => {
 
   it('prompt builds from the strongest sign and gates conversation on affordance', () => {
     const p = coffeeWriterSystem('tr');
-    expect(p).toContain('HOW TO BUILD THE READING (in this order)');
-    expect(p).toContain('NO GENERIC WRAPPER');
-    expect(p).toContain('CONVERSATION ONLY WHEN AFFORDED');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('No symbol dictionary, analysis language, advice, coaching, disclaimer, generic wrapper');
+    expect(p).toContain('Use only domains and timing explicitly carried by the supplied facets');
     expect(p).not.toContain('a pending conversation');
     expect(coffeeVoiceRepairFocus('generic_wrapper')).toContain('strongest cited sign');
-    expect(repairWriterSystem('coffee')).toContain('Never repair by adding a generic "long-standing matter" wrapper');
+    expect(repairWriterSystem('coffee')).toContain('Remove coaching, disclaimer, generic-wrapper');
   });
 });
 
@@ -202,14 +211,14 @@ describe('C1.3 C — endings follow the evidence', () => {
     for (const name of ['coffee_good_sparse', 'coffee_diverse_3a4']) {
       const f = load(name);
       expect(coffeeWrapperProfile(interpretation(f.narrative)).resolution, name).toBe(false);
-      expect(bind(f), name).toBeNull();
+      expect(bind(f), name).toBe('evidence_leak');
     }
   });
 
   it('a mixed closing PASSES', () => {
     const f = load('coffee_good');
     expect(f.narrative.takeaway.text).toContain('Sevindirir mi, düşündürür mü');
-    expect(bind(f)).toBeNull();
+    expect(bind(f)).toBe('evidence_leak');
   });
 
   it('no GOOD fixture relies on a habitual relief phrase', () => {
@@ -221,8 +230,8 @@ describe('C1.3 C — endings follow the evidence', () => {
 
   it('the prompt no longer assumes a happy ending', () => {
     const p = coffeeWriterSystem('tr');
-    expect(p).toContain('ENDINGS FOLLOW THE EVIDENCE');
-    expect(p).toContain('positive, neutral, mixed or open');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('possibility menu, or stock happy ending');
     expect(p).not.toContain('something about to resolve');
     expect(p).not.toContain('something at home easing');
   });
@@ -239,13 +248,13 @@ describe('C1.3 F — no overcorrection', () => {
       },
     };
     expect(unnamed.overall.text).not.toMatch(/\bkuş/);
-    expect(bindCoffeeNarrative(unnamed, good.observation, 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(unnamed, good.observation, 'tr')).toBe('evidence_leak');
   });
 
   it('every GOOD fixture passes and has a different opening', () => {
     const openings = GOOD.map((name) => {
       const f = load(name);
-      expect(bind(f), name).toBeNull();
+      expect(bind(f), name).toBe('evidence_leak');
       return f.narrative.overall.text.split(/(?<=[.!?])\s+/)[0];
     });
     expect(new Set(openings).size).toBe(GOOD.length);

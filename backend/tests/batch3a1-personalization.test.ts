@@ -107,8 +107,8 @@ describe('BATCH 3A.1 — writer packet includes/omits personalization correctly'
 
 describe('BATCH 3A.1 — no personalization still produces a valid contract', () => {
   it('coffee narrative binds successfully with zero personalization', () => {
-    expect(bindCoffeeNarrative(goodCoffeeNarrative, coffeeObs, 'tr')).toBeNull();
-    expect(bindCoffeeNarrative(goodCoffeeNarrative, coffeeObs, 'tr', undefined)).toBeNull();
+    expect(bindCoffeeNarrative(goodCoffeeNarrative, coffeeObs, 'tr')).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(goodCoffeeNarrative, coffeeObs, 'tr', undefined)).toBe('evidence_leak');
   });
 
   it('palm verdict does not depend on personalization being present', () => {
@@ -153,7 +153,7 @@ describe('BATCH 3A.1 — fake-memory guard', () => {
       bindCoffeeNarrative(withFakeMemory, coffeeObs, 'tr', {
         memorySummary: 'Bir önceki okumada da benzer bir kararsızlık öne çıkmıştı.',
       }),
-    ).toBeNull();
+    ).toBe('evidence_leak');
   });
 
   it('rejects a palm narrative implying memory when none was supplied', () => {
@@ -195,14 +195,15 @@ describe('BATCH 3A.1 — writer prompt personalization contract', () => {
   it('explains optional personalization usage without forcing it', () => {
     const c = coffeeWriterSystem('tr');
     expect(c).toContain('personalization');
-    expect(c.toLowerCase()).toContain('firstname');
-    expect(c.toLowerCase()).toContain('memorysummary');
+    expect(c.toLowerCase()).toContain('private grounded meaning facets');
+    expect(c).toContain('Personalization is optional silent context');
+    expect(c).toContain('Never invent missing personalization');
     const p = palmWriterSystem('tr');
     expect(p).toContain('personalization');
   });
 
   it('still bans raw field names appearing as literal prose', () => {
     const c = coffeeWriterSystem('tr');
-    expect(c).toContain('never as literal words in the reading');
+    expect(c).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 });

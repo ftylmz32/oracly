@@ -9,7 +9,7 @@ import {
   coffeeBody,
   coffeeJson,
   coffeeObserverJson,
-  coffeeWriterJson,
+  coffeeMeaningWriterJson as coffeeWriterJson,
   openaiReadingSequence,
   authHeader,
 } from './helpers.js';
@@ -66,8 +66,8 @@ describe('coffee vision empty-response fixes', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.overall).toContain('demlige');
-    expect(res.json().data.visualObservation).toContain('telve');
+    expect(res.json().data.overall).toContain('yakın çevreni ilgilendiren bir gelişme');
+    expect(res.json().data.visualObservation).toContain('yakın çevrende');
     await app.close();
   });
 });

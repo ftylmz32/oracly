@@ -48,12 +48,37 @@ function cleanStar(): CoffeeNarrative {
   return n;
 }
 
+/** Fixture-specific C2.1-safe repair: same STAR scenario and ids, no public visual evidence. */
+function meaningStarRepair(): CoffeeNarrative {
+  return {
+    visualObservation: {
+      text: 'Yakın dönemde emeğinin karşılığını görünür kılacak sevindirici bir fırsat öne çıkıyor.',
+      evidenceIds: ['e1'],
+    },
+    overall: {
+      text: 'Emeğin fark edilecek ve bunun karşılığını açık bir takdir olarak alacaksın. Önüne gelen tek ve seçkin fırsat, kalabalık gelişmeler arasında kaybolmadan doğrudan senin payına düşüyor. Bu ilerleme günlük düzeninde belirgin bir canlılık yaratacak ve verdiğin emeğin değerini başkalarının da açıkça görmesini sağlayacak. Sonuç gösterişli bir değişimden çok, sana tam denk gelen temiz ve kalıcı bir sevinç taşıyor.',
+      evidenceIds: ['e1'],
+    },
+    love: { text: '', evidenceIds: [] },
+    career: { text: '', evidenceIds: [] },
+    money: { text: '', evidenceIds: [] },
+    nearFuture: {
+      text: 'Bu güzel gelişme yakın zamanda kendini belli edecek ve kısa süre içinde netleşecek.',
+      evidenceIds: ['e1'],
+    },
+    takeaway: {
+      text: 'Bu kısmetin asıl güzelliği büyüklüğünde değil, tam sana göre biçilmiş olmasında; geldiğinde onu hemen tanıyacaksın.',
+      evidenceIds: ['e1'],
+    },
+  };
+}
+
 describe('one Coffee repair request carries every detected defect (real pipeline, fake transport)', () => {
   it('section_redundancy + possibility_menu → one repair whose guidance names both', async () => {
     const injected = injectedStar();
     expect(bindCoffeeNarrative(injected, observation(STAR_EVIDENCE), 'tr')).toBe('section_redundancy');
 
-    const repaired = cleanStar(); // the real run6 STAR reading without its self-reference sentence
+    const repaired = meaningStarRepair();
     const calls: Array<{ kind: string; user: string }> = [];
     const fetchFn = (async (_url: string, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body));
@@ -78,12 +103,18 @@ describe('one Coffee repair request carries every detected defect (real pipeline
     expect(calls.map((c) => c.kind)).toEqual(['writer', 'repair']);
     const repairUser = calls[1].user;
     expect(repairUser).toContain('Violation codes: section_redundancy');
-    expect(repairUser).toContain('Overall already covers the collapsed pattern.');
+    const guidance = coffeeRepairGuidance('section_redundancy', injected, STAR_EVIDENCE, 'tr')!;
+    expect(guidance).toContain('Overall already covers the collapsed pattern.');
     // The injected takeaway also repeats overall's first sentence.
-    expect(repairUser).toContain('Additional detected Coffee defects: possibility_menu, repeated_sentence, dictionary_voice.');
-    expect(repairUser).toContain('yaptigin ya da sundugun');
-    expect(repairUser).not.toContain('invented_plan');
+    expect(guidance).toContain('Additional detected Coffee defects: possibility_menu, repeated_sentence, dictionary_voice.');
+    expect(guidance).toContain('yaptigin ya da sundugun');
+    expect(guidance).not.toContain('invented_plan');
+    expect(repairUser).toContain('Private grounded meaning facets:');
+    expect(repairUser).not.toContain('"region"');
+    expect(repairUser).not.toContain('"description"');
+    expect(repairUser).not.toContain('"resemblance"');
     expect(JSON.stringify(delivered)).toContain(repaired.overall.text.slice(0, 40));
+    expect(JSON.stringify(delivered)).not.toMatch(/yıldız|fincan|telve|üst iç yüzey/i);
   });
 });
 

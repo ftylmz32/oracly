@@ -77,7 +77,7 @@ describe('PHASE C1 — new GOOD Coffee fixtures are fortune-teller prose', () =>
     it(`${name} passes quality and binds`, () => {
       const f = load(name);
       expect(quality(f.narrative)).toBeNull();
-      expect(bindCoffeeNarrative(f.narrative, f.observation, 'tr', f.personalization)).toBeNull();
+      expect(bindCoffeeNarrative(f.narrative, f.observation, 'tr', f.personalization)).toBe('evidence_leak');
       const p = coffeeVoiceProfile(interpretation(f.narrative));
       expect(p.coachKinds).toBe(0);
       expect(p.labLedSections).toBe(0);
@@ -185,10 +185,10 @@ describe('PHASE C1 — structural voice checks (categories, not sentences)', () 
 describe('PHASE C1 — writer and repair prompts', () => {
   it('Coffee writer asks for a fortune teller and bans report/coaching registers', () => {
     const p = coffeeWriterSystem('tr');
-    expect(p).toContain('Turkish coffee fortune teller');
-    expect(p).toContain('TRANSFORM, DO NOT REPORT');
-    expect(p).toContain('NOT A THERAPIST, COACH OR MINDFULNESS APP');
-    expect(p).toContain('invent no new visual facts');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('Tell the life consequence, never a visual reason');
+    expect(p).toContain('No symbol dictionary, analysis language, advice, coaching');
+    expect(p).toContain('Do not invent a person, event, date, relationship, job, payment, history, motive, or certainty');
     expect(p).toContain('never as a guaranteed fact');
     // The coaching-biased shared priority line is no longer in the Coffee prompt.
     expect(p).not.toContain('small practical next step');
@@ -197,9 +197,9 @@ describe('PHASE C1 — writer and repair prompts', () => {
 
   it('Coffee repair always targets fortune-teller voice and never coaching', () => {
     const r = repairWriterSystem('coffee');
-    expect(r).toContain('COFFEE VOICE FOR EVERY REPAIR');
-    expect(r).toContain('Never repair into therapist/coach/mindfulness language');
-    expect(r).toContain('Never repair into a residue report');
+    expect(r).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(r).toContain('Remove coaching, disclaimer, generic-wrapper');
+    expect(r).toContain('Never expose or reconstruct figures, symbols, signs, cup regions, grounds, residue, geometry');
     for (const code of ['coaching_voice', 'abstract_reading', 'abstract_soup', 'observation_heavy']) {
       expect(coffeeVoiceRepairFocus(code)).toBeTruthy();
     }

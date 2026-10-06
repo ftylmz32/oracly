@@ -316,6 +316,26 @@ export const coffeeWriterJson = JSON.stringify({
   takeaway: { text: coffeeFortuneSections.takeaway, evidenceIds: ['e2'] },
 });
 
+/** C2.1 writer fixture: public prose contains meanings only, never observer mechanics. */
+export const coffeeMeaningWriterJson = JSON.stringify({
+  visualObservation: {
+    text: 'Ev ve yakın çevrende yeni bir hareket alanı oluşuyor; bu canlılık günlük düzenine de doğrudan yansıyor.',
+    evidenceIds: ['e1'],
+  },
+  overall: {
+    text: 'Ev ve yakın çevreni ilgilendiren bir gelişme kısa zamanda hareket kazanıyor. Yönü belirginleştikçe önünde yeni bir açılım oluşacak ve günlük düzeninde hissedilir bir değişim başlayacak. Bu ilerleyiş, beklemeden kendi doğal akışı içinde güçlenecek.',
+    evidenceIds: ['e1', 'e3'],
+  },
+  love: { text: '', evidenceIds: [] },
+  career: { text: '', evidenceIds: [] },
+  money: { text: '', evidenceIds: [] },
+  nearFuture: { text: '', evidenceIds: [] },
+  takeaway: {
+    text: 'Bu açılımın etkisi en çok yakın çevrendeki dengede kısa sürede hissedilecek.',
+    evidenceIds: ['e1'],
+  },
+});
+
 export const palmObserverJson = JSON.stringify({
   usable: true,
   reason: '',

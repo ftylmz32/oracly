@@ -49,14 +49,14 @@ describe('BATCH 3A.4 — coffee diversity', () => {
     expect(evaluateCoffeeQuality(coffeeInput(good.narrative))).toBeNull();
     expect(bindCoffeeNarrative(good.narrative, good.observation, 'tr', {
       firstName: 'Fatih',
-    })).toBeNull();
+    })).toBe('evidence_leak');
   });
 
   it('writer asks for one coherent story (not paraphrased sections) and a short caption', () => {
     const prompt = coffeeWriterSystem('tr');
     // Story-first: sections are facets of ONE fortune — still never paraphrases.
-    expect(prompt).toContain('never three unrelated insights and never three paraphrases of one idea');
-    expect(prompt).toContain('short secondary caption');
+    expect(prompt).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(prompt).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 });
 

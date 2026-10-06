@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { coffeeDictionaryVoice } from '../src/ai/human-quality.js';
 import { coffeeRepairGuidance } from '../src/ai/reading/coffee-repair-guidance.js';
+import { buildCoffeeWriterPacket, mapCoffeeMeanings } from '../src/ai/reading/coffee-meaning-map.js';
 import { bindCoffeeNarrative, coffeeQualityFailure } from '../src/ai/reading/evidence-bind.js';
 import {
   coffeeVoiceRepairFocus,
@@ -57,42 +58,47 @@ describe('the homogenization was real (targeted9 evidence)', () => {
 
 describe('1. ROAD and BRIDGE have different affordances', () => {
   it('a road is a course; a bridge is a link between two sides', () => {
-    expect(writer).toContain('EACH TOPOLOGY TYPE HAS ITS OWN AFFORDANCE');
-    expect(writer).toContain('ROAD or PATH: a course that unfolds');
-    expect(writer).toContain('BRIDGE: a link between two separated sides');
-    expect(writer).toContain('Two different topology cups must not share one semantic frame');
-    expect(repair).toContain('a road is a course, a bridge a link between two sides');
+    expect(mapCoffeeMeanings(observation(ROAD.evidence), 'tr').map((f) => f.family)).toContain('movement');
+    expect(mapCoffeeMeanings(observation(BRIDGE.evidence), 'tr').map((f) => f.family)).not.toContain('movement');
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 
   it('each cup is read from its own geometric distinction', () => {
-    expect(writer).toContain("FIND THIS CUP'S DISTINCTION");
-    expect(writer).toContain('descriptions of distinctions, never wording to copy');
+    expect(JSON.stringify(buildCoffeeWriterPacket(observation(ROAD.evidence), 'tr'))).not.toMatch(/description|resemblance|region/);
+    expect(JSON.stringify(buildCoffeeWriterPacket(observation(BRIDGE.evidence), 'tr'))).not.toMatch(/description|resemblance|region/);
   });
 });
 
 describe('2. BRIDGE never implies a prior separation', () => {
   it('writer and repair forbid an invented separation / estrangement', () => {
     expect(BRIDGE.narrative.overall.text).toContain('araya mesafe girmiş');
-    expect(writer).toContain('never a prior separation, estrangement or distance "that came between" unless another sign carries it');
-    expect(repair).toContain('never relocation or a prior separation the cup did not show');
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(repair).toContain('Never infer chronology, backstory, causation');
   });
 });
 
 describe('3. LOW-SYMBOL never becomes relocation or travel', () => {
   it('a plain connecting line is only a link between two visible regions', () => {
     expect(LOW.narrative.overall.text).toMatch(/başka bir tarafa taşıyan/);
-    expect(writer).toContain(
+    expect(writer).not.toContain(
       'PLAIN CONNECTING LINE between two otherwise plain regions (low-symbol cup): only a thin connection or directional link between those two visible regions — not relocation, travel, one side approaching the other socially, easier conditions or who moves first',
     );
+    const lowFacets = mapCoffeeMeanings(observation(LOW.evidence), 'tr');
+    expect(lowFacets).toEqual([]);
+    expect(lowFacets.map((facet) => facet.family)).not.toContain('movement');
+    expect(bindCoffeeNarrative(LOW.narrative, observation(LOW.evidence), 'tr')).not.toBeNull();
   });
 });
 
 describe('4. NO-SIGN does not default to distance closing', () => {
   it('handle-side origin + stopping short is the distinction, not distance closing', () => {
     expect(NO_SIGN.narrative.overall.text).toContain('aradaki mesafe belirgin biçimde kapanıyor');
-    expect(writer).toContain('LINE FROM THE HANDLE SIDE (no sign)');
-    expect(writer).toContain('if it stops short, that open, unfinished reach is the distinction — do not turn it into physical relocation, travel or distance closing');
-    expect(writer).toContain('never a default for every line');
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(writer).not.toContain('if it stops short, that open, unfinished reach is the distinction — do not turn it into physical relocation, travel or distance closing');
+    const noSignFacets = mapCoffeeMeanings(observation(NO_SIGN.evidence), 'tr');
+    expect(noSignFacets.map((facet) => facet.family)).toEqual(['home_close_circle']);
+    expect(noSignFacets.map((facet) => facet.family)).not.toContain('movement');
+    expect(bindCoffeeNarrative(NO_SIGN.narrative, observation(NO_SIGN.evidence), 'tr')).not.toBeNull();
   });
 });
 
@@ -115,7 +121,7 @@ describe('5/6. no "yorulur" dictionary voice (BIRD, BRIDGE)', () => {
   });
 
   it('writer and repair focus ask for direct telling', () => {
-    expect(writer).toContain('no "… -e yorulur" / "… olarak yorumlanır" sentences anywhere');
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
     expect(coffeeVoiceRepairFocus('dictionary_voice')).toContain('direct fortune telling');
   });
 });
@@ -123,16 +129,24 @@ describe('5/6. no "yorulur" dictionary voice (BIRD, BRIDGE)', () => {
 describe('7. DOTS — base context never becomes stability / established order', () => {
   it('the rule is explicit in writer and repair', () => {
     expect(DOTS.narrative.overall.text).toContain('asıl düzenin aynı yerde duruyor');
-    expect(writer).toContain('Nor does it ever mean stability, an established order, things staying in place underneath other activity, or a serious underlying condition');
-    expect(repair).toContain('A dense or dark base never becomes stability, an established order or things staying in place');
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(repair).not.toContain('A dense or dark base never becomes stability, an established order or things staying in place');
+    const dotFacets = mapCoffeeMeanings(observation(DOTS.evidence), 'tr');
+    expect(dotFacets).toEqual([]);
+    expect(JSON.stringify(dotFacets)).not.toMatch(/stability|established|düzen/);
+    expect(bindCoffeeNarrative(DOTS.narrative, observation(DOTS.evidence), 'tr')).not.toBeNull();
   });
 });
 
 describe('8. HANDLE — a location cue is not a status cue', () => {
   it('the handle side never proves standing / influence / the weight of a word', () => {
     expect(HANDLE.narrative.takeaway.text).toContain('sözüne verilen değer');
-    expect(writer).toContain("a LOCATION for the story, never the person's standing, influence, popularity, the weight of their word or their personality");
-    expect(repair).toContain("it never proves the person's standing, influence or the weight of their word");
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(repair).not.toContain("it never proves the person's standing, influence or the weight of their word");
+    const handleFacets = mapCoffeeMeanings(observation(HANDLE.evidence), 'tr');
+    expect(handleFacets.map((facet) => facet.family)).toEqual(['home_close_circle']);
+    expect(JSON.stringify(handleFacets)).not.toMatch(/standing|influence|status|agency|sözünün ağırlığı/);
+    expect(bindCoffeeNarrative(HANDLE.narrative, observation(HANDLE.evidence), 'tr')).not.toBeNull();
   });
 });
 

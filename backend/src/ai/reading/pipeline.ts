@@ -506,7 +506,7 @@ export class ReadingPipeline {
     stages.push({ stage: 'writer', cached: false });
     let violation = bindCoffeeNarrative(narrative, obs, ctx.language, ctx.personalization);
     if (!violation) return narrative;
-    return this.repairCoffee(obs, narrative, violation, ctx, model, stages);
+    return this.repairCoffee(obs, violation, ctx, model, stages);
   }
 
   private async runPalmWriter(
@@ -551,7 +551,6 @@ export class ReadingPipeline {
 
   private async repairCoffee(
     obs: CoffeeObservation,
-    rejected: CoffeeNarrative,
     violation: BindFailure,
     ctx: ReadingPipelineContext,
     model: string,
@@ -569,7 +568,6 @@ export class ReadingPipeline {
           role: 'user',
           content: repairWriterUser({
             evidenceJson: JSON.stringify(buildCoffeeWriterPacket(obs, ctx.language, ctx.personalization)),
-            rejectedJson: JSON.stringify(rejected),
             violations: [violation],
           }),
         },

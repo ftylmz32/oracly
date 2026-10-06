@@ -94,19 +94,22 @@ describe('B. narratively sparse cups — evidence-derived, narrow', () => {
       'Falın ev ve sana en yakın insanlar çevresinde duruyor.',
       'Ev ve sana en yakın insanlar hayatının merkezinde duruyor.',
     );
+    first.visualObservation = { text: 'Ev ve yakın çevrendeki bağlar günlük hayatında daha görünür hâle geliyor.', evidenceIds: ['e1'] };
+    first.overall = { text: 'Ev ve sana en yakın insanlar hayatında belirgin bir yer tutuyor. Günlük düzeninde önem kazanan gelişmeler uzak çevrelerden değil, doğrudan bu tanıdık halkadan geliyor. Etkisini hemen hissedeceğin yakın bağlar ön plana çıkarken daha uzaktaki konular bir süre daha hayatının kıyısında kalıyor.', evidenceIds: ['e1', 'e3'] };
+    first.takeaway = { text: 'Yakın çevrendeki hareket, günlük hayatının merkezinde sakin ama belirgin bir değişim yaratıyor.', evidenceIds: ['e1'] };
     expect(coffeeQualityFailure(first, 'tr', undefined, HANDLE.evidence)).toBeNull();
     expect(bindCoffeeNarrative(first, observation(HANDLE.evidence), 'tr')).toBeNull();
   });
 
   it('3. a concise grounded DOTS reading (meaning of the open rim + timing from where it sits) passes', () => {
     const n: CoffeeNarrative = {
-      visualObservation: { text: 'Ağız kenarının hemen altında ince, temiz bir bant var; yukarıya küçük noktalar serpilmiş, dipte telve toplanmış.', evidenceIds: ['e1', 'e2', 'e3'] },
-      overall: { text: 'Ağız kenarındaki temiz şerit, önünde açık bir kısmet bırakıyor; seni sıkıştıran bir şey yok, gelecek olana yer var. Yukarıya serpilmiş küçük noktalar bu açıklığın çevresinde, ufak tefek ayrıntılar olarak duruyor.', evidenceIds: ['e1', 'e2'] },
+      visualObservation: { text: 'Yakın günlerinde sakin ve açık bir hareket alanı korunuyor.', evidenceIds: ['e1'] },
+      overall: { text: 'Önünde açık ve ferah bir dönem beliriyor; yeni gelişmelere yer var. Küçük ayrıntılar ilerleyişin içinde dikkat isteyen birkaç nokta bırakırken günlük hayatındaki sakin alan korunuyor. Bu açıklık, önümüzdeki günlerde kararlarını daha rahat vermene ve gelen fırsatları zamanında fark etmene yardımcı olacak.', evidenceIds: ['e1', 'e2'] },
       love: empty,
       career: empty,
       money: empty,
       nearFuture: empty,
-      takeaway: { text: 'Şerit fincanın ağzına yakın durduğu için, bu açıklığı uzak bir zamanda değil günlük hayatında göreceksin.', evidenceIds: ['e1'] },
+      takeaway: { text: 'Bu ferahlığın etkisini uzak bir zamanda değil, yakın günlük hayatında göreceksin.', evidenceIds: ['e1'] },
     };
     expect(coffeeQualityFailure(n, 'tr', undefined, DOTS.evidence)).toBeNull();
     expect(bindCoffeeNarrative(n, observation(DOTS.evidence), 'tr')).toBeNull();
@@ -156,7 +159,7 @@ describe('D. context does not create sequence, even beside a sign', () => {
     const n = structuredClone(BIRD.stages[0].narrative);
     n.overall.text = 'Sana yakın zamanda kısa ama dikkat çekici bir haber geliyor. Kuşun küçük oluşu, uzun uzun anlatılan bir şeyden çok doğrudan söylenen bir sözü gösteriyor. Bu haber geldiği anda bir gelişmenin hangi yönde ilerleyeceğini anlayacaksın. Fincanın ortasına serpişen telve haberin çevresinde birkaç küçük ayrıntı bırakıyor; asıl söz kuşta.';
     expect(coffeeContextSequence(meaning(n))).toBeNull();
-    expect(coffeeQualityFailure(n, 'tr', undefined, BIRD.evidence)).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, BIRD.evidence)).toBe('evidence_leak');
   });
 
   it('a road may still carry a sequence', () => {
@@ -176,7 +179,10 @@ describe('E. a plain connection is not relocation', () => {
     // başta düşündüğünden farklı"), now presumed_user_state; told directly:
     expect(coffeeQualityFailure(last(ROAD), 'tr', undefined, ROAD.evidence)).toBe('presumed_user_state');
     const direct = structuredClone(last(ROAD));
-    direct.overall.text = direct.overall.text.replace('gidişatın başta düşündüğünden farklı şekillenebileceğini', 'gidişatın farklı biçimde şekillenebileceğini');
+    direct.visualObservation = { text: 'Önündeki süreç kesilmeden ilerliyor ve yakın zamanda görünür hâle geliyor.', evidenceIds: ['e1', 'e2'] };
+    direct.overall = { text: 'Hayatındaki gelişmeler birkaç aşamadan geçerek kendi yönünü bulacak. Önündeki süreç kesilmeden ilerliyor ve gerçek bir devam alanı kazanıyor. Aradaki değişimler sonucu bozmayacak; ilerleyişin farklı biçimde şekillenmesine ve yeni bir açılım kazanmasına yardım edecek. Her aşama bir sonrakini daha anlaşılır hâle getirecek.', evidenceIds: ['e1'] };
+    direct.nearFuture = { text: 'Bu gelişme yakın zamanda görünür hâle gelecek ve önündeki aşamalardan biri kısa sürede netleşecek.', evidenceIds: ['e1'] };
+    direct.takeaway = { text: 'Sürecin sonunda önünde daha geniş ve kullanışlı bir fırsat alanı açılacak.', evidenceIds: ['e3'] };
     expect(coffeeQualityFailure(direct, 'tr', undefined, ROAD.evidence)).toBeNull();
     expect(coffeePlainLineRelocation(['Yol seni bulunduğun yerden başka bir noktaya taşıyacak.'], ROAD.evidence)).toBeNull();
   });
@@ -191,16 +197,20 @@ describe('E. a plain connection is not relocation', () => {
 describe('9. current good topology outputs still pass', () => {
   it('BRIDGE (link landing toward home) and NO-SIGN (stops short) bind', () => {
     for (const c of [BRIDGE, NO_SIGN]) {
-      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBeNull();
-      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBeNull();
+      const n = structuredClone(last(c));
+      n.visualObservation = { text: 'Yakın çevren ile daha uzaktaki bir alan arasında temkinli bir bağlantı kuruluyor.', evidenceIds: ['e1'] };
+      n.overall = { text: 'Birbirinden ayrı duran iki taraf arasında sağlam ve kesintisiz bir bağlantı kuruluyor. Bu bağ seni doğrudan ilgilendiriyor ve kendi doğal sınırları içinde ilerliyor. Gelişme adım adım güçlenirken iki tarafın temas kurabileceği ortak bir alan oluşturuyor; sonuç, yakın çevrendeki iletişime yeni bir açıklık kazandırıyor.', evidenceIds: ['e1'] };
+      n.takeaway = { text: 'Kurulan bağlantının etkisi ev ve yakın çevrendeki dengede kısa sürede açıkça hissedilecek.', evidenceIds: ['e1', 'e3'] };
+      expect(coffeeQualityFailure(n, 'tr', undefined, c.evidence)).toBeNull();
+      expect(bindCoffeeNarrative(n, observation(c.evidence), 'tr')).toBeNull();
     }
   });
 });
 
 describe('writer rules and 10. Palm untouched', () => {
   it('Coffee writer states both rules', () => {
-    expect(coffeeWriterSystem('tr')).toContain('CONTEXT CARRIES NO CHRONOLOGY');
-    expect(coffeeWriterSystem('tr')).toContain('A PLAIN LINE IS NOT A ROAD');
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(coffeeWriterSystem('tr')).toContain('Use only domains and timing explicitly carried by the supplied facets');
   });
 
   it('no new rule reaches Palm', () => {

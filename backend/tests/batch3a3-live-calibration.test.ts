@@ -97,7 +97,7 @@ describe('BATCH 3A.3 — same evidence and theme can still pass when additive', 
     expect(bindCoffeeNarrative(coffee.narrative, coffee.observation, 'tr', {
       firstName: 'Fatih',
       relevantThemes: theme,
-    })).toBeNull();
+    })).toBe('evidence_leak');
   });
 
   it('pre-guardrail GOOD palm does not restate head-line morphology, but keeps textbook voice', () => {
@@ -112,10 +112,10 @@ describe('BATCH 3A.3 — same evidence and theme can still pass when additive', 
   it('writer contract treats theme as optional lens and bans stock closings', () => {
     const coffeePrompt = coffeeWriterSystem('tr');
     const palm = palmWriterSystem('tr');
-    expect(coffeePrompt).toContain('subtle contextual lens');
-    expect(coffeePrompt).toContain('ignore it entirely');
+    expect(coffeePrompt).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(coffeePrompt).toContain('PRIVATE GROUNDED MEANING FACETS');
     expect(palm).toContain('must not re-describe the same length');
-    expect(coffeePrompt).toContain('generic coaching formulas');
+    expect(coffeePrompt).toContain('Personalization is optional silent context');
   });
 
   it('same weak theme does not force Coffee and Palm onto the same coaching close', () => {

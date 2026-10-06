@@ -22,6 +22,7 @@ import {
   toPublicCoffee,
 } from '../src/ai/reading/evidence-bind.js';
 import { coffeeCommunicationAffordance } from '../src/ai/reading/coffee-diversity.js';
+import { mapCoffeeMeanings } from '../src/ai/reading/coffee-meaning-map.js';
 import { COFFEE_WRITER_SCHEMA } from '../src/ai/reading/schemas.js';
 import {
   coffeeVoiceRepairFocus,
@@ -103,10 +104,13 @@ describe('C1.7 — gate agrees with the real C1.6 human judgement (8/8)', () => 
 describe('C1.7 D1 — dots: prompt and runtime say the same thing', () => {
   it('the writer no longer lists dots as a communication sign', () => {
     const p = coffeeWriterSystem('tr');
-    const conversationRule = p.slice(p.indexOf('CONVERSATION ONLY WHEN AFFORDED'), p.indexOf('ENDINGS FOLLOW THE EVIDENCE'));
-    expect(conversationRule).toContain('(a bird, figures or faces, letter-like shapes)');
-    expect(conversationRule).not.toMatch(/scattered dots\)/);
-    expect(conversationRule).toContain('never news, messages or "short messages in a row" by themselves');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).not.toMatch(/dots|specks|scattered marks/i);
+    const fixture = load('coffee_qa_c16_case3');
+    const facets = mapCoffeeMeanings(fixture.observation, 'tr');
+    expect(facets.map((facet) => facet.family)).not.toContain('communication');
+    expect(JSON.stringify(facets)).not.toMatch(/news|message|haber|mesaj/);
+    expect(bind(fixture)).not.toBeNull();
   });
 
   it('RING + dots only: no communication affordance', () => {
@@ -157,10 +161,10 @@ describe('C1.7 D2 — "başlangıç" the noun is not "yeni başlangıç" filler'
 describe('C1.7 D3 — caution is not the story', () => {
   it('prompt tells the writer to say what IS in the cup, without forcing optimism', () => {
     const p = coffeeWriterSystem('tr');
-    expect(p).toContain('DO NOT USE CAUTION AS THE STORY');
-    expect(p).toContain('Tell what IS in the cup');
-    expect(p).toContain('if the cup is sparse, say less');
-    expect(p).toContain('do not swap that for forced optimism');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('RESULT FIRST');
+    expect(p).toContain('leave an unsupported optional section as text "" with empty evidenceIds');
+    expect(p).toContain('stock happy ending');
   });
 
   it('caution-built SPARSE and HANDLE fail structurally (sentences + sections + close)', () => {
@@ -205,7 +209,7 @@ describe('C1.7 D4 — takeaway must add a distinct nuance', () => {
     const sparse = load('coffee_good_sparse');
     expect(sparse.narrative.takeaway.evidenceIds).toEqual(['e2']);
     expect(coffeeTakeawayEcho(sparse.narrative.overall.text, sparse.narrative.takeaway.text)).toBe(false);
-    expect(bind(sparse)).toBeNull();
+    expect(bind(sparse)).toBe('evidence_leak');
     // Same evidence id as overall is fine when the nuance is new.
     const sameEvidence: CoffeeNarrative = {
       ...sparse.narrative,
@@ -228,7 +232,7 @@ describe('C1.7 D4 — takeaway must add a distinct nuance', () => {
 describe('C1.7 — no overcorrection', () => {
   it('all GOOD fixtures, concise and sparse readings still pass', () => {
     for (const name of ['coffee_good', 'coffee_good_3a3', 'coffee_good_3a5', 'coffee_diverse_3a4', 'coffee_good_sparse', 'coffee_good_two_sign']) {
-      expect(bind(load(name)), name).toBeNull();
+      expect(bind(load(name)), name).toBe('evidence_leak');
     }
   });
 

@@ -68,8 +68,16 @@ describe('coffeeInsightCollapse — single-sign anchor is not repetition', () =>
     const roots = coffeeSingleSemanticAnchorRoots(STAR);
     expect(coffeeInsightCollapse(n.overall.text, n.nearFuture.text, n.takeaway.text)).toBe(true); // old behaviour
     expect(coffeeInsightCollapse(n.overall.text, n.nearFuture.text, n.takeaway.text, roots)).toBe(false);
-    expect(coffeeQualityFailure(n, 'tr', undefined, STAR)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(STAR), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, STAR)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(STAR), 'tr')).toBe('evidence_leak');
+
+    const publicN = structuredClone(n);
+    publicN.visualObservation = section('Yakın dönemde emeğinin karşılığını görünür kılacak sevindirici bir fırsat öne çıkıyor.');
+    publicN.overall = section('Emeğin fark edilecek ve bunun karşılığını açık bir takdir olarak alacaksın. Önüne gelen tek ve seçkin fırsat, kalabalık gelişmeler arasında kaybolmadan doğrudan senin payına düşüyor. Bu ilerleme günlük düzeninde belirgin bir canlılık yaratacak ve verdiğin emeğin değerini başkalarının da açıkça görmesini sağlayacak. Sonuç gösterişli bir değişimden çok, sana tam denk gelen temiz ve kalıcı bir sevinç taşıyor.');
+    publicN.nearFuture = section('Bu güzel gelişme yakın zamanda kendini belli edecek ve kısa süre içinde netleşecek.');
+    publicN.takeaway = section('Bu kısmetin asıl güzelliği büyüklüğünde değil, tam sana göre biçilmiş olmasında; geldiğinde onu hemen tanıyacaksın.');
+    expect(coffeeQualityFailure(publicN, 'tr', undefined, STAR)).toBeNull();
+    expect(bindCoffeeNarrative(publicN, observation(STAR), 'tr')).toBeNull();
   });
 
   it('2. STAR: "yıldız" + TWO genuine meaning repeats → still section_redundancy', () => {

@@ -44,14 +44,20 @@ describe('1/2. geometry_inference: only one side acting on another', () => {
     expect(ROAD.stages[0].quality).toBe('geometry_inference');
     expect(writer.overall.text).toContain('yönünü belirleyecek gelişme');
     expect(coffeeGeometryInference(meaning(writer))).toBeNull();
-    expect(coffeeQualityFailure(writer, 'tr', undefined, ROAD.evidence)).toBeNull();
+    expect(coffeeQualityFailure(writer, 'tr', undefined, ROAD.evidence)).toBe('evidence_leak');
     // The long-standing evidence-concentration rule (all three sections on the
     // road, the clean rim band unused) still applies — a separate, repairable
     // check, not the geometry false positive.
-    expect(bindCoffeeNarrative(writer, observation(ROAD.evidence), 'tr')).toBe('insight_collapse');
+    expect(bindCoffeeNarrative(writer, observation(ROAD.evidence), 'tr')).toBe('evidence_leak');
+    const publicWriter = structuredClone(writer);
+    publicWriter.visualObservation = { text: 'Önündeki süreç kesilmeden ilerliyor ve yakın zamanda görünür hâle geliyor.', evidenceIds: ['e1'] };
+    publicWriter.overall = { text: 'Hayatındaki gelişmeler birkaç aşamadan geçerek kendi yönünü bulacak. Önündeki süreç kesilmeden ilerliyor ve gerçek bir devam alanı kazanıyor. Aradaki değişimler sonucu bozmayacak; ilerleyişin farklı biçimde şekillenmesine ve yeni bir açılım kazanmasına yardım edecek. Her aşama bir sonrakini daha anlaşılır hâle getirecek.', evidenceIds: ['e1'] };
+    publicWriter.nearFuture = { text: 'Yönünü belirleyecek gelişme uzak görünmüyor; kısa zamanda günlük hayatında belirginleşecek.', evidenceIds: ['e1'] };
+    publicWriter.takeaway = { text: 'Sonuca doğrudan değil, birkaç değişimden geçerek ama bağlantıyı kaybetmeden ulaşacaksın.', evidenceIds: ['e1'] };
+    expect(bindCoffeeNarrative(publicWriter, observation(ROAD.evidence), 'tr')).toBe('insight_collapse');
     // The delivered-shape repair (takeaway on the rim band) binds cleanly.
-    const repaired = structuredClone(writer);
-    repaired.takeaway = { text: 'Yolun vardığı ağız kenarındaki temiz şerit, bu gelişmenin önünde açık bir kısmet bulunduğunu anlatıyor.', evidenceIds: ['e3'] };
+    const repaired = structuredClone(publicWriter);
+    repaired.takeaway = { text: 'Bu ilerleyişin sonunda önünde açık ve kullanışlı bir fırsat alanı belirginleşecek.', evidenceIds: ['e3'] };
     expect(bindCoffeeNarrative(repaired, observation(ROAD.evidence), 'tr')).toBeNull();
   });
 
@@ -66,8 +72,8 @@ describe('3/4. normal floors 42 / 22', () => {
     const writer = BIRD.stages[0].narrative;
     expect(BIRD.stages[0].quality).toBe('too_short');
     expect(writer.overall.text.split(/\s+/).length).toBe(23);
-    expect(coffeeQualityFailure(writer, 'tr', undefined, BIRD.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(writer, observation(BIRD.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(writer, 'tr', undefined, BIRD.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(writer, observation(BIRD.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('4. a trivial short non-sparse reading still fails', () => {
@@ -113,15 +119,15 @@ describe('6–9. presumed beliefs / organisation', () => {
       'Dolayısıyla önüne gelen gelişmeleri ayrı ayrı sanabilirsin ama hepsinin merkezinde aynı bağ bulunacak.',
       'Önüne gelen gelişmeler ayrı görünse de hepsinin merkezinde aynı bağ bulunacak.',
     );
-    expect(coffeeQualityFailure(n, 'tr', undefined, TREE.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(TREE.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, TREE.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(TREE.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('9. the same LOW-SYMBOL told without the presumption passes', () => {
     const n = structuredClone(last(LOW));
     n.overall.text = n.overall.text.replace('Hayatında ayrı tuttuğun iki taraf', 'Ayrı duran iki taraf');
-    expect(coffeeQualityFailure(n, 'tr', undefined, LOW.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(LOW.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, LOW.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(LOW.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('ordinary future predictions and direct address are not presumptions', () => {

@@ -22,6 +22,7 @@ import {
   coffeeBody,
   coffeeFortuneSections,
   coffeeObserverJson,
+  coffeeMeaningWriterJson,
   coffeeWriterJson,
   openaiReadingSequence,
   palmObserverJson,
@@ -107,7 +108,9 @@ describe('E3H.1 language immersion polish', () => {
     expect(coffeeRegionLabel('base', 'tr')).toContain('dib');
     expect(coffeeRegionLabel('handle side', 'tr')).toContain('kulp');
     const packet = buildCoffeeWriterPacket(JSON.parse(coffeeObserverJson), 'tr');
-    expect(packet.evidence.every((e) => typeof e.regionLabel === 'string')).toBe(true);
+    expect(packet.facets.length).toBeGreaterThan(0);
+    expect(packet.facets.every((facet) => facet.evidenceIds.length > 0)).toBe(true);
+    expect(JSON.stringify(packet)).not.toMatch(/description|resemblance|regionLabel|sourceSlot|confidence|visibility|checks/);
   });
 
   it('rejects inferred handedness without trusted metadata', () => {
@@ -226,8 +229,8 @@ describe('E3H.1 language immersion polish', () => {
 
   it('writer prompts ban disclaimer and require locale vocabulary', () => {
     const c = coffeeWriterSystem('tr');
-    expect(c.includes('NEVER write policy')).toBe(true);
-    expect(c.includes('agiz kenari') || c.includes('ağız kenarı')).toBe(true);
+    expect(c).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(c).toContain('No symbol dictionary, analysis language, advice, coaching, disclaimer');
     const palm = palmWriterSystem('tr');
     expect(palm.includes('handPolicy')).toBe(true);
   });
@@ -275,7 +278,7 @@ describe('E3H.1 language immersion polish', () => {
   });
 
   it('grounded helpers still bind; repair is text-only and at most once', async () => {
-    expect(bindCoffeeNarrative(JSON.parse(coffeeWriterJson), JSON.parse(coffeeObserverJson), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(JSON.parse(coffeeWriterJson), JSON.parse(coffeeObserverJson), 'tr')).toBe('evidence_leak');
     expect(bindPalmNarrative(JSON.parse(palmWriterJson), JSON.parse(palmObserverJson), 'tr', false)).toBeNull();
 
     const leakWriter = JSON.parse(coffeeWriterJson);
@@ -285,7 +288,7 @@ describe('E3H.1 language immersion polish', () => {
     };
     const app = await testApp(
       testConfig(),
-      openaiReadingSequence(coffeeObserverJson, JSON.stringify(leakWriter), coffeeWriterJson),
+      openaiReadingSequence(coffeeObserverJson, JSON.stringify(leakWriter), coffeeMeaningWriterJson),
     );
     const res = await app.inject({
       method: 'POST',

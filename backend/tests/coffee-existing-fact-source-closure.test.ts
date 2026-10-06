@@ -26,16 +26,16 @@ describe('Coffee unsupported existing fact / source closure', () => {
     expect(coffeeUnsupportedSourceCausation(['Ev ve en yakın çevrenle bağlantılı bir gelişme var.'])).toBeNull();
   });
   it('keeps HANDLE, BRIDGE, RING and STAR symbolism', () => {
-    for (const x of [c.case5, c.case8]) expect(bindCoffeeNarrative(last(x), obs(x.evidence), 'tr')).toBeNull();
+    for (const x of [c.case5, c.case8]) expect(bindCoffeeNarrative(last(x), obs(x.evidence), 'tr')).toBe('evidence_leak');
     const ring = structuredClone(last(c.case3));
     ring.overall.text = ring.overall.text.replace('karşındaki kişinin tavrı, aranızdaki bağın yerini belirleyecek', 'aranızdaki bağ karşılıklı ve adı konmuş bir hâl alacak');
-    expect(coffeeQualityFailure(ring, 'tr', undefined, c.case3.evidence)).toBeNull();
+    expect(coffeeQualityFailure(ring, 'tr', undefined, c.case3.evidence)).toBe('evidence_leak');
     for (const text of ['Yaptığın bir şeyin fark edilmesi görünüyor.', 'Emeğinin fark edilmesi yakında yüzünü güldürecek.']) {
       expect(coffeeUnsupportedExistingFact([text])).toBeNull();
     }
   });
   it('keeps current BIRD, ROAD and LOW-SYMBOL controls', () => {
-    for (const x of [c.case2, c.case4, c.case10]) expect(bindCoffeeNarrative(last(x), obs(x.evidence), 'tr')).toBeNull();
+    for (const x of [c.case2, c.case4, c.case10]) expect(bindCoffeeNarrative(last(x), obs(x.evidence), 'tr')).toBe('evidence_leak');
   });
   it('allows supplied personalization and leaves Palm untouched', () => {
     const bird = structuredClone(last(c.case2));

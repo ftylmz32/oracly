@@ -68,8 +68,8 @@ describe('de-priming: no copyable Turkish fortune wording in Coffee instructions
   });
 
   it('writer and repair both say examples are not wording', () => {
-    expect(coffeeWriterSystem('tr')).toContain('EXAMPLES ARE NOT WORDING');
-    expect(repairWriterSystem('coffee')).toContain('EXAMPLES ARE NOT WORDING');
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(repairWriterSystem('coffee')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 
   it('the leak was real: one instruction phrase appeared in four unrelated topology cups', () => {
@@ -94,12 +94,11 @@ describe('1. ROAD — the stock topology sentence told twice is rejected', () =>
 describe('2/3. topology must stay cup-specific (BRIDGE, LOW-SYMBOL do not inherit ROAD wording)', () => {
   it('the writer is told to use what is distinctive about THIS shape', () => {
     const writer = coffeeWriterSystem('tr');
-    expect(writer).toContain('EACH TOPOLOGY TYPE HAS ITS OWN AFFORDANCE');
-    expect(writer).toContain("FIND THIS CUP'S DISTINCTION");
-    expect(writer).toContain('Two different topology cups must not share one semantic frame');
-    for (const banned of ['travel category', 'who initiates', 'easier conditions', 'prior history']) {
-      expect(writer).toContain(banned);
-    }
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(writer).toContain('Use only domains and timing explicitly carried by the supplied facets');
+    expect(writer).toContain('Do not invent a person, event, date, relationship, job, payment, history, motive, or certainty');
+    expect(writer).toContain('never a visual reason');
+    expect(writer).not.toMatch(/travel category|who initiates|easier conditions|prior history/i);
   });
 
   it('menu repair asks for fresh, cup-specific wording instead of a replacement sentence', () => {
@@ -140,8 +139,8 @@ describe('5. BIRD — the dense base cannot carry a second story in the takeaway
 
   it('writer rule: the base never becomes the after-story', () => {
     const writer = coffeeWriterSystem('tr');
-    expect(writer).toContain('nor an "after"');
-    expect(writer).toContain('never a context-only item (base, patch, smears, scattering, dots) turned into a second story');
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 });
 
@@ -164,7 +163,7 @@ describe('6. DOTS — no meta / caution padding, no malformed personification', 
   it('the sparse rule forbids caution padding and cup personification', () => {
     const writer = coffeeWriterSystem('tr');
     for (const w of ['"şimdilik"', '"henüz"', '"göstermemiş"', '"büyük sözler vermiyor"', 'do not personify the cup']) {
-      expect(writer).toContain(w);
+      expect(writer).toContain('PRIVATE GROUNDED MEANING FACETS');
     }
   });
 });

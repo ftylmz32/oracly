@@ -16,6 +16,7 @@ import { coffeeAdviceVoice } from '../src/ai/human-quality.js';
 import { coffeeRepairGuidance } from '../src/ai/reading/coffee-repair-guidance.js';
 import { coffeeContextEventPromotion } from '../src/ai/reading/coffee-diversity.js';
 import { bindCoffeeNarrative, coffeeQualityFailure } from '../src/ai/reading/evidence-bind.js';
+import { mapCoffeeMeanings } from '../src/ai/reading/coffee-meaning-map.js';
 import { coffeeVoiceRepairFocus, palmWriterSystem, repairWriterSystem } from '../src/ai/reading/writer-prompts.js';
 import type { CoffeeNarrative, CoffeeObservation, ReadingEvidenceItem } from '../src/ai/reading/types.js';
 
@@ -43,8 +44,14 @@ describe('A. sparse length floors', () => {
     expect(coffeeQualityFailure(writer, 'tr', undefined, HANDLE.evidence)).toBe('advice_voice');
     writer.overall.text = writer.overall.text.replace('; gözün kulağın yakınında olsun.', '.');
     expect(writer.overall.text.split(/\s+/).length).toBe(23);
-    expect(coffeeQualityFailure(writer, 'tr', undefined, HANDLE.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(writer, observation(HANDLE.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(writer, 'tr', undefined, HANDLE.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(writer, observation(HANDLE.evidence), 'tr')).toBe('evidence_leak');
+    const publicWriter = structuredClone(writer);
+    publicWriter.visualObservation = { text: 'Ev ve yakın çevrendeki bağlar günlük hayatında daha görünür hâle geliyor.', evidenceIds: ['e1'] };
+    publicWriter.overall = { text: 'Ev ve sana en yakın insanlar hayatında belirgin bir yer tutuyor. Günlük düzeninde önem kazanan gelişmeler uzak çevrelerden değil, doğrudan bu tanıdık halkadan geliyor. Etkisini hemen hissedeceğin yakın bağlar ön plana çıkarken daha uzaktaki konular bir süre daha hayatının kıyısında kalıyor.', evidenceIds: ['e1', 'e3'] };
+    publicWriter.takeaway = { text: 'Yakın çevrendeki hareket, günlük hayatının merkezinde sakin ama belirgin bir değişim yaratıyor.', evidenceIds: ['e1'] };
+    expect(coffeeQualityFailure(publicWriter, 'tr', undefined, HANDLE.evidence)).toBeNull();
+    expect(bindCoffeeNarrative(publicWriter, observation(HANDLE.evidence), 'tr')).toBeNull();
   });
 
   it('2. targeted14 HANDLE repair: the 9-word takeaway is no longer too_short', () => {
@@ -115,8 +122,16 @@ describe('C. a plain line cannot create life categories', () => {
       'Hayatında birbirinden bağımsız duran iki başlık ortak bir noktada temas edecek.',
       'Ayrı duran iki taraf ortak bir noktada birbirine dokunacak.',
     );
-    expect(coffeeQualityFailure(n, 'tr', undefined, LOW.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(LOW.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, LOW.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(LOW.evidence), 'tr')).toBe('evidence_leak');
+    expect(mapCoffeeMeanings(observation(LOW.evidence), 'tr')).toEqual([]);
+    const publicN = structuredClone(n);
+    publicN.visualObservation = { text: 'Ayrı duran iki taraf arasında sınırlı ve sakin bir temas alanı oluşuyor.', evidenceIds: ['e1', 'e2', 'e3'] };
+    publicN.overall = { text: 'Birbirinden ayrı duran iki taraf ortak bir noktada temas edecek. Bu temas kendi sınırları içinde kalırken iki tarafın birbirini doğrudan etkileyebileceği dar ama belirgin bir alan oluşturacak. Gelişme geniş bir değişime dönüşmeden, yalnızca aradaki bağlantıyı daha açık hâle getirecek.', evidenceIds: ['e1', 'e2', 'e3'] };
+    publicN.nearFuture = empty;
+    publicN.takeaway = { text: 'Bu sınırlı temas, iki taraf arasındaki bağlantıyı kısa sürede daha anlaşılır kılacak.', evidenceIds: ['e1', 'e2', 'e3'] };
+    expect(coffeeQualityFailure(publicN, 'tr', undefined, LOW.evidence)).toBeNull();
+    expect(bindCoffeeNarrative(publicN, observation(LOW.evidence), 'tr')).toBeNull();
   });
 
   it('a real sign may still relate two areas (BRIDGE "iki ayrı alanı")', () => {
@@ -158,20 +173,41 @@ describe('sparse cups told concisely pass', () => {
   it('7. concise grounded HANDLE (targeted14 writer, told without advice)', () => {
     const n = structuredClone(HANDLE.stages[0].narrative);
     n.overall.text = n.overall.text.replace('; gözün kulağın yakınında olsun.', '.');
-    expect(bindCoffeeNarrative(n, observation(HANDLE.evidence), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(n, observation(HANDLE.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('8. concise grounded DOTS (targeted14 delivered)', () => {
-    expect(bindCoffeeNarrative(last(DOTS), observation(DOTS.evidence), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(last(DOTS), observation(DOTS.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 
 describe('9. current good ROAD / BRIDGE / BIRD still pass', () => {
   it('targeted14 delivered outputs bind', () => {
     for (const c of [ROAD, BRIDGE, BIRD]) {
-      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBeNull();
-      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBeNull();
+      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBe('evidence_leak');
+      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBe('evidence_leak');
     }
+
+    const road = structuredClone(last(ROAD));
+    road.visualObservation = { text: 'Önündeki süreç kesilmeden ilerliyor ve yakın zamanda görünür hâle geliyor.', evidenceIds: ['e1'] };
+    road.overall = { text: 'Hayatındaki gelişmeler birkaç aşamadan geçerek kendi yönünü bulacak. Önündeki süreç kesilmeden ilerliyor ve gerçek bir devam alanı kazanıyor. Aradaki değişimler sonucu bozmayacak; ilerleyişin farklı biçimde şekillenmesine ve yeni bir açılım kazanmasına yardım edecek. Her aşama bir sonrakini daha anlaşılır hâle getirecek.', evidenceIds: ['e1'] };
+    road.nearFuture = { text: 'Bu gelişme yakın zamanda görünür hâle gelecek ve önündeki aşamalardan biri kısa sürede netleşecek.', evidenceIds: ['e1'] };
+    road.takeaway = { text: 'Sürecin sonunda önünde daha geniş ve kullanışlı bir fırsat alanı açılacak.', evidenceIds: ['e3'] };
+    expect(bindCoffeeNarrative(road, observation(ROAD.evidence), 'tr')).toBeNull();
+
+    const bridge = structuredClone(last(BRIDGE));
+    bridge.visualObservation = { text: 'Ev ve yakın çevren günlük hayatında daha belirgin bir önem kazanıyor.', evidenceIds: ['e3'] };
+    bridge.overall = { text: 'Ev ve yakın çevreni ilgilendiren bir gelişme günlük hayatının merkezine yerleşiyor. Bu tanıdık halka içinde önem kazanan bağlar sana daha açık bir yakınlık ve aidiyet duygusu getirecek. Etkisi uzak alanlardan değil, doğrudan kendi çevrenden hissedilecek.', evidenceIds: ['e3'] };
+    bridge.nearFuture = empty;
+    bridge.takeaway = { text: 'Yakın çevrendeki bu gelişme, ev hayatındaki dengeyi kısa sürede daha görünür kılacak.', evidenceIds: ['e3'] };
+    expect(bindCoffeeNarrative(bridge, observation(BRIDGE.evidence), 'tr')).toBeNull();
+
+    const bird = structuredClone(last(BIRD));
+    bird.visualObservation = { text: 'Yakın zamanda sana ulaşacak belirgin bir iletişim gelişmesi öne çıkıyor.', evidenceIds: ['e1'] };
+    bird.overall = { text: 'Sana ulaşacak belirgin bir haber günlük akışında hareket yaratacak. Bu iletişim kısa ve doğrudan gelecek; taşıdığı ana fikir dikkatini hemen kendine çekecek. Ardından önündeki gelişmenin hangi yönde ilerleyeceği daha açık hâle gelecek.', evidenceIds: ['e1'] };
+    bird.nearFuture = empty;
+    bird.takeaway = { text: 'Yakın zamanda gelen bu haber, önündeki gelişmenin yönünü açıkça belirginleştirecek.', evidenceIds: ['e1'] };
+    expect(bindCoffeeNarrative(bird, observation(BIRD.evidence), 'tr')).toBeNull();
   });
 });
 

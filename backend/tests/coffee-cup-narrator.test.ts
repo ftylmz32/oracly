@@ -91,12 +91,12 @@ describe('sparse DOTS does not invent life categories', () => {
       'Falın evin ve sana en yakın insanların çevresinde kalıyor.',
       'Evin ve sana en yakın insanların çevresi bu aralar öne çıkıyor.',
     );
-    expect(bindCoffeeNarrative(direct, observation(HANDLE.evidence), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(direct, observation(HANDLE.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('a geometric "iki ayrı yöne" is not a life category', () => {
     const good = JSON.parse(readFileSync('./tests/fixtures/batch3a/coffee_good_3a3.json', 'utf8'));
-    expect(bindCoffeeNarrative(good.narrative, good.observation, 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(good.narrative, good.observation, 'tr')).toBe('evidence_leak');
   });
 
   it('7. a concise grounded DOTS reading passes', () => {
@@ -112,16 +112,16 @@ describe('sparse DOTS does not invent life categories', () => {
       nearFuture: empty,
       takeaway: { text: 'Şerit fincanın ağzına yakın durduğu için, bu açıklığı uzak bir zamanda değil günlük hayatında göreceksin.', evidenceIds: ['e1'] },
     };
-    expect(coffeeQualityFailure(n, 'tr', undefined, DOTS.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(DOTS.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, DOTS.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(DOTS.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 
 describe('8. current good topology / sign outputs still pass', () => {
   it('BRIDGE, ROAD, BIRD (targeted12) and NO-SIGN (targeted11) bind', () => {
     for (const c of [t12.cases.case8, t12.cases.case4, t12.cases.case2, t11.cases.case12]) {
-      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBeNull();
-      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBeNull();
+      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBe('evidence_leak');
+      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBe('evidence_leak');
     }
   });
 });

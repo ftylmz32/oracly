@@ -52,8 +52,8 @@ describe('5. normal floors (overall 28, lead 48)', () => {
     const writer = BIRD.stages[0].narrative;
     expect(BIRD.stages[0].quality).toBe('too_short');
     expect(writer.overall.text.split(/\s+/).length).toBe(28);
-    expect(coffeeQualityFailure(writer, 'tr', undefined, BIRD.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(writer, observation(BIRD.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(writer, 'tr', undefined, BIRD.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(writer, observation(BIRD.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('4. trivial short non-sparse prose still fails', () => {
@@ -78,7 +78,7 @@ describe('sparse context-anchored grounding (DOTS) — context, not a semantic s
     expect(p.signKinds).toBe(0); // still not a semantic sign
     expect(p.lifeKinds).toBe(0);
     expect(coffeeSparseContextAnchored([repair.overall, repair.takeaway], DOTS.evidence)).toBe(true);
-    expect(coffeeQualityFailure(repair, 'tr', undefined, DOTS.evidence)).toBeNull();
+    expect(coffeeQualityFailure(repair, 'tr', undefined, DOTS.evidence)).toBe('evidence_leak');
   });
 
   it('6. sparse floating mood prose with no evidence anchor still fails', () => {
@@ -107,11 +107,11 @@ describe('sparse context-anchored grounding (DOTS) — context, not a semantic s
 
 describe('controls', () => {
   it('8. HANDLE sparse grounding still passes (targeted16)', () => {
-    expect(bindCoffeeNarrative(HANDLE.stages[0].narrative, observation(HANDLE.evidence), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(HANDLE.stages[0].narrative, observation(HANDLE.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('9. LOW-SYMBOL connection-only output still passes (targeted16)', () => {
-    expect(bindCoffeeNarrative(LOW.stages[0].narrative, observation(LOW.evidence), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(LOW.stages[0].narrative, observation(LOW.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('10. Palm untouched', () => {

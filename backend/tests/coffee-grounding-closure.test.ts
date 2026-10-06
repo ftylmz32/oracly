@@ -69,6 +69,24 @@ async function runPipeline(evidence: ReadingEvidenceItem[], writer: CoffeeNarrat
 describe('0. dictionary_voice is enforced in the production bind path (targeted9 BIRD)', () => {
   const BIRD9 = t9.cases.case2;
   const BIRD10 = t10.cases.case2;
+  const meaningRepair: CoffeeNarrative = {
+    visualObservation: {
+      text: 'Yakın zamanda sana ulaşacak belirgin bir iletişim gelişmesi öne çıkıyor.',
+      evidenceIds: ['e1'],
+    },
+    overall: {
+      text: 'Sana ulaşacak belirgin bir haber günlük akışında hareket yaratacak. Bu iletişim kısa ve doğrudan gelecek; taşıdığı ana fikir dikkatini hemen kendine çekecek. Ardından önündeki gelişmenin hangi yönde ilerleyeceği daha açık hâle gelecek.',
+      evidenceIds: ['e1'],
+    },
+    love: { text: '', evidenceIds: [] },
+    career: { text: '', evidenceIds: [] },
+    money: { text: '', evidenceIds: [] },
+    nearFuture: { text: '', evidenceIds: [] },
+    takeaway: {
+      text: 'Yakın zamanda gelen bu haber, önündeki gelişmenin yönünü açıkça belirginleştirecek.',
+      evidenceIds: ['e1'],
+    },
+  };
 
   it('the exact delivered "… erişeceğine yorulur" output is rejected by the gate and the bind', () => {
     expect(BIRD9.narrative.nearFuture.text).toBe('Kuşun fincanın ağzına yakın durması, bu haberin yakın zamanda sana erişeceğine yorulur.');
@@ -78,12 +96,19 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
   });
 
   it('ReadingPipeline sends it to the ONE repair with dictionary guidance and delivers the clean repair', async () => {
-    const { calls, delivered, error } = await runPipeline(BIRD9.evidence, BIRD9.narrative, BIRD10.narrative);
+    const { calls, delivered, error } = await runPipeline(BIRD9.evidence, BIRD9.narrative, meaningRepair);
     expect(error).toBeNull();
     expect(calls.map((c) => c.kind)).toEqual(['writer', 'repair']);
     expect(calls[1].user).toContain('Violation codes: human_quality');
-    expect(calls[1].user).toContain('symbol-dictionary form');
+    expect(coffeeVoiceRepairFocus('dictionary_voice')).toContain('symbol-dictionary form');
+    expect(calls[1].user).toContain('Private grounded meaning facets:');
+    expect(calls[1].user).toContain('"family":"communication"');
+    expect(calls[1].user).not.toContain('"region"');
+    expect(calls[1].user).not.toContain('"description"');
+    expect(calls[1].user).not.toContain('"resemblance"');
+    expect(calls[1].user).not.toMatch(/kuş|fincan|telve|ağız kenarı/i);
     expect(JSON.stringify(delivered)).not.toContain('yorulur');
+    expect(JSON.stringify(delivered)).not.toMatch(/kuş|fincan|telve|ağız kenarı/i);
   });
 
   it('a repair that keeps "yorulur" is never delivered', async () => {
@@ -95,7 +120,7 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
 
   it('the targeted10 BIRD (after the gate) has no "yorulur" and passes', () => {
     expect(JSON.stringify(BIRD10.narrative)).not.toContain('yorul');
-    expect(bindCoffeeNarrative(BIRD10.narrative, observation(BIRD10.evidence), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(BIRD10.narrative, observation(BIRD10.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 
@@ -116,7 +141,7 @@ describe('1. absence is not fortune content', () => {
   });
 
   it('writer rule', () => {
-    expect(coffeeWriterSystem('tr')).toContain('ABSENCE IS NOT CONTENT');
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 });
 
@@ -176,7 +201,7 @@ describe('3. geometry does not create cause, agency or a relationship role', () 
     expect(LOW.narrative.overall.text).toContain('Birindeki hareket, ötekinin yönünü de belirleyecek.');
     expect(coffeeGeometryInference(meaning(LOW.narrative))).toContain('otekinin yonunu de belirleyecek');
     expect(coffeeQualityFailure(LOW.narrative, 'tr', undefined, LOW.evidence)).toBe('geometry_inference');
-    expect(coffeeWriterSystem('tr')).toContain('a connecting line shows a link, not that one side controls or steers the other');
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 
   it('BRIDGE: no reciprocity / who carries the bond', () => {
@@ -198,7 +223,7 @@ describe('3. geometry does not create cause, agency or a relationship role', () 
 
 describe('4. the handle side is a domain only', () => {
   it('writer rule: no chores, contacts, standing or influence from the handle side', () => {
-    expect(coffeeWriterSystem('tr')).toContain('THE HANDLE SIDE IS A DOMAIN, NOT EVENTS');
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 
   it('a handle-only takeaway that stays in the domain passes', () => {
@@ -210,7 +235,7 @@ describe('4. the handle side is a domain only', () => {
 describe('5. an honest, concise sparse reading passes', () => {
   it('the rewritten sparse GOOD exemplar binds', () => {
     const sparse = JSON.parse(readFileSync('./tests/fixtures/batch3a/coffee_good_sparse.json', 'utf8'));
-    expect(bindCoffeeNarrative(sparse.narrative, sparse.observation, 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(sparse.narrative, sparse.observation, 'tr')).toBe('evidence_leak');
   });
 
   it('a short DOTS reading with no invented event binds', () => {
@@ -227,8 +252,8 @@ describe('5. an honest, concise sparse reading passes', () => {
       nearFuture: { text: '', evidenceIds: [] },
       takeaway: { text: 'Noktalar ağız tarafına yakın serpildiği için, bu fincanın küçük ayrıntıları uzak bir zamana ait değil.', evidenceIds: ['e2'] },
     };
-    expect(coffeeQualityFailure(n, 'tr', undefined, DOTS.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(DOTS.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, DOTS.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(DOTS.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 

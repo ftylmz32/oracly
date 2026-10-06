@@ -13,6 +13,7 @@ import {
   authHeader,
   coffeeBody,
   coffeeObserverJson,
+  coffeeMeaningWriterJson,
   coffeeWriterJson,
   openaiReadingSequence,
   palmBody,
@@ -86,7 +87,8 @@ describe('E3H two-stage reading pipeline', () => {
 
   it('writer prompts receive no image instruction', () => {
     const s = coffeeWriterSystem('tr');
-    expect(s.includes('evidence JSON only')).toBe(true);
+    expect(s).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(s).toContain('never a visual reason');
     expect(s.toLowerCase().includes('image_url')).toBe(false);
   });
 
@@ -94,7 +96,7 @@ describe('E3H two-stage reading pipeline', () => {
     const obs = JSON.parse(coffeeObserverJson);
     expect(acceptCoffeeObservation(obs)).toBeNull();
     const narrative = JSON.parse(coffeeWriterJson);
-    expect(bindCoffeeNarrative(narrative, obs)).toBeNull();
+    expect(bindCoffeeNarrative(narrative, obs)).toBe('evidence_leak');
   });
 
   it('accepts grounded palm observation and bound narrative', () => {
@@ -136,7 +138,7 @@ describe('E3H two-stage reading pipeline', () => {
   it('route uses two-stage sequence and returns public coffee fields', async () => {
     const app = await testApp(
       testConfig(),
-      openaiReadingSequence(coffeeObserverJson, coffeeWriterJson),
+      openaiReadingSequence(coffeeObserverJson, coffeeMeaningWriterJson),
     );
     const res = await app.inject({
       method: 'POST',
@@ -145,7 +147,7 @@ describe('E3H two-stage reading pipeline', () => {
       payload: coffeeBody(),
     });
     expect(res.json().success).toBe(true);
-    expect(res.json().data.visualObservation).toContain('telve');
+    expect(res.json().data.visualObservation).toContain('yakın çevrende');
     expect(res.json().data.evidenceIds).toBeUndefined();
     expect(res.json().data._e3h).toBeUndefined();
     await app.close();
@@ -156,7 +158,7 @@ describe('E3H two-stage reading pipeline', () => {
     observer.evidence[0].description = 'Two clear residue paths split like a crossroads decision, near the handle side.';
     const app = await testApp(
       testConfig(),
-      openaiReadingSequence(JSON.stringify(observer), coffeeWriterJson),
+      openaiReadingSequence(JSON.stringify(observer), coffeeMeaningWriterJson),
     );
     const observeBody = coffeeBody() as { payload: Record<string, unknown> };
     observeBody.payload.readingPhase = 'observe';
@@ -188,7 +190,7 @@ describe('E3H two-stage reading pipeline', () => {
   });
 
   it('signed handoff rejects tampering, expiry, type and operation reuse', async () => {
-    const app = await testApp(testConfig(), openaiReadingSequence(coffeeObserverJson, coffeeWriterJson));
+    const app = await testApp(testConfig(), openaiReadingSequence(coffeeObserverJson, coffeeMeaningWriterJson));
     const body = coffeeBody() as { payload: Record<string, unknown> };
     body.payload.readingPhase = 'observe';
     body.payload.readingBridgeKey = 'secure-bridge-a';

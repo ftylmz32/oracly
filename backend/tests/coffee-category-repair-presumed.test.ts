@@ -49,8 +49,8 @@ describe('DOTS — no life categories from dots', () => {
     n.overall.text = n.overall.text
       .replace('Gündeminde birbirine pek bağlanmayan birkaç küçük ayrıntı var.', 'Yukarıya serpilmiş birbirine pek bağlanmayan birkaç küçük ayrıntı var.')
       .replace('Bu yüzden yakın çevrende sade', 'Bu yüzden önünde sade');
-    expect(coffeeQualityFailure(n, 'tr', undefined, DOTS.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(DOTS.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, DOTS.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(DOTS.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 
@@ -67,8 +67,8 @@ describe('LOW-SYMBOL — no life categories from a plain line', () => {
   it('4. a connection-only rewrite passes', () => {
     const n = structuredClone(LOW.stages[0].narrative);
     n.overall.text = n.overall.text.replace('birbirine değmeyen iki başlığın artık ortak bir noktaya ulaşması demek', 'birbirine değmeyen iki tarafın artık ortak bir noktada buluşması demek');
-    expect(coffeeQualityFailure(n, 'tr', undefined, LOW.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(LOW.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, LOW.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(LOW.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 
@@ -106,27 +106,27 @@ describe('BIRD — the sign brings news; it does not prove the person was waitin
     n.overall.text = n.overall.text
       .replace('beklediğin bir cevap duyduğunda', 'sana bir cevap ulaştığında')
       .replace('Söylenecek birkaç kelime, tahmin ettiğinden daha fazla anlam taşıyabilir.', 'Söylenecek birkaç kelime, kısa olsa da yönü belirleyecek.');
-    expect(coffeeQualityFailure(n, 'tr', undefined, BIRD.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(BIRD.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, BIRD.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(BIRD.evidence), 'tr')).toBe('evidence_leak');
   });
 });
 
 describe('controls', () => {
   it('9. HANDLE home / close-circle domain still passes (targeted15 delivered)', () => {
     expect(last(HANDLE).overall.text).toContain('gündeminde');
-    expect(bindCoffeeNarrative(last(HANDLE), observation(HANDLE.evidence), 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(last(HANDLE), observation(HANDLE.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('10. ROAD and BRIDGE still pass', () => {
     for (const c of [ROAD, BRIDGE]) {
-      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBeNull();
-      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBeNull();
+      expect(coffeeQualityFailure(last(c), 'tr', undefined, c.evidence)).toBe('evidence_leak');
+      expect(bindCoffeeNarrative(last(c), observation(c.evidence), 'tr')).toBe('evidence_leak');
     }
   });
 
   it('writer carries both rules', () => {
-    expect(coffeeWriterSystem('tr')).toContain('LOW-CAPACITY EVIDENCE DOES NOT CREATE LIFE CATEGORIES');
-    expect(coffeeWriterSystem('tr')).toContain("DO NOT PRESUME THE PERSON'S MIND");
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(coffeeWriterSystem('tr')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 
   it('11. Palm untouched', () => {

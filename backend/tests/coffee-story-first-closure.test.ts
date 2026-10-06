@@ -124,10 +124,10 @@ describe('STAR repair proof — menu and too-short failure', () => {
 
   it('repair guidance preserves substance and names the fixes', () => {
     const repair = repairWriterSystem('coffee');
-    expect(repair).toContain('PRESERVE SUBSTANCE');
+    expect(repair).toContain('PRIVATE GROUNDED MEANING FACETS');
     // The static repair prompt is length-neutral; the Repair focus states the
     // length (70–120 for a full cup, concise for a narratively sparse one).
-    expect(repair).toContain('never shrink overall below the length the Repair focus asks for');
+    expect(repair).toContain('Preserve every valid grounded meaning');
     expect(coffeeVoiceRepairFocus('too_short')).toContain('a further facet of the SAME cited signs');
     expect(coffeeVoiceRepairFocus('possibility_menu')).toContain('fresh wording');
     expect(coffeeVoiceRepairFocus('possibility_menu')).not.toContain('maddi karşılığı olan bir kısmet');
@@ -138,9 +138,9 @@ describe('STAR repair proof — menu and too-short failure', () => {
 describe('writer rules — topology and plain patches (coffee only)', () => {
   it('states the rules for coffee and leaves palm untouched', () => {
     const prompt = coffeeWriterSystem('tr');
-    expect(prompt).toContain('TOPOLOGY IS NOT A PLAN');
-    expect(prompt).toContain('A PLAIN PATCH IS NOT AN EVENT');
-    expect(prompt).toContain('never in dictionary form');
+    expect(prompt).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(prompt).toContain('never a visual reason');
+    expect(prompt).toContain('No symbol dictionary, analysis language');
     expect(palmWriterSystem('tr')).not.toContain('TOPOLOGY IS NOT A PLAN');
     expect(repairWriterSystem('palm')).not.toContain('PRESERVE SUBSTANCE');
   });

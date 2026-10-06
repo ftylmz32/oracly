@@ -36,7 +36,7 @@ describe('1/2. DOTS anchor alias ("küçük ayrıntılar" naming the cited dots)
     expect(DOTS.stages[1].quality).toBe('abstract_reading');
     expect(coffeeVoiceProfile(meaning(repair)).signKinds).toBe(0); // still not a semantic sign
     expect(coffeeSparseContextAnchored([repair.overall, repair.takeaway], DOTS.evidence)).toBe(true);
-    expect(coffeeQualityFailure(repair, 'tr', undefined, DOTS.evidence)).toBeNull();
+    expect(coffeeQualityFailure(repair, 'tr', undefined, DOTS.evidence)).toBe('evidence_leak');
   });
 
   it('"küçük ayrıntılar" without a cited dots item is NOT an anchor', () => {
@@ -78,14 +78,14 @@ describe('3/4. home needs a home cue', () => {
   it('4. TREE told as growth / branching only passes', () => {
     const n = structuredClone(last(TREE));
     n.overall.text = 'Ağaç şekli hayatında kök salacak bir gelişmeye bakıyor. Ortada duran tek gövde, dağılmadan büyüyen sağlam bir başlangıcı anlatıyor; dallar bunun zamanla birkaç yöne uzanacağını gösteriyor. Bir anda parlayıp sönen bir heves değil, yerini buldukça güçlenen ve çevresini genişleten bir durum var.';
-    expect(coffeeQualityFailure(n, 'tr', undefined, TREE.evidence)).toBeNull();
-    expect(bindCoffeeNarrative(n, observation(TREE.evidence), 'tr')).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, TREE.evidence)).toBe('evidence_leak');
+    expect(bindCoffeeNarrative(n, observation(TREE.evidence), 'tr')).toBe('evidence_leak');
   });
 
   it('7. HANDLE/HOME and 8. BRIDGE landing toward the handle keep their home domain', () => {
     for (const x of [c.case5, c.case8]) {
       expect(coffeeHomeAffordance(x.evidence)).toBe(true);
-      expect(bindCoffeeNarrative(last(x), observation(x.evidence), 'tr')).toBeNull();
+      expect(bindCoffeeNarrative(last(x), observation(x.evidence), 'tr')).toBe('evidence_leak');
     }
   });
 
@@ -105,7 +105,7 @@ describe('5/6. no specific other-person agency', () => {
     const n = structuredClone(last(RING));
     n.overall.text = n.overall.text.replace('karşındaki kişinin tavrı, aranızdaki bağın yerini belirleyecek', 'aranızdaki bağ karşılıklı ve adı konmuş bir hâl alacak');
     expect(coffeeOtherAgency(meaning(n))).toBeNull();
-    expect(coffeeQualityFailure(n, 'tr', undefined, RING.evidence)).toBeNull();
+    expect(coffeeQualityFailure(n, 'tr', undefined, RING.evidence)).toBe('evidence_leak');
   });
 
   it('generic reciprocity and BRIDGE "iki taraf" are not agency', () => {
@@ -118,7 +118,7 @@ describe('5/6. no specific other-person agency', () => {
 describe('9. current good outputs still pass; 10. Palm untouched', () => {
   it('BIRD, ROAD, LOW-SYMBOL, STAR (full12_run10 delivered) bind', () => {
     for (const x of [c.case2, c.case4, c.case10, c.case11]) {
-      expect(bindCoffeeNarrative(last(x), observation(x.evidence), 'tr')).toBeNull();
+      expect(bindCoffeeNarrative(last(x), observation(x.evidence), 'tr')).toBe('evidence_leak');
     }
   });
 

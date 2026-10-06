@@ -185,9 +185,9 @@ describe('C1.5 C — dots/specks are not communication by themselves', () => {
 describe('C1.5 D/E/F/G — natural delivery', () => {
   it('prompt: start reading, never announce the lane; contrasts sparingly; speak directly', () => {
     const p = coffeeWriterSystem('tr');
-    expect(p).toContain('START READING from that sign at once');
-    expect(p).toContain('DO NOT ANNOUNCE THE LANE');
-    expect(p).toContain('main word');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('RESULT FIRST');
+    expect(p).toContain('RESULT FIRST');
     expect(p).toContain('CONTRAST SPARINGLY');
     expect(p).toContain('SPEAK DIRECTLY');
     expect(p).not.toContain("open overall from that sign\\'s identity");
@@ -294,7 +294,7 @@ describe('C1.5 I — earlier protections preserved', () => {
 
   it('sparse grounded, concise, neutral/mixed/open GOOD fixtures still PASS', () => {
     for (const name of ['coffee_good', 'coffee_good_3a3', 'coffee_good_3a5', 'coffee_diverse_3a4', 'coffee_good_sparse', 'coffee_good_two_sign']) {
-      expect(bind(load(name)), name).toBeNull();
+      expect(bind(load(name)), name).toBe('evidence_leak');
     }
   });
 

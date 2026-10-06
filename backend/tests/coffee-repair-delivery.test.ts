@@ -43,12 +43,12 @@ function starReportPredicates(): CoffeeNarrative {
 /** Same grounded meaning, told directly with varied sentence shapes. */
 function starDirect(): CoffeeNarrative {
   return {
-    visualObservation: section(VISUAL, ['e1', 'e2', 'e3']),
-    overall: section('Üstte küçük, beş uçlu bir yıldız parlıyor; bu senin öne çıktığın, sevindirici bir kısmet. Emeğin fark edilecek ve bunun karşılığını açık bir takdir olarak alacaksın. Gürültülü, büyük bir değişim beklemiyorum; tek ve seçkin bir fırsat geliyor. Bu fırsat kalabalığın içinde kaybolmuyor, doğrudan senin payına düşüyor. Yıldız fincanda tek başına durduğu için sevincin de dağılmadan, bütün hâliyle sana ulaşacak.'),
+    visualObservation: section('Yakın dönemde emeğinin karşılığını görünür kılacak sevindirici bir fırsat öne çıkıyor.', ['e1']),
+    overall: section('Emeğin fark edilecek ve bunun karşılığını açık bir takdir olarak alacaksın. Önüne gelen tek ve seçkin fırsat, kalabalık gelişmeler arasında kaybolmadan doğrudan senin payına düşüyor. Bu ilerleme günlük düzeninde belirgin bir canlılık yaratacak ve verdiğin emeğin değerini başkalarının da açıkça görmesini sağlayacak. Sonuç gösterişli bir değişimden çok, sana tam denk gelen temiz ve kalıcı bir sevinç taşıyor.'),
     love: empty,
     career: empty,
     money: empty,
-    nearFuture: section('Üstelik çok uzakta da durmuyor; yıldız ağza yakın, bu güzel haber yakın zamanda kendini belli edecek.'),
+    nearFuture: section('Bu güzel gelişme yakın zamanda kendini belli edecek ve kısa süre içinde netleşecek.'),
     takeaway: section('Bu kısmetin asıl güzelliği büyüklüğünde değil, tam sana göre biçilmiş olmasında; o yüzden geldiğinde onu hemen tanıyacaksın.'),
   };
 }
@@ -80,14 +80,12 @@ describe('formulaic_voice gate is unchanged and correct', () => {
 describe('Coffee repair guidance asks for natural falcı delivery', () => {
   it('3. every Coffee repair limits report predicates and bans the "Bu işaret … işaret ediyor" tautology', () => {
     const system = repairWriterSystem('coffee');
-    expect(system).toContain('NATURAL FALCI DELIVERY IN REPAIR');
-    for (const verb of REPORT_PREDICATES) expect(system).toContain(verb);
-    expect(system).toContain('at most a minority of the interpretation sentences');
-    expect(system).toContain('Never a tautology like "Bu işaret … işaret ediyor"');
-    expect(system).toContain('Fincanın anlattığı ana hikâye');
-    expect(system).toContain('EXAMPLES ARE NOT WORDING');
-    expect(system).not.toContain('Burada senin öne çıktığın sevindirici bir gelişme var');
-    expect(coffeeVoiceRepairFocus('formulaic_voice')).toContain('No "Bu işaret … işaret ediyor" tautology');
+    expect(system).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(system).toContain('Use natural daily language and varied predicates');
+    const focus = coffeeVoiceRepairFocus('formulaic_voice')!;
+    for (const verb of REPORT_PREDICATES) expect(focus).toContain(verb);
+    expect(focus).toContain('No "Bu işaret … işaret ediyor" tautology');
+    expect(system).toContain('Never expose or reconstruct figures, symbols, signs, cup regions, grounds, residue, geometry');
   });
 
   it('Palm repair is untouched by the Coffee delivery rule', () => {
@@ -107,7 +105,7 @@ describe('Coffee repair guidance asks for natural falcı delivery', () => {
     expect(g).toContain('Do not fix the repetition by swapping synonyms or keeping the same sentence skeleton');
     expect(g).toContain('Do not copy the rejected nearFuture verbatim');
     expect(g).toContain('Additional detected Coffee defects: possibility_menu, repeated_sentence, dictionary_voice.');
-    expect(repairWriterSystem('coffee')).toContain('PRESERVE SUBSTANCE');
+    expect(repairWriterSystem('coffee')).toContain('PRIVATE GROUNDED MEANING FACETS');
 
     // A repair that follows it keeps the full substance and passes.
     const repaired = starDirect();

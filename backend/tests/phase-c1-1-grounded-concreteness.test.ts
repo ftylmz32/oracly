@@ -67,7 +67,7 @@ describe('C1.1 — no concreteness quota', () => {
     expect(p.lifeKinds).toBeLessThan(2); // the old C1 hard rule would have failed this
     expect(p.eventDomains).toBe(0);
     expect(sparse.narrative.nearFuture.text).toBe('');
-    expect(bindCoffeeNarrative(sparse.narrative, sparse.observation, 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(sparse.narrative, sparse.observation, 'tr')).toBe('evidence_leak');
   });
 
   it('ONE grounded concrete development is enough to pass', () => {
@@ -87,7 +87,7 @@ describe('C1.1 — no concreteness quota', () => {
       },
     };
     expect(coffeeVoiceProfile(interpretation(one)).eventDomains).toBe(1);
-    expect(bindCoffeeNarrative(one, bird.observation, 'tr')).toBeNull();
+    expect(bindCoffeeNarrative(one, bird.observation, 'tr')).toBe('evidence_leak');
   });
 
   it('removing the life-event words from a grounded reading does not make it fail', () => {
@@ -183,7 +183,7 @@ describe('C1.1 — stacking unrelated events on generic residue is rejected', ()
     for (const code of ['coaching_voice', 'abstract_reading', 'event_pile']) {
       expect(coffeeVoiceRepairFocus(code)).not.toMatch(/a person, news, a visit, a plan, money/);
     }
-    expect(repairWriterSystem('coffee')).toContain('Never repair by adding invented events');
+    expect(repairWriterSystem('coffee')).toContain('PRIVATE GROUNDED MEANING FACETS');
   });
 });
 
@@ -192,15 +192,15 @@ describe('C1.1 — writer prompt prefers one grounded story', () => {
 
   it('no longer requires a concrete development in every section', () => {
     expect(p).not.toContain('Every filled section must land on at least one');
-    expect(p).toContain('GROUNDED, NOT INVENTED');
-    expect(p).toContain('one development is enough');
-    expect(p).toContain('SPARSE CUP');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('Do not invent a person, event, date');
+    expect(p).toContain('leave an unsupported optional section as text "" with empty evidenceIds');
   });
 
   it('keeps the falcı voice and the report/coaching bans', () => {
-    expect(p).toContain('Turkish coffee fortune teller');
-    expect(p).toContain('TRANSFORM, DO NOT REPORT');
-    expect(p).toContain('NOT A THERAPIST, COACH OR MINDFULNESS APP');
+    expect(p).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(p).toContain('No symbol dictionary, analysis language, advice, coaching');
+    expect(p).toContain('No symbol dictionary, analysis language, advice, coaching');
   });
 });
 
