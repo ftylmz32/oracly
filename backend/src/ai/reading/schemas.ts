@@ -49,6 +49,29 @@ const briefSection = {
   },
 } as const;
 
+const requiredSection = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['text', 'evidenceIds'],
+  properties: {
+    text: { type: 'string', minLength: 1 },
+    evidenceIds: {
+      type: 'array',
+      items: { type: 'string' },
+      minItems: 1,
+      maxItems: 12,
+    },
+  },
+} as const;
+
+const requiredBriefSection = {
+  ...requiredSection,
+  properties: {
+    ...requiredSection.properties,
+    text: { type: 'string', minLength: 1, maxLength: 260 },
+  },
+} as const;
+
 export const COFFEE_OBSERVER_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -185,13 +208,13 @@ export const COFFEE_WRITER_SCHEMA = {
     'takeaway',
   ],
   properties: {
-    visualObservation: briefSection,
-    overall: section,
+    visualObservation: requiredBriefSection,
+    overall: requiredSection,
     love: section,
     career: section,
     money: section,
     nearFuture: section,
-    takeaway: section,
+    takeaway: requiredSection,
   },
 } as const;
 

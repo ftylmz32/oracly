@@ -14,6 +14,7 @@ import {
   type HumanQualityFailure,
 } from '../human-quality.js';
 import { mapCoffeeMeanings } from './coffee-meaning-map.js';
+import type { CoffeeStoryPlan } from './coffee-story-plan.js';
 import {
   coffeeCommunicationAffordance,
   coffeeContextEventPromotion,
@@ -56,6 +57,7 @@ export type BindFailure =
   | 'stock_advice'
   | 'evidence_reuse'
   | 'evidence_leak'
+  | 'unauthorized_section'
   | PalmNamedFailure
   /** A real internal evidence id literally appeared inside prose text. */
   | 'evidence_id_in_prose';
@@ -234,6 +236,7 @@ export function bindCoffeeNarrative(
   obs: CoffeeObservation,
   language: AppLanguage = 'tr',
   personalization?: ReadingPersonalization,
+  storyPlan?: CoffeeStoryPlan,
 ): BindFailure | null {
   const known = new Set(obs.evidence.map((e) => e.id));
   const required: NarrativeSection[] = [
@@ -255,7 +258,8 @@ export function bindCoffeeNarrative(
   ];
   const bind = bindSections(allSections, known, obs.evidence);
   if (bind) return bind;
-  const quality = coffeeQualityFailure(narrative, language, personalization, obs.evidence);
+  if (storyPlan && coffeeUnauthorizedSection(narrative, storyPlan)) return 'unauthorized_section';
+  const quality = coffeeQualityFailure(narrative, language, personalization, obs.evidence, storyPlan);
   if (quality) return mapQuality(quality);
   if (
     coffeeEvidenceConcentration(
@@ -301,6 +305,7 @@ export function coffeeQualityFailure(
   language: AppLanguage = 'tr',
   personalization?: ReadingPersonalization,
   evidence?: ReadingEvidenceItem[],
+  storyPlan?: CoffeeStoryPlan,
 ): HumanQualityFailure | null {
   const quality = evaluateCoffeeQuality({
     visualObservation: narrative.visualObservation.text,
@@ -341,6 +346,7 @@ export function coffeeQualityFailure(
       : undefined,
   });
   if (quality) return quality;
+  if (storyPlan && coffeePlanDepthFailure(narrative, storyPlan)) return 'too_short';
   const meaningTexts = [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway].map((s) => s.text);
   // Personalization-aware (evidence path only; the legacy single-call parser
   // is unaffected): the person's expectation / wish / prior thought presumed.
@@ -382,6 +388,13 @@ export function coffeeQualityFailure(
   ) {
     return 'context_event';
   }
+  if (evidence && coffeeSemanticSourceEcho(
+    [narrative.visualObservation.text, ...meaningTexts],
+    evidence,
+    language,
+  )) {
+    return 'evidence_leak';
+  }
   if (
     coffeePublicEvidenceLeak(
       [narrative.visualObservation.text, ...meaningTexts],
@@ -393,6 +406,53 @@ export function coffeeQualityFailure(
     return 'evidence_leak';
   }
   return null;
+}
+
+export function coffeePlanDepthFailure(narrative: CoffeeNarrative, plan: CoffeeStoryPlan): boolean {
+  const words = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
+  return words(narrative.overall.text) < plan.depth.overallWords.min
+    || words(narrative.takeaway.text) < plan.depth.takeawayWords.min;
+}
+
+export function coffeeUnauthorizedSection(
+  narrative: CoffeeNarrative,
+  plan: CoffeeStoryPlan,
+): boolean {
+  const authorized = new Set(plan.authorizedSections);
+  return (['love', 'career', 'money', 'nearFuture'] as const).some(
+    (section) => !authorized.has(section) && narrative[section].text.trim().length > 0,
+  );
+}
+
+/**
+ * Family-aware privacy gate for prose that reconstructs a private visual
+ * source through its characteristic metaphor. Ordinary uses remain legal
+ * when the corresponding private family is absent.
+ */
+export function coffeeSemanticSourceEcho(
+  sections: string[],
+  evidence: ReadingEvidenceItem[],
+  language: AppLanguage = 'tr',
+): boolean {
+  if (language !== 'tr') return false;
+  const families = new Set(
+    mapCoffeeMeanings({
+      usable: true,
+      checks: {
+        cupInteriorVisible: true,
+        adequateFocusLight: true,
+        residueVisible: true,
+        milkFoamObstruction: false,
+        usefulRegionsVisible: true,
+      },
+      evidence,
+    }).map((facet) => facet.family),
+  );
+  const text = sections.join(' ').normalize('NFC').toLocaleLowerCase('tr-TR');
+  if (families.has('choice') && /\b(iki|ayrılan|ayrilan)\s+(ayrı\s+)?yol\b|\byol ayrım/.test(text)) return true;
+  if (families.has('growth') && /\b(kök sal|köklen|ağaç|agac|dal budak)/.test(text)) return true;
+  if (families.has('solution') && /\b(anahtar|kilid[ei]?|kapının kilidi|kapıyı aç)/.test(text)) return true;
+  return false;
 }
 
 export function bindPalmNarrative(
@@ -503,6 +563,7 @@ export function narrativeFail(
     code === 'stock_advice' ||
     code === 'evidence_reuse' ||
     code === 'evidence_leak' ||
+    code === 'unauthorized_section' ||
     code === 'evidence_id_in_prose' ||
     isPalmNamedFailure(code)
   ) {

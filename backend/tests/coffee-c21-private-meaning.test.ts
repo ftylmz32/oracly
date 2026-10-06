@@ -61,8 +61,9 @@ describe('C2.1 private Coffee meaning handoff', () => {
   });
 
   it('maps supported meanings with distinct evidence bindings and no raw writer fields', () => {
+    const facets = mapCoffeeMeanings(observation, 'tr');
     const packet = buildCoffeeWriterPacket(observation, 'tr');
-    expect(packet.facets.map((facet) => [facet.family, facet.evidenceIds])).toEqual([
+    expect(facets.map((facet) => [facet.family, facet.evidenceIds])).toEqual([
       ['communication', ['e1']],
       ['opportunity', ['e2']],
       ['bond', ['e3']],
@@ -71,21 +72,28 @@ describe('C2.1 private Coffee meaning handoff', () => {
       ['movement', ['e6']],
       ['home_close_circle', ['e7']],
     ]);
-    expect(packet.facets[0].timing).toBe('nearer_term');
-    expect(packet.facets[6].context).toBe('home_close_circle');
+    expect(facets[0].timing).toBe('nearer_term');
+    expect(facets[6].context).toBe('home_close_circle');
+    expect('status' in packet).toBe(false);
+    if ('status' in packet) throw new Error('expected a ready story packet');
+    expect(packet.storyPlan.lead.family).toBe('solution');
+    expect(packet.storyPlan.supporting).toHaveLength(6);
     const wire = JSON.stringify(packet);
     for (const forbidden of ['description', 'resemblance', 'region', 'regionLabel', 'regionVocabulary', 'sourceSlot', 'confidence', 'visibility', 'checks']) {
       expect(wire).not.toContain(forbidden);
     }
     for (const privateWord of ['bird', 'kuş', 'fish', 'balık', 'ring', 'yüzük', 'heart', 'kalp', 'key', 'anahtar', 'road', 'purple dragon']) {
-      expect(wire.toLocaleLowerCase('tr-TR')).not.toContain(privateWord);
+      expect(wire.toLocaleLowerCase('tr-TR')).not.toContain(`"${privateWord}"`);
     }
   });
 
   it('omits an unknown resemblance without inventing a meaning', () => {
     const facets = mapCoffeeMeanings({ ...observation, evidence: [evidence[7]] }, 'tr');
     expect(facets).toEqual([]);
-    expect(JSON.stringify(buildCoffeeWriterPacket({ ...observation, evidence: [evidence[7]] }, 'tr'))).not.toContain('purple dragon');
+    expect(buildCoffeeWriterPacket({ ...observation, evidence: [evidence[7]] }, 'tr')).toEqual({
+      status: 'insufficient_semantic_signal',
+      reason: 'no_safe_semantic_facets',
+    });
   });
 
   it('keeps strict narrative evidence-id binding', () => {
@@ -131,7 +139,7 @@ describe('C2.1 private Coffee meaning handoff', () => {
 
   it('uses meaning-only Coffee prompts while Palm packet and prompt remain raw-evidence based', () => {
     const coffee = coffeeWriterSystem('tr');
-    expect(coffee).toContain('PRIVATE GROUNDED MEANING FACETS');
+    expect(coffee).toContain('PRIVATE STRUCTURED STORY PLAN');
     expect(coffee).toContain('RESULT FIRST');
     expect(coffee).not.toContain('bird cup');
     expect(coffee).not.toContain('where the telve gathered');

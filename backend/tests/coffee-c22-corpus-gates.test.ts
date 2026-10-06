@@ -19,6 +19,11 @@ type CorpusCase = {
   attempts: Attempt[];
 };
 
+type HistoricalPacket = {
+  locale: string;
+  facets: Array<{ family: string; evidenceIds: string[] }>;
+};
+
 const corpus = JSON.parse(
   readFileSync('./docs/qa/coffee-c22-real-provider-20261006.raw.json', 'utf8'),
 ) as { results: CorpusCase[] };
@@ -30,13 +35,31 @@ describe('C2.2 real-provider corpus — current C2.1 privacy and binding gates',
     );
   });
 
-  it.each(corpus.results)('$caseId mapper packet remains meaning-only', (item) => {
+  it.each(corpus.results)('$caseId historical mapping and current story plan remain semantically equivalent', (item) => {
     const packet = buildCoffeeWriterPacket(item.privateObservation, 'tr');
-    expect(packet).toEqual(item.mappedMeaningPacket);
+    const historical = item.mappedMeaningPacket as HistoricalPacket;
+    expect(historical.locale).toBe('tr');
+    expect(Array.isArray(historical.facets)).toBe(true);
+    const historicalSemantics = historical.facets
+      .map((facet) => [facet.family, [...facet.evidenceIds].sort()] as const)
+      .sort(([a], [b]) => a.localeCompare(b));
+    if ('status' in packet) {
+      expect(historicalSemantics).toEqual([]);
+      expect(packet).toEqual({
+        status: 'insufficient_semantic_signal',
+        reason: 'no_safe_semantic_facets',
+      });
+    } else {
+      const currentSemantics = [packet.storyPlan.lead, ...packet.storyPlan.supporting]
+        .map((component) => [component.family, [...component.evidenceIds].sort()] as const)
+        .sort(([a], [b]) => a.localeCompare(b));
+      expect(currentSemantics).toEqual(historicalSemantics);
+    }
     const encoded = JSON.stringify(packet);
     for (const rawField of ['region', 'description', 'resemblance', 'confidence', 'visibility']) {
       expect(encoded).not.toContain(`"${rawField}"`);
     }
+    expect(encoded).not.toContain('implication');
   });
 
   it.each(corpus.results)('$caseId provider requests expose no raw observation fields', (item) => {

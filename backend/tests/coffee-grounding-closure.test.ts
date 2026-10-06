@@ -99,9 +99,9 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
     const { calls, delivered, error } = await runPipeline(BIRD9.evidence, BIRD9.narrative, meaningRepair);
     expect(error).toBeNull();
     expect(calls.map((c) => c.kind)).toEqual(['writer', 'repair']);
-    expect(calls[1].user).toContain('Violation codes: human_quality');
+    expect(calls[1].user).toContain('Violation codes: dictionary_voice');
     expect(coffeeVoiceRepairFocus('dictionary_voice')).toContain('symbol-dictionary form');
-    expect(calls[1].user).toContain('Private grounded meaning facets:');
+    expect(calls[1].user).toContain('Private structured Coffee story plan:');
     expect(calls[1].user).toContain('"family":"communication"');
     expect(calls[1].user).not.toContain('"region"');
     expect(calls[1].user).not.toContain('"description"');

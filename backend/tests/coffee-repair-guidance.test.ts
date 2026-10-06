@@ -33,6 +33,9 @@ function injectedStar(): CoffeeNarrative {
   return n;
 }
 const STAR_EVIDENCE = qa.starRun3FirstPass.evidence;
+const PLANNABLE_STAR_EVIDENCE = STAR_EVIDENCE.map((evidence, index) => index === 0
+  ? { ...evidence, description: 'A clear bird-like form near the upper wall.', resemblance: 'bird' }
+  : evidence);
 
 /**
  * run6 STAR (case11) closed overall on reading self-reference ("Fincanda
@@ -76,7 +79,7 @@ function meaningStarRepair(): CoffeeNarrative {
 describe('one Coffee repair request carries every detected defect (real pipeline, fake transport)', () => {
   it('section_redundancy + possibility_menu → one repair whose guidance names both', async () => {
     const injected = injectedStar();
-    expect(bindCoffeeNarrative(injected, observation(STAR_EVIDENCE), 'tr')).toBe('section_redundancy');
+    expect(bindCoffeeNarrative(injected, observation(PLANNABLE_STAR_EVIDENCE), 'tr')).toBe('section_redundancy');
 
     const repaired = meaningStarRepair();
     const calls: Array<{ kind: string; user: string }> = [];
@@ -85,7 +88,7 @@ describe('one Coffee repair request carries every detected defect (real pipeline
       const reply = (content: string) =>
         new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 });
       if (body.response_format?.json_schema?.name === 'coffee_observation') {
-        return reply(JSON.stringify(observation(STAR_EVIDENCE)));
+        return reply(JSON.stringify(observation(PLANNABLE_STAR_EVIDENCE)));
       }
       const system = body.messages[0].content;
       const kind = system === coffeeWriterSystem('tr') ? 'writer' : system === repairWriterSystem('coffee') ? 'repair' : 'other';
@@ -109,7 +112,8 @@ describe('one Coffee repair request carries every detected defect (real pipeline
     expect(guidance).toContain('Additional detected Coffee defects: possibility_menu, repeated_sentence, dictionary_voice.');
     expect(guidance).toContain('yaptigin ya da sundugun');
     expect(guidance).not.toContain('invented_plan');
-    expect(repairUser).toContain('Private grounded meaning facets:');
+    expect(repairUser).toContain('Private structured Coffee story plan:');
+    expect(repairUser).not.toContain('Rejected narrative JSON:');
     expect(repairUser).not.toContain('"region"');
     expect(repairUser).not.toContain('"description"');
     expect(repairUser).not.toContain('"resemblance"');

@@ -156,9 +156,11 @@ describe('E3H two-stage reading pipeline', () => {
   it('observe-to-writer seam exposes themes before accepting bounded memory', async () => {
     const observer = JSON.parse(coffeeObserverJson);
     observer.evidence[0].description = 'Two clear residue paths split like a crossroads decision, near the handle side.';
+    const choiceWriter = JSON.parse(coffeeMeaningWriterJson);
+    choiceWriter.overall.text += ' Seçeneklerin birbirinden ayrılan yönleri belirginleştikçe vereceğin karar değişimin nasıl ilerleyeceğini de şekillendirecek.';
     const app = await testApp(
       testConfig(),
-      openaiReadingSequence(JSON.stringify(observer), coffeeMeaningWriterJson),
+      openaiReadingSequence(JSON.stringify(observer), JSON.stringify(choiceWriter)),
     );
     const observeBody = coffeeBody() as { payload: Record<string, unknown> };
     observeBody.payload.readingPhase = 'observe';
@@ -185,7 +187,7 @@ describe('E3H two-stage reading pipeline', () => {
       headers: { ...authHeader(), 'idempotency-key': 'bridge-coffee-1:write' },
       payload: writeBody,
     });
-    expect(written.json().success).toBe(true);
+    expect(written.json().success, JSON.stringify(written.json())).toBe(true);
     await app.close();
   });
 

@@ -17,6 +17,7 @@ import {
   adaptCoffeeV2ForWriter,
   bindCoffeeNarrative,
   bindPalmNarrative,
+  coffeeQualityFailure,
   narrativeFail,
   observationFail,
   toPublicCoffee,
@@ -61,6 +62,7 @@ import {
   normalizeTrustedHand,
 } from './locale-vocab.js';
 import { buildCoffeeWriterPacket } from './coffee-meaning-map.js';
+import type { CoffeeWriterPacket } from './coffee-story-plan.js';
 import { personalizationFromUnknown } from './personalization.js';
 import type { ReadingPersonalization } from './types.js';
 
@@ -175,7 +177,8 @@ export class ReadingPipeline {
     const personalization = personalizationFromUnknown(payload);
     const safeCtx = { ...ctx, personalization: evidenceBoundPersonalization(obs.evidence, personalization) };
     const stages: Array<{ stage: string; cached: boolean; violation?: string }> = [];
-    return toPublicCoffee(await this.runCoffeeWriter(obs, safeCtx, readingModels(this.config).writer, stages));
+    const result = await this.runCoffeeWriter(obs, safeCtx, readingModels(this.config).writer, stages);
+    return result.status === 'insufficient_semantic_signal' ? result : toPublicCoffee(result.narrative);
   }
 
   async observePalm(
@@ -270,8 +273,8 @@ export class ReadingPipeline {
     const obs = await this.runCoffeeObserver(image, ctxWithPersonalization, models.vision, stages);
     const failObs = acceptCoffeeObservation(obs);
     if (failObs) observationFail(failObs, { observation: obs, stage: 'observer' });
-    const narrative = await this.runCoffeeWriter(obs, ctxWithPersonalization, models.writer, stages);
-    return toPublicCoffee(narrative);
+    const result = await this.runCoffeeWriter(obs, ctxWithPersonalization, models.writer, stages);
+    return result.status === 'insufficient_semantic_signal' ? result : toPublicCoffee(result.narrative);
   }
 
   /**
@@ -295,13 +298,13 @@ export class ReadingPipeline {
     const obs = await this.runCoffeeV2Observer(images, ctxWithPersonalization, models.vision, stages);
     const failObs = acceptCoffeeV2Observation(obs);
     if (failObs) observationFail(failObs, { observation: obs, stage: 'observer' });
-    const narrative = await this.runCoffeeWriter(
+    const result = await this.runCoffeeWriter(
       adaptCoffeeV2ForWriter(obs),
       ctxWithPersonalization,
       models.writer,
       stages,
     );
-    return toPublicCoffee(narrative);
+    return result.status === 'insufficient_semantic_signal' ? result : toPublicCoffee(result.narrative);
   }
 
   async palm(
@@ -477,18 +480,23 @@ export class ReadingPipeline {
     ctx: ReadingPipelineContext,
     model: string,
     stages: Array<{ stage: string; cached: boolean; violation?: string }>,
-  ): Promise<CoffeeNarrative> {
-    const evidenceJson = JSON.stringify(buildCoffeeWriterPacket(obs, ctx.language, ctx.personalization));
+  ): Promise<
+    | { status: 'reading'; narrative: CoffeeNarrative }
+    | { status: 'insufficient_semantic_signal'; reason: 'no_safe_semantic_facets' }
+  > {
+    const packet = buildCoffeeWriterPacket(obs, ctx.language, ctx.personalization);
+    if ('status' in packet) return packet;
+    const evidenceJson = JSON.stringify(packet);
     const cached = readingStageStore.get<CoffeeNarrative>(
       ctx.identity,
       ctx.parentKey,
       'coffee_writer',
     );
     if (cached) {
-      const ok = bindCoffeeNarrative(cached, obs, ctx.language, ctx.personalization);
+      const ok = bindCoffeeNarrative(cached, obs, ctx.language, ctx.personalization, packet.storyPlan);
       if (!ok) {
         stages.push({ stage: 'writer', cached: true });
-        return cached;
+        return { status: 'reading', narrative: cached };
       }
     }
     const raw = await this.transport.complete({
@@ -504,9 +512,12 @@ export class ReadingPipeline {
     let narrative = parseJson<CoffeeNarrative>(raw);
     readingStageStore.set(ctx.identity, ctx.parentKey, 'coffee_writer', narrative);
     stages.push({ stage: 'writer', cached: false });
-    let violation = bindCoffeeNarrative(narrative, obs, ctx.language, ctx.personalization);
-    if (!violation) return narrative;
-    return this.repairCoffee(obs, violation, ctx, model, stages);
+    let violation = bindCoffeeNarrative(narrative, obs, ctx.language, ctx.personalization, packet.storyPlan);
+    if (!violation) return { status: 'reading', narrative };
+    return {
+      status: 'reading',
+      narrative: await this.repairCoffee(obs, packet, violation, ctx, model, stages),
+    };
   }
 
   private async runPalmWriter(
@@ -551,6 +562,7 @@ export class ReadingPipeline {
 
   private async repairCoffee(
     obs: CoffeeObservation,
+    packet: CoffeeWriterPacket,
     violation: BindFailure,
     ctx: ReadingPipelineContext,
     model: string,
@@ -567,8 +579,20 @@ export class ReadingPipeline {
         {
           role: 'user',
           content: repairWriterUser({
-            evidenceJson: JSON.stringify(buildCoffeeWriterPacket(obs, ctx.language, ctx.personalization)),
-            violations: [violation],
+            evidenceJson: JSON.stringify(packet),
+            violations: [
+              violation === 'human_quality'
+                ? (coffeeQualityFailure(
+                    // The rejected prose is used only inside the private deterministic gate.
+                    // It is never serialized into the repair request.
+                    readingStageStore.get<CoffeeNarrative>(ctx.identity, ctx.parentKey, 'coffee_writer')!,
+                    ctx.language,
+                    ctx.personalization,
+                    obs.evidence,
+                    packet.storyPlan,
+                  ) ?? violation)
+                : violation,
+            ],
           }),
         },
       ],
@@ -579,7 +603,7 @@ export class ReadingPipeline {
     const repaired = parseJson<CoffeeNarrative>(raw);
     readingStageStore.set(ctx.identity, ctx.parentKey, 'coffee_writer', repaired);
     stages.push({ stage: 'repair', cached: false, violation });
-    const again = bindCoffeeNarrative(repaired, obs, ctx.language, ctx.personalization);
+    const again = bindCoffeeNarrative(repaired, obs, ctx.language, ctx.personalization, packet.storyPlan);
     if (again) narrativeFail(again, { observation: obs, stage: 'repair', priorViolation: violation });
     return repaired;
   }

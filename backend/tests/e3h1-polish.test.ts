@@ -108,8 +108,10 @@ describe('E3H.1 language immersion polish', () => {
     expect(coffeeRegionLabel('base', 'tr')).toContain('dib');
     expect(coffeeRegionLabel('handle side', 'tr')).toContain('kulp');
     const packet = buildCoffeeWriterPacket(JSON.parse(coffeeObserverJson), 'tr');
-    expect(packet.facets.length).toBeGreaterThan(0);
-    expect(packet.facets.every((facet) => facet.evidenceIds.length > 0)).toBe(true);
+    expect('status' in packet).toBe(false);
+    if ('status' in packet) throw new Error('expected a ready story packet');
+    expect(packet.storyPlan.lead.evidenceIds.length).toBeGreaterThan(0);
+    expect(packet.storyPlan.supporting.every((facet) => facet.evidenceIds.length > 0)).toBe(true);
     expect(JSON.stringify(packet)).not.toMatch(/description|resemblance|regionLabel|sourceSlot|confidence|visibility|checks/);
   });
 

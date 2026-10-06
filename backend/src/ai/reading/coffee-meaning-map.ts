@@ -1,9 +1,15 @@
 import type { AppLanguage } from '../app-language.js';
 import type {
   CoffeeObservation,
-  ReadingEvidenceItem,
   ReadingPersonalization,
+  ReadingEvidenceItem,
 } from './types.js';
+import {
+  buildCoffeeWriterPacket as buildStoryPacket,
+  planCoffeeStory,
+  type CoffeeStoryPlanningResult,
+  type CoffeeWriterPacket,
+} from './coffee-story-plan.js';
 
 export type CoffeeMeaningFamily =
   | 'communication'
@@ -17,57 +23,13 @@ export type CoffeeMeaningFamily =
   | 'home_close_circle'
   | 'choice';
 
+/** Private, machine-oriented semantic permission. Never contains output wording. */
 export type CoffeeMeaningFacet = {
   family: CoffeeMeaningFamily;
-  implication: string;
   evidenceIds: string[];
-  context?: 'home_close_circle';
-  timing?: 'nearer_term';
-};
-
-export type CoffeeWriterPacket = {
-  locale: AppLanguage;
-  facets: CoffeeMeaningFacet[];
-  personalization?: ReadingPersonalization;
-};
-
-const IMPLICATIONS: Record<AppLanguage, Record<CoffeeMeaningFamily, string>> = {
-  tr: {
-    communication: 'haber, mesaj veya iletişim gelişmesi',
-    movement: 'ilerleyen bir süreç, yön değişimi veya yeni bir açılım',
-    opportunity: 'fırsat, kazanç veya kısmet',
-    emotional_relevance: 'duygusal hayatı veya yakın bir bağı ilgilendiren gelişme',
-    bond: 'bağ, anlaşma veya bağlılık',
-    solution: 'çözüm, erişim veya açılan bir imkân',
-    growth: 'büyüme, köklenme veya aileyle ilgili gelişim',
-    social_relevance: 'başka bir kişi veya sosyal çevreyle bağlantı',
-    home_close_circle: 'ev veya yakın çevre bağlamı',
-    choice: 'iki alternatif arasında seçim',
-  },
-  en: {
-    communication: 'news, a message, or a communication development',
-    movement: 'progress, a change of course, or a new opening',
-    opportunity: 'an opportunity, gain, or good fortune',
-    emotional_relevance: 'a development involving emotions or a close bond',
-    bond: 'a bond, agreement, or commitment',
-    solution: 'a solution, access, or an opening',
-    growth: 'growth, roots, or family-related development',
-    social_relevance: 'a connection involving another person or the social circle',
-    home_close_circle: 'home or close-circle context',
-    choice: 'a choice between alternatives',
-  },
-  ru: {
-    communication: 'новость, сообщение или развитие общения',
-    movement: 'продвижение, смена курса или новое направление',
-    opportunity: 'возможность, выгода или удача',
-    emotional_relevance: 'развитие в чувствах или близкой связи',
-    bond: 'связь, соглашение или обязательство',
-    solution: 'решение, доступ или новая возможность',
-    growth: 'рост, укрепление корней или семейное развитие',
-    social_relevance: 'связь с другим человеком или окружением',
-    home_close_circle: 'контекст дома или близкого круга',
-    choice: 'выбор между альтернативами',
-  },
+  context: 'general' | 'home_close_circle';
+  timing: 'unspecified' | 'nearer_term';
+  specificity: 'direct' | 'contextual';
 };
 
 function fold(value: string): string {
@@ -97,39 +59,36 @@ function meaningFamily(item: ReadingEvidenceItem): CoffeeMeaningFamily | null {
   return null;
 }
 
-function regionContext(item: ReadingEvidenceItem): {
-  context?: CoffeeMeaningFacet['context'];
-  timing?: CoffeeMeaningFacet['timing'];
-} {
+function regionState(item: ReadingEvidenceItem): Pick<CoffeeMeaningFacet, 'context' | 'timing'> {
   const region = fold(item.region.replace(/_/g, ' '));
   return {
-    ...(/handle|kulp/.test(region) ? { context: 'home_close_circle' as const } : {}),
-    ...(/rim|upper|agiz|ust/.test(region) ? { timing: 'nearer_term' as const } : {}),
+    context: /handle|kulp/.test(region) ? 'home_close_circle' : 'general',
+    timing: /rim|upper|agiz|ust/.test(region) ? 'nearer_term' : 'unspecified',
   };
 }
 
 export function mapCoffeeMeanings(
   obs: CoffeeObservation,
-  language: AppLanguage,
+  _language?: AppLanguage,
 ): CoffeeMeaningFacet[] {
   const facets: CoffeeMeaningFacet[] = [];
   for (const item of obs.evidence) {
     if (item.confidence === 'low' || item.visibility === 'uncertain') continue;
     const family = meaningFamily(item);
-    const region = regionContext(item);
+    const state = regionState(item);
     if (family) {
       facets.push({
         family,
-        implication: IMPLICATIONS[language][family],
         evidenceIds: [item.id],
-        ...region,
+        ...state,
+        specificity: 'direct',
       });
-    } else if (region.context) {
+    } else if (state.context === 'home_close_circle') {
       facets.push({
         family: 'home_close_circle',
-        implication: IMPLICATIONS[language].home_close_circle,
         evidenceIds: [item.id],
-        context: region.context,
+        ...state,
+        specificity: 'contextual',
       });
     }
   }
@@ -140,10 +99,8 @@ export function buildCoffeeWriterPacket(
   obs: CoffeeObservation,
   language: AppLanguage,
   personalization?: ReadingPersonalization,
-): CoffeeWriterPacket {
-  return {
-    locale: language,
-    facets: mapCoffeeMeanings(obs, language),
-    ...(personalization ? { personalization } : {}),
-  };
+): CoffeeWriterPacket | Exclude<CoffeeStoryPlanningResult, { status: 'ready' }> {
+  const planned = planCoffeeStory(mapCoffeeMeanings(obs), personalization);
+  if (planned.status !== 'ready') return planned;
+  return buildStoryPacket(language, planned.plan, personalization);
 }
