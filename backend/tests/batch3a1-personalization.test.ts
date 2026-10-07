@@ -196,7 +196,10 @@ describe('BATCH 3A.1 — writer prompt personalization contract', () => {
     const c = coffeeWriterSystem('tr');
     expect(c).toContain('personalization');
     expect(c.toLowerCase()).toContain('private grounded meaning facets');
-    expect(c).toContain('Personalization is optional silent context');
+    // C2.9: themes/memory/firstName stay optional silent context; a trusted
+    // Coffee intention is instead the reading's subject (see TRUSTED SUBJECT).
+    expect(c).toContain('Other personalization fields stay optional silent context');
+    expect(c).toContain('TRUSTED SUBJECT');
     expect(c).toContain('Never invent missing personalization');
     const p = palmWriterSystem('tr');
     expect(p).toContain('personalization');

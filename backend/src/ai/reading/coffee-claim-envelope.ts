@@ -1,4 +1,4 @@
-import type { HumanQualityFailure } from '../human-quality.js';
+import { coffeeReadingSelfReference, foldTr, type HumanQualityFailure } from '../human-quality.js';
 import type { CoffeeNarrative } from './types.js';
 import type { CoffeePropositionKind } from './coffee-semantic-propositions.js';
 import type { CoffeeStoryPlanV2 } from './coffee-story-plan.js';
@@ -107,6 +107,114 @@ function unsupportedPropositionCausation(texts: string[], plan: CoffeeStoryPlanV
   return false;
 }
 
+// Letter-aware word edges: JS word boundaries are ASCII-only and misfires on Turkish letters.
+const S = '(?<![\\p{L}])';
+const E = '(?![\\p{L}])';
+const re = (source: string) => new RegExp(source, 'u');
+
+/**
+ * C2.9 — PERSON-OF-INTEREST protections. "Aklımdaki kişi" declares only that
+ * the user has someone in mind: never a relationship, a mutual bond, that
+ * person's feelings or thoughts, or their future action toward the user.
+ * Subject-aware: these words stay legal in every other context.
+ */
+const PERSON_EXISTING_BOND = re(`${S}aranızda\\p{L}*`);
+const PERSON_MUTUALITY = re(
+  `${S}(iki taraf(ın|ı)? da|her iki taraf\\p{L}*|karşılıklı|o da|birbiriniz\\p{L}*)${E}`,
+);
+const PERSON_MIND_READING = re(
+  `${S}(onun|o kişinin|aklındaki kişinin|karşındakinin|karşı tarafın) (duygu|his|niyet|düşünce|tavr|kalb|ilgi)\\p{L}*`
+  + `|${S}(duyguları|hisleri|niyeti)${E}|${S}sana karşı (bir )?(his|duygu|ilgi)\\p{L}*`,
+);
+const PERSON_AGENCY = re(
+  `${S}sana (yaklaş|ulaş|yaz|mesaj at|dön|açıl|gel|ilgi göster)\\p{L}*`
+  + `|${S}seni (ara|düşün|özle|sev|iste|bekle|merak ed)\\p{L}*`
+  + `|${S}o (seni|sana)${E}`
+  + `|${S}aklındaki kişi\\p{L}*[^.!?]{0,50}${S}(arayacak|yazacak|gelecek|dönecek|yaklaşacak|açılacak|düşünüyor|hissediyor|istiyor|özlüyor|seviyor|adım atacak|ilk adım)`,
+);
+
+export function coffeePersonIntentionClaim(texts: string[]): HumanQualityFailure | null {
+  const text = texts.map(fold).join(' ');
+  if (PERSON_EXISTING_BOND.test(text)) return 'unsupported_existing_fact';
+  if (PERSON_MUTUALITY.test(text) || PERSON_MIND_READING.test(text) || PERSON_AGENCY.test(text)) {
+    return 'unsupported_other_agency';
+  }
+  return null;
+}
+
+/**
+ * C2.9 — META-NARRATION. Behaviour classes, not sentences:
+ * (A) the prose talks about the reading itself (this interpretation, its
+ *     focus, the general impression, what the analysis shows);
+ * (B) the prose explains the story plan's synthesis rules (two abstract
+ *     tendencies merely side by side, one not creating the other, both
+ *     forming one whole). Ordinary "yan yana", "yorum", "izlenim" stay legal.
+ */
+const META_SELF_REFERENCE = [
+  re(`${S}(bu|şu) (yorum|okuma|fal|değerlendirme|analiz)\\p{L}*[^.!?]{0,40}(odağ|merkez|özü|ana fikr|vurgu|gösteriyor|anlatıyor|söylüyor|işaret ediyor|ortaya koyuyor|odaklan)`),
+  re(`${S}yorumun (odağ|merkez|özü|ana fikr)`),
+  re(`${S}genel (izlenim|tablo|görünüm|değerlendirme)\\p{L}*[^.!?]{0,80}(anlatıyor|gösteriyor|söylüyor|işaret ediyor|ortaya koyuyor|yansıtıyor)`),
+];
+const META_CONSTRAINT = [
+  re(`${S}iki (eğilim|anlam|unsur|bileşen|tema|olgu|his|imkân|imkan|gelişme|durum)\\p{L}*[^.!?]{0,60}(yan yana|bir arada|aynı bütün|tek bir (anlam|bütün)|birbirini (zorla|yarat|doğur|etkile|tetikle))`),
+  re(`${S}(biri|birisi|hiçbiri) (diğerini|ötekini|öbürünü) (yarat|doğur|tetikle)\\p{L}*`),
+  re(`${S}(biri|hiçbiri)[^.!?]{0,20}(diğerine|ötekine) (neden|sebep) ol(madan|muyor|maz)`),
+  re(`${S}ikisi( de)? aynı bütün`),
+  re(`aynı bütün(ün)? içinde (yan yana|duruyor|yer alıyor|buluşuyor)`),
+  re(`${S}(eğilim|anlam|imkân|imkan|açıklık|çözüm|his|duygu|fırsat)\\p{L}*[^.!?]{0,60}yan yana (dur|bulun|yer al|var ol)\\p{L}*`),
+  re(`${S}tek bir (anlamda|bütünde|gelişme halinde) (buluş|birleş|belir)\\p{L}*`),
+  re(`${S}birbirinden ayrılmadan[^.!?]{0,40}(birleş|buluş)\\p{L}*`),
+];
+
+export function coffeeMetaNarration(texts: string[]): string | null {
+  for (const sentence of texts.map(fold).flatMap((text) => text.split(/[.!?]+/u))) {
+    if (!sentence.trim()) continue;
+    if (META_SELF_REFERENCE.some((rule) => rule.test(sentence))) return sentence.trim();
+    if (META_CONSTRAINT.some((rule) => rule.test(sentence))) return sentence.trim();
+    if (coffeeReadingSelfReference(foldTr(sentence))) return sentence.trim();
+  }
+  return null;
+}
+
+/** C2.9 — broad subject vocabulary (word-initial); never exact intention wording. */
+const SUBJECT_ANCHOR: Record<'love' | 'career' | 'money' | 'person' | 'decision', RegExp> = {
+  love: /^(aşk|ilişki|sevgi|sevdi|kalp|kalb|gönül|gönl|romantik|yakınlı|yakınlaş|duygusal)/u,
+  career: /^(kariyer|meslek|çalışma|çalışt|proje|profesyonel|görev|ekib|ekip|iş(im|in|imde|inde|te|le|ler|leri|lerin|lerinde|ine|ini|i|e|yeri\p{L}*|hayat\p{L}*)?$)/u,
+  money: /^(para|parasal|maddi|kazanç|kazanc|gelir|bütçe|harcama|birikim|finans|bolluk)/u,
+  person: /^(aklındaki|kişi|onunla|ona$|onu$|onun$)/u,
+  decision: /^(karar|seçenek|seçim|tercih)/u,
+};
+const SUBJECT_DENIAL =
+  /(tek|herhangi|belirli) bir (alan|konu)\p{L}*[^.!?]{0,25}(bağlanma|sınırlı kalma|sınırlanma)\p{L}*/u;
+
+function hasAnchor(texts: string[], anchor: RegExp): boolean {
+  return texts.some((text) => (fold(text).match(/\p{L}+/gu) ?? []).some((word) => anchor.test(word)));
+}
+
+/** C2.9 — the trusted subject must be answered, never dropped or denied. */
+export function coffeeSubjectAlignmentFailure(
+  narrative: CoffeeNarrative,
+  plan: CoffeeStoryPlanV2,
+): 'missing_intention_subject' | 'intention_subject_drift' | null {
+  const subject = plan.subject;
+  if (!subject) return null;
+  const section = subject.requiredSection;
+  if (section && !narrative[section].text.trim()) return 'missing_intention_subject';
+  const carriers = [narrative.overall.text, narrative.takeaway.text];
+  const anchor = subject.kind === 'person_of_interest'
+    ? new RegExp(`${SUBJECT_ANCHOR.person.source}|${SUBJECT_ANCHOR.love.source}`, 'u')
+    : subject.kind === 'custom_decision'
+      ? SUBJECT_ANCHOR.decision
+      : section
+        ? SUBJECT_ANCHOR[section]
+        : null;
+  if (!anchor) return null;
+  if (section && SUBJECT_DENIAL.test(fold([...carriers, narrative.visualObservation.text].join(' ')))) {
+    return 'intention_subject_drift';
+  }
+  return hasAnchor(carriers, anchor) ? null : 'intention_subject_drift';
+}
+
 export function coffeeClaimEnvelopeFailure(
   narrative: CoffeeNarrative,
   plan: CoffeeStoryPlanV2,
@@ -134,6 +242,10 @@ export function coffeeClaimEnvelopeFailure(
   }
   if (forbidden.has('reciprocal_feeling') && /karşılıklı (yakınlık|duygu|his|bağlılık)|birbirinizi|birbirinize/.test(text)) {
     return 'unsupported_other_agency';
+  }
+  if (plan.subject?.kind === 'person_of_interest') {
+    const personClaim = coffeePersonIntentionClaim(texts);
+    if (personClaim) return personClaim;
   }
   if (forbidden.has('prior_stagnation') && /durgun(luk| giden)|bekleyen (konu|süreç)|aynı çerçevede kalan/.test(text)) {
     return 'unsupported_existing_fact';
@@ -164,6 +276,10 @@ export function coffeeClaimEnvelopeFailure(
   if (forbidden.has('advice') && /\b(malısın|melisin|dikkat et|gözünü açık|sana iyi gelir)\b/.test(text)) {
     return 'coaching_voice';
   }
+
+  if (coffeeMetaNarration(texts)) return 'meta_narration';
+  const subjectFailure = coffeeSubjectAlignmentFailure(narrative, plan);
+  if (subjectFailure) return subjectFailure;
 
   const kinds = [plan.lead.kind, ...plan.supporting.map((item) => item.kind)];
   if (plan.synthesis.mode === 'unified_cooccurrence') {

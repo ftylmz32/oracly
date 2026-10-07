@@ -104,7 +104,11 @@ describe('C2.6 frozen blind-provider proposition corpus', () => {
     expect(packet.storyPlan.authorizedSections).toEqual(testCase.expectedAuthorizedSections);
     expect(packet.storyPlan.claimEnvelope.allowedPropositionKinds).toEqual(testCase.expectedPropositions);
     expect(packet.storyPlan.claimEnvelope.forbiddenAssumptions).toEqual(testCase.expectedForbiddenAssumptions);
-    expect(resultFor(testCase.id).writerPacket).toEqual(packet);
+    // C2.9 added the additive authoritative `lengthRequirements` to the
+    // packet; the frozen artifact predates it. Every other field must match.
+    const { lengthRequirements, ...historicalPacket } = packet;
+    expect(lengthRequirements.combinedLeadMinWords).toBe(42);
+    expect(resultFor(testCase.id).writerPacket).toEqual(historicalPacket);
   });
 
   it('gives repeated-support cases two genuine accepted IDs merged into one independently-supported proposition', () => {
@@ -208,7 +212,8 @@ describe('C2.6 frozen blind-provider proposition corpus', () => {
       // Frozen provider artifacts predate C2.7C's additive actionable
       // lengthDeficits field. Preserve the historical artifact verbatim
       // while comparing every field that existed at capture time.
-      const { lengthDeficits: _newLengthContract, ...historicalShape } = expected;
+      // C2.9 likewise adds the additive authoritative `lengthRequirements`.
+      const { lengthDeficits: _newLengthContract, lengthRequirements: _requirements, ...historicalShape } = expected;
       const historicalExpected = violation === 'section_redundancy' || violation === 'insight_collapse'
         ? { ...historicalShape, defect: { ...historicalShape.defect, kind: 'privacy_or_contract' } }
         : historicalShape;

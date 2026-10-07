@@ -16,6 +16,8 @@ import {
 import { mapCoffeeMeanings } from './coffee-meaning-map.js';
 import type { CoffeeAnyStoryPlan, CoffeeStoryPlanV2 } from './coffee-story-plan.js';
 import { coffeeClaimEnvelopeFailure } from './coffee-claim-envelope.js';
+import { classifyCoffeeIntention } from './coffee-intention-context.js';
+import { coffeeLengthDeficits } from './coffee-length-contract.js';
 import {
   coffeeCommunicationAffordance,
   coffeeContextEventPromotion,
@@ -351,27 +353,35 @@ export function coffeeQualityFailure(
     const claimFailure = coffeeClaimEnvelopeFailure(narrative, storyPlan as CoffeeStoryPlanV2);
     if (claimFailure) return claimFailure;
   }
-  if (storyPlan && coffeePlanDepthFailure(narrative, storyPlan)) return 'too_short';
+  if (storyPlan && coffeePlanDepthFailure(narrative, storyPlan, evidence ? coffeeNarrativelySparse(evidence) : undefined)) {
+    return 'too_short';
+  }
+  // C2.9: an intention relaxes these gates ONLY through facts the user
+  // literally declared (a decision, a current relationship) — a category
+  // choice such as love/career/money/person never licenses them.
+  const declared = classifyCoffeeIntention(personalization?.intention)?.declaredFacts ?? [];
+  const statedState = declared.includes('decision_exists') || declared.includes('stated_condition');
+  const statesUserCondition = statedState || declared.includes('current_relationship');
   const meaningTexts = [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway].map((s) => s.text);
   // Personalization-aware (evidence path only; the legacy single-call parser
   // is unaffected): the person's expectation / wish / prior thought presumed.
   if (
     (language === 'tr' || language === undefined) &&
     !personalization?.memorySummary &&
-    !personalization?.intention &&
+    !statedState &&
     coffeePresumedUserState(meaningTexts)
   ) {
     return 'presumed_user_state';
   }
   const turkish = language === 'tr' || language === undefined;
-  if (turkish && !personalization?.memorySummary && !personalization?.intention && coffeeUnsupportedExistingFact(meaningTexts)) {
+  if (turkish && !personalization?.memorySummary && !statesUserCondition && coffeeUnsupportedExistingFact(meaningTexts)) {
     return 'unsupported_existing_fact';
   }
-  if (turkish && !personalization?.memorySummary && !personalization?.intention && coffeeUnsupportedSourceCausation(meaningTexts)) {
+  if (turkish && !personalization?.memorySummary && coffeeUnsupportedSourceCausation(meaningTexts)) {
     return 'unsupported_source_causation';
   }
   // A specific other person's attitude / decision / intention / action.
-  if (turkish && !personalization?.memorySummary && !personalization?.intention && coffeeOtherAgency(meaningTexts)) {
+  if (turkish && !personalization?.memorySummary && coffeeOtherAgency(meaningTexts)) {
     return 'unsupported_other_agency';
   }
   // Home / close circle needs a home affordance: a handle-side cue in the
@@ -413,10 +423,14 @@ export function coffeeQualityFailure(
   return null;
 }
 
-export function coffeePlanDepthFailure(narrative: CoffeeNarrative, plan: CoffeeAnyStoryPlan): boolean {
-  const words = (value: string) => value.trim().split(/\s+/u).filter(Boolean).length;
-  return words(narrative.overall.text) < plan.depth.overallWords.min
-    || words(narrative.takeaway.text) < plan.depth.takeawayWords.min;
+/** Plan-depth word floors, read from the ONE authoritative length contract. */
+export function coffeePlanDepthFailure(
+  narrative: CoffeeNarrative,
+  plan: CoffeeAnyStoryPlan,
+  narrativelySparse?: boolean,
+): boolean {
+  return coffeeLengthDeficits(narrative, { storyPlan: plan, narrativelySparse })
+    .some((deficit) => deficit.unit === 'words' && (deficit.target === 'overall' || deficit.target === 'takeaway'));
 }
 
 export function coffeeUnauthorizedSection(

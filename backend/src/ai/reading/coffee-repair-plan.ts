@@ -5,7 +5,13 @@ import type {
   CoffeePropositionKind,
 } from './coffee-semantic-propositions.js';
 import type { CoffeePublicSection, CoffeeStoryPlanV2 } from './coffee-story-plan.js';
-import { coffeeLengthDeficits, type CoffeeLengthDeficit } from './coffee-length-contract.js';
+import {
+  coffeeLengthDeficits,
+  coffeeLengthRequirements,
+  type CoffeeLengthDeficit,
+  type CoffeeLengthRequirements,
+} from './coffee-length-contract.js';
+import type { CoffeeStorySubject } from './coffee-intention-context.js';
 
 export type CoffeeRepairDefect =
   | 'structural_deficit'
@@ -13,6 +19,10 @@ export type CoffeeRepairDefect =
   | 'unsupported_concretization'
   | 'multiple_renderings'
   | 'synthesis_redundancy'
+  /** C2.9: the trusted subject section is empty or the subject was dropped/denied. */
+  | 'subject_alignment'
+  /** C2.9: the prose described the reading or explained synthesis rules. */
+  | 'natural_realization'
   | 'privacy_or_contract';
 
 export type CoffeeRepairPlan = {
@@ -29,6 +39,15 @@ export type CoffeeRepairPlan = {
     needsAdditionalGroundedDevelopment: boolean;
   }>;
   lengthDeficits?: CoffeeLengthDeficit[];
+  /** C2.9: the same authoritative contract the writer received and acceptance uses. */
+  lengthRequirements?: CoffeeLengthRequirements;
+  /**
+   * C2.9: the user's trusted reading subject (explicit user input, never
+   * visual evidence). Repair must answer it; becoming generic is invalid.
+   */
+  subject?: CoffeeStorySubject & {
+    issue: 'missing_subject_section' | 'subject_drift' | null;
+  };
   unauthorizedSectionsToClear: CoffeePublicSection[];
   forbiddenClaimCategoriesTriggered: CoffeeForbiddenAssumption[];
   defect: {
@@ -60,6 +79,8 @@ function defectKind(violation: string): CoffeeRepairDefect {
   if (violation === 'section_redundancy' || violation === 'insight_collapse' || violation === 'component_serialization') {
     return 'synthesis_redundancy';
   }
+  if (violation === 'missing_intention_subject' || violation === 'intention_subject_drift') return 'subject_alignment';
+  if (violation === 'meta_narration') return 'natural_realization';
   return 'privacy_or_contract';
 }
 
@@ -91,6 +112,7 @@ export function buildCoffeeRepairPlan(
   violation: string,
   storyPlan: CoffeeStoryPlanV2,
   locale: AppLanguage,
+  lengthRequirements?: CoffeeLengthRequirements,
 ): CoffeeRepairPlan;
 /** Frozen pre-C2.7B corpus compatibility; production must supply locale. */
 export function buildCoffeeRepairPlan(
@@ -103,7 +125,10 @@ export function buildCoffeeRepairPlan(
   violation: string,
   storyPlan: CoffeeStoryPlanV2,
   locale?: AppLanguage,
+  suppliedRequirements?: CoffeeLengthRequirements,
 ): CoffeeRepairPlan | Omit<CoffeeRepairPlan, 'locale'> {
+  // One contract: the pipeline passes the writer packet's own requirements.
+  const lengthRequirements = suppliedRequirements ?? coffeeLengthRequirements({ storyPlan });
   const overallWords = words(narrative.overall.text);
   const takeawayWords = words(narrative.takeaway.text);
   const sectionDeficits = [
@@ -134,13 +159,26 @@ export function buildCoffeeRepairPlan(
     requiredSections: ['visualObservation', 'overall', 'takeaway'],
     sectionDeficits,
     ...(violation === 'too_short'
-      ? { lengthDeficits: coffeeLengthDeficits(narrative, { storyPlan }) }
+      ? { lengthDeficits: coffeeLengthDeficits(narrative, lengthRequirements) }
+      : {}),
+    lengthRequirements,
+    ...(storyPlan.subject
+      ? {
+          subject: {
+            ...storyPlan.subject,
+            issue: violation === 'missing_intention_subject'
+              ? 'missing_subject_section' as const
+              : violation === 'intention_subject_drift'
+                ? 'subject_drift' as const
+                : null,
+          },
+        }
       : {}),
     unauthorizedSectionsToClear,
     forbiddenClaimCategoriesTriggered: triggeredClaims(violation, storyPlan),
     defect: {
       kind: defectKind(violation),
-      propositionKinds: violation === 'abstract_reading'
+      propositionKinds: violation === 'abstract_reading' || violation === 'meta_narration'
         ? propositions.map((proposition) => proposition.kind)
         : [],
     },

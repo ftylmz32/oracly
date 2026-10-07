@@ -80,6 +80,19 @@ const stringValues = (value: unknown): string[] => {
 };
 const writerCases = manifest.cases.filter((item) => item.expectedProviderPolicy.writerEligible);
 
+/**
+ * C2.9 intentional CURRENT plan corrections. The frozen manifest/raw keep the
+ * historical C2.8 envelope; only today's expectation differs:
+ * - a Love CATEGORY choice no longer proves an existing relationship;
+ * - the person intention now always forbids relationship and reciprocity.
+ */
+const CURRENT_FORBIDDEN_ADDITIONS: Record<string, string[]> = {
+  C02: ['existing_relationship'],
+  C03: ['existing_relationship'],
+  C07: ['existing_relationship', 'reciprocal_feeling'],
+  C10: ['existing_relationship'],
+};
+
 describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
   it('keeps the pre-provider manifest byte-for-byte frozen at the C2.7C.1 architecture head', () => {
     const hash = createHash('sha256').update(manifestBytes).digest('hex');
@@ -134,8 +147,25 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
     expect(packet.storyPlan.authorizedSections).toEqual(testCase.expectedAuthorizedSections);
     expect(packet.storyPlan.authorizedTiming).toBe('unspecified');
     expect(packet.storyPlan.claimEnvelope.allowedPropositionKinds).toEqual(testCase.expectedPropositions);
-    expect(packet.storyPlan.claimEnvelope.forbiddenAssumptions).toEqual(testCase.expectedForbiddenAssumptions);
-    expect(resultFor(testCase.id).writerPacket).toEqual(packet);
+    const added = CURRENT_FORBIDDEN_ADDITIONS[testCase.id] ?? [];
+    expect([...packet.storyPlan.claimEnvelope.forbiddenAssumptions].sort()).toEqual([
+      ...testCase.expectedForbiddenAssumptions,
+      ...added,
+    ].sort());
+    // Additive C2.9 fields (subject, lengthRequirements) and the documented
+    // envelope correction are the ONLY differences from the frozen packet.
+    const { lengthRequirements: _requirements, ...currentPacket } = packet;
+    const { subject: _subject, ...currentPlan } = currentPacket.storyPlan;
+    expect(resultFor(testCase.id).writerPacket).toEqual({
+      ...currentPacket,
+      storyPlan: {
+        ...currentPlan,
+        claimEnvelope: {
+          ...currentPlan.claimEnvelope,
+          forbiddenAssumptions: testCase.expectedForbiddenAssumptions,
+        },
+      },
+    });
   });
 
   it('gives every modest case two accepted IDs from different cup views merged into one proposition', () => {
@@ -183,21 +213,48 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
     }
   });
 
-  it('reproduces every recorded quality and binding result under the trusted intention', () => {
+  /**
+   * C2.9 intentional deterministic corrections of recorded verdicts (raw JSON
+   * untouched). The three readings C2.8 delivered narrated the reading or
+   * the synthesis rules ("Bu yorumun odağında", "Biri diğerini yaratmadan,
+   * ikisi aynı bütün içinde yan yana duruyor", "Genel izlenim … anlatıyor",
+   * "Bu iki eğilim … yan yana duruyor"); C11's draft explained its synthesis
+   * ("… tek bir gelişme halinde beliriyor") before its serialization.
+   */
+  const CORRECTED_VERDICTS: Record<string, {
+    historical: { qualityFailure: string | null; bindFailure: string | null };
+    current: { qualityFailure: string; bindFailure: string };
+  }> = {
+    'C03#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C10#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C11#0': { historical: { qualityFailure: 'component_serialization', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C12#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+  };
+
+  it('reproduces every recorded quality and binding result, except documented C2.9 corrections', () => {
+    const corrected = new Set<string>();
     for (const testCase of writerCases) {
       const obs = observation(testCase);
       const personalization = personalizationOf(testCase);
       const packet = buildCoffeeWriterPacketV2(obs, 'tr', personalization);
       if ('status' in packet) throw new Error('writer case cannot be a policy case');
-      for (const attempt of resultFor(testCase.id).attempts) {
+      resultFor(testCase.id).attempts.forEach((attempt, index) => {
         expect(attempt.parsed).not.toBeNull();
-        if (!attempt.parsed) continue;
+        if (!attempt.parsed) return;
+        const key = `${testCase.id}#${index}`;
+        const correction = CORRECTED_VERDICTS[key];
+        if (correction) {
+          corrected.add(key);
+          expect({ qualityFailure: attempt.qualityFailure, bindFailure: attempt.bindFailure }).toEqual(correction.historical);
+        }
+        const expected = correction?.current ?? attempt;
         expect(coffeeQualityFailure(attempt.parsed, 'tr', personalization, obs.evidence, packet.storyPlan))
-          .toBe(attempt.qualityFailure);
+          .toBe(expected.qualityFailure);
         expect(bindCoffeeNarrative(attempt.parsed, obs, 'tr', personalization, packet.storyPlan))
-          .toBe(attempt.bindFailure);
-      }
+          .toBe(expected.bindFailure);
+      });
     }
+    expect([...corrected].sort()).toEqual(Object.keys(CORRECTED_VERDICTS).sort());
   });
 
   it('keeps the C2.7C.1 causation gate active on the recorded C2.8 outputs', () => {
@@ -220,7 +277,11 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
       const violation = first.bindFailure === 'human_quality'
         ? (first.qualityFailure ?? 'human_quality')
         : first.bindFailure!;
-      const expected = buildCoffeeRepairPlan(first.parsed, violation, packet.storyPlan, 'tr');
+      // Historical reproduction against the frozen plan the repair received;
+      // C2.9's additive lengthRequirements is the only new field.
+      const historicalPlan = (result.repairPlan as { storyPlan: typeof packet.storyPlan }).storyPlan;
+      const { lengthRequirements: _requirements, ...expected } =
+        buildCoffeeRepairPlan(first.parsed, violation, historicalPlan, 'tr');
       expect(result.repairPlan).toEqual(expected);
       expect(expected.locale).toBe('tr');
       if (violation === 'too_short') expect(expected.lengthDeficits?.length).toBeGreaterThan(0);
@@ -236,9 +297,12 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
         expect(repairText).not.toContain(evidence.description);
         if (evidence.resemblance) expect(repairText).not.toContain(evidence.resemblance);
       }
-      // Systemic finding #1 (recorded, not fixed in C2.8): the repair packet
-      // carries no trusted intention, only the authorized section list.
+      // Systemic finding #1 as RECORDED in C2.8: the repair packet carried no
+      // trusted intention. C2.9 closes it — today's repair plan carries it.
       expect(repairText).not.toContain(testCase.intention);
+      const current = buildCoffeeRepairPlan(first.parsed, violation, packet.storyPlan, 'tr', packet.lengthRequirements);
+      expect(current.subject?.intention).toBe(testCase.intention);
+      expect(current.lengthRequirements).toEqual(packet.lengthRequirements);
       const repaired = result.attempts[1].parsed!;
       expect(`${repaired.overall.text} ${repaired.takeaway.text}`).toMatch(/[çğıöşü]/);
     }

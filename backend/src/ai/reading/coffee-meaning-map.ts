@@ -15,6 +15,8 @@ import {
   type CoffeeWriterPacket,
 } from './coffee-story-plan.js';
 import { mapCoffeePropositions } from './coffee-semantic-propositions.js';
+import { coffeeLengthRequirements } from './coffee-length-contract.js';
+import { coffeeNarrativelySparse } from './coffee-diversity.js';
 
 export type CoffeeMeaningFamily =
   | 'communication'
@@ -119,5 +121,9 @@ export function buildCoffeeWriterPacketV2(
   const propositions = mapCoffeePropositions(mapCoffeeMeanings(obs, language));
   const planned = planCoffeeStoryV2(propositions, personalization);
   if (planned.status !== 'ready') return planned;
-  return buildStoryPacketV2(language, planned.plan, personalization);
+  const lengthRequirements = coffeeLengthRequirements({
+    narrativelySparse: coffeeNarrativelySparse(obs.evidence),
+    storyPlan: planned.plan,
+  });
+  return buildStoryPacketV2(language, planned.plan, lengthRequirements, personalization);
 }

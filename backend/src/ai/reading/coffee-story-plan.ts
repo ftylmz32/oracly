@@ -8,6 +8,13 @@ import {
   type CoffeeSemanticCapacity,
   type CoffeeSemanticProposition,
 } from './coffee-semantic-propositions.js';
+import {
+  classifyCoffeeIntention,
+  coffeePersonalizationSections,
+  coffeeStorySubject,
+  type CoffeeStorySubject,
+} from './coffee-intention-context.js';
+import type { CoffeeLengthRequirements } from './coffee-length-contract.js';
 
 export type CoffeePublicSection =
   | 'visualObservation'
@@ -78,6 +85,8 @@ export type CoffeeStoryPlanV2 = {
     overallWords: { min: number; max: number };
     takeawayWords: { min: number; max: number };
   };
+  /** C2.9: present only when a trusted intention exists — the user's reading subject. */
+  subject?: CoffeeStorySubject;
 };
 
 export type CoffeeStoryPlanningResultV2 =
@@ -94,6 +103,8 @@ export type CoffeeWriterPacketV2 = {
     realizePropositionsNotTaxonomy: true;
     unifiedSynthesis: true;
   };
+  /** C2.9: the ONE authoritative length contract (same source as acceptance). */
+  lengthRequirements: CoffeeLengthRequirements;
   personalization?: ReadingPersonalization;
 };
 
@@ -135,25 +146,6 @@ function mergeFacets(facets: CoffeeMeaningFacet[]): CoffeePlannedComponent[] {
   );
 }
 
-function personalizationSections(personalization?: ReadingPersonalization): CoffeePublicSection[] {
-  const supplied = [
-    personalization?.intention,
-    personalization?.memorySummary,
-    ...(personalization?.relevantThemes ?? []),
-  ].filter(Boolean).join(' ').toLocaleLowerCase('tr-TR');
-  const sections: CoffeePublicSection[] = [];
-  const words = new Set(supplied.match(/\p{L}+/gu) ?? []);
-  const hasAny = (allowed: string[]) => allowed.some((word) => words.has(word));
-  if (hasAny(['aşk', 'aşkım', 'aşkı', 'ilişki', 'ilişkim', 'ilişkimi', 'ilişkimde', 'partner', 'partnerim', 'love', 'relationship'])) sections.push('love');
-  // The explicit product choice is trusted person/relationship subject
-  // context only. It opens the LOVE lane but does not relax any claim about
-  // an existing bond, reciprocity, feelings, union, or the other person's agency.
-  if (supplied.includes('aklımdaki kişiyle ilgili')) sections.push('love');
-  if (hasAny(['kariyer', 'kariyerim', 'kariyerimde', 'iş', 'işim', 'işimde', 'işimi', 'meslek', 'mesleğim', 'career', 'job', 'work'])) sections.push('career');
-  if (hasAny(['para', 'param', 'parasal', 'kazanç', 'kazancım', 'maddi', 'money', 'finance'])) sections.push('money');
-  return sections;
-}
-
 export function planCoffeeStory(
   facets: CoffeeMeaningFacet[],
   personalization?: ReadingPersonalization,
@@ -168,7 +160,7 @@ export function planCoffeeStory(
     'visualObservation',
     'overall',
     'takeaway',
-    ...personalizationSections(personalization),
+    ...coffeePersonalizationSections(personalization),
   ];
   if (components.some((component) => component.timing === 'nearer_term')) {
     authorizedSections.push('nearFuture');
@@ -254,7 +246,7 @@ export function planCoffeeStoryV2(
     'visualObservation',
     'overall',
     'takeaway',
-    ...personalizationSections(personalization),
+    ...coffeePersonalizationSections(personalization),
   ];
   if (planned.some((proposition) => proposition.timing === 'nearer_term')) {
     authorizedSections.push('nearFuture');
@@ -262,19 +254,12 @@ export function planCoffeeStoryV2(
   const forbiddenAssumptions = [
     ...new Set(ordered.flatMap((proposition) => proposition.forbiddenAssumptions)),
   ];
-  const suppliedContext = [
-    personalization?.intention,
-    personalization?.memorySummary,
-    ...(personalization?.relevantThemes ?? []),
-  ].filter(Boolean).join(' ').toLocaleLowerCase('tr-TR');
-  const authorizedForbiddenExceptions = new Set<CoffeeForbiddenAssumption>();
-  if (/decision|choice|karar|seçim/.test(suppliedContext)) {
-    authorizedForbiddenExceptions.add('current_major_decision');
-    authorizedForbiddenExceptions.add('options_assumption');
-  }
-  if (/relationship|partner|ilişki|aşk/.test(suppliedContext)) {
-    authorizedForbiddenExceptions.add('existing_relationship');
-  }
+  // C2.9: intention effects come ONLY from the trusted-intention contract.
+  const intention = classifyCoffeeIntention(personalization?.intention);
+  const exceptions = new Set<CoffeeForbiddenAssumption>(intention?.allowedAssumptionExceptions ?? []);
+  const envelopeForbidden = [
+    ...new Set([...forbiddenAssumptions, ...(intention?.intentionForbiddenAssumptions ?? [])]),
+  ].filter((assumption) => !exceptions.has(assumption));
   return {
     status: 'ready',
     plan: {
@@ -296,13 +281,12 @@ export function planCoffeeStoryV2(
       authorizedSections: [...new Set(authorizedSections)],
       claimEnvelope: {
         allowedPropositionKinds: planned.map((proposition) => proposition.kind),
-        forbiddenAssumptions: forbiddenAssumptions.filter(
-          (assumption) => !authorizedForbiddenExceptions.has(assumption),
-        ),
+        forbiddenAssumptions: envelopeForbidden,
       },
       depth: capacity === 'rich'
         ? { overallWords: { min: 40, max: 70 }, takeawayWords: { min: 10, max: 18 } }
         : { overallWords: { min: 26, max: 45 }, takeawayWords: { min: 9, max: 16 } },
+      ...(intention ? { subject: coffeeStorySubject(intention) } : {}),
     },
   };
 }
@@ -310,6 +294,7 @@ export function planCoffeeStoryV2(
 export function buildCoffeeWriterPacketV2(
   locale: AppLanguage,
   plan: CoffeeStoryPlanV2,
+  lengthRequirements: CoffeeLengthRequirements,
   personalization?: ReadingPersonalization,
 ): CoffeeWriterPacketV2 {
   return {
@@ -324,6 +309,7 @@ export function buildCoffeeWriterPacketV2(
       realizePropositionsNotTaxonomy: true,
       unifiedSynthesis: true,
     },
+    lengthRequirements,
     ...(personalization ? { personalization } : {}),
   };
 }

@@ -107,7 +107,13 @@ export type HumanQualityFailure =
   | 'plain_line_relocation'
   | 'advice_voice'
   | 'unsupported_home_domain'
-  | 'unsupported_other_agency';
+  | 'unsupported_other_agency'
+  /** Coffee C2.9: public prose describes the reading or explains synthesis rules. */
+  | 'meta_narration'
+  /** Coffee C2.9: the trusted intention's required subject section is empty. */
+  | 'missing_intention_subject'
+  /** Coffee C2.9: the reading abandons or denies the user's declared subject. */
+  | 'intention_subject_drift';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -206,32 +212,7 @@ const INFERRED_HAND =
   /\b(sag|sol) (el|avuc|avu[cç])\b|\b(right|left) (hand|palm)\b|\bsingle right hand\b|\bsingle left hand\b/i;
 
 
-/**
- * Story-first closure: normal (non-sparse) floors 50/30 -> 42/22, calibrated
- * on all 133 saved non-sparse real stages. Only 5 had overall <= 30 or lead
- * <= 50: two clean sign-led BIRD writer passes (full12_run9 23/43, targeted16
- * 28/49) that were padded by unnecessary repairs, and three that other gates
- * reject at any floor (RING repair 25/46 and STAR repair 27/50: menu +
- * "yorulur"; TWO-SIGN repair 28/51: reading self-reference). The floors sit
- * one word below the shortest clean real reading. Takeaway (10) unchanged.
- */
-const COFFEE_MIN_LEAD_WORDS = 42;
-/** PHASE C1.5: per-section substance (replaces the aggregate word quota). */
-const COFFEE_MIN_OVERALL_WORDS = 22;
-const COFFEE_MIN_TAKEAWAY_WORDS = 10;
-/**
- * Story-first closure: floors for a NARRATIVELY SPARSE cup (no sign or drawn
- * form) only. Calibrated on all 34 saved real sparse-cup stages (SPARSE,
- * HANDLE, DOTS; run1–6, run8, targeted9–14): the smallest grounded concise
- * outputs were overall 27 / lead 42 (targeted14 HANDLE) — but 4 of those
- * words were the advice clause "gözün kulağın yakınında olsun"; its grounded
- * content alone is overall 23 / lead 38 — and takeaway 9 (targeted14 HANDLE
- * repair, run1 DOTS). The floors sit just below those minima; trivial
- * filler (~10 words) still fails. The normal floors are unchanged.
- */
-const COFFEE_MIN_LEAD_WORDS_SPARSE = 35;
-const COFFEE_MIN_OVERALL_WORDS_SPARSE = 20;
-const COFFEE_MIN_TAKEAWAY_WORDS_SPARSE = 8;
+// Coffee length floors live ONLY in reading/coffee-length-contract.ts (C2.9).
 
 const GENERIC_COFFEE =
   /^(this cup (shows|reveals) (energy|potential)\.?|fincan enerji tasiyor\.?|analysis complete\.?)$/i;

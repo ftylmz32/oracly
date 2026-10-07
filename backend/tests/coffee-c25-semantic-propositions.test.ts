@@ -108,11 +108,20 @@ describe('C2.5 grounded Coffee semantic propositions', () => {
     expect(packet.storyPlan.authorizedSections).not.toContain('love');
   });
 
-  it('explicit decision personalization narrowly authorizes that context without opening money/love', () => {
-    const result = buildCoffeeWriterPacketV2(
+  it('C2.9: themes/memory never relax decision bans; only a trusted intention may declare a decision', () => {
+    const inferred = buildCoffeeWriterPacketV2(
       obs(item('e1', 'fish'), item('e2', 'heart')),
       'tr',
       { relevantThemes: ['decision'], memorySummary: 'Prior decision remained open.' },
+    );
+    if ('status' in inferred) throw new Error('expected ready');
+    expect(inferred.storyPlan.claimEnvelope.forbiddenAssumptions).toEqual(expect.arrayContaining([
+      'current_major_decision', 'options_assumption',
+    ]));
+    const result = buildCoffeeWriterPacketV2(
+      obs(item('e1', 'fish'), item('e2', 'heart')),
+      'tr',
+      { intention: 'Önümdeki karar hakkında' },
     );
     if ('status' in result) throw new Error('expected ready');
     expect(result.storyPlan.claimEnvelope.forbiddenAssumptions).not.toContain('current_major_decision');

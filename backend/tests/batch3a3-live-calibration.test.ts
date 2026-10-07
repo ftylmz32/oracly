@@ -115,7 +115,7 @@ describe('BATCH 3A.3 — same evidence and theme can still pass when additive', 
     expect(coffeePrompt).toContain('PRIVATE GROUNDED MEANING FACETS');
     expect(coffeePrompt).toContain('PRIVATE GROUNDED MEANING FACETS');
     expect(palm).toContain('must not re-describe the same length');
-    expect(coffeePrompt).toContain('Personalization is optional silent context');
+    expect(coffeePrompt).toContain('Other personalization fields stay optional silent context');
   });
 
   it('same weak theme does not force Coffee and Palm onto the same coaching close', () => {

@@ -178,7 +178,11 @@ describe('E3H two-stage reading pipeline', () => {
     writeBody.payload.readingPhase = 'write';
     writeBody.payload.readingBridgeKey = 'bridge-coffee-1';
     writeBody.payload.observationToken = observed.json().data.observationToken;
+    // C2.9: memory/themes no longer relax the decision ban (never inferred
+    // from profile/history); the decision prose is licensed only because the
+    // user's trusted intention declares the decision.
     writeBody.payload.personalization = {
+      intention: 'Önümdeki karar hakkında',
       relevantThemes: ['decision'],
       memorySummary: '[tarot | 2026-09-07 | t1] Prior decision remained open.',
     };
