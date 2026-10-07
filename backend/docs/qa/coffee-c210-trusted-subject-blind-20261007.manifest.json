@@ -1,0 +1,1417 @@
+{
+  "phase": "C2.10 BLIND TRUSTED-SUBJECT REAL-PROVIDER PRODUCT CORPUS",
+  "createdAt": "2026-10-07",
+  "architectureHead": "9bb535465f5e979eb6697964af3e8be9334c87d4",
+  "branch": "fix/coffee-c21-private-meaning-handoff-20261006",
+  "language": "tr",
+  "personalizationTransport": "production Coffee V2 path: personalizationFromUnknown({ personalization: { intention } })",
+  "providerConfig": {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "temperature": "omitted"
+  },
+  "checks": {
+    "cupInteriorVisible": true,
+    "adequateFocusLight": true,
+    "residueVisible": true,
+    "milkFoamObstruction": false,
+    "usefulRegionsVisible": true
+  },
+  "c14TrustedStateContractAudit": {
+    "probeSentence": "Beklediğin dönüşle ilgili iş tarafında bir haber trafiği hareketleniyor; görüşmeden sonra sana ulaşacak bir söz kendini gösterebilir, iş hayatındaki iletişimin canlandığını hissedeceksin.",
+    "classifierDeclaredFacts": [
+      "stated_condition"
+    ],
+    "claimEnvelopeForbidsAwaitedTopic": true,
+    "claimEnvelopeVerdictOnLiteralRestatement": "presumed_user_state",
+    "qualityVerdictOnLiteralRestatement": "too_short",
+    "trustedStateContractInconsistency": true
+  },
+  "cases": [
+    {
+      "id": "C01",
+      "target": "general_communication",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c210-c01-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A short body carries two long tapering strokes held wide apart.",
+          "resemblance": "may resemble a seabird with lifted wings",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c01-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A thin oblong patch is marked by one faint crosswise crease.",
+          "resemblance": "may resemble a tiny message slip",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c01-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "general",
+        "requiredSection": null,
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C02",
+      "target": "love_felt_significance",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c02-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "Two uneven rounded lobes close into a blunt lower tip.",
+          "resemblance": "may resemble a lopsided heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c02-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A thin closed contour dips at the top and tapers below.",
+          "resemblance": "may resemble a narrow heart outline",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c02-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "emotional_relevance",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "felt_significance"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "felt_significance",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "love_relationships",
+        "requiredSection": "love",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C03",
+      "target": "love_connection_continuity",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c03-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A hairline circle closes neatly around an empty centre.",
+          "resemblance": "may resemble a delicate ring",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c03-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A slightly stretched closed loop sits on its own.",
+          "resemblance": "may resemble an oval ring",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c03-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "bond",
+        "bond"
+      ],
+      "expectedPropositions": [
+        "connection_continuity"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "connection_continuity",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "love_relationships",
+        "requiredSection": "love",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C04",
+      "target": "career_opening_availability",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c04-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "An elongated body bends upward and ends in a spread tail.",
+          "resemblance": "may resemble a fish turning upward",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c04-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A lean tapered mark has a small head and a fine tail.",
+          "resemblance": "may resemble a slender fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c04-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "career_work",
+        "requiredSection": "career",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C05",
+      "target": "career_resolution_availability",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c05-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A long straight stem ends in a loop at the top and a toothed bit below.",
+          "resemblance": "may resemble a long-stemmed key",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c05-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A compact horizontal shaft carries two notches at one end.",
+          "resemblance": "may resemble a key lying flat",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c05-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "solution",
+        "solution"
+      ],
+      "expectedPropositions": [
+        "resolution_availability"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "career_work",
+        "requiredSection": "career",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C06",
+      "target": "money_opening_availability",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c210-c06-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A rounded body narrows into a small fanned tail.",
+          "resemblance": "may resemble a plump fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c06-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "An arched body hangs in the air with its tail flicked back.",
+          "resemblance": "may resemble a fish mid-leap",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c06-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "money_finance",
+        "requiredSection": "money",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "money"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    },
+    {
+      "id": "C07",
+      "target": "person_communication",
+      "intention": "Aklımdaki kişiyle ilgili",
+      "evidence": [
+        {
+          "id": "c210-c07-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A small rounded mass rests on a short line with a pointed beak-like tip.",
+          "resemblance": "may resemble a small bird perched",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c07-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A square patch carries a triangular flap folded over its top edge.",
+          "resemblance": "may resemble an envelope-shaped letter",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c07-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "person_of_interest",
+        "requiredSection": "love",
+        "declaredFacts": [
+          "person_in_mind"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aklımdaki kişiyle ilgili"
+      }
+    },
+    {
+      "id": "C08",
+      "target": "person_felt_significance",
+      "intention": "Aklımdaki kişiyle ilgili",
+      "evidence": [
+        {
+          "id": "c210-c08-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A softly swelling outline closes into a rounded point.",
+          "resemblance": "may resemble a soft heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c08-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A single continuous stroke loops into two humps and a tip.",
+          "resemblance": "may resemble a heart drawn with one stroke",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c08-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "emotional_relevance",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "felt_significance"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "felt_significance",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "person_of_interest",
+        "requiredSection": "love",
+        "declaredFacts": [
+          "person_in_mind"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aklımdaki kişiyle ilgili"
+      }
+    },
+    {
+      "id": "C09",
+      "target": "custom_decision_alternative_distinction",
+      "intention": "Vermem gereken bir kararla ilgili",
+      "evidence": [
+        {
+          "id": "c210-c09-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A single trail runs upward and parts into two trails of equal width.",
+          "resemblance": "may resemble two diverging trails",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c09-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A thin twig-like stroke parts into two short prongs at its end.",
+          "resemblance": "may resemble a forked twig",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c09-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "choice",
+        "choice"
+      ],
+      "expectedPropositions": [
+        "alternative_distinction"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "alternative_distinction",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "custom_decision",
+        "requiredSection": null,
+        "declaredFacts": [
+          "decision_exists"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Vermem gereken bir kararla ilgili"
+      }
+    },
+    {
+      "id": "C10",
+      "target": "love_opening_plus_felt_significance",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c10-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A level body with a tidy tail floats in a clear patch.",
+          "resemblance": "may resemble a fish near the surface",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c10-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A broad outline with two full upper curves narrows to a point.",
+          "resemblance": "may resemble a wide heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c10-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "opening_availability",
+        "felt_significance"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [
+        "felt_significance"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedSubject": {
+        "kind": "love_relationships",
+        "requiredSection": "love",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C11",
+      "target": "career_resolution_plus_directional_change",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c11-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A decorated head sits on a straight shaft with a squared bit.",
+          "resemblance": "may resemble an ornate key",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c11-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A smooth band sweeps in one wide bend across the wall.",
+          "resemblance": "may resemble a curving path",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c11-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "solution",
+        "movement"
+      ],
+      "expectedPropositions": [
+        "resolution_availability",
+        "directional_change"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": [
+        "directional_change"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedSubject": {
+        "kind": "career_work",
+        "requiredSection": "career",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem",
+        "prior_stagnation",
+        "travel",
+        "relocation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C12",
+      "target": "money_opening_plus_gradual_expansion",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c210-c12-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A deep-bodied shape has a short snout and a full tail.",
+          "resemblance": "may resemble a wide-bodied fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c12-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A firm upright stem opens into several outward strokes near the top.",
+          "resemblance": "may resemble a tree with spreading branches",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c12-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "growth"
+      ],
+      "expectedPropositions": [
+        "opening_availability",
+        "gradual_expansion"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [
+        "gradual_expansion"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedSubject": {
+        "kind": "money_finance",
+        "requiredSection": "money",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "money"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    },
+    {
+      "id": "C13",
+      "target": "custom_current_relationship_connection_continuity",
+      "intention": "Eşimle olan ilişkim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c13-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A heavy closed band has an even thickness all the way round.",
+          "resemblance": "may resemble a thick ring",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c13-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A neat round loop shows one tiny break near its base.",
+          "resemblance": "may resemble a ring with a small gap",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c13-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "bond",
+        "bond"
+      ],
+      "expectedPropositions": [
+        "connection_continuity"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "connection_continuity",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "love_relationships",
+        "requiredSection": "love",
+        "declaredFacts": [
+          "current_relationship"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Eşimle olan ilişkim hakkında"
+      }
+    },
+    {
+      "id": "C14",
+      "target": "custom_stated_condition_communication",
+      "intention": "İş görüşmesinden sonra dönüş bekliyorum",
+      "evidence": [
+        {
+          "id": "c210-c14-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A compact mass shows two strokes sweeping up and away from it.",
+          "resemblance": "may resemble a bird taking off",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c14-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A rectangle shows two parallel creases dividing it in three.",
+          "resemblance": "may resemble a letter folded in thirds",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c14-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedSubject": {
+        "kind": "career_work",
+        "requiredSection": "career",
+        "declaredFacts": [
+          "stated_condition"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İş görüşmesinden sonra dönüş bekliyorum"
+      }
+    },
+    {
+      "id": "C15",
+      "target": "policy_general_unknown_only",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c210-c15-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A small rounded bowl shape sits on a short foot.",
+          "resemblance": "may resemble a teacup",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c15-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A thin curved sliver thickens in its middle.",
+          "resemblance": "may resemble a crescent moon",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c15-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [],
+      "expectedPropositions": [],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "no_safe_semantic_facets"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C16",
+      "target": "policy_love_context_only",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c210-c16-e1",
+          "observationSource": "cup_primary",
+          "region": "handle_adjacent_wall",
+          "description": "A tight dark knot of grounds collects right next to the grip.",
+          "resemblance": null,
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c16-e2",
+          "observationSource": "cup_secondary",
+          "region": "below_handle",
+          "description": "A smaller dense knot repeats on the grip side.",
+          "resemblance": null,
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c16-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "home_close_circle",
+        "home_close_circle"
+      ],
+      "expectedPropositions": [
+        "proximate_context"
+      ],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C17",
+      "target": "policy_money_single_thin_support",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c210-c17-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A very small tapered body ends in a two-point tail.",
+          "resemblance": "may resemble a minnow-like fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c210-c17-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "Loose freckles of grounds scatter with no outline.",
+          "resemblance": null,
+          "confidence": "medium",
+          "visibility": "partial"
+        },
+        {
+          "id": "c210-c17-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A pale wash spreads unevenly and never forms a shape.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    }
+  ]
+}
