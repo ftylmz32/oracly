@@ -1,0 +1,2794 @@
+{
+  "phase": "C2.12 DECISIVE BLIND REAL-PROVIDER PRODUCT VERDICT",
+  "createdAt": "2026-10-07",
+  "architectureHead": "42168d36e77ce701d0fb2d1d7c8da3337cac41aa",
+  "branch": "fix/coffee-c21-private-meaning-handoff-20261006",
+  "language": "tr",
+  "personalizationTransport": "production Coffee V2 path: personalizationFromUnknown({ personalization: { intention } })",
+  "providerConfig": {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "temperature": "omitted"
+  },
+  "frozenRules": {
+    "maxWriterCallsPerCase": 1,
+    "maxRepairCallsPerCase": 1,
+    "noThirdAttempt": true,
+    "noManualRegeneration": true,
+    "noProductionPromptGateOrCorpusChangeAfterFirstCall": true,
+    "c08FrozenCue": "incoming_contact"
+  },
+  "blindness": {
+    "priorCorporaChecked": [
+      "docs/qa/coffee-c210-trusted-subject-blind-20261007.manifest.json",
+      "docs/qa/coffee-c210-trusted-subject-blind-20261007.raw.json",
+      "docs/qa/coffee-c210-trusted-subject-blind-20261007.review.md",
+      "docs/qa/coffee-c22-real-provider-20261006.raw.json",
+      "docs/qa/coffee-c22-real-provider-20261006.review.md",
+      "docs/qa/coffee-c24-blind-provider-20261006.manifest.json",
+      "docs/qa/coffee-c24-blind-provider-20261006.raw.json",
+      "docs/qa/coffee-c24-blind-provider-20261006.review.md",
+      "docs/qa/coffee-c26-blind-provider-20261006.manifest.json",
+      "docs/qa/coffee-c26-blind-provider-20261006.raw.json",
+      "docs/qa/coffee-c26-blind-provider-20261006.review.md",
+      "docs/qa/coffee-c28-intention-blind-20261007.manifest.json",
+      "docs/qa/coffee-c28-intention-blind-20261007.raw.json",
+      "docs/qa/coffee-c28-intention-blind-20261007.review.md",
+      "tests/coffee-c21-historical-corpus.test.ts",
+      "tests/coffee-c21-private-meaning.test.ts",
+      "tests/coffee-c210-trusted-subject-corpus-gates.test.ts",
+      "tests/coffee-c211-fortune-realization.test.ts",
+      "tests/coffee-c211a-fortune-boundaries.test.ts",
+      "tests/coffee-c211a1-fortune-alignment.test.ts"
+    ],
+    "priorIntentionsExcluded": [
+      "Önümdeki karar hakkında",
+      "Sevgilimle ilişkimiz hakkında",
+      "İş başvurumdan haber bekliyorum",
+      "Vermem gereken bir kararla ilgili",
+      "Eşimle olan ilişkim hakkında",
+      "İş görüşmesinden sonra dönüş bekliyorum"
+    ]
+  },
+  "checks": {
+    "cupInteriorVisible": true,
+    "adequateFocusLight": true,
+    "residueVisible": true,
+    "milkFoamObstruction": false,
+    "usefulRegionsVisible": true
+  },
+  "preflight": [
+    {
+      "id": "C01",
+      "writerEligible": true,
+      "trustedIntention": "Önümüzdeki dönem genel olarak",
+      "subjectKind": "general",
+      "declaredFacts": [],
+      "requiredSection": null,
+      "semanticCues": [
+        "incoming_contact"
+      ],
+      "propositions": [
+        "exchange_emergence"
+      ],
+      "fortuneLead": "contact_emergence",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "communication"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "sender_identity",
+        "guaranteed_contact"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C02",
+      "writerEligible": true,
+      "trustedIntention": "Önümüzdeki dönem genel olarak",
+      "subjectKind": "general",
+      "declaredFacts": [],
+      "requiredSection": null,
+      "semanticCues": [
+        "written_contact"
+      ],
+      "propositions": [
+        "exchange_emergence"
+      ],
+      "fortuneLead": "written_exchange",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "communication"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "sender_identity",
+        "guaranteed_contact"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C03",
+      "writerEligible": true,
+      "trustedIntention": "İşim ve kariyerim hakkında",
+      "subjectKind": "career_work",
+      "declaredFacts": [],
+      "requiredSection": "career",
+      "semanticCues": [
+        "available_opening"
+      ],
+      "propositions": [
+        "opening_availability"
+      ],
+      "fortuneLead": "opening_emerges",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "opening"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C04",
+      "writerEligible": true,
+      "trustedIntention": "İşim ve kariyerim hakkında",
+      "subjectKind": "career_work",
+      "declaredFacts": [],
+      "requiredSection": "career",
+      "semanticCues": [
+        "access_answer"
+      ],
+      "propositions": [
+        "resolution_availability"
+      ],
+      "fortuneLead": "way_through_appears",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "way_through"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "prior_problem"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C05",
+      "writerEligible": true,
+      "trustedIntention": "Maddi durumum hakkında",
+      "subjectKind": "money_finance",
+      "declaredFacts": [],
+      "requiredSection": "money",
+      "semanticCues": [
+        "available_opening",
+        "gradual_growth"
+      ],
+      "propositions": [
+        "opening_availability",
+        "gradual_expansion"
+      ],
+      "fortuneLead": "opening_emerges",
+      "fortuneSupporting": [
+        "gradual_accumulation"
+      ],
+      "activeDevelopmentClasses": [
+        "opening",
+        "growth"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C06",
+      "writerEligible": true,
+      "trustedIntention": "Aşk ve ilişkilerim hakkında",
+      "subjectKind": "love_relationships",
+      "declaredFacts": [],
+      "requiredSection": "love",
+      "semanticCues": [
+        "commitment_bond"
+      ],
+      "propositions": [
+        "connection_continuity"
+      ],
+      "fortuneLead": "commitment_forms",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "commitment"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "guaranteed_contact"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C07",
+      "writerEligible": true,
+      "trustedIntention": "Aşk ve ilişkilerim hakkında",
+      "subjectKind": "love_relationships",
+      "declaredFacts": [],
+      "requiredSection": "love",
+      "semanticCues": [
+        "emotional_weight"
+      ],
+      "propositions": [
+        "felt_significance"
+      ],
+      "fortuneLead": "feeling_deepens",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "feeling"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C08",
+      "writerEligible": true,
+      "trustedIntention": "Aklımdaki kişiyle ilgili",
+      "subjectKind": "person_of_interest",
+      "declaredFacts": [
+        "person_in_mind"
+      ],
+      "requiredSection": "love",
+      "semanticCues": [
+        "incoming_contact"
+      ],
+      "propositions": [
+        "exchange_emergence"
+      ],
+      "fortuneLead": "contact_emergence",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "communication"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "sender_identity",
+        "guaranteed_contact"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C09",
+      "writerEligible": true,
+      "trustedIntention": "Şu sıralar bir karar vermem lazım, onun hakkında ne görüyorsun?",
+      "subjectKind": "custom_decision",
+      "declaredFacts": [
+        "decision_exists"
+      ],
+      "requiredSection": null,
+      "semanticCues": [
+        "alternative_split"
+      ],
+      "propositions": [
+        "alternative_distinction"
+      ],
+      "fortuneLead": "alternatives_clarify",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "alternatives"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "invented_options"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C10",
+      "writerEligible": true,
+      "trustedIntention": "Önümüzdeki dönem genel olarak",
+      "subjectKind": "general",
+      "declaredFacts": [],
+      "requiredSection": null,
+      "semanticCues": [
+        "directional_progress"
+      ],
+      "propositions": [
+        "directional_change"
+      ],
+      "fortuneLead": "direction_shifts",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "direction"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation",
+        "travel",
+        "relocation"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "travel_or_relocation"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C11",
+      "writerEligible": true,
+      "trustedIntention": "Önümüzdeki dönem genel olarak",
+      "subjectKind": "general",
+      "declaredFacts": [],
+      "requiredSection": null,
+      "semanticCues": [
+        "people_presence"
+      ],
+      "propositions": [
+        "social_presence"
+      ],
+      "fortuneLead": "people_gather",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "people"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "sender_identity"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C12",
+      "writerEligible": true,
+      "trustedIntention": "Aşk ve ilişkilerim hakkında",
+      "subjectKind": "love_relationships",
+      "declaredFacts": [],
+      "requiredSection": "love",
+      "semanticCues": [
+        "available_opening",
+        "emotional_weight"
+      ],
+      "propositions": [
+        "opening_availability",
+        "felt_significance"
+      ],
+      "fortuneLead": "opening_emerges",
+      "fortuneSupporting": [
+        "feeling_deepens"
+      ],
+      "activeDevelopmentClasses": [
+        "opening",
+        "feeling"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C13",
+      "writerEligible": true,
+      "trustedIntention": "İşim ve kariyerim hakkında",
+      "subjectKind": "career_work",
+      "declaredFacts": [],
+      "requiredSection": "career",
+      "semanticCues": [
+        "access_answer",
+        "directional_progress"
+      ],
+      "propositions": [
+        "resolution_availability",
+        "directional_change"
+      ],
+      "fortuneLead": "way_through_appears",
+      "fortuneSupporting": [
+        "direction_shifts"
+      ],
+      "activeDevelopmentClasses": [
+        "way_through",
+        "direction"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem",
+        "prior_stagnation",
+        "travel",
+        "relocation"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "prior_problem",
+        "travel_or_relocation"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C14",
+      "writerEligible": true,
+      "trustedIntention": "Bir konuda haber bekliyorum, ne çıkacak merak ediyorum",
+      "subjectKind": "custom_other",
+      "declaredFacts": [
+        "awaiting_response"
+      ],
+      "requiredSection": null,
+      "semanticCues": [
+        "written_contact"
+      ],
+      "propositions": [
+        "exchange_emergence"
+      ],
+      "fortuneLead": "written_exchange",
+      "fortuneSupporting": [],
+      "activeDevelopmentClasses": [
+        "communication"
+      ],
+      "forbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice"
+      ],
+      "forbiddenSpecifics": [
+        "exact_person",
+        "employer_or_company",
+        "monetary_amount",
+        "salary_or_debt",
+        "payment_event",
+        "exact_event",
+        "relationship_history",
+        "other_person_feelings",
+        "other_person_intent",
+        "other_person_action",
+        "guaranteed_outcome",
+        "date",
+        "chronology",
+        "unsupported_causation",
+        "sender_identity",
+        "guaranteed_contact"
+      ],
+      "lengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "packetPrivacy": "no description/resemblance/region/sourceSlot/confidence/visibility/raw sign noun"
+    },
+    {
+      "id": "C15",
+      "writerEligible": false,
+      "outcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "no_safe_semantic_facets"
+      },
+      "providerCallsPermitted": 0
+    },
+    {
+      "id": "C16",
+      "writerEligible": false,
+      "outcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "providerCallsPermitted": 0
+    },
+    {
+      "id": "C17",
+      "writerEligible": false,
+      "outcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "providerCallsPermitted": 0
+    }
+  ],
+  "cases": [
+    {
+      "id": "C01",
+      "target": "general_incoming_contact",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c212-c01-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "Two narrow arcs spread outward from a tiny central knot.",
+          "resemblance": "may resemble a small bird gliding",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c01-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A pointed head leads a slim body with two swept-back strokes.",
+          "resemblance": "may resemble a bird diving low",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c01-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCues": [
+        "incoming_contact"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "contact_emergence",
+        "cue": "incoming_contact",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "sender_identity",
+          "guaranteed_contact"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "communication"
+      ],
+      "expectedSubject": {
+        "kind": "general",
+        "requiredSection": null,
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C02",
+      "target": "general_written_exchange",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c212-c02-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A flat oblong carries a faint diagonal crease over one corner.",
+          "resemblance": "may resemble a letter tucked half-open",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c02-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A small upright oblong has three faint parallel ridges across it.",
+          "resemblance": "may resemble a short handwritten message",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c02-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCues": [
+        "written_contact"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "written_exchange",
+        "cue": "written_contact",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "sender_identity",
+          "guaranteed_contact"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "communication"
+      ],
+      "expectedSubject": {
+        "kind": "general",
+        "requiredSection": null,
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C03",
+      "target": "career_opening",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c212-c03-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A smooth spindle body ends in a notched tail fin.",
+          "resemblance": "may resemble a fish gliding through weeds",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c03-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A teardrop body trails a fan-like fin behind it.",
+          "resemblance": "may resemble a small fish with a rounded fin",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c03-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCues": [
+        "available_opening"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "opening_emerges",
+        "cue": "available_opening",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "opening"
+      ],
+      "expectedSubject": {
+        "kind": "career_work",
+        "requiredSection": "career",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C04",
+      "target": "career_way_through",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c212-c04-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A slim shaft ends in an open loop at one end and two teeth at the other.",
+          "resemblance": "may resemble an old iron key",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c04-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A short stem carries a round bow and a single square tooth.",
+          "resemblance": "may resemble a key with a round bow",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c04-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "solution",
+        "solution"
+      ],
+      "expectedPropositions": [
+        "resolution_availability"
+      ],
+      "expectedCues": [
+        "access_answer"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "way_through_appears",
+        "cue": "access_answer",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "prior_problem"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "way_through"
+      ],
+      "expectedSubject": {
+        "kind": "career_work",
+        "requiredSection": "career",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C05",
+      "target": "money_opening_plus_growth",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c212-c05-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A curved body arcs clear of the grounds with its tail lifted.",
+          "resemblance": "may resemble a fish leaping clear",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c05-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A thin upright stroke sends out a few short side strokes.",
+          "resemblance": "may resemble a young tree with a few branches",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c05-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "growth"
+      ],
+      "expectedPropositions": [
+        "opening_availability",
+        "gradual_expansion"
+      ],
+      "expectedCues": [
+        "available_opening",
+        "gradual_growth"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [
+        "gradual_expansion"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedFortuneLead": {
+        "kind": "opening_emerges",
+        "cue": "available_opening",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation"
+        ]
+      },
+      "expectedFortuneSupporting": [
+        {
+          "kind": "gradual_accumulation",
+          "cue": "gradual_growth",
+          "forbiddenSpecifics": [
+            "exact_person",
+            "employer_or_company",
+            "monetary_amount",
+            "salary_or_debt",
+            "payment_event",
+            "exact_event",
+            "relationship_history",
+            "other_person_feelings",
+            "other_person_intent",
+            "other_person_action",
+            "guaranteed_outcome",
+            "date",
+            "chronology",
+            "unsupported_causation"
+          ]
+        }
+      ],
+      "expectedDevelopmentClasses": [
+        "opening",
+        "growth"
+      ],
+      "expectedSubject": {
+        "kind": "money_finance",
+        "requiredSection": "money",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "money"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    },
+    {
+      "id": "C06",
+      "target": "love_commitment",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c212-c06-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A tidy closed circle with a uniform thin edge rests alone.",
+          "resemblance": "may resemble a plain band ring",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c06-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A round loop carries a small dot fixed on its edge.",
+          "resemblance": "may resemble a ring with a small stone",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c06-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "bond",
+        "bond"
+      ],
+      "expectedPropositions": [
+        "connection_continuity"
+      ],
+      "expectedCues": [
+        "commitment_bond"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "connection_continuity",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "commitment_forms",
+        "cue": "commitment_bond",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "guaranteed_contact"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "commitment"
+      ],
+      "expectedSubject": {
+        "kind": "love_relationships",
+        "requiredSection": "love",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C07",
+      "target": "love_feeling",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c212-c07-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "Two plump curves meet above and narrow to a soft point below.",
+          "resemblance": "may resemble a plump heart drawn in two strokes",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c07-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A compact rounded outline leans sideways with a shallow notch on top.",
+          "resemblance": "may resemble a heart tipped onto its side",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c07-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "emotional_relevance",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "felt_significance"
+      ],
+      "expectedCues": [
+        "emotional_weight"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "felt_significance",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "feeling_deepens",
+        "cue": "emotional_weight",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "feeling"
+      ],
+      "expectedSubject": {
+        "kind": "love_relationships",
+        "requiredSection": "love",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C08",
+      "target": "person_incoming_contact",
+      "intention": "Aklımdaki kişiyle ilgili",
+      "evidence": [
+        {
+          "id": "c212-c08-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A round head sits on a plump body with wings pressed close.",
+          "resemblance": "may resemble a bird with folded wings",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c08-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A small rounded mass rests on a short crossbar with a tail tipped down.",
+          "resemblance": "may resemble a bird resting on a twig",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c08-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCues": [
+        "incoming_contact"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "contact_emergence",
+        "cue": "incoming_contact",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "sender_identity",
+          "guaranteed_contact"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "communication"
+      ],
+      "expectedSubject": {
+        "kind": "person_of_interest",
+        "requiredSection": "love",
+        "declaredFacts": [
+          "person_in_mind"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aklımdaki kişiyle ilgili"
+      }
+    },
+    {
+      "id": "C09",
+      "target": "custom_decision_alternatives",
+      "intention": "Şu sıralar bir karar vermem lazım, onun hakkında ne görüyorsun?",
+      "evidence": [
+        {
+          "id": "c212-c09-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "One band runs up and divides into two arms of similar weight.",
+          "resemblance": "may resemble a crossroad marked by two equal arms",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c09-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A thin channel splits where two shorter channels lean apart.",
+          "resemblance": "may resemble a stream that forks in two",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c09-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "choice",
+        "choice"
+      ],
+      "expectedPropositions": [
+        "alternative_distinction"
+      ],
+      "expectedCues": [
+        "alternative_split"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "alternative_distinction",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "alternatives_clarify",
+        "cue": "alternative_split",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "invented_options"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "alternatives"
+      ],
+      "expectedSubject": {
+        "kind": "custom_decision",
+        "requiredSection": null,
+        "declaredFacts": [
+          "decision_exists"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Şu sıralar bir karar vermem lazım, onun hakkında ne görüyorsun?"
+      }
+    },
+    {
+      "id": "C10",
+      "target": "general_direction",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c212-c10-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A long band curls gently and keeps going toward the edge.",
+          "resemblance": "may resemble a path curling toward the edge",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c10-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A straight strip rises at a steady slant across the wall.",
+          "resemblance": "may resemble a road climbing uphill",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c10-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "movement",
+        "movement"
+      ],
+      "expectedPropositions": [
+        "directional_change"
+      ],
+      "expectedCues": [
+        "directional_progress"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "directional_change",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "direction_shifts",
+        "cue": "directional_progress",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "travel_or_relocation"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "direction"
+      ],
+      "expectedSubject": {
+        "kind": "general",
+        "requiredSection": null,
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation",
+        "travel",
+        "relocation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C11",
+      "target": "general_people_presence",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c212-c11-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "Several short upright strokes stand close together with round tops.",
+          "resemblance": "may resemble a cluster of small human figures",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c11-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "Two slender upright marks each carry a small round head.",
+          "resemblance": "may resemble two standing figures side by side",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c11-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "social_relevance",
+        "social_relevance"
+      ],
+      "expectedPropositions": [
+        "social_presence"
+      ],
+      "expectedCues": [
+        "people_presence"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "social_presence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "people_gather",
+        "cue": "people_presence",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "sender_identity"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "people"
+      ],
+      "expectedSubject": {
+        "kind": "general",
+        "requiredSection": null,
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C12",
+      "target": "love_opening_plus_feeling",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c212-c12-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A long body glides level with a broad split tail.",
+          "resemblance": "may resemble a fish with a wide tail",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c12-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "Two uneven lobes lean to one side and close into a point.",
+          "resemblance": "may resemble a heart leaning to one side",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c12-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "opening_availability",
+        "felt_significance"
+      ],
+      "expectedCues": [
+        "available_opening",
+        "emotional_weight"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [
+        "felt_significance"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedFortuneLead": {
+        "kind": "opening_emerges",
+        "cue": "available_opening",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation"
+        ]
+      },
+      "expectedFortuneSupporting": [
+        {
+          "kind": "feeling_deepens",
+          "cue": "emotional_weight",
+          "forbiddenSpecifics": [
+            "exact_person",
+            "employer_or_company",
+            "monetary_amount",
+            "salary_or_debt",
+            "payment_event",
+            "exact_event",
+            "relationship_history",
+            "other_person_feelings",
+            "other_person_intent",
+            "other_person_action",
+            "guaranteed_outcome",
+            "date",
+            "chronology",
+            "unsupported_causation"
+          ]
+        }
+      ],
+      "expectedDevelopmentClasses": [
+        "opening",
+        "feeling"
+      ],
+      "expectedSubject": {
+        "kind": "love_relationships",
+        "requiredSection": "love",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C13",
+      "target": "career_way_through_plus_direction",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c212-c13-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A square head tops a short shaft with one stepped tooth.",
+          "resemblance": "may resemble a small key with a square head",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c13-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A pale strip leaves the centre and bends away in a gentle arc.",
+          "resemblance": "may resemble a path bending away",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c13-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "solution",
+        "movement"
+      ],
+      "expectedPropositions": [
+        "resolution_availability",
+        "directional_change"
+      ],
+      "expectedCues": [
+        "access_answer",
+        "directional_progress"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": [
+        "directional_change"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedFortuneLead": {
+        "kind": "way_through_appears",
+        "cue": "access_answer",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "prior_problem"
+        ]
+      },
+      "expectedFortuneSupporting": [
+        {
+          "kind": "direction_shifts",
+          "cue": "directional_progress",
+          "forbiddenSpecifics": [
+            "exact_person",
+            "employer_or_company",
+            "monetary_amount",
+            "salary_or_debt",
+            "payment_event",
+            "exact_event",
+            "relationship_history",
+            "other_person_feelings",
+            "other_person_intent",
+            "other_person_action",
+            "guaranteed_outcome",
+            "date",
+            "chronology",
+            "unsupported_causation",
+            "travel_or_relocation"
+          ]
+        }
+      ],
+      "expectedDevelopmentClasses": [
+        "way_through",
+        "direction"
+      ],
+      "expectedSubject": {
+        "kind": "career_work",
+        "requiredSection": "career",
+        "declaredFacts": []
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem",
+        "prior_stagnation",
+        "travel",
+        "relocation"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 40,
+        "overallMaxWords": 70,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 18
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C14",
+      "target": "custom_waiting_written_exchange",
+      "intention": "Bir konuda haber bekliyorum, ne çıkacak merak ediyorum",
+      "evidence": [
+        {
+          "id": "c212-c14-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A neat rectangle shows one corner turned down over its face.",
+          "resemblance": "may resemble a letter with a turned-down corner",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c14-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A narrow card-like patch has a fine border along three sides.",
+          "resemblance": "may resemble a message card",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c14-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCues": [
+        "written_contact"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedFortuneLead": {
+        "kind": "written_exchange",
+        "cue": "written_contact",
+        "forbiddenSpecifics": [
+          "exact_person",
+          "employer_or_company",
+          "monetary_amount",
+          "salary_or_debt",
+          "payment_event",
+          "exact_event",
+          "relationship_history",
+          "other_person_feelings",
+          "other_person_intent",
+          "other_person_action",
+          "guaranteed_outcome",
+          "date",
+          "chronology",
+          "unsupported_causation",
+          "sender_identity",
+          "guaranteed_contact"
+        ]
+      },
+      "expectedFortuneSupporting": [],
+      "expectedDevelopmentClasses": [
+        "communication"
+      ],
+      "expectedSubject": {
+        "kind": "custom_other",
+        "requiredSection": null,
+        "declaredFacts": [
+          "awaiting_response"
+        ]
+      },
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice"
+      ],
+      "expectedLengthRequirements": {
+        "visualObservationMinChars": 40,
+        "combinedLeadMinWords": 42,
+        "overallMinChars": 80,
+        "overallMinWords": 26,
+        "overallMaxWords": 45,
+        "takeawayMinWords": 10,
+        "takeawayMaxWords": 16
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Bir konuda haber bekliyorum, ne çıkacak merak ediyorum"
+      }
+    },
+    {
+      "id": "C15",
+      "target": "policy_general_unknown_only",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c212-c15-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A domed top spreads over a thin straight handle.",
+          "resemblance": "may resemble an open parasol",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c15-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A boxy outline hangs from a short hook at its top.",
+          "resemblance": "may resemble a hanging lantern",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c15-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [],
+      "expectedPropositions": [],
+      "expectedCues": [],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "no_safe_semantic_facets"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C16",
+      "target": "policy_love_context_only",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c212-c16-e1",
+          "observationSource": "cup_primary",
+          "region": "handle_side_wall",
+          "description": "A loose clump of grounds gathers beside the grip without any outline.",
+          "resemblance": null,
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c16-e2",
+          "observationSource": "cup_secondary",
+          "region": "beside_handle",
+          "description": "A thin smear repeats just next to the grip.",
+          "resemblance": null,
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c16-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "home_close_circle",
+        "home_close_circle"
+      ],
+      "expectedPropositions": [
+        "proximate_context"
+      ],
+      "expectedCues": [
+        "proximate_context"
+      ],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C17",
+      "target": "policy_money_single_thin_support",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c212-c17-e1",
+          "observationSource": "cup_primary",
+          "region": "left_wall",
+          "description": "A tiny oval body ends in a pinched tail.",
+          "resemblance": "may resemble a little fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c212-c17-e2",
+          "observationSource": "cup_secondary",
+          "region": "right_wall",
+          "description": "A scatter of loose specks drifts with no edge.",
+          "resemblance": null,
+          "confidence": "medium",
+          "visibility": "partial"
+        },
+        {
+          "id": "c212-c17-e3",
+          "observationSource": "saucer",
+          "region": "saucer_centre",
+          "description": "Fine grit settles as an even film that holds no outline at all.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCues": [
+        "available_opening"
+      ],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    }
+  ]
+}
