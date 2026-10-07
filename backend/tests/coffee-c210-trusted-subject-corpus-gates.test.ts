@@ -114,9 +114,12 @@ const CORRECTED_VERDICTS: Record<string, {
     'C02#0': { historical: { qualityFailure: 'possibility_menu', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
     'C02#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'semantic_restatement', bindFailure: 'human_quality' } },
     'C03#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    // C2.11A.1: "iletişimin kopmadan sürebildiği" imports COMMUNICATION into a bond-only plan.
+    'C03#1': { historical: { qualityFailure: 'presumed_user_state', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_fortune_development', bindFailure: 'human_quality' } },
     'C04#0': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'presumed_user_state', bindFailure: 'human_quality' } },
     'C04#1': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
-    'C05#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    // C2.11A.1: "imkân" imports an OPENING into a solution-only plan.
+    'C05#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_fortune_development', bindFailure: 'human_quality' } },
     'C05#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
     'C06#0': { historical: { qualityFailure: 'caution_voice', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
     'C06#1': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
@@ -125,7 +128,8 @@ const CORRECTED_VERDICTS: Record<string, {
     'C08#0': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
     'C08#1': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
     'C09#0': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
-    'C10#0': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    // C2.11A.1: "bağ kurma" imports a BOND formation into an opening + feeling plan.
+    'C10#0': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'unsupported_fortune_development', bindFailure: 'human_quality' } },
     'C11#1': { historical: { qualityFailure: 'observation_heavy', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
     'C12#0': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
     'C12#1': { historical: { qualityFailure: 'component_serialization', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },

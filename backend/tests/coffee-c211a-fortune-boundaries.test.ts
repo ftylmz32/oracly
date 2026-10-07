@@ -7,6 +7,8 @@ import {
   coffeeForbiddenFortuneSpecificFailure,
   coffeeForbiddenSpecificsTriggered,
   coffeeInternalJargon,
+  coffeeInventedCurrentState,
+  coffeeUnsupportedDevelopments,
   coffeeVisualReportVoice,
 } from '../src/ai/reading/coffee-public-language.js';
 import { coffeeClaimSafetyFailure, coffeeLabelLedOpening, coffeeMetaNarration } from '../src/ai/reading/coffee-claim-envelope.js';
@@ -346,37 +348,57 @@ describe('C2.11A — C2.10 frozen corpus stays rejected', () => {
 // ---------------------------------------------------------------------------
 // PART 26 — product-quality self audit (test semantics, NOT golden prose)
 // ---------------------------------------------------------------------------
-describe('C2.11A — self audit: bounded, development-first fortune prose passes the FULL production gate', () => {
+describe('C2.11A.1 — self audit: NATURAL and GROUNDED fortune prose passes the FULL production gate', () => {
+  /**
+   * C2.11A.1 replaced the two earlier fixtures: they passed the full gate
+   * while importing news under an opening, coworkers recognizing the user,
+   * and existing savings — the exact defects C2.11A.1 now rejects (kept as
+   * frozen RED proof in coffee-c211a1-fortune-alignment.test.ts). Every life
+   * development below maps to an ACTIVE beat; no person acts on the user; no
+   * current circumstance is presumed. Test semantics, not golden prose.
+   */
   const fixtures = [
     {
-      label: 'career + opening',
+      label: 'career + opening (opening only)',
       intention: 'İşim ve kariyerim hakkında',
       obs: pair('may resemble a fish'),
       narrative: narrativeOf({
-        visualObservation: 'Önümüzdeki günlerde içini kıpırdatacak güzel bir haber sana doğru yola çıkmış gibi.',
-        overall: 'Yakında işinde seni heyecanlandıracak bir kapı aralanacak; sana yakışan, emeğini gösterebileceğin yeni bir adım olacak gibi. Bu kıpırtıyı ilk duyduğunda içinden bir sevinç geçecek ve elini taşın altına koymaya hevesleneceksin.',
-        career: 'Mesai arkadaşlarının arasında adının daha sık geçtiği, emeğinin fark edildiği günlere yaklaşıyorsun.',
-        takeaway: 'Kapı aralandığında içindeki çekingenlik dağılacak, o heves seni gönül rahatlığıyla ileri taşıyacak.',
+        visualObservation: 'Önümüzdeki günlerde işinde önüne taze bir kapı aralanacak gibi, içini kıpırdatan bir hevesle karşılaşacaksın.',
+        overall: 'Yakında sana yakışan, elini taşın altına koyabileceğin yeni bir fırsat çıkacak gibi duruyor; ilk gördüğünde içinden tam zamanı diye geçireceksin. O kapıdan girmeye heveslendiğinde günlerin daha canlı akacak, yaptığın işten aldığın keyif de tazelenecek.',
+        career: 'Kariyerinde daha önce aklına gelmeyen bir imkânın önüne serildiği, kendini yeni bir sorumlulukta denemeye cesaret edeceğin günler yaklaşıyor.',
+        takeaway: 'O kapı aralandığında çekingenliğin dağılacak, hevesin seni gönül rahatlığıyla ileri taşıyacak.',
       }),
     },
     {
-      label: 'money + opening + growth',
+      label: 'money + opening + growth (two beats only)',
       intention: 'Maddi durumum hakkında',
       obs: obsOf(ev('e1', 'may resemble a fish'), ev('e2', 'may resemble a tree', 'lower_wall'), neutral('e3')),
       narrative: narrativeOf({
         visualObservation: 'Elinin biraz rahatlayacağı, nefes alacağın günler sana yaklaşıyor.',
-        overall: 'Maddi tarafta kapına küçük ama sevindirici bir kısmet gelecek; ilk başta ufak görünecek, sonra yavaş yavaş büyüyüp seni şaşırtacak. Bir kenara koyduğun şeyler bereketlenecek, harcarken de içini daha az daraltacaksın, hesabını kitabını yaparken yüzün gülecek ve kendine küçük bir keyif ayırmaya gönlün razı olacak gibi.',
-        money: 'Kazandığını tutabileceğin, cebine giren her şeyin biraz daha uzun dayanacağı bir döneme giriyorsun.',
-        takeaway: 'Sabırla büyüyen bu bereket önümüzdeki günlerde seni epey rahatlatacak, içine tatlı bir ferahlık yayılacak.',
+        overall: 'Maddi tarafta kapına küçük ama sevindirici bir kısmet gelecek gibi; ilk başta ufacık görünecek, sonra yavaş yavaş büyüyüp seni epey şaşırtacak. Elin rahatladıkça içine bir ferahlık yayılacak, kendine küçük bir keyif ayırmaya gönlün razı gelecek, yüzün daha sık gülecek gibi.',
+        money: 'Cebinde biraz daha uzun kalan, sabırla büyüyen bir rahatlığın başladığı günlere yaklaşıyorsun.',
+        takeaway: 'Ağır ağır büyüyen bu bereket önümüzdeki haftalarda seni epey rahatlatacak, yüzünü güldürecek gibi duruyor.',
+      }),
+    },
+    {
+      label: 'general + communication (contact only)',
+      intention: 'Önümüzdeki dönem genel olarak',
+      obs: pair('may resemble a small bird'),
+      narrative: narrativeOf({
+        visualObservation: 'Bu aralar telefonun biraz daha sık çalacak gibi, içini ısıtan bir haberleşme sana yaklaşıyor.',
+        overall: 'Yakında seni gülümsetecek tatlı bir haber alacaksın gibi; kısacık bir konuşma bile günlerine beklemediğin bir renk katacak. O haberi duyduğunda içinde küçük bir kıpırtı başlayacak, gününü daha hafif ve neşeli bir ruhla geçireceksin.',
+        takeaway: 'O tatlı haber, haftanın geri kalanına da yayılan bir hafiflik bırakacak gibi duruyor.',
       }),
     },
   ];
 
-  it.each(fixtures)('$label passes every new boundary AND the whole V2 gate (no vagueness forced)', ({ intention, obs, narrative }) => {
+  it.each(fixtures)('$label passes every boundary AND the whole V2 gate', ({ intention, obs, narrative }) => {
     const plan = packetFor(obs, intention).storyPlan;
     expect(coffeeVisualReportVoice(narrative)).toBeNull();
     expect(coffeeInternalJargon(narrative)).toBeNull();
     expect(coffeeForbiddenSpecificsTriggered(narrative, plan)).toEqual([]);
+    expect(coffeeUnsupportedDevelopments(narrative, plan)).toEqual([]);
+    expect(coffeeInventedCurrentState(narrative, plan)).toEqual([]);
     expect(coffeeLabelLedOpening(narrative, plan)).toBe(false);
     expect(coffeeMetaNarration([narrative.visualObservation.text, narrative.overall.text, narrative.takeaway.text])).toBeNull();
     expect(coffeeQualityFailure(narrative, 'tr', { intention }, obs.evidence, plan)).toBeNull();

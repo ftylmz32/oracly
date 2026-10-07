@@ -399,7 +399,8 @@ describe('C2.11 — C2.10 frozen corpus, current verdicts', () => {
     ['C07', 0, 'unsupported_existing_fact'],
     ['C08', 1, 'meta_narration'],
     ['C09', 0, 'intention_parroting'],
-    ['C10', 0, 'meta_narration'],
+    // C2.11A.1: the cross-beat bond import now wins over its meta-narration.
+    ['C10', 0, 'unsupported_fortune_development'],
     ['C11', 0, 'unsupported_source_causation'],
     ['C12', 1, 'meta_narration'],
     ['C13', 0, 'semantic_restatement'],

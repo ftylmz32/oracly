@@ -34,6 +34,13 @@ export type CoffeeForbiddenSpecific =
   | 'relationship_history'
   | 'other_person_feelings'
   | 'other_person_intent'
+  /**
+   * C2.11A.1: someone else DOING something to/about the user (noticing,
+   * praising, discussing, choosing, supporting, recognizing). Distinct from
+   * other_person_feelings; never licensed by any current beat — people_gather
+   * licenses social PRESENCE only, not individual actions.
+   */
+  | 'other_person_action'
   | 'guaranteed_contact'
   | 'guaranteed_outcome'
   | 'date'
@@ -86,7 +93,7 @@ const PROPOSITION_BY_CUE: Record<Exclude<CoffeeSemanticCueKind, 'proximate_conte
 
 const COMMON_SPECIFICS: CoffeeForbiddenSpecific[] = [
   'exact_person', 'employer_or_company', 'monetary_amount', 'salary_or_debt', 'payment_event', 'exact_event',
-  'relationship_history', 'other_person_feelings', 'other_person_intent', 'guaranteed_outcome',
+  'relationship_history', 'other_person_feelings', 'other_person_intent', 'other_person_action', 'guaranteed_outcome',
   'date', 'chronology', 'unsupported_causation',
 ];
 
@@ -101,6 +108,35 @@ const BEAT_SPECIFICS: Record<CoffeeFortuneBeatKind, CoffeeForbiddenSpecific[]> =
   gradual_accumulation: [],
   alternatives_clarify: ['invented_options'],
   people_gather: ['sender_identity'],
+};
+
+/**
+ * C2.11A.1: the development class each beat licenses. Both communication cues
+ * license the same communication class; every other beat licenses only its
+ * own class. Public prose may express only the classes of the ACTIVE beats.
+ */
+export type CoffeeDevelopmentClass =
+  | 'communication'
+  | 'opening'
+  | 'commitment'
+  | 'feeling'
+  | 'way_through'
+  | 'direction'
+  | 'growth'
+  | 'alternatives'
+  | 'people';
+
+export const DEVELOPMENT_CLASS_BY_BEAT: Record<CoffeeFortuneBeatKind, CoffeeDevelopmentClass> = {
+  contact_emergence: 'communication',
+  written_exchange: 'communication',
+  opening_emerges: 'opening',
+  commitment_forms: 'commitment',
+  feeling_deepens: 'feeling',
+  way_through_appears: 'way_through',
+  direction_shifts: 'direction',
+  gradual_accumulation: 'growth',
+  alternatives_clarify: 'alternatives',
+  people_gather: 'people',
 };
 
 /** Deterministic tie-break among beats of equal support. */

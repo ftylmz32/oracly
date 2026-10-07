@@ -1,5 +1,9 @@
 import { coffeeReadingSelfReference, foldTr, type HumanQualityFailure } from '../human-quality.js';
-import { coffeeForbiddenFortuneSpecificFailure } from './coffee-public-language.js';
+import {
+  coffeeForbiddenFortuneSpecificFailure,
+  coffeeFortuneDevelopmentFailure,
+  coffeeInventedCurrentState,
+} from './coffee-public-language.js';
 import type { CoffeeNarrative } from './types.js';
 import type { CoffeePropositionKind } from './coffee-semantic-propositions.js';
 import type { CoffeeStoryPlanV2 } from './coffee-story-plan.js';
@@ -202,7 +206,8 @@ export function coffeeMetaNarration(texts: string[]): string | null {
 /** C2.9 — broad subject vocabulary (word-initial); never exact intention wording. */
 const SUBJECT_ANCHOR: Record<'love' | 'career' | 'money' | 'person' | 'decision', RegExp> = {
   love: /^(aşk|ilişki|sevgi|sevdi|kalp|kalb|gönül|gönl|romantik|yakınlı|yakınlaş|duygusal)/u,
-  career: /^(kariyer|meslek|çalışma|çalışt|proje|profesyonel|görev|ekib|ekip|iş(im|in|imde|inde|te|le|ler|leri|lerin|lerinde|ine|ini|i|e|yeri\p{L}*|hayat\p{L}*)?$)/u,
+  // C2.11A.1: + ablative/genitive forms ("işten", "işinden", "işinin") so a natural mention is not drift.
+  career: /^(kariyer|meslek|çalışma|çalışt|proje|profesyonel|görev|ekib|ekip|iş(im|in|imde|inde|te|ten|le|ler|leri|lerin|lerinde|ine|ini|inden|imden|inin|imin|i|e|yeri\p{L}*|hayat\p{L}*)?$)/u,
   money: /^(para|parasal|maddi|kazanç|kazanc|gelir|bütçe|harcama|birikim|finans|bolluk)/u,
   person: /^(aklındaki|kişi|onunla|ona$|onu$|onun$)/u,
   decision: /^(karar|seçenek|seçim|tercih)/u,
@@ -386,6 +391,9 @@ export function coffeeClaimSafetyFailure(
   if (forbidden.has('existing_relationship') && IMPLIED_EXISTING_BOND.some((rule) => rule.test(text))) {
     return 'unsupported_existing_fact';
   }
+  // C2.11A.1: a trusted SUBJECT is not a trusted STATE — invented savings,
+  // coworkers/projects, or an already-interested someone are existing facts.
+  if (coffeeInventedCurrentState(narrative, plan).length > 0) return 'unsupported_existing_fact';
   if (plan.subject?.kind === 'person_of_interest') {
     const personClaim = coffeePersonIntentionClaim(texts);
     if (personClaim) return personClaim;
@@ -403,7 +411,8 @@ export function coffeeClaimSafetyFailure(
     return 'presumed_user_state';
   }
   if (forbidden.has('travel') && /yolculuk|seyahat/.test(text)) return 'unsupported_existing_fact';
-  if (forbidden.has('relocation') && /taşın|yer değiştir/.test(text)) return 'unsupported_existing_fact';
+  // "elini taşın altına koymak" (an idiom: the stone's) is not relocation.
+  if (forbidden.has('relocation') && /taşın(?!\s+altı)|yer değiştir/.test(text)) return 'unsupported_existing_fact';
   if (forbidden.has('family_event') && /ziyaretçi|misafir|aile içinde .*olacak|evde .*yaşanacak/.test(text)) {
     return 'context_event';
   }
@@ -438,6 +447,11 @@ export function coffeeClaimSafetyFailure(
   if (forbidden.has('guaranteed_outcome') && /kesinlikle|mutlaka|olacak(?! gibi)\b|yapacaksın\b|edeceksin\b|bir sonuç taşıyor|sonuca (ulaşacak|bağlanacak)/.test(text)) {
     return 'unsupported_certainty';
   }
+  // C2.11A.1: last in the safety tier — every told development must belong to
+  // an ACTIVE fortune beat; no cross-beat invention (news under an opening,
+  // people under a growth beat, …).
+  const development = coffeeFortuneDevelopmentFailure(narrative, plan);
+  if (development) return development;
   return null;
 }
 

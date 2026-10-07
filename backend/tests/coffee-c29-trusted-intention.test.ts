@@ -368,16 +368,18 @@ describe('C2.9 — ONE authoritative length contract', () => {
       packetFor(obsOf(ev('e1', 'may resemble a fish'), ev('e2', 'may resemble a tree', 'lower_wall'), neutral('e3')), INTENTION.money),
       packetFor(obsOf(ev('e1', 'may resemble a key'), ev('e2', 'may resemble a key', 'lower_wall'), neutral('e3'))),
     ];
-    const sentence = 'İşinde ve paranda değerlendirebileceğin bir imkân sana doğru yaklaşıyor';
+    // C2.11A.1: development-neutral filler, so no plan rejects it for importing
+    // another beat's development before the length invariant is measured.
+    const sentence = 'Önümüzdeki günlerde içini ısıtacak tatlı bir kıpırtı sana doğru yaklaşıyor';
     let tooShort = 0;
     for (const packet of plans) {
       for (let words = 4; words <= 80; words += 3) {
         for (let take = 3; take <= 20; take += 4) {
           const body = Array.from({ length: words }, (_, i) => sentence.split(' ')[i % 10]).join(' ');
           const n = narrativeOf({
-            visualObservation: 'İşinde sana kapalı olmayan bir imkânın hissi taşınıyor.',
+            visualObservation: 'Önümüzdeki günlerde içini ısıtan tatlı bir kıpırtının hissi sana eşlik ediyor.',
             overall: `${body}.`,
-            takeaway: `${Array.from({ length: take }, () => 'imkân').join(' ')}.`,
+            takeaway: `${Array.from({ length: take }, () => 'kıpırtı').join(' ')}.`,
           });
           const q = coffeeQualityFailure(n, 'tr', undefined, undefined, packet.storyPlan);
           if (q !== 'too_short') continue;

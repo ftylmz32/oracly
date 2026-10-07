@@ -12,8 +12,12 @@ import {
   type CoffeeLengthRequirements,
 } from './coffee-length-contract.js';
 import type { CoffeeStorySubject } from './coffee-intention-context.js';
-import type { CoffeeForbiddenSpecific } from './coffee-fortune-beat.js';
-import { coffeeForbiddenSpecificsTriggered } from './coffee-public-language.js';
+import type { CoffeeDevelopmentClass, CoffeeForbiddenSpecific } from './coffee-fortune-beat.js';
+import {
+  coffeeActiveDevelopmentClasses,
+  coffeeForbiddenSpecificsTriggered,
+  coffeeUnsupportedDevelopments,
+} from './coffee-public-language.js';
 
 export type CoffeeRepairDefect =
   | 'structural_deficit'
@@ -61,6 +65,12 @@ export type CoffeeRepairPlan = {
    * forbiddenClaimCategoriesTriggered) the rejected prose supplied.
    */
   forbiddenSpecificsTriggered?: CoffeeForbiddenSpecific[];
+  /**
+   * C2.11A.1: for unsupported_fortune_development — the development classes the
+   * active beats license, and the ones the rejected prose imported.
+   */
+  allowedDevelopments?: CoffeeDevelopmentClass[];
+  unsupportedDevelopmentsTriggered?: CoffeeDevelopmentClass[];
   defect: {
     kind: CoffeeRepairDefect;
     propositionKinds: CoffeePropositionKind[];
@@ -94,7 +104,7 @@ function defectKind(violation: string): CoffeeRepairDefect {
   if (violation === 'missing_intention_subject' || violation === 'intention_subject_drift') return 'subject_alignment';
   if (violation === 'meta_narration' || violation === 'visual_report_voice') return 'natural_realization';
   if (violation === 'intention_parroting') return 'subject_realization';
-  if (violation === 'semantic_restatement') return 'fortune_realization';
+  if (violation === 'semantic_restatement' || violation === 'unsupported_fortune_development') return 'fortune_realization';
   return 'privacy_or_contract';
 }
 
@@ -193,6 +203,12 @@ export function buildCoffeeRepairPlan(
     ...(violation === 'unsupported_specific_detail'
       ? { forbiddenSpecificsTriggered: coffeeForbiddenSpecificsTriggered(narrative, storyPlan) }
       : {}),
+    ...(violation === 'unsupported_fortune_development'
+      ? {
+          allowedDevelopments: [...coffeeActiveDevelopmentClasses(storyPlan)],
+          unsupportedDevelopmentsTriggered: coffeeUnsupportedDevelopments(narrative, storyPlan),
+        }
+      : {}),
     defect: {
       kind: defectKind(violation),
       propositionKinds: violation === 'abstract_reading'
@@ -200,6 +216,7 @@ export function buildCoffeeRepairPlan(
         || violation === 'visual_report_voice'
         || violation === 'intention_parroting'
         || violation === 'semantic_restatement'
+        || violation === 'unsupported_fortune_development'
         ? propositions.map((proposition) => proposition.kind)
         : [],
     },

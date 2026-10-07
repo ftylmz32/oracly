@@ -121,7 +121,9 @@ export type HumanQualityFailure =
   /** Coffee C2.11A: prose supplies a specific the active fortune plan forbids (sender, employer, payment, amount, salary/debt). */
   | 'unsupported_specific_detail'
   /** Coffee C2.11A: public prose describes the cup / grounds / geometry instead of a life development. */
-  | 'visual_report_voice';
+  | 'visual_report_voice'
+  /** Coffee C2.11A.1: prose tells a development class no active fortune beat licenses. */
+  | 'unsupported_fortune_development';
 
 export type CoffeeQualityInput = {
   visualObservation: string;

@@ -316,14 +316,18 @@ export const coffeeWriterJson = JSON.stringify({
   takeaway: { text: coffeeFortuneSections.takeaway, evidenceIds: ['e2'] },
 });
 
-/** C2.1 writer fixture: public prose contains meanings only, never observer mechanics. */
+/**
+ * C2.1 writer fixture: public prose contains meanings only, never observer mechanics.
+ * C2.11A.1: its plan licenses only a DIRECTION development, so the former
+ * "gerçek bir imkân" (an opening) became "gerçek bir canlanma".
+ */
 export const coffeeMeaningWriterJson = JSON.stringify({
   visualObservation: {
     text: 'İçine sinen taraf, yakınındaki düzenle farklı yönün ortak karşılığını belirginleştirebilir.',
     evidenceIds: ['e1', 'e3'],
   },
   overall: {
-    text: 'Yakın çevrende değerlendirmeye değer bir gelişme beliriyor; bu gelişme alışılmış akışa farklı bir yön katabilecek gerçek bir imkân taşıyor. Seni yalnızca sonucu değil, gündelik düzeninde bıraktığı karşılık da ilgilendirebilir. Kesinleşmiş bir sonuçtan çok, yakın olanla değişime açık tarafın aynı anda yer bulması dikkat çekiyor.',
+    text: 'Yakın çevrende değerlendirmeye değer bir gelişme beliriyor; bu gelişme alışılmış akışa farklı bir yön katabilecek gerçek bir canlanma taşıyor. Seni yalnızca sonucu değil, gündelik düzeninde bıraktığı karşılık da ilgilendirebilir. Kesinleşmiş bir sonuçtan çok, yakın olanla değişime açık tarafın aynı anda yer bulması dikkat çekiyor.',
     evidenceIds: ['e1', 'e3'],
   },
   love: { text: '', evidenceIds: [] },
