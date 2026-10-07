@@ -33,6 +33,80 @@ const COMPONENT_MENTION: Record<CoffeePropositionKind, RegExp> = {
   proximate_context: /ev|yakın çevre|yakın halka/,
 };
 
+/**
+ * C2.7C.1 — internal-only realization vocabulary for the inter-proposition
+ * causation gate (never sent to the writer). Word-initial stems, matched
+ * against tr-TR folded words, so inflections ("paylaşımın", "doğrultuyu",
+ * "yönünü", "netliği") resolve to their proposition kind.
+ */
+const REALIZATION_STEM: Record<CoffeePropositionKind, RegExp> = {
+  exchange_emergence: /^(iletişim|konuşma|haber|mesaj|paylaşım|alışveriş)/,
+  opening_availability: /^(fırsat|açılım|imkân|imkan)/,
+  connection_continuity: /^(bağlantı|devamlılı)/,
+  felt_significance: /^(duygu|duygusal)/,
+  resolution_availability: /^(çözüm|netli[kğ]|açıklı[kğ])/,
+  directional_change: /^(yön(?!elik|etim|etici)|doğrultu|hareket|ilerleme)/,
+  alternative_distinction: /^(seçenek|seçim|alternatif|tercih)/,
+  gradual_expansion: /^(büyüme|genişleme|gelişim)/,
+  social_presence: /^(sosyal)/,
+  proximate_context: /^ev(in|ine|de|den|i|e)?$/,
+};
+
+/** A acts on B: transitive / causative change predicates (word-initial). */
+const CAUSATIVE_PREDICATE =
+  /^(çevir|değiştir|döndür|yönlendir|dönüştür|netleştir|belirginleştir|aydınlat|hareketlendir|yarat|oluştur|doğur|getir|sağla|tetikle|kolaylaştır|genişlet|büyüt|güçlendir|it(er|ebil|ecek|iyor|ti|mesi)|aç(ar|abil|acak|ıyor|tı|ması|tığ|mış))/;
+/** B changes because of A: intransitive change predicates (word-initial). */
+const CHANGE_PREDICATE =
+  /^(değiş|dönüş|netleş|belirginleş|açıl|hareketlen|genişle|büyü|güçlen|kolaylaş|şekillen|yönel)/;
+/** "because of / through / by means of A". */
+const CAUSAL_POSTPOSITION = /^(sayesinde|yüzünden|nedeniyle|sebebiyle|etkisiyle|aracılığıyla|sonucunda)$/;
+/** Coordination makes two kinds co-subjects, never agent and patient. */
+const COORDINATION = /^(ve|ile|veya|ya|hem|birlikte|beraber)$/;
+const ACCUSATIVE = /(y[ıiuü]|n[ıiuü]|[^l][ıiuü])$/;
+const INSTRUMENTAL = /(y?l[ae])$/;
+
+function kindOf(word: string, planned: CoffeePropositionKind[]): CoffeePropositionKind | null {
+  return planned.find((kind) => REALIZATION_STEM[kind].test(word)) ?? null;
+}
+
+/**
+ * One planned proposition's realization grammatically acts on another
+ * planned proposition's realization ("paylaşımın mevcut doğrultuyu başka
+ * bir tarafa çevirebileceğini", "paylaşımla yönün değişebilir") while the
+ * story plan relates them only as co-occurring. Plan-aware: needs two
+ * DIFFERENT planned kinds in one sentence, so a single-proposition reading
+ * and ordinary use of these verbs elsewhere are never affected.
+ */
+function unsupportedPropositionCausation(texts: string[], plan: CoffeeStoryPlanV2): boolean {
+  const planned = [...new Set([plan.lead.kind, ...plan.supporting.map((item) => item.kind)])];
+  if (planned.length < 2) return false;
+  if (!plan.supporting.every((item) => item.relation === 'co_occurring')) return false;
+  for (const sentence of texts.flatMap((text) => text.split(/[.!?;]+/u))) {
+    const words = sentence.split(/[^\p{L}]+/u).filter(Boolean);
+    for (let i = 0; i < words.length; i++) {
+      const agent = kindOf(words[i], planned);
+      if (!agent) continue;
+      if (INSTRUMENTAL.test(words[i]) && /^(birlikte|beraber)$/.test(words[i + 1] ?? '')) continue;
+      const agentIsInstrumental = INSTRUMENTAL.test(words[i]) || CAUSAL_POSTPOSITION.test(words[i + 1] ?? '');
+      for (let j = i + 1; j < words.length; j++) {
+        if (COORDINATION.test(words[j])) break;
+        const patient = kindOf(words[j], planned);
+        if (!patient || patient === agent) continue;
+        const window = words.slice(j + 1, j + 7);
+        // A + B-accusative (or its head noun, "çözüm alanını") + causative.
+        const accusative = ACCUSATIVE.test(words[j]) || ACCUSATIVE.test(words[j + 1] ?? '');
+        if (accusative && window.some((word, index) =>
+          CAUSATIVE_PREDICATE.test(word) || (word === 'yol' && /^aç/.test(window[index + 1] ?? '')))) {
+          return true;
+        }
+        // "A ile / A sayesinde" + B + intransitive change.
+        if (agentIsInstrumental && window.some((word) => CHANGE_PREDICATE.test(word))) return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function coffeeClaimEnvelopeFailure(
   narrative: CoffeeNarrative,
   plan: CoffeeStoryPlanV2,
@@ -76,6 +150,9 @@ export function coffeeClaimEnvelopeFailure(
     return 'context_event';
   }
   if (forbidden.has('causation') && /(?:iletişim|konuşma|haber|mesaj|çözüm|netlik|hareket|fırsat).{0,45}(sağlayacak|yol açacak|neden olacak|tetikleyecek|doğuracak|beraberinde getirecek)|\b(böylece|bu nedenle|bu yüzden|dolayısıyla|sayesinde|sonucunda)\b/.test(text)) {
+    return 'unsupported_source_causation';
+  }
+  if (forbidden.has('causation') && unsupportedPropositionCausation(texts, plan)) {
     return 'unsupported_source_causation';
   }
   if (forbidden.has('chronology') && /önce\b.{1,70}\bsonra|ilk olarak|ardından|akabinde|devamında|sonrasında|daha sonra|bir sonraki adımda/.test(text)) {

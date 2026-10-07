@@ -147,18 +147,47 @@ describe('C2.6 frozen blind-provider proposition corpus', () => {
     }
   });
 
-  it('reproduces every recorded quality and binding result', () => {
+  /**
+   * Intentional deterministic corrections of a historically recorded verdict.
+   * The raw artifact is immutable; only the CURRENT expectation differs, and
+   * each entry asserts its historical value too so history is never rewritten.
+   * C2.7C.1: C10's frozen writer narrative was accepted (null/null) although
+   * its overall makes the exchange proposition redirect the directional one
+   * ("paylaşımın mevcut doğrultuyu başka bir tarafa çevirebileceğini") —
+   * an unsupported inter-proposition causal edge. Bind reports the existing
+   * public mapping of that quality code.
+   */
+  const CORRECTED_VERDICTS: Record<string, {
+    historical: { qualityFailure: string | null; bindFailure: string | null };
+    current: { qualityFailure: string; bindFailure: string };
+  }> = {
+    'C10#0': {
+      historical: { qualityFailure: null, bindFailure: null },
+      current: { qualityFailure: 'unsupported_source_causation', bindFailure: 'human_quality' },
+    },
+  };
+
+  it('reproduces every recorded quality and binding result, except documented deterministic corrections', () => {
+    const corrected = new Set<string>();
     for (const testCase of manifest.cases) {
       const obs = observation(testCase);
       const packet = buildCoffeeWriterPacketV2(obs, 'tr');
       const plan = 'status' in packet ? undefined : packet.storyPlan;
-      for (const attempt of resultFor(testCase.id).attempts) {
+      resultFor(testCase.id).attempts.forEach((attempt, index) => {
         expect(attempt.parsed).not.toBeNull();
-        if (!attempt.parsed) continue;
-        expect(coffeeQualityFailure(attempt.parsed, 'tr', undefined, obs.evidence, plan)).toBe(attempt.qualityFailure);
-        expect(bindCoffeeNarrative(attempt.parsed, obs, 'tr', undefined, plan)).toBe(attempt.bindFailure);
-      }
+        if (!attempt.parsed) return;
+        const correction = CORRECTED_VERDICTS[`${testCase.id}#${index}`];
+        if (correction) {
+          corrected.add(`${testCase.id}#${index}`);
+          expect({ qualityFailure: attempt.qualityFailure, bindFailure: attempt.bindFailure })
+            .toEqual(correction.historical);
+        }
+        const expected = correction?.current ?? attempt;
+        expect(coffeeQualityFailure(attempt.parsed, 'tr', undefined, obs.evidence, plan)).toBe(expected.qualityFailure);
+        expect(bindCoffeeNarrative(attempt.parsed, obs, 'tr', undefined, plan)).toBe(expected.bindFailure);
+      });
     }
+    expect([...corrected]).toEqual(Object.keys(CORRECTED_VERDICTS));
   });
 
   it('records structured repairs with no rejected prose or raw evidence', () => {
