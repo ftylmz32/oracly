@@ -97,8 +97,15 @@ describe('BIRD — the sign brings news; it does not prove the person was waitin
     expect(bindCoffeeNarrative(last(BIRD), observation(BIRD.evidence), 'tr')).toBe('human_quality');
   });
 
-  it('…unless the personalization supplied an intention', () => {
-    expect(coffeeQualityFailure(last(BIRD), 'tr', { intention: 'İş başvurumdan haber bekliyorum' }, BIRD.evidence)).not.toBe('presumed_user_state');
+  it('…unless the user literally declared that waiting (C2.11: only the waiting sentence is licensed)', () => {
+    const waiting = { intention: 'İş başvurumdan haber bekliyorum' };
+    // The same reading also presumes "tahmin ettiğinden", which no declared fact covers.
+    expect(coffeeQualityFailure(last(BIRD), 'tr', waiting, BIRD.evidence)).toBe('presumed_user_state');
+    const onlyWaiting = structuredClone(last(BIRD));
+    onlyWaiting.overall.text = onlyWaiting.overall.text
+      .replace('Söylenecek birkaç kelime, tahmin ettiğinden daha fazla anlam taşıyabilir.', 'Söylenecek birkaç kelime kısa olsa da yönü belirleyecek.');
+    expect(coffeeQualityFailure(onlyWaiting, 'tr', waiting, BIRD.evidence)).not.toBe('presumed_user_state');
+    expect(coffeeQualityFailure(onlyWaiting, 'tr', undefined, BIRD.evidence)).toBe('presumed_user_state');
   });
 
   it('8. a direct grounded "a reply is coming" passes', () => {

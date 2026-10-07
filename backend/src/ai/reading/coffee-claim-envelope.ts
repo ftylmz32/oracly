@@ -154,6 +154,13 @@ const META_SELF_REFERENCE = [
   re(`${S}(bu|şu) (yorum|okuma|fal|değerlendirme|analiz)\\p{L}*[^.!?]{0,40}(odağ|merkez|özü|ana fikr|vurgu|gösteriyor|anlatıyor|söylüyor|işaret ediyor|ortaya koyuyor|odaklan)`),
   re(`${S}yorumun (odağ|merkez|özü|ana fikr)`),
   re(`${S}genel (izlenim|tablo|görünüm|değerlendirme)\\p{L}*[^.!?]{0,80}(anlatıyor|gösteriyor|söylüyor|işaret ediyor|ortaya koyuyor|yansıtıyor)`),
+  // C2.11: analyst summary nouns as a sentence subject ("… ana sonucu",
+  // "öne çıkan sonuç", "temel vurgu"), passive emphasis, naming the request.
+  re(`${S}(ana|asıl|temel|esas|öne çıkan) (sonu[çc]|vurgu|mesaj|çizgi)\\p{L}*`),
+  re(`${S}vurgulan(ıyor|mış|maktadır|an)${E}`),
+  re(`${S}(kariyer|iş|maddi|aşk|ilişki|para)\\p{L}* (niyet|talep|soru)\\p{L}*`),
+  // A demonstrative gloss: "Bu, … bir hâli anlatıyor / … anlamına geliyor."
+  re(`^\\s*bu(,| da| ise)\\s[^.!?]{0,200}(anlatıyor|ifade ediyor|anlamına geliyor|demek oluyor)\\s*$`),
 ];
 const META_CONSTRAINT = [
   re(`${S}iki (eğilim|anlam|unsur|bileşen|tema|olgu|his|imkân|imkan|gelişme|durum)\\p{L}*[^.!?]{0,60}(yan yana|bir arada|aynı bütün|tek bir (anlam|bütün)|birbirini (zorla|yarat|doğur|etkile|tetikle))`),
@@ -164,6 +171,16 @@ const META_CONSTRAINT = [
   re(`${S}(eğilim|anlam|imkân|imkan|açıklık|çözüm|his|duygu|fırsat)\\p{L}*[^.!?]{0,60}yan yana (dur|bulun|yer al|var ol)\\p{L}*`),
   re(`${S}tek bir (anlamda|bütünde|gelişme halinde) (buluş|birleş|belir)\\p{L}*`),
   re(`${S}birbirinden ayrılmadan[^.!?]{0,40}(birleş|buluş)\\p{L}*`),
+  // C2.11: two coordinated meanings that "meet in one place" or "cannot be
+  // separated", "carried within one whole", and disclaimers that narrate a
+  // forbidden claim ("… vaadinden çok", "… dair bir anlam taşımadan").
+  re(`${S}ile${E}[^.!?]{0,100}(aynı|tek) (yer|nokta|zemin|bütün)\\p{L}* (buluş|birleş)\\p{L}*`),
+  re(`${S}ile${E}[^.!?]{0,100}birbirinden ayrıl(mıyor|maz|madan)`),
+  re(`aynı bütün(ün)? içinde (taşı|yer al|dur|buluş|birleş)\\p{L}*`),
+  re(`${S}\\p{L}+ vaadinden çok`),
+  re(`${S}(vaat|garanti) (etmese|etmeden|etmiyor)\\p{L}*`),
+  re(`(belirli bir kişi|kesin bir sonu)\\p{L}*[^.!?]{0,40}(işaret etme|vaat etme|ya da sonu)\\p{L}*`),
+  re(`${S}\\p{L}+ (dair|ilişkin) (bir )?(anlam|iddia|vaat)\\p{L}* taşı(madan|mıyor|maz)`),
 ];
 
 export function coffeeMetaNarration(texts: string[]): string | null {
@@ -215,7 +232,112 @@ export function coffeeSubjectAlignmentFailure(
   return hasAnchor(carriers, anchor) ? null : 'intention_subject_drift';
 }
 
-export function coffeeClaimEnvelopeFailure(
+/**
+ * C2.11 — IMPLIED EXISTING BOND. Under a plan that forbids an existing
+ * relationship (every intention except a literal current-relationship
+ * declaration), prose may promise a bond forming, never one being kept,
+ * continuing, or preserved. Ordinary "bağ" stays legal.
+ */
+const IMPLIED_EXISTING_BOND = [
+  re(`${S}(bağ|ilişki|yakınlı)(ın|in|ğın|ınız|iniz|ının|inin|ğınız|nin|nın|niz|nız)? (korunma|sürme|devam|süreklili|devamlılı|kopma)\\p{L}*`),
+  re(`${S}(mevcut|süregelen|var olan|sürdürdüğün) (bir )?(bağ|ilişki|birliktelik)\\p{L}*`),
+  re(`${S}(bağ|ilişki)\\p{L}*[^.!?]{0,40}(varlığını|özünü|yerini|değerini) (koruyor|sürdürüyor|kaybetmeden|kaybetmiyor)`),
+];
+
+/** C2.11 — subject LABEL openings (mechanical restatement of the request). */
+const SUBJECT_LABEL: Record<'career' | 'money' | 'love' | 'person' | 'decision', RegExp> = {
+  career: re(`^(iş ve kariyer|kariyer|iş (hayatı|yaşamı)|mesleki (alan|yön|çizgi|hareket|gündem)|çalışma hayatı|profesyonel alan)\\p{L}*`),
+  money: re(`^(maddi|para konusu|mali (alan|durum|kapasite)|finansal)\\p{L}*`),
+  love: re(`^(aşk ve ilişki|aşk (hayatı|alanı|konusu)|aşkta|ilişkiler(in)?(de)?|duygusal (dünya|alan)|kalbin)\\p{L}*`),
+  person: re(`^(aklındaki kişi|bu kişi)\\p{L}*`),
+  decision: re(`^(vermen gereken karar|kararın|senin kararın)\\p{L}*`),
+};
+/** Abstract restatement nouns that a label is mechanically glued to. */
+const ABSTRACT_NOUN = re(
+  `${S}(alan|alanı|açıklı|imkân|imkan|pay|karşılı|anlam|önem|ağırlı|değer|süreklili|devamlılı|bütünlü|çözüm|erişilebilir|ulaşılabilir|esneklik|kapasite|hareket|odak|yön|potansiyel|netli|ayrım|fark)\\p{L}*`,
+);
+const INTENTION_STOPWORDS = new Set(['hakkında', 'ilgili', 'olan', 'gereken', 'nasıl', 'olarak', 'genel', 'dönem']);
+
+function sentencesOf(texts: string[]): string[] {
+  return texts.map(fold).flatMap((text) => text.split(/[.!?;]+/u)).map((sentence) => sentence.trim()).filter(Boolean);
+}
+
+function subjectLabel(plan: CoffeeStoryPlanV2): RegExp | null {
+  const subject = plan.subject;
+  if (!subject) return null;
+  if (subject.kind === 'person_of_interest') return SUBJECT_LABEL.person;
+  if (subject.kind === 'custom_decision') return SUBJECT_LABEL.decision;
+  if (subject.kind === 'general') return null;
+  const domain = subject.requiredSection ? SUBJECT_LABEL[subject.requiredSection] : null;
+  // Custom text: two of the request's own content words opening a sentence.
+  const own = (fold(subject.intention).match(/\p{L}+/gu) ?? [])
+    .filter((word) => word.length >= 4 && !INTENTION_STOPWORDS.has(word))
+    .map((word) => word.slice(0, 4));
+  if (own.length < 2) return domain;
+  const stem = `(${own.map((value) => `${value}\\p{L}*`).join('|')})`;
+  const ownLabel = re(`^${stem}( \\p{L}+){0,2} ${stem}`);
+  return domain ? re(`${domain.source}|${ownLabel.source}`) : ownLabel;
+}
+
+/**
+ * C2.11 — INTENTION PARROTING: sentences that open with the request's label
+ * and glue an abstract noun to it ("İş ve kariyerinde … alan", "Maddi
+ * durumunda … imkân"). A natural mention of work/love/money is fine; the
+ * failure is the label carrying the reading (three or more such sentences).
+ */
+export function coffeeIntentionParroting(narrative: CoffeeNarrative, plan: CoffeeStoryPlanV2): string[] {
+  const label = subjectLabel(plan);
+  if (!label) return [];
+  return sentencesOf([
+    narrative.visualObservation.text, narrative.overall.text, narrative.love.text,
+    narrative.career.text, narrative.money.text, narrative.takeaway.text,
+  ]).filter((sentence) =>
+    label.test(sentence.replace(/^(senin için|sende|sana göre),? /u, '')) && ABSTRACT_NOUN.test(sentence));
+}
+
+/** Proposition-definition vocabulary (private; never sent to the writer). */
+const DEFINITION_STEM: Record<CoffeePropositionKind, RegExp> = {
+  exchange_emergence: re(`${S}(iletişim|paylaşım|alışveriş|karşılıklı|etkileşim)\\p{L}*`),
+  opening_availability: re(`${S}(imkân|imkan|fırsat|açıklı|açılım|hareket payı|alan)\\p{L}*`),
+  connection_continuity: re(`${S}(bağ|devamlılı|süreklili|kalıcı|kopmadan)\\p{L}*`),
+  felt_significance: re(`${S}(anlam|önem|ağırlı|değer|derin)\\p{L}*`),
+  resolution_availability: re(`${S}(çözüm|çıkış|netli|çözülme)\\p{L}*`),
+  directional_change: re(`${S}(yön|doğrultu|hareket)\\p{L}*`),
+  alternative_distinction: re(`${S}(seçenek|ayrım|fark|ayrış|ihtimaller)\\p{L}*`),
+  gradual_expansion: re(`${S}(genişle|büyü|kapasite|gelişim)\\p{L}*`),
+  social_presence: re(`${S}(çevre|sosyal)\\p{L}*`),
+  proximate_context: re(`${S}(ev|yakın çevre)\\p{L}*`),
+};
+/** A stative close: the sentence only asserts that the meaning exists. */
+const STATIVE_CLOSE = re(
+  '(durumda|bulunuyor|var|mevcut|taşıyor|koruyor|sürüyor|belirgin|değil|duruyor|kalıyor|sahip|beliriyor|öne çıkıyor|belirginleşiyor|belirginleştiriyor|ayrışıyor|yatıyor|sunuyor|elverişli|açık|güçlü|derin|yer alıyor|karşılık geliyor|ağırlık kazanıyor)$',
+);
+/** A development: something arrives, moves, opens, or is about to happen. */
+const DEVELOPMENT = re(
+  `(acak|ecek|acağ|eceğ)\\p{L}*${E}|(?<!karşılık )${S}(gel|ulaş|açıl|başla|kıpırda|hareketlen|yaklaş|düş|çık|dön|kapı|haber|ses|söz)\\p{L}*`,
+);
+
+/**
+ * C2.11 — SEMANTIC RESTATEMENT: the prose merely asserts that the planned
+ * meaning exists (definition stem + stative close, no development) instead of
+ * telling a development. Plan-aware; fails only when it carries the reading.
+ */
+export function coffeeSemanticRestatement(narrative: CoffeeNarrative, plan: CoffeeStoryPlanV2): string[] {
+  const kinds = [plan.lead.kind, ...plan.supporting.map((item) => item.kind)];
+  const lane = plan.subject?.requiredSection ? narrative[plan.subject.requiredSection].text : '';
+  const sentences = sentencesOf([narrative.visualObservation.text, narrative.overall.text, lane, narrative.takeaway.text]);
+  const restating = sentences.filter((sentence) =>
+    kinds.some((kind) => DEFINITION_STEM[kind].test(sentence))
+    && STATIVE_CLOSE.test(sentence)
+    && !DEVELOPMENT.test(sentence));
+  return restating.length >= 3 && restating.length * 2 >= sentences.length ? restating : [];
+}
+
+/**
+ * C2.11 SAFETY TIER — serious unsupported claims. Runs before every style or
+ * length diagnostic so a stylistic failure can never hide one of these.
+ */
+export function coffeeClaimSafetyFailure(
   narrative: CoffeeNarrative,
   plan: CoffeeStoryPlanV2,
 ): HumanQualityFailure | null {
@@ -234,18 +356,21 @@ export function coffeeClaimEnvelopeFailure(
   if (forbidden.has('awaited_topic') && /beklediğin|beklemekte olduğun|önem verdiğin bir iletişim/.test(text)) {
     return 'presumed_user_state';
   }
-  if (forbidden.has('prior_problem') && /uzun süredir.{0,45}(zor|çöz|uğraş|meşgul)|seni (zorlayan|uğraştıran)|zihnini meşgul eden/.test(text)) {
+  if (forbidden.has('prior_problem') && /uzun süredir.{0,45}(zor|çöz|uğraş|meşgul)|seni (zorlayan|uğraştıran)|zihnini meşgul eden|aradığın (karşılık|çözüm|çıkış|cevap)/.test(text)) {
     return 'unsupported_existing_fact';
   }
   if (forbidden.has('existing_relationship') && /\b(partnerin|ilişkin|ilişkinizde|aranızdaki)\b/.test(text)) {
     return 'unsupported_existing_fact';
   }
-  if (forbidden.has('reciprocal_feeling') && /karşılıklı (yakınlık|duygu|his|bağlılık)|birbirinizi|birbirinize/.test(text)) {
-    return 'unsupported_other_agency';
+  if (forbidden.has('existing_relationship') && IMPLIED_EXISTING_BOND.some((rule) => rule.test(text))) {
+    return 'unsupported_existing_fact';
   }
   if (plan.subject?.kind === 'person_of_interest') {
     const personClaim = coffeePersonIntentionClaim(texts);
     if (personClaim) return personClaim;
+  }
+  if (forbidden.has('reciprocal_feeling') && /karşılıklı (yakınlık|duygu|his|bağlılık)|birbirinizi|birbirinize/.test(text)) {
+    return 'unsupported_other_agency';
   }
   if (forbidden.has('prior_stagnation') && /durgun(luk| giden)|bekleyen (konu|süreç)|aynı çerçevede kalan/.test(text)) {
     return 'unsupported_existing_fact';
@@ -267,20 +392,56 @@ export function coffeeClaimEnvelopeFailure(
   if (forbidden.has('causation') && unsupportedPropositionCausation(texts, plan)) {
     return 'unsupported_source_causation';
   }
-  if (forbidden.has('chronology') && /önce\b.{1,70}\bsonra|ilk olarak|ardından|akabinde|devamında|sonrasında|daha sonra|bir sonraki adımda/.test(text)) {
+  // A literal waiting declaration carries its own "after …" (the user wrote
+  // it); only sentences that restate that waiting are exempt from chronology.
+  const awaiting = plan.subject?.declaredFacts.includes('awaiting_response') ?? false;
+  const declaredStems = awaiting
+    ? (fold(plan.subject!.intention).match(/\p{L}+/gu) ?? []).filter((word) => word.length >= 5).map((word) => word.slice(0, 5))
+    : [];
+  const chronologyText = awaiting
+    ? texts.flatMap((value) => value.split(/[.!?;]+/u))
+      .filter((sentence) => !/bekl/u.test(sentence) && !declaredStems.some((stem) => sentence.includes(stem)))
+      .join(' ')
+    : text;
+  if (forbidden.has('chronology') && /önce\b.{1,70}\bsonra|ilk olarak|ardından|akabinde|devamında|sonrasında|daha sonra|bir sonraki adımda/.test(chronologyText)) {
     return 'unsupported_chronology';
   }
-  if (forbidden.has('guaranteed_outcome') && /kesinlikle|mutlaka|olacak\b|yapacaksın\b|edeceksin\b/.test(text)) {
+  if (forbidden.has('guaranteed_outcome') && /kesinlikle|mutlaka|olacak\b|yapacaksın\b|edeceksin\b|bir sonuç taşıyor|sonuca (ulaşacak|bağlanacak)/.test(text)) {
     return 'unsupported_certainty';
   }
-  if (forbidden.has('advice') && /\b(malısın|melisin|dikkat et|gözünü açık|sana iyi gelir)\b/.test(text)) {
-    return 'coaching_voice';
-  }
+  return null;
+}
 
-  if (coffeeMetaNarration(texts)) return 'meta_narration';
+/**
+ * C2.11 REALIZATION TIER, in precedence order: subject alignment →
+ * meta-narration → intention parroting → semantic restatement.
+ */
+export function coffeeRealizationFailure(
+  narrative: CoffeeNarrative,
+  plan: CoffeeStoryPlanV2,
+): HumanQualityFailure | null {
   const subjectFailure = coffeeSubjectAlignmentFailure(narrative, plan);
   if (subjectFailure) return subjectFailure;
+  const texts = [
+    narrative.visualObservation.text, narrative.overall.text, narrative.love.text,
+    narrative.career.text, narrative.money.text, narrative.nearFuture.text, narrative.takeaway.text,
+  ];
+  if (coffeeMetaNarration(texts)) return 'meta_narration';
+  if (coffeeIntentionParroting(narrative, plan).length >= 3) return 'intention_parroting';
+  if (coffeeSemanticRestatement(narrative, plan).length > 0) return 'semantic_restatement';
+  return null;
+}
 
+/** Remaining plan-aware style checks (they run after the generic quality gate). */
+export function coffeeClaimStyleFailure(
+  narrative: CoffeeNarrative,
+  plan: CoffeeStoryPlanV2,
+): HumanQualityFailure | null {
+  const text = [
+    narrative.visualObservation.text, narrative.overall.text, narrative.love.text,
+    narrative.career.text, narrative.money.text, narrative.nearFuture.text, narrative.takeaway.text,
+  ].map(fold).join(' ');
+  const forbidden = new Set(plan.claimEnvelope.forbiddenAssumptions);
   const kinds = [plan.lead.kind, ...plan.supporting.map((item) => item.kind)];
   if (plan.synthesis.mode === 'unified_cooccurrence') {
     const sentences = fold(narrative.overall.text).split(/[.!?]+/u).filter((sentence) => sentence.trim());
@@ -291,5 +452,18 @@ export function coffeeClaimEnvelopeFailure(
     if (new Set(singleComponentSentences).size >= 2) return 'component_serialization';
   }
   if (kinds.some((kind) => ABSTRACT_RESTATEMENT[kind].test(text))) return 'abstract_reading';
+  if (forbidden.has('advice') && /\b(malısın|melisin|dikkat et|gözünü açık|sana iyi gelir)\b/.test(text)) {
+    return 'coaching_voice';
+  }
   return null;
+}
+
+/** The whole plan-aware envelope in precedence order: safety → realization → style. */
+export function coffeeClaimEnvelopeFailure(
+  narrative: CoffeeNarrative,
+  plan: CoffeeStoryPlanV2,
+): HumanQualityFailure | null {
+  return coffeeClaimSafetyFailure(narrative, plan)
+    ?? coffeeRealizationFailure(narrative, plan)
+    ?? coffeeClaimStyleFailure(narrative, plan);
 }

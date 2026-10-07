@@ -24,11 +24,14 @@ describe('Coffee current user-state presumptions', () => {
   it('allows clean growth, future ferahlık, and non-user emotion wording', () => {
     for (const text of ['Tek gövdeden çıkan dallar birkaç yöne uzanacak.', 'Yakın günlerde daha ferah bir hava var.', 'Sevindirici bir gelişme hissediliyor.']) expect(coffeePresumedUserState([text])).toBeNull();
   });
-  it('preserves personalization exceptions', () => {
+  it('preserves personalization exceptions only for a literally declared typed fact (C2.11)', () => {
     for (const text of ['Tek bir sonuç beklerken', 'Sıkışıklık hissi azalırken']) {
       expect(coffeeQualityFailure(narrative(text), 'tr', undefined, evidence)).toBe('presumed_user_state');
-      expect(coffeeQualityFailure(narrative(text), 'tr', { intention: text }, evidence)).not.toBe('presumed_user_state');
     }
+    // A literal waiting statement maps to awaiting_response and licenses waiting.
+    expect(coffeeQualityFailure(narrative('Tek bir sonuç beklerken'), 'tr', { intention: 'Tek bir sonuç beklerken' }, evidence)).not.toBe('presumed_user_state');
+    // Any other first-person condition maps to no typed fact: fail conservative.
+    expect(coffeeQualityFailure(narrative('Sıkışıklık hissi azalırken'), 'tr', { intention: 'Sıkışıklık hissi azalırken' }, evidence)).toBe('presumed_user_state');
   });
   it('leaves Palm prompts untouched', () => {
     expect(palmWriterSystem('tr')).not.toContain('CURRENT WAITING STATE');

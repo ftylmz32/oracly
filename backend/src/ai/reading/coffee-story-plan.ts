@@ -15,6 +15,8 @@ import {
   type CoffeeStorySubject,
 } from './coffee-intention-context.js';
 import type { CoffeeLengthRequirements } from './coffee-length-contract.js';
+import { planCoffeeFortuneBeats, type CoffeeFortuneBeat } from './coffee-fortune-beat.js';
+import type { CoffeeSemanticCue } from './coffee-semantic-cues.js';
 
 export type CoffeePublicSection =
   | 'visualObservation'
@@ -87,6 +89,12 @@ export type CoffeeStoryPlanV2 = {
   };
   /** C2.9: present only when a trusted intention exists — the user's reading subject. */
   subject?: CoffeeStorySubject;
+  /**
+   * C2.11 (additive to V2): the controlled fortune developments the writer
+   * realizes FOR the subject. lead = the main development; supporting = second
+   * angles that co-occur (never cause, follow, or enumerate).
+   */
+  fortune?: { lead: CoffeeFortuneBeat; supporting: CoffeeFortuneBeat[] };
 };
 
 export type CoffeeStoryPlanningResultV2 =
@@ -230,6 +238,7 @@ const PROPOSITION_PRIORITY: CoffeePropositionKind[] = [
 export function planCoffeeStoryV2(
   propositions: CoffeeSemanticProposition[],
   personalization?: ReadingPersonalization,
+  cues?: CoffeeSemanticCue[],
 ): CoffeeStoryPlanningResultV2 {
   const capacity = coffeeSemanticCapacity(propositions);
   if (capacity === 'insufficient') {
@@ -257,6 +266,9 @@ export function planCoffeeStoryV2(
   // C2.9: intention effects come ONLY from the trusted-intention contract.
   const intention = classifyCoffeeIntention(personalization?.intention);
   const exceptions = new Set<CoffeeForbiddenAssumption>(intention?.allowedAssumptionExceptions ?? []);
+  const fortune = cues
+    ? planCoffeeFortuneBeats(cues, planned[0].kind, intention?.subjectKind ?? null) ?? undefined
+    : undefined;
   const envelopeForbidden = [
     ...new Set([...forbiddenAssumptions, ...(intention?.intentionForbiddenAssumptions ?? [])]),
   ].filter((assumption) => !exceptions.has(assumption));
@@ -287,6 +299,7 @@ export function planCoffeeStoryV2(
         ? { overallWords: { min: 40, max: 70 }, takeawayWords: { min: 10, max: 18 } }
         : { overallWords: { min: 26, max: 45 }, takeawayWords: { min: 9, max: 16 } },
       ...(intention ? { subject: coffeeStorySubject(intention) } : {}),
+      ...(fortune ? { fortune } : {}),
     },
   };
 }

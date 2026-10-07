@@ -1,4 +1,3 @@
-import { coffeePresumedUserState, coffeeUnsupportedExistingFact } from '../human-quality.js';
 import type { CoffeeForbiddenAssumption } from './coffee-semantic-propositions.js';
 import type { ReadingPersonalization } from './types.js';
 
@@ -25,8 +24,12 @@ export type CoffeeUserDeclaredFact =
   | 'person_in_mind'
   | 'decision_exists'
   | 'current_relationship'
-  /** Free text in which the user states their own present condition ("…bekliyorum"). */
-  | 'stated_condition';
+  /**
+   * C2.11: the user literally says THEY are waiting for a response/news
+   * ("…dönüş bekliyorum"). Authorizes only that the user is waiting — never
+   * that the response arrives, its sender, timing, content, or outcome.
+   */
+  | 'awaiting_response';
 
 export type CoffeeTrustedIntentionContext = {
   intention: string;
@@ -78,8 +81,12 @@ const DECISION_WORD = /^(karar|seçim|seçenek|tercih|decision|choice)/u;
 const CURRENT_RELATIONSHIP_WORD =
   /^((sevgili|eş|partner|nişanlı|koca|karı)m(la|le|ın|in|ı|i|a|e|da|de)?|ilişkim(iz)?(de|le|i|in|e)?)$/u;
 
-/** First-person present progressive: the user describing their own state. */
-const FIRST_PERSON_PRESENT = /(ıyorum|iyorum|uyorum|üyorum|yorum|ıyoruz|iyoruz|uyoruz|üyoruz)$/u;
+/**
+ * Literal waiting statements only (first person, or the bare "…beklerken"
+ * fragment the user writes about themself). Any other first-person sentence
+ * maps to NO typed fact and relaxes nothing (fail conservative).
+ */
+const AWAITING_WORD = /^(bekliyorum|bekliyoruz|beklemekteyim|beklemekteyiz|beklerken|bekleyişteyim|bekleyişindeyim)$/u;
 
 const wordsOf = (value: string): string[] =>
   value.normalize('NFC').toLocaleLowerCase('tr-TR').match(/\p{L}+/gu) ?? [];
@@ -110,17 +117,13 @@ export function classifyCoffeeIntention(raw: string | null | undefined): CoffeeT
   if (!canonical && words.some((word) => CURRENT_RELATIONSHIP_WORD.test(word))) {
     declaredFacts.push('current_relationship');
   }
-  if (
-    !canonical
-    && (words.some((word) => word.length > 5 && FIRST_PERSON_PRESENT.test(word))
-      || coffeePresumedUserState([intention])
-      || coffeeUnsupportedExistingFact([intention]))
-  ) {
-    declaredFacts.push('stated_condition');
+  if (!canonical && words.some((word) => AWAITING_WORD.test(word))) {
+    declaredFacts.push('awaiting_response');
   }
   const allowedAssumptionExceptions: CoffeeForbiddenAssumption[] = [
     ...(declaredFacts.includes('decision_exists') ? ['current_major_decision', 'options_assumption'] as const : []),
     ...(declaredFacts.includes('current_relationship') ? ['existing_relationship'] as const : []),
+    ...(declaredFacts.includes('awaiting_response') ? ['awaited_topic'] as const : []),
   ];
   const required = SECTION_BY_KIND[kind] ?? null;
   const authorizedSections = canonical

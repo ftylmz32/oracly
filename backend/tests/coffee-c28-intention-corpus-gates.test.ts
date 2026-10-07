@@ -155,7 +155,7 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
     // Additive C2.9 fields (subject, lengthRequirements) and the documented
     // envelope correction are the ONLY differences from the frozen packet.
     const { lengthRequirements: _requirements, ...currentPacket } = packet;
-    const { subject: _subject, ...currentPlan } = currentPacket.storyPlan;
+    const { subject: _subject, fortune: _fortune, ...currentPlan } = currentPacket.storyPlan;
     expect(resultFor(testCase.id).writerPacket).toEqual({
       ...currentPacket,
       storyPlan: {
@@ -220,18 +220,37 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
    * ikisi aynı bütün içinde yan yana duruyor", "Genel izlenim … anlatıyor",
    * "Bu iki eğilim … yan yana duruyor"); C11's draft explained its synthesis
    * ("… tek bir gelişme halinde beliriyor") before its serialization.
+   * C2.11 precedence (privacy → unsupported claims → subject → meta →
+   * parroting → restatement → style/length) re-labels further attempts; every
+   * change is fail→more-serious-fail or pass→fail, never a new pass.
    */
   const CORRECTED_VERDICTS: Record<string, {
     historical: { qualityFailure: string | null; bindFailure: string | null };
     current: { qualityFailure: string; bindFailure: string };
   }> = {
-    'C03#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
-    'C10#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+      'C01#1': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C02#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'semantic_restatement', bindFailure: 'human_quality' } },
+    'C02#1': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
+    'C03#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C03#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    'C04#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C04#1': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
+    'C05#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    'C05#1': { historical: { qualityFailure: 'unsupported_source_causation', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    'C06#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_subject_drift', bindFailure: 'human_quality' } },
+    'C06#1': { historical: { qualityFailure: 'generic_closing', bindFailure: 'generic_closing' }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
+    'C07#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    'C07#1': { historical: { qualityFailure: 'possibility_menu', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_other_agency', bindFailure: 'human_quality' } },
+    'C08#1': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
+    'C09#0': { historical: { qualityFailure: 'observation_heavy', bindFailure: 'human_quality' }, current: { qualityFailure: 'semantic_restatement', bindFailure: 'human_quality' } },
+    'C10#0': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C10#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
     'C11#0': { historical: { qualityFailure: 'component_serialization', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
-    'C12#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C12#0': { historical: { qualityFailure: 'observation_heavy', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C12#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
   };
 
-  it('reproduces every recorded quality and binding result, except documented C2.9 corrections', () => {
+  it('reproduces every recorded quality and binding result, except documented C2.9/C2.11 corrections', () => {
     const corrected = new Set<string>();
     for (const testCase of writerCases) {
       const obs = observation(testCase);

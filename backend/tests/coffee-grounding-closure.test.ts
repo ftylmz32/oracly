@@ -108,7 +108,9 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
     const { calls, delivered, error } = await runPipeline(BIRD9.evidence, BIRD9.narrative, meaningRepair);
     expect(error).toBeNull();
     expect(calls.map((c) => c.kind)).toEqual(['writer', 'repair']);
-    expect(calls[1].user).toContain('Violation codes: dictionary_voice');
+    // C2.11 precedence: the same output also exposes its private source
+    // ("Kuşun fincanın ağzına yakın…"), and privacy outranks voice codes.
+    expect(calls[1].user).toContain('Violation codes: evidence_leak');
     expect(coffeeVoiceRepairFocus('dictionary_voice')).toContain('symbol-dictionary form');
     expect(calls[1].user).toContain('Private structured Coffee repair plan:');
     expect(calls[1].user).toContain('"kind":"exchange_emergence"');
@@ -125,7 +127,7 @@ describe('0. dictionary_voice is enforced in the production bind path (targeted9
     const { calls, delivered, error } = await runPipeline(BIRD9.evidence, BIRD9.narrative, BIRD9.narrative);
     expect(calls.map((c) => c.kind)).toEqual(['writer', 'repair']);
     expect(delivered).toBeNull();
-    expect(error).toEqual({ code: 'quality_unavailable', bindFailure: 'human_quality' });
+    expect(error).toEqual({ code: 'quality_unavailable', bindFailure: 'evidence_leak' });
   });
 
   it('the targeted10 BIRD (after the gate) has no "yorulur" and passes', () => {

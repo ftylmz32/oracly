@@ -23,6 +23,10 @@ export type CoffeeRepairDefect =
   | 'subject_alignment'
   /** C2.9: the prose described the reading or explained synthesis rules. */
   | 'natural_realization'
+  /** C2.11: the request label carried the reading; realize the subject instead. */
+  | 'subject_realization'
+  /** C2.11: the prose defined the planned meaning; tell the fortune development. */
+  | 'fortune_realization'
   | 'privacy_or_contract';
 
 export type CoffeeRepairPlan = {
@@ -81,6 +85,8 @@ function defectKind(violation: string): CoffeeRepairDefect {
   }
   if (violation === 'missing_intention_subject' || violation === 'intention_subject_drift') return 'subject_alignment';
   if (violation === 'meta_narration') return 'natural_realization';
+  if (violation === 'intention_parroting') return 'subject_realization';
+  if (violation === 'semantic_restatement') return 'fortune_realization';
   return 'privacy_or_contract';
 }
 
@@ -178,7 +184,10 @@ export function buildCoffeeRepairPlan(
     forbiddenClaimCategoriesTriggered: triggeredClaims(violation, storyPlan),
     defect: {
       kind: defectKind(violation),
-      propositionKinds: violation === 'abstract_reading' || violation === 'meta_narration'
+      propositionKinds: violation === 'abstract_reading'
+        || violation === 'meta_narration'
+        || violation === 'intention_parroting'
+        || violation === 'semantic_restatement'
         ? propositions.map((proposition) => proposition.kind)
         : [],
     },

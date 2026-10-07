@@ -15,7 +15,11 @@ import {
 } from '../human-quality.js';
 import { mapCoffeeMeanings } from './coffee-meaning-map.js';
 import type { CoffeeAnyStoryPlan, CoffeeStoryPlanV2 } from './coffee-story-plan.js';
-import { coffeeClaimEnvelopeFailure } from './coffee-claim-envelope.js';
+import {
+  coffeeClaimSafetyFailure,
+  coffeeClaimStyleFailure,
+  coffeeRealizationFailure,
+} from './coffee-claim-envelope.js';
 import { classifyCoffeeIntention } from './coffee-intention-context.js';
 import { coffeeLengthDeficits } from './coffee-length-contract.js';
 import {
@@ -310,6 +314,21 @@ export function coffeeQualityFailure(
   evidence?: ReadingEvidenceItem[],
   storyPlan?: CoffeeAnyStoryPlan,
 ): HumanQualityFailure | null {
+  const v2 = storyPlan && 'version' in storyPlan && storyPlan.version === 2
+    ? storyPlan as CoffeeStoryPlanV2
+    : undefined;
+  // C2.11 GATE PRECEDENCE (Story Plan V2 = every production Coffee reading):
+  // privacy → unsupported claims (user facts, existing bond, other-person
+  // agency, causation, chronology, certainty) → subject → meta-narration →
+  // parroting → restatement → generic style/length. A serious unsupported
+  // claim can never hide behind too_short, redundancy, or a voice code.
+  if (v2) {
+    const priority = coffeePrivacyFailure(narrative, language, evidence)
+      ?? coffeeClaimSafetyFailure(narrative, v2)
+      ?? coffeeEvidenceClaimFailure(narrative, language, personalization, evidence)
+      ?? coffeeRealizationFailure(narrative, v2);
+    if (priority) return priority;
+  }
   const quality = evaluateCoffeeQuality({
     visualObservation: narrative.visualObservation.text,
     overall: narrative.overall.text,
@@ -349,70 +368,33 @@ export function coffeeQualityFailure(
       : undefined,
   });
   if (quality) return quality;
-  if (storyPlan && 'version' in storyPlan && storyPlan.version === 2) {
-    const claimFailure = coffeeClaimEnvelopeFailure(narrative, storyPlan as CoffeeStoryPlanV2);
-    if (claimFailure) return claimFailure;
+  if (v2) {
+    const style = coffeeClaimStyleFailure(narrative, v2);
+    if (style) return style;
   }
   if (storyPlan && coffeePlanDepthFailure(narrative, storyPlan, evidence ? coffeeNarrativelySparse(evidence) : undefined)) {
     return 'too_short';
   }
-  // C2.9: an intention relaxes these gates ONLY through facts the user
-  // literally declared (a decision, a current relationship) — a category
-  // choice such as love/career/money/person never licenses them.
-  const declared = classifyCoffeeIntention(personalization?.intention)?.declaredFacts ?? [];
-  const statedState = declared.includes('decision_exists') || declared.includes('stated_condition');
-  const statesUserCondition = statedState || declared.includes('current_relationship');
-  const meaningTexts = [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway].map((s) => s.text);
-  // Personalization-aware (evidence path only; the legacy single-call parser
-  // is unaffected): the person's expectation / wish / prior thought presumed.
-  if (
-    (language === 'tr' || language === undefined) &&
-    !personalization?.memorySummary &&
-    !statedState &&
-    coffeePresumedUserState(meaningTexts)
-  ) {
-    return 'presumed_user_state';
-  }
-  const turkish = language === 'tr' || language === undefined;
-  if (turkish && !personalization?.memorySummary && !statesUserCondition && coffeeUnsupportedExistingFact(meaningTexts)) {
-    return 'unsupported_existing_fact';
-  }
-  if (turkish && !personalization?.memorySummary && coffeeUnsupportedSourceCausation(meaningTexts)) {
-    return 'unsupported_source_causation';
-  }
-  // A specific other person's attitude / decision / intention / action.
-  if (turkish && !personalization?.memorySummary && coffeeOtherAgency(meaningTexts)) {
-    return 'unsupported_other_agency';
-  }
-  // Home / close circle needs a home affordance: a handle-side cue in the
-  // evidence, or personalization that is itself about home / family.
-  if (turkish && evidence && !coffeeHomeAffordance(evidence, personalization) && coffeeHomeDomainClaim(meaningTexts)) {
-    return 'unsupported_home_domain';
-  }
-  if (evidence && turkish && coffeePlainLineRelocation(meaningTexts, evidence)) {
-    return 'plain_line_relocation';
-  }
-  // Evidence-aware (needs per-section evidenceIds): context promoted to events.
-  if (
-    evidence &&
-    (language === 'tr' || language === undefined) &&
-    coffeeContextEventPromotion(
-      [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway],
-      evidence,
-    )
-  ) {
-    return 'context_event';
-  }
-  if (evidence && coffeeSemanticSourceEcho(
-    [narrative.visualObservation.text, ...meaningTexts],
-    evidence,
-    language,
-  )) {
-    return 'evidence_leak';
-  }
+  return coffeeEvidenceClaimFailure(narrative, language, personalization, evidence)
+    ?? coffeePrivacyFailure(narrative, language, evidence);
+}
+
+function coffeeMeaningTexts(narrative: CoffeeNarrative): string[] {
+  return [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway]
+    .map((section) => section.text);
+}
+
+/** Private visual source reconstructed in public prose. */
+function coffeePrivacyFailure(
+  narrative: CoffeeNarrative,
+  language: AppLanguage,
+  evidence?: ReadingEvidenceItem[],
+): HumanQualityFailure | null {
+  const sections = [narrative.visualObservation.text, ...coffeeMeaningTexts(narrative)];
+  if (evidence && coffeeSemanticSourceEcho(sections, evidence, language)) return 'evidence_leak';
   if (
     coffeePublicEvidenceLeak(
-      [narrative.visualObservation.text, ...meaningTexts],
+      sections,
       evidence
         ?.map((item) => item.resemblance?.trim())
         .filter((value): value is string => Boolean(value)),
@@ -423,7 +405,66 @@ export function coffeeQualityFailure(
   return null;
 }
 
-/** Plan-depth word floors, read from the ONE authoritative length contract. */
+/**
+ * C2.11: a presumed user state is legal only where the user literally declared
+ * it. A decision declaration covers its own state; a literal waiting statement
+ * covers ONLY waiting sentences; nothing else is relaxed (fail conservative).
+ */
+function coffeeUndeclaredUserState(texts: string[], personalization?: ReadingPersonalization): boolean {
+  if (personalization?.memorySummary) return false;
+  const declared = classifyCoffeeIntention(personalization?.intention)?.declaredFacts ?? [];
+  if (declared.includes('decision_exists')) return false;
+  const awaiting = declared.includes('awaiting_response');
+  return texts
+    .flatMap((text) => text.split(/[.!?]+/u))
+    .filter((sentence) => sentence.trim())
+    .some((sentence) =>
+      coffeePresumedUserState([sentence]) !== null
+      && !(awaiting && /bekl/u.test(sentence.toLocaleLowerCase('tr-TR'))));
+}
+
+/** Evidence/personalization-aware unsupported claims (Turkish). */
+function coffeeEvidenceClaimFailure(
+  narrative: CoffeeNarrative,
+  language: AppLanguage,
+  personalization?: ReadingPersonalization,
+  evidence?: ReadingEvidenceItem[],
+): HumanQualityFailure | null {
+  const turkish = language === 'tr' || language === undefined;
+  if (!turkish) return null;
+  // C2.9/C2.11: an intention relaxes these gates ONLY through facts the user
+  // literally declared — a category choice never licenses them.
+  const declared = classifyCoffeeIntention(personalization?.intention)?.declaredFacts ?? [];
+  const declaresCondition = declared.includes('decision_exists') || declared.includes('current_relationship');
+  const meaningTexts = coffeeMeaningTexts(narrative);
+  if (coffeeUndeclaredUserState(meaningTexts, personalization)) return 'presumed_user_state';
+  if (!personalization?.memorySummary && !declaresCondition && coffeeUnsupportedExistingFact(meaningTexts)) {
+    return 'unsupported_existing_fact';
+  }
+  if (!personalization?.memorySummary && coffeeUnsupportedSourceCausation(meaningTexts)) {
+    return 'unsupported_source_causation';
+  }
+  // A specific other person's attitude / decision / intention / action.
+  if (!personalization?.memorySummary && coffeeOtherAgency(meaningTexts)) return 'unsupported_other_agency';
+  // Home / close circle needs a home affordance: a handle-side cue in the
+  // evidence, or personalization that is itself about home / family.
+  if (evidence && !coffeeHomeAffordance(evidence, personalization) && coffeeHomeDomainClaim(meaningTexts)) {
+    return 'unsupported_home_domain';
+  }
+  if (evidence && coffeePlainLineRelocation(meaningTexts, evidence)) return 'plain_line_relocation';
+  // Evidence-aware (needs per-section evidenceIds): context promoted to events.
+  if (
+    evidence &&
+    coffeeContextEventPromotion(
+      [narrative.overall, narrative.love, narrative.career, narrative.money, narrative.nearFuture, narrative.takeaway],
+      evidence,
+    )
+  ) {
+    return 'context_event';
+  }
+  return null;
+}
+
 export function coffeePlanDepthFailure(
   narrative: CoffeeNarrative,
   plan: CoffeeAnyStoryPlan,

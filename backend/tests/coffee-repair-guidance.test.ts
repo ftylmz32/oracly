@@ -110,9 +110,12 @@ describe('one Coffee repair request carries every detected defect (real pipeline
 
     expect(calls.map((c) => c.kind)).toEqual(['writer', 'repair']);
     const repairUser = calls[1].user;
-    expect(repairUser).toContain('Violation codes: section_redundancy');
+    // C2.11 precedence: the injected takeaway also exposes its private source
+    // ("Yıldızın açıkça belirmesi…"); privacy outranks redundancy, so the ONE
+    // repair targets the leak first.
+    expect(repairUser).toContain('Violation codes: evidence_leak');
     expect(repairUser).toContain('Private structured Coffee repair plan:');
-    expect(repairUser).toContain('"defect":{"kind":"synthesis_redundancy"');
+    expect(repairUser).toContain('"defect":{"kind":"privacy_or_contract"');
     expect(repairUser).toContain('"requiredPropositionCoverage":["exchange_emergence"]');
     expect(repairUser).not.toContain('Rejected narrative JSON:');
     expect(repairUser).not.toContain('"region"');

@@ -113,7 +113,11 @@ export type HumanQualityFailure =
   /** Coffee C2.9: the trusted intention's required subject section is empty. */
   | 'missing_intention_subject'
   /** Coffee C2.9: the reading abandons or denies the user's declared subject. */
-  | 'intention_subject_drift';
+  | 'intention_subject_drift'
+  /** Coffee C2.11: the request's label is mechanically glued to abstract nouns. */
+  | 'intention_parroting'
+  /** Coffee C2.11: the prose defines the planned meaning instead of telling a development. */
+  | 'semantic_restatement';
 
 export type CoffeeQualityInput = {
   visualObservation: string;

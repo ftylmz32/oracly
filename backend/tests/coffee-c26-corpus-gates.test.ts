@@ -106,9 +106,12 @@ describe('C2.6 frozen blind-provider proposition corpus', () => {
     expect(packet.storyPlan.claimEnvelope.forbiddenAssumptions).toEqual(testCase.expectedForbiddenAssumptions);
     // C2.9 added the additive authoritative `lengthRequirements` to the
     // packet; the frozen artifact predates it. Every other field must match.
+    // C2.11 likewise added the additive private `storyPlan.fortune` beats.
     const { lengthRequirements, ...historicalPacket } = packet;
+    const { fortune, ...historicalPlan } = historicalPacket.storyPlan;
     expect(lengthRequirements.combinedLeadMinWords).toBe(42);
-    expect(resultFor(testCase.id).writerPacket).toEqual(historicalPacket);
+    expect(fortune?.lead.role).toBe('main_development');
+    expect(resultFor(testCase.id).writerPacket).toEqual({ ...historicalPacket, storyPlan: historicalPlan });
   });
 
   it('gives repeated-support cases two genuine accepted IDs merged into one independently-supported proposition', () => {
@@ -208,7 +211,8 @@ describe('C2.6 frozen blind-provider proposition corpus', () => {
       const packet = buildCoffeeWriterPacketV2(observation(testCase), 'tr');
       if ('status' in packet) throw new Error('repair cannot be a policy case');
       const violation = first.qualityFailure ?? first.bindFailure ?? 'human_quality';
-      const expected = buildCoffeeRepairPlan(first.parsed, violation, packet.storyPlan);
+      const { fortune: _fortune, ...historicalStoryPlan } = packet.storyPlan;
+      const expected = buildCoffeeRepairPlan(first.parsed, violation, historicalStoryPlan);
       // Frozen provider artifacts predate C2.7C's additive actionable
       // lengthDeficits field. Preserve the historical artifact verbatim
       // while comparing every field that existed at capture time.

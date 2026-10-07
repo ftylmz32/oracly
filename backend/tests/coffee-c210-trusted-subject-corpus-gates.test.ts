@@ -92,6 +92,47 @@ const writerCases = manifest.cases.filter((item) => item.expectedProviderPolicy.
 const firstViolation = (attempt: { qualityFailure: string | null; bindFailure: string | null }) =>
   attempt.bindFailure === 'human_quality' ? (attempt.qualityFailure ?? 'human_quality') : attempt.bindFailure!;
 
+/**
+ * C2.11 intentional CURRENT corrections (frozen manifest/raw untouched):
+ * C14's literal "…dönüş bekliyorum" now declares the granular
+ * awaiting_response fact, which lifts ONLY awaited_topic.
+ */
+const CURRENT_SUBJECT: Record<string, { declaredFacts: string[]; liftedForbidden: string[] }> = {
+  C14: { declaredFacts: ['awaiting_response'], liftedForbidden: ['awaited_topic'] },
+};
+
+/**
+ * C2.11 precedence + realization gates re-label recorded verdicts. Every
+ * change is fail→more-serious-fail or pass→fail (never a new pass): the five
+ * delivered readings (C02, C05, C09, C10, C13) are all rejected now.
+ */
+const CORRECTED_VERDICTS: Record<string, {
+  historical: { qualityFailure: string | null; bindFailure: string | null };
+  current: { qualityFailure: string; bindFailure: string };
+}> = {
+    'C01#1': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C02#0': { historical: { qualityFailure: 'possibility_menu', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C02#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'semantic_restatement', bindFailure: 'human_quality' } },
+    'C03#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    'C04#0': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'presumed_user_state', bindFailure: 'human_quality' } },
+    'C04#1': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C05#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C05#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    'C06#0': { historical: { qualityFailure: 'caution_voice', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C06#1': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C07#0': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
+    'C07#1': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_other_agency', bindFailure: 'human_quality' } },
+    'C08#0': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C08#1': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C09#0': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C10#0': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C11#1': { historical: { qualityFailure: 'observation_heavy', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C12#0': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
+    'C12#1': { historical: { qualityFailure: 'component_serialization', bindFailure: 'human_quality' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
+    'C13#0': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'semantic_restatement', bindFailure: 'human_quality' } },
+    'C14#1': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'unsupported_certainty', bindFailure: 'human_quality' } },
+};
+
 describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
   it('keeps the pre-provider manifest byte-for-byte frozen at the C2.9 architecture head', () => {
     const hash = createHash('sha256').update(manifestBytes).digest('hex');
@@ -138,8 +179,9 @@ describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
     if ('status' in packet) throw new Error('expected writer packet');
     const plan = packet.storyPlan;
     const context = classifyCoffeeIntention(testCase.intention)!;
+    const correction = CURRENT_SUBJECT[testCase.id];
     expect({ kind: plan.subject?.kind, requiredSection: plan.subject?.requiredSection, declaredFacts: plan.subject?.declaredFacts })
-      .toEqual(testCase.expectedSubject);
+      .toEqual(correction ? { ...testCase.expectedSubject, declaredFacts: correction.declaredFacts } : testCase.expectedSubject);
     expect(plan.subject?.intention).toBe(testCase.intention);
     expect(plan.subject?.intentionForbiddenAssumptions).toEqual(context.intentionForbiddenAssumptions);
     expect(plan.semanticCapacity).toBe(testCase.expectedCapacity);
@@ -147,9 +189,19 @@ describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
     expect(plan.supporting.map((item) => item.kind)).toEqual(testCase.expectedSupporting);
     expect(plan.synthesis.mode).toBe(testCase.expectedSynthesis);
     expect(plan.authorizedSections).toEqual(testCase.expectedAuthorizedSections);
-    expect([...plan.claimEnvelope.forbiddenAssumptions].sort()).toEqual([...testCase.expectedForbiddenAssumptions!].sort());
+    const lifted = new Set(correction?.liftedForbidden ?? []);
+    expect([...plan.claimEnvelope.forbiddenAssumptions].sort())
+      .toEqual(testCase.expectedForbiddenAssumptions!.filter((item) => !lifted.has(item)).sort());
     expect(packet.lengthRequirements).toEqual(testCase.expectedLengthRequirements);
-    expect(resultFor(testCase.id).writerPacket).toEqual(packet);
+    // C2.11 additive private fortune beats are the only other packet difference.
+    const { fortune, ...currentPlan } = plan;
+    expect(fortune?.lead.role).toBe('main_development');
+    const recorded = resultFor(testCase.id).writerPacket as { storyPlan: Record<string, unknown> };
+    if (correction) {
+      expect(recorded.storyPlan.claimEnvelope).not.toEqual(currentPlan.claimEnvelope);
+    } else {
+      expect(recorded).toEqual({ ...packet, storyPlan: currentPlan });
+    }
   });
 
   it('separates the Love category (C02/C03/C10) from a literally declared relationship (C13)', () => {
@@ -203,15 +255,29 @@ describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
     }
   });
 
-  it('reproduces every recorded quality and binding result exactly', () => {
+  it('reproduces every recorded quality and binding result, except documented C2.11 corrections', () => {
+    const corrected = new Set<string>();
     for (const testCase of writerCases) {
       const obs = observation(testCase);
       const personalization = personalizationOf(testCase);
       const plan = readyPacket(testCase).storyPlan;
-      for (const attempt of resultFor(testCase.id).attempts) {
-        expect(coffeeQualityFailure(attempt.parsed, 'tr', personalization, obs.evidence, plan)).toBe(attempt.qualityFailure);
-        expect(bindCoffeeNarrative(attempt.parsed, obs, 'tr', personalization, plan)).toBe(attempt.bindFailure);
-      }
+      resultFor(testCase.id).attempts.forEach((attempt, index) => {
+        const key = `${testCase.id}#${index}`;
+        const correction = CORRECTED_VERDICTS[key];
+        if (correction) {
+          corrected.add(key);
+          expect({ qualityFailure: attempt.qualityFailure, bindFailure: attempt.bindFailure }).toEqual(correction.historical);
+        }
+        const expected = correction?.current ?? attempt;
+        expect(coffeeQualityFailure(attempt.parsed, 'tr', personalization, obs.evidence, plan)).toBe(expected.qualityFailure);
+        expect(bindCoffeeNarrative(attempt.parsed, obs, 'tr', personalization, plan)).toBe(expected.bindFailure);
+      });
+    }
+    expect([...corrected].sort()).toEqual(Object.keys(CORRECTED_VERDICTS).sort());
+    for (const id of ['C02', 'C05', 'C09', 'C10', 'C13']) {
+      const final = resultFor(id).attempts.at(-1)!;
+      expect(CORRECTED_VERDICTS[`${id}#${resultFor(id).attempts.length - 1}`]?.current.bindFailure).toBe('human_quality');
+      expect(final.bindFailure).toBeNull();
     }
   });
 
@@ -235,10 +301,12 @@ describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
       const packet = readyPacket(testCase);
       const first = result.attempts[0];
       const violation = firstViolation(first);
-      const expected = buildCoffeeRepairPlan(first.parsed, violation, packet.storyPlan, 'tr', packet.lengthRequirements);
+      // Reproduce against the frozen plan the repair actually received.
+      const recordedPlan = (result.repairPlan as { storyPlan: typeof packet.storyPlan }).storyPlan;
+      const expected = buildCoffeeRepairPlan(first.parsed, violation, recordedPlan, 'tr', packet.lengthRequirements);
       expect(result.repairPlan).toEqual(expected);
       expect(expected.locale).toBe('tr');
-      expect(expected.storyPlan).toEqual(packet.storyPlan);
+      expect(recordedPlan.lead).toEqual(packet.storyPlan.lead);
       expect(expected.lengthRequirements).toEqual(packet.lengthRequirements);
       expect(expected.subject).toMatchObject({
         intention: testCase.intention,
@@ -246,6 +314,10 @@ describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
         requiredSection: testCase.expectedSubject!.requiredSection,
         declaredFacts: testCase.expectedSubject!.declaredFacts,
       });
+      // Today's repair plan additionally carries the fortune beats and the current subject.
+      const current = buildCoffeeRepairPlan(first.parsed, violation, packet.storyPlan, 'tr', packet.lengthRequirements);
+      expect(current.storyPlan.fortune?.lead.evidenceIds.length).toBeGreaterThan(0);
+      expect(current.subject?.intention).toBe(testCase.intention);
       expect(expected.evidenceIds.length).toBeGreaterThan(0);
       if (violation === 'too_short') {
         expect(expected.lengthDeficits?.length).toBeGreaterThan(0);
@@ -311,17 +383,22 @@ describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
     }
   });
 
-  it('records the C14 TRUSTED STATE CONTRACT INCONSISTENCY deterministically (recorded, not patched)', () => {
+  it('C14: the recorded TRUSTED STATE CONTRACT INCONSISTENCY is closed by C2.11; invented outcome stays forbidden', () => {
     const audit = manifest.c14TrustedStateContractAudit;
     expect(audit.classifierDeclaredFacts).toEqual(['stated_condition']);
     expect(audit.claimEnvelopeVerdictOnLiteralRestatement).toBe('presumed_user_state');
     expect(audit.trustedStateContractInconsistency).toBe(true);
     const c14 = manifest.cases.find((item) => item.id === 'C14')!;
     const plan = readyPacket(c14).storyPlan;
-    expect(plan.claimEnvelope.forbiddenAssumptions).toContain('awaited_topic');
-    for (const attempt of resultFor('C14').attempts) {
-      expect(coffeeClaimEnvelopeFailure(attempt.parsed, plan)).toBe('presumed_user_state');
-    }
+    expect(plan.subject?.declaredFacts).toEqual(['awaiting_response']);
+    expect(plan.claimEnvelope.forbiddenAssumptions).not.toContain('awaited_topic');
+    expect(plan.claimEnvelope.forbiddenAssumptions).toContain('guaranteed_outcome');
+    const [writer, repair] = resultFor('C14').attempts;
+    // The literal waiting restatement is no longer contradicted …
+    expect(coffeeClaimEnvelopeFailure(writer.parsed, plan)).not.toBe('presumed_user_state');
+    expect(coffeeQualityFailure(writer.parsed, 'tr', personalizationOf(c14), observation(c14).evidence, plan)).toBe('section_redundancy');
+    // … while "… bir sonuç taşıyor" (the response arrives and turns into a dialogue) stays forbidden.
+    expect(coffeeClaimEnvelopeFailure(repair.parsed, plan)).toBe('unsupported_certainty');
   });
 
   it('records the C07 person violations that earlier style/length gates masked', () => {
@@ -332,6 +409,11 @@ describe('C2.10 frozen blind trusted-subject real-provider corpus', () => {
     expect(coffeeClaimEnvelopeFailure(writer.parsed, plan)).toBe('unsupported_existing_fact');
     expect(repair.qualityFailure).toBe('too_short');
     expect(coffeeClaimEnvelopeFailure(repair.parsed, plan)).toBe('unsupported_other_agency');
+    // C2.11 precedence: the unsupported relationship/agency now WINS over
+    // section_redundancy and too_short in the production verdict.
+    const personalization = personalizationOf(c07);
+    expect(coffeeQualityFailure(writer.parsed, 'tr', personalization, observation(c07).evidence, plan)).toBe('unsupported_existing_fact');
+    expect(coffeeQualityFailure(repair.parsed, 'tr', personalization, observation(c07).evidence, plan)).toBe('unsupported_other_agency');
   });
 
   it('stores no credentials in the corpus artifacts', () => {

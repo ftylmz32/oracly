@@ -17,6 +17,7 @@ import {
 import { mapCoffeePropositions } from './coffee-semantic-propositions.js';
 import { coffeeLengthRequirements } from './coffee-length-contract.js';
 import { coffeeNarrativelySparse } from './coffee-diversity.js';
+import { mapCoffeeSemanticCues } from './coffee-semantic-cues.js';
 
 export type CoffeeMeaningFamily =
   | 'communication'
@@ -39,7 +40,7 @@ export type CoffeeMeaningFacet = {
   specificity: 'direct' | 'contextual';
 };
 
-function fold(value: string): string {
+export function coffeeFold(value: string): string {
   return value
     .normalize('NFC')
     .toLocaleLowerCase('tr-TR')
@@ -51,9 +52,10 @@ function fold(value: string): string {
     .replace(/ç/g, 'c');
 }
 
-function meaningFamily(item: ReadingEvidenceItem): CoffeeMeaningFamily | null {
-  const resemblance = fold(item.resemblance?.trim() ?? '');
-  const description = fold(item.description);
+/** Private source → broad family. Shared by the C2.11 semantic-cue layer. */
+export function coffeeMeaningFamily(item: ReadingEvidenceItem): CoffeeMeaningFamily | null {
+  const resemblance = coffeeFold(item.resemblance?.trim() ?? '');
+  const description = coffeeFold(item.description);
   if (/diverg|fork|crossroad|ikiye ayr|yol ayr/.test(`${resemblance} ${description}`)) return 'choice';
   if (/bird|kus|letter|mektup|message|mesaj|zarf/.test(resemblance)) return 'communication';
   if (/fish|balik/.test(resemblance)) return 'opportunity';
@@ -66,8 +68,8 @@ function meaningFamily(item: ReadingEvidenceItem): CoffeeMeaningFamily | null {
   return null;
 }
 
-function regionState(item: ReadingEvidenceItem): Pick<CoffeeMeaningFacet, 'context' | 'timing'> {
-  const region = fold(item.region.replace(/_/g, ' '));
+export function coffeeRegionState(item: ReadingEvidenceItem): Pick<CoffeeMeaningFacet, 'context' | 'timing'> {
+  const region = coffeeFold(item.region.replace(/_/g, ' '));
   return {
     context: /handle|kulp/.test(region) ? 'home_close_circle' : 'general',
     timing: /rim|upper|agiz|ust/.test(region) ? 'nearer_term' : 'unspecified',
@@ -81,8 +83,8 @@ export function mapCoffeeMeanings(
   const facets: CoffeeMeaningFacet[] = [];
   for (const item of obs.evidence) {
     if (item.confidence === 'low' || item.visibility === 'uncertain') continue;
-    const family = meaningFamily(item);
-    const state = regionState(item);
+    const family = coffeeMeaningFamily(item);
+    const state = coffeeRegionState(item);
     if (family) {
       facets.push({
         family,
@@ -119,7 +121,7 @@ export function buildCoffeeWriterPacketV2(
   personalization?: ReadingPersonalization,
 ): CoffeeWriterPacketV2 | Exclude<CoffeeStoryPlanningResultV2, { status: 'ready' }> {
   const propositions = mapCoffeePropositions(mapCoffeeMeanings(obs, language));
-  const planned = planCoffeeStoryV2(propositions, personalization);
+  const planned = planCoffeeStoryV2(propositions, personalization, mapCoffeeSemanticCues(obs));
   if (planned.status !== 'ready') return planned;
   const lengthRequirements = coffeeLengthRequirements({
     narrativelySparse: coffeeNarrativelySparse(obs.evidence),

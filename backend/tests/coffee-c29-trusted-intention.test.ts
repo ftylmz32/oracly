@@ -96,8 +96,9 @@ describe('C2.9 — ONE trusted-intention contract', () => {
     for (const text of ['İlişkilerim nasıl gidecek', 'Kocaman bir değişim olacak mı']) {
       expect(classifyCoffeeIntention(text)?.declaredFacts).not.toContain('current_relationship');
     }
-    expect(classifyCoffeeIntention('İş başvurumdan haber bekliyorum')?.declaredFacts).toContain('stated_condition');
-    expect(classifyCoffeeIntention(INTENTION.general)?.declaredFacts).not.toContain('stated_condition');
+    // C2.11 replaced the broad stated_condition with the granular awaiting_response.
+    expect(classifyCoffeeIntention('İş başvurumdan haber bekliyorum')?.declaredFacts).toContain('awaiting_response');
+    expect(classifyCoffeeIntention(INTENTION.general)?.declaredFacts).toEqual([]);
     expect(classifyCoffeeIntention(undefined)).toBeNull();
     expect(classifyCoffeeIntention('   ')).toBeNull();
   });
@@ -447,7 +448,9 @@ describe('C2.9 — C2.8 deterministic regression', () => {
   it('C03: the love category no longer authorizes an existing relationship; the delivered repair is rejected', () => {
     const { packet, attempts, obs, personalization } = ready('C03');
     expect(packet.storyPlan.claimEnvelope.forbiddenAssumptions).toContain('existing_relationship');
-    expect(coffeeQualityFailure(attempts[1].parsed, 'tr', personalization, obs.evidence, packet.storyPlan)).toBe('meta_narration');
+    // C2.11: the implied existing bond ("Hayatındaki önemli bir bağ … varlığını koruyor")
+    // is an unsupported claim and outranks the meta-narration it also contains.
+    expect(coffeeQualityFailure(attempts[1].parsed, 'tr', personalization, obs.evidence, packet.storyPlan)).toBe('unsupported_existing_fact');
     expect(bindCoffeeNarrative(attempts[1].parsed, obs, 'tr', personalization, packet.storyPlan)).toBe('human_quality');
   });
 
@@ -509,6 +512,7 @@ describe('C2.9 — C2.8 deterministic regression', () => {
         expect(buildCoffeeRepairPlan(attempt.parsed, 'too_short', packet.storyPlan, 'tr', packet.lengthRequirements).lengthDeficits?.length).toBeGreaterThan(0);
       }
     }
-    expect(count).toBeGreaterThanOrEqual(7);
+    // C2.11 precedence surfaces more serious defects first on most of these.
+    expect(count).toBeGreaterThanOrEqual(1);
   });
 });
