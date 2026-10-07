@@ -229,7 +229,8 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
     current: { qualityFailure: string; bindFailure: string };
   }> = {
       'C01#1': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },
-    'C02#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'semantic_restatement', bindFailure: 'human_quality' } },
+    // C2.11A: its first sentence is a label-led opening ("Aşk hayatında … bir duygu belirginleşiyor").
+    'C02#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
     'C02#1': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
     'C03#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
     'C03#1': { historical: { qualityFailure: null, bindFailure: null }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
@@ -241,6 +242,8 @@ describe('C2.8 frozen blind intention-aware real-provider corpus', () => {
     'C06#1': { historical: { qualityFailure: 'generic_closing', bindFailure: 'generic_closing' }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
     'C07#0': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_existing_fact', bindFailure: 'human_quality' } },
     'C07#1': { historical: { qualityFailure: 'possibility_menu', bindFailure: 'human_quality' }, current: { qualityFailure: 'unsupported_other_agency', bindFailure: 'human_quality' } },
+    // C2.11A: label-led opening ("Aklındaki kişiyle ilgili duygun, … daha güçlü … anlam").
+    'C08#0': { historical: { qualityFailure: 'abstract_reading', bindFailure: 'human_quality' }, current: { qualityFailure: 'intention_parroting', bindFailure: 'human_quality' } },
     'C08#1': { historical: { qualityFailure: 'too_short', bindFailure: 'human_quality' }, current: { qualityFailure: 'missing_intention_subject', bindFailure: 'human_quality' } },
     'C09#0': { historical: { qualityFailure: 'observation_heavy', bindFailure: 'human_quality' }, current: { qualityFailure: 'semantic_restatement', bindFailure: 'human_quality' } },
     'C10#0': { historical: { qualityFailure: 'section_redundancy', bindFailure: 'section_redundancy' }, current: { qualityFailure: 'meta_narration', bindFailure: 'human_quality' } },

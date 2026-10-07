@@ -1,4 +1,5 @@
 import { coffeeReadingSelfReference, foldTr, type HumanQualityFailure } from '../human-quality.js';
+import { coffeeForbiddenFortuneSpecificFailure } from './coffee-public-language.js';
 import type { CoffeeNarrative } from './types.js';
 import type { CoffeePropositionKind } from './coffee-semantic-propositions.js';
 import type { CoffeeStoryPlanV2 } from './coffee-story-plan.js';
@@ -181,6 +182,11 @@ const META_CONSTRAINT = [
   re(`${S}(vaat|garanti) (etmese|etmeden|etmiyor)\\p{L}*`),
   re(`(belirli bir kişi|kesin bir sonu)\\p{L}*[^.!?]{0,40}(işaret etme|vaat etme|ya da sonu)\\p{L}*`),
   re(`${S}\\p{L}+ (dair|ilişkin) (bir )?(anlam|iddia|vaat)\\p{L}* taşı(madan|mıyor|maz)`),
+  // C2.11A: analysis nouns narrated as such ("buradaki anlam", "bu iki anlam",
+  // "bu hâl/durum … anlam taşıyor / anlatıyor").
+  re(`${S}buradaki (anlam|mesaj|vurgu|tema)\\p{L}*`),
+  re(`${S}bu iki (anlam|eğilim|tema|unsur|bileşen)\\p{L}*`),
+  re(`${S}bu (hâl|hal|durum)\\p{L}*[^.!?]{0,40}(anlam taşı|anlatıyor|işaret ediyor|ifade ediyor)\\p{L}*`),
 ];
 
 export function coffeeMetaNarration(texts: string[]): string | null {
@@ -295,6 +301,21 @@ export function coffeeIntentionParroting(narrative: CoffeeNarrative, plan: Coffe
     label.test(sentence.replace(/^(senin için|sende|sana göre),? /u, '')) && ABSTRACT_NOUN.test(sentence));
 }
 
+/**
+ * C2.11A — the FIRST sentence of overall opens with the request's label,
+ * glues an abstract noun to it, and tells no development ("İş ve kariyer
+ * alanında erişilebilir bir açılım bulunuyor."). Development-first openings
+ * that mention the subject naturally pass.
+ */
+export function coffeeLabelLedOpening(narrative: CoffeeNarrative, plan: CoffeeStoryPlanV2): boolean {
+  const label = subjectLabel(plan);
+  const first = sentencesOf([narrative.overall.text])[0];
+  if (!label || !first) return false;
+  return label.test(first.replace(/^(senin için|sende|sana göre),? /u, ''))
+    && ABSTRACT_NOUN.test(first)
+    && !DEVELOPMENT.test(first);
+}
+
 /** Proposition-definition vocabulary (private; never sent to the writer). */
 const DEFINITION_STEM: Record<CoffeePropositionKind, RegExp> = {
   exchange_emergence: re(`${S}(iletişim|paylaşım|alışveriş|karşılıklı|etkileşim)\\p{L}*`),
@@ -314,7 +335,7 @@ const STATIVE_CLOSE = re(
 );
 /** A development: something arrives, moves, opens, or is about to happen. */
 const DEVELOPMENT = re(
-  `(acak|ecek|acağ|eceğ)\\p{L}*${E}|(?<!karşılık )${S}(gel|ulaş|açıl|başla|kıpırda|hareketlen|yaklaş|düş|çık|dön|kapı|haber|ses|söz)\\p{L}*`,
+  `(acak|ecek|acağ|eceğ)\\p{L}*${E}|(?<!karşılık )${S}(gel|ulaş|açıl(?!ım)|başla|kıpırda|hareketlen|yaklaş|düş|çık|dön|kapı|haber|ses|söz)\\p{L}*`,
 );
 
 /**
@@ -386,6 +407,12 @@ export function coffeeClaimSafetyFailure(
   if (forbidden.has('family_event') && /ziyaretçi|misafir|aile içinde .*olacak|evde .*yaşanacak/.test(text)) {
     return 'context_event';
   }
+  // C2.11A: external specifics the active fortune plan forbids (sender,
+  // employer/company, payment event, amount, salary/debt, date, another
+  // person's feelings) — after the more specific relationship/agency codes,
+  // before causation/chronology/certainty.
+  const specific = coffeeForbiddenFortuneSpecificFailure(narrative, plan);
+  if (specific) return specific;
   if (forbidden.has('causation') && /(?:iletişim|konuşma|haber|mesaj|çözüm|netlik|hareket|fırsat).{0,45}(sağlayacak|yol açacak|neden olacak|tetikleyecek|doğuracak|beraberinde getirecek)|\b(böylece|bu nedenle|bu yüzden|dolayısıyla|sayesinde|sonucunda)\b/.test(text)) {
     return 'unsupported_source_causation';
   }
@@ -406,7 +433,9 @@ export function coffeeClaimSafetyFailure(
   if (forbidden.has('chronology') && /önce\b.{1,70}\bsonra|ilk olarak|ardından|akabinde|devamında|sonrasında|daha sonra|bir sonraki adımda/.test(chronologyText)) {
     return 'unsupported_chronology';
   }
-  if (forbidden.has('guaranteed_outcome') && /kesinlikle|mutlaka|olacak\b|yapacaksın\b|edeceksin\b|bir sonuç taşıyor|sonuca (ulaşacak|bağlanacak)/.test(text)) {
+  // C2.11A: "… olacak gibi" is an explicit hedge, not a guarantee; bare
+  // "olacak", "kesinlikle", "mutlaka" stay certainty.
+  if (forbidden.has('guaranteed_outcome') && /kesinlikle|mutlaka|olacak(?! gibi)\b|yapacaksın\b|edeceksin\b|bir sonuç taşıyor|sonuca (ulaşacak|bağlanacak)/.test(text)) {
     return 'unsupported_certainty';
   }
   return null;
@@ -427,7 +456,9 @@ export function coffeeRealizationFailure(
     narrative.career.text, narrative.money.text, narrative.nearFuture.text, narrative.takeaway.text,
   ];
   if (coffeeMetaNarration(texts)) return 'meta_narration';
-  if (coffeeIntentionParroting(narrative, plan).length >= 3) return 'intention_parroting';
+  if (coffeeIntentionParroting(narrative, plan).length >= 3 || coffeeLabelLedOpening(narrative, plan)) {
+    return 'intention_parroting';
+  }
   if (coffeeSemanticRestatement(narrative, plan).length > 0) return 'semantic_restatement';
   return null;
 }

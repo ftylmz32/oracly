@@ -21,6 +21,7 @@ import {
   coffeeRealizationFailure,
 } from './coffee-claim-envelope.js';
 import { classifyCoffeeIntention } from './coffee-intention-context.js';
+import { coffeeInternalJargon, coffeeVisualReportVoice } from './coffee-public-language.js';
 import { coffeeLengthDeficits } from './coffee-length-contract.js';
 import {
   coffeeCommunicationAffordance,
@@ -323,7 +324,11 @@ export function coffeeQualityFailure(
   // parroting → restatement → generic style/length. A serious unsupported
   // claim can never hide behind too_short, redundancy, or a voice code.
   if (v2) {
+    // C2.11A: then internal machinery jargon and any cup/image report
+    // (raw or sanitized geometry) — the user receives only the fortune.
     const priority = coffeePrivacyFailure(narrative, language, evidence)
+      ?? (coffeeInternalJargon(narrative) ? 'schema_jargon_leak' : null)
+      ?? (coffeeVisualReportVoice(narrative) ? 'visual_report_voice' : null)
       ?? coffeeClaimSafetyFailure(narrative, v2)
       ?? coffeeEvidenceClaimFailure(narrative, language, personalization, evidence)
       ?? coffeeRealizationFailure(narrative, v2);

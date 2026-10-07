@@ -12,6 +12,8 @@ import {
   type CoffeeLengthRequirements,
 } from './coffee-length-contract.js';
 import type { CoffeeStorySubject } from './coffee-intention-context.js';
+import type { CoffeeForbiddenSpecific } from './coffee-fortune-beat.js';
+import { coffeeForbiddenSpecificsTriggered } from './coffee-public-language.js';
 
 export type CoffeeRepairDefect =
   | 'structural_deficit'
@@ -54,6 +56,11 @@ export type CoffeeRepairPlan = {
   };
   unauthorizedSectionsToClear: CoffeePublicSection[];
   forbiddenClaimCategoriesTriggered: CoffeeForbiddenAssumption[];
+  /**
+   * C2.11A: the exact fortune-specific categories (a different contract from
+   * forbiddenClaimCategoriesTriggered) the rejected prose supplied.
+   */
+  forbiddenSpecificsTriggered?: CoffeeForbiddenSpecific[];
   defect: {
     kind: CoffeeRepairDefect;
     propositionKinds: CoffeePropositionKind[];
@@ -76,6 +83,7 @@ function defectKind(violation: string): CoffeeRepairDefect {
     || violation === 'unsupported_source_causation'
     || violation === 'unsupported_chronology'
     || violation === 'context_event'
+    || violation === 'unsupported_specific_detail'
   ) {
     return 'unsupported_concretization';
   }
@@ -84,7 +92,7 @@ function defectKind(violation: string): CoffeeRepairDefect {
     return 'synthesis_redundancy';
   }
   if (violation === 'missing_intention_subject' || violation === 'intention_subject_drift') return 'subject_alignment';
-  if (violation === 'meta_narration') return 'natural_realization';
+  if (violation === 'meta_narration' || violation === 'visual_report_voice') return 'natural_realization';
   if (violation === 'intention_parroting') return 'subject_realization';
   if (violation === 'semantic_restatement') return 'fortune_realization';
   return 'privacy_or_contract';
@@ -182,10 +190,14 @@ export function buildCoffeeRepairPlan(
       : {}),
     unauthorizedSectionsToClear,
     forbiddenClaimCategoriesTriggered: triggeredClaims(violation, storyPlan),
+    ...(violation === 'unsupported_specific_detail'
+      ? { forbiddenSpecificsTriggered: coffeeForbiddenSpecificsTriggered(narrative, storyPlan) }
+      : {}),
     defect: {
       kind: defectKind(violation),
       propositionKinds: violation === 'abstract_reading'
         || violation === 'meta_narration'
+        || violation === 'visual_report_voice'
         || violation === 'intention_parroting'
         || violation === 'semantic_restatement'
         ? propositions.map((proposition) => proposition.kind)

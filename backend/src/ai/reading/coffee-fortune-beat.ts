@@ -28,6 +28,8 @@ export type CoffeeForbiddenSpecific =
   | 'employer_or_company'
   | 'monetary_amount'
   | 'salary_or_debt'
+  /** C2.11A: an incoming payment / deposit / bonus EVENT (distinct from a salary or debt state and from a quantity). */
+  | 'payment_event'
   | 'exact_event'
   | 'relationship_history'
   | 'other_person_feelings'
@@ -83,7 +85,7 @@ const PROPOSITION_BY_CUE: Record<Exclude<CoffeeSemanticCueKind, 'proximate_conte
 };
 
 const COMMON_SPECIFICS: CoffeeForbiddenSpecific[] = [
-  'exact_person', 'employer_or_company', 'monetary_amount', 'salary_or_debt', 'exact_event',
+  'exact_person', 'employer_or_company', 'monetary_amount', 'salary_or_debt', 'payment_event', 'exact_event',
   'relationship_history', 'other_person_feelings', 'other_person_intent', 'guaranteed_outcome',
   'date', 'chronology', 'unsupported_causation',
 ];

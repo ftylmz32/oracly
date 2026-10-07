@@ -117,7 +117,11 @@ export type HumanQualityFailure =
   /** Coffee C2.11: the request's label is mechanically glued to abstract nouns. */
   | 'intention_parroting'
   /** Coffee C2.11: the prose defines the planned meaning instead of telling a development. */
-  | 'semantic_restatement';
+  | 'semantic_restatement'
+  /** Coffee C2.11A: prose supplies a specific the active fortune plan forbids (sender, employer, payment, amount, salary/debt). */
+  | 'unsupported_specific_detail'
+  /** Coffee C2.11A: public prose describes the cup / grounds / geometry instead of a life development. */
+  | 'visual_report_voice';
 
 export type CoffeeQualityInput = {
   visualObservation: string;
@@ -451,7 +455,9 @@ export function coffeePublicEvidenceLeak(
     /\b(bu|su)\s+(sembol|figur|isaret)\b/,
     /\b\S+\s+(sembolu|figuru|isareti)\b/,
     /\b(fincan|kupa)(in|da|daki|nin)?\b[^.!?]{0,80}\b(gordum|goruyorum|goruluyor|var|cikmis|belirmis)\b/,
-    /\b[a-z]+\s+cikmis\b/,
+    // "<sign> çıkmış" is a cup report; the life idioms "yola / ortaya / karşına /
+    // önüne çıkmış" are not (C2.11A self-audit false positive).
+    /\b(?!(?:yola|ortaya|karsina|onune|disari|yukari)\s)[a-z]+\s+cikmis\b/,
     /\b(telve|tortu|kahve kalintisi|residue|coffee grounds)\b/,
     /\b(agiz kenari|ust ic yuzey|orta ic yuzey|alt ic yuzey|fincanin dibi|kulp tarafi|cup rim|upper inner wall|middle inner wall|lower inner wall|cup base|handle side)\b/,
     /\b(gorsel analiz|bilgisayarli gor[uü]|computer vision|observer|source ?slot|region ?label|region ?vocabulary|confidence|visibility|evidence ?ids?|schema|json)\b/,
