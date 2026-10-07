@@ -1,0 +1,1052 @@
+{
+  "phase": "C2.8 BLIND INTENTION-AWARE REAL-PROVIDER PRODUCT CORPUS",
+  "createdAt": "2026-10-07",
+  "architectureHead": "535d9c250de06ac5f1616b94b3b9223cadca381b",
+  "branch": "fix/coffee-c21-private-meaning-handoff-20261006",
+  "language": "tr",
+  "personalizationTransport": "production Coffee V2 path: personalizationFromUnknown({ personalization: { intention } })",
+  "providerConfig": {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "temperature": "omitted"
+  },
+  "checks": {
+    "cupInteriorVisible": true,
+    "adequateFocusLight": true,
+    "residueVisible": true,
+    "milkFoamObstruction": false,
+    "usefulRegionsVisible": true
+  },
+  "cases": [
+    {
+      "id": "C01",
+      "target": "general_communication",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c28-c01-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A dark compact mass carries two swept outer strokes rising from its sides.",
+          "resemblance": "may resemble a swallow-like bird in flight",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c01-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A flat rectangular smear shows one creased diagonal across its face.",
+          "resemblance": "may resemble an opened letter sheet",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c01-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C02",
+      "target": "love_felt_significance",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c28-c02-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "Two plump lobes meet above a soft downward point.",
+          "resemblance": "may resemble a rounded heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c02-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A smaller closed outline leans to one side and narrows at the bottom.",
+          "resemblance": "may resemble a small tilted heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c02-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "emotional_relevance",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "felt_significance"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "felt_significance",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "reciprocal_feeling"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C03",
+      "target": "love_connection_continuity",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c28-c03-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A fine unbroken loop encloses a clean pale centre.",
+          "resemblance": "may resemble a thin ring",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c03-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A second circular trace is smaller and slightly thicker on one edge.",
+          "resemblance": "may resemble a narrow band ring",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c03-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "bond",
+        "bond"
+      ],
+      "expectedPropositions": [
+        "connection_continuity"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "connection_continuity",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "reciprocal_feeling"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C04",
+      "target": "career_opening_availability",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c28-c04-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "An arched slim body ends in a fanned double tail.",
+          "resemblance": "may resemble a leaping fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c04-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A level elongated shape has a blunt head and a small notched tail.",
+          "resemblance": "may resemble a fish swimming sideways",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c04-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C05",
+      "target": "career_resolution_availability",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c28-c05-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A straight shaft ends in a hollow oval at one end and two small teeth at the other.",
+          "resemblance": "may resemble an old key",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c05-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A short separate stem carries a squared notched tip.",
+          "resemblance": "may resemble a slender key",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c05-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "solution",
+        "solution"
+      ],
+      "expectedPropositions": [
+        "resolution_availability"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C06",
+      "target": "money_opening_availability",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c28-c06-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A tapering body curls slightly with a crisp split tail.",
+          "resemblance": "may resemble a curved fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c06-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A compact oval form has a pointed snout and a short tail fin.",
+          "resemblance": "may resemble a stubby fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c06-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "money"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    },
+    {
+      "id": "C07",
+      "target": "person_communication",
+      "intention": "Aklımdaki kişiyle ilgili",
+      "evidence": [
+        {
+          "id": "c28-c07-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A small wedge-shaped mass has one long feathered stroke on each side.",
+          "resemblance": "may resemble a bird with spread wings",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c07-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A neat folded rectangle shows a pointed flap across its top.",
+          "resemblance": "may resemble a sealed letter",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c07-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "communication",
+        "communication"
+      ],
+      "expectedPropositions": [
+        "exchange_emergence"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "exchange_emergence",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "awaited_topic"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aklımdaki kişiyle ilgili"
+      }
+    },
+    {
+      "id": "C08",
+      "target": "person_felt_significance",
+      "intention": "Aklımdaki kişiyle ilgili",
+      "evidence": [
+        {
+          "id": "c28-c08-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A symmetric outline swells into two upper curves and closes in a sharp point.",
+          "resemblance": "may resemble a full heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c08-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A faint but closed shape repeats the same notch at the top.",
+          "resemblance": "may resemble a slim heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c08-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "emotional_relevance",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "felt_significance"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "felt_significance",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "existing_relationship",
+        "reciprocal_feeling"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aklımdaki kişiyle ilgili"
+      }
+    },
+    {
+      "id": "C09",
+      "target": "custom_decision_alternative_distinction",
+      "intention": "Önümdeki karar hakkında",
+      "evidence": [
+        {
+          "id": "c28-c09-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "One straight trail meets a point where two equal trails leave at an angle.",
+          "resemblance": "may resemble a crossroads seen from above",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c09-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A short upright stem opens into two balanced arms.",
+          "resemblance": "may resemble a stem that forks into two",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c09-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "choice",
+        "choice"
+      ],
+      "expectedPropositions": [
+        "alternative_distinction"
+      ],
+      "expectedCapacity": "modest",
+      "expectedLead": "alternative_distinction",
+      "expectedSupporting": [],
+      "expectedSynthesis": "single_realization",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Önümdeki karar hakkında"
+      }
+    },
+    {
+      "id": "C10",
+      "target": "love_opening_plus_felt_significance",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c28-c10-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A narrow body with a clear fanned tail lies at a slight slant.",
+          "resemblance": "may resemble a gliding fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c10-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "Two rounded upper curves close into a soft point.",
+          "resemblance": "may resemble a gentle heart",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c10-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "emotional_relevance"
+      ],
+      "expectedPropositions": [
+        "opening_availability",
+        "felt_significance"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [
+        "felt_significance"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "love"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation",
+        "reciprocal_feeling"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C11",
+      "target": "career_resolution_plus_directional_change",
+      "intention": "İşim ve kariyerim hakkında",
+      "evidence": [
+        {
+          "id": "c28-c11-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A long shaft carries a looped head and a stepped bit.",
+          "resemblance": "may resemble a heavy key",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c11-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A continuous ribbon bends twice and runs on toward the edge.",
+          "resemblance": "may resemble a winding road",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c11-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "solution",
+        "movement"
+      ],
+      "expectedPropositions": [
+        "resolution_availability",
+        "directional_change"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "resolution_availability",
+      "expectedSupporting": [
+        "directional_change"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "career"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_problem",
+        "prior_stagnation",
+        "travel",
+        "relocation"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "İşim ve kariyerim hakkında"
+      }
+    },
+    {
+      "id": "C12",
+      "target": "money_opening_plus_gradual_expansion",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c28-c12-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A plump oval form has a fine forward point and a short double fin.",
+          "resemblance": "may resemble a round fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c12-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A single upright stem thickens into a broadening crown of short strokes.",
+          "resemblance": "may resemble a leafy tree",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c12-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity",
+        "growth"
+      ],
+      "expectedPropositions": [
+        "opening_availability",
+        "gradual_expansion"
+      ],
+      "expectedCapacity": "rich",
+      "expectedLead": "opening_availability",
+      "expectedSupporting": [
+        "gradual_expansion"
+      ],
+      "expectedSynthesis": "unified_cooccurrence",
+      "expectedAuthorizedSections": [
+        "visualObservation",
+        "overall",
+        "takeaway",
+        "money"
+      ],
+      "expectedForbiddenAssumptions": [
+        "specific_other_person",
+        "current_job_issue",
+        "money_event",
+        "family_event",
+        "current_major_decision",
+        "options_assumption",
+        "guaranteed_outcome",
+        "chronology",
+        "causation",
+        "advice",
+        "prior_stagnation"
+      ],
+      "expectedProviderPolicy": {
+        "writerEligible": true,
+        "maxWriterCalls": 1,
+        "maxRepairCalls": 1
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    },
+    {
+      "id": "C13",
+      "target": "policy_general_unknown_only",
+      "intention": "Önümüzdeki dönem genel olarak",
+      "evidence": [
+        {
+          "id": "c28-c13-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A domed canopy rests on a single thin curved handle.",
+          "resemblance": "may resemble a small umbrella",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c13-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A boxy shape has a small arched top and a solid square base.",
+          "resemblance": "may resemble a lantern",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c13-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [],
+      "expectedPropositions": [],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "no_safe_semantic_facets"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Önümüzdeki dönem genel olarak"
+      }
+    },
+    {
+      "id": "C14",
+      "target": "policy_love_home_context_only",
+      "intention": "Aşk ve ilişkilerim hakkında",
+      "evidence": [
+        {
+          "id": "c28-c14-e1",
+          "observationSource": "cup_primary",
+          "region": "near_handle",
+          "description": "A dense dark cluster gathers close beside the grip.",
+          "resemblance": null,
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c14-e2",
+          "observationSource": "cup_secondary",
+          "region": "handle_side_wall",
+          "description": "A second compact cluster sits on the same grip side.",
+          "resemblance": null,
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c14-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "home_close_circle",
+        "home_close_circle"
+      ],
+      "expectedPropositions": [
+        "proximate_context"
+      ],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Aşk ve ilişkilerim hakkında"
+      }
+    },
+    {
+      "id": "C15",
+      "target": "policy_money_single_thin_support",
+      "intention": "Maddi durumum hakkında",
+      "evidence": [
+        {
+          "id": "c28-c15-e1",
+          "observationSource": "cup_primary",
+          "region": "middle_wall",
+          "description": "A short tapered body ends in a tiny split tail.",
+          "resemblance": "may resemble a lone darting fish",
+          "confidence": "high",
+          "visibility": "clear"
+        },
+        {
+          "id": "c28-c15-e2",
+          "observationSource": "cup_secondary",
+          "region": "lower_wall",
+          "description": "A loose speckled drift has no outline at all.",
+          "resemblance": null,
+          "confidence": "medium",
+          "visibility": "partial"
+        },
+        {
+          "id": "c28-c15-e3",
+          "observationSource": "saucer",
+          "region": "base",
+          "description": "A thin smeared film settles without any readable edge.",
+          "resemblance": null,
+          "confidence": "low",
+          "visibility": "uncertain"
+        }
+      ],
+      "expectedFacets": [
+        "opportunity"
+      ],
+      "expectedPropositions": [
+        "opening_availability"
+      ],
+      "expectedCapacity": "insufficient",
+      "expectedOutcome": {
+        "status": "insufficient_semantic_signal",
+        "reason": "insufficient_semantic_capacity"
+      },
+      "expectedProviderPolicy": {
+        "writerEligible": false,
+        "maxWriterCalls": 0,
+        "maxRepairCalls": 0
+      },
+      "expectedPersonalization": {
+        "intention": "Maddi durumum hakkında"
+      }
+    }
+  ]
+}
