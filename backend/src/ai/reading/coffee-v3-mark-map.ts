@@ -394,13 +394,75 @@ const PRIVATE_KEYS = new Set([
   'handleRelation', 'form', 'identityGroup', 'views', 'evidence', 'evidenceIds', 'region', 'geometry',
 ]);
 
-/** Words / enum values that betray cup analysis inside a string value. */
-const PRIVATE_VALUE_TOKENS = new Set<string>([
-  'cup', 'saucer', 'telve', 'fincan', 'fincanin', 'fincaninda', 'tabak', 'kulp', 'residue', 'grounds',
-  'sighting', 'rim', 'handle', 'stroke', 'strokes', 'smear', 'blob', 'outline', 'geometry', 'silhouette',
+/**
+ * M1.3 — inflection-safe private vocabulary. Matched on whole folded tokens,
+ * never on substrings:
+ * - private enum / slot values: the exact token;
+ * - English words: the word or its plain plural (cups, handles);
+ * - Turkish nouns: a stem plus a bounded nominal suffix chain (plural,
+ *   possessive, case, -ki, copula), so "fincanımda", "kulpunda", "telveye",
+ *   "tabakta" match while "tabaka" (layer) and "fincancı" do not.
+ */
+const PRIVATE_ENUM_TOKENS = new Set<string>([
   ...COFFEE_V3_SLOTS, 'cup_wall', 'cup_base', 'rim_upper', 'lower_base', 'middle_ring', 'handle_near',
   'handle_opposite', 'possible_same_mark', COFFEE_V3_CONTRACT,
 ]);
+const PRIVATE_ENGLISH_WORDS = [
+  'cup', 'saucer', 'residue', 'grounds', 'rim', 'handle', 'sighting', 'stroke', 'smear', 'blob', 'outline',
+  'geometry', 'silhouette',
+];
+/**
+ * Turkish private nouns (folded). `vowelStem` is the consonant-mutated stem
+ * used before a vowel-initial suffix (tabak → tabağı, kulp → kulbu); when it
+ * is set, the plain stem only takes consonant-initial suffixes, which keeps
+ * "tabaka" (layer) out. kulp also keeps its colloquial unmutated vowel forms.
+ */
+const PRIVATE_TURKISH_NOUNS: ReadonlyArray<{ stem: string; vowelStem?: string; plainVowelSuffixes?: boolean }> = [
+  { stem: 'fincan' },
+  { stem: 'telve' },
+  { stem: 'kulp', vowelStem: 'kulb', plainVowelSuffixes: true },
+  { stem: 'tabak', vowelStem: 'tabag' },
+];
+/** Bounded nominal suffix chain on folded text: plural? possessive? case/-ki? copula? */
+const TURKISH_NOMINAL_SUFFIX =
+  /^(l[ae]r)?([iu]|s[iu]|[iu]m|[iu]n|[iu]m[iu]z|[iu]n[iu]z|l[ae]r[iu])?([ny]?[iu]n|[nsy]?[iu]|[ny]?[ae]|n?[dt][ae]|n?[dt][ae]n|y?l[ae]|n?[dt][ae]ki|ki)?([dt][iu]r)?$/;
+const VOWEL = /^[aeiou]/;
+
+function foldPrivacy(value: string): string {
+  return value
+    .normalize('NFC')
+    .toLocaleLowerCase('tr-TR')
+    .replace(/ı/g, 'i')
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/[âà]/g, 'a')
+    .replace(/[îì]/g, 'i')
+    .replace(/[ûù]/g, 'u');
+}
+
+function privateTurkishNoun(token: string): boolean {
+  return PRIVATE_TURKISH_NOUNS.some(({ stem, vowelStem, plainVowelSuffixes }) => {
+    if (token.startsWith(stem)) {
+      const rest = token.slice(stem.length);
+      if (vowelStem && !plainVowelSuffixes && VOWEL.test(rest)) return false;
+      return TURKISH_NOMINAL_SUFFIX.test(rest);
+    }
+    if (vowelStem && token.startsWith(vowelStem)) {
+      const rest = token.slice(vowelStem.length);
+      return VOWEL.test(rest) && TURKISH_NOMINAL_SUFFIX.test(rest);
+    }
+    return false;
+  });
+}
+
+function privateValueToken(token: string): boolean {
+  if (PRIVATE_ENUM_TOKENS.has(token)) return true;
+  if (PRIVATE_ENGLISH_WORDS.some((word) => token === word || token === `${word}s` || token === `${word}es`)) return true;
+  return privateTurkishNoun(token);
+}
 
 /**
  * The ONE structural key that may carry user-provided text (M1.2). It is the
@@ -412,8 +474,8 @@ const USER_PROVIDED_TEXT_KEY = 'userDeclaredIntention';
 /** Every path at which a raw V3 visual field or token would cross a meaning-only boundary. */
 export function coffeeV3PrivacyViolations(value: unknown, path = '$'): string[] {
   if (typeof value === 'string') {
-    const tokens = value.toLocaleLowerCase('tr-TR').replace(/ı/g, 'i').match(/[\p{L}\p{N}_]+/gu) ?? [];
-    return tokens.filter((t) => PRIVATE_VALUE_TOKENS.has(t)).map((t) => `${path}~${t}`);
+    const tokens = foldPrivacy(value).match(/[\p{L}\p{N}_]+/gu) ?? [];
+    return tokens.filter(privateValueToken).map((t) => `${path}~${t}`);
   }
   if (Array.isArray(value)) return value.flatMap((item, index) => coffeeV3PrivacyViolations(item, `${path}[${index}]`));
   if (value && typeof value === 'object') {

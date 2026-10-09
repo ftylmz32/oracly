@@ -9,7 +9,7 @@ import {
   type CoffeeFortuneThread,
 } from '../src/ai/reading/coffee-m1-interpretation.js';
 import { classifyCoffeeIntention } from '../src/ai/reading/coffee-intention-context.js';
-import { assertCoffeeV3MeaningOnly } from '../src/ai/reading/coffee-v3-mark-map.js';
+import { assertCoffeeV3MeaningOnly, coffeeV3PrivacyViolations } from '../src/ai/reading/coffee-v3-mark-map.js';
 import {
   M12_RELEVANCE_CUPS,
   M1_QA_CUPS,
@@ -605,5 +605,141 @@ describe('M1.2 trusted intention depth', () => {
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
     expect(walk(src).filter((path) => /coffee-m1-interpretation/.test(readFileSync(path, 'utf8')))).toEqual([]);
+  });
+});
+
+describe('M1.3 trusted authorizedSections domain', () => {
+  const ctx = (text: string) => {
+    const c = classifyCoffeeIntention(text);
+    if (!c) throw new Error('no context');
+    return c;
+  };
+  const keyPath = M1_QA_CUPS.career_key_path.spec;
+
+  it('A: a custom decision that names work keeps the decision AND the career domain', () => {
+    const decision = ctx('İşim hakkında bir karar vermem gerekiyor.');
+    expect(decision).toMatchObject({ subjectKind: 'custom_decision', declaredFacts: ['decision_exists'], authorizedSections: ['career'] });
+    const t = only(keyPath, decision);
+    expect(t).toMatchObject({ contextBindings: ['user_decision'], domain: 'career', combination: 'access_through_direction' });
+    expect(t.conjecture).toEqual(expect.arrayContaining(['decision_clarity', 'decision_direction', 'career_opening', 'career_direction']));
+  });
+
+  it('A: "İşimle ilgili…" gets NO career section from the classifier, so M1 invents none', () => {
+    const decision = ctx('İşimle ilgili bir karar vermem gerekiyor.');
+    expect(decision).toMatchObject({ subjectKind: 'custom_decision', authorizedSections: [] });
+    const t = only(keyPath, decision);
+    expect(t).toMatchObject({ contextBindings: ['user_decision'], domain: null });
+    expect(t.conjecture.join(' ')).not.toMatch(/career_/);
+  });
+
+  it('B: the same decision intention + a bird forces neither decision nor domain', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a bird' }] }, ctx('İşim hakkında bir karar vermem gerekiyor.'));
+    expect(t).toMatchObject({ developments: ['contact'], contextBindings: [], domain: null });
+    expect(t.conjecture).toEqual(['news', 'communication_movement']);
+  });
+
+  it('C: a custom intention with one money section binds a fish to the financial domain', () => {
+    const money = ctx('Param hakkında bir karar vermem gerekiyor.');
+    expect(money).toMatchObject({ subjectKind: 'custom_decision', authorizedSections: ['money'] });
+    const t = only({ marks: [{ id: 'M1', label: 'a fish' }] }, money);
+    expect(t).toMatchObject({ domain: 'financial', contextBindings: [] });
+    expect(t.conjecture).toContain('financial_opening');
+  });
+
+  it('C: custom_other with one money section (typed context; unreachable via the classifier) binds the same way', () => {
+    const typed = { ...ctx('Bir yerden dönüş bekliyorum.'), authorizedSections: ['money' as const] };
+    expect(only({ marks: [{ id: 'M1', label: 'a fish' }] }, typed)).toMatchObject({ subject: 'custom_other', domain: 'financial' });
+  });
+
+  it('D: a custom intention with no authorized section gets no domain', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a fish' }] }, ctx('Bir yerden dönüş bekliyorum.'));
+    expect(t.domain).toBeNull();
+    expect(t.conjecture.join(' ')).not.toMatch(/financial_|career_|love_/);
+  });
+
+  it('E: several authorized sections never invent a single domain where more than one fits', () => {
+    const multi = ctx('İşim ve param hakkında merak ediyorum.');
+    expect(multi).toMatchObject({ subjectKind: 'custom_other', authorizedSections: ['career', 'money'] });
+    // An opportunity fits both money and career → unbound.
+    expect(only({ marks: [{ id: 'M1', label: 'a fish' }] }, multi).domain).toBeNull();
+    expect(only(M1_QA_CUPS.money_fish_tree.spec, multi).domain).toBeNull();
+    // A direction fits only career among the authorized sections → career, no priority invented.
+    expect(only({ marks: [{ id: 'M1', label: 'a road' }] }, multi)).toMatchObject({ domain: 'career' });
+    // A heart fits neither → no domain.
+    expect(only({ marks: [{ id: 'M1', label: 'a heart' }] }, multi).domain).toBeNull();
+  });
+
+  it('incompatible signs stay ordinary: career + bird, money + heart', () => {
+    expect(only({ marks: [{ id: 'M1', label: 'a bird' }] }, 'career_work').domain).toBeNull();
+    expect(only({ marks: [{ id: 'M1', label: 'a heart' }] }, 'money_finance').domain).toBeNull();
+  });
+
+  it('F: canonical money / career / love behaviour is unchanged', () => {
+    expect(only(M1_QA_CUPS.money_fish_tree.spec, 'money_finance')).toMatchObject({ domain: 'financial' });
+    expect(only(keyPath, 'career_work')).toMatchObject({ domain: 'career' });
+    expect(only(M1_QA_CUPS.love_ring_heart.spec, 'love_relationships')).toMatchObject({ domain: 'love' });
+    expect(only({ marks: [{ id: 'M1', label: 'a bird' }] }, 'general').domain).toBeNull();
+  });
+
+  it('G: person_of_interest stays domain-free under Contract B even though its section is love', () => {
+    const person = canonicalIntention('person_of_interest');
+    expect(person?.authorizedSections).toEqual(['love']);
+    const t = only({ marks: [{ id: 'M1', label: 'a bird' }] }, 'person_of_interest');
+    expect(t).toMatchObject({ domain: null, contextBindings: ['chosen_person'], subjectBinding: 'person_of_interest' });
+    expect(t.conjecture).not.toContain('love_development');
+  });
+});
+
+describe('M1.3 inflection-safe privacy', () => {
+  it.each([
+    'Fincanımda güzel bir kısmet var.',
+    'Fincanın dibinde bir haber görünüyor.',
+    'Fincana yakın bir yerde kısmet var.',
+    'Fincandan bir haber çıkıyor.',
+    'Kulpa yakın bir kısmet var.',
+    'Kulpunda bir hareket var.',
+    'Kulbunda bir hareket var.',
+    'Tabakta bereket görünüyor.',
+    'Tabağında bereket görünüyor.',
+    'Telveye bakınca yeni bir başlangıç var.',
+    'Telvenin içinde bir haber var.',
+    'Fincanındaki iz yeni bir yön gösteriyor.',
+    'FİNCANIMDA KISMET VAR.',
+    'The cups show news.',
+    'Near the handles there is news.',
+    'Strokes on the rim.',
+    'It sits at rim_upper near cup_turn_a.',
+  ])('rejects visual language outside userDeclaredIntention: %s', (text) => {
+    expect(coffeeV3PrivacyViolations({ line: text }).length).toBeGreaterThan(0);
+    expect(() => assertCoffeeV3MeaningOnly({ threads: [{ note: text }] })).toThrow(/coffee_v3_private_field_leak/);
+  });
+
+  it.each([
+    'Duyguların derin bir tabakası var.',
+    'Her tabakada ayrı bir kısmet var.',
+    'Kısmet, haber, iletişim, aşk, kariyer, para, yeni başlangıç, yakın dönem, gönül.',
+    'Telefonla gelen bir haber, televizyonda değil, kulağına gelir.',
+    'Kulübe dönüş, kullanılmış bir kapı değil; yepyeni bir kısmet.',
+    'Fincancı gibi değil, kendi yolunda bir kısmet.',
+    'Primed and trimmed, the opportunity cupboard is open.',
+  ])('keeps ordinary meaning prose clean: %s', (text) => {
+    expect(coffeeV3PrivacyViolations({ line: text })).toEqual([]);
+  });
+
+  it('userDeclaredIntention may carry the user\'s own visual words; anywhere else they fail', () => {
+    const own = 'Fincanım hakkında merak ettiğim şey kulpunda bir şey var mı?';
+    expect(() => assertCoffeeV3MeaningOnly({ intentReference: { kind: 'user_provided', userDeclaredIntention: own } })).not.toThrow();
+    expect(() => assertCoffeeV3MeaningOnly({ intentReference: { kind: 'user_provided', note: own } })).toThrow();
+    expect(() => assertCoffeeV3MeaningOnly({ threads: [{ text: own }] })).toThrow();
+  });
+
+  it('every M1 / M1.2 / M1.3 meaning output still passes', () => {
+    for (const cup of Object.values(M1_QA_CUPS)) {
+      expect(() => assertCoffeeV3MeaningOnly(run(cup.spec, cup.subject).meaning)).not.toThrow();
+    }
+    for (const cup of Object.values(M12_RELEVANCE_CUPS)) {
+      const c = classifyCoffeeIntention(cup.intention);
+      expect(() => assertCoffeeV3MeaningOnly(interpretCoffeeV3MarkMap(m1Map(cup.spec), c).meaning)).not.toThrow();
+    }
   });
 });

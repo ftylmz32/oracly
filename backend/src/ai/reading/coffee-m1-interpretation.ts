@@ -1,6 +1,7 @@
 import type { CoffeeForbiddenSpecific } from './coffee-fortune-beat.js';
 import {
   coffeeIntentionIsCanonical,
+  type CoffeeSubjectSection,
   type CoffeeTrustedIntentionContext,
   type CoffeeUserDeclaredFact,
 } from './coffee-intention-context.js';
@@ -511,18 +512,15 @@ const CONTEXT_BINDINGS: ReadonlyArray<{
 ];
 
 /**
- * M1.2 — closed domain-binding table. Only these subject × development pairs
- * get domain wording; general / custom / person subjects get none, and an
- * incompatible sign is never pulled into the domain.
+ * Closed development × domain compatibility table (unchanged since M1.2). A
+ * trusted domain never pulls an incompatible sign into it.
  */
-const DOMAIN_BINDINGS: Partial<
-  Record<CoffeeM1Subject, { domain: CoffeeM1Domain; conjecture: Partial<Record<CoffeeM1Development, CoffeeM1Conjecture>> }>
-> = {
-  money_finance: {
+const DOMAIN_TABLE: Record<CoffeeSubjectSection, { domain: CoffeeM1Domain; conjecture: Partial<Record<CoffeeM1Development, CoffeeM1Conjecture>> }> = {
+  money: {
     domain: 'financial',
     conjecture: { opportunity: 'financial_opening', gradual_growth: 'financial_growth' },
   },
-  career_work: {
+  career: {
     domain: 'career',
     conjecture: {
       opportunity: 'career_opening',
@@ -531,7 +529,7 @@ const DOMAIN_BINDINGS: Partial<
       gradual_growth: 'career_growth',
     },
   },
-  love_relationships: {
+  love: {
     domain: 'love',
     conjecture: {
       commitment: 'love_development',
@@ -542,10 +540,41 @@ const DOMAIN_BINDINGS: Partial<
   },
 };
 
+/**
+ * M1.3 — trusted domain sections. The ONLY source is the classifier's
+ * `authorizedSections` (canonical choices already carry their own section;
+ * custom intentions carry the sections the user's words named). M1 never
+ * parses text. person_of_interest stays domain-free under Contract B even
+ * though its section is love: a chosen person is not assumed to be romantic.
+ */
+function trustedDomainSections(intention: CoffeeTrustedIntentionContext | null | undefined): CoffeeSubjectSection[] {
+  if (!intention || intention.subjectKind === 'person_of_interest') return [];
+  return [...new Set(intention.authorizedSections)];
+}
+
+/**
+ * Domain resolution without fabricated priority: a thread binds a domain only
+ * when EXACTLY ONE trusted section is compatible with its developments. Two
+ * or more compatible sections (e.g. money + career for an opportunity) leave
+ * the thread unbound rather than picking one.
+ */
+function resolveDomain(
+  developments: CoffeeM1Development[],
+  sections: CoffeeSubjectSection[],
+): { domain: CoffeeM1Domain | null; conjecture: CoffeeM1Conjecture[] } {
+  const compatible = sections.filter((section) => developments.some((d) => DOMAIN_TABLE[section].conjecture[d]));
+  if (compatible.length !== 1) return { domain: null, conjecture: [] };
+  const rule = DOMAIN_TABLE[compatible[0]];
+  return {
+    domain: rule.domain,
+    conjecture: developments.map((d) => rule.conjecture[d]).filter((t): t is CoffeeM1Conjecture => !!t),
+  };
+}
+
 /** Context and domain layers for one thread, from its developments and the trusted declarations. */
 function contextLayer(
   developments: CoffeeM1Development[],
-  subject: CoffeeM1Subject,
+  sections: CoffeeSubjectSection[],
   declared: CoffeeUserDeclaredFact[],
 ): Pick<CoffeeFortuneThread, 'contextBindings' | 'domain' | 'contextForbidden'> & { conjecture: CoffeeM1Conjecture[] } {
   const contextBindings: CoffeeM1ContextBinding[] = [];
@@ -559,14 +588,11 @@ function contextLayer(
     contextForbidden.push(...rule.forbidden);
     conjecture.push(...tokens);
   }
-  const domainRule = DOMAIN_BINDINGS[subject];
-  const domainTokens = domainRule
-    ? developments.map((d) => domainRule.conjecture[d]).filter((t): t is CoffeeM1Conjecture => !!t)
-    : [];
-  conjecture.push(...domainTokens);
+  const domain = resolveDomain(developments, sections);
+  conjecture.push(...domain.conjecture);
   return {
     contextBindings,
-    domain: domainRule && domainTokens.length > 0 ? domainRule.domain : null,
+    domain: domain.domain,
     contextForbidden: [...new Set(contextForbidden)],
     conjecture,
   };
@@ -682,6 +708,7 @@ export function interpretCoffeeV3MarkMap(
 ): CoffeeM1Result {
   const subject = coffeeM1Subject(intention);
   const declared: CoffeeUserDeclaredFact[] = [...(intention?.declaredFacts ?? [])];
+  const domainSections = trustedDomainSections(intention);
 
   // 1) Classify each physical identity group by its usable candidates. Saucer
   //    marks carry no approved convention yet and never make a thread.
@@ -763,7 +790,7 @@ export function interpretCoffeeV3MarkMap(
     groups: SignGroup[],
   ) => {
     const id = `T${threads.length + 1}`;
-    const layer = contextLayer(thread.developments, subject, declared);
+    const layer = contextLayer(thread.developments, domainSections, declared);
     threads.push({
       id,
       ...thread,
