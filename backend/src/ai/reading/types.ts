@@ -125,3 +125,100 @@ export type ReadingPersonalization = {
   /** One short, pre-summarized sentence of genuinely relevant continuity — never a raw memory/journal dump. */
   memorySummary?: string;
 };
+
+/**
+ * Coffee Observer V3 — multi-view physical mark map. ADDITIVE AND DARK: no
+ * live dispatch, slot, route or worker produces or consumes this contract
+ * yet. Machine-only observation; never sent to a writer or a user.
+ */
+export const COFFEE_V3_CONTRACT = 'multi_view_marks_v3' as const;
+
+/** Handle-anchored capture geometry: three cup turns ~120° apart, then the saucer. */
+export const COFFEE_V3_SLOTS = ['cup_handle_far', 'cup_turn_a', 'cup_turn_b', 'saucer'] as const;
+export type CoffeeV3Slot = (typeof COFFEE_V3_SLOTS)[number];
+
+export type CoffeeV3Surface = 'cup_wall' | 'cup_base' | 'saucer';
+export type CoffeeV3Band = 'rim_upper' | 'middle' | 'lower_base' | 'unknown';
+export type CoffeeV3HandleRelation = 'handle_near' | 'handle_opposite' | 'neutral' | 'unknown';
+export type CoffeeV3SaucerZone = 'center' | 'middle_ring' | 'edge' | 'unknown';
+
+export type CoffeeV3View = {
+  slot: CoffeeV3Slot;
+  /** Cup interior (cup slots) or the saucer itself (saucer slot) is visible. */
+  surfaceVisible: boolean;
+  focusLightAdequate: boolean;
+  residueVisible: boolean;
+  /** Cup slots only; null for the saucer. */
+  handleVisible: boolean | null;
+  /** 1–12: where the handle sits on the rim in THIS frame (12 = top of frame). */
+  handleClock: number | null;
+};
+
+/** One appearance of a physical mark in one photograph. */
+export type CoffeeV3Sighting = {
+  id: string;
+  slot: CoffeeV3Slot;
+  surface: CoffeeV3Surface;
+  band: CoffeeV3Band;
+  /** 1–12: position along the rim in THIS frame; null when not placeable (saucer). */
+  rimClock: number | null;
+  /** Saucer sightings only; null on the cup. */
+  saucerZone: CoffeeV3SaucerZone | null;
+  /** Literal visual description. Private. */
+  description: string;
+  visibility: VisibilityState;
+  confidence: EvidenceConfidence;
+};
+
+export type CoffeeV3Form = {
+  motion: 'moving' | 'still' | 'unknown';
+  verticalDirection: 'rising' | 'descending' | 'level' | 'unknown';
+  openness: 'open' | 'closed' | 'unknown';
+  course: 'straight' | 'bending' | 'branching' | 'unknown';
+  posture: 'upright' | 'tilted' | 'unknown';
+  continuity: 'continuous' | 'broken' | 'unknown';
+  grouping: 'isolated' | 'clustered' | 'unknown';
+};
+
+export type CoffeeV3Resemblance = { label: string; strength: 'strong' | 'weak' };
+
+/** One PHYSICAL residue mark; `sightingIds` are the photos the observer is certain show it. */
+export type CoffeeV3Mark = {
+  id: string;
+  surface: CoffeeV3Surface;
+  sightingIds: string[];
+  form: CoffeeV3Form;
+  /** 0–2 cautious candidates; empty is a valid, common answer. */
+  resemblances: CoffeeV3Resemblance[];
+};
+
+export type CoffeeV3RelationKind =
+  | 'near'
+  | 'touching'
+  | 'connected'
+  | 'crossing'
+  | 'contained_by'
+  | 'continuation_of'
+  | 'separated';
+
+/** Purely visual relation between two marks on the same surface family. */
+export type CoffeeV3Relation = { a: string; b: string; kind: CoffeeV3RelationKind; confidence: EvidenceConfidence };
+
+export type CoffeeV3Ambiguity = { marks: [string, string]; reason: 'possible_same_mark' };
+
+export type CoffeeV3Saucer = {
+  surfaceState: 'clean' | 'film' | 'islands' | 'flow' | 'unclear';
+  flow: { present: boolean; direction: 'toward_center' | 'toward_edge' | 'around' | 'none' | 'unknown' };
+};
+
+export type CoffeeMultiViewObservationV3 = {
+  contract: typeof COFFEE_V3_CONTRACT;
+  usable: boolean;
+  reason: string | null;
+  views: CoffeeV3View[];
+  sightings: CoffeeV3Sighting[];
+  marks: CoffeeV3Mark[];
+  relations: CoffeeV3Relation[];
+  ambiguities: CoffeeV3Ambiguity[];
+  saucer: CoffeeV3Saucer;
+};

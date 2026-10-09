@@ -1,0 +1,427 @@
+import {
+  COFFEE_V3_CONTRACT,
+  COFFEE_V3_SLOTS,
+  type CoffeeMultiViewObservationV3,
+  type CoffeeV3Band,
+  type CoffeeV3Form,
+  type CoffeeV3HandleRelation,
+  type CoffeeV3Mark,
+  type CoffeeV3RelationKind,
+  type CoffeeV3Saucer,
+  type CoffeeV3SaucerZone,
+  type CoffeeV3Sighting,
+  type CoffeeV3Slot,
+  type CoffeeV3Surface,
+  type CoffeeV3View,
+} from './types.js';
+
+/**
+ * Coffee Observer V3 — deterministic mark map. ADDITIVE AND DARK: no live
+ * path calls this yet. It validates and normalizes a multi-view observation;
+ * it never interprets fortune, never maps a resemblance to a meaning family,
+ * and never turns confidence or visibility into strength.
+ */
+
+export type CoffeeV3StructuralFailure =
+  | 'wrong_contract'
+  | 'duplicate_view'
+  | 'duplicate_sighting_id'
+  | 'unknown_view'
+  | 'slot_surface_mismatch'
+  | 'duplicate_mark_id'
+  | 'empty_mark'
+  | 'unknown_sighting'
+  | 'sighting_in_multiple_marks'
+  | 'unassigned_sighting'
+  | 'cup_saucer_merge'
+  | 'too_many_resemblances'
+  | 'unknown_relation_mark'
+  | 'self_relation'
+  | 'cross_surface_relation'
+  | 'duplicate_relation'
+  | 'unknown_ambiguity_mark'
+  | 'self_ambiguity'
+  | 'duplicate_ambiguity';
+
+/** One accepted physical mark, machine-only. No observer prose except the candidate labels M1 will read. */
+export type CoffeeV3MapMark = {
+  id: string;
+  /** Marks sharing a group MAY be one physical mark; count a group once. */
+  identityGroup: string;
+  identity: 'certain' | 'possible_same_mark';
+  surface: CoffeeV3Surface;
+  coverage: { count: number; slots: CoffeeV3Slot[] };
+  /** Cup only; null on the saucer. */
+  band: CoffeeV3Band | null;
+  /** Cup only; null on the saucer. */
+  handleRelation: CoffeeV3HandleRelation | null;
+  /** Saucer only; null on the cup. */
+  saucerZone: CoffeeV3SaucerZone | null;
+  form: CoffeeV3Form;
+  /** Stored candidates; `usable` is the only quality outcome that leaves this module. */
+  candidates: Array<{ label: string; usable: boolean }>;
+};
+
+export type CoffeeV3MarkMap = {
+  contract: typeof COFFEE_V3_CONTRACT;
+  cupMarks: CoffeeV3MapMark[];
+  saucerMarks: CoffeeV3MapMark[];
+  relations: Array<{ a: string; b: string; kind: CoffeeV3RelationKind }>;
+  /** Physical marks after deduplication: a possible-same group counts once. */
+  distinctMarkCount: number;
+  saucer: CoffeeV3Saucer;
+  audit: { untrustedMergeIds: string[]; rejectedMarkIds: string[] };
+};
+
+export type CoffeeV3MarkMapResult =
+  | { status: 'ok'; map: CoffeeV3MarkMap }
+  | { status: 'unusable' }
+  | { status: 'invalid'; failure: CoffeeV3StructuralFailure };
+
+// ---------------------------------------------------------------------------
+// Handle-relative angle
+// ---------------------------------------------------------------------------
+
+/** Two sightings of one mark must agree on the cup angle within this many degrees (±2 clock hours). */
+export const COFFEE_V3_MERGE_ANGLE_TOLERANCE = 60;
+
+export function coffeeV3ClockValid(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 12;
+}
+
+/**
+ * Cup angle in degrees, [0, 360), of a rim position measured clockwise from
+ * the handle. Both clocks are read in the SAME frame, so the camera's
+ * rotation cancels out; wraparound (12 → 1, 11 → 1) is normalized.
+ */
+export function coffeeV3HandleRelativeAngle(rimClock: number, handleClock: number): number {
+  return ((((rimClock - handleClock) % 12) + 12) % 12) * 30;
+}
+
+/** Shortest distance between two angles on the circle, in degrees [0, 180]. */
+export function coffeeV3AngleDistance(a: number, b: number): number {
+  const d = Math.abs(a - b) % 360;
+  return Math.min(d, 360 - d);
+}
+
+export function coffeeV3HandleRelation(angle: number | null): CoffeeV3HandleRelation {
+  if (angle === null) return 'unknown';
+  if (coffeeV3AngleDistance(angle, 0) <= 45) return 'handle_near';
+  if (coffeeV3AngleDistance(angle, 180) <= 45) return 'handle_opposite';
+  return 'neutral';
+}
+
+function circularMean(angles: number[]): number {
+  const x = angles.reduce((sum, a) => sum + Math.cos((a * Math.PI) / 180), 0);
+  const y = angles.reduce((sum, a) => sum + Math.sin((a * Math.PI) / 180), 0);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
+
+// ---------------------------------------------------------------------------
+// Structural validation
+// ---------------------------------------------------------------------------
+
+const isSaucer = (surface: CoffeeV3Surface) => surface === 'saucer';
+const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+
+function structuralFailure(obs: CoffeeMultiViewObservationV3): CoffeeV3StructuralFailure | null {
+  const viewSlots = new Set<CoffeeV3Slot>();
+  for (const view of obs.views) {
+    if (viewSlots.has(view.slot)) return 'duplicate_view';
+    viewSlots.add(view.slot);
+  }
+  const sightings = new Map<string, CoffeeV3Sighting>();
+  for (const sighting of obs.sightings) {
+    if (sightings.has(sighting.id)) return 'duplicate_sighting_id';
+    if (!viewSlots.has(sighting.slot)) return 'unknown_view';
+    if ((sighting.slot === 'saucer') !== isSaucer(sighting.surface)) return 'slot_surface_mismatch';
+    sightings.set(sighting.id, sighting);
+  }
+  const markIds = new Set<string>();
+  const owner = new Map<string, string>();
+  const surfaceOf = new Map<string, CoffeeV3Surface>();
+  for (const mark of obs.marks) {
+    if (markIds.has(mark.id)) return 'duplicate_mark_id';
+    markIds.add(mark.id);
+    surfaceOf.set(mark.id, mark.surface);
+    if (mark.sightingIds.length === 0) return 'empty_mark';
+    if (mark.resemblances.length > 2) return 'too_many_resemblances';
+    for (const id of mark.sightingIds) {
+      const sighting = sightings.get(id);
+      if (!sighting) return 'unknown_sighting';
+      if (owner.has(id)) return 'sighting_in_multiple_marks';
+      owner.set(id, mark.id);
+      if (isSaucer(sighting.surface) !== isSaucer(mark.surface)) return 'cup_saucer_merge';
+    }
+  }
+  if (owner.size !== sightings.size) return 'unassigned_sighting';
+  const relationPairs = new Set<string>();
+  for (const relation of obs.relations) {
+    const a = surfaceOf.get(relation.a);
+    const b = surfaceOf.get(relation.b);
+    if (!a || !b) return 'unknown_relation_mark';
+    if (relation.a === relation.b) return 'self_relation';
+    if (isSaucer(a) !== isSaucer(b)) return 'cross_surface_relation';
+    const key = pairKey(relation.a, relation.b);
+    if (relationPairs.has(key)) return 'duplicate_relation';
+    relationPairs.add(key);
+  }
+  const ambiguityPairs = new Set<string>();
+  for (const ambiguity of obs.ambiguities) {
+    const [a, b] = ambiguity.marks;
+    if (!markIds.has(a) || !markIds.has(b)) return 'unknown_ambiguity_mark';
+    if (a === b) return 'self_ambiguity';
+    const key = pairKey(a, b);
+    if (ambiguityPairs.has(key)) return 'duplicate_ambiguity';
+    ambiguityPairs.add(key);
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Multi-view merge trust
+// ---------------------------------------------------------------------------
+
+const BAND_ORDER: Record<Exclude<CoffeeV3Band, 'unknown'>, number> = { rim_upper: 0, middle: 1, lower_base: 2 };
+const SLOT_ORDER = new Map<CoffeeV3Slot, number>(COFFEE_V3_SLOTS.map((slot, index) => [slot, index]));
+const VISIBILITY_ORDER = { clear: 0, partial: 1, uncertain: 2 } as const;
+
+function sightingAngle(sighting: CoffeeV3Sighting, views: Map<CoffeeV3Slot, CoffeeV3View>): number | null {
+  if (isSaucer(sighting.surface)) return null;
+  const view = views.get(sighting.slot);
+  if (!view?.handleVisible || !coffeeV3ClockValid(view.handleClock) || !coffeeV3ClockValid(sighting.rimClock)) {
+    return null;
+  }
+  return coffeeV3HandleRelativeAngle(sighting.rimClock, view.handleClock);
+}
+
+/**
+ * A claimed multi-sighting mark is trusted only when every pair of its
+ * sightings comes from a different, readable, handle-anchored view, sits on
+ * the same surface, agrees on band within one step, and agrees on the
+ * handle-relative angle. Any unknown makes the merge untrusted: the system
+ * never invents certainty.
+ */
+function mergeTrusted(sightings: CoffeeV3Sighting[], views: Map<CoffeeV3Slot, CoffeeV3View>): boolean {
+  if (sightings.length < 2) return true;
+  if (new Set(sightings.map((s) => s.slot)).size !== sightings.length) return false;
+  if (new Set(sightings.map((s) => s.surface)).size !== 1) return false;
+  for (const s of sightings) {
+    const view = views.get(s.slot);
+    if (!view?.surfaceVisible || !view.focusLightAdequate) return false;
+  }
+  for (let i = 0; i < sightings.length; i += 1) {
+    for (let j = i + 1; j < sightings.length; j += 1) {
+      const [a, b] = [sightings[i], sightings[j]];
+      if (a.band === 'unknown' || b.band === 'unknown') return false;
+      if (Math.abs(BAND_ORDER[a.band] - BAND_ORDER[b.band]) > 1) return false;
+      const angleA = sightingAngle(a, views);
+      const angleB = sightingAngle(b, views);
+      if (angleA === null || angleB === null) return false;
+      if (coffeeV3AngleDistance(angleA, angleB) > COFFEE_V3_MERGE_ANGLE_TOLERANCE) return false;
+    }
+  }
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Normalization
+// ---------------------------------------------------------------------------
+
+type WorkingMark = CoffeeV3Mark & { sourceId: string };
+
+const foldLabel = (label: string) => label.trim().toLocaleLowerCase('en-US').replace(/\s+/g, ' ');
+
+function markBand(sightings: CoffeeV3Sighting[]): CoffeeV3Band {
+  const bands = new Set(sightings.map((s) => s.band));
+  if (bands.size === 1) return sightings[0].band;
+  // Adjacent bands on a trusted merge: the best-seen sighting places the mark.
+  const best = [...sightings].sort(
+    (a, b) =>
+      VISIBILITY_ORDER[a.visibility] - VISIBILITY_ORDER[b.visibility] ||
+      (SLOT_ORDER.get(a.slot) ?? 0) - (SLOT_ORDER.get(b.slot) ?? 0),
+  )[0];
+  return best.band;
+}
+
+function candidates(mark: CoffeeV3Mark, sightings: CoffeeV3Sighting[]): CoffeeV3MapMark['candidates'] {
+  // Partial-only marks may carry form, never a sign; two different strong
+  // candidates conflict and neither is usable.
+  const hasClear = sightings.some((s) => s.visibility === 'clear');
+  const strong = new Set(mark.resemblances.filter((r) => r.strength === 'strong').map((r) => foldLabel(r.label)));
+  return mark.resemblances.map((r) => ({
+    label: r.label.trim(),
+    usable: hasClear && r.strength === 'strong' && strong.size === 1,
+  }));
+}
+
+function identityGroups(markIds: string[], pairs: Array<[string, string]>): Map<string, string> {
+  const parent = new Map(markIds.map((id) => [id, id]));
+  const find = (id: string): string => {
+    const p = parent.get(id) ?? id;
+    if (p === id) return id;
+    const root = find(p);
+    parent.set(id, root);
+    return root;
+  };
+  for (const [a, b] of pairs) {
+    const [ra, rb] = [find(a), find(b)];
+    if (ra !== rb) parent.set(ra < rb ? rb : ra, ra < rb ? ra : rb);
+  }
+  return new Map(markIds.map((id) => [id, find(id)]));
+}
+
+export function buildCoffeeV3MarkMap(obs: CoffeeMultiViewObservationV3): CoffeeV3MarkMapResult {
+  if (obs.contract !== COFFEE_V3_CONTRACT) return { status: 'invalid', failure: 'wrong_contract' };
+  if (!obs.usable) return { status: 'unusable' };
+  const failure = structuralFailure(obs);
+  if (failure) return { status: 'invalid', failure };
+
+  const views = new Map(obs.views.map((view) => [view.slot, view]));
+  const sightings = new Map(obs.sightings.map((s) => [s.id, s]));
+  const sightingsOf = (mark: CoffeeV3Mark) =>
+    mark.sightingIds
+      .map((id) => sightings.get(id)!)
+      .sort((a, b) => (SLOT_ORDER.get(a.slot) ?? 0) - (SLOT_ORDER.get(b.slot) ?? 0) || (a.id < b.id ? -1 : 1));
+
+  // 1) Untrusted merges are split, one part per sighting, never deleted; the
+  //    parts are linked as possible_same_mark.
+  const working: WorkingMark[] = [];
+  const partsOf = new Map<string, string[]>();
+  const ambiguityPairs: Array<[string, string]> = obs.ambiguities.map((a) => [a.marks[0], a.marks[1]]);
+  const untrustedMergeIds: string[] = [];
+  for (const mark of obs.marks) {
+    const own = sightingsOf(mark);
+    if (mergeTrusted(own, views)) {
+      working.push({ ...mark, sightingIds: own.map((s) => s.id), sourceId: mark.id });
+      partsOf.set(mark.id, [mark.id]);
+      continue;
+    }
+    untrustedMergeIds.push(mark.id);
+    const parts = own.map((s, index) => ({
+      ...mark,
+      id: `${mark.id}#${index + 1}`,
+      surface: s.surface,
+      sightingIds: [s.id],
+      sourceId: mark.id,
+    }));
+    working.push(...parts);
+    partsOf.set(mark.id, parts.map((p) => p.id));
+    for (let i = 0; i < parts.length; i += 1) {
+      for (let j = i + 1; j < parts.length; j += 1) ambiguityPairs.push([parts[i].id, parts[j].id]);
+    }
+  }
+  const expand = (id: string) => partsOf.get(id) ?? [id];
+
+  // 2) Quality gate: structural acceptance only. Confidence/visibility never
+  //    leave this module except as acceptance and candidate usability.
+  const rejectedMarkIds: string[] = [];
+  const accepted = working.filter((mark) => {
+    const own = sightingsOf(mark);
+    const seen = own.some((s) => s.visibility === 'clear' || s.visibility === 'partial');
+    const ok = seen && !own.every((s) => s.confidence === 'low');
+    if (!ok) rejectedMarkIds.push(mark.id);
+    return ok;
+  });
+  const acceptedIds = new Set(accepted.map((m) => m.id));
+
+  const pairs = ambiguityPairs
+    .flatMap(([a, b]) => expand(a).flatMap((pa) => expand(b).map((pb): [string, string] => [pa, pb])))
+    .filter(([a, b]) => a !== b && acceptedIds.has(a) && acceptedIds.has(b));
+  const groups = identityGroups([...acceptedIds], pairs);
+  const groupSize = new Map<string, number>();
+  for (const group of groups.values()) groupSize.set(group, (groupSize.get(group) ?? 0) + 1);
+
+  const mapMarks = accepted.map((mark): CoffeeV3MapMark => {
+    const own = sightingsOf(mark);
+    const saucer = isSaucer(mark.surface);
+    const angles = own.map((s) => sightingAngle(s, views)).filter((a): a is number => a !== null);
+    const group = groups.get(mark.id) ?? mark.id;
+    return {
+      id: mark.id,
+      identityGroup: group,
+      identity: (groupSize.get(group) ?? 1) > 1 ? 'possible_same_mark' : 'certain',
+      surface: mark.surface,
+      coverage: { count: own.length, slots: own.map((s) => s.slot) },
+      band: saucer ? null : markBand(own),
+      handleRelation: saucer ? null : coffeeV3HandleRelation(angles.length ? circularMean(angles) : null),
+      saucerZone: saucer ? (own[0].saucerZone ?? 'unknown') : null,
+      form: { ...mark.form },
+      candidates: candidates(mark, own),
+    };
+  });
+
+  // 3) Relations: low-confidence relations are not accepted; split marks
+  //    carry the relation on every part; one relation per unordered pair.
+  const relationSeen = new Set<string>();
+  const relations: CoffeeV3MarkMap['relations'] = [];
+  for (const relation of obs.relations) {
+    if (relation.confidence === 'low') continue;
+    for (const a of expand(relation.a)) {
+      for (const b of expand(relation.b)) {
+        if (!acceptedIds.has(a) || !acceptedIds.has(b) || a === b) continue;
+        const key = pairKey(a, b);
+        if (relationSeen.has(key)) continue;
+        relationSeen.add(key);
+        relations.push({ a, b, kind: relation.kind });
+      }
+    }
+  }
+
+  return {
+    status: 'ok',
+    map: {
+      contract: COFFEE_V3_CONTRACT,
+      cupMarks: mapMarks.filter((m) => !isSaucer(m.surface)),
+      saucerMarks: mapMarks.filter((m) => isSaucer(m.surface)),
+      relations,
+      distinctMarkCount: new Set(groups.values()).size,
+      saucer: { surfaceState: obs.saucer.surfaceState, flow: { ...obs.saucer.flow } },
+      audit: { untrustedMergeIds, rejectedMarkIds },
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Privacy boundary (future writer handoff)
+// ---------------------------------------------------------------------------
+
+/** Keys that only exist on the private observation / mark-map side. */
+const PRIVATE_KEYS = new Set([
+  'description', 'resemblance', 'resemblances', 'label', 'candidates', 'slot', 'slots', 'sourceSlot',
+  'rimClock', 'handleClock', 'band', 'confidence', 'visibility', 'sighting', 'sightings', 'sightingIds',
+  'mark', 'marks', 'markIds', 'cupMarks', 'saucerMarks', 'saucer', 'saucerZone', 'surface', 'coverage',
+  'handleRelation', 'form', 'identityGroup', 'views', 'evidence', 'evidenceIds', 'region', 'geometry',
+]);
+
+/** Words / enum values that betray cup analysis inside a string value. */
+const PRIVATE_VALUE_TOKENS = new Set<string>([
+  'cup', 'saucer', 'telve', 'fincan', 'fincanin', 'fincaninda', 'tabak', 'kulp', 'residue', 'grounds',
+  'sighting', 'rim', 'handle', 'stroke', 'strokes', 'smear', 'blob', 'outline', 'geometry', 'silhouette',
+  ...COFFEE_V3_SLOTS, 'cup_wall', 'cup_base', 'rim_upper', 'lower_base', 'middle_ring', 'handle_near',
+  'handle_opposite', 'possible_same_mark', COFFEE_V3_CONTRACT,
+]);
+
+/** Every path at which a raw V3 visual field or token would cross a meaning-only boundary. */
+export function coffeeV3PrivacyViolations(value: unknown, path = '$'): string[] {
+  if (typeof value === 'string') {
+    const tokens = value.toLocaleLowerCase('tr-TR').replace(/ı/g, 'i').match(/[\p{L}\p{N}_]+/gu) ?? [];
+    return tokens.filter((t) => PRIVATE_VALUE_TOKENS.has(t)).map((t) => `${path}~${t}`);
+  }
+  if (Array.isArray(value)) return value.flatMap((item, index) => coffeeV3PrivacyViolations(item, `${path}[${index}]`));
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([key, item]) => [
+      ...(PRIVATE_KEYS.has(key) ? [`${path}.${key}`] : []),
+      ...coffeeV3PrivacyViolations(item, `${path}.${key}`),
+    ]);
+  }
+  return [];
+}
+
+/** Throws when anything raw/visual would cross the meaning-only boundary. V3-only; not applied to V2. */
+export function assertCoffeeV3MeaningOnly(value: unknown): void {
+  const violations = coffeeV3PrivacyViolations(value);
+  if (violations.length > 0) {
+    throw new Error(`coffee_v3_private_field_leak: ${violations.slice(0, 8).join(', ')}`);
+  }
+}

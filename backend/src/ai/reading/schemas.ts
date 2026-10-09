@@ -166,6 +166,145 @@ export const COFFEE_V2_OBSERVER_SCHEMA = {
   },
 } as const;
 
+/**
+ * Coffee Observer V3 (multi-view physical mark map) — additive and DARK: no
+ * live path sends this schema to a provider yet. V2/legacy schemas above are
+ * never modified or reused for V3.
+ */
+const COFFEE_V3_SLOT_ENUM = ['cup_handle_far', 'cup_turn_a', 'cup_turn_b', 'saucer'];
+const COFFEE_V3_SURFACE_ENUM = ['cup_wall', 'cup_base', 'saucer'];
+const COFFEE_V3_CONFIDENCE = { type: 'string', enum: ['high', 'medium', 'low'] } as const;
+const COFFEE_V3_CLOCK = { type: ['integer', 'null'], minimum: 1, maximum: 12 } as const;
+
+const coffeeV3View = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['slot', 'surfaceVisible', 'focusLightAdequate', 'residueVisible', 'handleVisible', 'handleClock'],
+  properties: {
+    slot: { type: 'string', enum: COFFEE_V3_SLOT_ENUM },
+    surfaceVisible: { type: 'boolean' },
+    focusLightAdequate: { type: 'boolean' },
+    residueVisible: { type: 'boolean' },
+    handleVisible: { type: ['boolean', 'null'] },
+    handleClock: COFFEE_V3_CLOCK,
+  },
+} as const;
+
+const coffeeV3Sighting = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['id', 'slot', 'surface', 'band', 'rimClock', 'saucerZone', 'description', 'visibility', 'confidence'],
+  properties: {
+    id: { type: 'string', minLength: 1, maxLength: 32 },
+    slot: { type: 'string', enum: COFFEE_V3_SLOT_ENUM },
+    surface: { type: 'string', enum: COFFEE_V3_SURFACE_ENUM },
+    band: { type: 'string', enum: ['rim_upper', 'middle', 'lower_base', 'unknown'] },
+    rimClock: COFFEE_V3_CLOCK,
+    saucerZone: { type: ['string', 'null'], enum: ['center', 'middle_ring', 'edge', 'unknown', null] },
+    description: { type: 'string', minLength: 4, maxLength: 160 },
+    visibility: { type: 'string', enum: ['clear', 'partial', 'uncertain'] },
+    confidence: COFFEE_V3_CONFIDENCE,
+  },
+} as const;
+
+const coffeeV3Form = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['motion', 'verticalDirection', 'openness', 'course', 'posture', 'continuity', 'grouping'],
+  properties: {
+    motion: { type: 'string', enum: ['moving', 'still', 'unknown'] },
+    verticalDirection: { type: 'string', enum: ['rising', 'descending', 'level', 'unknown'] },
+    openness: { type: 'string', enum: ['open', 'closed', 'unknown'] },
+    course: { type: 'string', enum: ['straight', 'bending', 'branching', 'unknown'] },
+    posture: { type: 'string', enum: ['upright', 'tilted', 'unknown'] },
+    continuity: { type: 'string', enum: ['continuous', 'broken', 'unknown'] },
+    grouping: { type: 'string', enum: ['isolated', 'clustered', 'unknown'] },
+  },
+} as const;
+
+const coffeeV3Mark = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['id', 'surface', 'sightingIds', 'form', 'resemblances'],
+  properties: {
+    id: { type: 'string', minLength: 1, maxLength: 32 },
+    surface: { type: 'string', enum: COFFEE_V3_SURFACE_ENUM },
+    sightingIds: { type: 'array', items: { type: 'string', minLength: 1, maxLength: 32 }, minItems: 1, maxItems: 4 },
+    form: coffeeV3Form,
+    resemblances: {
+      type: 'array',
+      maxItems: 2,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['label', 'strength'],
+        properties: {
+          label: { type: 'string', minLength: 1, maxLength: 40 },
+          strength: { type: 'string', enum: ['strong', 'weak'] },
+        },
+      },
+    },
+  },
+} as const;
+
+const coffeeV3Relation = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['a', 'b', 'kind', 'confidence'],
+  properties: {
+    a: { type: 'string', minLength: 1, maxLength: 32 },
+    b: { type: 'string', minLength: 1, maxLength: 32 },
+    kind: {
+      type: 'string',
+      enum: ['near', 'touching', 'connected', 'crossing', 'contained_by', 'continuation_of', 'separated'],
+    },
+    confidence: COFFEE_V3_CONFIDENCE,
+  },
+} as const;
+
+const coffeeV3Ambiguity = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['marks', 'reason'],
+  properties: {
+    marks: { type: 'array', items: { type: 'string', minLength: 1, maxLength: 32 }, minItems: 2, maxItems: 2 },
+    reason: { type: 'string', enum: ['possible_same_mark'] },
+  },
+} as const;
+
+export const COFFEE_V3_OBSERVER_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['contract', 'usable', 'reason', 'views', 'sightings', 'marks', 'relations', 'ambiguities', 'saucer'],
+  properties: {
+    contract: { type: 'string', enum: ['multi_view_marks_v3'] },
+    usable: { type: 'boolean' },
+    reason: { type: ['string', 'null'], maxLength: 160 },
+    views: { type: 'array', items: coffeeV3View, minItems: 1, maxItems: 4 },
+    sightings: { type: 'array', items: coffeeV3Sighting, maxItems: 30 },
+    marks: { type: 'array', items: coffeeV3Mark, maxItems: 16 },
+    relations: { type: 'array', items: coffeeV3Relation, maxItems: 12 },
+    ambiguities: { type: 'array', items: coffeeV3Ambiguity, maxItems: 12 },
+    saucer: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['surfaceState', 'flow'],
+      properties: {
+        surfaceState: { type: 'string', enum: ['clean', 'film', 'islands', 'flow', 'unclear'] },
+        flow: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['present', 'direction'],
+          properties: {
+            present: { type: 'boolean' },
+            direction: { type: 'string', enum: ['toward_center', 'toward_edge', 'around', 'none', 'unknown'] },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
 export const PALM_OBSERVER_SCHEMA = {
   type: 'object',
   additionalProperties: false,
