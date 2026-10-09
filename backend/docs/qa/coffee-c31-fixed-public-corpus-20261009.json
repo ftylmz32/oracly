@@ -1,0 +1,224 @@
+{
+  "phase": "C3.1 FIXED PUBLIC CORPUS QUALIFICATION (QA ONLY)",
+  "date": "2026-10-09",
+  "branch": "fix/coffee-c21-private-meaning-handoff-20261006",
+  "head": "919dd061b1eaaa3dee0df0846680c9229cf4bb51",
+  "productionChanged": false,
+  "providerCalls": 0,
+  "imageBytesStored": false,
+  "copyright": "external research only; third-party images were inspected outside the repository and are not stored here",
+  "method": {
+    "order": "physical structures first, cross-view identity second, current-M1 sign mapping last",
+    "segmentation": "strict = only structures with a defensible visual boundary; liberal = also sub-structures, faint smears and speckle fields",
+    "counts": "cup-interior structures; saucer structures are reported separately",
+    "m1Mapping": "a structure maps only on a STRONG resemblance to one of the ten current M1 sign classes; pareidolia-dependent readings are recorded as ambiguous",
+    "v3Vocabulary": "bands rim_upper/middle/lower_base/uncertain; form and relation words follow the current V3 contract"
+  },
+  "sets": [
+    {
+      "id": "C3F-RITAG",
+      "source": "Fiverr seller Ritag777, gig 'Provide you with personalized coffee ground fortune reading' (gig image 343883422)",
+      "locator": "https://fiverr-res.cloudinary.com/images/gigs2/343883422/original/089fb19a3a79613e29f620ee1c1d52886010fab7/provide-you-with-personalized-coffee-ground-fortune-reading.jpg",
+      "imageCount": 6,
+      "usefulCupViews": 6,
+      "saucer": true,
+      "sameCupConfidence": "high",
+      "grade": "A",
+      "handleAnchor": "strong",
+      "realResidue": "yes",
+      "quality": "good",
+      "whySameCup": "six labeled panels of one cup; identical square Greek-key saucer and identical residue (dark pool with a clear crescent, a streaky band climbing to the rim) in every panel; handle visible in every panel",
+      "structures": [
+        { "id": "P1", "kind": "base pool", "band": "lower_base", "form": { "openness": "closed", "grouping": "isolated" }, "crossView": "CERTAIN" },
+        { "id": "P2", "kind": "streaky band climbing from the pool to the rim", "band": "middle", "form": { "continuity": "continuous", "verticalDirection": "rising" }, "crossView": "POSSIBLE" },
+        { "id": "P3", "kind": "feathered branching field on the opposite wall", "band": "middle", "form": { "course": "branching", "grouping": "clustered" }, "crossView": "POSSIBLE" },
+        { "id": "P4", "kind": "clear crescent area inside the pool", "band": "lower_base", "form": { "openness": "open" }, "crossView": "CERTAIN" }
+      ],
+      "liberalExtras": ["rim clumps at the top of the band", "faint side smears"],
+      "relations": [
+        { "a": "P2", "b": "P1", "kind": "continuation_of" },
+        { "a": "P4", "b": "P1", "kind": "contained_by" }
+      ],
+      "strictCount": 4,
+      "liberalCount": 6,
+      "saucerStructures": 0,
+      "crossViewConfirmed": 2,
+      "crossViewAmbiguous": 2,
+      "v3AngleNote": "panels 2 and 3 (handle left / handle right) place the climbing band at handle-relative angles that cannot be reconciled from the collage; V3 would keep P2 as possible_same_mark",
+      "m1": { "strongSigns": [], "ambiguous": ["P2 band as direction/path"], "unmappedStructures": 4, "developments": 0 }
+    },
+    {
+      "id": "C3F-HALIL",
+      "source": "X account HalilMrT4Real, status 1926964738249925079",
+      "locator": "https://pbs.twimg.com/media/Gr30NLjX0AAMnXF.jpg?name=large",
+      "imageCount": 4,
+      "usefulCupViews": 4,
+      "saucer": false,
+      "sameCupConfidence": "high",
+      "grade": "B",
+      "handleAnchor": "partial",
+      "realResidue": "yes",
+      "quality": "good",
+      "whySameCup": "a distinctive slanted oval dry patch appears in all four panels, together with the same rim clumps and the same wooden table; the handle is visible in two of four panels",
+      "structures": [
+        { "id": "P1", "kind": "slanted oval dry patch", "band": "lower_base", "form": { "openness": "closed", "grouping": "isolated", "posture": "tilted" }, "crossView": "CERTAIN" },
+        { "id": "P2", "kind": "rim clump group A", "band": "rim_upper", "form": { "grouping": "clustered" }, "crossView": "POSSIBLE" },
+        { "id": "P3", "kind": "rim clump group B", "band": "rim_upper", "form": { "grouping": "clustered" }, "crossView": "POSSIBLE" },
+        { "id": "P4", "kind": "continuous wet trail from rim to base", "band": "middle", "form": { "continuity": "continuous", "verticalDirection": "descending" }, "crossView": "POSSIBLE" },
+        { "id": "P5", "kind": "curved base pool / crescent band", "band": "lower_base", "form": { "course": "bending" }, "crossView": "CERTAIN" }
+      ],
+      "liberalExtras": ["speckle field near the base edge", "faint rim smear A", "faint rim smear B"],
+      "relations": [
+        { "a": "P4", "b": "P5", "kind": "connected" },
+        { "a": "P1", "b": "P5", "kind": "separated" }
+      ],
+      "strictCount": 5,
+      "liberalCount": 8,
+      "saucerStructures": 0,
+      "crossViewConfirmed": 2,
+      "crossViewAmbiguous": 3,
+      "v3AngleNote": "handle visible in two panels only; full angle validation could not be simulated for the other two",
+      "m1": { "strongSigns": [], "ambiguous": ["P4 trail as direction/path", "P1 patch as fish"], "unmappedStructures": 5, "developments": 0 }
+    },
+    {
+      "id": "C3F-GAZETA",
+      "source": "Gazeta.Ru, '«Тут черная свинья. Ты беременна?» Как убежденные скептики сходили к гадалке', 5 Nov 2023 (in-article photograph; the lead illustration is excluded)",
+      "locator": "https://www.gazeta.press/science/2023/11/05/17807563.shtml ; image https://img.gazeta.press/files3/991/17808991/455521-pic4_zoom-1500x1500-71115.jpg",
+      "imageCount": 3,
+      "usefulCupViews": 3,
+      "saucer": false,
+      "sameCupConfidence": "high",
+      "grade": "A",
+      "handleAnchor": "strong",
+      "realResidue": "yes",
+      "quality": "good",
+      "whySameCup": "same pink-floral cup exterior and same ring-stained napkin in panels 1 and 3, and the same residue mass in all three panels; the article reports a real session with this cup",
+      "structures": [
+        { "id": "P1", "kind": "large upper network with enclosed clear islands", "band": "middle", "form": { "course": "branching", "grouping": "clustered" }, "crossView": "CERTAIN" },
+        { "id": "P2", "kind": "dark base pool", "band": "lower_base", "form": { "openness": "closed" }, "crossView": "CERTAIN" },
+        { "id": "P3", "kind": "lower dark band beyond a clear gap", "band": "lower_base", "form": { "continuity": "continuous" }, "crossView": "POSSIBLE" }
+      ],
+      "liberalExtras": ["enclosed clear island A", "enclosed clear island B", "rim speckles"],
+      "relations": [
+        { "a": "P1", "b": "P2", "kind": "connected" },
+        { "a": "P3", "b": "P1", "kind": "separated" }
+      ],
+      "strictCount": 3,
+      "liberalCount": 6,
+      "saucerStructures": 0,
+      "crossViewConfirmed": 2,
+      "crossViewAmbiguous": 1,
+      "v3AngleNote": "the handle moves from left to right between panels while the same mass stays on the far wall; V3 angle validation would mark that merge untrusted (correct fail-safe)",
+      "m1": { "strongSigns": [], "ambiguous": ["P1 mass as face (pareidolia)"], "unmappedStructures": 3, "developments": 0 }
+    },
+    {
+      "id": "C3F-BASAK",
+      "source": "Wikimedia Commons, 'Kahve falı 1.jpg' and 'Kahve falı 2.jpg', uploader Basak, 10 Jul 2018, CC0",
+      "locator": "https://commons.wikimedia.org/wiki/File:Kahve_fal%C4%B1_1.jpg ; https://commons.wikimedia.org/wiki/File:Kahve_fal%C4%B1_2.jpg",
+      "imageCount": 2,
+      "usefulCupViews": 1,
+      "saucer": true,
+      "sameCupConfidence": "high",
+      "grade": "B",
+      "handleAnchor": "partial",
+      "realResidue": "yes",
+      "quality": "good",
+      "whySameCup": "same uploader and camera, two minutes apart; the floral porcelain of the cup matches the saucer; same garden session",
+      "structures": [
+        { "id": "P1", "kind": "upper streak web", "band": "rim_upper", "form": { "course": "branching", "continuity": "broken" }, "crossView": "POSSIBLE" },
+        { "id": "P2", "kind": "mid-wall blob", "band": "middle", "form": { "grouping": "isolated" }, "crossView": "NOT_VISIBLE" },
+        { "id": "P3", "kind": "flooded base pool", "band": "lower_base", "form": {}, "crossView": "NOT_VISIBLE" }
+      ],
+      "saucerStructureList": [
+        { "id": "S1", "kind": "crescent band with trailing tail", "form": { "course": "bending", "continuity": "continuous" } }
+      ],
+      "liberalExtras": ["separate streak channels within the web", "rim speckles"],
+      "relations": [
+        { "a": "P1", "b": "P3", "kind": "connected" }
+      ],
+      "strictCount": 3,
+      "liberalCount": 5,
+      "saucerStructures": 1,
+      "crossViewConfirmed": 0,
+      "crossViewAmbiguous": 1,
+      "v3AngleNote": "only one useful interior view; no angle validation possible",
+      "m1": { "strongSigns": [], "ambiguous": [], "unmappedStructures": 4, "developments": 0 }
+    },
+    {
+      "id": "C3F-UNAL",
+      "source": "LinkedIn article 'Kahve falımdan ne çıktı ?' by Ünal Büyüksungur, 31 Jul 2025 (article cover image; og:image)",
+      "locator": "https://tr.linkedin.com/pulse/kahve-fal%C4%B1mdan-ne-%C3%A7%C4%B1kt%C4%B1-%C3%BCnal-b%C3%BCy%C3%BCksungur-b7mcf",
+      "imageCount": 3,
+      "usefulCupViews": 2,
+      "saucer": true,
+      "sameCupConfidence": "high",
+      "grade": "B",
+      "handleAnchor": "strong",
+      "realResidue": "yes",
+      "quality": "usable",
+      "whySameCup": "the article states the protocol (one photo from each handle direction plus the saucer residue, one reading); the cover shows the same white cup with handle left and handle right and the matching saucer; same rim stain pattern in both cup views",
+      "structures": [
+        { "id": "P1", "kind": "speckled base pool", "band": "lower_base", "form": { "grouping": "clustered" }, "crossView": "CERTAIN" },
+        { "id": "P2", "kind": "continuous rim stain band", "band": "rim_upper", "form": { "continuity": "continuous", "course": "bending" }, "crossView": "CERTAIN" },
+        { "id": "P3", "kind": "dark drip from the rim on the far wall", "band": "rim_upper", "form": { "verticalDirection": "descending" }, "crossView": "POSSIBLE" }
+      ],
+      "saucerStructureList": [
+        { "id": "S1", "kind": "large loop band enclosing a clear area", "form": { "openness": "closed", "course": "bending" } },
+        { "id": "S2", "kind": "dark bar inside the loop", "form": { "course": "straight" } },
+        { "id": "S3", "kind": "drip tails running to the saucer edge", "form": { "continuity": "continuous", "verticalDirection": "descending" } }
+      ],
+      "liberalExtras": ["mid-wall speckle clusters", "side streaks"],
+      "relations": [
+        { "a": "P3", "b": "P2", "kind": "connected" }
+      ],
+      "strictCount": 3,
+      "liberalCount": 5,
+      "saucerStructures": 3,
+      "crossViewConfirmed": 2,
+      "crossViewAmbiguous": 1,
+      "v3AngleNote": "handle visible in both cup views (left / right); the far-wall drip is only partly visible in the second view",
+      "m1": { "strongSigns": [], "ambiguous": ["S1 loop as ring (a residue loop vs. a ring object)"], "unmappedStructures": 6, "developments": 0 }
+    }
+  ],
+  "summary": {
+    "fixedSetsAttempted": 5,
+    "qualified": 5,
+    "gradeA": 2,
+    "gradeB": 3,
+    "rejected": 0,
+    "strictCounts": { "C3F-RITAG": 4, "C3F-HALIL": 5, "C3F-GAZETA": 3, "C3F-BASAK": 3, "C3F-UNAL": 3 },
+    "liberalCounts": { "C3F-RITAG": 6, "C3F-HALIL": 8, "C3F-GAZETA": 6, "C3F-BASAK": 5, "C3F-UNAL": 5 },
+    "medianStrict": 3,
+    "medianLiberal": 6,
+    "saucerStructuresTotal": 4,
+    "crossViewConfirmed": 8,
+    "crossViewAmbiguous": 8,
+    "m1StrongSignGroups": 0,
+    "m1AmbiguousCandidates": 5,
+    "m1UnmappedStructures": 22,
+    "setsWith3PlusM1Developments": 0,
+    "motifFrequencies": {
+      "continuous_or_drip_trail": "5/5",
+      "connected_continuation": "5/5",
+      "base_pool": "5/5",
+      "enclosed_or_open_clear_area": "4/5",
+      "arc_or_partial_ring_band": "4/5",
+      "clustered_speckles": "4/5",
+      "straight_or_bending_line": "4/5",
+      "branching_network": "3/5",
+      "isolated_patch_or_blob": "3/5"
+    },
+    "currentM1HandlesMotifsWithoutObjectResemblance": false
+  },
+  "decision": {
+    "observerPhysicalDensity": "CONFIRMED",
+    "currentM1": "TOO_SYMBOL_NARROW",
+    "outcome": "B",
+    "rationale": "every accepted cup holds at least 3 strictly bounded physical structures (median 3 strict, 6 liberal) across several bands with real relations, and cross-view identity is confirmable in 4 of 5 sets; but zero structures carry a strong resemblance to the ten current M1 sign classes, so current M1 produces no developments for any set. The recurring material is structural (trails, continuations, pools, clear areas, arcs, speckles), which points to a curated structure-first semantic lane rather than more object symbols.",
+    "caveats": [
+      "segmentation is subjective: liberal counts are about twice strict counts",
+      "collage panels with perspective (and possible mirroring) make V3 handle-angle validation unreliable; V3 would keep such merges as possible_same_mark",
+      "five sets is a small corpus; the outcome is a direction, not a statistic"
+    ]
+  }
+}
