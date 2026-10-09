@@ -322,8 +322,8 @@ describe('M1 privacy and dark path (X)', () => {
     const importers = walk(src)
       .filter((path) => /coffee-m1-interpretation/.test(readFileSync(path, 'utf8')))
       .map((path) => path.slice(src.length + 1).replace(/\\/g, '/'));
-    // Only the equally dark M2 engine may build on M1.
-    expect(importers).toEqual(['ai/reading/coffee-m2-semantic-engine.ts']);
+    // Only the equally dark M2 engine and W2 planner may build on M1.
+    expect(importers.sort()).toEqual(['ai/reading/coffee-m2-semantic-engine.ts', 'ai/reading/coffee-m2-writer-beat-plan.ts']);
     const engine = readFileSync(join(src, 'ai/reading/coffee-m1-interpretation.ts'), 'utf8');
     expect(engine).not.toMatch(/CoffeeMultiViewObservationV3|\.description|\.confidence|\.visibility|rimClock|handleClock/);
   });
@@ -607,12 +607,13 @@ describe('M1.2 trusted intention depth', () => {
         const path = join(dir, name);
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
-    // Only the equally dark M2 engine may build on M1.
+    // Only the equally dark M2 engine and W2 planner may build on M1.
     expect(
       walk(src)
         .filter((path) => /coffee-m1-interpretation/.test(readFileSync(path, 'utf8')))
-        .map((path) => path.slice(src.length + 1).replace(/\\/g, '/')),
-    ).toEqual(['ai/reading/coffee-m2-semantic-engine.ts']);
+        .map((path) => path.slice(src.length + 1).replace(/\\/g, '/'))
+        .sort(),
+    ).toEqual(['ai/reading/coffee-m2-semantic-engine.ts', 'ai/reading/coffee-m2-writer-beat-plan.ts']);
   });
 });
 

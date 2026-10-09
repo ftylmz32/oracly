@@ -721,3 +721,12 @@ function objectBase(t: CoffeeFortuneThread, modifiers: string[]): Omit<CoffeeM2T
     contextForbidden: [...t.contextForbidden],
   };
 }
+
+/**
+ * Read-only views of the M2 facet equivalence tables, for the dark W2 writer
+ * beat planner. Exported so composition reuses M2's own classes instead of a
+ * second interpretation; M2 behaviour is unchanged.
+ */
+export const COFFEE_M2_CORE_CLASS: Readonly<Record<string, string>> = CORE_CLASS;
+export const COFFEE_M2_MODIFIER_FACET: Readonly<Record<string, Readonly<CoffeeM2Facet>>> = MODIFIER_FACET;
+export const COFFEE_M2_CONSEQUENCE_FACET: Readonly<Record<string, string>> = CONSEQUENCE_FACET;

@@ -350,14 +350,18 @@ describe('M2 privacy and dark path (AR–AW)', () => {
     }
   });
 
-  it('AT/AU: no live source (routing, pipeline, worker or writer) imports M2', () => {
+  it('AT/AU: no live source (routing, pipeline, worker or writer) imports M2; only the dark W2 planner does', () => {
     const src = resolve(process.cwd(), 'src');
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((name) => {
         const path = join(dir, name);
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
-    expect(walk(src).filter((p) => /coffee-m2-semantic-engine/.test(readFileSync(p, 'utf8')))).toEqual([]);
+    expect(
+      walk(src)
+        .filter((p) => /coffee-m2-semantic-engine/.test(readFileSync(p, 'utf8')))
+        .map((p) => p.slice(src.length + 1).replace(/\\/g, '/')),
+    ).toEqual(['ai/reading/coffee-m2-writer-beat-plan.ts']);
   });
 
   it('AV: V2 slots unchanged', () => {
