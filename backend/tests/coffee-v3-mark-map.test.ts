@@ -587,6 +587,7 @@ describe('V2 dark-path guarantee (V, W)', () => {
       .sort();
     expect(users).toEqual([
       'ai/reading/coffee-m1-interpretation.ts',
+      'ai/reading/coffee-m2-semantic-engine.ts',
       'ai/reading/coffee-v3-mark-map.ts',
       'ai/reading/observer-prompts.ts',
       'ai/reading/schemas.ts',
