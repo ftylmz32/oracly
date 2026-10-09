@@ -103,7 +103,8 @@ describe('W4C referent ownership and tempo (D–G)', () => {
   it('D: MOMENTUM refers back to the OPPORTUNITY only, never the joint kısmet or the growth', () => {
     const b2 = realize('MONEY_OBJECT').realization.beats[1];
     expect(b2.referent).toMatchObject({ aboutClass: 'OPPORTUNITY', lexicalSubjectRequired: false });
-    expect(b2.referent!.referents).toEqual(['bu fırsat', 'bu imkân', 'fırsatın hareketi', 'gelen fırsat']);
+    // W4C.1: under growing_kismet the opportunity entity may carry the growth, so MOMENTUM refers to its facet only.
+    expect(b2.referent!.referents).toEqual(['fırsatın hareketi', 'fırsatın etrafındaki hareket', 'bu fırsattaki hareket']);
     expect(b2.referent!.forbiddenReferents).toEqual(expect.arrayContaining(['bu kısmet', 'bu büyüme', 'büyümesi', 'bu gelişme']));
   });
 
@@ -112,7 +113,7 @@ describe('W4C referent ownership and tempo (D–G)', () => {
     expect(b3.referent!.aboutClass).toBe('GROWTH');
     expect(b3.referent!.referents).toEqual(expect.arrayContaining(['bu büyüme', 'büyümesi', 'bu gelişme']));
     expect(b3.referent!.referents).not.toContain('bu kısmet');
-    expect(b3.referent!.forbiddenReferents).toEqual(expect.arrayContaining(['bu fırsat', 'fırsatın hareketi', 'bu kısmet']));
+    expect(b3.referent!.forbiddenReferents).toEqual(expect.arrayContaining(['bu fırsat', 'gelen fırsat', 'bu kısmet']));
     // "bereketi" only because abundance is licensed in this plan.
     expect(b3.referent!.referents).toContain('bereketi');
     expect(JSON.stringify(realize('BASAK').realization)).not.toContain('bereketi');
@@ -133,7 +134,7 @@ describe('W4C referent ownership and tempo (D–G)', () => {
     });
     const r2 = prepareCoffeeM2TurkishRealization(planCoffeeM2Writer(synthetic([t2])).plan);
     const elaboration = r2.realization.beats[1];
-    expect(elaboration.referent).toEqual({ aboutClass: 'PEOPLE', referents: [], forbiddenReferents: [], lexicalSubjectRequired: true });
+    expect(elaboration.referent).toEqual({ aboutClass: 'PEOPLE', kind: 'entity', referents: [], forbiddenReferents: [], forbiddenEntityNouns: [], lexicalSubjectRequired: true });
     expect(COFFEE_TURKISH_REFERENTS.PEOPLE).toBeUndefined();
     expect(JSON.stringify(COFFEE_TURKISH_REFERENTS)).not.toMatch(/bu durum/);
   });
@@ -142,7 +143,7 @@ describe('W4C referent ownership and tempo (D–G)', () => {
     const tempo = realize('MONEY_OBJECT').realization.crossBeat.tempo;
     expect(tempo).toHaveLength(1);
     expect(tempo[0].classes).toEqual(['GROWTH', 'MOMENTUM']);
-    expect(tempo[0].neverShared).toEqual(['bu kısmet']);
+    expect(tempo[0].neverShared).toEqual(expect.arrayContaining(['bu kısmet', 'bu fırsat', 'bu imkân', 'gelen fırsat']));
     const growth = tempo[0].separateReferents.GROWTH;
     const momentum = tempo[0].separateReferents.MOMENTUM;
     expect(growth.filter((x) => momentum.includes(x))).toEqual([]);
@@ -300,13 +301,17 @@ describe('W4C payload boundary (T–Z)', () => {
     }
   });
 
-  it('Z: nothing in src imports the realization policy', () => {
+  it('Z: nothing live imports the realization policy; only the dark W4C.1 QA checker does', () => {
     const src = resolve(process.cwd(), 'src');
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((name) => {
         const path = join(dir, name);
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
-    expect(walk(src).filter((p) => /coffee-m2-turkish-realization-policy/.test(readFileSync(p, 'utf8')))).toEqual([]);
+    expect(
+      walk(src)
+        .filter((p) => /coffee-m2-turkish-realization-policy/.test(readFileSync(p, 'utf8')))
+        .map((p) => p.slice(src.length + 1).split(String.fromCharCode(92)).join('/')),
+    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts']);
   });
 });

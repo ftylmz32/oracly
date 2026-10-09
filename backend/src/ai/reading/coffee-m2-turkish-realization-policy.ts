@@ -39,7 +39,6 @@ export const COFFEE_TURKISH_REFERENTS: Readonly<Record<string, readonly Referent
   OPPORTUNITY: [
     { text: 'bu fırsat' },
     { text: 'bu imkân' },
-    { text: 'fırsatın hareketi' },
     { text: 'gelen fırsat' },
     { text: 'bu kısmet', jointUnder: ['opportunity_with_gradual_growth'] },
   ],
@@ -62,6 +61,28 @@ export const COFFEE_TURKISH_REFERENTS: Readonly<Record<string, readonly Referent
   COMMUNICATION: [{ text: 'bu iletişim' }, { text: 'bu haberleşme' }, { text: 'haberleşme' }],
   WRITTEN_COMMUNICATION: [{ text: 'bu yazışma' }, { text: 'yazılı haber' }],
   FORWARD: [{ text: 'bu gidişat' }, { text: 'bu ilerleyiş' }, { text: 'gidişat' }],
+};
+
+/**
+ * W4C.1 — the nouns that publicly NAME a class as a whole entity. Used to keep
+ * a tempo-bound facet off the entity (the QA checker matches their folded stems).
+ */
+export const COFFEE_TURKISH_ENTITY_NOUNS: Readonly<Record<string, readonly string[]>> = {
+  OPPORTUNITY: ['fırsat', 'imkân', 'kısmet', 'nasip'],
+  GROWTH: ['büyüme', 'gelişme', 'bereket'],
+};
+
+/**
+ * W4C.1 — facet referents. When an elaboration's class forms a tempo pair
+ * with a class that the SAME relation already attaches to the elaboration's
+ * owner, every entity noun of that owner may already carry the other tempo
+ * (under growing_kismet the kısmet / fırsat itself grows). The elaboration then
+ * refers ONLY to its facet. "hareket" here is the public realization of
+ * MOMENTUM: never a new event, action, person or development. Only three
+ * natural forms exist; "fırsat tarafındaki hareket" was rejected as stiff.
+ */
+export const COFFEE_TURKISH_FACET_REFERENTS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
+  MOMENTUM: { OPPORTUNITY: ['fırsatın hareketi', 'fırsatın etrafındaki hareket', 'bu fırsattaki hareket'] },
 };
 
 const isDemonstrative = (text: string) => /^bu\s/i.test(text.trim());
@@ -162,7 +183,16 @@ export type CoffeeM2BeatRealization = {
   /** Scenario role rule: an own-beat scenario must be realized by a finite scenario clause. */
   scenarioRoles: { roles: CoffeeTurkishSurfaceRole[]; leadAsSoleRealization: boolean } | null;
   /** Elaboration / own-beat scenario: what it refers back to, and with which words. */
-  referent: { aboutClass: string; referents: string[]; forbiddenReferents: string[]; lexicalSubjectRequired: boolean } | null;
+  referent: {
+    aboutClass: string;
+    /** entity = refer to the owner itself; facet = refer only to the elaborated facet (W4C.1). */
+    kind: 'entity' | 'facet';
+    referents: string[];
+    forbiddenReferents: string[];
+    /** facet only: entity nouns of the owner that must not be the subject of this beat. */
+    forbiddenEntityNouns: string[];
+    lexicalSubjectRequired: boolean;
+  } | null;
   /** Public overlap restrictions bound to this beat's classes. */
   overlap: Array<{ cls: string; with: string; useOnly: string[]; neverUse: string[] }>;
   /** Domain-idiom wording for this beat's classes, and generic wording to avoid in that domain. */
@@ -207,6 +237,19 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
   /** Words that name BOTH components of a relation present in this plan. */
   const jointWords = (cls: string) => (COFFEE_TURKISH_REFERENTS[cls] ?? []).filter((r) => r.jointUnder?.some((rel) => relations.has(rel))).map((r) => r.text);
 
+  const ownerOf = (cls: string) => beats.flatMap((b) => b.groups).find((g) => g.cls === cls)?.about ?? cls;
+  /**
+   * W4C.1: a tempo pair (A, B) binds an elaboration of B about owner O when a
+   * relation beat carries O together with A (or A's owner): O's entity nouns
+   * may then already carry A's tempo, so B must use a facet referent.
+   */
+  const tempoBound = (elaborated: string[], owner: string) =>
+    COFFEE_TURKISH_TEMPO_PAIRS.some((t) => t.classes.some((b, i) => {
+      const a = t.classes[1 - i];
+      return elaborated.includes(b) && planClasses.has(a) && beats.some((rb) => rb.relation
+        && rb.groups.some((g) => g.cls === owner) && rb.groups.some((g) => g.cls === a || g.cls === ownerOf(a)));
+    }));
+
   const realizedBeats: CoffeeM2BeatRealization[] = beats.map((beat, index) => {
     const domain = beat.qualifiers.domain?.domain ?? firstDomain;
     const groupRoles = beat.groups
@@ -229,15 +272,31 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
     let referent: CoffeeM2BeatRealization['referent'] = null;
     if (aboutClass) {
       const joint = jointWords(aboutClass);
-      const own = usable(aboutClass).map((r) => r.text).filter((t) => !joint.includes(t));
       // Referents of OTHER classes in the plan would bleed another independent group in.
       const others = [...planClasses].filter((c) => c !== aboutClass).flatMap((c) => (COFFEE_TURKISH_REFERENTS[c] ?? []).map((r) => r.text));
-      referent = {
-        aboutClass,
-        referents: own,
-        forbiddenReferents: [...new Set([...joint, ...others])],
-        lexicalSubjectRequired: own.length === 0,
-      };
+      const elaboratedClasses = beat.groups.filter((g) => g.about === aboutClass).map((g) => g.cls);
+      if (elaborated && tempoBound(elaboratedClasses, aboutClass)) {
+        const facet = elaboratedClasses.flatMap((c) => COFFEE_TURKISH_FACET_REFERENTS[c]?.[aboutClass] ?? []);
+        const entity = (COFFEE_TURKISH_REFERENTS[aboutClass] ?? []).map((r) => r.text);
+        referent = {
+          aboutClass,
+          kind: 'facet',
+          referents: [...facet],
+          forbiddenReferents: [...new Set([...joint, ...entity, ...others])],
+          forbiddenEntityNouns: [...(COFFEE_TURKISH_ENTITY_NOUNS[aboutClass] ?? [])],
+          lexicalSubjectRequired: facet.length === 0,
+        };
+      } else {
+        const own = usable(aboutClass).map((r) => r.text).filter((t) => !joint.includes(t));
+        referent = {
+          aboutClass,
+          kind: 'entity',
+          referents: own,
+          forbiddenReferents: [...new Set([...joint, ...others])],
+          forbiddenEntityNouns: [],
+          lexicalSubjectRequired: own.length === 0,
+        };
+      }
     }
 
     // Overlap restrictions bound to the classes this beat carries.
@@ -299,18 +358,25 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
   });
 
   // Tempo pairs present in this plan: each class keeps its own referent; joint words are never shared.
-  const ownerOf = (cls: string) => beats.flatMap((b) => b.groups).find((g) => g.cls === cls)?.about ?? cls;
+  const beatReferentOf = (cls: string) =>
+    realizedBeats.find((rb) => rb.referent && beats[rb.order - 1].groups.some((g) => g.cls === cls))?.referent ?? null;
   const tempo = COFFEE_TURKISH_TEMPO_PAIRS
     .filter((t) => t.classes.every((c) => planClasses.has(c)))
     .map((t) => ({
       classes: [...t.classes],
       note: t.note,
       separateReferents: Object.fromEntries(t.classes.map((c) => {
+        const bound = beatReferentOf(c);
+        if (bound) return [c, [...bound.referents]];
         const owner = ownerOf(c);
         const joint = jointWords(owner);
         return [c, usable(owner).map((r) => r.text).filter((x) => !joint.includes(x))];
       })),
-      neverShared: [...new Set(t.classes.flatMap((c) => jointWords(ownerOf(c))))],
+      neverShared: [...new Set(t.classes.flatMap((c) => {
+        const bound = beatReferentOf(c);
+        const facetEntity = bound?.kind === 'facet' ? (COFFEE_TURKISH_REFERENTS[bound.aboutClass] ?? []).map((r) => r.text) : [];
+        return [...jointWords(ownerOf(c)), ...facetEntity];
+      }))],
     }));
   // A tempo pair also forbids the joint words on the elaboration beats it touches.
   for (const t of tempo) {
