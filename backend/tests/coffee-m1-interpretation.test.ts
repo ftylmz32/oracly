@@ -121,7 +121,8 @@ describe('M1 fixture matrix', () => {
       developments: ['access_opening', 'direction_change'],
       combination: 'access_through_direction',
       linkage: 'linked',
-      valence: 'neutral',
+      // M1.1: curated combination valence (was "the more careful component wins").
+      valence: 'positive',
     });
     expect(t.conjecture).toEqual(expect.arrayContaining(['path_opening', 'new_beginning', 'opening_through_new_direction']));
     expect(t.forbiddenSpecifics).toEqual(expect.arrayContaining(['prior_problem', 'travel_or_relocation']));
@@ -312,5 +313,105 @@ describe('M1 privacy and dark path (X)', () => {
     expect(importers).toEqual([]);
     const engine = readFileSync(join(src, 'ai/reading/coffee-m1-interpretation.ts'), 'utf8');
     expect(engine).not.toMatch(/CoffeeMultiViewObservationV3|\.description|\.confidence|\.visibility|rimClock|handleClock/);
+  });
+});
+
+describe('M1.1 component horizons', () => {
+  const fishTree = (fishBand: 'rim_upper' | 'middle' | 'lower_base' | 'unknown', treeBand: 'rim_upper' | 'middle' | 'lower_base' | 'unknown') =>
+    only({ marks: [{ id: 'M1', label: 'a fish', band: fishBand }, { id: 'M2', label: 'a tree', band: treeBand, hours: 8 }] }, 'money_finance');
+
+  it('1: opportunity near + growth middle preserves BOTH horizons', () => {
+    const t = fishTree('rim_upper', 'middle');
+    expect(t.developmentHorizons).toEqual([
+      { development: 'opportunity', horizon: 'nearer_term' },
+      { development: 'gradual_growth', horizon: 'coming_period' },
+    ]);
+    expect(t.horizon).toBe('coming_period');
+  });
+
+  it('2: opportunity near + growth lower preserves BOTH horizons', () => {
+    expect(fishTree('rim_upper', 'lower_base').developmentHorizons).toEqual([
+      { development: 'opportunity', horizon: 'nearer_term' },
+      { development: 'gradual_growth', horizon: 'further_out' },
+    ]);
+  });
+
+  it('3: a same-band combination keeps equal horizons and the shared aggregate', () => {
+    const t = fishTree('rim_upper', 'rim_upper');
+    expect(t.developmentHorizons.map((d) => d.horizon)).toEqual(['nearer_term', 'nearer_term']);
+    expect(t.horizon).toBe('nearer_term');
+  });
+
+  it('4: an unknown band stays unspecified for that development only', () => {
+    expect(fishTree('rim_upper', 'unknown').developmentHorizons).toEqual([
+      { development: 'opportunity', horizon: 'nearer_term' },
+      { development: 'gradual_growth', horizon: 'unspecified' },
+    ]);
+  });
+
+  it('single-development threads carry one deterministic component horizon', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a bird', band: 'lower_base' }] });
+    expect(t.developmentHorizons).toEqual([{ development: 'contact', horizon: 'further_out' }]);
+  });
+
+  it('5/6: no date token anywhere and the meaning-only assertion still passes', () => {
+    for (const cup of Object.values(M1_QA_CUPS)) {
+      const { meaning } = interpretCoffeeV3MarkMap(m1Map(cup.spec), cup.subject);
+      expect(() => assertCoffeeV3MeaningOnly(meaning)).not.toThrow();
+      const text = JSON.stringify(meaning.threads.map(({ forbiddenSpecifics: _f, ...rest }) => rest));
+      expect(text).not.toMatch(/date|day|week|month|ocak|subat|mart|nisan|haziran|\d{4}/i);
+    }
+  });
+
+  it('a near-term component still counts as useful placement for capacity', () => {
+    const result = run({
+      marks: [
+        { id: 'M1', label: 'a fish', band: 'rim_upper' },
+        { id: 'M2', label: 'a tree', hours: 8 },
+        { id: 'M3', label: 'a ring', hours: 6 },
+      ],
+    });
+    expect(result.meaning.capacity).toBe('rich');
+  });
+});
+
+describe('M1.1 curated combination valence', () => {
+  it('commitment + emotion is a POSITIVE possibility for general / love / person', () => {
+    for (const subject of [null, 'love_relationships', 'person_of_interest'] as const) {
+      const t = only({ marks: [{ id: 'M1', label: 'a ring' }, { id: 'M2', label: 'a heart', hours: 8 }] }, subject);
+      expect(t).toMatchObject({ combination: 'commitment_with_emotion', valence: 'positive' });
+      expect(t.conjecture).toEqual(expect.arrayContaining(['lasting_bond_possibility', 'heartfelt_lasting_bond_possibility']));
+      expect(t.forbiddenSpecifics).toEqual(
+        expect.arrayContaining(['guaranteed_outcome', 'relationship_history', 'other_person_feelings', 'other_person_intent', 'exact_event']),
+      );
+    }
+  });
+
+  it.each([
+    ['opportunity_with_gradual_growth', [{ id: 'M1', label: 'a fish' }, { id: 'M2', label: 'a tree', hours: 8 }], null, 'positive'],
+    ['access_through_direction', [{ id: 'M1', label: 'a key' }, { id: 'M2', label: 'a road', hours: 8 }], null, 'positive'],
+    ['choice_with_direction', [{ id: 'M1', label: 'a crossroad' }, { id: 'M2', label: 'a road', hours: 8 }], null, 'neutral'],
+    ['direction_with_growth', [{ id: 'M1', label: 'a road' }, { id: 'M2', label: 'a tree', hours: 8 }], null, 'positive'],
+    ['contact_with_opportunity', [{ id: 'M1', label: 'a bird' }, { id: 'M2', label: 'a fish', hours: 8 }], null, 'positive'],
+    ['written_contact_with_opportunity', [{ id: 'M1', label: 'a letter' }, { id: 'M2', label: 'a fish', hours: 8 }], null, 'positive'],
+    ['contact_in_relationship', [{ id: 'M1', label: 'a bird' }, { id: 'M2', label: 'a heart', hours: 8 }], 'love_relationships', 'neutral'],
+  ] as const)('%s → %s valence per the curated table', (combination, marks, subject, valence) => {
+    const t = only({ marks: [...marks] }, subject);
+    expect(t).toMatchObject({ combination, valence });
+  });
+
+  it('intermittent written contact still overrides a positive combination to cautionary', () => {
+    const t = only({
+      marks: [
+        { id: 'M1', label: 'a letter', form: { continuity: 'broken' } },
+        { id: 'M2', label: 'a fish', hours: 8, form: { motion: 'moving' } },
+      ],
+    });
+    expect(t).toMatchObject({ combination: 'written_contact_with_opportunity', valence: 'cautionary' });
+  });
+
+  it('not everything is positive: single neutral signs stay neutral', () => {
+    expect(only({ marks: [{ id: 'M1', label: 'a bird' }] }).valence).toBe('neutral');
+    expect(only({ marks: [{ id: 'M1', label: 'a crossroad' }] }).valence).toBe('neutral');
   });
 });

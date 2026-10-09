@@ -203,7 +203,17 @@ export type CoffeeFortuneThread = {
   subject: CoffeeM1Subject;
   /** person_of_interest: the THEME is about the chosen person — never their state or action. */
   subjectBinding: 'person_of_interest' | null;
+  /**
+   * Compatibility aggregate: the shared horizon when every development agrees,
+   * otherwise the broad coming_period. Never the only timing signal.
+   */
   horizon: CoffeeM1Horizon;
+  /**
+   * M1.1: timing PER DEVELOPMENT, in `developments` order. A combined thread
+   * keeps each component's own horizon ("a nearer kısmet, growth over the
+   * coming months"). Separate timings, never a sequence between them.
+   */
+  developmentHorizons: Array<{ development: CoffeeM1Development; horizon: CoffeeM1Horizon }>;
   valence: CoffeeM1Valence;
   modifiers: CoffeeM1Modifier[];
   conjecture: CoffeeM1Conjecture[];
@@ -354,6 +364,33 @@ const COMBINATIONS: ReadonlyArray<{
 ];
 
 /**
+ * M1.1 — curated combination valence. A combination is its own curated
+ * meaning, so its tone is curated too (never "the more careful component
+ * wins" for everything). A component's curated cautionary row (intermittent
+ * written contact) still overrides. Positive here is a hopeful POSSIBILITY:
+ * never a guarantee, an existing relationship, marriage, or another person's
+ * feelings or intent.
+ */
+const COMBINATION_VALENCE: Record<CoffeeM1Combination, CoffeeM1Valence> = {
+  // Both components are positive conventions; the opening's yield grows.
+  opportunity_with_gradual_growth: 'positive',
+  // Durable bond + deepening feeling as one hopeful heart kısmet (subject-gated to general/love/person).
+  commitment_with_emotion: 'positive',
+  // An opening that comes through a change of direction: an "önünü açan" convention.
+  access_through_direction: 'positive',
+  // Options shaping a direction carry no good or bad tone of their own.
+  choice_with_direction: 'neutral',
+  // A change that develops over time, carried by the positive growth convention.
+  direction_with_growth: 'positive',
+  // A kısmet that comes with news: the opportunity convention sets the tone.
+  contact_with_opportunity: 'positive',
+  // Same, with written news; intermittent writing still overrides to cautionary.
+  written_contact_with_opportunity: 'positive',
+  // Communication inside a love theme stays neutral: warmth would imply the other person's feelings.
+  contact_in_relationship: 'neutral',
+};
+
+/**
  * Relation grammar. LINKING relations between the two signs of a curated
  * combination mark the thread as linked; `separated` keeps the pair as two
  * independent threads; `continuation_of` between two marks of ONE sign adds
@@ -381,6 +418,12 @@ function horizonOf(marks: CoffeeV3MapMark[]): CoffeeM1Horizon {
   if (known.length === 0) return 'unspecified';
   // Disagreeing placements give no special timing: the broad coming period.
   return known.length === 1 ? HORIZON_BY_BAND[known[0]] : 'coming_period';
+}
+
+/** One shared horizon when the developments agree; otherwise the broad coming period. */
+function aggregateHorizon(horizons: CoffeeM1Horizon[]): CoffeeM1Horizon {
+  const distinct = uniq(horizons);
+  return distinct.length === 1 ? distinct[0] : 'coming_period';
 }
 
 function signModifiers(group: SignGroup): CoffeeM1Modifier[] {
@@ -446,8 +489,6 @@ function signConjecture(sign: CoffeeM1Sign, modifiers: CoffeeM1Modifier[], subje
 function forbiddenFor(developments: CoffeeM1Development[]): CoffeeForbiddenSpecific[] {
   return uniq([...COMMON_FORBIDDEN, ...developments.flatMap((d) => FORBIDDEN_BY_DEVELOPMENT[d])]);
 }
-
-const VALENCE_RANK: Record<CoffeeM1Valence, number> = { cautionary: 0, neutral: 1, positive: 2 };
 
 export function interpretCoffeeV3MarkMap(
   map: CoffeeV3MarkMap,
@@ -549,7 +590,8 @@ export function interpretCoffeeV3MarkMap(
     consumed.add(second.sign);
     const pair = [first, second];
     const modifiers = uniq(pair.flatMap(signModifiers)).sort();
-    const valences = pair.map((g) => signValence(g.sign, signModifiers(g)));
+    const componentValences = pair.map((g) => signValence(g.sign, signModifiers(g)));
+    const developmentHorizons = pair.map((g) => ({ development: DEVELOPMENT_BY_SIGN[g.sign], horizon: horizonOf(g.marks) }));
     push(
       {
         developments: pair.map((g) => DEVELOPMENT_BY_SIGN[g.sign]),
@@ -557,9 +599,10 @@ export function interpretCoffeeV3MarkMap(
         linkage: linkedPairs.has(pairKey(first.sign, second.sign)) ? 'linked' : 'co_present',
         subject,
         subjectBinding: binding(pair.map((g) => g.sign)),
-        horizon: horizonOf(pair.flatMap((g) => g.marks)),
-        // The more careful of the two curated valences wins.
-        valence: valences.sort((x, y) => VALENCE_RANK[x] - VALENCE_RANK[y])[0],
+        horizon: aggregateHorizon(developmentHorizons.map((d) => d.horizon)),
+        developmentHorizons,
+        // Curated combination tone; a component's curated cautionary row still overrides.
+        valence: componentValences.includes('cautionary') ? 'cautionary' : COMBINATION_VALENCE[combo.id],
         modifiers,
         conjecture: uniq([
           ...pair.flatMap((g) => signConjecture(g.sign, signModifiers(g), subject)),
@@ -581,6 +624,7 @@ export function interpretCoffeeV3MarkMap(
         subject,
         subjectBinding: binding([group.sign]),
         horizon: horizonOf(group.marks),
+        developmentHorizons: [{ development: DEVELOPMENT_BY_SIGN[group.sign], horizon: horizonOf(group.marks) }],
         valence: signValence(group.sign, modifiers),
         modifiers,
         conjecture: signConjecture(group.sign, modifiers, subject),
@@ -625,8 +669,7 @@ export function coffeeM1Capacity(threads: CoffeeFortuneThread[], distinctIdentit
   const useful = threads.some(
     (t) =>
       t.combination !== null ||
-      t.horizon === 'nearer_term' ||
-      t.horizon === 'further_out' ||
+      t.developmentHorizons.some((d) => d.horizon === 'nearer_term' || d.horizon === 'further_out') ||
       t.modifiers.some((m) => m !== 'recurring'),
   );
   return developments.size >= 3 && distinctIdentityGroups >= 3 && useful ? 'rich' : 'multi_thread';
