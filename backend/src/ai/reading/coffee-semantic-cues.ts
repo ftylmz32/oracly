@@ -1,7 +1,7 @@
 import type { CoffeeObservation, ReadingEvidenceItem } from './types.js';
 import {
-  coffeeFold,
   coffeeMeaningFamily,
+  coffeeTermMatch,
   coffeeRegionState,
   type CoffeeMeaningFamily,
 } from './coffee-meaning-map.js';
@@ -49,12 +49,12 @@ const CUE_BY_FAMILY: Record<Exclude<CoffeeMeaningFamily, 'communication'>, Coffe
   home_close_circle: 'proximate_context',
 };
 
-/** Written word (letter / message / envelope) vs. contact arriving (bird). */
-const WRITTEN_SOURCE = /letter|mektup|message|mesaj|zarf|envelope/;
+/** Written word (letter / message / envelope) vs. contact arriving (bird). Lexical terms, never substrings. */
+const WRITTEN_TERMS = ['letter', 'mektup', 'message', 'mesaj', 'envelope', 'zarf'];
 
 function cueKind(item: ReadingEvidenceItem, family: CoffeeMeaningFamily): CoffeeSemanticCueKind {
   if (family !== 'communication') return CUE_BY_FAMILY[family];
-  return WRITTEN_SOURCE.test(coffeeFold(item.resemblance ?? '')) ? 'written_contact' : 'incoming_contact';
+  return coffeeTermMatch(item.resemblance ?? '', WRITTEN_TERMS) ? 'written_contact' : 'incoming_contact';
 }
 
 /** Same acceptance rules as `mapCoffeeMeanings`; cues refine, never widen, the facets. */

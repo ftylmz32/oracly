@@ -55,15 +55,16 @@ export function coffeeFold(value: string): string {
 /**
  * Token-boundary lexicon matcher. Folded text is split into letter/digit
  * tokens (whitespace, punctuation, hyphens and slashes all separate). A term
- * word matches one whole token, optionally followed by a plain plural/verb
- * inflection; a word ending in `*` is an explicit stem and matches any token
+ * word matches one whole token, optionally followed by a plain plural
+ * (English s/es, Turkish lar/ler) — never a verb ending, so "lettering" is
+ * not "letter"; a word ending in `*` is an explicit stem and matches any token
  * that starts with it; a word starting with `*` is an explicit compound head
  * ("*bird" → "seabird"). A multi-word term must match consecutive tokens.
  * Otherwise compounds never match their parts ("roadside", "keyhole",
  * "fishbone"), and a term never matches inside another word ("string",
  * "monkey", "hearth").
  */
-const TERM_INFLECTIONS = ['', 's', 'es', 'ed', 'ing', 'lar', 'ler'];
+const TERM_INFLECTIONS = ['', 's', 'es', 'lar', 'ler'];
 
 function coffeeTokens(folded: string): string[] {
   return folded.match(/[\p{L}\p{N}]+/gu) ?? [];
@@ -85,6 +86,11 @@ function coffeeLexiconMatch(tokens: string[], terms: readonly string[]): boolean
   });
 }
 
+/** True when `text` (folded here) contains one of `terms` as a lexical term. */
+export function coffeeTermMatch(text: string, terms: readonly string[]): boolean {
+  return coffeeLexiconMatch(coffeeTokens(coffeeFold(text)), terms);
+}
+
 /** Precedence is the array order. Terms are already coffeeFold-ed. */
 const FAMILY_LEXICON: ReadonlyArray<readonly [CoffeeMeaningFamily, readonly string[]]> = [
   ['communication', ['*bird', 'kus', 'letter', 'mektup', 'message', 'mesaj', 'envelope', 'zarf']],
@@ -96,7 +102,7 @@ const FAMILY_LEXICON: ReadonlyArray<readonly [CoffeeMeaningFamily, readonly stri
   ['growth', ['tree', 'agac']],
   ['social_relevance', ['person', 'figure', 'face', 'insan', 'kisi', 'siluet', 'yuz']],
 ];
-const CHOICE_TERMS = ['diverg*', 'fork', 'crossroad', 'ikiye ayr*', 'yol ayr*'];
+const CHOICE_TERMS = ['diverg*', 'fork', 'forked', 'crossroad', 'ikiye ayr*', 'yol ayr*'];
 
 /** Private source → broad family. Shared by the C2.11 semantic-cue layer. */
 export function coffeeMeaningFamily(item: ReadingEvidenceItem): CoffeeMeaningFamily | null {
