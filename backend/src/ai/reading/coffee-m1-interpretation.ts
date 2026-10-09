@@ -703,9 +703,19 @@ function intentReference(intention: CoffeeTrustedIntentionContext | null | undef
  * inferred, and the raw text is only carried as a user-provided reference.
  */
 export function interpretCoffeeV3MarkMap(
-  map: CoffeeV3MarkMap,
+  fullMap: CoffeeV3MarkMap,
   intention?: CoffeeTrustedIntentionContext | null,
 ): CoffeeM1Result {
+  // V3G1: an observed clear area is not residue; it never enters the
+  // object-sign lane (nor do relations that touch it).
+  const clear = new Set(fullMap.cupMarks.filter((m) => m.kind === 'clear_area').map((m) => m.id));
+  const map: CoffeeV3MarkMap = clear.size
+    ? {
+      ...fullMap,
+      cupMarks: fullMap.cupMarks.filter((m) => !clear.has(m.id)),
+      relations: fullMap.relations.filter((r) => !clear.has(r.a) && !clear.has(r.b)),
+    }
+    : fullMap;
   const subject = coffeeM1Subject(intention);
   const declared: CoffeeUserDeclaredFact[] = [...(intention?.declaredFacts ?? [])];
   const domainSections = trustedDomainSections(intention);

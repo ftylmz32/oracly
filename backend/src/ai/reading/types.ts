@@ -139,6 +139,20 @@ export type CoffeeV3Slot = (typeof COFFEE_V3_SLOTS)[number];
 
 export type CoffeeV3Surface = 'cup_wall' | 'cup_base' | 'saucer';
 export type CoffeeV3Band = 'rim_upper' | 'middle' | 'lower_base' | 'unknown';
+/** A known cup band (V3G1 band coverage never contains `unknown`). */
+export type CoffeeV3CupBand = Exclude<CoffeeV3Band, 'unknown'>;
+/**
+ * V3G1 — what a physical mark IS. `clear_area` is a positive observed empty
+ * space free of residue (never an absence inferred from missing data); it
+ * never carries a resemblance. Missing = residue (pre-V3G1 observations).
+ */
+export type CoffeeV3MarkKind = 'residue' | 'clear_area';
+/**
+ * V3G1 — physical topology of a residue mark: line (a line, trail or band),
+ * closed_loop (a closed loop of residue), pool (a filled pool), patch (a blob
+ * or patch), unknown. Missing = unknown. Never derived from a resemblance.
+ */
+export type CoffeeV3Topology = 'line' | 'closed_loop' | 'pool' | 'patch' | 'unknown';
 export type CoffeeV3HandleRelation = 'handle_near' | 'handle_opposite' | 'neutral' | 'unknown';
 export type CoffeeV3SaucerZone = 'center' | 'middle_ring' | 'edge' | 'unknown';
 
@@ -164,6 +178,11 @@ export type CoffeeV3Sighting = {
   rimClock: number | null;
   /** Saucer sightings only; null on the cup. */
   saucerZone: CoffeeV3SaucerZone | null;
+  /**
+   * V3G1 — every cup band this photo shows the mark crossing. Cup only;
+   * must include `band` when that is known; [] or missing = not stated.
+   */
+  bandCoverage?: CoffeeV3CupBand[];
   /** Literal visual description. Private. */
   description: string;
   visibility: VisibilityState;
@@ -186,6 +205,10 @@ export type CoffeeV3Resemblance = { label: string; strength: 'strong' | 'weak' }
 export type CoffeeV3Mark = {
   id: string;
   surface: CoffeeV3Surface;
+  /** V3G1; missing = residue. */
+  kind?: CoffeeV3MarkKind;
+  /** V3G1; missing = unknown. A clear area's topology is always unknown. */
+  topology?: CoffeeV3Topology;
   sightingIds: string[];
   form: CoffeeV3Form;
   /** 0–2 cautious candidates; empty is a valid, common answer. */

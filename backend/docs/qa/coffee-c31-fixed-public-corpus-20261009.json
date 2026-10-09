@@ -29,10 +29,10 @@
       "quality": "good",
       "whySameCup": "six labeled panels of one cup; identical square Greek-key saucer and identical residue (dark pool with a clear crescent, a streaky band climbing to the rim) in every panel; handle visible in every panel",
       "structures": [
-        { "id": "P1", "kind": "base pool", "band": "lower_base", "form": { "openness": "closed", "grouping": "isolated" }, "crossView": "CERTAIN" },
-        { "id": "P2", "kind": "streaky band climbing from the pool to the rim", "band": "middle", "form": { "continuity": "continuous", "verticalDirection": "rising" }, "crossView": "POSSIBLE" },
+        { "id": "P1", "kind": "base pool", "band": "lower_base", "form": { "openness": "closed", "grouping": "isolated" }, "crossView": "CERTAIN", "v3g1": { "topology": "pool", "source": "kind: 'base pool'" } },
+        { "id": "P2", "kind": "streaky band climbing from the pool to the rim", "band": "middle", "form": { "continuity": "continuous", "verticalDirection": "rising" }, "crossView": "POSSIBLE", "v3g1": { "topology": "line", "bandCoverage": ["rim_upper", "middle", "lower_base"], "source": "kind: 'streaky band climbing from the pool to the rim' (pool = lower_base, rim = rim_upper)" } },
         { "id": "P3", "kind": "feathered branching field on the opposite wall", "band": "middle", "form": { "course": "branching", "grouping": "clustered" }, "crossView": "POSSIBLE" },
-        { "id": "P4", "kind": "clear crescent area inside the pool", "band": "lower_base", "form": { "openness": "open" }, "crossView": "CERTAIN" }
+        { "id": "P4", "kind": "clear crescent area inside the pool", "band": "lower_base", "form": { "openness": "open" }, "crossView": "CERTAIN", "v3g1": { "markKind": "clear_area", "source": "kind: 'clear crescent area inside the pool' + relation P4 contained_by P1" } }
       ],
       "liberalExtras": ["rim clumps at the top of the band", "faint side smears"],
       "relations": [
@@ -61,10 +61,10 @@
       "quality": "good",
       "whySameCup": "a distinctive slanted oval dry patch appears in all four panels, together with the same rim clumps and the same wooden table; the handle is visible in two of four panels",
       "structures": [
-        { "id": "P1", "kind": "slanted oval dry patch", "band": "lower_base", "form": { "openness": "closed", "grouping": "isolated", "posture": "tilted" }, "crossView": "CERTAIN" },
+        { "id": "P1", "kind": "slanted oval dry patch", "band": "lower_base", "form": { "openness": "closed", "grouping": "isolated", "posture": "tilted" }, "crossView": "CERTAIN", "v3g1": { "topology": "patch", "source": "kind: 'slanted oval dry patch' (a patch; not recorded as clear, so NOT a clear area)" } },
         { "id": "P2", "kind": "rim clump group A", "band": "rim_upper", "form": { "grouping": "clustered" }, "crossView": "POSSIBLE" },
         { "id": "P3", "kind": "rim clump group B", "band": "rim_upper", "form": { "grouping": "clustered" }, "crossView": "POSSIBLE" },
-        { "id": "P4", "kind": "continuous wet trail from rim to base", "band": "middle", "form": { "continuity": "continuous", "verticalDirection": "descending" }, "crossView": "POSSIBLE" },
+        { "id": "P4", "kind": "continuous wet trail from rim to base", "band": "middle", "form": { "continuity": "continuous", "verticalDirection": "descending" }, "crossView": "POSSIBLE", "v3g1": { "topology": "line", "bandCoverage": ["rim_upper", "middle", "lower_base"], "source": "kind: 'continuous wet trail from rim to base'" } },
         { "id": "P5", "kind": "curved base pool / crescent band", "band": "lower_base", "form": { "course": "bending" }, "crossView": "CERTAIN" }
       ],
       "liberalExtras": ["speckle field near the base edge", "faint rim smear A", "faint rim smear B"],
@@ -95,8 +95,11 @@
       "whySameCup": "same pink-floral cup exterior and same ring-stained napkin in panels 1 and 3, and the same residue mass in all three panels; the article reports a real session with this cup",
       "structures": [
         { "id": "P1", "kind": "large upper network with enclosed clear islands", "band": "middle", "form": { "course": "branching", "grouping": "clustered" }, "crossView": "CERTAIN" },
-        { "id": "P2", "kind": "dark base pool", "band": "lower_base", "form": { "openness": "closed" }, "crossView": "CERTAIN" },
-        { "id": "P3", "kind": "lower dark band beyond a clear gap", "band": "lower_base", "form": { "continuity": "continuous" }, "crossView": "POSSIBLE" }
+        { "id": "P2", "kind": "dark base pool", "band": "lower_base", "form": { "openness": "closed" }, "crossView": "CERTAIN", "v3g1": { "topology": "pool", "source": "kind: 'dark base pool'" } },
+        { "id": "P3", "kind": "lower dark band beyond a clear gap", "band": "lower_base", "form": { "continuity": "continuous" }, "crossView": "POSSIBLE", "v3g1": { "topology": "line", "source": "kind: 'lower dark band beyond a clear gap' (no span beyond lower_base recorded)" } }
+      ],
+      "clearAreas": [
+        { "id": "P1C", "band": "middle", "enclosedBy": "P1", "source": "P1 kind: 'large upper network with enclosed clear islands'; the islands are recorded only as part of P1 (liberalExtras A/B), so they are ONE grouped clear-area source enclosed by P1, never two" }
       ],
       "liberalExtras": ["enclosed clear island A", "enclosed clear island B", "rim speckles"],
       "relations": [
@@ -126,8 +129,8 @@
       "whySameCup": "same uploader and camera, two minutes apart; the floral porcelain of the cup matches the saucer; same garden session",
       "structures": [
         { "id": "P1", "kind": "upper streak web", "band": "rim_upper", "form": { "course": "branching", "continuity": "broken" }, "crossView": "POSSIBLE" },
-        { "id": "P2", "kind": "mid-wall blob", "band": "middle", "form": { "grouping": "isolated" }, "crossView": "NOT_VISIBLE" },
-        { "id": "P3", "kind": "flooded base pool", "band": "lower_base", "form": {}, "crossView": "NOT_VISIBLE" }
+        { "id": "P2", "kind": "mid-wall blob", "band": "middle", "form": { "grouping": "isolated" }, "crossView": "NOT_VISIBLE", "v3g1": { "topology": "patch", "source": "kind: 'mid-wall blob'" } },
+        { "id": "P3", "kind": "flooded base pool", "band": "lower_base", "form": {}, "crossView": "NOT_VISIBLE", "v3g1": { "topology": "pool", "source": "kind: 'flooded base pool'" } }
       ],
       "saucerStructureList": [
         { "id": "S1", "kind": "crescent band with trailing tail", "form": { "course": "bending", "continuity": "continuous" } }
@@ -158,12 +161,12 @@
       "quality": "usable",
       "whySameCup": "the article states the protocol (one photo from each handle direction plus the saucer residue, one reading); the cover shows the same white cup with handle left and handle right and the matching saucer; same rim stain pattern in both cup views",
       "structures": [
-        { "id": "P1", "kind": "speckled base pool", "band": "lower_base", "form": { "grouping": "clustered" }, "crossView": "CERTAIN" },
-        { "id": "P2", "kind": "continuous rim stain band", "band": "rim_upper", "form": { "continuity": "continuous", "course": "bending" }, "crossView": "CERTAIN" },
+        { "id": "P1", "kind": "speckled base pool", "band": "lower_base", "form": { "grouping": "clustered" }, "crossView": "CERTAIN", "v3g1": { "topology": "pool", "source": "kind: 'speckled base pool'" } },
+        { "id": "P2", "kind": "continuous rim stain band", "band": "rim_upper", "form": { "continuity": "continuous", "course": "bending" }, "crossView": "CERTAIN", "v3g1": { "topology": "line", "bandCoverage": ["rim_upper"], "source": "kind: 'continuous rim stain band' (confined to the rim)" } },
         { "id": "P3", "kind": "dark drip from the rim on the far wall", "band": "rim_upper", "form": { "verticalDirection": "descending" }, "crossView": "POSSIBLE" }
       ],
       "saucerStructureList": [
-        { "id": "S1", "kind": "large loop band enclosing a clear area", "form": { "openness": "closed", "course": "bending" } },
+        { "id": "S1", "kind": "large loop band enclosing a clear area", "form": { "openness": "closed", "course": "bending" }, "v3g1": { "topology": "closed_loop", "source": "kind: 'large loop band enclosing a clear area' (saucer: ignored by M2)" } },
         { "id": "S2", "kind": "dark bar inside the loop", "form": { "course": "straight" } },
         { "id": "S3", "kind": "drip tails running to the saucer edge", "form": { "continuity": "continuous", "verticalDirection": "descending" } }
       ],
@@ -180,6 +183,10 @@
       "m1": { "strongSigns": [], "ambiguous": ["S1 loop as ring (a residue loop vs. a ring object)"], "unmappedStructures": 6, "developments": 0 }
     }
   ],
+  "v3g1": {
+    "date": "2026-10-10",
+    "note": "V3G1 physical fields (topology, bandCoverage, markKind, clearAreas) were added ONLY where the annotation text above already records the physical fact; no image was fetched or re-read. Ambiguous wording (HALIL P5 'curved base pool / crescent band', UNAL P3 drip span, BASAK P1 web topology) stays unknown."
+  },
   "summary": {
     "fixedSetsAttempted": 5,
     "qualified": 5,

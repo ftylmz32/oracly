@@ -193,7 +193,7 @@ const coffeeV3View = {
 const coffeeV3Sighting = {
   type: 'object',
   additionalProperties: false,
-  required: ['id', 'slot', 'surface', 'band', 'rimClock', 'saucerZone', 'description', 'visibility', 'confidence'],
+  required: ['id', 'slot', 'surface', 'band', 'rimClock', 'saucerZone', 'bandCoverage', 'description', 'visibility', 'confidence'],
   properties: {
     id: { type: 'string', minLength: 1, maxLength: 32 },
     slot: { type: 'string', enum: COFFEE_V3_SLOT_ENUM },
@@ -201,6 +201,7 @@ const coffeeV3Sighting = {
     band: { type: 'string', enum: ['rim_upper', 'middle', 'lower_base', 'unknown'] },
     rimClock: COFFEE_V3_CLOCK,
     saucerZone: { type: ['string', 'null'], enum: ['center', 'middle_ring', 'edge', 'unknown', null] },
+    bandCoverage: { type: 'array', items: { type: 'string', enum: ['rim_upper', 'middle', 'lower_base'] }, maxItems: 3 },
     description: { type: 'string', minLength: 4, maxLength: 160 },
     visibility: { type: 'string', enum: ['clear', 'partial', 'uncertain'] },
     confidence: COFFEE_V3_CONFIDENCE,
@@ -225,10 +226,12 @@ const coffeeV3Form = {
 const coffeeV3Mark = {
   type: 'object',
   additionalProperties: false,
-  required: ['id', 'surface', 'sightingIds', 'form', 'resemblances'],
+  required: ['id', 'surface', 'kind', 'topology', 'sightingIds', 'form', 'resemblances'],
   properties: {
     id: { type: 'string', minLength: 1, maxLength: 32 },
     surface: { type: 'string', enum: COFFEE_V3_SURFACE_ENUM },
+    kind: { type: 'string', enum: ['residue', 'clear_area'] },
+    topology: { type: 'string', enum: ['line', 'closed_loop', 'pool', 'patch', 'unknown'] },
     sightingIds: { type: 'array', items: { type: 'string', minLength: 1, maxLength: 32 }, minItems: 1, maxItems: 4 },
     form: coffeeV3Form,
     resemblances: {

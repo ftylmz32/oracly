@@ -6,6 +6,9 @@ import { buildCoffeeV3MarkMap, type CoffeeV3MarkMap } from '../../src/ai/reading
 import type {
   CoffeeMultiViewObservationV3,
   CoffeeV3Band,
+  CoffeeV3CupBand,
+  CoffeeV3MarkKind,
+  CoffeeV3Topology,
   CoffeeV3Form,
   CoffeeV3Mark,
   CoffeeV3Relation,
@@ -54,6 +57,14 @@ export type M1MarkSpec = {
   confidence?: CoffeeV3Sighting['confidence'];
   form?: Partial<CoffeeV3Form>;
   saucer?: boolean;
+  /** V3G1: residue (default) or an observed clear area (never a candidate). */
+  kind?: CoffeeV3MarkKind;
+  /** V3G1: physical topology (default unknown). */
+  topology?: CoffeeV3Topology;
+  /** V3G1: explicit cup band coverage stated on every sighting of this mark. */
+  bandCoverage?: CoffeeV3CupBand[];
+  /** Cup surface (default cup_wall). */
+  surface?: 'cup_wall' | 'cup_base';
 };
 
 export type M1FixtureSpec = {
@@ -73,18 +84,21 @@ export function m1Observation(spec: M1FixtureSpec): CoffeeMultiViewObservationV3
       sightings.push({
         id: ids[index],
         slot,
-        surface: slot === 'saucer' ? 'saucer' : 'cup_wall',
+        surface: slot === 'saucer' ? 'saucer' : (m.surface ?? 'cup_wall'),
         band: slot === 'saucer' ? 'unknown' : (m.band ?? 'middle'),
         rimClock: slot === 'saucer' ? null : rimAt(slot, m.hours ?? 3),
         saucerZone: slot === 'saucer' ? 'center' : null,
-        description: 'A dark compact residue mark with a soft edge.',
+        ...(m.bandCoverage && slot !== 'saucer' ? { bandCoverage: [...m.bandCoverage] } : {}),
+        description: m.kind === 'clear_area' ? 'A clearly visible empty area free of residue.' : 'A dark compact residue mark with a soft edge.',
         visibility: m.visibility ?? 'clear',
         confidence: m.confidence ?? 'high',
       }),
     );
     marks.push({
       id: m.id,
-      surface: m.saucer ? 'saucer' : 'cup_wall',
+      surface: m.saucer ? 'saucer' : (m.surface ?? 'cup_wall'),
+      ...(m.kind ? { kind: m.kind } : {}),
+      ...(m.topology ? { topology: m.topology } : {}),
       sightingIds: ids,
       form: { ...FORM, ...m.form },
       resemblances: m.resemblances ?? (m.label ? [{ label: m.label, strength: 'strong' }] : []),

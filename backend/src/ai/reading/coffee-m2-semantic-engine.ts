@@ -38,20 +38,16 @@ import type { CoffeeV3Band, CoffeeV3RelationKind } from './types.js';
 // ---------------------------------------------------------------------------
 
 /**
- * V3 marks are RESIDUE marks with a single merged band. The current contract
- * therefore cannot deterministically represent:
- * - a clear / empty area (open or enclosed): opening_clarity and room_within
- *   have no source, so they are never derived from the mark map;
- * - a closed loop on the cup wall as distinct from a pool or blob:
- *   within_one_phase has no source;
- * - a line's cross-band span: span is only inferred from a vertical
- *   orientation of a middle-band line (see `structureMeaning`).
+ * V3G1 closed the three physical gaps M2 used to report, each by an explicit
+ * physical field (never by inference):
+ * - clear areas: `kind: 'clear_area'` (+ explicit `contained_by` for an
+ *   enclosed one) -> opening_clarity / room_within;
+ * - wall loop vs pool / blob: `topology` (`closed_loop` on the cup wall vs
+ *   `pool` / `patch`) -> within_one_phase;
+ * - line span: per-sighting `bandCoverage` normalized to `bandSpan`; the old
+ *   vertical-direction surrogate is retired.
  */
-export const COFFEE_M2_CONTRACT_GAPS = [
-  'clear_area_not_representable',
-  'wall_loop_not_distinguishable_from_pool_or_blob',
-  'line_span_not_encoded',
-] as const;
+export const COFFEE_M2_CONTRACT_GAPS: readonly string[] = [];
 
 // ---------------------------------------------------------------------------
 // Structure-first lane
@@ -79,29 +75,49 @@ const FAMILY: Record<CoffeeM2StructuralMeaning, StructureFamily> = {
 /**
  * Tier-1 structural meaning of ONE physical mark that no strong object sign
  * owns, or null (tier 3 context: pools, blobs, partial bands, rim stains).
- *
- * - branching course → possibilities_branch (a broken branching web keeps one
- *   meaning and gains the `stop_start` quality, never a second thread);
- * - continuous / broken line → a course meaning ONLY when it is not confined
- *   to the rim band (V3 cannot tell a rim stain from a rim-origin trail) AND
- *   either its course is known, or it is a middle-band line with a vertical
- *   orientation (the only available evidence that it spans bands).
- * The VALUE of a trail's vertical direction never changes the meaning:
- * rising and descending are treated identically (gravity makes drips).
+ * Deterministic precedence:
+ * 1. an observed clear area -> opening_clarity (room_within comes only from an
+ *    explicit contained_by relation, added by the engine);
+ * 2. explicit pool / patch topology -> context (never a course or web);
+ * 3. branching course -> possibilities_branch (a broken branching web keeps one
+ *    meaning and gains the `stop_start` quality, never a second thread);
+ * 4. continuous / broken line -> a course meaning ONLY when it is not confined
+ *    to the rim band (explicit span when stated, else its band: a rim stain
+ *    is never a course) AND either its course is known or its EXPLICIT band
+ *    span crosses two or more bands. The vertical direction value carries no
+ *    meaning and is no longer span evidence.
+ * A cup-wall closed loop adds within_one_phase to a structure that already
+ * qualifies; on its own it is context (no phantom thread).
  */
 export function coffeeM2StructureMeaning(
-  mark: Pick<CoffeeV3MapMark, 'band' | 'form'>,
+  mark: Pick<CoffeeV3MapMark, 'band' | 'form'> & Partial<Pick<CoffeeV3MapMark, 'kind' | 'topology' | 'bandSpan' | 'surface'>>,
 ): { meaning: CoffeeM2StructuralMeaning; modifiers: CoffeeM2StructuralModifier[] } | null {
   const { form, band } = mark;
+  if (mark.kind === 'clear_area') return { meaning: 'opening_clarity', modifiers: [] };
+  const topology = mark.topology ?? 'unknown';
+  if (topology === 'pool' || topology === 'patch') return null;
+  const result = residueStructure(form, band, mark.bandSpan ?? null);
+  if (result && topology === 'closed_loop' && mark.surface === 'cup_wall') {
+    const modifiers = new Set<CoffeeM2StructuralModifier>([...result.modifiers, 'within_one_phase']);
+    return { meaning: result.meaning, modifiers: [...modifiers].sort() };
+  }
+  return result;
+}
+
+function residueStructure(
+  form: CoffeeV3MapMark['form'],
+  band: CoffeeV3MapMark['band'],
+  span: CoffeeV3MapMark['bandSpan'],
+): { meaning: CoffeeM2StructuralMeaning; modifiers: CoffeeM2StructuralModifier[] } | null {
   if (form.course === 'branching') {
     return { meaning: 'possibilities_branch', modifiers: form.continuity === 'broken' ? ['stop_start'] : [] };
   }
   if (form.continuity !== 'continuous' && form.continuity !== 'broken') return null;
-  if (band === 'rim_upper') return null;
+  const confinedToRim = span ? span.every((b) => b === 'rim_upper') : band === 'rim_upper';
+  if (confinedToRim) return null;
   const courseKnown = form.course === 'straight' || form.course === 'bending';
-  const verticalSpan =
-    band === 'middle' && (form.verticalDirection === 'rising' || form.verticalDirection === 'descending');
-  if (!courseKnown && !verticalSpan) return null;
+  const crossBand = !!span && span.length >= 2;
+  if (!courseKnown && !crossBand) return null;
   if (form.continuity === 'broken') return { meaning: 'stop_start_course', modifiers: [] };
   return { meaning: form.course === 'bending' ? 'course_turn' : 'steady_course', modifiers: [] };
 }
@@ -564,6 +580,10 @@ export function interpretCoffeeM2(
     if (ma && mb && relation.kind === 'separated') {
       separatedFamilies.add([FAMILY[ma.meaning], FAMILY[mb.meaning]].sort().join('|'));
     }
+    // V3G1: an observed clear area explicitly contained by a cup structure is an enclosed opening.
+    if (relation.kind === 'contained_by' && ma && markById.get(relation.a)?.kind === 'clear_area') {
+      addExtra(ga, 'room_within');
+    }
     // A speckle cluster enriches a neighbouring meaningful structure; on its own it is context.
     for (const [host, other] of [[ga, gb], [gb, ga]] as const) {
       const otherMarks = groupMarks.get(other) ?? [];
@@ -594,7 +614,8 @@ export function interpretCoffeeM2(
       return {
         meaning,
         groups: [...groups].sort(),
-        bands: members.map((m) => m.band),
+        // V3G1: an explicit cross-band span places the source on every band it crosses.
+        bands: members.flatMap((m) => (m.bandSpan?.length ? m.bandSpan : [m.band])),
         modifiers: [...modifiers].sort(),
         closeCircle: members.some((m) => m.handleRelation === 'handle_near'),
       };

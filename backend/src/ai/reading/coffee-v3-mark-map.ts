@@ -3,7 +3,10 @@ import {
   COFFEE_V3_SLOTS,
   type CoffeeMultiViewObservationV3,
   type CoffeeV3Band,
+  type CoffeeV3CupBand,
   type CoffeeV3Form,
+  type CoffeeV3MarkKind,
+  type CoffeeV3Topology,
   type CoffeeV3HandleRelation,
   type CoffeeV3Mark,
   type CoffeeV3RelationKind,
@@ -41,7 +44,13 @@ export type CoffeeV3StructuralFailure =
   | 'duplicate_relation'
   | 'unknown_ambiguity_mark'
   | 'self_ambiguity'
-  | 'duplicate_ambiguity';
+  | 'duplicate_ambiguity'
+  // V3G1
+  | 'clear_area_resemblance'
+  | 'clear_area_topology'
+  | 'invalid_band_coverage'
+  | 'saucer_band_coverage'
+  | 'cross_kind_ambiguity';
 
 /** One accepted physical mark, machine-only. No observer prose except the candidate labels M1 will read. */
 export type CoffeeV3MapMark = {
@@ -57,6 +66,16 @@ export type CoffeeV3MapMark = {
   handleRelation: CoffeeV3HandleRelation | null;
   /** Saucer only; null on the cup. */
   saucerZone: CoffeeV3SaucerZone | null;
+  /** V3G1: residue or an observed clear area (a clear area never has a usable candidate). */
+  kind: CoffeeV3MarkKind;
+  /** V3G1: physical topology; `unknown` when not stated. */
+  topology: CoffeeV3Topology;
+  /**
+   * V3G1: the cup bands this physical mark is EXPLICITLY seen to cross: the
+   * union of its sightings' stated bandCoverage, in rim → base order. Null
+   * when no sighting states coverage (never invented by a merge). Cup only.
+   */
+  bandSpan: CoffeeV3CupBand[] | null;
   form: CoffeeV3Form;
   /** Stored candidates; `usable` is the only quality outcome that leaves this module. */
   candidates: Array<{ label: string; usable: boolean }>;
@@ -135,17 +154,26 @@ function structuralFailure(obs: CoffeeMultiViewObservationV3): CoffeeV3Structura
     if (sightings.has(sighting.id)) return 'duplicate_sighting_id';
     if (!viewSlots.has(sighting.slot)) return 'unknown_view';
     if ((sighting.slot === 'saucer') !== isSaucer(sighting.surface)) return 'slot_surface_mismatch';
+    const coverage = sighting.bandCoverage ?? [];
+    if (coverage.length) {
+      if (isSaucer(sighting.surface)) return 'saucer_band_coverage';
+      if (coverage.some((b) => !(b in BAND_ORDER)) || new Set(coverage).size !== coverage.length) return 'invalid_band_coverage';
+      if (sighting.band !== 'unknown' && !coverage.includes(sighting.band)) return 'invalid_band_coverage';
+    }
     sightings.set(sighting.id, sighting);
   }
   const markIds = new Set<string>();
   const owner = new Map<string, string>();
   const surfaceOf = new Map<string, CoffeeV3Surface>();
+  const kindOf = new Map(obs.marks.map((m) => [m.id, m.kind ?? 'residue']));
   for (const mark of obs.marks) {
     if (markIds.has(mark.id)) return 'duplicate_mark_id';
     markIds.add(mark.id);
     surfaceOf.set(mark.id, mark.surface);
     if (mark.sightingIds.length === 0) return 'empty_mark';
     if (mark.resemblances.length > 2) return 'too_many_resemblances';
+    if (mark.kind === 'clear_area' && mark.resemblances.length > 0) return 'clear_area_resemblance';
+    if (mark.kind === 'clear_area' && (mark.topology ?? 'unknown') !== 'unknown') return 'clear_area_topology';
     for (const id of mark.sightingIds) {
       const sighting = sightings.get(id);
       if (!sighting) return 'unknown_sighting';
@@ -171,6 +199,7 @@ function structuralFailure(obs: CoffeeMultiViewObservationV3): CoffeeV3Structura
     const [a, b] = ambiguity.marks;
     if (!markIds.has(a) || !markIds.has(b)) return 'unknown_ambiguity_mark';
     if (a === b) return 'self_ambiguity';
+    if ((kindOf.get(a) ?? 'residue') !== (kindOf.get(b) ?? 'residue')) return 'cross_kind_ambiguity';
     const key = pairKey(a, b);
     if (ambiguityPairs.has(key)) return 'duplicate_ambiguity';
     ambiguityPairs.add(key);
@@ -242,6 +271,13 @@ function markBand(sightings: CoffeeV3Sighting[]): CoffeeV3Band {
       (SLOT_ORDER.get(a.slot) ?? 0) - (SLOT_ORDER.get(b.slot) ?? 0),
   )[0];
   return best.band;
+}
+
+/** V3G1: union of the sightings' explicit band coverage, rim → base; null when none states it. */
+function bandSpan(sightings: CoffeeV3Sighting[]): CoffeeV3CupBand[] | null {
+  const stated = sightings.flatMap((s) => s.bandCoverage ?? []);
+  if (stated.length === 0) return null;
+  return [...new Set(stated)].sort((a, b) => BAND_ORDER[a] - BAND_ORDER[b]);
 }
 
 function candidates(mark: CoffeeV3Mark, sightings: CoffeeV3Sighting[]): CoffeeV3MapMark['candidates'] {
@@ -346,6 +382,9 @@ export function buildCoffeeV3MarkMap(obs: CoffeeMultiViewObservationV3): CoffeeV
       band: saucer ? null : markBand(own),
       handleRelation: saucer ? null : coffeeV3HandleRelation(angles.length ? circularMean(angles) : null),
       saucerZone: saucer ? (own[0].saucerZone ?? 'unknown') : null,
+      kind: mark.kind ?? 'residue',
+      topology: mark.topology ?? 'unknown',
+      bandSpan: saucer ? null : bandSpan(own),
       form: { ...mark.form },
       candidates: candidates(mark, own),
     };

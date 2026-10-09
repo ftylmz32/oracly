@@ -72,9 +72,13 @@ describe('M2 structure lane (A–J)', () => {
     expect(audit.contextGroups).toEqual(['M1']);
   });
 
-  it('J: a trail\'s vertical direction value changes nothing (it is only span evidence)', () => {
-    const rising = only({ marks: [struct('M1', { continuity: 'continuous', verticalDirection: 'rising' })] });
-    const descending = only({ marks: [struct('M1', { continuity: 'continuous', verticalDirection: 'descending' })] });
+  it('J: a trail\'s vertical direction value changes nothing and is NOT span evidence (V3G1: explicit bandCoverage only)', () => {
+    // Without explicit span, a vertical middle-band trail is no longer a course.
+    expect(run({ marks: [struct('M1', { continuity: 'continuous', verticalDirection: 'rising' })] }).meaning.threads).toEqual([]);
+    expect(run({ marks: [struct('M1', { continuity: 'continuous', verticalDirection: 'descending' })] }).meaning.threads).toEqual([]);
+    const span = { bandCoverage: ['rim_upper', 'middle', 'lower_base'] as Array<'rim_upper' | 'middle' | 'lower_base'> };
+    const rising = only({ marks: [struct('M1', { continuity: 'continuous', verticalDirection: 'rising' }, 'middle', span)] });
+    const descending = only({ marks: [struct('M1', { continuity: 'continuous', verticalDirection: 'descending' }, 'middle', span)] });
     expect(rising).toEqual(descending);
     expect(rising.developments).toEqual(['steady_course']);
     // Without a known course or span evidence there is no course at all.
@@ -321,11 +325,20 @@ describe('M2 C3.1 replay (committed annotations)', () => {
     const t = only(c31Spec('C3F-HALIL'), CANONICAL_INTENTION_TEXT.career_work);
     expect(t).toMatchObject({ developments: ['steady_course'], domain: 'career', depth: 'thin' });
   });
-  it('GAZETA + decision: possibilities; room_within is a CONTRACT GAP so depth is thin, not developed', () => {
-    const t = only(c31Spec('C3F-GAZETA'), 'Önümdeki seçenekler arasında ne yapacağımı düşünüyorum.');
+  it('GAZETA + decision: structure-only projection stays thin; with its recorded enclosed clear area (V3G1) it becomes deep', () => {
+    const intention = 'Önümdeki seçenekler arasında ne yapacağımı düşünüyorum.';
+    const t = only(c31Spec('C3F-GAZETA'), intention);
     expect(t).toMatchObject({ developments: ['possibilities_branch'], contextBindings: ['user_decision'], depth: 'thin' });
     expect(t.modifiers).not.toContain('room_within');
-    expect(COFFEE_M2_CONTRACT_GAPS).toContain('clear_area_not_representable');
+    const v = only(c31Spec('C3F-GAZETA', { clearAreas: true }), intention);
+    expect(v).toMatchObject({
+      developments: ['opening_clarity', 'possibilities_branch'],
+      combination: 'possibilities_become_visible',
+      contextBindings: ['user_decision'],
+      depth: 'deep',
+    });
+    expect(v.modifiers).toContain('room_within');
+    expect(COFFEE_M2_CONTRACT_GAPS).toEqual([]);
   });
   it('BASAK + money: possibilities + uneven + near + financial → deep', () => {
     const t = only(c31Spec('C3F-BASAK'), CANONICAL_INTENTION_TEXT.money_finance);
