@@ -110,8 +110,39 @@ export function coffeeSemanticEvidence(item: ReadingEvidenceItem): boolean {
  * meetings, errands, news, free time, routine or an established order.
  * A clean / open area may still carry its traditional open kısmet.
  */
-const CONTEXT_EVENT =
-  /karsilas|bulus|gorusme|ziyaret|misafir|haber|mesaj|telefon|davet|toplanti|sohbet|ugras|\bvakit|rutin|duzen|\bisler(i|in)?\b/;
+/**
+ * Event lexemes, matched on whole folded tokens and reported by a canonical
+ * key (so "haber" and "haberi" are the same established event). A noun
+ * lexeme takes only Turkish plural / possessive / case / copula suffixes, so
+ * a derived adjective or compound ("davetkâr", "haberdar", "düzenli",
+ * "habercisi") is not the event. A verb stem (`stem*`) takes any verbal
+ * suffix ("buluşacak", "karşılaşma", "mesajlaşma").
+ */
+const CONTEXT_EVENT_LEXEMES: ReadonlyArray<readonly [key: string, forms: readonly string[]]> = [
+  ['karsilas', ['karsilas*']],
+  ['bulus', ['bulus*']],
+  ['gorusme', ['gorusme']],
+  ['ziyaret', ['ziyaret', 'ziyaretci']],
+  ['misafir', ['misafir']],
+  ['haber', ['haber', 'haberles*']],
+  ['mesaj', ['mesaj', 'mesajlas*']],
+  ['telefon', ['telefon']],
+  ['davet', ['davet']],
+  ['toplanti', ['toplanti']],
+  ['sohbet', ['sohbet']],
+  ['ugras', ['ugras*']],
+  ['vakit', ['vakit']],
+  ['rutin', ['rutin']],
+  ['duzen', ['duzen']],
+  ['isler', ['isler']],
+];
+const NOUN_SUFFIX =
+  /^(l[ae]r)?([iu]|s[iu]|[iu]m|[iu]n|[iu]m[iu]z|[iu]n[iu]z)?(n?[iu]n|[ny]?[iu]|[ny]?[ae]|n?[dt][ae]|n?[dt][ae]n|y?l[ae])?([dt][iu]r)?$/;
+
+function eventFormMatches(token: string, form: string): boolean {
+  if (form.endsWith('*')) return token.startsWith(form.slice(0, -1));
+  return token.startsWith(form) && NOUN_SUFFIX.test(token.slice(form.length));
+}
 const CONTEXT_KISMET = /kismet/;
 /**
  * Life categories: dots / faint marks / a clean band may give "several small
@@ -204,8 +235,14 @@ export function coffeePlainLineRelocation(sections: string[], evidence: ReadingE
 /** A sentence that lists what is NOT there is absence talk, not a promoted event. */
 const CONTEXT_NEGATED = /\bne\b[^.!?;]{1,40}\bne\b|\byok\b|\bdegil\b|\w+(mamis|memis|miyor|muyor|mez|maz)\b/;
 
+/** Canonical event keys named in the text, one per matching token. */
 function eventHits(text: string): string[] {
-  return [...foldTr(text).matchAll(new RegExp(CONTEXT_EVENT.source, 'g'))].map((m) => m[0]);
+  const hits: string[] = [];
+  for (const token of foldTr(text).match(/[\p{L}\p{N}]+/gu) ?? []) {
+    const lexeme = CONTEXT_EVENT_LEXEMES.find(([, forms]) => forms.some((form) => eventFormMatches(token, form)));
+    if (lexeme) hits.push(lexeme[0]);
+  }
+  return hits;
 }
 
 /**
