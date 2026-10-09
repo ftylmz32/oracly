@@ -331,13 +331,17 @@ describe('W4A enriched writer payload (P–W)', () => {
 });
 
 describe('W4A dark path', () => {
-  it('nothing in src imports the surface bank', () => {
+  it('nothing live imports the surface bank; only the dark W4C realization policy does', () => {
     const src = resolve(process.cwd(), 'src');
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((name) => {
         const path = join(dir, name);
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
-    expect(walk(src).filter((p) => /coffee-m2-turkish-surface-bank/.test(readFileSync(p, 'utf8')))).toEqual([]);
+    expect(
+      walk(src)
+        .filter((p) => /coffee-m2-turkish-surface-bank/.test(readFileSync(p, 'utf8')))
+        .map((p) => p.slice(src.length + 1).replace(/\\/g, '/')),
+    ).toEqual(['ai/reading/coffee-m2-turkish-realization-policy.ts']);
   });
 });

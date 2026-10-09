@@ -49,7 +49,7 @@ type Rows = Readonly<Record<string, CoffeeTurkishSurfaceRow>>;
 /** Report language, abstract nouns, AI / disclaimer wording and empty fortune clichés. */
 export const COFFEE_TURKISH_GLOBAL_AVOID: readonly string[] = [
   // report / abstract register
-  'seyir taşıyor', 'nitelik taşıyor', 'bir durum mevcut', 'tema', 'hareket dinamiği', 'dinamik', 'olasılık alanı',
+  'seyir taşıyor', 'nitelik taşıyor', 'bir durum mevcut', 'tema', 'hareket dinamiği', 'dinamik', 'olasılık alanı', 'aynı hareketin parçası',
   'iki yüzü olarak duruyor', 'aynı gönül meselesinin iki yüzü', 'belirgin bir tablo sunuyor', 'süreç', 'hareket alanı',
   'gelişim potansiyeli', 'zemin', 'işaret ediyor', 'öne çık', 'belirginleş', 'pozitif enerji',
   // reading-about-reading / AI / disclaimer
@@ -289,7 +289,7 @@ export const COFFEE_TURKISH_RELATION_WORDING: Rows = {
         'yol aldıkça birkaç ayrı ihtimale açılıyor',
         'ilerledikçe tek bir hatta kalmıyor, birkaç yöne ayrılıyor',
         'yürüdükçe önünde birden fazla yol beliriyor',
-        'yerinde saymıyor; ilerleyen bu konunun içinde birkaç seçenek birden beliriyor',
+        'yerinde saymıyor; ilerledikçe önüne birkaç seçenek birden çıkıyor',
         'kendi akışında ilerlerken birkaç ayrı ihtimale açılıyor',
       ],
     },
@@ -317,7 +317,7 @@ export const COFFEE_TURKISH_RELATION_WORDING: Rows = {
         'önünü açan şey yeni bir yönün içinden geliyor',
         'bu yol, yeni bir yönün içinden geçiyor',
         'yolun döndüğü yerde önün de açılıyor',
-        'açılan yol ile yeni yön aynı hareketin parçası',
+        'önündeki yol açılırken yeni bir yöne de kıvrılıyor',
         'yeni bir yöne dönüşle birlikte önün açılıyor',
       ],
     },
@@ -331,7 +331,7 @@ export const COFFEE_TURKISH_RELATION_WORDING: Rows = {
         'duyguların derinleşirken bağ da kalıcı bir hâl almaya doğru gidiyor',
         'kalıcı bir bağ ihtimali, derinleşen duygularla birlikte geliyor',
         'bağ ciddileşirken duyguların da derinleşiyor',
-        'kalpten gelen bir derinlikle birlikte kalıcı bir bağ ihtimali beliriyor',
+        'duyguların derinleştikçe bağ da daha kalıcı bir hâl alıyor',
       ],
     },
     avoid: ['iki yüzü', 'gönül meselesi', 'seni seviyor'],
@@ -407,7 +407,7 @@ export const COFFEE_TURKISH_RELATION_WORDING: Rows = {
         'açılan yol kendi akışında ilerliyor',
         'önün açılırken konu da yoluna devam ediyor',
         'açılan yol yerinde saymıyor, ilerliyor',
-        'açılan yol ile ilerleyen konu aynı hareketin parçası',
+        'önün açılırken işler de yerinde saymıyor',
       ],
     },
   },

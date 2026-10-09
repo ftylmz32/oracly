@@ -476,8 +476,8 @@ describe('W2 dark path', () => {
       .map((path) => path.slice(src.length + 1).replace(/\\/g, '/'))
       .sort();
 
-  it('nothing live imports the W2 planner (no routing, pipeline, worker, writer or public API); only the dark W4A surface bank does', () => {
-    expect(users(/coffee-m2-writer-beat-plan/)).toEqual(['ai/reading/coffee-m2-turkish-surface-bank.ts']);
+  it('nothing live imports the W2 planner (no routing, pipeline, worker, writer or public API); only the dark W4A bank and W4C policy do', () => {
+    expect(users(/coffee-m2-writer-beat-plan/)).toEqual(['ai/reading/coffee-m2-turkish-realization-policy.ts', 'ai/reading/coffee-m2-turkish-surface-bank.ts']);
   });
 
   it('only the dark W2 planner imports M2', () => {
