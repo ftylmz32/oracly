@@ -8,12 +8,22 @@ import {
   interpretCoffeeV3MarkMap,
   type CoffeeFortuneThread,
 } from '../src/ai/reading/coffee-m1-interpretation.js';
+import { classifyCoffeeIntention } from '../src/ai/reading/coffee-intention-context.js';
 import { assertCoffeeV3MeaningOnly } from '../src/ai/reading/coffee-v3-mark-map.js';
-import { M1_QA_CUPS, m1Map, type M1FixtureSpec } from './fixtures/coffee-m1-fixtures.js';
+import {
+  M12_RELEVANCE_CUPS,
+  M1_QA_CUPS,
+  canonicalIntention,
+  m1Map,
+  type CanonicalSubject,
+  type M1FixtureSpec,
+} from './fixtures/coffee-m1-fixtures.js';
 
-const run = (spec: M1FixtureSpec, subject: Parameters<typeof interpretCoffeeV3MarkMap>[1] = null) =>
-  interpretCoffeeV3MarkMap(m1Map(spec), subject);
-const only = (spec: M1FixtureSpec, subject: Parameters<typeof interpretCoffeeV3MarkMap>[1] = null): CoffeeFortuneThread => {
+/** A canonical subject kind runs through the REAL classifier; a context is used as given. */
+type SubjectInput = CanonicalSubject | Parameters<typeof interpretCoffeeV3MarkMap>[1];
+const context = (subject: SubjectInput) => (typeof subject === 'string' ? canonicalIntention(subject) : subject);
+const run = (spec: M1FixtureSpec, subject: SubjectInput = null) => interpretCoffeeV3MarkMap(m1Map(spec), context(subject));
+const only = (spec: M1FixtureSpec, subject: SubjectInput = null): CoffeeFortuneThread => {
   const { meaning } = run(spec, subject);
   expect(meaning.threads).toHaveLength(1);
   return meaning.threads[0];
@@ -295,7 +305,7 @@ describe('M1 fixture matrix', () => {
 describe('M1 privacy and dark path (X)', () => {
   it('X: every M1 meaning output passes the V3 meaning-only assertion; audit carries the ids', () => {
     for (const [name, cup] of Object.entries(M1_QA_CUPS)) {
-      const result = interpretCoffeeV3MarkMap(m1Map(cup.spec), cup.subject);
+      const result = interpretCoffeeV3MarkMap(m1Map(cup.spec), context(cup.subject));
       expect(() => assertCoffeeV3MeaningOnly(result.meaning), name).not.toThrow();
       expect(JSON.stringify(result.meaning), name).not.toMatch(/"M\d|identityGroup|evidence/);
     }
@@ -356,7 +366,7 @@ describe('M1.1 component horizons', () => {
 
   it('5/6: no date token anywhere and the meaning-only assertion still passes', () => {
     for (const cup of Object.values(M1_QA_CUPS)) {
-      const { meaning } = interpretCoffeeV3MarkMap(m1Map(cup.spec), cup.subject);
+      const { meaning } = interpretCoffeeV3MarkMap(m1Map(cup.spec), context(cup.subject));
       expect(() => assertCoffeeV3MeaningOnly(meaning)).not.toThrow();
       const text = JSON.stringify(meaning.threads.map(({ forbiddenSpecifics: _f, ...rest }) => rest));
       expect(text).not.toMatch(/date|day|week|month|ocak|subat|mart|nisan|haziran|\d{4}/i);
@@ -413,5 +423,187 @@ describe('M1.1 curated combination valence', () => {
   it('not everything is positive: single neutral signs stay neutral', () => {
     expect(only({ marks: [{ id: 'M1', label: 'a bird' }] }).valence).toBe('neutral');
     expect(only({ marks: [{ id: 'M1', label: 'a crossroad' }] }).valence).toBe('neutral');
+  });
+});
+
+describe('M1.2 trusted intention depth', () => {
+  const ctx = (text: string) => {
+    const c = classifyCoffeeIntention(text);
+    if (!c) throw new Error('no context');
+    return c;
+  };
+  const forbiddenOverreach = /partner|their_|they_|response_will|positive_response|which_option|employer|boss|ex_|debt|interview|will_answer|return/;
+
+  it('A: general + bird → no invented personal context', () => {
+    const { meaning } = run({ marks: [{ id: 'M1', label: 'a bird' }] }, 'general');
+    expect(meaning).toMatchObject({ subject: 'general', declaredContext: [], intentReference: { kind: 'canonical_choice' } });
+    expect(meaning.threads[0]).toMatchObject({ contextBindings: [], domain: null, contextForbidden: [] });
+  });
+
+  it('B: person_of_interest + bird → chosen-person binding with Contract B bans intact', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a bird' }] }, 'person_of_interest');
+    expect(t).toMatchObject({ subjectBinding: 'person_of_interest', contextBindings: ['chosen_person'], domain: null });
+    expect(t.conjecture).toContain('communication_about_chosen_person');
+    expect(t.conjecture.join(' ')).not.toMatch(/return|miss|love_development|think|reconcil|intend|call|text/);
+    expect(t.forbiddenSpecifics).toEqual(
+      expect.arrayContaining(['other_person_action', 'other_person_feelings', 'other_person_intent', 'relationship_history', 'guaranteed_contact']),
+    );
+  });
+
+  it('C: custom decision + choice → decision-bound thread', () => {
+    const decision = ctx('Bir karar vermem gerekiyor.');
+    expect(decision).toMatchObject({ subjectKind: 'custom_decision', declaredFacts: ['decision_exists'] });
+    const t = only({ marks: [{ id: 'M1', label: 'a crossroad' }] }, decision);
+    expect(t).toMatchObject({ subject: 'custom_decision', contextBindings: ['user_decision'] });
+    expect(t.conjecture).toContain('decision_clarity');
+    expect(t.contextForbidden).toEqual(['option_identity', 'correct_option']);
+    expect(t.forbiddenSpecifics).toContain('invented_options');
+  });
+
+  it('D: custom decision + direction → decision-direction permission', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a road', form: { course: 'bending' } }] }, ctx('Bir karar vermem gerekiyor.'));
+    expect(t.contextBindings).toEqual(['user_decision']);
+    expect(t.conjecture).toEqual(expect.arrayContaining(['new_direction', 'new_beginning', 'decision_direction']));
+  });
+
+  it('E: custom decision + an unrelated bird stays ordinary contact', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a bird' }] }, ctx('Bir karar vermem gerekiyor.'));
+    expect(t).toMatchObject({ developments: ['contact'], contextBindings: [], contextForbidden: [] });
+    expect(t.conjecture).toEqual(['news', 'communication_movement']);
+  });
+
+  it('F: awaiting_response + written contact → awaited-topic binding', () => {
+    const awaiting = ctx('Bir yerden dönüş bekliyorum.');
+    expect(awaiting).toMatchObject({ subjectKind: 'custom_other', declaredFacts: ['awaiting_response'] });
+    const t = only({ marks: [{ id: 'M1', label: 'a folded letter' }] }, awaiting);
+    expect(t.contextBindings).toEqual(['awaited_topic']);
+    expect(t.conjecture).toContain('written_news_on_awaited_topic');
+    expect(t.contextForbidden).toEqual(['response_certainty', 'positive_response', 'response_content', 'response_timing']);
+    expect(t.forbiddenSpecifics).toEqual(expect.arrayContaining(['sender_identity', 'guaranteed_contact', 'date']));
+  });
+
+  it('G: awaiting_response + bird → communication-on-awaited-topic binding', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a bird' }] }, ctx('Bir yerden dönüş bekliyorum.'));
+    expect(t.contextBindings).toEqual(['awaited_topic']);
+    expect(t.conjecture).toContain('communication_on_awaited_topic');
+  });
+
+  it('H: awaiting_response + fish only → the fish is NOT a response', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a fish' }] }, ctx('Bir yerden dönüş bekliyorum.'));
+    expect(t).toMatchObject({ developments: ['opportunity'], contextBindings: [], contextForbidden: [] });
+    expect(t.conjecture.join(' ')).not.toMatch(/awaited/);
+  });
+
+  it('I: current relationship + ring/heart → current-relationship theme', () => {
+    const current = ctx('İlişkim hakkında merak ediyorum.');
+    expect(current).toMatchObject({ subjectKind: 'love_relationships', declaredFacts: ['current_relationship'] });
+    const t = only(M1_QA_CUPS.love_ring_heart.spec, current);
+    expect(t).toMatchObject({ combination: 'commitment_with_emotion', contextBindings: ['current_relationship'], domain: 'love' });
+    expect(t.conjecture).toEqual(expect.arrayContaining(['current_relationship_theme', 'love_development']));
+  });
+
+  it('J: current relationship + contact → relationship communication theme', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a bird' }] }, ctx('Sevgilimle aramızdaki iletişimi merak ediyorum.'));
+    expect(t.contextBindings).toEqual(['current_relationship']);
+    expect(t.conjecture).toContain('communication_in_current_relationship');
+  });
+
+  it('K: current relationship never authorizes partner feelings or actions', () => {
+    const t = only(M1_QA_CUPS.love_ring_heart.spec, ctx('İlişkim hakkında merak ediyorum.'));
+    expect(t.contextForbidden).toEqual(['partner_feelings', 'partner_action', 'relationship_outcome', 'infidelity', 'marriage_fact']);
+    expect(t.forbiddenSpecifics).toEqual(expect.arrayContaining(['other_person_feelings', 'other_person_intent', 'other_person_action']));
+    expect(t.conjecture.join(' ')).not.toMatch(forbiddenOverreach);
+  });
+
+  it('L: money subject + fish/tree → financial opening/growth permissions', () => {
+    const t = only(M1_QA_CUPS.money_fish_tree.spec, 'money_finance');
+    expect(t.domain).toBe('financial');
+    expect(t.conjecture).toEqual(expect.arrayContaining(['financial_opening', 'financial_growth']));
+  });
+
+  it('M: career subject + key/path → career opening/direction permissions', () => {
+    const t = only(M1_QA_CUPS.career_key_path.spec, 'career_work');
+    expect(t.domain).toBe('career');
+    expect(t.conjecture).toEqual(expect.arrayContaining(['career_opening', 'career_direction']));
+  });
+
+  it('M: an incompatible sign is not pulled into the domain (career + bird)', () => {
+    const t = only({ marks: [{ id: 'M1', label: 'a bird' }] }, 'career_work');
+    expect(t.domain).toBeNull();
+    expect(t.conjecture).toEqual(['news', 'communication_movement']);
+  });
+
+  it('N: love subject + ring/heart → love-development permission', () => {
+    const t = only(M1_QA_CUPS.love_ring_heart.spec, 'love_relationships');
+    expect(t).toMatchObject({ domain: 'love', contextBindings: [] });
+    expect(t.conjecture).toContain('love_development');
+  });
+
+  it('O: general ring/heart keeps the conventional love possibility but invents no current relationship', () => {
+    const t = only(M1_QA_CUPS.love_ring_heart.spec, 'general');
+    expect(t.conjecture).toContain('serious_heart_kismet_possibility');
+    expect(t).toMatchObject({ domain: null, contextBindings: [] });
+    expect(t.conjecture.join(' ')).not.toMatch(/current_relationship/);
+  });
+
+  it('P: custom_other text is kept as USER-PROVIDED context and adds no fact', () => {
+    const other = ctx('Telve ve kulp tarafında ne görünüyor merak ediyorum.');
+    expect(other).toMatchObject({ subjectKind: 'custom_other', declaredFacts: [] });
+    const { meaning } = run({ marks: [{ id: 'M1', label: 'a fish' }] }, other);
+    expect(meaning).toMatchObject({
+      subject: 'custom_other',
+      declaredContext: [],
+      intentReference: { kind: 'user_provided', userDeclaredIntention: other.intention },
+    });
+    expect(meaning.threads[0]).toMatchObject({ contextBindings: [], domain: null });
+    // The user's own words may mention the cup; only that structural key is exempt.
+    expect(() => assertCoffeeV3MeaningOnly(meaning)).not.toThrow();
+    expect(() => assertCoffeeV3MeaningOnly({ note: other.intention })).toThrow();
+    expect(() => assertCoffeeV3MeaningOnly({ userDeclaredIntention: { band: 'rim_upper' } })).toThrow();
+  });
+
+  it('Q: a canonical choice carries no redundant raw text', () => {
+    const { meaning } = run(M1_QA_CUPS.money_fish_tree.spec, 'money_finance');
+    expect(meaning.intentReference).toEqual({ kind: 'canonical_choice' });
+    expect(JSON.stringify(meaning)).not.toMatch(/Maddi durumum/);
+  });
+
+  it('R/S: every M1.2 output keeps the common forbidden specifics and passes the privacy assertion', () => {
+    for (const cup of Object.values(M12_RELEVANCE_CUPS)) {
+      const { meaning } = interpretCoffeeV3MarkMap(m1Map(cup.spec), ctx(cup.intention));
+      expect(() => assertCoffeeV3MeaningOnly(meaning)).not.toThrow();
+      for (const t of meaning.threads) {
+        expect(t.forbiddenSpecifics).toEqual(
+          expect.arrayContaining([
+            'exact_person', 'employer_or_company', 'monetary_amount', 'salary_or_debt', 'payment_event', 'exact_event',
+            'relationship_history', 'other_person_feelings', 'other_person_intent', 'other_person_action',
+            'guaranteed_outcome', 'date', 'chronology', 'unsupported_causation',
+          ]),
+        );
+        expect(t.conjecture.join(' ')).not.toMatch(forbiddenOverreach);
+      }
+    }
+  });
+
+  it('declared facts come only from the classifier: a canonical choice declares nothing extra', () => {
+    expect(run({ marks: [{ id: 'M1', label: 'a ring' }] }, 'love_relationships').meaning.declaredContext).toEqual([]);
+    expect(run({ marks: [{ id: 'M1', label: 'a bird' }] }, 'person_of_interest').meaning.declaredContext).toEqual(['person_in_mind']);
+  });
+
+  it('"İş değiştirmeli miyim?" is classified career_work (no decision word), so no decision binding is invented', () => {
+    const job = ctx('İş değiştirmeli miyim?');
+    expect(job).toMatchObject({ subjectKind: 'career_work', declaredFacts: [] });
+    const t = only(M1_QA_CUPS.career_key_path.spec, job);
+    expect(t).toMatchObject({ domain: 'career', contextBindings: [] });
+  });
+
+  it('T: no live source imports M1 (M1.2 included)', () => {
+    const src = resolve(process.cwd(), 'src');
+    const walk = (dir: string): string[] =>
+      readdirSync(dir).flatMap((name) => {
+        const path = join(dir, name);
+        return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
+      });
+    expect(walk(src).filter((path) => /coffee-m1-interpretation/.test(readFileSync(path, 'utf8')))).toEqual([]);
   });
 });

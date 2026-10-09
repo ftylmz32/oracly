@@ -402,6 +402,13 @@ const PRIVATE_VALUE_TOKENS = new Set<string>([
   'handle_opposite', 'possible_same_mark', COFFEE_V3_CONTRACT,
 ]);
 
+/**
+ * The ONE structural key that may carry user-provided text (M1.2). It is the
+ * user's own words, not observer output, so its content is not scanned for
+ * visual tokens; it must still be a plain string.
+ */
+const USER_PROVIDED_TEXT_KEY = 'userDeclaredIntention';
+
 /** Every path at which a raw V3 visual field or token would cross a meaning-only boundary. */
 export function coffeeV3PrivacyViolations(value: unknown, path = '$'): string[] {
   if (typeof value === 'string') {
@@ -410,10 +417,13 @@ export function coffeeV3PrivacyViolations(value: unknown, path = '$'): string[] 
   }
   if (Array.isArray(value)) return value.flatMap((item, index) => coffeeV3PrivacyViolations(item, `${path}[${index}]`));
   if (value && typeof value === 'object') {
-    return Object.entries(value).flatMap(([key, item]) => [
-      ...(PRIVATE_KEYS.has(key) ? [`${path}.${key}`] : []),
-      ...coffeeV3PrivacyViolations(item, `${path}.${key}`),
-    ]);
+    return Object.entries(value).flatMap(([key, item]) => {
+      if (key === USER_PROVIDED_TEXT_KEY) return typeof item === 'string' ? [] : [`${path}.${key}`];
+      return [
+        ...(PRIVATE_KEYS.has(key) ? [`${path}.${key}`] : []),
+        ...coffeeV3PrivacyViolations(item, `${path}.${key}`),
+      ];
+    });
   }
   return [];
 }

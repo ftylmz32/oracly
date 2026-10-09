@@ -1,3 +1,7 @@
+import {
+  classifyCoffeeIntention,
+  type CoffeeTrustedIntentionContext,
+} from '../../src/ai/reading/coffee-intention-context.js';
 import { buildCoffeeV3MarkMap, type CoffeeV3MarkMap } from '../../src/ai/reading/coffee-v3-mark-map.js';
 import type {
   CoffeeMultiViewObservationV3,
@@ -182,3 +186,54 @@ export const M1_QA_CUPS = {
     },
   },
 } satisfies Record<string, { subject: 'general' | 'love_relationships' | 'career_work' | 'money_finance' | 'person_of_interest' | null; spec: M1FixtureSpec }>;
+
+// ---------------------------------------------------------------------------
+// M1.2 — trusted intention. Contexts come ONLY from the real classifier.
+// ---------------------------------------------------------------------------
+
+export type CanonicalSubject = 'general' | 'love_relationships' | 'career_work' | 'money_finance' | 'person_of_interest';
+
+/** The shipped product choice strings (Flutter CoffeeV2IntentionChoice). */
+export const CANONICAL_INTENTION_TEXT: Record<CanonicalSubject, string> = {
+  general: 'Önümüzdeki dönem genel olarak',
+  love_relationships: 'Aşk ve ilişkilerim hakkında',
+  career_work: 'İşim ve kariyerim hakkında',
+  money_finance: 'Maddi durumum hakkında',
+  person_of_interest: 'Aklımdaki kişiyle ilgili',
+};
+
+export function canonicalIntention(subject: CanonicalSubject | null): CoffeeTrustedIntentionContext | null {
+  return subject ? classifyCoffeeIntention(CANONICAL_INTENTION_TEXT[subject]) : null;
+}
+
+/** Relevance-ceiling cups: a real intention string + a cup whose signs can meet it. */
+export const M12_RELEVANCE_CUPS = {
+  decision_job_change: {
+    intention: 'İş değiştirmeli miyim?',
+    spec: M1_QA_CUPS.career_key_path.spec,
+  },
+  decision_explicit_karar: {
+    intention: 'İşimle ilgili bir karar vermem gerekiyor.',
+    spec: M1_QA_CUPS.career_key_path.spec,
+  },
+  awaiting_written: {
+    intention: 'Bir yerden dönüş bekliyorum.',
+    spec: { marks: [{ id: 'M1', label: 'a folded letter', band: 'rim_upper' as const, form: { openness: 'open' as const } }] },
+  },
+  current_relationship_ring_heart: {
+    intention: 'İlişkim hakkında merak ediyorum.',
+    spec: M1_QA_CUPS.love_ring_heart.spec,
+  },
+  person_bird: {
+    intention: CANONICAL_INTENTION_TEXT.person_of_interest,
+    spec: M1_QA_CUPS.person_bird.spec,
+  },
+  money_fish_tree: {
+    intention: CANONICAL_INTENTION_TEXT.money_finance,
+    spec: M1_QA_CUPS.money_fish_tree.spec,
+  },
+  career_key_path: {
+    intention: CANONICAL_INTENTION_TEXT.career_work,
+    spec: M1_QA_CUPS.career_key_path.spec,
+  },
+} satisfies Record<string, { intention: string; spec: M1FixtureSpec }>;

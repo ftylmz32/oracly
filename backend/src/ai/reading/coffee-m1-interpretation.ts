@@ -1,5 +1,9 @@
 import type { CoffeeForbiddenSpecific } from './coffee-fortune-beat.js';
-import type { CoffeeIntentionSubjectKind } from './coffee-intention-context.js';
+import {
+  coffeeIntentionIsCanonical,
+  type CoffeeTrustedIntentionContext,
+  type CoffeeUserDeclaredFact,
+} from './coffee-intention-context.js';
 import { coffeeTermMatch } from './coffee-meaning-map.js';
 import type { CoffeeV3MapMark, CoffeeV3MarkMap } from './coffee-v3-mark-map.js';
 import type { CoffeeV3Band, CoffeeV3Form, CoffeeV3RelationKind } from './types.js';
@@ -111,20 +115,49 @@ const DEVELOPMENT_BY_SIGN: Record<CoffeeM1Sign, CoffeeM1Development> = {
   social_presence: 'social_presence',
 };
 
-export type CoffeeM1Subject = 'general' | 'love_relationships' | 'career_work' | 'money_finance' | 'person_of_interest';
+/** M1.2: every trusted subject class is kept explicitly (custom ones are no longer folded into general). */
+export type CoffeeM1Subject =
+  | 'general'
+  | 'love_relationships'
+  | 'career_work'
+  | 'money_finance'
+  | 'person_of_interest'
+  | 'custom_decision'
+  | 'custom_other';
 
-/** Trusted intention classes; custom decision/other carry no supported subject yet and read as general. */
-export function coffeeM1Subject(kind: CoffeeIntentionSubjectKind | null | undefined): CoffeeM1Subject {
-  switch (kind) {
-    case 'love_relationships':
-    case 'career_work':
-    case 'money_finance':
-    case 'person_of_interest':
-      return kind;
-    default:
-      return 'general';
-  }
+export function coffeeM1Subject(intention: CoffeeTrustedIntentionContext | null | undefined): CoffeeM1Subject {
+  return intention?.subjectKind ?? 'general';
 }
+
+/**
+ * Safe intent reference. A canonical product choice is fully described by the
+ * structured subject, so its string is not repeated. Free text is passed only
+ * as USER-PROVIDED context: never observer evidence, and it authorizes nothing
+ * beyond the classifier's declaredFacts.
+ */
+export type CoffeeM1IntentReference =
+  | { kind: 'none' }
+  | { kind: 'canonical_choice' }
+  | { kind: 'user_provided'; userDeclaredIntention: string };
+
+/** Where a declared fact attaches a thread. chosen_person = Contract B. */
+export type CoffeeM1ContextBinding = 'user_decision' | 'awaited_topic' | 'current_relationship' | 'chosen_person';
+
+/** Overreach a context binding may never authorize (beyond the common forbidden specifics). */
+export type CoffeeM1ContextForbidden =
+  | 'option_identity'
+  | 'correct_option'
+  | 'response_certainty'
+  | 'positive_response'
+  | 'response_content'
+  | 'response_timing'
+  | 'partner_feelings'
+  | 'partner_action'
+  | 'relationship_outcome'
+  | 'infidelity'
+  | 'marriage_fact';
+
+export type CoffeeM1Domain = 'financial' | 'career' | 'love';
 
 export type CoffeeM1Horizon = 'nearer_term' | 'coming_period' | 'further_out' | 'unspecified';
 export type CoffeeM1Valence = 'positive' | 'neutral' | 'cautionary';
@@ -181,7 +214,20 @@ export type CoffeeM1Conjecture =
   | 'opening_through_new_direction'
   | 'developing_change'
   | 'options_shape_direction'
-  | 'communication_in_relationship';
+  | 'communication_in_relationship'
+  // M1.2 context / domain permissions
+  | 'decision_clarity'
+  | 'decision_direction'
+  | 'communication_on_awaited_topic'
+  | 'written_news_on_awaited_topic'
+  | 'current_relationship_theme'
+  | 'communication_in_current_relationship'
+  | 'financial_opening'
+  | 'financial_growth'
+  | 'career_opening'
+  | 'career_direction'
+  | 'career_growth'
+  | 'love_development';
 
 export type CoffeeM1Combination =
   | 'contact_with_opportunity'
@@ -203,6 +249,12 @@ export type CoffeeFortuneThread = {
   subject: CoffeeM1Subject;
   /** person_of_interest: the THEME is about the chosen person — never their state or action. */
   subjectBinding: 'person_of_interest' | null;
+  /** M1.2: user-declared facts this thread is bound to (closed binding grammar). */
+  contextBindings: CoffeeM1ContextBinding[];
+  /** M1.2: domain wording permitted by the trusted subject (closed table); null = no domain. */
+  domain: CoffeeM1Domain | null;
+  /** M1.2: overreach the context bindings may never authorize. */
+  contextForbidden: CoffeeM1ContextForbidden[];
   /**
    * Compatibility aggregate: the shared horizon when every development agrees,
    * otherwise the broad coming_period. Never the only timing signal.
@@ -225,6 +277,9 @@ export type CoffeeM1Capacity = 'insufficient' | 'single_thread' | 'multi_thread'
 /** Meaning-only: passes assertCoffeeV3MeaningOnly. This is all a writer may ever see. */
 export type CoffeeM1Meaning = {
   subject: CoffeeM1Subject;
+  /** USER DECLARATIONS from classifyCoffeeIntention only; never observer claims, never inferred. */
+  declaredContext: CoffeeUserDeclaredFact[];
+  intentReference: CoffeeM1IntentReference;
   capacity: CoffeeM1Capacity;
   threads: CoffeeFortuneThread[];
 };
@@ -331,8 +386,12 @@ const FORBIDDEN_BY_DEVELOPMENT: Record<CoffeeM1Development, CoffeeForbiddenSpeci
   social_presence: ['sender_identity'],
 };
 
-const LOVE_SUBJECTS: ReadonlySet<CoffeeM1Subject> = new Set(['general', 'love_relationships', 'person_of_interest']);
-const ABUNDANCE_SUBJECTS: ReadonlySet<CoffeeM1Subject> = new Set(['general', 'money_finance', 'career_work']);
+const LOVE_SUBJECTS: ReadonlySet<CoffeeM1Subject> = new Set([
+  'general', 'love_relationships', 'person_of_interest', 'custom_decision', 'custom_other',
+]);
+const ABUNDANCE_SUBJECTS: ReadonlySet<CoffeeM1Subject> = new Set([
+  'general', 'money_finance', 'career_work', 'custom_decision', 'custom_other',
+]);
 const RELATIONSHIP_SUBJECTS: ReadonlySet<CoffeeM1Subject> = new Set(['love_relationships', 'person_of_interest']);
 
 /**
@@ -397,6 +456,121 @@ const COMBINATION_VALENCE: Record<CoffeeM1Combination, CoffeeM1Valence> = {
  * `continuing`. near / crossing / contained_by carry no fortune meaning.
  */
 const LINKING_RELATIONS: ReadonlySet<CoffeeV3RelationKind> = new Set(['connected', 'touching', 'continuation_of']);
+
+/**
+ * M1.2 — closed context-binding grammar. A declared fact binds a thread only
+ * when the thread carries a compatible development; every other thread stays
+ * ordinary (a decision is never forced onto a news thread).
+ */
+const CONTEXT_BINDINGS: ReadonlyArray<{
+  fact: CoffeeUserDeclaredFact;
+  binding: CoffeeM1ContextBinding;
+  conjecture: Partial<Record<CoffeeM1Development, CoffeeM1Conjecture>>;
+  forbidden: CoffeeM1ContextForbidden[];
+}> = [
+  {
+    fact: 'decision_exists',
+    binding: 'user_decision',
+    conjecture: {
+      choice_clarification: 'decision_clarity',
+      access_opening: 'decision_clarity',
+      direction_change: 'decision_direction',
+    },
+    forbidden: ['option_identity', 'correct_option'],
+  },
+  {
+    fact: 'awaiting_response',
+    binding: 'awaited_topic',
+    conjecture: {
+      contact: 'communication_on_awaited_topic',
+      written_contact: 'written_news_on_awaited_topic',
+    },
+    forbidden: ['response_certainty', 'positive_response', 'response_content', 'response_timing'],
+  },
+  {
+    fact: 'current_relationship',
+    binding: 'current_relationship',
+    conjecture: {
+      commitment: 'current_relationship_theme',
+      emotional_movement: 'current_relationship_theme',
+      contact: 'communication_in_current_relationship',
+      written_contact: 'communication_in_current_relationship',
+    },
+    forbidden: ['partner_feelings', 'partner_action', 'relationship_outcome', 'infidelity', 'marriage_fact'],
+  },
+  {
+    // Contract B: the theme may attach to the chosen person; nothing about them may be invented.
+    fact: 'person_in_mind',
+    binding: 'chosen_person',
+    conjecture: {
+      contact: 'communication_about_chosen_person',
+      written_contact: 'communication_about_chosen_person',
+    },
+    forbidden: [],
+  },
+];
+
+/**
+ * M1.2 — closed domain-binding table. Only these subject × development pairs
+ * get domain wording; general / custom / person subjects get none, and an
+ * incompatible sign is never pulled into the domain.
+ */
+const DOMAIN_BINDINGS: Partial<
+  Record<CoffeeM1Subject, { domain: CoffeeM1Domain; conjecture: Partial<Record<CoffeeM1Development, CoffeeM1Conjecture>> }>
+> = {
+  money_finance: {
+    domain: 'financial',
+    conjecture: { opportunity: 'financial_opening', gradual_growth: 'financial_growth' },
+  },
+  career_work: {
+    domain: 'career',
+    conjecture: {
+      opportunity: 'career_opening',
+      access_opening: 'career_opening',
+      direction_change: 'career_direction',
+      gradual_growth: 'career_growth',
+    },
+  },
+  love_relationships: {
+    domain: 'love',
+    conjecture: {
+      commitment: 'love_development',
+      emotional_movement: 'love_development',
+      contact: 'love_development',
+      written_contact: 'love_development',
+    },
+  },
+};
+
+/** Context and domain layers for one thread, from its developments and the trusted declarations. */
+function contextLayer(
+  developments: CoffeeM1Development[],
+  subject: CoffeeM1Subject,
+  declared: CoffeeUserDeclaredFact[],
+): Pick<CoffeeFortuneThread, 'contextBindings' | 'domain' | 'contextForbidden'> & { conjecture: CoffeeM1Conjecture[] } {
+  const contextBindings: CoffeeM1ContextBinding[] = [];
+  const contextForbidden: CoffeeM1ContextForbidden[] = [];
+  const conjecture: CoffeeM1Conjecture[] = [];
+  for (const rule of CONTEXT_BINDINGS) {
+    if (!declared.includes(rule.fact)) continue;
+    const tokens = developments.map((d) => rule.conjecture[d]).filter((t): t is CoffeeM1Conjecture => !!t);
+    if (tokens.length === 0) continue;
+    contextBindings.push(rule.binding);
+    contextForbidden.push(...rule.forbidden);
+    conjecture.push(...tokens);
+  }
+  const domainRule = DOMAIN_BINDINGS[subject];
+  const domainTokens = domainRule
+    ? developments.map((d) => domainRule.conjecture[d]).filter((t): t is CoffeeM1Conjecture => !!t)
+    : [];
+  conjecture.push(...domainTokens);
+  return {
+    contextBindings,
+    domain: domainRule && domainTokens.length > 0 ? domainRule.domain : null,
+    contextForbidden: [...new Set(contextForbidden)],
+    conjecture,
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Engine
@@ -490,11 +664,24 @@ function forbiddenFor(developments: CoffeeM1Development[]): CoffeeForbiddenSpeci
   return uniq([...COMMON_FORBIDDEN, ...developments.flatMap((d) => FORBIDDEN_BY_DEVELOPMENT[d])]);
 }
 
+function intentReference(intention: CoffeeTrustedIntentionContext | null | undefined): CoffeeM1IntentReference {
+  if (!intention) return { kind: 'none' };
+  return coffeeIntentionIsCanonical(intention.intention)
+    ? { kind: 'canonical_choice' }
+    : { kind: 'user_provided', userDeclaredIntention: intention.intention };
+}
+
+/**
+ * M1.2: the trusted intention context comes ONLY from classifyCoffeeIntention.
+ * M1 never parses text itself: declared facts are taken as typed, never
+ * inferred, and the raw text is only carried as a user-provided reference.
+ */
 export function interpretCoffeeV3MarkMap(
   map: CoffeeV3MarkMap,
-  subjectKind?: CoffeeIntentionSubjectKind | null,
+  intention?: CoffeeTrustedIntentionContext | null,
 ): CoffeeM1Result {
-  const subject = coffeeM1Subject(subjectKind);
+  const subject = coffeeM1Subject(intention);
+  const declared: CoffeeUserDeclaredFact[] = [...(intention?.declaredFacts ?? [])];
 
   // 1) Classify each physical identity group by its usable candidates. Saucer
   //    marks carry no approved convention yet and never make a thread.
@@ -571,9 +758,20 @@ export function interpretCoffeeV3MarkMap(
     subject === 'person_of_interest' && signs.some((s) => s === 'incoming_contact' || s === 'written_contact')
       ? ('person_of_interest' as const)
       : null;
-  const push = (thread: Omit<CoffeeFortuneThread, 'id'>, groups: SignGroup[]) => {
+  const push = (
+    thread: Omit<CoffeeFortuneThread, 'id' | 'contextBindings' | 'domain' | 'contextForbidden'>,
+    groups: SignGroup[],
+  ) => {
     const id = `T${threads.length + 1}`;
-    threads.push({ id, ...thread });
+    const layer = contextLayer(thread.developments, subject, declared);
+    threads.push({
+      id,
+      ...thread,
+      contextBindings: layer.contextBindings,
+      domain: layer.domain,
+      contextForbidden: layer.contextForbidden,
+      conjecture: uniq([...thread.conjecture, ...layer.conjecture]),
+    });
     threadEvidence[id] = {
       identityGroups: uniq(groups.flatMap((g) => g.groups)).sort(),
       relationKinds: uniq(groups.flatMap((g) => [...g.relationKinds])).sort(),
@@ -637,6 +835,8 @@ export function interpretCoffeeV3MarkMap(
   return {
     meaning: {
       subject,
+      declaredContext: declared,
+      intentReference: intentReference(intention),
       capacity: coffeeM1Capacity(threads, new Set([...signGroups.values()].flatMap((g) => g.groups)).size),
       threads,
     },

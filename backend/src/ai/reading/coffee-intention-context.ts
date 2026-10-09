@@ -98,6 +98,11 @@ export function coffeeDomainSections(text: string | undefined): CoffeeSubjectSec
     DOMAIN_WORDS[section].some((word) => words.has(word)));
 }
 
+/** True only for an exact shipped product choice (the structured subject then says everything). */
+export function coffeeIntentionIsCanonical(intention: string): boolean {
+  return CANONICAL[intention.trim().normalize('NFC').toLocaleLowerCase('tr-TR')] !== undefined;
+}
+
 export function classifyCoffeeIntention(raw: string | null | undefined): CoffeeTrustedIntentionContext | null {
   const intention = raw?.trim();
   if (!intention) return null;
