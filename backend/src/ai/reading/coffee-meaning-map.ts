@@ -52,19 +52,62 @@ export function coffeeFold(value: string): string {
     .replace(/ç/g, 'c');
 }
 
+/**
+ * Token-boundary lexicon matcher. Folded text is split into letter/digit
+ * tokens (whitespace, punctuation, hyphens and slashes all separate). A term
+ * word matches one whole token, optionally followed by a plain plural/verb
+ * inflection; a word ending in `*` is an explicit stem and matches any token
+ * that starts with it; a word starting with `*` is an explicit compound head
+ * ("*bird" → "seabird"). A multi-word term must match consecutive tokens.
+ * Otherwise compounds never match their parts ("roadside", "keyhole",
+ * "fishbone"), and a term never matches inside another word ("string",
+ * "monkey", "hearth").
+ */
+const TERM_INFLECTIONS = ['', 's', 'es', 'ed', 'ing', 'lar', 'ler'];
+
+function coffeeTokens(folded: string): string[] {
+  return folded.match(/[\p{L}\p{N}]+/gu) ?? [];
+}
+
+function tokenMatchesWord(token: string, word: string): boolean {
+  if (word.endsWith('*')) return token.startsWith(word.slice(0, -1));
+  if (word.startsWith('*')) return TERM_INFLECTIONS.some((suffix) => token.endsWith(word.slice(1) + suffix));
+  return TERM_INFLECTIONS.some((suffix) => token === word + suffix);
+}
+
+function coffeeLexiconMatch(tokens: string[], terms: readonly string[]): boolean {
+  return terms.some((term) => {
+    const words = term.split(' ');
+    for (let start = 0; start + words.length <= tokens.length; start += 1) {
+      if (words.every((word, offset) => tokenMatchesWord(tokens[start + offset], word))) return true;
+    }
+    return false;
+  });
+}
+
+/** Precedence is the array order. Terms are already coffeeFold-ed. */
+const FAMILY_LEXICON: ReadonlyArray<readonly [CoffeeMeaningFamily, readonly string[]]> = [
+  ['communication', ['*bird', 'kus', 'letter', 'mektup', 'message', 'mesaj', 'envelope', 'zarf']],
+  ['opportunity', ['fish', 'balik']],
+  ['bond', ['ring', 'yuzuk']],
+  ['emotional_relevance', ['heart', 'kalp']],
+  ['solution', ['key', 'anahtar']],
+  ['movement', ['road', 'path', 'route', 'yol', 'patika']],
+  ['growth', ['tree', 'agac']],
+  ['social_relevance', ['person', 'figure', 'face', 'insan', 'kisi', 'siluet', 'yuz']],
+];
+const CHOICE_TERMS = ['diverg*', 'fork', 'crossroad', 'ikiye ayr*', 'yol ayr*'];
+
 /** Private source → broad family. Shared by the C2.11 semantic-cue layer. */
 export function coffeeMeaningFamily(item: ReadingEvidenceItem): CoffeeMeaningFamily | null {
-  const resemblance = coffeeFold(item.resemblance?.trim() ?? '');
-  const description = coffeeFold(item.description);
-  if (/diverg|fork|crossroad|ikiye ayr|yol ayr/.test(`${resemblance} ${description}`)) return 'choice';
-  if (/bird|kus|letter|mektup|message|mesaj|zarf/.test(resemblance)) return 'communication';
-  if (/fish|balik/.test(resemblance)) return 'opportunity';
-  if (/ring|yuzuk/.test(resemblance)) return 'bond';
-  if (/heart|kalp/.test(resemblance)) return 'emotional_relevance';
-  if (/key|anahtar/.test(resemblance)) return 'solution';
-  if (/road|path|route|yol|patika/.test(resemblance)) return 'movement';
-  if (/tree|agac/.test(resemblance)) return 'growth';
-  if (/person|figure|face|insan|kisi|sil[üu]et|yuz/.test(resemblance)) return 'social_relevance';
+  const resemblance = coffeeTokens(coffeeFold(item.resemblance?.trim() ?? ''));
+  const description = coffeeTokens(coffeeFold(item.description));
+  // A choice signal counts in either field; the '|' token keeps a phrase
+  // from spanning the two fields.
+  if (coffeeLexiconMatch([...resemblance, '|', ...description], CHOICE_TERMS)) return 'choice';
+  for (const [family, terms] of FAMILY_LEXICON) {
+    if (coffeeLexiconMatch(resemblance, terms)) return family;
+  }
   return null;
 }
 
