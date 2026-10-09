@@ -573,7 +573,7 @@ describe('V2 dark-path guarantee (V, W)', () => {
     expect(coffeeV2ObserverSystem()).not.toMatch(/multi_view_marks_v3|PASS 1|cup_handle_far/);
   });
 
-  it('only the four V3 pilot files reference V3; no dispatch, pipeline, route, worker, billing or gem code does', () => {
+  it('only the V3 pilot files and the dark M1 engine reference V3; no dispatch, pipeline, route, worker, billing or gem code does', () => {
     const src = resolve(process.cwd(), 'src');
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((name) => {
@@ -586,6 +586,7 @@ describe('V2 dark-path guarantee (V, W)', () => {
       .map((path) => path.slice(src.length + 1).replace(/\\/g, '/'))
       .sort();
     expect(users).toEqual([
+      'ai/reading/coffee-m1-interpretation.ts',
       'ai/reading/coffee-v3-mark-map.ts',
       'ai/reading/observer-prompts.ts',
       'ai/reading/schemas.ts',
