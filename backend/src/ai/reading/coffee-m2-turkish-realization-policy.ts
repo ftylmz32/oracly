@@ -220,6 +220,9 @@ export function coffeeTurkishTokens(text: string): string[] {
 }
 
 const RICH_DECISION_CLUSTER = ['secondary_option_gaining_weight', 'another_option_relevant', 'options_separating'];
+/** W4C.3: shape-scoped only (never in COFFEE_TURKISH_SCENARIO_INCOMPATIBLE_PAIRS). */
+export const COFFEE_TURKISH_RICH_DECISION_REDUNDANT_PAIR: readonly [string, string] = ['secondary_option_gaining_weight', 'another_option_relevant'];
+const RICH_DECISION_REDUNDANT_PAIR = COFFEE_TURKISH_RICH_DECISION_REDUNDANT_PAIR;
 
 /**
  * W4C.2 — the one composition that needs a richer concrete layer: a rich plan
@@ -496,6 +499,13 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
     const pair = [shape.relation + 1, shape.scenario + 1].sort((a, b) => a - b);
     crossBeat.lexicalCollisionFamilies = Object.entries(COFFEE_TURKISH_LEXICAL_FAMILIES)
       .map(([family, forms]) => ({ family, forms: [...forms], beats: pair, rule: 'not_in_both' as const }));
+    // W4C.3: next to the MULTIPLICITY core of this beat, "another option" restates plurality
+    // instead of adding a facet. Realization compatibility only: the cluster, its IDs and the
+    // global pair table are unchanged.
+    const scenarioBeat = realizedBeats[shape.scenario];
+    if (!scenarioBeat.scenarioIncompatiblePairs.some((p) => JSON.stringify(p) === JSON.stringify(RICH_DECISION_REDUNDANT_PAIR))) {
+      scenarioBeat.scenarioIncompatiblePairs = [...scenarioBeat.scenarioIncompatiblePairs, [...RICH_DECISION_REDUNDANT_PAIR]];
+    }
   }
 
   const result: CoffeeM2TurkishRealizationPayload = {

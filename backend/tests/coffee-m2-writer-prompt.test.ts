@@ -177,7 +177,8 @@ describe('W4P1 field manifest guard (N–O)', () => {
 
 describe('W4P1 payloads and acceptance unchanged (P–T)', () => {
   const PINNED = {
-    RITAG_V3G1: [c31Spec('C3F-RITAG', { clearAreas: true }), DECISION, 'd5867f4309e5f42c25a83485d4e557db8b95c64b5862ec9890770ff2def9bb95'],
+    // W4C.3 changed only this payload's scenarioIncompatiblePairs value (was d5867f43…).
+    RITAG_V3G1: [c31Spec('C3F-RITAG', { clearAreas: true }), DECISION, '5e2e47445a51ec38e1adeda24a2a731829a04c539f3bd37354bc11da88a40777'],
     GAZETA_V3G1: [c31Spec('C3F-GAZETA', { clearAreas: true }), DECISION, 'ec28aae74989481586b6bf8512391f5b364ab14448592db1615375ec0038e4d3'],
     RITAG_OLD: [c31Spec('C3F-RITAG'), DECISION, '58df7a0325d3c775cba7054c7a940bbe8f9defd2fd7334f78498c7bbd5feb7fd'],
     BASAK: [c31Spec('C3F-BASAK'), CANONICAL_INTENTION_TEXT.money_finance, 'fa1eb6d78358d94806e40a555ae8023418e02c0a7c07158e8e8b840268e3b1cc'],

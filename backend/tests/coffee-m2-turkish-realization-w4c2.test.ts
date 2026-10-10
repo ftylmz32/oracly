@@ -203,14 +203,18 @@ describe('W4C.2 scoped two-item scenario (M–V)', () => {
     expect(codes(MANUAL, [[], [R, S]])).toEqual(['B2:SCENARIO_INCOMPATIBLE_PAIR:another_option_relevant+options_separating']);
   });
 
-  it('R/S: both compatible pairs pass', () => {
-    expect(codes(MANUAL, [[], [W, R]])).toEqual([]);
+  it('R/S: W + S passes; W + R is closed by the W4C.3 shape-scoped pair', () => {
+    expect(codes(MANUAL, [[], [W, R]])).toEqual(['B2:SCENARIO_INCOMPATIBLE_PAIR:secondary_option_gaining_weight+another_option_relevant']);
     expect(codes(MANUAL, [[], [W, S]])).toEqual([]);
   });
 
   it('T: one item now fails SCENARIO_TOO_FEW; three fail SCENARIO_TOO_MANY', () => {
     expect(codes(MANUAL, [[], [W]])).toEqual(['B2:SCENARIO_TOO_FEW:1 < 2']);
-    expect(codes(MANUAL, [[], [W, R, S]])).toEqual(['B2:SCENARIO_TOO_MANY:3 > 2', 'B2:SCENARIO_INCOMPATIBLE_PAIR:another_option_relevant+options_separating']);
+    expect(codes(MANUAL, [[], [W, R, S]])).toEqual([
+      'B2:SCENARIO_TOO_MANY:3 > 2',
+      'B2:SCENARIO_INCOMPATIBLE_PAIR:another_option_relevant+options_separating',
+      'B2:SCENARIO_INCOMPATIBLE_PAIR:secondary_option_gaining_weight+another_option_relevant',
+    ]);
   });
 
   it('U/V: no permission changes and no new scenario ID — only choose narrows', () => {
@@ -222,7 +226,7 @@ describe('W4C.2 scoped two-item scenario (M–V)', () => {
     expect(Object.keys(p.wording.scenarios)).toEqual([W, R, S]);
     for (const id of Object.keys(p.wording.scenarios)) expect(COFFEE_TURKISH_SCENARIO_WORDING[id]).toBeDefined();
     expect(p.wording.scenarioClusters).toEqual([{ manifestations: [W, R, S], mode: 'alternatives', choose: { min: 2, max: 2 } }]);
-    expect(p.realization.beats[1].scenarioIncompatiblePairs).toEqual([[R, S]]);
+    expect(p.realization.beats[1].scenarioIncompatiblePairs).toEqual([[R, S], [W, R]]); // [W, R] added by W4C.3
   });
 });
 
