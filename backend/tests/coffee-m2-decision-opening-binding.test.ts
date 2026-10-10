@@ -184,8 +184,9 @@ describe('M2.1 frozen payload pins (R–U)', () => {
 describe('M2.1 manual RITAG re-proof (zero provider)', () => {
   /** Every phrase: a context modifier, a horizon, or a W4A.1 bank form (inflected) of its own beat. */
   const MANUAL = [
-    'Önündeki karar konusunda işler önümüzdeki dönemde kendi yolunda yürüyor; biraz daha ileride önün de açılıyor.',
-    'Yaklaşan dönemde birkaç seçenek birden ortaya çıkıyor; bunlardan biri gözünde ağırlık kazanabilir, aralarındaki fark da daha net görünebilir.',
+    // Updated by W4A.2 / W4C.2 (no generic carrier, no shared "ön-", two scenario items).
+    'Vermen gereken kararda yolun yaklaşan dönemde yerinde saymıyor; biraz daha ileride açılıyor da.',
+    'Önündeki günlerde birkaç seçenek birden ortaya çıkıyor; aralarındaki fark daha net görünebilir, biri de gözünde ağır basmaya başlayabilir.',
   ];
   const fold = (s: string) => s.toLocaleLowerCase('tr-TR');
 
@@ -194,8 +195,9 @@ describe('M2.1 manual RITAG re-proof (zero provider)', () => {
     for (const t of MANUAL) {
       expect(fold(t), t).not.toMatch(/doğru (karar|seçenek)|kesinleş|kararın ilerl|önünü açacak|yaklaşıyorsun/);
     }
-    expect(fold(MANUAL[0])).toMatch(/^önündeki karar konusunda/); // decision introduced on B1
-    expect(fold(MANUAL[0])).not.toMatch(/\w+ken\b/); // separate horizons, no forced simultaneity
+    expect(fold(MANUAL[0])).toMatch(/^vermen gereken kararda/); // decision introduced on B1
+    // separate horizons, no forced simultaneity ("-ken" on a finite stem; "gereken" is a participle)
+    expect(fold(MANUAL[0])).not.toMatch(/(ır|ir|ur|ür|ar|er|yor)ken(\s|[.,;]|$)/);
   });
 });
 

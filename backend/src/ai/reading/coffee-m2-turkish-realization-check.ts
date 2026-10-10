@@ -1,6 +1,7 @@
 import {
   coffeeTurkishIsDemonstrativeOpener,
   coffeeTurkishStackedNominalization,
+  coffeeTurkishTokens,
   type CoffeeM2TurkishRealizationPayload,
 } from './coffee-m2-turkish-realization-policy.js';
 
@@ -11,7 +12,8 @@ import {
  * realization payload. QA only: it validates, it never repairs or rewrites,
  * and it never grants a meaning.
  * - checkCoffeeM2TurkishRealization: referent ownership, tempo referent
- *   collision, avoid / overlap wording, openers, stacked nominalization.
+ *   collision, avoid / overlap wording, openers, stacked nominalization,
+ *   W4C.2 generic context subjects and cross-beat word-family collisions.
  * - validateCoffeeM2ScenarioSelection: scenario items by EXACT ID (never by
  *   prose similarity). Whether the prose really says the declared items is
  *   still a manual grounding audit.
@@ -29,6 +31,8 @@ export type CoffeeM2RealizationViolation = {
     | 'SAME_OPENER_AS_PREVIOUS'
     | 'DEMONSTRATIVE_OPENER_LIMIT'
     | 'STACKED_NOMINALIZATION'
+    | 'GENERIC_CONTEXT_SUBJECT'
+    | 'CROSS_BEAT_LEXICAL_COLLISION'
     | 'SCENARIO_UNKNOWN_ID'
     | 'SCENARIO_DUPLICATE_ID'
     | 'SCENARIO_TOO_MANY'
@@ -83,11 +87,24 @@ export function checkCoffeeM2TurkishRealization(payload: CoffeeM2TurkishRealizat
       for (const n of o.neverUse) if (hasPhrase(text, n)) out.push({ beat: id, code: 'OVERLAP_NEVER_USE', detail: `${o.cls}~${o.with}: ${n}` });
     }
     if (coffeeTurkishStackedNominalization(raw)) out.push({ beat: id, code: 'STACKED_NOMINALIZATION', detail: raw });
+    if (rb.forbiddenGenericSubjects?.length) {
+      const words = new Set(coffeeTurkishTokens(raw));
+      for (const s of rb.forbiddenGenericSubjects) {
+        if (words.has(s.toLocaleLowerCase('tr-TR'))) out.push({ beat: id, code: 'GENERIC_CONTEXT_SUBJECT', detail: s });
+      }
+    }
     const opener = (text.match(/[a-z]+/) ?? [''])[0];
     if (i > 0 && rb.avoidSameOpenerAsPrevious && opener === previousOpener) out.push({ beat: id, code: 'SAME_OPENER_AS_PREVIOUS', detail: opener });
     previousOpener = opener;
     if (coffeeTurkishIsDemonstrativeOpener(raw)) demonstratives += 1;
   });
+  for (const f of payload.realization.crossBeat.lexicalCollisionFamilies ?? []) {
+    const forms = new Set(f.forms);
+    const hits = f.beats.filter((order) => coffeeTurkishTokens(texts[order - 1] ?? '').some((t) => forms.has(t)));
+    if (hits.length === f.beats.length) {
+      out.push({ beat: null, code: 'CROSS_BEAT_LEXICAL_COLLISION', detail: `${f.family}: ${hits.map((o) => `B${o}`).join('+')}` });
+    }
+  }
   if (demonstratives > payload.realization.crossBeat.demonstrativeOpenerMax) {
     out.push({ beat: null, code: 'DEMONSTRATIVE_OPENER_LIMIT', detail: `${demonstratives} > ${payload.realization.crossBeat.demonstrativeOpenerMax}` });
   }

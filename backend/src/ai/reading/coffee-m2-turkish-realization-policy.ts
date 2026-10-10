@@ -173,6 +173,76 @@ export function coffeeTurkishStackedNominalization(text: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
+// W4C.2 — context-bound relation surface and closed lexical families
+// ---------------------------------------------------------------------------
+
+/**
+ * Generic carriers that turn "[decision context] + relation" into a template
+ * ("karar konusunda konu …"). Matched as whole tokens only, so "konusunda" is
+ * never a hit. Keyed by relation; applies when the beat carries user_decision.
+ */
+export const COFFEE_TURKISH_CONTEXT_GENERIC_SUBJECTS: Readonly<Record<string, readonly string[]>> = {
+  opening_moves_forward: ['konu', 'işler', 'gidişat'],
+};
+
+/**
+ * Beat-local decision wording for a context-bound relation (the global
+ * user_decision row stays as is): the two forms without the "ön-" root, the
+ * "önündeki karar" form to avoid there, and decision overreach never to write.
+ */
+export const COFFEE_TURKISH_CONTEXT_RELATION_SURFACE: Readonly<Record<string, { context: string; forms: readonly string[]; avoid: readonly string[] }>> = {
+  opening_moves_forward: {
+    context: 'user_decision',
+    // "karar vermen gereken konuda" was rejected: long, and it reintroduces "konu".
+    forms: ['vermen gereken kararda', 'karar meselende'],
+    avoid: ['önündeki karar', 'kararın ilerl', 'kararın netleş', 'kararın kesinleş', 'doğru karar'],
+  },
+};
+
+/**
+ * Closed surface-token families (no stemmer): every form the bank, horizons and
+ * contexts can produce, plus their ordinary inflections. Exact whole tokens.
+ */
+export const COFFEE_TURKISH_LEXICAL_FAMILIES: Readonly<Record<string, readonly string[]>> = {
+  FRONT_ON: [
+    'ön', 'önü', 'önün', 'önünü', 'önüne', 'önünde', 'önündeki', 'önünden', 'önümüz', 'önümüzde', 'önümüzdeki', 'önümüzden',
+    'öne', 'önde', 'öndeki', 'önden',
+  ],
+  PREDICATE_BELIR: [
+    'belir', 'beliriyor', 'beliriyorlar', 'belirebilir', 'belirebilirler', 'beliren', 'belirir', 'belirirler', 'belirdi',
+    'belirecek', 'belirmeye', 'belirip', 'belirmiş', 'belirmekte', 'belirince',
+  ],
+};
+
+/** Lowercased Turkish word tokens (letters kept as written, so "ön" never folds into "on"). */
+export function coffeeTurkishTokens(text: string): string[] {
+  return text.normalize('NFC').toLocaleLowerCase('tr-TR').match(/[a-zçğıöşüâîû]+/g) ?? [];
+}
+
+const RICH_DECISION_CLUSTER = ['secondary_option_gaining_weight', 'another_option_relevant', 'options_separating'];
+
+/**
+ * W4C.2 — the one composition that needs a richer concrete layer: a rich plan
+ * whose opening_moves_forward relation beat is followed by a separate decision
+ * MULTIPLICITY scenario beat carrying the full decision cluster, which is the
+ * plan's only scenario. Detected semantically (never by fixture). Returns the
+ * relation and scenario beat indexes.
+ */
+export function coffeeM2RichOpeningDecisionShape(plan: CoffeeM2WriterPlan): { relation: number; scenario: number } | null {
+  if (plan.status !== 'planned' || plan.diagnostics.m2.capacity !== 'rich') return null;
+  const scenarioBeats = plan.beats.map((b, i) => (b.scenario ? i : -1)).filter((i) => i >= 0);
+  const relation = plan.beats.findIndex((b) => b.relation?.combination === 'opening_moves_forward');
+  if (relation < 0 || scenarioBeats.length !== 1 || scenarioBeats[0] === relation) return null;
+  const s = plan.beats[scenarioBeats[0]];
+  const ok = s.scenario!.context === 'decision'
+    && s.scenario!.realizes === 'MULTIPLICITY'
+    && JSON.stringify(s.scenario!.manifestations) === JSON.stringify(RICH_DECISION_CLUSTER)
+    && s.groups.some((g) => g.cls === 'MULTIPLICITY')
+    && s.qualifiers.context.some((c) => c.binding === 'user_decision');
+  return ok ? { relation, scenario: scenarioBeats[0] } : null;
+}
+
+// ---------------------------------------------------------------------------
 // Realization payload
 // ---------------------------------------------------------------------------
 
@@ -203,6 +273,10 @@ export type CoffeeM2BeatRealization = {
   finitePredicateRequired: true;
   avoidStackedNominalization: true;
   avoidSameOpenerAsPrevious: boolean;
+  /** W4C.2 (only when set): whole words that must not carry a context-bound relation. */
+  forbiddenGenericSubjects?: string[];
+  /** W4C.2 (only when set): the context wording to use in this beat instead of wording.contexts. */
+  contextWording?: Record<string, string[]>;
 };
 
 export type CoffeeM2TurkishRealizationPayload = CoffeeM2TurkishWriterPayload & {
@@ -213,6 +287,8 @@ export type CoffeeM2TurkishRealizationPayload = CoffeeM2TurkishWriterPayload & {
       /** Max beats that may open with a demonstrative ("Bu …"); never all of a 3+ beat plan. */
       demonstrativeOpenerMax: number;
       tempo: Array<{ classes: string[]; note: string; separateReferents: Record<string, string[]>; neverShared: string[] }>;
+      /** W4C.2 (only when set): a closed word family may appear in one of these beats, never in both. */
+      lexicalCollisionFamilies?: Array<{ family: string; forms: string[]; beats: number[]; rule: 'not_in_both' }>;
     };
   };
 };
@@ -342,6 +418,17 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
       .filter((p) => p.pair.every((m) => manifestations.includes(m)))
       .map((p) => [...p.pair]);
 
+    // W4C.2: a relation framed by the user's context never rides on a generic carrier.
+    const combination = beat.relation?.combination as string | undefined;
+    const ctxSurface = combination ? COFFEE_TURKISH_CONTEXT_RELATION_SURFACE[combination] : undefined;
+    const contextBound = !!ctxSurface && beat.qualifiers.context.some((c) => c.binding === ctxSurface.context);
+    const w4c2: Partial<CoffeeM2BeatRealization> = {};
+    if (contextBound) {
+      avoidWording.push(...ctxSurface!.avoid);
+      w4c2.forbiddenGenericSubjects = [...(COFFEE_TURKISH_CONTEXT_GENERIC_SUBJECTS[combination!] ?? [])];
+      w4c2.contextWording = { [ctxSurface!.context]: [...ctxSurface!.forms] };
+    }
+
     return {
       order: index + 1,
       groupRoles,
@@ -354,6 +441,7 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
       finitePredicateRequired: true as const,
       avoidStackedNominalization: true as const,
       avoidSameOpenerAsPrevious: index > 0,
+      ...w4c2,
     };
   });
 
@@ -387,16 +475,33 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
     }
   }
 
+  const crossBeat: CoffeeM2TurkishRealizationPayload['realization']['crossBeat'] = {
+    noIdenticalAdjacentOpener: true,
+    demonstrativeOpenerMax: beats.length >= 3 ? beats.length - 1 : beats.length,
+    tempo,
+  };
+
+  // W4C.2: the rich opening + decision composition. Its scenario beat realizes exactly two
+  // compatible items of the already licensed max-two cluster (incompatible pairs stay hard),
+  // and the two beats never share the "ön-" or "belir-" word families.
+  let wording = payload.wording;
+  const shape = coffeeM2RichOpeningDecisionShape(plan);
+  if (shape) {
+    const target = JSON.stringify(beats[shape.scenario].scenario!.manifestations);
+    wording = {
+      ...payload.wording,
+      scenarioClusters: payload.wording.scenarioClusters.map((c) =>
+        JSON.stringify(c.manifestations) === target ? { ...c, choose: { min: 2, max: 2 } } : c),
+    };
+    const pair = [shape.relation + 1, shape.scenario + 1].sort((a, b) => a - b);
+    crossBeat.lexicalCollisionFamilies = Object.entries(COFFEE_TURKISH_LEXICAL_FAMILIES)
+      .map(([family, forms]) => ({ family, forms: [...forms], beats: pair, rule: 'not_in_both' as const }));
+  }
+
   const result: CoffeeM2TurkishRealizationPayload = {
     ...payload,
-    realization: {
-      beats: realizedBeats,
-      crossBeat: {
-        noIdenticalAdjacentOpener: true,
-        demonstrativeOpenerMax: beats.length >= 3 ? beats.length - 1 : beats.length,
-        tempo,
-      },
-    },
+    wording,
+    realization: { beats: realizedBeats, crossBeat },
   };
   assertCoffeeV3MeaningOnly(result);
   return result;

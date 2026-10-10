@@ -409,13 +409,14 @@ export const COFFEE_TURKISH_RELATION_WORDING: Rows = {
     meaning: 'the matter keeps moving and an opening also emerges (each group keeps its own horizon)',
     tier: 'high_value',
     // W4A.1: two finite clauses, no "-ken": the components may carry different horizons.
+    // W4A.2: the carrier is the user's own "yol" (the fortune idiom of OPENING), never a
+    // generic konu / işler / gidişat; no belir- so the verb can stay free for the next beat.
     forms: {
       relational: [
-        'konu yoluna devam ediyor; önün de açılıyor',
-        'konu kendi akışında ilerliyor; önünü açan bir yol da beliriyor',
-        'konu yerinde saymıyor; önünü açan bir gelişme de beliriyor',
-        'işler kendi yolunda yürüyor; bir yol da açılıyor',
-        'önün açılıyor; konu da yerinde saymıyor',
+        'yolun yerinde saymıyor; önün de açılıyor',
+        'yolun adım adım ilerliyor; önün de açılıyor',
+        'yolun yerinde saymıyor; açılıyor da',
+        'yolun adım adım ilerliyor; açılıyor da',
       ],
     },
     avoid: ['açılırken', 'ilerlerken', 'aynı anda', 'eşzamanlı', 'o sırada', 'açık bir alan', 'boşluk'],

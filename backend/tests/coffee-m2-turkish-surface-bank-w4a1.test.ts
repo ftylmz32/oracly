@@ -29,7 +29,8 @@ const fold = (s: string) =>
     .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c').replace(/â/g, 'a').replace(/î/g, 'i').replace(/û/g, 'u');
 const CAUSAL = /\b(cunku|bu yuzden|o yuzden|bu sayede|sayesinde|boylece|dolayisiyla|sonucunda|bu nedenle|yuzunden)\b|sagla(r|yabilir|yacak|di)|neden ol|yol ac(ar|abilir|acak)\b|getir(ir|ebilir|ecek)\b|dogur(ur|abilir|acak)\b|\b\w+(dikca|dikce|dukca|dukce|tikca|tikce)\b/;
 const HORIZON_WORD = /\b(yakin|yakinda|ileride|ileriki|ilerleyen|donem\w*|zaman\w*|gunler\w*|gecmeden|sure\w*|simdi|bugun|yarin)\b/;
-const SIMULTANEITY = /\w+(ken)\b|\b(ayni anda|eszamanli|tam o sirada|o sirada|birlikte)\b/;
+// "-ken" (while) on a finite stem (açılırken / ilerlerken / ilerliyorken), never the participle "gereken".
+const SIMULTANEITY = /\w+(ir|ur|ar|er|yor)ken\b|\b(ayni anda|eszamanli|tam o sirada|o sirada|birlikte)\b/;
 const PHYSICAL = /\b(alan\w*|bosluk\w*|aciklik\w*|acik bir|yer bul\w*|kendine yer|acilan yer\w*)\b/;
 const RELIEF = /\b(nihayet|sonunda|ragmen|rahatla\w*|ferahla\w*|cozul\w*|cozum\w*|kurtul\w*|engel\w*|sorun\w*|sikinti\w*|duzel\w*|toparla\w*|basari\w*)\b/;
 const UNEVEN_MARK = /bir ilerleyip bir dur|tek solukta|ara ara|kesik kesik|araliklarla|bazen hizlanip/;
@@ -70,8 +71,9 @@ const MANUAL = {
   STALLED_ROOM: ['Önümüzdeki dönemde konu aralıklarla ilerliyor; önün de açılıyor.'],
   WALL_LOOP_PHASE: ['Önümüzdeki dönemde yönün tek bir aşamada değişiyor.'],
   RITAG_V3G1: [
-    'Konu önümüzdeki dönemde yoluna devam ediyor; biraz daha ileride önün de açılıyor.',
-    'Vermen gereken kararda yaklaşan dönemde birkaç seçenek birden ortaya çıkıyor; seçeneklerden biri gözünde ağırlık kazanabilir, aralarındaki fark da daha net görünebilir.',
+    // Updated by W4A.2 / W4C.2: the decision-framed relation no longer rides on a generic "konu".
+    'Vermen gereken kararda yolun yaklaşan dönemde yerinde saymıyor; biraz daha ileride açılıyor da.',
+    'Önündeki günlerde birkaç seçenek birden ortaya çıkıyor; aralarındaki fark daha net görünebilir, biri de gözünde ağır basmaya başlayabilir.',
   ],
 } as const;
 
@@ -242,7 +244,7 @@ describe('W4A.1 manual re-proof replay (zero provider)', () => {
 
   it('the RITAG B1 manual beat keeps its two horizons in separate clauses', () => {
     const [forward, opening] = MANUAL.RITAG_V3G1[0].split(';').map(fold);
-    expect(forward).toMatch(/onumuzdeki donemde/); // FORWARD: coming_period
+    expect(forward).toMatch(/yaklasan donemde/); // FORWARD: coming_period
     expect(opening).toMatch(/biraz daha ileride/); // OPENING: further_out
     expect(fold(MANUAL.RITAG_V3G1[0])).not.toMatch(SIMULTANEITY);
   });
