@@ -47,6 +47,21 @@ export function isCoffeeInputContract(value: unknown): value is CoffeeInputContr
     (COFFEE_INPUT_CONTRACTS as readonly string[]).includes(value);
 }
 
+/**
+ * LIS1 — immutable Coffee photo-set contract, set only at creation. Absent /
+ * null = the legacy single-image or Coffee V2 three-slot contract, exactly as
+ * before. 'four_view_v3' = an explicitly V3-owned operation (four namespaced
+ * staged slots). Processing must branch on THIS field, never on which staged
+ * slots happen to exist.
+ */
+export const COFFEE_CAPTURE_CONTRACTS = ['four_view_v3'] as const;
+export type CoffeeCaptureContract = (typeof COFFEE_CAPTURE_CONTRACTS)[number];
+
+export function isCoffeeCaptureContract(value: unknown): value is CoffeeCaptureContract {
+  return typeof value === 'string' &&
+    (COFFEE_CAPTURE_CONTRACTS as readonly string[]).includes(value);
+}
+
 export function isExecutionMode(value: unknown): value is ExecutionMode {
   return (
     typeof value === 'string' &&
@@ -80,6 +95,8 @@ export type ReadingOperationRecord = {
   coffeeIntention: string | null;
   /** C2.7B.1 — explicit opt-in; null preserves every legacy Coffee contract. */
   coffeeInputContract: CoffeeInputContract | null;
+  /** LIS1 — immutable photo-set contract; null = legacy / Coffee V2. */
+  coffeeCaptureContract: CoffeeCaptureContract | null;
 };
 
 export type PublicOperationStatus = {
@@ -161,6 +178,8 @@ export function toStoredDocument(
     executionMode: record.executionMode,
     coffeeIntention: record.coffeeIntention,
     coffeeInputContract: record.coffeeInputContract,
+    // Written only when set, so every legacy / V2 document stays byte-identical.
+    ...(record.coffeeCaptureContract ? { coffeeCaptureContract: record.coffeeCaptureContract } : {}),
     ...(retentionMs == null ? {} : { expiresAt: Timestamp.fromMillis(record.updatedAtMs + retentionMs) }),
   };
 }
@@ -185,6 +204,11 @@ export function parseStoredRecord(
     : isCoffeeInputContract(data.coffeeInputContract) ? data.coffeeInputContract : null;
   if (data.coffeeInputContract != null && !coffeeInputContract) return null;
   if (data.readingType !== 'coffee' && coffeeInputContract != null) return null;
+  const coffeeCaptureContract = data.coffeeCaptureContract == null
+    ? null
+    : isCoffeeCaptureContract(data.coffeeCaptureContract) ? data.coffeeCaptureContract : null;
+  if (data.coffeeCaptureContract != null && !coffeeCaptureContract) return null;
+  if (data.readingType !== 'coffee' && coffeeCaptureContract != null) return null;
   const language = data.language == null
     ? LEGACY_READING_LANGUAGE
     : isReadingLanguage(data.language) ? data.language : null;
@@ -222,6 +246,7 @@ export function parseStoredRecord(
     executionMode: isExecutionMode(data.executionMode) ? data.executionMode : null,
     coffeeIntention,
     coffeeInputContract,
+    coffeeCaptureContract,
   };
 }
 

@@ -51,6 +51,9 @@ const FORBIDDEN_BODY_KEYS = [
   'remainingMs',
   'clientNow',
   'elapsedMs',
+  // LIS1 — four-view V3 creation stays DARK: no client captures four views and
+  // no processor handles them yet, so the field is refused, never ignored.
+  'coffeeCaptureContract',
 ] as const;
 
 export type ReadingOperationRouteOptions = {

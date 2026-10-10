@@ -28,6 +28,25 @@ export function isCoffeeV2Slot(value: unknown): value is CoffeeV2Slot {
   return (COFFEE_V2_SLOTS as readonly unknown[]).includes(value);
 }
 
+/**
+ * LIS1 — Coffee V3 four-view staging contract (storage / transport only; the
+ * frozen V3 observation slots live in ai/reading/types.ts and are mapped at the
+ * observer bridge, not here). Namespaced with `v3_` so a V3 slot can never
+ * share a document id or object path with a V2 slot (`saucer` vs `v3_saucer`).
+ * Valid only on an operation whose coffeeCaptureContract is 'four_view_v3'.
+ * Canonical order matters — never reorder.
+ */
+export const COFFEE_V3_STAGED_SLOTS = ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer'] as const;
+
+export type CoffeeV3StagedSlot = (typeof COFFEE_V3_STAGED_SLOTS)[number];
+
+export function isCoffeeV3StagedSlot(value: unknown): value is CoffeeV3StagedSlot {
+  return (COFFEE_V3_STAGED_SLOTS as readonly unknown[]).includes(value);
+}
+
+/** Any stored Coffee slot. Absent on a record = the legacy unslotted path. */
+export type CoffeeStagedSlot = CoffeeV2Slot | CoffeeV3StagedSlot;
+
 const EXTENSION_FOR_MIME: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/jpg': 'jpg',
@@ -55,8 +74,8 @@ export type ReadingStagedImageRecord = {
   checksumSha256: string;
   uploadState: StagedImageUploadState;
   handSide?: 'left' | 'right';
-  /** Coffee V2 only (Phase 2A). Absent = legacy single-image record. */
-  slot?: CoffeeV2Slot;
+  /** Coffee V2 (Phase 2A) or V3 (LIS1) slot. Absent = legacy single-image record. */
+  slot?: CoffeeStagedSlot;
   createdAtMs: number;
   updatedAtMs: number;
 };
@@ -78,7 +97,7 @@ export function stagedObjectPath(input: {
   ownerUserId: string;
   operationId: string;
   ext: string;
-  slot?: CoffeeV2Slot;
+  slot?: CoffeeStagedSlot;
 }): string {
   const ownerPathKey = input.ownerUserId.replace(/[^A-Za-z0-9_-]/g, '_');
   const fileName = input.slot ? input.slot : 'input';
@@ -92,7 +111,7 @@ export function stagedObjectPath(input: {
  * slots are three separate documents that can never overwrite one another
  * or the legacy document.
  */
-export function stagedDocId(operationId: string, slot?: CoffeeV2Slot): string {
+export function stagedDocId(operationId: string, slot?: CoffeeStagedSlot): string {
   return slot ? `${operationId}--${slot}` : operationId;
 }
 
@@ -133,7 +152,7 @@ export function parseStoredStagedImageRecord(
   }
   if (data.uploadState !== 'pending' && data.uploadState !== 'complete') return null;
   if (data.handSide != null && data.handSide !== 'left' && data.handSide !== 'right') return null;
-  if (data.slot != null && !isCoffeeV2Slot(data.slot)) return null;
+  if (data.slot != null && !isCoffeeV2Slot(data.slot) && !isCoffeeV3StagedSlot(data.slot)) return null;
   if (typeof data.createdAtMs !== 'number' || typeof data.updatedAtMs !== 'number') {
     return null;
   }
@@ -148,7 +167,7 @@ export function parseStoredStagedImageRecord(
     checksumSha256: data.checksumSha256,
     uploadState: data.uploadState,
     handSide: data.handSide as 'left' | 'right' | undefined,
-    slot: data.slot as CoffeeV2Slot | undefined,
+    slot: data.slot as CoffeeStagedSlot | undefined,
     createdAtMs: data.createdAtMs,
     updatedAtMs: data.updatedAtMs,
   };

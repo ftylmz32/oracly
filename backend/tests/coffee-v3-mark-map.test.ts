@@ -596,6 +596,10 @@ describe('V2 dark-path guarantee (V, W)', () => {
       'ai/reading/observer-prompts.ts',
       'ai/reading/schemas.ts',
       'ai/reading/types.ts',
+      // LIS1 — the dark V3 four-view STAGING contract (data ownership only; no dispatch).
+      'reading/operation-staged-image-model.ts',
+      'reading/operation-staged-image-repository.ts',
+      'reading/operation-staged-image-service.ts',
     ]);
   });
 

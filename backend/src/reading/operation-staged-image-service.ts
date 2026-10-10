@@ -13,12 +13,16 @@ import type { ServerClock } from './clock.js';
 import { toEpochMs } from './clock.js';
 import {
   COFFEE_V2_SLOTS,
+  COFFEE_V3_STAGED_SLOTS,
   extensionForMime,
   isCoffeeV2Slot,
+  isCoffeeV3StagedSlot,
   isStagedImageReadingType,
   STAGED_IMAGE_SCHEMA_VERSION,
   stagedObjectPath,
+  type CoffeeStagedSlot,
   type CoffeeV2Slot,
+  type CoffeeV3StagedSlot,
   type ReadingStagedImageRecord,
   type StagedImageReadingType,
 } from './operation-staged-image-model.js';
@@ -84,8 +88,17 @@ export class ReadingStagedImageService {
     // is only ever valid for Coffee; Palm must fail closed rather than
     // silently ignore an unexpected slot. An unknown slot value also fails
     // closed rather than being coerced into a canonical one.
-    let slot: CoffeeV2Slot | undefined;
-    if (input.slot != null) {
+    // LIS1 — the OPERATION owns the photo-set contract; a slot is only ever
+    // validated against it, never used to infer it. A four-view V3 operation
+    // requires one of its four namespaced slots (no unslotted or V2 input);
+    // a null-contract operation keeps exactly the legacy / V2 rules and can
+    // never receive a V3 slot.
+    const fourView = readingType === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';
+    let slot: CoffeeStagedSlot | undefined;
+    if (fourView) {
+      if (!isCoffeeV3StagedSlot(input.slot)) throw new ReadingOperationError('invalid');
+      slot = input.slot;
+    } else if (input.slot != null) {
       if (readingType !== 'coffee' || !isCoffeeV2Slot(input.slot)) {
         throw new ReadingOperationError('invalid');
       }
@@ -126,7 +139,10 @@ export class ReadingStagedImageService {
     // same bytes is exempt by construction (`r.slot !== slot` below) — that
     // is the existing idempotent-restage behavior, not a duplicate.
     if (slot) {
-      const others = await this.repository.listSlots(input.operationId, input.ownerUserId);
+      // Compared only within this operation's own slot set (V2 or V3, never mixed).
+      const others = fourView
+        ? await this.repository.listCoffeeV3Slots(input.operationId, input.ownerUserId)
+        : await this.repository.listSlots(input.operationId, input.ownerUserId);
       const duplicate = others.some(
         (r) => r.slot !== slot && r.uploadState === 'complete' && r.checksumSha256 === checksumSha256,
       );
@@ -275,6 +291,48 @@ export class ReadingStagedImageService {
   }
 
   /**
+   * LIS1 — DARK: no worker, pipeline or route calls this yet. The operation
+   * must be Coffee AND explicitly 'four_view_v3' (never inferred from slots).
+   * Requires all four namespaced V3 slots complete, re-validates bytes and
+   * checksum per slot like the V2 path, and returns them in V3 staging
+   * canonical order. Anything missing, pending or corrupt fails closed with
+   * the same staging errors — a missing view is never fabricated.
+   */
+  async retrieveCoffeeV3ForProcessing(input: {
+    ownerUserId: string;
+    operationId: string;
+  }): Promise<Array<{ slot: CoffeeV3StagedSlot; bytes: Buffer; mimeType: string }>> {
+    const operation = await this.operations.get(input.ownerUserId, input.operationId);
+    if (operation.readingType !== 'coffee' || operation.coffeeCaptureContract !== 'four_view_v3') {
+      throw new ReadingOperationError('not_found');
+    }
+    const out: Array<{ slot: CoffeeV3StagedSlot; bytes: Buffer; mimeType: string }> = [];
+    for (const slot of COFFEE_V3_STAGED_SLOTS) {
+      let record: ReadingStagedImageRecord | null;
+      try {
+        record = await this.repository.getCoffeeV3Slot(input.operationId, slot, input.ownerUserId);
+      } catch {
+        throw new ReadingOperationError('unavailable');
+      }
+      if (!record || record.uploadState !== 'complete') {
+        throw new ReadingOperationError('invalid');
+      }
+      let bytes: Buffer | null;
+      try {
+        bytes = await this.objects.get(record.objectPath);
+      } catch (error) {
+        throw new ReadingOperationError('unavailable', error);
+      }
+      if (!bytes) throw new ReadingOperationError('invalid');
+      const checksum = createHash('sha256').update(bytes).digest('hex');
+      if (checksum !== record.checksumSha256) throw new ReadingOperationError('invalid');
+      validateImageBytes(bytes, record.contentType, this.config);
+      out.push({ slot, bytes, mimeType: record.contentType });
+    }
+    return out;
+  }
+
+  /**
    * Best-effort and idempotent by design: cleanup failure must never throw
    * into a completion/failure path or corrupt an already-persisted result.
    * Never touches another operation's object (ownership is re-checked via
@@ -333,6 +391,34 @@ export class ReadingStagedImageService {
       } catch {
         this.onCleanupFailure?.({ event: 'staged_cleanup_failed', operationId: input.operationId, readingType: record.readingType, stage: 'metadata' });
         // Best-effort — safe to retry later; never corrupts a persisted result.
+      }
+    }
+  }
+
+  /**
+   * LIS1 — DARK (not called by the worker yet). Same best-effort, idempotent,
+   * per-slot semantics as `deleteCoffeeV2Slots`, over the four V3 staged slots
+   * only: never touches a V2 slot or the legacy unslotted record, and never
+   * another owner's slot (ownership re-checked via each slot's metadata).
+   */
+  async deleteCoffeeV3Slots(input: { ownerUserId: string; operationId: string }): Promise<void> {
+    for (const slot of COFFEE_V3_STAGED_SLOTS) {
+      let record: ReadingStagedImageRecord | null;
+      try {
+        record = await this.repository.getCoffeeV3Slot(input.operationId, slot, input.ownerUserId);
+      } catch {
+        continue;
+      }
+      if (!record) continue;
+      try {
+        await this.objects.delete(record.objectPath);
+      } catch {
+        this.onCleanupFailure?.({ event: 'staged_cleanup_failed', operationId: input.operationId, readingType: record.readingType, stage: 'object' });
+      }
+      try {
+        await this.repository.deleteCoffeeV3Slot(input.operationId, slot);
+      } catch {
+        this.onCleanupFailure?.({ event: 'staged_cleanup_failed', operationId: input.operationId, readingType: record.readingType, stage: 'metadata' });
       }
     }
   }

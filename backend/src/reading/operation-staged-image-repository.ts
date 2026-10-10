@@ -9,10 +9,13 @@ import type { AppConfig } from '../config.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import {
   COFFEE_V2_SLOTS,
+  COFFEE_V3_STAGED_SLOTS,
   parseStoredStagedImageRecord,
   stagedDocId,
   toStoredStagedImageDocument,
+  type CoffeeStagedSlot,
   type CoffeeV2Slot,
+  type CoffeeV3StagedSlot,
   type ReadingStagedImageRecord,
 } from './operation-staged-image-model.js';
 
@@ -48,6 +51,20 @@ export interface ReadingStagedImageRepository {
     ownerUserId: string,
   ): Promise<ReadingStagedImageRecord[]>;
   deleteSlot(operationId: string, slot: CoffeeV2Slot): Promise<void>;
+  /**
+   * LIS1 — Coffee V3 four-view staged slots. Separate from the V2 methods
+   * above so `listSlots` keeps returning only V2 records.
+   */
+  getCoffeeV3Slot(
+    operationId: string,
+    slot: CoffeeV3StagedSlot,
+    ownerUserId: string,
+  ): Promise<ReadingStagedImageRecord | null>;
+  listCoffeeV3Slots(
+    operationId: string,
+    ownerUserId: string,
+  ): Promise<ReadingStagedImageRecord[]>;
+  deleteCoffeeV3Slot(operationId: string, slot: CoffeeV3StagedSlot): Promise<void>;
 }
 
 export class FirestoreReadingStagedImageRepository
@@ -99,6 +116,37 @@ export class FirestoreReadingStagedImageRepository
     slot: CoffeeV2Slot,
     ownerUserId: string,
   ): Promise<ReadingStagedImageRecord | null> {
+    return this.readSlot(operationId, slot, ownerUserId);
+  }
+
+  async getCoffeeV3Slot(
+    operationId: string,
+    slot: CoffeeV3StagedSlot,
+    ownerUserId: string,
+  ): Promise<ReadingStagedImageRecord | null> {
+    return this.readSlot(operationId, slot, ownerUserId);
+  }
+
+  /** LIS1 — exactly the four V3 staged slots, by direct doc lookups (no query / index). Never V2 records. */
+  async listCoffeeV3Slots(
+    operationId: string,
+    ownerUserId: string,
+  ): Promise<ReadingStagedImageRecord[]> {
+    const records = await Promise.all(
+      COFFEE_V3_STAGED_SLOTS.map((slot) => this.readSlot(operationId, slot, ownerUserId)),
+    );
+    return records.filter((r): r is ReadingStagedImageRecord => r !== null);
+  }
+
+  async deleteCoffeeV3Slot(operationId: string, slot: CoffeeV3StagedSlot): Promise<void> {
+    return this.deleteSlotDoc(operationId, slot);
+  }
+
+  private async readSlot(
+    operationId: string,
+    slot: CoffeeStagedSlot,
+    ownerUserId: string,
+  ): Promise<ReadingStagedImageRecord | null> {
     try {
       const snap = await this.firestore
         .collection(STAGED_IMAGES)
@@ -129,6 +177,10 @@ export class FirestoreReadingStagedImageRepository
   }
 
   async deleteSlot(operationId: string, slot: CoffeeV2Slot): Promise<void> {
+    return this.deleteSlotDoc(operationId, slot);
+  }
+
+  private async deleteSlotDoc(operationId: string, slot: CoffeeStagedSlot): Promise<void> {
     const ref = this.firestore.collection(STAGED_IMAGES).doc(stagedDocId(operationId, slot));
     try {
       await this.firestore.runTransaction(async (tx) => {
@@ -156,6 +208,18 @@ export class FailClosedReadingStagedImageRepository
   }
 
   async getSlot(): Promise<ReadingStagedImageRecord | null> {
+    throw new ReadingStagedImageStorageUnavailable();
+  }
+
+  async getCoffeeV3Slot(): Promise<ReadingStagedImageRecord | null> {
+    throw new ReadingStagedImageStorageUnavailable();
+  }
+
+  async listCoffeeV3Slots(): Promise<ReadingStagedImageRecord[]> {
+    throw new ReadingStagedImageStorageUnavailable();
+  }
+
+  async deleteCoffeeV3Slot(): Promise<void> {
     throw new ReadingStagedImageStorageUnavailable();
   }
 

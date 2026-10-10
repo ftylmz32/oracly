@@ -12,6 +12,7 @@ import {
   parseResultId,
   type ExecutionMode,
   type CoffeeInputContract,
+  type CoffeeCaptureContract,
   type FailureCode,
   type ReadingOperationRecord, type ReadingLanguage,
   type ReadingType,
@@ -60,6 +61,8 @@ export class ReadingOperationService {
     executionMode?: ExecutionMode;
     coffeeIntention?: string;
     coffeeInputContract?: CoffeeInputContract;
+    /** LIS1 — dark: not accepted by the public create route yet. */
+    coffeeCaptureContract?: CoffeeCaptureContract;
   }): Promise<ReadingOperationRecord> {
     const markedCoffee = input.readingType === 'coffee' && input.coffeeInputContract != null;
     const coffeeIntention = markedCoffee && input.coffeeIntention != null
@@ -67,6 +70,13 @@ export class ReadingOperationService {
       : null;
     if ((input.coffeeInputContract != null || input.coffeeIntention != null) &&
         (!markedCoffee || !coffeeIntention)) {
+      throw new ReadingOperationError('invalid');
+    }
+    // A four-view operation is Coffee only and always carries the trusted
+    // intention contract (no second intention contract exists).
+    const coffeeCaptureContract = input.coffeeCaptureContract ?? null;
+    if (coffeeCaptureContract != null &&
+        (input.readingType !== 'coffee' || input.coffeeInputContract !== 'trusted_intention_v1' || !coffeeIntention)) {
       throw new ReadingOperationError('invalid');
     }
     const nowMs = toEpochMs(this.clock.now());
@@ -90,6 +100,7 @@ export class ReadingOperationService {
       executionMode: input.executionMode ?? null,
       coffeeIntention,
       coffeeInputContract: markedCoffee ? input.coffeeInputContract! : null,
+      coffeeCaptureContract,
     };
     try {
       const stored = await this.repository.createIfAbsent(
@@ -102,7 +113,9 @@ export class ReadingOperationService {
       if (
         input.readingType === 'coffee' &&
         (stored.record.coffeeIntention !== coffeeIntention ||
-          stored.record.coffeeInputContract !== (markedCoffee ? input.coffeeInputContract! : null))
+          stored.record.coffeeInputContract !== (markedCoffee ? input.coffeeInputContract! : null) ||
+          // Same sourceRequestId = same logical create: the photo-set contract must match too.
+          stored.record.coffeeCaptureContract !== coffeeCaptureContract)
       ) {
         throw new ReadingOperationError('conflict');
       }
