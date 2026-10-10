@@ -203,7 +203,7 @@ describe('W4C.3 replays, prompt contract and guards (U–Z)', () => {
       [{ marks: [{ id: 'L1', label: null, band: 'middle', topology: 'closed_loop', form: { continuity: 'continuous', course: 'bending', openness: 'closed' } }] } as M1FixtureSpec, null, 'cf45b1efb6b0510456337d73f4bc97c3223e8d15b8fb782cba89b24978b7b085'],
     ];
     for (const [spec, intention, hash] of pinned) expect(sha(realize(spec, intention))).toBe(hash);
-    expect(sha(ritag())).toBe('6170abd3110f2ca73e2d816d9958d3c469c9c2fe6b49832bfe44d03ddd6db9dd'); // + W4C.4 occurrence limit
+    expect(sha(ritag())).toBe('44728784bb4bc6777dd34e6243eaf90f3beea6d8d4ca1d81c74a3d09c891798a'); // + W4C.4 occurrence limit, + W4C.5 PREDICATE_ACIL
   });
 
   it('Y: nothing live imports the policy', () => {

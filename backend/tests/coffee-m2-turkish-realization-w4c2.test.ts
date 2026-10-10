@@ -169,6 +169,7 @@ describe('W4C.2 cross-beat word families (I–L)', () => {
     expect(ritag().realization.crossBeat.lexicalCollisionFamilies?.map((f) => [f.family, f.beats, f.rule])).toEqual([
       ['FRONT_ON', [1, 2], 'not_in_both'],
       ['PREDICATE_BELIR', [1, 2], 'not_in_both'],
+      ['PREDICATE_ACIL', [1, 2], 'not_in_both'], // W4C.5
     ]);
   });
 });

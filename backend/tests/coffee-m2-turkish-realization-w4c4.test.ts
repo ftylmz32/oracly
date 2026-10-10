@@ -219,7 +219,7 @@ describe('W4C.4 invariants and prompt contract', () => {
       [M1_QA_CUPS.career_key_path.spec, CANONICAL_INTENTION_TEXT.career_work, 'd421b7f9006e707086edc8ff6e8fad5963a228e6130946b5d4c60caa1ae59992'],
     ];
     for (const [spec, intention, hash] of pinned) expect(sha(realize(spec, intention))).toBe(hash);
-    expect(sha(ritag())).toBe('6170abd3110f2ca73e2d816d9958d3c469c9c2fe6b49832bfe44d03ddd6db9dd');
+    expect(sha(ritag())).toBe('44728784bb4bc6777dd34e6243eaf90f3beea6d8d4ca1d81c74a3d09c891798a'); // W4C.5 added PREDICATE_ACIL
     expect(sha(ritag())).toBe(sha(ritag()));
   });
 });

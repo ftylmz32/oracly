@@ -212,6 +212,14 @@ export const COFFEE_TURKISH_LEXICAL_FAMILIES: Readonly<Record<string, readonly s
     'belir', 'beliriyor', 'beliriyorlar', 'belirebilir', 'belirebilirler', 'beliren', 'belirir', 'belirirler', 'belirdi',
     'belirecek', 'belirmeye', 'belirip', 'belirmiş', 'belirmekte', 'belirince',
   ],
+  // W4C.5: the verbal "open" family (açıl- and its transitive aç-, as in "önünü açan"). The
+  // OPENING beat needs it; a following "… ihtimale açılıyor" would repeat the opening idea.
+  // The adjective "açık" (açık / açıklık / açıkça, e.g. "açık seçilebilir") is NOT this family.
+  PREDICATE_ACIL: [
+    'açıl', 'açılıyor', 'açılıyorlar', 'açılır', 'açılabilir', 'açılan', 'açılacak', 'açılmaya', 'açılırken', 'açıldıkça', 'açıldı',
+    'açılmış', 'açılıp', 'açılınca', 'açılması', 'açılmakta',
+    'açan', 'açıyor', 'açar', 'açabilir', 'açacak', 'açıp', 'açtı', 'açmış',
+  ],
 };
 
 /** Lowercased Turkish word tokens (letters kept as written, so "ön" never folds into "on"). */
