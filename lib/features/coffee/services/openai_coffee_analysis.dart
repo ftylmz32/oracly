@@ -9,8 +9,10 @@ import '../../ai/production/oracly_ai_service.dart';
 import '../copy/coffee_copy.dart';
 import '../models/coffee_image_pick.dart';
 import '../models/coffee_reading.dart';
+import '../models/coffee_result_contract.dart';
 import 'coffee_analysis_port.dart';
 import 'coffee_fortune_composer.dart';
+import 'coffee_m2_public_result.dart';
 import '../../ai/production/ai_outcome.dart';
 import '../../ai/production/openai/openai_service_results.dart';
 
@@ -166,6 +168,16 @@ class OpenAiCoffeeAnalysis
     required DateTime persistedAt,
     required Map<String, dynamic> result,
   }) {
+    // Explicit result-contract branch: only the wire marker selects it. The
+    // frozen m2_public_v1 reading never enters the legacy parser / composer;
+    // an unknown marker fails closed (never reinterpreted as legacy Coffee).
+    final contract = result['coffeeResultContract'];
+    if (contract != null) {
+      if (contract == coffeeM2PublicV1ResultContract) {
+        return CoffeeM2PublicResult.restore(resultId: resultId, persistedAt: persistedAt, result: result);
+      }
+      throw CoffeeAnalysisException(CoffeeCopy.analysisFailed);
+    }
     return OpenAiServiceResults.coffee(AiOutcome.success(result)).when(
       success: (analysis) {
         final reading = CoffeeFortuneComposer.compose(

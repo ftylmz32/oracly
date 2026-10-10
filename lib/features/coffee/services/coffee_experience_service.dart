@@ -68,6 +68,7 @@ class CoffeeExperienceService {
       id: reading.id,
       createdAt: reading.createdAt,
       imagePath: archived,
+      coffeeResultContract: reading.coffeeResultContract,
       overall: reading.overall,
       love: reading.love,
       career: reading.career,
@@ -194,6 +195,7 @@ class CoffeeExperienceService {
     final versions = _versions;
     if (versions != null) {
       final probe = current.copyWith(
+        coffeeResultContract: fresh.coffeeResultContract,
         overall: fresh.overall,
         love: fresh.love,
         career: fresh.career,
@@ -230,6 +232,7 @@ class CoffeeExperienceService {
       id: current.id,
       createdAt: current.createdAt,
       imagePath: imagePath,
+      coffeeResultContract: fresh.coffeeResultContract,
       overall: fresh.overall,
       love: fresh.love,
       career: fresh.career,

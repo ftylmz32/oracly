@@ -2,6 +2,7 @@
 library;
 
 import '../../../features/coffee/models/coffee_reading.dart';
+import '../../../features/coffee/models/coffee_result_contract.dart';
 import '../../../features/coffee/models/coffee_symbol.dart';
 import '../../../features/dream/models/dream.dart';
 import '../../../features/palm/models/palm_reading.dart';
@@ -28,6 +29,7 @@ abstract final class ReadingVersionPayload {
               'interpretation': s.interpretation,
             },
         ],
+        'coffeeResultContract': ?reading.coffeeResultContract,
       };
 
   static Map<String, dynamic> palm(PalmReading reading) => {
@@ -62,7 +64,18 @@ abstract final class ReadingVersionPayload {
       return out.isEmpty ? base.symbols : out;
     }
 
+    // A version owns its own result contract: absent = legacy (even over an
+    // m2_public_v1 base); an unknown marker is never reinterpreted — the
+    // version is simply not applied (fail closed, no crash in the view).
+    final String? contract;
+    try {
+      contract = parseCoffeeResultContract(data['coffeeResultContract']);
+    } on FormatException {
+      return base;
+    }
+
     return base.copyWith(
+      coffeeResultContract: contract,
       overall: '${data['overall'] ?? base.overall}',
       love: '${data['love'] ?? base.love}',
       career: '${data['career'] ?? base.career}',

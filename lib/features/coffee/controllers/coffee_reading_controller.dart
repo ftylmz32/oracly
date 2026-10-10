@@ -841,6 +841,7 @@ class CoffeeReadingController extends ChangeNotifier {
         : CoffeeReading(
             id: reading.id,
             createdAt: reading.createdAt,
+            coffeeResultContract: reading.coffeeResultContract,
             overall: reading.overall,
             love: reading.love,
             career: reading.career,

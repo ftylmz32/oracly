@@ -11,6 +11,7 @@ import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../copy/coffee_copy.dart';
 import '../../data/coffee_symbol_lexicon.dart';
 import '../../models/coffee_reading.dart';
+import '../../services/coffee_result_text.dart';
 import 'coffee_result_observations.dart';
 import 'coffee_result_separator.dart';
 import 'coffee_result_title.dart';
@@ -27,7 +28,7 @@ class CoffeeResultSections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final overall = FortuneVoice.scrub(reading.overall);
+    final overall = CoffeeResultText.overall(reading);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

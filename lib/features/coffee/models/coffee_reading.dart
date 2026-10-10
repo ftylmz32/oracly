@@ -1,7 +1,12 @@
 /// Persisted coffee reading — analysis text, optional image path.
 library;
 
+import 'coffee_result_contract.dart';
 import 'coffee_symbol.dart';
+
+/// `copyWith` sentinel: distinguishes "keep the current contract" from an
+/// explicit null (a legacy version applied over an m2_public_v1 base).
+const Object _keepContract = Object();
 
 class CoffeeReading {
   const CoffeeReading({
@@ -16,6 +21,7 @@ class CoffeeReading {
     this.imagePath,
     this.visualObservation = '',
     this.symbols = const [],
+    this.coffeeResultContract,
   });
 
   final String id;
@@ -29,6 +35,12 @@ class CoffeeReading {
   final String takeaway;
   final String visualObservation;
   final List<CoffeeSymbol> symbols;
+
+  /// Server result contract; null = legacy Coffee (see coffee_result_contract.dart).
+  final String? coffeeResultContract;
+
+  /// The frozen V3 result: `overall` is authoritative and shown verbatim.
+  bool get isM2PublicV1 => coffeeResultContract == coffeeM2PublicV1ResultContract;
 
   String get fullText => [
         visualObservation,
@@ -53,10 +65,14 @@ class CoffeeReading {
         'takeaway': takeaway,
         'visualObservation': visualObservation,
         'symbols': symbols.map((s) => s.toJson()).toList(),
+        'coffeeResultContract': ?coffeeResultContract,
       };
 
+  /// An unknown non-null `coffeeResultContract` throws (fail closed): the
+  /// store skips that row instead of misrendering it as a legacy reading.
   factory CoffeeReading.fromJson(Map<String, dynamic> json) {
     return CoffeeReading(
+      coffeeResultContract: parseCoffeeResultContract(json['coffeeResultContract']),
       id: json['id'] as String? ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
@@ -83,8 +99,12 @@ class CoffeeReading {
     String? takeaway,
     String? visualObservation,
     List<CoffeeSymbol>? symbols,
+    Object? coffeeResultContract = _keepContract,
   }) {
     return CoffeeReading(
+      coffeeResultContract: identical(coffeeResultContract, _keepContract)
+          ? this.coffeeResultContract
+          : coffeeResultContract as String?,
       id: id,
       createdAt: createdAt,
       imagePath: imagePath,

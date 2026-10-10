@@ -3,11 +3,11 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/copy/fortune_voice.dart';
 import '../../../../core/design_system/chamber_narrative_block.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../copy/coffee_copy.dart';
 import '../../models/coffee_reading.dart';
+import '../../services/coffee_result_text.dart';
 import 'coffee_result_observations.dart';
 import 'coffee_result_title.dart';
 
@@ -23,7 +23,7 @@ class CoffeeResultStable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final overall = FortuneVoice.scrub(reading.overall);
+    final overall = CoffeeResultText.overall(reading);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

@@ -3,13 +3,14 @@ library;
 
 import '../../../core/copy/fortune_voice.dart';
 import '../models/coffee_reading.dart';
+import 'coffee_result_text.dart';
 
 abstract final class CoffeeFortuneNarration {
   CoffeeFortuneNarration._();
 
   static String body(CoffeeReading reading) {
     final parts = <String>[];
-    final overall = FortuneVoice.scrub(reading.overall);
+    final overall = CoffeeResultText.overall(reading);
     if (overall.isNotEmpty) parts.add(overall);
     _aside(parts, reading.love);
     _aside(parts, reading.career);
