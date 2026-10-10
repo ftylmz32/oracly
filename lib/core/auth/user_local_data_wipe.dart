@@ -12,6 +12,8 @@ import '../notifications/notification_owner_cleanup.dart';
 import '../reading_version/services/reading_version_store.dart';
 import '../storage/secure_storage.dart';
 import '../../features/astrology/data/astrology_preferences_store.dart';
+import '../../features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
+import '../../features/coffee/coffee_v3/services/coffee_v3_work_files.dart';
 import '../../features/coffee/data/coffee_reading_store.dart';
 import '../../features/companion/services/first_reading_or_deepen.dart';
 import '../../features/daily_rewards/services/daily_rewards_service.dart';
@@ -234,14 +236,30 @@ abstract final class UserLocalDataWipe {
       'coffee_v2_acknowledged_operation',
       () => removeKey('coffee_v2_acknowledged_operation'),
     );
-    await step(
-      'coffee_v3_submission',
-      () => removeKey('coffee_v3_submission'),
-    );
-    await step(
-      'coffee_v3_acknowledged_operation',
-      () => removeKey('coffee_v3_acknowledged_operation'),
-    );
+    // Coffee V3 working photos are physically purged BEFORE their metadata
+    // is cleared. If the purge is incomplete (delete failure or unknown
+    // storage location) the V3 record stays as the durable locator and the
+    // wipe reports incomplete — never a claimed privacy wipe with files
+    // left behind. Only app-owned `coffee_v3_work_*` copies are touched.
+    var coffeeV3MetaOkToClear = true;
+    await step('coffee_v3_work_images', () async {
+      coffeeV3MetaOkToClear = await CoffeeV3WorkFiles.purgeStrict();
+      if (!coffeeV3MetaOkToClear) {
+        throw StateError('coffee v3 working image cleanup incomplete');
+      }
+    });
+    if (coffeeV3MetaOkToClear) {
+      await step(
+        CoffeeV3SubmissionStore.key,
+        () => removeKey(CoffeeV3SubmissionStore.key),
+      );
+      await step(
+        CoffeeV3SubmissionStore.acknowledgedOperationKey,
+        () => removeKey(CoffeeV3SubmissionStore.acknowledgedOperationKey),
+      );
+    } else {
+      failed.add(CoffeeV3SubmissionStore.key);
+    }
     await step(
       ReviewAccessRepository.grantedKey,
       () => removeKey(ReviewAccessRepository.grantedKey),

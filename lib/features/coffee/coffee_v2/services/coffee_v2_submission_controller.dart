@@ -121,6 +121,24 @@ class CoffeeV2SubmissionController {
     CoffeeV2PhotoSlot slot,
     CoffeeImagePick picked,
   ) async {
+    final result = await prepareSlot(slot, picked);
+    final asset = result.asset;
+    if (asset == null) return result;
+    await _commitRecord(
+      _record.copyWith(
+        slots: {..._record.slots, slot: CoffeeV2SlotRecord(asset: asset)},
+      ),
+    );
+    return result;
+  }
+
+  /// Normalizes + checksums [picked] for [slot] WITHOUT committing anything,
+  /// so a candidate can be validated (duplicate check) while the slot's
+  /// previously confirmed photo stays untouched.
+  Future<CoffeeV2SlotSelectionResult> prepareSlot(
+    CoffeeV2PhotoSlot slot,
+    CoffeeImagePick picked,
+  ) async {
     _requireDraft();
     try {
       final normalized = await normalizer.normalize(picked);
@@ -140,14 +158,6 @@ class CoffeeV2SubmissionController {
         sha256: checksum,
         sizeBytes: sizeBytes,
       );
-      await _commitRecord(
-        _record.copyWith(
-          slots: {
-            ..._record.slots,
-            slot: CoffeeV2SlotRecord(asset: asset),
-          },
-        ),
-      );
       return CoffeeV2SlotSelectionResult.success(asset);
     } on ImageNormalizeException catch (e) {
       return CoffeeV2SlotSelectionResult.failure(_classify(e));
@@ -160,6 +170,29 @@ class CoffeeV2SubmissionController {
     CoffeeV2PhotoSlot slot,
     CoffeeImagePick picked,
   ) => setSlot(slot, picked);
+
+  /// Commits an already-validated [asset] to its slot AND confirms it in
+  /// one durable write — the replaced photo is swapped out only here.
+  Future<void> commitConfirmedSlot(CoffeeV2PhotoAsset asset) async {
+    _requireDraft();
+    await _commitRecord(
+      _record.copyWith(
+        slots: {
+          ..._record.slots,
+          asset.slot: CoffeeV2SlotRecord(asset: asset, confirmed: true),
+        },
+      ),
+    );
+  }
+
+  /// The duplicate issue [candidate] would cause against the OTHER slots'
+  /// current photos (its own slot's previous photo is ignored).
+  CoffeeV2ValidationIssue? duplicateIssueFor(CoffeeV2PhotoAsset candidate) {
+    return CoffeeV2Validation.duplicateIssue({
+      for (final slot in coffeeV2CanonicalSlotOrder)
+        slot: slot == candidate.slot ? candidate : assetFor(slot),
+    });
+  }
 
   Future<void> clearSlot(CoffeeV2PhotoSlot slot) async {
     _requireDraft();

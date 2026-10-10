@@ -30,6 +30,7 @@ import 'coffee_v3_creation_gate.dart';
 import 'coffee_v3_normalizer.dart';
 import 'coffee_v3_submission_store.dart';
 import 'coffee_v3_validation.dart';
+import 'coffee_v3_work_files.dart';
 
 enum CoffeeV3SlotSelectionFailure {
   missingFile,
@@ -321,6 +322,9 @@ class CoffeeV3SubmissionController {
   }
 
   Future<bool> _assetStillValid(CoffeeV3PhotoAsset asset) async {
+    // Persisted metadata is untrusted: a draft only ever adopts an app-owned
+    // V3 working copy, never an arbitrary file path.
+    if (!await CoffeeV3WorkFiles.isOwned(asset.path)) return false;
     final file = File(asset.path);
     if (!await file.exists()) return false;
     final size = await file.length();
@@ -386,13 +390,12 @@ class CoffeeV3SubmissionController {
     }
   }
 
+  /// Best-effort in-flow release of an app-owned V3 working copy only. A
+  /// path that is not an owned V3 working file (camera/gallery original,
+  /// tampered metadata, other feature) is never touched; anything left
+  /// behind is reclaimed by the strict account-boundary purge.
   Future<void> _deleteFile(String path) async {
-    try {
-      final file = File(path);
-      if (await file.exists()) await file.delete();
-    } catch (_) {
-      // Best-effort cleanup, mirroring the V2 / archive philosophy.
-    }
+    await CoffeeV3WorkFiles.deleteIfOwnedStrict(path);
   }
 
   Future<void> _commitRecord(

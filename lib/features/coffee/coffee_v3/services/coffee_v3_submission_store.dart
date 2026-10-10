@@ -81,12 +81,15 @@ class CoffeeV3SubmissionStore {
     }
   }
 
+  /// With an owner present, ONLY a record stamped with that exact owner is
+  /// adopted. Every save stamps the owner, so an unowned record is
+  /// malformed and is never silently adopted by whoever is signed in.
+  /// Only an ownerless store (no owner configured at all) reads unowned
+  /// records.
   bool _ownerMatches(CoffeeV3SubmissionRecord record) {
     final currentOwner = ownerId;
-    return currentOwner == null ||
-        currentOwner.isEmpty ||
-        record.ownerId == null ||
-        record.ownerId == currentOwner;
+    if (currentOwner == null || currentOwner.isEmpty) return !requireOwner;
+    return record.ownerId == currentOwner;
   }
 
   Future<void> save(CoffeeV3SubmissionRecord record) async {
@@ -170,9 +173,9 @@ class CoffeeV3SubmissionStore {
     } catch (_) {
       throw StateError('coffee v3 submission metadata unsupported');
     }
-    if (currentOwner == null || currentOwner.isEmpty) return;
-    final storedOwner = stored.ownerId;
-    if (storedOwner != null && storedOwner != currentOwner) {
+    if (!_ownerMatches(stored)) {
+      // Another owner's (or an unowned, malformed) record: never overwritten
+      // or removed through this owner's store.
       throw StateError('coffee v3 owner mismatch');
     }
   }

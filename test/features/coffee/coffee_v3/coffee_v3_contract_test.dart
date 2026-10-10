@@ -255,6 +255,9 @@ void main() {
         'coffee_v3_acknowledged_operation': '{}',
       });
       final storage = LocalStorage(await SharedPreferences.getInstance());
+      final root = await Directory.systemTemp.createTemp('coffee_v3_wipe_');
+      addTearDown(() => root.delete(recursive: true));
+      installCoffeeV3SupportRoot(root.path);
       await UserLocalDataWipe.run(storage, secureStorage: InMemorySecureStorage());
       expect(storage.getString('coffee_v3_submission'), isNull);
       expect(storage.getString('coffee_v3_acknowledged_operation'), isNull);

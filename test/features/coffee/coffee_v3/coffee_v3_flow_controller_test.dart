@@ -51,6 +51,7 @@ void main() {
   setUp(() async {
     OraclyL10n.bind('tr');
     temp = await Directory.systemTemp.createTemp('coffee_v3_flow_');
+    installCoffeeV3SupportRoot(temp.path);
     storage = LocalStorage.ephemeral();
     backend = FakeReadingOperationBackend(immediatelyEligible: false)
       ..authoritativeBalance = 95;
@@ -85,7 +86,7 @@ void main() {
           ownerId: 'owner-flow',
           requireOwner: true,
         ),
-        normalizer: ScriptedCoffeeV2Normalizer((s) async => s),
+        normalizer: ownedCoffeeV3Normalizer(temp.path),
         messages: coffeeV3TestMessages,
         creationAllowed: () => allowed,
         newSourceRequestId: () => 'coffee-v3-src-${++sourceCounter}',
@@ -382,13 +383,15 @@ void main() {
       c.setPreviewCandidate(CoffeeV3PhotoSlot.saucer, CoffeeImagePick(path: file.path));
       expect(await c.confirmCandidate(),
           CoffeeV3ConfirmOutcome.committedReturnToReview);
+      final replaced = c.record.slots[CoffeeV3PhotoSlot.saucer]!.asset!;
+      expect(await file.exists(), isTrue); // source original untouched
       // Reopen: draft still there, never auto-cleared.
       c.dispose();
       controllers.remove(c);
       final reopened = build();
       await reopened.boot();
       expect(reopened.stage, CoffeeV3FlowStage.finalReview);
-      expect(reopened.record.slots[CoffeeV3PhotoSlot.saucer]?.asset?.path, file.path);
+      expect(reopened.record.slots[CoffeeV3PhotoSlot.saucer]?.asset, replaced);
       // Cancel is allowed and returns the visit to the default route.
       await reopened.cancelDraft();
       expect(reopened.stage, CoffeeV3FlowStage.exitToDefault);

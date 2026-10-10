@@ -4,6 +4,16 @@
 /// immutable). Every persisted record carries `captureContract ==
 /// four_view_v3`; a missing / unknown / different marker is NOT a current V3
 /// record and [CoffeeV3SubmissionRecord.fromJson] throws (fail closed).
+///
+/// Schema versioning: every record written now carries `schemaVersion: 1`.
+/// A historical Slice-4 record (no `schemaVersion`, valid `four_view_v3`
+/// marker) IS schema 1 — same shape — and is accepted as-is, then rewritten
+/// with the explicit version on its next normal save (no field is dropped:
+/// owner, operation, sourceRequestId, intention, slots, staging, result
+/// acknowledgement all round-trip). Any other version (future, zero,
+/// negative, non-integer) fails closed and is never interpreted. The
+/// storage key stays `coffee_v3_submission` — renaming it would orphan
+/// existing drafts / ACTIVE operations; the explicit version guards it.
 library;
 
 import 'coffee_v3_capture_contract.dart';
@@ -47,6 +57,9 @@ class CoffeeV3SlotRecord {
     );
   }
 }
+
+/// The only V3 record schema this client reads or writes.
+const int coffeeV3SubmissionSchemaVersion = 1;
 
 class CoffeeV3SubmissionRecord {
   const CoffeeV3SubmissionRecord({
@@ -108,6 +121,7 @@ class CoffeeV3SubmissionRecord {
   }
 
   Map<String, dynamic> toJson() => {
+        'schemaVersion': coffeeV3SubmissionSchemaVersion,
         'captureContract': coffeeV3CaptureContract,
         if (ownerId != null) 'ownerId': ownerId,
         if (operationId != null) 'operationId': operationId,
@@ -121,10 +135,15 @@ class CoffeeV3SubmissionRecord {
         },
       };
 
-  /// Throws [FormatException] unless `captureContract == four_view_v3`.
+  /// Throws [FormatException] unless `captureContract == four_view_v3` and
+  /// the schema is 1 (explicit, or absent = historical Slice-4 schema 1).
   static CoffeeV3SubmissionRecord fromJson(Object? json) {
     if (json is! Map || json['captureContract'] != coffeeV3CaptureContract) {
       throw const FormatException('unsupported_coffee_v3_capture_contract');
+    }
+    if (json.containsKey('schemaVersion') &&
+        json['schemaVersion'] != coffeeV3SubmissionSchemaVersion) {
+      throw const FormatException('unsupported_coffee_v3_schema_version');
     }
     final rawSlots = json['slots'];
     final slots = <CoffeeV3PhotoSlot, CoffeeV3SlotRecord>{

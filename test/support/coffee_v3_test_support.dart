@@ -4,8 +4,16 @@
 /// (full call log, backend V3-create rejection, server-side failure).
 library;
 
+import 'dart:io';
+
 import 'package:oracly_new/features/ai/production/oracly_ai_service.dart';
+import 'package:oracly_new/features/ai/production/transport/image_normalizer.dart';
+import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_normalizer.dart';
+import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_work_files.dart';
+import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
 import 'package:oracly_new/features/reading_operation/services/reading_operation_gateway.dart';
+// ignore: depend_on_referenced_packages
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
 import 'coffee_v2_test_support.dart';
 import 'fake_reading_operation_backend.dart';
@@ -112,3 +120,34 @@ Map<String, dynamic> m2PublicV1Result(String overall) => {
     };
 
 const coffeeV3TestMessages = coffeeV2TestMessages;
+
+/// Points path_provider's application-support dir at [root] (where the V3
+/// normalizer writes `coffee_v3_work/`).
+void installCoffeeV3SupportRoot(String root) {
+  PathProviderPlatform.instance = FakePathProvider(root);
+}
+
+/// Behaves like the real V3 normalizer: writes an app-owned COPY of the
+/// source into `{supportRoot}/coffee_v3_work/coffee_v3_work_{n}.jpg` (the
+/// source original is never reused or touched). Paths containing
+/// [failWhen] throw like an unprocessable photo.
+CoffeeV2Normalizer ownedCoffeeV3Normalizer(
+  String supportRoot, {
+  String? failWhen,
+}) {
+  var counter = 0;
+  return ScriptedCoffeeV2Normalizer((source) async {
+    if (failWhen != null && source.path.contains(failWhen)) {
+      throw const ImageNormalizeException(
+        'normalize_failed',
+        kind: ImageNormalizeKind.failed,
+      );
+    }
+    final dir = Directory('$supportRoot/${CoffeeV3WorkFiles.dirName}');
+    await dir.create(recursive: true);
+    final out =
+        '${dir.path}/${CoffeeV3WorkFiles.filePrefix}${DateTime.now().microsecondsSinceEpoch}_${counter++}.jpg';
+    await File(source.path).copy(out);
+    return CoffeeImagePick(path: out, mimeType: 'image/jpeg');
+  });
+}

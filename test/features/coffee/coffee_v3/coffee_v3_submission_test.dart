@@ -8,7 +8,6 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
-import 'package:oracly_new/features/ai/production/transport/image_normalizer.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_submission_store.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_slot.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_stage_state.dart';
@@ -42,6 +41,7 @@ void main() {
 
   setUp(() async {
     temp = await Directory.systemTemp.createTemp('coffee_v3_sub_');
+    installCoffeeV3SupportRoot(temp.path);
     storage = LocalStorage.ephemeral();
     backend = FakeReadingOperationBackend(immediatelyEligible: false);
     chronology = [];
@@ -68,7 +68,7 @@ void main() {
       stagedImages: ReadingStagedImageGateway(transport.send),
       store: store ?? storeFor(),
       byteLoader: RecordingByteLoader(chronology),
-      normalizer: ScriptedCoffeeV2Normalizer((s) async => s),
+      normalizer: ownedCoffeeV3Normalizer(temp.path),
       messages: coffeeV3TestMessages,
       creationAllowed: () => allowed,
       newSourceRequestId: () => 'coffee-v3-src-${++sourceCounter}',
@@ -151,15 +151,7 @@ void main() {
         ),
         stagedImages: ReadingStagedImageGateway(transport.send),
         store: storeFor(),
-        normalizer: ScriptedCoffeeV2Normalizer((s) async {
-          if (s.path.contains('broken')) {
-            throw const ImageNormalizeException(
-              'normalize_failed',
-              kind: ImageNormalizeKind.corrupt,
-            );
-          }
-          return s;
-        }),
+        normalizer: ownedCoffeeV3Normalizer(temp.path, failWhen: 'broken'),
         messages: coffeeV3TestMessages,
         creationAllowed: () => true,
       );

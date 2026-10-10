@@ -8,6 +8,7 @@ import '../../../ai/production/transport/image_normalizer.dart';
 import '../../coffee_v2/services/coffee_v2_image_limits.dart';
 import '../../coffee_v2/services/coffee_v2_normalizer.dart';
 import '../../models/coffee_image_pick.dart';
+import 'coffee_v3_work_files.dart';
 
 class DefaultCoffeeV3Normalizer implements CoffeeV2Normalizer {
   const DefaultCoffeeV3Normalizer(this.messages);
@@ -18,7 +19,7 @@ class DefaultCoffeeV3Normalizer implements CoffeeV2Normalizer {
   Future<CoffeeImagePick> normalize(CoffeeImagePick source) {
     return ImageNormalizer.normalize(
       source,
-      'coffee_v3_work',
+      CoffeeV3WorkFiles.dirName,
       messages,
       maxBytesOverride: CoffeeV2ImageLimits.maxBytes,
     );

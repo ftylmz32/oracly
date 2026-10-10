@@ -245,17 +245,21 @@ class CoffeeV2FlowController extends ChangeNotifier {
     if (slot == null || candidate == null || sub == null) {
       return CoffeeV2ConfirmOutcome.none;
     }
-    final result = await sub.setSlot(slot, candidate);
-    if (!result.isSuccess) {
+    // Validate the candidate BEFORE committing anything: a rejected candidate
+    // (invalid, or a duplicate of another slot) never touches the slot's
+    // previously confirmed photo.
+    final result = await sub.prepareSlot(slot, candidate);
+    final asset = result.asset;
+    if (asset == null) {
       _previewCandidate = null;
       _previewCandidateSlot = null;
       lastSelectionFailure = result.failure;
       _notify();
       return CoffeeV2ConfirmOutcome.invalidPhoto;
     }
-    if (sub.hasDuplicate) {
-      lastDuplicateIssue = sub.validationIssue;
-      await sub.clearSlot(slot);
+    final duplicate = sub.duplicateIssueFor(asset);
+    if (duplicate != null) {
+      lastDuplicateIssue = duplicate;
       _previewCandidate = null;
       _previewCandidateSlot = null;
       _notify();
@@ -263,7 +267,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
     }
     lastDuplicateIssue = null;
     lastSelectionFailure = null;
-    await sub.confirmSlot(slot);
+    await sub.commitConfirmedSlot(asset);
     _previewCandidate = null;
     _previewCandidateSlot = null;
     final wasReplacing = _replacingSlot != null;
