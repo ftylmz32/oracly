@@ -59,6 +59,15 @@ abstract final class ProductFeatureFlags {
     defaultValue: true,
   );
 
+  /// Coffee V3 four-view client capture (Turkish only). Gates starting a
+  /// NEW four-photo capture only — an existing V3 draft stays reachable and
+  /// an already-created V3 operation always recovers. Dark by default.
+  static const coffeeV3FourView = FeatureFlagDefinition(
+    key: 'coffee_v3_four_view',
+    type: FeatureFlagType.boolean,
+    defaultValue: false,
+  );
+
   static const catalog = <FeatureFlagDefinition>[
     tarot7Card,
     tarotNarrativeV2,
@@ -68,6 +77,7 @@ abstract final class ProductFeatureFlags {
     astrologyVisual,
     newDailyEngine,
     yildiznameNarrativeV1,
+    coffeeV3FourView,
   ];
 
   static Map<String, bool> defaults() => {

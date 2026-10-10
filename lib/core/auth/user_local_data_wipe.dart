@@ -235,6 +235,14 @@ abstract final class UserLocalDataWipe {
       () => removeKey('coffee_v2_acknowledged_operation'),
     );
     await step(
+      'coffee_v3_submission',
+      () => removeKey('coffee_v3_submission'),
+    );
+    await step(
+      'coffee_v3_acknowledged_operation',
+      () => removeKey('coffee_v3_acknowledged_operation'),
+    );
+    await step(
       ReviewAccessRepository.grantedKey,
       () => removeKey(ReviewAccessRepository.grantedKey),
     );

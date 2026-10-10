@@ -107,6 +107,7 @@ class ReadingLiveFlow {
     String? executionMode,
     String? intention,
     String? coffeeInputContract,
+    String? coffeeCaptureContract,
   }) async {
     final created = await _operations.create(
       readingType: readingType,
@@ -115,6 +116,7 @@ class ReadingLiveFlow {
       executionMode: executionMode,
       intention: intention,
       coffeeInputContract: coffeeInputContract,
+      coffeeCaptureContract: coffeeCaptureContract,
     );
     if (created.snapshot == null) {
       return ReadingLiveState(

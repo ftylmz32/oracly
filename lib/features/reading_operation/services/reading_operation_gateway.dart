@@ -37,6 +37,7 @@ class ReadingOperationGateway {
     String? executionMode,
     String? intention,
     String? coffeeInputContract,
+    String? coffeeCaptureContract,
   }) {
     return _exchange(
       'POST',
@@ -48,6 +49,7 @@ class ReadingOperationGateway {
         executionMode: executionMode,
         intention: intention,
         coffeeInputContract: coffeeInputContract,
+        coffeeCaptureContract: coffeeCaptureContract,
       ),
     );
   }

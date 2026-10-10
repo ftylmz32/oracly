@@ -62,6 +62,7 @@ class ReadingOperationCodec {
     String? executionMode,
     String? intention,
     String? coffeeInputContract,
+    String? coffeeCaptureContract,
   }) {
     return {
       'readingType': readingTypeWire(readingType),
@@ -72,6 +73,9 @@ class ReadingOperationCodec {
         'intention': intention,
       if (readingType == ReadingType.coffee && coffeeInputContract != null)
         'coffeeInputContract': coffeeInputContract,
+      // Coffee V3 only; null keeps every existing body byte-for-map identical.
+      if (readingType == ReadingType.coffee && coffeeCaptureContract != null)
+        'coffeeCaptureContract': coffeeCaptureContract,
     };
   }
 
