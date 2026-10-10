@@ -259,6 +259,8 @@ class CoffeeV2FlowController extends ChangeNotifier {
     }
     final duplicate = sub.duplicateIssueFor(asset);
     if (duplicate != null) {
+      // Rejected: release only the candidate's own app-owned working copy.
+      await sub.discardCandidate(asset);
       lastDuplicateIssue = duplicate;
       _previewCandidate = null;
       _previewCandidateSlot = null;
@@ -267,7 +269,19 @@ class CoffeeV2FlowController extends ChangeNotifier {
     }
     lastDuplicateIssue = null;
     lastSelectionFailure = null;
-    await sub.commitConfirmedSlot(asset);
+    try {
+      await sub.commitConfirmedSlot(asset);
+    } catch (_) {
+      // The durable write failed: the previous confirmed photo (and its
+      // file) is untouched, the candidate is NOT accepted and its working
+      // copy is released.
+      await sub.discardCandidate(asset);
+      _previewCandidate = null;
+      _previewCandidateSlot = null;
+      lastSelectionFailure = CoffeeV2SlotSelectionFailure.normalizeFailed;
+      _notify();
+      return CoffeeV2ConfirmOutcome.invalidPhoto;
+    }
     _previewCandidate = null;
     _previewCandidateSlot = null;
     final wasReplacing = _replacingSlot != null;

@@ -8,6 +8,7 @@ library;
 import '../../../ai/production/transport/image_normalizer.dart';
 import '../../models/coffee_image_pick.dart';
 import 'coffee_v2_image_limits.dart';
+import 'coffee_v2_work_files.dart';
 
 /// Injectable seam so tests can control normalization outcomes
 /// deterministically (oversized/corrupt/unsupported) without depending on
@@ -25,7 +26,7 @@ class DefaultCoffeeV2Normalizer implements CoffeeV2Normalizer {
   Future<CoffeeImagePick> normalize(CoffeeImagePick source) {
     return ImageNormalizer.normalize(
       source,
-      'coffee_v2_work',
+      CoffeeV2WorkFiles.dirName,
       messages,
       maxBytesOverride: CoffeeV2ImageLimits.maxBytes,
     );

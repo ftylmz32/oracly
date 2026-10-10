@@ -12,6 +12,7 @@ import '../notifications/notification_owner_cleanup.dart';
 import '../reading_version/services/reading_version_store.dart';
 import '../storage/secure_storage.dart';
 import '../../features/astrology/data/astrology_preferences_store.dart';
+import '../../features/coffee/coffee_v2/services/coffee_v2_work_files.dart';
 import '../../features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
 import '../../features/coffee/coffee_v3/services/coffee_v3_work_files.dart';
 import '../../features/coffee/data/coffee_reading_store.dart';
@@ -228,14 +229,29 @@ abstract final class UserLocalDataWipe {
     );
     await step(PaidAiOperationStore.key, () => removeKey(PaidAiOperationStore.key));
     await step(DreamAttemptStore.key, () => removeKey(DreamAttemptStore.key));
-    await step(
-      'coffee_v2_submission',
-      () => removeKey('coffee_v2_submission'),
-    );
-    await step(
-      'coffee_v2_acknowledged_operation',
-      () => removeKey('coffee_v2_acknowledged_operation'),
-    );
+    // Coffee V2 working photos (incl. orphaned rejected / replaced copies)
+    // are physically purged BEFORE V2 metadata is cleared — same contract as
+    // V3 below: an incomplete purge keeps the V2 record as locator and the
+    // wipe reports incomplete. Only app-owned `coffee_v2_work_*` copies.
+    var coffeeV2MetaOkToClear = true;
+    await step('coffee_v2_work_images', () async {
+      coffeeV2MetaOkToClear = await CoffeeV2WorkFiles.purgeStrict();
+      if (!coffeeV2MetaOkToClear) {
+        throw StateError('coffee v2 working image cleanup incomplete');
+      }
+    });
+    if (coffeeV2MetaOkToClear) {
+      await step(
+        'coffee_v2_submission',
+        () => removeKey('coffee_v2_submission'),
+      );
+      await step(
+        'coffee_v2_acknowledged_operation',
+        () => removeKey('coffee_v2_acknowledged_operation'),
+      );
+    } else {
+      failed.add('coffee_v2_submission');
+    }
     // Coffee V3 working photos are physically purged BEFORE their metadata
     // is cleared. If the purge is incomplete (delete failure or unknown
     // storage location) the V3 record stays as the durable locator and the

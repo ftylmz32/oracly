@@ -29,6 +29,7 @@ import 'coffee_v2_image_limits.dart';
 import 'coffee_v2_normalizer.dart';
 import 'coffee_v2_submission_store.dart';
 import 'coffee_v2_validation.dart';
+import 'coffee_v2_work_files.dart';
 
 enum CoffeeV2SlotSelectionFailure {
   missingFile,
@@ -124,11 +125,13 @@ class CoffeeV2SubmissionController {
     final result = await prepareSlot(slot, picked);
     final asset = result.asset;
     if (asset == null) return result;
+    final previousPath = assetFor(slot)?.path;
     await _commitRecord(
       _record.copyWith(
         slots: {..._record.slots, slot: CoffeeV2SlotRecord(asset: asset)},
       ),
     );
+    await _releaseIfUnreferenced(previousPath);
     return result;
   }
 
@@ -146,6 +149,8 @@ class CoffeeV2SubmissionController {
       // Defense-in-depth: enforced regardless of which `CoffeeV2Normalizer`
       // is plugged in, not only the default one wrapping `ImageNormalizer`.
       if (sizeBytes > CoffeeV2ImageLimits.maxBytes) {
+        // Rejected before commit: release only its app-owned normalized copy.
+        await _releaseIfUnreferenced(normalized.path);
         return CoffeeV2SlotSelectionResult.failure(
           CoffeeV2SlotSelectionFailure.tooLarge,
         );
@@ -172,9 +177,13 @@ class CoffeeV2SubmissionController {
   ) => setSlot(slot, picked);
 
   /// Commits an already-validated [asset] to its slot AND confirms it in
-  /// one durable write — the replaced photo is swapped out only here.
+  /// one durable write — the replaced photo is swapped out only here. The
+  /// previous working copy is released only AFTER that write succeeded (a
+  /// failed write throws before anything is deleted) and only if no slot
+  /// still references it.
   Future<void> commitConfirmedSlot(CoffeeV2PhotoAsset asset) async {
     _requireDraft();
+    final previousPath = assetFor(asset.slot)?.path;
     await _commitRecord(
       _record.copyWith(
         slots: {
@@ -183,7 +192,15 @@ class CoffeeV2SubmissionController {
         },
       ),
     );
+    await _releaseIfUnreferenced(previousPath);
   }
+
+  /// Releases a REJECTED candidate's app-owned normalized copy (never a
+  /// source original, never a file a slot still references). `false` =
+  /// the owned copy could not be removed; the account-boundary purge still
+  /// reclaims it. A rejected candidate is never committed either way.
+  Future<bool> discardCandidate(CoffeeV2PhotoAsset candidate) =>
+      _releaseIfUnreferenced(candidate.path);
 
   /// The duplicate issue [candidate] would cause against the OTHER slots'
   /// current photos (its own slot's previous photo is ignored).
@@ -196,11 +213,13 @@ class CoffeeV2SubmissionController {
 
   Future<void> clearSlot(CoffeeV2PhotoSlot slot) async {
     _requireDraft();
+    final previousPath = assetFor(slot)?.path;
     await _commitRecord(
       _record.copyWith(
         slots: {..._record.slots, slot: const CoffeeV2SlotRecord()},
       ),
     );
+    await _releaseIfUnreferenced(previousPath);
   }
 
   Future<void> confirmSlot(CoffeeV2PhotoSlot slot) async {
@@ -391,17 +410,27 @@ class CoffeeV2SubmissionController {
     _record = CoffeeV2SubmissionRecord.empty();
   }
 
+  /// Releases the working copies [record] referenced, AFTER the record that
+  /// stops referencing them was durably committed. Owned V2 working copies
+  /// only — a path from persisted metadata that is not an owned
+  /// `coffee_v2_work` file (camera/gallery original, older/tampered path,
+  /// another feature's file) is never deleted. Best-effort here; anything
+  /// left behind is reclaimed by the strict account-boundary purge.
   Future<void> _deleteTempFiles(CoffeeV2SubmissionRecord record) async {
     for (final slotRecord in record.slots.values) {
-      final path = slotRecord.asset?.path;
-      if (path == null) continue;
-      try {
-        final file = File(path);
-        if (await file.exists()) await file.delete();
-      } catch (_) {
-        // Best-effort cleanup, mirroring the existing archive philosophy.
-      }
+      await _releaseIfUnreferenced(slotRecord.asset?.path);
     }
+  }
+
+  /// `true` = nothing owned and unreferenced remains at [path] (also when
+  /// the current record still references it — it is then kept on purpose).
+  Future<bool> _releaseIfUnreferenced(String? path) async {
+    if (path == null) return true;
+    final stillReferenced = _record.slots.values.any(
+      (slot) => slot.asset?.path == path,
+    );
+    if (stillReferenced) return true;
+    return CoffeeV2WorkFiles.deleteIfOwnedStrict(path);
   }
 
   Future<void> _commitRecord(

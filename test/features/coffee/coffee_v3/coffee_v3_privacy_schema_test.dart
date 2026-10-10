@@ -197,7 +197,9 @@ void main() {
     test('purges V3 working photos, then clears V3 metadata', () async {
       final storage = await seeded();
       final v3 = await write('coffee_v3_work/coffee_v3_work_w.jpg');
-      final v2 = await write('coffee_v2_work/coffee_v2_work_w.jpg');
+      // Slice 4B: V2 working copies are purged by their OWN wipe step; the
+      // V3 purge itself never touches them (see "strict purge" above).
+      final palm = await write('palm_images/palm_w.jpg');
       final gallery = await write('DCIM/IMG_0004.jpg');
       final result = await UserLocalDataWipe.run(
         storage,
@@ -206,7 +208,7 @@ void main() {
       expect(result.failedOperations, isNot(contains('coffee_v3_work_images')));
       expect(result.failedOperations, isNot(contains(CoffeeV3SubmissionStore.key)));
       expect(await v3.exists(), isFalse);
-      expect(await v2.exists(), isTrue);
+      expect(await palm.exists(), isTrue);
       expect(await gallery.exists(), isTrue);
       expect(storage.getString(CoffeeV3SubmissionStore.key), isNull);
       expect(storage.getString(CoffeeV3SubmissionStore.acknowledgedOperationKey),
