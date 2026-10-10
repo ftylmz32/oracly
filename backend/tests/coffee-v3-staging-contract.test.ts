@@ -465,13 +465,131 @@ describe('LIS1/LIS2 V3 ownership boundaries', () => {
     expect(publicCoffee).not.toMatch(/four_view_v3|coffeeCaptureContract|coffeeV3|runCoffeeV3Reading|v3_/);
   });
 
-  it('no client code references the new contract', () => {
-    const lib = resolve(process.cwd(), '..', 'lib');
-    const dart = (dir: string): string[] =>
-      readdirSync(dir).flatMap((name) => {
-        const path = join(dir, name);
-        return statSync(path).isDirectory() ? dart(path) : path.endsWith('.dart') ? [path] : [];
-      });
-    expect(dart(lib).filter((p) => /four_view_v3|coffeeCaptureContract|v3_cup_|v3_saucer/.test(readFileSync(p, 'utf8')))).toEqual([]);
+});
+
+/**
+ * Slice 4 / 4D — current-phase DARK ROLLOUT guarantees. Replaces the LIS1
+ * backend-only assertion "no client code references the new contract",
+ * which the approved Slice 4 Flutter client intentionally superseded. The
+ * client contract is now present ON PURPOSE; what must hold is that it is
+ * aligned with the backend and stays dark by default on both sides. (No
+ * file counts: those would only produce brittle, meaningless failures.)
+ * Behavioral proof of the client routing lives in the Flutter suite pinned
+ * below; server-side behavior is proven in this file (L–Q) and in
+ * coffee-v3-live-pipeline.test.ts (create gate BD–BL, worker AS–BC).
+ */
+describe('Slice 4 V3 dark rollout contract (client + server)', () => {
+  const repo = resolve(process.cwd(), '..');
+  const read = (rel: string) => readFileSync(join(repo, rel), 'utf8');
+  const V3_DIR = 'lib/features/coffee/coffee_v3';
+  const indexOf = (text: string, needle: string) => {
+    const at = text.indexOf(needle);
+    expect(at, `missing: ${needle}`).toBeGreaterThanOrEqual(0);
+    return at;
+  };
+
+  it('1/2: the client V3 contract is intentionally present and matches the backend contract + slots in order', () => {
+    const contract = read(`${V3_DIR}/models/coffee_v3_capture_contract.dart`);
+    const clientContract = /coffeeV3CaptureContract = '([^']+)'/.exec(contract)?.[1];
+    expect(clientContract).toBe(COFFEE_CAPTURE_CONTRACTS[0]);
+    expect(isCoffeeCaptureContract(clientContract)).toBe(true);
+
+    const slots = read(`${V3_DIR}/models/coffee_v3_photo_slot.dart`);
+    const wireSwitch = slots.slice(indexOf(slots, 'String get wireValue'), indexOf(slots, 'coffeeV3PhotoSlotFromWire'));
+    const wire = new Map([...wireSwitch.matchAll(/CoffeeV3PhotoSlot\.(\w+) => '([^']+)'/g)].map((m) => [m[1], m[2]]));
+    const orderBlock = slots.slice(indexOf(slots, 'coffeeV3CanonicalSlotOrder = ['));
+    const order = [...orderBlock.slice(0, orderBlock.indexOf('];')).matchAll(/CoffeeV3PhotoSlot\.(\w+)/g)].map((m) => m[1]);
+    expect(order.map((name) => wire.get(name))).toEqual([...COFFEE_V3_STAGED_SLOTS]);
+    // V2 slot vocabulary is never reused by the client V3 slots.
+    for (const v2 of COFFEE_V2_SLOTS) expect([...wire.values()]).not.toContain(v2);
+  });
+
+  it('1: only the V3 submission controller sends the capture contract; Coffee V2 never does', () => {
+    expect(read(`${V3_DIR}/services/coffee_v3_submission_controller.dart`)).toMatch(
+      /coffeeCaptureContract: coffeeV3CaptureContract/,
+    );
+    const v2 = read('lib/features/coffee/coffee_v2/services/coffee_v2_submission_controller.dart');
+    expect(v2).not.toMatch(/coffeeCaptureContract|four_view_v3|v3_cup_|v3_saucer/);
+    // The shared codec only forwards it for Coffee and omits it when null.
+    expect(read('lib/features/reading_operation/services/reading_operation_codec.dart')).toMatch(
+      /readingType == ReadingType\.coffee && coffeeCaptureContract != null/,
+    );
+  });
+
+  it('3: the client rollout flag coffee_v3_four_view defaults to false (and is a real catalog flag)', () => {
+    const flags = read('lib/core/feature_flags/product_feature_flags.dart');
+    const def = /coffeeV3FourView = FeatureFlagDefinition\(([\s\S]*?)\);/.exec(flags)?.[1] ?? '';
+    expect(def).toMatch(/key: 'coffee_v3_four_view'/);
+    expect(def).toMatch(/defaultValue: false/);
+    expect(def).not.toMatch(/defaultValue: true/);
+    const catalog = flags.slice(indexOf(flags, 'static const catalog'));
+    expect(catalog.slice(0, catalog.indexOf('];'))).toMatch(/coffeeV3FourView/);
+    expect(read('lib/core/feature_flags/feature_flag_rollback.dart')).toMatch(
+      /FeatureFlagSurface\.coffeeV3Capture => ProductFeatureFlags\.coffeeV3FourView/,
+    );
+  });
+
+  it('4: NEW V3 creation requires BOTH the rollout gate AND a Turkish UI', () => {
+    const gate = read(`${V3_DIR}/services/coffee_v3_creation_gate.dart`);
+    expect(gate).toMatch(/requiredLanguage = 'tr'/);
+    expect(gate).toMatch(/FeatureFlagSurface\.coffeeV3Capture/);
+    expect(gate).toMatch(/creationAllowed => rolloutEnabled && languageSupported/);
+  });
+
+  it('5/6/7: entry routing keeps recovery ownership first and fresh Coffee on V2 by default', () => {
+    const entry = read('lib/features/coffee/coffee_v2/presentation/coffee_v2_entry_gate.dart');
+    const activeV3 = indexOf(entry, 'v3State == CoffeeV3StoredState.active');
+    const v2Recovery = indexOf(entry, 'coffeeHasRecoverableV2SessionProvider');
+    const legacy = indexOf(entry, 'coffeeHasLegacyPendingOperationProvider');
+    const v3Draft = indexOf(entry, 'v3State == CoffeeV3StoredState.draft');
+    const freshV3 = indexOf(entry, 'coffeeV3CreationAllowedProvider');
+    const v2Default = entry.lastIndexOf('return const CoffeeV2FlowScreen();');
+    // 7: an ACTIVE V3 operation is recovered before (and without) any
+    //    creation gate; 6: V2 / legacy recovery precede new-flow choice;
+    //    5: fresh V3 needs creation allowed, otherwise the V2 default.
+    expect(activeV3).toBeLessThan(v2Recovery);
+    expect(v2Recovery).toBeLessThan(legacy);
+    expect(legacy).toBeLessThan(v3Draft);
+    expect(v3Draft).toBeLessThan(freshV3);
+    expect(freshV3).toBeLessThan(v2Default);
+    expect(entry.slice(activeV3, v2Recovery)).not.toMatch(/CreationAllowed/);
+    expect(entry.slice(freshV3, v2Default)).toMatch(/!ref\.watch\(coffeeHasV2DraftPhotosProvider\)/);
+
+    // The behavioral proof (real flag runtime + language) stays in the
+    // Flutter suite; pin that it exists and covers these scenarios.
+    const flutter = read('test/features/coffee/coffee_v3/coffee_v3_entry_gate_test.dart');
+    for (const scenario of [
+      'B flag OFF (default) fresh Coffee → existing V2 flow',
+      'C flag ON + tr fresh Coffee → V3 flow',
+      'D flag ON + en/ru fresh Coffee → V2 flow',
+      'E active V3 + flag OFF (or non-tr) → V3 recovery',
+      'I V2 recoverable session wins over starting a NEW V3 session',
+      'J legacy pending stays legacy (flag ON)',
+    ]) {
+      expect(flutter, scenario).toContain(scenario);
+    }
+    expect(read('test/features/coffee/coffee_v3/coffee_v3_flow_controller_test.dart')).toContain(
+      'E flag-off ACTIVE V3 keeps recovering to its m2 result',
+    );
+  });
+
+  it('8/9: server-side V3 creation is OFF by default and an unexpected V3 create fails closed', () => {
+    for (const env of ['development', 'staging', 'production']) {
+      expect(testConfig({ APP_ENV: env }).coffeeV3CreationEnabled).toBe(false);
+    }
+    expect(testConfig({ ORACLY_COFFEE_V3_ENABLED: 'maybe' }).coffeeV3CreationEnabled).toBe(false);
+    // The L–Q route tests above run with exactly this default config, so
+    // their 400 / nothing-created result IS the flag-OFF fail-closed path.
+    expect(testConfig({ AI_JWT_SECRET: 'unit-test-jwt-secret', AI_APP_CHECK_REQUIRED: 'true' }).coffeeV3CreationEnabled).toBe(false);
+  });
+
+  it('10: V3 worker dispatch depends on the immutable contract, never on slot presence', () => {
+    const exec = readFileSync(join(process.cwd(), 'src/reading/reading-processor-execute.ts'), 'utf8');
+    const v3Decl = indexOf(exec, "const isCoffeeV3 = feature === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';");
+    const v2Probe = indexOf(exec, 'hasAnyCoffeeV2Slot');
+    expect(v3Decl).toBeLessThan(v2Probe);
+    expect(exec.slice(v3Decl, v2Probe)).toMatch(/!isCoffeeV3 &&/);
+    // No V3 slot-presence probe exists anywhere in the worker.
+    expect(exec).not.toMatch(/hasAnyCoffeeV3Slot|listCoffeeV3Slots/);
   });
 });

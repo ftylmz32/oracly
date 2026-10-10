@@ -1,11 +1,14 @@
 /**
- * Slice 4C — Coffee V2 terminal-delivery verdict.
+ * Slice 4C/4D — shared Coffee terminal-delivery verdict for the durable
+ * worker's Coffee V2 (three-photo) AND legacy unslotted single-photo paths.
+ * (The four-view contract settles through its own typed terminal failure
+ * and never reaches this module; Palm / Soulmate never use it.)
  *
- * `ReadingPipeline.coffeeV2()` returns either a public Coffee reading
- * (`toPublicCoffee`: string `overall`, no `status` key) or the structured
- * `{ status: 'insufficient_semantic_signal', reason }` outcome. Only the
- * former may ever be persisted / completed. This is a strict structural
- * check (never a substring search over prose):
+ * `ReadingPipeline.coffeeV2()` and `ReadingPipeline.coffee()` return either a
+ * public Coffee reading (`toPublicCoffee`: string `overall`, no `status`
+ * key) or the structured `{ status: 'insufficient_semantic_signal', reason }`
+ * outcome. Only the former may ever be persisted / completed. Strict
+ * structural check (never a substring search over prose):
  *
  * - exactly `{ status, reason }` with an allow-listed reason → `insufficient`
  *   (terminal `invalid`, the same code Coffee V3 uses for insufficient
@@ -17,18 +20,18 @@
  */
 import type { FailureCode } from './operation-model.js';
 
-export const COFFEE_V2_INSUFFICIENT_REASONS = [
+export const COFFEE_INSUFFICIENT_REASONS = [
   'no_safe_semantic_facets',
   'insufficient_semantic_capacity',
 ] as const;
-export type CoffeeV2InsufficientReason = (typeof COFFEE_V2_INSUFFICIENT_REASONS)[number];
+export type CoffeeInsufficientReason = (typeof COFFEE_INSUFFICIENT_REASONS)[number];
 
-export type CoffeeV2DeliveryVerdict =
+export type CoffeeDeliveryVerdict =
   | { kind: 'reading' }
-  | { kind: 'insufficient'; reason: CoffeeV2InsufficientReason; failureCode: FailureCode }
+  | { kind: 'insufficient'; reason: CoffeeInsufficientReason; failureCode: FailureCode }
   | { kind: 'malformed'; failureCode: FailureCode };
 
-export function classifyCoffeeV2Delivery(data: unknown): CoffeeV2DeliveryVerdict {
+export function classifyCoffeeDelivery(data: unknown): CoffeeDeliveryVerdict {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return { kind: 'malformed', failureCode: 'unavailable' };
   }
@@ -39,13 +42,13 @@ export function classifyCoffeeV2Delivery(data: unknown): CoffeeV2DeliveryVerdict
     if (
       record.status === 'insufficient_semantic_signal' &&
       typeof reason === 'string' &&
-      (COFFEE_V2_INSUFFICIENT_REASONS as readonly string[]).includes(reason) &&
+      (COFFEE_INSUFFICIENT_REASONS as readonly string[]).includes(reason) &&
       keys.length === 2 &&
       keys.includes('reason')
     ) {
       return {
         kind: 'insufficient',
-        reason: reason as CoffeeV2InsufficientReason,
+        reason: reason as CoffeeInsufficientReason,
         failureCode: 'invalid',
       };
     }

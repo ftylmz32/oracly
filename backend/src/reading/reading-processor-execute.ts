@@ -9,7 +9,7 @@ import type { ReadingCompletionNotifier } from './reading-processor.js';
 import type { ReadingResultRepository } from './reading-result-repository.js';
 import type { CoffeeCaptureContract, CoffeeInputContract, ReadingLanguage } from './operation-model.js';
 import { CoffeeV3TerminalFailure } from '../ai/reading/coffee-v3-live-pipeline.js';
-import { classifyCoffeeV2Delivery } from './coffee-v2-delivery.js';
+import { classifyCoffeeDelivery } from './coffee-delivery.js';
 import type { ProviderStageRepository } from './provider-stage-repository.js';
 import type { ReadingGenerationTrace } from './provider-stage-repository.js';
 import {
@@ -256,20 +256,22 @@ export async function executeClaimedReading(input: {
     }
     logWorkerStage(log, 'provider_completed', { operationId, feature });
 
-    // Slice 4C — a Coffee V2 provider outcome (fresh OR replayed from the
-    // provider-stage checkpoint) is only a reading if it has the public
-    // reading shape. An insufficient-meaning or malformed outcome is a typed
-    // terminal failure: never persisted, never completed, no result id, no
-    // push. failFinal owns the authoritative refund (only when a Gem debit
-    // exists; idempotent). Staged photos are cleaned only AFTER the terminal
-    // state is durable. A failed write throws into the retryable path below;
-    // the next delivery replays the SAME checkpoint output (no new provider
-    // call) and settles it the same way.
-    if (isCoffeeV2) {
-      const verdict = classifyCoffeeV2Delivery(data);
+    // Slice 4C/4D — a Coffee V2 OR legacy unslotted Coffee provider outcome
+    // (fresh OR replayed from the provider-stage checkpoint) is only a
+    // reading if it has the public reading shape. An insufficient-meaning or
+    // malformed outcome is a typed terminal failure: never persisted, never
+    // completed, no result id, no push. failFinal owns the authoritative
+    // refund (only when a Gem debit exists; idempotent). Staged input is
+    // cleaned only AFTER the terminal state is durable. A failed write throws
+    // into the retryable path below; the next delivery replays the SAME
+    // checkpoint output (no new provider call) and settles it the same way.
+    // Coffee V3 settles via CoffeeV3TerminalFailure; Palm never enters here.
+    const isLegacyCoffee = feature === 'coffee' && !isCoffeeV3 && !isCoffeeV2;
+    if (isCoffeeV2 || isLegacyCoffee) {
+      const verdict = classifyCoffeeDelivery(data);
       if (verdict.kind !== 'reading') {
         log.info({
-          event: 'coffee_v2_terminal_outcome',
+          event: isCoffeeV2 ? 'coffee_v2_terminal_outcome' : 'coffee_legacy_terminal_outcome',
           operationId,
           feature,
           verdict: verdict.kind,
