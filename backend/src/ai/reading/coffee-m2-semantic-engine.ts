@@ -203,6 +203,8 @@ const DOMAIN_NAME: Record<CoffeeSubjectSection, CoffeeM1Domain> = { career: 'car
 const STRUCTURE_DECISION: Partial<Record<CoffeeM2StructuralMeaning, string>> = {
   possibilities_branch: 'decision_options',
   course_turn: 'decision_direction',
+  // M2.1: structural analogue of M1 access_opening → decision_clarity (steady / stop-start stay unbound).
+  opening_clarity: 'decision_clarity',
 };
 
 /** Same trusted source as M1.3: the classifier's authorizedSections; person_of_interest stays domain-free. */

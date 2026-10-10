@@ -168,11 +168,11 @@ describe('W4A.1 opening_moves_forward (K–M)', () => {
     }
   });
 
-  it('no decision binding is smuggled into the relation wording (T1 has none in M2)', () => {
+  it('no decision binding is smuggled into the relation wording (it comes only from the M2.1 context qualifier)', () => {
     for (const f of movesForward) expect(fold(f), f).not.toMatch(/karar|secenek/);
     const p = V3G2.RITAG_V3G1();
     expect(p.beats[0].relation?.combination).toBe('opening_moves_forward');
-    expect(p.beats[0].qualifiers.context).toEqual([]);
+    expect(p.beats[0].qualifiers.context).toEqual([{ binding: 'user_decision', mention: 'introduce' }]);
     expect(p.beats[0].groups.map((g) => `${g.cls}:${g.horizon}`)).toEqual(['OPENING:further_out', 'FORWARD:coming_period']);
   });
 });
