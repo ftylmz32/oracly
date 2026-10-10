@@ -252,9 +252,12 @@ export const COFFEE_TURKISH_CLASS_WORDING: Rows = {
     forms: { lead: ['birkaç küçük ayrıntı', 'ufak tefek ayrıntılar', 'küçük küçük ayrıntılar'] },
   },
   PHASE: {
-    meaning: 'within one phase (currently unreachable from V3: contract gap)',
+    meaning: 'within one bounded stage (reachable since V3G1: cup-wall closed loop)',
     tier: 'narrow',
-    forms: { modifier: ['aynı dönemin içinde', 'tek bir dönem içinde', 'aynı zaman diliminde'] },
+    // W4A.1: never dönem / zaman — those are horizon words ("önümüzdeki dönemde … tek bir dönem içinde").
+    forms: { modifier: ['tek bir aşamada', 'tek bir aşamanın içinde'] },
+    avoid: ['dönem içinde', 'dönemin içinde', 'zaman diliminde', 'aynı aşama', 'aşamaya yayılmadan'],
+    exception: 'Only two stage forms are genuinely equivalent: "aynı aşama" presupposes an unstated reference stage, "evre" is bookish, "aşamaya yayılmadan" adds an all-at-once completion claim.',
   },
 };
 
@@ -388,40 +391,48 @@ export const COFFEE_TURKISH_RELATION_WORDING: Rows = {
     avoid: ['yazacak'],
   },
   stalled_course_finds_room: {
-    meaning: 'an intermittent course finds room (currently unreachable: clear area is a contract gap)',
+    meaning: 'a stop-start course and an opening develop together (no obstacle, no relief)',
     tier: 'high_value',
+    // W4A.1: fortune wording ("önün / bir yol açılıyor"), never a description of empty space.
     forms: {
       relational: [
-        'bir ilerleyip bir duran konu kendine açık bir alan buluyor',
-        'ara ara hareketlenen iş, içinde kendine yer buluyor',
-        'kesik kesik ilerleyen konuda bir açıklık beliriyor',
-        'tek solukta ilerlemeyen konu kendine yer açıyor',
+        'bir ilerleyip bir duran konuda bir yol da açılıyor',
+        'tek solukta ilerlemeyen konuda önün de açılıyor',
+        'ara ara hareketlenen konuda önünü açan bir gelişme de beliriyor',
+        'kesik kesik ilerleyen konuda bir yol açılıyor',
+        'konu aralıklarla ilerliyor; önün de açılıyor',
       ],
     },
+    avoid: ['açık bir alan', 'alan bul', 'boşluk', 'açıklık', 'kendine yer', 'nihayet', 'sonunda', 'rağmen'],
   },
   opening_moves_forward: {
-    meaning: 'an opening that keeps moving forward (currently unreachable)',
+    meaning: 'the matter keeps moving and an opening also emerges (each group keeps its own horizon)',
     tier: 'high_value',
+    // W4A.1: two finite clauses, no "-ken": the components may carry different horizons.
     forms: {
       relational: [
-        'açılan yol kendi akışında ilerliyor',
-        'önün açılırken konu da yoluna devam ediyor',
-        'açılan yol yerinde saymıyor, ilerliyor',
-        'önün açılırken işler de yerinde saymıyor',
+        'konu yoluna devam ediyor; önün de açılıyor',
+        'konu kendi akışında ilerliyor; önünü açan bir yol da beliriyor',
+        'konu yerinde saymıyor; önünü açan bir gelişme de beliriyor',
+        'işler kendi yolunda yürüyor; bir yol da açılıyor',
+        'önün açılıyor; konu da yerinde saymıyor',
       ],
     },
+    avoid: ['açılırken', 'ilerlerken', 'aynı anda', 'eşzamanlı', 'o sırada', 'açık bir alan', 'boşluk'],
   },
   possibilities_become_visible: {
-    meaning: 'an opening where several possibilities become visible (currently unreachable)',
+    meaning: 'an opening and several possibilities becoming visible develop together',
     tier: 'high_value',
     forms: {
       relational: [
-        'açılan yerde birkaç ihtimal görünür hâle geliyor',
+        'önün açılıyor, birkaç ihtimal de görünür hâle geliyor',
         'önün açılırken birden fazla yol da beliriyor',
         'açılan konuda birkaç seçenek birden ortaya çıkıyor',
         'açıldıkça birkaç ayrı ihtimal de görünüyor',
       ],
     },
+    // W4A.1: "açılan yerde" was a spatial locative echoing the physical clear area.
+    avoid: ['açılan yer', 'açık bir alan', 'boşluk'],
   },
 };
 
