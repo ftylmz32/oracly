@@ -10,6 +10,7 @@ import { checkCoffeeM2TurkishRealization, validateCoffeeM2ScenarioSelection } fr
 import {
   COFFEE_M2_PROMPT_SUPPORTED_FIELDS,
   COFFEE_M2_W4E_PROMPT,
+  COFFEE_M2_W4P1_PROMPT,
   COFFEE_M2_W4E_PROMPT_SHA256,
   coffeeM2WriterPromptSha256,
   coffeeM2WriterPromptUncoveredFields,
@@ -26,6 +27,7 @@ import { CANONICAL_INTENTION_TEXT, M1_QA_CUPS, m1Map, type M1FixtureSpec } from 
 
 const DECISION = 'Bir karar vermem gerekiyor, önümde birkaç seçenek var.';
 const W4P1_SHA256 = '09f22bd64832b268766908ea3f35006302b3231a00f17ea993f491a6f6733433';
+const W4C4_PROMPT_SHA256 = 'bc1b618baa26e2e113e995cc3c02f9e09e5e40d844e6c6b35c6880f599cc9e48';
 const sha = (v: string) => createHash('sha256').update(v, 'utf8').digest('hex');
 const shaJson = (v: unknown) => sha(JSON.stringify(v));
 const realize = (spec: M1FixtureSpec, intention: string | null) =>
@@ -63,9 +65,12 @@ describe('W4P1 base prompt preservation (A, I)', () => {
     expect(COFFEE_M2_W4E_PROMPT_SHA256).toBe('2abc1ac45c6463775982f3799a44be7b41756acde96421262e8a95d7830e0115');
     expect(prompt.startsWith(COFFEE_M2_W4E_PROMPT)).toBe(true);
     expect(addendum.length).toBeGreaterThan(0);
-    expect(addendum.split('\r\n').length).toBeLessThanOrEqual(8); // one small addendum
+    expect(addendum.split('\r\n').length).toBeLessThanOrEqual(9); // W4C.2 addendum + one W4C.4 line
     expect(coffeeM2WriterPromptSha256()).toBe(sha(prompt));
-    expect(coffeeM2WriterPromptSha256()).toBe(W4P1_SHA256);
+    // W4P1 (W4E + W4C.2 addendum) stays byte-identical as the prefix of the current prompt.
+    expect(sha(COFFEE_M2_W4P1_PROMPT)).toBe(W4P1_SHA256);
+    expect(prompt.startsWith(COFFEE_M2_W4P1_PROMPT)).toBe(true);
+    expect(coffeeM2WriterPromptSha256()).toBe(W4C4_PROMPT_SHA256);
   });
 
   it('I: the exact QA output contract is preserved', () => {
@@ -148,7 +153,8 @@ describe('W4P1 field manifest guard (N–O)', () => {
 
   it('N: every writer-visible realization field of the current RITAG payload (and the whole fixture sweep) is covered and documented', () => {
     const p = ritag();
-    expect(Object.keys(p.realization.beats[0]).sort()).toEqual([...COFFEE_M2_PROMPT_SUPPORTED_FIELDS.beat].sort());
+    const beatKeys = [...new Set(p.realization.beats.flatMap((b) => Object.keys(b)))].sort();
+    expect(beatKeys).toEqual([...COFFEE_M2_PROMPT_SUPPORTED_FIELDS.beat].sort());
     expect(Object.keys(p.realization.crossBeat).sort()).toEqual([...COFFEE_M2_PROMPT_SUPPORTED_FIELDS.crossBeat].sort());
     expect(coffeeM2WriterPromptUncoveredFields(p)).toEqual([]);
     for (const [name, payload] of allPayloads()) expect(coffeeM2WriterPromptUncoveredFields(payload), name).toEqual([]);
@@ -178,7 +184,7 @@ describe('W4P1 field manifest guard (N–O)', () => {
 describe('W4P1 payloads and acceptance unchanged (P–T)', () => {
   const PINNED = {
     // W4C.3 changed only this payload's scenarioIncompatiblePairs value (was d5867f43…).
-    RITAG_V3G1: [c31Spec('C3F-RITAG', { clearAreas: true }), DECISION, '5e2e47445a51ec38e1adeda24a2a731829a04c539f3bd37354bc11da88a40777'],
+    RITAG_V3G1: [c31Spec('C3F-RITAG', { clearAreas: true }), DECISION, '6170abd3110f2ca73e2d816d9958d3c469c9c2fe6b49832bfe44d03ddd6db9dd'],
     GAZETA_V3G1: [c31Spec('C3F-GAZETA', { clearAreas: true }), DECISION, 'ec28aae74989481586b6bf8512391f5b364ab14448592db1615375ec0038e4d3'],
     RITAG_OLD: [c31Spec('C3F-RITAG'), DECISION, '58df7a0325d3c775cba7054c7a940bbe8f9defd2fd7334f78498c7bbd5feb7fd'],
     BASAK: [c31Spec('C3F-BASAK'), CANONICAL_INTENTION_TEXT.money_finance, 'fa1eb6d78358d94806e40a555ae8023418e02c0a7c07158e8e8b840268e3b1cc'],

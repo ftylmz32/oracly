@@ -92,15 +92,23 @@ const W4C2_ADDENDUM_LINES: readonly string[] = [
 export const COFFEE_M2_W4E_PROMPT = `${W4E_LINES.join('\r\n')}\r\n`;
 export const COFFEE_M2_W4E_PROMPT_SHA256 = '2abc1ac45c6463775982f3799a44be7b41756acde96421262e8a95d7830e0115';
 
-/** W4E base + W4C.2 contract addendum (same CRLF convention). */
-const W4P1_PROMPT = `${COFFEE_M2_W4E_PROMPT}${W4C2_ADDENDUM_LINES.join('\r\n')}\r\n`;
+/** W4C.4: one per-beat realization restriction line, appended after the W4C.2 addendum. */
+const W4C4_ADDENDUM_LINES: readonly string[] = [
+  "- realization.beats[i].lexicalOccurrenceLimits (parçaya özgü realization kısıtı): her öğe kapalı bir kelime ailesidir; family adı, forms aynen geçecek tam kelimeler, max ise bu ailedeki kelimelerin o parçanın metninde TOPLAM en fazla kaç kez geçebileceğidir. forms içindeki bütün biçimler aynı toplama sayılır. Kök çıkarma ve listede olmayan biçim ekleme. Sınırı aşacaksan aynı anlamın bu kelimeleri tekrar etmeyen başka bir yetkili ifadesini ya da önceden anılana dönen bir göndermeyi seç; sınıra uymak için lisanslı bir anlamı düşürme.",
+];
+
+/** W4E base + W4C.2 contract addendum (same CRLF convention); its sha256 was 09f22bd6…3433. */
+export const COFFEE_M2_W4P1_PROMPT = `${COFFEE_M2_W4E_PROMPT}${W4C2_ADDENDUM_LINES.join('\r\n')}\r\n`;
+
+/** W4P1 + W4C.4 contract line: the current dark M2 writer prompt. */
+const W4P_PROMPT = `${COFFEE_M2_W4P1_PROMPT}${W4C4_ADDENDUM_LINES.join('\r\n')}\r\n`;
 
 export function coffeeM2WriterSystemPrompt(): string {
-  return W4P1_PROMPT;
+  return W4P_PROMPT;
 }
 
 export function coffeeM2WriterPromptSha256(): string {
-  return createHash('sha256').update(W4P1_PROMPT, 'utf8').digest('hex');
+  return createHash('sha256').update(W4P_PROMPT, 'utf8').digest('hex');
 }
 
 /** The provider user message: the writer-safe realization payload only (same framing as W4E). */
@@ -119,9 +127,11 @@ export const COFFEE_M2_PROMPT_SUPPORTED_FIELDS = {
   beat: [
     'order', 'groupRoles', 'scenarioRoles', 'referent', 'overlap', 'domainWording', 'avoidWording', 'scenarioIncompatiblePairs',
     'finitePredicateRequired', 'avoidStackedNominalization', 'avoidSameOpenerAsPrevious', 'forbiddenGenericSubjects', 'contextWording',
+    'lexicalOccurrenceLimits',
   ],
   crossBeat: ['noIdenticalAdjacentOpener', 'demonstrativeOpenerMax', 'tempo', 'lexicalCollisionFamilies'],
   lexicalCollisionFamily: ['family', 'forms', 'beats', 'rule'],
+  lexicalOccurrenceLimit: ['family', 'forms', 'max'],
   scenarioCluster: ['manifestations', 'mode', 'choose'],
 } as const;
 
@@ -133,7 +143,10 @@ export function coffeeM2WriterPromptUncoveredFields(payload: CoffeeM2TurkishReal
     for (const k of keys) if (!allowed.includes(k)) out.add(`${scope}.${k}`);
   };
   check('realization', Object.keys(payload.realization), m.realization);
-  for (const b of payload.realization.beats) check('beat', Object.keys(b), m.beat);
+  for (const b of payload.realization.beats) {
+    check('beat', Object.keys(b), m.beat);
+    for (const l of b.lexicalOccurrenceLimits ?? []) check('lexicalOccurrenceLimit', Object.keys(l), m.lexicalOccurrenceLimit);
+  }
   check('crossBeat', Object.keys(payload.realization.crossBeat), m.crossBeat);
   for (const f of payload.realization.crossBeat.lexicalCollisionFamilies ?? []) check('lexicalCollisionFamily', Object.keys(f), m.lexicalCollisionFamily);
   for (const c of payload.wording.scenarioClusters) check('scenarioCluster', Object.keys(c), m.scenarioCluster);

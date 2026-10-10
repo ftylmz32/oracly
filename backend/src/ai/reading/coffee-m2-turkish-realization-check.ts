@@ -33,6 +33,7 @@ export type CoffeeM2RealizationViolation = {
     | 'STACKED_NOMINALIZATION'
     | 'GENERIC_CONTEXT_SUBJECT'
     | 'CROSS_BEAT_LEXICAL_COLLISION'
+    | 'LEXICAL_OCCURRENCE_LIMIT'
     | 'SCENARIO_UNKNOWN_ID'
     | 'SCENARIO_DUPLICATE_ID'
     | 'SCENARIO_TOO_MANY'
@@ -92,6 +93,11 @@ export function checkCoffeeM2TurkishRealization(payload: CoffeeM2TurkishRealizat
       for (const s of rb.forbiddenGenericSubjects) {
         if (words.has(s.toLocaleLowerCase('tr-TR'))) out.push({ beat: id, code: 'GENERIC_CONTEXT_SUBJECT', detail: s });
       }
+    }
+    for (const limit of rb.lexicalOccurrenceLimits ?? []) {
+      const forms = new Set(limit.forms.map((f) => f.toLocaleLowerCase('tr-TR')));
+      const count = coffeeTurkishTokens(raw).filter((t) => forms.has(t)).length;
+      if (count > limit.max) out.push({ beat: id, code: 'LEXICAL_OCCURRENCE_LIMIT', detail: `${limit.family}: ${count} > ${limit.max}` });
     }
     const opener = (text.match(/[a-z]+/) ?? [''])[0];
     if (i > 0 && rb.avoidSameOpenerAsPrevious && opener === previousOpener) out.push({ beat: id, code: 'SAME_OPENER_AS_PREVIOUS', detail: opener });

@@ -225,6 +225,22 @@ export const COFFEE_TURKISH_RICH_DECISION_REDUNDANT_PAIR: readonly [string, stri
 const RICH_DECISION_REDUNDANT_PAIR = COFFEE_TURKISH_RICH_DECISION_REDUNDANT_PAIR;
 
 /**
+ * W4C.4 — closed whole-token families whose TOTAL count inside one beat is
+ * capped (no stemmer; "seçim" / "seçmek" are other words). Only the families a
+ * scoped rule hands to a beat apply.
+ */
+export const COFFEE_TURKISH_OCCURRENCE_FAMILIES: Readonly<Record<string, readonly string[]>> = {
+  OPTION_SECENEK: [
+    'seçenek', 'seçeneği', 'seçeneğe', 'seçenekte', 'seçenekten', 'seçeneğin', 'seçenekle', 'seçeneğiyle', 'seçenektir',
+    'seçeneğini', 'seçeneğine', 'seçeneğinde', 'seçeneğinden',
+    'seçenekler', 'seçenekleri', 'seçeneklere', 'seçeneklerde', 'seçeneklerden', 'seçeneklerin', 'seçeneklerle', 'seçenekleriyle',
+    'seçeneklerdir', 'seçeneklerini', 'seçeneklerine', 'seçeneklerinde', 'seçeneklerinden', 'seçeneklerinin',
+  ],
+};
+/** W4C.4: the rich opening + decision scenario beat carries three choice layers; two explicit option words suffice. */
+const RICH_DECISION_OPTION_WORD_MAX = 2;
+
+/**
  * W4C.2 — the one composition that needs a richer concrete layer: a rich plan
  * whose opening_moves_forward relation beat is followed by a separate decision
  * MULTIPLICITY scenario beat carrying the full decision cluster, which is the
@@ -280,6 +296,8 @@ export type CoffeeM2BeatRealization = {
   forbiddenGenericSubjects?: string[];
   /** W4C.2 (only when set): the context wording to use in this beat instead of wording.contexts. */
   contextWording?: Record<string, string[]>;
+  /** W4C.4 (only when set): a closed word family may occur at most `max` times in total in this beat. */
+  lexicalOccurrenceLimits?: Array<{ family: string; forms: string[]; max: number }>;
 };
 
 export type CoffeeM2TurkishRealizationPayload = CoffeeM2TurkishWriterPayload & {
@@ -506,6 +524,11 @@ export function prepareCoffeeM2TurkishRealization(plan: CoffeeM2WriterPlan): Cof
     if (!scenarioBeat.scenarioIncompatiblePairs.some((p) => JSON.stringify(p) === JSON.stringify(RICH_DECISION_REDUNDANT_PAIR))) {
       scenarioBeat.scenarioIncompatiblePairs = [...scenarioBeat.scenarioIncompatiblePairs, [...RICH_DECISION_REDUNDANT_PAIR]];
     }
+    // W4C.4: the three choice layers of this beat (plurality, one gaining weight, differences
+    // clearer) never need the option word a third time. Surface limit only; the bank is unchanged.
+    scenarioBeat.lexicalOccurrenceLimits = [
+      { family: 'OPTION_SECENEK', forms: [...COFFEE_TURKISH_OCCURRENCE_FAMILIES.OPTION_SECENEK], max: RICH_DECISION_OPTION_WORD_MAX },
+    ];
   }
 
   const result: CoffeeM2TurkishRealizationPayload = {

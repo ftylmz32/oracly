@@ -102,7 +102,8 @@ describe('W4C.3 shape-scoped pair (A–E, I–K)', () => {
 
 describe('W4C.3 W4P2 replays (F–H)', () => {
   it('F: W4P2 sample 1 (W + R) fails SCENARIO_INCOMPATIBLE_PAIR', () => {
-    expect(acceptance(W4P2.S1.texts, [[], W4P2.S1.items])).toEqual(['B2:SCENARIO_INCOMPATIBLE_PAIR:secondary_option_gaining_weight+another_option_relevant']);
+    // (Since W4C.4 its triple "seçenek" also trips LEXICAL_OCCURRENCE_LIMIT; the pair violation is pinned.)
+    expect(acceptance(W4P2.S1.texts, [[], W4P2.S1.items])).toContain('B2:SCENARIO_INCOMPATIBLE_PAIR:secondary_option_gaining_weight+another_option_relevant');
   });
 
   it('G: W4P2 sample 2 (W + S) passes the scenario validator and the checker', () => {
@@ -111,7 +112,7 @@ describe('W4C.3 W4P2 replays (F–H)', () => {
   });
 
   it('H: W4P2 sample 3 (W + R) fails SCENARIO_INCOMPATIBLE_PAIR', () => {
-    expect(acceptance(W4P2.S3.texts, [[], W4P2.S3.items])).toEqual(['B2:SCENARIO_INCOMPATIBLE_PAIR:secondary_option_gaining_weight+another_option_relevant']);
+    expect(acceptance(W4P2.S3.texts, [[], W4P2.S3.items])).toContain('B2:SCENARIO_INCOMPATIBLE_PAIR:secondary_option_gaining_weight+another_option_relevant');
   });
 });
 
@@ -187,7 +188,8 @@ describe('W4C.3 replays, prompt contract and guards (U–Z)', () => {
   });
 
   it('W/X: the W4P1 prompt is unchanged and still covers every writer-visible field', () => {
-    expect(coffeeM2WriterPromptSha256()).toBe('09f22bd64832b268766908ea3f35006302b3231a00f17ea993f491a6f6733433');
+    // W4C.4 appended one documented contract line (W4P1 09f22bd6… stays the exact prefix).
+    expect(coffeeM2WriterPromptSha256()).toBe('bc1b618baa26e2e113e995cc3c02f9e09e5e40d844e6c6b35c6880f599cc9e48');
     expect(coffeeM2WriterPromptUncoveredFields(ritag())).toEqual([]);
   });
 
@@ -201,7 +203,7 @@ describe('W4C.3 replays, prompt contract and guards (U–Z)', () => {
       [{ marks: [{ id: 'L1', label: null, band: 'middle', topology: 'closed_loop', form: { continuity: 'continuous', course: 'bending', openness: 'closed' } }] } as M1FixtureSpec, null, 'cf45b1efb6b0510456337d73f4bc97c3223e8d15b8fb782cba89b24978b7b085'],
     ];
     for (const [spec, intention, hash] of pinned) expect(sha(realize(spec, intention))).toBe(hash);
-    expect(sha(ritag())).toBe('5e2e47445a51ec38e1adeda24a2a731829a04c539f3bd37354bc11da88a40777');
+    expect(sha(ritag())).toBe('6170abd3110f2ca73e2d816d9958d3c469c9c2fe6b49832bfe44d03ddd6db9dd'); // + W4C.4 occurrence limit
   });
 
   it('Y: nothing live imports the policy', () => {
