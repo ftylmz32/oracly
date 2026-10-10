@@ -312,6 +312,6 @@ describe('W4C payload boundary (T–Z)', () => {
       walk(src)
         .filter((p) => /coffee-m2-turkish-realization-policy/.test(readFileSync(p, 'utf8')))
         .map((p) => p.slice(src.length + 1).split(String.fromCharCode(92)).join('/')),
-    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts']);
+    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts']);
   });
 });

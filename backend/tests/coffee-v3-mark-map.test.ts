@@ -591,6 +591,7 @@ describe('V2 dark-path guarantee (V, W)', () => {
       'ai/reading/coffee-m2-turkish-realization-policy.ts',
       'ai/reading/coffee-m2-turkish-surface-bank.ts',
       'ai/reading/coffee-m2-writer-beat-plan.ts',
+      'ai/reading/coffee-m2-writer-prompt.ts',
       'ai/reading/coffee-v3-mark-map.ts',
       'ai/reading/observer-prompts.ts',
       'ai/reading/schemas.ts',

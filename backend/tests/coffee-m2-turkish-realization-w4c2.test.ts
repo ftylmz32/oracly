@@ -264,7 +264,7 @@ describe('W4C.2 freeze protection (W–X) and guards (Y–Z)', () => {
         .filter((p) => /coffee-m2-turkish-realization-(policy|check)/.test(readFileSync(p, 'utf8')))
         .map((p) => p.slice(src.length + 1).replace(/\\/g, '/'))
         .sort(),
-    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts']);
+    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts']);
   });
 
   it('same input → byte-identical payload', () => {

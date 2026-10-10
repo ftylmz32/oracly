@@ -259,6 +259,6 @@ describe('W4C.1 boundary (V–Z)', () => {
       });
     const users = (re: RegExp) => walk(src).filter((p) => re.test(readFileSync(p, 'utf8'))).map((p) => p.slice(src.length + 1).replace(/\\/g, '/')).sort();
     expect(users(/coffee-m2-turkish-realization-check/)).toEqual([]);
-    expect(users(/coffee-m2-turkish-realization-policy/)).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts']);
+    expect(users(/coffee-m2-turkish-realization-policy/)).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts']);
   });
 });
