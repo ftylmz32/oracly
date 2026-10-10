@@ -10,7 +10,7 @@ import type { AppConfig } from '../config.js';
 import type { ReadingTaskScheduler } from '../reading/reading-task-scheduler.js';
 import type { ReadingOperationRepository } from '../reading/operation-repository.js';
 import type { ReadingStagedImageRepository } from '../reading/operation-staged-image-repository.js';
-import { COFFEE_V2_SLOTS } from '../reading/operation-staged-image-model.js';
+import { COFFEE_V2_SLOTS, COFFEE_V3_STAGED_SLOTS } from '../reading/operation-staged-image-model.js';
 import { ErrorCode, errorEnvelope, successEnvelope } from '../errors.js';
 import { logSafe } from '../logging.js';
 import { requireAppCheck } from '../middleware/app-check.js';
@@ -88,16 +88,27 @@ export async function registerGemAccelerationRoutes(
             operation?.ownerUserId === owner &&
             (operation.readingType === 'coffee' || operation.readingType === 'palm')
           ) {
-            const staged = await options.stagedImageRepository.get(operationId, owner);
-            const validLegacy = staged?.uploadState === 'complete';
-            const validCoffeeV2 = operation.readingType === 'coffee' && !staged
+            // LIS2 — a four-view operation is judged ONLY by its own four V3
+            // views (by contract, never by slot presence). Independent of the
+            // V3 creation flag: an existing V3 operation stays acceleratable.
+            const fourView = operation.readingType === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';
+            const staged = fourView ? null : await options.stagedImageRepository.get(operationId, owner);
+            const validLegacy = !fourView && staged?.uploadState === 'complete';
+            const validCoffeeV2 = !fourView && operation.readingType === 'coffee' && !staged
               ? validCompletedCoffeeV2Slots(
                   await options.stagedImageRepository.listSlots(operationId, owner),
                   operationId,
                   owner,
                 )
               : false;
-            if (!validLegacy && !validCoffeeV2) {
+            const validCoffeeV3 = fourView
+              ? validCompletedCoffeeV3Slots(
+                  await options.stagedImageRepository.listCoffeeV3Slots(operationId, owner),
+                  operationId,
+                  owner,
+                )
+              : false;
+            if (!validLegacy && !validCoffeeV2 && !validCoffeeV3) {
               // Never commit a Gem debit for an operation whose durable
               // source is absent/incomplete. This is the exact live-failure
               // boundary that previously allowed a charge followed by a
@@ -289,6 +300,22 @@ export async function registerGemAccelerationRoutes(
         return sendLedgerError(reply, error);
       }
     },
+  );
+}
+
+/** LIS2 — exactly the four V3 staged views, each complete and owned by this operation. */
+function validCompletedCoffeeV3Slots(
+  records: Awaited<ReturnType<ReadingStagedImageRepository['listCoffeeV3Slots']>>,
+  operationId: string,
+  ownerUserId: string,
+): boolean {
+  if (records.length !== COFFEE_V3_STAGED_SLOTS.length) return false;
+  const slots = new Set(records.map((record) => record.slot));
+  return COFFEE_V3_STAGED_SLOTS.every((slot) => slots.has(slot)) && records.every((record) =>
+    record.operationId === operationId &&
+    record.ownerUserId === ownerUserId &&
+    record.readingType === 'coffee' &&
+    record.uploadState === 'complete',
   );
 }
 

@@ -49,6 +49,9 @@ import { parseYildiznameNarrativeResult } from './narrative-yildizname-result.js
 import { requestOpenAiSpeech } from './openai-speech.js';
 import type { ValidatedRequest } from './validate-request.js';
 import { ReadingPipeline } from './reading/pipeline.js';
+import { runCoffeeV3Reading } from './reading/coffee-v3-live-pipeline.js';
+import { readingStageStore } from './reading/stage-cache.js';
+import type { ReadingLanguage } from '../reading/operation-model.js';
 
 export type AiHandleContext = {
   identity: string;
@@ -254,6 +257,46 @@ export class AiProxyService {
       return this.reading.observeCoffee(image, pipelineContext);
     }
     return this.reading.coffee(image, request.payload, pipelineContext);
+  }
+
+  /**
+   * LIS2 — INTERNAL Coffee V3 entry. Not part of `handle()`: only the durable
+   * ReadingProcessor calls it, for an operation whose immutable capture
+   * contract is 'four_view_v3', with server-owned values only. The staging
+   * service re-verifies owner, readingType and contract before returning the
+   * four views. Terminal outcomes surface as `CoffeeV3TerminalFailure`.
+   */
+  async coffeeV3(input: {
+    operationId: string;
+    identity: string;
+    language: ReadingLanguage;
+    intention: string;
+    parentKey: string;
+  }): Promise<Record<string, unknown>> {
+    if (!this.stagedImages) fail(ErrorCode.noConfiguration);
+    let images: Awaited<ReturnType<ReadingStagedImageService['retrieveCoffeeV3ForProcessing']>>;
+    try {
+      images = await this.stagedImages.retrieveCoffeeV3ForProcessing({
+        ownerUserId: input.identity,
+        operationId: input.operationId,
+      });
+    } catch (error) {
+      if (error instanceof ReadingOperationError) {
+        if (error.code === 'unavailable') fail(ErrorCode.noConfiguration);
+        fail(ErrorCode.invalidImage);
+      }
+      throw error;
+    }
+    return runCoffeeV3Reading({
+      config: this.config,
+      transport: this.transport,
+      stageStore: readingStageStore,
+      images,
+      intention: input.intention,
+      language: input.language,
+      identity: input.identity,
+      parentKey: input.parentKey,
+    });
   }
 
   /** Coffee V2 only — mirrors `resolveReadingImage`'s fail-closed contract. */

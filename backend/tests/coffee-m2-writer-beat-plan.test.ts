@@ -477,11 +477,12 @@ describe('W2 dark path', () => {
       .sort();
 
   it('nothing live imports the W2 planner (no routing, pipeline, worker, writer or public API); only the dark W4A bank and W4C policy do', () => {
-    expect(users(/coffee-m2-writer-beat-plan/)).toEqual(['ai/reading/coffee-m2-turkish-realization-policy.ts', 'ai/reading/coffee-m2-turkish-surface-bank.ts']);
+    // LIS2 — the dark V3 live bridge is the one sanctioned integration importer of the frozen stack.
+    expect(users(/coffee-m2-writer-beat-plan/)).toEqual(['ai/reading/coffee-m2-turkish-realization-policy.ts', 'ai/reading/coffee-m2-turkish-surface-bank.ts', 'ai/reading/coffee-v3-live-pipeline.ts']);
   });
 
   it('only the dark W2 planner imports M2', () => {
-    expect(users(/coffee-m2-semantic-engine/)).toEqual(['ai/reading/coffee-m2-writer-beat-plan.ts']);
+    expect(users(/coffee-m2-semantic-engine/)).toEqual(['ai/reading/coffee-m2-writer-beat-plan.ts', 'ai/reading/coffee-v3-live-pipeline.ts']);
   });
 
   it('the planner reads M2 meaning only: no audit, evidence or observer access', () => {

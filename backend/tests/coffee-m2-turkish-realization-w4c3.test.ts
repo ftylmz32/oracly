@@ -218,7 +218,7 @@ describe('W4C.3 replays, prompt contract and guards (U–Z)', () => {
         .filter((p) => /coffee-m2-turkish-realization-policy/.test(readFileSync(p, 'utf8')))
         .map((p) => p.slice(src.length + 1).replace(/\\/g, '/'))
         .sort(),
-    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts']);
+    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts', 'ai/reading/coffee-v3-live-pipeline.ts']); // LIS2 — the dark V3 live bridge is the one sanctioned integration importer of the frozen stack.
   });
 
   it('Z: same input → byte-identical result, and the plan is never mutated', () => {

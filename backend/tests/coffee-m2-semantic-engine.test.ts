@@ -374,7 +374,7 @@ describe('M2 privacy and dark path (AR–AW)', () => {
       walk(src)
         .filter((p) => /coffee-m2-semantic-engine/.test(readFileSync(p, 'utf8')))
         .map((p) => p.slice(src.length + 1).replace(/\\/g, '/')),
-    ).toEqual(['ai/reading/coffee-m2-writer-beat-plan.ts']);
+    ).toEqual(['ai/reading/coffee-m2-writer-beat-plan.ts', 'ai/reading/coffee-v3-live-pipeline.ts']); // LIS2 — the dark V3 live bridge is the one sanctioned integration importer of the frozen stack.
   });
 
   it('AV: V2 slots unchanged', () => {

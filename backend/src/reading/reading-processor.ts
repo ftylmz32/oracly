@@ -5,7 +5,7 @@ import type { ReadingOperationInputService } from './operation-input-service.js'
 import type { ReadingStagedImageRepository } from './operation-staged-image-repository.js';
 import type { ReadingStagedImageService } from './operation-staged-image-service.js';
 import type { ReadingFlow } from './reading-flow.js';
-import { executeClaimedReading } from './reading-processor-execute.js';
+import { executeClaimedReading, type CoffeeV3AiEntry } from './reading-processor-execute.js';
 import { executeClaimedSoulmateReading } from './soulmate-processor-execute.js';
 import type { SoulmatePortraitStore } from './soulmate-portrait-store.js';
 import type { SoulmateEntitlementGuard } from './soulmate-entitlement-guard.js';
@@ -48,6 +48,8 @@ export class ReadingProcessor {
         modelHint: unknown,
         context: { identity: string; parentKey: string },
       ): Promise<Record<string, unknown>>;
+      /** LIS2 — internal Coffee V3 entry (four_view_v3 operations only). */
+      coffeeV3?: CoffeeV3AiEntry;
     },
     private readonly clock: ServerClock,
     private readonly notifier: ReadingCompletionNotifier = new NoopReadingCompletionNotifier(),
@@ -145,6 +147,7 @@ export class ReadingProcessor {
         language: operation.language,
         coffeeIntention: operation.coffeeIntention,
         coffeeInputContract: operation.coffeeInputContract,
+        coffeeCaptureContract: operation.coffeeCaptureContract,
       },
       log,
       stagedRepository: this.stagedRepository,

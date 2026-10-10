@@ -15,12 +15,14 @@ import { systemClock, type ServerClock } from '../reading/clock.js';
 import { toEpochMs } from '../reading/clock.js';
 import {
   isExecutionMode,
+  isCoffeeCaptureContract,
   isCoffeeInputContract,
   isReadingType,
   isReadingLanguage,
   parseSourceRequestId,
   toPublicStatus,
   type ExecutionMode,
+  type CoffeeCaptureContract,
   type CoffeeInputContract,
 } from '../reading/operation-model.js';
 import {
@@ -51,9 +53,6 @@ const FORBIDDEN_BODY_KEYS = [
   'remainingMs',
   'clientNow',
   'elapsedMs',
-  // LIS1 — four-view V3 creation stays DARK: no client captures four views and
-  // no processor handles them yet, so the field is refused, never ignored.
-  'coffeeCaptureContract',
 ] as const;
 
 export type ReadingOperationRouteOptions = {
@@ -87,7 +86,7 @@ export async function registerReadingOperationRoutes(
       if (!owner) {
         return reply.code(401).send(errorEnvelope(ErrorCode.unauthorized));
       }
-      const parsed = parseCreateBody(request.body);
+      const parsed = parseCreateBody(request.body, config.coffeeV3CreationEnabled);
       if (!parsed.ok) {
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
@@ -100,6 +99,7 @@ export async function registerReadingOperationRoutes(
           executionMode: parsed.executionMode,
           coffeeIntention: parsed.coffeeIntention,
           coffeeInputContract: parsed.coffeeInputContract,
+          coffeeCaptureContract: parsed.coffeeCaptureContract,
         });
         await options.flow?.remember(record);
         logSafe(request.log, 'info', 'reading_operation_created', {
@@ -145,7 +145,7 @@ function serviceClock(options: ReadingOperationRouteOptions): Date {
   return (options.clock ?? systemClock()).now();
 }
 
-function parseCreateBody(body: unknown):
+function parseCreateBody(body: unknown, coffeeV3CreationEnabled: boolean):
   | {
       ok: true;
       readingType: 'coffee' | 'palm' | 'soulmate';
@@ -154,6 +154,7 @@ function parseCreateBody(body: unknown):
       executionMode?: ExecutionMode;
       coffeeIntention?: string;
       coffeeInputContract?: CoffeeInputContract;
+      coffeeCaptureContract?: CoffeeCaptureContract;
     }
   | { ok: false } {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -193,6 +194,24 @@ function parseCreateBody(body: unknown):
       return { ok: false };
     }
   }
+  // LIS2 — four-view V3 creation: present only with the server flag on, for
+  // Turkish (explicitly declared; the frozen writer is Turkish-only) and the
+  // trusted intention contract. Anything else carrying the key is refused,
+  // never ignored. The flag gates NEW creation only.
+  let coffeeCaptureContract: CoffeeCaptureContract | undefined;
+  if (Object.prototype.hasOwnProperty.call(record, 'coffeeCaptureContract')) {
+    if (
+      !coffeeV3CreationEnabled ||
+      !isCoffeeCaptureContract(record.coffeeCaptureContract) ||
+      record.readingType !== 'coffee' ||
+      record.language !== 'tr' ||
+      coffeeInputContract !== 'trusted_intention_v1' ||
+      !coffeeIntention
+    ) {
+      return { ok: false };
+    }
+    coffeeCaptureContract = record.coffeeCaptureContract;
+  }
   return {
     ok: true,
     readingType: record.readingType,
@@ -201,6 +220,7 @@ function parseCreateBody(body: unknown):
     executionMode: isExecutionMode(record.executionMode) ? record.executionMode : undefined,
     coffeeIntention: coffeeIntention ?? undefined,
     coffeeInputContract,
+    ...(coffeeCaptureContract ? { coffeeCaptureContract } : {}),
   };
 }
 

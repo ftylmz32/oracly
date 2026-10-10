@@ -172,6 +172,13 @@ export type AppConfig = {
   /** HMAC secret validating a rewarded-ad SSV callback's signature. Null
    * (unset) means the rewarded-ad claim route fails closed. */
   rewardedAdClaimSecret: string | null;
+  /**
+   * LIS2 — gates ONLY the creation of NEW four-view V3 Coffee operations.
+   * Off unless ORACLY_COFFEE_V3_ENABLED is explicitly true, in every
+   * environment. Never consulted for processing, acceleration, result fetch
+   * or cleanup of an already-created V3 operation (rollback = stop creating).
+   */
+  coffeeV3CreationEnabled: boolean;
 };
 
 const DEFAULT_ALLOWED = ['gpt-4o', 'gpt-4o-mini'];
@@ -433,6 +440,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       ? null
       : positiveIntOrNull(env.ORACLY_DEV_READING_WAIT_MS),
     rewardedAdClaimSecret: nonEmpty(env.ORACLY_REWARDED_AD_CLAIM_SECRET),
+    coffeeV3CreationEnabled: parseBool(env.ORACLY_COFFEE_V3_ENABLED, false),
   };
 }
 

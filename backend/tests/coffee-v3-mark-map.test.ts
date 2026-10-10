@@ -592,14 +592,23 @@ describe('V2 dark-path guarantee (V, W)', () => {
       'ai/reading/coffee-m2-turkish-surface-bank.ts',
       'ai/reading/coffee-m2-writer-beat-plan.ts',
       'ai/reading/coffee-m2-writer-prompt.ts',
+      'ai/reading/coffee-v3-live-pipeline.ts',
       'ai/reading/coffee-v3-mark-map.ts',
       'ai/reading/observer-prompts.ts',
       'ai/reading/schemas.ts',
       'ai/reading/types.ts',
+      'ai/service.ts',
+      'config.ts',
       // LIS1 — the dark V3 four-view STAGING contract (data ownership only; no dispatch).
       'reading/operation-staged-image-model.ts',
       'reading/operation-staged-image-repository.ts',
       'reading/operation-staged-image-service.ts',
+      // LIS2 — V3 now owned by contract: internal entry + bridge, worker dispatch, gem
+      // completeness, the gated create route and the creation flag. The V2 pipeline stays V3-free.
+      'reading/reading-processor-execute.ts',
+      'reading/reading-processor.ts',
+      'routes/gem-acceleration.ts',
+      'routes/reading-operations.ts',
     ]);
   });
 

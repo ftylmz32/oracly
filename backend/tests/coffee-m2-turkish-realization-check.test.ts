@@ -258,7 +258,8 @@ describe('W4C.1 boundary (V–Z)', () => {
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
     const users = (re: RegExp) => walk(src).filter((p) => re.test(readFileSync(p, 'utf8'))).map((p) => p.slice(src.length + 1).replace(/\\/g, '/')).sort();
-    expect(users(/coffee-m2-turkish-realization-check/)).toEqual([]);
-    expect(users(/coffee-m2-turkish-realization-policy/)).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts']);
+    // LIS2 — the dark V3 live bridge is the one sanctioned integration importer of the frozen stack.
+    expect(users(/coffee-m2-turkish-realization-check/)).toEqual(['ai/reading/coffee-v3-live-pipeline.ts']);
+    expect(users(/coffee-m2-turkish-realization-policy/)).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts', 'ai/reading/coffee-v3-live-pipeline.ts']);
   });
 });

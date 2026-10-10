@@ -234,7 +234,8 @@ describe('W4P1 provider user message and dark path (U–Z)', () => {
         const path = join(dir, name);
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
-    expect(walk(src).filter((p) => /coffee-m2-writer-prompt/.test(readFileSync(p, 'utf8')))).toEqual([]);
+    // LIS2 — the dark V3 live bridge is the one sanctioned integration importer of the frozen stack.
+    expect(walk(src).filter((p) => /coffee-m2-writer-prompt/.test(readFileSync(p, 'utf8'))).map((p) => p.slice(src.length + 1).replace(/\\/g, '/'))).toEqual(['ai/reading/coffee-v3-live-pipeline.ts']);
     const module = readFileSync(resolve(src, 'ai/reading/coffee-m2-writer-prompt.ts'), 'utf8');
     expect(module).not.toMatch(/openai|transport|fetch\(|complete\(|process\.env/i);
   });

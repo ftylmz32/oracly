@@ -223,7 +223,8 @@ describe('M2.1 guards (W–Z)', () => {
       .filter((p) => /coffee-m2-semantic-engine/.test(readFileSync(p, 'utf8')))
       .map((p) => p.slice(src.length + 1).replace(/\\/g, '/'))
       .sort();
-    expect(importers.every((p) => p.startsWith('ai/reading/coffee-m2-'))).toBe(true);
+    // LIS2 — the dark V3 live bridge is the one sanctioned integration importer of the frozen stack.
+    expect(importers.every((p) => p.startsWith('ai/reading/coffee-m2-') || p === 'ai/reading/coffee-v3-live-pipeline.ts')).toBe(true);
   });
 
   it('Z: same input → byte-identical M2 meaning and payload', () => {

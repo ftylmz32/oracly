@@ -427,7 +427,10 @@ describe('LIS1 dark V3 retrieval and cleanup', () => {
   });
 });
 
-describe('LIS1 nothing live reaches V3', () => {
+// Updated by LIS2: the worker, the internal AI entry and gem acceleration now
+// own V3 by contract; the V2 pipeline, the public coffee handler and the
+// scheduler still never see it.
+describe('LIS1/LIS2 V3 ownership boundaries', () => {
   const src = resolve(process.cwd(), 'src');
   const walk = (dir: string): string[] =>
     readdirSync(dir).flatMap((name) => {
@@ -436,26 +439,30 @@ describe('LIS1 nothing live reaches V3', () => {
     });
   const users = (re: RegExp, root = src) => walk(root).filter((p) => re.test(readFileSync(p, 'utf8'))).map((p) => p.slice(root.length + 1).replace(/\\/g, '/')).sort();
 
-  it('the contract and the V3 staging APIs are referenced only by the model / service / repository / route-guard files', () => {
+  it('the contract is referenced only by the model / service / staging / worker / gem / create-route files', () => {
     expect(users(/four_view_v3|coffeeCaptureContract/)).toEqual([
+      'ai/reading/coffee-v3-live-pipeline.ts',
+      'ai/service.ts',
       'reading/operation-model.ts',
       'reading/operation-service.ts',
       'reading/operation-staged-image-model.ts',
       'reading/operation-staged-image-service.ts',
+      'reading/reading-processor-execute.ts',
+      'reading/reading-processor.ts',
+      'routes/gem-acceleration.ts',
       'routes/reading-operations.ts',
     ]);
-    expect(users(/retrieveCoffeeV3ForProcessing|deleteCoffeeV3Slots|COFFEE_V3_STAGED_SLOTS|listCoffeeV3Slots/)).toEqual([
-      'reading/operation-staged-image-model.ts',
-      'reading/operation-staged-image-repository.ts',
-      'reading/operation-staged-image-service.ts',
-    ]);
+    expect(users(/coffee-v3-live-pipeline/)).toEqual(['ai/service.ts', 'reading/reading-processor-execute.ts']);
   });
 
-  it('worker, pipeline, service dispatch and gem acceleration have no V3 path', () => {
-    for (const file of ['reading/reading-processor.ts', 'reading/reading-processor-execute.ts', 'ai/service.ts', 'ai/reading/pipeline.ts', 'routes/gem-acceleration.ts', 'reading/reading-task-scheduler.ts']) {
-      const text = readFileSync(join(src, file), 'utf8');
-      expect(text, file).not.toMatch(/four_view_v3|coffeeCaptureContract|COFFEE_V3_STAGED_SLOTS|CoffeeV3|coffeeV3|v3_saucer/);
+  it('the V2 pipeline, the public coffee handler and the scheduler have no V3 path', () => {
+    for (const file of ['ai/reading/pipeline.ts', 'reading/reading-task-scheduler.ts']) {
+      expect(readFileSync(join(src, file), 'utf8'), file).not.toMatch(/four_view_v3|coffeeCaptureContract|COFFEE_V3_STAGED_SLOTS|CoffeeV3|coffeeV3|v3_saucer/);
     }
+    const service = readFileSync(join(src, 'ai/service.ts'), 'utf8');
+    const publicCoffee = service.slice(service.indexOf('private async coffee('), service.indexOf('LIS2 — INTERNAL Coffee V3 entry'));
+    expect(publicCoffee.length).toBeGreaterThan(100);
+    expect(publicCoffee).not.toMatch(/four_view_v3|coffeeCaptureContract|coffeeV3|runCoffeeV3Reading|v3_/);
   });
 
   it('no client code references the new contract', () => {

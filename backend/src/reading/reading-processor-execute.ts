@@ -7,7 +7,8 @@ import type { ReadingStagedImageService } from './operation-staged-image-service
 import type { ReadingFlow } from './reading-flow.js';
 import type { ReadingCompletionNotifier } from './reading-processor.js';
 import type { ReadingResultRepository } from './reading-result-repository.js';
-import type { CoffeeInputContract, ReadingLanguage } from './operation-model.js';
+import type { CoffeeCaptureContract, CoffeeInputContract, ReadingLanguage } from './operation-model.js';
+import { CoffeeV3TerminalFailure } from '../ai/reading/coffee-v3-live-pipeline.js';
 import type { ProviderStageRepository } from './provider-stage-repository.js';
 import type { ReadingGenerationTrace } from './provider-stage-repository.js';
 import {
@@ -24,7 +25,18 @@ type ClaimedOp = {
   language: ReadingLanguage;
   coffeeIntention: string | null;
   coffeeInputContract: CoffeeInputContract | null;
+  /** LIS2 — the dispatch authority for Coffee V3 (never staged-slot presence). */
+  coffeeCaptureContract?: CoffeeCaptureContract | null;
 };
+
+/** LIS2 — internal Coffee V3 AI entry (`AiProxyService.coffeeV3`), server-owned inputs only. */
+export type CoffeeV3AiEntry = (input: {
+  operationId: string;
+  identity: string;
+  language: ReadingLanguage;
+  intention: string;
+  parentKey: string;
+}) => Promise<Record<string, unknown>>;
 
 type AiHandle = {
   handle(
@@ -32,6 +44,7 @@ type AiHandle = {
     modelHint: unknown,
     context: { identity: string; parentKey: string },
   ): Promise<Record<string, unknown>>;
+  coffeeV3?: CoffeeV3AiEntry;
 };
 
 export async function executeClaimedReading(input: {
@@ -62,18 +75,47 @@ export async function executeClaimedReading(input: {
     // before one could be written). A complete V2 set is handled entirely
     // here — it never falls through to the legacy single-image fetch
     // below (Phase 2B).
+    // LIS2 — a four-view operation is dispatched by its immutable contract,
+    // BEFORE (and instead of) any V2 slot-presence test.
+    const isCoffeeV3 = feature === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';
     const isCoffeeV2 =
+      !isCoffeeV3 &&
       feature === 'coffee' &&
       (await input.stagedImages.hasAnyCoffeeV2Slot({
         ownerUserId: operation.ownerUserId,
         operationId,
       }));
 
-    let providerPayload: Record<string, unknown>;
+    let providerPayload: Record<string, unknown> = {};
     let resultExtra: Record<string, unknown> = {};
     let cleanupAfterSuccess: () => Promise<void>;
 
-    if (isCoffeeV2) {
+    if (isCoffeeV3) {
+      let v3Images: Array<{ slot: string; bytes: Buffer; mimeType: string }>;
+      try {
+        // Missing / pending views stay a retryable "staging not ready": no provider call.
+        v3Images = await input.stagedImages.retrieveCoffeeV3ForProcessing({
+          ownerUserId: operation.ownerUserId,
+          operationId,
+        });
+      } catch (error) {
+        throw wrapStageError('staged_fetch_started', feature, error, true);
+      }
+      logWorkerStage(log, 'staged_fetch_succeeded', {
+        operationId,
+        feature,
+        byteLength: v3Images.reduce((sum, image) => sum + image.bytes.length, 0),
+      });
+      if (input.stopAfterStaged) return 'staged_ok';
+      if (!operation.coffeeIntention) {
+        throw wrapStageError('staged_fetch_started', feature, new Error('coffee_intention_unavailable'), true);
+      }
+      cleanupAfterSuccess = () =>
+        input.stagedImages.deleteCoffeeV3Slots({
+          ownerUserId: operation.ownerUserId,
+          operationId,
+        });
+    } else if (isCoffeeV2) {
       let v2Images: Array<{ slot: string; bytes: Buffer; mimeType: string }>;
       try {
         v2Images = await input.stagedImages.retrieveCoffeeV2ForProcessing({
@@ -172,21 +214,43 @@ export async function executeClaimedReading(input: {
         data = checkpoint.output;
       } else {
         if (checkpoint && !checkpoint.initiate) throw new Error('provider_stage_not_initiable');
-        data = await input.ai.handle(
-        {
-          operation: `${operation.readingType}_analysis`,
-          payload: providerPayload,
-          language: operation.language,
-        },
-        undefined,
-        {
-          identity: operation.ownerUserId,
-          parentKey: `reading-operation:${operationId}`,
-        },
-        );
+        if (isCoffeeV3) {
+          // Internal entry only; the public AI request shape can never select V3.
+          if (!input.ai.coffeeV3) throw new Error('coffee_v3_entry_unavailable');
+          data = await input.ai.coffeeV3({
+            operationId,
+            identity: operation.ownerUserId,
+            language: operation.language,
+            intention: operation.coffeeIntention!,
+            parentKey: `reading-operation:${operationId}`,
+          });
+        } else {
+          data = await input.ai.handle(
+          {
+            operation: `${operation.readingType}_analysis`,
+            payload: providerPayload,
+            language: operation.language,
+          },
+          undefined,
+          {
+            identity: operation.ownerUserId,
+            parentKey: `reading-operation:${operationId}`,
+          },
+          );
+        }
         await input.providerStages?.markCompleted(operationId, operation.ownerUserId, data);
       }
     } catch (error) {
+      if (isCoffeeV3 && error instanceof CoffeeV3TerminalFailure) {
+        // LIS2 — an honest terminal outcome, never a retry and never a persisted
+        // "success": failFinal owns the refund (only when a Gem debit exists),
+        // then the four V3 views are cleaned. The operation stays failed; a
+        // retake is a NEW operation.
+        log.info({ event: 'coffee_v3_terminal_failure', operationId, feature, failureCode: error.failureCode, reason: error.reason });
+        await input.flow.failFinal({ ownerUserId: operation.ownerUserId, operationId, failureCode: error.failureCode });
+        await cleanupAfterSuccess();
+        return 'failed';
+      }
       throw wrapStageError('provider_started', feature, error, true);
     }
     logWorkerStage(log, 'provider_completed', { operationId, feature });

@@ -312,6 +312,6 @@ describe('W4C payload boundary (T–Z)', () => {
       walk(src)
         .filter((p) => /coffee-m2-turkish-realization-policy/.test(readFileSync(p, 'utf8')))
         .map((p) => p.slice(src.length + 1).split(String.fromCharCode(92)).join('/')),
-    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts']);
+    ).toEqual(['ai/reading/coffee-m2-turkish-realization-check.ts', 'ai/reading/coffee-m2-writer-prompt.ts', 'ai/reading/coffee-v3-live-pipeline.ts']); // LIS2 — the dark V3 live bridge is the one sanctioned integration importer of the frozen stack.
   });
 });
