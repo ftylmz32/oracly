@@ -262,9 +262,9 @@ export class AiProxyService {
   /**
    * LIS2 — INTERNAL Coffee V3 entry. Not part of `handle()`: only the durable
    * ReadingProcessor calls it, for an operation whose immutable capture
-   * contract is 'four_view_v3', with server-owned values only. The staging
+   * contract is 'three_view_v3', with server-owned values only. The staging
    * service re-verifies owner, readingType and contract before returning the
-   * four views. Terminal outcomes surface as `CoffeeV3TerminalFailure`.
+   * three views (two cup + saucer). Terminal outcomes surface as `CoffeeV3TerminalFailure`.
    */
   async coffeeV3(input: {
     operationId: string;

@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  COFFEE_V3_LIVE_IMAGE_COUNT,
   LiveProviderBudgetError,
   OFFICIAL_OPENAI_BASE_URL,
   createLiveProviderGuard,
@@ -27,11 +28,11 @@ const init = (body: Record<string, unknown>): RequestInit => ({
   headers: { Authorization: 'Bearer sk-live-SECRET-never-recorded', 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
 });
-const observer = () =>
+const observer = (images = 3) =>
   init({
     model: 'gpt-5.6-sol',
     response_format: { type: 'json_schema', json_schema: { name: 'coffee_v3_observation' } },
-    messages: [{ role: 'user', content: [1, 2, 3, 4].map(() => ({ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } })) }],
+    messages: [{ role: 'user', content: Array.from({ length: images }, () => ({ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } })) }],
   });
 const writer = () => init({ model: 'gpt-5.6-sol', response_format: { type: 'json_object' }, messages: [] });
 
@@ -80,9 +81,23 @@ describe('Slice 6 live-provider guard', () => {
     expect(records.map((r) => `${r.attempt}:${r.kind}`)).toEqual([
       '1:observer', '1:writer', '1:writer', '2:observer', '2:writer', '2:writer',
     ]);
-    expect(records[0]).toMatchObject({ model: 'gpt-5.6-sol', imageCount: 4, status: 200, outcome: 'ok', usage: { totalTokens: 18 } });
+    expect(records[0]).toMatchObject({ model: 'gpt-5.6-sol', imageCount: 3, status: 200, outcome: 'ok', usage: { totalTokens: 18 } });
     // Metadata only: never the credential, never content.
     expect(JSON.stringify(records)).not.toMatch(/SECRET|Bearer|base64|choices/);
+  });
+
+  it('the observer request must carry exactly three images (two cup + saucer); a writer none — refused before sending', async () => {
+    expect(COFFEE_V3_LIVE_IMAGE_COUNT).toBe(3);
+    const { fetch, seen } = fakeFetch();
+    const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL });
+    for (const n of [0, 1, 2, 4]) await expect(g.fetch(ENDPOINT, observer(n))).rejects.toThrow(/observer_image_count/);
+    expect(seen).toHaveLength(0);
+    expect(g.attempts()).toBe(0); // a refused request never consumes an attempt
+    await g.fetch(ENDPOINT, observer());
+    await expect(
+      g.fetch(ENDPOINT, init({ model: 'gpt-5.6-sol', response_format: { type: 'json_object' }, messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: 'x' } }] }] })),
+    ).rejects.toThrow(/writer_with_images/);
+    expect(seen).toHaveLength(1);
   });
 
   it('a third attempt is refused even with requests left', async () => {

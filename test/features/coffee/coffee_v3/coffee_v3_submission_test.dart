@@ -1,6 +1,7 @@
 /// Coffee V3 submission controller: validation gates, backend V3-create
 /// rejection (draft + sourceRequestId preserved, no staging, no gems, no V2
-/// fallback), sequential resume-safe four-slot staging, post-create photo
+/// fallback), sequential resume-safe three-slot staging (two cup + saucer),
+/// post-create photo
 /// immutability, draft/active restart recovery and draft cancel.
 library;
 
@@ -92,7 +93,7 @@ void main() {
   group('validation gates', () {
     test('R/U/V/W/X: no operation before every condition holds', () async {
       final c = build();
-      for (final slot in coffeeV3CanonicalSlotOrder.take(3)) {
+      for (final slot in coffeeV3CanonicalSlotOrder.take(2)) {
         await c.selectSlot(slot, await photo(slot.wireValue));
       }
       await c.setIntention(_intention);
@@ -120,25 +121,27 @@ void main() {
         () async {
       final c = build();
       final first = await photo('first', size: 12000);
-      await c.selectSlot(CoffeeV3PhotoSlot.cupHandleFar, first);
+      await c.selectSlot(CoffeeV3PhotoSlot.cupViewA, first);
       for (final slot in coffeeV3CanonicalSlotOrder.skip(1)) {
         final same = await photo('dup_${slot.name}', size: 12000);
         final r = await c.selectSlot(slot, same);
         expect(r.failure, CoffeeV3SlotSelectionFailure.duplicate);
-        expect(r.duplicateOf, CoffeeV3PhotoSlot.cupHandleFar);
+        expect(r.duplicateOf, CoffeeV3PhotoSlot.cupViewA);
         expect(c.assetFor(slot), isNull);
       }
-      // Replacing turnB with a duplicate of turnA keeps turnB's old photo.
-      await c.selectSlot(CoffeeV3PhotoSlot.cupTurnA, await photo('a', size: 13000));
-      await c.selectSlot(CoffeeV3PhotoSlot.cupTurnB, await photo('b', size: 14000));
-      final oldB = c.assetFor(CoffeeV3PhotoSlot.cupTurnB);
+      // Replacing the saucer with a duplicate of the second cup view keeps
+      // the saucer's old photo (a cup photo never stands in for the saucer).
+      await c.selectSlot(CoffeeV3PhotoSlot.cupViewB, await photo('a', size: 13000));
+      await c.selectSlot(CoffeeV3PhotoSlot.saucer, await photo('b', size: 14000));
+      final oldSaucer = c.assetFor(CoffeeV3PhotoSlot.saucer);
       final r = await c.selectSlot(
-        CoffeeV3PhotoSlot.cupTurnB,
+        CoffeeV3PhotoSlot.saucer,
         await photo('b_dup', size: 13000),
       );
       expect(r.failure, CoffeeV3SlotSelectionFailure.duplicate);
-      expect(c.assetFor(CoffeeV3PhotoSlot.cupTurnB), oldB);
-      expect(await File(oldB!.path).exists(), isTrue);
+      expect(r.duplicateOf, CoffeeV3PhotoSlot.cupViewB);
+      expect(c.assetFor(CoffeeV3PhotoSlot.saucer), oldSaucer);
+      expect(await File(oldSaucer!.path).exists(), isTrue);
     });
 
     test('invalid replacement leaves the previous confirmed asset intact',
@@ -191,7 +194,7 @@ void main() {
       expect(CoffeeV2SubmissionStore(storage, ownerId: 'owner-v3').load(), isNull);
       expect(
         transport.creates.every(
-          (c) => c.body?['coffeeCaptureContract'] == 'four_view_v3',
+          (c) => c.body?['coffeeCaptureContract'] == 'three_view_v3',
         ),
         isTrue,
       );
@@ -222,7 +225,7 @@ void main() {
   });
 
   group('creation + staging', () {
-    test('Y/AJ-AM one create, exact body, four ordered namespaced one-at-a-time stages',
+    test('Y/AJ-AM one create, exact body, three ordered namespaced one-at-a-time stages',
         () async {
       final c = build();
       await fillAll(c);
@@ -234,14 +237,13 @@ void main() {
         'language': 'tr',
         'intention': _intention,
         'coffeeInputContract': 'trusted_intention_v1',
-        'coffeeCaptureContract': 'four_view_v3',
+        'coffeeCaptureContract': 'three_view_v3',
       });
       expect(backend.operationCount, 1);
       expect(transport.stagedSlots, [
-        'v3_cup_handle_far',
-        'v3_cup_turn_a',
-        'v3_cup_turn_b',
-        'v3_saucer',
+        'v3_cup_view_a',
+        'v3_cup_view_b',
+        'v3_saucer_view',
       ]);
       final opId = c.record.operationId!;
       expect(
@@ -253,8 +255,8 @@ void main() {
       // Strict load → stage → next load: never two byte arrays at once.
       final events = chronology.where((e) => e.startsWith('load:') ||
           e.startsWith('stage:')).toList();
-      expect(events, hasLength(8));
-      for (var i = 0; i < 8; i += 2) {
+      expect(events, hasLength(6));
+      for (var i = 0; i < 6; i += 2) {
         expect(events[i], startsWith('load:'));
         expect(events[i + 1], 'stage:${coffeeV3CanonicalSlotOrder[i ~/ 2].wireValue}');
       }
@@ -267,20 +269,20 @@ void main() {
       );
     });
 
-    test('AN-AP failure at slot 3: 1/2 stay staged; retry resumes 3/4 on same op',
+    test('AN-AP failure at slot 2: slot 1 stays staged; retry resumes 2/3 on same op',
         () async {
-      transport.staged.failSlotsOnce.add('v3_cup_turn_b');
+      transport.staged.failSlotsOnce.add('v3_cup_view_b');
       final c = build();
       await fillAll(c);
       expect(await c.beginSubmission(),
           CoffeeV3SubmissionOutcome.retryableFailure);
       final opId = c.record.operationId;
       expect(opId, isNotNull);
-      expect(c.record.slots[CoffeeV3PhotoSlot.cupHandleFar]?.stageState,
+      expect(c.record.slots[CoffeeV3PhotoSlot.cupViewA]?.stageState,
           CoffeeV3StageState.staged);
-      expect(c.record.slots[CoffeeV3PhotoSlot.cupTurnA]?.stageState,
-          CoffeeV3StageState.staged);
-      expect(c.record.slots[CoffeeV3PhotoSlot.cupTurnB]?.stageState,
+      expect(c.record.slots[CoffeeV3PhotoSlot.cupViewB]?.stageState,
+          CoffeeV3StageState.notStaged);
+      expect(c.record.slots[CoffeeV3PhotoSlot.saucer]?.stageState,
           CoffeeV3StageState.notStaged);
       expect(c.assetFor(CoffeeV3PhotoSlot.saucer), isNotNull);
 
@@ -291,17 +293,16 @@ void main() {
       expect(transport.creates, hasLength(1));
       expect(backend.operationCount, 1);
       expect(transport.stagedSlots, [
-        'v3_cup_handle_far',
-        'v3_cup_turn_a',
-        'v3_cup_turn_b', // failed attempt
-        'v3_cup_turn_b',
-        'v3_saucer',
+        'v3_cup_view_a',
+        'v3_cup_view_b', // failed attempt
+        'v3_cup_view_b',
+        'v3_saucer_view',
       ]);
     });
 
     test('AQ app restart midway resumes the SAME operation, no new create',
         () async {
-      transport.staged.failSlotsOnce.add('v3_cup_turn_a');
+      transport.staged.failSlotsOnce.add('v3_cup_view_b');
       final first = build();
       await fillAll(first);
       await first.beginSubmission();
@@ -315,7 +316,7 @@ void main() {
           CoffeeV3SubmissionOutcome.completedStaging);
       expect(transport.creates, hasLength(1));
       expect(sourceCounter, 1);
-      expect(transport.stagedSlots.where((s) => s == 'v3_cup_handle_far'),
+      expect(transport.stagedSlots.where((s) => s == 'v3_cup_view_a'),
           hasLength(1));
     });
 
@@ -347,17 +348,17 @@ void main() {
       final c = build();
       await fillAll(c);
       await c.beginSubmission();
-      final before = c.record.slots[CoffeeV3PhotoSlot.cupTurnA]?.asset;
+      final before = c.record.slots[CoffeeV3PhotoSlot.cupViewB]?.asset;
       await expectLater(
-        c.selectSlot(CoffeeV3PhotoSlot.cupTurnA, await photo('retake')),
+        c.selectSlot(CoffeeV3PhotoSlot.cupViewB, await photo('retake')),
         throwsStateError,
       );
-      await expectLater(c.clearSlot(CoffeeV3PhotoSlot.cupTurnA), throwsStateError);
+      await expectLater(c.clearSlot(CoffeeV3PhotoSlot.cupViewB), throwsStateError);
       await expectLater(c.setIntention('Para'), throwsStateError);
       await expectLater(c.cancelDraft(), throwsStateError);
       expect(await c.beginSubmission(),
           CoffeeV3SubmissionOutcome.activeSubmissionInProgress);
-      expect(c.record.slots[CoffeeV3PhotoSlot.cupTurnA]?.asset, before);
+      expect(c.record.slots[CoffeeV3PhotoSlot.cupViewB]?.asset, before);
       expect(transport.creates, hasLength(1));
     });
   });
@@ -367,15 +368,14 @@ void main() {
         () async {
       final c = build();
       await fillAll(c);
-      final turnB = c.assetFor(CoffeeV3PhotoSlot.cupTurnB)!;
-      await File(turnB.path).writeAsBytes(plainJpegBytes(totalSize: 4242));
+      final viewB = c.assetFor(CoffeeV3PhotoSlot.cupViewB)!;
+      await File(viewB.path).writeAsBytes(plainJpegBytes(totalSize: 4242));
       final restarted = build();
       await restarted.recoverDraftOrSubmission();
       expect(restarted.record.isDraft, isTrue);
-      expect(restarted.assetFor(CoffeeV3PhotoSlot.cupTurnB), isNull);
+      expect(restarted.assetFor(CoffeeV3PhotoSlot.cupViewB), isNull);
       for (final s in [
-        CoffeeV3PhotoSlot.cupHandleFar,
-        CoffeeV3PhotoSlot.cupTurnA,
+        CoffeeV3PhotoSlot.cupViewA,
         CoffeeV3PhotoSlot.saucer,
       ]) {
         expect(restarted.assetFor(s), c.assetFor(s));

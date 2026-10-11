@@ -1,5 +1,5 @@
-/// Coffee V3 operation-creation gate: all four slots present and confirmed,
-/// all four checksums PAIRWISE distinct. Client defense only — the
+/// Coffee V3 operation-creation gate: all three slots present and confirmed,
+/// all three checksums PAIRWISE distinct. Client defense only — the
 /// backend's staged-image duplicate guard stays authoritative.
 library;
 

@@ -1,7 +1,7 @@
-/// Coffee V3 Final Review: exactly four canonical cards (file-backed
+/// Coffee V3 Final Review: exactly three canonical cards (file-backed
 /// thumbnails only — never bytes), intention selection, and the ONLY place
 /// `beginSubmission()` may be called from. The CTA is enabled only when the
-/// four photos are valid/unique/confirmed, the intention is valid, creation
+/// three photos are valid/unique/confirmed, the intention is valid, creation
 /// is currently allowed and nothing is in flight. A draft opened while
 /// creation is disabled stays reviewable, replaceable and cancellable.
 library;

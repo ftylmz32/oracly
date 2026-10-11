@@ -1,13 +1,13 @@
 /**
- * LIS2 — DARK Coffee V3 processing path (four views → frozen M2 writer).
+ * LIS2 — DARK Coffee V3 processing path (two cup views + saucer → frozen M2 writer).
  *
  * Reached ONLY through `AiProxyService.coffeeV3`, which only the durable
  * ReadingProcessor calls for an operation whose immutable
- * `coffeeCaptureContract` is 'four_view_v3'. The public /v1/ai route can never
+ * `coffeeCaptureContract` is 'three_view_v3'. The public /v1/ai route can never
  * select it. Nothing here changes the frozen interpretation stack: it calls the
  * frozen V3 map, M2, W2, W4 realization, prompt and QA gates as they are.
  *
- *   4 staged views → one V3 observer call → acceptance → buildCoffeeV3MarkMap
+ *   3 staged views (2 cup + saucer) → one V3 observer call → acceptance → buildCoffeeV3MarkMap
  *   → trusted intention → interpretCoffeeM2 → planCoffeeM2Writer
  *   → prepareCoffeeM2TurkishRealization → frozen prompt / model pins
  *   → writer (≤ 2 completions) → parser + scenario validator + checker
@@ -42,7 +42,7 @@ import {
 import { buildCoffeeV3MarkMap } from './coffee-v3-mark-map.js';
 import { coffeeV3ObserverSystem, coffeeV3ObserverUser, coffeeV3SlotLabel } from './observer-prompts.js';
 import { COFFEE_V3_OBSERVER_SCHEMA } from './schemas.js';
-import { COFFEE_V3_CONTRACT, COFFEE_V3_SLOTS, type CoffeeMultiViewObservationV3, type CoffeeV3Slot } from './types.js';
+import { COFFEE_V3_CONTRACT, COFFEE_V3_SLOTS, type CoffeeMultiViewObservationV3, type CoffeeV3LiveSlot } from './types.js';
 
 /** The writer contract accepted by W4P5 (3/3 hard gates, 3/3 premium). Integration-owned pins. */
 export const FROZEN_COFFEE_M2_PROMPT_SHA256 = 'bc1b618baa26e2e113e995cc3c02f9e09e5e40d844e6c6b35c6880f599cc9e48';
@@ -61,11 +61,10 @@ export const COFFEE_V3_OBSERVER_STAGE = 'coffee_v3_observer';
 export const COFFEE_V3_RESULT_CONTRACT = 'm2_public_v1' as const;
 
 /** The one explicit staging → semantic view mapping (no inference, no sorting). */
-export const COFFEE_V3_STAGED_TO_SEMANTIC_SLOT: Readonly<Record<CoffeeV3StagedSlot, CoffeeV3Slot>> = {
-  v3_cup_handle_far: 'cup_handle_far',
-  v3_cup_turn_a: 'cup_turn_a',
-  v3_cup_turn_b: 'cup_turn_b',
-  v3_saucer: 'saucer',
+export const COFFEE_V3_STAGED_TO_SEMANTIC_SLOT: Readonly<Record<CoffeeV3StagedSlot, CoffeeV3LiveSlot>> = {
+  v3_cup_view_a: 'cup_view_a',
+  v3_cup_view_b: 'cup_view_b',
+  v3_saucer_view: 'saucer',
 };
 
 export type CoffeeV3FailureCode = 'invalid' | 'unavailable';
@@ -142,8 +141,9 @@ function parseJson<T>(raw: string): T {
 function acceptObservation(obs: CoffeeMultiViewObservationV3): void {
   if (!obs || typeof obs !== 'object' || obs.contract !== COFFEE_V3_CONTRACT) terminal('unavailable', 'observer_wrong_contract');
   if (obs.usable !== true) terminal('invalid', 'observer_unusable');
+  // Exactly the three live views: no missing, duplicated, retired or phantom view.
   const views = Array.isArray(obs.views) ? obs.views : [];
-  const slots = views.map((v) => v?.slot);
+  const slots: unknown[] = views.map((v) => v?.slot);
   if (views.length !== COFFEE_V3_SLOTS.length || COFFEE_V3_SLOTS.some((s) => slots.filter((x) => x === s).length !== 1)) {
     terminal('unavailable', 'observer_views_malformed');
   }
@@ -166,8 +166,8 @@ export async function runCoffeeV3Reading(input: {
   if (input.language !== 'tr') terminal('unavailable', 'language_not_supported');
   const { vision } = assertFrozenContract(input.config, input.expectedPromptSha256 ?? FROZEN_COFFEE_M2_PROMPT_SHA256);
 
-  // Exactly four distinct staged views, mapped explicitly into canonical semantic order.
-  const bySlot = new Map<CoffeeV3Slot, { mimeType: string; bytes: Buffer }>();
+  // Exactly three distinct staged views, mapped explicitly into canonical semantic order.
+  const bySlot = new Map<CoffeeV3LiveSlot, { mimeType: string; bytes: Buffer }>();
   for (const image of input.images) {
     const semantic = COFFEE_V3_STAGED_TO_SEMANTIC_SLOT[image.slot];
     if (!semantic || bySlot.has(semantic)) terminal('unavailable', 'staged_views_malformed');
@@ -175,7 +175,7 @@ export async function runCoffeeV3Reading(input: {
   }
   if (bySlot.size !== COFFEE_V3_SLOTS.length) terminal('unavailable', 'staged_views_malformed');
 
-  // One observer call, four image parts, each preceded by its slot label.
+  // One observer call, three image parts, each preceded by its slot label.
   let obs = input.stageStore.get<CoffeeMultiViewObservationV3>(input.identity, input.parentKey, COFFEE_V3_OBSERVER_STAGE);
   if (!obs) {
     const content: OpenAiContentPart[] = [];

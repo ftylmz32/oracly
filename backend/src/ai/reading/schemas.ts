@@ -171,7 +171,8 @@ export const COFFEE_V2_OBSERVER_SCHEMA = {
  * live path sends this schema to a provider yet. V2/legacy schemas above are
  * never modified or reused for V3.
  */
-const COFFEE_V3_SLOT_ENUM = ['cup_handle_far', 'cup_turn_a', 'cup_turn_b', 'saucer'];
+/** Exactly the three live capture slots (two cup views + saucer); never a fourth view. */
+const COFFEE_V3_SLOT_ENUM = ['cup_view_a', 'cup_view_b', 'saucer'];
 const COFFEE_V3_SURFACE_ENUM = ['cup_wall', 'cup_base', 'saucer'];
 const COFFEE_V3_CONFIDENCE = { type: 'string', enum: ['high', 'medium', 'low'] } as const;
 const COFFEE_V3_CLOCK = { type: ['integer', 'null'], minimum: 1, maximum: 12 } as const;
@@ -283,7 +284,7 @@ export const COFFEE_V3_OBSERVER_SCHEMA = {
     contract: { type: 'string', enum: ['multi_view_marks_v3'] },
     usable: { type: 'boolean' },
     reason: { type: ['string', 'null'], maxLength: 160 },
-    views: { type: 'array', items: coffeeV3View, minItems: 1, maxItems: 4 },
+    views: { type: 'array', items: coffeeV3View, minItems: 3, maxItems: 3 },
     sightings: { type: 'array', items: coffeeV3Sighting, maxItems: 30 },
     marks: { type: 'array', items: coffeeV3Mark, maxItems: 16 },
     relations: { type: 'array', items: coffeeV3Relation, maxItems: 12 },

@@ -1,9 +1,11 @@
 /**
- * LIS2 — dark Coffee V3 processing path. Every provider call here goes to a
+ * LIS2 — dark Coffee V3 processing path, THREE photos (two genuine cup views +
+ * one saucer; never a fourth). Every provider call here goes to a
  * FAKE fetch (recorded); zero real OpenAI calls. Exercises the real internal
  * entry (AiProxyService.coffeeV3), the real worker (ReadingProcessor), the
  * real gem route and the real create route.
  */
+import { createHash } from 'node:crypto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { identityKeyFromSubject } from '../src/auth/identity.js';
 import { AiProxyService } from '../src/ai/service.js';
@@ -25,7 +27,8 @@ import { prepareCoffeeM2TurkishRealization } from '../src/ai/reading/coffee-m2-t
 import { assembleCoffeeM2PublicReading } from '../src/ai/reading/coffee-m2-turkish-realization-check.js';
 import { coffeeM2WriterPromptSha256, coffeeM2WriterSystemPrompt, coffeeM2WriterUserMessage } from '../src/ai/reading/coffee-m2-writer-prompt.js';
 import { COFFEE_V3_OBSERVER_SCHEMA } from '../src/ai/reading/schemas.js';
-import type { CoffeeMultiViewObservationV3 } from '../src/ai/reading/types.js';
+import { coffeeV3ObserverSystem, coffeeV3ObserverUser } from '../src/ai/reading/observer-prompts.js';
+import { COFFEE_V3_SLOTS, type CoffeeMultiViewObservationV3 } from '../src/ai/reading/types.js';
 import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 import { MemoryStagedObjectStore } from '../src/reading/memory-staged-object-store.js';
 import { provisionalGemCostPolicy } from '../src/reading/gem-cost-policy.js';
@@ -44,6 +47,7 @@ import type { OpenAiCompleteOptions } from '../src/ai/openai-transport.js';
 import type { AppConfig } from '../src/config.js';
 import { c31Spec } from './fixtures/coffee-c31-fixtures.js';
 import { m1Observation, type M1FixtureSpec } from './fixtures/coffee-m1-fixtures.js';
+import { toThreeViewObservation } from './fixtures/coffee-v3-three-view.js';
 import {
   StaticAppCheckVerifier,
   appCheckHeader,
@@ -63,11 +67,14 @@ class FixedClock implements ServerClock {
 }
 
 const DECISION = 'Bir karar vermem gerekiyor, önümde birkaç seçenek var.';
-const STAGED = ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer'] as const;
+const STAGED = ['v3_cup_view_a', 'v3_cup_view_b', 'v3_saucer_view'] as const;
+const RETIRED_STAGED = ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer'] as const;
 const W = 'secondary_option_gaining_weight';
 const S = 'options_separating';
 const R = 'another_option_relevant';
-const RITAG = (): CoffeeMultiViewObservationV3 => m1Observation(c31Spec('C3F-RITAG', { clearAreas: true }));
+/** A frozen fixture expressed as the live three-photo observation (fixtures themselves untouched). */
+const three = (spec: M1FixtureSpec): CoffeeMultiViewObservationV3 => toThreeViewObservation(m1Observation(spec));
+const RITAG = (): CoffeeMultiViewObservationV3 => three(c31Spec('C3F-RITAG', { clearAreas: true }));
 
 /** A W4P5-accepted reading for this payload (passes parser, scenario validator and checker). */
 const GOOD_BEATS = [
@@ -151,7 +158,7 @@ beforeEach(() => readingStageStore.clear());
 // ---------------------------------------------------------------------------
 
 describe('LIS2 V3 observer (A–J)', () => {
-  it('A–F: one observer call, four images in canonical order, each after its label, frozen schema, configured vision model', async () => {
+  it('A–F: one observer call, exactly three images (two cup + saucer) in canonical order, each after its label, schema, configured vision model', async () => {
     const r = await run(RITAG(), [GOOD]);
     expect(r.error).toBeNull();
     const obs = r.observerCalls();
@@ -161,10 +168,46 @@ describe('LIS2 V3 observer (A–J)', () => {
     expect(obs[0].reasoningEffort).toBe('low');
     expect(obs[0].temperature).toBeUndefined();
     const parts = (obs[0].messages[1].content as Array<{ type: string; text?: string }>);
-    expect(parts.filter((p) => p.type === 'image_url')).toHaveLength(4);
+    expect(parts.filter((p) => p.type === 'image_url')).toHaveLength(3);
     const labels = parts.filter((p, i) => p.type === 'text' && parts[i + 1]?.type === 'image_url').map((p) => p.text!.split(' — ')[1].split('.')[0]);
-    expect(labels).toEqual(['CUP_HANDLE_FAR', 'CUP_TURN_A', 'CUP_TURN_B', 'SAUCER']);
-    expect(Object.values(COFFEE_V3_STAGED_TO_SEMANTIC_SLOT)).toEqual(['cup_handle_far', 'cup_turn_a', 'cup_turn_b', 'saucer']);
+    expect(labels).toEqual(['CUP_VIEW_A', 'CUP_VIEW_B', 'SAUCER']);
+    // Three DIFFERENT images, never a duplicated or synthetic view.
+    const urls = parts.filter((p) => p.type === 'image_url').map((p) => (p as unknown as { image_url: { url: string } }).image_url.url);
+    expect(new Set(urls).size).toBe(3);
+    expect(Object.keys(COFFEE_V3_STAGED_TO_SEMANTIC_SLOT)).toEqual([...STAGED]);
+    expect(Object.values(COFFEE_V3_STAGED_TO_SEMANTIC_SLOT)).toEqual(['cup_view_a', 'cup_view_b', 'saucer']);
+    expect([...COFFEE_V3_SLOTS]).toEqual(['cup_view_a', 'cup_view_b', 'saucer']);
+  });
+
+  it('the observer contract itself is three-view: schema slots, view count and prompts', () => {
+    const view = COFFEE_V3_OBSERVER_SCHEMA.properties.views;
+    expect(view).toMatchObject({ minItems: 3, maxItems: 3 });
+    expect(view.items.properties.slot.enum).toEqual(['cup_view_a', 'cup_view_b', 'saucer']);
+    expect(COFFEE_V3_OBSERVER_SCHEMA.properties.sightings.items.properties.slot.enum).toEqual(['cup_view_a', 'cup_view_b', 'saucer']);
+    expect(coffeeV3ObserverSystem()).toContain('two photographs of the inside of the SAME cup');
+    expect(coffeeV3ObserverSystem()).toContain('two cup photos');
+    expect(coffeeV3ObserverSystem()).not.toMatch(/three photographs of the inside|three cup photos|four/i);
+    expect(coffeeV3ObserverUser()).toContain('three photographs');
+    expect(coffeeV3ObserverUser()).not.toMatch(/four/i);
+  });
+
+  it('staged input must be exactly the three live views: four, retired, duplicated or missing views never reach a provider', async () => {
+    const base = images();
+    const cases = [
+      [...base, { slot: 'v3_cup_view_a' as never, mimeType: 'image/jpeg', bytes: fakeJpeg(29_000) }],
+      base.slice(0, 2),
+      [base[0], { ...base[1], slot: 'v3_cup_view_a' as never }, base[2]],
+      RETIRED_STAGED.map((slot, i) => ({ slot: slot as never, mimeType: 'image/jpeg', bytes: fakeJpeg(21_000 + i) })),
+    ];
+    for (const input of cases) {
+      const fake = fakeTransport(RITAG(), [GOOD]);
+      const err = await runCoffeeV3Reading({
+        config: testConfig(), transport: fake.transport, stageStore: createReadingStageStore(), images: input,
+        intention: DECISION, language: 'tr', identity: 'owner-a', parentKey: 'p',
+      }).catch((e) => e);
+      expect(failure(err)).toBe('unavailable:staged_views_malformed');
+      expect(fake.calls).toHaveLength(0);
+    }
   });
 
   it('G: an unusable observation is terminal invalid with no writer call', async () => {
@@ -185,14 +228,26 @@ describe('LIS2 V3 observer (A–J)', () => {
     expect(r.writerCalls()).toHaveLength(0);
     // Malformed views or JSON are also provider defects.
     const views = RITAG();
-    views.views = views.views.slice(0, 3);
+    views.views = views.views.slice(0, 2);
     expect(failure((await run(views, [GOOD])).error)).toBe('unavailable:observer_views_malformed');
+    // A phantom fourth view, a duplicated view, or the retired four-view labels are provider defects too.
+    const phantom = RITAG();
+    phantom.views = [...phantom.views, { ...phantom.views[1], slot: 'cup_turn_b' }];
+    expect(failure((await run(phantom, [GOOD])).error)).toBe('unavailable:observer_views_malformed');
+    const duplicated = RITAG();
+    duplicated.views = [duplicated.views[0], { ...duplicated.views[0] }, duplicated.views[2]];
+    expect(failure((await run(duplicated, [GOOD])).error)).toBe('unavailable:observer_views_malformed');
+    expect(failure((await run(m1Observation(c31Spec('C3F-RITAG', { clearAreas: true })), [GOOD])).error)).toBe('unavailable:observer_views_malformed');
+    // A sighting on a view that was never photographed is rejected by the map.
+    const ghost = RITAG();
+    ghost.sightings = ghost.sightings.map((s, i) => (i === 0 ? { ...s, slot: 'cup_turn_a' } : s));
+    expect(failure((await run(ghost, [GOOD])).error)).toBe('unavailable:map_invalid:unknown_view');
     expect(failure((await run('{not json', [GOOD])).error)).toBe('unavailable:observer_malformed_json');
     expect(failure((await run({ ...RITAG(), contract: 'other' }, [GOOD])).error)).toBe('unavailable:observer_wrong_contract');
   });
 
   it('I/M: a sparse cup is never padded — no marks is an honest insufficient (invalid), writer 0', async () => {
-    const sparse = m1Observation({ marks: [] });
+    const sparse = three({ marks: [] });
     expect(sparse.marks).toHaveLength(0);
     const r = await run(sparse, [GOOD]);
     expect(failure(r.error)).toBe('invalid:m2_insufficient');
@@ -207,6 +262,58 @@ describe('LIS2 V3 observer (A–J)', () => {
     const again = await run(RITAG(), [GOOD], { stageStore: store });
     expect(again.observerCalls()).toHaveLength(0);
     expect(again.error).toBeNull();
+  });
+});
+
+describe('three-view geometry: two real cup views are merged only on handle-anchored agreement', () => {
+  const form = { motion: 'unknown', verticalDirection: 'unknown', openness: 'unknown', course: 'unknown', posture: 'unknown', continuity: 'unknown', grouping: 'unknown' } as const;
+  const obs = (rimB: number): CoffeeMultiViewObservationV3 => ({
+    contract: 'multi_view_marks_v3',
+    usable: true,
+    reason: null,
+    views: [
+      { slot: 'cup_view_a', surfaceVisible: true, focusLightAdequate: true, residueVisible: true, handleVisible: true, handleClock: 12 },
+      { slot: 'cup_view_b', surfaceVisible: true, focusLightAdequate: true, residueVisible: true, handleVisible: true, handleClock: 6 },
+      { slot: 'saucer', surfaceVisible: true, focusLightAdequate: true, residueVisible: false, handleVisible: null, handleClock: null },
+    ],
+    sightings: [
+      { id: 'a1', slot: 'cup_view_a', surface: 'cup_wall', band: 'middle', rimClock: 3, saucerZone: null, bandCoverage: ['middle'], description: 'x', visibility: 'clear', confidence: 'high' },
+      { id: 'b1', slot: 'cup_view_b', surface: 'cup_wall', band: 'middle', rimClock: rimB, saucerZone: null, bandCoverage: ['middle'], description: 'x', visibility: 'clear', confidence: 'high' },
+    ],
+    marks: [{ id: 'm1', surface: 'cup_wall', kind: 'residue', topology: 'line', sightingIds: ['a1', 'b1'], form: { ...form }, resemblances: [] }],
+    relations: [],
+    ambiguities: [],
+    saucer: { surfaceState: 'clean', flow: { present: false, direction: 'none' } },
+  });
+
+  it('the same mark seen in both cup photos (cup turned half a circle) is one trusted physical mark', () => {
+    // View A: handle at 12, mark at 3 → 90° from the handle. View B: handle at 6, mark at 9 → also 90°.
+    const built = buildCoffeeV3MarkMap(obs(9));
+    if (built.status !== 'ok') throw new Error(built.status);
+    expect(built.map.cupMarks).toHaveLength(1);
+    expect(built.map.cupMarks[0]).toMatchObject({ identity: 'certain', coverage: { count: 2, slots: ['cup_view_a', 'cup_view_b'] }, handleRelation: 'neutral' });
+    expect(built.map.distinctMarkCount).toBe(1);
+    expect(built.map.audit.untrustedMergeIds).toEqual([]);
+  });
+
+  it('a claimed merge whose handle-anchored angles disagree is split, never invented as certain', () => {
+    // View B mark at 3 with the handle at 6 → 270°, i.e. the opposite wall: not the same mark.
+    const built = buildCoffeeV3MarkMap(obs(3));
+    if (built.status !== 'ok') throw new Error(built.status);
+    expect(built.map.audit.untrustedMergeIds).toEqual(['m1']);
+    expect(built.map.cupMarks.map((m) => m.identity)).toEqual(['possible_same_mark', 'possible_same_mark']);
+    expect(built.map.cupMarks.map((m) => m.coverage.slots)).toEqual([['cup_view_a'], ['cup_view_b']]);
+    expect(built.map.distinctMarkCount).toBe(1);
+  });
+
+  it('frozen fixtures expressed as three photos build the identical meaning map as their original form', () => {
+    for (const spec of [c31Spec('C3F-RITAG', { clearAreas: true }), c31Spec('C3F-UNAL', { clearAreas: true })]) {
+      const original = buildCoffeeV3MarkMap(m1Observation(spec));
+      const live = buildCoffeeV3MarkMap(toThreeViewObservation(m1Observation(spec)));
+      if (original.status !== 'ok' || live.status !== 'ok') throw new Error('fixture');
+      const meaning = (map: typeof original.map) => interpretCoffeeM2(map, classifyCoffeeIntention(DECISION)).meaning;
+      expect(JSON.stringify(meaning(live.map))).toBe(JSON.stringify(meaning(original.map)));
+    }
   });
 });
 
@@ -228,7 +335,7 @@ describe('LIS2 frozen semantic bridge and pins (K–T)', () => {
   });
 
   it('N: an insufficient W2 plan never reaches the writer (with frozen M2 it coincides with M2 insufficient)', async () => {
-    const r = await run(m1Observation(c31Spec('C3F-UNAL', { clearAreas: true })), [GOOD], { intention: 'Önümüzdeki dönem genel olarak' });
+    const r = await run(three(c31Spec('C3F-UNAL', { clearAreas: true })), [GOOD], { intention: 'Önümüzdeki dönem genel olarak' });
     expect(failure(r.error)).toMatch(/^invalid:(m2|w2)_insufficient$/);
     expect(r.writerCalls()).toHaveLength(0);
   });
@@ -359,8 +466,24 @@ function worker(writer: string[], observation: unknown = RITAG()) {
     return originalHasAny(input);
   };
   async function v3Op(tag: string) {
-    const op = await operations.create({ ownerUserId: owner, readingType: 'coffee', sourceRequestId: `lis2-${tag}`, coffeeInputContract: 'trusted_intention_v1', coffeeIntention: DECISION, coffeeCaptureContract: 'four_view_v3' });
+    const op = await operations.create({ ownerUserId: owner, readingType: 'coffee', sourceRequestId: `lis2-${tag}`, coffeeInputContract: 'trusted_intention_v1', coffeeIntention: DECISION, coffeeCaptureContract: 'three_view_v3' });
     await flow.remember(op);
+    return op;
+  }
+  /** A persisted pre-decision 'four_view_v3' operation with its four retired views staged. */
+  async function retiredOp(tag: string) {
+    const created = await v3Op(tag);
+    const op = await operationRepository.mutate(created.operationId, owner, (r) => ({ ...r, coffeeCaptureContract: 'four_view_v3' }));
+    for (const [i, slot] of RETIRED_STAGED.entries()) {
+      const bytes = fakeJpeg(40_000 + i * 100);
+      const objectPath = `reading-staging/coffee/${owner}/${op.operationId}/${slot}.jpg`;
+      await stagedRepository.upsert({
+        schemaVersion: 1, operationId: op.operationId, ownerUserId: owner, readingType: 'coffee', objectPath,
+        contentType: 'image/jpeg', byteSize: bytes.length, checksumSha256: createHash('sha256').update(bytes).digest('hex'),
+        uploadState: 'complete', slot, createdAtMs: clock.ms, updatedAtMs: clock.ms,
+      });
+      await objects.put(objectPath, bytes, 'image/jpeg');
+    }
     return op;
   }
   async function stageAll(operationId: string, slots: readonly string[] = STAGED) {
@@ -370,11 +493,11 @@ function worker(writer: string[], observation: unknown = RITAG()) {
   }
   const resultDocs = () => [...store.docs.keys()].filter((k) => k.includes('readingOperationResults/')).length;
   const refunds = () => [...store.docs.values()].filter((d) => (d as { type?: string }).type === 'refund').length;
-  return { store, clock, config, operations, operationRepository, stagedRepository, stagedImages, objects, ledger, flow, results, providerStages, fake, processor, owner, v3Op, stageAll, resultDocs, refunds, handleCalls: () => handleCalls, hasAnyV2Calls: () => hasAnyV2Calls };
+  return { store, clock, config, operations, operationRepository, stagedRepository, stagedImages, objects, ledger, flow, results, providerStages, fake, processor, owner, v3Op, retiredOp, stageAll, resultDocs, refunds, handleCalls: () => handleCalls, hasAnyV2Calls: () => hasAnyV2Calls };
 }
 
 describe('LIS2 worker dispatch and success (AS–BC)', () => {
-  it('AS/AT/AX/AY/AZ: four_view_v3 is dispatched by contract (no V2 slot-presence call), persisted once, completed once, V3 views cleaned', async () => {
+  it('AS/AT/AX/AY/AZ: three_view_v3 is dispatched by contract (no V2 slot-presence call), persisted once, completed once, V3 views cleaned', async () => {
     const h = worker([GOOD]);
     const op = await h.v3Op('success');
     await h.stageAll(op.operationId);
@@ -383,8 +506,11 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
     expect(h.hasAnyV2Calls()).toBe(0);
     expect(h.handleCalls()).toBe(0);
     expect(h.fake.bodies).toHaveLength(2); // 1 observer + 1 writer, all fake
+    // The one observer request carries exactly the three staged photos.
+    const observer = h.fake.bodies.find((b) => JSON.stringify(b).includes('coffee_v3_observation'))!;
+    expect(JSON.stringify(observer).match(/data:image\/jpeg;base64,/g)).toHaveLength(3);
     const stored = await h.operationRepository.getById(op.operationId);
-    expect(stored).toMatchObject({ status: 'ready', coffeeCaptureContract: 'four_view_v3' });
+    expect(stored).toMatchObject({ status: 'ready', coffeeCaptureContract: 'three_view_v3' });
     expect(h.resultDocs()).toBe(1);
     expect(await h.stagedRepository.listCoffeeV3Slots(op.operationId, h.owner)).toEqual([]);
     expect(h.objects.objects.size).toBe(0);
@@ -393,11 +519,11 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
   it('missing / pending views stay retryable "not ready" with no provider call and no cleanup', async () => {
     const h = worker([GOOD]);
     const op = await h.v3Op('partial');
-    await h.stageAll(op.operationId, STAGED.slice(0, 3));
+    await h.stageAll(op.operationId, STAGED.slice(0, 2));
     h.clock.ms = op.readyAtMs;
     await expect(h.processor.process(op.operationId)).rejects.toMatchObject({ retryable: true });
     expect(h.fake.bodies).toHaveLength(0);
-    expect(await h.stagedRepository.listCoffeeV3Slots(op.operationId, h.owner)).toHaveLength(3);
+    expect(await h.stagedRepository.listCoffeeV3Slots(op.operationId, h.owner)).toHaveLength(2);
     expect((await h.operationRepository.getById(op.operationId))!.status).not.toBe('failed');
   });
 
@@ -422,6 +548,26 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
     expect(await h.processor.process(op.operationId)).toBe('failed');
     expect(h.fake.bodies).toHaveLength(0);
     expect(await h.operationRepository.getById(op.operationId)).toMatchObject({ status: 'failed', failureCode: 'unavailable' });
+  });
+
+  it('a persisted retired four_view_v3 operation is never processed: no provider call, never V2, refunded terminal, views cleaned', async () => {
+    const h = worker([GOOD]);
+    await h.ledger.credit({ ownerUserId: h.owner, amount: 40, idempotencyKey: 'seed-credit-retired' });
+    const op = await h.retiredOp('retired');
+    await h.ledger.accelerate({ ownerUserId: h.owner, operationId: op.operationId, idempotencyKey: 'accelerate-retired' });
+    expect(await h.ledger.balanceOf(h.owner)).toBe(30);
+    h.clock.ms = Math.max(h.clock.ms, op.readyAtMs);
+    expect(await h.processor.process(op.operationId)).toBe('failed');
+    expect(h.fake.bodies).toHaveLength(0);
+    expect(h.handleCalls()).toBe(0);
+    expect(h.hasAnyV2Calls()).toBe(0);
+    expect(await h.operationRepository.getById(op.operationId)).toMatchObject({ status: 'failed', failureCode: 'unavailable', coffeeCaptureContract: 'four_view_v3' });
+    expect(h.resultDocs()).toBe(0);
+    expect(h.refunds()).toBe(1);
+    expect(await h.ledger.balanceOf(h.owner)).toBe(40);
+    expect(h.objects.objects.size).toBe(0);
+    expect(await h.processor.process(op.operationId)).toBe('noop');
+    expect(h.refunds()).toBe(1);
   });
 
   it('AU/AV/AW: null-contract V2, legacy Coffee and Palm still go through the unchanged public handler', async () => {
@@ -462,7 +608,7 @@ describe('LIS2 failure economy (AJ–AR)', () => {
   });
 
   it('AK: M2 insufficient → failFinal(invalid), no writer call, no persist', async () => {
-    const { h, record } = await failing(m1Observation({ marks: [] }), [GOOD], false, 'ak');
+    const { h, record } = await failing(three({ marks: [] }), [GOOD], false, 'ak');
     expect(record).toMatchObject({ status: 'failed', failureCode: 'invalid' });
     expect(h.fake.writerCalls()).toHaveLength(0);
     expect(h.resultDocs()).toBe(0);
@@ -518,7 +664,7 @@ describe('LIS2 create gate (BD–BL)', () => {
     );
     return { app, store, repository };
   }
-  const body = (extra: Record<string, unknown> = {}) => ({ readingType: 'coffee', sourceRequestId: `req-gate-${Math.random().toString(36).slice(2, 10)}`, language: 'tr', coffeeInputContract: 'trusted_intention_v1', intention: DECISION, coffeeCaptureContract: 'four_view_v3', ...extra });
+  const body = (extra: Record<string, unknown> = {}) => ({ readingType: 'coffee', sourceRequestId: `req-gate-${Math.random().toString(36).slice(2, 10)}`, language: 'tr', coffeeInputContract: 'trusted_intention_v1', intention: DECISION, coffeeCaptureContract: 'three_view_v3', ...extra });
 
   it('the flag defaults OFF in every environment and only an explicit true turns it on', () => {
     for (const env of ['development', 'staging', 'production']) expect(testConfig({ APP_ENV: env }).coffeeV3CreationEnabled).toBe(false);
@@ -526,7 +672,7 @@ describe('LIS2 create gate (BD–BL)', () => {
     expect(testConfig({ ORACLY_COFFEE_V3_ENABLED: 'true' }).coffeeV3CreationEnabled).toBe(true);
   });
 
-  it('BD: flag off + four_view_v3 → 400 and nothing created', async () => {
+  it('BD: flag off + three_view_v3 → 400 and nothing created', async () => {
     const { app, store } = await createApp(false);
     const before = store.docs.size;
     const res = await app.inject({ method: 'POST', url: '/v1/reading-operations', headers: headers(), payload: body() });
@@ -538,10 +684,10 @@ describe('LIS2 create gate (BD–BL)', () => {
     const { app, repository } = await createApp(true);
     const res = await app.inject({ method: 'POST', url: '/v1/reading-operations', headers: headers(), payload: body() });
     expect(res.statusCode).toBe(200);
-    expect((await repository.getById(res.json().data.operationId))!.coffeeCaptureContract).toBe('four_view_v3');
+    expect((await repository.getById(res.json().data.operationId))!.coffeeCaptureContract).toBe('three_view_v3');
   });
 
-  it('BF/BG/BH/BI: flag on but EN, RU, implicit language, missing intention, wrong contract or unknown value → 400', async () => {
+  it('BF/BG/BH/BI: flag on but EN, RU, implicit language, missing intention, wrong / retired contract or unknown value → 400', async () => {
     const { app, store } = await createApp(true);
     const before = store.docs.size;
     const { language: _l, ...noLanguage } = body();
@@ -553,6 +699,7 @@ describe('LIS2 create gate (BD–BL)', () => {
       noIntention,
       body({ coffeeInputContract: 'other' }),
       body({ coffeeCaptureContract: 'three_view' }),
+      body({ coffeeCaptureContract: 'four_view_v3' }),
       body({ coffeeCaptureContract: null }),
       body({ readingType: 'palm', intention: undefined, coffeeInputContract: undefined }),
     ]) {
@@ -604,11 +751,11 @@ describe('LIS2 gem acceleration (BK, BM–BR)', () => {
     } as never);
     const accelerate = (operationId: string) => app.inject({ method: 'POST', url: `/v1/reading-operations/${operationId}/accelerate`, headers: headers(), payload: { idempotencyKey: `acc-${operationId.slice(0, 8)}` } });
     const spends = () => [...store.docs.values()].filter((d) => (d as { type?: string }).type === 'spend').length;
-    const v3 = () => operations.create({ ownerUserId: owner, readingType: 'coffee', sourceRequestId: `gem-v3-${Math.random().toString(36).slice(2, 10)}`, coffeeInputContract: 'trusted_intention_v1', coffeeIntention: DECISION, coffeeCaptureContract: 'four_view_v3' });
-    return { app, operations, owner, put, accelerate, spends, v3 };
+    const v3 = () => operations.create({ ownerUserId: owner, readingType: 'coffee', sourceRequestId: `gem-v3-${Math.random().toString(36).slice(2, 10)}`, coffeeInputContract: 'trusted_intention_v1', coffeeIntention: DECISION, coffeeCaptureContract: 'three_view_v3' });
+    return { app, operations, repository, owner, put, accelerate, spends, v3 };
   }
 
-  it('BK/BO: an existing V3 op with all four complete views is acceleratable once (flag OFF)', async () => {
+  it('BK/BO: an existing V3 op with all three complete views is acceleratable once (flag OFF)', async () => {
     const g = await gemWorld('bo');
     const op = await g.v3();
     for (const slot of STAGED) await g.put(op.operationId, slot);
@@ -619,17 +766,22 @@ describe('LIS2 gem acceleration (BK, BM–BR)', () => {
     expect(g.spends()).toBe(1);
   });
 
-  it('BM/BN/BP: 3 of 4, a pending view, or V2 / legacy records on a V3 op → 409, no debit', async () => {
+  it('BM/BN/BP: 2 of 3, a pending view, retired four-view records, V2 / legacy records on a V3 op, or a retired op → 409, no debit', async () => {
     const g = await gemWorld('bm');
-    const three = await g.v3();
-    for (const slot of STAGED.slice(0, 3)) await g.put(three.operationId, slot);
+    const two = await g.v3();
+    for (const slot of STAGED.slice(0, 2)) await g.put(two.operationId, slot);
     const pending = await g.v3();
-    for (const slot of STAGED) await g.put(pending.operationId, slot, slot === 'v3_saucer' ? { uploadState: 'pending' } : {});
+    for (const slot of STAGED) await g.put(pending.operationId, slot, slot === 'v3_saucer_view' ? { uploadState: 'pending' } : {});
+    const retiredShaped = await g.v3();
+    for (const slot of RETIRED_STAGED) await g.put(retiredShaped.operationId, slot);
+    const retired = await g.v3();
+    await g.repository.mutate(retired.operationId, g.owner, (r) => ({ ...r, coffeeCaptureContract: 'four_view_v3' }));
+    for (const slot of [...RETIRED_STAGED, ...STAGED]) await g.put(retired.operationId, slot);
     const v2Shaped = await g.v3();
     for (const slot of ['cup_primary', 'cup_secondary', 'saucer']) await g.put(v2Shaped.operationId, slot);
     const legacyShaped = await g.v3();
     await g.put(legacyShaped.operationId, undefined);
-    for (const op of [three, pending, v2Shaped, legacyShaped]) expect((await g.accelerate(op.operationId)).statusCode).toBe(409);
+    for (const op of [two, pending, retiredShaped, retired, v2Shaped, legacyShaped]) expect((await g.accelerate(op.operationId)).statusCode).toBe(409);
     expect(g.spends()).toBe(0);
   });
 
@@ -655,6 +807,7 @@ describe('LIS2 public /v1/ai can never select V3', () => {
     await h.stageAll(op.operationId);
     const ai = new AiProxyService(h.config, h.fake.fetchImpl, h.stagedImages);
     for (const payload of [
+      { operationId: op.operationId, coffeeCaptureContract: 'three_view_v3' },
       { operationId: op.operationId, coffeeCaptureContract: 'four_view_v3' },
       { operationId: op.operationId, slots: [...STAGED], contract: 'multi_view_marks_v3' },
     ]) {

@@ -1,7 +1,7 @@
 /**
  * Slice 4C/4D — shared Coffee terminal-delivery verdict for the durable
  * worker's Coffee V2 (three-photo) AND legacy unslotted single-photo paths.
- * (The four-view contract settles through its own typed terminal failure
+ * (The V3 three-view contract settles through its own typed terminal failure
  * and never reaches this module; Palm / Soulmate never use it.)
  *
  * `ReadingPipeline.coffeeV2()` and `ReadingPipeline.coffee()` return either a

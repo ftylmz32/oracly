@@ -14,6 +14,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { systemClock, type ServerClock } from '../reading/clock.js';
 import { toEpochMs } from '../reading/clock.js';
 import {
+  COFFEE_V3_CAPTURE_CONTRACT,
   isExecutionMode,
   isCoffeeCaptureContract,
   isCoffeeInputContract,
@@ -194,7 +195,8 @@ function parseCreateBody(body: unknown, coffeeV3CreationEnabled: boolean):
       return { ok: false };
     }
   }
-  // LIS2 — four-view V3 creation: present only with the server flag on, for
+  // LIS2 — three-view V3 creation (two cup views + saucer; the retired
+  // 'four_view_v3' is never creatable): present only with the server flag on, for
   // Turkish (explicitly declared; the frozen writer is Turkish-only) and the
   // trusted intention contract. Anything else carrying the key is refused,
   // never ignored. The flag gates NEW creation only.
@@ -203,6 +205,7 @@ function parseCreateBody(body: unknown, coffeeV3CreationEnabled: boolean):
     if (
       !coffeeV3CreationEnabled ||
       !isCoffeeCaptureContract(record.coffeeCaptureContract) ||
+      record.coffeeCaptureContract !== COFFEE_V3_CAPTURE_CONTRACT ||
       record.readingType !== 'coffee' ||
       record.language !== 'tr' ||
       coffeeInputContract !== 'trusted_intention_v1' ||

@@ -1,7 +1,9 @@
 /**
- * LIS1 — Coffee V3 four-view staging contract + immutable operation
- * discriminator. DARK foundation: the public create route refuses the field,
- * and no worker / pipeline / gem path dispatches on it. Zero provider calls.
+ * LIS1 — Coffee V3 THREE-photo staging contract (two genuine cup views + one
+ * saucer) + immutable operation discriminator. The retired 'four_view_v3'
+ * contract still parses (never mistaken for V2) but can never be created or
+ * staged. DARK: the public create route refuses the field unless the server
+ * flag is on. Zero provider calls.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -10,6 +12,7 @@ import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 import { MemoryStagedObjectStore } from '../src/reading/memory-staged-object-store.js';
 import {
   COFFEE_CAPTURE_CONTRACTS,
+  COFFEE_V3_CAPTURE_CONTRACT,
   isCoffeeCaptureContract,
   parseStoredRecord,
   toStoredDocument,
@@ -18,6 +21,7 @@ import { FirestoreReadingOperationRepository, idempotencyKeyFor } from '../src/r
 import { ReadingOperationError, ReadingOperationService } from '../src/reading/operation-service.js';
 import {
   COFFEE_V2_SLOTS,
+  COFFEE_V3_RETIRED_STAGED_SLOTS,
   COFFEE_V3_STAGED_SLOTS,
   parseStoredStagedImageRecord,
   stagedDocId,
@@ -48,7 +52,8 @@ class FixedClock implements ServerClock {
 
 const OWNER = 'owner-a';
 const INTENTION = 'Bir karar vermem gerekiyor, önümde birkaç seçenek var.';
-const V3 = ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer'] as const;
+const V3 = ['v3_cup_view_a', 'v3_cup_view_b', 'v3_saucer_view'] as const;
+const RETIRED = ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer'] as const;
 
 function harness() {
   const store = new MemoryDocumentStore();
@@ -72,8 +77,13 @@ function v3Op(h: ReturnType<typeof harness>, owner = OWNER, sourceRequestId = so
     sourceRequestId,
     coffeeInputContract: 'trusted_intention_v1',
     coffeeIntention: INTENTION,
-    coffeeCaptureContract: 'four_view_v3',
+    coffeeCaptureContract: 'three_view_v3',
   });
+}
+/** A persisted pre-decision 'four_view_v3' operation (no longer creatable through the service). */
+async function retiredOp(h: ReturnType<typeof harness>, owner = OWNER) {
+  const op = await v3Op(h, owner);
+  return h.operationRepository.mutate(op.operationId, owner, (r) => ({ ...r, coffeeCaptureContract: 'four_view_v3' }));
 }
 function v2Op(h: ReturnType<typeof harness>, owner = OWNER) {
   return h.operations.create({ ownerUserId: owner, readingType: 'coffee', sourceRequestId: source('v2') });
@@ -134,32 +144,44 @@ describe('LIS1 operation capture contract (A–K)', () => {
     expect(parseStoredRecord(base({ coffeeCaptureContract: null }))!.coffeeCaptureContract).toBeNull();
   });
 
-  it('B: four_view_v3 stores and parses', () => {
-    const rec = parseStoredRecord(base({ coffeeInputContract: 'trusted_intention_v1', coffeeIntention: INTENTION, coffeeCaptureContract: 'four_view_v3' }))!;
-    expect(rec.coffeeCaptureContract).toBe('four_view_v3');
-    expect(toStoredDocument(rec).coffeeCaptureContract).toBe('four_view_v3');
-    expect(parseStoredRecord(toStoredDocument(rec) as Record<string, unknown>)!.coffeeCaptureContract).toBe('four_view_v3');
-    expect(COFFEE_CAPTURE_CONTRACTS).toEqual(['four_view_v3']);
-    expect(isCoffeeCaptureContract('four_view_v3')).toBe(true);
+  it('B: three_view_v3 stores and parses; the retired four_view_v3 still parses as itself (never as V2 / legacy)', () => {
+    for (const contract of ['three_view_v3', 'four_view_v3'] as const) {
+      const rec = parseStoredRecord(base({ coffeeInputContract: 'trusted_intention_v1', coffeeIntention: INTENTION, coffeeCaptureContract: contract }))!;
+      expect(rec.coffeeCaptureContract).toBe(contract);
+      expect(toStoredDocument(rec).coffeeCaptureContract).toBe(contract);
+      expect(parseStoredRecord(toStoredDocument(rec) as Record<string, unknown>)!.coffeeCaptureContract).toBe(contract);
+      expect(isCoffeeCaptureContract(contract)).toBe(true);
+    }
+    expect(COFFEE_CAPTURE_CONTRACTS).toEqual(['three_view_v3', 'four_view_v3']);
+    expect(COFFEE_V3_CAPTURE_CONTRACT).toBe('three_view_v3');
   });
 
   it('C/D/E: an unknown value, or any value on Palm / Soulmate, fails closed', () => {
     expect(parseStoredRecord(base({ coffeeCaptureContract: 'three_view_v2' }))).toBeNull();
     expect(parseStoredRecord(base({ coffeeCaptureContract: 4 }))).toBeNull();
-    expect(parseStoredRecord(base({ readingType: 'palm', coffeeCaptureContract: 'four_view_v3' }))).toBeNull();
-    expect(parseStoredRecord(base({ readingType: 'soulmate', coffeeCaptureContract: 'four_view_v3' }))).toBeNull();
+    for (const contract of ['three_view_v3', 'four_view_v3']) {
+      expect(parseStoredRecord(base({ readingType: 'palm', coffeeCaptureContract: contract }))).toBeNull();
+      expect(parseStoredRecord(base({ readingType: 'soulmate', coffeeCaptureContract: contract }))).toBeNull();
+    }
   });
 
   it('D/E/F (service): V3 requires Coffee + trusted_intention_v1 + a valid intention', async () => {
     const h = harness();
     for (const readingType of ['palm', 'soulmate'] as const) {
-      expect(await errCode(h.operations.create({ ownerUserId: OWNER, readingType, sourceRequestId: source('x'), coffeeCaptureContract: 'four_view_v3' }))).toBe('invalid');
+      expect(await errCode(h.operations.create({ ownerUserId: OWNER, readingType, sourceRequestId: source('x'), coffeeCaptureContract: 'three_view_v3' }))).toBe('invalid');
     }
-    expect(await errCode(h.operations.create({ ownerUserId: OWNER, readingType: 'coffee', sourceRequestId: source('x'), coffeeCaptureContract: 'four_view_v3' }))).toBe('invalid');
-    expect(await errCode(h.operations.create({ ownerUserId: OWNER, readingType: 'coffee', sourceRequestId: source('x'), coffeeInputContract: 'trusted_intention_v1', coffeeIntention: '   ', coffeeCaptureContract: 'four_view_v3' }))).toBe('invalid');
+    expect(await errCode(h.operations.create({ ownerUserId: OWNER, readingType: 'coffee', sourceRequestId: source('x'), coffeeCaptureContract: 'three_view_v3' }))).toBe('invalid');
+    expect(await errCode(h.operations.create({ ownerUserId: OWNER, readingType: 'coffee', sourceRequestId: source('x'), coffeeInputContract: 'trusted_intention_v1', coffeeIntention: '   ', coffeeCaptureContract: 'three_view_v3' }))).toBe('invalid');
     const op = await v3Op(h);
-    expect(op).toMatchObject({ readingType: 'coffee', coffeeInputContract: 'trusted_intention_v1', coffeeCaptureContract: 'four_view_v3' });
-    expect((await h.operationRepository.getById(op.operationId))!.coffeeCaptureContract).toBe('four_view_v3');
+    expect(op).toMatchObject({ readingType: 'coffee', coffeeInputContract: 'trusted_intention_v1', coffeeCaptureContract: 'three_view_v3' });
+    expect((await h.operationRepository.getById(op.operationId))!.coffeeCaptureContract).toBe('three_view_v3');
+  });
+
+  it('the retired four_view_v3 can never be created again, even fully marked (nothing stored)', async () => {
+    const h = harness();
+    const before = h.store.docs.size;
+    expect(await errCode(h.operations.create({ ownerUserId: OWNER, readingType: 'coffee', sourceRequestId: source('retired'), coffeeInputContract: 'trusted_intention_v1', coffeeIntention: INTENTION, coffeeCaptureContract: 'four_view_v3' }))).toBe('invalid');
+    expect(h.store.docs.size).toBe(before);
   });
 
   it('G/H/I: same sourceRequestId is idempotent only with the same contract', async () => {
@@ -177,7 +199,7 @@ describe('LIS1 operation capture contract (A–K)', () => {
 
   it('J: the idempotency key is unchanged and ignores the capture contract', () => {
     const k = { ownerUserId: OWNER, readingType: 'coffee' as const, sourceRequestId: 'req-key-0001' };
-    expect(idempotencyKeyFor({ ...k, coffeeCaptureContract: 'four_view_v3' } as typeof k)).toBe(idempotencyKeyFor(k));
+    expect(idempotencyKeyFor({ ...k, coffeeCaptureContract: 'three_view_v3' } as typeof k)).toBe(idempotencyKeyFor(k));
     expect(idempotencyKeyFor(k)).toBe(`${OWNER}\0coffee\0req-key-0001`);
   });
 
@@ -196,8 +218,8 @@ describe('LIS1 operation capture contract (A–K)', () => {
     const h = harness();
     const op = await v3Op(h);
     const failed = await h.operations.fail({ ownerUserId: OWNER, operationId: op.operationId, failureCode: 'unavailable' });
-    expect(failed.coffeeCaptureContract).toBe('four_view_v3');
-    expect((await h.operationRepository.getById(op.operationId))!.coffeeCaptureContract).toBe('four_view_v3');
+    expect(failed.coffeeCaptureContract).toBe('three_view_v3');
+    expect((await h.operationRepository.getById(op.operationId))!.coffeeCaptureContract).toBe('three_view_v3');
   });
 });
 
@@ -226,12 +248,12 @@ describe('LIS1 public create route stays dark (L–Q)', () => {
   });
   const post = (app: Awaited<ReturnType<typeof appFor>>['app'], payload: Record<string, unknown>, h = headers()) =>
     app.inject({ method: 'POST', url: '/v1/reading-operations', headers: h, payload });
-  const v3Body = { readingType: 'coffee', sourceRequestId: 'req-route-v3-01', coffeeInputContract: 'trusted_intention_v1', intention: INTENTION, coffeeCaptureContract: 'four_view_v3' };
+  const v3Body = { readingType: 'coffee', sourceRequestId: 'req-route-v3-01', coffeeInputContract: 'trusted_intention_v1', intention: INTENTION, coffeeCaptureContract: 'three_view_v3' };
 
   it('L/M: a body carrying coffeeCaptureContract is rejected with invalidRequest and creates nothing', async () => {
     const { app, store } = await appFor();
     const before = store.docs.size;
-    for (const value of ['four_view_v3', null, 'anything']) {
+    for (const value of ['three_view_v3', 'four_view_v3', null, 'anything']) {
       const res = await post(app, { ...v3Body, coffeeCaptureContract: value });
       expect(res.statusCode).toBe(400);
       expect(res.json().error.code).toBe('invalid_request');
@@ -276,28 +298,33 @@ describe('LIS1 staged slot model (R–Y)', () => {
     updatedAtMs: 1,
   });
 
-  it('R/S: V2 slots are unchanged; V3 staged slots are namespaced, in canonical order', () => {
+  it('R/S: V2 slots are unchanged; V3 staged slots are exactly two cup views + one saucer, namespaced, in canonical order', () => {
     expect(COFFEE_V2_SLOTS).toEqual(['cup_primary', 'cup_secondary', 'saucer']);
     expect(COFFEE_V3_STAGED_SLOTS).toEqual([...V3]);
+    expect(COFFEE_V3_STAGED_SLOTS).toHaveLength(3);
+    expect(COFFEE_V3_RETIRED_STAGED_SLOTS).toEqual([...RETIRED]);
+    for (const slot of COFFEE_V3_STAGED_SLOTS) expect(COFFEE_V3_RETIRED_STAGED_SLOTS as readonly string[]).not.toContain(slot);
   });
 
   it('T/U: V2 and V3 doc ids and object paths never collide', () => {
     const op = 'd'.repeat(32);
     expect(stagedDocId(op, 'saucer')).toBe(`${op}--saucer`);
-    expect(stagedDocId(op, 'v3_saucer')).toBe(`${op}--v3_saucer`);
-    const ids = [...COFFEE_V2_SLOTS, ...COFFEE_V3_STAGED_SLOTS].map((s) => stagedDocId(op, s));
-    expect(new Set([...ids, stagedDocId(op)]).size).toBe(8);
-    const paths = [...COFFEE_V2_SLOTS, ...COFFEE_V3_STAGED_SLOTS].map((slot) => stagedObjectPath({ readingType: 'coffee', ownerUserId: OWNER, operationId: op, ext: 'jpg', slot }));
-    expect(new Set([...paths, stagedObjectPath({ readingType: 'coffee', ownerUserId: OWNER, operationId: op, ext: 'jpg' })]).size).toBe(8);
-    expect(stagedObjectPath({ readingType: 'coffee', ownerUserId: OWNER, operationId: op, ext: 'jpg', slot: 'v3_saucer' })).toBe(`reading-staging/coffee/owner-a/${op}/v3_saucer.jpg`);
+    expect(stagedDocId(op, 'v3_saucer_view')).toBe(`${op}--v3_saucer_view`);
+    // V2, live V3 and retired four-view slots never share a doc id or object path.
+    const all = [...COFFEE_V2_SLOTS, ...COFFEE_V3_STAGED_SLOTS, ...COFFEE_V3_RETIRED_STAGED_SLOTS];
+    const ids = all.map((s) => stagedDocId(op, s));
+    expect(new Set([...ids, stagedDocId(op)]).size).toBe(11);
+    const paths = all.map((slot) => stagedObjectPath({ readingType: 'coffee', ownerUserId: OWNER, operationId: op, ext: 'jpg', slot }));
+    expect(new Set([...paths, stagedObjectPath({ readingType: 'coffee', ownerUserId: OWNER, operationId: op, ext: 'jpg' })]).size).toBe(11);
+    expect(stagedObjectPath({ readingType: 'coffee', ownerUserId: OWNER, operationId: op, ext: 'jpg', slot: 'v3_saucer_view' })).toBe(`reading-staging/coffee/owner-a/${op}/v3_saucer_view.jpg`);
   });
 
   it('V/W/X/Y: the stored parser accepts V2, V3 and slot-absent records, rejects unknown slots', () => {
-    for (const slot of [...COFFEE_V2_SLOTS, ...COFFEE_V3_STAGED_SLOTS]) {
+    for (const slot of [...COFFEE_V2_SLOTS, ...COFFEE_V3_STAGED_SLOTS, ...COFFEE_V3_RETIRED_STAGED_SLOTS]) {
       expect(parseStoredStagedImageRecord(toStoredStagedImageDocument(rec(slot)))?.slot, slot).toBe(slot);
     }
     expect(parseStoredStagedImageRecord(toStoredStagedImageDocument(rec()))?.slot).toBeUndefined();
-    for (const bad of ['cup_handle_far', 'v3_cup_primary', 'V3_SAUCER', 'saucer2']) {
+    for (const bad of ['cup_handle_far', 'cup_view_a', 'v3_cup_primary', 'V3_SAUCER', 'v3_cup_view_c', 'saucer2']) {
       expect(parseStoredStagedImageRecord({ ...toStoredStagedImageDocument(rec()), slot: bad }), bad).toBeNull();
     }
   });
@@ -308,7 +335,7 @@ describe('LIS1 staging ownership and duplicates', () => {
     const h = harness();
     const op = await v2Op(h);
     for (const [i, slot] of COFFEE_V2_SLOTS.entries()) expect(await errCode(stage(h, op.operationId, slot, fakeJpeg(10000 + i * 10)))).toBe('ok');
-    for (const slot of V3) expect(await errCode(stage(h, op.operationId, slot, fakeJpeg(11000)))).toBe('invalid');
+    for (const slot of [...V3, ...RETIRED]) expect(await errCode(stage(h, op.operationId, slot, fakeJpeg(11000)))).toBe('invalid');
     const legacy = await v2Op(h);
     expect(await errCode(stage(h, legacy.operationId, undefined, fakeJpeg(10100)))).toBe('ok');
     // The V2 read side still sees only V2 records.
@@ -316,10 +343,10 @@ describe('LIS1 staging ownership and duplicates', () => {
     expect(await h.stagedRepository.listCoffeeV3Slots(op.operationId, OWNER)).toEqual([]);
   });
 
-  it('four_view_v3 Coffee: the four V3 slots pass; V2 slots, no slot and unknown slots fail', async () => {
+  it('three_view_v3 Coffee: the three V3 slots pass; V2 slots, no slot, retired four-view slots and unknown slots fail', async () => {
     const h = harness();
     const op = await v3Op(h);
-    for (const slot of ['cup_primary', 'cup_secondary', 'saucer', undefined, 'cup_handle_far', 'v3_unknown']) {
+    for (const slot of ['cup_primary', 'cup_secondary', 'saucer', undefined, 'cup_view_a', 'v3_unknown', ...RETIRED]) {
       expect(await errCode(stage(h, op.operationId, slot, fakeJpeg(11100))), String(slot)).toBe('invalid');
     }
     await stageAllV3(h, op.operationId);
@@ -328,10 +355,19 @@ describe('LIS1 staging ownership and duplicates', () => {
     expect(await h.service.hasAnyCoffeeV2Slot({ ownerUserId: OWNER, operationId: op.operationId })).toBe(false);
   });
 
+  it('a retired four_view_v3 operation accepts no upload at all (no fourth photo is ever requested)', async () => {
+    const h = harness();
+    const op = await retiredOp(h);
+    for (const slot of [...RETIRED, ...V3, ...COFFEE_V2_SLOTS, undefined]) {
+      expect(await errCode(stage(h, op.operationId, slot, fakeJpeg(11200))), String(slot)).toBe('invalid');
+    }
+    expect(h.objects.objects.size).toBe(0);
+  });
+
   it('Palm is unchanged: no slot of either contract is ever valid', async () => {
     const h = harness();
     const palm = await h.operations.create({ ownerUserId: OWNER, readingType: 'palm', sourceRequestId: source('palm') });
-    for (const slot of ['cup_primary', 'v3_saucer']) {
+    for (const slot of ['cup_primary', 'v3_saucer_view', 'v3_saucer']) {
       expect(await errCode(h.service.stage({ ownerUserId: OWNER, operationId: palm.operationId, mimeType: 'image/jpeg', imageBase64: fakeJpeg(10200).toString('base64'), handSide: 'left', slot }))).toBe('invalid');
     }
     expect(await errCode(h.service.stage({ ownerUserId: OWNER, operationId: palm.operationId, mimeType: 'image/jpeg', imageBase64: fakeJpeg(10200).toString('base64'), handSide: 'left' }))).toBe('ok');
@@ -341,48 +377,55 @@ describe('LIS1 staging ownership and duplicates', () => {
     const h = harness();
     const op = await v3Op(h);
     const x = fakeJpeg(13000);
-    await stage(h, op.operationId, 'v3_cup_handle_far', x);
-    await expect(stage(h, op.operationId, 'v3_cup_turn_a', x)).rejects.toMatchObject({ code: 'duplicate_staged_image', httpStatus: 409 });
-    expect(await errCode(stage(h, op.operationId, 'v3_cup_handle_far', x))).toBe('ok');
+    await stage(h, op.operationId, 'v3_cup_view_a', x);
+    // The same photo can never stand in for the second cup view or the saucer.
+    await expect(stage(h, op.operationId, 'v3_cup_view_b', x)).rejects.toMatchObject({ code: 'duplicate_staged_image', httpStatus: 409 });
+    await expect(stage(h, op.operationId, 'v3_saucer_view', x)).rejects.toMatchObject({ code: 'duplicate_staged_image', httpStatus: 409 });
+    expect(await errCode(stage(h, op.operationId, 'v3_cup_view_a', x))).toBe('ok');
     const other = await v3Op(h);
     expect(await errCode(stageAllV3(h, other.operationId))).toBe('ok');
   });
 });
 
 describe('LIS1 dark V3 retrieval and cleanup', () => {
-  it('retrieves exactly four images, in V3 staging order, with checksum / MIME / bytes / owner checked', async () => {
+  it('retrieves exactly three images (two cup + saucer), in V3 staging order, with checksum / MIME / bytes / owner checked', async () => {
     const h = harness();
     const op = await v3Op(h);
     await stageAllV3(h, op.operationId);
     const images = await h.service.retrieveCoffeeV3ForProcessing({ ownerUserId: OWNER, operationId: op.operationId });
     expect(images.map((i) => i.slot)).toEqual([...V3]);
+    expect(images).toHaveLength(3);
     images.forEach((img, i) => {
       expect(img.mimeType).toBe('image/jpeg');
       expect(img.bytes.equals(fakeJpeg(12000 + i * 100))).toBe(true);
     });
   });
 
-  it('missing, pending, corrupt, wrong owner, V2 and legacy operations all fail closed', async () => {
+  it('missing, pending, corrupt, wrong owner, retired, V2 and legacy operations all fail closed', async () => {
     const h = harness();
     const missing = await v3Op(h);
-    for (const [i, slot] of V3.slice(0, 3).entries()) await stage(h, missing.operationId, slot, fakeJpeg(12000 + i * 100));
+    for (const [i, slot] of V3.slice(0, 2).entries()) await stage(h, missing.operationId, slot, fakeJpeg(12000 + i * 100));
     expect(await errCode(h.service.retrieveCoffeeV3ForProcessing({ ownerUserId: OWNER, operationId: missing.operationId }))).toBe('invalid');
 
     const pending = await v3Op(h);
     await stageAllV3(h, pending.operationId);
-    const rec = (await h.stagedRepository.getCoffeeV3Slot(pending.operationId, 'v3_cup_turn_b', OWNER))!;
+    const rec = (await h.stagedRepository.getCoffeeV3Slot(pending.operationId, 'v3_cup_view_b', OWNER))!;
     await h.stagedRepository.upsert({ ...rec, uploadState: 'pending' });
     expect(await errCode(h.service.retrieveCoffeeV3ForProcessing({ ownerUserId: OWNER, operationId: pending.operationId }))).toBe('invalid');
 
     const corrupt = await v3Op(h);
     await stageAllV3(h, corrupt.operationId);
-    const sau = (await h.stagedRepository.getCoffeeV3Slot(corrupt.operationId, 'v3_saucer', OWNER))!;
+    const sau = (await h.stagedRepository.getCoffeeV3Slot(corrupt.operationId, 'v3_saucer_view', OWNER))!;
     await h.objects.put(sau.objectPath, fakeJpeg(14999), 'image/jpeg');
     expect(await errCode(h.service.retrieveCoffeeV3ForProcessing({ ownerUserId: OWNER, operationId: corrupt.operationId }))).toBe('invalid');
 
     const owned = await v3Op(h);
     await stageAllV3(h, owned.operationId);
     expect(await errCode(h.service.retrieveCoffeeV3ForProcessing({ ownerUserId: 'owner-b', operationId: owned.operationId }))).toBe('not_found');
+
+    const hr = harness();
+    const retired = await retiredOp(hr);
+    expect(await errCode(hr.service.retrieveCoffeeV3ForProcessing({ ownerUserId: OWNER, operationId: retired.operationId }))).toBe('not_found');
 
     const v2 = await v2Op(h);
     for (const [i, slot] of COFFEE_V2_SLOTS.entries()) await stage(h, v2.operationId, slot, fakeJpeg(10000 + i * 10));
@@ -392,7 +435,7 @@ describe('LIS1 dark V3 retrieval and cleanup', () => {
     expect(await errCode(h.service.retrieveCoffeeV3ForProcessing({ ownerUserId: OWNER, operationId: legacy.operationId }))).toBe('not_found');
   });
 
-  it('V3 cleanup removes exactly the four V3 slots; V2 slots and the legacy record are never touched; idempotent', async () => {
+  it('V3 cleanup removes exactly the three V3 slots; V2 slots and the legacy record are never touched; idempotent', async () => {
     const h = harness();
     const op = await v3Op(h);
     await stageAllV3(h, op.operationId);
@@ -416,6 +459,28 @@ describe('LIS1 dark V3 retrieval and cleanup', () => {
     expect(h.objects.objects.size).toBe(4);
   });
 
+  it('V3 cleanup also removes the leftover slots of a retired four-view operation (privacy), and nothing else', async () => {
+    const h = harness();
+    const op = await retiredOp(h);
+    for (const [i, slot] of RETIRED.entries()) {
+      const r: ReadingStagedImageRecord = {
+        schemaVersion: 1, operationId: op.operationId, ownerUserId: OWNER, readingType: 'coffee',
+        objectPath: stagedObjectPath({ readingType: 'coffee', ownerUserId: OWNER, operationId: op.operationId, ext: 'jpg', slot }),
+        contentType: 'image/jpeg', byteSize: 10, checksumSha256: String(i).repeat(64), uploadState: 'complete',
+        slot, createdAtMs: 1, updatedAtMs: 1,
+      };
+      await h.stagedRepository.upsert(r);
+      await h.objects.put(r.objectPath, fakeJpeg(9100 + i), 'image/jpeg');
+    }
+    const other = await v3Op(h);
+    await stageAllV3(h, other.operationId);
+    expect(h.objects.objects.size).toBe(7);
+    await h.service.deleteCoffeeV3Slots({ ownerUserId: OWNER, operationId: op.operationId });
+    expect(h.objects.objects.size).toBe(3);
+    for (const slot of RETIRED) expect(await h.stagedRepository.getCoffeeV3Slot(op.operationId, slot, OWNER)).toBeNull();
+    expect((await h.stagedRepository.listCoffeeV3Slots(other.operationId, OWNER)).map((r) => r.slot)).toEqual([...V3]);
+  });
+
   it('wrong-owner V3 cleanup is a safe no-op; V2 cleanup never touches V3 slots', async () => {
     const h = harness();
     const op = await v3Op(h);
@@ -423,7 +488,7 @@ describe('LIS1 dark V3 retrieval and cleanup', () => {
     await h.service.deleteCoffeeV3Slots({ ownerUserId: 'owner-b', operationId: op.operationId });
     await h.service.deleteCoffeeV2Slots({ ownerUserId: OWNER, operationId: op.operationId });
     expect((await h.stagedRepository.listCoffeeV3Slots(op.operationId, OWNER)).map((r) => r.slot)).toEqual([...V3]);
-    expect(h.objects.objects.size).toBe(4);
+    expect(h.objects.objects.size).toBe(3);
   });
 });
 
@@ -440,7 +505,7 @@ describe('LIS1/LIS2 V3 ownership boundaries', () => {
   const users = (re: RegExp, root = src) => walk(root).filter((p) => re.test(readFileSync(p, 'utf8'))).map((p) => p.slice(root.length + 1).replace(/\\/g, '/')).sort();
 
   it('the contract is referenced only by the model / service / staging / worker / gem / create-route files', () => {
-    expect(users(/four_view_v3|coffeeCaptureContract/)).toEqual([
+    expect(users(/four_view_v3|three_view_v3|coffeeCaptureContract/)).toEqual([
       'ai/reading/coffee-v3-live-pipeline.ts',
       'ai/service.ts',
       'reading/operation-model.ts',
@@ -457,12 +522,12 @@ describe('LIS1/LIS2 V3 ownership boundaries', () => {
 
   it('the V2 pipeline, the public coffee handler and the scheduler have no V3 path', () => {
     for (const file of ['ai/reading/pipeline.ts', 'reading/reading-task-scheduler.ts']) {
-      expect(readFileSync(join(src, file), 'utf8'), file).not.toMatch(/four_view_v3|coffeeCaptureContract|COFFEE_V3_STAGED_SLOTS|CoffeeV3|coffeeV3|v3_saucer/);
+      expect(readFileSync(join(src, file), 'utf8'), file).not.toMatch(/four_view_v3|three_view_v3|coffeeCaptureContract|COFFEE_V3_STAGED_SLOTS|CoffeeV3|coffeeV3|v3_saucer/);
     }
     const service = readFileSync(join(src, 'ai/service.ts'), 'utf8');
     const publicCoffee = service.slice(service.indexOf('private async coffee('), service.indexOf('LIS2 — INTERNAL Coffee V3 entry'));
     expect(publicCoffee.length).toBeGreaterThan(100);
-    expect(publicCoffee).not.toMatch(/four_view_v3|coffeeCaptureContract|coffeeV3|runCoffeeV3Reading|v3_/);
+    expect(publicCoffee).not.toMatch(/four_view_v3|three_view_v3|coffeeCaptureContract|coffeeV3|runCoffeeV3Reading|v3_/);
   });
 
 });
@@ -491,7 +556,7 @@ describe('Slice 4 V3 dark rollout contract (client + server)', () => {
   it('1/2: the client V3 contract is intentionally present and matches the backend contract + slots in order', () => {
     const contract = read(`${V3_DIR}/models/coffee_v3_capture_contract.dart`);
     const clientContract = /coffeeV3CaptureContract = '([^']+)'/.exec(contract)?.[1];
-    expect(clientContract).toBe(COFFEE_CAPTURE_CONTRACTS[0]);
+    expect(clientContract).toBe(COFFEE_V3_CAPTURE_CONTRACT);
     expect(isCoffeeCaptureContract(clientContract)).toBe(true);
 
     const slots = read(`${V3_DIR}/models/coffee_v3_photo_slot.dart`);
@@ -500,6 +565,9 @@ describe('Slice 4 V3 dark rollout contract (client + server)', () => {
     const orderBlock = slots.slice(indexOf(slots, 'coffeeV3CanonicalSlotOrder = ['));
     const order = [...orderBlock.slice(0, orderBlock.indexOf('];')).matchAll(/CoffeeV3PhotoSlot\.(\w+)/g)].map((m) => m[1]);
     expect(order.map((name) => wire.get(name))).toEqual([...COFFEE_V3_STAGED_SLOTS]);
+    expect(order).toHaveLength(3);
+    // The client never knows a retired four-view slot.
+    for (const retired of COFFEE_V3_RETIRED_STAGED_SLOTS) expect(slots).not.toContain(`'${retired}'`);
     // V2 slot vocabulary is never reused by the client V3 slots.
     for (const v2 of COFFEE_V2_SLOTS) expect([...wire.values()]).not.toContain(v2);
   });
@@ -509,23 +577,25 @@ describe('Slice 4 V3 dark rollout contract (client + server)', () => {
       /coffeeCaptureContract: coffeeV3CaptureContract/,
     );
     const v2 = read('lib/features/coffee/coffee_v2/services/coffee_v2_submission_controller.dart');
-    expect(v2).not.toMatch(/coffeeCaptureContract|four_view_v3|v3_cup_|v3_saucer/);
+    expect(v2).not.toMatch(/coffeeCaptureContract|four_view_v3|three_view_v3|v3_cup_|v3_saucer/);
     // The shared codec only forwards it for Coffee and omits it when null.
     expect(read('lib/features/reading_operation/services/reading_operation_codec.dart')).toMatch(
       /readingType == ReadingType\.coffee && coffeeCaptureContract != null/,
     );
   });
 
-  it('3: the client rollout flag coffee_v3_four_view defaults to false (and is a real catalog flag)', () => {
+  it('3: the client rollout flag coffee_v3_three_view defaults to false (and is a real catalog flag)', () => {
     const flags = read('lib/core/feature_flags/product_feature_flags.dart');
-    const def = /coffeeV3FourView = FeatureFlagDefinition\(([\s\S]*?)\);/.exec(flags)?.[1] ?? '';
-    expect(def).toMatch(/key: 'coffee_v3_four_view'/);
+    const def = /coffeeV3ThreeView = FeatureFlagDefinition\(([\s\S]*?)\);/.exec(flags)?.[1] ?? '';
+    expect(def).toMatch(/key: 'coffee_v3_three_view'/);
+    // The retired four-view key can never switch the new flow on.
+    expect(flags).not.toMatch(/coffee_v3_four_view/);
     expect(def).toMatch(/defaultValue: false/);
     expect(def).not.toMatch(/defaultValue: true/);
     const catalog = flags.slice(indexOf(flags, 'static const catalog'));
-    expect(catalog.slice(0, catalog.indexOf('];'))).toMatch(/coffeeV3FourView/);
+    expect(catalog.slice(0, catalog.indexOf('];'))).toMatch(/coffeeV3ThreeView/);
     expect(read('lib/core/feature_flags/feature_flag_rollback.dart')).toMatch(
-      /FeatureFlagSurface\.coffeeV3Capture => ProductFeatureFlags\.coffeeV3FourView/,
+      /FeatureFlagSurface\.coffeeV3Capture => ProductFeatureFlags\.coffeeV3ThreeView/,
     );
   });
 
@@ -585,8 +655,12 @@ describe('Slice 4 V3 dark rollout contract (client + server)', () => {
 
   it('10: V3 worker dispatch depends on the immutable contract, never on slot presence', () => {
     const exec = readFileSync(join(process.cwd(), 'src/reading/reading-processor-execute.ts'), 'utf8');
-    const v3Decl = indexOf(exec, "const isCoffeeV3 = feature === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';");
+    const retired = indexOf(exec, "if (feature === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3') {");
+    const v3Decl = indexOf(exec, "const isCoffeeV3 = feature === 'coffee' && operation.coffeeCaptureContract === 'three_view_v3';");
     const v2Probe = indexOf(exec, 'hasAnyCoffeeV2Slot');
+    // The retired contract settles before any V3 or V2 decision; it can never fall through to V2.
+    expect(retired).toBeLessThan(v3Decl);
+    expect(exec.slice(retired, v3Decl)).toMatch(/return 'failed';/);
     expect(v3Decl).toBeLessThan(v2Probe);
     expect(exec.slice(v3Decl, v2Probe)).toMatch(/!isCoffeeV3 &&/);
     // No V3 slot-presence probe exists anywhere in the worker.

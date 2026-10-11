@@ -599,7 +599,11 @@ describe('V2 dark-path guarantee (V, W)', () => {
       'ai/reading/types.ts',
       'ai/service.ts',
       'config.ts',
-      // LIS1 — the dark V3 four-view STAGING contract (data ownership only; no dispatch).
+      // Three-photo decision — the operation model / service own the creatable
+      // contract constant (three_view_v3) and refuse the retired four-view one.
+      'reading/operation-model.ts',
+      'reading/operation-service.ts',
+      // LIS1 — the dark V3 STAGING contract (data ownership only; no dispatch).
       'reading/operation-staged-image-model.ts',
       'reading/operation-staged-image-repository.ts',
       'reading/operation-staged-image-service.ts',

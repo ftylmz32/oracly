@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 # Slice 6 — CONTROLLED real-provider Coffee V3 acceptance (one attempt).
 #
-# PAID: sends four owner-provided real photos to the official OpenAI API.
+# PAID: sends THREE owner-provided real photos (two cup views + one saucer;
+# never a fourth) in ONE observer request to the official OpenAI API.
 # Runs only when ALL of the following hold (else exits BLOCKED, zero requests):
 #   - ORACLY_COFFEE_LIVE_AUTHORIZED=1 (explicit owner authorization)
 #   - D:\oracly_coffee_live_input\ (or $ORACLY_COFFEE_LIVE_INPUT) holds
-#     v3_cup_handle_far.jpg, v3_cup_turn_a.jpg, v3_cup_turn_b.jpg,
-#     v3_saucer.jpg (genuine photos of one cup + saucer; JPEG, no Exif,
-#     8 KiB–8 MiB, distinct) and an owner-written, non-empty rights.txt
+#     v3_cup_view_a.jpg, v3_cup_view_b.jpg (two genuinely different photos
+#     of the inside of one cup) and v3_saucer_view.jpg (its saucer); JPEG,
+#     no Exif, 8 KiB–8 MiB, distinct — plus an owner-written, non-empty
+#     rights.txt
 #   - ORACLY_COFFEE_LIVE_OPENAI_API_KEY = a dedicated NON-PRODUCTION key
 #     (the general OPENAI_API_KEY is never used)
 # Guard: official endpoint only; ≤2 attempts / ≤6 requests per session;
-# ≤1 observer + ≤2 writer per attempt; ambiguous outcome → sealed, no retry.
+# ≤1 observer (exactly 3 images) + ≤2 writer per attempt; ambiguous outcome
+# → sealed, no retry.
 # Redacted evidence: D:\oracly_coffee_live_output\ (never commit it).
 set -euo pipefail
 

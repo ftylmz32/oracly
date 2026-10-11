@@ -8,6 +8,8 @@
  *     endpoint; photographs never go to any other host);
  *   - only Coffee V3 requests: the `coffee_v3_observation` observer and the
  *     JSON-mode writer — anything else is refused;
+ *   - the observer request carries EXACTLY three images (two cup views + one
+ *     saucer; never a fourth) and a writer request carries none;
  *   - at most 2 logical reading attempts (an attempt starts with its
  *     observer request) and 6 upstream requests in total;
  *   - per attempt: at most 1 observer and 2 writer requests; a writer
@@ -23,6 +25,9 @@
  */
 
 export const OFFICIAL_OPENAI_BASE_URL = 'https://api.openai.com/v1';
+
+/** The product contract: two genuine cup photos + one saucer photo, in ONE observer request. */
+export const COFFEE_V3_LIVE_IMAGE_COUNT = 3;
 
 export type LiveRequestKind = 'observer' | 'writer';
 
@@ -108,6 +113,15 @@ export function createLiveProviderGuard(input: {
     else if (format?.type === 'json_object') kind = 'writer';
     else return refuse('request_kind_not_allowed');
 
+    const imageCount = (Array.isArray(body.messages) ? body.messages : [])
+      .flatMap((m) => {
+        const content = (m as { content?: unknown }).content;
+        return Array.isArray(content) ? content : [];
+      })
+      .filter((part) => (part as { type?: unknown }).type === 'image_url').length;
+    if (kind === 'observer' && imageCount !== COFFEE_V3_LIVE_IMAGE_COUNT) refuse('observer_image_count');
+    if (kind === 'writer' && imageCount !== 0) refuse('writer_with_images');
+
     if (kind === 'observer') {
       if (attempt >= maxAttempts) refuse('attempt_budget_exhausted');
       attempt += 1;
@@ -121,12 +135,6 @@ export function createLiveProviderGuard(input: {
       writerInAttempt += 1;
     }
 
-    const imageCount = (Array.isArray(body.messages) ? body.messages : [])
-      .flatMap((m) => {
-        const content = (m as { content?: unknown }).content;
-        return Array.isArray(content) ? content : [];
-      })
-      .filter((part) => (part as { type?: unknown }).type === 'image_url').length;
     const record: LiveRequestRecord = {
       index: records.length + 1,
       attempt,

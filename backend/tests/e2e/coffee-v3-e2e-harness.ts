@@ -1,5 +1,6 @@
 /**
- * Slice 5 — LOCAL transport-level E2E harness for Coffee V3 (four_view_v3).
+ * Slice 5 — LOCAL transport-level E2E harness for Coffee V3 (three_view_v3:
+ * two genuine cup photos + one saucer photo; never a fourth).
  *
  * Runs the REAL backend application (`buildServer`: real auth / App Check
  * middleware, real reading-operation / staged-image / gem / flow / result
@@ -46,6 +47,7 @@ import type { ServerClock } from '../../src/reading/clock.js';
 import type { ReadingTaskScheduler } from '../../src/reading/reading-task-scheduler.js';
 import { c31Spec } from '../fixtures/coffee-c31-fixtures.js';
 import { m1Observation } from '../fixtures/coffee-m1-fixtures.js';
+import { toThreeViewObservation } from '../fixtures/coffee-v3-three-view.js';
 import { StaticAppCheckVerifier, jsonResponse, signHs256, testConfig } from '../helpers.js';
 import { OFFICIAL_OPENAI_BASE_URL, createLiveProviderGuard, type LiveProviderGuard } from './live-provider-guard.js';
 
@@ -58,7 +60,8 @@ if (!handshakePath) throw new Error('usage: coffee-v3-e2e-harness.ts <handshake.
 // BEFORE any server, guard or credential use; a missing one exits with
 // LIVE_PREFLIGHT_BLOCKED and zero provider requests.
 const LIVE = process.argv.includes('--live');
-const LIVE_SLOTS = ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer'] as const;
+/** Exactly the three product photos (the staged slot names); a fourth is never read. */
+const LIVE_SLOTS = ['v3_cup_view_a', 'v3_cup_view_b', 'v3_saucer_view'] as const;
 const liveInputDir = process.env.ORACLY_COFFEE_LIVE_INPUT ?? 'D:\\oracly_coffee_live_input';
 const liveOutputDir = process.env.ORACLY_COFFEE_LIVE_OUTPUT ?? 'D:\\oracly_coffee_live_output';
 
@@ -126,7 +129,7 @@ let liveGuard: LiveProviderGuard | null = null;
 
 // ---------------------------------------------------------------- fixtures
 // SYNTHETIC provider outputs (copied from the frozen-gate test fixtures):
-// a RITAG-style four-view observation and a W4P5-accepted writer response
+// a RITAG-style three-view observation and a W4P5-accepted writer response
 // for the decision intention below. Proof of plumbing, not of quality.
 const W = 'secondary_option_gaining_weight';
 const S = 'options_separating';
@@ -145,9 +148,9 @@ const WRITER: Record<string, string> = {
   }),
 };
 const OBSERVATIONS: Record<string, () => unknown> = {
-  ritag: () => m1Observation(c31Spec('C3F-RITAG', { clearAreas: true })),
-  insufficient: () => m1Observation({ marks: [] } as never),
-  unusable: () => ({ ...(m1Observation(c31Spec('C3F-RITAG', { clearAreas: true })) as object), usable: false }),
+  ritag: () => toThreeViewObservation(m1Observation(c31Spec('C3F-RITAG', { clearAreas: true }))),
+  insufficient: () => toThreeViewObservation(m1Observation({ marks: [] } as never)),
+  unusable: () => ({ ...toThreeViewObservation(m1Observation(c31Spec('C3F-RITAG', { clearAreas: true }))), usable: false }),
   v2_no_meaning: () => ({
     usable: true,
     reason: '',
@@ -175,12 +178,15 @@ class ControlledClock implements ServerClock {
 // ------------------------------------------------------- scripted provider
 type Script = { observation: string; writer: string[] };
 const scripts: Script[] = [];
-const providerCalls: Array<{ kind: string; at: number }> = [];
+const providerCalls: Array<{ kind: string; at: number; images: number }> = [];
 const fakeFetch = async (_url: unknown, init?: RequestInit) => {
   const body = JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>;
   const schema = (body.response_format as { json_schema?: { name?: string }; type?: string } | undefined);
   const name = schema?.json_schema?.name ?? (schema?.type === 'json_object' ? 'writer' : 'unknown');
-  providerCalls.push({ kind: name, at: Date.now() });
+  const images = (Array.isArray(body.messages) ? body.messages : [])
+    .flatMap((m) => (Array.isArray((m as { content?: unknown }).content) ? ((m as { content: unknown[] }).content) : []))
+    .filter((p) => (p as { type?: unknown }).type === 'image_url').length;
+  providerCalls.push({ kind: name, at: Date.now(), images });
   const script = scripts[0];
   if (!script) throw new Error(`unscripted_provider_call:${name}`);
   let content: string | undefined;
@@ -339,6 +345,7 @@ async function stateFor(stack: Stack, operationId: string | null, owner: string)
     pushes: [...stack.pushes],
     tasks: stack.tasks.map((t) => ({ operationId: t.operationId, trigger: t.trigger, attempts: t.attempts, outcome: t.outcome ?? null })),
     providerCalls: providerCalls.map((c) => c.kind),
+    providerImageCounts: providerCalls.map((c) => c.images),
     pendingScripts: scripts.length,
     liveProvider: liveGuard ? { records: liveGuard.records(), refusals: liveGuard.refusals(), attempts: liveGuard.attempts(), sealed: liveGuard.sealed() } : null,
   };

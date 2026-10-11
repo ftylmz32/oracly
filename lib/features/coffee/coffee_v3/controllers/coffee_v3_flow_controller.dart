@@ -1,5 +1,5 @@
-/// Coffee V3 four-view flow controller. Follows the proven Coffee V2 state
-/// machine but owns four V3 slots and is NOT a V2 controller with
+/// Coffee V3 three-photo flow controller. Follows the proven Coffee V2 state
+/// machine but owns three V3 slots and is NOT a V2 controller with
 /// conditionals. Once an operation is bound it observes that EXACT
 /// operation (`ReadingLiveFlow.recoverOperation(operationId)`) for wait /
 /// processing / ready / failed / result fetch / acceleration — never the
@@ -35,7 +35,7 @@ enum CoffeeV3CreateBlock {
   /// Client rollout flag off or non-Turkish UI (draft kept, CTA disabled).
   creationDisabled,
 
-  /// Backend refused the four-view create (draft kept).
+  /// Backend refused the three-photo create (draft kept).
   serverUnavailable,
 
   /// Transport failure before an operation was bound (draft kept).
@@ -114,14 +114,14 @@ class CoffeeV3FlowController extends ChangeNotifier {
     return _lastCreateBlock;
   }
 
-  /// Final-review CTA: four valid unique confirmed photos, a valid
+  /// Final-review CTA: three valid unique confirmed photos, a valid
   /// intention, creation currently allowed, not already in flight.
   bool get canSubmit =>
       !_stagingInFlight && (submission?.readyToCreate ?? false);
 
   /// Local cup hero for staging / waiting (null once temp files released).
   String? get heroPath =>
-      submission?.assetFor(CoffeeV3PhotoSlot.cupHandleFar)?.path;
+      submission?.assetFor(CoffeeV3PhotoSlot.cupViewA)?.path;
 
   Future<void> selectIntention(CoffeeV2IntentionChoice choice) async {
     await submission?.setIntention(
@@ -169,7 +169,7 @@ class CoffeeV3FlowController extends ChangeNotifier {
     if (_previewCandidate != null) return CoffeeV3FlowStage.preview;
     if (_replacingSlot != null) return CoffeeV3FlowStage.step;
     if (!_introDismissed) return CoffeeV3FlowStage.intro;
-    if (submission!.allFourConfirmed) return CoffeeV3FlowStage.finalReview;
+    if (submission!.allConfirmed) return CoffeeV3FlowStage.finalReview;
     return CoffeeV3FlowStage.step;
   }
 

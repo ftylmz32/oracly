@@ -1,5 +1,5 @@
-/// Coffee V3 four-view submission foundation — persists, validates, creates
-/// exactly one `four_view_v3` operation, stages the four namespaced slots
+/// Coffee V3 three-photo submission foundation — persists, validates, creates
+/// exactly one `three_view_v3` operation, stages the three namespaced slots
 /// sequentially (one byte array at a time), resumes after restart and hands
 /// off terminal results. Separate from Coffee V2 by design; it reuses only
 /// the version-agnostic primitives (normalizer seam, byte loader, checksum,
@@ -58,21 +58,21 @@ class CoffeeV3SlotSelectionResult {
 }
 
 enum CoffeeV3SubmissionOutcome {
-  /// All four slots staged; the operation awaits server-owned processing.
+  /// All three slots staged; the operation awaits server-owned processing.
   completedStaging,
 
   /// Transport / backend failure while creating or staging — retryable,
   /// nothing lost (same sourceRequestId / same operationId on retry).
   retryableFailure,
 
-  /// The backend refused to create a `four_view_v3` operation (400 — e.g.
+  /// The backend refused to create a `three_view_v3` operation (400 — e.g.
   /// its V3 creation flag is off). No operation bound, draft intact.
   createRejected,
 
   /// Client creation gate closed (rollout flag off or non-Turkish UI).
   creationDisabled,
 
-  /// Not all four confirmed / a duplicate / no valid intention.
+  /// Not all three confirmed / a duplicate / no valid intention.
   blockedByValidation,
 
   activeSubmissionInProgress,
@@ -121,7 +121,7 @@ class CoffeeV3SubmissionController {
         for (final slot in coffeeV3CanonicalSlotOrder) slot: assetFor(slot),
       };
 
-  bool get allFourConfirmed => coffeeV3CanonicalSlotOrder.every(
+  bool get allConfirmed => coffeeV3CanonicalSlotOrder.every(
         (slot) => _record.slots[slot]?.confirmed == true,
       );
 
@@ -251,7 +251,7 @@ class CoffeeV3SubmissionController {
           ? CoffeeV3SubmissionOutcome.createRejected
           : CoffeeV3SubmissionOutcome.retryableFailure;
     }
-    // Exactly one operation for this four-photo submission; every stage
+    // Exactly one operation for this three-photo submission; every stage
     // call and every later retry targets this SAME operationId.
     await _commitRecord(
       _record.copyWith(operationId: snapshot.operationId),

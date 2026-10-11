@@ -14,6 +14,7 @@ import 'package:oracly_new/core/auth/user_local_data_wipe.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/storage/in_memory_secure_storage.dart';
 import 'package:oracly_new/features/coffee/coffee_v2/services/coffee_v2_checksum.dart';
+import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_capture_contract.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_asset.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_photo_slot.dart';
 import 'package:oracly_new/features/coffee/coffee_v3/models/coffee_v3_stage_state.dart';
@@ -50,13 +51,16 @@ class _BrokenPathProvider extends Fake
 
 const _opId = '0000000000000000000000000000abcd';
 
-/// A record exactly as Slice 4 (9084c079) persisted it: no schemaVersion.
+/// A record in the shape Slice 4 (9084c079) persisted: no schemaVersion
+/// (carrying the current three-photo marker unless [captureContract] says
+/// otherwise, e.g. the retired 'four_view_v3').
 Map<String, dynamic> _historicalJson({
   String? ownerId = 'owner-a',
   String? operationId = _opId,
+  String captureContract = coffeeV3CaptureContract,
 }) =>
     {
-      'captureContract': 'four_view_v3',
+      'captureContract': captureContract,
       'ownerId': ?ownerId,
       'operationId': ?operationId,
       'sourceRequestId': 'coffee-v3-1700000000000',
@@ -188,7 +192,8 @@ void main() {
   group('account-boundary wipe (logout / deletion / switch share it)', () {
     Future<LocalStorage> seeded() async {
       SharedPreferences.setMockInitialValues({
-        CoffeeV3SubmissionStore.key: jsonEncode(_historicalJson()),
+        // A retired four-view record is still wiped (raw key removal, never parsed).
+        CoffeeV3SubmissionStore.key: jsonEncode(_historicalJson(captureContract: 'four_view_v3')),
         CoffeeV3SubmissionStore.acknowledgedOperationKey: '{}',
       });
       return LocalStorage(await SharedPreferences.getInstance());
@@ -335,7 +340,7 @@ void main() {
       expect(raw['ownerId'], 'owner-a');
       expect(raw['sourceRequestId'], 'coffee-v3-1700000000000');
       expect(raw['intention'], 'Para');
-      expect((raw['slots'] as Map).length, 4);
+      expect((raw['slots'] as Map).length, 3);
     });
   });
 
@@ -399,7 +404,7 @@ void main() {
         sha256: await CoffeeV2Checksum.sha256OfFile(gallery.path),
         sizeBytes: await gallery.length(),
       );
-      ((draft['slots'] as Map)['v3_saucer'] as Map)['asset'] = asset.toJson();
+      ((draft['slots'] as Map)['v3_saucer_view'] as Map)['asset'] = asset.toJson();
       await storage.setString(CoffeeV3SubmissionStore.key, jsonEncode(draft));
       final controller = CoffeeV3SubmissionController(
         flow: ReadingLiveFlow(

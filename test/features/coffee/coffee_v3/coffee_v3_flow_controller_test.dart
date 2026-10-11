@@ -126,7 +126,7 @@ void main() {
     }
   }
 
-  Future<void> captureFour(CoffeeV3FlowController c) async {
+  Future<void> captureThree(CoffeeV3FlowController c) async {
     c.dismissIntro();
     for (final slot in coffeeV3CanonicalSlotOrder) {
       expect(c.stage, CoffeeV3FlowStage.step);
@@ -141,9 +141,10 @@ void main() {
     await c.selectIntention(CoffeeV2IntentionChoice.love);
   }
 
-  Future<String> submitFour(CoffeeV3FlowController c) async {
+  Future<String> submitThree(CoffeeV3FlowController c) async {
     await c.boot();
-    await captureFour(c);
+    await captureThree(c);
+    expect(c.record.slots.values.where((s) => s.asset != null), hasLength(3));
     expect(c.canSubmit, isTrue);
     await c.beginSubmission();
     expect(c.stage, CoffeeV3FlowStage.activeObserving);
@@ -153,7 +154,7 @@ void main() {
   test('AV-AX/BA-BE exact-op polling → m2_public_v1 restored → CoffeeReading exact',
       () async {
     final c = build();
-    final opId = await submitFour(c);
+    final opId = await submitThree(c);
     final hero = c.heroPath;
     expect(hero, isNotNull);
     final tempPaths = [
@@ -206,7 +207,7 @@ void main() {
   test('BF/BG result survives restart until New Cup; New Cup = fresh identity',
       () async {
     final c = build();
-    final opId = await submitFour(c);
+    final opId = await submitThree(c);
     backend.completeServerSide(opId,
         resultId: 'coffee-m2-r2', result: m2PublicV1Result(_overall));
     await waitFor(() => c.record.resultPendingAcknowledgement);
@@ -228,7 +229,7 @@ void main() {
     expect(store.loadAcknowledgedOperationId(), opId);
     expect(restarted.stage, CoffeeV3FlowStage.intro);
 
-    await captureFour(restarted);
+    await captureThree(restarted);
     await restarted.beginSubmission();
     expect(transport.creates.last.body?['sourceRequestId'], 'coffee-v3-src-2');
     expect(restarted.operationId, isNot(opId));
@@ -237,7 +238,7 @@ void main() {
   test('AY failed exact op → existing error copy, temp released, terminal',
       () async {
     final c = build();
-    final opId = await submitFour(c);
+    final opId = await submitThree(c);
     final paths = [
       for (final s in coffeeV3CanonicalSlotOrder) c.record.slots[s]!.asset!.path,
     ];
@@ -249,7 +250,7 @@ void main() {
     await expectDeleted(paths);
     expect(c.record.operationId, opId);
     // No in-place retake: photos cannot be replaced on this operation.
-    c.setPreviewCandidate(CoffeeV3PhotoSlot.cupTurnA, const CoffeeImagePick(path: 'x'));
+    c.setPreviewCandidate(CoffeeV3PhotoSlot.cupViewB, const CoffeeImagePick(path: 'x'));
     expect(c.previewCandidate, isNull);
     c.resetToFreshDraft();
     await waitFor(() => c.observeError == null);
@@ -259,7 +260,7 @@ void main() {
 
   test('AZ restart while waiting observes the SAME operation id', () async {
     final c = build();
-    final opId = await submitFour(c);
+    final opId = await submitThree(c);
     c.dispose();
     controllers.remove(c);
     final before = transport.exactFetches.length;
@@ -280,7 +281,7 @@ void main() {
 
   test('exact op gone (404) ends terminal, never attaches elsewhere', () async {
     final c = build();
-    await submitFour(c);
+    await submitThree(c);
     // Simulate an operation the server no longer knows.
     final store = CoffeeV3SubmissionStore(storage, ownerId: 'owner-flow');
     await store.saveDurable(store.load()!.copyWith(operationId: 'f' * 32));
@@ -297,7 +298,7 @@ void main() {
     test('BH/BK/BM quote from server; accelerates the bound op; balance forwarded',
         () async {
       final c = build();
-      final opId = await submitFour(c);
+      final opId = await submitThree(c);
       await waitFor(() => c.canAccelerate);
       expect(c.accelerationCost, 10);
       await c.accelerateWaiting();
@@ -313,7 +314,7 @@ void main() {
 
     test('BI priceChanged: no auto retry, no debit', () async {
       final c = build();
-      await submitFour(c);
+      await submitThree(c);
       await waitFor(() => c.canAccelerate);
       backend.coffeeAccelerationCost = 12;
       await c.accelerateWaiting();
@@ -325,7 +326,7 @@ void main() {
 
     test('BJ insufficient gems: explicit error, no fake success', () async {
       final c = build();
-      await submitFour(c);
+      await submitThree(c);
       await waitFor(() => c.canAccelerate);
       backend.accelerationInsufficient = true;
       await c.accelerateWaiting();
@@ -336,7 +337,7 @@ void main() {
 
     test('BL active V3 stays acceleratable with the rollout flag OFF', () async {
       final c = build();
-      await submitFour(c);
+      await submitThree(c);
       allowed = false;
       c.dispose();
       controllers.remove(c);
@@ -352,7 +353,7 @@ void main() {
   group('rollout semantics', () {
     test('E flag-off ACTIVE V3 keeps recovering to its m2 result', () async {
       final c = build();
-      final opId = await submitFour(c);
+      final opId = await submitThree(c);
       c.dispose();
       controllers.remove(c);
       allowed = false;
@@ -369,7 +370,7 @@ void main() {
         () async {
       final c = build();
       await c.boot();
-      await captureFour(c);
+      await captureThree(c);
       allowed = false;
       expect(c.stage, CoffeeV3FlowStage.finalReview);
       expect(c.canSubmit, isFalse);
@@ -401,7 +402,7 @@ void main() {
       transport.rejectV3Create = true;
       final c = build();
       await c.boot();
-      await captureFour(c);
+      await captureThree(c);
       await c.beginSubmission();
       expect(c.stage, CoffeeV3FlowStage.finalReview);
       expect(c.createBlock, CoffeeV3CreateBlock.serverUnavailable);

@@ -88,20 +88,23 @@ export async function registerGemAccelerationRoutes(
             operation?.ownerUserId === owner &&
             (operation.readingType === 'coffee' || operation.readingType === 'palm')
           ) {
-            // LIS2 — a four-view operation is judged ONLY by its own four V3
-            // views (by contract, never by slot presence). Independent of the
-            // V3 creation flag: an existing V3 operation stays acceleratable.
-            const fourView = operation.readingType === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';
-            const staged = fourView ? null : await options.stagedImageRepository.get(operationId, owner);
-            const validLegacy = !fourView && staged?.uploadState === 'complete';
-            const validCoffeeV2 = !fourView && operation.readingType === 'coffee' && !staged
+            // LIS2 — a V3 operation is judged ONLY by its own three V3 views
+            // (by contract, never by slot presence). Independent of the V3
+            // creation flag: an existing V3 operation stays acceleratable. A
+            // retired four-view operation is never valid (no debit; the
+            // worker settles it as a refunded terminal failure).
+            const v3Contract = operation.readingType === 'coffee' && operation.coffeeCaptureContract != null;
+            const threeView = v3Contract && operation.coffeeCaptureContract === 'three_view_v3';
+            const staged = v3Contract ? null : await options.stagedImageRepository.get(operationId, owner);
+            const validLegacy = !v3Contract && staged?.uploadState === 'complete';
+            const validCoffeeV2 = !v3Contract && operation.readingType === 'coffee' && !staged
               ? validCompletedCoffeeV2Slots(
                   await options.stagedImageRepository.listSlots(operationId, owner),
                   operationId,
                   owner,
                 )
               : false;
-            const validCoffeeV3 = fourView
+            const validCoffeeV3 = threeView
               ? validCompletedCoffeeV3Slots(
                   await options.stagedImageRepository.listCoffeeV3Slots(operationId, owner),
                   operationId,
@@ -303,7 +306,7 @@ export async function registerGemAccelerationRoutes(
   );
 }
 
-/** LIS2 — exactly the four V3 staged views, each complete and owned by this operation. */
+/** Exactly the three V3 staged views (two cup + saucer), each complete and owned by this operation. */
 function validCompletedCoffeeV3Slots(
   records: Awaited<ReturnType<ReadingStagedImageRepository['listCoffeeV3Slots']>>,
   operationId: string,

@@ -76,9 +76,19 @@ export async function executeClaimedReading(input: {
     // before one could be written). A complete V2 set is handled entirely
     // here — it never falls through to the legacy single-image fetch
     // below (Phase 2B).
-    // LIS2 — a four-view operation is dispatched by its immutable contract,
+    // LIS2 — a V3 operation is dispatched by its immutable contract,
     // BEFORE (and instead of) any V2 slot-presence test.
-    const isCoffeeV3 = feature === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';
+    // A retired 'four_view_v3' operation is never processed, never routed to
+    // V2/legacy and never makes a provider call: it settles as an honest
+    // terminal failure (failFinal owns the refund), then its leftovers are
+    // cleaned. A retake is a NEW three-view operation.
+    if (feature === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3') {
+      log.info({ event: 'coffee_v3_terminal_failure', operationId, feature, failureCode: 'unavailable', reason: 'retired_four_view_contract' });
+      await input.flow.failFinal({ ownerUserId: operation.ownerUserId, operationId, failureCode: 'unavailable' });
+      await input.stagedImages.deleteCoffeeV3Slots({ ownerUserId: operation.ownerUserId, operationId });
+      return 'failed';
+    }
+    const isCoffeeV3 = feature === 'coffee' && operation.coffeeCaptureContract === 'three_view_v3';
     const isCoffeeV2 =
       !isCoffeeV3 &&
       feature === 'coffee' &&
@@ -245,7 +255,7 @@ export async function executeClaimedReading(input: {
       if (isCoffeeV3 && error instanceof CoffeeV3TerminalFailure) {
         // LIS2 — an honest terminal outcome, never a retry and never a persisted
         // "success": failFinal owns the refund (only when a Gem debit exists),
-        // then the four V3 views are cleaned. The operation stays failed; a
+        // then the three V3 views are cleaned. The operation stays failed; a
         // retake is a NEW operation.
         log.info({ event: 'coffee_v3_terminal_failure', operationId, feature, failureCode: error.failureCode, reason: error.reason });
         await input.flow.failFinal({ ownerUserId: operation.ownerUserId, operationId, failureCode: error.failureCode });

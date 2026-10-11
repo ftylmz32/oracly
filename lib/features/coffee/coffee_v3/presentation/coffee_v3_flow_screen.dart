@@ -1,4 +1,4 @@
-/// Coffee V3 four-view top-level screen. Body-switches on
+/// Coffee V3 three-photo top-level screen. Body-switches on
 /// `CoffeeV3FlowController.stage` inside the SAME chamber chrome
 /// (`CoffeeLandingChamber`) Coffee already uses. Every mutation persists
 /// through `CoffeeV3SubmissionStore` immediately, so leaving at any DRAFT

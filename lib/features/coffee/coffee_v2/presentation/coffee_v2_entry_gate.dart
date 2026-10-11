@@ -62,7 +62,7 @@ class CoffeeV2EntryGate extends ConsumerWidget {
     if (runner == null || staged == null) {
       return const CoffeeReferenceScreen();
     }
-    // Fresh four-view V3 only when the client rollout flag is on, the UI is
+    // Fresh three-photo V3 only when the client rollout flag is on, the UI is
     // Turkish, no V2 draft photos would be stranded, and no uninterpretable
     // V3 record is stored. Otherwise: the existing V2 route, unchanged.
     if (ref.watch(coffeeV3CreationAllowedProvider) &&

@@ -1,6 +1,6 @@
 import {
   COFFEE_V3_CONTRACT,
-  COFFEE_V3_SLOTS,
+  COFFEE_V3_MAP_SLOTS,
   type CoffeeMultiViewObservationV3,
   type CoffeeV3Band,
   type CoffeeV3CupBand,
@@ -13,7 +13,7 @@ import {
   type CoffeeV3Saucer,
   type CoffeeV3SaucerZone,
   type CoffeeV3Sighting,
-  type CoffeeV3Slot,
+  type CoffeeV3MapSlot,
   type CoffeeV3Surface,
   type CoffeeV3View,
 } from './types.js';
@@ -59,7 +59,7 @@ export type CoffeeV3MapMark = {
   identityGroup: string;
   identity: 'certain' | 'possible_same_mark';
   surface: CoffeeV3Surface;
-  coverage: { count: number; slots: CoffeeV3Slot[] };
+  coverage: { count: number; slots: CoffeeV3MapSlot[] };
   /** Cup only; null on the saucer. */
   band: CoffeeV3Band | null;
   /** Cup only; null on the saucer. */
@@ -144,7 +144,7 @@ const isSaucer = (surface: CoffeeV3Surface) => surface === 'saucer';
 const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 
 function structuralFailure(obs: CoffeeMultiViewObservationV3): CoffeeV3StructuralFailure | null {
-  const viewSlots = new Set<CoffeeV3Slot>();
+  const viewSlots = new Set<CoffeeV3MapSlot>();
   for (const view of obs.views) {
     if (viewSlots.has(view.slot)) return 'duplicate_view';
     viewSlots.add(view.slot);
@@ -212,10 +212,10 @@ function structuralFailure(obs: CoffeeMultiViewObservationV3): CoffeeV3Structura
 // ---------------------------------------------------------------------------
 
 const BAND_ORDER: Record<Exclude<CoffeeV3Band, 'unknown'>, number> = { rim_upper: 0, middle: 1, lower_base: 2 };
-const SLOT_ORDER = new Map<CoffeeV3Slot, number>(COFFEE_V3_SLOTS.map((slot, index) => [slot, index]));
+const SLOT_ORDER = new Map<CoffeeV3MapSlot, number>(COFFEE_V3_MAP_SLOTS.map((slot, index) => [slot, index]));
 const VISIBILITY_ORDER = { clear: 0, partial: 1, uncertain: 2 } as const;
 
-function sightingAngle(sighting: CoffeeV3Sighting, views: Map<CoffeeV3Slot, CoffeeV3View>): number | null {
+function sightingAngle(sighting: CoffeeV3Sighting, views: Map<CoffeeV3MapSlot, CoffeeV3View>): number | null {
   if (isSaucer(sighting.surface)) return null;
   const view = views.get(sighting.slot);
   if (!view?.handleVisible || !coffeeV3ClockValid(view.handleClock) || !coffeeV3ClockValid(sighting.rimClock)) {
@@ -231,7 +231,7 @@ function sightingAngle(sighting: CoffeeV3Sighting, views: Map<CoffeeV3Slot, Coff
  * handle-relative angle. Any unknown makes the merge untrusted: the system
  * never invents certainty.
  */
-function mergeTrusted(sightings: CoffeeV3Sighting[], views: Map<CoffeeV3Slot, CoffeeV3View>): boolean {
+function mergeTrusted(sightings: CoffeeV3Sighting[], views: Map<CoffeeV3MapSlot, CoffeeV3View>): boolean {
   if (sightings.length < 2) return true;
   if (new Set(sightings.map((s) => s.slot)).size !== sightings.length) return false;
   if (new Set(sightings.map((s) => s.surface)).size !== 1) return false;
@@ -443,7 +443,7 @@ const PRIVATE_KEYS = new Set([
  *   "tabakta" match while "tabaka" (layer) and "fincancı" do not.
  */
 const PRIVATE_ENUM_TOKENS = new Set<string>([
-  ...COFFEE_V3_SLOTS, 'cup_wall', 'cup_base', 'rim_upper', 'lower_base', 'middle_ring', 'handle_near',
+  ...COFFEE_V3_MAP_SLOTS, 'cup_wall', 'cup_base', 'rim_upper', 'lower_base', 'middle_ring', 'handle_near',
   'handle_opposite', 'possible_same_mark', COFFEE_V3_CONTRACT,
 ]);
 const PRIVATE_ENGLISH_WORDS = [

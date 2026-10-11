@@ -48,7 +48,7 @@ export class ReadingProcessor {
         modelHint: unknown,
         context: { identity: string; parentKey: string },
       ): Promise<Record<string, unknown>>;
-      /** LIS2 — internal Coffee V3 entry (four_view_v3 operations only). */
+      /** LIS2 — internal Coffee V3 entry (three_view_v3 operations only). */
       coffeeV3?: CoffeeV3AiEntry;
     },
     private readonly clock: ServerClock,

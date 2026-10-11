@@ -87,7 +87,7 @@ void main() {
   }
 
   void flagOn() =>
-      FeatureFlagRuntime.refreshFromRemote({'coffee_v3_four_view': true});
+      FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': true});
 
   testWidgets('B flag OFF (default) fresh Coffee → existing V2 flow',
       (tester) async {

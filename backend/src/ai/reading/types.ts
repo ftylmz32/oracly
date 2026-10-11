@@ -133,9 +133,26 @@ export type ReadingPersonalization = {
  */
 export const COFFEE_V3_CONTRACT = 'multi_view_marks_v3' as const;
 
-/** Handle-anchored capture geometry: three cup turns ~120° apart, then the saucer. */
-export const COFFEE_V3_SLOTS = ['cup_handle_far', 'cup_turn_a', 'cup_turn_b', 'saucer'] as const;
-export type CoffeeV3Slot = (typeof COFFEE_V3_SLOTS)[number];
+/**
+ * The live three-photo capture: two genuine views of the SAME cup interior
+ * (the second turned roughly half a circle), then the saucer. Geometry is
+ * anchored per frame by the handle clock, so it never assumes a turn angle.
+ */
+export const COFFEE_V3_SLOTS = ['cup_view_a', 'cup_view_b', 'saucer'] as const;
+export type CoffeeV3LiveSlot = (typeof COFFEE_V3_SLOTS)[number];
+
+/**
+ * Retired four-view vocabulary. Never requested, never sent to the observer;
+ * kept (under its historical type name `CoffeeV3Slot`) only so the
+ * deterministic map still reads the frozen M1/V3G1 fixtures unchanged. The
+ * map is slot-name agnostic: geometry comes from frame-local handle/rim clocks.
+ */
+export const COFFEE_V3_RETIRED_FOUR_VIEW_SLOTS = ['cup_handle_far', 'cup_turn_a', 'cup_turn_b', 'saucer'] as const;
+export type CoffeeV3Slot = (typeof COFFEE_V3_RETIRED_FOUR_VIEW_SLOTS)[number];
+
+/** Every slot name the map accepts, in canonical tie-break order (cups first, saucer last). */
+export const COFFEE_V3_MAP_SLOTS = ['cup_handle_far', 'cup_turn_a', 'cup_turn_b', 'cup_view_a', 'cup_view_b', 'saucer'] as const;
+export type CoffeeV3MapSlot = (typeof COFFEE_V3_MAP_SLOTS)[number];
 
 export type CoffeeV3Surface = 'cup_wall' | 'cup_base' | 'saucer';
 export type CoffeeV3Band = 'rim_upper' | 'middle' | 'lower_base' | 'unknown';
@@ -157,7 +174,7 @@ export type CoffeeV3HandleRelation = 'handle_near' | 'handle_opposite' | 'neutra
 export type CoffeeV3SaucerZone = 'center' | 'middle_ring' | 'edge' | 'unknown';
 
 export type CoffeeV3View = {
-  slot: CoffeeV3Slot;
+  slot: CoffeeV3MapSlot;
   /** Cup interior (cup slots) or the saucer itself (saucer slot) is visible. */
   surfaceVisible: boolean;
   focusLightAdequate: boolean;
@@ -171,7 +188,7 @@ export type CoffeeV3View = {
 /** One appearance of a physical mark in one photograph. */
 export type CoffeeV3Sighting = {
   id: string;
-  slot: CoffeeV3Slot;
+  slot: CoffeeV3MapSlot;
   surface: CoffeeV3Surface;
   band: CoffeeV3Band;
   /** 1–12: position along the rim in THIS frame; null when not placeable (saucer). */

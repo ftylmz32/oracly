@@ -1,8 +1,8 @@
-/// Coffee V3 four-view UI through the real providers / controllers: locked
-/// Turkish copy, four steps (cup guide on cup views only), preview,
-/// exactly four review cards, CTA gating (flag off = disabled with the
-/// availability note), and a real create → four namespaced stages →
-/// observing on the existing loading view.
+/// Coffee V3 three-photo UI through the real providers / controllers:
+/// Turkish copy, exactly three steps — two cup views + one saucer (cup guide
+/// on cup views only), preview, exactly three review cards, CTA gating (flag
+/// off = disabled with the availability note), and a real create → three
+/// namespaced stages → observing on the existing loading view.
 library;
 
 import 'dart:io';
@@ -64,7 +64,7 @@ void main() {
 
   setUp(() async {
     OraclyL10n.bind('tr');
-    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_four_view': true});
+    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': true});
     temp = await Directory.systemTemp.createTemp('coffee_v3_screen_');
     PathProviderPlatform.instance = FakePathProvider(temp.path);
     SharedPreferences.setMockInitialValues({});
@@ -142,17 +142,18 @@ void main() {
     await tester.pumpWidget(app());
     await drain(tester);
     expect(find.text(CoffeeV3Copy.introTitle), findsOneWidget);
-    expect(find.text(CoffeeV3Copy.introSummaryHandleFar), findsOneWidget);
+    expect(find.text(CoffeeV3Copy.introSummaryCupA), findsOneWidget);
+    expect(find.text(CoffeeV3Copy.introSummaryCupB), findsOneWidget);
     expect(find.text(CoffeeV3Copy.introSummarySaucer), findsOneWidget);
+    expect(find.textContaining('4'), findsNothing); // never a fourth photo
     await tapAndDrain(tester, find.text(CoffeeV3Copy.introCta));
     final steps = [
-      (CoffeeV3Copy.stepTitleHandleFar, CoffeeV3Copy.stepInstructionHandleFar, true),
-      (CoffeeV3Copy.stepTitleTurnA, CoffeeV3Copy.stepInstructionTurnA, true),
-      (CoffeeV3Copy.stepTitleTurnB, CoffeeV3Copy.stepInstructionTurnB, true),
+      (CoffeeV3Copy.stepTitleCupA, CoffeeV3Copy.stepInstructionCupA, true),
+      (CoffeeV3Copy.stepTitleCupB, CoffeeV3Copy.stepInstructionCupB, true),
       (CoffeeV3Copy.stepTitleSaucer, CoffeeV3Copy.stepInstructionSaucer, false),
     ];
-    for (var i = 0; i < 4; i++) {
-      expect(find.text('${i + 1} / 4'), findsOneWidget);
+    for (var i = 0; i < 3; i++) {
+      expect(find.text('${i + 1} / 3'), findsOneWidget);
       expect(find.text(steps[i].$1), findsOneWidget);
       expect(find.text(steps[i].$2), findsOneWidget);
       expect(find.byType(CoffeeCaptureCupGuide),
@@ -161,11 +162,13 @@ void main() {
     }
     expect(find.text(CoffeeV3Copy.reviewTitle), findsOneWidget);
     expect(find.text(CoffeeV3Copy.reviewBody), findsOneWidget);
-    expect(find.byType(CoffeeV2Thumbnail), findsNWidgets(4));
-    expect(find.text(CoffeeV3Copy.reviewChange), findsNWidgets(4));
+    expect(find.byType(CoffeeV2Thumbnail), findsNWidgets(3));
+    expect(find.text(CoffeeV3Copy.reviewChange), findsNWidgets(3));
+    // Review goes straight to submission: no step ever asks for a fourth photo.
+    expect(find.text(CoffeeV3Copy.actionPickGallery), findsNothing);
   }
 
-  testWidgets('four-step capture → review → create → four stages → observing',
+  testWidgets('three-step capture → review → create → three stages → observing',
       (tester) async {
     await captureToReview(tester);
     expect(cta(tester).onPressed, isNull); // no intention yet
@@ -176,12 +179,11 @@ void main() {
     expect(cta(tester).onPressed, isNotNull);
     await tapAndDrain(tester, find.text(CoffeeV3Copy.reviewCta));
     await drain(tester);
-    expect(transport.creates.single.body?['coffeeCaptureContract'], 'four_view_v3');
+    expect(transport.creates.single.body?['coffeeCaptureContract'], 'three_view_v3');
     expect(transport.stagedSlots, [
-      'v3_cup_handle_far',
-      'v3_cup_turn_a',
-      'v3_cup_turn_b',
-      'v3_saucer',
+      'v3_cup_view_a',
+      'v3_cup_view_b',
+      'v3_saucer_view',
     ]);
     expect(find.byType(CoffeeLoadingView), findsOneWidget);
     // No route back to editing once active.
@@ -194,14 +196,14 @@ void main() {
       (tester) async {
     await captureToReview(tester);
     await tapAndDrain(tester, find.text(CoffeeV2IntentionChoice.general.label));
-    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_four_view': false});
+    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': false});
     // Reopen the screen (new provider scope over the same storage).
     await tester.pumpWidget(const SizedBox());
     await tester.pumpWidget(app());
-    // Draft recovery re-validates all four files (size + streaming sha).
+    // Draft recovery re-validates all three files (size + streaming sha).
     await drain(tester, iterations: 60);
     expect(find.text(CoffeeV3Copy.reviewTitle), findsOneWidget);
-    expect(find.byType(CoffeeV2Thumbnail), findsNWidgets(4));
+    expect(find.byType(CoffeeV2Thumbnail), findsNWidgets(3));
     expect(cta(tester).onPressed, isNull);
     expect(find.text(CoffeeV3Copy.creationUnavailable), findsOneWidget);
     expect(find.text(CoffeeV3Copy.reviewCancel), findsOneWidget);

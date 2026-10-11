@@ -59,11 +59,13 @@ abstract final class ProductFeatureFlags {
     defaultValue: true,
   );
 
-  /// Coffee V3 four-view client capture (Turkish only). Gates starting a
-  /// NEW four-photo capture only — an existing V3 draft stays reachable and
-  /// an already-created V3 operation always recovers. Dark by default.
-  static const coffeeV3FourView = FeatureFlagDefinition(
-    key: 'coffee_v3_four_view',
+  /// Coffee V3 three-photo client capture (two cup views + saucer; Turkish
+  /// only). Gates starting a NEW capture only — an existing V3 draft stays
+  /// reachable and an already-created V3 operation always recovers. Dark by
+  /// default. A new key on purpose: a value ever set for the retired
+  /// four-view key can never switch this flow on.
+  static const coffeeV3ThreeView = FeatureFlagDefinition(
+    key: 'coffee_v3_three_view',
     type: FeatureFlagType.boolean,
     defaultValue: false,
   );
@@ -77,7 +79,7 @@ abstract final class ProductFeatureFlags {
     astrologyVisual,
     newDailyEngine,
     yildiznameNarrativeV1,
-    coffeeV3FourView,
+    coffeeV3ThreeView,
   ];
 
   static Map<String, bool> defaults() => {

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Slice 5 — local transport-level Coffee V3 four-view E2E.
+# Slice 5 — local transport-level Coffee V3 three-photo E2E (two cup views +
+# one saucer).
 #
 # Starts the REAL backend app + worker (backend/tests/e2e/coffee-v3-e2e-harness.ts)
 # on loopback with isolated in-memory storage, a scripted FAKE provider and
 # process-local test flags, then drives the REAL Flutter V3 client against it
-# over real HTTP (test/e2e/coffee_v3_four_view_e2e_test.dart).
+# over real HTTP (test/e2e/coffee_v3_three_view_e2e_test.dart).
 #
 # No real provider calls, no remote flags, nothing deployed or persisted.
 set -euo pipefail
@@ -38,4 +39,4 @@ done
 echo "$(cat "$log")"
 
 cd "$root"
-ORACLY_COFFEE_V3_E2E_HANDSHAKE="$handshake" flutter test test/e2e/coffee_v3_four_view_e2e_test.dart "$@"
+ORACLY_COFFEE_V3_E2E_HANDSHAKE="$handshake" flutter test test/e2e/coffee_v3_three_view_e2e_test.dart "$@"

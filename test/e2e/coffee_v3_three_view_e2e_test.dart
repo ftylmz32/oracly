@@ -1,4 +1,5 @@
-/// Slice 5 — Coffee V3 four-view LOCAL TRANSPORT E2E.
+/// Slice 5 — Coffee V3 THREE-photo LOCAL TRANSPORT E2E: three different
+/// JPEGs (two cup views + one saucer; never a fourth) end to end.
 ///
 /// Drives the REAL Flutter V3 client (real normalizer, real creation gate,
 /// real submission / flow controllers, real ReadingLiveFlow / gateways,
@@ -215,7 +216,7 @@ void main() {
     ai = _NoProviderAi();
     OraclyL10n.bind('tr');
     // Test-only, process-local client rollout override (never remote).
-    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_four_view': true});
+    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': true});
   });
 
   tearDown(() async {
@@ -270,7 +271,7 @@ void main() {
     return f.path;
   }
 
-  Future<void> captureFour(CoffeeV3FlowController c, {bool intention = true}) async {
+  Future<void> captureThree(CoffeeV3FlowController c, {bool intention = true}) async {
     await c.boot();
     expect(c.stage, CoffeeV3FlowStage.intro);
     c.dismissIntro();
@@ -290,15 +291,16 @@ void main() {
   }
 
   group('success journey', () {
-    test('1-16: capture → create (lost response, same id) → 4 stages → worker → m2_public_v1 → restore exact',
+    test('1-16: capture → create (lost response, same id) → 3 stages → worker (1 observer call, 3 images) → m2_public_v1 → restore exact',
         () async {
       final s = sender();
       final c = build(s);
-      await captureFour(c);
+      await captureThree(c);
 
-      // 3/4: four normalized, distinct, app-owned working copies.
+      // 3/4: three normalized, distinct, app-owned working copies.
       final assets = {for (final slot in coffeeV3CanonicalSlotOrder) slot: c.record.slots[slot]!.asset!};
-      expect(assets.values.map((a) => a.sha256).toSet(), hasLength(4));
+      expect(assets, hasLength(3));
+      expect(assets.values.map((a) => a.sha256).toSet(), hasLength(3));
       for (final a in assets.values) {
         expect(await CoffeeV3WorkFiles.isOwned(a.path), isTrue);
         expect(_sha(await File(a.path).readAsBytes()), a.sha256);
@@ -325,22 +327,21 @@ void main() {
         'language': 'tr',
         'intention': _decision,
         'coffeeInputContract': 'trusted_intention_v1',
-        'coffeeCaptureContract': 'four_view_v3',
+        'coffeeCaptureContract': 'three_view_v3',
       });
 
-      // 8/9: four sequential canonical stages; server integrity.
+      // 8/9: three sequential canonical stages; server integrity.
       expect(s.stages.map((x) => x.body!['slot']), [
-        'v3_cup_handle_far',
-        'v3_cup_turn_a',
-        'v3_cup_turn_b',
-        'v3_saucer',
+        'v3_cup_view_a',
+        'v3_cup_view_b',
+        'v3_saucer_view',
       ]);
       expect(s.stages.every((x) => x.path == '/v1/reading-operations/$opId/staged-image'), isTrue);
       var st = await _state(opId);
       expect(st['operationCount'], 1);
-      expect((st['operation'] as Map)['coffeeCaptureContract'], 'four_view_v3');
+      expect((st['operation'] as Map)['coffeeCaptureContract'], 'three_view_v3');
       final slots = (st['v3Slots'] as List).cast<Map>();
-      expect(slots.map((r) => r['slot']), ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer']);
+      expect(slots.map((r) => r['slot']), ['v3_cup_view_a', 'v3_cup_view_b', 'v3_saucer_view']);
       final hashes = Map<String, dynamic>.from(st['objectHashes'] as Map);
       for (final r in slots) {
         final slot = coffeeV3CanonicalSlotOrder.firstWhere((x) => x.wireValue == r['slot']);
@@ -360,6 +361,14 @@ void main() {
       expect((st['operation'] as Map)['status'], 'ready');
       expect(st['resultCount'], 1);
       expect(st['providerCalls'], containsAllInOrder(['coffee_v3_observation', 'writer']));
+      // Exactly ONE observer request for this reading, carrying exactly three images.
+      final kinds = (st['providerCalls'] as List).cast<String>();
+      final images = (st['providerImageCounts'] as List).cast<int>();
+      final observerImages = [
+        for (var i = 0; i < kinds.length; i++)
+          if (kinds[i] == 'coffee_v3_observation') images[i],
+      ];
+      expect(observerImages, [3]);
       expect(st['pushes'], [opId]);
       final serverResult = Map<String, dynamic>.from((st['result'] as Map)['data'] as Map);
       expect(serverResult['coffeeResultContract'], 'm2_public_v1');
@@ -379,7 +388,7 @@ void main() {
       expect(c.record.resultId, reading.id);
       // 16: working copies released; originals untouched.
       await _waitFor(() async => workFiles().isEmpty, what: 'temp cleanup');
-      expect(sources.listSync().whereType<File>(), hasLength(4));
+      expect(sources.listSync().whereType<File>(), hasLength(3));
       expect(ai.calls, 0);
 
       c.resetToFreshDraft(); // New Cup → acknowledge
@@ -396,7 +405,7 @@ void main() {
       final stolen = await b.send('POST', '/v1/reading-operations/$opId/staged-image', {
         'mimeType': 'image/jpeg',
         'imageBase64': base64Encode(plainJpegBytes(totalSize: 12345)),
-        'slot': 'v3_saucer',
+        'slot': 'v3_saucer_view',
       });
       expect(stolen!.statusCode, isNot(200));
       expect((await _state(opId))['resultCount'], 1);
@@ -407,7 +416,7 @@ void main() {
     test('server V3 flag OFF refuses creation: draft kept, nothing staged or created', () async {
       final s = sender(flagOffServer: true);
       final c = build(s);
-      await captureFour(c);
+      await captureThree(c);
       final before = (await _state(null, stack: 'off'))['operationCount'];
       await c.beginSubmission();
       expect(c.createBlock, CoffeeV3CreateBlock.serverUnavailable);
@@ -416,7 +425,7 @@ void main() {
       expect(s.creates.single.status, 400);
       expect(s.stages, isEmpty);
       expect((await _state(null, stack: 'off'))['operationCount'], before);
-      expect(workFiles(), hasLength(4)); // photos preserved
+      expect(workFiles(), hasLength(3)); // photos preserved
     }, skip: _skip);
 
     test('client flag OFF: an empty V3 visit hands back to the default (V2) route', () async {
@@ -427,21 +436,24 @@ void main() {
       expect(c.stage, CoffeeV3FlowStage.exitToDefault);
     }, skip: _skip);
 
-    test('missing fourth photo / duplicate photo: no operation is created', () async {
+    test('missing saucer photo / duplicated photo: no operation is created', () async {
       final s = sender();
       final c = build(s);
       await c.boot();
       c.dismissIntro();
       final dup = await original('same_bytes', size: 33333);
-      c.setPreviewCandidate(CoffeeV3PhotoSlot.cupHandleFar, CoffeeImagePick(path: dup));
+      c.setPreviewCandidate(CoffeeV3PhotoSlot.cupViewA, CoffeeImagePick(path: dup));
       expect(await c.confirmCandidate(), CoffeeV3ConfirmOutcome.committedAdvance);
-      c.setPreviewCandidate(CoffeeV3PhotoSlot.cupTurnA,
+      // The same photo can never stand in for the second cup view …
+      c.setPreviewCandidate(CoffeeV3PhotoSlot.cupViewB,
           CoffeeImagePick(path: await original('same_bytes_copy', size: 33333)));
       expect(await c.confirmCandidate(), CoffeeV3ConfirmOutcome.duplicate);
-      for (final slot in [CoffeeV3PhotoSlot.cupTurnA, CoffeeV3PhotoSlot.cupTurnB]) {
-        c.setPreviewCandidate(slot, CoffeeImagePick(path: await original('ok_${slot.name}')));
-        await c.confirmCandidate();
-      }
+      c.setPreviewCandidate(CoffeeV3PhotoSlot.cupViewB, CoffeeImagePick(path: await original('ok_cup_b')));
+      expect(await c.confirmCandidate(), CoffeeV3ConfirmOutcome.committedAdvance);
+      // … nor for the saucer.
+      c.setPreviewCandidate(CoffeeV3PhotoSlot.saucer,
+          CoffeeImagePick(path: await original('same_bytes_saucer', size: 33333)));
+      expect(await c.confirmCandidate(), CoffeeV3ConfirmOutcome.duplicate);
       await c.setCustomIntention(_decision);
       expect(c.canSubmit, isFalse); // saucer missing
       await c.beginSubmission();
@@ -451,20 +463,20 @@ void main() {
     test('interrupted upload resumes the SAME operation; restart + client flag OFF still recovers', () async {
       final s = sender();
       final c = build(s);
-      await captureFour(c);
+      await captureThree(c);
       await _script('ritag', ['good']);
       await _control('POST', '/hold', body: {'hold': true});
-      s.dropStageSlotOnce = 'v3_cup_turn_b';
+      s.dropStageSlotOnce = 'v3_cup_view_b';
       await c.beginSubmission();
       final opId = c.operationId!;
       expect(c.stagingRetryable, isTrue);
-      expect(((await _state(opId))['v3Slots'] as List), hasLength(2));
+      expect(((await _state(opId))['v3Slots'] as List), hasLength(1));
       await c.retryStaging();
       expect(c.operationId, opId);
-      expect(((await _state(opId))['v3Slots'] as List), hasLength(4));
+      expect(((await _state(opId))['v3Slots'] as List), hasLength(3));
       expect(s.stages.map((x) => x.body!['slot']), [
-        'v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', // 3rd lost
-        'v3_cup_turn_b', 'v3_saucer',
+        'v3_cup_view_a', 'v3_cup_view_b', // 2nd lost
+        'v3_cup_view_b', 'v3_saucer_view',
       ]);
 
       // App restart with the client rollout flag now OFF.
@@ -484,7 +496,7 @@ void main() {
     test('result fetch interrupted after completion restores the same reading', () async {
       final s = sender();
       final c = build(s);
-      await captureFour(c);
+      await captureThree(c);
       await _script('ritag', ['good']);
       s.dropNextResultResponse = true;
       await c.beginSubmission();
@@ -499,7 +511,7 @@ void main() {
     test('insufficient observation → typed terminal failure, no reading, no writer call', () async {
       final s = sender();
       final c = build(s);
-      await captureFour(c);
+      await captureThree(c);
       await _script('insufficient');
       final writerBefore = ((await _state(null))['providerCalls'] as List).where((x) => x == 'writer').length;
       await c.beginSubmission();
@@ -522,7 +534,7 @@ void main() {
       await _control('POST', '/credit', body: {'owner': 'a', 'amount': 40});
       final balanceStart = ((await s.send('GET', '/v1/gems/balance', null))!.json!['data'] as Map)['balance'] as int;
       final c = build(s);
-      await captureFour(c);
+      await captureThree(c);
       await _script('ritag', ['checker_fail', 'scenario_fail']);
       await c.beginSubmission();
       final opId = c.operationId!;
@@ -547,13 +559,13 @@ void main() {
 
     test('logout wipe removes owned normalized copies only (originals untouched)', () async {
       final c = build(sender());
-      await captureFour(c, intention: false);
-      expect(workFiles(), hasLength(4));
+      await captureThree(c, intention: false);
+      expect(workFiles(), hasLength(3));
       final result = await UserLocalDataWipe.run(storage, secureStorage: InMemorySecureStorage());
       expect(result.failedOperations, isNot(contains('coffee_v3_work_images')));
       expect(workFiles(), isEmpty);
       expect(storage.getString(CoffeeV3SubmissionStore.key), isNull);
-      expect(sources.listSync().whereType<File>(), hasLength(4));
+      expect(sources.listSync().whereType<File>(), hasLength(3));
     }, skip: _skip);
 
     test('Coffee V2 over the same transport is never routed to V3 (and settles via 4C)', () async {

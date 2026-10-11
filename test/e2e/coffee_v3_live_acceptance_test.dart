@@ -5,7 +5,8 @@
 /// the fail-closed guard (official endpoint only; ≤2 attempts, ≤6 requests
 /// per session; ≤1 observer + ≤2 writer per attempt; ambiguous → sealed).
 ///
-/// Requires owner-provided REAL photos + rights.txt and a dedicated
+/// Requires EXACTLY three owner-provided REAL photos (two different cup
+/// views + one saucer; never a fourth) + rights.txt and a dedicated
 /// non-production credential (checked by the harness preflight). Skipped
 /// unless ORACLY_COFFEE_V3_LIVE_HANDSHAKE is set by
 /// tool/e2e/run_coffee_v3_live_acceptance.sh. Never commit outputs.
@@ -75,7 +76,7 @@ void main() {
     final root = await Directory.systemTemp.createTemp('coffee_v3_live_');
     PathProviderPlatform.instance = TestPathProvider(root.path);
     OraclyL10n.bind('tr');
-    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_four_view': true}); // process-local only
+    FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': true}); // process-local only
     final storage = LocalStorage.ephemeral();
     final readings = CoffeeReadingStore(storage);
     final ai = _NoProviderAi();
@@ -148,7 +149,7 @@ void main() {
       expect(opId, isNotNull, reason: 'create failed: ${c.createBlock}');
       operationIds.add(opId!);
       expect(calls.where((x) => x.startsWith('POST /v1/reading-operations ')), hasLength(1));
-      expect(calls.where((x) => x.contains('/staged-image')), hasLength(4));
+      expect(calls.where((x) => x.contains('/staged-image')), hasLength(3));
 
       final deadline = DateTime.now().add(const Duration(minutes: 6));
       while (c.reading == null && c.observeError == null) {
@@ -163,7 +164,7 @@ void main() {
       final writers = records.where((r) => r['kind'] == 'writer').toList();
       expect(records.length, lessThanOrEqualTo(3)); // one attempt
       expect(observers, hasLength(1));
-      expect(observers.single['imageCount'], 4); // four photos, one request
+      expect(observers.single['imageCount'], 3); // three photos, one request
       expect(writers.length, lessThanOrEqualTo(2));
       expect(st['operationCount'], 1);
 

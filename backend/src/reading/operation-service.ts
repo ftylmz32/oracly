@@ -12,6 +12,7 @@ import {
   parseResultId,
   type ExecutionMode,
   type CoffeeInputContract,
+  COFFEE_V3_CAPTURE_CONTRACT,
   type CoffeeCaptureContract,
   type FailureCode,
   type ReadingOperationRecord, type ReadingLanguage,
@@ -72,11 +73,13 @@ export class ReadingOperationService {
         (!markedCoffee || !coffeeIntention)) {
       throw new ReadingOperationError('invalid');
     }
-    // A four-view operation is Coffee only and always carries the trusted
-    // intention contract (no second intention contract exists).
+    // A three-view V3 operation is Coffee only and always carries the trusted
+    // intention contract (no second intention contract exists). The retired
+    // four-view contract can never be created again.
     const coffeeCaptureContract = input.coffeeCaptureContract ?? null;
     if (coffeeCaptureContract != null &&
-        (input.readingType !== 'coffee' || input.coffeeInputContract !== 'trusted_intention_v1' || !coffeeIntention)) {
+        (coffeeCaptureContract !== COFFEE_V3_CAPTURE_CONTRACT ||
+          input.readingType !== 'coffee' || input.coffeeInputContract !== 'trusted_intention_v1' || !coffeeIntention)) {
       throw new ReadingOperationError('invalid');
     }
     const nowMs = toEpochMs(this.clock.now());

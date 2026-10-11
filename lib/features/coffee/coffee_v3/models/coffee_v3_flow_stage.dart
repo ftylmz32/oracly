@@ -1,4 +1,4 @@
-/// UI stages of the Coffee V3 four-view flow. Presentation only — never
+/// UI stages of the Coffee V3 three-photo flow. Presentation only — never
 /// persisted; re-derived from the V3 submission record plus ephemeral UI
 /// state.
 library;

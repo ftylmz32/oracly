@@ -1,4 +1,4 @@
-/// Coffee V3 intro — what the four photos are for. Calm, no AI/vision
+/// Coffee V3 intro — what the three photos are for. Calm, no AI/vision
 /// language; same layout as the Coffee V2 intro.
 library;
 
@@ -38,9 +38,8 @@ class CoffeeV3IntroView extends StatelessWidget {
           ),
           SizedBox(height: AppSpacing.s24),
           for (final label in const [
-            CoffeeV3Copy.introSummaryHandleFar,
-            CoffeeV3Copy.introSummaryTurnA,
-            CoffeeV3Copy.introSummaryTurnB,
+            CoffeeV3Copy.introSummaryCupA,
+            CoffeeV3Copy.introSummaryCupB,
             CoffeeV3Copy.introSummarySaucer,
           ]) ...[
             Text(

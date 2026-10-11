@@ -62,18 +62,18 @@ export function coffeeV2SlotLabel(slot: keyof typeof COFFEE_V2_SLOT_LABELS): str
 }
 
 /**
- * Coffee Observer V3 (multi-view physical mark map) — additive and DARK: no
- * live path calls these prompts yet. V2/legacy prompts above are unchanged.
+ * Coffee Observer V3 (multi-view physical mark map) — DARK three-photo path:
+ * two real cup views + the saucer. V2/legacy prompts above are unchanged.
  * Deliberately names NO example shapes or symbols: a catalog would prime
  * the model to see them.
  */
 export function coffeeV3ObserverSystem(): string {
   return [
-    'You are a VISUAL OBSERVER for one Turkish coffee reading: three photographs of the inside of the SAME cup, turned around its handle, and one photograph of its saucer.',
+    'You are a VISUAL OBSERVER for one Turkish coffee reading: two photographs of the inside of the SAME cup, taken from two different sides of the cup, and one photograph of its saucer.',
     'Return ONLY one structured observation JSON with contract "multi_view_marks_v3". Never tell a fortune, assign life meaning, predict anything, infer emotion, or guess anything about the reader\'s life.',
-    'VIEWS: for each photo report surfaceVisible, focusLightAdequate and residueVisible. For the three cup photos also report handleVisible and handleClock: where the handle sits on the rim in that frame, as a clock position 1–12 with 12 at the top of the frame. The saucer view uses null for both.',
+    'VIEWS: for each photo report surfaceVisible, focusLightAdequate and residueVisible. For the two cup photos also report handleVisible and handleClock: where the handle sits on the rim in that frame, as a clock position 1–12 with 12 at the top of the frame. The saucer view uses null for both.',
     'PASS 1 — SIGHTINGS: look at each photo on its own and list every distinct residue mark you can actually point to. Each sighting gets a unique id, its slot, its surface (cup_wall, cup_base or saucer), its band on the cup (rim_upper, middle, lower_base, or unknown), its rimClock (1–12 in that frame, null if it cannot be placed), its saucerZone (center, middle_ring, edge or unknown on the saucer, null on the cup), its bandCoverage (on the cup, every band the mark visibly spans in that photo, always including its own band when known; [] when unsure and always [] on the saucer), a short literal description of what is visibly there, its visibility and your confidence.',
-    'PASS 2 — PHYSICAL MARKS: the three cup photos show the same cup from different angles, so one physical mark can appear in more than one of them. Group sightings into one mark ONLY when you are certain they are the same physical residue. If two sightings might be the same mark but you are not certain, keep them as separate marks and list the pair in ambiguities with reason "possible_same_mark". Never create a second mark for the same residue, and never group a cup sighting with a saucer sighting. Every mark has a kind: "residue" for residue, or "clear_area" for a clearly visible empty space free of residue that you can point to; never report a clear area just because nothing was seen there.',
+    'PASS 2 — PHYSICAL MARKS: the two cup photos show the same cup from different angles, so one physical mark can appear in more than one of them. Group sightings into one mark ONLY when you are certain they are the same physical residue. If two sightings might be the same mark but you are not certain, keep them as separate marks and list the pair in ambiguities with reason "possible_same_mark". Never create a second mark for the same residue, and never group a cup sighting with a saucer sighting. Every mark has a kind: "residue" for residue, or "clear_area" for a clearly visible empty space free of residue that you can point to; never report a clear area just because nothing was seen there.',
     'PASS 3 — FORM: for each mark fill motion, verticalDirection, openness, course, posture, continuity and grouping only from what the shape clearly shows; otherwise "unknown". Also give its topology: line (a line, trail or band), closed_loop (a closed loop of residue), pool (a filled pool), patch (a blob or patch), or unknown; a clear_area always uses unknown. Unknown is always acceptable.',
     'PASS 4 — RESEMBLANCE, LAST: after the literal description, you may give 0–2 cautious resemblance candidates per mark as short noun phrases, each "strong" or "weak". No candidate is a correct and common answer. If the shape is uncertain, give none. Never force a familiar symbol, and keep a weak resemblance weak. A clear_area never gets a candidate.',
     'PASS 5 — RELATIONS: list only purely visual relations between two marks on the same surface family (near, touching, connected, crossing, contained_by, continuation_of, separated). No cause, order or meaning.',
@@ -84,20 +84,18 @@ export function coffeeV3ObserverSystem(): string {
 
 export function coffeeV3ObserverUser(): string {
   return [
-    'Observe the four photographs of this one coffee reading together, in the order given.',
+    'Observe the three photographs of this one coffee reading together, in the order given.',
     'Emit ONE visual-observation JSON object matching the schema. Literal description first, cautious resemblance last.',
     'No interpretation. No personal context. No advice.',
   ].join(' ');
 }
 
 const COFFEE_V3_SLOT_LABELS = {
-  cup_handle_far:
-    'IMAGE 1 — CUP_HANDLE_FAR. Inside of the cup, handle on the far side of the rim, so the camera looks straight at the handle-side wall.',
-  cup_turn_a:
-    'IMAGE 2 — CUP_TURN_A. Inside of the SAME cup, turned about one third of a circle from image 1.',
-  cup_turn_b:
-    'IMAGE 3 — CUP_TURN_B. Inside of the SAME cup, turned about two thirds of a circle from image 1.',
-  saucer: 'IMAGE 4 — SAUCER. The saucer belonging to the SAME cup and SAME reading, seen from above.',
+  cup_view_a:
+    'IMAGE 1 — CUP_VIEW_A. Inside of the cup, seen from one side.',
+  cup_view_b:
+    'IMAGE 2 — CUP_VIEW_B. Inside of the SAME cup, turned to show its other side. Do not treat it as a second cup or a second reading.',
+  saucer: 'IMAGE 3 — SAUCER. The saucer belonging to the SAME cup and SAME reading, seen from above.',
 } as const;
 
 export function coffeeV3SlotLabel(slot: keyof typeof COFFEE_V3_SLOT_LABELS): string {

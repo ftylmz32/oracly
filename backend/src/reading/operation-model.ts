@@ -50,12 +50,18 @@ export function isCoffeeInputContract(value: unknown): value is CoffeeInputContr
 /**
  * LIS1 — immutable Coffee photo-set contract, set only at creation. Absent /
  * null = the legacy single-image or Coffee V2 three-slot contract, exactly as
- * before. 'four_view_v3' = an explicitly V3-owned operation (four namespaced
- * staged slots). Processing must branch on THIS field, never on which staged
- * slots happen to exist.
+ * before. 'three_view_v3' = an explicitly V3-owned operation (two cup views +
+ * one saucer, namespaced staged slots). 'four_view_v3' is RETIRED: still
+ * parsed so a persisted operation is never mistaken for V2/legacy, but never
+ * creatable, never stageable and never processed (it settles as a refunded
+ * terminal failure). Processing must branch on THIS field, never on which
+ * staged slots happen to exist.
  */
-export const COFFEE_CAPTURE_CONTRACTS = ['four_view_v3'] as const;
+export const COFFEE_CAPTURE_CONTRACTS = ['three_view_v3', 'four_view_v3'] as const;
 export type CoffeeCaptureContract = (typeof COFFEE_CAPTURE_CONTRACTS)[number];
+
+/** The only V3 contract a NEW operation may carry. */
+export const COFFEE_V3_CAPTURE_CONTRACT = 'three_view_v3' as const;
 
 export function isCoffeeCaptureContract(value: unknown): value is CoffeeCaptureContract {
   return typeof value === 'string' &&

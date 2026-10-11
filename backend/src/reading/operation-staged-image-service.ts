@@ -13,6 +13,7 @@ import type { ServerClock } from './clock.js';
 import { toEpochMs } from './clock.js';
 import {
   COFFEE_V2_SLOTS,
+  COFFEE_V3_RETIRED_STAGED_SLOTS,
   COFFEE_V3_STAGED_SLOTS,
   extensionForMime,
   isCoffeeV2Slot,
@@ -89,13 +90,17 @@ export class ReadingStagedImageService {
     // silently ignore an unexpected slot. An unknown slot value also fails
     // closed rather than being coerced into a canonical one.
     // LIS1 — the OPERATION owns the photo-set contract; a slot is only ever
-    // validated against it, never used to infer it. A four-view V3 operation
-    // requires one of its four namespaced slots (no unslotted or V2 input);
-    // a null-contract operation keeps exactly the legacy / V2 rules and can
-    // never receive a V3 slot.
-    const fourView = readingType === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3';
+    // validated against it, never used to infer it. A three-view V3 operation
+    // requires one of its three namespaced slots (no unslotted or V2 input);
+    // a retired four-view operation accepts no upload at all; a null-contract
+    // operation keeps exactly the legacy / V2 rules and can never receive a
+    // V3 slot.
+    if (readingType === 'coffee' && operation.coffeeCaptureContract === 'four_view_v3') {
+      throw new ReadingOperationError('invalid');
+    }
+    const threeView = readingType === 'coffee' && operation.coffeeCaptureContract === 'three_view_v3';
     let slot: CoffeeStagedSlot | undefined;
-    if (fourView) {
+    if (threeView) {
       if (!isCoffeeV3StagedSlot(input.slot)) throw new ReadingOperationError('invalid');
       slot = input.slot;
     } else if (input.slot != null) {
@@ -140,7 +145,7 @@ export class ReadingStagedImageService {
     // is the existing idempotent-restage behavior, not a duplicate.
     if (slot) {
       // Compared only within this operation's own slot set (V2 or V3, never mixed).
-      const others = fourView
+      const others = threeView
         ? await this.repository.listCoffeeV3Slots(input.operationId, input.ownerUserId)
         : await this.repository.listSlots(input.operationId, input.ownerUserId);
       const duplicate = others.some(
@@ -291,9 +296,8 @@ export class ReadingStagedImageService {
   }
 
   /**
-   * LIS1 — DARK: no worker, pipeline or route calls this yet. The operation
-   * must be Coffee AND explicitly 'four_view_v3' (never inferred from slots).
-   * Requires all four namespaced V3 slots complete, re-validates bytes and
+   * The operation must be Coffee AND explicitly 'three_view_v3' (never
+   * inferred from slots). Requires all three namespaced V3 slots complete, re-validates bytes and
    * checksum per slot like the V2 path, and returns them in V3 staging
    * canonical order. Anything missing, pending or corrupt fails closed with
    * the same staging errors — a missing view is never fabricated.
@@ -303,7 +307,7 @@ export class ReadingStagedImageService {
     operationId: string;
   }): Promise<Array<{ slot: CoffeeV3StagedSlot; bytes: Buffer; mimeType: string }>> {
     const operation = await this.operations.get(input.ownerUserId, input.operationId);
-    if (operation.readingType !== 'coffee' || operation.coffeeCaptureContract !== 'four_view_v3') {
+    if (operation.readingType !== 'coffee' || operation.coffeeCaptureContract !== 'three_view_v3') {
       throw new ReadingOperationError('not_found');
     }
     const out: Array<{ slot: CoffeeV3StagedSlot; bytes: Buffer; mimeType: string }> = [];
@@ -396,13 +400,14 @@ export class ReadingStagedImageService {
   }
 
   /**
-   * LIS1 — DARK (not called by the worker yet). Same best-effort, idempotent,
-   * per-slot semantics as `deleteCoffeeV2Slots`, over the four V3 staged slots
-   * only: never touches a V2 slot or the legacy unslotted record, and never
-   * another owner's slot (ownership re-checked via each slot's metadata).
+   * Same best-effort, idempotent, per-slot semantics as `deleteCoffeeV2Slots`,
+   * over the three V3 staged slots AND the retired four-view slots (so an old
+   * operation's leftovers are cleaned too): never touches a V2 slot or the
+   * legacy unslotted record, and never another owner's slot (ownership
+   * re-checked via each slot's metadata).
    */
   async deleteCoffeeV3Slots(input: { ownerUserId: string; operationId: string }): Promise<void> {
-    for (const slot of COFFEE_V3_STAGED_SLOTS) {
+    for (const slot of [...COFFEE_V3_STAGED_SLOTS, ...COFFEE_V3_RETIRED_STAGED_SLOTS]) {
       let record: ReadingStagedImageRecord | null;
       try {
         record = await this.repository.getCoffeeV3Slot(input.operationId, slot, input.ownerUserId);

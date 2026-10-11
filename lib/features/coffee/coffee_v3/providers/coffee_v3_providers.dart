@@ -1,4 +1,4 @@
-/// Coffee V3 four-view providers. Additive only — reuses the SAME
+/// Coffee V3 three-photo providers. Additive only — reuses the SAME
 /// `readingFeatureRunnerProvider` (ReadingLiveFlow), staged-image gateway,
 /// `coffeeExperienceServiceProvider`, `gemWalletProvider`,
 /// `localStorageProvider` and Firebase owner resolution as Coffee V2. No

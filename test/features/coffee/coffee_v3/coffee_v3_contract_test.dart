@@ -1,4 +1,5 @@
-/// Coffee V3 (Slice 4) client contract: rollout flag, slot contract, local
+/// Coffee V3 (Slice 4, three-photo decision) client contract: rollout flag,
+/// slot contract (exactly two cup views + one saucer), local
 /// record/store (capture-contract integrity + owner isolation), pairwise
 /// validation, exact create bodies (V3 vs unchanged V2/Palm/Soulmate) and
 /// account-wipe coverage.
@@ -69,10 +70,9 @@ CoffeeV3SubmissionRecord _record(
     );
 
 const _unique = {
-  CoffeeV3PhotoSlot.cupHandleFar: 'a',
-  CoffeeV3PhotoSlot.cupTurnA: 'b',
-  CoffeeV3PhotoSlot.cupTurnB: 'c',
-  CoffeeV3PhotoSlot.saucer: 'd',
+  CoffeeV3PhotoSlot.cupViewA: 'a',
+  CoffeeV3PhotoSlot.cupViewB: 'b',
+  CoffeeV3PhotoSlot.saucer: 'c',
 };
 
 void main() {
@@ -88,13 +88,13 @@ void main() {
   });
 
   group('rollout flag', () {
-    test('A coffee_v3_four_view exists, is boolean and defaults FALSE', () {
-      final flag = ProductFeatureFlags.coffeeV3FourView;
-      expect(flag.key, 'coffee_v3_four_view');
+    test('A coffee_v3_three_view exists, is boolean and defaults FALSE', () {
+      final flag = ProductFeatureFlags.coffeeV3ThreeView;
+      expect(flag.key, 'coffee_v3_three_view');
       expect(flag.defaultValue, isFalse);
       expect(flag.minAppVersion, isNull);
       expect(ProductFeatureFlags.catalog, contains(flag));
-      expect(ProductFeatureFlags.defaults()['coffee_v3_four_view'], isFalse);
+      expect(ProductFeatureFlags.defaults()['coffee_v3_three_view'], isFalse);
       expect(
         FeatureFlagRollback.flag(FeatureFlagSurface.coffeeV3Capture),
         same(flag),
@@ -106,34 +106,43 @@ void main() {
       expect(CoffeeV3CreationGate.creationAllowed, isFalse);
     });
 
-    test('creation needs flag ON and Turkish UI', () {
+    test('the retired coffee_v3_four_view key can never enable creation', () {
+      expect(ProductFeatureFlags.definitionFor('coffee_v3_four_view'), isNull);
       FeatureFlagRuntime.refreshFromRemote({'coffee_v3_four_view': true});
+      expect(CoffeeV3CreationGate.creationAllowed, isFalse);
+    });
+
+    test('creation needs flag ON and Turkish UI', () {
+      FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': true});
       expect(CoffeeV3CreationGate.creationAllowed, isTrue);
       for (final lang in ['en', 'ru']) {
         OraclyL10n.bind(lang);
         expect(CoffeeV3CreationGate.creationAllowed, isFalse, reason: lang);
       }
       OraclyL10n.bind('tr');
-      FeatureFlagRuntime.refreshFromRemote({'coffee_v3_four_view': false});
+      FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': false});
       expect(CoffeeV3CreationGate.creationAllowed, isFalse);
     });
   });
 
   group('slot contract', () {
-    test('K/L/M exact four slots, wire values and canonical order', () {
-      expect(CoffeeV3PhotoSlot.values, hasLength(4));
+    test('K/L/M exactly three slots (two cup + saucer), wire values and canonical order', () {
+      expect(CoffeeV3PhotoSlot.values, hasLength(3));
       expect(coffeeV3CanonicalSlotOrder, [
-        CoffeeV3PhotoSlot.cupHandleFar,
-        CoffeeV3PhotoSlot.cupTurnA,
-        CoffeeV3PhotoSlot.cupTurnB,
+        CoffeeV3PhotoSlot.cupViewA,
+        CoffeeV3PhotoSlot.cupViewB,
         CoffeeV3PhotoSlot.saucer,
       ]);
       expect(
         [for (final s in coffeeV3CanonicalSlotOrder) s.wireValue],
-        ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer'],
+        ['v3_cup_view_a', 'v3_cup_view_b', 'v3_saucer_view'],
       );
       for (final s in CoffeeV3PhotoSlot.values) {
         expect(coffeeV3PhotoSlotFromWire(s.wireValue), s);
+      }
+      // Retired four-view wire values are never recognized.
+      for (final retired in ['v3_cup_handle_far', 'v3_cup_turn_a', 'v3_cup_turn_b', 'v3_saucer']) {
+        expect(coffeeV3PhotoSlotFromWire(retired), isNull, reason: retired);
       }
     });
 
@@ -142,7 +151,7 @@ void main() {
       for (final s in CoffeeV3PhotoSlot.values) {
         expect(v2.contains(s.wireValue), isFalse);
       }
-      expect(CoffeeV3PhotoSlot.saucer.wireValue, 'v3_saucer');
+      expect(CoffeeV3PhotoSlot.saucer.wireValue, 'v3_saucer_view');
       for (final legacy in ['saucer', 'cup_primary', 'cup_secondary']) {
         expect(coffeeV3PhotoSlotFromWire(legacy), isNull);
       }
@@ -162,15 +171,15 @@ void main() {
   });
 
   group('local record + store', () {
-    test('P persisted record carries captureContract four_view_v3', () {
+    test('P persisted record carries captureContract three_view_v3', () {
       final json = _record(_unique).toJson();
-      expect(json['captureContract'], 'four_view_v3');
-      expect(coffeeV3CaptureContract, 'four_view_v3');
+      expect(json['captureContract'], 'three_view_v3');
+      expect(coffeeV3CaptureContract, 'three_view_v3');
       final back = CoffeeV3SubmissionRecord.fromJson(
         jsonDecode(jsonEncode(json)),
       );
-      expect(back.captureContract, 'four_view_v3');
-      expect(back.slots[CoffeeV3PhotoSlot.saucer]?.asset?.sha256, 'd');
+      expect(back.captureContract, 'three_view_v3');
+      expect(back.slots[CoffeeV3PhotoSlot.saucer]?.asset?.sha256, 'c');
       // Metadata only — never bytes/base64/tokens.
       final text = jsonEncode(json);
       for (final banned in ['imageBase64', 'bytes', 'token', 'base64']) {
@@ -180,7 +189,7 @@ void main() {
 
     test('Q missing / unknown / different contract fails closed', () {
       final good = _record(_unique).toJson();
-      for (final bad in <Object?>[null, 'four_view_v4', 'three_view_v2', 3]) {
+      for (final bad in <Object?>[null, 'four_view_v3', 'four_view_v4', 'three_view_v2', 3]) {
         final json = Map<String, dynamic>.from(good)..['captureContract'] = bad;
         expect(
           () => CoffeeV3SubmissionRecord.fromJson(json),
@@ -195,14 +204,31 @@ void main() {
       );
     });
 
+    test('a stored retired four_view_v3 record is blocked: never adopted, overwritten or removed', () async {
+      final storage = LocalStorage.ephemeral();
+      final retired = jsonEncode({
+        'schemaVersion': 1,
+        'captureContract': 'four_view_v3',
+        'ownerId': 'o1',
+        'operationId': 'op-retired-1',
+        'slots': <String, dynamic>{},
+      });
+      await storage.setString(CoffeeV3SubmissionStore.key, retired);
+      final store = CoffeeV3SubmissionStore(storage, ownerId: 'o1');
+      expect(store.inspect(), CoffeeV3StoredState.blocked);
+      expect(store.load(), isNull);
+      await expectLater(store.save(_record(_unique)), throwsStateError);
+      expect(storage.getString(CoffeeV3SubmissionStore.key), retired);
+    });
+
     test('an asset filed under the wrong slot is never trusted', () {
       final json = _record(_unique).toJson();
       final slots = json['slots'] as Map<String, dynamic>;
-      (slots['v3_cup_turn_a'] as Map<String, dynamic>)['asset'] =
+      (slots['v3_cup_view_b'] as Map<String, dynamic>)['asset'] =
           _asset(CoffeeV3PhotoSlot.saucer, 'z').toJson();
       final back = CoffeeV3SubmissionRecord.fromJson(jsonDecode(jsonEncode(json)));
-      expect(back.slots[CoffeeV3PhotoSlot.cupTurnA]?.asset, isNull);
-      expect(back.slots[CoffeeV3PhotoSlot.cupTurnA]?.confirmed, isFalse);
+      expect(back.slots[CoffeeV3PhotoSlot.cupViewB]?.asset, isNull);
+      expect(back.slots[CoffeeV3PhotoSlot.cupViewB]?.confirmed, isFalse);
     });
 
     test('separate key: never shares coffee_v2_submission', () async {
@@ -265,11 +291,11 @@ void main() {
   });
 
   group('validation', () {
-    test('R 0-3 confirmed blocked; S four unique confirmed valid', () {
+    test('R 0-2 confirmed blocked; S three unique confirmed valid', () {
       final slots = coffeeV3CanonicalSlotOrder;
-      for (var n = 0; n < 4; n++) {
+      for (var n = 0; n < 3; n++) {
         final shas = {
-          for (var i = 0; i < 4; i++) slots[i]: i < n ? _unique[slots[i]] : null,
+          for (var i = 0; i < 3; i++) slots[i]: i < n ? _unique[slots[i]] : null,
         };
         expect(CoffeeV3Validation.evaluate(_record(shas)),
             CoffeeV3ValidationIssue.incomplete, reason: '$n');
@@ -279,11 +305,11 @@ void main() {
       expect(CoffeeV3Validation.evaluate(_record(_unique)), isNull);
     });
 
-    test('T every pairwise duplicate blocks (all 6 pairs)', () {
+    test('T every pairwise duplicate blocks (all 3 pairs: cup/cup, cup/saucer)', () {
       final slots = coffeeV3CanonicalSlotOrder;
       var pairs = 0;
-      for (var i = 0; i < 4; i++) {
-        for (var j = i + 1; j < 4; j++) {
+      for (var i = 0; i < 3; i++) {
+        for (var j = i + 1; j < 3; j++) {
           final shas = Map<CoffeeV3PhotoSlot, String?>.from(_unique)
             ..[slots[j]] = _unique[slots[i]];
           expect(CoffeeV3Validation.evaluate(_record(shas)),
@@ -298,7 +324,7 @@ void main() {
           pairs++;
         }
       }
-      expect(pairs, 6);
+      expect(pairs, 3);
     });
   });
 
@@ -321,7 +347,7 @@ void main() {
           'language': 'tr',
           'intention': 'Aşk ve ilişkilerim hakkında',
           'coffeeInputContract': 'trusted_intention_v1',
-          'coffeeCaptureContract': 'four_view_v3',
+          'coffeeCaptureContract': 'three_view_v3',
         },
       );
     });
@@ -386,7 +412,7 @@ void main() {
         coffeeCaptureContract: coffeeV3CaptureContract,
       );
       await flow.begin(readingType: ReadingType.palm, sourceRequestId: 'p-12345678');
-      expect(transport.creates[0].body?['coffeeCaptureContract'], 'four_view_v3');
+      expect(transport.creates[0].body?['coffeeCaptureContract'], 'three_view_v3');
       expect(transport.creates[1].body?.containsKey('coffeeCaptureContract'),
           isFalse);
     });

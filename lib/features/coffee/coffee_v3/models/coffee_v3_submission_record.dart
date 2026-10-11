@@ -1,15 +1,17 @@
 /// Persisted Coffee V3 draft/submission state — safe local metadata only.
 /// `operationId == null` is DRAFT (photos still editable); non-null is
-/// ACTIVE (one `four_view_v3` operation exists; photos are bound and
+/// ACTIVE (one `three_view_v3` operation exists; photos are bound and
 /// immutable). Every persisted record carries `captureContract ==
-/// four_view_v3`; a missing / unknown / different marker is NOT a current V3
-/// record and [CoffeeV3SubmissionRecord.fromJson] throws (fail closed).
+/// three_view_v3`; a missing / unknown / different marker (including the
+/// retired `four_view_v3`) is NOT a current V3 record and
+/// [CoffeeV3SubmissionRecord.fromJson] throws (fail closed: the store
+/// reports it as blocked, it is never reinterpreted as three photos).
 ///
 /// Schema versioning: every record written now carries `schemaVersion: 1`.
-/// A historical Slice-4 record (no `schemaVersion`, valid `four_view_v3`
-/// marker) IS schema 1 — same shape — and is accepted as-is, then rewritten
-/// with the explicit version on its next normal save (no field is dropped:
-/// owner, operation, sourceRequestId, intention, slots, staging, result
+/// A record without `schemaVersion` but with a valid `three_view_v3` marker
+/// IS schema 1 — same shape — and is accepted as-is, then rewritten with the
+/// explicit version on its next normal save (no field is dropped: owner,
+/// operation, sourceRequestId, intention, slots, staging, result
 /// acknowledgement all round-trip). Any other version (future, zero,
 /// negative, non-integer) fails closed and is never interpreted. The
 /// storage key stays `coffee_v3_submission` — renaming it would orphan
@@ -73,7 +75,7 @@ class CoffeeV3SubmissionRecord {
   });
 
   /// Always the current client contract — a record is only ever built for
-  /// (and parsed as) `four_view_v3`.
+  /// (and parsed as) `three_view_v3`.
   String get captureContract => coffeeV3CaptureContract;
 
   final String? ownerId;
@@ -135,8 +137,8 @@ class CoffeeV3SubmissionRecord {
         },
       };
 
-  /// Throws [FormatException] unless `captureContract == four_view_v3` and
-  /// the schema is 1 (explicit, or absent = historical Slice-4 schema 1).
+  /// Throws [FormatException] unless `captureContract == three_view_v3` and
+  /// the schema is 1 (explicit, or absent = schema 1).
   static CoffeeV3SubmissionRecord fromJson(Object? json) {
     if (json is! Map || json['captureContract'] != coffeeV3CaptureContract) {
       throw const FormatException('unsupported_coffee_v3_capture_contract');
