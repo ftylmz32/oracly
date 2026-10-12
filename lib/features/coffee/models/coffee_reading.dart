@@ -42,6 +42,9 @@ class CoffeeReading {
   /// The frozen V3 result: `overall` is authoritative and shown verbatim.
   bool get isM2PublicV1 => coffeeResultContract == coffeeM2PublicV1ResultContract;
 
+  /// Any server-gated V3 result (frozen M2 or the V3 narrative successor).
+  bool get isServerGatedV3 => serverGatedCoffeeResultContracts.contains(coffeeResultContract);
+
   String get fullText => [
         visualObservation,
         overall,

@@ -12,6 +12,7 @@ import { AiProxyService } from '../src/ai/service.js';
 import { readingStageStore, createReadingStageStore } from '../src/ai/reading/stage-cache.js';
 import {
   COFFEE_V3_MAX_WRITER_COMPLETIONS,
+  COFFEE_V3_MIN_PREMIUM_BEATS,
   COFFEE_V3_OBSERVER_STAGE,
   COFFEE_V3_RESULT_CONTRACT,
   COFFEE_V3_STAGED_TO_SEMANTIC_SLOT,
@@ -27,6 +28,7 @@ import { prepareCoffeeM2TurkishRealization } from '../src/ai/reading/coffee-m2-t
 import { assembleCoffeeM2PublicReading } from '../src/ai/reading/coffee-m2-turkish-realization-check.js';
 import { coffeeM2WriterPromptSha256, coffeeM2WriterSystemPrompt, coffeeM2WriterUserMessage } from '../src/ai/reading/coffee-m2-writer-prompt.js';
 import { COFFEE_V3_OBSERVER_SCHEMA } from '../src/ai/reading/schemas.js';
+import { COFFEE_V3N_WRITER_PROMPT } from '../src/ai/reading/coffee-v3n-narrative-writer.js';
 import { coffeeV3ObserverSystem, coffeeV3ObserverUser } from '../src/ai/reading/observer-prompts.js';
 import { COFFEE_V3_SLOTS, type CoffeeMultiViewObservationV3 } from '../src/ai/reading/types.js';
 import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
@@ -45,9 +47,9 @@ import { provisionalWaitPolicy } from '../src/reading/wait-policy.js';
 import type { ServerClock } from '../src/reading/clock.js';
 import type { OpenAiCompleteOptions } from '../src/ai/openai-transport.js';
 import type { AppConfig } from '../src/config.js';
-import { c31Spec } from './fixtures/coffee-c31-fixtures.js';
+import { C31_SET_IDS, c31Spec } from './fixtures/coffee-c31-fixtures.js';
 import { m1Observation, type M1FixtureSpec } from './fixtures/coffee-m1-fixtures.js';
-import { toThreeViewObservation } from './fixtures/coffee-v3-three-view.js';
+import { COFFEE_V3N_PREMIUM_WRITER_OUTPUT, COFFEE_V3_PREMIUM_GOOD_BEATS, coffeeV3PremiumSpec, toThreeViewObservation } from './fixtures/coffee-v3-three-view.js';
 import {
   StaticAppCheckVerifier,
   appCheckHeader,
@@ -74,22 +76,35 @@ const S = 'options_separating';
 const R = 'another_option_relevant';
 /** A frozen fixture expressed as the live three-photo observation (fixtures themselves untouched). */
 const three = (spec: M1FixtureSpec): CoffeeMultiViewObservationV3 => toThreeViewObservation(m1Observation(spec));
+/** The frozen RITAG cup alone: a structure-only, two-beat plan (below the premium floor). */
 const RITAG = (): CoffeeMultiViewObservationV3 => three(c31Spec('C3F-RITAG', { clearAreas: true }));
+/** RITAG + one clear strong object sign: a three-beat plan (clears the floor). */
+const PREMIUM = (): CoffeeMultiViewObservationV3 => three(coffeeV3PremiumSpec());
 
-/** A W4P5-accepted reading for this payload (passes parser, scenario validator and checker). */
-const GOOD_BEATS = [
+/** A W4P5-accepted two-beat reading for the RITAG payload: passes every writer gate, yet is NOT premium. */
+const THIN_GOOD_BEATS = [
   { id: 'B1', scenarioItems: [] as string[], text: 'Vermen gereken kararda yolun önümüzdeki dönemde adım adım ilerliyor; biraz daha ileride önün de açılıyor.' },
   { id: 'B2', scenarioItems: [W, S], text: 'Yaklaşan dönemde birden fazla yol beliriyor; seçeneklerden biri gözünde ağırlık kazanabilir, hangi yolun ne olduğu da daha açık seçilebilir.' },
 ];
+/** A reading for the PREMIUM payload that passes parser, scenario validator and checker. */
+const GOOD_BEATS = COFFEE_V3_PREMIUM_GOOD_BEATS;
 const GOOD = JSON.stringify({ beats: GOOD_BEATS });
 const PARSER_FAIL = 'this is not json';
-const SCENARIO_FAIL = JSON.stringify({ beats: [GOOD_BEATS[0], { ...GOOD_BEATS[1], scenarioItems: [W] }] });
+const SCENARIO_FAIL = JSON.stringify({ beats: [GOOD_BEATS[0], GOOD_BEATS[1], { ...GOOD_BEATS[2], scenarioItems: [W] }] });
 const CHECKER_FAIL = JSON.stringify({
   beats: [
-    { id: 'B1', scenarioItems: [], text: 'Vermen gereken kararda yolun önümüzdeki dönemde adım adım ilerliyor; önün de biraz daha ileride açılıyor.' },
-    { id: 'B2', scenarioItems: [W, S], text: 'Yaklaşan dönemde birkaç ayrı ihtimale açılıyor; seçeneklerden biri gözünde ağırlık kazanabilir ve seçenekler arasındaki fark daha net görünebilir.' },
+    GOOD_BEATS[0],
+    { id: 'B2', scenarioItems: [], text: 'Vermen gereken kararda yolun önümüzdeki dönemde adım adım ilerliyor; önün de biraz daha ileride açılıyor.' },
+    { id: 'B3', scenarioItems: [W, S], text: 'Yaklaşan dönemde birkaç ayrı ihtimale açılıyor; seçeneklerden biri gözünde ağırlık kazanabilir ve seçenekler arasındaki fark daha net görünebilir.' },
   ],
 });
+/**
+ * Worker-level runs go through the internal V3 entry, which now uses the
+ * versioned V3N narrative successor: its SIMULATED writer output for PREMIUM.
+ */
+const N1_GOOD = COFFEE_V3N_PREMIUM_WRITER_OUTPUT;
+/** SIMULATED stand-in with the shape of the first real three-photo run (two generic sentences); real readings are never committed. */
+const LIVE_THIN_READING = 'Önümüzdeki günlerde önün açılırken birkaç farklı yol da görünüyor. Bu yollar bir anda değil, zaman zaman ilerliyor.';
 
 // ---------------------------------------------------------------------------
 // Fake transport (module level) and fake fetch (service / worker level)
@@ -159,7 +174,7 @@ beforeEach(() => readingStageStore.clear());
 
 describe('LIS2 V3 observer (A–J)', () => {
   it('A–F: one observer call, exactly three images (two cup + saucer) in canonical order, each after its label, schema, configured vision model', async () => {
-    const r = await run(RITAG(), [GOOD]);
+    const r = await run(PREMIUM(), [GOOD]);
     expect(r.error).toBeNull();
     const obs = r.observerCalls();
     expect(obs).toHaveLength(1);
@@ -200,7 +215,7 @@ describe('LIS2 V3 observer (A–J)', () => {
       RETIRED_STAGED.map((slot, i) => ({ slot: slot as never, mimeType: 'image/jpeg', bytes: fakeJpeg(21_000 + i) })),
     ];
     for (const input of cases) {
-      const fake = fakeTransport(RITAG(), [GOOD]);
+      const fake = fakeTransport(PREMIUM(), [GOOD]);
       const err = await runCoffeeV3Reading({
         config: testConfig(), transport: fake.transport, stageStore: createReadingStageStore(), images: input,
         intention: DECISION, language: 'tr', identity: 'owner-a', parentKey: 'p',
@@ -211,39 +226,39 @@ describe('LIS2 V3 observer (A–J)', () => {
   });
 
   it('G: an unusable observation is terminal invalid with no writer call', async () => {
-    const r = await run({ ...RITAG(), usable: false, reason: 'blurred' }, [GOOD]);
+    const r = await run({ ...PREMIUM(), usable: false, reason: 'blurred' }, [GOOD]);
     expect(failure(r.error)).toBe('invalid:observer_unusable');
     expect(r.writerCalls()).toHaveLength(0);
-    const blurred = RITAG();
+    const blurred = PREMIUM();
     blurred.views = blurred.views.map((v, i) => (i === 2 ? { ...v, focusLightAdequate: false } : v));
     expect(failure((await run(blurred, [GOOD])).error)).toBe('invalid:photo_quality');
   });
 
   it('H: a structurally invalid map is terminal unavailable with no writer call', async () => {
-    const broken = RITAG();
+    const broken = PREMIUM();
     broken.marks[0] = { ...broken.marks[0], sightingIds: ['no-such-sighting'] };
     expect(buildCoffeeV3MarkMap(broken).status).toBe('invalid');
     const r = await run(broken, [GOOD]);
     expect(failure(r.error)).toMatch(/^unavailable:map_invalid:/);
     expect(r.writerCalls()).toHaveLength(0);
     // Malformed views or JSON are also provider defects.
-    const views = RITAG();
+    const views = PREMIUM();
     views.views = views.views.slice(0, 2);
     expect(failure((await run(views, [GOOD])).error)).toBe('unavailable:observer_views_malformed');
     // A phantom fourth view, a duplicated view, or the retired four-view labels are provider defects too.
-    const phantom = RITAG();
+    const phantom = PREMIUM();
     phantom.views = [...phantom.views, { ...phantom.views[1], slot: 'cup_turn_b' }];
     expect(failure((await run(phantom, [GOOD])).error)).toBe('unavailable:observer_views_malformed');
-    const duplicated = RITAG();
+    const duplicated = PREMIUM();
     duplicated.views = [duplicated.views[0], { ...duplicated.views[0] }, duplicated.views[2]];
     expect(failure((await run(duplicated, [GOOD])).error)).toBe('unavailable:observer_views_malformed');
     expect(failure((await run(m1Observation(c31Spec('C3F-RITAG', { clearAreas: true })), [GOOD])).error)).toBe('unavailable:observer_views_malformed');
     // A sighting on a view that was never photographed is rejected by the map.
-    const ghost = RITAG();
+    const ghost = PREMIUM();
     ghost.sightings = ghost.sightings.map((s, i) => (i === 0 ? { ...s, slot: 'cup_turn_a' } : s));
     expect(failure((await run(ghost, [GOOD])).error)).toBe('unavailable:map_invalid:unknown_view');
     expect(failure((await run('{not json', [GOOD])).error)).toBe('unavailable:observer_malformed_json');
-    expect(failure((await run({ ...RITAG(), contract: 'other' }, [GOOD])).error)).toBe('unavailable:observer_wrong_contract');
+    expect(failure((await run({ ...PREMIUM(), contract: 'other' }, [GOOD])).error)).toBe('unavailable:observer_wrong_contract');
   });
 
   it('I/M: a sparse cup is never padded — no marks is an honest insufficient (invalid), writer 0', async () => {
@@ -256,10 +271,10 @@ describe('LIS2 V3 observer (A–J)', () => {
 
   it('J: the observer cache key is isolated and reused within the same operation key', async () => {
     const store = createReadingStageStore();
-    await run(RITAG(), [GOOD], { stageStore: store });
+    await run(PREMIUM(), [GOOD], { stageStore: store });
     expect(store.get('owner-a', 'reading-operation:test', COFFEE_V3_OBSERVER_STAGE)).not.toBeNull();
     for (const other of ['coffee_observer', 'coffee_v2_observer']) expect(store.get('owner-a', 'reading-operation:test', other)).toBeNull();
-    const again = await run(RITAG(), [GOOD], { stageStore: store });
+    const again = await run(PREMIUM(), [GOOD], { stageStore: store });
     expect(again.observerCalls()).toHaveLength(0);
     expect(again.error).toBeNull();
   });
@@ -317,6 +332,70 @@ describe('three-view geometry: two real cup views are merged only on handle-anch
   });
 });
 
+describe('premium substance floor (first real three-photo run: two generic sentences delivered as success)', () => {
+  const planBeats = (obs: CoffeeMultiViewObservationV3, intention = DECISION) => {
+    const built = buildCoffeeV3MarkMap(obs);
+    if (built.status !== 'ok') throw new Error('fixture');
+    return planCoffeeM2Writer(interpretCoffeeM2(built.map, classifyCoffeeIntention(intention)).meaning).plan.beats.length;
+  };
+
+  it('the frozen writer realizes one sentence per beat, so a < 3-beat plan can only become a one- or two-sentence reading', () => {
+    expect(COFFEE_V3_MIN_PREMIUM_BEATS).toBe(3);
+    expect(coffeeM2WriterSystemPrompt()).toContain('Her text normalde TEK doğal Türkçe cümledir');
+    expect(coffeeM2WriterSystemPrompt()).toContain('Plan inceyse metin de kısa kalır');
+    // The delivered live reading is exactly two sentences.
+    expect(LIVE_THIN_READING.split(/(?<=\.)\s+/)).toHaveLength(2);
+  });
+
+  it('REGRESSION: a structure-only plan whose two-beat reading passes EVERY writer gate is refused before any writer call', async () => {
+    expect(planBeats(RITAG())).toBe(2);
+    // The two-beat text is a valid W4P5 realization — structural checks alone would accept it.
+    const r = await run(RITAG(), [JSON.stringify({ beats: THIN_GOOD_BEATS })]);
+    expect(failure(r.error)).toBe('invalid:plan_below_premium_floor');
+    expect(r.observerCalls()).toHaveLength(1);
+    expect(r.writerCalls()).toHaveLength(0);
+    expect(r.result).toBeNull();
+  });
+
+  it('every frozen real-cup C3.1 set (structure-dominated) stays below the floor for every intention: never delivered as success', async () => {
+    for (const intention of [DECISION, 'Önümüzdeki dönem genel olarak', 'Aşk ve ilişkilerim hakkında']) {
+      for (const id of C31_SET_IDS) {
+        const obs = three(c31Spec(id, { clearAreas: true }));
+        const beats = planBeats(obs, intention);
+        expect(beats, `${id}`).toBeLessThan(COFFEE_V3_MIN_PREMIUM_BEATS);
+        const r = await run(obs, [GOOD], { intention });
+        expect(failure(r.error), `${id} / ${intention}`).toMatch(/^invalid:(m2_insufficient|w2_insufficient|plan_below_premium_floor)$/);
+        expect(r.writerCalls(), `${id}`).toHaveLength(0);
+      }
+    }
+  });
+
+  it('sparse / uncertain evidence is never promoted: weak, partial or conflicting resemblances add no idea and no length', async () => {
+    const ritag = c31Spec('C3F-RITAG', { clearAreas: true });
+    const uncertain = [
+      { id: 'w1', resemblances: [{ label: 'tree', strength: 'weak' as const }], hours: 1, band: 'rim_upper' as const },
+      { id: 'p1', label: 'tree', visibility: 'partial' as const, hours: 1, band: 'rim_upper' as const },
+      { id: 'c1', resemblances: [{ label: 'tree', strength: 'strong' as const }, { label: 'bird', strength: 'strong' as const }], hours: 1, band: 'rim_upper' as const },
+    ];
+    for (const mark of uncertain) {
+      const obs = three({ ...ritag, marks: [...ritag.marks, mark] });
+      expect(planBeats(obs), mark.id).toBe(2);
+      const r = await run(obs, [GOOD]);
+      expect(failure(r.error), mark.id).toBe('invalid:plan_below_premium_floor');
+      expect(r.writerCalls()).toHaveLength(0);
+    }
+  });
+
+  it('a plan that clears the floor still passes through the frozen gates unchanged (no padding, exact assembled text)', async () => {
+    expect(planBeats(PREMIUM())).toBe(3);
+    const r = await run(PREMIUM(), [GOOD]);
+    expect(r.error).toBeNull();
+    expect(r.writerCalls()).toHaveLength(1);
+    expect(r.result!.overall).toBe(assembleCoffeeM2PublicReading(GOOD_BEATS));
+    expect(String(r.result!.overall).split(/(?<=\.)\s+/)).toHaveLength(3);
+  });
+});
+
 describe('LIS2 frozen semantic bridge and pins (K–T)', () => {
   const expectedUser = (spec: M1FixtureSpec, intention: string) => {
     const built = buildCoffeeV3MarkMap(m1Observation(spec));
@@ -326,8 +405,8 @@ describe('LIS2 frozen semantic bridge and pins (K–T)', () => {
   };
 
   it('K/L/O/P/Q: the writer receives exactly the frozen chain\'s payload for the trusted intention', async () => {
-    const r = await run(RITAG(), [GOOD]);
-    expect(r.writerCalls()[0].messages[1].content).toBe(expectedUser(c31Spec('C3F-RITAG', { clearAreas: true }), DECISION));
+    const r = await run(PREMIUM(), [GOOD]);
+    expect(r.writerCalls()[0].messages[1].content).toBe(expectedUser(coffeeV3PremiumSpec(), DECISION));
     expect(r.writerCalls()[0].messages[0].content).toBe(coffeeM2WriterSystemPrompt());
     expect(String(r.writerCalls()[0].messages[1].content)).toContain('user_decision');
     expect(coffeeM2WriterPromptSha256()).toBe(FROZEN_COFFEE_M2_PROMPT_SHA256);
@@ -341,20 +420,20 @@ describe('LIS2 frozen semantic bridge and pins (K–T)', () => {
   });
 
   it('R/S/T: a wrong prompt hash, writer model or reasoning fails closed before ANY provider call', async () => {
-    const wrongHash = await run(RITAG(), [GOOD], { expectedPromptSha256: '0'.repeat(64) });
+    const wrongHash = await run(PREMIUM(), [GOOD], { expectedPromptSha256: '0'.repeat(64) });
     expect(failure(wrongHash.error)).toBe('unavailable:prompt_hash_mismatch');
-    const wrongModel = await run(RITAG(), [GOOD], { config: testConfig({ OPENAI_READING_WRITER_MODEL: 'gpt-4o' }) });
+    const wrongModel = await run(PREMIUM(), [GOOD], { config: testConfig({ OPENAI_READING_WRITER_MODEL: 'gpt-4o' }) });
     expect(failure(wrongModel.error)).toBe('unavailable:writer_model_mismatch');
-    const wrongReasoning = await run(RITAG(), [GOOD], { config: testConfig({ OPENAI_READING_REASONING_EFFORT: 'medium' }) });
+    const wrongReasoning = await run(PREMIUM(), [GOOD], { config: testConfig({ OPENAI_READING_REASONING_EFFORT: 'medium' }) });
     expect(failure(wrongReasoning.error)).toBe('unavailable:writer_reasoning_mismatch');
-    const notAllowed = await run(RITAG(), [GOOD], { config: testConfig({ OPENAI_ALLOWED_MODELS: 'gpt-4o,gpt-4o-mini' }) });
+    const notAllowed = await run(PREMIUM(), [GOOD], { config: testConfig({ OPENAI_ALLOWED_MODELS: 'gpt-4o,gpt-4o-mini' }) });
     expect(failure(notAllowed.error)).toBe('unavailable:writer_model_mismatch');
     for (const r of [wrongHash, wrongModel, wrongReasoning, notAllowed]) expect(r.calls).toHaveLength(0);
   });
 
   it('Turkish only: EN / RU operations never reach a provider', async () => {
     for (const language of ['en', 'ru'] as const) {
-      const r = await run(RITAG(), [GOOD], { language });
+      const r = await run(PREMIUM(), [GOOD], { language });
       expect(failure(r.error)).toBe('unavailable:language_not_supported');
       expect(r.calls).toHaveLength(0);
     }
@@ -363,14 +442,14 @@ describe('LIS2 frozen semantic bridge and pins (K–T)', () => {
 
 describe('LIS2 writer gates and the single blind re-sample (U–AA)', () => {
   it('U: a first completion that passes every gate succeeds with one writer call', async () => {
-    const r = await run(RITAG(), [GOOD]);
+    const r = await run(PREMIUM(), [GOOD]);
     expect(r.error).toBeNull();
     expect(r.writerCalls()).toHaveLength(1);
   });
 
   for (const [label, first] of [['V parser', PARSER_FAIL], ['W scenario', SCENARIO_FAIL], ['X checker', CHECKER_FAIL]] as const) {
     it(`${label} failure on the first completion, pass on the second: two writer calls, success`, async () => {
-      const r = await run(RITAG(), [first, GOOD]);
+      const r = await run(PREMIUM(), [first, GOOD]);
       expect(r.error).toBeNull();
       expect(r.writerCalls()).toHaveLength(2);
       expect(r.result!.overall).toBe(assembleCoffeeM2PublicReading(GOOD_BEATS));
@@ -378,14 +457,14 @@ describe('LIS2 writer gates and the single blind re-sample (U–AA)', () => {
   }
 
   it('Y/Z: two gate failures are terminal unavailable — exactly two writer calls, never a third, no result', async () => {
-    const r = await run(RITAG(), [CHECKER_FAIL, SCENARIO_FAIL, GOOD]);
+    const r = await run(PREMIUM(), [CHECKER_FAIL, SCENARIO_FAIL, GOOD]);
     expect(failure(r.error)).toBe('unavailable:writer_gates_failed');
     expect(r.writerCalls()).toHaveLength(COFFEE_V3_MAX_WRITER_COMPLETIONS);
     expect(r.result).toBeNull();
   });
 
   it('AA: the re-sample request is byte-identical (no feedback, no prior output, same model / reasoning / jsonMode)', async () => {
-    const r = await run(RITAG(), [PARSER_FAIL, GOOD]);
+    const r = await run(PREMIUM(), [PARSER_FAIL, GOOD]);
     const [a, b] = r.writerCalls();
     expect(JSON.stringify(b)).toBe(JSON.stringify(a));
     expect(a).toMatchObject({ model: 'gpt-5.6-sol', reasoningEffort: 'low', jsonMode: true });
@@ -395,7 +474,7 @@ describe('LIS2 writer gates and the single blind re-sample (U–AA)', () => {
   });
 
   it('transport errors propagate untouched (owned by the provider-stage machinery, no in-pipeline retry)', async () => {
-    const fake = fakeTransport(RITAG(), []);
+    const fake = fakeTransport(PREMIUM(), []);
     const err = await runCoffeeV3Reading({
       config: testConfig(), transport: fake.transport, stageStore: createReadingStageStore(), images: images(),
       intention: DECISION, language: 'tr', identity: 'owner-a', parentKey: 'p',
@@ -408,7 +487,7 @@ describe('LIS2 writer gates and the single blind re-sample (U–AA)', () => {
 
 describe('LIS2 result contract (AB–AI)', () => {
   it('AB–AF: m2_public_v1, empty visual and legacy lanes, overall is exactly the assembled gated reading', async () => {
-    const r = await run(RITAG(), [GOOD]);
+    const r = await run(PREMIUM(), [GOOD]);
     expect(r.result).toEqual({
       coffeeResultContract: COFFEE_V3_RESULT_CONTRACT,
       visualObservation: '',
@@ -424,7 +503,7 @@ describe('LIS2 result contract (AB–AI)', () => {
   });
 
   it('AG/AH/AI: no observer evidence, QA metadata or audit leaks into the result', async () => {
-    const raw = JSON.stringify((await run(RITAG(), [GOOD])).result);
+    const raw = JSON.stringify((await run(PREMIUM(), [GOOD])).result);
     expect(raw).not.toMatch(/scenarioItems|sighting|resemblance|marks|evidence|diagnostics|audit|realization|wording|beats|secondary_option|options_separating|fincan|telve/);
   });
 });
@@ -433,7 +512,7 @@ describe('LIS2 result contract (AB–AI)', () => {
 // Worker, economy, gem acceleration and create gate (real services, fake fetch)
 // ---------------------------------------------------------------------------
 
-function worker(writer: string[], observation: unknown = RITAG()) {
+function worker(writer: string[], observation: unknown = PREMIUM()) {
   const store = new MemoryDocumentStore();
   const clock = new FixedClock(Date.parse('2026-10-10T00:00:00.000Z'));
   const policy = provisionalWaitPolicy({ coffee: 1000, palm: 1000, soulmate: 1000 });
@@ -498,7 +577,7 @@ function worker(writer: string[], observation: unknown = RITAG()) {
 
 describe('LIS2 worker dispatch and success (AS–BC)', () => {
   it('AS/AT/AX/AY/AZ: three_view_v3 is dispatched by contract (no V2 slot-presence call), persisted once, completed once, V3 views cleaned', async () => {
-    const h = worker([GOOD]);
+    const h = worker([N1_GOOD]);
     const op = await h.v3Op('success');
     await h.stageAll(op.operationId);
     h.clock.ms = op.readyAtMs;
@@ -511,13 +590,21 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
     expect(JSON.stringify(observer).match(/data:image\/jpeg;base64,/g)).toHaveLength(3);
     const stored = await h.operationRepository.getById(op.operationId);
     expect(stored).toMatchObject({ status: 'ready', coffeeCaptureContract: 'three_view_v3' });
+    expect((await h.results.get(op.operationId))?.data).toMatchObject({ coffeeResultContract: 'v3_narrative_v1' });
+    // Routing proof at the provider boundary: the worker's writer request carries the
+    // V3N narrative contract, never the retired frozen W4 prompt.
+    const writer = h.fake.writerCalls();
+    expect(writer).toHaveLength(1);
+    const system = String((writer[0].messages as Array<{ content: unknown }>)[0].content);
+    expect(system).toBe(COFFEE_V3N_WRITER_PROMPT);
+    expect(system).not.toBe(coffeeM2WriterSystemPrompt());
     expect(h.resultDocs()).toBe(1);
     expect(await h.stagedRepository.listCoffeeV3Slots(op.operationId, h.owner)).toEqual([]);
     expect(h.objects.objects.size).toBe(0);
   });
 
   it('missing / pending views stay retryable "not ready" with no provider call and no cleanup', async () => {
-    const h = worker([GOOD]);
+    const h = worker([N1_GOOD]);
     const op = await h.v3Op('partial');
     await h.stageAll(op.operationId, STAGED.slice(0, 2));
     h.clock.ms = op.readyAtMs;
@@ -528,7 +615,7 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
   });
 
   it('BA/BB: a completed or persisted provider checkpoint is replayed without another provider call or a second result', async () => {
-    const h = worker([GOOD]);
+    const h = worker([N1_GOOD]);
     const op = await h.v3Op('replay');
     await h.stageAll(op.operationId);
     h.clock.ms = op.readyAtMs;
@@ -540,7 +627,7 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
   });
 
   it('BC: an in-flight checkpoint left by a crash is still outcome_unknown → failFinal(unavailable), no provider call', async () => {
-    const h = worker([GOOD]);
+    const h = worker([N1_GOOD]);
     const op = await h.v3Op('unknown');
     await h.stageAll(op.operationId);
     h.clock.ms = op.readyAtMs;
@@ -551,7 +638,7 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
   });
 
   it('a persisted retired four_view_v3 operation is never processed: no provider call, never V2, refunded terminal, views cleaned', async () => {
-    const h = worker([GOOD]);
+    const h = worker([N1_GOOD]);
     await h.ledger.credit({ ownerUserId: h.owner, amount: 40, idempotencyKey: 'seed-credit-retired' });
     const op = await h.retiredOp('retired');
     await h.ledger.accelerate({ ownerUserId: h.owner, operationId: op.operationId, idempotencyKey: 'accelerate-retired' });
@@ -599,7 +686,7 @@ describe('LIS2 failure economy (AJ–AR)', () => {
   }
 
   it('AJ/AP: unusable photos → failFinal(invalid), nothing persisted, no refund invented without a debit', async () => {
-    const { h, outcome, record } = await failing({ ...RITAG(), usable: false }, [GOOD], false, 'aj');
+    const { h, outcome, record } = await failing({ ...PREMIUM(), usable: false }, [GOOD], false, 'aj');
     expect(outcome).toBe('failed');
     expect(record).toMatchObject({ status: 'failed', failureCode: 'invalid' });
     expect(h.resultDocs()).toBe(0);
@@ -615,7 +702,7 @@ describe('LIS2 failure economy (AJ–AR)', () => {
   });
 
   it('AL: a structurally invalid provider map → failFinal(unavailable)', async () => {
-    const broken = RITAG();
+    const broken = PREMIUM();
     broken.marks[0] = { ...broken.marks[0], sightingIds: ['nope'] };
     const { record, h } = await failing(broken, [GOOD], false, 'al');
     expect(record).toMatchObject({ status: 'failed', failureCode: 'unavailable' });
@@ -623,7 +710,7 @@ describe('LIS2 failure economy (AJ–AR)', () => {
   });
 
   it('AM/AO: two writer gate failures on an accelerated op → failFinal(unavailable), refund exactly once', async () => {
-    const { h, record } = await failing(RITAG(), [CHECKER_FAIL, SCENARIO_FAIL], true, 'am');
+    const { h, record } = await failing(PREMIUM(), [CHECKER_FAIL, SCENARIO_FAIL], true, 'am');
     expect(record).toMatchObject({ status: 'failed', failureCode: 'unavailable' });
     expect(h.fake.writerCalls()).toHaveLength(2);
     expect(h.resultDocs()).toBe(0);
@@ -632,14 +719,14 @@ describe('LIS2 failure economy (AJ–AR)', () => {
   });
 
   it('AN: an accelerated terminal invalid refunds exactly once', async () => {
-    const { h, record } = await failing({ ...RITAG(), usable: false }, [GOOD], true, 'an');
+    const { h, record } = await failing({ ...PREMIUM(), usable: false }, [GOOD], true, 'an');
     expect(record).toMatchObject({ status: 'failed', failureCode: 'invalid' });
     expect(h.refunds()).toBe(1);
     expect(await h.ledger.balanceOf(h.owner)).toBe(40);
   });
 
   it('AQ/AR: terminal failure cleans only V3 views; the failed operation never completes later (retake = new operation)', async () => {
-    const { h, op } = await failing({ ...RITAG(), usable: false }, [GOOD], false, 'aq');
+    const { h, op } = await failing({ ...PREMIUM(), usable: false }, [GOOD], false, 'aq');
     expect(await h.stagedRepository.listCoffeeV3Slots(op.operationId, h.owner)).toEqual([]);
     expect(await h.processor.process(op.operationId)).toBe('noop');
     expect((await h.operationRepository.getById(op.operationId))!.status).toBe('failed');
@@ -719,7 +806,7 @@ describe('LIS2 create gate (BD–BL)', () => {
   });
 
   it('BJ: with the flag OFF an already-created V3 operation is still processed to completion', async () => {
-    const h = worker([GOOD]);
+    const h = worker([N1_GOOD]);
     expect(h.config.coffeeV3CreationEnabled).toBe(false);
     const op = await h.v3Op('flag-off');
     await h.stageAll(op.operationId);
@@ -802,7 +889,7 @@ describe('LIS2 gem acceleration (BK, BM–BR)', () => {
 
 describe('LIS2 public /v1/ai can never select V3', () => {
   it('a coffee_analysis body carrying V3 markers runs the unchanged V2 / legacy handler, never the V3 observer or writer', async () => {
-    const h = worker([GOOD]);
+    const h = worker([N1_GOOD]);
     const op = await h.v3Op('public');
     await h.stageAll(op.operationId);
     const ai = new AiProxyService(h.config, h.fake.fetchImpl, h.stagedImages);
@@ -812,7 +899,7 @@ describe('LIS2 public /v1/ai can never select V3', () => {
       { operationId: op.operationId, slots: [...STAGED], contract: 'multi_view_marks_v3' },
     ]) {
       const out = await ai.handle({ operation: 'coffee_analysis', payload, language: 'tr' } as never, undefined, { identity: h.owner, parentKey: 'public' }).catch((e) => e);
-      expect(JSON.stringify(out)).not.toContain('m2_public_v1');
+      expect(JSON.stringify(out)).not.toMatch(/m2_public_v1|v3_narrative_v1/);
     }
     expect(h.fake.bodies.some((b) => JSON.stringify(b).includes('coffee_v3_observation'))).toBe(false);
     expect(h.fake.writerCalls()).toHaveLength(0);

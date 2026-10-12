@@ -162,10 +162,26 @@ void main() {
       final records = (provider['records'] as List).cast<Map>();
       final observers = records.where((r) => r['kind'] == 'observer').toList();
       final writers = records.where((r) => r['kind'] == 'writer').toList();
-      expect(records.length, lessThanOrEqualTo(3)); // one attempt
-      expect(observers, hasLength(1));
-      expect(observers.single['imageCount'], 3); // three photos, one request
+      if (hs['replay'] != null) {
+        // Writer-only replay of a recorded real observation: no image left.
+        expect(observers, isEmpty);
+        expect(records.length, lessThanOrEqualTo(2));
+        for (final w in writers) {
+          expect(w['imageCount'], 0);
+        }
+      } else {
+        expect(records.length, lessThanOrEqualTo(3)); // one attempt
+        expect(observers, hasLength(1));
+        expect(observers.single['imageCount'], 3); // three photos, one request
+      }
       expect(writers.length, lessThanOrEqualTo(2));
+      // The real run used the V3N narrative writer, never the retired M2/W4 one.
+      final pipeline = Map<String, dynamic>.from(hs['pipeline'] as Map);
+      expect(pipeline['resultContract'], 'v3_narrative_v1');
+      for (final w in writers) {
+        expect(w['systemPromptSha256'], pipeline['writerPromptSha256']);
+        expect(w['systemPromptSha256'], isNot(pipeline['retiredM2WriterPromptSha256']));
+      }
       expect(st['operationCount'], 1);
 
       // ignore: avoid_print
@@ -173,9 +189,9 @@ void main() {
       if (c.reading != null) {
         final server = Map<String, dynamic>.from((st['result'] as Map)['data'] as Map);
         final reading = c.reading!;
-        expect(server['coffeeResultContract'], 'm2_public_v1');
+        expect(server['coffeeResultContract'], 'v3_narrative_v1');
         expect((server['overall'] as String).trim(), isNotEmpty);
-        expect(reading.isM2PublicV1, isTrue);
+        expect(reading.isServerGatedV3, isTrue);
         expect(utf8.encode(CoffeeResultText.overall(reading)), utf8.encode(server['overall'] as String));
         expect(st['resultCount'], 1);
         expect((st['operation'] as Map)['status'], 'ready');

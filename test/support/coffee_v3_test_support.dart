@@ -119,6 +119,23 @@ Map<String, dynamic> m2PublicV1Result(String overall) => {
       'symbols': <Object>[],
     };
 
+/// A server-style completed `v3_narrative_v1` Coffee result: EXACTLY the
+/// shape of the real successful V3N run (same nine keys, same order, empty
+/// legacy lanes, no symbols, `overall` = paragraphs joined by a blank line).
+/// The narrative itself is supplied by the test (synthetic; real readings are
+/// never committed).
+Map<String, dynamic> v3NarrativeV1Result(String overall) => {
+      'coffeeResultContract': 'v3_narrative_v1',
+      'visualObservation': '',
+      'overall': overall,
+      'love': '',
+      'career': '',
+      'money': '',
+      'nearFuture': '',
+      'takeaway': '',
+      'symbols': <Object>[],
+    };
+
 const coffeeV3TestMessages = coffeeV2TestMessages;
 
 /// Points path_provider's application-support dir at [root] (where the V3

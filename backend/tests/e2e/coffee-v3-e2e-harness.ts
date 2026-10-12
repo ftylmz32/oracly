@@ -27,6 +27,16 @@ import { join } from 'node:path';
 import { identityKeyFromSubject } from '../../src/auth/identity.js';
 import { AiProxyService } from '../../src/ai/service.js';
 import { readingStageStore } from '../../src/ai/reading/stage-cache.js';
+import { COFFEE_V3_MIN_PREMIUM_BEATS, COFFEE_V3_OBSERVER_STAGE, excludeCrossKindAmbiguities } from '../../src/ai/reading/coffee-v3-live-pipeline.js';
+import { buildCoffeeV3MarkMap } from '../../src/ai/reading/coffee-v3-mark-map.js';
+import { coffeeV3ObserverSystem } from '../../src/ai/reading/observer-prompts.js';
+import { classifyCoffeeIntention } from '../../src/ai/reading/coffee-intention-context.js';
+import { interpretCoffeeM2 } from '../../src/ai/reading/coffee-m2-semantic-engine.js';
+import { planCoffeeM2Writer } from '../../src/ai/reading/coffee-m2-writer-beat-plan.js';
+import { planCoffeeV3Narrative } from '../../src/ai/reading/coffee-v3n-narrative-plan.js';
+import { COFFEE_V3N_RESULT_CONTRACT, COFFEE_V3N_WRITER_REJECTIONS_STAGE, FROZEN_COFFEE_V3N_PROMPT_SHA256 } from '../../src/ai/reading/coffee-v3n-narrative-pipeline.js';
+import { FROZEN_COFFEE_M2_PROMPT_SHA256 } from '../../src/ai/reading/coffee-v3-live-pipeline.js';
+import type { CoffeeMultiViewObservationV3 } from '../../src/ai/reading/types.js';
 import { buildServer } from '../../src/server.js';
 import { MemoryDocumentStore } from '../../src/reading/memory-document-store.js';
 import { MemoryStagedObjectStore } from '../../src/reading/memory-staged-object-store.js';
@@ -47,9 +57,28 @@ import type { ServerClock } from '../../src/reading/clock.js';
 import type { ReadingTaskScheduler } from '../../src/reading/reading-task-scheduler.js';
 import { c31Spec } from '../fixtures/coffee-c31-fixtures.js';
 import { m1Observation } from '../fixtures/coffee-m1-fixtures.js';
-import { toThreeViewObservation } from '../fixtures/coffee-v3-three-view.js';
+import { COFFEE_V3N_PREMIUM_WRITER_OUTPUT, coffeeV3PremiumSpec, toThreeViewObservation } from '../fixtures/coffee-v3-three-view.js';
 import { StaticAppCheckVerifier, jsonResponse, signHs256, testConfig } from '../helpers.js';
-import { OFFICIAL_OPENAI_BASE_URL, createLiveProviderGuard, type LiveProviderGuard } from './live-provider-guard.js';
+import {
+  COFFEE_V3_LIVE_IMAGE_COUNT,
+  OFFICIAL_OPENAI_BASE_URL,
+  createLiveProviderGuard,
+  systemPromptSha256,
+  type LiveProviderGuard,
+} from './live-provider-guard.js';
+
+/**
+ * The engine BOTH modes run (the live mode only swaps the fake fetch for the
+ * guarded real one): ReadingProcessor → AiProxyService.coffeeV3 → V3N
+ * narrative pipeline → V3N writer → v3_narrative_v1. The retired M2/W4 writer
+ * sha is listed only so a run can prove it was NOT used.
+ */
+const PIPELINE = {
+  resultContract: COFFEE_V3N_RESULT_CONTRACT,
+  engine: 'coffee-v3n-narrative-pipeline',
+  writerPromptSha256: FROZEN_COFFEE_V3N_PROMPT_SHA256,
+  retiredM2WriterPromptSha256: FROZEN_COFFEE_M2_PROMPT_SHA256,
+} as const;
 
 const handshakePath = process.argv[2];
 if (!handshakePath) throw new Error('usage: coffee-v3-e2e-harness.ts <handshake.json> [--live]');
@@ -84,8 +113,63 @@ function hasExifSegment(bytes: Buffer): boolean {
   return false;
 }
 
-function livePreflight(): { apiKey: string; visionModel: string } {
+/**
+ * Writer-only replay (live mode only): `ORACLY_COFFEE_LIVE_REPLAY_OBSERVATION`
+ * names a previous live evidence file. Its recorded REAL observation (the
+ * provider's own output, cached verbatim by the pipeline) is replayed as the
+ * cached observer stage of the new operation, so the pipeline sends NO
+ * observer request; the guard runs writer-only (≤ 2 writer requests). Nothing
+ * is fabricated or edited: the observation must come from exactly one
+ * successful 3-image observer record whose system prompt equals today's.
+ */
+type LiveReplay = { source: string; fileSha256: string; observationSha256: string; observation: CoffeeMultiViewObservationV3 };
+const REPLAY_PATH = LIVE ? process.env.ORACLY_COFFEE_LIVE_REPLAY_OBSERVATION?.trim() || null : null;
+
+function loadReplay(path: string, blocked: string[]): LiveReplay | null {
+  let raw: Buffer;
+  let doc: any;
+  try {
+    raw = readFileSync(path);
+    doc = JSON.parse(raw.toString('utf8'));
+  } catch {
+    blocked.push('replay_file_unreadable_or_not_json');
+    return null;
+  }
+  const before = blocked.length;
+  const results = Array.isArray(doc?.results) ? doc.results : [];
+  if (results.length !== 1) blocked.push('replay_expected_exactly_one_result');
+  const obs = results[0]?.semanticFunnel?.observation;
+  if (!obs || typeof obs !== 'object') blocked.push('replay_observation_missing');
+  else {
+    if (obs.contract !== 'multi_view_marks_v3') blocked.push('replay_observation_contract');
+    if (obs.usable !== true) blocked.push('replay_observation_not_usable');
+    const slots = Array.isArray(obs.views) ? obs.views.map((v: { slot?: unknown }) => v?.slot) : [];
+    if (JSON.stringify(slots) !== JSON.stringify(['cup_view_a', 'cup_view_b', 'saucer'])) blocked.push('replay_observation_views_not_three_view');
+    for (const k of ['sightings', 'marks', 'relations', 'ambiguities']) if (!Array.isArray(obs[k])) blocked.push(`replay_observation_${k}_not_array`);
+    if (!obs.saucer || typeof obs.saucer !== 'object') blocked.push('replay_observation_saucer_missing');
+  }
+  const records = Array.isArray(doc?.provider?.records) ? doc.provider.records : [];
+  const observers = records.filter((r: { kind?: unknown }) => r?.kind === 'observer');
+  if (observers.length !== 1) blocked.push('replay_expected_exactly_one_observer_record');
+  else {
+    const r = observers[0];
+    if (r.status !== 200 || r.outcome !== 'ok') blocked.push('replay_observer_record_not_ok');
+    if (r.imageCount !== COFFEE_V3_LIVE_IMAGE_COUNT) blocked.push('replay_observer_record_not_three_images');
+    const currentObserverSha = createHash('sha256').update(coffeeV3ObserverSystem(), 'utf8').digest('hex');
+    if (r.systemPromptSha256 !== currentObserverSha) blocked.push('replay_observer_prompt_changed_since_recording');
+  }
+  if (blocked.length > before) return null;
+  return {
+    source: path,
+    fileSha256: createHash('sha256').update(raw).digest('hex'),
+    observationSha256: createHash('sha256').update(JSON.stringify(obs)).digest('hex'),
+    observation: obs as CoffeeMultiViewObservationV3,
+  };
+}
+
+function livePreflight(): { apiKey: string; visionModel: string; replay: LiveReplay | null } {
   const blocked: string[] = [];
+  const replay = REPLAY_PATH ? loadReplay(REPLAY_PATH, blocked) : null;
   if (!existsSync(liveInputDir)) blocked.push(`input_dir_missing:${liveInputDir}`);
   const hashes = new Set<string>();
   for (const slot of LIVE_SLOTS) {
@@ -118,37 +202,32 @@ function livePreflight(): { apiKey: string; visionModel: string } {
   const base = (process.env.OPENAI_BASE_URL ?? OFFICIAL_OPENAI_BASE_URL).replace(/\/$/, '');
   if (base !== OFFICIAL_OPENAI_BASE_URL) blocked.push('non_official_OPENAI_BASE_URL');
   const visionModel = process.env.ORACLY_COFFEE_LIVE_VISION_MODEL?.trim() || 'gpt-5.6-sol';
+  if (replay) console.log(`LIVE_REPLAY_OBSERVATION sha256=${replay.observationSha256} file_sha256=${replay.fileSha256}`);
   if (blocked.length) {
     console.log(`LIVE_PREFLIGHT_BLOCKED ${JSON.stringify(blocked)}`);
     process.exit(2);
   }
-  return { apiKey, visionModel };
+  return { apiKey, visionModel, replay };
 }
 const liveSetup = LIVE ? livePreflight() : null;
 let liveGuard: LiveProviderGuard | null = null;
 
 // ---------------------------------------------------------------- fixtures
-// SYNTHETIC provider outputs (copied from the frozen-gate test fixtures):
-// a RITAG-style three-view observation and a W4P5-accepted writer response
-// for the decision intention below. Proof of plumbing, not of quality.
-const W = 'secondary_option_gaining_weight';
-const S = 'options_separating';
-const GOOD_BEATS = [
-  { id: 'B1', scenarioItems: [] as string[], text: 'Vermen gereken kararda yolun önümüzdeki dönemde adım adım ilerliyor; biraz daha ileride önün de açılıyor.' },
-  { id: 'B2', scenarioItems: [W, S], text: 'Yaklaşan dönemde birden fazla yol beliriyor; seçeneklerden biri gözünde ağırlık kazanabilir, hangi yolun ne olduğu da daha açık seçilebilir.' },
-];
+// SYNTHETIC provider outputs (offline fixtures): three-view observations
+// (`premium` = RITAG + one strong object sign, `ritag` = structure-only,
+// `sparse` = too few grounded claims) and SIMULATED V3N narrative-writer
+// responses for the decision intention below. The internal V3 entry runs the
+// V3N narrative successor. Proof of plumbing and gates, not of real quality.
 const WRITER: Record<string, string> = {
-  good: JSON.stringify({ beats: GOOD_BEATS }),
-  scenario_fail: JSON.stringify({ beats: [GOOD_BEATS[0], { ...GOOD_BEATS[1], scenarioItems: [W] }] }),
-  checker_fail: JSON.stringify({
-    beats: [
-      { id: 'B1', scenarioItems: [], text: 'Vermen gereken kararda yolun önümüzdeki dönemde adım adım ilerliyor; önün de biraz daha ileride açılıyor.' },
-      { id: 'B2', scenarioItems: [W, S], text: 'Yaklaşan dönemde birkaç ayrı ihtimale açılıyor; seçeneklerden biri gözünde ağırlık kazanabilir ve seçenekler arasındaki fark daha net görünebilir.' },
-    ],
-  }),
+  good: COFFEE_V3N_PREMIUM_WRITER_OUTPUT,
+  // Gate failures (thin / generic): each is refused by the V3N acceptance.
+  scenario_fail: JSON.stringify({ paragraphs: [{ claims: ['c1', 'c2'], text: 'Bir yol beliriyor gibi.' }, { claims: ['c3', 'c4'], text: 'Güzel şeyler olacak.' }] }),
+  checker_fail: JSON.stringify({ paragraphs: [{ claims: ['c1', 'c2'], text: 'Her şey yoluna girecek.' }, { claims: ['c3', 'c4'], text: 'Kesinlikle.' }] }),
 };
 const OBSERVATIONS: Record<string, () => unknown> = {
+  premium: () => toThreeViewObservation(m1Observation(coffeeV3PremiumSpec())),
   ritag: () => toThreeViewObservation(m1Observation(c31Spec('C3F-RITAG', { clearAreas: true }))),
+  sparse: () => toThreeViewObservation(m1Observation(c31Spec('C3F-BASAK', { clearAreas: true }))),
   insufficient: () => toThreeViewObservation(m1Observation({ marks: [] } as never)),
   unusable: () => ({ ...toThreeViewObservation(m1Observation(c31Spec('C3F-RITAG', { clearAreas: true }))), usable: false }),
   v2_no_meaning: () => ({
@@ -167,6 +246,52 @@ const OBSERVATIONS: Record<string, () => unknown> = {
   }),
 };
 
+/**
+ * Live evidence only: the semantic funnel of ONE operation, recomputed
+ * deterministically from the cached observer output (no provider call):
+ * observation → mark map → M2 meaning → W2 plan → premium floor. Lets a thin
+ * real reading be diagnosed from evidence instead of inference. Written only
+ * to the external evidence directory (never the repository).
+ */
+function semanticFunnel(ownerUserId: string, operationId: string, intention: string | null) {
+  const obs = readingStageStore.get<CoffeeMultiViewObservationV3>(ownerUserId, `reading-operation:${operationId}`, COFFEE_V3_OBSERVER_STAGE);
+  if (!obs) return { observation: null };
+  // Same integration step as the pipeline: cross-kind possible-same pairs are
+  // excluded from identity merging (recorded here), the observation is kept.
+  const { observation: forMap, excluded } = excludeCrossKindAmbiguities(obs);
+  const built = buildCoffeeV3MarkMap(forMap);
+  if (built.status !== 'ok') return { observation: obs, excludedAmbiguities: excluded, map: built };
+  const marks = [...built.map.cupMarks, ...built.map.saucerMarks];
+  const meaning = interpretCoffeeM2(built.map, classifyCoffeeIntention(intention ?? '')).meaning;
+  const plan = planCoffeeM2Writer(meaning).plan;
+  return {
+    observation: obs,
+    map: {
+      cupMarks: built.map.cupMarks.length,
+      saucerMarks: built.map.saucerMarks.length,
+      distinctMarkCount: built.map.distinctMarkCount,
+      candidates: marks.flatMap((m) => m.candidates.map((c) => ({ mark: m.id, label: c.label, usable: c.usable }))),
+      audit: built.map.audit,
+    },
+    m2: {
+      diagnostics: meaning.diagnostics,
+      threads: meaning.threads.map((t) => ({
+        id: t.id, lane: t.lane, developments: t.developments, combination: t.combination,
+        modifiers: t.modifiers, depth: t.depth, facets: t.facets.map((f) => f.cls),
+      })),
+    },
+    plan: {
+      status: plan.status,
+      beats: plan.beats.map((b) => ({ id: b.id, purpose: b.purpose, groups: b.groups.map((g) => g.cls), relation: !!b.relation, scenario: !!b.scenario })),
+      omitted: plan.omitted,
+    },
+    premiumFloor: { minBeats: COFFEE_V3_MIN_PREMIUM_BEATS, met: plan.status === 'planned' && plan.beats.length >= COFFEE_V3_MIN_PREMIUM_BEATS },
+    // The path that actually produces the reading: grounded claims with provenance.
+    excludedAmbiguities: excluded,
+    v3n: planCoffeeV3Narrative(built.map, classifyCoffeeIntention(intention ?? ''), { softMarks: new Set(excluded.flatMap((e) => e.marks)) }),
+  };
+}
+
 // ------------------------------------------------------------------- clock
 class ControlledClock implements ServerClock {
   offsetMs = 0;
@@ -178,7 +303,7 @@ class ControlledClock implements ServerClock {
 // ------------------------------------------------------- scripted provider
 type Script = { observation: string; writer: string[] };
 const scripts: Script[] = [];
-const providerCalls: Array<{ kind: string; at: number; images: number }> = [];
+const providerCalls: Array<{ kind: string; at: number; images: number; promptSha: string | null }> = [];
 const fakeFetch = async (_url: unknown, init?: RequestInit) => {
   const body = JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>;
   const schema = (body.response_format as { json_schema?: { name?: string }; type?: string } | undefined);
@@ -186,7 +311,7 @@ const fakeFetch = async (_url: unknown, init?: RequestInit) => {
   const images = (Array.isArray(body.messages) ? body.messages : [])
     .flatMap((m) => (Array.isArray((m as { content?: unknown }).content) ? ((m as { content: unknown[] }).content) : []))
     .filter((p) => (p as { type?: unknown }).type === 'image_url').length;
-  providerCalls.push({ kind: name, at: Date.now(), images });
+  providerCalls.push({ kind: name, at: Date.now(), images, promptSha: systemPromptSha256(body) });
   const script = scripts[0];
   if (!script) throw new Error(`unscripted_provider_call:${name}`);
   let content: string | undefined;
@@ -209,7 +334,7 @@ async function createStack(
   flagOn: boolean,
   secret: string,
   clock: ControlledClock,
-  provider: { fetch: typeof fetch; env?: Record<string, string>; maxTaskAttempts?: number } = {
+  provider: { fetch: typeof fetch; env?: Record<string, string>; maxTaskAttempts?: number; replayObservation?: unknown } = {
     fetch: fakeFetch as typeof fetch,
   },
 ) {
@@ -253,6 +378,7 @@ async function createStack(
   };
   let hold = false;
   let pumping = false;
+  const replayed = new Set<string>();
   async function pump(): Promise<void> {
     if (hold || pumping) return;
     pumping = true;
@@ -261,6 +387,15 @@ async function createStack(
         if (task.outcome || task.atMs > clock.now().getTime()) continue;
         task.attempts += 1;
         try {
+          if (provider.replayObservation && !replayed.has(task.operationId)) {
+            // Writer-only replay: the recorded observation becomes this
+            // operation's cached observer stage (an untouched deep copy).
+            const op = await repository.getById(task.operationId);
+            if (op?.readingType === 'coffee') {
+              readingStageStore.set(op.ownerUserId, `reading-operation:${task.operationId}`, COFFEE_V3_OBSERVER_STAGE, structuredClone(provider.replayObservation));
+              replayed.add(task.operationId);
+            }
+          }
           task.outcome = await processor.process(task.operationId);
         } catch {
           // Cloud Tasks would retry the SAME task with backoff.
@@ -346,6 +481,7 @@ async function stateFor(stack: Stack, operationId: string | null, owner: string)
     tasks: stack.tasks.map((t) => ({ operationId: t.operationId, trigger: t.trigger, attempts: t.attempts, outcome: t.outcome ?? null })),
     providerCalls: providerCalls.map((c) => c.kind),
     providerImageCounts: providerCalls.map((c) => c.images),
+    providerPromptShas: providerCalls.map((c) => c.promptSha),
     pendingScripts: scripts.length,
     liveProvider: liveGuard ? { records: liveGuard.records(), refusals: liveGuard.refusals(), attempts: liveGuard.attempts(), sealed: liveGuard.sealed() } : null,
   };
@@ -362,6 +498,7 @@ if (liveSetup) {
   liveGuard = createLiveProviderGuard({
     realFetch: globalThis.fetch.bind(globalThis),
     baseUrl: OFFICIAL_OPENAI_BASE_URL,
+    writerOnly: liveSetup.replay !== null,
   });
   const env = {
     OPENAI_API_KEY: liveSetup.apiKey,
@@ -374,7 +511,12 @@ if (liveSetup) {
     OPENAI_TIMEOUT_SECONDS: '120',
   };
   // No automatic task retry: an ambiguous attempt may already be billed.
-  on = await createStack(true, secret, clock, { fetch: liveGuard.fetch as typeof fetch, env, maxTaskAttempts: 1 });
+  on = await createStack(true, secret, clock, {
+    fetch: liveGuard.fetch as typeof fetch,
+    env,
+    maxTaskAttempts: 1,
+    replayObservation: liveSetup.replay?.observation,
+  });
   off = on; // no flag-OFF instance in live mode
 } else {
   on = await createStack(true, secret, clock);
@@ -382,6 +524,63 @@ if (liveSetup) {
 }
 const subjects = { a: 'e2e-owner-a', b: 'e2e-owner-b' };
 const owners = { a: identityKeyFromSubject(subjects.a), b: identityKeyFromSubject(subjects.b) };
+
+/**
+ * The evidence document of a run: engine proof (which writer contract ran),
+ * provider metadata, and per operation the delivered reading verbatim, its
+ * result contract, the claim ↔ evidence map and the recomputed funnel.
+ */
+async function buildEvidence(
+  operationIds: string[],
+  provider: { records: ReadonlyArray<{ kind: string; systemPromptSha256: string | null }> } & Record<string, unknown>,
+) {
+  const writerShas = provider.records.filter((r) => r.kind === 'writer').map((r) => r.systemPromptSha256);
+  return {
+    at: new Date().toISOString(),
+    pipeline: {
+      ...PIPELINE,
+      writerPromptShasSeen: writerShas,
+      usedV3NWriter: writerShas.length > 0 && writerShas.every((s) => s === PIPELINE.writerPromptSha256),
+      usedRetiredM2Writer: writerShas.some((s) => s === PIPELINE.retiredM2WriterPromptSha256),
+    },
+    provider,
+    replay: liveSetup?.replay
+      ? { source: liveSetup.replay.source, fileSha256: liveSetup.replay.fileSha256, observationSha256: liveSetup.replay.observationSha256, observerRequestsSent: 0 }
+      : null,
+    operations: operationIds,
+    results: await Promise.all(
+      operationIds.map(async (id) => {
+        const operation = await on.repository.getById(id);
+        const result = (await on.results.get(id))?.data ?? null;
+        const funnel = operation ? semanticFunnel(operation.ownerUserId, id, operation.coffeeIntention) : null;
+        const v3n = funnel && 'v3n' in funnel ? funnel.v3n : null;
+        return {
+          operationId: id,
+          operation,
+          // The delivered reading, verbatim, and the engine that produced it.
+          reading: typeof result?.overall === 'string' ? result.overall : null,
+          resultContract: result?.coffeeResultContract ?? null,
+          result,
+          // Claim ↔ evidence: what the writer was told (life meaning) and the
+          // server-side visual evidence it rests on (never shown to the person).
+          claimEvidence: v3n
+            ? v3n.claims.map((c) => ({
+                id: c.id, theme: c.theme, meaningToldToWriter: c.meaning, horizon: c.horizon, placement: c.placement,
+                certainty: c.certainty, evidence: { seen: c.seen, symbol: c.symbol, surface: c.surface, provenance: c.provenance },
+              }))
+            : null,
+          paragraphs: v3n ? v3n.paragraphs : null,
+          // Why each refused writer sample failed: codes, paragraph / claim, matched
+          // term and the output sha256 — never the refused text itself.
+          writerRejections: operation
+            ? readingStageStore.get(operation.ownerUserId, `reading-operation:${id}`, COFFEE_V3N_WRITER_REJECTIONS_STAGE)
+            : null,
+          semanticFunnel: funnel,
+        };
+      }),
+    ),
+  };
+}
 
 const control = createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', 'http://127.0.0.1');
@@ -418,27 +617,31 @@ const control = createServer(async (req, res) => {
       case 'POST /pump':
         await stack.pump();
         return reply(200, { ok: true });
+      case 'GET /evidence': {
+        // Scripted mode only: the SAME evidence builder the live run writes at
+        // shutdown, returned in memory (no file) so E2E can verify its shape.
+        if (LIVE) return reply(409, { error: 'live_mode_writes_evidence_at_shutdown' });
+        const id = url.searchParams.get('operationId');
+        const records = providerCalls.map((c) => ({
+          kind: c.kind === 'coffee_v3_observation' ? 'observer' : c.kind,
+          imageCount: c.images,
+          systemPromptSha256: c.promptSha,
+        }));
+        return reply(200, await buildEvidence(id ? [id] : [], { records }));
+      }
       case 'GET /state':
         return reply(200, await stateFor(stack, url.searchParams.get('operationId'), owners[(url.searchParams.get('owner') as 'a' | 'b') ?? 'a']));
       case 'POST /shutdown': {
         if (liveGuard) {
           liveGuard.seal('test_finished'); // nothing may leave after this
           // Redacted evidence OUTSIDE the repository: request metadata only
-          // (no credential, no image bytes) + the delivered public result
-          // for the owner's quality review.
+          // (no credential, no image bytes), the delivered public result and
+          // the recomputed semantic funnel for the owner's quality review.
           mkdirSync(liveOutputDir, { recursive: true });
-          const evidence = {
-            at: new Date().toISOString(),
-            provider: { records: liveGuard.records(), refusals: liveGuard.refusals(), attempts: liveGuard.attempts(), sealed: liveGuard.sealed() },
-            operations: body.operationIds ?? [],
-            results: await Promise.all(
-              ((body.operationIds ?? []) as string[]).map(async (id) => ({
-                operationId: id,
-                operation: await on.repository.getById(id),
-                result: (await on.results.get(id))?.data ?? null,
-              })),
-            ),
-          };
+          const evidence = await buildEvidence(
+            (body.operationIds ?? []) as string[],
+            { records: liveGuard.records(), refusals: liveGuard.refusals(), attempts: liveGuard.attempts(), sealed: liveGuard.sealed() },
+          );
           writeFileSync(join(liveOutputDir, `coffee_v3_live_${Date.now()}.json`), JSON.stringify(evidence, null, 2));
         }
         reply(200, { bye: true });
@@ -471,6 +674,8 @@ writeFileSync(
     serverFlagOff: off.config.coffeeV3CreationEnabled,
     live: LIVE,
     liveInputDir: LIVE ? liveInputDir : null,
+    replay: liveSetup?.replay ? { observationSha256: liveSetup.replay.observationSha256 } : null,
+    pipeline: PIPELINE,
     frozen: {
       writerModel: on.config.openaiReadingWriterModel,
       visionModel: on.config.openaiReadingVisionModel,

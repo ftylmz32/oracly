@@ -49,7 +49,7 @@ import { parseYildiznameNarrativeResult } from './narrative-yildizname-result.js
 import { requestOpenAiSpeech } from './openai-speech.js';
 import type { ValidatedRequest } from './validate-request.js';
 import { ReadingPipeline } from './reading/pipeline.js';
-import { runCoffeeV3Reading } from './reading/coffee-v3-live-pipeline.js';
+import { runCoffeeV3NarrativeReading } from './reading/coffee-v3n-narrative-pipeline.js';
 import { readingStageStore } from './reading/stage-cache.js';
 import type { ReadingLanguage } from '../reading/operation-model.js';
 
@@ -265,6 +265,8 @@ export class AiProxyService {
    * contract is 'three_view_v3', with server-owned values only. The staging
    * service re-verifies owner, readingType and contract before returning the
    * three views (two cup + saucer). Terminal outcomes surface as `CoffeeV3TerminalFailure`.
+   * V3N1: the versioned narrative successor produces the reading; the frozen
+   * M2 → W4 chain (`runCoffeeV3Reading`) is kept intact for its own coverage.
    */
   async coffeeV3(input: {
     operationId: string;
@@ -287,7 +289,7 @@ export class AiProxyService {
       }
       throw error;
     }
-    return runCoffeeV3Reading({
+    return runCoffeeV3NarrativeReading({
       config: this.config,
       transport: this.transport,
       stageStore: readingStageStore,

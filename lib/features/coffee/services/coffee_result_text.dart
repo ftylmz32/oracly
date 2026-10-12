@@ -7,8 +7,9 @@ import '../models/coffee_reading.dart';
 abstract final class CoffeeResultText {
   CoffeeResultText._();
 
-  /// `m2_public_v1`: the server's gated reading, EXACTLY (never scrubbed or
-  /// trimmed). Legacy Coffee: the existing `FortuneVoice.scrub` polish.
+  /// Server-gated V3 (`m2_public_v1` / `v3_narrative_v1`): the server's gated
+  /// reading, EXACTLY (never scrubbed or trimmed). Legacy Coffee: the
+  /// existing `FortuneVoice.scrub` polish.
   static String overall(CoffeeReading reading) =>
-      reading.isM2PublicV1 ? reading.overall : FortuneVoice.scrub(reading.overall);
+      reading.isServerGatedV3 ? reading.overall : FortuneVoice.scrub(reading.overall);
 }

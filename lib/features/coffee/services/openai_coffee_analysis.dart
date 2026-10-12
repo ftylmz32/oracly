@@ -173,7 +173,7 @@ class OpenAiCoffeeAnalysis
     // an unknown marker fails closed (never reinterpreted as legacy Coffee).
     final contract = result['coffeeResultContract'];
     if (contract != null) {
-      if (contract == coffeeM2PublicV1ResultContract) {
+      if (serverGatedCoffeeResultContracts.contains(contract)) {
         return CoffeeM2PublicResult.restore(resultId: resultId, persistedAt: persistedAt, result: result);
       }
       throw CoffeeAnalysisException(CoffeeCopy.analysisFailed);

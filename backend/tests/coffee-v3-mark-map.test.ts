@@ -594,6 +594,10 @@ describe('V2 dark-path guarantee (V, W)', () => {
       'ai/reading/coffee-m2-writer-prompt.ts',
       'ai/reading/coffee-v3-live-pipeline.ts',
       'ai/reading/coffee-v3-mark-map.ts',
+      // V3N1 — versioned narrative successor (reads the same mark map; frozen M2/W4 untouched).
+      'ai/reading/coffee-v3n-narrative-pipeline.ts',
+      'ai/reading/coffee-v3n-narrative-plan.ts',
+      'ai/reading/coffee-v3n-narrative-writer.ts',
       'ai/reading/observer-prompts.ts',
       'ai/reading/schemas.ts',
       'ai/reading/types.ts',

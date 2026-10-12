@@ -517,7 +517,10 @@ describe('LIS1/LIS2 V3 ownership boundaries', () => {
       'routes/gem-acceleration.ts',
       'routes/reading-operations.ts',
     ]);
-    expect(users(/coffee-v3-live-pipeline/)).toEqual(['ai/service.ts', 'reading/reading-processor-execute.ts']);
+    // V3N1: the internal entry runs the narrative successor, which reuses the
+    // shared observation step of the live pipeline module.
+    expect(users(/coffee-v3-live-pipeline/)).toEqual(['ai/reading/coffee-v3n-narrative-pipeline.ts', 'reading/reading-processor-execute.ts']);
+    expect(users(/coffee-v3n-narrative-pipeline/)).toEqual(['ai/service.ts']);
   });
 
   it('the V2 pipeline, the public coffee handler and the scheduler have no V3 path', () => {

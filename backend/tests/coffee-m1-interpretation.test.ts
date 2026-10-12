@@ -322,8 +322,10 @@ describe('M1 privacy and dark path (X)', () => {
     const importers = walk(src)
       .filter((path) => /coffee-m1-interpretation/.test(readFileSync(path, 'utf8')))
       .map((path) => path.slice(src.length + 1).replace(/\\/g, '/'));
-    // Only the equally dark M2 engine and W2 planner may build on M1.
-    expect(importers.sort()).toEqual(['ai/reading/coffee-m2-semantic-engine.ts', 'ai/reading/coffee-m2-writer-beat-plan.ts']);
+    // Only the equally dark M2 engine and W2 planner may build on M1 — plus the
+    // V3N1 narrative planner, which reuses ONLY the curated label→sign lexicon
+    // (coffeeM1MarkSign) so a symbol is licensed by exactly one source.
+    expect(importers.sort()).toEqual(['ai/reading/coffee-m2-semantic-engine.ts', 'ai/reading/coffee-m2-writer-beat-plan.ts', 'ai/reading/coffee-v3n-narrative-plan.ts']);
     const engine = readFileSync(join(src, 'ai/reading/coffee-m1-interpretation.ts'), 'utf8');
     expect(engine).not.toMatch(/CoffeeMultiViewObservationV3|\.description|\.confidence|\.visibility|rimClock|handleClock/);
   });
@@ -607,13 +609,15 @@ describe('M1.2 trusted intention depth', () => {
         const path = join(dir, name);
         return statSync(path).isDirectory() ? walk(path) : path.endsWith('.ts') ? [path] : [];
       });
-    // Only the equally dark M2 engine and W2 planner may build on M1.
+    // Only the equally dark M2 engine and W2 planner may build on M1 — plus the
+    // V3N1 narrative planner, which reuses ONLY the curated label→sign lexicon
+    // (coffeeM1MarkSign) so a symbol is licensed by exactly one source.
     expect(
       walk(src)
         .filter((path) => /coffee-m1-interpretation/.test(readFileSync(path, 'utf8')))
         .map((path) => path.slice(src.length + 1).replace(/\\/g, '/'))
         .sort(),
-    ).toEqual(['ai/reading/coffee-m2-semantic-engine.ts', 'ai/reading/coffee-m2-writer-beat-plan.ts']);
+    ).toEqual(['ai/reading/coffee-m2-semantic-engine.ts', 'ai/reading/coffee-m2-writer-beat-plan.ts', 'ai/reading/coffee-v3n-narrative-plan.ts']);
   });
 });
 

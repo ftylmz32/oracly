@@ -12,8 +12,8 @@ abstract final class CoffeeInsightCopy {
 
   static String fromReading(CoffeeReading reading) {
     return InsightCopyText.joinBlocks([
-      // m2_public_v1: the gated reading verbatim (no scrub, no robotic filter).
-      reading.isM2PublicV1
+      // Server-gated V3: the gated reading verbatim (no scrub, no robotic filter).
+      reading.isServerGatedV3
           ? '${CoffeeCopy.overallTitle}\n${CoffeeResultText.overall(reading)}'
           : _lane(CoffeeCopy.overallTitle, reading.overall),
       _lane(CoffeeCopy.loveTitle, reading.love),

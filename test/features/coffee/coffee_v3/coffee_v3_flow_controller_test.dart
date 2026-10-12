@@ -204,6 +204,36 @@ void main() {
     expect(ai.calls, 0);
   });
 
+  test('V3N: exact-op polling → v3_narrative_v1 restored verbatim; restart serves it locally, never duplicated',
+      () async {
+    // SYNTHETIC two-paragraph narrative in the real V3N result shape.
+    const narrative = 'Yakın zamanda önünde birden fazla seçeneğin belirdiğini hissedebilirsin.'
+        '\n\nİçinde biriktirdiklerini paylaşma isteği uyanabilir.';
+    final c = build();
+    final opId = await submitThree(c);
+    backend.completeServerSide(opId,
+        resultId: 'coffee-v3n-r1', result: v3NarrativeV1Result(narrative));
+    await waitFor(() => c.reading != null);
+    final reading = c.reading!;
+    expect(reading.id, 'coffee-v3n-r1');
+    expect(reading.coffeeResultContract, 'v3_narrative_v1');
+    expect(reading.isServerGatedV3, isTrue);
+    expect(reading.overall, narrative);
+    expect(readings.byId('coffee-v3n-r1')?.overall, narrative);
+    await waitFor(() => c.record.resultPendingAcknowledgement);
+    c.dispose();
+    controllers.remove(c);
+
+    final restarted = build();
+    final fetchesBefore = backend.resultFetchCalls;
+    await restarted.boot();
+    expect(restarted.reading?.id, 'coffee-v3n-r1');
+    expect(restarted.reading?.overall, narrative);
+    expect(backend.resultFetchCalls, fetchesBefore); // served locally
+    expect(readings.all().where((r) => r.id == 'coffee-v3n-r1'), hasLength(1));
+    expect(ai.calls, 0);
+  });
+
   test('BF/BG result survives restart until New Cup; New Cup = fresh identity',
       () async {
     final c = build();

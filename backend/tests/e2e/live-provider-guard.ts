@@ -19,12 +19,21 @@
  *     requests of any kind;
  *   - `seal()` at test end: no background / continuing requests afterwards.
  *
- * Records are metadata only (kind, model, image count, status, usage token
- * counts, duration) — never the Authorization header, never request or
- * response content.
+ * Records are metadata only (kind, model, image count, system-prompt sha256,
+ * status, usage token counts, duration) — never the Authorization header,
+ * never request or response content.
  */
+import { createHash } from 'node:crypto';
 
 export const OFFICIAL_OPENAI_BASE_URL = 'https://api.openai.com/v1';
+
+/** sha256 of the request's system message (string content), or null. */
+export function systemPromptSha256(body: Record<string, unknown>): string | null {
+  const first = Array.isArray(body.messages) ? (body.messages[0] as { role?: unknown; content?: unknown } | undefined) : undefined;
+  return first?.role === 'system' && typeof first.content === 'string'
+    ? createHash('sha256').update(first.content, 'utf8').digest('hex')
+    : null;
+}
 
 /** The product contract: two genuine cup photos + one saucer photo, in ONE observer request. */
 export const COFFEE_V3_LIVE_IMAGE_COUNT = 3;
@@ -37,6 +46,8 @@ export type LiveRequestRecord = {
   kind: LiveRequestKind;
   model: string | null;
   imageCount: number;
+  /** sha256 of the system prompt (proves which writer / observer contract ran; never the content). */
+  systemPromptSha256: string | null;
   status: number | null;
   outcome: 'ok' | 'http_error' | 'ambiguous';
   usage: { promptTokens?: number; completionTokens?: number; totalTokens?: number } | null;
@@ -68,9 +79,16 @@ export function createLiveProviderGuard(input: {
   maxAttempts?: number;
   maxObserverPerAttempt?: number;
   maxWriterPerAttempt?: number;
+  /**
+   * Writer-only replay of a recorded real observation: every observer request
+   * is refused before anything is sent (no image ever leaves), exactly one
+   * attempt, at most two writer requests in total.
+   */
+  writerOnly?: boolean;
 }): LiveProviderGuard {
-  const maxTotal = input.maxTotal ?? 6;
-  const maxAttempts = input.maxAttempts ?? 2;
+  const writerOnly = input.writerOnly === true;
+  const maxTotal = writerOnly ? Math.min(input.maxTotal ?? 2, 2) : input.maxTotal ?? 6;
+  const maxAttempts = writerOnly ? 1 : input.maxAttempts ?? 2;
   const maxObserver = input.maxObserverPerAttempt ?? 1;
   const maxWriter = input.maxWriterPerAttempt ?? 2;
   if (input.baseUrl !== OFFICIAL_OPENAI_BASE_URL) {
@@ -112,6 +130,7 @@ export function createLiveProviderGuard(input: {
     if (format?.json_schema?.name === 'coffee_v3_observation') kind = 'observer';
     else if (format?.type === 'json_object') kind = 'writer';
     else return refuse('request_kind_not_allowed');
+    if (writerOnly && kind === 'observer') refuse('observer_not_allowed_writer_only');
 
     const imageCount = (Array.isArray(body.messages) ? body.messages : [])
       .flatMap((m) => {
@@ -130,7 +149,11 @@ export function createLiveProviderGuard(input: {
       if (observerInAttempt >= maxObserver) refuse('observer_budget_exhausted');
       observerInAttempt += 1;
     } else {
-      if (attempt === 0 || observerInAttempt === 0) refuse('writer_without_attempt');
+      // Writer-only: the first writer request opens the single attempt (the observation is replayed).
+      if (writerOnly && attempt === 0) {
+        attempt = 1;
+        writerInAttempt = 0;
+      } else if (attempt === 0 || (!writerOnly && observerInAttempt === 0)) refuse('writer_without_attempt');
       if (writerInAttempt >= maxWriter) refuse('writer_budget_exhausted');
       writerInAttempt += 1;
     }
@@ -141,6 +164,7 @@ export function createLiveProviderGuard(input: {
       kind,
       model: typeof body.model === 'string' ? body.model : null,
       imageCount,
+      systemPromptSha256: systemPromptSha256(body),
       status: null,
       outcome: 'ambiguous',
       usage: null,

@@ -257,7 +257,7 @@ void main() {
       flow: flow,
       experience: CoffeeExperienceService(
         store: readings,
-        analysis: OpenAiCoffeeAnalysis(ai: ai), // Slice 3 m2_public_v1 restore
+        analysis: OpenAiCoffeeAnalysis(ai: ai), // server-gated V3 restore (v3_narrative_v1)
       ),
     );
     controllers.add(c);
@@ -291,7 +291,7 @@ void main() {
   }
 
   group('success journey', () {
-    test('1-16: capture → create (lost response, same id) → 3 stages → worker (1 observer call, 3 images) → m2_public_v1 → restore exact',
+    test('1-16: capture → create (lost response, same id) → 3 stages → worker (1 observer call, 3 images) → v3_narrative_v1 → restore exact',
         () async {
       final s = sender();
       final c = build(s);
@@ -307,7 +307,7 @@ void main() {
       }
       expect(c.canSubmit, isTrue);
 
-      await _script('ritag', ['good']);
+      await _script('premium', ['good']);
       await _control('POST', '/hold', body: {'hold': true});
 
       // 6/7: the create response is LOST after the server created it.
@@ -369,13 +369,50 @@ void main() {
           if (kinds[i] == 'coffee_v3_observation') images[i],
       ];
       expect(observerImages, [3]);
+      // Routing proof: the writer that produced this reading is the V3N narrative
+      // contract (sha from the harness), never the retired M2/W4 writer.
+      final pipeline = Map<String, dynamic>.from(_hs['pipeline'] as Map);
+      expect(pipeline['resultContract'], 'v3_narrative_v1');
+      final shas = (st['providerPromptShas'] as List).cast<String?>();
+      final writerShas = [
+        for (var i = 0; i < kinds.length; i++)
+          if (kinds[i] == 'writer') shas[i],
+      ];
+      expect(writerShas, isNotEmpty);
+      expect(writerShas.every((s) => s == pipeline['writerPromptSha256']), isTrue);
+      expect(writerShas.contains(pipeline['retiredM2WriterPromptSha256']), isFalse);
       expect(st['pushes'], [opId]);
       final serverResult = Map<String, dynamic>.from((st['result'] as Map)['data'] as Map);
-      expect(serverResult['coffeeResultContract'], 'm2_public_v1');
+      expect(serverResult['coffeeResultContract'], 'v3_narrative_v1');
+      // A multi-paragraph narrative, not a two-sentence reading.
+      expect((serverResult['overall'] as String).split('\n\n'), hasLength(2));
+
+      // The evidence document the LIVE run writes (same builder, in memory here):
+      // the delivered reading verbatim, the engine that produced it, and the
+      // claim ↔ evidence map (visual evidence kept server-side, never in the text).
+      final ev = await _control('GET', '/evidence', query: {'operationId': opId});
+      final evPipeline = Map<String, dynamic>.from(ev['pipeline'] as Map);
+      expect(evPipeline['resultContract'], 'v3_narrative_v1');
+      expect(evPipeline['engine'], 'coffee-v3n-narrative-pipeline');
+      expect(evPipeline['usedV3NWriter'], isTrue);
+      expect(evPipeline['usedRetiredM2Writer'], isFalse);
+      final evResult = Map<String, dynamic>.from((ev['results'] as List).single as Map);
+      expect(evResult['resultContract'], 'v3_narrative_v1');
+      expect(evResult['reading'], serverResult['overall']);
+      final claimEvidence = (evResult['claimEvidence'] as List).cast<Map>();
+      expect(claimEvidence, isNotEmpty);
+      for (final c in claimEvidence) {
+        final evidence = Map<String, dynamic>.from(c['evidence'] as Map);
+        expect(c['meaningToldToWriter'], isA<String>());
+        expect(evidence['seen'], isA<String>());
+        expect((Map<String, dynamic>.from(evidence['provenance'] as Map)['slots'] as List), isNotEmpty);
+        expect(evResult['reading'] as String, isNot(contains(evidence['seen'] as String)));
+      }
 
       // 13/14: real result contract restore; displayed text byte-exact.
       final reading = c.reading!;
-      expect(reading.isM2PublicV1, isTrue);
+      expect(reading.isServerGatedV3, isTrue);
+      expect(reading.coffeeResultContract, 'v3_narrative_v1');
       expect(reading.overall, serverResult['overall']);
       expect(utf8.encode(CoffeeResultText.overall(reading)), utf8.encode(serverResult['overall'] as String));
       expect(reading.visualObservation, '');
@@ -464,7 +501,7 @@ void main() {
       final s = sender();
       final c = build(s);
       await captureThree(c);
-      await _script('ritag', ['good']);
+      await _script('premium', ['good']);
       await _control('POST', '/hold', body: {'hold': true});
       s.dropStageSlotOnce = 'v3_cup_view_b';
       await c.beginSubmission();
@@ -497,7 +534,7 @@ void main() {
       final s = sender();
       final c = build(s);
       await captureThree(c);
-      await _script('ritag', ['good']);
+      await _script('premium', ['good']);
       s.dropNextResultResponse = true;
       await c.beginSubmission();
       final opId = c.operationId!;
@@ -506,6 +543,26 @@ void main() {
       final st = await _state(opId);
       expect(st['resultCount'], 1);
       expect(c.reading!.overall, ((st['result'] as Map)['data'] as Map)['overall']);
+    }, skip: _skip, timeout: const Timeout(Duration(minutes: 2)));
+
+    test('sparse cup (too few grounded claims) → terminal invalid, no writer call, no reading', () async {
+      final s = sender();
+      final c = build(s);
+      await captureThree(c);
+      await _script('sparse');
+      final writerBefore = ((await _state(null))['providerCalls'] as List).where((x) => x == 'writer').length;
+      await c.beginSubmission();
+      final opId = c.operationId!;
+      await _waitFor(() async => c.observeError != null, what: 'terminal failure');
+      expect(c.reading, isNull);
+      final st = await _state(opId);
+      expect(st['operation'], containsPair('status', 'failed'));
+      expect(st['operation'], containsPair('failureCode', 'invalid'));
+      expect(st['result'], isNull);
+      expect(st['v3Slots'], isEmpty);
+      expect((st['providerCalls'] as List).where((x) => x == 'writer').length, writerBefore);
+      expect(readings.all(), isEmpty);
+      expect((await _state(null))['pendingScripts'], 0);
     }, skip: _skip, timeout: const Timeout(Duration(minutes: 2)));
 
     test('insufficient observation → typed terminal failure, no reading, no writer call', () async {
@@ -535,7 +592,7 @@ void main() {
       final balanceStart = ((await s.send('GET', '/v1/gems/balance', null))!.json!['data'] as Map)['balance'] as int;
       final c = build(s);
       await captureThree(c);
-      await _script('ritag', ['checker_fail', 'scenario_fail']);
+      await _script('premium', ['checker_fail', 'scenario_fail']);
       await c.beginSubmission();
       final opId = c.operationId!;
       // Keep the free wait open for the paid acceleration window.

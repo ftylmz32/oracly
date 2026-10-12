@@ -1,4 +1,5 @@
-/// Restores a completed `m2_public_v1` Coffee result WITHOUT the legacy chain
+/// Restores a completed server-gated V3 Coffee result (`m2_public_v1` or the
+/// versioned `v3_narrative_v1`) WITHOUT the legacy chain
 /// (OpenAiServiceResults → CoffeeVisionParser → CoffeeReadingParser →
 /// CoffeeFortuneComposer). The server already gated this reading; the client
 /// only validates the shape and keeps `overall` verbatim — no trim, scrub,
@@ -23,7 +24,9 @@ abstract final class CoffeeM2PublicResult {
   }) {
     final overall = result['overall'];
     final symbols = result['symbols'];
-    final valid = result['coffeeResultContract'] == coffeeM2PublicV1ResultContract &&
+    final contract = result['coffeeResultContract'];
+    final valid = contract is String &&
+        serverGatedCoffeeResultContracts.contains(contract) &&
         overall is String &&
         overall.trim().isNotEmpty &&
         _emptyLanes.every((lane) => result[lane] == '') &&
@@ -34,7 +37,7 @@ abstract final class CoffeeM2PublicResult {
       id: resultId,
       createdAt: persistedAt,
       imagePath: null,
-      coffeeResultContract: coffeeM2PublicV1ResultContract,
+      coffeeResultContract: contract,
       overall: overall,
       love: '',
       career: '',

@@ -3,6 +3,7 @@
  * request leaves the process. Exercised against a fake fetch only: zero
  * network, zero provider calls.
  */
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
   COFFEE_V3_LIVE_IMAGE_COUNT,
@@ -82,6 +83,8 @@ describe('Slice 6 live-provider guard', () => {
       '1:observer', '1:writer', '1:writer', '2:observer', '2:writer', '2:writer',
     ]);
     expect(records[0]).toMatchObject({ model: 'gpt-5.6-sol', imageCount: 3, status: 200, outcome: 'ok', usage: { totalTokens: 18 } });
+    // No system message on this fake observer body → null; a writer with one records only its sha.
+    expect(records[0].systemPromptSha256).toBeNull();
     // Metadata only: never the credential, never content.
     expect(JSON.stringify(records)).not.toMatch(/SECRET|Bearer|base64|choices/);
   });
@@ -98,6 +101,16 @@ describe('Slice 6 live-provider guard', () => {
       g.fetch(ENDPOINT, init({ model: 'gpt-5.6-sol', response_format: { type: 'json_object' }, messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: 'x' } }] }] })),
     ).rejects.toThrow(/writer_with_images/);
     expect(seen).toHaveLength(1);
+  });
+
+  it('records the sha256 of the system prompt (which writer contract ran), never its content', async () => {
+    const { fetch } = fakeFetch();
+    const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL });
+    await g.fetch(ENDPOINT, observer());
+    await g.fetch(ENDPOINT, init({ model: 'gpt-5.6-sol', response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'SECRET-PROMPT-TEXT' }, { role: 'user', content: 'x' }] }));
+    const writer = g.records()[1];
+    expect(writer.systemPromptSha256).toBe(createHash('sha256').update('SECRET-PROMPT-TEXT', 'utf8').digest('hex'));
+    expect(JSON.stringify(g.records())).not.toContain('SECRET-PROMPT-TEXT');
   });
 
   it('a third attempt is refused even with requests left', async () => {
@@ -126,5 +139,50 @@ describe('Slice 6 live-provider guard', () => {
     g.seal();
     await expect(g.fetch(ENDPOINT, observer())).rejects.toThrow(/sealed:test_finished/);
     expect(seen).toHaveLength(0);
+  });
+
+  describe('writer-only replay of a recorded observation', () => {
+    it('refuses every observer request before sending (no image ever leaves)', async () => {
+      const { fetch, seen } = fakeFetch();
+      const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL, writerOnly: true });
+      await expect(g.fetch(ENDPOINT, observer())).rejects.toThrow(/observer_not_allowed_writer_only/);
+      expect(seen).toHaveLength(0);
+      expect(g.attempts()).toBe(0);
+    });
+
+    it('one attempt, at most two writer requests in total; a third is refused', async () => {
+      const { fetch, seen } = fakeFetch();
+      const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL, writerOnly: true });
+      await g.fetch(ENDPOINT, writer());
+      await g.fetch(ENDPOINT, writer());
+      await expect(g.fetch(ENDPOINT, writer())).rejects.toThrow(/budget_exhausted/);
+      await expect(g.fetch(ENDPOINT, observer())).rejects.toThrow(/live_provider_refused/);
+      expect(seen).toHaveLength(2);
+      expect(g.attempts()).toBe(1);
+      expect(g.records().map((r) => [r.kind, r.attempt, r.imageCount])).toEqual([['writer', 1, 0], ['writer', 1, 0]]);
+    });
+
+    it('the writer-only budget cannot be raised and a writer still carries no image', async () => {
+      const { fetch, seen } = fakeFetch();
+      const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL, writerOnly: true, maxTotal: 6 });
+      const withImage = init({
+        model: 'gpt-5.6-sol',
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAAA' } }] }],
+      });
+      await expect(g.fetch(ENDPOINT, withImage)).rejects.toThrow();
+      await g.fetch(ENDPOINT, writer());
+      await g.fetch(ENDPOINT, writer());
+      await expect(g.fetch(ENDPOINT, writer())).rejects.toThrow(/budget_exhausted/);
+      expect(seen).toHaveLength(2);
+    });
+
+    it('an ambiguous writer outcome still seals the guard', async () => {
+      const { fetch, seen } = fakeFetch('throw');
+      const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL, writerOnly: true });
+      await expect(g.fetch(ENDPOINT, writer())).rejects.toThrow();
+      await expect(g.fetch(ENDPOINT, writer())).rejects.toThrow(/sealed/);
+      expect(seen).toHaveLength(1);
+    });
   });
 });
