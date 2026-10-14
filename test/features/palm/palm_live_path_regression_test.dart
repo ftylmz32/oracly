@@ -101,16 +101,18 @@ void main() {
     expect(find.text(life), findsOneWidget);
   });
 
-  testWidgets('D: "Bu ayrım" never renders alone after "dallanma" is removed',
+  // Policy change (owner, 2026-10-12): the client shows the server-gated
+  // reading verbatim. A fork ("dallanma") is ordinary palm language; the old
+  // client deleted that sentence and the one after it.
+  testWidgets('D: a line with a fork is shown verbatim — no sentence is deleted',
       (tester) async {
-    final reading = composeLive(_batch3a4With({
-      'heartLine': 'Kalp çizgisinin ucunda küçük bir dallanma seçiliyor. '
-          'Bu ayrım, duygularını iki yönde tarttığını düşündürüyor ve seçerken '
-          'acele etmediğini gösteriyor.',
-    }))!;
-    expect(reading.heartLine, isEmpty);
+    const heart = 'Kalp çizgisinin ucunda küçük bir dallanma seçiliyor. '
+        'Bu ayrım, duygularını iki yönde tarttığını düşündürüyor ve seçerken '
+        'acele etmediğini gösteriyor.';
+    final reading = composeLive(_batch3a4With({'heartLine': heart}))!;
+    expect(reading.heartLine, heart);
     await pumpSections(tester, reading);
-    expect(find.text(PalmCopy.heartTitle), findsNothing);
-    expect(renderedTexts(tester).join(' '), isNot(contains('Bu ayrım')));
+    expect(find.text(PalmCopy.heartTitle), findsOneWidget);
+    expect(renderedTexts(tester).join(' '), contains('Bu ayrım'));
   });
 }

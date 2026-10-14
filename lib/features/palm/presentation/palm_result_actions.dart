@@ -103,10 +103,17 @@ class PalmResultActions extends StatelessWidget {
         ReadingQualityActions(
           feature: QualityFeature.palm,
           retry: onReinterpret,
+          contentRef: _operationId(reading.id),
+          selectedContent: [
+            reading.overall,
+            reading.lifeLine,
+            reading.headLine,
+            reading.heartLine,
+            reading.fateLine,
+            reading.takeaway,
+          ].where((part) => part.trim().isNotEmpty).join('\n\n'),
         ),
-        SaveFavoriteMomentLink(
-          draft: FavoriteMomentFactory.palm(reading),
-        ),
+        SaveFavoriteMomentLink(draft: FavoriteMomentFactory.palm(reading)),
         SizedBox(height: AppSpacing.sm),
         OraclyButton(
           text: PalmCopy.newPalm,
@@ -117,4 +124,11 @@ class PalmResultActions extends StatelessWidget {
       ],
     );
   }
+}
+
+String? _operationId(String resultId) {
+  final candidate = resultId.startsWith('palm_')
+      ? resultId.substring('palm_'.length)
+      : resultId;
+  return RegExp(r'^[a-f0-9]{32}$').hasMatch(candidate) ? candidate : null;
 }

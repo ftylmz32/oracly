@@ -15,18 +15,25 @@ abstract final class ReadingFeedbackCopy {
   static String get retry => _t('feedback.retry');
   static String get retryNote => _t('feedback.retry.note');
   static String get send => _t('feedback.send');
+  static String get sending => _t('feedback.sending');
+  static String get includeContent => _t('feedback.includeContent');
+  static String get includeContentNote => _t('feedback.includeContent.note');
   static String get thanks => _t('feedback.thanks');
+  static String get sendFail => _t('feedback.send.fail');
   static String get retrying => _t('feedback.retrying');
   static String get retryOk => _t('feedback.retry.ok');
   static String get retryFail => _t('feedback.retry.fail');
 
   static String category(QualityIssue value) => switch (value) {
-        QualityIssue.missed => _t('feedback.cat.missed'),
-        QualityIssue.generic => _t('feedback.cat.generic'),
-        QualityIssue.unanswered => _t('feedback.cat.unanswered'),
-        QualityIssue.repetitive => _t('feedback.cat.repetitive'),
-        QualityIssue.inappropriate => _t('feedback.cat.inappropriate'),
-      };
+    QualityIssue.missed => _t('feedback.cat.missed'),
+    QualityIssue.generic => _t('feedback.cat.generic'),
+    QualityIssue.unanswered => _t('feedback.cat.unanswered'),
+    QualityIssue.repetitive => _t('feedback.cat.repetitive'),
+    QualityIssue.inappropriate => _t('feedback.cat.inappropriate'),
+    QualityIssue.harmful => _t('feedback.cat.harmful'),
+    QualityIssue.misleading => _t('feedback.cat.misleading'),
+    QualityIssue.other => _t('feedback.cat.other'),
+  };
 
   static String get positive => _t('feedback.positive');
   static String get positiveThanks => _t('feedback.positive.thanks');

@@ -50,10 +50,9 @@ class ReadingPositiveLink extends ConsumerWidget {
 
   Future<void> _send(BuildContext context, WidgetRef ref) async {
     await ref.read(qualitySignalRecorderProvider).positive(feature);
-    ref.read(analyticsServiceProvider).logQualitySignal(
-          feature: feature,
-          signal: 'positive',
-        );
+    ref
+        .read(analyticsServiceProvider)
+        .logQualitySignal(feature: feature, signal: 'positive');
     if (!context.mounted) return;
     OraclySnackBar.show(context, message: ReadingFeedbackCopy.positiveThanks);
   }

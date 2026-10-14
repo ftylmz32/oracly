@@ -82,13 +82,14 @@ abstract final class DreamAnalysisGuard {
   static int questionMarks(String text) =>
       _questionMark.allMatches(text).length;
 
-  /// The closing contract: exactly one open question (TR / EN / RU all use
-  /// `?`). None, or two and more, is rejected — never trimmed into one.
+  /// A grounded natural close may be a statement or one question. Multiple
+  /// questions are rejected rather than silently trimmed.
   static String? conclusion(String? text, DreamAnalysisFacts facts,
       {DreamGuardSource source = DreamGuardSource.local}) {
-    if (text == null || questionMarks(text) != 1) return null;
+    if (text == null || questionMarks(text) > 1) return null;
     final polished = polish(text, facts, source: source);
-    if (polished != null && questionMarks(polished) == 1) return polished;
+    if (polished != null && questionMarks(polished) <= 1) return polished;
+    if (questionMarks(text) == 0) return null;
     return oneQuestion(text, facts);
   }
 

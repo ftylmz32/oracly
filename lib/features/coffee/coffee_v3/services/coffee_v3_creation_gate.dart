@@ -14,7 +14,15 @@ abstract final class CoffeeV3CreationGate {
   /// The frozen V3 interpretation stack is Turkish-only.
   static const requiredLanguage = 'tr';
 
+  /// Explicit build-time rollout for store/internal builds. The backend keeps
+  /// an independent authoritative creation gate with the same public key, so
+  /// disabling server-side creation remains the immediate rollback path.
+  static const buildRolloutEnabled = bool.fromEnvironment(
+    'ORACLY_COFFEE_V3_ENABLED',
+  );
+
   static bool get rolloutEnabled =>
+      buildRolloutEnabled ||
       FeatureFlagRollback.useExperimental(FeatureFlagSurface.coffeeV3Capture);
 
   static bool get languageSupported => OraclyL10n.code == requiredLanguage;

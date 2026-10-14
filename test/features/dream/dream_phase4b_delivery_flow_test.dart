@@ -59,8 +59,6 @@ void main() {
         'A lighthouse over a harbour keeps watch for a returning ship across dark water.'),
     'ungrounded reflection': horse.withField('dailyLifeReflection',
         'Today, practise patience like a lighthouse keeper on a long night shift.'),
-    'closing without a question': horse.withField(
-        'conclusion', 'The pale creature waits, strong and unhurried, for a reason to go.'),
   };
 
   unacceptable.forEach((name, reply) {
@@ -74,6 +72,27 @@ void main() {
       expect(env.persistedDreamState(), '##');
       expect(env.versionsRaw, isNull);
     });
+  });
+
+  test('empty reflection and a grounded statement closing are delivered',
+      () async {
+    final base = horse.analysis;
+    final reply = DreamAiAnalysis(
+      summary: base.summary,
+      symbols: base.symbols,
+      emotionalTheme: base.emotionalTheme,
+      interpretation: base.interpretation,
+      dailyLifeReflection: '',
+      conclusion: 'The white horse stays still and unhurried in the field.',
+    );
+    final env = await DreamPhase1Env.open(ai: _GoldenAi(reply));
+    final result = await env.service().analyze(narrative: horse.narrative);
+
+    expect(result.dream.insights,
+        isNot(contains(predicate<DreamInsight>((i) =>
+            i.kind == DreamInsightKind.personalConnection))));
+    expect(DreamPremiumDeliveryQuality.firstGap(result.dream.insights), isNull);
+    expect(env.recordCount, 1);
   });
 
   test('unacceptable reinterpretation adds no version and mutates nothing',

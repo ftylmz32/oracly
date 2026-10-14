@@ -1,8 +1,8 @@
 /// One spoken palm reading. Lines stay asides, never category tiles.
 library;
 
-import '../../../core/copy/fortune_voice.dart';
 import '../models/palm_reading.dart';
+import 'palm_fortune_composer.dart';
 
 abstract final class PalmFortuneNarration {
   PalmFortuneNarration._();
@@ -21,14 +21,15 @@ abstract final class PalmFortuneNarration {
   }
 
   static void _lead(List<String> parts, String source) {
-    final text = FortuneVoice.scrub(source);
+    // Spoken exactly as shown (server-gated text, never rewritten).
+    final text = PalmFortuneComposer.section(source);
     if (text.isEmpty) return;
     parts.add(text);
   }
 
   static void _aside(List<String> parts, String source) {
-    final text = FortuneVoice.scrub(source);
-    if (text.isEmpty || FortuneVoice.looksRobotic(source)) return;
+    final text = PalmFortuneComposer.section(source);
+    if (text.isEmpty) return;
     if (parts.any((p) => p.contains(text))) return;
     parts.add(text);
   }

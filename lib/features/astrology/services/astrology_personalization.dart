@@ -31,8 +31,8 @@ abstract final class AstrologyPersonalization {
       overall: AstrologyFortuneStory.overall(
         sign: signName,
         catalog: base.overall,
-        feel: base.emotion,
-        watch: base.caution,
+        feel: '',
+        watch: '',
         life: focus,
         domain: '',
         seed: seed,

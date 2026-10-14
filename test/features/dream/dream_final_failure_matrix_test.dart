@@ -84,7 +84,6 @@ void main() {
     'summary',
     'emotionalMeaning',
     'mainInterpretation',
-    'personalConnection',
     'closingTakeaway',
   ]) {
     test('missing required section $field is rejected before storage',
@@ -94,6 +93,18 @@ void main() {
       await expectCleanFailure(env, controller);
     });
   }
+
+  test('absent optional personal connection remains a complete reading',
+      () async {
+    final (env, controller) = await open();
+    (env.ai as FinalAuditAi).rewrites.add(
+          (a) => _drop(a, 'personalConnection'),
+        );
+    await controller.submit(narrative: phase1NarrativeA);
+    expect(controller.phase, DreamJourneyPhase.complete);
+    expect(controller.dream, isNotNull);
+    expect(env.recordCount, 1);
+  });
 
   test('unsafe provider prose is rejected before storage', () async {
     final (env, controller) = await open();

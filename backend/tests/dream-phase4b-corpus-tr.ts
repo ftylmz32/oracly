@@ -85,5 +85,5 @@ export const trCorpus: CorpusCase[] = [
   bad('tr-b-yes-no-hazir', door, 'weak_conclusion', { conclusion: 'O kapıyı açmaya artık hazır mısın?' }),
   bad('tr-b-yes-no-gececek', bridge, 'weak_conclusion', { conclusion: 'Köprüden karşı kıyıya geçecek misin?' }),
   bad('tr-b-ungrounded-question', station, 'weak_conclusion', { conclusion: 'Hayatında gerçekten ne istiyorsun şu anda?' }),
-  bad('tr-b-two-questions', snake, 'conclusion_not_question', { conclusion: 'Yilan evden neden gecti? Sen ne hissettin?' }),
+  bad('tr-b-two-questions', snake, 'weak_conclusion', { conclusion: 'Yilan evden neden gecti? Sen ne hissettin?' }),
 ];

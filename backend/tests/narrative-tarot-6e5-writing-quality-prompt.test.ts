@@ -40,7 +40,7 @@ describe('Phase 6E.5 writing-quality prompt contract', () => {
     const r = rulesText();
     expect(r).toMatch(/DIRECT ANSWER/i);
     expect(r).toMatch(/This reading shows\/highlights/i);
-    expect(r).toMatch(/summary:.*concise/i);
+    expect(r).toMatch(/summary:.*answer directly/i);
   });
 
   it('relationship safety ≠ evasion + reflective framing', () => {
@@ -69,7 +69,18 @@ describe('Phase 6E.5 writing-quality prompt contract', () => {
 
   it('requires single-card compression + optional non-padding', () => {
     const r = rulesText();
-    expect(r).toMatch(/Single-card spreads must stay compact/i);
+    expect(r).toMatch(/Single-card spreads should be proportionate/i);
+    expect(r).toMatch(/do not compensate for fewer cards by turning every section into guidance/i);
+    expect(r).toMatch(/concrete image, position, orientation, and tension unfold as a compact reading/i);
+    expect(r).toMatch(/advice is one supporting consequence, not the narrative voice/i);
+    expect(r).toMatch(/synthesis is the one complete, satisfying reading/i);
+    expect(r).toMatch(/continuous story/i);
+    expect(r).toMatch(/concrete visual symbols, position, and upright\/reversed orientation/i);
+    expect(r).toMatch(/meet the user.s question/i);
+    expect(r).toMatch(/Do not make it a short recap or a coaching list/i);
+    expect(r).toMatch(/summary to a brief lead for storage and navigation/i);
+    expect(r).toMatch(/advice a short, distinct consequence only when useful/i);
+    expect(r).toMatch(/closingMessage must not repeat the story/i);
     expect(r).toMatch(/Empty optional content is better than filler/i);
     expect(r).toMatch(/lifeAreas are optional/i);
     expect(r).toMatch(/return \[\]/i);
@@ -95,9 +106,8 @@ describe('Phase 6E.5 writing-quality prompt contract', () => {
 
   it('non-generic closing rule', () => {
     const r = rulesText();
-    expect(r).toMatch(/closingMessage:.*SPECIFIC/i);
-    expect(r).toMatch(/embrace the journey/i);
-    expect(r).toMatch(/generic blessing/i);
+    expect(r).toMatch(/closingMessage:.*specific natural/i);
+    expect(r).toMatch(/generic ceremonial Tarot filler/i);
   });
 
   it('memory legend still lists indices', () => {
@@ -125,7 +135,7 @@ describe('Phase 6E.5 writing-quality prompt contract', () => {
     );
     const joined = msgs.map((m) => m.content).join('\n');
     expect(joined).toMatch(/DIRECT ANSWER/i);
-    expect(joined).toMatch(/Single-card spreads must stay compact/i);
+    expect(joined).toMatch(/Single-card spreads should be proportionate/i);
     expect(joined).toMatch(/Version 2/);
   });
 });

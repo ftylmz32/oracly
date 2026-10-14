@@ -26,16 +26,42 @@ beforeAll(() => {
 afterAll(() => vi.unstubAllGlobals());
 
 describe('Phase 4C.1 offline reclassification', () => {
-  // The 4C.1 reclassification is frozen evidence. The one permitted drift is
-  // Phase 4C.2a mobile-vowel inflection keeping "перекрёсток" (told as
-  // "перекрёстке") in the ru-memory symbols; its verdict is unchanged.
-  it('re-derives from the frozen artifact up to the 4C.2a symbol drift', () => {
+  // The 4C.1 artifact remains frozen historical evidence. Current code has
+  // two exact later-contract drifts: 4C.2a Russian symbol inflection, and the
+  // optional-reflection/natural-close contract. The latter makes one old
+  // sample reject earlier as ungrounded instead of later as extra_question.
+  it('re-derives with only the named later-contract drifts', () => {
     const now = JSON.parse(JSON.stringify(buildReclassification())) as typeof committed;
     const ruMemory = committed.runs.findIndex((r) => r.runId === 'ru-memory');
+    const naturalClose = committed.runs.findIndex((r) => r.runId === 'en-no-domain#r2');
+    expect(naturalClose).toBeGreaterThanOrEqual(0);
     const fields = new Set(jsonDrift(committed, now).map((d) => d.path.replace(/\.\d+$/, '')));
-    expect([...fields]).toEqual([`$.runs.${ruMemory}.filteredSymbols`]);
+    expect([...fields]).toEqual([
+      '$.summary.oldToNewChanged',
+      '$.summary.newRejections.phase2',
+      '$.summary.newRejections.phase4B',
+      '$.summary.changeReasons.unchanged',
+      '$.summary.changeReasons.natural_conclusion_contract',
+      `$.runs.${ruMemory}.filteredSymbols`,
+      `$.runs.${naturalClose}.newFirstFailure`,
+      `$.runs.${naturalClose}.newFailureStage`,
+      `$.runs.${naturalClose}.changed`,
+      `$.runs.${naturalClose}.changeReason`,
+    ]);
     expect(committed.runs[ruMemory]!.filteredSymbols).toEqual(['туман', 'освещённая дорога', 'тёмная дорога']);
     expect(now.runs[ruMemory]!.filteredSymbols).toEqual(['перекрёсток', 'туман', 'освещённая дорога', 'тёмная дорога']);
+    expect(committed.runs[naturalClose]).toMatchObject({
+      newFirstFailure: 'extra_question',
+      newFailureStage: 'phase4B',
+      changed: 'NO',
+      changeReason: 'unchanged',
+    });
+    expect(now.runs[naturalClose]).toMatchObject({
+      newFirstFailure: 'ungrounded',
+      newFailureStage: 'phase2',
+      changed: 'YES',
+      changeReason: 'natural_conclusion_contract',
+    });
   });
 
   it('reads the frozen evidence unchanged', () => {

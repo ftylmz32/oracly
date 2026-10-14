@@ -12,8 +12,8 @@ import type { DreamData } from './parse-provider.js';
  * own job: summary compresses (not copies), the emotional theme honours
  * stated and negated feelings, a rich dream is interpreted through more
  * than one detail, the reflection belongs to this Dream (or the safe
- * memory), nothing biographical is invented, and the only question is one
- * open, grounded conclusion. Deterministic; no provider call; no logging.
+ * memory) when present, nothing biographical is invented, and the conclusion
+ * is natural and grounded. Deterministic; no provider call; no logging.
  */
 export type DreamPremiumInput = DreamQualityInput & {
   /** The request's already-filtered memory (undefined when sensitive). */
@@ -77,9 +77,12 @@ export function evaluateDreamPremiumQuality(
   input: DreamPremiumInput,
 ): DreamPremiumFailure | null {
   const { summary, emotionalTheme, interpretation, dailyLifeReflection, conclusion } = data;
-  const prose = [summary, emotionalTheme, interpretation, dailyLifeReflection, conclusion];
-  if (prose.some((s) => s.trim().length < PREMIUM_MIN_CHARS)) return 'thin_section';
-  if (prose.slice(0, 4).some((s) => /[?？]/.test(s))) return 'extra_question';
+  const requiredProse = [summary, emotionalTheme, interpretation, conclusion];
+  const prose = [...requiredProse, dailyLifeReflection];
+  if (requiredProse.some((s) => s.trim().length < PREMIUM_MIN_CHARS)) return 'thin_section';
+  if (dailyLifeReflection.trim() && dailyLifeReflection.trim().length < PREMIUM_MIN_CHARS) return 'thin_section';
+  if ([summary, emotionalTheme, interpretation, dailyLifeReflection]
+      .some((s) => /[?？]/.test(s))) return 'extra_question';
   if (!symbolListOk(data.symbols)) return 'symbol_list';
   if (isPlotRecap(input.narrative, summary)) return 'plot_recap';
   const feelings = [input.narrative, ...input.emotions].join('. ');
@@ -102,11 +105,15 @@ export function evaluateDreamPremiumQuality(
   if (isRichNarrative(narrative) && touchedClusters(narrative, interpretation, language) < RICH_MIN_TOUCHED) {
     return 'weak_interpretation';
   }
-  if (!grounded(dailyLifeReflection, reflectionTold) || wellnessHits(dailyLifeReflection) >= 2) {
+  if (dailyLifeReflection.trim() &&
+      (!grounded(dailyLifeReflection, reflectionTold) || wellnessHits(dailyLifeReflection) >= 2)) {
     return 'generic_reflection';
   }
   const dream = [narrative, ...observed].join(' ');
   if (unsupportedPersonalDomain(prose, `${dream} ${memory}`)) return 'unsupported_personal_fact';
-  if (!isOpenQuestion(conclusion) || !grounded(conclusion)) return 'weak_conclusion';
+  const conclusionQuestions = (conclusion.match(/[?？]/g) ?? []).length;
+  if (conclusionQuestions > 1 ||
+      (conclusionQuestions === 1 && !isOpenQuestion(conclusion)) ||
+      !grounded(conclusion)) return 'weak_conclusion';
   return null;
 }

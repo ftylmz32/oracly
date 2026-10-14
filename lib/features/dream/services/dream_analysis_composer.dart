@@ -56,11 +56,14 @@ abstract final class DreamAnalysisComposer {
       ),
       // Prior-Dream history is its own section (DreamHistoryInsight); it
       // never competes with this beat.
-      DreamInsightKind.personalConnection: _first(
-        [ai?.dailyLifeReflection],
-        facts.withContext(memorySummary),
-        () => DreamAnalysisBeats.you(facts),
-      ),
+      DreamInsightKind.personalConnection: ai != null &&
+              ai.dailyLifeReflection.trim().isEmpty
+          ? _local('')
+          : _first(
+              [ai?.dailyLifeReflection],
+              facts.withContext(memorySummary),
+              () => DreamAnalysisBeats.you(facts),
+            ),
       DreamInsightKind.themes: _local(
         HumanReader.guard(DreamAnalysisBeats.detail(facts, seed)),
       ),

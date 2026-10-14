@@ -185,4 +185,16 @@ describe('Slice 6 live-provider guard', () => {
       expect(seen).toHaveLength(1);
     });
   });
+
+  it('keeps every writer text verbatim for the local evidence (hash = the pipeline hash), never an observer body or a header', async () => {
+    const { fetch } = fakeFetch();
+    const g = createLiveProviderGuard({ realFetch: fetch, baseUrl: OFFICIAL_OPENAI_BASE_URL });
+    await g.fetch(ENDPOINT, observer());
+    await g.fetch(ENDPOINT, writer());
+    const outputs = g.writerOutputs();
+    expect(outputs).toEqual([{ index: 2, attempt: 1, outputSha256: createHash('sha256').update('{}', 'utf8').digest('hex'), text: '{}' }]);
+    expect(JSON.stringify(outputs)).not.toContain('sk-live-SECRET');
+    // The request records stay metadata-only.
+    for (const r of g.records()) expect(r).not.toHaveProperty('text');
+  });
 });

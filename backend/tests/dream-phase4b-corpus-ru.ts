@@ -84,5 +84,5 @@ export const ruCorpus: CorpusCase[] = [
   bad('ru-b-yes-no-gotova', forest, 'weak_conclusion', { conclusion: 'Ты готова заглянуть в окно старого дома?' }),
   bad('ru-b-yes-no-hochesh', lake, 'weak_conclusion', { conclusion: 'Хочешь ли ты снова оказаться в лодке на озере?' }),
   bad('ru-b-ungrounded-question', stairs, 'weak_conclusion', { conclusion: 'Чего ты на самом деле хочешь от жизни?' }),
-  bad('ru-b-two-questions', garden, 'conclusion_not_question', { conclusion: 'Где была калитка? Почему мама звала тебя?' }),
+  bad('ru-b-two-questions', garden, 'weak_conclusion', { conclusion: 'Где была калитка? Почему мама звала тебя?' }),
 ];

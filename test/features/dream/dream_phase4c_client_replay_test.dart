@@ -28,7 +28,7 @@ void main() {
         data: g.data,
       );
       expect(r['clientResult'], 'PASS', reason: g.id);
-      expect(r['requiredAiSections'], 5, reason: g.id);
+      expect(r['requiredAiSections'], 4, reason: g.id);
       expect(r['clientLanguage'], g.language, reason: g.id);
     }
   });
@@ -79,8 +79,19 @@ void main() {
     // The 4C replay is frozen evidence: it is only read, never rewritten.
     final frozen = jsonDecode(File(_replay).readAsStringSync()) as Map;
     expect(frozen['schema'], 'oracly.dream.phase4c.client-replay/v1');
-    expect(jsonEncode(frozen['replays']),
-        jsonEncode(replay((run) => run['backendFinal'] == 'PASS')));
+    final acceptedNow = replay((run) => run['backendFinal'] == 'PASS');
+    final acceptedBefore = (frozen['replays'] as List).cast<Map>();
+    expect(acceptedBefore.map((r) => r['runId']).toList(),
+        acceptedNow.map((r) => r['runId']).toList());
+    for (final (i, old) in acceptedBefore.indexed) {
+      final next = acceptedNow[i];
+      expect(old['requiredAiSections'], 5, reason: '${old['runId']} frozen');
+      expect(next['requiredAiSections'], 4, reason: '${old['runId']} current');
+      final normalizedOld = Map<String, dynamic>.from(old)
+        ..['requiredAiSections'] = next['requiredAiSections'];
+      expect(jsonEncode(normalizedOld), jsonEncode(next),
+          reason: '${old['runId']} only required-count contract may drift');
+    }
     // Diagnostic only: bodies the backend refused never reach a client. The
     // one 4C.1 client change is emotionalTheme role grounding, so the only
     // permitted drift is an emotionalTheme field moving local → ai.

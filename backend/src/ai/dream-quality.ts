@@ -23,14 +23,12 @@ export type DreamQualityFailure =
   | 'ungrounded'
   | 'generic_boilerplate'
   | 'language_mismatch'
-  | 'conclusion_not_question'
   | 'dictionary_style';
 
 const MIN_CHARS: Array<[keyof DreamData, number]> = [
   ['summary', 20],
   ['emotionalTheme', 16],
   ['interpretation', 60],
-  ['dailyLifeReflection', 30],
   ['conclusion', 16],
 ];
 
@@ -79,7 +77,6 @@ export function evaluateDreamQuality(
   ];
   if (hasNearDuplicate(sections)) return 'duplicate_sections';
   if (sections.some((s) => DICTIONARY.test(s))) return 'dictionary_style';
-  if (!isSingleQuestion(data.conclusion)) return 'conclusion_not_question';
   const prose = sections.join(' ');
   if (!languageMatches(prose, input.language)) return 'language_mismatch';
   if ((prose.match(GENERIC) ?? []).length >= 2) return 'generic_boilerplate';
@@ -102,7 +99,7 @@ export function evaluateDreamQuality(
   }
   const grounded = (s: string) => overlaps(significant(s), evidence, input.language);
   if (!grounded(data.interpretation)) return 'ungrounded';
-  if (![data.summary, data.dailyLifeReflection, data.conclusion].some(grounded)) {
+  if (![data.summary, data.conclusion].some(grounded)) {
     return 'ungrounded';
   }
   return null;

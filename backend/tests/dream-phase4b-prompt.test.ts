@@ -16,12 +16,24 @@ describe('Dream Phase 4B — prompt field roles', () => {
     expect(system.slice(at + DREAM_FIELD_ROLES[language].length).trim().length).toBeGreaterThan(0);
   });
 
-  it('en: states the relational bridge, one open question and no invented life domain', () => {
+  it('en: states the relational bridge, optional reflection and natural close', () => {
     const roles = DREAM_FIELD_ROLES.en;
     expect(roles).toContain('relational bridge');
-    expect(roles).toContain('never a yes/no question');
+    expect(roles).toContain('one natural, cohesive reading');
+    expect(roles).toContain('open a symbolic possibility');
+    expect(roles).toContain('do not explain the method or merely retell the scene');
+    expect(roles).toContain('never mechanically map a symbol to one fixed meaning');
+    expect(roles).toContain('otherwise return an empty string');
+    expect(roles).toContain('either a final thought or one open question');
     expect(roles).toContain('your work');
     expect(roles).toContain('not afraid');
+  });
+
+  it('keeps the same natural interpretation contract in tr and ru', () => {
+    expect(DREAM_FIELD_ROLES.tr).toContain('doğal ve bütünlüklü bir yorum');
+    expect(DREAM_FIELD_ROLES.tr).toContain('hangi sembolik ihtimali açtığını hissettir');
+    expect(DREAM_FIELD_ROLES.ru).toContain('естественного, цельного толкования');
+    expect(DREAM_FIELD_ROLES.ru).toContain('открывает символическую возможность');
   });
 
   it('keeps the JSON schema and the Phase 4A history rule in the system prompt', () => {

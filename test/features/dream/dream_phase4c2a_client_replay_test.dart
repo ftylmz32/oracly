@@ -73,11 +73,11 @@ void main() {
     expect(out.readAsStringSync().replaceAll('\r\n', '\n'), encoded);
   });
 
-  test('Astra tr-history delivers every section from provider AI', () {
+  test('Astra tr-history delivers every required section from provider AI', () {
     final astra =
         replays().singleWhere((r) => r['runId'] == 'tr-history::gpt-6-astra');
     expect(astra['clientResult'], 'PASS');
-    expect(astra['requiredAiSections'], 5);
+    expect(astra['requiredAiSections'], 4);
     expect(astra['fromAi'], isTrue);
   });
 }

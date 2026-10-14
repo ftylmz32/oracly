@@ -91,7 +91,12 @@ void main() {
     expect(_provider(snake, en), isNull);
   });
 
-  test('the closing question keeps its one-question contract', () {
+  test('the closing accepts a statement or one question, never two', () {
+    expect(
+        DreamAnalysisGuard.conclusion(
+            'The boat rests in the quiet harbour at dusk.', en,
+            source: DreamGuardSource.providerAi),
+        isNotNull);
     expect(
         DreamAnalysisGuard.conclusion(
             'What does the boat mean? Why the harbour?', en,

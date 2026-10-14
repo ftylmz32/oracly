@@ -72,6 +72,14 @@ export type CoffeeV3NClaim = {
   elaborations: string[];
   /** Licensed qualities (tempo, scope, multiplicity) in Turkish. */
   qualities: string[];
+  /**
+   * Everyday life developments a fortune teller reads from THIS meaning
+   * (a message, an offer, a reconciliation, a short trip …), told by the
+   * writer as possibilities. Nothing outside them may be added.
+   */
+  lifeScenes: string[];
+  /** SERVER-SIDE: event words this meaning licenses (else refused as unsupported). Never sent. */
+  licensedEvents: string[];
   horizon: CoffeeV3NHorizon | null;
   placement: CoffeeV3NPlacement | null;
   /** SERVER-SIDE evidence only: the recognized sign, or null. Never sent / shown. */
@@ -82,6 +90,14 @@ export type CoffeeV3NClaim = {
    */
   anchors: string[];
   certainty: 'clear' | 'soft';
+  /**
+   * The claim's place in the STORY (not in the cup): `core` is the reading's
+   * central development (the strongest, best-supported meaning and what is
+   * visually linked to it), `support` is told briefly beside or inside it,
+   * `minor` is optional colour the writer may leave out. A reading is one
+   * development, not one explanation per meaning.
+   */
+  weight: CoffeeV3NWeight;
   tone: CoffeeV3NTone;
   /** Words that would contradict or overreach this claim. */
   avoid: string[];
@@ -90,6 +106,8 @@ export type CoffeeV3NClaim = {
 };
 
 export type CoffeeV3NLink = { a: string; b: string; kind: 'linked' | 'crossing' | 'within' };
+
+export type CoffeeV3NWeight = 'core' | 'support' | 'minor';
 
 export type CoffeeV3NParagraph = { role: 'opening' | 'development' | 'saucer'; claims: string[] };
 
@@ -122,70 +140,77 @@ export const COFFEE_V3N_MIN_CLAIMS = 3;
 
 type ThemeText = { meaning: string; elaborations: string[]; tone: CoffeeV3NTone; avoid: string[]; salience: number };
 
+/**
+ * Life meanings in the reader's own world, never placeholders ("bir konu",
+ * "bir süreç", "bir şey"): the writer re-tells these notes, so a placeholder
+ * here became a placeholder in the real reading. A meaning / elaboration
+ * never uses another theme's acceptance anchor (see the overlap test): a
+ * shared word would attribute one claim's sentence to another.
+ */
 const THEME_TEXT: Record<Exclude<CoffeeV3NTheme, 'object'>, ThemeText> = {
   opening: {
-    meaning: 'bir konunun önünün açılması, ferahlayan bir alan',
-    elaborations: ['daha rahat hareket edebileceğin bir aralık', 'nefes aldıran bir açılım'],
+    meaning: 'önünün açılması, içini ferahlatan bir genişlik',
+    elaborations: ['daha rahat hareket edebileceğin bir alan', 'derin bir nefes aldıran bir açılım'],
     tone: 'hopeful', avoid: ['kapanıyor', 'tıkanıyor'], salience: 4,
   },
   completion: {
-    meaning: 'bir konunun kendi içinde tamamlanıp yerine oturması',
-    elaborations: ['bir dönemin toparlanıp kapanması', 'olgunlaşıp netleşen bir süreç'],
+    meaning: 'elindeki işlerin toparlanıp tamamlanması, bir dönemin olgunlaşarak kapanması',
+    elaborations: ['yarım kalanların yerli yerine oturması', 'emeklerinin bir bütün hâline gelmesi'],
     tone: 'neutral', avoid: ['yarıda kalıyor'], salience: 3,
   },
   options: {
-    meaning: 'önünde birden fazla seçeneğin belirmesi',
-    elaborations: ['seçeneklerin birbirinden ayrışması', 'seçeneklerin çoğalması'],
+    meaning: 'önünde birden fazla seçeneğin, bir yol ayrımının belirmesi',
+    elaborations: ['seçeneklerin zamanla birbirinden ayrışması', 'seçenekleri tek tek tartıp sana yakın olanı arama ihtiyacı'],
     tone: 'neutral', avoid: ['tek seçenek', 'doğru seçenek', 'yanlış seçenek'], salience: 3,
   },
   turn: {
-    meaning: 'bir konuda yönün değişmesi, beklenmedik bir dönüş',
-    elaborations: ['planladığından biraz farklı bir yöne dönme', 'alışılmış gidişatın kendiliğinden değişmesi'],
-    tone: 'neutral', avoid: ['taşınma', 'yolculuk', 'seyahat'], salience: 3,
+    meaning: 'planlarında beklenmedik bir dönüş, alışık olduğun düzenin değişmesi',
+    elaborations: ['planladığından farklı bir rotaya dönme', 'hiç hesaba katmadığın anda gelen bir dönüş'],
+    tone: 'neutral', avoid: ['taşınma'], salience: 3,
   },
   rising: {
-    meaning: 'bir konunun yükselişe geçmesi, ivme kazanması',
-    elaborations: ['adım adım yukarı doğru giden bir gelişme', 'giderek güçlenen bir hareket'],
+    meaning: 'attığın adımların ivme kazanması, emeklerinin yükselişe geçmesi',
+    elaborations: ['adım adım güçlenen bir ilerleyiş', 'giderek hız kazanan bir hareket'],
     tone: 'hopeful', avoid: ['düşüş', 'geriliyor', 'geriye gidiyor'], salience: 3,
   },
   settling: {
-    meaning: 'bir konunun yavaş yavaş durulup sakinleşmesi',
-    elaborations: ['gündemindeki bir meselenin yerine oturması', 'telaşın azaldığı bir dönem'],
+    meaning: 'zihnini yoran telaşın yavaş yavaş durulması, günlerinin sakinleşmesi',
+    elaborations: ['içindeki dalgalanmanın yatışması', 'telaşın azaldığı, daha dingin günler'],
     tone: 'calm', avoid: ['hızlanıyor', 'alevleniyor'], salience: 2,
   },
   steady_path: {
-    meaning: 'kararlı ve istikrarlı ilerleyen bir yol',
-    elaborations: ['acele etmeden ama durmadan ilerleyen bir gidişat', 'sağlam adımlarla süren bir ilerleme'],
+    meaning: 'istikrarlı ve sağlam adımlarla ilerleyen bir dönem',
+    elaborations: ['acele etmeden ama durmadan süren bir ilerleyiş', 'sağlam adımlarla süren bir ilerleme'],
     tone: 'hopeful', avoid: ['kesik kesik', 'ara ara', 'duraksıyor'], salience: 2,
   },
   path: {
-    meaning: 'önünde uzanan bir yol, bir konunun yol alması',
-    elaborations: ['bir konunun hareketlenmesi', 'ilerlemeye başlayan bir gidişat'],
-    tone: 'neutral', avoid: ['yolculuk', 'seyahat', 'taşınma'], salience: 2,
+    meaning: 'hayatında hareketlenen, yol almaya başlayan bir gidişat',
+    elaborations: ['durgun kalan işlerinin yeniden yol alması', 'adım adım ilerlemeye başlayan bir gidişat'],
+    tone: 'neutral', avoid: ['taşınma'], salience: 2,
   },
   weight: {
-    meaning: 'önümüzdeki dönemde ağırlık kazanan, üzerinde daha çok duracağın bir konu',
-    elaborations: ['dikkatini toplayan bir mesele', 'gündeminde yer tutan bir konu'],
+    meaning: 'önümüzdeki dönemde zihnini ve vaktini daha çok meşgul edecek bir mesele',
+    elaborations: ['dikkatini kendine çeken, üzerinde durmak isteyeceğin bir mesele', 'gündeminde öne çıkan bir ağırlık'],
     tone: 'calm', avoid: ['felaket', 'kötü haber', 'dert'], salience: 2,
   },
   many_details: {
-    meaning: 'hareketli, küçük işlerle ve ayrıntılarla dolu bir dönem',
-    elaborations: ['birçok küçük şeyin aynı anda ilerlemesi', 'kalabalık ama dağınık olmayan bir gündem'],
+    meaning: 'küçük işlerle, ayrıntılarla ve koşturmacayla dolu hareketli günler',
+    elaborations: ['birçok küçük işin aynı anda yürümesi', 'kalabalık ama dağınık olmayan, canlı bir tempo'],
     tone: 'neutral', avoid: ['kaos', 'karmaşa'], salience: 1,
   },
   wish_gathering: {
-    meaning: 'aklındaki bir dileğin ya da isteğin bir araya toplanması',
-    elaborations: ['dağınık duran bir isteğin netleşmesi', 'bir dileğin merkeze yerleşmesi'],
+    meaning: 'içinde taşıdığın bir dileğin ya da isteğin bir araya toplanıp netleşmesi',
+    elaborations: ['dağınık duran isteklerinin tek bir dilekte birleşmesi', 'aklındaki dileğin merkeze yerleşmesi'],
     tone: 'hopeful', avoid: ['gerçekleşti', 'kesin olacak'], salience: 2,
   },
   release: {
-    meaning: 'içinde tuttuğun bir şeyin dışarı akması, bir rahatlama',
-    elaborations: ['birikmiş bir şeyin hafiflemesi', 'içindekini paylaşma isteği'],
+    meaning: 'içinde tuttuklarını dışa vurman, dile dökünce gelen hafiflik',
+    elaborations: ['omuzlarındaki yükün hafiflemesi', 'içindekileri paylaşma ihtiyacı'],
     tone: 'calm', avoid: ['kayıp', 'kaybedeceksin'], salience: 2,
   },
   circulating: {
-    meaning: 'bir konunun etrafında dönüp duran, olgunlaşmayı bekleyen bir hareket',
-    elaborations: ['aynı konunun farklı açılardan yeniden gündeme gelmesi'],
+    meaning: 'zihninde dönüp dolaşan, olgunlaşmayı bekleyen düşünceler',
+    elaborations: ['aynı düşüncelere tekrar tekrar dönüp bakmak'],
     tone: 'neutral', avoid: ['kısır döngü', 'çıkmaz'], salience: 1,
   },
 };
@@ -196,47 +221,100 @@ const THEME_TEXT: Record<Exclude<CoffeeV3NTheme, 'object'>, ThemeText> = {
  * dileğin), otherwise a correctly told claim would read as untold.
  */
 const THEME_ANCHORS: Record<Exclude<CoffeeV3NTheme, 'object'>, string[]> = {
-  opening: ['açıl', 'açılım', 'ferah', 'nefes', 'rahatla', 'önünün aç'],
-  completion: ['tamamlan', 'toparlan', 'yerine otur', 'olgunlaş', 'kapanış', 'netleş'],
-  options: ['seçenek', 'seçeneğ', 'ihtimal', 'yön', 'alternatif', 'seçim'],
-  turn: ['yön', 'dönüş', 'değiş', 'beklenmedik'],
-  rising: ['ivme', 'yüksel', 'güçlen', 'yükseliş', 'ilerle'],
+  opening: ['açıl', 'açılım', 'ferah', 'nefes', 'rahatla', 'rahatlık', 'önünün aç', 'genişl', 'rahat hareket', 'çözül'],
+  completion: ['tamamlan', 'toparlan', 'yerine otur', 'olgunlaş', 'kapanış', 'netleş', 'bir bütün', 'sonuçlan'],
+  options: ['seçenek', 'seçeneğ', 'ihtimal', 'yön', 'alternatif', 'seçim', 'yol ayrım', 'teklif', 'karar'],
+  turn: ['yön', 'dönüş', 'değiş', 'beklenmedik', 'rota'],
+  rising: ['ivme', 'yüksel', 'güçlen', 'yükseliş', 'ilerle', 'hız kazan', 'karşılık bul'],
   // Not the bare stem 'telaş': it also starts 'telaşlı' (many_details) and would
   // attribute a busy-days sentence to the settling claim.
-  settling: ['durul', 'sakinleş', 'yatış', 'yerine otur', 'telaşın', 'telaş azal'],
+  settling: ['durul', 'sakinleş', 'yatış', 'yerine otur', 'telaşın', 'telaş azal', 'düzel', 'yumuşa', 'barış'],
   steady_path: ['istikrar', 'kararlı', 'sağlam', 'durmadan', 'ilerle'],
-  path: ['ilerle', 'hareketlen', 'gidişat', 'yol al'],
+  path: ['ilerle', 'hareketlen', 'gidişat', 'yol al', 'yolculuk', 'seyahat', 'yola çık'],
   weight: ['ağırlık', 'ağırlığ', 'gündem', 'dikkat', 'meşgul', 'mesele'],
-  many_details: ['ayrıntı', 'küçük iş', 'hareketli', 'yoğun', 'telaşlı'],
+  many_details: ['ayrıntı', 'küçük iş', 'hareketli', 'yoğun', 'telaşlı', 'koşturma', 'kalabalık', 'koşuştur', 'ayak iş'],
   wish_gathering: ['dilek', 'dileğ', 'istek', 'isteğ', 'netleş', 'toplan'],
-  release: ['hafifle', 'rahatla', 'paylaş', 'dışa vur'],
-  circulating: ['yeniden gündem', 'olgunlaş', 'dönüp dolaş', 'tekrar tekrar'],
+  // 'hafifl' covers hafifleme / hafiflik / hafifliyor (the plan itself says "hafiflik").
+  release: ['hafifl', 'rahatla', 'rahatlık', 'paylaş', 'dışa vur', 'içini dök', 'dile dök', 'söze dök', 'dertleş', 'sohbet', 'dile getir'],
+  circulating: ['yeniden gündem', 'olgunlaş', 'dönüp dolaş', 'tekrar tekrar', 'kafa yor'],
 };
 const SIGN_ANCHORS: Record<CoffeeM1Sign, string[]> = {
-  incoming_contact: ['haber', 'iletişim', 'ses', 'mesaj'],
-  written_contact: ['yazı', 'mesaj', 'haber', 'not'],
-  opportunity: ['kısmet', 'fırsat', 'imkân', 'bereket'],
-  commitment: ['bağ', 'söz', 'güven', 'bağlılık'],
-  emotion: ['duygu', 'gönl', 'gönül', 'his'],
-  access: ['kapı', 'çıkış', 'aralan', 'açıl'],
-  direction: ['yön', 'gidişat'],
-  growth: ['büyü', 'kök', 'filiz', 'gelişme'],
-  choice: ['seçim', 'karar', 'seçenek', 'seçeneğ'],
-  social_presence: ['çevre', 'biri', 'insan', 'kişi'],
+  incoming_contact: ['haber', 'iletişim', 'ses', 'mesaj', 'telefon', 'konuşma'],
+  written_contact: ['yazı', 'mesaj', 'haber', 'not', 'evrak'],
+  opportunity: ['kısmet', 'fırsat', 'imkân', 'bereket', 'kazanç', 'teklif'],
+  commitment: ['bağ', 'söz', 'güven', 'bağlılık', 'anlaşma'],
+  emotion: ['duygu', 'gönl', 'gönül', 'his', 'yakınlaş', 'barış', 'aşk', 'sevgi'],
+  access: ['kapı', 'çıkış', 'aralan', 'açıl', 'çözül'],
+  direction: ['yön', 'gidişat', 'yolculuk', 'seyahat', 'yola çık'],
+  growth: ['büyü', 'kök', 'filiz', 'gelişme', 'meyve'],
+  choice: ['seçim', 'karar', 'seçenek', 'seçeneğ', 'teklif'],
+  social_presence: ['çevre', 'biri', 'insan', 'kişi', 'tanıdık', 'karşılaş', 'arkadaş'],
 };
 
 /** Curated M1 signs → licensed symbol noun + meaning. Never anything outside the M1 lexicon. */
 const SIGN_TEXT: Record<CoffeeM1Sign, ThemeText & { symbol: string }> = {
-  incoming_contact: { symbol: 'kuş', meaning: 'bir haber ya da beklemediğin bir iletişim', elaborations: ['sana doğru gelen bir ses', 'bir haberin kapını çalması'], tone: 'hopeful', avoid: ['kesin haber', 'kimden'], salience: 5 },
+  incoming_contact: { symbol: 'kuş', meaning: 'bir haber ya da beklemediğin bir iletişim', elaborations: ['sana doğru gelen bir ses', 'bir haberin sana ulaşması'], tone: 'hopeful', avoid: ['kesin haber', 'kimden'], salience: 5 },
   written_contact: { symbol: 'mektup', meaning: 'yazılı bir haber ya da bir mesaj', elaborations: ['eline geçecek bir yazı, bir not'], tone: 'hopeful', avoid: ['kimden'], salience: 5 },
-  opportunity: { symbol: 'balık', meaning: 'bir kısmet ya da bir fırsat', elaborations: ['bereketli bir açılım', 'eline geçebilecek bir imkân'], tone: 'hopeful', avoid: ['para kazanacaksın', 'zengin'], salience: 5 },
-  commitment: { symbol: 'yüzük', meaning: 'bir bağlılık, verilen bir söz ya da güçlenen bir bağ', elaborations: ['sözün ve güvenin önem kazanması'], tone: 'hopeful', avoid: ['evlilik', 'nişan', 'düğün'], salience: 5 },
-  emotion: { symbol: 'kalp', meaning: 'gönlünü hareketlendiren bir duygu', elaborations: ['duygularının ön plana çıkması', 'gönlünün bir yöne yönelmesi'], tone: 'hopeful', avoid: ['aşık olacak', 'seni seviyor'], salience: 5 },
-  access: { symbol: 'anahtar', meaning: 'bir kapının açılması, bir çıkış yolunun eline geçmesi', elaborations: ['zor görünen bir konunun aralanması'], tone: 'hopeful', avoid: ['kesin çözüm'], salience: 5 },
-  direction: { symbol: 'yol', meaning: 'yeni bir yöne açılmak', elaborations: ['bir gidişatın netleşmesi'], tone: 'neutral', avoid: ['yolculuk', 'seyahat', 'taşınma'], salience: 4 },
-  growth: { symbol: 'ağaç', meaning: 'zamanla büyüyen, kök salan bir gelişme', elaborations: ['yavaş ama sağlam bir büyüme', 'emeklerin zamanla filizlenmesi'], tone: 'hopeful', avoid: ['hızla', 'birdenbire', 'aniden'], salience: 5 },
-  choice: { symbol: 'çatal', meaning: 'bir seçim anı, iki yol arasında bir karar', elaborations: ['seçeneklerin netleşmesi'], tone: 'neutral', avoid: ['doğru seçenek', 'yanlış seçenek'], salience: 4 },
-  social_presence: { symbol: 'insan', meaning: 'çevrende belirginleşen biri ya da bir çevre', elaborations: ['hayatında ağırlığı hissedilen birinin varlığı'], tone: 'neutral', avoid: ['seni seviyor', 'ihanet', 'düşman'], salience: 4 },
+  opportunity: { symbol: 'balık', meaning: 'bir kısmet ya da bir fırsat', elaborations: ['bereketli bir dönem', 'eline geçebilecek bir imkân'], tone: 'hopeful', avoid: ['para kazanacaksın', 'zengin'], salience: 5 },
+  commitment: { symbol: 'yüzük', meaning: 'bir bağlılık, verilen bir söz ya da derinleşen bir bağ', elaborations: ['sözün ve güvenin önem kazanması'], tone: 'hopeful', avoid: ['evlilik', 'nişan', 'düğün'], salience: 5 },
+  emotion: { symbol: 'kalp', meaning: 'gönlünü kıpırdatan bir duygu', elaborations: ['duygularının ön plana çıkması', 'gönlünün kıpırdanması'], tone: 'hopeful', avoid: ['aşık olacak', 'seni seviyor'], salience: 5 },
+  access: { symbol: 'anahtar', meaning: 'bir kapının açılması, bir çıkış yolunun eline geçmesi', elaborations: ['kapalı görünen bir kapının aralanması'], tone: 'hopeful', avoid: ['kesin çözüm'], salience: 5 },
+  direction: { symbol: 'yol', meaning: 'hayatının yönünün yeniden çizilmesi', elaborations: ['gidişatının belirginleşmesi'], tone: 'neutral', avoid: ['taşınma'], salience: 4 },
+  growth: { symbol: 'ağaç', meaning: 'zamanla büyüyen, kök salan bir gelişme', elaborations: ['yavaş ama kalıcı bir büyüme', 'emeklerin zamanla filizlenmesi'], tone: 'hopeful', avoid: ['hızla', 'birdenbire', 'aniden'], salience: 5 },
+  choice: { symbol: 'çatal', meaning: 'bir seçim anı, iki yol arasında bir karar', elaborations: ['seçeneklerin birbirinden ayrışması'], tone: 'neutral', avoid: ['doğru seçenek', 'yanlış seçenek'], salience: 4 },
+  social_presence: { symbol: 'insan', meaning: 'çevrende belirginleşen biri ya da bir çevre', elaborations: ['hayatında varlığı belirginleşen biri'], tone: 'neutral', avoid: ['seni seviyor', 'ihanet', 'düşman'], salience: 4 },
+};
+
+/**
+ * Life scenes: the concrete, everyday developments an experienced fortune
+ * teller reads from each meaning — what lets a reading say "a half-finished
+ * conversation may reopen" instead of "a matter may change". They never add a
+ * meaning: each scene restates its own theme in life terms (own anchors,
+ * no other theme's words — see the table tests).
+ */
+const THEME_SCENES: Record<Exclude<CoffeeV3NTheme, 'object'>, string[]> = {
+  opening: ['sıkışan bir işin çözülmeye başlaması', 'beklenen bir cevabın gelip içini rahatlatması'],
+  completion: ['yarım kalmış bir işin sonunda tamamlanması', 'uzun süren bir uğraşın sonuçlanması'],
+  options: ['iki teklif ya da iki yol arasında kalmak', 'önüne gelen seçenekler arasında bir karar anı'],
+  turn: ['planların son anda değişmesi', 'beklenmedik bir durumun bütün dengeleri değiştirmesi'],
+  rising: ['emeklerinin görülmesi, iş tarafında bir yükseliş', 'çabalarının karşılık bulmaya başlaması'],
+  settling: ['bir gerginliğin yatışması, araların düzelmesi', 'zihnini yoran bir durumun yumuşayıp çözüme varması'],
+  steady_path: ['adım adım ilerleyen bir işin sağlamlaşması'],
+  path: ['yola çıkma, kısa bir yolculuk', 'durgun işlerin yeniden hareketlenmesi'],
+  weight: ['üzerinde çok düşündüğün bir meselenin gündemini doldurması'],
+  many_details: ['küçük işler, ayak işleri ve koşuşturmalarla dolu günler'],
+  wish_gathering: ['tuttuğun bir dileğin gerçeğe yaklaşması'],
+  release: ['içini dökeceğin, dertleşeceğin bir sohbet', 'içinde tuttuklarını sonunda dile getirmek'],
+  circulating: ['aynı düşüncelere dönüp dolaşıp yeniden kafa yormak'],
+};
+const SIGN_SCENES: Record<CoffeeM1Sign, string[]> = {
+  incoming_contact: ['bir mesaj, bir telefon ya da uzaktan gelen bir haber', 'yarım kalmış bir konuşmanın yeniden başlaması'],
+  written_contact: ['yazılı bir haber, bir mesaj ya da beklenen bir evrak'],
+  opportunity: ['iş ya da para tarafında bir kısmet, bir teklif', 'umulmadık bir yerden gelen kazanç'],
+  commitment: ['bir anlaşmanın, bir sözün ya da ilişkide atılacak bir adımın konuşulması'],
+  emotion: ['gönül tarafında bir kıpırdanma, bir yakınlaşma', 'araya giren bir küslüğün bitip barışmaya varması'],
+  access: ['tıkanan bir işin çözülmesi', 'kapalı görünen bir kapının, bir görüşmenin ya da başvurunun aralanması'],
+  direction: ['bir yolculuk ya da hayatının yönünü belirleyen bir adım'],
+  growth: ['emeklerinin zamanla meyve vermesi'],
+  choice: ['iki teklif ya da iki yol arasında bir karar'],
+  social_presence: ['hayatına yeni girecek ya da yeniden görünecek biri', 'bir tanıdıkla tesadüfi bir karşılaşma'],
+};
+/**
+ * Event words the quality gate refuses unless a meaning in THIS reading
+ * licenses them (a road / path sign licenses a trip; a fish, options or a
+ * fork licenses an offer; a bird, letter or person sign licenses a friend).
+ */
+const THEME_LICENSES: Partial<Record<Exclude<CoffeeV3NTheme, 'object'>, string[]>> = {
+  options: ['teklif'],
+  path: ['yolculuk', 'seyahat'],
+};
+const SIGN_LICENSES: Partial<Record<CoffeeM1Sign, string[]>> = {
+  incoming_contact: ['arkadaş', 'komşu'],
+  written_contact: ['arkadaş'],
+  opportunity: ['teklif'],
+  direction: ['yolculuk', 'seyahat'],
+  choice: ['teklif'],
+  social_presence: ['arkadaş', 'komşu'],
 };
 
 const SHAPE: Record<Exclude<CoffeeV3NTheme, 'object' | 'wish_gathering' | 'release' | 'circulating'>, string> = {
@@ -335,7 +413,10 @@ function structuralTheme(marks: CoffeeV3MapMark[]): Exclude<CoffeeV3NTheme, 'obj
 function qualitiesOf(marks: CoffeeV3MapMark[], theme: CoffeeV3NTheme): { qualities: string[]; avoid: string[] } {
   const qualities: string[] = [];
   const avoid: string[] = [];
-  const continuity = agreed(marks.map((m) => m.form.continuity));
+  // A clear area is the absence of grounds: it has no tempo. Its outline's
+  // "continuity" must never become "kesintisiz akan" (which also forbade
+  // "ara ara" in a paragraph whose other meaning is intermittent).
+  const continuity = theme === 'opening' ? 'unknown' : agreed(marks.map((m) => m.form.continuity));
   if (continuity === 'broken' && theme !== 'steady_path') {
     qualities.push('kesik kesik, ara ara ilerleyen');
     avoid.push('kesintisiz', 'hiç durmadan', 'tek solukta ilerliyor');
@@ -379,11 +460,14 @@ function cupDraft(marks: CoffeeV3MapMark[], softMarks: ReadonlySet<string>): Dra
     meaning: text.meaning,
     elaborations: [...text.elaborations],
     qualities,
+    lifeScenes: [...(objectSign ? SIGN_SCENES[objectSign] : THEME_SCENES[theme as Exclude<CoffeeV3NTheme, 'object'>])],
+    licensedEvents: [...((objectSign ? SIGN_LICENSES[objectSign] : THEME_LICENSES[theme as Exclude<CoffeeV3NTheme, 'object'>]) ?? [])],
     horizon: surfaceBase ? 'longer' : bands.length ? HORIZON_BY_BAND[bands[0]] : null,
     placement,
     symbol: objectSign ? SIGN_TEXT[objectSign].symbol : null,
     anchors: objectSign ? [...SIGN_ANCHORS[objectSign]] : [...THEME_ANCHORS[theme as Exclude<CoffeeV3NTheme, 'object'>]],
     certainty: certain && (bothViews || objectSign !== null || marks.length === 1) ? 'clear' : 'soft',
+    weight: 'minor',
     tone: text.tone,
     avoid: [...text.avoid, ...avoid],
     salience: text.salience + (bothViews ? 1 : 0) + (bands.length >= 2 ? 1 : 0),
@@ -410,7 +494,8 @@ function saucerDrafts(map: CoffeeV3MarkMap): Draft[] {
       : flowTheme === 'release' ? 'tabakta kenara doğru akan telve' : 'tabakta dönerek akan telve';
     out.push({
       theme: flowTheme, surface: 'saucer', seen, meaning: t.meaning, elaborations: [...t.elaborations], qualities: [],
-      horizon: null, placement: null, symbol: null, anchors: [...THEME_ANCHORS[flowTheme]], certainty: 'soft', tone: t.tone, avoid: [...t.avoid], salience: t.salience,
+      lifeScenes: [...THEME_SCENES[flowTheme]], licensedEvents: [...(THEME_LICENSES[flowTheme] ?? [])],
+      horizon: null, placement: null, symbol: null, anchors: [...THEME_ANCHORS[flowTheme]], certainty: 'soft', weight: 'minor', tone: t.tone, avoid: [...t.avoid], salience: t.salience,
       provenance: { surface: 'saucer', identityGroups: [], marks: [], slots: ['saucer'], seenInBothCupViews: false },
     });
   }
@@ -429,9 +514,11 @@ function saucerDrafts(map: CoffeeV3MarkMap): Draft[] {
     const shape = objectSign ? `${SIGN_TEXT[objectSign].symbol} gibi duran bir şekil` : SHAPE[theme as keyof typeof SHAPE];
     out.push({
       theme: theme as CoffeeV3NTheme, surface: 'saucer', seen: `${place} ${shape}`, meaning: text.meaning, elaborations: [...text.elaborations],
+      lifeScenes: [...(objectSign ? SIGN_SCENES[objectSign] : THEME_SCENES[theme as Exclude<CoffeeV3NTheme, 'object'>])],
+      licensedEvents: [...((objectSign ? SIGN_LICENSES[objectSign] : THEME_LICENSES[theme as Exclude<CoffeeV3NTheme, 'object'>]) ?? [])],
       qualities: [], horizon: null, placement: null, symbol: objectSign ? SIGN_TEXT[objectSign].symbol : null,
       anchors: objectSign ? [...SIGN_ANCHORS[objectSign]] : [...THEME_ANCHORS[theme as Exclude<CoffeeV3NTheme, 'object'>]],
-      certainty: objectSign ? 'clear' : 'soft', tone: text.tone, avoid: [...text.avoid], salience: text.salience,
+      certainty: objectSign ? 'clear' : 'soft', weight: 'minor', tone: text.tone, avoid: [...text.avoid], salience: text.salience,
       provenance: {
         surface: 'saucer', identityGroups: [...new Set(marks.map((m) => m.identityGroup))].sort(), marks: marks.map((m) => m.id).sort(),
         slots: ['saucer'], seenInBothCupViews: false,
@@ -472,6 +559,14 @@ function mergeDrafts(drafts: Draft[]): Draft[] {
 
 const HORIZON_RANK: Record<CoffeeV3NHorizon, number> = { near: 0, coming: 1, longer: 2 };
 
+const MAX_QUALITIES = 2;
+/** Tempo (continuity) carries the contradiction guard, so it is always kept first. */
+const QUALITY_PRIORITY = ['kesik kesik, ara ara ilerleyen', 'kesintisiz akan', 'güçlü biçimde vurgulanan', 'zamana yayılan, uzun soluklu', 'ucu açık'];
+const qualityRank = (q: string) => {
+  const i = QUALITY_PRIORITY.indexOf(q);
+  return i === -1 ? QUALITY_PRIORITY.length : i;
+};
+
 function focusOf(intention: CoffeeTrustedIntentionContext | null): CoffeeV3NFocus {
   if (!intention) return { kind: 'none', userDeclaredIntention: null, area: null, forbiddenAssumptions: [] };
   return {
@@ -498,7 +593,12 @@ export function planCoffeeV3Narrative(
     status: 'insufficient', reason, focus, claims: [], links: [], paragraphs: [], budget: { minWords: 0, maxWords: 0 },
   });
   if (drafts.length === 0) return empty('no_grounded_claims');
-  if (drafts.length < COFFEE_V3N_MIN_CLAIMS) return empty('below_min_claims');
+  // Two DISTINCT recognized signs, each clearly identified, carry a reading
+  // of their own (key + path, ring + heart); a lone sign, a soft / ambiguous
+  // identity or structural traces alone still fall below the floor.
+  const twoClearSigns =
+    drafts.length === 2 && drafts.every((d) => d.theme === 'object' && d.certainty === 'clear') && drafts[0].symbol !== drafts[1].symbol;
+  if (drafts.length < COFFEE_V3N_MIN_CLAIMS && !twoClearSigns) return empty('below_min_claims');
 
   // Order: the most salient cup claims open the reading; the rest follow the
   // cup's own time axis (rim → middle → base); the saucer closes.
@@ -509,13 +609,13 @@ export function planCoffeeV3Narrative(
   );
   const saucer = drafts.filter((d) => d.surface === 'saucer');
   const ordered = [...opening, ...rest, ...saucer];
-  const claims: CoffeeV3NClaim[] = ordered.map((d, i) => ({ id: `c${i + 1}`, ...d }));
-  const idOf = (d: Draft) => claims[ordered.indexOf(d)].id;
-
-  const paragraphs: CoffeeV3NParagraph[] = [];
-  if (opening.length) paragraphs.push({ role: 'opening', claims: opening.map(idOf) });
-  for (let i = 0; i < rest.length; i += 2) paragraphs.push({ role: 'development', claims: rest.slice(i, i + 2).map(idOf) });
-  if (saucer.length) paragraphs.push({ role: 'saucer', claims: saucer.map(idOf) });
+  // At most two qualities per claim (tempo first): the real writer copied a
+  // three-quality list verbatim ("ara ara … ucu açık ve uzun soluklu").
+  const claims: CoffeeV3NClaim[] = ordered.map((d, i) => ({
+    id: `c${i + 1}`,
+    ...d,
+    qualities: [...d.qualities].sort((x, y) => qualityRank(x) - qualityRank(y)).slice(0, MAX_QUALITIES),
+  }));
 
   // Links: accepted, purely visual relations between two claimed groups.
   const claimOfGroup = new Map<string, string>();
@@ -533,21 +633,135 @@ export function planCoffeeV3Narrative(
     seenLinks.add(key);
     links.push({ a, b, kind });
   }
+  // Hub links: claims whose marks are CONNECTED to the same unclaimed mark
+  // are linked through it. In every real cup the branching lines and the
+  // descending trails ran into the base pool — a pool is context, never a
+  // claim, so without this the plan carried no link at all and the reading
+  // became a list. Claims are chained in plan order (no pairwise explosion).
+  const order = new Map(claims.map((c, i) => [c.id, i]));
+  const hubs = new Map<string, Set<string>>();
+  for (const r of map.relations) {
+    if (r.kind !== 'connected' && r.kind !== 'continuation_of') continue;
+    for (const [hub, other] of [[r.a, r.b], [r.b, r.a]]) {
+      const hubGroup = groupOfMark.get(hub);
+      const claim = claimOfGroup.get(groupOfMark.get(other) ?? '');
+      if (!hubGroup || claimOfGroup.has(hubGroup) || !claim) continue;
+      hubs.set(hubGroup, (hubs.get(hubGroup) ?? new Set<string>()).add(claim));
+    }
+  }
+  for (const ids of hubs.values()) {
+    const chain = [...ids].sort((x, y) => order.get(x)! - order.get(y)!);
+    for (let i = 1; i < chain.length; i += 1) {
+      const key = [chain[i - 1], chain[i]].sort().join('|');
+      if (seenLinks.has(key)) continue;
+      seenLinks.add(key);
+      links.push({ a: chain[i - 1], b: chain[i], kind: 'linked' });
+    }
+  }
 
-  const n = claims.length;
+  const told = tellLinkedTogether(claims, links, opening.length, rest.length);
+  const weighted = weighClaims(told.claims, told.links);
+  // Length follows the STORY: only core and support meanings must be told.
+  // A short, dense reading is the target; maxWords refuses a padded list.
+  const required = weighted.filter((c) => c.weight !== 'minor').length;
   return {
     status: 'planned',
     reason: null,
     focus,
-    claims,
-    links,
+    claims: weighted,
+    links: told.links,
+    paragraphs: told.paragraphs,
+    budget: { minWords: 8 * required + 16, maxWords: 25 * required + 60 },
+  };
+}
+
+/**
+ * Story weights. The real six-meaning plan was told as six equal
+ * explanations in plan order (174 words, technically clean, a report). The
+ * centre is the strongest, best-supported claim (a recognized sign, a clear
+ * identity, salience, its links) together with what is visually linked to it
+ * (at most three claims: one development). Recognized signs and other linked
+ * claims support it; unlinked structural traces are optional colour. No link
+ * is invented: weights only order what was observed.
+ */
+function weighClaims(claims: CoffeeV3NClaim[], links: CoffeeV3NLink[]): CoffeeV3NClaim[] {
+  const degree = (id: string) => links.filter((l) => l.a === id || l.b === id).length;
+  const partners = (id: string) => links.flatMap((l) => (l.a === id ? [l.b] : l.b === id ? [l.a] : []));
+  const score = (c: CoffeeV3NClaim) =>
+    c.salience + (c.certainty === 'clear' ? 2 : 0) + (c.theme === 'object' ? 2 : 0) + degree(c.id);
+  const ranked = [...claims].sort((a, b) => score(b) - score(a));
+  const centre = ranked[0];
+  const core = new Set([centre.id]);
+  for (const p of partners(centre.id).map((id) => claims.find((c) => c.id === id)!).sort((a, b) => score(b) - score(a))) {
+    if (core.size < 3) core.add(p.id);
+  }
+  const support = new Set(claims.filter((c) => !core.has(c.id) && (c.theme === 'object' || degree(c.id) > 0)).map((c) => c.id));
+  // Without links a cup still has more than one strong meaning: the story
+  // keeps at least half of them (min. two), the strongest first.
+  const target = Math.min(claims.length, Math.max(2, Math.ceil(claims.length / 2)));
+  for (const c of ranked) {
+    if (core.size + support.size >= target) break;
+    if (!core.has(c.id)) support.add(c.id);
+  }
+  return claims.map((c) => ({ ...c, weight: core.has(c.id) ? 'core' : support.has(c.id) ? 'support' : 'minor' }));
+}
+
+/**
+ * Paragraphs keep VISUALLY linked meanings together. Salience alone used to
+ * open a reading with two unrelated signs (bird + fish) while the path the
+ * bird is connected to went to the next paragraph, so the writer listed
+ * "haber var, fırsat var" and the one real connection was split. Only an
+ * existing link moves a claim (no link is ever invented): an unlinked
+ * opening claim gives its place to the opening claim's linked partner, and
+ * a development pair is completed with a linked partner. Ids and links are
+ * renumbered in the new order; a plan without such a split is unchanged.
+ */
+function tellLinkedTogether(
+  claims: CoffeeV3NClaim[],
+  links: CoffeeV3NLink[],
+  openingCount: number,
+  restCount: number,
+): { claims: CoffeeV3NClaim[]; links: CoffeeV3NLink[]; paragraphs: CoffeeV3NParagraph[] } {
+  const linked = (x: string, y: string) => links.some((l) => (l.a === x && l.b === y) || (l.a === y && l.b === x));
+  const hasLink = (x: string) => links.some((l) => l.a === x || l.b === x);
+  const byId = new Map(claims.map((c) => [c.id, c]));
+  const opening = claims.slice(0, openingCount).map((c) => c.id);
+  let rest = claims.slice(openingCount, openingCount + restCount).map((c) => c.id);
+  const saucer = claims.slice(openingCount + restCount).map((c) => c.id);
+  const timeOrder = (ids: string[]) =>
+    [...ids].sort((x, y) => {
+      const [a, b] = [byId.get(x)!, byId.get(y)!];
+      return (a.horizon ? HORIZON_RANK[a.horizon] : 1) - (b.horizon ? HORIZON_RANK[b.horizon] : 1) || b.salience - a.salience;
+    });
+
+  if (opening.length === 2 && !linked(opening[0], opening[1])) {
+    for (const [keep, give] of [[0, 1], [1, 0]] as const) {
+      const partner = rest.find((r) => linked(opening[keep], r));
+      if (!partner || hasLink(opening[give])) continue;
+      rest = timeOrder([...rest.filter((r) => r !== partner), opening[give]]);
+      opening.splice(0, 2, opening[keep], partner); // the more salient sign leads, its partner follows
+      break;
+    }
+  }
+  for (let i = 0; i + 1 < rest.length; i += 2) {
+    if (linked(rest[i], rest[i + 1])) continue;
+    const j = rest.findIndex((r, k) => k > i + 1 && linked(rest[i], r));
+    if (j !== -1) rest = [...rest.slice(0, i + 1), rest[j], ...rest.slice(i + 1).filter((r) => r !== rest[j])];
+  }
+
+  const order = [...opening, ...rest, ...saucer];
+  const rename = new Map(order.map((id, i) => [id, `c${i + 1}`]));
+  const id = (x: string) => rename.get(x)!;
+  const paragraphs: CoffeeV3NParagraph[] = [];
+  if (opening.length) paragraphs.push({ role: 'opening', claims: opening.map(id) });
+  for (let i = 0; i < rest.length; i += 2) paragraphs.push({ role: 'development', claims: rest.slice(i, i + 2).map(id) });
+  if (saucer.length) paragraphs.push({ role: 'saucer', claims: saucer.map(id) });
+  return {
+    claims: order.map((x) => ({ ...byId.get(x)!, id: id(x) })),
+    links: links.map((l) => ({ ...l, a: id(l.a), b: id(l.b) })),
     paragraphs,
-    // minWords only flags an obviously incomplete text (a natural ~50–65 word
-    // three-claim reading clears it); premium quality is decided by the
-    // meaning-coverage gates, never by length alone. maxWords bounds padding.
-    budget: { minWords: 8 * n + 16, maxWords: 60 * n + 40 },
   };
 }
 
 /** Exported for diagnostics / tests only. */
-export const COFFEE_V3N_TABLES = { THEME_TEXT, SIGN_TEXT } as const;
+export const COFFEE_V3N_TABLES = { THEME_TEXT, SIGN_TEXT, THEME_ANCHORS, SIGN_ANCHORS, THEME_SCENES, SIGN_SCENES } as const;

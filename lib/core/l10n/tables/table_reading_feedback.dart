@@ -15,9 +15,9 @@ const kL10nReadingFeedback = <String, L10nTriple>{
     'Что не так?',
   ),
   'feedback.hint': L10nTriple(
-    'Seçimin yalnızca kalite için tutulur. Metin saklanmaz.',
-    'Your choice is kept only as quality metadata. The text is not stored.',
-    'Выбор хранится только как метаданные качества. Текст не сохраняется.',
+    'Yalnızca kategori ve deneyim bilgisi gönderilir. Yorumun, sorun ve fotoğrafın gönderilmez.',
+    'Only the category and experience are sent. Your reading, question, and photos are not sent.',
+    'Отправляются только категория и тип опыта. Текст, вопросы и фото не отправляются.',
   ),
   'feedback.cat.missed': L10nTriple(
     'Yanlış anladı',
@@ -44,21 +44,52 @@ const kL10nReadingFeedback = <String, L10nTriple>{
     'Inappropriate',
     'Неуместно',
   ),
+  'feedback.cat.harmful': L10nTriple(
+    'Zararlı veya korkutucu',
+    'Harmful or frightening',
+    'Вредное или пугающее',
+  ),
+  'feedback.cat.misleading': L10nTriple(
+    'Yanıltıcı veya gerçek dışı',
+    'Misleading or false claim',
+    'Вводит в заблуждение',
+  ),
+  'feedback.cat.other': L10nTriple('Diğer', 'Other', 'Другое'),
   'feedback.retry': L10nTriple(
     'Tekrar yorumla',
     'Try another reading',
     'Толковать снова',
   ),
   'feedback.retry.note': L10nTriple(
-    'Aynı açılım yeniden yorumlanır. Ek mücevher alınmaz.',
-    'The same draw is read again. No extra gems are charged.',
-    'То же раскрытие толкуется снова. Дополнительно камни не списываются.',
+    'Aynı içerik yeniden yorumlanır. Ek mücevher alınmaz.',
+    'The same content is interpreted again. No extra gems are charged.',
+    'То же содержимое толкуется снова. Дополнительно камни не списываются.',
   ),
   'feedback.send': L10nTriple('Gönder', 'Send', 'Отправить'),
+  'feedback.sending': L10nTriple(
+    'Bildirim gönderiliyor…',
+    'Sending report…',
+    'Отправка жалобы…',
+  ),
+  'feedback.includeContent': L10nTriple(
+    'Seçtiğim AI yanıtını da gönder',
+    'Also send the selected AI response',
+    'Также отправить выбранный ответ ИИ',
+  ),
+  'feedback.includeContent.note': L10nTriple(
+    'İsteğe bağlıdır. Yalnız bu AI yanıtı, en fazla 2000 karakter olarak 30 gün saklanır; sorun, fotoğraflar ve konuşma geçmişi gönderilmez.',
+    'Optional. Only this AI response is kept for 30 days, up to 2,000 characters; your question, photos, and conversation history are not sent.',
+    'Необязательно. Только этот ответ ИИ (до 2000 символов) хранится 30 дней; вопрос, фото и история чата не отправляются.',
+  ),
   'feedback.thanks': L10nTriple(
-    'Notunu aldık. Teşekkürler.',
-    'Noted. Thank you.',
-    'Записали. Спасибо.',
+    'Bildirimin gönderildi. Teşekkürler.',
+    'Your report was sent. Thank you.',
+    'Жалоба отправлена. Спасибо.',
+  ),
+  'feedback.send.fail': L10nTriple(
+    'Bildirim gönderilemedi. Bağlantını kontrol edip tekrar deneyebilirsin.',
+    'The report could not be sent. Check your connection and try again.',
+    'Не удалось отправить жалобу. Проверьте соединение и повторите попытку.',
   ),
   'feedback.retrying': L10nTriple(
     'Yeni yorum hazırlanıyor — mücevher alınmaz.',

@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { responseLanguageDirective, type AppLanguage } from '../src/ai/app-language.js';
 import { acceptDreamData, dreamAcceptanceFailure } from '../src/ai/dream-acceptance.js';
 import { groundDreamSymbols } from '../src/ai/dream-symbol-grounding.js';
+import { contradictsEmotion } from '../src/ai/dream-emotion-contract.js';
 import { DREAM_JSON_KEYS } from '../src/ai/dream-prompts.js';
 import {
   evaluateDreamQuality,
-  isSingleQuestion,
   languageMatches,
 } from '../src/ai/dream-quality.js';
 import { sameWord } from '../src/ai/dream-lexical.js';
@@ -66,9 +66,24 @@ describe('Dream Phase 2 — prompt contract', () => {
     };
     expect(parseDreamData(JSON.stringify(legacy))).toEqual(trGood);
   });
+
+  it('keeps dailyLifeReflection in the schema but accepts an empty value', () => {
+    expect(parseDreamData(JSON.stringify({ ...enGood, dailyLifeReflection: '' })))
+      .toEqual({ ...enGood, dailyLifeReflection: '' });
+    expect(() => {
+      const { dailyLifeReflection: _, ...missing } = enGood;
+      parseDreamData(JSON.stringify(missing));
+    }).toThrow();
+  });
 });
 
 describe('Dream Phase 2 — backend quality gate', () => {
+  it('accepts a synthetic grounded response without misreading explicit Turkish negation', () => {
+    const told = 'Rüyamda bir yılan gördüm. Korkmuyordum; sakindim.';
+    expect(contradictsEmotion(told, 'Korkudan çok, sakinlik öne çıkıyor.')).toBe(false);
+    expect(contradictsEmotion(told, 'Yılanın yanında korku hissettin.')).toBe(true);
+  });
+
   it('accepts grounded TR / EN / RU output', () => {
     expect(evaluateDreamQuality(trGood, input(trNarrative, 'tr', ['yilan']))).toBeNull();
     expect(evaluateDreamQuality(enGood, input(enNarrative, 'en'))).toBeNull();
@@ -120,15 +135,11 @@ describe('Dream Phase 2 — backend quality gate', () => {
     ).toBe('dictionary_style');
   });
 
-  it('requires the conclusion to be exactly one open question', () => {
+  it('accepts a grounded natural closing without requiring a question', () => {
     const closed = { ...trGood, conclusion: 'Bu ruya bir uyari degil, bir davettir.' };
-    expect(evaluateDreamQuality(closed, input(trNarrative, 'tr'))).toBe('conclusion_not_question');
+    expect(evaluateDreamQuality(closed, input(trNarrative, 'tr'))).toBeNull();
     const two = { ...trGood, conclusion: 'Yilan evden neden gecti? Sen ne hissettin?' };
-    expect(evaluateDreamQuality(two, input(trNarrative, 'tr'))).toBe('conclusion_not_question');
-    const enTwo = { ...enGood, conclusion: 'What was behind the red door? And the beach?' };
-    expect(evaluateDreamQuality(enTwo, input(enNarrative, 'en'))).toBe('conclusion_not_question');
-    const ruTwo = { ...ruGood, conclusion: `${ruGood.conclusion} А окно?` };
-    expect(evaluateDreamQuality(ruTwo, input(ruNarrative, 'ru'))).toBe('conclusion_not_question');
+    expect(evaluateDreamQuality(two, input(trNarrative, 'tr'))).toBeNull();
     const wide = { ...enGood, conclusion: 'What would you want to find behind the red door？' };
     expect(evaluateDreamQuality(wide, input(enNarrative, 'en'))).toBeNull();
     // Phase 4B (intentional change): the Phase 2 gate alone still judges only
@@ -144,8 +155,18 @@ describe('Dream Phase 2 — backend quality gate', () => {
     ] as const) {
       const symbols = lang === 'tr' ? ['yilan'] : [];
       expect(evaluateDreamQuality(good, input(narrative, lang, symbols))).toBeNull();
-      expect(isSingleQuestion(good.conclusion)).toBe(true);
     }
+  });
+
+  it('accepts an omitted life reflection value without weakening required grounding', () => {
+    const withoutReflection = { ...enGood, dailyLifeReflection: '' };
+    expect(dreamAcceptanceFailure(withoutReflection, input(enNarrative, 'en'))).toBeNull();
+    expect(
+      dreamAcceptanceFailure(
+        { ...withoutReflection, interpretation: enUnrelated.interpretation },
+        input(enNarrative, 'en'),
+      ),
+    ).toBe('ungrounded');
   });
 
   it('rejects output that ignores the requested language', () => {

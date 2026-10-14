@@ -1,10 +1,10 @@
 /// User-facing palm insight for the clipboard — never ids or paths.
 library;
 
-import '../../../core/copy/fortune_voice.dart';
 import '../../../core/insight_copy/insight_copy_text.dart';
 import '../copy/palm_copy.dart';
 import '../models/palm_reading.dart';
+import '../services/palm_fortune_composer.dart';
 
 abstract final class PalmInsightCopy {
   PalmInsightCopy._();
@@ -20,8 +20,9 @@ abstract final class PalmInsightCopy {
   }
 
   static String _lane(String title, String source) {
-    final body = FortuneVoice.scrub(source);
-    if (body.isEmpty || FortuneVoice.looksRobotic(source)) return '';
+    // Exactly what the result shows (server-gated text, never rewritten).
+    final body = PalmFortuneComposer.section(source);
+    if (body.isEmpty) return '';
     return '$title\n$body';
   }
 }

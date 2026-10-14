@@ -85,5 +85,5 @@ export const enCorpus: CorpusCase[] = [
   bad('en-b-yes-no-do', lighthouse, 'weak_conclusion', { conclusion: 'Do you think the lamp at the top will light up again?' }),
   bad('en-b-ungrounded-question', horse, 'weak_conclusion', { conclusion: 'What do you really want from life right now?' }),
   bad('en-b-statement-question', packing, 'weak_conclusion', { conclusion: 'The boxes in the apartment will stay closed one day?' }),
-  bad('en-b-two-questions', beach, 'conclusion_not_question', { conclusion: 'What is behind the red door? What would you do there?' }),
+  bad('en-b-two-questions', beach, 'weak_conclusion', { conclusion: 'What is behind the red door? What would you do there?' }),
 ];

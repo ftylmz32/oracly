@@ -14,6 +14,8 @@ import '../../../../features/ai/oracle_conversation/widgets/or_ask_button.dart';
 import '../../../../features/tarot/presentation/epic031/tarot_epic031_primary_button.dart';
 import '../../copy/soul_mate_copy.dart';
 import '../../data/soul_mate_interpretation_catalogue.dart';
+import '../../../../core/quality/quality_feature.dart';
+import '../../../reading_feedback/presentation/widgets/reading_quality_actions.dart';
 
 class SoulMateResultEpilogue extends StatelessWidget {
   const SoulMateResultEpilogue({
@@ -73,6 +75,16 @@ class SoulMateResultEpilogue extends StatelessWidget {
             oracleContext: oracle,
           ),
         ],
+        ReadingQualityActions(
+          feature: QualityFeature.soulmate,
+          contentRef:
+              savedId != null && RegExp(r'^[a-f0-9]{32}$').hasMatch(savedId!)
+              ? savedId
+              : null,
+          selectedContent: reading?.authoritative == true
+              ? reading!.joined
+              : null,
+        ),
         SizedBox(height: AppSpacing.sm),
         TarotEpic031PrimaryButton(
           label: SoulMateCopy.redrawCta,

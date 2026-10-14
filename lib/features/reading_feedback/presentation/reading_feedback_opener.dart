@@ -11,6 +11,7 @@ import '../copy/reading_feedback_copy.dart';
 import '../models/reading_feedback_category.dart';
 import '../providers/reading_feedback_providers.dart';
 import 'widgets/reading_feedback_sheet.dart';
+import '../services/content_report_gateway.dart';
 
 abstract final class ReadingFeedbackOpener {
   ReadingFeedbackOpener._();
@@ -20,32 +21,64 @@ abstract final class ReadingFeedbackOpener {
     WidgetRef ref, {
     required ReadingFeedbackFeature feature,
     Future<bool> Function()? retry,
+    String? contentRef,
+    String? selectedContent,
   }) async {
     final result = await showReadingFeedbackSheet(
       context: context,
       canRetry: retry != null,
+      canIncludeContent: selectedContent?.trim().isNotEmpty == true,
     );
     if (result == null || !context.mounted) return;
     final service = ref.read(readingFeedbackServiceProvider);
+    String reportId;
+    try {
+      reportId = service.createReportId();
+    } on ContentReportDeliveryException {
+      OraclySnackBar.show(context, message: ReadingFeedbackCopy.sendFail);
+      if (result.choice == ReadingFeedbackChoice.send || retry == null) return;
+      reportId = '';
+    }
 
-    if (result.choice == ReadingFeedbackChoice.send || retry == null) {
-      await service.record(
-        feature: feature,
-        category: result.category,
-        ok: true,
-      );
-      ref.read(analyticsServiceProvider).logQualitySignal(
+    var delivered = false;
+    if (reportId.isNotEmpty) {
+      OraclySnackBar.show(context, message: ReadingFeedbackCopy.sending);
+      try {
+        await service.record(
+          reportId: reportId,
+          feature: feature,
+          category: result.category,
+          ok: true,
+          contentRef: contentRef,
+          selectedContent: result.includeContent ? selectedContent : null,
+        );
+        delivered = true;
+      } on ContentReportDeliveryException {
+        if (context.mounted) {
+          OraclySnackBar.show(context, message: ReadingFeedbackCopy.sendFail);
+        }
+      }
+    }
+
+    if (delivered) {
+      ref
+          .read(analyticsServiceProvider)
+          .logQualitySignal(
             feature: feature,
             signal: 'negative',
             issue: result.category.wire,
           );
       if (!context.mounted) return;
       OraclySnackBar.show(context, message: ReadingFeedbackCopy.thanks);
-      return;
     }
 
+    if (result.choice == ReadingFeedbackChoice.send || retry == null) return;
+    if (!context.mounted) return;
+
     OraclySnackBar.show(context, message: ReadingFeedbackCopy.retrying);
-    ref.read(analyticsServiceProvider).logQualitySignal(
+    ref
+        .read(analyticsServiceProvider)
+        .logQualitySignal(
           feature: feature,
           signal: 'retry',
           issue: result.category.wire,
@@ -59,15 +92,13 @@ abstract final class ReadingFeedbackOpener {
       if (!context.mounted) return;
       OraclySnackBar.show(
         context,
-        message:
-            changed ? ReadingFeedbackCopy.retryOk : ReadingVersionCopy.unchanged,
+        message: changed
+            ? ReadingFeedbackCopy.retryOk
+            : ReadingVersionCopy.unchanged,
       );
     } catch (_) {
       if (!context.mounted) return;
-      OraclySnackBar.show(
-        context,
-        message: ReadingFeedbackCopy.retryFail,
-      );
+      OraclySnackBar.show(context, message: ReadingFeedbackCopy.retryFail);
     }
   }
 }

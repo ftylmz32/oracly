@@ -46,6 +46,7 @@ class DreamInsightBuilder {
           history: history,
         ),
       );
+      var reflectionExpected = false;
       final insights = outcome.when(
         success: (analysis) {
           // Unsafe provider prose is never shown, mapped or stored, and
@@ -53,6 +54,7 @@ class DreamInsightBuilder {
           if (DreamOutputSafety.isUnsafe(analysis)) {
             throw AiRequestException(AiFailure.invalidResponse());
           }
+          reflectionExpected = analysis.dailyLifeReflection.trim().isNotEmpty;
           return DreamAiInsightMapper.map(
             analysis: analysis,
             dream: dream,
@@ -65,7 +67,10 @@ class DreamInsightBuilder {
       );
       // A partial delivery is not quietly completed with local text: it is
       // an invalid response, before anything is stored.
-      if (!DreamPremiumDeliveryQuality.accepts(insights)) {
+      if (!DreamPremiumDeliveryQuality.accepts(
+        insights,
+        reflectionExpected: reflectionExpected,
+      )) {
         throw AiRequestException(AiFailure.invalidResponse());
       }
       return dream.copyWith(

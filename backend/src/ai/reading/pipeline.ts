@@ -65,6 +65,7 @@ import { buildCoffeeWriterPacketV2 } from './coffee-meaning-map.js';
 import type { CoffeeWriterPacketV2 } from './coffee-story-plan.js';
 import { buildCoffeeRepairPlan } from './coffee-repair-plan.js';
 import { personalizationFromUnknown } from './personalization.js';
+import { runPalmDirectReading } from './palm-direct-pipeline.js';
 import type { ReadingPersonalization } from './types.js';
 
 const EVIDENCE_THEME_RULES: ReadonlyArray<readonly [string, RegExp]> = [
@@ -321,6 +322,21 @@ export class ReadingPipeline {
       trustedHandSide: trusted,
       personalization: ctx.personalization ?? personalizationFromUnknown(payload),
     };
+    // Default: the direct palm reader (photo → free reading, palm's own accuracy
+    // limits only). 'structured' keeps the observer → writer → gates chain.
+    if (this.config.palmEngine !== 'structured') {
+      return runPalmDirectReading({
+        config: this.config,
+        transport: this.transport,
+        stageStore: readingStageStore,
+        image,
+        trustedHandSide: trusted,
+        language: ctx.language,
+        personalization: ctxPalm.personalization,
+        identity: ctx.identity,
+        parentKey: ctx.parentKey,
+      });
+    }
     const stages: Array<{ stage: string; cached: boolean; violation?: string }> = [];
     const obs = await this.runPalmObserver(image, trusted, ctxPalm, models.vision, stages);
     const failObs = acceptPalmObservation(obs);

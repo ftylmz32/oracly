@@ -8,7 +8,7 @@
       "clientLanguage": "tr",
       "clientResult": "PASS",
       "clientGap": null,
-      "requiredAiSections": 5,
+      "requiredAiSections": 4,
       "fromAi": true,
       "symbolsSource": "ai",
       "fields": {
@@ -49,7 +49,7 @@
       "clientLanguage": "tr",
       "clientResult": "PASS",
       "clientGap": null,
-      "requiredAiSections": 5,
+      "requiredAiSections": 4,
       "fromAi": true,
       "symbolsSource": "local",
       "fields": {
@@ -90,7 +90,7 @@
       "clientLanguage": "en",
       "clientResult": "PASS",
       "clientGap": null,
-      "requiredAiSections": 5,
+      "requiredAiSections": 4,
       "fromAi": true,
       "symbolsSource": "local",
       "fields": {
@@ -131,7 +131,7 @@
       "clientLanguage": "ru",
       "clientResult": "PASS",
       "clientGap": null,
-      "requiredAiSections": 5,
+      "requiredAiSections": 4,
       "fromAi": true,
       "symbolsSource": "ai",
       "fields": {
@@ -172,7 +172,7 @@
       "clientLanguage": "ru",
       "clientResult": "PASS",
       "clientGap": null,
-      "requiredAiSections": 5,
+      "requiredAiSections": 4,
       "fromAi": true,
       "symbolsSource": "local",
       "fields": {
@@ -213,7 +213,7 @@
       "clientLanguage": "en",
       "clientResult": "PASS",
       "clientGap": null,
-      "requiredAiSections": 5,
+      "requiredAiSections": 4,
       "fromAi": true,
       "symbolsSource": "local",
       "fields": {
@@ -254,7 +254,7 @@
       "clientLanguage": "ru",
       "clientResult": "PASS",
       "clientGap": null,
-      "requiredAiSections": 5,
+      "requiredAiSections": 4,
       "fromAi": true,
       "symbolsSource": "ai",
       "fields": {

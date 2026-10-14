@@ -17,11 +17,15 @@ class ReadingFeedbackLink extends ConsumerWidget {
     required this.feature,
     this.retry,
     this.align = Alignment.center,
+    this.contentRef,
+    this.selectedContent,
   });
 
   final ReadingFeedbackFeature feature;
   final Future<bool> Function()? retry;
   final Alignment align;
+  final String? contentRef;
+  final String? selectedContent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,6 +38,8 @@ class ReadingFeedbackLink extends ConsumerWidget {
           ref,
           feature: feature,
           retry: retry,
+          contentRef: contentRef,
+          selectedContent: selectedContent,
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),

@@ -185,9 +185,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
         session: session,
         charge: charge,
         completion: TarotReadingCompletion(charge: charge),
-        generate: () => reading.resolveInterpretationContent(
-          journeyHints: journeyHints,
-        ),
+        generate: () =>
+            reading.resolveInterpretationContent(journeyHints: journeyHints),
         shouldCommit: () => mounted && token == _loadToken,
       );
     } on InterpretationException catch (e) {
@@ -220,7 +219,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
     }
     final latest = reading.session ?? session;
     if (content.isJournalEligible) {
-      final mode = latest.interpretationResultMode ??
+      final mode =
+          latest.interpretationResultMode ??
           ReadingResultModeResolver.of(latest.spread).name;
       await reading.updateSession(
         latest.copyWith(
@@ -230,14 +230,14 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
               ? content.interpretationSource.name
               : latest.interpretationSource,
           interpretationDeliveryKind: content.deliveryKind.name,
-          interpretationLocale:
-              latest.interpretationLocale ?? OraclyL10n.code,
+          interpretationLocale: latest.interpretationLocale ?? OraclyL10n.code,
         ),
       );
     }
     // Paid content is persisted before UI gates — navigation must not drop it.
     if (!mounted || token != _loadToken) return;
-    final modeOverride = TarotSessionInterpretationReplay.hasPersistedBody(
+    final modeOverride =
+        TarotSessionInterpretationReplay.hasPersistedBody(
           reading.session ?? latest,
         )
         ? TarotSessionInterpretationReplay.resultModeOf(
@@ -372,7 +372,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
           .saveFromSession(
             session: completed,
             aiSummary: content.fullInterpretation ?? content.generalMeaning,
-            resultMode: completed.interpretationResultMode ??
+            resultMode:
+                completed.interpretationResultMode ??
                 ReadingResultModeResolver.of(completed.spread).name,
             interpretationSource: content.interpretationSource.name,
             deliveryKind: content.deliveryKind.name,
@@ -771,28 +772,34 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                                         onNewReading: _exiting
                                             ? null
                                             : _newReading,
-                                        onSave: contentData.isJournalEligible &&
+                                        onSave:
+                                            contentData.isJournalEligible &&
                                                 !_journalGate.completed
                                             ? _saveReading
                                             : null,
-                                        onAskOracle: contentData.isSafetyResponse
+                                        onAskOracle:
+                                            contentData.isSafetyResponse
                                             ? null
                                             : _openOracleConversation,
                                         onAddReflection:
                                             contentData.isJournalEligible &&
-                                                    _journalGate.completed
-                                                ? _offerPersonalNote
-                                                : null,
-                                        shareDiscovery: contentData.isSafetyResponse
+                                                _journalGate.completed
+                                            ? _offerPersonalNote
+                                            : null,
+                                        shareDiscovery:
+                                            contentData.isSafetyResponse
                                             ? null
                                             : DiscoveryShareBuilder.tarot(
                                                 theme:
                                                     contentData.spreadLabel ??
                                                     contentData.readingTheme,
                                                 cardName: contentData.cardName,
-                                                cardAsset: contentData.imageAsset,
+                                                cardAsset:
+                                                    contentData.imageAsset,
                                                 isReversed:
-                                                    contentData.drawnCards.isEmpty
+                                                    contentData
+                                                        .drawnCards
+                                                        .isEmpty
                                                     ? false
                                                     : contentData
                                                           .drawnCards
@@ -864,6 +871,20 @@ class TarotReadingQualityActionsSlot extends StatelessWidget {
     return ReadingQualityActions(
       feature: QualityFeature.tarot,
       retry: retry,
+      selectedContent:
+          [
+                content.fullInterpretation,
+                content.generalMeaning,
+                content.love,
+                content.career,
+                content.money,
+                content.spiritualGuidance,
+                content.dailyAdvice,
+                content.closingMessage,
+              ]
+              .whereType<String>()
+              .where((part) => part.trim().isNotEmpty)
+              .join('\n\n'),
     );
   }
 }

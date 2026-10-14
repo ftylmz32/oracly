@@ -16,13 +16,15 @@ abstract final class DreamPremiumDeliveryQuality {
     DreamInsightKind.summary,
     DreamInsightKind.emotionalMeaning,
     DreamInsightKind.mainInterpretation,
-    DreamInsightKind.personalConnection,
     DreamInsightKind.closingTakeaway,
   ];
 
   /// The first required section that is missing, empty or not accepted AI;
   /// null when the delivery is complete.
-  static DreamInsightKind? firstGap(List<DreamInsight> insights) {
+  static DreamInsightKind? firstGap(
+    List<DreamInsight> insights, {
+    bool reflectionExpected = false,
+  }) {
     for (final kind in required) {
       final section = insights.where((i) => i.kind == kind).firstOrNull;
       if (section == null ||
@@ -31,8 +33,22 @@ abstract final class DreamPremiumDeliveryQuality {
         return kind;
       }
     }
+    // An absent life reflection is valid. If the provider supplied one but
+    // the client guard replaced it with local prose, the response is still
+    // invalid rather than silently accepting the rejected provider field.
+    final reflection = insights
+        .where((i) => i.kind == DreamInsightKind.personalConnection)
+        .firstOrNull;
+    if (reflectionExpected &&
+        (reflection == null || reflection.source != DreamInsightSource.ai)) {
+      return DreamInsightKind.personalConnection;
+    }
     return null;
   }
 
-  static bool accepts(List<DreamInsight> insights) => firstGap(insights) == null;
+  static bool accepts(
+    List<DreamInsight> insights, {
+    bool reflectionExpected = false,
+  }) =>
+      firstGap(insights, reflectionExpected: reflectionExpected) == null;
 }

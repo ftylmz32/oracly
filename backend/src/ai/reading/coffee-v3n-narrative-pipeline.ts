@@ -42,7 +42,7 @@ import {
 } from './coffee-v3n-narrative-writer.js';
 
 /** The V3N1 writer contract bytes (separate from the frozen W4 sha bc1b618b…). */
-export const FROZEN_COFFEE_V3N_PROMPT_SHA256 = 'b6c9b1bf8c7af54d2f2463ad510f4f19aa591e10d2d47068ca654fb13c1d4d20';
+export const FROZEN_COFFEE_V3N_PROMPT_SHA256 = 'dbe5e3e2aa48fdf10047036bab26f1d1ba4c52f400d59508049e8b69227bbc5f';
 export const COFFEE_V3N_RESULT_CONTRACT = 'v3_narrative_v1' as const;
 /** Per-operation stage holding the structured reasons each refused writer sample failed. */
 export const COFFEE_V3N_WRITER_REJECTIONS_STAGE = 'coffee_v3n_writer_rejections';

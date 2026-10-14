@@ -82,6 +82,7 @@ workflows:
           cat > tool/dart_defines.production.json <<'EOF'
           {
             "APP_ENV": "production",
+            "ORACLY_COFFEE_V3_ENABLED": "true",
             "ORACLY_AI_PROXY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/ai/complete",
             "ORACLY_BILLING_VERIFY_URL": "https://oracly-api-uya7zqzwra-ew.a.run.app/v1/billing/verify",
             "ORACLY_AI_MODEL": "gpt-4o",

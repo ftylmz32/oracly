@@ -45,16 +45,22 @@ class ReadingPremiumSections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final narrative = ReadingNarrativeSelector.select(content);
     final v2 = ReadingResultModeResolver.isNarrativeV2(
       spread,
       modeOverride: modeOverride,
     );
+    final singleCardNarrative = v2 && spread == TarotSpreadType.single;
+    final narrative = ReadingNarrativeSelector.select(
+      content,
+      singleCardNarrative: singleCardNarrative,
+    );
     // Local adjacent prose is NOT verified Narrative Evidence — V2 omits it.
     final relations = v2 ? '' : ReadingStoryRelations.of(content);
     final dim = 1 - readingPremiumGuidanceDim(sectionMaster);
-    final hasCards = content.drawnCards.isNotEmpty ||
-        content.cardReadings.trim().isNotEmpty;
+    final hasCards =
+        !singleCardNarrative &&
+        (content.drawnCards.isNotEmpty ||
+            content.cardReadings.trim().isNotEmpty);
 
     return Align(
       alignment: Alignment.topCenter,
@@ -66,7 +72,10 @@ class ReadingPremiumSections extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: ReadingSacredRhythm.beforeInterpretation),
-            Opacity(opacity: dim, child: ReadingThemeBand(content: content)),
+            Opacity(
+              opacity: dim,
+              child: ReadingThemeBand(content: content),
+            ),
             Opacity(
               opacity: dim,
               child: ReadingNarrativeHero(
@@ -108,11 +117,13 @@ class ReadingPremiumSections extends StatelessWidget {
                 ),
               ),
             ],
-            const ReadingResultActGap(),
-            Opacity(
-              opacity: dim,
-              child: ReadingDetailLayers(content: content),
-            ),
+            if (!singleCardNarrative) ...[
+              const ReadingResultActGap(),
+              Opacity(
+                opacity: dim,
+                child: ReadingDetailLayers(content: content),
+              ),
+            ],
             const ReadingPremiumThreshold(),
             if (narrative.direction.isNotEmpty)
               ReadingPremiumSectionCard(

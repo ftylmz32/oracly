@@ -55,11 +55,7 @@ abstract final class AstrologyFortuneStory {
         body,
     ];
     if (question) parts.add(AstrologyFortuneBeats.ask(life, seed));
-    var text = _close(parts, max: 4);
-    if (_needsSign(text, sign)) {
-      text = _close([text, AstrologyFortuneBeats.whySun(sign)], max: 5);
-    }
-    return text;
+    return _close(parts, max: 4);
   }
 
   static String inner({

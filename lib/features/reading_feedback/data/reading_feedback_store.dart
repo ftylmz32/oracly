@@ -16,17 +16,14 @@ class ReadingFeedbackStore {
 
   List<ReadingFeedbackEvent> all() {
     final raw = _storage.getStringList(key) ?? const [];
-    return [
-      for (final row in raw) ..._decode(row),
-    ];
+    return [for (final row in raw) ..._decode(row)];
   }
 
   Future<void> add(ReadingFeedbackEvent event) async {
     final next = [event, ...all()].take(maxEvents).toList();
-    await _storage.setStringList(
-      key,
-      [for (final item in next) jsonEncode(item.toJson())],
-    );
+    await _storage.setStringList(key, [
+      for (final item in next) jsonEncode(item.toJson()),
+    ]);
   }
 
   static Iterable<ReadingFeedbackEvent> _decode(String row) {
@@ -34,7 +31,9 @@ class ReadingFeedbackStore {
       final decoded = jsonDecode(row);
       if (decoded is! Map) return const [];
       final json = Map<String, dynamic>.from(decoded);
-      if (json.keys.any((key) => !ReadingFeedbackEvent.allowedKeys.contains(key))) {
+      if (json.keys.any(
+        (key) => !ReadingFeedbackEvent.allowedKeys.contains(key),
+      )) {
         return const [];
       }
       return [ReadingFeedbackEvent.fromJson(json)];

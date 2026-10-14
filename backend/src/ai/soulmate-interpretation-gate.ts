@@ -116,10 +116,13 @@ function buKisiStarts(values: string[]): boolean {
 }
 
 function isAdjectiveList(value: string): boolean {
-  const commas = (value.match(/,/g) ?? []).length;
-  return (
-    commas >= 3 && !/\b(olabilir|hissed|durabilir|might|feel)\b/.test(fold(value))
-  );
+  // Count list-like punctuation inside one sentence. Summing commas across a
+  // natural multi-sentence paragraph made ordinary prose look like an
+  // adjective dump (the two real QA drafts were false positives).
+  return value.split(/[.!?]+/u).some((sentence) => {
+    const commas = (sentence.match(/,/g) ?? []).length;
+    return commas >= 3 && !/\b(olabilir|hissed|durabilir|might|feel)\b/.test(fold(sentence));
+  });
 }
 
 function restates(values: string[], name?: string): boolean {

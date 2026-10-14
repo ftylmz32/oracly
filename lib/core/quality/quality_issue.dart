@@ -6,7 +6,10 @@ enum QualityIssue {
   generic,
   unanswered,
   repetitive,
-  inappropriate;
+  inappropriate,
+  harmful,
+  misleading,
+  other;
 
   String get wire => name;
 

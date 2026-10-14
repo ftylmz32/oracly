@@ -19,7 +19,7 @@ import type { CoffeeV3NClaim, CoffeeV3NPlan } from './coffee-v3n-narrative-plan.
 const LINES: readonly string[] = [
   'Sen deneyimli, sıcak ve sezgisi güçlü bir Türk kahve falcısısın. Karşındaki kişiyle yüz yüze oturmuş gibi, doğrudan "sen" diye konuşursun.',
   '',
-  'Sana bir FAL PLANI (JSON) verilecek. Plan, bu kişinin falından çıkarılmış ve gerçekten desteklenen HAYAT ANLAMLARINI (claims), bunların birbiriyle ilişkisini ve ne kadar emin olunabileceğini içerir. Falı yalnızca bu anlamlardan kurarsın.',
+  'Sana bir FAL PLANI (JSON) verilecek. Plan, bu kişinin falından çıkarılmış ve gerçekten desteklenen HAYAT ANLAMLARINI (claims), her anlamın falın hikâyesindeki ağırlığını (weight), her anlamdan okunabilecek somut hayat gelişmelerini (lifeScenes), anlamların birbiriyle bağını ve ne kadar emin olunabileceğini içerir. Falı yalnızca bunlardan kurarsın.',
   '',
   'EN ÖNEMLİ KURAL',
   '- Kişi falında ne gördüğünü değil, bunun hayatı için ne anlattığını okur. Fincanı, tabağı, telveyi, şekilleri, izleri, çizgileri, lekeleri, sembolleri, konumları (dip, ağız, kenar, kulp) ya da benzetmeleri ("… gibi duran", "… benzeyen") ASLA anlatma. "Fincanına baktığımda", "gözüme çarpan", "dikkatimi çeken" gibi bakma ya da çözümleme anlatımı da yok.',
@@ -27,17 +27,23 @@ const LINES: readonly string[] = [
   '',
   'ÇIKTI BİÇİMİ (kesin)',
   'Yalnızca şu JSON nesnesini yaz; başka hiçbir şey yazma (açıklama, başlık, markdown, kod bloğu yok):',
-  '{"paragraphs":[{"claims":["c1","c2"],"text":"..."},{"claims":["c3"],"text":"..."}]}',
-  '- paragraphs dizisinde, plandaki her paragraf için TAM OLARAK bir öğe olur; aynı sayıda, aynı sırada.',
-  '- Her öğenin claims alanı, plandaki o paragrafın claims listesinin AYNISIDIR (aynı kimlikler, aynı sıra).',
-  '- text: o paragrafın falcı ağzından metni. Cümle sayısı serbesttir: anlam ne kadar taşıyorsa o kadar yaz; her paragraf kendi anlamlarını gerçekten açmalı. Paragraflar birbirine doğal geçişlerle bağlanır.',
+  '{"paragraphs":[{"claims":["c1","c3"],"text":"..."},{"claims":["c2"],"text":"..."}]}',
+  '- 1 ile outline.maxParagraphs arasında paragraf yaz; paragraf sayısına ve sırasına hikâye karar verir.',
+  '- Her paragrafın claims alanı, o paragrafta GERÇEKTEN anlattığın plan anlamlarının kimlikleridir.',
+  '- outline.core ve outline.support içindeki her anlam en az bir paragrafta anlatılır; outline.minor isteğe bağlıdır.',
+  '- text: o paragrafın falcı ağzından metni.',
   '',
   'ANLATI (en çok özen göstereceğin kısım)',
-  '- Bu bir hikâyedir, madde listesi değil. Anlamları tek tek "… olabilir" cümleleriyle sıralama; onları kişinin önümüzdeki günlerini anlatan tek bir akışa ör.',
-  '- opening paragrafı falın ana havasını kurar; development paragrafı bunun yanında gelişen şeyi anlatır; closing paragrafı falı bir anlamın sıcak, kişisel bir sezgisiyle kapatır (özet ya da nasihat değil).',
+  '- Bu bir hikâyedir, madde listesi değil. Her anlamı ayrı ayrı açıklama ve sıralama; "ayrıca", "bunun yanı sıra" ile liste kurma.',
+  '- weight core: falın MERKEZİ. core anlamları tek bir gelişme olarak anlat: nasıl başlayabileceği, nasıl ilerleyebileceği, nereye varabileceği. Falın en çok sözü bu gelişmeye ayrılır.',
+  '- weight support: merkezdeki gelişmenin yanında ya da içinde, kısa ve yerinde bir cümleyle.',
+  '- weight minor: yalnızca hikâyeye doğal oturuyorsa kısa bir dokunuş; oturmuyorsa hiç anlatma. Fal doldurmak için kullanma.',
+  '- İlk cümle merak uyandırsın: falın en dikkat çekici gelişmesiyle başla, hazır bir giriş cümlesiyle değil.',
+  '- Kısa ve yoğun yaz: uzun ama boş bir fal yerine kısa ama etkileyici bir fal. budget.maxWords üst sınırdır.',
   '- Anlamlar arasında doğal geçişler kur: aynı dönemde yan yana yaşanabileceklerini, birinin ötekinin havasını nasıl tamamladığını hissettir. Geçiş, sebep-sonuç olmadan zaman ve his ile kurulur.',
-  '- Her anlamı kişinin iç dünyasında nasıl hissedilebileceği ya da gündelik hayatında nasıl fark edilebileceğiyle anlat; ama yeni bir olay, kişi, sonuç ya da kişinin geçmişine dair bir bilgi ekleme.',
-  '- meaning, elaborations ve qualities birer anlam notudur, kopyalanacak cümle DEĞİLDİR. Kendi sözlerinle, akıcı Türkçeyle yeniden söyle. qualities içinden en fazla bir-iki niteliği cümlenin içine doğal biçimde yerleştir; niteleri art arda dizme.',
+  '- Deneyimli bir falcı gibi somut konuş: soyut "bir şey değişebilir" cümleleri yerine, anlamın lifeScenes listesindeki gündelik hayat gelişmelerinden (haber, mesaj, görüşme, karşılaşma, barışma, teklif, kısmet, yolculuk gibi) o anlama en uyan bir ya da ikisini seç ve kişinin önümüzdeki günlerinde nasıl yaşanabileceğini ihtimal olarak anlat.',
+  '- lifeScenes dışında yeni bir olay, kişi ya da sonuç ekleme; bir anlamın gelişmesini başka bir anlama yükleme.',
+  '- meaning, elaborations, qualities ve lifeScenes birer anlam notudur, kopyalanacak cümle DEĞİLDİR. Kendi sözlerinle, akıcı Türkçeyle yeniden söyle. qualities içinden en fazla bir-iki niteliği cümlenin içine doğal biçimde yerleştir; niteleri art arda dizme.',
   '- "bir konu", "bir süreç", "bir şey", "bir yön" gibi boş yer tutucuları tekrar tekrar kullanma; aynı anlamı her seferinde farklı, canlı ama genel kalan sözcüklerle an (gündemindeki mesele, içinden geçenler, önündeki seçimler gibi).',
   '- Aynı anlamı iki kez söyleme.',
   '- horizon doluysa zamanı onunla söyle (near = yakın zamanda, coming = önümüzdeki dönemde, longer = daha uzun vadede); boşsa zaman uydurma.',
@@ -45,7 +51,8 @@ const LINES: readonly string[] = [
   '- certainty "soft" ise genel tonun daha yumuşak olsun; bunu her cümleye "hafiften", "belli belirsiz" ekleyerek değil, sezgisel bir dille hissettir.',
   '- tone: hopeful = umutlu, neutral = dengeli, calm = sakin ve yumuşak. Tonu hissettir, adını söyleme.',
   '- avoid listesindeki ifadeler o anlamla çelişir; kullanma.',
-  '- links: iki anlam arasında bağ varsa (linked = birbirine bağlı, crossing = birbirini kesen, within = birinin ötekinin içinde gelişmesi) iki anlam arasındaki geçişi bu bağla kur; bu bağ merak uyandıran bir akış yaratabilir. Asla sebep-sonuç kurma ("çünkü", "bu yüzden", "sayesinde" yok).',
+  '- links: bağlı iki anlamı tek bir gelişme gibi ör (linked = biri ötekine dokunur ya da onda yankılanır, örneğin bir haberin gönül tarafında kıpırtı yaratması; crossing = iki gelişmenin yolları kesişir; within = biri ötekinin içinde gelişir). Bu bağ falın merak uyandıran damarıdır.',
+  '- Bağı olmayan anlamları aynı dönemde yan yana anlat; aralarında etki ya da ilişki kurma. Hiçbir yerde kesin sebep-sonuç yok ("çünkü", "bu yüzden", "sayesinde" yok).',
   '',
   'KİŞİNİN SORUSU (focus)',
   '- focus.area doluysa anlamları kişinin bu konudaki sorusuna nazikçe bağla. Sorunun içeriğini, kararın seçeneklerini, kişinin geçmişini, durumunu ya da duygularını ASLA uydurma. focus.forbiddenAssumptions içindekileri söyleme, ima da etme.',
@@ -54,7 +61,9 @@ const LINES: readonly string[] = [
   '- Fal dili ihtimal dilidir ve her paragrafta hissedilmeli; ama her cümleyi "-abilir" ile bitirme. Sezgiyi çeşitlendir: "… gibi görünüyor", "sanki …", "… hissediliyor", "… olası", "… olabilir"; bazı cümleler de şimdiki zamanda, bir falcının sezişi gibi akabilir.',
   '- Kesin gelecek kurma: "… alacaksın", "… yaşayacaksın", "… göreceksin" gibi "-acaksın / -eceksin" yok.',
   '- Kesinlik yok: "kesinlikle", "mutlaka", "şüphesiz", "kuşkusuz", "garanti", "asla", "yüzde yüz" yazma.',
-  '- Uydurma yok: kişi adı, tarih, gün, ay, saat, sayı, miktar, para, maaş, zam, borç, kredi, sağlık, hastalık, hamilelik, ölüm, kaza, evlilik, nişan, düğün, boşanma, ihanet, başkalarının duygu ya da niyetleri, yolculuk, taşınma, vaat.',
+  '- Hassas konu ve uydurma yok: kişi adı, tarih, gün, ay, saat, sayı, miktar, maaş, zam, borç, kredi, miras; sağlık, hastalık, hamilelik, ölüm, kaza; evlilik, nişan, düğün, boşanma, ihanet; taşınma; vaat. Anne, baba, eş, sevgili, kardeş, patron gibi kişinin hayatına dair bir varsayım kurma; başkalarının duygu ya da niyetlerini söyleme.',
+  '- Kişinin geçmişini ya da şu anki durumunu bilinen bir gerçek gibi söyleme ("yaşadığın ayrılık" değil); yalnızca ihtimal olarak sez ("yarım kalmış bir konuşma varsa …").',
+  '- Somut gelişmeleri (teklif, yolculuk, bir arkadaşla karşılaşma gibi) yalnızca planda o gelişmeyi taşıyan bir anlam varsa anlat.',
   '- Öğüt ve emir yok: "bekle", "acele etme", "sabırlı ol", "dikkat et", "unutma", "kendine iyi bak" gibi cümleler kurma.',
   '- Boş ve herkese uyan cümle yok: "önünde güzel gelişmeler var", "güzel şeyler olacak", "her şey yoluna girecek", "yeni bir sayfa açılıyor", "şans senden yana", "bolluk", "evren", "enerjin", "kader", "mucize" yok. Her cümle plandaki bir anlamı taşımalı.',
   '- Özet ya da kapanış nasihati yok ("Kısacası", "Özetle", "Sonuç olarak"). Son paragraf da bir anlamı anlatarak biter.',
@@ -62,7 +71,7 @@ const LINES: readonly string[] = [
   '- Teknik ya da iç dil yok: iddia, plan, paragraf, claim, JSON, gözlem, analiz, veri, yapay zekâ, model yazma.',
   '',
   'UZUNLUK',
-  '- Toplam metin budget.minWords ile budget.maxWords kelime arasında olur. Uzunluk anlamların zenginliğinden gelir: doldurmak için yeni anlam, tekrar ya da genel laf ekleme.',
+  '- Toplam metin budget.minWords ile budget.maxWords kelime arasında olur. Uzunluk merkezdeki gelişmenin zenginliğinden gelir: doldurmak için yeni anlam, tekrar ya da genel laf ekleme.',
   '',
   'SES',
   '- Sıcak, akıcı, gündelik, kişisel ve merak uyandıran doğal Türkçe; deneyimli bir falcının kişinin hayatına dair sezdiklerini anlatması gibi. Rapor, terapi, burç yazısı ya da aşırı edebî dil yok.',
@@ -80,9 +89,10 @@ export function coffeeV3NWriterPromptSha256(): string {
 
 export type CoffeeV3NWriterPayload = {
   focus: { area: string | null; userDeclaredIntention: string | null; forbiddenAssumptions: string[] };
-  claims: Array<Pick<CoffeeV3NClaim, 'id' | 'meaning' | 'elaborations' | 'qualities' | 'horizon' | 'placement' | 'certainty' | 'tone' | 'avoid'>>;
+  claims: Array<Pick<CoffeeV3NClaim, 'id' | 'weight' | 'meaning' | 'elaborations' | 'qualities' | 'lifeScenes' | 'horizon' | 'placement' | 'certainty' | 'tone' | 'avoid'>>;
   links: CoffeeV3NPlan['links'];
-  paragraphs: Array<{ order: number; role: string; claims: string[] }>;
+  /** The story, not a paragraph grid: what is central, what is told beside it, what is optional. */
+  outline: { core: string[]; support: string[]; minor: string[]; maxParagraphs: number };
   budget: { minWords: number; maxWords: number };
 };
 
@@ -95,12 +105,16 @@ export function coffeeV3NWriterPayload(plan: CoffeeV3NPlan): CoffeeV3NWriterPayl
       forbiddenAssumptions: [...plan.focus.forbiddenAssumptions],
     },
     claims: plan.claims.map((c) => ({
-      id: c.id, meaning: c.meaning, elaborations: c.elaborations, qualities: c.qualities,
+      id: c.id, weight: c.weight, meaning: c.meaning, elaborations: c.elaborations, qualities: c.qualities, lifeScenes: c.lifeScenes,
       horizon: c.horizon, placement: c.placement, certainty: c.certainty, tone: c.tone, avoid: c.avoid,
     })),
     links: plan.links.map((l) => ({ ...l })),
-    // Paragraph roles are life-level ("saucer" is server vocabulary: told as a closing development).
-    paragraphs: plan.paragraphs.map((p, i) => ({ order: i + 1, role: p.role === 'saucer' ? 'closing' : p.role, claims: [...p.claims] })),
+    outline: {
+      core: plan.claims.filter((c) => c.weight === 'core').map((c) => c.id),
+      support: plan.claims.filter((c) => c.weight === 'support').map((c) => c.id),
+      minor: plan.claims.filter((c) => c.weight === 'minor').map((c) => c.id),
+      maxParagraphs: COFFEE_V3N_MAX_PARAGRAPHS,
+    },
     budget: { minWords: plan.budget.minWords, maxWords: plan.budget.maxWords },
   };
 }
@@ -108,7 +122,7 @@ export function coffeeV3NWriterPayload(plan: CoffeeV3NPlan): CoffeeV3NWriterPayl
 /** Keys that must never reach the narrative writer (visual evidence / machine side). */
 const PRIVATE_KEYS = new Set([
   'seen', 'symbol', 'anchors', 'theme', 'surface', 'provenance', 'salience', 'marks', 'identityGroups', 'slots',
-  'description', 'sightings', 'resemblances', 'candidates',
+  'description', 'sightings', 'resemblances', 'candidates', 'licensedEvents',
 ]);
 
 export function coffeeV3NPayloadLeaks(value: unknown, path = '$'): string[] {
@@ -146,6 +160,7 @@ export type CoffeeV3NFailure =
   | 'claim_incomplete'
   | 'certain_prediction'
   | 'mechanical_style'
+  | 'focus_lost'
   | 'generic_filler'
   | 'generic_cliche'
   | 'absolute_certainty'
@@ -181,6 +196,34 @@ const tokens = (s: string) => fold(s).match(/[\p{L}\p{N}]+/gu) ?? [];
  * token (Turkish suffixes allowed), so "evren" never matches "çevrene".
  * `exact` requires whole tokens ("asla" must not match "aslan").
  */
+/**
+ * Word forms that start like an anchor but are a different word, so they
+ * must not "tell" that meaning: the noun "dönüş" (a turn) vs the verb
+ * "dönüşmek" ("söze dönüşenler", second real writer run); the feeling "his"
+ * vs the hedge "hissediliyor / hissedebilirsin" the writer prompt itself
+ * recommends; "biri" (someone) vs "biriktirdiklerin"; "yön" vs "yönetmek";
+ * "bağ" (a bond) vs "bağımsız"; and the like.
+ */
+const ANCHOR_EXCEPTIONS: Record<string, readonly string[]> = {
+  dönüş: ['dönüşen', 'dönüşüyor', 'dönüşür', 'dönüştü', 'dönüşm', 'dönüşerek', 'dönüşecek', 'dönüşeceğ', 'dönüştür', 'dönüşebil'],
+  his: ['hisset', 'hissed'],
+  biri: ['birik', 'biriktir', 'birinci'],
+  yön: ['yönet', 'yöntem'],
+  bağ: ['bağımsız', 'bağır', 'bağlam'],
+  söz: ['sözcük', 'sözgelimi'],
+  ses: ['sessiz'],
+  kişi: ['kişisel'],
+  kök: ['kökten'],
+  değiş: ['değişik'],
+};
+
+/** A claim anchor told in `toks` (a phrase match, minus the anchor's known look-alike words). */
+function tellsAnchor(toks: string[], anchor: string): boolean {
+  const except = ANCHOR_EXCEPTIONS[anchor];
+  if (!except) return containsPhrase(toks, anchor);
+  return toks.some((t) => t.startsWith(anchor) && !except.some((x) => t.startsWith(x)));
+}
+
 function containsPhrase(toks: string[], phrase: string, exact = false): boolean {
   const p = tokens(phrase);
   if (!p.length) return false;
@@ -202,7 +245,7 @@ const VISUAL_EXACT = new Set([
   'dal', 'dalı', 'dallar', 'dalları', 'dallara', 'halka', 'halkası', 'halkalar', 'dip', 'dibi', 'dibinde', 'dibine', 'dibinden',
   'ağzı', 'ağzına', 'ağzından', 'ağzında', 'kenarı', 'kenarında', 'kenarına', 'kenarından',
 ]);
-const VISUAL_PHRASES = ['gibi duran', 'benzeyen bir', 'gözüme çarp', 'dikkatimi çek', 'baktığımda', 'görünen şekil'];
+const VISUAL_PHRASES = ['benzeyen bir', 'gözüme çarp', 'dikkatimi çek', 'baktığımda', 'görünen şekil'];
 /** Sign / symbol nouns: the sign stays server-side; the reading tells its meaning. */
 const SYMBOL_STEMS: ReadonlyArray<{ stems: string[]; except?: string[] }> = [
   { stems: ['kuş'], except: ['kuşku', 'kuşat', 'kuşak'] },
@@ -215,15 +258,32 @@ const SYMBOL_STEMS: ReadonlyArray<{ stems: string[]; except?: string[] }> = [
 /** Manner adverbial "bir şekilde" (in a … way) is life language, not a shape. */
 const VISUAL_EXEMPT = new Set(['şekilde']);
 
+/**
+ * "kıvrıl-" right after a route / direction in the dative ("farklı bir
+ * rotaya kıvrılabilir", "başka bir yöne kıvrılmak") is a life metaphor for
+ * plans changing course; any other "kıvrıl-" (a curving mark) stays visual.
+ */
+const ROUTE_DATIVE = /^(rota|yön|yol|istikamet)\p{L}*(a|e)$/u;
+
 function visualHits(toks: string[]): string[] {
   const hits: string[] = [];
-  for (const t of toks) {
+  for (const [i, t] of toks.entries()) {
     if (VISUAL_EXEMPT.has(t)) continue;
+    if (t.startsWith('kıvrıl') && i > 0 && ROUTE_DATIVE.test(toks[i - 1])) continue;
     if (VISUAL_EXACT.has(t) || VISUAL_PREFIXES.some((p) => t.startsWith(p))) hits.push(t);
     else if (SYMBOL_STEMS.some((e) => e.stems.some((s) => t.startsWith(s)) && !e.except?.some((x) => t.startsWith(x)))) hits.push(t);
   }
   for (const p of VISUAL_PHRASES) if (containsPhrase(toks, p)) hits.push(p);
   return hits;
+}
+
+/**
+ * Words in `text` the acceptance refuses anywhere (visual / symbol / cliché).
+ * Exported so the plan's meaning tables can be checked never to invite them.
+ */
+export function coffeeV3NRefusedTerms(text: string): string[] {
+  const toks = tokens(text);
+  return [...visualHits(toks), ...CLICHE.filter((p) => containsPhrase(toks, p))];
 }
 
 const ABSOLUTE = ['kesinlikle', 'mutlaka', 'şüphesiz', 'kuşkusuz', 'garanti', 'yüzde yüz', 'hiç şüphe yok', 'kesin olarak', 'asla'];
@@ -244,12 +304,32 @@ const CLOSING = ['kısacası', 'özetle', 'sonuç olarak', 'toparlarsak', 'yani 
 /** Internal / technical vocabulary (prefixes long enough to never hit ordinary Turkish). */
 const META_PREFIXES = ['iddia', 'claim', 'json', 'paragraf', 'gözlem', 'analiz'];
 const META_PHRASES = ['yapay zek', 'yorum listesi', 'veriye göre', 'verilere göre'];
+/**
+ * Concrete life: a fortune teller tells WHAT may happen in a person's days
+ * (a message, a conversation, an offer, work, money, love, a decision, a
+ * trip) — not only "options may appear, your space may widen". A meaning told
+ * through one of these is concrete; event words still need a licensing claim.
+ */
+const LIFE_EVENT_STEMS = [
+  'haber', 'mesaj', 'telefon', 'konuşma', 'görüşme', 'karşılaş', 'buluşma', 'davet', 'ziyaret', 'barış', 'küslü', 'teklif', 'kısmet',
+  'kazanç', 'para', 'yolculuk', 'yola', 'seyahat', 'sohbet', 'dertleş', 'cevap', 'başvuru', 'anlaşma', 'karar', 'aşk', 'gönül', 'gönl',
+  'ilişki', 'evrak', 'tanıdık', 'arkadaş', 'plan', 'emek', 'dilek', 'dileğ',
+];
+const LIFE_EVENT_TOKENS = new Set(['iş', 'işin', 'işi', 'işe', 'işler', 'işleri', 'işlerin', 'işinde', 'işine', 'işini', 'işlerinde', 'işlerini', 'işlerine']);
+const isLifeEvent = (t: string) => LIFE_EVENT_TOKENS.has(t) || LIFE_EVENT_STEMS.some((p) => t.startsWith(p));
+/** Talking it out with someone is a lived act too. */
+const LIFE_EVENT_PHRASES = ['dile dök', 'içini dök', 'söze dök', 'dile getir', 'paylaş', 'araların düzel', 'aranız düzel'];
+const tellsLifeEvent = (st: string[]) => st.some(isLifeEvent) || LIFE_EVENT_PHRASES.some((p) => containsPhrase(st, p));
+
+/** One meaning acting on another ("bir haber gönlünde kıpırtı yaratabilir"): allowed only between linked meanings. */
+const INFLUENCE = ['yaratabil', 'yaratacak', 'yaratıyor', 'tetikle', 'yol açabil', 'yol açıyor', 'etkileyebil', 'etkiliyor', 'beraberinde getir', 'neden olabil'];
 const CAUSAL = ['çünkü', 'bu yüzden', 'o yüzden', 'bu sayede', 'sayesinde', 'dolayısıyla', 'sonucunda', 'neden oluyor'];
 /** Concrete life events / facts / promises nothing in a cup can ground. */
 const SPECIFIC_PREFIXES = [
-  'hamile', 'gebelik', 'bebek', 'ölüm', 'ölece', 'hastalık', 'hastane', 'ameliyat', 'boşan', 'ihanet', 'aldat', 'maaş',
+  'hamile', 'gebelik', 'bebek', 'ölüm', 'ölece', 'hastalık', 'hastane', 'ameliyat', 'boşan', 'ayrılık', 'ihanet', 'aldat', 'maaş',
   'borç', 'kredi', 'piyango', 'miras', 'mahkeme', 'düğün', 'nişan', 'evlilik', 'evlen', 'yolculuk', 'seyahat', 'taşınma',
   'terfi', 'teklif', 'ihale', 'tayin', 'sınav',
+  // (yolculuk / seyahat / teklif / arkadaş / komşu pass only where a claim licenses them.)
   // Specific people the cup cannot ground (a social-presence claim speaks of "biri / çevren").
   'arkadaş', 'sevgili', 'annen', 'baban', 'eşin', 'patron', 'müdür', 'kardeş', 'komşu', 'akraba',
   'söz veriyorum', 'vaat',
@@ -277,13 +357,23 @@ const MIN_PARAGRAPH_WORDS = 10;
  * sakinleşme ve dönüş var") never counts as telling three meanings.
  */
 const MIN_DEDICATED_WORDS = 8;
+/** A minor meaning is a touch inside the story (a clause), never its own explanation. */
+const MAX_MINOR_WORDS = 15;
+/** A support meaning is told in a clause or a short sentence beside the centre. */
+const MIN_SUPPORT_WORDS = 4;
+/** The writer chooses 1..3 paragraphs; the story, not a grid, decides. */
+export const COFFEE_V3N_MAX_PARAGRAPHS = 3;
 /** A carrying sentence must say something: a predicate in fortune language. */
-const PREDICATE = /(yor|abilir|ebilir|abilecek|ebilecek|acak|ecek|gibi|görünüyor|seziliyor|hissediliyor)/u;
+const PREDICATE = /(yor|abilir|ebilir|abilecek|ebilecek|acak|ecek|gibi|görünüyor|seziliyor|hissediliyor|olası|muhtemel|ihtimal)/u;
 /** The supported time of a claim must be conveyed where it is told (any natural equivalent). */
 const HORIZON_WORDS: Record<'near' | 'coming' | 'longer', string[]> = {
-  near: ['yakın zaman', 'yakında', 'yakın dönem', 'kısa süre', 'kısa zaman', 'çok geçmeden', 'önümüzdeki günler', 'bugünlerde', 'şu sıralar'],
-  coming: ['önümüzdeki dönem', 'yaklaşan dönem', 'önündeki günler', 'önümüzdeki günler', 'bundan sonraki', 'önümüzdeki süreç', 'önümüzdeki zaman', 'gelecek dönem'],
-  longer: ['uzun vade', 'ilerleyen zaman', 'ilerleyen dönem', 'daha ileride', 'ileride', 'zamanla', 'uzun soluk', 'uzun süre'],
+  near: [
+    'yakın zaman', 'yakında', 'yakın dönem', 'kısa süre', 'kısa zaman', 'çok geçmeden', 'önümüzdeki günler', 'bugünlerde', 'şu sıralar',
+    // Everyday near-time Turkish the first real writer run used (refused before).
+    'yakın gün', 'bu aralar', 'şu aralar', 'bu günler', 'şu günler', 'önümüzdeki hafta', 'kısa vade', 'yakın vade',
+  ],
+  coming: ['önümüzdeki dönem', 'yaklaşan dönem', 'önündeki günler', 'önümüzdeki günler', 'bundan sonraki', 'önümüzdeki süreç', 'önümüzdeki zaman', 'gelecek dönem', 'önümüzdeki ay'],
+  longer: ['uzun vade', 'ilerleyen zaman', 'ilerleyen dönem', 'daha ileride', 'ileride', 'zamanla', 'uzun soluk', 'uzun süre', 'zaman içinde', 'ileriki', 'ilerleyen gün'],
 };
 /** "In that same period": refers back to a time ALREADY stated in an earlier paragraph. */
 const HORIZON_BACKREF = ['aynı dönem', 'aynı zaman', 'aynı süreç', 'bu dönem', 'o dönem'];
@@ -297,6 +387,8 @@ const PLACEMENT_WORDS: Record<'close_circle' | 'outer_world', string[]> = {
  * over and over, and a hedge in nearly every clause. Objective bounds only.
  */
 const PLACEHOLDERS = ['bir konu', 'bir süreç', 'bir şey', 'bir yön'];
+/** "ayrıca … bunun yanı sıra …": meanings enumerated, not woven into one story. */
+const LIST_CONNECTORS = ['ayrıca', 'bunun yanı sıra', 'bunun yanında', 'bir de', 'öte yandan', 'diğer yandan'];
 const MAX_PLACEHOLDERS = 2;
 const HEDGE = /[ae]bilir/u;
 const MAX_HEDGES_PER_SENTENCE = 1;
@@ -312,19 +404,25 @@ export function acceptCoffeeV3Narrative(plan: CoffeeV3NPlan, raw: string): Coffe
   } catch {
     return { ok: false, failures: ['malformed_json'], details: [], findings: [{ code: 'malformed_json', paragraph: null, claim: null, term: null }], metrics: null };
   }
+  // The writer shapes the story: 1..MAX paragraphs, each declaring the plan
+  // claims it tells (known ids, no duplicates within a paragraph).
+  const planIds = new Set(plan.claims.map((c) => c.id));
   const paragraphs = (parsed as { paragraphs?: unknown })?.paragraphs;
   if (
     !Array.isArray(paragraphs) ||
-    paragraphs.length !== plan.paragraphs.length ||
-    paragraphs.some((p, i) =>
+    paragraphs.length < 1 ||
+    paragraphs.length > COFFEE_V3N_MAX_PARAGRAPHS ||
+    paragraphs.some((p) =>
       !p || typeof p !== 'object' ||
       typeof (p as { text?: unknown }).text !== 'string' || !(p as { text: string }).text.trim() ||
       !Array.isArray((p as { claims?: unknown }).claims) ||
-      JSON.stringify((p as { claims: unknown[] }).claims) !== JSON.stringify(plan.paragraphs[i].claims))
+      (p as { claims: unknown[] }).claims.some((id) => typeof id !== 'string' || !planIds.has(id)) ||
+      new Set((p as { claims: unknown[] }).claims).size !== (p as { claims: unknown[] }).claims.length)
   ) {
     return { ok: false, failures: ['paragraph_structure'], details: [], findings: [{ code: 'paragraph_structure', paragraph: null, claim: null, term: null }], metrics: null };
   }
   const texts = (paragraphs as Array<{ text: string }>).map((p) => p.text.trim());
+  const declared = (paragraphs as Array<{ claims: string[] }>).map((p) => [...p.claims]);
   const reading = texts.join('\n\n');
   const all = sentencesOf(reading);
   const metrics: CoffeeV3NMetrics = { paragraphs: texts.length, sentences: all.length, words: words(reading).length };
@@ -339,10 +437,25 @@ export function acceptCoffeeV3Narrative(plan: CoffeeV3NPlan, raw: string): Coffe
   /** Paragraph (1-based) of a sentence of the whole reading. */
   const paragraphOfSentence: number[] = texts.flatMap((t, i) => sentencesOf(t).map(() => i + 1));
   const claimById = new Map(plan.claims.map((c) => [c.id, c]));
+  /** Event words a meaning of THIS reading licenses (a road sign → yolculuk; a fish → teklif). */
+  const licensed = new Set(plan.claims.flatMap((c) => c.licensedEvents ?? []));
 
   // 1) The product rule: life meaning only — never the cup, its shapes or positions.
+  const planAnchors = [...new Set(plan.claims.flatMap((c) => c.anchors))];
   texts.forEach((t, i) => {
-    for (const hit of visualHits(tokens(t))) fail('visual_description', hit, { paragraph: i + 1, term: hit });
+    const toks = tokens(t);
+    for (const hit of visualHits(toks)) fail('visual_description', hit, { paragraph: i + 1, term: hit });
+    // "X gibi duran" describes a seen shape unless X is one of the reading's
+    // own life meanings ("beklenmedik bir dönüş gibi duran" is life language,
+    // "ok gibi duran" is a shape).
+    for (let k = 1; k + 1 < toks.length; k += 1) {
+      if (toks[k] !== 'gibi' || !toks[k + 1].startsWith('duran')) continue;
+      const life = planAnchors.some((a) => {
+        const p = tokens(a);
+        return k - p.length >= 0 && p.every((w, j) => toks[k - p.length + j].startsWith(w));
+      });
+      if (!life) fail('visual_description', 'gibi duran', { paragraph: i + 1, term: 'gibi duran' });
+    }
   });
 
   // 2) Substance follows the evidence: no fixed sentence count, but neither thin nor padded.
@@ -355,43 +468,82 @@ export function acceptCoffeeV3Narrative(plan: CoffeeV3NPlan, raw: string): Coffe
   //    mention), carried by a predicate in fortune language, and with its
   //    supported time / place conveyed. Most sentences must carry a supported
   //    meaning (or the person's own question): fluent generic filler is refused.
+  //    The STORY decides how much each meaning gets: core claims carry the
+  //    reading (developed, predicated, with their time / place), support
+  //    claims are told briefly, minor claims are optional colour.
   const focusAnchors = FOCUS_ANCHORS[plan.focus.kind] ?? [];
   let filler = 0;
   const horizonsStated = new Set<string>();
+  const concreteClaims = new Set<string>();
+  /** `exclusive`: words of sentences that tell ONLY this meaning (its own explanation). */
+  type Told = { dedicated: number; exclusive: number; predicated: boolean; horizon: boolean; placement: boolean; paragraph: number };
+  const told = new Map<string, Told>();
   texts.forEach((t, i) => {
     const paragraph = i + 1;
     const toks = tokens(t);
-    const ids = plan.paragraphs[i].claims;
+    const ids = declared[i];
     const statesHorizon = (h: 'near' | 'coming' | 'longer') =>
       HORIZON_WORDS[h].some((w) => containsPhrase(toks, w)) ||
       (horizonsStated.has(h) && HORIZON_BACKREF.some((w) => containsPhrase(toks, w)));
     const carried = sentencesOf(t).map((s) => {
       const st = tokens(s);
-      return { st, words: words(s).length, claims: ids.filter((id) => (claimById.get(id)?.anchors ?? []).some((a) => containsPhrase(st, a))) };
+      return { st, words: words(s).length, claims: ids.filter((id) => (claimById.get(id)?.anchors ?? []).some((a) => tellsAnchor(st, a))) };
     });
     for (const id of ids) {
       const claim = claimById.get(id)!;
       const carriers = carried.filter((c) => c.claims.includes(id));
+      // A paragraph that declares a meaning must actually tell it.
       if (carriers.length === 0) {
         fail('ungrounded_claim', id, { paragraph, claim: id });
         continue;
       }
-      const dedicated = carriers.reduce((sum, c) => sum + c.words / c.claims.length, 0);
-      const predicated = carriers.some((c) => PREDICATE.test(c.st.join(' ')));
-      if (dedicated < MIN_DEDICATED_WORDS || !predicated) {
-        fail('claim_underdeveloped', `${id}:dedicated_words=${Math.round(dedicated)}${predicated ? '' : ':no_predicate'}`, { paragraph, claim: id });
-      }
-      if (claim.horizon && !statesHorizon(claim.horizon)) {
-        fail('claim_incomplete', `${id}:horizon=${claim.horizon}`, { paragraph, claim: id, term: claim.horizon });
-      }
-      if (claim.placement && !PLACEMENT_WORDS[claim.placement].some((h) => containsPhrase(toks, h))) {
-        fail('claim_incomplete', `${id}:placement=${claim.placement}`, { paragraph, claim: id, term: claim.placement });
-      }
+      const prev = told.get(id) ?? { dedicated: 0, exclusive: 0, predicated: false, horizon: false, placement: false, paragraph };
+      told.set(id, {
+        dedicated: prev.dedicated + carriers.reduce((sum, c) => sum + c.words / c.claims.length, 0),
+        exclusive: prev.exclusive + carriers.filter((c) => c.claims.length === 1).reduce((sum, c) => sum + c.words, 0),
+        predicated: prev.predicated || carriers.some((c) => PREDICATE.test(c.st.join(' '))),
+        horizon: prev.horizon || !claim.horizon || statesHorizon(claim.horizon),
+        placement: prev.placement || !claim.placement || PLACEMENT_WORDS[claim.placement].some((h) => containsPhrase(toks, h)),
+        paragraph: prev.paragraph,
+      });
     }
     for (const c of carried) if (c.claims.length === 0 && !focusAnchors.some((a) => containsPhrase(c.st, a))) filler += 1;
+    for (const c of carried) if (c.claims.length && tellsLifeEvent(c.st)) for (const id of c.claims) concreteClaims.add(id);
     for (const h of ['near', 'coming', 'longer'] as const) if (HORIZON_WORDS[h].some((w) => containsPhrase(toks, w))) horizonsStated.add(h);
   });
-  if (filler > Math.max(1, Math.floor(all.length * 0.25))) fail('generic_filler', `ungrounded_sentences=${filler}/${all.length}`);
+  const required = plan.claims.filter((c) => c.weight !== 'minor');
+  for (const claim of plan.claims) {
+    const id = claim.id;
+    const t = told.get(id);
+    if (!t) {
+      if (claim.weight !== 'minor') fail('ungrounded_claim', `${id}:untold_${claim.weight}`, { claim: id });
+      continue;
+    }
+    if (claim.weight === 'minor') {
+      // Optional colour: a short touch or nothing. A minor meaning told at full
+      // length is the "one explanation per meaning" report the real run gave.
+      // Measured on its OWN sentences: a shared word inside the core's sentence is not an explanation.
+      if (t.exclusive > MAX_MINOR_WORDS) fail('focus_lost', `minor_overtold:${id}=${Math.round(t.exclusive)}`, { paragraph: t.paragraph, claim: id });
+      continue;
+    }
+    const floor = claim.weight === 'core' ? MIN_DEDICATED_WORDS : MIN_SUPPORT_WORDS;
+    if (t.dedicated < floor || !t.predicated) {
+      fail('claim_underdeveloped', `${id}:dedicated_words=${Math.round(t.dedicated)}${t.predicated ? '' : ':no_predicate'}`, { paragraph: t.paragraph, claim: id });
+    }
+    if (!t.horizon) fail('claim_incomplete', `${id}:horizon=${claim.horizon}`, { paragraph: t.paragraph, claim: id, term: claim.horizon ?? undefined });
+    if (!t.placement) fail('claim_incomplete', `${id}:placement=${claim.placement}`, { paragraph: t.paragraph, claim: id, term: claim.placement ?? undefined });
+  }
+  // The centre carries the reading: no optional meaning may get more prose than the core.
+  const coreWords = plan.claims.filter((c) => c.weight === 'core').reduce((n, c) => n + (told.get(c.id)?.dedicated ?? 0), 0);
+  const minorMax = Math.max(0, ...plan.claims.filter((c) => c.weight === 'minor').map((c) => told.get(c.id)?.exclusive ?? 0));
+  if (minorMax > coreWords) fail('focus_lost', `minor=${Math.round(minorMax)}>core=${Math.round(coreWords)}`, { term: 'focus' });
+  if (filler > Math.max(1, Math.floor(all.length * 0.3))) fail('generic_filler', `ungrounded_sentences=${filler}/${all.length}`);
+  // Premium is a lived reading: MOST of the required meanings reach a
+  // concrete life domain or event (the abstract real readings did not).
+  const concreteRequired = required.filter((c) => concreteClaims.has(c.id)).length;
+  if (required.length && concreteRequired < Math.floor(required.length / 2) + 1) {
+    fail('generic_filler', `abstract_only:${concreteRequired}/${required.length}`, { term: 'abstract_only' });
+  }
 
   // 4) Repetition: identical sentences, repeated 4-grams, mechanical openers.
   const normalized = all.map((s) => tokens(s).join(' '));
@@ -420,12 +572,28 @@ export function acceptCoffeeV3Narrative(plan: CoffeeV3NPlan, raw: string): Coffe
     const toks = tokens(reading);
     let placeholders = 0;
     for (let k = 0; k + 1 < toks.length; k += 1) {
+      // "bir konuşma" (a conversation) is a concrete event, not the placeholder "bir konu".
+      if (toks[k + 1].startsWith('konuş')) continue;
       if (PLACEHOLDERS.some((p) => { const [a, b] = tokens(p); return toks[k] === a && toks[k + 1].startsWith(b); })) placeholders += 1;
     }
     if (placeholders > MAX_PLACEHOLDERS) fail('mechanical_style', `placeholders=${placeholders}>${MAX_PLACEHOLDERS}`, { term: 'placeholders' });
     const hedges = toks.filter((t) => HEDGE.test(t)).length;
     if (all.length > 0 && hedges > all.length * MAX_HEDGES_PER_SENTENCE) {
       fail('mechanical_style', `hedges=${hedges}/${all.length}_sentences`, { term: 'hedging' });
+    }
+    // Plan notes pasted verbatim ("… belirmesi olası", "… dönme gibi"): the
+    // notes are not sentences. A natural telling reuses a phrase or two; more
+    // whole notes than there are claims is a dump of the plan, not a reading.
+    const listMarkers = LIST_CONNECTORS.reduce((n, p) => n + (containsPhrase(toks, p) ? 1 : 0), 0);
+    if (listMarkers >= 2) fail('mechanical_style', `list_connectors=${listMarkers}`, { term: 'list_connectors' });
+    const copied = new Set<string>();
+    for (const c of plan.claims) {
+      for (const note of [...c.meaning.split(','), ...c.elaborations, ...c.qualities]) {
+        if (tokens(note).length >= 3 && containsPhrase(toks, note, true)) copied.add(fold(note.trim()));
+      }
+    }
+    if (copied.size > plan.claims.length) {
+      fail('mechanical_style', `copied_notes=${copied.size}>${plan.claims.length}`, { term: 'copied_notes' });
     }
   }
 
@@ -451,7 +619,8 @@ export function acceptCoffeeV3Narrative(plan: CoffeeV3NPlan, raw: string): Coffe
     for (const p of META_PHRASES) if (containsPhrase(toks, p)) fail('meta_language', p, at(p));
     toks.forEach((tok, j) => {
       if (META_PREFIXES.some((m) => tok.startsWith(m))) fail('meta_language', tok, at(tok));
-      if (MONTH_DAY.includes(tok) || SPECIFIC_EXACT.has(tok) || SPECIFIC_PREFIXES.some((p) => !p.includes(' ') && tok.startsWith(p))) fail('unsupported_specific', tok, at(tok));
+      const unlicensed = SPECIFIC_PREFIXES.some((p) => !p.includes(' ') && tok.startsWith(p) && !licensed.has(p));
+      if (MONTH_DAY.includes(tok) || SPECIFIC_EXACT.has(tok) || unlicensed) fail('unsupported_specific', tok, at(tok));
       if (AMBIGUOUS_MONTH_DAY.includes(tok) && /^(ay|gün)/u.test(toks[j + 1] ?? '')) fail('unsupported_specific', `${tok} ${toks[j + 1]}`, at(`${tok} ${toks[j + 1]}`));
     });
     for (const p of SPECIFIC_PREFIXES) if (p.includes(' ') && containsPhrase(toks, p)) fail('unsupported_specific', p, at(p));
@@ -476,15 +645,32 @@ export function acceptCoffeeV3Narrative(plan: CoffeeV3NPlan, raw: string): Coffe
   // continuous opening and an intermittent course). A sentence that tells no
   // claim cannot be attributed and is refused, never assumed harmless.
   texts.forEach((t, i) => {
-    const ids = plan.paragraphs[i].claims;
+    const ids = declared[i];
     for (const s of sentencesOf(t)) {
       const st = tokens(s);
-      const tells = ids.filter((cid) => (claimById.get(cid)?.anchors ?? []).some((a) => containsPhrase(st, a)));
+      const tells = ids.filter((cid) => (claimById.get(cid)?.anchors ?? []).some((a) => tellsAnchor(st, a)));
       for (const id of ids) {
         for (const a of claimById.get(id)?.avoid ?? []) {
           if (!containsPhrase(st, a)) continue;
           if (tells.includes(id)) fail('contradiction', `${id}:${a}`, { paragraph: i + 1, claim: id, term: a });
           else if (tells.length === 0) fail('contradiction', `${id}:${a}:unattributed`, { paragraph: i + 1, claim: id, term: a });
+        }
+      }
+    }
+  });
+  // Unlinked meanings are told side by side, never one acting on the other:
+  // influence between two meanings is licensed only by a visual link.
+  texts.forEach((t, i) => {
+    const ids = declared[i];
+    for (const s of sentencesOf(t)) {
+      const st = tokens(s);
+      if (!INFLUENCE.some((w) => containsPhrase(st, w))) continue;
+      const tells = ids.filter((cid) => (claimById.get(cid)?.anchors ?? []).some((a) => tellsAnchor(st, a)));
+      for (let x = 0; x < tells.length; x += 1) {
+        for (let y = x + 1; y < tells.length; y += 1) {
+          const [a, b] = [tells[x], tells[y]];
+          if (plan.links.some((l) => (l.a === a && l.b === b) || (l.a === b && l.b === a))) continue;
+          fail('causal_link', `unlinked_influence:${a}+${b}`, { paragraph: i + 1, claim: a, term: 'unlinked_influence' });
         }
       }
     }

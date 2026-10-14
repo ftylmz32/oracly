@@ -1,5 +1,4 @@
-import { describe, expect, it } from 'vitest';
-import { spawnSync } from 'node:child_process';
+import { describe, expect, it, vi } from 'vitest';
 import { existsSync } from 'node:fs';
 import { dreamMessages } from '../src/ai/prompts.js';
 import { AiProxyService } from '../src/ai/service.js';
@@ -12,6 +11,7 @@ import { buildPhase4c2Matrix, loadPhase4c2Requests } from '../scripts/dream-phas
 import { loadConfig } from '../src/config.js';
 import { deployedOpenAiEnv } from '../scripts/dream-phase4c/production-config.js';
 import { completion, FAKE_KEY, fakeConfig, fakeFetch, frozenRaw } from './dream-phase4c2-support.js';
+import { phase4c2LiveOptInFailure } from '../scripts/dream-phase4c2/live-guard.js';
 
 const attempts = buildPhase4c2Matrix(loadPhase4c2Requests());
 const trFear = attempts.filter((a) => a.caseId === 'tr-negated-fear');
@@ -122,9 +122,12 @@ describe('Phase 4C.2 artifact safety', () => {
 
   it('the live runner refuses without explicit opt-in (no call)', () => {
     const env = { ...process.env, PHASE4C2_LIVE: '', OPENAI_API_KEY: FAKE_KEY };
-    const run = spawnSync('npx tsx scripts/dream-phase4c2/run-live.ts', { env, encoding: 'utf8', shell: true });
-    expect(run.status).toBe(2);
-    expect(run.stderr).toContain('REAL PROVIDER CALLS: 0');
-    expect(`${run.stdout}${run.stderr}`).not.toContain(FAKE_KEY);
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    const failure = phase4c2LiveOptInFailure(env);
+    expect(failure).toBe('PHASE4C2_LIVE=1 not set (explicit opt-in required)');
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(failure).not.toContain(FAKE_KEY);
+    vi.unstubAllGlobals();
   }, 60_000);
 });

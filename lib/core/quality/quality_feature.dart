@@ -8,6 +8,7 @@ enum QualityFeature {
   dream,
   astrology,
   starMap,
+  soulmate,
   companion;
 
   String get wire => name;

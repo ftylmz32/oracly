@@ -14,6 +14,27 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val localPropertiesFile = rootProject.file("local.properties")
+val localProperties = Properties()
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val localDebugApplicationId = providers
+    .gradleProperty("oraclyDebugApplicationId")
+    .orNull
+    ?: localProperties.getProperty("oracly.debugApplicationId")
+val releaseTaskRequested = gradle.startParameter.taskNames.any {
+    it.contains("Release", ignoreCase = true)
+}
+if (localDebugApplicationId != null) {
+    require(localDebugApplicationId == "com.example.oracly_new") {
+        "Only the registered local debug applicationId is allowed."
+    }
+    require(!releaseTaskRequested) {
+        "The local debug applicationId override cannot be used for release tasks."
+    }
+}
+
 android {
     namespace = "app.oracly"
     compileSdk = flutter.compileSdkVersion
@@ -26,7 +47,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "app.oracly"
+        applicationId = localDebugApplicationId ?: "app.oracly"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

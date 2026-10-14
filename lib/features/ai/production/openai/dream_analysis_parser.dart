@@ -22,7 +22,7 @@ abstract final class DreamAnalysisParser {
       'duygu',
     ]);
     final interpretation = _text(json, const ['yorum', 'interpretation']);
-    final daily = _text(json, const [
+    final daily = _optionalText(json, const [
       'gunlukYansi',
       'günlükYansıma',
       'dailyLifeReflection',
@@ -32,7 +32,7 @@ abstract final class DreamAnalysisParser {
     if (summary.isEmpty ||
         theme.isEmpty ||
         interpretation.isEmpty ||
-        daily.isEmpty ||
+        daily == null ||
         conclusion.isEmpty) {
       return null;
     }
@@ -77,6 +77,14 @@ abstract final class DreamAnalysisParser {
       if (value is String && value.trim().length >= 8) return value.trim();
     }
     return '';
+  }
+
+  static String? _optionalText(Map<String, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value is String) return value.trim();
+    }
+    return null;
   }
 
   static List<String> _stringList(Object? raw) {

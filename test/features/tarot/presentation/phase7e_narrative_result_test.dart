@@ -63,7 +63,8 @@ void main() {
       final s = ReadingNarrativeSelector.select(
         _content(
           general: 'A short opening lead about patience.',
-          synthesis: 'The longer primary synthesis holds the main story body '
+          synthesis:
+              'The longer primary synthesis holds the main story body '
               'with several calm reflective sentences about the threshold.',
         ),
       );
@@ -102,8 +103,9 @@ void main() {
   });
 
   group('7E relation honesty', () {
-    testWidgets('Narrative V2 omits local ReadingStoryRelations prose',
-        (tester) async {
+    testWidgets('Narrative V2 omits local ReadingStoryRelations prose', (
+      tester,
+    ) async {
       final content = _content(
         general: 'Summary.',
         synthesis: 'Primary narrative for three cards.',
@@ -135,22 +137,23 @@ void main() {
   });
 
   group('7E memory honesty', () {
-    test('no typed memory UI data → no fabricated recurrence copy in selector',
-        () {
-      final s = ReadingNarrativeSelector.select(
-        _content(general: 'g', synthesis: 's'),
-      );
-      expect(s.primaryNarrative.toLowerCase(), isNot(contains('saw this before')));
-      expect(s.primaryNarrative.toLowerCase(), isNot(contains('recurring')));
-    });
+    test(
+      'no typed memory UI data → no fabricated recurrence copy in selector',
+      () {
+        final s = ReadingNarrativeSelector.select(
+          _content(general: 'g', synthesis: 's'),
+        );
+        expect(
+          s.primaryNarrative.toLowerCase(),
+          isNot(contains('saw this before')),
+        );
+        expect(s.primaryNarrative.toLowerCase(), isNot(contains('recurring')));
+      },
+    );
   });
 
   group('7E result geometry', () {
-    for (final size in const [
-      Size(320, 568),
-      Size(390, 844),
-      Size(412, 915),
-    ]) {
+    for (final size in const [Size(320, 568), Size(390, 844), Size(412, 915)]) {
       testWidgets(
         'fiveCard geometry no horizontal strip @ ${size.width.toInt()}',
         (tester) async {
@@ -239,8 +242,82 @@ void main() {
   });
 
   group('7E hierarchy UI', () {
+    testWidgets(
+      'single-card V2 shows one complete story plus distinct advice only',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(320, 568));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        final content = _content(
+          general: 'REPEATED SUMMARY',
+          synthesis: 'ONE COMPLETE CARD STORY',
+          closing: 'REPEATED CLOSING',
+          advice: 'DISTINCT SHORT ADVICE',
+          cards: 1,
+          label: 'One Card',
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: ReadingPremiumBody(
+                  content: content,
+                  spread: TarotSpreadType.single,
+                  sectionMaster: 1,
+                  panelOpacity: 1,
+                  ambientPhase: 0,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.textContaining('ONE COMPLETE CARD STORY'), findsWidgets);
+        expect(find.textContaining('DISTINCT SHORT ADVICE'), findsOneWidget);
+        expect(find.textContaining('REPEATED SUMMARY'), findsNothing);
+        expect(find.textContaining('REPEATED CLOSING'), findsNothing);
+        expect(find.text(TarotPolishCopy.cardsTitle), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('three-card V2 keeps existing section hierarchy', (
+      tester,
+    ) async {
+      final content = _content(
+        general: 'THREE CARD SUMMARY',
+        synthesis: 'THREE CARD MAIN STORY',
+        closing: 'THREE CARD CLOSING',
+        advice: 'THREE CARD ADVICE',
+        cards: 3,
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ReadingPremiumBody(
+                content: content,
+                spread: TarotSpreadType.threeCard,
+                sectionMaster: 1,
+                panelOpacity: 1,
+                ambientPhase: 0,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.textContaining('THREE CARD SUMMARY'), findsWidgets);
+      expect(find.textContaining('THREE CARD MAIN STORY'), findsWidgets);
+      expect(find.textContaining('THREE CARD CLOSING'), findsOneWidget);
+      expect(find.text(TarotPolishCopy.cardsTitle), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('question + full primary narrative visible', (tester) async {
-      const synthesis = 'Full primary Narrative body that must remain visible '
+      const synthesis =
+          'Full primary Narrative body that must remain visible '
           'without being treated as lucky energy.';
       final content = _content(
         general: 'Short overview lead.',

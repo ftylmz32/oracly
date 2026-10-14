@@ -31,7 +31,19 @@ void main() {
     expect(appIds, contains('1:1075374196330:android:200bc15b1e43a8a2ef2c13'));
 
     final gradle = File('android/app/build.gradle.kts').readAsStringSync();
-    expect(gradle.contains('applicationId = "app.oracly"'), isTrue);
+    expect(
+      gradle.contains(
+        'applicationId = localDebugApplicationId ?: "app.oracly"',
+      ),
+      isTrue,
+    );
+    expect(
+      gradle.contains(
+        'require(!releaseTaskRequested)',
+      ),
+      isTrue,
+      reason: 'debug applicationId override must be impossible for release',
+    );
     expect(gradle.contains('id("com.google.gms.google-services")'), isTrue);
 
     final settings = File('android/settings.gradle.kts').readAsStringSync();

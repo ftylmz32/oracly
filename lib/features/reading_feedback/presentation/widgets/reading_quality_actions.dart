@@ -12,17 +12,26 @@ class ReadingQualityActions extends StatelessWidget {
     super.key,
     required this.feature,
     this.retry,
+    this.contentRef,
+    this.selectedContent,
   });
 
   final QualityFeature feature;
   final Future<bool> Function()? retry;
+  final String? contentRef;
+  final String? selectedContent;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ReadingPositiveLink(feature: feature),
-        ReadingFeedbackLink(feature: feature, retry: retry),
+        ReadingFeedbackLink(
+          feature: feature,
+          retry: retry,
+          contentRef: contentRef,
+          selectedContent: selectedContent,
+        ),
       ],
     );
   }

@@ -23,6 +23,7 @@ import { COMPATIBILITY } from './compatibility.js';
 import { runPhase4c2, validated } from './harness.js';
 import { buildPhase4c2Matrix, loadPhase4c2Requests, PHASE4C2_MAX_CALLS } from './matrix.js';
 import { PENDING_REVIEW } from './record.js';
+import { phase4c2LiveOptInFailure } from './live-guard.js';
 
 const git = (...args: string[]) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 const hashes = () => FROZEN_EVIDENCE.map((p) => createHash('sha256').update(readFileSync(p)).digest('hex'));
@@ -34,7 +35,8 @@ function blocked(reason: string): never {
 }
 
 async function main() {
-  if (process.env.PHASE4C2_LIVE !== '1') blocked('PHASE4C2_LIVE=1 not set (explicit opt-in required)');
+  const optInFailure = phase4c2LiveOptInFailure(process.env);
+  if (optInFailure) blocked(optInFailure);
   const envFile = process.env.PHASE4C_ENV_FILE;
   const apiKey =
     process.env.OPENAI_API_KEY?.trim() || (envFile ? readEnvFileValue(envFile, 'OPENAI_API_KEY') : undefined);

@@ -22,6 +22,11 @@ export type AppConfig = {
   openaiApiKey: string | null;
   openaiModel: string;
   openaiAllowedModels: string[];
+  /**
+   * OR chat-only model override. Null when unset/blank/not allowlisted, so
+   * the existing OPENAI_MODEL/client-hint resolution remains unchanged.
+   */
+  openaiOrModel: string | null;
   openaiTimeoutMs: number;
   /** Image generation timeout — GPT Image can take ~2 minutes. */
   openaiImageTimeoutMs: number;
@@ -179,6 +184,20 @@ export type AppConfig = {
    * or cleanup of an already-created V3 operation (rollback = stop creating).
    */
   coffeeV3CreationEnabled: boolean;
+  /**
+   * Which engine writes a Coffee V3 reading: 'direct' (default — the vision
+   * model reads the photos and writes the fortune freely) or 'narrative'
+   * (the V3N plan / writer / gate chain, kept intact). Only the exact value
+   * ORACLY_COFFEE_V3_ENGINE=narrative selects V3N.
+   */
+  coffeeV3Engine: 'direct' | 'narrative';
+  /**
+   * Which engine writes a palm reading: 'direct' (default — the vision model
+   * reads the palm photo and writes the reading freely within palm's own
+   * accuracy limits) or 'structured' (the observer → writer → gates chain,
+   * kept intact). Only ORACLY_PALM_ENGINE=structured selects the latter.
+   */
+  palmEngine: 'direct' | 'structured';
 };
 
 const DEFAULT_ALLOWED = ['gpt-4o', 'gpt-4o-mini'];
@@ -191,6 +210,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const openaiModel = allowed.includes(requestedModel)
     ? requestedModel
     : 'gpt-4o';
+  const orModelRaw = nonEmpty(env.OPENAI_OR_MODEL);
+  const openaiOrModel =
+    orModelRaw && allowed.includes(orModelRaw) ? orModelRaw : null;
   const timeoutSec = clampInt(env.OPENAI_TIMEOUT_SECONDS, 45, 1, 90);
   // GPT Image generation can approach ~120s; clamp 30–180.
   const imageTimeoutSec = clampInt(
@@ -298,6 +320,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     openaiApiKey: nonEmpty(env.OPENAI_API_KEY),
     openaiModel,
     openaiAllowedModels: allowed.includes('gpt-4o') ? allowed : ['gpt-4o', ...allowed],
+    openaiOrModel,
     openaiTimeoutMs: timeoutSec * 1000,
     openaiImageTimeoutMs: imageTimeoutSec * 1000,
     openaiVision: parseBool(env.OPENAI_VISION, true),
@@ -441,6 +464,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       : positiveIntOrNull(env.ORACLY_DEV_READING_WAIT_MS),
     rewardedAdClaimSecret: nonEmpty(env.ORACLY_REWARDED_AD_CLAIM_SECRET),
     coffeeV3CreationEnabled: parseBool(env.ORACLY_COFFEE_V3_ENABLED, false),
+    coffeeV3Engine: env.ORACLY_COFFEE_V3_ENGINE?.trim() === 'narrative' ? 'narrative' : 'direct',
+    palmEngine: env.ORACLY_PALM_ENGINE?.trim() === 'structured' ? 'structured' : 'direct',
   };
 }
 

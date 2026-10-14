@@ -15,8 +15,11 @@ import '../../../favorite_moments/providers/favorite_moments_providers.dart';
 import '../../copy/companion_copy.dart';
 import 'companion_gold_line_icon.dart';
 import 'companion_reference_tokens.dart';
+import '../../../../core/quality/quality_feature.dart';
+import '../../../reading_feedback/copy/reading_feedback_copy.dart';
+import '../../../reading_feedback/presentation/reading_feedback_opener.dart';
 
-class CompanionOrMessageActions extends StatelessWidget {
+class CompanionOrMessageActions extends ConsumerWidget {
   const CompanionOrMessageActions({
     super.key,
     required this.message,
@@ -35,7 +38,7 @@ class CompanionOrMessageActions extends StatelessWidget {
   final FavoriteMoment? saveDraft;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (message.content.trim().isEmpty) return const SizedBox.shrink();
     return Transform.translate(
       offset: const Offset(0, -6),
@@ -66,6 +69,16 @@ class CompanionOrMessageActions extends StatelessWidget {
                 label: CompanionCopy.speakAction,
                 onTap: () => onSpeak(message.content),
               ),
+            _IconAction(
+              icon: Icons.flag_outlined,
+              label: ReadingFeedbackCopy.action,
+              onTap: () => ReadingFeedbackOpener.open(
+                context,
+                ref,
+                feature: QualityFeature.companion,
+                selectedContent: message.content,
+              ),
+            ),
           ],
         ),
       ),

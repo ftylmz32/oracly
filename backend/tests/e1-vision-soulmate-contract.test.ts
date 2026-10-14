@@ -157,7 +157,8 @@ describe('E1 coffee/palm/soulmate contracts', () => {
     expect(coffee.json().data.visualObservation).toBeTruthy();
     await coffeeApp.close();
 
-    const palmApp = await testApp(testConfig(), openaiReadingSequence(palmObserverJson, palmWriterJson));
+    // Scripts the structured palm chain; the direct palm reader has its own tests.
+    const palmApp = await testApp(testConfig({ ORACLY_PALM_ENGINE: 'structured' }), openaiReadingSequence(palmObserverJson, palmWriterJson));
     const palm = await palmApp.inject({
       method: 'POST',
       url: '/v1/ai/complete',

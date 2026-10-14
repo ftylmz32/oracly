@@ -42,7 +42,7 @@ Flight / reveal / hero remain `full`. Geometry unchanged.
 | `ritual_three_one_settled.png` | ritual | 1 settled | 390×844 | 1.0 | B1 art | `267b5b8d626e99fc56270d641dcd5f68475f45cff917f3f9dc2f94c863b0923d` |
 | `ritual_three_two_settled.png` | ritual | 2 settled | 390×844 | 1.0 | B2 art | `eb9c15de1826aa9829c0857d6dd922b3bdd513dea46a904651bbe6e7e327a0f7` |
 | `ritual_five_partial.png` | ritual | 3 settled | 390×844 | 1.0 | B3 art | `49abec58061930c93862897f6c4b7aaef27e94913c8a84f09763969f91d7ec11` |
-| `result_single_narrative.png` | result | Narrative | 390×844 | 1.0 | C1 | `e73ef6fb54cd43fbc8f275081ed79027e515279b1b0d41e32e6005540cb8d682` |
+| `result_single_narrative.png` | result | Narrative | 390×844 | 1.0 | C1 | `1b67c58c9eceea7fb923402eee1410cd19b9cfe373f273445af34b20279c2a25` |
 | `result_three_narrative.png` | result | Narrative | 390×844 | 1.0 | C2 | `3d4b45a7172bf8efdd141f2969b5d431d09683a6f4f8a0ef92c5c2557d457c06` |
 | `result_five_narrative.png` | result | Narrative | 390×844 | 1.0 | C3 | `fa37792302ff54ef09c96bb50e0cc5f53ebc7cb3d561da630cb34afb37e73be3` |
 | `result_long_narrative.png` | result | long | 390×844 | 1.0 | C4 | `21916df8de00d745d48e829c93edc8a419e906e02d3dab64ce79a127587ed93c` |

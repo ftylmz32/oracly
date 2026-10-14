@@ -44,4 +44,45 @@ void main() {
     expect(a.career, b.career);
     expect(a.energy, b.energy);
   });
+
+  test('twelve signs vary by day without repeating complete lanes', () {
+    final signs = AstrologyContentCatalogue.signs;
+    final sameDay = <String>{};
+
+    for (final sign in signs) {
+      final daily = <String>{};
+      for (var offset = 0; offset < 6; offset++) {
+        final reading = AstrologyDailyReadingService.build(
+          sign,
+          now: DateTime(2026, 10, 13 + offset),
+        );
+        daily.add(reading.overall);
+
+        expect(reading.love, isEmpty);
+        expect(reading.career, isEmpty);
+        expect(reading.money, isEmpty);
+        expect(reading.overall, isNot(contains(reading.emotion)));
+        expect(reading.overall, isNot(contains(reading.caution)));
+
+        final lanes = [
+          reading.energy,
+          reading.emotion,
+          reading.advice,
+          reading.opportunity,
+          reading.caution,
+        ];
+        expect(lanes.toSet(), hasLength(lanes.length));
+      }
+      expect(daily.length, greaterThanOrEqualTo(3), reason: sign.id);
+      sameDay.add(
+        AstrologyDailyReadingService.build(
+          sign,
+          now: DateTime(2026, 10, 13),
+        ).overall,
+      );
+    }
+
+    expect(signs, hasLength(12));
+    expect(sameDay, hasLength(12));
+  });
 }

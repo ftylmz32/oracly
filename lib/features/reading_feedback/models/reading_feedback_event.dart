@@ -17,20 +17,22 @@ class ReadingFeedbackEvent {
   final DateTime at;
 
   Map<String, dynamic> toJson() => {
-        'feature': feature.wire,
-        'category': category.wire,
-        'ok': ok,
-        'at': at.toIso8601String(),
-      };
+    'feature': feature.wire,
+    'category': category.wire,
+    'ok': ok,
+    'at': at.toIso8601String(),
+  };
 
   factory ReadingFeedbackEvent.fromJson(Map<String, dynamic> json) {
     return ReadingFeedbackEvent(
-      feature: QualityFeature.fromWire('${json['feature']}') ??
-          QualityFeature.tarot,
-      category: QualityIssue.fromWire('${json['category']}') ??
-          QualityIssue.generic,
+      feature:
+          QualityFeature.fromWire('${json['feature']}') ?? QualityFeature.tarot,
+      category:
+          QualityIssue.fromWire('${json['category']}') ?? QualityIssue.generic,
       ok: json['ok'] == true,
-      at: DateTime.tryParse('${json['at']}') ?? DateTime.fromMillisecondsSinceEpoch(0),
+      at:
+          DateTime.tryParse('${json['at']}') ??
+          DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 

@@ -3,7 +3,12 @@ import { ErrorCode, errorEnvelope } from '../errors.js';
 import type { SharedWindowStore } from '../rate-limit/shared-window-store.js';
 
 /** In-memory sliding window. Single instance only — not distributed. */
-export function createIdentityRateLimit(max: number, windowMs: number, shared?: SharedWindowStore) {
+export function createIdentityRateLimit(
+  max: number,
+  windowMs: number,
+  shared?: SharedWindowStore,
+  scope = 'identity',
+) {
   const hits = new Map<string, number[]>();
 
   return async function rateLimitHook(
@@ -15,7 +20,7 @@ export function createIdentityRateLimit(max: number, windowMs: number, shared?: 
       await reply.code(401).send(errorEnvelope(ErrorCode.unauthorized));
       return;
     }
-    if (shared && !(await shared.consume('identity', key, max, windowMs))) {
+    if (shared && !(await shared.consume(scope, key, max, windowMs))) {
       await reply.code(429).send(errorEnvelope(ErrorCode.rateLimited)); return;
     }
     if (shared) return;

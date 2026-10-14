@@ -50,6 +50,7 @@ const REASON: Record<string, string> = {
   plot_recap: 'recap_detector',
   unsupported_personal_fact: 'personal_domain_contract',
   ungrounded_section: 'emotional_theme_role_grounding',
+  extra_question: 'natural_conclusion_contract',
 };
 
 export const sha256 = (text: string) => createHash('sha256').update(text.replace(/\r\n/g, '\n')).digest('hex');

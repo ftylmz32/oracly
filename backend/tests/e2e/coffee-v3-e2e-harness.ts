@@ -344,6 +344,8 @@ async function createStack(
     AI_RATE_LIMIT_MAX: '100000',
     AI_MAX_CONCURRENT: '50',
     ORACLY_COFFEE_V3_ENABLED: flagOn ? 'true' : 'false',
+    // This harness scripts and asserts the V3N chain (observer → plan → writer).
+    ORACLY_COFFEE_V3_ENGINE: 'narrative',
     ...(provider.env ?? {}),
   });
   const maxTaskAttempts = provider.maxTaskAttempts ?? 5;
@@ -533,8 +535,16 @@ const owners = { a: identityKeyFromSubject(subjects.a), b: identityKeyFromSubjec
 async function buildEvidence(
   operationIds: string[],
   provider: { records: ReadonlyArray<{ kind: string; systemPromptSha256: string | null }> } & Record<string, unknown>,
+  writerOutputs: ReadonlyArray<{ index: number; attempt: number; outputSha256: string; text: string }> = [],
 ) {
   const writerShas = provider.records.filter((r) => r.kind === 'writer').map((r) => r.systemPromptSha256);
+  const results = await Promise.all(operationIds.map((id) => evidenceFor(id)));
+  // Live only: every real writer text, verbatim, with the acceptance verdict
+  // (matched by the pipeline's own rejection hash). Local evidence file only.
+  const rejected = new Map(
+    results.flatMap((r) => (r.writerRejections as Array<{ outputSha256: string; failures: string[] }> | null) ?? []).map((x) => [x.outputSha256, x.failures]),
+  );
+  const delivered = results.some((r) => r.resultContract === PIPELINE.resultContract);
   return {
     at: new Date().toISOString(),
     pipeline: {
@@ -548,37 +558,46 @@ async function buildEvidence(
       ? { source: liveSetup.replay.source, fileSha256: liveSetup.replay.fileSha256, observationSha256: liveSetup.replay.observationSha256, observerRequestsSent: 0 }
       : null,
     operations: operationIds,
-    results: await Promise.all(
-      operationIds.map(async (id) => {
-        const operation = await on.repository.getById(id);
-        const result = (await on.results.get(id))?.data ?? null;
-        const funnel = operation ? semanticFunnel(operation.ownerUserId, id, operation.coffeeIntention) : null;
-        const v3n = funnel && 'v3n' in funnel ? funnel.v3n : null;
-        return {
-          operationId: id,
-          operation,
-          // The delivered reading, verbatim, and the engine that produced it.
-          reading: typeof result?.overall === 'string' ? result.overall : null,
-          resultContract: result?.coffeeResultContract ?? null,
-          result,
-          // Claim ↔ evidence: what the writer was told (life meaning) and the
-          // server-side visual evidence it rests on (never shown to the person).
-          claimEvidence: v3n
-            ? v3n.claims.map((c) => ({
-                id: c.id, theme: c.theme, meaningToldToWriter: c.meaning, horizon: c.horizon, placement: c.placement,
-                certainty: c.certainty, evidence: { seen: c.seen, symbol: c.symbol, surface: c.surface, provenance: c.provenance },
-              }))
-            : null,
-          paragraphs: v3n ? v3n.paragraphs : null,
-          // Why each refused writer sample failed: codes, paragraph / claim, matched
-          // term and the output sha256 — never the refused text itself.
-          writerRejections: operation
-            ? readingStageStore.get(operation.ownerUserId, `reading-operation:${id}`, COFFEE_V3N_WRITER_REJECTIONS_STAGE)
-            : null,
-          semanticFunnel: funnel,
-        };
-      }),
-    ),
+    results,
+    writerOutputs: writerOutputs.map((o) => ({
+      index: o.index,
+      attempt: o.attempt,
+      outputSha256: o.outputSha256,
+      verdict: rejected.has(o.outputSha256) ? 'rejected' : delivered ? 'accepted' : 'unknown',
+      failures: rejected.get(o.outputSha256) ?? [],
+      text: o.text,
+    })),
+  };
+}
+
+/** One operation's evidence: delivered reading, contract, claim ↔ evidence, rejections, funnel. */
+async function evidenceFor(id: string) {
+  const operation = await on.repository.getById(id);
+  const result = (await on.results.get(id))?.data ?? null;
+  const funnel = operation ? semanticFunnel(operation.ownerUserId, id, operation.coffeeIntention) : null;
+  const v3n = funnel && 'v3n' in funnel ? funnel.v3n : null;
+  return {
+    operationId: id,
+    operation,
+    // The delivered reading, verbatim, and the engine that produced it.
+    reading: typeof result?.overall === 'string' ? result.overall : null,
+    resultContract: result?.coffeeResultContract ?? null,
+    result,
+    // Claim ↔ evidence: what the writer was told (life meaning) and the
+    // server-side visual evidence it rests on (never shown to the person).
+    claimEvidence: v3n
+      ? v3n.claims.map((c) => ({
+          id: c.id, theme: c.theme, meaningToldToWriter: c.meaning, horizon: c.horizon, placement: c.placement,
+          certainty: c.certainty, evidence: { seen: c.seen, symbol: c.symbol, surface: c.surface, provenance: c.provenance },
+        }))
+      : null,
+    paragraphs: v3n ? v3n.paragraphs : null,
+    // Why each refused writer sample failed: codes, paragraph / claim, matched
+    // term and the output sha256 (a live run adds the texts under writerOutputs).
+    writerRejections: operation
+      ? readingStageStore.get(operation.ownerUserId, `reading-operation:${id}`, COFFEE_V3N_WRITER_REJECTIONS_STAGE)
+      : null,
+    semanticFunnel: funnel,
   };
 }
 
@@ -634,13 +653,14 @@ const control = createServer(async (req, res) => {
       case 'POST /shutdown': {
         if (liveGuard) {
           liveGuard.seal('test_finished'); // nothing may leave after this
-          // Redacted evidence OUTSIDE the repository: request metadata only
-          // (no credential, no image bytes), the delivered public result and
-          // the recomputed semantic funnel for the owner's quality review.
+          // Evidence OUTSIDE the repository: request metadata (no credential,
+          // no image bytes), every real writer text with its verdict, the
+          // delivered public result and the recomputed semantic funnel.
           mkdirSync(liveOutputDir, { recursive: true });
           const evidence = await buildEvidence(
             (body.operationIds ?? []) as string[],
             { records: liveGuard.records(), refusals: liveGuard.refusals(), attempts: liveGuard.attempts(), sealed: liveGuard.sealed() },
+            liveGuard.writerOutputs(),
           );
           writeFileSync(join(liveOutputDir, `coffee_v3_live_${Date.now()}.json`), JSON.stringify(evidence, null, 2));
         }

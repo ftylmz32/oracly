@@ -512,7 +512,8 @@ describe('LIS2 result contract (AB–AI)', () => {
 // Worker, economy, gem acceleration and create gate (real services, fake fetch)
 // ---------------------------------------------------------------------------
 
-function worker(writer: string[], observation: unknown = PREMIUM()) {
+/** The worker scenarios below script the V3N chain (observer → writer) unless `engine` says direct. */
+function worker(writer: string[], observation: unknown = PREMIUM(), engine: 'narrative' | 'direct' = 'narrative') {
   const store = new MemoryDocumentStore();
   const clock = new FixedClock(Date.parse('2026-10-10T00:00:00.000Z'));
   const policy = provisionalWaitPolicy({ coffee: 1000, palm: 1000, soulmate: 1000 });
@@ -520,7 +521,7 @@ function worker(writer: string[], observation: unknown = PREMIUM()) {
   const operations = new ReadingOperationService(operationRepository, clock, policy);
   const stagedRepository = new FirestoreReadingStagedImageRepository(store);
   const objects = new MemoryStagedObjectStore();
-  const config = testConfig();
+  const config = testConfig({ ORACLY_COFFEE_V3_ENGINE: engine });
   const stagedImages = new ReadingStagedImageService(stagedRepository, objects, operations, clock, config);
   const ledger = new GemLedger(store, clock, provisionalGemCostPolicy({ coffee: 10, palm: 15, soulmate: 20 }));
   const flow = new ReadingFlow(store, clock, operations, ledger);
@@ -670,6 +671,43 @@ describe('LIS2 worker dispatch and success (AS–BC)', () => {
     // V2 is still chosen by slot presence: once in the worker, once in the unchanged public handler.
     expect(h.hasAnyV2Calls()).toBe(2);
     expect(h.fake.bodies.some((b) => JSON.stringify(b).includes('coffee_v3_observation'))).toBe(false);
+  });
+});
+
+describe('V3D direct engine through the real worker: delivery, persistence, cleanup, refund', () => {
+  /** SYNTHETIC free fortune (life only). */
+  const DIRECT = 'Önümüzdeki haftalarda beklediğin bir haber geliyor; bir telefonla başlayan konuşma seni hiç ummadığın bir yola çıkaracak.\n\nKalbin tarafında da hareket var: araları bozuk olduğun biriyle barışma ihtimali güçlü, iş tarafında ise yeni bir teklif kapıda.';
+  const LEAK = 'Fincanında bir kuş var, haber geliyor ve önümüzdeki günlerde sevineceksin; bir telefonla başlayan konuşma uzun zamandır beklediğin değişimi getirecek gibi görünüyor, kısmetin açık.';
+
+  it('one vision request with the three photos, the reading persisted once verbatim, V3 views cleaned', async () => {
+    const h = worker([DIRECT], PREMIUM(), 'direct');
+    const op = await h.v3Op('direct-success');
+    await h.stageAll(op.operationId);
+    h.clock.ms = op.readyAtMs;
+    expect(await h.processor.process(op.operationId)).toBe('completed');
+    expect(h.fake.bodies).toHaveLength(1);
+    expect(JSON.stringify(h.fake.bodies[0]).match(/data:image\/jpeg;base64,/g)).toHaveLength(3);
+    expect(JSON.stringify(h.fake.bodies[0])).not.toContain('coffee_v3_observation');
+    expect((await h.results.get(op.operationId))?.data).toMatchObject({ coffeeResultContract: 'v3_narrative_v1', overall: DIRECT });
+    expect(h.resultDocs()).toBe(1);
+    expect(await h.stagedRepository.listCoffeeV3Slots(op.operationId, h.owner)).toEqual([]);
+    expect(await h.processor.process(op.operationId)).toBe('noop');
+    expect(h.fake.bodies).toHaveLength(1);
+  });
+
+  it('two visual leaks on an accelerated op → failFinal(unavailable), no result, refund exactly once', async () => {
+    const h = worker([LEAK, LEAK], PREMIUM(), 'direct');
+    await h.ledger.credit({ ownerUserId: h.owner, amount: 40, idempotencyKey: 'seed-credit-direct' });
+    const op = await h.v3Op('direct-leak');
+    await h.stageAll(op.operationId);
+    await h.ledger.accelerate({ ownerUserId: h.owner, operationId: op.operationId, idempotencyKey: 'accelerate-direct' });
+    h.clock.ms = Math.max(h.clock.ms, op.readyAtMs);
+    expect(await h.processor.process(op.operationId)).toBe('failed');
+    expect(await h.operationRepository.getById(op.operationId)).toMatchObject({ status: 'failed', failureCode: 'unavailable' });
+    expect(h.fake.bodies).toHaveLength(2);
+    expect(h.resultDocs()).toBe(0);
+    expect(h.refunds()).toBe(1);
+    expect(await h.ledger.balanceOf(h.owner)).toBe(40);
   });
 });
 

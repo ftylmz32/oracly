@@ -1,5 +1,5 @@
-/// Dream Phase 2 — the closing carries exactly one open question.
-/// None or two-plus is rejected (never trimmed into one); `?` elsewhere in
+/// Dream Phase 2 — the closing may be a grounded statement or one question.
+/// Two-plus is rejected (never trimmed into one); `?` elsewhere in
 /// the reading never affects the client closing (the backend Phase 4B gate
 /// rejects it before delivery).
 library;
@@ -71,11 +71,11 @@ void main() {
       );
     });
 
-    test('0 questions rejected', () {
+    test('0 questions accepted when the closing is grounded', () {
       expect(DreamAnalysisGuard.conclusion(
-          'Açık pencereden içeri bir esinti giriyor.', tr), isNull);
+          'Açık pencereden içeri bir esinti giriyor.', tr), isNotNull);
       expect(DreamAnalysisGuard.conclusion(
-          'The door in the sand stays open.', en), isNull);
+          'The door in the sand stays open.', en), isNotNull);
       expect(DreamAnalysisGuard.conclusion(null, tr), isNull);
     });
 
@@ -105,12 +105,16 @@ void main() {
       expect(DreamAnalysisGuard.questionMarks(closing.body), 1);
     });
 
-    // Phase 4B: the closing is a required premium section — a rejected one
+    // Phase 4B: the closing is a required premium section — an invalid one
     // is an invalid response, never replaced by a local question.
-    for (final bad in [
-      'Açık pencereden içeri bir esinti giriyor, sessiz ev bekliyor.',
-      'Pencere neden açıktı? Sessiz evde kim vardı?',
-    ]) {
+    test('grounded statement → AI closing', () async {
+      final closing = await _closing(
+          'Açık pencereden içeri bir esinti giriyor, sessiz ev bekliyor.');
+      expect(closing.source, DreamInsightSource.ai);
+      expect(DreamAnalysisGuard.questionMarks(closing.body), 0);
+    });
+
+    for (final bad in ['Pencere neden açıktı? Sessiz evde kim vardı?']) {
       test('rejected closing fails closed: $bad', () async {
         await expectLater(
           _closing(bad),

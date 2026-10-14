@@ -42,14 +42,14 @@ export function soulmateInterpretationMessages(
     input.intention ? `statedPreference=${sanitizeText(input.intention, 200)}` : '',
     `portraitPresence=${identity.presence}`,
     `relationalTone=${identity.relationshipArchetype || identity.mood}`,
-    `expressionEnergy=${identity.expressionEnergy || identity.expression}`,
-    `stylingEnergy=${identity.stylingEnergy || identity.wardrobe}`,
   ]
     .filter(Boolean)
     .join('\n');
-  const repairLine = repair
-    ? `Previous draft was rejected for ${repair}. Rewrite once. Do not repeat that defect.`
-    : '';
+  const repairLine = repair === 'adjective_list'
+    ? 'Previous draft flattened several sections into comma-heavy trait lists. Rewrite once: give each section a distinct relational insight in flowing sentences, and do not recycle the same calm/trust/balance description across sections.'
+    : repair
+      ? `Previous draft was rejected for ${repair}. Rewrite once. Do not repeat that defect.`
+      : '';
   const memory = sanitizeText(input.memorySummary, 220);
   const memoryLine = memory
     ? `Relevant sourced history (use only when the current stated intention supports it; otherwise ignore):\n${memory}`
@@ -66,8 +66,9 @@ export function soulmateInterpretationMessages(
         'Shared identity is relational tone only. Do not describe face, hair, eyes, or skin, and do not treat visual traits as personality facts.',
         'Use natural uncertainty. Never claim certainty, an exact date, or a guaranteed meeting.',
         'Do not start sections with "bu kisi" or "this person". Do not repeat the given name in every section.',
-        'Cover personality, relationship dynamic, attraction, friction, meeting energy, and overall feeling.',
-        'Each value is 2 short sentences, specific to this identity, not a generic romance slogan.',
+        'Keep the six angles distinct: personality shows inner character; dynamic shows how two people relate; attraction shows what draws them together; challenge shows a specific friction; meeting shows the encounter energy without inventing a place or date; feeling closes with the atmosphere they create together. Do not recycle one trait across sections.',
+        'Treat the supplied relational tone as an opening note for personality, not the subject of the remaining sections. Then let the reading move like a romantic story through interaction, a source of attraction, a real tension, an evocative symbolic encounter, and the atmosphere created together; develop each new moment instead of redescribing the character.',
+        'Let each section use the natural length and rhythm its distinct insight needs. Keep it specific to this identity, not a generic romance slogan.',
         'Return JSON only with keys personality, dynamic, attraction, challenge, meeting, feeling.',
         repairLine,
       ]

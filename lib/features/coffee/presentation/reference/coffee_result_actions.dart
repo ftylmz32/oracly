@@ -111,12 +111,22 @@ class CoffeeResultActions extends StatelessWidget {
         ReadingQualityActions(
           feature: QualityFeature.coffee,
           retry: onReinterpret,
+          contentRef: _operationId(reading.id, 'coffee_'),
+          selectedContent: [
+            reading.overall,
+            reading.love,
+            reading.career,
+            reading.money,
+            reading.nearFuture,
+            reading.takeaway,
+          ].where((part) => part.trim().isNotEmpty).join('\n\n'),
         ),
         SizedBox(height: AppSpacing.sm),
         DiscoveryShareAction(
           discovery: DiscoveryShareBuilder.coffee(
-            symbolName:
-                reading.symbols.isEmpty ? null : reading.symbols.first.name,
+            symbolName: reading.symbols.isEmpty
+                ? null
+                : reading.symbols.first.name,
             overall: reading.overall,
             cupImage: cupImage,
           ),
@@ -131,4 +141,11 @@ class CoffeeResultActions extends StatelessWidget {
       ],
     );
   }
+}
+
+String? _operationId(String resultId, String prefix) {
+  final candidate = resultId.startsWith(prefix)
+      ? resultId.substring(prefix.length)
+      : resultId;
+  return RegExp(r'^[a-f0-9]{32}$').hasMatch(candidate) ? candidate : null;
 }

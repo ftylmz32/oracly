@@ -27,15 +27,17 @@ describe('ai complete', () => {
 
   // Since Dream Phase 4C.1 each field rule is stated once, in the system
   // field-rules block; the user lead only names the fields.
-  it('requires grounded non-empty Dream daily reflection without personal history', () => {
+  it('keeps Dream reflection grounded without inventing waking-life context', () => {
     const [sys, usr] = dreamMessages({ narrative: 'Sessiz bir bahçede altın bir kapı gördüm.' });
     const system = String(sys?.content);
     const user = String(usr?.content);
-    expect(user).toContain('dailyLifeReflection (boş bırakma)');
-    expect(system).toContain('dailyLifeReflection: bu rüyanın bir somut ayrıntısını');
+    expect(user).toContain('dailyLifeReflection (yalnız gerçek bağlam destekliyorsa)');
+    expect(system).toContain('dailyLifeReflection: yalnızca rüya ya da verilen ilgili geçmiş bağlam uyanık hayatla gerçek bir bağ destekliyorsa yaz');
+    expect(system).toContain('desteklemiyorsa boş dize ver');
+    expect(system).toContain('bu rüyanın somut bir ayrıntısını taşı');
     expect(system).toContain('kişisel bağlam uydurma');
     expect(system).toContain('uyanık hayata dair bir sorun uydurma');
-    expect(`${system} ${user}`).not.toContain('yoksa boş bırak');
+    expect(user).not.toContain('dailyLifeReflection (boş bırakma)');
   });
   it('requires relational symbol reasoning and discourages generic tropes in Dream prompts', () => {
     // Regression for a real production quality defect: the model defaulted to
@@ -301,7 +303,8 @@ describe('ai complete', () => {
   });
 
   it('validates palm vision and returns symbolic line fields', async () => {
-    const app = await testApp(testConfig(), openaiReadingSequence(palmObserverJson, palmWriterJson));
+    // Scripts the structured palm chain (observer → writer); the direct palm reader has its own tests.
+    const app = await testApp(testConfig({ ORACLY_PALM_ENGINE: 'structured' }), openaiReadingSequence(palmObserverJson, palmWriterJson));
     const res = await app.inject({
       method: 'POST',
       url: '/v1/ai/complete',

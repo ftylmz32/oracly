@@ -1,9 +1,11 @@
 /// Phase 7F — Narrative semantic roundtrip + card fidelity (no provider).
 library;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/domain/models/reading.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
+import 'package:oracly_new/features/tarot/domain/models/tarot_spread.dart';
 import 'package:oracly_new/features/tarot/interpretation/formatters/interpretation_formatter.dart';
 import 'package:oracly_new/features/tarot/interpretation/models/interpretation_result.dart';
 import 'package:oracly_new/features/tarot/narrative/result/narrative_tarot_result_bridge.dart';
@@ -11,6 +13,8 @@ import 'package:oracly_new/features/tarot/narrative/result/narrative_tarot_resul
 import 'package:oracly_new/features/tarot/presentation/utils/reading_history_mapper.dart';
 import 'package:oracly_new/features/tarot/presentation/utils/saved_reading_parser.dart';
 import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_narrative_selector.dart';
+import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_premium_body.dart';
+import 'package:oracly_new/features/tarot/presentation/widgets/ai_reading/reading_result_mode.dart';
 
 import '../narrative_prompt/narrative_prompt_test_support.dart';
 import '../narrative_result/phase6d_test_support.dart';
@@ -105,5 +109,74 @@ void main() {
     expect(model.deliveryKind, 'interpretation');
     expect(reopened.sourceAttributionKnown, isTrue);
     expect(reopened.isAiInterpretation, isTrue);
+  });
+
+  testWidgets('saved single-card Narrative V2 reopens as one story safely', (
+    tester,
+  ) async {
+    final model = ReadingModel(
+      id: 'saved_single_v2',
+      cardId: 5,
+      cardName: 'Five of Cups',
+      cardImageAsset: 'assets/cards/cups_05.webp',
+      spreadType: 'single',
+      aiSummary: '''
+## Summary
+OLD REPEATED SUMMARY
+
+## Spread as a whole
+OLD SAVED COMPLETE STORY
+
+## Advice
+OLD DISTINCT ADVICE
+
+## Closing
+OLD REPEATED CLOSING
+''',
+      createdAt: DateTime.utc(2026, 9, 25),
+      sessionId: 'saved_single_v2',
+      resultMode: 'narrativeV2',
+      interpretationSource: 'ai',
+      deliveryKind: 'interpretation',
+      cards: const [
+        ReadingCardSnapshot(
+          cardId: 5,
+          cardName: 'Five of Cups',
+          cardImageAsset: 'assets/cards/cups_05.webp',
+          positionIndex: 0,
+          positionLabel: 'Sign',
+          positionKey: 'sign',
+          isReversed: true,
+        ),
+      ],
+    );
+    final entry = ReadingHistoryMapper.fromModel(model);
+    final reopened = SavedReadingParser.toContent(entry: entry, model: model);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ReadingPremiumBody(
+              content: reopened,
+              spread: TarotSpreadType.single,
+              modeOverride: ReadingResultMode.narrativeV2,
+              showFlowProgress: false,
+              sectionMaster: 1,
+              panelOpacity: 1,
+              ambientPhase: 0,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.textContaining('OLD SAVED COMPLETE STORY'), findsWidgets);
+    expect(find.textContaining('OLD DISTINCT ADVICE'), findsOneWidget);
+    expect(find.textContaining('OLD REPEATED SUMMARY'), findsNothing);
+    expect(find.textContaining('OLD REPEATED CLOSING'), findsNothing);
+    expect(reopened.drawnCards.single.isReversed, isTrue);
+    expect(tester.takeException(), isNull);
   });
 }

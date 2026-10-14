@@ -39,7 +39,7 @@ function sectionResponsibilityRules(): string[] {
   return [
     'DIRECT ANSWER: when a real question exists, summary must address what was asked. Do not open with "This reading shows/highlights…" / "The cards indicate…" or equivalent boilerplate.',
     'For relationship questions, answer the emotional or decision dynamic symbolically and with epistemic uncertainty — never claim factual access to another person\'s feelings.',
-    'summary: ~1 concise sentence that directly answers. Do not explain every card. Do not repeat advice or closing.',
+    'summary: answer directly at the length the question and spread need. Do not explain every card or repeat advice or closing.',
     'cardReadings: what THIS card + position + orientation contributes. Do not restate the full reading.',
     'synthesis: what becomes visible when evidence is combined. One-card = central tension/tradeoff only. Multi-card = connect cards. Do NOT rewrite summary.',
     'relationshipInsights: exact supplied card-to-card relationship evidence — not a synthesis duplicate.',
@@ -47,17 +47,19 @@ function sectionResponsibilityRules(): string[] {
     'recurringThemeInsights: what the repeated theme adds — do not restate the current relationship question.',
     'memoryInsights: what prior interpretation context adds TODAY — not merely "this has been a theme before."',
     'lifeAreas: only when materially distinct. If it would restate summary/synthesis, return [].',
-    'advice: one practical reflective action. Do not summarize the reading first.',
-    'reflectionPrompt: one useful self-reflection question — not advice rephrased as a question. Use null when it adds little.',
+    'advice: practical reflective guidance when the evidence supports it. Do not turn every reading into coaching or summarize the reading first.',
+    'reflectionPrompt: a useful self-reflection question when it genuinely deepens the reading — not advice rephrased as a question. Use null when it adds little.',
     'dailyFocus: short optional behavioral focus. Use null when redundant.',
-    'closingMessage: one short SPECIFIC closing thought. Never summarize again, never restate advice, never use generic blessing / ceremonial Tarot filler ("embrace the journey", "journey ahead", "may your…", "guided by…", or translated equivalents as empty ceremony).',
-    'Do not repeat the same central idea across summary, synthesis, advice, lifeAreas, and closingMessage. When one-card evidence yields one theme, compress and omit optional fields rather than restating it in every section.',
+    'closingMessage: a specific natural closing thought. Never summarize again, restate advice, or use generic ceremonial Tarot filler in place of insight.',
+    'Let a meaningful theme develop across sections when each section adds a new angle. Reject only empty restatement; do not force artificial topic changes.',
   ];
 }
 
 function compressionAndOptionalFieldRules(): string[] {
   return [
-    'Single-card spreads must stay compact: summary concise; cardReading = interpretation; synthesis = tension only; advice = action only; optional fields empty/null unless distinctly useful; closing short and non-repetitive.',
+    'Single-card spreads should be proportionate to their evidence. Let the model choose natural rhythm and length; keep optional fields empty/null unless distinctly useful.',
+    'For one card, do not compensate for fewer cards by turning every section into guidance. Let the card\'s concrete image, position, orientation, and tension unfold as a compact reading addressed to the user; advice is one supporting consequence, not the narrative voice.',
+    'For one card, synthesis is the one complete, satisfying reading the user can read as a continuous story: begin from the card\'s concrete visual symbols, position, and upright/reversed orientation, meet the user\'s question, and let the interpretation develop toward a new meaning. Do not make it a short recap or a coaching list. Keep summary to a brief lead for storage and navigation; keep cardReadings evidence-specific; make advice a short, distinct consequence only when useful. Required closingMessage must not repeat the story, and reflectionPrompt/dailyFocus should be null unless each adds a genuinely new dimension.',
     'Do not fill every optional field merely because the schema allows it. Empty optional content is better than filler.',
     'lifeAreas are optional — return [] when no unique domain connection; never pad.',
   ];

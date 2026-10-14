@@ -55,8 +55,8 @@ const TR: DreamPromptCopy = {
     'Sayı ya da tarih yazma.',
   lead:
     'Bu rüyayı alan kurallarına göre yorumla. ' +
-    'JSON: summary (tek cümle), symbols (metindeki öbekler; boş olabilir), emotionalTheme (belirtilen duygular), ' +
-    'interpretation (ayrıntılar arasındaki ilişki), dailyLifeReflection (boş bırakma), conclusion (tek açık soru).',
+    'JSON: summary (rüyanın ihtiyacı kadar kısa ve doğal), symbols (metindeki öbekler; boş olabilir), emotionalTheme (belirtilen duygular), ' +
+    'interpretation (ayrıntılar arasındaki ilişki), dailyLifeReflection (yalnız gerçek bağlam destekliyorsa), conclusion (doğal bir kapanış; soru olmak zorunda değil).',
   symbols: 'Gözlenen semboller',
   emotions: 'Belirtilen duygular',
   memory:
@@ -86,8 +86,8 @@ const EN: DreamPromptCopy = {
     'Do not write counts or dates.',
   lead:
     'Read this dream by the field rules. ' +
-    'JSON: summary (one sentence), symbols (exact phrases from the text; may be empty), emotionalTheme (stated feelings), ' +
-    'interpretation (details in relation), dailyLifeReflection (never empty), conclusion (one open question).',
+    'JSON: summary (as concise as this dream naturally needs), symbols (exact phrases from the text; may be empty), emotionalTheme (stated feelings), ' +
+    'interpretation (details in relation), dailyLifeReflection (only when supported by real context), conclusion (a natural close; it need not be a question).',
   symbols: 'Observed symbols',
   emotions: 'Stated feelings',
   memory:
@@ -117,8 +117,8 @@ const RU: DreamPromptCopy = {
     'Не пиши чисел и дат.',
   lead:
     'Истолкуй этот сон по правилам полей. ' +
-    'JSON: summary (одно предложение), symbols (точные словосочетания из текста; может быть пустым), emotionalTheme (названные чувства), ' +
-    'interpretation (детали во взаимосвязи), dailyLifeReflection (не оставляй пустым), conclusion (один открытый вопрос).',
+    'JSON: summary (кратко и естественно для этого сна), symbols (точные словосочетания из текста; может быть пустым), emotionalTheme (названные чувства), ' +
+    'interpretation (детали во взаимосвязи), dailyLifeReflection (только если это поддерживает реальный контекст), conclusion (естественное завершение; вопрос не обязателен).',
   symbols: 'Замеченные символы',
   emotions: 'Названные чувства',
   memory:

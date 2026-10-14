@@ -25,12 +25,19 @@ class ReadingNarrativeSelection {
 abstract final class ReadingNarrativeSelector {
   ReadingNarrativeSelector._();
 
-  static ReadingNarrativeSelection select(AiReadingContent content) {
+  static ReadingNarrativeSelection select(
+    AiReadingContent content, {
+    bool singleCardNarrative = false,
+  }) {
     final synthesis = content.luckyEnergy.trim();
     final summary = content.generalMeaning.trim();
     final primary = synthesis.isNotEmpty ? synthesis : summary;
-    final opening = _openingIfDistinct(summary: summary, primary: primary);
-    final direction = content.closingMessage.trim().isNotEmpty
+    final opening = singleCardNarrative
+        ? ''
+        : _openingIfDistinct(summary: summary, primary: primary);
+    final direction = singleCardNarrative
+        ? content.dailyAdvice.trim()
+        : content.closingMessage.trim().isNotEmpty
         ? content.closingMessage.trim()
         : content.dailyAdvice.trim();
     return ReadingNarrativeSelection(

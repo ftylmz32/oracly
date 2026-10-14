@@ -205,18 +205,18 @@ function validResult(narrative: Record<string, unknown>) {
 describe('Yıldızname paid-quality writer contract', () => {
   const prompt = yildiznameSystemRules().join('\n');
 
-  it('requires one cross-fact birth portrait instead of placement mini-definitions', () => {
-    expect(prompt).toContain('BUILD ONE BIRTH PORTRAIT');
-    expect(prompt).toContain('at least two supplied facts');
-    expect(prompt).toContain('Do not march through placements one by one');
+  it('requires a coherent cross-fact portrait without one-theme lock-in', () => {
+    expect(prompt).toContain('BUILD A COHERENT BIRTH PORTRAIT');
+    expect(prompt).toContain('several related threads');
+    expect(prompt).toContain('march through placements one by one');
     expect(prompt).toContain('A list joined by commas is not synthesis');
   });
 
   it('gives sections distinct narrative roles and keeps safety discipline silent', () => {
-    expect(prompt).toContain('each section explores a different consequence');
+    expect(prompt).toContain('Each section may deepen it or follow another well-supported thread');
     expect(prompt).toContain('Keep safety and evidence discipline SILENT');
     expect(prompt).toContain('Never tell the user that the reading is "not prophecy"');
-    expect(prompt).toContain('closingMessage adds a personal final resonance without disclaimers');
+    expect(prompt).toContain('closingMessage adds personal resonance without disclaimers');
   });
 });
 

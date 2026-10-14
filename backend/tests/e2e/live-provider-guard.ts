@@ -24,6 +24,7 @@
  * never request or response content.
  */
 import { createHash } from 'node:crypto';
+import { extractMessageContent } from '../../src/ai/extract-message-content.js';
 
 export const OFFICIAL_OPENAI_BASE_URL = 'https://api.openai.com/v1';
 
@@ -54,6 +55,14 @@ export type LiveRequestRecord = {
   durationMs: number;
 };
 
+/**
+ * The text a writer request returned, exactly as the transport hands it to
+ * the pipeline (same extraction, so `outputSha256` equals the pipeline's
+ * rejection hash). Kept in memory for the LOCAL evidence file only (outside
+ * the repository); never a header, key or image.
+ */
+export type LiveWriterOutput = { index: number; attempt: number; outputSha256: string; text: string };
+
 export class LiveProviderBudgetError extends Error {
   constructor(readonly reason: string) {
     super(`live_provider_refused:${reason}`);
@@ -66,6 +75,7 @@ type Fetch = (input: string | URL | Request, init?: RequestInit) => Promise<Resp
 export type LiveProviderGuard = {
   fetch: Fetch;
   records: () => LiveRequestRecord[];
+  writerOutputs: () => LiveWriterOutput[];
   refusals: () => string[];
   attempts: () => number;
   seal: (why?: string) => void;
@@ -99,6 +109,7 @@ export function createLiveProviderGuard(input: {
   }
   const endpoint = `${OFFICIAL_OPENAI_BASE_URL}/chat/completions`;
   const records: LiveRequestRecord[] = [];
+  const writerOutputs: LiveWriterOutput[] = [];
   const refusals: string[] = [];
   let attempt = 0;
   let observerInAttempt = 0;
@@ -178,7 +189,11 @@ export function createLiveProviderGuard(input: {
       record.status = response.status;
       record.outcome = response.ok ? 'ok' : 'http_error';
       try {
-        const usage = ((await response.clone().json()) as { usage?: Record<string, number> }).usage;
+        const json = (await response.clone().json()) as {
+          usage?: Record<string, number>;
+          choices?: Array<{ message?: { content?: unknown } }>;
+        };
+        const usage = json.usage;
         if (usage) {
           record.usage = {
             promptTokens: usage.prompt_tokens,
@@ -186,8 +201,17 @@ export function createLiveProviderGuard(input: {
             totalTokens: usage.total_tokens,
           };
         }
+        const text = kind === 'writer' && response.ok ? extractMessageContent(json.choices?.[0]?.message?.content) : '';
+        if (text) {
+          writerOutputs.push({
+            index: record.index,
+            attempt: record.attempt,
+            outputSha256: createHash('sha256').update(text, 'utf8').digest('hex'),
+            text,
+          });
+        }
       } catch {
-        // Usage is optional evidence; the transport still reads the body.
+        // Usage / text are optional evidence; the transport still reads the body.
       }
       return response;
     } catch (error) {
@@ -204,6 +228,7 @@ export function createLiveProviderGuard(input: {
   return {
     fetch: guarded,
     records: () => records.map((r) => ({ ...r, usage: r.usage ? { ...r.usage } : null })),
+    writerOutputs: () => writerOutputs.map((o) => ({ ...o })),
     refusals: () => [...refusals],
     attempts: () => attempt,
     seal: (why = 'test_finished') => {

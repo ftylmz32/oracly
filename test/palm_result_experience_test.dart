@@ -43,7 +43,10 @@ void main() {
     )!;
     expect(reading.overall.toLowerCase(), contains('açık'));
     expect(reading.heartLine.toLowerCase(), contains('belirgin'));
-    expect(reading.headLine, isEmpty);
+    // Policy (owner, 2026-10-12): server text is shown verbatim — ordinary
+    // palm wording ("temsil eder") is no longer deleted by the client; only a
+    // lifespan / illness / death claim is never shown (safety net).
+    expect(reading.headLine, 'Kalp çizgisi duyguları temsil eder.');
     expect(reading.lifeLine, isEmpty);
     expect(reading.overall.toLowerCase(), isNot(contains('temsil eder')));
     expect(reading.overall.toLowerCase(), isNot(contains('ömür')));

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
+import 'package:oracly_new/core/constants/app_assets.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/coffee/copy/coffee_copy.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
@@ -33,12 +34,16 @@ void main() {
     Size(430, 932),
   ];
 
-  testWidgets('camera CTA reaches capture without mock bottom nav', (tester) async {
+  testWidgets('camera CTA reaches capture without mock bottom nav', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
-    await tester.pumpWidget(_coffeeApp(storage, images: const _SilentCoffeeImages()));
+    await tester.pumpWidget(
+      _coffeeApp(storage, images: const _SilentCoffeeImages()),
+    );
     await tester.pump();
 
     expect(find.byType(OraclyBottomBar), findsNothing);
@@ -73,9 +78,7 @@ void main() {
     final message = CoffeeCopy.analyzing;
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: CoffeeLoadingView(message: message),
-        ),
+        home: Scaffold(body: CoffeeLoadingView(message: message)),
       ),
     );
     expect(find.text(message), findsOneWidget);
@@ -125,21 +128,18 @@ void main() {
       );
       expect(photo.width, lessThan(screenW * 0.82));
       expect(photo.width, greaterThan(screenW * 0.42));
-      final image = tester.getRect(
-        find.descendant(
-          of: find.byType(CoffeeCupHero),
-          matching: find.byType(OraclyAssetImage),
-        ),
+      final heroImageFinder = find.descendant(
+        of: find.byType(CoffeeCupHero),
+        matching: find.byType(OraclyAssetImage),
       );
+      final image = tester.getRect(heroImageFinder);
+      final heroImage = tester.widget<OraclyAssetImage>(heroImageFinder);
       final px = CoffeeCupHero.assetPx;
-      expect(
-        image.width / image.height,
-        closeTo(px.width / px.height, 0.02),
-      );
-      final plate = tester.widgetList<OraclyAssetImage>(
-        find.byType(OraclyAssetImage),
-      );
-      expect(plate.any((w) => w.fit == BoxFit.contain), isTrue);
+      expect(image.width / image.height, closeTo(px.width / px.height, 0.02));
+      expect(heroImage.fit, BoxFit.contain);
+      expect(heroImage.alignment, Alignment.center);
+      expect(heroImage.assetPath, AppAssets.coffeeRitualHero);
+      expect(heroImage.assetPath, endsWith('coffee_ritual_hero.webp'));
     });
   }
 }
@@ -148,7 +148,9 @@ Widget _coffeeApp(LocalStorage storage, {CoffeeImageInputPort? images}) {
   return ProviderScope(
     overrides: [
       localStorageProvider.overrideWithValue(storage),
-      coffeeAnalysisProvider.overrideWithValue(const UnavailableCoffeeAnalysis()),
+      coffeeAnalysisProvider.overrideWithValue(
+        const UnavailableCoffeeAnalysis(),
+      ),
       if (images != null) coffeeImageInputProvider.overrideWithValue(images),
     ],
     child: const MaterialApp(home: CoffeeReferenceScreen()),
@@ -163,9 +165,11 @@ class _FakeCoffeeImages implements CoffeeImageInputPort {
   @override
   bool get galleryAvailable => true;
   @override
-  Future<CoffeeImagePick?> pickFromCamera() async => CoffeeImagePick(path: path);
+  Future<CoffeeImagePick?> pickFromCamera() async =>
+      CoffeeImagePick(path: path);
   @override
-  Future<CoffeeImagePick?> pickFromGallery() async => CoffeeImagePick(path: path);
+  Future<CoffeeImagePick?> pickFromGallery() async =>
+      CoffeeImagePick(path: path);
 }
 
 class _SilentCoffeeImages implements CoffeeImageInputPort {

@@ -64,9 +64,13 @@ void main() {
     final drifted = <String>[];
     for (final (i, old) in before.indexed) {
       final next = now[i];
-      if (jsonEncode(old) == jsonEncode(next)) continue;
+      expect(next['requiredAiSections'], 4,
+          reason: '${old['runId']} current required contract');
+      final normalizedOld = Map<String, dynamic>.from(old)
+        ..['requiredAiSections'] = next['requiredAiSections'];
+      if (jsonEncode(normalizedOld) == jsonEncode(next)) continue;
       drifted.add(old['runId'] as String);
-      final oldFields = old['fields'] as Map;
+      final oldFields = normalizedOld['fields'] as Map;
       final nextFields = next['fields'] as Map;
       for (final field in oldFields.keys) {
         if (jsonEncode(oldFields[field]) == jsonEncode(nextFields[field])) {

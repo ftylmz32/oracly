@@ -22,7 +22,7 @@ export function parseDreamData(raw: string): DreamData {
   const summary = pickText(json, ['ozet', 'özet', 'summary']);
   const emotionalTheme = pickText(json, ['duygusalTema', 'emotionalTheme', 'duygu']);
   const interpretation = pickText(json, ['yorum', 'interpretation']);
-  const dailyLifeReflection = pickText(json, [
+  const dailyLifeReflection = pickOptionalText(json, [
     'gunlukYansi',
     'günlükYansıma',
     'dailyLifeReflection',
@@ -33,7 +33,7 @@ export function parseDreamData(raw: string): DreamData {
     !summary ||
     !emotionalTheme ||
     !interpretation ||
-    !dailyLifeReflection ||
+    dailyLifeReflection === null ||
     !conclusion
   ) {
     fail(ErrorCode.invalidResponse);
@@ -46,6 +46,17 @@ export function parseDreamData(raw: string): DreamData {
     dailyLifeReflection,
     conclusion,
   };
+}
+
+function pickOptionalText(
+  json: Record<string, unknown>,
+  keys: string[],
+): string | null {
+  for (const key of keys) {
+    const value = json[key];
+    if (typeof value === 'string') return value.trim();
+  }
+  return null;
 }
 
 export type CoffeeSymbol = {

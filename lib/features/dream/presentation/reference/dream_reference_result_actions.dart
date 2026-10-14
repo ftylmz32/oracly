@@ -14,6 +14,8 @@ import '../../copy/dream_copy.dart';
 import '../../models/dream.dart';
 import '../../models/dream_insight.dart';
 import '../../../personal_discovery/services/personal_theme_extractor.dart';
+import '../../../../core/quality/quality_feature.dart';
+import '../../../reading_feedback/presentation/widgets/reading_quality_actions.dart';
 
 class DreamReferenceResultActions extends ConsumerWidget {
   const DreamReferenceResultActions({
@@ -39,9 +41,9 @@ class DreamReferenceResultActions extends ConsumerWidget {
   /// genuine theme once it is mixed into the analysis text.
   static List<String> themesFor(Dream? current) {
     if (current == null) return const [];
-    return PersonalThemeExtractor.themesIn(current.narrative)
-        .map((t) => t.label)
-        .toList(growable: false);
+    return PersonalThemeExtractor.themesIn(
+      current.narrative,
+    ).map((t) => t.label).toList(growable: false);
   }
 
   @override
@@ -58,11 +60,11 @@ class DreamReferenceResultActions extends ConsumerWidget {
               id: current.id,
               narrative: current.narrative,
               analysis: analysis,
-              symbols: current.understanding?.symbols
-                      .map((s) => s.label)
-                      .toList() ??
+              symbols:
+                  current.understanding?.symbols.map((s) => s.label).toList() ??
                   const [],
-              emotionalTheme: _body(current, DreamInsightKind.summary) ??
+              emotionalTheme:
+                  _body(current, DreamInsightKind.summary) ??
                   _body(current, DreamInsightKind.emotionalMeaning),
               fullInterpretation: analysis,
             ),
@@ -74,6 +76,12 @@ class DreamReferenceResultActions extends ConsumerWidget {
           sessionThemes: themes,
           orAlreadyOffered: current != null && analysis.trim().isNotEmpty,
         ),
+        ReadingQualityActions(
+          feature: QualityFeature.dream,
+          retry: onReinterpret,
+          selectedContent: analysis,
+        ),
+        SizedBox(height: AppSpacing.sm),
         OraclyButton(
           text: DreamCopy.closeReading,
           isExpanded: true,

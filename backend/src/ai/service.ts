@@ -50,6 +50,7 @@ import { requestOpenAiSpeech } from './openai-speech.js';
 import type { ValidatedRequest } from './validate-request.js';
 import { ReadingPipeline } from './reading/pipeline.js';
 import { runCoffeeV3NarrativeReading } from './reading/coffee-v3n-narrative-pipeline.js';
+import { runCoffeeV3DirectReading } from './reading/coffee-v3d-direct-pipeline.js';
 import { readingStageStore } from './reading/stage-cache.js';
 import type { ReadingLanguage } from '../reading/operation-model.js';
 
@@ -147,9 +148,11 @@ export class AiProxyService {
     request: Extract<ValidatedRequest, { operation: 'chat' }>,
     model: string,
   ) {
+    const chatModel = this.config.openaiOrModel ?? model;
+    const isSol = chatModel === 'gpt-5.6-sol';
     const text = extractChatText(
       await this.transport.complete({
-        model,
+        model: chatModel,
         messages: chatMessages(
           request.userMessage,
           request.priorUser,
@@ -160,7 +163,9 @@ export class AiProxyService {
           request.depth ?? 'balanced',
           request.spoken ?? false,
         ),
-        temperature: 0.72,
+        ...(isSol
+          ? { reasoningEffort: 'none' as const }
+          : { temperature: 0.72 }),
       }),
     );
     return { text };
@@ -265,8 +270,10 @@ export class AiProxyService {
    * contract is 'three_view_v3', with server-owned values only. The staging
    * service re-verifies owner, readingType and contract before returning the
    * three views (two cup + saucer). Terminal outcomes surface as `CoffeeV3TerminalFailure`.
-   * V3N1: the versioned narrative successor produces the reading; the frozen
-   * M2 → W4 chain (`runCoffeeV3Reading`) is kept intact for its own coverage.
+   * V3D: the direct fortune-teller engine writes the reading (config
+   * `coffeeV3Engine`, default 'direct'); the V3N narrative chain stays intact
+   * and selectable ('narrative'). The frozen M2 → W4 chain
+   * (`runCoffeeV3Reading`) is kept for its own coverage only.
    */
   async coffeeV3(input: {
     operationId: string;
@@ -289,7 +296,8 @@ export class AiProxyService {
       }
       throw error;
     }
-    return runCoffeeV3NarrativeReading({
+    const engine = this.config.coffeeV3Engine === 'narrative' ? runCoffeeV3NarrativeReading : runCoffeeV3DirectReading;
+    return engine({
       config: this.config,
       transport: this.transport,
       stageStore: readingStageStore,

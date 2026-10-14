@@ -198,7 +198,8 @@ async function harness(observation = goodV2Observation()) {
   const operationRepository = new FirestoreReadingOperationRepository(store);
   const operations = new ReadingOperationService(operationRepository, clock, waitPolicy);
   const stagedRepository = new FirestoreReadingStagedImageRepository(store);
-  const config = testConfig({ AI_JWT_SECRET: SECRET, AI_APP_CHECK_REQUIRED: 'true' });
+  // Palm check J scripts the structured palm chain (observer schema); the direct palm reader has its own tests.
+  const config = testConfig({ AI_JWT_SECRET: SECRET, AI_APP_CHECK_REQUIRED: 'true', ORACLY_PALM_ENGINE: 'structured' });
   const stagedImages = new ReadingStagedImageService(stagedRepository, objects, operations, clock, config);
   const { fetchImpl, seen } = recordingFetch(observation);
   const app = await buildServer({

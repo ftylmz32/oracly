@@ -56,6 +56,14 @@ describe('Dream Phase 4B — emotion contract', () => {
     expect(emotionStances('korku yok').get('fear')).toEqual({ affirmed: false, negated: true });
     expect(emotionStances('бесстрашно').get('fear')).toEqual({ affirmed: false, negated: true });
   });
+
+  it('keeps recorded Turkish rather-than and accompanying-negation forms clause-scoped', () => {
+    const denied = { affirmed: false, negated: true };
+    expect(emotionStances('Rüyada korkudan çok, hafif bir aciliyet var.').has('fear')).toBe(false);
+    expect(emotionStances('Bu duyguya korku eşlik etmiyor.').get('fear')).toEqual(denied);
+    expect(emotionStances('Bu duyguya korku eşlik ediyor.').get('fear')).toEqual({ affirmed: true, negated: false });
+    expect(emotionStances('Korkudan çok etkilendim.').get('fear')).toEqual({ affirmed: true, negated: false });
+  });
 });
 
 describe('Dream Phase 4B — questions, symbols, personal facts, memory', () => {

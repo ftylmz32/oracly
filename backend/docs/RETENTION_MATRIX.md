@@ -18,6 +18,7 @@ No period below is a legal assertion. It is the shortest operational period supp
 | `purchaseBindings` | Prevent dual entitlement / token hash | Active ownership lifetime plus minimum fraud/accounting need; no TTL | Remove current UID; retain pseudonymous history | No user content; pseudonymous |
 | ownership history | Rebind/fraud evidence / purchase-binding hash | Same as binding | Survives, pseudonymized | No user content; pseudonymous |
 | `accountDeletionReceipts` | Retry-safe deletion proof / receipt hash | 30 days, `expiresAt` | Survives as pseudonymous receipt | No content; pseudonymous |
+| `aiContentReports` | Developer review of authenticated AI-content reports / `ownerUserId` | 30 days, `expiresAt`; selected output is optional, consented and capped at 2,000 characters | Delete; transactional deletion barrier blocks late writes | Category/reference metadata and, only with opt-in, user-selected unverified AI output |
 | `readingNotificationTokens` | FCM delivery / `ownerUserId` | Until logout, switch, deletion, refresh replacement, or invalid-token response | Delete | Device token; pseudonymous owner but token is sensitive |
 | OR/Luna memory | Personalization / `ownerUserId` | Account lifetime | Delete | User content; pseudonymous owner |
 | `securityRateWindows` | Distributed abuse control / hashed key | Two windows maximum; TTL `expiresAt` | TTL | No content; pseudonymous |
@@ -25,4 +26,4 @@ No period below is a legal assertion. It is the shortest operational period supp
 
 ## Future cloud action
 
-After review, enable Firestore TTL policies on `expiresAt` for `securityRateWindows`, `responseReplay`, `accountDeletionReceipts`, `readingOperations`, `readingOperationKeys`, `readingOperationInputs`, `readingOperationStagedImages`, `readingProviderStages`, and `readingOperationResults`. This R5 task does not mutate Firestore configuration.
+After review, enable Firestore TTL policies on `expiresAt` for `securityRateWindows`, `responseReplay`, `accountDeletionReceipts`, `readingOperations`, `readingOperationKeys`, `readingOperationInputs`, `readingOperationStagedImages`, `readingProviderStages`, `readingOperationResults`, and `aiContentReports`. Production operators must configure `aiContentReports.expiresAt` as a TTL field in the Google Cloud Firestore TTL page (or the equivalent approved infrastructure workflow) and verify deletion after expiry. This repository change does not mutate Firestore configuration. Reports remain backend-only under the deny-all client rules; an authorized developer reviews them in the Firestore console using a least-privilege IAM role.

@@ -24,6 +24,7 @@ const DELETE_COLLECTIONS = [
   'readingOperationStagedImages', 'readingOperationInputs', 'readingNotificationTokens',
   'readingNotificationTokenOwners',
   'readingProviderStages',
+  'aiContentReports',
   // SMD1 — Soulmate portrait metadata; the GCS object itself is deleted
   // below (mirrors the staged-image GCS cleanup right above it).
   'readingSoulmatePortraits',

@@ -71,10 +71,7 @@ class AstrologyReferenceDetailBody extends ConsumerWidget {
           height: AstrologyReferenceTokens.detailSignCardHeight,
         ),
         SizedBox(height: AstrologyReferenceTokens.statsToDaily),
-        AstrologyResultReport(
-          reading: reading,
-          themeLabels: themeLabels,
-        ),
+        AstrologyResultReport(reading: reading, themeLabels: themeLabels),
         SizedBox(height: AppSpacing.sm),
         Text(
           SessionEndingCopy.footerWhisper,
@@ -108,7 +105,21 @@ class AstrologyReferenceDetailBody extends ConsumerWidget {
             reading: reading,
           ),
         ),
-        ReadingQualityActions(feature: QualityFeature.astrology),
+        ReadingQualityActions(
+          feature: QualityFeature.astrology,
+          selectedContent: [
+            reading.overall,
+            reading.personality,
+            reading.love,
+            reading.career,
+            reading.money,
+            reading.energy,
+            reading.emotion,
+            reading.advice,
+            reading.opportunity,
+            reading.caution,
+          ].where((part) => part.trim().isNotEmpty).join('\n\n'),
+        ),
       ],
     );
   }
@@ -141,4 +152,3 @@ List<Widget> _depthSection(AstrologyDailyReading reading) {
     ),
   ];
 }
-

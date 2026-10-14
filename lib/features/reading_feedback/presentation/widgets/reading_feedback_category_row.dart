@@ -43,8 +43,7 @@ class ReadingFeedbackCategoryRow extends StatelessWidget {
                 child: Text(
                   label,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color:
-                        selected ? palette.goldLight : palette.textSecondary,
+                    color: selected ? palette.goldLight : palette.textSecondary,
                   ),
                 ),
               ),

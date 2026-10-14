@@ -21,7 +21,7 @@ const PRE = new Set([
 ]);
 const EN_COPULA = new Set(['was', 'is', 'were', 'are', 'felt', 'seemed', 'stayed']);
 const EN_ABSENT = new Set(['absent', 'missing', 'gone', 'lacking', 'nowhere', 'free']);
-const TR_FILLER = new Set(['hiç', 'da', 'de', 'bile', 'asla', 'pek', 'hissi', 'duygusu']);
+const TR_FILLER = new Set(['hiç', 'da', 'de', 'bile', 'asla', 'pek', 'hissi', 'duygusu', 'eşlik']);
 const TR_POST =
   /^(?:değil\p{L}*|yok\p{L}*|uzak\p{L}*|yerine|hisset(?:me[dyzmn]|miyor)\p{L}*|hissedil(?:me[dyzmn]|miyor)\p{L}*|duy(?:ma[dyzmn]|muyor)\p{L}*|duyul(?:ma[dyzmn]|muyor)\p{L}*|et(?:me[dyzmn]|miyor)\p{L}*|ol(?:ma[dyzmn]|muyor)\p{L}*|yaşa(?:ma[dyzmn]|mıyor)\p{L}*|dönüş(?:me[dyzmn]|müyor)\p{L}*)$/u;
 const RU_AFTER_NE = /^(?:было|был|была|ощущ\p{L}*|чувств\p{L}*|испыт\p{L}*|возник\p{L}*|появ\p{L}*)$/u;
@@ -76,6 +76,11 @@ function negatedInClause(c: string[], i: number): boolean {
 function subordinated(c: string[], i: number): boolean {
   const before = c[i - 1];
   if (before && OUTWEIGHS.test(before)) return true;
+  // Turkish "korkudan çok," / "endişeden ziyade," means "rather than
+  // fear/anxiety". The comma already closes this clause in `clauses`, so keep
+  // the narrow end-of-clause shape; do not suppress ordinary uses of "çok".
+  if (/\p{L}+(?:dan|den|tan|ten)$/u.test(c[i]!) &&
+      (c[i + 1] === 'çok' || c[i + 1] === 'ziyade') && i + 2 === c.length) return true;
   if (!before || !OVER.has(before)) return false;
   return c.slice(Math.max(0, i - 4), i - 1).some((w) => PREVAILS.test(w));
 }

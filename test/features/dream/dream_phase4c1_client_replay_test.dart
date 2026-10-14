@@ -70,12 +70,12 @@ void main() {
     expect(out.readAsStringSync().replaceAll('\r\n', '\n'), encoded);
   });
 
-  test('backend-accepted live bodies deliver all five AI sections', () {
+  test('backend-accepted live bodies deliver all required AI sections', () {
     final all = replays();
     expect(all, isNotEmpty);
     for (final r in all) {
       expect(r['clientResult'], 'PASS', reason: '${r['runId']}');
-      expect(r['requiredAiSections'], 5, reason: '${r['runId']}');
+      expect(r['requiredAiSections'], 4, reason: '${r['runId']}');
       expect(r['fromAi'], isTrue, reason: '${r['runId']}');
     }
   });

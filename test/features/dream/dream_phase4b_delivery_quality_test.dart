@@ -16,19 +16,34 @@ List<DreamInsight> _complete() => [
     ];
 
 void main() {
-  test('requires exactly the five AI sections; themes stay local', () {
+  test('requires four AI sections; optional life reflection may be absent', () {
     expect(DreamPremiumDeliveryQuality.required, [
       DreamInsightKind.summary,
       DreamInsightKind.emotionalMeaning,
       DreamInsightKind.mainInterpretation,
-      DreamInsightKind.personalConnection,
       DreamInsightKind.closingTakeaway,
     ]);
+    expect(DreamPremiumDeliveryQuality.required,
+        isNot(contains(DreamInsightKind.personalConnection)));
     expect(DreamPremiumDeliveryQuality.required,
         isNot(contains(DreamInsightKind.themes)));
     expect(DreamPremiumDeliveryQuality.required,
         isNot(contains(DreamInsightKind.recurringPattern)));
     expect(DreamPremiumDeliveryQuality.accepts(_complete()), isTrue);
+  });
+
+  test('absent reflection is valid, but a rejected local replacement is not', () {
+    expect(DreamPremiumDeliveryQuality.accepts(_complete()), isTrue);
+    final rejected = [
+      ..._complete(),
+      _section(DreamInsightKind.personalConnection,
+          source: DreamInsightSource.local),
+    ];
+    expect(DreamPremiumDeliveryQuality.firstGap(
+      rejected,
+      reflectionExpected: true,
+    ),
+        DreamInsightKind.personalConnection);
   });
 
   for (final kind in DreamPremiumDeliveryQuality.required) {

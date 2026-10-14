@@ -249,7 +249,12 @@ describe('6E.3 Result Contract V2', () => {
     expect(rules).toMatch(/partner/i);
     expect(rules).toMatch(/mental state/i);
     expect(rules).toMatch(/lifeAreas are optional/i);
-    expect(rules).toMatch(/Do not repeat/i);
+    // Repetition control is semantic, not a blanket wording ban: a theme may
+    // develop when sections add distinct value, while empty restatement and
+    // summary/advice duplication remain prohibited.
+    expect(rules).toMatch(/each section a different job/i);
+    expect(rules).toMatch(/empty restatement/i);
+    expect(rules).toMatch(/Do not restate|Never summarize again/i);
     expect(rules).toMatch(/natively/i);
     expect(rules).toMatch(/TR:/);
     expect(rules).toMatch(/RU:/);

@@ -59,59 +59,18 @@ export const COFFEE_V3_PREMIUM_GOOD_BEATS = [
  * the deterministic V3N acceptance for their plans and prove plumbing / gates
  * ONLY, never real provider quality.
  */
-export const COFFEE_V3N_PREMIUM_WRITER_OUTPUT = JSON.stringify({
-  "paragraphs": [
-    {
-      "claims": [
-        "c1",
-        "c2"
-      ],
-      "text": "Yakın zamanda, yakın çevrende ve kendi dünyanda zamanla büyüyen, kök salan bir gelişme seziliyor. Acele eden bir hareket değil bu; yavaş ama sağlam bir büyüme, emeklerinin zamanla filizlendiği bir dönem gibi görünüyor. Aynı dönemde vermen gereken kararla ilgili gündemindeki meselenin de ivme kazanabileceği, adım adım güçlenerek ilerleyebileceği hissediliyor."
-    },
-    {
-      "claims": [
-        "c3",
-        "c4"
-      ],
-      "text": "Önümüzdeki dönemde önünde birden fazla seçeneğin belirebileceği görülüyor; bu seçenekler birbirinden ayrıştıkça hangisinin sana daha yakın olduğu kendiliğinden belirginleşebilir. Daha uzun vadede ise önünün açılabileceği, sana nefes aldıran ferah bir aralığın oluşabileceği seziliyor. Bu açılım, şu an üzerinde düşündüğün kararın daha rahat, daha az sıkıştırılmış bir yerden verilebileceği bir alan gibi; kararın zamanla kendine uygun bir yere oturabilir."
-    }
-  ]
-});
+export const COFFEE_V3N_PREMIUM_WRITER_OUTPUT = "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"Vermen gereken kararın cevabı yakın zamanda, kendi dünyanda, sana yakın çevrende kök salmaya başlayan bir emekte saklı gibi. Acele etmeden ama kalıcı biçimde büyüyen bir gelişme seziliyor; emeklerinin zamanla meyve vereceği bir dönem bu. Yakın günlerde iş tarafında attığın adımların ivme kazandığını, çabalarının karşılık bulmaya başladığını fark edebilirsin.\"},{\"claims\":[\"c3\"],\"text\":\"Bu büyümenin içinde önüne gelen seçenekler arasındaki karar anı da kendiliğinden netleşiyor gibi.\"}]}";
 
 /** Same, for the structure-only RITAG cup (the shape of the first real three-photo run). */
-export const COFFEE_V3N_RITAG_WRITER_OUTPUT = JSON.stringify({
-  "paragraphs": [
-    {
-      "claims": [
-        "c1",
-        "c2"
-      ],
-      "text": "Vermen gereken kararla ilgili bir konunun yakın zamanda ivme kazanabileceği hissediliyor. Bu hareket aceleyle gelen bir sıçrama gibi değil; kesintisiz ama zamana yayılan, adım adım güçlenen bir ilerleme gibi görünüyor. Daha uzun vadede ise önünün açılabileceğini, sana nefes aldıran ferah bir aralık oluşabileceğini sezdiriyor. İçinde taşıdığın bu kararın, zorlamadan kendi ritminde rahatlayabileceği bir dönem gibi."
-    },
-    {
-      "claims": [
-        "c3"
-      ],
-      "text": "Önümüzdeki dönemde önünde birden fazla seçeneğin belirebileceği görülüyor. Bu seçenekler birbirinden ayrıştıkça hangisinin sana daha yakın olduğunu hissetmen kolaylaşabilir. Hangi yönün ağır basacağı şimdilik açık değil; seçenekler çoğaldıkça kararın da daha net bir yön bulabilir."
-    }
-  ]
-});
+export const COFFEE_V3N_RITAG_WRITER_OUTPUT = "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"Vermen gereken kararla ilgili yakın zamanda iş tarafında attığın adımların ivme kazandığı hissediliyor; emeklerinin görülmeye, çabalarının karşılık bulmaya başladığı bir hareket bu. Daha uzun vadede ise sıkışan bir işin çözülmeye başlaması, beklenen bir cevabın gelip içini rahatlatması olası.\"},{\"claims\":[\"c3\"],\"text\":\"Bu ilerleyişin ortasında önüne gelen seçenekler arasında bir karar anı da belirebilir gibi.\"}]}";
 
-/** Further SIMULATED scenarios: C3.1 set id, trusted intention, writer output. */
+/**
+ * Further SIMULATED scenarios: C3.1 set id, trusted intention, writer output.
+ * Story contract: the core development carries the reading, support is brief,
+ * a minor meaning is a short touch (human-authored, NOT provider output).
+ */
 export const COFFEE_V3N_SIMULATED_SCENARIOS = [
-  {
-    "setId": "C3F-GAZETA",
-    "intention": "Önümüzdeki dönem genel olarak",
-    "output": "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"Önümüzdeki dönemde bir konunun önünün açılabileceği, sana daha rahat hareket edebileceğin ferah bir alan bırakabileceği hissediliyor. Bu açılımın içinde birden fazla seçenek de belirebilir; sanki rahatladıkça önündeki yönler çoğalıyor. Seçenekler birbirinden ayrıştıkça neyin sana iyi geldiğini daha net görebilirsin.\"},{\"claims\":[\"c3\"],\"text\":\"Daha uzun vadede bir konunun yavaş yavaş hareketlenip yol alabileceği seziliyor. Bu ilerleme kesintisiz bir akış gibi görünüyor; duraksamadan, kendi temposunda devam eden bir gidişat. Gösterişli değil ama istikrarlı; belki de ancak dönüp baktığında ne kadar yol aldığını fark edeceğin sakin bir ilerleme olabilir.\"}]}"
-  },
-  {
-    "setId": "C3F-UNAL",
-    "intention": "Aşk ve ilişkilerim hakkında",
-    "output": "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"Aşk ve ilişkiler tarafında yakın zamanda beklenmedik bir dönüş, planladığından biraz farklı bir yöne değişim hissediliyor. Bu değişimle birlikte hareketli günlerinin yavaş yavaş durulup sakinleşeceği de seziliyor. Telaşın azaldığı, gönlünün daha sakin bir yerde dinlenebileceği bir dönem gibi görünüyor.\"},{\"claims\":[\"c3\"],\"text\":\"Belli belirsiz de olsa içindeki meselenin kendi içinde tamamlanıp yerine oturacağı hissediliyor. Bir dönemin sessizce toparlanması, ilişkiler tarafında daha olgun ve daha netleşmiş bir hâle geçiş gibi; zorlamadan, kendi zamanında olgunlaşan bir kapanış. Bu toparlanmayla birlikte gönlündeki bir meselenin de zamanla netleşebileceği seziliyor.\"}]}"
-  },
-  {
-    "setId": "C3F-HALIL",
-    "intention": "İşim ve kariyerim hakkında",
-    "output": "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"İş ve kariyer tarafında yakın zamanda hareketli bir konunun yavaş yavaş durulup sakinleşebileceği seziliyor. Bu sakinleşme bir anda değil, zamana yayılan ve kesintisiz bir yatışma gibi görünüyor. Daha uzun vadede ise bununla bağlantılı bir dönüş, planladığından biraz farklı bir yöne değişim belirebilir.\"},{\"claims\":[\"c3\"],\"text\":\"Yakın dönemde gündeminin küçük işlerle ve ayrıntılarla dolabileceği hissediliyor. Birçok iş aynı anda ilerleyebilir; kalabalık ama dağınık olmayan, hareketli bir tempo gibi. Bu yoğunluk yorucu olmaktan çok, işlerinin akışını canlı tutan bir hareketlilik gibi hissedilebilir.\"}]}"
-  }
+  { setId: 'C3F-GAZETA', intention: 'Önümüzdeki dönem genel olarak', output: "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"Önümüzdeki dönemde iş tarafında sıkışan bir meselenin çözülmeye başladığı, içini ferahlatan bir rahatlama seziliyor. Tam bu açılımın içinde önüne iki teklif ya da iki yol çıkabilir; hangisinin sana iyi geleceği zamanla netleşiyor gibi ve karar anı bu ferahlıkla birlikte geliyor.\"},{\"claims\":[\"c3\"],\"text\":\"Daha ileride durgun işlerin yeniden hareketlendiği, kısa bir yolculuğun da gündeme gelebileceği görülüyor.\"}]}" },
+  { setId: 'C3F-UNAL', intention: 'Aşk ve ilişkilerim hakkında', output: "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"Aşk ve ilişkiler tarafında yakın zamanda planların son anda değişebilir; beklenmedik bir gelişme alışık olduğun dengeleri biraz oynatıyor gibi. Bu değişimle birlikte yakın günlerde araların düzelmesi, bir gerginliğin yavaş yavaş yatışması da olası; telaşın yerini daha sakin bir yakınlık alıyor.\"},{\"claims\":[\"c2\"],\"text\":\"Seni yoran o durum yumuşadıkça yakın günlerde gönlün de, günlerin de daha sakin akıyor gibi.\"}]}" },
+  { setId: 'C3F-HALIL', intention: 'İşim ve kariyerim hakkında', output: "{\"paragraphs\":[{\"claims\":[\"c1\",\"c2\"],\"text\":\"İş ve kariyer tarafında yakın zamanda seni yoran bir gerginliğin yatıştığı, araların düzeldiği seziliyor; telaşın yerini dinginlik alıyor gibi. Daha uzun vadede ise planların son anda değişebilir; beklenmedik bir gelişme işlerin dengesini biraz değiştiriyor ama bu dönüş sana yabancı gelmiyor gibi.\"},{\"claims\":[\"c3\"],\"text\":\"Bu arada yakın günlerde küçük işler ve koşuşturmalar gündemini canlı tutabilir.\"}]}" },
 ] as const;

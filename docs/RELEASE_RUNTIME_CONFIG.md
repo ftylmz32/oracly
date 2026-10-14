@@ -54,6 +54,21 @@ path and that the backend is actually listening on that port.
 
 Missing / localhost / LAN / plain HTTP values are **rejected** in release (fail closed). AI does not fabricate answers; Premium does not invent remote verification.
 
+## Internal device verification against the stable service
+
+For a debug build on a registered Android device, use the checked-in,
+public-only internal configuration:
+
+```bash
+flutter run --dart-define-from-file=tool/dart_defines.internal.json
+```
+
+`APP_ENV=internal` pins the existing stable Cloud Run service URL from
+`OraclyRuntimeConfig`; it does not use a revision-tag URL. The file also opts
+the build into Coffee V3 capture with the same explicit public rollout key
+used by the backend. Firebase Auth and App Check remain required; register the
+device's App Check debug token in Firebase Console when necessary.
+
 ## Optional (public)
 
 | Key | Notes |
@@ -61,6 +76,7 @@ Missing / localhost / LAN / plain HTTP values are **rejected** in release (fail 
 | `ORACLY_AI_MODEL` | Default `gpt-4o` |
 | `ORACLY_AI_TIMEOUT_SECONDS` | Default `45` (15–90) |
 | `ORACLY_AI_VISION` | Default `true` |
+| `ORACLY_COFFEE_V3_ENABLED` | Explicit Coffee V3 three-photo client rollout. Backend must independently enable creation. |
 | `ORACLY_PRIVACY_POLICY_URL` | Public HTTPS privacy policy |
 | `ORACLY_TERMS_OF_USE_URL` | Public HTTPS terms |
 | `ORACLY_DATA_DELETION_URL` | Public HTTPS data deletion instructions |

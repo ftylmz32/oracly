@@ -50,6 +50,8 @@ import { registerAccountDeletionRoute } from './routes/account-deletion.js';
 import type { AccountDeletionRepository } from './account/account-deletion.js';
 import type { SharedWindowStore } from './rate-limit/shared-window-store.js';
 import type { ResponseReplayRepository } from './middleware/response-replay-repository.js';
+import { registerContentReportRoutes } from './routes/content-reports.js';
+import type { ContentReportRepository } from './content-reports/content-report-repository.js';
 
 export type BuildOptions = {
   config: AppConfig;
@@ -90,6 +92,7 @@ export type BuildOptions = {
   accountDeletionRepository?: AccountDeletionRepository;
   sharedWindowStore?: SharedWindowStore;
   responseReplayRepository?: ResponseReplayRepository;
+  contentReportRepository?: ContentReportRepository;
 };
 
 export async function buildServer(options: BuildOptions) {
@@ -263,6 +266,12 @@ export async function buildServer(options: BuildOptions) {
   await registerReadingNotificationRoutes(app, config, {
     appCheck,
     tokens: options.readingNotificationTokens,
+  });
+  await registerContentReportRoutes(app, config, {
+    appCheck,
+    repository: options.contentReportRepository,
+    readingOperations: readingOperationRepository,
+    sharedWindowStore: options.sharedWindowStore,
   });
   return app;
 }

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
+import 'package:oracly_new/core/constants/app_assets.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/coffee/controllers/coffee_reading_controller.dart';
 import 'package:oracly_new/features/coffee/copy/coffee_copy.dart';
@@ -23,6 +24,7 @@ import 'package:oracly_new/features/coffee/services/coffee_image_input_port.dart
 import 'package:oracly_new/features/coffee/services/unavailable_coffee_analysis.dart';
 import 'package:oracly_new/features/reading_operation/copy/reading_live_copy.dart';
 import 'package:oracly_new/shared/widgets/oracly_gold_button.dart';
+import 'package:oracly_new/shared/widgets/oracly_asset_image.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -77,17 +79,18 @@ void main() {
     );
     await tester.pump();
 
-    ProviderScope.containerOf(tester.element(find.byType(CoffeeReferenceScreen)))
-        .read(coffeeReadingControllerProvider)
-        .startCapture();
+    ProviderScope.containerOf(
+      tester.element(find.byType(CoffeeReferenceScreen)),
+    ).read(coffeeReadingControllerProvider).startCapture();
     await tester.pump();
 
     // CTA only appears after a photo is selected.
     expect(find.text(CoffeeCopy.usePhotoLabel), findsNothing);
   });
 
-  testWidgets('gallery preview enables CTA even when vision unavailable',
-      (tester) async {
+  testWidgets('gallery preview enables CTA even when vision unavailable', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
@@ -102,9 +105,7 @@ void main() {
 
     expect(find.text(CoffeeCopy.usePhotoLabel), findsOneWidget);
 
-    final cta = tester.widget<OraclyGoldButton>(
-      find.byType(OraclyGoldButton),
-    );
+    final cta = tester.widget<OraclyGoldButton>(find.byType(OraclyGoldButton));
     expect(cta.onPressed, isNotNull);
   });
 
@@ -157,13 +158,11 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
-    await tester.pumpWidget(
-      _app(storage, images: const _SilentCoffeeImages()),
-    );
+    await tester.pumpWidget(_app(storage, images: const _SilentCoffeeImages()));
     await tester.pump();
-    ProviderScope.containerOf(tester.element(find.byType(CoffeeReferenceScreen)))
-        .read(coffeeReadingControllerProvider)
-        .startCapture();
+    ProviderScope.containerOf(
+      tester.element(find.byType(CoffeeReferenceScreen)),
+    ).read(coffeeReadingControllerProvider).startCapture();
     await tester.pump();
     expect(find.textContaining(CoffeeCopy.hubLead), findsNothing);
 
@@ -172,10 +171,35 @@ void main() {
     expect(find.textContaining(CoffeeCopy.hubLead), findsOneWidget);
   });
 
+  testWidgets('approved landing fits 320x568', (tester) async {
+    const size = Size(320, 568);
+    await tester.binding.setSurfaceSize(size);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(size: size),
+        child: _app(storage),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text(CoffeeCopy.photoCta), findsOneWidget);
+    expect(find.textContaining(CoffeeCopy.hubLead), findsOneWidget);
+    expect(find.text(CoffeeCopy.galleryLabel), findsOneWidget);
+    final hero = tester.widget<OraclyAssetImage>(
+      find.byType(OraclyAssetImage).first,
+    );
+    expect(hero.assetPath, AppAssets.coffeeRitualHero);
+    expect(hero.assetPath, endsWith('coffee_ritual_hero.webp'));
+  });
+
   for (final size in viewports) {
-    testWidgets(
-        'landing fits ${size.width.toInt()}x${size.height.toInt()}',
-        (tester) async {
+    testWidgets('landing fits ${size.width.toInt()}x${size.height.toInt()}', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(size);
       addTearDown(() => tester.binding.setSurfaceSize(null));
       SharedPreferences.setMockInitialValues({});
@@ -192,11 +216,29 @@ void main() {
       expect(find.textContaining(CoffeeCopy.hubLead), findsOneWidget);
       expect(find.text(CoffeeCopy.galleryLabel), findsOneWidget);
       expect(find.text(CoffeeCopy.ritualTease), findsNothing);
+      final hero = tester.widget<OraclyAssetImage>(
+        find.byType(OraclyAssetImage).first,
+      );
+      expect(hero.assetPath, AppAssets.coffeeRitualHero);
+      expect(hero.assetPath, endsWith('coffee_ritual_hero.webp'));
+      if (size == const Size(390, 844)) {
+        await tester.runAsync(() async {
+          await precacheImage(
+            const AssetImage(AppAssets.coffeeRitualHero),
+            tester.element(find.byType(OraclyAssetImage).first),
+          );
+        });
+        await tester.pump(const Duration(seconds: 1));
+        await expectLater(
+          find.byType(CoffeeReferenceScreen),
+          matchesGoldenFile('goldens/coffee/approved_landing_390.png'),
+        );
+      }
     });
 
-    testWidgets(
-        'capture fits ${size.width.toInt()}x${size.height.toInt()}',
-        (tester) async {
+    testWidgets('capture fits ${size.width.toInt()}x${size.height.toInt()}', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(size);
       addTearDown(() => tester.binding.setSurfaceSize(null));
       SharedPreferences.setMockInitialValues({});
@@ -219,32 +261,33 @@ void main() {
     });
 
     testWidgets(
-        'photo CTA visible ${size.width.toInt()}x${size.height.toInt()}',
-        (tester) async {
-      await tester.binding.setSurfaceSize(size);
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-      SharedPreferences.setMockInitialValues({});
-      final storage = await LocalStorage.open();
-      await tester.pumpWidget(
-        MediaQuery(
-          data: MediaQueryData(size: size),
-          child: _app(
-            storage,
-            analysis: const _LiveCoffeeAnalysis(),
-            images: const _FakeCoffeeImages(path: 'cup.jpg'),
+      'photo CTA visible ${size.width.toInt()}x${size.height.toInt()}',
+      (tester) async {
+        await tester.binding.setSurfaceSize(size);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        SharedPreferences.setMockInitialValues({});
+        final storage = await LocalStorage.open();
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(size: size),
+            child: _app(
+              storage,
+              analysis: const _LiveCoffeeAnalysis(),
+              images: const _FakeCoffeeImages(path: 'cup.jpg'),
+            ),
           ),
-        ),
-      );
-      await tester.pump();
-      await tester.tap(find.text(CoffeeCopy.galleryLabel));
-      await tester.pump();
-      expect(tester.takeException(), isNull);
-      expect(find.text(CoffeeCopy.usePhotoLabel), findsOneWidget);
-      expect(
-        tester.getRect(find.text(CoffeeCopy.usePhotoLabel)).bottom,
-        lessThanOrEqualTo(size.height),
-      );
-    });
+        );
+        await tester.pump();
+        await tester.tap(find.text(CoffeeCopy.galleryLabel));
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(find.text(CoffeeCopy.usePhotoLabel), findsOneWidget);
+        expect(
+          tester.getRect(find.text(CoffeeCopy.usePhotoLabel)).bottom,
+          lessThanOrEqualTo(size.height),
+        );
+      },
+    );
   }
 }
 
@@ -266,10 +309,8 @@ Widget _app(
 }
 
 class _GatedExperience extends CoffeeExperienceService {
-  _GatedExperience({
-    required CoffeeReadingStore store,
-    required this.gate,
-  }) : super(store: store, analysis: const _LiveCoffeeAnalysis());
+  _GatedExperience({required CoffeeReadingStore store, required this.gate})
+    : super(store: store, analysis: const _LiveCoffeeAnalysis());
 
   final Completer<void> gate;
 
@@ -289,7 +330,8 @@ class _FakeCoffeeImages implements CoffeeImageInputPort {
   @override
   bool get galleryAvailable => true;
   @override
-  Future<CoffeeImagePick?> pickFromCamera() async => CoffeeImagePick(path: path);
+  Future<CoffeeImagePick?> pickFromCamera() async =>
+      CoffeeImagePick(path: path);
   @override
   Future<CoffeeImagePick?> pickFromGallery() async =>
       CoffeeImagePick(path: path);

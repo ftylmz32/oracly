@@ -1,7 +1,6 @@
 /// Grounds palm copy in vision lines. Never invents medical facts.
 library;
 
-import '../../../core/copy/fortune_voice.dart';
 import '../data/palm_observation.dart';
 import '../models/palm_reading.dart';
 
@@ -24,37 +23,56 @@ abstract final class PalmFortuneComposer {
   }) {
     final overall = _authoritativeOverall(raw.overall);
     if (overall == null) return null;
+    // Every caller passes a SERVER result the backend already gated: its
+    // wording is shown verbatim (only trimmed). The client never rewrites a
+    // phrase (the old FortuneVoice.scrub swaps) and never drops sentences
+    // (the old line grounding) — both silently altered the delivered reading.
     return PalmReading(
       id: raw.id,
       createdAt: raw.createdAt,
       hand: raw.hand,
       imagePath: raw.imagePath,
       overall: overall,
-      heartLine: PalmObservation.line(raw.heartLine),
-      headLine: PalmObservation.line(raw.headLine),
-      lifeLine: PalmObservation.line(raw.lifeLine),
-      fateLine: PalmObservation.line(raw.fateLine),
-      takeaway: PalmObservation.line(raw.takeaway),
+      heartLine: section(raw.heartLine),
+      headLine: section(raw.headLine),
+      lifeLine: section(raw.lifeLine),
+      fateLine: section(raw.fateLine),
+      takeaway: section(raw.takeaway),
       symbols: PalmObservation.marks(raw.symbols),
       themes: raw.themes,
     );
   }
 
-  /// Palm's overall is always required by the backend contract, so an
-  /// empty/robotic/dump/overconfident result here is a genuine backend
-  /// failure — never silently replaced by a lower-quality "reading".
+  /// A section that is only a short "this line is not visible" placeholder
+  /// ("Görülemiyor.") is not a reading and stays hidden; any real sentence —
+  /// even one saying a line is faint — is shown exactly as written.
+  ///
+  /// The one rule every palm surface (result, clipboard, narration) uses.
+  static String section(String text) {
+    final trimmed = text.trim();
+    final words = trimmed.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    if (trimmed.isEmpty || (words <= 8 && PalmObservation.missing(trimmed))) return '';
+    // Safety net for palm's one harmful category (both server engines already
+    // refuse it): a sentence reading lifespan, illness, death, pregnancy or a
+    // diagnosis from the palm is never shown. Nothing else is touched.
+    final sentences = trimmed.split(RegExp(r'(?<=[.!?…])\s+'));
+    final kept = sentences.where((s) => !_health.any((t) => PalmObservation.hasTerm(s, t))).toList();
+    return kept.length == sentences.length ? trimmed : kept.join(' ').trim();
+  }
+
+  static const _health = [
+    'ömür', 'ömrün', 'ömrü', 'hastalık', 'hastalığ', 'ölüm', 'teşhis', 'hamile', 'gebelik',
+    'lifespan', 'illness', 'disease', 'death', 'diagnos', 'pregnan',
+    'продолжительность жизни', 'болезн', 'смерт', 'диагноз', 'беремен',
+  ];
+
+  /// Palm's overall is always required by the backend contract. Only a
+  /// structural failure — empty / placeholder (< 40 chars) or a raw
+  /// key=value dump — is a failed analysis; a word list never rejects a
+  /// natural fortune ("haber alacaksın", "hayatına girecek").
   static String? _authoritativeOverall(String backendText) {
-    final backend = FortuneVoice.scrub(backendText);
-    // BATCH 3A's own quality gate requires a real palm overall to be at
-    // least 40 characters of actual synthesis — anything shorter is not
-    // a genuine validated interpretation (placeholder/degraded/test
-    // fixture), so it is treated as a failed analysis, not a reading.
-    if (backend.length >= 40 &&
-        !FortuneVoice.looksRobotic(backendText) &&
-        !FortuneVoice.claimsCertainty(backendText) &&
-        !backendText.contains('=')) {
-      return backend;
-    }
+    final backend = backendText.trim();
+    if (backend.length >= 40 && !backend.contains('=')) return backend;
     return null;
   }
 }
