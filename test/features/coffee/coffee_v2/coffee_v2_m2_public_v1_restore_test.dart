@@ -175,6 +175,7 @@ void main() {
               body: CoffeeV2ActiveObservingView(
                 controller: controller,
                 onBack: () {},
+                onFreshStart: () {},
               ),
             ),
           ),

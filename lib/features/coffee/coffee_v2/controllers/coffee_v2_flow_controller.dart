@@ -294,8 +294,9 @@ class CoffeeV2FlowController extends ChangeNotifier {
 
   Future<void> beginSubmission() async {
     final sub = submission;
-    if (sub == null || sub.validationIssue != null || !hasValidIntention)
+    if (sub == null || sub.validationIssue != null || !hasValidIntention) {
       return;
+    }
     _stagingInFlight = true;
     stagingRetryable = false;
     _notify();
@@ -350,7 +351,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
   /// After a completed reading (ready or terminally failed) the submission
   /// record has already been cleared — reset this controller's own
   /// ephemeral state so the flow lands back on Intro for a fresh draft.
-  void resetToFreshDraft() {
+  Future<void> resetToFreshDraft() async {
     if (_resultUnfetched) {
       // The server finished this reading; only fetching it failed. Retry
       // must fetch it again, never acknowledge it away.
@@ -361,11 +362,15 @@ class CoffeeV2FlowController extends ChangeNotifier {
       _startObserving();
       return;
     }
-    unawaited(_acknowledgeAndReset());
+    await _acknowledgeAndReset();
   }
 
   Future<void> _acknowledgeAndReset() async {
     await submission?.acknowledgeTerminalHandoff();
+    // The durable record is now gone. Rotate the controller's matching
+    // in-memory idempotency identity as part of the same terminal handoff;
+    // retries before this handoff still keep the original identity.
+    _sourceRequestId = null;
     liveState = null;
     reading = null;
     observeError = null;

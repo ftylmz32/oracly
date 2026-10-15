@@ -67,7 +67,11 @@ void main() {
       submission: CoffeeV2SubmissionController(
         flow: flow,
         stagedImages: ReadingStagedImageGateway(backend.send),
-        store: CoffeeV2SubmissionStore(storage, ownerId: 'owner-4c', requireOwner: true),
+        store: CoffeeV2SubmissionStore(
+          storage,
+          ownerId: 'owner-4c',
+          requireOwner: true,
+        ),
         normalizer: ScriptedCoffeeV2Normalizer((s) async => s),
         messages: coffeeV2TestMessages,
       ),
@@ -89,57 +93,81 @@ void main() {
     }
   }
 
-  test('server terminal failure → existing error state, survives restart, New Cup resets',
-      () async {
-    final c = build();
-    await c.boot();
-    c.dismissIntro();
-    for (final slot in coffeeV2CanonicalSlotOrder) {
-      final f = File('${temp.path}/${slot.wireValue}.jpg');
-      await f.writeAsBytes(plainJpegBytes(totalSize: size += 97));
-      c.setPreviewCandidate(slot, CoffeeImagePick(path: f.path));
-      await c.confirmCandidate();
-    }
-    await c.selectIntention(CoffeeV2IntentionChoice.general);
-    await c.beginSubmission();
-    final opId = c.record.operationId!;
-    final source = c.record.sourceRequestId;
+  test(
+    'server terminal failure → existing error state, survives restart, New Cup resets',
+    () async {
+      final c = build();
+      await c.boot();
+      c.dismissIntro();
+      for (final slot in coffeeV2CanonicalSlotOrder) {
+        final f = File('${temp.path}/${slot.wireValue}.jpg');
+        await f.writeAsBytes(plainJpegBytes(totalSize: size += 97));
+        c.setPreviewCandidate(slot, CoffeeImagePick(path: f.path));
+        await c.confirmCandidate();
+      }
+      await c.selectIntention(CoffeeV2IntentionChoice.general);
+      await c.beginSubmission();
+      final opId = c.record.operationId!;
+      final source = c.record.sourceRequestId;
 
-    // The backend settles the insufficient outcome as a terminal failure.
-    await backend.send('POST', '/v1/reading-operations/$opId/fail', const {});
-    await waitFor(() => c.observeError != null);
+      // The backend settles the insufficient outcome as a terminal failure.
+      await backend.send('POST', '/v1/reading-operations/$opId/fail', const {});
+      await waitFor(() => c.observeError != null);
 
-    expect(c.observeError, ReadingLiveCopy.failed);
-    expect(c.reading, isNull); // never the success result
-    expect(c.stage, CoffeeV2FlowStage.activeObserving);
-    expect(readings.all(), isEmpty); // no history entry
-    expect(backend.resultFetchCalls, 0);
-    for (final raw in ['insufficient_semantic_signal', 'no_safe_semantic_facets']) {
-      expect(c.observeError!.contains(raw), isFalse); // no raw diagnostics
-    }
-    expect(ai.calls, 0);
-    await waitFor(() => coffeeV2CanonicalSlotOrder
-        .every((s) => c.record.slots[s]?.asset == null)); // upload data released
-    expect(c.record.operationId, opId); // operation identity kept until ack
+      expect(c.observeError, ReadingLiveCopy.failed);
+      expect(c.reading, isNull); // never the success result
+      expect(c.stage, CoffeeV2FlowStage.activeObserving);
+      expect(readings.all(), isEmpty); // no history entry
+      expect(backend.resultFetchCalls, 0);
+      for (final raw in [
+        'insufficient_semantic_signal',
+        'no_safe_semantic_facets',
+      ]) {
+        expect(c.observeError!.contains(raw), isFalse); // no raw diagnostics
+      }
+      expect(ai.calls, 0);
+      await waitFor(
+        () => coffeeV2CanonicalSlotOrder.every(
+          (s) => c.record.slots[s]?.asset == null,
+        ),
+      ); // upload data released
+      expect(c.record.operationId, opId); // operation identity kept until ack
 
-    // Restart: still the failure, never a spinner or a success.
-    c.dispose();
-    controllers.remove(c);
-    final restarted = build();
-    await restarted.boot();
-    await waitFor(() => restarted.observeError != null);
-    expect(restarted.observeError, ReadingLiveCopy.failed);
-    expect(restarted.reading, isNull);
-    expect(restarted.record.operationId, opId);
-    expect(backend.operationCount, 1); // no automatic new operation
+      // Restart: still the failure, never a spinner or a success.
+      c.dispose();
+      controllers.remove(c);
+      final restarted = build();
+      await restarted.boot();
+      await waitFor(() => restarted.observeError != null);
+      expect(restarted.observeError, ReadingLiveCopy.failed);
+      expect(restarted.reading, isNull);
+      expect(restarted.record.operationId, opId);
+      expect(backend.operationCount, 1); // no automatic new operation
 
-    // Existing next action: New Cup → acknowledged, clean draft.
-    restarted.resetToFreshDraft();
-    await waitFor(() => restarted.observeError == null);
-    expect(restarted.record.isDraft, isTrue);
-    expect(restarted.record.sourceRequestId, isNull);
-    expect(restarted.record.sourceRequestId, isNot(source));
-    expect(restarted.stage, CoffeeV2FlowStage.intro);
-    expect(backend.operationCount, 1);
-  });
+      // Existing next action: New Cup → acknowledged, clean draft.
+      await restarted.resetToFreshDraft();
+      await waitFor(() => restarted.observeError == null);
+      expect(restarted.record.isDraft, isTrue);
+      expect(restarted.record.sourceRequestId, isNull);
+      expect(restarted.record.sourceRequestId, isNot(source));
+      expect(restarted.stage, CoffeeV2FlowStage.intro);
+      expect(backend.operationCount, 1);
+
+      // A genuinely new reading rotates the controller's in-memory identity;
+      // transport retry within one submission is covered separately and keeps
+      // the same durable identity.
+      restarted.dismissIntro();
+      for (final slot in coffeeV2CanonicalSlotOrder) {
+        final f = File('${temp.path}/fresh_${slot.wireValue}.jpg');
+        await f.writeAsBytes(plainJpegBytes(totalSize: size += 97));
+        restarted.setPreviewCandidate(slot, CoffeeImagePick(path: f.path));
+        await restarted.confirmCandidate();
+      }
+      await restarted.selectIntention(CoffeeV2IntentionChoice.general);
+      await restarted.beginSubmission();
+      expect(restarted.record.sourceRequestId, isNot(source));
+      expect(restarted.record.operationId, isNot(opId));
+      expect(backend.operationCount, 2);
+    },
+  );
 }

@@ -19,25 +19,24 @@ class CoffeeV2ActiveObservingView extends StatelessWidget {
     super.key,
     required this.controller,
     required this.onBack,
+    required this.onFreshStart,
   });
 
   final CoffeeV2FlowController controller;
   final VoidCallback onBack;
+  final VoidCallback onFreshStart;
 
   @override
   Widget build(BuildContext context) {
     final reading = controller.reading;
     if (reading != null) {
-      return CoffeeResultView(
-        reading: reading,
-        onNewCup: controller.resetToFreshDraft,
-      );
+      return CoffeeResultView(reading: reading, onNewCup: onFreshStart);
     }
     final error = controller.observeError;
     if (error != null) {
       return CoffeeErrorView(
         message: error,
-        onRetry: controller.resetToFreshDraft,
+        onRetry: onFreshStart,
         onBack: onBack,
       );
     }

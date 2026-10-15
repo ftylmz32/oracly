@@ -20,6 +20,9 @@ import '../../copy/coffee_copy.dart';
 import '../../presentation/reference/coffee_error_view.dart';
 import '../../presentation/reference/coffee_landing_chamber.dart';
 import '../../presentation/reference/coffee_reference_screen.dart';
+import '../../coffee_v3/presentation/coffee_v3_flow_screen.dart';
+import '../../coffee_v3/services/coffee_v3_creation_gate.dart';
+import '../controllers/coffee_v2_flow_controller.dart';
 import '../models/coffee_v2_flow_stage.dart';
 import '../providers/coffee_v2_providers.dart';
 import 'coffee_v2_active_observing_view.dart';
@@ -47,6 +50,15 @@ class _CoffeeV2FlowScreenState extends ConsumerState<CoffeeV2FlowScreen> {
     OraclyNavigation.switchToTab(context, OraclyTab.home);
   }
 
+  Future<void> _startFreshReading(CoffeeV2FlowController controller) async {
+    await controller.resetToFreshDraft();
+    if (!mounted || !CoffeeV3CreationGate.creationAllowed) return;
+    ref.invalidate(coffeeV2FlowControllerProvider);
+    await Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const CoffeeV3FlowScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = ref.watch(coffeeV2FlowControllerProvider);
@@ -61,39 +73,40 @@ class _CoffeeV2FlowScreenState extends ConsumerState<CoffeeV2FlowScreen> {
       onBack: () => _handleBack(context),
       child: switch (controller.stage) {
         CoffeeV2FlowStage.booting => ChamberWaitingStage(
-            message: CoffeeCopy.analyzing,
-          ),
+          message: CoffeeCopy.analyzing,
+        ),
         CoffeeV2FlowStage.unavailable => CoffeeErrorView(
-            message: CoffeeCopy.analysisUnavailable,
-            onRetry: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute<void>(
-                  builder: (_) => const CoffeeReferenceScreen(),
-                ),
-              );
-            },
-            onBack: () => _handleBack(context),
-          ),
+          message: CoffeeCopy.analysisUnavailable,
+          onRetry: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (_) => const CoffeeReferenceScreen(),
+              ),
+            );
+          },
+          onBack: () => _handleBack(context),
+        ),
         CoffeeV2FlowStage.intro => CoffeeV2IntroView(
-            onStart: controller.dismissIntro,
-          ),
+          onStart: controller.dismissIntro,
+        ),
         CoffeeV2FlowStage.step => CoffeeV2StepView(
-            controller: controller,
-            slot: controller.currentStepSlot,
-          ),
+          controller: controller,
+          slot: controller.currentStepSlot,
+        ),
         CoffeeV2FlowStage.preview => CoffeeV2PreviewView(
-            controller: controller,
-          ),
+          controller: controller,
+        ),
         CoffeeV2FlowStage.finalReview => CoffeeV2FinalReviewView(
-            controller: controller,
-          ),
+          controller: controller,
+        ),
         CoffeeV2FlowStage.activeStaging => CoffeeV2ActiveStagingView(
-            controller: controller,
-          ),
+          controller: controller,
+        ),
         CoffeeV2FlowStage.activeObserving => CoffeeV2ActiveObservingView(
-            controller: controller,
-            onBack: () => _handleBack(context),
-          ),
+          controller: controller,
+          onBack: () => _handleBack(context),
+          onFreshStart: () => _startFreshReading(controller),
+        ),
       },
     );
   }
