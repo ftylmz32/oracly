@@ -91,6 +91,16 @@ export async function registerReadingOperationRoutes(
       if (!parsed.ok) {
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
+      // A verified Web App must spend its server-side order entitlement via
+      // the atomic web route; it may never bypass payment through the legacy API.
+      if (
+        parsed.readingType === 'coffee' &&
+        parsed.coffeeCaptureContract === COFFEE_V3_CAPTURE_CONTRACT &&
+        request.appCheckAppId &&
+        config.firebaseWebAppCheckAppIds.includes(request.appCheckAppId)
+      ) {
+        return reply.code(403).send(errorEnvelope(ErrorCode.invalidRequest));
+      }
       try {
         const record = await service.create({
           ownerUserId: owner,

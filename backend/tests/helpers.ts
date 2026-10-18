@@ -48,6 +48,7 @@ export async function testApp(
     accountDeletionRepository?: import('../src/account/account-deletion.js').AccountDeletionRepository;
     responseReplayRepository?: import('../src/middleware/response-replay-repository.js').ResponseReplayRepository;
     contentReportRepository?: import('../src/content-reports/content-report-repository.js').ContentReportRepository;
+    webCoffeeOrderReadingRepository?: import('../src/reading/web-coffee-order-reading-repository.js').WebCoffeeOrderReadingRepository;
   } = {},
 ) {
   const app = await buildServer({
@@ -70,6 +71,7 @@ export async function testApp(
     accountDeletionRepository: options.accountDeletionRepository,
     responseReplayRepository: options.responseReplayRepository ?? new FirestoreResponseReplayRepository(new MemoryDocumentStore()),
     contentReportRepository: options.contentReportRepository,
+    webCoffeeOrderReadingRepository: options.webCoffeeOrderReadingRepository,
   });
   return app;
 }

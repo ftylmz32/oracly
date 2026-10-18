@@ -514,8 +514,10 @@ describe('LIS1/LIS2 V3 ownership boundaries', () => {
       'reading/operation-staged-image-service.ts',
       'reading/reading-processor-execute.ts',
       'reading/reading-processor.ts',
+      'reading/web-coffee-order-reading-repository.ts',
       'routes/gem-acceleration.ts',
       'routes/reading-operations.ts',
+      'routes/web-coffee-order-reading.ts',
     ]);
     // V3N1: the internal entry runs the narrative successor, which reuses the
     // shared observation step of the live pipeline module.

@@ -14,12 +14,16 @@ export function requireAppCheck(verifier: AppCheckVerifier) {
     request: FastifyRequest,
     reply: FastifyReply,
   ): Promise<void> {
+    request.appCheckAppId = '';
     if (verifier.mode === 'bypass') return;
     const token = readAppCheckHeader(
       request.headers as Record<string, unknown>,
     );
     const result = await verifier.verify(token);
-    if (result.ok) return;
+    if (result.ok) {
+      request.appCheckAppId = result.appId ?? '';
+      return;
+    }
     // Sanitized — do not distinguish missing vs invalid to clients.
     await reply.code(401).send(errorEnvelope(ErrorCode.appCheckRequired));
   };

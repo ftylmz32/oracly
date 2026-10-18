@@ -97,6 +97,8 @@ export type AppConfig = {
    * When non-empty in locked envs, tokens whose `sub` is not listed fail closed.
    */
   firebaseAppCheckAppIds: string[];
+  /** Web App Check app ids allowed to spend a paid web coffee entitlement. */
+  firebaseWebAppCheckAppIds: string[];
   /** When true, AI routes require a verified X-Firebase-AppCheck token. */
   appCheckRequired: boolean;
   /** Development-only: skip App Check verification when not locked. */
@@ -184,6 +186,8 @@ export type AppConfig = {
    * or cleanup of an already-created V3 operation (rollback = stop creating).
    */
   coffeeV3CreationEnabled: boolean;
+  /** Default-off gate for the paid web order -> Coffee V3 bridge. */
+  webCoffeeOrderReadingEnabled: boolean;
   /**
    * Which engine writes a Coffee V3 reading: 'direct' (default — the vision
    * model reads the photos and writes the fortune freely) or 'narrative'
@@ -387,6 +391,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       env.FIREBASE_APP_CHECK_APP_IDS ?? env.FIREBASE_APP_IDS,
       [],
     ).filter((id) => id.length > 0),
+    firebaseWebAppCheckAppIds: parseList(
+      env.FIREBASE_WEB_APP_CHECK_APP_IDS,
+      [],
+    ).filter((id) => id.length > 0),
     appCheckRequired,
     appCheckBypass,
     minImageBytes: clampInt(env.AI_MIN_IMAGE_BYTES, 8 * 1024, 1024, 1024 * 1024),
@@ -464,6 +472,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       : positiveIntOrNull(env.ORACLY_DEV_READING_WAIT_MS),
     rewardedAdClaimSecret: nonEmpty(env.ORACLY_REWARDED_AD_CLAIM_SECRET),
     coffeeV3CreationEnabled: parseBool(env.ORACLY_COFFEE_V3_ENABLED, false),
+    webCoffeeOrderReadingEnabled: parseBool(
+      env.ORACLY_WEB_COFFEE_ORDER_READING_ENABLED,
+      false,
+    ),
     coffeeV3Engine: env.ORACLY_COFFEE_V3_ENGINE?.trim() === 'narrative' ? 'narrative' : 'direct',
     palmEngine: env.ORACLY_PALM_ENGINE?.trim() === 'structured' ? 'structured' : 'direct',
   };

@@ -58,6 +58,8 @@ declare module 'fastify' {
     requestId: string;
     identityKey: string;
     authSubject: string;
+    /** Firebase App Check tarafından doğrulanan app id. */
+    appCheckAppId: string;
   }
 }
 

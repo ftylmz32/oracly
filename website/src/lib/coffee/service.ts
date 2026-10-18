@@ -9,6 +9,8 @@ export type CoffeeFlowResult = { kind: 'demo' | 'live'; delivery: CoffeeResultDe
 export type CoffeeRunInput = {
   files: Record<WebCoffeeSlot, File>;
   intention: string;
+  /** Server-created, Firebase UID-owned paid order. Required only by live mode. */
+  orderId?: string;
   onUpdate(update: CoffeeFlowUpdate): void;
 };
 
@@ -61,6 +63,7 @@ export class LiveCoffeeService implements CoffeeService {
   }
 
   async run(input: CoffeeRunInput): Promise<CoffeeFlowResult> {
+    if (!input.orderId) throw new Error('verified_order_required');
     input.onUpdate({ phase: 'preparing', message: 'Güvenli oturum hazırlanıyor.' });
     let recovery = this.recovery.load();
     if (!recovery) {
@@ -69,7 +72,7 @@ export class LiveCoffeeService implements CoffeeService {
     }
     let operationId = recovery.operationId;
     if (!operationId) {
-      const operation = await this.request<PublicOperation>('/v1/reading-operations', {
+      const operation = await this.request<PublicOperation>(`/v1/web/coffee-orders/${encodeURIComponent(input.orderId)}/reading-operation`, {
         method: 'POST', body: JSON.stringify(buildCoffeeV3CreateBody(recovery.sourceRequestId, input.intention)),
       });
       operationId = operation.operationId;

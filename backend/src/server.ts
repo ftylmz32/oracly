@@ -9,6 +9,7 @@ import { ErrorCode, ProxyError, errorEnvelope } from './errors.js';
 import { createRequestId, logSafe } from './logging.js';
 import { registerAiRoutes } from './routes/ai.js';
 import { registerReadingOperationRoutes } from './routes/reading-operations.js';
+import { registerWebCoffeeOrderReadingRoute } from './routes/web-coffee-order-reading.js';
 import { registerGemAccelerationRoutes } from './routes/gem-acceleration.js';
 import { registerRewardedAdRoutes, type RewardedAdRouteOptions } from './routes/rewarded-ads.js';
 import { registerReadingFlowRoutes } from './routes/reading-flow-routes.js';
@@ -52,6 +53,7 @@ import type { SharedWindowStore } from './rate-limit/shared-window-store.js';
 import type { ResponseReplayRepository } from './middleware/response-replay-repository.js';
 import { registerContentReportRoutes } from './routes/content-reports.js';
 import type { ContentReportRepository } from './content-reports/content-report-repository.js';
+import type { WebCoffeeOrderReadingRepository } from './reading/web-coffee-order-reading-repository.js';
 
 export type BuildOptions = {
   config: AppConfig;
@@ -93,6 +95,7 @@ export type BuildOptions = {
   sharedWindowStore?: SharedWindowStore;
   responseReplayRepository?: ResponseReplayRepository;
   contentReportRepository?: ContentReportRepository;
+  webCoffeeOrderReadingRepository?: WebCoffeeOrderReadingRepository;
 };
 
 export async function buildServer(options: BuildOptions) {
@@ -130,6 +133,7 @@ export async function buildServer(options: BuildOptions) {
   app.decorateRequest('requestId', '');
   app.decorateRequest('identityKey', '');
   app.decorateRequest('authSubject', '');
+  app.decorateRequest('appCheckAppId', '');
 
   app.addHook('onRequest', async (request, reply) => {
     request.requestId = String(request.id);
@@ -226,6 +230,12 @@ export async function buildServer(options: BuildOptions) {
     // just-staged operation because of this, in every environment,
     // regardless of the client-side resume fix.
     flow: options.readingFlow,
+  });
+  await registerWebCoffeeOrderReadingRoute(app, config, {
+    appCheck,
+    repository: options.webCoffeeOrderReadingRepository,
+    clock: readingClock,
+    policy: readingWaitPolicy,
   });
   await registerGemAccelerationRoutes(app, config, {
     appCheck,

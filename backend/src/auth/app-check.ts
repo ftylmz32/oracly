@@ -3,7 +3,7 @@ import { createRemoteJWKSet, jwtVerify, type JWTVerifyGetKey } from 'jose';
 import type { AppConfig } from '../config.js';
 
 export type AppCheckOutcome =
-  | { ok: true }
+  | { ok: true; appId?: string }
   | { ok: false; reason: 'missing' | 'invalid' | 'unavailable' };
 
 export interface AppCheckVerifier {
@@ -40,7 +40,7 @@ export class FailClosedAppCheckVerifier implements AppCheckVerifier {
 /** Test double — accepts one fixed token string. */
 export class StaticAppCheckVerifier implements AppCheckVerifier {
   readonly mode = 'verify' as const;
-  constructor(private readonly acceptToken: string) {}
+  constructor(private readonly acceptToken: string, private readonly appId?: string) {}
   async verify(tokenHeader: unknown): Promise<AppCheckOutcome> {
     const token =
       typeof tokenHeader === 'string'
@@ -48,7 +48,7 @@ export class StaticAppCheckVerifier implements AppCheckVerifier {
         : readAppCheckHeader(tokenHeader as Record<string, unknown> | undefined);
     if (!token) return { ok: false, reason: 'missing' };
     if (token !== this.acceptToken) return { ok: false, reason: 'invalid' };
-    return { ok: true };
+    return this.appId ? { ok: true, appId: this.appId } : { ok: true };
   }
 }
 
@@ -94,18 +94,19 @@ export class FirebaseAppCheckVerifier implements AppCheckVerifier {
       if (!iss.startsWith('https://firebaseappcheck.googleapis.com/')) {
         return { ok: false, reason: 'invalid' };
       }
+      const appId =
+        typeof payload.sub === 'string'
+          ? payload.sub.trim()
+          : typeof payload.app_id === 'string'
+            ? String(payload.app_id).trim()
+            : '';
+      if (!appId) return { ok: false, reason: 'invalid' };
       if (this.allowedAppIds.length > 0) {
-        const appId =
-          typeof payload.sub === 'string'
-            ? payload.sub.trim()
-            : typeof payload.app_id === 'string'
-              ? String(payload.app_id).trim()
-              : '';
         if (!appId || !this.allowedAppIds.includes(appId)) {
           return { ok: false, reason: 'invalid' };
         }
       }
-      return { ok: true };
+      return { ok: true, appId };
     } catch {
       return { ok: false, reason: 'invalid' };
     }

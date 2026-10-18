@@ -573,7 +573,7 @@ describe('V2 dark-path guarantee (V, W)', () => {
     expect(coffeeV2ObserverSystem()).not.toMatch(/multi_view_marks_v3|PASS 1|cup_handle_far/);
   });
 
-  it('only the V3 pilot files and the dark M1 engine reference V3; no dispatch, pipeline, route, worker, billing or gem code does', () => {
+  it('only the V3 pilot files and explicit server-owned bridges reference V3', () => {
     const src = resolve(process.cwd(), 'src');
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((name) => {
@@ -619,6 +619,7 @@ describe('V2 dark-path guarantee (V, W)', () => {
       'reading/reading-processor.ts',
       'routes/gem-acceleration.ts',
       'routes/reading-operations.ts',
+      'routes/web-coffee-order-reading.ts',
     ]);
   });
 
