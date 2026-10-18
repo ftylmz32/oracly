@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function NotFound() { return <section className="section page-section"><div className="container legal"><div className="eyebrow">404 / ORACLY</div><h1 className="page-title">Bu yol <em>gökyüzünde</em> yok.</h1><p className="page-lead">Aradığın sayfa bulunamadı.</p><Link className="button button-gold" href="/">Ana sayfaya dön <span aria-hidden="true">→</span></Link></div></section>; }

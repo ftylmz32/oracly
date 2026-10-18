@@ -1,0 +1,3 @@
+import type { Metadata } from 'next';
+export const metadata: Metadata = { title: 'İletişim' };
+export default function Contact() { return <section className="section page-section"><div className="container legal"><div className="eyebrow">ORACLY / İLETİŞİM</div><h1 className="page-title">Bir sorunun <em>mu var?</em></h1><p className="page-lead">Web sürümü geliştirme aşamasındadır. Destek e-posta adresi ve doğrulanmış işletme iletişim bilgileri hazır olduğunda burada yayımlanacak.</p><div className="draft-warning">Henüz web üzerinden mesaj gönderme veya satış sonrası destek talebi açma işlevi bulunmuyor.</div></div></section>; }
