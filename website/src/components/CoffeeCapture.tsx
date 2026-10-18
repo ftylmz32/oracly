@@ -63,7 +63,7 @@ export default function CoffeeCapture() {
           return <div key={slot.id} className={`capture-slot ${photo ? 'has-photo' : ''}`}>
             <span className="capture-slot-number">{slot.number}</span>
             <div className="capture-slot-preview">
-              {photo ? <Image src={photo.url} alt={`${slot.title} için seçilen fotoğraf`} fill sizes="(max-width: 700px) 80vw, 250px" unoptimized /> : <span className="slot-placeholder" aria-hidden="true">{slot.id === 'saucer' ? '◉' : '☕'}</span>}
+              {photo ? <Image src={photo.url} alt={`${slot.title} için seçilen fotoğraf`} fill sizes="(max-width: 700px) 80vw, 250px" unoptimized /> : <><Image className="slot-reference" src="/images/home_coffee.webp" alt="" fill sizes="(max-width: 700px) 80vw, 250px" /><span className="slot-guide" aria-hidden="true">{slot.id === 'saucer' ? 'TABAK' : 'FİNCAN'}</span></>}
             </div>
             <h3>{slot.title}</h3><p>{slot.detail}</p>
             <input id={inputId} className="sr-only-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label={`${slot.title} fotoğrafı seç`} onChange={e => { const file = e.currentTarget.files?.[0]; if (file) pick(slot.id, file); e.currentTarget.value = ''; }} />

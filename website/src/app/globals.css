@@ -196,3 +196,97 @@ em { color: var(--gold-light); font-weight: 400; }
 @media (prefers-reduced-motion: reduce) {
   *, *:before, *:after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Cinematic web adaptation of the ORACLY mobile design system */
+:root {
+  --near-black: #02030a;
+  --navy: #090b1c;
+  --surface: #111023;
+  --surface-raised: #17122c;
+  --gold: #d7a93f;
+  --gold-light: #f7d880;
+  --violet: #8b4ee8;
+  --ivory: #fff6e8;
+  --muted: #bbb3c8;
+  --line: rgba(228, 179, 75, .24);
+}
+body { background: #02030a; }
+.site-header { position: sticky; top: 0; background: rgba(2,3,10,.76); border-bottom-color: rgba(228,179,75,.16); }
+.nav-inner { min-height: 78px; }
+.brand-image { gap: 11px; }
+.brand-image img, .footer-brand img { border-radius: 50%; object-fit: cover; filter: drop-shadow(0 0 16px rgba(209,148,42,.25)); }
+.nav-cta { border-radius: 999px; padding: 12px 21px; background: rgba(215,169,63,.06); }
+
+.cinematic-hero { position: relative; overflow: hidden; min-height: 760px; background: radial-gradient(circle at 70% 34%,rgba(87,36,155,.25),transparent 30%), radial-gradient(circle at 60% 50%,rgba(25,17,61,.8),transparent 52%),#02030a; }
+.cinematic-hero:before { content:""; position:absolute; inset:0; opacity:.28; pointer-events:none; background-image:radial-gradient(#f2cd6a .7px,transparent .8px),radial-gradient(#a674ec .6px,transparent .8px); background-size:133px 149px,191px 211px; background-position:12px 19px,88px 74px; }
+.hero-noise { position:absolute; inset:0; background:linear-gradient(90deg,rgba(2,3,10,.15),transparent 44%,rgba(2,3,10,.1)); pointer-events:none; }
+.cinematic-hero-grid { min-height:710px; display:grid; grid-template-columns:.9fr 1.1fr; align-items:center; position:relative; z-index:1; }
+.cinematic-copy { padding:70px 0 100px; position:relative; z-index:3; }
+.cinematic-copy h1 { font-family:Georgia,"Times New Roman",serif; font-size:clamp(62px,6.4vw,96px); font-weight:400; line-height:1.02; letter-spacing:-.045em; margin:28px 0; text-wrap:balance; }
+.cinematic-copy > p { max-width:520px; color:#c9c1d1; font-size:17px; line-height:1.8; }
+.trust-line { display:flex; align-items:center; gap:10px; color:#aaa1b3; font-size:12px; }
+.moon-stage { position:relative; height:680px; align-self:end; }
+.moon-stage > img { object-fit:contain; object-position:center bottom; z-index:2; filter:drop-shadow(0 22px 55px rgba(110,48,166,.28)); -webkit-mask-image:radial-gradient(ellipse 67% 72% at 50% 54%,#000 52%,transparent 78%); mask-image:radial-gradient(ellipse 67% 72% at 50% 54%,#000 52%,transparent 78%); }
+.moon-halo { position:absolute; width:68%; aspect-ratio:1; left:17%; top:13%; border-radius:50%; background:radial-gradient(circle,rgba(144,66,231,.3),rgba(95,41,179,.08) 50%,transparent 70%); filter:blur(22px); }
+.moon-stage:before,.moon-stage:after { content:""; position:absolute; border:1px solid rgba(229,183,70,.18); border-radius:50%; left:11%; top:7%; width:78%; aspect-ratio:1; }
+.moon-stage:after { left:16%; top:12%; width:68%; border-color:rgba(151,91,222,.19); }
+.moon-caption { position:absolute; z-index:3; right:8%; bottom:10%; display:flex; flex-direction:column; gap:7px; text-align:center; color:var(--gold-light); font-family:Georgia,serif; letter-spacing:.32em; }
+.moon-caption small { color:#a99bbd; font:8px Inter,sans-serif; letter-spacing:.24em; }
+
+.ritual-section { background:linear-gradient(180deg,#060814,#080817); }
+.split-heading { display:grid; grid-template-columns:1fr .75fr; align-items:end; gap:80px; margin-bottom:48px; }
+.split-heading > p { color:#b8b0c1; line-height:1.9; margin:0 0 8px; }
+.ritual-showcase { display:grid; grid-template-columns:1.05fr .95fr; min-height:570px; border:1px solid var(--line); background:#090a18; box-shadow:0 30px 70px rgba(0,0,0,.3); }
+.ritual-image { position:relative; min-height:570px; overflow:hidden; }
+.ritual-image > img { object-fit:cover; }
+.ritual-image:after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent 55%,#090a18 100%),linear-gradient(0deg,rgba(3,4,12,.55),transparent 40%); }
+.image-badge { position:absolute; z-index:2; left:30px; bottom:28px; display:flex; align-items:center; gap:14px; padding:12px 17px; border:1px solid rgba(241,201,103,.34); background:rgba(5,5,14,.72); backdrop-filter:blur(12px); }
+.image-badge strong { color:var(--gold-light); font:26px Georgia,serif; }.image-badge span { color:#d6ccd9; font-size:10px; letter-spacing:.18em; }
+.ritual-steps { display:flex; flex-direction:column; justify-content:center; padding:46px; }
+.ritual-steps article { display:grid; grid-template-columns:44px 1fr; gap:16px; padding:23px 0; border-bottom:1px solid rgba(228,179,75,.15); }
+.ritual-steps article > span { color:var(--gold); font:15px Georgia,serif; }
+.ritual-steps h3 { margin:0 0 8px; font:400 24px Georgia,serif; }.ritual-steps p { margin:0; color:#aaa2b4; line-height:1.65; font-size:13px; }
+.button-outline { margin-top:28px; align-self:flex-start; border:1px solid rgba(233,188,80,.55); color:var(--gold-light); background:rgba(215,169,63,.06); }
+
+.universe-section { background:radial-gradient(circle at 50% 20%,rgba(83,36,150,.13),transparent 37%),#040510; }
+.cinematic-card-grid { display:grid; grid-template-columns:1.1fr .9fr .9fr; gap:18px; }
+.cinematic-card { position:relative; min-height:480px; overflow:hidden; border:1px solid var(--line); background:#0c0a18; }
+.cinematic-card > img { object-fit:cover; transition:transform .6s ease; }.cinematic-card:hover > img { transform:scale(1.035); }
+.card-1 > img { object-position:center 44%; }.card-2 > img { object-position:center; }.card-3 > img { object-position:center; }
+.card-2:before { content:""; position:absolute; inset:0; background:url('/images/home_or_guide.webp') center/cover no-repeat; filter:brightness(1.35) saturate(1.08); }
+.card-shade { position:absolute; inset:0; background:linear-gradient(0deg,rgba(3,3,11,.98) 0%,rgba(5,4,13,.55) 48%,rgba(4,4,12,.08) 78%),linear-gradient(90deg,rgba(12,6,24,.25),transparent); }
+.cinematic-card-content { position:absolute; z-index:2; inset:auto 28px 28px; }
+.cinematic-card-content > span { color:var(--gold); font-size:9px; font-weight:700; letter-spacing:.2em; }
+.cinematic-card-content h3 { margin:10px 0 9px; font:400 31px Georgia,serif; }.cinematic-card-content p { color:#b4abbd; line-height:1.65; font-size:13px; max-width:320px; }
+.cinematic-card-content a,.cinematic-card-content small { display:inline-flex; gap:10px; margin-top:14px; color:var(--gold-light); font-size:12px; font-weight:600; }.cinematic-card-content small { color:#8f859b; }
+
+.guide-section { padding-top:20px; background:#040510; }
+.guide-panel { display:grid; grid-template-columns:.92fr 1.08fr; min-height:500px; border:1px solid var(--line); background:radial-gradient(circle at 80% 30%,rgba(89,43,157,.25),transparent 44%),#0d0b1c; }
+.guide-visual { position:relative; min-height:500px; overflow:hidden; }.guide-visual:before { content:""; position:absolute; inset:0; background:url('/images/home_or_guide.webp') center/cover no-repeat; filter:brightness(1.3) saturate(1.08); }.guide-visual img { object-fit:cover; opacity:0; }.guide-visual:after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent 55%,#0d0b1c 100%); }
+.guide-copy { display:flex; flex-direction:column; justify-content:center; padding:55px 65px; }.guide-copy h2 { font:400 clamp(42px,4.4vw,62px)/1.13 Georgia,serif; letter-spacing:-.035em; margin:20px 0; }.guide-copy p { color:#b9b0c1; line-height:1.85; max-width:520px; margin:0 0 28px; }
+
+.coffee-page-hero { background:radial-gradient(circle at 20% 30%,rgba(88,40,153,.18),transparent 35%),#060715; border-bottom:1px solid var(--line); }
+.coffee-page-grid { display:grid; grid-template-columns:1fr .82fr; min-height:650px; align-items:center; gap:60px; }
+.coffee-page-copy { padding:75px 0; }.coffee-page-copy .page-title { margin:22px 0; }
+.coffee-page-art { position:relative; height:560px; align-self:end; overflow:hidden; border-left:1px solid rgba(229,180,69,.18); border-right:1px solid rgba(229,180,69,.18); }
+.coffee-page-art img { object-fit:cover; }.coffee-page-art:after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,#060715 0%,transparent 18%),linear-gradient(0deg,rgba(6,7,21,.45),transparent 35%); }
+.privacy-pill { display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid rgba(228,179,75,.2); border-radius:999px; color:#aca3b5; font-size:11px; }.privacy-pill span { color:var(--gold); }
+.capture-section { background:radial-gradient(circle at 50% 0,rgba(77,34,132,.15),transparent 35%),#070817; }
+.capture-panel { border-radius:20px; box-shadow:0 32px 80px rgba(0,0,0,.35); }
+.capture-slot { border-radius:14px; }.capture-slot-preview { border-radius:10px; }
+.slot-reference { object-fit:cover; opacity:.32; filter:saturate(.65) contrast(1.05); }.slot-guide { position:relative; z-index:1; padding:8px 11px; color:var(--gold-light); border:1px solid rgba(232,200,114,.4); background:rgba(6,5,15,.72); font-size:9px; font-weight:700; letter-spacing:.18em; }
+
+@media (max-width: 980px) {
+  .cinematic-hero-grid { grid-template-columns:1fr 1fr; }.cinematic-copy h1 { font-size:64px; }.moon-stage { height:590px; }
+  .cinematic-card-grid { grid-template-columns:1fr 1fr; }.cinematic-card:last-child { grid-column:span 2; min-height:400px; }
+  .guide-copy { padding:45px; }.coffee-page-grid { gap:30px; }
+}
+@media (max-width: 720px) {
+  .site-header { position:relative; }.brand-image img { width:34px; height:34px; }.brand-image { font-size:19px; }
+  .cinematic-hero { min-height:0; }.cinematic-hero-grid { display:flex; flex-direction:column; }.cinematic-copy { padding:70px 0 26px; }.cinematic-copy h1 { font-size:clamp(51px,14.3vw,66px); line-height:1.04; }.cinematic-copy > p { font-size:15px; }.moon-stage { width:calc(100% + 70px); height:430px; margin-left:-35px; align-self:auto; }.moon-stage > img { object-position:center; }.moon-caption { right:12%; bottom:5%; font-size:13px; }
+  .split-heading { display:block; margin-bottom:30px; }.split-heading > p { margin-top:22px; }.ritual-showcase { grid-template-columns:1fr; }.ritual-image { min-height:440px; }.ritual-image:after { background:linear-gradient(0deg,#090a18 0%,transparent 35%); }.ritual-steps { padding:24px; }
+  .cinematic-card-grid { grid-template-columns:1fr; }.cinematic-card,.cinematic-card:last-child { grid-column:auto; min-height:430px; }.section-row { margin-bottom:30px; }
+  .guide-panel { grid-template-columns:1fr; }.guide-visual { min-height:390px; }.guide-visual:after { background:linear-gradient(0deg,#0d0b1c 0%,transparent 35%); }.guide-copy { padding:34px 25px 45px; }.guide-copy h2 { font-size:42px; }
+  .coffee-page-grid { display:flex; flex-direction:column; gap:0; }.coffee-page-copy { padding:65px 0 30px; }.coffee-page-art { width:calc(100% + 32px); height:430px; align-self:auto; border:0; }.coffee-page-art:after { background:linear-gradient(0deg,#060715 0%,transparent 30%); }.capture-section { padding-top:55px; }
+  .capture-panel { border-radius:14px; }.capture-slot { border-radius:12px; }.capture-slot-preview { height:245px; }
+}
