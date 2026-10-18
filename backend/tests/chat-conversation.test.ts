@@ -103,6 +103,9 @@ describe('chat conversation memory', () => {
 
   it('turns a named fear and a one-thought request into conversation-specific continuation', () => {
     expect(chatSystem('tr')).toContain('onu "yaygın" diye genelleme');
+    expect(chatSystem('tr')).toContain('Genellikle bu tür bir his');
+    expect(chatSystem('en')).toContain('this kind of feeling usually');
+    expect(chatSystem('ru')).toContain('обычно такое чувство');
     expect(chatSystem('tr')).toContain('otomatik küçük-adım listelerine dönme');
     expect(chatSystem('tr')).toContain('konuşmadan tek bir düşünce istediğinde');
     expect(chatSystem('en')).toContain('do not generalize it as "common"');
