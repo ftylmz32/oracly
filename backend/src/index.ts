@@ -41,6 +41,7 @@ const app = await buildServer({
   readingClock: readingWiring.clock,
   readingWaitPolicy: readingWiring.policy,
   gemLedger: readingWiring.gemLedger ?? undefined,
+  gemStore: readingWiring.firestore ?? undefined,
   readingFlow: readingWiring.readingFlow ?? undefined,
   readingOperationInputRepository: readingWiring.inputRepository,
   readingStagedImageRepository: readingWiring.stagedImageRepository,

@@ -39,6 +39,7 @@ export async function testApp(
     readingClock?: import('../src/reading/clock.js').ServerClock;
     readingWaitPolicy?: import('../src/reading/wait-policy.js').WaitPolicy;
     gemLedger?: import('../src/reading/gem-ledger.js').GemLedger;
+    gemStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
     readingFlow?: import('../src/reading/reading-flow.js').ReadingFlow;
     readingOperationInputRepository?: import('../src/reading/operation-input-repository.js').ReadingOperationInputRepository;
     rewardedAds?: import('../src/server.js').BuildOptions['rewardedAds'];
@@ -61,6 +62,7 @@ export async function testApp(
     readingClock: options.readingClock,
     readingWaitPolicy: options.readingWaitPolicy,
     gemLedger: options.gemLedger,
+    gemStore: options.gemStore,
     readingFlow: options.readingFlow,
     readingOperationInputRepository: options.readingOperationInputRepository,
     rewardedAds: options.rewardedAds,

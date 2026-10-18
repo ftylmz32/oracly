@@ -37,6 +37,7 @@ import {
 import { systemClock, type ServerClock } from './reading/clock.js';
 import { provisionalWaitPolicy, type WaitPolicy } from './reading/wait-policy.js';
 import type { GemLedger } from './reading/gem-ledger.js';
+import type { FirestoreLike } from './billing/entitlement-repository.js';
 import type { ReadingFlow } from './reading/reading-flow.js';
 import type { OpenAiFetch } from './types.js';
 import type { ReadingTaskScheduler } from './reading/reading-task-scheduler.js';
@@ -71,6 +72,8 @@ export type BuildOptions = {
   readingWaitPolicy?: WaitPolicy;
   /** Durable gem ledger. Required for acceleration. */
   gemLedger?: GemLedger;
+  /** Same store the gem ledger uses. Deep tarot holds live here. */
+  gemStore?: FirestoreLike;
   rewardedAds?: Omit<RewardedAdRouteOptions, 'ledger' | 'appCheck' | 'clock'>;
   readingFlow?: ReadingFlow;
   /** Durable Coffee/Palm staged-image metadata store (BATCH 5I). */
@@ -210,6 +213,9 @@ export async function buildServer(options: BuildOptions) {
     appCheck,
     sharedWindowStore: options.sharedWindowStore,
     responseReplayRepository: options.responseReplayRepository,
+    gemLedger: options.gemLedger,
+    gemStore: options.gemStore,
+    clock: readingClock,
   });
   await registerReadingOperationRoutes(app, config, {
     appCheck,
@@ -230,6 +236,7 @@ export async function buildServer(options: BuildOptions) {
   await registerGemAccelerationRoutes(app, config, {
     appCheck,
     ledger: options.gemLedger,
+    billingStore: options.gemStore,
     clock: readingClock,
     scheduler: options.readingTaskScheduler,
     operationRepository: readingOperationRepository,

@@ -2,7 +2,7 @@
  * Authenticated acceleration and balance. No client-chosen cost or refund.
  */
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import { createHash } from 'node:crypto';
+import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { AppCheckVerifier } from '../auth/app-check.js';
 import { createAppCheckVerifier } from '../auth/app-check.js';
 import { createAuthenticationService } from '../auth/create-auth.js';
@@ -26,6 +26,11 @@ import {
   GEM_TAROT_READING_COST,
   serverDayKey,
 } from '../reading/gem-wallet-policy.js';
+import { tarotSettleKey } from '../reading/tarot-billing-id.js';
+import {
+  markTarotHoldFinal,
+  releaseAbandonedTarotHolds,
+} from '../reading/tarot-billing-gate.js';
 
 const FORBIDDEN = [
   'amount',
@@ -48,6 +53,7 @@ export type GemRouteOptions = {
   appCheck?: AppCheckVerifier;
   ledger?: GemLedger;
   clock?: ServerClock;
+  billingStore?: FirestoreLike;
   scheduler?: ReadingTaskScheduler;
   operationRepository?: ReadingOperationRepository;
   stagedImageRepository?: ReadingStagedImageRepository;
@@ -204,6 +210,9 @@ export async function registerGemAccelerationRoutes(
         return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
       }
       try {
+        if (options.billingStore) {
+          await releaseAbandonedTarotHolds(ledger, options.billingStore, clock, owner);
+        }
         const balance = await ledger.balanceOf(owner);
         return reply.code(200).send(successEnvelope({ balance }));
       } catch {
@@ -283,7 +292,7 @@ export async function registerGemAccelerationRoutes(
       if (typeof operationId !== 'string' || !parsePurposeBody(request.body)) {
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
-      const canonicalKey = `tarot:${createHash('sha256').update(operationId).digest('hex').slice(0, 48)}`;
+      const canonicalKey = tarotSettleKey(operationId);
       try {
         const result = await ledger.debit({
           ownerUserId: owner,
@@ -292,6 +301,14 @@ export async function registerGemAccelerationRoutes(
           operationId,
           reason: 'tarot_reading',
         });
+        if (options.billingStore) {
+          await markTarotHoldFinal(
+            options.billingStore,
+            owner,
+            operationId,
+            toEpochMs(clock.now()),
+          );
+        }
         return reply.code(200).send(successEnvelope({
           balance: result.balance,
           settled: true,

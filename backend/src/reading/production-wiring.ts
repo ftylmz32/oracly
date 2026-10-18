@@ -66,6 +66,7 @@ export type ProductionReadingWiring = {
   policy: WaitPolicy;
   repository: ReadingOperationRepository;
   operations: ReadingOperationService;
+  firestore: FirestoreLike | null;
   gemLedger: GemLedger | null;
   readingFlow: ReadingFlow | null;
   inputRepository: ReadingOperationInputRepository;
@@ -171,6 +172,7 @@ export function createProductionReadingWiring(
     policy,
     repository,
     operations,
+    firestore,
     gemLedger,
     readingFlow,
     inputRepository,

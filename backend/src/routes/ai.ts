@@ -34,11 +34,26 @@ import {
   yildiznameDuplicateFingerprint,
 } from '../narrative-yildizname-attempt.js';
 import { createSharedWindowStore, type SharedWindowStore } from '../rate-limit/shared-window-store.js';
+import type { FirestoreLike } from '../billing/entitlement-repository.js';
+import type { ServerClock } from '../reading/clock.js';
+import { systemClock } from '../reading/clock.js';
+import type { GemLedger } from '../reading/gem-ledger.js';
+import {
+  admitPaidTarot,
+  failPaidTarot,
+  finishPaidTarot,
+  tarotBillingActive,
+  type TarotHold,
+} from '../reading/tarot-billing-gate.js';
+import { isPaidTarot } from '../reading/tarot-billing-id.js';
 
 export type AiRouteOptions = {
   appCheck?: AppCheckVerifier;
   sharedWindowStore?: SharedWindowStore;
   responseReplayRepository?: ResponseReplayRepository;
+  gemLedger?: GemLedger;
+  gemStore?: FirestoreLike;
+  clock?: ServerClock;
 };
 
 export async function registerAiRoutes(
@@ -48,6 +63,9 @@ export async function registerAiRoutes(
   options: AiRouteOptions = {},
 ): Promise<void> {
   const auth = requireAuth(createAuthenticationService(config));
+  const gemLedger = options.gemLedger;
+  const gemStore = options.gemStore;
+  const clock = options.clock ?? systemClock();
   const appCheck = requireAppCheck(
     options.appCheck ?? createAppCheckVerifier(config),
   );
@@ -103,6 +121,7 @@ export async function registerAiRoutes(
     async (request, reply) => {
       const started = Date.now();
       const requestId = request.requestId;
+      let tarotHold: TarotHold | null = null;
       try {
         const validated = validateAiBody(request.body);
         const fingerprint = fingerprintRequest(validated);
@@ -146,12 +165,13 @@ export async function registerAiRoutes(
         }
         // Dream: a completed response replays only for the same semantic
         // request (language, narrative, symbols, emotions, memory).
+        const billingOn = tarotBillingActive(config, gemLedger, gemStore);
         const replayKey =
           idemKey && validated.operation === 'dream_analysis'
             ? dreamReplayKey(idemKey, fingerprint)
             : idemKey;
         let replayAttempt: string | null = null;
-        if (replayKey) {
+        if (replayKey && !(billingOn && isPaidTarot(validated))) {
           const claim = await replay.claim(identity, replayKey);
           if (claim.kind === 'completed') {
             reply.header('content-type', claim.entry.contentType);
@@ -160,12 +180,29 @@ export async function registerAiRoutes(
           if (claim.kind === 'in_progress') return reply.code(409).send(errorEnvelope(ErrorCode.rateLimited));
           replayAttempt = claim.attemptId;
         }
-        if (await rejectDuplicate(request, reply, validated.operation, duplicateFingerprint)) {
+        if (
+          !(billingOn && isPaidTarot(validated)) &&
+          await rejectDuplicate(request, reply, validated.operation, duplicateFingerprint)
+        ) {
           return;
         }
         if (await rejectExpensive(request, reply, validated.operation)) {
           return;
         }
+        const admission = await admitPaidTarot({
+          config,
+          ledger: gemLedger,
+          store: gemStore,
+          clock,
+          validated,
+          identity,
+          idemKey,
+          fingerprint,
+        });
+        if (admission.action === 'reply') {
+          return reply.code(admission.status).send(admission.payload);
+        }
+        tarotHold = admission.action === 'hold' ? admission.hold : null;
         const modelHint = asRecord(request.body)?.model;
         const payload = asRecord(asRecord(request.body)?.payload);
         const imagePayloadPresent =
@@ -190,6 +227,11 @@ export async function registerAiRoutes(
         };
 
         const result = await run();
+        if (tarotHold && gemStore) {
+          const done = await finishPaidTarot(gemStore, clock, gemLedger ?? null, tarotHold, result.body);
+          tarotHold = null;
+          if (!done.deliver) return reply.code(done.status).send(done.payload);
+        }
         if (replayKey && replayAttempt) await replay.complete(identity, replayKey, replayAttempt, {
           status: result.status, body: result.body, contentType: 'application/json',
         });
@@ -210,6 +252,15 @@ export async function registerAiRoutes(
         });
         return reply.code(result.status).send(result.body);
       } catch (error) {
+        if (tarotHold && gemStore) {
+          const hold = tarotHold;
+          tarotHold = null;
+          try {
+            await failPaidTarot(gemStore, clock, hold, gemLedger ?? null);
+          } catch {
+            // The hold stays open. The same operation id resumes it.
+          }
+        }
         const proxy = error instanceof ProxyError ? error : null;
         const code = proxy?.code ?? ErrorCode.internalError;
         const status = proxy?.httpStatus ?? 200;
