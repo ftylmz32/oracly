@@ -38,4 +38,35 @@ npm run build
 5. İşletme kimliği, satış ve iletişim bilgileri, KVKK, tüketici metinleri ve gerekli yasal onaylar.
 6. Tam ödeme → yetki → 3 fotoğraf → fal sonucu ve başarısızlık senaryolarının otomatik ve gerçek cihaz testleri.
 
+## Coffee V3 web entegrasyon temeli
+
+Web istemcisi mevcut backend sözleşmesini değiştirmeden şu sabitleri kullanır:
+
+- `readingType: coffee`, `language: tr`
+- `coffeeInputContract: trusted_intention_v1`
+- `coffeeCaptureContract: three_view_v3`
+- İlk fincan: `v3_cup_view_a`
+- İkinci fincan: `v3_cup_view_b`
+- Tabak: `v3_saucer_view`
+
+Canlı mod varsayılan olarak kapalıdır. Firebase Web App yapılandırması, Anonymous
+Authentication ve reCAPTCHA Enterprise tabanlı Web App Check tamamlanmadan istemci
+hazır görünmez. Korunan backend çağrıları hem `Authorization: Bearer <Firebase ID
+token>` hem de `X-Firebase-AppCheck` başlığını gönderir. Production API adresi HTTPS
+olmalıdır.
+
+Firebase Console hazırlığı:
+
+1. Mevcut Firebase projesine ayrı bir Web App kaydet.
+2. Authentication altında Anonymous sağlayıcısını yalnız ürün kararı ve kötüye kullanım kontrolleri onaylandıysa etkinleştir.
+3. App Check altında Web App'i reCAPTCHA Enterprise ile kaydet; enforcement'ı önce metrikleri izleyerek kademeli aç.
+4. Backend `FIREBASE_APP_CHECK_APP_IDS` allowlist'ine yeni Web App ID'sini ekle.
+5. `.env.example` içindeki public Firebase değerlerini deployment ortamına gir; gizli servis hesabı anahtarlarını asla `NEXT_PUBLIC_*` değişkenlerine koyma.
+6. Backend URL'sini HTTPS olarak ayarla ve `NEXT_PUBLIC_ORACLY_COFFEE_LIVE_ENABLED=true` değerini ancak uçtan uca doğrulama sonrası kullan.
+
+Yerel sahte akış `NEXT_PUBLIC_ORACLY_COFFEE_SERVICE=mock` veya development'ta
+`?mockMode=1` ile açılır. Kod `NODE_ENV=production` olduğunda sahte sağlayıcıyı
+reddeder. Demo sonucu açıkça sahte olarak işaretlenir. Ödeme butonu ve canlı gönderim,
+doğrulanmış ödeme/yetkilendirme ile web sonuç teslim endpoint'i tamamlanana kadar kapalıdır.
+
 Üretime dağıtım / canlı ödeme / mevcut mobil backend değişikliği: **yok**.
