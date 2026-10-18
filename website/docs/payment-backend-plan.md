@@ -4,7 +4,16 @@ Bu belge Aşama 2C'de yapılan salt okunur backend incelemesinin sonucudur. Bu a
 
 ## Mevcut kritik açık
 
-`POST /v1/reading-operations` Firebase Authentication ve App Check doğruluyor; ayrıca aktif işlem ve hız kotası uyguluyor. Ancak `readingType: coffee` için doğrulanmış bir sipariş veya tek kullanımlık fal hakkı aramıyor ve tüketmiyor. Bu nedenle geçerli Firebase/App Check token'ı olan bir web istemcisi arayüzdeki kapalı butonu atlayıp doğrudan operation oluşturabilir. İstemci bayrağı, gizli URL, CORS veya kapalı buton çözüm değildir.
+2F itibarıyla yapılandırılmış Web App Check App ID'lerinden gelen Coffee istekleri
+`POST /v1/reading-operations` üzerinde legacy, V2 ve V3 için reddedilir. Aynı web
+kimlikleri `POST /v1/ai/complete` içindeki `coffee_analysis` yolunu da kullanamaz.
+Web için tek oluşturma sınırı, sipariş hakkını Firestore transaction içinde tüketen
+`POST /v1/web/coffee-orders/:orderId/reading-operation` endpoint'idir. Bu güvenlik,
+`FIREBASE_WEB_APP_CHECK_APP_IDS` listesinin Firebase Console'daki gerçek Web App
+ID'leriyle eksiksiz tutulmasına bağlıdır.
+
+Kanonik ürün kimliği web ve backend için `oracly_coffee_single_v1` değeridir.
+Bu kimlik fiyat içermez; fiyat hâlâ yalnız sunucu kataloğundan belirlenir.
 
 ## Zorunlu sunucu tasarımı
 
@@ -58,14 +67,19 @@ Hesap açılınca merchant portalda sandbox anahtarları secret manager'a girilm
 - Firestore kesintisi, iyzico zaman aşımı ve bilinmeyen durumlar fail-closed olur.
 - Mevcut iOS/Android operation oluşturma, staging, sonuç ve toparlanma regresyon testleri değişmeden geçer.
 
-## Aşama 2D uygulama durumu
+## Aşama 2F uygulama durumu
 
 `src/server/orders` altında Firebase Admin ID token + App Check doğrulaması, Firestore transaction
 deposu, server-only katalog yapılandırması ve ödeme doğrulama sınırı eklendi. `POST /api/orders`
 idempotent sipariş oluşturur; `GET /api/orders/:orderId` yalnızca doğrulanmış sahibine güvenli DTO
 döndürür. Yapılandırma veya Firestore erişimi yoksa route'lar fail-closed kalır.
 
-Bu çalışma gerçek Firebase projesine bağlanarak veya Firestore Emulator ile doğrulanmadı. Testlerdeki
-depo bellek içi bir transaction benzetimidir; gerçek Firestore transaction testi değildir. Gerçek
-iyzico adaptörü, callback/webhook route'u ve kahve backend'inde atomik entitlement tüketimi hâlâ yoktur.
-Bu nedenle production ödeme ve gerçek fal başlatma etkinleştirilmemelidir.
+Aşama 2F'de website Firebase Admin sipariş deposu ile backend Google Cloud Firestore
+istemcisi aynı `demo-oracly-web-2f` proje ve `(default)` veritabanında gerçek Firestore
+Emulator'a bağlanarak doğrulandı. Eşzamanlı hak tüketimi, tekrar kullanım, yanlış sahip
+ve transaction rollback senaryoları emulator üzerinde geçti. Production Firebase
+projesine bağlantı kurulmadı.
+
+Gerçek iyzico adaptörü, callback/webhook sonucu sorgulaması ve production Firebase/App
+Check yapılandırması hâlâ tamamlanmadı. Bu nedenle production ödeme ve gerçek fal
+başlatma bayrakları kapalı kalmalıdır.

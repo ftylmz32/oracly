@@ -34,6 +34,7 @@ import {
   yildiznameDuplicateFingerprint,
 } from '../narrative-yildizname-attempt.js';
 import { createSharedWindowStore, type SharedWindowStore } from '../rate-limit/shared-window-store.js';
+import { isWebAppIdentity } from '../auth/web-app-check.js';
 
 export type AiRouteOptions = {
   appCheck?: AppCheckVerifier;
@@ -105,6 +106,14 @@ export async function registerAiRoutes(
       const requestId = request.requestId;
       try {
         const validated = validateAiBody(request.body);
+        // Web Coffee is paid and may only start through the order-entitlement
+        // endpoint. This route remains unchanged for verified Android/iOS App IDs.
+        if (
+          validated.operation === 'coffee_analysis' &&
+          isWebAppIdentity(request.appCheckAppId, config)
+        ) {
+          return reply.code(403).send(errorEnvelope(ErrorCode.invalidRequest));
+        }
         const fingerprint = fingerprintRequest(validated);
         const identity = request.identityKey ?? 'anon';
         const idemKey =

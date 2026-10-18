@@ -15,6 +15,7 @@ import {
   WebOrderReadingError,
   type WebCoffeeOrderReadingRepository,
 } from '../reading/web-coffee-order-reading-repository.js';
+import { isConfiguredWebApp } from '../auth/web-app-check.js';
 
 const ORDER_ID = /^[A-Za-z0-9_-]{8,80}$/;
 
@@ -41,7 +42,7 @@ export async function registerWebCoffeeOrderReadingRoute(
     { preHandler: [auth, appCheck] },
     async (request, reply) => {
       if (!config.webCoffeeOrderReadingEnabled || !config.coffeeV3CreationEnabled || options.appCheck.mode !== 'verify' ||
-          !request.appCheckAppId || !config.firebaseWebAppCheckAppIds.includes(request.appCheckAppId)) {
+          !isConfiguredWebApp(request.appCheckAppId, config)) {
         return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
       }
       const uid = request.authSubject;

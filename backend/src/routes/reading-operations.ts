@@ -37,6 +37,7 @@ import {
 import { provisionalWaitPolicy, type WaitPolicy } from '../reading/wait-policy.js';
 import type { ReadingFlow } from '../reading/reading-flow.js';
 import { sanitizeCoffeeIntention } from '../reading/coffee-intention.js';
+import { isWebAppIdentity } from '../auth/web-app-check.js';
 
 const FORBIDDEN_BODY_KEYS = [
   'readyAt',
@@ -91,13 +92,12 @@ export async function registerReadingOperationRoutes(
       if (!parsed.ok) {
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
-      // A verified Web App must spend its server-side order entitlement via
-      // the atomic web route; it may never bypass payment through the legacy API.
+      // Every Coffee contract from a configured Web App must spend a durable
+      // order entitlement through the atomic web route. Mobile App IDs retain
+      // the legacy single-image, V2 and V3 contracts unchanged.
       if (
         parsed.readingType === 'coffee' &&
-        parsed.coffeeCaptureContract === COFFEE_V3_CAPTURE_CONTRACT &&
-        request.appCheckAppId &&
-        config.firebaseWebAppCheckAppIds.includes(request.appCheckAppId)
+        isWebAppIdentity(request.appCheckAppId, config)
       ) {
         return reply.code(403).send(errorEnvelope(ErrorCode.invalidRequest));
       }

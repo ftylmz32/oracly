@@ -11,11 +11,11 @@ import {
   type ReadingAdmissionLimits,
 } from './reading-admission.js';
 import { idempotencyKeyFor, type CreateStored } from './operation-repository.js';
+import { WEB_COFFEE_READING_PRODUCT_ID } from './web-coffee-product.js';
 
 const ORDERS = 'webCoffeeOrders';
 const OPERATIONS = 'readingOperations';
 const KEYS = 'readingOperationKeys';
-const PRODUCT = 'coffee_reading_single_v1';
 
 export type WebOrderReadingErrorCode =
   | 'wrong_owner'
@@ -43,6 +43,8 @@ export class FirestoreWebCoffeeOrderReadingRepository implements WebCoffeeOrderR
   constructor(
     private readonly firestore: FirestoreLike,
     private readonly limits: ReadingAdmissionLimits,
+    /** Test-only failure injection; production construction never supplies it. */
+    private readonly beforeCommit?: () => void,
   ) {}
 
   async createFromEntitlement(input: {
@@ -114,6 +116,7 @@ export class FirestoreWebCoffeeOrderReadingRepository implements WebCoffeeOrderR
           updatedAtMs: input.record.createdAtMs,
           events: [...order.events, { status: 'entitlement_consumed', atMs: input.record.createdAtMs }],
         });
+        this.beforeCommit?.();
         return { created: true, record: input.record };
       });
     } catch (error) {
@@ -157,7 +160,7 @@ type StoredOrder = {
 };
 
 function parseOrder(data: Record<string, unknown> | undefined): StoredOrder | null {
-  if (!data || data.productId !== PRODUCT || typeof data.ownerUserId !== 'string' ||
+  if (!data || data.productId !== WEB_COFFEE_READING_PRODUCT_ID || typeof data.ownerUserId !== 'string' ||
       typeof data.status !== 'string' || !Array.isArray(data.events)) return null;
   return data as StoredOrder;
 }

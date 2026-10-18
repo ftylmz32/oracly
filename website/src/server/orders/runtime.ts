@@ -7,7 +7,7 @@ import { FirebaseOrderRequestVerifier } from './auth';
 import { FirestoreOrderStore } from './store';
 
 export type OrderServerConfig = {
-  enabled: true; expectedWebAppId: string; catalogVersion: string; priceMinor: number; currency: 'TRY';
+  enabled: true; expectedWebAppId: string; catalogVersion: string; priceMinor: number; currency: 'TRY'; firestoreDatabaseId: string;
 };
 
 export class OrderServerUnavailable extends Error { constructor() { super('order_server_unavailable'); } }
@@ -16,8 +16,9 @@ export function loadOrderServerConfig(): OrderServerConfig {
   const priceMinor = Number(process.env.ORACLY_COFFEE_ORDER_PRICE_MINOR);
   const expectedWebAppId = process.env.FIREBASE_APP_CHECK_WEB_APP_ID?.trim() ?? '';
   const catalogVersion = process.env.ORACLY_COFFEE_CATALOG_VERSION?.trim() ?? '';
+  const firestoreDatabaseId = process.env.FIRESTORE_DATABASE_ID?.trim() || '(default)';
   if (process.env.ORACLY_ORDERS_ENABLED !== 'true' || !expectedWebAppId || !catalogVersion || !Number.isSafeInteger(priceMinor) || priceMinor <= 0) throw new OrderServerUnavailable();
-  return { enabled: true, expectedWebAppId, catalogVersion, priceMinor, currency: 'TRY' };
+  return { enabled: true, expectedWebAppId, catalogVersion, priceMinor, currency: 'TRY', firestoreDatabaseId };
 }
 
 export function createOrderRuntime() {
@@ -26,7 +27,7 @@ export function createOrderRuntime() {
   return {
     config,
     verifier: new FirebaseOrderRequestVerifier(getAuth(app), getAppCheck(app), config.expectedWebAppId),
-    store: new FirestoreOrderStore(getFirestore(app)),
+    store: new FirestoreOrderStore(getFirestore(app, config.firestoreDatabaseId)),
   };
 }
 

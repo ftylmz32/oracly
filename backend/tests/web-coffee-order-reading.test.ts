@@ -6,7 +6,9 @@ import {
 } from '../src/reading/web-coffee-order-reading-repository.js';
 import { DEFAULT_READING_ADMISSION_LIMITS } from '../src/reading/reading-admission.js';
 import type { FirestoreLike, FirestoreTransactionLike } from '../src/billing/entitlement-repository.js';
-import { StaticAppCheckVerifier, appCheckHeader, authHeader, signHs256, testApp, testConfig } from './helpers.js';
+import { StaticAppCheckVerifier, appCheckHeader, authHeader, fakeJpeg, signHs256, testApp, testConfig } from './helpers.js';
+import { WEB_COFFEE_READING_PRODUCT_ID } from '../src/reading/web-coffee-product.js';
+import { COFFEE_READING_PRODUCT_ID } from '../../website/src/lib/orders/types.js';
 
 const SECRET = 'web-order-test-secret';
 const WEB_APP = '1:123:web:oracly';
@@ -39,7 +41,7 @@ function seedOrder(store: MemoryDocumentStore, status = 'entitlement_granted', o
   store.docs.set(`webCoffeeOrders/${ORDER_ID}`, {
     orderId: ORDER_ID,
     ownerUserId,
-    productId: 'coffee_reading_single_v1',
+    productId: WEB_COFFEE_READING_PRODUCT_ID,
     catalogVersion: 'test',
     priceMinor: 1,
     currency: 'TRY',
@@ -107,6 +109,47 @@ describe('paid web Coffee V3 bridge', () => {
     await app.close();
   });
 
+  it.each([
+    ['legacy single-image', { readingType: 'coffee', sourceRequestId: 'web_legacy_request_1234', language: 'tr' }],
+    ['Coffee V2', { readingType: 'coffee', sourceRequestId: 'web_v2_request_123456', language: 'tr', intention: 'Genel', coffeeInputContract: 'trusted_intention_v1' }],
+    ['Coffee V3', BODY],
+  ])('blocks %s creation from the legacy operation API for a web App ID', async (_name, payload) => {
+    const store = new MemoryDocumentStore();
+    const app = await build(store);
+    const response = await app.inject({ method: 'POST', url: '/v1/reading-operations', headers: headers(), payload });
+    expect(response.statusCode).toBe(403);
+    expect([...store.docs.keys()].filter((key) => key.startsWith('readingOperations/'))).toHaveLength(0);
+    await app.close();
+  });
+
+  it('blocks direct coffee_analysis for web but leaves the mobile route reachable', async () => {
+    const image = fakeJpeg();
+    const payload = { operation: 'coffee_analysis', payload: { language: 'tr', mimeType: 'image/jpeg', imageBase64: image.toString('base64'), byteLength: image.length } };
+    const webCalls: string[] = [];
+    const web = await testApp(config(), async (url) => { webCalls.push(String(url)); return new Response('{}', { status: 500 }); }, {
+      appCheck: new StaticAppCheckVerifier('good-token', WEB_APP),
+    });
+    const blocked = await web.inject({ method: 'POST', url: '/v1/ai/complete', headers: headers(), payload });
+    expect(blocked.statusCode, blocked.body).toBe(403);
+    expect(webCalls).toHaveLength(0);
+    await web.close();
+
+    for (const appId of [IOS_APP, ANDROID_APP]) {
+      const mobileCalls: string[] = [];
+      const mobile = await testApp(config(), async (url) => { mobileCalls.push(String(url)); return new Response('{}', { status: 500 }); }, {
+        appCheck: new StaticAppCheckVerifier('good-token', appId),
+      });
+      const mobileResponse = await mobile.inject({ method: 'POST', url: '/v1/ai/complete', headers: headers(), payload });
+      expect(mobileResponse.statusCode).not.toBe(403);
+      expect(mobileCalls.length).toBeGreaterThan(0);
+      await mobile.close();
+    }
+  });
+
+  it('uses one canonical product identity in website and backend contracts', () => {
+    expect(WEB_COFFEE_READING_PRODUCT_ID).toBe(COFFEE_READING_PRODUCT_ID);
+  });
+
   it.each([IOS_APP, ANDROID_APP])('preserves legacy create and status for mobile app %s', async (appId) => {
     const store = new MemoryDocumentStore();
     const app = await build(store, appId);
@@ -140,5 +183,23 @@ describe('paid web Coffee V3 bridge', () => {
     const response = await unknown.inject({ method: 'POST', url: `/v1/web/coffee-orders/${ORDER_ID}/reading-operation`, headers: headers(), payload: BODY });
     expect(response.statusCode).toBe(503);
     await unknown.close();
+  });
+
+  it('denies an unlisted but verified Firebase Web App ID from every legacy Coffee path', async () => {
+    const unlistedWebApp = '1:999:web:unlisted';
+    const store = new MemoryDocumentStore();
+    const app = await build(store, unlistedWebApp);
+    const legacy = await app.inject({
+      method: 'POST', url: '/v1/reading-operations', headers: headers(),
+      payload: { readingType: 'coffee', sourceRequestId: 'unknown_web_request_1234', language: 'tr' },
+    });
+    expect(legacy.statusCode).toBe(403);
+    const image = fakeJpeg();
+    const direct = await app.inject({
+      method: 'POST', url: '/v1/ai/complete', headers: headers(),
+      payload: { operation: 'coffee_analysis', payload: { language: 'tr', mimeType: 'image/jpeg', imageBase64: image.toString('base64'), byteLength: image.length } },
+    });
+    expect(direct.statusCode).toBe(403);
+    await app.close();
   });
 });
