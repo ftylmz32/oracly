@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { COFFEE_INTENTION_MAX_LENGTH, sanitizeCoffeeIntention, type WebCoffeeSlot } from '@/lib/coffee/contracts';
 import { getCoffeeRuntime, type CoffeeFlowResult, type CoffeeFlowUpdate } from '@/lib/coffee/service';
+import { coffeeResultParagraphs } from '@/lib/coffee/result';
 
 type Selected = { name: string; url: string; file: File };
 type Selection = Partial<Record<WebCoffeeSlot, Selected>>;
@@ -63,7 +64,7 @@ export default function CoffeeCapture() {
     const files = Object.fromEntries(slots.map((slot) => [slot.id, selectedRef.current[slot.id]!.file])) as Record<WebCoffeeSlot, File>;
     setRunning(true); setError(''); setResult(null);
     try { setResult(await service.run({ files, intention: safeIntention, onUpdate: setFlow })); }
-    catch { setError('Demo akışı tamamlanamadı. Fotoğrafların korunuyor; tekrar deneyebilirsin.'); }
+    catch { setError('Sonuç güvenli biçimde alınamadı. Fotoğrafların ve mevcut işlem kaydın korunuyor; aynı işlemi tekrar deneyebilirsin.'); }
     finally { setRunning(false); }
   }
 
@@ -75,12 +76,14 @@ export default function CoffeeCapture() {
     <div className="capture-summary"><div><strong>{count === 3 ? 'Fotoğrafların seçildi' : 'Fotoğraflarını hazırlıyoruz'}</strong><p>{count === 3 ? 'Niyetini seçerek son kontrolü tamamla.' : 'Devam etmek için üç farklı fotoğraf seç.'}</p></div><button type="button" className="button button-gold" disabled={count !== 3} onClick={() => setReviewed(true)}>Seçimi Kontrol Et <span aria-hidden="true">→</span></button></div>
     {reviewed && <section className="intention-panel" aria-labelledby="intention-title"><div className="eyebrow">NİYET / TRUSTED_INTENTION_V1</div><h3 id="intention-title">Falına hangi niyetle bakalım?</h3><p>Niyetin, yorumun gerçekten merak ettiğin konuya odaklanmasına yardımcı olur.</p><div className="intention-chips">{intentions.map(([label, value]) => <button type="button" className={intention === value ? 'selected' : ''} aria-pressed={intention === value} onClick={() => setIntention(value)} key={label}>{label}</button>)}</div><label className="custom-intention"><span>Ya da kısa niyetini yaz</span><textarea value={intention} maxLength={COFFEE_INTENTION_MAX_LENGTH} onChange={(event) => setIntention(event.target.value)} rows={3} placeholder="Kısa niyetini yaz" /><small>{intention.length}/{COFFEE_INTENTION_MAX_LENGTH}</small></label><div className={`integration-state state-${runtime.mode}`}><strong>{runtime.mode === 'mock' ? 'Yerel demo modu' : runtime.mode === 'live' ? 'Canlı entegrasyon kilitli' : 'Entegrasyon henüz etkin değil'}</strong><p>{runtime.reason}</p></div><button type="button" className="button button-gold flow-button" disabled={!ready || !runtime.canRun || running} onClick={runFlow}>{running ? 'Akış sürüyor…' : flow?.phase === 'failed' ? 'Tekrar Dene' : 'Demo Akışını Başlat'} <span aria-hidden="true">→</span></button><button type="button" className="button purchase-button" disabled>Satın alma yakında · Ödeme kapalı</button></section>}
     {flow && <div className={`flow-status flow-${flow.phase}`} role="status"><span className="flow-orb" aria-hidden="true" /><div><strong>{phaseTitle(flow.phase)}</strong><p>{flow.message}</p>{flow.uploaded != null && <small>{flow.uploaded}/3 hazırlandı</small>}</div></div>}
-    {result?.kind === 'demo' && <div className="demo-result"><span>DEMO · SAHTE SONUÇ</span><h3>Akış başarıyla tamamlandı.</h3><p>Bu kart yalnızca işlem durumlarını doğrulayan bir test çıktısıdır; gerçek fal, AI yorumu veya kişisel sonuç değildir.</p></div>}
-    {result?.kind === 'live-result-unavailable' && <div className="preview-notice"><strong>İşlem hazır.</strong> Sonuç teslim route’u web için doğrulanmadığından içerik gösterilmedi.</div>}
+    {result && <article className={`coffee-result-card ${result.kind === 'demo' ? 'is-demo' : ''}`} aria-label={result.kind === 'demo' ? 'Demo fal sonucu' : 'Kahve falı sonucu'}>
+      <div className="coffee-result-meta"><span>{result.kind === 'demo' ? 'DEMO · GERÇEK FAL DEĞİLDİR' : 'ORACLY · KAHVE FALI'}</span><small>{result.delivery.result.coffeeResultContract}</small></div>
+      <div className="coffee-result-copy">{coffeeResultParagraphs(result.delivery.result).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
+    </article>}
     <p className="capture-disclaimer">Güvenlik notu: Varsayılan durumda fotoğraflar yalnızca bu sayfa açıkken tarayıcında önizlenir. Gerçek gönderim, ödeme ve fal üretimi bu web sürümünde etkin değildir.</p>
   </div>;
 }
 
 function phaseTitle(phase: CoffeeFlowUpdate['phase']) {
-  return ({ preparing: 'Hazırlanıyor', uploading: 'Fotoğraflar hazırlanıyor', waiting: 'Sırada bekliyor', processing: 'İşleniyor', ready: 'Tamamlandı', failed: 'Tekrar deneyebilirsin' })[phase];
+  return ({ preparing: 'Hazırlanıyor', uploading: 'Fotoğraflar hazırlanıyor', waiting: 'Sırada bekliyor', processing: 'İşleniyor', delivering: 'Sonuç teslim ediliyor', ready: 'Tamamlandı', failed: 'Tekrar deneyebilirsin' })[phase];
 }

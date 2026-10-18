@@ -23,8 +23,8 @@ npm run build
 ## Sınırlar
 
 - Bu paket **mevcut Flutter `web/` dizini değildir**; hiçbir mobil dosyayı değiştirmez.
-- Kahve falı ekranı 2 fincan + 1 tabak görseli seçtirir. Görseller sadece tarayıcı belleğinde önizlenir. **Sunucuya gönderilmez; kalıcı saklanmaz.**
-- AI, Firebase kimlik doğrulama, Web App Check ve ödeme henüz bağlı değildir. Web alışverişi kesinlikle çalışıyor gibi gösterilmez.
+- Kahve falı ekranı 2 fincan + 1 tabak görseli seçtirir. Varsayılan ve demo modunda görseller yalnızca tarayıcı belleğinde önizlenir; canlı aktarım ödeme yetkisi tamamlanana kadar kapalıdır.
+- Firebase Authentication ve Web App Check yapılandırılabilir durumdadır; eksik yapılandırmada güvenli biçimde kapalı kalır. Ödeme henüz bağlı değildir ve web alışverişi çalışıyor gibi gösterilmez.
 - Gizlilik / koşullar / iletişim sayfaları taslaktır. İşletme bilgileri, KVKK ve ödeme süreçleri doğrulanmadan yayına çıkma.
 - Alan adı belli olunca HTTPS adresini `NEXT_PUBLIC_SITE_URL` üzerinden belirt. O zamana kadar arama motorları için `noindex` etkin.
 - `npm install` paket kilit dosyasını üretecektir; geliştirme tamamlandığında commit'e eklenmelidir.
@@ -32,7 +32,7 @@ npm run build
 ## Faz 2 önkoşulları (bu aşamada uygulanmadı)
 
 1. Firebase için ayrı Web App Check uygulaması ve doğrulama; asla production App Check'i bypass etme.
-2. Mevcut `backend/src/routes/reading-operations.ts` ve `reading-staged-image-routes.ts` sözleşmelerini test ederek web uyarlaması. Coffee V3 için `three_view_v3` (2 cup + 1 saucer) sözleşmesine sadık kal.
+2. Mevcut reading operation, staged image ve sonuç endpoint'lerinin staging ortamında Firebase kullanıcı sahipliği ve App Check ile uçtan uca doğrulanması.
 3. Türkiye'de hizmetimizi kabul eden ödeme kuruluşunun **sunucudan doğrulanan**, idempotent callback/webhook yapısı. İstemciden gelen `paid:true` gibi bir bilgi hiçbir hak kazandırmamalı.
 4. Sipariş / okuma / ücret iadesi / hata / tekrar deneme kayıtları, fiyat ve AI maliyet kontrolü.
 5. İşletme kimliği, satış ve iletişim bilgileri, KVKK, tüketici metinleri ve gerekli yasal onaylar.
@@ -66,7 +66,10 @@ Firebase Console hazırlığı:
 
 Yerel sahte akış `NEXT_PUBLIC_ORACLY_COFFEE_SERVICE=mock` veya development'ta
 `?mockMode=1` ile açılır. Kod `NODE_ENV=production` olduğunda sahte sağlayıcıyı
-reddeder. Demo sonucu açıkça sahte olarak işaretlenir. Ödeme butonu ve canlı gönderim,
-doğrulanmış ödeme/yetkilendirme ile web sonuç teslim endpoint'i tamamlanana kadar kapalıdır.
+reddeder. Demo sonucu açıkça sahte olarak işaretlenir. Web, mevcut
+`GET /v1/reading-operations/:operationId/result` endpoint'inden yalnızca kimliği eşleşen,
+`coffeeResultContract: m2_public_v1` ve dolu `overall` içeren sonucu kabul eder. Hazır sonucun
+gecikmesi halinde aynı endpoint sınırlı olarak yeniden sorgulanır; yeni fal başlatılmaz.
+Ödeme butonu ve canlı gönderim, sunucudan doğrulanan ödeme/yetkilendirme tamamlanana kadar kapalıdır.
 
 Üretime dağıtım / canlı ödeme / mevcut mobil backend değişikliği: **yok**.
