@@ -90,7 +90,7 @@ void main() {
     expect(wallet.balance, greaterThanOrEqualTo(0));
   });
 
-  test('daily +50 remains separate from starter grant', () async {
+  test('daily +25 remains separate from starter grant', () async {
     await starter.ensureOnce();
     final rewards = DailyRewardsService(
       MockUserRepository(storage),
@@ -103,7 +103,7 @@ void main() {
 
     final claimed = await rewards.claim(asOf: DateTime.utc(2026, 8, 9));
     expect(claimed.claimedToday, isTrue);
-    expect(wallet.balance, 70);
+    expect(wallet.balance, 45);
   });
 
   test('onboarding copy explains first reading without pay or premium', () {

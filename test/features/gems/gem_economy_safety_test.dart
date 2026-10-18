@@ -55,6 +55,6 @@ void main() {
       rewards.claim(asOf: DateTime.utc(2026, 8, 22)),
     ]);
     expect(results.any((result) => result.claimedToday), isTrue);
-    expect(authority.balance, 50);
+    expect(authority.balance, 25);
   });
 }

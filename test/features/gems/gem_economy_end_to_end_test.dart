@@ -44,9 +44,9 @@ void main() {
     world.authority.serverDay = '2026-09-19';
     final result = await world.daily.claim(asOf: day);
     expect(result, isA<DailyRewardClaimSuccess>());
-    expect(world.wallet.balance, 70);
+    expect(world.wallet.balance, 45);
     await world.controller.acceptAuthoritativeBalance(world.wallet.balance);
-    expect(world.controller.formatted, '70');
+    expect(world.controller.formatted, '45');
     expect(world.controller.authoritative, isTrue);
   });
 
@@ -70,7 +70,7 @@ void main() {
     world.authority.online = true;
     final ok = await world.daily.claim(asOf: day);
     expect(ok, isA<DailyRewardClaimSuccess>());
-    expect(world.wallet.balance, 60);
+    expect(world.wallet.balance, 35);
   });
 
   test('paid Tarot completes with exactly one settle', () async {

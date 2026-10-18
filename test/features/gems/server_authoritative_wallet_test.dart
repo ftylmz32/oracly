@@ -323,8 +323,8 @@ void main() {
         calls.add(path);
         final balance = switch (path) {
           '/v1/gems/starter-grant' => 20,
-          '/v1/gems/daily-reward' => 70,
-          _ => 50,
+          '/v1/gems/daily-reward' => 45,
+          _ => 25,
         };
         return ReadingOperationWire(
           statusCode: 200,
@@ -344,13 +344,13 @@ void main() {
     await service.claimStarter(idempotencyKey: 'starter-client-01');
     expect(service.balance, 20);
     await service.claimDaily(idempotencyKey: 'daily-client-01');
-    expect(service.balance, 70);
+    expect(service.balance, 45);
     final settled = await service.settleTarot(
       operationId: 'paid-tarot-session-01',
       idempotencyKey: 'paid-tarot-session-01',
     );
     expect(settled?.canonicalCost, 20);
-    expect(service.balance, 50);
+    expect(service.balance, 25);
     expect(
       calls,
       containsAll(<String>[

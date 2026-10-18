@@ -65,6 +65,6 @@ void main() {
     expect(DailyRewardsCopy.claimShort.toLowerCase(), isNot(contains('kaçır')));
     expect(GemsCopy.dailyRewardHint.toLowerCase(), isNot(contains('+50')));
     expect(GemsCopy.dailyRewardHint.toLowerCase(), contains('hediye'));
-    expect(GemEconomy.dailyReward, 50);
+    expect(GemEconomy.dailyReward, 25);
   });
 }

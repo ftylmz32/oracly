@@ -832,7 +832,7 @@ describe('purpose-specific server wallet routes', () => {
     });
     expect((await claim('daily-client-01')).json().data.serverDay).toBe('2026-09-08');
     expect((await claim('daily-client-02')).json().data.idempotent).toBe(true);
-    expect(await setup.ledger.balanceOf(setup.owner)).toBe(50);
+    expect(await setup.ledger.balanceOf(setup.owner)).toBe(25);
     await setup.app.close();
   });
 

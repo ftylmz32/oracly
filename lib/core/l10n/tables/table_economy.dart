@@ -41,9 +41,9 @@ const kL10nEconomy = <String, L10nTriple>{
     'Как получить?',
   ),
   'gems.earn_body': L10nTriple(
-    'İlk açılım için bir kez 20 mücevher verilir. Her gün Günlük Ödüller’den de 50 mücevher alabilirsin. Satın alma paketi yoktur.',
-    'Twenty gems are given once for the first spread. You can also claim 50 gems from Daily rewards each day. There is no purchase pack.',
-    'Двадцать кристаллов даются один раз за первый расклад. Каждый день в Ежедневных наградах можно взять 50. Пакетов покупки нет.',
+    'İlk açılım için bir kez 20 mücevher verilir. Her gün Günlük Ödüller’den de 25 mücevher alabilirsin. Satın alma paketi yoktur.',
+    'Twenty gems are given once for the first spread. You can also claim 25 gems from Daily rewards each day. There is no purchase pack.',
+    'Двадцать кристаллов даются один раз за первый расклад. Каждый день в Ежедневных наградах можно взять 25. Пакетов покупки нет.',
   ),
   'gems.spend_title': L10nTriple(
     'Nerede kullanılır?',

@@ -16,7 +16,7 @@ void main() {
 
   test('canonical amounts stay fixed', () {
     expect(GemEconomy.starterGrant, 20);
-    expect(GemEconomy.dailyReward, 50);
+    expect(GemEconomy.dailyReward, 25);
     expect(GemEconomy.tarotReading, 20);
     expect(TarotEconomy.readingCost, GemEconomy.tarotReading);
     expect(GemEconomy.starterGrant, GemEconomy.tarotReading);
@@ -48,7 +48,7 @@ void main() {
 
   test('literacy copy names earn, spend, and premium separation', () {
     expect(GemsCopy.earnBody, contains('20'));
-    expect(GemsCopy.earnBody, contains('50'));
+    expect(GemsCopy.earnBody, contains('25'));
     expect(GemsCopy.spendBody.toLowerCase(), contains('20'));
     expect(GemsCopy.spendBody.toLowerCase(), contains('\u00fccretsiz'));
     expect(GemsCopy.shopHonesty.toLowerCase(), contains('premium'));

@@ -39,7 +39,7 @@ class FakeGemAuthority {
     }
     if (path == '/v1/gems/daily-reward') {
       final first = _posted.add('daily:$serverDay');
-      if (first) balance += 50;
+      if (first) balance += 25;
       return _ok({
         'balance': balance,
         'granted': first,

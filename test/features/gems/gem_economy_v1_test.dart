@@ -91,6 +91,6 @@ void main() {
 
   test('claimed copy matches the product sentence', () {
     expect(DailyRewardsCopy.claimedLabel, 'Bugünün ödülünü aldın');
-    expect(DailyRewardsCopy.rewardAmountLabel(), '+50 mücevher');
+    expect(DailyRewardsCopy.rewardAmountLabel(), '+25 mücevher');
   });
 }
