@@ -1,6 +1,6 @@
 /**
  * COFFEE V3D FREEZE GUARD — the product owner approved the direct
- * fortune-teller engine (prompt sha e193679d…) and froze it: no prompt edit,
+ * fortune-teller engine (prompt sha 519c6421…) and froze it: no prompt edit,
  * no new creative restriction, no meaning table, no refactor, no behaviour
  * change. This test fails on ANY change to the frozen files or to the routing
  * and dark-launch defaults, so an accidental edit in a later task is caught.
@@ -21,14 +21,14 @@ const fileSha = (path: string) => createHash('sha256').update(readFileSync(resol
 
 /** The engine and the two modules its behaviour depends on (pins / terminal / slots; the public result shape). */
 const FROZEN_FILES: Record<string, string> = {
-  'src/ai/reading/coffee-v3d-direct-pipeline.ts': '8dfb03c415968794ce1139f337adf93c6b852e34a1674e87b1eefd2ec81e206b',
+  'src/ai/reading/coffee-v3d-direct-pipeline.ts': '26d08cbae49c89754fc4b3e5074adc3011bd1d7c016b3e93255482fab92d5540',
   'src/ai/reading/coffee-v3-live-pipeline.ts': 'b2e6da557e4af9f4a6838911e9752c074a56211e238a51c10ef7a8f9465b1665',
   'src/ai/reading/coffee-v3n-narrative-pipeline.ts': 'aa7471c9f3ce39fec877fb1440e57b29a49aa4d0a686b7e1e5af4f4db2fd7849',
 };
 
 describe('COFFEE V3D FREEZE (owner-approved engine — do not edit)', () => {
-  it('the approved writer prompt is unchanged (e193679d…)', () => {
-    expect(FROZEN_COFFEE_V3D_PROMPT_SHA256).toBe('e193679d1de9378977618476046503409773741588fbeea8a9cb7093aa20d745');
+  it('the approved writer prompt is unchanged (519c6421…)', () => {
+    expect(FROZEN_COFFEE_V3D_PROMPT_SHA256).toBe('519c6421a9cb5aadc65352ff27025d56abe6364ceded2c0b6a6bcd26e4904ba4');
     expect(coffeeV3DPromptSha256()).toBe(FROZEN_COFFEE_V3D_PROMPT_SHA256);
   });
 

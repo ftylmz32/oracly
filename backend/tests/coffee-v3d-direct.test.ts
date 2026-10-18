@@ -124,6 +124,13 @@ describe('V3D prompt — one rule, free otherwise', () => {
     expect(COFFEE_V3D_DIRECT_PROMPT).toContain('sırf falda bulunsun diye sırayla dolaşma');
     expect(COFFEE_V3D_DIRECT_PROMPT).toContain('kuru bir açıklama yazma');
     expect(COFFEE_V3D_DIRECT_PROMPT).toContain('hikâyenin akışına ve uzunluğa sen karar ver');
+    expect(COFFEE_V3D_DIRECT_PROMPT).toContain('Kişinin niyeti falın omurgasıdır.');
+    expect(COFFEE_V3D_DIRECT_PROMPT).toContain('Herkese söylenebilecek genel bir fal yazma.');
+    expect(COFFEE_V3D_DIRECT_PROMPT).toContain('Geleceği kesin olmuş bir bilgi gibi ilan etme.');
+    expect(COFFEE_V3D_DIRECT_PROMPT).toContain('Yapılacaklar listesi');
+    expect(COFFEE_V3D_DIRECT_PROMPT).toContain('hazır bir kapanış cümlesi kurma');
+    expect(COFFEE_V3D_DIRECT_PROMPT).toContain('Kanıtsız suçlama, iftira ya da zarar verici talimat yok.');
+    expect(COFFEE_V3D_DIRECT_PROMPT).not.toMatch(/\b(12|700)\s*kelime\b/u);
     for (const v3n of ['lifeScenes', 'claims', 'outline', 'budget', 'weight', '-abilir', 'ihtimal dili']) expect(COFFEE_V3D_DIRECT_PROMPT).not.toContain(v3n);
   });
 });

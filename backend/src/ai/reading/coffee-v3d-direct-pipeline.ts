@@ -41,10 +41,10 @@ const LINES: readonly string[] = [
   '- Gördüğünü kendine sakla, kişiye yalnızca falını anlat. Fincanı, tabağı, telveyi, şekilleri, sembolleri ya da gördüğün hiçbir görsel ayrıntıyı ASLA tarif etme: "fincanında bir kuş var", "kalp gibi duran şekil", "tabaktaki telve", "dipteki koyuluk" gibi anlatımlar yok.',
   '',
   'BUNUN DIŞINDA ÖZGÜRSÜN',
-  '- Fincandaki anlamlı işaretleri ve kişinin niyetini birlikte okuyup tek, bütünlüklü bir hikâye kur. Yalnız gerçekten öne çıkan konuları doğal biçimde geliştir; aşk, para, iş, aile gibi alanları sırf falda bulunsun diye sırayla dolaşma.',
-  '- Somut ayrıntıları gördüklerinin taşıyabildiği ölçüde kullan. Rastgele harf, tarih ya da sayı verme; gizli bir düşman, beklenen bir ödeme veya üçüncü bir kişinin duygusu gibi görünmeyen ayrıntıları doğrulanmış gerçek gibi anlatma.',
-  '- Falcı sezgini, sembolik yorumunu, merakı ve yaratıcı anlatımını koru. Anlatım tarzına, hikâyenin akışına ve uzunluğa sen karar ver; kuru bir açıklama yazma, her cümleyi çekingen olasılık sözcüklerine de boğma.',
-  '- Ölüm, ağır hastalık, kaza ya da hamilelik konusunda korkutucu kehanette bulunma.',
+  '- Kişinin niyeti falın omurgasıdır. Sorduğu şeye, fincanın taşıdığı işaretlerden ilham alarak cevap ver ve tek, bütünlüklü bir hikâye kur. Herkese söylenebilecek genel bir fal yazma. Yalnız gerçekten öne çıkan konuları doğal biçimde geliştir; aşk, para, iş, aile gibi alanları sırf falda bulunsun diye sırayla dolaşma.',
+  '- Somut ayrıntıları gördüklerinin taşıyabildiği ölçüde kullan. Rastgele harf, tarih ya da sayı verme; gizli bir düşman, beklenen bir ödeme veya üçüncü bir kişinin duygusu gibi görünmeyen ayrıntıları doğrulanmış gerçek gibi anlatma. Geleceği kesin olmuş bir bilgi gibi ilan etme.',
+  '- Falcı sezgini, sembolik yorumunu, merakı ve yaratıcı anlatımını koru. Anlatım tarzına, hikâyenin akışına ve uzunluğa sen karar ver; kuru bir açıklama yazma, her cümleyi çekingen olasılık sözcüklerine de boğma. Yapılacaklar listesi, "şunu yaz" ödevi ya da her falın sonuna yapışan hazır bir kapanış cümlesi kurma.',
+  '- Ölüm, ağır hastalık, kaza ya da hamilelik konusunda korkutucu kehanette bulunma. Kanıtsız suçlama, iftira ya da zarar verici talimat yok. Tıbbi ya da hukuki kesin hüküm verme.',
   '',
   'BİÇİM',
   '- Düz metin yaz: başlık, madde işareti ya da markdown yok; paragrafları boş bir satırla ayır.',
@@ -57,7 +57,7 @@ export function coffeeV3DPromptSha256(): string {
 }
 
 /** Pinned so a prompt change is always a deliberate, reviewed act. */
-export const FROZEN_COFFEE_V3D_PROMPT_SHA256 = 'e193679d1de9378977618476046503409773741588fbeea8a9cb7093aa20d745';
+export const FROZEN_COFFEE_V3D_PROMPT_SHA256 = '519c6421a9cb5aadc65352ff27025d56abe6364ceded2c0b6a6bcd26e4904ba4';
 
 /** Per-operation stage holding the delivered reading (a task retry never pays twice). */
 export const COFFEE_V3D_READING_STAGE = 'coffee_v3d_reading';
@@ -106,7 +106,11 @@ export type CoffeeV3DDelivery =
   | { ok: true; reading: string; words: number }
   | { ok: false; failures: Array<'empty' | 'too_short' | 'too_long' | 'formatting' | 'visual_description'>; terms: string[]; words: number };
 
-/** Sanity bounds only (an empty / cut-off or runaway response) — never a style or length rule. */
+/**
+ * Cut-off floor and runaway ceiling, not a style target.
+ * Twelve words catches a truncated reply. Seven hundred stops a runaway
+ * completion. The prompt leaves length to the writer.
+ */
 const MIN_WORDS = 12;
 const MAX_WORDS = 700;
 
