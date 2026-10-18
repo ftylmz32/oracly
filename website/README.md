@@ -73,3 +73,16 @@ gecikmesi halinde aynı endpoint sınırlı olarak yeniden sorgulanır; yeni fal
 Ödeme butonu ve canlı gönderim, sunucudan doğrulanan ödeme/yetkilendirme tamamlanana kadar kapalıdır.
 
 Üretime dağıtım / canlı ödeme / mevcut mobil backend değişikliği: **yok**.
+
+## Güvenli sipariş temeli
+
+`src/lib/orders` tekil kahve falı için sunucu-otoriteli sipariş durum modelini,
+Checkout Form sağlayıcı arayüzünü ve yalnızca testlerde kullanılan sahte sağlayıcıyı içerir.
+İstemci fiyatı veya `paid` iddiası reddedilir; yinelenen bildirimler idempotenttir ve bir
+provider payment ID en fazla bir siparişe bağlanabilir. Hak, aynı sipariş için yalnızca bir
+reading operation'a atomik olarak tüketilebilir.
+
+Bu kod gerçek iyzico adaptörü, kalıcı Firestore deposu veya production ödeme endpoint'i değildir.
+Mevcut backend açığı ve mobil uyumluluk planı [docs/payment-backend-plan.md](docs/payment-backend-plan.md)
+dosyasında belgelenmiştir. Sunucuda ödeme admission kontrolü uygulanmadan satın alma ve canlı fal
+başlatma kapalı kalır.
