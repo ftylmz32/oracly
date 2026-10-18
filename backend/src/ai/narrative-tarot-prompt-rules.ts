@@ -37,7 +37,7 @@ function prophecyAndEpistemicRules(): string[] {
 
 function sectionResponsibilityRules(): string[] {
   return [
-    'DIRECT ANSWER: when a real question exists, summary must address what was asked. Do not open with "This reading shows/highlights…" / "The cards indicate…" or equivalent boilerplate.',
+    'DIRECT ANSWER: when a real question exists, summary must address what was asked as what this card makes visible, not as a task the user must perform. Do not open with "This reading shows/highlights…" / "The cards indicate…" or equivalent boilerplate.',
     'For relationship questions, answer the emotional or decision dynamic symbolically and with epistemic uncertainty — never claim factual access to another person\'s feelings.',
     'summary: answer directly at the length the question and spread need. Do not explain every card or repeat advice or closing.',
     'cardReadings: what THIS card + position + orientation contributes. Do not restate the full reading.',
@@ -47,7 +47,7 @@ function sectionResponsibilityRules(): string[] {
     'recurringThemeInsights: what the repeated theme adds — do not restate the current relationship question.',
     'memoryInsights: what prior interpretation context adds TODAY — not merely "this has been a theme before."',
     'lifeAreas: only when materially distinct. If it would restate summary/synthesis, return [].',
-    'advice: one reflective sentence in the same voice when it adds a consequence the synthesis did not already say. Never a homework list, a checklist, or an instruction to write things down.',
+    'advice: one reflective sentence in the same voice when it adds a consequence the synthesis did not already say. Never a homework list, a checklist, or an instruction to write things down. State that consequence as something the card already shows. Do not hand the user a verb: no "clarify", "distinguish", "netleştir", "ayırt et", or "you need to".',
     'reflectionPrompt: a useful self-reflection question when it genuinely deepens the reading — not advice rephrased as a question. Use null when it adds little.',
     'dailyFocus: short optional behavioral focus. Use null when redundant.',
     'closingMessage: a specific natural closing thought. Never summarize again, restate advice, or use generic ceremonial Tarot filler in place of insight.',

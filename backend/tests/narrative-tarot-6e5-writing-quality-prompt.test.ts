@@ -73,6 +73,8 @@ describe('Phase 6E.5 writing-quality prompt contract', () => {
     expect(r).toMatch(/do not compensate for fewer cards by turning every section into guidance/i);
     expect(r).toMatch(/concrete image, position, orientation, and tension unfold as a compact reading/i);
     expect(r).toMatch(/advice is one supporting consequence, not the narrative voice/i);
+    expect(r).toMatch(/not as a task the user must perform/);
+    expect(r).toMatch(/Do not hand the user a verb/);
     expect(r).toMatch(/synthesis is the one complete, satisfying reading/i);
     expect(r).toMatch(/continuous story/i);
     expect(r).toMatch(/concrete visual symbols, position, and upright\/reversed orientation/i);
