@@ -15,7 +15,7 @@ const kL10nRecommendation = <String, L10nTriple>{
     'Разобрать сон',
   ),
   'reco.cta.companion':
-      L10nTriple("OR'a danış", 'Ask OR', 'Спросить OR'),
+      L10nTriple("Luna'ya danış", 'Ask Luna', 'Спросить Luna'),
   'reco.cta.tarot': L10nTriple(
     'Yeni bir açılım',
     'A new spread',
@@ -54,9 +54,9 @@ const kL10nRecommendation = <String, L10nTriple>{
     'В последние дни у тебя была ладонь.',
   ),
   'reco.reason.source.reflection': L10nTriple(
-    'OR ile yakın zamanda konuştun.',
-    'You spoke with OR recently.',
-    'Недавно ты говорила с OR.',
+    'Luna ile yakın zamanda konuştun.',
+    'You spoke with Luna recently.',
+    'Недавно ты говорила с Luna.',
   ),
   'reco.reason.source.tarot': L10nTriple(
     'Son günlerde bir çekimin var.',

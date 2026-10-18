@@ -36,9 +36,9 @@ const kL10nVoice = <String, L10nTriple>{
   'end.delete': L10nTriple('Sil', 'Delete', 'Удалить'),
   'end.dismiss': L10nTriple('Vazgeç', 'Dismiss', 'Отмена'),
   'trans.footnote': L10nTriple(
-    'OR yorumları yansıma içindir — kehanet değil, düşünmek için bir davet. Kendi deneyimin en güvenilir rehberindir.',
-    'OR readings are for reflection — not prediction, an invitation to think. Your own experience is the most trusted guide.',
-    'Толкования OR — для размышления, не предсказание; приглашение думать. Твой опыт — самый надёжный проводник.',
+    'Luna yorumları yansıma içindir — kehanet değil, düşünmek için bir davet. Kendi deneyimin en güvenilir rehberindir.',
+    'Luna readings are for reflection — not prediction, an invitation to think. Your own experience is the most trusted guide.',
+    'Толкования Luna — для размышления, не предсказание; приглашение думать. Твой опыт — самый надёжный проводник.',
   ),
   'nav.hint.home': L10nTriple('Evrenin kapısı', 'Door of the universe', 'Дверь вселенной'),
   'nav.hint.coffee': L10nTriple('Fincan ve yorum', 'Cup and reading', 'Чашка и толкование'),

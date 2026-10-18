@@ -16,6 +16,42 @@ abstract final class OnboardingCopy {
   static String get completeFailed => _t('onboard.complete_failed');
   static String get startFirstReading => _t('onboard.start');
   static String get meetLabel => _t('onboard.meet');
+  static String get exploreLabel => _t('onboard.explore');
+  static String get passLabel => _t('onboard.pass');
+  static String get gateTitle => _t('onboard.gate.title');
+  static String get gateSubtitle => _t('onboard.gate.sub');
+  static String get nameTitle => _t('onboard.name.title');
+  static String get nameHintLine => _t('onboard.name.hint');
+  static String get nameField => _t('onboard.name.field');
+  static String nameMet(String name) =>
+      _t('onboard.name.met').replaceAll('{name}', name);
+  static String get interestTitle => _t('onboard.interest.title');
+  static String interestLabel(String id) => _t('onboard.interest.$id');
+  static String interestLine(String? id) =>
+      _t(id == null ? 'onboard.interest.line.none' : 'onboard.interest.line.$id');
+
+  static String interestLines(List<String> ids) => ids.length > 1
+      ? _t('onboard.interest.line.many')
+      : interestLine(ids.isEmpty ? null : ids.first);
+  static String get skyTitle => _t('onboard.sky.title');
+  static String get skyHelp => _t('onboard.sky.help');
+  static String get skyKnow => _t('onboard.sky.know');
+  static String get skyUnknown => _t('onboard.sky.unknown');
+  static String get skyTime => _t('onboard.sky.time');
+  static String get skyCity => _t('onboard.sky.city');
+  static String welcomeTitle(String name) => name.trim().isEmpty
+      ? _t('onboard.welcome.anon')
+      : _t('onboard.welcome.named').replaceAll('{name}', name.trim());
+  static String welcomeLine(String? id) =>
+      _t(id == null ? 'onboard.welcome.general' : 'onboard.welcome.$id');
+
+  static String welcomeLines(List<String> ids) => ids.length > 1
+      ? _t('onboard.welcome.many')
+      : welcomeLine(ids.isEmpty ? null : ids.first);
+  static String welcomeSun(String sign) =>
+      _t('onboard.welcome.sun').replaceAll('{sign}', sign);
+  static String get enterLabel => _t('onboard.welcome.enter');
+  static String get backLabel => _t('onboard.back');
   static String get firstReadingHint => _t('onboard.first_hint');
   static String get setupTitle => _t('onboard.setup_title');
   static String get setupSubtitle => _t('onboard.setup_sub');
@@ -24,6 +60,8 @@ abstract final class OnboardingCopy {
   static String get birthLabel => _t('onboard.birth_label');
   static String get birthHelp => _t('onboard.birth_help');
   static String get birthPick => _t('onboard.birth_pick');
+  static String get birthCancel => _t('onboard.birth_cancel');
+  static String get birthConfirm => _t('onboard.birth_confirm');
   static String get birthCityHelp => _t('onboard.birth_city_help');
   static String get languageLabel => _t('onboard.language_label');
   static String get languageHelp => _t('onboard.language_help');

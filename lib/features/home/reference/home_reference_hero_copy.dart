@@ -49,7 +49,7 @@ class HomeReferenceHeroCopy extends StatelessWidget {
                       Text(
                         hello,
                         maxLines: scale > 1.15 ? 2 : 1,
-                        overflow: TextOverflow.ellipsis,
+                        overflow: TextOverflow.visible,
                         style:
                             ReadingTypography.title(
                               color: OraclyChrome.cream.withValues(alpha: 0.98),
@@ -75,8 +75,8 @@ class HomeReferenceHeroCopy extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         invite,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                        overflow: TextOverflow.visible,
                         style: ReadingTypography.secondary(
                           color: OraclyA11y.creamSecondary(OraclyChrome.cream),
                         ).copyWith(fontSize: bodySize, height: 1.42),

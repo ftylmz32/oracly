@@ -17,6 +17,8 @@ class AstrologyDailyReading {
     required this.opportunity,
     required this.caution,
     this.innerTheme = '',
+    this.lovePersonal = false,
+    this.careerPersonal = false,
   });
 
   final String personality;
@@ -30,6 +32,11 @@ class AstrologyDailyReading {
   final String opportunity;
   final String caution;
   final String innerTheme;
+
+  /// True only when a real observed theme matched this lane, so hub surfaces
+  /// can keep love/work cards for personal themes.
+  final bool lovePersonal;
+  final bool careerPersonal;
 
   String get loveBrief => firstSentence(love);
   String get careerBrief => firstSentence(career);
@@ -58,6 +65,8 @@ class AstrologyDailyReading {
     String? opportunity,
     String? caution,
     String? innerTheme,
+    bool? lovePersonal,
+    bool? careerPersonal,
   }) {
     return AstrologyDailyReading(
       personality: personality,
@@ -71,6 +80,8 @@ class AstrologyDailyReading {
       opportunity: opportunity ?? this.opportunity,
       caution: caution ?? this.caution,
       innerTheme: innerTheme ?? this.innerTheme,
+      lovePersonal: lovePersonal ?? this.lovePersonal,
+      careerPersonal: careerPersonal ?? this.careerPersonal,
     );
   }
 }

@@ -14,10 +14,10 @@ void main() {
   test('English chat system is English, not Turkish craft rules', () {
     OraclyL10n.bind('en');
     final system = ChatPromptBuilder.system.toLowerCase();
-    expect(system, contains('you are or'));
+    expect(system, contains('you are luna'));
     expect(system, contains('natural english'));
     expect(system, isNot(contains('sohbeti')));
-    expect(OrPromptLocale.systemIdentity.toLowerCase(), contains('you are or'));
+    expect(OrPromptLocale.systemIdentity.toLowerCase(), contains('you are luna'));
     expect(
       SharedTemplateSections.basePersona.toLowerCase(),
       contains('natural english'),
@@ -27,7 +27,7 @@ void main() {
   test('Russian chat system is Russian', () {
     OraclyL10n.bind('ru');
     final system = ChatPromptBuilder.system;
-    expect(system.startsWith('Ты OR'), isTrue);
+    expect(system.startsWith('Ты Luna'), isTrue);
     expect(system.contains('Естественный русский'), isTrue);
     expect(system, isNot(contains('Sohbeti')));
     expect(

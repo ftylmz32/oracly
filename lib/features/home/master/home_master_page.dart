@@ -9,6 +9,7 @@ import '../../../core/design_system/app_layout.dart';
 import '../../../core/design_system/app_spacing.dart';
 import '../../../core/universe/oracly_universe_layer.dart';
 import '../../../shared/widgets/oracly_scaffold.dart';
+import '../reference/home_daypart_preview.dart';
 import '../theme/home_ritual_atmosphere.dart';
 import 'home_master_body.dart';
 
@@ -23,6 +24,7 @@ class HomeMasterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OraclyUniverseTicker(
+      previewMoment: HomeDaypartPreview.moment,
       child: OraclyScaffold(
         safeArea: false,
         usePremiumBackground: true,

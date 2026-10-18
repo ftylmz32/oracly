@@ -15,7 +15,7 @@ class CompanionReferenceWelcome extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('OR', style: OraclyChrome.engravedTitle(size: 18)),
+        Text('Luna', style: OraclyChrome.engravedTitle(size: 18)),
         const SizedBox(height: 8),
         Text(
           CompanionCopy.welcomeTitle,

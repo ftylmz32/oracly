@@ -1,11 +1,14 @@
-/// Overlays real sun-sign + observed themes. Never invents natal data.
+/// Adds real observed themes to a sun-sign reading. Never invents natal data.
+///
+/// The sign text is kept whole; a theme only ever adds one complete sentence
+/// after it, so personalised copy cannot splice or repeat catalogue lines.
 library;
 
+import '../../../core/l10n/l10n.dart';
 import '../../personal_discovery/copy/personal_theme_copy.dart';
 import '../../personal_discovery/models/discovery_theme.dart';
 import '../../personal_discovery/models/personal_discovery_profile.dart';
 import '../models/astrology_daily_reading.dart';
-import 'astrology_fortune_story.dart';
 
 abstract final class AstrologyPersonalization {
   AstrologyPersonalization._();
@@ -20,77 +23,32 @@ abstract final class AstrologyPersonalization {
     final themes = selectedThemes.isNotEmpty
         ? selectedThemes
         : (profile?.observedRecurringLabels ?? const <String>[]);
-    final seed = day.year * 19 + day.month * 31 + day.day + signName.length;
-    final focus = themes.isEmpty
-        ? ''
-        : (DiscoveryTheme.resolve(themes[day.day % themes.length])?.localized ??
-            themes[day.day % themes.length]);
-    final loveLife = _firstOf(themes, _love) ?? '';
-    final careerLife = _firstOf(themes, _career) ?? '';
+    if (themes.isEmpty) {
+      return base.copyWith(innerTheme: PersonalThemeCopy.insufficient);
+    }
+    final d = DateTime.utc(day.year, day.month, day.day)
+        .difference(DateTime.utc(2000))
+        .inDays;
+    final focus = _label(themes[day.day % themes.length]);
+    final loveLife = _firstOf(themes, _love);
+    final careerLife = _firstOf(themes, _career);
     return base.copyWith(
-      overall: AstrologyFortuneStory.overall(
-        sign: signName,
-        catalog: base.overall,
-        feel: '',
-        watch: '',
-        life: focus,
-        domain: '',
-        seed: seed,
-      ),
-      love: loveLife.isEmpty
-          ? ''
-          : AstrologyFortuneStory.lane(
-              sign: signName,
-              catalog: base.love,
-              life: loveLife,
-              seed: seed + 1,
+      overall: _join(base.overall, _bridge('astro.bridge.overall', d, focus)),
+      love: loveLife == null
+          ? base.love
+          : _join(base.love, _bridge('astro.bridge.lane', d + 1, loveLife)),
+      career: careerLife == null
+          ? base.career
+          : _join(
+              base.career,
+              _bridge('astro.bridge.lane', d + 2, careerLife),
             ),
-      career: careerLife.isEmpty
-          ? ''
-          : AstrologyFortuneStory.lane(
-              sign: signName,
-              catalog: base.career,
-              life: careerLife,
-              seed: seed + 2,
-            ),
-      emotion: AstrologyFortuneStory.lane(
-        sign: signName,
-        catalog: base.emotion,
-        life: focus,
-        seed: seed + 4,
+      innerTheme: _join(
+        PersonalThemeCopy.crossModal(themes),
+        OraclyL10n.t('astro.inner.close.${d % 3}'),
       ),
-      money: '',
-      advice: AstrologyFortuneStory.lane(
-        sign: signName,
-        catalog: base.advice,
-        life: focus,
-        seed: seed + 6,
-      ),
-      energy: AstrologyFortuneStory.lane(
-        sign: signName,
-        catalog: base.energy,
-        life: focus,
-        seed: seed + 7,
-      ),
-      opportunity: AstrologyFortuneStory.lane(
-        sign: signName,
-        catalog: base.opportunity,
-        life: focus,
-        seed: seed + 8,
-      ),
-      caution: AstrologyFortuneStory.lane(
-        sign: signName,
-        catalog: base.caution,
-        life: focus,
-        seed: seed + 9,
-      ),
-      innerTheme: themes.isEmpty
-          ? PersonalThemeCopy.insufficient
-          : AstrologyFortuneStory.inner(
-              observed: PersonalThemeCopy.crossModal(themes),
-              domain: '',
-              seed: seed,
-            ),
+      lovePersonal: loveLife != null,
+      careerPersonal: careerLife != null,
     );
   }
 
@@ -113,6 +71,20 @@ abstract final class AstrologyPersonalization {
     DiscoveryTheme.change,
     DiscoveryTheme.redirection,
   };
+
+  static String _bridge(String family, int seed, String theme) =>
+      OraclyL10n.t('$family.${seed % 3}').replaceAll('{theme}', theme);
+
+  static String _join(String a, String b) {
+    final first = a.trim();
+    final second = b.trim();
+    if (first.isEmpty) return second;
+    if (second.isEmpty) return first;
+    return '$first $second';
+  }
+
+  static String _label(String raw) =>
+      DiscoveryTheme.resolve(raw)?.localized ?? raw.trim();
 
   static String? _firstOf(List<String> themes, Set<DiscoveryTheme> keys) {
     for (final theme in themes) {

@@ -22,8 +22,10 @@ class AstrologyReferenceSupportingInsights extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final love = reading.loveBrief.trim();
-    final career = reading.careerBrief.trim();
+    // The hub keeps love/work lanes for real personal themes; the full sign
+    // love and career text always lives on the detail reading.
+    final love = reading.lovePersonal ? reading.loveBrief.trim() : '';
+    final career = reading.careerPersonal ? reading.careerBrief.trim() : '';
     final inner = AstrologyReadingPresentation.innerLane(reading).trim();
 
     return Column(

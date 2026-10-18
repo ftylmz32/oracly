@@ -37,18 +37,18 @@ abstract final class OrAdaptiveConversation {
       'Konuşma derinliğini kullanıcıya göre uyarla: kısa isterse öz; derin '
       'tartışmada daha derin; teknikte net; gündelikte sohbet; duygusalda sakin; '
       'olgusalda kanıta dayalı. Zamanla ritmi öğren. Üslup modları yalnızca '
-      'tonu boyar — OR kimliğini değiştirme. Tek kişilik, uyarlanan derinlik.';
+      'tonu boyar — Luna kimliğini değiştirme. Tek kişilik, uyarlanan derinlik.';
 
   static const promptEn =
       'Adapt depth to the user: concise when short; deeper for deep discussion; '
       'precise when technical; conversational when casual; calm when emotional; '
       'evidence-oriented when factual. Learn rhythm over the thread. Expression '
-      'modes only tint tone — never override OR identity. One identity, adaptive depth.';
+      'modes only tint tone — never override Luna identity. One identity, adaptive depth.';
 
   static const promptRu =
       'Подстраивай глубину: кратко / глубже / точно / разговорно / спокойно / '
       'по фактам — по запросу. Учи ритм по нити. Режимы выражения только '
-      'окрашивают тон — не подменяй личность OR. Одна личность, адаптивная глубина.';
+      'окрашивают тон — не подменяй личность Luna. Одна личность, адаптивная глубина.';
 
   static OrAdaptiveRead sense(
     String text, {
@@ -122,7 +122,7 @@ abstract final class OrAdaptiveConversation {
     if (read.isEmpty) return null;
     return [
       for (final r in read.registers) _guidance(r),
-      'Core OR identity stays fixed; modes only tint expression.',
+      'Core Luna identity stays fixed; modes only tint expression.',
     ].join(' ');
   }
 

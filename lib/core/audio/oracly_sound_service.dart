@@ -104,6 +104,27 @@ class OraclySoundService {
   Future<OraclyApplyOutcome> setAtmosphere(ZodiacSignId sign) =>
       _ambient.setSign(sign);
 
+  double get ambientLevel => _ambient.level;
+
+  /// User loudness 0…1; glides while sounding, remembered while silent.
+  Future<void> setAmbientLevel(double level) => _ambient.setLevel(level);
+
+  ValueListenable<bool>? _speech;
+
+  /// The bed steps back while [speaking] is true (OR's voice stays clear).
+  void bindSpeech(ValueListenable<bool> speaking) {
+    if (identical(_speech, speaking)) return;
+    _speech?.removeListener(_onSpeech);
+    _speech = speaking;
+    speaking.addListener(_onSpeech);
+    _onSpeech();
+  }
+
+  void _onSpeech() {
+    final speaking = _speech?.value ?? false;
+    _ambient.setDucked(speaking);
+  }
+
   Future<OraclyApplyOutcome> setChamber(OraclySoundChamber chamber) async {
     if (!_ambient.enabled) {
       return _ambient.stop();
@@ -170,6 +191,8 @@ class OraclySoundService {
       );
 
   Future<void> dispose() async {
+    _speech?.removeListener(_onSpeech);
+    _speech = null;
     await _ambient.dispose();
     await _sfx?.dispose();
     _sfxReady = false;

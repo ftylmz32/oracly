@@ -70,19 +70,19 @@ void main() {
   test('ritual welcome follows the four time bands', () {
     expect(
       HomePersonalCopy.ritualWelcome(OraclyRitualTime.morning),
-      'Güne acele etmeden bak.',
+      'Gün daha yeni başlıyor. Bugünün kartında ne var?',
     );
     expect(
       HomePersonalCopy.ritualWelcome(OraclyRitualTime.afternoon),
-      'Bir nefes al, kendine dön.',
+      'Günün ortasında kısa bir merak molası.',
     );
     expect(
       HomePersonalCopy.ritualWelcome(OraclyRitualTime.evening),
-      'Günü yumuşakça toparla.',
+      'Gün geride kalırken kartın sana eşlik etsin.',
     );
     expect(
       HomePersonalCopy.ritualWelcome(OraclyRitualTime.night),
-      'Geceye biraz yer bırak.',
+      'Gece sessizleşti. Kartında kalan mesaja bak.',
     );
   });
 

@@ -17,16 +17,14 @@ abstract final class StarMapReferenceHubMenus {
     required StarMapReading reading,
     required BirthProfile? profile,
     required VoidCallback onRefresh,
+    required VoidCallback onPrimary,
   }) {
     return [
       StarMapReferenceMenuItem(
         title: StarMapPolishCopy.birthChartTitle,
         icon: Icons.brightness_5_rounded,
         subtitle: StarMapPolishCopy.birthChartHint,
-        onTap: () => StarMapReferenceRoutes.openBirthChart(
-          context,
-          onReturn: onRefresh,
-        ),
+        onTap: onPrimary,
       ),
       StarMapReferenceMenuItem(
         title: StarMapPolishCopy.skyMessageTitle,

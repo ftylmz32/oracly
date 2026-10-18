@@ -62,7 +62,7 @@ abstract final class OraclyFeatureRegistry {
     ),
     OraclyFeatureModule(
       id: OraclyFeatureId.aiChat,
-      title: 'OR',
+      title: 'Luna',
       subtitle: 'Yansıma ve sohbet',
       availability: OraclyFeatureAvailability.live,
       routeName: OraclyRoutes.chat,
@@ -160,7 +160,7 @@ abstract final class OraclyFeatureRegistry {
     OraclyFeatureModule(
       id: OraclyFeatureId.memory,
       title: 'Hafıza',
-      subtitle: 'OR\'ın hatırladıkları',
+      subtitle: 'Luna\'nın hatırladıkları',
       availability: OraclyFeatureAvailability.live,
       icon: Icons.psychology_outlined,
       universeRealm: OraclyUniverseRealm.remember,

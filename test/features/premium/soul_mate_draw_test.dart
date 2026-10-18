@@ -165,7 +165,7 @@ void main() {
       expect(status.isPremium, isFalse);
     } else {
       expect(find.text(SoulMateCopy.screenTitle), findsOneWidget);
-      expect(find.text(PremiumCopy.unlockTitle), findsWidgets);
+      expect(find.text(PremiumCopy.benefitSoulmateTitle), findsWidgets);
       expect(find.text(SoulMateCopy.drawCta), findsNothing);
       expect(find.text(PremiumCopy.accessRequired), findsNothing);
     }

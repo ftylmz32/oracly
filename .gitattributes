@@ -1,1 +1,4 @@
+# Frozen Coffee corpus manifests are hash-pinned byte-for-byte by
+# backend/tests/coffee-c2*-corpus-gates.test.ts. Keep them LF on every
+# platform so core.autocrlf=true checkouts cannot change their SHA-256.
 backend/docs/qa/*.manifest.json text eol=lf

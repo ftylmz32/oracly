@@ -514,6 +514,7 @@ class SettingsNotifier extends AsyncNotifier<PersonalizationSettings> {
       debugPrint('[ORACLY] settings load: voice bind failed: $e');
     }
     try {
+      await sound.setAmbientLevel(loaded.ambientMusicLevel);
       final signOutcome = await sound.setAtmosphere(loaded.atmosphereSign);
       final ambientOutcome = await sound.syncAmbientEnabled(
         loaded.ambientMusicEnabled,
@@ -582,6 +583,7 @@ class SettingsNotifier extends AsyncNotifier<PersonalizationSettings> {
     // relevant to whether a stop actually silenced playback.
     var enableCallUnproven = false;
     try {
+      await sound.setAmbientLevel(normalized.ambientMusicLevel);
       final signOutcome = await sound.setAtmosphere(normalized.atmosphereSign);
       final ambientOutcome = await sound.syncAmbientEnabled(
         normalized.ambientMusicEnabled,

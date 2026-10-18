@@ -22,6 +22,7 @@ class SettingsReferenceRow {
     this.onSwitchChanged,
     this.onTap,
     this.showChevron = false,
+    this.footer,
   });
 
   final IconData icon;
@@ -32,6 +33,9 @@ class SettingsReferenceRow {
   final ValueChanged<bool>? onSwitchChanged;
   final VoidCallback? onTap;
   final bool showChevron;
+
+  /// Optional control under the row (e.g. a level slider).
+  final Widget? footer;
 
   bool get isToggle => switchValue != null && onSwitchChanged != null;
 }
@@ -203,13 +207,20 @@ class _SettingsRow extends StatelessWidget {
       ),
     );
 
-    if (row.onTap == null || row.isToggle) return content;
-
-    return OraclyPressable(
-      onTap: row.onTap,
-      behavior: HitTestBehavior.opaque,
-      borderRadius: SettingsReferenceTokens.groupRadius,
-      child: content,
+    final body = row.onTap == null || row.isToggle
+        ? content
+        : OraclyPressable(
+            onTap: row.onTap,
+            behavior: HitTestBehavior.opaque,
+            borderRadius: SettingsReferenceTokens.groupRadius,
+            child: content,
+          );
+    final footer = row.footer;
+    if (footer == null) return body;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [body, footer],
     );
   }
 }

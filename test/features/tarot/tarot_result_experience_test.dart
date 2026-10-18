@@ -91,16 +91,16 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('copy names the story, the direction, and a real OR follow-up', () {
+  test('copy names the story, the direction, and a real Luna follow-up', () {
     expect(TarotPolishCopy.storyTitle, "ORACLY'nin Yorumu");
     expect(TarotPolishCopy.themeTitle, 'Ana Tema');
     expect(TarotPolishCopy.revealComplete, 'Açılım tamamlandı.');
     expect(TarotPolishCopy.relationsTitle, 'Kartların ilişkisi');
     expect(TarotPolishCopy.directionTitle, 'SANA BIRAKTIĞI YÖN');
-    expect(TarotPolishCopy.orOpen, "OR'a Sor");
+    expect(TarotPolishCopy.orOpen, "Luna'ya Sor");
     expect(
       TarotPolishCopy.askOracleHint,
-      'İstersen bunu OR ile biraz daha açabiliriz.',
+      'İstersen bunu Luna ile biraz daha açabiliriz.',
     );
   });
 
@@ -139,7 +139,7 @@ void main() {
     expect(close, contains('acele bir cevap değil'));
   });
 
-  test('OR follow-up carries the real spread, cards, and asked question', () {
+  test('Luna follow-up carries the real spread, cards, and asked question', () {
     final content = _content();
     final session = ReadingSession(
       id: 'story_session',

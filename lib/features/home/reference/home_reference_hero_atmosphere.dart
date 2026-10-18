@@ -13,16 +13,21 @@ class HomeReferenceHeroAtmosphere extends StatelessWidget {
     super.key,
     required this.t,
     required this.visual,
+    this.veil = 1,
   });
 
   final double t;
   final HomeRitualVisual visual;
 
+  /// Scales the color wash. The text scrim stays so the greeting can be read.
+  final double veil;
+
   @override
   Widget build(BuildContext context) {
     final wave = math.sin(t * math.pi * 2);
-    final gold = (visual.goldAlpha + wave.abs() * 0.02).clamp(0.0, 0.55);
-    final violet = (visual.violetAlpha + wave.abs() * 0.015).clamp(0.0, 0.55);
+    final gold = ((visual.goldAlpha + wave.abs() * 0.02) * veil).clamp(0.0, 0.55);
+    final violet =
+        ((visual.violetAlpha + wave.abs() * 0.015) * veil).clamp(0.0, 0.55);
     final center = Alignment(
       visual.lightCenter.x + wave * 0.04,
       visual.lightCenter.y + math.cos(t * math.pi * 2) * 0.02,
@@ -38,8 +43,10 @@ class HomeReferenceHeroAtmosphere extends StatelessWidget {
                 begin: Alignment.topRight,
                 end: Alignment.bottomLeft,
                 colors: [
-                  visual.skyTop.withValues(alpha: visual.luminanceAlpha),
-                  AppColors.amberSoft.withValues(alpha: visual.warmAlpha * 0.35),
+                  visual.skyTop.withValues(alpha: visual.luminanceAlpha * veil),
+                  AppColors.amberSoft.withValues(
+                    alpha: visual.warmAlpha * 0.35 * veil,
+                  ),
                   Colors.transparent,
                 ],
                 stops: const [0.0, 0.38, 0.76],
@@ -53,7 +60,9 @@ class HomeReferenceHeroAtmosphere extends StatelessWidget {
                 radius: 1.05,
                 colors: [
                   AppColors.goldLight.withValues(alpha: gold),
-                  AppColors.midnightNavy.withValues(alpha: visual.coolAlpha),
+                  AppColors.midnightNavy.withValues(
+                    alpha: visual.coolAlpha * veil,
+                  ),
                   Colors.transparent,
                 ],
                 stops: const [0.0, 0.42, 1.0],
@@ -66,7 +75,7 @@ class HomeReferenceHeroAtmosphere extends StatelessWidget {
                 center: const Alignment(0.2, -0.85),
                 radius: 0.85,
                 colors: [
-                  AppColors.accentPink.withValues(alpha: visual.roseAlpha),
+                  AppColors.accentPink.withValues(alpha: visual.roseAlpha * veil),
                   AppColors.primaryPurple.withValues(alpha: violet * 0.45),
                   Colors.transparent,
                 ],

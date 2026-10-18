@@ -11,7 +11,7 @@ void main() {
   group('Universe navigation structure', () {
     test('tabs use universe space labels not generic app labels', () {
       expect(OraclyTab.home.universeLabel, UniverseNavigationCopy.tabHome);
-      expect(OraclyTab.coffee.universeLabel, 'OR');
+      expect(OraclyTab.coffee.universeLabel, 'Luna');
       expect(OraclyTab.astrology.universeLabel, 'Keşfet');
       expect(OraclyTab.starMap.universeLabel, 'Günlük');
       expect(OraclyTab.profile.universeLabel, UniverseNavigationCopy.tabProfile);

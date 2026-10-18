@@ -1,0 +1,20 @@
+{
+  "station": {
+    "input": {
+      "narrative": "Rüyamda bir tren istasyonundaydım. Korkmuyordum ama treni kaçıracakmışım gibi hafif bir aciliyet hissediyordum. Elimde anahtarı olmayan küçük mavi bir kutu vardı.",
+      "symbols": ["tren istasyonu", "mavi kutu"],
+      "emotions": ["hafif aciliyet", "korku yok"],
+      "language": "tr"
+    },
+    "assistantText": "{\n  \"summary\": \"Rüyada korkudan çok, elindekini yanında tutarken yetişme ihtiyacının hafif baskısı hissediliyor.\",\n  \"symbols\": [\"tren istasyonu\", \"küçük mavi bir kutu\"],\n  \"emotionalTheme\": \"Treni kaçırma ihtimali hafif bir aciliyet yaratıyor; bu duyguya korku eşlik etmiyor.\",\n  \"interpretation\": \"Trene yetişme ihtiyacı hareket etmeyi öne çıkarırken, elindeki kutunun anahtarının olmaması açıp bakma imkânını askıda bırakıyor. Bu karşıtlık, henüz içeriğine erişemediğin bir şeyi yanında taşıyarak ilerleme ihtimalini düşündürüyor. Korkunun bulunmaması da bu gerilimi tehditten uzak tutuyor; sanki her şeyi çözmüş olmakla yola devam etmek aynı anda gerçekleşmek zorunda değil. Kutunun küçük ve elinde olması, yetişme telaşının yanında kişisel olarak taşıdığın şeye de yer bırakıyor.\",\n  \"dailyLifeReflection\": \"\",\n  \"conclusion\": \"Küçük mavi kutu, anahtarı olmasa da elinde duruyor; rüya, henüz açılmamış olanla birlikte hareket etme düşüncesini açık bırakıyor.\"\n}"
+  },
+  "garden": {
+    "input": {
+      "narrative": "Rüyamda çocukluğumdan tanıdığım bir bahçede yürüyordum. Kurumuş bir ağacın üzerinde tek bir kırmızı kuş vardı; kuş uçunca ağacın dibinde temiz su belirdi.",
+      "symbols": ["bahçe", "kurumuş ağaç", "kırmızı kuş", "temiz su"],
+      "emotions": ["merak", "sakinlik"],
+      "language": "tr"
+    },
+    "assistantText": "{\n  \"summary\": \"Tanıdık bir bahçedeki beklenmedik görüntü, sakin bir meraka alan açıyor.\",\n  \"symbols\": [\"bahçe\", \"kurumuş ağaç\", \"kırmızı kuş\", \"temiz su\"],\n  \"emotionalTheme\": \"Ağacın dibinde beliren temiz su, merakını sakinlikle birlikte taşıyan bir ayrıntı olarak öne çıkıyor.\",\n  \"interpretation\": \"Çocukluğundan tanıdığın bahçe, beklenmedik olanı tanıdık bir yerin içine yerleştiriyor. Kurumuş ağacın üzerindeki kırmızı kuş, görüntünün yalnızca kurulukla sınırlı kalmasını engelliyor; kuş uçtuğunda dibinde suyun belirmesi de ayrılığın ardından yalnızca eksilme kalmadığı yönünde bir okumaya alan açıyor. Ağaç yeniden canlanmış değil, ama çevresinde beliren su ona bakışını değiştirebilir. Merak ve sakinlik, bu karşıtlıkları hemen çözmek yerine birlikte gözlemleyebildiğin bir atmosfer oluşturuyor.\",\n  \"dailyLifeReflection\": \"\",\n  \"conclusion\": \"Ağacın dibindeki temiz su, kuruluğu silmeden görüntüye başka bir nitelik katıyor; rüyanın açık kalan yanı da bu birliktelik.\"\n}"
+  }
+}

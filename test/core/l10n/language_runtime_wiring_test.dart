@@ -74,12 +74,13 @@ void main() {
     expect(container.read(appLocaleProvider).languageCode, 'en');
     expect(find.text('SETTINGS'), findsOneWidget);
     expect(find.text('LANGUAGE'), findsOneWidget);
-    expect(find.text('APPEARANCE'), findsOneWidget);
+    // Dark-only production: the Appearance section is hidden in every language.
+    expect(find.text('APPEARANCE'), findsNothing);
     expect(find.text('Sound effects'), findsOneWidget);
     expect(find.text('Haptic feedback'), findsOneWidget);
     // OR output is a three-way mode (text / voice replies / conversation),
     // not the legacy binary "Text / Voice" switch label.
-    expect(find.text('OR reply mode'), findsOneWidget);
+    expect(find.text('Luna reply mode'), findsOneWidget);
     expect(find.text('Speaking style'), findsOneWidget);
     expect(find.text('Atmospheric music'), findsOneWidget);
     expect(find.text('Atmosphere'), findsOneWidget);
@@ -130,7 +131,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Home'), findsOneWidget);
-    expect(find.text('OR'), findsOneWidget);
+    expect(find.text('Luna'), findsOneWidget);
     expect(find.text('Explore'), findsOneWidget);
     expect(find.text('Journal'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
@@ -138,7 +139,7 @@ void main() {
 
   test('English tab labels match product copy', () {
     expect(OraclyTab.home.labeled('en'), 'Home');
-    expect(OraclyTab.coffee.labeled('en'), 'OR');
+    expect(OraclyTab.coffee.labeled('en'), 'Luna');
     expect(OraclyTab.astrology.labeled('en'), 'Explore');
     expect(OraclyTab.starMap.labeled('en'), 'Journal');
     expect(OraclyTab.profile.labeled('en'), 'Profile');

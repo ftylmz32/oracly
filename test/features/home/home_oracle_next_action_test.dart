@@ -94,24 +94,24 @@ void main() {
     expect(action!.hasEvidence, isTrue);
     final title = OracleNextActionCopy.homeTitle(action);
     final body = OracleNextActionCopy.homeBody(action);
-    expect(title, contains('OR'));
+    expect(title, contains('Luna'));
     expect(body.toLowerCase(), contains('tema'));
     expect(body.toLowerCase(), isNot(contains('kork')));
     expect(body.toLowerCase(), isNot(contains('tehlike')));
-    expect(OracleNextActionCopy.homeCta(action), contains('OR'));
+    expect(OracleNextActionCopy.homeCta(action), contains('Luna'));
   });
 
   testWidgets('no evidence hides the personalized Home slot', (tester) async {
     await pumpCard(tester, profile: PersonalDiscoveryProfile.empty);
     expect(find.byType(HomeOracleNextActionCard), findsOneWidget);
-    expect(find.text('OR ile Aç'), findsNothing);
+    expect(find.text('Luna ile Aç'), findsNothing);
     expect(find.textContaining('bağlantı fark etti'), findsNothing);
   });
 
   testWidgets('evidence shows a single NextAction with dismiss', (tester) async {
     await pumpCard(tester, profile: evidenceProfile());
     expect(find.textContaining('bağlantı fark etti'), findsOneWidget);
-    expect(find.text('OR ile Aç'), findsOneWidget);
+    expect(find.text('Luna ile Aç'), findsOneWidget);
     expect(find.textContaining('deneyiminde tekrarlandı'), findsOneWidget);
     expect(find.textContaining('Fincanda ilişki'), findsNothing);
     expect(find.textContaining('İlişkilerde yumuşak'), findsNothing);
@@ -119,15 +119,15 @@ void main() {
     await tester.tap(find.byIcon(Icons.close_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
-    expect(find.text('OR ile Aç'), findsNothing);
+    expect(find.text('Luna ile Aç'), findsNothing);
   });
 
   testWidgets('same suggestion does not return after dismiss', (tester) async {
     final container = await pumpCard(tester, profile: evidenceProfile());
-    expect(find.text('OR ile Aç'), findsOneWidget);
+    expect(find.text('Luna ile Aç'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.close_rounded));
     await tester.pumpAndSettle();
-    expect(find.text('OR ile Aç'), findsNothing);
+    expect(find.text('Luna ile Aç'), findsNothing);
     expect(container.read(oracleNextActionProvider), isNull);
   });
 }

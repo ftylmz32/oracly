@@ -11,6 +11,16 @@ abstract final class OraclyAtmospherePalette {
   /// Kept high enough to be audible on phone speakers with [bedVolume].
   static const double volume = 0.28;
 
+  /// Player gain at the user's full level (Settings slider at 100%).
+  static const double maxVolume = 0.4;
+
+  /// Gain while OR is speaking — the bed steps back under the voice.
+  static const double speechDuck = 0.35;
+
+  /// Player gain for a 0…1 user level.
+  static double gainFor(double level) =>
+      maxVolume * level.clamp(0.0, 1.0).toDouble();
+
   /// Synth peak amplitude before player gain (PCM −1…1 scale).
   static const double bedVolume = 0.42;
 

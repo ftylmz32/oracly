@@ -65,8 +65,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
 
     expect(container.read(appThemeModeProvider), ThemeMode.dark);
-    expect(find.text('Tema'), findsOneWidget);
-    expect(find.text('Koyu'), findsOneWidget);
+    // Dark-only production shows no theme choice at all.
+    expect(find.text('Tema'), findsNothing);
     expect(find.text('Açık'), findsNothing);
     expect(
       (await SharedPreferences.getInstance()).getString('settings_appearance'),
@@ -145,11 +145,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 800));
 
-    expect(find.text('Tema'), findsOneWidget);
-    expect(find.text('Koyu'), findsOneWidget);
-    await tester.tap(find.text('Tema'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    // No theme row to open: light and system choices are never offered.
+    expect(find.text('Tema'), findsNothing);
     expect(find.text('Açık'), findsNothing);
     expect(find.text('Sistem'), findsNothing);
   });

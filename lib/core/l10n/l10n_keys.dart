@@ -52,6 +52,7 @@ abstract final class L10nKeys {
   static const soundSubtitle = 'settings.sound_subtitle';
   static const ambientMusicTitle = 'settings.ambient_music';
   static const ambientMusicSubtitle = 'settings.ambient_music_subtitle';
+  static const ambientLevelTitle = 'settings.ambient_level';
   static const hapticTitle = 'settings.haptic';
   static const hapticSubtitle = 'settings.haptic_subtitle';
   static const voiceRepliesTitle = 'settings.voice_replies';

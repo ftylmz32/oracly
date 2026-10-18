@@ -19,6 +19,7 @@ class DailyReturnStore {
     final current = _read(todayKey);
     if (current == null) return null;
     if (!_sameDay(current.day, day)) return null;
+    if (_isRetiredGenericCopy(current.text)) return null;
     return current;
   }
 
@@ -56,7 +57,18 @@ class DailyReturnStore {
 
   Future<void> commit(DailyMessage next) async {
     final existing = _read(todayKey);
-    if (existing != null && _sameDay(existing.day, next.day)) return;
+    if (existing != null &&
+        _sameDay(existing.day, next.day) &&
+        !_isRetiredGenericCopy(existing.text)) {
+      return;
+    }
+    if (existing != null &&
+        _sameDay(existing.day, next.day) &&
+        _isRetiredGenericCopy(existing.text)) {
+      await _storage.setString(todayKey, jsonEncode(next.toJson()));
+      await _appendHistory(next.text);
+      return;
+    }
     if (existing != null) {
       await _storage.setString(previousKey, jsonEncode(existing.toJson()));
     }
@@ -84,4 +96,11 @@ class DailyReturnStore {
 
   static bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
+
+  static bool _isRetiredGenericCopy(String text) {
+    final value = text.toLowerCase();
+    return value.contains('ruh hali etiketi') ||
+        value.contains('no mood label required') ||
+        value.contains('ярлык настроения не нужен');
+  }
 }

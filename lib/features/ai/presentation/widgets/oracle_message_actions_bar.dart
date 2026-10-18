@@ -46,7 +46,7 @@ class OracleMessageActionsBar extends StatelessWidget {
           tooltip: 'Paylaş',
           onTap: () => _copy(
             context,
-            'OR Tarot Rehberliği\n\n${InsightCopyText.clean(message.content)}',
+            'Luna Tarot Rehberliği\n\n${InsightCopyText.clean(message.content)}',
             'Paylaşım metni kopyalandı',
           ),
         ),

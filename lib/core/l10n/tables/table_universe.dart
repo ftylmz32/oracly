@@ -4,7 +4,7 @@ library;
 import '../l10n_triple.dart';
 
 const kL10nUniverse = <String, L10nTriple>{
-  'nav.reflect': L10nTriple('OR', 'OR', 'OR'),
+  'nav.reflect': L10nTriple('Luna', 'Luna', 'Luna'),
   'nav.hint.reflect': L10nTriple(
     'Yansıma ve sohbet',
     'Reflection and conversation',
@@ -14,7 +14,7 @@ const kL10nUniverse = <String, L10nTriple>{
   'band.reflect': L10nTriple('YANSIT', 'REFLECT', 'ОТРАЖАТЬ'),
   'band.understand': L10nTriple('ANLA', 'UNDERSTAND', 'ПОНИМАТЬ'),
   'band.explore_hint': L10nTriple('Ritüel ve açılım', 'Ritual and spread', 'Ритуал и расклад'),
-  'band.reflect_hint': L10nTriple('OR rehberin', 'OR, your guide', 'OR, твой проводник'),
+  'band.reflect_hint': L10nTriple('Luna rehberin', 'Luna, your guide', 'Luna, твой проводник'),
   'band.understand_hint': L10nTriple(
     'Rüya, yıldızname, astroloji',
     'Dream, star reading, astrology',
@@ -49,9 +49,9 @@ const kL10nUniverse = <String, L10nTriple>{
   ),
   'realm.explore_hint': L10nTriple('Tarot ve aktif ritüeller', 'Tarot and active rituals', 'Таро и живые ритуалы'),
   'realm.reflect_hint': L10nTriple(
-    'OR ile sohbet ve kişisel yansımalar',
-    'Conversation with OR and personal reflections',
-    'Разговор с OR и личные отражения',
+    'Luna ile sohbet ve kişisel yansımalar',
+    'Conversation with Luna and personal reflections',
+    'Разговор с Luna и личные отражения',
   ),
   'realm.understand_hint': L10nTriple(
     'Rüya, yıldızname, astroloji',

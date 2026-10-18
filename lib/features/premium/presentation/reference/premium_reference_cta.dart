@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
+import '../../../../core/domain/models/premium_plan.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/widgets/oracly_gold_button.dart';
@@ -25,9 +26,11 @@ class PremiumReferenceCta extends StatelessWidget {
     this.joinLabel,
     this.checkingStore = false,
     this.onStoreDiagnostics,
+    this.verifiedPlan,
   });
 
   final bool isPremium;
+  final PremiumPlanKind? verifiedPlan;
   final VoidCallback? onActivate;
   final VoidCallback? onRestore;
 
@@ -46,7 +49,7 @@ class PremiumReferenceCta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isPremium) {
-      return const PremiumReferenceActiveBanner();
+      return PremiumReferenceActiveBanner(verifiedPlan: verifiedPlan);
     }
     if (!purchaseConfigured) {
       return PremiumReferenceCtaUnavailable(

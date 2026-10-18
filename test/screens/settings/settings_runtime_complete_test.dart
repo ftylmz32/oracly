@@ -124,8 +124,8 @@ void main() {
     ]);
   });
 
-  test('OR voice copy is complete in Russian — not English fallback', () {
-    expect(OraclyVoiceCopy.sectionTitle('ru'), 'Голос OR');
+  test('Luna voice copy is complete in Russian — not English fallback', () {
+    expect(OraclyVoiceCopy.sectionTitle('ru'), 'Голос Luna');
     expect(
       OraclyVoiceCopy.title(OraclyVoiceId.warm, 'ru').toLowerCase(),
       contains('тёпл'),
@@ -153,7 +153,7 @@ void main() {
     expect(find.text('НАСТРОЙКИ'), findsOneWidget);
     expect(find.text('AYARLAR'), findsNothing);
     expect(find.text('SETTINGS'), findsNothing);
-    expect(find.text('Голос OR'), findsOneWidget);
+    expect(find.text('Голос Luna'), findsOneWidget);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('settings_language'), AppLocale.ru);
   });

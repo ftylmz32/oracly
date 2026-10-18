@@ -17,9 +17,9 @@ const Map<String, L10nTriple> kL10nExplore = {
   ),
   'explore.modules': L10nTriple('Modüller', 'Modules', 'Модули'),
   'explore.or_hint': L10nTriple(
-    'Daha derin bir sohbet için OR sekmesine geçebilirsin.',
-    'For a deeper conversation, open the OR tab.',
-    'Для более глубокого разговора открой вкладку OR.',
+    'Daha derin bir sohbet için Luna sekmesine geçebilirsin.',
+    'For a deeper conversation, open the Luna tab.',
+    'Для более глубокого разговора открой вкладку Luna.',
   ),
   'explore.hint.palm': L10nTriple(
     'El çizgilerinde sakin bir yansıma',
@@ -27,9 +27,9 @@ const Map<String, L10nTriple> kL10nExplore = {
     'Спокойное отражение в линиях руки',
   ),
   'explore.hint.dream': L10nTriple(
-    'Rüyayı anlamlandır, OR ile derinleştir',
-    'Make sense of a dream, deepen with OR',
-    'Осмысли сон и углуби с OR',
+    'Rüyayı anlamlandır, Luna ile derinleştir',
+    'Make sense of a dream, deepen with Luna',
+    'Осмысли сон и углуби с Luna',
   ),
   'explore.hint.astrology': L10nTriple(
     'Gökyüzünün bugünkü dili',

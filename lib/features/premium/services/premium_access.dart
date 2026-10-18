@@ -44,6 +44,7 @@ abstract final class PremiumAccess {
   static Future<bool> ensureFresh(
     BuildContext context, {
     bool promptIfInactive = true,
+    PremiumEntryFocus focus = PremiumEntryFocus.general,
   }) async {
     try {
       final container = ProviderScope.containerOf(context, listen: false);
@@ -64,7 +65,7 @@ abstract final class PremiumAccess {
       await status.ensureFresh();
       if (!context.mounted) return false;
       if (status.isPremium) return true;
-      if (promptIfInactive) prompt(context);
+      if (promptIfInactive) prompt(context, focus: focus);
       return false;
     } catch (_) {
       return false;
@@ -85,7 +86,10 @@ abstract final class PremiumAccess {
     }
   }
 
-  static void prompt(BuildContext context) {
-    PremiumEntrySheet.show(context);
+  static void prompt(
+    BuildContext context, {
+    PremiumEntryFocus focus = PremiumEntryFocus.general,
+  }) {
+    PremiumEntrySheet.show(context, focus: focus);
   }
 }

@@ -140,25 +140,9 @@ void main() {
     await tester.tap(find.text(OnboardingCopy.meetLabel));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
-    expect(
-      find.text(OraclyL10n.t('onboard.setup_title', languageCode: 'tr')),
-      findsOneWidget,
-    );
-
-    await tester.ensureVisible(find.text('English'));
-    await tester.tap(find.text('English'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, 800));
-    await tester.pump();
-
-    expect(
-      find.text(OraclyL10n.t('onboard.setup_title', languageCode: 'en')),
-      findsOneWidget,
-    );
-    expect(container.read(appLocaleProvider).languageCode, AppLocale.en);
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('settings_language'), AppLocale.en);
+    expect(find.text(OnboardingCopy.nameTitle), findsOneWidget);
+    expect(find.text(OnboardingCopy.styleLabel), findsNothing);
+    expect(container.read(appLocaleProvider).languageCode, AppLocale.tr);
   });
 
   testWidgets('selected language survives Skip', (tester) async {
@@ -172,22 +156,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await container.read(settingsProvider.future);
 
-    await tester.tap(find.text(OnboardingCopy.meetLabel));
+    await tester.tap(find.text(OnboardingCopy.exploreLabel));
     await tester.pump();
-    await tester.ensureVisible(find.text('English'));
-    await tester.tap(find.text('English'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    await _scrollToSkip(tester);
-    await tester.tap(find.text(OnboardingCopy.skip).last);
-    await tester.pump();
-    // Skip navigates to shell; prefs must already be committed.
     await tester.pump(const Duration(milliseconds: 200));
 
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('settings_language'), AppLocale.en);
-    expect(container.read(appLocaleProvider).languageCode, AppLocale.en);
+    expect(prefs.getString('settings_language'), AppLocale.tr);
+    expect(container.read(appLocaleProvider).languageCode, AppLocale.tr);
   });
 
   testWidgets('selected language survives interrupted-onboarding restart',
@@ -211,7 +186,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(
-      find.text(OraclyL10n.t('onboard.setup_title', languageCode: 'ru')),
+      find.text(OraclyL10n.t('onboard.gate.title', languageCode: 'ru')),
       findsOneWidget,
     );
     expect(container.read(appLocaleProvider).languageCode, AppLocale.ru);
@@ -230,23 +205,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await container.read(settingsProvider.future);
 
-    await tester.tap(find.text(OnboardingCopy.meetLabel));
-    await tester.pump();
-    await tester.ensureVisible(find.text('English'));
-    await tester.tap(find.text('English'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    final continueLabel =
-        OraclyL10n.t('onboard.start', languageCode: AppLocale.en);
-    await tester.ensureVisible(find.text(continueLabel));
-    await tester.tap(find.text(continueLabel));
+    await tester.tap(find.text(OnboardingCopy.exploreLabel));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('settings_language'), AppLocale.en);
-    expect(container.read(appLocaleProvider).languageCode, AppLocale.en);
+    expect(prefs.getString('settings_language'), AppLocale.tr);
+    expect(container.read(appLocaleProvider).languageCode, AppLocale.tr);
   });
 
   testWidgets('intro Skip persists device language', (tester) async {
@@ -260,7 +225,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await container.read(settingsProvider.future);
 
-    await tester.tap(find.text(OnboardingCopy.skip));
+    await tester.tap(find.text(OnboardingCopy.exploreLabel));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
@@ -290,12 +255,4 @@ void main() {
     );
     expect(code, AppLocale.ru);
   });
-}
-
-Future<void> _scrollToSkip(WidgetTester tester) async {
-  final skip = find.text(OnboardingCopy.skip);
-  for (var i = 0; i < 8 && skip.evaluate().isEmpty; i++) {
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, -320));
-    await tester.pump();
-  }
 }

@@ -60,7 +60,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
     // Harness defaults to UnavailablePremiumPurchase → honest notice.
     expect(find.text(PremiumCopy.ctaUnavailable), findsOneWidget);
-    expect(find.text(PremiumCopy.ctaExplore), findsOneWidget);
+    expect(find.text(PremiumCopy.ctaInspect), findsOneWidget);
+    expect(find.text(PremiumCopy.ctaExplore), findsNothing);
   });
 }
 

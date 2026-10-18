@@ -24,6 +24,7 @@ class LocalSettingsRepository implements SettingsRepository {
   static const _soundKey = 'settings_sound';
   static const _hapticKey = 'settings_haptic';
   static const _ambientMusicKey = 'settings_ambient_music';
+  static const _ambientLevelKey = 'settings_ambient_level';
   static const _voiceRepliesKey = 'settings_voice_replies';
   static const _depthKey = OrResponseDepth.storageKey;
   static const _atmosphereKey = 'settings_atmosphere_sign';
@@ -73,6 +74,10 @@ class LocalSettingsRepository implements SettingsRepository {
       soundEnabled: _storage.getBool(_soundKey) ?? true,
       hapticEnabled: _storage.getBool(_hapticKey) ?? true,
       ambientMusicEnabled: _storage.getBool(_ambientMusicKey) ?? false,
+      ambientMusicLevel: (_storage.getDouble(_ambientLevelKey) ??
+              PersonalizationSettings.defaultAmbientMusicLevel)
+          .clamp(0.0, 1.0)
+          .toDouble(),
       orOutputMode: outputMode.wire,
       voiceRepliesEnabled: outputMode.isVoice,
       orResponseDepth: OrResponseDepth.parse(_storage.getString(_depthKey)),
@@ -111,6 +116,7 @@ class LocalSettingsRepository implements SettingsRepository {
     await _storage.setBool(_soundKey, settings.soundEnabled);
     await _storage.setBool(_hapticKey, settings.hapticEnabled);
     await _storage.setBool(_ambientMusicKey, settings.ambientMusicEnabled);
+    await _storage.setDouble(_ambientLevelKey, settings.ambientMusicLevel);
     final output = _normalizedOutput(settings);
     await _storage.setBool(_voiceRepliesKey, output.isVoice);
     await _storage.setString(OrChatOutputMode.storageKey, output.wire);

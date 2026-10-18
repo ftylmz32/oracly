@@ -42,15 +42,19 @@ void main() {
   test('rootBundle loads every major asset and the card back', () async {
     for (var i = 0; i < 22; i++) {
       final data = await rootBundle.load(MajorArcanaArt.assetFor(i));
-      expect(data.lengthInBytes, greaterThan(20 * 1024),
-          reason: MajorArcanaArt.files[i]);
+      expect(
+        data.lengthInBytes,
+        greaterThan(20 * 1024),
+        reason: MajorArcanaArt.files[i],
+      );
     }
     final back = await rootBundle.load(MajorArcanaArt.cardBack);
     expect(back.lengthInBytes, greaterThan(20 * 1024));
   });
 
-  testWidgets('Flutter chrome renders roman numeral and Turkish title',
-      (tester) async {
+  testWidgets('Flutter chrome renders roman numeral and Turkish title', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -72,24 +76,29 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('card back renders Oracly brand symbol', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 180,
-              height: 300,
-              child: TarotCardBackArt(),
+  testWidgets('card back renders celestial seal without a brand tile', (
+    tester,
+  ) async {
+    for (final size in <Size>[const Size(72, 118), const Size(180, 300)]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: size.width,
+                height: size.height,
+                child: const TarotCardBackArt(),
+              ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.pump();
-    expect(find.text('OR'), findsNothing);
-    expect(find.text('ORACLY'), findsNothing);
-    expect(find.bySemanticsLabel('ORACLY'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+      );
+      await tester.pump();
+      expect(find.text('OR'), findsNothing);
+      expect(find.text('ORACLY'), findsNothing);
+      expect(find.bySemanticsLabel('ORACLY'), findsNothing);
+      expect(find.byType(CustomPaint), findsWidgets);
+      expect(tester.takeException(), isNull);
+    }
   });
 }

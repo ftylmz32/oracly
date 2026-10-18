@@ -51,7 +51,7 @@ void main() {
 
     expect(find.text(PremiumCopy.ctaUnavailable), findsOneWidget);
     expect(find.text(PremiumCopy.ctaHint), findsOneWidget);
-    expect(find.text(PremiumCopy.ctaExplore), findsOneWidget);
+    expect(find.text(PremiumCopy.ctaExplore), findsNothing);
     expect(find.byType(OraclyGoldButton), findsNothing);
     expect(find.text(PremiumCopy.ctaRestore), findsNothing);
     expect(find.text('Satın Al'), findsNothing);

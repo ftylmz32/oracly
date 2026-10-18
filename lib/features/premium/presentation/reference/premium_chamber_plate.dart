@@ -8,10 +8,15 @@ import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../shared/widgets/oracly_asset_image.dart';
 
 class PremiumChamberPlate extends StatelessWidget {
-  const PremiumChamberPlate({super.key});
+  const PremiumChamberPlate({super.key, this.ratio = tallAspect});
+
+  /// Wide invitation band. The stored plate stays 4:5 for other callers.
+  static const double wideAspect = 16 / 9;
 
   /// Tall cinematic plate — reserved before decode; no layout jump.
-  static const double aspectRatio = 4 / 5;
+  static const double tallAspect = 4 / 5;
+
+  final double ratio;
 
   static const _ink = Color(0xFF07040F);
   static const _candle = Color(0xFFD4A86A);
@@ -20,8 +25,8 @@ class PremiumChamberPlate extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: OraclyChrome.heroRadius,
-      child: AspectRatio(
-        aspectRatio: aspectRatio,
+        child: AspectRatio(
+        aspectRatio: ratio,
         child: ColoredBox(
           color: _ink,
           child: Stack(

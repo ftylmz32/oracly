@@ -21,9 +21,9 @@ const kL10nNotify = <String, L10nTriple>{
     'В последнее время тема {theme} встречалась несколько раз.',
   ),
   'notif.companion': L10nTriple(
-    'OR ile konuşmaya devam edebilirsin.',
-    'You can continue talking with OR.',
-    'Можно продолжить разговор с OR.',
+    'Luna ile konuşmaya devam edebilirsin.',
+    'You can continue talking with Luna.',
+    'Можно продолжить разговор с Luna.',
   ),
   'notif.permission': L10nTriple(
     'Bugünün mesajını ve keşiflerini hatırlatmamı ister misin? Gizlilik: Bildirim içeriği yalnızca cihazında görüntülenir. Detaylar Gizlilik ekranında. İstediğin an kapatabilirsin.',

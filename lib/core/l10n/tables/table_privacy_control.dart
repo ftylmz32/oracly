@@ -10,9 +10,9 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Мои данные',
   ),
   'privacy.control.subtitle': L10nTriple(
-    'Keşiflerin ve profilin bu cihazda saklanır. OR ile sohbet veya görüntü analizi için gerekli içerik güvenli şekilde işlenebilir. Ne saklandığını gör; silmek istediğine sen karar ver.',
-    'Your discoveries and profile stay on this device. Content needed for OR chat or image analysis may be processed securely. See what is stored and choose what to remove.',
-    'Открытия и профиль хранятся на этом устройстве. Содержимое для чата OR или анализа изображений может обрабатываться безопасно. Смотри, что сохранено, и реши, что удалить.',
+    'Keşiflerin ve profilin bu cihazda saklanır. Luna ile sohbet veya görüntü analizi için gerekli içerik güvenli şekilde işlenebilir. Ne saklandığını gör; silmek istediğine sen karar ver.',
+    'Your discoveries and profile stay on this device. Content needed for Luna chat or image analysis may be processed securely. See what is stored and choose what to remove.',
+    'Открытия и профиль хранятся на этом устройстве. Содержимое для чата Luna или анализа изображений может обрабатываться безопасно. Смотри, что сохранено, и реши, что удалить.',
   ),
   'privacy.control.section.data': L10nTriple(
     'Saklanan veriler',
@@ -77,9 +77,9 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Очистить историю открытий',
   ),
   'privacy.control.clear.history.sub': L10nTriple(
-    'Tarot, rüya, kahve, OR ve diğer keşif kayıtları',
-    'Tarot, dreams, coffee, OR, and other discovery records',
-    'Таро, сны, кофе, OR и другие записи открытий',
+    'Tarot, rüya, kahve, Luna ve diğer keşif kayıtları',
+    'Tarot, dreams, coffee, Luna, and other discovery records',
+    'Таро, сны, кофе, Luna и другие записи открытий',
   ),
   'privacy.control.clear.favorites': L10nTriple(
     'Favorilerimi temizle',
@@ -97,9 +97,9 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Сбросить сводку памяти',
   ),
   'privacy.control.reset.memory.sub': L10nTriple(
-    'OR\'ın kullandığı özet ve kayıtlı notlar — keşif geçmişi kalır',
-    'Summary and saved notes OR uses — discovery history stays',
-    'Сводка и заметки для OR — история открытий остаётся',
+    'Luna\'nın kullandığı özet ve kayıtlı notlar — keşif geçmişi kalır',
+    'Summary and saved notes Luna uses — discovery history stays',
+    'Сводка и заметки для Luna — история открытий остаётся',
   ),
   'privacy.control.confirm.history.title': L10nTriple(
     'Keşif geçmişini temizle?',
@@ -127,9 +127,9 @@ const kL10nPrivacyControl = <String, L10nTriple>{
     'Сбросить сводку памяти?',
   ),
   'privacy.control.confirm.memory.body': L10nTriple(
-    'OR artık silinen özeti kullanmaz. Keşif geçmişin kalır.',
-    'OR will no longer use the deleted summary. Your discovery history stays.',
-    'OR больше не будет использовать удалённую сводку. История открытий остаётся.',
+    'Luna artık silinen özeti kullanmaz. Keşif geçmişin kalır.',
+    'Luna will no longer use the deleted summary. Your discovery history stays.',
+    'Luna больше не будет использовать удалённую сводку. История открытий остаётся.',
   ),
   'privacy.control.success.history': L10nTriple(
     'Keşif geçmişi temizlendi.',

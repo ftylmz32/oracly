@@ -37,9 +37,9 @@ const kL10nPalm = <String, L10nTriple>{
     'Открой линии',
   ),
   'palm.capability_note': L10nTriple(
-    'El yorumu için OR bağlantısı gerekir.',
-    'A palm reading needs an OR connection.',
-    'Для чтения ладони нужно соединение с OR.',
+    'El yorumu için Luna bağlantısı gerekir.',
+    'A palm reading needs a Luna connection.',
+    'Для чтения ладони нужно соединение с Luna.',
   ),
   'palm.analyze_cta': L10nTriple(
     'YORUMU AÇ',

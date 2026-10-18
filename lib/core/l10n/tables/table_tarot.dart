@@ -126,9 +126,9 @@ const kL10nTarot = <String, L10nTriple>{
     'НАПРАВЛЕНИЕ, КОТОРОЕ ОНО ОСТАВЛЯЕТ',
   ),
   'tarot.or_open': L10nTriple(
-    "OR'a Sor",
-    'Ask OR',
-    'Спросить OR',
+    "Luna'ya Sor",
+    'Ask Luna',
+    'Спросить Luna',
   ),
   'tarot.theme_title': L10nTriple(
     'Ana Tema',
@@ -295,9 +295,9 @@ const kL10nTarot = <String, L10nTriple>{
   ),
   'tarot.retry': L10nTriple('TEKRAR DENE', 'TRY AGAIN', 'ЕЩЁ РАЗ'),
   'tarot.ask_hint': L10nTriple(
-    'İstersen bunu OR ile biraz daha açabiliriz.',
-    'If you like, we can open this a little more with OR.',
-    'Если хочешь, можем чуть глубже раскрыть это с OR.',
+    'İstersen bunu Luna ile biraz daha açabiliriz.',
+    'If you like, we can open this a little more with Luna.',
+    'Если хочешь, можем чуть глубже раскрыть это с Luna.',
   ),
   'tarot.disclaimer': L10nTriple(
     'Bu, sembolik bir yorumdur.',
@@ -309,13 +309,13 @@ const kL10nTarot = <String, L10nTriple>{
     'Card reading',
     'Чтение карт',
   ),
-  'tarot.reading_ai': L10nTriple('OR yorumu', 'OR reading', 'Толкование OR'),
+  'tarot.reading_ai': L10nTriple('Luna yorumu', 'Luna reading', 'Толкование Luna'),
   'tarot.source_local': L10nTriple(
     'Yerel katalog yansıması.',
     'Local catalogue reflection.',
     'Локальное каталожное отражение.',
   ),
-  'tarot.source_ai': L10nTriple('OR yorumu.', 'OR reading.', 'Толкование OR.'),
+  'tarot.source_ai': L10nTriple('Luna yorumu.', 'Luna reading.', 'Толкование Luna.'),
   'tarot.select_n': L10nTriple(
     '{n} kart seç',
     'Select {n} cards',

@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:flutter/foundation.dart';
+
 import '../../app/providers/app_providers.dart';
 import '../../core/auth/account_deletion_pending_state.dart';
 import '../../core/data/repositories/local_onboarding_repository.dart';
@@ -15,6 +17,8 @@ import '../../core/navigation/oracly_routes.dart';
 import '../../core/notifications/oracly_notification_tap_router.dart';
 import '../../core/theme/oracly_reduced_motion.dart';
 import '../../features/share_reopen/services/share_link_opener.dart';
+import '../../features/onboarding/encounter/encounter_preview.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'splash_boot.dart';
 import 'splash_brand_overlay.dart';
 import 'splash_cinema_prefs.dart';
@@ -100,6 +104,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       );
     }
     if (!mounted) return;
+    if (!kReleaseMode && await EncounterPreview.requested()) {
+      SplashDestination.commitRoute(
+        context,
+        const OnboardingScreen(preview: true),
+      );
+      return;
+    }
     final completed = await splashFastOnboarding(ref);
     if (!mounted) return;
     if (completed != _onboardingCompleted) {

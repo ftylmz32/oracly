@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/copy/first_session_copy.dart';
+import 'package:oracly_new/core/copy/home_personal_copy.dart';
+import 'package:oracly_new/core/universe/oracly_ritual_time.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
 import 'package:oracly_new/core/domain/models/reading.dart';
@@ -374,7 +376,14 @@ void main() {
       overrides: clockOverrides(firstPending: false, living: living),
     );
 
-    expect(find.text('Merhaba,'), findsOneWidget);
+    expect(
+      find.text(
+        HomePersonalCopy.greeting(
+          time: OraclyRitualAtmosphere.fromHour(DateTime.now().hour),
+        ),
+      ),
+      findsOneWidget,
+    );
     expect(find.text(returningInvite), findsNothing);
     expect(find.text(FirstSessionCopy.continuityCta), findsNothing);
   });
@@ -397,7 +406,14 @@ void main() {
       ],
     );
 
-    expect(find.text('Merhaba,'), findsOneWidget);
+    expect(
+      find.text(
+        HomePersonalCopy.greeting(
+          time: OraclyRitualAtmosphere.fromHour(DateTime.now().hour),
+        ),
+      ),
+      findsOneWidget,
+    );
     expect(find.byType(HomeMasterHero), findsOneWidget);
   });
 }

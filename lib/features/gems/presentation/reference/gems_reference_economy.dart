@@ -4,7 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../core/design_system/oracly_chrome.dart';
-import '../../../../core/design_system/oracly_gem_facet.dart';
+import '../../../../core/design_system/oracly_gem_cluster.dart';
 import '../../../../core/design_system/oracly_glass_card.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/craftsmanship_rhythm.dart';
@@ -40,6 +40,7 @@ class GemsEconomySection extends StatelessWidget {
           label: GemsCopy.reasonDailyReward,
           chip: GemsCopy.dailyChip,
           glow: 1.12,
+          stones: 3,
         ),
         SizedBox(height: GemsReferenceTokens.rowGap),
         GemsEconomyRow(
@@ -47,6 +48,7 @@ class GemsEconomySection extends StatelessWidget {
           label: GemsCopy.tarotLabel,
           chip: GemsCopy.tarotChip,
           spend: true,
+          stones: 1,
         ),
       ],
     );
@@ -61,6 +63,7 @@ class GemsEconomyRow extends StatelessWidget {
     required this.chip,
     this.glow = 1.0,
     this.spend = false,
+    this.stones = 1,
   });
 
   final String value;
@@ -68,6 +71,7 @@ class GemsEconomyRow extends StatelessWidget {
   final String chip;
   final double glow;
   final bool spend;
+  final int stones;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +85,12 @@ class GemsEconomyRow extends StatelessWidget {
       glowStrength: spend ? 0.94 : 1.10,
       child: Row(
         children: [
-          OraclyGemFacet(size: 30, glow: glow, dimmed: spend),
+          OraclyGemCluster(
+            count: stones,
+            size: stones > 1 ? 22 : 28,
+            glow: glow,
+            dimmed: spend,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

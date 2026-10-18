@@ -1,9 +1,11 @@
-/// Daily ritual card — full-bleed cinematic hero, copy over dark left sky.
+/// Daily ritual card — daypart plate, copy along the lower edge.
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/oracly_reduced_motion.dart';
 import '../../../core/universe/oracly_universe_state.dart';
+import '../../home/theme/home_ritual_plates.dart';
 import 'daily_ritual_hero_atmosphere.dart';
 import 'daily_ritual_hero_copy.dart';
 import 'daily_ritual_hero_plate.dart';
@@ -29,6 +31,12 @@ class DailyRitualCardBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final plate = HomeRitualPlates.of(universe.ritualTime);
+    final focus = HomeRitualPlates.focus(universe.ritualTime);
+    final fade = OraclyReducedMotion.duration(
+      context,
+      const Duration(milliseconds: 480),
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxHeight < 128;
@@ -54,22 +62,29 @@ class DailyRitualCardBody extends StatelessWidget {
             children: [
               Positioned.fill(
                 child: RepaintBoundary(
-                  child: DailyRitualHeroPlate(
-                    width: slotW,
-                    height: slotH,
-                    fallbackArt: art,
+                  child: AnimatedSwitcher(
+                    duration: fade,
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    child: DailyRitualHeroPlate(
+                      key: ValueKey(plate),
+                      width: slotW,
+                      height: slotH,
+                      fallbackArt: art,
+                      assetPath: plate,
+                      alignment: focus,
+                    ),
                   ),
                 ),
               ),
               const Positioned.fill(child: DailyRitualHeroAtmosphere()),
-              // Scrim + copy stay static — never ride image drift.
               const Positioned.fill(child: DailyRitualHeroTextScrim()),
               Padding(
                 padding: textPad,
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.bottomLeft,
                   child: SizedBox(
-                    width: slotW * 0.54,
+                    width: slotW * 0.66,
                     height: slotH - textPad.vertical,
                     child: DailyRitualHeroCopy(
                       universe: universe,

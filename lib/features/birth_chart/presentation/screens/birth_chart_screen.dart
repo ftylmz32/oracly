@@ -17,7 +17,12 @@ import '../../providers/birth_chart_providers.dart';
 import '../widgets/birth_chart_phase_body.dart';
 
 class BirthChartScreen extends ConsumerStatefulWidget {
-  const BirthChartScreen({super.key});
+  const BirthChartScreen({super.key, this.returnWhenChartGenerated = false});
+
+  /// Used by the Yildizname entry journey to continue into the existing
+  /// Narrative V1 orchestrator after the first authoritative chart is saved.
+  /// Direct Birth Chart visits keep showing the local chart result.
+  final bool returnWhenChartGenerated;
 
   @override
   ConsumerState<BirthChartScreen> createState() => _BirthChartScreenState();
@@ -30,6 +35,11 @@ class _BirthChartScreenState extends ConsumerState<BirthChartScreen> {
       return;
     }
     Navigator.of(context).maybePop();
+  }
+
+  void _handleChartGenerated() {
+    if (!widget.returnWhenChartGenerated || !mounted) return;
+    Navigator.of(context).pop(true);
   }
 
   Future<void> _handleMenu(
@@ -74,8 +84,9 @@ class _BirthChartScreenState extends ConsumerState<BirthChartScreen> {
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(maxWidth: AppLayout.maxContentWidth),
+              constraints: const BoxConstraints(
+                maxWidth: AppLayout.maxContentWidth,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -90,7 +101,10 @@ class _BirthChartScreenState extends ConsumerState<BirthChartScreen> {
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 420),
-                      child: BirthChartPhaseBody(controller: controller),
+                      child: BirthChartPhaseBody(
+                        controller: controller,
+                        onChartGenerated: _handleChartGenerated,
+                      ),
                     ),
                   ),
                 ],
@@ -104,10 +118,7 @@ class _BirthChartScreenState extends ConsumerState<BirthChartScreen> {
 }
 
 class _MenuTrailing extends StatelessWidget {
-  const _MenuTrailing({
-    required this.controller,
-    required this.onSelected,
-  });
+  const _MenuTrailing({required this.controller, required this.onSelected});
 
   final BirthChartController controller;
   final ValueChanged<String> onSelected;

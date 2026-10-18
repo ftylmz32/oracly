@@ -72,14 +72,15 @@ class _Link extends StatelessWidget {
   Widget build(BuildContext context) {
     return OraclyPressable(
       onTap: onTap,
-      child: Text(
-        label,
-        style: AppTextStyles.caption.copyWith(
-          color: AppColors.goldLight.withValues(alpha: 0.86),
-          fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Text(
+          label,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.goldLight.withValues(alpha: 0.86),
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
       ),
     );
   }

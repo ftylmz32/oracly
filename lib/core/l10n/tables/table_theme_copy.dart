@@ -115,5 +115,5 @@ const kL10nThemeCopy = <String, L10nTriple>{
     'Daily message',
     'Ежедневное сообщение',
   ),
-  'or.ctx.chamber.reflection': L10nTriple('OR', 'OR', 'OR'),
+  'or.ctx.chamber.reflection': L10nTriple('Luna', 'Luna', 'Luna'),
 };

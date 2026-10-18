@@ -65,7 +65,8 @@ void main() {
         now: DateTime(2026, 8, 10 + i),
       ).overall;
       expect(text.contains('?'), isFalse, reason: text);
-      expect(text.toLowerCase(), contains('gökyüz'));
+      expect(text, matches(RegExp(r'^(Koç|Boğa|İkizler|Yengeç|Aslan|Başak), ')));
+      expect(text.toLowerCase(), isNot(contains('gökyüzünde bugün')));
       expect(text.toLowerCase(), isNot(contains('bolluk bilinci')));
       expect(text.toLowerCase(), isNot(contains('seçilir duruyor')));
       expect(HumanReader.looksGeneric(text), isFalse, reason: text);
@@ -95,8 +96,11 @@ void main() {
   test('daily empty pool stays concrete without prophecy meta', () {
     final lines = DailyMessageCatalogue.dateAware(DateTime(2026, 8, 24));
     expect(lines, hasLength(16));
+    // Approved Home copy uses open reflective questions; the guard is now
+    // against prophecy wording and unfilled template placeholders.
     for (final line in lines) {
-      expect(line.contains('?'), isFalse, reason: line);
+      expect(line, isNot(contains('{')), reason: line);
+      expect(line.toLowerCase(), isNot(contains('kader')), reason: line);
       expect(line.toLowerCase(), isNot(contains('kehanet')));
       expect(line.toLowerCase(), isNot(contains('hediye')));
     }

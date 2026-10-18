@@ -137,7 +137,7 @@ void main() {
     );
     expect(
       items.map((e) => DiscoveryJournalCopy.badge(e.kind)),
-      containsAll(['Tarot', 'Rüya', 'Kahve', 'OR']),
+      containsAll(['Tarot', 'Rüya', 'Kahve', 'Luna']),
     );
     expect(DiscoveryJournalCopy.badge(DiscoveryJournalKind.palm), 'El');
     expect(DiscoveryJournalCopy.badge(DiscoveryJournalKind.astrology), 'Astroloji');

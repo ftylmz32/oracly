@@ -1,21 +1,24 @@
-/// Premium hero — exclusive chamber image; Flutter owns the invitation.
+/// Short cinematic invitation — the value sits under the plate.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/brand/oracly_brand_mark.dart';
 import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
 import '../../../../core/design_system/oracly_soft_reveal.dart';
-import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/theme/reading_typography.dart';
 import 'premium_chamber_plate.dart';
-import 'premium_reference_tokens.dart';
+import 'premium_quiet_action.dart';
 
 class PremiumReferenceHeroCard extends StatelessWidget {
-  const PremiumReferenceHeroCard({super.key, this.active = false});
+  const PremiumReferenceHeroCard({
+    super.key,
+    this.active = false,
+    this.onSeePlans,
+  });
 
   final bool active;
+  final VoidCallback? onSeePlans;
 
   @override
   Widget build(BuildContext context) {
@@ -29,43 +32,49 @@ class PremiumReferenceHeroCard extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF5C3A1E).withValues(alpha: glow),
-                  blurRadius: 32,
-                  offset: const Offset(0, 12),
-                ),
-                BoxShadow(
-                  color: OraclyChrome.gold.withValues(alpha: 0.08),
-                  blurRadius: 18,
+                  blurRadius: 28,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
-            child: const PremiumChamberPlate(),
+            child: const PremiumChamberPlate(
+              ratio: PremiumChamberPlate.wideAspect,
+            ),
           ),
-          SizedBox(height: PremiumReferenceTokens.heroToIntro),
-          const OraclyBrandMark(size: 40, forLauncher: true),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           Text(
             PremiumCopy.heroTitle,
             textAlign: TextAlign.center,
-            style: ReadingTypography.sectionLabel(fontSize: 12).copyWith(
-              letterSpacing: 2.2,
-              color: OraclyChrome.goldLight.withValues(alpha: 0.92),
+            style: ReadingTypography.sectionLabel(fontSize: 13).copyWith(
+              letterSpacing: 1.6,
+              color: OraclyChrome.goldLight.withValues(alpha: 0.96),
             ),
           ),
-          SizedBox(height: CraftsmanshipRhythm.afterTitle),
+          const SizedBox(height: 8),
           Text(
             PremiumCopy.heroSubtitle,
             textAlign: TextAlign.center,
-            style: ReadingTypography.opening(
-              color: OraclyChrome.cream.withValues(alpha: 0.90),
+            softWrap: true,
+            style: ReadingTypography.body(
+              color: OraclyChrome.cream.withValues(alpha: 0.92),
             ),
           ),
           if (PremiumCopy.heroLead.trim().isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               PremiumCopy.heroLead,
               textAlign: TextAlign.center,
               style: ReadingTypography.footnote(
                 color: OraclyChrome.cream.withValues(alpha: 0.62),
+              ),
+            ),
+          ],
+          if (onSeePlans != null) ...[
+            const SizedBox(height: 16),
+            Align(
+              child: PremiumQuietAction(
+                label: PremiumCopy.seePlans,
+                onTap: onSeePlans!,
               ),
             ),
           ],

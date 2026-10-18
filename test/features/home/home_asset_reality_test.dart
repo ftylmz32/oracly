@@ -4,9 +4,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/constants/app_assets.dart';
+import 'package:oracly_new/core/universe/oracly_ritual_time.dart';
+import 'package:oracly_new/features/home/theme/home_ritual_plates.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/home/master/home_master_page.dart';
 import 'package:oracly_new/features/home/reference/home_discovery_module_arts.dart';
+import 'package:oracly_new/features/daily_ritual/widgets/daily_ritual_hero_plate.dart';
 import 'package:oracly_new/features/home/reference/home_reference_hero_plate.dart';
 import 'package:oracly_new/features/home/reference/home_reference_or_flagship.dart';
 import 'package:oracly_new/features/home/reference/home_reference_premium_card.dart';
@@ -57,6 +60,18 @@ void main() {
     final paths = images.map((i) => i.assetPath).toSet();
 
     expect(paths, contains(AppAssets.homeHeroMoon));
+    final trace = tester
+        .widgetList<DailyRitualHeroPlate>(find.byType(DailyRitualHeroPlate))
+        .map((plate) => plate.assetPath)
+        .toSet();
+    expect(
+      trace,
+      contains(
+        HomeRitualPlates.of(
+          OraclyRitualAtmosphere.fromHour(DateTime.now().hour),
+        ),
+      ),
+    );
     expect(paths, contains(AppAssets.homeOrGuide));
     expect(paths, contains(AppAssets.homeCoffee));
     expect(paths, contains(AppAssets.homePalm));

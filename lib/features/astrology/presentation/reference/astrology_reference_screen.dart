@@ -10,6 +10,7 @@ import '../../../quality_loop/widgets/quality_loop_gate.dart';
 import '../../../../core/quality/quality_feature.dart';
 import '../../../content/astrology/data/astrology_content_catalogue.dart';
 import '../../../personal_discovery/providers/personal_discovery_providers.dart';
+import '../../../onboarding/data/encounter_interest_store.dart';
 import '../../providers/astrology_providers.dart';
 import '../../services/astrology_daily_reading_service.dart';
 import '../../services/astrology_sign_resolver.dart';
@@ -80,6 +81,10 @@ class _AstrologyReferenceScreenState
               reading: AstrologyDailyReadingService.build(
                 sign,
                 profile: profile,
+                selectedThemes: EncounterInterests.forReading(
+                  chosen: ref.read(encounterThemesProvider),
+                  observed: profile?.observedRecurringLabels ?? const [],
+                ),
               ),
               themeLabels: profile?.personalizationThemes ?? const <String>[],
             ),
@@ -104,6 +109,10 @@ class _AstrologyReferenceScreenState
     final reading = AstrologyDailyReadingService.build(
       selected,
       profile: profile,
+      selectedThemes: EncounterInterests.forReading(
+        chosen: ref.watch(encounterThemesProvider),
+        observed: profile?.observedRecurringLabels ?? const [],
+      ),
     );
 
     return QualityLoopGate(

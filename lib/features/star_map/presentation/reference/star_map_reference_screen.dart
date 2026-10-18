@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/design_system/app_layout.dart';
 import '../../../../core/design_system/chamber_header_lead.dart';
 import '../../../../features/birth_chart/providers/birth_information_provider.dart';
+import '../../../../features/onboarding/data/encounter_interest_store.dart';
 import '../../../../features/personal_discovery/providers/personal_discovery_providers.dart';
 import '../../../quality_loop/widgets/quality_loop_gate.dart';
 import '../../../../core/quality/quality_feature.dart';
@@ -14,12 +15,16 @@ import '../../../../shared/navigation/oracly_navigation.dart';
 import '../../../../shared/widgets/oracly_adaptive_scroll_view.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../copy/star_map_polish_copy.dart';
+import '../../../../core/l10n/l10n.dart';
+import '../../artifacts/yildizname_artifact_providers.dart';
+import '../../services/star_map_chart_portrait.dart';
 import '../../services/star_map_reading_service.dart';
 import 'star_map_reference_app_bar.dart';
 import 'star_map_reference_atmosphere.dart';
 import 'star_map_reference_hub_body.dart';
 import 'star_map_reference_routes.dart';
 import 'star_map_reference_tokens.dart';
+import 'star_map_result_section.dart';
 
 /// Entry point for the Yıldızname / star map feature.
 class StarMapReferenceScreen extends ConsumerWidget {
@@ -46,11 +51,35 @@ class StarMapReferenceScreen extends ConsumerWidget {
       personalDiscoveryProfileProvider.select((async) => async.valueOrNull),
     );
     final sunSign = ref.watch(savedSunSignProvider);
+    final chosen = ref.watch(encounterThemesProvider);
     final reading = StarMapReadingService.build(
       now: now,
       sunSign: sunSign,
       discovery: discovery,
+      selectedThemes: EncounterInterests.forReading(
+        chosen: chosen,
+        observed: discovery?.observedRecurringLabels ?? const [],
+      ),
     );
+    // A saved reading for this exact chart outranks local copy; otherwise the
+    // hub speaks from the calculated chart, never from the generic archive.
+    final evidence = ref.watch(savedNatalEvidenceProvider).valueOrNull;
+    final fingerprint = evidence?.metadata.evidenceFingerprint;
+    final narrative = fingerprint == null
+        ? null
+        : ref.watch(yildiznameHubNarrativeProvider(fingerprint)).valueOrNull;
+    final portrait = narrative != null
+        ? [
+            StarMapResultSection(
+              title: OraclyL10n.t('star.portrait.ai'),
+              body: narrative,
+            ),
+          ]
+        : StarMapChartPortrait.build(
+                evidence,
+                themes: discovery?.personalizationThemes ?? const <String>[],
+              ) ??
+              (birthPending ? null : StarMapChartPortrait.fromSun(sunSign));
 
     return QualityLoopGate(
       feature: QualityFeature.starMap,
@@ -88,8 +117,11 @@ class StarMapReferenceScreen extends ConsumerWidget {
                             maxHeight: constraints.maxHeight,
                             contentWidth: constraints.maxWidth,
                           );
-                          void refresh() =>
-                              ref.invalidate(birthInformationProvider);
+                          void refresh() {
+                            ref.invalidate(birthInformationProvider);
+                            ref.invalidate(savedNatalEvidenceProvider);
+                          }
+
                           return OraclyAdaptiveScrollView(
                             child: StarMapReferenceHubBody(
                               chart: chart,
@@ -99,10 +131,17 @@ class StarMapReferenceScreen extends ConsumerWidget {
                               reading: reading,
                               profile: profile,
                               onRefresh: refresh,
+                              portrait: portrait,
+                              portraitHeading: portrait == null
+                                  ? null
+                                  : StarMapChartPortrait.heading,
                               onBirth: () =>
                                   StarMapReferenceRoutes.openBirthChart(
                                     context,
                                     onReturn: refresh,
+                                    continueToNarrative: true,
+                                    reading: reading,
+                                    profile: profile,
                                   ),
                               onOpenLeaf: () =>
                                   StarMapReferenceRoutes.openPrimaryArchiveLeaf(

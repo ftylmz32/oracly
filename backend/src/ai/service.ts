@@ -335,14 +335,37 @@ export class AiProxyService {
       parentKey: ctx?.parentKey ?? `palm:${Date.now()}`,
       language: request.language,
     };
-    if (request.payload.readingPhase === 'write') {
-      return this.reading.writePalm(request.payload, pipelineContext);
+    const payload = await this.stagedPalmPayload(request.payload, ctx);
+    if (payload.readingPhase === 'write') {
+      return this.reading.writePalm(payload, pipelineContext);
     }
-    const image = await this.resolveReadingImage(request.payload, 'palm', ctx);
-    if (request.payload.readingPhase === 'observe') {
-      return this.reading.observePalm(image, request.payload, pipelineContext);
+    const image = await this.resolveReadingImage(payload, 'palm', ctx);
+    if (payload.readingPhase === 'observe') {
+      return this.reading.observePalm(image, payload, pipelineContext);
     }
-    return this.reading.palm(image, request.payload, pipelineContext);
+    return this.reading.palm(image, payload, pipelineContext);
+  }
+
+  /**
+   * A staged palm photo keeps the hand chosen when it was staged — the
+   * client's `hand` echo never relabels it. Unreadable stage metadata leaves
+   * the payload as-is; image resolution still fails closed on its own.
+   */
+  private async stagedPalmPayload<T extends Record<string, unknown>>(
+    payload: T,
+    ctx?: AiHandleContext,
+  ): Promise<T> {
+    const operationId =
+      typeof payload.operationId === 'string' ? payload.operationId : null;
+    const owner = ctx?.identity;
+    if (!operationId || !owner || !this.stagedImages) return payload;
+    let hand: 'left' | 'right' | null;
+    try {
+      hand = await this.stagedImages.palmHandSide({ ownerUserId: owner, operationId });
+    } catch {
+      return payload;
+    }
+    return hand && hand !== payload.hand ? { ...payload, hand } : payload;
   }
 
   private async soulmate(

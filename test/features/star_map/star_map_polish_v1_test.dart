@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/features/star_map/services/star_map_chart_portrait.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/models/oracle_reading_context_sources.dart';
 import 'package:oracly_new/features/ai/oracle_conversation/services/oracle_followup_copy.dart';
@@ -48,7 +49,10 @@ void main() {
     expect(find.text(StarMapPolishCopy.enterBirthInfo), findsOneWidget);
     expect(find.text(StarMapPolishCopy.viewChart), findsNothing);
     expect(find.text(StarMapPolishCopy.whatItIs), findsOneWidget);
-    expect(find.text(StarMapPolishCopy.journeyEmpty), findsOneWidget);
+    // No birth data: an honest invitation, never invented chart depth.
+    expect(find.text(StarMapChartPortrait.heading), findsOneWidget);
+    expect(find.textContaining('Doğum bilgilerini eklediğinde'), findsOneWidget);
+    expect(find.text(StarMapPolishCopy.journeyEmpty), findsNothing);
     expect(find.text(StarMapPolishCopy.innerThemeTitle), findsNothing);
     expect(find.text('KARMİK ANALİZ'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -78,8 +82,10 @@ void main() {
     expect(find.text(StarMapPolishCopy.viewChart), findsOneWidget);
     expect(find.text(StarMapPolishCopy.enterBirthInfo), findsNothing);
     expect(find.text(StarMapPolishCopy.whatItIs), findsOneWidget);
-    // Birth without discovery history → first-entry archive chapters.
-    expect(find.text(StarMapPolishCopy.journeyEmpty), findsOneWidget);
+    // Saved birth: the hub speaks from the reader's own Sun, not the archive.
+    expect(find.text(StarMapChartPortrait.heading), findsOneWidget);
+    expect(find.textContaining('Güneşin Aslan burcunda'), findsOneWidget);
+    expect(find.text(StarMapPolishCopy.journeyEmpty), findsNothing);
     expect(find.text(StarMapPolishCopy.innerThemeTitle), findsNothing);
     expect(find.textContaining('Aslan'), findsWidgets);
     expect(find.text('İstanbul'), findsOneWidget);

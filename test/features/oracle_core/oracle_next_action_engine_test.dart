@@ -44,7 +44,7 @@ void main() {
     expect(single, isNull);
   });
 
-  test('two different features with same theme yield one OR NextAction', () {
+  test('two different features with same theme yield one Luna NextAction', () {
     final action = OracleNextActionEngine.decide(
       PersonalDiscoveryProfileBuilder.from(
         PersonalDiscoverySources(
@@ -71,7 +71,7 @@ void main() {
     expect(action.evidenceIds.length, greaterThanOrEqualTo(2));
     expect(action.premiumOpportunity, OraclePremiumOpportunity.none);
     final line = OracleNextActionCopy.line(action);
-    expect(line, contains('OR'));
+    expect(line, contains('Luna'));
   });
 
   test('evidence ids resolve back to observation fingerprints', () {
@@ -206,7 +206,7 @@ void main() {
     expect(action.occurrenceCount, greaterThanOrEqualTo(4));
   });
 
-  test('does not recommend OR if OR was already used today', () {
+  test('does not recommend Luna if Luna was already used today', () {
     final action = OracleNextActionEngine.decide(
       PersonalDiscoveryProfileBuilder.from(
         PersonalDiscoverySources(

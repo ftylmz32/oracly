@@ -31,10 +31,13 @@ class RitualCardBack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Stacked deck layers must not each add a violet bloom — physical paper
+    // shadow only, so the deck reads as a real object instead of neon.
     return TarotCardShell(
       width: width ?? RitualCardMetrics.width,
       height: height ?? RitualCardMetrics.height,
       radius: RitualCardMetrics.radius,
+      glow: false,
       child: const TarotCardBackArt(),
     );
   }

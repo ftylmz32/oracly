@@ -123,27 +123,37 @@ abstract final class OraclyWavSynth {
     );
   }
 
+  /// Seamless bed loop length: two full breaths, so the swell never jumps.
+  static const droneLoopSeconds = 14.4;
+
+  /// Every component completes whole cycles inside one loop, so the last
+  /// sample flows into the first — no seam dip, no click, no level jump.
   static Uint8List _droneLoop(
     List<double> freqs, {
     required double bedVolume,
   }) {
     if (freqs.isEmpty) return Uint8List(0);
 
-    const loopMs = 4800;
-    final samples = (_sampleRate * loopMs / 1000).round();
+    const loop = droneLoopSeconds;
+    final samples = (_sampleRate * loop).round();
+    double whole(double hz) => max(1, (hz * loop).round()) / loop;
+    final tones = [for (final f in freqs) whole(f)];
+    // Slow pitch shimmer as true phase modulation (periodic in the loop).
+    final shimmer = [
+      for (var n = 0; n < tones.length; n++) (n + 1) / loop,
+    ];
+    const breath = 2 / loop;
     return _pcm(
       samples,
       (i, t) {
         var mix = 0.0;
-        for (var n = 0; n < freqs.length; n++) {
-          final drift = sin(2 * pi * (0.035 + n * 0.012) * t) * 0.35;
-          mix += sin(2 * pi * (freqs[n] + drift) * t);
+        for (var n = 0; n < tones.length; n++) {
+          final wobble = 0.35 / (2 * pi * shimmer[n]) *
+              sin(2 * pi * shimmer[n] * t);
+          mix += sin(2 * pi * tones[n] * t + 2 * pi * wobble);
         }
-        final breathe = 0.84 + 0.16 * sin(2 * pi * t / 7.2);
-        // Soft edge so loop joins without a click.
-        final edge = min(1.0, i / (_sampleRate * 0.08)) *
-            min(1.0, (samples - i) / (_sampleRate * 0.08));
-        return (mix / freqs.length) * bedVolume * breathe * edge;
+        final breathe = 0.84 + 0.16 * sin(2 * pi * breath * t);
+        return (mix / tones.length) * bedVolume * breathe;
       },
     );
   }

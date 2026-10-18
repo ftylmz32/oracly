@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
-import 'package:oracly_new/core/l10n/oracly_format.dart';
 import 'package:oracly_new/core/modules/oracly_feature_id.dart';
 import 'package:oracly_new/core/modules/oracly_feature_registry.dart';
 import 'package:oracly_new/core/navigation/oracly_routes.dart';
 import 'package:oracly_new/features/daily_message/copy/daily_message_copy.dart';
+import 'package:oracly_new/features/daily_message/data/daily_message_catalogue.dart';
 import 'package:oracly_new/features/daily_message/presentation/screens/daily_message_screen.dart';
 import 'package:oracly_new/features/daily_message/presentation/widgets/daily_return_cta.dart';
 import 'package:oracly_new/features/daily_message/services/daily_message_service.dart';
@@ -49,6 +49,22 @@ void main() {
     expect(note.theme, isNull);
   });
 
+  test(
+    'generic daily notes stay natural and never imply personal evidence',
+    () {
+      OraclyL10n.bind('tr');
+      final notes = DailyMessageCatalogue.dateAware(DateTime(2026, 10, 16));
+      expect(notes, hasLength(16));
+      for (final note in notes) {
+        final normalized = note.toLowerCase();
+        expect(normalized, isNot(contains('kısa not:')));
+        expect(normalized, isNot(contains('ruh hali etiketi')));
+        expect(normalized, isNot(contains('keşiflerinde')));
+        expect(normalized, isNot(contains('son yorumlarında')));
+      }
+    },
+  );
+
   test('real themes add a personal daily reflection, not a random slogan', () {
     final day = DateTime(2026, 8, 16);
     final plain = DailyMessageService.forDay(day: day, profileName: 'Fatih');
@@ -76,13 +92,16 @@ void main() {
     expect(module?.routeName, OraclyRoutes.dailyMessage);
     expect(module?.homeBand, isNull);
     expect(
-      HomeReferenceModules.list().map((m) => HomeDiscoveryCopy.title(m.id).toLowerCase()),
+      HomeReferenceModules.list().map(
+        (m) => HomeDiscoveryCopy.title(m.id).toLowerCase(),
+      ),
       isNot(contains('günün mesajı')),
     );
   });
 
-  testWidgets('screen shows ritual title, date, and one working action',
-      (tester) async {
+  testWidgets('screen shows ritual title, date, and one working action', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(360, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});

@@ -12,11 +12,11 @@ const kL10nChrome = <String, L10nTriple>{
   L10nKeys.coffee: L10nTriple('Kahve', 'Coffee', 'Кофе'),
   L10nKeys.astrology: L10nTriple('Astroloji', 'Astrology', 'Астрология'),
   L10nKeys.starMap: L10nTriple('Yıldızname', 'Yıldızname', 'Йылдызнаме'),
-  'nav.or': L10nTriple('OR', 'OR', 'OR'),
+  'nav.or': L10nTriple('Luna', 'Luna', 'Luna'),
   'nav.explore': L10nTriple('Keşfet', 'Explore', 'Обзор'),
   'nav.journal': L10nTriple('Günlük', 'Journal', 'Дневник'),
   L10nKeys.tarotReading: L10nTriple('Tarot', 'Tarot', 'Таро'),
-  L10nKeys.aiChat: L10nTriple('OR', 'OR', 'OR'),
+  L10nKeys.aiChat: L10nTriple('Luna', 'Luna', 'Luna'),
   L10nKeys.dream: L10nTriple('Rüya', 'Dream', 'Сон'),
   L10nKeys.numerology: L10nTriple('Numeroloji', 'Numerology', 'Нумерология'),
   L10nKeys.moonCalendar: L10nTriple('Ay Takvimi', 'Moon Calendar', 'Лунный календарь'),
@@ -40,7 +40,7 @@ const kL10nChrome = <String, L10nTriple>{
       L10nTriple('BİLDİRİMLER', 'NOTIFICATIONS', 'УВЕДОМЛЕНИЯ'),
   L10nKeys.sectionLanguage: L10nTriple('DİL', 'LANGUAGE', 'ЯЗЫК'),
   L10nKeys.sectionPrivacy: L10nTriple('GİZLİLİK', 'PRIVACY', 'КОНФИДЕНЦИАЛЬНОСТЬ'),
-  L10nKeys.sectionOrStyle: L10nTriple('OR TARZI', 'OR STYLE', 'СТИЛЬ OR'),
+  L10nKeys.sectionOrStyle: L10nTriple('LUNA’NIN TARZI', 'LUNA STYLE', 'СТИЛЬ LUNA'),
   L10nKeys.sectionSound:
       L10nTriple('SES & DOKUNUŞ', 'SOUND & HAPTICS', 'ЗВУК И ОТКЛИК'),
   L10nKeys.sectionAnimation: L10nTriple('ANİMASYONLAR', 'ANIMATION', 'АНИМАЦИЯ'),
@@ -70,24 +70,26 @@ const kL10nChrome = <String, L10nTriple>{
   L10nKeys.ambientMusicTitle:
       L10nTriple('Atmosferik müzik', 'Atmospheric music', 'Атмосферная музыка'),
   L10nKeys.ambientMusicSubtitle: L10nTriple(
-    'Sessiz döngüsel yatak sesi — açınca duyulur',
-    'Quiet looping bed — audible when turned on',
-    'Тихий циклический фон — слышен при включении',
+    'Varsayılan kapalı · Luna konuşurken kısılır',
+    'Off by default · softens while Luna speaks',
+    'По умолчанию выкл. · тише, когда говорит Luna',
   ),
+  L10nKeys.ambientLevelTitle:
+      L10nTriple('Müzik seviyesi', 'Music level', 'Громкость музыки'),
   L10nKeys.hapticTitle:
       L10nTriple('Dokunsal geri bildirim', 'Haptic feedback', 'Тактильный отклик'),
   L10nKeys.hapticSubtitle: L10nTriple('Hafif titreşim', 'Light vibration', 'Лёгкая вибрация'),
   L10nKeys.voiceRepliesTitle: L10nTriple('Sesli yanıtlar', 'Voice replies', 'Голосовые ответы'),
   L10nKeys.voiceRepliesSubtitle: L10nTriple(
-    'Okuma sonrası OR yanıtını seslendir.',
-    "Speak OR's reply after a reading.",
-    'Озвучивать ответ OR после чтения.',
+    'Okuma sonrası Luna’nın yanıtını seslendir.',
+    "Speak Luna's reply after a reading.",
+    'Озвучивать ответ Luna после чтения.',
   ),
   L10nKeys.orStyleTitle: L10nTriple('Konuşma tarzı', 'Speaking style', 'Манера речи'),
   L10nKeys.orStyleSubtitle:
-      L10nTriple('OR\'ın sohbet üslubu', "OR's conversation tone", 'Тон разговора OR'),
+      L10nTriple('Luna\'nın sohbet üslubu', "Luna's conversation tone", 'Тон разговора Luna'),
   L10nKeys.orStyleSheetTitle:
-      L10nTriple('OR konuşma tarzı', 'OR speaking style', 'Стиль речи OR'),
+      L10nTriple('Luna’nın konuşma tarzı', 'Luna speaking style', 'Стиль речи Luna'),
   L10nKeys.notificationsTitle: L10nTriple('Bildirimler', 'Notifications', 'Уведомления'),
   L10nKeys.notificationsSubtitle: L10nTriple(
     'İsteğe bağlı hatırlatmalar',

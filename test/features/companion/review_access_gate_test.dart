@@ -21,6 +21,7 @@ import 'package:oracly_new/features/companion/models/or_session_state.dart';
 import 'package:oracly_new/features/companion/services/companion_or_conversation_access.dart';
 import 'package:oracly_new/features/companion/services/or_session_resolver.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
+import 'package:oracly_new/features/companion/copy/companion_copy.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_or_paywall.dart';
 import 'package:oracly_new/features/companion/presentation/reference/companion_reference_or_paywall_host.dart';
 import 'package:oracly_new/features/premium/models/premium_entitlement_state.dart';
@@ -424,11 +425,11 @@ void main() {
 
       await pumpOrPaywallHost(tester, container);
 
-      // Store is fully unavailable (not merely inactive), so the widget's
-      // own canStartRestore rule legitimately hides the retry action —
-      // title and body are the stable proof this paywall rendered at all.
-      expect(find.text(PremiumCopy.ctaExplore), findsOneWidget);
+      // Store is fully unavailable, so the paywall offers no purchase CTA —
+      // its title and the honest "not open yet" line prove it rendered.
+      expect(find.text(CompanionCopy.orPaywallTitle), findsOneWidget);
       expect(find.text(PremiumCopy.ctaUnavailable), findsOneWidget);
+      expect(find.text(PremiumCopy.ctaExplore), findsNothing);
       container.dispose();
     },
   );

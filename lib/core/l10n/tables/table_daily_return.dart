@@ -5,24 +5,24 @@ import '../l10n_triple.dart';
 
 const kL10nDailyReturn = <String, L10nTriple>{
   'daily.empty.0': L10nTriple(
-    '{weekday} için kısa not: temposunu bir kez fark etmek yeter; ruh hali etiketi şart değil.',
-    'A short note for {weekday}: noticing your pace once is enough; no mood label required.',
-    'Короткая заметка на {weekday}: один раз заметить темп довольно; ярлык настроения не нужен.',
+    'Bugün aklında en çok ne kaldı?',
+    'What has stayed with you most today?',
+    'Что сегодня больше всего осталось в мыслях?',
   ),
   'daily.empty.1': L10nTriple(
-    '{month} içinde büyük cümle kurmadan, bugünkü adımına bakmak daha temiz.',
-    'In {month}, looking at today’s step is cleaner than building a grand sentence.',
-    'В {month} смотреть на сегодняшний шаг чище, чем строить большую фразу.',
+    'Bugün değiştirebileceğin küçük bir şey var mı?',
+    'Is there one small thing you could change today?',
+    'Есть ли сегодня что-то небольшое, что можно изменить?',
   ),
   'daily.empty.2': L10nTriple(
-    'Bugün tek net bakış: nerede acele ettiğini görmek.',
-    'Today’s one clear look: seeing where you are rushing.',
-    'Сегодня один ясный взгляд: увидеть, где ты спешишь.',
+    'Şu an vereceğin en sade karar ne olurdu?',
+    'What would be the simplest decision you could make now?',
+    'Какое самое простое решение ты мог бы принять сейчас?',
   ),
   'daily.empty.3': L10nTriple(
-    '{weekday} sessizliğinde cevap uydurmak zorunda değilsin; durduğun yer yeter.',
-    'In the quiet of {weekday}, you need not invent an answer; where you stand is enough.',
-    'В тишине {weekday} не обязательно придумывать ответ; места, где стоишь, довольно.',
+    'Cevabı hemen bulmak zorunda değilsin. Soruyu netleştirmek de başlangıçtır.',
+    'You do not need the answer right away. Clarifying the question is a start.',
+    'Необязательно сразу знать ответ. Прояснить вопрос — уже начало.',
   ),
   'daily.empty.4': L10nTriple(
     'Zihninde kalan düşünceyi taşımak şart değil; birini seçip bırakmak da olur.',
@@ -45,9 +45,9 @@ const kL10nDailyReturn = <String, L10nTriple>{
     'Сегодня не обязательно что-то завершить; оставить для этого место тоже движение.',
   ),
   'daily.empty.8': L10nTriple(
-    'Acele etmeden durmak, {weekday} için gerçek bir kazanç olabilir.',
-    'Pausing without hurry can be a real gain for {weekday}.',
-    'Остановиться без спешки может быть настоящей пользой для {weekday}.',
+    'Bugün seni şaşırtan küçük bir an oldu mu?',
+    'Was there a small moment that surprised you today?',
+    'Был ли сегодня небольшой момент, который тебя удивил?',
   ),
   'daily.empty.9': L10nTriple(
     'Küçük bir boşluk bırakmak, acele bir cevaptan daha dürüst durabilir.',
@@ -55,9 +55,9 @@ const kL10nDailyReturn = <String, L10nTriple>{
     'Оставить маленький промежуток может быть честнее поспешного ответа.',
   ),
   'daily.empty.10': L10nTriple(
-    'Nefes için yer bırakmak da bugünün görünür işi olabilir.',
-    "Making room to breathe can still be today's visible work.",
-    'Оставить место для дыхания тоже может быть видимым делом дня.',
+    'Bugünün geri kalanında neye yer açmak istersin?',
+    'What would you like to make room for in the rest of your day?',
+    'Для чего ты хотел бы оставить место в оставшейся части дня?',
   ),
   'daily.empty.11': L10nTriple(
     '{month} temposunda her şeyi netleştirmek şart değil; bir sınırı korumak yeter.',
@@ -80,9 +80,9 @@ const kL10nDailyReturn = <String, L10nTriple>{
     'Один честный взгляд вечером {weekday}: увидеть, что ты нёс сегодня.',
   ),
   'daily.empty.15': L10nTriple(
-    'Kendine kısa bir mola vermek, bugünün asıl işi olabilir.',
-    'Giving yourself a short pause can be today’s real work.',
-    'Дать себе короткую паузу может быть настоящим делом дня.',
+    'Yarın yanında götürmek istediğin tek düşünce hangisi?',
+    'What is the one thought you would like to carry into tomorrow?',
+    'Какую одну мысль ты хотел бы взять с собой в завтра?',
   ),
   'daily.theme.soft.0': L10nTriple(
     '{theme} konusu zihninde duruyor; acele bir yorumdan daha dürüst bakmak yeter.',

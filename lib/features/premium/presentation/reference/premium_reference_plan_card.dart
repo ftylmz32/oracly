@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/domain/models/premium_plan.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -50,6 +51,16 @@ class PremiumReferencePlanCard extends StatelessWidget {
                     color: AppColors.goldLight.withValues(alpha: 0.94),
                   ),
                 ),
+                if (selected) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    PremiumCopy.planSelectedLabel,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.gold.withValues(alpha: 0.9),
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Text(
                   plan.kind.periodLabel,

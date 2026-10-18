@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/accessibility/oracly_a11y.dart';
 import '../../../../core/copy/premium_copy.dart';
 import '../../../../core/design_system/oracly_chrome.dart';
-import '../../../../core/theme/craftsmanship_rhythm.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/widgets/oracly_pressable.dart';
 import 'premium_reference_tokens.dart';
@@ -82,16 +81,6 @@ class PremiumReferenceCtaUnavailable extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
           child: Column(
             children: [
-              Text(
-                PremiumCopy.ctaExplore,
-                textAlign: TextAlign.center,
-                style: ReadingTypography.sectionLabel(fontSize: 11).copyWith(
-                  letterSpacing:
-                      CraftsmanshipRhythm.sectionLabelTracking + 1.0,
-                  color: OraclyA11y.goldReadable(OraclyChrome.goldLight),
-                ),
-              ),
-              const SizedBox(height: 12),
               Text(
                 PremiumCopy.ctaUnavailable,
                 textAlign: TextAlign.center,

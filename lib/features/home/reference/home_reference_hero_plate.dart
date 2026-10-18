@@ -1,12 +1,11 @@
-/// Home hero cinematic plate — stable portrait + quiet celestial breath.
+/// Home greeting plate — one observatory portrait. The hour changes the
+/// words, not this image.
 library;
 
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/oracly_quiet_motion.dart';
-import '../../../core/universe/oracly_universe_layer.dart';
-import '../../../core/universe/oracly_universe_state.dart';
 import '../../../shared/widgets/oracly_asset_image.dart';
 import '../theme/home_ritual_visuals.dart';
 import 'home_reference_hero_atmosphere.dart';
@@ -46,9 +45,9 @@ class _HomeReferenceHeroPlateState extends State<HomeReferenceHeroPlate>
 
   @override
   Widget build(BuildContext context) {
-    final universe =
-        OraclyUniverseScope.maybeOf(context) ?? OraclyUniverseState.current();
-    final visual = HomeRitualVisuals.of(universe.ritualTime);
+    // Full-strength night read of the approved portrait. Daytime washes
+    // hid the same plate; the greeting no longer changes the picture.
+    const visual = HomeRitualVisuals.night;
     final still = OraclyQuietMotion.still(context);
     return RepaintBoundary(
       child: Stack(
@@ -63,18 +62,18 @@ class _HomeReferenceHeroPlateState extends State<HomeReferenceHeroPlate>
               ),
             ),
           ),
-          Opacity(
-            opacity: visual.heroPlateOpacity,
-            child: const OraclyAssetImage(
-              assetPath: AppAssets.homeHeroMoon,
-              fit: BoxFit.cover,
-              alignment: Alignment(0.18, -0.04),
-              cacheCapPx: 960,
-              fallback: ColoredBox(color: Color(0xFF05030C)),
-            ),
+          const OraclyAssetImage(
+            assetPath: AppAssets.homeHeroMoon,
+            fit: BoxFit.cover,
+            alignment: Alignment(0.18, -0.04),
+            cacheCapPx: 960,
+            fallback: ColoredBox(color: Color(0xFF05030C)),
           ),
           still
-              ? HomeReferenceHeroAtmosphere(t: 0.38, visual: visual)
+              ? const HomeReferenceHeroAtmosphere(
+                  t: 0.38,
+                  visual: visual,
+                )
               : AnimatedBuilder(
                   animation: _breath,
                   builder: (_, _) => HomeReferenceHeroAtmosphere(

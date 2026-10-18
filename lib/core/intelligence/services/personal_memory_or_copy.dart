@@ -58,7 +58,7 @@ abstract final class PersonalMemoryOrCopy {
       if (summary.preferredName != null)
         'They have asked to be called ${summary.preferredName}.',
       if (summary.orStyle != null)
-        'They prefer OR to speak in a ${summary.orStyle} tone.',
+        'They prefer Luna to speak in a ${summary.orStyle} tone.',
       if (summary.sunSign != null)
         'Their sun sign path is ${summary.sunSign} (symbolic only).',
       'Cite a recurring observation only when the user message clearly '

@@ -22,6 +22,9 @@ final class HomeMasterComposition {
   /// Evidence card ceiling, including an optional archive or Premium note.
   static const nextActionSlot = 260.0;
 
+  /// Introduction invite card plus its gap.
+  static const inviteSlot = 190.0;
+
   /// Preferred cinematic sizes always. Scroll only when content exceeds height.
   static HomeMasterComposition resolve({
     required double bodyHeight,

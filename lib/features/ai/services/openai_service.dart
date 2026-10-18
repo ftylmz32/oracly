@@ -23,7 +23,7 @@ class MockOpenAIService implements OpenAIService {
   static const _mockReplies = {
     PromptTemplate.general:
         'Sezgilerin güçlü bir frekansta. Bugün kalbine güven ve evrenin '
-        'rehberliğine açık ol.\n\n> OR seninle.',
+        'rehberliğine açık ol.\n\n> Luna seninle.',
     PromptTemplate.tarot:
         '**Kart mesajı** derin bir dönüşüm enerjisi taşıyor. '
         'Sabırlı kal; evren senin niyetini duyuyor.',

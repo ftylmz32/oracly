@@ -57,8 +57,9 @@ void main() {
     _review(texts, requireToken: true);
     for (final text in texts) {
       expect(text.toLowerCase(), isNot(contains('elimde')));
-      expect(text.toLowerCase(), contains('gökyüz'));
       expect(text, contains(RegExp(r'Koç|Boğa|İkizler|Yengeç|Aslan|Başak')));
+      // No invented sky: the reading speaks from the sign, not a fake chart.
+      expect(text.toLowerCase(), isNot(contains('gökyüzünde bugün')));
     }
   });
 

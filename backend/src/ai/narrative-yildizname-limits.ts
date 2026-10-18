@@ -136,6 +136,20 @@ export const YILDIZNAME_LIMITS = {
   maxThemeRefsPerBlock: 3,
 } as const;
 
+/**
+ * Writing budgets for the portrait. Not JSON Schema ceilings — those stay
+ * in [YILDIZNAME_LIMITS]. A full chart aims at a dense 400–550 word telling;
+ * thinner evidence must stay shorter instead of being padded.
+ */
+export const YILDIZNAME_PORTRAIT = {
+  fullWordMin: 400,
+  fullWordMax: 550,
+  fullSectionMin: 3,
+  fullSectionMax: 5,
+  reducedWordMax: 280,
+  legacyWordMax: 180,
+} as const;
+
 export function asEnumSet<T extends string>(values: readonly T[]): Set<string> {
   return new Set(values);
 }

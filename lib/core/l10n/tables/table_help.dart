@@ -84,9 +84,9 @@ const kL10nHelp = <String, L10nTriple>{
     'Устройство/ОС добавляется только при копировании. URL API, токены и ключи никогда не включаются.',
   ),
   'help.category.or_silent': L10nTriple(
-    'OR cevap vermiyor',
-    'OR is not responding',
-    'OR не отвечает',
+    'Luna cevap vermiyor',
+    'Luna is not responding',
+    'Luna не отвечает',
   ),
   'help.category.reading_failed': L10nTriple(
     'Fal sonucu yüklenmedi',

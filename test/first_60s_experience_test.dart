@@ -27,7 +27,7 @@ void main() {
   });
 
   test('first 30 seconds lead into a skippable hello, not a reading wall', () {
-    expect(OnboardingCopy.meetLabel, 'Seni tanıyalım');
+    expect(OnboardingCopy.meetLabel, 'Tanışalım');
     expect(OnboardingCopy.startFirstReading, 'İlk keşfine başla');
     expect(
       OnboardingCopy.setupSubtitle.toLowerCase(),
@@ -36,7 +36,7 @@ void main() {
     expect(OnboardingCopy.nameLabel, isNotEmpty);
     expect(OnboardingCopy.birthLabel, isNotEmpty);
     expect(OnboardingCopy.languageLabel, isNotEmpty);
-    expect(OnboardingCopy.styleLabel.toLowerCase(), contains('or'));
+    expect(OnboardingCopy.styleLabel.toLowerCase(), contains('luna'));
   });
 
   test('windows are named quietly, not a catalog', () {
@@ -46,15 +46,17 @@ void main() {
       'Gökyüzü',
       'Yıldızname',
       'Tarot',
-      'OR',
+      'Luna',
     ]);
     expect(OnboardingCopy.tagline.toLowerCase(), isNot(contains('ruh eşi')));
     expect(OnboardingCopy.pages.first.subtitle, OnboardingCopy.tagline);
   });
 
-  test('first 60 seconds invite a personal discovery then OR', () {
+  test('first 60 seconds invite a personal discovery then Luna', () {
     expect(FirstSessionCopy.homeSubtitleNew.toLowerCase(), contains('kart'));
-    expect(FirstSessionCopy.homeSubtitleNew.toLowerCase(), contains('kehanet'));
+    // Approved natural copy invites the card without promising an outcome.
+    expect(FirstSessionCopy.homeSubtitleNew.toLowerCase(), isNot(contains('kesin')));
+    expect(FirstSessionCopy.homeSubtitleNew.toLowerCase(), isNot(contains('kader')));
     expect(CompanionCopy.welcomeLine(name: 'Fatih'), contains('Fatih'));
     expect(CompanionCopy.idleTitle, isNot(contains('Fatih')));
     const responder = CompanionResponder();
@@ -89,7 +91,7 @@ void main() {
     );
   });
 
-  testWidgets('OR idle stays universal; the name lives in the welcome line', (
+  testWidgets('Luna idle stays universal; the name lives in the welcome line', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));

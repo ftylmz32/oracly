@@ -1,4 +1,4 @@
-/// Left atmospheric scrim — text readability over hero artwork.
+/// Lower scrim — copy sits on the foreground; sky stays open.
 library;
 
 import 'package:flutter/material.dart';
@@ -14,15 +14,15 @@ class DailyRitualHeroTextScrim extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
           colors: [
-            AppColors.background.withValues(alpha: 0.64),
-            AppColors.background.withValues(alpha: 0.34),
-            AppColors.background.withValues(alpha: 0.10),
+            AppColors.background.withValues(alpha: 0.84),
+            AppColors.background.withValues(alpha: 0.50),
+            AppColors.background.withValues(alpha: 0.08),
             AppColors.transparent,
           ],
-          stops: const [0.0, 0.28, 0.52, 0.74],
+          stops: const [0.0, 0.34, 0.58, 0.84],
         ),
       ),
     );

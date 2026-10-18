@@ -187,14 +187,14 @@ const kL10nDream = <String, L10nTriple>{
     'Маленький шаг на сегодня',
   ),
   'dream.ask': L10nTriple(
-    "OR'un önerisi",
-    "OR's suggestion",
-    'Предложение OR',
+    "Luna'nın önerisi",
+    "Luna's suggestion",
+    'Предложение Luna',
   ),
   'dream.deepen_or': L10nTriple(
-    'OR ile derinleştir',
-    'Deepen with OR',
-    'Углубить с OR',
+    'Luna ile derinleştir',
+    'Deepen with Luna',
+    'Углубить с Luna',
   ),
   'dream.disclaimer': L10nTriple(
     'Bu, sembolik bir yorumdur.',
@@ -207,14 +207,14 @@ const kL10nDream = <String, L10nTriple>{
     'Толкование, составленное на устройстве по твоему рассказу.',
   ),
   'dream.source_ai': L10nTriple(
-    'OR yorumu — yapay zekâ ile yazıldı.',
-    'OR reading — written with AI.',
-    'Толкование OR — написано с помощью ИИ.',
+    'Luna yorumu — yapay zekâ ile yazıldı.',
+    'Luna reading — written with AI.',
+    'Толкование Luna — написано с помощью ИИ.',
   ),
   'dream.source_mixed': L10nTriple(
-    'OR yorumu — bazı bölümler yapay zekâ ile, bazıları anlattıklarından cihazında yazıldı.',
-    'OR reading — some sections written with AI, others composed on your device from what you told.',
-    'Толкование OR — часть разделов написана с помощью ИИ, часть составлена на устройстве по твоему рассказу.',
+    'Luna yorumu — bazı bölümler yapay zekâ ile, bazıları anlattıklarından cihazında yazıldı.',
+    'Luna reading — some sections written with AI, others composed on your device from what you told.',
+    'Толкование Luna — часть разделов написана с помощью ИИ, часть составлена на устройстве по твоему рассказу.',
   ),
   'dream.source_saved': L10nTriple(
     'Kayıtlı yorum.',
@@ -244,14 +244,14 @@ const kL10nDream = <String, L10nTriple>{
     'Предпросмотр · каталожное чтение символов. Расскажи письмом или голосом.',
   ),
   'preview.dream_live': L10nTriple(
-    'Sembolik OR yorumu. Yazarak veya sesle anlat.',
-    'A symbolic OR reading. Tell it in writing or by voice.',
-    'Символическое толкование OR. Расскажи письмом или голосом.',
+    'Sembolik Luna yorumu. Yazarak veya sesle anlat.',
+    'A symbolic Luna reading. Tell it in writing or by voice.',
+    'Символическое толкование Luna. Расскажи письмом или голосом.',
   ),
   'preview.dream_or': L10nTriple(
-    'Önizleme · yorum için OR bağlantısı gerekir.',
-    'Preview · a reading needs an OR connection.',
-    'Предпросмотр · для толкования нужно соединение с OR.',
+    'Önizleme · yorum için Luna bağlantısı gerekir.',
+    'Preview · a reading needs a Luna connection.',
+    'Предпросмотр · для толкования нужно соединение с Luna.',
   ),
   'preview.astro': L10nTriple(
     'Burç Yorumu',

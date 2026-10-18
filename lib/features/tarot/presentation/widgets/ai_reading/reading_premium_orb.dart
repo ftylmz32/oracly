@@ -122,7 +122,7 @@ class _ReadingPremiumOrbState extends State<ReadingPremiumOrb>
                     ),
                     child: Center(
                       child: Text(
-                        'OR',
+                        'L',
                         style: TextStyle(
                           color: AppColors.primary,
                           fontSize: widget.size * 0.28,

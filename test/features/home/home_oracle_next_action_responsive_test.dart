@@ -74,7 +74,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byType(HomeOracleNextActionCard), findsOneWidget);
-      expect(find.text('OR ile Aç'), findsOneWidget);
+      expect(find.text('Luna ile Aç'), findsOneWidget);
     });
   }
 }

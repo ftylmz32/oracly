@@ -93,7 +93,7 @@ void main() {
 
     expect(find.byType(SoulMateDrawPreview), findsOneWidget);
     expect(find.text(SoulMateCopy.drawCta), findsNothing);
-    expect(find.text(PremiumCopy.unlockTitle), findsWidgets);
+    expect(find.text(PremiumCopy.benefitSoulmateTitle), findsWidgets);
   });
 
   testWidgets(

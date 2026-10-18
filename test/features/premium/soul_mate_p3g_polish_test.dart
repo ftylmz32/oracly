@@ -85,7 +85,7 @@ void main() {
 
       expect(find.byType(SoulMateDrawOpening), findsNothing);
       expect(find.byType(SoulMateDrawPreview), findsOneWidget);
-      expect(find.text(PremiumCopy.unlockTitle), findsWidgets);
+      expect(find.text(PremiumCopy.benefitSoulmateTitle), findsWidgets);
     },
   );
 
@@ -221,7 +221,7 @@ void main() {
     expect(find.byType(SoulMateDrawResultView), findsOneWidget);
     expect(find.byType(SoulMateDrawPreview), findsNothing);
     expect(find.text(SoulMateCopy.drawCta), findsNothing);
-    expect(find.text(PremiumCopy.unlockTitle), findsWidgets);
+    expect(find.text(PremiumCopy.benefitSoulmateTitle), findsWidgets);
     expect(journal.rows.keys, ['kept']);
     expect(harness.transport.creates, 0);
   });

@@ -20,17 +20,19 @@ import '../../data/onboarding_setup_draft_store.dart';
 import '../../services/onboarding_finish.dart';
 import '../../services/onboarding_language.dart';
 import '../../services/onboarding_profile_saver.dart';
-import '../widgets/onboarding_screen_body.dart';
+import '../../encounter/encounter_flow.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
-  const OnboardingScreen({super.key});
+  const OnboardingScreen({super.key, this.preview = false});
+
+  /// In-memory walkthrough. Does not write profile, gems, or completion.
+  final bool preview;
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  bool _setup = false;
   bool _finishing = false;
   late final OnboardingSetupDraftStore _draftStore;
   OnboardingSetupDraft? _draft;
@@ -39,8 +41,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void initState() {
     super.initState();
     _draftStore = OnboardingSetupDraftStore(ref.read(localStorageProvider));
+    if (widget.preview) return;
     _draft = _draftStore.load();
-    _setup = _draft != null;
     if (_draft != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _resumeDraftLocale());
     }
@@ -57,30 +59,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   void _persistDraft(OnboardingSetupDraft next) {
-    final languageChanged = _draft?.language != next.language;
     _draft = next;
+    if (widget.preview) return;
     unawaited(_draftStore.save(next));
-    if (languageChanged && mounted) setState(() {});
   }
 
-  Future<void> _finish({
-    String name = '',
-    DateTime? birthDate,
-    String? birthPlace,
-    required String language,
-    required AiPersonality style,
-  }) async {
-    if (_finishing) return;
+  Future<void> _finish(OnboardingSetupDraft draft) async {
+    if (widget.preview || _finishing) return;
     setState(() => _finishing = true);
     try {
       await finishOnboarding(
         ref: ref,
         draftStore: _draftStore,
-        name: name,
-        birthDate: birthDate,
-        birthPlace: birthPlace,
-        language: language,
-        style: style,
+        name: draft.name ?? '',
+        birthDate: draft.birthDate,
+        birthPlace: draft.birthPlaceTr,
+        birthTime: draft.birthTime,
+        birthTimeKnown: draft.birthTimeKnown,
+        interests: draft.interests,
+        language: draft.language,
+        style: draft.style,
       );
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
@@ -93,19 +91,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       setState(() => _finishing = false);
       OraclySnackBar.show(context, message: OnboardingCopy.completeFailed);
     }
-  }
-
-  void _openSetup(String language, AiPersonality style) {
-    if (_finishing) return;
-    _persistDraft(
-      _draft ??
-          OnboardingSetupDraft(
-            updatedAtMillis: DateTime.now().millisecondsSinceEpoch,
-            language: language,
-            style: style,
-          ),
-    );
-    setState(() => _setup = true);
   }
 
   @override
@@ -121,24 +106,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final style =
         _draft?.style ?? settings?.aiPersonality ?? AiPersonality.mystical;
     return OraclyScaffold(
+      safeArea: false,
       backgroundOverlay: const OraclyCosmicBackground(heroGlow: true),
-      child: OnboardingScreenBody(
-        setup: _setup,
+      child: EncounterFlow(
+        draft: _draft ??
+            OnboardingSetupDraft(
+              updatedAtMillis: DateTime.now().millisecondsSinceEpoch,
+              language: language,
+              style: style,
+            ),
         busy: _finishing,
-        language: language,
-        style: style,
-        draft: _draft,
-        onDraftChanged: _persistDraft,
-        onLanguageLive: (code) async {
-          OraclyL10n.bind(code);
-          await OnboardingProfileSaver.apply(ref, language: code);
-          if (mounted) setState(() {});
-        },
-        onSkipSetup: ({required language, required style}) =>
-            _finish(language: language, style: style),
-        onContinue: _finish,
-        onSkipIntro: () => unawaited(_finish(language: language, style: style)),
-        onMeet: () => _openSetup(language, style),
+        onChanged: _persistDraft,
+        onFinish: _finish,
       ),
     );
   }

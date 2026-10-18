@@ -38,23 +38,23 @@ Never use `--update-goldens` to silence a regression. Normal CI never passes `--
 
 | Filename | Surface | State | Viewport | Purpose | SHA-256 |
 |---|---|---|---|---|---|
-| `final_hub_empty_390.png` | hub | empty | 390×844 | A1 entry without birth | `d959dfe58b325d4d3bfc48c2b8919f459b5e5329f010cbf820fa320f83a473d9` |
-| `final_hub_with_birth_390.png` | hub | birth ready | 390×844 | A2 entry with birth | `848a96083095989f92f80cd46f9cc57a9a0ff0b9b02133c733079d491c582c5d` |
-| `final_legacy_live_all_actions_390.png` | legacy live | durable + OR | 390×844 | B1 production actions | `ba3c76198b8716200f249e07cb3d6f095cf95a6797a0ac71f2f191082253d428` |
-| `final_legacy_live_capture_failure_390.png` | legacy live | soft fail | 390×844 | B2 no Favorite | `2e3229e44388b4041e4b401fa9ebc43c2cb19563d784c93301df20ab81fda003` |
-| `final_legacy_artifact_reopen_390.png` | legacy artifact | reopen | 390×844 | B3 historical + reopen | `dafb73b6397caf742e6b421d3f57eff1af4c0b0a62db45c8d8a0aa9151c61247` |
-| `final_narrative_reduced_artifact_390.png` | narrative | REDUCED | 390×844 | C1 reduced artifact | `1649942aa3844459be87032ca75826420bb3d679c54a4d987c8fa4337f8182e3` |
-| `final_narrative_reduced_continuity_390.png` | narrative | REDUCED + echo | 390×844 | C2 continuity | `80085dbaaa4d00ce362d2284c5dd222d66cd9b820e056b7905e8ca6bf52530cb` |
-| `final_narrative_full_rich_390.png` | narrative | FULL rich | 390×844 | D1 primary master | `f58b793569b2a06bbfa494fdbdeead9791cef30c67b06dafaca512f6778c6314` |
-| `final_narrative_full_rich_deeper_open_390.png` | narrative | FULL deeper open | 390×844 | D2 fact toggle | `f0fadce367063ea85d74bec21e5022db00f0c0496ea678db267432ed4de30fde` |
-| `final_narrative_full_continuity_390.png` | narrative | FULL + echo | 390×844 | D3 continuity + historical | `9adc33a5c742e67f3e12052cf6fbcc93dcae3eeb36a83359cec90c0a11b04687` |
-| `final_narrative_live_ready_390.png` | narrativeLive | live-ready | 390×844 | E1 live presentation | `407c0f136a0d31e28c56f2f666db0d48771c6ea7497429d05077b7a4c3222554` |
-| `final_narrative_artifact_same_evidence_390.png` | narrativeArtifact | same evidence | 390×844 | E2 artifact + history | `6eb16289347db998326c7a67f6555f27fe4cf5a140b74dca1f13c06946546694` |
-| `final_narrative_full_en_chrome_390.png` | narrative | TR prose / EN chrome | 390×844 | F1 locale control | `d40b7eb8b17ed2d3130ad4d513a9a62c1d2ee9207ccefba3ec4078557d62df01` |
-| `final_narrative_full_ru_chrome_390.png` | narrative | TR prose / RU chrome | 390×844 | F2 locale control | `235c141fe24066828846dd6b4a9fb94daaa1edf72e278c54a42d3e38a42ffeca` |
-| `final_full_compact_320x568.png` | narrative | FULL | 320×568 | G1 compact | `fa88dae1d0cffb625f6410f388962f6acf2ba0d3bcc9e6f2328e16c6164ea88c` |
-| `final_full_textscale20_360x800.png` | narrative | FULL ts2.0 | 360×800 | G2 textScale | `9b5ed3e98b8b0bb3dbfdef4906fb67f0c727467c04b022af8508f687242a9b49` |
-| `final_full_tablet_768x1024.png` | narrative | FULL | 768×1024 | G3 tablet | `79a689ba4d6ad4812587c942c06331b8bb2f2c1a72ed688a05b8288a38854489` |
+| `final_hub_empty_390.png` | hub | empty | 390×844 | A1 entry without birth | `0827c91d735181b47fffd3d860f7aefe433b9cba73f4adb24ab4f99b1b0cb1e3` |
+| `final_hub_with_birth_390.png` | hub | birth ready | 390×844 | A2 entry with birth | `0d0318f21cb4e48945f7023fe3160d205698bf02259aadccbd6a15232aff34c5` |
+| `final_legacy_live_all_actions_390.png` | legacy live | durable + OR | 390×844 | B1 production actions | `8c81f7b7a7c2d2900b2882f91035aa1807b00a55b10d4bbbe2a8189cc5de1d3b` |
+| `final_legacy_live_capture_failure_390.png` | legacy live | soft fail | 390×844 | B2 no Favorite | `f0d7d2d20ab9404f5095382ced5c43a052d20437b9f20cd00ea19c7ec2a25289` |
+| `final_legacy_artifact_reopen_390.png` | legacy artifact | reopen | 390×844 | B3 historical + reopen | `9b6743aa2bbdd35350d9e0e662d029e24b96eecb6412856ffedf553d0ad345a3` |
+| `final_narrative_reduced_artifact_390.png` | narrative | REDUCED | 390×844 | C1 reduced artifact | `b32b9bc2ed1316937d08cccb40b37e740749d312486bd5aaf5010f96dfee5536` |
+| `final_narrative_reduced_continuity_390.png` | narrative | REDUCED + echo | 390×844 | C2 continuity | `268320ae3b47abe665493555db5db8bc00a7fa1491fde3e5ad5d6cca4102cd15` |
+| `final_narrative_full_rich_390.png` | narrative | FULL rich | 390×844 | D1 primary master | `082808b80a1f99383bf1fb9e881dbc0c90cacefee0359d399865ff1f777ac56d` |
+| `final_narrative_full_rich_deeper_open_390.png` | narrative | FULL deeper open | 390×844 | D2 fact toggle | `b422c8e4490fa2a448bcbad0e838a5ec1295b26bb06c0fcaf42e314f176dbbc8` |
+| `final_narrative_full_continuity_390.png` | narrative | FULL + echo | 390×844 | D3 continuity + historical | `f74e7033ecd7aca82bc3527954ba9c78fca13a39b100a79b62db50a3570a36c8` |
+| `final_narrative_live_ready_390.png` | narrativeLive | live-ready | 390×844 | E1 live presentation | `73602f7d7c26f22308244286391337eefb2ca231f76f02b9062cdc4c2136740f` |
+| `final_narrative_artifact_same_evidence_390.png` | narrativeArtifact | same evidence | 390×844 | E2 artifact + history | `dec761a5194e4479bfa1422ef47522b331cb627900d5451f23d18be03dec5b90` |
+| `final_narrative_full_en_chrome_390.png` | narrative | TR prose / EN chrome | 390×844 | F1 locale control | `b2ea5ed0d72a5f9138efcc65168d6706383e717d9dc11e525c810a439ed95ba4` |
+| `final_narrative_full_ru_chrome_390.png` | narrative | TR prose / RU chrome | 390×844 | F2 locale control | `141e095f49e2a9f3ad6e237ce2ca652c8d2d2bf5a341c40a66c50b28eb28cb5c` |
+| `final_full_compact_320x568.png` | narrative | FULL | 320×568 | G1 compact | `4e7bcc3aeb030673bacb01a4ca424471b759e5896c59d787776fc0a68391d58a` |
+| `final_full_textscale20_360x800.png` | narrative | FULL ts2.0 | 360×800 | G2 textScale | `f4d7761639b7f084a9a081232965c95e5eb731755a2a740a1dc0467e680c9ff1` |
+| `final_full_tablet_768x1024.png` | narrative | FULL | 768×1024 | G3 tablet | `de53ac23652092404b1ad5ed45ce53d0060b5c6215aa3152766c140413ed354b` |
 
 **PNG count:** 17  
 **Hash count:** 17  
@@ -88,5 +88,5 @@ Historical 7A–7F forensic masters remain unchanged.
 
 Only these two final-production masters were refreshed:
 
-- `final_legacy_live_all_actions_390.png` `c0b609ea9df081e71d94328c105266ca663eb0543fa6f6615d48588e5b5bc5e6` → `ba3c76198b8716200f249e07cb3d6f095cf95a6797a0ac71f2f191082253d428`
-- `final_legacy_artifact_reopen_390.png` `1c7a8303b692ac1bceb1d046e35ffd0c7e87be4638e7ae0954027d3b3f472714` → `dafb73b6397caf742e6b421d3f57eff1af4c0b0a62db45c8d8a0aa9151c61247`
+- `final_legacy_live_all_actions_390.png` `c0b609ea9df081e71d94328c105266ca663eb0543fa6f6615d48588e5b5bc5e6` → `3094e678edcc230ae92a408479b4a2a708891d2c5f72015b65b2874ff64fae7f`
+- `final_legacy_artifact_reopen_390.png` `1c7a8303b692ac1bceb1d046e35ffd0c7e87be4638e7ae0954027d3b3f472714` → `00515a7479423275e295b40bfcc4822ffd62c34b24106b211e1e504679624ebb`

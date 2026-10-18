@@ -122,6 +122,8 @@ void main() {
   group('Premium concrete value', () {
     testWidgets('paywall shows Soulmate OR and Journey experiences', (tester) async {
       OraclyL10n.bind('tr');
+      await tester.binding.setSurfaceSize(const Size(390, 2600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       SharedPreferences.setMockInitialValues({});
       final storage = await LocalStorage.open();
       await tester.pumpWidget(
@@ -137,12 +139,13 @@ void main() {
       expect(find.text(PremiumCopy.benefitSoulmateTitle), findsWidgets);
       expect(find.text(PremiumCopy.benefitOrTitle), findsWidgets);
       expect(find.text(PremiumCopy.benefitJourneyTitle), findsWidgets);
-      expect(find.text(PremiumCopy.benefitsSectionTitle), findsOneWidget);
+      expect(find.text(PremiumCopy.seePlans), findsOneWidget);
+      expect(find.text(PremiumCopy.heroLead), findsOneWidget);
     });
 
     test('concrete benefit copy TR EN RU', () {
       OraclyL10n.bind('tr');
-      expect(PremiumCopy.benefitSoulmateBody, contains('kaydedilir'));
+      expect(PremiumCopy.benefitSoulmateBody.toLowerCase(), contains('kaydedilir'));
       OraclyL10n.bind('en');
       expect(PremiumCopy.benefitSoulmateBody.toLowerCase(), contains('saved'));
       OraclyL10n.bind('ru');

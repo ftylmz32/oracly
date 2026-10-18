@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/features/premium/presentation/reference/premium_entry_sheet.dart';
 import 'package:oracly_new/core/network/api_result.dart';
 import 'package:oracly_new/core/auth/user_local_data_isolation.dart';
 import 'package:oracly_new/core/auth/models/auth_session.dart';
@@ -223,9 +224,12 @@ void main() {
     // Premium feature navigation is intentionally async so cold-start
     // entitlement can reconcile before deciding. Wait a bounded amount for
     // the inactive decision + dialog transition; never assume one fixed frame.
-    for (var i = 0;
-        i < 30 && find.text(PremiumCopy.gateTitle).evaluate().isEmpty;
-        i++) {
+    // Premium V3.4: a Soul Mate tap opens the Premium entry sheet focused on
+    // Soul Mate (its title is the Soul Mate benefit, not the generic gate).
+    final soulMateGate = find.byWidgetPredicate(
+      (w) => w is PremiumEntryBody && w.focus == PremiumEntryFocus.soulMate,
+    );
+    for (var i = 0; i < 30 && soulMateGate.evaluate().isEmpty; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
 
@@ -233,7 +237,7 @@ void main() {
     expect(status.ownerAccessReady, isTrue);
     expect(status.loaded, isTrue);
     expect(status.isPremium, isFalse);
-    expect(find.text(PremiumCopy.gateTitle), findsOneWidget);
+    expect(soulMateGate, findsOneWidget);
     expect(find.byType(TarotModuleNavigator), findsNothing);
     expect(find.byType(SoulMateDrawScreen), findsNothing);
   });

@@ -51,7 +51,7 @@ void main() {
   test('tab labels follow language code', () {
     expect(OraclyTab.home.labeled('en'), 'Home');
     expect(OraclyTab.starMap.labeled('tr'), 'Günlük');
-    expect(OraclyTab.coffee.labeled('en'), 'OR');
+    expect(OraclyTab.coffee.labeled('en'), 'Luna');
     expect(OraclyTab.astrology.labeled('en'), 'Explore');
     expect(OraclyTab.starMap.labeled('en'), 'Journal');
   });

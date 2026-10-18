@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/experience/providers/continue_where_you_left_off_provider.dart';
 import '../../../core/experience/widgets/continue_where_you_left_off_button.dart';
 import '../../oracle_core/providers/oracle_core_providers.dart';
+import '../invite/home_invite_card.dart';
+import '../invite/home_invite_providers.dart';
 import '../reference/home_reference_scope.dart';
 import 'home_master_bottom_inset.dart';
 import 'home_master_composition.dart';
@@ -19,7 +21,7 @@ import 'home_master_reveal.dart';
 import 'home_master_today.dart';
 import 'home_oracle_next_action_card.dart';
 
-/// Sections: header / hero / OR / Bugünün İzi / 3×2+Dream / premium.
+/// Sections: header / hero / OR / Bugünün İzi / invite / 3×2+Dream / premium.
 class HomeMasterBody extends ConsumerWidget {
   const HomeMasterBody({super.key});
 
@@ -29,12 +31,14 @@ class HomeMasterBody extends ConsumerWidget {
       continueWhereYouLeftOffProvider.select((async) => async.valueOrNull),
     );
     final nextAction = ref.watch(oracleNextActionProvider);
+    final invite = ref.watch(homeInviteVisibleProvider);
     final extra = (resumeTarget != null
             ? HomeMasterComposition.continueSlot
             : 0.0) +
         (nextAction != null && nextAction.hasEvidence
             ? HomeMasterComposition.nextActionSlot
-            : 0.0);
+            : 0.0) +
+        (invite ? HomeMasterComposition.inviteSlot : 0.0);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -88,6 +92,7 @@ class HomeMasterBody extends ConsumerWidget {
               ),
             ],
             const HomeOracleNextActionCard(),
+            const HomeInviteCard(),
             SizedBox(height: layout.heroToModules),
             HomeMasterReveal(
               index: 4,

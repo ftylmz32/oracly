@@ -5,11 +5,11 @@ import '../l10n_keys.dart';
 import '../l10n_triple.dart';
 
 const kL10nOrVoice = <String, L10nTriple>{
-  L10nKeys.sectionOutput: L10nTriple('OR YANIT', 'OR OUTPUT', 'ОТВЕТ OR'),
+  L10nKeys.sectionOutput: L10nTriple('LUNA’NIN YANITI', 'LUNA OUTPUT', 'ОТВЕТ LUNA'),
   L10nKeys.outputTitle: L10nTriple(
-    'OR yanıt biçimi',
-    'OR reply mode',
-    'Режим ответа OR',
+    'Luna’nın yanıt biçimi',
+    'Luna reply mode',
+    'Режим ответа Luna',
   ),
   L10nKeys.outputSubtitle: L10nTriple(
     'Yalnızca yazı, sesli yanıt veya sesli sohbet. Mikrofon yalnız dokununca açılır.',
@@ -30,11 +30,11 @@ const kL10nOrVoice = <String, L10nTriple>{
   'or.depth.short': L10nTriple('KISA', 'SHORT', 'КОРОТКО'),
   'or.depth.balanced': L10nTriple('DENGELİ', 'BALANCED', 'БАЛАНС'),
   'or.depth.deep': L10nTriple('DERİN', 'DEEP', 'ГЛУБОКО'),
-  'or.voice.section': L10nTriple('OR Sesi', 'OR Voice', 'Голос OR'),
+  'or.voice.section': L10nTriple('Luna Sesi', 'Luna Voice', 'Голос Luna'),
   'or.voice.section_hint': L10nTriple(
-    'Aynı OR. Dört ifade — dört karakter değil.',
-    'The same OR. Four expressions — not four characters.',
-    'Тот же OR. Четыре выражения — не четыре персонажа.',
+    'Aynı Luna. Dört ifade — dört karakter değil.',
+    'The same Luna. Four expressions — not four characters.',
+    'Та же Luna. Четыре выражения — не четыре персонажа.',
   ),
   'or.voice.preview': L10nTriple('Önizle', 'Preview', 'Проба'),
   'or.voice.preparing': L10nTriple(
@@ -49,27 +49,27 @@ const kL10nOrVoice = <String, L10nTriple>{
   ),
   'or.voice.warm.title': L10nTriple('SICAK', 'WARM', 'ТЁПЛЫЙ'),
   'or.voice.warm.subtitle': L10nTriple(
-    'OR’ın sıcak ifadesi — yakın ve açık.',
-    'OR’s warm expression — close and clear.',
-    'Тёплое выражение OR — близкое и ясное.',
+    'Luna’nın sıcak ifadesi — yakın ve açık.',
+    'Luna’s warm expression — close and clear.',
+    'Тёплое выражение Luna — близкое и ясное.',
   ),
   'or.voice.calm.title': L10nTriple('SAKİN', 'CALM', 'СПОКОЙНЫЙ'),
   'or.voice.calm.subtitle': L10nTriple(
-    'OR’ın sakin ifadesi — ölçülü ve yumuşak.',
-    'OR’s calm expression — measured and soft.',
-    'Спокойное выражение OR — сдержанное и мягкое.',
+    'Luna’nın sakin ifadesi — ölçülü ve yumuşak.',
+    'Luna’s calm expression — measured and soft.',
+    'Спокойное выражение Luna — сдержанное и мягкое.',
   ),
   'or.voice.deep.title': L10nTriple('DERİN', 'DEEP', 'ГЛУБОКИЙ'),
   'or.voice.deep.subtitle': L10nTriple(
-    'OR’ın derin ifadesi — alçak ve dengeli.',
-    'OR’s deep expression — lower and balanced.',
-    'Глубокое выражение OR — ниже и ровное.',
+    'Luna’nın derin ifadesi — alçak ve dengeli.',
+    'Luna’s deep expression — lower and balanced.',
+    'Глубокое выражение Luna — ниже и ровное.',
   ),
   'or.voice.bright.title': L10nTriple('PARLAK', 'BRIGHT', 'СВЕТЛЫЙ'),
   'or.voice.bright.subtitle': L10nTriple(
-    'OR’ın parlak ifadesi — net ve hafif.',
-    'OR’s bright expression — clear and light.',
-    'Светлое выражение OR — ясное и лёгкое.',
+    'Luna’nın parlak ifadesi — net ve hafif.',
+    'Luna’s bright expression — clear and light.',
+    'Светлое выражение Luna — ясное и лёгкое.',
   ),
   'or.voice.speed': L10nTriple(
     'Konuşma hızı',

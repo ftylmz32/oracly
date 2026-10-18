@@ -70,8 +70,8 @@ const Map<String, L10nTriple> kL10nOrMenu = {
     'Remove this reading from the chat',
     'Убрать это чтение из разговора',
   ),
-  'or.menu.premium': L10nTriple("OR Premium'u gör", 'See OR Premium', 'Посмотреть OR Premium'),
-  'or.menu.settings': L10nTriple('OR tercihleri', 'OR preferences', 'Настройки OR'),
+  'or.menu.premium': L10nTriple("Luna Premium'u gör", 'See Luna Premium', 'Посмотреть Luna Premium'),
+  'or.menu.settings': L10nTriple('Luna tercihleri', 'Luna preferences', 'Настройки Luna'),
   'or.context_cleared': L10nTriple(
     'Okuma sohbetten çıkarıldı.',
     'Reading removed from chat.',

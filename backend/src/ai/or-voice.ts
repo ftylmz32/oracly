@@ -24,8 +24,8 @@ export function voiceTimbre(id: OrVoiceId): {
   line: string;
 } {
   const original =
-    'Original voice created for OR. Never imitate a celebrity, actor, ' +
-    'or any real public person. Same OR — expression color only. ';
+    'Original voice created for Luna. Never imitate a celebrity, actor, ' +
+    'or any real public person. Same Luna — expression color only. ';
   switch (id) {
     case 'bright':
       return {

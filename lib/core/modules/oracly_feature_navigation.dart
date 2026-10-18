@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../features/premium/presentation/reference/premium_entry_sheet.dart';
 import '../../features/premium/services/premium_access.dart';
 import '../../features/premium/services/soul_mate_navigation.dart';
 import '../../screens/memory/memory_screen.dart';
@@ -64,7 +65,10 @@ abstract final class OraclyFeatureNavigation {
     BuildContext context,
     OraclyFeatureId id,
   ) async {
-    final allowed = await PremiumAccess.ensureFresh(context);
+    final focus = id == OraclyFeatureId.soulMate
+        ? PremiumEntryFocus.soulMate
+        : PremiumEntryFocus.general;
+    final allowed = await PremiumAccess.ensureFresh(context, focus: focus);
     if (!allowed || !context.mounted) return;
     _openResolved(context, id);
   }

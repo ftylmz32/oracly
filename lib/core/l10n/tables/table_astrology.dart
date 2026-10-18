@@ -69,9 +69,9 @@ const kL10nAstrology = <String, L10nTriple>{
   'astro.report_depths': L10nTriple('DERİNLİKLER', 'DEPTHS', 'ГЛУБИНЫ'),
   'star.preview': L10nTriple('Önizleme', 'Preview', 'Предпросмотр'),
   'star.lead': L10nTriple(
-    'Arşivindeki yaprak\nsenin hakkında hangi hikâyeyi tutuyor?',
-    'What story does this archive leaf\nhold about you?',
-    'Какую историю хранит о тебе\nэтот лист архива?',
+    'Doğduğun anın gökyüzü\nsenin hakkında ne anlatıyor?',
+    'What does the sky of your birth\nsay about you?',
+    'Что небо твоего рождения\nговорит о тебе?',
   ),
   'star.told_today': L10nTriple(
     'ARŞİVDE ANLATILAN YOL',
@@ -110,9 +110,9 @@ const kL10nAstrology = <String, L10nTriple>{
     'В архиве ещё нет отдельной главы. Этого листа довольно.',
   ),
   'star.capability': L10nTriple(
-    'Güneş burcuna göre sembolik bir yıldızname arşivi — hüküm değil, kendi hikâyenin faslı.',
-    'A symbolic star-archive from the sun sign — a chapter of your story, not a verdict.',
-    'Символический звёздный архив по Солнцу — глава твоей истории, не приговор.',
+    'Güneş burcuna göre başlayan, doğum bilgilerinle derinleşen sembolik bir yıldızname.',
+    'A symbolic star reading that starts from your sun sign and deepens with your birth details.',
+    'Символическая звёздная книга: начинается с солнечного знака и углубляется с данными рождения.',
   ),
   'star.enter_birth': L10nTriple(
     'Doğum Bilgilerini Gir',
@@ -125,9 +125,9 @@ const kL10nAstrology = <String, L10nTriple>{
     'Дата рождения сохранена.',
   ),
   'star.view_chart': L10nTriple(
-    'Arşiv yaprağını aç',
-    'Open the archive leaf',
-    'Открыть лист архива',
+    'Kişisel yorumunu aç',
+    'Open your personal reading',
+    'Открыть личное чтение',
   ),
   'star.personalize_empty': L10nTriple(
     'Güneş burcuna göre kişisel yıldızname yolu için doğum tarihini ekle.',
@@ -155,9 +155,9 @@ const kL10nAstrology = <String, L10nTriple>{
     'Личный путь звёздной книги',
   ),
   'star.birth_chart_hint': L10nTriple(
-    'Kişisel yıldızname arşivinin senin hakkında tuttuğu sembolik fasıl. Hüküm değil.',
-    'The symbolic chapter your personal star-archive holds about you. Not a verdict.',
-    'Символическая глава, которую хранит о тебе личный звёздный архив. Не приговор.',
+    'Haritanın bütününü birlikte okuyan, sembolik ve kişisel yorumun.',
+    'Your personal reading of the whole chart together.',
+    'Личное чтение всей твоей карты целиком.',
   ),
   'star.sky_title': L10nTriple(
     'Bu yaprağın izi',
@@ -165,9 +165,9 @@ const kL10nAstrology = <String, L10nTriple>{
     'След на этом листе',
   ),
   'star.sky_hint': L10nTriple(
-    'Sembolik bir yıldızname faslı — kişisel yol, günlük burç özeti değil.',
-    'A symbolic archive chapter — a personal path, not a daily horoscope.',
-    'Символическая глава архива — личный путь, не дневной гороскоп.',
+    'Bugün için kısa ve sembolik bir yıldızname notu.',
+    'A short star note for today.',
+    'Короткая звёздная заметка на сегодня.',
   ),
   'star.karmic_title': L10nTriple(
     'Hikâyenin iplikleri',
@@ -180,9 +180,9 @@ const kL10nAstrology = <String, L10nTriple>{
     'ВНУТРЕННЯЯ ТЕМА',
   ),
   'star.karmic_hint': L10nTriple(
-    'İçeride gerilen iplik. Teşhis değil; arşivde bakılacak bir fasıl.',
-    'The thread drawn taut inside. Not a diagnosis; a chapter to regard.',
-    'Нить, натянутая внутри. Не диагноз; глава, на которую смотреть.',
+    'Hayatında tekrar eden temalar ve iç gerilimlerin.',
+    'The themes and inner tensions that keep returning in your life.',
+    'Темы и внутренние напряжения, которые возвращаются в твоей жизни.',
   ),
   'star.sun_sign': L10nTriple(
     'Güneş yolunun faslı',
@@ -200,9 +200,9 @@ const kL10nAstrology = <String, L10nTriple>{
     'Традиционные небесные образы',
   ),
   'star.planets_hint': L10nTriple(
-    'Arşiv dilindeki sembolik imgeler — modern gökyüzü enstrümanı değil.',
-    'Symbolic images in archive language — not a modern sky instrument.',
-    'Символические образы языка архива — не современный инструмент неба.',
+    'Geleneksel yıldızname dilinde gök cisimlerinin simgeleri.',
+    'Sky symbols in the traditional star-book language.',
+    'Небесные символы на традиционном языке звёздной книги.',
   ),
   'star.sky_headline': L10nTriple(
     'Kısa arşiv cümlesi',

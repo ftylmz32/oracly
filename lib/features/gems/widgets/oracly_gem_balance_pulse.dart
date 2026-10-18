@@ -65,14 +65,21 @@ class _OraclyGemBalancePulseState extends State<OraclyGemBalancePulse>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(999),
               boxShadow: [
-                if (_pulse.value > 0)
+                if (_pulse.value > 0) ...[
                   BoxShadow(
                     color: OraclyChrome.goldHighlight.withValues(
-                      alpha: 0.22 * (1 - t),
+                      alpha: 0.28 * (1 - t),
                     ),
-                    blurRadius: 10 * (1 - t),
-                    spreadRadius: 1,
+                    blurRadius: 12 * (1 - t),
+                    spreadRadius: 0.5,
                   ),
+                  BoxShadow(
+                    color: const Color(
+                      0xFFC4B5FD,
+                    ).withValues(alpha: 0.22 * (1 - t)),
+                    blurRadius: 8 * (1 - t),
+                  ),
+                ],
               ],
             ),
             child: child,

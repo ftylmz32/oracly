@@ -23,6 +23,7 @@ class PersonalizationSettings {
     this.soundEnabled = true,
     this.hapticEnabled = true,
     this.ambientMusicEnabled = false,
+    this.ambientMusicLevel = defaultAmbientMusicLevel,
     this.orOutputMode = 'text',
     this.voiceRepliesEnabled = false,
     this.orResponseDepth = OrResponseDepth.fallback,
@@ -51,6 +52,11 @@ class PersonalizationSettings {
 
   /// Atmospheric music — default OFF; independent from SFX.
   final bool ambientMusicEnabled;
+
+  /// Atmospheric music loudness, 0…1 of the bed's ceiling.
+  final double ambientMusicLevel;
+
+  static const defaultAmbientMusicLevel = 0.7;
 
   /// OR autoplay (text|voice|conversation); voiceRepliesEnabled mirrors it.
   final String orOutputMode;
@@ -88,6 +94,7 @@ class PersonalizationSettings {
     bool? soundEnabled,
     bool? hapticEnabled,
     bool? ambientMusicEnabled,
+    double? ambientMusicLevel,
     String? orOutputMode,
     bool? voiceRepliesEnabled,
     OrResponseDepth? orResponseDepth,
@@ -128,6 +135,9 @@ class PersonalizationSettings {
       soundEnabled: soundEnabled ?? this.soundEnabled,
       hapticEnabled: hapticEnabled ?? this.hapticEnabled,
       ambientMusicEnabled: ambientMusicEnabled ?? this.ambientMusicEnabled,
+      ambientMusicLevel: (ambientMusicLevel ?? this.ambientMusicLevel)
+          .clamp(0.0, 1.0)
+          .toDouble(),
       orOutputMode: output,
       voiceRepliesEnabled: output != 'text',
       orResponseDepth: orResponseDepth ?? this.orResponseDepth,

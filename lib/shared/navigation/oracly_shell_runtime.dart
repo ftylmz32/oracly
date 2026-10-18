@@ -99,6 +99,7 @@ abstract final class OraclyShellRuntime {
     try {
       final sound = ref.read(oraclySoundServiceProvider);
       OraclySoundHooks.bind(sound);
+      sound.bindSpeech(OraclyTtsGate.speaking);
       await LivingPresenceTracker.markPresent(ref.read(localStorageProvider));
       // settingsProvider owns audio synchronization. Avoid starting/replacing
       // the same ambient source a second time during shell bootstrap.
@@ -134,6 +135,7 @@ abstract final class OraclyShellRuntime {
     );
     if (syncAudio) {
       final sound = ref.read(oraclySoundServiceProvider);
+      await sound.setAmbientLevel(settings.ambientMusicLevel);
       await sound.setAtmosphere(settings.atmosphereSign);
       await sound.syncAmbientEnabled(settings.ambientMusicEnabled);
     }

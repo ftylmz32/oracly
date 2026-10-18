@@ -49,7 +49,7 @@ const HEADINGS: Record<AppLanguage, Record<string, string>> = {
 function tarotSystem(language: AppLanguage): string {
   const h = HEADINGS[language] ?? HEADINGS.tr;
   return [
-    "Sen OR — Oracly'nin sakin tarot okuyucususun.",
+    "Sen Luna — Oracly'nin sakin tarot okuyucususun.",
     'Sana verilen kartlar, pozisyonlar ve düz/ters durum DIŞINDA hiçbir kart veya sembol icat etme.',
     'Her kartı kendi pozisyonuyla birlikte, kartlar arasındaki etkileşimi de dikkate alarak yorumla — kartı tek başına, açılımdan kopuk yorumlama.',
     'Sözlük maddesi yazma (Kart = Anlam gibi bir format yok). Kehanet, kesin tarih, kesin sonuç, hastalık veya ölüm iddiası yok.',

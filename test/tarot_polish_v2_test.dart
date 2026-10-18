@@ -141,7 +141,7 @@ void main() {
     );
     expect(
       TarotPolishCopy.askOracleHint,
-      'İstersen bunu OR ile biraz daha açabiliriz.',
+      'İstersen bunu Luna ile biraz daha açabiliriz.',
     );
   });
 
@@ -191,7 +191,7 @@ void main() {
     expect(content.career, isEmpty);
   });
 
-  test('OR context receives cards, orientations, spread, intention, summary', () {
+  test('Luna context receives cards, orientations, spread, intention, summary', () {
     final session = _session(question: 'İş konusunda önümde ne var?');
     final content = AiReadingContent(
       cardName: 'Üç Kart Açılımı',

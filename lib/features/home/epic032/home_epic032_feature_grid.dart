@@ -36,7 +36,7 @@ class HomeEpic032FeatureGrid extends StatelessWidget {
     ),
     _ModuleSpec(
       id: OraclyFeatureId.aiChat,
-      title: 'OR Rehberi',
+      title: 'Luna Rehberi',
       icon: Icons.smart_toy_rounded,
       iconAsset: AppAssets.featureAiCrystal,
     ),

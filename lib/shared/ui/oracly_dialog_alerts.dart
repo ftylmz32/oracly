@@ -19,6 +19,7 @@ Future<bool?> showOraclyConfirmDialog(
   String? confirmLabel,
   String? cancelLabel,
   bool destructive = false,
+  Widget? emblem,
 }) {
   final confirm = confirmLabel ?? OraclyL10n.t(L10nKeys.confirm);
   final cancel = cancelLabel ?? OraclyL10n.t(L10nKeys.cancel);
@@ -31,6 +32,10 @@ Future<bool?> showOraclyConfirmDialog(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (emblem != null) ...[
+              Center(child: emblem),
+              SizedBox(height: AppSpacing.sm),
+            ],
             Text(
               title,
               style: AppTextStyles.titleMedium.copyWith(

@@ -9,8 +9,8 @@ import 'package:oracly_new/core/copy/onboarding_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_onboarding_repository.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
+import 'package:oracly_new/features/onboarding/data/onboarding_setup_draft.dart';
 import 'package:oracly_new/features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'package:oracly_new/features/onboarding/presentation/widgets/onboarding_setup_form.dart';
 import 'package:oracly_new/features/premium/models/personalization_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,7 +38,7 @@ void main() {
       'Gökyüzü',
       'Yıldızname',
       'Tarot',
-      'OR',
+      'Luna',
     ]);
     expect(OnboardingCopy.pages, hasLength(1));
   });
@@ -47,6 +47,26 @@ void main() {
     expect(OnboardingCopy.birthHelp, contains('Gökyüzü'));
     expect(OnboardingCopy.birthHelp, contains('Yıldızname'));
     expect(OnboardingCopy.birthHelp.toLowerCase(), contains('gerekmez'));
+  });
+
+  test('unknown birth time is stored as unknown, never a guessed hour', () {
+    const draft = OnboardingSetupDraft(
+      updatedAtMillis: 1,
+      language: 'tr',
+      style: AiPersonality.mystical,
+    );
+    expect(draft.birthTimeKnown, isFalse);
+    expect(draft.birthTime, isNull);
+    final restored = OnboardingSetupDraft.fromJson({
+      'updatedAtMillis': 1,
+      'language': 'tr',
+      'style': 'mystical',
+      'name': 'Deniz',
+      'birthTimeKnown': false,
+      'birthHour': 12,
+    });
+    expect(restored.birthTime, isNull);
+    expect(restored.scene, 1);
   });
 
   test('first launch is incomplete; later launch stays complete', () async {
@@ -91,68 +111,27 @@ void main() {
     expect(splash.toLowerCase(), isNot(contains('permission.microphone')));
   });
 
-  testWidgets('intro shows skip and a single continue', (tester) async {
+  testWidgets('intro shows the gate, not a survey', (tester) async {
     await _pumpOnboarding(tester);
-    expect(find.text('ORACLY'), findsOneWidget);
-    expect(find.text(OnboardingCopy.tagline), findsOneWidget);
-    for (final label in OnboardingCopy.windows) {
-      expect(find.text(label), findsOneWidget);
-    }
-    expect(find.text(OnboardingCopy.orHint), findsOneWidget);
-    expect(find.text(OnboardingCopy.honesty), findsOneWidget);
-    expect(find.text(OnboardingCopy.gemsWhisper), findsOneWidget);
-    expect(find.text(OnboardingCopy.skip), findsOneWidget);
+    expect(find.text(OnboardingCopy.gateTitle), findsOneWidget);
+    expect(find.text(OnboardingCopy.gateSubtitle), findsOneWidget);
     expect(find.text(OnboardingCopy.meetLabel), findsOneWidget);
+    expect(find.text(OnboardingCopy.exploreLabel), findsOneWidget);
+    expect(find.text(OnboardingCopy.styleLabel), findsNothing);
     expect(find.text(OnboardingCopy.setupTitle), findsNothing);
   });
 
-  testWidgets('setup asks only name, birth, language, style — and skip', (
+  testWidgets('meet opens the name scene without a Luna voice choice', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: OnboardingSetupForm(
-            language: 'tr',
-            style: AiPersonality.mystical,
-            onSkip: ({required language, required style}) {},
-            onContinue: ({
-              required name,
-              birthDate,
-              required language,
-              required style,
-              birthPlace,
-            }) {},
-          ),
-        ),
-      ),
-    );
-    expect(find.text(OnboardingCopy.nameLabel), findsOneWidget);
-    expect(find.text(OnboardingCopy.birthLabel), findsOneWidget);
-    expect(find.text(OnboardingCopy.languageLabel), findsOneWidget);
-    expect(find.text(OnboardingCopy.styleLabel), findsOneWidget);
-    expect(find.text(OnboardingCopy.birthHelp), findsOneWidget);
-    await _scrollToSkip(tester);
-    expect(find.text(OnboardingCopy.skip), findsOneWidget);
-  });
-
-  testWidgets('meet opens the skippable hello', (tester) async {
     await _pumpOnboarding(tester);
     await tester.tap(find.text(OnboardingCopy.meetLabel));
     await tester.pump();
-    expect(find.text(OnboardingCopy.setupTitle), findsOneWidget);
-    await _scrollToSkip(tester);
-    expect(find.text(OnboardingCopy.skip), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text(OnboardingCopy.nameTitle), findsOneWidget);
+    expect(find.text(OnboardingCopy.styleLabel), findsNothing);
+    expect(find.text(OnboardingCopy.passLabel), findsOneWidget);
   });
-}
-
-/// The skip action sits at the end of the setup list — scroll it into view.
-Future<void> _scrollToSkip(WidgetTester tester) async {
-  final skip = find.text(OnboardingCopy.skip);
-  for (var i = 0; i < 6 && skip.evaluate().isEmpty; i++) {
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, -320));
-    await tester.pump();
-  }
 }
 
 Future<void> _pumpOnboarding(WidgetTester tester) async {

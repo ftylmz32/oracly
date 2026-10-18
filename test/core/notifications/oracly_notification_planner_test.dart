@@ -140,13 +140,13 @@ void main() {
     expect(payload.body, isNot(contains('rüya')));
   });
 
-  test('recent OR conversation recommends continuing with OR', () {
+  test('recent Luna conversation recommends continuing with Luna', () {
     final profile = PersonalDiscoveryProfileBuilder.from(
       PersonalDiscoverySources(
         conversations: [
           ConversationRecord(
             id: 'or1',
-            title: 'OR',
+            title: 'Luna',
             kind: 'general',
             messagesJson: [
               {'role': 'user', 'text': 'gizli sohbet metni'},
@@ -164,7 +164,7 @@ void main() {
       now: now,
     )!;
     expect(payload.kind, OraclyNotificationKind.companion);
-    expect(payload.body, 'OR ile konuşmaya devam edebilirsin.');
+    expect(payload.body, 'Luna ile konuşmaya devam edebilirsin.');
     expect(payload.body, isNot(contains('gizli')));
   });
 

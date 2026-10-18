@@ -91,14 +91,14 @@ const kL10nResilience = <String, L10nTriple>{
     'Ответ идёт дольше обычного. Подожди немного или попробуй снова.',
   ),
   'resilience.ai_unavailable': L10nTriple(
-    "OR'a ulaşamadım. Bir daha deneyelim.",
-    "I couldn't reach OR. Let's try again.",
-    'Не удалось связаться с OR. Давай попробуем ещё раз.',
+    "Luna'ya ulaşamadım. Bir daha deneyelim.",
+    "I couldn't reach Luna. Let's try again.",
+    'Не удалось связаться с Luna. Давай попробуем ещё раз.',
   ),
   'resilience.ai_config': L10nTriple(
-    'OR henüz hazır değil. Lütfen daha sonra tekrar dene.',
-    'OR is not ready yet. Please try again later.',
-    'OR ещё не готов. Пожалуйста, попробуй позже.',
+    'Luna henüz hazır değil. Lütfen daha sonra tekrar dene.',
+    'Luna is not ready yet. Please try again later.',
+    'Luna ещё не готова. Пожалуйста, попробуй позже.',
   ),
   'resilience.ai_unauthorized': L10nTriple(
     'Oturum doğrulanamadı. Lütfen yeniden giriş yapıp dene.',
@@ -126,9 +126,9 @@ const kL10nResilience = <String, L10nTriple>{
     'Ответ не получен. Можно попробовать через мгновение.',
   ),
   'resilience.ai_rate': L10nTriple(
-    'OR şu anda yoğun. Lütfen biraz sonra tekrar dene.',
-    'OR is busy right now. Please try again in a little while.',
-    'OR сейчас занят. Пожалуйста, попробуй чуть позже.',
+    'Luna şu anda yoğun. Lütfen biraz sonra tekrar dene.',
+    'Luna is busy right now. Please try again in a little while.',
+    'Luna сейчас занята. Пожалуйста, попробуй чуть позже.',
   ),
   'resilience.card_draw_failed': L10nTriple(
     'Kart seçilemedi. Lütfen tekrar dene.',
@@ -166,9 +166,9 @@ const kL10nResilience = <String, L10nTriple>{
     'Твоя первая память найдёт здесь своё место.',
   ),
   'resilience.memory_empty_body': L10nTriple(
-    'OR, sohbetlerinden öğrendikçe burada nazikçe birikecek. İstediğin zaman silebilirsin.',
-    'OR will gather here gently as it learns from your conversations. You can delete it anytime.',
-    'OR будет мягко собираться здесь, учась из разговоров. Можно удалить в любой момент.',
+    'Luna, sohbetlerinden öğrendikçe burada nazikçe birikecek. İstediğin zaman silebilirsin.',
+    'Luna will gather here gently as it learns from your conversations. You can delete it anytime.',
+    'Luna будет мягко собираться здесь, учась из разговоров. Можно удалить в любой момент.',
   ),
   'resilience.chat_empty_title': L10nTriple(
     'İlk sohbetin burada yerini bulacak.',
@@ -176,9 +176,9 @@ const kL10nResilience = <String, L10nTriple>{
     'Твой первый разговор найдёт здесь своё место.',
   ),
   'resilience.chat_empty_body': L10nTriple(
-    'OR ile konuşmaya başladığında geçmişin burada görünecek.',
-    'When you start speaking with OR, history will appear here.',
-    'Когда начнёшь говорить с OR, история появится здесь.',
+    'Luna ile konuşmaya başladığında geçmişin burada görünecek.',
+    'When you start speaking with Luna, history will appear here.',
+    'Когда начнёшь говорить с Luna, история появится здесь.',
   ),
   'resilience.bootstrap_failed': L10nTriple(
     'Uygulama açılırken küçük bir aksaklık oldu. Tekrar dene.',

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers/app_providers.dart';
 import '../../../core/data/repositories/local_birth_chart_repository.dart';
+import '../astronomy/natal_chart_evidence.dart';
 import '../data/birth_chart_record_mapper.dart';
 import '../models/birth_profile.dart';
 import '../models/zodiac_sign_id.dart';
@@ -27,4 +28,18 @@ final savedSunSignProvider = Provider<ZodiacSignId?>((ref) {
   final profile = ref.watch(birthInformationProvider).valueOrNull;
   if (profile == null) return null;
   return ZodiacSignId.fromDate(profile.birthDate);
+});
+
+/// Calculated natal evidence of the saved chart, or null when none exists.
+final savedNatalEvidenceProvider =
+    FutureProvider<NatalChartEvidence?>((ref) async {
+  try {
+    final record = await ref.watch(birthChartRepositoryProvider).getLatest();
+    if (record == null) return null;
+    return BirthChartRecordMapper.fromRecord(record).natalEvidence;
+  } on BirthChartOwnerUnavailableException {
+    return null;
+  } catch (_) {
+    return null;
+  }
 });

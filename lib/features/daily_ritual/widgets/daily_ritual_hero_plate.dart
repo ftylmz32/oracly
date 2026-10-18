@@ -1,4 +1,3 @@
-/// Home hero plate — extremely subtle image drift + soft parallax.
 library;
 
 import 'dart:math' as math;
@@ -9,7 +8,6 @@ import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/oracly_quiet_motion.dart';
 
-/// Full-bleed hero artwork. Text stays outside this widget (static).
 class DailyRitualHeroPlate extends StatefulWidget {
   const DailyRitualHeroPlate({
     super.key,
@@ -17,13 +15,15 @@ class DailyRitualHeroPlate extends StatefulWidget {
     required this.height,
     required this.fallbackArt,
     this.assetPath = AppAssets.homeDream,
+    this.alignment = const Alignment(0.55, -0.08),
   });
 
   final double width;
   final double height;
   final double fallbackArt;
-  /// Bugünün İzi uses dream-window art — never the hero oracle plate.
+
   final String assetPath;
+  final Alignment alignment;
 
   @override
   State<DailyRitualHeroPlate> createState() => _DailyRitualHeroPlateState();
@@ -72,17 +72,18 @@ class _DailyRitualHeroPlateState extends State<DailyRitualHeroPlate>
               quality: quality,
               fallbackArt: widget.fallbackArt,
               assetPath: widget.assetPath,
+              alignment: widget.alignment,
             )
           : AnimatedBuilder(
               animation: _drift,
               builder: (context, child) {
                 final t = _drift.value;
-                // ~2.5px peak drift — felt, not noticed.
                 final dx = math.sin(t * math.pi * 2) * 2.4;
                 final dy = math.cos(t * math.pi * 2) * 1.6;
-                // Opposite parallax on alignment (sky vs subject).
-                final ax = 0.38 + math.sin(t * math.pi * 2) * 0.018;
-                final ay = -0.12 + math.cos(t * math.pi * 2) * 0.012;
+                final ax =
+                    widget.alignment.x + math.sin(t * math.pi * 2) * 0.018;
+                final ay =
+                    widget.alignment.y + math.cos(t * math.pi * 2) * 0.012;
                 return Transform.translate(
                   offset: Offset(dx, dy),
                   child: Transform.scale(

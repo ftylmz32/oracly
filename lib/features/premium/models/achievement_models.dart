@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 enum AchievementId {
   firstReading('first_reading', 'İlk Açılım', 'İlk tarot açılımını tamamladın.'),
   cards100('cards_100', '100 Kart', '100 kart keşfettin.'),
-  firstPremium('first_premium', 'İlk Premium', 'OR Premium ailesine katıldın.');
+  firstPremium('first_premium', 'İlk Premium', 'Luna Premium ailesine katıldın.');
 
   const AchievementId(this.key, this.title, this.description);
   final String key;

@@ -17,7 +17,7 @@ import 'home_epic032_surface.dart';
 class HomeEpic032Reflection extends StatelessWidget {
   const HomeEpic032Reflection({super.key});
 
-  static const String _title = 'OR Rehberi';
+  static const String _title = 'Luna Rehberi';
 
   @override
   Widget build(BuildContext context) {

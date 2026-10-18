@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/app/providers/app_providers.dart';
 import 'package:oracly_new/core/copy/first_session_copy.dart';
+import 'package:oracly_new/core/copy/home_personal_copy.dart';
+import 'package:oracly_new/core/universe/oracly_ritual_time.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/core/data/repositories/local_ai_conversation_repository.dart';
 import 'package:oracly_new/core/data/repositories/mock_history_repository.dart';
@@ -304,7 +306,14 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 80));
 
-      expect(find.text('Merhaba,'), findsOneWidget);
+      expect(
+        find.text(
+          HomePersonalCopy.greeting(
+            time: OraclyRitualAtmosphere.fromHour(DateTime.now().hour),
+          ),
+        ),
+        findsOneWidget,
+      );
       expect(find.text(FirstSessionCopy.continuityCta), findsNothing);
     });
 

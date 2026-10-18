@@ -22,7 +22,7 @@ class TarotEpic031CostHint extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const OraclyGemFacet(size: 14, glow: 0.88),
+          const OraclyGemFacet(size: 20, glow: 0.8),
           const SizedBox(width: 6),
           Text(
             TarotPolishCopy.gemCost(cost),

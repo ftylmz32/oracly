@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import '../../features/birth_chart/models/zodiac_sign_id.dart';
 import '../runtime/oracly_apply_outcome.dart';
 import 'oracly_ambient_audio_context.dart';
+import 'oracly_ambient_interruptions.dart';
 import 'oracly_atmosphere_palette.dart';
 import 'oracly_wav_synth.dart';
 
@@ -61,26 +62,58 @@ class OraclyAmbientBed {
     OraclyAmbientPlayback Function()? playbackFactory,
     Future<Directory> Function()? tempDirectory,
     Duration playingTimeout = const Duration(milliseconds: 800),
+    OraclyAudioInterruptions interruptions =
+        const OraclyPlatformAudioInterruptions(),
+    Duration guardInterval = const Duration(seconds: 3),
+    Duration fadeStep = const Duration(milliseconds: 45),
   }) : _playbackFactory = playbackFactory,
        _tempDirectory = tempDirectory ?? _defaultTempDirectory,
-       _playingTimeout = playingTimeout;
+       _playingTimeout = playingTimeout,
+       _interruptions = interruptions,
+       _guardInterval = guardInterval,
+       _fadeStep = fadeStep;
 
   final OraclyAmbientPlayback Function()? _playbackFactory;
   final Future<Directory> Function() _tempDirectory;
   final Duration _playingTimeout;
+  final OraclyAudioInterruptions _interruptions;
+  final Duration _guardInterval;
+  final Duration _fadeStep;
   OraclyAmbientPlayback? _player;
+  Timer? _guard;
   final _files = <ZodiacSignId, File>{};
   Directory? _ownedDirectory;
   bool _ready = false;
   bool _enabled = false;
   bool _lifecyclePaused = false;
   bool _disposed = false;
+  bool _ducked = false;
+  bool _held = false;
+  double _level = OraclyAtmospherePalette.volume /
+      OraclyAtmospherePalette.maxVolume;
+  double _gain = 0;
   int _epoch = 0;
   Future<void> _operationTail = Future<void>.value();
   ZodiacSignId _sign = ZodiacSignId.cancer;
 
   bool get enabled => _enabled;
   ZodiacSignId get sign => _sign;
+
+  /// User level 0…1 (Settings slider).
+  double get level => _level;
+
+  /// ON, but waiting silently for a call or another app's audio to end.
+  bool get held => _held;
+
+  /// Last gain sent to the player.
+  double get gain => _gain;
+
+  double get _target =>
+      OraclyAtmospherePalette.gainFor(_level) *
+      (_ducked ? OraclyAtmospherePalette.speechDuck : 1);
+
+  bool get _audible =>
+      !_held && !_lifecyclePaused && _player?.state == PlayerState.playing;
 
   Future<bool> ensureReady() async {
     if (_ready) return true;
@@ -99,15 +132,17 @@ class OraclyAmbientBed {
 
   Future<OraclyApplyOutcome> setEnabled(bool enabled) async {
     if (_disposed) return OraclyApplyOutcome.failure;
-    _epoch++;
-    final epoch = _epoch;
     if (!enabled) {
+      _epoch++;
       final outcome = await stop();
       if (outcome.isSuccess) _enabled = false;
       return outcome;
     }
+    // Re-saving Settings must not restart a bed that is already sounding.
+    if (_enabled && (_audible || _held)) return OraclyApplyOutcome.success;
+    _epoch++;
     _enabled = true;
-    return refresh(epoch: epoch);
+    return refresh(epoch: _epoch);
   }
 
   Future<OraclyApplyOutcome> setSign(ZodiacSignId sign) async {
@@ -115,6 +150,29 @@ class OraclyAmbientBed {
     _epoch++;
     _sign = sign;
     return _enabled ? refresh(epoch: _epoch) : OraclyApplyOutcome.success;
+  }
+
+  /// New user level; a sounding bed glides there instead of jumping.
+  Future<void> setLevel(double level) async {
+    final next = level.clamp(0.0, 1.0).toDouble();
+    if (next == _level) return;
+    _level = next;
+    await _glideIfAudible();
+  }
+
+  /// Steps back under OR's voice, and returns when it stops.
+  Future<void> setDucked(bool ducked) async {
+    if (ducked == _ducked) return;
+    _ducked = ducked;
+    await _glideIfAudible();
+  }
+
+  Future<void> _glideIfAudible() async {
+    if (_disposed || !_enabled || !_audible) return;
+    await _enqueue(() async {
+      if (_audible) await _rampTo(_target, steps: 6);
+      return OraclyApplyOutcome.success;
+    });
   }
 
   Future<OraclyApplyOutcome> refresh({int? epoch}) =>
@@ -129,16 +187,27 @@ class OraclyAmbientBed {
     final player = _player;
     if (player == null) return OraclyApplyOutcome.failure;
     try {
+      // A call or another app's music comes first: stay ON, wait silently.
+      if (await _busy(includeOtherAudio: player.state != PlayerState.playing)) {
+        if (player.state == PlayerState.playing) await _fadeOutAndStop();
+        _held = true;
+        _startGuard();
+        return OraclyApplyOutcome.success;
+      }
+      if (token != _epoch || !_enabled) return OraclyApplyOutcome.success;
       final file = await _fileFor(_sign);
+      if (player.state == PlayerState.playing) await _rampTo(0, steps: 5);
       await player.stop();
       if (token != _epoch || !_enabled) return OraclyApplyOutcome.success;
-      await player.setVolume(0);
+      await _setGain(0);
       await player.playFile(file.path);
       if (!await _provePlaying(player, token)) {
         if (token == _epoch) await player.stop();
         return OraclyApplyOutcome.failure;
       }
+      _held = false;
       await _fadeIn(epoch: token);
+      _startGuard();
       return OraclyApplyOutcome.success;
     } catch (e) {
       debugPrint('[ORACLY] ambient play failed ($_sign): $e');
@@ -151,8 +220,12 @@ class OraclyAmbientBed {
     if (_disposed) return;
     _lifecyclePaused = true;
     _epoch++;
+    _stopGuard();
     await _enqueue(() async {
       try {
+        if (_player?.state == PlayerState.playing) {
+          await _rampTo(0, steps: 3);
+        }
         await _player?.pause();
         return OraclyApplyOutcome.success;
       } catch (e) {
@@ -167,12 +240,16 @@ class OraclyAmbientBed {
     _lifecyclePaused = false;
     _epoch++;
     if (!_enabled) return;
+    final epoch = _epoch;
     final player = _player;
     try {
-      if (player?.state == PlayerState.paused) {
+      if (!_held &&
+          player?.state == PlayerState.paused &&
+          !await _busy(includeOtherAudio: false)) {
         await player!.resume();
-        if (await _provePlaying(player, _epoch)) {
-          await player.setVolume(OraclyAtmospherePalette.volume);
+        if (await _provePlaying(player, epoch)) {
+          await _fadeIn(epoch: epoch);
+          _startGuard();
           return;
         }
       }
@@ -185,9 +262,10 @@ class OraclyAmbientBed {
   Future<OraclyApplyOutcome> stop() => _enqueue(_stopNow);
 
   Future<OraclyApplyOutcome> _stopNow() async {
+    _stopGuard();
+    _held = false;
     try {
-      await _player?.stop();
-      await _player?.setVolume(0);
+      await _fadeOutAndStop();
       return OraclyApplyOutcome.success;
     } catch (e) {
       debugPrint('[ORACLY] ambient stop failed: $e');
@@ -199,6 +277,7 @@ class OraclyAmbientBed {
     if (_disposed) return;
     _disposed = true;
     _epoch++;
+    _stopGuard();
     await _enqueue(() async {
       await _stopNow();
       await _discardPlayer();
@@ -244,13 +323,79 @@ class OraclyAmbientBed {
     return false;
   }
 
+  /// Soft arrival (~0.5 s) — never an intro sting.
   Future<void> _fadeIn({required int epoch}) async {
+    if (_player == null) return;
+    final from = _gain;
+    const steps = 12;
+    for (var i = 1; i <= steps; i++) {
+      if (epoch != _epoch || !_enabled || _lifecyclePaused) return;
+      await _setGain(from + (_target - from) * (i / steps));
+      await Future<void>.delayed(_fadeStep);
+    }
+  }
+
+  /// Short glide to [to]; used for level, ducking and soft exits.
+  Future<void> _rampTo(double to, {required int steps}) async {
+    final from = _gain;
+    for (var i = 1; i <= steps; i++) {
+      await _setGain(from + (to - from) * (i / steps));
+      await Future<void>.delayed(_fadeStep);
+    }
+  }
+
+  Future<void> _fadeOutAndStop() async {
     final player = _player;
     if (player == null) return;
-    for (var i = 1; i <= 10; i++) {
-      if (epoch != _epoch || !_enabled || _lifecyclePaused) return;
-      await player.setVolume(OraclyAtmospherePalette.volume * (i / 10));
-      await Future<void>.delayed(const Duration(milliseconds: 40));
+    if (player.state == PlayerState.playing && _gain > 0) {
+      await _rampTo(0, steps: 6);
+    }
+    await player.stop();
+    await _setGain(0);
+  }
+
+  Future<void> _setGain(double value) async {
+    final player = _player;
+    if (player == null) return;
+    await player.setVolume(value);
+    _gain = value;
+  }
+
+  Future<bool> _busy({required bool includeOtherAudio}) async {
+    if (await _interruptions.callActive()) return true;
+    return includeOtherAudio && await _interruptions.otherAudioActive();
+  }
+
+  /// While ON in the foreground: yield to a call, come back once the device
+  /// is quiet again. Only ever pauses ourselves — never another app.
+  void _startGuard() {
+    if (_disposed || !_enabled || _lifecyclePaused) return;
+    _guard ??= Timer.periodic(_guardInterval, (_) => _onGuardTick());
+  }
+
+  void _stopGuard() {
+    _guard?.cancel();
+    _guard = null;
+  }
+
+  Future<void> _onGuardTick() async {
+    if (_disposed || !_enabled || _lifecyclePaused) {
+      _stopGuard();
+      return;
+    }
+    if (_audible) {
+      if (!await _interruptions.callActive()) return;
+      await _enqueue(() async {
+        if (!_audible) return OraclyApplyOutcome.success;
+        await _rampTo(0, steps: 4);
+        await _player?.pause();
+        _held = true;
+        return OraclyApplyOutcome.success;
+      });
+      return;
+    }
+    if (_held && !await _busy(includeOtherAudio: true)) {
+      await refresh();
     }
   }
 

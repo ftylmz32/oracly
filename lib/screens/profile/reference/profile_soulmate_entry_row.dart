@@ -15,6 +15,7 @@ import '../../../core/theme/reading_typography.dart';
 import '../../../features/premium/copy/soul_mate_copy.dart';
 import '../../../features/premium/providers/premium_providers.dart';
 import '../../../features/premium/providers/soul_mate_saved_provider.dart';
+import '../../../features/premium/presentation/reference/premium_entry_sheet.dart';
 import '../../../features/premium/services/premium_access.dart';
 import '../../../features/premium/services/soul_mate_dev_access.dart';
 import '../../../features/premium/services/soul_mate_navigation.dart';
@@ -43,7 +44,10 @@ class ProfileSoulMateEntryRow extends ConsumerWidget {
       child: OraclyPressable(
         onTap: () {
           if (locked) {
-            PremiumAccess.prompt(context);
+            PremiumAccess.prompt(
+              context,
+              focus: PremiumEntryFocus.soulMate,
+            );
             return;
           }
           SoulMateNavigation.open(context);

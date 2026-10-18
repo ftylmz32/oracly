@@ -104,13 +104,13 @@ Filled after `--update-goldens` by hash test parity. See table below.
 
 | Filename | SHA-256 |
 |----------|---------|
-| hub_empty_390.png | `9b06b29755caca3d76f29132f0870c8dc2942655488813eb5aaf5f75633f6e80` |
-| hub_with_birth_390.png | `848a96083095989f92f80cd46f9cc57a9a0ff0b9b02133c733079d491c582c5d` |
-| legacy_result_390.png | `5c3663faac8820fc091d828a5b1909a8823feaacf3d67a6209c96045f55092d5` |
-| artifact_legacy_reopen_390.png | `fccf7a8344fcb8463252aca8caa9ab6e6701609e1678c8c37af8db89af09096a` |
-| artifact_narrative_reduced_current_390.png | `cd414771c47f12ccc937c1e20e727d0436a5f5ace16d36fe22edfbbb22138444` |
-| artifact_narrative_full_current_390.png | `2e04c4a38ba55b844e61c91dd585363456e94479ae5cdd740ef31b83432c27b2` |
-| firewall_result_chrome_control_390.png | `5c3663faac8820fc091d828a5b1909a8823feaacf3d67a6209c96045f55092d5` |
+| hub_empty_390.png | `388a99459d98d6280a8412495c2639b40e51e9de9e94c0997be269f66c181937` |
+| hub_with_birth_390.png | `0d0318f21cb4e48945f7023fe3160d205698bf02259aadccbd6a15232aff34c5` |
+| legacy_result_390.png | `ef108d8d33be61c3abcf3f8871dc935dab5c16d589933e193cd5b01fd162e47c` |
+| artifact_legacy_reopen_390.png | `2a5aaebef85db3a32626f90c2c800a0b021493bfd22dbda15718407d5c7633ed` |
+| artifact_narrative_reduced_current_390.png | `f6869eda6aa6679474c539fe27c62fb39ab0a8f5612fe974573edf06c78afff5` |
+| artifact_narrative_full_current_390.png | `79ed3a868eabc535ccd2bfb786ae0054caa6eb4ae57d295c7c8d47c1e6bc25e0` |
+| firewall_result_chrome_control_390.png | `ef108d8d33be61c3abcf3f8871dc935dab5c16d589933e193cd5b01fd162e47c` |
 
 Note: `firewall_result_chrome_control_390` intentionally matches `legacy_result_390` (same chrome path) — negative control for silent chrome rewrites.
 

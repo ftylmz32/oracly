@@ -54,7 +54,7 @@ void main() {
       expect(RitualCardMetrics.width, TarotTokens.ritualCardWidth);
       expect(RitualCardMetrics.height, TarotTokens.ritualCardHeight);
       expect(RitualCardMetrics.radius, TarotTokens.ritualCardRadius);
-      expect(TarotTokens.ritualCardAspectRatio, closeTo(132 / 222, 0.0001));
+      expect(TarotTokens.ritualCardAspectRatio, closeTo(186 / 290, 0.0001));
       expect(TarotTokens.tableCandleWarm, AppColors.gold);
     });
 

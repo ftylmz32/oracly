@@ -21,8 +21,7 @@ class HomeReferenceOrFlagshipCopy extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, box) {
-        final scale =
-            MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.4);
+        final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.4);
         final titleSize = (20 / scale).clamp(16.0, 20.0);
         final bodySize = (12.5 / scale).clamp(11.0, 12.5);
         return FittedBox(
@@ -37,22 +36,23 @@ class HomeReferenceOrFlagshipCopy extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: ReadingTypography.title(
-                    color: OraclyChrome.cream.withValues(alpha: 0.98),
-                  ).copyWith(
-                    fontSize: titleSize,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.6,
-                    height: 1.05,
-                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.visible,
+                  style:
+                      ReadingTypography.title(
+                        color: OraclyChrome.cream.withValues(alpha: 0.98),
+                      ).copyWith(
+                        fontSize: titleSize,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.6,
+                        height: 1.05,
+                      ),
                 ),
                 const SizedBox(height: 5),
                 Text(
                   body,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  overflow: TextOverflow.visible,
                   style: ReadingTypography.secondary(
                     color: OraclyA11y.creamSecondary(OraclyChrome.cream),
                   ).copyWith(fontSize: bodySize, height: 1.32),

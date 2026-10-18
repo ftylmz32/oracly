@@ -62,7 +62,7 @@ abstract final class MockAIResponses {
 
   static const streamingChunks = [
 
-    'OR ',
+    'Luna ',
 
     'senin ',
 

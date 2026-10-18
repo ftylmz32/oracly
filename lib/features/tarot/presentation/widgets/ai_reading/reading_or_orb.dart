@@ -102,7 +102,7 @@ class _OrbVisual extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              'OR',
+              'L',
               style: TextStyle(
                 color: AppColors.primary,
                 fontSize: size * 0.32,

@@ -64,15 +64,38 @@ void main() {
       store: store,
       day: DateTime(2026, 8, 16, 21),
       profileName: 'Fatih',
-      discovery: const PersonalDiscoveryProfile(
-        tarotCount: 4,
-        coffeeCount: 2,
-      ),
+      discovery: const PersonalDiscoveryProfile(tarotCount: 4, coffeeCount: 2),
     );
     expect(second.text, first.text);
     expect(second.action, first.action);
     expect(second.theme, first.theme);
   });
+
+  test(
+    'retired mechanical generic copy refreshes without clearing history',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        DailyReturnStore.todayKey:
+            '{"text":"Cuma için kısa not: temposunu bir kez fark etmek yeter; ruh hali etiketi şart değil.","day":"2026-10-16","action":"talkToOr"}',
+        DailyReturnStore.historyKey: '["korunacak geçmiş not"]',
+      });
+      final storage = LocalStorage(await SharedPreferences.getInstance());
+      final store = DailyReturnStore(storage);
+      final memory = DiscoverySurfaceMemory(storage);
+      final day = DateTime(2026, 10, 16, 14);
+
+      final refreshed = DailyMessageSession.resolve(store: store, day: day);
+      expect(refreshed.text, isNot(contains('ruh hali etiketi')));
+      await DailyMessageSession.persist(
+        store: store,
+        memory: memory,
+        message: refreshed,
+      );
+
+      expect(store.readToday(day)?.text, refreshed.text);
+      expect(store.historyTexts(), contains('korunacak geçmiş not'));
+    },
+  );
 
   test('empty history stays general and invents no personal fact', () {
     final note = DailyMessageService.forDay(day: DateTime(2026, 8, 16));
@@ -124,17 +147,20 @@ void main() {
     );
     expect(first.theme, 'aşk');
     expect(next.theme, 'iletişim');
-    expect(next.text.toLowerCase(), anyOf(contains('iletişim'), contains('konuş')));
+    expect(
+      next.text.toLowerCase(),
+      anyOf(contains('iletişim'), contains('konuş')),
+    );
     expect(next.text, isNot(equals(first.text)));
     // Theme already rotated; structure tags are optional variety, not required.
     expect(next.sunSign, 'Koç');
     expect(next.dateStamp, contains('Koç'));
     expect(next.text.toLowerCase(), isNot(contains('koç')));
     expect(next.action.isFree, isTrue);
-    expect(
-      {DailyReturnAction.talkToOr, DailyReturnAction.exploreTheme},
-      contains(next.action),
-    );
+    expect({
+      DailyReturnAction.talkToOr,
+      DailyReturnAction.exploreTheme,
+    }, contains(next.action));
   });
 
   test('real recurring evidence is surfaced when insight exists', () {
@@ -151,7 +177,10 @@ void main() {
       hasDiscoveries: true,
     );
     expect(note.theme, 'değişim');
-    expect(note.text, contains('Son 30 günde 4 keşfinde ve 3 farklı alanda tekrar etmiş.'));
+    expect(
+      note.text,
+      contains('Son 30 günde 4 keşfinde ve 3 farklı alanda tekrar etmiş.'),
+    );
     expect(note.text.toLowerCase(), contains('değişim'));
     expect(note.text.toLowerCase(), isNot(contains('kendinize güven')));
   });
@@ -193,20 +222,30 @@ void main() {
       hasDiscoveries: true,
     );
     expect(decision.text, contains('karar'));
-    expect(talk.text.toLowerCase(), anyOf(contains('iletişim'), contains('konuş')));
+    expect(
+      talk.text.toLowerCase(),
+      anyOf(contains('iletişim'), contains('konuş')),
+    );
     expect(decision.text, isNot(equals(talk.text)));
   });
 
   test('legacy actions stay free and copy never sells premium', () {
     for (final action in DailyReturnAction.values) {
       expect(action.isFree, isTrue);
-      expect(DailyMessageCopy.action(action).toLowerCase(), isNot(contains('ücret')));
-      expect(DailyMessageCopy.action(action).toLowerCase(), isNot(contains('premium')));
+      expect(
+        DailyMessageCopy.action(action).toLowerCase(),
+        isNot(contains('ücret')),
+      );
+      expect(
+        DailyMessageCopy.action(action).toLowerCase(),
+        isNot(contains('premium')),
+      );
     }
   });
 
-  testWidgets('ritual card shows prompt, moon path, and a free action',
-      (tester) async {
+  testWidgets('ritual card shows prompt, moon path, and a free action', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(360, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
@@ -254,7 +293,10 @@ void main() {
     );
     expect(note.sunSign, 'Koç');
     expect(note.theme, 'iletişim');
-    expect(note.text.toLowerCase(), anyOf(contains('iletişim'), contains('konuş')));
+    expect(
+      note.text.toLowerCase(),
+      anyOf(contains('iletişim'), contains('konuş')),
+    );
     expect(note.text.toLowerCase(), isNot(contains('fatih')));
   });
 }

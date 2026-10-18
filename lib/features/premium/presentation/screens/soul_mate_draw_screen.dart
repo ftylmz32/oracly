@@ -14,6 +14,7 @@ import '../../../discovery_journal/providers/discovery_journal_providers.dart';
 import '../../providers/premium_providers.dart';
 import '../../providers/soul_mate_providers.dart';
 import '../../services/premium_access.dart';
+import '../reference/premium_entry_sheet.dart';
 import '../../services/soul_mate_dev_access.dart';
 import '../../data/soul_mate_interpretation_catalogue.dart';
 import '../../services/soul_mate_draw_action.dart';
@@ -283,7 +284,7 @@ class _SoulMateDrawScreenState extends ConsumerState<SoulMateDrawScreen> {
               : SoulMateCopy.failureTemporary;
         });
         if (entitlementDenied && !stillPremium) {
-          PremiumAccess.prompt(context);
+          PremiumAccess.prompt(context, focus: PremiumEntryFocus.soulMate);
         }
       case SoulMateDurableKind.unavailable:
         _pollTimer?.cancel();

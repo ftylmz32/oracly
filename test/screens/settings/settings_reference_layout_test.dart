@@ -14,10 +14,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const viewports = <Size>[
+    Size(320, 568),
     Size(360, 800),
     Size(375, 812),
     Size(390, 844),
     Size(411, 901),
+    Size(412, 915),
     Size(430, 932),
     Size(600, 960),
   ];

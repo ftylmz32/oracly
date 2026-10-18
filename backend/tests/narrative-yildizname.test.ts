@@ -26,7 +26,12 @@ import {
 import { yildiznameRequestFingerprint } from '../src/ai/narrative-yildizname-canonical.js';
 import { validateYildiznameNarrativePayload } from '../src/ai/narrative-yildizname-contract.js';
 import { parseYildiznameNarrativeResult } from '../src/ai/narrative-yildizname-result.js';
-import { yildiznameSystemRules } from '../src/ai/narrative-yildizname-prompt-rules.js';
+import {
+  yildiznamePortraitDirective,
+  yildiznameSystemRules,
+} from '../src/ai/narrative-yildizname-prompt-rules.js';
+import { yildiznameNarrativeMessages } from '../src/ai/narrative-yildizname-prompts.js';
+import type { YildiznameWireNarrative } from '../src/ai/narrative-yildizname-contract.js';
 import type { OpenAiMessage } from '../src/types.js';
 
 const POLICY = {
@@ -205,18 +210,47 @@ function validResult(narrative: Record<string, unknown>) {
 describe('Yıldızname paid-quality writer contract', () => {
   const prompt = yildiznameSystemRules().join('\n');
 
-  it('requires a coherent cross-fact portrait without one-theme lock-in', () => {
+  it('requires a coherent portrait told as a life, not a placement march', () => {
     expect(prompt).toContain('BUILD A COHERENT BIRTH PORTRAIT');
-    expect(prompt).toContain('several related threads');
     expect(prompt).toContain('march through placements one by one');
     expect(prompt).toContain('A list joined by commas is not synthesis');
+    expect(prompt).toContain('VISIBLE TELLING, HIDDEN TECHNIQUE');
+    expect(prompt).toContain('Do not hedge every sentence');
+    expect(prompt).toContain('NO INVENTED LIFE');
+    expect(prompt).toContain('PLAIN SPEECH');
+    expect(prompt).toContain('TONE ONLY, NOT A SCRIPT');
+    expect(prompt).not.toContain('Preferred modality: may / could');
   });
 
-  it('gives sections distinct narrative roles and keeps safety discipline silent', () => {
-    expect(prompt).toContain('Each section may deepen it or follow another well-supported thread');
+  it('gives sections distinct meanings and keeps safety discipline silent', () => {
+    expect(prompt).toContain('SECTIONS CARRY DIFFERENT MEANINGS');
+    expect(prompt).toContain('must not retell the summary');
     expect(prompt).toContain('Keep safety and evidence discipline SILENT');
     expect(prompt).toContain('Never tell the user that the reading is "not prophecy"');
-    expect(prompt).toContain('closingMessage adds personal resonance without disclaimers');
+    expect(prompt).toContain(
+      'closingMessage adds personal resonance without disclaimers',
+    );
+    expect(prompt).toContain('without a pep talk');
+  });
+
+  it('budgets a full portrait and keeps thinner charts short', () => {
+    expect(yildiznamePortraitDirective('full')).toContain('400–550');
+    expect(yildiznamePortraitDirective('full')).toContain('3 to 5 sections');
+    expect(yildiznamePortraitDirective('reduced')).toContain('280');
+    expect(yildiznamePortraitDirective('reduced')).not.toContain('400–550');
+    expect(yildiznamePortraitDirective('legacy')).toContain('180');
+    expect(yildiznamePortraitDirective('legacy')).not.toContain('400–550');
+    const messages = yildiznameNarrativeMessages(
+      fullNarrative() as YildiznameWireNarrative,
+      'tr',
+    );
+    expect(messages[1].content).toContain('400–550');
+    const thin = yildiznameNarrativeMessages(
+      baseNarrative() as YildiznameWireNarrative,
+      'tr',
+    );
+    expect(thin[1].content).toContain('180');
+    expect(thin[1].content).not.toContain('400–550');
   });
 });
 

@@ -25,8 +25,11 @@ abstract final class TarotTokens {
   static const double cardCornerRadius = 12;
 
   /// Live ritual card physicality — table / deck / flight path.
-  static const double ritualCardWidth = 132;
-  static const double ritualCardHeight = 222;
+  /// Sized as a held collectible card; the deck stage scales down when the
+  /// available table height is short. Ratio stays close to the 2:3 printed
+  /// art so the engraved back frame and the arcana faces are not cropped.
+  static const double ritualCardWidth = 186;
+  static const double ritualCardHeight = 290;
   static const double ritualCardRadius = 18;
   static const double ritualCardAspectRatio =
       ritualCardWidth / ritualCardHeight;

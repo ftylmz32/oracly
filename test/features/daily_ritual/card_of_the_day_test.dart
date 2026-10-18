@@ -52,9 +52,9 @@ void main() {
     expect(CardOfTheDayPicker.ritualIdFor(day), inInclusiveRange(0, 77));
   });
 
-  test('copy invites OR without promising the future', () {
+  test('copy invites Luna without promising the future', () {
     OraclyL10n.bind('tr');
-    expect(CardOfTheDayCopy.orOpen, 'OR ile aç');
+    expect(CardOfTheDayCopy.orOpen, 'Luna ile aç');
     expect(CardOfTheDayCopy.honesty.toLowerCase(), contains('yansıma'));
     expect(CardOfTheDayCopy.honesty.toLowerCase(), isNot(contains('kesin')));
     expect(DailyRitualReflections.drawCta(drawn: true), 'Günün kartını aç');

@@ -79,7 +79,7 @@ class MockUserRepository implements UserRepository {
     ('first_reading', 'İlk Açılım', 'İlk tarot açılımını tamamladın.',
         Icons.auto_awesome_rounded),
     ('cards_100', '100 Kart', '100 kart keşfettin.', Icons.style_rounded),
-    ('first_premium', 'İlk Premium', 'OR Premium ailesine katıldın.',
+    ('first_premium', 'İlk Premium', 'Luna Premium ailesine katıldın.',
         Icons.workspace_premium_rounded),
   ];
 

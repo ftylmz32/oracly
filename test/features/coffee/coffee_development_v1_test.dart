@@ -127,7 +127,7 @@ void main() {
     );
     expect(CoffeeCopy.landingSteps, contains('Fotoğrafı yükle'));
     expect(CoffeeCopy.guidanceSteps, contains('Fincanı çek'));
-    expect(CoffeeCopy.capabilityNote.toLowerCase(), contains('or'));
+    expect(CoffeeCopy.capabilityNote.toLowerCase(), contains('luna'));
     expect(CoffeeCopy.capabilityNote.toLowerCase(), isNot(contains('önizleme')));
     expect(CoffeeCopy.landingStepsUnavailable, contains('Kayıtlı'));
   });

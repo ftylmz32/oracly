@@ -62,7 +62,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   }
 
-  testWidgets('four OR voice expressions are offered with a listen control', (
+  testWidgets('four Luna voice expressions are offered with a listen control', (
     tester,
   ) async {
     await pumpSettings(tester);
@@ -74,15 +74,15 @@ void main() {
     expect(find.text('HIZLI'), findsOneWidget);
     expect(find.byKey(const ValueKey('or-voice-deep')), findsOneWidget);
     expect(
-      find.text('Aynı OR. Dört ifade — dört karakter değil.'),
+      find.text('Aynı Luna. Dört ifade — dört karakter değil.'),
       findsOneWidget,
     );
     expect(
-      find.text('OR’ın sıcak ifadesi — yakın ve açık.'),
+      find.text('Luna’nın sıcak ifadesi — yakın ve açık.'),
       findsOneWidget,
     );
     expect(
-      find.text('OR’ın derin ifadesi — alçak ve dengeli.'),
+      find.text('Luna’nın derin ifadesi — alçak ve dengeli.'),
       findsOneWidget,
     );
     expect(find.byKey(const ValueKey('or-voice-preview-calm')), findsOneWidget);
@@ -104,7 +104,7 @@ void main() {
     );
   });
 
-  testWidgets('selected voice persists without changing OR style', (
+  testWidgets('selected voice persists without changing Luna style', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({

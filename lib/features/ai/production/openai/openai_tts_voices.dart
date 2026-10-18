@@ -68,8 +68,8 @@ abstract final class OpenAiTtsVoices {
 
   static (String, String, String) _timbre(OraclyVoiceId id) {
     const original =
-        'Original voice created for OR. Never imitate a celebrity, actor, '
-        'or any real public person. Same OR — expression color only. ';
+        'Original voice created for Luna. Never imitate a celebrity, actor, '
+        'or any real public person. Same Luna — expression color only. ';
     return switch (id) {
       OraclyVoiceId.bright => (
           'marin',

@@ -183,8 +183,8 @@ const kL10nBirthMore = <String, L10nTriple>{
     'Аккаунт ещё не готов. Карту рождения пока открыть нельзя.',
   ),
   'preview.astro_detail': L10nTriple(
-    'Bu bir yansıma, hüküm değil. Yerel Güneş burcu kataloğundan okunuyor — canlı ephemeris değil.',
-    'This is a reflection, not a verdict. It is read from a local sun-sign catalogue — not a live ephemeris.',
-    'Это отражение, не приговор. Читается из локального каталога солнечного знака — не живой эфемериды.',
+    'Güneş burcunun genel karakterinden yola çıkan günlük bir yansıma. Doğum haritana özel okuma Yıldızname’de.',
+    'A daily reflection drawn from your sun sign’s general character. A reading of your own birth chart lives in Yıldızname.',
+    'Ежедневное отражение по общему характеру солнечного знака. Чтение твоей натальной карты — в Йылдызнаме.',
   ),
 };

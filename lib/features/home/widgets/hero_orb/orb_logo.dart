@@ -8,13 +8,13 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'orb_constants.dart';
 
-/// OR mark — large, sharp, luminous gold centerpiece.
+/// Luna mark — large, sharp, luminous gold centerpiece.
 class OrbLogo extends StatelessWidget {
   const OrbLogo({super.key, required this.size});
 
   final double size;
 
-  static const String _mark = 'OR';
+  static const String _mark = 'L';
 
   @override
   Widget build(BuildContext context) {

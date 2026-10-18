@@ -39,7 +39,7 @@ void main() {
     );
     expect(
       OraclyFeatureRegistry.byId(OraclyFeatureId.aiChat)?.title,
-      'OR',
+      'Luna',
     );
   });
 
@@ -63,7 +63,7 @@ void main() {
     expect(AiSourceCopy.sourceLocal.toLowerCase(), isNot(contains('or yanıtı')));
   });
 
-  test('configured proxy/AI keeps the live OR label', () async {
+  test('configured proxy/AI keeps the live Luna label', () async {
     final ai = _LiveAi();
     final source = OracleAiMessageSource(ai: ai);
     expect(source.fromAi, isTrue);
@@ -75,10 +75,10 @@ void main() {
       context: _tarot(),
       userMessage: 'Bu kart ne anlatıyor?',
     );
-    expect(reply, 'Canlı OR yanıt metni.');
+    expect(reply, 'Canlı Luna yanıt metni.');
     expect(AiSourceCopy.footnote(fromAi: true), AiSourceCopy.sourceLive);
     expect(AiSourceCopy.orAskFootnote(fromAi: true), AiSourceCopy.orAskLive);
-    expect(AiSourceCopy.sourceLive, 'OR yanıtı.');
+    expect(AiSourceCopy.sourceLive, 'Luna yanıtı.');
   });
 
   test('oracle repository stamps local vs live metadata', () async {
@@ -115,7 +115,7 @@ void main() {
     final now = DateTime(2026, 8, 10);
     final conversation = Conversation(
       id: 'c1',
-      title: 'OR',
+      title: 'Luna',
       topic: ConversationTopic.general,
       messages: [
         AIMessage(
@@ -135,7 +135,7 @@ void main() {
     expect(AiSourceCopy.isLocal(roundTrip.messages.single.metadata), isTrue);
   });
 
-  testWidgets('OR bubbles never show source/transport labels', (tester) async {
+  testWidgets('Luna bubbles never show source/transport labels', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -260,7 +260,7 @@ class _LiveAi implements OraclyAiService {
     OrResponseDepth depth = OrResponseDepth.fallback,
     bool spoken = false,
   }) async =>
-      AiOutcome.success(const ChatAiReply(text: 'Canlı OR yanıt metni.'));
+      AiOutcome.success(const ChatAiReply(text: 'Canlı Luna yanıt metni.'));
 
   @override
   Future<AiOutcome<ChatAiReply>> generateTarotReading({

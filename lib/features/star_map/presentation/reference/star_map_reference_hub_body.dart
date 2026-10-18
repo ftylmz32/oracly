@@ -11,6 +11,7 @@ import 'star_map_reference_menu_cards.dart';
 import 'star_map_reference_status.dart';
 import 'star_map_reference_themes.dart';
 import 'star_map_reference_tokens.dart';
+import 'star_map_result_section.dart';
 
 class StarMapReferenceHubBody extends StatelessWidget {
   const StarMapReferenceHubBody({
@@ -24,6 +25,8 @@ class StarMapReferenceHubBody extends StatelessWidget {
     required this.onRefresh,
     this.profile,
     this.cityName,
+    this.portrait,
+    this.portraitHeading,
   });
 
   final double chart;
@@ -36,6 +39,10 @@ class StarMapReferenceHubBody extends StatelessWidget {
   final BirthProfile? profile;
   final String? cityName;
 
+  /// Chart-grounded chapters; null keeps the archive copy.
+  final List<StarMapResultSection>? portrait;
+  final String? portraitHeading;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -43,7 +50,11 @@ class StarMapReferenceHubBody extends StatelessWidget {
       children: [
         StarMapReferenceChart(diameter: chart),
         SizedBox(height: StarMapReferenceTokens.chartToStatus),
-        StarMapReferenceThemes(reading: reading),
+        StarMapReferenceThemes(
+          reading: reading,
+          sections: portrait,
+          heading: portraitHeading,
+        ),
         SizedBox(height: StarMapReferenceTokens.statusToMenus),
         StarMapReferenceMenuCards(
           items: StarMapReferenceHubMenus.build(
@@ -51,6 +62,7 @@ class StarMapReferenceHubBody extends StatelessWidget {
             reading: reading,
             profile: profile,
             onRefresh: onRefresh,
+            onPrimary: hasBirth ? onOpenLeaf : onBirth,
           ),
         ),
         SizedBox(height: StarMapReferenceTokens.statusToMenus),

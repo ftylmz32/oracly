@@ -76,9 +76,9 @@ const kL10nCompanion = <String, L10nTriple>{
   ),
   'or.mic_permission_title': L10nTriple('Mikrofon', 'Microphone', 'Микрофон'),
   'or.mic_permission_message': L10nTriple(
-    'OR ile sesli mesaj için mikrofon gerekir. Sürekli dinleme yok — konuşman metne çevrilir; bitince mikrofon kapanır. Detaylar Gizlilik ekranında.',
-    'Microphone is needed for a voice message with OR. There is no continuous listening — speech becomes text, then the mic closes. Details in the Privacy screen.',
-    'Для голосового сообщения OR нужен микрофон. Нет постоянного прослушивания — речь станет текстом, затем микрофон закроется. Детали — в «Приватность».',
+    'Luna ile sesli mesaj için mikrofon gerekir. Sürekli dinleme yok — konuşman metne çevrilir; bitince mikrofon kapanır. Detaylar Gizlilik ekranında.',
+    'Microphone is needed for a voice message with Luna. There is no continuous listening — speech becomes text, then the mic closes. Details in the Privacy screen.',
+    'Для голосового сообщения Luna нужен микрофон. Нет постоянного прослушивания — речь станет текстом, затем микрофон закроется. Детали — в «Приватность».',
   ),
   'or.voice_denied': L10nTriple(
     'Mikrofon izni gerekiyor. Ayarlardan açabilirsin; istersen yazılı devam edebilirsin.',
@@ -132,9 +132,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Голосовой диалог',
   ),
   'or.voice_conversation_preview_lead': L10nTriple(
-    'OR ile karşılıklı konuş — dinler, yansıtır; ritmi sen belirlersin.',
-    'Speak with OR — it listens and reflects; you set the rhythm.',
-    'Говори с OR — он слушает и отражает; ритм задаёшь ты.',
+    'Luna ile karşılıklı konuş — dinler, yansıtır; ritmi sen belirlersin.',
+    'Speak with Luna — it listens and reflects; you set the rhythm.',
+    'Говори с Luna — она слушает и отражает; ритм задаёшь ты.',
   ),
   'or.voice_conversation_preview_body': L10nTriple(
     'Bu katman Premium’da. Mikrofon yalnızca sen dokunduğunda açılır; sürekli dinleme yok.',
@@ -142,9 +142,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Этот слой в Премиуме. Микрофон открывается только по касанию — без постоянного прослушивания.',
   ),
   'or.voice_conversation_preview_aside': L10nTriple(
-    'OR sohbetinin karşılıklı ses katmanı — Premium’da.',
-    'The turn-taking voice layer of OR conversation — in Premium.',
-    'Голосовой слой диалога OR — в Премиуме.',
+    'Luna sohbetinin karşılıklı ses katmanı — Premium’da.',
+    'The turn-taking voice layer of Luna conversation — in Premium.',
+    'Голосовой слой диалога Luna — в Премиуме.',
   ),
   'or.voice_conversation_demoted': L10nTriple(
     'Sesli sohbet Premium’da. Sesli yanıtlara geçildi.',
@@ -157,9 +157,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Голосовой диалог — Премиум',
   ),
   'or.premium_title': L10nTriple(
-    'OR ile sohbet',
-    'Conversation with OR',
-    'Разговор с OR',
+    'Luna ile sohbet',
+    'Conversation with Luna',
+    'Разговор с Luna',
   ),
   'or.premium_headline': L10nTriple(
     'Baştan anlatmadan devam eden bir sohbet.',
@@ -167,14 +167,14 @@ const kL10nCompanion = <String, L10nTriple>{
     'Разговор, который продолжается без повторений.',
   ),
   'or.premium_lead': L10nTriple(
-    'OR, seçtiğin okumayı ve bu konuşmadaki ayrıntıları birlikte tutar; kesin cevap vaat etmez, düşünceni netleştirir.',
-    'OR holds your chosen reading and the details in this conversation together; it does not promise certainty, it clarifies your thinking.',
-    'OR держит выбранное чтение и детали этого разговора вместе; не обещает точных ответов, а проясняет мысль.',
+    'Luna, seçtiğin okumayı ve bu konuşmadaki ayrıntıları birlikte tutar; kesin cevap vaat etmez, düşünceni netleştirir.',
+    'Luna holds your chosen reading and the details in this conversation together; it does not promise certainty, it clarifies your thinking.',
+    'Luna держит выбранное чтение и детали этого разговора вместе; не обещает точных ответов, а проясняет мысль.',
   ),
   'or.premium_personality': L10nTriple(
-    'OR’un sesi: sıcak, net, baskısız.',
-    'OR’s voice: warm, clear, without pressure.',
-    'Голос OR: тёплый, ясный, без давления.',
+    'Luna’nın sesi: sıcak, net, baskısız.',
+    'Luna’s voice: warm, clear, without pressure.',
+    'Голос Luna: тёплый, ясный, без давления.',
   ),
   'or.premium_sample_label': L10nTriple(
     'ÖRNEK BİR SOHBET',
@@ -217,9 +217,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Можно продолжать, не дробя мысли',
   ),
   'or.premium_deeper_1': L10nTriple(
-    'OR, yalnızca kaydettiğin bağlamı hatırlar',
-    'OR remembers only the context you choose to save',
-    'OR помнит только тот контекст, который ты сохраняешь',
+    'Luna, yalnızca kaydettiğin bağlamı hatırlar',
+    'Luna remembers only the context you choose to save',
+    'Luna помнит только тот контекст, который ты сохраняешь',
   ),
   'or.premium_deeper_2': L10nTriple(
     'Yanıtlar yansıma kalır — kehanet değil',
@@ -237,9 +237,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Кофе, ладонь, небо и дневник открытий остаются открытыми.',
   ),
   'or.paywall_title': L10nTriple(
-    'OR ile daha derin bir sohbet',
-    'A deeper conversation with OR',
-    'Более глубокий разговор с OR',
+    'Luna ile daha derin bir sohbet',
+    'A deeper conversation with Luna',
+    'Более глубокий разговор с Luna',
   ),
   'or.paywall_lead': L10nTriple(
     'Aynı sakin yer — daha uzun, daha bağlı, daha kişisel bir ritim.',
@@ -303,9 +303,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Следы твоих чтений могут мягко войти в разговор.',
   ),
   'or.paywall_honesty': L10nTriple(
-    'OR yansıtır — geleceği bilmez, yaşam sonucu vaat etmez.',
-    'OR reflects — it does not know the future, and never promises life outcomes.',
-    'OR отражает — не знает будущее и не обещает жизненных результатов.',
+    'Luna yansıtır — geleceği bilmez, yaşam sonucu vaat etmez.',
+    'Luna reflects — it does not know the future, and never promises life outcomes.',
+    'Luna отражает — не знает будущее и не обещает жизненных результатов.',
   ),
   'or.entitlement_pending': L10nTriple(
     'Satın alma tamamlanıyor…',
@@ -333,9 +333,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Можешь задать один вопрос по этому первому раскладу.',
   ),
   'or.paywall_cta': L10nTriple(
-    'OR ile konuşmaya başla',
-    'Start talking with OR',
-    'Начать разговор с OR',
+    'Luna ile konuşmaya başla',
+    'Start talking with Luna',
+    'Начать разговор с Luna',
   ),
   'or.output_text': L10nTriple('YAZILI', 'WRITTEN', 'ТЕКСТ'),
   'or.output_voice': L10nTriple('SESLİ', 'VOICE', 'ГОЛОС'),
@@ -376,7 +376,7 @@ const kL10nCompanion = <String, L10nTriple>{
   'or.pause_speaking': L10nTriple('DURAKLAT', 'PAUSE', 'ПАУЗА'),
   'or.resume_speaking': L10nTriple('DEVAM', 'RESUME', 'ДАЛЕЕ'),
   'or.replay_speaking': L10nTriple('TEKRAR', 'REPLAY', 'ЕЩЁ'),
-  'or.speaking': L10nTriple('OR konuşuyor…', 'OR is speaking…', 'OR говорит…'),
+  'or.speaking': L10nTriple('Luna konuşuyor…', 'Luna is speaking…', 'Luna говорит…'),
   'or.paused': L10nTriple('Duraklatıldı', 'Paused', 'Пауза'),
   'or.idle': L10nTriple('Yer açık.', 'There is room.', 'Место есть.'),
   'or.idle_title': L10nTriple(
@@ -421,14 +421,14 @@ const kL10nCompanion = <String, L10nTriple>{
     'Твой вопрос и карты расклада здесь.',
   ),
   'or.handoff.banner.tarot': L10nTriple(
-    "Tarot yorumun OR'a aktarıldı",
-    'Your tarot reading was passed to OR',
-    'Твоё таро-чтение передано OR',
+    "Tarot yorumun Luna'ya aktarıldı",
+    'Your tarot reading was passed to Luna',
+    'Твоё таро-чтение передано Luna',
   ),
   'or.handoff.banner.generic': L10nTriple(
-    "Okuman OR'a aktarıldı",
-    'Your reading was passed to OR',
-    'Твоё чтение передано OR',
+    "Okuma Luna'ya aktarıldı",
+    'Your reading was passed to Luna',
+    'Твоё чтение передано Luna',
   ),
   'or.handoff.banner.continuing': L10nTriple('Bağlam', 'Context', 'Контекст'),
   'or.handoff.arrive.coffee': L10nTriple(
@@ -645,7 +645,7 @@ const kL10nCompanion = <String, L10nTriple>{
     'Ask Luna something...',
     'Спроси Luna о чём-нибудь...',
   ),
-  'or.ask': L10nTriple("OR'a Sor", 'Ask OR', 'Спросить OR'),
+  'or.ask': L10nTriple("Luna'ya Sor", 'Ask Luna', 'Спросить Luna'),
   'or.oracle_hint': L10nTriple(
     'Bu okuma hakkında sormak istediğin ne?',
     'What would you like to ask about this reading?',
@@ -663,9 +663,9 @@ const kL10nCompanion = <String, L10nTriple>{
   ),
   'or.new_reply': L10nTriple('Yeni yanıt', 'New reply', 'Новый ответ'),
   'or.error': L10nTriple(
-    "OR'a ulaşamadım. Bir daha deneyelim.",
-    "I couldn't reach OR. Let's try again.",
-    'Не удалось связаться с OR. Давай попробуем ещё раз.',
+    "Luna'ya ulaşamadım. Bir daha deneyelim.",
+    "I couldn't reach Luna. Let's try again.",
+    'Не удалось связаться с Luna. Давай попробуем ещё раз.',
   ),
   'or.retry': L10nTriple('Tekrar dene', 'Try again', 'Попробовать снова'),
   'or.offline': L10nTriple(
@@ -689,9 +689,9 @@ const kL10nCompanion = <String, L10nTriple>{
     'Пробую снова...',
   ),
   'or.provider_unavailable': L10nTriple(
-    "OR'a şu an ulaşamıyorum. Tekrar deneyebilirsin.",
-    "I can't reach OR right now. You can try again.",
-    'Сейчас не могу связаться с OR. Можно попробовать снова.',
+    "Luna'ya şu an ulaşamıyorum. Tekrar deneyebilirsin.",
+    "I can't reach Luna right now. You can try again.",
+    'Сейчас не могу связаться с Luna. Можно попробовать снова.',
   ),
   'or.save_failed': L10nTriple(
     'Yanıt geldi ama kaydedilemedi. Tekrar deneyebilirsin.',

@@ -5,6 +5,7 @@ import '../request/yildizname_narrative_request.dart';
 import '../result/yildizname_narrative_structured_result.dart';
 import '../result/yildizname_result_error.dart';
 import '../result/yildizname_section_kind.dart';
+import 'yildizname_quality_voice.dart';
 
 abstract final class YildiznameQualityProse {
   YildiznameQualityProse._();
@@ -53,6 +54,7 @@ abstract final class YildiznameQualityProse {
     }
     _rejectRepetition(result);
     _rejectThemelessArchive(request, result);
+    YildiznameQualityVoice.validate(request.scope, result);
   }
 
   static void _rejectRepetition(YildiznameNarrativeStructuredResult result) {

@@ -108,6 +108,11 @@ abstract final class DailyMessageCatalogue {
     if (t.contains('ritminde') || t.contains('rhythm of')) {
       return 'ritim';
     }
+    // Open questions are their own shape so the picker alternates them with
+    // statements instead of lumping them with unrelated lines.
+    if (t.endsWith('?')) {
+      return 'soru';
+    }
     if (t.startsWith('bugün') || t.startsWith('no grand') || t.startsWith('today')) {
       return 'bugun';
     }

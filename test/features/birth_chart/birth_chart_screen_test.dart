@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
@@ -55,8 +54,9 @@ void main() {
     expect(find.text(BirthChartCopy.birthPlaceRequired), findsNothing);
   });
 
-  testWidgets('date with unknown time can submit after explicit choice',
-      (tester) async {
+  testWidgets('date with unknown time can submit after explicit choice', (
+    tester,
+  ) async {
     await setPhoneSurface(tester);
     BirthProfile? submitted;
 
@@ -98,7 +98,9 @@ void main() {
     expect(find.text(BirthChartCopy.birthPlaceRequired), findsNothing);
   });
 
-  testWidgets('saved chart reopens result without asking again', (tester) async {
+  testWidgets('saved chart reopens result without asking again', (
+    tester,
+  ) async {
     await setPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
@@ -110,9 +112,9 @@ void main() {
         birthTimeKnown: true,
       ),
     );
-    await testBirthChartRepo(storage).save(
-      BirthChartRecordMapper.toRecord(incomplete),
-    );
+    await testBirthChartRepo(
+      storage,
+    ).save(BirthChartRecordMapper.toRecord(incomplete));
 
     await tester.pumpWidget(
       buildProviderScopeHarness(
@@ -137,8 +139,9 @@ void main() {
     expect(find.text(BirthChartCopy.onboardingHeadline), findsNothing);
   });
 
-  testWidgets('edit birth info opens prefilled form without clearing save',
-      (tester) async {
+  testWidgets('edit birth info opens prefilled form without clearing save', (
+    tester,
+  ) async {
     await setPhoneSurface(tester);
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
@@ -179,5 +182,64 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text(BirthChartCopy.sectionYourChart), findsOneWidget);
+  });
+
+  testWidgets('Yildizname entry returns after a newly generated chart', (
+    tester,
+  ) async {
+    await setPhoneSurface(tester);
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    final repository = testBirthChartRepo(storage);
+    final incomplete = const NatalChartCalculator().calculate(
+      BirthProfile(
+        birthDate: DateTime(1990, 3, 25),
+        birthPlace: 'Ankara',
+        birthTime: DateTime(1990, 3, 25, 9, 15),
+        birthTimeKnown: true,
+      ),
+    );
+    await repository.save(BirthChartRecordMapper.toRecord(incomplete));
+    bool? returned;
+
+    await tester.pumpWidget(
+      buildProviderScopeHarness(
+        storage: storage,
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () async {
+                returned = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute<bool>(
+                    builder: (_) =>
+                        const BirthChartScreen(returnWhenChartGenerated: true),
+                  ),
+                );
+              },
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800));
+
+    await tester.scrollUntilVisible(
+      find.text(BirthChartCopy.updateBirthInfo),
+      80,
+    );
+    await tester.tap(find.text(BirthChartCopy.updateBirthInfo));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.scrollUntilVisible(find.text(BirthChartCopy.updateChart), 60);
+    await tester.tap(find.text(BirthChartCopy.updateChart));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 900));
+
+    expect(returned, isTrue);
+    expect(find.text('open'), findsOneWidget);
+    expect(await repository.getLatest(), isNotNull);
   });
 }

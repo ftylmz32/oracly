@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/copy/home_personal_copy.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/universe/oracly_ritual_time.dart';
 import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/design_system/app_layout.dart';
 import 'package:oracly_new/features/astrology/presentation/reference/astrology_reference_stat_row.dart';
@@ -10,6 +12,9 @@ import 'package:oracly_new/features/home/reference/home_reference_tokens.dart';
 import 'package:oracly_new/core/universe/oracly_universe_state.dart';
 import 'package:oracly_new/features/daily_ritual/services/daily_ritual_reflections.dart';
 import 'package:oracly_new/features/daily_ritual/widgets/daily_ritual_card.dart';
+import 'package:oracly_new/features/daily_ritual/widgets/daily_ritual_hero_copy.dart';
+import 'package:oracly_new/features/home/reference/home_reference_hero_copy.dart';
+import 'package:oracly_new/features/home/reference/home_reference_or_flagship_copy.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,9 +32,7 @@ void main() {
     Size(600, 960),
   ];
 
-  const scrollViewports = <Size>[
-    Size(360, 640),
-  ];
+  const scrollViewports = <Size>[Size(360, 640)];
 
   double contentHeight(Size size, {double bottomSafe = 0}) {
     return size.height -
@@ -78,12 +81,15 @@ void main() {
         expect(find.text(PremiumCopy.loadingBody), findsWidgets);
         expect(find.text(PremiumCopy.ctaBusy), findsWidgets);
         expect(find.text(PremiumCopy.ctaJoin), findsNothing);
-        expect(find.text('Merhaba,'), findsOneWidget);
         expect(
-          find.textContaining('Bugün senin için'),
+          find.text(
+            HomePersonalCopy.greeting(
+              time: OraclyRitualAtmosphere.fromHour(DateTime.now().hour),
+            ),
+          ),
           findsOneWidget,
         );
-        expect(find.textContaining('İyi akşamlar'), findsNothing);
+        expect(find.textContaining('Bugün senin için'), findsOneWidget);
         expect(find.text(HomeReferenceHeader.tagline), findsNothing);
         expect(find.textContaining('Yolcu'), findsNothing);
         expect(find.textContaining('Hoş geldin'), findsNothing);
@@ -100,12 +106,60 @@ void main() {
         addTearDown(() => tester.binding.setSurfaceSize(null));
         SharedPreferences.setMockInitialValues({});
         final storage = await LocalStorage.open();
-        await tester.pumpWidget(wrapHome(size, contentHeight(size, bottomSafe: 34), storage));
+        await tester.pumpWidget(
+          wrapHome(size, contentHeight(size, bottomSafe: 34), storage),
+        );
         await tester.pump();
 
         expect(tester.takeException(), isNull);
         expect(find.byType(SingleChildScrollView), findsOneWidget);
       });
+    }
+  });
+
+  group('Home copy remains readable without ellipsis', () {
+    for (final width in <double>[320, 360, 390]) {
+      for (final scale in <double>[1.0, 1.3]) {
+        testWidgets('${width.toInt()}px at ${scale}x text', (tester) async {
+          final size = Size(width, 844);
+          await tester.binding.setSurfaceSize(size);
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+          SharedPreferences.setMockInitialValues({});
+          final storage = await LocalStorage.open();
+          await tester.pumpWidget(
+            buildProviderScopeHarness(
+              storage: storage,
+              child: MaterialApp(
+                home: MediaQuery(
+                  data: MediaQueryData(
+                    size: size,
+                    textScaler: TextScaler.linear(scale),
+                  ),
+                  child: const Scaffold(body: HomeReferencePage()),
+                ),
+              ),
+            ),
+          );
+          await tester.pump();
+
+          expect(tester.takeException(), isNull);
+          final copyRoots = <Finder>[
+            find.byType(HomeReferenceHeroCopy),
+            find.byType(HomeReferenceOrFlagshipCopy),
+            find.byType(DailyRitualHeroCopy),
+          ];
+          final meaningful = copyRoots.expand(
+            (root) => tester.widgetList<Text>(
+              find.descendant(of: root, matching: find.byType(Text)),
+            ),
+          );
+          expect(meaningful, isNotEmpty);
+          expect(
+            meaningful.where((text) => text.overflow == TextOverflow.ellipsis),
+            isEmpty,
+          );
+        });
+      }
     }
   });
 
@@ -133,12 +187,14 @@ void main() {
         .whereType<String>()
         .where(
           (s) =>
-              s == DailyRitualReflections.welcome(
-                OraclyUniverseState.current(),
-              ) ||
-              s == DailyRitualReflections.reflection(
-                OraclyUniverseState.current(),
-              ),
+              s ==
+                  DailyRitualReflections.welcome(
+                    OraclyUniverseState.current(),
+                  ) ||
+              s ==
+                  DailyRitualReflections.reflection(
+                    OraclyUniverseState.current(),
+                  ),
         )
         .toList();
     expect(bodies, hasLength(1));
@@ -153,9 +209,7 @@ void main() {
         const MaterialApp(
           home: MediaQuery(
             data: MediaQueryData(size: size),
-            child: Scaffold(
-              body: AstrologyReferenceStatRow(),
-            ),
+            child: Scaffold(body: AstrologyReferenceStatRow()),
           ),
         ),
       );
@@ -177,9 +231,7 @@ void main() {
           child: const MaterialApp(
             home: MediaQuery(
               data: MediaQueryData(size: size),
-              child: Scaffold(
-                body: StarMapReferenceAppBar(),
-              ),
+              child: Scaffold(body: StarMapReferenceAppBar()),
             ),
           ),
         ),

@@ -21,6 +21,8 @@ abstract final class OnboardingProfileSaver {
     String? birthPlace,
     String? language,
     AiPersonality? style,
+    DateTime? birthTime,
+    bool birthTimeKnown = false,
   }) async {
     final trimmed = name.trim();
     if (trimmed.isNotEmpty) {
@@ -36,6 +38,8 @@ abstract final class OnboardingProfileSaver {
               birthDate: birthDate,
               birthPlace:
                   birthPlace ?? OraclyL10n.t('onboard.birth_unspecified'),
+              birthTime: birthTimeKnown ? birthTime : null,
+              birthTimeKnown: birthTimeKnown && birthTime != null,
             ),
           );
       ref.invalidate(birthInformationProvider);

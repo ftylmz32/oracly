@@ -14,9 +14,13 @@ void main() {
     expect(ariesReading.overall.toLowerCase(), contains('koç'));
     expect(taurusReading.overall.toLowerCase(), contains('boğa'));
     expect(ariesReading.overall, isNot(equals(taurusReading.overall)));
-    expect(ariesReading.love.trim().isEmpty, isTrue);
-    expect(ariesReading.career.trim().isEmpty, isTrue);
-    expect(ariesReading.money.trim().isEmpty, isTrue);
+    // Every reader gets distinct sign love, career and money lanes; only a
+    // real theme marks them personal.
+    expect(ariesReading.love.trim().isNotEmpty, isTrue);
+    expect(ariesReading.career.trim().isNotEmpty, isTrue);
+    expect(ariesReading.money.trim().isNotEmpty, isTrue);
+    expect(ariesReading.lovePersonal, isFalse);
+    expect(ariesReading.careerPersonal, isFalse);
     expect(ariesReading.advice.trim().isNotEmpty, isTrue);
     expect(ariesReading.energy.trim().isNotEmpty, isTrue);
     expect(ariesReading.emotion.trim().isNotEmpty, isTrue);
@@ -58,13 +62,16 @@ void main() {
         );
         daily.add(reading.overall);
 
-        expect(reading.love, isEmpty);
-        expect(reading.career, isEmpty);
-        expect(reading.money, isEmpty);
+        expect(reading.love, isNotEmpty);
+        expect(reading.career, isNotEmpty);
+        expect(reading.money, isNotEmpty);
         expect(reading.overall, isNot(contains(reading.emotion)));
         expect(reading.overall, isNot(contains(reading.caution)));
 
         final lanes = [
+          reading.love,
+          reading.career,
+          reading.money,
           reading.energy,
           reading.emotion,
           reading.advice,

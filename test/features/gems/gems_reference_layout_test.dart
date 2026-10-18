@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
+import 'package:oracly_new/core/design_system/app_layout.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
 import 'package:oracly_new/features/gems/data/gem_display.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
@@ -24,7 +25,10 @@ void main() {
     Size(600, 960),
   ];
 
-  Future<void> pumpGems(WidgetTester tester, {Size size = const Size(360, 800)}) async {
+  Future<void> pumpGems(
+    WidgetTester tester, {
+    Size size = const Size(360, 800),
+  }) async {
     await tester.binding.setSurfaceSize(size);
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
@@ -77,8 +81,9 @@ void main() {
 
   group('Gems reference — no overflow', () {
     for (final size in viewports) {
-      testWidgets('full page at ${size.width.toInt()}x${size.height.toInt()}',
-          (tester) async {
+      testWidgets('full page at ${size.width.toInt()}x${size.height.toInt()}', (
+        tester,
+      ) async {
         await pumpGems(tester, size: size);
 
         expect(tester.takeException(), isNull);
@@ -89,5 +94,54 @@ void main() {
         expect(find.textContaining('₺'), findsNothing);
       });
     }
+  });
+
+  testWidgets('gems list clears the floating shell bar', (tester) async {
+    const size = Size(390, 844);
+    const safeBottom = 34.0;
+    await tester.binding.setSurfaceSize(size);
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.open();
+    await tester.pumpWidget(
+      buildProviderScopeHarness(
+        storage: storage,
+        child: MaterialApp(
+          home: MediaQuery(
+            data: const MediaQueryData(
+              size: size,
+              padding: EdgeInsets.only(top: 47, bottom: safeBottom),
+              viewPadding: EdgeInsets.only(top: 47, bottom: safeBottom),
+            ),
+            child: Scaffold(
+              extendBody: true,
+              body: const GemsReferenceScreen(),
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  0,
+                  16,
+                  AppLayout.navBarMarginBottom + safeBottom,
+                ),
+                child: const SizedBox(height: AppLayout.navBarHeight),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    final list = tester.widget<ListView>(find.byType(ListView));
+    final pad = list.padding! as EdgeInsets;
+    expect(
+      pad.bottom,
+      greaterThanOrEqualTo(
+        AppLayout.navBarHeight +
+            AppLayout.navBarMarginBottom +
+            safeBottom +
+            AppLayout.contentBottomBreath,
+      ),
+    );
+    expect(tester.takeException(), isNull);
   });
 }

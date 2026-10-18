@@ -8,6 +8,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../features/companion/models/or_chat_output_mode.dart';
 import '../../../features/premium/models/personalization_models.dart';
 import '../../../shared/widgets/oracly_pressable.dart';
+import 'settings_ambient_level.dart';
 import 'settings_or_voice_section.dart';
 import 'settings_reference_group.dart';
 import 'settings_reference_tokens.dart';
@@ -57,6 +58,14 @@ class SettingsReferenceSound extends StatelessWidget {
               switchValue: settings.ambientMusicEnabled,
               onSwitchChanged: (v) =>
                   onSave((s) => s.copyWith(ambientMusicEnabled: v)),
+              footer: settings.ambientMusicEnabled
+                  ? SettingsAmbientLevel(
+                      level: settings.ambientMusicLevel,
+                      label: _t(L10nKeys.ambientLevelTitle),
+                      onCommit: (v) =>
+                          onSave((s) => s.copyWith(ambientMusicLevel: v)),
+                    )
+                  : null,
             ),
             SettingsReferenceRow(
               icon: Icons.auto_awesome_outlined,

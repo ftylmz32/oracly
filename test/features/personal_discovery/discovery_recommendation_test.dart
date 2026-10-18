@@ -92,7 +92,7 @@ void main() {
     );
   });
 
-  test('recurring decision theme recommends talking with OR', () {
+  test('recurring decision theme recommends talking with Luna', () {
     final rec = DiscoveryRecommendationEngine.decide(
       PersonalDiscoveryProfileBuilder.from(
         PersonalDiscoverySources(
@@ -119,7 +119,7 @@ void main() {
     expect(rec.recurring, isTrue);
     expect(
       DiscoveryRecommendationCopy.cta(rec.feature),
-      "OR'a danış",
+      "Luna'ya danış",
     );
     expect(DiscoveryRecommendationCopy.reason(rec), contains('Karar verme'));
     expect(DiscoveryRecommendationCopy.reason(rec), contains('tekrar'));

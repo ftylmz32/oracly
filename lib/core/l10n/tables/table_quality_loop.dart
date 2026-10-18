@@ -43,5 +43,5 @@ const kL10nQualityLoop = <String, L10nTriple>{
     'Star reading',
     'Звёздная карта',
   ),
-  'quality.feature.companion': L10nTriple('OR', 'OR', 'OR'),
+  'quality.feature.companion': L10nTriple('Luna', 'Luna', 'Luna'),
 };

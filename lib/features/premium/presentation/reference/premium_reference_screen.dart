@@ -1,16 +1,16 @@
-/// Premium invitation screen — visual shell, honest store state.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/providers/app_providers.dart';
 import '../../../../core/auth/user_local_data_isolation.dart';
 import '../../../../core/navigation/oracly_navigation_service.dart';
-import '../../../../core/navigation/oracly_page_transitions.dart';
 import '../../../../shared/widgets/oracly_scaffold.dart';
 import '../../models/premium_purchase_result.dart';
 import '../../providers/premium_providers.dart';
+import 'premium_qa_preview.dart';
 import 'premium_reference_app_bar.dart';
 import 'premium_reference_atmosphere.dart';
 import 'premium_reference_body.dart';
@@ -18,8 +18,12 @@ import 'premium_reference_outcome.dart';
 import 'premium_reference_tokens.dart';
 import 'premium_store_diagnostics_sheet.dart';
 
+export 'premium_reference_route.dart';
+
 class PremiumReferenceScreen extends ConsumerStatefulWidget {
-  const PremiumReferenceScreen({super.key});
+  const PremiumReferenceScreen({super.key, this.qaPreview});
+
+  final PremiumQaPreviewKind? qaPreview;
 
   @override
   ConsumerState<PremiumReferenceScreen> createState() =>
@@ -29,6 +33,19 @@ class PremiumReferenceScreen extends ConsumerStatefulWidget {
 class _PremiumReferenceScreenState
     extends ConsumerState<PremiumReferenceScreen> {
   int _purchaseEpoch = 0;
+  final GlobalKey _plansAnchor = GlobalKey();
+  PremiumQaPreviewKind _channelPreview = PremiumQaPreviewKind.none;
+
+  PremiumQaPreviewKind get _preview {
+    if (kReleaseMode) return PremiumQaPreviewKind.none;
+    final injected = widget.qaPreview;
+    if (injected != null && injected != PremiumQaPreviewKind.none) {
+      return injected;
+    }
+    return _channelPreview;
+  }
+
+  bool get _previewing => _preview != PremiumQaPreviewKind.none;
 
   @override
   void initState() {
@@ -37,15 +54,19 @@ class _PremiumReferenceScreenState
       ref.read(premiumStatusProvider).load();
       ref.read(analyticsServiceProvider).logPremiumViewed();
     });
+    if (!kReleaseMode) {
+      PremiumQaPreview.requested().then((kind) {
+        if (!mounted || kind == PremiumQaPreviewKind.none) return;
+        setState(() => _channelPreview = kind);
+      });
+    }
   }
 
   Future<void> _purchase() async {
+    if (_previewing) return;
     _purchaseEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
     final analytics = ref.read(analyticsServiceProvider);
-    analytics.logOperation(
-      operation: 'premium_purchase_started',
-      success: true,
-    );
+    analytics.logOperation(operation: 'premium_purchase_started', success: true);
     analytics.logOperation(
       operation: 'premium_plan_selected',
       success: true,
@@ -55,6 +76,7 @@ class _PremiumReferenceScreenState
   }
 
   Future<void> _restore() async {
+    if (_previewing) return;
     _purchaseEpoch = UserLocalDataIsolation.accountSwitchEpoch.value;
     ref
         .read(analyticsServiceProvider)
@@ -104,13 +126,20 @@ class _PremiumReferenceScreenState
             Expanded(
               child: PremiumReferenceBody(
                 status: status,
+                preview: _preview,
+                plansAnchor: _plansAnchor,
                 onPurchase: _purchase,
                 onRestore: _restore,
-                onRetryStore: () => ref.read(premiumStatusProvider).retryStore(),
-                onStoreDiagnostics: () => showPremiumStoreDiagnostics(
-                  context,
-                  ref.read(premiumPurchasePortProvider),
-                ),
+                onRetryStore: () {
+                  if (_previewing) return;
+                  ref.read(premiumStatusProvider).retryStore();
+                },
+                onStoreDiagnostics: _previewing
+                    ? null
+                    : () => showPremiumStoreDiagnostics(
+                          context,
+                          ref.read(premiumPurchasePortProvider),
+                        ),
               ),
             ),
           ],
@@ -118,11 +147,4 @@ class _PremiumReferenceScreenState
       ),
     );
   }
-}
-
-Route<T> premiumScreenRoute<T>({RouteSettings? settings}) {
-  return OraclyPageTransitions.light<T>(
-    page: const PremiumReferenceScreen(),
-    settings: settings,
-  );
 }

@@ -2,11 +2,13 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/core/l10n/l10n.dart';
 import 'package:oracly_new/features/oracle_core/models/oracle_premium_opportunity.dart';
 import 'package:oracly_new/features/oracle_core/services/oracle_journey_archive_builder.dart';
 import 'package:oracly_new/features/oracle_core/services/oracle_journey_depth_gate.dart';
 import 'package:oracly_new/features/oracle_core/services/oracle_journey_premium_copy.dart';
+import 'package:oracly_new/features/oracle_core/services/oracle_next_action_copy.dart';
 import 'package:oracly_new/features/oracle_core/services/oracle_next_action_engine.dart';
 import 'package:oracly_new/features/oracle_core/services/oracle_or_context.dart';
 import 'package:oracly_new/features/personal_discovery/models/personal_discovery_profile.dart';
@@ -76,6 +78,39 @@ void main() {
     expect(freeDeep.allowDeepOrContext, isFalse);
   });
 
+  test('home counts are premium-only; the free note names the theme', () {
+    final deep = OracleNextActionEngine.decide(deepProfile(), now: now)!;
+    final free = OracleJourneyDepthGate.resolve(
+      opportunity: deep.premiumOpportunity,
+      hasEvidence: true,
+      isPremium: false,
+      journeyReady: true,
+    );
+    final premium = OracleJourneyDepthGate.resolve(
+      opportunity: deep.premiumOpportunity,
+      hasEvidence: true,
+      isPremium: true,
+      journeyReady: true,
+    );
+    final note = OracleNextActionCopy.homeBody(deep);
+    expect(note, contains(OracleNextActionCopy.themeLabel(deep)));
+    expect(note, isNot(contains('gözlem')));
+    expect(free.allowJourneyArchive, isFalse);
+    expect(premium.allowJourneyArchive, isTrue);
+    final archive = OracleJourneyArchiveBuilder.fromProfile(deepProfile(), now: now)!;
+    final top = archive.entries.first;
+    final line = OracleJourneyPremiumCopy.archiveSummary(
+      theme: OracleNextActionCopy.themeLabel(deep),
+      sources: top.sourceFeatures.length,
+      occurrences: top.occurrenceCount,
+    );
+    expect(line, contains('alan'));
+    expect(line, contains('gözlem'));
+    expect(line, contains('${top.occurrenceCount}'));
+    expect(PremiumCopy.benefitJourneyBody, contains('alan'));
+    expect(PremiumCopy.benefitJourneyBody, isNot(contains('arşiv')));
+  });
+
   test('premium unlocks archive and deep OR without soft invite', () {
     final deep = OracleNextActionEngine.decide(deepProfile(), now: now)!;
     final access = OracleJourneyDepthGate.resolve(
@@ -120,7 +155,10 @@ void main() {
     final deep = OracleNextActionEngine.decide(deepProfile(), now: now)!;
     final body = OracleJourneyPremiumCopy.softBody(deep).toLowerCase();
     expect(body, contains('premium'));
-    expect(body, contains('temel gözlemin'));
+    expect(body, contains('temel not'));
+    expect(body, contains('ana sayfada'));
+    expect(body, isNot(contains('arşiv')));
+    expect(body, isNot(contains('karşılaştır')));
     expect(body, isNot(contains('kork')));
     expect(body, isNot(contains('çözmek için')));
     expect(body, isNot(contains('kaçırma')));

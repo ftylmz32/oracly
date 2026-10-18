@@ -66,7 +66,7 @@ class OraclyCrystalCapsule extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const ExcludeSemantics(
-                  child: OraclyGemFacet(size: 16, glow: 0.88),
+                  child: OraclyGemFacet(size: 20, glow: 0.72),
                 ),
                 const SizedBox(width: 5),
                 ConstrainedBox(

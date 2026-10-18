@@ -61,10 +61,10 @@ void main() {
   });
 
   test('Coffee / Palm unavailable copy is UNAVAILABLE, not Preview', () {
-    expect(CoffeeCopy.capabilityNote.toLowerCase(), contains('or'));
+    expect(CoffeeCopy.capabilityNote.toLowerCase(), contains('luna'));
     expect(CoffeeCopy.capabilityNote.toLowerCase(), isNot(contains('önizleme')));
     expect(CoffeeCopy.sourceNote.toLowerCase(), contains('or'));
-    expect(PalmCopy.capabilityNote.toLowerCase(), contains('or'));
+    expect(PalmCopy.capabilityNote.toLowerCase(), contains('luna'));
     expect(PalmCopy.capabilityNote.toLowerCase(), isNot(contains('önizleme')));
     expect(PalmCopy.sourceNote.toLowerCase(), contains('or'));
   });

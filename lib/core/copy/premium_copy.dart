@@ -12,6 +12,14 @@ abstract final class PremiumCopy {
   static String get heroTitle => _t('premium.hero_title');
   static String get heroLead => _t('premium.hero_lead');
   static String get heroSubtitle => _t('premium.hero_subtitle');
+  static String get seePlans => _t('premium.see_plans');
+  static String get ctaInspect => _t('premium.cta_inspect');
+  static String get reviewAccess => _t('premium.review_access');
+  static String get membershipOpen => _t('premium.membership_open');
+  static String get membershipUnverified => _t('premium.membership_unverified');
+  static String get qaPreview => _t('premium.qa_preview');
+  static String get qaPreviewPrice => _t('premium.qa_preview_price');
+  static String get qaPreviewCta => _t('premium.qa_preview_cta');
   static String get benefitsSectionTitle => _t('premium.benefits_title');
   static String get experiencesSectionTitle => _t('premium.experiences_title');
   static String get includedSectionTitle => _t('premium.included_title');
@@ -53,13 +61,13 @@ abstract final class PremiumCopy {
   static String get whyTitle => _t('premium.why_title');
   static String get whyBody => _t('premium.why_body');
   static String get activeBody => _t('premium.active_body');
-  static String get unlockTitle => whatTitle;
+  static String get unlockTitle => whyTitle;
   static String get gateTitle => _t('premium.gate_title');
   static String get gateLead => _t('premium.gate_lead');
   static List<String> get unlocks => [
-    benefitDepthTitle,
-    benefitContinuityTitle,
-    benefitPersonalizationTitle,
+    benefitSoulmateTitle,
+    benefitOrTitle,
+    benefitJourneyTitle,
   ];
   static String get entitlementUnverified =>
       _t('premium.entitlement_unverified');
@@ -110,6 +118,7 @@ abstract final class PremiumCopy {
   static String get planPeriodMonthly => _t('premium.plan_period.monthly');
   static String get planPeriodYearly => _t('premium.plan_period.yearly');
   static String get planPeriodLifetime => _t('premium.plan_period.lifetime');
+  static String get planSelectedLabel => _t('premium.plan_selected_label');
 
   static String planLabel(PremiumPlanKind kind) => switch (kind) {
     PremiumPlanKind.monthly => planMonthlyLabel,

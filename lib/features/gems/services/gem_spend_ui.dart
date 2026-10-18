@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/design_system/oracly_gem_facet.dart';
 import '../../../core/navigation/oracly_navigation_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/ui/oracly_dialog.dart';
@@ -62,10 +63,7 @@ abstract final class GemSpendUi {
     final wallet = ref.read(gemWalletProvider);
     final purpose = reason?.trim() ?? '';
     final message = purpose.isEmpty
-        ? GemsCopy.confirmBodyWithBalance(
-            cost: cost,
-            balance: wallet.balance,
-          )
+        ? GemsCopy.confirmBodyWithBalance(cost: cost, balance: wallet.balance)
         : GemsCopy.confirmBodyPurpose(
             cost: cost,
             balance: wallet.balance,
@@ -77,14 +75,12 @@ abstract final class GemSpendUi {
       message: message,
       confirmLabel: GemsCopy.costLabel(cost),
       cancelLabel: GemsCopy.cancel,
+      emblem: const OraclyGemFacet(size: 56, glow: 0.9),
     );
     return ok == true;
   }
 
-  static void showInsufficient(
-    BuildContext context, {
-    required int cost,
-  }) {
+  static void showInsufficient(BuildContext context, {required int cost}) {
     OraclySnackBar.error(
       context,
       '${GemsCopy.insufficient}\n${GemsCopy.insufficientCost(cost)}',

@@ -34,15 +34,38 @@ class RitualDeckStack extends StatelessWidget {
           ..rotateZ(0.04 * visual.shuffleProgress),
         child: SizedBox(
           width: RitualCardMetrics.width + 10,
-          height: RitualCardMetrics.height + 14,
+          height: RitualCardMetrics.height + 18,
           child: Stack(
             alignment: Alignment.center,
             children: [
+              // Contact shadow — the deck rests on the cloth, it does not glow.
+              Transform.translate(
+                offset: packetOffset + visual.baseOffset + Offset(3, count * 1.8),
+                child: Container(
+                  width: RitualCardMetrics.width,
+                  height: RitualCardMetrics.height,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(RitualCardMetrics.radius),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        blurRadius: 26,
+                        offset: const Offset(0, 14),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               for (var i = count - 1; i >= 0; i--)
                 Transform.translate(
                   offset: packetOffset +
                       visual.baseOffset +
-                      Offset(i * 1.4, i * 2.2),
+                      Offset(i * 0.9, i * 1.8),
                   child: RitualCardBack(
                     width: RitualCardMetrics.width - i * 0.4,
                     height: RitualCardMetrics.height - i * 0.4,

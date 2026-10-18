@@ -236,6 +236,21 @@ export class ReadingStagedImageService {
   }
 
   /**
+   * The hand recorded when a palm image was staged — owner-checked. Null when
+   * the operation has no staged palm record (or a legacy record without one).
+   */
+  async palmHandSide(input: {
+    ownerUserId: string;
+    operationId: string;
+  }): Promise<'left' | 'right' | null> {
+    const operation = await this.operations.get(input.ownerUserId, input.operationId);
+    if (operation.readingType !== 'palm') return null;
+    const record = await this.repository.get(input.operationId, input.ownerUserId);
+    if (!record || record.readingType !== 'palm') return null;
+    return record.handSide ?? null;
+  }
+
+  /**
    * Coffee V2 only (Phase 2A). True the moment ANY of the three canonical
    * slots has a record at all (regardless of upload state) — this is the
    * sole signal the processor uses to decide "this is a slotted Coffee V2

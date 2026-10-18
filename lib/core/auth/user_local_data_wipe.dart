@@ -34,6 +34,7 @@ import '../../features/star_map/artifacts/local_yildizname_artifact_repository.d
 import '../../features/tarot/data/datasources/tarot_local_datasource.dart';
 import '../../features/tarot/revisit/tarot_revisit_intent_store.dart';
 import '../../features/privacy/services/discovery_owned_image_wipe.dart';
+import '../../features/home/invite/home_invite_store.dart';
 import '../../screens/profile/data/profile_photo_store.dart';
 import 'user_local_data_wipe_keys.dart';
 import 'user_local_data_wipe_result.dart';
@@ -145,6 +146,11 @@ abstract final class UserLocalDataWipe {
     await stepKeys(() => _clearKeys(storage, UserLocalDataWipeKeys.profile));
     await step('profile_photo', () => ProfilePhotoStore.clearStrict(storage));
     await step('onboarding_setup_draft', () => removeKey('onboarding_setup_draft'));
+    await step(
+      'encounter_interest_ids',
+      () => removeKey('encounter_interest_ids'),
+    );
+    await step(HomeInviteStore.key, () => removeKey(HomeInviteStore.key));
     await step(
       FirstReadingOrDeepen.sessionKey,
       () => removeKey(FirstReadingOrDeepen.sessionKey),

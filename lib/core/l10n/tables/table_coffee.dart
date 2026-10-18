@@ -24,7 +24,7 @@ const kL10nCoffee = <String, L10nTriple>{
     'Let us read the traces in the cup together.',
     'Давай вместе прочитаем следы в чашке.',
   ),
-  'coffee.or_choice': L10nTriple('VEYA', 'OR', 'ИЛИ'),
+  'coffee.or_choice': L10nTriple('VEYA', 'Luna', 'ИЛИ'),
   'coffee.photo_cta': L10nTriple(
     'FOTOĞRAF ÇEK',
     'TAKE PHOTO',
@@ -67,9 +67,9 @@ const kL10nCoffee = <String, L10nTriple>{
   ),
   'coffee.preview_badge': L10nTriple('Önizleme', 'Preview', 'Предпросмотр'),
   'coffee.capability_note': L10nTriple(
-    'Fincan yorumu için OR bağlantısı gerekir.',
-    'A cup reading needs an OR connection.',
-    'Для чтения чашки нужно соединение с OR.',
+    'Fincan yorumu için Luna bağlantısı gerekir.',
+    'A cup reading needs a Luna connection.',
+    'Для чтения чашки нужно соединение с Luna.',
   ),
   'coffee.landing_steps_unavailable': L10nTriple(
     'Kayıtlı fincanları açabilirsin',
@@ -320,6 +320,6 @@ const kL10nCoffee = <String, L10nTriple>{
     'Your cup photo was read; the reflection is symbolic — not a prediction.',
     'Фото чашки просмотрено; толкование символическое — не предсказание.',
   ),
-  'coffee.ask_or': L10nTriple("OR'a Sor", 'Ask OR', 'Спросить OR'),
+  'coffee.ask_or': L10nTriple("Luna'ya Sor", 'Ask Luna', 'Спросить Luna'),
   'coffee.new_cup': L10nTriple('Yeni fincan', 'New cup', 'Новая чашка'),
 };

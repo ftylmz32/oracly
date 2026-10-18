@@ -24,6 +24,7 @@ import 'package:oracly_new/features/coffee/coffee_v3/providers/coffee_v3_provide
 import 'package:oracly_new/features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
 import 'package:oracly_new/features/coffee/models/coffee_image_pick.dart';
 import 'package:oracly_new/features/coffee/presentation/reference/coffee_capture_cup_guide.dart';
+import 'package:oracly_new/features/coffee/presentation/reference/coffee_cup_hero.dart';
 import 'package:oracly_new/features/coffee/presentation/reference/coffee_loading_view.dart';
 import 'package:oracly_new/features/coffee/providers/coffee_providers.dart';
 import 'package:oracly_new/features/coffee/services/coffee_image_input_port.dart';
@@ -85,20 +86,23 @@ void main() {
   });
 
   Widget app() => ProviderScope(
-        overrides: [
-          localStorageProvider.overrideWithValue(storage),
-          coffeeV3SubmissionStoreProvider.overrideWithValue(
-            CoffeeV3SubmissionStore(storage,
-                ownerId: 'coffee-v3-widget-owner', requireOwner: true),
-          ),
-          readingOperationSenderProvider.overrideWithValue(transport.send),
-          coffeeImageInputProvider.overrideWithValue(images),
-          coffeeAnalysisProvider.overrideWithValue(
-            OpenAiCoffeeAnalysis(ai: NoProviderAi()),
-          ),
-        ],
-        child: const MaterialApp(home: CoffeeV3FlowScreen()),
-      );
+    overrides: [
+      localStorageProvider.overrideWithValue(storage),
+      coffeeV3SubmissionStoreProvider.overrideWithValue(
+        CoffeeV3SubmissionStore(
+          storage,
+          ownerId: 'coffee-v3-widget-owner',
+          requireOwner: true,
+        ),
+      ),
+      readingOperationSenderProvider.overrideWithValue(transport.send),
+      coffeeImageInputProvider.overrideWithValue(images),
+      coffeeAnalysisProvider.overrideWithValue(
+        OpenAiCoffeeAnalysis(ai: NoProviderAi()),
+      ),
+    ],
+    child: const MaterialApp(home: CoffeeV3FlowScreen()),
+  );
 
   Future<void> drain(WidgetTester tester, {int iterations = 20}) async {
     await tester.runAsync(() async {
@@ -133,8 +137,8 @@ void main() {
   }
 
   OraclyGoldButton cta(WidgetTester tester) => tester.widget<OraclyGoldButton>(
-        find.widgetWithText(OraclyGoldButton, CoffeeV3Copy.reviewCta),
-      );
+    find.widgetWithText(OraclyGoldButton, CoffeeV3Copy.reviewCta),
+  );
 
   Future<void> captureToReview(WidgetTester tester) async {
     await tester.binding.setSurfaceSize(const Size(430, 2400));
@@ -156,8 +160,10 @@ void main() {
       expect(find.text('${i + 1} / 3'), findsOneWidget);
       expect(find.text(steps[i].$1), findsOneWidget);
       expect(find.text(steps[i].$2), findsOneWidget);
-      expect(find.byType(CoffeeCaptureCupGuide),
-          steps[i].$3 ? findsOneWidget : findsNothing);
+      expect(
+        find.byType(CoffeeCaptureCupGuide),
+        steps[i].$3 ? findsOneWidget : findsNothing,
+      );
       await pickAndUse(tester, 'slot$i');
     }
     expect(find.text(CoffeeV3Copy.reviewTitle), findsOneWidget);
@@ -168,32 +174,60 @@ void main() {
     expect(find.text(CoffeeV3Copy.actionPickGallery), findsNothing);
   }
 
-  testWidgets('three-step capture → review → create → three stages → observing',
-      (tester) async {
-    await captureToReview(tester);
-    expect(cta(tester).onPressed, isNull); // no intention yet
-    await tapAndDrain(
-      tester,
-      find.text(CoffeeV2IntentionChoice.general.label),
-    );
-    expect(cta(tester).onPressed, isNotNull);
-    await tapAndDrain(tester, find.text(CoffeeV3Copy.reviewCta));
-    await drain(tester);
-    expect(transport.creates.single.body?['coffeeCaptureContract'], 'three_view_v3');
-    expect(transport.stagedSlots, [
-      'v3_cup_view_a',
-      'v3_cup_view_b',
-      'v3_saucer_view',
-    ]);
-    expect(find.byType(CoffeeLoadingView), findsOneWidget);
-    // No route back to editing once active.
-    expect(find.text(CoffeeV3Copy.reviewChange), findsNothing);
-    expect(find.text(CoffeeV3Copy.actionPickGallery), findsNothing);
-    await tester.pumpWidget(const SizedBox());
-  });
+  testWidgets(
+    'three-step capture → review → create → three stages → observing',
+    (tester) async {
+      await captureToReview(tester);
+      expect(cta(tester).onPressed, isNull); // no intention yet
+      await tapAndDrain(
+        tester,
+        find.text(CoffeeV2IntentionChoice.general.label),
+      );
+      expect(cta(tester).onPressed, isNotNull);
+      await tapAndDrain(tester, find.text(CoffeeV3Copy.reviewCta));
+      await drain(tester);
+      expect(
+        transport.creates.single.body?['coffeeCaptureContract'],
+        'three_view_v3',
+      );
+      expect(transport.stagedSlots, [
+        'v3_cup_view_a',
+        'v3_cup_view_b',
+        'v3_saucer_view',
+      ]);
+      expect(find.byType(CoffeeLoadingView), findsOneWidget);
+      // No route back to editing once active.
+      expect(find.text(CoffeeV3Copy.reviewChange), findsNothing);
+      expect(find.text(CoffeeV3Copy.actionPickGallery), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 
-  testWidgets('flag turned OFF: draft stays reviewable, CTA disabled + note',
-      (tester) async {
+  testWidgets(
+    'V3 intro shows approved hero and keeps CTA reachable on a small phone',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 568));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(app());
+      await drain(tester);
+
+      expect(find.byType(CoffeeCupHero), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      final ctaFinder = find.text(CoffeeV3Copy.introCta);
+      await tester.ensureVisible(ctaFinder);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(ctaFinder, findsOneWidget);
+      await tester.tap(ctaFinder);
+      await drain(tester);
+      expect(find.text(CoffeeV3Copy.stepTitleCupA), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('flag turned OFF: draft stays reviewable, CTA disabled + note', (
+    tester,
+  ) async {
     await captureToReview(tester);
     await tapAndDrain(tester, find.text(CoffeeV2IntentionChoice.general.label));
     FeatureFlagRuntime.refreshFromRemote({'coffee_v3_three_view': false});

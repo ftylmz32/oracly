@@ -15,6 +15,7 @@ import '../../copy/soul_mate_copy.dart';
 import '../../data/soul_mate_interpretation_catalogue.dart';
 import '../../providers/premium_providers.dart';
 import '../../services/premium_access.dart';
+import '../reference/premium_entry_sheet.dart';
 import '../../services/soul_mate_dev_access.dart';
 import 'soul_mate_interpretation_block.dart';
 import 'soul_mate_portrait_reveal.dart';
@@ -84,7 +85,10 @@ class SoulMateDrawResultView extends ConsumerWidget {
           delay: AppMotionDuration.medium,
           child: SoulMateShareAction(
             enabled: canShare,
-            onLocked: () => PremiumAccess.prompt(context),
+            onLocked: () => PremiumAccess.prompt(
+              context,
+              focus: PremiumEntryFocus.soulMate,
+            ),
             discovery: DiscoveryShareBuilder.soulMate(
               portrait: imageBytes,
               interpretation: parts?.authoritative == true ? parts!.joined : '',

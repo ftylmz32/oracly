@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/design_system/app_spacing.dart';
 import '../../../../core/theme/reading_typography.dart';
 import '../../../../shared/widgets/oracly_gold_button.dart';
+import '../../presentation/reference/coffee_cup_hero.dart';
 import '../../presentation/reference/coffee_reference_tokens.dart';
 import '../copy/coffee_v3_copy.dart';
 
@@ -36,6 +37,8 @@ class CoffeeV3IntroView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: ReadingTypography.secondary(),
           ),
+          SizedBox(height: AppSpacing.s24),
+          const CoffeeCupHero(),
           SizedBox(height: AppSpacing.s24),
           for (final label in const [
             CoffeeV3Copy.introSummaryCupA,

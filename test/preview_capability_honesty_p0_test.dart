@@ -34,7 +34,7 @@ void main() {
     expect(DreamCopy.previewNote, contains('Önizleme'));
     expect(DreamCopy.previewNote.toLowerCase(), contains('katalog'));
     expect(DreamCopy.previewNoteLive.toLowerCase(), isNot(contains('önizleme')));
-    expect(DreamCopy.previewNoteLive.toLowerCase(), contains('or'));
+    expect(DreamCopy.previewNoteLive.toLowerCase(), contains('luna'));
     expect(DreamCopy.previewNoteLive.toLowerCase(), isNot(contains('katalog')));
     expect(DreamCopy.previewNoteNeedsOr, contains('Önizleme'));
     expect(

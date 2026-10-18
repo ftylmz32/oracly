@@ -59,7 +59,10 @@ void main() {
       profile: profile,
     );
     expect(reading.overall.toLowerCase(), contains('koç'));
-    expect(reading.overall.toLowerCase(), contains('gökyüzü'));
+    // The sign text stays whole; the real theme arrives as one added sentence.
+    expect(reading.overall.toLowerCase(), contains(RegExp('ilişki|kariyer')));
+    expect(reading.lovePersonal, isTrue);
+    expect(reading.careerPersonal, isTrue);
     expect(reading.overall, isNot(contains('Bugün senin için asıl mesele ilişki')));
     expect(reading.love, isNot(contains('Bugün senin için asıl mesele')));
     expect(reading.innerTheme, contains('yeniden karşına çıkıyor'));

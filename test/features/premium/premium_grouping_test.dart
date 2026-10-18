@@ -42,8 +42,8 @@ void main() {
 
   test('unlock copy explains value without pressure', () {
     expect(PremiumCopy.unlocks, hasLength(3));
-    expect(PremiumCopy.unlockTitle, 'NEDİR BU KATMAN');
-    expect(PremiumCopy.whyTitle, 'NEDEN VAR');
+    expect(PremiumCopy.unlockTitle, 'PREMIUM EKLER');
+    expect(PremiumCopy.whyTitle, 'PREMIUM EKLER');
     expect(PremiumCopy.gateTitle.toLowerCase(), isNot(contains('gerekli')));
     expect(PremiumCopy.unlocks.join(), isNot(contains('son şans')));
     expect(PremiumCopy.ctaUnavailable, contains('henüz'));

@@ -15,6 +15,7 @@ abstract final class StarMapReadingService {
     DateTime? now,
     ZodiacSignId? sunSign,
     PersonalDiscoveryProfile? discovery,
+    List<String> selectedThemes = const [],
   }) {
     final day = now ?? DateTime.now();
     final tone = _tone(day, sunSign);
@@ -33,6 +34,7 @@ abstract final class StarMapReadingService {
       base: base,
       discovery: discovery,
       day: day,
+      selectedThemes: selectedThemes,
     );
   }
 

@@ -24,6 +24,7 @@ class DailyRitualHeroCopy extends StatelessWidget {
 
   final OraclyUniverseState universe;
   final String body;
+
   /// Layout typography budget from Home viewport (not an energy metric).
   final double energySize;
   final bool cardDrawn;
@@ -39,7 +40,7 @@ class DailyRitualHeroCopy extends StatelessWidget {
       builder: (context, constraints) {
         return FittedBox(
           fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.bottomLeft,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: constraints.maxWidth),
             child: Column(
@@ -50,28 +51,30 @@ class DailyRitualHeroCopy extends StatelessWidget {
                 Text(
                   DailyRitualReflections.ritualLabel(universe),
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: ReadingTypography.pageTitle(
-                    color: AppColors.goldLight.withValues(alpha: 0.98),
-                  ).copyWith(
-                    fontSize: compact ? titleSize - 2 : titleSize,
-                    height: 1.0,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.15,
-                  ),
+                  overflow: TextOverflow.visible,
+                  style:
+                      ReadingTypography.pageTitle(
+                        color: AppColors.goldLight.withValues(alpha: 0.98),
+                      ).copyWith(
+                        fontSize: compact ? titleSize - 2 : titleSize,
+                        height: 1.0,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.15,
+                      ),
                 ),
                 SizedBox(height: compact ? 6 : 8),
                 Text(
                   body,
                   maxLines: compact ? 2 : 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: ReadingTypography.bodySmall(
-                    color: AppColors.ivory.withValues(alpha: 0.92),
-                  ).copyWith(
-                    height: 1.34,
-                    letterSpacing: CraftsmanshipRhythm.bodyLetterSpacing,
-                    fontSize: compact ? 12 : 13.5,
-                  ),
+                  overflow: TextOverflow.visible,
+                  style:
+                      ReadingTypography.bodySmall(
+                        color: AppColors.ivory.withValues(alpha: 0.92),
+                      ).copyWith(
+                        height: 1.34,
+                        letterSpacing: CraftsmanshipRhythm.bodyLetterSpacing,
+                        fontSize: compact ? 12 : 13.5,
+                      ),
                 ),
                 SizedBox(height: compact ? 7 : 9),
                 HomeReferenceHeroDetailButton(

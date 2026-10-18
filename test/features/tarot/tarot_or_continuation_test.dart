@@ -46,16 +46,16 @@ AiReadingContent _content(ReadingSession session) {
     cardName: 'Üç Kart Açılımı',
     tagline: 'Kariyer',
     generalMeaning: 'Özet: işte küçük ve net bir adım yeterli.',
-    love: 'Aşk bölümü — OR promptuna gitmemeli.',
-    career: 'Kariyer bölümü — OR promptuna gitmemeli.',
-    money: 'Para bölümü — OR promptuna gitmemeli.',
-    spiritualGuidance: 'Günlük bölüm — OR promptuna gitmemeli.',
-    luckyEnergy: 'Genel yorum — OR promptuna gitmemeli.',
-    dailyAdvice: 'Bugün mesajı — OR promptuna gitmemeli.',
+    love: 'Aşk bölümü — Luna promptuna gitmemeli.',
+    career: 'Kariyer bölümü — Luna promptuna gitmemeli.',
+    money: 'Para bölümü — Luna promptuna gitmemeli.',
+    spiritualGuidance: 'Günlük bölüm — Luna promptuna gitmemeli.',
+    luckyEnergy: 'Genel yorum — Luna promptuna gitmemeli.',
+    dailyAdvice: 'Bugün mesajı — Luna promptuna gitmemeli.',
     imageAsset: 'star.png',
     rarityColor: const Color(0xFF9B6DFF),
-    fullInterpretation: 'Ham markdown — OR promptuna gitmemeli.',
-    cardReadings: 'Kart anlamları — OR promptuna gitmemeli.',
+    fullInterpretation: 'Ham markdown — Luna promptuna gitmemeli.',
+    cardReadings: 'Kart anlamları — Luna promptuna gitmemeli.',
     drawnCards: session.drawnCards,
     userQuestion: session.intention.text,
     spreadLabel: session.spread.label,
@@ -66,8 +66,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => OraclyL10n.bind('tr'));
 
-  test('button copy opens OR from the reading footer', () {
-    expect(TarotPolishCopy.orOpen, "OR'a Sor");
+  test('button copy opens Luna from the reading footer', () {
+    expect(TarotPolishCopy.orOpen, "Luna'ya Sor");
   });
 
   test('fromSession passes only minimum tarot context', () {

@@ -3,9 +3,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/reading_typography.dart';
 import '../../../../core/theme/app_spacing.dart';
-import 'premium_reference_tokens.dart';
+import '../../../../core/theme/reading_typography.dart';
 
 class PremiumReferenceBenefitGroup extends StatelessWidget {
   const PremiumReferenceBenefitGroup({
@@ -29,7 +28,7 @@ class PremiumReferenceBenefitGroup extends StatelessWidget {
         ),
         SizedBox(height: AppSpacing.s12),
         for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) SizedBox(height: PremiumReferenceTokens.benefitItemGap),
+          if (i > 0) const SizedBox(height: AppSpacing.s12),
           children[i],
         ],
       ],

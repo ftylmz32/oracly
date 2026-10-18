@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/features/star_map/services/star_map_chart_portrait.dart';
 import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/star_map/copy/star_map_polish_copy.dart';
 import 'package:oracly_new/features/star_map/presentation/reference/star_map_reference_chart.dart';
@@ -41,12 +42,11 @@ void main() {
         expect(find.text(StarMapPolishCopy.whatItIs), findsOneWidget);
         expect(find.text(StarMapPolishCopy.enterBirthInfo), findsOneWidget);
         expect(find.text(StarMapPolishCopy.leadLine), findsOneWidget);
-        expect(find.text(StarMapPolishCopy.toldToday), findsOneWidget);
-        expect(find.text(StarMapPolishCopy.todayReflectionTitle), findsOneWidget);
-        // First archive entry: honest empty chapter — not invented theme depth.
-        expect(find.text(StarMapPolishCopy.journeyTitle), findsOneWidget);
-        expect(find.text(StarMapPolishCopy.journeyEmpty), findsOneWidget);
-        expect(find.text(StarMapPolishCopy.leftQuestionTitle), findsOneWidget);
+        expect(find.text(StarMapChartPortrait.heading), findsOneWidget);
+        // No birth data yet: one honest invitation — no invented theme depth.
+        expect(find.textContaining('Doğum bilgilerini eklediğinde'), findsOneWidget);
+        expect(find.text(StarMapPolishCopy.journeyEmpty), findsNothing);
+        expect(find.text(StarMapPolishCopy.todayReflectionTitle), findsNothing);
         expect(find.text(StarMapPolishCopy.karmicResultTitle), findsNothing);
         expect(find.text(StarMapPolishCopy.karmicAsk), findsNothing);
         expect(find.text('KARMİK ANALİZ'), findsNothing);
@@ -70,11 +70,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
-    expect(find.text(StarMapPolishCopy.toldToday), findsOneWidget);
-    expect(find.text(StarMapPolishCopy.todayReflectionTitle), findsOneWidget);
-    expect(find.text(StarMapPolishCopy.journeyTitle), findsOneWidget);
-    expect(find.text(StarMapPolishCopy.journeyEmpty), findsOneWidget);
-    expect(find.text(StarMapPolishCopy.leftQuestionTitle), findsOneWidget);
+    expect(find.text(StarMapChartPortrait.heading), findsOneWidget);
+    expect(find.textContaining('Doğum bilgilerini eklediğinde'), findsOneWidget);
     expect(find.text(StarMapPolishCopy.karmicResultTitle), findsNothing);
     expect(find.text(StarMapPolishCopy.karmicAsk), findsNothing);
     expect(find.text('KARMİK ANALİZ'), findsNothing);

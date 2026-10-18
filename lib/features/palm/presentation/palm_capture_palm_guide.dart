@@ -5,7 +5,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/oracly_quiet_motion.dart';
+import '../../../shared/widgets/oracly_asset_image.dart';
 import '../models/palm_hand.dart';
 import 'palm_capture_palm_guide_painter.dart';
 
@@ -49,24 +51,58 @@ class _PalmCapturePalmGuideState extends State<PalmCapturePalmGuide>
       builder: (context, constraints) {
         final w = constraints.maxWidth;
         final h = (w * 0.95).clamp(240.0, 320.0);
-        return SizedBox(
-          width: w,
-          height: h,
-          child: AnimatedBuilder(
-            animation: _breath,
-            builder: (context, _) {
-              final pulse = OraclyQuietMotion.still(context)
-                  ? 0.14
-                  : 0.5 + math.sin(_breath.value * math.pi * 2) * 0.5;
-              return RepaintBoundary(
-                child: CustomPaint(
-                  painter: PalmCapturePalmGuidePainter(
-                    pulse: pulse,
-                    mirror: widget.hand == PalmHand.left,
-                  ),
-                ),
-              );
-            },
+        return Semantics(
+          image: true,
+          label: widget.hand.label,
+          child: SizedBox(
+            width: w,
+            height: h,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: AnimatedBuilder(
+                animation: _breath,
+                builder: (context, _) {
+                  final pulse = OraclyQuietMotion.still(context)
+                      ? 0.14
+                      : 0.5 + math.sin(_breath.value * math.pi * 2) * 0.5;
+                  // home_palm.webp is a right palm (thumb on the image's
+                  // right, wrist at the bottom); only the left guide mirrors.
+                  final mirror = widget.hand == PalmHand.left;
+                  return RepaintBoundary(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ColoredBox(
+                          color: const Color(0xFF050308),
+                          child: Transform(
+                            key: ValueKey(
+                              'palm-capture-guide-${widget.hand.name}',
+                            ),
+                            alignment: Alignment.center,
+                            transform: Matrix4.diagonal3Values(
+                              mirror ? -1 : 1,
+                              1,
+                              1,
+                            ),
+                            child: const OraclyAssetImage(
+                              assetPath: AppAssets.homePalm,
+                              fit: BoxFit.contain,
+                              alignment: Alignment.center,
+                              filterQuality: FilterQuality.high,
+                            ),
+                          ),
+                        ),
+                        IgnorePointer(
+                          child: CustomPaint(
+                            painter: PalmCapturePalmGuidePainter(pulse: pulse),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         );
       },

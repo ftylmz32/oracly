@@ -81,7 +81,7 @@ class _OracleAvatarState extends State<OracleAvatar>
               ),
               child: Center(
                 child: Text(
-                  'OR',
+                  'L',
                   style: TextStyle(
                     color: AppColors.primary,
                     fontSize: widget.size * 0.32,

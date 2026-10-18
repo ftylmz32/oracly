@@ -83,7 +83,14 @@ class PremiumReferenceStoreSection extends StatelessWidget {
         _purchaseCta(),
       ];
     }
-    if (status.isPremium) return const [PremiumReferenceCta(isPremium: true)];
+    if (status.isPremium) {
+      return [
+        PremiumReferenceCta(
+          isPremium: true,
+          verifiedPlan: status.activePlan,
+        ),
+      ];
+    }
     if (status.entitlement == PremiumEntitlementState.unverified) {
       return [
         _note(

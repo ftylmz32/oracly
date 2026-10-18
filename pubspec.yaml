@@ -93,6 +93,8 @@ flutter:
     - lib/assets/images/astrology/zodiac/
     - lib/assets/images/yildizname/
     - lib/assets/images/premium/
+    - lib/assets/images/gems/
+    - lib/assets/images/encounter/
     - lib/assets/images/profile/
     - lib/assets/images/thumbs/
     # TAROT_RUNTIME_ASSETS_BEGIN

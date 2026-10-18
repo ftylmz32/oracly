@@ -89,7 +89,13 @@ class HomeMasterHero extends ConsumerWidget {
       userName: profile?.name,
     );
     if (returning == null) {
-      return HomeReferenceHero(height: height ?? 156);
+      return HomeReferenceHero(
+        height: height ?? 156,
+        hello: HomePersonalCopy.greeting(
+          time: universe.ritualTime,
+          profileName: profile?.name,
+        ),
+      );
     }
     return HomeReferenceHero(
       height: height ?? 156,

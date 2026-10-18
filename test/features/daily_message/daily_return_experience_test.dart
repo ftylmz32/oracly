@@ -23,16 +23,19 @@ void main() {
   });
 
   test('empty-day pool localizes for English', () {
+    final day = DateTime(2026, 8, 23);
+    final tr = DailyMessageCatalogue.dateAware(day, languageCode: 'tr');
     OraclyL10n.bind('en');
-    final pool = DailyMessageCatalogue.dateAware(DateTime(2026, 8, 23));
-    expect(pool.first.toLowerCase(), isNot(contains('için kısa')));
-    expect(
-      pool.any((l) => l.toLowerCase().contains('short note') ||
-          l.toLowerCase().contains('grand message') ||
-          l.toLowerCase().contains('quiet pause')),
-      isTrue,
-    );
-    OraclyL10n.bind('tr');
+    addTearDown(() => OraclyL10n.bind('tr'));
+    final pool = DailyMessageCatalogue.dateAware(day);
+    expect(pool, hasLength(tr.length));
+    for (var i = 0; i < pool.length; i++) {
+      expect(pool[i], isNot(tr[i]), reason: 'line $i not localized');
+      expect(pool[i], isNot(matches(RegExp('[ğışçöüİĞŞÇÖÜ]'))),
+          reason: pool[i]);
+      expect(pool[i], isNot(contains('{')), reason: pool[i]);
+    }
+    expect(pool.first, 'What has stayed with you most today?');
   });
 
   test('empty history stays general across a week', () {

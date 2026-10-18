@@ -37,7 +37,7 @@ class PremiumReferenceAtmosphere extends StatelessWidget {
           children: [
             IgnorePointer(
               child: Opacity(
-                opacity: 0.36,
+                opacity: 0.16,
                 child: OraclyAssetImage(
                   assetPath: AppAssets.premiumChamberHero,
                   fit: BoxFit.cover,

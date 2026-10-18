@@ -23,6 +23,7 @@ abstract final class OraclyDialog {
     String? confirmLabel,
     String? cancelLabel,
     bool destructive = false,
+    Widget? emblem,
   }) {
     return showOraclyConfirmDialog(
       context,
@@ -31,6 +32,7 @@ abstract final class OraclyDialog {
       confirmLabel: confirmLabel ?? OraclyL10n.t(L10nKeys.confirm),
       cancelLabel: cancelLabel ?? OraclyL10n.t(L10nKeys.cancel),
       destructive: destructive,
+      emblem: emblem,
     );
   }
 
@@ -83,10 +85,8 @@ abstract final class OraclyDialog {
                   ),
                   OraclyGoldButton(
                     label: save,
-                    onPressed: () => Navigator.pop(
-                      dialogContext,
-                      controller.text.trim(),
-                    ),
+                    onPressed: () =>
+                        Navigator.pop(dialogContext, controller.text.trim()),
                   ),
                 ],
               ),

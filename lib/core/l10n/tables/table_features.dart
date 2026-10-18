@@ -50,7 +50,7 @@ const kL10nFeatures = <String, L10nTriple>{
     'Мягкое резюме твоего пути',
   ),
   'feature.memory': L10nTriple('Hafıza', 'Memory', 'Память'),
-  'feature.memory.sub': L10nTriple("OR'ın hatırladıkları", 'What OR remembers', 'Что помнит OR'),
+  'feature.memory.sub': L10nTriple("Luna'nın hatırladıkları", 'What Luna remembers', 'Что помнит Luna'),
   'feature.achievements.sub': L10nTriple(
     'Ruhsal yolculuk rozetlerin',
     'Badges from your inner path',

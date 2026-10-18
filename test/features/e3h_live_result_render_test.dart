@@ -69,7 +69,10 @@ void main() {
       tester,
       CoffeeResultView(reading: reading, onNewCup: () {}),
     );
-    expect(find.textContaining('Fincan'), findsWidgets);
+    // visualObservation is a private legacy bridge since the private meaning
+    // handoff and is no longer shown; prove the live overall text rendered.
+    final overallLead = reading.overall.trim().split(RegExp(r'\s+')).take(4).join(' ');
+    expect(find.textContaining(overallLead), findsWidgets);
   });
 
   testWidgets('E3H palm live envelope renders without overflow', (tester) async {

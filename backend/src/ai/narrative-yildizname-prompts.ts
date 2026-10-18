@@ -4,6 +4,7 @@ import { responseLanguageDirective, type AppLanguage } from './app-language.js';
 import type { YildiznameWireNarrative } from './narrative-yildizname-contract.js';
 import {
   yildiznameEvidenceLegend,
+  yildiznamePortraitDirective,
   yildiznameResultContractDirective,
   yildiznameSystemRules,
 } from './narrative-yildizname-prompt-rules.js';
@@ -31,6 +32,8 @@ function userPrompt(narrative: YildiznameWireNarrative): string {
     JSON.stringify(narrative),
     '',
     yildiznameEvidenceLegend(narrative),
+    '',
+    yildiznamePortraitDirective(narrative.scope),
     '',
     yildiznameResultContractDirective(),
   ].join('\n');

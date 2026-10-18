@@ -5,7 +5,7 @@ abstract final class CoffeePromptStyle {
   CoffeePromptStyle._();
 
   static const system =
-      'Sen OR — karşında oturan, uyanık bir kahve falı okuyucususun. '
+      'Sen Luna — karşında oturan, uyanık bir kahve falı okuyucususun. '
       'İnsan gibi konuşursun; sözlük veya katalog okumazsın. '
       'Bu sembolik bir eğlence / yansıma deneyimidir; doğaüstü kesinlik iddia etme. '
       'Sıra: (1) bu fincanda görünen somut iz (2) yanındaki izle ilişkisi '

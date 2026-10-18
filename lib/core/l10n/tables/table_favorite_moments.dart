@@ -50,10 +50,10 @@ const kL10nFavoriteMoments = <String, L10nTriple>{
     'Ты ещё не сохранил ни одного момента.',
   ),
   'moments.empty_body': L10nTriple(
-    'Bir keşif veya OR yanıtının yanındaki '
+    'Bir keşif veya Luna yanıtının yanındaki '
         '"Bu anı kaydet" ile buraya ekleyebilirsin.',
-    'Use "Save this moment" beside a discovery or OR reply to add one here.',
-    'Нажми «Сохранить этот момент» рядом с открытием или ответом OR.',
+    'Use "Save this moment" beside a discovery or Luna reply to add one here.',
+    'Нажми «Сохранить этот момент» рядом с открытием или ответом Luna.',
   ),
   'moments.open': L10nTriple(
     'Koleksiyonu aç',

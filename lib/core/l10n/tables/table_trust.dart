@@ -15,9 +15,9 @@ const kL10nTrust = <String, L10nTriple>{
     'Это символическое толкование.',
   ),
   'trust.conversation': L10nTriple(
-    'OR yanıtları rehberlik içindir; kararların senin.',
-    'OR replies are for guidance; the choices are yours.',
-    'Ответы OR для опоры; решения твои.',
+    'Luna yanıtları rehberlik içindir; kararların senin.',
+    'Luna replies are for guidance; the choices are yours.',
+    'Ответы Luna для опоры; решения твои.',
   ),
   'trust.journal_privacy': L10nTriple(
     'Kişisel notların sana aittir — istediğin zaman düzenleyebilir veya silebilirsin.',
@@ -45,9 +45,9 @@ const kL10nTrust = <String, L10nTriple>{
     'Открытия используются для персонализации. Их можно удалить в любой момент.',
   ),
   'trust.about_boundary': L10nTriple(
-    'OR, yansıtma ve içgörü için tasarlandı — geleceği bildirmek için değil.',
-    'OR was designed for reflection and insight — not to announce the future.',
-    'OR создан для размышления и понимания — не чтобы объявлять будущее.',
+    'Luna, yansıtma ve içgörü için tasarlandı — geleceği bildirmek için değil.',
+    'Luna was designed for reflection and insight — not to announce the future.',
+    'Luna создана для размышления и понимания — не чтобы объявлять будущее.',
   ),
   'trust.delete_title': L10nTriple('Bu yansımayı sil?', 'Delete this reflection?', 'Удалить это отражение?'),
   'trust.delete_body': L10nTriple(
@@ -59,9 +59,9 @@ const kL10nTrust = <String, L10nTriple>{
   'trust.delete_cancel': L10nTriple('Vazgeç', 'Dismiss', 'Отменить'),
   'trust.memory_title': L10nTriple('Bu hafızayı sil?', 'Delete this memory?', 'Удалить эту память?'),
   'trust.memory_body': L10nTriple(
-    'OR bu bilgiyi unutur. Geri alınamaz.',
-    'OR will forget this. This cannot be undone.',
-    'OR забудет это. Это нельзя отменить.',
+    'Luna bu bilgiyi unutur. Geri alınamaz.',
+    'Luna will forget this. This cannot be undone.',
+    'Luna забудет это. Это нельзя отменить.',
   ),
   'trust.journal_cleared': L10nTriple('Tarot günlüğü temizlendi.', 'The tarot journal was cleared.', 'Дневник Таро очищен.'),
   'trust.memory_cleared': L10nTriple('Hafıza temizlendi.', 'Memory was cleared.', 'Память очищена.'),

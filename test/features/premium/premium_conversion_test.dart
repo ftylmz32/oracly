@@ -8,11 +8,13 @@ import 'package:oracly_new/core/data/datasources/local_storage.dart';
 import 'package:oracly_new/features/gems/copy/gems_copy.dart';
 import 'package:oracly_new/features/gems/economy/gem_economy.dart';
 import 'package:oracly_new/features/premium/models/premium_models.dart';
+import 'package:oracly_new/features/premium/presentation/reference/premium_entry_action.dart';
 import 'package:oracly_new/features/premium/presentation/reference/premium_reference_screen.dart';
 import 'package:oracly_new/features/premium/services/premium_dev_override.dart';
 import 'package:oracly_new/features/premium/services/unavailable_premium_purchase.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_economy.dart';
 import 'package:oracly_new/features/tarot/economy/tarot_reading_charge.dart';
+import 'package:oracly_new/shared/widgets/oracly_gold_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../support/fake_gem_authority.dart';
 
@@ -23,22 +25,53 @@ void main() {
 
   test('unlock list is complete and never a hard gate line', () {
     expect(PremiumCopy.unlocks, hasLength(3));
-    expect(PremiumCopy.unlocks, contains(PremiumCopy.benefitDepthTitle));
-    expect(PremiumCopy.unlocks, contains(PremiumCopy.benefitContinuityTitle));
-    expect(
-      PremiumCopy.unlocks,
-      contains(PremiumCopy.benefitPersonalizationTitle),
-    );
-    expect(PremiumCopy.whatTitle, 'NEDİR BU KATMAN');
-    expect(PremiumCopy.whyTitle, 'NEDEN VAR');
-    expect(PremiumCopy.heroTitle, 'ÖZEL BİR ODA');
-    expect(
-      PremiumCopy.heroSubtitle,
-      'ORACLY’nin daha derin, sessiz bir katmanı — isteğe bağlı bir oda.',
-    );
-    expect(PremiumCopy.heroLead.toLowerCase(), contains('isteğe bağlı'));
+    expect(PremiumCopy.unlocks, contains(PremiumCopy.benefitSoulmateTitle));
+    expect(PremiumCopy.unlocks, contains(PremiumCopy.benefitOrTitle));
+    expect(PremiumCopy.unlocks, contains(PremiumCopy.benefitJourneyTitle));
+    expect(PremiumCopy.whatTitle, 'ÜCRETSİZ KALAN');
+    expect(PremiumCopy.whyTitle, 'PREMIUM EKLER');
+    expect(PremiumCopy.heroTitle, 'SANA ÖZEL DAHA FAZLASI');
+    expect(PremiumCopy.heroSubtitle, contains('Ruh Eşi'));
+    expect(PremiumCopy.benefitJourneyBody, contains('ana sayfa'));
+    expect(PremiumCopy.benefitJourneyBody, contains('gözlem sayısı'));
+    expect(PremiumCopy.benefitJourneyBody, contains('ücretsiz'));
+    expect(PremiumCopy.benefitOrBody, contains('bir kez'));
+    expect(PremiumCopy.benefitOrBody.toLowerCase(), contains('ses'));
+    expect(PremiumCopy.heroLead.toLowerCase(), contains('açık kalır'));
     expect(PremiumCopy.gateTitle.toLowerCase(), isNot(contains('gerekli')));
     expect(PremiumCopy.ctaUnavailable, 'Mağaza satın alması henüz açılmadı.');
+    expect(
+      premiumEntryActionLabel(
+        checking: true,
+        canBuy: false,
+        alreadyHere: false,
+      ),
+      isNull,
+    );
+    expect(
+      premiumEntryActionLabel(
+        checking: false,
+        canBuy: false,
+        alreadyHere: true,
+      ),
+      isNull,
+    );
+    expect(
+      premiumEntryActionLabel(
+        checking: false,
+        canBuy: false,
+        alreadyHere: false,
+      ),
+      PremiumCopy.ctaInspect,
+    );
+    expect(
+      premiumEntryActionLabel(
+        checking: false,
+        canBuy: true,
+        alreadyHere: true,
+      ),
+      PremiumCopy.seePlans,
+    );
     expect(PremiumCatalogue.showcaseBenefits, hasLength(3));
     expect(
       PremiumCatalogue.showcaseBenefits.every((b) => b.requiresPremium),
@@ -79,7 +112,7 @@ void main() {
 
   testWidgets('membership screen shows unlocks, free value, no fake price',
       (tester) async {
-    await tester.binding.setSurfaceSize(const Size(360, 1800));
+    await tester.binding.setSurfaceSize(const Size(360, 2600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.open();
@@ -96,8 +129,11 @@ void main() {
     expect(find.text(PremiumCopy.benefitSoulmateTitle), findsWidgets);
     expect(find.text(PremiumCopy.benefitOrTitle), findsWidgets);
     expect(find.text(PremiumCopy.benefitJourneyTitle), findsWidgets);
+    expect(find.text(PremiumCopy.seePlans), findsOneWidget);
+    expect(find.text(PremiumCopy.heroLead), findsOneWidget);
     expect(find.text(PremiumCopy.benefitDiscoveryTitle), findsNothing);
-    expect(find.text(PremiumCopy.ctaExplore), findsOneWidget);
+    expect(find.text(PremiumCopy.ctaExplore), findsNothing);
+    expect(find.byType(OraclyGoldButton), findsNothing);
     expect(find.text(PremiumCopy.ctaUnavailable), findsOneWidget);
     expect(find.text(PremiumCopy.gemNote(20)), findsOneWidget);
     expect(find.textContaining('₺'), findsNothing);

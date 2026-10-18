@@ -104,7 +104,10 @@ void main() {
       day: now,
     );
     expect(over.career.toLowerCase(), contains('kariyer'));
-    expect(over.love, isEmpty);
+    expect(over.careerPersonal, isTrue);
+    // No relationship theme: love stays the plain sign text, never personal.
+    expect(over.lovePersonal, isFalse);
+    expect(over.love, pdeAstroBase.love);
   });
 
   test('yıldızname insufficient without cross-modal themes', () {

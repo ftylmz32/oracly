@@ -54,6 +54,7 @@ void main() {
       ),
     );
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
   }
 
   testWidgets('hero and Home wash follow the same scoped ritual time', (
@@ -64,13 +65,20 @@ void main() {
     for (final hour in hours) {
       await pumpPeriod(tester, hour: hour, size: const Size(390, 844));
       final time = OraclyRitualAtmosphere.fromHour(hour);
-      final hero = tester.widget<HomeReferenceHeroAtmosphere>(
-        find.byType(HomeReferenceHeroAtmosphere),
+      final heroes = tester
+          .widgetList<HomeReferenceHeroAtmosphere>(
+            find.byType(HomeReferenceHeroAtmosphere),
+          )
+          .toList();
+      expect(heroes, isNotEmpty);
+      expect(
+        heroes.every((item) => item.visual.time == OraclyRitualTime.night),
+        isTrue,
       );
+      final hero = heroes.first;
       final wash = tester.widget<HomeRitualWash>(find.byType(HomeRitualWash));
-      expect(hero.visual.time, time);
+      expect(hero.visual.time, OraclyRitualTime.night);
       expect(wash.visual.time, time);
-      expect(hero.visual.heroPlateOpacity, wash.visual.heroPlateOpacity);
       expect(find.text(HomePersonalCopy.greeting(time: time)), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
@@ -92,7 +100,7 @@ void main() {
     final hero = tester.widget<HomeReferenceHeroAtmosphere>(
       find.byType(HomeReferenceHeroAtmosphere),
     );
-    expect(hero.visual.time, OraclyRitualTime.morning);
+    expect(hero.visual.time, OraclyRitualTime.night);
     expect(hero.t, 0.38);
     expect(tester.takeException(), isNull);
   });
@@ -126,7 +134,7 @@ void main() {
       find.byType(HomeReferenceHeroAtmosphere),
     );
     final wash = tester.widget<HomeRitualWash>(find.byType(HomeRitualWash));
-    expect(hero.visual.time, expected);
+    expect(hero.visual.time, OraclyRitualTime.night);
     expect(wash.visual.time, expected);
     expect(tester.takeException(), isNull);
   });

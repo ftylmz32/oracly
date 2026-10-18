@@ -10,23 +10,29 @@ import '../../models/star_map_reading.dart';
 import '../../services/star_map_personalization.dart';
 import 'star_map_archive_chapter.dart';
 import 'star_map_archive_separator.dart';
+import 'star_map_result_section.dart';
 
 class StarMapReferenceThemes extends StatelessWidget {
   const StarMapReferenceThemes({
     super.key,
     required this.reading,
+    this.sections,
+    this.heading,
   });
 
   final StarMapReading reading;
+  final List<StarMapResultSection>? sections;
+  final String? heading;
 
   @override
   Widget build(BuildContext context) {
-    final sections = StarMapPersonalization.innerThemeSections(reading);
+    final sections =
+        this.sections ?? StarMapPersonalization.innerThemeSections(reading);
     final last = sections.length - 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ChamberOrnamentHeading(label: StarMapPolishCopy.toldToday),
+        ChamberOrnamentHeading(label: heading ?? StarMapPolishCopy.toldToday),
         SizedBox(height: CraftsmanshipRhythm.afterTitle),
         for (var i = 0; i < sections.length; i++) ...[
           if (i > 0) const StarMapArchiveSeparator(),

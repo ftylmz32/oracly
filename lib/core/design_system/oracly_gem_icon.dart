@@ -1,9 +1,9 @@
-/// Canonical Oracly gem — violet jewel with gold rim, any size.
+/// Canonical Oracly gem — the approved violet crystal, any size.
 library;
 
 import 'package:flutter/material.dart';
 
-import 'oracly_gem_icon_painter.dart';
+import '../constants/app_assets.dart';
 
 /// Live gem identity — use everywhere mücevher appears.
 class OraclyGemIcon extends StatelessWidget {
@@ -22,14 +22,23 @@ class OraclyGemIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strength = glow.clamp(0.0, 1.0);
+    final opacity = dimmed ? 0.62 : 0.9 + (0.1 * strength);
     return Semantics(
       label: semanticsLabel,
       image: semanticsLabel != null,
       child: SizedBox(
         width: size,
         height: size,
-        child: CustomPaint(
-          painter: OraclyGemIconPainter(glow: glow, dimmed: dimmed),
+        child: Opacity(
+          opacity: opacity,
+          child: Image.asset(
+            AppAssets.gemCrystal,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+            gaplessPlayback: true,
+            excludeFromSemantics: true,
+          ),
         ),
       ),
     );

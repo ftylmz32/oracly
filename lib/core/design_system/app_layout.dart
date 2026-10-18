@@ -23,11 +23,11 @@ abstract final class AppLayout {
   static const double screenBottom = AppSpacing.s64;
 
   static EdgeInsets get screenPadding => EdgeInsets.fromLTRB(
-        screenHorizontal,
-        screenTop,
-        screenHorizontal,
-        screenBottom,
-      );
+    screenHorizontal,
+    screenTop,
+    screenHorizontal,
+    screenBottom,
+  );
 
   static EdgeInsets get screenPaddingHorizontal =>
       EdgeInsets.symmetric(horizontal: screenHorizontal);
@@ -49,6 +49,7 @@ abstract final class AppLayout {
   // ── Status header ─────────────────────────────────────────────────────────
 
   static const double statusHeaderHeight = 48;
+
   /// Circular header actions meet the a11y touch floor (≥44).
   static const double headerActionSize = 44;
   static const double headerIconSize = AppSpacing.s20;
@@ -62,6 +63,7 @@ abstract final class AppLayout {
   static const double navItemInset = 6;
   static const double navIconSize = 22;
   static const double navLabelSize = 11;
+
   /// Minimum interactive size for nav chips and chrome controls.
   static const double minTouchTarget = 44;
 
@@ -71,15 +73,21 @@ abstract final class AppLayout {
   /// Fixed clearance for the floating shell bar (no keyboard branch).
   /// Use for [OraclyBottomBar.totalHeight] and layout math that must stay stable.
   ///
-  /// Under [Scaffold.extendBody] + bottomNavigationBar, Flutter already injects
-  /// the bar height into [MediaQuery.padding].bottom for body descendants.
-  /// Do not add nav chrome again on top of that inflated padding.
+  /// Under [Scaffold.extendBody] the shell already puts the bar height into
+  /// [MediaQuery.padding].bottom. Use that when it covers the bar. When a
+  /// nested [SafeArea] has consumed that padding, fall back to the real bar
+  /// slot (chrome + system inset) so the last card can scroll clear.
   static double floatingNavClearance(BuildContext context) {
     final paddingBottom = MediaQuery.paddingOf(context).bottom;
+    final viewBottom = MediaQuery.viewPaddingOf(context).bottom;
     const barChrome = navBarHeight + navBarMarginBottom;
-    final cleared = paddingBottom >= barChrome
-        ? paddingBottom
-        : barChrome + paddingBottom;
+    // System inset lives in viewPadding. Tests that only set padding keep it
+    // there until a SafeArea consumes it.
+    final system = viewBottom > 0
+        ? viewBottom
+        : (paddingBottom < barChrome ? paddingBottom : 0.0);
+    final barSlot = barChrome + system;
+    final cleared = paddingBottom >= barSlot ? paddingBottom : barSlot;
     return cleared + contentBottomBreath;
   }
 
@@ -124,11 +132,10 @@ abstract final class AppLayout {
   static double contentBottomInset(
     BuildContext context, {
     bool scaffoldResizesForKeyboard = true,
-  }) =>
-      scrollBottomInset(
-        context,
-        scaffoldResizesForKeyboard: scaffoldResizesForKeyboard,
-      );
+  }) => scrollBottomInset(
+    context,
+    scaffoldResizesForKeyboard: scaffoldResizesForKeyboard,
+  );
 
   /// Convenience padding for scroll views / chambers.
   static EdgeInsets scrollContentPadding(
@@ -212,8 +219,12 @@ abstract final class AppLayout {
   static const double referenceIconWell = 36;
   static const double referenceIconSize = 18;
   static const double referencePrimaryButtonHeight = 44;
-  static const EdgeInsets referencePrimaryButtonPadding =
-      EdgeInsets.symmetric(horizontal: 18, vertical: 10);
-  static const EdgeInsets referenceOutlineButtonPadding =
-      EdgeInsets.symmetric(horizontal: 14, vertical: 7);
+  static const EdgeInsets referencePrimaryButtonPadding = EdgeInsets.symmetric(
+    horizontal: 18,
+    vertical: 10,
+  );
+  static const EdgeInsets referenceOutlineButtonPadding = EdgeInsets.symmetric(
+    horizontal: 14,
+    vertical: 7,
+  );
 }

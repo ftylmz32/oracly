@@ -156,8 +156,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      expect(find.text('ORACLY'), findsOneWidget);
-      expect(find.text(OnboardingCopy.skip), findsOneWidget);
+      // Encounter V2 gate: the brand lives in the gate artwork; the skip path
+      // is "Şimdilik keşfet".
+      expect(find.text(OnboardingCopy.gateTitle), findsOneWidget);
+      expect(find.text(OnboardingCopy.exploreLabel), findsOneWidget);
       expect(find.text(OnboardingCopy.meetLabel), findsOneWidget);
       expect(find.textContaining('İzin'), findsNothing);
       expect(find.textContaining('Permission'), findsNothing);

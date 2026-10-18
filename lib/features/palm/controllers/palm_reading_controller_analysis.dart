@@ -349,12 +349,13 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
       sourceRequestId: source,
       imageBytes: stagedBytes,
       mimeType: image.mimeType ?? 'image/jpeg',
-      handSide: _hand.name,
+      // The photo belongs to the saved reading; a later hand pick never relabels it.
+      handSide: current.hand.name,
       runPipeline: () async {
         final result = await _experience.reinterpret(
           current: current,
           image: image,
-          hand: _hand,
+          hand: current.hand,
         );
         captured = result;
         return result.reading.id;

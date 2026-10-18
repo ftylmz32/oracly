@@ -38,7 +38,7 @@ class PalmLandingView extends StatelessWidget {
       children: [
         ChamberHeaderLead(text: PalmCopy.landingLine),
         SizedBox(height: PalmTokens.gap),
-        const Expanded(child: PalmHero()),
+        Expanded(child: PalmHero(hand: hand)),
         SizedBox(height: PalmTokens.gap),
         PalmHandChoice(
           selected: hand,

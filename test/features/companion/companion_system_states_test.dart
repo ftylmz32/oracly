@@ -25,11 +25,11 @@ void main() {
     expect(CompanionCopy.speaking.toLowerCase(), contains('konuşuyor'));
     expect(CompanionCopy.stopSpeaking, 'DURDUR');
     expect(CompanionCopy.retry, 'Tekrar dene');
-    expect(CompanionCopy.connectionError, contains("OR'a ulaşamadım"));
+    expect(CompanionCopy.connectionError, contains("Luna'ya ulaşamadım"));
     expect(CompanionCopy.connectionError, contains('Bir daha deneyelim'));
     expect(CompanionCopy.offline.toLowerCase(), contains('bağlantı kurulamadı'));
     expect(CompanionCopy.connectionError.toLowerCase(), isNot(contains('went wrong')));
-    expect(CompanionCopy.offline, isNot(contains("OR'a ulaşamadım")));
+    expect(CompanionCopy.offline, isNot(contains("Luna'ya ulaşamadım")));
     expect(CompanionCopy.connectionError, isNot(contains('Bağlantı kurulamadı')));
   });
 
@@ -83,7 +83,7 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
-  testWidgets('speaking shows OR konuşuyor, DURAKLAT and DURDUR', (tester) async {
+  testWidgets('speaking shows Luna konuşuyor, DURAKLAT and DURDUR', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(

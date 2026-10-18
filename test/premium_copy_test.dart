@@ -8,7 +8,8 @@ void main() {
     test('plan labels avoid FOMO and urgency language', () {
       expect(PremiumCopy.planYearlySubtitle.toLowerCase(), isNot(contains('popüler')));
       expect(PremiumCopy.planYearlySubtitle.toLowerCase(), isNot(contains('tasarruf')));
-      expect(PremiumCopy.heroLead.toLowerCase(), contains('isteğe bağlı'));
+      expect(PremiumCopy.heroLead.toLowerCase(), contains('açık kalır'));
+      expect(PremiumCopy.ctaInspect, "Premium'u incele");
     });
 
     test('unavailable purchase copy is honest, not a buy CTA', () {

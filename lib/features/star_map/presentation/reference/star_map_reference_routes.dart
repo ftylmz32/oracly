@@ -23,21 +23,36 @@ abstract final class StarMapReferenceRoutes {
   static Future<void> openBirthChart(
     BuildContext context, {
     VoidCallback? onReturn,
+    bool continueToNarrative = false,
+    StarMapReading? reading,
+    BirthProfile? profile,
   }) async {
     if (_navigating) return;
     _navigating = true;
+    var chartGenerated = false;
     try {
-      ProviderScope.containerOf(context, listen: false)
-          .read(analyticsServiceProvider)
-          .logStarMapCompleted();
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => const BirthChartScreen(),
-        ),
-      );
+      ProviderScope.containerOf(
+        context,
+        listen: false,
+      ).read(analyticsServiceProvider).logStarMapCompleted();
+      chartGenerated =
+          await Navigator.of(context).push<bool>(
+            MaterialPageRoute<bool>(
+              builder: (_) => BirthChartScreen(
+                returnWhenChartGenerated: continueToNarrative,
+              ),
+            ),
+          ) ??
+          false;
       onReturn?.call();
     } finally {
       _navigating = false;
+    }
+    if (chartGenerated &&
+        continueToNarrative &&
+        reading != null &&
+        context.mounted) {
+      await openPrimaryArchiveLeaf(context, reading, profile: profile);
     }
   }
 

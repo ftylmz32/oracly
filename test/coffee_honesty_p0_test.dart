@@ -33,7 +33,7 @@ void main() {
       contains('Kahve Falı'),
     );
     expect(CoffeeCopy.previewBadge, PreviewCapabilityCopy.badge);
-    expect(CoffeeCopy.capabilityNote.toLowerCase(), contains('or'));
+    expect(CoffeeCopy.capabilityNote.toLowerCase(), contains('luna'));
     expect(CoffeeCopy.capabilityNote.toLowerCase(), isNot(contains('önizleme')));
     expect(CoffeeCopy.landingLine, 'Masa hazır. Fincan hâlâ sıcak.');
     expect(CoffeeCopy.analyzeCta, 'FALIMI YORUMLA');

@@ -16,10 +16,14 @@ class PremiumLegalDisclosure extends StatelessWidget {
   const PremiumLegalDisclosure({
     super.key,
     required this.selectedPlan,
+    this.namePeriod = true,
     this.showRestoreHint = true,
   });
 
   final PremiumPlanKind selectedPlan;
+
+  /// False when no store plan or active plan has been verified.
+  final bool namePeriod;
   final bool showRestoreHint;
 
   @override
@@ -27,14 +31,15 @@ class PremiumLegalDisclosure extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          LegalCopy.planDisclosure(selectedPlan),
-          textAlign: TextAlign.center,
-          style: ReadingTypography.footnote(
-            color: AppColors.textSecondary.withValues(alpha: 0.88),
+        if (namePeriod)
+          Text(
+            LegalCopy.planDisclosure(selectedPlan),
+            textAlign: TextAlign.center,
+            style: ReadingTypography.footnote(
+              color: AppColors.textSecondary.withValues(alpha: 0.88),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+        if (namePeriod) const SizedBox(height: 8),
         Text(
           LegalCopy.storeBillingNote,
           textAlign: TextAlign.center,
@@ -42,7 +47,7 @@ class PremiumLegalDisclosure extends StatelessWidget {
             color: AppColors.textHint.withValues(alpha: 0.9),
           ),
         ),
-        if (selectedPlan != PremiumPlanKind.lifetime) ...[
+        if (namePeriod && selectedPlan != PremiumPlanKind.lifetime) ...[
           const SizedBox(height: 6),
           Text(
             LegalCopy.cancelNote,
@@ -117,11 +122,14 @@ class _Link extends StatelessWidget {
   Widget build(BuildContext context) {
     return OraclyPressable(
       onTap: onTap,
-      child: Text(
-        label,
-        style: AppTextStyles.caption.copyWith(
-          color: AppColors.goldLight.withValues(alpha: 0.86),
-          fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Text(
+          label,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.goldLight.withValues(alpha: 0.86),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

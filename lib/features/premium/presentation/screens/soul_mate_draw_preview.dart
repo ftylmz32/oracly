@@ -32,7 +32,7 @@ class SoulMateDrawPreview extends StatelessWidget {
           ),
         ),
         SizedBox(height: AppSpacing.lg),
-        const PremiumEntryBody(),
+        const PremiumEntryBody(focus: PremiumEntryFocus.soulMate),
       ],
     );
   }

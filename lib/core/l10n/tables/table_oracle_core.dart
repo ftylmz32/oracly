@@ -5,14 +5,14 @@ import '../l10n_triple.dart';
 
 const kL10nOracleCore = <String, L10nTriple>{
   'oracle.next.line': L10nTriple(
-    'Son günlerde {theme} teması birkaç deneyiminde tekrar ortaya çıktı. İstersen OR ile bunu biraz daha açabilirsin.',
-    'Lately the theme of {theme} has reappeared across a few of your experiences. If you like, you can open it a little more with OR.',
-    'В последнее время тема «{theme}» снова появилась в нескольких твоих опытах. Если хочешь, можно чуть глубже раскрыть это с OR.',
+    'Son günlerde {theme} teması birkaç deneyiminde tekrar ortaya çıktı. İstersen Luna ile bunu biraz daha açabilirsin.',
+    'Lately the theme of {theme} has reappeared across a few of your experiences. If you like, you can open it a little more with Luna.',
+    'В последнее время тема «{theme}» снова появилась в нескольких твоих опытах. Если хочешь, можно чуть глубже раскрыть это с Luna.',
   ),
   'oracle.home.title': L10nTriple(
-    'OR senin için bir bağlantı fark etti.',
-    'OR noticed a connection for you.',
-    'OR заметил для тебя связь.',
+    'Luna senin için bir bağlantı fark etti.',
+    'Luna noticed a connection for you.',
+    'Luna заметила для тебя связь.',
   ),
   'oracle.home.body': L10nTriple(
     'Son günlerde {theme} konusunda benzer bir tema birkaç deneyiminde tekrarlandı.',
@@ -20,9 +20,9 @@ const kL10nOracleCore = <String, L10nTriple>{
     'В последнее время похожая тема вокруг «{theme}» повторялась в нескольких твоих опытах.',
   ),
   'oracle.home.cta.or': L10nTriple(
-    'OR ile Aç',
-    'Open with OR',
-    'Открыть с OR',
+    'Luna ile Aç',
+    'Open with Luna',
+    'Открыть с Luna',
   ),
   'oracle.home.dismiss': L10nTriple(
     'Şimdilik geç',
@@ -35,9 +35,9 @@ const kL10nOracleCore = <String, L10nTriple>{
     'Твой путь немного углубился.',
   ),
   'oracle.journey.soft.body': L10nTriple(
-    '{theme} teması birkaç alanda uzun süredir görünüyor. Premium, bu gerçek izlerin arşivini, karşılaştırmalarını ve OR için daha derin bağlamı açar — temel gözlemin zaten senin.',
-    'The theme of {theme} has been present across a few areas for a while. Premium opens an archive of these real traces, quiet comparisons, and deeper OR context — your basic observation is already yours.',
-    'Тема «{theme}» уже какое-то время встречается в нескольких областях. Премиум открывает архив этих реальных следов, спокойные сравнения и более глубокий контекст для OR — базовое наблюдение уже твоё.',
+    '{theme} teması birkaç alanda görünüyor. Premium, izler birikince ana sayfada alan ve gözlem sayısını yazar. Temel not zaten senin.',
+    'The theme of {theme} is showing across a few areas. When traces gather, Premium writes the area and sighting counts on Home. The basic note is already yours.',
+    'Тема «{theme}» встречается в нескольких областях. Когда следы накопятся, Премиум пишет на главной число областей и наблюдений. Базовая заметка уже твоя.',
   ),
   'oracle.journey.soft.cta': L10nTriple(
     "Premium yolculuğu gör",

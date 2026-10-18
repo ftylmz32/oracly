@@ -43,12 +43,12 @@ class SettingsReferencePrefs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = AppLocale.normalize(settings.language);
-    final themeLabel = _t(L10nKeys.themeDark);
+    // Production is dark-only: no Appearance section until light mode is user-selectable.
     final appearanceSelectable = AppAppearanceModeX.lightModeUserSelectable;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (appearanceSelectable)
+        if (appearanceSelectable) ...[
           SettingsReferenceGroup(
             title: _t(L10nKeys.sectionAppearance),
             rows: [
@@ -64,20 +64,9 @@ class SettingsReferencePrefs extends StatelessWidget {
                 onTap: onPickAppearance,
               ),
             ],
-          )
-        else
-          SettingsReferenceGroup(
-            title: _t(L10nKeys.sectionAppearance),
-            rows: [
-              SettingsReferenceRow(
-                icon: Icons.brightness_2_outlined,
-                title: _t(L10nKeys.theme),
-                subtitle: _t(L10nKeys.themeSubtitle),
-                trailingValue: themeLabel,
-              ),
-            ],
           ),
-        SizedBox(height: SettingsReferenceTokens.sectionGap),
+          SizedBox(height: SettingsReferenceTokens.sectionGap),
+        ],
         SettingsReferenceGroup(
           title: _t(L10nKeys.sectionLanguage),
           rows: [

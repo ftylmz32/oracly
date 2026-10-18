@@ -32,6 +32,10 @@ abstract final class AppAssets {
   static const String coffeeRitualHero = '$_imagesRoot/coffee_ritual_hero.webp';
   static const String tarotHero = '$_imagesRoot/tarot_hero.webp';
   static const String homeHeroMoon = '$_homeRoot/home_hero_moon.webp';
+  static const String homeHeroMorning = '$_homeRoot/home_hero_morning.webp';
+  static const String homeHeroNoon = '$_homeRoot/home_hero_noon.webp';
+  static const String homeHeroEvening = '$_homeRoot/home_hero_evening.webp';
+  static const String homeHeroNight = '$_homeRoot/home_hero_night.webp';
   static const String homeOrGuide = '$_homeRoot/home_or_guide.webp';
 
   /// Luna chat hero — extracted from owned design reference (portrait only).
@@ -103,6 +107,27 @@ abstract final class AppAssets {
   static const String premiumChamberHero =
       '$_premiumRoot/premium_chamber_hero.webp';
   static const String premiumGemstone = '$_premiumRoot/premium_gemstone.webp';
+
+  /// Approved single-portrait cover. Premium card only — Home keeps its plate.
+  static const String premiumSoulMateCover =
+      '$_premiumRoot/oracly_soulmate_premium_cover.webp';
+
+  /// Approved violet crystal — transparent, used at every gem size.
+  static const String gemCrystal = '$_imagesRoot/gems/oracly_gem_crystal.png';
+
+  static const String _encounter = '$_imagesRoot/encounter';
+  static const String encounterGate = '$_encounter/gate.webp';
+  static const String encounterJournal = '$_encounter/journal.webp';
+  static const String encounterTable = '$_encounter/table.webp';
+  static const String encounterHall = '$_encounter/hall.webp';
+  static const String encounterWelcome = '$_encounter/welcome.webp';
+  static const String encounterSky = '$_encounter/sky.webp';
+  static const String encounterWorld = '$_encounter/world.webp';
+  static const String encounterLove = '$_encounter/interest_love.webp';
+  static const String encounterFuture = '$_encounter/interest_future.webp';
+  static const String encounterSelf = '$_encounter/interest_self.webp';
+  static const String encounterWork = '$_encounter/interest_work.webp';
+  static const String encounterCurious = '$_encounter/interest_curious.webp';
 
   // ── UI icons (simple vector/line art allowed) ─────────────────────
   static const String featureTarot = '$_iconsRoot/feature_tarot.png';

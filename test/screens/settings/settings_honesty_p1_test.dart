@@ -114,14 +114,14 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   }
 
-  testWidgets('theme row is live; notifications are a real switch', (
+  testWidgets('no dead theme row; notifications are a real switch', (
     tester,
   ) async {
     await pumpSettings(tester);
 
     expect(find.text(SettingsCopy.soon), findsNothing);
-    expect(find.text('Tema'), findsOneWidget);
-    expect(find.text(SettingsCopy.darkTitle), findsOneWidget);
+    expect(find.text('Tema'), findsNothing);
+    expect(find.text(OraclyL10n.t(L10nKeys.sectionAppearance)), findsNothing);
 
     expect(find.text(SettingsCopy.notificationsTitle), findsOneWidget);
     expect(find.text(SettingsCopy.notificationsUnavailable), findsNothing);
@@ -210,7 +210,10 @@ void main() {
     expect(OraclyFeedbackGate.hapticEnabled, isFalse);
     expect(OraclyTtsGate.voiceRepliesEnabled, isTrue);
     expect(find.text('SETTINGS'), findsOneWidget);
-    expect(find.text('Dark'), findsOneWidget);
+    // Persisted 'light' never surfaces: dark-only, no theme row in any language.
+    expect(find.text('LANGUAGE'), findsOneWidget);
+    expect(find.text('Theme'), findsNothing);
+    expect(find.text('Light'), findsNothing);
     expect(find.text('Soon'), findsNothing);
     expect(find.text('Yakında'), findsNothing);
     expect(find.textContaining('saved'), findsNothing);
@@ -237,19 +240,16 @@ void main() {
     expect(prefs.getInt('settings_ai_personality'), AiPersonality.direct.index);
   });
 
-  testWidgets('appearance stays dark-only when light mode is gated', (
+  testWidgets('dark-only: no Appearance section while light mode is gated', (
     tester,
   ) async {
     await pumpSettings(tester);
 
-    expect(find.text('Tema'), findsOneWidget);
-    expect(find.text(SettingsCopy.darkTitle), findsOneWidget);
-    expect(find.text('Açık'), findsNothing);
-
-    await tester.tap(find.text('Tema'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(OraclyL10n.t(L10nKeys.sectionAppearance)), findsNothing);
+    expect(find.text('Tema'), findsNothing);
     expect(find.text('Açık'), findsNothing);
     expect(find.text('Sistem'), findsNothing);
+    // The next section now leads the preferences.
+    expect(find.text(OraclyL10n.t(L10nKeys.sectionLanguage)), findsOneWidget);
   });
 }
