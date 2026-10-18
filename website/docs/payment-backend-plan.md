@@ -58,6 +58,14 @@ Hesap açılınca merchant portalda sandbox anahtarları secret manager'a girilm
 - Firestore kesintisi, iyzico zaman aşımı ve bilinmeyen durumlar fail-closed olur.
 - Mevcut iOS/Android operation oluşturma, staging, sonuç ve toparlanma regresyon testleri değişmeden geçer.
 
-## Bu worktree'deki sınır
+## Aşama 2D uygulama durumu
 
-`src/lib/orders` yalnızca çalıştırılabilir alan modeli, provider arayüzü ve sahte sağlayıcıdır. Kalıcı depo, gerçek Next route, iyzico SDK/anahtarları veya backend admission kontrolü değildir. Üretim kodu olarak etkinleştirilmemelidir.
+`src/server/orders` altında Firebase Admin ID token + App Check doğrulaması, Firestore transaction
+deposu, server-only katalog yapılandırması ve ödeme doğrulama sınırı eklendi. `POST /api/orders`
+idempotent sipariş oluşturur; `GET /api/orders/:orderId` yalnızca doğrulanmış sahibine güvenli DTO
+döndürür. Yapılandırma veya Firestore erişimi yoksa route'lar fail-closed kalır.
+
+Bu çalışma gerçek Firebase projesine bağlanarak veya Firestore Emulator ile doğrulanmadı. Testlerdeki
+depo bellek içi bir transaction benzetimidir; gerçek Firestore transaction testi değildir. Gerçek
+iyzico adaptörü, callback/webhook route'u ve kahve backend'inde atomik entitlement tüketimi hâlâ yoktur.
+Bu nedenle production ödeme ve gerçek fal başlatma etkinleştirilmemelidir.

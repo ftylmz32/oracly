@@ -9,7 +9,9 @@ export interface CheckoutProvider {
 
 export class FakeCheckoutProvider implements CheckoutProvider {
   private readonly results = new Map<string, PaymentResult>();
-  constructor(private readonly webhookSecret = 'test-only-signature') {}
+  constructor(private readonly webhookSecret = 'test-only-signature', environment = process.env.NODE_ENV) {
+    if (environment === 'production') throw new Error('fake_checkout_provider_forbidden');
+  }
   async initialize(order: Readonly<CoffeeOrder>): Promise<CheckoutSession> {
     return { token: `fake_${order.orderId}`, paymentPageUrl: `https://sandbox.invalid/checkout/${order.orderId}` };
   }

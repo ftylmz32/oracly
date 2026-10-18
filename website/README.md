@@ -29,7 +29,7 @@ npm run build
 - Alan adı belli olunca HTTPS adresini `NEXT_PUBLIC_SITE_URL` üzerinden belirt. O zamana kadar arama motorları için `noindex` etkin.
 - `npm install` paket kilit dosyasını üretecektir; geliştirme tamamlandığında commit'e eklenmelidir.
 
-## Faz 2 önkoşulları (bu aşamada uygulanmadı)
+## Faz 2 üretim önkoşulları
 
 1. Firebase için ayrı Web App Check uygulaması ve doğrulama; asla production App Check'i bypass etme.
 2. Mevcut reading operation, staged image ve sonuç endpoint'lerinin staging ortamında Firebase kullanıcı sahipliği ve App Check ile uçtan uca doğrulanması.
@@ -74,15 +74,26 @@ gecikmesi halinde aynı endpoint sınırlı olarak yeniden sorgulanır; yeni fal
 
 Üretime dağıtım / canlı ödeme / mevcut mobil backend değişikliği: **yok**.
 
-## Güvenli sipariş temeli
+## Kalıcı sipariş sunucusu
 
-`src/lib/orders` tekil kahve falı için sunucu-otoriteli sipariş durum modelini,
-Checkout Form sağlayıcı arayüzünü ve yalnızca testlerde kullanılan sahte sağlayıcıyı içerir.
+`src/lib/orders` tekil kahve falı alan modelini; `src/server/orders` ise Firebase Admin
+Authentication/App Check doğrulamasını, Firestore transaction deposunu ve ödeme doğrulama
+sınırını içerir. `POST /api/orders` sipariş oluşturur, `GET /api/orders/:orderId` yalnızca
+doğrulanmış sahibine allowlist edilmiş sipariş durumunu döndürür. Her ikisi de Firebase ID
+token ve izinli Web App Check App ID ister.
+
+Sipariş route'ları gerekli server-only değişkenlerden biri eksikse veya
+`ORACLY_ORDERS_ENABLED=true` değilse 503 ile fail-closed kalır. Satış fiyatı yalnız
+`ORACLY_COFFEE_ORDER_PRICE_MINOR` sunucu kataloğundan okunur; testlerdeki örnek fiyat
+production route'una bağlı değildir. Yönetilen ortamda Application Default Credentials
+tercih edilir; servis hesabı fallback değerleri hiçbir zaman `NEXT_PUBLIC_*` olmamalıdır.
+
+Checkout Form sağlayıcı arayüzü ve yalnızca testlerde kullanılan sahte sağlayıcı da korunur.
 İstemci fiyatı veya `paid` iddiası reddedilir; yinelenen bildirimler idempotenttir ve bir
 provider payment ID en fazla bir siparişe bağlanabilir. Hak, aynı sipariş için yalnızca bir
 reading operation'a atomik olarak tüketilebilir.
 
-Bu kod gerçek iyzico adaptörü, kalıcı Firestore deposu veya production ödeme endpoint'i değildir.
-Mevcut backend açığı ve mobil uyumluluk planı [docs/payment-backend-plan.md](docs/payment-backend-plan.md)
-dosyasında belgelenmiştir. Sunucuda ödeme admission kontrolü uygulanmadan satın alma ve canlı fal
-başlatma kapalı kalır.
+Gerçek iyzico adaptörü ve webhook route'u henüz etkin değildir. Kalıcı sipariş deposu hazır olsa
+da mevcut kahve backend'i bu hakkı atomik tüketmediği için satın alma ve canlı fal başlatma kapalı
+kalır. Backend açığı ve mobil uyumluluk planı
+[docs/payment-backend-plan.md](docs/payment-backend-plan.md) dosyasındadır.

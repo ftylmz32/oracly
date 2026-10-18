@@ -3,7 +3,7 @@ import type { ConsumeOutcome, OrderRepository } from './repository';
 import { COFFEE_READING_PRODUCT_ID, type CoffeeOrder, type PaymentResult } from './types';
 
 // Executable test catalog only. Production price must live in the durable backend catalog.
-const TEST_ONLY_CATALOG = { [COFFEE_READING_PRODUCT_ID]: { priceMinor: 14900, currency: 'TRY' as const } };
+const TEST_ONLY_CATALOG = { [COFFEE_READING_PRODUCT_ID]: { priceMinor: 1, currency: 'TRY' as const } };
 export class CoffeeOrderService {
   constructor(private readonly repository: OrderRepository, private readonly provider: CheckoutProvider, private readonly now = () => Date.now()) {}
   async create(ownerUserId: string, input: { requestId: string; productId: typeof COFFEE_READING_PRODUCT_ID; price?: unknown; paid?: unknown }): Promise<CoffeeOrder> {
