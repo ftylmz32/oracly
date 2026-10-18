@@ -47,7 +47,7 @@ function sectionResponsibilityRules(): string[] {
     'recurringThemeInsights: what the repeated theme adds — do not restate the current relationship question.',
     'memoryInsights: what prior interpretation context adds TODAY — not merely "this has been a theme before."',
     'lifeAreas: only when materially distinct. If it would restate summary/synthesis, return [].',
-    'advice: practical reflective guidance when the evidence supports it. Do not turn every reading into coaching or summarize the reading first.',
+    'advice: one reflective sentence in the same voice when it adds a consequence the synthesis did not already say. Never a homework list, a checklist, or an instruction to write things down.',
     'reflectionPrompt: a useful self-reflection question when it genuinely deepens the reading — not advice rephrased as a question. Use null when it adds little.',
     'dailyFocus: short optional behavioral focus. Use null when redundant.',
     'closingMessage: a specific natural closing thought. Never summarize again, restate advice, or use generic ceremonial Tarot filler in place of insight.',

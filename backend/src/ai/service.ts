@@ -6,6 +6,7 @@ import { coffeePayloadFromUnknown, type CoffeeImage } from './image.js';
 import { OpenAiTransport } from './openai-transport.js';
 import { ReadingOperationError } from '../reading/operation-service.js';
 import type { ReadingStagedImageService } from '../reading/operation-staged-image-service.js';
+import { lunaIdentityViolation } from './chat-style.js';
 import { extractChatText, parseDreamData } from './parse-provider.js';
 import { acceptDreamData } from './dream-acceptance.js';
 import { buildDreamCompleteOptions } from './dream-writer-model.js';
@@ -168,6 +169,7 @@ export class AiProxyService {
           : { temperature: 0.72 }),
       }),
     );
+    if (lunaIdentityViolation(text)) fail(ErrorCode.invalidResponse);
     return { text };
   }
 
