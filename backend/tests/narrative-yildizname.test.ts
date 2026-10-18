@@ -219,6 +219,9 @@ describe('Yıldızname paid-quality writer contract', () => {
     expect(prompt).toContain('NO INVENTED LIFE');
     expect(prompt).toContain('PLAIN SPEECH');
     expect(prompt).toContain('TONE ONLY, NOT A SCRIPT');
+    expect(prompt).not.toContain('Bir şeyin sağlam ilerlemesi');
+    expect(prompt).toContain('not a task to recall or write an episode');
+    expect(prompt).toContain('do not speak as if a missing layer had been calculated');
     expect(prompt).not.toContain('Preferred modality: may / could');
   });
 
