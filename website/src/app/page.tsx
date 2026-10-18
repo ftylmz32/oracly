@@ -35,7 +35,7 @@ export default function Home() {
       <section className="section section-intro">
         <div className="container intro-grid">
           <div><div className="eyebrow">01 / DENEYİM</div><h2 className="section-heading">Merak, <em>bir fincan</em> kadar yakın.</h2></div>
-          <p>Kahve falı ORACLY'nin merkezinde. İki farklı açıdan fincanını ve tabağını fotoğraflayarak başlayacaksın. Şimdilik bu adımları ücretsiz bir önizleme olarak keşfedebilirsin.</p>
+          <p>Kahve falı ORACLY&apos;nin merkezinde. İki farklı açıdan fincanını ve tabağını fotoğraflayarak başlayacaksın. Şimdilik bu adımları ücretsiz bir önizleme olarak keşfedebilirsin.</p>
         </div>
         <div className="container steps-grid">
           <div className="step-card"><span className="step-number">01</span><div className="step-art">◖</div><h3>Fincanını hazırla</h3><p>Kahveni iç, fincanını kapat ve açılmasını bekle.</p></div>
