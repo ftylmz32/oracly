@@ -55,7 +55,7 @@ const TR_MARKERS = ['bir', 've', 'bu', 'icin', 'gibi', 'ile', 'ama', 'da', 'de',
 const EN_MARKERS = ['the', 'and', 'of', 'to', 'is', 'in', 'you', 'your', 'that', 'this', 'with', 'it', 'as', 'for', 'was', 'what', 'might', 'may', 'can', 'not'];
 
 const DICTIONARY =
-  /(^|\s)[\p{L}]+\s*=\s*[\p{L}]+|anlam\s*:|meaning\s*:|значение\s*:|temsil eder|demektir|r[uü]ya tabiri|tabirname|symbolizes|dream dictionary|символизирует|сонник/iu;
+  /(^|\s)[\p{L}]+\s*=\s*[\p{L}]+|anlam\s*:|meaning\s*:|значение\s*:|r[uü]ya tabiri|tabirname|symbolizes|dream dictionary|символизирует|сонник/iu;
 
 const GENERIC =
   /yeni bir ba[sş]lang[iı][cç]|yeni bir f[iı]rsat|g[uü]zel haberler|de[gğ]i[sş]im geliyor|hedeflerine ula[sş]acaks[iı]n|new beginning|new opportunit|good news is coming|change is coming|journey of self-discovery|новое начало|новые возможности|хорошие новости|грядут перемены/giu;

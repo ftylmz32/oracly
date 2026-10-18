@@ -133,6 +133,12 @@ describe('Dream Phase 2 — backend quality gate', () => {
     expect(
       evaluateDreamQuality({ ...enGood, interpretation: `Meaning: ${enGood.interpretation}` }, input(enNarrative, 'en')),
     ).toBe('dictionary_style');
+    expect(
+      evaluateDreamQuality(
+        { ...trGood, interpretation: `${trGood.interpretation} Bu sessizlik bir eşik demektir.` },
+        tr,
+      ),
+    ).toBeNull();
   });
 
   it('accepts a grounded natural closing without requiring a question', () => {
