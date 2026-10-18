@@ -82,6 +82,10 @@ describe('PALM DIRECT prompt — palm limits, free otherwise', () => {
     expect(PALM_DIRECT_PROMPT).toContain('Kişi hangi eli gösterdiğini söylemediyse sağ el ya da sol el deme');
     expect(PALM_DIRECT_PROMPT).toContain('Ömür uzunluğu, sağlık, hastalık, ölüm ya da hamilelik');
     expect(PALM_DIRECT_PROMPT).toContain('Aşk, ilişkiler, evlilik, kariyer, para, kısmet, fırsatlar, kararlar ve gelecek');
+    expect(PALM_DIRECT_PROMPT).toContain('Kişinin niyeti varsa falın omurgası odur.');
+    expect(PALM_DIRECT_PROMPT).toContain('Herkese söylenebilecek genel bir fal yazma.');
+    expect(PALM_DIRECT_PROMPT).toContain('Geleceği kesin olmuş bir bilgi gibi ilan etme.');
+    expect(PALM_DIRECT_PROMPT).toContain('hazır bir kapanış cümlesi kurma');
     for (const old of ['evidenceIds', 'tendencies', 'NO INVENTED LIFE STORY', 'cite']) expect(PALM_DIRECT_PROMPT).not.toContain(old);
   });
 });

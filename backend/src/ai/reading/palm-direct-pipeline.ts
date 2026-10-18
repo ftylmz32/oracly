@@ -3,7 +3,9 @@
  * reading freely (the approach approved for Coffee V3D): no observer JSON,
  * no evidence-id citation, no fixed section jobs, no word-level style gates.
  * Love, relationships, career, money, luck, opportunities, decisions and the
- * future are open to bold, creative, personal prediction.
+ * future stay available when this palm and the person's intention support
+ * them. The reading is not a certain future, a tour of every life area, or a
+ * homework list.
  *
  * Palm keeps ONLY its own accuracy limits, enforced narrowly on delivery:
  *  - never claim a line the photo does not show (the writer leaves it "");
@@ -42,7 +44,8 @@ const LINES: readonly string[] = [
   '- Fotoğrafta okunabilir bir avuç içi yoksa yalnızca {"unreadable": true} döndür.',
   '',
   'BUNUN DIŞINDA ÖZGÜRSÜN',
-  '- Aşk, ilişkiler, evlilik, kariyer, para, kısmet, fırsatlar, kararlar ve gelecek hakkında cesur, yaratıcı, kişiye özel tahminler yapabilirsin.',
+  '- Kişinin niyeti varsa falın omurgası odur. Aşk, ilişkiler, evlilik, kariyer, para, kısmet, fırsatlar, kararlar ve gelecek falın doğal konularıdır; yalnız bu avuçta ve bu niyette öne çıkanı geliştir, hepsini sırayla dolaşma. Herkese söylenebilecek genel bir fal yazma.',
+  '- Falcı sezgin kalsın. Geleceği kesin olmuş bir bilgi gibi ilan etme. Yapılacaklar listesi, "şunu yaz" ödevi ya da her falın sonuna yapışan hazır bir kapanış cümlesi kurma. Kanıtsız suçlama, iftira ya da zarar verici talimat yok.',
   '- Anlatım tarzına, akışa ve uzunluğa sen karar verirsin. Etkileyici, kişiye özel hissettiren, merak uyandıran bir el falı yaz.',
   '',
   'BİÇİM',
@@ -58,7 +61,7 @@ export function palmDirectPromptSha256(): string {
 }
 
 /** Pinned so a prompt change is always a deliberate, reviewed act. */
-export const FROZEN_PALM_DIRECT_PROMPT_SHA256 = '70622042d405a561d56da0f864d7d80d6f114386fb7e0a740e144f403e9b1dbb';
+export const FROZEN_PALM_DIRECT_PROMPT_SHA256 = '516cbaa7a59501046790fb343202e3242a5500b6b6102b68403ad4e4cfec7375';
 
 /** Per-operation stage holding the delivered reading (a task retry never pays twice). */
 export const PALM_DIRECT_READING_STAGE = 'palm_direct_reading';
