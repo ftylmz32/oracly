@@ -74,20 +74,23 @@ class CompanionThreadMemory {
     final lastAssistant = CompanionThreadMemoryScan.last(span, user: false);
     final previous = CompanionThreadMemoryScan.heldTopic(span);
     final now = CompanionThreadTopics.of(current);
+    final denied = CompanionThreadTopics.denies(current, previous);
     final answering =
+        !denied &&
         CompanionThreadMemoryScan.isAnswer(current, lastAssistant, previous);
     final heldNow = CompanionHeldTopic.resolve(
       interrupted: false,
       answering: answering,
       previous: previous,
       now: now,
+      denied: denied,
     );
-    final switched = !answering &&
+    final switched =
+        !answering &&
         previous != null &&
         heldNow != null &&
         previous != heldNow;
-    final interrupted =
-        CompanionIntent.isGreeting(current) && previous != null;
+    final interrupted = CompanionIntent.isGreeting(current) && previous != null;
     final resuming = CompanionThreadMemoryScan.isResume(
       current,
       previous,
@@ -99,6 +102,7 @@ class CompanionThreadMemory {
       answering: answering,
       previous: previous,
       now: now,
+      denied: denied,
     );
     final facts = CompanionConversationContinuity.facts(span, current);
     final draft = CompanionThreadMemory(
@@ -123,7 +127,9 @@ class CompanionThreadMemory {
       interrupted: interrupted,
       resuming: resuming,
       continuityHint: CompanionConversationContinuity.guidance(
-        thread: draft, facts: facts, current: current,
+        thread: draft,
+        facts: facts,
+        current: current,
       ),
     );
   }
@@ -156,10 +162,10 @@ class CompanionThreadMemory {
   }) {
     final extra = (discovery ?? '').trim();
     final omitRecap = turns.any((t) => t.isUser);
-    final thread = read(turns, current).instructionFor(
+    final thread = read(
+      turns,
       current,
-      omitRecap: omitRecap,
-    );
+    ).instructionFor(current, omitRecap: omitRecap);
     final body = extra.isEmpty ? thread : '$extra $thread';
     if (body.length <= hintLimit) return body;
     final cut = body.substring(0, hintLimit);

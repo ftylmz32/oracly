@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oracly_new/features/ai/production/models/conversation_turn.dart';
 import 'package:oracly_new/features/ai/services/followup_question_resolve.dart';
 import 'package:oracly_new/features/companion/services/companion_thread_memory.dart';
+import 'package:oracly_new/features/companion/services/companion_thread_topics.dart';
 import 'package:oracly_new/features/personal_discovery/models/cross_discovery_insight.dart';
 import 'package:oracly_new/features/personal_discovery/models/discovery_theme_strength.dart';
 import 'package:oracly_new/features/personal_discovery/models/personal_discovery_profile.dart';
@@ -19,6 +20,29 @@ void main() {
       ),
       'selam',
     );
+  });
+
+  test('denying work does not rename the thread to work', () {
+    const current = 'Aslında sebebi iş değil.';
+    final thread = CompanionThreadMemory.read(const [
+      ConversationTurn(
+        role: ConversationTurn.userRole,
+        text: 'Bugün biraz kötü hissediyorum.',
+      ),
+      ConversationTurn(
+        role: ConversationTurn.assistantRole,
+        text: 'Neye takıldın?',
+      ),
+    ], current);
+    expect(thread.topic, isNot('iş'));
+    expect(thread.switched, isFalse);
+    expect(thread.instruction, isNot(contains('Şu anki konu: iş')));
+    expect(thread.instruction, contains('düzeltme'));
+    expect(thread.instruction, contains('Sohbeti sıfırlama'));
+  });
+
+  test('a denied relationship still leaves an affirmed job topic', () {
+    expect(CompanionThreadTopics.of('İlişki değil, asıl konu iş.'), 'iş');
   });
 
   test('short answer after a question stays on the thread', () {
@@ -48,10 +72,7 @@ void main() {
         role: ConversationTurn.assistantRole,
         text: 'Daha çok iş konusunda mı, yoksa genel olarak mı?',
       ),
-      ConversationTurn(
-        role: ConversationTurn.userRole,
-        text: 'İş konusunda.',
-      ),
+      ConversationTurn(role: ConversationTurn.userRole, text: 'İş konusunda.'),
       ConversationTurn(
         role: ConversationTurn.assistantRole,
         text: 'iş tamam. Asıl sıkışma ne?',
@@ -118,4 +139,3 @@ void main() {
     expect(ctx, isNot(contains('uydurma anı')));
   });
 }
-

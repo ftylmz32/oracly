@@ -11,12 +11,19 @@ abstract final class CompanionHeldTopic {
     required bool answering,
     required String? previous,
     required String? now,
+    bool denied = false,
   }) {
     if (interrupted) return previous;
-    if (answering && previous != null && !CompanionThreadTopics.isVague(previous)) {
+    if (denied) return now;
+    if (answering &&
+        previous != null &&
+        !CompanionThreadTopics.isVague(previous)) {
       return previous;
     }
-    if (now != null && CompanionThreadTopics.isVague(now) && previous != null && !CompanionThreadTopics.isVague(previous)) {
+    if (now != null &&
+        CompanionThreadTopics.isVague(now) &&
+        previous != null &&
+        !CompanionThreadTopics.isVague(previous)) {
       return previous;
     }
     return now ?? previous;

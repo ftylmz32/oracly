@@ -32,6 +32,12 @@ abstract final class CompanionCorrection {
         (t.contains('mean') || t.contains('said'))) {
       return true;
     }
+    final namesCause = RegExp(r'(aslında|aslinda|sebebi|nedeni)').hasMatch(t);
+    final deniesTopic = RegExp(
+      r'(kahve|fincan|tarot|aşk|ask|ilişki|iliski|sevg|rüya|ruya|'
+      r'iş|kariyer|meslek)(?:[a-züğışöçâîû]{0,8})?\s+(değil|degil)\b',
+    ).hasMatch(t);
+    if (namesCause && deniesTopic) return true;
     return false;
   }
 
