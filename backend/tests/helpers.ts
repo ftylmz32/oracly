@@ -52,6 +52,7 @@ export async function testApp(
     soulmateEntitlement?: import('../src/reading/soulmate-entitlement-guard.js').SoulmateEntitlementGuard;
     freeTextQuotaStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
     ritualQuotaStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
+    lunaAccessStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
   } = {},
 ) {
   const app = await buildServer({
@@ -78,6 +79,7 @@ export async function testApp(
     soulmateEntitlement: options.soulmateEntitlement,
     freeTextQuotaStore: options.freeTextQuotaStore,
     ritualQuotaStore: options.ritualQuotaStore,
+    lunaAccessStore: options.lunaAccessStore,
   });
   return app;
 }

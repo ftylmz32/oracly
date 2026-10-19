@@ -128,8 +128,8 @@ void main() {
       'Bugünkü el okumaların doldu. Yeni hakların yarın yenilenecek.',
     );
     expect(
-      AiErrorMapper.fromCode('dream_daily_quota').userMessage,
-      'Bugünkü rüya yorumların doldu. Yeni hakların yarın yenilenecek.',
+      AiErrorMapper.fromCode('premium_required').userMessage,
+      'Bu içerik Premium üyelik gerektirir.',
     );
   });
 }

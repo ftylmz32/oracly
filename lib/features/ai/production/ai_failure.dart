@@ -1,6 +1,7 @@
 /// Typed AI failures — Turkish user copy, never raw provider text.
 library;
 
+import '../../../core/copy/premium_copy.dart';
 import '../../../core/copy/resilience_copy.dart';
 import '../../coffee/copy/coffee_copy.dart';
 import '../../palm/copy/palm_copy.dart';
@@ -15,6 +16,7 @@ enum AiFailureKind {
   timeout,
   rateLimit,
   dailyQuota,
+  premiumRequired,
   invalidResponse,
   providerError,
   imageAnalysisUnavailable,
@@ -58,6 +60,9 @@ class AiFailure {
 
   factory AiFailure.dailyQuota() =>
       AiFailure(AiFailureKind.dailyQuota, ResilienceCopy.dailyTextQuota);
+
+  factory AiFailure.premiumRequired() =>
+      AiFailure(AiFailureKind.premiumRequired, PremiumCopy.accessRequired);
 
   factory AiFailure.coffeeDailyQuota() =>
       AiFailure(AiFailureKind.dailyQuota, ResilienceCopy.coffeeDailyQuota);

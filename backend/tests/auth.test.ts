@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { JwksAuthenticationService } from '../src/auth/jwt-jwks.js';
 import { identityKeyFromSubject } from '../src/auth/identity.js';
 import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
+import { InMemorySoulmateEntitlementGuard } from '../src/reading/soulmate-entitlement-guard.js';
 import {
   appCheckHeader,
   authHeader,
@@ -106,9 +107,14 @@ describe('auth', () => {
       AI_JWT_AUDIENCE: 'oracly-ai',
     });
     expect(config.authMode).toBe('hs256');
+    const store = new MemoryDocumentStore();
+    const premium = new InMemorySoulmateEntitlementGuard();
+    premium.grant(identityKeyFromSubject('user-1'));
     const app = await testApp(config, undefined, {
       appCheck: new StaticAppCheckVerifier('good-token'),
-      freeTextQuotaStore: new MemoryDocumentStore(),
+      freeTextQuotaStore: store,
+      lunaAccessStore: store,
+      soulmateEntitlement: premium,
     });
     const ok = await app.inject({
       method: 'POST',

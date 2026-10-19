@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/copy/premium_copy.dart';
 import 'package:oracly_new/features/ai/production/ai_failure.dart';
 import 'package:oracly_new/features/companion/copy/companion_copy.dart';
 import 'package:oracly_new/features/companion/models/companion_state.dart';
@@ -29,6 +30,21 @@ void main() {
     busy: busy,
     networkRetry: networkRetry,
   ).state;
+
+  test('server premium denial closes compose without a sign-in error', () {
+    final p = OrSessionResolver.resolve(
+      entitlement: PremiumEntitlementState.inactive,
+      link: CompanionLinkStatus.online,
+      voiceUnavailable: false,
+      contextualDeepenAllowed: true,
+      chamberEmpty: false,
+      lastFailure: AiFailureKind.premiumRequired,
+    );
+    expect(p.canCompose, isFalse);
+    expect(p.canUseMic, isFalse);
+    expect(p.showPaywallDock, isTrue);
+    expect(p.statusLine, PremiumCopy.accessRequired);
+  });
 
   test('free user stays gated with preview', () {
     final p = OrSessionResolver.resolve(

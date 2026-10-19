@@ -7,7 +7,9 @@ import {
   StaticAppCheckVerifier,
 } from '../src/auth/app-check.js';
 import { loadConfig } from '../src/config.js';
+import { identityKeyFromSubject } from '../src/auth/identity.js';
 import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
+import { InMemorySoulmateEntitlementGuard } from '../src/reading/soulmate-entitlement-guard.js';
 import {
   appCheckHeader,
   authHeader,
@@ -49,9 +51,14 @@ function authOk(claims: Record<string, unknown> = {}) {
 
 describe('E2 Auth + App Check fail-closed', () => {
   it('accepts valid ID token + valid App Check together', async () => {
+    const store = new MemoryDocumentStore();
+    const premium = new InMemorySoulmateEntitlementGuard();
+    premium.grant(identityKeyFromSubject('user-1'));
     const app = await testApp(prodConfig(), openaiText('Sakin.'), {
       appCheck: new StaticAppCheckVerifier('good-token'),
-      freeTextQuotaStore: new MemoryDocumentStore(),
+      freeTextQuotaStore: store,
+      lunaAccessStore: store,
+      soulmateEntitlement: premium,
     });
     const res = await app.inject({
       method: 'POST',

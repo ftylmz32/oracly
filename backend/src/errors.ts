@@ -7,6 +7,8 @@ export const ErrorCode = {
   appCheckRequired: 'app_check_required',
   forbidden: 'forbidden',
   rateLimited: 'rate_limited',
+  /** Luna text beyond the one free tarot turn. Not the daily text cap. */
+  premiumRequired: 'premium_required',
   /** Free text AI day is full. Not a gem or Premium prompt. */
   dailyQuota: 'daily_quota',
   /** Free coffee, palm, or dream day is full. Not a purchase prompt. */

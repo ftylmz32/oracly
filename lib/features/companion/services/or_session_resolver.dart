@@ -1,6 +1,7 @@
 /// Resolves OR session presentation from commerce + link + failure + voice.
 library;
 
+import '../../../core/copy/premium_copy.dart';
 import '../../../core/copy/resilience_copy.dart';
 import '../../ai/production/ai_failure.dart';
 import '../../premium/models/premium_entitlement_state.dart';
@@ -44,6 +45,17 @@ abstract final class OrSessionResolver {
       );
     }
     final unlocked = premiumUnlocked ?? entitlement.allowsPremiumFeatures;
+    if (lastFailure == AiFailureKind.premiumRequired) {
+      return OrSessionPresentation(
+        state: OrSessionState.free,
+        canCompose: false,
+        canUseMic: false,
+        showPreview: false,
+        showPaywallDock: !chamberEmpty,
+        statusLine: PremiumCopy.accessRequired,
+        canRetry: false,
+      );
+    }
     // A lingering commerce pending/restoring state must never block someone
     // who already has an effective Premium unlock (real entitlement or
     // review access) — otherwise a stuck in-app-purchase query can paywall

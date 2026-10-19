@@ -98,6 +98,8 @@ export type BuildOptions = {
   freeTextQuotaStore?: FirestoreLike;
   /** Coffee, palm, and dream daily allowances. Separate from free text. */
   ritualQuotaStore?: FirestoreLike;
+  /** Luna's one free text, then premium. Same Firestore, separate collection. */
+  lunaAccessStore?: FirestoreLike;
   readingNotificationTokens?: ReadingNotificationTokens;
   accountDeletionRepository?: AccountDeletionRepository;
   sharedWindowStore?: SharedWindowStore;
@@ -226,6 +228,7 @@ export async function buildServer(options: BuildOptions) {
     soulmateEntitlement: options.soulmateEntitlement,
     freeTextQuotaStore: options.freeTextQuotaStore,
     ritualQuotaStore: options.ritualQuotaStore,
+    lunaAccessStore: options.lunaAccessStore,
   });
   await registerReadingOperationRoutes(app, config, {
     appCheck,

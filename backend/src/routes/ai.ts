@@ -62,6 +62,8 @@ import {
 } from '../reading/ritual-daily-quota-settle.js';
 import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
 import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
+import { admitLunaText, type LunaFreeHold } from '../reading/luna-premium-gate.js';
+import { failLunaFree, finishLunaFree } from '../reading/luna-premium-settle.js';
 
 export type AiRouteOptions = {
   appCheck?: AppCheckVerifier;
@@ -73,6 +75,8 @@ export type AiRouteOptions = {
   soulmateEntitlement?: SoulmateEntitlementGuard;
   freeTextQuotaStore?: FirestoreLike;
   ritualQuotaStore?: FirestoreLike;
+  /** One free Luna text, then server premium. Separate from the day cap. */
+  lunaAccessStore?: FirestoreLike;
 };
 
 export async function registerAiRoutes(
@@ -143,6 +147,7 @@ export async function registerAiRoutes(
       let tarotHold: TarotHold | null = null;
       let quotaHold: FreeTextHold | null = null;
       let ritualHold: RitualHold | null = null;
+      let lunaHold: LunaFreeHold | null = null;
       let producerKey: string | null = null;
       let producerAttempt: string | null = null;
       try {
@@ -195,6 +200,27 @@ export async function registerAiRoutes(
         if (soulmateDenied) {
           return reply.code(soulmateDenied.status).send(soulmateDenied.body);
         }
+        const luna = await admitLunaText({
+          config,
+          store: options.lunaAccessStore,
+          guard: options.soulmateEntitlement,
+          operation: validated.operation,
+          oracleKind: validated.operation === 'oracle' ? validated.kind : null,
+          identity,
+          idempotencyKey: idemKey,
+        });
+        if (luna.action === 'reply') {
+          return reply.code(luna.status).send(luna.payload);
+        }
+        lunaHold = luna.action === 'allow' ? luna.freeHold : null;
+        const lunaStore = options.lunaAccessStore;
+        const settleLuna = async (delivered: boolean) => {
+          if (!lunaHold || !lunaStore) return;
+          const hold = lunaHold;
+          lunaHold = null;
+          if (delivered) await finishLunaFree(lunaStore, identity, hold);
+          else await failLunaFree(lunaStore, identity, hold);
+        };
         const quota = await admitFreeTextQuota({
           config,
           store: options.freeTextQuotaStore,
@@ -205,6 +231,7 @@ export async function registerAiRoutes(
           idempotencyKey: idemKey,
         });
         if (quota.action === 'reply') {
+          await settleLuna(deliveredBody(quota.payload));
           return reply.code(quota.status).send(quota.payload);
         }
         quotaHold = quota.action === 'hold' ? quota.hold : null;
@@ -217,9 +244,11 @@ export async function registerAiRoutes(
           idempotencyKey: idemKey,
         });
         if (ritual.action === 'reply') {
+          await settleLuna(false);
           return reply.code(ritual.status).send(ritual.payload);
         }
         if (ritual.action === 'stored') {
+          await settleLuna(deliveredBody(ritual.body));
           return reply.code(200).send(ritual.body);
         }
         ritualHold = ritual.action === 'hold' ? ritual.hold : null;
@@ -236,6 +265,7 @@ export async function registerAiRoutes(
             ritualHold = null;
             await failRitualQuota(ritualStore, identity, hold);
           }
+          await settleLuna(false);
         };
         // Dream: a completed response replays only for the same semantic
         // request (language, narrative, symbols, emotions, memory).
@@ -248,6 +278,7 @@ export async function registerAiRoutes(
         if (replayKey && !(billingOn && isPaidTarot(validated))) {
           const claim = await replay.claim(identity, replayKey);
           if (claim.kind === 'completed') {
+            await settleLuna(true);
             if (quotaHold && quotaStore) {
               await finishFreeTextQuota(quotaStore, identity, quotaHold, claim.entry.body);
             }
@@ -323,6 +354,7 @@ export async function registerAiRoutes(
           await finishRitualQuota(ritualStore, identity, ritualHold, result.body);
           ritualHold = null;
         }
+        await settleLuna(true);
         if (tarotHold && gemStore) {
           const done = await finishPaidTarot(gemStore, clock, gemLedger ?? null, tarotHold, result.body);
           tarotHold = null;
@@ -374,6 +406,15 @@ export async function registerAiRoutes(
             // The reservation stays open. The same operation id resumes it.
           }
         }
+        if (lunaHold && options.lunaAccessStore && request.raw.aborted !== true) {
+          const hold = lunaHold;
+          lunaHold = null;
+          try {
+            await failLunaFree(options.lunaAccessStore, request.identityKey ?? 'anon', hold);
+          } catch {
+            // The free turn stays open for this same operation id.
+          }
+        }
         if (producerKey && producerAttempt) {
           try {
             await replay.abandon(request.identityKey ?? 'anon', producerKey, producerAttempt);
@@ -419,6 +460,10 @@ export async function registerAiRoutes(
       }
     },
   );
+}
+
+function deliveredBody(payload: unknown): boolean {
+  return !!payload && typeof payload === 'object' && (payload as { success?: unknown }).success === true;
 }
 
 function diagnosticCodes(details: Record<string, unknown> | undefined): {

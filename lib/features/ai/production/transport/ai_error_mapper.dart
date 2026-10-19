@@ -28,6 +28,7 @@ abstract final class AiErrorMapper {
       'timeout' || 'provider_timeout' => AiFailure.timeout(),
       'rate_limit' || 'rate_limited' => AiFailure.rateLimit(),
       'daily_quota' => AiFailure.dailyQuota(),
+      'premium_required' => AiFailure.premiumRequired(),
       'coffee_daily_quota' => AiFailure.coffeeDailyQuota(),
       'palm_daily_quota' => AiFailure.palmDailyQuota(),
       'dream_daily_quota' => AiFailure.dreamDailyQuota(),

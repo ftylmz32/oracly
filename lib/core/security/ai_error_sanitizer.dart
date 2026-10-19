@@ -1,6 +1,7 @@
 /// Map failures to calm copy — never HTTP, providers, stacks, or operations.
 library;
 
+import '../copy/premium_copy.dart';
 import '../copy/resilience_copy.dart';
 import '../network/network_exception.dart';
 
@@ -68,6 +69,7 @@ abstract final class AiErrorSanitizer {
       'timeout' => ResilienceCopy.slowResponse,
       'rate_limit' || 'rate_limited' => ResilienceCopy.aiRateLimited,
       'daily_quota' => ResilienceCopy.dailyTextQuota,
+      'premium_required' => PremiumCopy.accessRequired,
       'coffee_daily_quota' => ResilienceCopy.coffeeDailyQuota,
       'palm_daily_quota' => ResilienceCopy.palmDailyQuota,
       'dream_daily_quota' => ResilienceCopy.dreamDailyQuota,
