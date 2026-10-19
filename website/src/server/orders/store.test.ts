@@ -55,4 +55,27 @@ describe('FirestoreOrderStore transaction contract (fake Firestore)', () => {
     expect(await store.getOwned('ord_order-a', 'uid-b')).toBeNull();
     expect(await store.consumeEntitlement({ orderId: 'ord_order-a', ownerUserId: 'uid-b', operationId: 'operation-a', nowMs: 2 })).toBe('wrong_owner');
   });
+
+  it('atomically reserves one checkout session and binds its token once', async () => {
+    const store = new FirestoreOrderStore(new FakeFirestore() as unknown as Firestore);
+    await store.createIdempotent(createInput('request_123456789', 'ord_order-a'));
+    const attempts = await Promise.all([
+      store.reserveCheckout({ orderId: 'ord_order-a', ownerUserId: 'uid-a', attemptId: 'attempt-a', nowMs: 2 }),
+      store.reserveCheckout({ orderId: 'ord_order-a', ownerUserId: 'uid-a', attemptId: 'attempt-b', nowMs: 2 }),
+    ]);
+    expect(attempts.map((item) => item.outcome).sort()).toEqual(['in_progress', 'reserved']);
+    const reserved = attempts.find((item) => item.outcome === 'reserved');
+    if (!reserved || reserved.outcome !== 'reserved') throw new Error('missing reservation');
+    expect(await store.bindCheckout({ orderId: 'ord_order-a', attemptId: reserved.order.checkoutAttemptId!, token: 'token-a', conversationId: 'ord_order-a', paymentPageUrl: 'https://sandbox-cpp.iyzipay.com?token=token-a', nowMs: 3 })).toBe('bound');
+    expect(await store.bindCheckout({ orderId: 'ord_order-a', attemptId: reserved.order.checkoutAttemptId!, token: 'token-b', conversationId: 'ord_order-a', paymentPageUrl: 'https://sandbox-cpp.iyzipay.com?token=token-b', nowMs: 4 })).toBe('token_reused');
+    expect((await store.getByCheckoutToken('token-a'))?.orderId).toBe('ord_order-a');
+  });
+
+  it('allows a new attempt only after a definitive tokenless initialize rejection', async () => {
+    const store = new FirestoreOrderStore(new FakeFirestore() as unknown as Firestore);
+    await store.createIdempotent(createInput('request_123456789', 'ord_order-a'));
+    expect((await store.reserveCheckout({ orderId: 'ord_order-a', ownerUserId: 'uid-a', attemptId: 'attempt-a', nowMs: 2 })).outcome).toBe('reserved');
+    expect(await store.failCheckoutReservation({ orderId: 'ord_order-a', attemptId: 'attempt-a', nowMs: 3 })).toBe('failed');
+    expect((await store.reserveCheckout({ orderId: 'ord_order-a', ownerUserId: 'uid-a', attemptId: 'attempt-b', nowMs: 4 })).outcome).toBe('reserved');
+  });
 });

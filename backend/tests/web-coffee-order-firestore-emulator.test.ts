@@ -39,7 +39,7 @@ suite('real Firestore Emulator web order transaction', () => {
     await deleteApp(adminApp);
   });
 
-  async function entitled(owner = 'uid-owner') {
+  async function created(owner = 'uid-owner') {
     const suffix = randomBytes(8).toString('hex');
     const orderId = `emu_order_${suffix}`;
     await websiteStore.createIdempotent({
@@ -51,14 +51,19 @@ suite('real Firestore Emulator web order transaction', () => {
       currency: 'TRY',
       nowMs: Date.now(),
     });
+    return { orderId, suffix, owner };
+  }
+
+  async function entitled(owner = 'uid-owner') {
+    const order = await created(owner);
     expect(await websiteStore.confirmVerifiedPayment({
-      orderId,
-      providerPaymentId: `emu_payment_${suffix}`,
+      orderId: order.orderId,
+      providerPaymentId: `emu_payment_${order.suffix}`,
       priceMinor: 1,
       currency: 'TRY',
       nowMs: Date.now(),
     })).toBe('granted');
-    return { orderId, suffix, owner };
+    return order;
   }
 
   function record(suffix: string, ownerUserId = 'sub:emulator-owner', sourceRequestId = `emu_source_${suffix}`): ReadingOperationRecord {
@@ -123,6 +128,21 @@ suite('real Firestore Emulator web order transaction', () => {
     const retry = await repository.createFromEntitlement({ orderId: order.orderId, firebaseUid: order.owner, record: { ...record(order.suffix), sourceRequestId: initial.sourceRequestId } });
     expect(retry.created).toBe(false);
     expect(retry.record.operationId).toBe(first.record.operationId);
+  });
+
+  it('atomically reserves one checkout, binds one token, and grants one entitlement for one provider payment', async () => {
+    const order = await created('uid-checkout-owner');
+    const attempts = await Promise.all([
+      websiteStore.reserveCheckout({ orderId: order.orderId, ownerUserId: order.owner, attemptId: `attempt-a-${order.suffix}`, nowMs: Date.now() }),
+      websiteStore.reserveCheckout({ orderId: order.orderId, ownerUserId: order.owner, attemptId: `attempt-b-${order.suffix}`, nowMs: Date.now() }),
+    ]);
+    expect(attempts.map((attempt) => attempt.outcome).sort()).toEqual(['in_progress', 'reserved']);
+    const reservation = attempts.find((attempt) => attempt.outcome === 'reserved');
+    if (!reservation || reservation.outcome !== 'reserved') throw new Error('missing checkout reservation');
+    const token = `token-${order.suffix}`;
+    expect(await websiteStore.bindCheckout({ orderId: order.orderId, attemptId: reservation.order.checkoutAttemptId!, token, conversationId: order.orderId, paymentPageUrl: `https://sandbox-cpp.iyzipay.com?token=${token}`, nowMs: Date.now() })).toBe('bound');
+    expect(await websiteStore.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: `payment-${order.suffix}`, priceMinor: 1, currency: 'TRY', nowMs: Date.now() })).toBe('granted');
+    expect(await websiteStore.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: `payment-${order.suffix}`, priceMinor: 1, currency: 'TRY', nowMs: Date.now() })).toBe('already_applied');
   });
 
   it('rejects another owner without consuming the order', async () => {

@@ -5,10 +5,13 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { FirebaseOrderRequestVerifier } from './auth';
 import { FirestoreOrderStore } from './store';
+import { IyzicoCheckoutClient, type IyzicoConfig } from './iyzico';
+import { CheckoutService } from './checkout';
 
 export type OrderServerConfig = {
   enabled: true; expectedWebAppId: string; catalogVersion: string; priceMinor: number; currency: 'TRY'; firestoreDatabaseId: string;
 };
+export type CheckoutServerConfig = IyzicoConfig & { enabled: true };
 
 export class OrderServerUnavailable extends Error { constructor() { super('order_server_unavailable'); } }
 
@@ -29,6 +32,23 @@ export function createOrderRuntime() {
     verifier: new FirebaseOrderRequestVerifier(getAuth(app), getAppCheck(app), config.expectedWebAppId),
     store: new FirestoreOrderStore(getFirestore(app, config.firestoreDatabaseId)),
   };
+}
+
+export function loadCheckoutServerConfig(): CheckoutServerConfig {
+  if (process.env.ORACLY_IYZICO_CHECKOUT_ENABLED !== 'true') throw new OrderServerUnavailable();
+  const environment = process.env.IYZICO_ENVIRONMENT === 'production' ? 'production' : 'sandbox';
+  if (environment === 'production' && process.env.ORACLY_IYZICO_PRODUCTION_ENABLED !== 'true') throw new OrderServerUnavailable();
+  const apiKey = process.env.IYZICO_API_KEY?.trim() ?? '';
+  const secretKey = process.env.IYZICO_SECRET_KEY?.trim() ?? '';
+  const callbackUrl = process.env.IYZICO_CALLBACK_URL?.trim() ?? '';
+  if (!apiKey || !secretKey || !/^https:\/\//u.test(callbackUrl)) throw new OrderServerUnavailable();
+  return { enabled: true, environment, apiKey, secretKey, callbackUrl, baseUrl: environment === 'sandbox' ? 'https://sandbox-api.iyzipay.com' : 'https://api.iyzipay.com' };
+}
+
+export function createCheckoutRuntime() {
+  const orders = createOrderRuntime(); const checkoutConfig = loadCheckoutServerConfig();
+  const provider = new IyzicoCheckoutClient(checkoutConfig);
+  return { ...orders, checkoutConfig, provider, checkout: new CheckoutService(orders.store, provider) };
 }
 
 function firebaseAdminApp(): App {
