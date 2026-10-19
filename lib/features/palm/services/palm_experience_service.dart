@@ -1,6 +1,8 @@
 /// Palm journey — validate, analyze, archive image, versioned reinterpret.
 library;
 
+import '../../../core/auth/owner_history_scope.dart';
+import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/reading_version/models/reading_version_kind.dart';
 import '../../../core/reading_version/services/reading_version_fingerprint.dart';
 import '../../../core/reading_version/services/reading_version_payload.dart';
@@ -45,6 +47,24 @@ class PalmExperienceService {
 
   bool get analysisAvailable => _analysis.isAvailable;
 
+  ({String ownerId, int epoch}) captureOwner() => (
+        ownerId: store?.currentOwnerId ?? '',
+        epoch: UserLocalDataIsolation.accountSwitchEpoch.value,
+      );
+
+  Future<void> _saveOwned(
+    PalmReading reading,
+    ({String ownerId, int epoch}) stamp,
+  ) async {
+    final target = store;
+    if (target == null) return;
+    await OwnerHistoryScope.commitBound(
+      ownerId: stamp.ownerId,
+      epoch: stamp.epoch,
+      save: () => target.save(reading),
+    );
+  }
+
   List<PalmReading> history() => store?.all() ?? const [];
 
   PalmReading? savedById(String id) => store?.byId(id);
@@ -53,6 +73,7 @@ class PalmExperienceService {
     CoffeeImagePick image, {
     required PalmHand hand,
   }) async {
+    final stamp = captureOwner();
     await _ensureValid(image);
     if (!_analysis.isAvailable) {
       throw PalmAnalysisException(
@@ -70,7 +91,7 @@ class PalmExperienceService {
     );
     final persisted = reading.copyWith(imagePath: archived);
     try {
-      await store?.save(persisted);
+      await _saveOwned(persisted, stamp);
     } catch (_) {
       if (!await PalmImageArchive.deleteIfOwnedStrict(archived)) {
         await store?.journalOwnedImagePath(archived);
@@ -105,6 +126,7 @@ class PalmExperienceService {
     required String mimeType,
     required PalmHand hand,
   }) async {
+    final stamp = captureOwner();
     final analysis = _analysis;
     if (analysis is! PalmStagedAnalysisPort) {
       throw PalmAnalysisException(
@@ -123,7 +145,7 @@ class PalmExperienceService {
     // No local source to archive — imagePath stays null (already the
     // case on `reading`, per PalmStagedAnalysisPort's contract).
     // Reading metadata is the commit point — save it durably FIRST.
-    await store?.save(reading);
+    await _saveOwned(reading, stamp);
     // Version seed is post-commit enrichment — its failure must never
     // turn an already-durable reading into a user-visible failure.
     try {
@@ -141,6 +163,8 @@ class PalmExperienceService {
     required DateTime persistedAt,
     required PalmHand hand,
     required Map<String, dynamic> result,
+    String? expectedOwnerId,
+    int? expectedEpoch,
   }) async {
     final analysis = _analysis;
     if (analysis is! PalmCompletedAnalysisPort) {
@@ -156,7 +180,11 @@ class PalmExperienceService {
       result: result,
     );
     // Reading metadata is the commit point — save it durably FIRST.
-    await store?.save(reading);
+    final stamp = (
+      ownerId: expectedOwnerId ?? captureOwner().ownerId,
+      epoch: expectedEpoch ?? captureOwner().epoch,
+    );
+    await _saveOwned(reading, stamp);
     // Version seed is post-commit enrichment — its failure must never
     // turn an already-durable reading into a user-visible failure.
     try {
@@ -183,6 +211,7 @@ class PalmExperienceService {
     required CoffeeImagePick image,
     required PalmHand hand,
   }) async {
+    final stamp = captureOwner();
     await _ensureValid(image);
     if (!_analysis.isAvailable) {
       throw PalmAnalysisException(
@@ -240,7 +269,7 @@ class PalmExperienceService {
     );
 
     try {
-      await store?.save(merged);
+      await _saveOwned(merged, stamp);
     } catch (_) {
       if (createdCandidate) {
         if (!await PalmImageArchive.deleteIfOwnedStrict(imagePath)) {

@@ -4,6 +4,8 @@ library;
 import 'dart:convert';
 
 import '../../../core/auth/owned_file_cleanup_journal.dart';
+import '../../../core/auth/owner_history_scope.dart';
+import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/memory/oracly_memory.dart';
 import '../../../core/memory/oracly_memory_factory.dart';
@@ -49,21 +51,28 @@ class PalmReadingStore {
     return null;
   }
 
+  String get currentOwnerId =>
+      _storage.getString(UserLocalDataIsolation.ownerKey)?.trim() ?? '';
+
   /// Persist reading with its app-owned image path (never strip by default).
-  Future<void> save(PalmReading reading) async {
-    final next = [
-      for (final item in all())
-        if (item.id != reading.id) item,
-      reading,
-    ];
-    final ok = await _storage.setStringList(key, next.map(_toJson).toList());
-    if (!ok) {
-      throw StateError('palm reading metadata write failed');
-    }
-    // Memory enrichment is reconcilable — reading metadata is the commit point.
-    try {
-      await _memory?.upsert(OraclyMemoryFactory.palm(reading));
-    } catch (_) {}
+  Future<bool> save(PalmReading reading) {
+    return OwnerHistoryScope.commit(
+      storage: _storage,
+      write: () async {
+        final next = [
+          for (final item in all())
+            if (item.id != reading.id) item,
+          reading,
+        ];
+        final ok = await _storage.setStringList(key, next.map(_toJson).toList());
+        if (!ok) {
+          throw StateError('palm reading metadata write failed');
+        }
+        try {
+          await _memory?.upsert(OraclyMemoryFactory.palm(reading));
+        } catch (_) {}
+      },
+    );
   }
 
   Future<void> delete(String id) async {

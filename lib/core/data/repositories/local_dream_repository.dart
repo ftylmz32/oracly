@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 
+import '../../auth/user_local_data_isolation.dart';
 import '../../data/datasources/local_storage.dart';
 import '../../data/datasources/storage_result.dart';
 import '../../domain/models/dream_record.dart';
@@ -51,25 +52,31 @@ class LocalDreamRepository implements DreamRepository {
   }
 
   @override
-  Future<void> save(DreamRecord record) async {
-    final all = await getAll();
-    final updated = [
-      for (final r in all)
-        if (r.id != record.id) r,
-      record,
-    ];
-    await _storage
-        .setStringList(_key, updated.map((e) => jsonEncode(e.toJson())).toList())
-        .requireDurable(_key);
-    try {
-      await _memory?.upsert(OraclyMemoryFactory.dream(record));
-    } catch (_) {
-      // The feature record is authoritative; connected memory is optional.
-    }
+  Future<void> save(DreamRecord record) {
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      final all = await getAll();
+      final updated = [
+        for (final r in all)
+          if (r.id != record.id) r,
+        record,
+      ];
+      await _storage
+          .setStringList(
+            _key,
+            updated.map((e) => jsonEncode(e.toJson())).toList(),
+          )
+          .requireDurable(_key);
+      try {
+        await _memory?.upsert(OraclyMemoryFactory.dream(record));
+      } catch (_) {
+        // The feature record is authoritative; connected memory is optional.
+      }
+    });
   }
 
   @override
-  Future<void> delete(String id) async {
+  Future<void> delete(String id) {
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
     final all = await getAll();
     await _storage
         .setStringList(
@@ -82,6 +89,7 @@ class LocalDreamRepository implements DreamRepository {
     } catch (_) {
       // Source deletion must succeed even when the index is unavailable.
     }
+    });
   }
 
   @override

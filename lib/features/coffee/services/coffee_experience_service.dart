@@ -1,6 +1,8 @@
 /// Coffee journey: validate photo, analyze if a real source exists, persist.
 library;
 
+import '../../../core/auth/owner_history_scope.dart';
+import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/reading_version/models/reading_version_kind.dart';
 import '../../../core/reading_version/services/reading_version_fingerprint.dart';
 import '../../../core/reading_version/services/reading_version_payload.dart';
@@ -48,7 +50,24 @@ class CoffeeExperienceService {
 
   CoffeeReading? savedById(String id) => _store.byId(id);
 
+  ({String ownerId, int epoch}) captureOwner() => (
+        ownerId: _store.currentOwnerId,
+        epoch: UserLocalDataIsolation.accountSwitchEpoch.value,
+      );
+
+  Future<void> _saveOwned(
+    CoffeeReading reading,
+    ({String ownerId, int epoch}) stamp,
+  ) {
+    return OwnerHistoryScope.commitBound(
+      ownerId: stamp.ownerId,
+      epoch: stamp.epoch,
+      save: () => _store.save(reading),
+    );
+  }
+
   Future<CoffeeReading> analyze(CoffeeImagePick image) async {
+    final stamp = captureOwner();
     final validation = await CoffeeImageValidator.validate(image.path);
     if (!validation.ok) {
       throw CoffeeAnalysisException(
@@ -79,7 +98,7 @@ class CoffeeExperienceService {
       symbols: reading.symbols,
     );
     try {
-      await _store.save(persisted);
+      await _saveOwned(persisted, stamp);
     } catch (_) {
       if (!await CoffeeImageArchive.deleteIfOwnedStrict(archived)) {
         await _store.journalOwnedImagePath(archived);
@@ -114,6 +133,7 @@ class CoffeeExperienceService {
     required String operationId,
     required String mimeType,
   }) async {
+    final stamp = captureOwner();
     final analysis = _analysis;
     if (analysis is! CoffeeStagedAnalysisPort) {
       throw CoffeeAnalysisException(CoffeeCopy.analysisUnavailable);
@@ -125,8 +145,7 @@ class CoffeeExperienceService {
     );
     // No local source to archive — imagePath stays null (already the
     // case on `reading`, per CoffeeStagedAnalysisPort's contract).
-    // Reading metadata is the commit point — save it durably FIRST.
-    await _store.save(reading);
+    await _saveOwned(reading, stamp);
     // Version seed is post-commit enrichment — its failure must never
     // turn an already-durable reading into a user-visible failure (which
     // would risk a caller retrying and repeating the paid provider op).
@@ -144,6 +163,8 @@ class CoffeeExperienceService {
     required String resultId,
     required DateTime persistedAt,
     required Map<String, dynamic> result,
+    String? expectedOwnerId,
+    int? expectedEpoch,
   }) async {
     final analysis = _analysis;
     if (analysis is! CoffeeCompletedAnalysisPort) {
@@ -154,8 +175,11 @@ class CoffeeExperienceService {
       persistedAt: persistedAt,
       result: result,
     );
-    // Reading metadata is the commit point — save it durably FIRST.
-    await _store.save(reading);
+    final stamp = (
+      ownerId: expectedOwnerId ?? captureOwner().ownerId,
+      epoch: expectedEpoch ?? captureOwner().epoch,
+    );
+    await _saveOwned(reading, stamp);
     // Version seed is post-commit enrichment — its failure must never
     // turn an already-durable reading into a user-visible failure.
     try {
@@ -181,6 +205,7 @@ class CoffeeExperienceService {
     required CoffeeReading current,
     required CoffeeImagePick image,
   }) async {
+    final stamp = captureOwner();
     final validation = await CoffeeImageValidator.validate(image.path);
     if (!validation.ok) {
       throw CoffeeAnalysisException(
@@ -244,7 +269,7 @@ class CoffeeExperienceService {
     );
 
     try {
-      await _store.save(merged);
+      await _saveOwned(merged, stamp);
     } catch (_) {
       if (createdCandidate) {
         if (!await CoffeeImageArchive.deleteIfOwnedStrict(imagePath)) {

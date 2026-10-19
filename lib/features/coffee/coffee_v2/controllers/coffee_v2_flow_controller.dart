@@ -407,6 +407,7 @@ class CoffeeV2FlowController extends ChangeNotifier {
           _readyMisses = 0;
         } else {
           final operationId = state.snapshot?.operationId;
+          final stamp = experience.captureOwner();
           final completed = operationId == null
               ? null
               : await flow!.fetchCompletedResult(operationId);
@@ -416,6 +417,8 @@ class CoffeeV2FlowController extends ChangeNotifier {
                 resultId: completed.resultId,
                 persistedAt: completed.persistedAt,
                 result: completed.result,
+                expectedOwnerId: stamp.ownerId,
+                expectedEpoch: stamp.epoch,
               );
               _readyMisses = 0;
             } catch (_) {

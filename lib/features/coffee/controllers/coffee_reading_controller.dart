@@ -568,6 +568,7 @@ class CoffeeReadingController extends ChangeNotifier {
     ReadingFeatureRunner live,
     String operationId,
   ) async {
+    final stamp = _experience.captureOwner();
     final completed = await live.flow.fetchCompletedResult(operationId);
     if (completed == null || _disposed) return null;
     try {
@@ -575,6 +576,8 @@ class CoffeeReadingController extends ChangeNotifier {
         resultId: completed.resultId,
         persistedAt: completed.persistedAt,
         result: completed.result,
+        expectedOwnerId: stamp.ownerId,
+        expectedEpoch: stamp.epoch,
       );
     } catch (_) {
       return null;

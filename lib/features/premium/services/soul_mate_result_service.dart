@@ -52,6 +52,7 @@ class SoulMateResultService {
     SoulMateIdentity? identity,
   }) async {
     if (imageBytes.isEmpty) return null;
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
     if (expectedOwnerId != null) {
       final current = _storage.getString(UserLocalDataIsolation.ownerKey);
       if (current != null && current != expectedOwnerId) return null;
@@ -127,6 +128,7 @@ class SoulMateResultService {
       }
     }
     return saved;
+    });
   }
 
   Future<void> clear() async {

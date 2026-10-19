@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 
+import '../../auth/owner_history_scope.dart';
 import '../../domain/models/reading.dart';
 import '../../domain/repositories/history_repository.dart';
 import '../../history/history_scale_policy.dart';
@@ -61,16 +62,22 @@ class MockHistoryRepository implements HistoryRepository {
   }
 
   Future<void> _saveReadingLocked(ReadingModel reading) async {
-    final current = await getReadings();
-    final encoded = jsonEncode(reading.toJson());
-    final list = HistoryScalePolicy.trimEncodedRetention([
-      encoded,
-      ...current
-          .where((r) => r.id != reading.id)
-          .map((r) => jsonEncode(r.toJson())),
-    ]);
-    await _storage.setStringList(_key, list);
-    await _memory?.upsert(OraclyMemoryFactory.tarot(reading));
+    final wrote = await OwnerHistoryScope.commit(
+      storage: _storage,
+      write: () async {
+        final current = await getReadings();
+        final encoded = jsonEncode(reading.toJson());
+        final list = HistoryScalePolicy.trimEncodedRetention([
+          encoded,
+          ...current
+              .where((r) => r.id != reading.id)
+              .map((r) => jsonEncode(r.toJson())),
+        ]);
+        await _storage.setStringList(_key, list);
+        await _memory?.upsert(OraclyMemoryFactory.tarot(reading));
+      },
+    );
+    if (!wrote) throw const OwnerHistoryRejected();
   }
 
   @override

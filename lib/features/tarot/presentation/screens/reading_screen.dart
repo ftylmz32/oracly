@@ -10,6 +10,8 @@ import '../../../../features/personal_discovery/services/personal_discovery_refr
 import '../../../../app/providers/app_providers.dart';
 import '../../copy/tarot_revisit_copy.dart';
 import '../../revisit/tarot_revisit_intent_store.dart';
+import '../../../../core/auth/owner_history_scope.dart';
+import '../../../../core/auth/user_local_data_isolation.dart';
 import '../../../../core/copy/session_ending_copy.dart';
 import '../../../../core/copy/resilience_copy.dart';
 import '../../../../core/audio/oracly_feedback_gate.dart';
@@ -90,6 +92,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   bool _journalPersistFailed = false;
   final JournalPersistGate _journalGate = JournalPersistGate();
   int _loadToken = 0;
+  String _ownerAtLoad = '';
+  int _epochAtLoad = 0;
   String? _savedReadingId;
   int _versionReloadToken = 0;
 
@@ -123,6 +127,10 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
 
   Future<void> _loadReading() async {
     final token = ++_loadToken;
+    final storage = ref.read(localStorageProvider);
+    _ownerAtLoad =
+        storage.getString(UserLocalDataIsolation.ownerKey)?.trim() ?? '';
+    _epochAtLoad = UserLocalDataIsolation.accountSwitchEpoch.value;
     final reading = TarotScope.of(context).reading;
     var session = reading.session;
 
@@ -352,7 +360,15 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
   /// never turn an already-durable save into a user-visible failure or
   /// re-arm the "save failed, tap Retry" banner for work that has nothing
   /// left to retry.
-  Future<void> _persistToJournalBody() async {
+  Future<void> _persistToJournalBody() {
+    return OwnerHistoryScope.bind(
+      ownerId: _ownerAtLoad,
+      epoch: _epochAtLoad,
+      body: _persistJournalForOwner,
+    );
+  }
+
+  Future<void> _persistJournalForOwner() async {
     if (_journalGate.completed) return;
     final reading = TarotScope.of(context).reading;
     final session = reading.session;
@@ -387,6 +403,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
               data: ReadingVersionPayload.tarot(saved.aiSummary),
             );
       }
+    } on OwnerHistoryRejected {
+      return;
     } catch (e) {
       debugPrint('[ReadingScreen] journal persist failed: $e');
       if (!mounted) return;

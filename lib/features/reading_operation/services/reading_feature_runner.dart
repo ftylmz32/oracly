@@ -1,6 +1,7 @@
 /// Runs one feature pipeline only after the server grants a claim.
 library;
 
+import '../../../core/auth/owner_history_scope.dart';
 import '../models/reading_operation_status.dart';
 import 'reading_live_flow.dart';
 import 'reading_operation_context.dart';
@@ -221,6 +222,12 @@ class ReadingFeatureRunner {
       return ReadingLiveState(
         kind: ReadingLiveKind.ready,
         snapshot: begun.snapshot,
+      );
+    } on OwnerHistoryRejected {
+      return ReadingLiveState(
+        kind: ReadingLiveKind.failed,
+        snapshot: beginSnapshot,
+        refunded: false,
       );
     } catch (error) {
       final classified = error is ReadingRuntimeException ? error : null;

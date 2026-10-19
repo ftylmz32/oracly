@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/auth/user_local_data_isolation.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import 'yildizname_artifact.dart';
 import 'yildizname_artifact_exceptions.dart';
@@ -71,24 +72,33 @@ class LocalYildiznameArtifactRepository
   }
 
   @override
-  Future<YildiznameArtifact> saveNew(YildiznameArtifact artifact) async {
+  Future<YildiznameArtifact> saveNew(YildiznameArtifact artifact) {
     _requireOwner();
     if (artifact.ownerId.trim() != _owner) {
       throw const YildiznameArtifactOwnerUnavailableException(
         'owner mismatch',
       );
     }
-    final raw = _storage.getStringList(storageKey) ?? const <String>[];
-    for (final existing in YildiznameArtifactStoreCodec.decodeStringList(raw)) {
-      if (existing.id != artifact.id) continue;
-      if (existing.contentHash == artifact.contentHash) return existing;
-      throw const YildiznameArtifactDuplicateConflictException();
-    }
-    await _storage.setStringList(storageKey, [
-      YildiznameArtifactStoreCodec.encode(artifact),
-      ...raw,
-    ]);
-    return artifact;
+    return UserLocalDataIsolation.runOwnerScopedMutation(() async {
+      final storedOwner =
+          _storage.getString(UserLocalDataIsolation.ownerKey)?.trim() ?? '';
+      if (storedOwner.isNotEmpty && storedOwner != artifact.ownerId.trim()) {
+        throw const YildiznameArtifactOwnerUnavailableException(
+          'owner changed',
+        );
+      }
+      final raw = _storage.getStringList(storageKey) ?? const <String>[];
+      for (final existing in YildiznameArtifactStoreCodec.decodeStringList(raw)) {
+        if (existing.id != artifact.id) continue;
+        if (existing.contentHash == artifact.contentHash) return existing;
+        throw const YildiznameArtifactDuplicateConflictException();
+      }
+      await _storage.setStringList(storageKey, [
+        YildiznameArtifactStoreCodec.encode(artifact),
+        ...raw,
+      ]);
+      return artifact;
+    });
   }
 
   @override

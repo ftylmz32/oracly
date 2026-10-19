@@ -205,6 +205,7 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
   ) async {
     final operationId = state.snapshot?.operationId;
     if (operationId == null) return true;
+    final stamp = _experience.captureOwner();
     final completed = await live.flow.fetchCompletedResult(operationId);
     if (_disposed) return true;
     if (completed == null) return false;
@@ -229,6 +230,8 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
         persistedAt: completed.persistedAt,
         hand: hand,
         result: completed.result,
+        expectedOwnerId: stamp.ownerId,
+        expectedEpoch: stamp.epoch,
       );
     } catch (error) {
       if (_disposed) return true;

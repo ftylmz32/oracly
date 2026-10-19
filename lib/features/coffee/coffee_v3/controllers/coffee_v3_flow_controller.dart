@@ -443,6 +443,7 @@ class CoffeeV3FlowController extends ChangeNotifier {
           reading = saved;
           _readyMisses = 0;
         } else if (boundId != null) {
+          final stamp = experience.captureOwner();
           final completed = await flow!.fetchCompletedResult(boundId);
           if (completed != null) {
             try {
@@ -450,6 +451,8 @@ class CoffeeV3FlowController extends ChangeNotifier {
                 resultId: completed.resultId,
                 persistedAt: completed.persistedAt,
                 result: completed.result,
+                expectedOwnerId: stamp.ownerId,
+                expectedEpoch: stamp.epoch,
               );
               _readyMisses = 0;
             } catch (_) {
