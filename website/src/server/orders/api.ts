@@ -15,7 +15,7 @@ export function createOrderApi(dependencies: OrderApiDependencies) {
   return {
     create: async (request: Request): Promise<Response> => {
       try {
-        const { uid } = await dependencies.verifier.verify(request);
+        const { uid } = await dependencies.verifier.verifyPermanent(request);
         const body = await readCreateBody(request);
         if (!body) return response(400, { error: 'invalid_request' });
         const result = await dependencies.store.createIdempotent({ ownerUserId: uid, idempotencyKey: body.idempotencyKey, orderId: createOrderId(), catalogVersion: dependencies.config.catalogVersion, priceMinor: dependencies.config.priceMinor, currency: dependencies.config.currency, nowMs: now() });

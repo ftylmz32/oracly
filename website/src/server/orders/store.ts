@@ -24,6 +24,7 @@ export type CheckoutReservation =
 export interface PersistentOrderStore {
   createIdempotent(input: { ownerUserId: string; idempotencyKey: string; orderId: string; catalogVersion: string; priceMinor: number; currency: 'TRY'; nowMs: number }): Promise<{ order: StoredCoffeeOrder; created: boolean }>;
   getOwned(orderId: string, ownerUserId: string): Promise<StoredCoffeeOrder | null>;
+  listOwned(ownerUserId: string, options: { limit: number; cursor?: { createdAtMs: number; orderId: string } }): Promise<{ orders: StoredCoffeeOrder[]; nextCursor?: { createdAtMs: number; orderId: string } }>;
   confirmVerifiedPayment(input: { orderId: string; providerPaymentId: string; priceMinor: number; currency: 'TRY'; nowMs: number }): Promise<'granted' | 'already_applied' | 'payment_reused' | 'mismatch'>;
   consumeEntitlement(input: { orderId: string; ownerUserId: string; operationId: string; nowMs: number }): Promise<'consumed' | 'already_consumed' | 'wrong_owner' | 'not_entitled'>;
 }
@@ -66,6 +67,17 @@ export class FirestoreOrderStore implements PersistentOrderStore {
   async getOwned(orderId: string, ownerUserId: string): Promise<StoredCoffeeOrder | null> {
     const order = parseOrder((await this.firestore.collection(ORDERS).doc(orderId).get()).data());
     return order?.ownerUserId === ownerUserId ? order : null;
+  }
+
+  async listOwned(ownerUserId: string, options: { limit: number; cursor?: { createdAtMs: number; orderId: string } }) {
+    let query = this.firestore.collection(ORDERS).where('ownerUserId', '==', ownerUserId).orderBy('createdAtMs', 'desc').orderBy('orderId', 'desc');
+    if (options.cursor) query = query.startAfter(options.cursor.createdAtMs, options.cursor.orderId);
+    const snapshot = await query.limit(options.limit + 1).get();
+    const parsed = snapshot.docs.map((doc) => parseOrder(doc.data())).filter((order): order is StoredCoffeeOrder => Boolean(order));
+    const hasMore = parsed.length > options.limit;
+    const orders = parsed.slice(0, options.limit);
+    const last = hasMore ? orders.at(-1) : undefined;
+    return { orders, ...(last ? { nextCursor: { createdAtMs: last.createdAtMs, orderId: last.orderId } } : {}) };
   }
 
   async reserveCheckout(input: { orderId: string; ownerUserId: string; attemptId: string; nowMs: number }): Promise<CheckoutReservation> {

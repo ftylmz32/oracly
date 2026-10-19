@@ -79,6 +79,6 @@ export default function CoffeePurchase() {
   </section>;
 }
 
-async function secureHeaders() { const tokens = await getFirebaseRequestTokens(); return { 'Content-Type': 'application/json', Authorization: `Bearer ${tokens.authToken}`, 'X-Firebase-AppCheck': tokens.appCheckToken }; }
+async function secureHeaders() { const tokens = await getFirebaseRequestTokens({ permanent: true, createAnonymous: false }); return { 'Content-Type': 'application/json', Authorization: `Bearer ${tokens.authToken}`, 'X-Firebase-AppCheck': tokens.appCheckToken }; }
 async function fetchOwnedOrder(orderId: string): Promise<Order> { const headers = await secureHeaders(); const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, { headers, cache: 'no-store' }); if (!response.ok) throw new Error('order_unavailable'); return ((await response.json()) as { order: Order }).order; }
 function formatPrice(minor: number, currency: string) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency }).format(minor / 100); }

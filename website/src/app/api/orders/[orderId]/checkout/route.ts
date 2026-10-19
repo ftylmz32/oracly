@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request, context: { params: Promise<{ orderId: string }> }): Promise<Response> {
   try {
     const { orderId } = await context.params; const dependencies = createCheckoutRuntime();
-    const { uid } = await dependencies.verifier.verify(request);
+    const { uid } = await dependencies.verifier.verifyPermanent(request);
     const order = await dependencies.store.getOwned(orderId, uid);
     if (!order) return json(404, { error: 'order_not_found' });
     const result = await dependencies.checkout.start(request, order);
