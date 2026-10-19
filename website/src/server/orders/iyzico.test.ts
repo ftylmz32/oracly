@@ -23,11 +23,11 @@ describe('iyzico Checkout Form adapter', () => {
   });
 
   it('retrieves and normalizes a complete paid result without making the callback token authoritative', async () => {
-    const value = { status: 'success', paymentStatus: 'SUCCESS', conversationId: 'ord_12345678', token: 'checkout-token-123', basketId: 'ord_12345678', paymentId: 'pay-1', price: 72.5, paidPrice: 72.5, currency: 'TRY', fraudStatus: 1, itemTransactions: [{ itemId: COFFEE_READING_PRODUCT_ID, price: 72.5 }] };
+    const value = { status: 'success', paymentStatus: 'SUCCESS', conversationId: 'ord_12345678', token: 'checkout-token-123', basketId: 'ord_12345678', paymentId: 'pay-1', price: 72.5, paidPrice: 72.5, currency: 'TRY', fraudStatus: 1, itemTransactions: [{ itemId: COFFEE_READING_PRODUCT_ID, price: 72.5, paymentTransactionId: 'txn-1', transactionStatus: 2 }] };
     const signature = createHmac('sha256', config.secretKey).update('SUCCESS:pay-1:TRY:ord_12345678:ord_12345678:72.5:72.5:checkout-token-123').digest('hex');
     const http = vi.fn(async () => Response.json({ ...value, signature }));
     const result = await new IyzicoCheckoutClient(config, http as typeof fetch).retrieve('checkout-token-123', 'ord_12345678');
-    expect(result).toMatchObject({ status: 'paid', providerPaymentId: 'pay-1', priceMinor: 7250, paidPriceMinor: 7250, fraudStatus: 1, itemProductId: COFFEE_READING_PRODUCT_ID });
+    expect(result).toMatchObject({ status: 'paid', providerPaymentId: 'pay-1', paymentTransactionId: 'txn-1', transactionStatus: 2, priceMinor: 7250, paidPriceMinor: 7250, fraudStatus: 1, itemProductId: COFFEE_READING_PRODUCT_ID });
   });
 
   it('validates HPP Signature V3 in constant time and rejects tampering, legacy shape, and wrong event type', () => {

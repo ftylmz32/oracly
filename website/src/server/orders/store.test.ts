@@ -78,4 +78,29 @@ describe('FirestoreOrderStore transaction contract (fake Firestore)', () => {
     expect(await store.failCheckoutReservation({ orderId: 'ord_order-a', attemptId: 'attempt-a', nowMs: 3 })).toBe('failed');
     expect((await store.reserveCheckout({ orderId: 'ord_order-a', ownerUserId: 'uid-a', attemptId: 'attempt-b', nowMs: 4 })).outcome).toBe('reserved');
   });
+
+  it('binds each item transaction once and preserves refund review after entitlement consumption', async () => {
+    const store = new FirestoreOrderStore(new FakeFirestore() as unknown as Firestore);
+    await store.createIdempotent(createInput('request_123456789', 'ord_order-a'));
+    const reservation = await store.reserveCheckout({ orderId: 'ord_order-a', ownerUserId: 'uid-a', attemptId: 'attempt-a', nowMs: 2 });
+    expect(reservation.outcome).toBe('reserved');
+    expect(await store.bindCheckout({ orderId: 'ord_order-a', attemptId: 'attempt-a', token: 'token-a', conversationId: 'ord_order-a', paymentPageUrl: 'https://sandbox-cpp.iyzipay.com?token=token-a', nowMs: 3 })).toBe('bound');
+    expect(await store.confirmCheckoutPayment({ orderId: 'ord_order-a', checkoutToken: 'token-a', providerPaymentId: 'payment-1', paymentTransactionId: 'transaction-1', transactionStatus: 2, priceMinor: 7250, currency: 'TRY', nowMs: 4 })).toBe('granted');
+    expect(await store.consumeEntitlement({ orderId: 'ord_order-a', ownerUserId: 'uid-a', operationId: 'operation-a', nowMs: 5 })).toBe('consumed');
+    expect(await store.recordCheckoutState({ orderId: 'ord_order-a', checkoutToken: 'token-a', status: 'refunded', providerPaymentId: 'payment-1', paymentTransactionId: 'transaction-1', transactionStatus: 2, nowMs: 6 })).toBe('review_required');
+    const order = await store.getOwned('ord_order-a', 'uid-a');
+    expect(order).toMatchObject({ status: 'entitlement_consumed', providerPaymentStatus: 'refunded', paymentTransactionId: 'transaction-1', financialReviewRequired: true, refundedAtMs: 6 });
+    expect(order?.events.at(-1)).toMatchObject({ status: 'refunded', reason: 'refund_after_entitlement_consumed_review_required' });
+  });
+
+  it('rejects reuse of an item transaction across two orders', async () => {
+    const store = new FirestoreOrderStore(new FakeFirestore() as unknown as Firestore);
+    for (const [request, orderId, token] of [['request_123456789', 'ord_order-a', 'token-a'], ['request_987654321', 'ord_order-b', 'token-b']] as const) {
+      await store.createIdempotent(createInput(request, orderId));
+      await store.reserveCheckout({ orderId, ownerUserId: 'uid-a', attemptId: `attempt-${orderId}`, nowMs: 2 });
+      await store.bindCheckout({ orderId, attemptId: `attempt-${orderId}`, token, conversationId: orderId, paymentPageUrl: `https://sandbox-cpp.iyzipay.com?token=${token}`, nowMs: 3 });
+    }
+    expect(await store.confirmCheckoutPayment({ orderId: 'ord_order-a', checkoutToken: 'token-a', providerPaymentId: 'payment-1', paymentTransactionId: 'transaction-1', transactionStatus: 2, priceMinor: 7250, currency: 'TRY', nowMs: 4 })).toBe('granted');
+    expect(await store.confirmCheckoutPayment({ orderId: 'ord_order-b', checkoutToken: 'token-b', providerPaymentId: 'payment-2', paymentTransactionId: 'transaction-1', transactionStatus: 2, priceMinor: 7250, currency: 'TRY', nowMs: 4 })).toBe('payment_reused');
+  });
 });

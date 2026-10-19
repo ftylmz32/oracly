@@ -28,11 +28,12 @@ export class CheckoutService {
     const result = await this.provider.retrieve(token, order.orderId);
     verifyResult(order, result);
     if (result.status === 'failed' || result.status === 'refunded') {
-      await this.store.recordCheckoutState({ orderId: order.orderId, checkoutToken: token, status: result.status, nowMs: this.now() });
-      return 'not_granted' as const;
+      await this.store.recordCheckoutState({ orderId: order.orderId, checkoutToken: token, status: result.status, providerPaymentId: result.providerPaymentId, paymentTransactionId: result.paymentTransactionId, transactionStatus: result.transactionStatus, nowMs: this.now() });
+      return { outcome: 'not_granted' as const, orderId: order.orderId };
     }
-    if (result.status !== 'paid' || !result.providerPaymentId || result.fraudStatus !== 1) return 'not_granted' as const;
-    return this.store.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: result.providerPaymentId, priceMinor: result.priceMinor, currency: 'TRY', nowMs: this.now() });
+    if (result.status !== 'paid' || !result.providerPaymentId || !result.paymentTransactionId || result.fraudStatus !== 1 || result.transactionStatus !== 2) return { outcome: 'not_granted' as const, orderId: order.orderId };
+    const outcome = await this.store.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: result.providerPaymentId, paymentTransactionId: result.paymentTransactionId, transactionStatus: result.transactionStatus, priceMinor: result.priceMinor, currency: 'TRY', nowMs: this.now() });
+    return { outcome, orderId: order.orderId };
   }
 }
 

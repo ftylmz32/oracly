@@ -141,8 +141,8 @@ suite('real Firestore Emulator web order transaction', () => {
     if (!reservation || reservation.outcome !== 'reserved') throw new Error('missing checkout reservation');
     const token = `token-${order.suffix}`;
     expect(await websiteStore.bindCheckout({ orderId: order.orderId, attemptId: reservation.order.checkoutAttemptId!, token, conversationId: order.orderId, paymentPageUrl: `https://sandbox-cpp.iyzipay.com?token=${token}`, nowMs: Date.now() })).toBe('bound');
-    expect(await websiteStore.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: `payment-${order.suffix}`, priceMinor: 1, currency: 'TRY', nowMs: Date.now() })).toBe('granted');
-    expect(await websiteStore.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: `payment-${order.suffix}`, priceMinor: 1, currency: 'TRY', nowMs: Date.now() })).toBe('already_applied');
+    expect(await websiteStore.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: `payment-${order.suffix}`, paymentTransactionId: `transaction-${order.suffix}`, transactionStatus: 2, priceMinor: 1, currency: 'TRY', nowMs: Date.now() })).toBe('granted');
+    expect(await websiteStore.confirmCheckoutPayment({ orderId: order.orderId, checkoutToken: token, providerPaymentId: `payment-${order.suffix}`, paymentTransactionId: `transaction-${order.suffix}`, transactionStatus: 2, priceMinor: 1, currency: 'TRY', nowMs: Date.now() })).toBe('already_applied');
   });
 
   it('rejects another owner without consuming the order', async () => {

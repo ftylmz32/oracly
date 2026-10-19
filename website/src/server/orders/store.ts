@@ -5,12 +5,14 @@ import { COFFEE_READING_PRODUCT_ID, type OrderEvent, type OrderStatus } from '..
 const ORDERS = 'webCoffeeOrders';
 const REQUESTS = 'webCoffeeOrderRequests';
 const PAYMENTS = 'webCoffeePaymentBindings';
+const PAYMENT_TRANSACTIONS = 'webCoffeePaymentTransactionBindings';
 
 export type StoredCoffeeOrder = {
   orderId: string; ownerUserId: string; productId: typeof COFFEE_READING_PRODUCT_ID;
   catalogVersion: string; priceMinor: number; currency: 'TRY'; status: OrderStatus;
   checkoutAttemptId?: string; checkoutToken?: string; checkoutConversationId?: string; checkoutPageUrl?: string;
-  providerPaymentId?: string; readingOperationId?: string; createdAtMs: number; updatedAtMs: number; events: OrderEvent[];
+  providerPaymentId?: string; paymentTransactionId?: string; transactionStatus?: number; providerPaymentStatus?: 'paid' | 'failed' | 'refunded';
+  financialReviewRequired?: boolean; refundedAtMs?: number; readingOperationId?: string; createdAtMs: number; updatedAtMs: number; events: OrderEvent[];
 };
 
 export type CheckoutReservation =
@@ -30,8 +32,8 @@ export interface CheckoutOrderStore extends PersistentOrderStore {
   bindCheckout(input: { orderId: string; attemptId: string; token: string; conversationId: string; paymentPageUrl: string; nowMs: number }): Promise<'bound' | 'already_bound' | 'token_reused' | 'mismatch'>;
   failCheckoutReservation(input: { orderId: string; attemptId: string; nowMs: number }): Promise<'failed' | 'mismatch'>;
   getByCheckoutToken(token: string): Promise<StoredCoffeeOrder | null>;
-  confirmCheckoutPayment(input: { orderId: string; checkoutToken: string; providerPaymentId: string; priceMinor: number; currency: 'TRY'; nowMs: number }): Promise<'granted' | 'already_applied' | 'payment_reused' | 'mismatch'>;
-  recordCheckoutState(input: { orderId: string; checkoutToken: string; status: 'failed' | 'refunded'; nowMs: number }): Promise<'recorded' | 'already_consumed' | 'mismatch'>;
+  confirmCheckoutPayment(input: { orderId: string; checkoutToken: string; providerPaymentId: string; paymentTransactionId: string; transactionStatus: 2; priceMinor: number; currency: 'TRY'; nowMs: number }): Promise<'granted' | 'already_applied' | 'payment_reused' | 'mismatch'>;
+  recordCheckoutState(input: { orderId: string; checkoutToken: string; status: 'failed' | 'refunded'; providerPaymentId?: string; paymentTransactionId?: string; transactionStatus?: number; nowMs: number }): Promise<'recorded' | 'review_required' | 'mismatch'>;
 }
 
 export class FirestoreOrderStore implements PersistentOrderStore {
@@ -112,14 +114,17 @@ export class FirestoreOrderStore implements PersistentOrderStore {
     return parseOrder((await this.firestore.collection(ORDERS).doc(orderId).get()).data());
   }
 
-  async recordCheckoutState(input: { orderId: string; checkoutToken: string; status: 'failed' | 'refunded'; nowMs: number }) {
+  async recordCheckoutState(input: { orderId: string; checkoutToken: string; status: 'failed' | 'refunded'; providerPaymentId?: string; paymentTransactionId?: string; transactionStatus?: number; nowMs: number }) {
     const ref = this.firestore.collection(ORDERS).doc(input.orderId);
     return this.firestore.runTransaction(async (tx) => {
       const order = parseOrder((await tx.get(ref)).data());
       if (!order || order.checkoutToken !== input.checkoutToken) return 'mismatch' as const;
-      if (order.status === 'entitlement_consumed') return 'already_consumed' as const;
-      if (order.status === input.status) return 'recorded' as const;
-      tx.update(ref, { status: input.status, updatedAtMs: input.nowMs, events: [...order.events, { status: input.status, atMs: input.nowMs }] });
+      const consumedRefund = input.status === 'refunded' && order.status === 'entitlement_consumed';
+      if (order.providerPaymentId && input.providerPaymentId && order.providerPaymentId !== input.providerPaymentId) return 'mismatch' as const;
+      if (order.paymentTransactionId && input.paymentTransactionId && order.paymentTransactionId !== input.paymentTransactionId) return 'mismatch' as const;
+      if (order.providerPaymentStatus === input.status) return consumedRefund ? 'review_required' as const : 'recorded' as const;
+      tx.update(ref, { ...(consumedRefund ? {} : { status: input.status }), providerPaymentStatus: input.status, ...(input.providerPaymentId ? { providerPaymentId: input.providerPaymentId } : {}), ...(input.paymentTransactionId ? { paymentTransactionId: input.paymentTransactionId } : {}), ...(input.transactionStatus !== undefined ? { transactionStatus: input.transactionStatus } : {}), ...(input.status === 'refunded' ? { refundedAtMs: input.nowMs } : {}), ...(consumedRefund ? { financialReviewRequired: true } : {}), updatedAtMs: input.nowMs, events: [...order.events, { status: input.status, atMs: input.nowMs, reason: consumedRefund ? 'refund_after_entitlement_consumed_review_required' : undefined }] });
+      if (consumedRefund) return 'review_required' as const;
       return 'recorded' as const;
     });
   }
@@ -128,23 +133,26 @@ export class FirestoreOrderStore implements PersistentOrderStore {
     return this.confirmPayment(input, false);
   }
 
-  async confirmCheckoutPayment(input: { orderId: string; checkoutToken: string; providerPaymentId: string; priceMinor: number; currency: 'TRY'; nowMs: number }) {
+  async confirmCheckoutPayment(input: { orderId: string; checkoutToken: string; providerPaymentId: string; paymentTransactionId: string; transactionStatus: 2; priceMinor: number; currency: 'TRY'; nowMs: number }) {
     return this.confirmPayment(input, true);
   }
 
-  private async confirmPayment(input: { orderId: string; checkoutToken?: string; providerPaymentId: string; priceMinor: number; currency: 'TRY'; nowMs: number }, requireCheckoutToken: boolean) {
+  private async confirmPayment(input: { orderId: string; checkoutToken?: string; providerPaymentId: string; paymentTransactionId?: string; transactionStatus?: 2; priceMinor: number; currency: 'TRY'; nowMs: number }, requireCheckoutToken: boolean) {
     const orderRef = this.firestore.collection(ORDERS).doc(input.orderId);
     const paymentRef = this.firestore.collection(PAYMENTS).doc(digest(input.providerPaymentId));
+    const transactionRef = input.paymentTransactionId ? this.firestore.collection(PAYMENT_TRANSACTIONS).doc(digest(input.paymentTransactionId)) : null;
     return this.firestore.runTransaction(async (tx) => {
-      const [orderSnap, paymentSnap] = await Promise.all([tx.get(orderRef), tx.get(paymentRef)]);
+      const [orderSnap, paymentSnap, transactionSnap] = await Promise.all([tx.get(orderRef), tx.get(paymentRef), transactionRef ? tx.get(transactionRef) : Promise.resolve(null)]);
       const order = parseOrder(orderSnap.data());
       if (!order || (requireCheckoutToken && (!input.checkoutToken || order.checkoutToken !== input.checkoutToken)) || order.priceMinor !== input.priceMinor || order.currency !== input.currency) return 'mismatch' as const;
       if (order.providerPaymentId === input.providerPaymentId && (order.status === 'entitlement_granted' || order.status === 'entitlement_consumed')) return 'already_applied' as const;
       if (paymentSnap.exists && paymentSnap.data()?.orderId !== input.orderId) return 'payment_reused' as const;
+      if (transactionSnap?.exists && transactionSnap.data()?.orderId !== input.orderId) return 'payment_reused' as const;
       if (order.status !== 'payment_pending' && order.status !== 'created') return 'mismatch' as const;
       const events = [...order.events, { status: 'payment_verified' as const, atMs: input.nowMs }, { status: 'entitlement_granted' as const, atMs: input.nowMs }];
       tx.create(paymentRef, { orderId: input.orderId, createdAtMs: input.nowMs });
-      tx.update(orderRef, { providerPaymentId: input.providerPaymentId, status: 'entitlement_granted', updatedAtMs: input.nowMs, events });
+      if (transactionRef) tx.create(transactionRef, { orderId: input.orderId, productId: COFFEE_READING_PRODUCT_ID, createdAtMs: input.nowMs });
+      tx.update(orderRef, { providerPaymentId: input.providerPaymentId, ...(input.paymentTransactionId ? { paymentTransactionId: input.paymentTransactionId } : {}), ...(input.transactionStatus ? { transactionStatus: input.transactionStatus } : {}), providerPaymentStatus: 'paid', status: 'entitlement_granted', updatedAtMs: input.nowMs, events });
       return 'granted' as const;
     });
   }

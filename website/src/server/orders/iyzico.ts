@@ -19,7 +19,7 @@ export type IyzicoPaymentResult = {
   status: 'paid' | 'pending' | 'failed' | 'refunded'; conversationId: string;
   checkoutToken: string; basketId: string; providerPaymentId?: string;
   priceMinor: number; paidPriceMinor: number; currency: string; fraudStatus?: number;
-  itemProductId?: string; itemPriceMinor?: number;
+  itemProductId?: string; itemPriceMinor?: number; paymentTransactionId?: string; transactionStatus?: number;
 };
 
 export class IyzicoError extends Error {}
@@ -45,7 +45,9 @@ export class IyzicoCheckoutClient {
 
   async retrieve(token: string, conversationId: string): Promise<IyzicoPaymentResult> {
     const value = await this.post(RETRIEVE_PATH, { locale: 'tr', conversationId, token });
-    const item = Array.isArray(value.itemTransactions) ? value.itemTransactions[0] as Record<string, unknown> | undefined : undefined;
+    const items = Array.isArray(value.itemTransactions) ? value.itemTransactions as Record<string, unknown>[] : [];
+    const matchingItems = items.filter((candidate) => string(candidate.itemId) === COFFEE_READING_PRODUCT_ID);
+    const item = matchingItems.length === 1 ? matchingItems[0] : undefined;
     return {
       status: value.paymentStatus === 'SUCCESS' ? 'paid' : value.paymentStatus === 'REFUNDED' ? 'refunded' : value.status === 'success' ? 'pending' : 'failed',
       conversationId: string(value.conversationId), checkoutToken: string(value.token), basketId: string(value.basketId),
@@ -54,6 +56,8 @@ export class IyzicoCheckoutClient {
       fraudStatus: typeof value.fraudStatus === 'number' ? value.fraudStatus : undefined,
       itemProductId: item ? string(item.itemId) : undefined,
       itemPriceMinor: item ? decimalToMinor(item.price) : undefined,
+      paymentTransactionId: item ? scalarString(item.paymentTransactionId) || undefined : undefined,
+      transactionStatus: item && typeof item.transactionStatus === 'number' && Number.isInteger(item.transactionStatus) ? item.transactionStatus : undefined,
     };
   }
 

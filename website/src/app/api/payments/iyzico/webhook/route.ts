@@ -9,8 +9,8 @@ export async function POST(request: Request): Promise<Response> {
     const notification = runtimeDependencies.provider.verifyWebhook(raw, signature);
     const order = await runtimeDependencies.store.getByCheckoutToken(notification.checkoutToken);
     if (!order || order.orderId !== notification.orderId) return Response.json({ error: 'notification_mismatch' }, { status: 400 });
-    const outcome = await runtimeDependencies.checkout.reconcile(notification.checkoutToken);
-    if (outcome !== 'granted' && outcome !== 'already_applied') return Response.json({ error: 'verification_pending' }, { status: 503 });
+    const result = await runtimeDependencies.checkout.reconcile(notification.checkoutToken);
+    if (result.outcome !== 'granted' && result.outcome !== 'already_applied') return Response.json({ error: 'verification_pending' }, { status: 503 });
     return Response.json({ received: true }, { status: 200 });
   } catch { return Response.json({ error: 'webhook_rejected' }, { status: 401 }); }
 }

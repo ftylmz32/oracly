@@ -44,7 +44,7 @@ async function readCreateBody(request: Request): Promise<{ idempotencyKey: strin
 }
 
 function toOrderDto(order: StoredCoffeeOrder) {
-  return { orderId: order.orderId, productId: order.productId, priceMinor: order.priceMinor, currency: order.currency, status: order.status, createdAtMs: order.createdAtMs, updatedAtMs: order.updatedAtMs };
+  return { orderId: order.orderId, productId: order.productId, priceMinor: order.priceMinor, currency: order.currency, status: order.status, providerPaymentStatus: order.providerPaymentStatus, financialReviewRequired: order.financialReviewRequired === true, createdAtMs: order.createdAtMs, updatedAtMs: order.updatedAtMs };
 }
 function response(status: number, body: unknown): Response { return Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } }); }
 function apiError(error: unknown): Response {

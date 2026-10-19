@@ -5,7 +5,7 @@ import type { IyzicoCheckoutClient, IyzicoPaymentResult } from './iyzico';
 import type { CheckoutOrderStore, StoredCoffeeOrder } from './store';
 
 const order: StoredCoffeeOrder = { orderId: 'ord_12345678', ownerUserId: 'uid-a', productId: COFFEE_READING_PRODUCT_ID, catalogVersion: 'v1', priceMinor: 7250, currency: 'TRY', status: 'payment_pending', checkoutToken: 'token-12345678', createdAtMs: 1, updatedAtMs: 2, events: [{ status: 'created', atMs: 1 }, { status: 'payment_pending', atMs: 2 }] };
-const paid = (extra: Partial<IyzicoPaymentResult> = {}): IyzicoPaymentResult => ({ status: 'paid', conversationId: order.orderId, checkoutToken: order.checkoutToken!, basketId: order.orderId, providerPaymentId: 'pay-1', priceMinor: 7250, paidPriceMinor: 7250, currency: 'TRY', fraudStatus: 1, itemProductId: COFFEE_READING_PRODUCT_ID, itemPriceMinor: 7250, ...extra });
+const paid = (extra: Partial<IyzicoPaymentResult> = {}): IyzicoPaymentResult => ({ status: 'paid', conversationId: order.orderId, checkoutToken: order.checkoutToken!, basketId: order.orderId, providerPaymentId: 'pay-1', paymentTransactionId: 'txn-1', transactionStatus: 2, priceMinor: 7250, paidPriceMinor: 7250, currency: 'TRY', fraudStatus: 1, itemProductId: COFFEE_READING_PRODUCT_ID, itemPriceMinor: 7250, ...extra });
 
 describe('checkout reconciliation', () => {
   it.each([
@@ -18,18 +18,18 @@ describe('checkout reconciliation', () => {
     const store = { getByCheckoutToken: vi.fn(async () => order), confirmCheckoutPayment: confirm, recordCheckoutState: vi.fn() } as unknown as CheckoutOrderStore;
     const provider = { retrieve: vi.fn(async () => paid()) } as unknown as IyzicoCheckoutClient;
     const service = new CheckoutService(store, provider, () => 10);
-    await expect(service.reconcile(order.checkoutToken!)).resolves.toBe('granted');
-    await expect(service.reconcile(order.checkoutToken!)).resolves.toBe('already_applied');
+    await expect(service.reconcile(order.checkoutToken!)).resolves.toEqual({ outcome: 'granted', orderId: order.orderId });
+    await expect(service.reconcile(order.checkoutToken!)).resolves.toEqual({ outcome: 'already_applied', orderId: order.orderId });
     expect(confirm).toHaveBeenCalledTimes(2);
   });
 
   it.each([
-    paid({ status: 'pending' }), paid({ status: 'failed' }), paid({ status: 'refunded' }), paid({ fraudStatus: 0 }), paid({ fraudStatus: -1 }),
+    paid({ status: 'pending' }), paid({ status: 'failed' }), paid({ status: 'refunded' }), paid({ fraudStatus: 0 }), paid({ fraudStatus: -1 }), paid({ transactionStatus: 0 }), paid({ transactionStatus: -1 }), paid({ transactionStatus: 1 }), paid({ paymentTransactionId: undefined }),
   ])('does not grant pending, failed, refunded, review, or rejected result %#', async (result) => {
     const confirm = vi.fn();
     const store = { getByCheckoutToken: vi.fn(async () => order), confirmCheckoutPayment: confirm, recordCheckoutState: vi.fn(async () => 'recorded') } as unknown as CheckoutOrderStore;
     const provider = { retrieve: vi.fn(async () => result) } as unknown as IyzicoCheckoutClient;
-    await expect(new CheckoutService(store, provider).reconcile(order.checkoutToken!)).resolves.toBe('not_granted');
+    await expect(new CheckoutService(store, provider).reconcile(order.checkoutToken!)).resolves.toEqual({ outcome: 'not_granted', orderId: order.orderId });
     expect(confirm).not.toHaveBeenCalled();
   });
 
