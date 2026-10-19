@@ -133,6 +133,7 @@ describe('Dream Phase 3 — safety wins over replay', () => {
         };
       },
       async complete() {},
+      async abandon() {},
     };
     const app = await testApp(roomy(), p.fetch, { responseReplayRepository: poisoned });
     const res = await app.inject(post({ narrative: 'Uyandım ve şimdi kendimi öldürmek istiyorum.', language: 'tr' }));

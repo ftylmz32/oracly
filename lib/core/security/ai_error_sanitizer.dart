@@ -67,6 +67,7 @@ abstract final class AiErrorSanitizer {
       'network' || 'network_error' => ResilienceCopy.aiUnavailable,
       'timeout' => ResilienceCopy.slowResponse,
       'rate_limit' || 'rate_limited' => ResilienceCopy.aiRateLimited,
+      'daily_quota' => ResilienceCopy.dailyTextQuota,
       'no_configuration' => ResilienceCopy.aiConfigMissing,
       'unauthorized' || 'forbidden' => ResilienceCopy.aiUnauthorized,
       'invalid_response' => ResilienceCopy.aiEmptyResponse,

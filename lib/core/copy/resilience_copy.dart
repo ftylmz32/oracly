@@ -37,6 +37,7 @@ abstract final class ResilienceCopy {
   static String get aiEmptyResponse => _t('resilience.ai_empty');
   static String get aiResponseUnavailable => _t('resilience.ai_response');
   static String get aiRateLimited => _t('resilience.ai_rate');
+  static String get dailyTextQuota => _t('resilience.daily_text_quota');
   static String get cardDrawFailed => _t('resilience.card_draw_failed');
   static String get sessionInitFailed => _t('resilience.session_init');
   static String get interpretationFailed =>

@@ -1,6 +1,7 @@
 /// Live Narrative V1 service — two attempts, cache approved only.
 library;
 
+import '../../../ai/production/ai_failure.dart';
 import '../../../ai/production/oracly_narrative_yildizname_ai_service.dart';
 import '../quality/yildizname_quality_validator.dart';
 import '../request/yildizname_narrative_request.dart';
@@ -85,7 +86,7 @@ final class YildiznameNarrativeLiveService {
       throw YildiznameLiveFailure(
         YildiznameLiveFailureKind.provider,
         message: outcome.failure?.userMessage ?? 'provider',
-        retryable: true,
+        retryable: outcome.failure?.kind != AiFailureKind.dailyQuota,
       );
     }
     try {

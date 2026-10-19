@@ -797,6 +797,7 @@ class CompanionController extends ChangeNotifier {
       AiFailureKind.network => CompanionCopy.connectionError,
       AiFailureKind.timeout => error.userMessage,
       AiFailureKind.rateLimit => error.userMessage,
+      AiFailureKind.dailyQuota => error.userMessage,
       AiFailureKind.invalidResponse => error.userMessage,
       AiFailureKind.providerError => error.userMessage,
       AiFailureKind.localPersistence => CompanionCopy.saveFailed,

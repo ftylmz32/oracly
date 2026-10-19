@@ -27,6 +27,7 @@ abstract final class AiErrorMapper {
       'network' || 'network_error' => AiFailure.network(),
       'timeout' || 'provider_timeout' => AiFailure.timeout(),
       'rate_limit' || 'rate_limited' => AiFailure.rateLimit(),
+      'daily_quota' => AiFailure.dailyQuota(),
       'invalid_response' || 'quality_unavailable' => AiFailure.invalidResponse(),
       'invalid_image' ||
       'unsupported_image_type' ||

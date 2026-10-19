@@ -25,6 +25,9 @@ class SpyReplay implements ResponseReplayRepository {
   complete(identity: string, key: string, attemptId: string, entry: Omit<ReplayEntry, 'expiresAtMs'>) {
     return this.inner.complete(identity, key, attemptId, entry);
   }
+  abandon(identity: string, key: string, attemptId: string) {
+    return this.inner.abandon(identity, key, attemptId);
+  }
 }
 
 const ATTEMPT = 'or-dream-0123456789abcdef0123456789abcdef';

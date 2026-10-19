@@ -50,6 +50,7 @@ export async function testApp(
     responseReplayRepository?: import('../src/middleware/response-replay-repository.js').ResponseReplayRepository;
     contentReportRepository?: import('../src/content-reports/content-report-repository.js').ContentReportRepository;
     soulmateEntitlement?: import('../src/reading/soulmate-entitlement-guard.js').SoulmateEntitlementGuard;
+    freeTextQuotaStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
   } = {},
 ) {
   const app = await buildServer({
@@ -74,6 +75,7 @@ export async function testApp(
     responseReplayRepository: options.responseReplayRepository ?? new FirestoreResponseReplayRepository(new MemoryDocumentStore()),
     contentReportRepository: options.contentReportRepository,
     soulmateEntitlement: options.soulmateEntitlement,
+    freeTextQuotaStore: options.freeTextQuotaStore,
   });
   return app;
 }

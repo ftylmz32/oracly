@@ -14,6 +14,7 @@ enum AiFailureKind {
   network,
   timeout,
   rateLimit,
+  dailyQuota,
   invalidResponse,
   providerError,
   imageAnalysisUnavailable,
@@ -54,6 +55,9 @@ class AiFailure {
 
   factory AiFailure.rateLimit() =>
       AiFailure(AiFailureKind.rateLimit, ResilienceCopy.aiRateLimited);
+
+  factory AiFailure.dailyQuota() =>
+      AiFailure(AiFailureKind.dailyQuota, ResilienceCopy.dailyTextQuota);
 
   factory AiFailure.invalidResponse() =>
       AiFailure(AiFailureKind.invalidResponse, ResilienceCopy.aiEmptyResponse);

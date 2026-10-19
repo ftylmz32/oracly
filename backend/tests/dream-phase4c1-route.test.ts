@@ -89,6 +89,9 @@ class SpyReplay implements ResponseReplayRepository {
   complete(identity: string, key: string, attemptId: string, entry: Omit<ReplayEntry, 'expiresAtMs'>) {
     return this.inner.complete(identity, key, attemptId, entry);
   }
+  abandon(identity: string, key: string, attemptId: string) {
+    return this.inner.abandon(identity, key, attemptId);
+  }
 }
 
 // The revision itself moved to '4c3-astra' in Phase 4C.3 (pinned there).

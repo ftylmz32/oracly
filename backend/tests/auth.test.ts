@@ -2,6 +2,7 @@ import { generateKeyPair, exportJWK, SignJWT, createLocalJWKSet } from 'jose';
 import { describe, expect, it } from 'vitest';
 import { JwksAuthenticationService } from '../src/auth/jwt-jwks.js';
 import { identityKeyFromSubject } from '../src/auth/identity.js';
+import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 import {
   appCheckHeader,
   authHeader,
@@ -107,6 +108,7 @@ describe('auth', () => {
     expect(config.authMode).toBe('hs256');
     const app = await testApp(config, undefined, {
       appCheck: new StaticAppCheckVerifier('good-token'),
+      freeTextQuotaStore: new MemoryDocumentStore(),
     });
     const ok = await app.inject({
       method: 'POST',
@@ -119,6 +121,7 @@ describe('auth', () => {
           }),
         ),
         ...appCheckHeader('good-token'),
+        'idempotency-key': 'or-chat-auth-quota1',
       },
       payload: chatBody,
     });

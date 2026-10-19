@@ -7,6 +7,7 @@ import {
   StaticAppCheckVerifier,
 } from '../src/auth/app-check.js';
 import { loadConfig } from '../src/config.js';
+import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 import {
   appCheckHeader,
   authHeader,
@@ -50,11 +51,16 @@ describe('E2 Auth + App Check fail-closed', () => {
   it('accepts valid ID token + valid App Check together', async () => {
     const app = await testApp(prodConfig(), openaiText('Sakin.'), {
       appCheck: new StaticAppCheckVerifier('good-token'),
+      freeTextQuotaStore: new MemoryDocumentStore(),
     });
     const res = await app.inject({
       method: 'POST',
       url: '/v1/ai/complete',
-      headers: { ...authOk(), ...appCheckHeader('good-token') },
+      headers: {
+        ...authOk(),
+        ...appCheckHeader('good-token'),
+        'idempotency-key': 'or-chat-e2-quota01',
+      },
       payload: chatBody,
     });
     expect(res.statusCode).toBe(200);

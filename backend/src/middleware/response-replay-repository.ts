@@ -13,6 +13,7 @@ export type ReplayClaim =
 export interface ResponseReplayRepository {
   claim(identity: string, key: string): Promise<ReplayClaim>;
   complete(identity: string, key: string, attemptId: string, entry: Omit<ReplayEntry, 'expiresAtMs'>): Promise<void>;
+  abandon(identity: string, key: string, attemptId: string): Promise<void>;
 }
 
 export class FirestoreResponseReplayRepository implements ResponseReplayRepository {
@@ -43,11 +44,22 @@ export class FirestoreResponseReplayRepository implements ResponseReplayReposito
       tx.set(ref, { state: 'completed', status: entry.status, body: entry.body, contentType: entry.contentType, expiresAtMs: now + RESPONSE_REPLAY_TTL_MS, expiresAt: Timestamp.fromMillis(now + RESPONSE_REPLAY_TTL_MS), updatedAtMs: now });
     });
   }
+
+  async abandon(identity: string, key: string, attemptId: string): Promise<void> {
+    const ref = this.ref(identity, key);
+    await this.firestore.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const data = snap.data();
+      if (!data || data.state !== 'in_progress' || data.attemptId !== attemptId) return;
+      tx.delete(ref);
+    });
+  }
 }
 
 export class FailClosedResponseReplayRepository implements ResponseReplayRepository {
   async claim(): Promise<ReplayClaim> { throw new Error('response_replay_unavailable'); }
   async complete(): Promise<void> { throw new Error('response_replay_unavailable'); }
+  async abandon(): Promise<void> {}
 }
 
 export function createResponseReplayRepository(config: AppConfig): ResponseReplayRepository {

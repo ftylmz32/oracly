@@ -7,6 +7,8 @@ export const ErrorCode = {
   appCheckRequired: 'app_check_required',
   forbidden: 'forbidden',
   rateLimited: 'rate_limited',
+  /** Free text AI day is full. Not a gem or Premium prompt. */
+  dailyQuota: 'daily_quota',
   invalidRequest: 'invalid_request',
   invalidImage: 'invalid_image',
   unsupportedImageType: 'unsupported_image_type',

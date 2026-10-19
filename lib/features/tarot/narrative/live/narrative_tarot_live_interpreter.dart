@@ -1,6 +1,7 @@
 /// Phase 6F — live Narrative V2 interpreter (cache commit after final quality).
 library;
 
+import '../../../ai/production/ai_failure.dart';
 import '../../../ai/production/oracly_narrative_tarot_ai_service.dart';
 import '../../domain/models/reading_session.dart';
 import '../../interpretation/cache/interpretation_cache.dart';
@@ -74,7 +75,7 @@ class NarrativeTarotLiveInterpreter {
       throw InterpretationException(
         type: InterpretationFailureType.retry,
         message: outcome.failure!.userMessage,
-        retryable: true,
+        retryable: outcome.failure!.kind != AiFailureKind.dailyQuota,
       );
     }
     try {

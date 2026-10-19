@@ -46,6 +46,12 @@ import {
   type TarotHold,
 } from '../reading/tarot-billing-gate.js';
 import { isPaidTarot } from '../reading/tarot-billing-id.js';
+import {
+  admitFreeTextQuota,
+  failFreeTextQuota,
+  finishFreeTextQuota,
+  type FreeTextHold,
+} from '../reading/free-text-quota.js';
 import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
 import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 
@@ -57,6 +63,7 @@ export type AiRouteOptions = {
   gemStore?: FirestoreLike;
   clock?: ServerClock;
   soulmateEntitlement?: SoulmateEntitlementGuard;
+  freeTextQuotaStore?: FirestoreLike;
 };
 
 export async function registerAiRoutes(
@@ -125,6 +132,9 @@ export async function registerAiRoutes(
       const started = Date.now();
       const requestId = request.requestId;
       let tarotHold: TarotHold | null = null;
+      let quotaHold: FreeTextHold | null = null;
+      let producerKey: string | null = null;
+      let producerAttempt: string | null = null;
       try {
         const validated = validateAiBody(request.body);
         const fingerprint = fingerprintRequest(validated);
@@ -175,6 +185,26 @@ export async function registerAiRoutes(
         if (soulmateDenied) {
           return reply.code(soulmateDenied.status).send(soulmateDenied.body);
         }
+        const quota = await admitFreeTextQuota({
+          config,
+          store: options.freeTextQuotaStore,
+          clock,
+          operation: validated.operation,
+          paidTarot: isPaidTarot(validated),
+          identity,
+          idempotencyKey: idemKey,
+        });
+        if (quota.action === 'reply') {
+          return reply.code(quota.status).send(quota.payload);
+        }
+        quotaHold = quota.action === 'hold' ? quota.hold : null;
+        const quotaStore = options.freeTextQuotaStore;
+        const releaseUnusedQuota = async () => {
+          if (!quotaHold || !quotaStore) return;
+          const hold = quotaHold;
+          quotaHold = null;
+          await failFreeTextQuota(quotaStore, identity, hold);
+        };
         // Dream: a completed response replays only for the same semantic
         // request (language, narrative, symbols, emotions, memory).
         const billingOn = tarotBillingActive(config, gemLedger, gemStore);
@@ -186,16 +216,25 @@ export async function registerAiRoutes(
         if (replayKey && !(billingOn && isPaidTarot(validated))) {
           const claim = await replay.claim(identity, replayKey);
           if (claim.kind === 'completed') {
+            if (quotaHold && quotaStore) {
+              await finishFreeTextQuota(quotaStore, identity, quotaHold, claim.entry.body);
+            }
             reply.header('content-type', claim.entry.contentType);
             return reply.code(claim.entry.status).send(claim.entry.body);
           }
-          if (claim.kind === 'in_progress') return reply.code(409).send(errorEnvelope(ErrorCode.rateLimited));
+          if (claim.kind === 'in_progress') {
+            await releaseUnusedQuota();
+            return reply.code(409).send(errorEnvelope(ErrorCode.rateLimited));
+          }
           replayAttempt = claim.attemptId;
+          producerKey = replayKey;
+          producerAttempt = claim.attemptId;
         }
         if (
           !(billingOn && isPaidTarot(validated)) &&
           await rejectDuplicate(request, reply, validated.operation, duplicateFingerprint)
         ) {
+          await releaseUnusedQuota();
           return;
         }
         if (await rejectExpensive(request, reply, validated.operation)) {
@@ -239,6 +278,10 @@ export async function registerAiRoutes(
         };
 
         const result = await run();
+        if (quotaHold && quotaStore) {
+          await finishFreeTextQuota(quotaStore, identity, quotaHold, result.body);
+          quotaHold = null;
+        }
         if (tarotHold && gemStore) {
           const done = await finishPaidTarot(gemStore, clock, gemLedger ?? null, tarotHold, result.body);
           tarotHold = null;
@@ -264,6 +307,26 @@ export async function registerAiRoutes(
         });
         return reply.code(result.status).send(result.body);
       } catch (error) {
+        if (quotaHold && options.freeTextQuotaStore) {
+          const hold = quotaHold;
+          quotaHold = null;
+          try {
+            await failFreeTextQuota(
+              options.freeTextQuotaStore,
+              request.identityKey ?? 'anon',
+              hold,
+            );
+          } catch {
+            // The reservation stays open. The same operation id resumes it.
+          }
+        }
+        if (producerKey && producerAttempt) {
+          try {
+            await replay.abandon(request.identityKey ?? 'anon', producerKey, producerAttempt);
+          } catch {
+            // The claim expires on its own. The same key can resume after that.
+          }
+        }
         if (tarotHold && gemStore) {
           const hold = tarotHold;
           tarotHold = null;

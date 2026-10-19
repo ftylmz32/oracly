@@ -130,6 +130,11 @@ const kL10nResilience = <String, L10nTriple>{
     'Luna is busy right now. Please try again in a little while.',
     'Luna сейчас занята. Пожалуйста, попробуй чуть позже.',
   ),
+  'resilience.daily_text_quota': L10nTriple(
+    'Bugünkü ücretsiz AI kullanım hakkın doldu. Yeni hakların yarın yenilenecek.',
+    'You have used today’s free AI allowance. It renews tomorrow.',
+    'Бесплатные обращения к ИИ на сегодня закончились. Завтра они обновятся.',
+  ),
   'resilience.card_draw_failed': L10nTriple(
     'Kart seçilemedi. Lütfen tekrar dene.',
     'The card could not be drawn. Please try again.',

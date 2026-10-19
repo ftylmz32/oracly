@@ -215,6 +215,7 @@ class OpenAiPalmAnalysis implements PalmAnalysisPort, PalmStagedAnalysisPort, Pa
       AiFailureKind.unauthorized ||
       AiFailureKind.appCheck => PalmAnalysisErrorKind.unavailable,
       AiFailureKind.rateLimit ||
+      AiFailureKind.dailyQuota ||
       AiFailureKind.providerError ||
       AiFailureKind.localPersistence => PalmAnalysisErrorKind.unknown,
     };

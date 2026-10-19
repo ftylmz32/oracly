@@ -4,6 +4,7 @@ import {
   FailClosedAppCheckVerifier,
   StaticAppCheckVerifier,
 } from '../src/auth/app-check.js';
+import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
 import {
   appCheckHeader,
   authHeader,
@@ -85,7 +86,10 @@ describe('App Check gate', () => {
     const app = await testApp(
       prodHs256Config(),
       openaiText('Sakin bir yanit.'),
-      { appCheck: new StaticAppCheckVerifier('good-token') },
+      {
+        appCheck: new StaticAppCheckVerifier('good-token'),
+        freeTextQuotaStore: new MemoryDocumentStore(),
+      },
     );
     const res = await app.inject({
       method: 'POST',
@@ -93,6 +97,7 @@ describe('App Check gate', () => {
       headers: {
         ...authOk(),
         ...appCheckHeader('good-token'),
+        'idempotency-key': 'or-chat-appcheck-01',
       },
       payload: chatBody,
     });

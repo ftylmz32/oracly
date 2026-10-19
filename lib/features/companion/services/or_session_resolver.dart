@@ -1,6 +1,7 @@
 /// Resolves OR session presentation from commerce + link + failure + voice.
 library;
 
+import '../../../core/copy/resilience_copy.dart';
 import '../../ai/production/ai_failure.dart';
 import '../../premium/models/premium_entitlement_state.dart';
 import '../copy/companion_copy.dart';
@@ -160,6 +161,18 @@ abstract final class OrSessionResolver {
         showPaywallDock: false,
         statusLine: CompanionCopy.offline,
         canRetry: true,
+      );
+    }
+
+    if (lastFailure == AiFailureKind.dailyQuota) {
+      return OrSessionPresentation(
+        state: OrSessionState.rateLimited,
+        canCompose: true,
+        canUseMic: !voiceUnavailable,
+        showPreview: false,
+        showPaywallDock: false,
+        statusLine: ResilienceCopy.dailyTextQuota,
+        canRetry: false,
       );
     }
 

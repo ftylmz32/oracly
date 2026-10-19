@@ -94,6 +94,8 @@ export type BuildOptions = {
   readingSoulmatePortraits?: SoulmatePortraitStore;
   /** Same premium proof the soulmate worker uses, applied to /v1/ai/complete. */
   soulmateEntitlement?: SoulmateEntitlementGuard;
+  /** Durable free-text day counter. Same Firestore as the gem ledger. */
+  freeTextQuotaStore?: FirestoreLike;
   readingNotificationTokens?: ReadingNotificationTokens;
   accountDeletionRepository?: AccountDeletionRepository;
   sharedWindowStore?: SharedWindowStore;
@@ -220,6 +222,7 @@ export async function buildServer(options: BuildOptions) {
     gemStore: options.gemStore,
     clock: readingClock,
     soulmateEntitlement: options.soulmateEntitlement,
+    freeTextQuotaStore: options.freeTextQuotaStore,
   });
   await registerReadingOperationRoutes(app, config, {
     appCheck,

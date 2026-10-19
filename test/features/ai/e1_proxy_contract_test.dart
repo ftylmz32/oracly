@@ -111,5 +111,13 @@ void main() {
       AiErrorMapper.fromCode('image_analysis_unavailable').kind,
       AiFailureKind.imageAnalysisUnavailable,
     );
+    expect(
+      AiErrorMapper.fromCode('daily_quota').kind,
+      AiFailureKind.dailyQuota,
+    );
+    expect(
+      AiFailure.dailyQuota().userMessage,
+      'Bugünkü ücretsiz AI kullanım hakkın doldu. Yeni hakların yarın yenilenecek.',
+    );
   });
 }
