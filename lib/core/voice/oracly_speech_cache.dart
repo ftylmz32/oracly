@@ -25,4 +25,6 @@ class OraclySpeechCache {
   }
 
   void clear() => _clips.clear();
+
+  int get length => _clips.length;
 }

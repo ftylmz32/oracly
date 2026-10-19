@@ -16,8 +16,8 @@ class CompanionOutputController extends ChangeNotifier {
     required this._persistMode,
     OrChatOutputMode Function()? readMode,
     OrResponseDepth Function()? readDepth,
-  })  : _readMode = readMode ?? (() => OrChatOutputMode.text),
-        _readDepth = readDepth ?? (() => OrResponseDepth.fallback) {
+  }) : _readMode = readMode ?? (() => OrChatOutputMode.text),
+       _readDepth = readDepth ?? (() => OrResponseDepth.fallback) {
     _session = this;
     OraclyTtsGate.speaking.addListener(_onSpeaking);
     OraclyTtsGate.paused.addListener(_onSpeaking);
@@ -28,6 +28,7 @@ class CompanionOutputController extends ChangeNotifier {
   final OrChatOutputMode Function() _readMode;
   final OrResponseDepth Function() _readDepth;
   static CompanionOutputController? _session;
+  static int _speechBoundary = 0;
   String? _lastSpoken;
   String? _lastGrant;
   int _speakGen = 0;
@@ -44,12 +45,26 @@ class CompanionOutputController extends ChangeNotifier {
   bool get canReplay =>
       isVoice && !isSpeaking && (_lastSpoken?.trim().isNotEmpty ?? false);
 
+  static int get speechBoundary => _speechBoundary;
+
+  @visibleForTesting
+  String? get debugLastSpeechGrant => _lastGrant;
+
   void syncFromSettings() => notifyListeners();
 
   void noteSpeech() => notifyListeners();
 
-  static void dropSessionSpeech() {
-    _session?.dropSpoken();
+  /// Logout and account switch. Stops playback, drops the last grant, and
+  /// invalidates any speak that was already in flight for the old account.
+  static Future<void> dropSessionSpeech() async {
+    _speechBoundary++;
+    final live = _session;
+    live?.dropSpoken();
+    if (live != null) {
+      await live.interrupt();
+    } else {
+      await OraclyTtsGate.interrupt();
+    }
     OraclyProxySpeech.releaseCaches();
   }
 
@@ -58,8 +73,7 @@ class CompanionOutputController extends ChangeNotifier {
     if (_readMode() != mode) await _persistMode(mode);
     if (mode.isVoice) {
       final tts = OraclyTtsGate.engine;
-      OraclyTtsGate.unavailable.value =
-          tts == null || !await tts.isAvailable();
+      OraclyTtsGate.unavailable.value = tts == null || !await tts.isAvailable();
     }
     notifyListeners();
   }
@@ -84,8 +98,7 @@ class CompanionOutputController extends ChangeNotifier {
     }
   }
 
-  String _spoken(String? text) =>
-      _readDepth().cap(text ?? '', spoken: true);
+  String _spoken(String? text) => _readDepth().cap(text ?? '', spoken: true);
 
   Future<void> stop() async {
     await OraclyTtsGate.stop();

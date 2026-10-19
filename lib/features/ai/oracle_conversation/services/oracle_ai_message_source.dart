@@ -14,15 +14,19 @@ class OracleAiMessageSource {
     this._ai,
     OracleConversationResponder? local,
     Future<List<String>> Function()? observedThemes,
-  })  : _local = local ?? const OracleConversationResponder(),
-        _observedThemes = observedThemes ?? (() async => const <String>[]) {
+  }) : _local = local ?? const OracleConversationResponder(),
+       _observedThemes = observedThemes ?? (() async => const <String>[]) {
     _session = this;
   }
 
   static OracleAiMessageSource? _session;
+  static int _boundary = 0;
   String? speechGrant;
 
+  static int get sessionBoundary => _boundary;
+
   static void dropSessionGrant() {
+    _boundary++;
     _session?.speechGrant = null;
   }
 
@@ -45,6 +49,7 @@ class OracleAiMessageSource {
     required String userMessage,
     List<String> priorUser = const [],
   }) async {
+    final captured = sessionBoundary;
     speechGrant = null;
     if (_useLocalFallback) {
       return _local.respond(
@@ -65,6 +70,10 @@ class OracleAiMessageSource {
     );
     return outcome.when(
       success: (reply) {
+        if (captured != sessionBoundary) {
+          speechGrant = null;
+          return ConversationResponseGuard.polish(reply.text);
+        }
         final grant = reply.speechGrant?.trim() ?? '';
         speechGrant = grant.isEmpty ? null : grant;
         return ConversationResponseGuard.polish(reply.text);
@@ -87,14 +96,18 @@ class OracleAiMessageSource {
       );
       return;
     }
+    final captured = sessionBoundary;
     final text = await reply(
       context: context,
       userMessage: userMessage,
       priorUser: priorUser,
     );
+    if (captured != sessionBoundary) return;
     final tokens = text.split(RegExp(r'(?<=\s)'));
     for (final token in tokens) {
+      if (captured != sessionBoundary) return;
       await Future<void>.delayed(const Duration(milliseconds: 32));
+      if (captured != sessionBoundary) return;
       yield token;
     }
   }

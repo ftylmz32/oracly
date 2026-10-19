@@ -58,7 +58,7 @@ abstract final class UserLocalDataWipe {
     required SecureStorage secureStorage,
   }) async {
     final failed = <String>[];
-    CompanionOutputController.dropSessionSpeech();
+    await CompanionOutputController.dropSessionSpeech();
     OracleAiMessageSource.dropSessionGrant();
 
     Future<void> step(String label, Future<void> Function() action) async {

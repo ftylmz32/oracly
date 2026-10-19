@@ -28,7 +28,7 @@ class OraclySpeechClip {
 
 class OraclyProxySpeech {
   OraclyProxySpeech(this._transport, {AiRequestGuard? guard})
-      : _guard = guard ?? AiRequestGuard.shared;
+    : _guard = guard ?? AiRequestGuard.shared;
 
   final AiTransport? _transport;
   final AiRequestGuard _guard;
@@ -40,6 +40,9 @@ class OraclyProxySpeech {
 
   /// Drop in-memory TTS clips when leaving OR.
   static void releaseCaches() => _cache.clear();
+
+  @visibleForTesting
+  static int get debugCacheLength => _cache.length;
 
   Future<OraclySpeechClip?> synthesize({
     required String text,

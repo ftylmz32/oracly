@@ -363,6 +363,11 @@ class CompanionController extends ChangeNotifier {
 
     // Lock before any await so rapid taps cannot enqueue duplicate sends.
     final token = ++_sendGeneration;
+    final speechBoundary = CompanionOutputController.speechBoundary;
+    bool stillThisAccount() =>
+        !_disposed &&
+        token == _sendGeneration &&
+        speechBoundary == CompanionOutputController.speechBoundary;
     final recovering =
         _networkRetry ||
         _state.linkStatus == CompanionLinkStatus.offline ||
@@ -379,7 +384,7 @@ class CompanionController extends ChangeNotifier {
     _safeNotify();
 
     await _output.onUserSend();
-    if (_disposed || token != _sendGeneration) return;
+    if (!stillThisAccount()) return;
 
     final pendingId = OrOperationId.pendingId(conversation.lastMessage);
     final reuse = reusePendingOperation && pendingId != null;
@@ -434,11 +439,11 @@ class CompanionController extends ChangeNotifier {
         request: CompanionInsightClassify.fromText(trimmed),
         readingContext: sentReadingContext,
       );
-      if (_disposed || token != _sendGeneration) return;
+      if (!stillThisAccount()) return;
       // The reply is on screen either way, so the one free deepen is spent
       // for the context it was asked under -- even if saving locally fails.
       await _consumeDeepenIfUsable(result, sentReadingContext);
-      if (_disposed || token != _sendGeneration) return;
+      if (!stillThisAccount()) return;
       _analytics?.logOrResponseReceived(
         fromAi: result.fromAi,
         latency: DateTime.now().difference(started),
@@ -469,6 +474,7 @@ class CompanionController extends ChangeNotifier {
           await _output.speakIfVoice(
             result.response.body,
             speechGrant: result.response.speechGrant,
+            speechBoundary: speechBoundary,
           );
         } catch (_) {}
         return;
@@ -485,10 +491,11 @@ class CompanionController extends ChangeNotifier {
         await _output.speakIfVoice(
           result.response.body,
           speechGrant: result.response.speechGrant,
+          speechBoundary: speechBoundary,
         );
       } catch (_) {}
     } on AiRequestException catch (e) {
-      if (_disposed || token != _sendGeneration) return;
+      if (!stillThisAccount()) return;
       _analytics?.logOperation(
         operation: 'or_response',
         success: false,
@@ -517,7 +524,7 @@ class CompanionController extends ChangeNotifier {
         linkStatus: _linkFor(e.failure.kind),
       );
     } catch (error) {
-      if (_disposed || token != _sendGeneration) return;
+      if (!stillThisAccount()) return;
       _analytics?.logOperation(
         operation: 'or_response',
         success: false,
@@ -542,7 +549,7 @@ class CompanionController extends ChangeNotifier {
         linkStatus: CompanionLinkStatus.online,
       );
     }
-    if (_disposed || token != _sendGeneration) return;
+    if (!stillThisAccount()) return;
     _safeNotify();
   }
 

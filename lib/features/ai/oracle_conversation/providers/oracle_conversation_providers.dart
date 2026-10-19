@@ -24,22 +24,24 @@ final oracleConversationMemoryProvider = Provider<ConversationMemory>((ref) {
 
 final oracleConversationRepositoryProvider =
     Provider<MockOracleConversationRepository>((ref) {
-  return MockOracleConversationRepository(
-    memory: ref.watch(oracleConversationMemoryProvider),
-    source: OracleAiMessageSource(
-      ai: ref.watch(oraclyAiServiceProvider),
-      observedThemes: () async {
-        final profile = await ref.read(personalDiscoveryProfileProvider.future);
-        return DiscoveryOrContext.themeLabels(profile);
-      },
-    ),
-  );
-});
+      return MockOracleConversationRepository(
+        memory: ref.watch(oracleConversationMemoryProvider),
+        source: OracleAiMessageSource(
+          ai: ref.watch(oraclyAiServiceProvider),
+          observedThemes: () async {
+            final profile = await ref.read(
+              personalDiscoveryProfileProvider.future,
+            );
+            return DiscoveryOrContext.themeLabels(profile);
+          },
+        ),
+      );
+    });
 
 final oracleMessageFavoritesProvider =
     NotifierProvider<OracleMessageFavoritesNotifier, Set<String>>(
-  OracleMessageFavoritesNotifier.new,
-);
+      OracleMessageFavoritesNotifier.new,
+    );
 
 class OracleMessageFavoritesNotifier extends Notifier<Set<String>> {
   @override
@@ -58,10 +60,12 @@ class OracleMessageFavoritesNotifier extends Notifier<Set<String>> {
   bool isFavorite(String messageId) => state.contains(messageId);
 }
 
-final oracleConversationProvider = NotifierProvider.family<
-    OracleConversationNotifier, OracleConversationState, OracleReadingContext>(
-  OracleConversationNotifier.new,
-);
+final oracleConversationProvider =
+    NotifierProvider.family<
+      OracleConversationNotifier,
+      OracleConversationState,
+      OracleReadingContext
+    >(OracleConversationNotifier.new);
 
 @immutable
 class OracleConversationState {
@@ -86,8 +90,7 @@ class OracleConversationState {
   bool get hasMessages =>
       (conversation?.messages.isNotEmpty ?? false) || streamBuffer.isNotEmpty;
 
-  bool get showSuggestions =>
-      !hasMessages && !isThinking && !isStreaming;
+  bool get showSuggestions => !hasMessages && !isThinking && !isStreaming;
 
   OracleConversationState copyWith({
     AIConversation? conversation,
@@ -105,8 +108,9 @@ class OracleConversationState {
       isThinking: isThinking ?? this.isThinking,
       isStreaming: isStreaming ?? this.isStreaming,
       streamBuffer: clearStream ? '' : (streamBuffer ?? this.streamBuffer),
-      streamMessageId:
-          clearStream ? null : (streamMessageId ?? this.streamMessageId),
+      streamMessageId: clearStream
+          ? null
+          : (streamMessageId ?? this.streamMessageId),
       error: clearError ? null : (error ?? this.error),
       lastFailedText: lastFailedText ?? this.lastFailedText,
     );
@@ -136,18 +140,23 @@ class OracleConversationNotifier
     final conv = state.conversation;
     if (conv == null || state.isStreaming || state.isThinking) return;
 
+    final speechBoundary = OracleAiMessageSource.sessionBoundary;
     await OraclyTtsGate.stop();
 
     final repo = ref.read(oracleConversationRepositoryProvider);
     final streamId = 'stream_${DateTime.now().millisecondsSinceEpoch}';
 
-    state = state.copyWith(
-      isThinking: true,
-      error: null,
-      clearStream: true,
-    );
+    state = state.copyWith(isThinking: true, error: null, clearStream: true);
 
     await Future<void>.delayed(const Duration(milliseconds: 280));
+    if (OracleAiMessageSource.sessionBoundary != speechBoundary) {
+      state = state.copyWith(
+        isThinking: false,
+        isStreaming: false,
+        clearStream: true,
+      );
+      return;
+    }
 
     state = state.copyWith(
       isThinking: false,
@@ -167,8 +176,24 @@ class OracleConversationNotifier
         context: _context,
         priorUser: priorUser,
       )) {
+        if (OracleAiMessageSource.sessionBoundary != speechBoundary) {
+          state = state.copyWith(
+            isThinking: false,
+            isStreaming: false,
+            clearStream: true,
+          );
+          return;
+        }
         buffer += chunk;
         state = state.copyWith(streamBuffer: buffer);
+      }
+      if (OracleAiMessageSource.sessionBoundary != speechBoundary) {
+        state = state.copyWith(
+          isThinking: false,
+          isStreaming: false,
+          clearStream: true,
+        );
+        return;
       }
       if (buffer.trim().isEmpty) {
         throw StateError('empty-or-response');
@@ -188,10 +213,9 @@ class OracleConversationNotifier
           if (repo.speechGrant != null) 'speechGrant': repo.speechGrant!,
         },
       );
-      ref.read(oracleConversationMemoryProvider).appendMessage(
-            conv.id,
-            assistant,
-          );
+      ref
+          .read(oracleConversationMemoryProvider)
+          .appendMessage(conv.id, assistant);
 
       final updated = await repo.getConversation(conv.id);
       state = state.copyWith(
@@ -234,6 +258,7 @@ class OracleConversationNotifier
     final conv = state.conversation;
     if (conv == null || state.isStreaming) return;
 
+    final speechBoundary = OracleAiMessageSource.sessionBoundary;
     await OraclyTtsGate.stop();
     state = state.copyWith(isThinking: true, error: null);
     try {
@@ -243,7 +268,15 @@ class OracleConversationNotifier
         messageId: messageId,
         context: _context,
       );
+      if (OracleAiMessageSource.sessionBoundary != speechBoundary) {
+        state = state.copyWith(isThinking: false);
+        return;
+      }
       final updated = await repo.getConversation(conv.id);
+      if (OracleAiMessageSource.sessionBoundary != speechBoundary) {
+        state = state.copyWith(isThinking: false);
+        return;
+      }
       state = state.copyWith(conversation: updated, isThinking: false);
       String? spoken;
       for (final m in updated?.messages ?? const <AIMessage>[]) {
@@ -254,10 +287,7 @@ class OracleConversationNotifier
       }
       await OraclyTtsGate.speakReply(spoken, speechGrant: repo.speechGrant);
     } on AiRequestException catch (e) {
-      state = state.copyWith(
-        isThinking: false,
-        error: e.userMessage,
-      );
+      state = state.copyWith(isThinking: false, error: e.userMessage);
     } catch (_) {
       state = state.copyWith(
         isThinking: false,
