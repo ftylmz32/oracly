@@ -147,7 +147,11 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
           'analyze',
           PalmAnalysisError(
             PalmAnalysisErrorKind.unknown,
-            state.refunded ? ReadingLiveCopy.refunded : ReadingLiveCopy.failed,
+            ReadingLiveCopy.failureLine(
+              wasRefunded: state.refunded,
+              code: state.snapshot?.failureCode,
+              type: ReadingType.palm,
+            ),
           ),
           'reading_operation_failed',
         );
@@ -378,7 +382,11 @@ mixin PalmReadingAnalysis on PalmReadingCapture {
         'reinterpret',
         PalmAnalysisError(
           PalmAnalysisErrorKind.unknown,
-          state.refunded ? ReadingLiveCopy.refunded : ReadingLiveCopy.failed,
+          ReadingLiveCopy.failureLine(
+            wasRefunded: state.refunded,
+            code: state.snapshot?.failureCode,
+            type: ReadingType.palm,
+          ),
         ),
         'reading_operation_failed',
       );

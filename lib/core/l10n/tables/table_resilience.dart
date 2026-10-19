@@ -135,6 +135,21 @@ const kL10nResilience = <String, L10nTriple>{
     'You have used today’s free AI allowance. It renews tomorrow.',
     'Бесплатные обращения к ИИ на сегодня закончились. Завтра они обновятся.',
   ),
+  'resilience.coffee_daily_quota': L10nTriple(
+    'Bugünkü kahve okuman hazır. Yeni bir okuma yarın yenilenecek.',
+    'Today’s coffee reading is used. A new one renews tomorrow.',
+    'Сегодняшнее чтение кофе уже готово. Новое обновится завтра.',
+  ),
+  'resilience.palm_daily_quota': L10nTriple(
+    'Bugünkü el okumaların doldu. Yeni hakların yarın yenilenecek.',
+    'Today’s palm readings are used. They renew tomorrow.',
+    'Сегодняшние чтения ладони закончились. Завтра они обновятся.',
+  ),
+  'resilience.dream_daily_quota': L10nTriple(
+    'Bugünkü rüya yorumların doldu. Yeni hakların yarın yenilenecek.',
+    'Today’s dream readings are used. They renew tomorrow.',
+    'Сегодняшние толкования снов закончились. Завтра они обновятся.',
+  ),
   'resilience.card_draw_failed': L10nTriple(
     'Kart seçilemedi. Lütfen tekrar dene.',
     'The card could not be drawn. Please try again.',

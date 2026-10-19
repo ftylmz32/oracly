@@ -1,4 +1,6 @@
 import type { ValidatedRequest } from '../ai/validate-request.js';
+import type { FirestoreLike } from '../billing/entitlement-repository.js';
+import type { AppConfig } from '../config.js';
 import type { ServerClock } from './clock.js';
 import type { ReadingOperationRepository } from './operation-repository.js';
 import type { ReadingOperationInputService } from './operation-input-service.js';
@@ -62,6 +64,7 @@ export class ReadingProcessor {
     /** SM-RL2 §3 — for the `provider_rate_limited` observability log only;
      * never affects behavior. */
     private readonly soulmateImageModel?: string,
+    private readonly ritualQuota?: { config: AppConfig; store: FirestoreLike | undefined },
   ) {}
 
   async process(
@@ -160,6 +163,7 @@ export class ReadingProcessor {
       stopAfterStaged: this.stopAfterStaged,
       providerStages: this.providerStages,
       generationTrace: this.generationTrace,
+      ritualQuota: this.ritualQuota,
     });
   }
 }

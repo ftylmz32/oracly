@@ -18,6 +18,14 @@ import {
   type WorkerStageLogger,
 } from './reading-worker-telemetry.js';
 import { findAccountDeletedError } from '../account/deletion-barrier.js';
+import type { AppConfig } from '../config.js';
+import type { FirestoreLike } from '../billing/entitlement-repository.js';
+import {
+  admitRitualQuota,
+  type RitualHold,
+} from './ritual-daily-quota.js';
+import { failRitualQuota, finishRitualQuota } from './ritual-daily-quota-settle.js';
+import { ErrorCode, ProxyError } from '../errors.js';
 
 type ClaimedOp = {
   operationId: string;
@@ -61,6 +69,7 @@ export async function executeClaimedReading(input: {
   stopAfterStaged: boolean;
   providerStages?: ProviderStageRepository;
   generationTrace?: ReadingGenerationTrace;
+  ritualQuota?: { config: AppConfig; store: FirestoreLike | undefined };
 }): Promise<'completed' | 'staged_ok' | 'failed' | 'owner_deleted'> {
   const { operation, log } = input;
   const feature = operation.readingType;
@@ -208,6 +217,7 @@ export async function executeClaimedReading(input: {
     logWorkerStage(log, 'validation_started', { operationId, feature });
     let data: Record<string, unknown>;
     let generationTrace = input.generationTrace;
+    let ritualHold: RitualHold | null = null;
     try {
       const checkpoint = input.providerStages
         ? await input.providerStages.claimAttempt(operationId, operation.ownerUserId, input.generationTrace)
@@ -225,7 +235,33 @@ export async function executeClaimedReading(input: {
         data = checkpoint.output;
       } else {
         if (checkpoint && !checkpoint.initiate) throw new Error('provider_stage_not_initiable');
-        if (isCoffeeV3) {
+        const ritual = input.ritualQuota
+          ? await admitRitualQuota({
+              config: input.ritualQuota.config,
+              store: input.ritualQuota.store,
+              clock: input.clock,
+              operation: `${feature}_analysis`,
+              identity: operation.ownerUserId,
+              idempotencyKey: operationId,
+            })
+          : { action: 'skip' as const };
+        if (ritual.action === 'reply') {
+          const quotaFull = JSON.stringify(ritual.payload).includes('daily_quota');
+          await input.flow.failFinal({
+            ownerUserId: operation.ownerUserId,
+            operationId,
+            failureCode: quotaFull ? 'daily_quota' : 'unavailable',
+          });
+          await cleanupAfterSuccess();
+          return 'failed';
+        }
+        ritualHold = ritual.action === 'hold' ? ritual.hold : null;
+        if (ritual.action === 'stored' && ritual.body && typeof ritual.body === 'object') {
+          const stored = ritual.body as { data?: unknown };
+          data = (stored.data && typeof stored.data === 'object'
+            ? stored.data
+            : ritual.body) as Record<string, unknown>;
+        } else if (isCoffeeV3) {
           // Internal entry only; the public AI request shape can never select V3.
           if (!input.ai.coffeeV3) throw new Error('coffee_v3_entry_unavailable');
           data = await input.ai.coffeeV3({
@@ -252,7 +288,17 @@ export async function executeClaimedReading(input: {
         await input.providerStages?.markCompleted(operationId, operation.ownerUserId, data);
       }
     } catch (error) {
-      if (isCoffeeV3 && error instanceof CoffeeV3TerminalFailure) {
+      const imageReject = error instanceof ProxyError && (
+        error.code === ErrorCode.invalidImage
+        || error.code === ErrorCode.unsupportedImageType
+        || error.code === ErrorCode.imageTooLarge
+      );
+      const terminal = isCoffeeV3 && error instanceof CoffeeV3TerminalFailure;
+      if (ritualHold && input.ritualQuota?.store && (imageReject || terminal)) {
+        await failRitualQuota(input.ritualQuota.store, operation.ownerUserId, ritualHold);
+        ritualHold = null;
+      }
+      if (terminal && error instanceof CoffeeV3TerminalFailure) {
         // LIS2 — an honest terminal outcome, never a retry and never a persisted
         // "success": failFinal owns the refund (only when a Gem debit exists),
         // then the three V3 views are cleaned. The operation stays failed; a
@@ -293,6 +339,10 @@ export async function executeClaimedReading(input: {
           operationId,
           failureCode: verdict.failureCode,
         });
+        if (ritualHold && input.ritualQuota?.store) {
+          await failRitualQuota(input.ritualQuota.store, operation.ownerUserId, ritualHold);
+          ritualHold = null;
+        }
         await cleanupAfterSuccess();
         return 'failed';
       }
@@ -320,6 +370,15 @@ export async function executeClaimedReading(input: {
         operationId,
         resultId: result.resultId,
       });
+      if (ritualHold && input.ritualQuota?.store) {
+        await finishRitualQuota(
+          input.ritualQuota.store,
+          operation.ownerUserId,
+          ritualHold,
+          data,
+        );
+        ritualHold = null;
+      }
       await input.providerStages?.markPersisted(operationId);
     } catch (error) {
       throw wrapStageError('result_persist_started', feature, error, true);

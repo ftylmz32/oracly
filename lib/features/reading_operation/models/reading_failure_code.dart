@@ -7,6 +7,7 @@ enum ReadingFailureCode {
   invalid,
   cancelled,
   entitlementDenied,
+  dailyQuota,
   unknown,
 }
 
@@ -16,6 +17,7 @@ ReadingFailureCode readingFailureCodeFromWire(Object? value) {
     'invalid' => ReadingFailureCode.invalid,
     'cancelled' => ReadingFailureCode.cancelled,
     'entitlement_denied' => ReadingFailureCode.entitlementDenied,
+    'daily_quota' => ReadingFailureCode.dailyQuota,
     _ => ReadingFailureCode.unknown,
   };
 }

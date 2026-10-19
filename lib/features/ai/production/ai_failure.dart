@@ -59,6 +59,15 @@ class AiFailure {
   factory AiFailure.dailyQuota() =>
       AiFailure(AiFailureKind.dailyQuota, ResilienceCopy.dailyTextQuota);
 
+  factory AiFailure.coffeeDailyQuota() =>
+      AiFailure(AiFailureKind.dailyQuota, ResilienceCopy.coffeeDailyQuota);
+
+  factory AiFailure.palmDailyQuota() =>
+      AiFailure(AiFailureKind.dailyQuota, ResilienceCopy.palmDailyQuota);
+
+  factory AiFailure.dreamDailyQuota() =>
+      AiFailure(AiFailureKind.dailyQuota, ResilienceCopy.dreamDailyQuota);
+
   factory AiFailure.invalidResponse() =>
       AiFailure(AiFailureKind.invalidResponse, ResilienceCopy.aiEmptyResponse);
 

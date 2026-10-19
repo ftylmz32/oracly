@@ -52,6 +52,14 @@ import {
   finishFreeTextQuota,
   type FreeTextHold,
 } from '../reading/free-text-quota.js';
+import {
+  admitRitualQuota,
+  type RitualHold,
+} from '../reading/ritual-daily-quota.js';
+import {
+  failRitualQuota,
+  finishRitualQuota,
+} from '../reading/ritual-daily-quota-settle.js';
 import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
 import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 
@@ -64,6 +72,7 @@ export type AiRouteOptions = {
   clock?: ServerClock;
   soulmateEntitlement?: SoulmateEntitlementGuard;
   freeTextQuotaStore?: FirestoreLike;
+  ritualQuotaStore?: FirestoreLike;
 };
 
 export async function registerAiRoutes(
@@ -133,6 +142,7 @@ export async function registerAiRoutes(
       const requestId = request.requestId;
       let tarotHold: TarotHold | null = null;
       let quotaHold: FreeTextHold | null = null;
+      let ritualHold: RitualHold | null = null;
       let producerKey: string | null = null;
       let producerAttempt: string | null = null;
       try {
@@ -198,12 +208,34 @@ export async function registerAiRoutes(
           return reply.code(quota.status).send(quota.payload);
         }
         quotaHold = quota.action === 'hold' ? quota.hold : null;
+        const ritual = await admitRitualQuota({
+          config,
+          store: options.ritualQuotaStore,
+          clock,
+          operation: validated.operation,
+          identity,
+          idempotencyKey: idemKey,
+        });
+        if (ritual.action === 'reply') {
+          return reply.code(ritual.status).send(ritual.payload);
+        }
+        if (ritual.action === 'stored') {
+          return reply.code(200).send(ritual.body);
+        }
+        ritualHold = ritual.action === 'hold' ? ritual.hold : null;
         const quotaStore = options.freeTextQuotaStore;
+        const ritualStore = options.ritualQuotaStore;
         const releaseUnusedQuota = async () => {
-          if (!quotaHold || !quotaStore) return;
-          const hold = quotaHold;
-          quotaHold = null;
-          await failFreeTextQuota(quotaStore, identity, hold);
+          if (quotaHold && quotaStore) {
+            const hold = quotaHold;
+            quotaHold = null;
+            await failFreeTextQuota(quotaStore, identity, hold);
+          }
+          if (ritualHold && ritualStore) {
+            const hold = ritualHold;
+            ritualHold = null;
+            await failRitualQuota(ritualStore, identity, hold);
+          }
         };
         // Dream: a completed response replays only for the same semantic
         // request (language, narrative, symbols, emotions, memory).
@@ -218,6 +250,9 @@ export async function registerAiRoutes(
           if (claim.kind === 'completed') {
             if (quotaHold && quotaStore) {
               await finishFreeTextQuota(quotaStore, identity, quotaHold, claim.entry.body);
+            }
+            if (ritualHold && ritualStore) {
+              await finishRitualQuota(ritualStore, identity, ritualHold, claim.entry.body);
             }
             reply.header('content-type', claim.entry.contentType);
             return reply.code(claim.entry.status).send(claim.entry.body);
@@ -238,6 +273,7 @@ export async function registerAiRoutes(
           return;
         }
         if (await rejectExpensive(request, reply, validated.operation)) {
+          await releaseUnusedQuota();
           return;
         }
         const admission = await admitPaidTarot({
@@ -251,6 +287,7 @@ export async function registerAiRoutes(
           fingerprint,
         });
         if (admission.action === 'reply') {
+          await releaseUnusedQuota();
           return reply.code(admission.status).send(admission.payload);
         }
         tarotHold = admission.action === 'hold' ? admission.hold : null;
@@ -281,6 +318,10 @@ export async function registerAiRoutes(
         if (quotaHold && quotaStore) {
           await finishFreeTextQuota(quotaStore, identity, quotaHold, result.body);
           quotaHold = null;
+        }
+        if (ritualHold && ritualStore) {
+          await finishRitualQuota(ritualStore, identity, ritualHold, result.body);
+          ritualHold = null;
         }
         if (tarotHold && gemStore) {
           const done = await finishPaidTarot(gemStore, clock, gemLedger ?? null, tarotHold, result.body);
@@ -313,6 +354,19 @@ export async function registerAiRoutes(
           try {
             await failFreeTextQuota(
               options.freeTextQuotaStore,
+              request.identityKey ?? 'anon',
+              hold,
+            );
+          } catch {
+            // The reservation stays open. The same operation id resumes it.
+          }
+        }
+        if (ritualHold && options.ritualQuotaStore && request.raw.aborted !== true) {
+          const hold = ritualHold;
+          ritualHold = null;
+          try {
+            await failRitualQuota(
+              options.ritualQuotaStore,
               request.identityKey ?? 'anon',
               hold,
             );

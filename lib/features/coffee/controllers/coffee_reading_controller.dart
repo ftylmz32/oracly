@@ -336,9 +336,11 @@ class CoffeeReadingController extends ChangeNotifier {
       case ReadingLiveKind.failed:
         _resumeTimer?.cancel();
         unawaited(_pendingStore?.clear(ReadingType.coffee));
-        _error = state.refunded
-            ? ReadingLiveCopy.refunded
-            : ReadingLiveCopy.failed;
+        _error = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.coffee,
+        );
         _phase = CoffeePhase.error;
       case ReadingLiveKind.waiting:
         _phase = CoffeePhase.analyzing;
@@ -529,7 +531,11 @@ class CoffeeReadingController extends ChangeNotifier {
         );
         _safeNotify();
       case ReadingLiveKind.failed:
-        _error = ReadingLiveCopy.failed;
+        _error = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.coffee,
+        );
         _phase = CoffeePhase.error;
         _safeNotify();
       case ReadingLiveKind.idle:
@@ -661,7 +667,11 @@ class CoffeeReadingController extends ChangeNotifier {
       case ReadingLiveKind.failed:
         unawaited(_pendingStore?.clear(ReadingType.coffee));
         liveState = state;
-        _error = ReadingLiveCopy.failed;
+        _error = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.coffee,
+        );
         _phase = CoffeePhase.error;
         _safeNotify();
       case ReadingLiveKind.idle:
@@ -800,9 +810,11 @@ class CoffeeReadingController extends ChangeNotifier {
         _phase = CoffeePhase.result;
         OraclyFeedbackGate.successfulAnalysis();
       } else if (state.kind == ReadingLiveKind.failed) {
-        _error = state.refunded
-            ? ReadingLiveCopy.refunded
-            : ReadingLiveCopy.failed;
+        _error = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.coffee,
+        );
         _phase = CoffeePhase.error;
       } else {
         _phase = CoffeePhase.analyzing;

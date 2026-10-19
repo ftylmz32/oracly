@@ -237,10 +237,14 @@ class PalmReadingController extends ChangeNotifier
         );
         safeNotify();
       case ReadingLiveKind.failed:
-        _error = ReadingLiveCopy.failed;
+        _error = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.palm,
+        );
         _lastError = PalmAnalysisError(
           PalmAnalysisErrorKind.unknown,
-          ReadingLiveCopy.failed,
+          _error!,
         );
         _phase = PalmPhase.error;
         safeNotify();
@@ -349,7 +353,11 @@ class PalmReadingController extends ChangeNotifier
       case ReadingLiveKind.failed:
         unawaited(_pendingStore?.clear(ReadingType.palm));
         liveState = state;
-        _error = ReadingLiveCopy.failed;
+        _error = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.palm,
+        );
         _phase = PalmPhase.error;
         safeNotify();
       case ReadingLiveKind.idle:

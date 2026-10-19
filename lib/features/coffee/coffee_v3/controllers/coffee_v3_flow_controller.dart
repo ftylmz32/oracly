@@ -18,6 +18,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../reading_operation/copy/reading_live_copy.dart';
+import '../../../reading_operation/models/reading_operation_status.dart';
 import '../../../reading_operation/models/reading_acceleration.dart';
 import '../../../reading_operation/services/reading_live_flow.dart';
 import '../../coffee_v2/models/coffee_v2_intention.dart';
@@ -475,8 +476,11 @@ class CoffeeV3FlowController extends ChangeNotifier {
         return;
       case ReadingLiveKind.failed:
         _resumeTimer?.cancel();
-        observeError =
-            state.refunded ? ReadingLiveCopy.refunded : ReadingLiveCopy.failed;
+        observeError = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.coffee,
+        );
         await submission?.onTerminalFailure();
       case ReadingLiveKind.waiting:
         if (boundId != null) unawaited(_refreshAccelerationCost(boundId));

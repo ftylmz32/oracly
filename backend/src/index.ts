@@ -32,6 +32,7 @@ const readingProcessor =
         readingWiring.soulmatePortraits,
         readingWiring.soulmateEntitlement,
         config.openaiImageModel,
+        { config, store: readingWiring.firestore ?? undefined },
       )
     : undefined;
 const app = await buildServer({
@@ -44,6 +45,7 @@ const app = await buildServer({
   gemStore: readingWiring.firestore ?? undefined,
   soulmateEntitlement: readingWiring.soulmateEntitlement,
   freeTextQuotaStore: readingWiring.firestore ?? undefined,
+  ritualQuotaStore: readingWiring.firestore ?? undefined,
   readingFlow: readingWiring.readingFlow ?? undefined,
   readingOperationInputRepository: readingWiring.inputRepository,
   readingStagedImageRepository: readingWiring.stagedImageRepository,

@@ -442,9 +442,11 @@ class CoffeeV2FlowController extends ChangeNotifier {
         return;
       case ReadingLiveKind.failed:
         _resumeTimer?.cancel();
-        observeError = state.refunded
-            ? ReadingLiveCopy.refunded
-            : ReadingLiveCopy.failed;
+        observeError = ReadingLiveCopy.failureLine(
+          wasRefunded: state.refunded,
+          code: state.snapshot?.failureCode,
+          type: ReadingType.coffee,
+        );
         await submission?.onTerminalFailure();
       case ReadingLiveKind.waiting:
         final operationId = state.snapshot?.operationId;

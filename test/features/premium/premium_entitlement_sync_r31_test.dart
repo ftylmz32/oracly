@@ -233,6 +233,12 @@ void main() {
       expect(snap.failureCode.isEntitlementDenial, isTrue);
     });
 
+    test('daily_quota decodes without becoming an entitlement denial', () {
+      final snap = codec.parse(_failedPayload('daily_quota'));
+      expect(snap!.failureCode, ReadingFailureCode.dailyQuota);
+      expect(snap.failureCode.isEntitlementDenial, isFalse);
+    });
+
     test('provider unavailable decodes', () {
       final snap = codec.parse(_failedPayload('unavailable'));
       expect(snap!.failureCode, ReadingFailureCode.unavailable);

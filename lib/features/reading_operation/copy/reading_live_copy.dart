@@ -1,7 +1,9 @@
 /// Waiting and acceleration copy. No technical operation language.
 library;
 
+import '../../../core/copy/resilience_copy.dart';
 import '../../../core/l10n/l10n.dart';
+import '../models/reading_failure_code.dart';
 import '../models/reading_operation_status.dart';
 
 abstract final class ReadingLiveCopy {
@@ -57,5 +59,19 @@ abstract final class ReadingLiveCopy {
     final ss = seconds.toString().padLeft(2, '0');
     if (hours > 0) return '$hours:$mm:$ss';
     return '$minutes:$ss';
+  }
+
+  /// Quota copy when the server closed the day. History stays reachable.
+  static String failureLine({
+    required bool wasRefunded,
+    required ReadingFailureCode? code,
+    required ReadingType type,
+  }) {
+    if (code == ReadingFailureCode.dailyQuota) {
+      return type == ReadingType.palm
+          ? ResilienceCopy.palmDailyQuota
+          : ResilienceCopy.coffeeDailyQuota;
+    }
+    return wasRefunded ? refunded : failed;
   }
 }

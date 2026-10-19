@@ -21,6 +21,7 @@ export const FAILURE_CODES = [
   'invalid',
   'cancelled',
   'entitlement_denied',
+  'daily_quota',
 ] as const;
 export type FailureCode = (typeof FAILURE_CODES)[number];
 

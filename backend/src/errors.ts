@@ -9,6 +9,10 @@ export const ErrorCode = {
   rateLimited: 'rate_limited',
   /** Free text AI day is full. Not a gem or Premium prompt. */
   dailyQuota: 'daily_quota',
+  /** Free coffee, palm, or dream day is full. Not a purchase prompt. */
+  coffeeDailyQuota: 'coffee_daily_quota',
+  palmDailyQuota: 'palm_daily_quota',
+  dreamDailyQuota: 'dream_daily_quota',
   invalidRequest: 'invalid_request',
   invalidImage: 'invalid_image',
   unsupportedImageType: 'unsupported_image_type',
