@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { Firestore } from '@google-cloud/firestore';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -7,7 +7,8 @@ import { FirestoreOrderStore } from '../../website/src/server/orders/store.js';
 import { COFFEE_READING_PRODUCT_ID } from '../../website/src/lib/orders/types.js';
 import { loadConfig } from '../src/config.js';
 import { SCHEMA_VERSION, type ReadingOperationRecord } from '../src/reading/operation-model.js';
-import { DEFAULT_READING_ADMISSION_LIMITS } from '../src/reading/reading-admission.js';
+import { idempotencyKeyFor } from '../src/reading/operation-repository.js';
+import { DEFAULT_READING_ADMISSION_LIMITS, readingAdmissionRefs } from '../src/reading/reading-admission.js';
 import {
   FirestoreWebCoffeeOrderReadingRepository,
   WebOrderReadingError,
@@ -95,16 +96,24 @@ suite('real Firestore Emulator web order transaction', () => {
   it('atomically permits only one operation for two concurrent starts and keeps records consistent', async () => {
     const order = await entitled();
     const first = record(order.suffix);
-    const second = { ...record(order.suffix), sourceRequestId: first.sourceRequestId };
-    const [a, b] = await Promise.all([
+    const second = record(`${order.suffix}_competing`, first.ownerUserId);
+    const attempts = await Promise.allSettled([
       repository.createFromEntitlement({ orderId: order.orderId, firebaseUid: order.owner, record: first }),
       repository.createFromEntitlement({ orderId: order.orderId, firebaseUid: order.owner, record: second }),
     ]);
-    expect(a.record.operationId).toBe(b.record.operationId);
+    const successes = attempts.filter((attempt) => attempt.status === 'fulfilled');
+    const failures = attempts.filter((attempt) => attempt.status === 'rejected');
+    expect(successes).toHaveLength(1);
+    expect(failures).toHaveLength(1);
+    expect(failures[0]).toMatchObject({ reason: { code: 'conflict' } });
+    const accepted = successes[0];
+    if (accepted?.status !== 'fulfilled') throw new Error('expected one accepted transaction');
     const storedOrder = await websiteStore.getOwned(order.orderId, order.owner);
     expect(storedOrder?.status).toBe('entitlement_consumed');
-    expect(storedOrder?.readingOperationId).toBe(a.record.operationId);
-    expect((await backendDb.collection('readingOperations').doc(a.record.operationId).get()).exists).toBe(true);
+    expect(storedOrder?.readingOperationId).toBe(accepted.value.record.operationId);
+    const storedOperations = await backendDb.collection('readingOperations')
+      .where('ownerUserId', '==', first.ownerUserId).get();
+    expect(storedOperations.docs.map((doc) => doc.id)).toEqual([accepted.value.record.operationId]);
   });
 
   it('returns the same operation when the consumed order is retried', async () => {
@@ -125,7 +134,7 @@ suite('real Firestore Emulator web order transaction', () => {
 
   it('rolls back the right, operation, idempotency and admission writes after an injected transaction failure', async () => {
     const order = await entitled();
-    const candidate = record(order.suffix);
+    const candidate = record(order.suffix, `sub:rollback-${order.suffix}`);
     const failing = new FirestoreWebCoffeeOrderReadingRepository(
       backendDb,
       DEFAULT_READING_ADMISSION_LIMITS,
@@ -135,5 +144,15 @@ suite('real Firestore Emulator web order transaction', () => {
       .rejects.toBeInstanceOf(WebOrderReadingError);
     expect((await websiteStore.getOwned(order.orderId, order.owner))?.status).toBe('entitlement_granted');
     expect((await backendDb.collection('readingOperations').doc(candidate.operationId).get()).exists).toBe(false);
+    const keyId = createHash('sha256').update(idempotencyKeyFor(candidate)).digest('hex');
+    expect((await backendDb.collection('readingOperationKeys').doc(keyId).get()).exists).toBe(false);
+    const refs = readingAdmissionRefs(
+      backendDb,
+      candidate.ownerUserId,
+      DEFAULT_READING_ADMISSION_LIMITS.createRateWindowMs,
+      candidate.createdAtMs,
+    );
+    expect((await refs.admission.get()).exists).toBe(false);
+    expect((await refs.rate.get()).exists).toBe(false);
   });
 });
