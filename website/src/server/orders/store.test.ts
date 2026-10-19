@@ -103,4 +103,15 @@ describe('FirestoreOrderStore transaction contract (fake Firestore)', () => {
     expect(await store.confirmCheckoutPayment({ orderId: 'ord_order-a', checkoutToken: 'token-a', providerPaymentId: 'payment-1', paymentTransactionId: 'transaction-1', transactionStatus: 2, priceMinor: 7250, currency: 'TRY', nowMs: 4 })).toBe('granted');
     expect(await store.confirmCheckoutPayment({ orderId: 'ord_order-b', checkoutToken: 'token-b', providerPaymentId: 'payment-2', paymentTransactionId: 'transaction-1', transactionStatus: 2, priceMinor: 7250, currency: 'TRY', nowMs: 4 })).toBe('payment_reused');
   });
+
+  it('creates independent second and third purchases for distinct idempotency keys', async () => {
+    const store = new FirestoreOrderStore(new FakeFirestore() as unknown as Firestore);
+    const orders = await Promise.all([
+      store.createIdempotent(createInput('purchase_attempt_0001', 'ord_purchase-a')),
+      store.createIdempotent(createInput('purchase_attempt_0002', 'ord_purchase-b')),
+      store.createIdempotent(createInput('purchase_attempt_0003', 'ord_purchase-c')),
+    ]);
+    expect(orders.map((item) => item.order.orderId)).toEqual(['ord_purchase-a', 'ord_purchase-b', 'ord_purchase-c']);
+    expect(orders.every((item) => item.created)).toBe(true);
+  });
 });

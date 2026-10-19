@@ -39,4 +39,22 @@ describe('checkout reconciliation', () => {
     await expect(new CheckoutService(store, provider).reconcile(order.checkoutToken!)).rejects.toThrow('timeout');
     expect(store.confirmCheckoutPayment).not.toHaveBeenCalled();
   });
+
+  it('recovers a delayed payment on the same order without creating another checkout session', async () => {
+    const confirm = vi.fn(async () => 'granted' as const);
+    const store = { getByCheckoutToken: vi.fn(async () => order), confirmCheckoutPayment: confirm, recordCheckoutState: vi.fn() } as unknown as CheckoutOrderStore;
+    const provider = { retrieve: vi.fn().mockResolvedValueOnce(paid({ status: 'pending', fraudStatus: 0, transactionStatus: 0 })).mockResolvedValueOnce(paid()) } as unknown as IyzicoCheckoutClient;
+    const service = new CheckoutService(store, provider);
+    await expect(service.reconcile(order.checkoutToken!)).resolves.toEqual({ outcome: 'not_granted', orderId: order.orderId });
+    await expect(service.reconcile(order.checkoutToken!)).resolves.toEqual({ outcome: 'granted', orderId: order.orderId });
+    expect(store.getByCheckoutToken).toHaveBeenCalledTimes(2); expect(confirm).toHaveBeenCalledOnce();
+  });
+
+  it('records a signed definitive failure even when nothing was captured', async () => {
+    const record = vi.fn(async () => 'recorded' as const);
+    const store = { getByCheckoutToken: vi.fn(async () => order), confirmCheckoutPayment: vi.fn(), recordCheckoutState: record } as unknown as CheckoutOrderStore;
+    const provider = { retrieve: vi.fn(async () => paid({ status: 'failed', paidPriceMinor: 0, transactionStatus: -1, fraudStatus: -1 })) } as unknown as IyzicoCheckoutClient;
+    await expect(new CheckoutService(store, provider).reconcile(order.checkoutToken!)).resolves.toEqual({ outcome: 'not_granted', orderId: order.orderId });
+    expect(record).toHaveBeenCalledOnce(); expect(store.confirmCheckoutPayment).not.toHaveBeenCalled();
+  });
 });

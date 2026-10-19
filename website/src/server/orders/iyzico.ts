@@ -49,7 +49,7 @@ export class IyzicoCheckoutClient {
     const matchingItems = items.filter((candidate) => string(candidate.itemId) === COFFEE_READING_PRODUCT_ID);
     const item = matchingItems.length === 1 ? matchingItems[0] : undefined;
     return {
-      status: value.paymentStatus === 'SUCCESS' ? 'paid' : value.paymentStatus === 'REFUNDED' ? 'refunded' : value.status === 'success' ? 'pending' : 'failed',
+      status: value.paymentStatus === 'SUCCESS' ? 'paid' : value.paymentStatus === 'REFUNDED' ? 'refunded' : value.paymentStatus === 'FAILURE' ? 'failed' : value.status === 'success' ? 'pending' : 'failed',
       conversationId: string(value.conversationId), checkoutToken: string(value.token), basketId: string(value.basketId),
       providerPaymentId: typeof value.paymentId === 'string' ? value.paymentId : undefined,
       priceMinor: decimalToMinor(value.price), paidPriceMinor: decimalToMinor(value.paidPrice), currency: string(value.currency),

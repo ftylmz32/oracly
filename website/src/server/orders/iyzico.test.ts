@@ -30,6 +30,13 @@ describe('iyzico Checkout Form adapter', () => {
     expect(result).toMatchObject({ status: 'paid', providerPaymentId: 'pay-1', paymentTransactionId: 'txn-1', transactionStatus: 2, priceMinor: 7250, paidPriceMinor: 7250, fraudStatus: 1, itemProductId: COFFEE_READING_PRODUCT_ID });
   });
 
+  it('normalizes a definitive failed or cancelled payment without treating provider success as payment success', async () => {
+    const value = { status: 'success', paymentStatus: 'FAILURE', conversationId: 'ord_12345678', token: 'checkout-token-123', basketId: 'ord_12345678', paymentId: 'pay-1', price: 72.5, paidPrice: 72.5, currency: 'TRY', fraudStatus: -1, itemTransactions: [{ itemId: COFFEE_READING_PRODUCT_ID, price: 72.5, paymentTransactionId: 'txn-1', transactionStatus: -1 }] };
+    const signature = createHmac('sha256', config.secretKey).update('FAILURE:pay-1:TRY:ord_12345678:ord_12345678:72.5:72.5:checkout-token-123').digest('hex');
+    const result = await new IyzicoCheckoutClient(config, vi.fn(async () => Response.json({ ...value, signature })) as typeof fetch).retrieve('checkout-token-123', 'ord_12345678');
+    expect(result).toMatchObject({ status: 'failed', transactionStatus: -1, paymentTransactionId: 'txn-1' });
+  });
+
   it('validates HPP Signature V3 in constant time and rejects tampering, legacy shape, and wrong event type', () => {
     const client = new IyzicoCheckoutClient(config);
     const payload = { iyziEventType: 'CHECKOUT_FORM_AUTH', iyziPaymentId: 12345, token: 'token-1', paymentConversationId: 'ord_12345678', status: 'SUCCESS' };

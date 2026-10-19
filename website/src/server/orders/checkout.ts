@@ -38,5 +38,6 @@ export class CheckoutService {
 }
 
 export function verifyResult(order: StoredCoffeeOrder, result: IyzicoPaymentResult) {
-  if (result.checkoutToken !== order.checkoutToken || result.conversationId !== order.orderId || result.basketId !== order.orderId || result.currency !== order.currency || result.priceMinor !== order.priceMinor || result.paidPriceMinor !== order.priceMinor || result.itemProductId !== COFFEE_READING_PRODUCT_ID || result.itemPriceMinor !== order.priceMinor) throw new Error('payment_mismatch');
+  const capturedAmountRequired = result.status === 'paid' || result.status === 'refunded';
+  if (result.checkoutToken !== order.checkoutToken || result.conversationId !== order.orderId || result.basketId !== order.orderId || result.currency !== order.currency || result.priceMinor !== order.priceMinor || (capturedAmountRequired && result.paidPriceMinor !== order.priceMinor) || result.itemProductId !== COFFEE_READING_PRODUCT_ID || result.itemPriceMinor !== order.priceMinor) throw new Error('payment_mismatch');
 }
