@@ -49,6 +49,7 @@ export async function testApp(
     accountDeletionRepository?: import('../src/account/account-deletion.js').AccountDeletionRepository;
     responseReplayRepository?: import('../src/middleware/response-replay-repository.js').ResponseReplayRepository;
     contentReportRepository?: import('../src/content-reports/content-report-repository.js').ContentReportRepository;
+    soulmateEntitlement?: import('../src/reading/soulmate-entitlement-guard.js').SoulmateEntitlementGuard;
   } = {},
 ) {
   const app = await buildServer({
@@ -72,6 +73,7 @@ export async function testApp(
     accountDeletionRepository: options.accountDeletionRepository,
     responseReplayRepository: options.responseReplayRepository ?? new FirestoreResponseReplayRepository(new MemoryDocumentStore()),
     contentReportRepository: options.contentReportRepository,
+    soulmateEntitlement: options.soulmateEntitlement,
   });
   return app;
 }

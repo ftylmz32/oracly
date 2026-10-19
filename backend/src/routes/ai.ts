@@ -46,6 +46,8 @@ import {
   type TarotHold,
 } from '../reading/tarot-billing-gate.js';
 import { isPaidTarot } from '../reading/tarot-billing-id.js';
+import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js';
+import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 
 export type AiRouteOptions = {
   appCheck?: AppCheckVerifier;
@@ -54,6 +56,7 @@ export type AiRouteOptions = {
   gemLedger?: GemLedger;
   gemStore?: FirestoreLike;
   clock?: ServerClock;
+  soulmateEntitlement?: SoulmateEntitlementGuard;
 };
 
 export async function registerAiRoutes(
@@ -162,6 +165,15 @@ export async function registerAiRoutes(
         // cached body, duplicate gate or provider call.
         if (validated.operation === 'dream_analysis') {
           assertDreamInputSafe(validated.payload);
+        }
+        const soulmateDenied = await denySoulmateWithoutPremium({
+          operation: validated.operation,
+          identity,
+          config,
+          guard: options.soulmateEntitlement,
+        });
+        if (soulmateDenied) {
+          return reply.code(soulmateDenied.status).send(soulmateDenied.body);
         }
         // Dream: a completed response replays only for the same semantic
         // request (language, narrative, symbols, emotions, memory).

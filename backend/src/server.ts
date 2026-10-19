@@ -44,6 +44,7 @@ import type { ReadingTaskScheduler } from './reading/reading-task-scheduler.js';
 import type { ReadingResultRepository } from './reading/reading-result-repository.js';
 import type { ReadingProcessor } from './reading/reading-processor.js';
 import type { SoulmatePortraitStore } from './reading/soulmate-portrait-store.js';
+import type { SoulmateEntitlementGuard } from './reading/soulmate-entitlement-guard.js';
 import { registerReadingWorkerRoutes } from './routes/reading-worker-routes.js';
 import { registerReadingNotificationRoutes } from './routes/reading-notification-routes.js';
 import type { ReadingNotificationTokens } from './reading/reading-notifications.js';
@@ -91,6 +92,8 @@ export type BuildOptions = {
   readingProcessor?: ReadingProcessor;
   /** SMD1 — private authenticated Soulmate portrait storage. */
   readingSoulmatePortraits?: SoulmatePortraitStore;
+  /** Same premium proof the soulmate worker uses, applied to /v1/ai/complete. */
+  soulmateEntitlement?: SoulmateEntitlementGuard;
   readingNotificationTokens?: ReadingNotificationTokens;
   accountDeletionRepository?: AccountDeletionRepository;
   sharedWindowStore?: SharedWindowStore;
@@ -216,6 +219,7 @@ export async function buildServer(options: BuildOptions) {
     gemLedger: options.gemLedger,
     gemStore: options.gemStore,
     clock: readingClock,
+    soulmateEntitlement: options.soulmateEntitlement,
   });
   await registerReadingOperationRoutes(app, config, {
     appCheck,

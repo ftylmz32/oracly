@@ -42,6 +42,7 @@ const app = await buildServer({
   readingWaitPolicy: readingWiring.policy,
   gemLedger: readingWiring.gemLedger ?? undefined,
   gemStore: readingWiring.firestore ?? undefined,
+  soulmateEntitlement: readingWiring.soulmateEntitlement,
   readingFlow: readingWiring.readingFlow ?? undefined,
   readingOperationInputRepository: readingWiring.inputRepository,
   readingStagedImageRepository: readingWiring.stagedImageRepository,
