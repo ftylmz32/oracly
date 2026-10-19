@@ -47,6 +47,7 @@ const app = await buildServer({
   freeTextQuotaStore: readingWiring.firestore ?? undefined,
   ritualQuotaStore: readingWiring.firestore ?? undefined,
   lunaAccessStore: readingWiring.firestore ?? undefined,
+  speechGrantStore: readingWiring.firestore ?? undefined,
   readingFlow: readingWiring.readingFlow ?? undefined,
   readingOperationInputRepository: readingWiring.inputRepository,
   readingStagedImageRepository: readingWiring.stagedImageRepository,

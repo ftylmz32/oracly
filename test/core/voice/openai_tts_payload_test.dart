@@ -4,11 +4,16 @@ library;
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oracly_new/core/voice/or_speech_grant.dart';
 import 'package:oracly_new/core/voice/oracly_voice_id.dart';
+import 'package:oracly_new/features/ai/production/ai_outcome.dart';
+import 'package:oracly_new/features/ai/production/openai/openai_service_results.dart';
 import 'package:oracly_new/features/ai/production/openai/openai_tts_request.dart';
 import 'package:oracly_new/features/ai/production/openai/openai_tts_voices.dart';
 
 void main() {
+  setUp(OrSpeechGrant.clear);
+
   test('TTS proxy payload has identity, not OpenAI voices or keys', () {
     final request = OpenAiTtsRequest.create(
       text: 'selam',
@@ -55,5 +60,26 @@ void main() {
       voiceId: 'female_natural',
     );
     expect(request.payload['voiceId'], 'warm');
+  });
+
+  test('chat success remembers the server speech grant', () {
+    OpenAiServiceResults.chat(
+      AiOutcome.success({
+        'text': 'Sakin bir yansıma.',
+        'speechGrant': 'abc123',
+      }),
+      'gpt-4o',
+    );
+    expect(OrSpeechGrant.current, 'abc123');
+  });
+
+  test('a server speech grant rides with the spoken reply', () {
+    OrSpeechGrant.remember('abc123');
+    final request = OpenAiTtsRequest.create(
+      text: 'Sakin bir yansıma.',
+      personality: 'gentle',
+    );
+    expect(request.payload['speechGrant'], 'abc123');
+    expect(request.payload.containsKey('feature'), isFalse);
   });
 }

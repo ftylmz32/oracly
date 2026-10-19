@@ -1,6 +1,7 @@
 /// Map proxy data maps onto typed models — parse only, never polish.
 library;
 
+import '../../../../core/voice/or_speech_grant.dart';
 import '../ai_failure.dart';
 import '../ai_outcome.dart';
 import '../models/chat_ai_reply.dart';
@@ -30,6 +31,10 @@ abstract final class OpenAiServiceResults {
         final raw = text.trim();
         if (_envelopeBroken(raw)) {
           return AiOutcome.failure(AiFailure.invalidResponse());
+        }
+        final grant = data['speechGrant'];
+        if (grant is String && grant.trim().isNotEmpty) {
+          OrSpeechGrant.remember(grant);
         }
         return AiOutcome.success(
           ChatAiReply(

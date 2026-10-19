@@ -2,7 +2,7 @@
  * Luna text is not the 30-operation day cap.
  * One tarot-context oracle stays free per identity. Every other chat or
  * oracle needs a server premium snapshot. The client cannot grant it.
- * TTS is not decided here: the speech body does not name a feature.
+ * Speech is a separate gate: a reply grant or a catalog preview.
  */
 import { createHash } from 'node:crypto';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';

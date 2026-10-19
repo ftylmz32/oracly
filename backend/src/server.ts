@@ -100,6 +100,8 @@ export type BuildOptions = {
   ritualQuotaStore?: FirestoreLike;
   /** Luna's one free text, then premium. Same Firestore, separate collection. */
   lunaAccessStore?: FirestoreLike;
+  /** Bound speech of a delivered reply. Same Firestore, separate collection. */
+  speechGrantStore?: FirestoreLike;
   readingNotificationTokens?: ReadingNotificationTokens;
   accountDeletionRepository?: AccountDeletionRepository;
   sharedWindowStore?: SharedWindowStore;
@@ -229,6 +231,7 @@ export async function buildServer(options: BuildOptions) {
     freeTextQuotaStore: options.freeTextQuotaStore,
     ritualQuotaStore: options.ritualQuotaStore,
     lunaAccessStore: options.lunaAccessStore,
+    speechGrantStore: options.speechGrantStore,
   });
   await registerReadingOperationRoutes(app, config, {
     appCheck,

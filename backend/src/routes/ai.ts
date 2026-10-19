@@ -64,6 +64,14 @@ import { denySoulmateWithoutPremium } from '../reading/soulmate-ai-route-gate.js
 import type { SoulmateEntitlementGuard } from '../reading/soulmate-entitlement-guard.js';
 import { admitLunaText, type LunaFreeHold } from '../reading/luna-premium-gate.js';
 import { failLunaFree, finishLunaFree } from '../reading/luna-premium-settle.js';
+import {
+  authorizeSpeech,
+  issueSpeechGrant,
+  speechGrantIdFromBody,
+  speechSignature,
+} from '../reading/luna-speech-gate.js';
+import { claimSpeech, finishSpeech, releaseSpeech } from '../reading/luna-speech-settle.js';
+import { toEpochMs } from '../reading/clock.js';
 
 export type AiRouteOptions = {
   appCheck?: AppCheckVerifier;
@@ -77,6 +85,8 @@ export type AiRouteOptions = {
   ritualQuotaStore?: FirestoreLike;
   /** One free Luna text, then server premium. Separate from the day cap. */
   lunaAccessStore?: FirestoreLike;
+  /** Speech of a delivered Luna or oracle reply. Preview phrases do not use it. */
+  speechGrantStore?: FirestoreLike;
 };
 
 export async function registerAiRoutes(
@@ -148,6 +158,8 @@ export async function registerAiRoutes(
       let quotaHold: FreeTextHold | null = null;
       let ritualHold: RitualHold | null = null;
       let lunaHold: LunaFreeHold | null = null;
+      let speechSpeak: { text: string; grantId: string; signature: string } | null = null;
+      let speechClaimed = false;
       let producerKey: string | null = null;
       let producerAttempt: string | null = null;
       try {
@@ -213,6 +225,22 @@ export async function registerAiRoutes(
           return reply.code(luna.status).send(luna.payload);
         }
         lunaHold = luna.action === 'allow' ? luna.freeHold : null;
+        const speech = await authorizeSpeech({
+          config,
+          store: options.speechGrantStore,
+          guard: options.soulmateEntitlement,
+          clock,
+          operation: validated.operation,
+          identity,
+          text: validated.operation === 'tts' ? validated.text : '',
+          grantId: speechGrantIdFromBody(request.body),
+          signature: validated.operation === 'tts' ? speechSignature(validated) : '',
+        });
+        if (speech.action === 'reply') return reply.code(speech.status).send(speech.payload);
+        if (speech.action === 'cached') {
+          return reply.code(200).send(successEnvelope(speech.data));
+        }
+        speechSpeak = speech.action === 'speak' ? speech : null;
         const lunaStore = options.lunaAccessStore;
         const settleLuna = async (delivered: boolean) => {
           if (!lunaHold || !lunaStore) return;
@@ -340,8 +368,29 @@ export async function registerAiRoutes(
             `${validated.operation}:${fingerprint.slice(0, 48)}`,
         };
 
+        const spoken =
+          speechSpeak && validated.operation === 'tts'
+            ? { ...validated, text: speechSpeak.text }
+            : validated;
+        if (speechSpeak && options.speechGrantStore) {
+          const claimed = await claimSpeech(
+            options.speechGrantStore,
+            speechSpeak.grantId,
+            identity,
+            speechSpeak.signature,
+            toEpochMs(clock.now()),
+          );
+          if (claimed === 'busy') {
+            await releaseUnusedQuota();
+            return reply.code(409).send(errorEnvelope(ErrorCode.rateLimited));
+          }
+          if (claimed !== 'go') {
+            return reply.code(200).send(successEnvelope(claimed));
+          }
+          speechClaimed = true;
+        }
         const run = async () => {
-          const data = await service.handle(validated, modelHint, handleCtx);
+          const data = await service.handle(spoken, modelHint, handleCtx);
           return { status: 200, body: successEnvelope(data) };
         };
 
@@ -355,6 +404,41 @@ export async function registerAiRoutes(
           ritualHold = null;
         }
         await settleLuna(true);
+        const speechStore = options.speechGrantStore;
+        if (speechClaimed && speechSpeak && speechStore) {
+          const clip = asRecord(asRecord(result.body)?.data);
+          const audio = clip?.audioBase64;
+          if (typeof audio === 'string' && audio.length >= 32) {
+            const mime = typeof clip?.mimeType === 'string' ? clip.mimeType : 'audio/mpeg';
+            await finishSpeech(
+              speechStore,
+              speechSpeak.grantId,
+              identity,
+              speechSpeak.signature,
+              audio,
+              mime,
+            );
+          } else {
+            await releaseSpeech(speechStore, speechSpeak.grantId, identity, speechSpeak.signature);
+          }
+          speechClaimed = false;
+        }
+        if (
+          speechStore &&
+          (validated.operation === 'chat' || validated.operation === 'oracle')
+        ) {
+          const data = asRecord(asRecord(result.body)?.data);
+          const text = data?.text;
+          if (data && typeof text === 'string' && text.trim()) {
+            data.speechGrant = await issueSpeechGrant({
+              store: speechStore,
+              clock,
+              identity,
+              kind: validated.operation === 'oracle' ? 'oracle' : 'luna',
+              text,
+            });
+          }
+        }
         if (tarotHold && gemStore) {
           const done = await finishPaidTarot(gemStore, clock, gemLedger ?? null, tarotHold, result.body);
           tarotHold = null;
@@ -404,6 +488,20 @@ export async function registerAiRoutes(
             );
           } catch {
             // The reservation stays open. The same operation id resumes it.
+          }
+        }
+        if (speechClaimed && speechSpeak && options.speechGrantStore && request.raw.aborted !== true) {
+          const spoken = speechSpeak;
+          speechClaimed = false;
+          try {
+            await releaseSpeech(
+              options.speechGrantStore,
+              spoken.grantId,
+              request.identityKey ?? 'anon',
+              spoken.signature,
+            );
+          } catch {
+            // The claim expires. The same grant can speak after that.
           }
         }
         if (lunaHold && options.lunaAccessStore && request.raw.aborted !== true) {
