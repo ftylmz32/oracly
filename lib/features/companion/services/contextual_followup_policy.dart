@@ -61,8 +61,8 @@ abstract final class ContextualFollowUpPolicy {
         thread.topic == null &&
         text.length <= 56) {
       return const FollowUpDecision(
-        mode: FollowUpMode.ask,
-        localKind: FollowUpLocalKind.moodOpen,
+        mode: FollowUpMode.reflect,
+        localKind: FollowUpLocalKind.reflectOnly,
       );
     }
     if (CompanionIntent.isUndecided(text) && thread.topic != 'iş') {

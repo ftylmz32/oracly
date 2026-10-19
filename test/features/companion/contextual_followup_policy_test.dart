@@ -55,6 +55,16 @@ void main() {
     expect(decision.allowTrailingQuestion, isFalse);
   });
 
+  test('a named low feeling is answered, not reopened with a question', () {
+    const text = 'Bugün içim daraldı.';
+    final decision = ContextualFollowUpPolicy.evaluate(
+      userMessage: text,
+      thread: CompanionThreadMemory.read(const [], text),
+    );
+    expect(decision.mode, FollowUpMode.reflect);
+    expect(decision.allowTrailingQuestion, isFalse);
+  });
+
   test('greeting closes without forcing a question', () {
     final decision = ContextualFollowUpPolicy.evaluate(
       userMessage: 'Selam',

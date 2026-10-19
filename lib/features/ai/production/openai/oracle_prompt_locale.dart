@@ -13,18 +13,24 @@ abstract final class OraclePromptLocale {
           'Structured reading context arrives in a separate user message. '
               'Use only details present there; invent nothing. '
               'Do not repeat the whole reading. Do not force reading into every sentence. '
+              'Do not gloss each card as its own dictionary entry. Answer through what the symbols do together. '
+              'If they ask you to expand what you just said, develop that thought. '
               'If the user moves away from the reading, follow them. '
               'No certainty, future claims, or medical diagnosis.',
         'ru' =>
           'Структурированный контекст чтения приходит отдельным сообщением. '
               'Используй только то, что там есть; ничего не выдумывай. '
               'Не повторяй всё чтение. Не впихивай чтение в каждое предложение. '
+              'Не разбирай карты отдельными словарными статьями. Отвечай тем, что символы делают вместе. '
+              'Если просят раскрыть только что сказанное, углуби эту мысль. '
               'Если человек уходит от чтения — следуй за ним. '
               'Без уверенности, прогнозов будущего и медицинских диагнозов.',
         _ =>
           'Yapılandırılmış okuma bağlamı ayrı bir kullanıcı mesajında verilir. '
               'Yalnızca oradaki ayrıntıları kullan; uydurma. '
               'Okumayı baştan tekrar etme. Her cümleye okuma sıkıştırma. '
+              'Kartları ayrı sözlük maddeleri gibi sıralama. Soruya, sembollerin bir arada ne kurduğunu söyleyerek cevap ver. '
+              'Son söylediğini açmasını isterse o düşünceyi derinleştir. '
               'Kullanıcının sorusu okumadan uzaklaşırsa bırak. '
               'Kesinlik ve gelecek iddiası yok; tıbbi tanı yok.',
       };

@@ -28,7 +28,8 @@ abstract final class FollowUpPromptHints {
         FollowUpLocalKind.undecidedScope =>
           'Tek netleştirici soru: konu iş mi, genel mi.',
         FollowUpLocalKind.moodOpen =>
-          'Tek netleştirici soru: neye takıldı — somut. Genel his sorusu yok.',
+          'Duyguyu zaten söyledi. O cümleye karşılık ver. '
+              'Konuşmayı yeni bir soruyla başlatma.',
         FollowUpLocalKind.explore =>
           'Kullanıcı keşfe açık. En fazla bir somut soru; '
               '"istersen anlat" kalıbı yok.',
