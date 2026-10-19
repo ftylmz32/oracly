@@ -47,13 +47,15 @@ class OraclyProxySpeech {
     OraclyVoiceId voice = OraclyVoiceId.warm,
     OrSpeechSpeed speed = OrSpeechSpeed.normal,
     String languageCode = 'tr',
+    String? speechGrant,
   }) async {
     final transport = _transport;
     if (transport == null) return null;
     final body = OrSpeechProsody.prepare(text);
     if (body.isEmpty) return null;
+    final grant = speechGrant?.trim() ?? '';
     final key =
-        '${voice.wire}|${personality.name}|${speed.wire}|$languageCode|$body';
+        '${voice.wire}|${personality.name}|${speed.wire}|$languageCode|$grant|$body';
     final hit = _cache.take(key);
     if (hit != null) return hit;
     final fp = AiRequestFingerprint.text('tts', key);
@@ -71,6 +73,7 @@ class OraclyProxySpeech {
             language: languageCode,
             voiceId: voice.wire,
             speechSpeed: speed.wire,
+            speechGrant: grant.isEmpty ? null : grant,
           ),
         );
         final clip = outcome.when(success: _clip, error: (_) => null);

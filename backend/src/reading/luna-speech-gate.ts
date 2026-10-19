@@ -8,6 +8,7 @@ import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { AppConfig } from '../config.js';
 import { ErrorCode, errorEnvelope } from '../errors.js';
 import { toEpochMs, type ServerClock } from './clock.js';
+import { admitVoicePreview } from './luna-speech-preview.js';
 import type { SoulmateEntitlementGuard } from './soulmate-entitlement-guard.js';
 
 export const SPEECH_GRANTS = 'speechGrants';
@@ -23,7 +24,7 @@ export type SpeechAuthorization =
   | { action: 'preview' }
   | { action: 'reply'; status: number; payload: unknown }
   | { action: 'cached'; data: SpeechAudio }
-  | { action: 'speak'; text: string; grantId: string; signature: string };
+  | { action: 'speak'; text: string; grantId: string; signature: string; preview?: boolean };
 
 export type SpeechAudio = {
   audioBase64: string;
@@ -74,18 +75,6 @@ export function speechGrantRef(store: FirestoreLike, id: string) {
   return store.collection(SPEECH_GRANTS).doc(id);
 }
 
-export function speechAudioOf(row: GrantRow, signature: string): SpeechAudio | null {
-  const all = row.audio;
-  if (!all || typeof all !== 'object') return null;
-  const clip = (all as Record<string, { audioBase64?: string; mimeType?: string }>)[signature];
-  if (!clip || typeof clip.audioBase64 !== 'string' || clip.audioBase64.length < 32) return null;
-  return {
-    audioBase64: clip.audioBase64,
-    mimeType: typeof clip.mimeType === 'string' ? clip.mimeType : 'audio/mpeg',
-    operation: 'tts',
-  };
-}
-
 export async function issueSpeechGrant(input: {
   store: FirestoreLike;
   clock: ServerClock;
@@ -119,7 +108,16 @@ export async function authorizeSpeech(input: {
   signature: string;
 }): Promise<SpeechAuthorization> {
   if (input.operation !== 'tts') return { action: 'skip' };
-  if (isVoicePreview(input.text)) return { action: 'preview' };
+  if (isVoicePreview(input.text)) {
+    if (!input.store) return locked(input.config) ? unconfigured() : { action: 'preview' };
+    return admitVoicePreview({
+      store: input.store,
+      clock: input.clock,
+      identity: input.identity,
+      text: input.text,
+      signature: input.signature,
+    });
+  }
   if (!input.store) return locked(input.config) ? unconfigured() : { action: 'skip' };
   const id = input.grantId ?? '';
   if (!/^[a-f0-9]{32}$/.test(id)) return denied();
@@ -133,8 +131,6 @@ export async function authorizeSpeech(input: {
   } else if (row.kind !== 'oracle') {
     return denied();
   }
-  const cached = speechAudioOf(row, input.signature);
-  if (cached) return { action: 'cached', data: cached };
   const text = typeof row.text === 'string' ? row.text.trim() : '';
   if (!text) return denied();
   return { action: 'speak', text, grantId: id, signature: input.signature };

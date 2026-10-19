@@ -30,7 +30,7 @@ class CompanionReferenceThreadItem extends StatelessWidget {
   final AIMessage message;
   final bool isLiveOr;
   final bool showActions;
-  final ValueChanged<String> onSpeak;
+  final ValueChanged<AIMessage> onSpeak;
   final VoidCallback onRegenerate;
   final bool allowSpeak;
   final TarotRevisitContext? revisit;

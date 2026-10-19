@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ai/domain/models/ai_message.dart';
+import '../../../../core/voice/or_speech_grant.dart';
 import '../../controllers/companion_controller.dart';
+import '../../controllers/companion_output_controller.dart';
 import '../../models/companion_state.dart';
 import '../../providers/companion_providers.dart';
 import '../../services/or_chat_handoff.dart';
@@ -73,8 +75,12 @@ class CompanionReferenceOrBody extends ConsumerWidget {
       showActions: canChat && !busy && state.errorMessage == null,
       allowSpeak: allowSpeak,
       hasReadingContext: controller.readingContext != null,
-      onSpeak: (text) =>
-          ref.read(companionOutputControllerProvider).speakNow(text),
+      onSpeak: (message) => ref
+          .read(companionOutputControllerProvider)
+          .speakNow(
+            message.content,
+            speechGrant: OrSpeechGrant.of(message.metadata),
+          ),
       onRegenerate: () {
         if (!canChat) return;
         controller.regenerateLast();

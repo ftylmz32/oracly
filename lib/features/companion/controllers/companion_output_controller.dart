@@ -4,8 +4,12 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../../core/personality/or_response_depth.dart';
+import '../../../core/voice/or_speech_grant.dart';
+import '../../../core/voice/oracly_proxy_speech.dart';
 import '../../../core/voice/oracly_tts_gate.dart';
 import '../models/or_chat_output_mode.dart';
+
+part 'companion_output_speech.dart';
 
 class CompanionOutputController extends ChangeNotifier {
   CompanionOutputController({
@@ -14,6 +18,7 @@ class CompanionOutputController extends ChangeNotifier {
     OrResponseDepth Function()? readDepth,
   })  : _readMode = readMode ?? (() => OrChatOutputMode.text),
         _readDepth = readDepth ?? (() => OrResponseDepth.fallback) {
+    _session = this;
     OraclyTtsGate.speaking.addListener(_onSpeaking);
     OraclyTtsGate.paused.addListener(_onSpeaking);
     OraclyTtsGate.unavailable.addListener(_onSpeaking);
@@ -22,7 +27,9 @@ class CompanionOutputController extends ChangeNotifier {
   final Future<void> Function(OrChatOutputMode mode) _persistMode;
   final OrChatOutputMode Function() _readMode;
   final OrResponseDepth Function() _readDepth;
+  static CompanionOutputController? _session;
   String? _lastSpoken;
+  String? _lastGrant;
   int _speakGen = 0;
   bool? _lastSpeaking;
   bool? _lastPaused;
@@ -39,7 +46,13 @@ class CompanionOutputController extends ChangeNotifier {
 
   void syncFromSettings() => notifyListeners();
 
-  /// Preference only - never opens the microphone or starts speech.
+  void noteSpeech() => notifyListeners();
+
+  static void dropSessionSpeech() {
+    _session?.dropSpoken();
+    OraclyProxySpeech.releaseCaches();
+  }
+
   Future<void> setMode(OrChatOutputMode mode) async {
     if (!mode.isVoice) await interrupt();
     if (_readMode() != mode) await _persistMode(mode);
@@ -52,40 +65,6 @@ class CompanionOutputController extends ChangeNotifier {
   }
 
   Future<void> onUserSend() => interrupt();
-
-  /// Auto-speak only when voice replies / conversation mode is on.
-  Future<void> speakIfVoice(String? text) async {
-    if (!mode.isVoice) return;
-    final gen = _speakGen;
-    try {
-      await Future<void>.delayed(Duration.zero);
-      if (!mode.isVoice || gen != _speakGen) return;
-      final spoken = _spoken(text);
-      if (spoken.isEmpty) return;
-      _lastSpoken = spoken;
-      await OraclyTtsGate.speakChat(spoken);
-      if (gen != _speakGen) await OraclyTtsGate.stop();
-    } catch (_) {}
-    notifyListeners();
-  }
-
-  Future<void> speakNow(String text) async {
-    if (!mode.isVoice) return;
-    final spoken = _spoken(text);
-    if (spoken.isEmpty) return;
-    await interrupt();
-    final gen = _speakGen;
-    _lastSpoken = spoken;
-    await OraclyTtsGate.speakChat(spoken);
-    if (gen != _speakGen) await OraclyTtsGate.stop();
-    notifyListeners();
-  }
-
-  Future<void> replay() async {
-    final text = _lastSpoken;
-    if (text == null || text.isEmpty || !mode.isVoice) return;
-    await speakNow(text);
-  }
 
   Future<void> pause() async {
     await OraclyTtsGate.pause();
@@ -136,6 +115,7 @@ class CompanionOutputController extends ChangeNotifier {
 
   @override
   void dispose() {
+    if (identical(_session, this)) _session = null;
     OraclyTtsGate.speaking.removeListener(_onSpeaking);
     OraclyTtsGate.paused.removeListener(_onSpeaking);
     OraclyTtsGate.unavailable.removeListener(_onSpeaking);

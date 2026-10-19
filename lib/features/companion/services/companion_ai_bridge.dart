@@ -18,9 +18,16 @@ import 'or_operation_id.dart';
 import 'or_response_finalize.dart';
 
 class CompanionAiBridge {
-  const CompanionAiBridge(this._ai);
+  CompanionAiBridge(this._ai);
 
   final OraclyAiService _ai;
+  String? _speechGrant;
+
+  String? takeSpeechGrant() {
+    final grant = _speechGrant;
+    _speechGrant = null;
+    return grant;
+  }
 
   bool get isConfigured => _ai.isConfigured;
 
@@ -38,6 +45,7 @@ class CompanionAiBridge {
     List<String> observedThemes = const [],
   }) async {
     if (!_ai.isConfigured) return null;
+    _speechGrant = null;
     // Tagged FACT/OBSERVATION/INTERPRETATION only — never "any styleHint".
     final memoryEvidence =
         OrResponseGrounding.hasContextEvidence(styleHint) ||
@@ -90,7 +98,10 @@ class CompanionAiBridge {
                   spoken: spoken,
                 );
           return outcome.when(
-            success: (reply) => reply.text,
+            success: (reply) {
+              _speechGrant = reply.speechGrant;
+              return reply.text;
+            },
             error: (failure) => throw AiRequestException(failure),
           );
         }),

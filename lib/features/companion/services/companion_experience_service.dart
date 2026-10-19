@@ -2,6 +2,7 @@
 library;
 
 import '../../../core/copy/ai_source_copy.dart';
+import '../../../core/voice/or_speech_grant.dart';
 import '../../../core/data/repositories/local_ai_conversation_repository.dart';
 import '../../../core/domain/repositories/ai_conversation_repository.dart';
 import '../../../core/domain/repositories/user_repository.dart';
@@ -152,6 +153,8 @@ class CompanionExperienceService {
       createdAt: now,
       metadata: {
         ...AiSourceCopy.tag(fromAi: result.fromAi),
+        if (result.response.speechGrant != null)
+          OrSpeechGrant.metadataKey: result.response.speechGrant!,
         if (result.response.suggestions.isNotEmpty)
           'suggestions': result.response.suggestions.join('|'),
       },
@@ -182,6 +185,7 @@ class CompanionExperienceService {
         response: CompanionResponse(
           body: body,
           suggestions: result.response.suggestions,
+          speechGrant: result.response.speechGrant,
         ),
         fromAi: result.fromAi,
         persisted: true,
@@ -199,6 +203,7 @@ class CompanionExperienceService {
         response: CompanionResponse(
           body: body,
           suggestions: result.response.suggestions,
+          speechGrant: result.response.speechGrant,
         ),
         fromAi: result.fromAi,
         persisted: false,

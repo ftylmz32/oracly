@@ -8,6 +8,7 @@ Future<bool> _speakProxy(
   OraclyVoiceId voice,
   OrSpeechSpeed speed,
   int id,
+  String? speechGrant,
 ) async {
   final started = DateTime.now();
   final clip = await tts.proxy.synthesize(
@@ -16,6 +17,7 @@ Future<bool> _speakProxy(
     languageCode: languageCode,
     voice: voice,
     speed: speed,
+    speechGrant: speechGrant,
   );
   final ttsMs = DateTime.now().difference(started).inMilliseconds;
   if (id != tts._generation) return true;

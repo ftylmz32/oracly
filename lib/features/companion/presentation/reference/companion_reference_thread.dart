@@ -29,7 +29,7 @@ class CompanionReferenceThread extends ConsumerStatefulWidget {
   final ScrollController scrollController;
   final List<AIMessage> messages;
   final bool showActions;
-  final ValueChanged<String> onSpeak;
+  final ValueChanged<AIMessage> onSpeak;
   final VoidCallback onRegenerate;
   final bool allowSpeak;
   final ValueChanged<String>? onFollowUp;

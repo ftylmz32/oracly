@@ -31,7 +31,7 @@ class CompanionOrMessageActions extends ConsumerWidget {
   });
 
   final AIMessage message;
-  final ValueChanged<String> onSpeak;
+  final ValueChanged<AIMessage> onSpeak;
   final VoidCallback onRegenerate;
   final bool showSpeak;
   final bool showRetry;
@@ -67,7 +67,7 @@ class CompanionOrMessageActions extends ConsumerWidget {
               _IconAction(
                 icon: Icons.volume_up_outlined,
                 label: CompanionCopy.speakAction,
-                onTap: () => onSpeak(message.content),
+                onTap: () => onSpeak(message),
               ),
             _IconAction(
               icon: Icons.flag_outlined,

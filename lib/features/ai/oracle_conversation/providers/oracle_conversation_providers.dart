@@ -181,9 +181,12 @@ class OracleConversationNotifier
         createdAt: DateTime.now(),
         status: AIMessageStatus.completed,
         tokenCount: buffer.length ~/ 4,
-        metadata: AiSourceCopy.tag(
-          fromAi: ref.read(oraclyAiServiceProvider).isConfigured,
-        ),
+        metadata: {
+          ...AiSourceCopy.tag(
+            fromAi: ref.read(oraclyAiServiceProvider).isConfigured,
+          ),
+          if (repo.speechGrant != null) 'speechGrant': repo.speechGrant!,
+        },
       );
       ref.read(oracleConversationMemoryProvider).appendMessage(
             conv.id,
@@ -196,7 +199,7 @@ class OracleConversationNotifier
         isStreaming: false,
         clearStream: true,
       );
-      await OraclyTtsGate.speakReply(buffer);
+      await OraclyTtsGate.speakReply(buffer, speechGrant: repo.speechGrant);
     } on AiRequestException catch (e) {
       state = state.copyWith(
         isThinking: false,
@@ -249,7 +252,7 @@ class OracleConversationNotifier
           break;
         }
       }
-      await OraclyTtsGate.speakReply(spoken);
+      await OraclyTtsGate.speakReply(spoken, speechGrant: repo.speechGrant);
     } on AiRequestException catch (e) {
       state = state.copyWith(
         isThinking: false,

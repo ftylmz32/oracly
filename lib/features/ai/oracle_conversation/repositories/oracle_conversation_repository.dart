@@ -2,6 +2,7 @@
 library;
 
 import '../../../../core/copy/ai_source_copy.dart';
+import '../../../../core/voice/or_speech_grant.dart';
 import '../../domain/models/ai_conversation.dart';
 import '../../domain/models/ai_message.dart';
 import '../../domain/models/oracle_response.dart';
@@ -46,6 +47,8 @@ class MockOracleConversationRepository implements OracleConversationRepository {
 
   final ConversationMemory _memory;
   final OracleAiMessageSource _source;
+
+  String? get speechGrant => _source.speechGrant;
 
   OracleReadingContext? _activeContext;
 
@@ -98,7 +101,11 @@ class MockOracleConversationRepository implements OracleConversationRepository {
       createdAt: DateTime.now(),
       status: AIMessageStatus.completed,
       tokenCount: text.length ~/ 4,
-      metadata: AiSourceCopy.tag(fromAi: _source.fromAi),
+      metadata: {
+        ...AiSourceCopy.tag(fromAi: _source.fromAi),
+        if (_source.speechGrant != null)
+          OrSpeechGrant.metadataKey: _source.speechGrant!,
+      },
     );
     _memory.appendMessage(conversationId, assistant);
 
@@ -166,7 +173,11 @@ class MockOracleConversationRepository implements OracleConversationRepository {
       status: AIMessageStatus.regenerated,
       parentMessageId: messageId,
       tokenCount: text.length ~/ 4,
-      metadata: AiSourceCopy.tag(fromAi: _source.fromAi),
+      metadata: {
+        ...AiSourceCopy.tag(fromAi: _source.fromAi),
+        if (_source.speechGrant != null)
+          OrSpeechGrant.metadataKey: _source.speechGrant!,
+      },
     );
     _memory.replaceMessage(conversationId, messageId, regenerated);
 

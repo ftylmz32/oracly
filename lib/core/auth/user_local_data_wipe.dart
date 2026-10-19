@@ -16,6 +16,8 @@ import '../../features/coffee/coffee_v2/services/coffee_v2_work_files.dart';
 import '../../features/coffee/coffee_v3/services/coffee_v3_submission_store.dart';
 import '../../features/coffee/coffee_v3/services/coffee_v3_work_files.dart';
 import '../../features/coffee/data/coffee_reading_store.dart';
+import '../../features/ai/oracle_conversation/services/oracle_ai_message_source.dart';
+import '../../features/companion/controllers/companion_output_controller.dart';
 import '../../features/companion/services/first_reading_or_deepen.dart';
 import '../../features/daily_rewards/services/daily_rewards_service.dart';
 import '../../features/daily_ritual/services/card_of_the_day_store.dart';
@@ -56,6 +58,8 @@ abstract final class UserLocalDataWipe {
     required SecureStorage secureStorage,
   }) async {
     final failed = <String>[];
+    CompanionOutputController.dropSessionSpeech();
+    OracleAiMessageSource.dropSessionGrant();
 
     Future<void> step(String label, Future<void> Function() action) async {
       try {

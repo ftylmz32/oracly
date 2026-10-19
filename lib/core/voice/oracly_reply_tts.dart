@@ -53,6 +53,7 @@ class OraclyReplyTts implements OraclyTtsPort {
     String languageCode = 'tr',
     OraclyVoiceId voice = OraclyVoiceId.warm,
     OrSpeechSpeed speed = OrSpeechSpeed.normal,
+    String? speechGrant,
   }) async {
     final body = OrSpeechProsody.prepare(text);
     if (body.isEmpty) return;
@@ -71,6 +72,7 @@ class OraclyReplyTts implements OraclyTtsPort {
             voice,
             speed,
             id,
+            speechGrant,
           )) {
         return;
       }

@@ -5,8 +5,10 @@ class ChatAiReply {
   const ChatAiReply({
     required this.text,
     this.modelId,
+    this.speechGrant,
   });
 
   final String text;
   final String? modelId;
+  final String? speechGrant;
 }

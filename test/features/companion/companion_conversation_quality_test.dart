@@ -82,7 +82,7 @@ void main() {
       FollowupQuestionResolve.expand(current: '  ', priorUser: const ['İş.']),
       '',
     );
-    const bridge = CompanionAiBridge(UnconfiguredOraclyAiService());
+    final bridge = CompanionAiBridge(UnconfiguredOraclyAiService());
     expect(
       () => bridge.tryLiveOrFailClosed(userMessage: 'selam'),
       throwsA(isA<AiRequestException>()),

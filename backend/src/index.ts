@@ -48,6 +48,7 @@ const app = await buildServer({
   ritualQuotaStore: readingWiring.firestore ?? undefined,
   lunaAccessStore: readingWiring.firestore ?? undefined,
   speechGrantStore: readingWiring.firestore ?? undefined,
+  speechObjectStore: readingWiring.stagedObjectStore,
   readingFlow: readingWiring.readingFlow ?? undefined,
   readingOperationInputRepository: readingWiring.inputRepository,
   readingStagedImageRepository: readingWiring.stagedImageRepository,

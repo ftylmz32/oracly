@@ -54,6 +54,7 @@ export async function testApp(
     ritualQuotaStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
     lunaAccessStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
     speechGrantStore?: import('../src/billing/entitlement-repository.js').FirestoreLike;
+    speechObjectStore?: import('../src/reading/staged-object-store.js').ReadingStagedObjectStore;
   } = {},
 ) {
   const app = await buildServer({
@@ -82,6 +83,7 @@ export async function testApp(
     ritualQuotaStore: options.ritualQuotaStore,
     lunaAccessStore: options.lunaAccessStore,
     speechGrantStore: options.speechGrantStore,
+    speechObjectStore: options.speechObjectStore,
   });
   return app;
 }

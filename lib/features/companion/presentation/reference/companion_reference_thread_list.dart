@@ -32,7 +32,7 @@ class CompanionReferenceThreadList extends StatelessWidget {
   final List<AIMessage> visible;
   final String? lastOrId;
   final bool showActions;
-  final ValueChanged<String> onSpeak;
+  final ValueChanged<AIMessage> onSpeak;
   final VoidCallback onRegenerate;
   final bool allowSpeak;
   final TarotRevisitContext? revisit;

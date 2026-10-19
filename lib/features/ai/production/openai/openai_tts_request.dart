@@ -3,7 +3,6 @@ library;
 
 import '../../services/prompt_sanitizer.dart';
 import 'package:oracly_new/core/l10n/app_locale.dart';
-import 'package:oracly_new/core/voice/or_speech_grant.dart';
 import 'package:oracly_new/core/voice/or_speech_speed.dart';
 import 'package:oracly_new/core/voice/oracly_voice_id.dart';
 import '../transport/ai_operation.dart';
@@ -18,7 +17,9 @@ abstract final class OpenAiTtsRequest {
     String language = 'tr',
     String? voiceId,
     String? speechSpeed,
+    String? speechGrant,
   }) {
+    final grant = speechGrant?.trim() ?? '';
     return AiProxyRequest(
       operation: AiOperation.tts,
       payload: {
@@ -27,7 +28,7 @@ abstract final class OpenAiTtsRequest {
         'voiceId': OraclyVoiceId.parse(voiceId).wire,
         'speechSpeed': OrSpeechSpeed.parse(speechSpeed).wire,
         if (personality.trim().isNotEmpty) 'personality': personality.trim(),
-        if (OrSpeechGrant.current != null) 'speechGrant': OrSpeechGrant.current,
+        if (grant.isNotEmpty) 'speechGrant': grant,
       },
     );
   }

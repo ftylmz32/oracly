@@ -35,8 +35,7 @@ import {
 } from '../narrative-yildizname-attempt.js';
 import { createSharedWindowStore, type SharedWindowStore } from '../rate-limit/shared-window-store.js';
 import type { FirestoreLike } from '../billing/entitlement-repository.js';
-import type { ServerClock } from '../reading/clock.js';
-import { systemClock } from '../reading/clock.js';
+import { systemClock, toEpochMs, type ServerClock } from '../reading/clock.js';
 import type { GemLedger } from '../reading/gem-ledger.js';
 import {
   admitPaidTarot,
@@ -70,8 +69,17 @@ import {
   speechGrantIdFromBody,
   speechSignature,
 } from '../reading/luna-speech-gate.js';
-import { claimSpeech, finishSpeech, releaseSpeech } from '../reading/luna-speech-settle.js';
-import { toEpochMs } from '../reading/clock.js';
+import { speechClipPath, writeSpeechClip } from '../reading/luna-speech-clip.js';
+import { PREVIEW_DAY_MAX, previewRef } from '../reading/luna-speech-preview.js';
+import {
+  claimSpeech,
+  claimSpeechDoc,
+  finishSpeech,
+  finishSpeechDoc,
+  releaseSpeech,
+  releaseSpeechDoc,
+} from '../reading/luna-speech-settle.js';
+import type { ReadingStagedObjectStore } from '../reading/staged-object-store.js';
 
 export type AiRouteOptions = {
   appCheck?: AppCheckVerifier;
@@ -87,6 +95,8 @@ export type AiRouteOptions = {
   lunaAccessStore?: FirestoreLike;
   /** Speech of a delivered Luna or oracle reply. Preview phrases do not use it. */
   speechGrantStore?: FirestoreLike;
+  /** Private clip bytes. The grant document keeps the path, never the audio. */
+  speechObjectStore?: ReadingStagedObjectStore;
 };
 
 export async function registerAiRoutes(
@@ -158,7 +168,12 @@ export async function registerAiRoutes(
       let quotaHold: FreeTextHold | null = null;
       let ritualHold: RitualHold | null = null;
       let lunaHold: LunaFreeHold | null = null;
-      let speechSpeak: { text: string; grantId: string; signature: string } | null = null;
+      let speechSpeak: {
+        text: string;
+        grantId: string;
+        signature: string;
+        preview?: boolean;
+      } | null = null;
       let speechClaimed = false;
       let producerKey: string | null = null;
       let producerAttempt: string | null = null;
@@ -373,16 +388,33 @@ export async function registerAiRoutes(
             ? { ...validated, text: speechSpeak.text }
             : validated;
         if (speechSpeak && options.speechGrantStore) {
-          const claimed = await claimSpeech(
-            options.speechGrantStore,
-            speechSpeak.grantId,
-            identity,
-            speechSpeak.signature,
-            toEpochMs(clock.now()),
-          );
-          if (claimed === 'busy') {
+          const speechStore = options.speechGrantStore;
+          const spokenTurn = speechSpeak;
+          const claimed = spokenTurn.preview
+            ? await claimSpeechDoc(
+                speechStore,
+                previewRef(speechStore, spokenTurn.grantId),
+                identity,
+                spokenTurn.signature,
+                toEpochMs(clock.now()),
+                options.speechObjectStore,
+                PREVIEW_DAY_MAX,
+              )
+            : await claimSpeech(
+                speechStore,
+                spokenTurn.grantId,
+                identity,
+                spokenTurn.signature,
+                toEpochMs(clock.now()),
+                options.speechObjectStore,
+              );
+          if (claimed === 'busy' || claimed === 'capped') {
             await releaseUnusedQuota();
             return reply.code(409).send(errorEnvelope(ErrorCode.rateLimited));
+          }
+          if (claimed === 'unavailable') {
+            await releaseUnusedQuota();
+            return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
           }
           if (claimed !== 'go') {
             return reply.code(200).send(successEnvelope(claimed));
@@ -408,18 +440,44 @@ export async function registerAiRoutes(
         if (speechClaimed && speechSpeak && speechStore) {
           const clip = asRecord(asRecord(result.body)?.data);
           const audio = clip?.audioBase64;
+          const spokenTurn = speechSpeak;
           if (typeof audio === 'string' && audio.length >= 32) {
-            const mime = typeof clip?.mimeType === 'string' ? clip.mimeType : 'audio/mpeg';
-            await finishSpeech(
+            let clipPath: string | null = null;
+            const objects = options.speechObjectStore;
+            if (objects) {
+              clipPath = speechClipPath(identity, spokenTurn.grantId, spokenTurn.signature);
+              try {
+                await writeSpeechClip(objects, clipPath, audio);
+              } catch {
+                clipPath = null;
+              }
+            }
+            if (spokenTurn.preview) {
+              await finishSpeechDoc(
+                speechStore,
+                previewRef(speechStore, spokenTurn.grantId),
+                identity,
+                spokenTurn.signature,
+                clipPath,
+              );
+            } else {
+              await finishSpeech(
+                speechStore,
+                spokenTurn.grantId,
+                identity,
+                spokenTurn.signature,
+                clipPath,
+              );
+            }
+          } else if (spokenTurn.preview) {
+            await releaseSpeechDoc(
               speechStore,
-              speechSpeak.grantId,
+              previewRef(speechStore, spokenTurn.grantId),
               identity,
-              speechSpeak.signature,
-              audio,
-              mime,
+              spokenTurn.signature,
             );
           } else {
-            await releaseSpeech(speechStore, speechSpeak.grantId, identity, speechSpeak.signature);
+            await releaseSpeech(speechStore, spokenTurn.grantId, identity, spokenTurn.signature);
           }
           speechClaimed = false;
         }
@@ -492,14 +550,24 @@ export async function registerAiRoutes(
         }
         if (speechClaimed && speechSpeak && options.speechGrantStore && request.raw.aborted !== true) {
           const spoken = speechSpeak;
+          const speechStore = options.speechGrantStore;
           speechClaimed = false;
           try {
-            await releaseSpeech(
-              options.speechGrantStore,
-              spoken.grantId,
-              request.identityKey ?? 'anon',
-              spoken.signature,
-            );
+            if (spoken.preview) {
+              await releaseSpeechDoc(
+                speechStore,
+                previewRef(speechStore, spoken.grantId),
+                request.identityKey ?? 'anon',
+                spoken.signature,
+              );
+            } else {
+              await releaseSpeech(
+                speechStore,
+                spoken.grantId,
+                request.identityKey ?? 'anon',
+                spoken.signature,
+              );
+            }
           } catch {
             // The claim expires. The same grant can speak after that.
           }

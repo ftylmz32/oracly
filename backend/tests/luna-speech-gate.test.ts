@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { StaticAppCheckVerifier } from '../src/auth/app-check.js';
 import { identityKeyFromOpaqueToken, identityKeyFromSubject } from '../src/auth/identity.js';
 import { MemoryDocumentStore } from '../src/reading/memory-document-store.js';
+import { MemoryStagedObjectStore } from '../src/reading/memory-staged-object-store.js';
 import type { ServerClock } from '../src/reading/clock.js';
 import { InMemorySoulmateEntitlementGuard } from '../src/reading/soulmate-entitlement-guard.js';
 import { authorizeSpeech } from '../src/reading/luna-speech-gate.js';
@@ -51,6 +52,7 @@ function appFor(
   return testApp(testConfig({ AI_RATE_LIMIT_MAX: '100' }), fetchImpl, {
     lunaAccessStore: store,
     speechGrantStore: store,
+    speechObjectStore: new MemoryStagedObjectStore(),
     freeTextQuotaStore: store,
     soulmateEntitlement: guard,
     readingClock: new Clock(),

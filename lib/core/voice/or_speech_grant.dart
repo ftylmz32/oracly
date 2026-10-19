@@ -1,16 +1,15 @@
-/// Last server speech grant for this process. Not a premium proof.
+/// Speech right for one delivered reply. Never a process-wide last message.
 library;
 
 abstract final class OrSpeechGrant {
   OrSpeechGrant._();
 
-  static String? current;
+  static const metadataKey = 'speechGrant';
 
-  static void remember(String? id) {
+  static String? read(String? id) {
     final trimmed = id?.trim() ?? '';
-    if (trimmed.isEmpty) return;
-    current = trimmed;
+    return trimmed.isEmpty ? null : trimmed;
   }
 
-  static void clear() => current = null;
+  static String? of(Map<String, String>? metadata) => read(metadata?[metadataKey]);
 }

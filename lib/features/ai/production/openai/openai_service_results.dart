@@ -33,13 +33,11 @@ abstract final class OpenAiServiceResults {
           return AiOutcome.failure(AiFailure.invalidResponse());
         }
         final grant = data['speechGrant'];
-        if (grant is String && grant.trim().isNotEmpty) {
-          OrSpeechGrant.remember(grant);
-        }
         return AiOutcome.success(
           ChatAiReply(
             text: raw,
             modelId: model,
+            speechGrant: OrSpeechGrant.read(grant is String ? grant : null),
           ),
         );
       },

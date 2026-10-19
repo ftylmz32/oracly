@@ -109,9 +109,16 @@ class CompanionLiveReply {
       observedThemes: context.recurringThemes,
     );
     if (live == null) {
+      bridge.takeSpeechGrant();
       throw AiRequestException(AiFailure.noConfiguration());
     }
-    return (response: CompanionResponse(body: live), fromAi: true);
+    return (
+      response: CompanionResponse(
+        body: live,
+        speechGrant: bridge.takeSpeechGrant(),
+      ),
+      fromAi: true,
+    );
   }
 
   static List<ConversationTurn> _priorTurns(

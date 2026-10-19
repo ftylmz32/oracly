@@ -102,6 +102,8 @@ export type BuildOptions = {
   lunaAccessStore?: FirestoreLike;
   /** Bound speech of a delivered reply. Same Firestore, separate collection. */
   speechGrantStore?: FirestoreLike;
+  /** Private speech clips. Same object store as staged readings. No public URL. */
+  speechObjectStore?: ReadingStagedObjectStore;
   readingNotificationTokens?: ReadingNotificationTokens;
   accountDeletionRepository?: AccountDeletionRepository;
   sharedWindowStore?: SharedWindowStore;
@@ -232,6 +234,7 @@ export async function buildServer(options: BuildOptions) {
     ritualQuotaStore: options.ritualQuotaStore,
     lunaAccessStore: options.lunaAccessStore,
     speechGrantStore: options.speechGrantStore,
+    speechObjectStore: options.speechObjectStore,
   });
   await registerReadingOperationRoutes(app, config, {
     appCheck,

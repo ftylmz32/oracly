@@ -15,7 +15,16 @@ class OracleAiMessageSource {
     OracleConversationResponder? local,
     Future<List<String>> Function()? observedThemes,
   })  : _local = local ?? const OracleConversationResponder(),
-        _observedThemes = observedThemes ?? (() async => const <String>[]);
+        _observedThemes = observedThemes ?? (() async => const <String>[]) {
+    _session = this;
+  }
+
+  static OracleAiMessageSource? _session;
+  String? speechGrant;
+
+  static void dropSessionGrant() {
+    _session?.speechGrant = null;
+  }
 
   final OraclyAiService? _ai;
   final OracleConversationResponder _local;
@@ -36,6 +45,7 @@ class OracleAiMessageSource {
     required String userMessage,
     List<String> priorUser = const [],
   }) async {
+    speechGrant = null;
     if (_useLocalFallback) {
       return _local.respond(
         context: context,
@@ -54,7 +64,11 @@ class OracleAiMessageSource {
       observedThemes: await _observedThemes(),
     );
     return outcome.when(
-      success: (reply) => ConversationResponseGuard.polish(reply.text),
+      success: (reply) {
+        final grant = reply.speechGrant?.trim() ?? '';
+        speechGrant = grant.isEmpty ? null : grant;
+        return ConversationResponseGuard.polish(reply.text);
+      },
       error: (failure) => throw AiRequestException(failure),
     );
   }
@@ -65,6 +79,7 @@ class OracleAiMessageSource {
     List<String> priorUser = const [],
   }) async* {
     if (_useLocalFallback) {
+      speechGrant = null;
       yield* _local.respondStream(
         context: context,
         userMessage: userMessage,

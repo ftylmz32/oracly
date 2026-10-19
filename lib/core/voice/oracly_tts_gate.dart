@@ -49,22 +49,26 @@ abstract final class OraclyTtsGate {
     }
   }
 
-  static Future<void> speakReply(String? text) async {
+  static Future<void> speakReply(String? text, {String? speechGrant}) async {
     if (!voiceRepliesEnabled) return;
-    await _speakNow(text);
+    await _speakNow(text, speechGrant: speechGrant);
   }
 
   /// Chat TTS — only when SESLİ / voice replies are enabled.
-  static Future<void> speakChat(String? text) async {
+  static Future<void> speakChat(String? text, {String? speechGrant}) async {
     if (!voiceRepliesEnabled) return;
-    await _speakNow(text);
+    await _speakNow(text, speechGrant: speechGrant);
   }
 
   /// Real generated preview. Independent from SESLİ / YAZILI.
   static Future<void> preview(String? text, {required OraclyVoiceId identity}) =>
       _speakNow(text, identity: identity);
 
-  static Future<void> _speakNow(String? text, {OraclyVoiceId? identity}) async {
+  static Future<void> _speakNow(
+    String? text, {
+    OraclyVoiceId? identity,
+    String? speechGrant,
+  }) async {
     final body = text?.trim() ?? '';
     if (body.isEmpty) return;
     final gen = _interruptGen;
@@ -83,13 +87,24 @@ abstract final class OraclyTtsGate {
       return;
     }
     try {
-      await tts.speak(
-        body,
-        personality: personality,
-        languageCode: languageCode,
-        voice: identity ?? voice,
-        speed: speechSpeed,
-      );
+      if (tts is OraclyReplyTts) {
+        await tts.speak(
+          body,
+          personality: personality,
+          languageCode: languageCode,
+          voice: identity ?? voice,
+          speed: speechSpeed,
+          speechGrant: speechGrant,
+        );
+      } else {
+        await tts.speak(
+          body,
+          personality: personality,
+          languageCode: languageCode,
+          voice: identity ?? voice,
+          speed: speechSpeed,
+        );
+      }
       if (gen != _interruptGen) {
         await tts.stop();
         speaking.value = false;

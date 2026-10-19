@@ -8,6 +8,7 @@ import '../../ai/production/ai_request_exception.dart';
 import '../../ai/domain/models/ai_message.dart';
 import '../../ai/oracle_conversation/models/oracle_reading_context.dart';
 import '../../../core/copy/resilience_copy.dart';
+import '../../../core/voice/oracly_proxy_speech.dart';
 import '../../../core/data/datasources/local_storage.dart';
 import '../../../core/services/analytics_service.dart';
 import '../../../core/telemetry/crash_telemetry_service.dart';
@@ -151,6 +152,8 @@ class CompanionController extends ChangeNotifier {
       return;
     }
     if (_disposed) return;
+    _output.dropSpoken();
+    OraclyProxySpeech.releaseCaches();
     // Durable commit point reached — only now may the live session move
     // on from the old conversation/handoff.
     _failureOrigin = _FailureOrigin.none;
@@ -463,7 +466,10 @@ class CompanionController extends ChangeNotifier {
         );
         _safeNotify();
         try {
-          await _output.speakIfVoice(result.response.body);
+          await _output.speakIfVoice(
+            result.response.body,
+            speechGrant: result.response.speechGrant,
+          );
         } catch (_) {}
         return;
       }
@@ -476,7 +482,10 @@ class CompanionController extends ChangeNotifier {
       );
       _safeNotify();
       try {
-        await _output.speakIfVoice(result.response.body);
+        await _output.speakIfVoice(
+          result.response.body,
+          speechGrant: result.response.speechGrant,
+        );
       } catch (_) {}
     } on AiRequestException catch (e) {
       if (_disposed || token != _sendGeneration) return;
