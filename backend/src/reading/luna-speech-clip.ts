@@ -35,3 +35,27 @@ export async function writeSpeechClip(
 ): Promise<void> {
   await store.put(path, Buffer.from(audioBase64, 'base64'), 'audio/mpeg');
 }
+
+function probePath(identity: string): string {
+  const owner = createHash('sha256').update(identity).digest('hex').slice(0, 24);
+  return `speech-clips/${owner}/_probe/ready.txt`;
+}
+
+/** True only when a private clip can be stored. Never mints a public URL. */
+export async function speechStoreReady(
+  store: ReadingStagedObjectStore,
+  identity: string,
+): Promise<boolean> {
+  const path = probePath(identity);
+  try {
+    await store.put(path, Buffer.from('ready'), 'text/plain');
+  } catch {
+    return false;
+  }
+  try {
+    await store.delete(path);
+  } catch {
+    // The store accepted a write. A leftover probe is not speech audio.
+  }
+  return true;
+}

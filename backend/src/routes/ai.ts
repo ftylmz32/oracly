@@ -69,7 +69,7 @@ import {
   speechGrantIdFromBody,
   speechSignature,
 } from '../reading/luna-speech-gate.js';
-import { speechClipPath, writeSpeechClip } from '../reading/luna-speech-clip.js';
+import { speechClipPath, speechStoreReady, writeSpeechClip } from '../reading/luna-speech-clip.js';
 import { PREVIEW_DAY_MAX, previewRef } from '../reading/luna-speech-preview.js';
 import {
   claimSpeech,
@@ -79,6 +79,7 @@ import {
   releaseSpeech,
   releaseSpeechDoc,
 } from '../reading/luna-speech-settle.js';
+import { releaseSpokenClaim } from '../reading/luna-speech-release.js';
 import type { ReadingStagedObjectStore } from '../reading/staged-object-store.js';
 
 export type AiRouteOptions = {
@@ -420,6 +421,14 @@ export async function registerAiRoutes(
             return reply.code(200).send(successEnvelope(claimed));
           }
           speechClaimed = true;
+          const objects = options.speechObjectStore;
+          const ready = objects ? await speechStoreReady(objects, identity) : false;
+          if (!ready) {
+            await releaseSpokenClaim(speechStore, identity, spokenTurn);
+            speechClaimed = false;
+            await releaseUnusedQuota();
+            return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
+          }
         }
         const run = async () => {
           const data = await service.handle(spoken, modelHint, handleCtx);
@@ -442,15 +451,16 @@ export async function registerAiRoutes(
           const audio = clip?.audioBase64;
           const spokenTurn = speechSpeak;
           if (typeof audio === 'string' && audio.length >= 32) {
-            let clipPath: string | null = null;
             const objects = options.speechObjectStore;
-            if (objects) {
-              clipPath = speechClipPath(identity, spokenTurn.grantId, spokenTurn.signature);
-              try {
-                await writeSpeechClip(objects, clipPath, audio);
-              } catch {
-                clipPath = null;
-              }
+            const clipPath = speechClipPath(identity, spokenTurn.grantId, spokenTurn.signature);
+            try {
+              if (!objects) throw new Error('speech_store_missing');
+              await writeSpeechClip(objects, clipPath, audio);
+            } catch {
+              await releaseSpokenClaim(speechStore, identity, spokenTurn);
+              speechClaimed = false;
+              await releaseUnusedQuota();
+              return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
             }
             if (spokenTurn.preview) {
               await finishSpeechDoc(

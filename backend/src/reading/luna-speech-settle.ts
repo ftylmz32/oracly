@@ -82,7 +82,14 @@ async function hold(
   const row = (await tx.get(ref)).data() as Row | undefined;
   if (row && row.identity !== identity) return 'busy';
   const path = clipsOf(row)[signature];
-  if (path) return objects ? (await readSpeechClip(objects, path)) ?? 'unavailable' : 'unavailable';
+  if (path) {
+    if (!objects) return 'unavailable';
+    try {
+      return (await readSpeechClip(objects, path)) ?? 'unavailable';
+    } catch {
+      return 'unavailable';
+    }
+  }
   const spent = spentOf(row);
   if (spent.includes(signature)) return 'unavailable';
   if (spent.length >= max) return 'capped';
@@ -105,8 +112,12 @@ async function remember(
   if (!row || row.identity !== identity) return;
   const spent = spentOf(row);
   const clips = clipsOf(row);
-  if (clipPath) clips[signature] = clipPath;
   const { audio: _audio, ...rest } = row;
+  if (!clipPath) {
+    tx.set(ref, { ...rest, claimSig: '', claimUntil: 0, spent, clips });
+    return;
+  }
+  clips[signature] = clipPath;
   tx.set(ref, {
     ...rest,
     claimSig: '',
