@@ -23,7 +23,9 @@ import type { FirestoreLike } from '../src/billing/entitlement-repository.js';
 
 const CAP = 6;
 const IN = resolve(process.cwd(), 'docs/qa/yz-astro-real-qa-20261020.payloads.json');
-const OUT = resolve(process.cwd(), 'docs/qa/yz-astro-real-qa-20261020.round1.results.json');
+const ROUND = process.env.QA_ROUND ?? 'round1';
+const ONLY = process.env.QA_ONLY;
+const OUT = resolve(process.cwd(), `docs/qa/yz-astro-real-qa-20261020.${ROUND}.results.json`);
 
 type Item = { id: string; operation: string; payload: Record<string, unknown> };
 
@@ -66,7 +68,9 @@ async function main(): Promise<void> {
   const before = await ledger();
   console.log(`spend ledger ${day} before: $${before.toFixed(4)} / cap $5`);
 
-  const items = JSON.parse(readFileSync(IN, 'utf8')) as Item[];
+  const items = (JSON.parse(readFileSync(IN, 'utf8')) as Item[]).filter(
+    (i) => (!ONLY || i.operation === ONLY) && (!process.env.QA_ID || i.id === process.env.QA_ID),
+  );
   if (items.length > CAP) throw new Error('payload count exceeds cap — STOP. used=0');
   const results: Record<string, unknown>[] = [];
   let used = 0;

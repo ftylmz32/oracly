@@ -174,6 +174,7 @@ describe('astrology_daily result', () => {
       [full, { mood: 'Ayşe Ayşe Ayşe, bugün duygular yoğun.' }],
       [dayOnly, { portrait: 'Yükselen burcun Aslan olduğu için ilk izlenimin güçlü.' }],
       [full, { love: 'Venüs 5. evinde ilerliyor.' }],
+      [full, { love: 'Son okumalarında öne çıkan ilişki teması bugün yine burada.' }],
     ];
     for (const [s, o] of bads) {
       expect(() => parseAstrologyDailyResult(JSON.stringify(result(o)), s)).toThrow(ProxyError);

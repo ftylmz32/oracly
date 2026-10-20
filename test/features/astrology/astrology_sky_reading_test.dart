@@ -176,6 +176,8 @@ void main() {
         (withField('portrait', 'Yükselen burcun Aslan.'), NatalSkyDepth.dayOnly),
         (withField('reflection', 'Kendine zaman ayır.'), NatalSkyDepth.full),
         (withField('overall', 'Sevgili Ayşe, bugün sakin.'), NatalSkyDepth.full),
+        // A past-reading claim without real recurring themes behind it.
+        (withField('love', 'Son okumalarında öne çıkan ilişki teması burada.'), NatalSkyDepth.full),
         ({..._written(), 'contractVersion': 2}, NatalSkyDepth.full),
       ];
       for (final (raw, depth) in cases) {

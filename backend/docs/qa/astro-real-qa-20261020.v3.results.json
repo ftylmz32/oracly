@@ -1,0 +1,62 @@
+{
+  "day": "2026-10-20",
+  "round": "v3",
+  "used": 3,
+  "cap": 3,
+  "results": [
+    {
+      "id": "astrology.Ayşe",
+      "ok": true,
+      "ms": 16213,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "Cesur ve doğrudan görünürken içeride çok daha hassas, sezgisel ve katmanlısın. Güven duygun; somut sonuçlar, istikrar ve kendi ölçülerine sadık kalmakla güçleniyor.",
+        "overall": "Ayşe, bugün iç ritmin ile kendini ortaya koyma hızın aynı tempoda ilerlemiyor. Bir yanın güvenli ve tanıdık olanda kalmak isterken diğer yanın hemen tepki vermeye, görünür olmaya ya da kontrolü ele almaya meylediyor. Bu gerilim yalnızca birkaç saatlik değil; haftaya yayılan bir huzursuzluk gibi çalışıyor. Özellikle aceleyle verilen bir karşılık, aslında korunmak isteyen daha yumuşak bir ihtiyacın üzerini örtebilir.",
+        "love": "Yakınlıkta hem alan hem de sağlamlık arayışı öne çıkıyor. Sevdiğin birine karşı ilk anda mesafeli ya da serinkanlı görünürken içeride daha sıcak, güven veren bir temas isteyebilirsin. Bu kısa süreli uyumsuzluk, duyguların ifade biçimini gün içinde dalgalandırıyor.",
+        "career": "İşlerde yüzeyde söylenenden çok, satır araları ve perde arkasındaki nedenler dikkatini çekiyor. Sezgisel düşünme biçimin ayrıntılı araştırmayla birleştiğinde karmaşık bir görevin özünü kavraman kolaylaşıyor; ancak çevrendekiler seni biraz kapalı veya fazlasıyla derin düşünen biri olarak algılayabilir.",
+        "money": "Harcamalarda sıradan bir hevesten çok, kalıcılık ve duygusal değer öne çıkıyor. Evle, konforla ya da uzun süre kullanılacak bir şeyle ilgili ödeme daha anlamlı görünebilir. Maddi seçeneklerin içinden hem kaliteli hem de ölçülü olanı seçme eğilimin birkaç gün boyunca destekleniyor.",
+        "mood": "İç dünyanda ferah, bağımsız ve kendin gibi davranmaya açık bir hava var. Duygularınla kişisel iraden kısa süreliğine birbirini destekliyor; ne hissettiğini saklamadan ama abartmadan göstermek doğal geliyor.",
+        "drive": "Fiziksel enerjin görünür ve sıcak bir çıkış ararken hareket tarzın daha akışkan, sezgisel ve dolaylı ilerliyor. Tempo bir anda yükselip sonra yumuşayabilir; bedenin gösterişli bir başlangıçtan çok kendi iç ahengine göre hızlanıyor.",
+        "opportunity": "Kendini açıkça ortaya koyduğun, yaratıcı inisiyatif gerektiren durumlar daha kolay açılıyor. Cesaretinle doğal özgüvenin birleştiğinde, başkalarının başlamasını beklemeden bir fikre kişisel damganı vurman dikkat çekiyor.",
+        "caution": "Beden dilin dışarıdan beklediğinden daha mesafeli okunurken içeride kabul ve sıcaklık arayışı sürebilir. Özellikle yüz ifadesi, kısa cevaplar ya da ani bir geri çekilme, karşılıklı olarak yanlış anlamaya dönüşen somut bir sürtüşme yaratabilir.",
+        "reflection": "Bugün hızlı tepkinin altında korunmak isteyen hangi ihtiyacın var?"
+      }
+    },
+    {
+      "id": "astrology.Mehmet",
+      "ok": true,
+      "ms": 15637,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "Hızlı kavrayan, doğrudan konuşan ve kendi yönünü çizmek isteyen bir yapın var. Merakın canlı; buna karşılık güven, emek ve kalıcılık söz konusu olduğunda oldukça ciddi davranırsın.",
+        "overall": "Mehmet, bugün kendini ortaya koymak normalden daha doğal geliyor; görünür olmak için zorlaman ya da sesini yükseltmen gerekmiyor. Öz güvenin genişlerken yaptığın seçimlerin sana yakışıp yakışmadığını daha net hissediyorsun. Bir süredir devam eden bu hareket, hevesini geçici bir parlamadan çıkarıp daha güçlü bir yaşam isteğine bağlıyor. İnsanlar da sende büyüyen bu canlılığı ve açıklığı kolayca fark ediyor.",
+        "love": "Yakınlık isteği ile kendi ritmini koruma arzusu aynı anda yükseliyor. Hoşlandığın kişiye karşı çekimin güçlü görünürken sabırsızlık da tavrına karışıyor; sıcak bir yaklaşım, küçük bir dirençle hızla gerilime dönüşebilir. Hislerin yüzeyde değil, yoğun ve fiziksel bir tonda akıyor.",
+        "career": "Düşüncelerini söze, yazıya ya da karara dönüştürmek hız kazanıyor. Bir işi tarif ederken net, cesur ve ikna edici görünüyorsun; çalışma çevrendekiler senden gelen kararlı ifadeyi kolayca ciddiye alıyor. Yalnız hızın, ayrıntılardan önce ana fikri öne çıkarıyor.",
+        "money": "Harcamalarda cazibe kadar dayanıklılık da önem kazanıyor. Kaliteli, uzun ömürlü ya da sorumluluklarını hafifleten bir şeye ödeme yapmak daha anlamlı geliyor; anlık hevesler ise aynı ölçüde tatmin etmiyor. Gelir ve giderlere yaklaşımında ölçülü fakat katı olmayan bir ciddiyet var.",
+        "mood": "Zihninle duyguların bugün rahatça konuşuyor. İçinden geçenleri adlandırmak kolaylaşıyor; bedeninde de ferah, uyanık ve biraz mesafeli bir his öne çıkıyor.",
+        "drive": "Fiziksel enerjin gösterişli bir çıkış ararken kendi bağımsız temponu da koruyor. Grup ritmiyle kişisel irade arasında gidip gelen, parlak fakat yer yer düzensiz bir güç hissi var.",
+        "opportunity": "Kendini açıkça gösterdiğin, cesaret ve yaratıcılık isteyen durumlar kolay açılıyor. Küçük bir girişim bile çevrede beklenenden geniş bir karşılık bulabilir.",
+        "caution": "Sorumluluk duygusu ile hemen başlama dürtüsü birbirine sürtünüyor. Gecikme ya da sınırla karşılaşınca sabırsızlık sert bir öz eleştiriye dönüşüyor; özellikle otorite taşıyan tavırlar gururunu hızlıca geriyor.",
+        "reflection": "Bugün kendini daha geniş ifade ettiğinde, hangi yanının gerçekten görünmesini istiyorsun?"
+      }
+    },
+    {
+      "id": "astrology.Zeynep",
+      "ok": true,
+      "ms": 16546,
+      "data": {
+        "contractVersion": 1,
+        "portrait": "İnce ayrıntıları hızla sezen, dışarıdan ölçülü görünürken içeride yoğun yaşayan birisin. İnsanlarla denge kurma isteğin güçlü; yine de güven ve samimiyet söz konusu olduğunda yüzeyde kalmıyorsun.",
+        "overall": "Zeynep, doğum günü sezonundasın; bugün benlik duygun her zamankinden daha belirgin. Neyi gerçekten istediğin, hangi tutumların artık seni yansıtmadığı ve önündeki dönemde nasıl görünmek istediğin aynı merkezde toplanıyor. İç dünyana dönme ihtiyacıyla kendini ortaya koyma arzusu birbirini bastırmıyor; tersine, daha sahici bir duruş oluşturuyor. Birkaç güne yayılan bu yoğunluk, hayatının yönünden çok kendi yerini ve sesini yeniden hissettiriyor.",
+        "love": "Yakınlıkta sıcaklık ve arzu yüksek, fakat sevgi gösterme biçiminle karşı taraftan beklediğin tepkinin ritmi çakışıyor. Güçlü bir çekim, küçük bir gurur meselesini ya da ilgi paylaşımındaki huzursuzluğu büyütebilir; tavrın karşı tarafa hem etkileyici hem de biraz meydan okuyan bir tonda ulaşıyor.",
+        "career": "İş yaşamında görünürlüğün ve sonuç alma isteğin belirgin biçimde artıyor. Bir görev, karar ya da sorumluluk karşısında doğrudan tavır alman çevrende güçlü, iddialı ve hızlı biri izlenimi yaratıyor. Aynı yoğunluk, katkının fark edilmesini kolaylaştırırken başkalarının temposunu gölgede bırakacak kadar baskın da hissediliyor.",
+        "money": "Harcamalar ve maddi kararlar konusunda zihnin iki ayrı baskı arasında kalıyor: hızlıca sonuçlandırma isteği ile hesabı sağlam kurma gereği. Bir ücret, sözleşme ya da alışveriş ayrıntısı düşündüğünden fazla zihinsel ağırlık taşıyor; değer duygun, yalnızca fiyatla değil uzun vadeli karşılıkla ölçülüyor.",
+        "mood": "İçeride mesafeli kalma ihtiyacı ile sıcaklık arayışı birbirine sürtünüyor. Bedeninde kısa süreli bir huzursuzluk, keyif aldığın şeylere karşı seçicilik ya da temas konusunda ani bir fikir değişikliği hissedebilirsin.",
+        "drive": "Fiziksel enerjin geniş, cesur ve akıcı; hızlandığında kendine güvenin de yükseliyor. Zorlayıcı görünen bir işe güçlü bir başlangıç yapma ve uzun adımlarla ilerleme eğilimin var.",
+        "opportunity": "Ciddiyet, süreklilik ve sorumluluk isteyen mesleki durumlar sana doğal bir açıklık sunuyor. Özellikle sabırla kurulmuş bir düzen içinde yetkinliğinin görünmesi, kısa süreli parlamadan daha kolay karşılık buluyor.",
+        "caution": "Evdeki iç ritminle dışarıdaki beklentiler arasında kısa süreli bir gerilim oluşuyor. Özel kalma isteği sürerken görünür olmayı gerektiren bir durum, yüz ifadena soğukluk ya da tepkilerine keskinlik olarak yansıyor.",
+        "reflection": "Yeni yaşında seni gerçekten temsil etmesini istediğin duruş hangisi?"
+      }
+    }
+  ]
+}

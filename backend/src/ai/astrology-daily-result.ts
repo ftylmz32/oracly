@@ -62,6 +62,8 @@ const TIME_ONLY = /(yükselen|ascendant|\bMC\b|tepe noktası)/i;
 const GREETING = /(?<![\p{L}])(sevgili|merhaba)(?![\p{L}])/iu;
 /** The reading must not describe its own structure. */
 const META = /(bu alan|cephe|uyarı alanı|bulgu yok|doğuştan gelen)/i;
+/** A past-reading claim needs supplied themes behind it. */
+const PAST_READINGS = /(son okuma|önceki okuma|geçmiş okuma|okumalarında)/i;
 /** A daily reading describes tendencies: no "you will meet/earn/receive". */
 const FIXED_FUTURE = [
   /(?<![\p{L}])(kesinlikle|mutlaka)(?![\p{L}])/iu,
@@ -130,6 +132,7 @@ export function astrologyDailyRefusal(
     ['fixedFuture', findDeterministicFuture(all, 'tr')?.pattern],
     ['fixedFuture', FIXED_FUTURE.map(hit).find((m) => m)],
     ['timeOnly', sky.depth === 'dayOnly' ? hit(TIME_ONLY) : undefined],
+    ['pastReadings', sky.themes.length === 0 ? hit(PAST_READINGS) : undefined],
   ];
   for (const [rule, match] of checks) if (match) return `${rule}: ${match}`;
   if (!r.reflection.trim().endsWith('?')) return 'reflection: not a question';

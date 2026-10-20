@@ -225,6 +225,14 @@ describe('Yıldızname paid-quality writer contract', () => {
     expect(prompt).not.toContain('Preferred modality: may / could');
   });
 
+  it('keeps the prose warm, economical and anchored per section', () => {
+    expect(prompt).toContain('EACH SECTION HAS ITS OWN EVIDENCE');
+    expect(prompt).toContain('WORD ECONOMY');
+    expect(prompt).toContain('Never use "özdeğer"');
+    expect(prompt).toContain('WARM, CLEAR TURKISH');
+    expect(prompt).toContain('NO BACKSTORY');
+  });
+
   it('gives sections distinct meanings and keeps safety discipline silent', () => {
     expect(prompt).toContain('SECTIONS CARRY DIFFERENT MEANINGS');
     expect(prompt).toContain('must not retell the summary');
@@ -237,23 +245,23 @@ describe('Yıldızname paid-quality writer contract', () => {
   });
 
   it('budgets a full portrait and keeps thinner charts short', () => {
-    expect(yildiznamePortraitDirective('full')).toContain('400–550');
-    expect(yildiznamePortraitDirective('full')).toContain('3 to 5 sections');
-    expect(yildiznamePortraitDirective('reduced')).toContain('280');
-    expect(yildiznamePortraitDirective('reduced')).not.toContain('400–550');
-    expect(yildiznamePortraitDirective('legacy')).toContain('180');
-    expect(yildiznamePortraitDirective('legacy')).not.toContain('400–550');
+    expect(yildiznamePortraitDirective('full')).toContain('320–440');
+    expect(yildiznamePortraitDirective('full')).toContain('3 to 4 sections');
+    expect(yildiznamePortraitDirective('reduced')).toContain('220');
+    expect(yildiznamePortraitDirective('reduced')).not.toContain('320–440');
+    expect(yildiznamePortraitDirective('legacy')).toContain('160');
+    expect(yildiznamePortraitDirective('legacy')).not.toContain('320–440');
     const messages = yildiznameNarrativeMessages(
       fullNarrative() as YildiznameWireNarrative,
       'tr',
     );
-    expect(messages[1].content).toContain('400–550');
+    expect(messages[1].content).toContain('320–440');
     const thin = yildiznameNarrativeMessages(
       baseNarrative() as YildiznameWireNarrative,
       'tr',
     );
-    expect(thin[1].content).toContain('180');
-    expect(thin[1].content).not.toContain('400–550');
+    expect(thin[1].content).toContain('160');
+    expect(thin[1].content).not.toContain('320–440');
   });
 });
 

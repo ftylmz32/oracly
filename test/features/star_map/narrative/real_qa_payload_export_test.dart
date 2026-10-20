@@ -45,7 +45,7 @@ void main() {
         ),
         day: day,
         addressName: p.name,
-        themes: p == ayse ? const ['İlişki'] : const [],
+        // No synthetic theme: these people have no real reading history.
       );
       out.add({
         'id': 'astrology.${p.name}',

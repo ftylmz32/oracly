@@ -70,10 +70,18 @@ abstract final class AstrologyDailyResult {
   ];
 
   /// Validated fields keyed by [kAstrologyDailyFields].
+  static final _pastReadings = RegExp(
+    r'(son okuma|önceki okuma|geçmiş okuma|okumalarında)',
+    caseSensitive: false,
+  );
+
+  /// [hasThemes]: real recurring themes were sent, so a light mention of
+  /// past readings has evidence behind it.
   static Map<String, String> validate(
     Map<String, dynamic> raw, {
     required NatalSkyDepth depth,
     String? addressName,
+    bool hasThemes = false,
   }) {
     if (raw['contractVersion'] != kAstrologyDailyResultVersion) {
       throw const AstrologyDailyResultException('version');
@@ -101,6 +109,7 @@ abstract final class AstrologyDailyResult {
     refuse(_fixedFuture.any((r) => r.hasMatch(all)), 'fixed future');
     refuse(depth == NatalSkyDepth.dayOnly && _timeOnly.hasMatch(all),
         'time-only layer');
+    refuse(!hasThemes && _pastReadings.hasMatch(all), 'past readings');
     refuse(!out['reflection']!.endsWith('?'), 'reflection');
 
     final seen = <String>{};

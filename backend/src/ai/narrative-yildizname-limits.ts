@@ -143,12 +143,12 @@ export const YILDIZNAME_LIMITS = {
  * thinner evidence must stay shorter instead of being padded.
  */
 export const YILDIZNAME_PORTRAIT = {
-  fullWordMin: 400,
-  fullWordMax: 550,
+  fullWordMin: 320,
+  fullWordMax: 440,
   fullSectionMin: 3,
-  fullSectionMax: 5,
-  reducedWordMax: 280,
-  legacyWordMax: 180,
+  fullSectionMax: 4,
+  reducedWordMax: 220,
+  legacyWordMax: 160,
 } as const;
 
 export function asEnumSet<T extends string>(values: readonly T[]): Set<string> {

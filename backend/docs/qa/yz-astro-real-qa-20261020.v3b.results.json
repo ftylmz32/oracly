@@ -1,0 +1,73 @@
+{
+  "day": "2026-10-20",
+  "used": 1,
+  "cap": 6,
+  "spendBeforeUsd": 0.484876,
+  "spendAfterUsd": 0.51932,
+  "results": [
+    {
+      "id": "yildizname.Ayşe",
+      "ok": true,
+      "ms": 20487,
+      "data": {
+        "contractVersion": 1,
+        "languageCode": "tr",
+        "scope": "full",
+        "summary": {
+          "text": "Ayşe, sende dışarıdan görülen sıcak ve kendinden emin duruşun altında, hayatın yüzeyde kalan açıklamalarına razı olmayan bir taraf var. Kendi görüşünü oluşturmak, inanmadığın bir çerçevenin içinde kalmamak istiyorsun. Yine de sırf farklı olmak uğruna savrulmazsın; düşündüğün şeyi kalıcı bir yapıya dönüştürme gücün de belirgin. Bir yanın hızla yeni bir yön açarken diğer yanın sonucun sağlam, işe yarar ve sürdürülebilir olmasını arıyor. Bu yüzden kararların bazen ani görünse de arkalarında uzun süre işlenmiş bir arayış bulunur.",
+          "factRefs": [
+            "angle.ascendant",
+            "placement.sun",
+            "aspect.sun.saturn.sextile",
+            "aspect.sun.uranus.square",
+            "aspect.sun.neptune.square",
+            "placement.moon",
+            "angle.midheaven"
+          ],
+          "themeRefs": []
+        },
+        "sections": [
+          {
+            "kind": "mind_and_expression",
+            "text": "Sözcükleri yalnızca bilgi aktarmak için kullanmıyorsun; söylenmeyeni, ses tonundaki değişimi ve bir cümlenin ardındaki niyeti de topluyorsun. Zihnin düz bir çizgide ilerlemekten çok geri dönerek, çağrışımlar kurarak ve parçaları içeride bir süre bekleterek çalışıyor. Bu, duyguyu incitmeden anlatmana ve karmaşık konuların özüne yaklaşmana yardım eder. Fakat başkasının hisleriyle kendi yorumun birbirine karıştığında netlik gecikebilir. Para, mahremiyet, paylaşım ya da kayıp gibi kolay konuşulmayan alanlarda yüzeysel cevap seni tatmin etmez; dürüst ama yumuşak bir dil ararsın.",
+            "factRefs": [
+              "placement.mercury",
+              "placement.venus",
+              "aspect.mercury.venus.conjunction",
+              "aspect.mercury.pluto.trine",
+              "aspect.venus.pluto.trine"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "relationships_and_values",
+            "text": "Yakın ilişkide hem bağ kurmak hem de iki ayrı insan olarak kalmak istiyorsun. Duygusal yakınlık senin için ciddi bir seçimdir; belirsiz roller veya tutulmayan sözler zamanla seni soğutur. Karşındaki kişinin kendi aklı, hayatı ve ilkeleri olması çekicidir, fakat mesafeyi olgunluk diye sunması yetmez. Sen somut ilgi ve devamlılık ararken ilişki tarafında daha ölçülü, hatta kontrollü bir tavırla karşılaşma eğilimi var. Bu karşıtlıkta kolayca yük üstlenmezsin; bağın adil biçimde taşınıp taşınmadığını sessizce tartarsın. Bir kez söz verdiğinde ise hafife alınmayacak kadar dayanıklısın.",
+            "factRefs": [
+              "placement.saturn",
+              "aspect.moon.saturn.square",
+              "aspect.saturn.pluto.square"
+            ],
+            "themeRefs": []
+          },
+          {
+            "kind": "drive_and_growth",
+            "text": "Harekete geçişin doğrudan bir saldırıdan çok ortamı okuyup doğru akışı bulmaya dayanıyor. Büyük bir fayda yaratma isteğiyle ayrıntıları kusursuzlaştırma çaban karşı karşıya geldiğinde enerjin iki yana çekilir: bazen gereğinden fazlasını üstlenir, bazen de nereden başlayacağını uzun süre tartarsın. Maddi kaynaklarda ve kişisel becerilerde büyüme, küçük iyileştirmeleri ciddiye aldığında gelir; abartılı bir hamleden çok düzenli emek sana uyar. Gündelik işlerde ise hem sistemi kurmak hem onu yenilemek istersin. Katı düzen yorucu gelir, tamamen biçimsiz çalışma da dikkatini dağıtır; işe yarayan yöntemi gerektiğinde değiştirebilmek üretkenliğini besler.",
+            "factRefs": [
+              "placement.mars",
+              "placement.jupiter",
+              "aspect.mars.jupiter.opposition",
+              "placement.uranus",
+              "placement.neptune",
+              "aspect.uranus.neptune.conjunction",
+              "aspect.uranus.pluto.sextile",
+              "aspect.neptune.pluto.sextile"
+            ],
+            "themeRefs": []
+          }
+        ],
+        "reflectionPrompt": "Bir bağda ya da kararda, sağlamlık arayışın ile kendi yolunu açma isteğin aynı anda konuştuğunda hangisinin sesini önce duyuyorsun?",
+        "closingMessage": "Sende yumuşaklık ile kararlılık birbirini zayıflatmıyor; doğru yerde buluştuklarında sözün de emeğin de ağırlık kazanıyor. Sana iyi gelen şey, hissini küçültmeden ona somut bir biçim vermek."
+      }
+    }
+  ]
+}

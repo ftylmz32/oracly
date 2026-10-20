@@ -835,7 +835,7 @@
   {
     "id": "astrology.Ayşe",
     "operation": "astrology_daily",
-    "operationId": "astro.20261020.897171dd313a2148",
+    "operationId": "astro.20261020.563f61acb4ec595e",
     "payload": {
       "mode": "sky_daily_v1",
       "contractVersion": 1,
@@ -974,9 +974,7 @@
             "span": "hours"
           }
         ],
-        "themes": [
-          "İlişki"
-        ],
+        "themes": [],
         "addressName": "Ayşe"
       }
     }

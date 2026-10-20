@@ -68,6 +68,7 @@ class AstrologyPersonalReadingService {
           {...cached, 'contractVersion': kAstrologyDailyResultVersion},
           depth: request.depth,
           addressName: request.addressName,
+          hasThemes: labels.isNotEmpty,
         ));
       } catch (_) {
         // A stored text that no longer passes is rewritten below.
@@ -87,6 +88,7 @@ class AstrologyPersonalReadingService {
         value,
         depth: request.depth,
         addressName: request.addressName,
+        hasThemes: labels.isNotEmpty,
       );
       // Never file one account's reading under another.
       if ((_ownerId()?.trim() ?? '') != owner) return null;
