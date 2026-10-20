@@ -101,6 +101,8 @@ describe('Phase 6E.5 writing-quality prompt contract', () => {
     expect(r).toMatch(/semantic authority/i);
     expect(r).toMatch(/Rewrite idiomatically/i);
     expect(r).toMatch(/TR: natural contemporary Turkish/i);
+    expect(r).toMatch(/address the reader only as sen/i);
+    expect(r).toMatch(/never mix sen with siz/i);
     expect(r).toMatch(/RU: idiomatic contemporary Russian/i);
     expect(r).toMatch(/указывает на/);
     expect(r).toMatch(/EN: avoid stock AI\/Tarot filler/i);
