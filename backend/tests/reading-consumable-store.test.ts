@@ -34,6 +34,9 @@ describe('consumable store decisions without a live store', () => {
       if (text.includes('pending-token')) return jsonResponse(200, { purchaseState: 2 });
       if (text.includes('canceled-token')) return jsonResponse(200, { purchaseState: 1, orderId: 'GPA.1' });
       if (text.includes('other-product')) return jsonResponse(200, { purchaseState: 0, orderId: 'GPA.2', productId: 'other' });
+      if (text.includes('license-token')) {
+        return jsonResponse(200, { purchaseState: 0, orderId: 'GPA.10', consumptionState: 0, purchaseType: 0 });
+      }
       return jsonResponse(200, { purchaseState: 0, orderId: 'GPA.9', consumptionState: 0 });
     }) as typeof fetch;
     const pending = await readPlayConsumable({
@@ -55,7 +58,12 @@ describe('consumable store decisions without a live store', () => {
     expect(pending).toMatchObject({ ok: false, reason: 'pending' });
     expect(canceled).toMatchObject({ ok: false, reason: 'canceled' });
     expect(mismatch).toMatchObject({ ok: false, reason: 'product_mismatch' });
-    expect(bought).toMatchObject({ ok: true, transactionId: 'GPA.9' });
+    expect(bought).toMatchObject({ ok: true, transactionId: 'GPA.9', licenseTest: false });
+    const license = await readPlayConsumable({
+      fetchImpl, packageName: 'app.oracly', productId: 'app.oracly.reading.palm',
+      purchaseToken: 'license-token', accessToken: 'test-token',
+    });
+    expect(license).toMatchObject({ ok: true, transactionId: 'GPA.10', licenseTest: true });
     const consumed = await consumePlayPurchase({
       fetchImpl, packageName: 'app.oracly', productId: 'app.oracly.reading.palm',
       purchaseToken: 'valid-token', accessToken: 'test-token',

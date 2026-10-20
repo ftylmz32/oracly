@@ -9,6 +9,7 @@ class ReadingCommerceView {
     this.palmPrice,
     this.packPrice,
     this.message,
+    this.billingQa = false,
   });
 
   final int coffeeCredits;
@@ -17,6 +18,7 @@ class ReadingCommerceView {
   final String? palmPrice;
   final String? packPrice;
   final String? message;
+  final bool billingQa;
 
   bool get showCoffee => coffeePrice != null;
   bool get showPalm => palmPrice != null;
@@ -39,6 +41,7 @@ class ReadingCommerceView {
     required int coffeeCredits,
     required int palmCredits,
     String? message,
+    bool billingQa = false,
   }) {
     final offered = commerceOpen && purchasable && platformAdmitted;
     String? price(String id) {
@@ -55,6 +58,7 @@ class ReadingCommerceView {
       palmPrice: price(palmId),
       packPrice: price(packId),
       message: message,
+      billingQa: billingQa,
     );
   }
 }

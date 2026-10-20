@@ -19,6 +19,7 @@ import {
   readingCommerceProposals,
   type ReadingCommerceProductId,
 } from '../reading/reading-commerce-catalog.js';
+import { billingQaRejectsPurchase, catalogPurchasable } from '../reading/reading-billing-qa.js';
 import { readingBudgetOpen, readingFulfillmentOpen } from '../reading/reading-commerce-gate.js';
 import {
   ReadingEntitlementError,
@@ -63,7 +64,11 @@ export async function registerReadingCommerceRoutes(
     }
     const nowMs = toEpochMs(clock.now());
     const budgetOpen = await readingBudgetOpen(options.store, config, nowMs);
-    const purchasable = verifier.admitted && budgetOpen;
+    const purchasable = catalogPurchasable({
+      admitted: verifier.admitted,
+      budgetOpen,
+      billingQa: config.readingBillingQa,
+    });
     if (options.lookupOperation) {
       await ledger.reconcile({
         ownerUserId: owner,
@@ -91,6 +96,7 @@ export async function registerReadingCommerceRoutes(
       androidAdmitted: verifier.androidAdmitted === true,
       iosAdmitted: verifier.iosAdmitted === true,
       fulfillmentOpen: readingFulfillmentOpen(config) && budgetOpen,
+      billingQa: config.readingBillingQa,
       proposals: readingCommerceProposals(),
       balance: await ledger.balance(owner),
     }));
@@ -122,6 +128,9 @@ export async function registerReadingCommerceRoutes(
       productId: productId as ReadingCommerceProductId,
       purchaseToken,
     });
+    if (verified.ok && billingQaRejectsPurchase(config.readingBillingQa, verified.licenseTest)) {
+      return reply.code(200).send(successEnvelope({ granted: false, reason: 'not_license_test' }));
+    }
     if (!verified.ok) {
       if (verified.reason === 'canceled' || verified.reason === 'revoked') {
         try {

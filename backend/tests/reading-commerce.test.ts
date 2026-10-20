@@ -103,6 +103,8 @@ describe('reading commerce stays dark and store-closed', () => {
     expect(loadConfig({ APP_ENV: 'production', OPENAI_API_KEY: 'sk-test' }).readingCommerceEnabled).toBe(false);
     const script = readFileSync(new URL('../scripts/deploy-cloud-run.sh', import.meta.url), 'utf8');
     expect(script.includes('ORACLY_READING_COMMERCE_ENABLED=true')).toBe(false);
+    expect(script.includes('ORACLY_READING_BILLING_QA=true')).toBe(false);
+    expect(config.readingBillingQa).toBe(false);
     expect(createClosedConsumableVerifier().admitted).toBe(false);
     expect(GEM_DAILY_REWARD).toBe(25);
   });
@@ -305,6 +307,90 @@ describe('entitled creates are immediate and old rights stay', () => {
     });
     expect(accelerated.outcome).toBe('accelerated');
     expect(await gems.balanceOf(owner)).toBe(0);
+  });
+});
+
+describe('billing-only Play QA', () => {
+  const qaEnv = {
+    OPENAI_API_KEY: '',
+    OPENAI_VISION: 'false',
+    ORACLY_READING_BILLING_QA: 'true',
+    FIRESTORE_DATABASE_ID: 'oracly-play-qa',
+    K_SERVICE: 'oracly-api-play-qa',
+  };
+  const licenseStore: ConsumableVerifier = {
+    admitted: true,
+    androidAdmitted: true,
+    async verify(request) {
+      if (request.purchaseToken.startsWith('paid-')) {
+        return { ok: true, transactionId: 'GPA.paid', licenseTest: false };
+      }
+      if (request.purchaseToken.startsWith('test-')) {
+        return { ok: true, transactionId: 'GPA.test', licenseTest: true };
+      }
+      return { ok: false, reason: 'unverified' };
+    },
+  };
+
+  it('stays off on the production service and the default database', () => {
+    expect(loadConfig({
+      APP_ENV: 'production',
+      OPENAI_API_KEY: 'sk-test',
+      ORACLY_READING_BILLING_QA: 'true',
+      FIRESTORE_DATABASE_ID: '(default)',
+      K_SERVICE: 'oracly-api',
+    }).readingBillingQa).toBe(false);
+    expect(loadConfig({
+      APP_ENV: 'production',
+      OPENAI_API_KEY: 'sk-test',
+      ORACLY_READING_BILLING_QA: 'true',
+      FIRESTORE_DATABASE_ID: 'oracly-play-qa',
+      K_SERVICE: 'oracly-api',
+    }).readingBillingQa).toBe(false);
+  });
+
+  it('opens the catalog for an authenticated caller without opening fulfillment', async () => {
+    const { app, headers, entitlements } = await harness(licenseStore, commerceConfig(qaEnv));
+    const owner = identityKeyFromSubject('user-a');
+    const catalog = await app.inject({
+      method: 'GET',
+      url: '/v1/reading-entitlements/catalog',
+      headers: headers(),
+    });
+    expect(catalog.statusCode).toBe(200);
+    expect(catalog.json().data).toMatchObject({
+      commerce: 'open',
+      purchasable: true,
+      billingQa: true,
+      fulfillmentOpen: false,
+      androidAdmitted: true,
+    });
+    const paid = await app.inject({
+      method: 'POST',
+      url: '/v1/reading-entitlements/verify',
+      headers: headers(),
+      payload: { platform: 'android', productId: 'app.oracly.reading.coffee', purchaseToken: 'paid-1' },
+    });
+    expect(paid.json().data).toMatchObject({ granted: false, reason: 'not_license_test' });
+    expect((await entitlements.balance(owner)).coffee).toBe(0);
+    const bought = await app.inject({
+      method: 'POST',
+      url: '/v1/reading-entitlements/verify',
+      headers: headers(),
+      payload: { platform: 'android', productId: 'app.oracly.reading.coffee', purchaseToken: 'test-1' },
+    });
+    expect(bought.json().data.granted).toBe(true);
+    expect(bought.json().data.balance.coffee).toBe(1);
+    const reading = await app.inject({
+      method: 'POST',
+      url: '/v1/reading-operations',
+      headers: headers(),
+      payload: { readingType: 'palm', sourceRequestId: 'qa-palm-closed' },
+    });
+    expect(reading.statusCode).toBe(503);
+    expect(reading.json().error.code).toBe('spend_guard');
+    expect((await entitlements.balance(owner)).coffee).toBe(1);
+    expect((await entitlements.balance(owner)).palm).toBe(0);
   });
 });
 

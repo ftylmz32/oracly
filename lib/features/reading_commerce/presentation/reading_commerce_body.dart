@@ -40,6 +40,16 @@ class ReadingCommerceBody extends StatelessWidget {
           textAlign: TextAlign.center,
           style: ReadingTypography.body(color: OraclyChrome.cream),
         ),
+        if (view.billingQa) ...[
+          SizedBox(height: AppSpacing.s16),
+          Text(
+            ReadingCommerceCopy.billingQaNotice,
+            textAlign: TextAlign.center,
+            style: ReadingTypography.footnote(
+              color: OraclyChrome.cream.withValues(alpha: 0.72),
+            ),
+          ),
+        ],
         if (message != null) ...[
           SizedBox(height: AppSpacing.s16),
           Text(

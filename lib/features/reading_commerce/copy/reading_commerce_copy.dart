@@ -22,6 +22,8 @@ abstract final class ReadingCommerceCopy {
   static const creditNeeded =
       'Bu fal bir hak ister.\nHakların ve mağazanın durumu bir sonraki ekranda.';
   static const openCredits = 'Fal haklarına bak';
+  static const billingQaNotice =
+      'Bu ekran yalnız QA satın alma testidir.\nGerçek fal üretilmez. Ücretli müşteri ödemesi kabul edilmez.';
 
   static String credits({required int coffee, required int palm}) =>
       'Kahve hakkı: $coffee\nEl falı hakkı: $palm';

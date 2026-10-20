@@ -53,7 +53,11 @@ export function createReadingConsumableVerifier(
             reason: decision.reason,
             transactionId: 'transactionId' in decision ? decision.transactionId : undefined,
           };
-          return { ok: true, transactionId: decision.transactionId };
+          return {
+            ok: true,
+            transactionId: decision.transactionId,
+            licenseTest: decision.licenseTest,
+          };
         } catch {
           return { ok: false, reason: 'provider_unavailable' };
         }

@@ -13,7 +13,7 @@ export type ConsumableVerifyRequest = {
 };
 
 export type ConsumableVerifyResult =
-  | { ok: true; transactionId: string; environment?: 'Production' | 'Sandbox' }
+  | { ok: true; transactionId: string; environment?: 'Production' | 'Sandbox'; licenseTest?: boolean }
   | {
       ok: false;
       reason:

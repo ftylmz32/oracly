@@ -3,8 +3,13 @@
  * purchaseState 0 is the only completed purchase. Pending and canceled grant nothing.
  */
 export type PlayConsumableDecision =
-  | { ok: true; transactionId: string; alreadyConsumed: boolean }
+  | { ok: true; transactionId: string; alreadyConsumed: boolean; licenseTest: boolean }
   | { ok: false; reason: 'pending' | 'canceled' | 'invalid' | 'product_mismatch'; transactionId?: string };
+
+/** Play sets purchaseType 0 only for a license-tester purchase. A real charge omits it. */
+export function playLicenseTest(body: Record<string, unknown>): boolean {
+  return body.purchaseType === 0;
+}
 
 export function interpretPlayConsumable(
   body: Record<string, unknown>,
@@ -22,6 +27,7 @@ export function interpretPlayConsumable(
     ok: true,
     transactionId: orderId,
     alreadyConsumed: Number(body.consumptionState) === 1,
+    licenseTest: playLicenseTest(body),
   };
 }
 

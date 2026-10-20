@@ -2,6 +2,7 @@ import {
   loadGooglePlayCredentials,
   resolveAppleRootCertificates,
 } from './billing/load-credentials.js';
+import { readingBillingQaActive } from './reading/reading-billing-qa.js';
 
 export type AppEnv = 'development' | 'staging' | 'production';
 
@@ -222,6 +223,11 @@ export type AppConfig = {
    * known here, so this does not by itself prove the account is new.
    */
   readingTrialEnabled: boolean;
+  /**
+   * Billing-only Play QA. True only when the flag, the QA database, and
+   * the QA Cloud Run service all match. Production keeps the spend gate.
+   */
+  readingBillingQa: boolean;
 };
 
 const DEFAULT_ALLOWED = ['gpt-4o', 'gpt-4o-mini'];
@@ -336,6 +342,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
           env.AI_APP_CHECK_REQUIRED ?? env.ORACLY_APP_CHECK_REQUIRED,
           false,
         );
+  const firestoreDatabaseId = nonEmpty(env.FIRESTORE_DATABASE_ID) ?? '(default)';
+  const readingBillingQa = readingBillingQaActive({
+    requested: parseBool(env.ORACLY_READING_BILLING_QA, false),
+    firestoreDatabaseId,
+    serviceName: nonEmpty(env.K_SERVICE),
+  });
 
   return {
     host: (env.HOST ?? defaultHost).trim() || defaultHost,
@@ -469,8 +481,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     // App Check's own bypass-never-honored-when-locked rule.
     entitlementDurableRequired:
       locked || parseBool(env.ORACLY_ENTITLEMENT_DURABLE, false),
-    firestoreDatabaseId:
-      nonEmpty(env.FIRESTORE_DATABASE_ID) ?? '(default)',
+    firestoreDatabaseId,
     readingStagingBucket: nonEmpty(env.READING_STAGING_BUCKET),
     readingTaskQueue: nonEmpty(env.READING_TASK_QUEUE),
     readingTaskLocation:
@@ -497,6 +508,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     palmEngine: env.ORACLY_PALM_ENGINE?.trim() === 'structured' ? 'structured' : 'direct',
     readingCommerceEnabled: parseBool(env.ORACLY_READING_COMMERCE_ENABLED, false),
     readingTrialEnabled: parseBool(env.ORACLY_READING_TRIAL_ENABLED, false),
+    readingBillingQa,
   };
 }
 

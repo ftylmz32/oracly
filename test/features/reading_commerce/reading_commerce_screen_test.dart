@@ -56,5 +56,23 @@ void main() {
     expect(find.text('₺69,99'), findsOneWidget);
     expect(find.text(ReadingCommerceCopy.buy), findsOneWidget);
     expect(find.textContaining('Kahve hakkı: 2'), findsOneWidget);
+    expect(find.textContaining('QA satın alma'), findsNothing);
+
+    await tester.pumpWidget(MaterialApp(
+      home: ReadingCommerceBody(
+        view: ReadingCommerceView.decide(
+          commerceOpen: true,
+          purchasable: true,
+          platformAdmitted: true,
+          storePrices: const {'app.oracly.reading.coffee': '₺69,99'},
+          coffeeCredits: 0,
+          palmCredits: 0,
+          billingQa: true,
+        ),
+        onBuy: (_) {},
+      ),
+    ));
+    expect(find.textContaining('QA satın alma testidir'), findsOneWidget);
+    expect(find.text(ReadingCommerceCopy.buy), findsOneWidget);
   });
 }

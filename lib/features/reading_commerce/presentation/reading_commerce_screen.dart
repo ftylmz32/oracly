@@ -82,6 +82,7 @@ class _ReadingCommerceScreenState extends ConsumerState<ReadingCommerceScreen> {
         storePrices: prices,
         coffeeCredits: coffee is int ? coffee : 0,
         palmCredits: palm is int ? palm : 0,
+        billingQa: data['billingQa'] == true,
         message: prices.isEmpty && open && data['purchasable'] == true
             ? ReadingCommerceCopy.unavailable
             : null,
@@ -103,6 +104,7 @@ class _ReadingCommerceScreenState extends ConsumerState<ReadingCommerceScreen> {
                 palmPrice: view.palmPrice,
                 packPrice: view.packPrice,
                 message: _message,
+                billingQa: view.billingQa,
               ),
               onBuy: view.showCoffee || view.showPalm || view.showPack
                   ? _buy
