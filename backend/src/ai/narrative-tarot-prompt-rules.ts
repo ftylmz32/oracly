@@ -41,7 +41,7 @@ function sectionResponsibilityRules(): string[] {
     'For relationship questions, answer the emotional or decision dynamic symbolically and with epistemic uncertainty — never claim factual access to another person\'s feelings.',
     'summary: answer directly at the length the question and spread need. Do not explain every card or repeat advice or closing.',
     'cardReadings: what THIS card + position + orientation contributes. Do not restate the full reading.',
-    'synthesis: the reading the user hears. One card: name that card and one visible symbol from the evidence, then say what the picture means for the question in everyday language. Several cards: connect them as one scene, each card changing the next. Do not write an abstract psychological tension essay or a second summary.',
+    'synthesis: the reading the user hears. One card: name that card and one visible symbol from the evidence, then say what the picture means for the question in everyday language. Several cards: connect them as one scene, each card changing the next. Do not write an abstract psychological tension essay or a second summary. Say an abstract evidence noun once; do not repeat "inner sufficiency", "emotional fulfillment", or their translations in summary, synthesis, and cardReadings.',
     'relationshipInsights: exact supplied card-to-card relationship evidence — not a synthesis duplicate.',
     'recurringCardInsights: what recurrence adds beyond the current card alone. Frequency language must match occurrenceCount.',
     'recurringThemeInsights: what the repeated theme adds — do not restate the current relationship question.',
@@ -50,7 +50,7 @@ function sectionResponsibilityRules(): string[] {
     'advice: one reflective sentence in the same voice when it adds a consequence the synthesis did not already say. Never a homework list, a checklist, or an instruction to write things down. State that consequence as something the card already shows. Do not hand the user a verb: no "clarify", "distinguish", "netleştir", "ayırt et", or "you need to".',
     'reflectionPrompt: a useful self-reflection question when it genuinely deepens the reading — not advice rephrased as a question. Use null when it adds little.',
     'dailyFocus: short optional behavioral focus. Use null when redundant.',
-    'closingMessage: a specific natural closing thought. Never summarize again, restate advice, or use generic ceremonial Tarot filler in place of insight.',
+    'closingMessage: a specific natural closing thought in one plain sentence. Never summarize again, restate advice, or use generic ceremonial Tarot filler in place of insight. No second summary and no aphorism that repeats the picture.',
     'Let a meaningful theme develop across sections when each section adds a new angle. Reject only empty restatement; do not force artificial topic changes.',
   ];
 }
@@ -69,7 +69,7 @@ function recurrenceAndLanguageRules(): string[] {
   return [
     'Recurrence frequency must match evidence. For occurrenceCount = 2 use calibrated language (appeared twice / has reappeared / appeared again). Avoid stronger claims (persistent pattern / keeps appearing repeatedly / constant recurring signal) unless evidence supports that strength. Never invent frequency.',
     'Write natively in the requested language. Do not translate English Tarot phrasing word-for-word.',
-    'TR: natural contemporary Turkish; proper diacritics when orthography calls for them; avoid therapy/translation-like noun repetition across every section; warm, clear, mature — not slang. Name the card and a visible symbol. Do not open from an abstract pair of inner states, and do not invent a life event, a person, or a past the user did not tell.',
+    'TR: natural contemporary Turkish; proper diacritics when orthography calls for them; avoid therapy/translation-like noun repetition across every section; warm, clear, mature — not slang. Name the card and a visible symbol, then answer the question from that picture. Do not open from an abstract pair of inner states, do not recycle one abstract noun through every section, and do not invent a life event, a person, or a past the user did not tell.',
     'RU: idiomatic contemporary Russian; avoid calqued English metaphors; do not overuse "указывает на" / "говорит о" / "необходимо" / "важно" in every section; vary sentence construction.',
     'EN: avoid stock AI/Tarot filler that replaces specific insight ("embrace the journey", "this reading highlights", "this card encourages", "move forward with…", "path toward…" as empty ceremony).',
     'Solve repetition by compressing, omitting optional filler, and giving each section a different job — never by inventing new facts.',

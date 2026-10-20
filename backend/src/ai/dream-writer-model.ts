@@ -17,11 +17,12 @@ export const FROZEN_DREAM_WRITER_MODEL = 'gpt-6-astra';
 export const FROZEN_DREAM_REASONING_EFFORT = 'medium';
 /**
  * Completion budget sent to Astra, including reasoning tokens.
- * 12_000 output tokens at the published $50 / 1M rate is $0.60 before input.
- * The model's published 128_000 maximum is about $6.40 of output alone, so an
- * uncapped reservation does not fit the provisional $5 UTC-day guard.
+ * Observed dream completions, reasoning included, stayed under 700 tokens.
+ * 4_000 leaves headroom and reserves $0.20 of output at the published $50 / 1M
+ * rate. The model's published 128_000 maximum is about $6.40 of output alone,
+ * so an uncapped reservation does not fit the provisional $5 UTC-day guard.
  */
-export const DREAM_OUTPUT_TOKEN_CEILING = 12_000;
+export const DREAM_OUTPUT_TOKEN_CEILING = 4_000;
 
 /** Locked envs: exact frozen writer + reasoning, or no_configuration. */
 export function assertFrozenDreamWriter(config: AppConfig): void {

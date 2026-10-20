@@ -1,4 +1,5 @@
 import { inventsCatalogueImage, touchesTold } from './dream-client-parity.js';
+import { handsInterpretationBack, isEchoInterpretation } from './dream-echo.js';
 import { lightFold } from './dream-lexical.js';
 import { contradictsEmotion, honoursStatedEmotion } from './dream-emotion-contract.js';
 import { isPlotRecap, isRichNarrative, RICH_MIN_TOUCHED, touchedClusters } from './dream-narrative-anchors.js';
@@ -29,6 +30,8 @@ export type DreamPremiumFailure =
   | 'invented_image'
   | 'ungrounded_section'
   | 'weak_interpretation'
+  | 'echo_reading'
+  | 'handed_back'
   | 'generic_reflection'
   | 'unsupported_personal_fact'
   | 'weak_conclusion';
@@ -105,6 +108,8 @@ export function evaluateDreamPremiumQuality(
   if (isRichNarrative(narrative) && touchedClusters(narrative, interpretation, language) < RICH_MIN_TOUCHED) {
     return 'weak_interpretation';
   }
+  if (isEchoInterpretation(narrative, interpretation, language)) return 'echo_reading';
+  if (handsInterpretationBack(conclusion)) return 'handed_back';
   if (dailyLifeReflection.trim() &&
       (!grounded(dailyLifeReflection, reflectionTold) || wellnessHits(dailyLifeReflection) >= 2)) {
     return 'generic_reflection';
