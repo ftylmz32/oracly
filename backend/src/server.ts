@@ -104,6 +104,7 @@ export type BuildOptions = {
   speechGrantStore?: FirestoreLike;
   /** Private speech clips. Same object store as staged readings. No public URL. */
   speechObjectStore?: ReadingStagedObjectStore;
+  spendGuard?: import('./ai/spend-guard.js').SpendGuard | null;
   readingNotificationTokens?: ReadingNotificationTokens;
   accountDeletionRepository?: AccountDeletionRepository;
   sharedWindowStore?: SharedWindowStore;
@@ -221,7 +222,7 @@ export async function buildServer(options: BuildOptions) {
       readingClock,
       config,
     );
-  const service = new AiProxyService(config, options.fetchImpl, stagedImages);
+  const service = new AiProxyService(config, options.fetchImpl, stagedImages, options.spendGuard);
   await registerAiRoutes(app, config, service, {
     appCheck,
     sharedWindowStore: options.sharedWindowStore,

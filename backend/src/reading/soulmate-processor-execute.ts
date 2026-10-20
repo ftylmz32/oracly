@@ -14,6 +14,7 @@
 import type { SoulmateIdentity } from '../ai/soulmate-prompt.js';
 import { magicMatches } from '../ai/image.js';
 import { createHash } from 'node:crypto';
+import { ErrorCode, ProxyError } from '../errors.js';
 import type { ValidatedRequest } from '../ai/validate-request.js';
 import type { ServerClock } from './clock.js';
 import { toEpochMs } from './clock.js';
@@ -286,6 +287,15 @@ export async function executeClaimedSoulmateReading(input: {
         orphanCleanupFailed: deleted.orphanCleanupFailed,
       });
       return 'owner_deleted';
+    }
+    if (error instanceof ProxyError && error.code === ErrorCode.spendGuard) {
+      log.info({ event: 'spend_guard_rejected', operationId, feature: FEATURE });
+      await input.flow.failFinal({
+        ownerUserId: operation.ownerUserId,
+        operationId,
+        failureCode: 'unavailable',
+      });
+      return 'failed';
     }
     try {
       await input.flow.releaseClaim(operation.ownerUserId, operationId);

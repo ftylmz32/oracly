@@ -1,6 +1,8 @@
 import type { AppConfig } from '../config.js';
-import { ErrorCode, ProxyError } from '../errors.js';
+import { ErrorCode, fail, ProxyError } from '../errors.js';
 import type { OpenAiFetch } from '../types.js';
+import type { SpendGuard } from './spend-guard.js';
+import { quoteSpeech } from './spend-quote.js';
 import type { ChatPersonality } from './chat-style.js';
 import { prepareSpeech } from './speech-script.js';
 import { ttsStyle } from './tts-style.js';
@@ -20,6 +22,8 @@ export async function requestOpenAiSpeech(
     voiceId?: string;
     speechSpeed?: string;
   },
+  spend: SpendGuard | null = null,
+  reservationPrefix = 'speech',
 ): Promise<{ audioBase64: string; mimeType: string }> {
   if (!config.openaiApiKey) {
     throw new ProxyError(ErrorCode.noConfiguration);
@@ -34,7 +38,7 @@ export async function requestOpenAiSpeech(
     input.voiceId,
     input.speechSpeed,
   );
-  const primary = await speechOnce(config, fetchImpl, {
+  const primary = await speechOnce(config, fetchImpl, spend, `${reservationPrefix}:primary`, {
     model: PRIMARY_MODEL,
     voice: style.voice,
     speed: style.speed,
@@ -42,7 +46,7 @@ export async function requestOpenAiSpeech(
     instructions: style.instructions,
   });
   if (primary) return primary;
-  const secondary = await speechOnce(config, fetchImpl, {
+  const secondary = await speechOnce(config, fetchImpl, spend, `${reservationPrefix}:secondary`, {
     model: SECONDARY_MODEL,
     voice: style.voice,
     speed: style.speed,
@@ -50,7 +54,7 @@ export async function requestOpenAiSpeech(
     instructions: style.instructions,
   });
   if (secondary) return secondary;
-  const fallback = await speechOnce(config, fetchImpl, {
+  const fallback = await speechOnce(config, fetchImpl, spend, `${reservationPrefix}:fallback`, {
     model: FALLBACK_MODEL,
     voice: style.hdVoice,
     speed: style.hdSpeed,
@@ -63,6 +67,8 @@ export async function requestOpenAiSpeech(
 async function speechOnce(
   config: AppConfig,
   fetchImpl: OpenAiFetch,
+  spend: SpendGuard | null,
+  reservationKey: string,
   body: {
     model: string;
     voice: string;
@@ -71,6 +77,11 @@ async function speechOnce(
     instructions?: string;
   },
 ): Promise<{ audioBase64: string; mimeType: string } | null> {
+  if (spend) {
+    const quote = quoteSpeech(body.model, body.input.length);
+    if ('unpriced' in quote) fail(ErrorCode.spendGuard, 503);
+    await spend.reserve({ key: reservationKey, ceilingMicros: quote.ceilingMicros });
+  }
   const controller = new AbortController();
   const timer = setTimeout(
     () => controller.abort(),
@@ -92,9 +103,7 @@ async function speechOnce(
           input: body.input,
           speed: body.speed,
           response_format: 'mp3',
-          ...(body.instructions
-            ? { instructions: body.instructions }
-            : {}),
+          ...(body.instructions ? { instructions: body.instructions } : {}),
         }),
       },
     );
@@ -107,17 +116,24 @@ async function speechOnce(
     if (response.status === 408) {
       throw new ProxyError(ErrorCode.timeout, 408);
     }
-    if (response.status === 400) return null;
-    if (!response.ok) return null;
+    if (response.status === 400 || !response.ok) {
+      if (spend) await spend.settle({ key: reservationKey, actualMicros: null });
+      return null;
+    }
     const buffer = Buffer.from(await response.arrayBuffer());
     if (buffer.length < 32 || buffer.length > MAX_AUDIO_BYTES) {
       throw new ProxyError(ErrorCode.invalidResponse);
     }
-    return {
-      audioBase64: buffer.toString('base64'),
-      mimeType: 'audio/mpeg',
-    };
+    const quote = quoteSpeech(body.model, body.input.length);
+    if (spend) {
+      await spend.settle({
+        key: reservationKey,
+        actualMicros: 'ceilingMicros' in quote ? quote.ceilingMicros : null,
+      });
+    }
+    return { audioBase64: buffer.toString('base64'), mimeType: 'audio/mpeg' };
   } catch (error) {
+    if (spend) await spend.settle({ key: reservationKey, actualMicros: null }).catch(() => undefined);
     if (error instanceof ProxyError) throw error;
     if (error instanceof Error && error.name === 'AbortError') {
       throw new ProxyError(ErrorCode.timeout, 408);

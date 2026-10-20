@@ -110,6 +110,7 @@ export async function registerReadingStagedImageRoutes(
             operationId: status.operationId,
             atMs: status.readyAtMs,
             trigger: 'ready',
+            route: status.workerRoute,
           });
         }
         return reply.code(200).send(

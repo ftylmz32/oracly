@@ -514,6 +514,7 @@ describe('LIS1/LIS2 V3 ownership boundaries', () => {
       'reading/operation-staged-image-service.ts',
       'reading/reading-processor-execute.ts',
       'reading/reading-processor.ts',
+      'reading/reading-worker-route.ts',
       'routes/gem-acceleration.ts',
       'routes/reading-operations.ts',
     ]);

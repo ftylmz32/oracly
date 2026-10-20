@@ -88,8 +88,14 @@ export async function registerGemAccelerationRoutes(
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
       try {
+        let workerRoute: 'legacy' | 'coffee-v3' = 'legacy';
         if (options.operationRepository && options.stagedImageRepository) {
           const operation = await options.operationRepository.getById(operationId);
+          if (operation?.ownerUserId === owner) {
+            workerRoute = operation.readingType === 'coffee' && operation.coffeeCaptureContract === 'three_view_v3'
+              ? 'coffee-v3'
+              : 'legacy';
+          }
           if (
             operation?.ownerUserId === owner &&
             (operation.readingType === 'coffee' || operation.readingType === 'palm')
@@ -126,6 +132,14 @@ export async function registerGemAccelerationRoutes(
             }
           }
         }
+        if (
+          workerRoute === 'coffee-v3' &&
+          config.appEnv !== 'development' &&
+          (!config.readingTaskPinnedTargetUrl ||
+            config.readingTaskPinnedTargetUrl === config.readingTaskTargetUrl)
+        ) {
+          return reply.code(503).send(errorEnvelope(ErrorCode.noConfiguration));
+        }
         const result = await ledger.accelerate({
           ownerUserId: owner,
           operationId,
@@ -140,6 +154,7 @@ export async function registerGemAccelerationRoutes(
             operationId,
             atMs: toEpochMs(clock.now()),
             trigger: 'accelerated',
+            route: workerRoute,
           });
         }
         logSafe(request.log, 'info', 'reading_operation_accelerated', {

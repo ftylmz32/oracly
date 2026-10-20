@@ -99,6 +99,21 @@ ENV_UPDATES+="@OPENAI_VISION=true"
 ENV_UPDATES+="@OPENAI_IMAGE_MODEL=gpt-image-2"
 ENV_UPDATES+="@OPENAI_IMAGE_SIZE=1024x1536"
 ENV_UPDATES+="@OPENAI_IMAGE_QUALITY=high"
+ENV_UPDATES+="@AI_DAILY_SPEND_CAP_USD=5"
+ENV_UPDATES+="@AI_SPEND_KILL_SWITCH=false"
+# Coffee V3 tasks must target this revision's tag URL, never the stable traffic
+# URL. Both values are known before deploy because the tag is chosen first.
+# Unset keeps the previous revision's values. A stable URL is rejected.
+if [[ -n "${READING_TASK_PINNED_TARGET_URL:-}" || -n "${READING_TASK_PINNED_AUDIENCE:-}" ]]; then
+  [[ -n "${READING_TASK_PINNED_TARGET_URL:-}" && -n "${READING_TASK_PINNED_AUDIENCE:-}" ]] \
+    || fail "READING_TASK_PINNED_TARGET_URL and READING_TASK_PINNED_AUDIENCE must be set together"
+  [[ "$READING_TASK_PINNED_TARGET_URL" == https://*---*"/internal/reading-tasks/process" ]] \
+    || fail "READING_TASK_PINNED_TARGET_URL must be a Cloud Run tag URL"
+  [[ "$READING_TASK_PINNED_AUDIENCE" == https://*---* ]] \
+    || fail "READING_TASK_PINNED_AUDIENCE must be the same tag origin"
+  ENV_UPDATES+="@READING_TASK_PINNED_TARGET_URL=${READING_TASK_PINNED_TARGET_URL}"
+  ENV_UPDATES+="@READING_TASK_PINNED_AUDIENCE=${READING_TASK_PINNED_AUDIENCE}"
+fi
 ENV_UPDATES+="@OPENAI_TIMEOUT_SECONDS=45"
 ENV_UPDATES+="@OPENAI_IMAGE_TIMEOUT_SECONDS=120"
 ENV_UPDATES+="@OPENAI_READING_VISION_MODEL=gpt-5.6-sol"

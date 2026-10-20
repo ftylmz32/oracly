@@ -2,12 +2,14 @@ import { GoogleAuth } from 'google-auth-library';
 import type { AppConfig } from '../config.js';
 
 export type ReadingTaskTrigger = 'ready' | 'accelerated' | 'retry';
+export type ReadingWorkerRoute = 'legacy' | 'coffee-v3';
 
 export interface ReadingTaskScheduler {
   schedule(input: {
     operationId: string;
     atMs: number;
     trigger: ReadingTaskTrigger;
+    route?: ReadingWorkerRoute;
   }): Promise<void>;
 }
 
@@ -40,14 +42,19 @@ export class CloudTasksReadingTaskScheduler implements ReadingTaskScheduler {
     operationId: string;
     atMs: number;
     trigger: ReadingTaskTrigger;
+    route?: ReadingWorkerRoute;
   }): Promise<void> {
     const project = this.config.firebaseProjectId;
     const queue = this.config.readingTaskQueue;
     const location = this.config.readingTaskLocation;
-    const target = this.config.readingTaskTargetUrl;
-    const audience = this.config.readingTaskAudience;
+    const pinned = input.route === 'coffee-v3';
+    const target = pinned ? this.config.readingTaskPinnedTargetUrl : this.config.readingTaskTargetUrl;
+    const audience = pinned ? this.config.readingTaskPinnedAudience : this.config.readingTaskAudience;
     const serviceAccount = this.config.readingTaskServiceAccount;
     if (!project || !queue || !target || !audience || !serviceAccount) {
+      throw new ReadingTaskUnavailable();
+    }
+    if (pinned && target === this.config.readingTaskTargetUrl) {
       throw new ReadingTaskUnavailable();
     }
     const parent = `projects/${project}/locations/${location}/queues/${queue}`;

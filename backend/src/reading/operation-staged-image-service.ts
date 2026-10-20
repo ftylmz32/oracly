@@ -47,6 +47,7 @@ export type StagedImageStatus = {
   contentType: string;
   byteSize: number;
   readyAtMs: number;
+  workerRoute: 'legacy' | 'coffee-v3';
 };
 
 export class ReadingStagedImageService {
@@ -192,6 +193,7 @@ export class ReadingStagedImageService {
       contentType,
       byteSize: bytes.length,
       readyAtMs: operation.readyAtMs,
+      workerRoute: threeView ? 'coffee-v3' : 'legacy',
     };
   }
 

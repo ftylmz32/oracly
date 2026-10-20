@@ -1,8 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import type { AppConfig } from '../config.js';
-import { ErrorCode, ProxyError } from '../errors.js';
+import { ErrorCode, fail, ProxyError } from '../errors.js';
 import type { OpenAiFetch, OpenAiMessage } from '../types.js';
 import { assertGeneratedImageBytes } from './image.js';
 import { extractMessageContent } from './extract-message-content.js';
+import { spendReservationScope } from './spend-context.js';
+import type { SpendGuard } from './spend-guard.js';
+import { quoteChat, quoteChatActual, quoteImage, quoteImageActual } from './spend-quote.js';
 
 export type OpenAiCompleteOptions = {
   messages: OpenAiMessage[];
@@ -13,6 +17,8 @@ export type OpenAiCompleteOptions = {
   temperature?: number;
   /** gpt-5.6 family — omit when unsupported by the model. */
   reasoningEffort?: 'none' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+  /** Stable per attempt. A repeat of the same key does not reserve twice. */
+  reservationKey?: string;
 };
 
 /** Pure chat-completions body builder (no network). Phase 6E.4.1. */
@@ -51,11 +57,19 @@ export class OpenAiTransport {
   constructor(
     private readonly config: AppConfig,
     private readonly fetchImpl: OpenAiFetch = fetch,
+    private readonly spend: SpendGuard | null = null,
   ) {}
 
   async complete(options: OpenAiCompleteOptions): Promise<string> {
     if (!this.config.openaiApiKey) {
       throw new ProxyError(ErrorCode.noConfiguration);
+    }
+    const scoped = spendReservationScope.getStore();
+    const reservationKey = options.reservationKey ?? (scoped ? `${scoped}:${options.model}` : `once:${randomUUID()}`);
+    if (this.spend) {
+      const quote = quoteChat(options.model, options.messages);
+      if ('unpriced' in quote) fail(ErrorCode.spendGuard, 503);
+      await this.spend.reserve({ key: reservationKey, ceilingMicros: quote.ceilingMicros });
     }
     const controller = new AbortController();
     const timer = setTimeout(
@@ -89,6 +103,7 @@ export class OpenAiTransport {
       }
       const body = (await response.json()) as {
         choices?: Array<{ message?: { content?: unknown } }>;
+        usage?: { prompt_tokens?: unknown; completion_tokens?: unknown };
       };
       const content = extractMessageContent(
         body.choices?.[0]?.message?.content,
@@ -96,8 +111,17 @@ export class OpenAiTransport {
       if (!content) {
         throw new ProxyError(ErrorCode.invalidResponse);
       }
+      if (this.spend) {
+        await this.spend.settle({
+          key: reservationKey,
+          actualMicros: actualChatMicros(options.model, body.usage),
+        });
+      }
       return content;
     } catch (error) {
+      if (this.spend) {
+        await this.spend.settle({ key: reservationKey, actualMicros: null }).catch(() => undefined);
+      }
       throw mapTransportError(error);
     } finally {
       clearTimeout(timer);
@@ -106,7 +130,7 @@ export class OpenAiTransport {
 
   async generateImage(
     prompt: string,
-    options?: { size?: string; quality?: 'low' | 'medium' | 'high' },
+    options?: { size?: string; quality?: 'low' | 'medium' | 'high'; reservationKey?: string },
   ): Promise<{ imageBase64: string; mimeType: string }> {
     if (!this.config.openaiApiKey) {
       throw new ProxyError(ErrorCode.noConfiguration);
@@ -114,6 +138,12 @@ export class OpenAiTransport {
     const model = this.config.openaiImageModel.trim();
     if (!model) {
       throw new ProxyError(ErrorCode.noConfiguration);
+    }
+    const reservationKey = options?.reservationKey ?? `image:${randomUUID()}`;
+    if (this.spend) {
+      const quote = quoteImage(model, options?.size ?? this.config.openaiImageSize, options?.quality ?? this.config.openaiImageQuality, prompt.length);
+      if ('unpriced' in quote) fail(ErrorCode.spendGuard, 503);
+      await this.spend.reserve({ key: reservationKey, ceilingMicros: quote.ceilingMicros });
     }
     const controller = new AbortController();
     const timer = setTimeout(
@@ -155,6 +185,7 @@ export class OpenAiTransport {
       }
       const body = (await response.json()) as {
         data?: Array<{ b64_json?: unknown }>;
+        usage?: { input_tokens?: unknown; output_tokens?: unknown };
       };
       const imageBase64 =
         typeof body.data?.[0]?.b64_json === 'string'
@@ -164,13 +195,34 @@ export class OpenAiTransport {
         throw new ProxyError(ErrorCode.invalidResponse);
       }
       const checked = assertGeneratedImageBytes(imageBase64, this.config);
+      if (this.spend) {
+        const input = body.usage?.input_tokens;
+        const output = body.usage?.output_tokens;
+        const actual = typeof input === 'number' && typeof output === 'number'
+          ? quoteImageActual(input, output)
+          : null;
+        await this.spend.settle({ key: reservationKey, actualMicros: actual });
+      }
       return { imageBase64, mimeType: checked.mimeType };
     } catch (error) {
+      if (this.spend) {
+        await this.spend.settle({ key: reservationKey, actualMicros: null }).catch(() => undefined);
+      }
       throw mapTransportError(error);
     } finally {
       clearTimeout(timer);
     }
   }
+}
+
+function actualChatMicros(
+  model: string,
+  usage: { prompt_tokens?: unknown; completion_tokens?: unknown } | undefined,
+): number | null {
+  const input = usage?.prompt_tokens;
+  const output = usage?.completion_tokens;
+  if (typeof input !== 'number' || typeof output !== 'number') return null;
+  return quoteChatActual(model, input, output);
 }
 
 /** SM-RL2 §1/§2 — bounded, sanitized 429 evidence captured on the

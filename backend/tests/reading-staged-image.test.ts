@@ -108,6 +108,7 @@ describe('ReadingStagedImageService.stage', () => {
       contentType: 'image/jpeg',
       byteSize: bytes.length,
       readyAtMs: op.readyAtMs,
+      workerRoute: 'legacy',
     });
   });
 

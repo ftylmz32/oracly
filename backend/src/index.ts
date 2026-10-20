@@ -3,12 +3,23 @@ import { loadEnvFile } from './load-env.js';
 import { createProductionReadingWiring } from './reading/production-wiring.js';
 import { buildServer } from './server.js';
 import { AiProxyService } from './ai/service.js';
+import { createClosedSpendGuard, FirestoreSpendGuard } from './ai/spend-guard.js';
 import { ReadingProcessor } from './reading/reading-processor.js';
 
 loadEnvFile();
 const config = loadConfig();
 const readingWiring = createProductionReadingWiring(config);
-const processorService = new AiProxyService(config, undefined, readingWiring.stagedImages);
+const spendGuard = config.aiDailySpendCapMicros
+  ? readingWiring.firestore
+    ? new FirestoreSpendGuard(
+        readingWiring.firestore,
+        config.aiDailySpendCapMicros,
+        config.aiSpendKillSwitch,
+        () => readingWiring.clock?.now() ?? new Date(),
+      )
+    : createClosedSpendGuard()
+  : null;
+const processorService = new AiProxyService(config, undefined, readingWiring.stagedImages, spendGuard);
 const readingProcessor =
   readingWiring.readingFlow && readingWiring.results
     ? new ReadingProcessor(
@@ -38,6 +49,7 @@ const readingProcessor =
 const app = await buildServer({
   config,
   logger: true,
+  spendGuard,
   readingOperationRepository: readingWiring.repository,
   readingClock: readingWiring.clock,
   readingWaitPolicy: readingWiring.policy,

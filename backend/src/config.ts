@@ -156,6 +156,16 @@ export type AppConfig = {
   readingTaskTargetUrl: string | null;
   /** Canonical Cloud Run service URL used as the Google OIDC audience. */
   readingTaskAudience: string | null;
+  /**
+   * Revision-pinned worker URL for Coffee V3. Never the stable traffic URL.
+   * Absent means a V3 task is not enqueued.
+   */
+  readingTaskPinnedTargetUrl: string | null;
+  readingTaskPinnedAudience: string | null;
+  /** Provisional UTC-day AI ceiling in micros (1e-6 USD). Null disables the guard. */
+  aiDailySpendCapMicros: number | null;
+  /** When true, every AI reservation is refused before the provider. */
+  aiSpendKillSwitch: boolean;
   readingTaskServiceAccount: string | null;
   /**
    * Candidate-only diagnostic: stop the durable worker after staged GCS
@@ -453,6 +463,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       nonEmpty(env.READING_TASK_LOCATION) ?? 'europe-west1',
     readingTaskTargetUrl: nonEmpty(env.READING_TASK_TARGET_URL),
     readingTaskAudience: nonEmpty(env.READING_TASK_AUDIENCE),
+    readingTaskPinnedTargetUrl: nonEmpty(env.READING_TASK_PINNED_TARGET_URL),
+    readingTaskPinnedAudience: nonEmpty(env.READING_TASK_PINNED_AUDIENCE),
+    aiDailySpendCapMicros:
+      parseUsdMicros(env.AI_DAILY_SPEND_CAP_USD) ?? (locked ? 5_000_000 : null),
+    aiSpendKillSwitch: parseBool(env.AI_SPEND_KILL_SWITCH, false),
     readingTaskServiceAccount:
       nonEmpty(env.READING_TASK_SERVICE_ACCOUNT),
     readingWorkerStopAfterStaged: parseBool(
@@ -496,6 +511,13 @@ function parseEnv(value: string | undefined): AppEnv {
   if (v === 'production' || v === 'prod') return 'production';
   if (v === 'staging' || v === 'stage') return 'staging';
   return 'development';
+}
+
+function parseUsdMicros(value: string | undefined): number | null {
+  if (value == null || value.trim() === '') return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 1_000_000) return null;
+  return Math.round(parsed * 1_000_000);
 }
 
 function parseBool(value: string | undefined, fallback: boolean): boolean {

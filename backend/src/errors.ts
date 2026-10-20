@@ -36,6 +36,8 @@ export const ErrorCode = {
   internalError: 'internal_error',
   /** Canonical acceleration cost exceeds authoritative balance. */
   insufficientGems: 'insufficient_gems',
+  /** Daily AI spend ceiling. The provider was not called. */
+  spendGuard: 'spend_guard',
 } as const;
 
 export type ErrorCodeName = (typeof ErrorCode)[keyof typeof ErrorCode];

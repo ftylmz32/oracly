@@ -25,6 +25,7 @@ import {
   type RitualHold,
 } from './ritual-daily-quota.js';
 import { failRitualQuota, finishRitualQuota } from './ritual-daily-quota-settle.js';
+import { spendReservationScope } from '../ai/spend-context.js';
 import { ErrorCode, ProxyError } from '../errors.js';
 
 type ClaimedOp = {
@@ -263,13 +264,15 @@ export async function executeClaimedReading(input: {
             : ritual.body) as Record<string, unknown>;
         } else if (isCoffeeV3) {
           // Internal entry only; the public AI request shape can never select V3.
-          if (!input.ai.coffeeV3) throw new Error('coffee_v3_entry_unavailable');
-          data = await input.ai.coffeeV3({
-            operationId,
-            identity: operation.ownerUserId,
-            language: operation.language,
-            intention: operation.coffeeIntention!,
-            parentKey: `reading-operation:${operationId}`,
+          data = await spendReservationScope.run(`reading-operation:${operationId}:coffee-v3`, () => {
+            if (!input.ai.coffeeV3) throw new Error('coffee_v3_entry_unavailable');
+            return input.ai.coffeeV3({
+              operationId,
+              identity: operation.ownerUserId,
+              language: operation.language,
+              intention: operation.coffeeIntention!,
+              parentKey: `reading-operation:${operationId}`,
+            });
           });
         } else {
           data = await input.ai.handle(
@@ -305,6 +308,19 @@ export async function executeClaimedReading(input: {
         // retake is a NEW operation.
         log.info({ event: 'coffee_v3_terminal_failure', operationId, feature, failureCode: error.failureCode, reason: error.reason });
         await input.flow.failFinal({ ownerUserId: operation.ownerUserId, operationId, failureCode: error.failureCode });
+        await cleanupAfterSuccess();
+        return 'failed';
+      }
+      if (error instanceof ProxyError && error.code === ErrorCode.spendGuard) {
+        if (ritualHold && input.ritualQuota?.store) {
+          await failRitualQuota(input.ritualQuota.store, operation.ownerUserId, ritualHold);
+        }
+        log.info({ event: 'spend_guard_rejected', operationId, feature });
+        await input.flow.failFinal({
+          ownerUserId: operation.ownerUserId,
+          operationId,
+          failureCode: 'unavailable',
+        });
         await cleanupAfterSuccess();
         return 'failed';
       }

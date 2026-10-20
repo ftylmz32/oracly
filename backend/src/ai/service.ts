@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { AppConfig } from '../config.js';
 import { resolveModel } from '../config.js';
 import { ErrorCode, fail } from '../errors.js';
@@ -48,6 +49,8 @@ import { yildiznameNarrativeMessages } from './narrative-yildizname-prompts.js';
 import { buildYildiznameNarrativeCompleteOptions } from './narrative-yildizname-model.js';
 import { parseYildiznameNarrativeResult } from './narrative-yildizname-result.js';
 import { requestOpenAiSpeech } from './openai-speech.js';
+import type { SpendGuard } from './spend-guard.js';
+import { spendReservationScope } from './spend-context.js';
 import type { ValidatedRequest } from './validate-request.js';
 import { ReadingPipeline } from './reading/pipeline.js';
 import { runCoffeeV3NarrativeReading } from './reading/coffee-v3n-narrative-pipeline.js';
@@ -70,9 +73,10 @@ export class AiProxyService {
     private readonly config: AppConfig,
     fetchImpl?: OpenAiFetch,
     stagedImages?: ReadingStagedImageService | null,
+    private readonly spend: SpendGuard | null = null,
   ) {
     this.fetchImpl = fetchImpl ?? fetch;
-    this.transport = new OpenAiTransport(config, this.fetchImpl);
+    this.transport = new OpenAiTransport(config, this.fetchImpl, spend);
     this.reading = new ReadingPipeline(config, this.transport);
     this.stagedImages = stagedImages ?? null;
   }
@@ -121,11 +125,20 @@ export class AiProxyService {
   ): Promise<Record<string, unknown>> {
     if (!this.config.openaiApiKey) fail(ErrorCode.noConfiguration);
     const model = resolveModel(this.config, modelHint);
+    const reserveKey = ctx?.parentKey ?? `${request.operation}:${randomUUID()}`;
+    return spendReservationScope.run(reserveKey, () => this.dispatch(request, model, ctx));
+  }
+
+  private dispatch(
+    request: ValidatedRequest,
+    model: string,
+    ctx?: AiHandleContext,
+  ): Promise<Record<string, unknown>> {
     switch (request.operation) {
       case 'chat':
-        return this.chat(request, model);
+        return this.chat(request, model, ctx?.parentKey);
       case 'oracle':
-        return this.oracle(request, model);
+        return this.oracle(request, model, ctx?.parentKey);
       case 'dream_analysis':
         return this.dream(request);
       case 'coffee_analysis':
@@ -137,23 +150,25 @@ export class AiProxyService {
       case 'soulmate_interpretation':
         return this.soulmateInterpretation(request, model);
       case 'tarot_reading':
-        return this.tarotReading(request, model);
+        return this.tarotReading(request, model, ctx?.parentKey);
       case 'yildizname_reading':
-        return this.yildiznameReading(request, model);
+        return this.yildiznameReading(request, model, ctx?.parentKey);
       case 'tts':
-        return this.tts(request);
+        return this.tts(request, ctx?.parentKey);
     }
   }
 
   private async chat(
     request: Extract<ValidatedRequest, { operation: 'chat' }>,
     model: string,
+    reserveKey?: string,
   ) {
     const chatModel = this.config.openaiOrModel ?? model;
     const isSol = chatModel === 'gpt-5.6-sol';
     const text = extractChatText(
       await this.transport.complete({
         model: chatModel,
+        reservationKey: reserveKey ? `${reserveKey}:chat` : undefined,
         messages: chatMessages(
           request.userMessage,
           request.priorUser,
@@ -176,10 +191,12 @@ export class AiProxyService {
   private async oracle(
     request: Extract<ValidatedRequest, { operation: 'oracle' }>,
     model: string,
+    reserveKey?: string,
   ) {
     const text = extractChatText(
       await this.transport.complete({
         model,
+        reservationKey: reserveKey ? `${reserveKey}:oracle` : undefined,
         messages: oracleMessages(
           request.kind,
           request.context,
@@ -404,6 +421,7 @@ export class AiProxyService {
       const image = await this.transport.generateImage(built.prompt, {
         size: this.config.openaiImageSize,
         quality: this.config.openaiImageQuality,
+        reservationKey: `${accountKey}:soulmate-image:${calls}`,
       });
       const hash = contentHashOf(Buffer.from(image.imageBase64, 'base64'));
       const decision = index.decide(owner, hash);
@@ -440,6 +458,7 @@ export class AiProxyService {
       await this.transport.complete({
         model,
         jsonMode: true,
+        reservationKey: `soulmate-text:${request.name}:${request.birthDate}:1`,
         messages: soulmateInterpretationMessages(input),
       }),
     );
@@ -450,6 +469,7 @@ export class AiProxyService {
         await this.transport.complete({
           model,
           jsonMode: true,
+          reservationKey: `soulmate-text:${request.name}:${request.birthDate}:2`,
           messages: soulmateInterpretationMessages(input, reason),
         }),
       );
@@ -471,22 +491,25 @@ export class AiProxyService {
   private async tarotReading(
     request: Extract<ValidatedRequest, { operation: 'tarot_reading' }>,
     model: string,
+    reserveKey?: string,
   ) {
     if (request.mode === 'narrative_v2') {
       const raw = extractChatText(
-        await this.transport.complete(
-          buildNarrativeTarotCompleteOptions(
+        await this.transport.complete({
+          ...buildNarrativeTarotCompleteOptions(
             this.config,
             model,
             narrativeTarotMessages(request.narrative, request.language),
           ),
-        ),
+          reservationKey: reserveKey ? `${reserveKey}:tarot` : undefined,
+        }),
       );
       return parseNarrativeTarotResult(raw, request.narrative);
     }
     const text = extractChatText(
       await this.transport.complete({
         model,
+        reservationKey: reserveKey ? `${reserveKey}:tarot` : undefined,
         messages: tarotMessages(
           {
             cards: request.cards,
@@ -506,21 +529,24 @@ export class AiProxyService {
   private async yildiznameReading(
     request: Extract<ValidatedRequest, { operation: 'yildizname_reading' }>,
     model: string,
+    reserveKey?: string,
   ) {
     const raw = extractChatText(
-      await this.transport.complete(
-        buildYildiznameNarrativeCompleteOptions(
+      await this.transport.complete({
+        ...buildYildiznameNarrativeCompleteOptions(
           this.config,
           model,
           yildiznameNarrativeMessages(request.narrative, request.language),
         ),
-      ),
+        reservationKey: reserveKey ? `${reserveKey}:yildizname` : undefined,
+      }),
     );
     return parseYildiznameNarrativeResult(raw, request.narrative);
   }
 
   private async tts(
     request: Extract<ValidatedRequest, { operation: 'tts' }>,
+    reserveKey?: string,
   ) {
     const spoken = await requestOpenAiSpeech(this.config, this.fetchImpl, {
       text: request.text,
@@ -528,7 +554,7 @@ export class AiProxyService {
       language: request.language,
       voiceId: request.voiceId,
       speechSpeed: request.speechSpeed,
-    });
+    }, this.spend, reserveKey ?? 'tts');
     return {
       audioBase64: spoken.audioBase64,
       mimeType: spoken.mimeType,

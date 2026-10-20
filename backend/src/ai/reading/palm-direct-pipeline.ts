@@ -192,7 +192,10 @@ export async function runPalmDirectReading(input: {
   const rejections: PalmDirectRejection[] = [];
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
     // Byte-identical request on the re-sample: no feedback, no prior output.
-    const raw = await input.transport.complete(options);
+    const raw = await input.transport.complete({
+      ...options,
+      reservationKey: `${input.parentKey}:palm`,
+    });
     const delivery = checkPalmDirectDelivery(raw, input.trustedHandSide);
     if (delivery.ok) {
       input.stageStore.set(input.identity, input.parentKey, PALM_DIRECT_READING_STAGE, delivery.sections);

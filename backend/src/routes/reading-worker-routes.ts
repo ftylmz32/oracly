@@ -132,16 +132,24 @@ export function verifyCloudTask(
     const signaturePresent = jwtParts.length === 3 && jwtParts[2]!.length > 0;
     if (!signaturePresent) return false;
     try {
-      const ticket = await oauth.verifyIdToken({
+      const audiences = [config.readingTaskAudience, config.readingTaskPinnedAudience].filter(
+        (value): value is string => Boolean(value),
+      );
+      let ticket = await oauth.verifyIdToken({
         idToken: token,
         audience: config.readingTaskAudience,
+      }).catch(async (error: unknown) => {
+        const pinned = config.readingTaskPinnedAudience;
+        if (!pinned || pinned === config.readingTaskAudience) throw error;
+        return oauth.verifyIdToken({ idToken: token, audience: pinned });
       });
       const payload = ticket.getPayload();
       const accepted = Boolean(
         payload &&
           (payload.iss === 'https://accounts.google.com' ||
             payload.iss === 'accounts.google.com') &&
-          payload.aud === config.readingTaskAudience &&
+          typeof payload.aud === 'string' &&
+          audiences.includes(payload.aud) &&
           payload.email_verified === true &&
           payload.email === config.readingTaskServiceAccount,
       );
