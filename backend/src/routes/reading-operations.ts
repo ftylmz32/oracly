@@ -37,6 +37,8 @@ import {
 import { provisionalWaitPolicy, type WaitPolicy } from '../reading/wait-policy.js';
 import type { ReadingFlow } from '../reading/reading-flow.js';
 import { sanitizeCoffeeIntention } from '../reading/coffee-intention.js';
+import type { FirestoreLike } from '../billing/entitlement-repository.js';
+import { openCommerceCreate } from '../reading/reading-commerce-gate.js';
 
 const FORBIDDEN_BODY_KEYS = [
   'readyAt',
@@ -54,6 +56,12 @@ const FORBIDDEN_BODY_KEYS = [
   'remainingMs',
   'clientNow',
   'elapsedMs',
+  'price',
+  'priceMinor',
+  'amount',
+  'currency',
+  'grants',
+  'cost',
 ] as const;
 
 export type ReadingOperationRouteOptions = {
@@ -62,6 +70,7 @@ export type ReadingOperationRouteOptions = {
   clock?: ServerClock;
   policy?: WaitPolicy;
   flow?: ReadingFlow;
+  commerceStore?: FirestoreLike | null;
 };
 
 export async function registerReadingOperationRoutes(
@@ -92,16 +101,29 @@ export async function registerReadingOperationRoutes(
         return reply.code(400).send(errorEnvelope(ErrorCode.invalidRequest));
       }
       try {
-        const record = await service.create({
+        const commerce = await openCommerceCreate({
+          config,
+          store: options.commerceStore ?? null,
+          service,
           ownerUserId: owner,
-          readingType: parsed.readingType,
-          sourceRequestId: parsed.sourceRequestId,
-          language: parsed.language,
-          executionMode: parsed.executionMode,
-          coffeeIntention: parsed.coffeeIntention,
-          coffeeInputContract: parsed.coffeeInputContract,
-          coffeeCaptureContract: parsed.coffeeCaptureContract,
+          nowMs: toEpochMs(serviceClock(options)),
+          body: parsed,
         });
+        if (commerce.kind === 'error') {
+          return reply.code(commerce.httpStatus).send(errorEnvelope(commerce.code));
+        }
+        const record = commerce.kind === 'record'
+          ? commerce.record
+          : await service.create({
+            ownerUserId: owner,
+            readingType: parsed.readingType,
+            sourceRequestId: parsed.sourceRequestId,
+            language: parsed.language,
+            executionMode: parsed.executionMode,
+            coffeeIntention: parsed.coffeeIntention,
+            coffeeInputContract: parsed.coffeeInputContract,
+            coffeeCaptureContract: parsed.coffeeCaptureContract,
+          });
         await options.flow?.remember(record);
         logSafe(request.log, 'info', 'reading_operation_created', {
           requestId: request.requestId,

@@ -1,0 +1,122 @@
+/**
+ * New Coffee V3 and Palm operations spend one server credit and skip the
+ * artificial wait. Legacy coffee, soulmate, and every create while commerce
+ * is off stay on the existing wait policy. A client price cannot open this.
+ */
+import { randomBytes } from 'node:crypto';
+import type { FirestoreLike } from '../billing/entitlement-repository.js';
+import type { AppConfig } from '../config.js';
+import { ErrorCode, type ErrorCodeName } from '../errors.js';
+import type { ReadingCommerceFeature } from './reading-commerce-catalog.js';
+import { ReadingEntitlementLedger } from './reading-entitlement-ledger.js';
+import type {
+  CoffeeCaptureContract,
+  CoffeeInputContract,
+  ExecutionMode,
+  ReadingLanguage,
+  ReadingOperationRecord,
+  ReadingType,
+} from './operation-model.js';
+import { ReadingOperationError, type ReadingOperationService } from './operation-service.js';
+
+const SPEND_DAYS = 'aiSpendDays';
+
+export type CommerceCreateInput = {
+  readingType: ReadingType;
+  sourceRequestId: string;
+  language: ReadingLanguage;
+  executionMode?: ExecutionMode;
+  coffeeIntention?: string;
+  coffeeInputContract?: CoffeeInputContract;
+  coffeeCaptureContract?: CoffeeCaptureContract;
+};
+
+export function commerceApplies(enabled: boolean, input: CommerceCreateInput): boolean {
+  if (!enabled) return false;
+  if (input.readingType === 'palm') return true;
+  return input.readingType === 'coffee' && input.coffeeCaptureContract === 'three_view_v3';
+}
+
+export function readingFulfillmentOpen(config: AppConfig): boolean {
+  return config.aiSpendKillSwitch !== true
+    && config.aiDailySpendCapMicros != null
+    && config.aiDailySpendCapMicros > 0
+    && config.openaiApiKey != null
+    && config.openaiVision === true;
+}
+
+export async function readingBudgetOpen(
+  store: FirestoreLike,
+  config: AppConfig,
+  nowMs: number,
+): Promise<boolean> {
+  if (!readingFulfillmentOpen(config)) return false;
+  const day = new Date(nowMs).toISOString().slice(0, 10);
+  const snap = await store.collection(SPEND_DAYS).doc(day).get();
+  const total = snap.data()?.totalMicros;
+  const spent = typeof total === 'number' && total > 0 ? total : 0;
+  return spent < (config.aiDailySpendCapMicros ?? 0);
+}
+
+export async function openCommerceCreate(input: {
+  config: AppConfig;
+  store: FirestoreLike | null;
+  service: ReadingOperationService;
+  ownerUserId: string;
+  nowMs: number;
+  body: CommerceCreateInput;
+}): Promise<
+  | { kind: 'skip' }
+  | { kind: 'record'; record: ReadingOperationRecord }
+  | { kind: 'error'; httpStatus: number; code: ErrorCodeName }
+> {
+  if (!commerceApplies(input.config.readingCommerceEnabled, input.body)) return { kind: 'skip' };
+  if (!input.store) return { kind: 'error', httpStatus: 503, code: ErrorCode.noConfiguration };
+  if (!(await readingBudgetOpen(input.store, input.config, input.nowMs))) {
+    return { kind: 'error', httpStatus: 503, code: ErrorCode.spendGuard };
+  }
+  const feature: ReadingCommerceFeature = input.body.readingType === 'palm' ? 'palm' : 'coffee';
+  const ledger = new ReadingEntitlementLedger(input.store);
+  const operationId = randomBytes(16).toString('hex');
+  const consumed = await ledger.consume({
+    ownerUserId: input.ownerUserId,
+    feature,
+    sourceRequestId: input.body.sourceRequestId,
+  });
+  if (!consumed.ok) {
+    const closed = consumed.reason === 'closed';
+    return {
+      kind: 'error',
+      httpStatus: closed ? 409 : 403,
+      code: closed ? ErrorCode.invalidRequest : ErrorCode.readingEntitlementRequired,
+    };
+  }
+  try {
+    const record = await input.service.create({
+      ownerUserId: input.ownerUserId,
+      readingType: input.body.readingType,
+      sourceRequestId: input.body.sourceRequestId,
+      language: input.body.language,
+      executionMode: input.body.executionMode,
+      coffeeIntention: input.body.coffeeIntention,
+      coffeeInputContract: input.body.coffeeInputContract,
+      coffeeCaptureContract: input.body.coffeeCaptureContract,
+      instant: true,
+      operationId,
+    });
+    if (record.operationId !== operationId) {
+      if (record.readyAtMs === record.createdAtMs) {
+        await ledger.bind(consumed.holdId, record.operationId);
+        return { kind: 'record', record };
+      }
+      await ledger.restoreBySource(input.ownerUserId, input.body.sourceRequestId);
+      return { kind: 'record', record };
+    }
+    await ledger.bind(consumed.holdId, record.operationId);
+    return { kind: 'record', record };
+  } catch (error) {
+    await ledger.restoreBySource(input.ownerUserId, input.body.sourceRequestId);
+    if (error instanceof ReadingOperationError) throw error;
+    return { kind: 'error', httpStatus: 503, code: ErrorCode.noConfiguration };
+  }
+}

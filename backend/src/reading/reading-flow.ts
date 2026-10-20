@@ -7,6 +7,7 @@ import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import type { ServerClock } from './clock.js';
 import { toEpochMs } from './clock.js';
 import { GemLedger, GemLedgerError } from './gem-ledger.js';
+import type { ReadingEntitlementLedger } from './reading-entitlement-ledger.js';
 import {
   isFailureCode,
   isOperationId,
@@ -37,6 +38,7 @@ export class ReadingFlow {
     private readonly clock: ServerClock,
     private readonly operations: ReadingOperationService,
     private readonly ledger: GemLedger | null,
+    private readonly entitlements: ReadingEntitlementLedger | null = null,
   ) {}
 
   async remember(record: ReadingOperationRecord): Promise<void> {
@@ -135,11 +137,19 @@ export class ReadingFlow {
     if (!resultId) throw new ReadingOperationError('invalid');
     const current = await this.operations.get(input.ownerUserId, input.operationId);
     if (current.status === 'waiting') throw new ReadingOperationError('conflict');
-    return this.operations.attachResult({
+    const attached = await this.operations.attachResult({
       ownerUserId: input.ownerUserId,
       operationId: input.operationId,
       resultId,
     });
+    if (this.entitlements) {
+      await this.entitlements.noteCompleted(
+        input.ownerUserId,
+        input.operationId,
+        toEpochMs(this.clock.now()),
+      );
+    }
+    return attached;
   }
 
   async failFinal(input: {
@@ -166,11 +176,15 @@ export class ReadingFlow {
         throw new ReadingOperationError('unavailable');
       }
     }
-    return this.operations.fail({
+    const failed = await this.operations.fail({
       ownerUserId: input.ownerUserId,
       operationId: input.operationId,
       failureCode,
     });
+    if (this.entitlements) {
+      await this.entitlements.restoreByOperation(input.ownerUserId, input.operationId);
+    }
+    return failed;
   }
 
   private async mutate(

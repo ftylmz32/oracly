@@ -208,6 +208,20 @@ export type AppConfig = {
    * kept intact). Only ORACLY_PALM_ENGINE=structured selects the latter.
    */
   palmEngine: 'direct' | 'structured';
+  /**
+   * Dark. New Coffee V3 and Palm creates spend a server-owned reading
+   * credit and become eligible immediately. Off unless
+   * ORACLY_READING_COMMERCE_ENABLED is exactly true. Store purchase
+   * admission is a separate, still-closed gate.
+   */
+  readingCommerceEnabled: boolean;
+  /**
+   * Dark, and also requires reading commerce. One coffee credit per
+   * identity, under a daily abuse cap. Off unless
+   * ORACLY_READING_TRIAL_ENABLED is exactly true. Account age is not
+   * known here, so this does not by itself prove the account is new.
+   */
+  readingTrialEnabled: boolean;
 };
 
 const DEFAULT_ALLOWED = ['gpt-4o', 'gpt-4o-mini'];
@@ -481,6 +495,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     coffeeV3CreationEnabled: parseBool(env.ORACLY_COFFEE_V3_ENABLED, false),
     coffeeV3Engine: env.ORACLY_COFFEE_V3_ENGINE?.trim() === 'narrative' ? 'narrative' : 'direct',
     palmEngine: env.ORACLY_PALM_ENGINE?.trim() === 'structured' ? 'structured' : 'direct',
+    readingCommerceEnabled: parseBool(env.ORACLY_READING_COMMERCE_ENABLED, false),
+    readingTrialEnabled: parseBool(env.ORACLY_READING_TRIAL_ENABLED, false),
   };
 }
 

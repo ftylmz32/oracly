@@ -18,6 +18,7 @@ import type { FirestoreLike } from '../billing/entitlement-repository.js';
 import { systemClock, type ServerClock } from './clock.js';
 import { provisionalGemCostPolicy } from './gem-cost-policy.js';
 import { GemLedger } from './gem-ledger.js';
+import { ReadingEntitlementLedger } from './reading-entitlement-ledger.js';
 import {
   createReadingOperationInputRepository,
   type ReadingOperationInputRepository,
@@ -146,8 +147,9 @@ export function createProductionReadingWiring(
   const gemLedger = firestore
     ? new GemLedger(firestore, clock, provisionalGemCostPolicy())
     : null;
+  const readingEntitlements = firestore ? new ReadingEntitlementLedger(firestore) : null;
   const readingFlow = firestore
-    ? new ReadingFlow(firestore, clock, operations, gemLedger)
+    ? new ReadingFlow(firestore, clock, operations, gemLedger, readingEntitlements)
     : null;
   const results = firestore ? new ReadingResultRepository(firestore) : null;
   const providerStages = firestore ? new FirestoreProviderStageRepository(firestore) : null;

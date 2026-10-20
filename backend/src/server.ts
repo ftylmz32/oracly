@@ -16,6 +16,8 @@ import { registerReadingOperationInputRoutes } from './routes/reading-operation-
 import { registerReadingStagedImageRoutes } from './routes/reading-staged-image-routes.js';
 import { registerHealth } from './routes/health.js';
 import { registerBillingRoutes } from './routes/billing.js';
+import { registerReadingCommerceRoutes } from './routes/reading-commerce.js';
+import type { ConsumableVerifier } from './reading/reading-commerce-verify.js';
 import { registerReviewAccessRoutes } from './routes/review-access.js';
 import type { BillingProviders } from './billing/types.js';
 import type { EntitlementBindingRepository } from './billing/entitlement-repository.js';
@@ -75,6 +77,8 @@ export type BuildOptions = {
   gemLedger?: GemLedger;
   /** Same store the gem ledger uses. Deep tarot holds live here. */
   gemStore?: FirestoreLike;
+  /** Test seam. Production uses the closed consumable verifier. */
+  readingCommerceVerifier?: ConsumableVerifier;
   rewardedAds?: Omit<RewardedAdRouteOptions, 'ledger' | 'appCheck' | 'clock'>;
   readingFlow?: ReadingFlow;
   /** Durable Coffee/Palm staged-image metadata store (BATCH 5I). */
@@ -252,6 +256,13 @@ export async function buildServer(options: BuildOptions) {
     // just-staged operation because of this, in every environment,
     // regardless of the client-side resume fix.
     flow: options.readingFlow,
+    commerceStore: options.gemStore ?? null,
+  });
+  await registerReadingCommerceRoutes(app, config, {
+    appCheck,
+    store: options.gemStore,
+    clock: readingClock,
+    verifier: options.readingCommerceVerifier,
   });
   await registerGemAccelerationRoutes(app, config, {
     appCheck,

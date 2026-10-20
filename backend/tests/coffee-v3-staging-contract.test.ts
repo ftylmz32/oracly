@@ -512,6 +512,7 @@ describe('LIS1/LIS2 V3 ownership boundaries', () => {
       'reading/operation-service.ts',
       'reading/operation-staged-image-model.ts',
       'reading/operation-staged-image-service.ts',
+      'reading/reading-commerce-gate.ts',
       'reading/reading-processor-execute.ts',
       'reading/reading-processor.ts',
       'reading/reading-worker-route.ts',

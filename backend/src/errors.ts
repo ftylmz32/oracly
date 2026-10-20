@@ -40,6 +40,8 @@ export const ErrorCode = {
   insufficientGems: 'insufficient_gems',
   /** Daily AI spend ceiling. The provider was not called. */
   spendGuard: 'spend_guard',
+  /** New Coffee V3 / Palm create has no server-owned reading credit. */
+  readingEntitlementRequired: 'reading_entitlement_required',
 } as const;
 
 export type ErrorCodeName = (typeof ErrorCode)[keyof typeof ErrorCode];

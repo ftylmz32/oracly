@@ -64,6 +64,10 @@ export class ReadingOperationService {
     coffeeInputContract?: CoffeeInputContract;
     /** LIS1 — dark: not accepted by the public create route yet. */
     coffeeCaptureContract?: CoffeeCaptureContract;
+    /** Commerce creates are eligible at once. Absent keeps the wait policy. */
+    instant?: boolean;
+    /** When set, a different returned id means an older operation won idempotency. */
+    operationId?: string;
   }): Promise<ReadingOperationRecord> {
     const markedCoffee = input.readingType === 'coffee' && input.coffeeInputContract != null;
     const coffeeIntention = markedCoffee && input.coffeeIntention != null
@@ -82,11 +86,14 @@ export class ReadingOperationService {
           input.readingType !== 'coffee' || input.coffeeInputContract !== 'trusted_intention_v1' || !coffeeIntention)) {
       throw new ReadingOperationError('invalid');
     }
+    if (input.operationId != null && !isOperationId(input.operationId)) {
+      throw new ReadingOperationError('invalid');
+    }
     const nowMs = toEpochMs(this.clock.now());
-    const readyAtMs = nowMs + resolveWaitMs(input.readingType, this.policy);
+    const readyAtMs = nowMs + (input.instant ? 0 : resolveWaitMs(input.readingType, this.policy));
     const record: ReadingOperationRecord = {
       schemaVersion: SCHEMA_VERSION,
-      operationId: this.newOperationId(),
+      operationId: input.operationId ?? this.newOperationId(),
       ownerUserId: input.ownerUserId,
       readingType: input.readingType,
       language: input.language ?? 'tr',

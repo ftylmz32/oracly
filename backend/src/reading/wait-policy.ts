@@ -15,6 +15,11 @@
  * monetization/wait-policy pass replaces them here, once, through real
  * product decisions — not by touching callers. Batch 5C+ may also swap
  * this for server-side remote configuration.
+ *
+ * Reading commerce (dark, default off) does not read these numbers.
+ * A new Coffee V3 or Palm operation opened with a server-owned credit
+ * is created eligible immediately. Operations created while that gate
+ * is off, and every already-stored operation, keep the value below.
  */
 import type { ReadingType } from './operation-model.js';
 
